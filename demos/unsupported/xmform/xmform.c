@@ -50,6 +50,8 @@ xmform*topShadowColor:           white
 xmform*bottomShadowColor:        black
 ***-------------------------------------------------------------------*/
 
+#include <stdlib.h>   /* calloc, malloc, free */
+
 #include <Xm/Xm.h>
 #include <Xm/Form.h>
 #include <Xm/PushB.h>

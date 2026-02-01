@@ -1638,12 +1638,12 @@ QueryGeometry(widget, request, allowed)
 	    {
 	    case XmTABS_ON_TOP:
 	    case XmTABS_ON_BOTTOM:
-		_XmTabBoxStackedGeometry(XmTabStack_tab_box(tab), width,
+		_XmTabBoxStackedGeometry((XmTabBoxWidget)XmTabStack_tab_box(tab), width,
 					 &tab_rect);
 		break;
 	    case XmTABS_ON_RIGHT:
 	    case XmTABS_ON_LEFT:
-		_XmTabBoxStackedGeometry(XmTabStack_tab_box(tab), height,
+		_XmTabBoxStackedGeometry((XmTabBoxWidget)XmTabStack_tab_box(tab), height,
 					 &tab_rect);
 		break;
 	    }

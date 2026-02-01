@@ -39,6 +39,9 @@
 #include <string.h>		/* for strcpy() */
 #endif
 
+int yylex(void);
+int yyerror(const char *s);
+
 #ifndef XmConst
 #if defined(__STDC__) || !defined( NO_CONST )
 #define XmConst const
@@ -736,8 +739,7 @@ name
 /*
  * Dummmy error routine, since we output our own.
  */
-int yyerror (s)
-char *s;
+int yyerror(const char *s)
 {
 	return 0;
 }

@@ -47,6 +47,8 @@
 
 #define		YYDEBUG		1
 
+int yyerror(const char *s);
+
 /*   Declare and initialize stack entry for epsilon productions.    */
 
 YYSTYPE		gz_yynullval = {NULL,0,0,0,0};
@@ -1404,8 +1406,7 @@ units_specification
 /*    Dummy error routine for the parser.  We will output our own
       error messages.    */
 
-int yyerror (s)
-char	* s;
+int yyerror(const char *s)
 {
 	return 0;
 }
