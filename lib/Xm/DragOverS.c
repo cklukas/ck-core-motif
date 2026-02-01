@@ -135,6 +135,7 @@ static char rcsid[] = "$TOG: DragOverS.c /main/18 1999/08/11 15:53:11 mgreess $"
  ***********************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <X11/IntrinsicP.h>
 #include <X11/Shell.h>
 #include <X11/ShellP.h>
@@ -565,8 +566,34 @@ DoZapEffect(
     
   centerX = dos->core.x + dos->core.width/2;
   centerY = dos->core.y + dos->core.height/2;
-  rise = (dos->drag.initialY - centerY) / 5;
-  run = (dos->drag.initialX - centerX) / 5;
+
+  /*
+   * Snap-back should return the hotspot to the initial pointer location.
+   * Adjust the target center by the hotspot delta so we don't return the
+   * pixmap center to the click point.
+   */
+  {
+    XmDragIconObject mixedIcon = (dos->drag.rootBlend.mixedIcon ?
+                                  dos->drag.rootBlend.mixedIcon :
+                                  dos->drag.cursorBlend.mixedIcon);
+    Position targetX = dos->drag.initialX;
+    Position targetY = dos->drag.initialY;
+    if (mixedIcon) {
+      targetX += ((Position)dos->core.width/2 - (Position)mixedIcon->drag.hot_x);
+      targetY += ((Position)dos->core.height/2 - (Position)mixedIcon->drag.hot_y);
+    }
+    rise = (targetY - centerY) / 5;
+    run = (targetX - centerX) / 5;
+    if (getenv("DTFILE_DRAG_DEBUG") != NULL) {
+      fprintf(stderr,
+              "motif-dragzap: init=(%d,%d) center=(%d,%d) hot=(%d,%d) target=(%d,%d)\n",
+              (int)dos->drag.initialX, (int)dos->drag.initialY,
+              (int)centerX, (int)centerY,
+              mixedIcon ? (int)mixedIcon->drag.hot_x : -1,
+              mixedIcon ? (int)mixedIcon->drag.hot_y : -1,
+              (int)targetX, (int)targetY);
+    }
+  }
     
   /*
    *  Draw the lines and add the timeout.
@@ -1317,6 +1344,35 @@ MixIcons(
     else {
 	hotX = sourceX + sourceIcon->drag.hot_x;
 	hotY = sourceY + sourceIcon->drag.hot_y;
+    }
+
+    /*
+     * If the application supplies a drag hotspot, honor it for the blended
+     * icon. This keeps snap-back aligned with the original click point even
+     * when state icons are present.
+     */
+    {
+	XmDragContext dc = (XmDragContext) XtParent(dos);
+	Position dcHotX = -1;
+	Position dcHotY = -1;
+	XtVaGetValues((Widget)dc, XmNhotX, &dcHotX, XmNhotY, &dcHotY, NULL);
+	if (dcHotX >= 0 && dcHotY >= 0) {
+	    hotX = sourceX + dcHotX;
+	    hotY = sourceY + dcHotY;
+	}
+
+	if (getenv("DTFILE_DRAG_DEBUG") != NULL) {
+	    fprintf(stderr,
+	            "motif-dragover: srcHot=(%d,%d) stateHot=(%d,%d) dcHot=(%d,%d) "
+	            "srcPos=(%d,%d) statePos=(%d,%d) hot=(%d,%d)\n",
+	            (int)sourceIcon->drag.hot_x, (int)sourceIcon->drag.hot_y,
+	            stateIcon ? (int)stateIcon->drag.hot_x : -1,
+	            stateIcon ? (int)stateIcon->drag.hot_y : -1,
+	            (int)dcHotX, (int)dcHotY,
+	            (int)sourceX, (int)sourceY,
+	            (int)stateX, (int)stateY,
+	            (int)hotX, (int)hotY);
+	}
     }
 
     if (opIcon) {
