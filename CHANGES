@@ -113,3 +113,12 @@ Changes since commit 0f556b0873c72ba1152a12fd54c3198ee039e413
    - Why:
      - Keeps build artifacts out of version control and provides
        standard doc placeholders.
+
+5) Added INSTALL instructions
+   - Commit: dc07dab4
+   - Files:
+     - INSTALL
+   - What changed:
+     - Added the standard GNU autotools installation instructions.
+   - Why:
+     - Documents the expected configure/build workflow within the repo.
