@@ -135,7 +135,6 @@ static char rcsid[] = "$TOG: DragOverS.c /main/18 1999/08/11 15:53:11 mgreess $"
  ***********************************************************************/
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <X11/IntrinsicP.h>
 #include <X11/Shell.h>
 #include <X11/ShellP.h>
@@ -584,15 +583,6 @@ DoZapEffect(
     }
     rise = (targetY - centerY) / 5;
     run = (targetX - centerX) / 5;
-    if (getenv("DTFILE_DRAG_DEBUG") != NULL) {
-      fprintf(stderr,
-              "motif-dragzap: init=(%d,%d) center=(%d,%d) hot=(%d,%d) target=(%d,%d)\n",
-              (int)dos->drag.initialX, (int)dos->drag.initialY,
-              (int)centerX, (int)centerY,
-              mixedIcon ? (int)mixedIcon->drag.hot_x : -1,
-              mixedIcon ? (int)mixedIcon->drag.hot_y : -1,
-              (int)targetX, (int)targetY);
-    }
   }
     
   /*
@@ -1361,18 +1351,6 @@ MixIcons(
 	    hotY = sourceY + dcHotY;
 	}
 
-	if (getenv("DTFILE_DRAG_DEBUG") != NULL) {
-	    fprintf(stderr,
-	            "motif-dragover: srcHot=(%d,%d) stateHot=(%d,%d) dcHot=(%d,%d) "
-	            "srcPos=(%d,%d) statePos=(%d,%d) hot=(%d,%d)\n",
-	            (int)sourceIcon->drag.hot_x, (int)sourceIcon->drag.hot_y,
-	            stateIcon ? (int)stateIcon->drag.hot_x : -1,
-	            stateIcon ? (int)stateIcon->drag.hot_y : -1,
-	            (int)dcHotX, (int)dcHotY,
-	            (int)sourceX, (int)sourceY,
-	            (int)stateX, (int)stateY,
-	            (int)hotX, (int)hotY);
-	}
     }
 
     if (opIcon) {
