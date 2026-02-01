@@ -1,0 +1,115 @@
+Changes since commit 0f556b0873c72ba1152a12fd54c3198ee039e413
+====================================================================
+
+1) Drag-and-drop snap-back honors hotspot (Motif core)
+   - Commits: 8a13af6c, 0255c389
+   - Files:
+     - lib/Xm/DragOverS.c
+   - What changed:
+     - Snap-back animation now returns the drag hotspot to the initial
+       pointer location instead of returning the pixmap center.
+     - Blended drag icon hotspot now honors XmNhotX/Y from the drag
+       context when provided by the application.
+     - Temporary debug logging removed (commit 0255c389).
+   - Why:
+     - Fixes incorrect return animation when applications supply a
+       custom drag hotspot (e.g., clicking on the left/right of a large
+       icon label caused the pixmap center to return to the click point).
+
+2) Build/link fixes for demos and tools
+   - Commit: 4368bf7a
+   - Files:
+     - clients/mwm/Makefile.am
+     - clients/uil/Makefile.am
+     - clients/xmbind/Makefile.am
+     - demos/doc/programGuide/ch05/Scale/Makefile.am
+     - demos/doc/programGuide/ch06/combo_box/Makefile.am
+     - demos/doc/programGuide/ch06/spin_box/Makefile.am
+     - demos/doc/programGuide/ch08/Container/Makefile.am
+     - demos/doc/programGuide/ch08/Notebook/Makefile.am
+     - demos/doc/programGuide/ch16/Makefile.am
+     - demos/doc/programGuide/ch17/simple_drag/Makefile.am
+     - demos/doc/programGuide/ch17/simple_drop/Makefile.am
+     - demos/lib/Exm/wml/Makefile.am
+     - demos/lib/Xmd/Makefile.am
+     - demos/programs/ButtonBox/Makefile.am
+     - demos/programs/ColorSel/Makefile.am
+     - demos/programs/Column/Makefile.am
+     - demos/programs/Combo2/Makefile.am
+     - demos/programs/Exm/app_in_c/Makefile.am
+     - demos/programs/Exm/simple_app/Makefile.am
+     - demos/programs/Ext18List/Makefile.am
+     - demos/programs/FontSel/Makefile.am
+     - demos/programs/IconB/Makefile.am
+     - demos/programs/Outline/Makefile.am
+     - demos/programs/Paned/Makefile.am
+     - demos/programs/TabStack/Makefile.am
+     - demos/programs/Tree/Makefile.am
+     - demos/programs/airport/Makefile.am
+     - demos/programs/animate/Makefile.am
+     - demos/programs/drag_and_drop/Makefile.am
+     - demos/programs/draw/Makefile.am
+     - demos/programs/earth/Makefile.am
+     - demos/programs/filemanager/Makefile.am
+     - demos/programs/fileview/Makefile.am
+     - demos/programs/getsubres/Makefile.am
+     - demos/programs/hellomotif/Makefile.am
+     - demos/programs/hellomotifi18n/Makefile.am
+     - demos/programs/i18ninput/Makefile.am
+     - demos/programs/panner/Makefile.am
+     - demos/programs/periodic/Makefile.am
+     - demos/programs/piano/Makefile.am
+     - demos/programs/popups/Makefile.am
+     - demos/programs/sampler2_0/Makefile.am
+     - demos/programs/setdate/Makefile.am
+     - demos/programs/todo/Makefile.am
+     - demos/programs/tooltips/Makefile.am
+     - demos/programs/workspace/Makefile.am
+     - demos/unsupported/aicon/Makefile.am
+     - demos/unsupported/dainput/Makefile.am
+     - demos/unsupported/dogs/Makefile.am
+     - demos/unsupported/hellomotif/Makefile.am
+     - demos/unsupported/motifshell/Makefile.am
+     - demos/unsupported/xmapdef/Makefile.am
+     - demos/unsupported/xmfonts/Makefile.am
+     - demos/unsupported/xmforc/Makefile.am
+     - demos/unsupported/xmform/Makefile.am
+     - tools/wml/Makefile.am
+   - What changed:
+     - Explicitly link demo/tool binaries with X libraries (e.g. -lXt,
+       -lX11, and -lXext where needed) to avoid link failures when
+       dependency propagation is insufficient.
+   - Why:
+     - Ensures reliable builds across toolchains and static/shared
+       configurations.
+
+3) Prototype and include hygiene
+   - Commit: aa73cff0
+   - Files:
+     - clients/mwm/WmWinList.c
+     - lib/Xm/TabStack.c
+     - tools/wml/Uil.y
+     - tools/wml/wmlparse.y
+     - demos/unsupported/xmform/xmform.c
+   - What changed:
+     - Added missing prototypes for parser functions and corrected
+       yyerror signatures for modern compilers.
+     - Added missing stdlib includes for allocation functions.
+     - Added a cast for _XmTabBoxStackedGeometry to match expected type.
+     - Added an explicit external prototype for SetMwmClientList.
+   - Why:
+     - Reduces compiler warnings and improves compatibility with
+       modern toolchains.
+
+4) Repo hygiene (ignore/build metadata)
+   - Commit: 61093b6a
+   - Files:
+     - .gitignore
+     - AUTHORS
+     - NEWS
+   - What changed:
+     - Added a .gitignore for common autotools/build outputs.
+     - Added stub AUTHORS and NEWS files.
+   - Why:
+     - Keeps build artifacts out of version control and provides
+       standard doc placeholders.
