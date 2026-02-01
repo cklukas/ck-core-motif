@@ -7,6 +7,6 @@ EXTRA_DIST =
 bin_PROGRAMS = outline
 outline_SOURCES = outline.c
 data_DATA = $(outline_SOURCES) $(EXTRA_DIST)
-LDADD = $(TOPDIR)/lib/Xm/libXm.la
+LDADD = $(TOPDIR)/lib/Xm/libXm.la -lXt -lX11
 TOPDIR = ../../..
 INCLUDES = -I$(TOPDIR)/lib -I$(srcdir)/$(TOPDIR)/lib ${X_CFLAGS} 

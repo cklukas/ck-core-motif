@@ -8,6 +8,6 @@ bin_PROGRAMS = paned
 paned_SOURCES = creation-c.c paned.c
 data_DATA = $(EXTRA_DIST) $(paned_SOURCES)
 TOPDIR = ../../..
-LDADD = $(TOPDIR)/lib/Xm/libXm.la
+LDADD = $(TOPDIR)/lib/Xm/libXm.la -lXt -lX11
 
 INCLUDES = -I$(TOPDIR)/lib -I$(srcdir)/$(TOPDIR)/lib ${X_CFLAGS} 

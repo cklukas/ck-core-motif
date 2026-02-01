@@ -10,6 +10,6 @@ ext18list_SOURCES = util-c.c callbacks-c.c creation.c ext18list.c \
 EXTRA_DIST =
 data_DATA = $(EXTRA_DIST) $(ext18list_SOURCES)
 TOPDIR = ../../..
-LDADD = $(TOPDIR)/lib/Xm/libXm.la
+LDADD = $(TOPDIR)/lib/Xm/libXm.la -lXt -lX11
 
 INCLUDES = -I$(TOPDIR)/lib -I.. -I$(srcdir)/$(TOPDIR)/lib ${X_CFLAGS} 

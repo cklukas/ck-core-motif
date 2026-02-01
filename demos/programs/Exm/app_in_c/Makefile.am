@@ -13,5 +13,4 @@ INCLUDES = -I$(srcdir)/../../../../lib \
            -I$(srcdir)/../../../lib \
            -I$(top_builddir)/lib \
             ${X_CFLAGS} 
-LDADD = ../../../lib/Exm/libExm.a \
-	../../../../lib/Xm/libXm.la
+LDADD = ../../../lib/Exm/libExm.a ../../../../lib/Xm/libXm.la -lXt -lX11 -lXext

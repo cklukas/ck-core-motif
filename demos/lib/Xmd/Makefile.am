@@ -12,7 +12,7 @@ Menus.h \
 Print.h PrintP.h \
 RegEdit.h RegEditI.h
 
-LDADD = libXmd.a ../../../lib/Xm/libXm.la
+LDADD = libXmd.a ../../../lib/Xm/libXm.la -lXt -lX11 -lXt -lX11
 
 INCLUDES = -I$(top_builddir)/lib -I$(srcdir)/../../../lib ${X_CFLAGS} 
 

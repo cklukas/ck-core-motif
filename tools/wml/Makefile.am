@@ -30,7 +30,7 @@ wml_SOURCES = wml.c
 wml_LDADD = -L. -lwml
 wml_DEPENDENCIES = libwml.a
 
-wmldbcreate_LDADD = ../../lib/Xm/libXm.la
+wmldbcreate_LDADD = ../../lib/Xm/libXm.la -lXt -lX11
 
 INCLUDES = -I../../lib -I$(srcdir)/../../lib -I$(srcdir)/../../include ${X_CFLAGS} 
 
@@ -43,7 +43,7 @@ wmllex.c: wmllex.l
 
 wmlsynbld.c: wmlparse.h
 
-$(srcdir)/wmldbcreate.c: $(WMLTARGETS) UilLexPars.h
+wmldbcreate.c: $(WMLTARGETS) UilLexPars.h
 
 UilLexPars.h: UilLexPars.c
 
