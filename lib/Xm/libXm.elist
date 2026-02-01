@@ -991,6 +991,7 @@ private _XmGetColors
 private _XmGetDefaultBackgroundColorSpec
 private _XmGetDefaultColors
 private _XmGetDefaultDisplay
+private _XmGetDpiScale
 private _XmGetDefaultFontList
 private _XmGetDefaultThresholdsForScreen
 private _XmGetDragContextFromHandle
@@ -3032,4 +3033,3 @@ internal _regcmp
 internal ____loc1
 internal regcmp
 #endif
-

@@ -1,7 +1,24 @@
 Changes since commit 0f556b0873c72ba1152a12fd54c3198ee039e413
 ====================================================================
 
-1) Drag-and-drop snap-back honors hotspot (Motif core)
+1) DPI-aware sizing for unlabeled toggle indicators (Motif core)
+   - Files:
+     - lib/Xm/Display.c
+     - lib/Xm/ToggleB.c
+     - lib/Xm/ToggleBG.c
+     - lib/Xm/XmI.h
+     - lib/Xm/libXm.elist
+   - What changed:
+     - Added a helper that reads Xft.dpi from the X resource database
+       and computes a scale factor using a 75 DPI baseline.
+     - Applied the scaled default indicator size only when toggles have
+       no label/pixmap and XmNindicatorSize was not explicitly set.
+   - Why:
+     - Unlabeled checkboxes (e.g., permission grids) were too small on
+       high-DPI displays; scaling restores usable indicator size while
+       preserving existing labeled widget behavior.
+
+2) Drag-and-drop snap-back honors hotspot (Motif core)
    - Commits: 8a13af6c, 0255c389
    - Files:
      - lib/Xm/DragOverS.c
@@ -16,7 +33,7 @@ Changes since commit 0f556b0873c72ba1152a12fd54c3198ee039e413
        custom drag hotspot (e.g., clicking on the left/right of a large
        icon label caused the pixmap center to return to the click point).
 
-2) Build/link fixes for demos and tools
+3) Build/link fixes for demos and tools
    - Commit: 4368bf7a
    - Files:
      - clients/mwm/Makefile.am
@@ -83,7 +100,7 @@ Changes since commit 0f556b0873c72ba1152a12fd54c3198ee039e413
      - Ensures reliable builds across toolchains and static/shared
        configurations.
 
-3) Prototype and include hygiene
+4) Prototype and include hygiene
    - Commit: aa73cff0
    - Files:
      - clients/mwm/WmWinList.c
@@ -101,7 +118,7 @@ Changes since commit 0f556b0873c72ba1152a12fd54c3198ee039e413
      - Reduces compiler warnings and improves compatibility with
        modern toolchains.
 
-4) Repo hygiene (ignore/build metadata)
+5) Repo hygiene (ignore/build metadata)
    - Commit: 61093b6a
    - Files:
      - .gitignore
@@ -114,7 +131,7 @@ Changes since commit 0f556b0873c72ba1152a12fd54c3198ee039e413
      - Keeps build artifacts out of version control and provides
        standard doc placeholders.
 
-5) Added INSTALL instructions
+6) Added INSTALL instructions
    - Commit: dc07dab4
    - Files:
      - INSTALL

@@ -32,8 +32,10 @@ static char rcsid[] = "$TOG: Display.c /main/23 1997/06/18 17:36:59 samborn $"
 
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <X11/Intrinsic.h>
+#include <X11/Xresource.h>
 #include <X11/extensions/shape.h>
 
 #include <X11/Xatom.h>
@@ -118,6 +120,55 @@ externaldef(displaymsg) String	_Xm_MOTIF_DRAG_AND_DROP_MESSAGE = NULL;
 
 static XContext	displayContext = 0;
 static WidgetClass curDisplayClass = NULL;
+
+Boolean
+_XmGetDpiScale(Display *display, double *scale)
+{
+  XrmDatabase db;
+  XrmValue value;
+  char *type;
+  char *endptr;
+  double dpi;
+  Boolean owns_db = False;
+
+  if (display == NULL || scale == NULL)
+    return False;
+
+  db = XrmGetDatabase(display);
+  if (db == NULL)
+    {
+      char *res = XResourceManagerString(display);
+      if (res == NULL)
+	return False;
+      db = XrmGetStringDatabase(res);
+      if (db == NULL)
+	return False;
+      owns_db = True;
+    }
+
+  if (!XrmGetResource(db, "Xft.dpi", "Xft.Dpi", &type, &value) ||
+      value.addr == NULL)
+    {
+      if (owns_db)
+	XrmDestroyDatabase(db);
+      return False;
+    }
+
+  dpi = strtod((char *) value.addr, &endptr);
+  if (endptr == value.addr || dpi <= 0.0)
+    {
+      if (owns_db)
+	XrmDestroyDatabase(db);
+      return False;
+    }
+
+  *scale = dpi / 75.0;
+
+  if (owns_db)
+    XrmDestroyDatabase(db);
+
+  return True;
+}
 
 static XtResource resources[] = {
     {

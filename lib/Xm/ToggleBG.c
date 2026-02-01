@@ -246,6 +246,7 @@ static Boolean ToggleBGCVTRedraw (Widget kid,
 static void DefaultSelectColor(Widget    widget,
 			       int       offset,
 			       XrmValue *value);
+static Dimension ScaledDefaultIndicatorDim(Widget w);
 static void TBG_FixTearoff( XmToggleButtonGadget tb);
 
 static unsigned char NormalizeIndOn(XmToggleButtonGadget tb);
@@ -2283,6 +2284,13 @@ Initialize(
         TBG_IndicatorDim(new_w) = 0;
       }
 
+    if (TBG_IndOn(new_w) &&
+	!LabG_IsMenupane(new_w) &&
+	!LabG_IsPixmap(new_w) &&
+	!LabG_IsPixmapAndText(new_w) &&
+	XmStringEmpty(LabG__label(new_w)))
+      TBG_IndicatorDim(new_w) = ScaledDefaultIndicatorDim((Widget) new_w);
+
     TBG_IndicatorSet(new_w) = FALSE;
   } else {
     TBG_IndicatorSet(new_w) = TRUE;
@@ -3591,6 +3599,14 @@ SetValues(
 	      /* End 5203 Fix */
 	    } 
 	} 
+
+      if (TBG_IndOn(newcbox) &&
+	  !LabG_IsMenupane(newcbox) &&
+	  !LabG_IsPixmap(newcbox) &&
+	  !LabG_IsPixmapAndText(newcbox) &&
+	  XmStringEmpty(LabG__label(newcbox)))
+	TBG_IndicatorDim(newcbox) =
+	  ScaledDefaultIndicatorDim((Widget) newcbox);
       
       
       if (TBG_IndOn(newcbox))
@@ -4538,6 +4554,22 @@ DefaultSelectColor(Widget    widget,
     }
   else
     _XmSelectColorDefault(widget, offset, value);
+}
+
+static Dimension
+ScaledDefaultIndicatorDim(Widget w)
+{
+  double scale;
+  Dimension scaled;
+
+  if (!_XmGetDpiScale(XtDisplay(w), &scale) || scale <= 1.0)
+    return XmDEFAULT_INDICATOR_DIM;
+
+  scaled = (Dimension) (XmDEFAULT_INDICATOR_DIM * scale + 0.5);
+  if (scaled < XmDEFAULT_INDICATOR_DIM)
+    scaled = XmDEFAULT_INDICATOR_DIM;
+
+  return scaled;
 }
 
 /*

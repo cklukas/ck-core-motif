@@ -219,6 +219,7 @@ static void DrawBox(
 static void DefaultSelectColor(Widget    widget,
 			       int       offset,
 			       XrmValue *value);
+static Dimension ScaledDefaultIndicatorDim(Widget w);
 
 static unsigned char NormalizeIndOn(XmToggleButtonWidget tb);
 static unsigned char NormalizeIndType(XmToggleButtonWidget tb);
@@ -1878,6 +1879,13 @@ Initialize(
 	new_w->toggle.indicator_dim = 0;
       }
 
+    if (new_w->toggle.ind_on &&
+	!Lab_IsMenupane(new_w) &&
+	!Lab_IsPixmap(new_w) &&
+	!Lab_IsPixmapAndText(new_w) &&
+	XmStringEmpty(new_w->label._label))
+      new_w->toggle.indicator_dim = ScaledDefaultIndicatorDim((Widget) new_w);
+
     new_w->toggle.indicator_set = FALSE;
   } else {
     new_w->toggle.indicator_set = TRUE;
@@ -2938,6 +2946,14 @@ if (newcbox->toggle.indicator_dim != curcbox->toggle.indicator_dim)
 		}
 	    }
 	} 
+
+      if (newcbox->toggle.ind_on &&
+	  !Lab_IsMenupane(newcbox) &&
+	  !Lab_IsPixmap(newcbox) &&
+	  !Lab_IsPixmapAndText(newcbox) &&
+	  XmStringEmpty(newcbox->label._label))
+	newcbox->toggle.indicator_dim =
+	  ScaledDefaultIndicatorDim((Widget) newcbox);
       
       if (newcbox->toggle.ind_on)
 	{
@@ -3809,6 +3825,22 @@ DefaultSelectColor(Widget widget,
     }
   else
     _XmSelectColorDefault(widget, offset, value);
+}
+
+static Dimension
+ScaledDefaultIndicatorDim(Widget w)
+{
+  double scale;
+  Dimension scaled;
+
+  if (!_XmGetDpiScale(XtDisplay(w), &scale) || scale <= 1.0)
+    return XmDEFAULT_INDICATOR_DIM;
+
+  scaled = (Dimension) (XmDEFAULT_INDICATOR_DIM * scale + 0.5);
+  if (scaled < XmDEFAULT_INDICATOR_DIM)
+    scaled = XmDEFAULT_INDICATOR_DIM;
+
+  return scaled;
 }
 
 /*
