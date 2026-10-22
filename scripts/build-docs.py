@@ -49,8 +49,8 @@ def main():
     if actual != TOOL_COMMIT or (tool / "VERSION").read_text().strip() != TOOL_VERSION:
         parser.error("tool source must be the documented exact commit/version")
     dirty = subprocess.check_output(["git", "-C", str(tool), "status", "--porcelain", "--untracked-files=all"], env=env, text=True)
-    if dirty:
-        parser.error("tool source must be clean, including no untracked local.mk or other build inputs")
+    if dirty or (tool / "local.mk").exists():
+        parser.error("tool source must be clean, with no local.mk or other untracked build inputs")
     inputs = [root / "ckdocs.yml", root / "scripts/build-docs.py"]
     inputs.extend(sorted((root / "docs").rglob("*.md")))
     inputs.extend([root / ".ckgit/ci.yml", root / ".github/workflows/pages.yml"])
