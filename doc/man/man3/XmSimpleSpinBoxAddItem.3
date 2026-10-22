@@ -73,6 +73,9 @@ The
 .PP
 The
 \fIpos\fP argument specifies the position of the new item\&.
+Positions are one-based; zero, negative values, and positions beyond the current
+item count append the item\&. Inserting before the selected item preserves that
+item as the selection and adjusts its zero-based position accordingly\&.
 .SH "RETURN VALUE"
 .PP
 The

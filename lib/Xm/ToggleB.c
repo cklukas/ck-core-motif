@@ -3830,17 +3830,7 @@ DefaultSelectColor(Widget widget,
 static Dimension
 ScaledDefaultIndicatorDim(Widget w)
 {
-  double scale;
-  Dimension scaled;
-
-  if (!_XmGetDpiScale(XtDisplay(w), &scale) || scale <= 1.0)
-    return XmDEFAULT_INDICATOR_DIM;
-
-  scaled = (Dimension) (XmDEFAULT_INDICATOR_DIM * scale + 0.5);
-  if (scaled < XmDEFAULT_INDICATOR_DIM)
-    scaled = XmDEFAULT_INDICATOR_DIM;
-
-  return scaled;
+  return _XmDpiDefaultDimension(w, XmDEFAULT_INDICATOR_DIM);
 }
 
 /*

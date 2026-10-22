@@ -68,6 +68,9 @@ The
 The
 \fIpos\fP argument specifies the position of the item to be deleted\&.
 A value of 1 means the first item in the list; zero means the last item\&.
+For compatibility, negative positions and positions beyond the item count
+also select the last item\&. Deleting from an empty list has no effect\&.
+Removing the last item clears the displayed text\&.
 .SH "RETURN VALUE"
 .PP
 The

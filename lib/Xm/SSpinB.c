@@ -613,7 +613,7 @@ SyntheticGetValue(Widget widget, int offset, XtArgVal *value)
      case Offset(increment_value):
 #ifdef FIX_1530
       {
-        short new_value;
+        int new_value;
         XtVaGetValues(ssb_w->simpleSpinBox.text_field,
 		      XmNincrementValue, &new_value,
 		      NULL);
@@ -621,7 +621,7 @@ SyntheticGetValue(Widget widget, int offset, XtArgVal *value)
       }
 #else
        XtVaGetValues(ssb_w->simpleSpinBox.text_field,
-		     XmNincrementValue, (short *) value,
+		     XmNincrementValue, (int *) value,
 		     NULL);
 #endif
        break;
@@ -900,16 +900,17 @@ XmSimpleSpinBoxAddItem(	Widget		ssb_w,
      *
      * User gives pos starting at 1 (0 means end of list) 
      */
-    pos--;
-    if ((pos < 0) || (pos > ssb_p->num_values))
+    if (pos <= 0 || pos > ssb_p->num_values)
       pos = ssb_p->num_values;
+    else
+      pos--;
 
     new_nvalues = ssb_p->num_values + 1;
 
     /*
      * Keep the position up to date.
      */
-    if (ssb_p->position > pos)
+    if (ssb_p->num_values > 0 && ssb_p->position >= pos)
       ssb_p->position++;
 
     /*
@@ -1005,9 +1006,10 @@ XmSimpleSpinBoxDeletePos(
      *
      * User gives pos starting at 1 (0 means end of list) 
      */
-    pos--; 
-    if ((pos < 0) || (pos > ssb_p->num_values))
+    if (pos <= 0 || pos > ssb_p->num_values)
       pos = ssb_p->num_values - 1;
+    else
+      pos--;
 
     new_nvalues = ssb_p->num_values - 1;
 
@@ -1016,18 +1018,20 @@ XmSimpleSpinBoxDeletePos(
      */
     if (ssb_p->position > pos)
       ssb_p->position--;
+    if (ssb_p->position >= new_nvalues)
+      ssb_p->position = (new_nvalues > 0) ? new_nvalues - 1 : 0;
 
     /*
      * Copy the current array of values skipping the item in position 'pos'.
      */
-    values = (XmStringTable)
-	     XtRealloc((char *) NULL, sizeof(XmString) * new_nvalues);
-    if (values == (XmStringTable) NULL) {
+    values = (new_nvalues > 0) ? (XmStringTable)
+	     XtMalloc(sizeof(XmString) * new_nvalues) : NULL;
+    if (new_nvalues > 0 && values == (XmStringTable) NULL) {
       _XmAppUnlock(app);
       return;
     }
 
-    for (i=0, skipped=0; i<ssb_p->num_values; i++)
+    for (i=0, skipped=0; new_nvalues > 0 && i<ssb_p->num_values; i++)
       if (i != pos)
         values[i-skipped] = XmStringCopy(ssb_p->values[i]);
       else

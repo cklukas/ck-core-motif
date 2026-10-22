@@ -233,6 +233,7 @@ extern void _XmWarningMsg(Widget w,
 			  Cardinal num_params);
 extern Display *_XmGetDefaultDisplay(void);
 extern Boolean _XmGetDpiScale(Display *display, double *scale);
+extern Dimension _XmDpiDefaultDimension(Widget widget, Dimension baseline);
 extern Boolean _XmIsISO10646(Display *dpy,
                              XFontStruct *font);
 extern XChar2b* _XmUtf8ToUcs2(char *draw_text,

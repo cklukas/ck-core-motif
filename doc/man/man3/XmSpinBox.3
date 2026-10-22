@@ -213,6 +213,9 @@ side of the child(ren)\&.
 .RE
 .IP "\fBXmNarrowSize\fP" 10
 Specifies both the width and height of the arrow in pixels\&.
+When not explicitly specified, the 16-pixel default is scaled by
+\fBXft.dpi\fP / 75, with a minimum scale of 1\&.
+An explicitly specified size remains in pixels and is not automatically scaled\&.
 .IP "\fBXmNdefaultArrowSensitivity\fP" 10
 Specifies the default sensitivity of the arrows in the widget\&. Insensitive
 arrows change color, cannot be depressed, and perform no action\&. (This resource

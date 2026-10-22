@@ -33,6 +33,7 @@ static char rcsid[] = "$TOG: List.c /main/47 1999/10/12 16:58:17 mgreess $"
 
 #include <string.h>
 #include <stdio.h>
+#include <wchar.h>
 #include <X11/Xatom.h>
 #include <Xm/XmosP.h>
 #include "XmI.h"
@@ -7481,6 +7482,8 @@ ListQuickNavigate(Widget wid,
   Boolean found = False;
   int i;
   wchar_t input_char;
+  mbstate_t state;
+  size_t decoded;
 
   if (lw->list.matchBehavior != XmQUICK_NAVIGATE)
     return;
@@ -7492,13 +7495,15 @@ ListQuickNavigate(Widget wid,
 
   /* If there is more data than we can handle, bail out. */
   if (((status_return == XLookupChars) || (status_return == XLookupBoth)) &&
-      (input_length > 0))
+      (input_length > 0) && (input_length <= LIST_MAX_INPUT_SIZE))
     {
       if (lw->list.itemCount > 0)
 	{
 	  /* Convert input to a wchar_t for easy comparison. */
-	  (void) mbtowc(&input_char, NULL, 0);
-	  (void) mbtowc(&input_char, input_string, input_length);
+	  memset(&state, 0, sizeof(state));
+	  decoded = mbrtowc(&input_char, input_string, input_length, &state);
+	  if (decoded == (size_t)-1 || decoded == (size_t)-2 || decoded == 0)
+	    return;
 
 	  /* Search forward from the current position. */
 	  for (i = lw->list.CurrentKbdItem + 1; i < lw->list.itemCount; i++)
@@ -7540,12 +7545,13 @@ FirstChar(XmString string)
   unsigned int len;
   XtPointer val;
   wchar_t result = 0;
+  mbstate_t state;
   
   if (string != NULL)
     {
       _XmStringContextReInit(&stack_context, string);
 
-      (void) mbtowc(&result, NULL, 0);
+      memset(&state, 0, sizeof(state));
       while((result == 0) &&
 	    ((type = XmeStringGetComponent(&stack_context, TRUE, FALSE, 
 					   &len, &val)) !=
@@ -7555,13 +7561,18 @@ FirstChar(XmString string)
 	    {   
 	    case XmSTRING_COMPONENT_TEXT:
 	    case XmSTRING_COMPONENT_LOCALE_TEXT:
-	      if (len)
-		(void) mbtowc(&result, (char*)val, len);
+	      if (len) {
+                size_t decoded = mbrtowc(&result, (char*)val, len, &state);
+                if (decoded == (size_t)-1 || decoded == (size_t)-2) {
+                  result = 0;
+                  memset(&state, 0, sizeof(state));
+                }
+              }
 	      break;
 
 	    case XmSTRING_COMPONENT_WIDECHAR_TEXT:
-	      if (len)
-		result = *((wchar_t*) val);
+	      if (len >= sizeof(result))
+                memcpy(&result, val, sizeof(result));
 	      break;
 
 	    default:

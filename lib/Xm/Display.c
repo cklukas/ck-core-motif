@@ -33,6 +33,9 @@ static char rcsid[] = "$TOG: Display.c /main/23 1997/06/18 17:36:59 samborn $"
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
+#include <errno.h>
+#include <math.h>
 
 #include <X11/Intrinsic.h>
 #include <X11/Xresource.h>
@@ -154,8 +157,11 @@ _XmGetDpiScale(Display *display, double *scale)
       return False;
     }
 
+  errno = 0;
   dpi = strtod((char *) value.addr, &endptr);
-  if (endptr == value.addr || dpi <= 0.0)
+  while (isspace((unsigned char)*endptr)) ++endptr;
+  if (endptr == value.addr || *endptr != '\0' || errno == ERANGE ||
+      !isfinite(dpi) || dpi <= 0.0)
     {
       if (owns_db)
 	XrmDestroyDatabase(db);
@@ -168,6 +174,19 @@ _XmGetDpiScale(Display *display, double *scale)
     XrmDestroyDatabase(db);
 
   return True;
+}
+
+/* Explicit application dimensions bypass this bounded default conversion. */
+Dimension
+_XmDpiDefaultDimension(Widget widget, Dimension baseline)
+{
+  double scale, size;
+  Dimension maximum = (Dimension)~(Dimension)0;
+  if (!_XmGetDpiScale(XtDisplayOfObject(widget), &scale) || scale <= 1.0)
+    return baseline;
+  size = baseline * scale + 0.5;
+  if (size >= maximum) return maximum;
+  return (Dimension)size;
 }
 
 static XtResource resources[] = {

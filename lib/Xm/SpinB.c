@@ -31,6 +31,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <limits.h>
+#include <locale.h>
+#include <math.h>
+#include <stdint.h>
+#include <errno.h>
 #include <X11/StringDefs.h>
 #include <X11/Intrinsic.h>
 #include <X11/IntrinsicP.h>
@@ -62,6 +67,7 @@
 #define FIX_1519
 
 static void ClassInitialize(void);
+static void ArrowSizeDefault(Widget widget, int offset, XrmValue *value);
 static void ClassPartInitialize(WidgetClass classPart);
 static void Initialize(Widget req, Widget w,
 		       ArgList args, Cardinal *num_args);
@@ -112,8 +118,7 @@ static Boolean WidgetIsChild(XmSpinBoxWidget spinW, Widget child);
 static Boolean ChildIsTraversable(Widget w);
 static int GetArrowDirection(Widget w, int spinDir);
 static void LayoutSpinBox(Widget w, XtWidgetGeometry *spinG, Widget child);
-static void NumToString(char **buffer, int min, int max,
-			int decimal, int value );
+static void NumToString(char **buffer, int decimal, int value);
 static void DrawSpinArrow(Widget arrowWidget, int arrowFlag);
 static void SpinTimeOut(Widget w, int spinDelay);
 static void UpdateChildText(Widget textW);
@@ -208,7 +213,7 @@ static XtResource resources[] = {
   },
   { XmNarrowSize, XmCArrowSize, XmRHorizontalDimension,
     sizeof(Dimension), Offset(arrow_size),
-    XmRImmediate, (XtPointer) DEFAULT_ARROW_SIZE
+    XmRCallProc, (XtPointer) ArrowSizeDefault
   },
   { XmNmarginWidth, XmCMarginWidth, XmRHorizontalDimension,
     sizeof(Dimension), Offset(margin_width),
@@ -456,6 +461,16 @@ static XtConvertArgRec selfConvertArgs[] = {
  **
  *****************************************************************************/
 
+static void
+ArrowSizeDefault(Widget widget, int offset, XrmValue *value)
+{
+  XmSpinBoxWidget spin = (XmSpinBoxWidget)widget;
+  (void)offset;
+  spin->spinBox.arrow_size = _XmDpiDefaultDimension(widget, DEFAULT_ARROW_SIZE);
+  value->addr = (char *)&spin->spinBox.arrow_size;
+  value->size = sizeof(spin->spinBox.arrow_size);
+}
+
 static void 
 ClassInitialize(void)
 {
@@ -551,6 +566,11 @@ static void
 Destroy(Widget w)
 {
   XmSpinBoxWidget spinW = (XmSpinBoxWidget)w;
+
+  if (spinW->spinBox.spin_timer) {
+    XtRemoveTimeOut(spinW->spinBox.spin_timer);
+    spinW->spinBox.spin_timer = 0;
+  }
   
   if (spinW->spinBox.arrow_gc != NULL)
     {
@@ -871,7 +891,8 @@ ConstraintInitialize(Widget req,
 	  && newC->increment_value > 0))
 	{
 	  XmeWarning(new_w, BAD_SPIN_DIRECTION);
-	  newC->increment_value *= -1;
+	  newC->increment_value = (newC->increment_value == INT_MIN) ?
+                                     INT_MAX : -newC->increment_value;
 	}
     }
   /* String Child*/
@@ -1000,7 +1021,8 @@ ConstraintSetValues(Widget   old,
 	      && newC->increment_value > 0))
 	      {
 	        XmeWarning(new_w, BAD_SPIN_DIRECTION);
-	        newC->increment_value *= -1;
+	        newC->increment_value = (newC->increment_value == INT_MIN) ?
+                                           INT_MAX : -newC->increment_value;
 	      }
 	  
 	  error = ValidatePositionValue(newC, &newC->position);
@@ -1012,12 +1034,12 @@ ConstraintSetValues(Widget   old,
   /****  String Child  ****/
   else  if (ChildIsTraversable(new_w)) {
   /* buffer the new values XmStringTable */
-      if (reqC->values == NULL)
+      if (reqC->values == NULL && reqC->num_values > 0)
 	reqC->values = oldC->values;
       else if (reqC->values != oldC->values)
 	{
-	  newC->values =
-	   (XmString *)XtMalloc(reqC->num_values * sizeof(XmString));
+	  newC->values = (reqC->num_values > 0) ?
+	   (XmString *)XtMalloc(reqC->num_values * sizeof(XmString)) : NULL;
 	  
 	  if (newC->values != NULL)
 	    for (valLoop = 0; valLoop < reqC->num_values; valLoop++)
@@ -1215,8 +1237,10 @@ SpinBDisarm(Widget   disarmWidget,
   if (spinW->spinBox.up_arrow_pressed || spinW->spinBox.down_arrow_pressed)
     {
       if (spinW->spinBox.initial_delay > 0 && spinW->spinBox.repeat_delay > 0)
-	if (spinW->spinBox.spin_timer)
+	if (spinW->spinBox.spin_timer) {
 	  XtRemoveTimeOut(spinW->spinBox.spin_timer);
+          spinW->spinBox.spin_timer = 0;
+        }
       
       spinW->spinBox.up_arrow_pressed = False;
       spinW->spinBox.down_arrow_pressed = False;
@@ -1797,67 +1821,38 @@ LayoutSpinBox(Widget w,
 
 /* ARGSUSED */
 static void
-NumToString(char **buffer, int min, int max, int decimal, int value)
+NumToString(char **buffer, int decimal, int value)
 {
-  float result;
-  int   digits;
-  int   test;
-  
-  digits = 0;
+  char digits[sizeof(int) * CHAR_BIT + 1];
+  const char *radix = localeconv()->decimal_point;
+  unsigned int magnitude = (value < 0) ? 0U - (unsigned int)value :
+                                        (unsigned int)value;
+  size_t length, whole, padding, radix_length;
+  char *out;
 
-  if (decimal < 1)
-    decimal = 0;
-  
-  /*
-   * BINARY COMPATIBILITY with DTSPINBOX
-   *
-   * This causes spaces to be insterted in the string passed back in
-   * buffer.  DtSpinBox does not do this so we have to alter the
-   * behavior.
-   *
-   * test = MAX((int)abs(min), (int)abs(max));
-   */
-  if (value == 0)
-  {
-    digits = 1;
-    if (decimal > 0)
-      digits += decimal + 1;
+  if (decimal < 0) decimal = 0;
+  snprintf(digits, sizeof(digits), "%u", magnitude);
+  length = strlen(digits);
+  whole = (length > (size_t)decimal) ? length - decimal : 0;
+  padding = (length < (size_t)decimal) ? decimal - length : 0;
+  radix_length = decimal ? strlen(radix) : 0;
+  *buffer = XtMalloc((value < 0) + (whole ? whole : 1) + radix_length +
+                     decimal + 1);
+  out = *buffer;
+  if (value < 0) *out++ = '-';
+  if (whole) {
+    memcpy(out, digits, whole);
+    out += whole;
+  } else *out++ = '0';
+  if (decimal) {
+    memcpy(out, radix, radix_length);
+    out += radix_length;
+    memset(out, '0', padding);
+    out += padding;
+    memcpy(out, digits + whole, length - whole);
+    out += length - whole;
   }
-  else
-  {
-    test = abs(value);
-
-    while (test > 0)
-    {
-      test = test / 10;
-      digits++;
-    }
-
-    if (decimal > 0)
-      digits = (digits <= decimal) ? decimal + 2 : digits + 1;
-
-    if (value < 0)
-      digits++;
-  }
-
-  test = decimal;
-  result = (float)value;
-  while (test > 0)
-  {
-    test--;
-    result/=10.0;
-  }
-
-  *buffer = (char *)XtMalloc((digits + 1) * sizeof(char));
-  if (*buffer)
-  {
-#ifdef __osf__
-    if (decimal == 0)
-      sprintf(*buffer, "%*.0f", digits, result);
-    else
-#endif
-      sprintf(*buffer, "%*.*f", digits, decimal, result);
-  }
+  *out = '\0';
 }
 
 /******************************************************************************
@@ -1945,6 +1940,11 @@ static void
 SpinTimeOut(Widget w, int spinDelay)
 {
   XmSpinBoxWidget spinW = (XmSpinBoxWidget)w;
+
+  if (spinW->spinBox.spin_timer) {
+    XtRemoveTimeOut(spinW->spinBox.spin_timer);
+    spinW->spinBox.spin_timer = 0;
+  }
   
   if (spinW->spinBox.initial_delay > 0 && spinW->spinBox.repeat_delay > 0)
     spinW->spinBox.spin_timer = XtAppAddTimeOut(
@@ -1979,8 +1979,6 @@ UpdateChildText(Widget textW)
       if (SB_ChildIsNumeric(textC))
 	{
 	  NumToString(&buffer,
-		      textC->minimum_value,
-		      textC->maximum_value,
 		      textC->decimal_points,
 		      textC->position );
 	  
@@ -1997,6 +1995,8 @@ UpdateChildText(Widget textW)
 			    textC->values[textC->position],
 			    XmFORMAT_XmSTRING);
 	  }
+        else
+          textT->setValue(textW, (XtPointer) "", XmFORMAT_MBYTE);
     }
 }
 
@@ -2051,6 +2051,7 @@ SpinBArrow(XtPointer spinData,
 	   XtIntervalId *spinInterval) /* unused */
 {
   XmSpinBoxWidget spinW = (XmSpinBoxWidget)spinData;
+  spinW->spinBox.spin_timer = 0;
   
   spinW->spinBox.make_change = False;
   
@@ -2176,8 +2177,6 @@ FireCallbacks(XmSpinBoxCallbackStruct	*spinBoxCallData,
           char	*buffer = (char *) NULL;
 
           NumToString(&buffer,
-		      spinC->minimum_value,
-		      spinC->maximum_value,
 		      spinC->decimal_points,
 		      spinC->position );
           if (buffer)
@@ -2278,6 +2277,7 @@ ArrowSpinUp(Widget w, XEvent *callEvent)
   XmSpinBoxConstraint  spinC;
   XmSpinBoxWidget	 spinW;
   int              inPosition;
+  int64_t          nextPosition;
   
   spinW = (XmSpinBoxWidget)w;
   
@@ -2287,10 +2287,11 @@ ArrowSpinUp(Widget w, XEvent *callEvent)
       
       inPosition = spinC->position;
       spinW->spinBox.boundary = False;
-      spinC->position += (SB_ChildIsNumeric(spinC) ?
+      nextPosition = (int64_t)inPosition + (SB_ChildIsNumeric(spinC) ?
 			  spinC->increment_value : 1);
       
-      if (spinC->position > SB_ChildMaximumPositionValue(spinC))
+      if (nextPosition > SB_ChildMaximumPositionValue(spinC) ||
+          nextPosition < SB_ChildMinimumPositionValue(spinC))
 	{
 	  if (spinC->wrap)
             {
@@ -2303,6 +2304,8 @@ ArrowSpinUp(Widget w, XEvent *callEvent)
 	      XBell(XtDisplay(spinW), 0);
             }
         }
+      else
+        spinC->position = (int)nextPosition;
 
       
       /* Update the Text Widget */
@@ -2333,6 +2336,7 @@ ArrowSpinDown(Widget w, XEvent *callEvent)
   XmSpinBoxConstraint  spinC;
   XmSpinBoxWidget	 spinW;
   int              inPosition;
+  int64_t          nextPosition;
   
   spinW = (XmSpinBoxWidget)w;
   
@@ -2342,10 +2346,11 @@ ArrowSpinDown(Widget w, XEvent *callEvent)
       
       inPosition = spinC->position;
       spinW->spinBox.boundary = False;
-      spinC->position -= (SB_ChildIsNumeric(spinC) ?
+      nextPosition = (int64_t)inPosition - (SB_ChildIsNumeric(spinC) ?
 			  spinC->increment_value : 1);
       
-      if (spinC->position < SB_ChildMinimumPositionValue(spinC))
+      if (nextPosition < SB_ChildMinimumPositionValue(spinC) ||
+          nextPosition > SB_ChildMaximumPositionValue(spinC))
 	{
 	  if (spinC->wrap)
             {
@@ -2358,6 +2363,8 @@ ArrowSpinDown(Widget w, XEvent *callEvent)
 	      XBell(XtDisplay(spinW), 0);
             }
         }
+      else
+        spinC->position = (int)nextPosition;
       
       /* Update the Text Widget */
       if (inPosition != spinC->position)
@@ -2644,7 +2651,8 @@ GetPositionValue(Widget w, int offset, XtArgVal *value)
   XmSpinBoxConstraint	wc = SB_GetConstraintRec(w);
   
   if (SB_ChildIsNumeric(wc) && (!SB_ChildPositionTypeIsValue(wc)))
-      *value = (*value - wc->minimum_value) / wc->increment_value;
+      *value = (XtArgVal)(((int64_t)(int)*value - wc->minimum_value) /
+                         wc->increment_value);
 }
 
 /******************************************************************************
@@ -2661,7 +2669,13 @@ SetPositionValue(Widget w, int offset, XtArgVal *value)
   XmSpinBoxConstraint	wc = SB_GetConstraintRec(w);
   
   if (SB_ChildIsNumeric(wc) && (!SB_ChildPositionTypeIsValue(wc)))
-      *value = wc->minimum_value + (*value * wc->increment_value);
+    {
+      int64_t position = (int64_t)wc->minimum_value +
+                         (int64_t)(int)*value * wc->increment_value;
+      if (position < INT_MIN) position = INT_MIN;
+      if (position > INT_MAX) position = INT_MAX;
+      *value = (XtArgVal)(int)position;
+    }
 
   return(XmSYNTHETIC_LOAD);
 }
@@ -2741,10 +2755,14 @@ CvtStringToPositionValue(
         XtPointer *converter_data) /* unused */
 {
   XtArgVal		value;
+  long                  parsed;
+  char                  *end;
   int			offset = XtOffset(XmSpinBoxConstraint, position);
   Widget		w = *((Widget *) args[0].addr);
 
-  if (sscanf(from->addr, "%ld", (long*)&value) == 0)
+  errno = 0;
+  parsed = strtol(from->addr, &end, 10);
+  if (end == from->addr || errno == ERANGE || parsed < INT_MIN || parsed > INT_MAX)
     {
       XtDisplayStringConversionWarning(display,
 				       (char *)from->addr,
@@ -2752,6 +2770,7 @@ CvtStringToPositionValue(
       return False;
     }
 
+  value = (XtArgVal)(int)parsed;
   (void) SetPositionValue(w, offset, &value);
   _XM_CONVERTER_DONE( to, int, (int)value, ; )
 }
@@ -2828,16 +2847,115 @@ XmVaCreateManagedSpinBox(
  *  XmSpinBoxValidatePosition
  *	Validate the position value specified in string.
  ************************************************************************/
+
+enum { SpinParsed, SpinInvalid, SpinBelow, SpinAbove };
+
+/* Numeric positions are fixed-point integers. Converting a decimal through
+ * float loses both large integers and fractional digits (0.29 * 100 can be
+ * 28.999...). Count decimal digits first, then accumulate only the integer
+ * portion. This also handles exponents without overflowing a floating type.
+ * As with the historical scanf conversion, a valid numeric prefix suffices.
+ */
+static int
+ParseNumericPosition(const char *string, int decimal, int *position)
+{
+  const char *p, *mantissa, *end, *radix = localeconv()->decimal_point;
+  size_t radix_length = strlen(radix);
+  int negative = 0, seen_digit = 0, after_radix = 0, nonzero = 0;
+  int64_t significant = 0, fractional = 0, exponent = 0, integer_digits;
+  unsigned int magnitude = 0, limit;
+
+  if (string == NULL) return SpinInvalid;
+  if (decimal < 0) decimal = 0;
+  p = string;
+  while (isspace((unsigned char)*p)) ++p;
+  if (*p == '-' || *p == '+') negative = (*p++ == '-');
+  mantissa = p;
+
+  /* Preserve legacy hexadecimal floating input and infinity handling, while
+   * refusing NaN before any integer conversion. Decimal input below is exact.
+   */
+  if ((*p == '0' && (p[1] == 'x' || p[1] == 'X')) ||
+      (!isdigit((unsigned char)*p) &&
+       !(radix_length && strncmp(p, radix, radix_length) == 0))) {
+    char *tail;
+    long double value = strtold(string, &tail);
+    int i;
+    if (tail == string || isnan(value)) return SpinInvalid;
+    for (i = 0; i < decimal && value != 0 &&
+                value >= INT_MIN && value <= INT_MAX; ++i) value *= 10;
+    if (value < INT_MIN) return SpinBelow;
+    if (value > INT_MAX) return SpinAbove;
+    *position = (int)value;
+    return SpinParsed;
+  }
+
+  for (;;) {
+    if (*p >= '0' && *p <= '9') {
+      seen_digit = 1;
+      if (*p != '0') nonzero = 1;
+      if (nonzero) ++significant;
+      if (after_radix) ++fractional;
+      ++p;
+    } else if (!after_radix && radix_length &&
+               strncmp(p, radix, radix_length) == 0) {
+      after_radix = 1;
+      p += radix_length;
+    } else break;
+  }
+  if (!seen_digit) return SpinInvalid;
+  end = p;
+  if (*p == 'e' || *p == 'E') {
+    int negative_exponent = 0;
+    ++p;
+    if (*p == '-' || *p == '+') negative_exponent = (*p++ == '-');
+    while (*p >= '0' && *p <= '9') {
+      /* No text widget can contain enough digits to cancel this exponent. */
+      if (exponent < INT_MAX) {
+        exponent = exponent * 10 + (*p - '0');
+        if (exponent > INT_MAX) exponent = INT_MAX;
+      }
+      ++p;
+    }
+    if (negative_exponent) exponent = -exponent;
+  }
+  integer_digits = significant + exponent + decimal - fractional;
+  if (!nonzero || integer_digits <= 0) {
+    *position = 0;
+    return SpinParsed;
+  }
+  if (integer_digits > (int64_t)(sizeof(int) * CHAR_BIT))
+    return negative ? SpinBelow : SpinAbove;
+  limit = negative ? 0U - (unsigned int)INT_MIN : (unsigned int)INT_MAX;
+  p = mantissa;
+  nonzero = 0;
+  while (integer_digits > 0) {
+    unsigned int digit = 0;
+    if (p < end) {
+      if (*p < '0' || *p > '9') { p += radix_length; continue; }
+      digit = (unsigned int)(*p++ - '0');
+      if (!nonzero && digit == 0) continue;
+      nonzero = 1;
+    }
+    if (magnitude > (limit - digit) / 10)
+      return negative ? SpinBelow : SpinAbove;
+    magnitude = magnitude * 10 + digit;
+    --integer_digits;
+  }
+  *position = negative ? ((magnitude == 0U - (unsigned int)INT_MIN) ?
+                          INT_MIN : -(int)magnitude) : (int)magnitude;
+  return SpinParsed;
+}
+
 int 
 XmSpinBoxValidatePosition(Widget text_field, int *position)
 {
-  int			i;
-  float			fPosition;
+  int                   parsed;
   int			iPosition;
   int			positionOffset =
 				XtOffset(XmSpinBoxConstraint, position);
 #ifdef FIX_1519
-  int           iOffset;
+  int64_t       iOffset;
 #endif
   String		string;
   XmAccessTextualTrait  textT;
@@ -2867,7 +2985,9 @@ XmSpinBoxValidatePosition(Widget text_field, int *position)
     }
 
   string = textT->getValue(text_field, XmFORMAT_MBYTE);
-  if (sscanf(string, "%f", &fPosition) == 0)
+  parsed = ParseNumericPosition(string, wc->decimal_points, &iPosition);
+  XtFree(string);
+  if (parsed == SpinInvalid)
     {
       if (position)
 	{
@@ -2879,14 +2999,8 @@ XmSpinBoxValidatePosition(Widget text_field, int *position)
       _XmAppUnlock(app);
       return(XmCURRENT_VALUE);
     }
-  XtFree(string);
-
-  for (i=0; i<wc->decimal_points; i++)
-    fPosition *= 10.0;
-
-  iPosition = (int) fPosition;
-
-  if (iPosition < SB_ChildMinimumPositionValue(wc))
+  if (parsed == SpinBelow ||
+      (parsed == SpinParsed && iPosition < SB_ChildMinimumPositionValue(wc)))
     {
       if (position)
 	{
@@ -2899,7 +3013,8 @@ XmSpinBoxValidatePosition(Widget text_field, int *position)
       return(XmMINIMUM_VALUE);
     }
 
-  if (iPosition > SB_ChildMaximumPositionValue(wc))
+  if (parsed == SpinAbove ||
+      (parsed == SpinParsed && iPosition > SB_ChildMaximumPositionValue(wc)))
     {
       if (position)
 	{
@@ -2913,7 +3028,7 @@ XmSpinBoxValidatePosition(Widget text_field, int *position)
     }
 
 #ifdef FIX_1519
-  iOffset = iPosition - SB_ChildMinimumPositionValue(wc);
+  iOffset = (int64_t)iPosition - SB_ChildMinimumPositionValue(wc);
 
   if ((iOffset % wc->increment_value) != 0)
 #else

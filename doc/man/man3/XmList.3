@@ -478,6 +478,9 @@ first such item becomes the current item\&.
 Subsequently, typing the same character will
 cyclically navigate among the items with the same first
 character\&.
+Malformed or incomplete multibyte input is ignored without changing the
+selection\&. Matching uses characters in the current locale, rather than
+individual bytes of a multibyte encoding\&.
 .RE
 .IP "\fBXmNmultipleSelectionCallback\fP" 10
 Specifies a list of callbacks that is called

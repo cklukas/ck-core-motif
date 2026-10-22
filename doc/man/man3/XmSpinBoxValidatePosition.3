@@ -91,6 +91,12 @@ this translation fails,
 \fBXmSpinBoxValidatePosition\fP sets position to the current position and
 returns \fBXmCURRENT_VALUE\fP\&.
 .PP
+Decimal input is interpreted exactly in the current numeric locale, including
+scientific notation\&. Empty input and NaN return \fBXmCURRENT_VALUE\fP\&.
+Values outside the integer range, including infinity, are range checked before
+conversion and return the nearest limit\&. A valid numeric prefix is accepted
+even if followed by nonnumeric text, as in earlier implementations\&.
+.PP
 \fBXmSpinBoxValidatePosition\fP converts the floating point number to an integer using the
 \fBXmNdecimalPoints\fP resource\&. Extra decimal places are truncated\&. The resulting integer is range
 checked to make sure it falls within the valid range defined by \fBXmNminimumValue\fP and
