@@ -96,17 +96,14 @@ void emit_ints( int	    table_id);
 
 FILE *bfile, *afile;
 int DEBUG=FALSE;
-char outfilename[80];
-char debugfilename[80];
+const char *outfilename = "motif.wmd";
+const char *debugfilename = "motif.dbg";
 
 int main(argc, argv)
 int argc;
 char **argv;
 {
-    _db_header	header;
-
-    strcpy(outfilename, "motif.wmd");
-    strcpy(debugfilename, "motif.dbg");
+    int failed;
 
     for (argc--, argv++; argc; argc--, argv++)
 	{
@@ -116,11 +113,16 @@ char **argv;
 	    }
 	else if ((strcmp("-o", *argv) == 0))
 		 {
-		 strcpy(outfilename, argv[1]);
+		 if (argc < 2) {
+                     fprintf(stderr, "wmldbcreate: -o requires an output filename\n");
+                     return 1;
+                 }
+                 outfilename = *++argv;
+                 --argc;
 		 }
 	}
 
-    bfile = fopen(outfilename, "w");
+    bfile = fopen(outfilename, "wb");
     if (bfile == (FILE *) NULL)
 	{
 	printf("\nCouldnt't open %s", outfilename);
@@ -202,9 +204,14 @@ char **argv;
  */
     emit_ints (Enumval_Values_Table);
 
-    exit (0);
-
-    return 0;    /* make compiler happy */
+    failed = ferror(bfile);
+    if (fclose(bfile) != 0) failed = 1;
+    if (DEBUG) {
+        if (ferror(afile)) failed = 1;
+        if (fclose(afile) != 0) failed = 1;
+    }
+    if (failed) fprintf(stderr, "wmldbcreate: failed to write output\n");
+    return failed ? 1 : 0;
 }
 
 
@@ -319,7 +326,7 @@ void emit_chars(table_id)
     fwrite (ptr, header.table_size, 1, bfile);  
     if (DEBUG)
 	{
-	for (i=0; i<=header.num_items; i++)
+	for (i=0; i<header.num_items; i++)
 	    {
 	    fprintf(afile, "%d ", ptr[i]);
 	    }
@@ -535,10 +542,12 @@ int	table_id;
 	if (lengths[i])
 	    {
 	    /*
-	     * assumed lengths[i] = lengths[i] * sizeof(char)
-	     * Add one for the null terminator
+	     * lengths[i] already includes the terminator. The existing WMD
+             * format has one additional byte per non-null string; write
+             * deterministic padding rather than reading beyond the literal.
 	     */
-	    fwrite (table[i], lengths[i] + 1, 1, bfile);
+	    fwrite (table[i], lengths[i], 1, bfile);
+            fputc(0, bfile);
 	    if (DEBUG)
 		fprintf (afile, "%s ", table[i]);
 	    }

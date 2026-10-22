@@ -837,7 +837,9 @@ void db_open_file ()
 	 * resolve the pathname with .wmd suffix first. If that fails or the suffix is
 	 * already on the file then just try to resolve the pathname.
 	 */
-	if ( strcmp (&Uil_cmd_z_command.ac_database[strlen(Uil_cmd_z_command.ac_database)-4],".wmd") != 0 ) 
+	if (strlen(Uil_cmd_z_command.ac_database) < 4 ||
+            strcmp(Uil_cmd_z_command.ac_database +
+                   strlen(Uil_cmd_z_command.ac_database) - 4, ".wmd") != 0)
 		resolvedname = XtFindFile(wmdPath,
 					      subs,
 					      XtNumber(subs),
@@ -861,7 +863,7 @@ void db_open_file ()
 				   Uil_cmd_z_command.ac_database);
 	    }
 
-	dbfile = fopen (resolvedname, "r");
+	dbfile = fopen (resolvedname, "rb");
 
 	/* If the file is not found, a fatal error is generated.	*/
 	if (dbfile == NULL)
@@ -871,6 +873,8 @@ void db_open_file ()
 				   resolvedname);
 	    }
 
+	XtFree(wmdPath);
+        XtFree(resolvedname);
 	return;
 }
 
@@ -974,8 +978,7 @@ String init_wmd_path(filename)
 
     if (filename[0] == '/')
 	{
-	wmd_path = XtMalloc(strlen(ABSOLUTE_PATH));
-	strcpy (wmd_path, ABSOLUTE_PATH);
+	wmd_path = XtNewString(ABSOLUTE_PATH);
 	}
     else
 	{
@@ -1005,9 +1008,7 @@ String init_wmd_path(filename)
 	    }
 	else
 	    {
-	    wmd_path = XtMalloc(strlen(path) + 1);
-	    strcpy (wmd_path, path);
-	    free (path);
+	    wmd_path = XtNewString(path);
 	    }
 	}
     return (wmd_path);

@@ -2,7 +2,8 @@
 
 Review date: 2026-10-23. Scope: SpinBox/SimpleSpinBox API and lifetime,
 list quick navigation and selection conversion, ComboBox convenience functions,
-and the existing Xft.dpi defaults. Findings below have a generic toolkit rationale.
+the existing Xft.dpi defaults, and WML/UIL database generation and loading.
+Findings below have a generic toolkit rationale.
 This is a focused source and regression review, not a claim that every widget,
 input method, graphics configuration or historical application is qualified.
 
@@ -21,6 +22,9 @@ input method, graphics configuration or historical application is qualified.
 | DPI parsing accepts NaN/infinity/trailing garbage, and conversion can exceed Dimension | Undefined floating-to-integer conversions and invalid control defaults | Require a finite positive complete DPI value and saturate computed dimensions |
 | SpinBox default arrows remain 16 physical pixels on dense screens | Small click targets beside enlarged text/indicators | Scale the default using the existing 75 DPI convention; preserve explicit sizes |
 | List navigation ignores failed multibyte decoding | Uninitialized comparison input and unsafe handling of malformed/truncated commits | Use per-conversion state and check decoding results; preserve valid multibyte navigation |
+| WML generation reads one extra byte from every string and debug byte table | Sanitizer failure and arbitrary padding bytes copied from adjacent storage | Emit the existing WMD padding byte explicitly as zero and bound debug iteration |
+| WML output names use an unchecked 80-byte buffer and write errors are ignored | Long-path corruption, missing-argument crash or successful exit with partial output | Retain the argument pointer, check missing arguments and report stream/close failures |
+| UIL WMD path handling underallocates absolute paths, underreads short names and frees getenv storage | Heap corruption or invalid free during ordinary database loading | Copy owned path strings correctly, guard the suffix length and release only owned allocations |
 
 ## Compatibility
 
@@ -41,6 +45,11 @@ application remain authoritative. DPI defaults are chosen at widget creation;
 this does not add live monitor-change handling, per-monitor fractional scaling,
 automatic scaling of application pixmaps or a new graphics backend.
 
+WMD table framing and length fields remain unchanged, including the historical
+extra byte following a terminated string. That byte is now deterministic zero
+padding rather than an out-of-bounds read. Existing WMD readers retain the same
+layout. This does not redesign the architecture-dependent WMD file format.
+
 ## Verification
 
 `tests/automated/run-widget-regressions.py PREFIX FRESH_ABSOLUTE_RESULTS` builds
@@ -53,6 +62,11 @@ The list test interposes only the XIM lookup boundary; it does not establish
 live XIM preedit/commit/cancel behavior. Sanitizer coverage requires both the
 library and consumers to be instrumented; the runner's --sanitize flag alone
 instruments consumers.
+
+`tests/automated/check-wmd.py BUILD_ROOT FRESH_ABSOLUTE_RESULTS` checks WML
+debug generation, output names longer than 80 bytes, missing arguments, write
+failure, UIL compilation using the generated database, absolute/short names and
+WMDPATH. Optional `--legacy-uil /absolute/old/bin/uil` tests an earlier reader.
 
 ## Broader Unicode and graphics qualification
 

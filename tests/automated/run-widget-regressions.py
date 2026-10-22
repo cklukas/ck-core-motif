@@ -2,11 +2,14 @@
 """Compile installed-library consumers and run widget API regressions on Linux."""
 import argparse
 import datetime
+from decimal import Decimal
 import hashlib
 import json
 import os
 from pathlib import Path
 import platform
+import random
+import signal
 import subprocess
 import time
 
@@ -40,15 +43,27 @@ started = time.monotonic()
 
 def run(label, command):
     begin = time.monotonic()
-    result = subprocess.run([str(x) for x in command], env=env,
-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                            timeout=120)
-    (args.results / (label + ".log")).write_bytes(result.stdout)
+    process = subprocess.Popen([str(x) for x in command], env=env,
+                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                               start_new_session=True)
+    try:
+        output, _ = process.communicate(timeout=120)
+        code = process.returncode
+    except subprocess.TimeoutExpired:
+        os.killpg(process.pid, signal.SIGTERM)
+        try:
+            output, _ = process.communicate(timeout=5)
+        except subprocess.TimeoutExpired:
+            os.killpg(process.pid, signal.SIGKILL)
+            output, _ = process.communicate()
+        output += b"\nTIMEOUT: terminated this fixture's process group\n"
+        code = 124
+    (args.results / (label + ".log")).write_bytes(output)
     receipt["steps"].append({"name": label, "command": [str(x) for x in command],
-                             "exit": result.returncode,
+                             "exit": code,
                              "seconds": round(time.monotonic() - begin, 3)})
-    print(label, result.returncode, flush=True)
-    return result.returncode == 0
+    print(label, code, flush=True)
+    return code == 0
 
 
 try:
@@ -58,6 +73,21 @@ try:
     receipt["libraries"] = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in libraries}
     ok = run("locale", ["localedef", "--no-archive", "-i", "de_DE", "-f", "UTF-8",
                          args.results / "locales/de_DE.UTF-8"])
+    # Independent decimal arithmetic oracle through the public widget API.
+    randomizer = random.Random(20261023)
+    corpus = []
+    for _ in range(2000):
+        digits = randomizer.randint(-999999999999999999, 999999999999999999)
+        exponent = randomizer.randint(-60, 60)
+        decimals = randomizer.randint(0, 25)
+        text = str(digits) + "e" + str(exponent)
+        value = int(Decimal(text).scaleb(decimals))
+        kind = -1 if value < -2147483648 else 1 if value > 2147483647 else 0
+        value = max(-2147483648, min(2147483647, value))
+        corpus.append(f"{text} {decimals} {kind} {value}\n")
+    corpus_file = args.results / "decimal-oracle.txt"
+    corpus_file.write_text("".join(corpus))
+    receipt["decimal_oracle_sha256"] = hashlib.sha256(corpus_file.read_bytes()).hexdigest()
     flags = ["-Wall", "-Wextra", "-Werror", "-g", "-O2",
              "-I" + str(args.prefix / "include"), "-L" + str(args.prefix / "lib"),
              "-Wl,-rpath," + str(args.prefix / "lib")]
@@ -77,10 +107,12 @@ try:
         if str(args.prefix / "lib/libXm.so.") not in link:
             raise RuntimeError("consumer loaded the wrong libXm")
         modes = ("format", "increment", "validate", "items", "delete-bound", "index",
-                 "step", "timer", "locale") if name == "spinbox" else (None,)
+                 "step", "timer", "locale", "matrix") if name == "spinbox" else (None,)
         for mode in modes:
             label = name + ("-" + mode if mode else "")
             command = ["xvfb-run", "-a", binary] + ([mode] if mode else [])
+            if mode == "matrix":
+                command.append(corpus_file)
             if not run(label, command):
                 ok = False
     receipt["success"] = ok

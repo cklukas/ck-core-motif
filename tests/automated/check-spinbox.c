@@ -155,6 +155,20 @@ int main(int argc, char **argv)
         expect_int("negative indexed value", position, 33);
         XtVaSetValues(spin, XmNposition, INT_MAX, NULL);
         expect_text(field, "100");
+    } else if (!strcmp(mode, "matrix")) {
+        FILE *corpus = argc > 2 ? fopen(argv[2], "r") : NULL;
+        char input[128];
+        int decimals, kind, expected, cases = 0;
+        if (!corpus) return 2;
+        spin = numeric(row, INT_MIN, INT_MAX, 17, 1, 0, &field);
+        while (fscanf(corpus, "%127s %d %d %d", input, &decimals, &kind, &expected) == 4) {
+            XtVaSetValues(spin, XmNdecimalPoints, decimals, NULL);
+            validate(field, input, kind < 0 ? XmMINIMUM_VALUE :
+                                  kind > 0 ? XmMAXIMUM_VALUE : XmVALID_VALUE, expected);
+            ++cases;
+        }
+        fclose(corpus);
+        expect_int("decimal oracle case count", cases, 2000);
     } else if (!strcmp(mode, "step")) {
         spin = numeric(row, INT_MIN, INT_MAX, INT_MAX, 1, 0, &field);
         XtAddCallback(spin, XmNvalueChangedCallback, changed, NULL);
