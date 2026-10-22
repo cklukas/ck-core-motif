@@ -634,34 +634,50 @@ double XmTextLayoutRangeWidth(const XmTextLayout *layout, size_t first, size_t l
     return width;
 }
 int XmTextLayoutCaret(const XmTextLayout *layout, size_t scalar, int affinity, double *x) {
-    size_t i;
-    if (!layout || !x || (affinity != 0 && affinity != 1)) return 0;
-    for (i = 0; i < layout->caret_count; ++i) if (layout->carets[i].scalar == scalar && layout->carets[i].affinity == affinity) {
-        *x = layout->carets[i].x; return 1;
+    if (!layout || !x || (affinity != 0 && affinity != 1) ||
+        !XmTextUnicodeIsGraphemeBoundary(layout->map, scalar)) return 0;
+    *x = affinity ? layout->trailing[scalar] : layout->leading[scalar];
+    return isfinite(*x);
+}
+static size_t caret_lower_bound(const XmTextLayout *layout, double x) {
+    size_t lower = 0, upper = layout->caret_count;
+    while (lower < upper) {
+        size_t middle = lower + (upper - lower) / 2;
+        if (layout->carets[middle].x < x) lower = middle + 1; else upper = middle;
     }
-    if (affinity) return XmTextLayoutCaret(layout, scalar, 0, x);
-    return 0;
+    return lower;
 }
 int XmTextLayoutHit(const XmTextLayout *layout, double x, size_t *scalar, int *affinity) {
-    size_t i, best = 0;
-    double distance = HUGE_VAL;
-    if (!layout || !scalar || !affinity || !isfinite(x)) return 0;
-    for (i = 0; i < layout->caret_count; ++i) {
-        double candidate = fabs(layout->carets[i].x - x);
-        if (candidate < distance) { distance = candidate; best = i; }
-    }
+    size_t best;
+    if (!layout || !scalar || !affinity || !isfinite(x) || !layout->caret_count) return 0;
+    best = caret_lower_bound(layout, x);
+    if (best == layout->caret_count) best = layout->caret_count - 1;
+    else if (best && x - layout->carets[best - 1].x <= layout->carets[best].x - x) --best;
+    /* Distinct logical bidi boundaries may share a visual point. Keep the
+     * same deterministic first-caret tie policy as the captured sort order. */
+    best = caret_lower_bound(layout, layout->carets[best].x);
     *scalar = layout->carets[best].scalar; *affinity = layout->carets[best].affinity; return 1;
 }
 int XmTextLayoutVisualMove(const XmTextLayout *layout, size_t scalar, int affinity, int direction, size_t *next_scalar, int *next_affinity) {
-    size_t i;
-    if (!layout || !next_scalar || !next_affinity || (direction != -1 && direction != 1)) return 0;
-    for (i = 0; i < layout->caret_count; ++i) if (layout->carets[i].scalar == scalar && layout->carets[i].affinity == affinity) {
-        if (direction < 0 && i) --i;
-        else if (direction > 0 && i + 1 < layout->caret_count) ++i;
-        *next_scalar = layout->carets[i].scalar; *next_affinity = layout->carets[i].affinity; return 1;
+    double x;
+    size_t lower, upper;
+    if (!layout || !next_scalar || !next_affinity || (direction != -1 && direction != 1) ||
+        !XmTextLayoutCaret(layout, scalar, affinity, &x)) return 0;
+    if (affinity && fabs(layout->leading[scalar] - layout->trailing[scalar]) <= 0.01) affinity = 0;
+    lower = 0; upper = layout->caret_count;
+    while (lower < upper) {
+        const struct LayoutCaret *caret;
+        size_t middle = lower + (upper - lower) / 2;
+        caret = &layout->carets[middle];
+        if (caret->x < x || (caret->x == x &&
+            (caret->scalar < scalar || (caret->scalar == scalar && caret->affinity < affinity)))) lower = middle + 1;
+        else upper = middle;
     }
-    if (affinity) return XmTextLayoutVisualMove(layout, scalar, 0, direction, next_scalar, next_affinity);
-    return 0;
+    if (lower >= layout->caret_count || layout->carets[lower].scalar != scalar ||
+        layout->carets[lower].affinity != affinity) return 0;
+    if (direction < 0 && lower) --lower;
+    else if (direction > 0 && lower + 1 < layout->caret_count) ++lower;
+    *next_scalar = layout->carets[lower].scalar; *next_affinity = layout->carets[lower].affinity; return 1;
 }
 Region XmTextLayoutSelectionRegion(const XmTextLayout *layout, double x, size_t first, size_t last,
                                    const XRectangle *viewport) {
