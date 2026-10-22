@@ -49,3 +49,47 @@ widgets. `tests/Toolkit/ABI/cohort.c` compares header/runtime epoch and version.
 Xvfb is suitable for automated geometry and readback fixtures, but it does not
 replace inspecting the real application window, testing an actual XIM service,
 or using an assistive client.
+
+## Installed native feature suite
+
+On Linux, use the toolkit's generic runner after installing one isolated cohort:
+
+```sh
+python3 tests/automated/check-native-features.py \
+  --prefix "$prefix" \
+  --out "$work/native-features"
+```
+
+Both paths must be absolute. The output directory must be fresh and separate
+from the installed prefix; the runner creates its own `TMPDIR` there. It performs
+no toolkit build or package installation, and requires no external build receipt.
+For a custom library location use `--libdir` with an absolute directory inside
+the prefix. `--cc` selects the native C compiler. `--only layout`, for example,
+restricts the feature fixtures while still running the installed ABI check.
+
+The full suite needs `pkg-config` with Xft, Fontconfig, HarfBuzz and ICU development
+modules, a C11 compiler, `readelf`, `ldd`, Xvfb, `xvfb-run`, `xauth`,
+`dbus-run-session`, `gdbus`, `stdbuf`, Python 3 and real AT-SPI bus/registry
+services. The text fixtures require DejaVu Sans and a CJK-capable fallback font.
+Unavailable services or missing font coverage fail their tests; an in-memory
+semantic substitute does not count as an AT-SPI pass.
+
+Seven fixtures cover ABI/version, XIM preedit bounds, shaped glyph readback,
+paragraph/line context, native Unicode text widgets, disclosure interaction and
+accessibility. Disclosure and accessibility also use external D-Bus observers.
+Each consumer compiles sequentially with strict C11/POSIX 2008 warnings and
+optimization. Compiler dependency graphs prove that actual Xm headers came from
+the selected prefix. The runner checks native ELF identity, library SONAME,
+executable dependencies and the exact `ldd`-resolved installed `libXm`; it rejects
+mixed header/library origins. The linker and runtime library names must resolve
+to the same installed file.
+
+`receipt.json` retains host/compiler/tool identities, exact fixture and installed
+header/library hashes, executable hashes, commands, timestamps, durations and
+logs. Installed inputs and fixture sources are checked again after the suite.
+The first recorded suite using this runner passed on native ARM Linux; retain
+and compare receipts for the particular cohort being admitted. The small fixture
+compilations are separate from the toolkit build and have a different duration.
+A passed suite identifies the tested bytes; it does not prove which source built
+the installation, complete Unicode/AT-SPI coverage, an actual XIM service journey,
+or the appearance of a separate application's window.
