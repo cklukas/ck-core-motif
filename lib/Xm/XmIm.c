@@ -1510,131 +1510,78 @@ ImPreeditDoneCallback(XIC xic,
   bzero((char *)icp->preedit_buffer, sizeof(PreeditBufferRec)); 
 }
 
+Boolean
+_XmImPreeditRangeValid(unsigned int length, int first, int removed,
+                       unsigned int inserted, int caret)
+{
+  unsigned int remaining, result;
+  if (length > 65535U || first < 0 || removed < 0 ||
+      (unsigned int)first > length || (unsigned int)removed > length - (unsigned int)first)
+    return False;
+  remaining = length - (unsigned int)removed;
+  if (inserted > 65535U - remaining) return False;
+  result = remaining + inserted;
+  return caret >= 0 && (unsigned int)caret <= result;
+}
+
 static void
-ImPreeditDrawCallback(XIC xic,
-		      XPointer client_data,
-		      XPointer call_data)
+ImPreeditDrawCallback(XIC xic, XPointer client_data, XPointer call_data)
 {
   XICProc proc;
-  Widget w = (Widget)client_data;
+  Widget w = (Widget)client_data, real = NULL;
   XmImShellInfo im_info;
   XmImXICInfo icp;
   PreeditBuffer pb;
+  XIMPreeditDrawCallbackStruct *data = (XIMPreeditDrawCallbackStruct *)call_data;
   XIMText *text;
-  XIMPreeditDrawCallbackStruct *data =
-		(XIMPreeditDrawCallbackStruct *) call_data;
-  int from=0, to=0, ml=0;
-  wchar_t *wchar;
-  Widget real = NULL;
+  unsigned int inserted, result, suffix;
+  wchar_t *replacement;
+  XIMFeedback *feedback;
 
-  if (!client_data){
-    assert(False);
-  }
-
-  /* update the preedit buffer */
-  if ((im_info = get_im_info(w, False)) == NULL)
+  if (!w || !data || (im_info = get_im_info(w, False)) == NULL ||
+      (icp = im_info->shell_xic) == NULL || !icp->preedit_buffer)
     return;
-  if ((icp = im_info->shell_xic) == NULL)
-    return;
-
   pb = icp->preedit_buffer;
-  pb->caret = data->caret;
   text = data->text;
-
-  if ((int)data->chg_length > (int)pb->length)
-    data->chg_length = pb->length;
-
-  if (data->text) { /* text field is non-NULL */
-
-    if (data->chg_length > 0) { /* replace */
-	if ((int)text->length > (int)data->chg_length) {
-	  pb->text = (wchar_t *)
-	    XtRealloc((char *)pb->text, (pb->length - data->chg_length + 
-			text->length + 1) * sizeof(wchar_t));
-	  pb->feedback = (XIMFeedback *)
-	    XtRealloc((char *)pb->feedback, (pb->length - data->chg_length +
-			 text->length + 1) *sizeof(XIMFeedback));
-	}
-	from = data->chg_first + data->chg_length;
-	to = data->chg_first + text->length;
- 	ml = pb->length - from;
-    } 
-    else if (data->chg_length == 0) { /* insert */
-      /* do we really need to change anything? */
-      if (data->text->length) {
-        pb->text = (wchar_t *)
-	  XtRealloc((char *)pb->text, (pb->length + text->length +1) 
-		    * sizeof(wchar_t)); 
-	pb->feedback = (XIMFeedback *)
-	  XtRealloc((char *)pb->feedback, (pb->length + text->length +1) 
-		    * sizeof(XIMFeedback));
-	from = data->chg_first;
-	to = data->chg_first + text->length;
-	ml = pb->length - from;
-      }
+  inserted = text ? text->length : 0;
+  if (!_XmImPreeditRangeValid(pb->length, data->chg_first, data->chg_length,
+                              inserted, data->caret))
+    return;
+  if (inserted && ((text->encoding_is_wchar && !text->string.wide_char) ||
+                   (!text->encoding_is_wchar && !text->string.multi_byte)))
+    return;
+  result = pb->length - data->chg_length + inserted;
+  replacement = (wchar_t *)XtCalloc(result + 1, sizeof(wchar_t));
+  feedback = (XIMFeedback *)XtCalloc(result + 1, sizeof(XIMFeedback));
+  if (inserted) {
+    if (text->encoding_is_wchar)
+      memcpy(replacement + data->chg_first, text->string.wide_char,
+             inserted * sizeof(wchar_t));
+    else if (mbstowcs(replacement + data->chg_first, text->string.multi_byte,
+                      inserted) != inserted) {
+      XtFree((char *)replacement); XtFree((char *)feedback);
+      return;
     }
-
-    /*
-    ** if preedit buffer changed, then we munge it,
-    ** otherwise we just leave it alone 
-    */
-    if (from || to || ml) {
-
-      /* convert multibyte to wide char */
-      wchar = (wchar_t *)XtMalloc ((text->length +1) * sizeof(wchar_t));
-      if (text->encoding_is_wchar)
-        memcpy(wchar, text->string.wide_char, text->length * sizeof(wchar_t));
-      else
-        mbstowcs(wchar, text->string.multi_byte, text->length + 1);
-
-      /* make change */
-      memmove((char *)pb->text + to * sizeof(wchar_t),
-	      (char *)pb->text + from * sizeof(wchar_t),
-	      ml * sizeof(wchar_t));
-      memmove((char *)pb->feedback + to * sizeof(XIMFeedback),
-	      (char *)pb->feedback + from * sizeof(XIMFeedback),
-	      ml * sizeof(XIMFeedback));
-
-      memmove((char *)pb->text + data->chg_first * sizeof(wchar_t),
-	      (char *)wchar,
-	      text->length * sizeof(wchar_t));
-
-      /* feedback may be NULL, check for it */
-      if (text->feedback)
-	memmove((char *)pb->feedback + data->chg_first * sizeof(XIMFeedback),
-		(char *)text->feedback,
-		text->length * sizeof(XIMFeedback));
-
-      pb->length = pb->length + text->length - data->chg_length;
-      bzero((char *)pb->text + pb->length * sizeof(wchar_t),
-	    sizeof(wchar_t));
-      bzero((char *)pb->feedback + pb->length * sizeof(XIMFeedback),
-	    sizeof(XIMFeedback));
-
-      XtFree((char *) wchar);
-    }
+    if (text->feedback)
+      memcpy(feedback + data->chg_first, text->feedback,
+             inserted * sizeof(XIMFeedback));
   }
-  else { /* text field is NULL, delete */
-    from = data->chg_first + data->chg_length;
-    to = data->chg_first; 
-    ml = pb->length - from;   
-    memmove((char *)pb->text + to * sizeof(wchar_t),
-	    (char *)pb->text + from * sizeof(wchar_t), 
-	    ml * sizeof(wchar_t));
-    memmove((char *)pb->feedback + to * sizeof(XIMFeedback),
-	    (char *)pb->feedback + from * sizeof(XIMFeedback),
-	    ml * sizeof(XIMFeedback));
-
-    pb->length = pb->length - data->chg_length;
-    bzero((char *)pb->text + pb->length * sizeof(wchar_t),
-	  data->chg_length * sizeof(wchar_t));
-    bzero((char *)pb->feedback + pb->length * sizeof(XIMFeedback),
-	  data->chg_length * sizeof(XIMFeedback));
+  if (data->chg_first) {
+    memcpy(replacement, pb->text, data->chg_first * sizeof(wchar_t));
+    memcpy(feedback, pb->feedback, data->chg_first * sizeof(XIMFeedback));
   }
-
-  proc = get_real_callback((Widget)client_data, PREEDIT_DRAW, &real);
-  if (proc)
-    (*proc)(xic, (XPointer)real, call_data);
+  suffix = pb->length - data->chg_first - data->chg_length;
+  if (suffix) {
+    memcpy(replacement + data->chg_first + inserted,
+           pb->text + data->chg_first + data->chg_length, suffix * sizeof(wchar_t));
+    memcpy(feedback + data->chg_first + inserted,
+           pb->feedback + data->chg_first + data->chg_length, suffix * sizeof(XIMFeedback));
+  }
+  XtFree((char *)pb->text); XtFree((char *)pb->feedback);
+  pb->text = replacement; pb->feedback = feedback;
+  pb->length = result; pb->caret = data->caret;
+  proc = get_real_callback(w, PREEDIT_DRAW, &real);
+  if (proc) (*proc)(xic, (XPointer)real, call_data);
 }
 
 static void
@@ -1651,9 +1598,7 @@ ImPreeditCaretCallback(XIC xic,
 		(XIMPreeditCaretCallbackStruct *) call_data;
   Widget real = NULL;
 
-  if (!client_data){
-    assert(False);
-  }
+  if (!client_data || !data) return;
 
 /* update the preedit buffer */
   if ((im_info = get_im_info(w, False)) == NULL)
@@ -1662,17 +1607,19 @@ ImPreeditCaretCallback(XIC xic,
         return;
 
   pb = icp->preedit_buffer;
+  if (!pb || pb->caret < 0 || pb->caret > pb->length) return;
   pb->style = data->style;
 
   switch (data->direction) {
     case XIMForwardChar:
-	pb->caret = pb->caret + 1;
+	if (pb->caret < pb->length) ++pb->caret;
 	break;
     case XIMBackwardChar:
-	pb->caret = pb->caret - 1;
+	if (pb->caret > 0) --pb->caret;
 	break;
     case XIMAbsolutePosition:
-	pb->caret = data->position;
+	if (data->position < 0 || data->position > pb->length) return;
+        pb->caret = data->position;
 	break;
     default:
 	break;    
@@ -1709,9 +1656,8 @@ get_real_callback(Widget w,
       break;
     }
   }
-  if (target == refs.num_refs){
-    assert(False);
-  }
+  if (target == refs.num_refs)
+    return (XICProc)NULL;
 
   if (refs.callbacks[target])
     return (XICProc)refs.callbacks[target][swc];

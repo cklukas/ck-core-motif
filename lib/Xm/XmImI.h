@@ -36,6 +36,9 @@ extern "C" {
 
 /********    Private Function Declarations for XmIm.c    ********/
 
+extern Boolean _XmImPreeditRangeValid(unsigned int length, int first, int removed,
+                                      unsigned int inserted, int caret);
+
 extern void _XmImFreeShellData(Widget w, XtPointer* data);
 extern void _XmImChangeManaged(Widget vw) ;
 extern void _XmImRealize(Widget vw) ;
