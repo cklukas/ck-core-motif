@@ -31,7 +31,8 @@ that correctly expect scalar positions.
 
 `<Xm/TextLayout.h>` provides `XmTextParagraphCreate`,
 `XmTextParagraphLine` and `XmTextParagraphWrapLine`. A paragraph owns a copy of
-its text, full ICU bidi/isolate analysis and selected fallback fonts. Each line
+its text, full ICU bidi/isolate analysis and selected fallback fonts. The primary
+`XftFont` is borrowed and must outlive the paragraph and all its line captures. Each line
 capture retains its paragraph. Release captures with `XmTextLayoutFree` and
 paragraph references with `XmTextParagraphFree`.
 

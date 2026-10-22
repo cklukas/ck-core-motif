@@ -21,8 +21,8 @@ They separate immutable values and lifetime rules from application behavior.
 
 The development [disclosure section API](disclosure.md) provides a stable
 content host, explicit expansion state and transition callbacks. Its public
-contract is documented from the source header; native fixture admission is
-pending. It is not currently an accepted installed-cohort capability.
+contract and installed native ARM64 fixture results are documented together.
+Application usability and other-architecture acceptance remain separate.
 
 Other recurring patterns can justify future shared components: labelled field
 rows, searchable selectors, notification/status areas and split-pane navigation.

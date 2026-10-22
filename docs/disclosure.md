@@ -1,9 +1,10 @@
 # Disclosure sections
 
 `<Xm/Disclosure.h>` defines a native `XmManager` subclass for a collapsible
-section. This is a development-source API: its first integrated native build and
-widget fixture are pending. It must not yet be treated as an accepted installed
-capability.
+section. The installed ABI 5 native ARM64 cohort passes its interaction, geometry,
+lifecycle and accessibility fixtures. Consumers must rebuild against that same
+header/library cohort; other architectures and application integration have
+separate acceptance checks.
 
 ## Construction and ownership
 
@@ -56,8 +57,9 @@ All widget operations and callbacks run on the owning Xt thread.
 
 ## Validation boundary
 
-Required native checks include actual pointer/keyboard activation, callback
-counts, focus transfer, geometry negotiation, preserved child managed states,
-resizing, multiple instances and destruction. Accessibility must expose the
-same section state and usable header action. Source declarations alone do not
-establish any of these outcomes; see [current status](status.md).
+The native fixture checks pointer/keyboard activation, callback counts and
+notification suppression, focus transfer, geometry negotiation, preserved child
+managed states, resizing, multiple instances and callback-triggered destruction.
+A real D-Bus observer checks expanded state and the header action. These checks
+pass for the installed native ARM64 cohort; they do not substitute for screen-reader
+or application usability checks. See [current status](status.md).

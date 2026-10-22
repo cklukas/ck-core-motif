@@ -19,17 +19,18 @@ features introduced afterward.
 | Unicode maps | Exact UTF-8/scalar mappings and ICU extended-grapheme boundaries have focused utility tests. |
 | Shaped captures | Native ARM Linux strict compilation and Xvfb readback fixtures cover Arabic, Hebrew, Latin, combining marks, ligatures, CJK fallback and tabs. |
 | Line context | Focused native fixtures cover full-paragraph bidi/isolate context, actual-line Arabic shaping, retained ownership and mixed-script wrapping. |
-| Text/TextField integration | Shared capture paths for paint, geometry, hits, selections and movement are implemented. Full new-cohort widget fixture admission is pending. |
+| Text/TextField integration | Shared capture paths for paint, geometry, hits, selections and movement are implemented. Installed ABI 5 native ARM64 fixtures pass for actual Text/TextField paint, hit/selection geometry, grapheme movement and constrained wrapping. |
 | XIM | Preedit range and conversion validation are implemented. Real input-method service composition, cancellation, dead keys and restart behavior require service tests. |
-| Accessibility | Semantic providers and optional transport are implemented. Service absence, connection, events, multiple shells and assistive-client behavior must be checked for the selected cohort. |
-| Disclosure | Native section API and implementation are under development; integrated build, interaction and lifecycle fixtures are pending. |
+| Accessibility | Semantic providers and optional transport are implemented. Installed native ARM64 D-Bus observer fixtures pass for service absence, connection, events, actions and multiple shells under one application root. Real screen-reader usability remains unqualified. |
+| Disclosure | Installed native ARM64 interaction, geometry, focus, child-state retention, callback/destruction and real accessibility observer fixtures pass. |
 | Clipboard | Timestamp fixes are covered by a dedicated fixture. Large INCR transfers and full Unicode clipboard round trips remain separate acceptance cases. |
 
 The focused layout fixtures do not establish complete Unicode conformance,
 all-font correctness, input-method interoperability or screen-reader usability.
-Wrapped widget behavior, visual selection, supplementary-plane glyphs, keyboard
-navigation, font fallback, long-line performance and destruction/recreation all
-need to be exercised in the actual installed toolkit and its intended consumers.
+The native ARM64 cohort also passes the legacy/basic GUI fixture. These results
+cover the tested fonts, strings and interactions; they do not establish exhaustive
+supplementary-plane coverage, long-line performance or intended-consumer usability.
+All x86_64 compilation and runtime validation remain pending.
 
 ## Evidence to retain
 
