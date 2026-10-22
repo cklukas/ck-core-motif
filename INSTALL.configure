@@ -1,3 +1,6 @@
+Xft-enabled builds require pkg-config metadata for xft, fontconfig, freetype2
+and xrender. Use --disable-xft to build without those dependencies.
+
 GNU make 4.3 or newer is required for grouped generated-file targets.
 
 Basic Installation

@@ -2,7 +2,7 @@ AC_DEFUN([AC_FIND_XFT],
 [
 AH_TEMPLATE([HAVE_FREETYPE], [We have the FreeType library])
 AH_TEMPLATE([HAVE_FONTCONFIG], [We have the fontconfig library])
-AH_TEMPLATE([HAVE_XRENDER], [We have the fontconfig library])
+AH_TEMPLATE([HAVE_XRENDER], [We have the XRender library])
 AH_TEMPLATE([FC_DEFAULT_FONTS], [We have the fontconfig library])
 AH_TEMPLATE([CONFDIR], [We have the fontconfig library])
 AH_TEMPLATE([USE_XFT], [Use XFT])
@@ -19,11 +19,18 @@ AC_ARG_WITH(fontconfig_config,   [  --with-fontconfig-config=PROG  Use Fontconfi
 if test "$enable_xft" = "yes"
 then
 
+AC_PATH_TOOL([PKG_CONFIG], [pkg-config])
+if test -z "$PKG_CONFIG" || ! "$PKG_CONFIG" --exists xft fontconfig freetype2 xrender
+then
+    AC_MSG_ERROR([Xft requires pkg-config metadata for xft, fontconfig, freetype2 and xrender])
+fi
+
 #
 # Check freetype configuration
 #
 case "$freetype_config" in
 no)
+	ft_config=no
 	;;
 yes)
 	AC_CHECK_PROG(ft_config,freetype-config,freetype-config,no)
@@ -40,7 +47,7 @@ no)
 yes)
 	case "$ft_config" in
 	no)
-		FREETYPE_CFLAGS=""
+		FREETYPE_CFLAGS="`$PKG_CONFIG freetype2 --cflags`"
 		;;
 	*)
 		FREETYPE_CFLAGS="`$ft_config --cflags`"
@@ -59,7 +66,7 @@ no)
 yes)
 	case "$ft_config" in
 	no)
-		freetype_lib=""
+		freetype_lib="`$PKG_CONFIG freetype2 --libs`"
 		;;
 	*)
 		freetype_lib="`$ft_config --libs`"
@@ -134,8 +141,16 @@ AC_SUBST(CONFDIR)
 FINDXFT_HAVE_XRENDER="no"
 case "$have_x" in
 yes)
-	XRENDER_CFLAGS="-I$x_includes"
-	XRENDER_LIBS="-L$x_libraries -lXft -lXrender"
+	XRENDER_CFLAGS="`$PKG_CONFIG xft xrender --cflags`"
+	XRENDER_LIBS="`$PKG_CONFIG xft xrender --libs`"
+	if test -n "$x_includes" && test "$x_includes" != NONE
+	then
+		XRENDER_CFLAGS="-I$x_includes $XRENDER_CFLAGS"
+	fi
+	if test -n "$x_libraries" && test "$x_libraries" != NONE
+	then
+		XRENDER_LIBS="-L$x_libraries $XRENDER_LIBS"
+	fi
 
 	saved_LIBS="$LIBS"
 	LIBS="$LIBS $XRENDER_LIBS"
@@ -173,6 +188,7 @@ esac
 #
 case "$fontconfig_config" in
 no)
+	fc_config=no
 	;;
 yes)
 	AC_CHECK_PROG(fc_config,fontconfig-config,fontconfig-config,no)
@@ -189,7 +205,7 @@ no)
 yes)
 	case "$fc_config" in
 	no)
-		FONTCONFIG_CFLAGS="`pkg-config fontconfig --cflags`"
+		FONTCONFIG_CFLAGS="`$PKG_CONFIG fontconfig --cflags`"
 		;;
 	*)
 		FONTCONFIG_CFLAGS="`$fc_config --cflags`"
@@ -208,7 +224,7 @@ no)
 yes)
 	case "$fc_config" in
 	no)
-		FONTCONFIG_LIBS="`pkg-config fontconfig --libs`"
+		FONTCONFIG_LIBS="`$PKG_CONFIG fontconfig --libs`"
 		;;
 	*)
 		FONTCONFIG_LIBS="`$fc_config --libs`"
@@ -220,6 +236,7 @@ yes)
 	;;
 esac
 
+FINDXFT_HAVE_FONTCONFIG="no"
 saved_LIBS="$LIBS"
 LIBS="$LIBS $FONTCONFIG_LIBS"
 saved_CPPFLAGS="$CPPFLAGS"
@@ -239,6 +256,7 @@ yes)
 		LIBS="$saved_LIBS"
 		;;
 	yes)
+		FINDXFT_HAVE_FONTCONFIG="yes"
 		AC_DEFINE(HAVE_FONTCONFIG, 1, This is defined if we find the FontConfig library)
 		AC_SUBST(FONTCONFIG_CFLAGS)
 		AC_SUBST(FONTCONFIG_LIBS)
@@ -247,19 +265,16 @@ yes)
 	;;
 esac
 
-dnl
-dnl Should this be conditionally defined ?
-dnl
-
-dnl if test "$FINDXFT_HAVE_XRENDER" = "yes" -a "$FINDXFT_HAVE_FREETYPE" = "yes"
-dnl then
- 	AC_DEFINE(USE_XFT, 1, This means we will be using the Xft library)
-CFLAGS="$CFLAGS `pkg-config xft --cflags`"
+if test "$FINDXFT_HAVE_XRENDER" != "yes" || test "$FINDXFT_HAVE_FREETYPE" != "yes" || test "$FINDXFT_HAVE_FONTCONFIG" != "yes"
+then
+    AC_MSG_ERROR([Requested Xft support failed the FreeType, XRender or Fontconfig compile/link probes])
+fi
+AC_DEFINE(USE_XFT, 1, This means we will be using the Xft library)
+CFLAGS="$CFLAGS `$PKG_CONFIG xft --cflags`"
 AC_SUBST(CFLAGS)
-LIBS="$LIBS `pkg-config xft --libs`"
+LIBS="$LIBS `$PKG_CONFIG xft --libs`"
 AC_SUBST(LIBS)
 
-dnl fi
 
 fi
 ])
