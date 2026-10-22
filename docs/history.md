@@ -28,3 +28,45 @@ coordinate maps, coherent ICU/HarfBuzz text captures, native accessibility
 providers and an explicit native ABI epoch. The [status page](status.md) lists
 the validation limits. A source commit or a successful standalone fixture does
 not establish complete widget or input-method acceptance.
+
+## Widget and resource-compiler correctness
+
+The focused corrections in `d73af27`, `fe44815` and `a285086` address
+SpinBox/SimpleSpinBox behavior, List quick navigation, existing DPI defaults
+and WML/UIL database handling. The repository's `WIDGET_REVIEW.md` retains the
+full source review and API caveats; this page summarizes its scope.
+
+- SpinBox uses exact integer/fixed-point formatting and parsing, bounded signed
+  arithmetic and defined constraint offsets. It checks large increments,
+  exceptional numeric input and deletion positions, preserves selected items
+  during string insertion, clears emptied controls and cancels repeat timers
+  when their widgets are destroyed.
+- List quick navigation checks multibyte conversion results and uses independent
+  conversion state, avoiding uninitialized input from malformed or truncated
+  commits while preserving valid multibyte navigation.
+- DPI defaults require finite, positive, completely parsed values and saturate
+  dimensions before conversion. Default SpinBox arrows follow the existing
+  Xft.dpi / 75 convention; explicitly supplied arrow and indicator sizes remain
+  authoritative. This adds neither live per-monitor scaling nor automatic
+  application-pixmap scaling.
+- WML emits deterministic zero padding instead of reading beyond string storage,
+  bounds debug-table iteration, accepts long output paths safely and reports
+  missing output arguments and write/close failures. UIL copies owned database
+  paths correctly, guards short suffixes and does not free environment storage.
+  Existing WMD framing and length fields remain unchanged; the
+  architecture-dependent file format is not redesigned.
+
+The widget regression runner covers numeric limits, decimal/exponent input and
+an independent arithmetic corpus, locale radix handling, indexed positions,
+boundary callbacks, timer destruction, string-table mutations, List navigation
+and DPI defaults. `tests/automated/check-wmd.py` covers generation, long/short
+paths, error handling and UIL round trips. The List fixture interposes the XIM
+lookup boundary; it does not qualify a real input-method service.
+
+Focused GCC and ASan/UBSan checks passed in a separately built **ABI 4** cohort.
+Those corrections do not themselves change public resource types, signatures or
+instance layouts. They are now integrated with the development **ABI 5** source,
+whose combined installed-cohort validation is still pending. Neither the earlier
+ABI 5 feature-suite pass nor the separate ABI 4 sanitizer results establish that
+combined result. Full sanitizer coverage requires instrumenting both the toolkit
+library and its consumers; consumer-only instrumentation has narrower scope.

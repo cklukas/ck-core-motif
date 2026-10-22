@@ -41,6 +41,10 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
               tests/Toolkit/Unicode/layout.c tests/Toolkit/Unicode/line_context.c \
               tests/Toolkit/Unicode/text_unicode.c \
               tests/disclosure/widget.c tests/disclosure/observe.py \
+              WIDGET_REVIEW.md tests/headers/cxx20.cpp \
+              tests/automated/check-dpi.c tests/automated/check-list-unicode.c \
+              tests/automated/check-spinbox.c tests/automated/run-widget-regressions.py \
+              tests/automated/check-wmd.py \
               docs/index.md docs/history.md docs/status.md docs/build.md \
               docs/abi.md docs/unicode.md docs/accessibility.md \
               docs/components.md docs/disclosure.md docs/documentation.md \
