@@ -517,7 +517,7 @@ _XmTextFieldConvert(
       *timestamp = tf->text.prim_time;
     *value = (XtPointer) timestamp;
     *type = XA_INTEGER;
-    *length = sizeof(Time) / 4;
+    *length = 1;
     *format = 32;
   } else if (*target == XA_STRING) {
     *type = (Atom) XA_STRING;

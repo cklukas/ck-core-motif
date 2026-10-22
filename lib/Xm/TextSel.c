@@ -514,7 +514,7 @@ _XmTextConvert(
       *timestamp = tw->text.input->data->sec_time;
     *value = (XtPointer) timestamp;
     *type = XA_INTEGER;
-    *length = sizeof(Time) / 4;
+    *length = 1;
     *format = 32;
   } else if (*target == XA_STRING) {
     /* Provide data for XA_STRING requests */

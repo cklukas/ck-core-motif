@@ -510,6 +510,7 @@ _XmDataFieldConvert(
 
     if (tf == NULL) return False;
 
+    tmp_prop.value = NULL;
     ret_status = XmbTextListToTextProperty(XtDisplay(w), &tmp_string, 1,
                                       (XICCEncodingStyle)XTextStyle, &tmp_prop);
     if (ret_status == Success)
@@ -520,6 +521,10 @@ _XmDataFieldConvert(
 				       * case its broken, this prevents a core
 				       * dump.
 				       */
+    if (tmp_prop.value != NULL) {
+       XFree((char *)tmp_prop.value);
+       tmp_prop.value = NULL;
+    }
 
     if ((*selection == XA_PRIMARY) || (*selection == CLIPBOARD)) {
        has_selection = XmTextF_has_primary(tf);
@@ -559,8 +564,9 @@ _XmDataFieldConvert(
       *targs++ = LENGTH; target_count++;
       *targs++ = MULTIPLE; target_count++;
       *targs++ = TIMESTAMP; target_count++;
-      if (is_primary || is_destination)
+      if (is_primary || is_destination) {
          *targs++ = INSERT_SELECTION; target_count++;
+      }
       if (is_primary || is_secondary || is_drop) {
          *targs++ = COMPOUND_TEXT; target_count++;
          *targs++ = TEXT; target_count++;
@@ -570,7 +576,7 @@ _XmDataFieldConvert(
          *targs++ = DELETE; target_count++;
       }
       *type = XA_ATOM;
-      *length = (target_count*sizeof(Atom)) >> 2; /*convert to work count */
+      *length = target_count;
       *format = 32;
    } else if (*target == TIMESTAMP) {
       Time *timestamp;
@@ -585,7 +591,7 @@ _XmDataFieldConvert(
          *timestamp = XmTextF_prim_time(tf);
       *value = (XtPointer) timestamp;
       *type = XA_INTEGER;
-      *length = sizeof(Time);
+      *length = 1;
       *format = 32;
     } else if (*target == XA_STRING) {
       *type = (Atom) XA_STRING;
