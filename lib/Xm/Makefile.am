@@ -169,7 +169,7 @@ $(JPEG_HDRS) \
 $(PNG_HDRS) \
 $(TIP_HDRS)
 
-xm_HEADERS = Accessible.h TextUnicode.h ArrowB.h      ArrowBG.h       ArrowBGP.h      ArrowBP.h \
+xm_HEADERS = Accessible.h TextUnicode.h TextLayout.h ArrowB.h      ArrowBG.h       ArrowBGP.h      ArrowBP.h \
         BulletinB.h     BulletinBP.h    CacheP.h        CascadeB.h \
         CascadeBG.h     CascadeBGP.h    CascadeBP.h     Command.h \
         CommandP.h      CutPaste.h      DialogS.h \
@@ -278,7 +278,13 @@ else
 ATSPI_SRCS =
 endif
 
-libXm_la_SOURCES = Accessible.c TextUnicode.c $(ATSPI_SRCS) $(SRCS1) $(SRCS2) $(OBSO_SRCS) $(XPM_SRCS) $(NEW_WID_SRCS) $(SLIDE_SRCS) \
+if XFT_TEXT_LAYOUT
+TEXT_LAYOUT_SRCS = TextLayout.c
+else
+TEXT_LAYOUT_SRCS =
+endif
+
+libXm_la_SOURCES = Accessible.c TextUnicode.c $(TEXT_LAYOUT_SRCS) $(ATSPI_SRCS) $(SRCS1) $(SRCS2) $(OBSO_SRCS) $(XPM_SRCS) $(NEW_WID_SRCS) $(SLIDE_SRCS) \
         $(TIP_SRCS) $(EDITRES_SRCS) $(EXTRA_SRCS) $(JPEG_SRCS) $(PNG_SRCS)
 
 EXTRA_libXm_la_SOURCES = $(SLIDE_SRCS) $(TIP_SRCS)

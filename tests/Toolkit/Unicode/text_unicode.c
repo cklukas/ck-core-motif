@@ -59,19 +59,78 @@ static void check_widget(Widget widget, int field) {
         require(XmTextXYToPos(widget, x, y) == 3, "text byte/scalar/grapheme units confused in mouse hit");
     }
 }
+static void check_complex(Widget widget, int field) {
+    const char *source = "abc \xd7\x90\xd7\x91\xd7\x92 \xd8\xa8\xd8\xad\xd8\xb1 e\xcc\x81 \xe4\xb8\xad\xe6\x96\x87";
+    XmTextUnicodeMap *map = XmTextUnicodeMapCreate(source, strlen(source));
+    size_t g;
+    Position x, y, inverse_x, inverse_y;
+    require(map != NULL, "complex widget fixture mapping");
+    if (field) XmTextFieldSetString(widget, (char *)source);
+    else XmTextSetString(widget, (char *)source);
+    for (g = 0; g <= XmTextUnicodeGraphemeCount(map); ++g) {
+        size_t scalar;
+        XmTextPosition hit;
+        XmTextUnicodeScalarAtGrapheme(map, g, &scalar);
+        require(field ? XmTextFieldPosToXY(widget, (XmTextPosition)scalar, &x, &y) :
+                        XmTextPosToXY(widget, (XmTextPosition)scalar, &x, &y), "complex caret geometry unavailable");
+        hit = field ? XmTextFieldXYToPos(widget, x, y) : XmTextXYToPos(widget, x, y);
+        require(hit >= 0 && XmTextUnicodeIsGraphemeBoundary(map, (size_t)hit), "complex widget hit split a grapheme");
+        require(field ? XmTextFieldPosToXY(widget, hit, &inverse_x, &inverse_y) :
+                        XmTextPosToXY(widget, hit, &inverse_x, &inverse_y), "complex hit inverse geometry unavailable");
+        /* Bidi boundaries can give distinct logical positions the same visual
+         * point; validate the point and legal boundary rather than guessing. */
+        require(abs((int)x - inverse_x) <= 1 && y == inverse_y, "widget hit/caret disagree with captured visual position");
+    }
+    XmTextUnicodeMapFree(map);
+}
+static void check_wrapped(Widget widget) {
+    const char *source = "abc \xd7\x90\xd7\x91\xd7\x92 \xd8\xa8\xd8\xad\xd8\xb1 e\xcc\x81 \xe4\xb8\xad\xe6\x96\x87 abc \xd7\x90\xd7\x91\xd7\x92 \xd8\xa8\xd8\xad\xd8\xb1 e\xcc\x81 \xe4\xb8\xad\xe6\x96\x87";
+    XmTextUnicodeMap *map = XmTextUnicodeMapCreate(source, strlen(source));
+    size_t g;
+    Position x, y, last_y = -1;
+    int rows = 0;
+    require(map != NULL, "wrapped widget fixture mapping");
+    XmTextSetString(widget, (char *)source);
+    for (g = 0; g <= XmTextUnicodeGraphemeCount(map); ++g) {
+        size_t scalar;
+        XmTextPosition hit;
+        XmTextUnicodeScalarAtGrapheme(map, g, &scalar);
+        require(XmTextPosToXY(widget, (XmTextPosition)scalar, &x, &y), "wrapped caret geometry unavailable");
+        if (y != last_y) { ++rows; last_y = y; }
+        hit = XmTextXYToPos(widget, x, y);
+        require(hit >= 0 && XmTextUnicodeIsGraphemeBoundary(map, (size_t)hit), "wrapped hit split a grapheme");
+    }
+    require(rows >= 3, "wrapped text did not produce multiple captured lines");
+    /* Exercise source/cache invalidation and width-dependent line recapture. */
+    XmTextReplace(widget, 0, 3, "xy");
+    XtVaSetValues(widget, XmNwidth, 300, NULL);
+    require(XmTextPosToXY(widget, 2, &x, &y), "wrapped cache failed after replacement/resize");
+    XmTextUnicodeMapFree(map);
+}
 int main(int argc, char **argv) {
     XtAppContext application;
-    Widget shell, row, field, text;
+    Widget shell, row, field, text, wrapped;
+    XmFontListEntry entry;
+    XmFontList fonts;
     require(setlocale(LC_ALL, "C.UTF-8") != NULL, "UTF8 locale unavailable");
     XtSetLanguageProc(NULL, NULL, NULL);
     require(XmTextUnicodeAvailable(), "Unicode text support not enabled");
     check_map();
     shell = XtVaAppInitialize(&application, "UnicodeFixture", NULL, 0, &argc, argv, NULL, NULL);
     row = XtVaCreateManagedWidget("row", xmRowColumnWidgetClass, shell, NULL);
-    field = XtVaCreateManagedWidget("field", xmTextFieldWidgetClass, row, NULL);
-    text = XtVaCreateManagedWidget("text", xmTextWidgetClass, row, NULL);
+    entry = XmFontListEntryLoad(XtDisplay(shell), "DejaVu Sans", XmFONT_IS_XFT, XmFONTLIST_DEFAULT_TAG);
+    require(entry != NULL, "Xft text fixture font unavailable");
+    fonts = XmFontListAppendEntry(NULL, entry); XmFontListEntryFree(&entry);
+    field = XtVaCreateManagedWidget("field", xmTextFieldWidgetClass, row, XmNfontList, fonts, NULL);
+    text = XtVaCreateManagedWidget("text", xmTextWidgetClass, row, XmNfontList, fonts, XmNwordWrap, False, NULL);
+    wrapped = XtVaCreateManagedWidget("wrapped", xmTextWidgetClass, row,
+        XmNfontList, fonts, XmNwordWrap, True, XmNscrollHorizontal, False,
+        XmNeditMode, XmMULTI_LINE_EDIT, XmNwidth, 170, XmNheight, 360,
+        XmNresizeWidth, False, XmNresizeHeight, False, NULL);
+    XmFontListFree(fonts);
     XtRealizeWidget(shell);
     check_widget(field, 1); check_widget(text, 0);
+    check_complex(field, 1); check_complex(text, 0); check_wrapped(wrapped);
     XtDestroyWidget(shell); XtDestroyApplicationContext(application);
     puts("Unicode maps, preedit bounds and real Text/TextField grapheme actions passed");
     return 0;

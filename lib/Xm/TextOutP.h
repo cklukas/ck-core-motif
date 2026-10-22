@@ -44,7 +44,7 @@ extern "C" {
        && widget->text.edit_mode != XmSINGLE_LINE_EDIT)
 
 typedef struct _LineTableExtraRec {
-    Dimension width;
+    int width;
     Boolean wrappedbychar;
 } LineTableExtraRec, *LineTableExtra ;
 
@@ -68,6 +68,10 @@ typedef enum {on, off} OnOrOff;	/* For when Booleans aren't obvious enough. */
  */
 
 typedef struct _OutputDataRec {
+    struct _XmTextParagraphCache *unicode_cache;
+    unsigned int unicode_cache_count;
+    int unicode_affinity;
+    LineNum unicode_last_draw_line;
     XmFontList fontlist;	/* Fontlist for text. */
     unsigned int blinkrate;
     Boolean wordwrap;		/* Whether to wordwrap. */

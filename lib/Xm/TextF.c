@@ -66,7 +66,12 @@ static char rcsid[] = "$TOG: TextF.c /main/65 1999/09/01 17:28:48 mgreess $"
 #include "RepTypeI.h"
 #include "ScreenI.h"
 #include "TextFI.h"
+#include <math.h>
+#include <stdint.h>
 #include "TextUnicode.h"
+#if USE_XFT
+#include "TextLayout.h"
+#endif
 #include "TextFSelI.h"
 #include "TravActI.h"
 #include "TraversalI.h"
@@ -201,6 +206,13 @@ static void TextFieldSetHighlight(XmTextFieldWidget tf,
 				  XmTextPosition right,
 				  XmHighlightMode mode);
 
+#if USE_XFT
+static XmTextLayout *TextFieldLayout(XmTextFieldWidget tf);
+static Boolean TextFieldUsesUnicode(XmTextFieldWidget tf);
+static XmTextUnicodeMap *TextFieldUnicodeMap(XmTextFieldWidget tf);
+static void InvalidateTextFieldLayout(XmTextFieldWidget tf);
+static Boolean RedisplayUnicodeText(XmTextFieldWidget tf);
+#endif
 static Boolean GetXYFromPos(XmTextFieldWidget tf,
 			    XmTextPosition position,
 			    Position *x,
@@ -1641,8 +1653,29 @@ GetXYFromPos(XmTextFieldWidget tf,
   *x = 0;
   *y = 0;
   
-  if (position > tf->text.string_length) return False;
-  
+  if (position > tf->text.string_length || position < 0) return False;
+#if USE_XFT
+  {
+    XmTextLayout *layout = TextFieldLayout(tf);
+    double caret;
+    size_t caret_position = (size_t)position;
+    if (TextFieldUsesUnicode(tf) && !layout) return False;
+    if (layout && !XmTextLayoutCaret(layout, caret_position, tf->text.unicode_affinity, &caret)) {
+      XmTextUnicodeMap *map = TextFieldUnicodeMap(tf);
+      if (map) {
+        XmTextUnicodePreviousGrapheme(map, caret_position, &caret_position);
+        XmTextUnicodeMapFree(map);
+      }
+    }
+    if (layout && XmTextLayoutCaret(layout, caret_position, tf->text.unicode_affinity, &caret)) {
+      caret += tf->text.h_offset;
+      if (caret < SHRT_MIN || caret > SHRT_MAX) return False;
+      *x = (Position)lround(caret);
+      *y = tf->primitive.highlight_thickness + tf->primitive.shadow_thickness + tf->text.margin_top + TextF_FontAscent(tf);
+      return True;
+    }
+  }
+#endif
   if (tf->text.max_char_size != 1) {
     *x += FindPixelLength(tf, (char*)TextF_WcValue(tf), (int)position);
   } else {
@@ -2102,6 +2135,32 @@ FindPixelLength(XmTextFieldWidget tf,
 		char * string,
 		int length)
 {
+#if USE_XFT
+  if (length >= 0 && TextF_UseXft(tf) && XmTextLayoutAvailable()) {
+    const char *base = tf->text.max_char_size == 1 ? TextF_Value(tf) : (const char *)TextF_WcValue(tf);
+    size_t unit = tf->text.max_char_size == 1 ? 1 : sizeof(wchar_t);
+    uintptr_t address = (uintptr_t)string, origin = (uintptr_t)base;
+    if (base && address >= origin && (address - origin) % unit == 0 &&
+        (address - origin) / unit <= (size_t)tf->text.string_length &&
+        (size_t)length <= (size_t)tf->text.string_length - (address - origin) / unit) {
+      XmTextLayout *layout = TextFieldLayout(tf);
+      if (!layout) return 0;
+      if (layout) {
+        size_t first = (address - origin) / unit, last = first + (size_t)length;
+        double width;
+        XmTextUnicodeMap *map = TextFieldUnicodeMap(tf);
+        if (map) {
+          if (!XmTextUnicodeIsGraphemeBoundary(map, first)) XmTextUnicodePreviousGrapheme(map, first, &first);
+          if (!XmTextUnicodeIsGraphemeBoundary(map, last)) XmTextUnicodeNextGrapheme(map, last, &last);
+          width = XmTextLayoutRangeWidth(layout, first, last);
+          XmTextUnicodeMapFree(map);
+          if (width >= 0 && width <= INT_MAX) return (int)lround(width);
+        }
+      }
+      return 0;
+    }
+  }
+#endif
   if (TextF_UseFontSet(tf)) {
     if (tf->text.max_char_size != 1)
       return (XwcTextEscapement((XFontSet)TextF_Font(tf), 
@@ -2280,7 +2339,13 @@ RedisplayText(XmTextFieldWidget tf,
     return;
   
   _XmTextFieldDrawInsertionPoint(tf, False);
-  
+#if USE_XFT
+  if (RedisplayUnicodeText(tf)) {
+    tf->text.refresh_ibeam_off = True;
+    _XmTextFieldDrawInsertionPoint(tf, True);
+    return;
+  }
+#endif
   /* Get the current rectangle.
    */
   GetRect(tf, &rect);
@@ -2456,6 +2521,22 @@ AdjustText(XmTextFieldWidget tf,
   Dimension temp;
   
   
+#if USE_XFT
+  {
+    XmTextLayout *layout = TextFieldLayout(tf);
+    double caret;
+    if (TextFieldUsesUnicode(tf) && !layout) return False;
+    if (layout && XmTextLayoutCaret(layout, (size_t)position, tf->text.unicode_affinity, &caret)) {
+      int shift = 0;
+      left_edge = (int)lround(caret) + tf->text.h_offset;
+      if (left_edge < (int)margin_width) shift = (int)margin_width - left_edge;
+      else if (left_edge > (int)tf->core.width - (int)margin_width) shift = (int)tf->core.width - (int)margin_width - left_edge;
+      if (shift) tf->text.h_offset += shift;
+      if (shift || flag) RedisplayText(tf, 0, tf->text.string_length);
+      return shift ? True : False;
+    }
+  }
+#endif
   if (tf->text.max_char_size != 1) {
     left_edge = FindPixelLength(tf, (char *) TextF_WcValue(tf),
 				(int)position) + (int) tf->text.h_offset;
@@ -2882,6 +2963,113 @@ TextFieldUnicodeMap(XmTextFieldWidget tf)
   return map;
 }
 
+#if USE_XFT
+static void
+InvalidateTextFieldLayout(XmTextFieldWidget tf)
+{
+  XmTextLayoutFree(tf->text.unicode_layout);
+  tf->text.unicode_layout = NULL;
+  tf->text.unicode_layout_failed = False;
+  tf->text.unicode_affinity = 0;
+}
+
+static Boolean
+TextFieldUsesUnicode(XmTextFieldWidget tf)
+{
+  return TextF_UseXft(tf) && XmTextLayoutAvailable();
+}
+
+static XmTextLayout *
+TextFieldLayout(XmTextFieldWidget tf)
+{
+  char *utf8;
+  if (!TextFieldUsesUnicode(tf) || tf->text.unicode_layout_failed) return NULL;
+  if (tf->text.unicode_layout) return tf->text.unicode_layout;
+  utf8 = XmTextFieldGetString((Widget)tf);
+  if (!utf8) return NULL;
+  tf->text.unicode_layout = XmTextLayoutCreate(XtDisplay(tf), TextF_XftFont(tf), utf8, strlen(utf8));
+  XtFree(utf8);
+  if (tf->text.unicode_layout && XmTextLayoutScalarCount(tf->text.unicode_layout) != (size_t)tf->text.string_length)
+    InvalidateTextFieldLayout(tf);
+  if (!tf->text.unicode_layout) {
+    tf->text.unicode_layout_failed = True;
+    XmeWarning((Widget)tf, "Unicode paragraph layout failed: check UTF-8 input, font coverage and layout dependencies");
+  }
+  return tf->text.unicode_layout;
+}
+
+static Boolean
+LayoutColor(XmTextFieldWidget tf, Pixel pixel, XftColor *color)
+{
+  XColor resolved;
+  resolved.pixel = pixel;
+  if (!XQueryColor(XtDisplay(tf), tf->core.colormap, &resolved)) return False;
+  color->pixel = pixel;
+  color->color.red = resolved.red; color->color.green = resolved.green; color->color.blue = resolved.blue;
+  color->color.alpha = XtIsSensitive((Widget)tf) ? 0xffff : 0x8000;
+  return True;
+}
+
+static Boolean
+RedisplayUnicodeText(XmTextFieldWidget tf)
+{
+  XmTextLayout *layout = TextFieldLayout(tf);
+  XmTextUnicodeMap *map;
+  XRectangle viewport;
+  XftDraw *draw;
+  XftColor foreground, background;
+  int baseline, i;
+  if (!layout) {
+    if (TextFieldUsesUnicode(tf)) {
+      XRectangle failed;
+      GetRect(tf, &failed);
+      SetInvGC(tf, tf->text.gc);
+      XFillRectangle(XtDisplay(tf), XtWindow(tf), tf->text.gc, failed.x, failed.y, failed.width, failed.height);
+      SetNormGC(tf, tf->text.gc, True, False);
+      XDrawLine(XtDisplay(tf), XtWindow(tf), tf->text.gc, failed.x, failed.y, failed.x + failed.width, failed.y + failed.height);
+      XDrawLine(XtDisplay(tf), XtWindow(tf), tf->text.gc, failed.x, failed.y + failed.height, failed.x + failed.width, failed.y);
+      return True;
+    }
+    return False;
+  }
+  map = TextFieldUnicodeMap(tf);
+  if (!map) return False;
+  GetRect(tf, &viewport);
+  if (!LayoutColor(tf, tf->primitive.foreground, &foreground) || !LayoutColor(tf, tf->core.background_pixel, &background)) {
+    XmTextUnicodeMapFree(map); return False;
+  }
+  draw = _XmXftDrawCreate(XtDisplay(tf), XtWindow(tf));
+  baseline = tf->primitive.highlight_thickness + tf->primitive.shadow_thickness + tf->text.margin_top + TextF_FontAscent(tf);
+  SetInvGC(tf, tf->text.gc);
+  XFillRectangle(XtDisplay(tf), XtWindow(tf), tf->text.gc, viewport.x, viewport.y, viewport.width, viewport.height);
+  XmTextLayoutDraw(layout, draw, &foreground, tf->text.h_offset, baseline, 0, tf->text.string_length, &viewport);
+  for (i = 0; i < tf->text.highlight.number; ++i) {
+    size_t first = (size_t)tf->text.highlight.list[i].position;
+    size_t last = i + 1 < tf->text.highlight.number ? (size_t)tf->text.highlight.list[i + 1].position : (size_t)tf->text.string_length;
+    XmHighlightMode mode = tf->text.highlight.list[i].mode;
+    Region region;
+    if (mode == XmHIGHLIGHT_NORMAL || first >= last || last > (size_t)tf->text.string_length) continue;
+    if (!XmTextUnicodeIsGraphemeBoundary(map, first)) XmTextUnicodePreviousGrapheme(map, first, &first);
+    if (!XmTextUnicodeIsGraphemeBoundary(map, last)) XmTextUnicodeNextGrapheme(map, last, &last);
+    region = XmTextLayoutSelectionRegion(layout, tf->text.h_offset, first, last, &viewport);
+    if (!region) continue;
+    SetNormGC(tf, tf->text.gc, False, False);
+    XSetRegion(XtDisplay(tf), tf->text.gc, region);
+    if (mode == XmHIGHLIGHT_SELECTED) {
+      XFillRectangle(XtDisplay(tf), XtWindow(tf), tf->text.gc, viewport.x, viewport.y, viewport.width, viewport.height);
+      XmTextLayoutDraw(layout, draw, &background, tf->text.h_offset, baseline, first, last, &viewport);
+    } else if (mode == XmHIGHLIGHT_SECONDARY_SELECTED) {
+      XFillRectangle(XtDisplay(tf), XtWindow(tf), tf->text.gc, viewport.x, baseline + 1, viewport.width, 1);
+    }
+    XDestroyRegion(region);
+  }
+  SetNormGC(tf, tf->text.gc, True, False);
+  SetMarginGC(tf, tf->text.gc);
+  XmTextUnicodeMapFree(map);
+  return True;
+}
+#endif
+
 static void 
 SetCursorPosition(XmTextFieldWidget tf,
 		  XEvent *event,
@@ -2909,7 +3097,7 @@ SetCursorPosition(XmTextFieldWidget tf,
   if (position > tf->text.string_length)
     position = tf->text.string_length;
   
-  if (event && !FUnderVerifyPreedit(tf)) {
+  if (!FUnderVerifyPreedit(tf)) {
     XmTextUnicodeMap *map = TextFieldUnicodeMap(tf);
     size_t boundary;
     if (map && !XmTextUnicodeIsGraphemeBoundary(map, (size_t)position)) {
@@ -3298,6 +3486,9 @@ _XmTextFieldReplaceText(XmTextFieldWidget tf,
     doSetHighlight((Widget)tf, tf->text.prim_pos_left,
 			    tf->text.prim_pos_right, XmHIGHLIGHT_SELECTED);
   
+#if USE_XFT
+  InvalidateTextFieldLayout(tf);
+#endif
   tf->text.string_length += insert_length - replace_length;
   
   if (move_cursor) {
@@ -3389,6 +3580,18 @@ GetPosFromX(XmTextFieldWidget tf,
   int temp_x = 0;
   int next_char_width = 0;
   
+#if USE_XFT
+  {
+    XmTextLayout *layout = TextFieldLayout(tf);
+    size_t scalar;
+    int affinity;
+    if (TextFieldUsesUnicode(tf) && !layout) return TextF_CursorPosition(tf);
+    if (layout && XmTextLayoutHit(layout, (double)x - tf->text.h_offset, &scalar, &affinity)) {
+      tf->text.unicode_affinity = affinity;
+      return (XmTextPosition)scalar;
+    }
+  }
+#endif
   /* Decompose the x to equal the length of the text string */
   temp_x += (int) tf->text.h_offset;
   
@@ -4475,7 +4678,19 @@ BackwardChar(Widget w,
   XmTextPosition cursorPos, position;
   
   cursorPos = TextF_CursorPosition(tf);
-  
+#if USE_XFT
+  {
+    XmTextLayout *layout = TextFieldLayout(tf);
+    size_t next;
+    int affinity;
+    if (TextFieldUsesUnicode(tf) && !layout) return;
+    if (layout && XmTextLayoutVisualMove(layout, (size_t)cursorPos, tf->text.unicode_affinity, -1, &next, &affinity)) {
+      tf->text.unicode_affinity = affinity;
+      SimpleMovement((Widget)tf, event, params, num_params, cursorPos, (XmTextPosition)next);
+      return;
+    }
+  }
+#endif
   if (cursorPos > 0) {
     _XmTextFieldDrawInsertionPoint(tf, False);
     position = cursorPos - 1;
@@ -4496,7 +4711,19 @@ ForwardChar(Widget w,
   XmTextPosition cursorPos, position;
   
   cursorPos = TextF_CursorPosition(tf);
-  
+#if USE_XFT
+  {
+    XmTextLayout *layout = TextFieldLayout(tf);
+    size_t next;
+    int affinity;
+    if (TextFieldUsesUnicode(tf) && !layout) return;
+    if (layout && XmTextLayoutVisualMove(layout, (size_t)cursorPos, tf->text.unicode_affinity, 1, &next, &affinity)) {
+      tf->text.unicode_affinity = affinity;
+      SimpleMovement((Widget)tf, event, params, num_params, cursorPos, (XmTextPosition)next);
+      return;
+    }
+  }
+#endif
   if (cursorPos < tf->text.string_length) {
     _XmTextFieldDrawInsertionPoint(tf, False);
     position = cursorPos + 1;
@@ -7018,7 +7245,9 @@ ValidateString(XmTextFieldWidget tf,
   int str_len = 0;
   int i, j;
   char stack_cache[400];
-  
+#if USE_XFT
+  InvalidateTextFieldLayout(tf);
+#endif
   if (!is_wchar) {
     char *temp_str, *curr_str, *start_temp;
     
@@ -7793,6 +8022,9 @@ Initialize(Widget request,
   XmTextFieldWidget new_tf = (XmTextFieldWidget) new_w;
   Dimension width, height;
   
+  new_tf->text.unicode_layout = NULL;
+  new_tf->text.unicode_affinity = 0;
+  new_tf->text.unicode_layout_failed = False;
   Validates(new_tf);
   
   InitializeTextStruct(new_tf);
@@ -7856,7 +8088,9 @@ Destroy(Widget wid)
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) wid;
   Widget dest = XmGetDestination(XtDisplay(wid));
-  
+#if USE_XFT
+  InvalidateTextFieldLayout(tf);
+#endif
   if (dest == wid)
     _XmSetDestination(XtDisplay(wid), NULL); 
   
@@ -8089,6 +8323,8 @@ SetValues(Widget old,
   int n = 0;
   
   if (new_w->core.being_destroyed) return False;
+  new_tf->text.unicode_layout = NULL;
+  new_tf->text.unicode_layout_failed = False;
   TextFieldResetIC(old);
   
   new_tf->text.in_setvalues = True;
@@ -8462,6 +8698,9 @@ SetValues(Widget old,
 	   TextF_FontAscent(new_tf) + TextF_FontDescent(new_tf)); n++;
   XmImSetValues((Widget)new_tf, im_args, n);
   
+#if USE_XFT
+  InvalidateTextFieldLayout(old_tf);
+#endif
   if (new_font) XmFontListFree((XmFontList)TextF_FontList(old_tf));
   
   if (!redisplay) redisplay = new_tf->text.redisplay;
@@ -8800,6 +9039,9 @@ _XmTextFieldReplaceTextForPreedit(XmTextFieldWidget tf,
      }
    }
 
+#if USE_XFT
+  InvalidateTextFieldLayout(tf);
+#endif
   tf->text.string_length += insert_length - replace_length;
 
   if (move_cursor) {

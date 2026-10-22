@@ -1969,7 +1969,7 @@ SimpleMovement(Widget w,
   }
   
   if (type == XmSELECT_POSITION && include)
-    newPos = _XmStringSourceGraphemeStep(tw->text.source, cursorPos, dir);
+    newPos = _XmTextOutputVisualStep(tw, cursorPos, dir);
   else newPos = (*tw->text.source->Scan)(tw->text.source, cursorPos,
                                        type, dir, 1, include);
   

@@ -56,6 +56,13 @@ static char rcsid[] = "$TOG: TextOut.c /main/41 1999/08/12 11:37:30 vipin $"
 #include "TextI.h"
 #include "TextInI.h"
 #include "TextOutI.h"
+#include "TextStrSoI.h"
+#include <stdint.h>
+#include "TextUnicode.h"
+#if USE_XFT
+#include "TextLayout.h"
+#include <math.h>
+#endif
 #include "TraversalI.h"
 #include "XmI.h"
 #ifdef PRINTING_SUPPORTED
@@ -75,6 +82,20 @@ static char rcsid[] = "$TOG: TextOut.c /main/41 1999/08/12 11:37:30 vipin $"
 #define XmDYNAMIC_BOOL        ((Boolean) (255))
 
 /********    Static Function Declarations    ********/
+#if USE_XFT
+struct _XmTextParagraphCache {
+    XmTextPosition start, end, paragraph_start, paragraph_end;
+    int wrap_width;
+    XmTextParagraph *paragraph;
+    XmTextLayout *layout;
+    struct _XmTextParagraphCache *next;
+};
+static Boolean UsesUnicodeParagraphs(XmTextWidget tw);
+static struct _XmTextParagraphCache *UnicodeParagraph(XmTextWidget tw, XmTextPosition start);
+static void ClearUnicodeParagraphs(XmTextWidget tw);
+static Boolean DrawUnicodeParagraph(XmTextWidget tw, LineNum line, XmTextPosition start);
+#endif
+
 
 
 static void SliderMove(Widget w,
@@ -743,6 +764,227 @@ _FontStructFindWidth(XmTextWidget tw,
   return result;
 }
 
+#if USE_XFT
+static Boolean
+UsesUnicodeParagraphs(XmTextWidget tw)
+{
+  OutputData data = tw->text.output->data;
+  return data->use_xft && XmTextLayoutAvailable() &&
+    !XmDirectionMatch(XmPrim_layout_direction(tw), XmTOP_TO_BOTTOM_RIGHT_TO_LEFT);
+}
+
+static void
+ClearUnicodeParagraphs(XmTextWidget tw)
+{
+  OutputData data = tw->text.output->data;
+  while (data->unicode_cache) {
+    struct _XmTextParagraphCache *entry = data->unicode_cache;
+    data->unicode_cache = entry->next;
+    XmTextLayoutFree(entry->layout); XmTextParagraphFree(entry->paragraph); XtFree((char *)entry);
+  }
+  data->unicode_cache_count = 0;
+  data->unicode_last_draw_line = NOLINE;
+}
+
+static struct _XmTextParagraphCache *
+UnicodeParagraph(XmTextWidget tw, XmTextPosition start)
+{
+  OutputData data = tw->text.output->data;
+  struct _XmTextParagraphCache **link = &data->unicode_cache, *entry;
+  XmTextParagraph *paragraph = NULL;
+  XmTextPosition paragraph_start, end, at;
+  char *utf8;
+  size_t length = 0, capacity, line_end;
+  XmTextBlockRec block;
+  int wrap_width = ShouldWordWrap(data, tw) ?
+    (int)tw->text.inner_widget->core.width - data->leftmargin - data->rightmargin : 0;
+  if (ShouldWordWrap(data, tw) && wrap_width < 1) wrap_width = 1;
+  if (start < 0 || start == PASTENDPOS) return NULL;
+  while (*link && ((*link)->start != start || (*link)->wrap_width != wrap_width)) link = &(*link)->next;
+  if (*link) {
+    entry = *link; *link = entry->next; entry->next = data->unicode_cache;
+    data->unicode_cache = entry; return entry;
+  }
+  paragraph_start = (*tw->text.source->Scan)(tw->text.source, start, XmSELECT_LINE, XmsdLeft, 1, False);
+  end = (*tw->text.source->Scan)(tw->text.source, start, XmSELECT_LINE, XmsdRight, 1, False);
+  /* Existing visible line captures share immutable paragraph text, fonts,
+   * bidi levels and advance indexes. No detached wrapped substring is shaped. */
+  for (entry = data->unicode_cache; entry; entry = entry->next)
+    if (entry->paragraph_start == paragraph_start && entry->paragraph_end == end && entry->paragraph) {
+      paragraph = XmTextParagraphReference(entry->paragraph); break;
+    }
+  if (!paragraph) {
+    if (paragraph_start < 0 || end < start || paragraph_start > start ||
+        (size_t)(end - paragraph_start) > (SIZE_MAX - 1) / MB_LEN_MAX) return NULL;
+    capacity = (size_t)(end - paragraph_start) * MB_LEN_MAX + 1;
+    if (capacity > UINT_MAX) return NULL;
+    utf8 = XtMalloc((unsigned int)capacity);
+    if (!utf8) return NULL;
+    at = paragraph_start;
+    while (at < end) {
+      XmTextPosition next = (*tw->text.source->ReadSource)(tw->text.source, at, end, &block);
+      if (next <= at || block.length < 0 || (size_t)block.length >= capacity - length) { XtFree(utf8); return NULL; }
+      memcpy(utf8 + length, block.ptr, (size_t)block.length); length += (size_t)block.length; at = next;
+    }
+    utf8[length] = '\0';
+    paragraph = XmTextParagraphCreate(XtDisplay(tw), (XftFont *)data->font, utf8, length,
+                                      data->tabwidth > 0 ? data->tabwidth : 1);
+    XtFree(utf8);
+    if (paragraph && XmTextParagraphScalarCount(paragraph) != (size_t)(end - paragraph_start)) {
+      XmTextParagraphFree(paragraph); paragraph = NULL;
+    }
+  }
+  entry = (struct _XmTextParagraphCache *)XtCalloc(1, sizeof(*entry));
+  entry->start = start; entry->end = end; entry->paragraph_start = paragraph_start;
+  entry->paragraph_end = end; entry->paragraph = paragraph; entry->wrap_width = wrap_width;
+  if (paragraph) {
+    if (wrap_width) {
+      entry->layout = XmTextParagraphWrapLine(paragraph, (size_t)(start - paragraph_start), wrap_width, &line_end);
+      if (entry->layout) entry->end = paragraph_start + (XmTextPosition)line_end;
+    } else entry->layout = XmTextParagraphLine(paragraph, (size_t)(start - paragraph_start),
+                                               (size_t)(end - paragraph_start));
+  }
+  if (!entry->layout)
+    XmeWarning((Widget)tw, "Unicode paragraph layout failed: check UTF-8 input, font coverage and dependencies");
+  entry->next = data->unicode_cache; data->unicode_cache = entry; ++data->unicode_cache_count;
+  /* Bound retained display captures. Source and domain state live elsewhere. */
+  if (data->unicode_cache_count > 128) {
+    link = &data->unicode_cache;
+    while ((*link)->next) link = &(*link)->next;
+    XmTextLayoutFree((*link)->layout); XmTextParagraphFree((*link)->paragraph); XtFree((char *)*link); *link = NULL;
+    --data->unicode_cache_count;
+  }
+  return entry;
+}
+
+static XmTextPosition
+UnicodeLineStart(XmTextWidget tw, XmTextPosition position)
+{
+  XmTextPosition start = (*tw->text.source->Scan)(tw->text.source, position, XmSELECT_LINE, XmsdLeft, 1, False);
+  if (ShouldWordWrap(tw->text.output->data, tw)) {
+    struct _XmTextParagraphCache *line;
+    while ((line = UnicodeParagraph(tw, start)) && line->layout && line->end > start &&
+           line->end <= position && line->end < line->paragraph_end) start = line->end;
+  }
+  return start;
+}
+
+static Boolean
+ParagraphColor(XmTextWidget tw, Pixel pixel, XftColor *color)
+{
+  XColor resolved;
+  resolved.pixel = pixel;
+  if (!XQueryColor(XtDisplay(tw), tw->core.colormap, &resolved)) return False;
+  color->pixel = pixel;
+  color->color.red = resolved.red; color->color.green = resolved.green; color->color.blue = resolved.blue;
+  color->color.alpha = XtIsSensitive((Widget)tw) ? 0xffff : 0x8000;
+  return True;
+}
+
+static Boolean
+DrawUnicodeParagraph(XmTextWidget tw, LineNum line, XmTextPosition start)
+{
+  OutputData data = tw->text.output->data;
+  struct _XmTextParagraphCache *paragraph;
+  XRectangle viewport;
+  XftColor foreground, background;
+  XftDraw *draw;
+  int i, baseline;
+  double origin = data->leftmargin - data->hoffset;
+  viewport.x = data->leftmargin;
+  viewport.y = data->topmargin + line * data->lineheight;
+  viewport.width = tw->text.inner_widget->core.width > data->leftmargin + data->rightmargin ?
+    tw->text.inner_widget->core.width - data->leftmargin - data->rightmargin : 0;
+  viewport.height = data->lineheight;
+  if (!viewport.width || !viewport.height) return True;
+  SetInvGC(tw, data->gc);
+  XFillRectangle(XtDisplay(tw), XtWindow(tw->text.inner_widget), data->gc,
+                 viewport.x, viewport.y, viewport.width, viewport.height);
+  if (start == PASTENDPOS) return True;
+  paragraph = UnicodeParagraph(tw, start);
+  if (!paragraph || !paragraph->layout) {
+    SetNormGC(tw, data->gc, True, False);
+    XDrawLine(XtDisplay(tw), XtWindow(tw->text.inner_widget), data->gc,
+              viewport.x, viewport.y, viewport.x + viewport.width, viewport.y + viewport.height);
+    return True;
+  }
+  if (!ParagraphColor(tw, tw->primitive.foreground, &foreground) ||
+      !ParagraphColor(tw, tw->core.background_pixel, &background)) return True;
+  draw = _XmXftDrawCreate(XtDisplay(tw), XtWindow(tw->text.inner_widget));
+  baseline = viewport.y + data->font_ascent;
+  XmTextLayoutDraw(paragraph->layout, draw, &foreground, origin, baseline, 0,
+                    (size_t)(paragraph->end - paragraph->start), &viewport);
+  for (i = 0; i < tw->text.highlight.number; ++i) {
+    XmTextPosition first = tw->text.highlight.list[i].position;
+    XmTextPosition last = i + 1 < tw->text.highlight.number ? tw->text.highlight.list[i + 1].position : tw->text.last_position;
+    XmHighlightMode mode = tw->text.highlight.list[i].mode;
+    Region region;
+    if (mode == XmHIGHLIGHT_NORMAL || last <= start || first >= paragraph->end) continue;
+    if (first < start) first = start;
+    if (last > paragraph->end) last = paragraph->end;
+    {
+      size_t first_boundary, last_boundary;
+      if (!XmTextLayoutBoundary(paragraph->layout, (size_t)(first - start), -1, &first_boundary) ||
+          !XmTextLayoutBoundary(paragraph->layout, (size_t)(last - start), 1, &last_boundary)) continue;
+      first = start + (XmTextPosition)first_boundary; last = start + (XmTextPosition)last_boundary;
+    }
+    region = XmTextLayoutSelectionRegion(paragraph->layout, origin,
+               (size_t)(first - start), (size_t)(last - start), &viewport);
+    if (!region) continue;
+    SetNormGC(tw, data->gc, False, False); XSetRegion(XtDisplay(tw), data->gc, region);
+    if (mode == XmHIGHLIGHT_SELECTED) {
+      XFillRectangle(XtDisplay(tw), XtWindow(tw->text.inner_widget), data->gc,
+                     viewport.x, viewport.y, viewport.width, viewport.height);
+      XmTextLayoutDraw(paragraph->layout, draw, &background, origin, baseline,
+                       (size_t)(first - start), (size_t)(last - start), &viewport);
+    } else if (mode == XmHIGHLIGHT_SECONDARY_SELECTED) {
+      XFillRectangle(XtDisplay(tw), XtWindow(tw->text.inner_widget), data->gc,
+                     viewport.x, baseline + 1, viewport.width, 1);
+    }
+    XDestroyRegion(region);
+  }
+  SetNormGC(tw, data->gc, True, False); SetMarginGC(tw, data->gc);
+  return True;
+}
+#endif
+
+void
+_XmTextOutputBeginDraw(XmTextWidget tw)
+{
+  if (tw->text.output->Draw == Draw) tw->text.output->data->unicode_last_draw_line = NOLINE;
+}
+
+XmTextPosition
+_XmTextOutputVisualStep(XmTextWidget tw, XmTextPosition position, XmTextScanDirection direction)
+{
+#if USE_XFT
+  if (tw->text.output->Draw == Draw && UsesUnicodeParagraphs(tw)) {
+    OutputData data = tw->text.output->data;
+    XmTextPosition start = UnicodeLineStart(tw, position);
+    struct _XmTextParagraphCache *paragraph = UnicodeParagraph(tw, start);
+    size_t next;
+    int affinity, step = direction == XmsdRight ? 1 : -1;
+    if (!paragraph || !paragraph->layout || position < start || position > paragraph->end) return position;
+    if (!XmTextLayoutVisualMove(paragraph->layout, (size_t)(position - start), data->unicode_affinity, step, &next, &affinity)) return position;
+    if (start + (XmTextPosition)next == position && affinity == data->unicode_affinity) {
+      if (step < 0 && start > 0) {
+        XmTextPosition previous = start - 1;
+        start = UnicodeLineStart(tw, previous);
+        paragraph = UnicodeParagraph(tw, start);
+        if (!paragraph || !paragraph->layout || !XmTextLayoutHit(paragraph->layout, XmTextLayoutWidth(paragraph->layout) + 1, &next, &affinity)) return position;
+      } else if (step > 0 && paragraph->end < tw->text.last_position) {
+        start = paragraph->end < paragraph->paragraph_end ? paragraph->end : paragraph->end + 1;
+        paragraph = UnicodeParagraph(tw, start);
+        if (!paragraph || !paragraph->layout || !XmTextLayoutHit(paragraph->layout, -1, &next, &affinity)) return position;
+      }
+    }
+    data->unicode_affinity = affinity;
+    return start + (XmTextPosition)next;
+  }
+#endif
+  return _XmStringSourceGraphemeStep(tw->text.source, position, direction);
+}
+
 static int 
 FindWidth(XmTextWidget tw,
 	  int x,                  /* Starting position (needed for tabs) */
@@ -998,7 +1240,24 @@ XYToPos(XmTextWidget tw,
   int delta = 0;
   
   start = end = laststart = 0;
-  
+#if USE_XFT
+  if (UsesUnicodeParagraphs(tw)) {
+    struct _XmTextParagraphCache *paragraph;
+    size_t scalar;
+    int affinity;
+    line = y < data->topmargin ? 0 : (data->lineheight ? (y - data->topmargin) / data->lineheight : 0);
+    if (line > _XmTextNumLines(tw)) line = _XmTextNumLines(tw);
+    _XmTextLineInfo(tw, line, &start, &extra);
+    if (start == PASTENDPOS) return tw->text.last_position;
+    paragraph = UnicodeParagraph(tw, start);
+    if (paragraph && paragraph->layout && XmTextLayoutHit(paragraph->layout,
+            (double)x - data->leftmargin + data->hoffset, &scalar, &affinity)) {
+      data->unicode_affinity = affinity;
+      return start + (XmTextPosition)scalar;
+    }
+    return start;
+  }
+#endif
   if(XmDirectionMatch(XmPrim_layout_direction(tw),
 		      XmTOP_TO_BOTTOM_RIGHT_TO_LEFT)) {
     y += data->voffset;
@@ -1158,7 +1417,23 @@ PosToXY(XmTextWidget tw,
   LineTableExtra extra;
   XmTextBlockRec block;
   Position local_x, local_y;
-  
+#if USE_XFT
+  if (UsesUnicodeParagraphs(tw)) {
+    struct _XmTextParagraphCache *paragraph;
+    double caret;
+    line = _XmTextPosToLine(tw, position);
+    if (line == NOLINE || line >= data->number_lines) return False;
+    _XmTextLineInfo(tw, line, &linestart, &extra);
+    paragraph = UnicodeParagraph(tw, linestart);
+    if (!paragraph || !paragraph->layout || position < linestart || position > paragraph->end ||
+        !XmTextLayoutCaret(paragraph->layout, (size_t)(position - linestart), data->unicode_affinity, &caret)) return False;
+    caret += data->leftmargin - data->hoffset;
+    if (caret < SHRT_MIN || caret > SHRT_MAX) return False;
+    *x = (Position)lround(caret);
+    *y = data->topmargin + line * data->lineheight + data->font_ascent;
+    return True;
+  }
+#endif
   if(XmDirectionMatch(XmPrim_layout_direction(tw),
 		      XmTOP_TO_BOTTOM_RIGHT_TO_LEFT)) {
   _XmProcessLock();
@@ -1234,7 +1509,23 @@ _XmTextFindLineEnd(XmTextWidget tw,
   int x, lastX, goalwidth, length, i;
   int y, lastY, goalheight;
   int num_bytes = 0;
-  
+#if USE_XFT
+  if (UsesUnicodeParagraphs(tw)) {
+    struct _XmTextParagraphCache *capture;
+    XmTextPosition next;
+    if (position == PASTENDPOS) return PASTENDPOS;
+    capture = UnicodeParagraph(tw, position);
+    if (!capture || !capture->layout) return PASTENDPOS;
+    if (extra) {
+      *extra = (LineTableExtra)XtMalloc((unsigned)sizeof(LineTableExtraRec));
+      (*extra)->wrappedbychar = capture->end < capture->paragraph_end;
+      (*extra)->width = (int)ceil(XmTextLayoutWidth(capture->layout)) + data->leftmargin + data->rightmargin;
+    }
+    if (capture->end < capture->paragraph_end) return capture->end;
+    next = (*tw->text.source->Scan)(tw->text.source, capture->end, XmSELECT_LINE, XmsdRight, 1, True);
+    return next == capture->end ? PASTENDPOS : next;
+  }
+#endif
   lastChar = (*tw->text.source->Scan)(tw->text.source, position,
 					  XmSELECT_LINE, XmsdRight, 1, False);
   lastBreak = startpos = position;
@@ -2169,7 +2460,7 @@ MeasureLine(XmTextWidget tw,
       *nextpos = last_position = PASTENDPOS;
     } else {
       if (ShouldWordWrap(data, tw)) {
-	*nextpos = _XmTextFindLineEnd(tw, position, extra);
+        *nextpos = _XmTextFindLineEnd(tw, position, extra);
       } else {
 	last_position = (*tw->text.source->Scan)
 	  (tw->text.source,
@@ -2206,6 +2497,15 @@ MeasureLine(XmTextWidget tw,
 	  (*extra) = (LineTableExtra)
 	    XtMalloc((unsigned) sizeof(LineTableExtraRec));
 	  (*extra)->wrappedbychar = False;
+#if USE_XFT
+          if (UsesUnicodeParagraphs(tw)) {
+            struct _XmTextParagraphCache *paragraph = UnicodeParagraph(tw, position);
+            (*extra)->width = paragraph && paragraph->layout ?
+              (int)ceil(XmTextLayoutWidth(paragraph->layout)) + data->leftmargin + data->rightmargin :
+              data->leftmargin + data->rightmargin;
+          } else
+#endif
+          {
 	  width = data->leftmargin;
 	  temp = position;
 	  while (temp < last_position) {
@@ -2215,6 +2515,7 @@ MeasureLine(XmTextWidget tw,
 			       0, block.length);
 	  }
 	  (*extra)->width = width + data->rightmargin;
+          }
 	}
         }
       }
@@ -2348,7 +2649,15 @@ Draw(XmTextWidget tw,
   if (!XtIsRealized((Widget) tw)) return;
   _XmTextLineInfo(tw, line+1, &nextlinestart, &extra);
   _XmTextLineInfo(tw, line, &linestart, &extra);
-  
+#if USE_XFT
+  if (UsesUnicodeParagraphs(tw)) {
+    if (data->unicode_last_draw_line != line) {
+      data->unicode_last_draw_line = line;
+      DrawUnicodeParagraph(tw, line, linestart);
+    }
+    return;
+  }
+#endif
   _XmTextAdjustGC(tw);
   
   if (!XtIsSensitive((Widget)tw)) stipple = True;
@@ -3558,7 +3867,20 @@ MakePositionVisible(XmTextWidget tw,
   OutputData data = tw->text.output->data;
   Position x, y;
   LineNum line_num;
-
+#if USE_XFT
+  if (UsesUnicodeParagraphs(tw)) {
+    XmTextPosition start = UnicodeLineStart(tw, position);
+    struct _XmTextParagraphCache *paragraph = UnicodeParagraph(tw, start);
+    double caret, absolute;
+    if (!paragraph || !paragraph->layout || position < start || position > paragraph->end ||
+        !XmTextLayoutCaret(paragraph->layout, (size_t)(position - start), data->unicode_affinity, &caret)) return;
+    absolute = caret + data->leftmargin;
+    if (absolute - data->hoffset < data->leftmargin) ChangeHOffset(tw, (int)floor(caret), True);
+    else if (absolute - data->hoffset > tw->text.inner_widget->core.width - data->rightmargin)
+      ChangeHOffset(tw, (int)ceil(absolute - tw->text.inner_widget->core.width + data->rightmargin), True);
+    return;
+  }
+#endif
   if (!ShouldWordWrap(data, tw) && PosToXY(tw, position, &x, &y)) {
     if(XmDirectionMatch(XmPrim_layout_direction(tw),
 			XmTOP_TO_BOTTOM_RIGHT_TO_LEFT)) {
@@ -3696,6 +4018,24 @@ OutputInvalidate(XmTextWidget tw,
 		 XmTextPosition topos,
 		 long delta)
 {
+#if USE_XFT
+  struct _XmTextParagraphCache **link = &tw->text.output->data->unicode_cache;
+  tw->text.output->data->unicode_affinity = 0;
+  while (*link) {
+    struct _XmTextParagraphCache *paragraph = *link;
+    if (paragraph->paragraph_end >= position && paragraph->paragraph_start <= topos) {
+      *link = paragraph->next;
+      XmTextLayoutFree(paragraph->layout); XmTextParagraphFree(paragraph->paragraph); XtFree((char *)paragraph);
+      --tw->text.output->data->unicode_cache_count;
+    } else {
+      if (paragraph->paragraph_start > topos) {
+        paragraph->start += delta; paragraph->end += delta;
+        paragraph->paragraph_start += delta; paragraph->paragraph_end += delta;
+      }
+      link = &paragraph->next;
+    }
+  }
+#endif
   _XmProcessLock();
   posToXYCachedWidget = NULL;
   _XmProcessUnlock();
@@ -4373,6 +4713,9 @@ OutputSetValues(Widget oldw,
   }
   
   if (CK(fontlist) || CK(rendertable)) {
+#if USE_XFT
+    ClearUnicodeParagraphs(newtw);
+#endif
     XmRenderTableFree(data->fontlist);
     if (CK(rendertable)) {
       if (newdata->rendertable == NULL)
@@ -5201,6 +5544,9 @@ OutputDestroy(Widget w)
   XtReleaseGC(w, data->save_gc);
   XtReleaseGC(w, data->cursor_gc);
   
+#if USE_XFT
+  ClearUnicodeParagraphs(tw);
+#endif
   XmFontListFree(data->fontlist);
   
   if (data->add_mode_cursor != XmUNSPECIFIED_PIXMAP)
@@ -5616,7 +5962,10 @@ _XmTextOutputCreate(Widget wid,
     XtMalloc((unsigned) sizeof(OutputRec));
   output->data = data = (OutputData)
     XtMalloc((unsigned) sizeof(OutputDataRec));
-  
+  data->unicode_cache = NULL;
+  data->unicode_cache_count = 0;
+  data->unicode_affinity = 0;
+  data->unicode_last_draw_line = NOLINE;
   XtGetSubresources(wid, (XtPointer)data, NULL, NULL, output_resources,
 		    XtNumber(output_resources), args, num_args);
   

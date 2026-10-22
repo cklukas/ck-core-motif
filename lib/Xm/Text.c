@@ -902,7 +902,8 @@ RedrawChanges(XmTextWidget tw)
   RangeRec *r = tw->text.repaint.range;
   XmTextPosition updateFrom, updateTo;
   int w, i;
-  
+
+  _XmTextOutputBeginDraw(tw);
   EraseInsertionPoint(tw);
   
   while (tw->text.repaint.number != 0) {

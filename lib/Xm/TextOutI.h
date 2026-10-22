@@ -92,6 +92,10 @@ extern void _XmTextChangeVOffset(
 extern void _XmTextToggleCursorGC( 
                         Widget widget) ;
 
+extern void _XmTextOutputBeginDraw(XmTextWidget widget);
+extern XmTextPosition _XmTextOutputVisualStep(XmTextWidget widget,
+    XmTextPosition position, XmTextScanDirection direction);
+
 /********    End Private Function Declarations    ********/
 
 
