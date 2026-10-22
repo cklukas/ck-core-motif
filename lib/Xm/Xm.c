@@ -42,6 +42,12 @@
 #endif
 
 
+unsigned int
+XmToolkitABI(void)
+{
+    return XmABI_VERSION;
+}
+
 /**************************************************************************
  *   This is Xm.c
  *    It contains global API that:

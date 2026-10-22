@@ -14,15 +14,15 @@ dnl AM_MAINTAINER_MODE
 AC_CANONICAL_TARGET
 
 dnl The version of the Motif libraries
-CURRENT=4
-REVISION=4
+CURRENT=5
+REVISION=0
 AGE=0
 AC_SUBST(CURRENT)
 AC_SUBST(REVISION)
 AC_SUBST(AGE)
 
 dnl This is really dumb but it seems to be bug
-AM_INIT_AUTOMAKE(motif,2.3.8,no-define)
+AM_INIT_AUTOMAKE(motif,2.4.0,no-define)
 
 LIBTOOL_VERSION=$CURRENT:$REVISION:$AGE
 
