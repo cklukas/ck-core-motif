@@ -10,10 +10,36 @@ source-pinned documentation compiler:
 - Version: `0.8.1`
 
 The host's installed `ckdocs` is not used. The script verifies a clean exact
-source checkout, builds only the `ckdocs` target into a fresh explicit work
+source checkout or verified export archive, builds only the `ckdocs` target into a fresh explicit work
 directory, then invokes a strict site build. No runtime tool download or package
 installation occurs inside the shared script. A compiler, GNU make, Git and
 Python 3 are prerequisites. The pinned source includes its diagram renderer.
+
+## Checkout and archive provenance
+
+Git tool checkouts must have the exact pinned commit/tree and no tracked or
+untracked changes; `local.mk` overrides are refused even if ignored by Git.
+A tool source archive must carry the exact substituted `.ckgit/build-commit`
+stamp. The script then reconstructs its complete Git tree object identity,
+including paths, modes and contents, and compares it with the pinned tree
+`4105740b7e806ecf3eba8ae5c739fc8bafbd9122`. Only the verified export stamp is
+normalized to its original template bytes for that comparison. Extra, missing
+or changed files fail verification. A stamp by itself is insufficient for the
+tool source.
+
+This repository also exports its commit through `.gitattributes` and
+`.ckgit/build-commit`. A Git checkout records its commit and dirty state. A
+repository archive requires that export stamp or the hosting runner's explicit
+`CKGIT_CI=1` / `CKGIT_COMMIT` identity; if both exist they must agree. Git dirty
+state is unavailable in that case and is recorded as such, alongside the exact
+documentation input fingerprints. Unknown or conflicting source identities are
+refused. The tool archive pin and repository archive provenance are distinct:
+the runner's repository commit is never mistaken for the sister tool's commit.
+
+The hosting 0.7.1 runner creates Git checkouts by default for both the project
+and sisters, exports the project commit, and removes `.git` only for an explicit
+archive checkout mode. The workflow does not require that mode. The export
+path additionally supports genuine `git archive` source deliveries.
 
 ## Local build
 

@@ -1,0 +1,2 @@
+# Preserve source identity in git-archive exports without a .git directory.
+/.ckgit/build-commit export-subst

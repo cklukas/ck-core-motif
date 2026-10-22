@@ -35,7 +35,8 @@ ACLOCAL_AMFLAGS = -I .
 
 # Focused fork manual; historical reference sources remain in doc/.
 EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
+              tests/automated/check-docs-provenance.py \
               docs/index.md docs/history.md docs/status.md docs/build.md \
               docs/abi.md docs/unicode.md docs/accessibility.md \
               docs/components.md docs/disclosure.md docs/documentation.md \
-              .ckgit/ci.yml .github/workflows/pages.yml
+              .gitattributes .ckgit/build-commit .ckgit/ci.yml .github/workflows/pages.yml
