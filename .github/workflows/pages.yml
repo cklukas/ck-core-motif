@@ -1,0 +1,70 @@
+name: Documentation
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: documentation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pages: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check out pinned documentation tool
+        uses: actions/checkout@v5
+        with:
+          repository: cklukas/ck-git-hosting
+          ref: 5019729cd37c06ae4e0c1d2c07e4127f3a72394d
+          path: .docs-tool
+          persist-credentials: false
+      - name: Install compiler prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential git python3
+      - name: Build pinned tool and strict documentation
+        run: |
+          python3 scripts/build-docs.py \
+            --tool-source "$GITHUB_WORKSPACE/.docs-tool" \
+            --work "$RUNNER_TEMP/motif-docs-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" \
+            --out "$RUNNER_TEMP/site-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" \
+            --site-url https://cklukas.github.io/ck-core-motif/
+      - name: Record validation evidence
+        if: always()
+        run: |
+          receipt="$RUNNER_TEMP/motif-docs-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT/receipt.json"
+          if [ -f "$receipt" ]; then cat "$receipt"; fi
+      - name: Configure Pages
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        uses: actions/configure-pages@v6
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ${{ runner.temp }}/site-${{ github.run_id }}-${{ github.run_attempt }}
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy verified documentation
+        id: deployment
+        uses: actions/deploy-pages@v5

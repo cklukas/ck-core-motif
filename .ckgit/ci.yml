@@ -1,0 +1,25 @@
+version: 1
+on:
+  branches: [master]
+sisters:
+  - name: ck-git-hosting
+    ref: 5019729cd37c06ae4e0c1d2c07e4127f3a72394d
+jobs:
+  - name: documentation
+    steps:
+      - name: strict-site
+        script: |
+          test -n "$TMPDIR"
+          test -n "$CKGIT_SISTER_CK_GIT_HOSTING"
+          python3 scripts/build-docs.py \
+            --tool-source "$CKGIT_SISTER_CK_GIT_HOSTING" \
+            --work "$TMPDIR/motif-docs" \
+            --out "$PWD/public" \
+            --site-url http://rpi4:8421/ck-core-motif/
+          mkdir -p docs-evidence
+          cp "$TMPDIR/motif-docs/receipt.json" docs-evidence/receipt.json
+    artifacts:
+      name: documentation-evidence
+      paths: [docs-evidence]
+pages:
+  path: public

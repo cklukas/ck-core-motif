@@ -139,3 +139,20 @@ Changes since commit 0f556b0873c72ba1152a12fd54c3198ee039e413
      - Added the standard GNU autotools installation instructions.
    - Why:
      - Documents the expected configure/build workflow within the repo.
+
+Development 2.4.0 / native ABI epoch 5 (validation in progress)
+====================================================================
+
+- Start a deliberate rebuilt native cohort: libXm, libMrm and libUil use
+  libtool 5:0:0. Header/runtime epoch checks accompany changed widget/source
+  records. No compatibility alias to the preceding SONAME is provided.
+- Validate XIM preedit spans, resulting lengths, conversion and caret bounds
+  before replacing composition buffers.
+- Add ICU scalar/grapheme coordinate maps without changing source-scan scalar
+  counting. Share ICU paragraph bidi and HarfBuzz line captures across text
+  drawing, metrics, carets, hits, selections and wrapped composition.
+- Add native semantic providers and optional AT-SPI D-Bus transport with
+  explicit ownership, bounded text ranges and multiple-shell support.
+- Add focused fork documentation and source-pinned strict documentation CI.
+  Source availability, focused fixtures and installed-cohort acceptance remain
+  separate; see docs/status.md for the current validation boundaries.

@@ -136,3 +136,8 @@ tools/wml/wmldbcreate
 
 # Helper binaries
 config/util/makestrs
+
+# Generated documentation and CI-only tool checkout
+/public/
+/docs-evidence/
+/.docs-tool/

@@ -1,0 +1,31 @@
+version: 1
+site:
+  title: CK Core Motif
+  description: Native Xt widgets, Unicode text layout and optional accessibility.
+  url: https://cklukas.github.io/ck-core-motif/
+  links:
+    - title: Source
+      url: https://github.com/cklukas/ck-core-motif
+      icon: github
+source: docs
+home: docs/index.md
+search: true
+toc:
+  max_level: 3
+nav:
+  - title: Overview
+    pages:
+      - docs/index.md
+      - docs/history.md
+      - docs/status.md
+  - title: Build
+    pages:
+      - docs/build.md
+      - docs/abi.md
+      - docs/documentation.md
+  - title: APIs
+    pages:
+      - docs/unicode.md
+      - docs/accessibility.md
+      - docs/components.md
+      - docs/disclosure.md
