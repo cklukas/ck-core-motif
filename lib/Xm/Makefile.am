@@ -284,7 +284,9 @@ BUILT_SOURCES = $(STRING_FILES) $(CAT_FILES)
 $(top_builddir)/config/util/makestrs:
 	( cd $(top_builddir)/config/util && $(MAKE) $(AM_MAKEFLAGS) makestrs )
 
-$(STRING_FILES): Makefile $(XMSTRING_LIST) XmStrDefs.ht XmStrDefsI.ht XmStrDefs.ct $(top_builddir)/config/util/makestrs
+# makestrs writes the source and all four headers in one invocation.
+# Group the outputs so parallel make never runs competing generators.
+$(STRING_FILES) &: Makefile $(XMSTRING_LIST) XmStrDefs.ht XmStrDefs22.ht XmStrDefs23.ht XmStrDefsI.ht XmStrDefs.ct $(top_builddir)/config/util/makestrs
 	test -f $(XMSTRING_LIST) || $(LN_S) $(srcdir)/$(XMSTRING_LIST) $(XMSTRING_LIST)
 	test -f XmStrDefs.ht || $(LN_S) $(srcdir)/XmStrDefs.ht XmStrDefs.ht
 	test -f XmStrDefs22.ht || $(LN_S) $(srcdir)/XmStrDefs22.ht XmStrDefs22.ht
