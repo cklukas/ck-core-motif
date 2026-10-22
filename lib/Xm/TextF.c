@@ -66,6 +66,7 @@ static char rcsid[] = "$TOG: TextF.c /main/65 1999/09/01 17:28:48 mgreess $"
 #include "RepTypeI.h"
 #include "ScreenI.h"
 #include "TextFI.h"
+#include "TextUnicode.h"
 #include "TextFSelI.h"
 #include "TravActI.h"
 #include "TraversalI.h"
@@ -2865,6 +2866,22 @@ _XmTextFieldSetCursorPosition(XmTextFieldWidget tf,
   SetCursorPosition(tf, event, position, adjust_flag, call_cb, True,DontCare);
 }
 
+static XmTextUnicodeMap *
+TextFieldUnicodeMap(XmTextFieldWidget tf)
+{
+  char *utf8;
+  XmTextUnicodeMap *map;
+  if (!XmTextUnicodeAvailable()) return NULL;
+  utf8 = XmTextFieldGetString((Widget)tf);
+  if (!utf8) return NULL;
+  map = XmTextUnicodeMapCreate(utf8, strlen(utf8));
+  XtFree(utf8);
+  if (map && XmTextUnicodeScalarCount(map) != (size_t)tf->text.string_length) {
+    XmTextUnicodeMapFree(map); return NULL;
+  }
+  return map;
+}
+
 static void 
 SetCursorPosition(XmTextFieldWidget tf,
 		  XEvent *event,
@@ -2892,6 +2909,18 @@ SetCursorPosition(XmTextFieldWidget tf,
   if (position > tf->text.string_length)
     position = tf->text.string_length;
   
+  if (event && !FUnderVerifyPreedit(tf)) {
+    XmTextUnicodeMap *map = TextFieldUnicodeMap(tf);
+    size_t boundary;
+    if (map && !XmTextUnicodeIsGraphemeBoundary(map, (size_t)position)) {
+      if (position > TextF_CursorPosition(tf))
+        XmTextUnicodeNextGrapheme(map, (size_t)position, &boundary);
+      else XmTextUnicodePreviousGrapheme(map, (size_t)position, &boundary);
+      position = (XmTextPosition)boundary;
+    }
+    XmTextUnicodeMapFree(map);
+  }
+
   if (TextF_CursorPosition(tf) != position && call_cb) {
     /* Call Motion Verify Callback before Cursor Changes Positon */
     cb.reason = XmCR_MOVING_INSERT_CURSOR;
@@ -3027,6 +3056,20 @@ _XmTextFieldReplaceText(XmTextFieldWidget tf,
   int size = 0;
 
   VerifyBounds(tf, &replace_prev, &replace_next);
+  if (event && !FUnderVerifyPreedit(tf) && replace_prev != replace_next) {
+    XmTextUnicodeMap *map = TextFieldUnicodeMap(tf);
+    size_t boundary;
+    if (map && !XmTextUnicodeIsGraphemeBoundary(map, (size_t)replace_prev)) {
+      XmTextUnicodePreviousGrapheme(map, (size_t)replace_prev, &boundary);
+      replace_prev = (XmTextPosition)boundary;
+    }
+    if (map && !XmTextUnicodeIsGraphemeBoundary(map, (size_t)replace_next)) {
+      XmTextUnicodeNextGrapheme(map, (size_t)replace_next, &boundary);
+      replace_next = (XmTextPosition)boundary;
+    }
+    XmTextUnicodeMapFree(map);
+  }
+  old_pos = replace_prev;
   
   if (!TextF_Editable(tf)) {
     if (tf->text.verify_bell) XBell(XtDisplay((Widget)tf), 0);

@@ -44,6 +44,7 @@ static char rcsid[] = "$XConsortium: TextStrSo.c /main/14 1996/10/23 16:05:21 cd
 #include "XmI.h"		/* for _XmValidTimestamp() */
 #include "TextI.h"
 #include "TextStrSoI.h"
+#include "TextUnicode.h"
 
 /********    Static Function Declarations    ********/
 
@@ -1008,6 +1009,8 @@ Replace(XmTextWidget initiator,
   } 
   
   /* NOTE: the value of delta could be truncated by cast to int. */
+  XmTextUnicodeMapFree(data->unicode_map);
+  data->unicode_map = NULL;
   data->length += (int) delta;
   
   if (data->hasselection && *start < data->right && *end > data->left) {
@@ -1208,8 +1211,22 @@ Scan(XmTextSource source,
   case XmSELECT_POSITION: 
     if (!include && count > 0)
       count -= 1;
+    if (XmTextUnicodeAvailable() && !data->unicode_map) {
+      char *utf8 = _XmStringSourceGetValue(source, False);
+      data->unicode_map = XmTextUnicodeMapCreate(utf8, strlen(utf8));
+      XtFree(utf8);
+      /* Positions of a non-UTF-8 locale cannot be interpreted as scalars. */
+      if (data->unicode_map && XmTextUnicodeScalarCount(data->unicode_map) != (size_t)data->length) {
+        XmTextUnicodeMapFree(data->unicode_map); data->unicode_map = NULL;
+      }
+    }
     for (i = 0; i < count; i++) {
-      Increment(data, position, dir);
+      size_t next;
+      if (data->unicode_map && position >= 0 && position <= data->length &&
+          (dir == XmsdRight ? XmTextUnicodeNextGrapheme(data->unicode_map, (size_t)position, &next)
+                           : XmTextUnicodePreviousGrapheme(data->unicode_map, (size_t)position, &next)))
+        position = (XmTextPosition)next;
+      else Increment(data, position, dir);
     }
     break;
   case XmSELECT_WHITESPACE: 
@@ -1507,6 +1524,7 @@ _XmStringSourceCreate(char *value,
   source->SetSelection = SetSelection;
   
   data->source = source;
+  data->unicode_map = NULL;
   switch (MB_CUR_MAX) {
   case 1: case 2: 
     max_char_size = char_size = MB_CUR_MAX;
@@ -1588,6 +1606,7 @@ _XmStringSourceCreate(char *value,
 void 
 _XmStringSourceDestroy(XmTextSource source)
 {
+  XmTextUnicodeMapFree(source->data->unicode_map);
   XtFree((char *) source->data->ptr);
   XtFree((char *) source->data->value);
   XtFree((char *) source->data->widgets);

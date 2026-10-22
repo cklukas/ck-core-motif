@@ -36,7 +36,10 @@ extern "C" {
  *
  ****************************************************************/
 
+typedef struct _XmTextUnicodeMap XmTextUnicodeMap;
+
 typedef struct _XmSourceDataRec {
+  XmTextUnicodeMap *unicode_map; /* Reused until source replacement. */
   XmTextSource source;	/* Backpointer to source record. */
   XmTextWidget *widgets;	/* Array of widgets displaying this source. */
   XmTextPosition left, right; /* Left and right extents of selection. */
