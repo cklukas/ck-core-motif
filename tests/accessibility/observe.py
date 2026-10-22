@@ -63,6 +63,16 @@ try:
     assert "128512" in call(nodes["cell"], "org.a11y.atspi.Text.GetCharacterAtOffset", 2)
     assert "uint32 55" in call(nodes["table"], "org.a11y.atspi.Accessible.GetRole")
     assert "/" + str(nodes["cell"]) in call(nodes["table"], "org.a11y.atspi.Table.GetAccessibleAt", 0, 0)
+    # Run an explicitly disconnected instance after closing the registered one.
+    process.terminate()
+    process.wait(timeout=5)
+    process = None
+    absent_env = dict(os.environ, DBUS_SESSION_BUS_ADDRESS="unix:path=" + str(receipt.parent / "absent-session-bus"))
+    absent = subprocess.run([str(fixture), "--expect-unavailable"], env=absent_env,
+                            capture_output=True, text=True, timeout=8)
+    records.append({"case": "optional-service-absent", "returncode": absent.returncode,
+                    "stdout": absent.stdout, "stderr": absent.stderr})
+    assert absent.returncode == 0 and json.loads(absent.stdout)["after_destroy_edit"]
     passed = True
 finally:
     if process:

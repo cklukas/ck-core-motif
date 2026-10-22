@@ -13,7 +13,7 @@ typedef struct {
   Widget shell, button, entry;
   XmAccessibility *bridge;
   XmAccessibleId table, cell;
-  int activated, checks;
+  int activated, checks, expect_unavailable;
 } Fixture;
 static Boolean table_query(XtPointer data, XmAccessibleInfo *info) {
   (void)data;
@@ -64,6 +64,24 @@ static void check(XtPointer data, XtIntervalId *id) {
   Fixture *f = (Fixture *)data;
   XmAccessibilityStatus status = XmAccessibilityGetStatus(f->bridge);
   (void)id;
+  if (f->expect_unavailable && (status == XmACCESSIBILITY_UNAVAILABLE ||
+                                status == XmACCESSIBILITY_NOT_BUILT)) {
+    char *slice = XmAccessibilityText(
+        f->bridge, XmAccessibilityWidget(f->bridge, f->entry), 1, 3);
+    if (!slice || strcmp(slice, "\303\251\360\237\230\200") ||
+        !XmAccessibilityAction(
+            f->bridge, XmAccessibilityWidget(f->bridge, f->button), 0) ||
+        f->activated != 1)
+      exit(1);
+    XtFree(slice);
+    XmAccessibilityDestroy(f->bridge);
+    f->bridge = NULL;
+    XmTextFieldSetString(f->entry, "Native editing after bridge teardown");
+    XtDestroyWidget(f->shell);
+    puts("{\"unavailable\":true,\"native_action\":true,\"after_destroy_edit\":"
+         "true}");
+    exit(0);
+  }
   if (status == XmACCESSIBILITY_CONNECTED) {
     printf(
         "{\"bus\":\"%s\",\"button\":%u,\"text\":%u,\"table\":%u,\"cell\":%u}\n",
@@ -96,6 +114,10 @@ int main(int argc, char **argv) {
   XmAccessibleProvider table_provider, cell_provider;
   XmAccessibleInfo info;
   memset(&f, 0, sizeof(f));
+  if (argc == 2 && !strcmp(argv[1], "--expect-unavailable")) {
+    f.expect_unavailable = 1;
+    argc = 1;
+  }
   memset(&table_provider, 0, sizeof(table_provider));
   memset(&cell_provider, 0, sizeof(cell_provider));
   setlocale(LC_ALL, "");
