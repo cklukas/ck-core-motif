@@ -103,6 +103,9 @@ extern Boolean *_XmStringSourceGetPending(XmTextWidget widget);
 extern void    _XmStringSourceSetPending(XmTextWidget widget,
 					 Boolean *pending);
 
+extern XmTextPosition _XmStringSourceGraphemeStep(XmTextSource source,
+    XmTextPosition position, XmTextScanDirection direction);
+
 /********    End Private Function Declarations    ********/
 
 

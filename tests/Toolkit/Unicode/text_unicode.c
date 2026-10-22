@@ -39,6 +39,7 @@ static void check_map(void) {
 static void check_widget(Widget widget, int field) {
     XEvent event;
     char *value;
+    Position x, y;
     memset(&event, 0, sizeof(event));
     event.xkey.type = KeyPress; event.xkey.display = XtDisplay(widget); event.xkey.window = XtWindow(widget); event.xkey.time = CurrentTime;
     if (field) { XmTextFieldSetString(widget, "e\xcc\x81" "X"); XmTextFieldSetInsertionPosition(widget, 0); }
@@ -48,6 +49,15 @@ static void check_widget(Widget widget, int field) {
     XtCallActionProc(widget, "delete-previous-character", &event, NULL, 0);
     value = field ? XmTextFieldGetString(widget) : XmTextGetString(widget);
     require(strcmp(value, "X") == 0, "interactive deletion split combining cluster"); XtFree(value);
+    if (field) {
+        XmTextFieldSetString(widget, "e\xcc\x81" "XY");
+        require(XmTextFieldPosToXY(widget, 3, &x, &y), "field scalar position geometry failed");
+        require(XmTextFieldXYToPos(widget, x, y) == 3, "field byte/scalar/grapheme units confused in mouse hit");
+    } else {
+        XmTextSetString(widget, "e\xcc\x81" "XY");
+        require(XmTextPosToXY(widget, 3, &x, &y), "text scalar position geometry failed");
+        require(XmTextXYToPos(widget, x, y) == 3, "text byte/scalar/grapheme units confused in mouse hit");
+    }
 }
 int main(int argc, char **argv) {
     XtAppContext application;

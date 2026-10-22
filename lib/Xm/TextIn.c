@@ -1968,8 +1968,10 @@ SimpleMovement(Widget w,
       }
   }
   
-  newPos = (*tw->text.source->Scan)(tw->text.source, cursorPos,
-				    type, dir, 1, include);
+  if (type == XmSELECT_POSITION && include)
+    newPos = _XmStringSourceGraphemeStep(tw->text.source, cursorPos, dir);
+  else newPos = (*tw->text.source->Scan)(tw->text.source, cursorPos,
+                                       type, dir, 1, include);
   
   SetNavigationAnchor(tw, cursorPos, newPos, event_time, extend);
   
@@ -3136,8 +3138,7 @@ RemoveBackwardChar(Widget w,
     RemoveCurrentSelection(w, event, params, num_params, kill);
   } else {
     nextPos = tw->text.cursor_position;
-    cursorPos = (*tw->text.source->Scan)(tw->text.source, nextPos,
-					 XmSELECT_POSITION, XmsdLeft, 1, TRUE);
+    cursorPos = _XmStringSourceGraphemeStep(tw->text.source, nextPos, XmsdLeft);
     if (DeleteOrKill(tw, event, cursorPos, nextPos, kill, &newCursorPos)) {
       _XmTextSetCursorPosition(w, newCursorPos);
       CheckDisjointSelection(w, tw->text.cursor_position,
@@ -3335,8 +3336,7 @@ RemoveForwardChar(Widget w,
     RemoveCurrentSelection(w, event, params, num_params, kill);
   } else {
     cursorPos = tw->text.cursor_position;
-    nextPos = (*tw->text.source->Scan)(tw->text.source, cursorPos,
-				       XmSELECT_POSITION, XmsdRight, 1, TRUE);
+    nextPos = _XmStringSourceGraphemeStep(tw->text.source, cursorPos, XmsdRight);
     if (DeleteOrKill(tw, event, cursorPos, nextPos, kill, &newCursorPos)) {
       _XmTextSetCursorPosition(w, newCursorPos);
       CheckDisjointSelection(w, tw->text.cursor_position,event_time);

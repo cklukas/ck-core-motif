@@ -1211,22 +1211,8 @@ Scan(XmTextSource source,
   case XmSELECT_POSITION: 
     if (!include && count > 0)
       count -= 1;
-    if (XmTextUnicodeAvailable() && !data->unicode_map) {
-      char *utf8 = _XmStringSourceGetValue(source, False);
-      data->unicode_map = XmTextUnicodeMapCreate(utf8, strlen(utf8));
-      XtFree(utf8);
-      /* Positions of a non-UTF-8 locale cannot be interpreted as scalars. */
-      if (data->unicode_map && XmTextUnicodeScalarCount(data->unicode_map) != (size_t)data->length) {
-        XmTextUnicodeMapFree(data->unicode_map); data->unicode_map = NULL;
-      }
-    }
     for (i = 0; i < count; i++) {
-      size_t next;
-      if (data->unicode_map && position >= 0 && position <= data->length &&
-          (dir == XmsdRight ? XmTextUnicodeNextGrapheme(data->unicode_map, (size_t)position, &next)
-                           : XmTextUnicodePreviousGrapheme(data->unicode_map, (size_t)position, &next)))
-        position = (XmTextPosition)next;
-      else Increment(data, position, dir);
+      Increment(data, position, dir);
     }
     break;
   case XmSELECT_WHITESPACE: 
@@ -1477,6 +1463,32 @@ SetSelection(XmTextSource source,
     (*tw->text.output->DrawInsertionPoint)(tw, tw->text.cursor_position,
 					   on);
   }
+}
+
+/* Source Scan(POSITION,count) retains its scalar-count contract for layout
+ * callers. Interactive movement/deletion explicitly requests a grapheme step. */
+XmTextPosition
+_XmStringSourceGraphemeStep(XmTextSource source, XmTextPosition position,
+                           XmTextScanDirection direction)
+{
+  XmSourceData data;
+  size_t next;
+  if (source->Scan != Scan || !XmTextUnicodeAvailable())
+    return (*source->Scan)(source, position, XmSELECT_POSITION, direction, 1, True);
+  data = source->data;
+  if (!data->unicode_map) {
+    char *utf8 = _XmStringSourceGetValue(source, False);
+    data->unicode_map = XmTextUnicodeMapCreate(utf8, strlen(utf8));
+    XtFree(utf8);
+    if (data->unicode_map && XmTextUnicodeScalarCount(data->unicode_map) != (size_t)data->length) {
+      XmTextUnicodeMapFree(data->unicode_map); data->unicode_map = NULL;
+    }
+  }
+  if (data->unicode_map && position >= 0 && position <= data->length &&
+      (direction == XmsdRight ? XmTextUnicodeNextGrapheme(data->unicode_map, (size_t)position, &next)
+                             : XmTextUnicodePreviousGrapheme(data->unicode_map, (size_t)position, &next)))
+    return (XmTextPosition)next;
+  return (*source->Scan)(source, position, XmSELECT_POSITION, direction, 1, True);
 }
 
 /* Public routines. */
