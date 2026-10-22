@@ -2162,7 +2162,7 @@ FireCallbacks(XmSpinBoxCallbackStruct	*spinBoxCallData,
       spinBoxCallData->doit = True;
       position = spinC->position;
       GetPositionValue( (Widget) spinW->spinBox.textw,
-			XtOffset(XmSpinBoxConstraint, position),
+			XtOffsetOf(XmSpinBoxConstraintPart, position),
 			&position);
       spinBoxCallData->position = position;
       if (spinC->sb_child_type == XmSTRING)
@@ -2253,7 +2253,7 @@ ArrowVerify(Widget arrowWidget, XEvent *arrowEvent, int arrowReason)
     XmSpinBoxConstraint	spinC = SB_GetConstraintRec(spinW->spinBox.textw);
 
     (void) SetPositionValue((Widget) spinW->spinBox.textw,
-			    XtOffset(XmSpinBoxConstraint, position),
+			    XtOffsetOf(XmSpinBoxConstraintPart, position),
 			    &position);
     int_pos = position;
 
@@ -2561,7 +2561,7 @@ SpinNSetValue(Widget nav, XmNavigatorData nav_data, Boolean notify)
 
 	      GetPositionValue(
 			(Widget) spinW->composite.children[i],
-			XtOffset(XmSpinBoxConstraint, position),
+			XtOffsetOf(XmSpinBoxConstraintPart, position),
 			&position);
 
 	      XtSetArg (arglist[argCount], XmNposition, ((int)position));
@@ -2757,7 +2757,7 @@ CvtStringToPositionValue(
   XtArgVal		value;
   long                  parsed;
   char                  *end;
-  int			offset = XtOffset(XmSpinBoxConstraint, position);
+  int			offset = XtOffsetOf(XmSpinBoxConstraintPart, position);
   Widget		w = *((Widget *) args[0].addr);
 
   errno = 0;
@@ -2953,7 +2953,7 @@ XmSpinBoxValidatePosition(Widget text_field, int *position)
   int                   parsed;
   int			iPosition;
   int			positionOffset =
-				XtOffset(XmSpinBoxConstraint, position);
+				XtOffsetOf(XmSpinBoxConstraintPart, position);
 #ifdef FIX_1519
   int64_t       iOffset;
 #endif
