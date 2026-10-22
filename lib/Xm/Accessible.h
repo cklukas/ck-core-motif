@@ -65,6 +65,10 @@ typedef enum {
 XmAccessibility *XmAccessibilityCreate(Widget root,
                                        const char *application_name);
 void XmAccessibilityDestroy(XmAccessibility *);
+/* One application bridge can own several native top-level shells. The shell
+   must share the creating Xt application context. The bridge remains alive when
+   an individual shell closes; destroy it before destroying the application. */
+Boolean XmAccessibilityAttachShell(XmAccessibility *, Widget shell);
 void XmAccessibilityRefresh(XmAccessibility *);
 XmAccessibleId XmAccessibilityRoot(XmAccessibility *);
 XmAccessibleId XmAccessibilityWidget(XmAccessibility *, Widget);

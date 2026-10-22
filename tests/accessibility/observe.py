@@ -63,6 +63,13 @@ try:
     assert "128512" in call(nodes["cell"], "org.a11y.atspi.Text.GetCharacterAtOffset", 2)
     assert "uint32 55" in call(nodes["table"], "org.a11y.atspi.Accessible.GetRole")
     assert "/" + str(nodes["cell"]) in call(nodes["table"], "org.a11y.atspi.Table.GetAccessibleAt", 0, 0)
+    children_before = call(1, "org.a11y.atspi.Accessible.GetChildren")
+    assert "/" + str(nodes["second_shell"]) in children_before
+    assert "true" in call(nodes["second_button"], "org.a11y.atspi.Action.DoAction", 0)
+    children_after = call(1, "org.a11y.atspi.Accessible.GetChildren")
+    assert "/" + str(nodes["second_shell"]) in children_after
+    assert children_after != children_before, "closing first shell did not retire its subtree"
+    assert "uint32 43" in call(nodes["second_button"], "org.a11y.atspi.Accessible.GetRole")
     # Run an explicitly disconnected instance after closing the registered one.
     process.terminate()
     process.wait(timeout=5)

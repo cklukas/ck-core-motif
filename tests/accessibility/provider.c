@@ -1,4 +1,5 @@
 /* Executable widget/provider/AT-SPI fixture. LGPL-2.0-or-later. */
+#include <X11/Shell.h>
 #include <Xm/Accessible.h>
 #include <Xm/Form.h>
 #include <Xm/PushB.h>
@@ -10,7 +11,7 @@
 
 typedef struct {
   XtAppContext app;
-  Widget shell, button, entry;
+  Widget shell, button, entry, second, second_button;
   XmAccessibility *bridge;
   XmAccessibleId table, cell;
   int activated, checks, expect_unavailable;
@@ -60,6 +61,15 @@ static void activate(Widget widget, XtPointer data, XtPointer call) {
   XmStringFree(label);
   XmAccessibilityChanged(f->bridge, XmAccessibilityWidget(f->bridge, widget));
 }
+static void close_primary(Widget widget, XtPointer data, XtPointer call) {
+  Fixture *f = (Fixture *)data;
+  (void)widget;
+  (void)call;
+  if (f->shell)
+    XtDestroyWidget(f->shell);
+  f->shell = NULL;
+  f->entry = NULL;
+}
 static void check(XtPointer data, XtIntervalId *id) {
   Fixture *f = (Fixture *)data;
   XmAccessibilityStatus status = XmAccessibilityGetStatus(f->bridge);
@@ -78,16 +88,19 @@ static void check(XtPointer data, XtIntervalId *id) {
     f->bridge = NULL;
     XmTextFieldSetString(f->entry, "Native editing after bridge teardown");
     XtDestroyWidget(f->shell);
+    XtDestroyWidget(f->second);
     puts("{\"unavailable\":true,\"native_action\":true,\"after_destroy_edit\":"
          "true}");
     exit(0);
   }
   if (status == XmACCESSIBILITY_CONNECTED) {
-    printf(
-        "{\"bus\":\"%s\",\"button\":%u,\"text\":%u,\"table\":%u,\"cell\":%u}\n",
-        XmAccessibilityBusName(f->bridge),
-        XmAccessibilityWidget(f->bridge, f->button),
-        XmAccessibilityWidget(f->bridge, f->entry), f->table, f->cell);
+    printf("{\"bus\":\"%s\",\"button\":%u,\"text\":%u,\"table\":%u,\"cell\":%u,"
+           "\"second_shell\":%u,\"second_button\":%u}\n",
+           XmAccessibilityBusName(f->bridge),
+           XmAccessibilityWidget(f->bridge, f->button),
+           XmAccessibilityWidget(f->bridge, f->entry), f->table, f->cell,
+           XmAccessibilityWidget(f->bridge, f->second),
+           XmAccessibilityWidget(f->bridge, f->second_button));
     fflush(stdout);
     return;
   }
@@ -105,7 +118,10 @@ static void finish(XtPointer data, XtIntervalId *id) {
   Fixture *f = (Fixture *)data;
   (void)id;
   XmAccessibilityDestroy(f->bridge);
-  XtDestroyWidget(f->shell);
+  if (f->shell)
+    XtDestroyWidget(f->shell);
+  if (f->second)
+    XtDestroyWidget(f->second);
   exit(0);
 }
 int main(int argc, char **argv) {
@@ -144,6 +160,15 @@ int main(int argc, char **argv) {
     return 1;
   XmAccessibleInfoClear(&info);
   XtAddCallback(f.button, XmNactivateCallback, activate, &f);
+  f.second =
+      XtVaAppCreateShell("second", "AccessibilityFixture",
+                         topLevelShellWidgetClass, XtDisplay(f.shell), NULL);
+  f.second_button = XtVaCreateManagedWidget(
+      "Close first window", xmPushButtonWidgetClass, f.second, NULL);
+  XtAddCallback(f.second_button, XmNactivateCallback, close_primary, &f);
+  XtRealizeWidget(f.second);
+  if (!XmAccessibilityAttachShell(f.bridge, f.second))
+    return 1;
   XmAccessibilityConnect(f.bridge);
   XtAppAddTimeOut(f.app, 100, check, &f);
   XtAppAddTimeOut(f.app, 20000, finish, &f);

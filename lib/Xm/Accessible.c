@@ -26,21 +26,49 @@ XmAccessibleNode *_XmAccessibilityNode(XmAccessibility *a, XmAccessibleId id) {
       return n;
   return NULL;
 }
+static Widget shell_for(Widget widget) {
+  while (widget && !XtIsShell(widget))
+    widget = XtParent(widget);
+  return widget;
+}
+static Widget active_shell(XmAccessibility *a) {
+  Window focus;
+  int revert;
+  Display *display;
+  if (!a->root)
+    return NULL;
+  display = XtDisplayOfObject(a->root);
+  XGetInputFocus(display, &focus, &revert);
+  if (focus == None || focus == PointerRoot)
+    return NULL;
+  return shell_for(XtWindowToWidget(display, focus));
+}
 static void node_destroyed(Widget w, XtPointer data, XtPointer call) {
   XmAccessibility *a = (XmAccessibility *)data;
   XmAccessibleNode *n;
   (void)call;
-  if (w == a->root)
+  if (w == a->root) {
     a->root = NULL;
-  for (n = a->nodes; n; n = n->next)
-    if (n->widget == w) {
+    for (n = a->nodes; n; n = n->next)
+      if (n->parent == 1 && n->widget && n->widget != w) {
+        a->root = n->widget;
+        break;
+      }
+  }
+  {
+    XmAccessibleId id = XmAccessibilityWidget(a, w);
+    n = _XmAccessibilityNode(a, id);
+    if (n) {
       n->widget = NULL;
-      XmAccessibilityChanged(a, n->id);
+      XmAccessibilityRemove(a, id);
+      XmAccessibilityChanged(a, 1);
     }
+  }
 }
 static void notify_focus(XmAccessibility *a) {
+  Widget shell = active_shell(a);
   XmAccessibleId next =
-      a->root ? XmAccessibilityWidget(a, XmGetFocusWidget(a->root)) : 0;
+      shell ? XmAccessibilityWidget(a, XmGetFocusWidget(shell)) : 0;
   if (next != a->focused_node) {
     XmAccessibleId previous = a->focused_node;
     a->focused_node = next;
@@ -128,9 +156,23 @@ XmAccessibility *XmAccessibilityCreate(Widget root, const char *name) {
   add_widgets(a, root, 1);
   return a;
 }
+Boolean XmAccessibilityAttachShell(XmAccessibility *a, Widget shell) {
+  if (!a || !shell || !XtIsShell(shell) ||
+      XtWidgetToApplicationContext(shell) != a->app)
+    return False;
+  if (!a->root)
+    a->root = shell;
+  add_widgets(a, shell, 1);
+  XmAccessibilityChanged(a, 1);
+  return True;
+}
 void XmAccessibilityRefresh(XmAccessibility *a) {
-  if (a && a->root)
-    add_widgets(a, a->root, 1);
+  XmAccessibleNode *n;
+  if (!a)
+    return;
+  for (n = a->nodes; n; n = n->next)
+    if (n->parent == 1 && n->widget)
+      add_widgets(a, n->widget, 1);
 }
 XmAccessibleId XmAccessibilityRoot(XmAccessibility *a) { return a ? 1 : 0; }
 XmAccessibleId XmAccessibilityAdd(XmAccessibility *a, XmAccessibleId parent,
@@ -321,7 +363,8 @@ Boolean XmAccessibilityQuery(XmAccessibility *a, XmAccessibleId id,
         attributes.map_state == IsViewable && (XtIsShell(w) || XtIsManaged(w)))
       i->states |= XmACCESSIBLE_STATE(25);
   }
-  if (a->root && XmGetFocusWidget(a->root) == w)
+  if (shell_for(w) == active_shell(a) && shell_for(w) &&
+      XmGetFocusWidget(shell_for(w)) == w)
     i->states |= XmACCESSIBLE_STATE(12);
   if (XmIsLabel(w) || XmIsLabelGadget(w)) {
     i->role = XmACCESSIBLE_LABEL;
