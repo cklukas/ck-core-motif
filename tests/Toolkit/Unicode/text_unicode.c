@@ -3,6 +3,7 @@
 #include <Xm/Text.h>
 #include <Xm/TextF.h>
 #include <Xm/RowColumn.h>
+#include <Xm/Form.h>
 #include <Xm/TextUnicode.h>
 #include <locale.h>
 #include <stdio.h>
@@ -90,6 +91,11 @@ static void check_wrapped(Widget widget) {
     Position x, y, last_y = -1;
     int rows = 0;
     require(map != NULL, "wrapped widget fixture mapping");
+    {
+        Dimension width;
+        XtVaGetValues(widget, XmNwidth, &width, NULL);
+        require(width <= 170, "fixture parent expanded the wrapped viewport");
+    }
     XmTextSetString(widget, (char *)source);
     for (g = 0; g <= XmTextUnicodeGraphemeCount(map); ++g) {
         size_t scalar;
@@ -109,7 +115,7 @@ static void check_wrapped(Widget widget) {
 }
 int main(int argc, char **argv) {
     XtAppContext application;
-    Widget shell, row, field, text, wrapped;
+    Widget shell, row, field, text, wrapped, wrap_container;
     XmFontListEntry entry;
     XmFontList fonts;
     require(setlocale(LC_ALL, "C.UTF-8") != NULL, "UTF8 locale unavailable");
@@ -123,7 +129,12 @@ int main(int argc, char **argv) {
     fonts = XmFontListAppendEntry(NULL, entry); XmFontListEntryFree(&entry);
     field = XtVaCreateManagedWidget("field", xmTextFieldWidgetClass, row, XmNfontList, fonts, NULL);
     text = XtVaCreateManagedWidget("text", xmTextWidgetClass, row, XmNfontList, fonts, XmNwordWrap, False, NULL);
-    wrapped = XtVaCreateManagedWidget("wrapped", xmTextWidgetClass, row,
+    /* RowColumn stretches direct children to its widest child. A Form keeps
+     * this editor's independent viewport narrow while the unwrapped controls
+     * above it retain enough width for their separate round-trip checks. */
+    wrap_container = XtVaCreateManagedWidget("wrapContainer", xmFormWidgetClass,
+        row, XmNwidth, 170, XmNheight, 360, XmNresizePolicy, XmRESIZE_NONE, NULL);
+    wrapped = XtVaCreateManagedWidget("wrapped", xmTextWidgetClass, wrap_container,
         XmNfontList, fonts, XmNwordWrap, True, XmNscrollHorizontal, False,
         XmNeditMode, XmMULTI_LINE_EDIT, XmNwidth, 170, XmNheight, 360,
         XmNresizeWidth, False, XmNresizeHeight, False, NULL);
