@@ -58,6 +58,11 @@ static void widget_event(Widget w, XtPointer data, XEvent *event,
   notify_focus(a);
   XmAccessibilityChanged(a, XmAccessibilityWidget(a, w));
 }
+static void text_value_changed(Widget w, XtPointer data, XtPointer call) {
+  (void)call;
+  XmAccessibilityChanged((XmAccessibility *)data,
+                         XmAccessibilityWidget((XmAccessibility *)data, w));
+}
 static XmAccessibleNode *add_node(XmAccessibility *a, XmAccessibleId parent) {
   XmAccessibleNode *n;
   if (a->next_id == UINT32_MAX)
@@ -90,6 +95,9 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     n->widget = w;
     id = n->id;
     XtAddCallback(w, XmNdestroyCallback, node_destroyed, (XtPointer)a);
+    if (XmIsText(w) || XmIsTextField(w))
+      XtAddCallback(w, XmNvalueChangedCallback, text_value_changed,
+                    (XtPointer)a);
     if (XtIsWidget(w))
       XtAddEventHandler(w,
                         FocusChangeMask | StructureNotifyMask |
@@ -160,6 +168,9 @@ void XmAccessibilityRemove(XmAccessibility *a, XmAccessibleId id) {
   if (n->widget) {
     XtRemoveCallback(n->widget, XmNdestroyCallback, node_destroyed,
                      (XtPointer)a);
+    if (XmIsText(n->widget) || XmIsTextField(n->widget))
+      XtRemoveCallback(n->widget, XmNvalueChangedCallback, text_value_changed,
+                       (XtPointer)a);
     if (XtIsWidget(n->widget))
       XtRemoveEventHandler(n->widget,
                            FocusChangeMask | StructureNotifyMask |

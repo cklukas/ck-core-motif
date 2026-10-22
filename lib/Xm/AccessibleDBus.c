@@ -835,5 +835,25 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
   dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
   dbus_message_iter_close_container(&out, &array);
   send_reply(t, message);
+  if (info.has_text) {
+    const char *members[] = {"VisibleDataChanged", "TextCaretMoved"};
+    size_t k;
+    for (k = 0; k < 2; k++) {
+      message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object",
+                                        members[k]);
+      dbus_message_iter_init_append(message, &out);
+      string_value(&out, "");
+      first = k ? info.caret : 0;
+      second = 0;
+      dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &first);
+      dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &second);
+      dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "i", &variant);
+      dbus_message_iter_append_basic(&variant, DBUS_TYPE_INT32, &second);
+      dbus_message_iter_close_container(&out, &variant);
+      dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
+      dbus_message_iter_close_container(&out, &array);
+      send_reply(t, message);
+    }
+  }
   XmAccessibleInfoClear(&info);
 }
