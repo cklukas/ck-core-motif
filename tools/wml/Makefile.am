@@ -30,6 +30,7 @@ wml_SOURCES = wml.c
 wml_LDADD = -L. -lwml
 wml_DEPENDENCIES = libwml.a
 
+wmldbcreate_SOURCES = wmldbcreate.c
 wmldbcreate_LDADD = ../../lib/Xm/libXm.la -lXt -lX11
 
 INCLUDES = -I../../lib -I$(srcdir)/../../lib -I$(srcdir)/../../include ${X_CFLAGS} 
@@ -43,7 +44,8 @@ wmllex.c: wmllex.l
 
 wmlsynbld.c: wmlparse.h
 
-wmldbcreate.c: $(WMLTARGETS) UilLexPars.h
+# The object consumes generated headers; the C file is ordinary VPATH source.
+wmldbcreate.o: $(WMLTARGETS) UilLexPars.h
 
 UilLexPars.h: UilLexPars.c
 
