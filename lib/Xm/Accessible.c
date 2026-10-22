@@ -6,6 +6,8 @@
 #include <X11/IntrinsicP.h>
 #include <X11/Shell.h>
 #include <X11/StringDefs.h>
+#include <Xm/DisclosureP.h>
+#include <Xm/ArrowB.h>
 #include <Xm/Label.h>
 #include <Xm/LabelG.h>
 #include <Xm/PushB.h>
@@ -91,6 +93,16 @@ static void text_value_changed(Widget w, XtPointer data, XtPointer call) {
   XmAccessibilityChanged((XmAccessibility *)data,
                          XmAccessibilityWidget((XmAccessibility *)data, w));
 }
+static void disclosure_changed(Widget w, XtPointer data, XtPointer call) {
+  XmAccessibility *a = (XmAccessibility *)data;
+  XmAccessibleId parent = XmAccessibilityWidget(a, w);
+  XmAccessibleNode *n;
+  (void)call;
+  XmAccessibilityChanged(a, parent);
+  for (n = a->nodes; n; n = n->next)
+    if (n->parent == parent && n->widget != XmDisclosureGetContent(w))
+      XmAccessibilityChanged(a, n->id);
+}
 static XmAccessibleNode *add_node(XmAccessibility *a, XmAccessibleId parent) {
   XmAccessibleNode *n;
   if (a->next_id == UINT32_MAX)
@@ -123,6 +135,8 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     n->widget = w;
     id = n->id;
     XtAddCallback(w, XmNdestroyCallback, node_destroyed, (XtPointer)a);
+    if (XmIsDisclosure(w))
+      XtAddCallback(w, XmNdisclosureStateCallback, disclosure_changed, (XtPointer)a);
     if (XmIsText(w) || XmIsTextField(w))
       XtAddCallback(w, XmNvalueChangedCallback, text_value_changed,
                     (XtPointer)a);
@@ -210,6 +224,8 @@ void XmAccessibilityRemove(XmAccessibility *a, XmAccessibleId id) {
   if (n->widget) {
     XtRemoveCallback(n->widget, XmNdestroyCallback, node_destroyed,
                      (XtPointer)a);
+    if (XmIsDisclosure(n->widget))
+      XtRemoveCallback(n->widget, XmNdisclosureStateCallback, disclosure_changed, (XtPointer)a);
     if (XmIsText(n->widget) || XmIsTextField(n->widget))
       XtRemoveCallback(n->widget, XmNvalueChangedCallback, text_value_changed,
                        (XtPointer)a);
@@ -373,7 +389,7 @@ Boolean XmAccessibilityQuery(XmAccessibility *a, XmAccessibleId id,
       local = XmStringUnparse(label, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT, NULL,
                               0, XmOUTPUT_ALL);
   }
-  if (XmIsPushButton(w) || XmIsPushButtonGadget(w)) {
+  if (XmIsPushButton(w) || XmIsPushButtonGadget(w) || XmIsArrowButton(w)) {
     i->role = XmACCESSIBLE_BUTTON;
     i->action_count = 1;
     i->states |= XmACCESSIBLE_STATE(11);
@@ -397,6 +413,21 @@ Boolean XmAccessibilityQuery(XmAccessibility *a, XmAccessibleId id,
                                        : XmTextFieldGetLastPosition(w));
     i->caret = (int)(XmIsText(w) ? XmTextGetInsertionPosition(w)
                                  : XmTextFieldGetInsertionPosition(w));
+  }
+  {
+    Widget section = XmIsDisclosure(w) ? w
+        : (XtParent(w) && XmIsDisclosure(XtParent(w))
+            && w != XmDisclosureGetContent(XtParent(w)) ? XtParent(w) : NULL);
+    if (section) {
+      XtFree(local);
+      local = NULL;
+      XtVaGetValues(section, XmNlabelString, &label, NULL);
+      if (label) local = XmStringUnparse(label, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
+                                         NULL, 0, XmOUTPUT_ALL);
+      i->states |= XmACCESSIBLE_STATE(9); /* expandable */
+      if (XmDisclosureGetExpanded(section)) i->states |= XmACCESSIBLE_STATE(10);
+      i->action_count = 1;
+    }
   }
   i->name = locale_utf8(local ? local : XtName(w));
   XtFree(local);
@@ -451,6 +482,15 @@ Boolean XmAccessibilityAction(XmAccessibility *a, XmAccessibleId id,
     return n->provider.action(n->data, action);
   if (!n->widget || action || !XtIsSensitive(n->widget))
     return False;
+  if (XmIsDisclosure(n->widget)) {
+    XmDisclosureSetExpanded(n->widget, !XmDisclosureGetExpanded(n->widget), True);
+    return True;
+  }
+  if (XmIsArrowButton(n->widget)) {
+    cb.reason = XmCR_ACTIVATE; cb.event = NULL;
+    XtCallCallbacks(n->widget, XmNactivateCallback, &cb);
+    return True;
+  }
   if (XmIsToggleButton(n->widget)) {
     XmToggleButtonSetState(n->widget, !XmToggleButtonGetState(n->widget), True);
     return True;
@@ -474,7 +514,8 @@ Boolean XmAccessibilityFocus(XmAccessibility *a, XmAccessibleId id) {
   if (n->provider.focus)
     return n->provider.focus(n->data);
   if (n->widget) {
-    Boolean success = XmProcessTraversal(n->widget, XmTRAVERSE_CURRENT);
+    Widget target = XmIsDisclosure(n->widget) ? XmDisclosureGetHeader(n->widget) : n->widget;
+    Boolean success = XmProcessTraversal(target, XmTRAVERSE_CURRENT);
     notify_focus(a);
     return success;
   }
