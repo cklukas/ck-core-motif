@@ -277,6 +277,32 @@ AC_SUBST(PRINTING_SUPPORTED_TRUE)
 AM_CONDITIONAL(PRINTING, test "$enable_printing" = "yes")
 AC_SUBST(LIB_XP)
 
+dnl Optional accessibility transport; basic widget operation has no service dependency.
+AC_ARG_ENABLE(atspi, [  --enable-atspi          Enable optional AT-SPI D-Bus transport (default=no)],, [enable_atspi=no])
+AC_ARG_ENABLE(unicode-text, [  --enable-unicode-text   Enable Unicode text mapping via ICU (default=no)],, [enable_unicode_text=no])
+AC_PATH_PROG(PKG_CONFIG, pkg-config)
+if test "x$enable_atspi" = "xyes"; then
+  if test -z "$PKG_CONFIG" || ! $PKG_CONFIG --exists dbus-1; then
+    AC_MSG_ERROR([--enable-atspi requires dbus-1 development files and pkg-config])
+  fi
+  ATSPI_CFLAGS=`$PKG_CONFIG --cflags dbus-1`
+  ATSPI_LIBS=`$PKG_CONFIG --libs dbus-1`
+  AC_DEFINE(HAVE_ATSPI_DBUS, 1, [Build the optional AT-SPI D-Bus transport])
+fi
+AM_CONDITIONAL(ATSPI_DBUS, test "x$enable_atspi" = "xyes")
+AC_SUBST(ATSPI_CFLAGS)
+AC_SUBST(ATSPI_LIBS)
+if test "x$enable_unicode_text" = "xyes"; then
+  if test -z "$PKG_CONFIG" || ! $PKG_CONFIG --exists icu-uc icu-i18n; then
+    AC_MSG_ERROR([--enable-unicode-text requires ICU development files and pkg-config])
+  fi
+  UNICODE_TEXT_CFLAGS=`$PKG_CONFIG --cflags icu-uc icu-i18n`
+  UNICODE_TEXT_LIBS=`$PKG_CONFIG --libs icu-uc icu-i18n`
+  AC_DEFINE(HAVE_UNICODE_TEXT, 1, [Build ICU-backed Unicode text mappings])
+fi
+AC_SUBST(UNICODE_TEXT_CFLAGS)
+AC_SUBST(UNICODE_TEXT_LIBS)
+
 AC_FIND_XFT
 AC_IMAGE_SUPPORT
 

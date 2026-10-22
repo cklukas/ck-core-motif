@@ -8,7 +8,7 @@ EXTRA_DIST = xmstring.list Xm.msg \
 INCLUDES = -I.. -I$(srcdir)/.. -DXMBINDDIR_FALLBACK=\"@XMBINDDIR_FALLBACK@\" \
            -DINCDIR=\"@INCDIR@\" \
            -DLIBDIR=\"@LIBDIR@\" \
-           ${X_CFLAGS}
+           ${X_CFLAGS} $(ATSPI_CFLAGS) $(UNICODE_TEXT_CFLAGS)
 xmdir = $(includedir)/Xm
 
 libXm_la_LDFLAGS = -version-info @CURRENT@:@REVISION@:@AGE@
@@ -71,9 +71,9 @@ else
 PRINTS_SRC =
 endif
 
-libXm_la_LIBADD = ${X_LIBS} ${X_XMU} -lXt -lXext ${LIB_XP} -lX11 ${X_EXTRA_LIBS}
+libXm_la_LIBADD = ${X_LIBS} ${X_XMU} -lXt -lXext ${LIB_XP} -lX11 ${X_EXTRA_LIBS} $(ATSPI_LIBS) $(UNICODE_TEXT_LIBS)
 
-noinst_HEADERS = BaseClassI.h \
+noinst_HEADERS = AccessibleI.h BaseClassI.h \
 BitmapsI.h \
 BulletinBI.h \
 CacheI.h \
@@ -169,7 +169,7 @@ $(JPEG_HDRS) \
 $(PNG_HDRS) \
 $(TIP_HDRS)
 
-xm_HEADERS = ArrowB.h      ArrowBG.h       ArrowBGP.h      ArrowBP.h \
+xm_HEADERS = Accessible.h TextUnicode.h ArrowB.h      ArrowBG.h       ArrowBGP.h      ArrowBP.h \
         BulletinB.h     BulletinBP.h    CacheP.h        CascadeB.h \
         CascadeBG.h     CascadeBGP.h    CascadeBP.h     Command.h \
         CommandP.h      CutPaste.h      DialogS.h \
@@ -272,7 +272,13 @@ NEW_WID_SRCS =         IconH.c        Container.c     IconG.c  \
         Notebook.c     ComboBox.c     GrabShell.c     SpinB.c  \
         SSpinB.c       TxtPropCv.c    XmStringSeg.c   TranslNew.c
 
-libXm_la_SOURCES = $(SRCS1) $(SRCS2) $(OBSO_SRCS) $(XPM_SRCS) $(NEW_WID_SRCS) $(SLIDE_SRCS) \
+if ATSPI_DBUS
+ATSPI_SRCS = AccessibleDBus.c
+else
+ATSPI_SRCS =
+endif
+
+libXm_la_SOURCES = Accessible.c TextUnicode.c $(ATSPI_SRCS) $(SRCS1) $(SRCS2) $(OBSO_SRCS) $(XPM_SRCS) $(NEW_WID_SRCS) $(SLIDE_SRCS) \
         $(TIP_SRCS) $(EDITRES_SRCS) $(EXTRA_SRCS) $(JPEG_SRCS) $(PNG_SRCS)
 
 EXTRA_libXm_la_SOURCES = $(SLIDE_SRCS) $(TIP_SRCS)
