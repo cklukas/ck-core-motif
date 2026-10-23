@@ -149,3 +149,57 @@ menu uses an override shell.
 posting, leaf focus, action delivery, cleanup and invalid/insensitive actions.
 These additions pass the strict native ARM64 installed feature suite. Actual keyboard/Orca journeys and native List selection remain separate
 qualification gates.
+
+
+## Native keyboard listeners
+
+When the optional transport is connected, registered native widgets forward
+actual KeyPress/KeyRelease input to the registry's `NotifyListenersSync` method.
+A raw Xt handler at the head of the widget's handler list runs before native
+translations/actions, without selecting additional X input or replacing the
+application's event dispatcher. A listener's successful `true` reply consumes
+the event; otherwise native processing continues. Unavailable services, invalid
+replies, send failures and timeouts fail open.
+
+The transport waits at most 500 ms for a reply, while servicing accessibility
+D-Bus requests on the owning UI thread. It does not dispatch another X event or
+run a nested Xt main loop. A nested native key dispatched by application code
+during a provider/action callback continues normally without starting a second
+listener wait. Callback execution itself remains subject to the provider's UI
+thread contract. Destruction requested by a callback is deferred until active
+dispatch finishes; no late listener reply retroactively consumes a delivered key.
+Hooks are removed when their node/bridge is destroyed, including attached shells.
+
+Key identity, hardware code, modifiers and X timestamp come from the native
+event. Printable Latin-1 and Unicode keysyms use UTF-8 labels; other keysyms use
+their X11 names. Lookup does not modify the widget's input-method or compose
+context. The notification describes physical input, not committed text: the
+ordinary text provider reports accepted edits independently. Toolkit listeners
+are distinct from global X11 or compositor monitoring. For example, AT-SPI's
+legacy device backend registers non-global listeners and requires toolkit
+forwarding even when the application's X input is delivered through Xwayland.
+
+### Registry device-event wire types
+
+The registry-input and listener-output wire contracts differ. The native bridge
+sends `(uiiiisb)` to `NotifyListenersSync`: type unsigned32, keysym signed32,
+hardware signed32, modifiers signed32, timestamp signed32, label string and
+printable boolean. Native X11 hardware codes and the 16-bit modifier mask fit
+exactly in those signed input fields. The registry's actual parser accepts them;
+its advertised `(uiuuisb)` signature is rejected for this method.
+
+The registry forwards `(uiuuisb)` to listener `NotifyEvent`, with unsigned32
+hardware/modifier fields. The listener test preserves that output signature and
+checks every field's actual D-Bus type rather than changing its expectations to
+match the bridge's input. This asymmetry follows the actual parser and marshaller
+in [AT-SPI 2.56.2 registryd/marshal-dbus.c](https://github.com/GNOME/at-spi2-core/blob/2.56.2/registryd/marshal-dbus.c),
+SHA-256 `c92dbc7750295ec06733c1ce56cfdce667d457575c412a8bec0cfbf4daaa97c5`.
+No alternative signature negotiation or application-specific forwarding is used.
+
+The signed registry-input correction passes the focused installed-prefix ARM64
+listener fixture and the complete 16-fixture native suite, including before-edit
+queries, consumption, attached shells,
+nested input, timeout/disconnect and teardown. An earlier private registry capture
+rejected unsigned input with `InvalidArgs` before the native edit continued.
+Actual screen-reader input echo, input methods and sanitizer qualification of the
+new key path remain separate gates.

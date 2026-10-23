@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define ROOT "/org/a11y/atspi/accessible/root"
 #define PREFIX "/org/a11y/atspi/accessible"
@@ -52,6 +53,7 @@ typedef struct {
   XtInputId input;
   XtIntervalId timer;
   int application_id;
+  Boolean key_pending;
   TransportState **memo;
   size_t memo_capacity, memo_count;
 } Transport;
@@ -1077,6 +1079,93 @@ static void pump(Transport *t) {
   while (count++ < 64 && dbus_connection_dispatch(t->connection) ==
                              DBUS_DISPATCH_DATA_REMAINS) {
   }
+}
+/* Toolkit listeners are distinct from global X11/compositor listeners. This
+ * pre-action handshake lets a listener observe/consume the actual native key,
+ * and permits its accessibility queries while withholding further X events.
+ * A missing listener/service, malformed reply or timeout always fails open. */
+static uint64_t monotonic_milliseconds(void) {
+  struct timespec now;
+  if (clock_gettime(CLOCK_MONOTONIC, &now)) return 0;
+  return (uint64_t)now.tv_sec * 1000 + (uint64_t)now.tv_nsec / 1000000;
+}
+Boolean _XmAccessibilityTransportKey(XmAccessibility *a, const XKeyEvent *event,
+                                      KeySym symbol, const char *label,
+                                      Boolean is_text) {
+  Transport *t = (Transport *)a->transport;
+  DBusMessage *call = NULL, *reply = NULL;
+  DBusPendingCall *pending = NULL;
+  DBusMessageIter out, item;
+  dbus_uint32_t type, stamp_bits;
+  dbus_int32_t identity, hardware, modifiers, stamp;
+  dbus_bool_t printable = is_text, consumed = FALSE;
+  uint64_t deadline, now;
+  int item_open = 0;
+  if (!t || a->status != XmACCESSIBILITY_CONNECTED || t->key_pending ||
+      a->destroy_requested || !dbus_validate_utf8(label, NULL)) return False;
+  now = monotonic_milliseconds();
+  if (!now) return False;
+  deadline = now + 500;
+  t->key_pending = True;
+  type = event->type == KeyPress ? 0 : 1;
+  identity = (dbus_int32_t)symbol;
+  /* Registry input and listener output are asymmetric: registryd's actual
+   * device-event parser accepts signed 32-bit hardware/modifier fields, even
+   * though its introspection and listener marshaller advertise unsigned ones.
+   * X11 keycodes and the 16-bit modifier mask fit exactly in the input types. */
+  hardware = (dbus_int32_t)event->keycode;
+  modifiers = (dbus_int32_t)(event->state & 0xffff);
+  stamp_bits = (dbus_uint32_t)event->time;
+  memcpy(&stamp, &stamp_bits, sizeof(stamp));
+  call = dbus_message_new_method_call("org.a11y.atspi.Registry",
+      "/org/a11y/atspi/registry/deviceeventcontroller",
+      "org.a11y.atspi.DeviceEventController", "NotifyListenersSync");
+  if (!call) goto done;
+  dbus_message_iter_init_append(call, &out);
+  if (!dbus_message_iter_open_container(&out, DBUS_TYPE_STRUCT, NULL, &item))
+    goto done;
+  item_open = 1;
+  if (!dbus_message_iter_append_basic(&item, DBUS_TYPE_UINT32, &type) ||
+      !dbus_message_iter_append_basic(&item, DBUS_TYPE_INT32, &identity) ||
+      !dbus_message_iter_append_basic(&item, DBUS_TYPE_INT32, &hardware) ||
+      !dbus_message_iter_append_basic(&item, DBUS_TYPE_INT32, &modifiers) ||
+      !dbus_message_iter_append_basic(&item, DBUS_TYPE_INT32, &stamp) ||
+      !dbus_message_iter_append_basic(&item, DBUS_TYPE_STRING, &label) ||
+      !dbus_message_iter_append_basic(&item, DBUS_TYPE_BOOLEAN, &printable) ||
+      !dbus_message_iter_close_container(&out, &item)) goto done;
+  item_open = 0;
+  if (!dbus_connection_send_with_reply(t->connection, call, &pending, 500) ||
+      !pending) goto done;
+  while (!dbus_pending_call_get_completed(pending) && !a->destroy_requested) {
+    unsigned int count = 0;
+    now = monotonic_milliseconds();
+    if (!now || now >= deadline || !dbus_connection_get_is_connected(t->connection))
+      break;
+    if (!dbus_connection_read_write(t->connection,
+           deadline - now < 10 ? (int)(deadline - now) : 10)) break;
+    while (count++ < 64 && !a->destroy_requested &&
+        dbus_connection_dispatch(t->connection) == DBUS_DISPATCH_DATA_REMAINS) {}
+  }
+  if (!a->destroy_requested && dbus_pending_call_get_completed(pending)) {
+    reply = dbus_pending_call_steal_reply(pending);
+    if (!reply || dbus_message_get_type(reply) != DBUS_MESSAGE_TYPE_METHOD_RETURN ||
+        !dbus_message_get_args(reply, NULL, DBUS_TYPE_BOOLEAN, &consumed,
+                               DBUS_TYPE_INVALID)) consumed = FALSE;
+  }
+done:
+  /* A reentrant action may request deferred bridge destruction. Give its
+   * already-queued reply one nonblocking write opportunity before teardown;
+   * never run more widget/X callbacks or wait for a late consume response. */
+  if (a->destroy_requested) (void)dbus_connection_read_write(t->connection, 0);
+  if (pending) {
+    if (!dbus_pending_call_get_completed(pending)) dbus_pending_call_cancel(pending);
+    dbus_pending_call_unref(pending);
+  }
+  if (item_open) dbus_message_iter_abandon_container(&out, &item);
+  if (reply) dbus_message_unref(reply);
+  if (call) dbus_message_unref(call);
+  t->key_pending = False;
+  return consumed ? True : False;
 }
 static void input_ready(XtPointer data, int *fd, XtInputId *id) {
   (void)fd;

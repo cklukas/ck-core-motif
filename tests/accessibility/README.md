@@ -133,3 +133,27 @@ Unicode edit recovery. This is targeted protocol fault injection; it does not
 simulate every toolkit/allocator failure. Custom-provider text ranges also use
 Unicode scalars; the regular fixture destroys the bridge from a text callback
 and checks that no content event escapes teardown.
+
+
+`key_events.c` and `observe_key_events.py` exercise the actual registry's
+synchronous, preemptive, non-global listener path with native X keyboard input.
+Compile against the exact prefix and run the observer with fixture and receipt
+paths under a private display/session and private `XDG_RUNTIME_DIR`, as above.
+It requires `xdotool`, Python D-Bus and GI/GLib. The listener queries the native
+text before processing a key, proves the same native F9 action before and after
+selectively consuming it, observes an attached shell, injects a nested native key through an
+accessible action, withholds a reply beyond the transport timeout, disconnects
+without unregistering, and requests bridge destruction from a reentrant action.
+Assertions check identity/string/modifiers/timestamp, once-only ordering,
+normal native editing/translation, fail-open behavior, late-reply safety and
+continued native operation after bridge destruction. This protocol fixture does
+not substitute for actual screen-reader input-echo qualification or IME tests.
+
+The bridge sends the registry parser's signed32 hardware/modifier input
+`(uiiiisb)`. The real registry forwards unsigned32 fields to the listener as
+`(uiuuisb)`; the observer explicitly checks the received Python D-Bus field types.
+The receipt records both contracts and the pinned authoritative parser hash.
+The first native key press/release and before-edit readback are the regression
+for delivery: registry introspection alone incorrectly advertises unsigned input
+and cannot establish this path. The signed-input correction passes the focused
+installed-prefix ARM64 run; actual screen-reader echo and IME remain unqualified.

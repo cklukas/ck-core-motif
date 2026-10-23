@@ -23,7 +23,13 @@ try:
     context = GLib.MainContext.default()
     for message in (1, 2):
         for step in range(1, 11):
-            env = dict(os.environ, LD_PRELOAD=str(interposer.resolve()),
+            preload = [str(interposer.resolve())]
+            runtime = os.environ.get('XM_TEST_TEXT_SANITIZER_PRELOAD')
+            if runtime:
+                runtime = pathlib.Path(runtime)
+                assert runtime.is_absolute() and runtime.is_file(), 'Explicit sanitizer runtime is unavailable'
+                preload.insert(0, str(runtime.resolve()))
+            env = dict(os.environ, LD_PRELOAD=':'.join(preload),
                        XM_TEST_TEXT_FAIL_STEP=str(step), XM_TEST_TEXT_FAIL_MESSAGE=str(message))
             process = subprocess.Popen([str(fixture.resolve())], env=env,
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

@@ -163,3 +163,18 @@ Unicode text events, 20 targeted libdbus failure cases, menu semantics and compo
 traversal. Clean builds take 116.040/120.184 seconds with two jobs, comparable to
 the earlier 115.427-second profile. This is native protocol/control qualification;
 sanitizer and actual screen-reader checks for these additions remain pending.
+
+
+## Toolkit keyboard delivery to assistive listeners
+
+Registered widgets now forward native key press/release events before their
+translations run. Synchronous non-global AT-SPI listeners can query accessible
+state and consume an event. Bounded waits fail open; nested dispatch, late replies,
+disconnect and bridge destruction preserve native editing. The registry-input
+wire encoding follows the actual pinned parser; its hardware/modifier types differ
+from registry listener output despite the advertised signature.
+
+The full16-fixture native ARM64 suite passes, including strict listener type and
+ordering checks and consumption of the same action between two accepted runs.
+Actual screen-reader input echo, IME and sanitizer checks of this new path remain
+separate qualification gates. See [accessibility](accessibility.md).

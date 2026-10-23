@@ -35,6 +35,7 @@ FIXTURES = {
     "accessibility": ("tests/accessibility/provider.c", True),
     "scrollbar-accessibility": ("tests/accessibility/scrollbar.c", True),
     "text-events": ("tests/accessibility/text_events.c", True),
+    "key-events": ("tests/accessibility/key_events.c", True),
     "menu-accessibility": ("tests/accessibility/menu.c", True),
     "compound-traversal": ("tests/accessibility/compound_traversal.c", True),
     "xim-service": ("tests/Toolkit/Im/service.c", True),
@@ -197,7 +198,7 @@ def main():
         required = [args.cc, "pkg-config", "ldd", "readelf"]
         if any(FIXTURES[name][1] for name in selected):
             required += ["xvfb-run", "Xvfb", "xauth"]
-        if any(name in selected for name in ("disclosure", "accessibility", "scrollbar-accessibility", "text-events")):
+        if any(name in selected for name in ("disclosure", "accessibility", "scrollbar-accessibility", "text-events", "key-events")):
             required += ["dbus-run-session", "gdbus", "stdbuf"]
         if "scrollbar-accessibility" in selected:
             required += ["xdotool"]
@@ -266,10 +267,11 @@ def main():
                 remember(observer)
                 run(name, display(["dbus-run-session", "--", sys.executable, observer,
                                    binary, output / "xim-service-observer"]))
-            elif name in ("accessibility", "scrollbar-accessibility", "text-events"):
+            elif name in ("accessibility", "scrollbar-accessibility", "text-events", "key-events"):
                 observer = source / {"accessibility": "tests/accessibility/observe.py",
                                      "scrollbar-accessibility": "tests/accessibility/observe_scrollbar.py",
-                                     "text-events": "tests/accessibility/observe_text_events.py"}[name]
+                                     "text-events": "tests/accessibility/observe_text_events.py",
+                                     "key-events": "tests/accessibility/observe_key_events.py"}[name]
                 remember(observer)
                 run(name, display(["dbus-run-session", "--", sys.executable, observer, binary,
                                    output / (name + "-observer.json")]))

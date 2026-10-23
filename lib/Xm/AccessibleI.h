@@ -44,5 +44,7 @@ void _XmAccessibilityTransportRemoved(XmAccessibility *, XmAccessibleId, XmAcces
 void _XmAccessibilityTransportDestroy(XmAccessibility *);
 XmAccessibilityStatus _XmAccessibilityTransportConnect(XmAccessibility *);
 void _XmAccessibilityTransportChanged(XmAccessibility *, XmAccessibleId);
+Boolean _XmAccessibilityTransportKey(XmAccessibility *, const XKeyEvent *,
+                                      KeySym, const char *, Boolean);
 const char *_XmAccessibilityTransportBusName(XmAccessibility *);
 #endif

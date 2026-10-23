@@ -6,6 +6,7 @@
 #include <X11/IntrinsicP.h>
 #include <X11/Shell.h>
 #include <X11/StringDefs.h>
+#include <X11/Xutil.h>
 #include <Xm/ArrowB.h>
 #include <Xm/CascadeB.h>
 #include <Xm/CascadeBG.h>
@@ -29,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
+#include <wctype.h>
 
 static void deferred_destroy(XtPointer, XtIntervalId *);
 
@@ -244,6 +246,55 @@ static void widget_event(Widget w, XtPointer data, XEvent *event,
   --a->dispatch_depth;
   _XmAccessibilityDispatchDone(a);
 }
+/* Raw handlers preserve native event selection. Xt invokes these before its
+ * translation manager; consumption stops both later handlers and actions. The
+ * independent key lookup must not advance the widget's XIM/compose context. */
+static void native_key_event(Widget w, XtPointer data, XEvent *event,
+                             Boolean *cont) {
+  XmAccessibility *a = (XmAccessibility *)data;
+  XKeyEvent key;
+  KeySym symbol = NoSymbol;
+  char local[64], encoded[5];
+  const char *label;
+  uint32_t scalar = 0;
+  Boolean is_text = False, consumed;
+  if (event->type != KeyPress && event->type != KeyRelease) return;
+  if (a->destroy_requested || a->status != XmACCESSIBILITY_CONNECTED) return;
+  ++a->dispatch_depth;
+  key = event->xkey;
+  (void)XLookupString(&key, local, sizeof(local), &symbol, NULL);
+  if ((symbol >= 0x20 && symbol <= 0x7e) || (symbol >= 0xa0 && symbol <= 0xff))
+    scalar = (uint32_t)symbol;
+  else if ((symbol & 0xff000000UL) == 0x01000000UL)
+    scalar = (uint32_t)(symbol & 0x00ffffffUL);
+  if (scalar && scalar <= 0x10ffff && !(scalar >= 0xd800 && scalar <= 0xdfff) &&
+      iswprint((wint_t)scalar)) {
+    if (scalar < 0x80) { encoded[0] = (char)scalar; encoded[1] = 0; }
+    else if (scalar < 0x800) {
+      encoded[0] = (char)(0xc0 | (scalar >> 6));
+      encoded[1] = (char)(0x80 | (scalar & 63)); encoded[2] = 0;
+    } else if (scalar < 0x10000) {
+      encoded[0] = (char)(0xe0 | (scalar >> 12));
+      encoded[1] = (char)(0x80 | ((scalar >> 6) & 63));
+      encoded[2] = (char)(0x80 | (scalar & 63)); encoded[3] = 0;
+    } else {
+      encoded[0] = (char)(0xf0 | (scalar >> 18));
+      encoded[1] = (char)(0x80 | ((scalar >> 12) & 63));
+      encoded[2] = (char)(0x80 | ((scalar >> 6) & 63));
+      encoded[3] = (char)(0x80 | (scalar & 63)); encoded[4] = 0;
+    }
+    label = encoded; is_text = True;
+  } else {
+    /* Legacy keysyms have stable X11 names. Do not mistake an XIM commit or a
+     * guessed character for the physical event's string. */
+    label = XKeysymToString(symbol);
+    if (!label) label = "";
+  }
+  consumed = _XmAccessibilityTransportKey(a, &key, symbol, label, is_text);
+  if (consumed || w->core.being_destroyed) *cont = False;
+  --a->dispatch_depth;
+  _XmAccessibilityDispatchDone(a);
+}
 static void text_value_changed(Widget w, XtPointer data, XtPointer call) {
   (void)call;
   XmAccessibilityChanged((XmAccessibility *)data,
@@ -342,12 +393,15 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     if (XmIsText(w) || XmIsTextField(w))
       XtAddCallback(w, XmNvalueChangedCallback, text_value_changed,
                     (XtPointer)a);
-    if (XtIsWidget(w))
+    if (XtIsWidget(w)) {
       XtAddEventHandler(w,
                         FocusChangeMask | StructureNotifyMask |
                             PropertyChangeMask | KeyReleaseMask |
                             ButtonReleaseMask,
                         False, widget_event, (XtPointer)a);
+      XtInsertRawEventHandler(w, KeyPressMask | KeyReleaseMask, False,
+                              native_key_event, (XtPointer)a, XtListHead);
+    }
   }
   if (XtIsWidget(w)) {
     CoreWidget core = (CoreWidget)w;
@@ -429,12 +483,15 @@ static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
     if (XmIsText(n->widget) || XmIsTextField(n->widget))
       XtRemoveCallback(n->widget, XmNvalueChangedCallback, text_value_changed,
                        (XtPointer)a);
-    if (XtIsWidget(n->widget))
+    if (XtIsWidget(n->widget)) {
+      XtRemoveRawEventHandler(n->widget, KeyPressMask | KeyReleaseMask, False,
+                              native_key_event, (XtPointer)a);
       XtRemoveEventHandler(n->widget,
                            FocusChangeMask | StructureNotifyMask |
                                PropertyChangeMask | KeyReleaseMask |
                                ButtonReleaseMask,
                            False, widget_event, (XtPointer)a);
+    }
   }
 }
 void XmAccessibilityRemove(XmAccessibility *a, XmAccessibleId id) {
@@ -1085,6 +1142,12 @@ XmAccessibilityStatus _XmAccessibilityTransportConnect(XmAccessibility *a) {
 void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
   (void)a;
   (void)id;
+}
+Boolean _XmAccessibilityTransportKey(XmAccessibility *a, const XKeyEvent *event,
+                                      KeySym symbol, const char *label,
+                                      Boolean is_text) {
+  (void)a; (void)event; (void)symbol; (void)label; (void)is_text;
+  return False;
 }
 void _XmAccessibilityTransportRemoved(XmAccessibility *a, XmAccessibleId id,
                                      XmAccessibleId parent, int index) {
