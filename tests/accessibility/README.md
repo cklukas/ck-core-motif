@@ -96,3 +96,40 @@ without an audio device or user preference changes. Covered native controls
 include buttons, toggles, editable/read-only Unicode text, selection, Disclosure
 and ScrollBar. This subset does not qualify native list/menu items, precise edit
 notifications, custom-provider layout, a complete application or human usability.
+
+
+`text_events.c` and `observe_text_events.py` exercise native Text/TextField and
+custom-provider text notifications over a private real AT-SPI bus. Compile the
+fixture against the exact prefix, then run under an isolated display/session
+with a fresh private `XDG_RUNTIME_DIR` (mode 0700). The observer requires the
+AT-SPI socket returned by the private session bus to reside beneath that exact
+runtime directory:
+
+```
+dbus-run-session -- python3 tests/accessibility/observe_text_events.py /absolute/text_events /absolute/receipt.json
+```
+
+Checks include scalar Unicode insertion/replacement/deletion payloads, combining
+marks and supplementary characters, read-only programmatic edits, rejected edits,
+caret-only/no-op/refresh suppression, changes across bounded read chunks, initial
+baselines, provider removal/reentrancy/invalid UTF-8 recovery, and secret-provider
+content suppression. These protocol assertions are separate from actual Orca
+input-echo qualification. No documentation render is required for source review.
+
+`menu.c` is a native semantics regression for menu-bar/pulldown/popup roles,
+widget and gadget menu entries, shared-pane expansion ownership, MenuShell leaf
+focus, native activation/popdown and rejected actions. Compile it against the
+exact installed headers/library and run on an isolated X display. It does not
+require a bus and does not establish D-Bus or screen-reader acceptance. It is executed by the native feature runner; actual D-Bus and screen-reader menu journeys remain separate.
+
+The Linux-only `text_event_faults.c` is a test interposer, compiled as a shared
+object with the libdbus headers and `libdl`. It delegates to actual libdbus and
+injects one false/null return at a selected constructor or send operation of a
+selected text event. Run `observe_text_faults.py` with the fixture executable,
+interposer shared-object path and receipt path, on the same private display/bus
+setup. Its 20 cases verify safe failed-container cleanup, no partial replacement
+when construction fails, baseline invalidation after a failed send, and later
+Unicode edit recovery. This is targeted protocol fault injection; it does not
+simulate every toolkit/allocator failure. Custom-provider text ranges also use
+Unicode scalars; the regular fixture destroys the bridge from a text callback
+and checks that no content event escapes teardown.

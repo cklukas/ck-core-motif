@@ -141,3 +141,25 @@ modal, popdown and recursive destruction. The final fixture observes XmDisplay
 retirement instead of reading it after the last VendorShell is destroyed.
 Native installed-prefix and focused ASan/UBSan results are recorded in
 [current status](status.md); broader desktop and final x86_64 gates remain open.
+
+
+## Exact text changes and native menu accessibility
+
+The optional AT-SPI transport now emits scalar-indexed TextChanged deletion and
+insertion payloads from validated current live text, with changes ordered as one
+replacement batch. Caret-only/unchanged observations no longer fabricate content
+changes. Bounded reads, provider removal/reentrancy, invalid observations and
+password-role suppression preserve explicit observation limits. Message construction
+checks libdbus failures transactionally; a failed batch invalidates its baseline.
+
+Native menu bars, panes, cascade widgets/gadgets and menu entries expose standard
+roles, native actions, expansion ownership and posted MenuShell focus. Applications
+can compose a single input-row tab group for fields and adjacent buttons using
+existing navigation resources; the compound traversal fixture checks that contract.
+No public struct layout or SONAME changes; the added role constants retain ABI6.
+
+The strict ARM64 native build passes all 15 default features, including exact
+Unicode text events, 20 targeted libdbus failure cases, menu semantics and compound
+traversal. Clean builds take 116.040/120.184 seconds with two jobs, comparable to
+the earlier 115.427-second profile. This is native protocol/control qualification;
+sanitizer and actual screen-reader checks for these additions remain pending.

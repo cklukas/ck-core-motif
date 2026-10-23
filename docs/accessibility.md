@@ -61,7 +61,34 @@ that remain valid for the displayed state.
 
 `XmAccessibilityRefresh` refreshes native structure;
 `XmAccessibilityChanged` publishes property/state changes for an identity.
-Text and caret changes have bounded native notifications. A multi-shell
+Native Text/TextField value callbacks publish exact `TextChanged:delete` and
+`TextChanged:insert` deltas, including programmatic changes to read-only text.
+Offsets and lengths count Unicode scalars; event payloads are owned UTF-8 copies
+of the removed/inserted range. Replacements delete before inserting at the same
+offset. A common scalar prefix/suffix is preserved; the remaining contiguous
+range describes the change without inventing keystrokes. Rejected edits,
+refreshes, unchanged content and caret-only movement emit no text-edit event.
+Caret notifications describe actual caret changes.
+
+The optional transport retains one current text baseline per live text node,
+proportional to current exposed content, and reads providers in ranges of at
+most 1024 scalars. Initial connection/new-node observation captures a baseline
+without announcing existing text as newly inserted. Removal frees the baseline;
+no historical text or IDs accumulate. Failed, malformed, unavailable, excessive
+allocation-size or reentrant observations invalidate that baseline; the next
+successful observation establishes a new baseline without claiming an exact
+missed edit. D-Bus events are constructed as a complete ordered batch before queueing.
+Construction failures abandon open containers and discard the batch; a failed
+queue operation invalidates the baseline, since a client might have observed
+only part of a replacement. These failures cannot prove delivery of an edit.
+Provider callbacks must supply valid, stable UTF-8 and call
+`XmAccessibilityChanged` after each accepted semantic text change.
+
+Providers representing secrets must use `XmACCESSIBLE_PASSWORD_TEXT`; the bridge
+neither snapshots nor returns their text and emits no content-bearing deltas.
+Native Text/TextField has no password resource: applications that mask secrets
+using custom modify-verify logic must expose a password semantic provider rather
+than exposing its underlying native storage. A multi-shell
 application should test node destruction, focus changes and event ordering
 across shell closure/recreation.
 
@@ -102,3 +129,23 @@ Focused native observer tests cover introspection, properties, writes,
 actions, callbacks, focus, orientation, dynamic ranges, service absence and
 stale-node/destruction handling. Full installed-cohort verification and actual
 screen-reader qualification are separate gates.
+
+## Native menus
+
+Native MenuBar, PulldownMenu and PopupMenu containers expose menu roles.
+PushButton and ToggleButton entries, including gadgets, expose menu-item,
+check-menu-item or radio-menu-item roles; passive labels retain label semantics.
+Cascade buttons expose menu-item actions and native has-popup/expandable/expanded
+states. A shared pane expands only its current posting cascade. Expanded follows
+actual pane visibility, rather than its managed state.
+
+Menu actions use the native class activation path, which owns posting, callback
+delivery, focus and grab cleanup. Logical focus is read from the actual input
+shell, including a posted MenuShell; its owning WM frame retains activation.
+This prevents menu leaves from losing their focused state merely because the
+menu uses an override shell.
+
+`tests/accessibility/menu.c` covers native roles, widget/gadget entries, shared
+posting, leaf focus, action delivery, cleanup and invalid/insensitive actions.
+These additions pass the strict native ARM64 installed feature suite. Actual keyboard/Orca journeys and native List selection remain separate
+qualification gates.

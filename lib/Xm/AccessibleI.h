@@ -10,7 +10,8 @@ typedef struct _XmAccessibleNode {
   struct _XmAccessibleNode *next, *previous, *id_next, *widget_next;
   struct _XmAccessibleNode **children;
   size_t child_count, child_capacity, child_index;
-  Boolean removed;
+  Boolean removed, text_snapshot_busy;
+  uint64_t change_serial;
   struct _XmAccessibleNode *retired_next;
 } XmAccessibleNode;
 typedef struct _XmAccessibleDisplayHook {

@@ -7,6 +7,12 @@
 #include <X11/Shell.h>
 #include <X11/StringDefs.h>
 #include <Xm/ArrowB.h>
+#include <Xm/CascadeB.h>
+#include <Xm/CascadeBG.h>
+#include <Xm/GadgetP.h>
+#include <Xm/MenuShell.h>
+#include <Xm/PrimitiveP.h>
+#include <Xm/RowColumnP.h>
 #include <Xm/DisclosureP.h>
 #include <Xm/Label.h>
 #include <Xm/LabelG.h>
@@ -125,21 +131,60 @@ static Widget shell_for(Widget widget) {
     widget = XtParent(widget);
   return widget;
 }
-static Widget active_shell(XmAccessibility *a) {
+/* MenuShell has its own logical focus record. Keep its leaf focus distinct
+ * from the owning WM frame, whose activation the override shell borrows. */
+static Widget input_shell(XmAccessibility *a) {
   Window focus;
   int revert;
   Display *display;
-  if (!a->root)
-    return NULL;
+  if (!a->root) return NULL;
   display = XtDisplayOfObject(a->root);
   XGetInputFocus(display, &focus, &revert);
-  if (focus == None || focus == PointerRoot)
-    return NULL;
-  {
-    Widget shell = shell_for(XtWindowToWidget(display, focus));
-    /* Override/menu shells borrow their owning WM frame's activation. */
-    while (shell && !XtIsWMShell(shell)) shell = shell_for(XtParent(shell));
-    return shell;
+  if (focus == None || focus == PointerRoot) return NULL;
+  return shell_for(XtWindowToWidget(display, focus));
+}
+static Widget active_shell(XmAccessibility *a) {
+  Widget shell = input_shell(a);
+  while (shell && !XtIsWMShell(shell)) shell = shell_for(XtParent(shell));
+  return shell;
+}
+static Widget focused_widget(XmAccessibility *a) {
+  Widget shell = input_shell(a);
+  return shell ? XmGetFocusWidget(shell) : NULL;
+}
+static Boolean menu_pane(Widget w) {
+  unsigned char type;
+  if (!w || !XmIsRowColumn(w)) return False;
+  XtVaGetValues(w, XmNrowColumnType, &type, NULL);
+  return type == XmMENU_PULLDOWN || type == XmMENU_POPUP || type == XmMENU_BAR;
+}
+static Boolean submenu_posted(Widget cascade, Widget submenu) {
+  Widget parent;
+  XWindowAttributes attributes;
+  if (!submenu || !XtIsRealized(submenu) || !XmIsRowColumn(submenu) ||
+      RC_CascadeBtn(submenu) != cascade) return False;
+  parent = XtParent(submenu);
+  if (!parent || !XmIsMenuShell(parent)) return False;
+  return XGetWindowAttributes(XtDisplay(submenu), XtWindow(submenu), &attributes) &&
+         attributes.map_state == IsViewable;
+}
+/* Mapping a MenuShell does not remap its already-managed menu children. Notify
+ * the actual posting cascade as well so expanded follows native posting. */
+static void menu_changed(XmAccessibility *a, Widget w) {
+  WidgetList children;
+  Cardinal count, k;
+  if (menu_pane(w)) {
+    Widget cascade = RC_CascadeBtn(w);
+    if (cascade) XmAccessibilityChanged(a, XmAccessibilityWidget(a, cascade));
+  } else if (XmIsMenuShell(w)) {
+    XtVaGetValues(w, XtNchildren, &children, XtNnumChildren, &count, NULL);
+    /* Snapshot IDs: notification can run client/provider code and retire nodes. */
+    XmAccessibleId *ids = (XmAccessibleId *)XtMalloc(count * sizeof(*ids));
+    for (k = 0; k < count; ++k)
+      ids[k] = menu_pane(children[k])
+                   ? XmAccessibilityWidget(a, RC_CascadeBtn(children[k])) : 0;
+    for (k = 0; k < count; ++k) if (ids[k]) XmAccessibilityChanged(a, ids[k]);
+    XtFree((char *)ids);
   }
 }
 static void node_destroyed(Widget w, XtPointer data, XtPointer call) {
@@ -171,8 +216,7 @@ static void node_destroyed(Widget w, XtPointer data, XtPointer call) {
 static void notify_focus(XmAccessibility *a) {
   Widget shell = active_shell(a);
   XmAccessibleId active = shell ? XmAccessibilityWidget(a, shell) : 0;
-  XmAccessibleId next =
-      shell ? XmAccessibilityWidget(a, XmGetFocusWidget(shell)) : 0;
+  XmAccessibleId next = XmAccessibilityWidget(a, focused_widget(a));
   if (active != a->active_shell_node) {
     XmAccessibleId previous = a->active_shell_node;
     a->active_shell_node = active;
@@ -195,6 +239,7 @@ static void widget_event(Widget w, XtPointer data, XEvent *event,
   (void)cont;
   ++a->dispatch_depth;
   notify_focus(a);
+  if (event->type == MapNotify || event->type == UnmapNotify) menu_changed(a, w);
   XmAccessibilityChanged(a, XmAccessibilityWidget(a, w));
   --a->dispatch_depth;
   _XmAccessibilityDispatchDone(a);
@@ -593,8 +638,7 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
         attributes.map_state == IsViewable && (XtIsShell(w) || XtIsManaged(w)))
       i->states |= XmACCESSIBLE_STATE(25);
   }
-  if (shell_for(w) == active_shell(a) && shell_for(w) &&
-      XmGetFocusWidget(shell_for(w)) == w)
+  if (focused_widget(a) == w)
     i->states |= XmACCESSIBLE_STATE(12);
   if (XmIsLabel(w) || XmIsLabelGadget(w)) {
     i->role = XmACCESSIBLE_LABEL;
@@ -649,6 +693,38 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
       i->states |= XmACCESSIBLE_STATE(7);
     i->action_count = editable ? 6 : 0;
   }
+  if (menu_pane(w)) {
+    unsigned char type;
+    XtVaGetValues(w, XmNrowColumnType, &type, NULL);
+    i->role = type == XmMENU_BAR ? XmACCESSIBLE_MENU_BAR : XmACCESSIBLE_MENU;
+  }
+  if (menu_pane(XtParent(w))) {
+    Boolean traversal = False;
+    if (XmIsPushButton(w) || XmIsPushButtonGadget(w))
+      i->role = XmACCESSIBLE_MENU_ITEM;
+    if (XmIsToggleButton(w) || XmIsToggleButtonGadget(w)) {
+      unsigned char indicator;
+      XtVaGetValues(w, XmNindicatorType, &indicator, NULL);
+      i->role = indicator == XmONE_OF_MANY || indicator == XmONE_OF_MANY_ROUND ||
+                        indicator == XmONE_OF_MANY_DIAMOND
+                    ? XmACCESSIBLE_RADIO_MENU_ITEM : XmACCESSIBLE_CHECK_MENU_ITEM;
+    }
+    if (XmIsCascadeButton(w) || XmIsCascadeButtonGadget(w)) {
+      Widget submenu = NULL;
+      i->role = XmACCESSIBLE_MENU_ITEM;
+      i->action_count = 1;
+      XtVaGetValues(w, XmNsubMenuId, &submenu, NULL);
+      if (submenu) {
+        i->states |= XmACCESSIBLE_STATE(9) | XmACCESSIBLE_STATE(42);
+        if (submenu_posted(w, submenu)) i->states |= XmACCESSIBLE_STATE(10);
+      }
+    }
+    if (i->action_count) {
+      XtVaGetValues(w, XmNtraversalOn, &traversal, NULL);
+      if (traversal) i->states |= XmACCESSIBLE_STATE(11);
+      else i->states &= ~XmACCESSIBLE_STATE(11);
+    }
+  }
   {
     Widget section = XmIsDisclosure(w)
                          ? w
@@ -684,15 +760,22 @@ static char *text_impl(XmAccessibility *a, XmAccessibleId id, int start,
   int status;
   if (!n || start < 0 || end < start || !XmAccessibilityQuery(a, id, &info))
     return NULL;
-  if (!info.has_text || end > info.text_length) {
+  if (!info.has_text || info.role == XmACCESSIBLE_PASSWORD_TEXT ||
+      end > info.text_length) {
     XmAccessibleInfoClear(&info);
     return NULL;
   }
   XmAccessibleInfoClear(&info);
   if (start == end)
     return XtNewString("");
-  if (n->provider.text)
-    return n->provider.text(n->data, start, end);
+  if (n->provider.text) {
+    result = n->provider.text(n->data, start, end);
+    if (_XmAccessibilityNode(a, id) != n || a->destroy_requested) {
+      XtFree(result);
+      return NULL;
+    }
+    return result;
+  }
   if (!n->widget || (!XmIsText(n->widget) && !XmIsTextField(n->widget)))
     return NULL;
   if ((size_t)(end - start) > (INT_MAX - 1) / MB_CUR_MAX)
@@ -742,6 +825,23 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
   }
   if (!n->widget || action || !XtIsSensitive(n->widget))
     return False;
+  if (menu_pane(XtParent(n->widget))) {
+    XtActionProc activate = NULL;
+    Cardinal count = 0;
+    if (XmIsPrimitive(n->widget))
+      activate = ((XmPrimitiveWidgetClass)XtClass(n->widget))->primitive_class.arm_and_activate;
+    else if (XmIsGadget(n->widget))
+      activate = ((XmGadgetClass)XtClass(n->widget))->gadget_class.arm_and_activate;
+    /* Use the native menu activation contract: callbacks alone leave menu
+     * grabs, focus and posted panes behind. Labels have no activation method. */
+    if (!activate) return False;
+    activate(n->widget, NULL, NULL, &count);
+    if (!a->destroy_requested) {
+      notify_focus(a);
+      if (_XmAccessibilityNode(a, id)) XmAccessibilityChanged(a, id);
+    }
+    return True;
+  }
   if (XmIsDisclosure(n->widget)) {
     XmDisclosureSetExpanded(n->widget, !XmDisclosureGetExpanded(n->widget),
                             True);
@@ -832,6 +932,10 @@ static Boolean focus_impl(XmAccessibility *a, XmAccessibleId id) {
 void XmAccessibilityChanged(XmAccessibility *a, XmAccessibleId id) {
   if (!a || !id) return;
   ++a->dispatch_depth;
+  {
+    XmAccessibleNode *node = _XmAccessibilityNode(a, id);
+    if (node) ++node->change_serial;
+  }
   _XmAccessibilityTransportChanged(a, id);
   --a->dispatch_depth;
   _XmAccessibilityDispatchDone(a);

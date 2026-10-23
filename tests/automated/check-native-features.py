@@ -34,6 +34,9 @@ FIXTURES = {
     "disclosure": ("tests/disclosure/widget.c", True),
     "accessibility": ("tests/accessibility/provider.c", True),
     "scrollbar-accessibility": ("tests/accessibility/scrollbar.c", True),
+    "text-events": ("tests/accessibility/text_events.c", True),
+    "menu-accessibility": ("tests/accessibility/menu.c", True),
+    "compound-traversal": ("tests/accessibility/compound_traversal.c", True),
     "xim-service": ("tests/Toolkit/Im/service.c", True),
 }
 MODULES = ("xft", "fontconfig", "harfbuzz", "icu-uc", "icu-i18n")
@@ -194,7 +197,7 @@ def main():
         required = [args.cc, "pkg-config", "ldd", "readelf"]
         if any(FIXTURES[name][1] for name in selected):
             required += ["xvfb-run", "Xvfb", "xauth"]
-        if any(name in selected for name in ("disclosure", "accessibility", "scrollbar-accessibility")):
+        if any(name in selected for name in ("disclosure", "accessibility", "scrollbar-accessibility", "text-events")):
             required += ["dbus-run-session", "gdbus", "stdbuf"]
         if "scrollbar-accessibility" in selected:
             required += ["xdotool"]
@@ -263,14 +266,29 @@ def main():
                 remember(observer)
                 run(name, display(["dbus-run-session", "--", sys.executable, observer,
                                    binary, output / "xim-service-observer"]))
-            elif name in ("accessibility", "scrollbar-accessibility"):
-                observer = source / ("tests/accessibility/observe.py" if name == "accessibility"
-                                     else "tests/accessibility/observe_scrollbar.py")
+            elif name in ("accessibility", "scrollbar-accessibility", "text-events"):
+                observer = source / {"accessibility": "tests/accessibility/observe.py",
+                                     "scrollbar-accessibility": "tests/accessibility/observe_scrollbar.py",
+                                     "text-events": "tests/accessibility/observe_text_events.py"}[name]
                 remember(observer)
                 run(name, display(["dbus-run-session", "--", sys.executable, observer, binary,
                                    output / (name + "-observer.json")]))
             else:
                 run(name, display([binary]) if needs_display else [binary])
+            if name == "text-events":
+                fault_source = source / "tests/accessibility/text_event_faults.c"
+                fault_observer = source / "tests/accessibility/observe_text_faults.py"
+                remember(fault_source)
+                remember(fault_observer)
+                interposer = output / "text-event-faults.so"
+                dbus_flags = shlex.split(run("dbus-fault-flags", ["pkg-config", "--cflags", "--libs", "dbus-1"]))
+                run("compile-text-event-faults", [args.cc, "-std=c11", "-O2", "-Wall", "-Wextra",
+                    "-Wpedantic", "-Werror", "-shared", "-fPIC", fault_source, *dbus_flags,
+                    "-ldl", "-o", interposer])
+                receipt["binaries"]["text-event-faults"] = dict(path=str(interposer), sha256=sha(interposer),
+                    mtime_ns=interposer.stat().st_mtime_ns, elf=verify_native_elf(interposer))
+                run("text-event-faults", display(["dbus-run-session", "--", sys.executable, fault_observer,
+                    binary, interposer, output / "text-event-faults-observer.json"]))
             if name == "disclosure":
                 observer = source / "tests/disclosure/observe.py"
                 remember(observer)

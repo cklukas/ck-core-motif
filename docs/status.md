@@ -111,3 +111,14 @@ header and library hashes, SONAMEs, runtime-loaded paths and fixture outputs.
 Record a measured duration baseline only when comparable evidence exists.
 Documentation publication has its own [source-pinned CI receipt](documentation.md);
 a site build does not validate the native widget library.
+
+
+## Text events, menus and compound traversal checkpoint
+
+The native ARM64 default feature suite now has 15 passing fixtures. New exact text
+change checks include Unicode scalar payloads, no-op/caret suppression, provider
+lifetime/reentrancy, password-role refusal and 20 libdbus construction/send fault
+cases with baseline recovery. Menu roles/actions/expansion and posted-shell focus
+are covered alongside compound-row traversal. These source/API and native results
+do not establish complete list/selection semantics, all editing notifications,
+actual screen-reader usability, x86_64 or sanitizer acceptance for the additions.

@@ -38,7 +38,9 @@ typedef struct _TransportState {
   XmAccessibleId id;
   uint64_t states;
   unsigned int role;
-  char *name, *value_text;
+  char *name, *value_text, *text_content;
+  int text_length, caret;
+  unsigned char text_known;
   double minimum, maximum, current, increment;
   unsigned char known, has_value;
   struct _TransportState *next;
@@ -99,8 +101,20 @@ static const char *role_name(unsigned int role) {
     return "check box";
   case 61:
     return "text";
+  case 40:
+    return "password text";
   case 48:
     return "scroll bar";
+  case 33:
+    return "menu";
+  case 34:
+    return "menu bar";
+  case 35:
+    return "menu item";
+  case 8:
+    return "check menu item";
+  case 45:
+    return "radio menu item";
   case 55:
     return "table";
   case 56:
@@ -182,7 +196,7 @@ static void memo_remove(Transport *t, XmAccessibleId id) {
   while (*link && (*link)->id != id) link = &(*link)->next;
   if (!*link) return;
   record = *link; *link = record->next;
-  XtFree(record->name); XtFree(record->value_text); XtFree((char *)record); --t->memo_count;
+  XtFree(record->name); XtFree(record->value_text); XtFree(record->text_content); XtFree((char *)record); --t->memo_count;
   if (t->memo_capacity > 64 && t->memo_count < t->memo_capacity / 4)
     memo_resize(t, t->memo_capacity / 2);
 }
@@ -1080,6 +1094,157 @@ static void timer_ready(XtPointer data, XtIntervalId *id) {
 }
 static void state_event(Transport *, const char *, const char *, int);
 static void window_event(Transport *, XmAccessibleId, const char *, int);
+/* One current snapshot per live text node; no edit history is retained.
+ * Read bounded scalar ranges, validate provider output, and abandon an observation
+ * if a callback changes/removes the node. Unknown observations never fabricate
+ * insertion/deletion events. */
+static size_t scalar_bytes(const char *p) {
+  unsigned char c = (unsigned char)*p;
+  return c < 0x80 ? 1 : c < 0xe0 ? 2 : c < 0xf0 ? 3 : 4;
+}
+static char *text_snapshot(XmAccessibility *a, XmAccessibleId id, int length,
+                           XmAccessibleNode *node, uint64_t serial) {
+  char *result;
+  size_t used = 0, capacity;
+  int start;
+  if (length < 0 || (size_t)length > (UINT_MAX - 1) / 4) return NULL;
+  capacity = (size_t)length * 4 + 1;
+  result = XtMalloc((Cardinal)capacity);
+  for (start = 0; start < length;) {
+    int end = length - start > 1024 ? start + 1024 : length;
+    char *part = XmAccessibilityText(a, id, start, end), *p;
+    int scalars = 0;
+    size_t bytes;
+    if (!part || _XmAccessibilityNode(a, id) != node ||
+        a->destroy_requested || node->change_serial != serial ||
+        !dbus_validate_utf8(part, NULL)) { XtFree(part); goto failed; }
+    bytes = strlen(part);
+    for (p = part; *p; p += scalar_bytes(p)) ++scalars;
+    if (scalars != end - start || bytes >= capacity - used) {
+      XtFree(part); goto failed;
+    }
+    memcpy(result + used, part, bytes); used += bytes;
+    XtFree(part); start = end;
+  }
+  result[used] = 0;
+  return result;
+failed:
+  XtFree(result);
+  return NULL;
+}
+/* Construct the entire event before queueing it. A failed container open must
+ * never be followed by operations on its uninitialized child iterator. */
+static DBusMessage *text_signal(const char *path, const char *member,
+                               const char *detail, int offset, int length,
+                               const char *payload) {
+  DBusMessage *message = dbus_message_new_signal(path,
+      "org.a11y.atspi.Event.Object", member);
+  DBusMessageIter out, variant, array;
+  dbus_int32_t first = offset, second = length, zero = 0;
+  int variant_open = 0, array_open = 0;
+  if (!message) return NULL;
+  dbus_message_iter_init_append(message, &out);
+  if (!dbus_message_iter_append_basic(&out, DBUS_TYPE_STRING, &detail) ||
+      !dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &first) ||
+      !dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &second) ||
+      !dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT,
+                                        payload ? "s" : "i", &variant))
+    goto failed;
+  variant_open = 1;
+  if (!(payload ? dbus_message_iter_append_basic(&variant, DBUS_TYPE_STRING,
+                                                 &payload)
+                : dbus_message_iter_append_basic(&variant, DBUS_TYPE_INT32,
+                                                 &zero)) ||
+      !dbus_message_iter_close_container(&out, &variant))
+    goto failed;
+  variant_open = 0;
+  if (!dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array))
+    goto failed;
+  array_open = 1;
+  if (!dbus_message_iter_close_container(&out, &array)) goto failed;
+  return message;
+failed:
+  if (variant_open) dbus_message_iter_abandon_container(&out, &variant);
+  if (array_open) dbus_message_iter_abandon_container(&out, &array);
+  dbus_message_unref(message);
+  return NULL;
+}
+static void sync_text(Transport *t, XmAccessibleId id,
+                      const XmAccessibleInfo *info, int notify) {
+  XmAccessibility *a = t->owner;
+  XmAccessibleNode *node = _XmAccessibilityNode(a, id);
+  TransportState *record;
+  char *current = NULL, *previous;
+  char path[96];
+  uint64_t serial;
+  int known, old_length, old_caret;
+  DBusMessage *events[4] = {NULL, NULL, NULL, NULL};
+  size_t event_count = 0, k;
+  int events_ok = 1;
+  if (!node || node->text_snapshot_busy) return;
+  serial = node->change_serial;
+  node->text_snapshot_busy = True;
+  if (info->has_text && info->role != XmACCESSIBLE_PASSWORD_TEXT)
+    current = text_snapshot(a, id, info->text_length, node, serial);
+  if (_XmAccessibilityNode(a, id) != node || a->destroy_requested) {
+    XtFree(current); return;
+  }
+  node->text_snapshot_busy = False;
+  if (node->change_serial != serial) { XtFree(current); current = NULL; }
+  record = memo_get(t, id, 1);
+  previous = record->text_content;
+  known = record->text_known;
+  old_length = record->text_length; old_caret = record->caret;
+  record->text_content = current;
+  record->text_known = current != NULL;
+  record->text_length = info->text_length; record->caret = info->caret;
+  path_for(id, path, sizeof(path));
+  if (notify && known && current) {
+    char *old_end = previous + strlen(previous), *new_end = current + strlen(current);
+    char *old_start = previous, *new_start = current;
+    int prefix = 0, suffix = 0;
+    while (*old_start && *new_start) {
+      size_t bytes = scalar_bytes(old_start);
+      if (bytes != scalar_bytes(new_start) || memcmp(old_start, new_start, bytes)) break;
+      old_start += bytes; new_start += bytes; ++prefix;
+    }
+    while (old_end > old_start && new_end > new_start) {
+      char *op = old_end - 1, *np = new_end - 1;
+      while (((unsigned char)*op & 0xc0) == 0x80) --op;
+      while (((unsigned char)*np & 0xc0) == 0x80) --np;
+      if (old_end - op != new_end - np || memcmp(op, np, (size_t)(old_end-op))) break;
+      old_end = op; new_end = np; ++suffix;
+    }
+    if (old_end != old_start || new_end != new_start) {
+      char saved = *old_end;
+      *old_end = 0;
+      if (old_end != old_start) events[event_count++] = text_signal(path,
+          "TextChanged", "delete", prefix, old_length - prefix - suffix, old_start);
+      *old_end = saved; saved = *new_end; *new_end = 0;
+      if (new_end != new_start) events[event_count++] = text_signal(path,
+          "TextChanged", "insert", prefix, info->text_length - prefix - suffix, new_start);
+      *new_end = saved;
+      events[event_count++] = text_signal(path, "VisibleDataChanged", "", 0, 0, NULL);
+    }
+    if (old_caret != info->caret)
+      events[event_count++] = text_signal(path, "TextCaretMoved", "", info->caret, 0, NULL);
+  }
+  /* A replacement is one ordered batch: construct both halves first. A send
+   * failure can still prevent delivery; invalidate instead of treating a later
+   * observation as a known continuation of this potentially incomplete batch. */
+  for (k = 0; k < event_count; ++k)
+    if (!events[k]) events_ok = 0;
+  for (k = 0; k < event_count; ++k) {
+    if (events_ok && !dbus_connection_send(t->connection, events[k], NULL))
+      events_ok = 0;
+    if (events[k]) dbus_message_unref(events[k]);
+  }
+  if (!events_ok) {
+    XtFree(record->text_content); record->text_content = NULL;
+    record->text_known = 0;
+  }
+  XtFree(previous);
+}
 static void seed_connected_tree(Transport *t) {
   XmAccessibility *a = t->owner;
   XmAccessibleNode *node;
@@ -1105,6 +1270,7 @@ static void seed_connected_tree(Transport *t) {
     record->minimum = info.minimum_value; record->maximum = info.maximum_value;
     record->current = info.current_value; record->increment = info.minimum_increment;
     XtFree(record->value_text); record->value_text = XtNewString(text(info.value_text));
+    sync_text(t, ids[k], &info, 0);
     XmAccessibleInfoClear(&info);
   }
   /* Registration exposes an already-active native window to a new client.
@@ -1248,7 +1414,7 @@ void _XmAccessibilityTransportDestroy(XmAccessibility *a) {
       TransportState *record = t->memo[k];
       while (record) {
         TransportState *next = record->next;
-        XtFree(record->name); XtFree(record->value_text); XtFree((char *)record); record = next;
+        XtFree(record->name); XtFree(record->value_text); XtFree(record->text_content); XtFree((char *)record); record = next;
       }
     }
     XtFree((char *)t->memo);
@@ -1471,25 +1637,6 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
       if ((old_states ^ info.states) & XmACCESSIBLE_STATE(k))
         state_event(t, path, names[k], (info.states & XmACCESSIBLE_STATE(k)) != 0);
   }
-  if (info.has_text) {
-    const char *members[] = {"VisibleDataChanged", "TextCaretMoved"};
-    size_t k;
-    for (k = 0; k < 2; k++) {
-      message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object",
-                                        members[k]);
-      dbus_message_iter_init_append(message, &out);
-      string_value(&out, "");
-      first = k ? info.caret : 0;
-      second = 0;
-      dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &first);
-      dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &second);
-      dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "i", &variant);
-      dbus_message_iter_append_basic(&variant, DBUS_TYPE_INT32, &second);
-      dbus_message_iter_close_container(&out, &variant);
-      dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
-      dbus_message_iter_close_container(&out, &array);
-      send_reply(t, message);
-    }
-  }
+  sync_text(t, id, &info, 1);
   XmAccessibleInfoClear(&info);
 }
