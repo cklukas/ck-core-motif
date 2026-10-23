@@ -5,6 +5,7 @@
 #include <Xm/RowColumn.h>
 #include <Xm/Form.h>
 #include <Xm/TextUnicode.h>
+#include <Xm/TextLayout.h>
 #include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -113,6 +114,29 @@ static void check_wrapped(Widget widget) {
     require(XmTextPosToXY(widget, 2, &x, &y), "wrapped cache failed after replacement/resize");
     XmTextUnicodeMapFree(map);
 }
+static void check_font_reset(Widget widget,int field) {
+    Position x0,y0,x1,y1,new_x0,new_y0,new_x1,new_y1;
+    Arg args[3];XmRendition rendition;XmFontList fonts;
+    if(field) XmTextFieldSetString(widget,"abc");else XmTextSetString(widget,"abc");
+    require(field?XmTextFieldPosToXY(widget,0,&x0,&y0):XmTextPosToXY(widget,0,&x0,&y0),"font reset old origin");
+    require(field?XmTextFieldPosToXY(widget,3,&x1,&y1):XmTextPosToXY(widget,3,&x1,&y1),"font reset old caret");
+    XtSetArg(args[0],XmNfontType,XmFONT_IS_XFT);XtSetArg(args[1],XmNfontName,"DejaVu Sans");XtSetArg(args[2],XmNfontSize,24);
+    rendition=XmRenditionCreate(widget,XmFONTLIST_DEFAULT_TAG,args,3);
+    require(rendition!=NULL,"replacement font rendition unavailable");
+    fonts=XmRenderTableAddRenditions(NULL,&rendition,1,XmMERGE_REPLACE);XmRenditionFree(rendition);
+    require(fonts!=NULL,"replacement font table unavailable");
+    /* Changing cursor and font together exercises early cursor capture before
+     * SetValues has installed the new render table's metrics. */
+    XtVaSetValues(widget,XmNfontList,fonts,XmNcursorPosition,1,NULL);XmFontListFree(fonts);
+    require(field?XmTextFieldPosToXY(widget,0,&new_x0,&new_y0):XmTextPosToXY(widget,0,&new_x0,&new_y0),"font reset new origin");
+    require(field?XmTextFieldPosToXY(widget,3,&new_x1,&new_y1):XmTextPosToXY(widget,3,&new_x1,&new_y1),"font reset new caret");
+    if(new_x1-new_x0<=x1-x0) fprintf(stderr,"font reset field=%d old-width=%d new-width=%d\n",field,(int)(x1-x0),(int)(new_x1-new_x0));
+    require(new_x1-new_x0>x1-x0,"font change reused an old shaping/context capture");
+    require(XmTextFontConfigurationChanged(),"font configuration notification");
+    require(field?XmTextFieldPosToXY(widget,3,&x1,&y1):XmTextPosToXY(widget,3,&x1,&y1),"font configuration refresh caret");
+    require(x1==new_x1&&y1==new_y1,"unchanged font configuration refresh changed geometry");
+    check_widget(widget,field);
+}
 int main(int argc, char **argv) {
     XtAppContext application;
     Widget shell, row, field, text, wrapped, wrap_container;
@@ -142,6 +166,7 @@ int main(int argc, char **argv) {
     XtRealizeWidget(shell);
     check_widget(field, 1); check_widget(text, 0);
     check_complex(field, 1); check_complex(text, 0); check_wrapped(wrapped);
+    check_font_reset(field,1);check_font_reset(text,0);
     XtDestroyWidget(shell); XtDestroyApplicationContext(application);
     puts("Unicode maps, preedit bounds and real Text/TextField grapheme actions passed");
     return 0;

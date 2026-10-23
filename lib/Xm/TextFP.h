@@ -95,6 +95,7 @@ typedef struct _XmTextFieldPart {
 						  Selection */
     XtCallbackList value_changed_callback;     /* Notify that value has changed
 						  callback */
+    struct _XmTextFontContext *unicode_font_context;
     struct _XmTextLayout *unicode_layout;
     int unicode_affinity;
     Boolean unicode_layout_failed;

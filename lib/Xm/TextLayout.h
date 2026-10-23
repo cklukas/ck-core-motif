@@ -16,6 +16,42 @@ extern "C" {
  * paragraph/line composer. */
 typedef struct _XmTextLayout XmTextLayout;
 typedef struct _XmTextParagraph XmTextParagraph;
+typedef struct _XmTextFontContext XmTextFontContext;
+/* Widget/host-owned resolver: at most 256 entries, 256 KiB UTF-8 keys and 64
+ * retained font/shaping leases.
+ * Captures retain independent font leases; eviction/invalidation never changes
+ * existing captures. Context creation/mutation/free run on its display thread.
+ * The borrowed primary font and Display must outlive context and captures.
+ * Context screen is explicit; source edits may reuse it. Font/render-table or
+ * display/screen changes require a new context.
+ * IsCurrent detects primary-pattern and current FcConfig identity replacement.
+ * Hosts MUST notify after in-place Fontconfig or Xft-default configuration edits.
+ * Notification is process-wide and thread-safe; native widgets lazily rebuild.
+ * Hosts serialize actual Fontconfig/Xft configuration mutations against display
+ * operations; thread-safe notification does not make those mutations concurrent.
+ * Key limits exclude Fontconfig/Xft resources and active capture/font storage.
+ * Returns 0 if Unicode is unavailable or the epoch is exhausted (recreate
+ * widgets after exhaustion).
+ * Invalidate refreshes this context's exact query/config snapshot explicitly. */
+typedef struct {
+    size_t maximum_entries, maximum_key_bytes, maximum_font_leases;
+} XmTextFontContextLimits;
+/* NULL limits select 256 entries/256 KiB keys/64 font leases. Explicit limits
+ * may lower those ceilings, including zero to disable the corresponding cache.
+ * Captures retain font leases outside the context's retained-cache budget. */
+XmTextFontContext *XmTextFontContextCreate(Display *, int screen, XftFont *,
+                                         const XmTextFontContextLimits *);
+void XmTextFontContextFree(XmTextFontContext *);
+int XmTextFontContextIsCurrent(const XmTextFontContext *);
+int XmTextFontContextInvalidate(XmTextFontContext *);
+/* Saturating lifetime counters; clearing entries does not reset observations. */
+typedef struct { size_t entries, key_bytes, font_leases, queries, cache_hits; } XmTextFontContextUsage;
+int XmTextFontContextGetUsage(const XmTextFontContext *, XmTextFontContextUsage *);
+int XmTextFontConfigurationChanged(void);
+XmTextParagraph *XmTextParagraphCreateWithContext(XmTextFontContext *, const char *utf8,
+                                                 size_t length, double tab_width);
+XmTextLayout *XmTextLayoutCreateWithContext(XmTextFontContext *, const char *utf8,
+                                           size_t length, double tab_width);
 /* Paragraph text is immutable and includes complete embedding/isolate context.
  * Line ranges use scalar boundaries into this paragraph, never detached text.
  * Each line capture retains its paragraph until it is freed. */

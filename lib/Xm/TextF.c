@@ -2983,11 +2983,23 @@ static XmTextLayout *
 TextFieldLayout(XmTextFieldWidget tf)
 {
   char *utf8;
-  if (!TextFieldUsesUnicode(tf) || tf->text.unicode_layout_failed) return NULL;
+  if (!TextFieldUsesUnicode(tf)) return NULL;
+  if (!XmTextFontContextIsCurrent(tf->text.unicode_font_context)) {
+    InvalidateTextFieldLayout(tf);
+    XmTextFontContextFree(tf->text.unicode_font_context);
+    tf->text.unicode_font_context = XmTextFontContextCreate(XtDisplay(tf),XScreenNumberOfScreen(XtScreen(tf)),TextF_XftFont(tf),NULL);
+    if (!tf->text.unicode_font_context) return NULL;
+  }
+  if (tf->text.unicode_layout_failed) return NULL;
   if (tf->text.unicode_layout) return tf->text.unicode_layout;
   utf8 = XmTextFieldGetString((Widget)tf);
   if (!utf8) return NULL;
-  tf->text.unicode_layout = XmTextLayoutCreate(XtDisplay(tf), TextF_XftFont(tf), utf8, strlen(utf8));
+  {
+    XGlyphInfo space;
+    XftTextExtentsUtf8(XtDisplay(tf),TextF_XftFont(tf),(const FcChar8 *)" ",1,&space);
+    tf->text.unicode_layout = XmTextLayoutCreateWithContext(tf->text.unicode_font_context,
+        utf8,strlen(utf8),8.0*(space.xOff>0?space.xOff:1));
+  }
   XtFree(utf8);
   if (tf->text.unicode_layout && XmTextLayoutScalarCount(tf->text.unicode_layout) != (size_t)tf->text.string_length)
     InvalidateTextFieldLayout(tf);
@@ -8022,6 +8034,7 @@ Initialize(Widget request,
   XmTextFieldWidget new_tf = (XmTextFieldWidget) new_w;
   Dimension width, height;
   
+  new_tf->text.unicode_font_context = NULL;
   new_tf->text.unicode_layout = NULL;
   new_tf->text.unicode_affinity = 0;
   new_tf->text.unicode_layout_failed = False;
@@ -8090,6 +8103,8 @@ Destroy(Widget wid)
   Widget dest = XmGetDestination(XtDisplay(wid));
 #if USE_XFT
   InvalidateTextFieldLayout(tf);
+  XmTextFontContextFree(tf->text.unicode_font_context);
+  tf->text.unicode_font_context = NULL;
 #endif
   if (dest == wid)
     _XmSetDestination(XtDisplay(wid), NULL); 
@@ -8323,6 +8338,7 @@ SetValues(Widget old,
   int n = 0;
   
   if (new_w->core.being_destroyed) return False;
+  new_tf->text.unicode_font_context = NULL;
   new_tf->text.unicode_layout = NULL;
   new_tf->text.unicode_layout_failed = False;
   TextFieldResetIC(old);
@@ -8419,6 +8435,13 @@ SetValues(Widget old,
       XtSetArg(im_args[n], XmNfontList, TextF_FontList(new_tf)); n++;
       redisplay = True;
     }
+#if USE_XFT
+    /* Cursor erasure earlier in SetValues may have captured the old font on
+     * the new widget record. Retire it before the old render table is freed. */
+    InvalidateTextFieldLayout(new_tf);
+    XmTextFontContextFree(new_tf->text.unicode_font_context);
+    new_tf->text.unicode_font_context = NULL;
+#endif
   }
   
   /* Four cases to handle for value:
@@ -8700,6 +8723,8 @@ SetValues(Widget old,
   
 #if USE_XFT
   InvalidateTextFieldLayout(old_tf);
+  XmTextFontContextFree(old_tf->text.unicode_font_context);
+  old_tf->text.unicode_font_context = NULL;
 #endif
   if (new_font) XmFontListFree((XmFontList)TextF_FontList(old_tf));
   

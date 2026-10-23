@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #ifdef HAVE_UNICODE_TEXT
+#include <stdatomic.h>
 #include <unicode/ubidi.h>
 #include <unicode/ubrk.h>
 #include <unicode/utf16.h>
@@ -18,9 +19,199 @@
 #include <unicode/uchar.h>
 #include <unicode/utf8.h>
 #endif
-struct LayoutFont { XftFont *font; FT_Face face; int owned; };
+struct FontLease {
+    struct FontLease *next;
+    unsigned int references;
+    Display *display;XftFont *font;FT_Face face;
+#ifdef HAVE_UNICODE_TEXT
+    hb_font_t *shaping_font;
+#endif
+};
+struct LayoutFont { XftFont *font; FT_Face face; struct FontLease *lease; };
 struct LayoutGlyph { XftFont *font; unsigned int glyph; double x, y; size_t cluster; int visible; };
 struct LayoutCaret { size_t scalar; int affinity; double x; };
+struct FontResolution {
+    struct FontResolution *next,*previous,*bucket_next;
+    char *key; size_t length,hash;
+    XftFont *font; /* NULL is a confirmed missing complete-grapheme font. */
+};
+struct _XmTextFontContext {
+    Display *display; int screen; XftFont *primary;
+    FcPattern *primary_pattern, *query;
+    FcConfig *config;
+    unsigned long epoch;
+    struct FontResolution *entries,*tail,*buckets[257];
+    size_t count, bytes, queries, hits;
+    struct FontLease *font_pool;
+    size_t font_count;
+    XmTextFontContextLimits limits;
+};
+#ifdef HAVE_UNICODE_TEXT
+static atomic_ulong font_configuration_epoch = ATOMIC_VAR_INIT(0);
+static unsigned long current_font_epoch(void) {
+    return atomic_load_explicit(&font_configuration_epoch,memory_order_acquire);
+}
+int XmTextFontConfigurationChanged(void) {
+    unsigned long previous=atomic_load_explicit(&font_configuration_epoch,memory_order_acquire);
+    do { if(previous==ULONG_MAX) return 0; }
+    while(!atomic_compare_exchange_weak_explicit(&font_configuration_epoch,&previous,previous+1,
+                                               memory_order_acq_rel,memory_order_acquire));
+    return 1;
+}
+#else
+static unsigned long current_font_epoch(void) {return 0;}
+int XmTextFontConfigurationChanged(void) {return 0;}
+#endif
+static void release_font_lease(struct FontLease *lease) {
+    if(!lease||--lease->references) return;
+#ifdef HAVE_UNICODE_TEXT
+    if(lease->shaping_font) hb_font_destroy(lease->shaping_font);
+#endif
+    XftUnlockFace(lease->font);XftFontClose(lease->display,lease->font);free(lease);
+}
+static void clear_font_context(XmTextFontContext *context) {
+    while(context->entries) {
+        struct FontResolution *entry=context->entries;context->entries=entry->next;
+        if(entry->font) XftFontClose(context->display,entry->font);
+        free(entry->key);free(entry);
+    }
+    while(context->font_pool) {
+        struct FontLease *lease=context->font_pool;context->font_pool=lease->next;
+        lease->next=NULL;release_font_lease(lease);
+    }
+    context->font_count=0;
+    context->count=context->bytes=0;context->tail=NULL;
+    memset(context->buckets,0,sizeof(context->buckets));
+    if(context->primary_pattern) FcPatternDestroy(context->primary_pattern);
+    if(context->query) FcPatternDestroy(context->query);
+    if(context->config) FcConfigDestroy(context->config);
+    context->primary_pattern=context->query=NULL;context->config=NULL;
+}
+void XmTextFontContextFree(XmTextFontContext *context) {
+    if(context) {clear_font_context(context);free(context);}
+}
+int XmTextFontContextIsCurrent(const XmTextFontContext *context) {
+    return context && context->primary_pattern && context->query &&
+        context->epoch==current_font_epoch() &&
+        context->config==FcConfigGetCurrent() &&
+        FcPatternEqual(context->primary_pattern,context->primary->pattern);
+}
+int XmTextFontContextInvalidate(XmTextFontContext *context) {
+    static const char *const properties[]={
+        FC_FAMILY, FC_STYLE, FC_SLANT, FC_WEIGHT, FC_WIDTH, FC_SPACING,
+        FC_SIZE, FC_PIXEL_SIZE, FC_DPI, FC_SCALE, FC_MATRIX,
+        FC_ANTIALIAS, FC_HINTING, FC_HINT_STYLE, FC_AUTOHINT,
+        FC_RGBA, FC_LCD_FILTER, FC_EMBEDDED_BITMAP, FC_EMBOLDEN
+    };
+    size_t property;FcObjectSet *objects;
+    if(!context) return 0;
+    clear_font_context(context);
+    context->primary_pattern=FcPatternDuplicate(context->primary->pattern);
+    context->query=FcPatternCreate();context->config=FcConfigReference(FcConfigGetCurrent());
+    context->epoch=current_font_epoch();
+    if(!context->primary_pattern||!context->query||!context->config) goto fail;
+    objects=FcObjectSetCreate();
+    if(!objects) goto fail;
+    for(property=0;property<sizeof(properties)/sizeof(properties[0]);++property)
+        if(!FcObjectSetAdd(objects,properties[property])) {FcObjectSetDestroy(objects);goto fail;}
+    FcPatternDestroy(context->query);
+    context->query=FcPatternFilter(context->primary_pattern,objects);
+    FcObjectSetDestroy(objects);
+    if(!context->query) goto fail;
+    return 1;
+fail:clear_font_context(context);return 0;
+}
+XmTextFontContext *XmTextFontContextCreate(Display *display,int screen,XftFont *primary,
+                                         const XmTextFontContextLimits *limits) {
+    XmTextFontContext *context;
+    if(!display||screen<0||screen>=ScreenCount(display)||!primary||!XmTextUnicodeAvailable()||
+       (limits&&(limits->maximum_entries>256||limits->maximum_key_bytes>256u*1024u||limits->maximum_font_leases>64))) return NULL;
+    context=(XmTextFontContext *)calloc(1,sizeof(*context));
+    if(!context) return NULL;
+    context->display=display;context->screen=screen;context->primary=primary;
+    context->limits=limits?*limits:(XmTextFontContextLimits){256,256u*1024u,64};
+    if(!XmTextFontContextInvalidate(context)) {XmTextFontContextFree(context);return NULL;}
+    return context;
+}
+int XmTextFontContextGetUsage(const XmTextFontContext *context,XmTextFontContextUsage *usage) {
+    if(!context||!usage) return 0;
+    *usage=(XmTextFontContextUsage){context->count,context->bytes,context->font_count,context->queries,context->hits};return 1;
+}
+#ifdef HAVE_UNICODE_TEXT
+static struct FontLease *context_font_lease(XmTextFontContext *context,XftFont *font) {
+    struct FontLease **link=&context->font_pool,*lease;
+    while(*link&&(*link)->font!=font) link=&(*link)->next;
+    if(*link) {
+        lease=*link;
+        if(lease->references==UINT_MAX) return NULL;
+        *link=lease->next;lease->next=context->font_pool;context->font_pool=lease;
+        ++lease->references;return lease;
+    }
+    lease=(struct FontLease *)calloc(1,sizeof(*lease));
+    if(!lease) return NULL;
+    lease->display=context->display;lease->font=XftFontCopy(context->display,font);
+    if(!lease->font) {free(lease);return NULL;}
+    lease->face=XftLockFace(lease->font);
+    if(!lease->face) {XftFontClose(lease->display,lease->font);free(lease);return NULL;}
+    lease->references=1;
+    lease->shaping_font=hb_ft_font_create_referenced(lease->face);
+    if(!lease->shaping_font||lease->shaping_font==hb_font_get_empty()) {release_font_lease(lease);return NULL;}
+    /* One reference belongs to the caller, one to the bounded resolver pool. */
+    ++lease->references;lease->next=context->font_pool;context->font_pool=lease;++context->font_count;
+    while(context->font_count>context->limits.maximum_font_leases) {
+        struct FontLease **tail=&context->font_pool,*old;
+        while((*tail)->next) tail=&(*tail)->next;
+        old=*tail;*tail=NULL;--context->font_count;release_font_lease(old);
+    }
+    return lease;
+}
+static size_t font_key_hash(const char *text,size_t length) {
+    size_t hash=2166136261u,index;
+    for(index=0;index<length;++index) hash=(hash^(unsigned char)text[index])*16777619u;
+    return hash;
+}
+static struct FontResolution *find_font_resolution(XmTextFontContext *context,const char *text,size_t length) {
+    size_t hash;struct FontResolution *entry;
+    if(!context->limits.maximum_entries||length>context->limits.maximum_key_bytes) return NULL;
+    hash=font_key_hash(text,length);
+    for(entry=context->buckets[hash%257];entry;entry=entry->bucket_next)
+        if(entry->hash==hash&&entry->length==length&&!memcmp(entry->key,text,length)) {
+            if(context->hits<SIZE_MAX) ++context->hits;
+            if(entry!=context->entries) {
+                entry->previous->next=entry->next;
+                if(entry->next) entry->next->previous=entry->previous;else context->tail=entry->previous;
+                entry->previous=NULL;entry->next=context->entries;entry->next->previous=entry;context->entries=entry;
+            }
+            return entry;
+        }
+    return NULL;
+}
+static void remember_font_resolution(XmTextFontContext *context,const char *text,size_t length,XftFont *font) {
+    struct FontResolution *entry;
+    if(!context->limits.maximum_entries||length>context->limits.maximum_key_bytes) return;
+    entry=(struct FontResolution *)calloc(1,sizeof(*entry));
+    if(!entry) return;
+    entry->key=(char *)malloc(length);
+    entry->font=font?XftFontCopy(context->display,font):NULL;
+    if(!entry->key||(font&&!entry->font)) {
+        if(entry->font) XftFontClose(context->display,entry->font);
+        free(entry->key);free(entry);return;
+    }
+    memcpy(entry->key,text,length);entry->length=length;entry->hash=font_key_hash(text,length);
+    entry->bucket_next=context->buckets[entry->hash%257];context->buckets[entry->hash%257]=entry;
+    entry->next=context->entries;if(entry->next) entry->next->previous=entry;else context->tail=entry;
+    context->entries=entry;++context->count;context->bytes+=length;
+    while(context->count>context->limits.maximum_entries||context->bytes>context->limits.maximum_key_bytes) {
+        struct FontResolution *old=context->tail,**link=&context->buckets[old->hash%257];
+        while(*link!=old) link=&(*link)->bucket_next;
+        *link=old->bucket_next;context->tail=old->previous;
+        if(context->tail) context->tail->next=NULL;else context->entries=NULL;
+        --context->count;context->bytes-=old->length;
+        if(old->font) XftFontClose(context->display,old->font);
+        free(old->key);free(old);
+    }
+}
+#endif
 struct _XmTextParagraph {
     unsigned int references;
     Display *display;
@@ -44,7 +235,7 @@ struct _XmTextParagraph {
 struct ShapeGlyph {
     unsigned int index;
     int32_t x_advance, y_advance, x_offset, y_offset;
-    FT_Face ftface;
+    struct FontLease *lease;
     size_t cluster;
     int rtl;
 };
@@ -70,8 +261,7 @@ void XmTextParagraphFree(XmTextParagraph *paragraph) {
     size_t i;
     if (!paragraph || --paragraph->references) return;
     for (i = 0; i < paragraph->font_count; ++i) {
-        XftUnlockFace(paragraph->fonts[i].font);
-        if (paragraph->fonts[i].owned) XftFontClose(paragraph->display, paragraph->fonts[i].font);
+        release_font_lease(paragraph->fonts[i].lease);
     }
 #ifdef HAVE_UNICODE_TEXT
     if (paragraph->bidi) ubidi_close(paragraph->bidi);
@@ -101,36 +291,31 @@ static int font_covers(XftFont *font, const char *text, size_t first, size_t las
     }
     return 1;
 }
-static size_t font_for_grapheme(XmTextParagraph *layout, XftFont *primary,
+static size_t font_for_grapheme(XmTextParagraph *layout, XmTextFontContext *context,
                                 const char *text, size_t first, size_t last) {
     size_t i;
     FcPattern *pattern, *matched;
     FcCharSet *characters;
-    FcResult result;
+    FcResult result=FcResultOutOfMemory;
     XftFont *font;
     int32_t index = (int32_t)first;
-    for (i = 0; i < layout->font_count; ++i)
-        if (font_covers(layout->fonts[i].font, text, first, last)) return i;
-    /* A resolved Xft pattern contains file, PostScript name, foundry and
-     * other face identities. Reusing it as a query can outrank charset coverage.
-     * Copy only requested style/size/rendering properties into a fresh query. */
-    pattern = FcPatternCreate();
-    if (pattern) {
-        static const char *const properties[] = {
-            FC_FAMILY, FC_STYLE, FC_SLANT, FC_WEIGHT, FC_WIDTH, FC_SPACING,
-            FC_SIZE, FC_PIXEL_SIZE, FC_DPI, FC_SCALE, FC_MATRIX,
-            FC_ANTIALIAS, FC_HINTING, FC_HINT_STYLE, FC_AUTOHINT,
-            FC_RGBA, FC_LCD_FILTER, FC_EMBEDDED_BITMAP, FC_EMBOLDEN
-        };
-        size_t property;
-        for (property = 0; property < sizeof(properties) / sizeof(properties[0]); ++property) {
-            FcValue value;
-            if (FcPatternGet(primary->pattern, properties[property], 0, &value) == FcResultMatch &&
-                !FcPatternAdd(pattern, properties[property], value, FcTrue)) {
-                FcPatternDestroy(pattern); pattern = NULL; break;
-            }
+    struct FontResolution *cached=find_font_resolution(context,text+first,last-first);
+    /* A cached primary result is an exact coverage fact. A fallback result is
+     * consulted only after the paragraph's existing fonts, preserving its
+     * first-covering-font policy independently of cache history. */
+    if(cached&&cached->font==context->primary) return 0;
+    for(i=cached?1:0;i<layout->font_count;++i)
+        if(font_covers(layout->fonts[i].font,text,first,last)) {
+            if(i==0) remember_font_resolution(context,text+first,last-first,context->primary);
+            return i;
         }
+    if(cached) {
+        if(!cached->font) return SIZE_MAX;
+        font=XftFontCopy(layout->display,cached->font);
+        if(!font) return SIZE_MAX;
+        goto attach;
     }
+    pattern = FcPatternDuplicate(context->query);
     characters = FcCharSetCreate();
     if (!pattern || !characters) { if (pattern) FcPatternDestroy(pattern); if (characters) FcCharSetDestroy(characters); return SIZE_MAX; }
     while ((size_t)index < last) {
@@ -141,16 +326,30 @@ static size_t font_for_grapheme(XmTextParagraph *layout, XftFont *primary,
         FcCharSetDestroy(characters); FcPatternDestroy(pattern); return SIZE_MAX;
     }
     FcCharSetDestroy(characters);
-    matched = XftFontMatch(layout->display, DefaultScreen(layout->display), pattern, &result);
+    if(!FcConfigSubstitute(context->config,pattern,FcMatchPattern)) {FcPatternDestroy(pattern);return SIZE_MAX;}
+    XftDefaultSubstitute(layout->display,context->screen,pattern);
+    if(context->queries<SIZE_MAX) ++context->queries;
+    matched = FcFontMatch(context->config,pattern,&result);
     FcPatternDestroy(pattern);
-    if (!matched) return SIZE_MAX;
+    if (!matched) {
+        if(result==FcResultNoMatch) remember_font_resolution(context,text+first,last-first,NULL);
+        return SIZE_MAX;
+    }
     font = XftFontOpenPattern(layout->display, matched);
     if (!font) { FcPatternDestroy(matched); return SIZE_MAX; }
-    if (!font_covers(font, text, first, last)) { XftFontClose(layout->display, font); return SIZE_MAX; }
-    layout->fonts[layout->font_count].font = font;
-    layout->fonts[layout->font_count].face = XftLockFace(font);
-    layout->fonts[layout->font_count].owned = 1;
-    if (!layout->fonts[layout->font_count].face) { XftFontClose(layout->display, font); return SIZE_MAX; }
+    {
+        int covered=font_covers(font,text,first,last);
+        remember_font_resolution(context,text+first,last-first,covered?font:NULL);
+        if(!covered) {XftFontClose(layout->display,font);return SIZE_MAX;}
+    }
+attach:
+    {
+        struct FontLease *lease=context_font_lease(context,font);
+        XftFontClose(layout->display,font);
+        if(!lease) return SIZE_MAX;
+        font=lease->font;
+        layout->fonts[layout->font_count]=(struct LayoutFont){font,lease->face,lease};
+    }
     if (font->ascent > layout->ascent) layout->ascent = font->ascent;
     if (font->descent > layout->descent) layout->descent = font->descent;
     return layout->font_count++;
@@ -227,8 +426,16 @@ static int append_item(const XmTextParagraph *paragraph, size_t first, size_t la
     hb_buffer_flags_t flags = HB_BUFFER_FLAG_DEFAULT;
     size_t font_index = paragraph->font_at[first], byte_base;
     if (!buffer || !hb_buffer_allocation_successful(buffer)) { if (buffer) hb_buffer_destroy(buffer); return 0; }
-    font = hb_ft_font_create_referenced(paragraph->fonts[font_index].face);
-    if (!font) { hb_buffer_destroy(buffer); return 0; }
+    /* Xft faces are shared between font sizes. Reactivate this exact font's
+     * size/matrix before invoking its retained HarfBuzz instance. */
+    {
+        FT_Face active=XftLockFace(paragraph->fonts[font_index].font);
+        if(active!=paragraph->fonts[font_index].face) {
+            if(active) XftUnlockFace(paragraph->fonts[font_index].font);
+            hb_buffer_destroy(buffer);return 0;
+        }
+    }
+    font=hb_font_reference(paragraph->fonts[font_index].lease->shaping_font);
     if (first == line_first) flags = (hb_buffer_flags_t)(flags | HB_BUFFER_FLAG_BOT);
     if (last == line_last) flags = (hb_buffer_flags_t)(flags | HB_BUFFER_FLAG_EOT);
     hb_buffer_set_flags(buffer, flags);
@@ -242,6 +449,7 @@ static int append_item(const XmTextParagraph *paragraph, size_t first, size_t la
     hb_buffer_add_utf32(buffer, paragraph->scalars + line_first, (int)(line_last - line_first),
                         (unsigned int)(first - line_first), (int)(last - first));
     hb_shape(font, buffer, NULL, 0);
+    XftUnlockFace(paragraph->fonts[font_index].font);
     if (!hb_buffer_allocation_successful(buffer)) { hb_font_destroy(font); hb_buffer_destroy(buffer); return 0; }
     info = hb_buffer_get_glyph_infos(buffer, &length);
     position = hb_buffer_get_glyph_positions(buffer, NULL);
@@ -267,7 +475,7 @@ static int append_item(const XmTextParagraph *paragraph, size_t first, size_t la
         }
         (*glyphs)[(*count)++] = (struct ShapeGlyph){info[i].codepoint,
             position[i].x_advance, position[i].y_advance, position[i].x_offset, position[i].y_offset,
-            paragraph->fonts[font_index].face, byte - byte_base, rtl};
+            paragraph->fonts[font_index].lease, byte - byte_base, rtl};
     }
     hb_font_destroy(font); hb_buffer_destroy(buffer); return 1;
 }
@@ -310,13 +518,15 @@ fail:
     ubidi_close(line); free(items); free(*glyphs); *glyphs = NULL; *count = 0; return 0;
 }
 #endif
-XmTextParagraph *XmTextParagraphCreate(Display *display, XftFont *primary, const char *text, size_t length, double tab_width) {
+XmTextParagraph *XmTextParagraphCreateWithContext(XmTextFontContext *context,const char *text,size_t length,double tab_width) {
 #ifdef HAVE_UNICODE_TEXT
+    Display *display=context?context->display:NULL;
+    XftFont *primary=context?context->primary:NULL;
     XmTextParagraph *paragraph;
     size_t i, graphemes;
     int32_t offset = 0, utf16_length = 0;
     UErrorCode error = U_ZERO_ERROR;
-    if (!display || !primary || (!text && length) || length > INT32_MAX ||
+    if (!XmTextFontContextIsCurrent(context) || !display || !primary || (!text && length) || length > INT32_MAX ||
         !isfinite(tab_width) || tab_width < 1.0 / 64.0 || tab_width > INT_MAX / 64.0 ||
         (length && (memchr(text, '\n', length) || memchr(text, '\r', length)))) return NULL;
     paragraph = (XmTextParagraph *)calloc(1, sizeof(*paragraph));
@@ -350,14 +560,17 @@ XmTextParagraph *XmTextParagraphCreate(Display *display, XftFont *primary, const
     if (!paragraph->bidi || U_FAILURE(error)) goto fail;
     ubidi_setPara(paragraph->bidi, paragraph->utf16, utf16_length, UBIDI_DEFAULT_LTR, NULL, &error);
     if (U_FAILURE(error) || !resolve_scripts(paragraph)) goto fail;
-    paragraph->fonts[0].font = primary; paragraph->fonts[0].face = XftLockFace(primary);
-    if (!paragraph->fonts[0].face) goto fail;
-    paragraph->font_count = 1;
+    {
+        struct FontLease *lease=context_font_lease(context,primary);
+        if(!lease) goto fail;
+        paragraph->fonts[0]=(struct LayoutFont){lease->font,lease->face,lease};
+        paragraph->font_count=1;
+    }
     for (i = 0; i < graphemes; ++i) {
         size_t first, last, byte_first, byte_last, font, scalar;
         XmTextUnicodeScalarAtGrapheme(paragraph->map, i, &first); XmTextUnicodeScalarAtGrapheme(paragraph->map, i + 1, &last);
         XmTextUnicodeByteAtScalar(paragraph->map, first, &byte_first); XmTextUnicodeByteAtScalar(paragraph->map, last, &byte_last);
-        font = font_for_grapheme(paragraph, primary, text, byte_first, byte_last);
+        font = font_for_grapheme(paragraph, context, text, byte_first, byte_last);
         if (font == SIZE_MAX) goto fail;
         for (scalar = first; scalar < last; ++scalar) paragraph->font_at[scalar] = font;
     }
@@ -379,8 +592,18 @@ XmTextParagraph *XmTextParagraphCreate(Display *display, XftFont *primary, const
 fail:
     XmTextParagraphFree(paragraph); return NULL;
 #else
-    (void)display; (void)primary; (void)text; (void)length; (void)tab_width; return NULL;
+    (void)context; (void)text; (void)length; (void)tab_width; return NULL;
 #endif
+}
+XmTextParagraph *XmTextParagraphCreate(Display *display,XftFont *primary,const char *text,size_t length,double tab_width) {
+    XmTextFontContext *context=XmTextFontContextCreate(display,display?DefaultScreen(display):0,primary,NULL);
+    XmTextParagraph *paragraph=XmTextParagraphCreateWithContext(context,text,length,tab_width);
+    XmTextFontContextFree(context);return paragraph;
+}
+XmTextLayout *XmTextLayoutCreateWithContext(XmTextFontContext *context,const char *text,size_t length,double tab_width) {
+    XmTextParagraph *paragraph=XmTextParagraphCreateWithContext(context,text,length,tab_width);
+    XmTextLayout *layout=paragraph?XmTextParagraphLine(paragraph,0,XmTextParagraphScalarCount(paragraph)):NULL;
+    XmTextParagraphFree(paragraph);return layout;
 }
 XmTextLayout *XmTextLayoutCreate(Display *display, XftFont *primary, const char *text, size_t length) {
     XGlyphInfo space;
@@ -445,7 +668,7 @@ XmTextLayout *XmTextParagraphLine(XmTextParagraph *paragraph, size_t first, size
     }
     for (i = 0; i < count; ++i) {
         size_t font;
-        for (font = 0; font < paragraph->font_count && paragraph->fonts[font].face != glyphs[i].ftface; ++font) {}
+        for (font = 0; font < paragraph->font_count && paragraph->fonts[font].lease != glyphs[i].lease; ++font) {}
         if (font == paragraph->font_count) goto fail;
         layout->glyphs[i] = (struct LayoutGlyph){paragraph->fonts[font].font, glyphs[i].index,
             (double)(pen + glyphs[i].x_offset) / 64.0, -(double)glyphs[i].y_offset / 64.0,
@@ -481,10 +704,18 @@ XmTextLayout *XmTextParagraphLine(XmTextParagraph *paragraph, size_t first, size
             hb_position_t *gdef = NULL;
             unsigned int gdef_count = (unsigned int)(stops - 2);
             if (next == i + 1 && gdef_count) {
-                font = hb_ft_font_create_referenced(glyphs[i].ftface);
+                font = hb_font_reference(glyphs[i].lease->shaping_font);
                 gdef = (hb_position_t *)malloc(gdef_count * sizeof(hb_position_t));
                 if (!font || !gdef) { if (font) hb_font_destroy(font); free(gdef); goto fail; }
+                {
+                    FT_Face active=XftLockFace(glyphs[i].lease->font);
+                    if(active!=glyphs[i].lease->face) {
+                        if(active) XftUnlockFace(glyphs[i].lease->font);
+                        hb_font_destroy(font);free(gdef);goto fail;
+                    }
+                }
                 hb_ot_layout_get_ligature_carets(font, rtl ? HB_DIRECTION_RTL : HB_DIRECTION_LTR, glyphs[i].index, 0, &gdef_count, gdef);
+                XftUnlockFace(glyphs[i].lease->font);
             }
             for (j = first_scalar; j <= last_scalar; ++j) if (XmTextUnicodeIsGraphemeBoundary(layout->map, j)) {
                 double fraction = (double)ordinal / (double)(stops - 1);

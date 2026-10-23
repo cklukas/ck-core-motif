@@ -296,6 +296,14 @@ if test "x$enable_unicode_text" = "xyes"; then
   if test -z "$PKG_CONFIG" || ! $PKG_CONFIG --exists icu-uc icu-i18n harfbuzz; then
     AC_MSG_ERROR([--enable-unicode-text requires ICU, HarfBuzz development files and pkg-config])
   fi
+  AC_MSG_CHECKING([for C11 atomic font-configuration notifications])
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <stdatomic.h>]], [[
+    atomic_ulong epoch = ATOMIC_VAR_INIT(0);
+    unsigned long previous = atomic_load_explicit(&epoch, memory_order_acquire);
+    return !atomic_compare_exchange_strong_explicit(&epoch, &previous, previous + 1,
+                                                    memory_order_acq_rel, memory_order_acquire);
+  ]])], [AC_MSG_RESULT([yes])],
+  [AC_MSG_RESULT([no]); AC_MSG_ERROR([--enable-unicode-text requires supported C11 atomic operations])])
   UNICODE_TEXT_CFLAGS=`$PKG_CONFIG --cflags icu-uc icu-i18n harfbuzz`
   UNICODE_TEXT_LIBS="`$PKG_CONFIG --libs icu-uc icu-i18n harfbuzz` -lm"
   AC_DEFINE(HAVE_UNICODE_TEXT, 1, [Build ICU and HarfBuzz Unicode text layout])

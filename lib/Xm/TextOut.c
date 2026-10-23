@@ -800,6 +800,12 @@ UnicodeParagraph(XmTextWidget tw, XmTextPosition start)
     (int)tw->text.inner_widget->core.width - data->leftmargin - data->rightmargin : 0;
   if (ShouldWordWrap(data, tw) && wrap_width < 1) wrap_width = 1;
   if (start < 0 || start == PASTENDPOS) return NULL;
+  if (!XmTextFontContextIsCurrent(data->unicode_font_context)) {
+    ClearUnicodeParagraphs(tw);
+    XmTextFontContextFree(data->unicode_font_context);
+    data->unicode_font_context = XmTextFontContextCreate(XtDisplay(tw),XScreenNumberOfScreen(XtScreen(tw)),(XftFont *)data->font,NULL);
+    if (!data->unicode_font_context) return NULL;
+  }
   while (*link && ((*link)->start != start || (*link)->wrap_width != wrap_width)) link = &(*link)->next;
   if (*link) {
     entry = *link; *link = entry->next; entry->next = data->unicode_cache;
@@ -827,8 +833,8 @@ UnicodeParagraph(XmTextWidget tw, XmTextPosition start)
       memcpy(utf8 + length, block.ptr, (size_t)block.length); length += (size_t)block.length; at = next;
     }
     utf8[length] = '\0';
-    paragraph = XmTextParagraphCreate(XtDisplay(tw), (XftFont *)data->font, utf8, length,
-                                      data->tabwidth > 0 ? data->tabwidth : 1);
+    paragraph = XmTextParagraphCreateWithContext(data->unicode_font_context,utf8,length,
+                                                 data->tabwidth > 0 ? data->tabwidth : 1);
     XtFree(utf8);
     if (paragraph && XmTextParagraphScalarCount(paragraph) != (size_t)(end - paragraph_start)) {
       XmTextParagraphFree(paragraph); paragraph = NULL;
@@ -4715,6 +4721,8 @@ OutputSetValues(Widget oldw,
   if (CK(fontlist) || CK(rendertable)) {
 #if USE_XFT
     ClearUnicodeParagraphs(newtw);
+    XmTextFontContextFree(data->unicode_font_context);
+    data->unicode_font_context = newdata->unicode_font_context = NULL;
 #endif
     XmRenderTableFree(data->fontlist);
     if (CK(rendertable)) {
@@ -5546,6 +5554,8 @@ OutputDestroy(Widget w)
   
 #if USE_XFT
   ClearUnicodeParagraphs(tw);
+  XmTextFontContextFree(data->unicode_font_context);
+  data->unicode_font_context = NULL;
 #endif
   XmFontListFree(data->fontlist);
   
@@ -5962,6 +5972,7 @@ _XmTextOutputCreate(Widget wid,
     XtMalloc((unsigned) sizeof(OutputRec));
   output->data = data = (OutputData)
     XtMalloc((unsigned) sizeof(OutputDataRec));
+  data->unicode_font_context = NULL;
   data->unicode_cache = NULL;
   data->unicode_cache_count = 0;
   data->unicode_affinity = 0;

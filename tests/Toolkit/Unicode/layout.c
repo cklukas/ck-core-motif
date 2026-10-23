@@ -23,6 +23,98 @@ static void check_positions(XmTextLayout *layout, const char *source) {
     }
     XmTextUnicodeMapFree(map);
 }
+static void check_font_context(Display *display,XftFont *font) {
+    const XmTextFontContextLimits limits={256,256u*1024u,1};
+    XmTextFontContext *context=XmTextFontContextCreate(display,DefaultScreen(display),font,&limits);
+    XmTextFontContextUsage before,after;
+    XmTextLayout *retained,*repeated;
+    XmTextParagraph *small;
+    FcConfig *original=FcConfigReference(FcConfigGetCurrent()),*empty;
+    double width,x;size_t index;
+    const char fallback[]="latin \xe4\xb8\xad\xe6\x96\x87";
+    require(context&&XmTextFontContextIsCurrent(context),"font context creation");
+    small=XmTextParagraphCreateWithContext(context,fallback,strlen(fallback),64);
+    require(small!=NULL,"context fallback paragraph");
+    retained=XmTextParagraphLine(small,0,XmTextParagraphScalarCount(small));
+    require(retained!=NULL,"context fallback capture");width=XmTextLayoutWidth(retained);
+    require(XmTextFontContextGetUsage(context,&before)&&before.queries>0,"fallback query observation");
+    repeated=XmTextLayoutCreateWithContext(context,fallback,strlen(fallback),64);
+    require(repeated&&XmTextLayoutWidth(repeated)==width,"cached fallback changed geometry");
+    require(XmTextFontContextGetUsage(context,&after)&&after.queries==before.queries&&after.cache_hits>before.cache_hits&&after.font_leases==1,"repeated paragraph bypassed resolver cache");
+    XmTextLayoutFree(repeated);
+    {
+        const XmTextFontContextLimits disabled={0,0,0},invalid={256,256u*1024u,65};
+        XmTextFontContext *uncached=XmTextFontContextCreate(display,DefaultScreen(display),font,&disabled);
+        XmTextFontContextUsage usage;
+        require(!XmTextFontContextCreate(display,DefaultScreen(display),font,&invalid),"font lease ceiling accepted oversized cache");
+        require(uncached!=NULL,"disabled cache context");
+        repeated=XmTextLayoutCreateWithContext(uncached,fallback,strlen(fallback),64);
+        require(repeated&&XmTextLayoutWidth(repeated)==width,"disabled caches changed exact font projection");
+        require(XmTextFontContextGetUsage(uncached,&usage)&&!usage.entries&&!usage.key_bytes&&!usage.font_leases&&usage.queries>0,
+                "disabled context retained resolver/font cache entries");
+        XmTextFontContextFree(uncached);
+        require(XmTextLayoutWidth(repeated)==width,"disabled-cache capture lost independent font leases");
+        XmTextLayoutFree(repeated);
+    }
+    require(XmTextFontConfigurationChanged()&&!XmTextFontContextIsCurrent(context),"global configuration epoch did not invalidate context");
+    require(!XmTextLayoutCreateWithContext(context,"x",1,64),"stale context silently used old configuration");
+    require(XmTextFontContextInvalidate(context)&&XmTextFontContextIsCurrent(context),"explicit context refresh");
+    empty=FcConfigCreate();require(empty&&FcConfigSetCurrent(empty),"empty font configuration fixture");
+    require(!XmTextFontContextIsCurrent(context)&&XmTextFontContextInvalidate(context),"replacement config identity was ignored");
+    require(!XmTextLayoutCreateWithContext(context,"\xf4\x8f\xbf\xbf",4,64),"missing complete-grapheme font substituted partial coverage");
+    require(XmTextFontContextGetUsage(context,&before),"negative query observation");
+    require(!XmTextLayoutCreateWithContext(context,"\xf4\x8f\xbf\xbf",4,64),"negative cache changed refusal");
+    require(XmTextFontContextGetUsage(context,&after)&&after.queries==before.queries&&after.cache_hits>before.cache_hits,"missing font outcome was not cached");
+    for(index=0;index<512;++index) {
+        const unsigned long scalar=0x100000ul+index;
+        char utf8[4]={(char)(0xf0|(scalar>>18)),(char)(0x80|((scalar>>12)&63)),
+                      (char)(0x80|((scalar>>6)&63)),(char)(0x80|(scalar&63))};
+        require(!XmTextLayoutCreateWithContext(context,utf8,sizeof utf8,64),"missing private-plane glyph unexpectedly substituted");
+    }
+    require(XmTextFontContextGetUsage(context,&after)&&after.entries==256&&after.key_bytes<=256u*1024u,"resolver eviction exceeded entry/byte bounds");
+    {
+        char cluster[2052];size_t mark;
+        for(mark=4;mark<sizeof cluster;mark+=2) {cluster[mark]=(char)0xcc;cluster[mark+1]=(char)0x81;}
+        for(index=0;index<200;++index) {
+            const unsigned long scalar=0x101000ul+index;
+            cluster[0]=(char)(0xf0|(scalar>>18));cluster[1]=(char)(0x80|((scalar>>12)&63));
+            cluster[2]=(char)(0x80|((scalar>>6)&63));cluster[3]=(char)(0x80|(scalar&63));
+            require(!XmTextLayoutCreateWithContext(context,cluster,sizeof cluster,64),"missing long grapheme substituted partial coverage");
+        }
+        require(XmTextFontContextGetUsage(context,&after)&&after.entries<256&&after.key_bytes<=256u*1024u&&after.key_bytes>=260000,
+                "resolver key-byte ceiling did not evict below its separate entry ceiling");
+    }
+    require(XmTextLayoutWidth(retained)==width&&XmTextLayoutCaret(retained,0,0,&x),"eviction/config refresh invalidated retained capture");
+    require(FcConfigSetCurrent(original)&&XmTextFontContextInvalidate(context),"restore font configuration");
+    FcConfigDestroy(empty);FcConfigDestroy(original);
+    {
+        XftFont *large=XftFontOpenName(display,DefaultScreen(display),"DejaVu Sans:size=32");
+        XmTextFontContext *other;XmTextLayout *large_line,*recaptured;
+        require(large!=NULL,"different-size font fixture");
+        other=XmTextFontContextCreate(display,DefaultScreen(display),large,NULL);require(other!=NULL,"different-size resolver fixture");
+        large_line=XmTextLayoutCreateWithContext(other,fallback,strlen(fallback),64);
+        require(large_line&&XmTextLayoutWidth(large_line)>width,"different-size font did not exercise independent metrics");
+        recaptured=XmTextParagraphLine(small,0,XmTextParagraphScalarCount(small));
+        require(recaptured&&XmTextLayoutWidth(recaptured)==width,"cached shaping reused another font size/FTface activation");
+        XmTextLayoutFree(recaptured);XmTextLayoutFree(large_line);XmTextFontContextFree(other);XftFontClose(display,large);
+    }
+    XmTextFontContextFree(context);
+    require(XmTextLayoutWidth(retained)==width&&XmTextLayoutCaret(retained,0,0,&x),"resolver destruction invalidated retained font leases");
+    {
+        Pixmap pixmap=XCreatePixmap(display,DefaultRootWindow(display),240,80,DefaultDepth(display,DefaultScreen(display)));
+        XftDraw *draw=XftDrawCreate(display,pixmap,DefaultVisual(display,DefaultScreen(display)),DefaultColormap(display,DefaultScreen(display)));
+        XftColor color;XRectangle viewport={0,0,240,80};XImage *image;int px,py,ink=0;
+        require(draw&&XftColorAllocName(display,DefaultVisual(display,DefaultScreen(display)),DefaultColormap(display,DefaultScreen(display)),"white",&color),"retained font draw setup");
+        XftDrawRect(draw,&color,0,0,240,80);XftColorFree(display,DefaultVisual(display,DefaultScreen(display)),DefaultColormap(display,DefaultScreen(display)),&color);
+        require(XftColorAllocName(display,DefaultVisual(display,DefaultScreen(display)),DefaultColormap(display,DefaultScreen(display)),"black",&color),"retained font foreground");
+        require(XmTextLayoutDraw(retained,draw,&color,10,50,0,XmTextLayoutScalarCount(retained),&viewport),"evicted font lease failed real draw");
+        XSync(display,False);image=XGetImage(display,pixmap,0,0,240,80,AllPlanes,ZPixmap);require(image!=NULL,"retained font readback");
+        for(py=0;py<80;++py) for(px=0;px<240;++px) if(XGetPixel(image,px,py)!=XGetPixel(image,239,79)) ++ink;
+        require(ink>20,"retained fallback font painted no ink after context destruction");
+        XDestroyImage(image);XftColorFree(display,DefaultVisual(display,DefaultScreen(display)),DefaultColormap(display,DefaultScreen(display)),&color);XftDrawDestroy(draw);XFreePixmap(display,pixmap);
+    }
+    XmTextLayoutFree(retained);XmTextParagraphFree(small);
+}
 int main(void) {
     Display *display = XOpenDisplay(NULL);
     XftFont *font;
@@ -40,6 +132,7 @@ int main(void) {
     require(display != NULL && XmTextLayoutAvailable(), "Unicode layout display/features unavailable");
     font = XftFontOpenName(display, DefaultScreen(display), "DejaVu Sans:size=18");
     require(font != NULL, "fixture font unavailable");
+    check_font_context(display,font);
     arabic = XmTextLayoutCreate(display, font, arabic_text, strlen(arabic_text));
     mixed = XmTextLayoutCreate(display, font, mixed_text, strlen(mixed_text));
     combining = XmTextLayoutCreate(display, font, "e\xcc\x81", 3);

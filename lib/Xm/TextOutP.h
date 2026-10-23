@@ -68,6 +68,7 @@ typedef enum {on, off} OnOrOff;	/* For when Booleans aren't obvious enough. */
  */
 
 typedef struct _OutputDataRec {
+    struct _XmTextFontContext *unicode_font_context;
     struct _XmTextParagraphCache *unicode_cache;
     unsigned int unicode_cache_count;
     int unicode_affinity;
