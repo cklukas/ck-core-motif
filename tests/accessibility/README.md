@@ -1,5 +1,20 @@
 # Optional native accessibility foundation
 
+`modality.c` is an installed-library mutation-admission fixture. Run it only on
+an isolated X server with `--isolated-display`. Its native button/list/value and
+custom action/focus/value/Selection callbacks check primary and nested primary
+scope, independent windows, full modality, direct Xt exclusive grabs and
+popdown/destruction restoration. Provider reads that open a modal, remove a
+semantic target or destroy its native owner must prevent the subsequent mutation
+callback. Application-root-only semantics remain readable and reject mutations.
+The fixture does not connect an AT-SPI service or establish screen-reader
+acceptance. `selection_reentrancy.c` separately tests stable selection snapshots
+with its mutable semantic object explicitly anchored to its owning shell.
+The current installed feature runner includes `accessibility-modality` in its
+21-fixture default suite and accepts `--only accessibility-modality` for focused
+normal or sanitizer runs. Earlier 20-fixture acceptance below predates this
+addition; it does not validate the new admission contract.
+
 Configure `--enable-atspi` to build the libdbus transport. Default builds retain
 native/custom semantic providers and report `XmACCESSIBILITY_NOT_BUILT`. The
 transport adds libdbus only; a session bus, AT-SPI bus/registry and assistive

@@ -3,6 +3,7 @@
 #include <config.h>
 #endif
 #include "AccessibleI.h"
+#include "VendorSI.h"
 #include <X11/IntrinsicP.h>
 #include <X11/Shell.h>
 #include <X11/StringDefs.h>
@@ -222,20 +223,26 @@ static void node_destroyed(Widget w, XtPointer data, XtPointer call) {
   _XmAccessibilityDispatchDone(a);
 }
 static void notify_focus(XmAccessibility *a) {
-  Widget shell = active_shell(a);
-  XmAccessibleId active = shell ? XmAccessibilityWidget(a, shell) : 0;
-  XmAccessibleId next = focused_identity(a);
+  Widget shell;
+  XmAccessibleId active, next;
+  if (a->destroy_requested) return;
+  shell = active_shell(a);
+  active = shell ? XmAccessibilityWidget(a, shell) : 0;
+  next = focused_identity(a);
   if (active != a->active_shell_node) {
     XmAccessibleId previous = a->active_shell_node;
     a->active_shell_node = active;
     if (previous) XmAccessibilityChanged(a, previous);
+    if (a->destroy_requested) return;
     if (active) XmAccessibilityChanged(a, active);
   }
+  if (a->destroy_requested) return;
   if (next != a->focused_node) {
     XmAccessibleId previous = a->focused_node;
     a->focused_node = next;
     if (previous)
       XmAccessibilityChanged(a, previous);
+    if (a->destroy_requested) return;
     if (next)
       XmAccessibilityChanged(a, next);
   }
@@ -1031,11 +1038,27 @@ static char *text_impl(XmAccessibility *a, XmAccessibleId id, int start,
   XtFree(local);
   return result;
 }
+/* Semantic providers have no implicit application-wide native owner. Resolve
+ * live ancestry for every admission, including after callbacks that may remove
+ * nodes, destroy widgets or change the modal cascade. Retired node storage is
+ * retained by the surrounding dispatch guard, never evidence of liveness. */
+static Boolean input_allowed(XmAccessibility *a, XmAccessibleId id,
+                             XmAccessibleNode *expected) {
+  XmAccessibleNode *n;
+  if (a->destroy_requested || !(n = _XmAccessibilityNode(a, id)) || n != expected)
+    return False;
+  while (n) {
+    Widget owner = n->widget ? n->widget : n->list_owner;
+    if (owner) return _XmModalInputAllowed(owner);
+    n = _XmAccessibilityNode(a, n->parent);
+  }
+  return False;
+}
 static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
                               unsigned int action) {
   XmAccessibleNode *n = _XmAccessibilityNode(a, id);
   XmAnyCallbackStruct cb;
-  if (!n)
+  if (!n || !input_allowed(a, id, n))
     return False;
   if (n->list_owner) {
     if (action || native_item_position(a, n) < 0 || !_XmAccessibilityNode(a, n->parent)->list_sync_valid) return False;
@@ -1137,7 +1160,8 @@ static Boolean set_value_impl(XmAccessibility *a, XmAccessibleId id,
   XmAccessibleNode *n = _XmAccessibilityNode(a, id);
   XmAccessibleInfo info;
   Boolean allowed;
-  if (!n || !isfinite(value) || !XmAccessibilityQuery(a, id, &info))
+  if (!n || !input_allowed(a, id, n) || !isfinite(value) ||
+      !XmAccessibilityQuery(a, id, &info))
     return False;
   allowed = info.has_value && isfinite(info.minimum_value) &&
             isfinite(info.maximum_value) && value >= info.minimum_value &&
@@ -1145,7 +1169,7 @@ static Boolean set_value_impl(XmAccessibility *a, XmAccessibleId id,
             (info.states & XmACCESSIBLE_STATE(8)) &&
             (info.states & XmACCESSIBLE_STATE(7));
   XmAccessibleInfoClear(&info);
-  if (!allowed)
+  if (!allowed || !input_allowed(a, id, n))
     return False;
   if (n->provider.set_value)
     return n->provider.set_value(n->data, value);
@@ -1157,7 +1181,7 @@ static Boolean set_value_impl(XmAccessibility *a, XmAccessibleId id,
 }
 static Boolean focus_impl(XmAccessibility *a, XmAccessibleId id) {
   XmAccessibleNode *n = _XmAccessibilityNode(a, id);
-  if (!n)
+  if (!n || !input_allowed(a, id, n))
     return False;
   if (n->list_owner) {
     int position = native_item_position(a, n);
@@ -1167,8 +1191,10 @@ static Boolean focus_impl(XmAccessibility *a, XmAccessibleId id) {
     if (!XmProcessTraversal(owner, XmTRAVERSE_CURRENT)) return False;
     /* Traversal may execute focus callbacks. Re-resolve the exact token. */
     n = _XmAccessibilityNode(a, id);
-    if (!n || n->list_token != token || (position = native_item_position(a, n)) < 0) return False;
+    if (!n || n->list_token != token || !input_allowed(a, id, n) ||
+        (position = native_item_position(a, n)) < 0) return False;
     if (!XmListSetKbdItemPos(owner, position + 1)) return False;
+    if (!input_allowed(a, id, n)) return False;
     notify_focus(a); return True;
   }
   if (n->provider.focus)
@@ -1177,6 +1203,7 @@ static Boolean focus_impl(XmAccessibility *a, XmAccessibleId id) {
     Widget target = XmIsDisclosure(n->widget) ? XmDisclosureGetHeader(n->widget)
                                               : n->widget;
     Boolean success = XmProcessTraversal(target, XmTRAVERSE_CURRENT);
+    if (!input_allowed(a, id, n)) return False;
     notify_focus(a);
     return success;
   }
@@ -1384,10 +1411,10 @@ Boolean XmAccessibilityChangeSelection(XmAccessibility *a, XmAccessibleId id,
   if (!a || operation < XmACCESSIBLE_SELECT_CHILD || operation > XmACCESSIBLE_CLEAR_SELECTION) return False;
   ++a->dispatch_depth;
   n = selection_owner(a, id);
-  if (!n || !XmAccessibilityQuery(a, id, &info)) goto done;
+  if (!n || !input_allowed(a, id, n) || !XmAccessibilityQuery(a, id, &info)) goto done;
   result = (info.states & XmACCESSIBLE_STATE(8)) && (info.states & XmACCESSIBLE_STATE(24));
   XmAccessibleInfoClear(&info);
-  if (!result || a->destroy_requested || _XmAccessibilityNode(a, id) != n) { result = False; goto done; }
+  if (!result || !input_allowed(a, id, n)) { result = False; goto done; }
   result = False;
   if (operation < XmACCESSIBLE_SELECT_ALL) {
     child = _XmAccessibilityNode(a, child_id);
@@ -1407,6 +1434,7 @@ Boolean XmAccessibilityChangeSelection(XmAccessibility *a, XmAccessibleId id,
   if (!before || !after || !seen ||
       !selection_snapshot(a, n, id, before, seen, capacity, &count)) goto done;
   if (child && _XmAccessibilityNode(a, child_id) != child) goto done;
+  if (!input_allowed(a, id, n)) goto done;
   result = n->provider.change_selection(n->data, operation, child_id);
   if (!result || a->destroy_requested || _XmAccessibilityNode(a, id) != n) { result = False; goto done; }
   if (n->children_serial != children_serial ||

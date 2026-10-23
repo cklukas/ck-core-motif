@@ -57,6 +57,23 @@ children without pretending that pixels themselves are accessible text or
 without instantiating thousands of hidden widgets. Register only identities
 that remain valid for the displayed state.
 
+Action, focus, scalar value and Selection mutations share native sensitivity,
+Xt grab admission and the complete live Motif modal cascade. A primary dialog
+blocks its parent branch; independent windows and the dialog remain usable.
+An enclosing full-application modal continues to block other branches.
+The same admission applies to native list items and custom providers, including
+calls received through AT-SPI. Queries and text/selection reads remain available
+while a window is blocked. Programmatic widget setters retain their ordinary
+semantics; accessibility mutation entry points perform this input admission.
+
+Mutable semantic children must descend from a live native widget identifying
+their owning window. A semantic object registered only under the application
+root remains readable, but cannot receive mutations: the bridge never guesses
+the first window as its owner. Admission resolves current ancestry and is
+rechecked after provider queries or selection snapshots, since a callback can
+remove an object, destroy its owner or open another modal dialog. Provider
+mutation callbacks still own their own atomic domain validation.
+
 ## Events and optional services
 
 `XmAccessibilityRefresh` refreshes native structure;
@@ -243,7 +260,7 @@ deltas. Removal/destruction during callbacks cannot revive stale targets.
 The native List private record, item record and public accessibility info/provider
 records change layout. Xm/Mrm/Uil advance together to ABI7; rebuild providers,
 subclasses and applications coherently. A fresh installed-prefix build and all
-20 native ARM64 feature fixtures pass for this cohort. Native list checks cover
+21 native ARM64 feature fixtures pass for this cohort. Native list checks cover
 exact duplicate-label identities, insert/delete/replacement/reorder, selection
 and actions, actual Shift-navigation after semantic selection, disabled and
 stale refusal, provider reentrancy/removal, destruction and allocation-failure
@@ -265,9 +282,24 @@ prevent a reentrant count callback from growing a preallocated result buffer or
 reviving removed provider data. Native List selection callbacks may destroy the
 List or its shell, including through nested selection; post-callback publication
 uses a registered destruction sentinel and never dereferences a destroyed widget.
-The fresh installed ABI7 cohort passes all 20 native ARM64 feature fixtures,
+The fresh installed ABI7 cohort passes all 21 native ARM64 feature fixtures,
 including 12 generic-provider reentrancy cases and eight native callback-
 destruction cases. Those lifetime and reentrancy fixtures also pass with the
 toolkit and fixture binaries instrumented by ASan/UBSan. List allocation faults
 remain in the ordinary native suite because their libc interposer bypasses the
 sanitizer allocator; no sanitizer runtime checks or native assertions are relaxed.
+
+The added accessibility-modality fixture passes 272 native ARM64 checks covering
+callback-count and exact selection/value preservation under primary, nested and
+full modality, independent windows, direct Xt grabs and popdown/destruction.
+Reentrant reads that open a modal or retire a target prevent later mutation
+callbacks. Native focus callbacks can retire the target or bridge safely.
+The pre-fix library fails 87 checks in this expanded fixture; the independent
+native pointer/keyboard modality fixture continues to pass 397 assertions.
+This proves the generic installed-library input contract. Actual assistive
+technology/application journeys and other platforms remain separate gates.
+
+Ten focused native ARM64 fixtures also pass with the toolkit and consumers
+instrumented by ASan/UBSan, including the new modal-admission regression.
+Xt/system dependencies are uninstrumented, leak checking is disabled, and
+allocator-fault interposition remains exclusive to the normal native suite.

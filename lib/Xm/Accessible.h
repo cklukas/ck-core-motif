@@ -117,8 +117,10 @@ void XmAccessibilityRefresh(XmAccessibility *);
 XmAccessibleId XmAccessibilityRoot(XmAccessibility *);
 XmAccessibleId XmAccessibilityWidget(XmAccessibility *, Widget);
 /* Register engine-projected semantic children beneath a widget or semantic
-   node. Providers own data until Remove; IDs are never reused in a bridge
-   lifetime. */
+   node. Mutation targets must have a live native widget ancestor identifying
+   their owning window; application-root-only semantics remain readable but
+   cannot receive actions, focus, value or selection mutations. Providers own
+   data until Remove; IDs are never reused in a bridge lifetime. */
 XmAccessibleId XmAccessibilityAdd(XmAccessibility *, XmAccessibleId parent,
                                   const XmAccessibleProvider *, XtPointer);
 void XmAccessibilityRemove(XmAccessibility *, XmAccessibleId);
@@ -132,6 +134,10 @@ char *XmAccessibilityText(XmAccessibility *, XmAccessibleId, int start,
 /* False means stale, invalid, or unavailable visual layout. */
 Boolean XmAccessibilityVisualLine(XmAccessibility *, XmAccessibleId, int offset,
                                    int direction, int *first, int *last);
+/* Mutations honor native sensitivity and the current Xt/Motif modal scope,
+   including provider/list-item fast paths. A primary dialog blocks its parent
+   branch while independent windows remain usable. Read-only queries remain
+   available. Admission is rechecked after provider reads that may reenter Xt. */
 Boolean XmAccessibilityAction(XmAccessibility *, XmAccessibleId, unsigned int);
 /* Owned UTF-8 native/provider action name; NULL for invalid action. */
 char *XmAccessibilityActionName(XmAccessibility *, XmAccessibleId,

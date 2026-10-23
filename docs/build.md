@@ -100,6 +100,13 @@ services. The text fixtures require DejaVu Sans and a CJK-capable fallback font.
 Unavailable services or missing font coverage fail their tests; an in-memory
 semantic substitute does not count as an AT-SPI pass.
 
+The default suite contains 21 fixtures, including `accessibility-modality`.
+`--only accessibility-modality` selects the native/semantic action, focus, value
+and Selection modal-admission regression (plus the mandatory ABI fixture).
+It runs on the runner's isolated Xvfb and requires no AT-SPI service. Select it
+the same way with an instrumented compiler and installed sanitizer prefix for
+ASan/UBSan validation; native allocation-fault interposition remains separate.
+
 The default fixtures cover ABI/version, XIM preedit bounds, shaped glyph readback,
 paragraph/line and bounded font contexts, native Unicode and large text widgets,
 Unicode clipboard/INCR and interrupted-transfer lifetime, Disclosure and numeric

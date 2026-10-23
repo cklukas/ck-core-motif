@@ -154,6 +154,7 @@ UniqueEvnI.h \
 VaSimpleI.h \
 VendorSEI.h \
 VendorSI.h \
+XtInputI.h \
 VirtKeysI.h \
 XmI.h \
 XmImI.h \
@@ -284,7 +285,7 @@ else
 TEXT_LAYOUT_SRCS =
 endif
 
-libXm_la_SOURCES = Accessible.c TextUnicode.c $(TEXT_LAYOUT_SRCS) $(ATSPI_SRCS) $(SRCS1) $(SRCS2) $(OBSO_SRCS) $(XPM_SRCS) $(NEW_WID_SRCS) $(SLIDE_SRCS) \
+libXm_la_SOURCES = Accessible.c XtInput.c TextUnicode.c $(TEXT_LAYOUT_SRCS) $(ATSPI_SRCS) $(SRCS1) $(SRCS2) $(OBSO_SRCS) $(XPM_SRCS) $(NEW_WID_SRCS) $(SLIDE_SRCS) \
         $(TIP_SRCS) $(EDITRES_SRCS) $(EXTRA_SRCS) $(JPEG_SRCS) $(PNG_SRCS)
 
 EXTRA_libXm_la_SOURCES = $(SLIDE_SRCS) $(TIP_SRCS)

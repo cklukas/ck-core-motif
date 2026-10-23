@@ -67,6 +67,7 @@ static char rcsid[] = "$TOG: VendorS.c /main/21 1999/08/09 10:49:41 mgreess $"
 #include "TraversalI.h"
 #include "XmImI.h"
 #include "VendorSI.h"
+#include "XtInputI.h"
 #include "EditresComI.h"
 #include "XmI.h"
 
@@ -979,6 +980,23 @@ ModalAllows(XmModalData modal, XmVendorShellExtObject ve, Widget shell)
         return !WidgetDescendant(modal->wid, shell) &&
                !VendorDescendant(modal->ve, ve);
     return False;
+}
+
+Boolean
+_XmModalInputAllowed(Widget widget)
+{
+    XmDisplay display;
+    Cardinal i;
+    if (!_XmXtInputAllowed(widget))
+        return False;
+    /* Xt's event dispatcher is authoritative for arbitrary XtAddGrab users.
+     * Motif additionally preserves every enclosing modal scope when independent
+     * primary-dialog branches are admitted into that native grab cascade. */
+    display = (XmDisplay)XmGetXmDisplay(XtDisplayOfObject(widget));
+    for (i = 0; i < display->display.numModals; ++i)
+        if (!ModalAllows(&display->display.modals[i], NULL, widget))
+            return False;
+    return True;
 }
 
 static void 

@@ -122,3 +122,19 @@ cases with baseline recovery. Menu roles/actions/expansion and posted-shell focu
 are covered alongside compound-row traversal. These source/API and native results
 do not establish complete list/selection semantics, all editing notifications,
 actual screen-reader usability, x86_64 or sanitizer acceptance for the additions.
+
+## Accessibility modal admission checkpoint
+
+The current native ARM64 default suite contains 21 passing fixtures. The added
+accessibility-modality fixture passes 272 checks, while the native pointer/key
+modality fixture retains 397 assertions. Blocked native and semantic targets
+reject action/focus/value/Selection mutations; independent primary-dialog
+branches remain usable. Reentrant query/snapshot callbacks and native focus
+target/bridge destruction are covered. This checkpoint qualifies the generic
+installed-library contract; actual application/assistive-technology journeys,
+other display/input environments and final x86_64 validation remain separate.
+
+Ten focused native ARM64 fixtures also pass with the toolkit and consumers
+instrumented by ASan/UBSan, including the new modal-admission regression.
+Xt/system dependencies are uninstrumented, leak checking is disabled, and
+allocator-fault interposition remains exclusive to the normal native suite.

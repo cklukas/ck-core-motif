@@ -4,6 +4,7 @@ datadir = ${prefix}/share/Xm/doc
 #            README RELEASE RELNOTES
 
 EXTRA_DIST = tests/accessibility/scrollbar.c tests/accessibility/observe_scrollbar.py \
+              tests/accessibility/modality.c tests/accessibility/selection_reentrancy.c \
               tests/accessibility/provider.c tests/accessibility/observe.py tests/accessibility/README.md \
               tests/accessibility/native_controls.c tests/accessibility/observe_orca.py \
               tests/accessibility/lifecycle.c tests/accessibility/native_geometry.c \

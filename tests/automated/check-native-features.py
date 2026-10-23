@@ -25,6 +25,7 @@ FIXTURES = {
     "abi": ("tests/Toolkit/ABI/cohort.c", False),
     "preedit": ("tests/Toolkit/Im/preedit_ranges.c", False),
     "primary-modality": ("tests/Toolkit/Message/primary_modality.c", True),
+    "accessibility-modality": ("tests/accessibility/modality.c", True),
     "layout": ("tests/Toolkit/Unicode/layout.c", True),
     "line-context": ("tests/Toolkit/Unicode/line_context.c", True),
     "unicode-widgets": ("tests/Toolkit/Unicode/text_unicode.c", True),
@@ -258,7 +259,7 @@ def main():
                 raise RuntimeError("fixture loader did not select the exact installed libXm")
             receipt["binaries"][name] = dict(path=str(binary), sha256=sha(binary),
                 mtime_ns=binary.stat().st_mtime_ns, elf=elf, installed_headers=header_inputs)
-            if name == "primary-modality":
+            if name in ("primary-modality", "accessibility-modality"):
                 run(name, display([binary, "--isolated-display"]))
             elif name in ("clipboard", "clipboard-lifetime"):
                 observer = source / ("tests/Toolkit/CutPaste/clipboard_unicode.py" if name == "clipboard"

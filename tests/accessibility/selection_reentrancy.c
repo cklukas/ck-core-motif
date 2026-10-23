@@ -15,6 +15,7 @@ typedef struct {
   int count, changed;
 } Model;
 static XmAccessibleProvider child_provider;
+static XmAccessibleId native_owner;
 static Boolean child_query(XtPointer data, XmAccessibleInfo *info) {
   (void)data; info->role = XmACCESSIBLE_LIST_ITEM; info->name = XtNewString("Row"); return True;
 }
@@ -69,7 +70,9 @@ static void setup(Model *m, XmAccessibility *bridge, enum Fault fault, int n) {
   memset(m, 0, sizeof(*m)); m->bridge = bridge; m->fault = fault; m->count = n;
   p.query = owner_query; p.selection_count = count; p.selected_child = selected;
   p.child_selected = is_selected; p.change_selection = change;
-  m->owner = XmAccessibilityAdd(bridge, XmAccessibilityRoot(bridge), &p, m);
+  /* Mutable semantic objects belong to this shell, never an implicit first
+     window chosen from the application's multi-window semantic root. */
+  m->owner = XmAccessibilityAdd(bridge, native_owner, &p, m);
   assert(m->owner);
   for (int k = 0; k < n; ++k) {
     m->children[k] = XmAccessibilityAdd(bridge, m->owner, &child_provider, m);
@@ -81,6 +84,7 @@ int main(int argc, char **argv) {
   unsigned int passed = 0;
   shell = XtVaAppInitialize(&app, "SelectionReentrancy", NULL, 0, &argc, argv, NULL, NULL);
   bridge = XmAccessibilityCreate(shell, "Generic selection reentrancy"); assert(bridge);
+  native_owner = XmAccessibilityWidget(bridge, shell); assert(native_owner);
   child_provider.query = child_query;
   /* Safe negative proof on the old implementation: this getter must reject a
      callback that changes the child cohort, even if its count fits the new one. */

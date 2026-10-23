@@ -51,6 +51,9 @@ extern void _XmAddGrab(
 #endif /* NeedWidePrototypes */
 extern void _XmRemoveGrab( 
                         Widget wid) ;
+/* Mutation admission shares native Xt grabs and the live Motif modal cascade.
+ * Called only on the owning Xt thread; never caches widget/grab identities. */
+extern Boolean _XmModalInputAllowed(Widget widget) ;
 extern void _XmDefaultVisualResources(Widget widget) ;
 
 /********    End Private Function Declarations    ********/

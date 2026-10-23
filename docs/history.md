@@ -196,3 +196,26 @@ and provider reentrancy; system/Xt libraries and leak checking are outside scope
 Actual-application adoption remains a separate gate. Repeated real
 IBus/m17n service validation has an intermittent Hindi preedit failure under
 investigation. Previous ABI6 results remain scoped to that cohort.
+
+## Accessibility modal input admission
+
+Accessibility actions, scalar/Selection writes and focus requests now honor the
+same live Xt grab admission and Motif modal cascade as native input. Native list
+items and semantic providers cannot activate a primary dialog's blocked parent;
+independent window branches remain usable. Mutable semantic providers require a
+live native widget ancestor instead of an implicit first-window owner. Provider
+reads that reenter the toolkit are followed by fresh admission before mutation.
+Xt's private input headers are isolated from Motif's distinct private callback
+types through a narrow internal C boundary; no private layouts are copied.
+
+The new regression is part of the 21-fixture installed native suite. Its 272
+checks pass, including native focus callback destruction and modal changes
+during provider queries/selection snapshots. The earlier library fails 87
+checks, while the independent native input modality regression retains all 397
+assertions. The complete normal native ARM64 suite passes. These results do not
+establish complete assistive-technology, input-method or cross-platform coverage.
+
+Ten focused native ARM64 fixtures also pass with the toolkit and consumers
+instrumented by ASan/UBSan, including the new modal-admission regression.
+Xt/system dependencies are uninstrumented, leak checking is disabled, and
+allocator-fault interposition remains exclusive to the normal native suite.
