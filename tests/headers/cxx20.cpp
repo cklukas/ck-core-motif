@@ -5,5 +5,5 @@
 #include <Xm/Accessible.h>
 #include <Xm/Disclosure.h>
 
-static_assert(XmABI_VERSION == 6, "This source cohort uses native ABI epoch 6");
+static_assert(XmABI_VERSION == 7, "This source cohort uses native ABI epoch 7");
 int main() { return XmToolkitABI() == XmABI_VERSION ? 0 : 1; }

@@ -22,6 +22,8 @@ enum {
   XmACCESSIBLE_TEXT = 61,
   XmACCESSIBLE_PASSWORD_TEXT = 40,
   XmACCESSIBLE_SCROLL_BAR = 48,
+  XmACCESSIBLE_LIST = 31,
+  XmACCESSIBLE_LIST_ITEM = 32,
   XmACCESSIBLE_MENU = 33,
   XmACCESSIBLE_MENU_BAR = 34,
   XmACCESSIBLE_MENU_ITEM = 35,
@@ -48,6 +50,7 @@ typedef struct {
   /* Scalar Value interface; finite bounds/current/increment, increment >= 0.
      Native ScrollBar maximum excludes sliderSize. value_text is optional owned
      UTF-8, freed by XmAccessibleInfoClear. */
+  Boolean has_selection;
   Boolean has_value;
   double minimum_value, maximum_value, current_value, minimum_increment;
   char *value_text;
@@ -68,6 +71,18 @@ typedef Boolean (*XmAccessibleSetValueProc)(XtPointer, double);
 typedef Boolean (*XmAccessibleVisualLineProc)(XtPointer, int offset,
                                              int direction, int *first,
                                              int *last);
+typedef enum {
+  XmACCESSIBLE_SELECT_CHILD,
+  XmACCESSIBLE_DESELECT_CHILD,
+  XmACCESSIBLE_SELECT_ALL,
+  XmACCESSIBLE_CLEAR_SELECTION
+} XmAccessibleSelectionOperation;
+/* Child IDs refer to live direct children, never model row numbers. */
+typedef int (*XmAccessibleSelectionCountProc)(XtPointer);
+typedef XmAccessibleId (*XmAccessibleSelectedChildProc)(XtPointer, int);
+typedef Boolean (*XmAccessibleChildSelectedProc)(XtPointer, XmAccessibleId);
+typedef Boolean (*XmAccessibleChangeSelectionProc)(XtPointer,
+    XmAccessibleSelectionOperation, XmAccessibleId);
 typedef struct {
   XmAccessibleQueryProc query;
   XmAccessibleTextProc text;
@@ -77,6 +92,10 @@ typedef struct {
   XmAccessibleCellProc cell;
   XmAccessibleSetValueProc set_value;
   XmAccessibleVisualLineProc visual_line;
+  XmAccessibleSelectionCountProc selection_count;
+  XmAccessibleSelectedChildProc selected_child;
+  XmAccessibleChildSelectedProc child_selected;
+  XmAccessibleChangeSelectionProc change_selection;
 } XmAccessibleProvider;
 typedef enum {
   XmACCESSIBILITY_NOT_BUILT,
@@ -123,6 +142,20 @@ char *XmAccessibilityActionName(XmAccessibility *, XmAccessibleId,
    quantization/validation and must call Changed when their state changes. */
 Boolean XmAccessibilitySetValue(XmAccessibility *, XmAccessibleId, double);
 Boolean XmAccessibilityFocus(XmAccessibility *, XmAccessibleId);
+/* Selection indexes enumerate selected direct children; -1/0/False denote
+ * unsupported, stale or invalid queries. Mutations reject insensitive owners.
+ * Providers must admit changes atomically and return False without side effects
+ * on failure. The bridge emits accepted selection deltas, not failed attempts.
+ * Read callbacks must describe one stable selection of unique direct-child IDs
+ * and call Changed for any semantic mutation. Hierarchy/Changed mutations during
+ * a read reject that read; no mutation callback is then invoked. Selection change
+ * callbacks must not modify the owner's child hierarchy. Removal/destruction is
+ * allowed, but the operation then fails closed without an accepted delta. */
+int XmAccessibilitySelectionCount(XmAccessibility *, XmAccessibleId);
+XmAccessibleId XmAccessibilitySelectedChild(XmAccessibility *, XmAccessibleId, int);
+Boolean XmAccessibilityChildSelected(XmAccessibility *, XmAccessibleId, XmAccessibleId);
+Boolean XmAccessibilityChangeSelection(XmAccessibility *, XmAccessibleId,
+    XmAccessibleSelectionOperation, XmAccessibleId);
 /* Changed sends standard AT-SPI PropertyChange/StateChanged signals. */
 void XmAccessibilityChanged(XmAccessibility *, XmAccessibleId);
 /* Explicitly optional transport. Failure never prevents normal widget

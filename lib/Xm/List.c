@@ -566,7 +566,19 @@ static XtActionsRec ListActions[] = {
  * 									*
  ************************************************************************/
 
+static void SelectionDestroyed(Widget widget, XtPointer data, XtPointer call) {
+  (void)widget; (void)call;
+  *(Boolean *)data = True;
+}
+static void NotifyAccessibility(XmListWidget list) {
+  if (list->core.being_destroyed) return;
+  if (list->list.accessibility_revision != UINT64_MAX) ++list->list.accessibility_revision;
+  XtCallCallbackList((Widget)list, list->list.accessibility_changed, NULL);
+}
 static XtResource resources[] = {
+  { XmNaccessibilityChangedCallback, XmCCallback, XmRCallback,
+    sizeof(XtCallbackList), XtOffsetOf(XmListRec, list.accessibility_changed),
+    XmRCallback, NULL },
   {
     XmNlistSpacing, XmCListSpacing, XmRVerticalDimension, sizeof(Dimension),
     XtOffsetOf(XmListRec, list.ItemSpacing),
@@ -967,6 +979,8 @@ Initialize(Widget request,
   XmScrollFrameTrait scrollFrameTrait;
   XrmValue val;
 
+  lw->list.next_accessible_identity = 0;
+  lw->list.accessibility_revision = 0;
   lw->list.LastItem = 0;
   lw->list.Event = 0;
   lw->list.LastHLItem = 0;
@@ -1946,6 +1960,7 @@ SetValues(Widget old,
 	XmImVaSetValues((Widget)newlw, XmNspotLocation, &xmim_point, NULL);
     }
 
+  if (newlw->list.accessibility_revision != UINT64_MAX) ++newlw->list.accessibility_revision;
   return redraw;
 }
 
@@ -3253,6 +3268,12 @@ FixStartEnd(XmListWidget lw,
  *									   *
  ***************************************************************************/
 
+/* Identity belongs to the native item allocation, never its position/label.
+ * Exhaustion disables new item projection rather than reusing an old token. */
+static uint64_t next_item_identity(XmListWidget lw) {
+  if (lw->list.next_accessible_identity == UINT64_MAX) return 0;
+  return ++lw->list.next_accessible_identity;
+}
 static int
 AddInternalElements(XmListWidget lw,
 		    XmString *items,
@@ -3290,6 +3311,7 @@ AddInternalElements(XmListWidget lw,
   for (i = 0; i < nitems; i++)
     {
       new_el = (ElementPtr)XtMalloc(sizeof(Element));
+      new_el->accessible_identity = next_item_identity(lw);
 
       /* Store an alias for string in the internal table. */
       assert(items[i] == lw->list.items[pos]);
@@ -3528,6 +3550,7 @@ ReplaceInternalElement(XmListWidget lw,
 
   /* The old name is an alias for an entry in the items list. */
 
+  item->accessible_identity = next_item_identity(lw);
   item->first_char = 0;
   item->length = UNKNOWN_LENGTH;
   XmStringExtent(lw->list.font, name, &item->width, &item->height);
@@ -5762,6 +5785,8 @@ ClickElement(XmListWidget lw,
 	     Boolean default_action)
 {
   int item, SLcount, i;
+  Boolean destroyed = False;
+  if (lw->list.accessibility_revision != UINT64_MAX) ++lw->list.accessibility_revision;
   unsigned char selection_policy;
   XmListCallbackStruct cb;
 
@@ -5822,6 +5847,7 @@ ClickElement(XmListWidget lw,
   cb.selected_item_count = SLcount;
   /* END OSF Fix CR 4576 */
 
+  XtAddCallback((Widget)lw, XmNdestroyCallback, SelectionDestroyed, &destroyed);
   if (default_action)
     {
       cb.reason = XmCR_DEFAULT_ACTION;
@@ -5859,7 +5885,10 @@ ClickElement(XmListWidget lw,
 
   /* Reset the AutoSelectionType. It may not actually be set to anything but
    * let's reset it in all cases just to be sure everthing remains clean. */
-  lw->list.AutoSelectionType = XmAUTO_UNSET;
+  if (!destroyed) {
+    XtRemoveCallback((Widget)lw, XmNdestroyCallback, SelectionDestroyed, &destroyed);
+    lw->list.AutoSelectionType = XmAUTO_UNSET;
+  }
 
   if ((selection_policy == XmMULTIPLE_SELECT) ||
       (selection_policy == XmEXTENDED_SELECT))
@@ -5876,6 +5905,7 @@ ClickElement(XmListWidget lw,
     }
 
   XmStringFree(cb.item);
+  if (!destroyed) NotifyAccessibility(lw);
 }
 
 static void
@@ -7853,6 +7883,7 @@ XmListAddItem(Widget w,
 
   _XmAppLock(app);
   APIAddItems(lw, &item, 1, pos, TRUE);
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -7993,6 +8024,7 @@ XmListAddItems(Widget w,
 
   _XmAppLock(app);
   APIAddItems(lw, items, item_count, pos, TRUE);
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -8014,6 +8046,7 @@ XmListAddItemsUnselected(Widget w,
 
   _XmAppLock(app);
   APIAddItems(lw, items, item_count, pos, FALSE);
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -8035,6 +8068,7 @@ XmListAddItemUnselected(Widget w,
 
   _XmAppLock(app);
   APIAddItems(lw, &item, 1, pos, FALSE);
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -8070,6 +8104,7 @@ XmListDeleteItem(Widget w,
     }
 
   APIDeletePositions(lw, &item_pos, 1, TRUE);
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -8220,6 +8255,7 @@ XmListDeleteItems(Widget w,
   for (i = 0; i < item_count; i++)
     XmStringFree(copy[i]);
   DEALLOCATE_LOCAL((char *)copy);
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -8332,6 +8368,7 @@ XmListDeletePositions(Widget    w,
 
   _XmAppLock(app);
   APIDeletePositions(lw, position_list, position_count, FALSE);
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -8355,6 +8392,7 @@ XmListDeletePos(Widget w,
   position = (pos ? pos : lw->list.itemCount);
 
   APIDeletePositions(lw, &position, 1, TRUE);
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -8499,6 +8537,7 @@ XmListDeleteItemsPos(Widget w,
   if (lw->list.SizePolicy != XmVARIABLE)
     SetHorizontalScrollbar(lw);
   SetVerticalScrollbar(lw);
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -8540,6 +8579,7 @@ XmListDeleteAllItems(Widget w)
 	SetHorizontalScrollbar(lw);
       SetVerticalScrollbar(lw);
     }
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -8631,6 +8671,7 @@ XmListReplaceItems(Widget w,
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
   APIReplaceItems(w, old_items, item_count, new_items, TRUE);
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -8649,6 +8690,7 @@ XmListReplaceItemsUnselected(Widget w,
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
   APIReplaceItems(w, old_items, item_count, new_items, FALSE);
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -8694,14 +8736,11 @@ APIReplaceItemsPos(Widget w,
 
       ReplaceItem(lw, new_items[i], position);
 #ifdef FIX_1362
-	  if (lw->list.selectedItems && lw->list.selectedItemCount > 0)
-	  {
-		  BuildSelectedList(lw,TRUE);
-		  nsel += ReplaceInternalElement(lw, position, select);
-	  }
-#else
-      nsel += ReplaceInternalElement(lw, position, select);
+      if (lw->list.selectedItems && lw->list.selectedItemCount > 0)
+        BuildSelectedList(lw, TRUE);
 #endif
+      /* Replacement owns a new item identity/extents even with no selection. */
+      nsel += ReplaceInternalElement(lw, position, select);
     }
 
   if (select || (nsel != lw->list.selectedPositionCount))
@@ -8743,6 +8782,7 @@ XmListReplaceItemsPos(Widget w,
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
   APIReplaceItemsPos( w, new_items, item_count, position, TRUE);
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -8762,6 +8802,7 @@ XmListReplaceItemsPosUnselected(Widget w,
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
   APIReplaceItemsPos( w, new_items, item_count, position, FALSE);
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -8856,6 +8897,7 @@ XmListReplacePositions(Widget    w,
   if (lw->list.SizePolicy != XmVARIABLE)
     SetHorizontalScrollbar(lw);
   SetVerticalScrollbar(lw);
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -8916,12 +8958,15 @@ APISelect(XmListWidget lw,
 	  else
 	    lw->list.AutoSelectionType = XmAUTO_NO_CHANGE;
 	}
+      SetSelectionParams(lw);
       ClickElement(lw, NULL, FALSE);
     }
   else
     {
       UpdateSelectedList(lw, TRUE);
       UpdateSelectedPositions(lw, lw->list.selectedItemCount);
+      SetSelectionParams(lw);
+      NotifyAccessibility(lw);
     }
 }
 
@@ -9012,7 +9057,6 @@ XmListSelectItem(Widget w,
   if ((item_pos = ItemNumber(lw, item)) != 0)
     {
       APISelect(lw, item_pos, notify);
-      SetSelectionParams(lw);
     }
   _XmAppUnlock(app);
 }
@@ -9048,7 +9092,6 @@ XmListSelectPos(Widget w,
       if (pos == 0)
 	pos = lw->list.itemCount;
       APISelect(lw, pos, notify);
-      SetSelectionParams(lw);
     }
   _XmAppUnlock(app);
 }
@@ -9087,6 +9130,7 @@ XmListDeselectItem(Widget w,
 	  DrawItem((Widget) lw, i);
 	}
     }
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -9125,6 +9169,7 @@ XmListDeselectPos(Widget w,
 	  DrawItem((Widget) lw, pos);
 	}
     }
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -9162,6 +9207,7 @@ XmListDeselectAllItems(Widget w)
       ClearSelectedList(lw);
       ClearSelectedPositions(lw);
     }
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -9198,6 +9244,7 @@ XmListSetPos(Widget w,
       DrawList(lw, NULL, TRUE);
       SetVerticalScrollbar(lw);
     }
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -9240,7 +9287,8 @@ XmListSetBottomPos(Widget w,
       DrawList(lw, NULL, TRUE);
       SetVerticalScrollbar(lw);
     }
-    _XmAppUnlock(app);
+    NotifyAccessibility((XmListWidget)w);
+  _XmAppUnlock(app);
 }
 
 /************************************************************************
@@ -9278,7 +9326,8 @@ XmListSetItem(Widget w,
       DrawList(lw, NULL, TRUE);
       SetVerticalScrollbar(lw);
     }
-    _XmAppUnlock(app);
+    NotifyAccessibility((XmListWidget)w);
+  _XmAppUnlock(app);
 }
 
 /************************************************************************
@@ -9317,7 +9366,8 @@ XmListSetBottomItem(Widget w,
       DrawList(lw, NULL, TRUE);
       SetVerticalScrollbar(lw);
     }
-    _XmAppUnlock(app);
+    NotifyAccessibility((XmListWidget)w);
+  _XmAppUnlock(app);
 }
 
 /************************************************************************
@@ -9400,7 +9450,8 @@ XmListSetAddMode(Widget w,
       UpdateSelectedList(lw, TRUE);
       UpdateSelectedPositions(lw, lw->list.selectedItemCount);
     }
-    _XmAppUnlock(app);
+    NotifyAccessibility((XmListWidget)w);
+  _XmAppUnlock(app);
 }
 
 /************************************************************************
@@ -9502,7 +9553,8 @@ XmListSetKbdItemPos(Widget w,
   if ((lw->list.items == NULL)  ||
       (pos < 0)		  ||
       (pos > lw->list.itemCount)) {
-    _XmAppUnlock(app);
+    NotifyAccessibility((XmListWidget)w);
+  _XmAppUnlock(app);
     return (False);
   }
 
@@ -9522,6 +9574,7 @@ XmListSetKbdItemPos(Widget w,
 
   MakeItemVisible(lw, lw->list.CurrentKbdItem); /* do we need to do this? */
 
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
   return TRUE;
 }
@@ -9705,7 +9758,8 @@ XmListSetHorizPos(Widget w,
   /* else
    *   XmeWarning((Widget) lw, ListMessage9);
    */
-   _XmAppUnlock(app);
+   NotifyAccessibility((XmListWidget)w);
+  _XmAppUnlock(app);
 }
 
 /************************************************************************
@@ -9820,6 +9874,7 @@ XmListUpdateSelectedList(Widget w)
   _XmAppLock(app);
   UpdateSelectedList(lw, TRUE);
   UpdateSelectedPositions(lw, lw->list.selectedItemCount);
+  NotifyAccessibility((XmListWidget)w);
   _XmAppUnlock(app);
 }
 
@@ -9963,4 +10018,48 @@ XmCreateScrolledList(Widget parent,
 
   XtAddCallback (lw, XmNdestroyCallback, _XmDestroyParentCallback, NULL);
   return (lw);
+}
+
+/* Selection API for semantic consumers. Resolve the native token exactly once,
+ * commit all flags before the ordinary selection callback, and notify observers
+ * only after the native state is coherent. Operation values match the native
+ * selection provider contract: select, deselect, all, clear. */
+Boolean _XmListChangeSelection(Widget w, unsigned int operation, uint64_t token) {
+  XmListWidget lw;
+  int position = -1, k;
+  Boolean changed = False, multiple;
+  _XmWidgetToAppContext(w);
+  _XmAppLock(app);
+  if (!XmIsList(w) || w->core.being_destroyed || !XtIsSensitive(w) || operation > 3) {
+    _XmAppUnlock(app); return False;
+  }
+  lw = (XmListWidget)w;
+  multiple = lw->list.SelectionPolicy == XmMULTIPLE_SELECT || lw->list.SelectionPolicy == XmEXTENDED_SELECT;
+  if (operation < 2) {
+    if (!token) { _XmAppUnlock(app); return False; }
+    for (k = 0; k < lw->list.itemCount; ++k)
+      if (lw->list.InternalList[k]->accessible_identity == token) { position = k; break; }
+    if (position < 0) { _XmAppUnlock(app); return False; }
+  } else if (token || (operation == 2 && !multiple)) {
+    _XmAppUnlock(app); return False;
+  }
+  for (k = 0; k < lw->list.itemCount; ++k) {
+    Element *item = lw->list.InternalList[k];
+    Boolean selected = item->selected;
+    if (operation == 0 && (k == position || !multiple)) selected = k == position;
+    else if (operation == 1 && k == position) selected = False;
+    else if (operation == 2) selected = True;
+    else if (operation == 3) selected = False;
+    item->last_selected = item->selected;
+    if (item->selected != selected) { item->selected = selected; changed = True; DrawItem(w, k); }
+  }
+  if (changed) {
+    /* Native range anchors/cursor are part of this commit, before observers or
+     * application selection callbacks can perform subsequent Shift selection. */
+    SetSelectionParams(lw);
+    if (position >= 0) lw->list.LastHLItem = position;
+    ClickElement(lw, NULL, False);
+  }
+  _XmAppUnlock(app);
+  return True;
 }

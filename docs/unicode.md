@@ -181,3 +181,18 @@ logical acceptance checks do not remove that qualification. Other engines,
 providers, candidate-panel interaction and broad input-method interoperability
 remain unqualified. Consult the [validation limits](status.md) before claiming
 complete input-method, clipboard, shaping or rich-text support.
+
+
+## Default composition presentation
+
+The vendor shell now prefers `OnTheSpot,OverTheSpot,OffTheSpot,Root` for native
+XIM preedit. Applications retain explicit resource overrides and the remaining
+styles stay available when the service cannot provide inline callbacks. The
+previous order selected root/server presentation before inline composition,
+which can leave pending input invisible when an isolated service has no panel.
+The real IBus fixture now exercises the default rather than overriding it with
+an application resource. Dedicated real-service runs exercise both shell and
+widget input policies with that default. Successful runs cover preedit, commit,
+cancellation and service restart, but one repeat misses a Hindi preedit update;
+repeatable service qualification remains open. Actual-application revalidation
+is pending; committed input observations alone do not prove preedit ownership.

@@ -71,10 +71,17 @@ int main(int argc, char **argv)
     Widget box;
     XmFontListEntry entry;
     XmFontList fonts;
-    String fallback[] = {"*preeditType: OnTheSpot", "*inputMethod: ibus", NULL};
+    String fallback[] = {"*inputMethod: ibus", NULL};
+    String preedit_type = NULL;
     if (!setlocale(LC_ALL, "")) return 2;
     XtSetLanguageProc(NULL, NULL, NULL);
     shell = XtVaAppInitialize(&app, "XimProbe", NULL, 0, &argc, argv, fallback, NULL);
+    /* Exercise the toolkit default; applications need no preedit-style override. */
+    XtVaGetValues(shell, XmNpreeditType, &preedit_type, NULL);
+    if (!preedit_type || strncmp(preedit_type, "OnTheSpot,", 10)) {
+        fputs("Inline preedit is not the default preferred style\n", stderr);
+        return 6;
+    }
     if (getenv("XM_XIM_PER_WIDGET")) XtVaSetValues(shell, XmNinputPolicy, XmPER_WIDGET, NULL);
     entry = XmFontListEntryLoad(XtDisplay(shell), "DejaVu Sans", XmFONT_IS_XFT, XmFONTLIST_DEFAULT_TAG);
     if (!entry) return 3;

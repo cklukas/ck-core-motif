@@ -157,3 +157,33 @@ The first native key press/release and before-edit readback are the regression
 for delivery: registry introspection alone incorrectly advertises unsigned input
 and cannot establish this path. The signed-input correction passes the focused
 installed-prefix ARM64 run; actual screen-reader echo and IME remain unqualified.
+
+`list.c` / `observe_list.py` are a real private-registry List/Selection regression
+for ABI7. They cover Unicode/repeated labels, row roles/names, selected child
+readback, native focus/actions, insertion preserving identities, deletion and
+identical-label replacement invalidating old IDs, whole-model reorder, extended
+selection, disabled admission, native programmatic selection, generic provider
+rejection, reentrant provider removal and widget destruction. They do not qualify
+actual application navigation or Orca speech.
+
+`list_faults.c` is a Linux/glibc-only test interposer. When explicitly armed by
+the fixture it rejects calloc calls originating in libXm, while native List
+storage remains on its ordinary Xt allocation path. The test inserts a native
+item while the optional projection cannot allocate, verifies old row actions
+fail closed, clears the fault and verifies exact identity/selection recovery.
+It neither simulates all allocation failures nor modifies production allocator
+policy. The installed feature runner builds/runs both regular and fault cases
+against one exact ABI7 prefix. The fresh installed ABI7 native ARM64 regular and fault runs pass.
+
+
+`selection_reentrancy.c` exercises generic provider count-time growth, owner
+removal, selected-child replacement/removal/Changed notifications, duplicate IDs,
+final-count mutation, refusal, accepted selection and post-mutation hierarchy
+changes. It runs without the transport and checks that invalid reads never invoke
+the mutation callback. `list_lifetime.c` runs eight native direct/semantic
+selection cases in which ordinary callbacks destroy the List or shell, with and
+without nested selection. The installed ABI7 pre-fix library deterministically
+fails the count-growth getter assertion; normal native destruction runs may pass
+without instrumentation, so sanitizer qualification is still required. These
+fixtures pass on the fresh installed ABI7 native ARM64 cohort (12 provider and
+eight native destruction cases), as part of the full 19-fixture default suite.

@@ -31,6 +31,7 @@
 #define VALUE "org.a11y.atspi.Value"
 #define TEXT "org.a11y.atspi.Text"
 #define TABLE "org.a11y.atspi.Table"
+#define SELECTION "org.a11y.atspi.Selection"
 #define COMPONENT "org.a11y.atspi.Component"
 #define CACHE "org.a11y.atspi.Cache"
 #define CACHEPATH "/org/a11y/atspi/cache"
@@ -107,6 +108,10 @@ static const char *role_name(unsigned int role) {
     return "password text";
   case 48:
     return "scroll bar";
+  case 31:
+    return "list";
+  case 32:
+    return "list item";
   case 33:
     return "menu";
   case 34:
@@ -135,6 +140,7 @@ static void interfaces(DBusMessageIter *i, XmAccessibleInfo *info,
     string_value(&array, APP);
   if (info->action_count)
     string_value(&array, ACTION);
+  if (info->has_selection) string_value(&array, SELECTION);
   if (info->has_value)
     string_value(&array, VALUE);
   if (info->has_text)
@@ -282,6 +288,7 @@ static const char *property_signature(const char *iface, const char *name) {
     if (!strcmp(name, "version"))
       return "u";
   }
+  if (!strcmp(iface, SELECTION) && !strcmp(name, "NSelectedChildren")) return "i";
   if (!strcmp(iface, ACTION) && !strcmp(name, "NActions"))
     return "i";
   if (!strcmp(iface, TEXT) &&
@@ -300,6 +307,7 @@ static Boolean supports_interface(XmAccessibleId id,
     return id == 1;
   if (!strcmp(iface, ACTION))
     return info->action_count > 0;
+  if (!strcmp(iface, SELECTION)) return info->has_selection;
   if (!strcmp(iface, VALUE))
     return info->has_value;
   if (!strcmp(iface, TEXT))
@@ -361,6 +369,8 @@ static void property_value(DBusMessageIter *out, Transport *t,
   }
   if (!strcmp(name, "ChildCount"))
     number = child_count(t->owner, node->id);
+  else if (!strcmp(name, "NSelectedChildren"))
+    number = XmAccessibilitySelectionCount(t->owner, node->id);
   else if (!strcmp(name, "Id"))
     number = t->application_id;
   else if (!strcmp(name, "NActions"))
@@ -376,7 +386,16 @@ static void property_value(DBusMessageIter *out, Transport *t,
   dbus_message_iter_append_basic(out, DBUS_TYPE_INT32, &number);
 }
 static const char introspection[] =
-    "<node><interface name='org.freedesktop.DBus.Introspectable'><method "
+    "<node><interface name='org.a11y.atspi.Selection'>"
+    "<property name='NSelectedChildren' type='i' access='read'/>"
+    "<method name='GetSelectedChild'><arg direction='in' type='i'/><arg direction='out' type='(so)'/></method>"
+    "<method name='SelectChild'><arg direction='in' type='i'/><arg direction='out' type='b'/></method>"
+    "<method name='DeselectSelectedChild'><arg direction='in' type='i'/><arg direction='out' type='b'/></method>"
+    "<method name='IsChildSelected'><arg direction='in' type='i'/><arg direction='out' type='b'/></method>"
+    "<method name='SelectAll'><arg direction='out' type='b'/></method>"
+    "<method name='ClearSelection'><arg direction='out' type='b'/></method>"
+    "<method name='DeselectChild'><arg direction='in' type='i'/><arg direction='out' type='b'/></method>"
+    "</interface><interface name='org.freedesktop.DBus.Introspectable'><method "
     "name='Introspect'><arg direction='out' type='s'/></method></interface>"
     "<interface name='org.freedesktop.DBus.Properties'><method name='Get'><arg "
     "direction='in' type='s'/><arg direction='in' type='s'/><arg "
@@ -689,6 +708,7 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       remove_interface(xml, TEXT);
     if (!supports_interface(id, &info, VALUE))
       remove_interface(xml, VALUE);
+    if (!supports_interface(id, &info, SELECTION)) remove_interface(xml, SELECTION);
     if (!supports_interface(id, &info, TABLE))
       remove_interface(xml, TABLE);
     string_value(&out, xml);
@@ -744,6 +764,13 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       signature = property_signature(requested, name);
       if (!signature)
         goto unsupported;
+      if (!strcmp(requested, SELECTION)) {
+        dbus_int32_t selected = XmAccessibilitySelectionCount(a, id);
+        if (selected < 0 || _XmAccessibilityNode(a, id) != node || a->destroy_requested) goto unsupported;
+        dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "i", &variant);
+        dbus_message_iter_append_basic(&variant, DBUS_TYPE_INT32, &selected);
+        dbus_message_iter_close_container(&out, &variant); goto done;
+      }
       dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, signature,
                                        &variant);
       property_value(&variant, t, node, &info, requested, name);
@@ -775,7 +802,7 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
                              "NRows",
                              "NColumns",
                              "NSelectedRows",
-                             "NSelectedColumns"};
+                             "NSelectedColumns", "NSelectedChildren"};
       DBusMessageIter array, entry;
       size_t i;
       if (!dbus_message_get_args(call, NULL, DBUS_TYPE_STRING, &requested,
@@ -783,6 +810,18 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
         goto invalid;
       if (!supports_interface(id, &info, requested))
         goto unsupported;
+      if (!strcmp(requested, SELECTION)) {
+        dbus_int32_t selected = XmAccessibilitySelectionCount(a, id);
+        if (selected < 0 || _XmAccessibilityNode(a, id) != node || a->destroy_requested) goto unsupported;
+        dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
+        dbus_message_iter_open_container(&array, DBUS_TYPE_DICT_ENTRY, NULL, &entry);
+        string_value(&entry, "NSelectedChildren");
+        dbus_message_iter_open_container(&entry, DBUS_TYPE_VARIANT, "i", &variant);
+        dbus_message_iter_append_basic(&variant, DBUS_TYPE_INT32, &selected);
+        dbus_message_iter_close_container(&entry, &variant);
+        dbus_message_iter_close_container(&array, &entry);
+        dbus_message_iter_close_container(&out, &array); goto done;
+      }
       dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
       for (i = 0; i < sizeof(names) / sizeof(names[0]); i++)
         if ((signature = property_signature(requested, names[i]))) {
@@ -799,6 +838,31 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       goto done;
     }
     goto unsupported;
+  }
+  if (!strcmp(iface, SELECTION) && info.has_selection) {
+    XmAccessibleId child = 0;
+    dbus_bool_t accepted = FALSE;
+    if (!strcmp(method, "SelectAll") || !strcmp(method, "ClearSelection")) {
+      if (!dbus_message_has_signature(call, "")) goto invalid;
+      accepted = XmAccessibilityChangeSelection(a, id,
+          !strcmp(method, "SelectAll") ? XmACCESSIBLE_SELECT_ALL : XmACCESSIBLE_CLEAR_SELECTION, 0);
+    } else {
+      if (!dbus_message_get_args(call, NULL, DBUS_TYPE_INT32, &index, DBUS_TYPE_INVALID) || index < 0) goto invalid;
+      if (!strcmp(method, "GetSelectedChild")) {
+        child = XmAccessibilitySelectedChild(a, id, index);
+        if (!child) goto invalid;
+        reference(&out, t, child); goto done;
+      }
+      child = !strcmp(method, "DeselectSelectedChild") ? XmAccessibilitySelectedChild(a, id, index)
+                                                       : _XmAccessibilityChildAt(a, id, (size_t)index);
+      if (!child) goto invalid;
+      if (!strcmp(method, "IsChildSelected")) accepted = XmAccessibilityChildSelected(a, id, child);
+      else if (!strcmp(method, "SelectChild")) accepted = XmAccessibilityChangeSelection(a, id, XmACCESSIBLE_SELECT_CHILD, child);
+      else if (!strcmp(method, "DeselectChild") || !strcmp(method, "DeselectSelectedChild"))
+        accepted = XmAccessibilityChangeSelection(a, id, XmACCESSIBLE_DESELECT_CHILD, child);
+      else goto unsupported;
+    }
+    dbus_message_iter_append_basic(&out, DBUS_TYPE_BOOLEAN, &accepted); goto done;
   }
   if (!strcmp(iface, ACCESS)) {
     if (!strcmp(method, "GetRole")) {
@@ -1728,4 +1792,14 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
   }
   sync_text(t, id, &info, 1);
   XmAccessibleInfoClear(&info);
+}
+
+void _XmAccessibilityTransportSelectionChanged(XmAccessibility *a, XmAccessibleId id) {
+  Transport *t = a ? (Transport *)a->transport : NULL;
+  char path[96];
+  DBusMessage *message;
+  if (!t || a->destroy_requested || a->status != XmACCESSIBILITY_CONNECTED || !_XmAccessibilityNode(a, id)) return;
+  path_for(id, path, sizeof(path));
+  message = text_signal(path, "SelectionChanged", "", 0, 0, NULL);
+  if (message) send_reply(t, message);
 }

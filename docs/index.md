@@ -5,7 +5,7 @@ It retains Motif's widget, resource and callback model while correcting
 build, selection, sizing and input defects and developing reusable native
 text and accessibility facilities.
 
-The development **2.4.0 / native ABI epoch 6** cohort is a deliberate binary
+The development **2.4.0 / native ABI epoch 7** cohort is a deliberate binary
 break. Its headers and libraries must be installed together, and every native
 consumer must be rebuilt. It is not a drop-in replacement for `libXm.so.4`.
 Read the [ABI policy](abi.md) before selecting a development prefix.

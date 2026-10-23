@@ -24,6 +24,7 @@
 #define _XmListP_h
 
 #include <Xm/List.h>
+#include <stdint.h>
 #include <Xm/PrimitiveP.h>
 #include <Xm/ScrollBar.h>
 #include <Xm/ScrolledW.h>
@@ -32,6 +33,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+/* Internal semantic selection operations; token zero is valid only for all/clear. */
+extern Boolean _XmListChangeSelection(Widget, unsigned int, uint64_t);
+
 
 /* List struct passed to Convert proc for drag and drop */
 typedef struct _XmListDragConvertStruct
@@ -60,6 +64,7 @@ externalref XmListClassRec xmListClassRec;
 
 /* Internal form of the list elements. */
 typedef	struct {
+  uint64_t accessible_identity;
   Dimension	 height;
   Dimension	 width;
   Boolean	 selected;
@@ -109,6 +114,8 @@ typedef struct _XmListPart
   GC		InverseGC;
   GC		HighlightGC;
   Pixmap        DashTile;	/* unused in Motif 1.2 */
+  uint64_t next_accessible_identity, accessibility_revision;
+  XtCallbackList accessibility_changed;
   ElementPtr   *InternalList;
   int		LastItem;	/* position of last item in list */
   int		FontHeight;	/* unused in Motif 1.2 */

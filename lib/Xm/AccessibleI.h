@@ -10,8 +10,15 @@ typedef struct _XmAccessibleNode {
   struct _XmAccessibleNode *next, *previous, *id_next, *widget_next;
   struct _XmAccessibleNode **children;
   size_t child_count, child_capacity, child_index;
+  Widget list_owner;
+  uint64_t list_token, list_revision;
+  XmAccessibleId *list_selected;
+  size_t list_selected_count;
+  int list_position;
+  struct _XmAccessibleNode *list_hash_next;
+  Boolean list_sync_busy, list_sync_valid;
   Boolean removed, text_snapshot_busy;
-  uint64_t change_serial;
+  uint64_t change_serial, children_serial;
   struct _XmAccessibleNode *retired_next;
 } XmAccessibleNode;
 typedef struct _XmAccessibleDisplayHook {
@@ -44,6 +51,7 @@ void _XmAccessibilityTransportRemoved(XmAccessibility *, XmAccessibleId, XmAcces
 void _XmAccessibilityTransportDestroy(XmAccessibility *);
 XmAccessibilityStatus _XmAccessibilityTransportConnect(XmAccessibility *);
 void _XmAccessibilityTransportChanged(XmAccessibility *, XmAccessibleId);
+void _XmAccessibilityTransportSelectionChanged(XmAccessibility *, XmAccessibleId);
 Boolean _XmAccessibilityTransportKey(XmAccessibility *, const XKeyEvent *,
                                       KeySym, const char *, Boolean);
 const char *_XmAccessibilityTransportBusName(XmAccessibility *);

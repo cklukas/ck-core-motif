@@ -25,6 +25,8 @@
 
 #include <Xm/Xm.h>
 
+/* Native item/selection/cursor changes, delivered after a coherent update. */
+#define XmNaccessibilityChangedCallback "accessibilityChangedCallback"
 #ifdef __cplusplus
 extern "C" {
 #endif

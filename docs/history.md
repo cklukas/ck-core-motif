@@ -178,3 +178,19 @@ The full16-fixture native ARM64 suite passes, including strict listener type and
 ordering checks and consumption of the same action between two accepted runs.
 Actual screen-reader input echo, IME and sanitizer checks of this new path remain
 separate qualification gates. See [accessibility](accessibility.md).
+
+## Native list identities and selection (ABI7)
+
+List items now own non-reused identities, and native semantic projection exposes
+item names, selection, cursor focus and exact-target actions. Selection methods
+work for native lists and typed custom providers. Stale rows reject after
+delete/replacement, repeated labels remain distinct, and optional projection
+allocation failures close semantic actions until recovery. Native/private and
+public provider layouts advance the suite to ABI7. The fresh installed-prefix
+build and 19 native ARM64 fixtures pass, including allocation-failure recovery,
+12 generic-provider reentrancy cases and eight native callback-destruction cases.
+Provider snapshots validate the hierarchy and semantic epoch at every callback
+boundary; native selection publication safely handles callback destruction.
+Sanitizer and actual-application adoption remain separate gates. Repeated real
+IBus/m17n service validation has an intermittent Hindi preedit failure under
+investigation. Previous ABI6 results remain scoped to that cohort.

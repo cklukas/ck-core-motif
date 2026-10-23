@@ -1,7 +1,7 @@
 # Native ABI cohort
 
-Development version **2.4.0** uses native ABI epoch **6**. The suite's libtool
-version is `6:0:0`, yielding `libXm.so.6`, `libMrm.so.6` and `libUil.so.6` on ELF
+Development version **2.4.0** uses native ABI epoch **7**. The suite's libtool
+version is `7:0:0`, yielding `libXm.so.7`, `libMrm.so.7` and `libUil.so.7` on ELF
 systems. There is no alias or compatibility shim for the preceding SONAME.
 
 Adding a public function is not the only ABI concern. Cached Unicode maps,
@@ -42,3 +42,17 @@ fixture against the installed prefix before selecting it.
 Keep an older verified prefix isolated while its consumers remain in use.
 Retire it after they have moved to the rebuilt, verified replacement. The
 repository's root `ABI.md` is the source policy for this cohort.
+
+## Epoch 7 native list and selection records
+
+Native List items now own monotonic, non-reused identities, independent of
+positions and labels. The native List record owns its next identity and coherent
+change callback. Public accessibility info/provider records add selection
+capability and typed selection callbacks. These change both native private
+records and custom provider layout. Epoch 7 requires a coherent rebuild of
+Xm/Mrm/Uil, subclasses, custom providers and applications. The earlier epoch 6
+prefix remains valid only for its separately qualified consumers. No alias or
+parallel compatibility layout is supplied. The fresh installed-prefix build and all 19 native ARM64 feature fixtures pass,
+including the exact libXm.so.7 loader boundary and native list protocol/fault
+checks. This does not establish sanitizer or actual-application acceptance of
+ABI7, nor x86_64 compilation/runtime validation.

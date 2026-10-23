@@ -122,7 +122,7 @@ Custom providers describe an available range and current value in
 `XmAccessibleInfo`, and implement `set_value` when editable. A provider may
 accept continuous values; the bridge does not impose the native ScrollBar's
 integral restriction on an unrelated control. Providers own domain validation
-and emit changes after a successful update. Rebuild all providers for ABI6:
+and emit changes after a successful update. Rebuild all providers for the current ABI7 cohort:
 the public info and provider record layouts have changed.
 
 Focused native observer tests cover introspection, properties, writes,
@@ -203,3 +203,67 @@ nested input, timeout/disconnect and teardown. An earlier private registry captu
 rejected unsigned input with `InvalidArgs` before the native edit continued.
 Actual screen-reader input echo, input methods and sanitizer qualification of the
 new key path remain separate gates.
+
+## Native lists and Selection (ABI 7)
+
+Native List owns each item's monotonic identity from allocation through deletion.
+Insertion moves the same identities; replacement, including identical labels,
+retires the old identity. Assigning a new items array creates a new set of
+identities, including when the caller reorders equal labels. Labels and row
+numbers are never durable identity. Token exhaustion leaves new projection
+unavailable rather than reusing an old identity.
+
+The bridge exposes List/ListItem roles, UTF-8 item names, exact selected/focused
+states, actual native row bounds, a select action and native cursor focus.
+Virtual row actions resolve the owning token immediately before mutation.
+Deleted/replaced rows cannot select the new occupant of their former position.
+Native List publishes model/selection updates after coherent mutation boundaries;
+resource changes and native interaction also refresh the projection. Exact
+selected-ID vectors determine selection deltas. Optional projection allocation
+failure keeps actions closed until coherent projection can be rebuilt.
+
+AT-SPI Selection supplies NSelectedChildren, GetSelectedChild, SelectChild,
+DeselectSelectedChild, IsChildSelected, SelectAll, ClearSelection and DeselectChild.
+Child indexes intentionally refer to the current accessible children as defined
+by that protocol. Clients needing a durable target use its ListItem ID/action.
+SelectAll rejects single/browse policy. Selecting in extended/multiple policy
+adds the row without toggling an already-selected row or clearing siblings.
+Native selection changes commit before the ordinary widget selection callback;
+insensitive, invalid and stale requests reject without mutation.
+
+Custom providers rebuild for ABI7 and set has_selection plus selection_count,
+selected_child and child_selected callbacks. Counts and selected IDs must form
+a coherent, unique subset of the owner's current direct children. The optional
+change_selection callback receives a typed operation and exact child ID, or
+zero for all/clear. It must commit only selection state atomically, and reject
+without side effects on failure. The bridge checks owner/child lifetimes,
+preallocates delta storage before invoking it and publishes accepted selection
+deltas. Removal/destruction during callbacks cannot revive stale targets.
+
+The native List private record, item record and public accessibility info/provider
+records change layout. Xm/Mrm/Uil advance together to ABI7; rebuild providers,
+subclasses and applications coherently. A fresh installed-prefix build and all
+19 native ARM64 feature fixtures pass for this cohort. Native list checks cover
+exact duplicate-label identities, insert/delete/replacement/reorder, selection
+and actions, actual Shift-navigation after semantic selection, disabled and
+stale refusal, provider reentrancy/removal, destruction and allocation-failure
+recovery. Repeated real IBus/m17n service validation still has an intermittent
+Hindi preedit failure under investigation. Sanitizer and actual-application keyboard/Orca qualification of ABI7
+remain pending, as does x86_64 validation. Existing ABI6 application evidence
+does not qualify the rebuilt ABI7 consumers.
+
+
+Generic Selection provider reads reject hierarchy or semantic-epoch changes at
+every callback boundary. Snapshot buffers are bounded by the admitted child
+cohort; selected IDs must be unique live direct children and the final count
+must agree. A provider must report its semantic mutations with Changed. Reads
+that mutate the hierarchy never reach the selection mutation callback. An
+accepted selection callback must preserve the child hierarchy; removal or
+replacement fails closed without publishing an accepted delta. These rules
+prevent a reentrant count callback from growing a preallocated result buffer or
+reviving removed provider data. Native List selection callbacks may destroy the
+List or its shell, including through nested selection; post-callback publication
+uses a registered destruction sentinel and never dereferences a destroyed widget.
+The fresh installed ABI7 cohort passes all 19 native ARM64 feature fixtures,
+including 12 generic-provider reentrancy cases and eight native callback-
+destruction cases. Sanitizer qualification remains a separate gate.

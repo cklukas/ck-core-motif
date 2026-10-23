@@ -246,7 +246,7 @@ static XtResource extResources[] =
     { 
 	XmNpreeditType, XmCPreeditType, XmRString, 
 	sizeof(String), Offset(preedit_type_string), 
-	XmRImmediate, "OverTheSpot,OffTheSpot,Root,OnTheSpot",
+	XmRImmediate, "OnTheSpot,OverTheSpot,OffTheSpot,Root",
     },
     {
       XmNlightThreshold, XmCLightThreshold, XmRInt,
