@@ -16,6 +16,7 @@ import subprocess
 import sys
 import time
 import uuid
+from ibus_engine import select_global_engine
 
 binary = Path(sys.argv[1]).resolve(strict=True)
 out = Path(sys.argv[2]).absolute()
@@ -33,6 +34,7 @@ for k in ("IBUS_USE_PORTAL", "GTK_IM_MODULE", "QT_IM_MODULE"):
 # filesystem UNIX-socket path limits in deeply nested validation directories.
 env["IBUS_ADDRESS"] = "unix:abstract=motif-xim-" + uuid.uuid4().hex
 receipt["ibus_address"] = env["IBUS_ADDRESS"]
+receipt["engine_api_helper_sha256"] = hashlib.sha256(Path(__file__).with_name("ibus_engine.py").read_bytes()).hexdigest()
 for k in ("CONFIG_HOME", "CACHE_HOME", "DATA_HOME", "STATE_HOME", "RUNTIME_DIR"):
     path = out / k.lower()
     path.mkdir(mode=0o700)
@@ -107,12 +109,10 @@ def start_provider(index):
 def engine(name):
     deadline = time.monotonic()+12
     while True:
-        subprocess.run(["ibus", "engine", name], env=env, stdout=subprocess.DEVNULL,
-                       stderr=subprocess.DEVNULL, timeout=5)
-        r = subprocess.run(["ibus", "engine"], env=env, text=True,
-                           capture_output=True, timeout=5)
-        if r.returncode == 0 and r.stdout.strip() == name:
-            observations.append(dict(name="engine", engine=name))
+        admission = select_global_engine(env["IBUS_ADDRESS"], name)
+        observations.append(dict(name="engine-api", result=admission))
+        if admission["matched"]:
+            observations.append(dict(name="engine", engine=name, context_mapping_proven=False))
             return
         if time.monotonic() >= deadline:
             raise RuntimeError("provider did not select engine "+name)
