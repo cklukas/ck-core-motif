@@ -65,8 +65,44 @@ lookup boundary; it does not qualify a real input-method service.
 
 Focused GCC and ASan/UBSan checks passed in a separately built **ABI 4** cohort.
 Those corrections do not themselves change public resource types, signatures or
-instance layouts. They are now integrated with the development **ABI 5** source,
-whose combined installed-cohort validation is still pending. Neither the earlier
-ABI 5 feature-suite pass nor the separate ABI 4 sanitizer results establish that
-combined result. Full sanitizer coverage requires instrumenting both the toolkit
+instance layouts. The combined published **ABI 5** cohort subsequently passed
+the installed native feature, widget, WMD/UIL and legacy GUI suites. Those
+results qualify that exact cohort, not subsequent epoch6 source changes. Full sanitizer coverage requires instrumenting both the toolkit
 library and its consumers; consumer-only instrumentation has narrower scope.
+
+
+## Bounded text contexts and numeric accessibility
+
+Native text widgets now reuse bounded whole-grapheme font resolution and
+HarfBuzz shaping leases. Captures retain independent leases across eviction and
+context destruction, with explicit configuration-change notification. The large
+mixed-script fixture exposes remaining single-line latency rather than hiding
+it. See the [text contract and measurements](unicode.md).
+
+Xft Text, TextField and DataField column geometry now follows the documented
+em-space, numeral-zero, maximum-width fallback order. The old maximum-glyph
+metric could make a seven-column field request 194 pixels instead of 110. Actual
+allocated/preferred geometry tests cover both proportional/monospace fonts and
+two sizes. The shared typed helper also removes an unsafe integer-pointer cast.
+
+ScrollBars now expose native numeric Value, actions, focus/orientation and
+change events through accessibility. Continuous custom providers have their own
+value setter contract; native integral controls validate range/step semantics.
+See [accessibility](accessibility.md). New public provider/info fields and native
+text records require deliberate [ABI epoch6 rebuilding](abi.md).
+
+## String-generator metadata
+
+The `makestrs` generator now parses paired dollar-delimited source metadata
+with explicit bounds, trims trailing whitespace without discarding a valid last
+character, ignores empty metadata, and releases its owned metadata after output.
+The previous parser could index before an empty delimiter pair and leaked the
+copied comment. Seven focused cases cover empty, single-character, unspaced,
+spaced, whitespace-only, later-valid and unpaired input under AddressSanitizer
+and UndefinedBehaviorSanitizer. This focused generator result does not qualify
+the full toolkit sanitizer build.
+
+WML also releases its default resource-literal string before replacing it with
+an explicit literal. The full instrumented generator build exposed this
+ownership leak; the corrected generation and installation complete without
+disabling leak checks.
