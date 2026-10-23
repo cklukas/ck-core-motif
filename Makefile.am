@@ -3,7 +3,8 @@ datadir = ${prefix}/share/Xm/doc
 #data_DATA = BUGREPORT COPYRIGHT.MOTIF COPYING \
 #            README RELEASE RELNOTES
 
-EXTRA_DIST = tests/accessibility/provider.c tests/accessibility/observe.py tests/accessibility/README.md \
+EXTRA_DIST = tests/accessibility/scrollbar.c tests/accessibility/observe_scrollbar.py \
+              tests/accessibility/provider.c tests/accessibility/observe.py tests/accessibility/README.md \
              BUGREPORT \
              COPYING \
              README RELEASE RELNOTES \

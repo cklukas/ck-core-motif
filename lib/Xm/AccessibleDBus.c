@@ -1,6 +1,6 @@
 /* Optional AT-SPI D-Bus adapter; all dispatch stays on the Xt UI thread.
  * LGPL-2.0-or-later. Protocol: at-spi2-core/xml/{Accessible,Application,Action,
- * Text,Table,Component,Socket}.xml. No ATK, GLib, GTK or Qt is linked. */
+ * Text,Table,Component,Value,Socket}.xml. No ATK, GLib, GTK or Qt is linked. */
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -19,6 +19,7 @@
 #define ACCESS "org.a11y.atspi.Accessible"
 #define APP "org.a11y.atspi.Application"
 #define ACTION "org.a11y.atspi.Action"
+#define VALUE "org.a11y.atspi.Value"
 #define TEXT "org.a11y.atspi.Text"
 #define TABLE "org.a11y.atspi.Table"
 #define COMPONENT "org.a11y.atspi.Component"
@@ -95,6 +96,8 @@ static const char *role_name(unsigned int role) {
     return "check box";
   case 61:
     return "text";
+  case 48:
+    return "scroll bar";
   case 55:
     return "table";
   case 56:
@@ -113,6 +116,8 @@ static void interfaces(DBusMessageIter *i, XmAccessibleInfo *info,
     string_value(&array, APP);
   if (info->action_count)
     string_value(&array, ACTION);
+  if (info->has_value)
+    string_value(&array, VALUE);
   if (info->has_text)
     string_value(&array, TEXT);
   if (info->rows >= 0 && info->columns >= 0)
@@ -159,6 +164,15 @@ static const char *property_signature(const char *iface, const char *name) {
         !strcmp(name, "ToolkitVersion") || !strcmp(name, "AtspiVersion"))
       return "s";
   }
+  if (!strcmp(iface, VALUE)) {
+    if (!strcmp(name, "MinimumValue") || !strcmp(name, "MaximumValue") ||
+        !strcmp(name, "CurrentValue") || !strcmp(name, "MinimumIncrement"))
+      return "d";
+    if (!strcmp(name, "Text"))
+      return "s";
+    if (!strcmp(name, "version"))
+      return "u";
+  }
   if (!strcmp(iface, ACTION) && !strcmp(name, "NActions"))
     return "i";
   if (!strcmp(iface, TEXT) &&
@@ -177,6 +191,8 @@ static Boolean supports_interface(XmAccessibleId id,
     return id == 1;
   if (!strcmp(iface, ACTION))
     return info->action_count > 0;
+  if (!strcmp(iface, VALUE))
+    return info->has_value;
   if (!strcmp(iface, TEXT))
     return info->has_text;
   if (!strcmp(iface, TABLE))
@@ -199,6 +215,14 @@ static void property_value(DBusMessageIter *out, Transport *t,
                            const char *iface, const char *name) {
   dbus_int32_t number = 0;
   dbus_uint32_t version = 1;
+  if (!strcmp(iface, VALUE) && !strcmp(property_signature(iface, name), "d")) {
+    double value = !strcmp(name, "MinimumValue")       ? info->minimum_value
+                   : !strcmp(name, "MaximumValue")     ? info->maximum_value
+                   : !strcmp(name, "MinimumIncrement") ? info->minimum_increment
+                                                       : info->current_value;
+    dbus_message_iter_append_basic(out, DBUS_TYPE_DOUBLE, &value);
+    return;
+  }
   if (!strcmp(name, "Parent")) {
     reference(out, t, node->parent);
     return;
@@ -209,7 +233,9 @@ static void property_value(DBusMessageIter *out, Transport *t,
   }
   if (!strcmp(property_signature(iface, name), "s")) {
     const char *value = "";
-    if (!strcmp(name, "Name"))
+    if (!strcmp(iface, VALUE) && !strcmp(name, "Text"))
+      value = text(info->value_text);
+    else if (!strcmp(name, "Name"))
       value = text(info->name);
     else if (!strcmp(name, "Description"))
       value = text(info->description);
@@ -268,6 +294,13 @@ static const char introspection[] =
     "type='i'/><arg direction='out' type='i'/></method><method "
     "name='GrabFocus'><arg "
     "direction='out' type='b'/></method></interface>"
+    "<interface name='org.a11y.atspi.Value'><property name='version' type='u' "
+    "access='read'/>"
+    "<property name='MinimumValue' type='d' access='read'/><property "
+    "name='MaximumValue' type='d' access='read'/>"
+    "<property name='MinimumIncrement' type='d' access='read'/><property "
+    "name='CurrentValue' type='d' access='readwrite'/>"
+    "<property name='Text' type='s' access='read'/></interface>"
     "<interface name='org.a11y.atspi.Text'><method name='GetText'><arg "
     "direction='in' type='i'/><arg direction='in' type='i'/><arg "
     "direction='out' type='s'/></method><method "
@@ -310,7 +343,8 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
     return DBUS_HANDLER_RESULT_HANDLED;
   }
   if (!dbus_validate_utf8(text(info.name), NULL) ||
-      !dbus_validate_utf8(text(info.description), NULL)) {
+      !dbus_validate_utf8(text(info.description), NULL) ||
+      !dbus_validate_utf8(text(info.value_text), NULL)) {
     XmAccessibleInfoClear(&info);
     error_reply(t, call, DBUS_ERROR_FAILED, "Provider returned invalid UTF-8");
     return DBUS_HANDLER_RESULT_HANDLED;
@@ -324,6 +358,8 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       remove_interface(xml, ACTION);
     if (!supports_interface(id, &info, TEXT))
       remove_interface(xml, TEXT);
+    if (!supports_interface(id, &info, VALUE))
+      remove_interface(xml, VALUE);
     if (!supports_interface(id, &info, TABLE))
       remove_interface(xml, TABLE);
     string_value(&out, xml);
@@ -341,6 +377,23 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
         if (dbus_message_iter_get_arg_type(&iter) == DBUS_TYPE_STRING) {
           dbus_message_iter_get_basic(&iter, &name);
           dbus_message_iter_next(&iter);
+          if (!strcmp(requested, VALUE) && info.has_value &&
+              !strcmp(name, "CurrentValue") &&
+              dbus_message_iter_get_arg_type(&iter) == DBUS_TYPE_VARIANT) {
+            double value;
+            dbus_message_iter_recurse(&iter, &variant);
+            if (dbus_message_iter_get_arg_type(&variant) != DBUS_TYPE_DOUBLE)
+              goto invalid;
+            dbus_message_iter_get_basic(&variant, &value);
+            if (!XmAccessibilitySetValue(a, id, value)) {
+              dbus_message_unref(reply);
+              XmAccessibleInfoClear(&info);
+              error_reply(t, call, DBUS_ERROR_FAILED,
+                          "Value is read-only or rejected by its owner");
+              return DBUS_HANDLER_RESULT_HANDLED;
+            }
+            goto done;
+          }
           if (id == 1 && !strcmp(requested, APP) && !strcmp(name, "Id") &&
               dbus_message_iter_get_arg_type(&iter) == DBUS_TYPE_VARIANT) {
             dbus_message_iter_recurse(&iter, &variant);
@@ -369,7 +422,12 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       goto done;
     }
     if (!strcmp(method, "GetAll")) {
-      const char *names[] = {"Name",
+      const char *names[] = {"MinimumValue",
+                             "MaximumValue",
+                             "CurrentValue",
+                             "MinimumIncrement",
+                             "Text",
+                             "Name",
                              "Description",
                              "Parent",
                              "ChildCount",
@@ -500,10 +558,7 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
     }
     if (!strcmp(method, "GetName") || !strcmp(method, "GetLocalizedName") ||
         !strcmp(method, "GetDescription")) {
-      char *name =
-          node->provider.action_name
-              ? node->provider.action_name(node->data, (unsigned int)index)
-              : XtNewString("activate");
+      char *name = XmAccessibilityActionName(a, id, (unsigned int)index);
       if (!dbus_validate_utf8(text(name), NULL)) {
         XtFree(name);
         goto invalid;
@@ -809,6 +864,11 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
   if (!t || a->status != XmACCESSIBILITY_CONNECTED ||
       !XmAccessibilityQuery(a, id, &info))
     return;
+  if (!dbus_validate_utf8(text(info.name), NULL) ||
+      !dbus_validate_utf8(text(info.value_text), NULL)) {
+    XmAccessibleInfoClear(&info);
+    return;
+  }
   path_for(id, path, sizeof(path));
   message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object",
                                     "PropertyChange");
@@ -822,6 +882,68 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
   dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
   dbus_message_iter_close_container(&out, &array);
   send_reply(t, message);
+  if (info.has_value) {
+    message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object",
+                                      "PropertyChange");
+    dbus_message_iter_init_append(message, &out);
+    string_value(&out, "accessible-value");
+    dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &first);
+    dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &second);
+    dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "d", &variant);
+    dbus_message_iter_append_basic(&variant, DBUS_TYPE_DOUBLE,
+                                   &info.current_value);
+    dbus_message_iter_close_container(&out, &variant);
+    dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
+    dbus_message_iter_close_container(&out, &array);
+    send_reply(t, message);
+    {
+      const char *names[] = {"MinimumValue", "MaximumValue", "CurrentValue",
+                             "MinimumIncrement", "Text"};
+      const unsigned int state_bits[] = {7, 8, 11, 14, 24, 29};
+      const char *state_names[] = {"editable",   "enabled",   "focusable",
+                                   "horizontal", "sensitive", "vertical"};
+      DBusMessageIter entry;
+      size_t k;
+      message = dbus_message_new_signal(path, DBUS_INTERFACE_PROPERTIES,
+                                        "PropertiesChanged");
+      dbus_message_iter_init_append(message, &out);
+      string_value(&out, VALUE);
+      dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
+      for (k = 0; k < XtNumber(names); ++k) {
+        dbus_message_iter_open_container(&array, DBUS_TYPE_DICT_ENTRY, NULL,
+                                         &entry);
+        string_value(&entry, names[k]);
+        dbus_message_iter_open_container(&entry, DBUS_TYPE_VARIANT,
+                                         property_signature(VALUE, names[k]),
+                                         &variant);
+        property_value(&variant, t, _XmAccessibilityNode(a, id), &info, VALUE,
+                       names[k]);
+        dbus_message_iter_close_container(&entry, &variant);
+        dbus_message_iter_close_container(&array, &entry);
+      }
+      dbus_message_iter_close_container(&out, &array);
+      dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "s", &array);
+      dbus_message_iter_close_container(&out, &array);
+      send_reply(t, message);
+      for (k = 0; k < XtNumber(state_bits); ++k) {
+        message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object",
+                                          "StateChanged");
+        dbus_message_iter_init_append(message, &out);
+        string_value(&out, state_names[k]);
+        first = (info.states & XmACCESSIBLE_STATE(state_bits[k])) ? 1 : 0;
+        dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &first);
+        dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &second);
+        dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "i",
+                                         &variant);
+        dbus_message_iter_append_basic(&variant, DBUS_TYPE_INT32, &second);
+        dbus_message_iter_close_container(&out, &variant);
+        dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
+        dbus_message_iter_close_container(&out, &array);
+        send_reply(t, message);
+      }
+      first = 0;
+    }
+  }
   message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object",
                                     "StateChanged");
   dbus_message_iter_init_append(message, &out);
@@ -836,7 +958,8 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
   dbus_message_iter_close_container(&out, &array);
   send_reply(t, message);
   if (info.states & XmACCESSIBLE_STATE(9)) {
-    message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object", "StateChanged");
+    message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object",
+                                      "StateChanged");
     dbus_message_iter_init_append(message, &out);
     string_value(&out, "expanded");
     first = (info.states & XmACCESSIBLE_STATE(10)) ? 1 : 0;

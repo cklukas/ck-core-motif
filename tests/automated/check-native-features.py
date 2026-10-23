@@ -29,6 +29,7 @@ FIXTURES = {
     "unicode-widgets": ("tests/Toolkit/Unicode/text_unicode.c", True),
     "disclosure": ("tests/disclosure/widget.c", True),
     "accessibility": ("tests/accessibility/provider.c", True),
+    "scrollbar-accessibility": ("tests/accessibility/scrollbar.c", True),
 }
 MODULES = ("xft", "fontconfig", "harfbuzz", "icu-uc", "icu-i18n")
 
@@ -187,8 +188,10 @@ def main():
         required = [args.cc, "pkg-config", "ldd", "readelf"]
         if any(FIXTURES[name][1] for name in selected):
             required += ["xvfb-run", "Xvfb", "xauth"]
-        if any(name in selected for name in ("disclosure", "accessibility")):
+        if any(name in selected for name in ("disclosure", "accessibility", "scrollbar-accessibility")):
             required += ["dbus-run-session", "gdbus", "stdbuf"]
+        if "scrollbar-accessibility" in selected:
+            required += ["xdotool"]
         for executable in required:
             located = shutil.which(executable)
             if not located:
@@ -235,11 +238,12 @@ def main():
                 raise RuntimeError("fixture loader did not select the exact installed libXm")
             receipt["binaries"][name] = dict(path=str(binary), sha256=sha(binary),
                 mtime_ns=binary.stat().st_mtime_ns, elf=elf, installed_headers=header_inputs)
-            if name == "accessibility":
-                observer = source / "tests/accessibility/observe.py"
+            if name in ("accessibility", "scrollbar-accessibility"):
+                observer = source / ("tests/accessibility/observe.py" if name == "accessibility"
+                                     else "tests/accessibility/observe_scrollbar.py")
                 remember(observer)
                 run(name, display(["dbus-run-session", "--", sys.executable, observer, binary,
-                                   output / "accessibility-observer.json"]))
+                                   output / (name + "-observer.json")]))
             else:
                 run(name, display([binary]) if needs_display else [binary])
             if name == "disclosure":

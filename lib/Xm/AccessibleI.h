@@ -8,8 +8,13 @@ typedef struct _XmAccessibleNode {
   XtPointer data;
   struct _XmAccessibleNode *next;
 } XmAccessibleNode;
+typedef struct _XmAccessibleDisplayHook {
+  Widget hooks;
+  struct _XmAccessibleDisplayHook *next;
+} XmAccessibleDisplayHook;
 struct _XmAccessibility {
   Widget root;
+  XmAccessibleDisplayHook *display_hooks;
   XtAppContext app;
   unsigned int dispatch_depth;
   XtIntervalId deferred_destroy;

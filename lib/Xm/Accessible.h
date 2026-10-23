@@ -20,6 +20,7 @@ enum {
   XmACCESSIBLE_BUTTON = 43,
   XmACCESSIBLE_CHECK_BOX = 7,
   XmACCESSIBLE_TEXT = 61,
+  XmACCESSIBLE_SCROLL_BAR = 48,
   XmACCESSIBLE_TABLE = 55,
   XmACCESSIBLE_TABLE_CELL = 56
 };
@@ -38,6 +39,12 @@ typedef struct {
   int screen_x, screen_y, width, height; /* Screen-pixel coordinates. */
   int rows, columns;                     /* -1 means no table interface. */
   unsigned int action_count;
+  /* Scalar Value interface; finite bounds/current/increment, increment >= 0.
+     Native ScrollBar maximum excludes sliderSize. value_text is optional owned
+     UTF-8, freed by XmAccessibleInfoClear. */
+  Boolean has_value;
+  double minimum_value, maximum_value, current_value, minimum_increment;
+  char *value_text;
 } XmAccessibleInfo;
 typedef Boolean (*XmAccessibleQueryProc)(XtPointer, XmAccessibleInfo *);
 typedef char *(*XmAccessibleTextProc)(XtPointer, int start, int end);
@@ -45,6 +52,7 @@ typedef Boolean (*XmAccessibleActionProc)(XtPointer, unsigned int);
 typedef char *(*XmAccessibleActionNameProc)(XtPointer, unsigned int);
 typedef Boolean (*XmAccessibleFocusProc)(XtPointer);
 typedef XmAccessibleId (*XmAccessibleCellProc)(XtPointer, int, int);
+typedef Boolean (*XmAccessibleSetValueProc)(XtPointer, double);
 typedef struct {
   XmAccessibleQueryProc query;
   XmAccessibleTextProc text;
@@ -52,6 +60,7 @@ typedef struct {
   XmAccessibleActionNameProc action_name;
   XmAccessibleFocusProc focus;
   XmAccessibleCellProc cell;
+  XmAccessibleSetValueProc set_value;
 } XmAccessibleProvider;
 typedef enum {
   XmACCESSIBILITY_NOT_BUILT,
@@ -86,6 +95,14 @@ void XmAccessibleInfoClear(XmAccessibleInfo *);
 char *XmAccessibilityText(XmAccessibility *, XmAccessibleId, int start,
                           int end);
 Boolean XmAccessibilityAction(XmAccessibility *, XmAccessibleId, unsigned int);
+/* Owned UTF-8 native/provider action name; NULL for invalid action. */
+char *XmAccessibilityActionName(XmAccessibility *, XmAccessibleId,
+                                unsigned int);
+/* Rejects nonfinite/out-of-range values and unavailable, insensitive or
+   read-only targets. Native ScrollBars require integral values and notify their
+   normal valueChanged callbacks. Providers own any further
+   quantization/validation and must call Changed when their state changes. */
+Boolean XmAccessibilitySetValue(XmAccessibility *, XmAccessibleId, double);
 Boolean XmAccessibilityFocus(XmAccessibility *, XmAccessibleId);
 /* Changed sends standard AT-SPI PropertyChange/StateChanged signals. */
 void XmAccessibilityChanged(XmAccessibility *, XmAccessibleId);
