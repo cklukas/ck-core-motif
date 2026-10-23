@@ -37,6 +37,7 @@
 typedef struct _TransportState {
   XmAccessibleId id;
   uint64_t states;
+  unsigned int role;
   char *name, *value_text;
   double minimum, maximum, current, increment;
   unsigned char known, has_value;
@@ -404,6 +405,9 @@ static const char introspection[] =
     "<arg direction='out' type='s'/><arg direction='out' type='i'/><arg direction='out' type='i'/></method><method "
     "name='GetTextAfterOffset'><arg direction='in' type='i'/><arg direction='in' type='u'/>"
     "<arg direction='out' type='s'/><arg direction='out' type='i'/><arg direction='out' type='i'/></method><method "
+    "name='GetNSelections'><arg direction='out' type='i'/></method><method "
+    "name='GetSelection'><arg direction='in' type='i'/><arg direction='out' type='i'/>"
+    "<arg direction='out' type='i'/></method><method "
     "name='GetCharacterAtOffset'><arg direction='in' type='i'/><arg "
     "direction='out' type='i'/></method></interface>"
     "<interface name='org.a11y.atspi.Table'><method "
@@ -1074,6 +1078,59 @@ static void timer_ready(XtPointer data, XtIntervalId *id) {
     t->timer = XtAppAddTimeOut(XtWidgetToApplicationContext(t->owner->root),
                                100, timer_ready, data);
 }
+static void state_event(Transport *, const char *, const char *, int);
+static void window_event(Transport *, XmAccessibleId, const char *, int);
+static void seed_connected_tree(Transport *t) {
+  XmAccessibility *a = t->owner;
+  XmAccessibleNode *node;
+  XmAccessibleId *ids;
+  size_t count = 0, k;
+  ++a->dispatch_depth;
+  for (node = a->nodes; node; node = node->next) ++count;
+  if (count > UINT_MAX / sizeof(*ids)) goto done;
+  ids = (XmAccessibleId *)XtMalloc((Cardinal)(count * sizeof(*ids)));
+  for (node = a->nodes, k = 0; node; node = node->next) ids[k++] = node->id;
+  for (k = 0; k < count && !a->destroy_requested; ++k) {
+    XmAccessibleInfo info;
+    TransportState *record;
+    if (!XmAccessibilityQuery(a, ids[k], &info)) continue;
+    if (!dbus_validate_utf8(text(info.name), NULL) ||
+        !dbus_validate_utf8(text(info.value_text), NULL)) {
+      XmAccessibleInfoClear(&info); continue;
+    }
+    record = memo_get(t, ids[k], 1);
+    record->known = 1; record->states = info.states; record->role = info.role;
+    XtFree(record->name); record->name = XtNewString(text(info.name));
+    record->has_value = info.has_value;
+    record->minimum = info.minimum_value; record->maximum = info.maximum_value;
+    record->current = info.current_value; record->increment = info.minimum_increment;
+    XtFree(record->value_text); record->value_text = XtNewString(text(info.value_text));
+    XmAccessibleInfoClear(&info);
+  }
+  /* Registration exposes an already-active native window to a new client.
+   * Announce this initial lifecycle once; subsequent notifications are deltas. */
+  for (k = 0; k < count && !a->destroy_requested; ++k) {
+    TransportState *record = memo_get(t, ids[k], 0);
+    char path[96];
+    if (!record) continue;
+    path_for(ids[k], path, sizeof(path));
+    if (record->role == XmACCESSIBLE_FRAME && (record->states & XmACCESSIBLE_STATE(1))) {
+      state_event(t, path, "active", 1);
+      window_event(t, ids[k], record->name, 1);
+    }
+  }
+  for (k = 0; k < count && !a->destroy_requested; ++k) {
+    TransportState *record = memo_get(t, ids[k], 0);
+    char path[96];
+    if (record && (record->states & XmACCESSIBLE_STATE(12))) {
+      path_for(ids[k], path, sizeof(path)); state_event(t, path, "focused", 1);
+    }
+  }
+  XtFree((char *)ids);
+done:
+  --a->dispatch_depth;
+  _XmAccessibilityDispatchDone(a);
+}
 static void embedded(DBusPendingCall *pending, void *data) {
   Transport *t = (Transport *)data;
   DBusMessage *reply = dbus_pending_call_steal_reply(pending);
@@ -1083,6 +1140,7 @@ static void embedded(DBusPendingCall *pending, void *data) {
           : XmACCESSIBILITY_UNAVAILABLE;
   if (reply)
     dbus_message_unref(reply);
+  if (t->owner->status == XmACCESSIBILITY_CONNECTED) seed_connected_tree(t);
 }
 static DBusObjectPathVTable vtable = {NULL, dispatch, NULL, NULL, NULL, NULL};
 XmAccessibilityStatus _XmAccessibilityTransportConnect(XmAccessibility *a) {
@@ -1219,6 +1277,25 @@ static void state_event(Transport *t, const char *path, const char *name,
   dbus_message_iter_close_container(&out, &array);
   send_reply(t, message);
 }
+static void window_event(Transport *t, XmAccessibleId id, const char *name, int active) {
+  DBusMessage *message;
+  DBusMessageIter out, variant, array;
+  dbus_int32_t zero = 0;
+  char path[96];
+  path_for(id, path, sizeof(path));
+  message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Window",
+                                    active ? "Activate" : "Deactivate");
+  dbus_message_iter_init_append(message, &out);
+  string_value(&out, "");
+  dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &zero);
+  dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &zero);
+  dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "s", &variant);
+  string_value(&variant, name);
+  dbus_message_iter_close_container(&out, &variant);
+  dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
+  dbus_message_iter_close_container(&out, &array);
+  send_reply(t, message);
+}
 void _XmAccessibilityTransportRemoved(XmAccessibility *a, XmAccessibleId id,
                                       XmAccessibleId parent, int index) {
   Transport *t = (Transport *)a->transport;
@@ -1311,7 +1388,7 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
     }
     record = memo_get(t, id, 1);
     record->known = 1;
-    record->states = info.states;
+    record->states = info.states; record->role = info.role;
     record->has_value = info.has_value;
     record->minimum = info.minimum_value; record->maximum = info.maximum_value;
     record->current = info.current_value; record->increment = info.minimum_increment;
@@ -1319,20 +1396,8 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
     XtFree(record->name); record->name = XtNewString(text(info.name));
     if (was_active != active) {
       state_event(t, path, "active", active);
-      if (info.role == XmACCESSIBLE_FRAME) {
-        message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Window",
-                                          active ? "Activate" : "Deactivate");
-        dbus_message_iter_init_append(message, &out);
-        string_value(&out, "");
-        dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &first);
-        dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &second);
-        dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "s", &variant);
-        string_value(&variant, info.name);
-        dbus_message_iter_close_container(&out, &variant);
-        dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
-        dbus_message_iter_close_container(&out, &array);
-        send_reply(t, message);
-      }
+      if (info.role == XmACCESSIBLE_FRAME)
+        window_event(t, id, info.name, active);
     }
   }
   if (name_changed) {
