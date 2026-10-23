@@ -231,3 +231,18 @@ fixture reproduces that read against the previous library and passes against
 the rebuilt library, including callback-driven destruction and stale IDs.
 This focused ASan/UBSan result does not establish unrelated application or
 input-method behavior; process-global leak acceptance is not claimed.
+
+## Empty compound-string segments
+
+Compound-string construction, conversion, concatenation and component traversal
+skip zero-byte payload copies, preserving valid empty components without passing
+null text storage to byte primitives or pointer arithmetic. Comparisons and
+separator-table matching also skip zero-byte comparisons after their existing
+type, tag, direction and length checks. Metadata, ownership, counts and copied
+terminators remain intact.
+
+Public regressions cover empty and nonempty neighbors, tagged segments, direction
+metadata, separators, legacy left-to-right construction, typed NULL/zero-length
+construction, copy/traversal/unparse and counts-only/allocated separator tables.
+Nonzero-length NULL input remains refused. Strict runtime qualification is
+recorded separately from these source changes.

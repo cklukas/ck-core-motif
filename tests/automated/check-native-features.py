@@ -23,6 +23,8 @@ import time
 
 FIXTURES = {
     "abi": ("tests/Toolkit/ABI/cohort.c", False),
+    "xmstring-empty-concat": ("tests/XmString/empty_concat.c", False),
+    "xmstring-empty-components": ("tests/XmString/empty_components.c", False),
     "preedit": ("tests/Toolkit/Im/preedit_ranges.c", False),
     "primary-modality": ("tests/Toolkit/Message/primary_modality.c", True),
     "accessibility-modality": ("tests/accessibility/modality.c", True),

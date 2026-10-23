@@ -100,7 +100,10 @@ services. The text fixtures require DejaVu Sans and a CJK-capable fallback font.
 Unavailable services or missing font coverage fail their tests; an in-memory
 semantic substitute does not count as an AT-SPI pass.
 
-The default suite contains 21 fixtures, including `accessibility-modality`.
+The default suite contains 23 fixtures, including `accessibility-modality` and
+the `xmstring-empty-concat`/`xmstring-empty-components` public string regressions.
+The string fixtures cover valid empty payloads, construction/copy/traversal,
+metadata comparisons and separator tables without changing nonempty behavior.
 `--only accessibility-modality` selects the native/semantic action, focus, value
 and Selection modal-admission regression (plus the mandatory ABI fixture).
 It runs on the runner's isolated Xvfb and requires no AT-SPI service. Select it
