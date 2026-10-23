@@ -28,6 +28,7 @@ FIXTURES = {
     "line-context": ("tests/Toolkit/Unicode/line_context.c", True),
     "unicode-widgets": ("tests/Toolkit/Unicode/text_unicode.c", True),
     "large-text": ("tests/Toolkit/Unicode/large_text.c", True),
+    "clipboard": ("tests/Toolkit/CutPaste/clipboard_unicode.c", True),
     "disclosure": ("tests/disclosure/widget.c", True),
     "accessibility": ("tests/accessibility/provider.c", True),
     "scrollbar-accessibility": ("tests/accessibility/scrollbar.c", True),
@@ -243,7 +244,12 @@ def main():
                 raise RuntimeError("fixture loader did not select the exact installed libXm")
             receipt["binaries"][name] = dict(path=str(binary), sha256=sha(binary),
                 mtime_ns=binary.stat().st_mtime_ns, elf=elf, installed_headers=header_inputs)
-            if name == "xim-service":
+            if name == "clipboard":
+                observer = source / "tests/Toolkit/CutPaste/clipboard_unicode.py"
+                remember(observer)
+                run(name, display([sys.executable, observer, binary,
+                                   output / "clipboard-observer"]))
+            elif name == "xim-service":
                 observer = source / "tests/Toolkit/Im/service.py"
                 remember(observer)
                 run(name, display(["dbus-run-session", "--", sys.executable, observer,
