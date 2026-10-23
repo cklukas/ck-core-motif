@@ -121,3 +121,21 @@ compilations are separate from the toolkit build and have a different duration.
 A passed suite identifies the tested bytes; it does not prove which source built
 the installation, complete Unicode/AT-SPI coverage, an actual XIM service journey,
 or the appearance of a separate application's window.
+
+### Primary-window modality fixture
+
+`--only primary-modality` selects the generic window-modality regression (the
+ABI check still runs). It additionally requires the `xtst` development module
+and the XTEST server extension. The runner starts its own Xvfb display; no window
+manager is required. The consumer refuses to run without its explicit
+`--isolated-display` argument because it raises test windows and moves keyboard
+and pointer focus. Do not run it on an interactive user display.
+
+The fixture uses actual XTEST input rather than invoking button callbacks or
+calling the widget's actions directly. It checks blocked parents and usable
+independent windows, nested and parallel primary dialogs, enclosing full modals,
+raw widget grabs, newly realized windows and deferred modal popups. Repeated
+popdown and recursive destruction must restore input and the virtual grab count
+without X errors or Xt warnings. It tracks XmDisplay retirement when destroying
+the last VendorShell. This establishes the tested client input contract, not a
+particular desktop's focus-stealing or placement policy.

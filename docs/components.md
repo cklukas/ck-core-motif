@@ -38,6 +38,24 @@ Each should be implemented only with a concrete reusable contract and
 meaningful native tests. Prefer composition over copying application-specific
 panels into the toolkit.
 
+## Window-owned modal dialogs
+
+Use `XmDIALOG_PRIMARY_APPLICATION_MODAL` for a dialog that blocks its ancestor
+windows while independent top-level windows remain usable. The scope is enforced
+by the client toolkit and does not require a particular window manager. Nested
+primary dialogs block their parent dialogs too. Parallel primary dialogs each
+retain their own ancestor restrictions.
+
+Use `XmDIALOG_FULL_APPLICATION_MODAL` when unrelated windows in the same
+application must also be blocked. New top-level windows and unrelated modal
+popups remain blocked until that enclosing modal scope is released. A primary
+dialog nested inside a full modal does not reopen independent branches.
+
+An application still owns dialog intent, target identity and workflow decisions.
+Destroying or popping down a dialog must release its input restriction; it must
+not approve or redirect an application operation. See the [native fixture
+instructions](build.md) and [current validation scope](status.md).
+
 ## Adding a component
 
 Start from a repeated interaction that existing widgets cannot express cleanly.

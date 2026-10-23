@@ -34,6 +34,7 @@ static char rcsid[] = "$TOG: VendorS.c /main/21 1999/08/09 10:49:41 mgreess $"
 /* Make sure all wm properties can make it out of the resource manager */
 
 #include <stdio.h>
+#include <string.h>
 #include <Xm/AccColorT.h>
 #include <Xm/AtomMgr.h>
 #include <Xm/DisplayP.h>
@@ -128,6 +129,9 @@ static void RemoveGrabCallback(
                         Widget w,
                         XtPointer client_data,
                         XtPointer call_data) ;
+static Boolean ModalAllows(XmModalData modal, XmVendorShellExtObject ve,
+                           Widget shell);
+static void RefreshPrimaryGrabs(XmDisplay display);
 static void AddToGrabList( 
                         Widget parent,
                         Widget excludedKid,
@@ -923,6 +927,60 @@ _XmRemoveGrab(
   RemoveGrab( NULL, FALSE, wid) ;
 } 
 
+/* A primary modal blocks its ancestor shells, not independent branches.
+ * Full-application and raw exclusive grabs retain their descendant-only scope.
+ * Consult the complete live cascade so nested primary dialogs cannot reopen an
+ * ancestor blocked by an earlier primary or escape an enclosing full modal. */
+static Boolean
+VendorDescendant(XmVendorShellExtObject child, XmVendorShellExtObject ancestor)
+{
+    Widget current = (Widget)child;
+    if (!child || !ancestor)
+        return False;
+    while (current && !XmIsScreen(current) && !XmIsDisplay(current)) {
+        if (current == (Widget)ancestor)
+            return True;
+        current = ((XmDesktopObject)current)->desktop.parent;
+    }
+    return False;
+}
+
+static Boolean
+WidgetDescendant(Widget child, Widget ancestor)
+{
+    while (child) {
+        if (child == ancestor)
+            return True;
+        child = XtParent(child);
+    }
+    return False;
+}
+
+static Boolean
+ModalAllows(XmModalData modal, XmVendorShellExtObject ve, Widget shell)
+{
+    if (!modal->exclusive || modal->wid->core.being_destroyed)
+        return True;
+    if (!ve) {
+        Widget owner = shell;
+        XmWidgetExtData extension;
+        while (owner && !XmIsVendorShell(owner))
+            owner = XtParent(owner);
+        extension = owner ? _XmGetWidgetExtData(owner, XmSHELL_EXTENSION) : NULL;
+        if (extension)
+            ve = (XmVendorShellExtObject)extension->widget;
+    }
+    if (WidgetDescendant(shell, modal->wid) ||
+        VendorDescendant(ve, modal->ve))
+        return True;
+    if (modal->ve && modal->grabber == modal->ve &&
+        modal->ve->vendor.mwm_hints.input_mode ==
+            MWM_INPUT_PRIMARY_APPLICATION_MODAL)
+        return !WidgetDescendant(modal->wid, shell) &&
+               !VendorDescendant(modal->ve, ve);
+    return False;
+}
+
 static void 
 AddGrab(
         XmVendorShellExtObject ve,
@@ -936,7 +994,8 @@ AddGrab(
 #endif /* NeedWidePrototypes */
         XmVendorShellExtObject origKid )
 {
-    Cardinal		     	position;
+    Cardinal		     	position, restart, i, occurrences;
+    Widget blocked_by = NULL;
     XmModalData			modals;
     XmDisplay			xmDisplay;
 
@@ -949,6 +1008,25 @@ AddGrab(
     modals = xmDisplay->display.modals;
     
     position = xmDisplay->display.numModals;
+    for (i = 0; i < xmDisplay->display.numModals; ++i) {
+        if (!ModalAllows(&modals[i], ve, shell)) {
+            position = i;
+            blocked_by = modals[i].wid;
+            break;
+        }
+    }
+    /* XtRemoveGrab removes the most recent matching widget and its suffix.
+     * Retain a newly realized or popped-up blocked shell before that exclusive
+     * record so it becomes usable on popdown, without escaping an active full
+     * modal even when the new popup requests its own exclusive grab. */
+    restart = position;
+    if (blocked_by) {
+        for (i = 0; i < position; ++i)
+            if (modals[i].wid == blocked_by) {
+                restart = i;
+                break;
+            }
+    }
     
     if (xmDisplay->display.numModals == xmDisplay->display.maxModals) {
 	/* Allocate more space */
@@ -957,15 +1035,28 @@ AddGrab(
 	  XtRealloc((char *) modals, (unsigned) 
 		    ((xmDisplay->display.maxModals) * sizeof(XmModalDataRec)));
     }
+    if (position < xmDisplay->display.numModals)
+        memmove(&modals[position + 1], &modals[position],
+                (xmDisplay->display.numModals - position) * sizeof(*modals));
     modals[position].wid = shell;
     modals[position].ve = ve;
     modals[position].grabber = origKid;
     modals[position].exclusive = exclusive;
     modals[position].springLoaded = springLoaded;
     xmDisplay->display.numModals++;
-    XtAddGrab((Widget) shell,
-	      exclusive,
-	      springLoaded);
+    if (blocked_by) {
+        occurrences = 0;
+        for (i = 0; i < xmDisplay->display.numModals; ++i)
+            if (modals[i].wid == blocked_by)
+                ++occurrences;
+        while (occurrences--)
+            XtRemoveGrab(blocked_by);
+        for (i = restart; i < xmDisplay->display.numModals; ++i)
+            if (!modals[i].wid->core.being_destroyed)
+                XtAddGrab(modals[i].wid, modals[i].exclusive,
+                          modals[i].springLoaded);
+    } else
+        XtAddGrab(shell, exclusive, springLoaded);
 #ifdef DEBUG_GRABS
     printf( "AddGrab: XtAddGrab( %s, excl: %d, spring: %d); grabber: %s\n",
                   shell->core.name, exclusive, springLoaded,
@@ -997,119 +1088,63 @@ RemoveGrab(
 	Widget shell)
 {
     XmDisplay			xmDisplay;
-    Cardinal		     	incr, i, numRemoves, numModals;
-    XmModalData			modals;
+    Cardinal i, first, restart, kept, numModals, occurrences;
+    XmModalData modals;
 
-    if(    !being_destroyed    )
-      {   
-        /* The "shell" argument of this routine is required when the
-         * "being_destroyed" argument is TRUE, since the vendor
-         * extension record may be already de-allocated before the
-         * RemoveGrabCallback is called, and thus cannot be de-referenced
-         * to get the shell logical parent.  We will assume that the
-         * shell argument is ignored by callers when the "being_destroyed"
-         * argument is FALSE.
-         */
-        if(    shell == NULL    )
-          {
-            shell = ve->ext.logicalParent ;
-          } 
-        XtRemoveCallback( shell, XmNdestroyCallback, RemoveGrabCallback,
-                                                              (XtPointer) ve) ;
-      } 
-#ifdef DEBUG_GRABS
-    printf( "\n**** Entering RemoveGrab on %s (0x%x) ****\n", 
-	    shell->core.name, ve) ;
-    PrintXmGrabs( (Widget) shell) ;
-#endif
-
-    xmDisplay = (XmDisplay) XmGetXmDisplay(XtDisplay(shell));
+    /* Destruction removes Xt's grabs before the deferred VendorShell cleanup.
+     * Its extension pointer may already be retired; use it only as an identity.
+     */
+    if (!shell)
+        shell = ve->ext.logicalParent;
+    xmDisplay = (XmDisplay)XmGetXmDisplay(XtDisplay(shell));
     modals = xmDisplay->display.modals;
     numModals = xmDisplay->display.numModals;
+    for (first = 0; first < numModals; ++first)
+        if (modals[first].wid == shell &&
+            (being_destroyed || modals[first].ve == ve))
+            break;
+    if (first == numModals)
+        return;
+    restart = first;
+    for (i = 0; i < first; ++i)
+        if (modals[i].wid == shell) {
+            restart = i;
+            break;
+        }
 
-    for (i = 0, numRemoves = 0;
-	 i < numModals; 
-	 i++) 
-      {
-	  if(    (modals[i].wid == shell)  &&  (modals[i].ve == ve)    )
-	    numRemoves++;
-      }
-#ifdef DEBUG_GRABS
-    printf( "RemoveGrab: numRemoves: %d\n", numRemoves) ;
-#endif
-    if (numRemoves == 0) return;
-
-    if (!being_destroyed)
-       for (i = 0; i < numRemoves; i++)
-         {   
-	   XtRemoveGrab((Widget) shell);
-#ifdef DEBUG_GRABS
-           printf( "RemoveGrab: XtRemoveGrab( %s)\n", 
-                                                  ((Widget)shell)->core.name) ;
-#endif
-         } 
-
-    /* Add back all the grabs that were flushed by the removes */
-    /* 
-     ** What this piece of code is trying to do is to iterate over the list,
-     ** and for each item to be removed, skip ahead and find a good one to
-     ** replace it with. "incr" being set below indicates that a replacement
-     ** in fact was found.
-     ** However, the code is not obviously replacing items that are to be 
-     ** discarded; rather, it's simply letting them fall off the end via 
-     ** the magic of the combination of i, incr, numRemoves, and numModals 
-     ** incr should probably be absolute w.r.t. the front of the list and
-     ** should not double as a marker.
-     ** It's easy to know where the first removed item was, and 
-     ** to add the grabs back in to later widgets.
-     ** As is, it's not obvious when modals[i] is to be overwritten.
+    /* Xt stores grabs newest-first. Remove each occurrence of this widget
+     * before restoring from its earliest chronological occurrence, including
+     * raw/vendor records that must survive this particular removal. A single
+     * remove could otherwise drop a cousin grant while leaving its older
+     * exclusive grab active and out of sync with the virtual cascade.
+     * VendorShell destruction has already run all Xt grab-destroy callbacks.
      */
-
-    for (i = 0, incr = 0; 
-	 (i + numRemoves) < numModals;
-	 i++) 
-      {
-	  /* We remove both the shell that's being pulled off the
-	   * cascade and any raw mode shells that we've added. These
-	   * should only be the app shells ?!
-	   */
-	  for (/*EMPTY*/;
-	       ((i + incr) < numModals);
-	       incr++)
-	    {
-	        Widget incrWid = modals[i+incr].wid;
-		/* if it's not the shell, or it is the shell but some 
-		   other entry for another grab */
-		if ( (incrWid != shell) || (modals[i+incr].ve != ve) )    
-		  {
-		      if  ((ve != NULL) && (modals[i+incr].grabber == ve))
-                        {   
-                          /* Avoid re-adding to the grab list widgets
-                           * that were non-exclusives associated with
-                           * the shell grab being removed.
-                           */
-			  numRemoves++;
-                        } 
-		      else
-			break;
-		  }
-	    }
-	  if (incr && ((i+incr) < numModals))
-	    {
-              modals[i] = modals[i+incr];
-	      if (!(modals[i].wid->core.being_destroyed))
-	      {
-		  XtAddGrab( modals[i].wid, modals[i].exclusive,
-                                                      modals[i].springLoaded) ;
-#ifdef DEBUG_GRABS
-		  printf( "RemoveGrab: XtAddGrab( %s, excl: %d, spring: %d)\n",
-			  modals[i].wid->core.name,
-			  modals[i].exclusive, modals[i].springLoaded) ;
-#endif
-	      }
-	    }
-      }
-    xmDisplay->display.numModals -= numRemoves ;
+    if (!being_destroyed) {
+        occurrences = 0;
+        for (i = restart; i < numModals; ++i)
+            if (modals[i].wid == shell)
+                ++occurrences;
+        while (occurrences--)
+            XtRemoveGrab(shell);
+    }
+    kept = restart;
+    for (i = restart; i < numModals; ++i) {
+        XmModalDataRec record = modals[i];
+        Boolean remove = (record.wid == shell &&
+                          (being_destroyed || record.ve == ve)) ||
+                         (ve && record.grabber == ve);
+        if (remove) {
+            if (!record.wid->core.being_destroyed)
+                XtRemoveCallback(record.wid, XmNdestroyCallback,
+                                 RemoveGrabCallback, (XtPointer)record.ve);
+        } else {
+            modals[kept++] = record;
+            if (!record.wid->core.being_destroyed)
+                XtAddGrab(record.wid, record.exclusive, record.springLoaded);
+        }
+    }
+    xmDisplay->display.numModals = kept;
+    RefreshPrimaryGrabs(xmDisplay);
 
 #ifdef DEBUG_GRABS
     printf( "\n**** Leaving RemoveGrab on %s (0x%x) ****\n", 
@@ -1184,9 +1219,24 @@ AddToGrabList(
 		  if(    shell->shell.popped_up
                      || (    XtIsRealized((Widget)shell)
                           && !IsPopupShell( (Widget) shell))    )
-		    AddGrab((XmVendorShellExtObject)*currKid, NULL,
-			   (Boolean)False, (Boolean)False,
-			   (XmVendorShellExtObject)origKid);
+                  {
+                    XmDisplay display = (XmDisplay)XmGetXmDisplay(XtDisplay((Widget)shell));
+                    XmVendorShellExtObject candidate = (XmVendorShellExtObject)*currKid;
+                    Cardinal m;
+                    Boolean permitted = !shell->core.being_destroyed;
+                    Boolean present = False;
+                    for (m = 0; permitted && m < display->display.numModals; ++m) {
+                        XmModalData modal = &display->display.modals[m];
+                        if (!ModalAllows(modal, candidate, (Widget)shell))
+                            permitted = False;
+                        if (modal->ve == candidate &&
+                            modal->grabber == (XmVendorShellExtObject)origKid)
+                            present = True;
+                    }
+                    if (permitted && !present)
+                        AddGrab(candidate, NULL, False, False,
+                                (XmVendorShellExtObject)origKid);
+                  }
 	      }
 	      else if (!XmIsScreen(*currKid))
 		  /*
@@ -1226,6 +1276,27 @@ AddCousinsToGrabList(
     AddCousinsToGrabList(grandParent, parent, origKid);
 }
 
+/* Releasing one branch may make it a cousin of a still-active primary.
+ * Refresh only the latest exclusive scope; full/raw modals admit no cousins. */
+static void
+RefreshPrimaryGrabs(XmDisplay display)
+{
+    Cardinal count = display->display.numModals;
+    while (count) {
+        XmModalData modal = &display->display.modals[--count];
+        if (modal->exclusive) {
+            XmVendorShellExtObject ve = modal->ve;
+            if (!modal->wid->core.being_destroyed && ve &&
+                modal->grabber == ve &&
+                ve->vendor.mwm_hints.input_mode ==
+                    MWM_INPUT_PRIMARY_APPLICATION_MODAL)
+                AddCousinsToGrabList((Widget)ve->desktop.parent,
+                                    (Widget)ve, (Widget)ve);
+            return;
+        }
+    }
+}
+
 static Boolean
 IsPopupShell(
         Widget shell)
@@ -1254,6 +1325,14 @@ IsPopupShell(
  *
  ************************************************************************/
 /*ARGSUSED*/
+static void
+PopupTargetDestroyed(Widget widget, XtPointer data, XtPointer call)
+{
+    (void)widget;
+    (void)call;
+    *(Boolean *)data = True;
+}
+
 static void 
 PopupCallback(
         Widget shellParent,
@@ -1263,9 +1342,6 @@ PopupCallback(
     XmVendorShellExtObject	ve = (XmVendorShellExtObject)closure;
     XtGrabKind			grab_kind = XtGrabNone; 
     Boolean			grabCousins = False;
-    XmScreen			xmScreen;
-
-    xmScreen = (XmScreen) XmGetXmScreen(XtScreen(shellParent));
 
     ve->vendor.xAtMap = shellParent->core.x;
     ve->vendor.yAtMap = shellParent->core.y;
@@ -1292,11 +1368,8 @@ PopupCallback(
           grab_kind = XtGrabNonexclusive;
           break ;
 	case MWM_INPUT_PRIMARY_APPLICATION_MODAL:
-	  /*
-	   * if we're not running mwm then this becomes full app modal
-	   */
-	  if (xmScreen->screen.mwmPresent)
-	    grabCousins = True;
+          /* Client-side modality must not depend on the window manager. */
+          grabCousins = True;
 	  grab_kind = XtGrabExclusive;
 	  break;
 	case MWM_INPUT_SYSTEM_MODAL:
@@ -1309,22 +1382,50 @@ PopupCallback(
 
     if (grab_kind == XtGrabExclusive)
     {
-	Cardinal	numModals;
-        XmModalData	modals;
-        XmDisplay	xmDisplay;
-	int		i;
+        XmDisplay display = (XmDisplay)XmGetXmDisplay(XtDisplay(shellParent));
+        Cardinal remaining = display->display.numModals;
+        Boolean destroyed = False;
 
-        xmDisplay = (XmDisplay) XmGetXmDisplay(XtDisplay(shellParent));
-        modals = xmDisplay->display.modals;
-	numModals = xmDisplay->display.numModals;
-        for (i=0; i<numModals; i++) 
-      	{
-	   if (xmMenuShellWidgetClass == XtClass((Widget) modals[i].wid))
-	     (*(((XmMenuShellClassRec *)xmMenuShellWidgetClass)->
-		 menu_shell_class.popdownOne))(modals[i].wid, NULL, NULL, NULL);
-	   else if (xmDragContextClass == XtClass((Widget) modals[i].wid))
-	     XmDragCancel((Widget) modals[i].wid);
-      	}
+        XtAddCallback(shellParent, XmNdestroyCallback,
+                      PopupTargetDestroyed, &destroyed);
+        /* Popdown/cancel invokes application callbacks. They may mutate or
+         * reallocate the virtual cascade; never retain its pointer/count (or
+         * the selected widget) across one of these calls. Bound the number of
+         * actions by the starting cascade size so reentrant reposts cannot
+         * turn this popup callback into an unbounded loop.
+         */
+        while (remaining--) {
+            Cardinal i;
+            Widget target = NULL;
+            Boolean menu = False;
+            for (i = 0; i < display->display.numModals; ++i) {
+                Widget candidate = display->display.modals[i].wid;
+                if (candidate->core.being_destroyed)
+                    continue;
+                if (XtClass(candidate) == xmMenuShellWidgetClass) {
+                    target = candidate;
+                    menu = True;
+                    break;
+                }
+                if (XtClass(candidate) == xmDragContextClass) {
+                    target = candidate;
+                    break;
+                }
+            }
+            if (!target)
+                break;
+            if (menu)
+                (*((XmMenuShellClassRec *)xmMenuShellWidgetClass)->
+                    menu_shell_class.popdownOne)(target, NULL, NULL, NULL);
+            else
+                XmDragCancel(target);
+            if (destroyed)
+                return;
+        }
+        XtRemoveCallback(shellParent, XmNdestroyCallback,
+                         PopupTargetDestroyed, &destroyed);
+        if (shellParent->core.being_destroyed)
+            return;
     }
 
     if (grab_kind != XtGrabNone)
@@ -2847,8 +2948,10 @@ AddDLEntry(
     {
       if(    destroy_list[i].shell == shell    )
 	 {   
-	   /* Already on list; once is enough.
-	   */
+           /* A raw grab may register first; retain the vendor identity when
+            * its callback arrives so associated cousin grants are retired. */
+           if (!destroy_list[i].ve && ve)
+               destroy_list[i].ve = ve;
 	   _XmProcessUnlock();
 	   return ;
 	 } 

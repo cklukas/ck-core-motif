@@ -24,6 +24,7 @@ import time
 FIXTURES = {
     "abi": ("tests/Toolkit/ABI/cohort.c", False),
     "preedit": ("tests/Toolkit/Im/preedit_ranges.c", False),
+    "primary-modality": ("tests/Toolkit/Message/primary_modality.c", True),
     "layout": ("tests/Toolkit/Unicode/layout.c", True),
     "line-context": ("tests/Toolkit/Unicode/line_context.c", True),
     "unicode-widgets": ("tests/Toolkit/Unicode/text_unicode.c", True),
@@ -223,11 +224,15 @@ def main():
             remember(fixture)
             binary = output / name
             dependencies = output / (name + ".d")
+            extra_flags = []
+            if name == "primary-modality":
+                extra_flags = shlex.split(run("xtst-flags", ["pkg-config", "--cflags", "--libs", "xtst"]))
+                run("xtst-version", ["pkg-config", "--modversion", "xtst"])
             before = time.time_ns()
             run("compile-" + name, [args.cc, "-std=c11", "-O2", "-Wall", "-Wextra",
                 "-Wpedantic", "-Werror", "-D_POSIX_C_SOURCE=200809L", "-I" + str(prefix / "include"), "-MD", "-MF", dependencies,
                 fixture, "-L" + str(library_dir), "-Wl,-rpath," + str(library_dir),
-                "-lXm", "-lXt", "-lX11", *flags, "-lm", "-o", binary])
+                "-lXm", "-lXt", "-lX11", *flags, *extra_flags, "-lm", "-o", binary])
             if not before <= binary.stat().st_mtime_ns <= time.time_ns():
                 raise RuntimeError("compiled fixture timestamp does not prove freshness")
             header_inputs = verify_headers(dependencies, prefix)
@@ -245,7 +250,9 @@ def main():
                 raise RuntimeError("fixture loader did not select the exact installed libXm")
             receipt["binaries"][name] = dict(path=str(binary), sha256=sha(binary),
                 mtime_ns=binary.stat().st_mtime_ns, elf=elf, installed_headers=header_inputs)
-            if name in ("clipboard", "clipboard-lifetime"):
+            if name == "primary-modality":
+                run(name, display([binary, "--isolated-display"]))
+            elif name in ("clipboard", "clipboard-lifetime"):
                 observer = source / ("tests/Toolkit/CutPaste/clipboard_unicode.py" if name == "clipboard"
                                      else "tests/Toolkit/CutPaste/clipboard_lifetime.py")
                 remember(observer)

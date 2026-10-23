@@ -117,3 +117,27 @@ ownership directly. A peer-disconnect regression waits through the actual
 selection timeout, verifies that the native owner survives, and requires a new
 exact-byte transfer from the same owner for both Text widgets. The
 [pinned dependency build](build.md) records the selected source and patch.
+
+## Primary-window modality across window managers
+
+Primary-application-modal dialogs no longer depend on detecting the Motif
+window manager. The toolkit's Xt grab cascade blocks the dialog's ancestor
+windows while permitting independent branches. Nested or parallel primary
+dialogs retain each other's blocked ancestors; an enclosing full-application
+modal remains authoritative. A newly realized window or unrelated modal popup
+cannot escape an existing full-modal scope simply by appending another grab.
+
+Virtual grab insertion preserves blocked windows for later admission. Removal
+compacts retained records explicitly, restores the surviving Xt suffix once,
+releases associated cousin callbacks and refreshes permitted branches. Raw
+widget grabs use their containing vendor shell for primary ancestry checks.
+These changes do not add a window-manager dependency or change the public
+`XmNdialogStyle` values.
+
+The unattended `primary-modality` fixture exercises actual XTEST pointer and
+keyboard input on an isolated X server, including independent windows, nested
+and parallel dialogs, raw grabs, windows and modal popups created during a
+modal, popdown and recursive destruction. The final fixture observes XmDisplay
+retirement instead of reading it after the last VendorShell is destroyed.
+Native installed-prefix and focused ASan/UBSan results are recorded in
+[current status](status.md); broader desktop and final x86_64 gates remain open.

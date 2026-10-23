@@ -81,6 +81,28 @@ admission gates.
 The newer ABI 6 candidate, its consumers and documentation deployment remain
 distinct gates. Final x86_64 validation of this candidate remains pending.
 
+## Primary-window modality native checkpoint
+
+The window-manager-independent primary-modal correction passes native ARM64
+installed-prefix validation. The strict C11 fixture uses real XTEST pointer and
+keyboard dispatch and passes 397 assertions with no X errors or Xt warnings. It
+covers raw grab ancestry and duplicate destruction, full-modal barriers, newly
+created windows and deferred popups, nested/parallel primary dialogs, reentrant
+menu-popdown callbacks that reallocate the grab array, and repeated teardown.
+The final fixture tracks retirement of XmDisplay after the last VendorShell.
+The same fixture fails against the preceding library when an independent window
+should accept input.
+
+All 12 default native feature fixtures and the separate real IBus service fixture
+pass against the new coherent ABI6 prefix with corrected pinned Xt1.3.1. The ABI
+and modality consumers also pass with the toolkit and consumers instrumented by
+ASan/UBSan. Xt and other system dependencies remain uninstrumented in that
+profile; leak detection is disabled and no leak-clean claim is made.
+
+These results cover the recorded native client input contract. Other window
+managers, complete assistive/application usability and final x86_64 validation
+remain separate gates. No new hosted documentation deployment is claimed.
+
 ## Evidence to retain
 
 For an admitted build, retain source commit and dirty-state proof, configure
