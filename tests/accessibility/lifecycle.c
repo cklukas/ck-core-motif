@@ -2,6 +2,9 @@
 #define _POSIX_C_SOURCE 200809L
 #include "../../lib/Xm/AccessibleI.h"
 #include <Xm/DrawingA.h>
+#include <Xm/PushB.h>
+#include <Xm/PushBG.h>
+#include <Xm/ArrowB.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -13,6 +16,46 @@ static double now(void) {
   struct timespec value;
   require(!clock_gettime(CLOCK_MONOTONIC, &value), "monotonic clock");
   return value.tv_sec + value.tv_nsec / 1e9;
+}
+struct ButtonContract { int arrow, calls; };
+static void button_callback(Widget widget, XtPointer data, XtPointer call) {
+  struct ButtonContract *value = data;
+  int reason, clicks;
+  XEvent *event;
+  require(call != NULL, "native button callback data missing");
+  if (value->arrow) {
+    XmArrowButtonCallbackStruct *native = call;
+    reason = native->reason; event = native->event; clicks = native->click_count;
+  } else {
+    XmPushButtonCallbackStruct *native = call;
+    reason = native->reason; event = native->event; clicks = native->click_count;
+  }
+  require(reason == XmCR_ACTIVATE && event == NULL && clicks == 1,
+          "semantic activation violated complete native button callback contract");
+  if (++value->calls == 2) XtDestroyWidget(widget);
+}
+static void button_contracts(XmAccessibility *bridge, Widget parent) {
+  WidgetClass classes[] = {xmPushButtonWidgetClass, xmPushButtonGadgetClass,
+                           xmArrowButtonWidgetClass};
+  size_t index;
+  for (index = 0; index < XtNumber(classes); ++index) {
+    struct ButtonContract value = {index == 2, 0};
+    Widget button = XtVaCreateManagedWidget("nativeContract", classes[index],
+                                           parent, NULL);
+    XmAccessibleId id;
+    XmAccessibleInfo info;
+    XtAddCallback(button, XmNactivateCallback, button_callback, &value);
+    XmAccessibilityRefresh(bridge);
+    id = XmAccessibilityWidget(bridge, button);
+    require(id && XmAccessibilityAction(bridge, id, 0) && value.calls == 1,
+            "first native button callback failed");
+    require(XmAccessibilityAction(bridge, id, 0) && value.calls == 2,
+            "destroying native button callback failed");
+    require(!XmAccessibilityQuery(bridge, id, &info) &&
+                !XmAccessibilityAction(bridge, id, 0),
+            "destroyed native button remained actionable");
+  }
+  puts("Full native widget/gadget/arrow callback contracts and self-destruction passed");
 }
 static Boolean query(XtPointer data, XmAccessibleInfo *info) {
   require(*(int *)data == 1, "queried released provider payload");
@@ -118,6 +161,7 @@ int main(int argc, char **argv) {
   require(bridge != NULL, "native bridge");
   canvas_id = XmAccessibilityWidget(bridge, canvas);
   require(canvas_id, "native widget index");
+  button_contracts(bridge, canvas);
   native_bytes = allocated(bridge);
   provider.query = query;
   flat(bridge, canvas_id, &provider, &alive, 1000, &last);

@@ -1,5 +1,13 @@
 # Optional native accessibility foundation
 
+`lifecycle.c` also reads the complete native PushButton, PushButtonGadget and
+ArrowButton activation callback structures. One semantic activation supplies
+`XmCR_ACTIVATE`, a NULL event (no fabricated physical input), and click count 1.
+Each class is exercised twice, including destruction from its second callback
+and subsequent stale-action refusal. Run with the library and fixture both
+instrumented to detect undersized callback storage; normal execution alone
+does not establish memory safety.
+
 `modality.c` is an installed-library mutation-admission fixture. Run it only on
 an isolated X server with `--isolated-display`. Its native button/list/value and
 custom action/focus/value/Selection callbacks check primary and nested primary

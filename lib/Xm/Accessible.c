@@ -1057,7 +1057,6 @@ static Boolean input_allowed(XmAccessibility *a, XmAccessibleId id,
 static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
                               unsigned int action) {
   XmAccessibleNode *n = _XmAccessibilityNode(a, id);
-  XmAnyCallbackStruct cb;
   if (!n || !input_allowed(a, id, n))
     return False;
   if (n->list_owner) {
@@ -1111,8 +1110,10 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
     return True;
   }
   if (XmIsArrowButton(n->widget)) {
+    XmArrowButtonCallbackStruct cb;
     cb.reason = XmCR_ACTIVATE;
     cb.event = NULL;
+    cb.click_count = 1;
     XtCallCallbacks(n->widget, XmNactivateCallback, &cb);
     return True;
   }
@@ -1127,9 +1128,15 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
   }
   if (!XmIsPushButton(n->widget) && !XmIsPushButtonGadget(n->widget))
     return False;
-  cb.reason = XmCR_ACTIVATE;
-  cb.event = NULL;
-  XtCallCallbacks(n->widget, XmNactivateCallback, &cb);
+  {
+    XmPushButtonCallbackStruct cb;
+    /* One semantic activation has no native input event or multi-click
+     * sequence. Preserve the full native callback contract for both classes. */
+    cb.reason = XmCR_ACTIVATE;
+    cb.event = NULL;
+    cb.click_count = 1;
+    XtCallCallbacks(n->widget, XmNactivateCallback, &cb);
+  }
   return True;
 }
 static char *action_name_impl(XmAccessibility *a, XmAccessibleId id,

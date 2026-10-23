@@ -219,3 +219,15 @@ Ten focused native ARM64 fixtures also pass with the toolkit and consumers
 instrumented by ASan/UBSan, including the new modal-admission regression.
 Xt/system dependencies are uninstrumented, leak checking is disabled, and
 allocator-fault interposition remains exclusive to the normal native suite.
+
+
+### Complete semantic button callback data
+
+Accessibility activation supplies the complete native callback structure for
+PushButton, PushButtonGadget and ArrowButton, including click count 1 and a NULL
+native event. Previously, callbacks reading beyond the common reason/event
+prefix could read outside the provided stack storage. The same instrumented
+fixture reproduces that read against the previous library and passes against
+the rebuilt library, including callback-driven destruction and stale IDs.
+This focused ASan/UBSan result does not establish unrelated application or
+input-method behavior; process-global leak acceptance is not claimed.
