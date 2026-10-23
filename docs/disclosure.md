@@ -1,8 +1,10 @@
 # Disclosure sections
 
 `<Xm/Disclosure.h>` defines a native `XmManager` subclass for a collapsible
-section. The installed ABI 5 native ARM64 cohort passes its interaction, geometry,
-lifecycle and accessibility fixtures. Consumers must rebuild against that same
+section. Both the earlier ABI 5 and the `b726c1d` ABI 6 native ARM64 cohorts pass
+its interaction, geometry, lifecycle and accessibility fixtures. The ABI 6
+cohort also passes first-collapse state delivery and the covered Orca speech
+baseline. Consumers must rebuild against the selected exact
 header/library cohort; other architectures and application integration have
 separate acceptance checks.
 

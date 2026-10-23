@@ -38,8 +38,13 @@ ABI 6 changes native text records and the public accessibility provider/info
 layouts. Rebuild every consumer against one exact prefix; do not alias an older
 SONAME. The initial native ARM64 candidate passes installed feature, widget,
 resource-compiler, legacy interaction and real IBus/m17n service fixtures.
-Later accessibility changes are still undergoing coherent installed-cohort
-verification and do not inherit those earlier results.
+The later `b726c1d` cohort has now been cleanly built with the corrected pinned
+Xt dependency and exercised as one installed prefix on native ARM64. Its
+11 default native feature fixtures, widget regressions, WMD/UIL checks, real
+IBus/m17n service suite, and independent C11/C++ SDK consumer checks pass.
+The clean combined build took 115.508 seconds, including building Xt; this is
+the first measured profile with that dependency and is not compared as an
+equivalent to a Motif-only build.
 
 Bounded font contexts reduce the measured mixed-script large-text fixture from
 51.557 to 2.309 seconds for wrapped Text loading. Single-line mutation still
@@ -51,12 +56,15 @@ The live accessibility tree now has ordered child indexes, bounded live-object
 hash tables and iterative subtree removal. Source-linked checks exercise
 10,000 nodes, 20,000-level teardown, reentrancy, exact real D-Bus Cache and
 structural signals, native focus and authoritative wrapped visual lines.
-Actual Orca/eSpeak diagnostics speak the covered native button/toggle/text,
+These lifecycle, geometry and real D-Bus tree checks also pass against the
+installed `b726c1d` library, with matching private fixture headers where required.
+Actual Orca/eSpeak diagnostics against that prefix speak the covered native button/toggle/text,
 selection, Disclosure and ScrollBar controls. Precise editing notifications,
 native list/menu item semantics, complete application journeys and human
 screen-reader usability remain unqualified. Initial registration state and
-first-collapse behavior have a focused regression; the complete rebuilt suite
-must include that correction.
+first-collapse behavior pass in the complete rebuilt suite. The Orca baseline
+records 98 utterances and 2,123,786 bytes of synthesized PCM with no reported
+errors; it explicitly leaves the listed semantic and usability gaps open.
 
 The independent Xlib clipboard fixture exercises exact Unicode bytes and both
 directions of large INCR transfer. Diagnostics identified a peer event-queue
@@ -64,8 +72,11 @@ wait error and a separate Xt timeout ownership defect. Correcting the peer's
 flush-before-queue-check ordering passes repeated instrumented transfers. The
 interrupted-transfer regression fails with system Xt and passes for Text and
 TextField with the pinned corrected Xt dependency, including a fresh transfer
-from the same surviving owner. See the [dependency build](build.md). Complete
-coherent toolkit/dependency/consumer admission remains a separate gate.
+from the same surviving owner. Both regressions also pass in the combined
+installed-prefix suite. See the [dependency build](build.md). This verifies the
+recorded native toolkit/dependency/consumer scope; application workflows,
+physical display/input qualification and other architectures remain separate
+admission gates.
 
 The newer ABI 6 candidate, its consumers and documentation deployment remain
 distinct gates. Final x86_64 validation of this candidate remains pending.
