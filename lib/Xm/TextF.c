@@ -7206,11 +7206,7 @@ LoadFontMetrics(XmTextFieldWidget tf)
       fs_extents->max_logical_extent.y;
 #ifdef USE_XFT
   } else if (TextF_UseXft(tf)) {
-#ifdef FIX_1415
-	  _XmXftFontAverageWidth((Widget) tf, TextF_XftFont(tf), (int *)&charwidth);
-#else
-    charwidth = TextF_XftFont(tf)->max_advance_width;
-#endif
+    charwidth = (unsigned long)_XmXftFontColumnWidth((Widget)tf, TextF_XftFont(tf));
     TextF_FontAscent(tf) = TextF_XftFont(tf)->ascent;
     TextF_FontDescent(tf) = TextF_XftFont(tf)->descent;
 #endif

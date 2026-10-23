@@ -4237,7 +4237,7 @@ LoadFontMetrics(XmTextWidget tw)
       fs_extents->max_logical_extent.y;
 #ifdef USE_XFT
   } else if (data->use_xft) {
-    width = ((XftFont*)data->font)->max_advance_width;
+    width = (unsigned long)_XmXftFontColumnWidth((Widget)tw, data->font);
     data->font_ascent = ((XftFont*)data->font)->ascent;
     data->font_descent = ((XftFont*)data->font)->descent;
 #endif

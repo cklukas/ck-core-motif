@@ -2,6 +2,7 @@
 #include <Xm/Xm.h>
 #include <Xm/Text.h>
 #include <Xm/TextF.h>
+#include <Xm/DataF.h>
 #include <Xm/RowColumn.h>
 #include <Xm/Form.h>
 #include <Xm/TextUnicode.h>
@@ -137,6 +138,55 @@ static void check_font_reset(Widget widget,int field) {
     require(x1==new_x1&&y1==new_y1,"unchanged font configuration refresh changed geometry");
     check_widget(widget,field);
 }
+static void check_column_geometry(Widget parent) {
+    const char *families[]={"DejaVu Sans","DejaVu Sans Mono"};
+    const int sizes[]={10,18},columns[]={7,22};
+    size_t family,size,column;int distinguished_maximum=0;
+    for(family=0;family<2;++family) for(size=0;size<2;++size) {
+        Arg args[3];XmRendition rendition;XmFontList fonts;
+        XmFontContext context;XmFontListEntry entry;XmFontType type;
+        XftFont *font;int cell;FcChar32 character=0x2003;XGlyphInfo extent;
+        XtSetArg(args[0],XmNfontType,XmFONT_IS_XFT);
+        XtSetArg(args[1],XmNfontName,families[family]);
+        XtSetArg(args[2],XmNfontSize,sizes[size]);
+        rendition=XmRenditionCreate(parent,XmFONTLIST_DEFAULT_TAG,args,3);
+        require(rendition!=NULL,"column font rendition");
+        fonts=XmRenderTableAddRenditions(NULL,&rendition,1,XmMERGE_REPLACE);XmRenditionFree(rendition);
+        require(fonts&&XmFontListInitFontContext(&context,fonts),"column font table");
+        entry=XmFontListNextEntry(context);require(entry!=NULL,"column font entry");
+        font=(XftFont *)XmFontListEntryGetFont(entry,&type);
+        require(font&&type==XmFONT_IS_XFT,"column font is not Xft");
+        XmFontListFreeFontContext(context);
+        if(!XftCharExists(XtDisplay(parent),font,character)) character='0';
+        if(XftCharExists(XtDisplay(parent),font,character)) {
+            XftTextExtents32(XtDisplay(parent),font,&character,1,&extent);cell=extent.xOff;
+        } else cell=font->max_advance_width;
+        require(cell>0,"column fixture lacks positive font cell");
+        if(cell!=font->max_advance_width) distinguished_maximum=1;
+        for(column=0;column<2;++column) {
+            int field;
+            for(field=0;field<3;++field) {
+                WidgetClass kind=field==2?xmDataFieldWidgetClass:(field?xmTextFieldWidgetClass:xmTextWidgetClass);
+                Widget widget=XtVaCreateWidget("columns",kind,parent,
+                    XmNfontList,fonts,XmNcolumns,columns[column],XmNmarginWidth,3,
+                    XmNshadowThickness,2,XmNhighlightThickness,1,NULL);
+                XtWidgetGeometry preferred;
+                Dimension actual;int expected=columns[column]*cell+12;
+                XtRealizeWidget(widget);
+                memset(&preferred,0,sizeof preferred);XtQueryGeometry(widget,NULL,&preferred);
+                XtVaGetValues(widget,XmNwidth,&actual,NULL);
+                if(!(preferred.request_mode&CWWidth)||preferred.width!=expected||actual!=expected)
+                    fprintf(stderr,"column geometry field=%d family=%s size=%d columns=%d cell=%d maximum=%d expected=%d preferred=%d actual=%d\n",
+                            field,families[family],sizes[size],columns[column],cell,font->max_advance_width,expected,(int)preferred.width,(int)actual);
+                require((preferred.request_mode&CWWidth)&&preferred.width==expected&&actual==expected,
+                        "Xft columns did not use documented em-space/zero font cell");
+                XtDestroyWidget(widget);
+            }
+        }
+        XmFontListFree(fonts);
+    }
+    require(distinguished_maximum,"column fixture did not distinguish representative and maximum font advance");
+}
 int main(int argc, char **argv) {
     XtAppContext application;
     Widget shell, row, field, text, wrapped, wrap_container;
@@ -167,6 +217,7 @@ int main(int argc, char **argv) {
     check_widget(field, 1); check_widget(text, 0);
     check_complex(field, 1); check_complex(text, 0); check_wrapped(wrapped);
     check_font_reset(field,1);check_font_reset(text,0);
+    check_column_geometry(row);
     XtDestroyWidget(shell); XtDestroyApplicationContext(application);
     puts("Unicode maps, preedit bounds and real Text/TextField grapheme actions passed");
     return 0;

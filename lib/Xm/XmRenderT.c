@@ -3180,19 +3180,20 @@ _XmXftGetXftColor(Display *display, Pixel color)
 #endif
 }
 
-#ifdef FIX_1415
-void _XmXftFontAverageWidth(Widget w, XtPointer f, int *width)
+/* XmNcolumns uses em-space, then numeral zero, then maximum advance. */
+int _XmXftFontColumnWidth(Widget widget, XtPointer value)
 {
-	XftFont *fp = (XftFont *)f;
-	static char	*s = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-	int l = 62; /* strlen(s) */
-	XGlyphInfo	ext;
-
-	XftTextExtents8(XtDisplay(w), fp, (unsigned char *)s, l, &ext);
-    if (width) 
-    	*width = ext.width / l;
+    XftFont *font = (XftFont *)value;
+    const FcChar32 candidates[] = {0x2003, '0'};
+    size_t i;
+    for (i = 0; i < sizeof(candidates) / sizeof(candidates[0]); ++i) {
+        XGlyphInfo extent;
+        if (!XftCharExists(XtDisplay(widget), font, candidates[i])) continue;
+        XftTextExtents32(XtDisplay(widget), font, &candidates[i], 1, &extent);
+        if (extent.xOff > 0) return extent.xOff;
+    }
+    return font->max_advance_width > 0 ? font->max_advance_width : 1;
 }
-#endif
 
 #endif
 
