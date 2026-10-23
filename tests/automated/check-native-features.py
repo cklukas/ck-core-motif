@@ -30,6 +30,7 @@ FIXTURES = {
     "disclosure": ("tests/disclosure/widget.c", True),
     "accessibility": ("tests/accessibility/provider.c", True),
     "scrollbar-accessibility": ("tests/accessibility/scrollbar.c", True),
+    "xim-service": ("tests/Toolkit/Im/service.c", True),
 }
 MODULES = ("xft", "fontconfig", "harfbuzz", "icu-uc", "icu-i18n")
 
@@ -120,7 +121,8 @@ def main():
     if output.exists() or output.is_relative_to(prefix) or prefix.is_relative_to(output):
         parser.error("--out must be fresh and separate from the installed prefix")
     source = Path(__file__).resolve().parents[2]
-    selected = [name for name in FIXTURES if not args.only or name in args.only or name == "abi"]
+    selected = [name for name in FIXTURES if name == "abi" or
+                (name in args.only if args.only else name != "xim-service")]
     output.mkdir(parents=True)
     (output / "tmp").mkdir()
     env = dict(os.environ, TMPDIR=str(output / "tmp"), LC_ALL="C.UTF-8",
@@ -192,6 +194,8 @@ def main():
             required += ["dbus-run-session", "gdbus", "stdbuf"]
         if "scrollbar-accessibility" in selected:
             required += ["xdotool"]
+        if "xim-service" in selected:
+            required += ["xdotool", "ibus", "ibus-daemon", "dbus-run-session", "xprop", "dpkg-query"]
         for executable in required:
             located = shutil.which(executable)
             if not located:
@@ -238,7 +242,12 @@ def main():
                 raise RuntimeError("fixture loader did not select the exact installed libXm")
             receipt["binaries"][name] = dict(path=str(binary), sha256=sha(binary),
                 mtime_ns=binary.stat().st_mtime_ns, elf=elf, installed_headers=header_inputs)
-            if name in ("accessibility", "scrollbar-accessibility"):
+            if name == "xim-service":
+                observer = source / "tests/Toolkit/Im/service.py"
+                remember(observer)
+                run(name, display(["dbus-run-session", "--", sys.executable, observer,
+                                   binary, output / "xim-service-observer"]))
+            elif name in ("accessibility", "scrollbar-accessibility"):
                 observer = source / ("tests/accessibility/observe.py" if name == "accessibility"
                                      else "tests/accessibility/observe_scrollbar.py")
                 remember(observer)

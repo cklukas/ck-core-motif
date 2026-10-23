@@ -50,6 +50,7 @@ static char rcsid[] = "$TOG: Text.c /main/47 1999/01/26 15:18:26 mgreess $"
 #include "MessagesI.h"
 #include "RepTypeI.h"
 #include "TextI.h"
+#include "XmImI.h"
 #include "TextInI.h"
 #include "TextOutI.h"
 #include "TextSelI.h"
@@ -3530,10 +3531,6 @@ PreeditDraw(XIC xic,
   int total_mb_len;
   int recover_len = 0;
   char *ptr;
-  OutputData o_data = tw->text.output->data;
-  XFontStruct *font = o_data->font;
-  XRectangle overall_ink;
-  int escapement;
   size_t mb_siz;
   Widget p =w;
   Boolean need_verify, end_preedit = False;
@@ -3611,39 +3608,24 @@ PreeditDraw(XIC xic,
       return;
     }
 
-  /* convert text data to char - it may be wchar or char */
-  if (insert_length > 0){
-    if (o_data->use_fontset) {
-      if (call_data->text->encoding_is_wchar){
-        mb = XtMalloc((insert_length+1)*tw->text.char_size);
-        mb_siz = wcstombs(mb, call_data->text->string.wide_char, 
-                  insert_length);
-      } 
-      else {
-	mb = XtMalloc((insert_length+1)*tw->text.char_size);
-        strcpy(mb,call_data->text->string.multi_byte);
-      }
-
-      /* set TextExtents for preedit data, if unable, punt */
-      escapement = XmbTextExtents((XFontSet)font, mb, strlen(mb),
-                                  &overall_ink, NULL );
-      if (escapement == 0 && overall_ink.width == 0 &&
-          strchr(mb, '\t') == 0 ) {
-
+  /* Composition is logical text, independent of glyph availability or ink
+   * width.  The normal output pipeline shapes/draws it for every font kind. */
+  if (insert_length > 0) {
+    if (call_data->text->encoding_is_wchar) {
+      size_t capacity = (size_t)insert_length * MB_CUR_MAX + 1;
+      mb = XtMalloc(capacity);
+      mb_siz = wcstombs(mb, call_data->text->string.wide_char, capacity);
+      if (mb_siz == (size_t)-1 || mb_siz >= capacity) {
         XtFree(mb);
-	(*tw->text.output->DrawInsertionPoint)(tw, tw->text.cursor_position,
-					       on);
+        (*tw->text.output->DrawInsertionPoint)(tw, tw->text.cursor_position, on);
         return;
       }
-    } 
-    else {
-      (*tw->text.output->DrawInsertionPoint)(tw, tw->text.cursor_position, on);
-      return;
+      mb[mb_siz] = '\0';
+    } else {
+      mb = XtNewString(call_data->text->string.multi_byte);
     }
-  }
-  else {
-    mb = XtMalloc(4);
-    mb[0] = '\0';
+  } else {
+    mb = XtNewString("");
   }
 
   /* setup overstrike buffers and data */
@@ -3806,14 +3788,11 @@ ResetUnder(XmTextWidget tw)
 void
 _XmTextResetIC(Widget widget)
 {
-  int escapement, n, size;
+  int n, size;
   char *mb, *tmp_mb;
-  XRectangle overall_ink;
   XmTextPosition beginPos, nextPos, lastPos;
   XmTextWidget tw = (XmTextWidget) widget;
   InputData data = tw->text.input->data;
-  OutputData o_data = tw->text.output->data;
-  XFontStruct *font = o_data->font;
 
   if (!PreUnder((XmTextWidget) widget))
     return;
@@ -3841,18 +3820,8 @@ _XmTextResetIC(Widget widget)
   if (n > 0) {
     (*tw->text.output->DrawInsertionPoint)(tw, tw->text.cursor_position, off);
     mb[n]='\0';
-    if (o_data->use_fontset) {
-      escapement = XmbTextExtents((XFontSet)font, mb, n, &overall_ink, NULL );
-      if (escapement == 0 && overall_ink.width == 0 &&
-          strchr(mb, '\t') == 0 ) {
-        (*tw->text.output->DrawInsertionPoint)(tw,
-                                               tw->text.cursor_position, on);
-        ResetUnder(tw);
-        return;
-      }
-    } else {
-      (*tw->text.output->DrawInsertionPoint)(tw,
-                                             tw->text.cursor_position, on);
+    if (!_XmImInputPrintable(mb, (size_t)n, True)) {
+      (*tw->text.output->DrawInsertionPoint)(tw, tw->text.cursor_position, on);
       ResetUnder(tw);
       return;
     }

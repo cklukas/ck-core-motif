@@ -39,6 +39,7 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
               tests/automated/check-docs-provenance.py \
               tests/automated/check-native-features.py \
               tests/Toolkit/ABI/cohort.c tests/Toolkit/Im/preedit_ranges.c \
+              tests/Toolkit/Im/service.c tests/Toolkit/Im/service.py \
               tests/Toolkit/Unicode/layout.c tests/Toolkit/Unicode/line_context.c \
               tests/Toolkit/Unicode/text_unicode.c tests/Toolkit/Unicode/large_text.c \
               tests/disclosure/widget.c tests/disclosure/observe.py \

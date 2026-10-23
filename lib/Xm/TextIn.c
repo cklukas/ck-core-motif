@@ -35,6 +35,9 @@ static char rcsid[] = "$TOG: TextIn.c /main/36 1999/01/27 16:10:29 mgreess $"
 #endif
 
 #include <stdio.h>
+#include "XmImI.h"
+#include <wchar.h>
+#include <wctype.h>
 #include <string.h>
 #include <Xm/XmosP.h>
 #include <X11/Xatom.h>
@@ -1266,84 +1269,12 @@ CheckDisjointSelection(Widget w,
   }
 }
 
-static Boolean 
-PrintableString(XmTextWidget tw,
-		char* str, 
-		int n)
+/* Input acceptance is independent of font coverage and glyph advance. */
+static Boolean
+PrintableString(XmTextWidget tw, char *str, int n)
 {
-#ifdef SUPPORT_ZERO_WIDTH
-  /* some locales (such as Thai) have characters that are
-   * printable but non-spacing. These should be inserted,
-   * even if they have zero width.
-   */
-  if (tw->text.char_size == 1) {
-    int i;
-    for (i = 0; i < n; i++) {
-      if (!isprint((unsigned char)str[i])) {
-	return False;
-      }
-    }
-    return True;
-  } else {
-    /* tw->text.char_size > 1 */
-#ifdef HAS_WIDECHAR_FUNCTIONS
-    int i, csize;
-    wchar_t wc;
-#ifndef NO_MULTIBYTE
-    for (i = 0, csize = mblen(str, tw->text.char_size);
-	 i < n;
-	 i += csize, csize=mblen(&(str[i]), tw->text.char_size))
-#else
-    for (i = 0, csize = *str ? 1 : 0; i < n;
-	 i += csize, csize = str[i] ? 1 : 0)
-#endif
-      {
-	if (csize < 0) 
-	  return False;
-	if (mbtowc(&wc, &(str[i]), tw->text.char_size) <= 0)
-	  return False;
-	if (!iswprint(wc)) {
-	  return False;
-	}
-      }
-#else /* HAS_WIDECHAR_FUNCTIONS */ 
-    /*
-     * This will only check if any single-byte characters are non-
-     * printable. Better than nothing...
-     */
-    int i, csize;
-#ifndef NO_MULTIBYTE
-    for (i = 0, csize = mblen(str, tw->text.char_size);
-	 i < n;
-	 i += csize, csize=mblen(&(str[i]), tw->text.char_size))
-#else
-    for (i = 0, csize = *str ? 1 : 0; i < n;
-	 i += csize, csize = str[i] ? 1 : 0)
-#endif
-      {
-	if (csize < 0)
-	  return False;
-	if (csize == 1 && !isprint((unsigned char)str[i])) {
-	  return False;
-	}
-      }
-#endif /* HAS_WIDECHAR_FUNCTIONS */
-    return True;
-  }
-#else /* SUPPORT_ZERO_WIDTH */
-  OutputData o_data = tw->text.output->data;
-  if (o_data->use_fontset) {
-    return (XmbTextEscapement((XFontSet)o_data->font, str, n) != 0);
-#ifdef USE_XFT
-  } else if (o_data->use_xft) {
-    XGlyphInfo ext;
-    XftTextExtentsUtf8(XtDisplay(tw), (XftFont*)o_data->font, (_Xconst FcChar8 *)str, n, &ext);
-    return ext.xOff != 0;    
-#endif
-  } else {
-    return (XTextWidth(o_data->font, str, n) != 0);
-  }
-#endif /* SUPPORT_ZERO_WIDTH */ 
+  (void)tw;
+  return n > 0 && _XmImInputPrintable(str, (size_t)n, True);
 }
 
 static void 
@@ -1386,7 +1317,7 @@ SelfInsert(Widget w,
     EraseInsertionPoint(tw);
     str[n]='\0';
     
-    if (!PrintableString(tw, str, n) && strchr(str, '\t') == NULL) {
+    if (!PrintableString(tw, str, n)) {
       DisplayInsertionPoint(tw);
       return;
     }

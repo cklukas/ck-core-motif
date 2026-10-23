@@ -35,6 +35,8 @@ static char rcsid[] = "$TOG: XmIm.c /main/28 1997/10/13 14:57:31 cshi $"
 #endif
   
 #include <stdio.h>
+#include <wchar.h>
+#include <wctype.h>
 #include <Xm/DisplayP.h>
 #include <Xm/DrawP.h>
 #include <Xm/PrimitiveP.h>
@@ -76,7 +78,7 @@ typedef struct _XmImRefRec {
   Cardinal	num_refs;	/* Number of referencing widgets. */
   Cardinal	max_refs;	/* Maximum length of refs array. */
   Widget*	refs;		/* Array of referencing widgets. */
-  XtPointer     **callbacks;
+  XIMCallback   **callbacks;
 } XmImRefRec, *XmImRefInfo;
 
 typedef struct _PreeditBufferRec {
@@ -95,6 +97,7 @@ typedef struct _XmImXICRec {
   int		status_width;	/* ...ditto... */
   int		preedit_width;	/* ...ditto... */
   int		sp_height;	/* ...ditto... */
+  Boolean preedit_active;
   Boolean	has_focus;	/* Does this XIC have keyboard focus. */
   Boolean	anonymous;	/* Do we have exclusive rights to this XIC. */
   XmImRefRec	widget_refs;	/* Widgets referencing this XIC. */
@@ -112,8 +115,23 @@ typedef struct _XmImShellRec {
   XmImXICInfo	iclist;		/* All known XICs for this <XIM,Shell>. */
 } XmImShellRec, *XmImShellInfo;
 
+/* Only toolkit-defined resources have copyable ownership contracts.  Opaque
+ * application-created XICs remain application-owned across server loss. */
+typedef struct _XmImRegistrationRec {
+  struct _XmImRegistrationRec *next;
+  Widget widget;
+  ArgList args;
+  Cardinal count;
+  Boolean focused;
+  Boolean external;
+} XmImRegistrationRec, *XmImRegistration;
+
 typedef struct {
   /* per-Display fields. */
+  XmImRegistration registrations;
+  Display *display;
+  String application_name, application_class;
+  Boolean instantiate_registered, transitioning, restoring;
   XContext	current_xics;	/* Map widget -> current XmImXICInfo. */
   
   /* per-XIM fields. */
@@ -174,6 +192,12 @@ static void ImSetGeo(Widget vw,
 static void ImGeoReq(Widget vw);
 static XFontSet extract_fontset(XmFontList fl);
 static XmImDisplayInfo get_xim_info(Widget w);
+static XmImRegistration remember_widget(XmImDisplayInfo info, Widget w);
+static void forget_widget(XmImDisplayInfo info, Widget w);
+static void remember_values(XmImDisplayInfo info, Widget w, ArgList args, Cardinal n);
+static void im_available(Display *display, XPointer closure, XPointer call_data);
+static void im_destroyed(XIM xim, XPointer closure, XPointer call_data);
+static Boolean open_input_method(XmImDisplayInfo info);
 static XtPointer* get_im_info_ptr(Widget w,
 				  Boolean create);
 static XmImShellInfo get_im_info(Widget w,
@@ -248,7 +272,7 @@ static void set_callback_values(Widget w,
                     VaArgList vlp,
                     XmInputPolicy input_policy);
 static void regist_real_callback(Widget w,
-                     XIMProc call,
+                     const XIMCallback *call,
                      int swc);
 static XICProc get_real_callback(Widget w,
                   int swc,
@@ -286,6 +310,212 @@ static XmImResListRec XmImResList[] = {
   {XmNpreeditCaretCallback, XNPreeditCaretCallback, NULLQUARK, NULL},
 };
 
+static XmImXICInfo
+callback_xic(Widget anchor)
+{
+  XmImShellInfo shell_info;
+  if (!XtIsShell(anchor)) return get_current_xic(get_xim_info(anchor), anchor);
+  shell_info = get_im_info(anchor, False);
+  return shell_info ? shell_info->shell_xic : NULL;
+}
+
+static XPointer
+callback_closure(Widget anchor, Widget target, int kind)
+{
+  XmImXICInfo ic = callback_xic(anchor);
+  Cardinal i;
+  for (i = 0; ic && i < ic->widget_refs.num_refs; ++i)
+    if (ic->widget_refs.refs[i] == target && ic->widget_refs.callbacks[i])
+      return ic->widget_refs.callbacks[i][kind].client_data;
+  return NULL;
+}
+
+/* Counted locale text acceptance is shared by insertion and IC reset.  Logical
+ * combining/format characters cannot be rejected for having no glyph advance. */
+Boolean
+_XmImInputPrintable(const char *text, size_t bytes, Boolean allow_tab)
+{
+  mbstate_t state = {0};
+  size_t offset = 0;
+  if (!text && bytes) return False;
+  while (offset < bytes) {
+    wchar_t wc;
+    size_t count = mbrtowc(&wc, text + offset, bytes - offset, &state);
+    if (count == (size_t)-1 || count == (size_t)-2 || count == 0 ||
+        (!iswprint(wc) && !(allow_tab && wc == L'\t'))) return False;
+    offset += count;
+  }
+  return True;
+}
+
+/* Registration outlives a transport XIC, never the registered widget. */
+static XmImRegistration
+remember_widget(XmImDisplayInfo info, Widget w)
+{
+  XmImRegistration r;
+  if (!info) return NULL;
+  for (r = info->registrations; r; r = r->next)
+    if (r->widget == w) return r;
+  r = (XmImRegistration)XtCalloc(1, sizeof(*r));
+  r->widget = w;
+  r->next = info->registrations;
+  info->registrations = r;
+  return r;
+}
+
+static void
+free_saved_arg(Arg *arg)
+{
+  if (!strcmp(arg->name, XmNfontList) || !strcmp(arg->name, XmNrenderTable))
+    XmFontListFree((XmFontList)arg->value);
+  else if (!strcmp(arg->name, XmNspotLocation) || !strcmp(arg->name, XmNarea) ||
+           strstr(arg->name, "Callback"))
+    XtFree((char *)arg->value);
+}
+
+static void
+forget_widget(XmImDisplayInfo info, Widget w)
+{
+  XmImRegistration *link, r;
+  Cardinal i;
+  if (!info) return;
+  for (link = &info->registrations; (r = *link) != NULL; link = &r->next)
+    if (r->widget == w) {
+      *link = r->next;
+      for (i = 0; i < r->count; ++i) free_saved_arg(&r->args[i]);
+      XtFree((char *)r->args);
+      XtFree((char *)r);
+      return;
+    }
+}
+
+static void
+remember_values(XmImDisplayInfo info, Widget w, ArgList args, Cardinal n)
+{
+  XmImRegistration r;
+  Cardinal i, j, k;
+  if (!info || info->restoring || !n) return;
+  r = remember_widget(info, w);
+  for (i = 0; i < n; ++i) {
+    XtArgVal value = args[i].value;
+    size_t bytes = 0;
+    for (k = 0; k < XtNumber(XmImResList); ++k)
+      if (!strcmp(args[i].name, XmImResList[k].xmstring)) break;
+    if (k == XtNumber(XmImResList)) continue;
+    if (!strcmp(args[i].name, XmNfontList) || !strcmp(args[i].name, XmNrenderTable))
+      value = (XtArgVal)XmFontListCopy((XmFontList)value);
+    else {
+      if (!strcmp(args[i].name, XmNspotLocation)) bytes = sizeof(XPoint);
+      else if (!strcmp(args[i].name, XmNarea)) bytes = sizeof(XRectangle);
+      else if (strstr(args[i].name, "Callback")) bytes = sizeof(XIMCallback);
+      if (bytes && value) {
+        char *copy = XtMalloc(bytes);
+        memcpy(copy, (void *)value, bytes);
+        value = (XtArgVal)copy;
+      }
+    }
+    for (j = 0; j < r->count; ++j)
+      if (!strcmp(r->args[j].name, args[i].name)) break;
+    if (j < r->count) free_saved_arg(&r->args[j]);
+    else {
+      ++r->count;
+      r->args = (ArgList)XtRealloc((char *)r->args, r->count * sizeof(Arg));
+    }
+    r->args[j].name = XmImResList[k].xmstring;
+    r->args[j].value = value;
+  }
+}
+
+static Boolean
+open_input_method(XmImDisplayInfo info)
+{
+  XIMCallback destroyed;
+  if (info->xim) return True;
+  info->xim = XOpenIM(info->display, XtDatabase(info->display),
+                     info->application_name, info->application_class);
+  if (!info->xim) return False;
+  destroyed.client_data = (XPointer)info;
+  destroyed.callback = (XIMProc)im_destroyed;
+  if (XSetIMValues(info->xim, XNDestroyCallback, &destroyed, NULL) ||
+      XGetIMValues(info->xim, XNQueryInputStyle, &info->styles, NULL)) {
+    XIMCallback none = { NULL, NULL };
+    XSetIMValues(info->xim, XNDestroyCallback, &none, NULL);
+    XCloseIM(info->xim);
+    info->xim = NULL;
+    return False;
+  }
+  return True;
+}
+
+static void
+im_destroyed(XIM xim, XPointer closure, XPointer call_data)
+{
+  XmImDisplayInfo info = (XmImDisplayInfo)closure;
+  Cardinal i;
+  (void)xim; (void)call_data;
+  /* Xlib destroys the transport and its ICs.  They must never be queried,
+   * reset or destroyed again, including from preedit-done callbacks. */
+  info->transitioning = True;
+  info->xim = NULL;
+  XFree(info->styles); info->styles = NULL;
+  for (i = 0; i < info->shell_refs.num_refs; ++i) {
+    XmImShellInfo shell_info = get_im_info(info->shell_refs.refs[i], False);
+    XmImXICInfo ic;
+    for (ic = shell_info ? shell_info->iclist : NULL; ic; ic = ic->next)
+      ic->xic = NULL;
+  }
+  /* End transient composition, preserving only committed widget contents. */
+  while (info->shell_refs.num_refs) {
+    Widget shell = info->shell_refs.refs[0];
+    XmImShellInfo shell_info = get_im_info(shell, False);
+    XmImXICInfo ic;
+    for (ic = shell_info ? shell_info->iclist : NULL; ic; ic = ic->next) {
+      Cardinal j;
+      if (!ic->preedit_active) continue;
+      ic->preedit_active = False;
+      for (j = 0; j < ic->widget_refs.num_refs; ++j) {
+        Widget w = ic->widget_refs.refs[j];
+        XmImRegistration r;
+        Cardinal k;
+        if (XtWindow(w) != ic->focus_window) continue;
+        r = remember_widget(info, w);
+        for (k = 0; k < r->count; ++k)
+          if (!strcmp(r->args[k].name, XmNpreeditDoneCallback)) {
+            XIMCallback *done = (XIMCallback *)r->args[k].value;
+            if (done && done->callback)
+              ((XICProc)done->callback)(NULL, done->client_data, NULL);
+            break;
+          }
+      }
+    }
+    _XmImFreeShellData(shell, get_im_info_ptr(shell, False));
+  }
+  info->transitioning = False;
+  if (!info->instantiate_registered)
+    info->instantiate_registered = XRegisterIMInstantiateCallback(info->display,
+      XtDatabase(info->display), info->application_name, info->application_class,
+      im_available, (XPointer)info);
+}
+
+static void
+im_available(Display *display, XPointer closure, XPointer call_data)
+{
+  XmImDisplayInfo info = (XmImDisplayInfo)closure;
+  XmImRegistration r;
+  (void)display; (void)call_data;
+  if (info->transitioning || !open_input_method(info)) return;
+  info->restoring = True;
+  for (r = info->registrations; r; r = r->next) {
+    if (r->external || r->widget->core.being_destroyed) continue;
+    XmImRegister(r->widget, 0);
+    set_values(r->widget, r->args, r->count, XmINHERIT_POLICY);
+  }
+  for (r = info->registrations; r; r = r->next)
+    if (r->focused && !r->external && !r->widget->core.being_destroyed)
+      XmImSetFocusValues(r->widget, r->args, r->count);
+  info->restoring = False;
+}
+
 #define OVERTHESPOT	"overthespot"
 #define OFFTHESPOT	"offthespot"
 #define ROOT		"root"
@@ -322,8 +552,10 @@ XmImRegister(Widget w,
     p = XtParent(p);
   
   /* Lookup or create per-shell IM info and an XIM. */
-  if (((xim_info = get_xim_info(p)) == NULL) ||
-      (xim_info->xim == NULL)) {
+  xim_info = get_xim_info(p);
+  if (xim_info && !xim_info->restoring) remember_widget(xim_info, w)->external = False;
+  else (void)remember_widget(xim_info, w);
+  if ((xim_info == NULL) || (xim_info->xim == NULL)) {
     _XmAppUnlock(app);
     return;
   }
@@ -378,6 +610,7 @@ XmImUnregister(Widget w)
   _XmAppLock(app);
   /* Locate this record. */
   xim_info = get_xim_info(w);
+  forget_widget(xim_info, w);
   if ((xic_info = get_current_xic(xim_info, w)) == NULL) {
     _XmAppUnlock(app);
     return;
@@ -421,6 +654,13 @@ XmImSetFocusValues(Widget w,
   while (!XtIsShell(p))
     p = XtParent(p);
   
+  {
+    XmImDisplayInfo info = get_xim_info(p);
+    XmImRegistration r;
+    for (r = info ? info->registrations : NULL; r; r = r->next)
+      r->focused = r->widget == w;
+    remember_values(info, w, args, num_args);
+  }
   if ((xic_info = get_current_xic(get_xim_info(p), w)) == NULL) {
     _XmAppUnlock(app);
     return;
@@ -430,6 +670,11 @@ XmImSetFocusValues(Widget w,
   xic_info->focus_window = XtWindow(w);
 
   set_values(w, args, num_args, XmINHERIT_POLICY);
+  xic_info = get_current_xic(get_xim_info(p), w);
+  if (!xic_info || !xic_info->xic) {
+    _XmAppUnlock(app);
+    return;
+  }
   
   if (wind != XtWindow(w)) {
     /* Safe, since we have a window - so it's no gadget */
@@ -501,6 +746,12 @@ XmImUnsetFocus(Widget w)
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
+  {
+    XmImDisplayInfo info = get_xim_info(w);
+    XmImRegistration r;
+    for (r = info ? info->registrations : NULL; r; r = r->next)
+      if (r->widget == w) r->focused = False;
+  }
   if ((xic_info = get_current_xic(get_xim_info(w), w)) == NULL) {
     _XmAppUnlock(app);
     return;
@@ -587,6 +838,17 @@ XmImCloseXIM(Widget w)
     }
   }
 
+  if (xim_info->instantiate_registered)
+    XUnregisterIMInstantiateCallback(xim_info->display,
+      XtDatabase(xim_info->display), xim_info->application_name,
+      xim_info->application_class, im_available, (XPointer)xim_info);
+  while (xim_info->registrations)
+    forget_widget(xim_info, xim_info->registrations->widget);
+  /* Explicit close is not a service-loss notification. */
+  if (xim_info->xim != NULL) {
+    XIMCallback none = { NULL, NULL };
+    XSetIMValues(xim_info->xim, XNDestroyCallback, &none, NULL);
+  }
   /* Close the XIM. */
   if (xim_info->xim != NULL)
     {
@@ -599,6 +861,8 @@ XmImCloseXIM(Widget w)
   
   xmDisplay = (XmDisplay) XmGetXmDisplay(XtDisplay(w));
   xmDisplay->display.xmim_info = NULL;
+  XtFree(xim_info->application_name);
+  XtFree(xim_info->application_class);
   XtFree((char *) xim_info);
   _XmAppUnlock(app);
 }
@@ -628,6 +892,11 @@ XmImMbLookupString(Widget w,
   
   ret_val = XmbLookupString( icp->xic, event, buf, nbytes,
 				keysym, status );
+  /* Servers may deliver Commit before the final preedit delete/done.  Finish
+   * transient text before the caller inserts committed bytes, so a late delete
+   * cannot consume a combining commit or move its caret back to preedit start. */
+  if (ret_val > 0 && (!status || *status != XBufferOverflow) && icp->preedit_active)
+    ImPreeditDoneCallback(icp->xic, (XPointer)w, NULL);
   _XmAppUnlock(app);
   return ret_val;
 }
@@ -650,6 +919,8 @@ XmImGetXIC(Widget 	 w,
   
   _XmAppLock(app);
   xim_info = get_xim_info(w);
+  (void)remember_widget(xim_info, w);
+  remember_values(xim_info, w, args, num_args);
   im_info = get_im_info(w, True);
   xic_info = get_current_xic(xim_info, w);
 
@@ -693,6 +964,7 @@ XmImGetXIC(Widget 	 w,
   /* Register an XIC with the desired input policy. */
   if (xic_info == NULL)
     {
+      remember_widget(xim_info, w)->external = False;
       xic_info = create_xic_info(shell, xim_info, im_info, input_policy);
       set_current_xic(xic_info, xim_info, w);
     }
@@ -750,6 +1022,8 @@ XmImSetXIC(Widget widget,
     _XmAppUnlock(app);
     return NULL;
   }
+  /* Opaque application-created XICs cannot be reconstructed by the toolkit. */
+  remember_widget(xim_info, widget)->external = True;
   
   /* Unregister the current XIC. */
   if (xic_info != NULL)
@@ -812,9 +1086,11 @@ XmImFreeXIC(Widget w,
   
   /* Remove all references. */
   index = xic_info->widget_refs.num_refs;
-  while (--index >= 0)
-    unset_current_xic(xic_info, im_info, xim_info, 
-		      xic_info->widget_refs.refs[index]);
+  while (--index >= 0) {
+    Widget reference = xic_info->widget_refs.refs[index];
+    forget_widget(xim_info, reference);
+    unset_current_xic(xic_info, im_info, xim_info, reference);
+  }
   _XmAppUnlock(app);
 }
 
@@ -1184,13 +1460,17 @@ set_values(Widget w,
   char *ret;
   unsigned long mask = 0;
   Boolean unrecognized = False;
+  XIMCallback callback_values[num_args ? num_args : 1];
+  Cardinal callback_count = 0;
   
   p = w;
   while (!XtIsShell(p))
     p = XtParent(p);
   
   xim_info = get_xim_info(p);
-  if ((icp = get_current_xic(xim_info, w)) == NULL)
+  remember_values(xim_info, w, args, num_args);
+  if (!xim_info || !xim_info->xim ||
+      (icp = get_current_xic(xim_info, w)) == NULL)
     return;
   
   im_info = get_im_info(p, False);
@@ -1217,7 +1497,9 @@ set_values(Widget w,
 
     IsCallback(name){
       if (icp->input_style & XIMPreeditCallbacks){
-        set_callback_values(w, argp->name, (XIMCallback *)(argp->value),
+        assert(callback_count < XtNumber(callback_values));
+        callback_values[callback_count] = *(XIMCallback *)argp->value;
+        set_callback_values(w, argp->name, &callback_values[callback_count++],
                                                 &preedit_vlist, input_policy);
         continue;
       } else
@@ -1472,9 +1754,14 @@ ImPreeditStartCallback(XIC xic,
     assert(False);
   }
 
+  {
+    XmImXICInfo ic = callback_xic((Widget)client_data);
+    if (!ic) return 0;
+    ic->preedit_active = True;
+  }
   proc = get_real_callback((Widget)client_data, PREEDIT_START, &real);
   if (proc)
-    (*proc)(xic, (XPointer)real, call_data);
+    (*proc)(xic, callback_closure((Widget)client_data, real, PREEDIT_START), call_data);
 
   return (-1);
 }
@@ -1486,7 +1773,6 @@ ImPreeditDoneCallback(XIC xic,
 {
   XICProc proc;
   Widget w = (Widget)client_data;
-  XmImShellInfo im_info;
   XmImXICInfo icp;
   Widget real = NULL;
 
@@ -1494,14 +1780,13 @@ ImPreeditDoneCallback(XIC xic,
     assert(False);
   }
  
-  if ((im_info = get_im_info(w, False)) == NULL)
-    return;
-  if ((icp = im_info->shell_xic) == NULL)
-    return;
+  if ((icp = callback_xic(w)) == NULL) return;
 
+  if (!icp->preedit_active) return;
+  icp->preedit_active = False;
   proc = get_real_callback((Widget)client_data, PREEDIT_DONE, &real);
   if (proc)
-    (*proc)(xic, (XPointer)real, call_data);
+    (*proc)(xic, callback_closure(w, real, PREEDIT_DONE), call_data);
 
   if (icp->preedit_buffer->text) 
     XtFree((char *)icp->preedit_buffer->text);
@@ -1529,27 +1814,40 @@ ImPreeditDrawCallback(XIC xic, XPointer client_data, XPointer call_data)
 {
   XICProc proc;
   Widget w = (Widget)client_data, real = NULL;
-  XmImShellInfo im_info;
   XmImXICInfo icp;
   PreeditBuffer pb;
   XIMPreeditDrawCallbackStruct *data = (XIMPreeditDrawCallbackStruct *)call_data;
   XIMText *text;
+  XIMPreeditDrawCallbackStruct dispatch;
+  XIMText dispatch_text;
+  wchar_t *dispatch_characters = NULL;
   unsigned int inserted, result, suffix;
   wchar_t *replacement;
   XIMFeedback *feedback;
 
-  if (!w || !data || (im_info = get_im_info(w, False)) == NULL ||
-      (icp = im_info->shell_xic) == NULL || !icp->preedit_buffer)
+  if (!w || !data || (icp = callback_xic(w)) == NULL ||
+      !icp->preedit_active || !icp->preedit_buffer)
     return;
   pb = icp->preedit_buffer;
   text = data->text;
   inserted = text ? text->length : 0;
   if (!_XmImPreeditRangeValid(pb->length, data->chg_first, data->chg_length,
-                              inserted, data->caret))
+                              inserted, 0) || data->caret < 0)
     return;
   if (inserted && ((text->encoding_is_wchar && !text->string.wide_char) ||
-                   (!text->encoding_is_wchar && !text->string.multi_byte)))
+                   (!text->encoding_is_wchar && !text->string.multi_byte))) {
+    /* A string-less XIMText changes feedback, not the preedit characters. */
+    if (inserted != (unsigned int)data->chg_length) return;
+    if (text->feedback)
+      memcpy(pb->feedback + data->chg_first, text->feedback,
+             inserted * sizeof(XIMFeedback));
+    dispatch = *data;
+    if ((unsigned int)dispatch.caret > pb->length) dispatch.caret = pb->length;
+    pb->caret = dispatch.caret;
+    proc = get_real_callback(w, PREEDIT_DRAW, &real);
+    if (proc) (*proc)(xic, callback_closure(w, real, PREEDIT_DRAW), (XPointer)&dispatch);
     return;
+  }
   result = pb->length - data->chg_length + inserted;
   replacement = (wchar_t *)XtCalloc(result + 1, sizeof(wchar_t));
   feedback = (XIMFeedback *)XtCalloc(result + 1, sizeof(XIMFeedback));
@@ -1581,7 +1879,25 @@ ImPreeditDrawCallback(XIC xic, XPointer client_data, XPointer call_data)
   pb->text = replacement; pb->feedback = feedback;
   pb->length = result; pb->caret = data->caret;
   proc = get_real_callback(w, PREEDIT_DRAW, &real);
-  if (proc) (*proc)(xic, (XPointer)real, call_data);
+  /* Some servers retain the previous caret while deleting all preedit.
+   * A caret hint must not suppress an otherwise valid text replacement. */
+  dispatch = *data;
+  if ((unsigned int)dispatch.caret > result) dispatch.caret = (int)result;
+  pb->caret = dispatch.caret;
+  if (text && inserted) {
+    /* XIMText is counted.  Widgets receive an owned terminated slice, never
+     * read past provider storage when converting a multibyte preedit. */
+    dispatch_characters = (wchar_t *)XtCalloc(inserted + 1, sizeof(wchar_t));
+    memcpy(dispatch_characters, replacement + data->chg_first,
+           inserted * sizeof(wchar_t));
+    dispatch_text = *text;
+    dispatch_text.encoding_is_wchar = True;
+    dispatch_text.string.wide_char = dispatch_characters;
+    dispatch_text.feedback = feedback + data->chg_first;
+    dispatch.text = &dispatch_text;
+  }
+  if (proc) (*proc)(xic, callback_closure(w, real, PREEDIT_DRAW), (XPointer)&dispatch);
+  XtFree((char *)dispatch_characters);
 }
 
 static void
@@ -1591,7 +1907,6 @@ ImPreeditCaretCallback(XIC xic,
 {
   XICProc proc;
   Widget w = (Widget)client_data;
-  XmImShellInfo im_info;
   XmImXICInfo icp;
   PreeditBuffer pb;
   XIMPreeditCaretCallbackStruct *data = 
@@ -1601,10 +1916,7 @@ ImPreeditCaretCallback(XIC xic,
   if (!client_data || !data) return;
 
 /* update the preedit buffer */
-  if ((im_info = get_im_info(w, False)) == NULL)
-        return;
-  if ((icp = im_info->shell_xic) == NULL)
-        return;
+  if ((icp = callback_xic(w)) == NULL) return;
 
   pb = icp->preedit_buffer;
   if (!pb || pb->caret < 0 || pb->caret > pb->length) return;
@@ -1627,7 +1939,7 @@ ImPreeditCaretCallback(XIC xic,
 
   proc = get_real_callback((Widget)client_data, PREEDIT_CARET, &real);
   if (proc)
-    (*proc)(xic, (XPointer)real, call_data);
+    (*proc)(xic, callback_closure(w, real, PREEDIT_CARET), call_data);
 }
 
 static XICProc
@@ -1635,15 +1947,11 @@ get_real_callback(Widget w,
                   int swc,
 		  Widget *real_widget)
 {
-  XmImShellInfo im_info;
   XmImXICInfo icp;
   int i, target;
   XmImRefRec refs;
 
-  if ((im_info = get_im_info(w, False)) == NULL)
-        return (XICProc)NULL;
-  if ((icp = im_info->shell_xic) == NULL)
-        return (XICProc)NULL;
+  if ((icp = callback_xic(w)) == NULL) return (XICProc)NULL;
 
   if (*real_widget == NULL) 
     *real_widget = XtWindowToWidget(XtDisplay(w), icp->focus_window);
@@ -1660,14 +1968,14 @@ get_real_callback(Widget w,
     return (XICProc)NULL;
 
   if (refs.callbacks[target])
-    return (XICProc)refs.callbacks[target][swc];
+    return (XICProc)refs.callbacks[target][swc].callback;
   else
     return (XICProc)NULL;
 }
 
 static void
 regist_real_callback(Widget w,
-                     XIMProc call,
+                     const XIMCallback *call,
                      int swc)
 {
   Widget p;
@@ -1700,9 +2008,9 @@ regist_real_callback(Widget w,
   }
 
   if (!refs.callbacks[target])
-    refs.callbacks[target] = (XtPointer *)XtMalloc(4 * sizeof(XtPointer));
+    refs.callbacks[target] = (XIMCallback *)XtCalloc(4, sizeof(XIMCallback));
 
-  refs.callbacks[target][swc] = (XtPointer)call;
+  refs.callbacks[target][swc] = *call;
 }
 
 static int
@@ -1722,72 +2030,28 @@ NameToSwitch(String name)
 }
 
 static void
-set_callback_values(Widget w,
-                    String name,
-                    XIMCallback *value,
-                    VaArgList vlp,
-                    XmInputPolicy input_policy)
+set_callback_values(Widget w, String name, XIMCallback *value,
+                    VaArgList vlp, XmInputPolicy input_policy)
 {
-  XIMProc call = value->callback;
-  int s = NameToSwitch(name);
-  XmInputPolicy ip = input_policy;
-  Widget p =NULL;
-
-  if (input_policy == XmINHERIT_POLICY){
-    p = w;
-    while (!XtIsShell(p))
-      p = XtParent(p);
-    XtVaGetValues(p, XmNinputPolicy, &ip, NULL);
-  }
-
-  switch (s) {
-    case PREEDIT_START :
-      if (ip == XmPER_SHELL){
-        call = value->callback;
-        regist_real_callback(w, call, s);
-	value->client_data = (XPointer)p;
-        value->callback = (XIMProc) ImPreeditStartCallback;
-        VaSetArg(vlp, XNPreeditStartCallback, (XPointer)value);
-      } else
-        VaSetArg(vlp, XNPreeditStartCallback, (XPointer)value);
-      break;
-
-    case PREEDIT_DONE :
-      if (ip == XmPER_SHELL){
-        call = value->callback;
-        regist_real_callback(w, call, s);
-	value->client_data = (XPointer)p;
-        value->callback = (XIMProc) ImPreeditDoneCallback;
-        VaSetArg(vlp, XNPreeditDoneCallback, (XPointer)value);
-      } else
-        VaSetArg(vlp, XNPreeditDoneCallback, (XPointer)value);
-      break;
-
-    case PREEDIT_DRAW :
-      if (ip == XmPER_SHELL){
-        call = value->callback;
-        regist_real_callback(w, call, s);
-	value->client_data = (XPointer)p;
-        value->callback = (XIMProc) ImPreeditDrawCallback;
-        VaSetArg(vlp, XNPreeditDrawCallback, (XPointer)value);
-      } else
-        VaSetArg(vlp, XNPreeditDrawCallback, (XPointer)value);
-      break;
-
-    case PREEDIT_CARET :
-      if (ip == XmPER_SHELL){
-        call = value->callback;
-        regist_real_callback(w, call, s);
-	value->client_data = (XPointer)p;
-        value->callback = (XIMProc) ImPreeditCaretCallback;
-        VaSetArg(vlp, XNPreeditCaretCallback, (XPointer)value);
-      } else
-        VaSetArg(vlp, XNPreeditCaretCallback, (XPointer)value);
-      break;
-
-    default :
-      assert(False);
-  }
+  Widget shell = w;
+  XmInputPolicy policy = input_policy;
+  int kind = NameToSwitch(name);
+  static XIMProc bridge[] = {
+    (XIMProc)ImPreeditStartCallback, (XIMProc)ImPreeditDoneCallback,
+    (XIMProc)ImPreeditDrawCallback, (XIMProc)ImPreeditCaretCallback
+  };
+  static String resource[] = {
+    XNPreeditStartCallback, XNPreeditDoneCallback,
+    XNPreeditDrawCallback, XNPreeditCaretCallback
+  };
+  while (!XtIsShell(shell)) shell = XtParent(shell);
+  if (policy == XmINHERIT_POLICY)
+    XtVaGetValues(shell, XmNinputPolicy, &policy, NULL);
+  if (kind < 0 || kind >= 4) return;
+  regist_real_callback(w, value, kind);
+  value->client_data = (XPointer)(policy == XmPER_SHELL ? shell : w);
+  value->callback = bridge[kind];
+  VaSetArg(vlp, resource[kind], (XPointer)value);
 }
 
 
@@ -1803,11 +2067,11 @@ move_preedit_string(XmImXICInfo icp,
 
   proc = get_real_callback(wfrom, PREEDIT_DONE, &wfrom);
   if (proc)
-    (*proc)(icp->xic, (XPointer)wfrom, NULL);
+    (*proc)(icp->xic, callback_closure(wfrom, wfrom, PREEDIT_DONE), NULL);
 
   proc = get_real_callback(wto, PREEDIT_START, &wto);
   if (proc)
-    (*proc)(icp->xic, (XPointer)wto, NULL);
+    (*proc)(icp->xic, callback_closure(wto, wto, PREEDIT_START), NULL);
 
   if (pb->length == 0)
     return;
@@ -1822,7 +2086,7 @@ move_preedit_string(XmImXICInfo icp,
   draw_data.text = &text;
   proc = get_real_callback(wto, PREEDIT_DRAW, &wto);
   if (proc)
-    (*proc)(icp->xic, (XPointer)wto, (XPointer)&draw_data);
+    (*proc)(icp->xic, callback_closure(wto, wto, PREEDIT_DRAW), (XPointer)&draw_data);
 }   
 
 
@@ -2186,7 +2450,7 @@ get_xim_info(Widget  widget)
   if (xim_info != NULL)
     return xim_info;
   
-  /* Create a record so that we only try XOpenIM() once. */
+  /* Keep registration ownership independent of the current XIM transport. */
   xim_info = XtNew(XmImDisplayRec);
   bzero((char*) xim_info, sizeof(XmImDisplayRec));
   xmDisplay->display.xmim_info = (XtPointer)xim_info;
@@ -2203,34 +2467,13 @@ get_xim_info(Widget  widget)
   
   XtGetApplicationNameAndClass(dpy, &name, &w_class);
   
-  /* Try to open the input method. */
-  xim_info->xim = XOpenIM(dpy, XtDatabase(dpy), name, w_class);
-  if (xim_info->xim == NULL)
-    {
-#ifdef XOPENIM_WARNING
-      /* Generate a warning if XOpenIM was supposed to work. */
-      /* Use the WMShell's XmNtitleEncoding as a shibboleth. */
-      Atom encoding = (Atom) 0;
-      XtVaGetValues(shell, XmNtitleEncoding, &encoding, NULL);
-      if (encoding != XA_STRING)
-	XmeWarning ((Widget)widget, MSG1);
-#endif
-      
-      /* Leave the null xim_info attached to the display so we only */
-      /* print the warning message once. */
-      return xim_info;
-    }
-  
-  /* Lookup the styles this input method supports. */
-  if (XGetIMValues(xim_info->xim, 
-		   XNQueryInputStyle, &xim_info->styles, NULL) != NULL)
-    {
-      XCloseIM(xim_info->xim);
-      xim_info->xim = NULL;
-      XmeWarning ((Widget)widget, MSG1);
-      return xim_info;
-    }
-  
+  xim_info->display = dpy;
+  xim_info->application_name = XtNewString(name);
+  xim_info->application_class = XtNewString(w_class);
+  if (!open_input_method(xim_info))
+    xim_info->instantiate_registered = XRegisterIMInstantiateCallback(dpy,
+      XtDatabase(dpy), name, w_class, im_available, (XPointer)xim_info);
+
   /* Initialize the list of xrm names */
   {
     XmImResListRec *rlp;
@@ -2456,7 +2699,7 @@ set_current_xic(XmImXICInfo 	xic_info,
   (void) add_ref(&xic_info->widget_refs, widget);
   
   /* Set the current XIC for this widget. */
-  if (xim_info->current_xics == (XContext) NULL)
+  if (xim_info->current_xics == (XContext)0)
     xim_info->current_xics = XUniqueContext();
   (void) XSaveContext(XtDisplay(widget), (XID) widget, 
 		      xim_info->current_xics, (XPointer) xic_info);
@@ -2527,8 +2770,8 @@ add_ref(XmImRefInfo refs,
       
       refs->refs = (Widget*) XtRealloc((char *) refs->refs, 
 				       refs->max_refs * sizeof(Widget));
-      refs->callbacks = (XtPointer **) XtRealloc((char *) refs->callbacks,
-                                       refs->max_refs * sizeof(XtPointer *));
+      refs->callbacks = (XIMCallback **) XtRealloc((char *) refs->callbacks,
+                                       refs->max_refs * sizeof(XIMCallback *));
     }
   assert(refs->num_refs < refs->max_refs);
   
@@ -2572,8 +2815,8 @@ remove_ref(XmImRefInfo refs,
 	  refs->max_refs /= 2;
 	  refs->refs = (Widget*) XtRealloc((char *) refs->refs, 
 					   refs->max_refs * sizeof(Widget));
-          refs->callbacks = (XtPointer **) XtRealloc((char *) refs->callbacks,
-                                   refs->max_refs * sizeof(XtPointer *));
+          refs->callbacks = (XIMCallback **) XtRealloc((char *) refs->callbacks,
+                                   refs->max_refs * sizeof(XIMCallback *));
 	}
     }
   else
@@ -2664,6 +2907,8 @@ XmImMbResetIC(
     }
 
     *mb = XmbResetIC(icp->xic);
+    if (icp->preedit_active && XmImGetXICResetState(w) != XIMPreserveState)
+        ImPreeditDoneCallback(icp->xic, (XPointer)w, NULL);
     _XmAppUnlock(app);
 }
 

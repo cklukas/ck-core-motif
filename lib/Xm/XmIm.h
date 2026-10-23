@@ -77,6 +77,11 @@ extern XIC XmImGetXIC(
 #endif /*NeedWidePrototypes*/
 		        ArgList		args,
 		        Cardinal	num_args) ;
+/* XIM/XIC handles are transport-scoped: do not cache them across event-loop
+ * dispatch. Service loss invalidates every handle. Toolkit-created ICs replay
+ * owned copies of toolkit-defined XmIm resources after reconnection; opaque
+ * application-created ICs and custom XIM attributes must be resupplied by their
+ * owner. XmImSetXIC(widget, NULL) queries the currently registered live handle. */
 extern XIC XmImSetXIC(
 			Widget w,
 			XIC    input_context) ;

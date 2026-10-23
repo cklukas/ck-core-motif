@@ -29,12 +29,15 @@
 #define _XmImI_h
 
 #include <Xm/XmP.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /********    Private Function Declarations for XmIm.c    ********/
+
+extern Boolean _XmImInputPrintable(const char *text, size_t bytes, Boolean allow_tab);
 
 extern Boolean _XmImPreeditRangeValid(unsigned int length, int first, int removed,
                                       unsigned int inserted, int caret);
