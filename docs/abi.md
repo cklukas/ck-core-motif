@@ -1,7 +1,7 @@
 # Native ABI cohort
 
-Development version **2.4.0** starts native ABI epoch **5**. The suite's libtool
-version is `5:0:0`, yielding `libXm.so.5`, `libMrm.so.5` and `libUil.so.5` on ELF
+Development version **2.4.0** uses native ABI epoch **6**. The suite's libtool
+version is `6:0:0`, yielding `libXm.so.6`, `libMrm.so.6` and `libUil.so.6` on ELF
 systems. There is no alias or compatibility shim for the preceding SONAME.
 
 Adding a public function is not the only ABI concern. Cached Unicode maps,
@@ -9,6 +9,11 @@ text-field layout state and text-output cache state change native widget/source
 records. The line-table width changes from `Dimension` to `int`, avoiding
 16-bit truncation. Code that subclasses widgets, embeds native records or
 accesses `P.h`/`I.h` members is a binary consumer of those layouts.
+
+The first published 2.4 development cohort used epoch 5. Widget font-context
+fields and public accessibility info/provider value fields change layouts again;
+epoch 6 separates these consumers explicitly. Rebuild custom semantic providers,
+not only applications and widget subclasses. No old-SONAME alias is provided.
 
 ## Required rebuild
 

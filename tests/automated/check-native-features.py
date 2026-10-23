@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Compile and run native Linux feature fixtures against one installed prefix.
 
-Requires an ABI 5 Unicode/Xft/AT-SPI build for the complete suite, a native C
+Requires an ABI 6 Unicode/Xft/AT-SPI build for the complete suite, a native C
 compiler, pkg-config development modules, Xvfb/xauth and real AT-SPI services.
 No toolkit build, package installation or documentation rendering is performed.
 """
@@ -27,6 +27,7 @@ FIXTURES = {
     "layout": ("tests/Toolkit/Unicode/layout.c", True),
     "line-context": ("tests/Toolkit/Unicode/line_context.c", True),
     "unicode-widgets": ("tests/Toolkit/Unicode/text_unicode.c", True),
+    "large-text": ("tests/Toolkit/Unicode/large_text.c", True),
     "disclosure": ("tests/disclosure/widget.c", True),
     "accessibility": ("tests/accessibility/provider.c", True),
     "scrollbar-accessibility": ("tests/accessibility/scrollbar.c", True),
@@ -51,12 +52,12 @@ def installed_headers(prefix):
 
 
 def installed_library(prefix, library_dir):
-    path = (library_dir / "libXm.so.5").resolve(strict=True)
+    path = (library_dir / "libXm.so.6").resolve(strict=True)
     if not path.is_relative_to(prefix):
-        raise RuntimeError("installed libXm.so.5 escapes selected prefix")
+        raise RuntimeError("installed libXm.so.6 escapes selected prefix")
     linker = (library_dir / "libXm.so").resolve(strict=True)
     if linker != path:
-        raise RuntimeError("linker libXm.so and runtime libXm.so.5 do not identify the same installed file")
+        raise RuntimeError("linker libXm.so and runtime libXm.so.6 do not identify the same installed file")
     return dict(path=str(path), sha256=sha(path), linker_name=str(library_dir / "libXm.so"))
 
 
@@ -132,7 +133,7 @@ def main():
     receipt = dict(started_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
                    prefix=str(prefix), library_dir=str(library_dir), output=str(output),
                    fixture_source=str(source), requested_fixtures=selected,
-                   configuration="native installed ABI5 consumers; strict C11 O2; actual Xvfb and AT-SPI observers",
+                   configuration="native installed ABI6 consumers; strict C11 O2; actual Xvfb and AT-SPI observers",
                    baseline="No duration baseline assumed; compare retained equivalent suite results.",
                    limitation="Fingerprints identify tested inputs; this runner does not attest which source built the installed prefix.",
                    host=dict(system=platform.system(), machine=platform.machine(), release=platform.release()),
@@ -209,8 +210,8 @@ def main():
         receipt["headers"] = installed_headers(prefix)
         receipt["library"] = installed_library(prefix, library_dir)
         dynamic = run("installed-library-dynamic", ["readelf", "-d", receipt["library"]["path"]])
-        if not re.search(r"\(SONAME\).*\[libXm\.so\.5\]", dynamic):
-            raise RuntimeError("installed library SONAME is not libXm.so.5")
+        if not re.search(r"\(SONAME\).*\[libXm\.so\.6\]", dynamic):
+            raise RuntimeError("installed library SONAME is not libXm.so.6")
         remember(Path(__file__).resolve())
         flags = shlex.split(run("pkg-flags", ["pkg-config", "--cflags", "--libs", *MODULES]))
         run("pkg-versions", ["pkg-config", "--modversion", *MODULES])
@@ -233,11 +234,11 @@ def main():
                     raise RuntimeError("installed header changed or was not recorded: " + header)
             elf = verify_native_elf(binary)
             dynamic = run("dynamic-" + name, ["readelf", "-d", binary])
-            if not re.search(r"\(NEEDED\).*\[libXm\.so\.5\]", dynamic):
-                raise RuntimeError("fixture does not depend on ABI5 libXm")
+            if not re.search(r"\(NEEDED\).*\[libXm\.so\.6\]", dynamic):
+                raise RuntimeError("fixture does not depend on ABI6 libXm")
             links = run("link-" + name, ["ldd", binary])
-            match = re.search(r"^\s*libXm\.so\.5\s+=>\s+(.+?)\s+\(0x[0-9a-f]+\)", links, re.MULTILINE)
-            foreign_abi = re.search(r"^\s*libXm\.so\.(?!5\s)[^\s]+", links, re.MULTILINE)
+            match = re.search(r"^\s*libXm\.so\.6\s+=>\s+(.+?)\s+\(0x[0-9a-f]+\)", links, re.MULTILINE)
+            foreign_abi = re.search(r"^\s*libXm\.so\.(?!6\s)[^\s]+", links, re.MULTILINE)
             if "not found" in links or foreign_abi or not match or Path(match.group(1)).resolve() != Path(receipt["library"]["path"]):
                 raise RuntimeError("fixture loader did not select the exact installed libXm")
             receipt["binaries"][name] = dict(path=str(binary), sha256=sha(binary),

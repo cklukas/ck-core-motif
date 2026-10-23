@@ -156,3 +156,17 @@ Development 2.4.0 / native ABI epoch 5 (validation in progress)
 - Add focused fork documentation and source-pinned strict documentation CI.
   Source availability, focused fixtures and installed-cohort acceptance remain
   separate; see docs/status.md for the current validation boundaries.
+
+
+Development 2.4.0 / native ABI epoch 6 (validation in progress)
+====================================================================
+
+- Advance Xm/Mrm/Uil together to libtool 6:0:0 for changed native text context
+  records and public accessibility value/provider records. Rebuild every native
+  consumer; no alias for an older SONAME is supplied.
+- Bound per-widget grapheme resolver and font/shaping leases with retained
+  capture ownership and explicit configuration invalidation.
+- Follow documented Xft column metrics in Text, TextField and DataField.
+- Expose ScrollBar numeric values/actions/events and custom value providers.
+- Repair input-method transport lifetime and committed/preedit ordering; add
+  isolated real IBus/m17n composition and service-reconnection fixtures.

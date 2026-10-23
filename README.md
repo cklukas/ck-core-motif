@@ -3,7 +3,7 @@
 A maintained fork of the Motif native Xt widget toolkit, with corrections for
 modern builds, selection handling, display scaling and input behavior.
 
-The development 2.4.0 cohort introduces native ABI epoch 5, shared Unicode text
+The development 2.4.0 cohort introduces native ABI epoch 6, shared Unicode text
 captures and optional native accessibility. Rebuild every native consumer
 against one consistent header/library cohort; this is not a drop-in replacement
 for `libXm.so.4`.
