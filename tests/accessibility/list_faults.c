@@ -1,5 +1,13 @@
 /* Target one optional bridge allocation, never native List storage or D-Bus. */
 #define _GNU_SOURCE
+#if defined(__has_feature)
+# if __has_feature(address_sanitizer)
+#  define XM_LIST_FAULTS_ASAN 1
+# endif
+#endif
+#if defined(__SANITIZE_ADDRESS__) || defined(XM_LIST_FAULTS_ASAN)
+#error "Allocator fault interposition requires an uninstrumented fixture; run List protocol/lifetime with ASan separately"
+#endif
 #include <dlfcn.h>
 #include <stddef.h>
 #include <string.h>

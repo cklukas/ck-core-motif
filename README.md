@@ -8,11 +8,14 @@ captures and optional native accessibility. Rebuild every native consumer
 against one consistent header/library cohort; this is not a drop-in replacement
 for `libXm.so.4`.
 
-The fresh installed ABI7 cohort passes all 19 native ARM64 feature fixtures,
+The fresh installed ABI7 cohort passes all 20 native ARM64 feature fixtures,
 including native list identities, Selection, real keyboard range selection and
 allocation-failure recovery. Repeated real IBus/m17n service validation has an
-intermittent Hindi preedit failure under investigation. Sanitizer qualification and actual application
-adoption of this cohort remain separate gates; x86_64 validation is pending.
+intermittent Hindi preedit failure under investigation. Nine focused ASan/UBSan
+fixtures also pass, including List protocol, native
+callback destruction and provider reentrancy. Actual application adoption and
+x86_64 validation remain separate gates; system/Xt libraries and leak checking
+are outside the instrumented scope.
 
 Read the focused [documentation sources](docs/index.md),
 [build guide](docs/build.md), [ABI policy](ABI.md) and

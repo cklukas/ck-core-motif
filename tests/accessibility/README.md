@@ -184,6 +184,14 @@ the mutation callback. `list_lifetime.c` runs eight native direct/semantic
 selection cases in which ordinary callbacks destroy the List or shell, with and
 without nested selection. The installed ABI7 pre-fix library deterministically
 fails the count-growth getter assertion; normal native destruction runs may pass
-without instrumentation, so sanitizer qualification is still required. These
+without instrumentation, so that observation alone does not establish lifetime
+safety. The corrected lifetime/provider fixtures also pass under ASan/UBSan. These
 fixtures pass on the fresh installed ABI7 native ARM64 cohort (12 provider and
-eight native destruction cases), as part of the full 19-fixture default suite.
+eight native destruction cases), as part of the full 20-fixture default suite.
+
+The native runner selects `list-accessibility` and `list-allocation-faults`
+independently. Its default suite includes both. Allocation fault interposition
+uses the native libc allocator and must run without ASan; instrumented List
+protocol/lifetime and provider-reentrancy fixtures run separately. The allocation
+fixture rejects an ASan compiler rather than bypassing its allocator or relaxing
+sanitizer runtime checks. Both scopes retain the same native behavior assertions.

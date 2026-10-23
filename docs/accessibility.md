@@ -243,13 +243,14 @@ deltas. Removal/destruction during callbacks cannot revive stale targets.
 The native List private record, item record and public accessibility info/provider
 records change layout. Xm/Mrm/Uil advance together to ABI7; rebuild providers,
 subclasses and applications coherently. A fresh installed-prefix build and all
-19 native ARM64 feature fixtures pass for this cohort. Native list checks cover
+20 native ARM64 feature fixtures pass for this cohort. Native list checks cover
 exact duplicate-label identities, insert/delete/replacement/reorder, selection
 and actions, actual Shift-navigation after semantic selection, disabled and
 stale refusal, provider reentrancy/removal, destruction and allocation-failure
 recovery. Repeated real IBus/m17n service validation still has an intermittent
-Hindi preedit failure under investigation. Sanitizer and actual-application keyboard/Orca qualification of ABI7
-remain pending, as does x86_64 validation. Existing ABI6 application evidence
+Hindi preedit failure under investigation. Nine focused ASan/UBSan fixtures pass, including native List protocol/lifetime
+and provider reentrancy; Xt/system libraries and leaks are outside that scope.
+Actual-application keyboard/Orca and x86_64 qualification remain pending. Existing ABI6 application evidence
 does not qualify the rebuilt ABI7 consumers.
 
 
@@ -264,6 +265,9 @@ prevent a reentrant count callback from growing a preallocated result buffer or
 reviving removed provider data. Native List selection callbacks may destroy the
 List or its shell, including through nested selection; post-callback publication
 uses a registered destruction sentinel and never dereferences a destroyed widget.
-The fresh installed ABI7 cohort passes all 19 native ARM64 feature fixtures,
+The fresh installed ABI7 cohort passes all 20 native ARM64 feature fixtures,
 including 12 generic-provider reentrancy cases and eight native callback-
-destruction cases. Sanitizer qualification remains a separate gate.
+destruction cases. Those lifetime and reentrancy fixtures also pass with the
+toolkit and fixture binaries instrumented by ASan/UBSan. List allocation faults
+remain in the ordinary native suite because their libc interposer bypasses the
+sanitizer allocator; no sanitizer runtime checks or native assertions are relaxed.

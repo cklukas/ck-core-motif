@@ -52,7 +52,9 @@ capability and typed selection callbacks. These change both native private
 records and custom provider layout. Epoch 7 requires a coherent rebuild of
 Xm/Mrm/Uil, subclasses, custom providers and applications. The earlier epoch 6
 prefix remains valid only for its separately qualified consumers. No alias or
-parallel compatibility layout is supplied. The fresh installed-prefix build and all 19 native ARM64 feature fixtures pass,
+parallel compatibility layout is supplied. The fresh installed-prefix build and all 20 native ARM64 feature fixtures pass,
 including the exact libXm.so.7 loader boundary and native list protocol/fault
-checks. This does not establish sanitizer or actual-application acceptance of
-ABI7, nor x86_64 compilation/runtime validation.
+checks. Nine focused ASan/UBSan fixtures also pass for the rebuilt toolkit, including
+List protocol/lifetime and provider reentrancy. Xt/system dependencies are
+uninstrumented and leak checking is disabled. Actual-application adoption and
+x86_64 compilation/runtime qualification remain separate gates.

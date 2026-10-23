@@ -39,6 +39,7 @@ FIXTURES = {
     "list-lifetime": ("tests/accessibility/list_lifetime.c", True),
     "selection-reentrancy": ("tests/accessibility/selection_reentrancy.c", True),
     "list-accessibility": ("tests/accessibility/list.c", True),
+    "list-allocation-faults": ("tests/accessibility/list.c", True),
     "menu-accessibility": ("tests/accessibility/menu.c", True),
     "compound-traversal": ("tests/accessibility/compound_traversal.c", True),
     "xim-service": ("tests/Toolkit/Im/service.c", True),
@@ -270,6 +271,18 @@ def main():
                 remember(observer)
                 run(name, display(["dbus-run-session", "--", sys.executable, observer,
                                    binary, output / "xim-service-observer"]))
+            elif name == "list-allocation-faults":
+                observer = source / "tests/accessibility/observe_list.py"
+                remember(observer)
+                fault_source = source / "tests/accessibility/list_faults.c"
+                remember(fault_source)
+                interposer = output / "list-faults.so"
+                run("compile-list-faults", [args.cc, "-std=c11", "-O2", "-Wall", "-Wextra",
+                    "-Wpedantic", "-Werror", "-shared", "-fPIC", fault_source, "-ldl", "-o", interposer])
+                receipt["binaries"]["list-faults"] = dict(path=str(interposer), sha256=sha(interposer),
+                    mtime_ns=interposer.stat().st_mtime_ns, elf=verify_native_elf(interposer))
+                run("list-faults", display(["dbus-run-session", "--", sys.executable, observer,
+                    binary, output / "list-faults-observer.json", interposer]))
             elif name in ("accessibility", "scrollbar-accessibility", "text-events", "key-events", "list-accessibility"):
                 observer = source / {"accessibility": "tests/accessibility/observe.py",
                                      "scrollbar-accessibility": "tests/accessibility/observe_scrollbar.py",
@@ -281,16 +294,6 @@ def main():
                                    output / (name + "-observer.json")]))
             else:
                 run(name, display([binary]) if needs_display else [binary])
-            if name == "list-accessibility":
-                fault_source = source / "tests/accessibility/list_faults.c"
-                remember(fault_source)
-                interposer = output / "list-faults.so"
-                run("compile-list-faults", [args.cc, "-std=c11", "-O2", "-Wall", "-Wextra",
-                    "-Wpedantic", "-Werror", "-shared", "-fPIC", fault_source, "-ldl", "-o", interposer])
-                receipt["binaries"]["list-faults"] = dict(path=str(interposer), sha256=sha(interposer),
-                    mtime_ns=interposer.stat().st_mtime_ns, elf=verify_native_elf(interposer))
-                run("list-faults", display(["dbus-run-session", "--", sys.executable, observer,
-                    binary, output / "list-faults-observer.json", interposer]))
             if name == "text-events":
                 fault_source = source / "tests/accessibility/text_event_faults.c"
                 fault_observer = source / "tests/accessibility/observe_text_faults.py"

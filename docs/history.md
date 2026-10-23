@@ -187,10 +187,12 @@ work for native lists and typed custom providers. Stale rows reject after
 delete/replacement, repeated labels remain distinct, and optional projection
 allocation failures close semantic actions until recovery. Native/private and
 public provider layouts advance the suite to ABI7. The fresh installed-prefix
-build and 19 native ARM64 fixtures pass, including allocation-failure recovery,
+build and 20 native ARM64 fixtures pass, including allocation-failure recovery,
 12 generic-provider reentrancy cases and eight native callback-destruction cases.
 Provider snapshots validate the hierarchy and semantic epoch at every callback
 boundary; native selection publication safely handles callback destruction.
-Sanitizer and actual-application adoption remain separate gates. Repeated real
+Nine focused ASan/UBSan fixtures also pass, including List protocol/lifetime
+and provider reentrancy; system/Xt libraries and leak checking are outside scope.
+Actual-application adoption remains a separate gate. Repeated real
 IBus/m17n service validation has an intermittent Hindi preedit failure under
 investigation. Previous ABI6 results remain scoped to that cohort.
