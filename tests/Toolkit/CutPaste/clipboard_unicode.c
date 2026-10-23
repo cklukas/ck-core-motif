@@ -15,8 +15,11 @@
 
 #define LIMIT (16u * 1024u * 1024u)
 #define CHUNK 16384u
+static const char *phase = "initialization";
+static size_t progress, expected;
 static void fail(const char *message) {
-  fprintf(stderr, "%s\n", message);
+  fprintf(stderr, "%s; phase=%s progress=%lu expected=%lu\n", message, phase,
+          (unsigned long)progress, (unsigned long)expected);
   exit(1);
 }
 static unsigned char *load(const char *path, size_t *length) {
@@ -41,12 +44,14 @@ static void save(const char *path, const unsigned char *bytes, size_t length) {
     fail("received payload write failed");
 }
 static void next_event(Display *display, XEvent *event) {
+  /* Flushing may read incoming events into Xlib's queue. Check the queue
+     afterward, before waiting on a socket which may already be drained. */
+  XFlush(display);
   if (!XPending(display)) {
     fd_set readable;
     struct timeval timeout = {20, 0};
     FD_ZERO(&readable);
     FD_SET(ConnectionNumber(display), &readable);
-    XFlush(display);
     if (select(ConnectionNumber(display) + 1, &readable, NULL, NULL,
                &timeout) <= 0)
       fail("selection peer timed out");
@@ -86,7 +91,7 @@ static Window peer_window(Display *display) {
   XSelectInput(display, window, PropertyChangeMask);
   return window;
 }
-static int request(const char *output) {
+static int request(const char *output, int cancel_after_payload) {
   Display *display = XOpenDisplay(NULL);
   Window window;
   Atom clipboard, utf8, property, incr, type;
@@ -101,6 +106,7 @@ static int request(const char *output) {
   utf8 = XInternAtom(display, "UTF8_STRING", False);
   property = XInternAtom(display, "_XM_CLIPBOARD_TEST_DATA", False);
   incr = XInternAtom(display, "INCR", False);
+  phase = "requestor awaiting SelectionNotify";
   XConvertSelection(display, clipboard, utf8, property, window,
                     server_time(display, window));
   do {
@@ -117,6 +123,8 @@ static int request(const char *output) {
     if (format != 32 || count != 1 || *(unsigned long *)part > LIMIT)
       fail("INCR header is not one bounded format32 logical item");
     incremental = 1;
+    expected = *(unsigned long *)part;
+    phase = "requestor awaiting INCR chunk";
     XFree(part);
     part = NULL;
     XDeleteProperty(display, window, property);
@@ -138,9 +146,12 @@ static int request(const char *output) {
       }
       memcpy(bytes + total, part, count);
       total += count;
+      progress = total;
       ++chunks;
       XFree(part);
       part = NULL;
+      if (cancel_after_payload && total == expected)
+        break;
     }
   } else {
     if (type != utf8 || format != 8 || count > LIMIT)
@@ -151,8 +162,9 @@ static int request(const char *output) {
     XFree(part);
   }
   save(output, bytes, total);
-  printf("{\"incr\":%s,\"bytes\":%lu,\"chunks\":%lu}\n",
-         incremental ? "true" : "false", total, chunks);
+  printf("{\"incr\":%s,\"bytes\":%lu,\"chunks\":%lu,\"cancelled\":%s}\n",
+         incremental ? "true" : "false", total, chunks,
+         cancel_after_payload ? "true" : "false");
   XDestroyWindow(display, window);
   XCloseDisplay(display);
   free(bytes);
@@ -170,6 +182,8 @@ static int own(const char *input) {
   if (!display)
     fail("Xlib owner initialization failed");
   bytes = load(input, &length);
+  phase = "raw owner awaiting request";
+  expected = length;
   window = peer_window(display);
   clipboard = XInternAtom(display, "CLIPBOARD", False);
   utf8 = XInternAtom(display, "UTF8_STRING", False);
@@ -209,6 +223,7 @@ static int own(const char *input) {
                         PropModeReplace, (unsigned char *)&value, 1);
         reply.property = property;
       } else if (r->target == utf8 && !transferring) {
+        phase = "raw owner sending UTF8";
         reply.property = property;
         if (length > CHUNK) {
           unsigned long size = (unsigned long)length;
@@ -238,6 +253,7 @@ static int own(const char *input) {
       XChangeProperty(display, requestor, destination, utf8, 8, PropModeReplace,
                       bytes + offset, (int)count);
       offset += count;
+      progress = offset;
       if (count)
         ++chunks;
       else {
@@ -273,6 +289,8 @@ static int native(int argc, char **argv) {
   char *xt_argv[] = {argv[0], NULL};
   (void)argc;
   bytes = load(argv[3], &length);
+  expected = length;
+  phase = importing ? "native import" : "native export";
   shell = XtVaAppInitialize(&app, "ClipboardFixture", NULL, 0, &xt_argc,
                             xt_argv, NULL, NULL);
   text = XtVaCreateManagedWidget(
@@ -304,7 +322,8 @@ static int native(int argc, char **argv) {
       fail("native paste admission refused");
     for (;;) {
       value = field ? XmTextFieldGetString(text) : XmTextGetString(text);
-      if (value && strlen(value) == length && !memcmp(value, bytes, length)) {
+      progress = value ? strlen(value) : 0;
+      if (value && progress == length && !memcmp(value, bytes, length)) {
         XtFree(value);
         break;
       }
@@ -324,8 +343,10 @@ static int native(int argc, char **argv) {
                          XInternAtom(XtDisplay(shell), "CLIPBOARD", False)) ==
       None)
     fail("native copy did not own CLIPBOARD");
-  printf("{\"ready\":true,\"native_import\":%s,\"bytes\":%lu}\n",
-         importing ? "true" : "false", (unsigned long)length);
+  printf("{\"ready\":true,\"native_import\":%s,\"bytes\":%lu,"
+         "\"selection_timeout_ms\":%lu}\n",
+         importing ? "true" : "false", (unsigned long)length,
+         XtAppGetSelectionTimeout(app));
   fflush(stdout);
   free(bytes);
   XtAppMainLoop(app);
@@ -335,7 +356,9 @@ int main(int argc, char **argv) {
   if (!setlocale(LC_ALL, "") || MB_CUR_MAX < 4)
     fail("requires a UTF-8 locale");
   if (argc == 3 && !strcmp(argv[1], "request"))
-    return request(argv[2]);
+    return request(argv[2], 0);
+  if (argc == 3 && !strcmp(argv[1], "request-cancel"))
+    return request(argv[2], 1);
   if (argc == 3 && !strcmp(argv[1], "own"))
     return own(argv[2]);
   if (argc == 4 &&
@@ -343,7 +366,7 @@ int main(int argc, char **argv) {
     XtSetLanguageProc(NULL, NULL, NULL);
     return native(argc, argv);
   }
-  fail("usage: clipboard_unicode request OUTPUT | own INPUT | "
+  fail("usage: clipboard_unicode request OUTPUT | request-cancel OUTPUT | own INPUT | "
        "native-{owner,import} {text,field} INPUT");
   return 1;
 }

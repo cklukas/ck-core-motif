@@ -106,3 +106,14 @@ WML also releases its default resource-literal string before replacing it with
 an explicit literal. The full instrumented generator build exposed this
 ownership leak; the corrected generation and installation complete without
 disabling leak checks.
+
+## Interrupted clipboard transfers
+
+The independent Unicode/INCR peer now flushes before inspecting Xlib's event
+queue; flushing may otherwise consume a socket event into that queue before a
+socket wait. Separately, Xt's final-segment cleanup retained a freed selection
+pointer which its timeout could free again. The dependency patch corrects that
+ownership directly. A peer-disconnect regression waits through the actual
+selection timeout, verifies that the native owner survives, and requires a new
+exact-byte transfer from the same owner for both Text widgets. The
+[pinned dependency build](build.md) records the selected source and patch.

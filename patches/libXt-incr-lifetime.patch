@@ -1,0 +1,8 @@
+--- a/src/Selection.c
++++ b/src/Selection.c
+@@ -605 +605 @@
+-    if (ctx->notify == NULL)
++    if (ctx->notify == NULL) {
+@@ -606,0 +607,2 @@
++        req->value = NULL;
++    }

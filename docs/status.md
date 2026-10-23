@@ -59,10 +59,13 @@ first-collapse behavior have a focused regression; the complete rebuilt suite
 must include that correction.
 
 The independent Xlib clipboard fixture exercises exact Unicode bytes and both
-directions of large INCR transfer, but repeated runs expose intermittent final
-handshake/timeouts and a double-free in the Xt dependency's timeout cleanup.
-Full toolkit/consumer sanitizer diagnostics reproduce it. Clipboard stability
-is not accepted; increasing timeouts or a single successful run is insufficient.
+directions of large INCR transfer. Diagnostics identified a peer event-queue
+wait error and a separate Xt timeout ownership defect. Correcting the peer's
+flush-before-queue-check ordering passes repeated instrumented transfers. The
+interrupted-transfer regression fails with system Xt and passes for Text and
+TextField with the pinned corrected Xt dependency, including a fresh transfer
+from the same surviving owner. See the [dependency build](build.md). Complete
+coherent toolkit/dependency/consumer admission remains a separate gate.
 
 The newer ABI 6 candidate, its consumers and documentation deployment remain
 distinct gates. Final x86_64 validation of this candidate remains pending.

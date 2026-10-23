@@ -39,11 +39,13 @@ ACLOCAL_AMFLAGS = -I .
 
 # Focused fork manual; historical reference sources remain in doc/.
 EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
+              scripts/build-xt-dependency.py patches/libXt-incr-lifetime.patch \
               tests/automated/check-docs-provenance.py tests/automated/check-makestrs-comments.py \
               tests/automated/check-native-features.py \
               tests/Toolkit/ABI/cohort.c tests/Toolkit/Im/preedit_ranges.c \
               tests/Toolkit/Im/service.c tests/Toolkit/Im/service.py \
               tests/Toolkit/CutPaste/clipboard_unicode.c tests/Toolkit/CutPaste/clipboard_unicode.py \
+              tests/Toolkit/CutPaste/clipboard_lifetime.py \
               tests/Toolkit/Unicode/layout.c tests/Toolkit/Unicode/line_context.c \
               tests/Toolkit/Unicode/text_unicode.c tests/Toolkit/Unicode/large_text.c \
               tests/disclosure/widget.c tests/disclosure/observe.py \

@@ -34,6 +34,32 @@ files in the source checkout, so use a disposable source copy when preserving a
 clean checkout matters. Select a scratch filesystem explicitly on systems with
 such a policy. The command sequence is a build example, not validation evidence.
 
+## Xt clipboard dependency
+
+The complete clipboard lifetime gate requires the Xt INCR ownership correction.
+Uncorrected Xt can free its atomic selection value after sending the final
+segment and free the same pointer again if the peer disconnects before the final
+acknowledgement. This is corrected in Xt's `Selection.c`, not with a toolkit shim
+or a longer timeout. `patches/libXt-incr-lifetime.patch` clears the released
+pointer so timeout cleanup remains safe.
+
+On Linux, `scripts/build-xt-dependency.py` accepts the upstream
+[libXt 1.3.1 archive](https://www.x.org/releases/individual/lib/libXt-1.3.1.tar.xz),
+checks SHA-256 `e0a774b33324f4d4c05b199ea45050f87206586d81655f8bef4dba434d931288`,
+applies the exact patch, and builds into a fresh explicit prefix. It performs no
+downloads or system installation. Pass `--archive /absolute/libXt-1.3.1.tar.xz`,
+`--output /absolute/xt-build` and optionally `--prefix /absolute/combined-prefix`.
+An explicit prefix must be fresh or empty. The source/build/install receipts
+record hashes, flags, compiler, timing and instrumentation scope.
+
+Build Motif into the same selected prefix afterward. Set `CPPFLAGS` to include
+its `include`, `LDFLAGS` to `-L` and `-Wl,-rpath,` its `lib`, and
+`PKG_CONFIG_PATH` to its `lib/pkgconfig` before configuring. Verify runtime Xt
+and Xm paths as well as their SONAMEs; a corrected library installed elsewhere
+does not fix a process that loads system Xt. The system installation remains
+untouched. Toolkit/consumer sanitizer builds are separate from this normal Xt
+dependency profile.
+
 ## Consumers
 
 Compile and link against the selected prefix explicitly. Ensure runtime loading
@@ -74,9 +100,11 @@ services. The text fixtures require DejaVu Sans and a CJK-capable fallback font.
 Unavailable services or missing font coverage fail their tests; an in-memory
 semantic substitute does not count as an AT-SPI pass.
 
-Seven fixtures cover ABI/version, XIM preedit bounds, shaped glyph readback,
-paragraph/line context, native Unicode text widgets, disclosure interaction and
-accessibility. Disclosure and accessibility also use external D-Bus observers.
+The default fixtures cover ABI/version, XIM preedit bounds, shaped glyph readback,
+paragraph/line and bounded font contexts, native Unicode and large text widgets,
+Unicode clipboard/INCR and interrupted-transfer lifetime, Disclosure and numeric
+accessibility. Real XIM service testing is selected explicitly with
+`--only xim-service`. Disclosure and accessibility also use external D-Bus observers.
 Each consumer compiles sequentially with strict C11/POSIX 2008 warnings and
 optimization. Compiler dependency graphs prove that actual Xm headers came from
 the selected prefix. The runner checks native ELF identity, library SONAME,
