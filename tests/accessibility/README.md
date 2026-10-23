@@ -30,8 +30,10 @@ button, toggle, text and container semantics and extensible providers are presen
 AT-SPI Accessible/Application, actions, focus, scalar text reads and table cell
 lookup have initial transport support. Unimplemented operations return an explicit
 D-Bus NotSupported error. Additional Component operations, Text selection/editing/boundary
-operations, table selections/headers, relation mapping, bulk Cache, automatic
-structural event completeness and real screen-reader journeys remain required.
+operations, table selections/headers, relation mapping and broader real
+screen-reader journeys remain required. The development transport now supplies
+the live Cache tree and structural add/remove events; its final installed-cohort
+qualification remains separate from the source-linked checks below.
 Do not claim complete AT-SPI interfaces, editing or screen-reader support from this
 fixture. Source text positions are Unicode scalars in a Unicode locale; they are
 not grapheme or visual-caret positions. Native text is converted from the active
@@ -76,3 +78,21 @@ states, resource-change events, read-only/insensitive/invalid-value rejection,
 continuous custom values, stale-object errors, and native operation after bridge
 teardown. The installed-prefix runner includes it as `scrollbar-accessibility`.
 These checks do not constitute broader screen-reader or Orca qualification.
+
+The development lifecycle fixtures add ordered child/index lookup, stale IDs,
+deep iterative teardown, provider reentrancy and bounded live-tree storage
+(`lifecycle.c`); actual native focus and wrapped visual lines
+(`native_geometry.c`); and independent D-Bus bulk Cache/structural events
+(`tree_bus.c`, `observe_tree.py`). Compile the fixtures against one exact toolkit
+prefix and run them on an isolated display. The tree observer takes the fixture
+and output receipt as its two arguments, under `dbus-run-session`.
+
+`native_controls.c` and `observe_orca.py` exercise actual Orca, Speech Dispatcher
+and eSpeak on private display/bus/config/runtime endpoints. Supply the compiled
+fixture, installed prefix, fresh absolute output directory and a short fresh
+runtime path with `--fixture`, `--prefix`, `--out` and `--runtime`. The observer
+records the actual process/library identities, utterances and generated PCM
+without an audio device or user preference changes. Covered native controls
+include buttons, toggles, editable/read-only Unicode text, selection, Disclosure
+and ScrollBar. This subset does not qualify native list/menu items, precise edit
+notifications, custom-provider layout, a complete application or human usability.

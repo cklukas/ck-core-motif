@@ -14,6 +14,7 @@
 #include <Xm/PushBG.h>
 #include <Xm/ScrollBar.h>
 #include <Xm/Text.h>
+#include <Xm/TextP.h>
 #include <Xm/TextF.h>
 #include <Xm/ToggleB.h>
 #include <Xm/ToggleBG.h>
@@ -23,12 +24,101 @@
 #include <string.h>
 #include <wchar.h>
 
+static void deferred_destroy(XtPointer, XtIntervalId *);
+
+/* Live-object indexes never allocate in proportion to historical IDs. */
+static size_t id_hash(XmAccessibleId id, size_t capacity) {
+  return ((size_t)id * UINT32_C(2654435761)) & (capacity - 1);
+}
+static size_t widget_hash(Widget widget, size_t capacity) {
+  uintptr_t value = (uintptr_t)widget;
+  value = (value >> 4) ^ (value >> 17);
+  return (size_t)value & (capacity - 1);
+}
+static Boolean resize_index(XmAccessibility *a, size_t capacity, Boolean widgets) {
+  XmAccessibleNode **buckets, *n;
+  if (capacity > SIZE_MAX / sizeof(*buckets)) return False;
+  buckets = (XmAccessibleNode **)calloc(capacity, sizeof(*buckets));
+  if (!buckets) return False;
+  for (n = a->nodes; n; n = n->next) {
+    size_t index;
+    if (widgets) {
+      if (!n->widget) continue;
+      index = widget_hash(n->widget, capacity);
+      n->widget_next = buckets[index];
+    } else {
+      index = id_hash(n->id, capacity);
+      n->id_next = buckets[index];
+    }
+    buckets[index] = n;
+  }
+  if (widgets) {
+    free(a->widget_buckets); a->widget_buckets = buckets;
+    a->widget_capacity = capacity;
+  } else {
+    free(a->id_buckets); a->id_buckets = buckets; a->id_capacity = capacity;
+  }
+  return True;
+}
+static Boolean reserve_index(XmAccessibility *a, Boolean widgets) {
+  size_t capacity = widgets ? a->widget_capacity : a->id_capacity;
+  size_t count = widgets ? a->widget_count : a->node_count;
+  if (capacity && count < capacity) return True;
+  if (capacity > SIZE_MAX / 2) return False;
+  return resize_index(a, capacity ? capacity * 2 : 64, widgets);
+}
+static void shrink_indexes(XmAccessibility *a) {
+  size_t capacity = a->id_capacity;
+  while (capacity > 64 && a->node_count < capacity / 4) capacity /= 2;
+  if (capacity && capacity != a->id_capacity) (void)resize_index(a, capacity, False);
+  capacity = a->widget_capacity;
+  while (capacity > 64 && a->widget_count < capacity / 4) capacity /= 2;
+  if (capacity && capacity != a->widget_capacity) (void)resize_index(a, capacity, True);
+}
 XmAccessibleNode *_XmAccessibilityNode(XmAccessibility *a, XmAccessibleId id) {
   XmAccessibleNode *n;
-  for (n = a->nodes; n; n = n->next)
-    if (n->id == id)
-      return n;
+  if (!a || !id || !a->id_capacity) return NULL;
+  for (n = a->id_buckets[id_hash(id, a->id_capacity)]; n; n = n->id_next)
+    if (n->id == id) return n;
   return NULL;
+}
+size_t _XmAccessibilityChildCount(XmAccessibility *a, XmAccessibleId id) {
+  XmAccessibleNode *n = _XmAccessibilityNode(a, id);
+  return n ? n->child_count : 0;
+}
+XmAccessibleId _XmAccessibilityChildAt(XmAccessibility *a, XmAccessibleId id, size_t index) {
+  XmAccessibleNode *n = _XmAccessibilityNode(a, id);
+  return n && index < n->child_count ? n->children[index]->id : 0;
+}
+int _XmAccessibilityIndexInParent(XmAccessibility *a, XmAccessibleId id) {
+  XmAccessibleNode *n = _XmAccessibilityNode(a, id);
+  return n && n->parent ? (int)n->child_index : -1;
+}
+static Boolean bind_widget(XmAccessibility *a, XmAccessibleNode *n, Widget widget) {
+  size_t index;
+  if (!reserve_index(a, True)) return False;
+  index = widget_hash(widget, a->widget_capacity);
+  n->widget = widget; n->widget_next = a->widget_buckets[index];
+  a->widget_buckets[index] = n; ++a->widget_count;
+  return True;
+}
+static void unbind_widget(XmAccessibility *a, XmAccessibleNode *n) {
+  XmAccessibleNode **link;
+  if (!n->widget) return;
+  link = &a->widget_buckets[widget_hash(n->widget, a->widget_capacity)];
+  while (*link && *link != n) link = &(*link)->widget_next;
+  if (*link) { *link = n->widget_next; --a->widget_count; }
+  n->widget_next = NULL;
+}
+void _XmAccessibilityDispatchDone(XmAccessibility *a) {
+  if (!a || a->dispatch_depth) return;
+  while (a->retired_nodes) {
+    XmAccessibleNode *n = a->retired_nodes;
+    a->retired_nodes = n->retired_next;
+    free(n);
+  }
+  if (a->destroy_requested && !a->deferred_destroy)
+    a->deferred_destroy = XtAppAddTimeOut(a->app, 0, deferred_destroy, (XtPointer)a);
 }
 static Widget shell_for(Widget widget) {
   while (widget && !XtIsShell(widget))
@@ -45,12 +135,18 @@ static Widget active_shell(XmAccessibility *a) {
   XGetInputFocus(display, &focus, &revert);
   if (focus == None || focus == PointerRoot)
     return NULL;
-  return shell_for(XtWindowToWidget(display, focus));
+  {
+    Widget shell = shell_for(XtWindowToWidget(display, focus));
+    /* Override/menu shells borrow their owning WM frame's activation. */
+    while (shell && !XtIsWMShell(shell)) shell = shell_for(XtParent(shell));
+    return shell;
+  }
 }
 static void node_destroyed(Widget w, XtPointer data, XtPointer call) {
   XmAccessibility *a = (XmAccessibility *)data;
   XmAccessibleNode *n;
   (void)call;
+  ++a->dispatch_depth;
   if (w == a->root) {
     a->root = NULL;
     for (n = a->nodes; n; n = n->next)
@@ -63,16 +159,26 @@ static void node_destroyed(Widget w, XtPointer data, XtPointer call) {
     XmAccessibleId id = XmAccessibilityWidget(a, w);
     n = _XmAccessibilityNode(a, id);
     if (n) {
+      unbind_widget(a, n);
       n->widget = NULL;
       XmAccessibilityRemove(a, id);
       XmAccessibilityChanged(a, 1);
     }
   }
+  --a->dispatch_depth;
+  _XmAccessibilityDispatchDone(a);
 }
 static void notify_focus(XmAccessibility *a) {
   Widget shell = active_shell(a);
+  XmAccessibleId active = shell ? XmAccessibilityWidget(a, shell) : 0;
   XmAccessibleId next =
       shell ? XmAccessibilityWidget(a, XmGetFocusWidget(shell)) : 0;
+  if (active != a->active_shell_node) {
+    XmAccessibleId previous = a->active_shell_node;
+    a->active_shell_node = active;
+    if (previous) XmAccessibilityChanged(a, previous);
+    if (active) XmAccessibilityChanged(a, active);
+  }
   if (next != a->focused_node) {
     XmAccessibleId previous = a->focused_node;
     a->focused_node = next;
@@ -87,8 +193,11 @@ static void widget_event(Widget w, XtPointer data, XEvent *event,
   XmAccessibility *a = (XmAccessibility *)data;
   (void)event;
   (void)cont;
+  ++a->dispatch_depth;
   notify_focus(a);
   XmAccessibilityChanged(a, XmAccessibilityWidget(a, w));
+  --a->dispatch_depth;
+  _XmAccessibilityDispatchDone(a);
 }
 static void text_value_changed(Widget w, XtPointer data, XtPointer call) {
   (void)call;
@@ -125,29 +234,43 @@ static void disclosure_changed(Widget w, XtPointer data, XtPointer call) {
   XmAccessibleId parent = XmAccessibilityWidget(a, w);
   XmAccessibleNode *n;
   (void)call;
+  ++a->dispatch_depth;
   XmAccessibilityChanged(a, parent);
   for (n = a->nodes; n; n = n->next)
     if (n->parent == parent && n->widget != XmDisclosureGetContent(w))
       XmAccessibilityChanged(a, n->id);
+  --a->dispatch_depth;
+  _XmAccessibilityDispatchDone(a);
 }
 static XmAccessibleNode *add_node(XmAccessibility *a, XmAccessibleId parent) {
-  XmAccessibleNode *n;
-  if (a->next_id == UINT32_MAX)
-    return NULL;
-  n = (XmAccessibleNode *)XtCalloc(1, sizeof(*n));
-  n->id = ++a->next_id;
-  n->parent = parent;
+  XmAccessibleNode *n, *p = parent ? _XmAccessibilityNode(a, parent) : NULL;
+  size_t index;
+  if (a->next_id == UINT32_MAX || (parent && (!p || p->child_count >= INT_MAX)) ||
+      !reserve_index(a, False)) return NULL;
+  if (p && p->child_count == p->child_capacity) {
+    size_t capacity = p->child_capacity ? p->child_capacity * 2 : 4;
+    XmAccessibleNode **children;
+    if (capacity < p->child_capacity || capacity > SIZE_MAX / sizeof(*children)) return NULL;
+    children = (XmAccessibleNode **)realloc(p->children, capacity * sizeof(*children));
+    if (!children) return NULL;
+    p->children = children; p->child_capacity = capacity;
+  }
+  n = (XmAccessibleNode *)calloc(1, sizeof(*n));
+  if (!n) return NULL;
+  n->id = ++a->next_id; n->parent = parent;
+  if (p) { n->child_index = p->child_count; p->children[p->child_count++] = n; }
   n->next = a->nodes;
+  if (n->next) n->next->previous = n;
   a->nodes = n;
+  index = id_hash(n->id, a->id_capacity);
+  n->id_next = a->id_buckets[index]; a->id_buckets[index] = n; ++a->node_count;
   return n;
 }
 XmAccessibleId XmAccessibilityWidget(XmAccessibility *a, Widget w) {
   XmAccessibleNode *n;
-  if (!a || !w)
-    return 0;
-  for (n = a->nodes; n; n = n->next)
-    if (n->widget == w)
-      return n->id;
+  if (!a || !w || !a->widget_capacity) return 0;
+  for (n = a->widget_buckets[widget_hash(w, a->widget_capacity)]; n; n = n->widget_next)
+    if (n->widget == w) return n->id;
   return 0;
 }
 static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
@@ -160,7 +283,7 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     n = add_node(a, parent);
     if (!n)
       return;
-    n->widget = w;
+    if (!bind_widget(a, n, w)) { XmAccessibilityRemove(a, n->id); return; }
     if (XmIsScrollBar(w)) {
       size_t k;
       for (k = 0; k < XtNumber(scroll_callbacks); ++k)
@@ -200,7 +323,7 @@ XmAccessibility *XmAccessibilityCreate(Widget root, const char *name) {
   a->name = XtNewString(name ? name : XtName(root));
   a->status = XmACCESSIBILITY_NOT_BUILT;
   n = add_node(a, 0);
-  (void)n;
+  if (!n) { XmAccessibilityDestroy(a); return NULL; }
   add_widgets(a, root, 1);
   return a;
 }
@@ -215,15 +338,19 @@ Boolean XmAccessibilityAttachShell(XmAccessibility *a, Widget shell) {
   return True;
 }
 void XmAccessibilityRefresh(XmAccessibility *a) {
-  XmAccessibleNode *n;
-  if (!a)
-    return;
-  for (n = a->nodes; n; n = n->next)
-    if (n->parent == 1 && n->widget)
-      add_widgets(a, n->widget, 1);
+  XmAccessibleNode *root;
+  size_t i;
+  if (!a || !(root = _XmAccessibilityNode(a, 1))) return;
+  ++a->dispatch_depth;
+  for (i = 0; i < root->child_count; ++i) {
+    XmAccessibleNode *n = root->children[i];
+    if (n->widget) add_widgets(a, n->widget, 1);
+  }
+  --a->dispatch_depth;
+  _XmAccessibilityDispatchDone(a);
 }
 XmAccessibleId XmAccessibilityRoot(XmAccessibility *a) { return a ? 1 : 0; }
-XmAccessibleId XmAccessibilityAdd(XmAccessibility *a, XmAccessibleId parent,
+static XmAccessibleId add_impl(XmAccessibility *a, XmAccessibleId parent,
                                   const XmAccessibleProvider *provider,
                                   XtPointer data) {
   XmAccessibleNode *n;
@@ -234,27 +361,14 @@ XmAccessibleId XmAccessibilityAdd(XmAccessibility *a, XmAccessibleId parent,
     return 0;
   n->provider = *provider;
   n->data = data;
-  XmAccessibilityChanged(a, parent);
-  return n->id;
-}
-void XmAccessibilityRemove(XmAccessibility *a, XmAccessibleId id) {
-  XmAccessibleNode **p = &a->nodes, *n;
-  if (id <= 1)
-    return;
-  /* Remove descendants before their provider-owned parent data is released. */
-  for (;;) {
-    for (n = a->nodes; n; n = n->next)
-      if (n->parent == id)
-        break;
-    if (!n)
-      break;
-    XmAccessibilityRemove(a, n->id);
+  {
+    XmAccessibleId id = n->id;
+    XmAccessibilityChanged(a, parent);
+    if (_XmAccessibilityNode(a, id)) XmAccessibilityChanged(a, id);
+    return _XmAccessibilityNode(a, id) ? id : 0;
   }
-  while (*p && (*p)->id != id)
-    p = &(*p)->next;
-  if (!*p)
-    return;
-  n = *p;
+}
+static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
   if (n->widget) {
     if (XmIsScrollBar(n->widget)) {
       size_t k;
@@ -277,25 +391,64 @@ void XmAccessibilityRemove(XmAccessibility *a, XmAccessibleId id) {
                                ButtonReleaseMask,
                            False, widget_event, (XtPointer)a);
   }
-  *p = n->next;
-  XtFree((char *)n);
+}
+void XmAccessibilityRemove(XmAccessibility *a, XmAccessibleId id) {
+  XmAccessibleNode *root = _XmAccessibilityNode(a, id), *n, *parent;
+  size_t index;
+  if (!root || id <= 1) return;
+  parent = _XmAccessibilityNode(a, root->parent);
+  /* Only the surviving parent's array is shifted. Descendants are popped
+     iteratively, avoiding both quadratic array shifts and recursive stacks. */
+  if (parent) {
+    index = root->child_index;
+    --parent->child_count;
+    memmove(parent->children + index, parent->children + index + 1,
+            (parent->child_count - index) * sizeof(*parent->children));
+    for (; index < parent->child_count; ++index) parent->children[index]->child_index = index;
+    if (!parent->child_count) {
+      free(parent->children); parent->children = NULL; parent->child_capacity = 0;
+    } else if (parent->child_capacity > 4 && parent->child_count < parent->child_capacity / 4) {
+      size_t capacity = parent->child_capacity / 2;
+      XmAccessibleNode **children = (XmAccessibleNode **)realloc(parent->children, capacity * sizeof(*children));
+      if (children) { parent->children = children; parent->child_capacity = capacity; }
+    }
+  }
+  n = root;
+  while (n) {
+    XmAccessibleNode **link;
+    if (n->child_count) { n = n->children[--n->child_count]; continue; }
+    parent = n == root ? NULL : _XmAccessibilityNode(a, n->parent);
+    remove_callbacks(a, n);
+    unbind_widget(a, n);
+    link = &a->id_buckets[id_hash(n->id, a->id_capacity)];
+    while (*link && *link != n) link = &(*link)->id_next;
+    if (*link) *link = n->id_next;
+    if (n->previous) n->previous->next = n->next; else a->nodes = n->next;
+    if (n->next) n->next->previous = n->previous;
+    --a->node_count;
+    n->removed = True;
+    memset(&n->provider, 0, sizeof(n->provider)); n->data = NULL; n->widget = NULL;
+    free(n->children); n->children = NULL; n->child_capacity = 0;
+    _XmAccessibilityTransportRemoved(a, n->id, n->parent, (int)n->child_index);
+    if (a->dispatch_depth) { n->retired_next = a->retired_nodes; a->retired_nodes = n; }
+    else free(n);
+    n = parent;
+  }
+  shrink_indexes(a);
 }
 static void deferred_destroy(XtPointer data, XtIntervalId *id) {
   XmAccessibility *a = (XmAccessibility *)data;
   (void)id;
   a->deferred_destroy = 0;
+  if (a->dispatch_depth) { a->destroy_requested = True; return; }
   XmAccessibilityDestroy(a);
 }
 void XmAccessibilityDestroy(XmAccessibility *a) {
   XmAccessibleNode *n;
   if (!a)
     return;
-  if (a->dispatch_depth) {
-    if (!a->deferred_destroy)
-      a->deferred_destroy =
-          XtAppAddTimeOut(a->app, 0, deferred_destroy, (XtPointer)a);
-    return;
-  }
+  if (a->dispatch_depth) { a->destroy_requested = True; return; }
+  a->destroy_requested = False;
   if (a->deferred_destroy)
     XtRemoveTimeOut(a->deferred_destroy);
   while (a->display_hooks) {
@@ -310,10 +463,12 @@ void XmAccessibilityDestroy(XmAccessibility *a) {
     n = a->nodes;
     if (n->id == 1) {
       a->nodes = n->next;
-      XtFree((char *)n);
+      free(n->children); free(n);
     } else
       XmAccessibilityRemove(a, n->id);
   }
+  _XmAccessibilityDispatchDone(a);
+  free(a->id_buckets); free(a->widget_buckets);
   XtFree(a->name);
   XtFree((char *)a);
 }
@@ -374,7 +529,7 @@ static char *locale_utf8(const char *s) {
   XtFree((char *)wide);
   return result;
 }
-Boolean XmAccessibilityQuery(XmAccessibility *a, XmAccessibleId id,
+static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
                              XmAccessibleInfo *i) {
   XmAccessibleNode *n = _XmAccessibilityNode(a, id);
   Widget w;
@@ -399,6 +554,7 @@ Boolean XmAccessibilityQuery(XmAccessibility *a, XmAccessibleId id,
          i->current_value < i->minimum_value ||
          i->current_value > i->maximum_value))
       result = False;
+    if (_XmAccessibilityNode(a, id) != n) result = False;
     if (!result)
       XmAccessibleInfoClear(i);
     return result;
@@ -425,7 +581,9 @@ Boolean XmAccessibilityQuery(XmAccessibility *a, XmAccessibleId id,
     i->has_extents = True;
   }
   i->role = XtIsShell(w) ? XmACCESSIBLE_FRAME : XmACCESSIBLE_PANEL;
-  i->states = XmACCESSIBLE_STATE(30);
+  if (XtIsShell(w) && active_shell(a) == w)
+    i->states |= XmACCESSIBLE_STATE(1); /* active: actual WM/input ownership */
+  i->states |= XmACCESSIBLE_STATE(30);
   if (XtIsSensitive(w))
     i->states |= XmACCESSIBLE_STATE(8) | XmACCESSIBLE_STATE(24);
   if (XtIsRealized(w)) {
@@ -517,7 +675,7 @@ Boolean XmAccessibilityQuery(XmAccessibility *a, XmAccessibleId id,
     i->name = XtNewString("");
   return True;
 }
-char *XmAccessibilityText(XmAccessibility *a, XmAccessibleId id, int start,
+static char *text_impl(XmAccessibility *a, XmAccessibleId id, int start,
                           int end) {
   XmAccessibleNode *n = _XmAccessibilityNode(a, id);
   XmAccessibleInfo info;
@@ -554,7 +712,7 @@ char *XmAccessibilityText(XmAccessibility *a, XmAccessibleId id, int start,
   XtFree(local);
   return result;
 }
-Boolean XmAccessibilityAction(XmAccessibility *a, XmAccessibleId id,
+static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
                               unsigned int action) {
   XmAccessibleNode *n = _XmAccessibilityNode(a, id);
   XmAnyCallbackStruct cb;
@@ -611,7 +769,7 @@ Boolean XmAccessibilityAction(XmAccessibility *a, XmAccessibleId id,
   XtCallCallbacks(n->widget, XmNactivateCallback, &cb);
   return True;
 }
-char *XmAccessibilityActionName(XmAccessibility *a, XmAccessibleId id,
+static char *action_name_impl(XmAccessibility *a, XmAccessibleId id,
                                 unsigned int action) {
   static const char *names[] = {"increment",      "decrement",
                                 "page-increment", "page-decrement",
@@ -633,7 +791,7 @@ char *XmAccessibilityActionName(XmAccessibility *a, XmAccessibleId id,
     return XtNewString(name);
   }
 }
-Boolean XmAccessibilitySetValue(XmAccessibility *a, XmAccessibleId id,
+static Boolean set_value_impl(XmAccessibility *a, XmAccessibleId id,
                                 double value) {
   XmAccessibleNode *n = _XmAccessibilityNode(a, id);
   XmAccessibleInfo info;
@@ -656,7 +814,7 @@ Boolean XmAccessibilitySetValue(XmAccessibility *a, XmAccessibleId id,
   XmScrollBarSetValues(n->widget, (int)value, 0, 0, 0, True);
   return True;
 }
-Boolean XmAccessibilityFocus(XmAccessibility *a, XmAccessibleId id) {
+static Boolean focus_impl(XmAccessibility *a, XmAccessibleId id) {
   XmAccessibleNode *n = _XmAccessibilityNode(a, id);
   if (!n)
     return False;
@@ -672,8 +830,11 @@ Boolean XmAccessibilityFocus(XmAccessibility *a, XmAccessibleId id) {
   return False;
 }
 void XmAccessibilityChanged(XmAccessibility *a, XmAccessibleId id) {
-  if (a && id)
-    _XmAccessibilityTransportChanged(a, id);
+  if (!a || !id) return;
+  ++a->dispatch_depth;
+  _XmAccessibilityTransportChanged(a, id);
+  --a->dispatch_depth;
+  _XmAccessibilityDispatchDone(a);
 }
 XmAccessibilityStatus XmAccessibilityConnect(XmAccessibility *a) {
   return _XmAccessibilityTransportConnect(a);
@@ -684,6 +845,134 @@ XmAccessibilityStatus XmAccessibilityGetStatus(XmAccessibility *a) {
 const char *XmAccessibilityBusName(XmAccessibility *a) {
   return _XmAccessibilityTransportBusName(a);
 }
+Boolean XmAccessibilityQuery(XmAccessibility *a, XmAccessibleId id, XmAccessibleInfo *info) {
+  Boolean result;
+  if (!a) return False;
+  ++a->dispatch_depth;
+  result = query_impl(a, id, info);
+  --a->dispatch_depth;
+  _XmAccessibilityDispatchDone(a);
+  return result;
+}
+
+char *XmAccessibilityText(XmAccessibility *a, XmAccessibleId id, int start, int end) {
+  char * result;
+  if (!a) return NULL;
+  ++a->dispatch_depth;
+  result = text_impl(a, id, start, end);
+  --a->dispatch_depth;
+  _XmAccessibilityDispatchDone(a);
+  return result;
+}
+
+Boolean XmAccessibilityAction(XmAccessibility *a, XmAccessibleId id, unsigned int action) {
+  Boolean result;
+  if (!a) return False;
+  ++a->dispatch_depth;
+  result = action_impl(a, id, action);
+  --a->dispatch_depth;
+  _XmAccessibilityDispatchDone(a);
+  return result;
+}
+
+char *XmAccessibilityActionName(XmAccessibility *a, XmAccessibleId id, unsigned int action) {
+  char * result;
+  if (!a) return NULL;
+  ++a->dispatch_depth;
+  result = action_name_impl(a, id, action);
+  --a->dispatch_depth;
+  _XmAccessibilityDispatchDone(a);
+  return result;
+}
+
+Boolean XmAccessibilitySetValue(XmAccessibility *a, XmAccessibleId id, double value) {
+  Boolean result;
+  if (!a) return False;
+  ++a->dispatch_depth;
+  result = set_value_impl(a, id, value);
+  --a->dispatch_depth;
+  _XmAccessibilityDispatchDone(a);
+  return result;
+}
+
+Boolean XmAccessibilityFocus(XmAccessibility *a, XmAccessibleId id) {
+  Boolean result;
+  if (!a) return False;
+  ++a->dispatch_depth;
+  result = focus_impl(a, id);
+  --a->dispatch_depth;
+  _XmAccessibilityDispatchDone(a);
+  return result;
+}
+
+XmAccessibleId XmAccessibilityAdd(XmAccessibility *a, XmAccessibleId parent, const XmAccessibleProvider *provider, XtPointer data) {
+  XmAccessibleId result;
+  if (!a) return 0;
+  ++a->dispatch_depth;
+  result = add_impl(a, parent, provider, data);
+  --a->dispatch_depth;
+  _XmAccessibilityDispatchDone(a);
+  return result;
+}
+
+Boolean _XmAccessibilityNativeTextSelection(XmAccessibility *a, XmAccessibleId id,
+                                            Boolean *selected, int *first, int *last) {
+  XmAccessibleNode *n = _XmAccessibilityNode(a, id);
+  XmTextPosition start = 0, end = 0;
+  Boolean value;
+  if (!n || !n->widget || !selected || !first || !last) return False;
+  if (XmIsText(n->widget)) value = XmTextGetSelectionPosition(n->widget, &start, &end);
+  else if (XmIsTextField(n->widget)) value = XmTextFieldGetSelectionPosition(n->widget, &start, &end);
+  else return False;
+  if (value && (start < 0 || end < start || end > INT_MAX)) return False;
+  *selected = value; *first = value ? (int)start : 0; *last = value ? (int)end : 0;
+  return True;
+}
+Boolean XmAccessibilityVisualLine(XmAccessibility *a, XmAccessibleId id, int offset,
+                                  int direction, int *first, int *last) {
+  XmAccessibleNode *n;
+  XmAccessibleInfo info;
+  Boolean result = False;
+  if (!a || !first || !last || offset < 0 || direction < -1 || direction > 1) return False;
+  ++a->dispatch_depth;
+  n = _XmAccessibilityNode(a, id);
+  if (!n || !XmAccessibilityQuery(a, id, &info)) goto done;
+  if (!info.has_text || offset > info.text_length) { XmAccessibleInfoClear(&info); goto done; }
+  {
+    int length = info.text_length;
+    XmAccessibleInfoClear(&info);
+    if (n->provider.visual_line) {
+      result = n->provider.visual_line(n->data, offset, direction, first, last);
+      if (result && (_XmAccessibilityNode(a, id) != n || *first < 0 || *last < *first || *last > length)) result = False;
+    } else if (n->widget && XmIsTextField(n->widget)) {
+      *first = direction > 0 ? length : 0;
+      *last = direction < 0 ? 0 : length;
+      result = True;
+    } else if (n->widget && XmIsText(n->widget)) {
+      XmTextWidget text = (XmTextWidget)n->widget;
+      XmTextLineTable lines = text->text.line_table;
+      int count = text->text.total_lines, lower = 0, upper = count, index;
+      if (!lines || count <= 0) goto done;
+      while (lower < upper) {
+        int middle = lower + (upper - lower) / 2;
+        if (lines[middle].start_pos <= (unsigned int)offset) lower = middle + 1;
+        else upper = middle;
+      }
+      index = lower - 1 + direction;
+      if (index < 0) *first = *last = 0;
+      else if (index >= count) *first = *last = length;
+      else {
+        *first = (int)lines[index].start_pos;
+        *last = index + 1 < count ? (int)lines[index + 1].start_pos : length;
+      }
+      result = *first >= 0 && *last >= *first && *last <= length;
+    }
+  }
+done:
+  --a->dispatch_depth;
+  _XmAccessibilityDispatchDone(a);
+  return result;
+}
 #ifndef HAVE_ATSPI_DBUS
 void _XmAccessibilityTransportDestroy(XmAccessibility *a) { (void)a; }
 XmAccessibilityStatus _XmAccessibilityTransportConnect(XmAccessibility *a) {
@@ -692,6 +981,10 @@ XmAccessibilityStatus _XmAccessibilityTransportConnect(XmAccessibility *a) {
 void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
   (void)a;
   (void)id;
+}
+void _XmAccessibilityTransportRemoved(XmAccessibility *a, XmAccessibleId id,
+                                     XmAccessibleId parent, int index) {
+  (void)a; (void)id; (void)parent; (void)index;
 }
 const char *_XmAccessibilityTransportBusName(XmAccessibility *a) {
   (void)a;

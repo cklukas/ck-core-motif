@@ -5,6 +5,9 @@ datadir = ${prefix}/share/Xm/doc
 
 EXTRA_DIST = tests/accessibility/scrollbar.c tests/accessibility/observe_scrollbar.py \
               tests/accessibility/provider.c tests/accessibility/observe.py tests/accessibility/README.md \
+              tests/accessibility/native_controls.c tests/accessibility/observe_orca.py \
+              tests/accessibility/lifecycle.c tests/accessibility/native_geometry.c \
+              tests/accessibility/tree_bus.c tests/accessibility/observe_tree.py \
              BUGREPORT \
              COPYING \
              README RELEASE RELNOTES \

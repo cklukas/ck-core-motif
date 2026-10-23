@@ -53,6 +53,15 @@ typedef char *(*XmAccessibleActionNameProc)(XtPointer, unsigned int);
 typedef Boolean (*XmAccessibleFocusProc)(XtPointer);
 typedef XmAccessibleId (*XmAccessibleCellProc)(XtPointer, int, int);
 typedef Boolean (*XmAccessibleSetValueProc)(XtPointer, double);
+/* Visual lines use Unicode scalar offsets, with exclusive end. direction is
+   -1 (previous), 0 (containing), or +1 (next). A hard newline belongs to the
+   preceding line; offset == text_length selects the final line, including an
+   empty line after a trailing newline. Missing neighbors are empty ranges at
+   0 or text_length. Callbacks must return actual layout lines, including soft
+   wrapping, and never substitute logical paragraphs for unavailable layout. */
+typedef Boolean (*XmAccessibleVisualLineProc)(XtPointer, int offset,
+                                             int direction, int *first,
+                                             int *last);
 typedef struct {
   XmAccessibleQueryProc query;
   XmAccessibleTextProc text;
@@ -61,6 +70,7 @@ typedef struct {
   XmAccessibleFocusProc focus;
   XmAccessibleCellProc cell;
   XmAccessibleSetValueProc set_value;
+  XmAccessibleVisualLineProc visual_line;
 } XmAccessibleProvider;
 typedef enum {
   XmACCESSIBILITY_NOT_BUILT,
@@ -94,6 +104,9 @@ void XmAccessibleInfoClear(XmAccessibleInfo *);
  */
 char *XmAccessibilityText(XmAccessibility *, XmAccessibleId, int start,
                           int end);
+/* False means stale, invalid, or unavailable visual layout. */
+Boolean XmAccessibilityVisualLine(XmAccessibility *, XmAccessibleId, int offset,
+                                   int direction, int *first, int *last);
 Boolean XmAccessibilityAction(XmAccessibility *, XmAccessibleId, unsigned int);
 /* Owned UTF-8 native/provider action name; NULL for invalid action. */
 char *XmAccessibilityActionName(XmAccessibility *, XmAccessibleId,

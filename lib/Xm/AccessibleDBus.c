@@ -9,6 +9,14 @@
 #include <X11/StringDefs.h>
 #include <dbus/dbus.h>
 #include <locale.h>
+#include <limits.h>
+#ifdef HAVE_UNICODE_TEXT
+#include "TextUnicode.h"
+#include <unicode/ubrk.h>
+#include <unicode/utext.h>
+#include <unicode/utf8.h>
+#include <unicode/uchar.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,6 +31,17 @@
 #define TEXT "org.a11y.atspi.Text"
 #define TABLE "org.a11y.atspi.Table"
 #define COMPONENT "org.a11y.atspi.Component"
+#define CACHE "org.a11y.atspi.Cache"
+#define CACHEPATH "/org/a11y/atspi/cache"
+#define CACHE_ITEM "((so)(so)(so)iiassusau)"
+typedef struct _TransportState {
+  XmAccessibleId id;
+  uint64_t states;
+  char *name, *value_text;
+  double minimum, maximum, current, increment;
+  unsigned char known, has_value;
+  struct _TransportState *next;
+} TransportState;
 typedef struct {
   XmAccessibility *owner;
   DBusConnection *connection;
@@ -30,6 +49,8 @@ typedef struct {
   XtInputId input;
   XtIntervalId timer;
   int application_id;
+  TransportState **memo;
+  size_t memo_capacity, memo_count;
 } Transport;
 static const char *text(const char *s) { return s ? s : ""; }
 static void path_for(XmAccessibleId id, char *buffer, size_t length) {
@@ -56,29 +77,10 @@ static void string_value(DBusMessageIter *i, const char *s) {
   dbus_message_iter_append_basic(i, DBUS_TYPE_STRING, &value);
 }
 static int child_count(XmAccessibility *a, XmAccessibleId id) {
-  XmAccessibleNode *n;
-  int count = 0;
-  for (n = a->nodes; n; n = n->next)
-    if (n->parent == id)
-      count++;
-  return count;
+  return (int)_XmAccessibilityChildCount(a, id);
 }
-static XmAccessibleId child_at(XmAccessibility *a, XmAccessibleId id,
-                               int index) {
-  XmAccessibleNode *n;
-  XmAccessibleId result = 0, after = 0;
-  int i;
-  /* Registration list is reverse-linked; expose stable creation order. */
-  for (i = 0; i <= index; i++) {
-    result = 0;
-    for (n = a->nodes; n; n = n->next)
-      if (n->parent == id && n->id > after && (!result || n->id < result))
-        result = n->id;
-    if (!result)
-      return 0;
-    after = result;
-  }
-  return result;
+static XmAccessibleId child_at(XmAccessibility *a, XmAccessibleId id, int index) {
+  return index < 0 ? 0 : _XmAccessibilityChildAt(a, id, (size_t)index);
 }
 static const char *role_name(unsigned int role) {
   switch (role) {
@@ -132,6 +134,96 @@ static void states(DBusMessageIter *i, uint64_t bits) {
   dbus_message_iter_append_basic(&array, DBUS_TYPE_UINT32, &lower);
   dbus_message_iter_append_basic(&array, DBUS_TYPE_UINT32, &upper);
   dbus_message_iter_close_container(i, &array);
+}
+/* Only live nodes retain memo records. Monotonic IDs never imply a growing
+ * dense allocation; removal shrinks the hash table as the live tree shrinks. */
+static size_t memo_bucket(XmAccessibleId id, size_t capacity) {
+  return ((size_t)id * (size_t)UINT32_C(2654435761)) & (capacity - 1);
+}
+static void memo_resize(Transport *t, size_t capacity) {
+  TransportState **table;
+  size_t k;
+  table = (TransportState **)XtCalloc((Cardinal)capacity, sizeof(*table));
+  for (k = 0; k < t->memo_capacity; ++k) {
+    TransportState *record = t->memo[k];
+    while (record) {
+      TransportState *next = record->next;
+      size_t bucket = memo_bucket(record->id, capacity);
+      record->next = table[bucket]; table[bucket] = record; record = next;
+    }
+  }
+  XtFree((char *)t->memo); t->memo = table; t->memo_capacity = capacity;
+}
+static TransportState *memo_get(Transport *t, XmAccessibleId id, int create) {
+  TransportState *record;
+  size_t bucket;
+  if (!t->memo_capacity) {
+    if (!create) return NULL;
+    memo_resize(t, 64);
+  }
+  bucket = memo_bucket(id, t->memo_capacity);
+  for (record = t->memo[bucket]; record; record = record->next)
+    if (record->id == id) return record;
+  if (!create) return NULL;
+  if (t->memo_count >= t->memo_capacity && t->memo_capacity <= UINT_MAX / (2 * sizeof(*t->memo))) {
+    memo_resize(t, t->memo_capacity * 2);
+    bucket = memo_bucket(id, t->memo_capacity);
+  }
+  record = (TransportState *)XtCalloc(1, sizeof(*record));
+  record->id = id; record->next = t->memo[bucket]; t->memo[bucket] = record;
+  ++t->memo_count;
+  return record;
+}
+static void memo_remove(Transport *t, XmAccessibleId id) {
+  TransportState **link, *record;
+  if (!t->memo_capacity) return;
+  link = &t->memo[memo_bucket(id, t->memo_capacity)];
+  while (*link && (*link)->id != id) link = &(*link)->next;
+  if (!*link) return;
+  record = *link; *link = record->next;
+  XtFree(record->name); XtFree(record->value_text); XtFree((char *)record); --t->memo_count;
+  if (t->memo_capacity > 64 && t->memo_count < t->memo_capacity / 4)
+    memo_resize(t, t->memo_capacity / 2);
+}
+static int index_in_parent(XmAccessibility *a, XmAccessibleNode *node) {
+  return _XmAccessibilityIndexInParent(a, node->id);
+}
+static int cache_item(DBusMessageIter *out, Transport *t,
+                       XmAccessibleId id) {
+  XmAccessibleInfo info;
+  XmAccessibleNode *node = _XmAccessibilityNode(t->owner, id);
+  DBusMessageIter item;
+  dbus_int32_t index, count;
+  dbus_uint32_t role;
+  if (!node || !XmAccessibilityQuery(t->owner, id, &info))
+    return 0;
+  if (!dbus_validate_utf8(text(info.name), NULL) ||
+      !dbus_validate_utf8(text(info.description), NULL)) {
+    XmAccessibleInfoClear(&info);
+    return 0;
+  }
+  index = index_in_parent(t->owner, node);
+  count = child_count(t->owner, id);
+  role = info.role;
+  dbus_message_iter_open_container(out, DBUS_TYPE_STRUCT, NULL, &item);
+  reference(&item, t, id);
+  reference(&item, t, 1);
+  reference(&item, t, node->parent);
+  dbus_message_iter_append_basic(&item, DBUS_TYPE_INT32, &index);
+  dbus_message_iter_append_basic(&item, DBUS_TYPE_INT32, &count);
+  interfaces(&item, &info, id);
+  string_value(&item, info.name);
+  dbus_message_iter_append_basic(&item, DBUS_TYPE_UINT32, &role);
+  string_value(&item, info.description);
+  states(&item, info.states);
+  dbus_message_iter_close_container(out, &item);
+  {
+    TransportState *record = memo_get(t, id, 1);
+    record->known = 1;
+    XtFree(record->name); record->name = XtNewString(text(info.name));
+  }
+  XmAccessibleInfoClear(&info);
+  return 1;
 }
 static void send_reply(Transport *t, DBusMessage *reply) {
   if (reply) {
@@ -304,11 +396,189 @@ static const char introspection[] =
     "<interface name='org.a11y.atspi.Text'><method name='GetText'><arg "
     "direction='in' type='i'/><arg direction='in' type='i'/><arg "
     "direction='out' type='s'/></method><method "
+    "name='GetStringAtOffset'><arg direction='in' type='i'/><arg direction='in' type='u'/>"
+    "<arg direction='out' type='s'/><arg direction='out' type='i'/><arg direction='out' type='i'/></method><method "
+    "name='GetTextAtOffset'><arg direction='in' type='i'/><arg direction='in' type='u'/>"
+    "<arg direction='out' type='s'/><arg direction='out' type='i'/><arg direction='out' type='i'/></method><method "
+    "name='GetTextBeforeOffset'><arg direction='in' type='i'/><arg direction='in' type='u'/>"
+    "<arg direction='out' type='s'/><arg direction='out' type='i'/><arg direction='out' type='i'/></method><method "
+    "name='GetTextAfterOffset'><arg direction='in' type='i'/><arg direction='in' type='u'/>"
+    "<arg direction='out' type='s'/><arg direction='out' type='i'/><arg direction='out' type='i'/></method><method "
     "name='GetCharacterAtOffset'><arg direction='in' type='i'/><arg "
     "direction='out' type='i'/></method></interface>"
     "<interface name='org.a11y.atspi.Table'><method "
     "name='GetAccessibleAt'><arg direction='in' type='i'/><arg direction='in' "
     "type='i'/><arg direction='out' type='(so)'/></method></interface></node>";
+static int line_separator_before(XmAccessibility *a, XmAccessibleId id, int end) {
+  char *last;
+  int result = 0;
+  if (end <= 0) return 0;
+  last = XmAccessibilityText(a, id, end - 1, end);
+  if (!last) return 0;
+  if (!strcmp(last, "\n") || !strcmp(last, "\r") ||
+      !strcmp(last, "\xc2\x85") || !strcmp(last, "\xe2\x80\xa8") ||
+      !strcmp(last, "\xe2\x80\xa9")) result = 1;
+  if (!strcmp(last, "\n") && end > 1) {
+    char *previous = XmAccessibilityText(a, id, end - 2, end - 1);
+    if (previous && !strcmp(previous, "\r")) result = 2;
+    XtFree(previous);
+  }
+  XtFree(last);
+  return result;
+}
+/* Wire offsets are Unicode scalars. ICU UText break offsets are UTF-8 bytes;
+ * the shared immutable map performs exact conversion between the two. Visual
+ * line boundaries are supplied by the actual native/provider layout. */
+static int text_range(XmAccessibility *a, XmAccessibleId id, int length,
+                      int offset, unsigned int boundary, int modern,
+                      int direction, int *first, int *last) {
+  int line = modern ? boundary == 3 : boundary == 5 || boundary == 6;
+  if (offset < 0 || offset > length || (modern ? boundary > 4 : boundary > 6))
+    return -1;
+  if (line) {
+    int start, end;
+    if (!modern && boundary == 6) {
+      int shift = direction;
+      /* Legacy LINE_END places hard separators at the beginning of the next
+       * range. Soft-wrap boundaries stay unchanged. */
+      if (!XmAccessibilityVisualLine(a, id, offset, 0, &start, &end)) return 0;
+      if (start < end && offset >= end - line_separator_before(a, id, end) &&
+          line_separator_before(a, id, end)) ++shift;
+      if (shift > 1) {
+        if (!XmAccessibilityVisualLine(a, id, offset, 1, &start, &end)) return 0;
+        if (!XmAccessibilityVisualLine(a, id, start, 1, &start, &end)) return 0;
+      } else if (!XmAccessibilityVisualLine(a, id, offset, shift, &start, &end)) return 0;
+      if (start == end) { *first = *last = start; return 1; }
+      *first = start - line_separator_before(a, id, start);
+      *last = end - line_separator_before(a, id, end);
+      return 1;
+    }
+    return XmAccessibilityVisualLine(a, id, offset, direction, first, last);
+  }
+  if (boundary == 0) {
+    int position = offset + direction;
+    if (position < 0) position = 0;
+    if (position > length) position = length;
+    *first = position;
+    *last = position < length ? position + 1 : position;
+    if (offset == 0 && direction < 0) *last = 0;
+    return 1;
+  }
+#ifdef HAVE_UNICODE_TEXT
+  {
+    char *source = XmAccessibilityText(a, id, 0, length);
+    XmTextUnicodeMap *map;
+    UBreakIterator *iterator = NULL;
+    UText *utext = NULL;
+    UErrorCode status = U_ZERO_ERROR;
+    int *breaks = NULL, count = 0, capacity = 0, selected, k, trailing_paragraph = 0;
+    int32_t byte;
+    size_t scalar, byte_length;
+    int paragraph = modern && boundary == 4;
+    if (!source || !dbus_validate_utf8(source, NULL)) {
+      XtFree(source);
+      return 0;
+    }
+    byte_length = strlen(source);
+    map = XmTextUnicodeMapCreate(source, byte_length);
+    if (!map || XmTextUnicodeScalarCount(map) != (size_t)length) {
+      XmTextUnicodeMapFree(map); XtFree(source); return 0;
+    }
+#define ADD_BREAK(value) do { \
+      int candidate = (value); \
+      if (!count || breaks[count - 1] != candidate) { \
+        if (count == capacity) { \
+          int next; \
+          if (capacity > INT_MAX / 2) goto range_failed; \
+          next = capacity ? capacity * 2 : 32; \
+          if ((size_t)next > UINT_MAX / sizeof(*breaks)) goto range_failed; \
+          breaks = (int *)XtRealloc((char *)breaks, (Cardinal)((size_t)next * sizeof(*breaks))); \
+          capacity = next; \
+        } \
+        breaks[count++] = candidate; \
+      } \
+    } while (0)
+    ADD_BREAK(0);
+    if (paragraph) {
+      int32_t cursor = 0;
+      while ((size_t)cursor < byte_length) {
+        UChar32 codepoint;
+        U8_NEXT(source, cursor, (int32_t)byte_length, codepoint);
+        if (codepoint == '\r' && (size_t)cursor < byte_length && source[cursor] == '\n') ++cursor;
+        if (codepoint == '\r' || codepoint == '\n' || codepoint == 0x2029) {
+          if (!XmTextUnicodeScalarAtByte(map, (size_t)cursor, &scalar)) goto range_failed;
+          ADD_BREAK((int)scalar);
+        }
+      }
+    } else {
+      UBreakIteratorType type = modern ? (boundary == 1 ? UBRK_WORD : UBRK_SENTENCE)
+                                       : (boundary <= 2 ? UBRK_WORD : UBRK_SENTENCE);
+      iterator = ubrk_open(type, "", NULL, 0, &status);
+      utext = utext_openUTF8(NULL, source, (int64_t)byte_length, &status);
+      if (U_FAILURE(status) || !iterator || !utext) goto range_failed;
+      ubrk_setUText(iterator, utext, &status);
+      if (U_FAILURE(status)) goto range_failed;
+      byte = ubrk_first(iterator);
+      while (byte != UBRK_DONE) {
+        int32_t candidate = byte;
+        if (!modern && type == UBRK_WORD) {
+          int32_t next = ubrk_next(iterator);
+          if (next == UBRK_DONE) break;
+          if (ubrk_getRuleStatus(iterator) >= UBRK_WORD_NUMBER) {
+            candidate = boundary == 1 ? byte : next;
+            if (!XmTextUnicodeScalarAtByte(map, (size_t)candidate, &scalar)) goto range_failed;
+            ADD_BREAK((int)scalar);
+          }
+          byte = next;
+          continue;
+        }
+        if (!modern && boundary == 4 && candidate > 0) {
+          int32_t cursor = candidate;
+          UChar32 codepoint;
+          while (cursor > 0) {
+            int32_t previous = cursor;
+            U8_PREV(source, 0, previous, codepoint);
+            if (!u_isUWhiteSpace(codepoint)) break;
+            cursor = previous;
+          }
+          candidate = cursor;
+        }
+        if (!XmTextUnicodeScalarAtByte(map, (size_t)candidate, &scalar)) goto range_failed;
+        ADD_BREAK((int)scalar);
+        byte = ubrk_next(iterator);
+      }
+    }
+    ADD_BREAK(length);
+    /* A trailing hard paragraph separator owns an empty final paragraph. */
+    if (paragraph && byte_length && (source[byte_length - 1] == '\n' || source[byte_length - 1] == '\r' ||
+        (byte_length >= 3 && !memcmp(source + byte_length - 3, "\xe2\x80\xa9", 3)))) {
+      trailing_paragraph = 1;
+    }
+    selected = count - 2;
+    if (selected < 0) selected = 0;
+    for (k = 0; k + 1 < count; ++k)
+      if (offset < breaks[k + 1]) { selected = k; break; }
+    if (trailing_paragraph && offset == length) selected = count - 1;
+    selected += direction;
+    if (selected < 0) *first = *last = 0;
+    else if (selected + 1 >= count) *first = *last = length;
+    else { *first = breaks[selected]; *last = breaks[selected + 1]; }
+    if (iterator) ubrk_close(iterator);
+    if (utext) utext_close(utext);
+    XmTextUnicodeMapFree(map); XtFree(source); XtFree((char *)breaks);
+    return 1;
+range_failed:
+    if (iterator) ubrk_close(iterator);
+    if (utext) utext_close(utext);
+    XmTextUnicodeMapFree(map); XtFree(source); XtFree((char *)breaks);
+    return 0;
+#undef ADD_BREAK
+  }
+#else
+  (void)a; (void)id; (void)direction; (void)first; (void)last;
+  return 0;
+#endif
+}
 static DBusHandlerResult dispatch_inner(DBusConnection *connection,
                                         DBusMessage *call, void *data) {
   Transport *t = (Transport *)data;
@@ -328,6 +598,45 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
   if (dbus_message_get_type(call) != DBUS_MESSAGE_TYPE_METHOD_CALL || !path ||
       !iface || !method)
     return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+  if (!strcmp(path, CACHEPATH)) {
+    DBusMessageIter array;
+    XmAccessibleId *ids;
+    size_t count = 0, k;
+    if (!strcmp(iface, "org.freedesktop.DBus.Introspectable") &&
+        !strcmp(method, "Introspect")) {
+      const char *xml = "<node><interface name='org.a11y.atspi.Cache'>"
+        "<method name='GetItems'><arg direction='out' type='a" CACHE_ITEM "'/></method>"
+        "<signal name='AddAccessible'><arg type='" CACHE_ITEM "'/></signal>"
+        "<signal name='RemoveAccessible'><arg type='(so)'/></signal></interface></node>";
+      reply = dbus_message_new_method_return(call);
+      dbus_message_iter_init_append(reply, &out);
+      string_value(&out, xml);
+      send_reply(t, reply);
+      return DBUS_HANDLER_RESULT_HANDLED;
+    }
+    if (strcmp(iface, CACHE) || strcmp(method, "GetItems"))
+      return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+    if (dbus_message_get_signature(call)[0]) {
+      error_reply(t, call, DBUS_ERROR_INVALID_ARGS, "GetItems takes no arguments");
+      return DBUS_HANDLER_RESULT_HANDLED;
+    }
+    /* Snapshot identities before provider callbacks, which may remove nodes. */
+    for (node = a->nodes; node; node = node->next) ++count;
+    if (count > UINT_MAX / sizeof(*ids)) {
+      error_reply(t, call, DBUS_ERROR_LIMITS_EXCEEDED, "Accessible tree is too large");
+      return DBUS_HANDLER_RESULT_HANDLED;
+    }
+    ids = (XmAccessibleId *)XtMalloc((Cardinal)(count * sizeof(*ids)));
+    for (node = a->nodes, k = 0; node; node = node->next) ids[k++] = node->id;
+    reply = dbus_message_new_method_return(call);
+    dbus_message_iter_init_append(reply, &out);
+    dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, CACHE_ITEM, &array);
+    for (k = 0; k < count; ++k) cache_item(&array, t, ids[k]);
+    dbus_message_iter_close_container(&out, &array);
+    XtFree((char *)ids);
+    send_reply(t, reply);
+    return DBUS_HANDLER_RESULT_HANDLED;
+  }
   if (!strcmp(path, ROOT))
     id = 1;
   else if (!strncmp(path, PREFIX "/", sizeof(PREFIX))) {
@@ -512,13 +821,7 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       goto done;
     }
     if (!strcmp(method, "GetIndexInParent")) {
-      int i, count = child_count(a, node->parent);
-      index = -1;
-      for (i = 0; i < count; i++)
-        if (child_at(a, node->parent, i) == id) {
-          index = i;
-          break;
-        }
+      index = index_in_parent(a, node);
       dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &index);
       goto done;
     }
@@ -628,6 +931,26 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
     goto done;
   }
   if (!strcmp(iface, TEXT) && info.has_text) {
+    if (!strcmp(method, "GetStringAtOffset") || !strcmp(method, "GetTextAtOffset") ||
+        !strcmp(method, "GetTextBeforeOffset") || !strcmp(method, "GetTextAfterOffset")) {
+      dbus_uint32_t boundary;
+      dbus_int32_t first, last;
+      int result, direction = !strcmp(method, "GetTextBeforeOffset") ? -1 :
+                              (!strcmp(method, "GetTextAfterOffset") ? 1 : 0);
+      char *slice;
+      if (!dbus_message_get_args(call, NULL, DBUS_TYPE_INT32, &index,
+            DBUS_TYPE_UINT32, &boundary, DBUS_TYPE_INVALID)) goto invalid;
+      result = text_range(a, id, info.text_length, index, boundary,
+                           !strcmp(method, "GetStringAtOffset"), direction, &first, &last);
+      if (result < 0) goto invalid;
+      if (!result) goto unsupported;
+      slice = XmAccessibilityText(a, id, first, last);
+      if (!slice || !dbus_validate_utf8(slice, NULL)) { XtFree(slice); goto invalid; }
+      string_value(&out, slice); XtFree(slice);
+      dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &first);
+      dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &last);
+      goto done;
+    }
     if (!strcmp(method, "GetText")) {
       char *slice;
       if (!dbus_message_get_args(call, NULL, DBUS_TYPE_INT32, &index,
@@ -669,9 +992,21 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &scalar);
       goto done;
     }
-    if (!strcmp(method, "GetNSelections")) {
-      index = 0;
-      dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &index);
+    if (!strcmp(method, "GetNSelections") || !strcmp(method, "GetSelection")) {
+      Boolean selected;
+      int first, last;
+      if (!_XmAccessibilityNativeTextSelection(a, id, &selected, &first, &last))
+        goto unsupported;
+      if (!strcmp(method, "GetNSelections")) {
+        index = selected ? 1 : 0;
+        dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &index);
+      } else {
+        if (!dbus_message_get_args(call, NULL, DBUS_TYPE_INT32, &index,
+              DBUS_TYPE_INVALID) || index != 0 || !selected) goto invalid;
+        index = first; end = last;
+        dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &index);
+        dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &end);
+      }
       goto done;
     }
   }
@@ -708,6 +1043,7 @@ static DBusHandlerResult dispatch(DBusConnection *connection,
   ++t->owner->dispatch_depth;
   result = dispatch_inner(connection, message, data);
   --t->owner->dispatch_depth;
+  _XmAccessibilityDispatchDone(t->owner);
   return result;
 }
 static void pump(Transport *t) {
@@ -804,7 +1140,8 @@ XmAccessibilityStatus _XmAccessibilityTransportConnect(XmAccessibility *a) {
   }
   dbus_error_free(&error);
   dbus_connection_set_exit_on_disconnect(t->connection, FALSE);
-  if (!dbus_connection_register_fallback(t->connection, PREFIX, &vtable, t) ||
+  if (!dbus_connection_register_object_path(t->connection, CACHEPATH, &vtable, t) ||
+      !dbus_connection_register_fallback(t->connection, PREFIX, &vtable, t) ||
       !dbus_connection_get_unix_fd(t->connection, &fd)) {
     dbus_connection_close(t->connection);
     dbus_connection_unref(t->connection);
@@ -843,15 +1180,76 @@ void _XmAccessibilityTransportDestroy(XmAccessibility *a) {
     dbus_pending_call_cancel(t->embed);
     dbus_pending_call_unref(t->embed);
   }
+  dbus_connection_unregister_object_path(t->connection, CACHEPATH);
   dbus_connection_unregister_object_path(t->connection, PREFIX);
   dbus_connection_close(t->connection);
   dbus_connection_unref(t->connection);
+  {
+    size_t k;
+    for (k = 0; k < t->memo_capacity; ++k) {
+      TransportState *record = t->memo[k];
+      while (record) {
+        TransportState *next = record->next;
+        XtFree(record->name); XtFree(record->value_text); XtFree((char *)record); record = next;
+      }
+    }
+    XtFree((char *)t->memo);
+  }
   XtFree((char *)t);
   a->transport = NULL;
 }
 const char *_XmAccessibilityTransportBusName(XmAccessibility *a) {
   Transport *t = (Transport *)a->transport;
   return t ? text(dbus_bus_get_unique_name(t->connection)) : "";
+}
+static void state_event(Transport *t, const char *path, const char *name,
+                          int enabled) {
+  DBusMessage *message = dbus_message_new_signal(path,
+      "org.a11y.atspi.Event.Object", "StateChanged");
+  DBusMessageIter out, variant, array;
+  dbus_int32_t value = enabled, zero = 0;
+  dbus_message_iter_init_append(message, &out);
+  string_value(&out, name);
+  dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &value);
+  dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &zero);
+  dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "i", &variant);
+  dbus_message_iter_append_basic(&variant, DBUS_TYPE_INT32, &zero);
+  dbus_message_iter_close_container(&out, &variant);
+  dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
+  dbus_message_iter_close_container(&out, &array);
+  send_reply(t, message);
+}
+void _XmAccessibilityTransportRemoved(XmAccessibility *a, XmAccessibleId id,
+                                      XmAccessibleId parent, int index) {
+  Transport *t = (Transport *)a->transport;
+  DBusMessage *message;
+  DBusMessageIter out;
+  if (!t)
+    return;
+  memo_remove(t, id);
+  if (a->status != XmACCESSIBILITY_CONNECTED)
+    return;
+  message = dbus_message_new_signal(CACHEPATH, CACHE, "RemoveAccessible");
+  dbus_message_iter_init_append(message, &out);
+  reference(&out, t, id);
+  send_reply(t, message);
+  if (parent) {
+    char path[96];
+    DBusMessageIter variant, array;
+    dbus_int32_t position = index, zero = 0;
+    path_for(parent, path, sizeof(path));
+    message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object", "ChildrenChanged");
+    dbus_message_iter_init_append(message, &out);
+    string_value(&out, "remove");
+    dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &position);
+    dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &zero);
+    dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "(so)", &variant);
+    reference(&variant, t, id);
+    dbus_message_iter_close_container(&out, &variant);
+    dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
+    dbus_message_iter_close_container(&out, &array);
+    send_reply(t, message);
+  }
 }
 void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
   Transport *t = (Transport *)a->transport;
@@ -861,6 +1259,9 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
   char path[96];
   dbus_int32_t first = 0, second = 0;
   const char *detail = "accessible-name";
+  TransportState *record;
+  uint64_t old_states;
+  int name_changed, value_changed;
   if (!t || a->status != XmACCESSIBILITY_CONNECTED ||
       !XmAccessibilityQuery(a, id, &info))
     return;
@@ -870,19 +1271,85 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
     return;
   }
   path_for(id, path, sizeof(path));
-  message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object",
-                                    "PropertyChange");
-  dbus_message_iter_init_append(message, &out);
-  string_value(&out, detail);
-  dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &first);
-  dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &second);
-  dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "s", &variant);
-  string_value(&variant, info.name);
-  dbus_message_iter_close_container(&out, &variant);
-  dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
-  dbus_message_iter_close_container(&out, &array);
-  send_reply(t, message);
-  if (info.has_value) {
+  record = memo_get(t, id, 1);
+  old_states = record->states;
+  name_changed = record->known && strcmp(text(record->name), text(info.name));
+  value_changed = info.has_value && (!record->has_value ||
+      record->minimum != info.minimum_value || record->maximum != info.maximum_value ||
+      record->current != info.current_value || record->increment != info.minimum_increment ||
+      strcmp(text(record->value_text), text(info.value_text)));
+  {
+    int was_active = (old_states & XmACCESSIBLE_STATE(1)) != 0;
+    int active = (info.states & XmACCESSIBLE_STATE(1)) != 0;
+    if (!record->known) {
+      message = dbus_message_new_signal(CACHEPATH, CACHE, "AddAccessible");
+      dbus_message_iter_init_append(message, &out);
+      if (cache_item(&out, t, id)) {
+        XmAccessibleNode *node = _XmAccessibilityNode(a, id);
+        send_reply(t, message);
+        if (node && node->parent) {
+          char parent_path[96];
+          dbus_int32_t position = _XmAccessibilityIndexInParent(a, id);
+          path_for(node->parent, parent_path, sizeof(parent_path));
+          message = dbus_message_new_signal(parent_path, "org.a11y.atspi.Event.Object", "ChildrenChanged");
+          dbus_message_iter_init_append(message, &out);
+          string_value(&out, "add");
+          dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &position);
+          dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &second);
+          dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "(so)", &variant);
+          reference(&variant, t, id);
+          dbus_message_iter_close_container(&out, &variant);
+          dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
+          dbus_message_iter_close_container(&out, &array);
+          send_reply(t, message);
+        }
+      } else dbus_message_unref(message);
+    }
+    if (!_XmAccessibilityNode(a, id)) {
+      XmAccessibleInfoClear(&info);
+      return;
+    }
+    record = memo_get(t, id, 1);
+    record->known = 1;
+    record->states = info.states;
+    record->has_value = info.has_value;
+    record->minimum = info.minimum_value; record->maximum = info.maximum_value;
+    record->current = info.current_value; record->increment = info.minimum_increment;
+    XtFree(record->value_text); record->value_text = XtNewString(text(info.value_text));
+    XtFree(record->name); record->name = XtNewString(text(info.name));
+    if (was_active != active) {
+      state_event(t, path, "active", active);
+      if (info.role == XmACCESSIBLE_FRAME) {
+        message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Window",
+                                          active ? "Activate" : "Deactivate");
+        dbus_message_iter_init_append(message, &out);
+        string_value(&out, "");
+        dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &first);
+        dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &second);
+        dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "s", &variant);
+        string_value(&variant, info.name);
+        dbus_message_iter_close_container(&out, &variant);
+        dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
+        dbus_message_iter_close_container(&out, &array);
+        send_reply(t, message);
+      }
+    }
+  }
+  if (name_changed) {
+    message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object",
+                                      "PropertyChange");
+    dbus_message_iter_init_append(message, &out);
+    string_value(&out, detail);
+    dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &first);
+    dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &second);
+    dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "s", &variant);
+    string_value(&variant, info.name);
+    dbus_message_iter_close_container(&out, &variant);
+    dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
+    dbus_message_iter_close_container(&out, &array);
+    send_reply(t, message);
+  }
+  if (value_changed) {
     message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object",
                                       "PropertyChange");
     dbus_message_iter_init_append(message, &out);
@@ -899,9 +1366,6 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
     {
       const char *names[] = {"MinimumValue", "MaximumValue", "CurrentValue",
                              "MinimumIncrement", "Text"};
-      const unsigned int state_bits[] = {7, 8, 11, 14, 24, 29};
-      const char *state_names[] = {"editable",   "enabled",   "focusable",
-                                   "horizontal", "sensitive", "vertical"};
       DBusMessageIter entry;
       size_t k;
       message = dbus_message_new_signal(path, DBUS_INTERFACE_PROPERTIES,
@@ -925,52 +1389,22 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
       dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "s", &array);
       dbus_message_iter_close_container(&out, &array);
       send_reply(t, message);
-      for (k = 0; k < XtNumber(state_bits); ++k) {
-        message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object",
-                                          "StateChanged");
-        dbus_message_iter_init_append(message, &out);
-        string_value(&out, state_names[k]);
-        first = (info.states & XmACCESSIBLE_STATE(state_bits[k])) ? 1 : 0;
-        dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &first);
-        dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &second);
-        dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "i",
-                                         &variant);
-        dbus_message_iter_append_basic(&variant, DBUS_TYPE_INT32, &second);
-        dbus_message_iter_close_container(&out, &variant);
-        dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
-        dbus_message_iter_close_container(&out, &array);
-        send_reply(t, message);
-      }
       first = 0;
     }
   }
-  message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object",
-                                    "StateChanged");
-  dbus_message_iter_init_append(message, &out);
-  string_value(&out, "focused");
-  first = (info.states & XmACCESSIBLE_STATE(12)) ? 1 : 0;
-  dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &first);
-  dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &second);
-  dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "i", &variant);
-  dbus_message_iter_append_basic(&variant, DBUS_TYPE_INT32, &second);
-  dbus_message_iter_close_container(&out, &variant);
-  dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
-  dbus_message_iter_close_container(&out, &array);
-  send_reply(t, message);
-  if (info.states & XmACCESSIBLE_STATE(9)) {
-    message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object",
-                                      "StateChanged");
-    dbus_message_iter_init_append(message, &out);
-    string_value(&out, "expanded");
-    first = (info.states & XmACCESSIBLE_STATE(10)) ? 1 : 0;
-    dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &first);
-    dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &second);
-    dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "i", &variant);
-    dbus_message_iter_append_basic(&variant, DBUS_TYPE_INT32, &second);
-    dbus_message_iter_close_container(&out, &variant);
-    dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
-    dbus_message_iter_close_container(&out, &array);
-    send_reply(t, message);
+  {
+    const char *names[] = {"invalid", "active", "armed", "busy", "checked",
+        "collapsed", "defunct", "editable", "enabled", "expandable", "expanded",
+        "focusable", "focused", "has-tooltip", "horizontal", "iconified", "modal",
+        "multi-line", "multiselectable", "opaque", "pressed", "resizable",
+        "selectable", "selected", "sensitive", "showing", "single-line", "stale",
+        "transient", "vertical", "visible", "manages-descendants", "indeterminate",
+        "required", "truncated", "animated", "invalid-entry", "supports-autocompletion",
+        "selectable-text", "is-default", "visited", "checkable", "has-popup", "read-only"};
+    size_t k;
+    for (k = 2; k < XtNumber(names); ++k)
+      if ((old_states ^ info.states) & XmACCESSIBLE_STATE(k))
+        state_event(t, path, names[k], (info.states & XmACCESSIBLE_STATE(k)) != 0);
   }
   if (info.has_text) {
     const char *members[] = {"VisibleDataChanged", "TextCaretMoved"};
