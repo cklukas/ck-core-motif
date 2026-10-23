@@ -32,6 +32,7 @@
 #endif
 
 #include <stdio.h>
+#include <ctype.h>
 #include <X11/Xos.h>
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
@@ -654,16 +655,17 @@ DoComment (char* line)
     char* tag;
     char* eol;
     char* ret;
-    int len;
+    size_t len;
 
-    /* assume that the first line with two '$' in it is the RCS tag line */
+    /* The first nonempty paired-dollar comment is the source identity. */
     if ((tag = index (line, '$')) == NULL) return NULL;
     if ((eol = index (tag + 1, '$')) == NULL) return NULL;
-    len = eol - tag;
-    if ((ret = malloc (len)) == NULL)
-	exit (1);
-    (void) strncpy (ret, tag + 1, len - 1);
-    ret[len - 2] = 0;
+    len = (size_t)(eol - (tag + 1));
+    while (len && isspace((unsigned char)tag[len])) --len;
+    if (!len) return NULL;
+    if ((ret = malloc (len + 1)) == NULL) exit (1);
+    (void) memcpy (ret, tag + 1, len);
+    ret[len] = 0;
     return ret;
 }
 
@@ -725,6 +727,8 @@ main(int argc, char *argv[])
 	WriteHeader (tagline, phile, abi);
     }
     WriteSource(tagline, abi);
+    free(tagline);
+    if (f != stdin) fclose(f);
     return 0;
 }
 
