@@ -855,6 +855,7 @@ switch ( attrid )
         rdesc->int_lit = wmlAllocateString (val);
 	break;	
     case RESOURCELITERAL:
+        free (rdesc->resliteral);
         rdesc->resliteral = wmlAllocateString (val);
 	break;	
     case ENUMERATIONSET:
