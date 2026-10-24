@@ -446,3 +446,4 @@ EXTRA_DIST += tests/automated/check-mrm-callback-cleanup-bounds.py docs/mrm-call
 EXTRA_DIST += tests/automated/check-mrm-writer-comment-input.py docs/mrm-writer-comment-input.md
 EXTRA_DIST += tests/automated/check-mrm-writer-class-input.py docs/mrm-writer-class-input.md
 EXTRA_DIST += tests/automated/check-mrm-writer-callback-routine.py docs/mrm-writer-callback-routine.md
+EXTRA_DIST += tests/automated/check-mrm-writer-resource-callback-routine.py docs/mrm-writer-resource-callback-routine.md

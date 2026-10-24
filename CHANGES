@@ -3073,3 +3073,10 @@ Mrm writer callback routine input (2026-10-25)
 - Reject null callback routine names before UID writer string operations,
   preserving the existing empty-name error and valid callback behavior; see
   `docs/mrm-writer-callback-routine.md`.
+
+Mrm writer resource callback routine input (2026-10-25)
+===========================================================
+
+- Reject null resource callback routine names before UID writer string
+  operations, preserving the existing empty-name error and valid callback
+  behavior; see `docs/mrm-writer-resource-callback-routine.md`.
