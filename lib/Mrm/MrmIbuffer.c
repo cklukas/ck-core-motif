@@ -244,6 +244,9 @@ Idb__BM_GetBuffer (IDBFile			file_id,
   long int		lowest ;	/* lowest activity count found */
   IDBRecordBufferPtr	curbuf ;	/* current buffer being examined */
 
+  if (file_id == NULL || buffer_return == NULL)
+    return MrmFAILURE;
+
   /*
    * If the buffer pool is uninitialized, allocate it and
    * return the first buffer in the pool. Else search the buffer pool for the
@@ -439,6 +442,9 @@ Idb__BM_GetRecord (IDBFile                     file_id,
   IDBRecordBufferPtr	curbuf ;  /* current buffer being examined */
   unsigned char		*buf_src; /* tmp pointer to location in uid buffer */
 
+  if (file_id == NULL || buffer_return == NULL)
+    return MrmFAILURE;
+
   /*
    * If buffer pool is unallocated, get a buffer (which WILL allocate it),
    * and read the record into that. Else see if the record is already in
@@ -564,6 +570,8 @@ Idb__BM_InitRecord (IDBFile                     file_id,
 		    IDBRecordBufferPtr          *buffer_return)
 {
 
+  if (file_id == NULL || buffer_return == NULL)
+    return MrmFAILURE;
 
   if ((Idb__BM_GetBuffer (file_id, buffer_return)) != MrmSUCCESS)
     return MrmFAILURE;
@@ -647,6 +655,9 @@ Idb__BM_InitDataRecord (IDBFile			file_id,
    */
   Cardinal		result ;	/* function results */
   IDBDataRecordPtr	data_rec;	/* data record specific */
+
+  if (file_id == NULL || buffer_return == NULL)
+    return MrmFAILURE;
 
 
   /*

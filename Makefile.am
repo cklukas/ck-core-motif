@@ -264,3 +264,4 @@ EXTRA_DIST += tests/automated/check-mrm-wref-input.py docs/mrm-wref-input.md
 EXTRA_DIST += tests/automated/check-mrm-pointer-list-input.py docs/mrm-pointer-list-input.md
 EXTRA_DIST += tests/automated/check-mrm-wci-lookup-input.py docs/mrm-wci-lookup-input.md
 EXTRA_DIST += tests/automated/check-mrm-index-entry-input.py docs/mrm-index-entry-input.md
+EXTRA_DIST += tests/automated/check-mrm-buffer-input.py docs/mrm-buffer-input.md

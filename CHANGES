@@ -1,3 +1,10 @@
+Mrm record-buffer input validation (2026-10-25)
+===============================================
+
+- Validate file and output-buffer pointers at Mrm buffer acquisition and record
+  initialization boundaries, preserving valid operations while avoiding null
+  context crashes; see `docs/mrm-buffer-input.md`.
+
 Mrm index-entry input validation (2026-10-25)
 ==============================================
 
