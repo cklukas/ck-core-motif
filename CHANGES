@@ -3094,3 +3094,10 @@ Mrm writer extra-args validation (2026-10-25)
 - Propagate context and argument-descriptor validation failures from
   `UrmCWRSetExtraArgs` before writing the extra-argument count; see
   `docs/mrm-writer-extra-args-validation.md`.
+
+Mrm writer creation-callback validation (2026-10-25)
+========================================================
+
+- Reject null creation-callback output storage and propagate invalid-context
+  failures before descriptor allocation; see
+  `docs/mrm-writer-creation-callback-validation.md`.

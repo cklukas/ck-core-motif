@@ -449,3 +449,4 @@ EXTRA_DIST += tests/automated/check-mrm-writer-callback-routine.py docs/mrm-writ
 EXTRA_DIST += tests/automated/check-mrm-writer-resource-callback-routine.py docs/mrm-writer-resource-callback-routine.md
 EXTRA_DIST += tests/automated/check-mrm-writer-child-index.py docs/mrm-writer-child-index.md
 EXTRA_DIST += tests/automated/check-mrm-writer-extra-args-validation.py docs/mrm-writer-extra-args-validation.md
+EXTRA_DIST += tests/automated/check-mrm-writer-creation-callback-validation.py docs/mrm-writer-creation-callback-validation.md

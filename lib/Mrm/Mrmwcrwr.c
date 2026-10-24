@@ -1861,7 +1861,11 @@ UrmCWRSetCreationCallback (URMResourceContextPtr	context_id ,
    * Validate record, arglist descriptor, and argument number.
    * Set the argument type.
    */
-  UrmCWR__ValidateContext (context_id, "UrmCWRSetCreationCallback") ;
+  if ( cb_offs_return == NULL )
+    return MrmFAILURE;
+  result = UrmCWR__ValidateContext (context_id,
+				    "UrmCWRSetCreationCallback") ;
+  if ( result != MrmSUCCESS ) return result ;
 
   /*
    * Confirm that the number of items is reasonable, then size and
