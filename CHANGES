@@ -1,3 +1,10 @@
+Mwm temporary configuration cleanup (2026-10-24)
+================================================
+
+- Replace WSM temporary-file `/bin/rm` command construction with direct
+  `unlink()` calls, preserving cleanup ownership while removing fixed-path
+  overflows and shell parsing; see `docs/mwm-temp-cleanup.md`.
+
 Mwm configuration-reopen warning bounds (2026-10-24)
 =====================================================
 

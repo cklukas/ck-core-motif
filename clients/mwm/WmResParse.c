@@ -75,6 +75,7 @@ static char rcsid[] = "$XConsortium: WmResParse.c /main/9 1996/11/01 10:17:34 dr
 #endif
 #ifdef WSM
 #include <signal.h>
+#include <unistd.h>
 #endif /* WSM */
 
 #define FIX_1127
@@ -7599,21 +7600,15 @@ SystemCmd (char *pchCmd)
 void
 DeleteTempConfigFileIfAny (void)
 {
-    char pchCmd[MAXWMPATH+1];
-
     if (pConfigStackTop->tempName)
     {
-	strcpy (pchCmd, "/bin/rm ");
-	strcat (pchCmd, pConfigStackTop->tempName);
-	SystemCmd (pchCmd);
+	(void)unlink(pConfigStackTop->tempName);
 	XtFree ((char *) pConfigStackTop->tempName);
 	pConfigStackTop->tempName = NULL;
     }
     if (pConfigStackTop->cppName)
     {
-	strcpy (pchCmd, "/bin/rm ");
-	strcat (pchCmd, pConfigStackTop->cppName);
-	SystemCmd (pchCmd);
+	(void)unlink(pConfigStackTop->cppName);
 	XtFree ((char *) pConfigStackTop->cppName);
 	pConfigStackTop->cppName = NULL;
     }
@@ -7863,7 +7858,6 @@ static void ConfigStackPop (void)
 {
     Boolean error = False;
     ConfigFileStackEntry *pPrev;
-    char pchCmd[MAXWMPATH+1];
 
     if (pConfigStackTop != pConfigStack)
     {
@@ -7876,9 +7870,7 @@ static void ConfigStackPop (void)
 	}
 	if (pConfigStackTop->cppName)
 	{
-	    strcpy (pchCmd, "/bin/rm "); 
-	    strcat (pchCmd, pConfigStackTop->cppName); 
-	    SystemCmd (pchCmd);
+	    (void)unlink(pConfigStackTop->cppName);
 	    XtFree ((char *) pConfigStackTop->cppName);
 	    pConfigStackTop->cppName = NULL;
 	}
