@@ -1,3 +1,11 @@
+XmScale value-format bounds (2026-10-24)
+=========================================
+
+- Make scale value formatting size-aware for display and clipboard callers,
+  preventing large decimal-precision resources from overflowing their
+  buffers while preserving normal locale formatting; see
+  `docs/scale-value-bounds.md`.
+
 IconG mask-name bounds (2026-10-24)
 ===================================
 

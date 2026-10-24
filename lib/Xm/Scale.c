@@ -273,7 +273,8 @@ static void ChangeManaged(
 static void GetValueString(
                         XmScaleWidget sw,
                         int value,
-                        String buffer);
+                        String buffer,
+                        size_t buffer_size);
 static void ShowValue(
 		        XmScaleWidget sw) ;
 static void SetScrollBarData( 
@@ -2825,29 +2826,38 @@ static void
 GetValueString(
         XmScaleWidget sw,
         int value,
-        String buffer)
+        String buffer,
+        size_t buffer_size)
 {
-    register int i;
-    int  diff, dec_point_size;
+    int diff, dec_point_size, formatted;
     struct lconv *loc_values;
+
+    if (buffer == NULL || buffer_size == 0)
+	return;
 	
     if (sw->scale.decimal_points > 0) {
       /* Add one to decimal points to get leading zero, since
 	 only US sometimes skips this zero, not other countries */
-      sprintf (buffer,"%.*d", sw->scale.decimal_points+1, value);
+      formatted = snprintf(buffer, buffer_size, "%.*d",
+			   sw->scale.decimal_points + 1, value);
+      if (formatted < 0 || (size_t)formatted >= buffer_size)
+	  return;
 
-      diff = strlen(buffer) - sw->scale.decimal_points;
+      diff = formatted - sw->scale.decimal_points;
       loc_values = localeconv();
       dec_point_size = strlen(loc_values->decimal_point);
 
-      for (i = strlen(buffer); i >= diff; i--)
-	buffer[i+dec_point_size] = buffer[i];
-      
-      for (i=0; i<dec_point_size; i++)
-	buffer[diff+i] = loc_values->decimal_point[i];
+      if (dec_point_size < 0 ||
+	  (size_t)formatted + (size_t)dec_point_size >= buffer_size)
+	  return;
+
+      memmove(buffer + diff + dec_point_size, buffer + diff,
+	      (size_t)(formatted - diff) + 1);
+      memcpy(buffer + diff, loc_values->decimal_point,
+	     (size_t)dec_point_size);
 
     } else
-      sprintf (buffer,"%d", value);
+      (void)snprintf(buffer, buffer_size, "%d", value);
 }
 
 
@@ -2918,7 +2928,7 @@ ShowValue(
     
     /*  Get a string representation of the new value  */
     
-    GetValueString(sw, sw->scale.value, buffer);
+    GetValueString(sw, sw->scale.value, buffer, sizeof(buffer));
 
     /*  Calculate the x, y, width, and height of the string to display  */
     
@@ -3281,7 +3291,7 @@ DragConvertCallback (Widget w,
 
    /* Begin fixing the bug OSF 4846 */
    /* get the value of the scale and convert it to compound text */
-   GetValueString(sw, sw->scale.value, tmpstring);
+   GetValueString(sw, sw->scale.value, tmpstring, sizeof(tmpstring));
 
    if (cs -> target == atoms[XmATARGETS] ||
        cs -> target == atoms[XmA_MOTIF_EXPORT_TARGETS] ||
