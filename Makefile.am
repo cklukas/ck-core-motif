@@ -290,3 +290,4 @@ EXTRA_DIST += tests/automated/check-mrm-wci-hash-allocation.py docs/mrm-wci-hash
 EXTRA_DIST += tests/automated/check-mrm-wci-hash-callers.py docs/mrm-wci-hash-callers.md
 EXTRA_DIST += tests/automated/check-mrm-wci-hash-helpers.py docs/mrm-wci-hash-helpers.md
 EXTRA_DIST += tests/automated/check-mrm-wci-hash-init.py docs/mrm-wci-hash-init.md
+EXTRA_DIST += tests/automated/check-mrm-module-size-bounds.py docs/mrm-module-size-bounds.md

@@ -52,6 +52,7 @@ static char rcsid[] = "$XConsortium: Mrmmodule.c /main/12 1996/11/13 14:03:12 dr
  *
  */
 
+#include <stdint.h>
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
 #include "MrmMsgI.h"
@@ -151,7 +152,7 @@ UrmIFMInitModule (URMResourceContextPtr		context_id,
    */
   Cardinal		result ;	/* Function results */
   RGMModuleDescPtr	ifmodptr ;	/* IF module in context */
-  MrmCount		descsiz ;	/* # bytes for descriptor */
+  size_t		descsiz ;	/* # bytes for descriptor */
   int			ndx ;		/* loop index */
 
 
@@ -166,7 +167,13 @@ UrmIFMInitModule (URMResourceContextPtr		context_id,
   /*
    * compute descriptor size and guarantee space. Null all the widgets.
    */
-  descsiz = sizeof(RGMModuleDesc) + (num_widget-1)*sizeof(RGMTopmostDesc) ;
+  if ((size_t)(num_widget - 1) >
+      (SIZE_MAX - sizeof(RGMModuleDesc)) / sizeof(RGMTopmostDesc))
+    return MrmTOO_MANY;
+  descsiz = sizeof(RGMModuleDesc) +
+	(size_t)(num_widget - 1) * sizeof(RGMTopmostDesc) ;
+  if (descsiz > MrmMaxResourceSize || descsiz > SIZE_MAX - _slm)
+    return MrmTOO_MANY;
   descsiz = _FULLWORD (descsiz) ;
 
   result = UrmResizeResourceContext (context_id, descsiz) ;

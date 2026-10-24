@@ -1,3 +1,10 @@
+Mrm module descriptor size bounds (2026-10-25)
+===============================================
+
+- Keep interface-module descriptor arithmetic in `size_t` and reject
+  unrepresentable 16-bit resource sizes before context resizing; see
+  `docs/mrm-module-size-bounds.md`.
+
 Mrm hash-table initialization inputs (2026-10-25)
 ===============================================
 
