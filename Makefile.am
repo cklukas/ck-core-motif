@@ -86,6 +86,7 @@ EXTRA_DIST += tests/automated/check-charset-canonicalize-bounds.py docs/charset-
 EXTRA_DIST += tests/automated/check-tabstack-atom-name.py docs/tabstack-atom-name.md
 EXTRA_DIST += tests/automated/check-geoutils-debug-bounds.py docs/geoutils-debug-bounds.md
 EXTRA_DIST += tests/automated/check-colors-selector-format-bounds.py docs/color-selector-format-bounds.md
+EXTRA_DIST += tests/automated/check-mwm-system-menu-bounds.py docs/mwm-system-menu-bounds.md
 
 # Image scaling and malformed-image regression.
 EXTRA_DIST += tests/automated/check-image-scaling.c tests/automated/run-image-regressions.py docs/image-scaling.md

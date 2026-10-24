@@ -1,3 +1,11 @@
+Mwm localized system-menu bounds (2026-10-24)
+===============================================
+
+- Replace the fixed 2048-byte localized system-menu assembly buffer with
+  measured dynamic formatting, preserving menu order and long translations
+  without stack overflow or truncation; see
+  `docs/mwm-system-menu-bounds.md`.
+
 ColorSelector RGB formatting bounds (2026-10-24)
 ===============================================
 
