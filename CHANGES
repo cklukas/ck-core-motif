@@ -1,3 +1,11 @@
+Container narrow detail columns (2026-10-24)
+============================================
+
+- Preserve dynamic detail tab lists when a valid narrow column is 30 pixels or
+  less; retain the zero-width guard and add a narrow-layout regression.
+- Keep the existing per-call tab ownership and public Container behavior; see
+  docs/container-tabs.md.
+
 Non-text Unicode widget qualification (2026-10-24)
 ===================================================
 

@@ -16,11 +16,11 @@ static unsigned long checks;
 int main(int argc, char **argv)
 {
     XtAppContext app;
-    Widget shell, first, second;
+    Widget shell, first, second, narrow;
     XmString label;
-    XmTabList first_tabs, second_tabs;
-    XmTab first_tab, second_tab;
-    float first_value, second_value;
+    XmTabList first_tabs, second_tabs, narrow_tabs;
+    XmTab first_tab, second_tab, narrow_tab;
+    float first_value, second_value, narrow_value;
 
     shell = XtVaAppInitialize(&app, "ContainerTabs", NULL, 0, &argc, argv,
                               NULL, NULL);
@@ -34,25 +34,37 @@ int main(int argc, char **argv)
                                     XmNlayoutType, XmDETAIL,
                                     XmNdetailOrderCount, 250,
                                     XmNspatialStyle, XmNONE, NULL);
+    narrow = XtVaCreateManagedWidget("narrow", xmContainerWidgetClass, shell,
+                                    XmNwidth, 100, XmNheight, 200,
+                                    XmNlayoutType, XmDETAIL,
+                                    XmNdetailOrderCount, 4,
+                                    XmNspatialStyle, XmNONE, NULL);
     label = XmStringCreateLocalized("item");
     XtVaCreateManagedWidget("first-item", xmIconGadgetClass, first,
                             XmNlabelString, label, NULL);
     XtVaCreateManagedWidget("second-item", xmIconGadgetClass, second,
                             XmNlabelString, label, NULL);
+    XtVaCreateManagedWidget("narrow-item", xmIconGadgetClass, narrow,
+                            XmNlabelString, label, NULL);
     XmStringFree(label);
     XtRealizeWidget(shell);
     XtVaGetValues(first, XmNdetailTabList, &first_tabs, NULL);
     XtVaGetValues(second, XmNdetailTabList, &second_tabs, NULL);
-    CHECK(first_tabs != NULL && second_tabs != NULL);
+    XtVaGetValues(narrow, XmNdetailTabList, &narrow_tabs, NULL);
+    CHECK(first_tabs != NULL && second_tabs != NULL && narrow_tabs != NULL);
     first_tab = XmTabListGetTab(first_tabs, 0);
     second_tab = XmTabListGetTab(second_tabs, 0);
-    CHECK(first_tab != NULL && second_tab != NULL);
+    narrow_tab = XmTabListGetTab(narrow_tabs, 0);
+    CHECK(first_tab != NULL && second_tab != NULL && narrow_tab != NULL);
     first_value = XmTabGetValues(first_tab, NULL, NULL, NULL, NULL);
     second_value = XmTabGetValues(second_tab, NULL, NULL, NULL, NULL);
+    narrow_value = XmTabGetValues(narrow_tab, NULL, NULL, NULL, NULL);
     CHECK(isfinite(first_value) && first_value > 0.0f);
     CHECK(isfinite(second_value) && second_value > 0.0f);
+    CHECK(isfinite(narrow_value) && narrow_value > 0.0f);
     XmTabFree(first_tab);
     XmTabFree(second_tab);
+    XmTabFree(narrow_tab);
     XtDestroyWidget(shell);
     XtDestroyApplicationContext(app);
     printf("PASS container tab-list ownership: %lu checks\n", checks);

@@ -5672,7 +5672,8 @@ SetDynamicTabList(
     if (detail_order_count == 0)
 	return(NULL);
     tab_size /= detail_order_count;
-    if (tab_size <=30) return NULL ; /* HACKKKK */
+    if (tab_size <= 0)
+	return(NULL);
 
     cw->container.detail_tablist = GetDumbTabList(tab_size,detail_order_count);
     return(cw->container.detail_tablist);
