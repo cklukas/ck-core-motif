@@ -10491,12 +10491,23 @@ XmTextFieldGetSelection(Widget w)
     if (length == (size_t) -1) {
       length = 0;
     } else {
-      for(length = 0;num_chars > 0; num_chars--)
+      size_t converted = 0;
+      while (num_chars > 0) {
+        int char_len;
 #ifndef NO_MULTIBYTE
-	length += mblen(&value[length], tf->text.max_char_size);
+	char_len = mblen(&value[converted], tf->text.max_char_size);
 #else
-        length += value[length] ? 1 : 0;
+	char_len = value[converted] ? 1 : 0;
 #endif
+        if (char_len <= 0) {
+          length = 0;
+          break;
+        }
+        converted += (size_t)char_len;
+        num_chars--;
+      }
+      if (num_chars == 0)
+        length = converted;
     }
   }
   value[length] = (char)'\0';
@@ -10520,8 +10531,11 @@ XmTextFieldGetSelectionWcs(Widget w)
     return NULL;
   }
   length = (size_t) (tf->text.prim_pos_right - tf->text.prim_pos_left);
-  
-  wc_value = (wchar_t*)XtMalloc((unsigned) (length + 1) * sizeof(wchar_t));
+  if (length > SIZE_MAX / sizeof(wchar_t) - 1) {
+    _XmAppUnlock(app);
+    return NULL;
+  }
+  wc_value = (wchar_t*)XtMalloc((length + 1) * sizeof(wchar_t));
   
   if (tf->text.max_char_size == 1) {
     return_val = mbstowcs(wc_value, TextF_Value(tf) + tf->text.prim_pos_left, 

@@ -12,6 +12,7 @@
 #include <X11/Xatom.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <wchar.h>
 
 typedef struct {
     const char *name;
@@ -183,6 +184,29 @@ check_data_text_conversion(Widget field)
     return failed;
 }
 
+static int
+check_text_selection_export(Widget field)
+{
+    char *value;
+    wchar_t *wide;
+    int failed = 0;
+
+    XmTextFieldSetSelection(field, 0, 3,
+                            XtLastTimestampProcessed(XtDisplay(field)));
+    value = XmTextFieldGetSelection(field);
+    wide = XmTextFieldGetSelectionWcs(field);
+    if (!value || strcmp(value, "abc") != 0 || !wide ||
+        wcscmp(wide, L"abc") != 0) {
+        fprintf(stderr, "TextField selection export returned invalid data\n");
+        failed = 1;
+    } else {
+        printf("PASS TextField narrow/WCS selection export\n");
+    }
+    XtFree(value);
+    XtFree((char *)wide);
+    return failed;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -205,6 +229,7 @@ main(int argc, char **argv)
     XtRealizeWidget(shell);
     failed = check_widget(app, shell, text, "Text", 0);
     failed |= check_widget(app, shell, field, "TextField", 1);
+    failed |= check_text_selection_export(field);
     failed |= check_widget(app, shell, data, "DataField", 2);
     failed |= check_data_targets(data);
     failed |= check_data_text_conversion(data);

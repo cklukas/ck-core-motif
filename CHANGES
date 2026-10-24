@@ -696,3 +696,10 @@ DataField wide selection export bounds (2026-10-24)
 - Check `XmDataFieldGetSelectionWcs` selection lengths before multiplying by `sizeof(wchar_t)`, returning cleanly when the allocation cannot be represented.
 - Preserve valid wide selection contents, termination, application-lock behavior, public interfaces and native ABI. Extend the DataField wide-text regression to cover WCS selection export and document the contract in `docs/datafield-selection-wcs-bounds.md`.
 - Native AArch64 validation passes the rebuilt DataField source and seven-check wide selection regression.
+
+TextField selection export bounds (2026-10-24)
+===============================================
+
+- Treat zero or negative `mblen` results as conversion failure in narrow TextField selection export, preventing non-progressing loops and unsigned length underflow. Check wide selection lengths before multiplying by `sizeof(wchar_t)`.
+- Preserve valid narrow/wide selection contents, ownership, public interfaces and native ABI. Extend the selection timestamp regression to cover both export formats and document the contract in `docs/textfield-selection-export-bounds.md`.
+- Native AArch64 validation passes the rebuilt TextField source and eight-case selection/timestamp regression.
