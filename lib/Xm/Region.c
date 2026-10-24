@@ -475,6 +475,12 @@ _XmRegionGetRectangles(
 	return;
     }
 
+    if (count > (long)INT_MAX ||
+	(unsigned long)count > (unsigned long)UINT_MAX / sizeof(XRectangle)) {
+	*rects = NULL;
+	return;
+    }
+
     pRect = *rects = (XRectangle *)
 	XtMalloc ((Cardinal) (sizeof (XRectangle) * count));
     if (pRect) {

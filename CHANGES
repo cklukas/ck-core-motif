@@ -1,3 +1,8 @@
+Region rectangle export bounds (2026-10-25)
+============================================
+
+- Check region rectangle counts before narrowing to Xt allocation and Xlib `int` interfaces, preventing wrapped exports for extreme regions; see `docs/region-export-bounds.md`.
+
 Region shadow segment bounds (2026-10-25)
 =========================================
 

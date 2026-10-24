@@ -193,3 +193,5 @@ EXTRA_DIST += tests/automated/check-utf8-conversion-bounds.py docs/utf8-conversi
 EXTRA_DIST += tests/automated/check-region-size-bounds.py docs/region-size-bounds.md
 
 EXTRA_DIST += tests/automated/check-region-shadow-counts.py docs/region-shadow-counts.md
+
+EXTRA_DIST += tests/automated/check-region-export-bounds.py docs/region-export-bounds.md
