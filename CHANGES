@@ -1,3 +1,10 @@
+Mrm widget-reference input validation (2026-10-25)
+================================================
+
+- Validate the resource context and widget name before constructing Mrm
+  widget references, preserving valid references while avoiding malformed
+  input crashes; see `docs/mrm-wref-input.md`.
+
 Mrm index-writer input validation (2026-10-25)
 ===============================================
 

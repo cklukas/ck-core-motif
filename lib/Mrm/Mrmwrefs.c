@@ -156,6 +156,8 @@ Urm__CW_AddWRef (URMResourceContextPtr	wref_id,
   char			*old_heap;	/* old heap address */
   char			*new_heap;	/* new heap address */
 
+  if (!UrmRCValid(wref_id) || w_name == NULL)
+    return MrmFAILURE;
 
   /*
    * Set up pointers. Compute size needed and available, and resize structure
