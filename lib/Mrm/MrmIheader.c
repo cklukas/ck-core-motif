@@ -774,6 +774,9 @@ Idb__HDR_NextRID (IDBFile		file_id,
   /*
    * use the next available ID, or fail.
    */
+  if (file_id == NULL || res_id_return == NULL)
+    return MrmFAILURE;
+
   resndx = file_id->next_RID.internal_id.res_index;
   if ( file_id->next_RID.internal_id.map_rec != IDBHeaderRecordNumber )
     return Urm__UT_Error("Idb__HDR_NextRID", _MrmMMsg_0012,

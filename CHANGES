@@ -1,4 +1,7 @@
 2026-10-26
+	* Validate Mrm header next-RID input and output pointers.
+
+2026-10-26
 	* Validate Mrm header RID data handles before storing them.
 
 2026-10-26

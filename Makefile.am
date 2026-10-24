@@ -366,3 +366,5 @@ EXTRA_DIST += tests/automated/check-mrm-put-entry-capacity.py docs/mrm-put-entry
 EXTRA_DIST += tests/automated/check-mrm-header-byte-swap-order.py docs/mrm-header-byte-swap-order.md
 
 EXTRA_DIST += tests/automated/check-mrm-header-enter-handle.py docs/mrm-header-enter-handle.md
+
+EXTRA_DIST += tests/automated/check-mrm-header-next-rid-inputs.py docs/mrm-header-next-rid-inputs.md
