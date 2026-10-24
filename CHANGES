@@ -1,3 +1,11 @@
+Mwm bitmap path formatting bounds (2026-10-24)
+===============================================
+
+- Measure and bound bitmap-directory/icon-name joins before allocation in
+  `GetNamedPixmap`, preserving lookup order while preventing long resource
+  paths from wrapping allocation arithmetic or overrunning the result; see
+  `docs/mwm-image-path-bounds.md`.
+
 UIL source listing prefix bounds (2026-10-24)
 ===============================================
 
