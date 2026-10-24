@@ -11,3 +11,8 @@ string’s contribution to the signed `nitems` total before allocating the outpu
 Overflow cleans up the partially converted entries and returns `BadAlloc`; the
 aggregate sizing contract is covered by
 `tests/automated/check-text-property-size.py`.
+
+The compound-string (ASN.1) branch applies the same checked aggregate sizing,
+allocates space for its final terminator, and verifies each conversion result
+before copying it. The branch contract is covered by
+`tests/automated/check-compound-string-bounds.py`.

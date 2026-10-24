@@ -1,3 +1,9 @@
+Bound compound-string text-property conversion (2026-10-24)
+=============================================================
+- Check ASN.1 item sizes and aggregate totals before copying converted strings.
+- Allocate the final terminator byte and reject inconsistent conversion sizes
+  instead of writing past the output buffer.
+- Add a source contract regression and document the branch-specific bounds.
 Bound compound-text aggregate sizing (2026-10-24)
 ===================================================
 - Check pointer-array multiplication and signed aggregate nitems growth before
