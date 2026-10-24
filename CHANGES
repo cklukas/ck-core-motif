@@ -1,3 +1,10 @@
+Mask-name allocation bounds (2026-10-24)
+=========================================
+
+- Generate XPM mask names in dynamically sized storage and reject missing
+  screens or names, preserving `_m` naming while preventing fixed-buffer
+  overflow in `XmeGetMask`; see `docs/mask-name-allocation.md`.
+
 Pixmap-cache geometry status (2026-10-24)
 ===========================================
 

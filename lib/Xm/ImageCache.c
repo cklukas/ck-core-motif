@@ -1796,10 +1796,18 @@ XmeGetMask(
         Screen *screen,
         char *image_name)
 {
-    char 		mask_name[256];
+    String 		mask_name;
     Pixmap		ret_val;
-    XtAppContext app = XtDisplayToApplicationContext(
-				DisplayOfScreen(screen));
+    XtAppContext app;
+
+    if (screen == NULL || image_name == NULL)
+	return XmUNSPECIFIED_PIXMAP;
+
+    app = XtDisplayToApplicationContext(DisplayOfScreen(screen));
+
+    mask_name = XtMalloc(strlen(image_name) + 3);
+    if (mask_name == NULL)
+	return XmUNSPECIFIED_PIXMAP;
 
     _XmAppLock(app);
     
@@ -1808,7 +1816,7 @@ XmeGetMask(
     _XmProcessUnlock();
 
     ret_val = XmGetPixmapByDepth(screen, mask_name, 1, 0, 1);
-    
+    XtFree(mask_name);
     _XmAppUnlock(app);
     return ret_val;
 }
