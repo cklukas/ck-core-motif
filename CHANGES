@@ -1,3 +1,8 @@
+Mrm in-memory IDB failure cleanup (2026-10-25)
+===============================================
+
+- Release the allocated IDB descriptor when an in-memory UID buffer fails header validation, preserving successful ownership while preventing a failure-path leak; see `docs/mrm-idb-buffer-cleanup.md`.
+
 Mrm IDB open output-handle validation (2026-10-25)
 ====================================================
 

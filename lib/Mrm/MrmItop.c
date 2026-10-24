@@ -255,7 +255,11 @@ UrmIdbOpenBuffer (unsigned char 		*uid_buffer,
    * Read the file header record info into the file descriptor
    */
   result = Idb__HDR_GetHeader (filedesc) ;
-  if ( result != MrmSUCCESS ) return result ;
+  if ( result != MrmSUCCESS )
+    {
+      XtFree ((char *)filedesc);
+      return result ;
+    }
 
   /*
    * Buffer ready
