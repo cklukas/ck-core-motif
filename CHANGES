@@ -1,3 +1,9 @@
+Bound text selection property exports (2026-10-24)
+===================================================
+- Check XTextProperty lengths before conversion to allocation sizes for string,
+  compound-text, and UTF-8 selection targets.
+- Preserve empty values with a one-byte allocation and skip zero-length copies;
+  add a source contract regression and documentation.
 Validate reverse text-property inputs (2026-10-24)
 ==================================================
 - Reject missing output pointers, invalid property lengths, and absent value

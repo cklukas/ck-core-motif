@@ -528,12 +528,17 @@ _XmTextConvert(
 				       &tmp_prop);
     XtFree(tmp_value);
     if (status == Success || status > 0){
-      /* NOTE: casting tmp_prop.nitems could result in a truncated long. */
-      if (0 >= tmp_prop.nitems)
-        *value = (XtPointer) XtMalloc(1);
-      else
-        *value = (XtPointer) XtMalloc((unsigned)tmp_prop.nitems);
-      memcpy((void*)*value, (void*)tmp_prop.value,(size_t)tmp_prop.nitems);
+      if ((unsigned long)(size_t)tmp_prop.nitems != tmp_prop.nitems) {
+        if (tmp_prop.value != NULL) XFree((char*)tmp_prop.value);
+        *value = NULL;
+        *length = 0;
+        return False;
+      }
+      *value = (XtPointer) XtMalloc(tmp_prop.nitems ?
+                                    (size_t)tmp_prop.nitems : 1);
+      if (tmp_prop.nitems != 0)
+        memcpy((void*)*value, (void*)tmp_prop.value,
+               (size_t)tmp_prop.nitems);
       if (tmp_prop.value != NULL) XFree((char*)tmp_prop.value);
       *length = tmp_prop.nitems;
     } else {
@@ -559,9 +564,17 @@ _XmTextConvert(
 				       &tmp_prop);
     XtFree(tmp_value);
     if (status == Success || status > 0) {
-      /* NOTE: casting tmp_prop.nitems could result in a truncated long. */
-      *value = (XtPointer) XtMalloc((unsigned) tmp_prop.nitems);
-      memcpy((void*)*value, (void*)tmp_prop.value,(size_t)tmp_prop.nitems);
+      if ((unsigned long)(size_t)tmp_prop.nitems != tmp_prop.nitems) {
+        if (tmp_prop.value != NULL) XFree((char*)tmp_prop.value);
+        *value = NULL;
+        *length = 0;
+        return False;
+      }
+      *value = (XtPointer) XtMalloc(tmp_prop.nitems ?
+                                    (size_t)tmp_prop.nitems : 1);
+      if (tmp_prop.nitems != 0)
+        memcpy((void*)*value, (void*)tmp_prop.value,
+               (size_t)tmp_prop.nitems);
       if (tmp_prop.value != NULL) XFree((char*)tmp_prop.value);
       *length = tmp_prop.nitems;
     } else {
@@ -581,9 +594,17 @@ _XmTextConvert(
 				       &tmp_prop);
     XtFree(tmp_value);
     if (status == Success || status > 0) {
-      /* NOTE: casting tmp_prop.nitems could result in a truncated long. */
-      *value = (XtPointer) XtMalloc((unsigned) tmp_prop.nitems);
-      memcpy((void*)*value, (void*)tmp_prop.value,(size_t)tmp_prop.nitems);
+      if ((unsigned long)(size_t)tmp_prop.nitems != tmp_prop.nitems) {
+        if (tmp_prop.value != NULL) XFree((char*)tmp_prop.value);
+        *value = NULL;
+        *length = 0;
+        return False;
+      }
+      *value = (XtPointer) XtMalloc(tmp_prop.nitems ?
+                                    (size_t)tmp_prop.nitems : 1);
+      if (tmp_prop.nitems != 0)
+        memcpy((void*)*value, (void*)tmp_prop.value,
+               (size_t)tmp_prop.nitems);
       if (tmp_prop.value != NULL) XFree((char*)tmp_prop.value);
       *length = tmp_prop.nitems;
     } else {
