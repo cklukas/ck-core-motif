@@ -27,7 +27,10 @@
 #include <config.h>
 #endif
 
+#include <limits.h>
 #include <stdio.h>
+#include <stdint.h>
+#include <string.h>
 
 #define FIX_1181
 
@@ -94,7 +97,8 @@ static void UpdateXrm(
                         int screen,
                         XmColorObj tmpColorObj);
 
-static void FetchPixelData(Widget w, char * value, int screen);
+static void FetchPixelData(Widget w, char * value, unsigned long value_length,
+                           int screen);
 
 static Boolean ColorCachePropertyExists(
 			Display *dpy,
@@ -621,33 +625,49 @@ Initialize(
 }
 
 static void
-FetchPixelData(Widget w, char * value, int screen)
+FetchPixelData(Widget w, char * value, unsigned long value_length, int screen)
 {    
     int      i, count, colorUse;
-    char     tmp[256];
+    char    *bounded_value;
+    int      consumed;
     XmColorObj tmpColorObj = (XmColorObj)w;
     Colors   colors;
 
+    if (value == NULL || value_length == 0 || value_length > UINT_MAX - 1)
+    {
+        if (value != NULL)
+            XFree(value);
+        return;
+    }
+    bounded_value = (char *)XtMalloc((Cardinal)value_length + 1);
+    memcpy(bounded_value, value, (size_t)value_length);
+    bounded_value[value_length] = '\0';
+    XFree(value);
+
     /* read color use */
     count = 0;
-    sscanf (&(value[count]), "%x_", &colorUse);
-    (void)snprintf(tmp, sizeof(tmp), "%x_", colorUse);
-    count += strlen(tmp);
+    if (sscanf (bounded_value, "%x_%n", &colorUse, &consumed) != 1)
+    {
+        XtFree(bounded_value);
+        return;
+    }
+    count = consumed;
     tmpColorObj->color_obj.colorUse[screen] = colorUse;
  
     for (i = 0; i < XmCO_NUM_COLORS; i++) {
 	/* read data into PixelSet */
-	sscanf (&(value[count]), "%lx_%lx_%lx_%lx_%lx_", &(colors[i].bg),
-		&(colors[i].fg), &(colors[i].ts),
-		&(colors[i].bs), &(colors[i].sc));
-	(void)snprintf(tmp, sizeof(tmp), "%lx_%lx_%lx_%lx_%lx_",
-		       colors[i].bg, colors[i].fg, colors[i].ts,
-		       colors[i].bs, colors[i].sc);
-	count += strlen(tmp);
+	if (sscanf (&(bounded_value[count]), "%lx_%lx_%lx_%lx_%lx_%n",
+		    &(colors[i].bg), &(colors[i].fg), &(colors[i].ts),
+		    &(colors[i].bs), &(colors[i].sc), &consumed) != 5)
+	{
+	    XtFree(bounded_value);
+	    return;
+	}
+	count += consumed;
     }
     UpdateXrm (colors, screen, tmpColorObj);
     tmpColorObj->color_obj.colorIsRunning = True;
-    XFree (value);
+    XtFree(bounded_value);
 }
 
 static Boolean
@@ -679,13 +699,17 @@ ColorCachePropertyExists(
    if ((result != Success) || (format == 0) || (target == None))
 	return False ;
 
-    if (value != NULL)  {
-        if (value[length - 1] != XmPIXEL_SET_PROP_VERSION)
+    if (value != NULL && length > 0)  {
+        if (value[length - 1] != XmPIXEL_SET_PROP_VERSION) {
+	   XFree(value);
 	   return False ;
+	}
 	value[length - 1] = 0 ; /* extract version info */
 
-        FetchPixelData(w, value, screen);
+        FetchPixelData(w, value, length - 1, screen);
     }
+	else if (value != NULL)
+	    XFree(value);
  
     return True ; 
 }
@@ -731,7 +755,7 @@ GetSelection(
     }
 
     if (value != NULL)  {
-	FetchPixelData(w, value, screen);
+	FetchPixelData(w, value, *length, screen);
     }
 }
 

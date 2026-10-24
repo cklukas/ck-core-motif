@@ -1,3 +1,14 @@
+ColorObj property input bounds (2026-10-24)
+===========================================
+
+- Parse received pixel-set properties from a length-bounded terminated copy,
+  validate every numeric record, and reject malformed or empty payloads before
+  updating color state.
+- Add a source-contract regression and document the input handling in
+  docs/color-object-property-input.md.
+- Native ColorObj object compilation is warning-free and the regression passes;
+  the broader libXm build remains blocked by unrelated held TextSel work.
+
 ColorObj property serialization bounds (2026-10-24)
 ====================================================
 
