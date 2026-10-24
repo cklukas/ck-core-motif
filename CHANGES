@@ -598,3 +598,10 @@ Development 2.4.0 / DropDown selection-table bounds
   XmString tables, preserving the existing selection-error behavior on
   unrepresentable sizes.
 - Add a public DropDown regression and documentation.
+
+Development 2.4.0 / DropDown localized text positions
+=====================================================
+
+- Compute exact locale character counts when copying selected DropDown items
+  into the text field, removing the fixed `BUFSIZ` conversion buffer.
+- Extend the DropDown maintenance documentation.

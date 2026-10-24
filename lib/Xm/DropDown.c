@@ -2467,7 +2467,8 @@ SetTextFromList(Widget w)
     XmStringTable items;
     int count;
     unsigned char policy;
-    register int i, text_loc;
+    register int i;
+    XmTextPosition text_loc;
     XmDropDownClassPartExtension *addition;
 
     addition = CheckExtensions( (XmDropDownWidgetClass)XtClass(cbw) );
@@ -2492,25 +2493,19 @@ SetTextFromList(Widget w)
     text_loc = 0;
     i = 0;
     while (i < count) {
-	register int len;
+	size_t len;
 	String ptr;
-	wchar_t temp[BUFSIZ];
 
         ptr = XmStringUnparse(items[i], NULL, XmCHARSET_TEXT, XmMULTIBYTE_TEXT,
                 NULL, 0, XmOUTPUT_ALL);
 
-	if (mbstowcs(NULL, ptr, 0) == (ssize_t)(-1)) {
+	len = mbstowcs(NULL, ptr, 0);
+	if (len == (size_t)(-1)) {
 	    XmeWarning((Widget) cbw, XmNstringGetFailedMsg);
 	    i++;
 	    continue;
 	}
 
-	/*
-	 * There must be a better way to do a strlen for I18N text.
-	 */
-
-	len = (int) mbstowcs(temp, ptr, BUFSIZ);
-	
 	XmTextFieldInsert(XmDropDown_text(cbw), text_loc, ptr);
 	XtFree((char *) ptr);
 	text_loc += len;
