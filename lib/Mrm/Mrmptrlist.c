@@ -376,6 +376,8 @@ UrmPlistAppendString (URMPointerListPtr		list_id ,
 
   memcpy (newstg, stg, stg_len + 1) ;
   result = UrmPlistAppendPointer (list_id, newstg) ;
+  if (result != MrmSUCCESS)
+    XtFree (newstg);
   return result ;
 
 }

@@ -1,4 +1,7 @@
 2026-10-26
+	* Free Mrm string-list allocations when pointer-list append fails.
+
+2026-10-26
 	* Validate Mrm RID-map data handles on insertion and return.
 
 2026-10-26
