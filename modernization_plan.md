@@ -363,6 +363,15 @@ positive, fully parsed `Xft.dpi` with a 75-DPI baseline; see
 metrics, text cursor geometry and live reflow remain audit items rather than
 unverified claims.  Per-output behavior remains WP-04A.
 
+**Status (2026-10-24):** the installed control-metric audit is now implemented
+and qualified on AArch64 `uconsole` under Xvfb.  It records PushButton and
+TextField focus/shadow/margin values, ScrollBar dimensions, Notebook frame and
+back-page metrics, MessageDialog margins, and a real TextField selection at
+75/150/300 DPI.  Explicit PushButton highlight and ScrollBar width values are
+preserved.  The observed constant-versus-scaled values are documented as an
+audit classification; no additional source correction is claimed.  See
+`docs/dpi-control-metrics.md`.
+
 ### WP-04A: XLibre per-output scaling integration
 
 **Depends on:** WP-04.

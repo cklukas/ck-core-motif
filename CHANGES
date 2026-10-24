@@ -1,3 +1,10 @@
+DPI control-metric audit (2026-10-24)
+=====================================
+
+- Add an installed WP-04 audit for focus, text, ScrollBar, Notebook and dialog
+  metrics at 1x/2x/4x DPI, with explicit-size and selection checks; document
+  observed scaling classifications without an unsupported correction.
+
 Depth-1 conversion cleanup (2026-10-24)
 =======================================
 
