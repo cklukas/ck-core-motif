@@ -2789,6 +2789,13 @@ Additive date-only Calendar (2026-10-25)
   installed-prefix regression fixture.  DatePicker/TimePicker and timezone
   interpretation remain separate work.
 
+Additive DatePicker (2026-10-25)
+================================
+
+- Add `XmDatePicker` backed by `XmCalendar`, with validated date-only ranges,
+  screen-clamped non-modal popup behavior, open/close and date-change
+  callbacks, accessibility semantics and an installed-prefix fixture.
+
 
 Mrm index parent-update error propagation (2026-10-26)
 =======================================================
