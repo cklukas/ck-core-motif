@@ -131,6 +131,7 @@ public XmCreateToggleButtonGadget
 public XmCreateToggleSwitch
 public XmCreateProgressBar
 public XmCreateFlyout
+public XmCreateColorPicker
 public XmCreateNumberBox
 public XmCreateSpinner
 public XmCreateStepper
@@ -502,6 +503,9 @@ public XmProgressBarSetIndeterminate
 public XmFlyoutShow
 public XmFlyoutHide
 public XmFlyoutIsVisible
+public XmColorPickerGetValue
+public XmColorPickerSetValue
+public XmColorPickerPreviewValue
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -768,6 +772,8 @@ public xmProgressBarClassRec
 public xmProgressBarWidgetClass
 public xmFlyoutClassRec
 public xmFlyoutWidgetClass
+public xmColorPickerClassRec
+public xmColorPickerWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec

@@ -1010,6 +1010,16 @@ existing `XmColorSelector` extension or its clients.
 **Complete when:** the new control has a stable documented value contract and
 the existing selector's API and behavior are unchanged.
 
+**Status (2026-10-25):** the additive `XmColorPicker` is implemented and
+qualified on uconsole.  It defines packed 8-bit RGBA values (`0xRRGGBBAA`),
+separate preview and committed-value callbacks, explicit Return/Escape
+commit/cancel behavior, a visible hex readout, colormap-backed swatch drawing
+with a foreground fallback, and accessible numeric/value-text semantics.  The
+installed Xvfb fixture passed 8 checks across repeated runs, including resource
+precedence, preview-versus-commit behavior, explicit sizing and accessibility.
+`XmColorSelector` remains unchanged; color-space conversion, gamut mapping and
+palette/recent-color policy remain intentionally outside this compact contract.
+
 ### WP-21: RatingControl
 
 **Depends on:** WP-15.

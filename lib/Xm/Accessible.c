@@ -19,6 +19,7 @@
 #include <Xm/Label.h>
 #include <Xm/LabelG.h>
 #include <Xm/ListP.h>
+#include <Xm/ColorPicker.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
 #include <Xm/PushBG.h>
@@ -35,6 +36,7 @@
 #include <limits.h>
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <wchar.h>
 #include <wctype.h>
@@ -583,6 +585,9 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     if (XmIsSpinner(w))
       XtAddCallback(w, XmNspinnerStateChangedCallback, text_value_changed,
                     (XtPointer)a);
+    if (XmIsColorPicker(w))
+      XtAddCallback(w, XmNcolorPickerValueChangedCallback, text_value_changed,
+                    (XtPointer)a);
     if (XmIsNumberBox(w))
       XtAddCallback(w, XmNnumberValueChangedCallback, text_value_changed,
                     (XtPointer)a);
@@ -689,6 +694,9 @@ static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
                        text_value_changed, (XtPointer)a);
     if (XmIsSpinner(n->widget))
       XtRemoveCallback(n->widget, XmNspinnerStateChangedCallback,
+                       text_value_changed, (XtPointer)a);
+    if (XmIsColorPicker(n->widget))
+      XtRemoveCallback(n->widget, XmNcolorPickerValueChangedCallback,
                        text_value_changed, (XtPointer)a);
     if (XmIsNumberBox(n->widget))
       XtRemoveCallback(n->widget, XmNnumberValueChangedCallback,
@@ -1039,6 +1047,19 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     if (label)
       local = XmStringUnparse(label, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
                               NULL, 0, XmOUTPUT_ALL);
+  }
+  if (XmIsColorPicker(w)) {
+    char value_text[16];
+    i->role = XmACCESSIBLE_BUTTON;
+    i->action_count = 1;
+    i->has_value = True;
+    i->minimum_value = 0;
+    i->maximum_value = 4294967295.0;
+    i->current_value = (double)XmColorPickerGetValue(w);
+    i->minimum_increment = 1;
+    snprintf(value_text, sizeof(value_text), "#%08lx",
+             XmColorPickerGetValue(w) & 0xffffffffUL);
+    i->value_text = XtNewString(value_text);
   }
   if (XmIsNumberBox(w)) {
     int minimum, maximum;

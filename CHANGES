@@ -2663,3 +2663,11 @@ Additive non-modal flyout (2026-10-25)
   show/hide and dismissal callbacks, keyboard/pointer dismissal, and owner
   unmap/destruction cleanup.  Existing tooltip, menu-shell and dialog behavior
   remains unchanged; delayed teaching-tip presentation is deferred.
+
+Additive packed-RGBA color picker (2026-10-25)
+==============================================
+
+- Add `XmColorPicker` with explicit `0xRRGGBBAA` values, separate preview and
+  committed callbacks, hex readout, accessible value text and installed-prefix
+  Xvfb coverage.  `XmColorSelector` and existing color resources remain
+  unchanged; gamut conversion and palette policy are not implied.

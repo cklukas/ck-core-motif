@@ -342,6 +342,9 @@ CFlyoutDismissCallback
 CFlyoutOffsetX
 CFlyoutOffsetY
 CFlyoutText
+CColorPickerPreviewCallback
+CColorPickerValue
+CColorPickerValueChangedCallback
 CNumberInvalidCallback
 CNumberMaximum
 CNumberMinimum
@@ -780,6 +783,9 @@ NflyoutDismissCallback
 NflyoutOffsetX
 NflyoutOffsetY
 NflyoutText
+NcolorPickerPreviewCallback
+NcolorPickerValue
+NcolorPickerValueChangedCallback
 NnumberInvalidCallback
 NnumberMaximum
 NnumberMinimum

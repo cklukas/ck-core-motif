@@ -64,6 +64,7 @@
 #include <Xm/Manager.h>
 #include <Xm/MenuShell.h>
 #include <Xm/MessageB.h>
+#include <Xm/ColorPicker.h>
 #include <Xm/Flyout.h>
 #include <Xm/NumberBox.h>
 #include <Xm/MwmUtil.h>

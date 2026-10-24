@@ -78,6 +78,8 @@ EXTRA_DIST += tests/automated/check-stepper.c tests/automated/run-stepper.py \
               docs/stepper.md
 EXTRA_DIST += tests/automated/check-flyout.c tests/automated/run-flyout.py \
               docs/flyout.md
+EXTRA_DIST += tests/automated/check-color-picker.c tests/automated/run-color-picker.py \
+              docs/color-picker.md
 
 EXTRA_DIST += tests/automated/check-paned-keyboard.c docs/paned-keyboard.md
 
