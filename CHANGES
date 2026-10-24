@@ -2940,3 +2940,10 @@ Mrm resolved path output (2026-10-25)
 - Avoid copying resolved UID paths into a fixed-size scratch buffer; the
   low-level optional output is now guarded while existing callers remain
   compatible. See `docs/mrm-resolved-path-output.md`.
+
+Mrm context realloc failure handling (2026-10-25)
+=================================================
+
+- Preserve the existing resource-context buffer until `XtRealloc` succeeds,
+  returning `MrmFAILURE` without publishing a null buffer on failure; see
+  `docs/mrm-context-realloc.md`.

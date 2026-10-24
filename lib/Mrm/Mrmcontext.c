@@ -239,7 +239,11 @@ UrmResizeResourceContext (URMResourceContextPtr	context_id,
    */
   if ( context_id->alloc_func == XtMalloc )
     {
-      context_id->data_buffer = XtRealloc (context_id->data_buffer, size) ;
+      newbuf = XtRealloc (context_id->data_buffer, size) ;
+      if ( newbuf == NULL )
+        return Urm__UT_Error ("UrmResizeResourceContext", _MrmMMsg_0001,
+                              NULL, context_id, MrmFAILURE) ;
+      context_id->data_buffer = newbuf ;
       context_id->buffer_size = size ;
     }
   else
