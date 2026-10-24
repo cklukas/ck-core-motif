@@ -57,6 +57,7 @@ static char rcsid[] = "$XConsortium: MrmIfile.c /main/13 1996/11/13 13:56:30 drk
 #include <Mrm/IDB.h>
 
 #include <stdio.h>		/* Standard IO definitions		*/
+#include <stdint.h>
 #include <errno.h>
 #include <fcntl.h>
 
@@ -131,8 +132,11 @@ Idb__FU_OpenFile (char 			*name,
    * Local variables
    */
   int		file_desc;		/* 'unix' file descriptor */
-  int		length;			/* the length of the above string */
+  size_t	length;			/* the length of the above string */
   IDBLowLevelFile *a_file;		/* pointer to the file_id */
+
+  if (name == NULL || returned_fname == NULL || file_id == NULL)
+    return MrmFAILURE;
 
   /* Fill in the result name with the name specified so far */
   length = strlen (name);

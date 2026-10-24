@@ -1,3 +1,11 @@
+Mrm file-open input validation (2026-10-25)
+===========================================
+
+- Reject null low-level file-open pointers before dereferencing them and keep
+  filename lengths in size_t, preserving normal file access while avoiding
+  invalid input crashes and length truncation; see
+  `docs/mrm-file-open-input.md`.
+
 Mrm conversion diagnostic bounds (2026-10-25)
 ==============================================
 

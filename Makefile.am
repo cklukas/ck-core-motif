@@ -250,3 +250,4 @@ EXTRA_DIST += \
     tests/automated/check-xt-callback-lifetime.c \
     tests/automated/run-storage-regressions.py
 EXTRA_DIST += tests/automated/check-mrm-conversion-error-bounds.py docs/mrm-conversion-error-bounds.md
+EXTRA_DIST += tests/automated/check-mrm-file-open-input.py docs/mrm-file-open-input.md
