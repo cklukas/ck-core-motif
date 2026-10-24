@@ -843,10 +843,15 @@ SelectColor(XmColorSelectorWidget csw)
 static int
 EndsInDigits(char *str)
 {
-    register char *c = str;
+    register char *c;
+
+    if (str == NULL || *str == '\0')
+	return False;
+
+    c = str;
     while(*c != '\0') c++;	/* advance to end of string marker */
     c--;			/* back to the last character */
-    if(c >= str && isascii(*c) && isdigit(*c)) 
+	if(isascii((unsigned char)*c) && isdigit((unsigned char)*c))
 	return True;
     
     return False;

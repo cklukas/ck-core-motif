@@ -1,3 +1,5 @@
+* Make color-name digit-suffix detection safe for null and empty names,
+  avoiding invalid pointer arithmetic on malformed entries.
 * Guard unit-string parsing against null specifications and output pointers,
   returning XmPARSE_ERROR for malformed resource input.
 * Guard representation-type action parameter conversion against null pointers
