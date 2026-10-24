@@ -183,6 +183,7 @@ Urm__UT_Error (char			*module,
    *  Local variables
    */
   char		msg[300] ;	/* error message */
+  String		new_msg ;	/* replacement saved error message */
 
 
   /*
@@ -204,10 +205,14 @@ Urm__UT_Error (char			*module,
   switch ( urm__err_out )
     {
     case URMErrOutMemory:
-      if ( urm__latest_error_msg != NULL )
-	XtFree (urm__latest_error_msg) ;
-      urm__latest_error_msg = (String) XtMalloc (strlen(msg)+1) ;
-      strcpy (urm__latest_error_msg, msg) ;
+      new_msg = (String) XtMalloc (strlen(msg)+1) ;
+      if (new_msg != NULL)
+	{
+	  strcpy (new_msg, msg) ;
+	  if ( urm__latest_error_msg != NULL )
+	    XtFree (urm__latest_error_msg) ;
+	  urm__latest_error_msg = new_msg ;
+	}
       return status ;
     case URMErrOutStdout:
     default:

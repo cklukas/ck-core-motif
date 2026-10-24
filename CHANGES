@@ -2947,3 +2947,10 @@ Mrm context realloc failure handling (2026-10-25)
 - Preserve the existing resource-context buffer until `XtRealloc` succeeds,
   returning `MrmFAILURE` without publishing a null buffer on failure; see
   `docs/mrm-context-realloc.md`.
+
+Mrm error-message allocation (2026-10-25)
+=========================================
+
+- Make memory-mode error-message replacement transactional so a failed
+  allocation cannot dereference null or discard the prior message; see
+  `docs/mrm-error-allocation.md`.

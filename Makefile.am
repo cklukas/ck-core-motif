@@ -427,3 +427,4 @@ EXTRA_DIST += tests/automated/check-mrm-safe-copy-allocation.py docs/mrm-safe-co
 EXTRA_DIST += tests/automated/check-mrm-hierarchy-cleanup.py docs/mrm-hierarchy-cleanup.md
 EXTRA_DIST += tests/automated/check-mrm-resolved-path-output.py docs/mrm-resolved-path-output.md
 EXTRA_DIST += tests/automated/check-mrm-context-realloc.py docs/mrm-context-realloc.md
+EXTRA_DIST += tests/automated/check-mrm-error-allocation.py docs/mrm-error-allocation.md
