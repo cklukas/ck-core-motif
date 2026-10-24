@@ -1542,7 +1542,7 @@ Idb__INX_ConfirmNodeSpace (IDBFile		file_id,
   IDBIndexNodeRecordPtr	recptr ;	/* node record in buffer */
   IDBIndexNodeHdrPtr	hdrptr ;	/* record header */
 
-  if (file_id == NULL || buffer == NULL || buffer->IDB_record == NULL)
+  if (file_id == NULL || ! Idb__INX_ValidNode(buffer))
     return MrmFAILURE;
 
 
@@ -1551,6 +1551,12 @@ Idb__INX_ConfirmNodeSpace (IDBFile		file_id,
    */
   recptr = (IDBIndexNodeRecordPtr) buffer->IDB_record ;
   hdrptr = (IDBIndexNodeHdrPtr) &recptr->node_header ;
+
+  if (hdrptr->index_count > IDBIndexNodeFreeMax / IDBIndexNodeEntrySize ||
+      hdrptr->heap_start > IDBIndexNodeFreeMax ||
+      hdrptr->free_bytes > IDBIndexNodeFreeMax ||
+      hdrptr->heap_start < hdrptr->index_count * IDBIndexNodeEntrySize)
+    return MrmBAD_RECORD;
 
   /*
    * Check the size. If there is enough, OK. Else split this record and

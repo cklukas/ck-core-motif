@@ -2794,3 +2794,10 @@ Mrm index collapse copy bounds (2026-10-26)
 - Check rounded string capacity before copying collapse data into temporary
   heaps, preventing malformed indexes from overrunning the allocation; see
   `docs/mrm-index-collapse-copy-bounds.md`.
+
+
+Mrm node-space validation (2026-10-26)
+=====================================
+
+- Validate node type and vector/heap metadata before deciding whether an
+  index split is required; see `docs/mrm-confirm-node-space.md`.
