@@ -164,7 +164,8 @@ Idb__FU_OpenFile (char 			*name,
 	    (void) close (file_desc);
 	    return MrmFAILURE;
 	    }
-	  (void) close (file_desc);	/* we care not what close returns*/
+	  if (close (file_desc) != 0)
+	    return MrmFAILURE;
 	}
 
       file_desc = creat (name,PMODE);
