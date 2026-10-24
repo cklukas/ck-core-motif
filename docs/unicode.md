@@ -348,6 +348,11 @@ cancellation and service restart, but one repeat misses a Hindi preedit update;
 repeatable service qualification remains open. Actual-application revalidation
 is pending; committed input observations alone do not prove preedit ownership.
 
+The XIM preedit-style resource is application-owned and may contain arbitrary
+text. XmIm now ignores values that cannot fit its legacy parser buffer instead
+of copying them into stack storage; the source contract is covered by
+`tests/automated/check-xim-resource-bounds.py`.
+
 The native retained-output regression passes 12,890,100 assertions and 417
 native/fresh line comparisons, including a first-strong bidi change after 360
 neutral scalars and a zero-layout-warning gate. Strict ASan/UBSan completes its

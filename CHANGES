@@ -1,3 +1,11 @@
+Bound XIM preedit-style resource parsing (2026-10-24)
+======================================================
+
+- Ignore application-owned preedit-style values that exceed XmIm's legacy
+  parser buffer instead of copying them into stack storage; see
+  docs/unicode.md.
+- Add a source contract regression for the bounded parser path.
+
 Bound UIL source and include path assembly (2026-10-24)
 ========================================================
 

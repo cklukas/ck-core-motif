@@ -1346,11 +1346,14 @@ create_xic_info(Widget		shell,
 
   if (cp != NULL)
     {
-      /* Parse for the successive commas */
-      cp = strcpy(tmp,cp);
-      cpend = &tmp[strlen(tmp)];
-      assert(strlen(tmp) < BUFSIZ);
-      while((style == 0) && (cp < cpend))
+	/* Parse for the successive commas.  The resource is application-owned;
+	 * do not copy an arbitrarily long value into the historical stack buffer. */
+	if (strlen(cp) < sizeof(tmp))
+	  {
+	    memcpy(tmp, cp, strlen(cp) + 1);
+	    cp = tmp;
+	    cpend = &tmp[strlen(tmp)];
+	    while((style == 0) && (cp < cpend))
         {
           tp = strchr(cp,',');
           if (tp)
@@ -1374,6 +1377,7 @@ create_xic_info(Widget		shell,
          
           cp = tp+1;
         }
+	  }
     }
   if (style == 0)
     {
