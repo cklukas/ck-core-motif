@@ -1,3 +1,10 @@
+Mrm hierarchy filename suffix bounds (2026-10-25)
+================================================
+
+- Validate null and short UID filenames before checking the `.uid` suffix,
+  preserving normal lookup while avoiding an underflowing pointer expression;
+  see `docs/mrm-filename-suffix.md`.
+
 Mrm setter input validation (2026-10-25)
 =======================================
 

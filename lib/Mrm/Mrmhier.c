@@ -704,6 +704,7 @@ I18NOpenFile (Display			*display,
   Cardinal		result;		/* function results */
   char			dummy[300];	/* file name (unused) */
   char			err_stg[300];
+  size_t		name_len;
 
   /*
    * Use XtResolvePathName.  If the last 4 characters of the file name
@@ -712,6 +713,10 @@ I18NOpenFile (Display			*display,
    */
   char			*resolvedname; /* current resolved name */
   Boolean		user_path ;
+
+  if (name == NULL)
+    return MrmFAILURE;
+  name_len = strlen(name);
 
   uidSubs[0].substitution = name;
 
@@ -729,7 +734,7 @@ I18NOpenFile (Display			*display,
    * resolve the pathname with .uid suffix first. If that fails or the suffix is
    * already on the file then just try to resolve the pathname.
    */
-  if ( strcmp (&name[strlen(name)-4],".uid") != 0 ) 
+  if ( name_len < 4 || strcmp (name + name_len - 4,".uid") != 0 )
     resolvedname = XtResolvePathname (display,
 				      "uid",
 				      NULL,
