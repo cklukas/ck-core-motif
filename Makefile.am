@@ -400,3 +400,4 @@ EXTRA_DIST += tests/automated/check-mrm-pointer-list-append-state.py docs/mrm-po
 
 EXTRA_DIST += tests/automated/check-mrm-pointer-list-content-state.py docs/mrm-pointer-list-content-state.md
 EXTRA_DIST += tests/automated/check-mrm-index-parent-errors.py docs/mrm-index-parent-errors.md
+EXTRA_DIST += tests/automated/check-mrm-index-preflight.py docs/mrm-index-preflight.md

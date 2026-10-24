@@ -461,13 +461,22 @@ Idb__INX_EnterNodeIndex (IDBFile		file_id,
       entndx = (order==MrmINDEX_GT) ? entry_index+1 : entry_index ;
       if (entndx > itemcnt)
         return MrmFAILURE;
-      for ( ndx=itemcnt ; ndx>entndx ; ndx--)
-        {
-	  itemvec[ndx].index_stg = itemvec[ndx-1].index_stg ;
-	  itemvec[ndx].data = itemvec[ndx-1].data ;
-	  itemvec[ndx].LT_record = itemvec[ndx-1].LT_record ;
-	  itemvec[ndx].GT_record = itemvec[ndx-1].GT_record ;
-        }
+    }
+
+  /* Validate neighboring child links before changing the node. */
+  if (entndx > 0 && itemvec[entndx-1].GT_record != gt_record)
+    return Urm__UT_Error ("Idb__INX_EnterNodeIndex", _MrmMMsg_0016,
+                          file_id, NULL, MrmBAD_BTREE) ;
+  if (entndx < itemcnt && itemvec[entndx].LT_record != gt_record)
+    return Urm__UT_Error ("Idb__INX_EnterNodeIndex", _MrmMMsg_0017,
+                          file_id, NULL, MrmBAD_BTREE) ;
+
+  for ( ndx=itemcnt ; ndx>entndx ; ndx--)
+    {
+      itemvec[ndx].index_stg = itemvec[ndx-1].index_stg ;
+      itemvec[ndx].data = itemvec[ndx-1].data ;
+      itemvec[ndx].LT_record = itemvec[ndx-1].LT_record ;
+      itemvec[ndx].GT_record = itemvec[ndx-1].GT_record ;
     }
 
   /*
@@ -490,27 +499,20 @@ Idb__INX_EnterNodeIndex (IDBFile		file_id,
   hdrptr->free_bytes -= entsiz ;
 
   /*
-   * Now the entries to either side of the new index must have their LT
-   * and LT pointers verified and changed. By practice, the GT record of the
-   * new entry is a previous record which should occur as the GT record of
-   * the preceding entry and the LT record of the succeeding entry.
-   * These entries must be modified to have LT and GT pointers matching the
-   * records given here as arguments.
+   * Now update the entries to either side of the new index.  The neighboring
+   * child links were validated before any record mutation above.  By
+   * practice, the GT record of the new entry is a previous record which
+   * occurs as the GT record of the preceding entry and the LT record of the
+   * succeeding entry.
    */
   if ( entndx > 0 )
     {
       prvndx = entndx - 1 ;
-      if ( itemvec[prvndx].GT_record != gt_record )
-        return Urm__UT_Error ("Idb__INX_EnterNodeIndex", _MrmMMsg_0016,
-			      file_id, NULL, MrmBAD_BTREE) ;
       itemvec[prvndx].GT_record = lt_record ;
     }
   if ( entndx < (itemcnt-1) )
     {
       nxtndx = entndx + 1 ;
-      if ( itemvec[nxtndx].LT_record != gt_record )
-        return Urm__UT_Error ("Idb__INX_EnterNodeIndex", _MrmMMsg_0017,
-			      file_id, NULL, MrmBAD_BTREE) ;
       itemvec[nxtndx].LT_record = gt_record ;
     }
 

@@ -2778,3 +2778,11 @@ Mrm index parent-update error propagation (2026-10-26)
 - Return failures from the left-child parent update before attempting the
   right-child update during node insertion, so a hidden B-tree repair error
   cannot be reported as success; see `docs/mrm-index-parent-errors.md`.
+
+
+Mrm index insertion preflight (2026-10-26)
+==========================================
+
+- Validate neighboring child links before shifting or updating a node record,
+  preventing malformed B-tree input from leaving a partial insertion; see
+  `docs/mrm-index-preflight.md`.
