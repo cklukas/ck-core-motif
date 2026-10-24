@@ -108,12 +108,15 @@ static char rcsid[] = "$XConsortium: MrmIindexw.c /main/12 1996/11/13 13:57:54 d
  * Macros which validate index records in buffers
  */
 #define	Idb__INX_ValidLeaf(buffer) \
-     (_IdbBufferRecordType(buffer)==IDBrtIndexLeaf)
+     ((buffer) != NULL && (buffer)->IDB_record != NULL && \
+      _IdbBufferRecordType(buffer)==IDBrtIndexLeaf)
 #define	Idb__INX_ValidNode(buffer) \
-     (_IdbBufferRecordType(buffer)==IDBrtIndexNode)
-#define	Idb__INX_ValidRecord(buffer) \
-     (_IdbBufferRecordType(buffer)==IDBrtIndexLeaf ||  \
+     ((buffer) != NULL && (buffer)->IDB_record != NULL && \
       _IdbBufferRecordType(buffer)==IDBrtIndexNode)
+#define	Idb__INX_ValidRecord(buffer) \
+     ((buffer) != NULL && (buffer)->IDB_record != NULL && \
+      (_IdbBufferRecordType(buffer)==IDBrtIndexLeaf ||  \
+       _IdbBufferRecordType(buffer)==IDBrtIndexNode))
 
 
 
@@ -265,7 +268,8 @@ Idb__INX_EnterLeafIndex (IDBFile		file_id,
   IDBIndexLeafEntryPtr	itemvec ;	/* The vector of index entries */
   MrmCount		itemcnt ;	/* # entries in vector */
 
-  if (file_id == NULL || buffer == NULL || index == NULL)
+  if (file_id == NULL || buffer == NULL || buffer->IDB_record == NULL ||
+      index == NULL)
     return MrmFAILURE;
 
   /*
@@ -400,7 +404,8 @@ Idb__INX_EnterNodeIndex (IDBFile		file_id,
   MrmCount		nxtndx ;	/* succeeding entry index */
   IDBRecordNumber	p_recno ;	/* this node record number */
 
-  if (file_id == NULL || buffer == NULL || index == NULL)
+  if (file_id == NULL || buffer == NULL || buffer->IDB_record == NULL ||
+      index == NULL)
     return MrmFAILURE;
 
   /*
@@ -1621,6 +1626,9 @@ Idb__INX_FixNodeChildren (IDBFile		file_id,
   IDBIndexNodeRecordPtr	recptr ;	/* parent node record in buffer */
   IDBIndexNodeHdrPtr	hdrptr ;	/* parent record header */
   int			ndx ;		/* loop index */
+
+  if (file_id == NULL || p_record <= 0)
+    return MrmFAILURE;
 
 
   /*

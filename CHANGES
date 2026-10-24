@@ -1,3 +1,10 @@
+Mrm index buffer validation (2026-10-25)
+=========================================
+
+- Reject missing record storage and invalid parent identifiers in index writer
+  paths before dereferencing buffers; see
+  `docs/mrm-index-buffer-validation.md`.
+
 Mrm index collapse bounds (2026-10-25)
 =======================================
 
