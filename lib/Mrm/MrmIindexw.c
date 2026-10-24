@@ -1687,7 +1687,7 @@ Idb__INX_FixNodeChildren (IDBFile		file_id,
   IDBRecordBufferPtr	buffer ;	/* parent node buffer */
   IDBIndexNodeRecordPtr	recptr ;	/* parent node record in buffer */
   IDBIndexNodeHdrPtr	hdrptr ;	/* parent record header */
-  int			ndx ;		/* loop index */
+  MrmCount		ndx ;		/* loop index */
 
   if (file_id == NULL || p_record <= 0)
     return MrmFAILURE;
@@ -1707,6 +1707,10 @@ Idb__INX_FixNodeChildren (IDBFile		file_id,
    */
   recptr = (IDBIndexNodeRecordPtr) buffer->IDB_record ;
   hdrptr = (IDBIndexNodeHdrPtr) &recptr->node_header ;
+  if (hdrptr->index_count > IDBIndexNodeFreeMax / IDBIndexNodeEntrySize ||
+      hdrptr->heap_start > IDBIndexNodeFreeMax ||
+      hdrptr->free_bytes > IDBIndexNodeFreeMax)
+    return MrmBAD_RECORD;
 
   for ( ndx=0 ; ndx<hdrptr->index_count ; ndx++ )
     {

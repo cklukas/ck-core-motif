@@ -321,3 +321,4 @@ EXTRA_DIST += tests/automated/check-mrm-index-buffer-validation.py docs/mrm-inde
 EXTRA_DIST += tests/automated/check-mrm-index-entry-bounds.py docs/mrm-index-entry-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-index-split-bounds.py docs/mrm-index-split-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-root-allocation.py docs/mrm-root-allocation.md
+EXTRA_DIST += tests/automated/check-mrm-child-repair-bounds.py docs/mrm-child-repair-bounds.md

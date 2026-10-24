@@ -1,3 +1,9 @@
+Mrm child-repair bounds (2026-10-25)
+====================================
+
+- Validate node metadata and use a wide loop counter while repairing child
+  parent links; see `docs/mrm-child-repair-bounds.md`.
+
 Mrm root allocation checks (2026-10-25)
 =======================================
 
