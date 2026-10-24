@@ -156,3 +156,4 @@ EXTRA_DIST += tests/automated/check-image-scaling-depth1.py docs/image-scaling-d
 EXTRA_DIST += docs/cpp-support-library-release-decision.md
 EXTRA_DIST += tests/automated/check-image-rejection-cleanup.py docs/image-rejection-cleanup.md
 EXTRA_DIST += tests/automated/check-image-screen-fallback.py docs/image-screen-fallback.md
+EXTRA_DIST += tests/automated/check-image-conversion-cleanup.py docs/image-conversion-cleanup.md

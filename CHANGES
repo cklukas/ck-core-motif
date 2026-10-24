@@ -1,3 +1,11 @@
+Depth-1 conversion cleanup (2026-10-24)
+=======================================
+
+- Free the converted XImage data through `XDestroyImage` and release the
+  saved original buffer directly, avoiding a post-destroy dereference and
+  wrong-buffer free in non-cached depth-1 scaling; see
+  `docs/image-conversion-cleanup.md`.
+
 Scaled-pixmap screen fallback (2026-10-24)
 =============================================
 

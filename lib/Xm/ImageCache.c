@@ -1615,7 +1615,7 @@ _XmGetScaledPixmap(
       {
 	XDestroyImage(image) ;
 	if (old_image_data)
-	  XtFree(image->data);
+	  XtFree(old_image_data);
       }
     else if (image->format != old_image_format)
       {
