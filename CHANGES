@@ -1,5 +1,10 @@
 2026-10-24
 
+* Include the standard-target allocation regression and documentation in
+  source distributions.
+
+2026-10-24
+
 * Reject invalid private-target counts before XmeStandardTargets computes
   its allocation size.
 
