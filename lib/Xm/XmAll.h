@@ -91,6 +91,7 @@
 #include <Xm/Text.h>
 #include <Xm/TextF.h>
 #include <Xm/ToggleB.h>
+#include <Xm/ToggleSwitch.h>
 #include <Xm/ToggleBG.h>
 #include <Xm/Transfer.h>
 #include <Xm/TxtPropCv.h>

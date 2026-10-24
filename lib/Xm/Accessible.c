@@ -27,6 +27,7 @@
 #include <Xm/TextF.h>
 #include <Xm/ToggleB.h>
 #include <Xm/ToggleBG.h>
+#include <Xm/ToggleSwitch.h>
 #include <limits.h>
 #include <math.h>
 #include <stdlib.h>
@@ -569,6 +570,9 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     if (XmIsText(w) || XmIsTextField(w))
       XtAddCallback(w, XmNvalueChangedCallback, text_value_changed,
                     (XtPointer)a);
+    if (XmIsToggleSwitch(w))
+      XtAddCallback(w, XmNvalueChangedCallback, text_value_changed,
+                    (XtPointer)a);
     if (XtIsWidget(w)) {
       XtAddEventHandler(w,
                         FocusChangeMask | StructureNotifyMask |
@@ -659,6 +663,9 @@ static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
       XtRemoveCallback(n->widget, XmNdisclosureStateCallback,
                        disclosure_changed, (XtPointer)a);
     if (XmIsText(n->widget) || XmIsTextField(n->widget))
+      XtRemoveCallback(n->widget, XmNvalueChangedCallback, text_value_changed,
+                       (XtPointer)a);
+    if (XmIsToggleSwitch(n->widget))
       XtRemoveCallback(n->widget, XmNvalueChangedCallback, text_value_changed,
                        (XtPointer)a);
     if (XtIsWidget(n->widget)) {
@@ -971,7 +978,8 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     i->action_count = 1;
     i->states |= XmACCESSIBLE_STATE(11);
   }
-  if (XmIsToggleButton(w) || XmIsToggleButtonGadget(w)) {
+  if (XmIsToggleButton(w) || XmIsToggleButtonGadget(w) ||
+      XmIsToggleSwitch(w)) {
     i->role = XmACCESSIBLE_CHECK_BOX;
     i->action_count = 1;
     i->states |= XmACCESSIBLE_STATE(11) | XmACCESSIBLE_STATE(41);
@@ -1197,6 +1205,10 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
   }
   if (XmIsToggleButton(n->widget)) {
     XmToggleButtonSetState(n->widget, !XmToggleButtonGetState(n->widget), True);
+    return True;
+  }
+  if (XmIsToggleSwitch(n->widget)) {
+    XmToggleSwitchSetState(n->widget, !XmToggleSwitchGetState(n->widget), True);
     return True;
   }
   if (XmIsToggleButtonGadget(n->widget)) {

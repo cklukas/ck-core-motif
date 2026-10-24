@@ -855,6 +855,17 @@ without changing `XmToggleButton` or its indicator semantics.
 classic `XmToggleButton` fixtures retain their prior result, and the installed
 fixture covers normal, disabled, focused and both value states.
 
+**Status (2026-10-25):** implemented and qualified on uconsole.  The new
+`XmToggleSwitch` class has dedicated public/private records and constructors,
+typed state access and callback data, resource-backed label/state rendering,
+keyboard/pointer activation, focus/disabled indication, and accessibility
+check-box semantics with activate and change notifications.  It deliberately
+does not participate in `XmToggleButton` radio/toggle groups; it is a
+standalone binary control.  The installed-prefix fixture passed 17 checks,
+including both states, disabled/focus behavior, accessibility query/action,
+resize metrics, and destruction from a value callback.  See
+`docs/toggle-switch.md` and `tests/automated/run-toggle-switch.py`.
+
 ### WP-17: ProgressBar, Spinner and ProgressRing
 
 **Depends on:** WP-15.

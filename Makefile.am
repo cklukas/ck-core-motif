@@ -65,6 +65,10 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
 # Keyboard activation lifetime regression.
 EXTRA_DIST += tests/automated/check-button-timers.c docs/button-timers.md
 
+# WP-16 additive binary switch widget and installed consumer contract.
+EXTRA_DIST += tests/automated/check-toggle-switch.c tests/automated/run-toggle-switch.py \
+              docs/toggle-switch.md
+
 EXTRA_DIST += tests/automated/check-paned-keyboard.c docs/paned-keyboard.md
 
 EXTRA_DIST += tests/automated/check-combo-delete.c docs/combo-deletion.md

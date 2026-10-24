@@ -128,6 +128,7 @@ public XmCreateText
 public XmCreateTextField
 public XmCreateToggleButton
 public XmCreateToggleButtonGadget
+public XmCreateToggleSwitch
 public XmCreateWarningDialog
 public XmCreateWorkArea
 public XmCreateWorkingDialog
@@ -485,6 +486,8 @@ public XmToggleButtonGadgetSetValue
 public XmToggleButtonGetState
 public XmToggleButtonSetState
 public XmToggleButtonSetValue
+public XmToggleSwitchGetState
+public XmToggleSwitchSetState
 public XmTrackingEvent
 public XmTrackingLocate
 public XmTransferDone
@@ -572,6 +575,7 @@ public XmVaCreateManagedText
 public XmVaCreateManagedTextField
 public XmVaCreateManagedToggleButton
 public XmVaCreateManagedToggleButtonGadget
+public XmVaCreateManagedToggleSwitch
 public XmVaCreatePushButton
 public XmVaCreatePushButtonGadget
 public XmVaCreateScale
@@ -582,6 +586,7 @@ public XmVaCreateText
 public XmVaCreateTextField
 public XmVaCreateToggleButton
 public XmVaCreateToggleButtonGadget
+public XmVaCreateToggleSwitch
 
 public XmVaCreateSimpleCheckBox
 public XmVaCreateSimpleMenuBar
@@ -721,6 +726,8 @@ public xmToggleButtonGCacheObjClassRec
 public xmToggleButtonGadgetClass
 public xmToggleButtonGadgetClassRec
 public xmToggleButtonWidgetClass
+public xmToggleSwitchClassRec
+public xmToggleSwitchWidgetClass
 public xmUseVersion
 public xmVendorShellExtClassRec
 public xmVendorShellExtObjectClass
