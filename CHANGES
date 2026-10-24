@@ -1,3 +1,5 @@
+* Bound render-table property-name indexing and route oversized property input
+  through the existing conversion cleanup path.
 * Preserve long alphabetic render-table tokens by allocating their actual
   length instead of truncating them at 79 bytes.
 * Keep render-table lexer position at the terminating NUL for unterminated

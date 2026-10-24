@@ -3308,6 +3308,8 @@ XmRenderTableCvtFromProp(Widget w,
     if (token -> type == T_EOF) goto finish;
 
     j++; /* Go to next item in items array */
+	if (j >= (int)(sizeof(items) / sizeof(items[0])))
+	  goto error;
 	  
     if (items[j] == NULL) {
       /* End of line processing.  Scan for NewLine */
