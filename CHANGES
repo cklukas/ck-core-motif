@@ -504,3 +504,11 @@ Development 2.4.0 / FontSelector font-string bounds
 - Honor the destination size while building FontSelector XLFD strings and
   guarantee termination for short buffers.
 - Add a public-widget regression and maintenance documentation.
+
+Development 2.4.0 / XmString multibyte conversion bounds
+=========================================================
+
+- Use checked `size_t` lengths and bounded copies when converting compound
+  strings to multibyte text, rejecting component-size overflow before
+  allocation.
+- Add a conversion regression and maintenance documentation.

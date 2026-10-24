@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <limits.h>
+#include <stdint.h>
 #include <X11/IntrinsicP.h>
 
 #include "XmI.h"
@@ -339,7 +340,8 @@ _XmGetMBStringFromXmString(XmString xmstr)
     XmStringCharSet		charset;   /* dummy			*/
     XmStringDirection   	direction; /* dummy			*/
     XmStringComponentType	u_tag;	   /* is newline		*/
-    int				length;    /* length of string		*/
+    size_t			length;    /* length of string		*/
+    size_t			used;
     unsigned short		u_length;  /* bogus length		*/
     unsigned char		*u_value;  /* bogus value		*/
     XmStringComponentType 	type;	   /* type			*/
@@ -375,9 +377,17 @@ _XmGetMBStringFromXmString(XmString xmstr)
 	{
     	case XmSTRING_COMPONENT_TEXT:
 	case XmSTRING_COMPONENT_LOCALE_TEXT:
+	    if (newText == NULL || strlen(newText) > SIZE_MAX - length) {
+		XmStringFreeContext(context);
+		return(NULL);
+	    }
 	    length += strlen( newText );
 	    break;
  	case XmSTRING_COMPONENT_SEPARATOR:
+	    if (length == SIZE_MAX) {
+		XmStringFreeContext(context);
+		return(NULL);
+	    }
 	    length += 1;
 	    break;
 	case XmSTRING_COMPONENT_USER_BEGIN:
@@ -406,18 +416,26 @@ _XmGetMBStringFromXmString(XmString xmstr)
 	while ( XmStringGetNextSegment(context, &newText, &charset,
 				       &direction, &separator) ) {
 
-	length = strlen(newText);
+	length = newText ? strlen(newText) : 0;
+	if (length == SIZE_MAX) {
+	    XtFree(newText);
+	    XtFree(charset);
+	    XmStringFreeContext(context);
+	    return NULL;
+	}
 	if (separator == True) {
 	  length += 1;     ;
 	}
 
 	text = XtMalloc( length + 1 );
-	text[0] = '\0';
-	strcat(text, newText);
-
-	if (separator == True) {
-	  strcat(text, "\n");
+	used = 0;
+	if (newText != NULL) {
+	  memcpy(text + used, newText, length > 0 ? length - (separator == True) : 0);
+	  used += length > 0 ? length - (separator == True) : 0;
 	}
+	if (separator == True)
+	  text[used++] = '\n';
+	text[used] = '\0';
 
 	XtFree(newText);
 	XmStringFreeContext(context);
@@ -433,7 +451,7 @@ _XmGetMBStringFromXmString(XmString xmstr)
     
     XmStringFreeContext( context );
     text = XtMalloc( length + 1 );
-    text[0] = '\0';
+    used = 0;
 
     /*
      * Fill in the string.
@@ -453,10 +471,14 @@ _XmGetMBStringFromXmString(XmString xmstr)
 	{
     	case XmSTRING_COMPONENT_TEXT:
 	case XmSTRING_COMPONENT_LOCALE_TEXT:
-	    strcat(text, newText); 
+	    if (newText != NULL) {
+		size_t part_length = strlen(newText);
+		memcpy(text + used, newText, part_length);
+		used += part_length;
+	    }
 	    break;
  	case XmSTRING_COMPONENT_SEPARATOR:
-	    strcat(text, "\n");
+	    text[used++] = '\n';
 	    break;
 	case XmSTRING_COMPONENT_USER_BEGIN:
 	case XmSTRING_COMPONENT_USER_END:
@@ -472,6 +494,8 @@ _XmGetMBStringFromXmString(XmString xmstr)
 	XtFree((XtPointer) charset);
 	XtFree((XtPointer) u_value);
    }
+
+    text[used] = '\0';
  
     XmStringFreeContext(context);
     return(text);
