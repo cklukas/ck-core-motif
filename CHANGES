@@ -2996,3 +2996,10 @@ Mrm compound-string stream cleanup (2026-10-25)
 - Release temporary byte streams returned during Mrm compound-string record
   construction on success and all failure paths; see
   `docs/mrm-cstring-stream-cleanup.md`.
+
+Mrm callback context-list initialization (2026-10-25)
+=====================================================
+
+- Propagate callback context-list allocation failures from both widget-instance
+  paths instead of entering fixup with a null list; see
+  `docs/mrm-callback-context-init.md`.

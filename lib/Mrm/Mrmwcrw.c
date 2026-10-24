@@ -698,7 +698,12 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
 				      widgetrec->creation_offs) ;
 
       if ( ptrlist == NULL )
-        UrmPlistInit (10, &ptrlist) ;
+        {
+          result = UrmPlistInit (10, &ptrlist) ;
+          if ( result != MrmSUCCESS )
+            return Urm__UT_Error ("UrmCreateWidgetInstance", _MrmMMsg_0001,
+                                  NULL, NULL, result) ;
+        }
       result = Urm__CW_FixupCallback (parent, (XtPointer)widgetrec, cbptr, 
 				      ptrlist, cblist, hierarchy_id, 
 				      file_id, wref_id) ;
@@ -1017,7 +1022,12 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
 				      widgetrec->creation_offs) ;
 
       if ( ptrlist == NULL )
-        UrmPlistInit (10, &ptrlist) ;
+        {
+          result = UrmPlistInit (10, &ptrlist) ;
+          if ( result != MrmSUCCESS )
+            return Urm__UT_Error ("UrmSetWidgetInstance", _MrmMMsg_0001,
+                                  NULL, NULL, result) ;
+        }
       result = Urm__CW_FixupCallback (parent, (XtPointer)widgetrec, 
 				      cbptr, ptrlist, cblist, hierarchy_id, 
 				      file_id, wref_id) ;
