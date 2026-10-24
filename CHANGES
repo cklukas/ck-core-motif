@@ -1,3 +1,10 @@
+ColorSelector RGB formatting bounds (2026-10-24)
+===============================================
+
+- Bound both ColorSelector hexadecimal RGB-name writes to the fixed color-name
+  buffer, preserving generated `#rrggbb` names and labels; see
+  `docs/color-selector-format-bounds.md`.
+
 GeoUtils debug-label bounds (2026-10-24)
 ========================================
 
