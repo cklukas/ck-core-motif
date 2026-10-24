@@ -1,3 +1,8 @@
+UTF-8 conversion bounds (2026-10-24)
+=================================
+
+- Bound `_XmUtf8ToUcs2` allocation and malformed-sequence reads, preserving valid conversion while preventing out-of-range input access; see `docs/utf8-conversion-bounds.md`.
+
 Wide XmString copy width (2026-10-24)
 ===================================
 

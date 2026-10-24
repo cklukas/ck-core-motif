@@ -187,3 +187,5 @@ EXTRA_DIST += tests/automated/check-xmstring-wide-conversion-bounds.py docs/xmst
 EXTRA_DIST += tests/automated/check-modern-dark-profile.c tests/automated/run-modern-dark-profile.py docs/modern-dark-profile.md
 
 EXTRA_DIST += tests/automated/check-xmstring-copy-width.py docs/xmstring-copy-width.md
+
+EXTRA_DIST += tests/automated/check-utf8-conversion-bounds.py docs/utf8-conversion-bounds.md

@@ -29,6 +29,8 @@
 #include <config.h>
 #endif
 
+#include <stdint.h>
+
 
 #include "XmI.h"
 #include "MessagesI.h"
@@ -387,7 +389,7 @@ _XmIsISO10646(Display *dpy, XFontStruct *font)
 XChar2b*
 _XmUtf8ToUcs2(char *draw_text, size_t seg_len, size_t *ret_str_len)
 {
-    char *ep;
+    size_t remaining;
     unsigned short codepoint;
     XChar2b *ptr;
     XChar2b *buf2b;
@@ -396,24 +398,35 @@ _XmUtf8ToUcs2(char *draw_text, size_t seg_len, size_t *ret_str_len)
      * Convert to UCS2 string on the fly.
      */
 
+     if (seg_len > SIZE_MAX / sizeof(XChar2b)) {
+	*ret_str_len = 0;
+	return NULL;
+     }
      buf2b = (XChar2b *)XtMalloc(seg_len * sizeof(XChar2b));
 
-     ep = draw_text + seg_len;
-     for (ptr = buf2b; draw_text < ep; ptr++) {
-	if((draw_text[0]&0x80)==0) {
+     remaining = seg_len;
+     for (ptr = buf2b; remaining > 0; ptr++) {
+	if ((draw_text[0] & 0x80) == 0) {
 	    codepoint=draw_text[0];
 	    draw_text++;
-	} else if((draw_text[0]&0x20)==0) {
+	    remaining--;
+	} else if ((draw_text[0] & 0xE0) == 0xC0 && remaining >= 2 &&
+		   (draw_text[1] & 0xC0) == 0x80) {
 	    codepoint = (draw_text[0]&0x1F)<<6 | (draw_text[1]&0x3F);
 	    draw_text+=2;
-        } else if((draw_text[0]&0x10)==0) {
+	    remaining -= 2;
+	} else if ((draw_text[0] & 0xF0) == 0xE0 && remaining >= 3 &&
+		   (draw_text[1] & 0xC0) == 0x80 &&
+		   (draw_text[2] & 0xC0) == 0x80) {
 	    codepoint = (draw_text[0]&0x0F)<<12
 			    | (draw_text[1]&0x3F)<<6
 			    | (draw_text[2]&0x3F);
 	    draw_text+=3;
+	    remaining -= 3;
 	} else {                    /* wrong UTF-8 */
 	    codepoint=(unsigned)'?';
 	    draw_text++;
+	    remaining--;
 	}
 	ptr->byte1 = (codepoint >> 8) & 0xff;;
 	ptr->byte2 = codepoint & 0xff;
