@@ -1,3 +1,8 @@
+Handle empty Motif compound-string imports (2026-10-24)
+==========================================================
+- Return an empty table for zero-length ASN.1 compound-string properties before
+  dereferencing the payload.
+- Add a source contract regression and document the empty-property behavior.
 Handle empty text-property imports safely (2026-10-24)
 =======================================================
 - Prevent unsigned `nitems - 1` underflow in locale, STRING, and UTF-8 imports.

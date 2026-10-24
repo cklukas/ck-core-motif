@@ -39,6 +39,10 @@ or truncated element lengths return `XConverterNotFound` rather than looping or
 reading outside the Xlib payload. The contract is covered by
 `tests/automated/check-compound-string-import.py`.
 
+An empty Motif compound-string property now returns an empty table without
+dereferencing a null payload. The empty-property contract is covered by
+`tests/automated/check-compound-string-empty.py`.
+
 Locale, STRING, and UTF-8 import handles an empty property as one empty
 `XmString` and uses non-underflowing bounds for non-empty payloads. Oversized
 property lengths are rejected before the `int` element counter is used. The

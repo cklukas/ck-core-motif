@@ -721,6 +721,13 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	size_t offset, remaining;
 	unsigned int stream_length;
 
+	if (text_prop->nitems == 0) {
+	    *string_table_return = (XmStringTable)XtMalloc(sizeof(XmString));
+	    *count_return = 0;
+	    _XmAppUnlock(app);
+	    return Success;
+	}
+
 	/* First calculate how many elements there are */
 	offset = 0;
 	for (elements = 0; offset < (size_t)text_prop->nitems &&
