@@ -95,6 +95,8 @@ EXTRA_DIST += docs/date-picker.md tests/automated/check-date-picker.c \
               tests/automated/run-date-picker.py
 EXTRA_DIST += docs/time-picker.md tests/automated/check-time-picker.c \
               tests/automated/run-time-picker.py
+EXTRA_DIST += docs/data-grid.md tests/automated/check-data-grid.c \
+              tests/automated/run-data-grid.py
 
 EXTRA_DIST += tests/automated/check-paned-keyboard.c docs/paned-keyboard.md
 

@@ -1273,6 +1273,15 @@ Motif widget class.
 consumer suite, while it leaves all existing Motif widget APIs and components
 unchanged.
 
+**Status (2026-10-25):** the additive `XmDataGrid` is implemented with the
+WP-27 bounded model, copied labels/cell values, stable opaque IDs, bounded
+viewport realization, keyboard/wheel/top-row scrolling, request-only sorting,
+explicit edit commit/cancel/error handling, table accessibility summary and an
+installed-prefix consumer fixture.  The full additive regression set and the
+WP-27 prototype/benchmark pass on `uconsole`; lazy providers, variable-height
+rows, frozen panes, merged cells, formulas, charts and general data binding
+remain explicitly excluded.
+
 ### WP-29: Modern-layout requirements corpus and contract decision
 
 **Depends on:** WP-10 and the completed WP-11/WP-12 assessments.

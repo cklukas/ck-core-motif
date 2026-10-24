@@ -2796,6 +2796,15 @@ Additive DatePicker (2026-10-25)
   screen-clamped non-modal popup behavior, open/close and date-change
   callbacks, accessibility semantics and an installed-prefix fixture.
 
+Additive bounded DataGrid (2026-10-25)
+======================================
+
+- Add `XmDataGrid` with copied bounded model snapshots, stable row/column IDs,
+  request-only sorting, explicit edit commit/cancel/error paths, bounded
+  viewport interaction, table accessibility semantics and an installed-prefix
+  consumer fixture.  Lazy providers and formula/data-binding semantics remain
+  out of scope.
+
 
 Mrm index parent-update error propagation (2026-10-26)
 =======================================================
