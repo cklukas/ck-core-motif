@@ -1,3 +1,10 @@
+Mrm widget-class hash allocation (2026-10-25)
+==============================================
+
+- Validate widget-class hash insertion inputs, legacy length narrowing, entry
+  sizing, and allocation results before linking a new node; see
+  `docs/mrm-wci-hash-allocation.md`.
+
 Mrm conversion allocation failures (2026-10-25)
 ===============================================
 

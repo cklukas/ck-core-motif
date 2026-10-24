@@ -57,6 +57,7 @@ static char rcsid[] = "$TOG: Mrmwci.c /main/16 1999/05/19 15:25:58 mgreess $"
 
 #include <stdio.h>
 #include <stdint.h>
+#include <limits.h>
 #include <X11/IntrinsicP.h>
 #include <X11/CoreP.h>
 
@@ -660,6 +661,7 @@ hash_insert_name (URMHashTableEntryPtr	*htable,
   URMHashTableEntryPtr	az_new_name;
   int				l_hash_code;
   int				l_compare_result;
+  size_t			name_length;
 
   /*
   **  algorithm keeps 2 pointers, one for the previous name and one
@@ -667,9 +669,15 @@ hash_insert_name (URMHashTableEntryPtr	*htable,
   */
 
 
+  if (htable == NULL || c_text == NULL)
+    return (URMHashTableEntryPtr) NULL;
+
   /* obtain the hash code of for the name */
 
-  l_length = strlen (c_text);
+  name_length = strlen (c_text);
+  if (name_length > INT_MAX)
+    return (URMHashTableEntryPtr) NULL;
+  l_length = (int)name_length;
   l_hash_code = hash_function( l_length, c_text );
 
   /*
@@ -713,8 +721,12 @@ insert_name:
   */
     
   /* allocate and initialize the name entry, including the null */
+  if (name_length > SIZE_MAX - sizeof(URMHashTableEntry) - 1)
+    return (URMHashTableEntryPtr) NULL;
   az_new_name = (URMHashTableEntryPtr)
-    XtMalloc (sizeof(URMHashTableEntry)+l_length+1);
+    XtMalloc (sizeof(URMHashTableEntry)+name_length+1);
+  if (az_new_name == NULL)
+    return (URMHashTableEntryPtr) NULL;
     
   az_new_name -> az_value = (char *) NULL;
   UrmBCopy (c_text, az_new_name -> c_text, l_length + 1);
