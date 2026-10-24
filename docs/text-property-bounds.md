@@ -16,3 +16,8 @@ The compound-string (ASN.1) branch applies the same checked aggregate sizing,
 allocates space for its final terminator, and verifies each conversion result
 before copying it. The branch contract is covered by
 `tests/automated/check-compound-string-bounds.py`.
+
+Locale, text, and string conversion applies the same pointer-array and signed
+aggregate checks, including cleanup of all temporary converted strings when the
+total cannot be represented. The branch contract is covered by
+`tests/automated/check-locale-text-property-size.py`.

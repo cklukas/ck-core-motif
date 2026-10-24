@@ -1,3 +1,9 @@
+Bound locale text-property aggregate sizing (2026-10-24)
+==========================================================
+- Check temporary pointer-array sizing and signed aggregate text length for
+  locale, text, and string conversions.
+- Clean up converted strings when the aggregate cannot be represented, with a
+  source contract regression and documentation.
 Bound compound-string text-property conversion (2026-10-24)
 =============================================================
 - Check ASN.1 item sizes and aggregate totals before copying converted strings.

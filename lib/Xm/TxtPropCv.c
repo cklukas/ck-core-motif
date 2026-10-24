@@ -528,6 +528,10 @@ XmCvtXmStringTableToTextProperty(Display *display,
 	  break;
 	}
       /* Get useable text for each compound string */
+      if ((size_t)count > SIZE_MAX / sizeof(char *)) {
+	_XmAppUnlock(app);
+	return BadAlloc;
+      }
       useable_text = (char **)XtMalloc(sizeof(char *) * count);
       for (i = 0; i < count; ++i)
 	{
@@ -570,8 +574,18 @@ XmCvtXmStringTableToTextProperty(Display *display,
 	}
       /* Now take the useable_text array and convert it to one
 	 long string with null separated elements. */
-      for (i = 0, total_size = 0; i < count; ++i)
-	total_size += strlen(useable_text[i]) + 1;
+      for (i = 0, total_size = 0; i < count; ++i) {
+	size_t item_size = strlen(useable_text[i]) + 1;
+	if (item_size > (size_t)INT_MAX - (size_t)total_size) {
+	    int cleanup;
+	    for (cleanup = 0; cleanup <= i; ++cleanup)
+		XtFree(useable_text[cleanup]);
+	    XtFree((char *)useable_text);
+	    _XmAppUnlock(app);
+	    return BadAlloc;
+	}
+	total_size += (int)item_size;
+      }
       final_string =
 	(unsigned char *)XtMalloc(sizeof(char) * (total_size + 1));
       final_string[0] = '\0';
