@@ -3051,7 +3051,12 @@ Urm__CW_ReadLiteral (RGMResourceDescPtr		resptr ,
   /*
    * Acquire a context and read the literal into it.
    */
-  UrmGetResourceContext ((char *(*)())NULL, (void(*)())NULL, 0, &context_id) ;
+  result = UrmGetResourceContext ((char *(*)())NULL, (void(*)())NULL, 0,
+				  &context_id) ;
+  if ( result != MrmSUCCESS || context_id == NULL )
+    return Urm__UT_Error ("Urm__CW_ReadLiteral", _MrmMMsg_0001,
+				  NULL, NULL,
+				  result == MrmSUCCESS ? MrmFAILURE : result);
   switch ( resptr->type )
     {
     case URMrIndex:
