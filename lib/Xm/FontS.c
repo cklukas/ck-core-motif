@@ -26,6 +26,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>		/* May have to be strings.h on some systems. */
 
@@ -2803,7 +2804,8 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
 	XmStringFree(label);
 
 	XtAddCallback(button,
-		      XmNactivateCallback, ChangeEncoding, (XtPointer) i);
+			      XmNactivateCallback, ChangeEncoding,
+			      (XtPointer)(uintptr_t)i);
 
 	if (streq(*encodings, ENCODING_STRING(fsw)))
 	{
@@ -2977,7 +2979,7 @@ ChangeEncoding(Widget w, XtPointer data, XtPointer junk)
     fsw = (XmFontSelectorWidget) w;
     cf = XmFontS_font_info(fsw)->current_font;
 
-    if ((int) data == 0)
+	if ((int)(uintptr_t)data == 0)
 	{
 	XtFree(ENCODING_STRING(fsw));
 	ENCODING_STRING(fsw) = XtNewString(ANY_ENCODING);
@@ -2985,7 +2987,8 @@ ChangeEncoding(Widget w, XtPointer data, XtPointer junk)
     else
 	{
 	XtFree(ENCODING_STRING(fsw));
-	ENCODING_STRING(fsw) = XtNewString(ENCODING_LIST(fsw)[(int) data - 1]);
+		ENCODING_STRING(fsw) = XtNewString(
+		    ENCODING_LIST(fsw)[(int)(uintptr_t)data - 1]);
 	}
 
     UpdateFamilies(fsw);
@@ -3743,7 +3746,8 @@ SetValues(Widget old, Widget request, Widget set,
 	    num_largs = 0;
 	    XtSetArg(largs[num_largs], XmNmenuHistory, button); num_largs++;
 	    XtSetValues(XmFontS_option_menu(set_fsw), largs, num_largs);
-	    ChangeEncoding((Widget) set_fsw, (XtPointer) current, NULL);
+		    ChangeEncoding((Widget) set_fsw,
+		                   (XtPointer)(uintptr_t)current, NULL);
 	}
 	else
 	{

@@ -1,3 +1,8 @@
+Font selector callback pointer types (2026-10-24)
+================================================
+
+- Use pointer-sized conversions for FontS encoding callback indexes, preserving callback behavior while removing 64-bit pointer/integer conversion hazards; see `docs/font-encoding-callback-types.md`.
+
 Font selector size-label bounds (2026-10-24)
 =============================================
 
