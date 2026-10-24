@@ -2823,7 +2823,7 @@ ReadToken(char *string, int *position, Token reusetoken)
   int count;
 
   /* Skip whitespace but not newlines */
-  while (isspace(string[pos]) && ! (string[pos] == '\n'))
+  while (isspace((unsigned char)string[pos]) && ! (string[pos] == '\n'))
     pos++;
 
   /* Select token type */
@@ -2863,12 +2863,12 @@ ReadToken(char *string, int *position, Token reusetoken)
     }
     break;
   default:
-    if (isalpha(string[pos])) /* String result */
+    if (isalpha((unsigned char)string[pos])) /* String result */
       {
 	char temp[80];
 	int count;
 	for(count = 0; 
-	    isalpha(string[pos + count]) && count < 79;
+	    isalpha((unsigned char)string[pos + count]) && count < 79;
 	    count++) temp[count] = string[pos + count];
 	temp[count] = 0;
 	pos += count;

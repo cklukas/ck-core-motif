@@ -1,3 +1,5 @@
+* Make render-table token classification pass unsigned bytes to ctype
+  functions, avoiding undefined behavior for non-ASCII input.
 * Make color-name normalization pass unsigned bytes to ctype functions,
   avoiding undefined behavior for non-ASCII color database entries.
 * Make picture matcher character classification and uppercasing safe for
