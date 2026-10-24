@@ -429,3 +429,4 @@ EXTRA_DIST += tests/automated/check-mrm-resolved-path-output.py docs/mrm-resolve
 EXTRA_DIST += tests/automated/check-mrm-context-realloc.py docs/mrm-context-realloc.md
 EXTRA_DIST += tests/automated/check-mrm-error-allocation.py docs/mrm-error-allocation.md
 EXTRA_DIST += tests/automated/check-mrm-buffer-pool-size.py docs/mrm-buffer-pool-size.md
+EXTRA_DIST += tests/automated/check-mrm-writer-vector-input.py docs/mrm-writer-vector-input.md

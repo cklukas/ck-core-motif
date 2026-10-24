@@ -900,6 +900,7 @@ UrmCWRSetArgChar8Vec (URMResourceContextPtr	context_id,
    * Validate vector - make sure it doesn't contain too many elements
    */
   if ( num_stg < 0 || num_stg > RGMListSizeMax ||
+       (num_stg > 0 && stg_vec == NULL) ||
        sizeof(RGMTextVector) > USHRT_MAX ||
        (size_t)num_stg >
 	 (USHRT_MAX - sizeof(RGMTextVector)) / sizeof(RGMTextEntry) )
@@ -1016,6 +1017,7 @@ UrmCWRSetArgCStringVec (URMResourceContextPtr	context_id,
    * Validate vector - make sure it doesn't contain too many elements
    */
   if ( num_cstg < 0 || num_cstg > RGMListSizeMax ||
+       (num_cstg > 0 && cstg_vec == NULL) ||
        sizeof(RGMTextVector) > USHRT_MAX ||
        (size_t)num_cstg >
 	 (USHRT_MAX - sizeof(RGMTextVector)) / sizeof(RGMTextEntry) )
