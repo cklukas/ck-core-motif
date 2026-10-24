@@ -1,3 +1,10 @@
+Mrm index-record copy guards (2026-10-25)
+===========================================
+
+- Make leaf and node index-record copy helpers reject missing source or
+  destination records before dereferencing them; see
+  `docs/mrm-index-record-copies.md`.
+
 Mrm index mutation input validation (2026-10-25)
 ================================================
 

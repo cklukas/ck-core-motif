@@ -1082,6 +1082,10 @@ Idb__INX_CopyLeafRecord (IDBIndexLeafRecordPtr	dst_recptr,
 			 IDBIndexLeafRecordPtr	src_recptr)
 {
 
+  /* A failed record allocation must not turn a copy helper into a crash. */
+  if (dst_recptr == NULL || src_recptr == NULL)
+    return ;
+
   /*
    *  Local variables
    */
@@ -1137,6 +1141,10 @@ void
 Idb__INX_CopyNodeRecord (IDBIndexNodeRecordPtr	dst_recptr,
 			 IDBIndexNodeRecordPtr	src_recptr)
 {
+
+  /* A failed record allocation must not turn a copy helper into a crash. */
+  if (dst_recptr == NULL || src_recptr == NULL)
+    return ;
 
   /*
    *  Local variables
