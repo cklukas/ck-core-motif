@@ -27,6 +27,9 @@
 *************************************************************/
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <limits.h>
 #include <X11/IntrinsicP.h>
 
 #include "XmI.h"
@@ -89,6 +92,21 @@ String xm_std_constraint_filter[] = { XmNx, XmNy, XmNwidth, XmNheight,
 *************************************************************/
 
 static CacheEntry *pixmapCache = NULL;
+
+int
+_XmParsePrintResolution(const char *text)
+{
+    char *end;
+    long value;
+
+    if (text == NULL)
+	return 0;
+    errno = 0;
+    value = strtol(text, &end, 10);
+    if (errno == ERANGE || end == text || value <= 0 || value > INT_MAX)
+	return 0;
+    return (int)value;
+}
 
 /************************************************************
 *	GLOBAL CODE

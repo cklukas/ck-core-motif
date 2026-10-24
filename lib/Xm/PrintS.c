@@ -365,7 +365,8 @@ ResourcesUpdate(Widget w, XPContext pcontext,
     string_resolution =  
 	XpGetOneAttribute(XtDisplay(w), pcontext,
 			  XPDocAttr, "default-printer-resolution") ;
-    print_shell->print.print_resolution = atoi(string_resolution);
+    print_shell->print.print_resolution =
+	_XmParsePrintResolution(string_resolution);
     XFree(string_resolution);
 
     if (!print_shell->print.print_resolution)
