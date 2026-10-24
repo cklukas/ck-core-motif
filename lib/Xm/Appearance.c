@@ -16,6 +16,7 @@
 #define CLASSIC_PROFILE "classic"
 #define MODERN_LIGHT_PROFILE "modern-light"
 #define HIGH_CONTRAST_PROFILE "high-contrast"
+#define MODERN_DARK_PROFILE "modern-dark"
 
 /*
  * These are deliberately ordinary Xt resources.  XrmCombineDatabase() with
@@ -67,6 +68,30 @@ static const char high_contrast_resources[] =
     "*XmTextField.traversalOn: True\n"
     "*XmScrollBar.highlightThickness: 3\n";
 
+static const char modern_dark_resources[] =
+    "*background: #202124\n"
+    "*foreground: #f1f3f4\n"
+    "*topShadowColor: #5f6368\n"
+    "*bottomShadowColor: #000000\n"
+    "*highlightColor: #8ab4f8\n"
+    "*highlightThickness: 2\n"
+    "*shadowThickness: 1\n"
+    "*armColor: #3c4043\n"
+    "*selectColor: #3c4043\n"
+    "*insensitiveForeground: #9aa0a6\n"
+    "*XmToggleButton*bottomShadowColor: #9aa0a6\n"
+    "*XmLabel.traversalOn: True\n"
+    "*XmPushButton.marginWidth: 10\n"
+    "*XmPushButton.marginHeight: 6\n"
+    "*XmPushButton.traversalOn: True\n"
+    "*XmToggleButton.marginWidth: 10\n"
+    "*XmToggleButton.marginHeight: 6\n"
+    "*XmToggleButton.traversalOn: True\n"
+    "*XmTextField.marginWidth: 8\n"
+    "*XmTextField.marginHeight: 5\n"
+    "*XmTextField.traversalOn: True\n"
+    "*XmScrollBar.highlightThickness: 2\n";
+
 static const char *
 profile_name(XmAppearanceProfile profile)
 {
@@ -77,6 +102,8 @@ profile_name(XmAppearanceProfile profile)
         return MODERN_LIGHT_PROFILE;
     case XmAPPEARANCE_HIGH_CONTRAST:
         return HIGH_CONTRAST_PROFILE;
+    case XmAPPEARANCE_MODERN_DARK:
+        return MODERN_DARK_PROFILE;
     default:
         return NULL;
     }
@@ -97,6 +124,10 @@ profile_from_name(const char *name, XmAppearanceProfile *profile_return)
         *profile_return = XmAPPEARANCE_HIGH_CONTRAST;
         return True;
     }
+    if (name != NULL && strcmp(name, MODERN_DARK_PROFILE) == 0) {
+        *profile_return = XmAPPEARANCE_MODERN_DARK;
+        return True;
+    }
     return False;
 }
 
@@ -109,6 +140,8 @@ profile_resource_database(XmAppearanceProfile profile, XrmDatabase *database)
         defaults = XrmGetStringDatabase(modern_light_resources);
     else if (profile == XmAPPEARANCE_HIGH_CONTRAST)
         defaults = XrmGetStringDatabase(high_contrast_resources);
+    else if (profile == XmAPPEARANCE_MODERN_DARK)
+        defaults = XrmGetStringDatabase(modern_dark_resources);
     else
         return True;
     if (defaults == NULL)

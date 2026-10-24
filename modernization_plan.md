@@ -328,8 +328,10 @@ Linux host with a fresh Xft-enabled installed prefix under Xvfb.  The opt-in
 blue selection/arm colors, disabled-state foreground and three-pixel focus
 metrics through the same Xrm fallback path.  The installed fixture passed
 calculated contrast targets, realized colors, application precedence and
-keyboard traversal.  `modern-dark` remains deferred pending equivalent
-image/pixmap and disabled-state qualification.
+keyboard traversal.  The opt-in `modern-dark` profile is now equally
+qualified: its fixture passed dark/disabled colors, explicit white precedence,
+keyboard traversal, realized state and application pixmap identity.  See
+`docs/modern-dark-profile.md`.
 
 ### WP-04: Scaled control-metric audit
 

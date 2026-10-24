@@ -1,3 +1,10 @@
+Modern-dark appearance profile (2026-10-24)
+===========================================
+
+- Add the opt-in `modern-dark` appearance profile with dark/disabled resource
+  defaults and installed pixmap/focus/precedence qualification; see
+  `docs/modern-dark-profile.md`.
+
 Wide XmString conversion bounds (2026-10-24)
 =============================================
 
