@@ -1197,6 +1197,11 @@ RTL presentation resources, date-change/activation callbacks, and a calendar
 accessibility summary.  DatePicker, TimePicker, locale providers and timezone
 interpretation remain separate follow-on work.
 
+The additive `XmDatePicker` now reuses that contract through a bounded,
+non-modal `XmCalendar` popup with validated ranges, screen-clamped placement,
+open/close callbacks and installed-prefix accessibility coverage.  TimePicker
+and daylight-saving behavior remain open in this work package.
+
 ### WP-27: DataGrid/TableView design and prototype
 
 **Depends on:** WP-25 and WP-15.

@@ -70,6 +70,7 @@
 #include <Xm/BreadcrumbBar.h>
 #include <Xm/TreeView.h>
 #include <Xm/Calendar.h>
+#include <Xm/DatePicker.h>
 #include <Xm/NumberBox.h>
 #include <Xm/RatingControl.h>
 #include <Xm/MwmUtil.h>

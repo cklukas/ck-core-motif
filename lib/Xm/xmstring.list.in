@@ -1000,6 +1000,16 @@ NcalendarWeekStart
 NcalendarRtl
 NcalendarDateChangedCallback
 NcalendarActivateCallback
+CDatePickerYear
+CDatePickerMonth
+CDatePickerDay
+CDatePickerDateChangedCallback
+CDatePickerOpenChangedCallback
+NdatePickerYear
+NdatePickerMonth
+NdatePickerDay
+NdatePickerDateChangedCallback
+NdatePickerOpenChangedCallback
 
 #table _XmStrings20
 

@@ -137,6 +137,7 @@ public XmCreateInfoBar
 public XmCreateBreadcrumbBar
 public XmCreateTreeView
 public XmCreateCalendar
+public XmCreateDatePicker
 public XmCreateNumberBox
 public XmCreateSpinner
 public XmCreateStepper
@@ -534,6 +535,13 @@ public XmCalendarGetRange
 public XmCalendarSetRange
 public XmCalendarGetVisibleMonth
 public XmCalendarSetVisibleMonth
+public XmDatePickerGetDate
+public XmDatePickerSetDate
+public XmDatePickerSetRange
+public XmDatePickerGetRange
+public XmDatePickerIsOpen
+public XmDatePickerOpen
+public XmDatePickerClose
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -812,6 +820,8 @@ public xmTreeViewClassRec
 public xmTreeViewWidgetClass
 public xmCalendarClassRec
 public xmCalendarWidgetClass
+public xmDatePickerClassRec
+public xmDatePickerWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec

@@ -23,6 +23,7 @@
 #include <Xm/BreadcrumbBar.h>
 #include <Xm/TreeView.h>
 #include <Xm/Calendar.h>
+#include <Xm/DatePicker.h>
 #include <Xm/ColorPicker.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
@@ -608,6 +609,9 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     if (XmIsCalendar(w))
       XtAddCallback(w, XmNcalendarDateChangedCallback, text_value_changed,
                     (XtPointer)a);
+    if (XmIsDatePicker(w))
+      XtAddCallback(w, XmNdatePickerDateChangedCallback, text_value_changed,
+                    (XtPointer)a);
     if (XmIsNumberBox(w))
       XtAddCallback(w, XmNnumberValueChangedCallback, text_value_changed,
                     (XtPointer)a);
@@ -732,6 +736,9 @@ static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
                        text_value_changed, (XtPointer)a);
     if (XmIsCalendar(n->widget))
       XtRemoveCallback(n->widget, XmNcalendarDateChangedCallback,
+                       text_value_changed, (XtPointer)a);
+    if (XmIsDatePicker(n->widget))
+      XtRemoveCallback(n->widget, XmNdatePickerDateChangedCallback,
                        text_value_changed, (XtPointer)a);
     if (XmIsNumberBox(n->widget))
       XtRemoveCallback(n->widget, XmNnumberValueChangedCallback,
@@ -1143,6 +1150,15 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     i->role = XmACCESSIBLE_CALENDAR;
     i->has_selection = XmCalendarGetDate(w, &date);
     i->has_value = True;
+    i->minimum_value = 1;
+    i->maximum_value = 9999;
+    i->current_value = date.year;
+    i->minimum_increment = 1;
+  }
+  if (XmIsDatePicker(w)) {
+    XmDatePickerDate date;
+    i->role = XmACCESSIBLE_TEXT;
+    i->has_value = XmDatePickerGetDate(w, &date);
     i->minimum_value = 1;
     i->maximum_value = 9999;
     i->current_value = date.year;
