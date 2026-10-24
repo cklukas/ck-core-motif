@@ -1,3 +1,10 @@
+Mrm widget-class lookup validation (2026-10-25)
+===============================================
+
+- Validate class names and lookup output pointers before hash-table access, and
+  bound the not-found diagnostic, preserving valid lookup behavior while
+  avoiding malformed input crashes; see `docs/mrm-wci-lookup-input.md`.
+
 Mrm pointer-list input validation (2026-10-25)
 ===============================================
 

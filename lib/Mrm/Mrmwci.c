@@ -340,6 +340,8 @@ Urm__WCI_LookupClassDescriptor (String		class_name,
   URMHashTableEntryPtr	hash_entry;	/* hash entry found */
   char			err_msg[300];
 
+  if (class_name == NULL || class_return == NULL)
+    return MrmFAILURE;
 
   /*
    * Find a hash entry, and return the value.
@@ -349,7 +351,7 @@ Urm__WCI_LookupClassDescriptor (String		class_name,
   if ( hash_entry == NULL )
     {
       *class_return = NULL;
-      sprintf (err_msg, _MrmMMsg_0051, class_name);
+      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0051, class_name);
       return Urm__UT_Error ("Urm__WCI_LookupClassDescriptor",
 			    err_msg, NULL, NULL, MrmNOT_FOUND);
     }
@@ -394,6 +396,9 @@ Urm__WCI_GetClRecOfName (String		clname)
    *  Local variables
    */
   WCIClassDescPtr		cldesc;		/* current class */
+
+  if (clname == NULL)
+    return NULL;
 
   /*
    * Search the class list
