@@ -1,3 +1,11 @@
+Out-of-tree WML lexer generation (2026-10-24)
+==============================================
+
+- Generate the missing `wmllex.c` explicitly from `wmllex.l` in the build tree,
+  and serialize UIL parser generation/linking for fresh parallel checkouts.
+- Keep generated files out of the source tree and qualify the native WML build;
+  see `docs/wml-build.md` and `tests/automated/check-wml-build.py`.
+
 Global DPI defaults (2026-10-24)
 =================================
 

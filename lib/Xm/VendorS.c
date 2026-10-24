@@ -1700,8 +1700,8 @@ InitializePrehook(
         ttp->post_delay = 5000;
         ttp->post_duration = 5000;
         ttp->enable = False;
-        ttp->timer = (int) NULL;
-        ttp->duration_timer = (int) NULL;
+        ttp->timer = (XtIntervalId)0;
+        ttp->duration_timer = (XtIntervalId)0;
         ttp->leave_time = 0;
         ttp->slider = ttp->label = NULL;
  
