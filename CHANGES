@@ -1,3 +1,10 @@
+Mrm icon allocation bounds (2026-10-25)
+=======================================
+
+- Validate UID icon dimensions, strides and raster sizes before image allocation,
+  preserving normal icon loading while rejecting wrapped storage requests; see
+  `docs/mrm-icon-bounds.md`.
+
 RCMenu dynamic-array bounds (2026-10-25)
 ========================================
 

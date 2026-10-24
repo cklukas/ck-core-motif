@@ -53,6 +53,8 @@ static char rcsid[] = "$XConsortium: Mrmicon.c /main/14 1996/11/13 14:01:43 drk 
  */
 
 #include <stdio.h>
+#include <limits.h>
+#include <stdint.h>
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
 #include "MrmMsgI.h"
@@ -932,11 +934,22 @@ Urm__MapIconAllocate (RGMIconImagePtr		icon,
    */
   iconwid = icon->width;
   iconhgt = icon->height;
+  if (iconwid <= 0 || iconhgt <= 0 || srcpix <= 0)
+    return Urm__UT_Error ("Urm__MapIconAllocate", _MrmMMsg_0037,
+			  NULL, NULL, MrmFAILURE);
   if (dstpix <= 8) dstpix = 8;
   else if (dstpix <= 16) dstpix = 16;
   else dstpix = 32;
   dstbytsize = dstpix / 8;
-  alloc_pixmap = (char *) XtMalloc (iconwid * iconhgt * dstbytsize);
+  if ((size_t)iconwid > SIZE_MAX / (size_t)iconhgt ||
+      (size_t)iconwid * (size_t)iconhgt >
+	  SIZE_MAX / (size_t)dstbytsize ||
+      (size_t)iconwid > (SIZE_MAX - 7) / (size_t)srcpix ||
+      (size_t)iconwid * (size_t)srcpix > INT_MAX - 7)
+    return Urm__UT_Error ("Urm__MapIconAllocate", _MrmMMsg_0037,
+			  NULL, NULL, MrmFAILURE);
+  alloc_pixmap = (char *) XtMalloc ((size_t)iconwid * (size_t)iconhgt *
+				    (size_t)dstbytsize);
   if (alloc_pixmap == NULL)
     return Urm__UT_Error ("Urm__MapIconAllocate", _MrmMMsg_0037,
 			  NULL, NULL, MrmFAILURE);
@@ -1525,7 +1538,14 @@ UrmIconImageSize (RGMIconImagePtr	icon)
 
 
   bytes_per_line = (icon->width+7) / 8;
+  if (icon->width <= 0 || icon->height <= 0 ||
+      icon->width > INT_MAX - 7 ||
+      bytes_per_line > INT_MAX / icon->height)
+    return 0;
   raster_len = bytes_per_line * icon->height;
+  if ((size_t)raster_len > SIZE_MAX - sizeof(RGMIconImage) + 1 ||
+      sizeof(RGMIconImage) + (size_t)(raster_len - 1) > UINT_MAX)
+    return 0;
   size = sizeof(RGMIconImage) + (raster_len-1)*sizeof(char);
   return size;
 

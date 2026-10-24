@@ -212,3 +212,4 @@ EXTRA_DIST += tests/automated/check-region-operation-capacity.py docs/region-ope
 EXTRA_DIST += tests/automated/check-string-table-capacity.py docs/string-table-capacity.md
 EXTRA_DIST += tests/automated/check-list-selection-internals.py
 EXTRA_DIST += tests/automated/check-rcmenu-bounds.py docs/rcmenu-bounds.md
+EXTRA_DIST += tests/automated/check-mrm-icon-bounds.py docs/mrm-icon-bounds.md
