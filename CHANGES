@@ -3031,3 +3031,10 @@ Mrm widget-resource context initialization (2026-10-25)
 - Check widget-record context allocation before indexed or RID lookup,
   propagating failure instead of dereferencing a null context; see
   `docs/mrm-widget-context-init.md`.
+
+Mrm literal context retention (2026-10-25)
+============================================
+
+- Release a literal resource context when ownership-list retention fails and
+  propagate the append error instead of leaking or losing ownership tracking;
+  see `docs/mrm-literal-context-retain.md`.

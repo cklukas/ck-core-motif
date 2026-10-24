@@ -3106,7 +3106,13 @@ Urm__CW_ReadLiteral (RGMResourceDescPtr		resptr ,
   *vec_count = 0;
   bufptr = (long *) UrmRCBuffer (context_id) ;
   *val = Urm__CW_EvaluateValOrOffset (*type, (XtPointer)bufptr, *bufptr, 0) ;
-  UrmPlistAppendPointer (ctxlist, (XtPointer)context_id) ;
+  result = UrmPlistAppendPointer (ctxlist, (XtPointer)context_id) ;
+  if ( result != MrmSUCCESS )
+    {
+      UrmFreeResourceContext (context_id) ;
+      return Urm__UT_Error ("Urm__CW_ReadLiteral", _MrmMMsg_0001,
+				    NULL, NULL, result);
+    }
 
   /*
    * Handle literals which may have further embedded literal references. Note
