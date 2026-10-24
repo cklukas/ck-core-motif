@@ -1076,6 +1076,11 @@ Idb__HDR_MatchFilter (IDBFile		file_id,
   IDBRecordBufferPtr	bufptr;		/* buffer for data record */
   IDBHeaderRecordPtr	recptr;		/* pointer data record */
   IDBDataEntryHdrPtr	datahdr;	/* Header part of entry */
+  Boolean		matched;	/* filter result */
+
+  if (file_id == NULL || data_entry.rec_no != IDBHeaderRecordNumber ||
+      data_entry.item_offs > IDBHeaderFreeMax - sizeof(IDBDataEntryHdr))
+    return FALSE;
 
   /*
    * Get the header record and get to the correct offset in
@@ -1092,7 +1097,11 @@ Idb__HDR_MatchFilter (IDBFile		file_id,
 
   result = Idb__BM_GetRecord (file_id, record_number, &bufptr);
   if ( result != MrmSUCCESS ) return FALSE;
-  Idb__BM_Decommit (bufptr);
+  if ( ! Idb__HDR_ValidRecord(bufptr) )
+    {
+      Idb__BM_Decommit (bufptr);
+      return FALSE;
+    }
 
   /*
    * Point to the header in the entry, and check the filters.
@@ -1100,19 +1109,27 @@ Idb__HDR_MatchFilter (IDBFile		file_id,
   recptr = (IDBHeaderRecordPtr) bufptr->IDB_record;
   datahdr =
     (IDBDataEntryHdrPtr) &recptr->data[data_entry.item_offs];
+  if (datahdr->entry_size >
+      IDBHeaderFreeMax - data_entry.item_offs - sizeof(IDBDataEntryHdr))
+    {
+      Idb__BM_Decommit (bufptr);
+      return FALSE;
+    }
   if (datahdr->validation != IDBDataEntryValid)
     {
       Urm__UT_Error("Idb__HDR_GetDataEntry", _MrmMMsg_0007,
 		    NULL, NULL, MrmNOT_VALID);
+      Idb__BM_Decommit (bufptr);
       return FALSE;
     }
 
+  matched = TRUE;
   if ( group_filter!=URMgNul && group_filter!=datahdr->resource_group )
-    return FALSE;
+    matched = FALSE;
   if ( type_filter!=URMtNul && type_filter!=datahdr->resource_type )
-    return FALSE;
+    matched = FALSE;
 
-  return TRUE;
-
+  Idb__BM_Decommit (bufptr);
+  return matched;
 }
 

@@ -1,3 +1,9 @@
+Mrm header filter lifetime (2026-10-25)
+=======================================
+
+- Keep header buffers live while matching data-entry filters, then decommit after
+  the result is computed; see `docs/mrm-header-filter-lifetime.md`.
+
 Mrm header data-entry bounds (2026-10-25)
 ==========================================
 
