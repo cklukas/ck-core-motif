@@ -79,13 +79,16 @@ try:
                for line in lines[1:] if " " in line}
     for name in ("GEOMETRY_REQUESTS", "GEOMETRY_QUERIES", "EVENT_CONFIGURE",
                  "EVENT_EXPOSE", "EVENT_MAP", "EVENT_UNMAP",
-                 "CALLBACK_MUTATIONS"):
+                 "CALLBACK_MUTATIONS", "NOOP_GEOMETRY_REQUESTS",
+                 "NOOP_GEOMETRY_QUERIES", "NOOP_CONFIGURE"):
         if name not in metrics:
             raise RuntimeError(f"missing metric {name}")
     if metrics["GEOMETRY_REQUESTS"] == 0 or metrics["GEOMETRY_QUERIES"] == 0:
         raise RuntimeError("corpus did not observe geometry negotiation")
     if metrics["EVENT_EXPOSE"] == 0 or metrics["EVENT_CONFIGURE"] == 0:
         raise RuntimeError("corpus did not observe visible layout activity")
+    if metrics["NOOP_GEOMETRY_REQUESTS"] != 0 or metrics["NOOP_CONFIGURE"] != 0:
+        raise RuntimeError("no-op control triggered unexpected geometry work")
     receipt["result_sha256"] = sha256(result_file)
     receipt["metrics"] = metrics
     receipt["success"] = True

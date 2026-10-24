@@ -210,6 +210,9 @@ main(int argc, char **argv)
     FILE *output;
     const char *output_path = argc > 1 ? argv[1] : "form-layout-corpus.txt";
     unsigned cycle;
+    unsigned long no_op_geometry_requests;
+    unsigned long no_op_geometry_queries;
+    unsigned long no_op_configure;
 
     shell = XtVaAppInitialize(&app, "CkMotifFormLayoutCorpus", NULL, 0,
                               &argc, argv, NULL,
@@ -310,6 +313,25 @@ main(int argc, char **argv)
     CHECK(XtIsManaged(dynamic));
     CHECK(valid_geometry(dynamic));
 
+    /* Negative control: reapplying the already active margin must not create
+     * a geometry request or visible configure event.  This is deliberately
+     * measured after all mutation work has settled. */
+    {
+        unsigned long before_requests = geometry_requests;
+        unsigned long before_queries = geometry_queries;
+        unsigned long before_configure = events.configure;
+        for (cycle = 0; cycle < 5; ++cycle) {
+            XtVaSetValues(form, XmNmarginWidth, 9, NULL);
+            XSync(display, False);
+            drain(app);
+        }
+        no_op_geometry_requests = geometry_requests - before_requests;
+        no_op_geometry_queries = geometry_queries - before_queries;
+        no_op_configure = events.configure - before_configure;
+    }
+    CHECK(no_op_geometry_requests == 0);
+    CHECK(no_op_configure == 0);
+
     output = fopen(output_path, "w");
     CHECK(output != NULL);
     fprintf(output, "SCHEMA 1\n");
@@ -323,6 +345,9 @@ main(int argc, char **argv)
     fprintf(output, "EVENT_MAP %lu\n", events.map);
     fprintf(output, "EVENT_UNMAP %lu\n", events.unmap);
     fprintf(output, "CALLBACK_MUTATIONS %lu\n", mutation.activations);
+    fprintf(output, "NOOP_GEOMETRY_REQUESTS %lu\n", no_op_geometry_requests);
+    fprintf(output, "NOOP_GEOMETRY_QUERIES %lu\n", no_op_geometry_queries);
+    fprintf(output, "NOOP_CONFIGURE %lu\n", no_op_configure);
     fclose(output);
     XtDestroyWidget(shell);
     XtCloseDisplay(display);

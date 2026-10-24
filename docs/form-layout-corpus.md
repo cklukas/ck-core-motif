@@ -11,6 +11,8 @@ isolated Xvfb.  The fixture exercises a nested `XmForm`/`XmScrolledWindow`/
 - dynamic child insertion/destruction and unmanage/manage operations;
 - four push-button callback activations that mutate the hierarchy while the
   callback is running; and
+- a repeated no-op resource update that must not trigger geometry negotiation
+  or a visible Configure event; and
 - final positive geometry and managed-state checks.
 
 The output schema records `XtMakeGeometryRequest` and `XtQueryGeometry`
@@ -25,6 +27,12 @@ Each run writes a fresh `receipt.json`, compiler/link/run logs and
 prefix, output hash, metrics and elapsed times.  Results are diagnostic
 evidence rather than a performance target; compare the same host, build,
 display server and fixture before proposing a source correction.
+
+The no-op control is a negative control for redundant work: after the hierarchy
+settles, assigning the current `XmNmarginWidth` five times must produce zero
+additional `XtMakeGeometryRequest` and Configure events.  A failure is a
+regression in the fixture's expected control, not an invitation to change Form
+without a matching source-level diagnosis.
 
 ## Current qualification scope
 
