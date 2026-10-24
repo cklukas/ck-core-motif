@@ -1,3 +1,8 @@
+Bound compound-text aggregate sizing (2026-10-24)
+===================================================
+- Check pointer-array multiplication and signed aggregate nitems growth before
+  converting compound strings, cleaning partial results on overflow.
+- Add a source contract regression and extend the text-property bounds docs.
 Bound text-property conversion outputs (2026-10-24)
 ====================================================
 - Reject negative table counts and missing non-empty table pointers at the

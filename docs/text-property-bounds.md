@@ -5,3 +5,9 @@ tables without a table pointer. Its compound-string conversion writes the final
 terminator within the allocated buffer instead of advancing past the allocation.
 The source contract is covered by
 `tests/automated/check-text-property-bounds.py`.
+
+Compound-text conversion also checks the pointer-array multiplication and each
+string’s contribution to the signed `nitems` total before allocating the output.
+Overflow cleans up the partially converted entries and returns `BadAlloc`; the
+aggregate sizing contract is covered by
+`tests/automated/check-text-property-size.py`.

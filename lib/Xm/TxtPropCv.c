@@ -33,6 +33,8 @@
 
 
 #include <stdio.h>
+#include <limits.h>
+#include <stdint.h>
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
@@ -405,11 +407,26 @@ XmCvtXmStringTableToTextProperty(Display *display,
   switch (style)
     {
     case XmSTYLE_COMPOUND_TEXT:
+      if ((size_t)count > SIZE_MAX / sizeof(char *)) {
+	_XmAppUnlock(app);
+	return BadAlloc;
+      }
       compound_text = (char **)XtMalloc(sizeof(char *) * count);
       /* Convert each XmString to Compound Text */
       for (i = 0, total_size = 0; i < count; ++i) {
+	size_t item_size;
 	compound_text[i] = XmCvtXmStringToCT(string_table[i]);
-	total_size += (compound_text[i] ? strlen(compound_text[i]) : 0) +1;
+	item_size = (compound_text[i] ? strlen(compound_text[i]) : 0) + 1;
+	if (item_size > (size_t)INT_MAX - (size_t)total_size) {
+	    int cleanup;
+	    XtFree(compound_text[i]);
+	    for (cleanup = 0; cleanup < i; ++cleanup)
+		XtFree(compound_text[cleanup]);
+	    XtFree((char *)compound_text);
+	    _XmAppUnlock(app);
+	    return BadAlloc;
+	}
+	total_size += (int)item_size;
       }
       /* Generate the resulting XTextProperty value as a set of
 	 null-separated compound text elements. A final terminating 
