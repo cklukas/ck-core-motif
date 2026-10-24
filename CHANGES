@@ -1,3 +1,16 @@
+DataField invalid wide-text conversion (2026-10-24)
+===================================================
+
+- Keep the owned conversion buffer when DataField access-text handling receives
+  an unrepresentable wide character. The existing empty-value fallback now
+  completes without freeing static storage or terminating the client.
+- Preserve valid locale conversion, trait and resource contracts, callbacks,
+  widget layouts and native ABI. Add a native access-text trait regression for
+  valid and invalid wide values; see docs/datafield-wide-text.md.
+- Native AArch64 validation passes the DataField regression and installed ABI,
+  SpinBox, List Unicode and DPI widget regressions. The unchanged prior library
+  aborts on the invalid-wide-character case.
+
 ComboBox selection after final-item deletion (2026-10-24)
 ========================================================
 

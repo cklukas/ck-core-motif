@@ -7,6 +7,10 @@
 .fi
 .SH DESCRIPTION
 The DataField widget is a Data Presentation widget that handles display and entry of data as text.
+.PP
+When DataField receives wide text through its access-text trait and a character
+cannot be represented in the current locale, it sets an empty value. This
+conversion failure does not invalidate the caller's process.
 The DataField widget is a subclass of the XmTextField widget intended for data entry 
 applications. In addition to all of the normal XmTextField functionality, it supports regular 
 expression-based parsing and acceptance/rejection of its input through the XmNpicture resource, 

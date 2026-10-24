@@ -68,3 +68,5 @@ EXTRA_DIST += tests/automated/check-button-timers.c docs/button-timers.md
 EXTRA_DIST += tests/automated/check-paned-keyboard.c docs/paned-keyboard.md
 
 EXTRA_DIST += tests/automated/check-combo-delete.c docs/combo-deletion.md
+
+EXTRA_DIST += tests/automated/check-datafield-wcs.c docs/datafield-wide-text.md

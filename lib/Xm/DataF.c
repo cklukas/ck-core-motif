@@ -11436,7 +11436,7 @@ XmDataFieldSetStringWcs(
    result = wcstombs(tmp, wc_value, (num_chars + 1) * XmTextF_max_char_size(tf));
 
    if (result == (size_t) -1) /* if wcstombs fails, it returns (size_t) -1 */
-       tmp = "";               /* if invalid data, pass in the empty string */
+       tmp[0] = '\0';          /* keep the owned empty string for XtFree */
 
    XmDataFieldSetString(w, tmp);
    
