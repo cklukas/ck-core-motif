@@ -1,3 +1,10 @@
+Mrm low-level file I/O validation (2026-10-25)
+===============================================
+
+- Validate file descriptors, I/O buffers, and positive record numbers before
+  Mrm close/read/write operations, preserving valid I/O while avoiding invalid
+  seeks and null-input crashes; see `docs/mrm-file-io-input.md`.
+
 Mrm record-buffer input validation (2026-10-25)
 ===============================================
 

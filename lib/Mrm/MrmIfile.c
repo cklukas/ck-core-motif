@@ -265,6 +265,9 @@ Idb__FU_CloseFile (IDBLowLevelFile	*file_id ,
 
   int	status;				/* ret status for sys services	*/
 
+  if (file_id == NULL)
+    return MrmFAILURE;
+
   status = close (file_id->file_desc);
   if (status != 0)
     return MrmFAILURE;
@@ -326,6 +329,8 @@ Idb__FU_GetBlock (IDBLowLevelFile	*file_id,
   int	number_read;		/* the number of bytes actually read	*/
   int	fdesc ;			/* file descriptor from lowlevel desc */
 
+  if (file_id == NULL || buffer == NULL || block_num <= 0)
+    return MrmFAILURE;
 
   fdesc = file_id->file_desc ;
   lseek (fdesc, (block_num-1)*IDBRecordSize, 0);
@@ -385,6 +390,8 @@ Idb__FU_PutBlock (IDBLowLevelFile	*file_id,
   int	number_written;		/* the # of bytes acctually written	*/
   int	fdesc ;			/* file descriptor from lowlevel desc */
 
+  if (file_id == NULL || buffer == NULL || block_num <= 0)
+    return MrmFAILURE;
 
   fdesc = file_id->file_desc ;
   lseek (fdesc, (block_num-1)*IDBRecordSize, 0);
