@@ -2898,3 +2898,10 @@ Mrm deferred pixmap bounds (2026-11-05)
 - Guard the fixed deferred-pixmap array before saving icon and bitmap
   arguments, preventing stack overwrite on oversized argument lists; see
   `docs/mrm-pixmap-defer-bounds.md`.
+
+
+Mrm wide-character allocation handling (2026-11-06)
+====================================================
+
+- Check wide-character conversion and resize allocations before publishing
+  pointers, with cleanup on failure; see `docs/mrm-widechar-allocation.md`.

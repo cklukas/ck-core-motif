@@ -1810,6 +1810,7 @@ Urm__CW_FixupValue (long			val,
   /* BEGIN OSF Fix CR 4859 */
   RGMWCharEntryPtr      wcharentry;     /* Resource as wide character string */
   wchar_t               *wcstr_r;
+  wchar_t               *wcstr_new;
   size_t                        max_size, str_size;
   /* END OSF Fix CR 4859 */
   RGMFontItemPtr	fontitem;	/* resource as font item */
@@ -1865,6 +1866,9 @@ Urm__CW_FixupValue (long			val,
 	return Urm__UT_Error("Urm__CW_FixupValue", _MrmMMsg_0110,
 			     NULL, NULL, MrmFAILURE);
       wcstr_r = (wchar_t *)XtMalloc(sizeof(wchar_t) * (max_size + 1));
+	  if (wcstr_r == NULL)
+	    return Urm__UT_Error("Urm__CW_FixupValue", _MrmMMsg_0110,
+				 NULL, NULL, MrmFAILURE);
 	
       /* Convert, realloc, store */
       str_size = mbstowcs(wcstr_r, wcharentry->wchar_item.bytes, max_size);
@@ -1872,8 +1876,17 @@ Urm__CW_FixupValue (long			val,
 	return(Urm__UT_Error("Urm__CW_FixupValue", _MrmMMsg_0110,
 			     NULL, NULL, MrmFAILURE));
       if (str_size != max_size)
-	wcstr_r = (wchar_t *)XtRealloc((char *)wcstr_r,
-				       sizeof(wchar_t) * (str_size + 1));
+	{
+	  wcstr_new = (wchar_t *)XtRealloc((char *)wcstr_r,
+					    sizeof(wchar_t) * (str_size + 1));
+	  if (wcstr_new == NULL)
+	    {
+	      XtFree ((char *)wcstr_r);
+	      return Urm__UT_Error("Urm__CW_FixupValue", _MrmMMsg_0110,
+				   NULL, NULL, MrmFAILURE);
+	    }
+	  wcstr_r = wcstr_new;
+	}
       else
 	wcstr_r[str_size] = (wchar_t)0L;
       wcharentry->pointer = (XtPointer)wcstr_r;
