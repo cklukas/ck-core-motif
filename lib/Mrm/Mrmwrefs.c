@@ -153,9 +153,9 @@ Urm__CW_AddWRef (URMResourceContextPtr	wref_id,
   Cardinal		ndx;		/* entry index in structure */
   size_t		name_ndx;	/* name validation index */
   MrmOffset		new_offs;	/* new offset in heap */
-  Cardinal		old_size;	/* old buffer size */
-  Cardinal		new_size;	/* new buffer size */
-  Cardinal		delta;		/* difference in size */
+	Cardinal		old_size;	/* old buffer size */
+	size_t			new_size;	/* new buffer size */
+	Cardinal		delta;		/* difference in size */
   char			*old_heap;	/* old heap address */
   char			*new_heap;	/* new heap address */
 
@@ -188,9 +188,33 @@ Urm__CW_AddWRef (URMResourceContextPtr	wref_id,
       bytes_needed > UrmRCBufSize(wref_id) - bytes_used)
     {
       old_size = UrmRCBufSize (wref_id);
-      new_size = 2 * old_size;
-      delta = new_size - old_size;
-      result = UrmResizeResourceContext (wref_id, new_size);
+      if (bytes_used > SIZE_MAX - bytes_needed)
+	return MrmTOO_MANY;
+      new_size = bytes_used + bytes_needed;
+      if (new_size > MrmMaxResourceSize)
+	  return MrmTOO_MANY;
+
+      /* Grow geometrically, but always reach the complete required size. */
+      new_size = old_size != 0 ? old_size : sizeof(long);
+      while (new_size < bytes_used + bytes_needed)
+	{
+	  if (new_size > SIZE_MAX / 2)
+	    {
+	    new_size = bytes_used + bytes_needed;
+	    break;
+	    }
+	  new_size *= 2;
+	  if (new_size > MrmMaxResourceSize)
+	    {
+	    new_size = MrmMaxResourceSize;
+	    break;
+	    }
+	}
+      if (new_size > (size_t)INT_MAX || new_size < old_size ||
+	  new_size - old_size > (size_t)UINT_MAX)
+	return MrmTOO_MANY;
+      delta = (Cardinal)(new_size - old_size);
+      result = UrmResizeResourceContext (wref_id, (int)new_size);
       if ( result != MrmSUCCESS ) return result;
       refdsc = (URMWRefStructPtr) UrmRCBuffer (wref_id);
       old_heap = (char *) refdsc+old_size-refdsc->heap_size;

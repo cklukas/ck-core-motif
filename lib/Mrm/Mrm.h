@@ -1230,7 +1230,9 @@ typedef struct {
  * size and access macros
  */
 #define UrmWRefHeaderBytes(ref_id) \
-    (sizeof(URMWRefStruct)+((ref_id)->num_refs-1)*sizeof(URMWRef))
+    (sizeof(URMWRefStruct)+ \
+     ((ref_id)->num_refs > 0 ? \
+      ((size_t)(ref_id)->num_refs-1)*sizeof(URMWRef) : 0))
 #define UrmWRefBytesUsed(ref_id) \
     (UrmWRefHeaderBytes((ref_id))+(ref_id)->heap_size)
 #define UrmWRefIdN(ref_id,ndx) \

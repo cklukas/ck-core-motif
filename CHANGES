@@ -1,3 +1,8 @@
+Mrm widget-reference growth validation (2026-10-25)
+====================================================
+
+- Account for an empty reference vector without unsigned underflow and grow widget-reference contexts until the complete descriptor and name heap fit, returning `MrmTOO_MANY` for unrepresentable sizes; see `docs/mrm-wref-growth.md`.
+
 Mrm hierarchy-open input validation (2026-10-25)
 =================================================
 
