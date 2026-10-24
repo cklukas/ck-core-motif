@@ -1361,7 +1361,8 @@ CvtStringToXmStringTable(
       if (str_no >= table_size)
 	{
 	  int cleanup;
-	  if (table_size > INT_MAX / 2)
+	  if (table_size > INT_MAX / 2 ||
+	      (unsigned int)table_size > UINT_MAX / (2 * sizeof(XmString)))
 	    {
 	      XtFree(cs);
 	      for (cleanup = 0; cleanup < str_no; ++cleanup)
@@ -1379,6 +1380,14 @@ CvtStringToXmStringTable(
     }
 
   /* NULL terminate the array... */
+  if ((unsigned int)str_no >= UINT_MAX / sizeof(XmString))
+    {
+      int cleanup;
+      for (cleanup = 0; cleanup < str_no; ++cleanup)
+	XmStringFree(table[cleanup]);
+      XtFree((char *)table);
+      return False;
+    }
   table_size = str_no + 1;
   table = (XmString *)XtRealloc((char *) table, sizeof(XmString) * table_size);
   table[str_no] = (XmString) NULL;

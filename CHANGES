@@ -1,3 +1,10 @@
+XmString-table allocation bounds (2026-10-25)
+===============================================
+
+- Bound XmString-table growth and final terminator allocation against Xt's
+  allocation limit, releasing already-created entries when conversion cannot
+  represent the requested table; see `docs/xmstring-table-conversion.md`.
+
 String-table conversion capacity (2026-10-25)
 =============================================
 
