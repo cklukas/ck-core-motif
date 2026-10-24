@@ -2905,3 +2905,10 @@ Mrm wide-character allocation handling (2026-11-06)
 
 - Check wide-character conversion and resize allocations before publishing
   pointers, with cleanup on failure; see `docs/mrm-widechar-allocation.md`.
+
+Mrm header version allocation (2026-10-25)
+===========================================
+
+- Check the writable database-version copy before `strcpy` in
+  `Idb__HDR_GetHeader`, returning `MrmFAILURE` on allocation failure; see
+  `docs/mrm-header-version-allocation.md`.

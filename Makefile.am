@@ -418,3 +418,4 @@ EXTRA_DIST += tests/automated/check-mrm-widget-instance-allocation.py docs/mrm-w
 EXTRA_DIST += tests/automated/check-mrm-widget-instance-input.py docs/mrm-widget-instance-input.md
 EXTRA_DIST += tests/automated/check-mrm-pixmap-defer-bounds.py docs/mrm-pixmap-defer-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-widechar-allocation.py docs/mrm-widechar-allocation.md
+EXTRA_DIST += tests/automated/check-mrm-header-version-allocation.py docs/mrm-header-version-allocation.md
