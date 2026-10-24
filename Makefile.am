@@ -371,3 +371,5 @@ EXTRA_DIST += tests/automated/check-mrm-header-byte-swap-order.py docs/mrm-heade
 EXTRA_DIST += tests/automated/check-mrm-index-list-failure.py docs/mrm-index-list-failure.md
 
 EXTRA_DIST += tests/automated/check-mrm-index-string-bounds.py docs/mrm-index-string-bounds.md
+
+EXTRA_DIST += tests/automated/check-mrm-rid-handle-bounds.py docs/mrm-rid-handle-bounds.md

@@ -150,6 +150,12 @@ Idb__RID_EnterItem (IDBFile			file_id,
     return Idb__HDR_EnterItem (file_id, resource_id, data_entry);
 
   resndx = resid.internal_id.res_index;
+  if (data_entry.rec_no <= 0 ||
+      (data_entry.rec_no == IDBHeaderRecordNumber &&
+       data_entry.item_offs > IDBHeaderFreeMax - sizeof(IDBDataEntryHdr)) ||
+      (data_entry.rec_no != IDBHeaderRecordNumber &&
+       data_entry.item_offs > IDBDataFreeMax - sizeof(IDBDataEntryHdr)))
+    return MrmBAD_RECORD;
   if ( recno > file_id->last_record )
     return Urm__UT_Error ("Idb__RID_EnterItem", _MrmMMsg_0019,
 			  file_id, NULL, MrmOUT_OF_RANGE);
@@ -272,6 +278,16 @@ Idb__RID_ReturnItem (IDBFile			file_id,
       else 
         return MrmNULL_DATA;
     }
+  if (recptr->pointers[resndx].internal_id.rec_no <= 0 ||
+      (recptr->pointers[resndx].internal_id.rec_no ==
+       IDBHeaderRecordNumber &&
+       recptr->pointers[resndx].internal_id.item_offs >
+       IDBHeaderFreeMax - sizeof(IDBDataEntryHdr)) ||
+      (recptr->pointers[resndx].internal_id.rec_no !=
+       IDBHeaderRecordNumber &&
+       recptr->pointers[resndx].internal_id.item_offs >
+       IDBDataFreeMax - sizeof(IDBDataEntryHdr)))
+    return MrmBAD_RECORD;
   entry_return->rec_no = recptr->pointers[resndx].internal_id.rec_no;
   entry_return->item_offs = recptr->pointers[resndx].internal_id.item_offs;
 
