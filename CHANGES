@@ -2808,3 +2808,11 @@ Mrm index collapse status propagation (2026-10-27)
 
 - Return collapse-helper failures and stop leaf/node splits before publishing
   partially rebuilt records; see `docs/mrm-index-collapse-status.md`.
+
+
+Mrm index pivot scan bounds (2026-10-28)
+=========================================
+
+- Bound split pivot-name scans by both record capacity and maximum name length,
+  preventing corrupt offsets from reading past serialized records; see
+  `docs/mrm-index-pivot-scan.md`.

@@ -664,7 +664,11 @@ Idb__INX_SplitLeafRecord (IDBFile		file_id,
   if (old_itmvec[p_index].index_stg >= IDBIndexLeafFreeMax)
     return MrmBAD_RECORD;
   p_index_stgadr = (char *) old_itmvec+old_itmvec[p_index].index_stg ;
-  if (strnlen (p_index_stgadr, IDBMaxIndexLength1) == IDBMaxIndexLength1)
+  if (strnlen (p_index_stgadr,
+               MIN(IDBMaxIndexLength1,
+                   IDBIndexLeafFreeMax - old_itmvec[p_index].index_stg)) ==
+      MIN(IDBMaxIndexLength1,
+          IDBIndexLeafFreeMax - old_itmvec[p_index].index_stg))
     return MrmBAD_RECORD;
   strcpy (p_index_stg, p_index_stgadr) ;
   p_data.rec_no = old_itmvec[p_index].data.internal_id.rec_no ;
@@ -850,7 +854,11 @@ Idb__INX_SplitNodeRecord (IDBFile		file_id,
   if (old_itmvec[p_index].index_stg >= IDBIndexNodeFreeMax)
     return MrmBAD_RECORD;
   p_index_stgadr = (char *) old_itmvec+old_itmvec[p_index].index_stg ;
-  if (strnlen (p_index_stgadr, IDBMaxIndexLength1) == IDBMaxIndexLength1)
+  if (strnlen (p_index_stgadr,
+               MIN(IDBMaxIndexLength1,
+                   IDBIndexNodeFreeMax - old_itmvec[p_index].index_stg)) ==
+      MIN(IDBMaxIndexLength1,
+          IDBIndexNodeFreeMax - old_itmvec[p_index].index_stg))
     return MrmBAD_RECORD;
   strcpy (p_index_stg, p_index_stgadr) ;
   p_data.rec_no = old_itmvec[p_index].data.internal_id.rec_no ;
