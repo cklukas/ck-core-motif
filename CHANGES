@@ -1,3 +1,10 @@
+Mrm pointer-list input validation (2026-10-25)
+===============================================
+
+- Validate pointer-list and string inputs before initialization, growth, append,
+  and lookup operations, preserving valid behavior while avoiding malformed
+  input crashes; see `docs/mrm-pointer-list-input.md`.
+
 Mrm widget-reference input validation (2026-10-25)
 ================================================
 

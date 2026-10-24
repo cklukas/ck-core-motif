@@ -261,3 +261,4 @@ EXTRA_DIST += tests/automated/check-mrm-header-write-input.py docs/mrm-header-wr
 EXTRA_DIST += tests/automated/check-mrm-header-error-bounds.py docs/mrm-header-error-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-index-writer-input.py docs/mrm-index-writer-input.md
 EXTRA_DIST += tests/automated/check-mrm-wref-input.py docs/mrm-wref-input.md
+EXTRA_DIST += tests/automated/check-mrm-pointer-list-input.py docs/mrm-pointer-list-input.md

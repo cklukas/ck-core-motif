@@ -97,6 +97,9 @@ UrmPlistInit (int		size,
 	      URMPointerListPtr	*list_id_return)
 {
 
+  if (list_id_return == NULL)
+    return Urm__UT_Error ("UrmPlistInit", _MrmMMsg_0047,
+				  NULL, NULL, MrmFAILURE) ;
   if (size <= 0 || (size_t)size > SIZE_MAX / sizeof(XtPointer))
     {
       *list_id_return = NULL ;
@@ -158,6 +161,9 @@ UrmPlistResize (URMPointerListPtr	list_id,
 		int			size)
 {
 
+  if (list_id == NULL)
+    return Urm__UT_Error ("UrmPlistResize", _MrmMMsg_0048,
+				  NULL, NULL, MrmFAILURE) ;
   if (size <= 0 || (size_t)size > SIZE_MAX / sizeof(XtPointer))
     return Urm__UT_Error ("UrmPlistResize", _MrmMMsg_0048,
 				  NULL, NULL, MrmFAILURE) ;
@@ -293,6 +299,9 @@ UrmPlistAppendPointer (URMPointerListPtr	list_id ,
    */
   Cardinal		result ;	/* function results */
 
+  if (list_id == NULL)
+    return Urm__UT_Error ("UrmPlistAppendPointer", _MrmMMsg_0048,
+				  NULL, NULL, MrmFAILURE) ;
 
   if ( list_id->num_ptrs >= list_id->num_slots )
     {
@@ -349,6 +358,9 @@ UrmPlistAppendString (URMPointerListPtr		list_id ,
   Cardinal		result ;	/* function results */
   String			newstg ;	/* allocated string */
 
+  if (list_id == NULL || stg == NULL)
+    return Urm__UT_Error ("UrmPlistAppendString", _MrmMMsg_0049,
+				  NULL, NULL, MrmFAILURE) ;
 
   newstg = XtMalloc (strlen(stg)+1) ;
   if ( newstg == NULL )
@@ -401,6 +413,8 @@ UrmPlistFindString (URMPointerListPtr		list_id ,
    */
   MrmCount		ndx ;		/* search index */
 
+  if (list_id == NULL || stg == NULL)
+    return -1;
 
   for ( ndx=0 ; ndx<UrmPlistNum(list_id) ; ndx++ )
     if ( strcmp(stg,(String)UrmPlistPtrN(list_id,ndx)) == 0 )
