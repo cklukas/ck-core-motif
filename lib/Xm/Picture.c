@@ -51,6 +51,9 @@ XmParsePicture(char *input)
     XmPictureNode *root_node;
     XmPictureNode *end_node;
 
+    if (input == NULL)
+	return NULL;
+
     picture = XtNew(XmPictureRec);
 
     picture->source = XtNewString(input);

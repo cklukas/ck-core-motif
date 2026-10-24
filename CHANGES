@@ -1,3 +1,5 @@
+* Make XmParsePicture reject null specifications before copying or parsing
+  caller input.
 * Make color-name digit-suffix detection safe for null and empty names,
   avoiding invalid pointer arithmetic on malformed entries.
 * Guard unit-string parsing against null specifications and output pointers,
