@@ -63,6 +63,7 @@
 #define FALSE 0
 
 #define MAX_SYN 10
+#define MAX_TOKENS 1000
 
 #ifdef yywrap
 #undef yywrap
@@ -92,6 +93,7 @@ int in_include		= 0;
 int in_token		= 0;
 int state		= 0;
 int used		= 0;
+int token_error		= 0;
 
 %}
 
@@ -149,15 +151,21 @@ int used		= 0;
 				break;
 
 			    case 3:
-				temp.syn[temp.num_syn] = (char *)
-				    strcpy ((char *)
-					malloc (strlen ((XmConst char *)yytext) + 1), (XmConst char *)yytext);
-				temp.num_syn++;
-
-				if (temp.num_syn > MAX_SYN)
-				    printf (
+				if (temp.num_syn >= MAX_SYN)
+				{
+				    fprintf (stderr,
 					"ERROR, too many synonyms, line %d\n",
 					line_num);
+				    token_error = 1;
+				}
+				else
+				{
+				    temp.syn[temp.num_syn] = (char *)
+					strcpy ((char *)
+					    malloc (strlen ((XmConst char *)yytext) + 1),
+					    (XmConst char *)yytext);
+				    temp.num_syn++;
+				}
 				break;
 			}
 
@@ -176,6 +184,15 @@ add_token (t)					/* keep sorted by name */
     Token t;
 {
     int i, j;
+
+    if (used >= MAX_TOKENS)
+	{
+	    fprintf (stderr, "ERROR, too many tokens, line %d\n", line_num);
+	    token_error = 1;
+	    free (t->name); free (t->id); free (t->class);
+	    for (i = 0; i < t->num_syn; i++) free (t->syn[i]);
+	    return;
+	}
 
     for (j=0; j<used; j++)			/* for each token */
     {
@@ -203,7 +220,7 @@ int
 main (void)
 {
     yylex ();
-    return 0;
+    return token_error ? 1 : 0;
 }
 
 int yywrap ()

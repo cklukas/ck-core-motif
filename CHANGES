@@ -1,3 +1,11 @@
+Bound WML token-table growth (2026-10-24)
+==========================================
+
+- Reject the eleventh synonym before indexing the fixed synonym array and
+  reject token records beyond the fixed 1000-entry table. `wmluiltok` now
+  returns failure for malformed generator input; see
+  tests/automated/run-wml-token-regression.py.
+
 Reject oversized WML semantic tokens (2026-10-24)
 ==================================================
 

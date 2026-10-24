@@ -20,3 +20,8 @@ oversized token is reported as a lexer error instead of overwriting the next
 parser buffer. The source contract is checked by
 `tests/automated/check-wml-build.py`, and the normal native WML build exercises
 the generated lexer.
+
+`wmluiltok` also rejects more than ten synonyms for one token and more than
+1000 token records before inserting into its fixed tables. The negative case is
+covered by `tests/automated/run-wml-token-regression.py`; its error status keeps
+malformed generator input from being treated as a successful build step.
