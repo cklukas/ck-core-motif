@@ -1,3 +1,10 @@
+Mrm conversion allocation failures (2026-10-25)
+===============================================
+
+- Check callback and legacy font-list allocations before conversion
+  dereferences, preserving valid UID conversion while returning failure on
+  allocation exhaustion; see `docs/mrm-conversion-allocation.md`.
+
 Mrm set-values reference list inputs (2026-10-25)
 ===============================================
 

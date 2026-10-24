@@ -1204,6 +1204,8 @@ Urm__CW_CreateArglist (Widget			parent,
 	    cbptr = Urm__CW_TranslateOldCallback((OldRGMCallbackDescPtr)val);
 	  else
 	    cbptr = (RGMCallbackDescPtr)val;
+	  if (cbptr == NULL)
+	    return;
 
 	  result = Urm__CW_FixupCallback(parent, (XtPointer)widgetrec, cbptr,
 					 ctxlist, cblist, hierarchy_id, 
@@ -1319,6 +1321,8 @@ Urm__CW_CreateArglist (Widget			parent,
 		      fontlist = (RGMFontListPtr)
 			XtMalloc(sizeof(RGMFontList) +
 				 (sizeof(RGMFontItem) * (count - 1)));
+	      if (fontlist == NULL)
+		return;
 		      result = Urm__CW_FixupValue((long)fontlist, reptype, 
 						  (XtPointer)val, file_id,
 						  &swap_needed);
@@ -3274,6 +3278,9 @@ Urm__CW_FixupCallback (Widget			parent ,
   RGMFontListPtr	fontlist;	/* for converting old style fontlist */
   Boolean		swap_needed = FALSE;
 
+  if (cbdesc == NULL)
+    return MrmFAILURE;
+
   /*
    * Loop through all the items in the callback list
    */
@@ -3345,6 +3352,8 @@ Urm__CW_FixupCallback (Widget			parent ,
 		  fontlist = (RGMFontListPtr)
 		    XtMalloc(sizeof(RGMFontList) +
 			     (sizeof(RGMFontItem) * (count - 1)));
+		  if (fontlist == NULL)
+		    return MrmFAILURE;
 		  result = Urm__CW_FixupValue((long)fontlist, reptype, 
 					      (XtPointer)tag_val, file_id,
 					      &swap_needed);
@@ -3670,6 +3679,8 @@ Urm__CW_TranslateOldCallback (OldRGMCallbackDescPtr	oldptr)
 
   cbptr = (RGMCallbackDescPtr) XtMalloc(sizeof(RGMCallbackDesc) +
 					oldptr->count*sizeof(RGMCallbackItem));
+  if (cbptr == NULL)
+    return NULL;
   
   cbptr->validation = oldptr->validation;
   cbptr->count = oldptr->count;
