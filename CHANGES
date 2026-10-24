@@ -3159,3 +3159,9 @@ Mrm writer callback-argument validation (2026-10-25)
 - Reject null callback descriptor output storage and propagate context and
   argument-binding failures before callback allocation and after record growth;
   see `docs/mrm-writer-callback-arg-validation.md`.
+
+Mrm writer child validation (2026-10-25)
+========================================
+
+- Propagate invalid-context failures from `UrmCWRSetChild` before reading the
+  widget record; see `docs/mrm-writer-child-validation.md`.
