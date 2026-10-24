@@ -1,4 +1,7 @@
 2026-10-26
+	* Reject Mrm pointer-list resizes below the active entry count.
+
+2026-10-26
 	* Preserve Mrm pointer-list vectors when resize allocation fails.
 
 2026-10-26

@@ -173,6 +173,9 @@ UrmPlistResize (URMPointerListPtr	list_id,
   if (size <= 0 || (size_t)size > SIZE_MAX / sizeof(XtPointer))
     return Urm__UT_Error ("UrmPlistResize", _MrmMMsg_0048,
 				  NULL, NULL, MrmFAILURE) ;
+  if (size < list_id->num_ptrs)
+    return Urm__UT_Error ("UrmPlistResize", _MrmMMsg_0048,
+				  NULL, NULL, MrmFAILURE) ;
 
   /*
    * Allocate the new vector, and copy the current vector into it.

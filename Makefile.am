@@ -383,3 +383,5 @@ EXTRA_DIST += tests/automated/check-mrm-pointer-list-free.py docs/mrm-pointer-li
 EXTRA_DIST += tests/automated/check-mrm-pointer-list-search.py docs/mrm-pointer-list-search.md
 
 EXTRA_DIST += tests/automated/check-mrm-pointer-list-resize.py docs/mrm-pointer-list-resize.md
+
+EXTRA_DIST += tests/automated/check-mrm-pointer-list-shrink.py docs/mrm-pointer-list-shrink.md
