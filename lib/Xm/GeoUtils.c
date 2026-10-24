@@ -2751,7 +2751,7 @@ PrintList(
 
     num = 0 ;
     while(    listPtr->kid    )
-    {   sprintf( subhdr, "%si: %d ", hdr, num) ;
+    {   snprintf( subhdr, sizeof(subhdr), "%si: %d ", hdr, num) ;
         PrintBox( subhdr, listPtr) ;
         ++num ;
         ++listPtr ;
@@ -2780,7 +2780,8 @@ PrintMatrix(
     while(    !(layoutPtr->end)    )
     {   col = 1 ;
         while(    boxPtr->kid    )
-        {   sprintf( subhdr, "%srow: %d, col: %d, ", hdr, row, col) ;
+        {   snprintf( subhdr, sizeof(subhdr), "%srow: %d, col: %d, ",
+			hdr, row, col) ;
             PrintBox( subhdr, boxPtr) ;
             ++col ;
             ++boxPtr ;

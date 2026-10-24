@@ -1,3 +1,10 @@
+GeoUtils debug-label bounds (2026-10-24)
+========================================
+
+- Bound list and matrix headers in the optional GeoUtils debug dump,
+  preserving diagnostic output while preventing long caller headers from
+  overrunning stack buffers; see `docs/geoutils-debug-bounds.md`.
+
 TabStack atom-name portability (2026-10-24)
 =============================================
 
