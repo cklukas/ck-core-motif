@@ -2034,21 +2034,31 @@ UrmCWR__AppendCString (URMResourceContextPtr	context_id ,
 
   if ( encoded_len <= 0 )
     {
+      if (asn1 != NULL)
+	XtFree ((char *)asn1);
       *offset = 0;
       return MrmSUCCESS ;
     }
 
   if ((size_t)encoded_len > MrmMaxResourceSize)
-    return Urm__UT_Error ("UrmCWR__AppendCString", _MrmMMsg_0029,
-			  NULL, context_id, MrmTOO_MANY) ;
+    {
+      XtFree ((char *)asn1);
+      return Urm__UT_Error ("UrmCWR__AppendCString", _MrmMMsg_0029,
+				NULL, context_id, MrmTOO_MANY) ;
+    }
   len = (size_t)encoded_len;
 
   /*
    * Guarantee space and copy in string
    */
   result = UrmCWR__GuaranteeSpace (context_id, len, offset, &cstgadr) ;
-  if ( result != MrmSUCCESS ) return result ;
+  if ( result != MrmSUCCESS )
+    {
+      XtFree ((char *)asn1);
+      return result ;
+    }
   memcpy (cstgadr, (char *)asn1, len) ;
+  XtFree ((char *)asn1);
   return MrmSUCCESS ;
 
 }

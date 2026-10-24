@@ -2980,3 +2980,10 @@ Mrm topmost index validation (2026-10-25)
 - Validate fixed-width interface-module topmost indices and replace previous
   values instead of appending unchecked text; see
   `docs/mrm-topmost-index.md`.
+
+Mrm compound-string stream cleanup (2026-10-25)
+================================================
+
+- Release temporary byte streams returned during Mrm compound-string record
+  construction on success and all failure paths; see
+  `docs/mrm-cstring-stream-cleanup.md`.

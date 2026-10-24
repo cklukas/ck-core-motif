@@ -432,3 +432,4 @@ EXTRA_DIST += tests/automated/check-mrm-buffer-pool-size.py docs/mrm-buffer-pool
 EXTRA_DIST += tests/automated/check-mrm-writer-vector-input.py docs/mrm-writer-vector-input.md
 EXTRA_DIST += tests/automated/check-mrm-writer-scalar-input.py docs/mrm-writer-scalar-input.md
 EXTRA_DIST += tests/automated/check-mrm-topmost-index.py docs/mrm-topmost-index.md
+EXTRA_DIST += tests/automated/check-mrm-cstring-stream-cleanup.py docs/mrm-cstring-stream-cleanup.md
