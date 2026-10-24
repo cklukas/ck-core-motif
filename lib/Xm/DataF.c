@@ -5097,14 +5097,18 @@ df_InsertString(
   Boolean replace_res;
   Boolean pending_delete = False;
   register int i;
+  size_t param_length;
 
   if (!XmTextF_editable(tf)) {
      if (XmTextF_verify_bell(tf)) XBell(XtDisplay((Widget)tf), 0);
   }
 
   for (i = 0; i < *num_params; i++)  {
-      strcpy(insert_string, params[i]);
-      insert_length = strlen(insert_string);
+      param_length = strlen(params[i]);
+      if (param_length >= sizeof(insert_string))
+          return;
+      memcpy(insert_string, params[i], param_length + 1);
+      insert_length = (int)param_length;
      
       if (insert_length > 0) {
 	  /* do not insert non-printing characters */

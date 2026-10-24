@@ -647,3 +647,10 @@ Text key-selection parameter initialization (2026-10-24)
 - Initialize `key-select` cursor and range values before action-parameter conversion, so unknown direction names become a harmless no-op instead of reaching selection scanning with uninitialized state.
 - Preserve valid horizontal/vertical action behavior, selection resources, callbacks, public interfaces and native ABI. Add `tests/automated/check-text-key-selection.c` and document the behavior in `docs/text-key-selection-parameters.md`.
 - Native AArch64 validation passes the invalid-parameter regression under Xvfb.
+
+DataField insert-string action bounds (2026-10-24)
+==================================================
+
+- Replace the unbounded `strcpy` in the `insert-string` action with a complete parameter-length check before copying into the fixed 64-byte action buffer. Oversized action parameters are ignored safely.
+- Preserve normal action filtering, locale conversion, replacement, callbacks, public interfaces and native ABI. Add `tests/automated/check-datafield-insert-action.c` and document the contract in `docs/datafield-insert-action-bounds.md`.
+- Native AArch64 validation passes the oversized-parameter regression under Xvfb.
