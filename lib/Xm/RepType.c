@@ -1767,13 +1767,16 @@ _XmConvertActionParamToRepTypeId(Widget widget, XmRepTypeId rep_type_id,
     XtPointer aligned_value;
     XrmValue args, from, to;
 
+    if (parameter == NULL || result == NULL)
+	return(False);
+
     /* If the parameter can be numeric (for backward compatibility) then
        try to convert the parameter to a number */
     if (can_be_numeric)
     {
 	value = i = 0;
-	while (isspace(parameter[i])) ++i; /* skip leading white space */
-	if (isdigit(parameter[i]))
+	while (isspace((unsigned char)parameter[i])) ++i; /* skip leading white space */
+	if (isdigit((unsigned char)parameter[i]))
 	{
 	    {
 		char *end;
