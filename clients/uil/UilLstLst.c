@@ -514,11 +514,23 @@ void	lst_output_listing()
 
 	uil_fcb_type	*az_fcb;	    /* file control block ptr */
 	char		buffer [132];
+	int		prefix_length;
+	size_t		path_length;
+	size_t		path_capacity;
 
 	az_fcb = src_az_source_file_table [i];
-	(void)snprintf (buffer, sizeof(buffer),
-			"     File (%d)   %s",
-			i, az_fcb->expanded_name );
+	prefix_length = snprintf(buffer, sizeof(buffer),
+				 "     File (%d)   ", i);
+	if (prefix_length < 0)
+	    continue;
+	if ((size_t)prefix_length >= sizeof(buffer))
+	    prefix_length = (int)sizeof(buffer) - 1;
+	path_capacity = sizeof(buffer) - 1 - (size_t)prefix_length;
+	path_length = strlen(az_fcb->expanded_name);
+	if (path_length > path_capacity)
+	    path_length = path_capacity;
+	memcpy(buffer + prefix_length, az_fcb->expanded_name, path_length);
+	buffer[prefix_length + path_length] = '\0';
 	lst_output_line( buffer, FALSE );
     }    
 

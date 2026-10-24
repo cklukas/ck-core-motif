@@ -1,3 +1,11 @@
+UIL file-summary path bounds (2026-10-24)
+=========================================
+
+- Measure the fixed listing prefix before copying expanded source paths into
+  the file summary, removing the compiler truncation warning and preserving
+  safe one-line output for unusually long paths; see
+  `docs/uil-file-summary-bounds.md`.
+
 UIL listing title bounds (2026-10-24)
 ====================================
 
