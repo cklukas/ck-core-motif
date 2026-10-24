@@ -1,3 +1,5 @@
+* Make representation-type name case conversion safe for bytes above ASCII by
+  passing unsigned values to the C ctype functions.
 * Reject null source values in button-type, keysym-table, and charset-table
   resource converters before scanning input strings.
 Appearance profile contract (2026-10-24)

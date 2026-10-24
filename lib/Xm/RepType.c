@@ -1199,8 +1199,9 @@ CopyStringArray(
 		TmpStr[Index][1] = 'm' ;
 		i = 2 ;
 		while (TmpStr[Index][i]) {
-		    if (islower(TmpStr[Index][i]))
-			TmpStr[Index][i] = toupper(TmpStr[Index][i]);
+		    unsigned char ch = (unsigned char)TmpStr[Index][i];
+		    if (islower(ch))
+			TmpStr[Index][i] = (char)toupper(ch);
 		    i++;
 		}
 		++Index ;
