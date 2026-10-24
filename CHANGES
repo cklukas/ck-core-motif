@@ -1,3 +1,7 @@
+Additive-widget contract harness (2026-10-25)
+- Documented the public contract for new resource-driven widget classes and
+  added an installed-prefix probe for precedence, focus, accessibility-change
+  notifications, callback teardown and application shutdown.
 Mrm UID header string bounds (2026-10-25)
 ========================================
 

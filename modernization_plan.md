@@ -4,9 +4,10 @@
 
 Modernize CK Core Motif as a maintained native Xt toolkit without replacing its
 widget model, resource database, callback contracts, UIL support, or existing
-applications.  The target is a more capable and pleasant toolkit for new code
-while retaining the APIs and behavior that existing Motif clients deliberately
-use.
+applications.  The target is a more capable and pleasant toolkit for new code,
+including an additive set of missing general-purpose widgets, while retaining
+the APIs and behavior that existing Motif clients deliberately use.  These are
+ordinary Motif updates, not a separately branded or parallel widget library.
 
 This is a plan, not a claim that every item is implemented or qualified.
 Each accepted change must state its supported configuration and platform scope,
@@ -155,12 +156,14 @@ avoiding repeated traversal of unchanged constraints, and producing optional
 diagnostics for conflicting or cyclic attachment requests.  Each must preserve
 Xt geometry negotiation and visible child bounds.
 
-If common application layouts remain unnecessarily difficult after that work,
-add a new opt-in layout-manager widget with a small, documented grid/flex-like
-contract.  It is preferable to changing `XmForm` behavior.  The new manager
-must support keyboard focus order, resizing, internationalized direction,
-accessibility, geometry negotiation and destruction/reentrancy tests from its
-first release.
+If an installed-client requirements corpus shows that common application
+layouts remain unnecessarily difficult after that work, add a small opt-in
+family of layout-manager widgets rather than changing `XmForm` behavior.  The
+initial candidates are Stack (vertical/horizontal), Flex/Flow and Grid;
+Overlay and an improved split manager are optional follow-ons.  Every manager
+must have a narrow, documented geometry contract and support keyboard focus
+order, resizing, internationalized direction, accessibility, geometry
+negotiation and destruction/reentrancy tests from its first release.
 
 ### 6. Worker integration, not thread-safe widgets
 
@@ -179,6 +182,39 @@ consider an additive application-context completion API:
 The implementation must not call Xlib/Xt widget APIs from the worker and must
 be stress-tested for repeated post/cancel/shutdown races.  Existing applications
 can continue using their own pipes, work procedures or event-loop integration.
+
+### 7. Additive standard widgets
+
+Extend the toolkit with carefully scoped, resource-driven Xt widgets where a
+widely useful control is absent from classic Motif.  Each new widget is an
+additive public class with its own documented header, resources, callbacks,
+UIL/WML support where applicable, installed-library tests and accessibility
+semantics.  It must integrate with normal Xt geometry negotiation, keyboard
+traversal, resource precedence, destruction/reentrancy and the owning UI
+thread.  Existing widget classes, resources, callbacks, renderers and behavior
+remain unchanged.
+
+The initial component set is ToggleSwitch (including its label treatment),
+ProgressBar, Spinner and, if justified by the same contract, ProgressRing,
+NumberBox/Stepper, segmented control, SearchBox, ColorPicker, RatingControl,
+InfoBar, Chip/Tag, Badge, AutoSuggestBox, BreadcrumbBar, lightweight flyouts
+and improved tooltips, an improved TreeView, Calendar/DatePicker/TimePicker
+and, after a separate design gate, a DataGrid/TableView.  The next additive
+tier covers icon-and-text Labels, Avatar, text Divider, prompt TextField,
+Link, labelled Scale, DisclosureGroup, FormSection, empty state, command
+palette, toast, skeleton loading, richer context-menu/row-action and drag
+feedback, plus bounded application-chrome composites.  The work is deliberately
+sequenced from small controls to composite controls and then to the two
+substantial view widgets.  New controls are part of CK Core Motif's normal
+additive evolution; no alternate product name, profile or application model is
+introduced.  Existing SecureField, Notebook/TabStack, menus, dialogs, basic
+buttons and other established controls are retained rather than reimplemented.
+
+This workstream excludes media playback, ink input, browser embedding, charts,
+gauges, barcodes, a GPU scene graph, a general virtualization engine and
+adaptive application-navigation chrome.  Those require materially different
+ownership, rendering or application architecture and must be evaluated as
+separate libraries or applications rather than smuggled into widget work.
 
 ## Work packages
 
@@ -753,10 +789,655 @@ cross-platform ownership contract to `libXm`.  See
 `docs/ui-thread-completion-api-decision.md`; reopen only with the stated
 consumer and lifecycle evidence.
 
+### WP-15: Additive-widget contract and delivery harness
+
+**Depends on:** WP-00.
+
+**Objective:** establish one public, resource-driven contract for new widget
+classes before individual controls add incompatible conventions.
+
+**Steps:**
+
+1. Inventory the applicable Xm public-class, resource, callback, child-
+   ownership, traversal, geometry and UIL/WML conventions; publish the naming
+   and versioning policy for additive classes without reusing an existing
+   identifier or resource meaning.
+2. Define common requirements for value changes, activation, cancellation,
+   sensitivity, focus, rendering at explicit and scaled metrics, destruction
+   and callback reentrancy.  Use typed public callback records where a generic
+   Xt callback is insufficient; never change an existing callback record.
+3. Add an installed-prefix component fixture harness that proves the loaded
+   headers and libraries, resource precedence, keyboard-only operation,
+   accessibility-provider semantics and teardown for a minimal new widget.
+4. Define the documentation template: purpose, resource and callback tables,
+   geometry/ownership rules, UI-thread rule, accessibility behavior, examples
+   and limits.
+
+**Complete when:** the policy and harness are reviewed against an installed
+prefix, and the first component can use them without private Xm records or a
+special application runtime.
+
+**Does not include:** implementation of a user-facing control or a new
+application-wide component framework.
+
+**Status (2026-10-25):** the contract and installed-prefix harness are
+implemented and qualified on the AArch64 `uconsole` host under Xvfb.  The
+strict C11 fixture compiled and linked against the selected prefix, verified
+explicit-over-fallback resource precedence, keyboard focus traversal, the
+public accessibility-change callback, activation callback teardown and
+application-context shutdown in 7 checks.  The existing PushButton and List
+classes are contract probes; WP-16 must add its own class-specific semantics
+and accessibility fixture.  See `docs/additive-widget-contract.md`.
+
+### WP-16: ToggleSwitch
+
+**Depends on:** WP-15.
+
+**Objective:** add an opt-in binary switch control for settings-style choices
+without changing `XmToggleButton` or its indicator semantics.
+
+**Steps:**
+
+1. Define the state/value, label treatment, sensitivity, keyboard and pointer
+   contract, including its relationship to existing toggle-group/radio
+   behavior.  A labelled switch is a standard presentation of this one class,
+   not a second toggle API.
+2. Implement a separate public widget class with resource-backed on/off
+   rendering, explicit focus and disabled states, and callbacks that identify
+   the new value without altering existing toggle callback structures.
+3. Ensure a non-color indication of state and a native accessible role, name,
+   checked state and activation action.
+4. Test resource precedence, direct and keyboard activation, focus traversal,
+   groups where supported, resize/scale behavior and destruction from a value
+   callback against an installed prefix.
+
+**Complete when:** the new control is usable as an independent additive class,
+classic `XmToggleButton` fixtures retain their prior result, and the installed
+fixture covers normal, disabled, focused and both value states.
+
+### WP-17: ProgressBar, Spinner and ProgressRing
+
+**Depends on:** WP-15.
+
+**Objective:** add determinate progress feedback plus a simple indeterminate
+Spinner and, only if it meets the same contract, an optional compact ring
+presentation.
+
+**Steps:**
+
+1. Define a bounded determinate range/value model, textual progress exposure,
+   indeterminate state and behavior for invalid ranges and updates.
+2. Implement a new resource-driven bar widget and a distinct Spinner.  Give
+   indeterminate motion a
+   bounded Xt timer lifecycle that starts only while eligible for display and
+   is cancelled before unmap/destruction; it must not create a worker thread or
+   global animation loop.
+3. Evaluate a ring as another presentation of that model; ship it only if
+   sizing, focus policy, high-contrast output and accessible progress values
+   remain equally testable.
+4. Test minimum sizes, explicit dimensions, value transitions, timer teardown,
+   high-DPI and high-contrast output, callback reentrancy and accessibility
+   value changes from an installed prefix.
+
+**Complete when:** the bar and Spinner have documented, accessible contracts.
+A ring is included only with equivalent evidence; otherwise it is explicitly
+deferred.
+
+### WP-18: NumberBox and Stepper
+
+**Depends on:** WP-15.
+
+**Objective:** add bounded numeric entry with both full spin controls and a
+compact increment/decrement Stepper while preserving `XmTextField` and
+`XmSpinBox` behavior for existing clients.
+
+**Steps:**
+
+1. Specify supported numeric domains, precision, step/page-step, minimum and
+maximum, wrapping policy, editable text, locale/formatting boundary and the
+distinction between tentative text and committed numeric value.
+2. Build separate NumberBox and Stepper presentations over the same accepted
+   value contract using documented public child ownership; do not depend on
+   private `XmTextField` or `XmSpinBox` records.
+3. Define validation, parse-error presentation, programmatic updates and value
+   callbacks so that an invalid edit cannot silently become a different value.
+4. Define an optional labelled-Scale presentation using existing `XmScale`
+   behavior only through public APIs: visible minimum/maximum/value text is an
+   additive companion, not a reinterpretation of `XmScale` resources.
+5. Test keyboard and pointer stepping, direct entry, range boundaries, locale
+   cases in the supported cohort, labelled-Scale synchronization, resource
+   precedence, focus order, resize, callback/destruction reentrancy and
+   accessible value semantics.
+
+**Complete when:** an installed consumer can create, configure and validate a
+NumberBox or compact Stepper without modifying an existing text or spin widget
+contract.
+
+### WP-19: Lightweight flyouts, tooltips and teaching tips
+
+**Depends on:** WP-15.
+
+**Objective:** provide an anchored, non-modal popup primitive for contextual
+content, including improved delayed tooltips and an optional teaching-tip
+presentation, without changing dialog or menu-shell behavior.
+
+**Steps:**
+
+1. Define anchor placement, screen-edge adjustment, focus/admission policy,
+   keyboard and pointer dismissal, modal exclusion, and owner/map/unmap/
+   destruction lifetime.
+2. Implement a separate popup/flyout contract using supported Xt shell and
+   event mechanisms.  It must avoid grabs or event interception that change
+   unrelated menu, dialog or shell behavior.
+3. Add delayed/hover tooltips and an optional teaching-tip treatment only after
+   delay/cancellation, arrow placement where applicable, readable text,
+   accessible relation/announcement and dismissal behavior are defined.
+4. Test nested shells, rapid show/hide, owner destruction, focus restoration,
+   screen edges, keyboard-only use and callback reentrancy from an installed
+   prefix.
+
+**Complete when:** a flyout is safely composable by later controls and has no
+observable effect on existing shell or menu fixtures.
+
+### WP-20: ColorPicker standardization
+
+**Depends on:** WP-15.
+
+**Objective:** offer one documented ColorPicker without reinterpreting the
+existing `XmColorSelector` extension or its clients.
+
+**Steps:**
+
+1. Audit the existing selector's public surface, limits and tests.  Retain it
+   unchanged; record whether the new picker can adapt to it only through public
+   APIs or must be a separate implementation.
+2. Define the new picker's color representation, supported color spaces and
+   alpha policy, committed-versus-preview callbacks, keyboard editing and
+   palette/recent-color ownership.
+3. Implement gamut/error presentation that never substitutes a color silently,
+   plus non-color value readout and accessible names/values.
+4. Test parsing/formatting, cancellation/commit, palette lifetime, explicit
+   resources, high-contrast and scale output, destruction/reentrancy and
+   installed-prefix accessibility semantics.
+
+**Complete when:** the new control has a stable documented value contract and
+the existing selector's API and behavior are unchanged.
+
+### WP-21: RatingControl
+
+**Depends on:** WP-15.
+
+**Objective:** add a compact bounded ordinal-rating control without assuming a
+particular glyph set or changing toggle-button groups.
+
+**Steps:**
+
+1. Define count, minimum/maximum, clear/readonly policy, integer and optional
+   fractional selection policy, labels and accessible value text.
+2. Implement a separate resource-driven control with keyboard navigation and
+   activation, pointer selection, visible focus and a state representation that
+   remains distinguishable without color or star artwork.
+3. Test range boundaries, right-to-left presentation, scale/explicit metrics,
+   disabled and readonly states, callbacks and destruction reentrancy from an
+   installed prefix.
+
+**Complete when:** applications can use a new accessible rating widget without
+depending on undocumented collections of ToggleButtons.
+
+### WP-22: InfoBar
+
+**Depends on:** WP-15.
+
+**Objective:** add a dismissible inline information, warning and error banner
+that does not alter dialog admission or application status handling.
+
+**Steps:**
+
+1. Define severity, icon/text/action ownership, closability, disclosure and
+   dismissal callbacks, layout response to narrow widths and screen-reader
+   announcement rules.
+2. Implement a composite widget with public resource precedence and explicit
+   focus policy: it may announce meaningful changes but must not unexpectedly
+   steal keyboard focus.
+3. Test all severities, optional action and close button, resizing, traversal,
+   rapid updates, owner destruction and accessible live-message behavior.
+
+**Complete when:** the new bar is an independently testable additive widget;
+existing MessageBox, dialog and application-defined status areas are unchanged.
+
+### WP-23: AutoSuggestBox
+
+**Depends on:** WP-18 and WP-19.
+
+**Objective:** add text entry with an anchored suggestion list while preserving
+ordinary `XmTextField`, `XmList` and ComboBox contracts.
+
+**Steps:**
+
+1. Define the suggestion provider/model ownership, stable item identity,
+   filtering boundary, selection/commit/cancel callbacks, no-result state and
+   explicit UI-thread rule for model updates.
+2. Compose the control from public text/list and flyout facilities, with a
+   documented popup focus and keyboard policy.  It must not make blocking I/O
+   or invoke application providers from an Xt drawing path.
+3. Define stale-result handling so that a delayed model update cannot replace a
+   newer query or commit an unintended suggestion.
+4. Test typing, composition/preedit boundaries where supported, pointer and
+   keyboard selection, dismiss/reopen races, model/owner destruction, focus
+   restoration, accessibility and resource precedence from an installed prefix.
+
+**Complete when:** an application can supply and retire suggestions safely
+without a global popup, private widget access or changed text/list semantics.
+
+### WP-24: BreadcrumbBar
+
+**Depends on:** WP-15.
+
+**Objective:** add path navigation as a resource-driven control rather than a
+convention of ad-hoc buttons and labels.
+
+**Steps:**
+
+1. Define segment identity/label ownership, activation callbacks, separators,
+   right-to-left order, current-location state, overflow/collapse behavior and
+   accessible path semantics.
+2. Implement a separate composite with public child lifecycle and geometry
+   negotiation; it must not parse or impose an application's path format.
+3. Test long and localized labels, narrow widths/overflow, keyboard traversal,
+   segment mutation/removal, resize, callback reentrancy and destruction from
+   an installed prefix.
+
+**Complete when:** the bar provides deterministic navigation and overflow
+behavior while existing button, label and menu widgets retain their contracts.
+
+### WP-25: Improved TreeView
+
+**Depends on:** WP-15 and WP-19.
+
+**Objective:** add a separate hierarchical view with modern selection and
+expansion behavior without altering `XmTree`, `XmOutline` or `XmContainer`.
+
+**Steps:**
+
+1. Write a design record comparing the existing widgets and define the new
+   view's model ownership, stable node IDs, expansion, selection, icons,
+   keyboard traversal, optional incremental child retrieval and accessibility
+   tree semantics.
+2. Set a deliberately bounded viewport policy.  It may use lightweight
+   realization/caching where measured, but it must not claim a general
+   ItemsRepeater-style virtualization engine.
+3. Implement only the accepted model/view contract and test large but bounded
+   trees, lazy child availability, mutation while expanded, selection changes,
+   resize, scale, right-to-left layout, destruction/reentrancy and installed
+   accessibility behavior.
+4. Benchmark against the WP-00 harness and record memory, geometry and redraw
+   behavior before adding any caching or incremental realization.
+
+**Complete when:** the new view passes its installed-prefix model, interaction
+and accessibility suite, and existing hierarchy widgets are unchanged.
+
+### WP-26: Calendar, DatePicker and TimePicker
+
+**Depends on:** WP-19 and WP-15.
+
+**Objective:** add explicit date/time entry controls with correct calendrical
+boundaries rather than embedding date parsing in an application convention.
+
+**Steps:**
+
+1. Define calendar system, locale data source and fallback, week-start rules,
+   date-only versus instant/time-zone semantics, minimum/maximum values,
+   invalid/ambiguous local times and committed-versus-editing values.
+2. Implement Calendar first, then an optional flyout DatePicker and TimePicker
+   using the same value contract.  No component may silently apply the host
+   time zone to a date-only value.
+3. Test leap years, month boundaries, daylight-saving gaps/overlaps where
+   times are supported, localized labels, keyboard navigation, range limits,
+   flyout teardown, accessibility and resource precedence.
+
+**Complete when:** the installed components have documented date/time
+semantics, deterministic boundary behavior and no effect on existing text,
+list, dialog or shell APIs.
+
+### WP-27: DataGrid/TableView design and prototype
+
+**Depends on:** WP-25 and WP-15.
+
+**Objective:** make an evidence-backed go/no-go decision for the largest new
+widget before committing to a public table model.
+
+**Steps:**
+
+1. Define a minimal data-model contract with stable row/column identities,
+   ownership, column headers, sorting requests, selection, basic editing,
+   value formatting and error reporting.  Explicitly exclude spreadsheet
+   formulas, charts and a general application data-binding framework.
+2. Prototype header/body geometry, resizing, scrolling, bounded viewport
+   realization, focus/traversal, accessible table semantics and edits against
+   an installed prefix without accessing private Xm records.
+3. Establish benchmark corpora for small, typical and large bounded tables;
+   measure memory, redraw, geometry and model-callback behavior under sorting,
+   edits and mutation.
+4. Record a design decision identifying any required model restrictions,
+   performance limits and the accepted public C/resource/callback surface, or
+   close the package no-go if the contract cannot be supported cleanly.
+
+**Complete when:** the repository contains the prototype, benchmark evidence
+and an explicit release decision; a no-go outcome is complete.
+
+### WP-28: DataGrid/TableView release
+
+**Depends on:** WP-27 with a go decision.
+
+**Objective:** ship the accepted DataGrid/TableView as a separately additive
+Motif widget class.
+
+**Steps:**
+
+1. Implement only the WP-27 model, selection, sorting-request and basic-edit
+   contracts; keep model callbacks and ownership explicit.
+2. Add public headers, resources, callback records, UIL/WML support where
+   applicable, documentation and installed-prefix examples.
+3. Test headers, columns, sorting requests, selection modes, editing commit/
+   cancellation/error paths, scrolling, resize, model mutation, destruction/
+   reentrancy, keyboard-only operation, accessibility and the documented
+   bounded-table performance corpus.
+4. Compare all existing `XmList`, `XmContainer`, `XmTree` and other baseline
+   fixtures before and after the addition to prove no legacy behavior changed.
+
+**Complete when:** the new grid meets its documented limits and installed
+consumer suite, while it leaves all existing Motif widget APIs and components
+unchanged.
+
+### WP-29: Modern-layout requirements corpus and contract decision
+
+**Depends on:** WP-10 and the completed WP-11/WP-12 assessments.
+
+**Objective:** determine, from new installed-client layouts rather than general
+preference, whether a small additive layout family is justified after WP-12's
+recorded no-go decision.
+
+**Steps:**
+
+1. Assemble representative new-application fixtures that expose avoidable
+   nesting or attachment complexity in existing managers.  Keep the corpus
+   independent of any private product or frontend.
+2. Compare existing `XmForm`, `XmRowColumn`, `XmPanedWindow` and containers
+   with proposed Stack, Flex/Flow and Grid contracts for geometry negotiation,
+   resize stability, right-to-left direction, focus traversal and accessibility.
+3. Define the smallest common public manager/constraint-resource vocabulary;
+   reject CSS parsing, implicit layout mutation, global measurement caches and
+   any contract that changes existing manager behavior.
+4. Benchmark nesting depth, child mutation, resize storms, map/unmap and
+   destruction/reentrancy.  Record a go/no-go decision independently for each
+   candidate manager.
+
+**Complete when:** the requirements corpus and decision record either justify
+the individual layout packages below or retain the prior no-go result.  A
+negative decision is a complete result.
+
+### WP-30: StackLayout
+
+**Depends on:** WP-29 with a Stack go decision.
+
+**Objective:** add a simple horizontal/vertical manager for everyday stacking
+without changing `XmRowColumn` defaults or Form attachments.
+
+**Steps:**
+
+1. Define direction, gaps, outer padding, main/cross-axis alignment (including
+   single-child centering), child visibility, directionality and deterministic
+   handling of surplus and insufficient space.  Do not add a separate
+   CentreLayout when these resources provide its complete contract.
+2. Implement a new opt-in manager class with ordinary Xt geometry negotiation
+   and public constraint resources; it must not inspect private child records.
+3. Test one/many children, nested stacks, focus order, explicit child sizes,
+   resize, child insertion/removal, right-to-left layout, accessibility and
+   destruction from child callbacks against an installed prefix.
+
+**Complete when:** StackLayout passes its installed geometry and lifecycle
+suite while equivalent existing `XmRowColumn` fixtures remain unchanged.
+
+### WP-31: FlexLayout and FlowLayout
+
+**Depends on:** WP-30 and a Flex/Flow go decision from WP-29.
+
+**Objective:** add a bounded modern flow manager with grow, shrink, alignment
+and optional wrapping, without claiming browser-compatible CSS Flexbox.
+
+**Steps:**
+
+1. Specify direction, gaps, wrap, basis, grow/shrink factors, main/cross-axis
+   alignment, baseline policy, rounding, minimum/maximum constraints and the
+   explicit unsupported subset.
+2. Implement only that contract as a new manager.  Child measurement and
+   geometry requests must remain deterministic and must not cause unbounded
+   relayout loops.
+3. Test mixed fixed/flexible children, wrapping thresholds, constrained space,
+   directionality, dynamic mutation, focus order, accessibility, resize storms
+   and destruction/reentrancy from an installed prefix.
+
+**Complete when:** FlexLayout has measured bounded geometry behavior and a
+documented difference from CSS/browser layout; FlowLayout is a documented
+configuration or is deferred rather than shipped as a duplicate class.
+
+### WP-32: GridLayout
+
+**Depends on:** WP-30 and a Grid go decision from WP-29.
+
+**Objective:** add an explicit rows-and-columns manager for dense forms and
+dashboard-like layouts without altering `XmForm` attachment semantics.
+
+**Steps:**
+
+1. Define row/column tracks, gaps, spanning, alignment, fixed versus flexible
+tracks, auto-placement policy, constraint validation and deterministic
+conflict/error handling.
+2. Implement a new manager with public child constraint resources and normal
+Xt query/negotiation behavior; do not parse CSS grid syntax or infer state from
+child names.
+3. Test spans, empty tracks, explicit sizes, over-constrained layouts,
+right-to-left direction, child mutation, focus order, accessibility, resize
+storms and callback/destruction reentrancy against an installed prefix.
+
+**Complete when:** GridLayout's constraints and failure behavior are documented
+and its fixtures prove that existing Form geometry is unaffected.
+
+### WP-33: Overlay, Split and optional Dock layouts
+
+**Depends on:** WP-29 with an individual go decision.
+
+**Objective:** add only the secondary layout managers that the corpus justifies:
+Overlay for z-order composition, a polished split manager, and optionally a
+border/dock manager.
+
+**Steps:**
+
+1. Define independent scope and acceptance criteria for Overlay, Split and
+Dock.  Overlay must define hit-testing, visibility and resize order; Split must
+define pane constraints, keyboard access and divider behavior; Dock must define
+edge/centre conflict policy.
+2. Prefer a new Split manager over changing `XmPanedWindow`; compare it with
+the existing widget and retain `XmPanedWindow` behavior exactly.
+3. Implement only the managers with an evidence-backed need and test stacking,
+divider dragging and keyboard operation where applicable, child mutation,
+geometry negotiation, accessibility and destruction/reentrancy.
+
+**Complete when:** each approved manager passes its own installed-prefix suite.
+Unjustified managers remain deferred rather than becoming a broad layout
+framework.
+
+### WP-34: SegmentedControl
+
+**Depends on:** WP-15.
+
+**Objective:** add a compact mutually-exclusive segmented picker without
+changing ToggleButton/radio-group appearance or behavior.
+
+**Steps:**
+
+1. Define item identity/ownership, selection/clear policy, labels/icons,
+overflow, keyboard traversal, right-to-left order and accessible selected-item
+semantics.
+2. Implement a separate composite using public toggle/button facilities and a
+shared resource-backed segment treatment; it must not modify a child's normal
+toggle resources.
+3. Test selection changes, disabled segments, mutation/removal, narrow widths,
+scale/contrast, keyboard-only operation, callbacks and destruction reentrancy.
+
+**Complete when:** the installed widget provides a documented segmented-picker
+contract and all existing ToggleButton/radio fixtures retain their results.
+
+### WP-35: Compact content and adornment controls
+
+**Depends on:** WP-15.
+
+**Objective:** add small, composable controls for tags and presentation without
+turning ordinary Labels, Separators or pixmap resources into new APIs.
+
+**Steps:**
+
+1. Define separate value/ownership/accessibility contracts for Chip/Tag/Token
+with optional removal, Badge with bounded count/status and overflow text,
+icon-and-text Label, text Divider and Avatar with image/initials fallback.
+2. Implement each accepted control as an additive class or documented
+composite.  Badge/Avatar placement must be explicit and must not introduce a
+global overlay layer or silently alter a host button's geometry.
+3. Test keyboard access to removable chips, non-color badge states, image-load
+failure and initials fallback, label/divider localization, narrow layouts,
+high-contrast/high-DPI output, accessibility and teardown.
+
+**Complete when:** every shipped compact control has a bounded public contract,
+and existing `XmLabel`, `XmSeparator` and pixmap behavior are unchanged.
+
+### WP-36: Search, prompt text and Link controls
+
+**Depends on:** WP-15 and WP-19.
+
+**Objective:** add common text affordances while retaining ordinary TextField
+editing, selection, validation and help behavior.
+
+**Steps:**
+
+1. Define a SearchBox with query-change versus committed-search callbacks,
+clear-button behavior, icon ownership, accessible name/value and interaction
+with IME/preedit text; it must not make blocking search requests itself.
+2. Define prompt/placeholder text as an opt-in additive presentation that is
+never submitted as user input, never replaces a real value and remains
+distinguishable from entered text.
+3. Define Link's label, target payload ownership, activation callback, visited
+state policy, keyboard operation and non-color focus/visited treatment.  The
+toolkit must not launch external programs or URLs on its own.
+4. Test direct and keyboard operation, prompt transitions, clear/commit races,
+IME boundaries in the supported cohort, scaling/contrast, accessibility,
+callback reentrancy and destruction from an installed prefix.
+
+**Complete when:** new SearchBox, prompt and Link APIs are documented and no
+existing `XmTextField` or Label value semantics have changed.
+
+### WP-37: DisclosureGroup, FormSection and EmptyState
+
+**Depends on:** WP-15 and WP-30 where the selected presentation needs
+StackLayout.
+
+**Objective:** add simple structural composites for collapsible settings and
+empty views without changing `XmFrame`, `XmRowColumn` or application data views.
+
+**Steps:**
+
+1. Define DisclosureGroup expanded state, header/action ownership, keyboard
+and accessible expanded semantics, and child map/unmap lifecycle.
+2. Define FormSection header/footer, content ownership, spacing and narrow-
+layout behavior; it is a presentation composite, not a form-data model.
+3. Define EmptyState icon/message/action ownership and its relationship to the
+application-owned view or model that determines emptiness.
+4. Test expansion, focus restoration, dynamic child changes, header/footer
+localization, optional actions, scale/contrast, accessibility and destruction/
+reentrancy against an installed prefix.
+
+**Complete when:** the composites are independently usable and have no effect
+on existing Frame, RowColumn, List or Container behavior.
+
+### WP-38: CommandPalette and Toast notification
+
+**Depends on:** WP-19 and WP-23.
+
+**Objective:** add bounded non-modal command discovery and transient
+notifications without creating a navigation framework or a global message bus.
+
+**Steps:**
+
+1. Define CommandPalette command-model ownership, stable command IDs,
+filtering, keyboard admission/dismissal, focus restoration, action dispatch
+and accessible list semantics.  It may use AutoSuggestBox infrastructure but
+must not execute commands from a drawing or filter callback implicitly.
+2. Define Toast severity, optional action, queue/replace policy, timeout,
+pause/dismiss behavior, screen-edge placement and accessible announcement.
+3. Implement per-application-context instances with deterministic owner and
+shutdown behavior; no process-global palette or notification queue is allowed.
+4. Test rapid presentation/dismissal, focus, command/model mutation, timeout
+teardown, accessibility, keyboard-only operation and callback reentrancy.
+
+**Complete when:** installed fixtures prove that palette and toast lifetimes
+are bounded and they do not alter dialogs, menus or application navigation.
+
+### WP-39: Loading, row-action and drag-feedback surfaces
+
+**Depends on:** WP-17, WP-19 and WP-15.
+
+**Objective:** add restrained modern feedback for loading and item operations
+without inventing a generalized animation or gesture framework.
+
+**Steps:**
+
+1. Define Skeleton loading shapes, animation limits and reduced-motion/high-
+contrast behavior.  Reuse WP-17's timer rules and provide a static fallback.
+2. Define basic left/right row-action reveal for a new compatible list surface;
+   it must use explicit pointer/keyboard actions and must not change `XmList`
+   selection or scrolling semantics.
+3. Define icon-and-shortcut context-menu entries and DropTarget drag highlight
+   as opt-in presentations over existing menu/DnD contracts.  Do not change
+   transfer ownership, acceptance or drop callbacks.
+4. Test animation cancellation, constrained geometry, keyboard alternatives,
+   pointer cancellation, DnD enter/leave/drop, high-contrast output,
+   accessibility and teardown from an installed prefix.
+
+**Complete when:** each accepted feedback surface has a non-animated or
+keyboard equivalent and existing lists, menus and DnD behavior are unchanged.
+
+### WP-40: Bounded application-chrome composites
+
+**Depends on:** WP-15, WP-19 and relevant layout-manager go decisions.
+
+**Objective:** add opt-in client-area composites for StatusBar, toolbar
+overflow and collapsible sidebars without taking ownership of application
+navigation or window-manager title bars.
+
+**Steps:**
+
+1. Define StatusBar item ownership, priority/overflow, progress/indicator
+presentation and accessible status announcement.  It is not a replacement for
+application-specific status models.
+2. Define a toolbar composite that moves explicitly marked overflowable actions
+into a normal menu at constrained widths while preserving action identity,
+shortcuts, focus and callback behavior.
+3. Define a collapsible-sidebar composite with explicit content ownership,
+expanded width, focus restoration and keyboard toggle.  It must not introduce
+an adaptive navigation stack or navigation policy.
+4. Evaluate a header-bar client-area presentation separately.  Do not change
+window-manager title-bar controls, decorations or system integration unless a
+portable supported contract and real-window evidence exist; defer it otherwise.
+5. Test resizing/overflow, dynamic action/item mutation, keyboard-only use,
+right-to-left layout, accessibility, owner destruction and installed-prefix
+visual fixtures.
+
+**Complete when:** each shipped composite has a narrow client-area contract;
+legacy MainWindow, menu, toolbar and shell behavior remain unchanged.
+
 Appearance and scalable assets are intentionally the first delivery track: they
 produce user-visible improvement while preserving the established programming
-model.  The other packages may progress independently where their dependency
-lines allow it.
+model.  The additive-widget track may progress independently where its stated
+dependency lines allow it.
 
 ## Acceptance criteria for every increment
 
@@ -791,21 +1472,8 @@ versioned RandR `DPI` property is the explicit exception covered by WP-04A.
 Those other cases would be separate products or rewrites, not compatible
 modernization work.
 
-### WP-14A: Transfer, image and storage lifetime maintenance
-
-Depends on WP-00. Keep the public Motif resource and callback APIs unchanged.
-
-1. Audit native X property assembly and conversion-buffer ownership at format
-   8/16/32 boundaries and allocation limits.
-2. Bound XPM memory/file token parsing, decimal fields, and image file I/O;
-   preserve valid historical syntax and pixel formats.
-3. Make repeated selection ownership and callback teardown idempotent.
-4. Run the isolated Linux regression runner against one installed prefix and
-   record source/library fingerprints with each result.
-
-Status (2026-10-25): transfer clipboard, merge/bounds, ownership lifetime,
-XPM, and Xt callback fixtures pass on uconsole; clipboard/merge/bounds/lifetime
-use strict non-sanitized runs because the external Xt selection manager retains
-display-owned records until process teardown, while XPM and Xt callback runs
-also pass ASan/UBSan consumer checks. The separate scroll-frame reentrant
-destruction case remains assigned to the widget-lifetime follow-up.
+The additive-widget track also excludes media playback, ink canvases/toolbars,
+browser embedding, charts, gauges, barcodes, a general-purpose virtualization
+engine and adaptive application-navigation chrome.  They have different
+rendering, lifecycle or application-level contracts; the presence of a new
+Motif widget set is not a reason to add them to this toolkit.

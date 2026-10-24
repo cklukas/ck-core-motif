@@ -252,3 +252,8 @@ EXTRA_DIST += \
 EXTRA_DIST += tests/automated/check-mrm-conversion-error-bounds.py docs/mrm-conversion-error-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-file-open-input.py docs/mrm-file-open-input.md
 EXTRA_DIST += tests/automated/check-mrm-header-string-bounds.py docs/mrm-header-string-bounds.md
+
+EXTRA_DIST += \
+    docs/additive-widget-contract.md \
+    tests/automated/check-additive-widget-contract.c \
+    tests/automated/run-additive-widget-contract.py
