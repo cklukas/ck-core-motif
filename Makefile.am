@@ -85,6 +85,8 @@ EXTRA_DIST += tests/automated/check-rating-control.c tests/automated/run-rating-
 
 EXTRA_DIST += tests/automated/check-info-bar.c tests/automated/run-info-bar.py \
               docs/info-bar.md
+EXTRA_DIST += tests/automated/check-breadcrumb-bar.c tests/automated/run-breadcrumb-bar.py \
+              docs/breadcrumb-bar.md
 
 EXTRA_DIST += tests/automated/check-paned-keyboard.c docs/paned-keyboard.md
 
@@ -387,5 +389,3 @@ EXTRA_DIST += tests/automated/check-mrm-pointer-list-resize.py docs/mrm-pointer-
 EXTRA_DIST += tests/automated/check-mrm-pointer-list-shrink.py docs/mrm-pointer-list-shrink.md
 
 EXTRA_DIST += tests/automated/check-mrm-open-recovery.py docs/mrm-open-recovery.md
-
-EXTRA_DIST += tests/automated/check-mrm-open-close.py docs/mrm-open-close.md

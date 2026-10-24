@@ -1,7 +1,4 @@
 2026-10-26
-	* Handle Mrm create-close failures before reopening write files.
-
-2026-10-26
 	* Remove partial Mrm files when write-mode reopen fails.
 
 2026-10-26
@@ -2750,3 +2747,11 @@ Additive inline InfoBar (2026-10-25)
   close callbacks, non-focus-stealing dismissal, accessible live message text,
   and installed-prefix Xvfb coverage.  Existing MessageBox and dialog
   behavior remains unchanged.
+
+Additive BreadcrumbBar (2026-10-25)
+===================================
+
+- Add `XmBreadcrumbBar` with copied labels, application-owned segment IDs,
+  bounded overflow collapse, logical RTL navigation, keyboard/pointer
+  activation and installed-prefix accessibility coverage.  Path parsing and
+  navigation remain application responsibilities.

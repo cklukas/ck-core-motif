@@ -1124,6 +1124,14 @@ convention of ad-hoc buttons and labels.
 **Complete when:** the bar provides deterministic navigation and overflow
 behavior while existing button, label and menu widgets retain their contracts.
 
+**Status (2026-10-25):** the additive `XmBreadcrumbBar` control is implemented
+with copied labels and application-owned IDs, explicit max-visible ellipsis
+collapse, logical RTL rendering, keyboard/pointer selection and activation,
+and list/value semantics in the accessibility provider.  The installed-prefix
+fixture covers segment replacement, current-index callbacks, bounded geometry
+and accessibility; path parsing and navigation remain application
+responsibilities.
+
 ### WP-25: Improved TreeView
 
 **Depends on:** WP-15 and WP-19.

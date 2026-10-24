@@ -210,7 +210,7 @@ xm_HEADERS = Accessible.h TextUnicode.h TextLayout.h Appearance.h ArrowB.h      
         TextSelP.h      Text.h          TextInP.h       TextOutP.h \
         TextP.h         TextStrSoP.h    ToggleB.h       ToggleBG.h \
         ToggleBGP.h     ToggleBP.h      ToggleSwitch.h ToggleSwitchP.h \
-        ColorPicker.h ColorPickerP.h Flyout.h FlyoutP.h InfoBar.h InfoBarP.h NumberBox.h NumberBoxP.h ProgressBar.h ProgressBarP.h RatingControl.h RatingControlP.h Spinner.h SpinnerP.h Stepper.h StepperP.h XmP.h \
+        ColorPicker.h ColorPickerP.h Flyout.h FlyoutP.h InfoBar.h InfoBarP.h BreadcrumbBar.h BreadcrumbBarP.h NumberBox.h NumberBoxP.h ProgressBar.h ProgressBarP.h RatingControl.h RatingControlP.h Spinner.h SpinnerP.h Stepper.h StepperP.h XmP.h \
         BaseClassP.h    ManagerP.h      PrimitiveP.h    GadgetP.h \
         XmStrDefs.h     XmStrDefs22.h   XmStrDefs23.h \
         VaSimpleP.h     VirtKeys.h      VirtKeysP.h \
@@ -255,7 +255,7 @@ SRCS1 = XmStrDefs.c ArrowB.c        ArrowBG.c       BulletinB.c     CallbackI.c 
         Scale.c         ScrollBar.c     ScrolledW.c     SelectioB.c \
         SeparatoG.c     Separator.c     Simple.c        Text.c \
         TextIn.c        TextOut.c       TextStrSo.c     TextSel.c \
-        ToggleB.c       ToggleBG.c      ToggleSwitch.c  ColorPicker.c   Flyout.c        InfoBar.c       NumberBox.c     RatingControl.c \
+        ToggleB.c       ToggleBG.c      ToggleSwitch.c  ColorPicker.c   Flyout.c        InfoBar.c       BreadcrumbBar.c NumberBox.c     RatingControl.c \
         ProgressBar.c   Spinner.c       Stepper.c        TrackLoc.c      UniqueEvnt.c \
         VaSimple.c      VirtKeys.c      XmString.c      ResEncod.c\
         TextF.c         TextFSel.c      AtomMgr.c \

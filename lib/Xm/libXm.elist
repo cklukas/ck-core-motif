@@ -134,6 +134,7 @@ public XmCreateFlyout
 public XmCreateColorPicker
 public XmCreateRatingControl
 public XmCreateInfoBar
+public XmCreateBreadcrumbBar
 public XmCreateNumberBox
 public XmCreateSpinner
 public XmCreateStepper
@@ -512,6 +513,10 @@ public XmRatingControlGetValue
 public XmRatingControlSetValue
 public XmInfoBarDismiss
 public XmInfoBarInvokeAction
+public XmBreadcrumbBarSetSegments
+public XmBreadcrumbBarGetSegmentCount
+public XmBreadcrumbBarGetCurrentIndex
+public XmBreadcrumbBarSetCurrentIndex
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -784,6 +789,8 @@ public xmRatingControlClassRec
 public xmRatingControlWidgetClass
 public xmInfoBarClassRec
 public xmInfoBarWidgetClass
+public xmBreadcrumbBarClassRec
+public xmBreadcrumbBarWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec

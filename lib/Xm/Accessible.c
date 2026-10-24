@@ -20,6 +20,7 @@
 #include <Xm/LabelG.h>
 #include <Xm/ListP.h>
 #include <Xm/InfoBar.h>
+#include <Xm/BreadcrumbBar.h>
 #include <Xm/ColorPicker.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
@@ -596,6 +597,9 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     if (XmIsInfoBar(w))
       XtAddCallback(w, XmNinfoDismissCallback, text_value_changed,
                     (XtPointer)a);
+    if (XmIsBreadcrumbBar(w))
+      XtAddCallback(w, XmNbreadcrumbCurrentChangedCallback, text_value_changed,
+                    (XtPointer)a);
     if (XmIsNumberBox(w))
       XtAddCallback(w, XmNnumberValueChangedCallback, text_value_changed,
                     (XtPointer)a);
@@ -712,6 +716,9 @@ static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
     if (XmIsInfoBar(n->widget))
       XtRemoveCallback(n->widget, XmNinfoDismissCallback, text_value_changed,
                        (XtPointer)a);
+    if (XmIsBreadcrumbBar(n->widget))
+      XtRemoveCallback(n->widget, XmNbreadcrumbCurrentChangedCallback,
+                       text_value_changed, (XtPointer)a);
     if (XmIsNumberBox(n->widget))
       XtRemoveCallback(n->widget, XmNnumberValueChangedCallback,
                        text_value_changed, (XtPointer)a);
@@ -1093,6 +1100,19 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     XtVaGetValues(w, XmNinfoMessage, &message, NULL);
     i->text_length = message ? (int)strlen(message) : 0;
     i->value_text = XtNewString(message ? message : "");
+  }
+  if (XmIsBreadcrumbBar(w)) {
+    int current = XmBreadcrumbBarGetCurrentIndex(w);
+    i->role = XmACCESSIBLE_LIST;
+    i->has_text = True;
+    i->has_selection = current >= 0;
+    i->has_value = True;
+    i->minimum_value = 0;
+    i->maximum_value = XmBreadcrumbBarGetSegmentCount(w);
+    i->current_value = current < 0 ? 0 : current;
+    i->minimum_increment = 1;
+    i->text_length = 0;
+    i->value_text = XtNewString("");
   }
   if (XmIsNumberBox(w)) {
     int minimum, maximum;

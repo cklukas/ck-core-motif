@@ -930,6 +930,11 @@ CStepperStep
 CStepperValue
 CStepperValueChangedCallback
 CStepperWrap
+CBreadcrumbMaxVisible
+CBreadcrumbSeparator
+CBreadcrumbRtl
+CBreadcrumbActivateCallback
+CBreadcrumbCurrentChangedCallback
 NflyoutDismissCallback
 NflyoutOffsetX
 NflyoutOffsetY
@@ -962,6 +967,11 @@ NstepperStep
 NstepperValue
 NstepperValueChangedCallback
 NstepperWrap
+NbreadcrumbMaxVisible
+NbreadcrumbSeparator
+NbreadcrumbRtl
+NbreadcrumbActivateCallback
+NbreadcrumbCurrentChangedCallback
 
 #table _XmStrings20
 
