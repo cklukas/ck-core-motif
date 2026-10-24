@@ -1,3 +1,10 @@
+Mrm error-format bounds (2026-10-25)
+===================================
+
+- Bound fixed-size Mrm diagnostic formatting in error and hierarchy-open
+  paths, preserving normal messages while preventing long text from
+  overwriting stack storage; see `docs/mrm-error-format-bounds.md`.
+
 Mrm hierarchy filename suffix bounds (2026-10-25)
 ================================================
 

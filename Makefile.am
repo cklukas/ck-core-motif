@@ -239,3 +239,4 @@ EXTRA_DIST += tests/automated/check-mrm-resource-index.py docs/mrm-resource-inde
 EXTRA_DIST += tests/automated/check-mrm-fetch-fontlist-bounds.py docs/mrm-fetch-fontlist-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-setvalues-input.py docs/mrm-setvalues-input.md
 EXTRA_DIST += tests/automated/check-mrm-filename-suffix.py docs/mrm-filename-suffix.md
+EXTRA_DIST += tests/automated/check-mrm-error-format-bounds.py docs/mrm-error-format-bounds.md
