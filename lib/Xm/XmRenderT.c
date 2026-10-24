@@ -2872,15 +2872,16 @@ ReadToken(char *string, int *position, Token reusetoken)
   default:
     if (isalpha((unsigned char)string[pos])) /* String result */
       {
-	char temp[80];
 	int count;
-	for(count = 0; 
-	    isalpha((unsigned char)string[pos + count]) && count < 79;
-	    count++) temp[count] = string[pos + count];
-	temp[count] = 0;
+	for(count = 0;
+	    isalpha((unsigned char)string[pos + count]);
+	    count++)
+	  ;
 	pos += count;
 	new_token -> type = T_STR;
-	new_token -> string = XtNewString(temp);
+	new_token -> string = (char *)XtMalloc((Cardinal)count + 1);
+	memcpy(new_token -> string, string + pos - count, count);
+	new_token -> string[count] = '\0';
       }
     else
       {
