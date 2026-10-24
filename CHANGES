@@ -1,3 +1,10 @@
+List internal selection bounds (2026-10-25)
+==========================================
+
+- Bound cached selected-item and selected-position builders, rejecting invalid
+  counts while preserving normal List selection behavior; see
+  `docs/list-selection-bounds.md`.
+
 Text-property concatenation bounds (2026-10-25)
 ================================================
 

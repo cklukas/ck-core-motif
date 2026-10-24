@@ -210,3 +210,4 @@ EXTRA_DIST += tests/automated/check-region-export-bounds.py docs/region-export-b
 EXTRA_DIST += tests/automated/check-region-operation-capacity.py docs/region-operation-capacity.md
 
 EXTRA_DIST += tests/automated/check-string-table-capacity.py docs/string-table-capacity.md
+EXTRA_DIST += tests/automated/check-list-selection-internals.py
