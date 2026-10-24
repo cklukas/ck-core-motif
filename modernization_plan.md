@@ -221,8 +221,9 @@ library prefix.
 Linux host with Xvfb.  Fresh installed-prefix runs passed at Xft.dpi 96 and
 144; each receipt records the fixture/library/result/image hashes.  The full
 source-tree build also exposed and allowed correction of a compile error in the
-preceding bounded text-selection change; the optional WML generator remains
-outside this baseline and still requires its generated `wmllex.c` input.
+preceding bounded text-selection change.  The WML generator remains outside
+this baseline, but its fresh out-of-tree build now passes after making lexer
+and parser generation explicit.
 
 **Does not include:** appearance changes, performance optimizations, internal
 instrumentation without a defined contract, or a claim that the baseline
