@@ -1290,6 +1290,9 @@ int
 XmeMicroSleep(long usecs)
 {
   struct timeval      timeoutVal;
+
+  if (usecs <= 0)
+    return 0;
   
   /* split the micro seconds in seconds and remainder */
   timeoutVal.tv_sec = usecs/1000000;

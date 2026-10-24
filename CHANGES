@@ -1,3 +1,13 @@
+XmeMicroSleep duration handling (2026-10-24)
+=============================================
+
+- Return immediately for nonpositive microsecond durations instead of passing
+  an invalid negative `timeval` to `select`; preserve positive-duration timing.
+- Add a source-contract regression and document the behavior in
+  docs/microsleep-duration.md.
+- Native Xmos object compilation is warning-free and the duration regression
+  passes; the broader libXm build remains blocked by unrelated held TextSel work.
+
 Iconv output growth bounds (2026-10-24)
 =======================================
 
