@@ -1,3 +1,9 @@
+Mrm extra-argument count bounds (2026-10-25)
+=============================================
+
+- Reject oversized extra-argument counts before storing them in signed Mrm
+  metadata; see `docs/mrm-extra-args.md`.
+
 Mrm argument-descriptor bounds (2026-10-25)
 ============================================
 

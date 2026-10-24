@@ -1508,6 +1508,10 @@ UrmCWRSetExtraArgs (URMResourceContextPtr	context_id ,
   UrmCWR__BindArgPtrs
     (context_id, "UrmCWRSetExtraArgs", 0, &argdesc, &argptr) ;
 
+  if (nextra > RGMListSizeMax)
+    return Urm__UT_Error ("UrmCWRSetExtraArgs", _MrmMMsg_0092,
+			  NULL, context_id, MrmTOO_MANY) ;
+
   argdesc->extra = nextra ;
   return MrmSUCCESS ;
 
