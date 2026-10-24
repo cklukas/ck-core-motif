@@ -466,3 +466,11 @@ Development 2.4.0 / native ABI epoch 6 (validation in progress)
 - Expose ScrollBar numeric values/actions/events and custom value providers.
 - Repair input-method transport lifetime and committed/preedit ordering; add
   isolated real IBus/m17n composition and service-reconnection fixtures.
+
+Development 2.4.0 / numeric action parameter parsing
+======================================================
+
+- Parse numeric representation action parameters with range-checked `strtol`,
+  rejecting overflow before narrowing to `int` while preserving legacy prefix
+  syntax.
+- Add a regression and maintenance documentation for the conversion boundary.

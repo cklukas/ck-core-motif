@@ -36,6 +36,8 @@ static char rcsid[] = "$TOG: RepType.c /main/17 1997/09/15 10:10:39 cshi $"
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
+#include <limits.h>
 #include "XmI.h"
 
 #define MESSAGE0 _XmMMsgRepType_0000 
@@ -1765,7 +1767,17 @@ _XmConvertActionParamToRepTypeId(Widget widget, XmRepTypeId rep_type_id,
 	while (isspace(parameter[i])) ++i; /* skip leading white space */
 	if (isdigit(parameter[i]))
 	{
-	    value = atoi(parameter + i);
+	    {
+		char *end;
+		long parsed;
+
+		errno = 0;
+		parsed = strtol(parameter + i, &end, 10);
+		if (errno == ERANGE || parsed > INT_MAX || parsed < INT_MIN ||
+		    end == parameter + i)
+		    return(False);
+		value = (int) parsed;
+	    }
 	    /* If the number was converted, verify that it is a valid value
 	       for the reptype. If so return it in the result argument and
 	       return True. Otherwise, don't set the result argument and
