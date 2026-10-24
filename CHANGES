@@ -1,3 +1,11 @@
+FontSelector numeric field validation (2026-10-24)
+===================================================
+
+- Parse XLFD point-size and resolution fields with checked `strtol` bounds,
+  and validate the size selector before converting to tenths of a point.
+  Malformed and overflowing values retain the existing zero fallback instead
+  of silently wrapping a signed `short`; see `docs/font-size-parsing.md`.
+
 Modern-light appearance profile (2026-10-24)
 ============================================
 

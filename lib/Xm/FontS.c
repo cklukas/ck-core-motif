@@ -24,6 +24,8 @@
 #define dbg() fprintf(stderr, "file: %s - XtWidgetToApplicationContext() on line: %d\n", __FILE__, __LINE__);
 #include <stdio.h>
 #include <ctype.h>
+#include <errno.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>		/* May have to be strings.h on some systems. */
 
@@ -834,6 +836,29 @@ AddToOtherList(char *name, String **list, int *num, int *alloc)
 	 return(False);                                 \
      (ptr)++	/* skip hyphen */                       \
 
+/*
+ * XLFD numeric fields are stored in short members.  atoi() silently wraps
+ * on malformed or oversized resource values, which can turn an invalid font
+ * description into a plausible but unrelated size or resolution.
+ */
+static short
+ParseFontShort(const char *text)
+{
+    char *end;
+    long value;
+
+    if (text == NULL || *text == '\0' || strcmp(text, STAR_STRING) == 0)
+	return 0;
+
+    errno = 0;
+    value = strtol(text, &end, 10);
+    if (errno == ERANGE || end == text || *end != '\0' ||
+	value < SHRT_MIN || value > SHRT_MAX)
+	return 0;
+
+    return (short)value;
+}
+
 static Boolean
 FillData(XmFontSelectorWidget fsw, FontData *current, char *name)
 {
@@ -869,21 +894,21 @@ FillData(XmFontSelectorWidget fsw, FontData *current, char *name)
     /*
      * the string '*' will default to 0 which is exactly what I want.
      */
-    current->point_size = (short) atoi(temp);
+    current->point_size = ParseFontShort(temp);
 
     GET_NEXT_FIELD(ptr);	/* ptr == Resolution X */
     StoreString(ptr, temp, BUFSIZ - 1);
     /*
      * the string '*' will default to 0 which is exactly what I want.
      */
-    current->resolution_x = (short) atoi(temp);
+    current->resolution_x = ParseFontShort(temp);
 
     GET_NEXT_FIELD(ptr);	/* ptr == Resolution Y */
     StoreString(ptr, temp, BUFSIZ - 1);
     /*
      * the string '*' will default to 0 which is exactly what I want.
      */
-    current->resolution_y = (short) atoi(temp);
+    current->resolution_y = ParseFontShort(temp);
 
     GET_NEXT_FIELD(ptr);	/* ptr == Spacing */
     StoreString(ptr, current->spacing, SPACING_LEN);
@@ -2905,8 +2930,20 @@ SizeChanged(Widget w, XtPointer fsw_ptr, XtPointer junk)
     String str = XmDropDownGetValue(w);
     char buf[BUFSIZ];
     short size;
+    char *end;
+    long value;
 
-    if (cf->point_size == (size = atoi(str) * 10))
+
+    errno = 0;
+    value = strtol(str, &end, 10);
+    if (errno == ERANGE || end == str || *end != '\0' ||
+        value < SHRT_MIN / POINT_DIVIDE ||
+        value > SHRT_MAX / POINT_DIVIDE)
+	 size = 0;
+    else
+	 size = (short)(value * POINT_DIVIDE);
+
+    if (cf->point_size == size)
 	{
 	XtFree((char*)str);
 	return;			/* no change. */
