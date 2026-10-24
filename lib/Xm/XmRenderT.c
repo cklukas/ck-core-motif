@@ -38,6 +38,8 @@ static char rcsid[] = "$TOG: XmRenderT.c /main/14 1998/10/26 20:14:42 samborn $"
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
+#include <stdarg.h>
+#include <stdint.h>
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
@@ -2595,15 +2597,41 @@ static int CVTtvinited = 0;
 
 /* Use this macro to encapsulate the code that extends the output
    buffer as needed */
-#define CVTaddString(dest, src, srcsize)\
-{\
-   if ((chars_used + srcsize) > allocated_size) {\
-     allocated_size *= 2;\
-     buffer = XtRealloc(buffer, allocated_size);\
-   }\
-   strcat(buffer, src);\
-   chars_used += srcsize;\
+static Boolean
+XmRenderFormat(char *buffer, size_t buffer_size, const char *format, ...)
+{
+  va_list ap;
+  int length;
+
+  va_start(ap, format);
+  length = vsnprintf(buffer, buffer_size, format, ap);
+  va_end(ap);
+  return length >= 0 && (size_t)length < buffer_size;
 }
+
+#define CVTaddString(dest, src, srcsize) do {\
+   size_t required = (size_t)chars_used + (size_t)(srcsize) + 1;\
+   size_t new_size = (size_t)allocated_size;\
+   if (required < (size_t)chars_used) {\
+     XtFree(buffer);\
+     _XmAppUnlock(app);\
+     return 0;\
+   }\
+   while (new_size < required) {\
+     if (new_size > SIZE_MAX / 2) {\
+       XtFree(buffer);\
+       _XmAppUnlock(app);\
+       return 0;\
+     }\
+     new_size *= 2;\
+   }\
+   if (new_size != (size_t)allocated_size) {\
+     buffer = XtRealloc(buffer, new_size);\
+     allocated_size = new_size;\
+   }\
+   memcpy(buffer + chars_used, src, (size_t)(srcsize) + 1);\
+   chars_used += (size_t)(srcsize);\
+ } while (0)
 
 /*ARGSUSED*/
 unsigned int
@@ -2612,8 +2640,8 @@ XmRenderTableCvtToProp(Widget widget, /* unused */
 		       char **prop_return)
 {
   int i;
-  int allocated_size = 256;
-  int chars_used = 0, size;
+  size_t allocated_size = 256;
+  size_t chars_used = 0, size;
   char *buffer;
   char *str;
   XmRendition rendition;
@@ -2643,15 +2671,26 @@ XmRenderTableCvtToProp(Widget widget, /* unused */
     char temp[2048];
 
     rendition = _XmRTRenditions(table)[i];
-    sprintf(temp, "\"%s\", ", _XmRendTag(rendition));
+    if (!XmRenderFormat(temp, sizeof(temp), "\"%s\", ",
+                        _XmRendTag(rendition))) {
+      XtFree(buffer);
+      _XmAppUnlock(app);
+      return 0;
+    }
     size = strlen(temp);
     CVTaddString(buffer, temp, size);
 
     if (_XmRendFontType(rendition) == XmAS_IS)
       str = "-1, ";
     else {
-      sprintf(temp, "%d \"%s\" %d,", _XmRendFontType(rendition),
-	      _XmRendFontName(rendition), _XmRendLoadModel(rendition));
+      if (!XmRenderFormat(temp, sizeof(temp), "%d \"%s\" %d,",
+                          _XmRendFontType(rendition),
+                          _XmRendFontName(rendition),
+                          _XmRendLoadModel(rendition))) {
+        XtFree(buffer);
+        _XmAppUnlock(app);
+        return 0;
+      }
       str = temp;
     }
     size = strlen(str);
@@ -2671,13 +2710,23 @@ XmRenderTableCvtToProp(Widget widget, /* unused */
 
       char temp2[2048];
       while(number > 0) {
-        strncpy(temp2, temp, 2048);
-        sprintf(temp, "%s %f %d %d %d, ", temp2, tab -> value, 
-            tab -> units, tab -> alignment, tab -> offsetModel);
+        if (!XmRenderFormat(temp2, sizeof(temp2), "%s", temp) ||
+            !XmRenderFormat(temp, sizeof(temp), "%s %f %d %d %d, ",
+                            temp2, tab -> value, tab -> units,
+                            tab -> alignment, tab -> offsetModel)) {
+          XtFree(buffer);
+          _XmAppUnlock(app);
+          return 0;
+        }
         tab = (_XmTab) tab -> next;
         number--;
       }
-      strcat(temp, " ], ");
+      if (!XmRenderFormat(temp2, sizeof(temp2), "%s", temp) ||
+          !XmRenderFormat(temp, sizeof(temp), "%s ], ", temp2)) {
+        XtFree(buffer);
+        _XmAppUnlock(app);
+        return 0;
+      }
       str = temp;
     }
     size = strlen(str);
@@ -2686,7 +2735,12 @@ XmRenderTableCvtToProp(Widget widget, /* unused */
     if (_XmRendBG(rendition) == XmAS_IS)
       str = "-1, ";
     else {
-      sprintf(temp, "%ld, ", _XmRendBG(rendition));
+      if (!XmRenderFormat(temp, sizeof(temp), "%ld, ",
+                          _XmRendBG(rendition))) {
+        XtFree(buffer);
+        _XmAppUnlock(app);
+        return 0;
+      }
       str = temp;
     }
     size = strlen(str);
@@ -2695,7 +2749,12 @@ XmRenderTableCvtToProp(Widget widget, /* unused */
     if (_XmRendFG(rendition) == XmAS_IS)
       str = "-1, ";
     else {
-      sprintf(temp, "%ld, ", _XmRendFG(rendition));
+      if (!XmRenderFormat(temp, sizeof(temp), "%ld, ",
+                          _XmRendFG(rendition))) {
+        XtFree(buffer);
+        _XmAppUnlock(app);
+        return 0;
+      }
       str = temp;
     }
     size = strlen(str);
@@ -2704,7 +2763,12 @@ XmRenderTableCvtToProp(Widget widget, /* unused */
     if (_XmRendUnderlineType(rendition) == XmAS_IS)
       str = "-1, ";
     else {
-      sprintf(temp, "%d, ", _XmRendUnderlineType(rendition));
+      if (!XmRenderFormat(temp, sizeof(temp), "%d, ",
+                          _XmRendUnderlineType(rendition))) {
+        XtFree(buffer);
+        _XmAppUnlock(app);
+        return 0;
+      }
       str = temp;
     }
     size = strlen(str);
@@ -2713,12 +2777,17 @@ XmRenderTableCvtToProp(Widget widget, /* unused */
     if (_XmRendStrikethruType(rendition) == XmAS_IS)
       str = "-1, ";
     else {
-      sprintf(temp, "%d, ", _XmRendStrikethruType(rendition));
+      if (!XmRenderFormat(temp, sizeof(temp), "%d, ",
+                          _XmRendStrikethruType(rendition))) {
+        XtFree(buffer);
+        _XmAppUnlock(app);
+        return 0;
+      }
       str = temp;
     }
     size = strlen(str);
     CVTaddString(buffer, str, size);
-    CVTaddString(buffer, "\n", size);
+    CVTaddString(buffer, "\n", 1);
   }
 
   /* Return the converted rendertable string */
@@ -2726,7 +2795,12 @@ XmRenderTableCvtToProp(Widget widget, /* unused */
 
   _XmAppUnlock(app);
   /* chars_used is always the size - the NULL terminator */
-  return(chars_used + 1);
+  if (chars_used >= UINT_MAX) {
+    XtFree(buffer);
+    *prop_return = NULL;
+    return 0;
+  }
+  return((unsigned int)(chars_used + 1));
 }
 
 typedef enum {   T_NL, T_INT, T_FLOAT, T_SEP, 
