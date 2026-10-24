@@ -311,3 +311,4 @@ EXTRA_DIST += tests/automated/check-mrm-idb-close-delete-mode.py docs/mrm-idb-cl
 EXTRA_DIST += tests/automated/check-mrm-idb-close-keep.py docs/mrm-idb-close-keep.md
 EXTRA_DIST += tests/automated/check-mrm-idb-decommit-cleanup.py docs/mrm-idb-decommit-cleanup.md
 EXTRA_DIST += tests/automated/check-mrm-index-inputs.py docs/mrm-index-inputs.md
+EXTRA_DIST += tests/automated/check-mrm-index-return-inputs.py docs/mrm-index-return-inputs.md

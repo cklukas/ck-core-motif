@@ -137,6 +137,9 @@ Idb__INX_ReturnItem (IDBFile			file_id,
    */
   Cardinal		result ;	/* function results */
 
+  if (file_id == NULL || index == NULL || data_entry == NULL)
+    return MrmFAILURE;
+
   IDBRecordBufferPtr	bufptr ;	/* buffer containing entry */
   MrmCount		entndx ;	/* entry index */
   IDBIndexLeafRecordPtr	leafrec ;	/* index leaf record */

@@ -1,3 +1,8 @@
+Mrm index item output validation (2026-10-25)
+=============================================
+
+- Reject missing file handles, index strings, and output data handles in `Idb__INX_ReturnItem` before index traversal; see `docs/mrm-index-return-inputs.md`.
+
 Mrm index traversal input validation (2026-10-25)
 ================================================
 
