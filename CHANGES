@@ -561,3 +561,10 @@ Development 2.4.0 / hierarchy child-list bounds
 - Check hierarchy child counts before adding the terminating entry and
   allocating the returned widget list.
 - Add a public child-list regression and documentation.
+
+Development 2.4.0 / Container detail-header bounds
+==================================================
+
+- Check icon detail-header counts before adding the leading label and
+  allocating the Container-owned XmString table.
+- Add a public Container regression and documentation.

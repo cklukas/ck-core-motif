@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build and run the dynamic Container tab-list regression."""
+"""Compile and run the Container allocation regression."""
 import argparse
 import os
 from pathlib import Path
@@ -9,23 +9,28 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("prefix", type=Path)
 parser.add_argument("results", type=Path)
 args = parser.parse_args()
-assert args.prefix.is_absolute() and args.results.is_absolute()
+if not args.prefix.is_absolute() or not args.results.is_absolute():
+    parser.error("prefix and fresh results directory must be absolute")
 args.results.mkdir(parents=True, exist_ok=False)
 (args.results / "tmp").mkdir()
-env = dict(os.environ, TMPDIR=str(args.results / "tmp"), LC_ALL="C.UTF-8",
-           LD_LIBRARY_PATH=str(args.prefix / "lib"))
-source = Path(__file__).resolve().parent / "check-container-tabs.c"
-binary = args.results / "check-container-tabs"
+env = dict(os.environ, TMPDIR=str(args.results / "tmp"),
+           LC_ALL="C.UTF-8", LD_LIBRARY_PATH=str(args.prefix / "lib"))
+source = Path(__file__).resolve().parent / "check-container.c"
+binary = args.results / "check-container"
 flags = ["-std=c11", "-Wall", "-Wextra", "-Werror", "-g", "-O2",
          "-I" + str(args.prefix / "include"), "-L" + str(args.prefix / "lib"),
          "-Wl,-rpath," + str(args.prefix / "lib")]
-compile_result = subprocess.run(
-    ["gcc", *flags, source, "-lXm", "-lXt", "-lX11", "-o", binary],
-    env=env, cwd=args.results, capture_output=True, timeout=60)
-(args.results / "compile.log").write_bytes(compile_result.stdout + compile_result.stderr)
-assert compile_result.returncode == 0
-run_result = subprocess.run(["xvfb-run", "-a", binary], env=env,
-                            cwd=args.results, capture_output=True, timeout=60)
-(args.results / "run.log").write_bytes(run_result.stdout + run_result.stderr)
-assert run_result.returncode == 0
-print("PASS container tab-list ownership")
+result = subprocess.run(
+    ["gcc", *flags, str(source), "-lXm", "-lXt", "-lX11", "-o", str(binary)],
+    env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+    check=False)
+(args.results / "compile.log").write_text(result.stdout)
+if result.returncode:
+    raise SystemExit(result.returncode)
+result = subprocess.run(["xvfb-run", "-a", str(binary)], env=env,
+                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                        text=True, check=False)
+(args.results / "run.log").write_text(result.stdout)
+if result.returncode:
+    raise SystemExit(result.returncode)
+print(result.stdout, end="")
