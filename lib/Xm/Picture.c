@@ -22,6 +22,7 @@
 */
 
 #include <Xm/PictureP.h>
+#include <stdint.h>
 
 static XmPictureNode* _XiGetNewNode(XmPictureRec*);
 static void _XmPictureParseNode(XmPictureRec*, char**, XmPictureNode**,
@@ -89,19 +90,8 @@ XmGetNewPictureState(XmPicture picture)
 
     _XmPictureSetState(state->state, picture->start_node);
 
-    /*
-     * BAD BAD BAD HACK
-     * This just allocates a static 1024 character array.  While this will
-     * be fine for the DataField, because only one state per widget will
-     * be allocated and because the strings will never get that long,
-     * this makes this library useless for generalized database stuff.
-     * DON'T attempt to make lots of these or use them for very long
-     * regexps until I get this fixed -- Andy
-     * Sigh, additionally, this is a security problem.  Feeding this
-     * thing very long RE's and strings will therefore make the
-     * program crash, which is not something our customers want
-     */
-    state->current_string = XtMalloc(1024 * sizeof(char));
+    state->current_capacity = 1024;
+    state->current_string = XtMalloc(state->current_capacity);
     state->current_string[0] = '\0';
     state->append = state->current_string;
 
@@ -152,6 +142,17 @@ XmPictureProcessCharacter(XmPictureState state, char in, Boolean *is_finished)
      */
     save_start = state->append;
     if(state->current) {
+        size_t length = (size_t)(state->append - state->current_string);
+        if (length + 1 >= state->current_capacity) {
+            size_t new_capacity = state->current_capacity * 2;
+            if (new_capacity <= state->current_capacity ||
+                new_capacity > SIZE_MAX / 2)
+                return NULL;
+            state->current_string = XtRealloc(state->current_string,
+                                              new_capacity);
+            state->current_capacity = new_capacity;
+            state->append = state->current_string + length;
+        }
 	*state->append = state->current;
 	state->append++;
 	*state->append = '\0';

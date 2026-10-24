@@ -1,3 +1,10 @@
+Grow XmPicture state buffers safely (2026-10-24)
+===============================================
+
+- Replace the fixed 1024-byte current-string allocation with checked dynamic
+  growth, preventing heap corruption for long valid picture matches.
+- Add an installed-prefix long-input regression; see docs/picture-buffer.md.
+
 Preserve trailing XmString-table slots (2026-10-24)
 ===================================================
 

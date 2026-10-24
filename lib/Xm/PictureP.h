@@ -78,6 +78,7 @@ typedef struct _XmPictureStateRec {
     XmPictureRec  *picture;
     char          *current_string;
     char          *append;
+    size_t         current_capacity;
     int            statesize;
     unsigned char *state;	/* bitvector of states */
     unsigned char *newstate;	/* scratch space for use in

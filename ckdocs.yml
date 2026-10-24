@@ -44,6 +44,7 @@ nav:
       - docs/string-table-conversion.md
       - docs/cardinal-list-conversion.md
       - docs/xmstring-table-conversion.md
+      - docs/picture-buffer.md
       - docs/text-source-bounds.md
       - docs/image-scaling.md
       - docs/uil-listing.md
