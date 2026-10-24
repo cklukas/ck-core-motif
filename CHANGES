@@ -1,3 +1,10 @@
+Bound UIL listing path and summary handling (2026-10-24)
+=========================================================
+
+- Reject listing filenames that cannot fit the legacy file-control record and
+  use bounded formatting for per-file summary lines. Long paths now fail
+  cleanly instead of overflowing listing storage; see docs/uil-listing.md.
+
 Grow UIL preserved-comment storage safely (2026-10-24)
 =======================================================
 

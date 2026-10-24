@@ -37,4 +37,15 @@ result = subprocess.run(
 assert result.returncode == 0, result.stderr.decode(errors="replace")
 assert listing.exists() and listing.stat().st_size > 0
 assert b"AddressSanitizer" not in result.stdout + result.stderr
+
+long_listing = args.results / ("listing-" + "x" * 300 + ".lis")
+long_result = subprocess.run(
+    [str(args.uil), "-v", str(long_listing), "-m", source],
+    cwd=args.results,
+    env=env,
+    capture_output=True,
+    timeout=60,
+)
+assert long_result.returncode != 0, "overlong listing path was accepted"
+assert b"AddressSanitizer" not in long_result.stdout + long_result.stderr
 print("PASS debug UIL listing handles long formatted output")
