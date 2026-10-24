@@ -709,6 +709,10 @@ Idb__INX_FindResources (IDBFile			file_id,
 	      nodehdr->heap_start > IDBIndexNodeFreeMax ||
 	      entndx >= nodehdr->index_count)
 	    return MrmBAD_RECORD;
+	  if (!Idb__INX_StringTerminated
+		(stgbase, node_ndxvec[entndx].index_stg,
+		 IDBIndexNodeFreeMax))
+	    return MrmBAD_RECORD;
 	  if (node_ndxvec[entndx].GT_record <= 0)
 	    return MrmBAD_RECORD;
 	  if ( Idb__DB_MatchFilter

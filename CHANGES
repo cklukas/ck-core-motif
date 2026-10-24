@@ -2825,3 +2825,11 @@ Mrm index pivot scan bounds (2026-10-28)
 - Bound split pivot-name scans by both record capacity and maximum name length,
   preventing corrupt offsets from reading past serialized records; see
   `docs/mrm-index-pivot-scan.md`.
+
+
+Mrm resource reload string bounds (2026-10-29)
+===============================================
+
+- Revalidate node-entry string offsets after resource traversal reloads a
+  buffer, preventing malformed rebound records from being appended; see
+  `docs/mrm-resource-reload-bounds.md`.

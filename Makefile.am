@@ -407,3 +407,4 @@ EXTRA_DIST += tests/automated/check-mrm-index-collapse-copy-bounds.py docs/mrm-i
 EXTRA_DIST += tests/automated/check-mrm-confirm-node-space.py docs/mrm-confirm-node-space.md
 EXTRA_DIST += tests/automated/check-mrm-index-collapse-status.py docs/mrm-index-collapse-status.md
 EXTRA_DIST += tests/automated/check-mrm-index-pivot-scan.py docs/mrm-index-pivot-scan.md
+EXTRA_DIST += tests/automated/check-mrm-resource-reload-bounds.py docs/mrm-resource-reload-bounds.md
