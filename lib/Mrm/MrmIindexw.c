@@ -972,7 +972,8 @@ Idb__INX_InitRootLeafRecord (IDBFile		file_id,
    * Acquire a record
    */
   result = Idb__BM_InitRecord (file_id, 0, IDBrtIndexLeaf, &bufptr) ;
-  if ( result != MrmSUCCESS ) return result ;
+  if ( result != MrmSUCCESS || bufptr == NULL || bufptr->IDB_record == NULL )
+    return result == MrmSUCCESS ? MrmFAILURE : result;
   recptr = (IDBIndexLeafRecordPtr) bufptr->IDB_record ;
   hdrptr = (IDBIndexLeafHdrPtr) &recptr->leaf_header ;
 
@@ -1055,7 +1056,8 @@ Idb__INX_InitRootNodeRecord (IDBFile			file_id,
    * Acquire a record
    */
   result = Idb__BM_InitRecord (file_id, 0, IDBrtIndexNode, &bufptr) ;
-  if ( result != MrmSUCCESS ) return result ;
+  if ( result != MrmSUCCESS || bufptr == NULL || bufptr->IDB_record == NULL )
+    return result == MrmSUCCESS ? MrmFAILURE : result;
   recptr = (IDBIndexNodeRecordPtr) bufptr->IDB_record ;
   hdrptr = (IDBIndexNodeHdrPtr) &recptr->node_header ;
 

@@ -1,3 +1,9 @@
+Mrm root allocation checks (2026-10-25)
+=======================================
+
+- Validate root-record buffers returned by the IDB allocator before header
+  initialization; see `docs/mrm-root-allocation.md`.
+
 Mrm index split bounds (2026-10-25)
 ===================================
 
