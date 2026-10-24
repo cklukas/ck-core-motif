@@ -1,3 +1,10 @@
+Mrm setter input validation (2026-10-25)
+=======================================
+
+- Reject null argument arrays and literal-index values before measuring or
+  copying them, preserving valid fetches while avoiding invalid dereferences;
+  see `docs/mrm-setvalues-input.md`.
+
 Mrm fetched font-list bounds (2026-10-25)
 ========================================
 
