@@ -1,3 +1,11 @@
+Mwm screen display bounds (2026-10-24)
+========================================
+
+- Replace fixed per-screen display-name scratch buffers with dynamically sized
+  storage, preserving the generated `DISPLAY=` value for normal displays and
+  preventing long-name stack overwrites; see
+  `docs/mwm-screen-display-bounds.md`.
+
 Mwm display environment bounds (2026-10-24)
 =============================================
 

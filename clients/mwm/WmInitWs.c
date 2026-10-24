@@ -1326,11 +1326,11 @@ InitWmScreen (WmScreenData *pSD, int sNum)
     int iwsx;
 #endif /* WSM */
 
-    char *pDisplayName;
-#define LENCBUFFER 256
-    char buffer[LENCBUFFER];		/* screen name & display name! */
-    char displayName[LENCBUFFER];
+    const char *pDisplayName;
+    char *buffer;
+    char *displayName;
     char *token1, *token2;
+    size_t displayNameLength;
 
 
    /*
@@ -1608,14 +1608,21 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 
 
     pDisplayName = DisplayString (DISPLAY);
+    displayNameLength = strlen(pDisplayName) + 1;
+    displayName = (char *)XtMalloc((unsigned int)displayNameLength);
+    buffer = (char *)XtMalloc((unsigned int)(displayNameLength + 64));
+    if (displayName == NULL || buffer == NULL)
+    {
+        if (displayName != NULL)
+            XtFree(displayName);
+        if (buffer != NULL)
+            XtFree(buffer);
+        Warning (((char *)GETMESSAGE(40, 9,
+                                "Insufficient memory for displayString")));
+        return;
+    }
 
-    /*
-     * Construct displayString for this string.  
-     *
-     * NOTE: The variable buffer is reused here. It was
-     * used earlier to generate a screen name.
-     */
-
+    /* Parse a private copy so the Xlib-owned display string is untouched. */
     strcpy(displayName, pDisplayName);
 
     token1 = (char*)strtok(displayName, ":");		/* parse of hostname */
@@ -1651,7 +1658,8 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 
     }
 
-
+    XtFree(buffer);
+    XtFree(displayName);
 
 } /* END OF FUNCTION  InitWmScreen */
 
