@@ -825,12 +825,9 @@ UrmCWRSetArgResourceRef(URMResourceContextPtr	context_id,
    * Validate record, arglist descriptor, and argument number.
    * Set the argument type.
    */
-  result = UrmCWR__ValidateContext (context_id,
-				    "UrmCWRSetArgResourceRef") ;
-  if ( result != MrmSUCCESS ) return result ;
-  result = UrmCWR__BindArgPtrs
+  UrmCWR__ValidateContext (context_id, "UrmCWRSetArgResourceRef") ;
+  UrmCWR__BindArgPtrs
     (context_id, "UrmCWRSetArgResourceRef", arg_ndx, &argdesc, &argptr) ;
-  if ( result != MrmSUCCESS ) return result ;
 
   argptr->arg_val.rep_type = MrmRtypeResource ;
 
@@ -841,9 +838,8 @@ UrmCWRSetArgResourceRef(URMResourceContextPtr	context_id,
     (context_id, access, group, type, key_type, index, resource_id, &offset) ;
   if ( result != MrmSUCCESS ) return result ;
 
-  result = UrmCWR__BindArgPtrs
+  UrmCWR__BindArgPtrs
     (context_id, "UrmCWRSetArgResourceRef", arg_ndx, &argdesc, &argptr) ;
-  if ( result != MrmSUCCESS ) return result ;
   argptr->arg_val.datum.offset = offset ;
 
   /*
