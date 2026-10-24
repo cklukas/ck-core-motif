@@ -1,3 +1,13 @@
+Scale value-label formatting (2026-10-24)
+=========================================
+
+- Replace the five non-Xft/Xft Scale value-label `sprintf` calls with bounded
+  `snprintf` writes while preserving label metrics and resource behavior.
+- Add a source-contract regression and document the buffer invariant in
+  docs/scale-label-bounds.md.
+- Native AArch64 libXm build is warning-free and the Scale formatting regression
+  passes.
+
 Legacy background color override (2026-10-24)
 ==============================================
 

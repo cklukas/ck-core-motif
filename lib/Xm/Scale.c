@@ -1798,10 +1798,10 @@ ValueTroughHeight(
     
 #define GET_MAX(tmp, max_or_min_value) {\
     if (sw->scale.decimal_points)\
-	    sprintf(buff, "%d%c", max_or_min_value,\
+	    snprintf(buff, sizeof(buff), "%d%c", max_or_min_value,\
 		    nl_langinfo(RADIXCHAR)[0]);\
 	else\
-	    sprintf(buff, "%d", max_or_min_value);\
+	    snprintf(buff, sizeof(buff), "%d", max_or_min_value);\
 	    \
 	XTextExtents(sw->scale.font_struct, buff, strlen(buff),\
 		     &direction, &ascent, &descent, &overall_return);\
@@ -1840,10 +1840,10 @@ ValueTroughAscent(
     
 #define GET_MAX(tmp, max_or_min_value) {\
     if (sw->scale.decimal_points)\
-	    sprintf(buff, "%d%c", max_or_min_value,\
+	    snprintf(buff, sizeof(buff), "%d%c", max_or_min_value,\
 		    nl_langinfo(RADIXCHAR)[0]);\
 	else\
-	    sprintf(buff, "%d", max_or_min_value);\
+	    snprintf(buff, sizeof(buff), "%d", max_or_min_value);\
 	    \
 	XTextExtents(sw->scale.font_struct, buff, strlen(buff),\
 		     &direction, &ascent, &descent, &overall_return);\
@@ -1882,10 +1882,10 @@ ValueTroughDescent(
     
 #define GET_MAX(tmp, max_or_min_value) {\
     if (sw->scale.decimal_points)\
-	    sprintf(buff, "%d%c", max_or_min_value,\
+	    snprintf(buff, sizeof(buff), "%d%c", max_or_min_value,\
 		    nl_langinfo(RADIXCHAR)[0]);\
 	else\
-	    sprintf(buff, "%d", max_or_min_value);\
+	    snprintf(buff, sizeof(buff), "%d", max_or_min_value);\
 	    \
 	XTextExtents(sw->scale.font_struct, buff, strlen(buff),\
 		     &direction, &ascent, &descent, &overall_return);\
@@ -1918,10 +1918,10 @@ ValueTroughWidth(
 #define GET_MAX(tmp, max_or_min_value) {\
     XmString tmp_str;\
     if (sw->scale.decimal_points)\
-	    sprintf(buff, "%d%c", max_or_min_value,\
+	    snprintf(buff, sizeof(buff), "%d%c", max_or_min_value,\
 		    nl_langinfo(RADIXCHAR)[0]);\
 	else\
-	    sprintf(buff, "%d", max_or_min_value);\
+	    snprintf(buff, sizeof(buff), "%d", max_or_min_value);\
 	    \
     tmp = XmStringWidth(sw->scale.font_list, tmp_str = XmStringCreateSimple(buff));\
     XmStringFree(tmp_str);\
@@ -1929,10 +1929,10 @@ ValueTroughWidth(
 #else
 #define GET_MAX(tmp, max_or_min_value) {\
     if (sw->scale.decimal_points)\
-	    sprintf(buff, "%d%c", max_or_min_value,\
+	    snprintf(buff, sizeof(buff), "%d%c", max_or_min_value,\
 		    nl_langinfo(RADIXCHAR)[0]);\
 	else\
-	    sprintf(buff, "%d", max_or_min_value);\
+	    snprintf(buff, sizeof(buff), "%d", max_or_min_value);\
 	    \
 	XTextExtents(sw->scale.font_struct, buff, strlen(buff),\
 		     &direction, &ascent, &descent, &overall_return);\
