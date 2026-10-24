@@ -1,3 +1,8 @@
+Region shadow segment bounds (2026-10-25)
+=========================================
+
+- Check region shadow segment-count products before allocation, preventing integer wrap and under-allocation for extreme rectangle counts or thickness; see `docs/region-shadow-counts.md`.
+
 Region allocation size bounds (2026-10-25)
 =======================================
 

@@ -2128,7 +2128,16 @@ _XmRegionDrawShadow(
 	}
     }
 
-    topSegmCount = botSegmCount = (int) (nrects * shadow_thick << 1);
+    if (nrects <= 0 || shadow_thick > (unsigned int)INT_MAX / 2 ||
+	(long)nrects > (long)INT_MAX / ((long)shadow_thick * 2)) {
+	XmeWarning(NULL, MESSAGE1);
+	_XmRegionDestroy (workReg);
+	_XmRegionDestroy (scReg2);
+	_XmRegionDestroy (scReg1);
+	return;
+    }
+    topSegmCount = botSegmCount =
+	(int)((long)nrects * (long)shadow_thick * 2);
 
     if (!(topSegms = (XSegment *)
 	    XtMalloc(sizeof (XSegment) * topSegmCount))) {
