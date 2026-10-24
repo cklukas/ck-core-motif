@@ -1050,8 +1050,8 @@ DoStuff(Widget w,
       if (ds->length > (unsigned long)INT_MAX) {
 	XtFree((char *)ds->value);
 	ds->value = NULL;
-	prim_select->success_status = False;
-	prim_select->done_status = True;
+	/* A rejected import must not trigger the move/delete follow-up. */
+	prim_select->num_chars = 0;
 	return;
       }
       block.ptr = (char*)ds->value;
