@@ -1,3 +1,10 @@
+Mrm header-writer input validation (2026-10-25)
+===============================================
+
+- Reject null file and metadata pointers before initializing UID headers or
+  appending creator/module strings, preserving valid writes while avoiding
+  invalid-input crashes; see `docs/mrm-header-write-input.md`.
+
 Additive-widget contract harness (2026-10-25)
 - Documented the public contract for new resource-driven widget classes and
   added an installed-prefix probe for precedence, focus, accessibility-change

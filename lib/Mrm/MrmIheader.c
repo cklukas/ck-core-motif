@@ -313,6 +313,10 @@ Idb__HDR_InitHeader (IDBFile		file_id,
   IDBHeaderHdrPtr	hdrptr;		/* record header */
   int			ndx;		/* loop index */
 
+  if (file_id == NULL || creator == NULL || creator_version == NULL ||
+      module == NULL || module_version == NULL)
+    return MrmFAILURE;
+
   /*
    * Acquire a buffer for the header, initialize it, and set pointers
    * into it.

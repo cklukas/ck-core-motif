@@ -257,3 +257,4 @@ EXTRA_DIST += \
     docs/additive-widget-contract.md \
     tests/automated/check-additive-widget-contract.c \
     tests/automated/run-additive-widget-contract.py
+EXTRA_DIST += tests/automated/check-mrm-header-write-input.py docs/mrm-header-write-input.md
