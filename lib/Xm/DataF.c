@@ -12037,10 +12037,19 @@ XmDataFieldGetSelection(
 	} 
 	else 
 	{
-	    for (length = 0;num_chars > 0; num_chars--) 
-	    {
-		length += mblen(&value[length], XmTextF_max_char_size(tf));
+	    size_t converted = 0;
+	    while (num_chars > 0) {
+		int char_len = mblen(&value[converted],
+				      XmTextF_max_char_size(tf));
+		if (char_len <= 0) {
+		    length = 0;
+		    break;
+		}
+		converted += (size_t)char_len;
+		num_chars--;
 	    }
+	    if (num_chars == 0)
+		length = converted;
 	}
     }
     value[length] = (char)'\0';

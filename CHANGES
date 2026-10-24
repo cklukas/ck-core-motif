@@ -675,3 +675,10 @@ DataField paste conversion cleanup (2026-10-24)
 - Release the temporary `XmbTextPropertyToTextList` string list in the wide-character paste path. Detect `mbstowcs` failure before adding its result to the destination offset, rejecting malformed locale input safely.
 - Preserve single-byte and wide-character paste behavior, replacement callbacks, public interfaces and native ABI. Document the cleanup contract in `docs/datafield-paste-conversion.md`.
 - Native AArch64 validation passes the warning-enabled DataField build and Xvfb DataField regression.
+
+DataField selection export conversion bounds (2026-10-24)
+==========================================================
+
+- Treat zero or negative `mblen` results as conversion failure while exporting multibyte DataField selections, preventing infinite loops and unsigned length underflow on malformed locale sequences.
+- Preserve valid selection text, ownership, public interfaces and native ABI. Extend `check-datafield-wcs` with valid UTF-8 selection export coverage and document the behavior in `docs/datafield-selection-export.md`.
+- Native AArch64 validation passes the rebuilt DataField source and six-check DataField wide/selection regression.

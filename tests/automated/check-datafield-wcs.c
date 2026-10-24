@@ -39,6 +39,11 @@ int main(int argc, char **argv)
     CHECK(strcmp(value, "G\303\274nter") == 0);
     XtFree(value);
 
+    XmDataFieldSetSelection(field, 0, 6, CurrentTime);
+    value = XmDataFieldGetSelection(field);
+    CHECK(value != NULL && strcmp(value, "G\303\274nter") == 0);
+    XtFree(value);
+
     trait->setValue(field, invalid, XmFORMAT_WCS);
     value = XmDataFieldGetString(field);
     CHECK(strcmp(value, "") == 0);
