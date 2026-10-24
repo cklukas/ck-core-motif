@@ -38,6 +38,7 @@ static char rcsid[] = "$TOG: XmRenderT.c /main/14 1998/10/26 20:14:42 samborn $"
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
+#include <limits.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <string.h>
