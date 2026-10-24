@@ -14,8 +14,7 @@ extern "C" {
 #endif
 
 typedef enum {
-    XmAPPEARANCE_CLASSIC = 0,
-    XmAPPEARANCE_MODERN_LIGHT = 1
+    XmAPPEARANCE_CLASSIC = 0
 } XmAppearanceProfile;
 
 extern Boolean XmSetAppearanceProfile(
