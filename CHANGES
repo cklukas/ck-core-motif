@@ -1,3 +1,10 @@
+Image rejection cleanup (2026-10-24)
+====================================
+
+- Release transient XImages and XPM color allocations when scaling rejects
+  invalid dimensions, ratios, or depth combinations; reuse the same color
+  ownership helper for cached disposal; see `docs/image-rejection-cleanup.md`.
+
 C++ support-library release decision (2026-10-24)
 =================================================
 

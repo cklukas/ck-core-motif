@@ -200,6 +200,7 @@ static int GetCacheColor(Display *display, Colormap colormap,
 			 char *colorname, XColor *color, void *data);
 static int FreeCacheColors(Display *display, Colormap colormap,
 			   Pixel *pixels, int npixels, void *data);
+static void ReleaseImagePixels(Screen *screen, Pixel *pixels, int npixels);
 
 /********    End Static Function Declarations    ********/
 
@@ -1446,6 +1447,7 @@ _XmGetScaledPixmap(
 			   pix_data.scaling_ratio, &scaled_height)) {
 	if (ret == NOT_CACHED)
 	    XDestroyImage(image);
+	ReleaseImagePixels(screen, pixels, npixels);
 	return (XmUNSPECIFIED_PIXMAP);
     }
     
@@ -1463,7 +1465,12 @@ _XmGetScaledPixmap(
     /* now check the validity of the image depth.  XPutImage can
        only handle unequal depths for bitmaps. */
     if ((image->depth != depth) && (image->depth != 1))
+	{
+	if (ret == NOT_CACHED)
+	    XDestroyImage(image);
+	ReleaseImagePixels(screen, pixels, npixels);
 	return (XmUNSPECIFIED_PIXMAP);
+	}
 
     /* force the foreground/background if a Bitmap
        is returned. These values are going to go in the cache
@@ -1823,10 +1830,8 @@ XmDestroyPixmap(
 	  XtFree(pix_entry->image_name);
 	  XtFree((char*)pix_entry->acc_color);
 	  if (pix_entry->pixels) {
-	      FreeCacheColors(DisplayOfScreen(pix_entry->screen),
-			      DefaultColormapOfScreen(pix_entry->screen),
-			      pix_entry->pixels, pix_entry->npixels, NULL);
-	      XmeXpmFree(pix_entry->pixels);
+	      ReleaseImagePixels(pix_entry->screen, pix_entry->pixels,
+				 pix_entry->npixels);
 	  }
 	  XtFree((char*)pix_entry);
       }
@@ -2491,4 +2496,14 @@ FreeCacheColors(Display *display, Colormap colormap,
     for (i = 0; i < n; i++, pixels++)
 	status = FreeCacheColor(display, colormap, *pixels);
     return 0;
+}
+
+static void
+ReleaseImagePixels(Screen *screen, Pixel *pixels, int npixels)
+{
+    if (pixels == NULL)
+	return;
+    FreeCacheColors(DisplayOfScreen(screen),
+			DefaultColormapOfScreen(screen), pixels, npixels, NULL);
+    XmeXpmFree(pixels);
 }
