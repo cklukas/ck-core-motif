@@ -1,5 +1,10 @@
 2026-10-24
 
+* Add a large mixed-script UTF-8 clipboard round-trip regression that
+  crosses an X11 property request boundary.
+
+2026-10-24
+
 * Add a foreign X11 selection-owner lifecycle regression for Motif transfer
   helpers.
 
