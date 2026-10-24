@@ -2129,7 +2129,7 @@ void _XmPutScaledImage (
     XImage *dest_image;
     unsigned int x, y, min_y, max_y, src_max_x;
     unsigned int w, h, strip_height;
-    Table table;    
+    Table table = { NULL, NULL, NULL, NULL };
     Pixel pixel;
     double ratio_x, ratio_y;
     unsigned int scaled_row_bytes;
@@ -2230,6 +2230,10 @@ void _XmPutScaledImage (
     }
     image_bytes = (size_t)dest_image->bytes_per_line * h;
     dest_image->data = XtMalloc(image_bytes);
+    if (dest_image->data == NULL) {
+	XDestroyImage(dest_image);
+	return;
+    }
     fast8 = (src_image->depth == 8 && src_image->bits_per_pixel == 8 &&
 	     dest_image->bits_per_pixel == 8 && src_image->format == ZPixmap);
 
@@ -2241,6 +2245,9 @@ void _XmPutScaledImage (
 					(size_t)src_image->width);
     table.height = (unsigned int *) XtMalloc(sizeof(*table.height) *
 					(size_t)src_image->height);
+	if (table.x == NULL || table.y == NULL ||
+	    table.width == NULL || table.height == NULL)
+	    goto cleanup;
     
     table.x[0] = 0;
     for (x = 1; x <= src_image->width; x++) {

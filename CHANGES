@@ -1,3 +1,10 @@
+Image scaling allocation checks (2026-10-24)
+===============================================
+
+- Check the temporary destination image and coordinate-table allocations
+  before scaling pixels, preserving the existing cleanup path on resource
+  exhaustion; see `docs/image-scaling-allocations.md`.
+
 UI-thread completion prototype (2026-10-24)
 ===========================================
 
