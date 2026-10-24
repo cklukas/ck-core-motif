@@ -165,3 +165,5 @@ EXTRA_DIST += tests/automated/check-mask-name-allocation.py docs/mask-name-alloc
 EXTRA_DIST += tests/automated/check-embedded-mask-ownership.py docs/embedded-mask-ownership.md
 EXTRA_DIST += tests/automated/check-icon-mask-name-allocation.py docs/icon-mask-name-allocation.md
 EXTRA_DIST += tests/automated/check-scale-value-bounds.py docs/scale-value-bounds.md
+
+EXTRA_DIST += tests/automated/check-drop-site-warning-bounds.py docs/drop-site-warning-bounds.md

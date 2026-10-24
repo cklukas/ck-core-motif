@@ -214,7 +214,7 @@ _XmDSIGetChildPosition(
 	if (GetDSParent(childInfo) != (XtPointer) parentInfo)
 	{
 		char buf[256];
-		sprintf(buf, MESSAGE3,
+		snprintf(buf, sizeof(buf), MESSAGE3,
 			XrmQuarkToString(GetDSWidget(childInfo)->core.xrm_name),
 			XrmQuarkToString(GetDSWidget(parentInfo)->core.xrm_name));
 		XmeWarning(GetDSWidget(parentInfo), buf);
@@ -228,7 +228,7 @@ _XmDSIGetChildPosition(
 	if (i == num_children)
 	{
 		char buf[256];
-		sprintf(buf, MESSAGE3,
+		snprintf(buf, sizeof(buf), MESSAGE3,
 			XrmQuarkToString(GetDSWidget(childInfo)->core.xrm_name),
 			XrmQuarkToString(GetDSWidget(parentInfo)->core.xrm_name));
 		XmeWarning(GetDSWidget(parentInfo), buf);

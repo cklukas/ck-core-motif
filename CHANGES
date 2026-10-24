@@ -1,3 +1,8 @@
+Drop-site diagnostic bounds (2026-10-24)
+==========================================
+
+- Bound inconsistent drop-site warning formatting so long widget names are truncated safely instead of overflowing the stack; see `docs/drop-site-warning-bounds.md`.
+
 XmScale value-format bounds (2026-10-24)
 =========================================
 
