@@ -1022,6 +1022,24 @@ NtimePickerSecond
 NtimePickerFormat24Hour
 NtimePickerValueChangedCallback
 NtimePickerActivateCallback
+CDataGridHeaderHeight
+CDataGridRowHeight
+CDataGridVisibleRows
+CDataGridTopRow
+CDataGridRtl
+CDataGridSelectionCallback
+CDataGridSortCallback
+CDataGridEditCommittedCallback
+CDataGridEditFailedCallback
+NdataGridHeaderHeight
+NdataGridRowHeight
+NdataGridVisibleRows
+NdataGridTopRow
+NdataGridRtl
+NdataGridSelectionCallback
+NdataGridSortCallback
+NdataGridEditCommittedCallback
+NdataGridEditFailedCallback
 
 #table _XmStrings20
 

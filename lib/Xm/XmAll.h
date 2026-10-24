@@ -72,6 +72,7 @@
 #include <Xm/Calendar.h>
 #include <Xm/DatePicker.h>
 #include <Xm/TimePicker.h>
+#include <Xm/DataGrid.h>
 #include <Xm/NumberBox.h>
 #include <Xm/RatingControl.h>
 #include <Xm/MwmUtil.h>
