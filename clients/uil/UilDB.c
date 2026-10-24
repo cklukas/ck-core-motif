@@ -974,6 +974,7 @@ String init_wmd_path(filename)
     String old_path;
     String homedir;
     String wmd_path;
+    int path_length;
 
 
     if (filename[0] == '/')
@@ -989,20 +990,30 @@ String init_wmd_path(filename)
 	    old_path = (char *)getenv ("XAPPLRESDIR");
 	    if (old_path == NULL) 
 		{
-		wmd_path = XtCalloc(1, 2*strlen(homedir) +
-				 strlen(libdir) + strlen(incdir) +
-				 strlen(WMDPATH_DEFAULT));
-		sprintf( wmd_path, WMDPATH_DEFAULT,
+	    path_length = snprintf(NULL, 0, WMDPATH_DEFAULT,
 			 homedir, homedir, libdir, incdir);
+	    if (path_length < 0)
+		{
+		XtFree(homedir);
+		return NULL;
+		}
+	    wmd_path = XtMalloc((size_t)path_length + 1);
+	    (void)snprintf(wmd_path, (size_t)path_length + 1, WMDPATH_DEFAULT,
+		    homedir, homedir, libdir, incdir);
 		} 
 	    else 
 		{
-		wmd_path = XtCalloc(1, 1*strlen(old_path) + 2*strlen(homedir) +
-				 strlen(libdir) + strlen(incdir) +
-				 strlen(XAPPLRES_DEFAULT));
-		sprintf(wmd_path, XAPPLRES_DEFAULT, 
+	    path_length = snprintf(NULL, 0, XAPPLRES_DEFAULT,
 			old_path,
 			homedir, homedir, libdir, incdir);
+	    if (path_length < 0)
+		{
+		XtFree(homedir);
+		return NULL;
+		}
+	    wmd_path = XtMalloc((size_t)path_length + 1);
+	    (void)snprintf(wmd_path, (size_t)path_length + 1, XAPPLRES_DEFAULT,
+		    old_path, homedir, homedir, libdir, incdir);
 		}
 	    XtFree (homedir);
 	    }

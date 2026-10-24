@@ -1,3 +1,11 @@
+UIL WMD path formatting bounds (2026-10-24)
+============================================
+
+- Size expanded WMD and application-resource search paths with `snprintf`
+  before allocation, retaining the existing search order while preventing the
+  missing-terminator write in the legacy `sprintf` path; see
+  `docs/uil-path-formatting.md`.
+
 Paned sash action increment validation (2026-10-24)
 ====================================================
 
