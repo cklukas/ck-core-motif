@@ -586,6 +586,9 @@ Idb__INX_SplitLeafRecord (IDBFile		file_id,
   MrmCount		old_cnt ;	/* original number of items */
   IDBIndexLeafEntryPtr	old_itmvec ;	/* Original vector */
 
+  if (file_id == NULL || gt_buffer == NULL)
+    return MrmFAILURE;
+
 
   /*
    * Initialize pointers into the record and sanity check. This record
@@ -755,6 +758,9 @@ Idb__INX_SplitNodeRecord (IDBFile		file_id,
   MrmCount		gt_cnt ;	/* number of GT items */
   MrmCount		old_cnt ;	/* original number of items */
   IDBIndexNodeEntryPtr	old_itmvec ;	/* Original vector */
+
+  if (file_id == NULL || gt_buffer == NULL)
+    return MrmFAILURE;
 
 
   /*
@@ -1410,6 +1416,9 @@ Idb__INX_ConfirmNodeSpace (IDBFile		file_id,
   IDBIndexNodeRecordPtr	recptr ;	/* node record in buffer */
   IDBIndexNodeHdrPtr	hdrptr ;	/* record header */
 
+  if (file_id == NULL || buffer == NULL || buffer->IDB_record == NULL)
+    return MrmFAILURE;
+
 
   /*
    * Initialize pointers into the record
@@ -1463,6 +1472,9 @@ Idb__INX_SetParent (IDBFile		file_id,
 		    IDBRecordNumber	parent_record,
 		    IDBRecordNumber	child_record)
 {
+
+  if (file_id == NULL || parent_record <= 0 || child_record <= 0)
+    return MrmFAILURE;
 
   /*
    *  Local variables
