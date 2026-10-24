@@ -1,4 +1,7 @@
 2026-10-26
+	* Propagate Mrm index result-list append failures.
+
+2026-10-26
 	* Validate Mrm header next-RID input and output pointers.
 
 2026-10-26

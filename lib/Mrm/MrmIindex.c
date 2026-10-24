@@ -640,8 +640,11 @@ Idb__INX_FindResources (IDBFile			file_id,
 
 	  if ( Idb__DB_MatchFilter(file_id, entry_data, group_filter, 
 				   type_filter) )
-	    UrmPlistAppendString (index_list,
-				  stgbase+leaf_ndxvec[entndx].index_stg) ;
+	    {
+	      result = UrmPlistAppendString
+		(index_list, stgbase+leaf_ndxvec[entndx].index_stg) ;
+	      if (result != MrmSUCCESS) return result;
+	    }
 	  Idb__BM_MarkActivity (bufptr) ;
 	}
       return MrmSUCCESS ;
@@ -697,8 +700,11 @@ Idb__INX_FindResources (IDBFile			file_id,
 	    return MrmBAD_RECORD;
 	  if ( Idb__DB_MatchFilter
 	       (file_id, entry_data, group_filter, type_filter) )
-	    UrmPlistAppendString (index_list,
-				  stgbase+node_ndxvec[entndx].index_stg) ;
+	    {
+	      result = UrmPlistAppendString
+		(index_list, stgbase+node_ndxvec[entndx].index_stg) ;
+	      if (result != MrmSUCCESS) return result;
+	    }
 	  result = Idb__INX_FindResources
 	    (file_id, node_ndxvec[entndx].GT_record,
 	     group_filter, type_filter, index_list) ;

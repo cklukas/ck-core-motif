@@ -367,3 +367,5 @@ EXTRA_DIST += tests/automated/check-mrm-get-entry-postconditions.py docs/mrm-get
 EXTRA_DIST += tests/automated/check-mrm-put-entry-capacity.py docs/mrm-put-entry-capacity.md
 
 EXTRA_DIST += tests/automated/check-mrm-header-byte-swap-order.py docs/mrm-header-byte-swap-order.md
+
+EXTRA_DIST += tests/automated/check-mrm-index-list-failure.py docs/mrm-index-list-failure.md
