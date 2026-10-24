@@ -1,3 +1,8 @@
+Bound drag atom property table sizing (2026-10-24)
+====================================================
+- Check atom-table count arithmetic when reading X properties, serializing
+  tables, and allocating new entries so malformed counts cannot wrap sizes.
+- Add a source contract regression and document the defensive boundary.
 Bound compound-text encoding registry export (2026-10-24)
 ==========================================================
 

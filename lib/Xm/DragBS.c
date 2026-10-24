@@ -109,6 +109,7 @@ static char rcsid[] = "$TOG: DragBS.c /main/29 1998/03/18 15:10:28 csn $"
 #include <X11/Xresource.h>
 
 #include <stdio.h>
+#include <stdint.h>
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
@@ -676,8 +677,14 @@ WriteAtomsTable(
     /* If the data is bigger than the default stack allocation, then 
      * allocate heap storage, else use automatic storage.
      */
-    dataSize = sizeof(xmMotifAtomsPropertyRec) + 
-      atomsTable->numEntries * sizeof(xmMotifAtomsTableRec) ;
+    if (atomsTable->numEntries >
+	(SIZE_MAX - sizeof(xmMotifAtomsPropertyRec)) /
+	sizeof(xmMotifAtomsTableRec)) {
+	XmeWarning((Widget) XmGetXmDisplay(display), MESSAGE4);
+	return;
+    }
+    dataSize = sizeof(xmMotifAtomsPropertyRec) +
+      atomsTable->numEntries * sizeof(xmMotifAtomsTableRec);
 
     if ( dataSize > MAXSTACK ) {
 	propertyRecPtr = (struct _propertyRec *)XtMalloc( dataSize );
@@ -807,6 +814,11 @@ ReadAtomsTable(
         }
 
 	if (propertyRecPtr->info.num_atoms > atomsTable->numEntries) {
+	    if (propertyRecPtr->info.num_atoms >
+		SIZE_MAX / sizeof(xmAtomsTableEntryRec)) {
+		XmeWarning((Widget) XmGetXmDisplay(display), MESSAGE2);
+		ret = False;
+	    } else {
 
             /*
 	     *  expand the atoms table
@@ -815,13 +827,14 @@ ReadAtomsTable(
             atomsTable->entries = (xmAtomsTableEntry) XtRealloc(
 	        (char *)atomsTable->entries,	/* NULL ok */
 		sizeof(xmAtomsTableEntryRec) * propertyRecPtr->info.num_atoms);
+	    }
 	}
 
 	/*
 	 *  Read the atom table entries.
 	 */
 
-	for (i = 0; i < (int)propertyRecPtr->info.num_atoms; i++) {
+	for (i = 0; ret && i < (int)propertyRecPtr->info.num_atoms; i++) {
 	    if (propertyRecPtr->info.byte_order != _XmByteOrderChar) {
 		swap4bytes(propertyRecPtr->entry[i].atom);
 		swap4bytes(propertyRecPtr->entry[i].time);
@@ -830,7 +843,8 @@ ReadAtomsTable(
             atomsTable->entries[i].atom = (Atom) propertyRecPtr->entry[i].atom;
             atomsTable->entries[i].time = (Time) propertyRecPtr->entry[i].time;
 	}
-        atomsTable->numEntries = propertyRecPtr->info.num_atoms;
+	    if (ret)
+	        atomsTable->numEntries = propertyRecPtr->info.num_atoms;
     }      
 
     /*
@@ -1444,6 +1458,12 @@ _XmAllocMotifAtom(
     }
 
     if (atomReturn == None) {
+	if (atomsTable->numEntries == (Cardinal)-1 ||
+	    atomsTable->numEntries >
+	    (SIZE_MAX / sizeof(xmAtomsTableEntryRec)) - 1) {
+	    XUngrabServer(display);
+	    return None;
+	}
 	i = atomsTable->numEntries++;
 
         atomsTable->entries = (xmAtomsTableEntry) XtRealloc(
