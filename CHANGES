@@ -2849,3 +2849,11 @@ Mrm set-values allocation handling (2026-10-31)
 - Validate set-values scratch, descriptor, and legacy font-list allocations,
   and reject empty argument setup before using pointer-list state; see
   `docs/mrm-fetch-setvalues-allocation.md`.
+
+
+Mrm widget-reference allocation handling (2026-11-01)
+=======================================================
+
+- Check widget-reference descriptor, name, callback-copy, pointer-list setup,
+  and append failures with ownership-aware cleanup; see
+  `docs/mrm-wref-allocation.md`.

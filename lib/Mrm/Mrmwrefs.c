@@ -352,7 +352,8 @@ Urm__CW_AppendSVWidgetRef (IDBFile		file_id,
    * Initialize the pointer list if required
    */
   if ( *svlist == NULL )
-    UrmPlistInit (10, svlist) ;
+    if (UrmPlistInit (10, svlist) != MrmSUCCESS)
+      return;
 
   /*
    * Create and set the new descriptor. The argument tag must be uncompressed
@@ -361,6 +362,8 @@ Urm__CW_AppendSVWidgetRef (IDBFile		file_id,
    * allocated memory.
    */
   svdesc = (URMSetValuesDescPtr) XtMalloc (sizeof(URMSetValuesDesc)) ;
+  if (svdesc == NULL)
+    return;
   svdesc->setw = NULL ;
   svdesc->type = URMsvWidgetRef ;
   svdesc->tagcode = argtag ;
@@ -405,7 +408,21 @@ Urm__CW_AppendSVWidgetRef (IDBFile		file_id,
     }
   svdesc->done = FALSE ;
   svdesc->sv.wname = Urm__UT_AllocString (w_name) ;
-  UrmPlistAppendPointer (( URMPointerListPtr)*svlist, (XtPointer) svdesc) ;
+  if (svdesc->sv.wname == NULL)
+    {
+      if (argtag == UilMrmUnknownCode)
+	XtFree (svdesc->tagname);
+      XtFree ((char *)svdesc);
+      return;
+    }
+  if (UrmPlistAppendPointer (( URMPointerListPtr)*svlist,
+				     (XtPointer) svdesc) != MrmSUCCESS)
+    {
+      XtFree (svdesc->sv.wname);
+      if (argtag == UilMrmUnknownCode)
+	XtFree (svdesc->tagname);
+      XtFree ((char *)svdesc);
+    }
 
 }
 
@@ -477,7 +494,8 @@ Urm__CW_AppendCBSVWidgetRef (IDBFile			file_id,
    * Initialize the pointer list if required
    */
   if ( *svlist == NULL )
-    UrmPlistInit (10, svlist) ;
+    if (UrmPlistInit (10, svlist) != MrmSUCCESS)
+      return;
 
   /*
    * Create and set the new descriptor. The argument tag must be uncompressed
@@ -486,6 +504,8 @@ Urm__CW_AppendCBSVWidgetRef (IDBFile			file_id,
    * allocated memory.
    */
   svdesc = (URMSetValuesDescPtr) XtMalloc (sizeof(URMSetValuesDesc)) ;
+  if (svdesc == NULL)
+    return;
   svdesc->setw = NULL ;
   svdesc->type = URMsvCallBackList ;
   svdesc->tagcode = argtag ;
@@ -529,12 +549,27 @@ Urm__CW_AppendCBSVWidgetRef (IDBFile			file_id,
 	}
     }
   svdesc->done = FALSE ;
+  svdesc->sv.wname = NULL;
   /* Copy callback descriptor */
   descsize = sizeof(RGMCallbackDesc) + (cbptr->count)*sizeof(RGMCallbackItem);
   cbdesc = (RGMCallbackDescPtr)XtMalloc(descsize);
+  if (cbdesc == NULL)
+    {
+      if (argtag == UilMrmUnknownCode)
+	XtFree (svdesc->tagname);
+      XtFree ((char *)svdesc);
+      return;
+    }
   memcpy(cbdesc, cbptr, descsize);
   svdesc->sv.callbacks = cbdesc ;
-  UrmPlistAppendPointer (( URMPointerListPtr)*svlist, (XtPointer) svdesc) ;
+  if (UrmPlistAppendPointer (( URMPointerListPtr)*svlist,
+				     (XtPointer) svdesc) != MrmSUCCESS)
+    {
+      XtFree ((char *)cbdesc);
+      if (argtag == UilMrmUnknownCode)
+	XtFree (svdesc->tagname);
+      XtFree ((char *)svdesc);
+    }
 }
 
 
