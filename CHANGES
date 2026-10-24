@@ -1,3 +1,11 @@
+Global DPI defaults (2026-10-24)
+=================================
+
+- Qualify finite, fully parsed Xft.dpi defaults at 1x, 2x and 4x for
+  unlabelled toggle indicators and SpinBox arrows, preserving explicit sizes.
+- Document the global-per-display contract and keep per-output scaling in the
+  separate XLibre-specific WP-04A package; see `docs/dpi-defaults.md`.
+
 DataField portability warning cleanup (2026-10-24)
 ===================================================
 

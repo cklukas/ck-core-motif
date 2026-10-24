@@ -353,6 +353,16 @@ behavior while preserving explicit pixel dimensions.
 default scaling and explicit-size preservation.  Per-output behavior remains a
 separate optional package below.
 
+**Status (2026-10-24):** the global-DPI subset is implemented and qualified on
+the AArch64 `uconsole` Linux host through the installed widget regression.  The
+fixture covers 1x, 2x and 4x `Xft.dpi` defaults for unlabelled ToggleButton /
+ToggleButtonGadget indicators and SpinBox arrows, malformed/non-finite input,
+saturation and explicit-size preservation.  The contract is finite,
+positive, fully parsed `Xft.dpi` with a 75-DPI baseline; see
+`docs/dpi-defaults.md`.  Focus rings, menu indicators, notebook/dialog
+metrics, text cursor geometry and live reflow remain audit items rather than
+unverified claims.  Per-output behavior remains WP-04A.
+
 ### WP-04A: XLibre per-output scaling integration
 
 **Depends on:** WP-04.

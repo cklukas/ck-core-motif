@@ -100,3 +100,4 @@ EXTRA_DIST += tests/automated/check-external-selection.c tests/automated/run-ext
 EXTRA_DIST += tests/automated/check-unicode-clipboard.c tests/automated/run-unicode-clipboard-regressions.py docs/unicode-clipboard.md
 EXTRA_DIST += tests/automated/check-modern-light-profile.c tests/automated/run-modern-light-profile.py
 EXTRA_DIST += tests/automated/check-high-contrast-profile.c tests/automated/run-high-contrast-profile.py
+EXTRA_DIST += docs/dpi-defaults.md
