@@ -1270,6 +1270,7 @@ Idb__INX_CollapseLeafRecord (IDBIndexLeafRecordPtr	recptr,
   char			*stgbase ;	/* base address for string offsets */
   char			*ndxstg ;	/* current index string */
   MrmCount		stgsiz ;	/* # bytes for current string */
+  MrmCount		stglen ;	/* bounded string length */
   MrmCount		ndxcnt ;	/* # entries in collapsed record */
   MrmCount		nfree ;		/* # free bytes in collapsed record */
   MrmOffset		heap_start ;	/* new heap start offset */
@@ -1320,21 +1321,21 @@ Idb__INX_CollapseLeafRecord (IDBIndexLeafRecordPtr	recptr,
       dstvec[ndx].data = srcvec[ndx].data ;
       ndxstg = (char *) stgbase + srcvec[ndx].index_stg ;
       if (srcvec[ndx].index_stg >= IDBIndexLeafFreeMax ||
-          strnlen (ndxstg, IDBIndexLeafFreeMax - srcvec[ndx].index_stg) ==
+          (stglen = strnlen (ndxstg,
+                             IDBIndexLeafFreeMax - srcvec[ndx].index_stg)) ==
           IDBIndexLeafFreeMax - srcvec[ndx].index_stg)
         {
           XtFree (temp_heap) ;
           return ;
         }
-      strcpy (cur_heap, ndxstg) ;
-      dstvec[ndx].index_stg = (MrmOffset) (cur_heap - temp_heap) ;
-      stgsiz = strlen(cur_heap) + 1 ;
-      stgsiz = _FULLWORD(stgsiz);
+      stgsiz = _FULLWORD(stglen + 1);
       if (stgsiz > IDBIndexLeafFreeMax - heap_size)
         {
           XtFree (temp_heap) ;
           return ;
         }
+      UrmBCopy (ndxstg, cur_heap, stglen + 1) ;
+      dstvec[ndx].index_stg = (MrmOffset) (cur_heap - temp_heap) ;
       cur_heap += stgsiz ;
       heap_size += stgsiz ;
     }
@@ -1409,6 +1410,7 @@ Idb__INX_CollapseNodeRecord (IDBIndexNodeRecordPtr	recptr,
   char			*stgbase ;	/* base address for string offsets */
   char			*ndxstg ;	/* current index string */
   MrmCount		stgsiz ;	/* # bytes for current string */
+  MrmCount		stglen ;	/* bounded string length */
   MrmCount		ndxcnt ;	/* # entries in collapsed record */
   MrmCount		nfree ;		/* # free bytes in collapsed record */
   MrmOffset		heap_start ;	/* new heap start offset */
@@ -1461,21 +1463,21 @@ Idb__INX_CollapseNodeRecord (IDBIndexNodeRecordPtr	recptr,
       dstvec[ndx].GT_record = srcvec[ndx].GT_record ;
       ndxstg = (char *) stgbase + srcvec[ndx].index_stg ;
       if (srcvec[ndx].index_stg >= IDBIndexNodeFreeMax ||
-          strnlen (ndxstg, IDBIndexNodeFreeMax - srcvec[ndx].index_stg) ==
+          (stglen = strnlen (ndxstg,
+                             IDBIndexNodeFreeMax - srcvec[ndx].index_stg)) ==
           IDBIndexNodeFreeMax - srcvec[ndx].index_stg)
         {
           XtFree (temp_heap) ;
           return ;
         }
-      strcpy (cur_heap, ndxstg) ;
-      dstvec[ndx].index_stg = (MrmOffset) (cur_heap - temp_heap) ;
-      stgsiz = strlen(cur_heap) + 1 ;
-      stgsiz = _FULLWORD(stgsiz);
+      stgsiz = _FULLWORD(stglen + 1);
       if (stgsiz > IDBIndexNodeFreeMax - heap_size)
         {
           XtFree (temp_heap) ;
           return ;
         }
+      UrmBCopy (ndxstg, cur_heap, stglen + 1) ;
+      dstvec[ndx].index_stg = (MrmOffset) (cur_heap - temp_heap) ;
       cur_heap += stgsiz ;
       heap_size += stgsiz ;
     }

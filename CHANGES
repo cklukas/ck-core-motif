@@ -2786,3 +2786,11 @@ Mrm index insertion preflight (2026-10-26)
 - Validate neighboring child links before shifting or updating a node record,
   preventing malformed B-tree input from leaving a partial insertion; see
   `docs/mrm-index-preflight.md`.
+
+
+Mrm index collapse copy bounds (2026-10-26)
+============================================
+
+- Check rounded string capacity before copying collapse data into temporary
+  heaps, preventing malformed indexes from overrunning the allocation; see
+  `docs/mrm-index-collapse-copy-bounds.md`.
