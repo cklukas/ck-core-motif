@@ -911,9 +911,12 @@ UrmCWRSetArgChar8Vec (URMResourceContextPtr	context_id,
   /*
    * Validate record, arglist descriptor, and argument number.
    */
-  UrmCWR__ValidateContext (context_id, "UrmCWRSetArgChar8Vec") ;
-  UrmCWR__BindArgPtrs
+  result = UrmCWR__ValidateContext (context_id,
+                                    "UrmCWRSetArgChar8Vec") ;
+  if ( result != MrmSUCCESS ) return result ;
+  result = UrmCWR__BindArgPtrs
     (context_id, "UrmCWRSetArgChar8Vec", arg_ndx, &argdesc, &argptr) ;
+  if ( result != MrmSUCCESS ) return result ;
 
   /*
    * Validate vector - make sure it doesn't contain too many elements
@@ -951,8 +954,9 @@ UrmCWRSetArgChar8Vec (URMResourceContextPtr	context_id,
       result = UrmCWR__AppendString (context_id, stg_vec[ndx], &offset) ;
       if ( result != MrmSUCCESS ) return result ;
       widgetrec = (RGMWidgetRecordPtr) UrmRCBuffer(context_id) ;
-      UrmCWR__BindArgPtrs
+      result = UrmCWR__BindArgPtrs
         (context_id, "UrmCWRSetArgChar8Vec", arg_ndx, &argdesc, &argptr) ;
+      if ( result != MrmSUCCESS ) return result ;
       vecptr = (RGMTextVectorPtr) ((char *)widgetrec + vecoffs) ;
       vecptr->item[ndx].text_item.rep_type = MrmRtypeChar8 ;
       vecptr->item[ndx].text_item.offset = offset ;
