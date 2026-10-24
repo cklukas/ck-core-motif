@@ -41,6 +41,8 @@ static char rcsid[] = "$TOG: ResConvert.c /main/29 1999/05/18 19:19:39 mgreess $
 
 
 #include <stdio.h>
+#include <errno.h>
+#include <limits.h>
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
@@ -1513,10 +1515,11 @@ CvtStringToCardinalList(
     XtPointer *data)	/* unused */
 {
     register char *	p;
+    char *		end;
     Cardinal *		crd_array;
     int             	crd_array_size = 50;
     int			crd_array_count = 0;
-    int			new_element;
+    unsigned long	new_element;
 
     if ((p = from_val->addr) == NULL)
         return(False);
@@ -1525,29 +1528,34 @@ CvtStringToCardinalList(
 			(crd_array_size,sizeof(Cardinal));
     while (*p != '\0')
 	{
-	while ((isspace(*p) || ispunct(*p)) && *p != '\0') /* Skip blanks */
+	while ((isspace((unsigned char)*p) || *p == ',') && *p != '\0')
 	    p++;
 	if (*p == '\0')				/* end-of data */
 	    break;
-	if (isdigit(*p))
+	if (*p == '-')
+	    goto invalid_cardinal;
+	errno = 0;
+	new_element = strtoul(p, &end, 10);
+	if (end == p || errno == ERANGE || new_element > UINT_MAX)
+	    goto invalid_cardinal;
+	if (*end != '\0' && !isspace((unsigned char)*end) && *end != ',')
+	    goto invalid_cardinal;
+	if (crd_array_size == crd_array_count)
 	    {
-	    new_element = atoi(p);		/* Grab number */
-	    while (isdigit(*p))		/* advance pointer past number */
-		p++;
-	    if (crd_array_size == crd_array_count)
-		{
-		crd_array_size *= 2;		/* Double array size */
-		crd_array = (Cardinal *)XtRealloc((char *)crd_array,
-				sizeof(Cardinal) * crd_array_size);
-		}
-	    crd_array[crd_array_count] = new_element;
-	    crd_array_count++;
+	    crd_array_size *= 2;
+	    crd_array = (Cardinal *)XtRealloc((char *)crd_array,
+			    sizeof(Cardinal) * crd_array_size);
 	    }
-	else
-	    p++;
+	crd_array[crd_array_count++] = (Cardinal)new_element;
+	p = end;
 	}
 
         _XM_CONVERTER_DONE(to_val,Cardinal *,crd_array,;)
+
+invalid_cardinal:
+        XtDisplayStringConversionWarning(dpy, from_val->addr, XmRCardinalList);
+        XtFree((char *)crd_array);
+        return(False);
 }
 
 /*ARGSUSED*/

@@ -42,6 +42,7 @@ nav:
       - docs/charset-table-conversion.md
       - docs/keysym-table-conversion.md
       - docs/string-table-conversion.md
+      - docs/cardinal-list-conversion.md
       - docs/text-source-bounds.md
       - docs/image-scaling.md
       - docs/uil-listing.md
