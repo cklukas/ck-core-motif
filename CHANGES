@@ -1,3 +1,11 @@
+Xmos default path formatting bounds (2026-10-24)
+================================================
+
+- Measure and bound default and `XAPPLRES` resource-path template expansion,
+  preserving search order while preventing long environment or installation
+  paths from wrapping allocation arithmetic; see
+  `docs/xmos-init-path-bounds.md`.
+
 XLibre RandR DPI contract probe (2026-10-24)
 =============================================
 

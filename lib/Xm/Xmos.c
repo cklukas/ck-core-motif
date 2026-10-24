@@ -1249,6 +1249,7 @@ _XmOSInitPath(String   file_name,
   char stackString[MAX_DIR_PATH_LEN];
   String homedir = stackString ;
   String local_path;
+  int path_length;
   
   *user_path = False;
   
@@ -1264,20 +1265,32 @@ _XmOSInitPath(String   file_name,
 	  old_path = (char *)getenv ("XAPPLRESDIR");
 	  if (old_path == NULL) 
 	    {
-	      path = XtCalloc(1, (9*strlen(homedir) + strlen(PATH_DEFAULT) +
-				  8*strlen(libdir) + strlen(incdir) + 1));
-	      sprintf(path, PATH_DEFAULT, homedir, homedir, homedir,
+	      path_length = snprintf(NULL, 0, PATH_DEFAULT,
+		      homedir, homedir, homedir,
+		      homedir, homedir, homedir, homedir, homedir, homedir,
+		      libdir, libdir, libdir, libdir, libdir, libdir, libdir,
+		      libdir, incdir);
+	      if (path_length < 0)
+		  return NULL;
+	      path = XtMalloc((size_t)path_length + 1);
+	      (void) snprintf(path, (size_t)path_length + 1, PATH_DEFAULT,
+		      homedir, homedir, homedir,
 		      homedir, homedir, homedir, homedir, homedir, homedir,
 		      libdir, libdir, libdir, libdir, libdir, libdir, libdir,
 		      libdir, incdir);
 	    } 
 	  else
 	    {
-	      path = XtCalloc(1, (8*strlen(old_path) + 2*strlen(homedir) +
-				  strlen(XAPPLRES_DEFAULT) + 8*strlen(libdir) +
-				  strlen(incdir) + 1));
-	      sprintf(path, XAPPLRES_DEFAULT, 
-		      old_path, old_path, old_path, old_path, old_path, 
+	      path_length = snprintf(NULL, 0, XAPPLRES_DEFAULT,
+		      old_path, old_path, old_path, old_path, old_path,
+		      old_path, old_path, old_path, homedir, homedir,
+		      libdir, libdir, libdir, libdir, libdir, libdir, libdir,
+		      libdir, incdir);
+	      if (path_length < 0)
+		  return NULL;
+	      path = XtMalloc((size_t)path_length + 1);
+	      (void) snprintf(path, (size_t)path_length + 1, XAPPLRES_DEFAULT,
+		      old_path, old_path, old_path, old_path, old_path,
 		      old_path, old_path, old_path, homedir, homedir,
 		      libdir, libdir, libdir, libdir, libdir, libdir, libdir,
 		      libdir, incdir);
