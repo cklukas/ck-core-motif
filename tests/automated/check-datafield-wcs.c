@@ -7,10 +7,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 
 #define CHECK(x) do { if (!(x)) { fprintf(stderr, "%s:%d: %s\n", \
     __FILE__, __LINE__, #x); exit(1); } ++checks; } while (0)
 static unsigned long checks;
+extern wchar_t *XmDataFieldGetSelectionWcs(Widget);
 
 int main(int argc, char **argv)
 {
@@ -43,6 +45,11 @@ int main(int argc, char **argv)
     value = XmDataFieldGetSelection(field);
     CHECK(value != NULL && strcmp(value, "G\303\274nter") == 0);
     XtFree(value);
+    {
+        wchar_t *selection = XmDataFieldGetSelectionWcs(field);
+        CHECK(selection != NULL && wcscmp(selection, valid) == 0);
+        XtFree((char *)selection);
+    }
 
     trait->setValue(field, invalid, XmFORMAT_WCS);
     value = XmDataFieldGetString(field);
