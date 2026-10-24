@@ -1,4 +1,7 @@
 2026-10-26
+	* Handle Mrm create-close failures before reopening write files.
+
+2026-10-26
 	* Remove partial Mrm files when write-mode reopen fails.
 
 2026-10-26

@@ -387,3 +387,5 @@ EXTRA_DIST += tests/automated/check-mrm-pointer-list-resize.py docs/mrm-pointer-
 EXTRA_DIST += tests/automated/check-mrm-pointer-list-shrink.py docs/mrm-pointer-list-shrink.md
 
 EXTRA_DIST += tests/automated/check-mrm-open-recovery.py docs/mrm-open-recovery.md
+
+EXTRA_DIST += tests/automated/check-mrm-open-close.py docs/mrm-open-close.md
