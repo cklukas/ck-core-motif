@@ -1,3 +1,8 @@
+DataField multibyte progress guard (2026-10-24)
+===============================================
+
+- Stop DataField character counting when `mblen` consumes zero bytes, preventing malformed input from hanging the event loop; see `docs/datafield-mblen-progress.md`.
+
 DataField multibyte scratch bounds (2026-10-24)
 ===============================================
 

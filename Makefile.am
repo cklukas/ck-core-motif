@@ -179,3 +179,5 @@ EXTRA_DIST += tests/automated/check-font-encoding-callback-types.py docs/font-en
 EXTRA_DIST += tests/automated/check-screen-index-scan.py docs/screen-index-scan.md
 
 EXTRA_DIST += tests/automated/check-datafield-multibyte-scratch.py docs/datafield-multibyte-scratch.md
+
+EXTRA_DIST += tests/automated/check-datafield-mblen-progress.py docs/datafield-mblen-progress.md

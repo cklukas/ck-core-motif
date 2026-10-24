@@ -1673,7 +1673,7 @@ _XmDataFieldCountCharacters(
 
    for (bptr = ptr; n_bytes > 0; count++, bptr+= char_size){
       char_size = mblen(bptr, XmTextF_max_char_size(tf));
-      if (char_size < 0) break; /* error */
+      if (char_size <= 0) break; /* invalid sequence or embedded NUL */
       n_bytes -= char_size;
    }
    return count;
