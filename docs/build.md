@@ -93,9 +93,16 @@ For a custom library location use `--libdir` with an absolute directory inside
 the prefix. `--cc` selects the native C compiler. `--only layout`, for example,
 restricts the feature fixtures while still running the installed ABI check.
 
+The clipping event observer needs a private runtime whose Unix socket path fits
+within 100 bytes. For long result paths, supply
+`--accessibility-runtime /absolute/short/fresh/path`; the runner creates it with
+mode0700 and refuses an existing directory. Use `--sanitize` for an ASan/UBSan
+prefix: this instruments the fixtures too and enables strict leak/error checks.
+
 The full suite needs `pkg-config` with Xft, Fontconfig, HarfBuzz and ICU development
 modules, a C11 compiler, `readelf`, `ldd`, Xvfb, `xvfb-run`, `xauth`,
-`dbus-run-session`, `gdbus`, `stdbuf`, Python 3 and real AT-SPI bus/registry
+`dbus-run-session`, `gdbus`, `stdbuf`, Python 3 with its D-Bus and GLib bindings
+(`python3-dbus` and `python3-gi` on Debian), and real AT-SPI bus/registry
 services. The text fixtures require DejaVu Sans and a CJK-capable fallback font.
 Unavailable services or missing font coverage fail their tests; an in-memory
 semantic substitute does not count as an AT-SPI pass.
