@@ -1,3 +1,9 @@
+Mrm icon record bounds (2026-10-25)
+=================================
+
+- Validate icon sizes before passing them to 16-bit Mrm record storage,
+  rejecting null or oversized records; see `docs/mrm-icon-record-bounds.md`.
+
 Mrm extra-argument count bounds (2026-10-25)
 =============================================
 

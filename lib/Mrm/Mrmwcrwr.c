@@ -617,6 +617,7 @@ UrmCWRSetArgValue (URMResourceContextPtr	context_id,
   RGMColorTablePtr	dst_ct ;	/* color table allocated in record */
   RGMIconImagePtr	src_icon ;	/* arg_val as icon pointer */
   RGMIconImagePtr	dst_icon ;	/* icon allocated in record */
+  Cardinal		icon_size ;	/* serialized icon size */
 
 
   /*
@@ -722,8 +723,11 @@ UrmCWRSetArgValue (URMResourceContextPtr	context_id,
 
     case MrmRtypeIconImage:
       src_icon = (RGMIconImagePtr) arg_val ;
+	      icon_size = src_icon ? UrmIconImageSize(src_icon) : 0;
+      if (icon_size == 0 || icon_size > USHRT_MAX)
+	return MrmFAILURE ;
       result = UrmCWR__GuaranteeSpace
-	(context_id, UrmIconImageSize(src_icon), &offset, (char **)&dst_icon) ;
+	(context_id, icon_size, &offset, (char **)&dst_icon) ;
       if ( result != MrmSUCCESS )
 	return result ;
       UrmCopyAllocatedIconImage (dst_icon, src_icon) ;
