@@ -1,3 +1,14 @@
+Color selector label bounds (2026-10-24)
+========================================
+
+- Bound color-name and RGB label formatting with `snprintf`, preserving normal
+  color-selector presentation while preventing long application color names
+  from overwriting the fixed label buffer.
+- Add a source-contract regression and document the behavior in
+  docs/color-selector-label-bounds.md.
+- Native AArch64 libXm build is warning-free and the ColorSelector regression
+  passes.
+
 Input-method locale modifier bounds (2026-10-24)
 ================================================
 

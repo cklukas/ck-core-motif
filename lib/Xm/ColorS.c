@@ -970,12 +970,13 @@ UpdateColorWindow(XmColorSelectorWidget csw, Boolean use_name)
 	if (FindColor(csw, &index)) 
 	{
 	    XmColorS_color_name(csw) = XtNewString(XmColorS_colors(csw)[index].name);
-	    sprintf(new_label, "%s (%s)", XmColorS_color_name(csw), buf);
+	    snprintf(new_label, sizeof(new_label), "%s (%s)",
+		     XmColorS_color_name(csw), buf);
 	}	
 	else 	
 	{	
 	    XmColorS_color_name(csw) = XtNewString(buf);
-	    sprintf(new_label, "%s", buf);
+	    snprintf(new_label, sizeof(new_label), "%s", buf);
 	}
 
 	XtFree((XtPointer)freeMe );
@@ -1006,7 +1007,8 @@ UpdateColorWindow(XmColorSelectorWidget csw, Boolean use_name)
 	    XmColorS_color_name(csw) = XtNewString(XmColorS_colors(csw)[index].name);
 	}
 	sprintf(buf, "#%02x%02x%02x", color.red/256, color.green/256, color.blue/256);
-	sprintf(new_label, "%s (%s)", XmColorS_color_name(csw), buf);
+	snprintf(new_label, sizeof(new_label), "%s (%s)",
+		 XmColorS_color_name(csw), buf);
     }
 
     {
