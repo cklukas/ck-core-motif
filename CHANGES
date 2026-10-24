@@ -1,3 +1,13 @@
+Input-method locale modifier bounds (2026-10-24)
+================================================
+
+- Build the `@im=` locale modifier from an Xt-owned length-checked allocation
+  instead of concatenating the application resource into a fixed stack buffer.
+- Add a source-contract regression and document the behavior in
+  docs/input-method-modifier-bounds.md.
+- Native AArch64 libXm build is warning-free and the input-method regression
+  passes.
+
 Generated real translation bounds (2026-10-24)
 ==============================================
 

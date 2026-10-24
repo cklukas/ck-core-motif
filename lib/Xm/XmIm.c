@@ -35,6 +35,9 @@ static char rcsid[] = "$TOG: XmIm.c /main/28 1997/10/13 14:57:31 cshi $"
 #endif
   
 #include <stdio.h>
+#include <limits.h>
+#include <stdint.h>
+#include <string.h>
 #include <wchar.h>
 #include <wctype.h>
 #include <Xm/DisplayP.h>
@@ -2431,7 +2434,6 @@ static XmImDisplayInfo
 get_xim_info(Widget  widget)
 {
   XmDisplay xmDisplay;
-  char tmp[BUFSIZ];
   char *cp = NULL;
   XmImDisplayInfo xim_info;
   String name, w_class;
@@ -2463,10 +2465,14 @@ get_xim_info(Widget  widget)
   XtVaGetValues(shell, XmNinputMethod, &cp, NULL);
   if (cp != NULL)
     {
-      strcpy(tmp,"@im=");
-      strcat(tmp,cp);
-      assert(strlen(tmp) < BUFSIZ);
-      XSetLocaleModifiers(tmp);
+      size_t cp_length = strlen(cp);
+      if (cp_length <= (size_t)UINT_MAX - 5) {
+        char *tmp = (char *)XtMalloc((Cardinal)(cp_length + 5));
+        memcpy(tmp, "@im=", 4);
+        memcpy(tmp + 4, cp, cp_length + 1);
+        XSetLocaleModifiers(tmp);
+        XtFree(tmp);
+      }
     }
   
   XtGetApplicationNameAndClass(dpy, &name, &w_class);
