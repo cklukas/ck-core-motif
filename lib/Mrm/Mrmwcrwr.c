@@ -1111,7 +1111,7 @@ UrmCWRSetArgCallback (URMResourceContextPtr	context_id ,
   Cardinal		result ;	/* function results */
   RGMArgListDescPtr	argdesc ;	/* arglist desc in record */
   RGMArgumentPtr	argptr ;	/* argument being set */
-  MrmSize		descsiz ;	/* descriptor size */
+  size_t		descsiz ;	/* descriptor size */
   MrmOffset		offset ;	/* RGMCallbackDesc offset */
   RGMCallbackDescPtr	cbdesc ;	/* resource descriptor */
   int			ndx ;		/* loop index */
@@ -1133,7 +1133,10 @@ UrmCWRSetArgCallback (URMResourceContextPtr	context_id ,
    * item is added for a terminating NULL for runtime use as an
    * in-memory list.
    */
-  if ( nitems > RGMListSizeMax )
+  if ( nitems > RGMListSizeMax ||
+       sizeof(RGMCallbackDesc) > USHRT_MAX ||
+       (size_t)nitems >
+	 (USHRT_MAX - sizeof(RGMCallbackDesc)) / sizeof(RGMCallbackItem) )
     return Urm__UT_Error ("UrmCWRSetArgCallback", _MrmMMsg_0109,
 			  NULL, context_id, MrmTOO_MANY) ;
 
@@ -1826,7 +1829,7 @@ UrmCWRSetCreationCallback (URMResourceContextPtr	context_id ,
    */
   Cardinal		result ;	/* function results */
   RGMWidgetRecordPtr	widgetrec ;	/* widget record in context */
-  MrmSize		descsiz ;	/* descriptor size */
+  size_t		descsiz ;	/* descriptor size */
   MrmOffset		offset ;	/* RGMCallbackDesc offset */
   RGMCallbackDescPtr	cbdesc ;	/* resource descriptor */
   int			ndx ;		/* loop index */
@@ -1843,7 +1846,10 @@ UrmCWRSetCreationCallback (URMResourceContextPtr	context_id ,
    * allocate a callback descriptor. Initialize it. As in SetArgCallbac,
    * an extra item is added for runtime use.
    */
-  if ( nitems > RGMListSizeMax )
+  if ( nitems > RGMListSizeMax ||
+       sizeof(RGMCallbackDesc) > USHRT_MAX ||
+       (size_t)nitems >
+	 (USHRT_MAX - sizeof(RGMCallbackDesc)) / sizeof(RGMCallbackItem) )
     return Urm__UT_Error ("UrmCWRSetCreationCallback", _MrmMMsg_0109,
 			  NULL, context_id, MrmTOO_MANY) ;
 
