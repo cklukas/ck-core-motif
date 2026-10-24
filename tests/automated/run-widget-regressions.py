@@ -93,7 +93,7 @@ try:
              "-Wl,-rpath," + str(args.prefix / "lib")]
     if args.sanitize:
         flags += ["-fsanitize=address,undefined,float-cast-overflow", "-fno-omit-frame-pointer"]
-    for name in ("spinbox", "dpi", "list-unicode", "clipwindow"):
+    for name in ("spinbox", "dpi", "list-unicode", "clipwindow", "fontselector"):
         source = sources / ("check-" + name + ".c")
         receipt["sources"][source.name] = hashlib.sha256(source.read_bytes()).hexdigest()
         binary = args.results / ("check-" + name)

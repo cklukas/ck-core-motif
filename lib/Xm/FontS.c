@@ -1393,9 +1393,12 @@ BuildFontString(XmFontSelectorWidget fsw, FontData *cf, String buf, int size)
      * What would I do it I failed?
      */
 
-    sprintf(buf, "-*-%s-%s-%s-*-*-*-%s-%s-%s-%s-*-%s",
-	    family, XrmQuarkToString(cf->weightq), cf->slant, point_size,
-	    res_x, res_y, cf->spacing, encoding);
+    if (size > 0)
+	snprintf(buf, (size_t)size, "-*-%s-%s-%s-*-*-*-%s-%s-%s-%s-*-%s",
+		 family, XrmQuarkToString(cf->weightq), cf->slant, point_size,
+		 res_x, res_y, cf->spacing, encoding);
+    else if (buf != NULL)
+	buf[0] = '\0';
 
     return(buf);
 }

@@ -497,3 +497,10 @@ Development 2.4.0 / PrintShell resolution parsing
   screen-resolution fallback for missing, malformed, non-positive, or
   overflowing values.
 - Add an installed-library parser regression and documentation.
+
+Development 2.4.0 / FontSelector font-string bounds
+====================================================
+
+- Honor the destination size while building FontSelector XLFD strings and
+  guarantee termination for short buffers.
+- Add a public-widget regression and maintenance documentation.
