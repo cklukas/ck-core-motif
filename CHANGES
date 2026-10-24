@@ -1,3 +1,11 @@
+Charset canonicalization null and output bounds (2026-10-24)
+============================================================
+
+- Reject null charset input safely and bound ISO canonical-name formatting,
+  while replacing warning-prone fixed-length copies with explicit byte copies;
+  valid charset results remain unchanged.  See
+  `docs/charset-canonicalization-bounds.md`.
+
 XmTabList debug formatting bounds (2026-10-24)
 ===============================================
 

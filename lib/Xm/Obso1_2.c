@@ -1822,6 +1822,8 @@ _isISO(
         String charset )
 {
   register int	i;
+
+  if (charset == NULL) return (False);
   
   if (strlen(charset) == 5) 
     {
@@ -1840,6 +1842,8 @@ _XmCharsetCanonicalize(
 {
   String	new_s;
   int		len;
+
+  if (charset == NULL) return (NULL);
   
   /* ASCII -> ISO8859-1 */
   if (!strcmp(charset, "ASCII"))
@@ -1847,14 +1851,14 @@ _XmCharsetCanonicalize(
       len = strlen(XmSTRING_ISO8859_1);
       
       new_s = XtMalloc(len + 1);
-      strncpy(new_s, XmSTRING_ISO8859_1, len);
+      memcpy(new_s, XmSTRING_ISO8859_1, len);
       new_s[len] = '\0';
     }
   else if (_isISO(charset))
     {
       /* "ISO####-#" */
       new_s = XtMalloc(3 + 4 + 1 + 1 + 1);
-      sprintf(new_s, "ISO%s", charset);
+      (void) snprintf(new_s, 10, "ISO%s", charset);
       new_s[7] = '-';
       new_s[8] = charset[4];
       new_s[9] = '\0';
@@ -1865,7 +1869,7 @@ _XmCharsetCanonicalize(
       len = strlen(charset);
       
       new_s = XtMalloc(len + 1);
-      strncpy(new_s, charset, len);
+      memcpy(new_s, charset, len);
       new_s[len] = '\0';
     }
   return (new_s);

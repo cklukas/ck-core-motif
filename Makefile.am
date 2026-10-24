@@ -82,6 +82,7 @@ EXTRA_DIST += tests/automated/check-spinbox-name-bounds.py docs/spinbox-name-bou
 EXTRA_DIST += tests/automated/check-column-label-name-bounds.py docs/column-label-name-bounds.md
 EXTRA_DIST += tests/automated/check-xmos-init-path-bounds.py docs/xmos-init-path-bounds.md
 EXTRA_DIST += tests/automated/check-tablist-debug-bounds.py docs/tablist-debug-bounds.md
+EXTRA_DIST += tests/automated/check-charset-canonicalize-bounds.py docs/charset-canonicalization-bounds.md
 
 # Image scaling and malformed-image regression.
 EXTRA_DIST += tests/automated/check-image-scaling.c tests/automated/run-image-regressions.py docs/image-scaling.md
