@@ -1,3 +1,10 @@
+Mwm parser-warning bounds (2026-10-24)
+=======================================
+
+- Dynamically format WSM parser warnings with complete message, line, and file
+  context instead of the fixed `MAXWMPATH` buffer; see
+  `docs/mwm-parser-warning-bounds.md`.
+
 Mwm temporary configuration cleanup (2026-10-24)
 ================================================
 

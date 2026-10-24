@@ -60,6 +60,7 @@ static char rcsid[] = "$XConsortium: WmResParse.c /main/9 1996/11/01 10:17:34 dr
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
 #include <ctype.h>
+#include <stdio.h>
 
 #include <X11/Xlocale.h>
 
@@ -6791,34 +6792,48 @@ PWarning (char *message)
 {
 
 #ifdef WSM
-    char pch[MAXWMPATH+1];
-    String sMessage;
-    char *pchFile;
+    const char *messageText = (message != NULL) ? message : "";
+    const char *pchFile = NULL;
+    const char *managerName = GETMESSAGE(20, 1, "Workspace Manager");
+    int messageLength;
+    char *formattedMessage;
 
-    sMessage = XtNewString ((String) message);
     if (cfileP != NULL)
     {
 	if (pConfigStackTop->fileName)
-	{
 	    pchFile = pConfigStackTop->fileName;
-	}
-	else 
-	{
+	else
 	    pchFile = wmGD.configFile;
-	}
+        if (pchFile == NULL)
+            pchFile = "";
 
-        sprintf (pch, pWarningStringFile,
-                     GETMESSAGE(20,1,"Workspace Manager"), 
-		     sMessage, linec, pchFile);
+        messageLength = snprintf(NULL, 0, pWarningStringFile,
+                                 managerName, messageText, linec, pchFile);
     }
     else
     {
-        sprintf (pch, pWarningStringLine,
-                     GETMESSAGE(20,1,"Workspace Manager"), 
-		     sMessage, linec);
+        messageLength = snprintf(NULL, 0, pWarningStringLine,
+                                 managerName, messageText, linec);
     }
-    _DtSimpleError (wmGD.mwmName, DtIgnore, NULL, pch, NULL);
-    XtFree (sMessage);
+    formattedMessage = (messageLength >= 0) ?
+        (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+    if (formattedMessage != NULL)
+    {
+        if (cfileP != NULL)
+            (void)snprintf(formattedMessage, (size_t)messageLength + 1,
+                           pWarningStringFile, managerName, messageText,
+                           linec, pchFile);
+        else
+            (void)snprintf(formattedMessage, (size_t)messageLength + 1,
+                           pWarningStringLine, managerName, messageText, linec);
+        _DtSimpleError (wmGD.mwmName, DtIgnore, NULL, formattedMessage, NULL);
+        XtFree(formattedMessage);
+    }
+    else
+    {
+        _DtSimpleError (wmGD.mwmName, DtIgnore, NULL,
+                        (char *)messageText, NULL);
+    }
 #else /* WSM */
     if (cfileP != NULL)
     {
