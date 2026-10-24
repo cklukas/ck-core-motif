@@ -4556,7 +4556,8 @@ TabAtom(widget)
 {
     char pid_buf[64];
 
-    sprintf(pid_buf, "ICS_TAB_PID_%d\n", (int)getpid());
+    (void) snprintf(pid_buf, sizeof(pid_buf), "ICS_TAB_PID_%ld\n",
+			(long)getpid());
     return( XmInternAtom(XtDisplay(widget), pid_buf, False) );
 }
 

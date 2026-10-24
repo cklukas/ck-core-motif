@@ -1,3 +1,10 @@
+TabStack atom-name portability (2026-10-24)
+=============================================
+
+- Preserve wide process IDs and bound private atom-name formatting in
+  TabStack, retaining the `ICS_TAB_PID_<pid>` naming contract; see
+  `docs/tabstack-atom-name.md`.
+
 Charset canonicalization null and output bounds (2026-10-24)
 ============================================================
 
