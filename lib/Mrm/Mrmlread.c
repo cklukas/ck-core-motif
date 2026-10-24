@@ -154,6 +154,8 @@ Urm__FetchLiteral (MrmHierarchy			hierarchy_id,
 	    return MrmFAILURE;
 	  RGMFontListPtr fontlist = (RGMFontListPtr)
 	    XtMalloc(sizeof(RGMFontList) + (sizeof(RGMFontItem) * (count - 1)));
+	  if (fontlist == NULL)
+	    return MrmFAILURE;
 	  Urm__CW_FixupValue ((long)fontlist, type, (XtPointer)val, file_id,
 			      &swap_needed);
 	  XtFree((char *)val);

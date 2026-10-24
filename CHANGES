@@ -1,3 +1,9 @@
+Mrm legacy font-list allocation failure (2026-10-25)
+================================================
+
+- Check the converted legacy font-list allocation before replacing the Mrm
+  context buffer; see `docs/mrm-fontlist-allocation.md`.
+
 Mrm module descriptor size bounds (2026-10-25)
 ===============================================
 
