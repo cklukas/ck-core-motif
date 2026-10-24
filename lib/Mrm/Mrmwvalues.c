@@ -137,7 +137,7 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
   ArgList		locargs ;	/* local arglist */
   Cardinal		num_used = 0 ;	/* # args used in arglist */
   RGMResourceDescPtr	resptr ;	/* descriptor for literals */
-  int			indexlen = 0 ;	/* longest literal length */
+  size_t		indexlen = 0 ;	/* longest literal length */
   URMPointerListPtr	ptrlist ;	/* to hold scratch contexts */
   int			ndx ;		/* loop index */
   IDBFile		file_id ;	/* file from which literal read */
@@ -168,11 +168,20 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
    * which can hold it. Set the fixed fields of the descriptor.
    */
   for ( ndx=0 ; ndx<num_args ; ndx++ )
-    indexlen = MAX (indexlen, strlen((char*)args[ndx].value)) ;
+    {
+      size_t literal_len = strlen((char*)args[ndx].value);
+      if (literal_len > indexlen)
+	indexlen = literal_len;
+    }
 
   /*
    * Create a resource descriptor which can be reused to fetch each literal
    */
+  if (indexlen > SIZE_MAX - sizeof(RGMResourceDesc))
+    {
+      XtFree((char *)locargs);
+      return MrmFAILURE;
+    }
   resptr = (RGMResourceDescPtr) XtMalloc (sizeof(RGMResourceDesc)+indexlen) ;
   resptr->access = URMaPublic ;
   resptr->type = URMrIndex ;

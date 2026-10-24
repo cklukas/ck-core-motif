@@ -1,3 +1,10 @@
+Mrm literal-index string bounds (2026-10-25)
+=============================================
+
+- Keep Mrm literal-index lengths in size_t and check descriptor sizing before
+  allocation, preventing long-name narrowing and wraparound; see
+  `docs/mrm-string-bounds.md`.
+
 Mrm legacy font-list bounds (2026-10-25)
 ========================================
 
