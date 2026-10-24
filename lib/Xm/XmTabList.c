@@ -710,7 +710,7 @@ units_image(XtEnum units)
     case XmFONT_UNITS:
       return "fu";
     default:
-      sprintf(buf, "<Unknown units %d>", units);
+      snprintf(buf, sizeof(buf), "<Unknown units %d>", units);
       return buf;
     }
 }
@@ -727,7 +727,7 @@ model_image(XmOffsetModel model)
     case XmRELATIVE:
       return "rel.";
     default:
-      sprintf(buf, "<Unknown model %d>", model);
+      snprintf(buf, sizeof(buf), "<Unknown model %d>", model);
       return buf;
     }
 }
@@ -746,7 +746,7 @@ alignment_image(XtEnum alignment)
     case XmALIGNMENT_END:
       return "end";
     default:
-      sprintf(buf, "<Unknown alignment %d>", alignment);
+      snprintf(buf, sizeof(buf), "<Unknown alignment %d>", alignment);
       return buf;
     }
 }

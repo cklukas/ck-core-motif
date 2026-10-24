@@ -1,3 +1,11 @@
+XmTabList debug formatting bounds (2026-10-24)
+===============================================
+
+- Bound unknown unit, model, and alignment descriptions in the optional
+  XmTabList debug dump, preserving diagnostic text while preventing malformed
+  enum values from overrunning static buffers; see
+  `docs/tablist-debug-bounds.md`.
+
 Xmos default path formatting bounds (2026-10-24)
 ================================================
 
