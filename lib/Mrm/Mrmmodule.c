@@ -246,6 +246,7 @@ UrmIFMSetTopmost (URMResourceContextPtr		context_id ,
    *  Local variables
    */
   RGMModuleDescPtr	ifmodptr ;	/* IF module in context */
+  size_t		index_len ;	/* index length */
 
 
   /*
@@ -260,10 +261,16 @@ UrmIFMSetTopmost (URMResourceContextPtr		context_id ,
     return Urm__UT_Error ("UrmIFMSetTopmost", _MrmMMsg_0045,
 			  NULL, context_id, MrmOUT_OF_BOUNDS) ;
 
+  if ( index == NULL )
+    return MrmFAILURE;
+  index_len = strlen(index);
+  if ( index_len > URMMaxIndexLen )
+    return MrmFAILURE;
+
   /*
-   * Copy in index, and return
+   * Copy in index, replacing any prior value, and return.
    */
-  strncat (ifmodptr->topmost[topmost_ndx].index, index, URMMaxIndexLen) ;
+  memcpy (ifmodptr->topmost[topmost_ndx].index, index, index_len + 1);
 
   return MrmSUCCESS ;
 

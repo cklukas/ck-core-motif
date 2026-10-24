@@ -431,3 +431,4 @@ EXTRA_DIST += tests/automated/check-mrm-error-allocation.py docs/mrm-error-alloc
 EXTRA_DIST += tests/automated/check-mrm-buffer-pool-size.py docs/mrm-buffer-pool-size.md
 EXTRA_DIST += tests/automated/check-mrm-writer-vector-input.py docs/mrm-writer-vector-input.md
 EXTRA_DIST += tests/automated/check-mrm-writer-scalar-input.py docs/mrm-writer-scalar-input.md
+EXTRA_DIST += tests/automated/check-mrm-topmost-index.py docs/mrm-topmost-index.md

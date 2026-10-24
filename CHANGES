@@ -2973,3 +2973,10 @@ Mrm writer scalar input validation (2026-10-25)
 
 - Reject null floating-point and color-table values before Mrm UID writer
   dereferences them; see `docs/mrm-writer-scalar-input.md`.
+
+Mrm topmost index validation (2026-10-25)
+=========================================
+
+- Validate fixed-width interface-module topmost indices and replace previous
+  values instead of appending unchecked text; see
+  `docs/mrm-topmost-index.md`.
