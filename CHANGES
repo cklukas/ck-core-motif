@@ -1,3 +1,10 @@
+Mrm icon diagnostic bounds (2026-10-25)
+=======================================
+
+- Bound icon and color diagnostic formatting in fixed-size Mrm buffers,
+  preserving normal messages while safely truncating long filenames and color
+  names; see `docs/mrm-icon-error-bounds.md`.
+
 Mrm error-format bounds (2026-10-25)
 ===================================
 

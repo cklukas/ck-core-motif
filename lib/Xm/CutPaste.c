@@ -34,6 +34,7 @@ static char rcsid[] = "$TOG: CutPaste.c /main/27 1999/05/26 17:42:48 samborn $"
 #include <Xm/CutPaste.h>
 #include "MessagesI.h"
 #include "CutPasteI.h"
+#include <limits.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -1082,14 +1083,18 @@ GetWindowProperty(
     int ret_value;
     Atom loc_type;
     unsigned long bytes_left;
-    unsigned long cur_length;
+    size_t cur_length;
     unsigned char *loc_pointer;
     unsigned long this_length;
     char *cur_pointer;
     int loc_format;
     long request_size;
-    long offset;
-    int byte_length;
+    unsigned long offset;
+    size_t byte_length;
+    size_t allocation_limit;
+    size_t unit;
+    size_t new_length;
+    unsigned long offset_units;
 
 
     loc_pointer = NULL;
@@ -1097,6 +1102,7 @@ GetWindowProperty(
     offset = 0;
     cur_length = 0;
     cur_pointer = NULL;
+    allocation_limit = (size_t)(Cardinal)-1;
 
     *outpointer = 0;
     *outlength = 0;
@@ -1119,8 +1125,8 @@ GetWindowProperty(
 					&bytes_left,
 					&loc_pointer );
 
-        if ( ret_value != 0 ) 
-            return ClipboardFail;
+	if ( ret_value != 0 )
+	    goto failure;
 
         if ( loc_pointer == 0 || this_length == 0 )
         {
@@ -1128,27 +1134,58 @@ GetWindowProperty(
             {
                 XDeleteProperty( display, window, property_atom );
 	    }
-	    if (loc_pointer != NULL) XFree ((char *)loc_pointer);
-            return ClipboardFail;
+	    if (loc_pointer != NULL) {
+		XFree ((char *)loc_pointer);
+		loc_pointer = NULL;
+	    }
+	    goto failure;
 	  }
 
-        /* convert length according to format */
-        byte_length = BYTELENGTH( this_length, loc_format );
-
-	if ( cur_length == 0 )
+	/* XGetWindowProperty reports format-32 values as native longs, while
+	 * bytes_left and the property offset remain in four-byte wire units.
+	 * Allocate and account for each native chunk independently; reserving
+	 * bytes_left as if it used the same unit underallocates LP64 format-32
+	 * properties that cross a request boundary. */
+	if (loc_format == 8)
+	    unit = 1;
+	else if (loc_format == 16)
+	    unit = sizeof(short);
+	else if (loc_format == 32)
+	    unit = sizeof(long);
+	else
+	    goto failure;
+	if ((size_t)this_length > allocation_limit / unit)
+	    goto failure;
+	byte_length = (size_t)this_length * unit;
+	if (cur_length > allocation_limit - byte_length)
+	    goto failure;
+	new_length = cur_length + byte_length;
+	if (cur_pointer == NULL)
 	{
-	    cur_pointer = XtMalloc((size_t)(byte_length + bytes_left));
-	    /* Size arg. is truncated if sizeof( long) > sizeof( size_t) */
+	    cur_pointer = XtMalloc((Cardinal)new_length);
 	    *outpointer = cur_pointer;
 	}
-
-	memcpy(cur_pointer, loc_pointer, (size_t) byte_length );
-	cur_pointer = cur_pointer + byte_length;
-	cur_length  = cur_length  + byte_length;
-	offset += loc_format * this_length / 32;
+	else
+	{
+	    cur_pointer = XtRealloc(cur_pointer, (Cardinal)new_length);
+	    *outpointer = cur_pointer;
+	}
+	if (cur_pointer == NULL)
+	    goto failure;
+	memcpy(cur_pointer + cur_length, loc_pointer, byte_length);
+	cur_length = new_length;
+	if ((unsigned long)this_length > ULONG_MAX / (unsigned long)loc_format)
+	    goto failure;
+	offset_units = ((unsigned long)loc_format * this_length) / 32;
+	if (offset_units > (unsigned long)LONG_MAX - offset)
+	    goto failure;
+	offset += offset_units;
 
 	if (loc_pointer != NULL)
+	{
 		XFree ((char *)loc_pointer);
+		loc_pointer = NULL;
+	}
     }
 
     if ( delete_flag )
@@ -1186,9 +1223,20 @@ GetWindowProperty(
       XFree(temp);
     }
 
-    *outlength = cur_length;
+    *outlength = (unsigned long)cur_length;
 
     return ClipboardSuccess;
+
+failure:
+    if (loc_pointer != NULL)
+	XFree ((char *)loc_pointer);
+    if (cur_pointer != NULL)
+	XtFree (cur_pointer);
+    *outpointer = NULL;
+    *outlength = 0;
+    if (delete_flag)
+	XDeleteProperty(display, window, property_atom);
+    return ClipboardFail;
 }
 
 /*---------------------------------------------*/
