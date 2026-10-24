@@ -325,3 +325,4 @@ EXTRA_DIST += tests/automated/check-mrm-child-repair-bounds.py docs/mrm-child-re
 EXTRA_DIST += tests/automated/check-mrm-index-read-bounds.py docs/mrm-index-read-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-btree-record-bounds.py docs/mrm-btree-record-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-rid-inputs.py docs/mrm-rid-inputs.md
+EXTRA_DIST += tests/automated/check-mrm-header-inputs.py docs/mrm-header-inputs.md

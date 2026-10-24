@@ -1,3 +1,9 @@
+Mrm header helper input checks (2026-10-25)
+=============================================
+
+- Validate header handles and record allocations before accessing header fields;
+  see `docs/mrm-header-inputs.md`.
+
 Mrm resource-ID input checks (2026-10-25)
 ==========================================
 

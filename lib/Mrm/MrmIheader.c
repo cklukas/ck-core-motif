@@ -91,7 +91,8 @@ static char rcsid[] = "$XConsortium: MrmIheader.c /main/16 1996/11/13 13:56:56 d
  * Macros which validate index records in buffers
  */
 #define	Idb__HDR_ValidRecord(buffer) \
-     (_IdbBufferRecordType(buffer)==IDBrtHeader)
+     ((buffer) != NULL && (buffer)->IDB_record != NULL && \
+      _IdbBufferRecordType(buffer)==IDBrtHeader)
 
 
 
@@ -177,6 +178,9 @@ Idb__HDR_GetHeader (IDBFile		file_id)
   char			errmsg[300];
   int			file_major, file_minor;	  /* version numbers of file */
   int			db_major, db_minor;	  /* version nums of database */
+
+  if (file_id == NULL)
+    return MrmFAILURE;
 
   /*
    * Get the header record
@@ -326,7 +330,8 @@ Idb__HDR_InitHeader (IDBFile		file_id,
    */
   result = Idb__BM_InitRecord (file_id, IDBHeaderRecordNumber,
 			       IDBrtHeader, &hdrbuf);
-  if ( result != MrmSUCCESS ) return result;
+  if ( result != MrmSUCCESS || hdrbuf == NULL || hdrbuf->IDB_record == NULL )
+    return result == MrmSUCCESS ? MrmFAILURE : result;
   recptr = (IDBHeaderRecordPtr) hdrbuf->IDB_record;
   hdrptr = (IDBHeaderHdrPtr) &recptr->header_hdr;
 
@@ -432,6 +437,9 @@ Idb__HDR_PutHeader (IDBFile		file_id)
   IDBRecordBufferPtr	hdrbuf;		/* header record buffer */
 
 
+  if (file_id == NULL)
+    return MrmFAILURE;
+
   result = Idb__HDR_UpdateHeader (file_id, &hdrbuf);
   if ( result != MrmSUCCESS ) return result;
 
@@ -485,6 +493,9 @@ Idb__HDR_UpdateHeader (IDBFile			file_id,
   IDBHeaderHdrPtr	hdrptr;		/* record header */
   int			ndx;		/* loop index */
 
+
+  if (file_id == NULL || buffer == NULL)
+    return MrmFAILURE;
 
   /*
    * Get the header record
@@ -570,6 +581,9 @@ Idb__HDR_EnterItem (IDBFile		file_id,
   IDBResourceIndex	resndx;		/* to check resource index */
   IDBRecordNumber	recno;		/* Map record record number */
 
+
+  if (file_id == NULL)
+    return MrmFAILURE;
 
   /*
    * Get the header record.
@@ -658,6 +672,9 @@ Idb__HDR_ReturnItem (IDBFile		file_id,
   IDBResourceIndex	resndx;		/* to check resource index */
   IDBRecordNumber	recno;		/* Map record record number */
 
+
+  if (file_id == NULL || entry_return == NULL)
+    return MrmFAILURE;
 
   /*
    * Get the header record
