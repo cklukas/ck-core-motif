@@ -440,7 +440,8 @@ UrmPlistFindString (URMPointerListPtr		list_id ,
     return -1;
 
   for ( ndx=0 ; ndx<UrmPlistNum(list_id) ; ndx++ )
-    if ( strcmp(stg,(String)UrmPlistPtrN(list_id,ndx)) == 0 )
+    if ( UrmPlistPtrN(list_id,ndx) != NULL &&
+	 strcmp(stg,(String)UrmPlistPtrN(list_id,ndx)) == 0 )
       return ndx ;
   return -1 ;
 

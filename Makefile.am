@@ -379,3 +379,5 @@ EXTRA_DIST += tests/automated/check-mrm-pointer-list-cleanup.py docs/mrm-pointer
 EXTRA_DIST += tests/automated/check-mrm-pointer-list-init-cleanup.py docs/mrm-pointer-list-init-cleanup.md
 
 EXTRA_DIST += tests/automated/check-mrm-pointer-list-free.py docs/mrm-pointer-list-free.md
+
+EXTRA_DIST += tests/automated/check-mrm-pointer-list-search.py docs/mrm-pointer-list-search.md
