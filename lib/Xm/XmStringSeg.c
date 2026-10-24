@@ -144,6 +144,13 @@ _XmStringGetSegment(_XmStringContext   context,
 	      if ((*tag_count == 0) && _XmStrContRendCount(local_context))
 		{
 		  *tag_count = _XmStrContRendCount(local_context);
+		  if ((size_t)*tag_count > SIZE_MAX / sizeof(XmStringTag))
+		    {
+		      *tag_count = 0;
+		      result = FALSE;
+		      done = TRUE;
+		      break;
+		    }
 		  if (copy_data)
 		    {
 		      int tmp;
@@ -212,6 +219,13 @@ _XmStringGetSegment(_XmStringContext   context,
 	      if ((*tag_count == 0) && _XmStrContRendCount(local_context))
 		{
 		  *tag_count = _XmStrContRendCount(local_context);
+		    if ((size_t)*tag_count > SIZE_MAX / sizeof(XmStringTag))
+		      {
+			*tag_count = 0;
+			result = FALSE;
+			done = TRUE;
+			break;
+		      }
 		  if (copy_data)
 		    {
 		      int tmp;

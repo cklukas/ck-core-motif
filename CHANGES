@@ -1,3 +1,10 @@
+XmString rendition-tag allocation bounds (2026-10-25)
+=====================================================
+
+- Reject unrepresentable rendition-tag counts before segment parsing allocates
+  tag arrays, preserving normal segment ownership and ordering; see
+  `docs/xmstring-rendition-bounds.md`.
+
 Default font-cache allocation bounds (2026-10-25)
 ================================================
 
