@@ -512,3 +512,10 @@ Development 2.4.0 / XmString multibyte conversion bounds
   strings to multibyte text, rejecting component-size overflow before
   allocation.
 - Add a conversion regression and maintenance documentation.
+
+Development 2.4.0 / RowColumn accelerator storage
+==================================================
+
+- Grow generated RowColumn accelerator strings on demand with checked size
+  arithmetic instead of writing into a fixed stack buffer.
+- Add a public MenuBar regression and maintenance documentation.

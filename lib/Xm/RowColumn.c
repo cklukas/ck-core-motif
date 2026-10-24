@@ -31,6 +31,7 @@ static char rcsid[] = "$TOG: RowColumn.c /main/25 1998/07/22 15:41:49 mgreess $"
 
 #include <stdio.h>
 #include <ctype.h>
+#include <stdint.h>
 #include "XmI.h"
 #include <Xm/BaseClassP.h>
 #include <Xm/DisplayP.h>
@@ -2397,6 +2398,32 @@ GeometryManager(
 }
 
 
+static Boolean
+AppendRealKeyText(String *buffer, size_t *capacity, size_t *used,
+                  const char *text)
+{
+   size_t length = strlen(text);
+   size_t required;
+
+   if (length > SIZE_MAX - *used - 1)
+     return False;
+   required = *used + length + 1;
+   if (required > *capacity) {
+      size_t next = *capacity;
+      while (next < required) {
+	 if (next > SIZE_MAX / 2)
+	   next = required;
+	 else
+	   next *= 2;
+      }
+      *buffer = (String)XtRealloc(*buffer, next);
+      *capacity = next;
+   }
+   memcpy(*buffer + *used, text, length + 1);
+   *used += length;
+   return True;
+}
+
 static char * 
 GetRealKey(
         XmRowColumnWidget rc,
@@ -2404,8 +2431,9 @@ GetRealKey(
 {
    KeySym   keysym;
    Modifiers mods;
-   char buf[1000];
-   char *tmp = buf;
+   String buf;
+   size_t capacity = 256;
+   size_t used = 0;
    char *ks;
    int num_keys;
    XmKeyBinding keys;
@@ -2414,34 +2442,42 @@ GetRealKey(
    if (keysym == NoSymbol) 
       return(NULL);
             
-   *tmp = '\0';
+   buf = (String)XtMalloc(capacity);
+   buf[0] = '\0';
    num_keys = XmeVirtualToActualKeysyms(XtDisplay(rc), keysym, &keys);
    while (--num_keys >= 0)
      if ((ks = XKeysymToString(keys[num_keys].keysym)) != NULL)
        {
 	 mods = keys[num_keys].modifiers;
 	 if (mods & ControlMask)
-	   strcpy(tmp, "Ctrl ");
+	   if (!AppendRealKeyText(&buf, &capacity, &used, "Ctrl "))
+	     break;
 	 
 	 if (mods & ShiftMask)
-	   strcat(tmp, "Shift ");
+	   if (!AppendRealKeyText(&buf, &capacity, &used, "Shift "))
+	     break;
 	 
 	 if (mods & Mod1Mask) 
-	   strcat(tmp, "Alt ");
+	   if (!AppendRealKeyText(&buf, &capacity, &used, "Alt "))
+	     break;
 	 
-	 strcat(tmp,"<KeyUp>");
-	 strcat(tmp, ks);
+	 if (!AppendRealKeyText(&buf, &capacity, &used, "<KeyUp>") ||
+	     !AppendRealKeyText(&buf, &capacity, &used, ks))
+	   break;
 	 
 	 if (num_keys > 0)
-	   strcat(tmp, ", ");
-	 tmp += strlen(tmp);
+	   if (!AppendRealKeyText(&buf, &capacity, &used, ", "))
+	     break;
        }
    XtFree((char*) keys);
 
-   if (tmp != buf)
-     return XtNewString(buf);
-   else
-     return NULL;
+   if (used != 0) {
+     char *result = XtNewString(buf);
+     XtFree(buf);
+     return result;
+   }
+   XtFree(buf);
+   return NULL;
 }
 
 static void 
