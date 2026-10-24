@@ -150,11 +150,20 @@ Idb__FU_OpenFile (char 			*name,
       if (file_desc != FAILURE)		/* filename already exists. */
 	{
 	  if (os_ext == 0)
+	    {
+	    (void) close (file_desc);
 	    return MrmFAILURE;
+	    }
 	  else if (!os_ext->nam_flg.clobber_flg)
+	    {
+	    (void) close (file_desc);
 	    return MrmEXISTS;		/* no clobber. return Exists */
+	    }
 	  else if (os_ext->version != MrmOsOpenParamVersion)
+	    {
+	    (void) close (file_desc);
 	    return MrmFAILURE;
+	    }
 	  (void) close (file_desc);	/* we care not what close returns*/
 	}
 

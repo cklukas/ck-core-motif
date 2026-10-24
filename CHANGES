@@ -1,3 +1,8 @@
+Mrm IDB write-conflict cleanup (2026-10-25)
+============================================
+
+- Close existing descriptors before returning from write-open conflicts caused by missing, non-clobbering, or incompatible OS extension parameters; see `docs/mrm-idb-write-conflict-cleanup.md`.
+
 Mrm IDB close status and cleanup (2026-10-25)
 ===============================================
 
