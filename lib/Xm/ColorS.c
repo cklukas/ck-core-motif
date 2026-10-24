@@ -1301,8 +1301,9 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 		continue;
 
 	    len = strlen(color_name);
-	    if (len > XmColorSelector_COLOR_NAME_SIZE) {
+	    if (len >= XmColorSelector_COLOR_NAME_SIZE) {
 		color_name[XmColorSelector_COLOR_NAME_SIZE - 1] = '\0';
+		len = XmColorSelector_COLOR_NAME_SIZE - 1;
 		snprintf(string_buffer, BUFSIZ,
 			 XmNcolorNameTooLongMsg, buf, color_name);
 		XmeWarning((Widget)csw, string_buffer);

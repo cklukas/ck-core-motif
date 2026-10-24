@@ -1,3 +1,5 @@
+* Bound color-name normalization after truncating names at the fixed record
+  limit, preventing overlong database entries from overflowing buffers.
 * Reject malformed color database lines that do not contain three RGB channel
   values before using the parsed color record.
 * Validate null arguments at the XmeParseUnits API boundary, returning
