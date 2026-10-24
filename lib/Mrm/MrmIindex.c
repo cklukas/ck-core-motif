@@ -99,6 +99,19 @@ static char rcsid[] = "$XConsortium: MrmIindex.c /main/13 1996/11/13 13:57:31 dr
       (_IdbBufferRecordType(buffer)==IDBrtIndexLeaf ||  \
        _IdbBufferRecordType(buffer)==IDBrtIndexNode))
 
+static Boolean
+Idb__INX_StringTerminated (char *base, MrmOffset offset, MrmCount capacity)
+{
+  MrmCount available;
+
+  if (base == NULL || offset >= capacity)
+    return FALSE;
+  available = capacity - offset;
+  if (available > IDBMaxIndexLength1)
+    available = IDBMaxIndexLength1;
+  return strnlen (base + offset, available) < available;
+}
+
 
 
 /*
@@ -413,7 +426,7 @@ Idb__INX_SearchIndex (IDBFile			file_id,
       if (stg_offs >= record_free_max)
         return MrmBAD_RECORD;
       ndxstg = (char *) stgbase + stg_offs ;
-      if (strnlen (ndxstg, IDBMaxIndexLength1) == IDBMaxIndexLength1)
+      if (!Idb__INX_StringTerminated (stgbase, stg_offs, record_free_max))
         return MrmBAD_RECORD;
       cmpres = strncmp (index, ndxstg, IDBMaxIndexLength) ;
       if ( cmpres == 0 ) return MrmSUCCESS ;
@@ -629,9 +642,9 @@ Idb__INX_FindResources (IDBFile			file_id,
       for ( entndx=0 ; entndx<ndxcnt ; entndx++ )
 	{
 	  IDBDataHandle	entry_data;
-	  if (leaf_ndxvec[entndx].index_stg >= IDBIndexLeafFreeMax ||
-	      strnlen (stgbase + leaf_ndxvec[entndx].index_stg,
-                IDBMaxIndexLength1) == IDBMaxIndexLength1)
+	  if (!Idb__INX_StringTerminated
+		(stgbase, leaf_ndxvec[entndx].index_stg,
+		 IDBIndexLeafFreeMax))
 	    return MrmBAD_RECORD;
 
 	  entry_data.rec_no = leaf_ndxvec[entndx].data.internal_id.rec_no;
@@ -675,9 +688,9 @@ Idb__INX_FindResources (IDBFile			file_id,
       for ( entndx=0 ; entndx<ndxcnt ; entndx++ )
 	{
 	  IDBDataHandle	entry_data;
-	  if (node_ndxvec[entndx].index_stg >= IDBIndexNodeFreeMax ||
-	      strnlen (stgbase + node_ndxvec[entndx].index_stg,
-                IDBMaxIndexLength1) == IDBMaxIndexLength1)
+	  if (!Idb__INX_StringTerminated
+		(stgbase, node_ndxvec[entndx].index_stg,
+		 IDBIndexNodeFreeMax))
 	    return MrmBAD_RECORD;
 
 	  entry_data.rec_no = node_ndxvec[entndx].data.internal_id.rec_no;

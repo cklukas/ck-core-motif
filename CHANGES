@@ -1,4 +1,7 @@
 2026-10-26
+	* Bound Mrm index string scans by remaining record capacity.
+
+2026-10-26
 	* Propagate Mrm index result-list append failures.
 
 2026-10-26
