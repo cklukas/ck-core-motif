@@ -1,3 +1,5 @@
+* Bound text-property item concatenation sizes before allocation, returning
+  XNoMemory instead of allowing integer wraparound.
 * Fix UTF-8 XmString resource conversion to advance output lengths by the
   converted byte count and reject aggregate length overflow.
 XmeMicroSleep duration handling (2026-10-24)

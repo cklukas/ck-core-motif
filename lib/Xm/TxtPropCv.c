@@ -97,14 +97,24 @@ TextPropertyToSingleTextItem(Display *display, XTextProperty *text_prop,
     {
 	/* If we got back more than one string, then
 	   let's concatenate them all together. */
-	int i, length = 0;
+	int i;
+	size_t length = 0;
 	char *newstring;
 	
 	/* First figure out how big the final string will be */
 	for (i = 0; i < count; ++i)
-	  length += strlen(textlist[i]);
+	  {
+	    size_t item_length = strlen(textlist[i]);
+	    if (item_length > SIZE_MAX - length ||
+		length + item_length == SIZE_MAX)
+	      {
+		XFreeStringList(textlist);
+		return(XNoMemory);
+	      }
+	    length += item_length;
+	  }
 	/* Allocate a buffer and jam all the strings into it */
-	newstring = (char *)XtMalloc(sizeof(char)*(length+1));
+	newstring = (char *)XtMalloc(length + 1);
 	newstring[0] = '\0';
 	for (i = 0; i < count; ++i)
 	  strcat(newstring, textlist[i]);
