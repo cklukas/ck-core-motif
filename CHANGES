@@ -1,3 +1,10 @@
+Mrm UID header string bounds (2026-10-25)
+========================================
+
+- Validate NUL termination inside fixed-width UID header fields before copying
+  them into memory, preserving valid headers while rejecting malformed data
+  that could overread adjacent fields; see `docs/mrm-header-string-bounds.md`.
+
 Mrm file-open input validation (2026-10-25)
 ===========================================
 

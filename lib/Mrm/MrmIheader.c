@@ -61,6 +61,7 @@ static char rcsid[] = "$XConsortium: MrmIheader.c /main/16 1996/11/13 13:56:56 d
  */
 
 #include <stdio.h>
+#include <string.h>
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
 #include <Mrm/IDB.h>
@@ -106,6 +107,24 @@ static char rcsid[] = "$XConsortium: MrmIheader.c /main/16 1996/11/13 13:56:56 d
  */
 
 static XmConst	char *idb__database_version = URMversion;
+
+static Cardinal
+Idb__HDR_CopyField (char *destination,
+		    size_t destination_size,
+		    const char *source,
+		    size_t source_size)
+{
+  const char *terminator = (const char *)memchr(source, '\0', source_size);
+  size_t length;
+
+  if (terminator == NULL)
+    return MrmNOT_VALID;
+  length = (size_t)(terminator - source);
+  if (length >= destination_size)
+    return MrmNOT_VALID;
+  memcpy(destination, source, length + 1);
+  return MrmSUCCESS;
+}
 
 
 
@@ -186,12 +205,23 @@ Idb__HDR_GetHeader (IDBFile		file_id)
   for ( ndx=URMgMin ; ndx<=URMgMax ; ndx++ )
     file_id->group_counts[ndx] = hdrptr->group_counts[ndx];
 
-  strcpy (file_id->db_version, hdrptr->db_version);
-  strcpy (file_id->creator, hdrptr->creator);
-  strcpy (file_id->creator_version, hdrptr->creator_version);
-  strcpy (file_id->creation_date, hdrptr->creation_date);
-  strcpy (file_id->module, hdrptr->module);
-  strcpy (file_id->module_version, hdrptr->module_version);
+  if (Idb__HDR_CopyField(file_id->db_version, sizeof(file_id->db_version),
+			 hdrptr->db_version, sizeof(hdrptr->db_version)) != MrmSUCCESS ||
+      Idb__HDR_CopyField(file_id->creator, sizeof(file_id->creator),
+			 hdrptr->creator, sizeof(hdrptr->creator)) != MrmSUCCESS ||
+      Idb__HDR_CopyField(file_id->creator_version,
+			 sizeof(file_id->creator_version), hdrptr->creator_version,
+			 sizeof(hdrptr->creator_version)) != MrmSUCCESS ||
+      Idb__HDR_CopyField(file_id->creation_date,
+			 sizeof(file_id->creation_date), hdrptr->creation_date,
+			 sizeof(hdrptr->creation_date)) != MrmSUCCESS ||
+      Idb__HDR_CopyField(file_id->module, sizeof(file_id->module),
+			 hdrptr->module, sizeof(hdrptr->module)) != MrmSUCCESS ||
+      Idb__HDR_CopyField(file_id->module_version,
+			 sizeof(file_id->module_version), hdrptr->module_version,
+			 sizeof(hdrptr->module_version)) != MrmSUCCESS)
+    return Urm__UT_Error("Idb__HDR_GetHeader", _MrmMMsg_0010,
+				 file_id, NULL, MrmNOT_VALID);
 
   /*
    * Header successfully read. Leave the buffer committed in case data
