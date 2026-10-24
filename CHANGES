@@ -1,3 +1,10 @@
+Mrm index collapse bounds (2026-10-25)
+=======================================
+
+- Validate index-collapse record ranges, string offsets, and temporary-heap
+  sizes before copying malformed records; see
+  `docs/mrm-index-collapse-bounds.md`.
+
 Mrm index-record copy guards (2026-10-25)
 ===========================================
 

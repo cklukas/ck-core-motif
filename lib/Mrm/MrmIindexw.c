@@ -1224,6 +1224,15 @@ Idb__INX_CollapseLeafRecord (IDBIndexLeafRecordPtr	recptr,
   MrmCount		nfree ;		/* # free bytes in collapsed record */
   MrmOffset		heap_start ;	/* new heap start offset */
 
+  if (recptr == NULL || end < start)
+    return ;
+
+  hdrptr = (IDBIndexLeafHdrPtr) &recptr->leaf_header ;
+  if (hdrptr->index_count > IDBIndexLeafFreeMax / IDBIndexLeafEntrySize ||
+      start >= hdrptr->index_count || end >= hdrptr->index_count ||
+      hdrptr->heap_start > IDBIndexLeafFreeMax)
+    return ;
+
 
   /*
    * Allocate a temporary heap (big enough to hold data area). Copy each
@@ -1235,6 +1244,8 @@ Idb__INX_CollapseLeafRecord (IDBIndexLeafRecordPtr	recptr,
    * The new offset is set as part of this operation.
    */
   temp_heap = (char *) XtMalloc (IDBIndexLeafFreeMax) ;
+  if (temp_heap == NULL)
+    return ;
   cur_heap = temp_heap ;
   heap_size = 0 ;
 
@@ -1248,10 +1259,22 @@ Idb__INX_CollapseLeafRecord (IDBIndexLeafRecordPtr	recptr,
     {
       dstvec[ndx].data = srcvec[ndx].data ;
       ndxstg = (char *) stgbase + srcvec[ndx].index_stg ;
+      if (srcvec[ndx].index_stg >= IDBIndexLeafFreeMax ||
+          strnlen (ndxstg, IDBIndexLeafFreeMax - srcvec[ndx].index_stg) ==
+          IDBIndexLeafFreeMax - srcvec[ndx].index_stg)
+        {
+          XtFree (temp_heap) ;
+          return ;
+        }
       strcpy (cur_heap, ndxstg) ;
       dstvec[ndx].index_stg = (MrmOffset) (cur_heap - temp_heap) ;
       stgsiz = strlen(cur_heap) + 1 ;
       stgsiz = _FULLWORD(stgsiz);
+      if (stgsiz > IDBIndexLeafFreeMax - heap_size)
+        {
+          XtFree (temp_heap) ;
+          return ;
+        }
       cur_heap += stgsiz ;
       heap_size += stgsiz ;
     }
@@ -1330,6 +1353,15 @@ Idb__INX_CollapseNodeRecord (IDBIndexNodeRecordPtr	recptr,
   MrmCount		nfree ;		/* # free bytes in collapsed record */
   MrmOffset		heap_start ;	/* new heap start offset */
 
+  if (recptr == NULL || end < start)
+    return ;
+
+  hdrptr = (IDBIndexNodeHdrPtr) &recptr->node_header ;
+  if (hdrptr->index_count > IDBIndexNodeFreeMax / IDBIndexNodeEntrySize ||
+      start >= hdrptr->index_count || end >= hdrptr->index_count ||
+      hdrptr->heap_start > IDBIndexNodeFreeMax)
+    return ;
+
 
   /*
    * Allocate a temporary heap (big enough to hold data area). Copy each
@@ -1341,6 +1373,8 @@ Idb__INX_CollapseNodeRecord (IDBIndexNodeRecordPtr	recptr,
    * The new offset is set as part of this operation.
    */
   temp_heap = (char *) XtMalloc (IDBIndexNodeFreeMax) ;
+  if (temp_heap == NULL)
+    return ;
   cur_heap = temp_heap ;
   heap_size = 0 ;
 
@@ -1356,10 +1390,22 @@ Idb__INX_CollapseNodeRecord (IDBIndexNodeRecordPtr	recptr,
       dstvec[ndx].LT_record = srcvec[ndx].LT_record ;
       dstvec[ndx].GT_record = srcvec[ndx].GT_record ;
       ndxstg = (char *) stgbase + srcvec[ndx].index_stg ;
+      if (srcvec[ndx].index_stg >= IDBIndexNodeFreeMax ||
+          strnlen (ndxstg, IDBIndexNodeFreeMax - srcvec[ndx].index_stg) ==
+          IDBIndexNodeFreeMax - srcvec[ndx].index_stg)
+        {
+          XtFree (temp_heap) ;
+          return ;
+        }
       strcpy (cur_heap, ndxstg) ;
       dstvec[ndx].index_stg = (MrmOffset) (cur_heap - temp_heap) ;
       stgsiz = strlen(cur_heap) + 1 ;
       stgsiz = _FULLWORD(stgsiz);
+      if (stgsiz > IDBIndexNodeFreeMax - heap_size)
+        {
+          XtFree (temp_heap) ;
+          return ;
+        }
       cur_heap += stgsiz ;
       heap_size += stgsiz ;
     }
