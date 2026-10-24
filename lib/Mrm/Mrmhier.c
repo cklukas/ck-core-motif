@@ -744,7 +744,6 @@ I18NOpenFile (Display			*display,
    *  Local variables
    */
   Cardinal		result;		/* function results */
-  char			dummy[300];	/* file name (unused) */
   char			err_stg[300];
   size_t		name_len;
 
@@ -805,7 +804,7 @@ I18NOpenFile (Display			*display,
       return Urm__UT_Error ("I18NOpenFile", err_stg, NULL, NULL, MrmNOT_FOUND);
     }
 
-  result = UrmIdbOpenFileRead (resolvedname, os_ext, file_id_return, dummy) ;
+  result = UrmIdbOpenFileRead (resolvedname, os_ext, file_id_return, NULL) ;
   switch ( result )
     {
     case MrmSUCCESS:

@@ -135,13 +135,16 @@ Idb__FU_OpenFile (char 			*name,
   size_t	length;			/* the length of the above string */
   IDBLowLevelFile *a_file;		/* pointer to the file_id */
 
-  if (name == NULL || returned_fname == NULL || file_id == NULL)
+  if (name == NULL || file_id == NULL)
     return MrmFAILURE;
 
   /* Fill in the result name with the name specified so far */
   length = strlen (name);
-  strcpy (returned_fname, name);
-  returned_fname[length] = 0;
+  if (returned_fname != NULL)
+    {
+      strcpy (returned_fname, name);
+      returned_fname[length] = 0;
+    }
 
   /* Check if this file is to be opened for read or write access */
   if (access == URMWriteAccess)

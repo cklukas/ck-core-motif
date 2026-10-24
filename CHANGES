@@ -2933,3 +2933,10 @@ Mrm hierarchy failure cleanup (2026-10-25)
 - Initialize partial hierarchy ownership and release opened files, lists, and
   resource contexts on construction failures; see
   `docs/mrm-hierarchy-cleanup.md`.
+
+Mrm resolved path output (2026-10-25)
+=====================================
+
+- Avoid copying resolved UID paths into a fixed-size scratch buffer; the
+  low-level optional output is now guarded while existing callers remain
+  compatible. See `docs/mrm-resolved-path-output.md`.
