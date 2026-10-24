@@ -12,6 +12,8 @@ static int png_process_image(Screen *screen,
                                 unsigned char bg_green,
                                 unsigned char bg_blue,
                                 unsigned char *image_data);
+static void png_store_pixel(char **dest, unsigned long pixel,
+                            int pixel_bytes);
 static int png_msb(unsigned long u32val);
 static int png_load_file(FILE *infile, unsigned long *pWidth,
                          unsigned long *pHeight, unsigned char *red,
@@ -295,6 +297,7 @@ png_process_image(Screen *screen,
     static int RShift, GShift, BShift;
     static unsigned long RMask, GMask, BMask;
     unsigned short red, green, blue;
+    int ximage_pixel_bytes = 0;
 
     RMask = screen->root_visual->red_mask;
     GMask = screen->root_visual->green_mask;
@@ -310,6 +313,9 @@ png_process_image(Screen *screen,
     }
 
     if (screen->root_depth == 24 || screen->root_depth == 32) {
+        ximage_pixel_bytes = (ximage->bits_per_pixel + 7) / 8;
+        if (ximage_pixel_bytes < 3 || ximage_pixel_bytes > 4)
+            return 2;
         for (lastrow = row = 0; row < ximage->height; ++row) {
             src = image_data + row * image_rowbytes;
             dest = ximage->data + row * ximage_rowbytes;
@@ -322,11 +328,7 @@ png_process_image(Screen *screen,
                     pixel = (red << RShift) |
                         (green << GShift) | (blue << BShift);
                     /* recall that we set ximage->byte_order = MSBFirst above */
-                    /* GRR BUG:  this assumes bpp == 32, but may be 24: */
-                    *dest++ = (char) ((pixel >> 24) & 0xff);
-                    *dest++ = (char) ((pixel >> 16) & 0xff);
-                    *dest++ = (char) ((pixel >> 8) & 0xff);
-                    *dest++ = (char) (pixel & 0xff);
+                    png_store_pixel(&dest, pixel, ximage_pixel_bytes);
 #else
                     red = (RShift < 0) ? red << (-RShift) : red >> RShift;
                     green =
@@ -337,10 +339,7 @@ png_process_image(Screen *screen,
                     pixel =
                         (red & RMask) | (green & GMask) | (blue & BMask);
                     /* recall that we set ximage->byte_order = MSBFirst above */
-                    *dest++ = (char) ((pixel >> 24) & 0xff);
-                    *dest++ = (char) ((pixel >> 16) & 0xff);
-                    *dest++ = (char) ((pixel >> 8) & 0xff);
-                    *dest++ = (char) (pixel & 0xff);
+                    png_store_pixel(&dest, pixel, ximage_pixel_bytes);
 #endif
                 }
             } else {            /* if (image_channels == 4) */
@@ -433,6 +432,15 @@ png_process_image(Screen *screen,
     }
 
     return 0;
+}
+
+static void
+png_store_pixel(char **dest, unsigned long pixel, int pixel_bytes)
+{
+    int byte;
+
+    for (byte = pixel_bytes - 1; byte >= 0; --byte)
+        *(*dest)++ = (char)((pixel >> (byte * 8)) & 0xff);
 }
 
 static int

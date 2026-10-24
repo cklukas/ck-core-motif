@@ -142,3 +142,4 @@ EXTRA_DIST += tests/automated/check-mwm-session-command-growth.py docs/mwm-sessi
 EXTRA_DIST += tests/automated/check-form-layout-corpus.c tests/automated/run-form-layout-corpus.py docs/form-layout-corpus.md
 EXTRA_DIST += tests/automated/check-mwm-function-arg-bounds.py docs/mwm-function-arg-bounds.md
 EXTRA_DIST += tests/automated/check-form-layout-corpus.c tests/automated/run-form-layout-corpus.py docs/form-layout-corpus.md docs/form-layout-decision.md
+EXTRA_DIST += tests/automated/check-png-pixel-layout.py docs/png-pixel-layout.md

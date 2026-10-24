@@ -1,3 +1,10 @@
+PNG XImage pixel-width handling (2026-10-24)
+===============================================
+
+- Derive 24/32-bit PNG destination writes from `XImage.bits_per_pixel`,
+  preventing the legacy four-byte write from overrunning valid 24-bit images;
+  see `docs/png-pixel-layout.md`.
+
 Form layout correction decision (2026-10-24)
 ============================================
 
