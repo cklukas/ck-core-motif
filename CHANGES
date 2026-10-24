@@ -1,3 +1,8 @@
+Wide XmString conversion bounds (2026-10-24)
+=============================================
+
+- Allocate wide XmString segment conversions at checked `MB_CUR_MAX` capacity and reject unrepresentable short counts, preventing truncation and undersized buffers; see `docs/xmstring-wide-conversion-bounds.md`.
+
 DataField multibyte progress guard (2026-10-24)
 ===============================================
 

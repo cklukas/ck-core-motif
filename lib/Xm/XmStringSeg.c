@@ -36,6 +36,8 @@ static char rcsid[] = "$XConsortium: XmStringSeg.c /main/7 1995/09/19 23:13:59 c
 #endif
 
 #include <Xm/XmosP.h>
+#include <limits.h>
+#include <stdint.h>
 
 #include "XmI.h"
 #include "XmStringI.h"
@@ -322,20 +324,28 @@ _XmStringGetNextSegment(
     
     if (type == XmWIDECHAR_TEXT && *text) {
       /* must convert (this should be done in segment's locale instead) */
-      int len;
+      size_t len;
+      size_t converted;
       wchar_t *wtext = (wchar_t *)(*text);
 
-      /* should be enough */
-      len = ((*char_count)*MB_CUR_MAX)/sizeof(wchar_t);
-
-      *text = (char *)XtMalloc(len+1);
-      *char_count = wcstombs(*text, wtext, len);
-      if ((*char_count) == (size_t)-1) {
+      if ((size_t)*char_count > (SIZE_MAX - 1) / MB_CUR_MAX) {
 	result = False;
-	XtFree(*text); *text = NULL;
+	*text = NULL;
 	XtFree((char *)*tag); *tag = NULL;
+      } else {
+	len = (size_t)*char_count * MB_CUR_MAX;
+	*text = (char *)XtMalloc(len + 1);
+	converted = wcstombs(*text, wtext, len);
+	if (converted == (size_t)-1 || converted > SHRT_MAX) {
+	  result = False;
+	  XtFree(*text); *text = NULL;
+	  XtFree((char *)*tag); *tag = NULL;
       } else
-	(*text)[*char_count] = '\0';
+	{
+	  *char_count = (short)converted;
+	  (*text)[converted] = '\0';
+	}
+	}
       XtFree((char *)wtext);
     } 
   }

@@ -181,3 +181,5 @@ EXTRA_DIST += tests/automated/check-screen-index-scan.py docs/screen-index-scan.
 EXTRA_DIST += tests/automated/check-datafield-multibyte-scratch.py docs/datafield-multibyte-scratch.md
 
 EXTRA_DIST += tests/automated/check-datafield-mblen-progress.py docs/datafield-mblen-progress.md
+
+EXTRA_DIST += tests/automated/check-xmstring-wide-conversion-bounds.py docs/xmstring-wide-conversion-bounds.md
