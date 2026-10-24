@@ -1,3 +1,9 @@
+Mrm record-growth bounds (2026-10-25)
+====================================
+
+- Keep aligned CWR growth in size_t and reject record-size overflow before
+  narrowing back to MrmSize; see `docs/mrm-guarantee-space.md`.
+
 Mrm icon record bounds (2026-10-25)
 =================================
 

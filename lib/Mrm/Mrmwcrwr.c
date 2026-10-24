@@ -2139,13 +2139,19 @@ UrmCWR__GuaranteeSpace (URMResourceContextPtr	context_id,
    */
   Cardinal		result ;	/* function results */
   RGMWidgetRecordPtr	widgetrec ;	/* widget record in context */
+  size_t		full_delta ;	/* aligned delta before narrowing */
 
   widgetrec = (RGMWidgetRecordPtr) UrmRCBuffer(context_id) ;
   if ( ! UrmWRValid(widgetrec) )
     return Urm__UT_Error ("UrmCWR__GuaranteeSpace", _MrmMMsg_0026,
 			  NULL, context_id, MrmBAD_RECORD) ;
 
-  delta = _FULLWORD (delta) ;
+  full_delta = _FULLWORD ((size_t)delta) ;
+  if (full_delta > MrmMaxResourceSize ||
+      widgetrec->size > MrmMaxResourceSize - full_delta)
+    return Urm__UT_Error ("UrmCWR__GuaranteeSpace", _MrmMMsg_0029,
+			  NULL, context_id, MrmTOO_MANY) ;
+  delta = (MrmSize)full_delta ;
   result = UrmResizeResourceContext (context_id, widgetrec->size+delta) ;
   if ( result != MrmSUCCESS ) return result ;
 

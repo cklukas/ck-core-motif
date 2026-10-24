@@ -231,3 +231,4 @@ EXTRA_DIST += tests/automated/check-mrm-callback-descriptor-bounds.py docs/mrm-c
 EXTRA_DIST += tests/automated/check-mrm-arg-descriptor-bounds.py docs/mrm-arg-descriptor-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-extra-args.py docs/mrm-extra-args.md
 EXTRA_DIST += tests/automated/check-mrm-icon-record-bounds.py docs/mrm-icon-record-bounds.md
+EXTRA_DIST += tests/automated/check-mrm-guarantee-space.py docs/mrm-guarantee-space.md
