@@ -574,7 +574,8 @@ typedef struct {
 /*
  * Macro which validates a buffer
  */
-#define	Idb__BM_Valid(bufptr) ((bufptr)->validation==IDBRecordBufferValid)
+#define	Idb__BM_Valid(bufptr) \
+    ((bufptr) != NULL && (bufptr)->validation==IDBRecordBufferValid)
 
 /*
  * Macros which return the record type, number of the record in a buffer

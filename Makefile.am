@@ -333,3 +333,4 @@ EXTRA_DIST += tests/automated/check-mrm-header-inputs.py docs/mrm-header-inputs.
 EXTRA_DIST += tests/automated/check-mrm-header-data-bounds.py docs/mrm-header-data-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-header-filter-lifetime.py docs/mrm-header-filter-lifetime.md
 EXTRA_DIST += tests/automated/check-mrm-buffer-postconditions.py docs/mrm-buffer-postconditions.md
+EXTRA_DIST += tests/automated/check-mrm-buffer-valid-macro.py docs/mrm-buffer-valid-macro.md
