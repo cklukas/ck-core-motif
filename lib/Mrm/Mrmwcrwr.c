@@ -339,7 +339,8 @@ UrmCWRInitArglist (URMResourceContextPtr	context_id,
   /*
    * Validate record
    */
-  UrmCWR__ValidateContext (context_id, "UrmCWRInitArglist") ;
+  result = UrmCWR__ValidateContext (context_id, "UrmCWRInitArglist") ;
+  if ( result != MrmSUCCESS ) return result ;
 
   /*
    * Error check that the number of arguments is reasonable

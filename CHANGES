@@ -3101,3 +3101,9 @@ Mrm writer creation-callback validation (2026-10-25)
 - Reject null creation-callback output storage and propagate invalid-context
   failures before descriptor allocation; see
   `docs/mrm-writer-creation-callback-validation.md`.
+
+Mrm writer arglist validation (2026-10-25)
+============================================
+
+- Propagate invalid-context failures from `UrmCWRInitArglist` before argument
+  descriptor allocation; see `docs/mrm-writer-arglist-validation.md`.
