@@ -479,6 +479,9 @@ Idb__BM_GetRecord (IDBFile                     file_id,
       if ( result != MrmSUCCESS ) return result ;
     }
 
+  if (*buffer_return == NULL || (*buffer_return)->IDB_record == NULL)
+    return MrmFAILURE;
+
   /*
    * Read the record into the buffer.
    */
@@ -577,7 +580,8 @@ Idb__BM_InitRecord (IDBFile                     file_id,
   if (file_id == NULL || buffer_return == NULL)
     return MrmFAILURE;
 
-  if ((Idb__BM_GetBuffer (file_id, buffer_return)) != MrmSUCCESS)
+  if ((Idb__BM_GetBuffer (file_id, buffer_return)) != MrmSUCCESS ||
+      *buffer_return == NULL || (*buffer_return)->IDB_record == NULL)
     return MrmFAILURE;
 
   /*

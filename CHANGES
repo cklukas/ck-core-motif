@@ -1,3 +1,9 @@
+Mrm buffer postconditions (2026-10-25)
+======================================
+
+- Verify buffer and record storage after acquisition before reading or
+  initializing record headers; see `docs/mrm-buffer-postconditions.md`.
+
 Mrm header filter lifetime (2026-10-25)
 =======================================
 
