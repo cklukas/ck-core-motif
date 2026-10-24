@@ -1455,7 +1455,8 @@ HandleSash(
 		else
 		  increment = 1;
 	    }
-	    if (!pw->paned_window.increment_count) {
+	    /* Opposite keys can cancel the increment while a batch is pending. */
+	    if (!pw->paned_window.timer) {
 		pw->paned_window.increment_count = increment;
 		pw->paned_window.timer =
 		    XtAppAddTimeOut(XtWidgetToApplicationContext( (Widget) pw),

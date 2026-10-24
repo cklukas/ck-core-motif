@@ -31,4 +31,5 @@ nav:
       - docs/accessibility.md
       - docs/components.md
       - docs/button-timers.md
+      - docs/paned-keyboard.md
       - docs/disclosure.md

@@ -64,3 +64,5 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
 
 # Keyboard activation lifetime regression.
 EXTRA_DIST += tests/automated/check-button-timers.c docs/button-timers.md
+
+EXTRA_DIST += tests/automated/check-paned-keyboard.c docs/paned-keyboard.md

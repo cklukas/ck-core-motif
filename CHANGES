@@ -1,3 +1,17 @@
+PanedWindow keyboard movement cancellation (2026-10-24)
+======================================================
+
+- Keep one pending keyboard sash timeout when opposite directions cancel the
+  movement total to zero. Use the existing timeout ID to identify pending work,
+  so further keys do not overwrite it with an additional timeout.
+- Preserve batching timing, default/large increments, resources, action
+  parameters, widget layouts and native ABI. Add native horizontal/vertical
+  regressions for cancellation, movement, fresh batches and pending destruction;
+  see docs/paned-keyboard.md.
+- Native AArch64 validation passes 1,072 checks; the unchanged prior library
+  fails the same fixture on duplicate scheduling. Installed ABI, SpinBox, List
+  Unicode, DPI and button-timer regressions also pass.
+
 Keyboard button release-animation lifetime (2026-10-24)
 ======================================================
 
