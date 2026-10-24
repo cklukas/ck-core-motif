@@ -41,6 +41,7 @@ libwml_a_SOURCES = wmlparse.y wml.c wmloutkey.c wmlouth.c wmloutmm.c wmloutp1.c 
 wmlparse.c: wmllex.c
 
 wmllex.c: wmllex.l
+	$(LEX) -o$@ $(srcdir)/wmllex.l
 
 wmlsynbld.c: wmlparse.h
 
@@ -50,10 +51,15 @@ wmlsynbld.c: wmlparse.h
 wmluiltok.c: wmluiltok.l
 	$(LEX) -o$@ $(srcdir)/wmluiltok.l
 
-# UilLexPars.{c,h} are generated parser outputs, not source files.  Generate
-# both from the grammar before the stamp creates the compatibility names.
-Uil.c Uil.h: Uil.y
+# Uil.{c,h} are generated parser outputs, not source files.  Generate both
+# through a stamp so parallel prerequisites cannot invoke yacc twice.
+Uil.stamp: Uil.y
+	$(RM) Uil.c Uil.h
 	$(YACC) $(AM_YFLAGS) -o Uil.c $(srcdir)/Uil.y
+	$(AM_V_at)touch $@
+
+Uil.c Uil.h: Uil.stamp
+	@:
 
 # The object consumes generated headers; the C file is ordinary VPATH source.
 wmldbcreate.o: $(WMLTARGETS) UilLexPars.h
@@ -62,8 +68,8 @@ wmldbcreate.o: $(WMLTARGETS) UilLexPars.h
 # builds from racing two recipes that both create the same symlinks.
 UilLexPars.stamp: Uil.c Uil.h
 	$(RM) UilLexPars.h UilLexPars.c
-	$(LN_S) $(srcdir)/Uil.h UilLexPars.h
-	$(LN_S) $(srcdir)/Uil.c UilLexPars.c
+	$(LN_S) Uil.h UilLexPars.h
+	$(LN_S) Uil.c UilLexPars.c
 	$(AM_V_at)touch $@
 
 UilLexPars.c UilLexPars.h: UilLexPars.stamp
@@ -86,5 +92,6 @@ motif.wmd: wmldbcreate
 clean-local:
 	$(RM) $(WMLTARGETS) $(WMDTABLE) $(REPORT) lex.yy.c libwml.a wml \
 	*.mm *.sdml *.txt wmlparse.c wmlparse.h wmluiltok wmluiltok.c wmllex.c \
-	tokens.dat DONE wmluiltok.c Uil.c Uil.h wml.report UilLexPars.[ch] UilLexPars.stamp ylwrap
+	tokens.dat DONE wmluiltok.c Uil.c Uil.h Uil.stamp wml.report \
+	UilLexPars.[ch] UilLexPars.stamp ylwrap
  

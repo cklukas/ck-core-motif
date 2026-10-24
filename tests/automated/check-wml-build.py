@@ -16,8 +16,11 @@ assert "UilLexPars.h: UilLexPars.c" not in makefile
 assert "int\nmain (void)" in lexer
 assert "wmluiltok_SOURCES = wmluiltok.c" in makefile
 assert "wmluiltok.c: wmluiltok.l" in makefile
-assert "Uil.c Uil.h: Uil.y" in makefile
-assert "UilLexPars.c: $(top_srcdir)/tools/wml/Uil.c" in uil_makefile
+assert "Uil.stamp: Uil.y" in makefile
+assert "Uil.c Uil.h: Uil.stamp" in makefile
+assert "$(LN_S) Uil.h UilLexPars.h" in makefile
+assert "$(LN_S) Uil.c UilLexPars.c" in makefile
+assert "UilLexPars.c: $(top_builddir)/tools/wml/Uil.c" in uil_makefile
 assert "$(RM) UilLexPars.c" in uil_makefile
 assert "static int wml_copy_token" in wml_lexer
 assert "WML token is too long" in wml_lexer
