@@ -151,3 +151,4 @@ EXTRA_DIST += tests/automated/check-jpeg-error-cleanup.py docs/jpeg-error-cleanu
 EXTRA_DIST += tests/automated/check-png-error-cleanup.py docs/png-error-cleanup.md
 EXTRA_DIST += tests/automated/check-ui-completion-prototype.c tests/automated/run-ui-completion-prototype.py docs/ui-thread-completion-prototype.md
 EXTRA_DIST += tests/automated/check-image-scaling-allocations.py docs/image-scaling-allocations.md
+EXTRA_DIST += docs/ui-thread-completion-api-decision.md

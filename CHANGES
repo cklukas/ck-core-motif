@@ -1,3 +1,10 @@
+UI-thread completion API decision (2026-10-24)
+==============================================
+
+- Close WP-14 with a no-go decision: the WP-13 consumer-owned pipe and
+  `XtAppAddInput` pattern is adequate for the qualified POSIX/X11 case; defer
+  a library API until a real consumer requires one.
+
 Image scaling allocation checks (2026-10-24)
 ===============================================
 

@@ -727,6 +727,14 @@ owned worker results to the owning Xt thread.
 **Complete when:** the shutdown/cancellation race suite passes, the lifetime
 contract is clear, and normal Motif clients have no new threading requirement.
 
+**Status (2026-10-24):** no-go.  WP-13 demonstrates that existing
+application-owned pipes plus `XtAppAddInput` provide a correct UI-thread
+handoff for the qualified POSIX/X11 case.  No real consumer requirement in
+this checkout justifies adding a process-wide queue, hidden worker, or new
+cross-platform ownership contract to `libXm`.  See
+`docs/ui-thread-completion-api-decision.md`; reopen only with the stated
+consumer and lifecycle evidence.
+
 Appearance and scalable assets are intentionally the first delivery track: they
 produce user-visible improvement while preserving the established programming
 model.  The other packages may progress independently where their dependency
