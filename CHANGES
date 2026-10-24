@@ -1,3 +1,8 @@
+Simple widget name bounds (2026-10-24)
+=======================================
+
+- Bound generated names in the Simple menu, radio-box, and check-box helpers, preserving normal names while preventing stack overwrites for large counters; see `docs/simple-widget-name-bounds.md`.
+
 Drop-site diagnostic bounds (2026-10-24)
 ==========================================
 

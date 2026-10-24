@@ -110,7 +110,7 @@ EvaluateConvenienceStructure(
 {
         XmRowColumnWidget rc = (XmRowColumnWidget) wid ;
 	int i, n;
-	char name_buf[20];
+	char name_buf[32];
 	int button_count = 0;
 	int separator_count = 0;
 	int label_count = 0;
@@ -167,19 +167,19 @@ EvaluateConvenienceStructure(
 		switch (btype)
 		{
 			case XmTITLE:
-				sprintf(name_buf,"label_%d", label_count++);
+				snprintf(name_buf, sizeof(name_buf), "label_%d", label_count++);
 				child = XtCreateManagedWidget( name_buf,
                                      xmLabelGadgetClass, (Widget) rc, args, n);
 			break;
 			case XmDOUBLE_SEPARATOR:
 				XtSetArg(args[n], XmNseparatorType, XmDOUBLE_LINE); n++;
 			case XmSEPARATOR:
-				sprintf(name_buf,"separator_%d", separator_count++);
+				snprintf(name_buf, sizeof(name_buf), "separator_%d", separator_count++);
 				child = XtCreateManagedWidget(name_buf, 
                                  xmSeparatorGadgetClass, (Widget) rc, args, n);
 			break;
 			case XmPUSHBUTTON:
-				sprintf(name_buf,"button_%d", button_count++);
+				snprintf(name_buf, sizeof(name_buf), "button_%d", button_count++);
 				child = XtCreateManagedWidget(name_buf, 
                                                        xmPushButtonGadgetClass,
                                                          (Widget) rc, args, n);
@@ -191,7 +191,7 @@ EvaluateConvenienceStructure(
 			case XmRADIOBUTTON:
 				XtSetArg(args[n], XmNindicatorType, XmONE_OF_MANY); n++;
 			case XmCHECKBUTTON:
-				sprintf(name_buf,"button_%d", button_count++);
+				snprintf(name_buf, sizeof(name_buf), "button_%d", button_count++);
 				XtSetArg(args[n], XmNindicatorOn, TRUE); n++;
 				child = XtCreateManagedWidget(name_buf,
                                                      xmToggleButtonGadgetClass,
@@ -202,7 +202,7 @@ EvaluateConvenienceStructure(
                                                (XtPointer)(unsigned long)(button_count - 1));
 			break;
 			case XmCASCADEBUTTON:
-				sprintf(name_buf,"button_%d", button_count++);
+				snprintf(name_buf, sizeof(name_buf), "button_%d", button_count++);
 				child = XtCreateManagedWidget(name_buf,
                                                     xmCascadeButtonGadgetClass,
                                                          (Widget) rc, args, n);
@@ -421,7 +421,7 @@ XmCreateSimpleRadioBox(
 	Widget rc, child;
 	int i, n;
 	XmSimpleMenuRec mr;
-	char name_buf[20];
+	char name_buf[32];
 
 	rc = XmCreateRadioBox(parent, name, args, arg_count);
 
@@ -431,7 +431,7 @@ XmCreateSimpleRadioBox(
 
 	for(i=0; i < mr.count; i++)
 	{
-		sprintf(name_buf,"button_%d", i);
+		snprintf(name_buf, sizeof(name_buf), "button_%d", i);
 
 		n = 0;
 		if (mr.label_string && mr.label_string[i])
@@ -464,7 +464,7 @@ XmCreateSimpleCheckBox(
 	Widget rc, child;
 	int i, n;
 	XmSimpleMenuRec mr;
-	char name_buf[20];
+	char name_buf[32];
 
 
 	rc = XmCreateRadioBox(parent, name, args, arg_count);
@@ -481,7 +481,7 @@ XmCreateSimpleCheckBox(
 
 	for(i=0; i < mr.count; i++)
 	{
-		sprintf(name_buf,"button_%d", i);
+		snprintf(name_buf, sizeof(name_buf), "button_%d", i);
 
 		n = 0;
 		if (mr.label_string && mr.label_string[i])

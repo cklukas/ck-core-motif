@@ -167,3 +167,5 @@ EXTRA_DIST += tests/automated/check-icon-mask-name-allocation.py docs/icon-mask-
 EXTRA_DIST += tests/automated/check-scale-value-bounds.py docs/scale-value-bounds.md
 
 EXTRA_DIST += tests/automated/check-drop-site-warning-bounds.py docs/drop-site-warning-bounds.md
+
+EXTRA_DIST += tests/automated/check-simple-widget-name-bounds.py docs/simple-widget-name-bounds.md
