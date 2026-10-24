@@ -542,6 +542,12 @@ public XmDatePickerGetRange
 public XmDatePickerIsOpen
 public XmDatePickerOpen
 public XmDatePickerClose
+public XmCreateTimePicker
+public XmTimePickerIsValid
+public XmTimePickerGetValue
+public XmTimePickerSetValue
+public XmTimePickerGetRange
+public XmTimePickerSetRange
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -822,6 +828,8 @@ public xmCalendarClassRec
 public xmCalendarWidgetClass
 public xmDatePickerClassRec
 public xmDatePickerWidgetClass
+public xmTimePickerClassRec
+public xmTimePickerWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec

@@ -1202,6 +1202,13 @@ non-modal `XmCalendar` popup with validated ranges, screen-clamped placement,
 open/close callbacks and installed-prefix accessibility coverage.  TimePicker
 and daylight-saving behavior remain open in this work package.
 
+The additive `XmTimePicker` is now implemented and qualified with an explicit
+wall-clock-only contract, ordered range validation, deterministic 24-hour or
+12-hour presentation, field-wise keyboard editing, activation/value callbacks
+and accessibility value semantics.  It does not infer a date, time zone, or
+daylight-saving transition; callers resolve those when combining a value with
+a date and zone.
+
 ### WP-27: DataGrid/TableView design and prototype
 
 **Depends on:** WP-25 and WP-15.

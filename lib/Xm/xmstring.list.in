@@ -1010,6 +1010,18 @@ NdatePickerMonth
 NdatePickerDay
 NdatePickerDateChangedCallback
 NdatePickerOpenChangedCallback
+CTimePickerHour
+CTimePickerMinute
+CTimePickerSecond
+CTimePickerFormat24Hour
+CTimePickerValueChangedCallback
+CTimePickerActivateCallback
+NtimePickerHour
+NtimePickerMinute
+NtimePickerSecond
+NtimePickerFormat24Hour
+NtimePickerValueChangedCallback
+NtimePickerActivateCallback
 
 #table _XmStrings20
 

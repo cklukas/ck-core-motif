@@ -24,6 +24,7 @@
 #include <Xm/TreeView.h>
 #include <Xm/Calendar.h>
 #include <Xm/DatePicker.h>
+#include <Xm/TimePicker.h>
 #include <Xm/ColorPicker.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
@@ -612,6 +613,9 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     if (XmIsDatePicker(w))
       XtAddCallback(w, XmNdatePickerDateChangedCallback, text_value_changed,
                     (XtPointer)a);
+    if (XmIsTimePicker(w))
+      XtAddCallback(w, XmNtimePickerValueChangedCallback, text_value_changed,
+                    (XtPointer)a);
     if (XmIsNumberBox(w))
       XtAddCallback(w, XmNnumberValueChangedCallback, text_value_changed,
                     (XtPointer)a);
@@ -739,6 +743,9 @@ static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
                        text_value_changed, (XtPointer)a);
     if (XmIsDatePicker(n->widget))
       XtRemoveCallback(n->widget, XmNdatePickerDateChangedCallback,
+                       text_value_changed, (XtPointer)a);
+    if (XmIsTimePicker(n->widget))
+      XtRemoveCallback(n->widget, XmNtimePickerValueChangedCallback,
                        text_value_changed, (XtPointer)a);
     if (XmIsNumberBox(n->widget))
       XtRemoveCallback(n->widget, XmNnumberValueChangedCallback,
@@ -1162,6 +1169,15 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     i->minimum_value = 1;
     i->maximum_value = 9999;
     i->current_value = date.year;
+    i->minimum_increment = 1;
+  }
+  if (XmIsTimePicker(w)) {
+    XmTimePickerValue value;
+    i->role = XmACCESSIBLE_TEXT;
+    i->has_value = XmTimePickerGetValue(w, &value);
+    i->minimum_value = 0;
+    i->maximum_value = 86399;
+    i->current_value = value.hour * 3600 + value.minute * 60 + value.second;
     i->minimum_increment = 1;
   }
   if (XmIsNumberBox(w)) {
