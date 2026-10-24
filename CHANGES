@@ -1,3 +1,10 @@
+Qualify Unicode accessibility menu labels (2026-10-24)
+=======================================================
+
+- Extend the native menu accessibility regression across combining, non-BMP,
+  and CJK labels so locale-to-UTF-8 names remain usable for screen readers;
+  see docs/accessibility.md.
+
 Bound XIM preedit-style resource parsing (2026-10-24)
 ======================================================
 

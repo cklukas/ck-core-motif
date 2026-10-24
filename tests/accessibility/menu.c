@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
   Widget gadget_cascade, item, gadget_item, check, radio, label, popup_item;
   XmAccessibility *bridge;
   XmAccessibleInfo info;
-  XmString title;
+  XmString title, file_label, open_label, save_label;
   XButtonPressedEvent posting;
   require(setlocale(LC_ALL, "") != NULL, "locale unavailable");
   XtSetLanguageProc(NULL, NULL, NULL);
@@ -56,13 +56,19 @@ int main(int argc, char **argv) {
   bar = XmCreateMenuBar(column, "menu", NULL, 0); XtManageChild(bar);
   pane = XmCreatePulldownMenu(bar, "fileMenu", NULL, 0);
   nested = XmCreatePulldownMenu(pane, "nestedMenu", NULL, 0);
+  file_label = XmStringCreateLocalized("F\303\255le \360\237\230\200");
+  open_label = XmStringCreateLocalized("Open e\314\201");
+  save_label = XmStringCreateLocalized("Save \344\270\255\346\226\207");
   cascade = XtVaCreateManagedWidget("File", xmCascadeButtonWidgetClass, bar,
-                                    XmNsubMenuId, pane, NULL);
+                                    XmNsubMenuId, pane,
+                                    XmNlabelString, file_label, NULL);
   other_cascade = XtVaCreateManagedWidget("Other", xmCascadeButtonWidgetClass, bar,
                                           XmNsubMenuId, pane, NULL);
-  item = XtVaCreateManagedWidget("Open", xmPushButtonWidgetClass, pane, NULL);
+  item = XtVaCreateManagedWidget("Open", xmPushButtonWidgetClass, pane,
+                                 XmNlabelString, open_label, NULL);
   XtAddCallback(item, XmNactivateCallback, activate, NULL);
-  gadget_item = XtVaCreateManagedWidget("Save", xmPushButtonGadgetClass, pane, NULL);
+  gadget_item = XtVaCreateManagedWidget("Save", xmPushButtonGadgetClass, pane,
+                                        XmNlabelString, save_label, NULL);
   XtAddCallback(gadget_item, XmNactivateCallback, activate, NULL);
   check = XtVaCreateManagedWidget("Grid", xmToggleButtonWidgetClass, pane, NULL);
   radio = XtVaCreateManagedWidget("Mode", xmToggleButtonGadgetClass, pane,
@@ -71,6 +77,7 @@ int main(int argc, char **argv) {
   gadget_cascade = XtVaCreateManagedWidget("More", xmCascadeButtonGadgetClass,
                                            pane, XmNsubMenuId, nested, NULL);
   XtVaCreateManagedWidget("Nested action", xmPushButtonWidgetClass, nested, NULL);
+  XmStringFree(file_label); XmStringFree(open_label); XmStringFree(save_label);
   popup = XmCreatePopupMenu(column, "popup", NULL, 0);
   popup_item = XtVaCreateManagedWidget("Popup action", xmPushButtonWidgetClass,
                                        popup, NULL);
@@ -84,12 +91,12 @@ int main(int argc, char **argv) {
   role(bridge, nested, XmACCESSIBLE_MENU, "nestedMenu");
   role(bridge, popup, XmACCESSIBLE_MENU, "popup");
   role(bridge, popup_item, XmACCESSIBLE_MENU_ITEM, "Popup action");
-  role(bridge, item, XmACCESSIBLE_MENU_ITEM, "Open");
-  role(bridge, gadget_item, XmACCESSIBLE_MENU_ITEM, "Save");
+  role(bridge, item, XmACCESSIBLE_MENU_ITEM, "Open é");
+  role(bridge, gadget_item, XmACCESSIBLE_MENU_ITEM, "Save 中文");
   role(bridge, check, XmACCESSIBLE_CHECK_MENU_ITEM, "Grid");
   role(bridge, radio, XmACCESSIBLE_RADIO_MENU_ITEM, "Mode");
   role(bridge, label, XmACCESSIBLE_LABEL, "Section");
-  info = query(bridge, cascade, XmACCESSIBLE_MENU_ITEM, "File");
+  info = query(bridge, cascade, XmACCESSIBLE_MENU_ITEM, "Fíle 😀");
   require(info.action_count == 1 && (info.states & XmACCESSIBLE_STATE(42)) &&
               (info.states & XmACCESSIBLE_STATE(9)) &&
               !(info.states & XmACCESSIBLE_STATE(10)), "unposted cascade state");
@@ -97,7 +104,7 @@ int main(int argc, char **argv) {
   require(XmAccessibilityAction(bridge, XmAccessibilityWidget(bridge, cascade), 0),
           "cascade native activation failed");
   drain(app, XtDisplay(shell));
-  info = query(bridge, cascade, XmACCESSIBLE_MENU_ITEM, "File");
+  info = query(bridge, cascade, XmACCESSIBLE_MENU_ITEM, "Fíle 😀");
   require((info.states & XmACCESSIBLE_STATE(10)) != 0, "posted cascade not expanded");
   XmAccessibleInfoClear(&info);
   info = query(bridge, other_cascade, XmACCESSIBLE_MENU_ITEM, "Other");
@@ -106,7 +113,7 @@ int main(int argc, char **argv) {
   require(XmAccessibilityFocus(bridge, XmAccessibilityWidget(bridge, gadget_item)),
           "menu gadget focus failed");
   drain(app, XtDisplay(shell));
-  info = query(bridge, gadget_item, XmACCESSIBLE_MENU_ITEM, "Save");
+  info = query(bridge, gadget_item, XmACCESSIBLE_MENU_ITEM, "Save 中文");
   require((info.states & XmACCESSIBLE_STATE(12)) != 0,
           "posted MenuShell leaf focus missing");
   XmAccessibleInfoClear(&info);
@@ -114,7 +121,7 @@ int main(int argc, char **argv) {
           "menu gadget native activation failed");
   drain(app, XtDisplay(shell));
   require(activated == 1, "menu native activation count");
-  info = query(bridge, cascade, XmACCESSIBLE_MENU_ITEM, "File");
+  info = query(bridge, cascade, XmACCESSIBLE_MENU_ITEM, "Fíle 😀");
   require(!(info.states & XmACCESSIBLE_STATE(10)), "activation left menu posted");
   XmAccessibleInfoClear(&info);
   require(XmAccessibilityAction(bridge, XmAccessibilityWidget(bridge, cascade), 0),

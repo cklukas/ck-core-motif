@@ -194,6 +194,9 @@ menu uses an override shell.
 
 `tests/accessibility/menu.c` covers native roles, widget/gadget entries, shared
 posting, leaf focus, action delivery, cleanup and invalid/insensitive actions.
+Its labels also cover a combining mark, a supplementary-plane character, and
+CJK text, so menu names are checked through the same locale-to-UTF-8 path as
+other accessible controls.
 These additions pass the strict native ARM64 installed feature suite. Actual keyboard/Orca journeys and native List selection remain separate
 qualification gates.
 
