@@ -169,3 +169,5 @@ EXTRA_DIST += tests/automated/check-scale-value-bounds.py docs/scale-value-bound
 EXTRA_DIST += tests/automated/check-drop-site-warning-bounds.py docs/drop-site-warning-bounds.md
 
 EXTRA_DIST += tests/automated/check-simple-widget-name-bounds.py docs/simple-widget-name-bounds.md
+
+EXTRA_DIST += tests/automated/check-compound-segment-bounds.py docs/compound-segment-bounds.md

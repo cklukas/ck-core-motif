@@ -1,3 +1,8 @@
+Compound-string segment size bounds (2026-10-24)
+=================================================
+
+- Keep compound-string segment decoration lengths in `size_t` and reject unrepresentable allocations before copying; see `docs/compound-segment-bounds.md`.
+
 Simple widget name bounds (2026-10-24)
 =======================================
 
