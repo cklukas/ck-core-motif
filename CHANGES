@@ -1,3 +1,10 @@
+Mrm Arg-list allocation bounds (2026-10-25)
+===========================================
+
+- Bound Mrm value-update and widget-creation Arg-list counts before addition
+  and allocation, preserving normal UID conversion while rejecting wrapped
+  requests; see `docs/mrm-arg-bounds.md`.
+
 Mrm icon allocation bounds (2026-10-25)
 =======================================
 

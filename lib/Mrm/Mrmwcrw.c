@@ -52,6 +52,7 @@ static char rcsid[] = "$TOG: Mrmwcrw.c /main/20 1999/05/19 15:26:23 mgreess $"
  *
  */
 #include <stdio.h>
+#include <stdint.h>
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
 #include "MrmosI.h"
@@ -610,12 +611,18 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
     {
       argdesc = (RGMArgListDescPtr) 
 	((char *)widgetrec + widgetrec->arglist_offs) ;
+      if ((size_t)argdesc->count > SIZE_MAX - (size_t)num_listent ||
+	  (size_t)argdesc->extra >
+	      SIZE_MAX - (size_t)num_listent - (size_t)argdesc->count)
+	return MrmFAILURE;
       num_listent += argdesc->count + argdesc->extra ;
       UrmPlistInit (10, &ftllist) ;
     }
   if ( num_listent > 0 )
     {
-      args = (Arg *) XtMalloc (num_listent*sizeof(Arg)) ;
+      if ((size_t)num_listent > SIZE_MAX / sizeof(Arg))
+	return MrmFAILURE;
+      args = (Arg *) XtMalloc ((size_t)num_listent*sizeof(Arg)) ;
       UrmPlistInit (10, &ptrlist) ;
     }
 
@@ -902,12 +909,18 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
     {
       argdesc = (RGMArgListDescPtr) 
 	((char *)widgetrec + widgetrec->arglist_offs) ;
+      if ((size_t)argdesc->count > SIZE_MAX - (size_t)num_listent ||
+	  (size_t)argdesc->extra >
+	      SIZE_MAX - (size_t)num_listent - (size_t)argdesc->count)
+	return MrmFAILURE;
       num_listent += argdesc->count + argdesc->extra ;
       UrmPlistInit (10, &ftllist) ;
     }
   if ( num_listent > 0 )
     {
-      args = (Arg *) XtMalloc (num_listent*sizeof(Arg)) ;
+      if ((size_t)num_listent > SIZE_MAX / sizeof(Arg))
+	return MrmFAILURE;
+      args = (Arg *) XtMalloc ((size_t)num_listent*sizeof(Arg)) ;
       UrmPlistInit (10, &ptrlist) ;
     }
 

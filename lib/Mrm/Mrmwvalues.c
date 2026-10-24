@@ -55,6 +55,7 @@ static char rcsid[] = "$TOG: Mrmwvalues.c /main/12 1999/04/16 09:42:44 mgreess $
 
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
+#include <stdint.h>
 
 
 /*
@@ -157,7 +158,9 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
   /*
    * Create local arglist and pointer list for contexts.
    */
-  locargs = (ArgList) XtMalloc (num_args*sizeof(Arg)) ;
+  if ((size_t)num_args > SIZE_MAX / sizeof(Arg))
+    return MrmFAILURE;
+  locargs = (ArgList) XtMalloc ((size_t)num_args*sizeof(Arg)) ;
   UrmPlistInit (num_args, &ptrlist) ;
 
   /*
