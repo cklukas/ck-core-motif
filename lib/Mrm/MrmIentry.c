@@ -536,7 +536,9 @@ Idb__DB_MatchFilter (IDBFile 		file_id,
 
   result = Idb__BM_GetRecord (file_id, record_number, &bufptr) ;
   if ( result != MrmSUCCESS ) return FALSE ;
-  Idb__BM_Decommit (bufptr) ;
+
+  if (bufptr == NULL || bufptr->IDB_record == NULL)
+    return FALSE;
 
   /*
    * Point to the header in the entry, and check the filters.
@@ -547,13 +549,22 @@ Idb__DB_MatchFilter (IDBFile 		file_id,
     {
       Urm__UT_Error ("Idb__DB_GetDataEntry", _MrmMMsg_0007,
 		     NULL, NULL, MrmNOT_VALID) ;
+      Idb__BM_Decommit (bufptr);
       return FALSE ;
     }
 
   if ( group_filter!=URMgNul && group_filter!=datahdr->resource_group )
-    return FALSE ;
+    {
+      Idb__BM_Decommit (bufptr);
+      return FALSE ;
+    }
   if ( type_filter!=URMtNul && type_filter!=datahdr->resource_type )
-    return FALSE ;
+    {
+      Idb__BM_Decommit (bufptr);
+      return FALSE ;
+    }
+
+  Idb__BM_Decommit (bufptr);
 
   return TRUE ;
 

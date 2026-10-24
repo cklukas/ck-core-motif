@@ -1,4 +1,7 @@
 2026-10-26
+	* Keep Mrm filter buffers active until record filtering completes.
+
+2026-10-26
 	* Reject non-positive externally configured Mrm buffer-pool sizes.
 
 2026-10-26
