@@ -1,3 +1,9 @@
+Mrm writer CString-vector rebind checks (2026-10-25)
+======================================================
+
+- Propagate per-element argument rebinding failures after CString-vector
+  appends; see `docs/mrm-writer-cstring-vector-rebind.md`.
+
 2026-10-26
 	* Validate Mrm pointer-list state before freeing contents.
 

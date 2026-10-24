@@ -1082,8 +1082,9 @@ UrmCWRSetArgCStringVec (URMResourceContextPtr	context_id,
       result = UrmCWR__AppendCString (context_id, cstg_vec[ndx], &offset) ;
       if ( result != MrmSUCCESS ) return result ;
       widgetrec = (RGMWidgetRecordPtr) UrmRCBuffer(context_id) ;
-      UrmCWR__BindArgPtrs
+      result = UrmCWR__BindArgPtrs
         (context_id, "UrmCWRSetArgCStringVec", arg_ndx, &argdesc, &argptr) ;
+      if ( result != MrmSUCCESS ) return result ;
       vecptr = (RGMTextVectorPtr) ((char *)widgetrec + vecoffs) ;
       vecptr->item[ndx].text_item.rep_type = MrmRtypeCString ;
       vecptr->item[ndx].text_item.offset = offset ;
