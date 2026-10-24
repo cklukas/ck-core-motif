@@ -1940,6 +1940,9 @@ ConvertStringToButtonType(
     int i, comma_count ;
     String work_str, btype_str ;
     _Xstrtokparams strtok_buf;
+
+    if (in_str == NULL)
+        return(FALSE);
     
     comma_count = 0 ;
     while(    in_str[in_str_size]    )
@@ -2026,6 +2029,9 @@ CvtStringToKeySymTable(
   String work_str, ks_str, separator;
   KeySym ks;
 
+  if (in_str == NULL)
+    return(FALSE);
+
   comma_count = 0;
   while (in_str[in_str_size])
     {   
@@ -2099,6 +2105,9 @@ CvtStringToCharSetTable(
   char * dataPtr;
   int i;
   String work_str, cs_str, separator;
+
+  if (in_str == NULL)
+    return(False);
 
   work_str = XtNewString(in_str);
 
