@@ -1,3 +1,13 @@
+Xmos path construction bounds (2026-10-24)
+==========================================
+
+- Validate `PWD` and relative path lengths before copying into
+  `MAX_DIR_PATH_LEN` storage. Preserve valid resolution while returning failure
+  cleanly for unrepresentable paths.
+- Add a source-contract regression and document the path handling in
+  docs/xmos-path-bounds.md.
+- Native AArch64 libXm build is warning-free and the Xmos path regression passes.
+
 Color selector label bounds (2026-10-24)
 ========================================
 

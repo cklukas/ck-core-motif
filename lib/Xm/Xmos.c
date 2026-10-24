@@ -32,6 +32,7 @@ static char rcsid[] = "$TOG: Xmos.c /main/33 1998/01/21 11:07:25 csn $"
 #endif
 
 #include <stdio.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" { /* some 'locale.h' do not have prototypes (sun) */
@@ -1155,6 +1156,7 @@ GetCurrentDir(String 	buf)
     struct stat stat1, stat2;
 
     if (pwd
+	&& strlen(pwd) < MAX_DIR_PATH_LEN
 	&& stat (pwd, &stat1) == 0
 	&& stat (".", &stat2) == 0
 	&& stat1.st_dev == stat2.st_dev
@@ -1201,11 +1203,22 @@ _XmOSAbsolutePathName(String path, String *pathRtn, String buf)
 	if (GetCurrentDir(buf) != NULL) {
 	    if (doubleDot) {
 		String filePart, suffixPart;
+		size_t prefix_len, suffix_len;
 		_XmOSFindPathParts(buf, &filePart, &suffixPart);
-		(void) strcpy(filePart, &path[2]);
+		prefix_len = (size_t)(filePart - buf);
+		suffix_len = strlen(&path[2]);
+		if (prefix_len > MAX_DIR_PATH_LEN - 1 ||
+		    suffix_len >= MAX_DIR_PATH_LEN - prefix_len)
+		  return False;
+		memcpy(filePart, &path[2], suffix_len + 1);
 	    }
 	    else {
-		(void) strcat(buf, &path[1]);
+		size_t base_len = strlen(buf);
+		size_t suffix_len = strlen(&path[1]);
+		if (base_len >= MAX_DIR_PATH_LEN ||
+		    suffix_len >= MAX_DIR_PATH_LEN - base_len)
+		  return False;
+		memcpy(buf + base_len, &path[1], suffix_len + 1);
 	    }
 	    *pathRtn = buf;
 	    return True;
