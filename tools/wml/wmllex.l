@@ -26,6 +26,7 @@
  */
 #if defined(__STDC__)
 #include <string.h>
+#include <stdio.h>
 #endif
 
 #ifndef XmConst
@@ -46,6 +47,22 @@ char            yystringval[BUF_SIZE];      /* any string value */
 char            yynameval[BUF_SIZE];         /* any identifier (name) */
 int             yytknval1;              /* terminal token value 1 */
 int             yytknval2;              /* terminal token value 2 */
+
+/* Flex can assemble a token across refill boundaries. Keep the legacy
+ * fixed-size semantic buffers, but reject a token that cannot fit instead of
+ * letting strcpy/strncpy overwrite the next parser buffer. */
+static int wml_copy_token(char *destination, size_t capacity,
+                          const char *source, size_t length)
+{
+        if (length >= capacity) {
+                fprintf(stderr, "WML token is too long (maximum %lu bytes)\n",
+                        (unsigned long)(capacity - 1));
+                return 0;
+        }
+        memcpy(destination, source, length);
+        destination[length] = '\0';
+        return 1;
+}
 
 %}
 
@@ -115,7 +132,9 @@ int             yytknval2;              /* terminal token value 2 */
 "#"[^\n]*	{}
 
 [a-zA-Z_][a-zA-Z0-9$_]* {	/* string without quotes	*/
-	strcpy (yystringval, (XmConst char *) yytext);
+		if (!wml_copy_token(yystringval, sizeof(yystringval),
+		                    (XmConst char *) yytext, (size_t)yyleng))
+			return ERRORTOKEN;
 	return STRING;
 	}
 
@@ -124,8 +143,10 @@ int             yytknval2;              /* terminal token value 2 */
 		}
 
 \"[^"\n]*\"	{	/* String in quotes	*/
-		strncpy(yystringval, (XmConst char *) yytext+1, yyleng - 2);
-		yystringval[yyleng-2] = '\0' ;
+			if (!wml_copy_token(yystringval, sizeof(yystringval),
+			                    (XmConst char *) yytext + 1,
+			                    (size_t)yyleng - 2))
+				return ERRORTOKEN;
 		return STRING;
 		}
 \"[^"\n]*	{

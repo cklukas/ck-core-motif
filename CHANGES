@@ -1,3 +1,11 @@
+Reject oversized WML semantic tokens (2026-10-24)
+==================================================
+
+- Bound identifier and quoted-string copies in the WML specification lexer.
+  Oversized tokens now produce a lexer error instead of overwriting adjacent
+  parser storage; see docs/wml-build.md.
+- Extend the WML build contract regression to require the bounded lexer path.
+
 360 Motif maintenance review (2026-10-24)
 ==========================================
 
