@@ -1,3 +1,10 @@
+Mwm display environment bounds (2026-10-24)
+=============================================
+
+- Allocate the exported `DISPLAY=` value from the complete X display name,
+  removing fixed 256-byte intermediates while preserving the environment
+  value and lifetime; see `docs/mwm-display-env-bounds.md`.
+
 Mwm session database path bounds (2026-10-24)
 ===============================================
 

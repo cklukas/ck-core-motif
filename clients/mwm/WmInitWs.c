@@ -2436,31 +2436,23 @@ void InitNlsStrings (void)
 void
 InitWmDisplayEnv (void)
 {
-    char *pDisplayName;
-    char buffer[256];
-    char displayName[256];
+    const char *pDisplayName;
+    size_t displayLength;
 
     pDisplayName = DisplayString (DISPLAY);
-    
-    /*
-     * Construct displayString for this string.  
-     */
-    strcpy(displayName, pDisplayName);
-    sprintf(buffer, "DISPLAY=%s",displayName);
-    
-    /*		
-     * Allocate space for the display string
-     */
-    if ((wmGD.displayString =
-	 (String)XtMalloc ((unsigned int) (strlen(buffer) + 1))) == NULL)
+    displayLength = strlen(pDisplayName) + strlen("DISPLAY=") + 1;
+
+    /* Allocate the persistent environment value at its exact size. */
+    if ((wmGD.displayString = (String)XtMalloc((unsigned int)displayLength)) == NULL)
     {
 	wmGD.displayString = NULL;
-        Warning (((char *)GETMESSAGE(40, 9, 
+        Warning (((char *)GETMESSAGE(40, 9,
 				     "Insufficient memory for displayString")));
     }
     else
     {
-	strcpy(wmGD.displayString, buffer);
+	(void)snprintf(wmGD.displayString, displayLength,
+	                "DISPLAY=%s", pDisplayName);
 #ifdef WSM
 	putenv(wmGD.displayString);
 #endif /* WSM */

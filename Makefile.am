@@ -117,3 +117,4 @@ EXTRA_DIST += tests/automated/check-high-contrast-profile.c tests/automated/run-
 EXTRA_DIST += docs/dpi-defaults.md
 EXTRA_DIST += tests/automated/check-xlibre-dpi-contract.c tests/automated/run-xlibre-dpi-contract.py docs/xlibre-dpi-contract.md
 EXTRA_DIST += tests/automated/check-mwm-session-db-path.py docs/mwm-session-db-path.md
+EXTRA_DIST += tests/automated/check-mwm-display-env-bounds.py docs/mwm-display-env-bounds.md
