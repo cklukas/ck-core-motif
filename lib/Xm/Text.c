@@ -4176,7 +4176,11 @@ XmCreateScrolledText(Widget parent,
   char s_cache[30];
   char *s;
   Cardinal s_size;
-  Cardinal arg_size = argcount + 5;
+  Cardinal arg_size;
+
+  if (argcount > (Cardinal)(~(Cardinal)0 - 5))
+	return NULL;
+  arg_size = argcount + 5;
   _XmWidgetToAppContext(parent);
 
   _XmAppLock(app);

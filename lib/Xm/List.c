@@ -9991,6 +9991,9 @@ XmCreateScrolledList(Widget parent,
   Arg my_args[4];
   Cardinal nargs;
 
+  if (argCount > (Cardinal)(~(Cardinal)0 - 4))
+    return NULL;
+
   s = (char*) ALLOCATE_LOCAL(XmStrlen(name) + 3); /* Name+"SW"+NULL */
   if (name)
     {

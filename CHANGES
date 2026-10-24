@@ -519,3 +519,10 @@ Development 2.4.0 / RowColumn accelerator storage
 - Grow generated RowColumn accelerator strings on demand with checked size
   arithmetic instead of writing into a fixed stack buffer.
 - Add a public MenuBar regression and maintenance documentation.
+
+Development 2.4.0 / constructor argument-count guards
+======================================================
+
+- Reject Scrolled Text and List argument counts that would overflow internal
+  `Cardinal` additions before merging or allocating argument arrays.
+- Add direct maximal-count regressions and documentation.
