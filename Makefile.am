@@ -428,3 +428,4 @@ EXTRA_DIST += tests/automated/check-mrm-hierarchy-cleanup.py docs/mrm-hierarchy-
 EXTRA_DIST += tests/automated/check-mrm-resolved-path-output.py docs/mrm-resolved-path-output.md
 EXTRA_DIST += tests/automated/check-mrm-context-realloc.py docs/mrm-context-realloc.md
 EXTRA_DIST += tests/automated/check-mrm-error-allocation.py docs/mrm-error-allocation.md
+EXTRA_DIST += tests/automated/check-mrm-buffer-pool-size.py docs/mrm-buffer-pool-size.md

@@ -2954,3 +2954,10 @@ Mrm error-message allocation (2026-10-25)
 - Make memory-mode error-message replacement transactional so a failed
   allocation cannot dereference null or discard the prior message; see
   `docs/mrm-error-allocation.md`.
+
+Mrm buffer-pool size bounds (2026-10-25)
+=======================================
+
+- Reject buffer-pool counts whose allocation-size multiplication would wrap
+  `size_t`, with an explicit `<stdint.h>` dependency for the bound; see
+  `docs/mrm-buffer-pool-size.md`.

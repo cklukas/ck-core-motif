@@ -7,9 +7,13 @@ text = source.read_text(encoding="utf-8")
 start = text.index("\nIdb__BM_InitBufferVector (")
 end = text.find("\n", start + 1)
 region = text[start:] if end < 0 else text[start:end]
-needle = "if (idb__buffer_pool_size <= 0)"
+needle = "idb__buffer_pool_size <= 0"
 if needle not in region:
     raise SystemExit("buffer-pool initialization lacks a non-positive-size guard")
 if region.index(needle) > region.index("XtMalloc"):
     raise SystemExit("buffer-pool size is checked after allocation")
 print("Mrm buffer-pool initialization rejects non-positive sizes before allocation")
+
+if "(size_t)idb__buffer_pool_size > SIZE_MAX / sizeof(IDBRecordBuffer)" not in region:
+    raise SystemExit("buffer-pool allocation has no multiplication bound")
+print("Mrm buffer-pool multiplication is bounded")

@@ -57,6 +57,7 @@ static char rcsid[] = "$XConsortium: MrmIbuffer.c /main/16 1996/11/13 13:55:44 d
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
 #include <Mrm/IDB.h>
+#include <stdint.h>
 #include "MrmMsgI.h"
 
 /*
@@ -161,7 +162,8 @@ Idb__BM_InitBufferVector (void)
   Cardinal		ndx ;		/* loop variable */
   IDBRecordBufferPtr	bufptr ;	/* entry into buffer pool vector */
 
-  if (idb__buffer_pool_size <= 0)
+  if (idb__buffer_pool_size <= 0 ||
+      (size_t)idb__buffer_pool_size > SIZE_MAX / sizeof(IDBRecordBuffer))
     return MrmFAILURE;
 
   idb__buffer_pool_vec = (IDBRecordBufferPtr) XtMalloc
