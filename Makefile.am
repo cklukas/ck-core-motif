@@ -95,6 +95,8 @@ EXTRA_DIST += docs/date-picker.md tests/automated/check-date-picker.c \
               tests/automated/run-date-picker.py
 EXTRA_DIST += docs/time-picker.md tests/automated/check-time-picker.c \
               tests/automated/run-time-picker.py
+EXTRA_DIST += docs/segmented-control.md tests/automated/check-segmented-control.c \
+              tests/automated/run-segmented-control.py
 EXTRA_DIST += docs/data-grid.md tests/automated/check-data-grid.c \
               tests/automated/run-data-grid.py
 
@@ -453,4 +455,3 @@ EXTRA_DIST += tests/automated/check-mrm-writer-creation-callback-validation.py d
 EXTRA_DIST += tests/automated/check-mrm-writer-arglist-validation.py docs/mrm-writer-arglist-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-compressed-tag-validation.py docs/mrm-writer-compressed-tag-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-uncompressed-tag-validation.py docs/mrm-writer-uncompressed-tag-validation.md
-EXTRA_DIST += tests/automated/check-mrm-writer-arg-value-validation.py docs/mrm-writer-arg-value-validation.md

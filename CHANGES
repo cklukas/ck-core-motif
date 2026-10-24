@@ -3121,10 +3121,7 @@ Mrm writer uncompressed-tag validation (2026-10-25)
 - Propagate context and argument-binding failures from
   `UrmCWRSetUncompressedArgTag` before and after appending the tag string; see
   `docs/mrm-writer-uncompressed-tag-validation.md`.
+2026-10-25
+	* Add an opt-in XmSegmentedControl composite with copied item ownership,
+	  bounded clipping, RTL keyboard traversal and accessibility selection state.
 
-Mrm writer arg-value validation (2026-10-25)
-==============================================
-
-- Propagate context and argument-binding failures from `UrmCWRSetArgValue`
-  before modifying the argument record; see
-  `docs/mrm-writer-arg-value-validation.md`.
