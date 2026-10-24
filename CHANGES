@@ -1,3 +1,13 @@
+EditRes fallback formatting (2026-10-24)
+========================================
+
+- Pass the destination capacity through the edit-resources integer fallback,
+  use bounded numeric formatting, and append application-defined resource types
+  within the remaining space.
+- Add a source-contract regression and document the protection in
+  docs/editres-fallback-bounds.md.
+- Native AArch64 libXm build is warning-free and the EditRes regression passes.
+
 MapEvents token bounds (2026-10-24)
 ===================================
 

@@ -1504,7 +1504,7 @@ EditResCvtWarningHandler(String name,
 }
 
 static void
-_XtGetStringValues(Widget w, Arg *warg, int numargs)
+_XtGetStringValues(Widget w, Arg *warg, int numargs, size_t buffer_size)
 {
     XtResourceList res_list;
     Cardinal num_res;
@@ -1635,20 +1635,20 @@ _XtGetStringValues(Widget w, Arg *warg, int numargs)
 	    switch (res->resource_size)
 	    {
 		case sizeof(char):
-		  sprintf(buffer, "%d", (unsigned char)value);
+		  snprintf(buffer, buffer_size, "%d", (unsigned char)value);
 		string = buffer;
 		break;
 		case sizeof(short):
-		  sprintf(buffer, "%d", (short)value);
+		  snprintf(buffer, buffer_size, "%d", (short)value);
 		string = buffer;
 		break;
 		case sizeof(int):
-		  sprintf(buffer, "%d", (int)value);
+		  snprintf(buffer, buffer_size, "%d", (int)value);
 		string = buffer;
 		break;
 #if (LONG_BIT == 64)
 		case sizeof(long):
-		  sprintf(buffer, "%ld", value);
+		  snprintf(buffer, buffer_size, "%ld", value);
 		string = buffer;
 		break;
 #endif
@@ -1658,7 +1658,12 @@ _XtGetStringValues(Widget w, Arg *warg, int numargs)
 	    /*
 	    strcat(buffer, " (integer fallback conversion)");
 	    */
-	    sprintf(&buffer[strlen(buffer)], " (%s)", res->resource_type);
+	    {
+		size_t used = strlen(buffer);
+		if (used < buffer_size)
+		  snprintf(buffer + used, buffer_size - used, " (%s)",
+			   res->resource_type);
+	    }
 	}
 	/*
 	 * Restore original warning handler.
@@ -1702,7 +1707,7 @@ ProtocolStream* stream;
   Arg warg[1];
   String res_value = NULL;
   GetValuesEvent * gv_event = (GetValuesEvent *)event; 
-  char buffer[64], *str;
+  char buffer[1024], *str;
 
   res_value = buffer;
 
@@ -1720,7 +1725,8 @@ ProtocolStream* stream;
     }
     else
     {
-	_XtGetStringValues(gv_event->widgets[0].real_widget, warg, 1);
+	_XtGetStringValues(gv_event->widgets[0].real_widget, warg, 1,
+			   sizeof(buffer));
 	if (!res_value) res_value = "NoValue";
 	_XEditResPutString8(stream, res_value);
     }
