@@ -633,9 +633,11 @@ UrmCWRSetArgValue (URMResourceContextPtr	context_id,
    * Validate record, arglist descriptor, and argument number.
    * Set the argument type now.
    */
-  UrmCWR__ValidateContext (context_id, "UrmCWRSetArgValue") ;
-  UrmCWR__BindArgPtrs
+  result = UrmCWR__ValidateContext (context_id, "UrmCWRSetArgValue") ;
+  if ( result != MrmSUCCESS ) return result ;
+  result = UrmCWR__BindArgPtrs
     (context_id, "UrmCWRSetArgValue", arg_ndx, &argdesc, &argptr) ;
+  if ( result != MrmSUCCESS ) return result ;
 
   argptr->arg_val.rep_type = type ;
 
