@@ -274,10 +274,20 @@ Idb__FU_CloseFile (IDBLowLevelFile	*file_id ,
 
   status = close (file_id->file_desc);
   if (status != 0)
-    return MrmFAILURE;
+	{
+	XtFree (file_id->name);
+	XtFree ((char*)file_id);
+	return MrmFAILURE;
+	}
 
   if (delete) {
     status = unlink (file_id->name);
+	if (status != 0)
+	  {
+	  XtFree (file_id->name);
+	  XtFree ((char*)file_id);
+	  return MrmFAILURE;
+	  }
   }
 
   XtFree (file_id->name);

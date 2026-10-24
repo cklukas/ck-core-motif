@@ -365,7 +365,7 @@ UrmIdbCloseFile (IDBFile		file_id,
   /*
    * File successfully closed
    */
-  return MrmSUCCESS ;
+  return result ;
 
 }
 

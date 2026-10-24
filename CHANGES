@@ -1,3 +1,8 @@
+Mrm IDB close status and cleanup (2026-10-25)
+===============================================
+
+- Free low-level IDB state after close failures, report unlink failures when deleting files, and propagate the low-level close result through `UrmIdbCloseFile`; see `docs/mrm-idb-close-status.md`.
+
 Mrm low-level IDB open cleanup (2026-10-25)
 =============================================
 
