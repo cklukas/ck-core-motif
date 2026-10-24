@@ -717,3 +717,10 @@ Text preedit completion conversion bounds (2026-10-24)
 - Validate every `mblen` result while completing overstrike preedit text, preventing negative byte counts and invalid source offsets on malformed locale sequences. Invalid recovery fragments now complete as empty text.
 - Preserve valid preedit completion, callbacks, public interfaces and native ABI. Document the behavior in `docs/text-preedit-done-bounds.md`.
 - Native AArch64 validation passes the warning-enabled Text source build.
+
+DataField printable-text conversion progress (2026-10-24)
+===========================================================
+
+- Reject zero-length `mblen` results as well as negative results in both DataField printable-text validation loops, guaranteeing progress and preventing hangs on NUL or malformed locale input.
+- Preserve valid printable/wide-character behavior, public interfaces and native ABI. Document the progress contract in `docs/datafield-printable-progress.md`.
+- Native AArch64 validation passes the warning-enabled DataField build and Xvfb DataField regression.

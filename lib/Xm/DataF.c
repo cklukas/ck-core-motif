@@ -4880,7 +4880,7 @@ PrintableString(XmDataFieldWidget tf,
 	   i += csize, csize = str[i] ? 1 : 0)
 #endif
 	{
-	  if (csize < 0) 
+	  if (csize <= 0)
 	    return False;
 	  if (mbtowc(&wc, &(str[i]), tf->text.max_char_size) <= 0)
 	    return False;
@@ -4905,7 +4905,7 @@ PrintableString(XmDataFieldWidget tf,
 	   i += csize, csize = str[i] ? 1 : 0)
 #endif
 	{
-	  if (csize < 0)
+	  if (csize <= 0)
 	    return False;
 	  if (csize == 1 && !isprint((unsigned char)str[i])) {
 	    return False;
