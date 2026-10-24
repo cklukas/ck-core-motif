@@ -1,3 +1,10 @@
+Mrm read-side index bounds (2026-10-25)
+=======================================
+
+- Harden binary search and resource enumeration against malformed counts,
+  offsets, child links, and buffer reload failures; see
+  `docs/mrm-index-read-bounds.md`.
+
 Mrm child-repair bounds (2026-10-25)
 ====================================
 

@@ -89,12 +89,15 @@ static char rcsid[] = "$XConsortium: MrmIindex.c /main/13 1996/11/13 13:57:31 dr
  * Macros which validate index records in buffers
  */
 #define	Idb__INX_ValidLeaf(buffer) \
-     (_IdbBufferRecordType(buffer)==IDBrtIndexLeaf)
+     ((buffer) != NULL && (buffer)->IDB_record != NULL && \
+      _IdbBufferRecordType(buffer)==IDBrtIndexLeaf)
 #define	Idb__INX_ValidNode(buffer) \
-     (_IdbBufferRecordType(buffer)==IDBrtIndexNode)
-#define	Idb__INX_ValidRecord(buffer) \
-     (_IdbBufferRecordType(buffer)==IDBrtIndexLeaf ||  \
+     ((buffer) != NULL && (buffer)->IDB_record != NULL && \
       _IdbBufferRecordType(buffer)==IDBrtIndexNode)
+#define	Idb__INX_ValidRecord(buffer) \
+     ((buffer) != NULL && (buffer)->IDB_record != NULL && \
+      (_IdbBufferRecordType(buffer)==IDBrtIndexLeaf ||  \
+       _IdbBufferRecordType(buffer)==IDBrtIndexNode))
 
 
 
@@ -344,10 +347,13 @@ Idb__INX_SearchIndex (IDBFile			file_id,
   IDBIndexNodeEntryPtr	node_ndxvec = NULL;	/* index node entry vector */
   MrmCount		ndxcnt ;	/* number of entries in vector */
   char			*stgbase ;	/* base adddress for string offsets */
-  int			lowlim ;	/* binary search lower limit index */
-  int			uprlim ;	/* binary search upper limit index */
+  MrmCount		lowlim ;	/* binary search lower limit index */
+  MrmCount		uprlim ;	/* binary search upper limit index */
   char			*ndxstg ;	/* pointer to current index string */
   int			cmpres=0;	/* strncmp result */
+  MrmOffset		stg_offs ;	/* current string offset */
+  MrmCount		record_free_max ;	/* record data-area size */
+  MrmCount		record_entry_size ;	/* record entry size */
 
   if (file_id == NULL || index == NULL || buffer == NULL ||
       buffer->IDB_record == NULL || index_return == NULL)
@@ -365,6 +371,10 @@ Idb__INX_SearchIndex (IDBFile			file_id,
       leaf_ndxvec = leafrec->index ;
       ndxcnt = leafhdr->index_count ;
       stgbase = (char *) leafrec->index ;
+      record_free_max = IDBIndexLeafFreeMax ;
+      record_entry_size = IDBIndexLeafEntrySize ;
+      if (leafhdr->heap_start > record_free_max)
+        return MrmBAD_RECORD;
       break ;
     case IDBrtIndexNode:
       noderec = (IDBIndexNodeRecordPtr) buffer->IDB_record ;
@@ -372,10 +382,22 @@ Idb__INX_SearchIndex (IDBFile			file_id,
       node_ndxvec = noderec->index ;
       ndxcnt = nodehdr->index_count ;
       stgbase = (char *) noderec->index ;
+      record_free_max = IDBIndexNodeFreeMax ;
+      record_entry_size = IDBIndexNodeEntrySize ;
+      if (nodehdr->heap_start > record_free_max)
+        return MrmBAD_RECORD;
       break ;
     default:
       return Urm__UT_Error ("Idb__INX_SearchIndex", _MrmMMsg_0010,
 			    file_id, NULL, MrmBAD_RECORD) ;
+    }
+
+  if (ndxcnt > record_free_max / record_entry_size)
+    return MrmBAD_RECORD;
+  if (ndxcnt == 0)
+    {
+      *index_return = 0;
+      return MrmINDEX_LT;
     }
 
   /*
@@ -385,12 +407,22 @@ Idb__INX_SearchIndex (IDBFile			file_id,
   for ( lowlim=0,uprlim=ndxcnt-1 ; lowlim<=uprlim ; )
     {
       *index_return = (lowlim+uprlim) / 2 ;
-      ndxstg = (buftyp==IDBrtIndexLeaf) ?
-        (char *) stgbase + leaf_ndxvec[*index_return].index_stg :
-        (char *) stgbase + node_ndxvec[*index_return].index_stg ;
+      stg_offs = (buftyp==IDBrtIndexLeaf) ?
+        leaf_ndxvec[*index_return].index_stg :
+        node_ndxvec[*index_return].index_stg ;
+      if (stg_offs >= record_free_max)
+        return MrmBAD_RECORD;
+      ndxstg = (char *) stgbase + stg_offs ;
+      if (strnlen (ndxstg, IDBMaxIndexLength1) == IDBMaxIndexLength1)
+        return MrmBAD_RECORD;
       cmpres = strncmp (index, ndxstg, IDBMaxIndexLength) ;
       if ( cmpres == 0 ) return MrmSUCCESS ;
-      if ( cmpres < 0 ) uprlim = *index_return - 1 ;
+      if ( cmpres < 0 )
+        {
+          if (*index_return == 0)
+            break;
+          uprlim = *index_return - 1 ;
+        }
       if ( cmpres > 0 ) lowlim = *index_return + 1 ;
     }
 
@@ -544,7 +576,7 @@ Idb__INX_FindResources (IDBFile			file_id,
    */
   Cardinal		result ;	/* function results */
   IDBRecordBufferPtr	bufptr ;	/* buffer containing entry */
-  int			entndx ;	/* entry loop index */
+  MrmCount		entndx ;	/* entry loop index */
   IDBIndexLeafRecordPtr	leafrec ;	/* index leaf record */
   IDBIndexLeafHdrPtr	leafhdr ;	/* index leaf header */
   IDBIndexNodeRecordPtr	noderec ;	/* index node record */
@@ -554,6 +586,8 @@ Idb__INX_FindResources (IDBFile			file_id,
   MrmCount		ndxcnt ;	/* number of entries in vector */
   char			*stgbase ;	/* base adddress for string offsets */
 
+  if (file_id == NULL || recno <= 0 || index_list == NULL)
+    return MrmFAILURE;
 
 
   /*
@@ -561,6 +595,9 @@ Idb__INX_FindResources (IDBFile			file_id,
    */
   result = Idb__BM_GetRecord (file_id, recno, &bufptr) ;
   if ( result != MrmSUCCESS ) return result ;
+  if ( ! Idb__INX_ValidRecord(bufptr) )
+    return Urm__UT_Error ("Idb__INX_FindResources", _MrmMMsg_0010,
+                          file_id, NULL, MrmBAD_RECORD) ;
 
   switch ( _IdbBufferRecordType (bufptr) )
     {
@@ -574,10 +611,17 @@ Idb__INX_FindResources (IDBFile			file_id,
       leaf_ndxvec = leafrec->index ;
       ndxcnt = leafhdr->index_count ;
       stgbase = (char *) leafrec->index ;
+      if (ndxcnt > IDBIndexLeafFreeMax / IDBIndexLeafEntrySize ||
+          leafhdr->heap_start > IDBIndexLeafFreeMax)
+        return MrmBAD_RECORD;
 
       for ( entndx=0 ; entndx<ndxcnt ; entndx++ )
 	{
 	  IDBDataHandle	entry_data;
+	  if (leaf_ndxvec[entndx].index_stg >= IDBIndexLeafFreeMax ||
+	      strnlen (stgbase + leaf_ndxvec[entndx].index_stg,
+                IDBMaxIndexLength1) == IDBMaxIndexLength1)
+	    return MrmBAD_RECORD;
 
 	  entry_data.rec_no = leaf_ndxvec[entndx].data.internal_id.rec_no;
 	  entry_data.item_offs =
@@ -604,6 +648,11 @@ Idb__INX_FindResources (IDBFile			file_id,
       node_ndxvec = noderec->index ;
       ndxcnt = nodehdr->index_count ;
       stgbase = (char *) noderec->index ;
+      if (ndxcnt == 0 ||
+          ndxcnt > IDBIndexNodeFreeMax / IDBIndexNodeEntrySize ||
+          nodehdr->heap_start > IDBIndexNodeFreeMax ||
+          node_ndxvec[0].LT_record <= 0)
+        return MrmBAD_RECORD;
       result = Idb__INX_FindResources
 	(file_id, node_ndxvec[0].LT_record,
 	 group_filter, type_filter, index_list) ;
@@ -612,16 +661,29 @@ Idb__INX_FindResources (IDBFile			file_id,
       for ( entndx=0 ; entndx<ndxcnt ; entndx++ )
 	{
 	  IDBDataHandle	entry_data;
+	  if (node_ndxvec[entndx].index_stg >= IDBIndexNodeFreeMax ||
+	      strnlen (stgbase + node_ndxvec[entndx].index_stg,
+                IDBMaxIndexLength1) == IDBMaxIndexLength1)
+	    return MrmBAD_RECORD;
 
 	  entry_data.rec_no = node_ndxvec[entndx].data.internal_id.rec_no;
 	  entry_data.item_offs =
 	    node_ndxvec[entndx].data.internal_id.item_offs;
 
-	  Idb__BM_GetRecord (file_id, recno, &bufptr) ;
+	  result = Idb__BM_GetRecord (file_id, recno, &bufptr) ;
+	  if (result != MrmSUCCESS) return result;
+	  if (!Idb__INX_ValidNode(bufptr)) return MrmBAD_RECORD;
 	  noderec = (IDBIndexNodeRecordPtr) bufptr->IDB_record ;
 	  nodehdr = (IDBIndexNodeHdrPtr) &noderec->node_header ;
 	  node_ndxvec = noderec->index ;
 	  stgbase = (char *) noderec->index ;
+	  if (nodehdr->index_count == 0 ||
+	      nodehdr->index_count > IDBIndexNodeFreeMax / IDBIndexNodeEntrySize ||
+	      nodehdr->heap_start > IDBIndexNodeFreeMax ||
+	      entndx >= nodehdr->index_count)
+	    return MrmBAD_RECORD;
+	  if (node_ndxvec[entndx].GT_record <= 0)
+	    return MrmBAD_RECORD;
 	  if ( Idb__DB_MatchFilter
 	       (file_id, entry_data, group_filter, type_filter) )
 	    UrmPlistAppendString (index_list,
