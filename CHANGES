@@ -3003,3 +3003,10 @@ Mrm callback context-list initialization (2026-10-25)
 - Propagate callback context-list allocation failures from both widget-instance
   paths instead of entering fixup with a null list; see
   `docs/mrm-callback-context-init.md`.
+
+Mrm deferred callback-name allocation (2026-10-25)
+====================================================
+
+- Propagate deferred widget-reference name allocation failures during callback
+  fixup before publishing an unresolved callback entry; see
+  `docs/mrm-callback-name-allocation.md`.

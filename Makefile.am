@@ -436,3 +436,4 @@ EXTRA_DIST += tests/automated/check-mrm-writer-scalar-input.py docs/mrm-writer-s
 EXTRA_DIST += tests/automated/check-mrm-topmost-index.py docs/mrm-topmost-index.md
 EXTRA_DIST += tests/automated/check-mrm-cstring-stream-cleanup.py docs/mrm-cstring-stream-cleanup.md
 EXTRA_DIST += tests/automated/check-mrm-callback-context-init.py docs/mrm-callback-context-init.md
+EXTRA_DIST += tests/automated/check-mrm-callback-name-allocation.py docs/mrm-callback-name-allocation.md

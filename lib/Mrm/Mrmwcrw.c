@@ -3422,6 +3422,9 @@ Urm__CW_FixupCallback (Widget			parent ,
 	      else {	/* Save to resolve later */
 		itmptr->runtime.resolved = FALSE;
 		itmptr->runtime.wname = Urm__UT_AllocString(ref_name);
+		if (itmptr->runtime.wname == NULL)
+		  return Urm__UT_Error ("Urm__CW_FixupCallback", _MrmMMsg_0001,
+					NULL, NULL, MrmFAILURE);
 		tag_val = 0L;
 		unres_ref_count++;
 	      }
