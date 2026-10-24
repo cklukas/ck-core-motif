@@ -1,3 +1,14 @@
+XIM reference removal (2026-10-24)
+==================================
+
+- Verify a widget is registered before decrementing XIM reference counts, so
+  duplicate or stale destroy callbacks become safe no-ops while normal cleanup
+  remains unchanged.
+- Add a source-contract regression and document the lifecycle behavior in
+  docs/xim-reference-removal.md.
+- Native AArch64 libXm build is warning-free and the XIM reference regression
+  passes.
+
 XmScreen generated name bounds (2026-10-24)
 ===========================================
 

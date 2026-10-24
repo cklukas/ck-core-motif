@@ -2798,24 +2798,28 @@ static Cardinal
 remove_ref(XmImRefInfo refs,
 	   Widget      widget)
 {
+	int index;
+
+	if (refs == NULL || refs->num_refs == 0)
+	  return 0;
+
+	for (index = 0; index < (int)refs->num_refs; index++)
+	  if (refs->refs[index] == widget)
+	    break;
+	if (index == (int)refs->num_refs)
+	  return refs->num_refs;
+
   /* Is this the last reference? */
   refs->num_refs--;
   if (refs->num_refs > 0)
     {
       /* Just remove this reference. */
-      int index = 0;
-      while (index <= refs->num_refs) {
-	if (refs->refs[index] == widget)
-	  {
-	    refs->refs[index] = refs->refs[refs->num_refs];
-	    refs->refs[refs->num_refs] = NULL;
+      {
+	refs->refs[index] = refs->refs[refs->num_refs];
+	refs->refs[refs->num_refs] = NULL;
             XtFree((char *)refs->callbacks[index]);
             refs->callbacks[index] = refs->callbacks[refs->num_refs];
             refs->callbacks[refs->num_refs] = NULL;
-
-	    break;
-	  }
-	index++;
       }
       
       /* Free some storage from the array? */
