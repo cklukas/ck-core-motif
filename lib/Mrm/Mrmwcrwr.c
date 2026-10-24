@@ -331,7 +331,7 @@ UrmCWRInitArglist (URMResourceContextPtr	context_id,
    */
   Cardinal		result ;	/* function results */
   RGMWidgetRecordPtr	widgetrec ;	/* widget record in context */
-  MrmSize			descsiz ;	/* descriptor size */
+  size_t			descsiz ;	/* descriptor size */
   MrmOffset		offset ;	/* arglist descriptor offset */
   RGMArgListDescPtr	argdesc ;	/* pointer to arglist in record */
   int			ndx ;		/* loop index */
@@ -344,7 +344,10 @@ UrmCWRInitArglist (URMResourceContextPtr	context_id,
   /*
    * Error check that the number of arguments is reasonable
    */
-  if ( nargs == 0 || nargs > RGMListSizeMax )
+  if ( nargs == 0 || nargs > RGMListSizeMax ||
+       sizeof(RGMArgListDesc) > USHRT_MAX ||
+       (size_t)(nargs - 1) >
+	 (USHRT_MAX - sizeof(RGMArgListDesc)) / sizeof(RGMArgument) )
     return Urm__UT_Error ("UrmCWRInitArgList", _MrmMMsg_0092,
 			  NULL, context_id, MrmTOO_MANY) ;
 
