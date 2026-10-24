@@ -1,3 +1,10 @@
+Mrm file seek checks (2026-10-25)
+===============================
+
+- Check `lseek` results before Mrm block reads and writes, preserving valid file
+  access while preventing failed seeks from directing I/O at an unintended
+  position; see `docs/mrm-file-seek-bounds.md`.
+
 Mrm low-level file I/O validation (2026-10-25)
 ===============================================
 

@@ -333,7 +333,8 @@ Idb__FU_GetBlock (IDBLowLevelFile	*file_id,
     return MrmFAILURE;
 
   fdesc = file_id->file_desc ;
-  lseek (fdesc, (block_num-1)*IDBRecordSize, 0);
+  if (lseek (fdesc, (block_num-1)*IDBRecordSize, 0) == (off_t)-1)
+    return MrmFAILURE;
   number_read = read (file_id->file_desc, buffer, IDBRecordSize);
 
   if (number_read != IDBRecordSize) 
@@ -394,7 +395,8 @@ Idb__FU_PutBlock (IDBLowLevelFile	*file_id,
     return MrmFAILURE;
 
   fdesc = file_id->file_desc ;
-  lseek (fdesc, (block_num-1)*IDBRecordSize, 0);
+  if (lseek (fdesc, (block_num-1)*IDBRecordSize, 0) == (off_t)-1)
+    return MrmFAILURE;
   number_written = write (file_id->file_desc, buffer, IDBRecordSize);
 
   if (number_written != IDBRecordSize)

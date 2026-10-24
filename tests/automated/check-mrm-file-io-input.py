@@ -29,4 +29,14 @@ for name, (guard_text, deref_text) in checks.items():
     if "return MrmFAILURE;" not in body[guard:deref]:
         raise SystemExit(f"{name} failure return is missing")
 
+for name, io_call in (("Idb__FU_GetBlock", "read (file_id->file_desc"),
+                      ("Idb__FU_PutBlock", "write (file_id->file_desc")):
+    start = text.rindex("\n" + name + " (") + 1
+    end = text.index("\n}\n", start)
+    body = text[start:end]
+    if "if (lseek (fdesc" not in body:
+        raise SystemExit(f"{name} does not check lseek failure")
+    if body.index("if (lseek (fdesc") > body.index(io_call):
+        raise SystemExit(f"{name} performs I/O before checking lseek")
+
 print("Mrm low-level file I/O validates inputs")
