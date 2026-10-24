@@ -1,3 +1,8 @@
+Bound text source scratch-buffer sizing (2026-10-24)
+=====================================================
+- Check character-width multiplication before allocating the text source
+  conversion scratch buffer, preventing wide-character size wraparound.
+- Add a source contract regression and document the remaining range boundary.
 Make WML generator inputs explicit (2026-10-24)
 ===============================================
 - Generate wmluiltok.c from the checked-in lexer and generate the Uil parser

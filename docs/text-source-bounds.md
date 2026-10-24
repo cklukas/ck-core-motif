@@ -5,6 +5,11 @@ allocating or passing positions through the `int`-indexed source reader.  A
 range that cannot be represented safely is rejected with a null result; valid
 ranges retain the existing byte and wide-character conversion behavior.
 
+The source reader also checks the character-width multiplication used for its
+scratch buffer before allocating it. This keeps wide-character reads from
+wrapping an allocation size even when a source reports a very large block. The
+contract is covered by `tests/automated/check-text-source-allocation.py`.
+
 Run the native installed-prefix regression with:
 
 ```sh

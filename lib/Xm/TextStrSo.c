@@ -791,13 +791,18 @@ ReadSource(XmTextSource source,
   _XmStringSourceReadString(source, (int)position, block);
   
   if (block->length > 0) {
+    size_t block_bytes;
+
+    if ((size_t)block->length >
+	(SIZE_MAX - 1) / (size_t)tw->text.char_size)
+	  return 0;
+    block_bytes = (size_t)block->length * (size_t)tw->text.char_size + 1;
     if (data->old_length == 0) {
       data->value = (char *) 
-	XtMalloc((unsigned)(block->length + 1) * (int)tw->text.char_size);
+	XtMalloc(block_bytes);
       data->old_length = block->length;
     } else if (block->length > data->old_length) {
-      data->value = XtRealloc(data->value, (unsigned)
-			      ((block->length + 1) * (int)tw->text.char_size));
+      data->value = XtRealloc(data->value, block_bytes);
       data->old_length = block->length;
     }
     
