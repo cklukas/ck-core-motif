@@ -1,3 +1,10 @@
+Accessibility journey and semantic coverage matrix (2026-10-24)
+================================================================
+
+- Document native/provider and real-client evidence for menus, lists, text,
+  dialogs, disclosure and scrollbars, with x86_64, desktop-client and sanitizer
+  limits kept explicit; see `docs/accessibility-journey-matrix.md`.
+
 Mwm binding-path bounds (2026-10-24)
 ====================================
 

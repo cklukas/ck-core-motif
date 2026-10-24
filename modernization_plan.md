@@ -509,6 +509,15 @@ fixtures alone cannot establish.
 **Complete when:** the selected journeys and native semantic tests pass from an
 installed prefix and the documentation names their real scope and limitations.
 
+**Status (2026-10-24):** phase 1 is implemented and qualified on the native
+AArch64 installed cohort. Native/provider fixtures cover roles, names, states,
+actions, selection, text events, modality and destruction/reentrancy for the
+listed surfaces, with focused AT-SPI observers and a bounded Orca/eSpeak
+baseline. `docs/accessibility-journey-matrix.md` records the distinction
+between those protocol results and real-client usability. Complete x86_64,
+all desktop screen-readers, application journeys and clean sanitizer exit
+ownership remain explicit gates.
+
 ### WP-08: Optional C++ support-library design
 
 **Depends on:** none.

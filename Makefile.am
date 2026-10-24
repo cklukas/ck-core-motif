@@ -135,3 +135,4 @@ EXTRA_DIST += tests/automated/check-mwm-config-allocation-warning.py docs/mwm-co
 EXTRA_DIST += tests/automated/check-svg-image.c tests/automated/run-svg-image.py docs/svg-images.md
 EXTRA_DIST += docs/native-text-ime-matrix.md
 EXTRA_DIST += tests/automated/check-mwm-bindings-path.py docs/mwm-bindings-path.md
+EXTRA_DIST += docs/accessibility-journey-matrix.md
