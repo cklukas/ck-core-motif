@@ -226,3 +226,4 @@ EXTRA_DIST += tests/automated/check-mrm-callback-bounds.py docs/mrm-callback-bou
 EXTRA_DIST += tests/automated/check-mrm-callback-copy-bounds.py docs/mrm-callback-copy-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-text-vector-bounds.py docs/mrm-text-vector-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-hierarchy-counts.py docs/mrm-hierarchy-bounds.md
+EXTRA_DIST += tests/automated/check-mrm-children-bounds.py docs/mrm-children-bounds.md

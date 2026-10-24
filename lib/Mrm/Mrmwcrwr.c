@@ -1565,7 +1565,10 @@ UrmCWRInitChildren (URMResourceContextPtr	context_id ,
   /*
    * Error check that the number of children is reasonable
    */
-  if ( nchildren > RGMListSizeMax )
+  if ( nchildren == 0 || nchildren > RGMListSizeMax ||
+       sizeof(RGMChildrenDesc) > USHRT_MAX ||
+       (size_t)(nchildren - 1) >
+	 (USHRT_MAX - sizeof(RGMChildrenDesc)) / sizeof(RGMChildDesc) )
     return Urm__UT_Error ("UrmCWRInitChildren", _MrmMMsg_0099,
 			  NULL, context_id, MrmTOO_MANY) ;
 

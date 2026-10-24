@@ -1,3 +1,9 @@
+Mrm child-list bounds (2026-10-25)
+=================================
+
+- Reject zero and 16-bit descriptor-size-overflowing child counts before
+  subtractive sizing; see `docs/mrm-children-bounds.md`.
+
 Mrm hierarchy file-list bounds (2026-10-25)
 =============================================
 
