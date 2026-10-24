@@ -1306,6 +1306,10 @@ Urm__CW_CreateArglist (Widget			parent,
 		  if (strcmp(file_id->db_version, URM1_1version) <= 0)
 		    {
 		      int count = ((OldRGMFontListPtr)val)->count;
+		      if (count <= 0 ||
+			  (size_t)(count - 1) >
+			      (SIZE_MAX - sizeof(RGMFontList)) / sizeof(RGMFontItem))
+			return;
 		      fontlist = (RGMFontListPtr)
 			XtMalloc(sizeof(RGMFontList) +
 				 (sizeof(RGMFontItem) * (count - 1)));
@@ -3304,6 +3308,10 @@ Urm__CW_FixupCallback (Widget			parent ,
 		  (strcmp(file_id->db_version, URM1_1version) <= 0))
 		{
 		  int count = ((OldRGMFontListPtr)tag_val)->count;
+		  if (count <= 0 ||
+		      (size_t)(count - 1) >
+			  (SIZE_MAX - sizeof(RGMFontList)) / sizeof(RGMFontItem))
+		    return MrmFAILURE;
 
 		  fontlist = (RGMFontListPtr)
 		    XtMalloc(sizeof(RGMFontList) +

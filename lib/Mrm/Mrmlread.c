@@ -55,6 +55,7 @@ static char rcsid[] = "$XConsortium: Mrmlread.c /main/16 1996/11/13 14:02:28 drk
 #include <stdio.h>
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
+#include <stdint.h>
 #include "MrmosI.h"
 #include "MrmMsgI.h"
 
@@ -147,6 +148,10 @@ Urm__FetchLiteral (MrmHierarchy			hierarchy_id,
       if (strcmp(file_id->db_version, URM1_1version) <= 0)
 	{
 	  int count = ((OldRGMFontListPtr)val)->count;
+	  if (count <= 0 ||
+	      (size_t)(count - 1) >
+		  (SIZE_MAX - sizeof(RGMFontList)) / sizeof(RGMFontItem))
+	    return MrmFAILURE;
 	  RGMFontListPtr fontlist = (RGMFontListPtr)
 	    XtMalloc(sizeof(RGMFontList) + (sizeof(RGMFontItem) * (count - 1)));
 	  Urm__CW_FixupValue ((long)fontlist, type, (XtPointer)val, file_id,

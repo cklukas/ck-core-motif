@@ -1,3 +1,10 @@
+Mrm legacy font-list bounds (2026-10-25)
+========================================
+
+- Validate legacy Mrm 1.1 font-list counts before `count - 1` sizing in all
+  reader and widget-record paths, preventing underflow and wrapped records;
+  see `docs/mrm-fontlist-bounds.md`.
+
 Mrm zero-count descriptor guards (2026-10-25)
 ==============================================
 
