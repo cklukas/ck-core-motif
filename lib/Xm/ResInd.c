@@ -285,6 +285,9 @@ ParseUnitString(
   double power;
   int sign;
   char c;
+
+  if (spec == NULL || float_value == NULL || unit_type == NULL)
+    return XmPARSE_ERROR;
   
   /* Skip leading whitespace */
   while ((isascii(c=*string)) && (isspace(c))) string++;

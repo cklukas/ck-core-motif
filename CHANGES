@@ -1,3 +1,5 @@
+* Guard unit-string parsing against null specifications and output pointers,
+  returning XmPARSE_ERROR for malformed resource input.
 * Guard representation-type action parameter conversion against null pointers
   and pass unsigned bytes to ctype classification.
 * Make render-table token classification pass unsigned bytes to ctype
