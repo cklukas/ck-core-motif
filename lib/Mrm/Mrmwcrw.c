@@ -1972,8 +1972,20 @@ Urm__CW_DisplayToString (char                       *val,
   unsigned int            dpysize = sizeof(Display *);
   int                     ndx;
   int                     count=0;
+  size_t                  add_string_len;
+  size_t                  allocation_size;
 
-  return_val = XtCalloc (1, dpysize + add_string_size);
+  if (val == NULL || add_string == NULL || add_string_size <= 0)
+    return NULL;
+
+  add_string_len = strlen(add_string);
+  if (add_string_len == SIZE_MAX ||
+      add_string_len + 1 > (size_t)add_string_size ||
+      (size_t)dpysize > SIZE_MAX - (size_t)add_string_size)
+    return NULL;
+  allocation_size = (size_t)dpysize + (size_t)add_string_size;
+
+  return_val = XtCalloc (1, allocation_size);
   if (return_val == NULL)
     {
       return (return_val);
@@ -1997,7 +2009,7 @@ Urm__CW_DisplayToString (char                       *val,
       return (return_val);
     }
 
-  strcat (&return_val[count], add_string);
+  memcpy (&return_val[count], add_string, add_string_len + 1);
 
   return (return_val);
 

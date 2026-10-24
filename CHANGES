@@ -1,3 +1,10 @@
+Mrm display-string conversion bounds (2026-10-25)
+================================================
+
+- Validate display-string inputs and size arithmetic before copying the font
+  cache suffix, preserving valid cache keys while rejecting malformed inputs
+  safely; see `docs/mrm-display-string-bounds.md`.
+
 Mrm widget-name lookup bounds (2026-10-25)
 ===========================================
 
