@@ -1,7 +1,8 @@
 # CK Core Motif
 
 Development source now requires native ABI8: TextField owns an incremental Unicode
-map cache. Rebuild toolkit libraries and all consumers together; see [ABI policy](ABI.md).
+map cache. Rebuild toolkit libraries and all consumers together; see the
+[ABI policy](https://cklukas.github.io/ck-core-motif/abi.html).
 Installed epoch8 qualification remains separate from the historical results below.
 
 A maintained fork of the Motif native Xt widget toolkit, with corrections for
@@ -21,12 +22,12 @@ callback destruction and provider reentrancy. Actual application adoption and
 x86_64 validation remain separate gates; system/Xt libraries and leak checking
 are outside the instrumented scope.
 
-Read the focused [documentation sources](docs/index.md),
-[build guide](docs/build.md), [ABI policy](ABI.md) and
-[validation status](docs/status.md). Historical manuals remain under `doc/`.
-The documentation workflows target
-[GitHub Pages](https://cklukas.github.io/ck-core-motif/) and the configured
-self-hosted Pages service; workflow source alone does not establish publication.
+Read the [documentation](https://cklukas.github.io/ck-core-motif/),
+[build guide](https://cklukas.github.io/ck-core-motif/build.html),
+[ABI policy](https://cklukas.github.io/ck-core-motif/abi.html) and
+[validation status](https://cklukas.github.io/ck-core-motif/status.html).
+Historical manuals remain under `doc/`. The ckdocs workflows publish the site
+to GitHub Pages and the configured self-hosted Pages service.
 
 See `COPYING` for licensing terms, `CHANGES` for earlier fork corrections and
 `RELNOTES` for inherited release information.

@@ -3,6 +3,8 @@ site:
   title: CK Core Motif
   description: Native Xt widgets, Unicode text layout and optional accessibility.
   url: https://cklukas.github.io/ck-core-motif/
+  logo: docs/images/motif-logo.png
+  favicon: docs/images/motif-favicon.png
   links:
     - title: Source
       url: https://github.com/cklukas/ck-core-motif

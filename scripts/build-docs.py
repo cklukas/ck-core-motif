@@ -127,7 +127,7 @@ def main():
     except ValueError as error:
         parser.error(str(error))
     inputs = [root / "ckdocs.yml", root / "scripts/build-docs.py"]
-    inputs.extend(sorted((root / "docs").rglob("*.md")))
+    inputs.extend(sorted(path for path in (root / "docs").rglob("*") if path.is_file()))
     inputs.extend([root / ".ckgit/ci.yml", root / ".github/workflows/pages.yml",
                    root / ".gitattributes", root / ".ckgit/build-commit"])
     fingerprints = {str(path.relative_to(root)): digest(path) for path in inputs}

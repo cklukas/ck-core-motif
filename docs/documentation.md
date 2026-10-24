@@ -58,7 +58,9 @@ python3 scripts/build-docs.py \
 The script refuses pre-existing work/output paths, avoiding stale outputs.
 It sets `TMPDIR` beneath the selected work path. Its `receipt.json` records
 source fingerprints, pinned tool tree/binary, commands, timestamps, elapsed
-time and output hashes. Inspect the logs and input/output identities if a build
+time and output hashes. Documentation input fingerprints cover both Markdown
+pages and image assets, including the homepage hero, header logo and favicon.
+Inspect the logs and input/output identities if a build
 duration differs unexpectedly from comparable prior receipts; no duration
 baseline is invented. Keep durable receipts and remove superseded scratch builds
 when they are no longer in use.

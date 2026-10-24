@@ -1,5 +1,7 @@
 # CK Core Motif
 
+![Pixel-art Sun workstation displaying a classic CDE and Motif desktop.](images/sun-workstation-hero.png)
+
 CK Core Motif is a maintained fork of the Motif native Xt widget toolkit.
 It retains Motif's widget, resource and callback model while correcting
 build, selection, sizing and input defects and developing reusable native

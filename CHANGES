@@ -1,3 +1,11 @@
+Documentation links and artwork (2026-10-24)
+====================================================================
+
+- Point README documentation links to the deployed GitHub Pages site.
+- Add a pixel-art Sun workstation hero and a shared Motif-inspired M mark
+  for the documentation header and favicon.
+- Include image assets in documentation build input fingerprints.
+
 Publication and acceptance policy (2026-10-24)
 ====================================================================
 
