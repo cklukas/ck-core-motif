@@ -2,6 +2,10 @@
 
 The site builds only the focused Markdown tree under `docs/`, with explicit
 navigation in `ckdocs.yml`. It does not crawl the historical `doc/` manual tree.
+The homepage uses ckdocs' built-in `layout: home` and `hero` metadata to place
+the introduction beside the artwork, with the image on the right on wide
+screens and a stacked layout on narrow screens. This is supported by the
+pinned compiler below and needs no custom stylesheet.
 Both CI hosts use the same `scripts/build-docs.py` entry point and the same
 source-pinned documentation compiler:
 
