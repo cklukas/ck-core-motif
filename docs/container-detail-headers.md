@@ -7,3 +7,6 @@ wrapped allocation.
 
 The same checked multiplication is used when copying the `XmNdetailOrder`
 array during initialization and `SetValues`.
+
+`XmContainerGetItemChildren` now initializes its output to `NULL` and safely
+returns zero for a missing output pointer or an unrepresentable child count.

@@ -9619,6 +9619,10 @@ XmContainerGetItemChildren(
 	WidgetList	clist;
 	int		i,clist_count;
 
+	if (item_children == NULL)
+		return (0);
+	*item_children = NULL;
+
 	_XmWidgetToAppContext(wid);
 
 	_XmAppLock(app);
@@ -9654,6 +9658,10 @@ XmContainerGetItemChildren(
 		clist_count++;
 		node = node->next_ptr;
 		}
+	if ((size_t)clist_count > SIZE_MAX / sizeof(Widget)) {
+		_XmAppUnlock(app);
+		return (0);
+	}
 	clist = (WidgetList)XtMalloc(clist_count * sizeof(Widget));
 	node = first_child_node;
 	for (i = 0; i < clist_count; i++)
@@ -9723,6 +9731,8 @@ XmContainerReorder(
 	_XmWidgetToAppContext(wid);
 
 	if (cwid_count <= 1)
+		return;
+	if ((size_t)cwid_count > SIZE_MAX / sizeof(int))
 		return;
 	_XmAppLock(app);
 	c = GetContainerConstraint(cwid_list[0]);

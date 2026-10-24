@@ -8,6 +8,7 @@ int main(int argc, char **argv)
     XtAppContext app;
     Widget shell;
     Widget container;
+    WidgetList children = (WidgetList)0x1;
 
     shell = XtVaAppInitialize(&app, "ContainerRegression", NULL, 0,
                               &argc, argv, NULL, NULL);
@@ -15,6 +16,9 @@ int main(int argc, char **argv)
     XtManageChild(container);
     XtRealizeWidget(shell);
     if (!XtIsRealized(container))
+        return 1;
+    if (XmContainerGetItemChildren(container, NULL, &children) != 0 ||
+        children != NULL)
         return 1;
     XtDestroyWidget(shell);
     XtDestroyApplicationContext(app);

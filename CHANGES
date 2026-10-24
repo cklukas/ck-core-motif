@@ -582,3 +582,11 @@ Development 2.4.0 / Container detail-order bounds
 - Check `XmNdetailOrder` counts before allocating copied order arrays during
   initialization and `SetValues`, rejecting unrepresentable sizes cleanly.
 - Extend the Container maintenance documentation.
+
+Development 2.4.0 / Container child-list API bounds
+===================================================
+
+- Initialize `XmContainerGetItemChildren` output pointers, reject missing
+  output storage, and check child-count multiplication before allocation.
+- Guard `XmContainerReorder` integer-list allocation and extend the Container
+  regression documentation.
