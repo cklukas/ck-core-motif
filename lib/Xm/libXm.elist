@@ -3051,3 +3051,7 @@ public XmTextUnicodeScalarAtGrapheme
 public XmTextUnicodeIsGraphemeBoundary
 public XmTextUnicodePreviousGrapheme
 public XmTextUnicodeNextGrapheme
+public XmTextLayoutReference
+public XmTextFontContextGetShapingUsage
+internal _XmTextGetLineCapture
+internal _XmStringSourceUsesUnicodeLines

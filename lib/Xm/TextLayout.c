@@ -35,6 +35,22 @@ struct FontResolution {
     char *key; size_t length,hash;
     XftFont *font; /* NULL is a confirmed missing complete-grapheme font. */
 };
+struct ShapingAccounting {
+    unsigned int references;
+    XmTextShapingUsage usage;
+};
+static void release_shaping_accounting(struct ShapingAccounting *accounting) {
+    if (accounting && !--accounting->references) free(accounting);
+}
+#ifdef HAVE_UNICODE_TEXT
+static struct ShapingAccounting *reference_shaping_accounting(struct ShapingAccounting *accounting) {
+    if (!accounting || accounting->references == UINT_MAX) return NULL;
+    ++accounting->references; return accounting;
+}
+static void add_shaping_work(size_t *counter, size_t amount) {
+    *counter = amount > SIZE_MAX - *counter ? SIZE_MAX : *counter + amount;
+}
+#endif
 struct _XmTextFontContext {
     Display *display; int screen; XftFont *primary;
     FcPattern *primary_pattern, *query;
@@ -45,6 +61,7 @@ struct _XmTextFontContext {
     struct FontLease *font_pool;
     size_t font_count;
     XmTextFontContextLimits limits;
+    struct ShapingAccounting *shaping;
 };
 #ifdef HAVE_UNICODE_TEXT
 static atomic_ulong font_configuration_epoch = ATOMIC_VAR_INIT(0);
@@ -88,7 +105,7 @@ static void clear_font_context(XmTextFontContext *context) {
     context->primary_pattern=context->query=NULL;context->config=NULL;
 }
 void XmTextFontContextFree(XmTextFontContext *context) {
-    if(context) {clear_font_context(context);free(context);}
+    if(context) {clear_font_context(context);release_shaping_accounting(context->shaping);free(context);}
 }
 int XmTextFontContextIsCurrent(const XmTextFontContext *context) {
     return context && context->primary_pattern && context->query &&
@@ -128,6 +145,9 @@ XmTextFontContext *XmTextFontContextCreate(Display *display,int screen,XftFont *
        (limits&&(limits->maximum_entries>256||limits->maximum_key_bytes>256u*1024u||limits->maximum_font_leases>64))) return NULL;
     context=(XmTextFontContext *)calloc(1,sizeof(*context));
     if(!context) return NULL;
+    context->shaping=(struct ShapingAccounting *)calloc(1,sizeof(*context->shaping));
+    if(!context->shaping) {free(context);return NULL;}
+    context->shaping->references=1;
     context->display=display;context->screen=screen;context->primary=primary;
     context->limits=limits?*limits:(XmTextFontContextLimits){256,256u*1024u,64};
     if(!XmTextFontContextInvalidate(context)) {XmTextFontContextFree(context);return NULL;}
@@ -136,6 +156,10 @@ XmTextFontContext *XmTextFontContextCreate(Display *display,int screen,XftFont *
 int XmTextFontContextGetUsage(const XmTextFontContext *context,XmTextFontContextUsage *usage) {
     if(!context||!usage) return 0;
     *usage=(XmTextFontContextUsage){context->count,context->bytes,context->font_count,context->queries,context->hits};return 1;
+}
+int XmTextFontContextGetShapingUsage(const XmTextFontContext *context,XmTextShapingUsage *usage) {
+    if(!context||!context->shaping||!usage) return 0;
+    *usage=context->shaping->usage;return 1;
 }
 #ifdef HAVE_UNICODE_TEXT
 static struct FontLease *context_font_lease(XmTextFontContext *context,XftFont *font) {
@@ -214,6 +238,7 @@ static void remember_font_resolution(XmTextFontContext *context,const char *text
 #endif
 struct _XmTextParagraph {
     unsigned int references;
+    struct ShapingAccounting *shaping;
     Display *display;
     XmTextUnicodeMap *map;
     struct LayoutFont *fonts;
@@ -240,6 +265,7 @@ struct ShapeGlyph {
     int rtl;
 };
 struct _XmTextLayout {
+    unsigned int references;
     XmTextParagraph *paragraph;
     Display *display;
     XmTextUnicodeMap *map;
@@ -269,11 +295,16 @@ void XmTextParagraphFree(XmTextParagraph *paragraph) {
 #endif
     XmTextUnicodeMapFree(paragraph->map); free(paragraph->fonts); free(paragraph->utf8);
     free(paragraph->line_breaks); free(paragraph->advance_prefix);
+    release_shaping_accounting(paragraph->shaping);
     free(paragraph->scalars); free(paragraph->scripts); free(paragraph->font_at); free(paragraph->utf16_at); free(paragraph);
 }
 size_t XmTextParagraphScalarCount(const XmTextParagraph *paragraph) { return paragraph ? paragraph->scalar_count : 0; }
+XmTextLayout *XmTextLayoutReference(XmTextLayout *layout) {
+    if (!layout || layout->references == UINT_MAX) return NULL;
+    ++layout->references; return layout;
+}
 void XmTextLayoutFree(XmTextLayout *layout) {
-    if (!layout) return;
+    if (!layout || --layout->references) return;
     XmTextUnicodeMapFree(layout->map);
     free(layout->glyphs); free(layout->carets);
     free(layout->leading); free(layout->trailing);
@@ -448,6 +479,8 @@ static int append_item(const XmTextParagraph *paragraph, size_t first, size_t la
      * letters beyond its actual break: joining must restart at line edges. */
     hb_buffer_add_utf32(buffer, paragraph->scalars + line_first, (int)(line_last - line_first),
                         (unsigned int)(first - line_first), (int)(last - first));
+    add_shaping_work(&paragraph->shaping->usage.shape_calls, 1);
+    add_shaping_work(&paragraph->shaping->usage.shaped_scalars, last - first);
     hb_shape(font, buffer, NULL, 0);
     XftUnlockFace(paragraph->fonts[font_index].font);
     if (!hb_buffer_allocation_successful(buffer)) { hb_font_destroy(font); hb_buffer_destroy(buffer); return 0; }
@@ -529,13 +562,17 @@ XmTextParagraph *XmTextParagraphCreateWithContext(XmTextFontContext *context,con
     if (!XmTextFontContextIsCurrent(context) || !display || !primary || (!text && length) || length > INT32_MAX ||
         !isfinite(tab_width) || tab_width < 1.0 / 64.0 || tab_width > INT_MAX / 64.0 ||
         (length && (memchr(text, '\n', length) || memchr(text, '\r', length)))) return NULL;
+    add_shaping_work(&context->shaping->usage.paragraph_builds, 1);
     paragraph = (XmTextParagraph *)calloc(1, sizeof(*paragraph));
     if (!paragraph) return NULL;
     paragraph->references = 1; paragraph->display = display; paragraph->tab_width = tab_width;
+    paragraph->shaping = reference_shaping_accounting(context->shaping);
+    if (!paragraph->shaping) goto fail;
     paragraph->ascent = primary->ascent; paragraph->descent = primary->descent; paragraph->byte_count = length;
     paragraph->map = XmTextUnicodeMapCreate(text, length);
     if (!paragraph->map) goto fail;
     paragraph->scalar_count = XmTextUnicodeScalarCount(paragraph->map);
+    add_shaping_work(&paragraph->shaping->usage.paragraph_scalars, paragraph->scalar_count);
     graphemes = XmTextUnicodeGraphemeCount(paragraph->map);
     if (paragraph->scalar_count > INT32_MAX / 2 || paragraph->scalar_count > SIZE_MAX / (2 * sizeof(UChar)) - 1 ||
         paragraph->scalar_count > SIZE_MAX / sizeof(size_t) - 1 || graphemes > SIZE_MAX / sizeof(struct LayoutFont) - 1) goto fail;
@@ -632,6 +669,7 @@ XmTextLayout *XmTextParagraphLine(XmTextParagraph *paragraph, size_t first, size
     text = paragraph->utf8 + first_byte; length = last_byte - first_byte; scalars = last - first;
     layout = (XmTextLayout *)calloc(1, sizeof(*layout));
     if (!layout) return NULL;
+    layout->references = 1;
     layout->paragraph = XmTextParagraphReference(paragraph); layout->display = paragraph->display;
     layout->ascent = paragraph->ascent; layout->descent = paragraph->descent;
     layout->map = XmTextUnicodeMapCreate(text, length);
@@ -643,7 +681,9 @@ XmTextLayout *XmTextParagraphLine(XmTextParagraph *paragraph, size_t first, size
     for (i = 0; i <= scalars; ++i) layout->leading[i] = layout->trailing[i] = NAN;
     if (!scalars) {
         layout->leading[0] = layout->trailing[0] = 0;
-        layout->carets[0] = (struct LayoutCaret){0, 0, 0}; layout->caret_count = 1; return layout;
+        layout->carets[0] = (struct LayoutCaret){0, 0, 0}; layout->caret_count = 1;
+        add_shaping_work(&paragraph->shaping->usage.line_captures, 1);
+        return layout;
     }
     if (!shape_line(paragraph, first, last, &glyphs, &count) || !count || count > SIZE_MAX / sizeof(struct LayoutGlyph) || count > SIZE_MAX / sizeof(size_t) - 1) goto fail;
     layout->glyphs = (struct LayoutGlyph *)calloc(count, sizeof(struct LayoutGlyph));
@@ -744,7 +784,9 @@ XmTextLayout *XmTextParagraphLine(XmTextParagraph *paragraph, size_t first, size
         if (fabs(leading - trailing) > 0.01) layout->carets[layout->caret_count++] = (struct LayoutCaret){i, 1, trailing};
     }
     qsort(layout->carets, layout->caret_count, sizeof(struct LayoutCaret), compare_caret);
-    free(glyphs); free(clusters); return layout;
+    free(glyphs); free(clusters);
+    add_shaping_work(&paragraph->shaping->usage.line_captures, 1);
+    return layout;
 fail:
     free(glyphs); free(clusters); XmTextLayoutFree(layout); return NULL;
 #else

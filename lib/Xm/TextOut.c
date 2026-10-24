@@ -979,7 +979,9 @@ _XmTextOutputVisualStep(XmTextWidget tw, XmTextPosition position, XmTextScanDire
         paragraph = UnicodeParagraph(tw, start);
         if (!paragraph || !paragraph->layout || !XmTextLayoutHit(paragraph->layout, XmTextLayoutWidth(paragraph->layout) + 1, &next, &affinity)) return position;
       } else if (step > 0 && paragraph->end < tw->text.last_position) {
-        start = paragraph->end < paragraph->paragraph_end ? paragraph->end : paragraph->end + 1;
+        start = paragraph->end < paragraph->paragraph_end ? paragraph->end :
+          (*tw->text.source->Scan)(tw->text.source, paragraph->paragraph_end,
+                                  XmSELECT_LINE, XmsdRight, 1, True);
         paragraph = UnicodeParagraph(tw, start);
         if (!paragraph || !paragraph->layout || !XmTextLayoutHit(paragraph->layout, -1, &next, &affinity)) return position;
       }
@@ -1409,6 +1411,38 @@ _XmTextScrollable(XmTextWidget tw)
     return (data->scrollhorizontal && XmIsScrolledWindow(XtParent(tw)));
   else
     return (data->scrollvertical && XmIsScrolledWindow(XtParent(tw)));
+}
+
+struct _XmTextLayout *
+_XmTextGetLineCapture(XmTextWidget tw, XmTextPosition position,
+                      XmTextPosition *first, XmTextPosition *last)
+{
+#if USE_XFT
+  OutputData data;
+  LineNum line;
+  LineTableExtra extra;
+  XmTextPosition start;
+  struct _XmTextParagraphCache *entry;
+  XmTextLayout *capture;
+  if (!tw || !first || !last || !XmIsText((Widget)tw) ||
+      !tw->text.output || tw->text.output->Draw != Draw ||
+      !UsesUnicodeParagraphs(tw) || position < 0 ||
+      position > tw->text.last_position) return NULL;
+  data = tw->text.output->data;
+  line = _XmTextPosToLine(tw, position);
+  if (line == NOLINE || line >= data->number_lines) return NULL;
+  _XmTextLineInfo(tw, line, &start, &extra);
+  entry = UnicodeParagraph(tw, start);
+  if (!entry || !entry->layout || position < start || position > entry->end)
+    return NULL;
+  capture = XmTextLayoutReference(entry->layout);
+  if (!capture) return NULL;
+  *first = start; *last = entry->end;
+  return capture;
+#else
+  (void)tw; (void)position; (void)first; (void)last;
+  return NULL;
+#endif
 }
 
 static Boolean 
@@ -4027,7 +4061,11 @@ OutputInvalidate(XmTextWidget tw,
 #if USE_XFT
   struct _XmTextParagraphCache **link = &tw->text.output->data->unicode_cache;
   tw->text.output->data->unicode_affinity = 0;
-  while (*link) {
+  /* NODELTA invalidates geometry, not source positions. In particular,
+   * resize must retire its captures rather than rebase them by LONG_MAX. */
+  if (delta == NODELTA)
+    ClearUnicodeParagraphs(tw);
+  else while (*link) {
     struct _XmTextParagraphCache *paragraph = *link;
     if (paragraph->paragraph_end >= position && paragraph->paragraph_start <= topos) {
       *link = paragraph->next;
@@ -4690,7 +4728,7 @@ OutputSetValues(Widget oldw,
 {
 #define CK(fld) (newdata->fld != data->fld)
 #define CP(fld) (data->fld = newdata->fld)
-  
+
   XmTextWidget oldtw = (XmTextWidget) oldw;
   XmTextWidget newtw = (XmTextWidget) new_w;
   OutputData data = newtw->text.output->data;
@@ -4698,6 +4736,11 @@ OutputSetValues(Widget oldw,
   OutputData newdata = &newdatarec;
   Boolean needgcs = False;
   Boolean newsize = False;
+  Boolean font_changed = False, geometry_changed;
+  Boolean width_set = False, height_set = False;
+  Boolean old_wordwrap = data->wordwrap, wrap_changed;
+  Boolean edit_mode_changed = newtw->text.edit_mode != oldtw->text.edit_mode;
+  Cardinal argument;
   Boolean o_redisplay = False;
   Dimension new_width = newtw->core.width;/* save in case something changes */
   Dimension new_height = newtw->core.height;/* these values during SetValues*/
@@ -4709,15 +4752,19 @@ OutputSetValues(Widget oldw,
   *newdata = *data;
   XtSetSubvalues((XtPointer) newdata, output_resources,
 		 XtNumber(output_resources), args, *num_args);
-  
+  for (argument = 0; argument < *num_args; ++argument) {
+    if (!strcmp(args[argument].name, XmNwidth)) width_set = True;
+    if (!strcmp(args[argument].name, XmNheight)) height_set = True;
+  }
+
   if (newtw->core.background_pixel != oldtw->core.background_pixel) {
     needgcs = True;
   }
-  
+
   if (newtw->primitive.foreground != oldtw->primitive.foreground) {
     needgcs = True;
   }
-  
+
   if (CK(fontlist) || CK(rendertable)) {
 #if USE_XFT
     ClearUnicodeParagraphs(newtw);
@@ -4747,92 +4794,220 @@ OutputSetValues(Widget oldw,
       CP(rendertable);
       (void)LoadFontMetrics(newtw);
     }
-    
-    /* We want to be able to connect to an IM if XmNfontList has changed. */
-    if (newtw->text.editable) {
-      newtw->text.editable = False;
-      XmTextSetEditable(new_w, True);
-    }
 
-    if(XmDirectionMatch(XmPrim_layout_direction(newtw),
-			XmTOP_TO_BOTTOM_RIGHT_TO_LEFT)) {
-      if (data->vbar) {
-	XmNavigatorDataRec nav_data;
-	int new_sliderSize = 0;
-
-	data->ignorevbar = True;
-      
-	new_sliderSize = newtw->text.inner_widget->core.height
-	  - (data->topmargin + data->bottommargin);
-      
-	if (new_sliderSize < 1) new_sliderSize = 1;
-	if (new_sliderSize > data->scrollheight) 
-	  new_sliderSize = data->scrollheight;
-	
-	nav_data.value.y = data->voffset;
-	nav_data.minimum.y = 0;
-	nav_data.maximum.y = data->scrollheight;
-	nav_data.slider_size.y = new_sliderSize;
-	nav_data.increment.y = data->font_ascent + data->font_descent;  
-	nav_data.page_increment.y = 0;
-	
-	nav_data.dimMask = NavigDimensionY;
-	nav_data.valueMask = NavValue|NavMinimum|NavMaximum|
-	  NavSliderSize|NavIncrement;
-	_XmSFUpdateNavigatorsValue(XtParent(new_w), &nav_data, True); 
-      
-	data->ignorevbar = False;
-	
-      }
-    } else {
-    if (data->hbar) {
-      XmNavigatorDataRec nav_data;
-      int new_sliderSize;
-
-      data->ignorehbar = True;
-      
-      new_sliderSize = newtw->text.inner_widget->core.width
-	- (data->leftmargin + data->rightmargin);
-      
-      if (new_sliderSize < 1) new_sliderSize = 1;
-      if (new_sliderSize > data->scrollwidth) 
-	new_sliderSize = data->scrollwidth;
-      
-      nav_data.value.x = data->hoffset;
-      nav_data.minimum.x = 0;
-      nav_data.maximum.x = data->scrollwidth;
-      nav_data.slider_size.x = new_sliderSize;
-      nav_data.increment.x = data->averagecharwidth;  
-      nav_data.page_increment.x = 0;
-      
-      nav_data.dimMask = NavigDimensionX;
-      nav_data.valueMask = NavValue|NavMinimum|NavMaximum|
-	NavSliderSize|NavIncrement;
-      _XmSFUpdateNavigatorsValue(XtParent(new_w), &nav_data, True); 
-      
-      data->ignorehbar = False;
-      
-    }
-    }
+    font_changed = True;
     o_redisplay = True;
     needgcs = True;
     newsize = True;
   }
-  
-  if (data->fontlist != oldtw->text.output->data->fontlist ||
-      newtw->core.background_pixel != oldtw->core.background_pixel ||
-      newtw->primitive.foreground != oldtw->primitive.foreground) {
-    XtSetArg(im_args[n], XmNbackground, newtw->core.background_pixel); n++;
-    XtSetArg(im_args[n], XmNforeground, newtw->primitive.foreground); n++;
-    XtSetArg(im_args[n], XmNfontList, data->fontlist); n++;
-  }
-  
+
   /* Don't word wrap, have multiple row or have vertical scrollbars
      if editMode is single_line */
-  if (newtw->text.edit_mode != oldtw->text.edit_mode) {
-    if (newtw->text.edit_mode == XmSINGLE_LINE_EDIT)
-	newdata->rows = 1;
-    
+  if (edit_mode_changed) {
+    if (newtw->text.edit_mode == XmSINGLE_LINE_EDIT) newdata->rows = 1;
+    newsize = True;
+  }
+
+  /*  what is called margin, in this code, is composed of margin, shadow, and
+      highlight.   Previously, only margin was accomodated.   This addition
+      may not be very clever, but it blends in with the rest of the way this
+      code works.
+      */
+
+  if (newtw->text.margin_width != oldtw->text.margin_width ||
+      newtw->text.margin_height != oldtw->text.margin_height ||
+      newtw->primitive.shadow_thickness !=
+      oldtw->primitive.shadow_thickness ||
+      newtw->primitive.highlight_thickness !=
+      oldtw->primitive.highlight_thickness)
+    {
+      data->leftmargin = data->rightmargin = newtw->text.margin_width +
+	newtw->primitive.shadow_thickness +
+	  newtw->primitive.highlight_thickness;
+      data->topmargin = data->bottommargin = newtw->text.margin_height +
+	newtw->primitive.shadow_thickness +
+	  newtw->primitive.highlight_thickness;
+      o_redisplay = True;
+      newsize = True;
+    }
+
+  if (data->hasfocus && XtIsSensitive((Widget)newtw) && CK(blinkrate)) {
+    if (newdata->blinkrate == 0) {
+      data->blinkstate = on;
+      if (data->timerid) {
+	XtRemoveTimeOut(data->timerid);
+	data->timerid = (XtIntervalId)0;
+      }
+    } else if (data->timerid == (XtIntervalId)0) {
+      data->timerid =
+	XtAppAddTimeOut(XtWidgetToApplicationContext(new_w),
+			(unsigned long) newdata->blinkrate,
+			HandleTimer, (XtPointer) newtw);
+    }
+  }
+  CP(blinkrate);
+
+  CP(resizewidth);
+  CP(resizeheight);
+
+  CP(cursor_position_visible);
+
+  if (newdata->rows <= 0) {
+    XmeWarning(new_w, MSG1);
+    newdata->rows = data->rows;
+  }
+
+  if (newdata->columns <= 0) {
+    XmeWarning(new_w, MSG2);
+    newdata->columns = data->columns;
+  }
+
+  /* Process arglist to verify the a value is being set */
+  if (CKCols(args, *num_args))
+    data->columns_set = newdata->columns_set = newdata->columns;
+
+  /* Process arglist to verify the a value is being set */
+  if (CKRows(args, *num_args))
+    data->rows_set = newdata->rows_set = newdata->rows;
+
+  wrap_changed = CK(wordwrap);
+  CP(wordwrap);
+  geometry_changed = newsize || wrap_changed || CK(columns) || CK(rows) ||
+    new_width != oldtw->core.width || new_height != oldtw->core.height;
+
+  if (CK(columns) || CK(rows) || newsize) {
+    Dimension width, height;
+    Boolean derive_width = !width_set && new_width == oldtw->core.width;
+    Boolean derive_height = !height_set && new_height == oldtw->core.height;
+    SizeFromRowsCols(newtw, &width, &height);
+    /* Presence, not numeric inequality, expresses an explicit dimension.
+     * Setting the existing width/height must still constrain a font change. */
+    if (derive_width)
+      newtw->core.width = width;
+    if (derive_height)
+      newtw->core.height = height;
+    data->minwidth = newtw->core.width;
+    data->minheight = newtw->core.height;
+    if (XmDirectionMatch(XmPrim_layout_direction(newtw),
+                         XmTOP_TO_BOTTOM_RIGHT_TO_LEFT)) {
+      if (derive_height)
+        data->minheight = (Dimension)(data->rows_set *
+          (data->font_ascent + data->font_descent) + data->topmargin + data->bottommargin);
+    } else if (derive_width) {
+      data->minwidth = (Dimension)(data->columns_set * data->averagecharwidth +
+                                  data->leftmargin + data->rightmargin);
+    }
+    CP(columns);
+    CP(rows);
+    o_redisplay = True;
+  } else if (geometry_changed) {
+    data->minwidth = newtw->core.width;
+    data->minheight = newtw->core.height;
+  }
+
+  if (geometry_changed) {
+    /* The global wrap table and visible-line state must agree with the new
+     * font and final geometry before callbacks or cursor/IM geometry queries.
+     * This is the same ordering used by the native Resize method. */
+    if (wrap_changed || edit_mode_changed || _XmTextShouldWordWrap(newtw))
+      _XmTextRealignLineTable(newtw, NULL, 0, 0, 0, PASTENDPOS);
+    _XmTextInvalidate(newtw, (XmTextPosition)0, (XmTextPosition)0, NODELTA);
+  }
+
+  if (wrap_changed) {
+    /* If we've just turned off wrapping, get new top_character by scanning */
+    /* left from the current top character until we find a new line. */
+    if (!data->wordwrap) {
+      if (data->resizeheight)
+	newtw->text.top_character = newtw->text.new_top = 0;
+      else {
+	newtw->text.top_character = (*newtw->text.source->Scan)
+	  (newtw->text.source, newtw->text.top_character,
+	   XmSELECT_LINE, XmsdLeft, 1, False);
+	newtw->text.new_top = newtw->text.top_character;
+      }
+    }
+
+    if (newtw->text.top_character)
+      newtw->text.top_line = CountLines(newtw, 0,
+					newtw->text.top_character);
+
+
+    o_redisplay = True;
+  }
+
+  if (geometry_changed) {
+    NotifyResized(new_w, False);
+    o_redisplay = True;
+  }
+
+  if (wrap_changed) {
+    if(XmDirectionMatch(XmPrim_layout_direction(newtw),
+			XmTOP_TO_BOTTOM_RIGHT_TO_LEFT)) {
+      /* If we are turning on wrapping, we don't want any horiz. offset */
+      if (!old_wordwrap) ChangeVOffset(newtw, 0, True);
+
+      if (data->vbar) {
+        if (data->wordwrap) {
+	  XmNavigatorDataRec nav_data;
+
+	  data->ignorevbar = True;
+
+	  nav_data.value.y = 0;
+	  nav_data.minimum.y = 0;
+	  nav_data.maximum.y = 1;
+	  nav_data.slider_size.y = 1;
+	  nav_data.increment.y = 0;
+	  nav_data.page_increment.y = 0;
+
+	  nav_data.dimMask = NavigDimensionY;
+	  nav_data.valueMask = NavValue|NavMinimum|NavMaximum|
+	    NavSliderSize;
+	  _XmSFUpdateNavigatorsValue(XtParent(new_w), &nav_data, True);
+
+	  data->ignorevbar = False;
+
+	  data->voffset = 0;
+	} else {
+	  _XmRedisplayVBar(newtw);
+	}
+      }
+    } else {
+    /* If we are turning on wrapping, we don't want any horiz. offset */
+    if (!old_wordwrap) ChangeHOffset(newtw, 0, True);
+
+    if (data->hbar) {
+      if (data->wordwrap) {
+	XmNavigatorDataRec nav_data;
+
+	data->ignorehbar = True;
+
+	nav_data.value.x = 0;
+	nav_data.minimum.x = 0;
+	nav_data.maximum.x = 1;
+	nav_data.slider_size.x = 1;
+	nav_data.increment.x = 0;
+	nav_data.page_increment.x = 0;
+
+	nav_data.dimMask = NavigDimensionX;
+	nav_data.valueMask = NavValue|NavMinimum|NavMaximum|
+	  NavSliderSize;
+	_XmSFUpdateNavigatorsValue(XtParent(new_w), &nav_data, True);
+
+	data->ignorehbar = False;
+
+	data->hoffset = 0;
+      } else {
+	_XmRedisplayHBar(newtw);
+      }
+    }
+    }
+
+
+    o_redisplay = True;
+  }
+
+  if (edit_mode_changed) {
     if(XmDirectionMatch(XmPrim_layout_direction(newtw),
 			XmTOP_TO_BOTTOM_RIGHT_TO_LEFT)) {
       if (newtw->text.edit_mode == XmSINGLE_LINE_EDIT) {
@@ -4855,138 +5030,37 @@ OutputSetValues(Widget oldw,
     }
     o_redisplay = True;
   }
-  
-  /*  what is called margin, in this code, is composed of margin, shadow, and
-      highlight.   Previously, only margin was accomodated.   This addition
-      may not be very clever, but it blends in with the rest of the way this
-      code works.
-      */
-  
-  if (newtw->text.margin_width != oldtw->text.margin_width ||
-      newtw->text.margin_height != oldtw->text.margin_height ||
-      newtw->primitive.shadow_thickness !=
-      oldtw->primitive.shadow_thickness ||
-      newtw->primitive.highlight_thickness !=
-      oldtw->primitive.highlight_thickness)
-    {
-      data->leftmargin = data->rightmargin = newtw->text.margin_width +
-	newtw->primitive.shadow_thickness +
-	  newtw->primitive.highlight_thickness;
-      data->topmargin = data->bottommargin = newtw->text.margin_height +
-	newtw->primitive.shadow_thickness +
-	  newtw->primitive.highlight_thickness;
-      o_redisplay = True;
-      newsize = True;
-    }
-  
-  if (CK(wordwrap)) {
-    if(XmDirectionMatch(XmPrim_layout_direction(newtw),
-			XmTOP_TO_BOTTOM_RIGHT_TO_LEFT)) {
-      /* If we are turning on wrapping, we don't want any horiz. offset */
-      if (!data->wordwrap) ChangeVOffset(newtw, 0, True);
-    
+
+  /* NotifyResized publishes the final scrollbar ranges/page sizes. Font
+   * changes also alter the horizontal-text or vertical-text step size. */
+  if (font_changed) {
+    XmNavigatorDataRec nav_data;
+    if (XmDirectionMatch(XmPrim_layout_direction(newtw),
+                         XmTOP_TO_BOTTOM_RIGHT_TO_LEFT)) {
       if (data->vbar) {
-	if (newdata->wordwrap) {
-	  XmNavigatorDataRec nav_data;
-	
-	  data->ignorevbar = True;
-	
-	  nav_data.value.y = 0;
-	  nav_data.minimum.y = 0;
-	  nav_data.maximum.y = 1;
-	  nav_data.slider_size.y = 1;
-	  nav_data.increment.y = 0;  
-	  nav_data.page_increment.y = 0;
-	
-	  nav_data.dimMask = NavigDimensionY;
-	  nav_data.valueMask = NavValue|NavMinimum|NavMaximum|
-	    NavSliderSize;
-	  _XmSFUpdateNavigatorsValue(XtParent(new_w), &nav_data, True); 
-	
-	  data->ignorevbar = False;
-	
-	  data->voffset = 0;
-	} else {
-	  _XmRedisplayVBar(newtw);
-	}
+        data->ignorevbar = True;
+        nav_data.dimMask = NavigDimensionY;
+        nav_data.valueMask = NavIncrement;
+        nav_data.increment.y = data->font_ascent + data->font_descent;
+        _XmSFUpdateNavigatorsValue(XtParent(new_w), &nav_data, True);
+        data->ignorevbar = False;
       }
-    } else {
-    /* If we are turning on wrapping, we don't want any horiz. offset */
-    if (!data->wordwrap) ChangeHOffset(newtw, 0, True);
-    
-    if (data->hbar) {
-      if (newdata->wordwrap) {
-	XmNavigatorDataRec nav_data;
-	
-	data->ignorehbar = True;
-	
-	nav_data.value.x = 0;
-	nav_data.minimum.x = 0;
-	nav_data.maximum.x = 1;
-	nav_data.slider_size.x = 1;
-	nav_data.increment.x = 0;  
-	nav_data.page_increment.x = 0;
-	
-	nav_data.dimMask = NavigDimensionX;
-	nav_data.valueMask = NavValue|NavMinimum|NavMaximum|
-	  NavSliderSize;
-	_XmSFUpdateNavigatorsValue(XtParent(new_w), &nav_data, True); 
-	
-	data->ignorehbar = False;
-	
-	data->hoffset = 0;
-      } else {
-	_XmRedisplayHBar(newtw);
-      }
-    }
-    }
-    
-    CP(wordwrap);
-    
-    _XmTextRealignLineTable(newtw, NULL, 0, 0, 0, PASTENDPOS);
-    
-    /* If we've just turned off wrapping, get new top_character by scanning */
-    /* left from the current top character until we find a new line. */
-    if (!oldtw->text.output->data->wordwrap) {
-      if (data->resizeheight)
-	newtw->text.top_character = newtw->text.new_top = 0;
-      else {
-	newtw->text.top_character = (*newtw->text.source->Scan)
-	  (newtw->text.source, newtw->text.top_character,
-	   XmSELECT_LINE, XmsdLeft, 1, False);
-	newtw->text.new_top = newtw->text.top_character;
-      }
-    }
-    
-    if (newtw->text.top_character)
-      newtw->text.top_line = CountLines(newtw, 0,
-					newtw->text.top_character);
-    
-    
-    o_redisplay = True;
-  }
-  
-  if (data->hasfocus && XtIsSensitive((Widget)newtw) && CK(blinkrate)) {
-    if (newdata->blinkrate == 0) {
-      data->blinkstate = on;
-      if (data->timerid) {
-	XtRemoveTimeOut(data->timerid);
-	data->timerid = (XtIntervalId)0;
-      }
-    } else if (data->timerid == (XtIntervalId)0) {
-      data->timerid =
-	XtAppAddTimeOut(XtWidgetToApplicationContext(new_w),
-			(unsigned long) newdata->blinkrate,
-			HandleTimer, (XtPointer) newtw);
+    } else if (data->hbar) {
+      data->ignorehbar = True;
+      nav_data.dimMask = NavigDimensionX;
+      nav_data.valueMask = NavIncrement;
+      nav_data.increment.x = data->averagecharwidth;
+      _XmSFUpdateNavigatorsValue(XtParent(new_w), &nav_data, True);
+      data->ignorehbar = False;
     }
   }
-  CP(blinkrate);
-  
-  CP(resizewidth);
-  CP(resizeheight);
-  
-  CP(cursor_position_visible);
-  
+
+  /* Register the new font only after its geometry is coherent. */
+  if (font_changed && newtw->text.editable) {
+    newtw->text.editable = False;
+    XmTextSetEditable(new_w, True);
+  }
+
   if (needgcs) {
     EraseInsertionPoint(newtw);
     LoadGCs(newtw, newtw->core.background_pixel,
@@ -4997,78 +5071,25 @@ OutputSetValues(Widget oldw,
     TextDrawInsertionPoint(newtw);
     o_redisplay = True;
   }
-  
-  if (newdata->rows <= 0) {
-    XmeWarning(new_w, MSG1);
-    newdata->rows = data->rows;
-  }
-  
-  if (newdata->columns <= 0) {
-    XmeWarning(new_w, MSG2);
-    newdata->columns = data->columns;
-  }
-  
-  /* Process arglist to verify the a value is being set */
-  if (CKCols(args, *num_args))
-    data->columns_set = newdata->columns_set = newdata->columns;
-  
-  /* Process arglist to verify the a value is being set */
-  if (CKRows(args, *num_args))
-    data->rows_set = newdata->rows_set = newdata->rows;
-  
-  if (!(new_width != oldtw->core.width &&
-	new_height != oldtw->core.height)) {
-    if (CK(columns) || CK(rows) || newsize) {
-      Dimension width, height;
-      SizeFromRowsCols(newtw, &width, &height);
-      if(XmDirectionMatch(XmPrim_layout_direction(newtw),
-			  XmTOP_TO_BOTTOM_RIGHT_TO_LEFT)) {
-	if (new_width == oldtw->core.width) 
-	  newtw->core.width = width;
-	data->minwidth = newtw->core.width;
-	if (new_height == oldtw->core.height) {
-	  newtw->core.height = height;
-	  data->minheight = 
-	    (Dimension)((data->rows_set *
-			(data->font_ascent + data->font_descent)) +
-			 data->topmargin + data->bottommargin);
-	} else {
-	  data->minheight = new_height;
-	}
-      } else {
-      if (new_width == oldtw->core.width) {
-	newtw->core.width = width;
-	data->minwidth = 
-	  (Dimension)((data->columns_set * data->averagecharwidth) +
-		      data->leftmargin + data->rightmargin);
-      } else {
-	data->minwidth = new_width;
-      }
-      if (new_height == oldtw->core.height) 
-	newtw->core.height = height;
-      data->minheight = newtw->core.height;
-      }
-      CP(columns);
-      CP(rows);
-      o_redisplay = True;
-    }
-  } else {
-    newtw->core.width = new_width;
-    data->minwidth = new_width;
-    newtw->core.height = new_height;
-    data->minheight = new_height;
-  }
-  
+
   PosToXY(newtw, newtw->text.cursor_position, &xmim_point.x, &xmim_point.y);
   (void)_XmTextGetDisplayRect((Widget)newtw, &xmim_area);
+  if (font_changed ||
+      newtw->core.background_pixel != oldtw->core.background_pixel ||
+      newtw->primitive.foreground != oldtw->primitive.foreground) {
+    XtSetArg(im_args[n], XmNbackground, newtw->core.background_pixel); n++;
+    XtSetArg(im_args[n], XmNforeground, newtw->primitive.foreground); n++;
+    XtSetArg(im_args[n], XmNfontList, data->fontlist); n++;
+  }
+
   XtSetArg(im_args[n], XmNbackgroundPixmap,
 	   newtw->core.background_pixmap);n++;
   XtSetArg(im_args[n], XmNspotLocation, &xmim_point); n++;
   XtSetArg(im_args[n], XmNarea, &xmim_area); n++;
-  XtSetArg(im_args[n], XmNlineSpace, newdata->lineheight); n++;
+  XtSetArg(im_args[n], XmNlineSpace, data->lineheight); n++;
   XmImSetValues(new_w, im_args, n);
-  
-  return (o_redisplay);
+
+return (o_redisplay);
 #undef CK
 #undef CP
 }

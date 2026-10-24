@@ -47,6 +47,16 @@ int XmTextFontContextInvalidate(XmTextFontContext *);
 /* Saturating lifetime counters; clearing entries does not reset observations. */
 typedef struct { size_t entries, key_bytes, font_leases, queries, cache_hits; } XmTextFontContextUsage;
 int XmTextFontContextGetUsage(const XmTextFontContext *, XmTextFontContextUsage *);
+/* Saturating lifetime work observations, preserved by context invalidation.
+ * Builds count validated paragraph creation attempts, including failed ones;
+ * paragraph_scalars counts input after a source map supplies its scalar count.
+ * Shape counters count actual HarfBuzz attempts and their item scalar ranges;
+ * line_captures counts successful captures, including temporary wrap probes.
+ * Captures/paragraphs retain independent accounting ownership after context free. */
+typedef struct {
+    size_t paragraph_builds, paragraph_scalars, shape_calls, shaped_scalars, line_captures;
+} XmTextShapingUsage;
+int XmTextFontContextGetShapingUsage(const XmTextFontContext *, XmTextShapingUsage *);
 int XmTextFontConfigurationChanged(void);
 XmTextParagraph *XmTextParagraphCreateWithContext(XmTextFontContext *, const char *utf8,
                                                  size_t length, double tab_width);
@@ -72,6 +82,9 @@ XmTextLayout *XmTextLayoutCreate(Display *, XftFont *, const char *utf8, size_t 
 XmTextLayout *XmTextLayoutCreateWithTabWidth(Display *, XftFont *, const char *utf8,
                                            size_t length, double tab_width);
 void XmTextLayoutFree(XmTextLayout *);
+/* Returns a new owned reference, or NULL on reference-count exhaustion.
+ * The capture remains immutable; every reference must be freed once. */
+XmTextLayout *XmTextLayoutReference(XmTextLayout *);
 double XmTextLayoutWidth(const XmTextLayout *);
 size_t XmTextLayoutScalarCount(const XmTextLayout *);
 size_t XmTextLayoutGlyphCount(const XmTextLayout *);

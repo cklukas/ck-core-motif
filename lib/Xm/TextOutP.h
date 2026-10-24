@@ -316,6 +316,15 @@ typedef struct _OutputRec {
     XtExposeProc		expose;
 } OutputRec;
 
+/* Retain the actual immutable capture used by native Unicode output for a
+ * visible source position. Scalar bounds describe this source snapshot and
+ * remain caller-owned coordinates after later edits. NULL means unsupported,
+ * unavailable or outside the displayed line range; outputs remain untouched.
+ * Calls, use and release run on the owning display thread. */
+struct _XmTextLayout;
+extern struct _XmTextLayout *_XmTextGetLineCapture(XmTextWidget,
+    XmTextPosition, XmTextPosition *first, XmTextPosition *last);
+
 
 #ifdef __cplusplus
 }  /* Close scope of 'extern "C"' declaration which encloses file. */

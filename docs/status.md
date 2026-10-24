@@ -1,6 +1,32 @@
 # Implementation and validation status
 
-## Incremental map qualification
+## Native hard-line and geometry qualification
+
+The focused native AArch64 installed ABI 8 cohort passes all 33 selected feature
+fixtures. The initial run's private accessibility socket placement failure is
+retained; a suffix run with an explicit short runtime path completes the remaining
+checks against identical installed library/header fingerprints. This is aggregated
+fixture coverage, not one uninterrupted green run. Clipboard, clipboard lifetime
+and the opt-in external XIM service remain excluded from this cohort.
+
+The new native retained-output regression passes 12,890,100 assertions and 417
+native/fresh line comparisons with zero layout-failure warnings. It covers shared
+sources, complete mandatory separators, CRLF-forming edits, distant first-strong
+bidi context, wrap/font changes, fixed dimensions, omitted-dimension sizing and
+capture lifetime. Unaffected paragraph captures retain identity; edited hard
+paragraphs may require full-context work. This does not claim incremental shaping
+inside an edited paragraph or complete live editor/input acceptance.
+
+Strict ASan/UBSan reaches the same completed native regression body, then reports
+208 bytes in two Xt selection-context allocations. Its native exit leak gate stays
+unaccepted. Separate strict font-lifetime qualification passes 79 assertions on
+two independent displays with zero X errors and no leaks. An additional strict
+legacy layout probe reports 8,839 bytes in 128 Fontconfig allocations; broad
+sanitizer acceptance is not claimed. No warning suppression, removed focus action
+or disabled leak detection is used. Native record layout and ABI epoch 8 remain
+unchanged. All x86_64 compilation/runtime checks remain pending.
+
+## Earlier incremental map qualification
 
 Native AArch64 installed ABI 8 passes 32 selected feature fixtures, including
 immutable incremental maps and realized shared Text/TextField lifecycle checks.

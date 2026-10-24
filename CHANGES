@@ -1,3 +1,39 @@
+Native Unicode hard lines, geometry and retained output (2026-10-24)
+====================================================================
+
+- Recognize complete CRLF and mandatory Unicode hard-line separators in native
+  UTF-8 source scans/counts without modifying stored bytes or scalar positions.
+  Cross whole terminators during visual motion and restart wrapped line-table
+  reflow at the current hard paragraph after accepted edits. This prevents an
+  old line start inside a newly formed CRLF from being shaped across paragraphs.
+  Custom scanners and non-UTF-8 native source policies remain distinct.
+- Treat NODELTA as geometry invalidation, retiring cached captures instead of
+  adding LONG_MAX to source positions during source replacement or resize.
+- Honor explicitly supplied width/height during font changes even when equal to
+  current dimensions; derive omitted dimensions from rows/columns independently.
+  Refresh global and visible line geometry before cursor/IM queries and native
+  navigator notifications, using current font state after callbacks.
+- Add independently retained immutable output captures and saturating counters
+  of actual paragraph analysis, HarfBuzz shaping and line capture work. Internal
+  opaque objects change; existing widget records and ABI epoch 8 stay unchanged.
+- Add the incremental-layout native regression: shared sources, retained/rebased
+  unaffected captures, mandatory separators, CRLF joins/splits, distant bidi
+  context, wrap/font/configuration changes, dimension authority and auto sizing.
+  Compare real native output against fresh widgets for source ranges, glyphs,
+  wrapping, carets, hits, selections and actual glyph pixels. Include incremental
+  source-map/widget/layout fixtures in source distribution metadata.
+- Normal AArch64 qualification passes all 33 selected native fixtures. The new
+  regression passes 12,890,100 assertions/417 native-fresh line comparisons with
+  zero layout warnings; negative controls expose the prior faults. It measures
+  reuse of unaffected hard paragraphs, not incremental shaping within an edited
+  paragraph or complete interactive editor/input acceptance.
+- Strict ASan/UBSan completes that regression body but its exit leak gate still
+  reports 208 bytes in two Xt selection-context allocations. A separate strict
+  font-lifetime fixture passes 79 assertions across two displays, zero X errors.
+  An additional strict legacy layout probe reports Fontconfig allocations, so
+  broad sanitizer acceptance is not claimed. No suppression or disabled leak
+  detection is used. See docs/status.md and docs/unicode.md for qualification.
+
 Documentation links and artwork (2026-10-24)
 ====================================================================
 

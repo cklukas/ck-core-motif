@@ -105,6 +105,9 @@ extern void    _XmStringSourceSetPending(XmTextWidget widget,
 
 extern XmTextPosition _XmStringSourceGraphemeStep(XmTextSource source,
     XmTextPosition position, XmTextScanDirection direction);
+/* Recognize the native UTF-8 hard-line contract without dereferencing data
+ * owned by an arbitrary custom source. */
+extern Boolean _XmStringSourceUsesUnicodeLines(XmTextSource source);
 
 /********    End Private Function Declarations    ********/
 

@@ -76,6 +76,65 @@ bidi-context changes, selection geometry, external input methods and full
 application acceptance remain separate gates. See the [ABI contract](abi.md):
 the new TextField record requires a coherent epoch 8 rebuild.
 
+## Native hard lines and captured output
+
+In a supported UTF-8 locale, the native shared source's line scans and counts
+recognize CR, LF, VT, FF, NEL, LINE SEPARATOR and PARAGRAPH SEPARATOR. CRLF is one
+indivisible terminator. Source bytes and scalar positions are preserved. These
+are the mandatory separators from [UAX #14](https://www.unicode.org/reports/tr14/);
+recognizing them here does not claim complete Unicode line-breaking conformance.
+Other locales retain their native source policy, and custom source scanners
+remain responsible for their own line contract.
+
+Right line scans exclude a terminator at its first boundary or include it at its
+last boundary; left scans use the opposite outer boundaries. A starting position
+inside CRLF first moves to the outer boundary in the requested direction, even
+for a zero-count scan. Repeated scans cross whole terminators. Line counts charge
+CRLF when its LF completes, so adjacent partial ranges add without double counting.
+The native composer excludes terminators from shaped paragraphs and visual motion
+crosses the whole source terminator. An intact CRLF, an edited lone CR and an empty
+hard line therefore preserve coherent source, line, caret and redraw behavior.
+When an accepted edit forms CRLF or changes bidi context, wrapped line-table
+reflow restarts at the current source hard-paragraph boundary. An old line start
+may now be inside the new pair; using it would attempt to shape across two hard
+paragraphs. Custom source scanners and non-UTF-8 native sources keep their own
+line policies.
+
+
+Geometry invalidation uses the native `NODELTA` sentinel: cached paragraphs are
+cleared rather than rebased as though the sentinel were a source edit. Source
+replacement and font/geometry changes must not add that sentinel to source
+positions. Font changes honor explicitly supplied width and height, including
+values equal to the existing dimensions. Omitted dimensions retain native
+row/column sizing. Global wrap tables and visible geometry are refreshed before
+cursor and input-method geometry queries and navigator notifications.
+
+`XmTextFontContextGetShapingUsage` exposes saturating lifetime observations:
+validated `paragraph_builds` attempts, `paragraph_scalars` once a source map exists,
+actual HarfBuzz `shape_calls` and `shaped_scalars`, and successful `line_captures`,
+including temporary wrap probes. Context invalidation does not reset observations.
+Paragraphs own independent accounting references; captures never borrow a context
+which a host may already have freed. These are work counters, not retained-memory
+budgets or an end-to-end latency promise.
+
+`XmTextLayoutReference` acquires a separately owned reference to an immutable
+capture; release each reference with `XmTextLayoutFree`. The installed private
+output interface `_XmTextGetLineCapture` retains the actual Unicode capture for a
+visible native Text source position and returns its source scalar bounds. The
+bounds describe that snapshot, not later source revisions. Unsupported or
+unavailable captures return NULL without changing outputs. The owning display
+thread and primary-font/Display lifetime requirements still apply.
+
+The native incremental-layout oracle compares edited shared sources at two widths
+with fresh native widgets: visible line ranges, glyph counts, widths, both-affinity
+carets, hits, visual movement, selection regions and pixels drawn from their real
+captures. Unchanged capture identity and suffix rebasing are checked separately
+from fresh-result equivalence. Context-changing edits, hard-line joins/splits,
+width/font/configuration changes and retained captures after widget destruction
+are included. This qualifies unaffected hard-paragraph reuse within the fixture;
+shaping inside an edited paragraph still uses full context, and live application
+projection integration remains a separate gate.
+
 ## Paragraphs and line captures
 
 `<Xm/TextLayout.h>` provides `XmTextParagraphCreate`,
@@ -271,3 +330,9 @@ widget input policies with that default. Successful runs cover preedit, commit,
 cancellation and service restart, but one repeat misses a Hindi preedit update;
 repeatable service qualification remains open. Actual-application revalidation
 is pending; committed input observations alone do not prove preedit ownership.
+
+The native retained-output regression passes 12,890,100 assertions and 417
+native/fresh line comparisons, including a first-strong bidi change after 360
+neutral scalars and a zero-layout-warning gate. Strict ASan/UBSan completes its
+body but still rejects exit-time Xt selection-context leaks; this is not full
+native sanitizer acceptance. See the [status page](status.md) for exact limits.

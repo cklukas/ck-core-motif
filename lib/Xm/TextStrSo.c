@@ -400,6 +400,89 @@ _XmStringSourceGetChar(XmSourceData data,
   }
 }
 
+/* Inspect one native source character without flattening or moving its gap.
+ * UTF-8 source storage is scalar wchar_t; the smaller native storage forms
+ * still represent CR/LF directly. Bounds checks precede all pointer access. */
+static unsigned long
+SourceLineCharacter(XmSourceData data, XmTextPosition position)
+{
+  size_t unit, before;
+  char *at;
+  BITS16 short_character;
+  wchar_t wide_character;
+  int character_size;
+  if (position < 0 || position >= data->length || data->numwidgets < 1)
+    return 0;
+  character_size = data->widgets[0]->text.char_size;
+  unit = character_size < 3 ? (size_t)character_size : sizeof(wchar_t);
+  if (!unit) return 0;
+  before = (size_t)(data->gap_start - data->ptr) / unit;
+  at = (size_t)position < before ? data->ptr + (size_t)position * unit :
+       data->gap_end + ((size_t)position - before) * unit;
+  if (character_size == 1) return (unsigned char)*at;
+  if (character_size == 2) {
+    memcpy(&short_character, at, sizeof(short_character));
+    return (unsigned long)short_character;
+  }
+  memcpy(&wide_character, at, sizeof(wide_character));
+  return (unsigned long)wide_character;
+}
+
+/* UAX #14 mandatory separators (BK/CR/LF/NL). CRLF is paired by the
+ * scanner; the other separators each consume one native scalar. */
+static Boolean
+SourceHardLineBreak(unsigned long character)
+{
+  return character == '\r' || character == '\n' || character == '\v' ||
+         character == '\f' || character == 0x85 || character == 0x2028 ||
+         character == 0x2029;
+}
+
+/* In a supported UTF-8 locale, mandatory separators terminate native hard lines,
+ * preserving all source scalars. Right scans exclude/include a terminator at
+ * its first/last outer boundary; left scans use its last/first boundary.
+ * A CRLF pair has only its outer boundaries; scans never return its interior.
+ * Normalize an interior starting position in the requested direction before
+ * scanning, including count zero. Repeated scans cross whole terminators,
+ * even when excluded. Other locales retain the original native line policy. */
+static XmTextPosition
+ScanUnicodeLine(XmSourceData data, XmTextPosition position,
+                XmTextScanDirection direction, int count, Boolean include)
+{
+  int i;
+  if (position < 0) position = 0;
+  if (position > data->length) position = data->length;
+  if (position > 0 && position < data->length &&
+      SourceLineCharacter(data, position - 1) == '\r' &&
+      SourceLineCharacter(data, position) == '\n')
+    position += direction == XmsdRight ? 1 : -1;
+  for (i = 0; i < count; ++i) {
+    XmTextPosition first, last;
+    if (direction == XmsdRight) {
+      while (position < data->length &&
+             !SourceHardLineBreak(SourceLineCharacter(data, position)))
+        ++position;
+      if (position == data->length) return position;
+      first = position;
+      last = first + 1;
+      if (SourceLineCharacter(data, first) == '\r' &&
+          SourceLineCharacter(data, last) == '\n') ++last;
+      position = i + 1 == count && !include ? first : last;
+    } else {
+      while (position > 0 &&
+             !SourceHardLineBreak(SourceLineCharacter(data, position - 1)))
+        --position;
+      if (!position) return position;
+      last = position;
+      first = last - 1;
+      if (SourceLineCharacter(data, first) == '\n' && first > 0 &&
+          SourceLineCharacter(data, first - 1) == '\r') --first;
+      position = i + 1 == count && !include ? last : first;
+    }
+  }
+  return position;
+}
+
 
 /*DELTA: length IS NOW TREATED AS NUMBER OF CHARACTERS - CALLERS MUST CHANGE*/
 static int 
@@ -414,6 +497,29 @@ CountLines(XmTextSource source,
   char *ptr;
   BITS16 *bits16_ptr, *bits16_gap_start, *bits16_gap_end;
   wchar_t *wchar_t_ptr, *wchar_t_gap_start, *wchar_t_gap_end;
+
+  if (source->Scan == Scan && XmTextUnicodeLocaleAvailable()) {
+    XmTextPosition position, end;
+    if (start < 0) {
+      unsigned long skipped = (unsigned long)(-(start + 1)) + 1;
+      if (length <= skipped) return 0;
+      length -= skipped;
+      start = 0;
+    }
+    if (start >= data->length) return 0;
+    if (length > (unsigned long)(data->length - start))
+      length = (unsigned long)(data->length - start);
+    end = start + (XmTextPosition)length;
+    /* Charge a pair when its LF completes, so adjacent partial ranges add
+     * to the whole-range count even if the gap/range splits CR from LF. */
+    for (position = start; position < end; ++position) {
+      unsigned long character = SourceLineCharacter(data, position);
+      if (SourceHardLineBreak(character) &&
+          !(character == '\r' && SourceLineCharacter(data, position + 1) == '\n'))
+        ++num_lines;
+    }
+    return num_lines;
+  }
   
   /* verify that the 'start' and 'length' parameters are reasonable */
   
@@ -1289,6 +1395,8 @@ Scan(XmTextSource source,
     }
     break;
   case XmSELECT_LINE: 
+    if (XmTextUnicodeLocaleAvailable())
+      return ScanUnicodeLine(data, position, dir, count, (Boolean)include);
     for (i = 0; i < count; i++) {
       while (position >= 0 && position <= data->length) {
 	/* DELTA: Look now returns a pointer */
@@ -1487,6 +1595,13 @@ SetSelection(XmTextSource source,
     (*tw->text.output->DrawInsertionPoint)(tw, tw->text.cursor_position,
 					   on);
   }
+}
+
+/* Check the source method identity before inspecting any native source data. */
+Boolean
+_XmStringSourceUsesUnicodeLines(XmTextSource source)
+{
+  return source && source->Scan == Scan && XmTextUnicodeLocaleAvailable();
 }
 
 /* Source Scan(POSITION,count) retains its scalar-count contract for layout

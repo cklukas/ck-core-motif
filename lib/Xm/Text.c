@@ -1493,7 +1493,17 @@ _XmTextUpdateLineTable(Widget widget,
     XmTextLineTable temp_table = NULL;
     int temp_table_size = 0;
     
-    if (line_table[start_index].virt_line) start_index--;
+    if (_XmStringSourceUsesUnicodeLines(tw->text.source)) {
+      /* An edit may join CR with LF across an old hard-line boundary. That
+       * old line start is then inside a single terminator, not a valid reflow
+       * origin. Paragraph bidi/script context likewise starts at the complete
+       * current hard paragraph, rather than one preceding wrapped line.
+       * Positions at/before the edit start still index the old table safely. */
+      XmTextPosition paragraph_start = (*tw->text.source->Scan)
+        (tw->text.source, start, XmSELECT_LINE, XmsdLeft, 1, False);
+      start_index = _XmTextGetTableIndex(tw, paragraph_start);
+      while (start_index && line_table[start_index].virt_line) --start_index;
+    } else if (line_table[start_index].virt_line) start_index--;
 
     begin_index = start_index;
     

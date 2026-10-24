@@ -1,6 +1,28 @@
 # Fork history
 
 
+## Unicode hard-line sources and retained output captures
+
+Native Unicode Text now recognizes whole CRLF and the other mandatory Unicode
+separators in source scanning/counting. The previous LF-only scan passed a CR into
+the shaped-paragraph API, which rejected the line and made its caret unavailable.
+The source fix preserves bytes/scalars, supports edits which leave a lone CR and
+keeps native line tables, rendering and whole-terminator visual motion coherent. Wrapped line-table edits restart at the current hard paragraph,
+including when an old line start becomes the interior of a newly formed CRLF.
+
+
+Geometry invalidation no longer adds the `NODELTA` sentinel to cached source
+positions. Font changes preserve explicitly requested dimensions, including
+unchanged values, and reflow native line state before cursor/input-method queries.
+
+Immutable line captures can be retained independently. Separate shaping-work
+counters expose real paragraph and HarfBuzz work across native edits. The new
+native-versus-fresh oracle compares geometry and rendered pixels, including shared
+sources, bidi changes and capture lifetime. This does not introduce a glyph-suffix
+shortcut inside an edited paragraph or establish full editor/input acceptance.
+Existing native widget/public records retain ABI8; new accounting/layout-reference
+fields belong only to opaque internal objects.
+
 ## Immutable incremental Unicode source indexes
 
 Epoch 8 adds retained immutable source maps and fail-atomic replacement deltas.
