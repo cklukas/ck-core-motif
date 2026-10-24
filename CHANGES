@@ -1,3 +1,12 @@
+Notebook page ordering without overflow (2026-10-24)
+====================================================
+
+- Replace page-number and pointer subtraction in the Notebook child comparator
+  with relational ordering, preserving lookups across the signed page-number
+  range.
+- Add an installed-prefix regression for extreme page numbers; see
+  docs/notebook-order.md.
+
 Container narrow detail columns (2026-10-24)
 ============================================
 

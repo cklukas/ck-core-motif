@@ -29,6 +29,7 @@
 
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <Xm/AccTextT.h>
 #include <Xm/ActivatableT.h>
 #include <Xm/ArrowBG.h>
@@ -5732,16 +5733,31 @@ CompareChildren (
     XmNotebookConstraint bc = NotebookConstraint(*((Widget *)b));
     int cmp;
 
-    /* Compare page numbers */
-    cmp = ac->page_number - bc->page_number;
+    /* Compare page numbers without overflowing signed arithmetic. */
+    if (ac->page_number < bc->page_number)
+	cmp = -1;
+    else if (ac->page_number > bc->page_number)
+	cmp = 1;
+    else
+	cmp = 0;
 
     /* Compare child types, if page numbers are same */
-    if (!cmp)
-	cmp = ac->child_type - bc->child_type;
+    if (!cmp) {
+	if (ac->child_type < bc->child_type)
+	    cmp = -1;
+	else if (ac->child_type > bc->child_type)
+	    cmp = 1;
+	}
 
     /* Compare position in the array, if child types are the same */
-    if (!cmp)
-	cmp = (unsigned long)a - (unsigned long)b;
+    if (!cmp) {
+	uintptr_t ap = (uintptr_t)a;
+	uintptr_t bp = (uintptr_t)b;
+	if (ap < bp)
+	    cmp = -1;
+	else if (ap > bp)
+	    cmp = 1;
+	}
 
     return cmp;
 }
