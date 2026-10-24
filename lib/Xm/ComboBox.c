@@ -3543,11 +3543,14 @@ XmComboBoxDeletePos(Widget widget,
   /* Delete this item. */
   XmListDeletePos(CB_List(cb), pos);
 
-  /* If our selected item just got deleted select seomthing else. */
+  /* If our selected item just got deleted select something else. */
   if ((pos ? pos : nitems) == selpos)
     {
       if (nitems > 1)
 	{
+	  /* Select the successor, or the new last item at the end. */
+	  if (selpos == nitems)
+	    --selpos;
 	  /* Invoke the callbacks now. */
 	  XmListSelectPos(CB_List(cb), selpos, True);
 	}

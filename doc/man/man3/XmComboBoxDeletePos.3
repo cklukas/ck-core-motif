@@ -67,6 +67,10 @@ The
 .PP
 The
 \fIpos\fP argument specifies the position of the item to be deleted\&.
+.PP
+Positions are 1-based, regardless of \fBXmNpositionMode\fP; 0 denotes the last item\&.
+If the selected item is deleted and items remain, its successor is selected,
+or the new last item if there is no successor, and the selection callback is invoked\&.
 .SH "RETURN VALUE"
 .PP
 The

@@ -32,4 +32,5 @@ nav:
       - docs/components.md
       - docs/button-timers.md
       - docs/paned-keyboard.md
+      - docs/combo-deletion.md
       - docs/disclosure.md

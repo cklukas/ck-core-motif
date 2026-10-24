@@ -1,3 +1,19 @@
+ComboBox selection after final-item deletion (2026-10-24)
+========================================================
+
+- Select the surviving final item when XmComboBoxDeletePos removes the selected
+  last item from a nonempty list, instead of passing its now-invalid old index
+  to the List. Synchronize displayed text, selected resources and the existing
+  replacement-selection callback, as with first/middle-item deletion.
+- Preserve one-based deletion positions and the zero-as-last alias, configured
+  zero/one-based resource and callback positions, unselected-item behavior,
+  public interfaces, widget layouts and native ABI. Add a native 408-case matrix
+  across all three ComboBox types and both position modes; see
+  docs/combo-deletion.md.
+- Native AArch64 validation passes all 408 cases and 5,880 checks; the unchanged
+  prior library fails the selected-last deletion case. Installed ABI, SpinBox,
+  List Unicode, DPI, PanedWindow and button-timer regressions also pass.
+
 PanedWindow keyboard movement cancellation (2026-10-24)
 ======================================================
 
