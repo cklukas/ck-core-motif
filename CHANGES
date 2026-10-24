@@ -1,3 +1,13 @@
+Legacy background color override (2026-10-24)
+==============================================
+
+- Make `_XmSetDefaultBackgroundColorSpec` update the value returned by
+  `_XmGetDefaultBackgroundColorSpec`, retaining resource-database fallback
+  behavior and safely owning replacement strings.
+- Add a source-contract regression and document the corrected private API
+  behavior in docs/background-color-override.md.
+- Native AArch64 libXm build is warning-free and the override regression passes.
+
 FontSelector XLFD fallback bounds (2026-10-24)
 =============================================
 

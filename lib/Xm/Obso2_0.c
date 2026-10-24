@@ -409,7 +409,9 @@ _XmWhitePixel(
 }
   
 
-String   
+static String default_background_color_spec_override = NULL;
+
+String
 _XmGetDefaultBackgroundColorSpec( Screen *screen )
 {
   XrmName names[2];
@@ -417,6 +419,9 @@ _XmGetDefaultBackgroundColorSpec( Screen *screen )
   XrmRepresentation rep;
   XrmValue db_value;
   String default_background_color_spec = NULL ;
+
+  if (default_background_color_spec_override != NULL)
+    return default_background_color_spec_override;
 
   names[0] = XrmPermStringToQuark(XmNbackground);
   names[1] = NULLQUARK;
@@ -442,20 +447,12 @@ _XmSetDefaultBackgroundColorSpec(
 	Screen *screen,	/* unused */
         String new_color_spec )
 {
-    static Boolean app_defined = FALSE;
-    String default_background_color_spec = NULL ;
+    if (default_background_color_spec_override != NULL)
+      XtFree(default_background_color_spec_override);
 
-    if (app_defined)
-	{
-	    XtFree(default_background_color_spec);
-	}
-
-    default_background_color_spec = (String)
-	XtMalloc(strlen(new_color_spec) + 1);
-    /* this needs to be set per screen */
-    strcpy(default_background_color_spec, new_color_spec);
-
-    app_defined = TRUE;
+    if (new_color_spec == NULL)
+      new_color_spec = XmDEFAULT_BACKGROUND;
+    default_background_color_spec_override = XtNewString(new_color_spec);
 }
 
 /*
