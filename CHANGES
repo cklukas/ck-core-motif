@@ -1,3 +1,9 @@
+Mrm wide-string append bounds (2026-10-25)
+===========================================
+
+- Count and size wide-string record appends in size_t before checking the
+  format resource limit; see `docs/mrm-wchar-append-bounds.md`.
+
 Mrm record-growth bounds (2026-10-25)
 ====================================
 

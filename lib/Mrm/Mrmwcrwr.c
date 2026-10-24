@@ -2074,9 +2074,9 @@ UrmCWR__AppendWcharString (URMResourceContextPtr	context_id ,
    *  Local variables
    */
   Cardinal		result ;	/* function results */
-  MrmSize		len ;		/* string length */
+  size_t		len ;		/* string length */
   wchar_t		*wcsadr ;	/* destination address in record */
-  int			cnt;
+  size_t		cnt;
 
   /*
    * Offset zero for NULL pointer
@@ -2091,6 +2091,10 @@ UrmCWR__AppendWcharString (URMResourceContextPtr	context_id ,
    * Guarantee space and copy in string
    */
   for (cnt = 0; ; cnt++) if (wcs[cnt] == 0) break;
+  if (cnt == SIZE_MAX ||
+      cnt > (MrmMaxResourceSize / sizeof(wchar_t)) - 1)
+    return Urm__UT_Error ("UrmCWR__AppendWcharString", _MrmMMsg_0029,
+			  NULL, context_id, MrmTOO_MANY) ;
   len = (cnt+1) * sizeof(wchar_t);
   result = UrmCWR__GuaranteeSpace (context_id, len, offset, (char **)&wcsadr) ;
   if ( result != MrmSUCCESS ) return result ;
