@@ -798,7 +798,7 @@ Idb__BM_DecommitAll (IDBFile		file_id)
   IDBRecordBufferPtr	curbuf ;	/* ptr to element in buff pool	*/
 
   if ( idb__buffer_pool_vec == NULL )
-    return MrmFAILURE;
+    return MrmSUCCESS;
 
   for ( ndx=0,curbuf=idb__buffer_pool_vec ;
         ndx<idb__buffer_pool_size ;

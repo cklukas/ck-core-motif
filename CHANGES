@@ -1,3 +1,8 @@
+Mrm empty IDB decommit handling (2026-10-25)
+===============================================
+
+- Treat an uninitialized IDB buffer pool as a successful decommit no-op, preventing valid file closes from entering the close-error path before any record buffer is allocated; see `docs/mrm-idb-empty-decommit.md`.
+
 Mrm in-memory IDB record bounds (2026-10-25)
 =============================================
 
