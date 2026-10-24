@@ -39,6 +39,7 @@ nav:
       - docs/notebook-order.md
       - docs/theme-configuration.md
       - docs/button-type-conversion.md
+      - docs/charset-table-conversion.md
       - docs/text-source-bounds.md
       - docs/image-scaling.md
       - docs/uil-listing.md

@@ -2032,19 +2032,22 @@ CvtStringToCharSetTable(
   unsigned int strDataSize = 0;
   char * dataPtr;
   int i;
-  String work_str, cs_str;
-  _Xstrtokparams strtok_buf;
+  String work_str, cs_str, separator;
 
   work_str = XtNewString(in_str);
 
-  for (cs_str = _XStrtok(work_str, ",", strtok_buf);
-       cs_str;
-       cs_str = _XStrtok(NULL, ",", strtok_buf))
-    {   
+  for (cs_str = work_str; ; cs_str = separator + 1)
+    {
+      separator = strchr(cs_str, ',');
+      if (separator)
+	*separator = '\0';
       if (*cs_str)
 	strDataSize += strlen(cs_str) + 1;
       ++numCharsets;
+      if (!separator)
+	break;
     }
+  strcpy(work_str, in_str);
 
   charsetTable = (XmStringCharSetTable) 
     XtMalloc(strDataSize + sizeof(XmStringCharSet) * (numCharsets+1));
@@ -2052,10 +2055,11 @@ CvtStringToCharSetTable(
   dataPtr = (char *) &charsetTable[numCharsets+1];
   strcpy(work_str, in_str);
 
-  for (i = 0, cs_str = _XStrtok(work_str, ",", strtok_buf);
-       cs_str;
-       cs_str = _XStrtok(NULL, ",", strtok_buf), ++i)
-    {   
+  for (i = 0, cs_str = work_str; i < (int)numCharsets; ++i)
+	{
+	separator = strchr(cs_str, ',');
+	if (separator)
+	    *separator = '\0';
       if (*cs_str)
 	{
 	  charsetTable[i] = dataPtr;
@@ -2066,6 +2070,9 @@ CvtStringToCharSetTable(
 	{   
 	  charsetTable[i] = NULL;
 	} 
+	if (!separator)
+	    break;
+	cs_str = separator + 1;
     }
   XtFree((char *) work_str);
 

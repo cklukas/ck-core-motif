@@ -1,3 +1,11 @@
+Preserve empty charset-table slots (2026-10-24)
+===============================================
+
+- Parse XmRCharSetTable fields positionally so empty fields remain explicit
+  NULL entries instead of leaving pointers uninitialized.
+- Add an installed-prefix converter regression; see
+  docs/charset-table-conversion.md.
+
 Reject empty button-type resource tokens (2026-10-24)
 =====================================================
 
