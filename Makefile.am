@@ -148,3 +148,4 @@ EXTRA_DIST += tests/automated/check-png-signature-read.py docs/png-signature-val
 EXTRA_DIST += tests/automated/check-png-allocation-cleanup.py docs/png-allocation-cleanup.md
 EXTRA_DIST += tests/automated/check-jpeg-pixel-layout.py docs/jpeg-pixel-layout.md
 EXTRA_DIST += tests/automated/check-jpeg-error-cleanup.py docs/jpeg-error-cleanup.md
+EXTRA_DIST += tests/automated/check-png-error-cleanup.py docs/png-error-cleanup.md

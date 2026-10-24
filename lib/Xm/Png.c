@@ -159,6 +159,12 @@ png_load_file(FILE *infile, unsigned long *pWidth,
     double gamma;
     png_uint_32 i, rowbytes;
     png_bytepp row_pointers = NULL;
+    volatile unsigned char *allocated_image = NULL;
+    volatile png_bytepp allocated_rows = NULL;
+
+    if (image_data == NULL)
+        return 4;
+    *image_data = NULL;
 
     if (fread(sig, 1, sizeof(sig), infile) != sizeof(sig))
         return 1;
@@ -181,6 +187,9 @@ png_load_file(FILE *infile, unsigned long *pWidth,
 
     if (setjmp(png_jmpbuf(png_ptr))) {
         png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+        free((void *)allocated_rows);
+        free((void *)allocated_image);
+        *image_data = NULL;
         return 2;
     }
 
@@ -249,6 +258,7 @@ png_load_file(FILE *infile, unsigned long *pWidth,
         png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
         return 4;
     }
+    allocated_image = *image_data;
     if (height > SIZE_MAX / sizeof(png_bytep) ||
         (row_pointers = (png_bytepp) malloc((size_t)height *
                                              sizeof(png_bytep))) == NULL) {
@@ -257,6 +267,7 @@ png_load_file(FILE *infile, unsigned long *pWidth,
         *image_data = NULL;
         return 4;
     }
+    allocated_rows = row_pointers;
 
     /* set the individual row_pointers to point at the correct offsets */
 
@@ -271,9 +282,10 @@ png_load_file(FILE *infile, unsigned long *pWidth,
     /* and we're done!  (png_read_end() can be omitted if no processing of
      * post-IDAT text/time/etc. is desired) */
 
-    free(row_pointers);
-
     png_read_end(png_ptr, NULL);
+
+    free(row_pointers);
+    allocated_rows = NULL;
 
     if (png_ptr && info_ptr) {
         png_destroy_read_struct(&png_ptr, &info_ptr, NULL);

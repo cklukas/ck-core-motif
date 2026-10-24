@@ -1,3 +1,10 @@
+PNG decoder error cleanup (2026-10-24)
+========================================
+
+- Release decoded image and row-pointer storage across libpng `longjmp`
+  failures, including late parse errors after allocation; see
+  `docs/png-error-cleanup.md`.
+
 JPEG decoder error cleanup (2026-10-24)
 ==========================================
 
