@@ -590,3 +590,11 @@ Development 2.4.0 / Container child-list API bounds
   output storage, and check child-count multiplication before allocation.
 - Guard `XmContainerReorder` integer-list allocation and extend the Container
   regression documentation.
+
+Development 2.4.0 / DropDown selection-table bounds
+===================================================
+
+- Check converted DropDown selected-item counts before allocating temporary
+  XmString tables, preserving the existing selection-error behavior on
+  unrepresentable sizes.
+- Add a public DropDown regression and documentation.

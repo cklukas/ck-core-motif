@@ -23,6 +23,7 @@
 #include <Xm/Text.h>
 #include <Xm/List.h>
 #include <Xm/GrabShellP.h>
+#include <stdint.h>
 
 #include <Xm/ExtP.h>
 
@@ -2370,6 +2371,11 @@ SetListFromText(Widget w, Boolean no_action)
 	 */
 	if (table != NULL)  {
 	    for(tptr = table, count = 0; *tptr != NULL ; tptr++) count++; 
+	    if ((size_t)count > SIZE_MAX / sizeof(XmString)) {
+		sel_table = NULL;
+		error = TRUE;
+		count = 0;
+	    } else {
 	    sel_table = (XmStringTable) XtMalloc(sizeof(XmString) * count);
 	    for(tptr = table, count = 0; *tptr != NULL ; tptr++) {
 		if (XmListItemExists(XmDropDown_list(cbw), *tptr))
@@ -2378,6 +2384,7 @@ SetListFromText(Widget w, Boolean no_action)
 		    error = TRUE;
 		    break;
 		}
+	    }
 	    }
 	}
 	else
