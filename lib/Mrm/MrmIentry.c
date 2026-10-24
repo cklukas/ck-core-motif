@@ -360,12 +360,20 @@ Idb__DB_PutDataEntry (IDBFile			file_id,
        */
       data_rec = (IDBDataRecord *) curbuf->IDB_record;
       dataheader = (IDBDataHdr *) &data_rec->data_header;
+      if (dataheader->free_ptr > IDBDataFreeMax ||
+          dataheader->free_count > IDBDataFreeMax ||
+          dataheader->free_ptr > IDBDataFreeMax - dataheader->free_count)
+	return MrmNOT_VALID;
       if ( entsiz > dataheader->free_count )
 	{
 	  result = Idb__BM_InitDataRecord (file_id, &curbuf) ;
 	  if ( result != MrmSUCCESS ) return result ;
 	  data_rec = (IDBDataRecord *) curbuf->IDB_record;
 	  dataheader = (IDBDataHdr *) &data_rec->data_header;
+	  if (dataheader->free_ptr > IDBDataFreeMax ||
+	      dataheader->free_count > IDBDataFreeMax ||
+	      dataheader->free_ptr > IDBDataFreeMax - dataheader->free_count)
+	    return MrmNOT_VALID;
 	}
 
       /*

@@ -360,3 +360,5 @@ EXTRA_DIST += tests/automated/check-mrm-put-entry-inputs.py docs/mrm-put-entry-i
 EXTRA_DIST += tests/automated/check-mrm-entry-read-inputs.py docs/mrm-entry-read-inputs.md
 
 EXTRA_DIST += tests/automated/check-mrm-get-entry-postconditions.py docs/mrm-get-entry-postconditions.md
+
+EXTRA_DIST += tests/automated/check-mrm-put-entry-capacity.py docs/mrm-put-entry-capacity.md

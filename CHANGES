@@ -1,4 +1,7 @@
 2026-10-26
+	* Validate Mrm data-record free-space metadata before insertion.
+
+2026-10-26
 	* Check Mrm data-entry buffer postconditions before dereferencing records.
 
 2026-10-26
