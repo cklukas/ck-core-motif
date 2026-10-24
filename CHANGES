@@ -1,3 +1,10 @@
+Layout-manager scope decision (2026-10-24)
+=========================================
+
+- Record the WP-12 comparison and defer a new grid/flex manager until a real
+  installed consumer supplies a reproducible unmet layout requirement; see
+  `docs/layout-manager-decision.md`.
+
 PNG XImage pixel-width handling (2026-10-24)
 ===============================================
 

@@ -665,6 +665,14 @@ layout need cannot be served safely by corrected existing managers.
 **Complete when:** the new manager meets the component requirements, has no
 behavioral effect on existing Form clients and passes its installed fixtures.
 
+**Status (2026-10-24):** completed as a no-go decision.  WP-10/WP-11 provide
+  deterministic nested-Form evidence but no reproducible consumer requirement
+  that cannot be met by composing `XmForm`, `XmRowColumn` and existing
+  containers.  Adding a second grid/flex geometry contract now would increase
+  public API and accessibility/focus obligations without a source-backed need.
+  See `docs/layout-manager-decision.md`; reopen this package only with a real
+  installed-client corpus meeting the stated requirements.
+
 ### WP-13: UI-thread completion API investigation
 
 **Depends on:** none.
