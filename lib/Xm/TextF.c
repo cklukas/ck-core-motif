@@ -35,6 +35,7 @@ static char rcsid[] = "$TOG: TextF.c /main/65 1999/09/01 17:28:48 mgreess $"
 #include <stdlib.h>
 #include "XmImI.h"
 #include <limits.h>		/* required for MB_LEN_MAX definition */
+#include <stdint.h>
 #include <string.h>
 #include <ctype.h>
 #include <wctype.h>
@@ -6395,14 +6396,15 @@ ClearSelection(Widget w,
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
   XmTextPosition left = tf->text.prim_pos_left;
   XmTextPosition right = tf->text.prim_pos_right;
+  XmTextPosition span;
   int num_spaces = 0;
   XmAnyCallbackStruct cb;
   Boolean rep_result = False;
   
-  if (left < right)
-    num_spaces = (int)(right - left);
-  else
-    num_spaces = (int)(left - right);
+  span = left < right ? right - left : left - right;
+  if (span <= 0 || span > (XmTextPosition)(INT_MAX - 1))
+    return;
+  num_spaces = (int)span;
   
   if (num_spaces) {
     _XmTextFieldDrawInsertionPoint(tf, False);
@@ -6425,6 +6427,11 @@ ClearSelection(Widget w,
     } else {
       wchar_t *wc_spaces;
       int i;
+
+      if ((size_t)(num_spaces + 1) > SIZE_MAX / sizeof(wchar_t)) {
+        _XmTextFieldDrawInsertionPoint(tf, True);
+        return;
+      }
       
       wc_spaces = (wchar_t *)XtMalloc((unsigned)
 				      (num_spaces + 1) * sizeof(wchar_t));

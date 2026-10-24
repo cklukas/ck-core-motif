@@ -626,3 +626,10 @@ TextField preedit recovery ownership (2026-10-24)
 - Keep the base address of the multibyte recovery buffer while scanning past completed characters, avoiding an invalid interior-pointer free during overstrike inline preedit updates. Stop safely when locale conversion or a multibyte boundary is invalid.
 - Preserve composition behavior, preedit callbacks, widget resources, public interfaces and native ABI. Document the ownership rule in `docs/textfield-preedit-recovery.md`.
 - Native AArch64 validation passes the TextField source build and XIM preedit-range regression; the optional font-backed preedit-state fixture was unavailable on the minimal rpi4 image.
+
+TextField clear-selection bounds (2026-10-24)
+==============================================
+
+- Validate the selected span before converting it to the existing `int` insertion-length contract, preventing `span + 1` wraparound in `clear-selection`. Protect the wide-character replacement allocation before multiplying by `sizeof(wchar_t)`.
+- Preserve normal selection replacement, callbacks, cursor behavior, public interfaces and native ABI. Document the bounds contract in `docs/textfield-clear-selection-bounds.md`.
+- Native AArch64 validation passes the warning-enabled TextField source build; the former `ClearSelection` out-of-bounds warning is absent.
