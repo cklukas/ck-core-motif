@@ -1,3 +1,9 @@
+Mrm header data-entry bounds (2026-10-25)
+==========================================
+
+- Validate header data offsets, free-space metadata, and entry sizes before
+  reading or writing fixed-record data; see `docs/mrm-header-data-bounds.md`.
+
 Mrm header helper input checks (2026-10-25)
 =============================================
 

@@ -831,6 +831,11 @@ Idb__HDR_GetDataEntry (IDBFile			file_id,
   IDBRecordBufferPtr	bufptr;		/* temp buffer for record */
   char			*buff_ptr;	/* ptr into context buffer */
 
+  if (file_id == NULL || !UrmRCValid (context_id) ||
+      data_entry.rec_no != IDBHeaderRecordNumber ||
+      data_entry.item_offs > IDBHeaderFreeMax - sizeof(IDBDataEntryHdr))
+    return MrmFAILURE;
+
   /*
    * Check and see if the context is valid
    */
@@ -852,6 +857,8 @@ Idb__HDR_GetDataEntry (IDBFile			file_id,
    */
   result = Idb__BM_GetRecord (file_id, record_number, &bufptr);
   if ( result != MrmSUCCESS ) return result;
+  if ( ! Idb__HDR_ValidRecord(bufptr) )
+    return MrmBAD_RECORD;
 
   /*
    * Point to the header in the data entry, set the context data. The context
@@ -861,6 +868,9 @@ Idb__HDR_GetDataEntry (IDBFile			file_id,
   recptr = (IDBHeaderRecordPtr) bufptr->IDB_record;
   datahdr =
     (IDBDataEntryHdrPtr) &recptr->data[data_entry.item_offs];
+  if (datahdr->entry_size >
+      IDBHeaderFreeMax - data_entry.item_offs - sizeof(IDBDataEntryHdr))
+    return MrmBAD_RECORD;
   if ((datahdr->validation != IDBDataEntryValid) && ( file_id->byte_swapped ))
     SwapIDBDataEntryHdr(datahdr) ;
   if (datahdr->validation != IDBDataEntryValid)
@@ -946,14 +956,14 @@ Idb__HDR_PutDataEntry (IDBFile			file_id,
   IDBSimpleDataPtr	simpledata;	/* simple data entry ptr */
   IDBHeaderRecordPtr	recptr;		/* pointer data record */
   IDBRecordBufferPtr	bufptr;		/* current record buffer pointer */
-  int			entsiz;		/* Number of bytes for new entry */
+  MrmCount		entsiz;		/* Number of bytes for new entry */
   MrmOffset		entoffs;	/* Entry offset in buffer */
   char			*dataptr;	/* pointer to data in context */
 
   /*
    * Consistency check
    */
-  if (! UrmRCValid (context_id))
+  if (file_id == NULL || data_entry == NULL || !UrmRCValid (context_id))
     return Urm__UT_Error("Idb__HDR_PutDataEntry", _MrmMMsg_0006,
 			 NULL, NULL, MrmBAD_CONTEXT);
 
@@ -962,15 +972,23 @@ Idb__HDR_PutDataEntry (IDBFile			file_id,
    */
   result = Idb__BM_GetRecord (file_id, IDBHeaderRecordNumber, &bufptr);
   if ( result != MrmSUCCESS ) return result;
+  if ( ! Idb__HDR_ValidRecord(bufptr) )
+    return MrmBAD_RECORD;
   recptr = (IDBHeaderRecordPtr) bufptr->IDB_record;
+
+  if (recptr->free_ptr > IDBHeaderFreeMax ||
+      recptr->free_count > IDBHeaderFreeMax ||
+      UrmRCSize(context_id) > IDBHeaderFreeMax - IDBSimpleDataHdrSize)
+    return MrmFAILURE;
 
   /*
    * See if the entry will fit. Simple failure if not, use a regular data
    * record.
    */
-  entsiz = (int) (IDBSimpleDataHdrSize + UrmRCSize(context_id));
+  entsiz = IDBSimpleDataHdrSize + UrmRCSize(context_id);
   entsiz = _FULLWORD (entsiz);
-  if ( entsiz > (int) recptr->free_count )
+  if ( entsiz > recptr->free_count ||
+       entsiz > IDBHeaderFreeMax - recptr->free_ptr )
     return MrmFAILURE;
 
   /*
