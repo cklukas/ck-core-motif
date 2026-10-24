@@ -6,12 +6,17 @@ from pathlib import Path
 
 source = Path(__file__).parents[2] / "lib" / "Xm" / "TxtPropCv.c"
 text = source.read_text(encoding="utf-8")
+for needle in (
+    "size_t length = 0;",
+    "item_length > SIZE_MAX - length",
+    "XtMalloc(length + 1)",
+    "text_length == SIZE_MAX",
+    "XtRealloc(final_string, size_so_far + 1)",
+    "size_t txt_len",
+    "txt_len > SIZE_MAX - 2",
+    "XtMalloc((txt_len + 2) * sizeof(char))",
+):
+    if needle not in text:
+        raise SystemExit(f"text-property concatenation guard missing: {needle}")
 
-if "size_t length = 0;" not in text:
-    raise SystemExit("text-property concatenation still uses a narrow length")
-if "item_length > SIZE_MAX - length" not in text:
-    raise SystemExit("text-property concatenation overflow guard is missing")
-if "XtMalloc(length + 1)" not in text:
-    raise SystemExit("text-property concatenation does not use checked size")
-
-print("text-property concatenation length accounting is bounded")
+print("text-property concatenation sizing is bounded")

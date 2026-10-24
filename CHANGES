@@ -1,3 +1,10 @@
+Text-property concatenation bounds (2026-10-25)
+================================================
+
+- Reserve the terminating NUL during decomposed text concatenation and retain
+  size_t fallback lengths, preventing a one-byte overrun and narrowing wrap;
+  see `docs/text-property-concat-bounds.md`.
+
 CascadeButton resource-table bounds (2026-10-25)
 ================================================
 

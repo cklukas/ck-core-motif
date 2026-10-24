@@ -329,7 +329,8 @@ GetUseableText(Display *display, XmString xmstring, char **buffer,
 			  &text, texttype)) == _VALID_SEGMENT)
     {
 	size_t text_length = strlen(text);
-	if (text_length > SIZE_MAX - size_so_far)
+	if (text_length == SIZE_MAX ||
+	    text_length > SIZE_MAX - size_so_far - 1)
 	  {
 	    XtFree(text);
 	    if (final_string) XtFree(final_string);
@@ -337,7 +338,7 @@ GetUseableText(Display *display, XmString xmstring, char **buffer,
 	    return(XNoMemory);
 	  }
 	size_so_far += text_length;
-	final_string = (char *)XtRealloc(final_string, size_so_far);
+	final_string = (char *)XtRealloc(final_string, size_so_far + 1);
 	final_string[0] = '\0';
 	strcat(final_string, text);
 	XtFree(text);
@@ -351,7 +352,7 @@ GetUseableText(Display *display, XmString xmstring, char **buffer,
        result in text but with possible loss of information. */
     if (return_status == _INVALID_SEGMENT)
     {
-	int  txt_len;
+	size_t txt_len;
 	char *txt_value;
 
 	/* First, free what we've malloc'ed already */
@@ -374,8 +375,14 @@ GetUseableText(Display *display, XmString xmstring, char **buffer,
 	    return (XLocaleNotSupported);
 	  }
 	/* then to a text property in TextStyle encoding ... */
-	txt_len = strlen(compound_text) + 1;
-	txt_value = XtMalloc((txt_len + 1) * sizeof(char));
+	txt_len = strlen(compound_text);
+	if (txt_len > SIZE_MAX - 2)
+	  {
+	    XtFree(compound_text);
+	    _XmStringContextFree(&stack_context);
+	    return XNoMemory;
+	  }
+	txt_value = XtMalloc((txt_len + 2) * sizeof(char));
 	strcpy(txt_value, compound_text);
 	text_prop_return.value = (unsigned char *) txt_value;
 	text_prop_return.value[txt_len] = '\0';
