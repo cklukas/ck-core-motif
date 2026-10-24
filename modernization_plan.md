@@ -1309,6 +1309,14 @@ recorded no-go decision.
 the individual layout packages below or retain the prior no-go result.  A
 negative decision is a complete result.
 
+**Status (2026-10-25):** the requirements corpus is documented from the
+qualified WP-10/WP-11 installed consumer and its deterministic no-op control.
+Stack, Flex/Flow, and Grid each have an independent **no-go** decision because
+no reproducible consumer requirement exceeds the existing `XmForm`,
+`XmRowColumn`, `XmPanedWindow`, and container composition contracts.  Reopen
+criteria require geometry, resize, mutation, reentrancy, RTL, focus,
+accessibility, and Xt-negotiation evidence from an installed consumer.
+
 ### WP-30: StackLayout
 
 **Depends on:** WP-29 with a Stack go decision.
