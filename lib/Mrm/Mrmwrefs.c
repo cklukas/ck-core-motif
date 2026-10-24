@@ -317,6 +317,12 @@ Urm__CW_AppendSVWidgetRef (IDBFile		file_id,
   size_t		argname_len;
   char			errmsg[300];
 
+  if (svlist == NULL || w_name == NULL)
+    {
+      Urm__UT_Error ("Urm__CW_AppendSVWidgetRef", _MrmMMsg_0049,
+			     NULL, NULL, MrmFAILURE);
+      return;
+    }
 
   /*
    * Initialize the pointer list if required
@@ -425,6 +431,13 @@ Urm__CW_AppendCBSVWidgetRef (IDBFile			file_id,
   size_t		argname_len;
   Cardinal		uncmp_res;	/* function result */
   char			errmsg[300];
+
+  if (svlist == NULL)
+    {
+      Urm__UT_Error ("Urm__CW_AppendCBSVWidgetRef", _MrmMMsg_0049,
+			     NULL, NULL, MrmFAILURE);
+      return;
+    }
 
   if (cbptr == NULL || cbptr->count < 0 ||
       (size_t)cbptr->count >

@@ -1,3 +1,10 @@
+Mrm set-values reference list inputs (2026-10-25)
+===============================================
+
+- Validate output-list pointers before initializing widget and callback
+  references, and reject null widget names in the widget path; see
+  `docs/mrm-wref-list-input.md`.
+
 Mrm set-values tag-name input validation (2026-10-25)
 =======================================================
 
