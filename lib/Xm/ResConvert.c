@@ -1961,9 +1961,8 @@ CvtStringToKeySymTable(
   unsigned int in_str_size = 0;
   XmKeySymTable keySymTable;
   int i, comma_count;
-  String work_str, ks_str;
+  String work_str, ks_str, separator;
   KeySym ks;
-  _Xstrtokparams strtok_buf;
 
   comma_count = 0;
   while (in_str[in_str_size])
@@ -1977,10 +1976,11 @@ CvtStringToKeySymTable(
   keySymTable[comma_count + 1] = (KeySym)NULL;
   work_str = XtNewString(in_str);
 
-  for (ks_str = _XStrtok(work_str, ",", strtok_buf), i = 0;
-       ks_str;
-       ks_str = _XStrtok(NULL, ",", strtok_buf), i++)
+  for (ks_str = work_str, i = 0; i < comma_count + 1; ++i)
     {
+	separator = strchr(ks_str, ',');
+	if (separator)
+	    *separator = '\0';
       if (!*ks_str)
 	keySymTable[i] = NoSymbol;
       else
@@ -1995,6 +1995,9 @@ CvtStringToKeySymTable(
 	    } 
 	  keySymTable[i] = ks;
 	}
+	if (!separator)
+	    break;
+	ks_str = separator + 1;
     }
   XtFree((char *) work_str);
 

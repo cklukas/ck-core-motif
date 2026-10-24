@@ -1,3 +1,11 @@
+Preserve empty KeySym-table slots (2026-10-24)
+===============================================
+
+- Parse XmRKeySymTable fields positionally so empty fields remain NoSymbol
+  entries instead of leaving keysyms uninitialized.
+- Add an installed-prefix converter regression; see
+  docs/keysym-table-conversion.md.
+
 Preserve empty charset-table slots (2026-10-24)
 ===============================================
 
