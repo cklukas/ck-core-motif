@@ -222,3 +222,4 @@ EXTRA_DIST += tests/automated/check-mrm-vector-bounds.py docs/mrm-vector-bounds.
 EXTRA_DIST += tests/automated/check-mrm-pointerlist-bounds.py docs/mrm-pointerlist-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-register-counts.py docs/mrm-register-counts.md
 EXTRA_DIST += tests/automated/check-mrm-widechar-bounds.py docs/mrm-widechar-bounds.md
+EXTRA_DIST += tests/automated/check-mrm-callback-bounds.py docs/mrm-callback-bounds.md

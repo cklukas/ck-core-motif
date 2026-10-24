@@ -3644,7 +3644,12 @@ Urm__CW_TranslateOldCallback (OldRGMCallbackDescPtr	oldptr)
   RGMCallbackItemPtr	itmptr;	/* current callback item */
   OldRGMCallbackItemPtr	olditmptr;	/* callback item being converted */
   int			ndx;	/* loop index */
-  
+
+  if (oldptr == NULL || oldptr->count < 0 ||
+      (size_t)oldptr->count >
+	  (SIZE_MAX - sizeof(RGMCallbackDesc)) / sizeof(RGMCallbackItem))
+    return NULL;
+
   cbptr = (RGMCallbackDescPtr) XtMalloc(sizeof(RGMCallbackDesc) +
 					oldptr->count*sizeof(RGMCallbackItem));
   

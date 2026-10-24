@@ -1,3 +1,9 @@
+Mrm legacy callback bounds (2026-10-25)
+========================================
+
+- Reject null, negative, or unrepresentable legacy callback descriptor counts
+  before translation allocation; see `docs/mrm-callback-bounds.md`.
+
 Mrm wide-character bounds (2026-10-25)
 ======================================
 
