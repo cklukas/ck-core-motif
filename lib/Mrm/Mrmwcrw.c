@@ -3587,7 +3587,12 @@ Urm__CW_LoadWidgetResource (Widget			parent ,
    * Acquire a context, then load the widget and instantiate the tree.
    * An HGet call may replace the file for private references.
    */
-  UrmGetResourceContext ((char *(*)())NULL, (void(*)())NULL, 0, &context_id) ;
+  result = UrmGetResourceContext ((char *(*)())NULL, (void(*)())NULL, 0,
+				  &context_id) ;
+  if ( result != MrmSUCCESS || context_id == NULL )
+    return Urm__UT_Error ("Urm__CW_LoadWidgetResource", _MrmMMsg_0001,
+				  NULL, NULL,
+				  result == MrmSUCCESS ? MrmFAILURE : result);
   switch ( resptr->type )
     {
     case URMrIndex:

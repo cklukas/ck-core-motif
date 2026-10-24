@@ -3024,3 +3024,10 @@ Mrm child-tree context initialization (2026-10-25)
 - Check the child-loading resource context before widget-tree traversal,
   propagating allocation failure instead of passing a null context onward; see
   `docs/mrm-child-context-init.md`.
+
+Mrm widget-resource context initialization (2026-10-25)
+===========================================================
+
+- Check widget-record context allocation before indexed or RID lookup,
+  propagating failure instead of dereferencing a null context; see
+  `docs/mrm-widget-context-init.md`.
