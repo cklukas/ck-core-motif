@@ -7327,13 +7327,15 @@ static void ParseScreensArgument (int argc, char *argv[], int *pArgnum,
  *************************************<->***********************************/
 void ProcessMotifBindings (void)
 {
-    char           fileName[MAXWMPATH+1];
-    char	  *bindings = NULL;
 #ifndef MOTIF_ONE_DOT_ONE
-    char	  *homeDir = XmeGetHomeDirName();
+    char           *fileName;
+    char           *homeDir = XmeGetHomeDirName();
+    size_t          fileNameLength;
 #else
+    char           fileName[MAXWMPATH+1];
     FILE          *fileP;
 #endif
+    char          *bindings = NULL;
 
     /*
      *  Look in the user's home directory for .motifbind
@@ -7341,11 +7343,18 @@ void ProcessMotifBindings (void)
 
 #ifdef MOTIF_ONE_DOT_ONE
     GetHomeDirName(fileName);
-#else
-    strcpy (fileName, homeDir);
-#endif
     strncat(fileName, "/", MAXWMPATH-strlen(fileName));
     strncat(fileName, MOTIF_BINDINGS_FILE, MAXWMPATH-strlen(fileName));
+#else
+    if (homeDir == NULL)
+        homeDir = "";
+    fileNameLength = strlen(homeDir) + strlen(MOTIF_BINDINGS_FILE) + 2;
+    fileName = (char *)XtMalloc((unsigned int)fileNameLength);
+    if (fileName == NULL)
+        return;
+    (void)snprintf(fileName, fileNameLength, "%s/%s", homeDir,
+                   MOTIF_BINDINGS_FILE);
+#endif
 
 #ifdef MOTIF_ONE_DOT_ONE
     if ((fileP = fopen (fileName, "r")) != NULL)
@@ -7400,6 +7409,7 @@ void ProcessMotifBindings (void)
 	_XmVirtKeysLoadFallbackBindings (DISPLAY, &bindings);
     }
     XtFree (bindings);
+    XtFree (fileName);
 #endif
 } /* END OF FUNCTION ProcessMotifBindings */
 

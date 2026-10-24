@@ -1,3 +1,10 @@
+Mwm binding-path bounds (2026-10-24)
+====================================
+
+- Dynamically construct the Linux `.motifbind` path from the home directory,
+  preserving binding loading while removing the fixed `MAXWMPATH` pathname
+  buffer; see `docs/mwm-bindings-path.md`.
+
 Native text and external-IME qualification matrix (2026-10-24)
 ==============================================================
 
