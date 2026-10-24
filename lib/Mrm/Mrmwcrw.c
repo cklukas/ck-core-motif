@@ -616,20 +616,37 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
 	      SIZE_MAX - (size_t)num_listent - (size_t)argdesc->count)
 	return MrmFAILURE;
       num_listent += argdesc->count + argdesc->extra ;
-      UrmPlistInit (10, &ftllist) ;
+      if (UrmPlistInit (10, &ftllist) != MrmSUCCESS)
+        return MrmFAILURE;
     }
   if ( num_listent > 0 )
     {
       if ((size_t)num_listent > SIZE_MAX / sizeof(Arg))
 	return MrmFAILURE;
       args = (Arg *) XtMalloc ((size_t)num_listent*sizeof(Arg)) ;
-      UrmPlistInit (10, &ptrlist) ;
+      if (args == NULL)
+        {
+          if (ftllist != NULL) UrmPlistFree (ftllist);
+          return MrmFAILURE;
+        }
+      if (UrmPlistInit (10, &ptrlist) != MrmSUCCESS)
+        {
+          XtFree ((char *)args);
+          if (ftllist != NULL) UrmPlistFree (ftllist);
+          return MrmFAILURE;
+        }
     }
 
   /*
    * Set up the structure for the callback list to free memory on destory widget
    */
-  UrmPlistInit (10, &cblist);
+  if (UrmPlistInit (10, &cblist) != MrmSUCCESS)
+    {
+      if (ptrlist != NULL) UrmPlistFree (ptrlist);
+      if (ftllist != NULL) UrmPlistFree (ftllist);
+      if (args != NULL) XtFree ((char *)args);
+      return MrmFAILURE;
+    }
 
   /*
    * Set the arg list from the widget record argument list
@@ -920,20 +937,37 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
 	      SIZE_MAX - (size_t)num_listent - (size_t)argdesc->count)
 	return MrmFAILURE;
       num_listent += argdesc->count + argdesc->extra ;
-      UrmPlistInit (10, &ftllist) ;
+      if (UrmPlistInit (10, &ftllist) != MrmSUCCESS)
+        return MrmFAILURE;
     }
   if ( num_listent > 0 )
     {
       if ((size_t)num_listent > SIZE_MAX / sizeof(Arg))
 	return MrmFAILURE;
       args = (Arg *) XtMalloc ((size_t)num_listent*sizeof(Arg)) ;
-      UrmPlistInit (10, &ptrlist) ;
+      if (args == NULL)
+        {
+          if (ftllist != NULL) UrmPlistFree (ftllist);
+          return MrmFAILURE;
+        }
+      if (UrmPlistInit (10, &ptrlist) != MrmSUCCESS)
+        {
+          XtFree ((char *)args);
+          if (ftllist != NULL) UrmPlistFree (ftllist);
+          return MrmFAILURE;
+        }
     }
 
   /*
    * Set up the structure for the callback list to free memory on destroy widget
    */
-  UrmPlistInit (10, &cblist);
+  if (UrmPlistInit (10, &cblist) != MrmSUCCESS)
+    {
+      if (ptrlist != NULL) UrmPlistFree (ptrlist);
+      if (ftllist != NULL) UrmPlistFree (ftllist);
+      if (args != NULL) XtFree ((char *)args);
+      return MrmFAILURE;
+    }
 
   /*
    * Set the arg list from the widget record argument list

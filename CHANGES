@@ -2874,3 +2874,11 @@ Mrm name-registration allocation handling (2026-11-02)
 - Validate registration lists and temporary name/value vectors in global and
   hierarchy-scoped APIs, with unlock-safe cleanup on failure; see
   `docs/mrm-register-names-allocation.md`.
+
+
+Mrm widget-instance allocation handling (2026-11-03)
+=====================================================
+
+- Check scratch pointer lists and argument arrays in create and set-values
+  instance builders, releasing partial setup on failure; see
+  `docs/mrm-widget-instance-allocation.md`.
