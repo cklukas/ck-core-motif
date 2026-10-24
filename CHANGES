@@ -1,3 +1,9 @@
+Bound compound-string header decoding (2026-10-24)
+====================================================
+- Verify short and long ASN.1 headers are fully present before invoking the
+  legacy length decoder in both counting and conversion passes.
+- Reject malformed truncated payloads safely, with a source contract regression
+  and documentation.
 Handle empty Motif compound-string imports (2026-10-24)
 ==========================================================
 - Return an empty table for zero-length ASN.1 compound-string properties before

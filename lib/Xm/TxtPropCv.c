@@ -737,6 +737,11 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 		return BadAlloc;
 	    }
 	    remaining = (size_t)text_prop->nitems - offset;
+	    if (remaining < 4 ||
+		((text_prop->value[offset + 3] & 0x80) && remaining < 6)) {
+		_XmAppUnlock(app);
+		return XConverterNotFound;
+	    }
 	    stream_length = XmStringByteStreamLength(text_prop->value + offset);
 	    if (stream_length == 0 || stream_length > remaining) {
 		_XmAppUnlock(app);
@@ -755,6 +760,14 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	     text_prop->value[offset] != '\0'; ++elements)
 	{
 	    asn1_head = text_prop->value + offset;
+	    remaining = (size_t)text_prop->nitems - offset;
+	    if (remaining < 4 ||
+		((asn1_head[3] & 0x80) && remaining < 6)) {
+		while (elements > 0) XtFree((char *)string_table[--elements]);
+		XtFree((char *)string_table);
+		_XmAppUnlock(app);
+		return XConverterNotFound;
+	    }
 	    string_table[elements] = XmCvtByteStreamToXmString(asn1_head);
 	    /* If the string is NULL, then we don't know what to do */
 	    if (string_table[elements] == (XmString) NULL)

@@ -43,6 +43,11 @@ An empty Motif compound-string property now returns an empty table without
 dereferencing a null payload. The empty-property contract is covered by
 `tests/automated/check-compound-string-empty.py`.
 
+ASN.1 header decoding also verifies the short or long length header is fully
+present before calling the legacy length helper, preventing malformed short
+payloads from being read past their X property buffer. The contract is covered
+by `tests/automated/check-compound-string-header.py`.
+
 Locale, STRING, and UTF-8 import handles an empty property as one empty
 `XmString` and uses non-underflowing bounds for non-empty payloads. Oversized
 property lengths are rejected before the `int` element counter is used. The
