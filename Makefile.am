@@ -162,3 +162,4 @@ EXTRA_DIST += tests/automated/check-cache-pixmap-input.py docs/cache-pixmap-inpu
 EXTRA_DIST += tests/automated/check-pixmap-create-failure.py docs/pixmap-create-failure.md
 EXTRA_DIST += tests/automated/check-cache-geometry-status.py docs/cache-geometry-status.md
 EXTRA_DIST += tests/automated/check-mask-name-allocation.py docs/mask-name-allocation.md
+EXTRA_DIST += tests/automated/check-embedded-mask-ownership.py docs/embedded-mask-ownership.md

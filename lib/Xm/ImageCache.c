@@ -774,12 +774,22 @@ GetXpmImage(
 	   install it using our mask name scheme if the color object
 	   tell us to do so */
 	if (mask_image && useMask) {
-	    char mask_name[255] ;
-	    
-	    _XmOSGenerateMaskName(image_name, mask_name);
-	    /* if an image already exist under that
-	       name, nothing will be done */
-	    _XmInstallImage (mask_image, mask_name, hot_x, hot_y);
+	    String mask_name = XtMalloc(strlen(image_name) + 3);
+
+	    if (mask_name != NULL) {
+		Boolean installed;
+
+		_XmOSGenerateMaskName(image_name, mask_name);
+		/* if an image already exists under that name, release this copy */
+		installed = _XmInstallImage(mask_image, mask_name, hot_x, hot_y);
+		XtFree(mask_name);
+		if (!installed)
+		    XDestroyImage(mask_image);
+	    } else {
+		XDestroyImage(mask_image);
+	    }
+	} else if (mask_image) {
+	    XDestroyImage(mask_image);
 	}
 
 	/* now we have to adjust the passed acc_color */

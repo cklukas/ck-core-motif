@@ -1,3 +1,10 @@
+Embedded XPM mask ownership (2026-10-24)
+=========================================
+
+- Dynamically size embedded mask names and release masks when installation is
+  rejected, allocation fails, or mask use is disabled; see
+  `docs/embedded-mask-ownership.md`.
+
 Mask-name allocation bounds (2026-10-24)
 =========================================
 
