@@ -85,7 +85,8 @@ static char rcsid[] = "$XConsortium: MrmIrid.c /main/13 1996/11/13 13:58:17 drk 
  * Macros which validate index records in buffers
  */
 #define	Idb__RID_ValidRecord(buffer) \
-	(_IdbBufferRecordType(buffer)==IDBrtRIDMap)
+	((buffer) != NULL && (buffer)->IDB_record != NULL && \
+	 _IdbBufferRecordType(buffer)==IDBrtRIDMap)
 
 
 /*
@@ -134,6 +135,9 @@ Idb__RID_EnterItem (IDBFile			file_id,
   IDBridDesc		resid;		/* CAST resource id */
   IDBResourceIndex	resndx;		/* to check resource index */
   IDBRecordNumber	recno;		/* Map record record number */
+
+  if (file_id == NULL)
+    return MrmFAILURE;
 
 
   /*
@@ -229,6 +233,9 @@ Idb__RID_ReturnItem (IDBFile			file_id,
   IDBResourceIndex	resndx;		/* to check resource index */
   IDBRecordNumber	recno;		/* Map record record number */
 
+  if (file_id == NULL || entry_return == NULL)
+    return MrmFAILURE;
+
 
   /*
    * Get the resource map record. Let the header handle it if the RID is
@@ -321,6 +328,9 @@ Idb__RID_NextRID (IDBFile		file_id,
   Cardinal		result;		/* function results */
   IDBResourceIndex	resndx;		/* to check resource index */
 
+  if (file_id == NULL || res_id_return == NULL)
+    return MrmFAILURE;
+
   /*
    * use the next available ID, or acquire a new record. Handle both header
    * record and RID record maps.
@@ -395,11 +405,15 @@ Idb__RID_AddRecord (IDBFile		file_id)
   IDBridMapRecordPtr	recptr;		/* RID map record in buffer */
   int			ndx;		/* loop index */
 
+  if (file_id == NULL)
+    return MrmFAILURE;
+
   /*
    * Acquire a record.
    */
   result = Idb__BM_InitRecord (file_id, 0, IDBrtRIDMap, &bufptr);
-  if ( result != MrmSUCCESS ) return result;
+  if ( result != MrmSUCCESS || bufptr == NULL || bufptr->IDB_record == NULL )
+    return result == MrmSUCCESS ? MrmFAILURE : result;
   recptr = (IDBridMapRecordPtr) bufptr->IDB_record;
 
   /*

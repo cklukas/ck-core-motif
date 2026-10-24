@@ -1,3 +1,9 @@
+Mrm resource-ID input checks (2026-10-25)
+==========================================
+
+- Validate RID helper handles and map-record allocations before dereferencing
+  them; see `docs/mrm-rid-inputs.md`.
+
 Mrm B-tree child bounds (2026-10-25)
 =====================================
 
