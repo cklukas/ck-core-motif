@@ -45,9 +45,10 @@
 Boolean 
 XmeUseColorObj( void )
 {
-    XmColorObj tmpColorObj = _XmDefaultColorObj;
+    XmColorObj tmpColorObj;
 
     _XmProcessLock();
+    tmpColorObj = _XmDefaultColorObj;
     if (!tmpColorObj ||
       !tmpColorObj->color_obj.colorIsRunning ||
       !tmpColorObj->color_obj.useColorObj) {

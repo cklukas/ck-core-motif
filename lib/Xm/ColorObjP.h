@@ -76,6 +76,7 @@ typedef struct _XmColorObjPart {
     Boolean		useMask;
     Boolean		useMultiColorIcons;
     Boolean		useIconFileCache;
+    struct _XmColorObjRec *next; /* Creation-ordered live default registry. */
 
 } XmColorObjPart;
 
@@ -135,6 +136,7 @@ extern Boolean XmeGetIconControlInfo(
                         Boolean *useMultiColorIconsRtn,
                         Boolean *useIconFileCacheRtn) ;
 
+/* No-display queries use the first still-live ColorObj in creation order. */
 extern Boolean XmeUseColorObj( void ) ;
 
 
@@ -156,6 +158,7 @@ extern Boolean XmeGetDesktopColorCells (
 			 int n_colors,     
 			 int * ncolors_returns) ;
 
+/* Uses the first still-live ColorObj; invalid screen indices are refused. */
 extern Boolean XmeGetPixelData (
 			int screen_number,
 			int *colorUse,

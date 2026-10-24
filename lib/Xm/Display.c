@@ -55,6 +55,7 @@ static char rcsid[] = "$TOG: Display.c /main/23 1997/06/18 17:36:59 samborn $"
 #include "MessagesI.h"
 #include "VirtKeysI.h"
 #include "ColorObjI.h"
+#include "ResConverI.h"
   
 #define MESSAGE1 _XmMMsgDisplay_0001
 #define MESSAGE2 _XmMMsgDisplay_0002
@@ -739,6 +740,7 @@ DisplayDestroy(
 	XtDestroyWidget((Widget) dd->display.dsm);
 
     _XmClearDisplayTables(XtDisplay(w));
+    _XmFreeDefaultRenderTable(XtDisplay(w));
 
     _XmVirtKeysDestroy (w);
 

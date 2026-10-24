@@ -59,6 +59,7 @@ extern "C" {
 #if USE_XFT
 #define _XmRendBG(r)		((_XmRendition)*(r))->xftBackground.pixel
 #define _XmRendFG(r)		((_XmRendition)*(r))->xftForeground.pixel
+#define _XmRendOwnsXftFont(r)   ((_XmRendition)*(r))->xftFontOwned
 #define _XmRendXftFont(r)       ((_XmRendition)*(r))->xftFont
 #define _XmRendXftFG(r)         ((_XmRendition)*(r))->xftForeground
 #define _XmRendXftBG(r)         ((_XmRendition)*(r))->xftBackground
@@ -120,6 +121,7 @@ typedef struct __XmRenditionRec
 	int fontSize, pixelSize, fontSlant, fontSpacing, fontWeight;
 	XftPattern *pattern;
 	XftFont *xftFont;
+	Boolean xftFontOwned; /* One Xft reference per owning rendition body. */
 	XftColor xftForeground, xftBackground;
 #endif
 } _XmRenditionRec, *_XmRendition;

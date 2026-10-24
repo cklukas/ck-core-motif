@@ -31,7 +31,11 @@ FIXTURES = {
     "layout": ("tests/Toolkit/Unicode/layout.c", True),
     "line-context": ("tests/Toolkit/Unicode/line_context.c", True),
     "unicode-widgets": ("tests/Toolkit/Unicode/text_unicode.c", True),
+    "font-resize": ("tests/Toolkit/Unicode/font_resize.c", True),
+    "font-lifetime": ("tests/Toolkit/Unicode/font_lifetime.c", True),
+    "default-font-cache": ("tests/Toolkit/Unicode/default_font_cache.c", True),
     "label-gc": ("tests/Toolkit/Unicode/label_gc.c", True),
+    "color-display-lifetime": ("tests/Toolkit/Unicode/color_display_lifetime.c", True),
     "large-text": ("tests/Toolkit/Unicode/large_text.c", True),
     "clipboard": ("tests/Toolkit/CutPaste/clipboard_unicode.c", True),
     "clipboard-lifetime": ("tests/Toolkit/CutPaste/clipboard_unicode.c", True),
@@ -251,6 +255,8 @@ def main():
             binary = output / name
             dependencies = output / (name + ".d")
             extra_flags = []
+            if name == "color-display-lifetime":
+                extra_flags = ["-ldl"]
             if name == "primary-modality":
                 extra_flags = shlex.split(run("xtst-flags", ["pkg-config", "--cflags", "--libs", "xtst"]))
                 run("xtst-version", ["pkg-config", "--modversion", "xtst"])

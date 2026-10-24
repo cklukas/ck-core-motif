@@ -271,7 +271,63 @@ font/color changes. Changes to topShadowColor also rebuild the insensitive text
 shadow rather than retaining its former color.
 
 The focused label-gc fixture queries the actual GC foreground, changes the shadow
-color alone, and performs32 rounds of independent render-table/color replacement.
+color alone, and performs 32 rounds of independent render-table/color replacement.
 Native ARM64 normal and strict ASan/UBSan toolkit/consumer qualification pass,
 including leak detection. The previous library fails the precise shadow-color
 assertion. This verifies Label GC ownership, not all font or display lifetimes.
+
+## Independent display color ownership
+
+ColorObj discovery and destruction now use a context on the owning display.
+Closing the first connection no longer removes another connection's lookup or
+prevents its ColorObj from being destroyed. RowColumn color setup uses the
+current display's palette and screen rather than process-wide cached values.
+Screen-taking icon-policy queries likewise use their own display.
+
+Queries without a display argument use the first still-live ColorObj in creation
+order. Removing that owner promotes the next live object; removing the final
+owner returns the documented unavailable result. Palette and screen bounds are
+checked, and the no-default query path releases its process lock correctly.
+The focused color-display-lifetime fixture covers both close orders, surviving
+lookup, distinct icon policies, default promotion, unavailable final state and
+exactly-once destruction. Native ARM64 passes 61 assertions in both normal and
+strict ASan/UBSan runs with leak detection. The previous library fails the
+screen-specific icon-policy assertion. The fixture observes actual ColorObj
+creation through a transparent test-only XtAppCreateShell forwarder; it does not
+create replacement objects or require a production test interface.
+
+## Render-table and font ownership
+
+Render-table bodies own their rendition handles once, independently of how many
+public table handles share the body. Copy-on-write creates independent handles;
+replacement, filtering, merging and final release balance those references.
+Missing-tag copies remain compact, including empty results. Xft references and
+font patterns belong to rendition bodies; borrowed drawing scratch values and
+caller-owned fonts retain their own lifetime. Font updates reload the affected
+resources, and switching between core and Xft fonts clears obsolete state. The
+process-wide rendition cache has been removed: it retained resources indefinitely
+and could reuse entries across independent displays.
+
+The focused installed-API fixture passes 79 assertions with two independent
+displays in normal and strict ASan/UBSan builds, including leak detection. It
+checks copies, merge modes, updates, caller-owned fonts and rendering after the
+first connection closes. Terminal fixture cleanup uses Fontconfig's documented
+FcFini only after all fonts, widgets, displays and the Xt context are retired.
+An independent Fontconfig control still reports a deliberately unreleased client
+pattern after FcFini; cleanup does not replace checking owned resources.
+
+## Per-display default-font cache
+
+Default fallback tables are inserted for every display, including when capacity
+already exists. Cache growth clears only the newly allocated tail. XmDisplay
+teardown removes its cache entry and releases the cache-owned table reference;
+widgets retain their own copies and the extension getter keeps its borrowed
+return contract. Empty-cache retirement resets storage for later connections.
+
+The installed extension-API fixture passes 327 assertions with ten concurrent
+displays and twelve total connections in normal and strict ASan/UBSan runs,
+including leak detection. It checks repeated lookup identity, growth beyond eight
+slots, interleaved closing, survivor native drawing/readback and reopening both
+with live peers and after the cache empties. The previous library fails the
+repeated-lookup assertion. These focused results do not establish all widget,
+input-method, application or display-server behavior.

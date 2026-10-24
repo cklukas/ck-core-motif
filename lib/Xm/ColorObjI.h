@@ -38,10 +38,10 @@ extern "C" {
 #define VALUE_THRESHOLD 225
 
 externalref XmColorObj _XmDefaultColorObj;
-externalref XContext _XmColorObjCache;
-externalref Display  *_XmColorObjCacheDisplay;
 
 /********    Private Function Declarations    ********/
+
+extern XmColorObj _XmColorObjForDisplay(Display *display);
 
 extern void _XmColorObjCreate( 
                         Widget w,

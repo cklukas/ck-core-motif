@@ -1476,10 +1476,10 @@ internal _XmChangeHSB
 internal _XmChangeVSB
 internal _XmCleanPixmapCache
 internal _XmClearDisplayTables
+internal _XmFreeDefaultRenderTable
 internal _XmClearDragReceiverInfo
 internal _XmClipboardPassType
-internal _XmColorObjCache
-internal _XmColorObjCacheDisplay
+internal _XmColorObjForDisplay
 internal _XmComputeVisibilityRect
 internal _XmConvertActionParamToRepTypeId
 internal _XmConvertComplete

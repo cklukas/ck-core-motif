@@ -107,7 +107,8 @@ services. The text fixtures require DejaVu Sans and a CJK-capable fallback font.
 Unavailable services or missing font coverage fail their tests; an in-memory
 semantic substitute does not count as an AT-SPI pass.
 
-The default suite contains 26 fixtures, including `accessibility-modality`,
+The default suite contains 30 fixtures (31 registered, including opt-in XIM),
+including `font-resize`, `accessibility-modality`,
 `accessibility-clipping`/`accessibility-clipping-events` and the
 `xmstring-empty-concat`/`xmstring-empty-components` public string regressions.
 The string fixtures cover valid empty payloads, construction/copy/traversal,
@@ -118,8 +119,50 @@ It runs on the runner's isolated Xvfb and requires no AT-SPI service. Select it
 the same way with an instrumented compiler and installed sanitizer prefix for
 ASan/UBSan validation; native allocation-fault interposition remains separate.
 
-`--only label-gc` checks insensitive shadow colors and32 repeated font/color
-replacements, including strict sanitizer leak qualification of the owned GC refs.
+`--only font-resize` selects native Label/TextField/wrapped Text/PushButton
+checks at explicit Xft 12, 18 and 24 point sizes. The fixture inspects the actual
+loaded point sizes and metrics, derives narrow/wide window sizes from measured
+advances, and checks real X/Form geometry, width-dependent wrapping, preserved
+UTF-8 bytes and scalar insertion positions, retained focus through font/resize
+and unmap/remap, and exactly one native Space-key activation per profile. The
+key is an XSendEvent delivered through the widget's ordinary translations;
+it is not physical keyboard, IME or compositor-scale acceptance. The only
+resource-count bound asserted is the Form's own four child identities/count.
+Explicit font profiles do not establish fractional or compositor scaling.
+
+`--only font-lifetime` isolates Xft rendition ownership from Text selections.
+It exercises public table copies and merge modes, font and non-font
+copy-on-write updates, native compound-string scratch rendering, caller-supplied
+Xft fonts, native Labels
+and two independent display connections, including continued rendering after
+closing the first connection. Each connection's application widgets and
+independent `XmDisplay` application shell are destroyed before `XtCloseDisplay`,
+which closes the connection but does not destroy widgets. The fixture tracks
+`XmDisplay` destruction through its callback: the last VendorShell normally
+retires it automatically, so explicit cleanup occurs only if it remains live.
+This avoids using or destroying an already retired widget. The second connection
+continues to query and render after the first connection's complete teardown.
+`--only default-font-cache` exercises the installed default-table extension API
+with ten concurrent display connections, interleaved teardown, surviving native
+Label rendering and two reopened connections. Default lookups return borrowed
+tables; the fixture frees only its explicit public copies. It checks cache reuse
+and growth beyond eight entries, while destroy callbacks guard automatic
+`XmDisplay` retirement. Default tables are owned by the native display lifecycle;
+their original cache references are released before the connection closes.
+`--only label-gc` checks native insensitive Label
+GC replacement and shadow-color dependencies. Strict sanitizer qualification of
+these owning-layer fixtures is separate from the broader font/resize fixture.
+`--only color-display-lifetime` exercises both independent-display close orders,
+screen-specific icon policy, and the first still-live default for queries that
+have no display argument. It checks surviving lookups and exactly-once ColorObj
+destruction. The fixture seeds existing palette state with native black/white
+pixels so an optional CDE color server is not required; this does not qualify
+color-server discovery or protocol behavior. It also checks invalid screen and
+palette extents and unavailable queries after the final owner is destroyed.
+The internal rendition record now carries explicit Xft-reference ownership.
+That header is not installed; the lifetime fixture uses installed public
+rendition/render-table APIs and native compound-string rendering. Public
+rendition and render-table handles remain opaque.
 
 The default fixtures cover ABI/version, XIM preedit bounds, shaped glyph readback,
 paragraph/line and bounded font contexts, native Unicode and large text widgets,
@@ -160,3 +203,11 @@ popdown and recursive destruction must restore input and the virtual grab count
 without X errors or Xt warnings. It tracks XmDisplay retirement when destroying
 the last VendorShell. This establishes the tested client input contract, not a
 particular desktop's focus-stealing or placement policy.
+
+The font-lifetime fixture calls FcFini only at terminal process teardown, after
+all test-owned fonts, widgets, displays and the Xt application context have been
+released. This finalizes Fontconfig's process-global configuration; toolkit code
+does not finalize the application-wide library. Leak detection stays enabled
+without suppressions. Independent controls distinguish this configuration from
+unreleased client patterns. The default-font-cache fixture uses ten simultaneous
+connections to exercise cache growth, per-display retirement and survivor drawing.

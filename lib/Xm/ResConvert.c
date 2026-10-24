@@ -1687,12 +1687,12 @@ typedef struct _system_font_list
     XmFontList	 fontlist;
 } SystemFontList;
 
+static SystemFontList *sFontLists = NULL;
+static int nsFontLists = 0;
+static int maxnsFontLists = 0;
+
 static XmFontList DefaultSystemFontList(Display *display, XmFontList fontlist)
 {
-    static SystemFontList	*sFontLists = NULL;
-    static int			 nsFontLists = 0;
-    static int			 maxnsFontLists = 0;
-
     if (fontlist)
     {
 	if (nsFontLists >= maxnsFontLists)
@@ -1710,12 +1710,15 @@ static XmFontList DefaultSystemFontList(Display *display, XmFontList fontlist)
 	    {
 	        sFontLists =
 		  (SystemFontList*) XtRealloc((char*) sFontLists, nbytes);
-		memset((void*) &sFontLists[nsFontLists], 0, nbytes);
+		memset((void*) &sFontLists[nsFontLists], 0,
+                       sizeof(SystemFontList) * (maxnsFontLists - nsFontLists));
 	    }
-	    sFontLists[nsFontLists].display = display;
-	    sFontLists[nsFontLists].fontlist = fontlist;
-	    nsFontLists++;
 	}
+        /* Capacity growth and insertion are independent: another display
+         * normally arrives while this array still has spare capacity. */
+        sFontLists[nsFontLists].display = display;
+        sFontLists[nsFontLists].fontlist = fontlist;
+        nsFontLists++;
     }
     else
     {
@@ -1731,6 +1734,40 @@ static XmFontList DefaultSystemFontList(Display *display, XmFontList fontlist)
     return NULL;
 }
 
+/* XmeGetDefaultRenderTable returns a borrowed table. The per-display cache
+ * retains its original reference until the native display owner retires;
+ * widgets retain their own copies independently. Never retain Display keys
+ * after teardown, since a later connection may reuse that address. */
+void
+_XmFreeDefaultRenderTable(Display *display)
+{
+    XmFontList fontlist = NULL;
+    int i;
+    _XmProcessLock();
+    for (i = 0; i < nsFontLists; ++i)
+    {
+        if (sFontLists[i].display == display)
+        {
+            fontlist = sFontLists[i].fontlist;
+            --nsFontLists;
+            if (i < nsFontLists)
+                memmove(&sFontLists[i], &sFontLists[i + 1],
+                        sizeof(SystemFontList) * (nsFontLists - i));
+            memset(&sFontLists[nsFontLists], 0, sizeof(SystemFontList));
+            if (!nsFontLists)
+            {
+                XtFree((char *)sFontLists);
+                sFontLists = NULL;
+                maxnsFontLists = 0;
+            }
+            break;
+        }
+    }
+    _XmProcessUnlock();
+    if (fontlist)
+        XmFontListFree(fontlist);
+}
+
 XmFontList 
 XmeGetDefaultRenderTable(
         Widget w,
@@ -1741,7 +1778,6 @@ XmeGetDefaultRenderTable(
 #endif /* NeedWidePrototypes */
 {
     XmFontList fontlist = NULL;
-    static XmFontList sFontList = NULL;
     Widget origw = w;
     XmFontListEntry fontListEntry;
     char *s;
@@ -1771,12 +1807,6 @@ XmeGetDefaultRenderTable(
     if (fontlist) {
         return (fontlist);
     }
-#if 0
-    else if (sFontList) {
-	printf("Reusing sFontList\n");
-	return(sFontList);
-    }
-#endif
 
     _XmProcessLock();
     fontlist = DefaultSystemFontList(XtDisplay(origw), (XmFontList) NULL);
