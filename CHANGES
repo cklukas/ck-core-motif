@@ -1,3 +1,11 @@
+360 Motif maintenance review (2026-10-24)
+==========================================
+
+- Record the completed high-impact fixes, current regression coverage, and
+  remaining x86_64, clipboard/DnD, Unicode, accessibility, input-method, DPI,
+  sanitizer, theming and historical-fixture qualification gaps; see
+  docs/360-review.md.
+
 2026-10-24
 
 * Add a large mixed-script UTF-8 clipboard round-trip regression that
