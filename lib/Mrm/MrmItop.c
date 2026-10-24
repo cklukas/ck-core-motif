@@ -322,7 +322,8 @@ UrmIdbCloseFile (IDBFile		file_id,
    */
 #define	_error_close()					\
   {							\
-    Idb__FU_CloseFile(file_id->lowlevel_id,TRUE) ;	\
+	    Idb__FU_CloseFile(file_id->lowlevel_id,	\
+				file_id->access == URMWriteAccess) ;\
     file_id->validation = 0 ;				\
     XtFree((char*)file_id) ;				\
     return MrmFAILURE ;					\

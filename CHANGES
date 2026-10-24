@@ -1,3 +1,8 @@
+Mrm IDB close-error delete mode (2026-10-25)
+==============================================
+
+- Restrict close-error cleanup deletion to write-access IDB files, preserving read-only files when flushing or header operations fail; see `docs/mrm-idb-close-delete-mode.md`.
+
 Mrm empty IDB decommit handling (2026-10-25)
 ===============================================
 
