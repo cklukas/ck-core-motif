@@ -1,3 +1,10 @@
+Mwm session resource-name bounds (2026-10-24)
+===============================================
+
+- Dynamically size session resource names during Xrm lookup and proxy-entry
+  removal, preserving database keys while avoiding fixed 1024-byte overflows;
+  see `docs/mwm-session-resource-bounds.md`.
+
 Mwm builtin binding buffer lifetime (2026-10-24)
 ================================================
 

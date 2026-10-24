@@ -596,15 +596,28 @@ clientWorkspaceCompare(const void *ppCD1, const void *ppCD2)
 static char *
 getClientResource(char *clientID, char *fmtStr)
 {
-    char resourceBuf[MAX_RESOURCE_LEN];
+    char *resourceBuf;
+    int resourceLength;
     char *resourceType;
     XrmValue resourceValue;
 
-    sprintf(resourceBuf, fmtStr, clientID);
+    resourceLength = snprintf(NULL, 0, fmtStr, clientID);
+    if (resourceLength < 0)
+        return (char *)NULL;
+    resourceBuf = (char *)XtMalloc((unsigned int)resourceLength + 1);
+    if (resourceBuf == (char *)NULL)
+        return (char *)NULL;
+    (void)snprintf(resourceBuf, (size_t)resourceLength + 1,
+                   fmtStr, clientID);
     if (XrmGetResource(wmGD.clientResourceDB, resourceBuf, resourceBuf,
 		       &resourceType, &resourceValue))
-	return (char *)resourceValue.addr;
+    {
+        char *resource = (char *)resourceValue.addr;
+        XtFree(resourceBuf);
+        return resource;
+    }
 
+    XtFree(resourceBuf);
     return (char *)NULL;
 }
 
@@ -1152,13 +1165,23 @@ saveProxyClient(FILE *fp, ClientData *pCD, int clientIDNum)
 static void
 dbRemoveProxyClientEntry(char *proxyClientID)
 {
-    char resourceBuf[MAX_RESOURCE_LEN];
+    int resourceLength;
+    char *resourceBuf;
 
     /* Remove entry from DB.  Since Xrm does not provide a means */
     /* of removing something from the DB, we blank out key info. */
-    sprintf(resourceBuf, wmCommandStr, proxyClientID);
-    strcat(resourceBuf, ":");
+    resourceLength = snprintf(NULL, 0, wmCommandStr, proxyClientID);
+    if (resourceLength < 0)
+        return;
+    resourceBuf = (char *)XtMalloc((unsigned int)resourceLength + 2);
+    if (resourceBuf == (char *)NULL)
+        return;
+    (void)snprintf(resourceBuf, (size_t)resourceLength + 1,
+                   wmCommandStr, proxyClientID);
+    resourceBuf[resourceLength] = ':';
+    resourceBuf[resourceLength + 1] = '\0';
     XrmPutLineResource(&wmGD.clientResourceDB, resourceBuf);
+    XtFree(resourceBuf);
 }
 
 /*
