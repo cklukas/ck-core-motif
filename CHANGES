@@ -633,3 +633,10 @@ TextField clear-selection bounds (2026-10-24)
 - Validate the selected span before converting it to the existing `int` insertion-length contract, preventing `span + 1` wraparound in `clear-selection`. Protect the wide-character replacement allocation before multiplying by `sizeof(wchar_t)`.
 - Preserve normal selection replacement, callbacks, cursor behavior, public interfaces and native ABI. Document the bounds contract in `docs/textfield-clear-selection-bounds.md`.
 - Native AArch64 validation passes the warning-enabled TextField source build; the former `ClearSelection` out-of-bounds warning is absent.
+
+Text selection-array allocation bounds (2026-10-24)
+===================================================
+
+- Check the configurable Text selection-array element count before multiplying by `sizeof(XmTextScanType)`. Invalid counts now fall back to Motif's built-in scan table instead of wrapping the allocation size.
+- Preserve scan-type traversal, resource/API contracts, widget ownership and native ABI. Document the fallback in `docs/text-selection-array-bounds.md`.
+- Native AArch64 validation passes the warning-enabled TextIn source build.

@@ -39,6 +39,7 @@ static char rcsid[] = "$TOG: TextIn.c /main/36 1999/01/27 16:10:29 mgreess $"
 #include <wchar.h>
 #include <wctype.h>
 #include <string.h>
+#include <stdint.h>
 #include <Xm/XmosP.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
@@ -5739,11 +5740,16 @@ InputSetValues(Widget oldw,
   if ((XtPointer)data->sarray != temp_ptr)
     {
       XtFree((char *)temp_ptr);
-      temp_ptr = (XtPointer)data->sarray;
-      data->sarray = (XmTextScanType *)XtMalloc(data->sarraycount *
+      if ((size_t)data->sarraycount > SIZE_MAX / sizeof(XmTextScanType)) {
+        data->sarray = (XmTextScanType *)sarray;
+        data->sarraycount = XtNumber(sarray);
+      } else {
+        temp_ptr = (XtPointer)data->sarray;
+        data->sarray = (XmTextScanType *)XtMalloc(data->sarraycount *
 						sizeof(XmTextScanType));
-      memcpy((void *)data->sarray, (void *)temp_ptr, (data->sarraycount *
-						      sizeof(XmTextScanType)));
+        memcpy((void *)data->sarray, (void *)temp_ptr,
+               data->sarraycount * sizeof(XmTextScanType));
+      }
     }
   /*
    * End Fix for HaL DTS 9841
@@ -5972,10 +5978,15 @@ _XmTextInputCreate(Widget wid,
    * Fix for HaL DTS 9841 - copy the selectionArray into dedicated memory.
    */
   temp_ptr = (XtPointer)data->sarray;
-  data->sarray = (XmTextScanType *)XtMalloc(data->sarraycount *
+  if ((size_t)data->sarraycount > SIZE_MAX / sizeof(XmTextScanType)) {
+    data->sarray = (XmTextScanType *)sarray;
+    data->sarraycount = XtNumber(sarray);
+  } else {
+    data->sarray = (XmTextScanType *)XtMalloc(data->sarraycount *
 					    sizeof(XmTextScanType));
-  memcpy((void *)data->sarray, (void *)temp_ptr, (data->sarraycount *
-						  sizeof(XmTextScanType)));
+    memcpy((void *)data->sarray, (void *)temp_ptr,
+           data->sarraycount * sizeof(XmTextScanType));
+  }
   /*
    * End fix for HaL DTS 9841
    */
