@@ -1,3 +1,10 @@
+Mwm font-load warning bounds (2026-10-24)
+===========================================
+
+- Dynamically format the fatal font-load diagnostic instead of writing it to
+  the shared `MAXBUF` temporary buffer, preserving warning and exit behavior;
+  see `docs/mwm-font-warning-bounds.md`.
+
 Mwm screen-warp warning bounds (2026-10-24)
 =============================================
 

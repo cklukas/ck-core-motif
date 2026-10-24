@@ -4440,9 +4440,26 @@ MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean make
 
     if (! XmeRenderTableGetDefaultFont(pAData->fontList, &(pAData->font)))
     {
-	sprintf((char *)wmGD.tmpBuffer, ((char *)GETMESSAGE(62, 23, "failed to load font: %.100s")), (char*) pAData->fontList);
-	Warning((char *)wmGD.tmpBuffer);
-	ExitWM(WM_ERROR_EXIT_VALUE);
+        const char *format = (char *)GETMESSAGE(62, 23,
+                                                  "failed to load font: %.100s");
+        const char *fontList = (pAData->fontList != NULL) ?
+            (const char *)pAData->fontList : "";
+        int messageLength = snprintf(NULL, 0, format, fontList);
+        char *message = (messageLength >= 0) ?
+            (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+
+        if (message != NULL)
+        {
+            (void)snprintf(message, (size_t)messageLength + 1,
+                           format, fontList);
+            Warning(message);
+            XtFree(message);
+        }
+        else
+        {
+            Warning("failed to load font");
+        }
+        ExitWM(WM_ERROR_EXIT_VALUE);
     }
 
 #ifndef NO_MULTIBYTE
