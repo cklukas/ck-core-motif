@@ -452,3 +452,4 @@ EXTRA_DIST += tests/automated/check-mrm-writer-extra-args-validation.py docs/mrm
 EXTRA_DIST += tests/automated/check-mrm-writer-creation-callback-validation.py docs/mrm-writer-creation-callback-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-arglist-validation.py docs/mrm-writer-arglist-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-compressed-tag-validation.py docs/mrm-writer-compressed-tag-validation.md
+EXTRA_DIST += tests/automated/check-mrm-writer-uncompressed-tag-validation.py docs/mrm-writer-uncompressed-tag-validation.md
