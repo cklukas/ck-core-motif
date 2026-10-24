@@ -157,7 +157,8 @@ png_load_file(FILE *infile, unsigned long *pWidth,
     png_uint_32 i, rowbytes;
     png_bytepp row_pointers = NULL;
 
-    fread(sig, 1, 8, infile);
+    if (fread(sig, 1, sizeof(sig), infile) != sizeof(sig))
+        return 1;
     if (png_sig_cmp(sig, 0, 8))
         return 1;               /* bad signature */
 

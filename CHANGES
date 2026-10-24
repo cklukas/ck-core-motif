@@ -1,3 +1,10 @@
+PNG signature length validation (2026-10-24)
+==============================================
+
+- Reject truncated PNG signatures before libpng inspection, preventing
+  uninitialized bytes from reaching the signature parser; see
+  `docs/png-signature-validation.md`.
+
 Layout-manager scope decision (2026-10-24)
 =========================================
 
