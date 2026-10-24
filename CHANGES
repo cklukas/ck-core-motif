@@ -554,3 +554,10 @@ Development 2.4.0 / accessibility menu snapshot bounds
 - Check menu-child counts before allocating accessibility ID snapshots,
   preventing a wrapped `Cardinal`-to-size multiplication.
 - Add a popup-menu lifecycle regression and documentation.
+
+Development 2.4.0 / hierarchy child-list bounds
+===============================================
+
+- Check hierarchy child counts before adding the terminating entry and
+  allocating the returned widget list.
+- Add a public child-list regression and documentation.

@@ -26,6 +26,7 @@
 *	INCLUDE FILES
 *************************************************************/
 #include <stdio.h>
+#include <stdint.h>
 
 #include "XmI.h"
 #include <Xm/HierarchyP.h>
@@ -1518,6 +1519,7 @@ WidgetList XmHierarchyGetChildNodes(Widget nw)
 {
     HierarchyConstraints node;
     WidgetList retval = (WidgetList)NULL;
+    Cardinal child_count;
     int i;
 
     _XmWidgetToAppContext(nw);
@@ -1531,15 +1533,21 @@ WidgetList XmHierarchyGetChildNodes(Widget nw)
 
     node = GetNodeInfo(nw);
 
-    if (0 == XmHierarchyC_num_children(node))
+    child_count = XmHierarchyC_num_children(node);
+    if (child_count == 0)
       {
 	_XmAppUnlock(app);
 	return retval;
       }
 
-    retval = (WidgetList)XtMalloc((XmHierarchyC_num_children(node) + 1) * sizeof(Widget));
+    if ((size_t)child_count > (SIZE_MAX / sizeof(Widget)) - 1) {
+	_XmAppUnlock(app);
+	return retval;
+    }
 
-    for (i=0; i < XmHierarchyC_num_children(node); i++)
+    retval = (WidgetList)XtMalloc((child_count + 1) * sizeof(Widget));
+
+    for (i=0; i < child_count; i++)
 	retval[i] = XmHierarchyC_widget(XmHierarchyC_children(node)[i]);
     retval[i] = (Widget)NULL;
 
