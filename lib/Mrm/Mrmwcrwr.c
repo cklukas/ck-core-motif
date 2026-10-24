@@ -1937,7 +1937,7 @@ UrmCWR__AppendString (URMResourceContextPtr	context_id ,
    *  Local variables
    */
   Cardinal		result ;	/* function results */
-  int			len ;		/* string length */
+  size_t		len ;		/* string length */
   String		stgadr ;	/* destination address in record */
 
 
@@ -1953,7 +1953,11 @@ UrmCWR__AppendString (URMResourceContextPtr	context_id ,
   /*
    * Guarantee space and copy in string
    */
-  len = strlen (stg) + 1 ;
+  len = strlen (stg) ;
+  if (len == SIZE_MAX || len >= MrmMaxResourceSize)
+    return Urm__UT_Error ("UrmCWR__AppendString", _MrmMMsg_0029,
+			  NULL, context_id, MrmTOO_MANY) ;
+  len++ ;
   result = UrmCWR__GuaranteeSpace (context_id, len, offset, &stgadr) ;
   if ( result != MrmSUCCESS ) return result ;
   memcpy (stgadr, stg, len) ;

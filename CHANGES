@@ -1,3 +1,9 @@
+Mrm string append bounds (2026-10-25)
+====================================
+
+- Keep ordinary C-string append lengths in size_t and reject lengths beyond
+  the record format limit; see `docs/mrm-string-append-bounds.md`.
+
 Mrm wide-string append bounds (2026-10-25)
 ===========================================
 
