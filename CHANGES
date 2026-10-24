@@ -1,3 +1,12 @@
+Bound UIL source and include path assembly (2026-10-24)
+========================================================
+
+- Check source, relative-include, explicit-include-directory and default
+  include path joins before copying. Reject paths that cannot fit the legacy
+  file-control record and skip empty include-directory entries safely; see
+  docs/uil-listing.md.
+- Add a native regression for an overlong include path.
+
 Bound UIL listing path and summary handling (2026-10-24)
 =========================================================
 

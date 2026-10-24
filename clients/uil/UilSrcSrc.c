@@ -56,6 +56,7 @@ static char rcsid[] = "$TOG: UilSrcSrc.c /main/13 1997/03/12 15:21:40 dbl $"
 
 /* %COMPLETE */
 #include <sys/stat.h>
+#include <string.h>
 
 
 
@@ -64,6 +65,8 @@ static char rcsid[] = "$TOG: UilSrcSrc.c /main/13 1997/03/12 15:21:40 dbl $"
 **  DEFINE and MACRO DEFINITIONS
 **
 **/
+
+#define UIL_PATH_BUFFER_SIZE 4096
 
 
 
@@ -607,13 +610,15 @@ open_source_file( XmConst char           *c_file_name,
     static unsigned short	main_dir_len = 0;
     boolean			main_file;
     int				i;  /* loop index through include files */
-    char			buffer[256];
+    char			buffer[UIL_PATH_BUFFER_SIZE];
+    size_t		file_name_len = strlen(c_file_name);
 
 
     /* place the file name in the expanded_name buffer */
 
-    strncpy(buffer, c_file_name, sizeof(buffer));
-    buffer[sizeof(buffer)-1] = '\0';
+    if (file_name_len >= sizeof(buffer))
+	return src_k_open_error;
+    memcpy(buffer, c_file_name, file_name_len + 1);
 
 /*    Determine if this is the main file or an include file.  */
 
@@ -655,11 +660,12 @@ open_source_file( XmConst char           *c_file_name,
 	    }
 
 	if (!specific_directory) {
-	    _move (buffer, main_fcb -> expanded_name, main_dir_len);
-	    _move (& buffer [main_dir_len],
-		   c_file_name, strlen (c_file_name) + 1);  /* + NULL */
+	    if ((size_t)main_dir_len + file_name_len >= sizeof(buffer))
+		return src_k_open_error;
+	    memcpy(buffer, main_fcb -> expanded_name, main_dir_len);
+	    memcpy(&buffer[main_dir_len], c_file_name, file_name_len + 1);
 	} else {
-	    strcpy (buffer, c_file_name);
+	    memcpy(buffer, c_file_name, file_name_len + 1);
 	}
 
 /*    Open the include file.    */
@@ -676,13 +682,16 @@ open_source_file( XmConst char           *c_file_name,
 /*    Look in the command line specified include directories, if any.    */
 
 	for (i = 0; i < Uil_cmd_z_command.include_dir_count; i++) {	     
-	    int		inc_dir_len;
+	    size_t	inc_dir_len;
 
 	    inc_dir_len = strlen (Uil_cmd_z_command.ac_include_dir[i]);
 	    if (inc_dir_len == 0) {
 		search_user_include = False;
+		continue;
 		}
-	    _move (buffer, Uil_cmd_z_command.ac_include_dir[i], inc_dir_len);
+	    if (inc_dir_len + file_name_len + 2 > sizeof(buffer))
+		continue;
+	    memcpy(buffer, Uil_cmd_z_command.ac_include_dir[i], inc_dir_len);
 
 	/*  Add '/' if not specified at end of directory  */
 
@@ -691,8 +700,7 @@ open_source_file( XmConst char           *c_file_name,
 		inc_dir_len++;
 	    };
 
-	    _move (& buffer [inc_dir_len],
-		   c_file_name, strlen (c_file_name) + 1);  /* + NULL */
+	    memcpy(&buffer[inc_dir_len], c_file_name, file_name_len + 1);
 
 	/*    Open the include file.  If found, we are done.    */
 
@@ -705,9 +713,11 @@ open_source_file( XmConst char           *c_file_name,
 
 /*    Look in the default include directory.    */
 	if (search_user_include) {
-	  _move(buffer, c_include_dir, sizeof c_include_dir - 1); /* no NULL */
-	  _move(&buffer[sizeof c_include_dir - 1], 
-		c_file_name, strlen (c_file_name) + 1);  /* + NULL */
+	  if (sizeof c_include_dir - 1 + file_name_len + 1 >= sizeof(buffer))
+	      return src_k_open_error;
+	  memcpy(buffer, c_include_dir, sizeof c_include_dir - 1); /* no NULL */
+	  memcpy(&buffer[sizeof c_include_dir - 1], c_file_name,
+		 file_name_len + 1);
 
 /*    Open the include file.    */
 	  az_fcb->az_file_ptr = fopen (buffer, "r");
@@ -721,11 +731,17 @@ open_label:
     if (az_fcb->az_file_ptr == NULL)
 	return src_k_open_error;
 
+    if (strlen(buffer) >= sizeof(az_fcb->expanded_name)) {
+	fclose(az_fcb->az_file_ptr);
+	az_fcb->az_file_ptr = NULL;
+	return src_k_open_error;
+    }
+
     /* open succeeded - place buffer address in fcb */
 
     az_fcb->c_buffer = az_source_buffer->c_text;
     az_fcb->c_buffer[ src_k_max_source_line_length ] = 0;
-    strcpy(az_fcb->expanded_name, buffer);
+    memcpy(az_fcb->expanded_name, buffer, strlen(buffer) + 1);
 
     return src_k_open_normal;
 }

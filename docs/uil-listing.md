@@ -23,3 +23,7 @@ allocation; the regression uses a 14-kilobyte comment.
 Listing filenames longer than the legacy FCB storage are rejected before the
 file is opened, and the per-file summary uses bounded formatting so a valid
 source filename cannot overwrite listing state.
+
+Source and include path assembly uses checked joins and rejects paths that do
+not fit the legacy file-control record. Empty `-I` entries are skipped safely;
+they no longer index before the beginning of the directory string.
