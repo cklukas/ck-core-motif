@@ -1,3 +1,9 @@
+Bound compound-text property parsing (2026-10-24)
+==================================================
+- Parse incoming compound-text segments within the X property’s declared
+  nitems, including a safe empty-property result.
+- Avoid unbounded strlen traversal on missing terminators and add a source
+  contract regression with documentation.
 Bound incoming text selection lengths (2026-10-24)
 ====================================================
 - Reject selection payload lengths that cannot fit Motif’s int-indexed text

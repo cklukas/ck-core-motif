@@ -658,7 +658,14 @@ XmCvtTextPropertyToXmStringTable(Display *display,
     }
     if (text_prop->encoding == atoms[XmACOMPOUND_TEXT])
     {
-	char *ptr;
+	size_t offset, segment_length, remaining;
+	char *segment;
+	unsigned char *nul;
+
+	if (text_prop->nitems > (unsigned long)INT_MAX) {
+	    _XmAppUnlock(app);
+	    return BadAlloc;
+	}
 
 	/* First found how many XmString we need to allocate. */
 	for (*count_return = 1, i = 0; i < text_prop->nitems; i++)
@@ -678,14 +685,30 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	}
 	string_table =
 	    (XmStringTable)XtMalloc(sizeof(XmString) * (*count_return));
-	/* Now convert each compound text to an XmString. */
-	for (i = 0, ptr = (char *)text_prop->value;
-	     i < *count_return;
-	     i++, ptr += strlen(ptr) + 1)
+	if (text_prop->nitems == 0 && text_prop->value == NULL) {
+	    string_table[0] = XmCvtCTToXmString("");
+	    *string_table_return = string_table;
+	    _XmAppUnlock(app);
+	    return Success;
+	}
+	/* Now convert each bounded compound-text segment to an XmString. */
+	offset = 0;
+	for (i = 0; i < *count_return; i++)
 	{
 	    XmString tempstr;
-	    tempstr = XmCvtCTToXmString(ptr);
+	    remaining = (size_t)text_prop->nitems - offset;
+	    nul = (unsigned char *)memchr(text_prop->value + offset, '\0',
+					 remaining);
+	    segment_length = nul ? (size_t)(nul - (text_prop->value + offset))
+				  : remaining;
+	    segment = (char *)XtMalloc(segment_length + 1);
+	    memcpy(segment, text_prop->value + offset, segment_length);
+	    segment[segment_length] = '\0';
+	    tempstr = XmCvtCTToXmString(segment);
+	    XtFree(segment);
 	    string_table[i] = tempstr;
+	    if (nul != NULL)
+		offset += segment_length + 1;
 	}
 	*string_table_return = string_table;
 

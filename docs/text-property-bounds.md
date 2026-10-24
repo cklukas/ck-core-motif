@@ -26,3 +26,9 @@ The reverse conversion validates output pointers, property lengths, and required
 value storage before reading an X property. Compound-text element counting also
 rejects `int` counter overflow and pointer-table allocation overflow. The input
 contract is covered by `tests/automated/check-text-property-inputs.py`.
+
+Compound-text import now finds segment boundaries with `memchr` limited to the
+declared property length, copies each segment into a terminated temporary string,
+and retains the historical trailing empty element. Missing terminators therefore
+cannot make the converter read beyond Xlib’s payload. The parser contract is
+covered by `tests/automated/check-compound-text-import.py`.
