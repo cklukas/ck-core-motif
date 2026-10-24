@@ -165,6 +165,7 @@ Cardinal
 UrmPlistResize (URMPointerListPtr	list_id,
 		int			size)
 {
+  XtPointer		*new_vec;
 
   if (list_id == NULL)
     return Urm__UT_Error ("UrmPlistResize", _MrmMMsg_0048,
@@ -176,12 +177,13 @@ UrmPlistResize (URMPointerListPtr	list_id,
   /*
    * Allocate the new vector, and copy the current vector into it.
    */
-  list_id->ptr_vec = (XtPointer *) XtRealloc ((char *)(list_id->ptr_vec),
-					      size*sizeof(XtPointer)) ;
-  if ( list_id->ptr_vec == NULL )
+  new_vec = (XtPointer *) XtRealloc ((char *)(list_id->ptr_vec),
+					     size*sizeof(XtPointer)) ;
+  if ( new_vec == NULL )
     return Urm__UT_Error ("UrmPlistResize", _MrmMMsg_0048,
 			  NULL, NULL, MrmFAILURE) ;
 
+  list_id->ptr_vec = new_vec;
   list_id->num_slots = size ;
   return MrmSUCCESS ;
 
