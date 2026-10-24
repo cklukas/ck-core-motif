@@ -221,6 +221,13 @@ MrmRegisterClassWithCleanup (
   hash_initialize (cldesc_hash_table, &cldesc_hash_inited);
   hash_entry = (URMHashTableEntryPtr)
     hash_insert_name (cldesc_hash_table, cldesc->creator_name);
+  if (hash_entry == NULL)
+    {
+      wci_cldesc_list = cldesc->next_desc;
+      XtFree ((char *)cldesc);
+      _MrmProcessUnlock();
+      return MrmFAILURE;
+    }
   /* Begin fixing CR 5573 */
   if (hash_entry->az_value != NULL)
     XtFree ((char *) hash_entry->az_value);
@@ -285,7 +292,7 @@ Urm__WCI_RegisterNames (String			*names,
   char			*current_name;
   char			*current_value;
 
-  if (num_cb < 0)
+  if (num_cb < 0 || (num_cb > 0 && (names == NULL || values == NULL)))
     return MrmFAILURE;
 
 
@@ -303,6 +310,8 @@ Urm__WCI_RegisterNames (String			*names,
       current_value = values [ndx];
       hash_entry = (URMHashTableEntryPtr)
 	hash_insert_name (hash_az_hash_table, current_name);
+      if (hash_entry == NULL)
+	return MrmFAILURE;
       hash_entry -> az_value = current_value;
     }
 

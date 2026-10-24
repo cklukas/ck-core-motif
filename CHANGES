@@ -1,3 +1,9 @@
+Mrm hash-table caller failure handling (2026-10-25)
+=================================================
+
+- Handle failed widget-class and resource-name hash insertion with cleanup and
+  explicit failure returns; see `docs/mrm-wci-hash-callers.md`.
+
 Mrm widget-class hash allocation (2026-10-25)
 ==============================================
 
