@@ -1,3 +1,10 @@
+Pixmap-cache input validation (2026-10-24)
+=============================================
+
+- Reject null screens, unspecified pixmap handles, and missing names before
+  `_XmCachePixmap` performs geometry queries or initializes cache state; see
+  `docs/cache-pixmap-input.md`.
+
 DPI control-metric audit (2026-10-24)
 =====================================
 

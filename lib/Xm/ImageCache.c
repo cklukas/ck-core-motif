@@ -1211,7 +1211,9 @@ _XmCachePixmap(
    unsigned int loc_width, loc_height, border_width, loc_depth;
    
    /*  Error checking  */
-   if (image_name == NULL) return (False);
+   if (screen == NULL || pixmap == XmUNSPECIFIED_PIXMAP ||
+       image_name == NULL)
+       return (False);
 
    if (!pixmap_data_set) InitializePixmapSets() ;
 
