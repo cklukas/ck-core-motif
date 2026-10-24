@@ -1,3 +1,10 @@
+PNG allocation-failure cleanup (2026-10-24)
+===============================================
+
+- Release decoded image storage when PNG destination allocation or
+  `XCreateImage` fails, preventing repeated load failures from leaking the
+  source buffer; see `docs/png-allocation-cleanup.md`.
+
 PNG signature length validation (2026-10-24)
 ==============================================
 

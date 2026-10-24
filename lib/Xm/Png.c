@@ -75,8 +75,10 @@ _XmPngGetImage(Screen *screen, FILE *infile, Pixel background,
     }
     xdata = (unsigned char *) malloc(pixel_count * bytes_per_pixel);
 
-    if (!xdata)
+    if (!xdata) {
+        free(image_data);
         return 4;
+    }
 
     *ximage =
         XCreateImage(screen->display, screen->root_visual,
@@ -85,6 +87,7 @@ _XmPngGetImage(Screen *screen, FILE *infile, Pixel background,
 
     if (!*ximage) {
         free(xdata);
+        free(image_data);
         return 4;
     }
 
