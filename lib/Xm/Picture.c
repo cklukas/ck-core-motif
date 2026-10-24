@@ -248,15 +248,15 @@ XmPictureDoAutoFill(XmPictureState state)
 
 	if(fill.c == '\0')
 	    fill.reject = True;
-	if(fill.digit && (isdigit(fill.c) == 0))
+	if(fill.digit && (isdigit((unsigned char)fill.c) == 0))
 	    fill.reject = True;
-	if(fill.hexdigit && (isxdigit(fill.c) == 0))
+	if(fill.hexdigit && (isxdigit((unsigned char)fill.c) == 0))
 	    fill.reject = True;
 	if(fill.octaldigit && (fill.c < '0' || fill.c > '7'))
 	    fill.reject = True;
-	if(fill.letter && (isalpha(fill.c) == 0))
+	if(fill.letter && (isalpha((unsigned char)fill.c) == 0))
 	    fill.reject = True;
-	if(fill.upcase && islower(fill.c))
+	if(fill.upcase && islower((unsigned char)fill.c))
 	    fill.reject = True;
 
 	if(fill.reject) return state->current_string;
@@ -594,12 +594,12 @@ _XmPictureFollowTransitions(XmPictureStateRec *state, char inc,
 		accepted = False;
 	    break;
 	case NumericDigit:
-	    if(isdigit(inc)) {
+	    if(isdigit((unsigned char)inc)) {
 		found = True;
 	    }
 	    break;
 	case HexDigit:
-	    if(isdigit(inc) ||
+	    if(isdigit((unsigned char)inc) ||
 		(inc >= 'a' && inc <= 'f') ||
 		(inc >= 'A' && inc <= 'F')) {
 		found = True;
@@ -611,24 +611,24 @@ _XmPictureFollowTransitions(XmPictureStateRec *state, char inc,
 	    }
 	    break;
 	case AnyLetter:
-	    if(isalpha(inc)) {
+	    if(isalpha((unsigned char)inc)) {
 		found = True;
 	    }
 	    break;
 	case UpCaseLetter:
-	    if(isalpha(inc)) {
-		changed_c = toupper(inc);
+	    if(isalpha((unsigned char)inc)) {
+		changed_c = (char)toupper((unsigned char)inc);
 		found = True;
 	    }
 	    break;
 	case AnyCharacter:
-	    if(isalnum(inc)) {
+	    if(isalnum((unsigned char)inc)) {
 		found = True;
 	    }
 	    break;
 	case UpCaseCharacter:
-	    if(isalnum(inc)) {
-		changed_c = toupper(inc);
+	    if(isalnum((unsigned char)inc)) {
+		changed_c = (char)toupper((unsigned char)inc);
 		found = True;
 	    }
 	    break;

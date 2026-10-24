@@ -1,3 +1,5 @@
+* Make picture matcher character classification and uppercasing safe for
+  non-ASCII bytes by passing unsigned values to ctype functions.
 * Make representation-type name case conversion safe for bytes above ASCII by
   passing unsigned values to the C ctype functions.
 * Reject null source values in button-type, keysym-table, and charset-table
