@@ -423,7 +423,6 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
     XSetWindowAttributes sAttributes;
     int scr;
     int managed = 0;
-    char pch[80];
     Boolean activeSet = False;
     Boolean processedGlobalResources = False;
     WmScreenData *pSD;
@@ -720,9 +719,23 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 		(RootWindow (DISPLAY, sNum) == (Window) wmGD.errorResource) &&
 		(wmGD.errorRequestCode == X_ChangeWindowAttributes))
 	    {
-		sprintf(pch, 
-		    ((char *)GETMESSAGE(40, 3, "Another window manager is running on screen %d")), sNum);
-		Warning ((char *) &pch[0]);
+                const char *format = (char *)GETMESSAGE(40, 3,
+                    "Another window manager is running on screen %d");
+                int messageLength = snprintf(NULL, 0, format, sNum);
+                char *message = (messageLength >= 0) ?
+                    (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+
+                if (message != NULL)
+                {
+                    (void)snprintf(message, (size_t)messageLength + 1,
+                                   format, sNum);
+                    Warning(message);
+                    XtFree(message);
+                }
+                else
+                {
+                    Warning("Another window manager is running");
+                }
 		wmGD.Screens[scr].managed = False;
 	    }
 	    else 

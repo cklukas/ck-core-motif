@@ -122,3 +122,4 @@ EXTRA_DIST += tests/automated/check-mwm-screen-display-bounds.py docs/mwm-screen
 EXTRA_DIST += tests/automated/check-mwm-property-warning-bounds.py docs/mwm-property-warning-bounds.md
 EXTRA_DIST += tests/automated/check-mwm-feedback-fallback.py docs/mwm-feedback-fallback.md
 EXTRA_DIST += tests/automated/check-mwm-error-bounds.py docs/mwm-error-bounds.md
+EXTRA_DIST += tests/automated/check-mwm-screen-conflict-warning.py docs/mwm-screen-conflict-warning.md

@@ -1,3 +1,10 @@
+Mwm screen-conflict warning bounds (2026-10-24)
+================================================
+
+- Dynamically format the localized startup warning for an already-managed
+  screen, preserving screen handling while removing its 80-byte stack buffer;
+  see `docs/mwm-screen-conflict-warning.md`.
+
 Mwm error-diagnostic bounds (2026-10-24)
 ==========================================
 
