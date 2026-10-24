@@ -1,3 +1,9 @@
+Mrm decommit state cleanup (2026-10-25)
+=======================================
+
+- Reset activity for every successful buffer decommit and reject detached
+  modified writes; see `docs/mrm-decommit-state.md`.
+
 Mrm buffer validation predicate (2026-10-25)
 =============================================
 

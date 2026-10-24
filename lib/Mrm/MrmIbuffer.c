@@ -740,6 +740,10 @@ Idb__BM_Decommit (IDBRecordBufferPtr		buffer)
     return Urm__UT_Error ("Idb__BM_Decommit", _MrmMMsg_0002,
 			  NULL, NULL, MrmNOT_VALID) ;
 
+  if ((buffer->access == URMWriteAccess) && (buffer->modified == TRUE) &&
+      buffer->cur_file == NULL)
+    return MrmFAILURE;
+
   if ((buffer->access == URMWriteAccess) && (buffer->modified == TRUE))
     {
       result = Idb__FU_PutBlock (buffer->cur_file->lowlevel_id,
@@ -750,9 +754,10 @@ Idb__BM_Decommit (IDBRecordBufferPtr		buffer)
 			      NULL, NULL, MrmNOT_VALID) ;
       buffer->cur_file->put_count++ ;
 
-      buffer->activity = 0;
-      buffer->modified = FALSE;
     }
+
+  buffer->activity = 0;
+  buffer->modified = FALSE;
 
   return MrmSUCCESS;
 
