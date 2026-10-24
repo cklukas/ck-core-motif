@@ -3017,3 +3017,10 @@ Mrm literal context initialization (2026-10-25)
 - Check resource-context allocation before reading literals, propagating
   failure instead of dereferencing an uninitialized context; see
   `docs/mrm-literal-context-init.md`.
+
+Mrm child-tree context initialization (2026-10-25)
+=====================================================
+
+- Check the child-loading resource context before widget-tree traversal,
+  propagating allocation failure instead of passing a null context onward; see
+  `docs/mrm-child-context-init.md`.

@@ -438,3 +438,4 @@ EXTRA_DIST += tests/automated/check-mrm-cstring-stream-cleanup.py docs/mrm-cstri
 EXTRA_DIST += tests/automated/check-mrm-callback-context-init.py docs/mrm-callback-context-init.md
 EXTRA_DIST += tests/automated/check-mrm-callback-name-allocation.py docs/mrm-callback-name-allocation.md
 EXTRA_DIST += tests/automated/check-mrm-literal-context-init.py docs/mrm-literal-context-init.md
+EXTRA_DIST += tests/automated/check-mrm-child-context-init.py docs/mrm-child-context-init.md

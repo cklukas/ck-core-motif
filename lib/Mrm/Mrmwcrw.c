@@ -283,7 +283,12 @@ UrmCreateWidgetTree (URMResourceContextPtr	context_id,
   widgetrec = (RGMWidgetRecordPtr) UrmRCBuffer (context_id) ;
   if ( widgetrec->children_offs > 0) 
     {
-      UrmGetResourceContext ((char *(*)())NULL, (void(*)())NULL, 0, &child_ctx);
+      result = UrmGetResourceContext ((char *(*)())NULL, (void(*)())NULL, 0,
+					      &child_ctx);
+      if ( result != MrmSUCCESS || child_ctx == NULL )
+	return Urm__UT_Error ("UrmCreateWidgetTree", _MrmMMsg_0001,
+				      NULL, NULL,
+				      result == MrmSUCCESS ? MrmFAILURE : result);
       childrendesc =
 	(RGMChildrenDescPtr)((char *)widgetrec+widgetrec->children_offs);
 
