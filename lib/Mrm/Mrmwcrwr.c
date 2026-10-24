@@ -1780,6 +1780,8 @@ Cardinal UrmCWRSetComment (URMResourceContextPtr	context_id ,
   /*
    * Append the comment if it is non-empty
    */
+  if (comment == NULL)
+    return MrmFAILURE;
   if ( strlen(comment) <= 0 )
     {
       widgetrec = (RGMWidgetRecordPtr) UrmRCBuffer(context_id) ;

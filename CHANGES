@@ -3052,3 +3052,10 @@ Mrm callback cleanup metadata validation (2026-10-25)
 - Validate pointer-list slot metadata before callback cleanup traversal and
   release malformed lists without reading past their storage; see
   `docs/mrm-callback-cleanup-bounds.md`.
+
+Mrm writer comment input (2026-10-25)
+====================================
+
+- Reject null comment pointers before UID writer string operations while
+  preserving empty-comment clearing and normal non-empty comments; see
+  `docs/mrm-writer-comment-input.md`.
