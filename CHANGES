@@ -1,3 +1,10 @@
+KeySym-table allocation bounds (2026-10-25)
+==============================================
+
+- Check KeySym-table comma counts before allocation, preserving positional
+  empty entries while preventing size arithmetic from wrapping; see
+  `docs/keysym-table-conversion.md`.
+
 XmString-table allocation bounds (2026-10-25)
 ===============================================
 

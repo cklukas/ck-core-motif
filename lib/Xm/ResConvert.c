@@ -2042,9 +2042,9 @@ CvtStringToKeySymTable(
         XtPointer *converter_data) /* unused */
 {
   String in_str = (String) from->addr;
-  unsigned int in_str_size = 0;
+  size_t in_str_size = 0;
   XmKeySymTable keySymTable;
-  int i, comma_count;
+  size_t i, comma_count;
   String work_str, ks_str, separator;
   KeySym ks;
 
@@ -2054,10 +2054,13 @@ CvtStringToKeySymTable(
   comma_count = 0;
   while (in_str[in_str_size])
     {   
+	if (in_str_size == SIZE_MAX)
+	  return(FALSE);
       if (in_str[in_str_size++] == ',')
 	++comma_count;
     } 
-  ++in_str_size;
+  if (comma_count > (SIZE_MAX / sizeof(KeySym)) - 2)
+    return(FALSE);
 
   keySymTable = (XmKeySymTable) XtMalloc(sizeof(KeySym) * (comma_count + 2));
   keySymTable[comma_count + 1] = (KeySym)NULL;
