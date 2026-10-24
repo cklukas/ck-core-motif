@@ -198,13 +198,17 @@ Idb__FU_OpenFile (char 			*name,
   *file_id = (IDBLowLevelFilePtr)
     XtMalloc(sizeof (IDBLowLevelFile));
   if (*file_id==0)
-    return MrmFAILURE;
+	{
+	(void) close (file_desc);
+	return MrmFAILURE;
+	}
 
   a_file = (IDBLowLevelFile *) *file_id;
 
   a_file->name = XtMalloc (length+1);
   if (a_file->name==0)
     {
+	close (file_desc);
       XtFree ((char*)*file_id);
       return (MrmFAILURE);
     }

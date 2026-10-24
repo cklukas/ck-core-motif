@@ -1,3 +1,8 @@
+Mrm low-level IDB open cleanup (2026-10-25)
+=============================================
+
+- Close the operating-system file descriptor when low-level IDB descriptor or filename allocation fails, preventing resource leaks while preserving existing error results; see `docs/mrm-idb-open-cleanup.md`.
+
 Mrm in-memory IDB failure cleanup (2026-10-25)
 ===============================================
 
