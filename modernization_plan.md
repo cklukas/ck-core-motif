@@ -975,6 +975,17 @@ presentation, without changing dialog or menu-shell behavior.
 **Complete when:** a flyout is safely composable by later controls and has no
 observable effect on existing shell or menu fixtures.
 
+**Status (2026-10-25):** the additive `XmFlyout` primitive is implemented and
+qualified on uconsole.  It creates a transient, override-redirect popup below
+its owner, clamps placement to the active screen, uses `XtGrabNone`, preserves
+keyboard focus, and tears down on explicit hide, owner unmap/destruction or
+flyout destruction.  Escape/Return and pointer activation dismiss it through a
+typed callback without installing a global event loop or changing menu/dialog
+admission.  The installed Xvfb fixture passed 5 checks across repeated runs,
+including show/hide, dismissal delivery, edge-owner geometry and owner-unmap
+cleanup.  Delayed tooltips and teaching-tip presentation remain a later layer
+over this primitive; existing Motif tooltip behavior is unchanged.
+
 ### WP-20: ColorPicker standardization
 
 **Depends on:** WP-15.

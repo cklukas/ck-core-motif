@@ -2645,3 +2645,11 @@ Additive numeric controls (2026-10-25)
   pointer stepping, accessibility values, installed-prefix documentation, and
   Xvfb fixtures.  Existing `XmTextField` and `XmSpinBox` contracts remain
   unchanged; the optional labelled-`XmScale` companion remains deferred.
+
+Additive non-modal flyout (2026-10-25)
+======================================
+
+- Add `XmFlyout`, a screen-clamped anchored popup using `XtGrabNone`, explicit
+  show/hide and dismissal callbacks, keyboard/pointer dismissal, and owner
+  unmap/destruction cleanup.  Existing tooltip, menu-shell and dialog behavior
+  remains unchanged; delayed teaching-tip presentation is deferred.

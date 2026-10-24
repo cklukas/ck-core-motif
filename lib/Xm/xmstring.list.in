@@ -338,6 +338,10 @@ CProgressMinimum
 CProgressTextVisible
 CProgressValue
 CProgressValueChangedCallback
+CFlyoutDismissCallback
+CFlyoutOffsetX
+CFlyoutOffsetY
+CFlyoutText
 CNumberInvalidCallback
 CNumberMaximum
 CNumberMinimum
@@ -772,6 +776,10 @@ NprogressMinimum
 NprogressTextVisible
 NprogressValue
 NprogressValueChangedCallback
+NflyoutDismissCallback
+NflyoutOffsetX
+NflyoutOffsetY
+NflyoutText
 NnumberInvalidCallback
 NnumberMaximum
 NnumberMinimum
