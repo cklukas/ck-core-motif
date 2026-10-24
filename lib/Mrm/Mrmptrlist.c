@@ -55,6 +55,8 @@ static char rcsid[] = "$XConsortium: Mrmptrlist.c /main/12 1996/11/13 14:03:53 d
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
 #include "MrmMsgI.h"
+#include <limits.h>
+#include <stdint.h>
 
 
 /*
@@ -94,6 +96,13 @@ Cardinal
 UrmPlistInit (int		size,
 	      URMPointerListPtr	*list_id_return)
 {
+
+  if (size <= 0 || (size_t)size > SIZE_MAX / sizeof(XtPointer))
+    {
+      *list_id_return = NULL ;
+      return Urm__UT_Error ("UrmPlistInit", _MrmMMsg_0047,
+				    NULL, NULL, MrmFAILURE) ;
+    }
 
   /*
    * Allocate the list buffer and the slot vector buffer, and initialize
@@ -148,6 +157,10 @@ Cardinal
 UrmPlistResize (URMPointerListPtr	list_id,
 		int			size)
 {
+
+  if (size <= 0 || (size_t)size > SIZE_MAX / sizeof(XtPointer))
+    return Urm__UT_Error ("UrmPlistResize", _MrmMMsg_0048,
+				  NULL, NULL, MrmFAILURE) ;
 
   /*
    * Allocate the new vector, and copy the current vector into it.
@@ -281,8 +294,11 @@ UrmPlistAppendPointer (URMPointerListPtr	list_id ,
   Cardinal		result ;	/* function results */
 
 
-  if ( list_id->num_ptrs == list_id->num_slots )
+  if ( list_id->num_ptrs >= list_id->num_slots )
     {
+      if (list_id->num_slots <= 0 || list_id->num_slots > INT_MAX / 2)
+	return Urm__UT_Error ("UrmPlistAppendPointer", _MrmMMsg_0048,
+				      NULL, NULL, MrmFAILURE) ;
       result = UrmPlistResize (list_id, 2*list_id->num_slots) ;
       if ( result != MrmSUCCESS ) return result ;
     }

@@ -207,7 +207,8 @@ MrmManageDefault
  * The following structure is inspired by resource contexts, but is used
  * to store lists of pointers. Its supporting routines automatically manage
  * space in the same the context routines do. Since this is used only
- * internally, no validation is provided.
+ * internally, callers still provide trusted pointers, but capacity
+ * arithmetic is checked before it reaches the allocator.
  */
 
 typedef struct {

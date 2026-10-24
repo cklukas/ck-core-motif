@@ -1,3 +1,10 @@
+Mrm pointer-list bounds (2026-10-25)
+==================================
+
+- Reject non-positive or unrepresentable pointer-list capacities before
+  allocation, and stop append growth before signed doubling overflow; see
+  `docs/mrm-pointerlist-bounds.md`.
+
 Mrm vector-copy bounds (2026-10-25)
 ===================================
 
