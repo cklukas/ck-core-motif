@@ -1,4 +1,7 @@
 2026-10-26
+	* Validate Mrm header RID data handles before storing them.
+
+2026-10-26
 	* Swap Mrm header entry fields before validating native sizes.
 
 2026-10-26

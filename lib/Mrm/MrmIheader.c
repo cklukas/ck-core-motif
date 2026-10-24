@@ -585,6 +585,13 @@ Idb__HDR_EnterItem (IDBFile		file_id,
   if (file_id == NULL)
     return MrmFAILURE;
 
+  if (data_entry.rec_no <= 0 ||
+      (data_entry.rec_no == IDBHeaderRecordNumber &&
+       data_entry.item_offs > IDBHeaderFreeMax - sizeof(IDBDataEntryHdr)) ||
+      (data_entry.rec_no != IDBHeaderRecordNumber &&
+       data_entry.item_offs > IDBDataFreeMax - sizeof(IDBDataEntryHdr)))
+    return MrmBAD_RECORD;
+
   /*
    * Get the header record.
    */
