@@ -844,6 +844,7 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
   RGMWidgetRecordPtr	widgetrec ;	/* widget record in the context */
   String		c_name ;	/* child name */
   String		c_name_tmp ;	/* child name - temporary */
+  size_t		c_name_len ;	/* child name length */
   RGMArgListDescPtr	argdesc = NULL ; /* arg list descriptor in record */
   Arg			*args = NULL ;  /* arg list argument for create */
   Cardinal		num_used = 0 ;	/* number of args used in arglist */
@@ -881,8 +882,13 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
   else 
     {
       /* Need to add * for ScrolledText and ScrolledList */
-      c_name_tmp = (String)ALLOCATE_LOCAL((strlen(c_name) + 2) * sizeof(char));
-      sprintf(c_name_tmp, "*%s", c_name);
+      c_name_len = strlen(c_name);
+      if (c_name_len > SIZE_MAX - 2)
+	return Urm__UT_Error("UrmSetWidgetInstance", _MrmMMsg_0040,
+			     NULL, context_id, MrmFAILURE);
+      c_name_tmp = (String)ALLOCATE_LOCAL((c_name_len + 2) * sizeof(char));
+      c_name_tmp[0] = '*';
+      memcpy(c_name_tmp + 1, c_name, c_name_len + 1);
       *w_return = XtNameToWidget(parent, c_name_tmp);
 
       /* Deal with ScrollBars for ScrolledList and ScrolledText subclasses. */

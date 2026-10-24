@@ -1,3 +1,10 @@
+Mrm widget-name lookup bounds (2026-10-25)
+===========================================
+
+- Check temporary widget-name size arithmetic and copy the lookup name without
+  formatted output, preserving `XtNameToWidget` behavior while avoiding size
+  wrapping and formatting overflows; see `docs/mrm-widget-name-bounds.md`.
+
 Mrm widget-reference diagnostic bounds (2026-10-25)
 ==================================================
 
