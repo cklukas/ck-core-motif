@@ -216,6 +216,9 @@ UrmPlistResize (URMPointerListPtr	list_id,
 Cardinal UrmPlistFree (URMPointerListPtr	list_id)
 {
 
+  if (list_id == NULL)
+    return MrmFAILURE;
+
   XtFree ((char*)list_id->ptr_vec) ;
   XtFree ((char*)list_id) ;
   return MrmSUCCESS ;
@@ -259,9 +262,16 @@ UrmPlistFreeContents (URMPointerListPtr	list_id)
    */
   int			ndx ;		/* loop index */
 
+  if (list_id == NULL)
+    return MrmFAILURE;
+
 
   for ( ndx=0 ; ndx<list_id->num_ptrs ; ndx++ )
-    XtFree (list_id->ptr_vec[ndx]) ;
+    {
+      XtFree (list_id->ptr_vec[ndx]) ;
+      list_id->ptr_vec[ndx] = NULL;
+    }
+  list_id->num_ptrs = 0;
   return MrmSUCCESS ;
 
 }

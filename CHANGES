@@ -1,4 +1,7 @@
 2026-10-26
+	* Make Mrm pointer-list cleanup null-safe and repeatable.
+
+2026-10-26
 	* Clean up Mrm pointer-list initialization after vector allocation failure.
 
 2026-10-26
