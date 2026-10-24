@@ -146,9 +146,12 @@ Urm__CW_AddWRef (URMResourceContextPtr	wref_id,
    */
   Cardinal		result;		/* function results */
   URMWRefStructPtr	refdsc;		/* buffer as reference structure */
-  MrmCount		name_bytes;	/* # bytes for name & NULL */
-  MrmCount		bytes_needed;	/* # bytes for whole ref */
+  size_t		name_len;	/* name length without NUL */
+  size_t		name_bytes;	/* # bytes for name & NULL */
+  size_t		bytes_needed;	/* # bytes for whole ref */
+  size_t		bytes_used;	/* bytes occupied by the structure */
   Cardinal		ndx;		/* entry index in structure */
+  size_t		name_ndx;	/* name validation index */
   MrmOffset		new_offs;	/* new offset in heap */
   Cardinal		old_size;	/* old buffer size */
   Cardinal		new_size;	/* new buffer size */
@@ -165,14 +168,24 @@ Urm__CW_AddWRef (URMResourceContextPtr	wref_id,
    * (contains non-legal character '-')
    */
   refdsc = (URMWRefStructPtr) UrmRCBuffer (wref_id);
-  name_bytes = strlen(w_name);
-  for ( ndx=0 ; ndx<name_bytes ; ndx++ )
-    if ( w_name[ndx] == '-' ) return MrmFAILURE;
-  name_bytes += 1;
+  name_len = strlen(w_name);
+  if (name_len >= MrmMaxResourceSize)
+    return MrmTOO_MANY;
+  for ( name_ndx=0 ; name_ndx<name_len ; name_ndx++ )
+	if ( w_name[name_ndx] == '-' ) return MrmFAILURE;
+  name_bytes = name_len + 1;
 
+  if (name_bytes > SIZE_MAX - sizeof(URMWRef))
+    return MrmTOO_MANY;
   bytes_needed = sizeof(URMWRef) + name_bytes;
+  if (bytes_needed > SIZE_MAX - _slm)
+    return MrmTOO_MANY;
   bytes_needed = _FULLWORD(bytes_needed);
-  if ( bytes_needed > (UrmRCBufSize(wref_id)-UrmWRefBytesUsed(refdsc)) )
+  if (bytes_needed > MrmMaxResourceSize)
+    return MrmTOO_MANY;
+  bytes_used = UrmWRefBytesUsed(refdsc);
+  if (bytes_used > UrmRCBufSize(wref_id) ||
+      bytes_needed > UrmRCBufSize(wref_id) - bytes_used)
     {
       old_size = UrmRCBufSize (wref_id);
       new_size = 2 * old_size;

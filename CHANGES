@@ -1,3 +1,10 @@
+Mrm widget-reference storage bounds (2026-10-25)
+===============================================
+
+- Measure widget-reference names without narrowing, enforce the 16-bit UID
+  limit, and guard resource-context capacity subtraction; see
+  `docs/mrm-wref-storage-bounds.md`.
+
 Mrm pointer-list string bounds (2026-10-25)
 ===========================================
 

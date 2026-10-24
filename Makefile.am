@@ -279,3 +279,4 @@ EXTRA_DIST += tests/automated/check-mrm-display-string-bounds.py docs/mrm-displa
 EXTRA_DIST += tests/automated/check-mrm-wci-registration-bounds.py docs/mrm-wci-registration-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-alloc-string-bounds.py docs/mrm-alloc-string-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-pointer-list-string-bounds.py docs/mrm-pointer-list-string-bounds.md
+EXTRA_DIST += tests/automated/check-mrm-wref-storage-bounds.py docs/mrm-wref-storage-bounds.md
