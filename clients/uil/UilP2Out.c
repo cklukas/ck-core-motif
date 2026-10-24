@@ -628,7 +628,7 @@ sym_widget_entry_type	*widget_entry;
 
 {
 
-char				buffer[32];
+char				buffer[64];
 char				*widget_name;
 char				*widget_class_name;
 unsigned int			widget_class;
@@ -668,7 +668,7 @@ if (widget_variety == UilMrmAutoChildVariety)
   widget_name = "";
 else if (widget_entry->obj_header.az_name == NULL)
   {
-    sprintf(buffer, "widget-%d-%d-%d", 
+    snprintf(buffer, sizeof(buffer), "widget-%d-%d-%d",
 	    widget_entry->header.az_src_rec->b_file_number,
 	    widget_entry->header.az_src_rec->w_line_number,
 	    widget_entry->header.b_src_pos);
@@ -2942,7 +2942,7 @@ char	*problem;
 {
     char    buffer[132];
 
-    sprintf(buffer, "while %s encountered %s", 
+    snprintf(buffer, sizeof(buffer), "while %s encountered %s",
 	    problem, 
 	    Urm__UT_LatestErrorMessage());
 

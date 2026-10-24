@@ -74,6 +74,7 @@ EXTRA_DIST += tests/automated/check-datafield-wcs.c docs/datafield-wide-text.md
 # UIL debug listing regression.
 EXTRA_DIST += tests/automated/check-uil-listing.py docs/uil-listing.md
 EXTRA_DIST += tests/automated/check-uil-diagnostic-location-bounds.py docs/uil-diagnostic-location-bounds.md
+EXTRA_DIST += tests/automated/check-uil-output-bounds.py docs/uil-output-bounds.md
 
 # Image scaling and malformed-image regression.
 EXTRA_DIST += tests/automated/check-image-scaling.c tests/automated/run-image-regressions.py docs/image-scaling.md

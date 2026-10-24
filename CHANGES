@@ -1,3 +1,11 @@
+UIL generated output bounds (2026-10-24)
+===========================================
+
+- Bound fallback widget-name and URM diagnostic formatting in the UIL emitter,
+  retaining the existing output formats while preventing long coordinates or
+  error text from overrunning stack buffers; see
+  `docs/uil-output-bounds.md`.
+
 UIL diagnostic location bounds (2026-10-24)
 ===============================================
 
