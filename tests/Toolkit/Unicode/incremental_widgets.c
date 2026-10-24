@@ -13,6 +13,10 @@
 #include <string.h>
 #include <wchar.h>
 #include <fontconfig/fontconfig.h>
+#include <limits.h>
+
+extern char *_XmStringSourceGetString(XmTextWidget, XmTextPosition,
+                                      XmTextPosition, Boolean);
 
 /* Internal entry point used by native Text's grapheme actions. The source and
  * widget records inspected here are installed private ABI, not application API. */
@@ -350,6 +354,7 @@ int main(int argc, char **argv)
     XmRenderTable fonts;
     Arg args[3];
     char *large, *actual;
+    XmTextPosition oversized;
     const char *initial = "e\xcc\x81 ab \xf0\x9f\x91\xa9\xe2\x80\x8d\xf0\x9f\x91\xa7";
     size_t i;
     require(setlocale(LC_ALL, "C.UTF-8") && XmTextUnicodeAvailable(), "UTF8 Unicode locale unavailable");
@@ -401,6 +406,13 @@ int main(int argc, char **argv)
     for (i = 127; i < 1048576; i += 128) large[i] = '\n';
     large[1048576] = 0;
     XmTextSetString(first, large); source = XmTextGetSource(first);
+    oversized = INT_MAX;
+    if (sizeof(XmTextPosition) > sizeof(int)) {
+        ++oversized;
+        require(_XmStringSourceGetString((XmTextWidget)first, 0,
+                 oversized, False) == NULL,
+                "very-large source range was rejected without truncation");
+    }
     XmTextSetSource(second, source, 0, 0);
     require(XmTextGetSource(second) == source && source->data->numwidgets == 2,
             "native widgets did not share source ownership");

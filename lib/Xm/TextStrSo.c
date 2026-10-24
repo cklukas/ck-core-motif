@@ -35,6 +35,7 @@ static char rcsid[] = "$XConsortium: TextStrSo.c /main/14 1996/10/23 16:05:21 cd
 
 #include <ctype.h>
 #include <limits.h>
+#include <stdint.h>
 #include <X11/Xatom.h>
 #include <X11/Xmd.h>
 #include <Xm/AtomMgr.h>
@@ -96,11 +97,33 @@ static void SetSelection(XmTextSource source,
 			 XmTextPosition left,
 			 XmTextPosition right,
 			 Time set_time);
+static Boolean TextSourceRangeBytes(XmTextPosition from,
+					XmTextPosition to,
+					unsigned int char_size,
+					size_t *bytes);
 
 /********    End Static Function Declarations    ********/
 
 #define TEXT_INCREMENT 1024
 #define TEXT_INITIAL_INCREM 64
+
+static Boolean
+TextSourceRangeBytes(XmTextPosition from,
+		     XmTextPosition to,
+		     unsigned int char_size,
+		     size_t *bytes)
+{
+    XmTextPosition length;
+
+    if (from < 0 || to < from || from > INT_MAX || to > INT_MAX ||
+	char_size == 0)
+	return False;
+    length = to - from;
+    if ((size_t)length > (SIZE_MAX - 1) / char_size)
+	return False;
+    *bytes = (size_t)length * char_size + 1;
+    return True;
+}
 
 /* Convert a stream of bytes into a char*, BITS16*, or wchar_t* array. 
  * Return number of characters created.
@@ -278,12 +301,16 @@ _XmStringSourceGetString(XmTextWidget tw,
   XmTextBlockRec block;
   int destpos;
   XmTextPosition pos, ret_pos;
+  size_t allocation;
   int return_val = 0;
 
+  if (!TextSourceRangeBytes(from, to,
+				want_wchar ? sizeof(wchar_t) : tw->text.char_size,
+				&allocation))
+	return NULL;
   destpos = 0;
   if (!want_wchar) {
-    /* NOTE: to - from could result in a truncated long. */
-    buf = XtMalloc(((int)(to - from) + 1) * (int)tw->text.char_size);
+    buf = XtMalloc(allocation);
     for (pos = from; pos < to; ) {
       pos = ReadSource(tw->text.source, pos, to, &block);
       if (block.length == 0)
@@ -295,17 +322,15 @@ _XmStringSourceGetString(XmTextWidget tw,
     buf[destpos] = 0;
     return buf;
   } else { /* want buffer of wchar_t * data */
-    /* NOTE: to - from could result in a truncated long. */
-    buf = XtMalloc(((int)(to - from) + 1) * sizeof(wchar_t));
+    buf = XtMalloc(allocation);
     wc_buf = (wchar_t *)buf;
     for (pos = from; pos < to; ) {
       ret_pos = ReadSource(tw->text.source, pos, to, &block);
       if (block.length == 0)
 	break;
       
-      /* NOTE: ret_pos - pos could result in a truncated long. */
       return_val =  mbstowcs(&wc_buf[destpos], block.ptr,
-			     (unsigned int) (ret_pos - pos));
+			     (size_t) (ret_pos - pos));
       if (return_val > 0) destpos += return_val;
       pos = ret_pos;
     }
@@ -743,6 +768,7 @@ ReadSource(XmTextSource source,
 	   XmTextBlock block)            /* RETURN: text read in */
 {
   XmTextPosition return_pos;
+  XmTextPosition available;
   int num_bytes;
   XmSourceData data = source->data;
   XmTextWidget tw = (XmTextWidget) data->widgets[0];
@@ -750,9 +776,16 @@ ReadSource(XmTextSource source,
 		   (int)tw->text.char_size :
 		   sizeof(wchar_t));
   
+  if (position < 0 || position > INT_MAX)
+	return 0;
   if (last_position > data->length) last_position = data->length;
-  /* NOTE: the length calculation could result in a truncated long */
-  block->length = (int)((last_position - position) * char_size);
+  if (last_position < position)
+	return 0;
+  available = last_position - position;
+  if (available > INT_MAX / char_size)
+	available = INT_MAX / char_size;
+  last_position = position + available;
+  block->length = (int)(available * char_size);
   if (block->length < 0 ) block->length = 0;
   block->format = XmFMT_8_BIT;
   _XmStringSourceReadString(source, (int)position, block);

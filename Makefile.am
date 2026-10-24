@@ -76,3 +76,6 @@ EXTRA_DIST += tests/automated/check-uil-listing.py docs/uil-listing.md
 
 # Image scaling and malformed-image regression.
 EXTRA_DIST += tests/automated/check-image-scaling.c tests/automated/run-image-regressions.py docs/image-scaling.md
+
+# Text source range-boundary regression.
+EXTRA_DIST += tests/automated/check-text-source-bounds.c tests/automated/run-text-source-regressions.py docs/text-source-bounds.md

@@ -1,3 +1,12 @@
+Reject unrepresentable text-source ranges (2026-10-24)
+=======================================================
+
+- Validate XmTextPosition ranges and allocation sizes before conversion;
+  reject positions that cannot cross the legacy int-indexed source reader,
+  and cap internal blocks without truncating arithmetic.
+- Add installed-prefix boundary coverage for valid extraction and oversized
+  ranges; preserve existing byte/wide-character results for representable
+  requests. See docs/text-source-bounds.md.
 Checked image scaling dimensions and strides (2026-10-24)
 ===========================================================
 
