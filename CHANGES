@@ -1,3 +1,10 @@
+Mrm index-writer input validation (2026-10-25)
+===============================================
+
+- Validate leaf and node index-writer contexts before reading index strings,
+  preserving valid insertion while avoiding null-input crashes; see
+  `docs/mrm-index-writer-input.md`.
+
 Mrm header diagnostic bounds (2026-10-25)
 ========================================
 

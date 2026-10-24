@@ -263,6 +263,8 @@ Idb__INX_EnterLeafIndex (IDBFile		file_id,
   IDBIndexLeafEntryPtr	itemvec ;	/* The vector of index entries */
   MrmCount		itemcnt ;	/* # entries in vector */
 
+  if (file_id == NULL || buffer == NULL || index == NULL)
+    return MrmFAILURE;
 
   /*
    * Initialize pointers into the record
@@ -396,6 +398,8 @@ Idb__INX_EnterNodeIndex (IDBFile		file_id,
   MrmCount		nxtndx ;	/* succeeding entry index */
   IDBRecordNumber	p_recno ;	/* this node record number */
 
+  if (file_id == NULL || buffer == NULL || index == NULL)
+    return MrmFAILURE;
 
   /*
    * Initialize pointers into the record
