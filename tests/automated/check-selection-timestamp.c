@@ -158,6 +158,31 @@ check_data_targets(Widget field)
     return failed;
 }
 
+static int
+check_data_text_conversion(Widget field)
+{
+    Atom target = XA_STRING;
+    Atom selection = XA_PRIMARY;
+    Atom type = None;
+    XtPointer value = NULL;
+    unsigned long length = 0;
+    int format = 0;
+    int failed = 0;
+
+    XmDataFieldSetSelection(field, 0, 3, CurrentTime);
+    if (!_XmDataFieldConvert(field, &selection, &target, &type, &value,
+                             &length, &format) || type != XA_STRING ||
+        format != 8 || length != 3 || value == NULL ||
+        memcmp(value, "abc", 3) != 0) {
+        fprintf(stderr, "DataField XA_STRING conversion returned invalid data\n");
+        failed = 1;
+    } else {
+        printf("PASS DataField XA_STRING conversion: %lu bytes\n", length);
+    }
+    XtFree((char *)value);
+    return failed;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -182,6 +207,7 @@ main(int argc, char **argv)
     failed |= check_widget(app, shell, field, "TextField", 1);
     failed |= check_widget(app, shell, data, "DataField", 2);
     failed |= check_data_targets(data);
+    failed |= check_data_text_conversion(data);
     XtDestroyWidget(shell);
     XtDestroyApplicationContext(app);
     return failed ? 1 : 0;

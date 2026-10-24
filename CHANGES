@@ -605,3 +605,10 @@ Development 2.4.0 / DropDown localized text positions
 - Compute exact locale character counts when copying selected DropDown items
   into the text field, removing the fixed `BUFSIZ` conversion buffer.
 - Extend the DropDown maintenance documentation.
+
+DataField selection conversion bounds (2026-10-24)
+===================================================
+
+- Accumulate multi-fragment selection text lengths with checked `size_t` arithmetic and reject values that cannot fit the existing DataField `int` length contract before allocation or replacement. Protect wide-character buffer sizing and report failed conversions cleanly.
+- Represent empty or unconvertible text-property lists with an allocated empty buffer, preserving selection ownership, locale conversion behavior, public interfaces and native ABI. Extend the DataField selection regression and document the bounds contract in `docs/datafield-selection-bounds.md`.
+- Native AArch64 validation passes the rebuilt `check-selection-timestamp` regression, including DataField `XA_STRING` conversion.

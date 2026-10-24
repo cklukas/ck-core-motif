@@ -35,6 +35,8 @@ static char rcsid[] = "$RCSfile: DataFSel.c,v $ $Revision: 1.6 $ $Date: 2003/10/
 #include <Xm/XmosP.h>
 #include <Xm/DragC.h>
 #include <Xm/TextFP.h>
+#include <limits.h>
+#include <stdint.h>
 
 
 /********    Static Function Declarations    ********/
@@ -135,7 +137,7 @@ InsertSelection(
     XTextProperty tmp_prop;
     char **tmp_value;
     int num_vals;
-    int malloc_size = 0;
+    size_t malloc_size = 0;
     int i, status = 0;
     XmAnyCallbackStruct cb;
 
@@ -179,15 +181,29 @@ InsertSelection(
        tmp_prop.format = *format;
        tmp_prop.nitems = *length;
        num_vals = 0;
+       total_tmp_value = XtCalloc(1, 1);
        status = XmbTextPropertyToTextList(XtDisplay(w), &tmp_prop, &tmp_value, 
 					  &num_vals);
       /* if no conversion, num_vals won't change */
       /* status >0 if some characters can't be converted; continue anyway */
        if (num_vals && (status == Success || status > 0)) {
-          for (i = 0; i < num_vals ; i++)
-              malloc_size += strlen(tmp_value[i]);
+          for (i = 0; i < num_vals ; i++) {
+              size_t piece_len = strlen(tmp_value[i]);
 
-          total_tmp_value = XtMalloc ((unsigned) malloc_size + 1);
+              if (piece_len > SIZE_MAX - malloc_size ||
+                  malloc_size + piece_len > (size_t) INT_MAX) {
+                 XFreeStringList(tmp_value);
+                 XtFree(total_tmp_value);
+                 XtFree((char *)value);
+                 insert_select->done_status = True;
+                 insert_select->success_status = False;
+                 return;
+              }
+              malloc_size += piece_len;
+          }
+
+          XtFree(total_tmp_value);
+          total_tmp_value = XtMalloc(malloc_size + 1);
           total_tmp_value[0] = '\0';
           for (i = 0; i < num_vals ; i++)
              strcat(total_tmp_value, tmp_value[i]);
@@ -199,11 +215,25 @@ InsertSelection(
           replace_res = _XmDataFieldReplaceText(tf, 
                                                 (XEvent *) insert_select->event,
 					        left, right, total_tmp_value, 
-                                                malloc_size, True);
+                                                (int) malloc_size, True);
        } else { /* must convert to wchar_t before passing to Replace */
-          wc_value = (wchar_t *)XtMalloc((unsigned) 
-                               (1 + malloc_size) * sizeof(wchar_t));
+          if (malloc_size + 1 > SIZE_MAX / sizeof(wchar_t)) {
+             XtFree(total_tmp_value);
+             XtFree((char *)value);
+             insert_select->done_status = True;
+             insert_select->success_status = False;
+             return;
+          }
+          wc_value = (wchar_t *)XtMalloc((malloc_size + 1) * sizeof(wchar_t));
           num_chars = mbstowcs(wc_value, total_tmp_value, 1 + malloc_size);
+          if (num_chars < 0) {
+             XtFree((char *)wc_value);
+             XtFree(total_tmp_value);
+             XtFree((char *)value);
+             insert_select->done_status = True;
+             insert_select->success_status = False;
+             return;
+          }
           replace_res = _XmDataFieldReplaceText(tf,
                                                 (XEvent *) insert_select->event,
                                                 left, right, (char*) wc_value,
