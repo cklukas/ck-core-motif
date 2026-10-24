@@ -1,3 +1,11 @@
+Column label-name preservation (2026-10-24)
+==============================================
+
+- Preserve complete generated `_label` child names in Column instead of
+  truncating parent names at 240 bytes, preventing long-name collisions while
+  retaining the existing suffix and short-name behavior; see
+  `docs/column-label-name-bounds.md`.
+
 SpinBox child-name bounds (2026-10-24)
 =======================================
 

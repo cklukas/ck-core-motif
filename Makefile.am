@@ -79,6 +79,7 @@ EXTRA_DIST += tests/automated/check-mwm-image-path-bounds.py docs/mwm-image-path
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md
 EXTRA_DIST += tests/automated/check-editres-error-bounds.py docs/editres-error-bounds.md
 EXTRA_DIST += tests/automated/check-spinbox-name-bounds.py docs/spinbox-name-bounds.md
+EXTRA_DIST += tests/automated/check-column-label-name-bounds.py docs/column-label-name-bounds.md
 
 # Image scaling and malformed-image regression.
 EXTRA_DIST += tests/automated/check-image-scaling.c tests/automated/run-image-regressions.py docs/image-scaling.md

@@ -1120,23 +1120,19 @@ ConstraintInitialize(Widget request, Widget new_w, ArgList arg_list,
     {
 	Arg    args[64];
 	int    nargs;
-	char   buf[256];
+	char  *buf;
+	int    buf_length;
 	Widget label;
 	XmFontList lfont;
 
 	VerifyConstraints(request, NULL, new_w);
 	
-	if( strlen(XtName(new_w)) > 240 )
-	{
-	    strncpy(buf, XtName(new_w), 240);
-	    buf[240] = '\0';
-	    strcat(buf, "_label");
-	}
-	else
-	{
-	    strcpy(buf, XtName(new_w));
-	    strcat(buf, "_label");
-	}
+	buf_length = snprintf(NULL, 0, "%s_label", XtName(new_w));
+	if (buf_length < 0)
+	    return;
+	buf = XtMalloc((size_t)buf_length + 1);
+	(void) snprintf(buf, (size_t)buf_length + 1, "%s_label",
+			XtName(new_w));
 
 	label_widget = True;
 
@@ -1168,6 +1164,7 @@ ConstraintInitialize(Widget request, Widget new_w, ArgList arg_list,
 		 XmNbackground,  cw->core.background_pixel); nargs++;
 	label = XtCreateWidget(buf, xmLabelWidgetClass, (Widget) cw,
 		       args, nargs);
+	XtFree(buf);
 	XiC(new_w)->label_widget = label;
 
 	XtAddCallback(label, XmNdestroyCallback,
