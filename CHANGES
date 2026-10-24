@@ -2770,3 +2770,11 @@ Additive BreadcrumbBar (2026-10-25)
   bounded overflow collapse, logical RTL navigation, keyboard/pointer
   activation and installed-prefix accessibility coverage.  Path parsing and
   navigation remain application responsibilities.
+
+
+Mrm index parent-update error propagation (2026-10-26)
+=======================================================
+
+- Return failures from the left-child parent update before attempting the
+  right-child update during node insertion, so a hidden B-tree repair error
+  cannot be reported as success; see `docs/mrm-index-parent-errors.md`.

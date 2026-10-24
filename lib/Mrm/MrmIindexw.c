@@ -524,6 +524,7 @@ Idb__INX_EnterNodeIndex (IDBFile		file_id,
    */
   p_recno = _IdbBufferRecordNumber (buffer) ;
   result = Idb__INX_SetParent (file_id, p_recno, lt_record) ;
+  if ( result != MrmSUCCESS ) return result ;
   result = Idb__INX_SetParent (file_id, p_recno, gt_record) ;
   if ( result != MrmSUCCESS ) return result ;
 
