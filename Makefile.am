@@ -137,3 +137,4 @@ EXTRA_DIST += docs/native-text-ime-matrix.md
 EXTRA_DIST += tests/automated/check-mwm-bindings-path.py docs/mwm-bindings-path.md
 EXTRA_DIST += docs/accessibility-journey-matrix.md
 EXTRA_DIST += docs/cpp-support-library-proposal.md
+EXTRA_DIST += tests/automated/check-mwm-menu-label-termination.py docs/mwm-menu-label-termination.md

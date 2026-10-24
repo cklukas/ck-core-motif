@@ -1,3 +1,10 @@
+Mwm menu-label termination (2026-10-24)
+========================================
+
+- Initialize multibyte label scanning and explicitly terminate quoted client
+  command names, fixing empty-label state and unterminated `strncpy` output;
+  see `docs/mwm-menu-label-termination.md`.
+
 C++ support-library design boundary (2026-10-24)
 ================================================
 

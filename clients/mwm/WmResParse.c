@@ -3758,7 +3758,7 @@ static void ParseMenuItemName (unsigned char **linePP, MenuItem *menuItem)
 {
     unsigned char *lineP, *endquote;
 #ifndef NO_MULTIBYTE
-    int chlen;
+    int chlen = 0;
 #endif
 
     /* Skip past any whitespace */
@@ -3800,9 +3800,11 @@ static void ParseMenuItemName (unsigned char **linePP, MenuItem *menuItem)
 	   client command name field. Don't include the double quotes. */
 	menuItem->clientCommandName =
 	  XtMalloc(sizeof(char) * (endquote - lineP) + 1);
-	strncpy(menuItem->clientCommandName, (char *) lineP,
-		endquote - lineP);
-	menuItem->clientCommandName[strlen(menuItem->clientCommandName)+1] = '\0';
+	{
+	    size_t nameLength = (size_t)(endquote - lineP);
+	    memcpy(menuItem->clientCommandName, lineP, nameLength);
+	    menuItem->clientCommandName[nameLength] = '\0';
+	}
     }
     else
     {
