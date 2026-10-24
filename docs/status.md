@@ -138,3 +138,18 @@ Ten focused native ARM64 fixtures also pass with the toolkit and consumers
 instrumented by ASan/UBSan, including the new modal-admission regression.
 Xt/system dependencies are uninstrumented, leak checking is disabled, and
 allocator-fault interposition remains exclusive to the normal native suite.
+
+## Native clipping and label-query qualification
+
+Native ARM64 fixtures verify 34 semantic queries and 267 assertions covering
+ancestor clipping, edge contact, nested common intersection, managed gadgets,
+independent popup mapping, automatic scroll reveal and repeated Disclosure/header
+names. Normal and ASan/UBSan profiles pass with leak detection enabled. A real
+private registry observes exactly one target SHOWING transition per ancestor
+reveal/hide, with matching query states and normal fixture exit.
+
+These checks do not qualify occlusion by unrelated windows, physical scale,
+screen-reader operation or every consumer cohort. Existing application/toolkit
+pins require their own integration admission. The native name-query correction
+releases Label/LabelGadget getter copies while preserving Disclosure's borrowed
+resource ownership; the former leak remains recorded in the qualification data.

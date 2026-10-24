@@ -36,6 +36,8 @@ FIXTURES = {
     "clipboard-lifetime": ("tests/Toolkit/CutPaste/clipboard_unicode.c", True),
     "disclosure": ("tests/disclosure/widget.c", True),
     "accessibility": ("tests/accessibility/provider.c", True),
+    "accessibility-clipping": ("tests/accessibility/clipping.c", True),
+    "accessibility-clipping-events": ("tests/accessibility/clipping_events.c", True),
     "scrollbar-accessibility": ("tests/accessibility/scrollbar.c", True),
     "text-events": ("tests/accessibility/text_events.c", True),
     "key-events": ("tests/accessibility/key_events.c", True),
@@ -118,6 +120,10 @@ def main():
     parser.add_argument("--out", required=True, type=Path, help="fresh absolute result/scratch directory")
     parser.add_argument("--libdir", type=Path, help="absolute library directory inside prefix (default: prefix/lib)")
     parser.add_argument("--cc", default="cc", help="native C compiler executable")
+    parser.add_argument("--sanitize", action="store_true",
+                        help="instrument fixtures for an ASan/UBSan toolkit prefix; strict leak/error checks")
+    parser.add_argument("--accessibility-runtime", type=Path,
+                        help="fresh short absolute private runtime for clipping event fixture")
     parser.add_argument("--only", action="append", choices=FIXTURES,
                         help="restrict feature fixtures; the installed ABI check always runs")
     parser.add_argument("--timeout", type=int, default=90, help="seconds per command (default: 90)")
@@ -142,11 +148,19 @@ def main():
     (output / "tmp").mkdir()
     env = dict(os.environ, TMPDIR=str(output / "tmp"), LC_ALL="C.UTF-8",
                LD_LIBRARY_PATH=str(library_dir), PYTHONDONTWRITEBYTECODE="1")
+    instrumentation_flags = []
+    if args.sanitize:
+        instrumentation_flags = ["-fsanitize=address,undefined", "-fno-omit-frame-pointer"]
+        env.update(ASAN_OPTIONS="detect_leaks=1:abort_on_error=1",
+                   UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1")
+        env.pop("LSAN_OPTIONS", None)
     for name in ("LD_PRELOAD", "LD_AUDIT", "DISPLAY"):
         env.pop(name, None)
     receipt = dict(started_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
                    prefix=str(prefix), library_dir=str(library_dir), output=str(output),
                    fixture_source=str(source), requested_fixtures=selected,
+                   fixture_instrumentation=instrumentation_flags,
+                   runtime_options={name: env[name] for name in ("ASAN_OPTIONS", "UBSAN_OPTIONS") if name in env},
                    configuration="native installed ABI7 consumers; strict C11 O2; actual Xvfb and AT-SPI observers",
                    baseline="No duration baseline assumed; compare retained equivalent suite results.",
                    limitation="Fingerprints identify tested inputs; this runner does not attest which source built the installed prefix.",
@@ -205,7 +219,7 @@ def main():
         required = [args.cc, "pkg-config", "ldd", "readelf"]
         if any(FIXTURES[name][1] for name in selected):
             required += ["xvfb-run", "Xvfb", "xauth"]
-        if any(name in selected for name in ("disclosure", "accessibility", "scrollbar-accessibility", "text-events", "key-events")):
+        if any(name in selected for name in ("disclosure", "accessibility", "scrollbar-accessibility", "text-events", "key-events", "accessibility-clipping-events")):
             required += ["dbus-run-session", "gdbus", "stdbuf"]
         if "scrollbar-accessibility" in selected:
             required += ["xdotool"]
@@ -242,7 +256,7 @@ def main():
             before = time.time_ns()
             run("compile-" + name, [args.cc, "-std=c11", "-O2", "-Wall", "-Wextra",
                 "-Wpedantic", "-Werror", "-D_POSIX_C_SOURCE=200809L", "-I" + str(prefix / "include"), "-MD", "-MF", dependencies,
-                fixture, "-L" + str(library_dir), "-Wl,-rpath," + str(library_dir),
+                *instrumentation_flags, fixture, "-L" + str(library_dir), "-Wl,-rpath," + str(library_dir),
                 "-lXm", "-lXt", "-lX11", *flags, *extra_flags, "-lm", "-o", binary])
             if not before <= binary.stat().st_mtime_ns <= time.time_ns():
                 raise RuntimeError("compiled fixture timestamp does not prove freshness")
@@ -286,6 +300,16 @@ def main():
                     mtime_ns=interposer.stat().st_mtime_ns, elf=verify_native_elf(interposer))
                 run("list-faults", display(["dbus-run-session", "--", sys.executable, observer,
                     binary, output / "list-faults-observer.json", interposer]))
+            elif name == "accessibility-clipping-events":
+                observer = source / "tests/accessibility/observe_clipping_events.py"
+                remember(observer)
+                runtime = args.accessibility_runtime or output / "clipping-events-runtime"
+                if not runtime.is_absolute() or runtime.exists() or len(os.fsencode(runtime / "at-spi/bus")) >= 100:
+                    raise RuntimeError("supply --accessibility-runtime with a fresh short absolute path for the private Unix socket")
+                runtime.mkdir(mode=0o700)
+                run(name, display(["env", "-u", "AT_SPI_BUS_ADDRESS",
+                    "XDG_RUNTIME_DIR=" + str(runtime), "dbus-run-session", "--",
+                    sys.executable, observer, binary, output / "clipping-events-observer.json"]))
             elif name in ("accessibility", "scrollbar-accessibility", "text-events", "key-events", "list-accessibility"):
                 observer = source / {"accessibility": "tests/accessibility/observe.py",
                                      "scrollbar-accessibility": "tests/accessibility/observe_scrollbar.py",

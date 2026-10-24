@@ -246,3 +246,18 @@ metadata, separators, legacy left-to-right construction, typed NULL/zero-length
 construction, copy/traversal/unparse and counts-only/allocated separator tables.
 Nonzero-length NULL input remains refused. Strict runtime qualification is
 recorded separately from these source changes.
+
+## Native accessible viewport visibility
+
+Native accessible widgets and List items now distinguish a mapped window from
+content actually intersecting its ancestor viewports. The implementation carries
+one common clipped rectangle through the native hierarchy, preserves full
+Component extents and handles independently mapped popup shells. Ancestor geometry
+and mapping events refresh native descendant states for the optional accessibility
+transport. Generic clipping and private-bus event fixtures exercise the contract;
+their results qualify the exact tested build rather than every consumer cohort.
+
+The same native-query qualification identified an owned compound-string getter
+result retained by accessibility name conversion. Native label and Disclosure
+header queries now release that copy after unparsing; widget-owned labels remain
+valid and are freed through their normal lifecycle.

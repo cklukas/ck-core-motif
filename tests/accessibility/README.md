@@ -218,3 +218,27 @@ uses the native libc allocator and must run without ASan; instrumented List
 protocol/lifetime and provider-reentrancy fixtures run separately. The allocation
 fixture rejects an ASan compiler rather than bypassing its allocator or relaxing
 sanitizer runtime checks. Both scopes retain the same native behavior assertions.
+
+
+`clipping.c` is a native, bus-independent regression for VISIBLE versus SHOWING.
+Compile against the exact installed headers/library and run on an isolated X
+display. Actual X geometry and map state establish the fixture preconditions;
+semantic extents retain the native object's full dimensions. Cases cover wholly
+clipped and partly intersecting widgets, exact edge contact, nested ancestors
+whose common clip is empty despite the target intersecting each separately,
+managed gadgets with an unmapped ancestor, independently mapped popup windows,
+and two-axis automatic scrolling through `XmScrollVisible`. These local query
+checks do not establish transport event delivery or screen-reader behavior.
+
+`clipping_events.c` and `observe_clipping_events.py` verify real private-bus
+`StateChanged:showing` transitions after moving only a native ancestor. The
+observer authenticates the provider process, registers the exact event with the
+private registry, checks query state and event delivery, and stops its private
+services. The installed runner exposes this as `accessibility-clipping-events`.
+For long output paths, pass `--accessibility-runtime /absolute/short/fresh/path`;
+the runtime must fit the platform's Unix socket path limit and is created0700.
+A clipped managed control retains VISIBLE and its full Component extents.
+
+Use `--sanitize` with an instrumented prefix to compile/link the consumers with
+ASan/UBSan as well. The runner enables leak detection and immediate error
+termination, and records the exact instrumentation flags and runtime options.

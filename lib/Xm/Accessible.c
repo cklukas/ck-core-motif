@@ -247,6 +247,32 @@ static void notify_focus(XmAccessibility *a) {
       XmAccessibilityChanged(a, next);
   }
 }
+/* Ancestor geometry can change descendants' SHOWING without generating an
+ * event on those descendants. Snapshot live native IDs before notifying: a
+ * provider/transport callback may retire widgets or the bridge reentrantly.
+ * Custom provider geometry remains explicitly owned by that provider.
+ */
+static void native_descendants_changed(XmAccessibility *a, XmAccessibleId id) {
+  XmAccessibleNode *ancestor = _XmAccessibilityNode(a, id), *node;
+  XmAccessibleId *ids;
+  size_t count = 0, k;
+  Widget root;
+  if (!ancestor || !(root = ancestor->widget) || a->destroy_requested ||
+      a->node_count > SIZE_MAX / sizeof(*ids)) return;
+  ids = calloc(a->node_count ? a->node_count : 1, sizeof(*ids));
+  if (!ids) return;
+  for (node = a->nodes; node; node = node->next) {
+    Widget current = node->list_owner ? node->list_owner : node->widget;
+    if (!current || node->id == id) continue;
+    for (; current; current = XtParent(current)) {
+      if (current == root) { ids[count++] = node->id; break; }
+      if (XtIsShell(current)) break;
+    }
+  }
+  for (k = 0; k < count && !a->destroy_requested; ++k)
+    if (_XmAccessibilityNode(a, ids[k])) XmAccessibilityChanged(a, ids[k]);
+  free(ids);
+}
 static void widget_event(Widget w, XtPointer data, XEvent *event,
                          Boolean *cont) {
   XmAccessibility *a = (XmAccessibility *)data;
@@ -256,7 +282,13 @@ static void widget_event(Widget w, XtPointer data, XEvent *event,
   notify_focus(a);
   if (event->type == MapNotify || event->type == UnmapNotify) menu_changed(a, w);
   if (XmIsList(w)) list_changed(w, a, NULL);
-  XmAccessibilityChanged(a, XmAccessibilityWidget(a, w));
+  {
+    XmAccessibleId id = XmAccessibilityWidget(a, w);
+    XmAccessibilityChanged(a, id);
+    if (event->type == MapNotify || event->type == UnmapNotify ||
+        event->type == ConfigureNotify)
+      native_descendants_changed(a, id);
+  }
   --a->dispatch_depth;
   _XmAccessibilityDispatchDone(a);
 }
@@ -776,6 +808,47 @@ static char *locale_utf8(const char *s) {
   XtFree((char *)wide);
   return result;
 }
+/* Intersect one native region with every physical ancestor's content clip.
+ * IsViewable alone includes mapped children outside a scrolled viewport.
+ * Keep the intersection while translating to each parent: testing the original
+ * region against each ancestor separately can accept an empty common clip.
+ * A popup shell has its own window ancestry, independent of its logical owner.
+ * Use actual window geometry: shell-child Xt resource coordinates can carry
+ * top-level placement rather than the child's position in its native parent.
+ */
+static Boolean native_region_showing(Widget w, int64_t left, int64_t top,
+                                     int64_t right, int64_t bottom) {
+  Widget current;
+  if (!XtIsRealized(w)) return False;
+  for (current = w; current; current = XtParent(current)) {
+    int x, y, width, height, border;
+    if (!XtIsShell(current) && !XtIsManaged(current)) return False;
+    if (XtIsWidget(current)) {
+      XWindowAttributes attributes;
+      if (!XGetWindowAttributes(XtDisplay(current), XtWindow(current), &attributes) ||
+          attributes.map_state != IsViewable) return False;
+      x = attributes.x; y = attributes.y;
+      width = attributes.width; height = attributes.height;
+      border = attributes.border_width;
+    } else {
+      Position local_x, local_y;
+      Dimension local_width, local_height;
+      XtVaGetValues(current, XmNx, &local_x, XmNy, &local_y,
+                    XmNwidth, &local_width, XmNheight, &local_height, NULL);
+      x = local_x; y = local_y; width = local_width; height = local_height;
+      border = 0; /* Gadgets paint in their parent's native drawable. */
+    }
+    if (left < 0) left = 0;
+    if (top < 0) top = 0;
+    if (right > width) right = width;
+    if (bottom > height) bottom = height;
+    if (left >= right || top >= bottom) return False;
+    if (XtIsShell(current)) return True;
+    left += (int64_t)x + border; right += (int64_t)x + border;
+    top += (int64_t)y + border; bottom += (int64_t)y + border;
+  }
+  return False;
+}
 static Boolean native_item_query(XmAccessibility *a, XmAccessibleNode *n, XmAccessibleInfo *info) {
   int position = native_item_position(a, n);
   XmListWidget list;
@@ -797,11 +870,11 @@ static Boolean native_item_query(XmAccessibility *a, XmAccessibleNode *n, XmAcce
   if (list->list.InternalList[position]->selected) info->states |= XmACCESSIBLE_STATE(23);
   if (focused_widget(a) == (Widget)list && list->list.CurrentKbdItem == position) info->states |= XmACCESSIBLE_STATE(12);
   if (XtIsRealized((Widget)list) && XmListPosToBounds((Widget)list, position + 1, &x, &y, &width, &height)) {
-    XWindowAttributes attributes;
     XtTranslateCoords((Widget)list, x, y, &sx, &sy);
     info->has_extents = True; info->screen_x = sx; info->screen_y = sy;
     info->width = width; info->height = height;
-    if (XtIsManaged((Widget)list) && XGetWindowAttributes(XtDisplay(list), XtWindow(list), &attributes) && attributes.map_state == IsViewable)
+    if (native_region_showing((Widget)list, x, y,
+                              (int64_t)x + width, (int64_t)y + height))
       info->states |= XmACCESSIBLE_STATE(25);
   }
   return True;
@@ -866,13 +939,8 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
   i->states |= XmACCESSIBLE_STATE(30);
   if (XtIsSensitive(w))
     i->states |= XmACCESSIBLE_STATE(8) | XmACCESSIBLE_STATE(24);
-  if (XtIsRealized(w)) {
-    XWindowAttributes attributes;
-    if (XGetWindowAttributes(XtDisplayOfObject(w), XtWindowOfObject(w),
-                             &attributes) &&
-        attributes.map_state == IsViewable && (XtIsShell(w) || XtIsManaged(w)))
-      i->states |= XmACCESSIBLE_STATE(25);
-  }
+  if (i->has_extents && native_region_showing(w, 0, 0, i->width, i->height))
+    i->states |= XmACCESSIBLE_STATE(25);
   if (focused_identity(a) == id)
     i->states |= XmACCESSIBLE_STATE(12);
   if (XmIsList(w)) {
@@ -886,9 +954,13 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
   if (XmIsLabel(w) || XmIsLabelGadget(w)) {
     i->role = XmACCESSIBLE_LABEL;
     XtVaGetValues(w, XmNlabelString, &label, NULL);
-    if (label)
+    if (label) {
       local = XmStringUnparse(label, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT, NULL,
                               0, XmOUTPUT_ALL);
+      /* Synthetic Label/LabelGadget getters return an owned copy. */
+      XmStringFree(label);
+      label = NULL;
+    }
   }
   if (XmIsPushButton(w) || XmIsPushButtonGadget(w) || XmIsArrowButton(w)) {
     i->role = XmACCESSIBLE_BUTTON;
@@ -978,6 +1050,8 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     if (section) {
       XtFree(local);
       local = NULL;
+      /* Disclosure's ordinary resource is borrowed, unlike Label's
+       * synthetic getter above. Convert it without taking ownership. */
       XtVaGetValues(section, XmNlabelString, &label, NULL);
       if (label)
         local = XmStringUnparse(label, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,

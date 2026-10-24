@@ -17,6 +17,28 @@ All calls, provider queries, callbacks and event dispatch run on the owning Xt
 UI thread. The transport does not make background calls into Xt. Do not free
 provider closures while their nodes remain registered.
 
+Native label-name queries release the owned compound-string copy returned by
+Label/LabelGadget resource getters after conversion. This also applies to the
+Disclosure header and keeps repeated semantic queries from retaining label text.
+
+## Native visibility and clipping
+
+Native `SHOWING` requires a mapped object with a nonempty common intersection
+through every native ancestor content rectangle. A managed object can remain
+`VISIBLE` while wholly outside a scrolling viewport. Partial intersection counts;
+edge contact without area does not. Component extents remain the object's full
+native bounds, rather than replacing its geometry with the clipped rectangle.
+Native List items use the same ancestor clipping contract.
+
+Popup shells start their own native ancestry; their logical owner's clip or
+mapping does not hide an independently mapped popup. Native ancestor move,
+resize, map and unmap events notify affected native descendants, including List
+items, so the optional transport can publish changed `SHOWING` states. Descendant
+IDs are captured before callbacks and re-resolved to tolerate retirement during
+notification. Custom semantic providers continue to own their own geometry/state
+and change notifications. This does not infer occlusion by unrelated windows or
+screen-reader acceptance.
+
 ## Semantic nodes
 
 Native widgets receive semantic identities through
