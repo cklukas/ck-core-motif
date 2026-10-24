@@ -1,3 +1,14 @@
+Generated real translation bounds (2026-10-24)
+==============================================
+
+- Replace `_XmGetRealXlations`'s fixed 1000-byte stack buffer with checked,
+  growable Xt storage so long action and keysym strings are preserved safely.
+  Allocation overflow now returns `NULL` cleanly.
+- Add a source-contract regression and document the behavior in
+  docs/real-xlations-bounds.md.
+- Native AArch64 libXm build is warning-free and the translation-growth
+  regression passes.
+
 EditRes fallback formatting (2026-10-24)
 ========================================
 

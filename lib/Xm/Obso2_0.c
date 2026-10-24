@@ -33,6 +33,9 @@
 
 
 #include <ctype.h>
+#include <limits.h>
+#include <stdint.h>
+#include <string.h>
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #include <unistd.h>
@@ -201,14 +204,42 @@ externaldef(worldobjectclass) WidgetClass
  *                                                                      *
  ************************************************************************/
 
-char * 
+static Boolean
+XmAppendTranslationText(char **buffer, size_t *used, size_t *capacity,
+                        const char *text)
+{
+  size_t length = strlen(text);
+  size_t required;
+
+  if (length > SIZE_MAX - *used - 1)
+    return False;
+  required = *used + length + 1;
+  if (required > (size_t)UINT_MAX)
+    return False;
+  while (*capacity < required) {
+    size_t new_capacity = *capacity;
+    if (new_capacity > SIZE_MAX / 2)
+      new_capacity = required;
+    else
+      new_capacity *= 2;
+    if (new_capacity < required || new_capacity > (size_t)UINT_MAX)
+      return False;
+    *buffer = XtRealloc(*buffer, (Cardinal)new_capacity);
+    *capacity = new_capacity;
+  }
+  memcpy(*buffer + *used, text, length + 1);
+  *used += length;
+  return True;
+}
+
+char *
 _XmGetRealXlations(
         Display *dpy,
         _XmBuildVirtualKeyStruct *keys,
         int num_keys )
 {
-  char *result, buf[1000];
-  char *tmp = buf;
+  char *result;
+  size_t used = 0, capacity = 256;
   char *keystring;
   register int i;
   int num_vkeys;
@@ -216,7 +247,8 @@ _XmGetRealXlations(
   KeySym    keysym;
   Modifiers mods;
   
-  *tmp = '\0';
+  result = XtMalloc((Cardinal)capacity);
+  result[0] = '\0';
   for (i = 0; i < num_keys; i++)
     {
       keysym = XStringToKeysym(keys[i].key);
@@ -232,32 +264,38 @@ _XmGetRealXlations(
 	    break;
 	  mods = vkeys[num_vkeys].modifiers | keys[i].mod;
 	  
-	  if (mods & ControlMask)
-	    strcat(tmp, "Ctrl ");
+	  if (mods & ControlMask &&
+	      !XmAppendTranslationText(&result, &used, &capacity, "Ctrl "))
+	    goto failed;
 	  
-	  if (mods & ShiftMask)
-	    strcat(tmp, "Shift ");
+	  if (mods & ShiftMask &&
+	      !XmAppendTranslationText(&result, &used, &capacity, "Shift "))
+	    goto failed;
 	  
-	  if (mods & Mod1Mask)
-	    strcat(tmp, "Mod1 ");  /* "Alt" may not be right on some systems */
+	  if (mods & Mod1Mask &&
+	      !XmAppendTranslationText(&result, &used, &capacity, "Mod1 "))
+	    goto failed;  /* "Alt" may not be right on some systems */
 	  
-	  strcat(tmp,"<Key>");
-	  strcat(tmp, keystring);
-	  strcat(tmp,": ");
-	  strcat(tmp,keys[i].action);
-
-	  tmp += strlen(tmp);
-	  assert((tmp - buf) < 1000);
+	  if (!XmAppendTranslationText(&result, &used, &capacity, "<Key>") ||
+	      !XmAppendTranslationText(&result, &used, &capacity, keystring) ||
+	      !XmAppendTranslationText(&result, &used, &capacity, ": ") ||
+	      !XmAppendTranslationText(&result, &used, &capacity, keys[i].action))
+	    goto failed;
 	}
 
       XtFree((char*) vkeys);
     }
 
-  if (buf[0] != '\0')
-    result = XtNewString(buf);
-  else 
+  if (used == 0) {
+    XtFree(result);
     result = NULL;
+  }
   return(result);
+
+failed:
+  XtFree((char *)vkeys);
+  XtFree(result);
+  return NULL;
   
 }
 
