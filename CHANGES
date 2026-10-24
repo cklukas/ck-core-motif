@@ -2780,6 +2780,15 @@ Additive bounded TreeView (2026-10-25)
   installed-prefix regression fixture.  Lazy providers and general
   virtualization are intentionally not implied.
 
+Additive date-only Calendar (2026-10-25)
+=========================================
+
+- Add `XmCalendar` with a documented proleptic-Gregorian civil-date contract,
+  validated inclusive ranges, leap-year/month navigation, week-start and RTL
+  resources, date/activation callbacks, accessibility semantics and an
+  installed-prefix regression fixture.  DatePicker/TimePicker and timezone
+  interpretation remain separate work.
+
 
 Mrm index parent-update error propagation (2026-10-26)
 =======================================================

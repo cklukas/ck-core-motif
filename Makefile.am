@@ -89,6 +89,8 @@ EXTRA_DIST += tests/automated/check-breadcrumb-bar.c tests/automated/run-breadcr
               docs/breadcrumb-bar.md
 EXTRA_DIST += tests/automated/check-tree-view.c tests/automated/run-tree-view.py \
               docs/tree-view.md
+EXTRA_DIST += tests/automated/check-calendar.c tests/automated/run-calendar.py \
+              docs/calendar.md
 
 EXTRA_DIST += tests/automated/check-paned-keyboard.c docs/paned-keyboard.md
 

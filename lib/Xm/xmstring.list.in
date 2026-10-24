@@ -986,6 +986,20 @@ NtreeViewTopRow
 NtreeViewRtl
 NtreeViewSelectionCallback
 NtreeViewExpansionCallback
+CCalendarYear
+CCalendarMonth
+CCalendarDay
+CCalendarWeekStart
+CCalendarRtl
+CCalendarDateChangedCallback
+CCalendarActivateCallback
+NcalendarYear
+NcalendarMonth
+NcalendarDay
+NcalendarWeekStart
+NcalendarRtl
+NcalendarDateChangedCallback
+NcalendarActivateCallback
 
 #table _XmStrings20
 

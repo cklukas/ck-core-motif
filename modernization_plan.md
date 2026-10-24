@@ -1189,6 +1189,14 @@ boundaries rather than embedding date parsing in an application convention.
 semantics, deterministic boundary behavior and no effect on existing text,
 list, dialog or shell APIs.
 
+**Status (2026-10-25):** the date-only `XmCalendar` phase is implemented and
+qualified on the AArch64 `uconsole`.  It uses a proleptic Gregorian
+1..9999 civil-date contract, validates leap years and inclusive ranges before
+mutation, supports deterministic month/day keyboard navigation, week-start and
+RTL presentation resources, date-change/activation callbacks, and a calendar
+accessibility summary.  DatePicker, TimePicker, locale providers and timezone
+interpretation remain separate follow-on work.
+
 ### WP-27: DataGrid/TableView design and prototype
 
 **Depends on:** WP-25 and WP-15.
