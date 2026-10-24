@@ -1,3 +1,11 @@
+DataField portability warning cleanup (2026-10-24)
+===================================================
+
+- Replace pointer-to-integer null casts in DataField input-method registration
+  and wide-character initialization with type-correct zero constants,
+  preserving behavior while removing 64-bit compiler diagnostics; see
+  `docs/datafield-portability-warnings.md`.
+
 DataField cursor pixmap name bounds (2026-10-24)
 ================================================
 
