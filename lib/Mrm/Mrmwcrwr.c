@@ -432,14 +432,18 @@ UrmCWRSetCompressedArgTag (URMResourceContextPtr	context_id,
    */
   RGMArgListDescPtr	argdesc ;	/* arglist desc in record */
   RGMArgumentPtr	argptr ;	/* argument being set */
+  Cardinal		result ;	/* validation result */
 
 
   /*
    * Validate record, arglist descriptor, and argument number
    */
-  UrmCWR__ValidateContext (context_id, "UrmCWRSetCompressedArgTag") ;
-  UrmCWR__BindArgPtrs
+  result = UrmCWR__ValidateContext (context_id,
+				    "UrmCWRSetCompressedArgTag") ;
+  if ( result != MrmSUCCESS ) return result ;
+  result = UrmCWR__BindArgPtrs
     (context_id, "UrmCWRSetCompressedArgTag", arg_ndx, &argdesc, &argptr) ;
+  if ( result != MrmSUCCESS ) return result ;
 
   /*
    * Validate the compressed code and set the argument.

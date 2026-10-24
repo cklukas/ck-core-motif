@@ -3107,3 +3107,10 @@ Mrm writer arglist validation (2026-10-25)
 
 - Propagate invalid-context failures from `UrmCWRInitArglist` before argument
   descriptor allocation; see `docs/mrm-writer-arglist-validation.md`.
+
+Mrm writer compressed-tag validation (2026-10-25)
+====================================================
+
+- Propagate context and argument-binding failures from
+  `UrmCWRSetCompressedArgTag` before modifying the UID record; see
+  `docs/mrm-writer-compressed-tag-validation.md`.
