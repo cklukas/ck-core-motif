@@ -1,3 +1,9 @@
+Mrm hash-table initialization inputs (2026-10-25)
+===============================================
+
+- Validate hash-table and initialization-flag pointers before clearing the
+  table; see `docs/mrm-wci-hash-init.md`.
+
 Mrm hash lookup and deletion inputs (2026-10-25)
 ===============================================
 

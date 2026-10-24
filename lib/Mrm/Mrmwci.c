@@ -521,6 +521,9 @@ hash_initialize (URMHashTableEntryPtr	*htable,
 {
   int			ndx;	/* loop index */
 
+  if (htable == NULL || initflag == NULL)
+    return;
+
 
   /*
    * Initialize only once
