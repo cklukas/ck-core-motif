@@ -1309,15 +1309,15 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 		/*
 		 * Copy in all characters that are ascii and non-spaces.
 		 */
-		if (!isascii(c))
+		if (!isascii((unsigned char)c))
 		    continue;
-		if (!isspace(c))
-		    *name++ = tolower(c);
+		if (!isspace((unsigned char)c))
+		    *name++ = (char)tolower((unsigned char)c);
 	    }
 	    *name = '\0';
 
 	    name = color_info[count].name;
-	    color_name[0] = toupper(color_name[0]);
+	    color_name[0] = (char)toupper((unsigned char)color_name[0]);
 	    for (i = 0; i < len; i++) {
 		register char c = color_name[i];
 
@@ -1325,10 +1325,10 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 		 * Capitalize all characters after a space.
 		 */
 
-		if (!isascii(c))
+		if (!isascii((unsigned char)c))
 		    continue;
-		if (isspace(c) && ((i + 1) < len)) {
-		    color_name[i + 1] = toupper(color_name[i + 1]);
+		if (isspace((unsigned char)c) && ((i + 1) < len)) {
+		    color_name[i + 1] = (char)toupper((unsigned char)color_name[i + 1]);
 		}
 
 		*name++ = c;
@@ -1454,7 +1454,8 @@ find_name(char *buffer)
 	 * Look for first non number, non space or tab.
 	 */
     
-	if (isascii(*curr) && (isdigit(*curr) || isspace(*curr)))
+	if (isascii((unsigned char)*curr) &&
+	    (isdigit((unsigned char)*curr) || isspace((unsigned char)*curr)))
 	    continue;
 
 	temp = (char *) strchr(curr, '\n');
