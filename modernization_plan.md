@@ -1071,6 +1071,14 @@ that does not alter dialog admission or application status handling.
 **Complete when:** the new bar is an independently testable additive widget;
 existing MessageBox, dialog and application-defined status areas are unchanged.
 
+**Status (2026-10-25):** the additive `XmInfoBar` is implemented and qualified
+on uconsole.  It exposes info/warning/error severity, message text, optional
+action and close callbacks, Escape/pointer dismissal, explicit sizing and a
+non-focus-stealing inline presentation.  Its accessibility provider exposes
+the live message text as a panel.  The installed Xvfb fixture passed 7 checks
+across repeated runs, including action/dismissal delivery, sizing and
+accessibility; existing MessageBox and dialog behavior is unchanged.
+
 ### WP-23: AutoSuggestBox
 
 **Depends on:** WP-18 and WP-19.

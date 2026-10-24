@@ -83,6 +83,9 @@ EXTRA_DIST += tests/automated/check-color-picker.c tests/automated/run-color-pic
 EXTRA_DIST += tests/automated/check-rating-control.c tests/automated/run-rating-control.py \
               docs/rating-control.md
 
+EXTRA_DIST += tests/automated/check-info-bar.c tests/automated/run-info-bar.py \
+              docs/info-bar.md
+
 EXTRA_DIST += tests/automated/check-paned-keyboard.c docs/paned-keyboard.md
 
 EXTRA_DIST += tests/automated/check-combo-delete.c docs/combo-deletion.md
@@ -364,9 +367,3 @@ EXTRA_DIST += tests/automated/check-mrm-get-entry-postconditions.py docs/mrm-get
 EXTRA_DIST += tests/automated/check-mrm-put-entry-capacity.py docs/mrm-put-entry-capacity.md
 
 EXTRA_DIST += tests/automated/check-mrm-header-byte-swap-order.py docs/mrm-header-byte-swap-order.md
-
-EXTRA_DIST += tests/automated/check-mrm-header-enter-handle.py docs/mrm-header-enter-handle.md
-
-EXTRA_DIST += tests/automated/check-mrm-header-next-rid-inputs.py docs/mrm-header-next-rid-inputs.md
-
-EXTRA_DIST += tests/automated/check-mrm-header-return-handle.py docs/mrm-header-return-handle.md

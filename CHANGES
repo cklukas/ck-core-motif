@@ -1,7 +1,4 @@
 2026-10-26
-	* Validate stored Mrm header RID handles before returning them.
-
-2026-10-26
 	* Validate Mrm header next-RID input and output pointers.
 
 2026-10-26
@@ -2712,3 +2709,11 @@ Additive integer rating control (2026-10-25)
   readonly policies, keyboard/pointer interaction, non-glyph segment rendering,
   accessibility values and installed-prefix Xvfb coverage.  Existing toggle
   button groups remain unchanged; fractional ratings are not implied.
+
+Additive inline InfoBar (2026-10-25)
+====================================
+
+- Add `XmInfoBar` with explicit severity/message resources, optional action and
+  close callbacks, non-focus-stealing dismissal, accessible live message text,
+  and installed-prefix Xvfb coverage.  Existing MessageBox and dialog
+  behavior remains unchanged.

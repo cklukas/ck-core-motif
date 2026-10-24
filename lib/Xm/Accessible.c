@@ -19,6 +19,7 @@
 #include <Xm/Label.h>
 #include <Xm/LabelG.h>
 #include <Xm/ListP.h>
+#include <Xm/InfoBar.h>
 #include <Xm/ColorPicker.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
@@ -592,6 +593,9 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     if (XmIsRatingControl(w))
       XtAddCallback(w, XmNratingValueChangedCallback, text_value_changed,
                     (XtPointer)a);
+    if (XmIsInfoBar(w))
+      XtAddCallback(w, XmNinfoDismissCallback, text_value_changed,
+                    (XtPointer)a);
     if (XmIsNumberBox(w))
       XtAddCallback(w, XmNnumberValueChangedCallback, text_value_changed,
                     (XtPointer)a);
@@ -705,6 +709,9 @@ static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
     if (XmIsRatingControl(n->widget))
       XtRemoveCallback(n->widget, XmNratingValueChangedCallback,
                        text_value_changed, (XtPointer)a);
+    if (XmIsInfoBar(n->widget))
+      XtRemoveCallback(n->widget, XmNinfoDismissCallback, text_value_changed,
+                       (XtPointer)a);
     if (XmIsNumberBox(n->widget))
       XtRemoveCallback(n->widget, XmNnumberValueChangedCallback,
                        text_value_changed, (XtPointer)a);
@@ -1078,6 +1085,14 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     i->current_value = XmRatingControlGetValue(w);
     i->minimum_increment = 1;
     i->action_count = XtIsSensitive(w) ? 1 : 0;
+  }
+  if (XmIsInfoBar(w)) {
+    String message = NULL;
+    i->role = XmACCESSIBLE_PANEL;
+    i->has_text = True;
+    XtVaGetValues(w, XmNinfoMessage, &message, NULL);
+    i->text_length = message ? (int)strlen(message) : 0;
+    i->value_text = XtNewString(message ? message : "");
   }
   if (XmIsNumberBox(w)) {
     int minimum, maximum;
