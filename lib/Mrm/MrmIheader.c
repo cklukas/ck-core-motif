@@ -868,14 +868,14 @@ Idb__HDR_GetDataEntry (IDBFile			file_id,
   recptr = (IDBHeaderRecordPtr) bufptr->IDB_record;
   datahdr =
     (IDBDataEntryHdrPtr) &recptr->data[data_entry.item_offs];
-  if (datahdr->entry_size >
-      IDBHeaderFreeMax - data_entry.item_offs - sizeof(IDBDataEntryHdr))
-    return MrmBAD_RECORD;
   if ((datahdr->validation != IDBDataEntryValid) && ( file_id->byte_swapped ))
     SwapIDBDataEntryHdr(datahdr) ;
   if (datahdr->validation != IDBDataEntryValid)
     return Urm__UT_Error("Idb__HDR_GetDataEntry", _MrmMMsg_0007,
 			 NULL, context_id, MrmNOT_VALID);
+  if (datahdr->entry_size >
+      IDBHeaderFreeMax - data_entry.item_offs - sizeof(IDBDataEntryHdr))
+    return MrmBAD_RECORD;
 
   if ( datahdr->entry_size > UrmRCSize(context_id) )
     {
@@ -1109,16 +1109,18 @@ Idb__HDR_MatchFilter (IDBFile		file_id,
   recptr = (IDBHeaderRecordPtr) bufptr->IDB_record;
   datahdr =
     (IDBDataEntryHdrPtr) &recptr->data[data_entry.item_offs];
-  if (datahdr->entry_size >
-      IDBHeaderFreeMax - data_entry.item_offs - sizeof(IDBDataEntryHdr))
-    {
-      Idb__BM_Decommit (bufptr);
-      return FALSE;
-    }
+  if ((datahdr->validation != IDBDataEntryValid) && file_id->byte_swapped)
+    SwapIDBDataEntryHdr(datahdr);
   if (datahdr->validation != IDBDataEntryValid)
     {
       Urm__UT_Error("Idb__HDR_GetDataEntry", _MrmMMsg_0007,
 		    NULL, NULL, MrmNOT_VALID);
+      Idb__BM_Decommit (bufptr);
+      return FALSE;
+    }
+  if (datahdr->entry_size >
+      IDBHeaderFreeMax - data_entry.item_offs - sizeof(IDBDataEntryHdr))
+    {
       Idb__BM_Decommit (bufptr);
       return FALSE;
     }
