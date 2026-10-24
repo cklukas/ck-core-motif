@@ -1429,6 +1429,15 @@ scale/contrast, keyboard-only operation, callbacks and destruction reentrancy.
 **Complete when:** the installed widget provides a documented segmented-picker
 contract and all existing ToggleButton/radio fixtures retain their results.
 
+**Status (2026-10-25):** implemented and qualified on the installed `uconsole`
+prefix.  `XmSegmentedControl` owns a copied bounded item model and composes
+ordinary public ToggleButton children, with label/icon support, disabled-item
+filtering, single-selection/optional clear, RTL-aware keyboard traversal and a
+deterministic clip-on-overflow policy.  The fixture passes 20 checks including
+narrow geometry, accessibility summary, mutation and destruction from a
+selection callback.  Existing ToggleButton behavior remains covered by the
+legacy native-feature suite.
+
 ### WP-35: Compact content and adornment controls
 
 **Depends on:** WP-15.

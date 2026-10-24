@@ -564,6 +564,13 @@ public XmDataGridCommitEdit
 public XmDataGridCancelEdit
 public XmDataGridIsEditing
 public XmDataGridRequestSort
+public XmCreateSegmentedControl
+public XmSegmentedControlSetItems
+public XmSegmentedControlGetItemCount
+public XmSegmentedControlGetSelectedIndex
+public XmSegmentedControlGetItemId
+public XmSegmentedControlSetSelectedIndex
+public XmSegmentedControlClearSelection
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -848,6 +855,8 @@ public xmTimePickerClassRec
 public xmTimePickerWidgetClass
 public xmDataGridClassRec
 public xmDataGridWidgetClass
+public xmSegmentedControlClassRec
+public xmSegmentedControlWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec

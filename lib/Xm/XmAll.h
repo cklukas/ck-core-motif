@@ -73,6 +73,7 @@
 #include <Xm/DatePicker.h>
 #include <Xm/TimePicker.h>
 #include <Xm/DataGrid.h>
+#include <Xm/SegmentedControl.h>
 #include <Xm/NumberBox.h>
 #include <Xm/RatingControl.h>
 #include <Xm/MwmUtil.h>

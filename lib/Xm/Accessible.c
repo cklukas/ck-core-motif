@@ -26,6 +26,7 @@
 #include <Xm/DatePicker.h>
 #include <Xm/TimePicker.h>
 #include <Xm/DataGrid.h>
+#include <Xm/SegmentedControl.h>
 #include <Xm/ColorPicker.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
@@ -620,6 +621,9 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     if (XmIsDataGrid(w))
       XtAddCallback(w, XmNdataGridSelectionCallback, text_value_changed,
                     (XtPointer)a);
+    if (XmIsSegmentedControl(w))
+      XtAddCallback(w, XmNSegmentedSelectionCallback, text_value_changed,
+                    (XtPointer)a);
     if (XmIsNumberBox(w))
       XtAddCallback(w, XmNnumberValueChangedCallback, text_value_changed,
                     (XtPointer)a);
@@ -753,6 +757,9 @@ static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
                        text_value_changed, (XtPointer)a);
     if (XmIsDataGrid(n->widget))
       XtRemoveCallback(n->widget, XmNdataGridSelectionCallback,
+                       text_value_changed, (XtPointer)a);
+    if (XmIsSegmentedControl(n->widget))
+      XtRemoveCallback(n->widget, XmNSegmentedSelectionCallback,
                        text_value_changed, (XtPointer)a);
     if (XmIsNumberBox(n->widget))
       XtRemoveCallback(n->widget, XmNnumberValueChangedCallback,
@@ -1195,6 +1202,16 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     i->minimum_value = 0;
     i->maximum_value = i->rows;
     i->current_value = 0;
+    i->minimum_increment = 1;
+  }
+  if (XmIsSegmentedControl(w)) {
+    int selected = XmSegmentedControlGetSelectedIndex(w);
+    i->role = XmACCESSIBLE_LIST;
+    i->has_selection = selected >= 0;
+    i->has_value = True;
+    i->minimum_value = -1;
+    i->maximum_value = XmSegmentedControlGetItemCount(w) - 1;
+    i->current_value = selected;
     i->minimum_increment = 1;
   }
   if (XmIsNumberBox(w)) {

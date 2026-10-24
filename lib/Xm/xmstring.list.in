@@ -1041,6 +1041,17 @@ NdataGridSortCallback
 NdataGridEditCommittedCallback
 NdataGridEditFailedCallback
 
+CSegmentedAllowClear
+CSegmentedRtl
+CSegmentedOverflow
+CSegmentedSpacing
+CSegmentedSelectionCallback
+NSegmentedAllowClear
+NSegmentedRtl
+NSegmentedOverflow
+NSegmentedSpacing
+NSegmentedSelectionCallback
+
 #table _XmStrings20
 
 NtearOffTitle
