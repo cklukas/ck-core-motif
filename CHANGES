@@ -10,18 +10,6 @@ Render-table property export bounds (2026-10-24)
 - Native AArch64 libXm build is warning-free and the render-table export
   regression passes.
 
-Render-table property export bounds (2026-10-24)
-================================================
-
-- Grow serialized render-table output until each field fits, bound temporary
-  tag/font/tab formatting, and append newlines with their actual length. Reject
-  oversized output cleanly instead of allowing buffer growth and `strcat` to
-  overrun memory.
-- Add a source-contract regression and document the corrected exporter in
-  docs/render-table-export-bounds.md.
-- Native AArch64 libXm build is warning-free and the render-table export
-  regression passes.
-
 Scale value-label formatting (2026-10-24)
 =========================================
 
