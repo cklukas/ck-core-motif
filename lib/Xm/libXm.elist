@@ -129,6 +129,7 @@ public XmCreateTextField
 public XmCreateToggleButton
 public XmCreateToggleButtonGadget
 public XmCreateToggleSwitch
+public XmCreateProgressBar
 public XmCreateWarningDialog
 public XmCreateWorkArea
 public XmCreateWorkingDialog
@@ -488,6 +489,12 @@ public XmToggleButtonSetState
 public XmToggleButtonSetValue
 public XmToggleSwitchGetState
 public XmToggleSwitchSetState
+public XmProgressBarGetRange
+public XmProgressBarGetValue
+public XmProgressBarSetRange
+public XmProgressBarSetValue
+public XmProgressBarGetIndeterminate
+public XmProgressBarSetIndeterminate
 public XmTrackingEvent
 public XmTrackingLocate
 public XmTransferDone
@@ -576,6 +583,7 @@ public XmVaCreateManagedTextField
 public XmVaCreateManagedToggleButton
 public XmVaCreateManagedToggleButtonGadget
 public XmVaCreateManagedToggleSwitch
+public XmVaCreateManagedProgressBar
 public XmVaCreatePushButton
 public XmVaCreatePushButtonGadget
 public XmVaCreateScale
@@ -587,6 +595,7 @@ public XmVaCreateTextField
 public XmVaCreateToggleButton
 public XmVaCreateToggleButtonGadget
 public XmVaCreateToggleSwitch
+public XmVaCreateProgressBar
 
 public XmVaCreateSimpleCheckBox
 public XmVaCreateSimpleMenuBar
@@ -728,6 +737,8 @@ public xmToggleButtonGadgetClassRec
 public xmToggleButtonWidgetClass
 public xmToggleSwitchClassRec
 public xmToggleSwitchWidgetClass
+public xmProgressBarClassRec
+public xmProgressBarWidgetClass
 public xmUseVersion
 public xmVendorShellExtClassRec
 public xmVendorShellExtObjectClass
