@@ -2633,6 +2633,10 @@ Urm__CW_SafeCopyValue (long				*val,
   size_t		size;		
   int			cnt ;
 
+  if (vec_count < 0 || vec_size < 0 ||
+      (size_t)vec_count > SIZE_MAX / sizeof(XmString))
+    return;
+
   /*
    * Make copies of all primitive data structures. Note this has the side
    * effect of converting integer values to by-reference.

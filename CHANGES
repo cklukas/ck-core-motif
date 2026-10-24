@@ -1,3 +1,10 @@
+Mrm vector-copy bounds (2026-10-25)
+===================================
+
+- Reject negative or unrepresentable Mrm vector metadata before SafeCopyValue
+  allocates CString and Char8 copies, preserving valid vector behavior; see
+  `docs/mrm-vector-bounds.md`.
+
 Mrm resource-descriptor bounds (2026-10-25)
 ============================================
 
