@@ -12410,6 +12410,7 @@ XmDataFieldPaste(
        } else {
 	 wchar_t * wc_value;
          int num_chars = 0;
+         int converted = 0;
 
 	 for (i = 0, malloc_size = sizeof(wchar_t); i < num_vals ; i++)
 	 {
@@ -12417,14 +12418,21 @@ XmDataFieldPaste(
 	 }
 	 wc_value = (wchar_t*)XtMalloc((unsigned)malloc_size * sizeof(wchar_t));
 	 /* change malloc_size to the number of wchars available in wc_value */
-	 for (i = 0; i < num_vals ; i++)
-	     num_chars +=
-		 mbstowcs(wc_value + num_chars, tmp_value[i],
-			  (size_t)malloc_size - num_chars);
-	 rep_status = _XmDataFieldReplaceText(tf, NULL, paste_pos_left,
+	 for (i = 0; i < num_vals ; i++) {
+	     converted = mbstowcs(wc_value + num_chars, tmp_value[i],
+				  (size_t)malloc_size - num_chars);
+	     if (converted < 0)
+		 break;
+	     num_chars += converted;
+	 }
+	 if (converted < 0)
+	     rep_status = False;
+	 else
+	     rep_status = _XmDataFieldReplaceText(tf, NULL, paste_pos_left,
 					      paste_pos_right,
-					      (char*)wc_value, 
+					      (char*)wc_value,
 					      num_chars, True);
+	 XFreeStringList(tmp_value);
 	 if (malloc_size) XtFree((char*)wc_value);
        }
    }

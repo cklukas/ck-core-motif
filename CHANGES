@@ -668,3 +668,10 @@ DataField destination ownership guard (2026-10-24)
 - Restrict `XtDisownSelection` and display-wide destination clearing to the branch where the DataField actually owns the destination selection. This prevents an unrelated owner from being disowned.
 - Preserve destination acquisition/release behavior, callbacks, public interfaces and native ABI. Document the ownership rule in `docs/datafield-destination-selection.md`.
 - Native AArch64 validation passes the warning-enabled DataField build and Xvfb DataField action regression.
+
+DataField paste conversion cleanup (2026-10-24)
+================================================
+
+- Release the temporary `XmbTextPropertyToTextList` string list in the wide-character paste path. Detect `mbstowcs` failure before adding its result to the destination offset, rejecting malformed locale input safely.
+- Preserve single-byte and wide-character paste behavior, replacement callbacks, public interfaces and native ABI. Document the cleanup contract in `docs/datafield-paste-conversion.md`.
+- Native AArch64 validation passes the warning-enabled DataField build and Xvfb DataField regression.
