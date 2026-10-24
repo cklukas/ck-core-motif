@@ -710,3 +710,10 @@ Text preedit recovery conversion bounds (2026-10-24)
 - Validate every `mblen` step while recovering overstrike preedit text in the Text widget, preventing invalid pointer movement and append lengths for malformed locale sequences.
 - Preserve valid composition behavior, callbacks, public interfaces and native ABI. Document the recovery contract in `docs/text-preedit-recovery-bounds.md`.
 - Native AArch64 validation passes the warning-enabled Text source build.
+
+Text preedit completion conversion bounds (2026-10-24)
+=======================================================
+
+- Validate every `mblen` result while completing overstrike preedit text, preventing negative byte counts and invalid source offsets on malformed locale sequences. Invalid recovery fragments now complete as empty text.
+- Preserve valid preedit completion, callbacks, public interfaces and native ABI. Document the behavior in `docs/text-preedit-done-bounds.md`.
+- Native AArch64 validation passes the warning-enabled Text source build.

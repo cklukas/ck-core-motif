@@ -3388,6 +3388,7 @@ PreeditDone(XIC xic,
   int size, num_bytes = 0;
   Widget p = w;
   Boolean need_verify, end_preedit = False;
+  Boolean conversion_valid;
 
   if (!PreUnder(tw))
     return;
@@ -3419,9 +3420,20 @@ PreeditDone(XIC xic,
       mb = PreOverStr(tw);
     else {
         mb = XtMalloc((PreOverMaxLen(tw)+1)*tw->text.char_size);
-        for (size = PreOverMaxLen(tw); size >0; size--)
-           num_bytes +=mblen(PreOverStr(tw)+num_bytes, tw->text.char_size);
-        memmove (mb, PreOverStr(tw), num_bytes);
+        conversion_valid = True;
+        for (size = PreOverMaxLen(tw); size >0; size--) {
+           int char_len = mblen(PreOverStr(tw) + num_bytes,
+                                tw->text.char_size);
+           if (char_len <= 0) {
+             conversion_valid = False;
+             break;
+           }
+           num_bytes += char_len;
+        }
+        if (conversion_valid)
+          memmove(mb, PreOverStr(tw), num_bytes);
+        else
+          num_bytes = 0;
         mb[num_bytes] = 0;
     }
 
