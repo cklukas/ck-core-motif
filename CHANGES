@@ -3165,3 +3165,9 @@ Mrm writer child validation (2026-10-25)
 
 - Propagate invalid-context failures from `UrmCWRSetChild` before reading the
   widget record; see `docs/mrm-writer-child-validation.md`.
+
+Mrm writer children validation (2026-10-25)
+========================================
+
+- Propagate invalid-context failures from `UrmCWRInitChildren` before child
+  descriptor allocation; see `docs/mrm-writer-children-validation.md`.
