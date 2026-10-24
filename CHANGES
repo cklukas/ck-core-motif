@@ -1,3 +1,11 @@
+Depth-1 image-copy size checks (2026-10-24)
+===============================================
+
+- Check depth-1 image-copy byte products in `size_t` and commit the new
+  buffer only after allocation succeeds, preserving cached image ownership
+  under large-image or resource-failure conditions; see
+  `docs/image-scaling-depth1.md`.
+
 UI-thread completion API decision (2026-10-24)
 ==============================================
 

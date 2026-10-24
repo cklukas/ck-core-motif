@@ -1496,12 +1496,33 @@ _XmGetScaledPixmap(
 	      (WhitePixelOfScreen(screen) == 1))
 	    {
 	      /* Flip the bits so fg == 1 in the image. */
-	      register int nbytes = image->height * image->bytes_per_line;
+	      size_t nbytes;
+	      char *new_image_data;
 	      register int byte;
+
+	      if (image->height <= 0 || image->bytes_per_line <= 0 ||
+		  (size_t)image->height >
+		  SIZE_MAX / (size_t)image->bytes_per_line) {
+		if (ret != NOT_CACHED)
+		    _XmProcessUnlock();
+		if (ret == NOT_CACHED)
+		    XDestroyImage(image);
+		return (XmUNSPECIFIED_PIXMAP);
+	      }
+	      nbytes = (size_t)image->height *
+		       (size_t)image->bytes_per_line;
 
 	      /* Image data may be constant, so we must copy it. */
 	      old_image_data = image->data;
-	      image->data = XtMalloc(nbytes);
+	      new_image_data = XtMalloc(nbytes);
+	      if (new_image_data == NULL) {
+		if (ret != NOT_CACHED)
+		    _XmProcessUnlock();
+		if (ret == NOT_CACHED)
+		    XDestroyImage(image);
+		return (XmUNSPECIFIED_PIXMAP);
+	      }
+	      image->data = new_image_data;
 
 	      for (byte = 0; byte < nbytes; byte++)
 		image->data[byte] = ~old_image_data[byte];
