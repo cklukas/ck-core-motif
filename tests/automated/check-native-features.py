@@ -26,6 +26,7 @@ FIXTURES = {
     "xmstring-empty-concat": ("tests/XmString/empty_concat.c", False),
     "xmstring-empty-components": ("tests/XmString/empty_components.c", False),
     "preedit": ("tests/Toolkit/Im/preedit_ranges.c", False),
+    "local-compose": ("tests/Toolkit/Im/local_compose.c", False),
     "primary-modality": ("tests/Toolkit/Message/primary_modality.c", True),
     "accessibility-modality": ("tests/accessibility/modality.c", True),
     "layout": ("tests/Toolkit/Unicode/layout.c", True),
@@ -42,6 +43,7 @@ FIXTURES = {
     "disclosure": ("tests/disclosure/widget.c", True),
     "accessibility": ("tests/accessibility/provider.c", True),
     "accessibility-clipping": ("tests/accessibility/clipping.c", True),
+    "accessibility-coordinates": ("tests/accessibility/coordinates.c", True),
     "accessibility-clipping-events": ("tests/accessibility/clipping_events.c", True),
     "scrollbar-accessibility": ("tests/accessibility/scrollbar.c", True),
     "text-events": ("tests/accessibility/text_events.c", True),
@@ -224,12 +226,16 @@ def main():
         required = [args.cc, "pkg-config", "ldd", "readelf"]
         if any(FIXTURES[name][1] for name in selected):
             required += ["xvfb-run", "Xvfb", "xauth"]
-        if any(name in selected for name in ("disclosure", "accessibility", "scrollbar-accessibility", "text-events", "key-events", "accessibility-clipping-events")):
+        if any(name in selected for name in ("disclosure", "accessibility", "scrollbar-accessibility", "text-events", "key-events", "accessibility-clipping-events", "accessibility-coordinates")):
             required += ["dbus-run-session", "gdbus", "stdbuf"]
+        if "accessibility-coordinates" in selected:
+            required += ["scrot"]
         if "scrollbar-accessibility" in selected:
             required += ["xdotool"]
         if "xim-service" in selected:
             required += ["xdotool", "ibus", "ibus-daemon", "dbus-run-session", "xprop", "dpkg-query"]
+        if "local-compose" in selected:
+            required += ["Xvfb", "openbox", "xdotool", "xdpyinfo", "xprop"]
         for executable in required:
             located = shutil.which(executable)
             if not located:
@@ -290,6 +296,12 @@ def main():
                 remember(observer)
                 run(name, display([sys.executable, observer, binary,
                                    output / (name + "-observer")]))
+            elif name == "local-compose":
+                observer = source / "tests/Toolkit/Im/local_compose.py"
+                remember(observer)
+                remember(source / "tests/Toolkit/Im/local_compose.Compose")
+                run(name, [sys.executable, observer, binary,
+                           output / "local-compose-observer", "--prefix", prefix])
             elif name == "xim-service":
                 observer = source / "tests/Toolkit/Im/service.py"
                 remember(observer)
@@ -307,16 +319,19 @@ def main():
                     mtime_ns=interposer.stat().st_mtime_ns, elf=verify_native_elf(interposer))
                 run("list-faults", display(["dbus-run-session", "--", sys.executable, observer,
                     binary, output / "list-faults-observer.json", interposer]))
-            elif name == "accessibility-clipping-events":
-                observer = source / "tests/accessibility/observe_clipping_events.py"
+            elif name in ("accessibility-clipping-events", "accessibility-coordinates"):
+                stem = "coordinates" if name == "accessibility-coordinates" else "clipping_events"
+                observer = source / ("tests/accessibility/observe_" + stem + ".py")
                 remember(observer)
                 runtime = args.accessibility_runtime or output / "clipping-events-runtime"
+                if name == "accessibility-coordinates":
+                    runtime = Path(str(args.accessibility_runtime) + "-coords") if args.accessibility_runtime else output / "coordinates-runtime"
                 if not runtime.is_absolute() or runtime.exists() or len(os.fsencode(runtime / "at-spi/bus")) >= 100:
                     raise RuntimeError("supply --accessibility-runtime with a fresh short absolute path for the private Unix socket")
                 runtime.mkdir(mode=0o700)
                 run(name, display(["env", "-u", "AT_SPI_BUS_ADDRESS",
                     "XDG_RUNTIME_DIR=" + str(runtime), "dbus-run-session", "--",
-                    sys.executable, observer, binary, output / "clipping-events-observer.json"]))
+                    sys.executable, observer, binary, output / ("coordinates-observer.json" if name == "accessibility-coordinates" else "clipping-events-observer.json")]))
             elif name in ("accessibility", "scrollbar-accessibility", "text-events", "key-events", "list-accessibility"):
                 observer = source / {"accessibility": "tests/accessibility/observe.py",
                                      "scrollbar-accessibility": "tests/accessibility/observe_scrollbar.py",

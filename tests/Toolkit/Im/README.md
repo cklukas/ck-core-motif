@@ -1,5 +1,16 @@
 # Native input-method service qualification
 
+The separate `local_compose.c`, `local_compose.py` and `local_compose.Compose`
+fixture uses actual local XIM lookup without a provider service. The observer
+accepts an already compiled native fixture, a fresh absolute output directory
+and `--prefix /absolute/installed/prefix`; it owns its authenticated Xvfb/Openbox.
+It fingerprints its standalone Compose input and private keymap, sends XTest
+Compose/dead-key sequences under both input-sharing policies, and checks native
+bytes, scalar carets, committed-value callbacks, focus isolation and grapheme
+motion/deletion. It restores the keymap and closes only its owned processes.
+This is a source test contract, not a recorded runtime pass; Escape, external
+providers and physical keyboard behavior are separate scopes.
+
 `service.c` and `service.py` exercise real IBus/m17n XIM composition in native
 Text and TextField widgets. Run only inside an owned private X server and
 `dbus-run-session`, with explicit task TMPDIR and fresh XDG state. The fixture

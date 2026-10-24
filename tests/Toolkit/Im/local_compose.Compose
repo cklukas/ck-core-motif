@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: LGPL-2.0-or-later
+# Deliberately standalone: no ambient Compose includes or candidate service.
+<Multi_key> <apostrophe> <e> : "é" U00E9
+<dead_acute> <e> : "é" U00E9
+<Multi_key> <e> <equal> : "é"

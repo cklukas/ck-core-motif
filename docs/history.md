@@ -1,5 +1,22 @@
 # Fork history
 
+
+## Semantic coordinate origins and local composition
+
+Component WINDOW coordinates now cross semantic ancestors to their actual native
+shell. PARENT remains relative to the immediate accessible parent. Out-of-range
+relative coordinates and targets retired during an origin-provider query are
+rejected. The ABI remains unchanged. A native private-bus regression covers two
+shells, nested semantic children, shell movement, unsupported origins, integer
+bounds and reentrant removal; the prior library fails its semantic WINDOW case.
+
+A separate local Compose/dead-key fixture uses real XIM/XIC and XTest events under
+both input-sharing policies. Native AArch64 qualification passes exact UTF-8,
+scalar carets, callback counts, focus isolation and grapheme motion/deletion with
+76 observations and 80 injected keys. The existing implementation passes without
+an input-path patch. This is a frozen local Compose table, not acceptance of a
+system table corpus, external IM engines or physical keyboard layouts.
+
 The original Motif manuals and release notes describe the inherited toolkit.
 The root `CHANGES` file records earlier fork work, including DPI-aware default
 sizes for unlabeled toggle indicators, correct drag hotspot snap-back, explicit

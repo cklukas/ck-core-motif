@@ -58,7 +58,15 @@ contract; deferred internal storage is not ownership of application payloads.
 `XmAccessibleProvider` supplies query, bounded text range, action, action-name,
 focus, table-cell and value-setting callbacks. Query results contain role/state, names,
 optional screen extents, scalar text length/caret, action count and optional
-table dimensions. Screen extents are screen-pixel coordinates.
+table dimensions. Screen extents are screen-pixel coordinates. Component
+`GetExtents` and `GetPosition` convert these to the requested AT-SPI origin:
+SCREEN uses the root screen, WINDOW uses the containing native shell through
+any number of semantic ancestors, and PARENT uses the immediate accessible
+parent. A semantic node attached only to the application has no window origin.
+Missing origin geometry, a target removed during the origin query, or relative
+coordinates outside the signed 32-bit protocol range return NotSupported;
+the transport does not guess a window or wrap coordinates. `GetSize` is
+independent of the requested origin.
 
 Owned strings returned in `XmAccessibleInfo` use `XtMalloc`/`XtNewString`; the
 query caller releases them with `XmAccessibleInfoClear`. Text callbacks return

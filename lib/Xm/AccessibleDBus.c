@@ -977,19 +977,28 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       if (coordinates) {
         XmAccessibleNode *origin = node;
         if (coordinates == 1) {
-          while (origin && origin->widget && !XtIsShell(origin->widget))
+          while (origin && (!origin->widget || !XtIsShell(origin->widget)))
             origin = _XmAccessibilityNode(a, origin->parent);
         } else
           origin = _XmAccessibilityNode(a, node->parent);
         if (!origin || !XmAccessibilityQuery(a, origin->id, &parent_info))
           goto unsupported;
-        if (!parent_info.has_extents) {
+        /* A provider read may remove the target while leaving its parent
+         * alive. Dispatch pins storage, but a retired target has no geometry. */
+        if (!parent_info.has_extents || _XmAccessibilityNode(a, id) != node) {
           XmAccessibleInfoClear(&parent_info);
           goto unsupported;
         }
-        x -= parent_info.screen_x;
-        y -= parent_info.screen_y;
-        XmAccessibleInfoClear(&parent_info);
+        {
+          int64_t relative_x = (int64_t)x - parent_info.screen_x;
+          int64_t relative_y = (int64_t)y - parent_info.screen_y;
+          XmAccessibleInfoClear(&parent_info);
+          if (relative_x < INT32_MIN || relative_x > INT32_MAX ||
+              relative_y < INT32_MIN || relative_y > INT32_MAX)
+            goto unsupported;
+          x = (dbus_int32_t)relative_x;
+          y = (dbus_int32_t)relative_y;
+        }
       }
     }
     if (!strcmp(method, "GetExtents")) {

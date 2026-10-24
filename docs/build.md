@@ -101,16 +101,32 @@ prefix: this instruments the fixtures too and enables strict leak/error checks.
 
 The full suite needs `pkg-config` with Xft, Fontconfig, HarfBuzz and ICU development
 modules, a C11 compiler, `readelf`, `ldd`, Xvfb, `xvfb-run`, `xauth`,
-`dbus-run-session`, `gdbus`, `stdbuf`, Python 3 with its D-Bus and GLib bindings
+`dbus-run-session`, `gdbus`, `stdbuf`, `scrot`, Python 3 with its D-Bus and GLib bindings
 (`python3-dbus` and `python3-gi` on Debian), and real AT-SPI bus/registry
 services. The text fixtures require DejaVu Sans and a CJK-capable fallback font.
 Unavailable services or missing font coverage fail their tests; an in-memory
 semantic substitute does not count as an AT-SPI pass.
 
-The default suite contains 30 fixtures (31 registered, including opt-in XIM),
+The default suite contains 32 fixtures (33 registered, including opt-in XIM),
 including `font-resize`, `accessibility-modality`,
 `accessibility-clipping`/`accessibility-clipping-events` and the
 `xmstring-empty-concat`/`xmstring-empty-components` public string regressions.
+`--only local-compose` runs the local-input regression with its own authenticated
+Xvfb/Openbox rather than an ambient display. It requires Xvfb, Openbox, xdotool,
+xdpyinfo, xprop and native libXtst. Its frozen standalone Compose table and the
+private server's original, mapped and restored keymaps are fingerprinted.
+The observer requires actual local XIM/XIC registration, then sends XTest keys
+through Text/TextField under both input-sharing policies. Exact UTF-8 bytes,
+scalar carets, committed-value callback counts, unfocused-widget isolation and
+grapheme motion/deletion are checked for Compose, dead acute and a two-scalar
+combining commit. This source contract is separate from runtime qualification;
+it does not imply external-provider, physical-keyboard or Escape behavior.
+`--only accessibility-coordinates` checks Component screen/window/parent
+coordinates on a private AT-SPI bus across two native shells, nested semantic
+providers, a moved shell, unavailable origins, integer boundaries and a target
+retired by a parent query. It saves the provider PID/executable/maps and a root
+PNG after the geometry checks. Its private runtime uses the `-coords` sibling
+of `--accessibility-runtime`, keeping it separate from the clipping-event bus.
 The string fixtures cover valid empty payloads, construction/copy/traversal,
 metadata comparisons and separator tables without changing nonempty behavior.
 `--only accessibility-modality` selects the native/semantic action, focus, value

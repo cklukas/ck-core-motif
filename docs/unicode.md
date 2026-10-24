@@ -97,6 +97,32 @@ cohort verification remains separate from these focused candidate results.
 
 ## Native widgets and composition
 
+### Local Compose and dead-key regression
+
+`tests/Toolkit/Im/local_compose.c` and its Python observer specify a local XIM
+regression independently of external input-method services. The observer owns a
+fresh authenticated X server and window manager, explicitly selects `@im=none`,
+and supplies the standalone `local_compose.Compose` input. Native XIM and both
+widget XIC registrations must exist; the raw `XLookupString` fallback is not
+accepted as proof of composition. The private display must advertise no external
+XIM server.
+
+Both shell-sharing and per-widget policies use real XTest key events. Compose
+acute and dead acute commit U+00E9; a separate Compose rule commits U+0065 U+0301
+as one native value change. Pending prefixes must leave committed bytes and
+callback counts intact. Public widget snapshots check exact UTF-8, scalar caret
+positions and focus isolation, followed by native whole-grapheme Left/Right and
+BackSpace. Explicit public table/font resources and native display owners are
+released during teardown. Original, test and restored private keymaps, exact
+Compose bytes, source/binary and loaded library identities remain in the receipt.
+
+Native AArch64 qualification passes both policies with 76 observations and
+80 injected keys, preserving the original private keymap. This finite fixture does
+not test a system Compose corpus, external IBus/m17n engines, candidate panels,
+physical keyboard layouts, clipboard transport or an assumed Escape contract.
+
+### Native captures and preedit
+
 Text/TextField cache and invalidate captures when source text or relevant
 resources change. Wrapped lines share immutable paragraph analysis. Paint,
 measurement, hit testing, selections and visual movement use the same capture;
