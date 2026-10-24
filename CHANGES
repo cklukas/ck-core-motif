@@ -7,6 +7,52 @@ accepted fixes to both rpi4 and GitHub independently of consuming applications'
 gates, development phases or dependency pins. See AGENTS.md for the full policy.
 This policy entry does not assert acceptance of unfinished source changes.
 
+Committed native correctness updates through 7376266 (2026-10-24)
+====================================================================
+
+- 7376266: Retain immutable incremental Unicode source indexes, sharing
+  unaffected paragraphs and publishing accepted edits atomically. Correct
+  TextField callback scratch ownership, wide-character whole-value verification,
+  approved replacement/deletion and rejected/reentrant proposal handling.
+  Native widget regressions and allocation-failure tests cover these paths.
+  Native record changes require a coordinated rebuild for ABI epoch 8.
+- c9f2678: Resolve semantic WINDOW coordinates through the native shell while
+  retaining immediate-parent PARENT coordinates; reject invalid bounds and
+  targets retired during origin queries. Native regressions cover independent
+  shells and reentrant removal. Separately qualify existing local Compose input.
+- 8d4ea25, 225139a: Correct render-table ownership and resources belonging to
+  independent displays; release label shadow GCs during appearance replacement.
+- 250a30d, d382adb, dbca66e: Respect ancestor clipping and label ownership in
+  accessibility; preserve empty compound strings without invalid byte operations;
+  supply complete native callback data for semantic button activation.
+- b364c0e, 6804e18: Apply native modal input scope to accessibility mutations and
+  correct primary-window modality while preserving nested grab scopes.
+- 9a3b1da, 5a0ab20: Bound explicit private IBus engine admission and repair XIM
+  transport lifetime and composition ordering. Native service/input fixtures
+  document their exact accepted scenarios and remaining coverage limits.
+- 20955b2, 5f18b5b: Expose stable native List selection with reentrant lifetime
+  guards; qualify allocation-failure behavior separately from instrumentation.
+- c1f5c4b, 278ee12, 6be3d36, 8f58bad: Forward native keyboard events to
+  synchronous accessibility listeners; report exact text edits, menu semantics,
+  initial state and selections; index live trees and implement AT-SPI cache and
+  text boundaries with native regression coverage.
+- b726c1d, a5130d9: Correct the Xt INCR lifetime dependency and exercise native
+  Unicode clipboard and interrupted incremental transfers. These corrections
+  do not assert acceptance of every outstanding Xt selection/lifetime issue.
+- aa00878, 6b0a873: Release replaced WML literals, bound string-generator comment
+  parsing and release generator metadata.
+- 2bdd848, 74cf650, 46c7957, 1c1638e: Advance the native epoch for font contexts
+  and numeric providers, use documented Xft column metrics, bound per-widget
+  font/shaping caches and expose native scrollbar values to accessibility.
+- 96485e8, b4c2a27, 35d0829, b9cd24a: Correct fixture counts and document runtime,
+  sanitizer, installed-ABI and native validation prerequisites and limits.
+
+See docs/history.md, docs/unicode.md and docs/status.md for contracts and detailed
+qualification boundaries. Passing focused regressions is not a claim that all
+native input, editor or sanitizer scenarios are accepted; inherited Xt context
+leaks remain explicitly unaccepted. Uncommitted hard-line/reflow work is excluded
+from this entry.
+
 Changes since commit 0f556b0873c72ba1152a12fd54c3198ee039e413
 ====================================================================
 
