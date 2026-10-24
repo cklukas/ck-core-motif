@@ -32,6 +32,8 @@ static char rcsid[] = "$TOG: CascadeBG.c /main/28 1999/02/01 18:47:11 mgreess $"
 
 
 #include <string.h>
+#include <limits.h>
+#include <stdint.h>
 #include "XmI.h"
 #include <X11/ShellP.h>
 #include <X11/keysymdef.h>
@@ -520,6 +522,11 @@ ClassInitialize( void )
   wc_num_res = xmCascadeButtonGCacheObjClassRec.object_class.num_resources;
 
   sc_num_res = xmLabelGCacheObjClassRec.object_class.num_resources;
+
+  if ((size_t)wc_num_res > SIZE_MAX - (size_t)sc_num_res ||
+      (size_t)wc_num_res + (size_t)sc_num_res >
+	  SIZE_MAX / sizeof(XtResource))
+    return;
 
   merged_list = (XtResource *)XtMalloc((sizeof(XtResource) * (wc_num_res +
                                                                  sc_num_res)));

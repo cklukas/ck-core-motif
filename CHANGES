@@ -1,3 +1,10 @@
+CascadeButton resource-table bounds (2026-10-25)
+================================================
+
+- Bound merged superclass and subclass resource counts before allocation,
+  preserving normal class initialization while preventing count and byte-size
+  wraparound; see `docs/cascade-resource-bounds.md`.
+
 Legacy rectangle allocation bounds (2026-10-25)
 ===============================================
 
