@@ -138,3 +138,4 @@ EXTRA_DIST += tests/automated/check-mwm-bindings-path.py docs/mwm-bindings-path.
 EXTRA_DIST += docs/accessibility-journey-matrix.md
 EXTRA_DIST += docs/cpp-support-library-proposal.md
 EXTRA_DIST += tests/automated/check-mwm-menu-label-termination.py docs/mwm-menu-label-termination.md
+EXTRA_DIST += tests/automated/check-mwm-session-command-growth.py docs/mwm-session-command-growth.md

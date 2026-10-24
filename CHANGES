@@ -1,3 +1,10 @@
+Mwm session-command growth (2026-10-24)
+========================================
+
+- Grow the WSM restored-command pointer array before inserting the next token,
+  fixing the exact-100-argument overwrite and handling allocation failures; see
+  `docs/mwm-session-command-growth.md`.
+
 Mwm menu-label termination (2026-10-24)
 ========================================
 

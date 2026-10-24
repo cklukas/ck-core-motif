@@ -1496,22 +1496,35 @@ void ParseSessionCommand (WmScreenData *pSD,  int count,
     unsigned char *string;
     
     argv = (unsigned char **) XtMalloc (ARG_AMT * sizeof(char *));
+    if (argv == NULL)
+    {
+        Warning (((char *)GETMESSAGE(60, 3,
+            "Insufficient memory for commandArgv array")));
+        return;
+    }
     iSizeArgv = ARG_AMT;
     
     while ((string = GetSmartSMString (commandString)) != NULL)
     {
-        /*
-         * Get pointers to strings in command line and count them
-         */
-        argv[argc] = string;
-        argc ++;
+        /* Grow before writing the next pointer. */
+        if (argc == iSizeArgv)
+        {
+            unsigned char **newArgv;
 
-	if (argc >= iSizeArgv)
-	{
-	    iSizeArgv += ARG_AMT;
-	    argv = (unsigned char **) 
-		   XtRealloc ((char *)argv, (iSizeArgv * sizeof(char *)));
-	}
+            iSizeArgv += ARG_AMT;
+            newArgv = (unsigned char **)XtRealloc(
+                (char *)argv, iSizeArgv * sizeof(char *));
+            if (newArgv == NULL)
+            {
+                Warning (((char *)GETMESSAGE(60, 3,
+                    "Insufficient memory for commandArgv array")));
+                XtFree((char *)argv);
+                return;
+            }
+            argv = newArgv;
+        }
+
+        argv[argc++] = string;
     }
     if ((pSD->pDtSessionItems[count].commandArgv =
          (char **)XtMalloc ((argc) * sizeof(char * ))) == NULL)
