@@ -330,7 +330,7 @@ Urm__CW_AppendSVWidgetRef (IDBFile		file_id,
       uncmp_res = Urm__UncompressCode (file_id, argtag, &svdesc->tagname);
       if ( uncmp_res != MrmSUCCESS )
 	{
-	  sprintf (errmsg, _MrmMMsg_0108, argtag);
+	  (void) snprintf (errmsg, sizeof(errmsg), _MrmMMsg_0108, argtag);
 	  XtFree ((char *)svdesc);
 	  Urm__UT_Error ("Urm__CW_AppendSVWidgetRef", errmsg, 
 			 NULL, NULL, MrmNOT_FOUND);
@@ -425,7 +425,7 @@ Urm__CW_AppendCBSVWidgetRef (IDBFile			file_id,
       uncmp_res = Urm__UncompressCode (file_id, argtag, &svdesc->tagname);
       if ( uncmp_res != MrmSUCCESS )
 	{
-	  sprintf (errmsg, _MrmMMsg_0108, argtag);
+	  (void) snprintf (errmsg, sizeof(errmsg), _MrmMMsg_0108, argtag);
 	  XtFree ((char *)svdesc);
 	  Urm__UT_Error ("Urm__CW_AppendCBSVWidgetRef", errmsg, 
 			 NULL, NULL, MrmNOT_FOUND);

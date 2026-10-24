@@ -1,3 +1,10 @@
+Mrm widget-reference diagnostic bounds (2026-10-25)
+==================================================
+
+- Bound unknown compressed-tag diagnostics in widget and callback reference
+  construction while preserving existing error handling; see
+  `docs/mrm-wref-error-bounds.md`.
+
 Mrm byte-swap diagnostic bounds (2026-10-25)
 ===============================================
 
