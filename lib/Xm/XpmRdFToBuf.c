@@ -43,6 +43,7 @@
 #include <config.h>
 #endif
 #include "XpmI.h"
+#include <stdint.h>
 #include <sys/stat.h>
 #if !defined(FOR_MSW) && !defined(WIN32)
 #include <unistd.h>
@@ -63,7 +64,8 @@ XpmReadFileToBuffer(
     const char	 *filename,
     char	**buffer_return)
 {
-    int fd, fcheck;
+    int fd;
+    size_t fcheck;
     off_t len;
     char *ptr;
     struct stat stats;
@@ -89,8 +91,8 @@ XpmReadFileToBuffer(
 	return XpmOpenFailed;
     }
     len = stats.st_size;
-    if (len < 0 || len >= SIZE_MAX) {
-	close(fd);
+    if (len < 0 || (uintmax_t)len >= (uintmax_t)SIZE_MAX) {
+	fclose(fp);
 	return XpmOpenFailed;
     }
     ptr = (char *) XpmMalloc(len + 1);

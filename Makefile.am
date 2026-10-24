@@ -241,3 +241,11 @@ EXTRA_DIST += tests/automated/check-mrm-setvalues-input.py docs/mrm-setvalues-in
 EXTRA_DIST += tests/automated/check-mrm-filename-suffix.py docs/mrm-filename-suffix.md
 EXTRA_DIST += tests/automated/check-mrm-error-format-bounds.py docs/mrm-error-format-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-icon-error-bounds.py docs/mrm-icon-error-bounds.md
+
+EXTRA_DIST += \
+    docs/maintenance-review.md \
+    docs/storage-and-images.md \
+    tests/automated/check-transfer-storage.c \
+    tests/automated/check-xpm-input.c \
+    tests/automated/check-xt-callback-lifetime.c \
+    tests/automated/run-storage-regressions.py

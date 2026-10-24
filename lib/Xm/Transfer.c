@@ -494,9 +494,9 @@ LoseProc(Widget w, Atom *selection)
 
 /*ARGSUSED*/
 static void 
-DisownCallback(Widget w, 
-	       XtPointer ignore, /* unused */
-	       XtPointer client_data)
+DisownCallback(Widget w,
+	       XtPointer client_data,
+	       XtPointer ignore) /* unused call data */
 {
   Time time = XtLastTimestampProcessed(XtDisplay(w));
 
@@ -522,20 +522,36 @@ XmeConvertMerge(XtPointer data, Atom type, int format,
   /* Merge the results.  Format and type better agree */
   if (format == cs -> format && type == cs -> type)
     {
-      int total_size, offset, user_bytes;
+
+      unsigned long unit, limit, offset, user_bytes;
+      char *merged;
 	      
-      /* Calculate all sizes in bytes */
-      offset = BYTELENGTH(cs -> length, cs -> format);
-      user_bytes = BYTELENGTH(size, format);
-      total_size = offset + user_bytes;
-      /* Reallocate user data */
-      cs-> value = (XtPointer) XtRealloc((char*) cs -> value, total_size);
-      if (cs -> value == NULL) {
-    	_XmProcessUnlock();
-	return;
+      /* Xt allocations take a Cardinal, whereas selection counts are
+       * unsigned longs. Reject unrepresentable results without changing
+       * the existing conversion. Keep the original allocation alive until
+       * both copies finish, since data may refer to that allocation. */
+      unit = BYTELENGTH(1, format);
+      limit = (Cardinal)-1;
+      if ((format != 8 && format != 16 && format != 32) ||
+          cs->length > limit / unit || size > limit / unit - cs->length ||
+          (cs->length != 0 && cs->value == NULL) ||
+          (size != 0 && data == NULL)) {
+        TransferWarning(NULL, MERGE, ARG, BAD_MATCHED_CONVERT);
+        _XmProcessUnlock();
+        return;
       }
-      /* Copy widget data to cs.value from data */
-      memcpy(&((char*) cs -> value)[offset], (char*) data, user_bytes);
+      if (size == 0) {
+        _XmProcessUnlock();
+        return;
+      }
+      offset = cs->length * unit;
+      user_bytes = size * unit;
+      merged = XtMalloc((Cardinal)(offset + user_bytes));
+      if (offset != 0)
+        memcpy(merged, cs->value, (size_t)offset);
+      memcpy(merged + offset, data, (size_t)user_bytes);
+      XtFree(cs->value);
+      cs->value = merged;
       /* Add in the new size */
       cs -> length += size;
     }
@@ -606,8 +622,10 @@ XmeNamedSource(Widget w, Atom sel, Time time)
   status = XtOwnSelection(w, sel, time, _XmConvertHandler, 
 			  LoseProc, NULL);
 
-  if (status) XtAddCallback(w, XmNdestroyCallback, DisownCallback,
-			    (XtPointer) sel);
+  if (status) {
+    XtRemoveCallback(w, XmNdestroyCallback, DisownCallback, (XtPointer) sel);
+    XtAddCallback(w, XmNdestroyCallback, DisownCallback, (XtPointer) sel);
+  }
 
   _XmAppUnlock(app);
   return(status);
@@ -773,6 +791,8 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 
     if (status)
     {
+      XtRemoveCallback(w, XmNdestroyCallback, DisownCallback,
+                              (XtPointer) atoms[XmACLIPBOARD]);
       XtAddCallback(w, XmNdestroyCallback, DisownCallback,
 			      (XtPointer) atoms[XmACLIPBOARD]);
     } else {
@@ -1336,8 +1356,12 @@ XmeSecondarySink(Widget w, Time time)
   status = XtOwnSelection(w, MOTIF_DESTINATION, time,
 			  _XmConvertHandler, LoseProc, NULL);
 
-  if (status) XtAddCallback(w, XmNdestroyCallback, DisownCallback,
-			    (XtPointer) MOTIF_DESTINATION);
+  if (status) {
+    XtRemoveCallback(w, XmNdestroyCallback, DisownCallback,
+                    (XtPointer) MOTIF_DESTINATION);
+    XtAddCallback(w, XmNdestroyCallback, DisownCallback,
+                  (XtPointer) MOTIF_DESTINATION);
+  }
 
   _XmAppUnlock(app);
   return(status);

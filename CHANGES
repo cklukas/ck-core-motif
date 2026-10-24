@@ -1,3 +1,8 @@
+Clipboard, XPM and lifetime storage hardening (2026-10-25)
+- Checked X property assembly, conversion merges, unified-transfer callbacks,
+  XPM bounded parsing, numeric overflow and file I/O error handling.
+- Added native transfer/image/lifetime regression fixtures and documented the
+  contracts and Linux runner.
 Mrm icon diagnostic bounds (2026-10-25)
 =======================================
 

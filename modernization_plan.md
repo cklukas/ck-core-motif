@@ -790,3 +790,22 @@ per-monitor scaling on an X server without a tested scale contract.  XLibre's
 versioned RandR `DPI` property is the explicit exception covered by WP-04A.
 Those other cases would be separate products or rewrites, not compatible
 modernization work.
+
+### WP-14A: Transfer, image and storage lifetime maintenance
+
+Depends on WP-00. Keep the public Motif resource and callback APIs unchanged.
+
+1. Audit native X property assembly and conversion-buffer ownership at format
+   8/16/32 boundaries and allocation limits.
+2. Bound XPM memory/file token parsing, decimal fields, and image file I/O;
+   preserve valid historical syntax and pixel formats.
+3. Make repeated selection ownership and callback teardown idempotent.
+4. Run the isolated Linux regression runner against one installed prefix and
+   record source/library fingerprints with each result.
+
+Status (2026-10-25): transfer clipboard, merge/bounds, ownership lifetime,
+XPM, and Xt callback fixtures pass on uconsole; clipboard/merge/bounds/lifetime
+use strict non-sanitized runs because the external Xt selection manager retains
+display-owned records until process teardown, while XPM and Xt callback runs
+also pass ASan/UBSan consumer checks. The separate scroll-frame reentrant
+destruction case remains assigned to the widget-lifetime follow-up.
