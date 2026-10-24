@@ -474,6 +474,16 @@ highest-risk remaining boundaries into explicit tested contracts.
 new native failures have regressions or explicit limits, and the status page
 does not overstate external-IME or sanitizer acceptance.
 
+**Status (2026-10-24):** phase 1 is implemented and documented for the
+qualified AArch64 Linux cohort. The installed native fixtures cover scalar and
+grapheme movement, the maintained mixed-script/fallback corpus, local Compose,
+real IBus XIM commit/cancellation and focused provider restart/loss behavior,
+plus UTF-8 clipboard round trips. `docs/native-text-ime-matrix.md` records
+the exact evidence boundary and keeps x86_64, broader provider/engine
+interoperability, candidate panels and sanitizer exit ownership as explicit
+open gates. The matrix does not treat unavailable services or interposed
+callbacks as provider passes.
+
 ### WP-07: Screen-reader usability and semantic completion
 
 **Depends on:** WP-06 for text-specific claims; basic provider work may start
