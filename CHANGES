@@ -1,3 +1,10 @@
+Mrm resource-descriptor bounds (2026-10-25)
+============================================
+
+- Bound indexed resource-string descriptor sizing against size_t and the
+  16-bit MrmSize field, preserving valid records while rejecting wrapped
+  descriptors; see `docs/mrm-resource-bounds.md`.
+
 Mrm literal-index string bounds (2026-10-25)
 =============================================
 

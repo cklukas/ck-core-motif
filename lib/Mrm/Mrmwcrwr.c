@@ -55,6 +55,8 @@ static char rcsid[] = "$XConsortium: Mrmwcrwr.c /main/14 1996/11/13 14:06:42 drk
 
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
+#include <limits.h>
+#include <stdint.h>
 #include "MrmosI.h"
 #include "MrmMsgI.h"
 
@@ -2197,10 +2199,15 @@ UrmCWR__AppendResource (URMResourceContextPtr	context_id,
   switch ( key_type )
     {
     case URMrIndex:
-      if ( strlen(index) <= 0 )
+	{
+	  size_t index_len = strlen(index);
+	  if (index_len == 0)
 	return Urm__UT_Error ("UrmCWR__AppendResource", _MrmMMsg_0102,
 			      NULL, context_id, MrmNULL_INDEX) ;
-      descsiz = sizeof(RGMResourceDesc) + strlen(index) ;
+	  if (index_len > SIZE_MAX - sizeof(RGMResourceDesc) ||
+	      sizeof(RGMResourceDesc) + index_len > USHRT_MAX)
+	    return MrmFAILURE;
+	  descsiz = sizeof(RGMResourceDesc) + index_len ;
       result = UrmCWR__GuaranteeSpace
 	(context_id, descsiz, offset, (char **)&resdesc) ;
       if ( result != MrmSUCCESS ) return result ;
@@ -2213,6 +2220,7 @@ UrmCWR__AppendResource (URMResourceContextPtr	context_id,
       resdesc->annex1 = 0 ;
       strcpy (resdesc->key.index, index) ;
       return MrmSUCCESS ;
+	}
 
     case URMrRID:
       descsiz = sizeof(RGMResourceDesc) ;
