@@ -153,3 +153,4 @@ EXTRA_DIST += tests/automated/check-ui-completion-prototype.c tests/automated/ru
 EXTRA_DIST += tests/automated/check-image-scaling-allocations.py docs/image-scaling-allocations.md
 EXTRA_DIST += docs/ui-thread-completion-api-decision.md
 EXTRA_DIST += tests/automated/check-image-scaling-depth1.py docs/image-scaling-depth1.md
+EXTRA_DIST += docs/cpp-support-library-release-decision.md

@@ -570,6 +570,13 @@ optional SDK component.
 passes installed-prefix tests, and the library never requires ownership of an
 arbitrary raw `Widget` to be useful.
 
+**Status (2026-10-24):** no-go.  WP-08 has a reviewed consumer-only design,
+but its callback exception-barrier, destruction-order and mixed ownership
+fixture has not yet passed against a fresh installed prefix.  No partial C++
+SDK is installed or required by `libXm`; see
+`docs/cpp-support-library-release-decision.md` for the release gate and reopen
+criteria.
+
 ### WP-10: Form and hierarchy diagnostic corpus
 
 **Depends on:** WP-00.

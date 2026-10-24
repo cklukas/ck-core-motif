@@ -1,3 +1,10 @@
+C++ support-library release decision (2026-10-24)
+=================================================
+
+- Close WP-09 with a no-go decision: retain the WP-08 consumer-only proposal
+  until installed lifecycle and exception-barrier fixtures justify an optional
+  SDK; see `docs/cpp-support-library-release-decision.md`.
+
 Depth-1 image-copy size checks (2026-10-24)
 ===============================================
 
