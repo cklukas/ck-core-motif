@@ -807,6 +807,9 @@ Idb__BM_DecommitAll (IDBFile		file_id)
   Cardinal		ndx ;		/* loop variable		*/
   IDBRecordBufferPtr	curbuf ;	/* ptr to element in buff pool	*/
 
+  if (file_id == NULL)
+    return MrmFAILURE;
+
   if ( idb__buffer_pool_vec == NULL )
     return MrmSUCCESS;
 

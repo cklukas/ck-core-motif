@@ -1,3 +1,9 @@
+Mrm decommit-all input check (2026-10-25)
+=========================================
+
+- Reject missing file handles before scanning the shared buffer pool; see
+  `docs/mrm-decommit-all-input.md`.
+
 Mrm decommit state cleanup (2026-10-25)
 =======================================
 
