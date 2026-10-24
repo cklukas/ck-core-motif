@@ -2884,10 +2884,18 @@ ReadToken(char *string, int *position, Token reusetoken)
 	int intresult;
 	char *newpos;
 	result=strtod(&(string[pos]), &newpos);
-	intresult= (int) result;
+	if (newpos == &string[pos]) {
+	  new_token -> type = T_STR;
+	  new_token -> string = (char *)XtMalloc(2);
+	  new_token -> string[0] = string[pos++];
+	  new_token -> string[1] = '\0';
+	  break;
+	}
 	pos = newpos - string;
-	if (((double) intresult) == result) /* Integer result */
+	if (result >= (double)INT_MIN && result <= (double)INT_MAX &&
+	    floor(result) == result) /* Integer result */
 	  {
+	    intresult = (int) result;
 	    new_token -> type = T_INT;
 	    new_token -> integer = intresult;
 	  }
