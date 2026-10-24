@@ -481,3 +481,11 @@ Development 2.4.0 / ClipWindow translation storage
 - Grow generated ClipWindow translation tables on demand with checked size
   arithmetic instead of concatenating into a fixed 1000-byte buffer.
 - Add an installed-library ScrolledWindow regression and maintenance notes.
+
+Development 2.4.0 / picture repeat-count parsing
+=================================================
+
+- Check picture repeat counts before narrowing them to `int`, treating
+  negative and overflowing values as ordinary input instead of using invalid
+  counts in graph-copy operations.
+- Extend the picture regression and document the parser boundary.

@@ -22,6 +22,8 @@
 */
 
 #include <Xm/PictureP.h>
+#include <errno.h>
+#include <limits.h>
 #include <stdint.h>
 
 static XmPictureNode* _XiGetNewNode(XmPictureRec*);
@@ -364,9 +366,18 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	case CLOSURE: /* CR03602 picture should formatted to *nx;
 			n is no. of time repeat; x is the specified
 			character going to be display */
-	    count = strtol(*in_string, &endcount, 0);
-	    if(count)
-		*in_string = endcount;		
+	    errno = 0;
+	    {
+		long parsed = strtol(*in_string, &endcount, 0);
+		if (errno == ERANGE || parsed < 0 || parsed > INT_MAX) {
+		    /* Leave malformed or unrepresentable counts as ordinary input. */
+		    count = 0;
+		} else {
+		    count = (int) parsed;
+		    if (count)
+			*in_string = endcount;
+		}
+	    }
 	    _XmPictureParseNode(picture, in_string,
 				&start_node_2, &current_node_2,
 				True);

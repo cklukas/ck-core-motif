@@ -6,6 +6,7 @@
 int main(void)
 {
     XmPicture picture = XmParsePicture("*@");
+    XmPicture malformed = XmParsePicture("*999999999999999999999x");
     XmPictureState state;
     Boolean finished = False;
     char input[2049];
@@ -15,6 +16,11 @@ int main(void)
         fputs("picture parse failed\n", stderr);
         return 1;
     }
+    if (!malformed) {
+        fputs("overflowing repeat count rejected the picture\n", stderr);
+        return 1;
+    }
+    XmPictureDelete(malformed);
     memset(input, 'x', sizeof(input) - 1);
     input[sizeof(input) - 1] = '\0';
     state = XmGetNewPictureState(picture);
