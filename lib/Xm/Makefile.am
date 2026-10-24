@@ -8,7 +8,7 @@ EXTRA_DIST = xmstring.list Xm.msg \
 INCLUDES = -I.. -I$(srcdir)/.. -DXMBINDDIR_FALLBACK=\"@XMBINDDIR_FALLBACK@\" \
            -DINCDIR=\"@INCDIR@\" \
            -DLIBDIR=\"@LIBDIR@\" \
-           ${X_CFLAGS} $(ATSPI_CFLAGS) $(UNICODE_TEXT_CFLAGS)
+           ${X_CFLAGS} $(ATSPI_CFLAGS) $(UNICODE_TEXT_CFLAGS) $(SVG_CFLAGS)
 xmdir = $(includedir)/Xm
 
 libXm_la_LDFLAGS = -version-info @CURRENT@:@REVISION@:@AGE@
@@ -73,13 +73,21 @@ XLIBRE_DPI_SRCS =
 XLIBRE_DPI_HDRS =
 endif
 
+if OM_LIBRSVG
+SVG_SRCS = Svg.c
+SVG_HDRS = SvgI.h
+else
+SVG_SRCS =
+SVG_HDRS =
+endif
+
 if PRINTING
 PRINTS_SRC = PrintS.c
 else
 PRINTS_SRC =
 endif
 
-libXm_la_LIBADD = ${X_LIBS} ${X_XMU} -lXt -lXext ${LIB_XP} -lX11 ${X_EXTRA_LIBS} $(ATSPI_LIBS) $(UNICODE_TEXT_LIBS) $(XLIBRE_DPI_LIBS)
+libXm_la_LIBADD = ${X_LIBS} ${X_XMU} -lXt -lXext ${LIB_XP} -lX11 ${X_EXTRA_LIBS} $(ATSPI_LIBS) $(UNICODE_TEXT_LIBS) $(XLIBRE_DPI_LIBS) $(SVG_LIBS)
 
 noinst_HEADERS = AccessibleI.h BaseClassI.h \
 BitmapsI.h \
@@ -177,7 +185,8 @@ EditresComI.h \
 $(JPEG_HDRS) \
 $(PNG_HDRS) \
 $(TIP_HDRS) \
-$(XLIBRE_DPI_HDRS)
+$(XLIBRE_DPI_HDRS) \
+$(SVG_HDRS)
 
 xm_HEADERS = Accessible.h TextUnicode.h TextLayout.h Appearance.h ArrowB.h      ArrowBG.h       ArrowBGP.h      ArrowBP.h \
         BulletinB.h     BulletinBP.h    CacheP.h        CascadeB.h \
@@ -295,7 +304,7 @@ TEXT_LAYOUT_SRCS =
 endif
 
 libXm_la_SOURCES = Accessible.c XtInput.c TextUnicode.c $(TEXT_LAYOUT_SRCS) $(ATSPI_SRCS) $(SRCS1) $(SRCS2) $(OBSO_SRCS) $(XPM_SRCS) $(NEW_WID_SRCS) $(SLIDE_SRCS) \
-        $(TIP_SRCS) $(EDITRES_SRCS) $(EXTRA_SRCS) $(JPEG_SRCS) $(PNG_SRCS) $(XLIBRE_DPI_SRCS)
+        $(TIP_SRCS) $(EDITRES_SRCS) $(EXTRA_SRCS) $(JPEG_SRCS) $(PNG_SRCS) $(XLIBRE_DPI_SRCS) $(SVG_SRCS)
 
 EXTRA_libXm_la_SOURCES = $(SLIDE_SRCS) $(TIP_SRCS)
 

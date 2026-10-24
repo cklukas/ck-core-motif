@@ -1,3 +1,11 @@
+Optional SVG image loading (2026-10-24)
+=======================================
+
+- Add opt-in librsvg-backed SVG rasterization through the existing pixmap
+  resource and cache paths, with bounded in-memory parsing, intrinsic-size and
+  visual validation, scale-aware cache reuse and explicit disabled-build
+  behavior; see `docs/svg-images.md`.
+
 Mwm include-stack allocation warnings (2026-10-24)
 ===================================================
 

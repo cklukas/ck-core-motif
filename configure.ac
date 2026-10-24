@@ -334,6 +334,25 @@ fi
 AC_SUBST([XLIBRE_DPI_LIBS])
 AM_CONDITIONAL([OM_XLIBRE_DPI], [test "x$enable_xlibre_dpi" = "xyes"])
 
+AC_ARG_ENABLE([svg],
+  [AS_HELP_STRING([--enable-svg],
+    [enable optional SVG image loading through librsvg (default=no)])],
+  [], [enable_svg=no])
+if test "x$enable_svg" = "xyes"; then
+  if test -z "$PKG_CONFIG" || ! $PKG_CONFIG --exists 'librsvg-2.0 >= 2.52'; then
+    AC_MSG_ERROR([--enable-svg requires librsvg-2.0 >= 2.52 and pkg-config])
+  fi
+  SVG_CFLAGS=`$PKG_CONFIG --cflags librsvg-2.0`
+  SVG_LIBS=`$PKG_CONFIG --libs librsvg-2.0`
+  AC_DEFINE([SVG_SUPPORTED], [1], [Build optional librsvg SVG image loading])
+else
+  SVG_CFLAGS=
+  SVG_LIBS=
+fi
+AC_SUBST([SVG_CFLAGS])
+AC_SUBST([SVG_LIBS])
+AM_CONDITIONAL([OM_LIBRSVG], [test "x$enable_svg" = "xyes"])
+
 
 
 # AM_CONDITIONAL(Motif22Compatibility, test x$enable_motif22_compatibility = xyes)

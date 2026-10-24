@@ -440,6 +440,16 @@ path without requiring applications to use a new widget API.
 fixtures, an SVG is usable through existing pixmap resource paths, and a
 non-SVG build remains valid and clearly reports that SVG is unavailable.
 
+**Status (2026-10-24):** implemented and qualified on AArch64 `uconsole`.
+The opt-in `--enable-svg` build requires librsvg 2.52 or newer, reads SVG
+documents through a bounded in-memory adapter, rejects unsafe dimensions and
+unsupported visuals, and preserves the existing pixmap-cache ownership and
+scale keys. The installed fixture passed intrinsic-size loading, scale-change
+cache separation, cache reuse/reference retirement, malformed input and an
+ordinary Xvfb window. A separately configured build without SVG linked without
+the adapter and explicitly reported SVG as unavailable. See
+`docs/svg-images.md` for the dependency and security contract.
+
 ### WP-06: Native text and external-IME qualification
 
 **Depends on:** none; it may run in parallel with WP-01 through WP-05.

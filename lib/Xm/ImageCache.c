@@ -53,6 +53,9 @@ static char rcsid[] = "$TOG: ImageCache.c /main/44 1998/10/06 17:26:25 samborn $
 #ifdef PNG_SUPPORTED
 #include "PngI.h"
 #endif
+#ifdef SVG_SUPPORTED
+#include "SvgI.h"
+#endif
 
 /* additional value for GetImage return, FALSE, TRUE and */
 #define NOT_CACHED 2
@@ -189,6 +192,10 @@ static Boolean XmScaledDimension(unsigned int source, double ratio,
 				 Dimension *dimension);
 static Boolean XmImageArrayFits(size_t count, size_t element_size);
 
+#ifdef SVG_SUPPORTED
+static Boolean IsSvgFile(const char *file_name);
+#endif
+
 static int GetCacheColor(Display *display, Colormap colormap,
 			 char *colorname, XColor *color, void *data);
 static int FreeCacheColors(Display *display, Colormap colormap,
@@ -225,6 +232,23 @@ HashString (XmHashKey key)
 
   return (((len << 8) | data[0]) << 8) | data[len];
 }
+
+#ifdef SVG_SUPPORTED
+static Boolean
+IsSvgFile(const char *file_name)
+{
+  size_t length;
+
+  if (file_name == NULL)
+    return False;
+  length = strlen(file_name);
+  if (length < 4 || file_name[length - 4] != '.')
+    return False;
+  return ((file_name[length - 3] == 's' || file_name[length - 3] == 'S') &&
+          (file_name[length - 2] == 'v' || file_name[length - 2] == 'V') &&
+          (file_name[length - 1] == 'g' || file_name[length - 1] == 'G'));
+}
+#endif
 
 /************************************************************************
  *
@@ -925,6 +949,19 @@ GetImage(
     if (!file_name) {	
         return FALSE;
     }
+
+#ifdef SVG_SUPPORTED
+    if (IsSvgFile(file_name)) {
+        Pixel background = 0;
+
+        if (acc_color && acc_color->background != XmUNSPECIFIED_PIXEL)
+            background = acc_color->background;
+        return_value = _XmSvgGetImage(screen, file_name, background, image) == 0
+                           ? NOT_CACHED : FALSE;
+        XtFree(file_name);
+        return return_value;
+    }
+#endif
 
 #if defined (JPEG_SUPPORTED) || defined (PNG_SUPPORTED)
     if (!(infile = fopen(file_name, "rb"))) {
