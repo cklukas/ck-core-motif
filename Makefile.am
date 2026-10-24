@@ -403,3 +403,4 @@ EXTRA_DIST += tests/automated/check-mrm-index-parent-errors.py docs/mrm-index-pa
 EXTRA_DIST += tests/automated/check-mrm-index-preflight.py docs/mrm-index-preflight.md
 EXTRA_DIST += tests/automated/check-mrm-index-collapse-copy-bounds.py docs/mrm-index-collapse-copy-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-confirm-node-space.py docs/mrm-confirm-node-space.md
+EXTRA_DIST += tests/automated/check-mrm-index-collapse-status.py docs/mrm-index-collapse-status.md

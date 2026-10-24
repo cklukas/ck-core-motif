@@ -2801,3 +2801,10 @@ Mrm node-space validation (2026-10-26)
 
 - Validate node type and vector/heap metadata before deciding whether an
   index split is required; see `docs/mrm-confirm-node-space.md`.
+
+
+Mrm index collapse status propagation (2026-10-27)
+==================================================
+
+- Return collapse-helper failures and stop leaf/node splits before publishing
+  partially rebuilt records; see `docs/mrm-index-collapse-status.md`.

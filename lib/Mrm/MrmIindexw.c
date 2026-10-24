@@ -149,7 +149,7 @@ static char rcsid[] = "$XConsortium: MrmIindexw.c /main/12 1996/11/13 13:57:54 d
  *--
  */
 
-Cardinal 
+Cardinal
 Idb__INX_EnterItem (IDBFile		file_id ,
 		    char		*index ,
 		    IDBDataHandle	data_entry )
@@ -243,7 +243,7 @@ Idb__INX_EnterItem (IDBFile		file_id ,
  *--
  */
 
-Cardinal 
+Cardinal
 Idb__INX_EnterLeafIndex (IDBFile		file_id,
 			 IDBRecordBufferPtr	buffer,
 			 char			*index,
@@ -383,7 +383,7 @@ Idb__INX_EnterLeafIndex (IDBFile		file_id,
  *--
  */
 
-Cardinal 
+Cardinal
 Idb__INX_EnterNodeIndex (IDBFile		file_id,
 			 IDBRecordBufferPtr	buffer,
 			 char			*index,
@@ -588,7 +588,7 @@ Idb__INX_EnterNodeIndex (IDBFile		file_id,
  *--
  */
 
-Cardinal 
+Cardinal
 Idb__INX_SplitLeafRecord (IDBFile		file_id,
 			  IDBRecordBufferPtr	gt_buffer)
 {
@@ -679,8 +679,10 @@ Idb__INX_SplitLeafRecord (IDBFile		file_id,
     return result == MrmSUCCESS ? MrmFAILURE : result;
   lt_recptr = (IDBIndexLeafRecordPtr) lt_buffer->IDB_record ;
   Idb__INX_CopyLeafRecord (lt_recptr, gt_recptr) ;
-  Idb__INX_CollapseLeafRecord (lt_recptr, 0, lt_cnt-1) ;
-  Idb__INX_CollapseLeafRecord (gt_recptr, p_index+1, p_index+gt_cnt) ;
+  result = Idb__INX_CollapseLeafRecord (lt_recptr, 0, lt_cnt-1) ;
+  if (result != MrmSUCCESS) return result ;
+  result = Idb__INX_CollapseLeafRecord (gt_recptr, p_index+1, p_index+gt_cnt) ;
+  if (result != MrmSUCCESS) return result ;
 
   /*
    * Both records now have their parent set correctly via the copy operation,
@@ -863,8 +865,10 @@ Idb__INX_SplitNodeRecord (IDBFile		file_id,
     return result == MrmSUCCESS ? MrmFAILURE : result;
   lt_recptr = (IDBIndexNodeRecordPtr) lt_buffer->IDB_record ;
   Idb__INX_CopyNodeRecord (lt_recptr, gt_recptr) ;
-  Idb__INX_CollapseNodeRecord (lt_recptr, 0, lt_cnt-1) ;
-  Idb__INX_CollapseNodeRecord (gt_recptr, p_index+1, p_index+gt_cnt) ;
+  result = Idb__INX_CollapseNodeRecord (lt_recptr, 0, lt_cnt-1) ;
+  if (result != MrmSUCCESS) return result ;
+  result = Idb__INX_CollapseNodeRecord (gt_recptr, p_index+1, p_index+gt_cnt) ;
+  if (result != MrmSUCCESS) return result ;
 
   /*
    * Both records now have their parent set correctly via the copy operation,
@@ -955,7 +959,7 @@ Idb__INX_SplitNodeRecord (IDBFile		file_id,
  *--
  */
 
-Cardinal 
+Cardinal
 Idb__INX_InitRootLeafRecord (IDBFile		file_id,
 			     IDBRecordBufferPtr	*buffer_return)
 {
@@ -1034,7 +1038,7 @@ Idb__INX_InitRootLeafRecord (IDBFile		file_id,
  *--
  */
 
-Cardinal 
+Cardinal
 Idb__INX_InitRootNodeRecord (IDBFile			file_id,
 			     IDBRecordBufferPtr		*buffer_return,
 			     char			*index,
@@ -1251,7 +1255,7 @@ Idb__INX_CopyNodeRecord (IDBIndexNodeRecordPtr	dst_recptr,
  *--
  */
 
-void 
+Cardinal
 Idb__INX_CollapseLeafRecord (IDBIndexLeafRecordPtr	recptr,
 			     MrmCount			start,
 			     MrmCount			end)
@@ -1276,23 +1280,23 @@ Idb__INX_CollapseLeafRecord (IDBIndexLeafRecordPtr	recptr,
   MrmOffset		heap_start ;	/* new heap start offset */
 
   if (recptr == NULL)
-    return ;
+    return MrmFAILURE ;
 
   hdrptr = (IDBIndexLeafHdrPtr) &recptr->leaf_header ;
   if (end < start)
     {
       if (start == 0 || start != end + 1 || start > hdrptr->index_count)
-        return ;
+        return MrmFAILURE ;
       hdrptr->index_count = 0 ;
       hdrptr->heap_start = IDBIndexLeafFreeMax ;
       hdrptr->free_bytes = IDBIndexLeafFreeMax ;
-      return ;
+      return MrmSUCCESS ;
     }
 
   if (hdrptr->index_count > IDBIndexLeafFreeMax / IDBIndexLeafEntrySize ||
       start >= hdrptr->index_count || end >= hdrptr->index_count ||
       hdrptr->heap_start > IDBIndexLeafFreeMax)
-    return ;
+    return MrmFAILURE ;
 
 
   /*
@@ -1306,7 +1310,7 @@ Idb__INX_CollapseLeafRecord (IDBIndexLeafRecordPtr	recptr,
    */
   temp_heap = (char *) XtMalloc (IDBIndexLeafFreeMax) ;
   if (temp_heap == NULL)
-    return ;
+    return MrmFAILURE ;
   cur_heap = temp_heap ;
   heap_size = 0 ;
 
@@ -1326,13 +1330,13 @@ Idb__INX_CollapseLeafRecord (IDBIndexLeafRecordPtr	recptr,
           IDBIndexLeafFreeMax - srcvec[ndx].index_stg)
         {
           XtFree (temp_heap) ;
-          return ;
+          return MrmFAILURE ;
         }
       stgsiz = _FULLWORD(stglen + 1);
       if (stgsiz > IDBIndexLeafFreeMax - heap_size)
         {
           XtFree (temp_heap) ;
-          return ;
+          return MrmFAILURE ;
         }
       UrmBCopy (ndxstg, cur_heap, stglen + 1) ;
       dstvec[ndx].index_stg = (MrmOffset) (cur_heap - temp_heap) ;
@@ -1355,6 +1359,8 @@ Idb__INX_CollapseLeafRecord (IDBIndexLeafRecordPtr	recptr,
     dstvec[ndx].index_stg += heap_start ;
 
   XtFree (temp_heap) ;
+
+  return MrmSUCCESS ;
 
 }
 
@@ -1391,7 +1397,7 @@ Idb__INX_CollapseLeafRecord (IDBIndexLeafRecordPtr	recptr,
  *--
  */
 
-void 
+Cardinal
 Idb__INX_CollapseNodeRecord (IDBIndexNodeRecordPtr	recptr,
 			     MrmCount			start,
 			     MrmCount			end)
@@ -1416,23 +1422,23 @@ Idb__INX_CollapseNodeRecord (IDBIndexNodeRecordPtr	recptr,
   MrmOffset		heap_start ;	/* new heap start offset */
 
   if (recptr == NULL)
-    return ;
+    return MrmFAILURE ;
 
   hdrptr = (IDBIndexNodeHdrPtr) &recptr->node_header ;
   if (end < start)
     {
       if (start == 0 || start != end + 1 || start > hdrptr->index_count)
-        return ;
+        return MrmFAILURE ;
       hdrptr->index_count = 0 ;
       hdrptr->heap_start = IDBIndexNodeFreeMax ;
       hdrptr->free_bytes = IDBIndexNodeFreeMax ;
-      return ;
+      return MrmSUCCESS ;
     }
 
   if (hdrptr->index_count > IDBIndexNodeFreeMax / IDBIndexNodeEntrySize ||
       start >= hdrptr->index_count || end >= hdrptr->index_count ||
       hdrptr->heap_start > IDBIndexNodeFreeMax)
-    return ;
+    return MrmFAILURE ;
 
 
   /*
@@ -1446,7 +1452,7 @@ Idb__INX_CollapseNodeRecord (IDBIndexNodeRecordPtr	recptr,
    */
   temp_heap = (char *) XtMalloc (IDBIndexNodeFreeMax) ;
   if (temp_heap == NULL)
-    return ;
+    return MrmFAILURE ;
   cur_heap = temp_heap ;
   heap_size = 0 ;
 
@@ -1468,13 +1474,13 @@ Idb__INX_CollapseNodeRecord (IDBIndexNodeRecordPtr	recptr,
           IDBIndexNodeFreeMax - srcvec[ndx].index_stg)
         {
           XtFree (temp_heap) ;
-          return ;
+          return MrmFAILURE ;
         }
       stgsiz = _FULLWORD(stglen + 1);
       if (stgsiz > IDBIndexNodeFreeMax - heap_size)
         {
           XtFree (temp_heap) ;
-          return ;
+          return MrmFAILURE ;
         }
       UrmBCopy (ndxstg, cur_heap, stglen + 1) ;
       dstvec[ndx].index_stg = (MrmOffset) (cur_heap - temp_heap) ;
@@ -1497,6 +1503,8 @@ Idb__INX_CollapseNodeRecord (IDBIndexNodeRecordPtr	recptr,
     dstvec[ndx].index_stg += heap_start ;
 
   XtFree (temp_heap) ;
+
+  return MrmSUCCESS ;
 
 }
 
@@ -1530,7 +1538,7 @@ Idb__INX_CollapseNodeRecord (IDBIndexNodeRecordPtr	recptr,
  *--
  */
 
-Cardinal 
+Cardinal
 Idb__INX_ConfirmNodeSpace (IDBFile		file_id,
 			   IDBRecordBufferPtr	buffer)
 {
@@ -1599,7 +1607,7 @@ Idb__INX_ConfirmNodeSpace (IDBFile		file_id,
  *--
  */
 
-Cardinal 
+Cardinal
 Idb__INX_SetParent (IDBFile		file_id,
 		    IDBRecordNumber	parent_record,
 		    IDBRecordNumber	child_record)
@@ -1686,7 +1694,7 @@ Idb__INX_SetParent (IDBFile		file_id,
  *--
  */
 
-Cardinal 
+Cardinal
 Idb__INX_FixNodeChildren (IDBFile		file_id,
 			  IDBRecordNumber	p_record)
 {

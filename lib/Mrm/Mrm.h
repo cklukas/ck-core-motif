@@ -1487,10 +1487,10 @@ extern void Idb__INX_CopyLeafRecord  _ARGUMENTS(( IDBIndexLeafRecordPtr dst_recp
 						    IDBIndexLeafRecordPtr src_recptr ));
 extern void Idb__INX_CopyNodeRecord  _ARGUMENTS(( IDBIndexNodeRecordPtr dst_recptr , 
 						    IDBIndexNodeRecordPtr src_recptr ));
-extern void Idb__INX_CollapseLeafRecord  _ARGUMENTS(( IDBIndexLeafRecordPtr recptr , 
+extern Cardinal Idb__INX_CollapseLeafRecord  _ARGUMENTS(( IDBIndexLeafRecordPtr recptr ,
 							MrmCount start , 
 							MrmCount end ));
-extern void Idb__INX_CollapseNodeRecord  _ARGUMENTS(( IDBIndexNodeRecordPtr recptr , 
+extern Cardinal Idb__INX_CollapseNodeRecord  _ARGUMENTS(( IDBIndexNodeRecordPtr recptr ,
 							MrmCount start , 
 							MrmCount end ));
 extern Cardinal Idb__INX_ConfirmNodeSpace  _ARGUMENTS(( IDBFile file_id , 
