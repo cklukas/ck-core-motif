@@ -619,3 +619,10 @@ JPEG and PNG image allocation bounds (2026-10-24)
 - Validate decoded dimensions, pixel counts and row sizes before allocating JPEG and PNG image buffers, preventing integer wraparound from creating undersized storage. Treat JPEG allocation failure as a normal image-load error instead of entering the scanline loop with a null buffer.
 - Preserve valid image formats, public image-loading APIs, display-depth handling and native ABI. Document the allocation contract in `docs/image-loader-bounds.md`.
 - Native AArch64 validation passes the image-scaling and malformed-image regression suite.
+
+TextField preedit recovery ownership (2026-10-24)
+==================================================
+
+- Keep the base address of the multibyte recovery buffer while scanning past completed characters, avoiding an invalid interior-pointer free during overstrike inline preedit updates. Stop safely when locale conversion or a multibyte boundary is invalid.
+- Preserve composition behavior, preedit callbacks, widget resources, public interfaces and native ABI. Document the ownership rule in `docs/textfield-preedit-recovery.md`.
+- Native AArch64 validation passes the TextField source build and XIM preedit-range regression; the optional font-backed preedit-state fixture was unavailable on the minimal rpi4 image.

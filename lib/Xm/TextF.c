@@ -9350,7 +9350,7 @@ PreeditDraw(XIC xic,
     XRectangle overall_ink;
     int i;
     int recover_len=0;
-    char *ptr=NULL;
+    char *ptr=NULL, *recover_mb=NULL;
     Widget p =w;
     Boolean need_verify, end_preedit = False;
 
@@ -9567,24 +9567,34 @@ PreeditDraw(XIC xic,
         if (tf->text.overstrike && recover_len > 0) {
            wc = (wchar_t *)XtRealloc((char *)wc,
                        wcslen(wc)+(recover_len+1)*sizeof(wchar_t));
-           ptr = XtMalloc((tf->text.onthespot->over_len+1)*sizeof(char));
-           wcstombs(ptr, (wchar_t *)tf->text.onthespot->over_str,
-                            tf->text.onthespot->over_len);
-           ptr[tf->text.onthespot->over_len] = '\0';
+           recover_mb = XtMalloc((tf->text.onthespot->over_len+1)*sizeof(char));
+           if (wcstombs(recover_mb,
+                        (wchar_t *)tf->text.onthespot->over_str,
+                        tf->text.onthespot->over_len) < 0) {
+               XtFree(recover_mb);
+               recover_mb = NULL;
+               recover_len = 0;
+           } else {
+               recover_mb[tf->text.onthespot->over_len] = '\0';
+               ptr = recover_mb;
 
-           for (i=0; i < tf->text.onthespot->over_maxlen; i++) {
-               ptr += mblen(ptr, 4);
+               for (i=0; i < tf->text.onthespot->over_maxlen; i++) {
+                   int char_len = mblen(ptr, 4);
+                   if (char_len <= 0)
+                       break;
+                   ptr += char_len;
+               }
+
+               recover_wc = (wchar_t*) XtMalloc((unsigned)(recover_len+1) *
+                                                           sizeof(wchar_t));
+               mbstowcs(recover_wc, ptr, recover_len);
+               i = wcslen(wc);
+               wcsncat(wc, recover_wc, recover_len);
+               wc[i+recover_len] = (wchar_t) '\0';
+               XtFree((char *) recover_wc);
+               XtFree(recover_mb);
+               recover_mb = NULL;
            }
-
-           recover_wc = (wchar_t*) XtMalloc((unsigned)(recover_len+1) *
-                                                       sizeof(wchar_t));
-           mbstowcs(recover_wc, ptr, recover_len);
-           i = wcslen(wc);
-           wcsncat(wc, recover_wc, recover_len);
-           wc[i+recover_len] = (wchar_t) '\0';
-           XtFree((char *) recover_wc);
-           if (ptr)
-              XtFree(ptr);
         }
 	
 	if (need_verify) {
