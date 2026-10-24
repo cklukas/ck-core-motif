@@ -2738,6 +2738,8 @@ Urm__CW_SafeCopyValue (long				*val,
     case MrmRtypeIntegerVector:
       int_src = (int *) *val ;
       int_dst = (int *) XtMalloc ((unsigned int)vec_size) ;
+      if (int_dst == NULL)
+	return;
       UrmBCopy (int_src, int_dst, vec_size) ;
       *val = (long) int_dst ;
       if (cblist != NULL)
@@ -2751,6 +2753,8 @@ Urm__CW_SafeCopyValue (long				*val,
       cstr_table_src = (XmString *)*val;
       cstr_table_dst =
 	(XmString *)XtMalloc(vec_count * sizeof(XmString)) ;
+      if (cstr_table_dst == NULL)
+	return;
       for (cnt=0; cnt<vec_count; cnt++)
 	cstr_table_dst[cnt] =
 	  XmStringCopy(cstr_table_src[cnt]);
@@ -2765,6 +2769,8 @@ Urm__CW_SafeCopyValue (long				*val,
     case MrmRtypeChar8Vector:
       char8_table_src = (String *)*val ;
       char8_table_dst = (String *) XtMalloc (vec_size) ;
+      if (char8_table_dst == NULL && vec_size != 0)
+	return;
 
       /* Copy the pointers and strings. */
       UrmBCopy (char8_table_src, char8_table_dst, vec_size) ;
@@ -2790,6 +2796,8 @@ Urm__CW_SafeCopyValue (long				*val,
     case MrmRtypeInteger:
     case MrmRtypeBoolean:
       int_dst = (int *) XtMalloc (sizeof(int)) ;
+      if (int_dst == NULL)
+	return;
       *int_dst = *val ;
       *val = (long) int_dst ;
       if (cblist != NULL)
@@ -2802,6 +2810,8 @@ Urm__CW_SafeCopyValue (long				*val,
     case MrmRtypeChar8:
       char8_src = (String) *val ;
       char8_dst = (String) XtMalloc (strlen(char8_src)+1) ;
+      if (char8_dst == NULL)
+	return;
       strcpy (char8_dst, char8_src) ;
       *val = (long) char8_dst ;
       if (cblist != NULL)
@@ -2814,6 +2824,8 @@ Urm__CW_SafeCopyValue (long				*val,
     case MrmRtypeSingleFloat:
       single_float_src = (float *) *val ;
       single_float_dst = (float *) XtMalloc (sizeof(float)) ;
+      if (single_float_dst == NULL)
+	return;
       *single_float_dst = *single_float_src ;
       *val = (long) single_float_dst ;
       if (cblist != NULL)
@@ -2826,6 +2838,8 @@ Urm__CW_SafeCopyValue (long				*val,
     case MrmRtypeFloat:
       float_src = (double *) *val ;
       float_dst = (double *) XtMalloc (sizeof(double)) ;
+      if (float_dst == NULL)
+	return;
       *float_dst = *float_src ;
       *val = (long) float_dst ;
       if (cblist != NULL)
@@ -2844,6 +2858,8 @@ Urm__CW_SafeCopyValue (long				*val,
 
     case MrmRtypeCString:
       cstr_src = XmStringCopy ((XmString)(*val)) ;
+      if (cstr_src == NULL)
+	return;
       *val = (long) cstr_src ;
       if (cblist != NULL)
 	{
@@ -2856,9 +2872,13 @@ Urm__CW_SafeCopyValue (long				*val,
       wchar_src = (wchar_t *) *val ;
 
       for (cnt = 0; ; cnt++) if (wchar_src[cnt] == 0) break;
+      if ((size_t)cnt > (SIZE_MAX / sizeof(wchar_t)) - 1)
+	return;
       size = (cnt+1) * sizeof(wchar_t);
 	
       wchar_dst = (wchar_t *) XtMalloc (size) ;
+      if (wchar_dst == NULL)
+	return;
       memcpy(wchar_dst, wchar_src, size) ;
       *val = (long) wchar_dst ;
       if (cblist != NULL)
