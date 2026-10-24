@@ -650,6 +650,12 @@ XmCvtTextPropertyToXmStringTable(Display *display,
     XInternAtoms(display, atom_names, XtNumber(atom_names), False, atoms);
 
     _XmAppLock(app);
+    if (text_prop == NULL || string_table_return == NULL ||
+	count_return == NULL || text_prop->nitems < 0 ||
+	(text_prop->nitems != 0 && text_prop->value == NULL)) {
+	_XmAppUnlock(app);
+	return BadValue;
+    }
     if (text_prop->encoding == atoms[XmACOMPOUND_TEXT])
     {
 	char *ptr;
@@ -658,7 +664,17 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	for (*count_return = 1, i = 0; i < text_prop->nitems; i++)
 	{
 	    if (text_prop->value[i] == '\0')
+	    {
+		if (*count_return == INT_MAX) {
+		    _XmAppUnlock(app);
+		    return BadAlloc;
+		}
 		(*count_return)++;
+	    }
+	}
+	if ((size_t)*count_return > SIZE_MAX / sizeof(XmString)) {
+	    _XmAppUnlock(app);
+	    return BadAlloc;
 	}
 	string_table =
 	    (XmStringTable)XtMalloc(sizeof(XmString) * (*count_return));

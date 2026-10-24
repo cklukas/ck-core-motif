@@ -21,3 +21,8 @@ Locale, text, and string conversion applies the same pointer-array and signed
 aggregate checks, including cleanup of all temporary converted strings when the
 total cannot be represented. The branch contract is covered by
 `tests/automated/check-locale-text-property-size.py`.
+
+The reverse conversion validates output pointers, property lengths, and required
+value storage before reading an X property. Compound-text element counting also
+rejects `int` counter overflow and pointer-table allocation overflow. The input
+contract is covered by `tests/automated/check-text-property-inputs.py`.
