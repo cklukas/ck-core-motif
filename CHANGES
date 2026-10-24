@@ -1,4 +1,7 @@
 2026-10-26
+	* Validate Mrm pointer-list state before freeing contents.
+
+2026-10-26
 	* Validate Mrm pointer-list state before appending pointers.
 
 2026-10-26

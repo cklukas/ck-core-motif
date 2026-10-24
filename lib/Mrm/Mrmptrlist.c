@@ -267,7 +267,8 @@ UrmPlistFreeContents (URMPointerListPtr	list_id)
    */
   int			ndx ;		/* loop index */
 
-  if (list_id == NULL)
+  if (list_id == NULL || list_id->ptr_vec == NULL ||
+      list_id->num_ptrs < 0 || list_id->num_slots < list_id->num_ptrs)
     return MrmFAILURE;
 
 
