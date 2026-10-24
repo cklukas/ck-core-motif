@@ -1,3 +1,11 @@
+UIL diagnostic message bounds (2026-10-24)
+==========================================
+
+- Bound localized abbreviation and source diagnostic text when composing the
+  fixed UIL listing message line, preserving normal output while preventing
+  long diagnostics from overrunning the buffer; see
+  `docs/uil-message-bounds.md`.
+
 UIL machine-list formatting bounds (2026-10-24)
 ================================================
 

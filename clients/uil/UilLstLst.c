@@ -597,7 +597,7 @@ src_message_item_type	*az_message_item;
 	}
 
 
-	sprintf(buffer, "%s (%d) %s", 
+	(void)snprintf(buffer, sizeof(buffer), "%s (%d) %s",
 		diag_get_message_abbrev( az_msg->l_message_number ),
 		msg_no, 
 		az_msg->c_text);
