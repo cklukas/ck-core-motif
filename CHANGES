@@ -1,3 +1,14 @@
+Iconv output growth bounds (2026-10-24)
+=======================================
+
+- Reject unrepresentable input lengths and check every iconv output-buffer
+  doubling before reallocating. Free partial output on overflow and preserve
+  normal UTF-8 conversion behavior.
+- Add a source-contract regression and document the fix in
+  docs/iconv-growth-bounds.md.
+- Native ResEncod object compilation is warning-free and the iconv regression
+  passes; the broader libXm build remains blocked by unrelated held TextSel work.
+
 ColorObj property input bounds (2026-10-24)
 ===========================================
 

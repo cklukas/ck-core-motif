@@ -2871,12 +2871,11 @@ ConvertWithIconv(const char  *str,
     if (str == NULL || converter == (iconv_t) -1)
         return NULL;
     
-   if (len < 0)
-       len = strlen(str);
-
    p = str;
    inbytes_remaining = len;
-   outbuf_size = len + 1; /* + 1 for nul in case len == 1 */
+   if (len == UINT_MAX)
+       return NULL;
+   outbuf_size = (size_t)len + 1; /* reserve space for NUL */
 
    outbytes_remaining = outbuf_size - 1; /* -1 for nul */
    outp = dest = XtMalloc(outbuf_size);
@@ -2895,6 +2894,10 @@ again:
             {
                 size_t used = outp - dest;
 
+                if (outbuf_size > SIZE_MAX / 2) {
+                    XtFree(dest);
+                    return NULL;
+                }
                 outbuf_size *= 2;
                 dest = XtRealloc(dest, outbuf_size);
 		
