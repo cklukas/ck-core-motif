@@ -175,3 +175,5 @@ EXTRA_DIST += tests/automated/check-compound-segment-bounds.py docs/compound-seg
 EXTRA_DIST += tests/automated/check-font-size-name-bounds.py docs/font-size-label-bounds.md
 
 EXTRA_DIST += tests/automated/check-font-encoding-callback-types.py docs/font-encoding-callback-types.md
+
+EXTRA_DIST += tests/automated/check-screen-index-scan.py docs/screen-index-scan.md

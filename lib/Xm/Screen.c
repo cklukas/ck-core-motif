@@ -1429,7 +1429,10 @@ XmGetXmScreen(
 		}
 	}
 
-	/* Not found; have to do an implied creation */
+	/* Not found; have to do an implied creation.  The child scan above
+	 * leaves i at num_children, which is unrelated to the display's
+	 * screen indexes. */
+	i = 0;
 	for (scr = ScreenOfDisplay(XtDisplay(xmDisplay), i);
 		i < ScreenCount(XtDisplay(xmDisplay));
 		i++, scr = ScreenOfDisplay(XtDisplay(xmDisplay), i))

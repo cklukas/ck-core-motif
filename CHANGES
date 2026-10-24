@@ -1,3 +1,8 @@
+XmGetXmScreen index reset (2026-10-24)
+=======================================
+
+- Reset the screen scan index after the child-widget search so implied screen creation starts at display screen zero and cannot use a stale child count; see `docs/screen-index-scan.md`.
+
 Font selector callback pointer types (2026-10-24)
 ================================================
 
