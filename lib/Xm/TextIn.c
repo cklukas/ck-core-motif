@@ -1623,6 +1623,8 @@ KeySelection(Widget w,
 				   &(data->origLeft), &(data->origRight));
   
   cursorPos = tw->text.cursor_position;
+  position = cursorPos;
+  left = right = cursorPos;
 
   data->selectionHint.x = data->selectionHint.y = 0;
   data->extending = TRUE;
