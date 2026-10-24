@@ -635,6 +635,15 @@ issue without changing attachment semantics.
 all unmodified attachment behavior remains covered.  It is acceptable to close
 the work package with no source change if the measurement disproves the premise.
 
+**Status (2026-10-24):** completed as a no-source-change assessment on the
+AArch64 `uconsole` host.  Two identical WP-10 installed-prefix runs produced
+the same result hash and metrics; the no-op control produced zero additional
+geometry requests or Configure events.  The corpus therefore identifies no
+source-backed redundant pass or correctness defect to fix safely in `Form.c`.
+Changing attachment evaluation speculatively would risk legacy Xt negotiation,
+so this package is closed under its explicit no-change rule.  See
+`docs/form-layout-decision.md` for the evidence and limits.
+
 ### WP-12: Decision and delivery of a new layout manager
 
 **Depends on:** WP-10 and at least one completed WP-11 assessment.

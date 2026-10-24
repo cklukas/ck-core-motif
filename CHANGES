@@ -1,3 +1,10 @@
+Form layout correction decision (2026-10-24)
+============================================
+
+- Record the repeatable WP-10 evidence and close WP-11 with no Form source
+  change: no redundant geometry work or correctness defect was identified;
+  see `docs/form-layout-decision.md`.
+
 Form layout no-op control (2026-10-24)
 ======================================
 
