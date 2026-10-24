@@ -32,3 +32,9 @@ declared property length, copies each segment into a terminated temporary string
 and retains the historical trailing empty element. Missing terminators therefore
 cannot make the converter read beyond Xlib’s payload. The parser contract is
 covered by `tests/automated/check-compound-text-import.py`.
+
+Motif compound-string (ASN.1) import now verifies every encoded element length
+against the property’s remaining bytes before advancing or converting it. Zero
+or truncated element lengths return `XConverterNotFound` rather than looping or
+reading outside the Xlib payload. The contract is covered by
+`tests/automated/check-compound-string-import.py`.

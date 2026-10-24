@@ -718,19 +718,36 @@ XmCvtTextPropertyToXmStringTable(Display *display,
     else if (text_prop->encoding == atoms[XmA_MOTIF_COMPOUND_STRING])
     {
 	unsigned char *asn1_head;
+	size_t offset, remaining;
+	unsigned int stream_length;
 
 	/* First calculate how many elements there are */
-	asn1_head = text_prop->value;
-	for (elements = 0; *asn1_head != '\0'; ++elements)
-	    asn1_head += XmStringByteStreamLength(asn1_head);
+	offset = 0;
+	for (elements = 0; offset < (size_t)text_prop->nitems &&
+	     text_prop->value[offset] != '\0'; ++elements) {
+	    if (elements == INT_MAX) {
+		_XmAppUnlock(app);
+		return BadAlloc;
+	    }
+	    remaining = (size_t)text_prop->nitems - offset;
+	    stream_length = XmStringByteStreamLength(text_prop->value + offset);
+	    if (stream_length == 0 || stream_length > remaining) {
+		_XmAppUnlock(app);
+		return XConverterNotFound;
+	    }
+	    offset += stream_length;
+	}
 
 	/* Now allocate a string table to put them in */
-	string_table = (XmStringTable)XtMalloc(sizeof(XmString) * elements);
+	string_table = (XmStringTable)XtMalloc(sizeof(XmString) *
+					(elements ? elements : 1));
 
 	/* Run through again, converting the strings. */
-	asn1_head = text_prop->value;
-	for (elements = 0; *asn1_head != '\0'; ++elements)
+	offset = 0;
+	for (elements = 0; offset < (size_t)text_prop->nitems &&
+	     text_prop->value[offset] != '\0'; ++elements)
 	{
+	    asn1_head = text_prop->value + offset;
 	    string_table[elements] = XmCvtByteStreamToXmString(asn1_head);
 	    /* If the string is NULL, then we don't know what to do */
 	    if (string_table[elements] == (XmString) NULL)
@@ -741,7 +758,16 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 		return(XConverterNotFound);
 	    }
 	    /* Find the next asn1 string header */
-	    asn1_head += XmStringByteStreamLength(asn1_head);
+	    stream_length = XmStringByteStreamLength(asn1_head);
+	    if (stream_length == 0 ||
+		stream_length > (size_t)text_prop->nitems - offset) {
+		XtFree((char *)string_table[elements]);
+		while (elements > 0) XtFree((char *)string_table[--elements]);
+		XtFree((char *)string_table);
+		_XmAppUnlock(app);
+		return XConverterNotFound;
+	    }
+	    offset += stream_length;
 	}
 	*string_table_return = string_table;
 	*count_return = elements;

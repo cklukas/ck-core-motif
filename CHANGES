@@ -1,3 +1,9 @@
+Bound ASN.1 compound-string parsing (2026-10-24)
+==================================================
+- Verify each encoded element length against the remaining X property bytes
+  before advancing or converting it.
+- Reject zero or truncated element lengths safely, clean up partial results,
+  and add a source contract regression with documentation.
 Bound compound-text property parsing (2026-10-24)
 ==================================================
 - Parse incoming compound-text segments within the X property’s declared
