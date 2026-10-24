@@ -1,3 +1,11 @@
+Preserve trailing XmString-table slots (2026-10-24)
+===================================================
+
+- Keep an empty final XmString entry after a trailing comma, matching interior
+  empty fields and preserving positional compound-string resources.
+- Add an installed-prefix converter regression; see
+  docs/xmstring-table-conversion.md.
+
 Validate cardinal-list resource ranges (2026-10-24)
 ===================================================
 

@@ -167,7 +167,8 @@ static Boolean GetFontTag(
                         char *delim) ;
 static Boolean GetNextXmString( 
                         char **s,
-                        char **cs) ;
+                        char **cs,
+                        Boolean *after_delimiter) ;
 static Boolean CvtStringToXmStringTable( 
                         Display *dpy,
                         XrmValuePtr args,
@@ -1240,13 +1241,21 @@ GetFontTag (
 static Boolean 
 GetNextXmString(
         char **s,
-        char **cs )
+        char **cs,
+        Boolean *after_delimiter )
 {
    char *tmp;
    int csize;
 
    if (**s == '\0')
-      return(FALSE);
+   {
+      if (!*after_delimiter)
+         return(FALSE);
+      *cs = XtMalloc(1);
+      **cs = '\0';
+      *after_delimiter = False;
+      return(TRUE);
+   }
 
 
    /*  Skip any leading whitespace.  */
@@ -1254,7 +1263,14 @@ GetNextXmString(
    while(isspace((unsigned char)**s) && **s != '\0') (*s)++;
 
    if (**s == '\0')
-      return(FALSE);
+   {
+      if (!*after_delimiter)
+         return(FALSE);
+      *cs = XtMalloc(1);
+      **cs = '\0';
+      *after_delimiter = False;
+      return(TRUE);
+   }
   
 
    /* Found something. Allocate some space (ugh!) and start copying  */
@@ -1277,6 +1293,7 @@ GetNextXmString(
          {
             *tmp = '\0';
             (*s)++;
+            *after_delimiter = True;
             return(TRUE);
          }
          else
@@ -1301,6 +1318,7 @@ GetNextXmString(
     }
 
     *tmp = '\0';
+    *after_delimiter = False;
     return(TRUE);
 }
 
@@ -1329,6 +1347,7 @@ CvtStringToXmStringTable(
   XmString *table;
   static  XmString *tblptr;
   int	  str_no, table_size;
+  Boolean after_delimiter = False;
 
   if (from_val->addr == NULL)
     return FALSE;
@@ -1336,7 +1355,7 @@ CvtStringToXmStringTable(
   s = (char *) from_val->addr;
   table_size = 100;
   table = (XmString *) XtMalloc(sizeof(XmString) * table_size);
-  for (str_no = 0; GetNextXmString(&s, &cs); str_no++)
+  for (str_no = 0; GetNextXmString(&s, &cs, &after_delimiter); str_no++)
     {
       if (str_no >= table_size)
 	{
