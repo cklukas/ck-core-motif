@@ -1,3 +1,10 @@
+Mrm hierarchy name registration (2026-10-25)
+===============================================
+
+- Validate hierarchy name/value arrays and hash-table allocation/insertion
+  results before storing registrations; see
+  `docs/mrm-hierarchy-name-registration.md`.
+
 Mrm legacy font-list allocation failure (2026-10-25)
 ================================================
 

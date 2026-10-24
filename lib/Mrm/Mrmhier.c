@@ -557,7 +557,7 @@ Urm__RegisterNamesInHierarchy (MrmHierarchy		hierarchy_id,
   char			*current_name;
   char			*current_value;
 
-  if (num_cb < 0)
+  if (num_cb < 0 || (num_cb > 0 && (names == NULL || values == NULL)))
     return MrmFAILURE;
 
 
@@ -569,6 +569,8 @@ Urm__RegisterNamesInHierarchy (MrmHierarchy		hierarchy_id,
     {
       name_table = (URMHashTableEntryPtr *)
 	XtMalloc(sizeof(URMHashTableEntryPtr)*k_hash_table_size);
+      if (name_table == NULL)
+	return MrmFAILURE;
       /* Begin fixing DTS 7303 */
       for ( ndx=0 ; ndx<k_hash_table_size; ndx++ )
 	name_table[ndx] = NULL;
@@ -586,6 +588,8 @@ Urm__RegisterNamesInHierarchy (MrmHierarchy		hierarchy_id,
       current_value = values [ndx];
       hash_entry = (URMHashTableEntryPtr)
 	hash_insert_name (name_table, current_name);
+      if (hash_entry == NULL)
+	return MrmFAILURE;
       hash_entry->az_value = current_value;
     }
 
