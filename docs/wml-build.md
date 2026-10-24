@@ -25,3 +25,9 @@ the generated lexer.
 1000 token records before inserting into its fixed tables. The negative case is
 covered by `tests/automated/run-wml-token-regression.py`; its error status keeps
 malformed generator input from being treated as a successful build step.
+
+The build now generates `wmluiltok.c` explicitly from the checked-in lexer and
+generates the `Uil.c`/`Uil.h` parser pair from `Uil.y` before creating the
+compatibility names used by `wmldbcreate`. This prevents stale generated files,
+parallel `UilLexPars.h` collisions, and linker failures caused by a lexer object
+that predates its `main` entry point.

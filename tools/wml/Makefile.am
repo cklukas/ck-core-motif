@@ -23,7 +23,7 @@ wml_HEADERS = UilDBDef.h
 noinst_HEADERS = wml.h wmlparse.h $(WMLTARGETS)
 
 noinst_PROGRAMS = wml wmluiltok wmldbcreate
-wmluiltok_SOURCES = wmluiltok.l
+wmluiltok_SOURCES = wmluiltok.c
 wmluiltok_LDADD = @LEXLIB@
 
 wml_SOURCES = wml.c
@@ -43,6 +43,17 @@ wmlparse.c: wmllex.c
 wmllex.c: wmllex.l
 
 wmlsynbld.c: wmlparse.h
+
+# Keep the lexer executable tied to the checked-in lexer source.  Relying on
+# automake's implicit lex rule can reuse a stale generated file in a parallel
+# or out-of-tree build, which used to hide the explicit main() entry point.
+wmluiltok.c: wmluiltok.l
+	$(LEX) -o$@ $(srcdir)/wmluiltok.l
+
+# UilLexPars.{c,h} are generated parser outputs, not source files.  Generate
+# both from the grammar before the stamp creates the compatibility names.
+Uil.c Uil.h: Uil.y
+	$(YACC) $(AM_YFLAGS) -o Uil.c $(srcdir)/Uil.y
 
 # The object consumes generated headers; the C file is ordinary VPATH source.
 wmldbcreate.o: $(WMLTARGETS) UilLexPars.h
@@ -74,6 +85,6 @@ motif.wmd: wmldbcreate
 
 clean-local:
 	$(RM) $(WMLTARGETS) $(WMDTABLE) $(REPORT) lex.yy.c libwml.a wml \
-	*.mm *.sdml *.txt wmlparse.c wmlparse.h wmluiltok wmllex.c \
+	*.mm *.sdml *.txt wmlparse.c wmlparse.h wmluiltok wmluiltok.c wmllex.c \
 	tokens.dat DONE wmluiltok.c Uil.c Uil.h wml.report UilLexPars.[ch] UilLexPars.stamp ylwrap
  

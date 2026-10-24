@@ -1,3 +1,9 @@
+Make WML generator inputs explicit (2026-10-24)
+===============================================
+- Generate wmluiltok.c from the checked-in lexer and generate the Uil parser
+  pair from Uil.y, preventing stale generated objects, parallel header races,
+  and missing-main linker failures.
+- Extend the WML build contract and documentation with the generator rules.
 Bound drag atom property table sizing (2026-10-24)
 ====================================================
 - Check atom-table count arithmetic when reading X properties, serializing
