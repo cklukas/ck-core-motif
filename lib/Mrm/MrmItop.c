@@ -306,10 +306,9 @@ UrmIdbOpenBuffer (unsigned char 		*uid_buffer,
  *--
  */
 
-/*ARGSUSED*/
 Cardinal 
 UrmIdbCloseFile (IDBFile		file_id,
-		 Boolean		keep_new_file)	  /* unused */
+		 Boolean		keep_new_file)
 {
 
   /*
@@ -344,7 +343,7 @@ UrmIdbCloseFile (IDBFile		file_id,
   /*
    * If the file was opened for write, update its header
    */
-  if ( file_id->access == URMWriteAccess )
+  if ( file_id->access == URMWriteAccess && keep_new_file )
     {
       result = Idb__HDR_PutHeader ( file_id ) ;
       if ( result != MrmSUCCESS ) _error_close () ;
@@ -359,7 +358,9 @@ UrmIdbCloseFile (IDBFile		file_id,
   /*
    * Close the file and deallocate the file descriptor
    */
-  result = Idb__FU_CloseFile (file_id->lowlevel_id, FALSE) ;
+  result = Idb__FU_CloseFile
+    (file_id->lowlevel_id,
+     file_id->access == URMWriteAccess && !keep_new_file) ;
   file_id->validation = 0 ;
   XtFree ((char*)file_id) ;
 
