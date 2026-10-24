@@ -544,6 +544,12 @@ results are reviewed, and there is an explicit go/no-go decision for WP-09.
 **Does not include:** integrating the prototype into `libXm` or claiming a new
 OO object model.
 
+**Status (2026-10-24):** the public design proposal and explicit decision are
+recorded in `docs/cpp-support-library-proposal.md`. The consumer-only prototype
+has a GO decision; an installed WP-09 release remains NO-GO until its callback
+exception barrier, widget-destruction ordering and mixed C/C++ ownership
+fixture pass against a fresh prefix.
+
 ### WP-09: Optional C++ support-library release
 
 **Depends on:** WP-08 with a go decision.

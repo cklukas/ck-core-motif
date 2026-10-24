@@ -136,3 +136,4 @@ EXTRA_DIST += tests/automated/check-svg-image.c tests/automated/run-svg-image.py
 EXTRA_DIST += docs/native-text-ime-matrix.md
 EXTRA_DIST += tests/automated/check-mwm-bindings-path.py docs/mwm-bindings-path.md
 EXTRA_DIST += docs/accessibility-journey-matrix.md
+EXTRA_DIST += docs/cpp-support-library-proposal.md

@@ -1,3 +1,10 @@
+C++ support-library design boundary (2026-10-24)
+================================================
+
+- Record the consumer-only wrapper proposal, ownership/exception rules and
+  explicit GO/NO-GO decision for a future optional C++ package; see
+  `docs/cpp-support-library-proposal.md`.
+
 Accessibility journey and semantic coverage matrix (2026-10-24)
 ================================================================
 
