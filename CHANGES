@@ -1,3 +1,8 @@
+Remove unsafe icon home-directory copy (2026-10-24)
+=====================================================
+- Stop copying arbitrary-length HOME into XmGetIconFile's fixed path scratch
+  buffer; the path helper already initializes that buffer when needed.
+- Add a source contract regression and document the fixed-buffer boundary.
 Bound compound-string header decoding (2026-10-24)
 ====================================================
 - Verify short and long ASN.1 headers are fully present before invoking the

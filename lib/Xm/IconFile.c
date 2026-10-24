@@ -560,7 +560,6 @@ XmGetIconFileName(
     Boolean		useIconFileCache;
     Boolean		absolute = 0;
     XtFilePredicate	testFileFunc;
-    String		homedir = NULL ;
     static String	iconPath = NULL;
     static String	bmPath = NULL;
     static XmHashTable iconNameCache = NULL;
@@ -602,9 +601,6 @@ XmGetIconFileName(
 	cacheList.numDirs =
 	  cacheList.maxDirs = 0;
 	cacheList.dirs = NULL;
-
-	homedir = XmeGetHomeDirName();
-	strcpy(stackString, homedir) ;
 
 	if (useColor) {
 	    iconPath = _XmOSInitPath(NULL, "XMICONSEARCHPATH", &junkBoolean);
