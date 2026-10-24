@@ -1,3 +1,13 @@
+XmScreen generated name bounds (2026-10-24)
+===========================================
+
+- Use bounded formatting when generating implicit `screenN` widget names,
+  preserving normal resource names while protecting the fixed stack buffer.
+- Add a source-contract regression and document the behavior in
+  docs/screen-name-bounds.md.
+- Native AArch64 libXm build is warning-free and the Screen-name regression
+  passes.
+
 RepType conversion warning bounds (2026-10-24)
 ================================================
 

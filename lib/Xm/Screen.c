@@ -1438,7 +1438,7 @@ XmGetXmScreen(
 			break;
 	}
 
-	sprintf(name, "screen%d", i);
+	(void)snprintf(name, sizeof(name), "screen%d", i);
 
 	i = 0;
 	XtSetArg(args[i], XmNscreen, screen); i++;
