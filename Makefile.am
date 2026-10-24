@@ -297,3 +297,4 @@ EXTRA_DIST += tests/automated/check-mrm-fontlist-allocation.py docs/mrm-fontlist
 EXTRA_DIST += tests/automated/check-mrm-hierarchy-name-registration.py docs/mrm-hierarchy-name-registration.md
 EXTRA_DIST += tests/automated/check-mrm-hierarchy-open-input.py docs/mrm-hierarchy-open-input.md
 EXTRA_DIST += tests/automated/check-mrm-wref-growth.py docs/mrm-wref-growth.md
+EXTRA_DIST += tests/automated/check-mrm-wcr-output-pointers.py docs/mrm-wcr-output-pointers.md

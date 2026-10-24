@@ -1,3 +1,8 @@
+Mrm widget-record output-pointer validation (2026-10-25)
+==========================================================
+
+- Reject missing contexts and output pointers in widget-record append helpers before handling empty strings or resizing, preserving successful appends while preventing NULL output-pointer crashes; see `docs/mrm-wcr-output-pointers.md`.
+
 Mrm widget-reference growth validation (2026-10-25)
 ====================================================
 

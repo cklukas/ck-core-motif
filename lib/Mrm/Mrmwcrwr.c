@@ -1944,6 +1944,8 @@ UrmCWR__AppendString (URMResourceContextPtr	context_id ,
   /*
    * Offset zero for NULL pointer
    */
+  if ( context_id == NULL || offset == NULL )
+    return MrmFAILURE;
   if ( stg == NULL )
     {
       *offset = 0;
@@ -2013,6 +2015,8 @@ UrmCWR__AppendCString (URMResourceContextPtr	context_id ,
   /*
    * Offset zero for empty string or NULL pointer
    */
+  if ( context_id == NULL || offset == NULL )
+    return MrmFAILURE;
   if ( cstg == NULL )
     {
       *offset = 0;
@@ -2091,6 +2095,8 @@ UrmCWR__AppendWcharString (URMResourceContextPtr	context_id ,
   /*
    * Offset zero for NULL pointer
    */
+  if ( context_id == NULL || offset == NULL )
+    return MrmFAILURE;
   if ( wcs == NULL )
     {
       *offset = 0;
@@ -2154,6 +2160,9 @@ UrmCWR__GuaranteeSpace (URMResourceContextPtr	context_id,
   Cardinal		result ;	/* function results */
   RGMWidgetRecordPtr	widgetrec ;	/* widget record in context */
   size_t		full_delta ;	/* aligned delta before narrowing */
+
+  if ( context_id == NULL || offset == NULL || addr == NULL )
+    return MrmFAILURE;
 
   widgetrec = (RGMWidgetRecordPtr) UrmRCBuffer(context_id) ;
   if ( ! UrmWRValid(widgetrec) )
