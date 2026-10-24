@@ -1,3 +1,5 @@
+* Reject null widget or property input at the render-table property converter
+  boundary before selecting context or lexing.
 * Bound render-table conversion argument and temporary-string arrays, routing
   oversized property data through cleanup instead of overflowing fixed storage.
 * Bound render-table property-name indexing and route oversized property input

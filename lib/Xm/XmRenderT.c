@@ -3276,6 +3276,9 @@ XmRenderTableCvtFromProp(Widget w,
   char *freelater[5];
   int scanpointer, j, count, freecount, i;
   Token token;
+
+  if (w == NULL || prop == NULL)
+    return NULL;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
