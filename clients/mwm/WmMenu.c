@@ -1978,31 +1978,59 @@ static void SearchForOtherMatches (WmScreenData *pSD, ClientData *pCD,
 		     tree != (CmdTree *) NULL;
 		     tree = tree->next)
 		{
-		    char new_command_str[1024];
-		    char new_funcargs[1024];
+		    char *new_command_str;
+		    char *new_funcargs;
+		    int command_length;
+		    int funcargs_length;
 		    WmFunction inLine_function;
 
+		    command_length = (command_string == NULL) ?
+			snprintf(NULL, 0, "<%s>", tree->name) :
+			snprintf(NULL, 0, "%s.<%s>", command_string, tree->name);
+		    new_command_str = (command_length >= 0) ?
+			(char *)XtMalloc((unsigned int)command_length + 1) : NULL;
+		    if (new_command_str == NULL)
+			continue;
 		    if (command_string == NULL)
-		      sprintf(new_command_str, "<%s>", tree->name);
+			(void)snprintf(new_command_str, (size_t)command_length + 1,
+			               "<%s>", tree->name);
 		    else
-		      sprintf(new_command_str, "%s.<%s>", command_string,
-			      tree->name);
+			(void)snprintf(new_command_str, (size_t)command_length + 1,
+			               "%s.<%s>", command_string, tree->name);
+
 		    if (tree->subTrees != (CmdTree *) NULL)
 		    {
 			/* menu to cascade to */
-			sprintf(new_funcargs, "<%s>", tree->name);
+			funcargs_length = snprintf(NULL, 0, "<%s>", tree->name);
 			inLine_function = F_Menu;
 		    }
 		    else
 		    {
-			sprintf(new_funcargs, "%d %ld %ld", (int)tree->commandID,
-				pCD->client, selection);
+			funcargs_length = snprintf(NULL, 0, "%d %ld %ld",
+			                             (int)tree->commandID,
+			                             pCD->client, selection);
 			inLine_function = F_InvokeCommand;
 		    }
+		    new_funcargs = (funcargs_length >= 0) ?
+			(char *)XtMalloc((unsigned int)funcargs_length + 1) : NULL;
+		    if (new_funcargs == NULL)
+		    {
+			XtFree(new_command_str);
+			continue;
+		    }
+		    if (tree->subTrees != (CmdTree *) NULL)
+			(void)snprintf(new_funcargs, (size_t)funcargs_length + 1,
+			               "<%s>", tree->name);
+		    else
+			(void)snprintf(new_funcargs, (size_t)funcargs_length + 1,
+			               "%d %ld %ld", (int)tree->commandID,
+			               pCD->client, selection);
 		    StoreMatchedCommand(client_match_list, current, match,
 					new_command_str, tree,
 					inLine_function, new_funcargs,
 					greyed_context);
+		    XtFree(new_command_str);
+		    XtFree(new_funcargs);
 		}
 	    }
 	    else

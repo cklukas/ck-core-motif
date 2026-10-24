@@ -1,3 +1,10 @@
+Mwm command-tree bounds (2026-10-24)
+====================================
+
+- Dynamically format inline command paths and function arguments derived from
+  user-defined menu names, preserving matching behavior without fixed 1024-byte
+  stack buffers; see `docs/mwm-command-tree-bounds.md`.
+
 Mwm session resource-name bounds (2026-10-24)
 ===============================================
 
