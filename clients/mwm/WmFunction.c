@@ -4544,7 +4544,6 @@ Boolean F_Screen (String args, ClientData *pCD, XEvent *event)
     WmScreenData *newscr = NULL;
     int scr, inc;
     static int PreviousScreen = -1;
-    char pch[80];
     
 
     if (PreviousScreen == -1)
@@ -4586,9 +4585,24 @@ Boolean F_Screen (String args, ClientData *pCD, XEvent *event)
 		scr += inc;
 		continue;
 	    }
-	    sprintf(pch, 
-		    "Unable to warp to unmanaged screen %d\n", scr);
-	    Warning (&pch[0]);
+            {
+                const char *format = "Unable to warp to unmanaged screen %d\n";
+                int messageLength = snprintf(NULL, 0, format, scr);
+                char *message = (messageLength >= 0) ?
+                    (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+
+                if (message != NULL)
+                {
+                    (void)snprintf(message, (size_t)messageLength + 1,
+                                   format, scr);
+                    Warning(message);
+                    XtFree(message);
+                }
+                else
+                {
+                    Warning("Unable to warp to unmanaged screen");
+                }
+            }
 	    XBell (DISPLAY, 0);
 	    return (False);
 	}

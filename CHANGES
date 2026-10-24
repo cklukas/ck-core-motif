@@ -1,3 +1,10 @@
+Mwm screen-warp warning bounds (2026-10-24)
+=============================================
+
+- Dynamically format the unmanaged-screen `f.screen` warning, preserving the
+  bell and failure behavior while removing its 80-byte stack buffer; see
+  `docs/mwm-screen-warp-warning.md`.
+
 Mwm screen-conflict warning bounds (2026-10-24)
 ================================================
 
