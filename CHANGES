@@ -1,3 +1,11 @@
+Bound Motif warning message assembly (2026-10-24)
+==================================================
+
+- Measure warning headers and formatted parameters before allocating output,
+  and reserve space for newline indentation. Long error-database diagnostics
+  no longer overwrite fixed warning buffers; see docs/warning-output.md.
+- Add a source contract regression for the dynamic warning path.
+
 Qualify Unicode accessibility menu labels (2026-10-24)
 =======================================================
 

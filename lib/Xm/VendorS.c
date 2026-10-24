@@ -35,6 +35,7 @@ static char rcsid[] = "$TOG: VendorS.c /main/21 1999/08/09 10:49:41 mgreess $"
 
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 #include <Xm/AccColorT.h>
 #include <Xm/AtomMgr.h>
 #include <Xm/DisplayP.h>
@@ -1918,8 +1919,11 @@ MotifWarningHandler (String name,
 		     String * params,
 		     Cardinal* num_params)
 {
-   char buf[1024], buf2[1024], header[200], *bp, *newline_pos;
-   int pos;
+   char buf2[1024], header[200], *combined, *output;
+   size_t header_len, message_len, combined_len, output_len, newline_count;
+   int header_chars, message_chars;
+   const char *bp;
+   char *dst;
 
    if (!(params && num_params && (*num_params > 0) && 
 	 (params[*num_params-1] == XME_WARNING)) &&
@@ -1936,37 +1940,58 @@ MotifWarningHandler (String name,
    XtGetErrorDatabaseText("motif", "header", "Motif", 
 			  _XmMMsgMotif_0000, header, 200);  
 
-   sprintf(buf, header, name, s_class);
+   header_chars = snprintf(NULL, 0, header, name, s_class);
+   if (header_chars < 0) return;
+   header_len = (size_t)header_chars;
    if (num_params && *num_params > 1) {
      int i = *num_params-1;
      char *par[10];
      if (i > 10) i = 10;
      memcpy((char*)par, (char*)params, i * sizeof(String));
      bzero((char *)&par[i], (10-i) * sizeof(String));
-     (void) sprintf(&buf[strlen(buf)], buf2, par[0], par[1], par[2], par[3],
+     message_chars = snprintf(NULL, 0, buf2, par[0], par[1], par[2], par[3],
 		    par[4], par[5], par[6], par[7], par[8], par[9]);
+     if (message_chars < 0) return;
+     message_len = (size_t)message_chars;
    } else
-     strcat(buf, buf2);
+     message_len = strlen(buf2);
 
-   pos = 0;
-   bp = buf;
-   do {
-     newline_pos = strchr (bp, '\n');
-     if (newline_pos == NULL) {
-       strcpy (&buf2[pos], bp);
-       pos += strlen (bp);
-     } else {
-       strncpy (&buf2[pos], bp, (int) (newline_pos - bp + 1));
-       pos +=  (int) (newline_pos - bp + 1);
-       bp  +=  (int) (newline_pos - bp + 1);
-       strcpy (&buf2[pos], "    ");
-       pos += 4;
-     }
-   } while (newline_pos != NULL);
-   
-   buf2[pos] = '\n'; buf2[++pos] = '\0';
+   if (header_len > SIZE_MAX - message_len - 1)
+     return;
+   combined_len = header_len + message_len;
+   combined = XtMalloc((Cardinal)(combined_len + 1));
+   (void)snprintf(combined, combined_len + 1, header, name, s_class);
+   if (num_params && *num_params > 1) {
+     int i = *num_params-1;
+     char *par[10];
+     if (i > 10) i = 10;
+     memcpy((char*)par, (char*)params, i * sizeof(String));
+     bzero((char *)&par[i], (10-i) * sizeof(String));
+     (void)snprintf(combined + header_len, message_len + 1, buf2,
+                    par[0], par[1], par[2], par[3], par[4], par[5],
+                    par[6], par[7], par[8], par[9]);
+   } else
+     memcpy(combined + header_len, buf2, message_len + 1);
 
-   XtWarning(buf2);
+   newline_count = 0;
+   for (bp = combined; *bp; ++bp)
+     if (*bp == '\n') ++newline_count;
+   if (newline_count > (SIZE_MAX - combined_len - 2) / 4)
+     { XtFree(combined); return; }
+   output_len = combined_len + newline_count * 4 + 1;
+   output = XtMalloc((Cardinal)(output_len + 1));
+   dst = output;
+   for (bp = combined; *bp; ) {
+     const char *newline = strchr(bp, '\n');
+     size_t chunk = newline ? (size_t)(newline - bp) + 1 : strlen(bp);
+     memcpy(dst, bp, chunk); dst += chunk; bp += chunk;
+     if (newline) { memcpy(dst, "    ", 4); dst += 4; }
+   }
+   *dst++ = '\n'; *dst = '\0';
+
+   XtWarning(output);
+   XtFree(output);
+   XtFree(combined);
 }
 
 
