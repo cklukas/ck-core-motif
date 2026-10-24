@@ -1,3 +1,9 @@
+Bound incoming text selection lengths (2026-10-24)
+====================================================
+- Reject selection payload lengths that cannot fit Motif’s int-indexed text
+  blocks in primary, clipboard, and drop imports.
+- Free rejected payloads and report transfer failure, with a source contract
+  regression and documentation.
 Bound text selection property exports (2026-10-24)
 ===================================================
 - Check XTextProperty lengths before conversion to allocation sizes for string,

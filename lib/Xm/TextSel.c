@@ -265,9 +265,14 @@ InsertSelection(
       return;
     }
   } else {  /* it must be either CS_OF_ENCODING or TEXT */
+    if (*length > (unsigned long)INT_MAX) {
+      XtFree((char *)value);
+      insert_select->done_status = True;
+      insert_select->success_status = False;
+      return;
+    }
     block.ptr = (char*)value;
-    /* NOTE: casting *length could result in a truncated long. */
-    block.length = (unsigned) *length;
+    block.length = (int) *length;
     block.format = XmFMT_8_BIT;
   }
   
@@ -1042,9 +1047,15 @@ DoStuff(Widget w,
 	block.length = 0;
       }
     } else {
+      if (ds->length > (unsigned long)INT_MAX) {
+	XtFree((char *)ds->value);
+	ds->value = NULL;
+	prim_select->success_status = False;
+	prim_select->done_status = True;
+	return;
+      }
       block.ptr = (char*)ds->value;
-      block.length = (int) ds->length; /* NOTE: this causes a truncation on
-					  some architectures */
+      block.length = (int) ds->length;
     }
     
     if (data->selectionMove && local) {
@@ -1253,9 +1264,14 @@ DropTransferProc(Widget w,
       return;
     }
   } else {
+    if (ds->length > (unsigned long)INT_MAX) {
+	XtFree((char *)ds->value);
+	ds->value = NULL;
+	XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+	return;
+    }
     block.ptr = (char *) ds->value;
-    block.length = (int) ds->length; /* NOTE: this causes a truncation on
-					  some architectures */
+    block.length = (int) ds->length;
   }
   
   block.format = XmFMT_8_BIT;
