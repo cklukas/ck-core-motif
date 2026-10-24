@@ -42,6 +42,7 @@
 #endif
 #include <errno.h>
 #include <limits.h>
+#include <stdint.h>
 #include <Xm/XmosP.h>
 #include "MessagesI.h"
 #include "ResEncodI.h"
@@ -588,25 +589,37 @@ XmRegisterSegmentEncoding(
 XtPointer 
 _XmGetEncodingRegistryTarget(int *length)
 {
-  int i, count, total_size;
+  size_t i, count, total_size, tag_size, encoding_size;
   SegmentEncoding *current;
   char *rval;
   
   total_size = 0;
+  *length = 0;
 
   _XmProcessLock();
   current = _encoding_registry_ptr;
   while(current != NULL) {
-    total_size += strlen(EncodingRegistryTag(current)) +
-      strlen(EncodingRegistryEncoding(current)) + 2;
+    tag_size = strlen(EncodingRegistryTag(current));
+    encoding_size = strlen(EncodingRegistryEncoding(current));
+    if (tag_size > SIZE_MAX - encoding_size - 2 ||
+        total_size > SIZE_MAX - tag_size - encoding_size - 2 ||
+        total_size + tag_size + encoding_size + 2 > (size_t)INT_MAX) {
+      _XmProcessUnlock();
+      return NULL;
+    }
+    total_size += tag_size + encoding_size + 2;
     current = EncodingRegistryNext(current);
   }
 
-  *length = total_size;
+  if (!total_size) {
+    _XmProcessUnlock();
+    return NULL;
+  }
+  *length = (int)total_size;
 
   /* Create output buffer large enough for all the
      pairs of tags and encodings */
-  rval = XtMalloc(sizeof(char) * total_size);
+  rval = XtMalloc((Cardinal)total_size);
 
   i = 0;
   current = _encoding_registry_ptr;

@@ -1,3 +1,11 @@
+Bound compound-text encoding registry export (2026-10-24)
+==========================================================
+
+- Check aggregate tag and encoding lengths with size_t arithmetic before
+  exporting the NUL-separated registry target. Overflow and empty registries
+  now return no target data safely; see docs/compound-text-lengths.md.
+- Add a source contract regression for the checked export path.
+
 Bound Motif warning message assembly (2026-10-24)
 ==================================================
 
