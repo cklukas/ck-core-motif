@@ -856,8 +856,16 @@ miRegionOp(
      * nuke the XtRealloc() at the end of this function eventually.
      */
     
-    newReg->numRects = 0;
-    newReg->size = MAX(reg1->numRects,reg2->numRects) * 2;
+    {
+	long max_rects = MAX(reg1->numRects, reg2->numRects);
+	if (max_rects <= 0 || (unsigned long)max_rects >
+	    (unsigned long)LONG_MAX / 2 ||
+	    (unsigned long)max_rects >
+	    (unsigned long)UINT_MAX / (2 * sizeof(XmRegionBox)))
+	    return;
+	newReg->numRects = 0;
+	newReg->size = max_rects * 2;
+    }
 
     if (! (newReg->rects = (XmRegionBox *)
 	   XtMalloc ((Cardinal) (sizeof(XmRegionBox) * newReg->size)))) {

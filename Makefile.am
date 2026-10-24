@@ -195,3 +195,5 @@ EXTRA_DIST += tests/automated/check-region-size-bounds.py docs/region-size-bound
 EXTRA_DIST += tests/automated/check-region-shadow-counts.py docs/region-shadow-counts.md
 
 EXTRA_DIST += tests/automated/check-region-export-bounds.py docs/region-export-bounds.md
+
+EXTRA_DIST += tests/automated/check-region-operation-capacity.py docs/region-operation-capacity.md

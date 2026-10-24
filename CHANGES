@@ -1,3 +1,8 @@
+Region operation capacity bounds (2026-10-25)
+=============================================
+
+- Validate doubled region-operation capacities before allocation, preventing `long` and Xt `Cardinal` wraparound while leaving valid operations unchanged; see `docs/region-operation-capacity.md`.
+
 Region rectangle export bounds (2026-10-25)
 ============================================
 
