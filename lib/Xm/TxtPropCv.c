@@ -397,6 +397,11 @@ XmCvtXmStringTableToTextProperty(Display *display,
   _XmDisplayToAppContext(display);
 
   _XmAppLock(app);
+  if (text_prop_return == NULL || count < 0 ||
+      (count != 0 && string_table == NULL)) {
+    _XmAppUnlock(app);
+    return BadValue;
+  }
   switch (style)
     {
     case XmSTYLE_COMPOUND_TEXT:
@@ -452,7 +457,7 @@ XmCvtXmStringTableToTextProperty(Display *display,
 	  XtFree((char *) bufptr);
 	  ubufptr += size;
 	}
-      *(++ubufptr) = '\0';
+      *ubufptr = '\0';
       text_prop_return->nitems = total_size;
       text_prop_return->format = 8;
       text_prop_return->encoding =

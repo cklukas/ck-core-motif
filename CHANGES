@@ -1,3 +1,9 @@
+Bound text-property conversion outputs (2026-10-24)
+====================================================
+- Reject negative table counts and missing non-empty table pointers at the
+  conversion boundary.
+- Keep the compound-string terminator within its allocated output buffer and
+  add a source contract regression with documentation.
 Bound text source scratch-buffer sizing (2026-10-24)
 =====================================================
 - Check character-width multiplication before allocating the text source
