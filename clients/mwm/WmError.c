@@ -237,10 +237,27 @@ WmXErrorHandler (Display *display, XErrorEvent *errorEvent)
 int
 WmXIOErrorHandler (Display *display)
 {
-  char  err[100];
- 
-  sprintf (err, "%s: %s\n", "I/O error on display:", XDisplayString(display));
-  Warning(err);
+  const char *displayName = XDisplayString(display);
+  int messageLength;
+  char *message;
+
+  if (displayName == NULL)
+      displayName = "";
+  messageLength = snprintf(NULL, 0, "%s: %s\n",
+                           "I/O error on display:", displayName);
+  message = (messageLength >= 0) ?
+      (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+  if (message != NULL)
+  {
+      (void)snprintf(message, (size_t)messageLength + 1,
+                     "%s: %s\n", "I/O error on display:", displayName);
+      Warning(message);
+      XtFree(message);
+  }
+  else
+  {
+      Warning("I/O error on display");
+  }
 
   ExitWM (WM_ERROR_EXIT_VALUE);
 
@@ -324,12 +341,26 @@ void
 Warning (char *message)
 {
 #ifdef WSM
-    char pch[MAXWMPATH+1];
+    const char *managerName = GETMESSAGE(20, 1, "Workspace Manager");
+    int messageLength;
+    char *formattedMessage;
 
-    sprintf (pch, "%s: %s\n", 
-	GETMESSAGE(20, 1, "Workspace Manager"), message);
+    if (message == NULL)
+        message = "";
+    messageLength = snprintf(NULL, 0, "%s: %s\n", managerName, message);
+    formattedMessage = (messageLength >= 0) ?
+        (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+    if (formattedMessage == NULL)
+    {
+        _DtSimpleError(wmGD.mwmName, DtIgnore, NULL,
+                       "Workspace Manager: warning formatting failed\n", NULL);
+        return;
+    }
 
-    _DtSimpleError (wmGD.mwmName, DtIgnore, NULL, pch, NULL);
+    (void)snprintf(formattedMessage, (size_t)messageLength + 1,
+                   "%s: %s\n", managerName, message);
+    _DtSimpleError (wmGD.mwmName, DtIgnore, NULL, formattedMessage, NULL);
+    XtFree(formattedMessage);
 #else /* WSM */
     fprintf (stderr, "%s: %s\n", wmGD.mwmName, message);
     fflush (stderr);

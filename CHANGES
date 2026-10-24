@@ -1,3 +1,10 @@
+Mwm error-diagnostic bounds (2026-10-24)
+==========================================
+
+- Dynamically format the WSM warning wrapper and X I/O error diagnostic,
+  preserving warning and fatal-exit behavior without fixed-buffer overflows;
+  see `docs/mwm-error-bounds.md`.
+
 Mwm feedback-message fallback (2026-10-24)
 ============================================
 
