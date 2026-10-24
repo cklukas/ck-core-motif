@@ -149,6 +149,8 @@ Idb__DB_GetDataEntry (IDBFile			file_id,
    */
   status = Idb__BM_GetRecord (file_id, record_number, &curbuf) ;
   if ( status != MrmSUCCESS ) return status ;
+  if (curbuf == NULL || curbuf->IDB_record == NULL)
+    return MrmFAILURE;
 
   /*
    * Point to the header in the data entry, set the context data. The context
@@ -220,6 +222,8 @@ Idb__DB_GetDataEntry (IDBFile			file_id,
 	      status =
 		Idb__BM_GetRecord (file_id, record_number, &curbuf) ;
 	      if ( status != MrmSUCCESS ) return status ;
+	      if (curbuf == NULL || curbuf->IDB_record == NULL)
+		return MrmFAILURE;
 
 	      data_rec = (IDBDataRecord *) curbuf->IDB_record;
 	      datahdr = (IDBDataEntryHdrPtr)
