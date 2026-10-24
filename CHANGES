@@ -1,5 +1,10 @@
 2026-10-24
 
+* Keep client UIL parser links valid in out-of-tree builds after interrupted
+  generated-file cleanup.
+
+2026-10-24
+
 * Fix parallel WML parser generation and make wmluiltok provide an explicit
   scanner entry point for current flex toolchains.
 

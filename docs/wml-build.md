@@ -9,5 +9,7 @@ The generated `UilLexPars.c` and `UilLexPars.h` symlinks are created through a
 single stamp rule.  This makes `make -j` deterministic: concurrent object
 prerequisites no longer run two recipes that race to create the same header.
 The stamp recipe removes stale links before recreating them, so an interrupted
-build can be resumed safely.  `make clean` removes the stamp as well as the
-generated links.
+build can be resumed safely.  The client-side UIL parser link also points back
+to the source tree, which keeps out-of-tree builds from retaining a dangling
+relative symlink.  `make clean` removes the stamp as well as the generated
+links.
