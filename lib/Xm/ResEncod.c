@@ -2534,8 +2534,22 @@ processCharsetAndTextUtf8(XmStringCharSet tag,
   if (ctlen > 0) {
     char *text = Convert((char *)ctext, ctlen, "UTF-8", tag);
     if (text == NULL) return(False);
-    *outc = ctextConcat(*outc, *outlen, (const_OctetPtr)text, strlen(text));
-    *outlen += ctlen;
+    {
+      size_t converted_len = strlen(text);
+      if (converted_len > UINT_MAX || *outlen > UINT_MAX - (unsigned int)converted_len)
+        {
+          XtFree(text);
+          return(False);
+        }
+      *outc = ctextConcat(*outc, *outlen, (const_OctetPtr)text,
+                          (unsigned int)converted_len);
+      if (*outc == NULL)
+        {
+          XtFree(text);
+          return(False);
+        }
+      *outlen += (unsigned int)converted_len;
+    }
     XtFree(text);
   };
 
