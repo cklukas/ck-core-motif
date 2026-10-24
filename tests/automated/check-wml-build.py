@@ -15,6 +15,9 @@ assert "$(RM) UilLexPars.h UilLexPars.c" in makefile
 assert "UilLexPars.h: UilLexPars.c" not in makefile
 assert "int\nmain (void)" in lexer
 assert "wmluiltok_SOURCES = wmluiltok.c" in makefile
+extra_dist = makefile.split("EXTRA_DIST = ", 1)[1].split("\n", 1)[0]
+for generated in ("wmllex.c", "Uil.c", "Uil.h", "UilLexPars.c", "UilLexPars.h"):
+    assert generated not in extra_dist
 assert "wmluiltok.c: wmluiltok.l" in makefile
 assert "Uil.stamp: Uil.y" in makefile
 assert "Uil.c Uil.h: Uil.stamp" in makefile

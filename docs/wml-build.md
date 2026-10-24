@@ -39,3 +39,7 @@ The WML specification lexer (`wmllex.c`) is generated explicitly from
 `wmllex.l` as part of the same out-of-tree build. A fresh checkout therefore
 does not require a checked-in generated lexer; the selected `LEX` implementation
 must be available when building the WML tools.
+
+Generated lexer and parser outputs are not listed in `EXTRA_DIST`, so source
+archives and fresh checkouts do not claim to contain files that are created
+only by the build.

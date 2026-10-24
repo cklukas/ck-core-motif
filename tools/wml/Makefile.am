@@ -1,6 +1,6 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-EXTRA_DIST = README wmllex.c wmllex.l motif.wml Uil.y Uil.c Uil.h UilLexPars.h UilLexPars.c docs/wml-build.md
+EXTRA_DIST = README wmllex.l motif.wml Uil.y docs/wml-build.md
 
 AM_YFLAGS = -d
 #AM_LFLAGS = -l
