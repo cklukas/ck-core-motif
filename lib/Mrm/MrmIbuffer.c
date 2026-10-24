@@ -161,6 +161,9 @@ Idb__BM_InitBufferVector (void)
   Cardinal		ndx ;		/* loop variable */
   IDBRecordBufferPtr	bufptr ;	/* entry into buffer pool vector */
 
+  if (idb__buffer_pool_size <= 0)
+    return MrmFAILURE;
+
   idb__buffer_pool_vec = (IDBRecordBufferPtr) XtMalloc
     (idb__buffer_pool_size*sizeof(IDBRecordBuffer)) ;
   if ( idb__buffer_pool_vec == NULL )

@@ -1,4 +1,7 @@
 2026-10-26
+	* Reject non-positive externally configured Mrm buffer-pool sizes.
+
+2026-10-26
 	* Validate Mrm record types before indexing per-file type counters.
 
 2026-10-26
