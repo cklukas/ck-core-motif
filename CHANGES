@@ -1,3 +1,9 @@
+Mrm zero-count descriptor guards (2026-10-25)
+==============================================
+
+- Reject zero-count module and widget-record argument-list descriptors before
+  one-entry-minus-one sizing can underflow; see `docs/mrm-zero-counts.md`.
+
 Mrm Arg-list allocation bounds (2026-10-25)
 ===========================================
 

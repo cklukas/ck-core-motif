@@ -159,7 +159,7 @@ UrmIFMInitModule (URMResourceContextPtr		context_id,
    * validate context and bind pointer. Size check.
    */
   _validate_context (context_id, "UrmIFMInitModule", ifmodptr) ;
-  if ( num_widget >= RGMListSizeMax )
+  if ( num_widget == 0 || num_widget >= RGMListSizeMax )
     return Urm__UT_Error ("UrmIFMInitModule", _MrmMMsg_0044,
 			  NULL, context_id, MrmTOO_MANY) ;
 

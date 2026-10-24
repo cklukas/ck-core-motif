@@ -342,7 +342,7 @@ UrmCWRInitArglist (URMResourceContextPtr	context_id,
   /*
    * Error check that the number of arguments is reasonable
    */
-  if ( nargs > RGMListSizeMax )
+  if ( nargs == 0 || nargs > RGMListSizeMax )
     return Urm__UT_Error ("UrmCWRInitArgList", _MrmMMsg_0092,
 			  NULL, context_id, MrmTOO_MANY) ;
 
