@@ -170,7 +170,7 @@ $(JPEG_HDRS) \
 $(PNG_HDRS) \
 $(TIP_HDRS)
 
-xm_HEADERS = Accessible.h TextUnicode.h TextLayout.h ArrowB.h      ArrowBG.h       ArrowBGP.h      ArrowBP.h \
+xm_HEADERS = Accessible.h TextUnicode.h TextLayout.h Appearance.h ArrowB.h      ArrowBG.h       ArrowBGP.h      ArrowBP.h \
         BulletinB.h     BulletinBP.h    CacheP.h        CascadeB.h \
         CascadeBG.h     CascadeBGP.h    CascadeBP.h     Command.h \
         CommandP.h      CutPaste.h      DialogS.h \
@@ -250,7 +250,7 @@ SRCS2 = Desktop.c       Messages.c      Transltns.c     RepType.c \
         Synthetic.c     XmFontList.c    ClipWindow.c    Transfer.c \
         Hash.c          ScrollFrameT.c  \
         XmTabList.c     Resolve.c       XmStringFunc.c \
-        XmRenderT.c     PixConv.c       Color.c         Xm.c \
+        XmRenderT.c     PixConv.c       Color.c         Xm.c         Appearance.c \
         CareVisualT.c   Direction.c     XmStringObso.c  XmStringGet.c \
         IsMwmRun.c      MenuProc.c      MenuState.c     TextFind.c \
         TextFunc.c      ColorObj.c      IconFile.c      RCHook.c \

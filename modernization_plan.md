@@ -254,6 +254,13 @@ mechanism before implementing a new visual style.
 existing default appearance, precedence is covered by installed-library tests,
 and the contract has no hidden dependence on widget-private records.
 
+**Status (2026-10-24):** implemented and qualified on the AArch64 `uconsole`
+Linux host with a fresh installed prefix under Xvfb.  The additive per-display
+API exposes only the `classic` profile in this work package, stores selection in
+the existing X resource database, rejects unknown values, and leaves realized
+widgets unchanged.  The installed consumer test passed resource-versus-explicit
+width precedence and the default/selected/rejected profile cases.
+
 **Does not include:** a new visual profile, runtime style switching of realized
 widgets or a replacement for application resource files.
 

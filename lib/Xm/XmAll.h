@@ -27,6 +27,7 @@
 #include <Xm/Xm.h>
 #include <Xm/ArrowB.h>
 #include <Xm/ArrowBG.h>
+#include <Xm/Appearance.h>
 #include <Xm/AtomMgr.h>
 #include <Xm/BulletinB.h>
 #include <Xm/CascadeB.h>
