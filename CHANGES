@@ -540,3 +540,10 @@ Development 2.4.0 / dialog argument-count guards
 - Reject maximum `Cardinal` counts in Command and MessageBox constructors
   before adding their internal dialog-type argument.
 - Add direct maximal-count regressions and documentation.
+
+Development 2.4.0 / compound-text length checks
+===============================================
+
+- Check combined compound-text encoding and segment lengths before allocation
+  and Xlib conversion, rejecting unrepresentable totals cleanly.
+- Add a public XmString conversion regression and documentation.

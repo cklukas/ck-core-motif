@@ -41,6 +41,7 @@
 #include <iconv.h>
 #endif
 #include <errno.h>
+#include <limits.h>
 #include <Xm/XmosP.h>
 #include "MessagesI.h"
 #include "ResEncodI.h"
@@ -1368,15 +1369,20 @@ cvtCTsegment(ct_context *ctx,
 {
   XTextProperty tmp_prop;
   OctetPtr octets;
+  unsigned int total_length;
   Boolean free_octets = False;
   int count;
   int ret_val;
   char **strings = NULL;
+
+  if (ctx->encoding && length > UINT_MAX - ctx->encodinglen)
+    return NULL;
+  total_length = ctx->encoding ? ctx->encodinglen + length : length;
   
   if (ctx->encoding) {
     if (ctx->encoding + ctx->encodinglen != item) {
       octets = 
-	(OctetPtr)XtMalloc((ctx->encodinglen + length) * sizeof(Octet));
+	(OctetPtr)XtMalloc((size_t)total_length * sizeof(Octet));
       memcpy((char *)octets, (char *)ctx->encoding, ctx->encodinglen);
       memcpy((char *)(octets + ctx->encodinglen), (char *)item, length);
       free_octets = True;
@@ -1391,7 +1397,7 @@ cvtCTsegment(ct_context *ctx,
   tmp_prop.encoding = XInternAtom(_XmGetDefaultDisplay(), 
 				  XmSCOMPOUND_TEXT, False);
   tmp_prop.format = 8;
-  tmp_prop.nitems = ctx->encodinglen + length;
+  tmp_prop.nitems = total_length;
   ret_val = XmbTextPropertyToTextList(_XmGetDefaultDisplay(), 
 				      &tmp_prop,
 				      &strings, 
