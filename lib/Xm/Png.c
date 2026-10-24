@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #include <png.h>
 #include "PngI.h"
@@ -28,6 +29,7 @@ _XmPngGetImage(Screen *screen, FILE *infile, Pixel background,
     unsigned char *image_data = NULL;
     unsigned long image_width, image_height, image_rowbytes;
     unsigned char *xdata;
+    size_t pixel_count, bytes_per_pixel;
     int pad;
     int rc;
 
@@ -49,17 +51,27 @@ _XmPngGetImage(Screen *screen, FILE *infile, Pixel background,
 	    &image_channels, &image_rowbytes, &image_data);
 */
     if (rc) return rc;
+    if (!image_width || !image_height || image_width > SIZE_MAX / image_height) {
+        free(image_data);
+        return 4;
+    }
+    pixel_count = (size_t)image_width * (size_t)image_height;
 
     if (screen->root_depth == 24 || screen->root_depth == 32) {
-        xdata = (unsigned char *) malloc(4 * image_width * image_height);
+        bytes_per_pixel = 4;
         pad = 32;
     } else if (screen->root_depth == 16) {
-        xdata = (unsigned char *) malloc(2 * image_width * image_height);
+        bytes_per_pixel = 2;
         pad = 16;
     } else { /* depth == 8 */
-        xdata = (unsigned char *) malloc(image_width * image_height);
+        bytes_per_pixel = 1;
         pad = 8;
     }
+    if (pixel_count > SIZE_MAX / bytes_per_pixel) {
+        free(image_data);
+        return 4;
+    }
+    xdata = (unsigned char *) malloc(pixel_count * bytes_per_pixel);
 
     if (!xdata)
         return 4;
@@ -225,13 +237,15 @@ png_load_file(FILE *infile, unsigned long *pWidth,
     *pRowbytes = rowbytes = png_get_rowbytes(png_ptr, info_ptr);
     *pChannels = (int) png_get_channels(png_ptr, info_ptr);
 
-    if ((*image_data =
-         (unsigned char *) malloc(rowbytes * height)) == NULL) {
+    if (!rowbytes || height > SIZE_MAX / rowbytes ||
+        (*image_data = (unsigned char *) malloc((size_t)rowbytes *
+                                                 (size_t)height)) == NULL) {
         png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
         return 4;
     }
-    if ((row_pointers =
-         (png_bytepp) malloc(height * sizeof(png_bytep))) == NULL) {
+    if (height > SIZE_MAX / sizeof(png_bytep) ||
+        (row_pointers = (png_bytepp) malloc((size_t)height *
+                                             sizeof(png_bytep))) == NULL) {
         png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
         free(*image_data);
         *image_data = NULL;
