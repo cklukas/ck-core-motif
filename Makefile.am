@@ -283,3 +283,4 @@ EXTRA_DIST += tests/automated/check-mrm-wref-storage-bounds.py docs/mrm-wref-sto
 EXTRA_DIST += tests/automated/check-mrm-fetch-index-bounds.py docs/mrm-fetch-index-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-time-output.py docs/mrm-time-output.md
 EXTRA_DIST += tests/automated/check-mrm-wref-tagname-input.py docs/mrm-wref-tagname-input.md
+EXTRA_DIST += tests/automated/check-mrm-wref-tagname-input.py docs/mrm-wref-tagname-input.md
