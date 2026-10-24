@@ -9416,12 +9416,13 @@ df_MakeIBeamStencil(
 #endif /* _NO_PROTO */
 {
    Screen *screen = XtScreen(tf);
-   char pixmap_name[17];
+   char pixmap_name[64];
    XGCValues values;
    unsigned long valuemask;
 
    if (!XmTextF_has_rect(tf)) _XmDataFieldSetClipRect(tf);
-   sprintf(pixmap_name, "_XmDataF_%d_%d", XmTextF_cursor_height(tf), line_width);
+   (void)snprintf(pixmap_name, sizeof(pixmap_name),
+                  "_XmDataF_%d_%d", XmTextF_cursor_height(tf), line_width);
    XmTextF_cursor(tf) = (Pixmap) XmGetPixmapByDepth(screen, pixmap_name, 1, 0, 1);
 
    if (XmTextF_cursor(tf) == XmUNSPECIFIED_PIXMAP) {
@@ -9489,7 +9490,8 @@ df_MakeIBeamStencil(
 
   /* Get/create the image_gc used to paint the I-Beam */
 
-    sprintf(pixmap_name, "_XmText_CM_%d", XmTextF_cursor_height(tf));
+    (void)snprintf(pixmap_name, sizeof(pixmap_name),
+                   "_XmText_CM_%d", XmTextF_cursor_height(tf));
     XmTextF_image_clip(tf) = XmGetPixmapByDepth(XtScreen(tf), pixmap_name,
 					     1, 0, 1);
     if (XmTextF_image_clip(tf) == XmUNSPECIFIED_PIXMAP)
@@ -9527,11 +9529,12 @@ df_MakeAddModeCursor(
 #endif /* _NO_PROTO */
 {
    Screen *screen = XtScreen(tf);
-   char pixmap_name[25];
+   char pixmap_name[64];
 
    if (!XmTextF_has_rect(tf)) _XmDataFieldSetClipRect(tf);
-   sprintf(pixmap_name, "_XmDataF_AddMode_%d_%d",
-	   XmTextF_cursor_height(tf), line_width);
+   (void)snprintf(pixmap_name, sizeof(pixmap_name),
+                  "_XmDataF_AddMode_%d_%d",
+                  XmTextF_cursor_height(tf), line_width);
 
    XmTextF_add_mode_cursor(tf) = (Pixmap) XmGetPixmapByDepth(screen, pixmap_name,
 							  1, 0, 1);

@@ -1,3 +1,11 @@
+DataField cursor pixmap name bounds (2026-10-24)
+================================================
+
+- Expand the DataField cursor-name scratch buffers and use bounded formatting
+  for I-beam and add-mode pixmap keys, preserving normal cache names while
+  preventing geometry values from overrunning the stack; see
+  `docs/datafield-pixmap-names.md`.
+
 High-contrast appearance profile (2026-10-24)
 ==============================================
 
