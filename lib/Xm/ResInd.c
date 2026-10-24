@@ -232,6 +232,9 @@ XmeParseUnits(String spec, int *unitType)
    * the worst case, the tests below take up about 30%
    * of the total conversion time.
    */
+
+  if (spec == NULL || unitType == NULL)
+    return XmPARSE_ERROR;
   
   /* an empty string here means unit_type wasn't specified */
   if (*spec == '\0')
