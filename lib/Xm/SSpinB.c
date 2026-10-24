@@ -360,6 +360,7 @@ Initialize(Widget	request,	/* unused */
 	   Cardinal	*n_user_args)	/* unused */
 {
     char			*widget_name;
+    int			widget_name_length;
     XmSimpleSpinBoxWidget	ssb_w;
     XmSimpleSpinBoxPart		*ssb_p;
     XmSpinBoxConstraint		textf_c;
@@ -374,8 +375,13 @@ Initialize(Widget	request,	/* unused */
     /*
      * Create and insert the text field child widget;
      */
-    widget_name = XtMalloc(strlen(XtName(new)) + 10);
-    sprintf(widget_name, SSB_TEXTFIELD_NAME_FORMAT, XtName(new));
+    widget_name_length = snprintf(NULL, 0, SSB_TEXTFIELD_NAME_FORMAT,
+					 XtName(new));
+    if (widget_name_length < 0)
+	return;
+    widget_name = XtMalloc((size_t)widget_name_length + 1);
+    (void) snprintf(widget_name, (size_t)widget_name_length + 1,
+			SSB_TEXTFIELD_NAME_FORMAT, XtName(new));
     
     /*
      * Collect all the resources that apply to the TextField child,

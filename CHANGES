@@ -1,3 +1,11 @@
+SpinBox child-name bounds (2026-10-24)
+=======================================
+
+- Measure and bound the `_TF` child-name construction in
+  `XmSimpleSpinBox`, preserving the resource naming contract while preventing
+  long parent names from wrapping allocation arithmetic; see
+  `docs/spinbox-name-bounds.md`.
+
 EditRes diagnostic formatting bounds (2026-10-24)
 ===================================================
 
