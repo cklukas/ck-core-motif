@@ -1,3 +1,8 @@
+Mrm IDB open output-handle validation (2026-10-25)
+====================================================
+
+- Reject missing IDB output handles and in-memory UID buffers before opening state, and handle write-descriptor allocation failure by closing the low-level file; see `docs/mrm-idb-open-output-pointers.md`.
+
 Mrm resource-context output-pointer validation (2026-10-25)
 =============================================================
 

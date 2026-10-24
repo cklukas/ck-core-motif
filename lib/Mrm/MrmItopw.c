@@ -120,6 +120,9 @@ UrmIdbOpenFileWrite (String			name ,
 		     char			*fname_return )
 {
 
+  if ( file_id_return == NULL )
+    return MrmFAILURE;
+
   /*
    *  Local variables
    */
@@ -151,6 +154,11 @@ UrmIdbOpenFileWrite (String			name ,
    * File successfully opened. Acquire a file descriptor and initialize it.
    */
   filedesc = (IDBFile) XtMalloc (sizeof(IDBOpenFile)) ;
+  if ( filedesc == NULL )
+    {
+      Idb__FU_CloseFile (fileid, TRUE);
+      return MrmFAILURE;
+    }
   filedesc->validation = IDBOpenFileValid ;
   filedesc->access = URMWriteAccess ;
   filedesc->lowlevel_id = fileid ;

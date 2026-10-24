@@ -299,3 +299,4 @@ EXTRA_DIST += tests/automated/check-mrm-hierarchy-open-input.py docs/mrm-hierarc
 EXTRA_DIST += tests/automated/check-mrm-wref-growth.py docs/mrm-wref-growth.md
 EXTRA_DIST += tests/automated/check-mrm-wcr-output-pointers.py docs/mrm-wcr-output-pointers.md
 EXTRA_DIST += tests/automated/check-mrm-context-output-pointer.py docs/mrm-context-output-pointer.md
+EXTRA_DIST += tests/automated/check-mrm-idb-open-output-pointers.py docs/mrm-idb-open-output-pointers.md

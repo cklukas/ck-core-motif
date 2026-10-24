@@ -124,6 +124,9 @@ UrmIdbOpenFileRead (String			name,
 		    char			*fname_return)
 {
 
+  if ( file_id_return == NULL )
+    return MrmFAILURE;
+
   /*
    *  Local variables
    */
@@ -218,6 +221,9 @@ Cardinal
 UrmIdbOpenBuffer (unsigned char 		*uid_buffer,
 		  IDBFile			*file_id_return)
 {
+
+  if ( uid_buffer == NULL || file_id_return == NULL )
+    return MrmFAILURE;
 
   /*
    *  Local variables
