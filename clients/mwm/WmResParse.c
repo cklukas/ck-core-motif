@@ -7742,6 +7742,28 @@ static void ParseIncludeSet (WmScreenData *pSD, unsigned char *lineP)
  * 
  *************************************<->***********************************/
 
+static void
+WarnConfigAllocation(const char *fileName)
+{
+    const char *format = (char *)GETMESSAGE(60, 36,
+        "Insufficient memory to process included file: %s");
+    const char *path = (fileName != NULL) ? fileName : "";
+    int messageLength = snprintf(NULL, 0, format, path);
+    char *message = (messageLength >= 0) ?
+        (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+
+    if (message != NULL)
+    {
+        (void)snprintf(message, (size_t)messageLength + 1, format, path);
+        Warning(message);
+        XtFree(message);
+    }
+    else
+    {
+        Warning("Insufficient memory to process included file");
+    }
+}
+
 static void ConfigStackInit (char *pchFileName)
 {
 
@@ -7761,10 +7783,7 @@ static void ConfigStackInit (char *pchFileName)
     }
     else
     {
-	sprintf ((char *)wmGD.tmpBuffer,
-	    (char *)GETMESSAGE(60,36,"Insufficient memory to process included file: %s"), 
-	    pchFileName);
-	Warning ((char *)wmGD.tmpBuffer);
+        WarnConfigAllocation(pchFileName);
     }
 }
 
@@ -7833,10 +7852,7 @@ ConfigStackPush (unsigned char *pchFileName)
     }
     else
     {
-	sprintf ((char *)wmGD.tmpBuffer,
-	    (char *)GETMESSAGE(60,36,"Insufficient memory to process included file: %s"), 
-	    pchFileName);
-	Warning ((char *)wmGD.tmpBuffer);
+        WarnConfigAllocation((char *)pchFileName);
     }
 
     return (pNewFile);

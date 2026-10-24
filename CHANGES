@@ -1,3 +1,10 @@
+Mwm include-stack allocation warnings (2026-10-24)
+===================================================
+
+- Dynamically format WSM include-stack allocation warnings instead of using the
+  shared `wmGD.tmpBuffer`, preserving stack recovery for long filenames; see
+  `docs/mwm-config-allocation-warning.md`.
+
 Mwm parser-warning bounds (2026-10-24)
 =======================================
 
