@@ -84,6 +84,7 @@ static char rcsid[] = "$XConsortium: WmMenu.c /main/15 1996/11/20 15:20:17 rswis
 #include "WmIconBox.h"
 #include "WmImage.h"
 #include "WmError.h"
+#include "WmXSMP.h"
 #ifdef WSM
 #include "WmWrkspace.h"
 #endif /* WSM */
@@ -98,6 +99,34 @@ static MenuExclusion *DuplicateMenuExclusions(MenuExclusion *exclusions);
 static Boolean FindClientCommandMatch (MenuSpec *menuSpec,
 				       String clientCommand,
 				       MenuItem **menuItem);
+static String
+MakeMenuFunctionArgs(CmdTree *tree, ClientData *pCD, Atom selection)
+{
+    int length;
+    String args;
+
+    if (tree->subTrees != (CmdTree *)NULL)
+    {
+        length = snprintf(NULL, 0, "<%s>", tree->name);
+        args = (length >= 0) ?
+            (String)XtMalloc((unsigned int)length + 1) : (String)NULL;
+        if (args != (String)NULL)
+            (void)snprintf(args, (size_t)length + 1, "<%s>", tree->name);
+    }
+    else
+    {
+        length = snprintf(NULL, 0, "%d %ld %ld", (int)tree->commandID,
+                          (pCD == NULL ? None : pCD->client), selection);
+        args = (length >= 0) ?
+            (String)XtMalloc((unsigned int)length + 1) : (String)NULL;
+        if (args != (String)NULL)
+            (void)snprintf(args, (size_t)length + 1, "%d %ld %ld",
+                           (int)tree->commandID,
+                           (pCD == NULL ? None : pCD->client), selection);
+    }
+    return args;
+}
+
 static void InsertTreeOnClient (WmScreenData *pSD, ClientData *pCD,
 				CmdTree *tree,
 				MatchList **client_match_list,
@@ -2109,7 +2138,6 @@ static void InsertTreeOnClient (WmScreenData *pSD, ClientData *pCD,
 {
     String new_command_str;
     int length;
-    char funcarg_buf[256];
     MenuSpec *newMenuSpec, *last, *dupMenuSpec;
     CmdTree *subtree;
     MenuItem *bestMatch = (MenuItem *) NULL;
@@ -2126,6 +2154,7 @@ static void InsertTreeOnClient (WmScreenData *pSD, ClientData *pCD,
 
     while (tree != (CmdTree *) NULL)
     {
+        String funcarg_buf;
 	/* The "4" below is to allow for brackets to surround the
 	   tree->name, the period to separate it from the command
 	   so far and a NULL. */
@@ -2179,7 +2208,12 @@ static void InsertTreeOnClient (WmScreenData *pSD, ClientData *pCD,
 	else if (tree->subTrees != (CmdTree *) NULL)
 	{
 	    /* Create the name of the menu for the f.menu command. */
-	    sprintf(funcarg_buf, "<%s>", tree->name);
+	    funcarg_buf = MakeMenuFunctionArgs(tree, pCD, selection);
+	    if (funcarg_buf == (String)NULL)
+	    {
+		Warning("Insufficient memory for menu function arguments");
+		ExitWM(WM_ERROR_EXIT_VALUE);
+	    }
 
 	    /* Store the cascade button information so it can be
 	       created later. */
@@ -2272,14 +2306,19 @@ static void InsertTreeOnClient (WmScreenData *pSD, ClientData *pCD,
 				  F_Menu, funcarg_buf,
 				  duplicate_globals, selection,
 				  greyed_context, inLine);
+            XtFree(funcarg_buf);
 	    
 	}
 	else /* the tree is a simple command */
 	{
 	    /* Store away the push button information so it can be 
 	       created later. */
-	    sprintf(funcarg_buf, "%d %ld %ld", (int)tree->commandID, 
-		    (pCD == NULL ? None : pCD->client), selection);
+            funcarg_buf = MakeMenuFunctionArgs(tree, pCD, selection);
+            if (funcarg_buf == (String)NULL)
+            {
+                Warning("Insufficient memory for menu function arguments");
+                ExitWM(WM_ERROR_EXIT_VALUE);
+            }
 
 	    /* If the menuSpec is global and we are supposed to be
 	       duplicating global menu specs, then create a duplicate
@@ -2307,6 +2346,7 @@ static void InsertTreeOnClient (WmScreenData *pSD, ClientData *pCD,
 					    with this pCD. CR 9623 */
 				  selection,
 				  greyed_context, inLine);
+	    XtFree(funcarg_buf);
 	}
 
 	/* Move on to the next tree item at this level */

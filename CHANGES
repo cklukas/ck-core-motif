@@ -1,3 +1,10 @@
+Mwm menu function-argument bounds (2026-10-24)
+==============================================
+
+- Dynamically size cascade and invoke-command arguments derived from user
+  command trees, preserving matching behavior without the fixed 256-byte
+  buffer; see `docs/mwm-function-arg-bounds.md`.
+
 Form layout diagnostic corpus (2026-10-24)
 ==========================================
 
