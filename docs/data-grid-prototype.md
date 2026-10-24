@@ -61,10 +61,13 @@ scans every cell in the bounded visible viewport.  It was compiled with
 
 ```text
 case,rows,columns,model_bytes,init_us,operations_us,visible_rows,maxrss_kib
-small,64,8,16896,63,5188,28,12080
-typical,512,16,266240,931,10367,28,12080
-maximum,4096,32,4227072,15026,20637,28,12080
+small,64,8,16896,64,5275,28,12080
+typical,512,16,266240,957,10536,28,12080
+maximum,4096,32,4227072,15284,20917,28,12080
 ```
+
+The microsecond timings are one clean-run sample and may vary with host load;
+the bounded model-size and viewport-row columns are the contract evidence.
 
 The model storage scales linearly with the bounded row/column product.  The
 maximum case remains a 4 MiB model snapshot and a 28-row viewport; operation
