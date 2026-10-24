@@ -442,7 +442,11 @@ Idb__BM_GetRecord (IDBFile                     file_id,
   IDBRecordBufferPtr	curbuf ;  /* current buffer being examined */
   unsigned char		*buf_src; /* tmp pointer to location in uid buffer */
 
-  if (file_id == NULL || buffer_return == NULL)
+  if (file_id == NULL || buffer_return == NULL || record <= 0)
+    return MrmFAILURE;
+
+  if (file_id->in_memory && record != IDBHeaderRecordNumber &&
+      (file_id->uid_buffer == NULL || record > file_id->last_record))
     return MrmFAILURE;
 
   /*

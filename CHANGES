@@ -1,3 +1,8 @@
+Mrm in-memory IDB record bounds (2026-10-25)
+=============================================
+
+- Reject nonpositive and logically out-of-range in-memory record numbers before calculating UID-buffer offsets, while retaining the header-record read during open validation; see `docs/mrm-idb-record-bounds.md`.
+
 Mrm IDB block I/O completion (2026-10-25)
 ==========================================
 
