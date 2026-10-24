@@ -1596,6 +1596,9 @@ PictureVerifyCallback(
     if(changed == NULL) {
 	cbs->doit = False;
 	XtCallCallbackList(w, XmDataField_picture_error_cb(w), NULL);
+	XtFree(newptr);
+	XtFree(curr);
+	XmPictureDeleteState(ps);
 	return;
     }
 
@@ -1620,6 +1623,7 @@ PictureVerifyCallback(
     cbs->text->length = strlen(changed);
 
     XtFree(newptr);
+    XtFree(curr);
     XmPictureDeleteState(ps);
 }
 

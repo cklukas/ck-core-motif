@@ -654,3 +654,10 @@ DataField insert-string action bounds (2026-10-24)
 - Replace the unbounded `strcpy` in the `insert-string` action with a complete parameter-length check before copying into the fixed 64-byte action buffer. Oversized action parameters are ignored safely.
 - Preserve normal action filtering, locale conversion, replacement, callbacks, public interfaces and native ABI. Add `tests/automated/check-datafield-insert-action.c` and document the contract in `docs/datafield-insert-action-bounds.md`.
 - Native AArch64 validation passes the oversized-parameter regression under Xvfb.
+
+DataField picture verification cleanup (2026-10-24)
+====================================================
+
+- Release the temporary current-value string on all picture verification exits. Rejected edits now also release the splice buffer and picture state before returning, preventing repeated picture edits from leaking conversion state.
+- Preserve picture validation callbacks, autofill behavior, accepted/rejected edit semantics, public interfaces and native ABI. Document the lifetime contract in `docs/datafield-picture-verify-lifetime.md`.
+- Native AArch64 validation passes the warning-enabled DataField build and Xvfb DataField action regression.
