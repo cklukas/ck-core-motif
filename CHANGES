@@ -3087,3 +3087,10 @@ Mrm writer child index input (2026-10-25)
 - Reject null indexed-child names before UID writer string operations,
   preserving the existing empty-index error and valid RID/index behavior; see
   `docs/mrm-writer-child-index.md`.
+
+Mrm writer extra-args validation (2026-10-25)
+===============================================
+
+- Propagate context and argument-descriptor validation failures from
+  `UrmCWRSetExtraArgs` before writing the extra-argument count; see
+  `docs/mrm-writer-extra-args-validation.md`.

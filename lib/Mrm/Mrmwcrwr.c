@@ -1508,15 +1508,18 @@ UrmCWRSetExtraArgs (URMResourceContextPtr	context_id ,
    */
   RGMArgListDescPtr	argdesc ;	/* arglist desc in record */
   RGMArgumentPtr	argptr ;	/* argument being set */
+  Cardinal		result ;	/* validation result */
 
 
   /*
    * Validate record, arglist descriptor. Bind usual pointers, although
    * argptr not used. Set the extra args field.
    */
-  UrmCWR__ValidateContext (context_id, "UrmCWRSetExtraArgs") ;
-  UrmCWR__BindArgPtrs
+  result = UrmCWR__ValidateContext (context_id, "UrmCWRSetExtraArgs") ;
+  if ( result != MrmSUCCESS ) return result ;
+  result = UrmCWR__BindArgPtrs
     (context_id, "UrmCWRSetExtraArgs", 0, &argdesc, &argptr) ;
+  if ( result != MrmSUCCESS ) return result ;
 
   if (nextra > RGMListSizeMax)
     return Urm__UT_Error ("UrmCWRSetExtraArgs", _MrmMMsg_0092,
