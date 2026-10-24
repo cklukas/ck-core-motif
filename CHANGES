@@ -1,5 +1,10 @@
 2026-10-24
 
+* Reject invalid private-target counts before XmeStandardTargets computes
+  its allocation size.
+
+2026-10-24
+
 * Keep client UIL parser links valid in out-of-tree builds after interrupted
   generated-file cleanup.
 
