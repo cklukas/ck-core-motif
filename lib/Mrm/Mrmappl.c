@@ -52,6 +52,7 @@ static char rcsid[] = "$XConsortium: Mrmappl.c /main/17 1996/11/13 13:59:58 drk 
  *
  */
 
+#include <stdint.h>
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
 #include "MrmMsgI.h"
@@ -354,6 +355,13 @@ MrmRegisterNames (MrmRegisterArglist		reglist,
   XtPointer		*values;	/* vector of values */
   int			ndx;		/* loop index */
 
+  if (num_reg < 0 ||
+      (size_t)num_reg > SIZE_MAX / sizeof(String) ||
+      (size_t)num_reg > SIZE_MAX / sizeof(XtPointer))
+    return MrmFAILURE;
+  if (num_reg == 0)
+    return MrmSUCCESS;
+
 
   _MrmProcessLock();
   /*
@@ -428,6 +436,13 @@ MrmRegisterNamesInHierarchy (MrmHierarchy		hierarchy_id,
   String		*names;		/* vector of names */
   XtPointer		*values;	/* vector of values */
   int			ndx;		/* loop index */
+
+  if (num_reg < 0 ||
+      (size_t)num_reg > SIZE_MAX / sizeof(String) ||
+      (size_t)num_reg > SIZE_MAX / sizeof(XtPointer))
+    return MrmFAILURE;
+  if (num_reg == 0)
+    return MrmSUCCESS;
 
   _MrmProcessLock();
   /*

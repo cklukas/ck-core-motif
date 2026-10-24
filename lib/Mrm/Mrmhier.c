@@ -55,6 +55,7 @@ static char rcsid[] = "$XConsortium: Mrmhier.c /main/17 1996/11/13 14:01:19 drk 
  */
 
 #include <stdio.h>
+#include <stdint.h>
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
 
@@ -551,6 +552,9 @@ Urm__RegisterNamesInHierarchy (MrmHierarchy		hierarchy_id,
   URMHashTableEntryPtr	hash_entry;
   char			*current_name;
   char			*current_value;
+
+  if (num_cb < 0)
+    return MrmFAILURE;
 
 
   /*

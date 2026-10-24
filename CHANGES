@@ -1,3 +1,10 @@
+Mrm name-registration counts (2026-10-25)
+=========================================
+
+- Reject negative or unrepresentable public name-registration counts before
+  allocating parallel vectors, and make zero-entry registrations no-ops; see
+  `docs/mrm-register-counts.md`.
+
 Mrm pointer-list bounds (2026-10-25)
 ==================================
 

@@ -56,6 +56,7 @@ static char rcsid[] = "$TOG: Mrmwci.c /main/16 1999/05/19 15:25:58 mgreess $"
  */
 
 #include <stdio.h>
+#include <stdint.h>
 #include <X11/IntrinsicP.h>
 #include <X11/CoreP.h>
 
@@ -274,6 +275,9 @@ Urm__WCI_RegisterNames (String			*names,
   URMHashTableEntryPtr	hash_entry;
   char			*current_name;
   char			*current_value;
+
+  if (num_cb < 0)
+    return MrmFAILURE;
 
 
   /*
