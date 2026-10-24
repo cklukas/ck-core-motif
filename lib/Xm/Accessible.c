@@ -23,6 +23,7 @@
 #include <Xm/PushBG.h>
 #include <Xm/ProgressBar.h>
 #include <Xm/ScrollBar.h>
+#include <Xm/Spinner.h>
 #include <Xm/Text.h>
 #include <Xm/TextP.h>
 #include <Xm/TextF.h>
@@ -577,6 +578,9 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     if (XmIsProgressBar(w))
       XtAddCallback(w, XmNprogressValueChangedCallback, text_value_changed,
                     (XtPointer)a);
+    if (XmIsSpinner(w))
+      XtAddCallback(w, XmNspinnerStateChangedCallback, text_value_changed,
+                    (XtPointer)a);
     if (XtIsWidget(w)) {
       XtAddEventHandler(w,
                         FocusChangeMask | StructureNotifyMask |
@@ -674,6 +678,9 @@ static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
                        (XtPointer)a);
     if (XmIsProgressBar(n->widget))
       XtRemoveCallback(n->widget, XmNprogressValueChangedCallback,
+                       text_value_changed, (XtPointer)a);
+    if (XmIsSpinner(n->widget))
+      XtRemoveCallback(n->widget, XmNspinnerStateChangedCallback,
                        text_value_changed, (XtPointer)a);
     if (XtIsWidget(n->widget)) {
       XtRemoveRawEventHandler(n->widget, KeyPressMask | KeyReleaseMask, False,
@@ -1007,6 +1014,14 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     if (XmProgressBarGetIndeterminate(w))
       i->states |= XmACCESSIBLE_STATE(32); /* busy */
     XtVaGetValues(w, XmNprogressLabelString, &label, NULL);
+    if (label)
+      local = XmStringUnparse(label, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
+                              NULL, 0, XmOUTPUT_ALL);
+  }
+  if (XmIsSpinner(w)) {
+    i->role = XmACCESSIBLE_PROGRESS_BAR;
+    i->states |= XmACCESSIBLE_STATE(32); /* busy */
+    XtVaGetValues(w, XmNspinnerLabelString, &label, NULL);
     if (label)
       local = XmStringUnparse(label, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
                               NULL, 0, XmOUTPUT_ALL);

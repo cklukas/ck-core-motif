@@ -894,6 +894,18 @@ presentation.
 A ring is included only with equivalent evidence; otherwise it is explicitly
 deferred.
 
+**Status (2026-10-25):** implemented and qualified on uconsole.  The additive
+`XmProgressBar` exposes normalized bounded range/value state, determinate and
+indeterminate rendering, typed value-change callbacks, explicit sizing and
+progress accessibility semantics.  The distinct `XmSpinner` uses one bounded
+Xt timer only while realized, managed, mapped, sensitive and active; it cancels
+the timer on deactivation, unmanagement and destruction, and exposes busy
+accessibility semantics without a numeric value.  The installed-prefix
+fixtures passed 17 ProgressBar checks and 13 Spinner checks under Xvfb,
+including repeated timer advancement/cancellation and callback re-entry.  A
+ProgressRing is explicitly deferred: its sizing, focus, high-contrast and
+accessible-value evidence is not yet equivalent to these controls.
+
 ### WP-18: NumberBox and Stepper
 
 **Depends on:** WP-15.

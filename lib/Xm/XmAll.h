@@ -80,6 +80,7 @@
 #include <Xm/RowColumn.h>
 #include <Xm/SSpinB.h>
 #include <Xm/Scale.h>
+#include <Xm/Spinner.h>
 #include <Xm/Screen.h>
 #include <Xm/ScrollBar.h>
 #include <Xm/ScrolledW.h>

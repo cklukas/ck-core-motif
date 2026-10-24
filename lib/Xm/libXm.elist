@@ -130,6 +130,7 @@ public XmCreateToggleButton
 public XmCreateToggleButtonGadget
 public XmCreateToggleSwitch
 public XmCreateProgressBar
+public XmCreateSpinner
 public XmCreateWarningDialog
 public XmCreateWorkArea
 public XmCreateWorkingDialog
@@ -495,6 +496,9 @@ public XmProgressBarSetRange
 public XmProgressBarSetValue
 public XmProgressBarGetIndeterminate
 public XmProgressBarSetIndeterminate
+public XmSpinnerGetActive
+public XmSpinnerSetActive
+public XmSpinnerGetPhase
 public XmTrackingEvent
 public XmTrackingLocate
 public XmTransferDone
@@ -584,6 +588,7 @@ public XmVaCreateManagedToggleButton
 public XmVaCreateManagedToggleButtonGadget
 public XmVaCreateManagedToggleSwitch
 public XmVaCreateManagedProgressBar
+public XmVaCreateManagedSpinner
 public XmVaCreatePushButton
 public XmVaCreatePushButtonGadget
 public XmVaCreateScale
@@ -596,6 +601,7 @@ public XmVaCreateToggleButton
 public XmVaCreateToggleButtonGadget
 public XmVaCreateToggleSwitch
 public XmVaCreateProgressBar
+public XmVaCreateSpinner
 
 public XmVaCreateSimpleCheckBox
 public XmVaCreateSimpleMenuBar
@@ -739,6 +745,8 @@ public xmToggleSwitchClassRec
 public xmToggleSwitchWidgetClass
 public xmProgressBarClassRec
 public xmProgressBarWidgetClass
+public xmSpinnerClassRec
+public xmSpinnerWidgetClass
 public xmUseVersion
 public xmVendorShellExtClassRec
 public xmVendorShellExtObjectClass
