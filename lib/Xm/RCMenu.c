@@ -52,6 +52,8 @@ static char *rcsid = "$TOG: RCMenu.c /main/25 1999/05/24 18:06:57 samborn $";
 
 #include <stdio.h>
 #include <ctype.h>
+#include <limits.h>
+#include <stdint.h>
 #include "XmI.h"
 #include <X11/keysym.h>
 #include <Xm/CascadeBGP.h>
@@ -2050,6 +2052,10 @@ _XmRC_AddToPostFromList(
    if (m->row_column.postFromListSize == m->row_column.postFromCount)
    {
       /* increase the size to fit the new one and one more */
+	  if (m->row_column.postFromListSize > INT_MAX - 2 ||
+	      (size_t)(m->row_column.postFromListSize + 2) >
+		  SIZE_MAX / sizeof(Widget))
+	    return;
       m->row_column.postFromListSize += 2;
       m->row_column.postFromList = (Widget *)
 	  XtRealloc ( (char *) m->row_column.postFromList,
@@ -2955,6 +2961,10 @@ ButtonMenuPopDown(
    {
        if ((depth+1) > excPP->pane_list_size)
        {
+	  if (excPP->pane_list_size > SHRT_MAX - 4 ||
+	      (size_t)(excPP->pane_list_size + 4) >
+		  SIZE_MAX / sizeof(Widget))
+	    break;
 	  excPP->pane_list_size += 4;
 	  excPP->pane = (Widget *) 
 			XtRealloc((char *)excPP->pane, 
@@ -3419,6 +3429,8 @@ ChildsActivateCallback(
 	  count = 0;
 	  while (callbacks[count].callback != NULL)
 	    count++;
+	  if ((size_t)count > SIZE_MAX / sizeof(XtPointer))
+	    return;
 	  	  
 	  callbackClosure =
 	      (XtPointer *) XtMalloc(sizeof(XtPointer) * count);

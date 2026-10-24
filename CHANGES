@@ -1,3 +1,10 @@
+RCMenu dynamic-array bounds (2026-10-25)
+========================================
+
+- Bound menu callback snapshots, exception-pane ancestry and post-from widget
+  growth, preserving normal menu behavior while preventing count wraparound;
+  see `docs/rcmenu-bounds.md`.
+
 List internal selection bounds (2026-10-25)
 ==========================================
 
