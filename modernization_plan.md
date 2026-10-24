@@ -1194,13 +1194,12 @@ qualified on the AArch64 `uconsole`.  It uses a proleptic Gregorian
 1..9999 civil-date contract, validates leap years and inclusive ranges before
 mutation, supports deterministic month/day keyboard navigation, week-start and
 RTL presentation resources, date-change/activation callbacks, and a calendar
-accessibility summary.  DatePicker, TimePicker, locale providers and timezone
-interpretation remain separate follow-on work.
+accessibility summary.  Locale providers and timezone interpretation remain
+explicitly outside the date-only contract.
 
 The additive `XmDatePicker` now reuses that contract through a bounded,
 non-modal `XmCalendar` popup with validated ranges, screen-clamped placement,
-open/close callbacks and installed-prefix accessibility coverage.  TimePicker
-and daylight-saving behavior remain open in this work package.
+open/close callbacks and installed-prefix accessibility coverage.
 
 The additive `XmTimePicker` is now implemented and qualified with an explicit
 wall-clock-only contract, ordered range validation, deterministic 24-hour or
@@ -1208,6 +1207,12 @@ wall-clock-only contract, ordered range validation, deterministic 24-hour or
 and accessibility value semantics.  It does not infer a date, time zone, or
 daylight-saving transition; callers resolve those when combining a value with
 a date and zone.
+
+**Complete (2026-10-25):** Calendar, DatePicker and TimePicker all pass their
+installed-prefix fixtures and the existing additive-widget regressions remain
+green.  Date-only and wall-clock values never silently acquire a host time
+zone; daylight-saving gap/overlap resolution is therefore an explicit caller
+responsibility rather than an implicit toolkit conversion.
 
 ### WP-27: DataGrid/TableView design and prototype
 
