@@ -197,3 +197,5 @@ EXTRA_DIST += tests/automated/check-region-shadow-counts.py docs/region-shadow-c
 EXTRA_DIST += tests/automated/check-region-export-bounds.py docs/region-export-bounds.md
 
 EXTRA_DIST += tests/automated/check-region-operation-capacity.py docs/region-operation-capacity.md
+
+EXTRA_DIST += tests/automated/check-string-table-capacity.py docs/string-table-capacity.md

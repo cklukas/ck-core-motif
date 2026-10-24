@@ -1457,7 +1457,8 @@ CvtStringToStringTable(
             if(    i == size    )
             {   
                 int cleanup;
-                if (size == INT_MAX)
+                if (size >= INT_MAX ||
+                    (unsigned int)size > UINT_MAX / sizeof(String))
                 {
                     for (cleanup = 0; cleanup < i; ++cleanup)
                         XtFree((char *)table[cleanup]);
@@ -1488,7 +1489,8 @@ CvtStringToStringTable(
         if(    i == size    )
         {   
             int cleanup;
-            if (size > INT_MAX / 2)
+            if (size > INT_MAX / 2 ||
+                (unsigned int)size > UINT_MAX / (2 * sizeof(String)))
             {
                 for (cleanup = 0; cleanup < i; ++cleanup)
                     XtFree((char *)table[cleanup]);
@@ -1509,6 +1511,14 @@ CvtStringToStringTable(
             after_comma = True;
         }
         }
+    if ((unsigned int)i >= UINT_MAX / sizeof(String))
+    {
+        int cleanup;
+        for (cleanup = 0; cleanup < i; ++cleanup)
+            XtFree((char *)table[cleanup]);
+        XtFree((char *)table);
+        return(False);
+    }
     table = (String *)XtRealloc( (char *) table, sizeof( String) * (i + 1)) ;
     table[i] = NULL ;
 
