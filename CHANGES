@@ -682,3 +682,10 @@ DataField selection export conversion bounds (2026-10-24)
 - Treat zero or negative `mblen` results as conversion failure while exporting multibyte DataField selections, preventing infinite loops and unsigned length underflow on malformed locale sequences.
 - Preserve valid selection text, ownership, public interfaces and native ABI. Extend `check-datafield-wcs` with valid UTF-8 selection export coverage and document the behavior in `docs/datafield-selection-export.md`.
 - Native AArch64 validation passes the rebuilt DataField source and six-check DataField wide/selection regression.
+
+DataField picture splice buffer bounds (2026-10-24)
+====================================================
+
+- Size the picture-verification splice buffer in bytes using the actual character lengths instead of pointer-size multiplication. Reject malformed negative lengths and detect size addition overflow before allocation.
+- Preserve accepted/rejected picture edits, callbacks, autofill behavior, public interfaces and native ABI. Document the allocation contract in `docs/datafield-picture-buffer-bounds.md`.
+- Native AArch64 validation passes the warning-enabled DataField build and Xvfb DataField regression.

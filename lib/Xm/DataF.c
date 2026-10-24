@@ -30,6 +30,7 @@
 #include <ctype.h>
 #include <wctype.h>
 #include <limits.h>
+#include <stdint.h>
 #include <Xm/XmosP.h>
 #include <X11/Xatom.h>
 #include <X11/ShellP.h>
@@ -1544,6 +1545,7 @@ PictureVerifyCallback(
     XmTextVerifyCallbackStruct *cbs = 
 	(XmTextVerifyCallbackStruct*) call_d;
     char *curr, *newptr, *changed = NULL;
+    size_t curr_length, insert_length;
     int src, dst, i;
     XmPictureState ps;
     Boolean done = False;
@@ -1558,9 +1560,19 @@ PictureVerifyCallback(
      * Get the current string, and splice in the intended changes
      */
     curr = XmDataFieldGetString(w);
-    
-    newptr = XtMalloc((cbs->text->length + strlen(curr) + 2) * 
-		      sizeof(char *));
+    if (!curr || cbs->text->length < 0) {
+	cbs->doit = False;
+	XtFree(curr);
+	return;
+    }
+    curr_length = strlen(curr);
+    insert_length = (size_t)cbs->text->length;
+    if (insert_length > SIZE_MAX - curr_length - 2) {
+	cbs->doit = False;
+	XtFree(curr);
+	return;
+    }
+    newptr = XtMalloc(curr_length + insert_length + 2);
     
     dst = 0;
     
