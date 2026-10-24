@@ -1,3 +1,12 @@
+Container dynamic tab-list ownership (2026-10-24)
+==================================================
+
+- Replace the static process-global detail-tab pool with checked per-call
+  storage, releasing temporary tabs after tab-list insertion while preserving
+  the public Container and XmTabList contracts.
+- Add an Xvfb regression covering two independent detail Containers; see
+  docs/container-tabs.md.
+
 Reject unrepresentable text-source ranges (2026-10-24)
 =======================================================
 

@@ -34,6 +34,7 @@
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
+#include <stdint.h>
 
 #include <Xm/AtomMgr.h>
 #include <Xm/ClipWindowP.h>
@@ -5685,32 +5686,30 @@ GetDumbTabList(
     int         tab_size,
     Cardinal    asked_num_tab)
 {
-    static int Num_tab = 0 ;
-    static XmTab * Tab_pool = NULL ;
+    XmTab *tab_pool;
     XmTabList Tab_list = NULL ;
-    Cardinal i, prev_num_tab = Num_tab ;
+    Cardinal i;
 
-    _XmProcessLock();
-    if (Num_tab < asked_num_tab)
-        {
-        Num_tab = MAX(asked_num_tab,100);	/* HACKKKK */
-        Tab_pool = (XmTab*) XtRealloc((char*)Tab_pool,Num_tab*sizeof(XmTab));
-        }
+    if (asked_num_tab == 0 ||
+        (size_t)asked_num_tab > SIZE_MAX / sizeof(*tab_pool))
+        return NULL;
+    tab_pool = (XmTab *)XtMalloc((size_t)asked_num_tab * sizeof(*tab_pool));
 
-    /* create more tabs */
-    for (i=prev_num_tab; i<Num_tab; i++)
-        Tab_pool[i] =  XmTabCreate(0.0, XmPIXELS, XmABSOLUTE,
+    for (i = 0; i < asked_num_tab; i++)
+        tab_pool[i] = XmTabCreate(0.0, XmPIXELS, XmABSOLUTE,
                                    XmALIGNMENT_BEGINNING, XmS);
 
     /* update the values */
-    for (i=0; i<asked_num_tab; i++)
-        XmTabSetValue(Tab_pool[i], (float)tab_size*(i+1));
+    for (i = 0; i < asked_num_tab; i++)
+        XmTabSetValue(tab_pool[i], (float)tab_size * (i + 1));
 
     /*
      * Return a new tablist.
      */
-    Tab_list = XmTabListInsertTabs(NULL, Tab_pool, asked_num_tab, 0);
-    _XmProcessUnlock();
+    Tab_list = XmTabListInsertTabs(NULL, tab_pool, asked_num_tab, 0);
+    for (i = 0; i < asked_num_tab; i++)
+        XmTabFree(tab_pool[i]);
+    XtFree((char *)tab_pool);
 
     return Tab_list ;
 }

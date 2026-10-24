@@ -79,3 +79,4 @@ EXTRA_DIST += tests/automated/check-image-scaling.c tests/automated/run-image-re
 
 # Text source range-boundary regression.
 EXTRA_DIST += tests/automated/check-text-source-bounds.c tests/automated/run-text-source-regressions.py docs/text-source-bounds.md
+EXTRA_DIST += tests/automated/check-container-tabs.c tests/automated/run-container-regressions.py docs/container-tabs.md
