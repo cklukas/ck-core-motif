@@ -1,3 +1,8 @@
+Font selector size-label bounds (2026-10-24)
+=============================================
+
+- Bound numeric font-size label formatting with a larger buffer and `snprintf`, preserving normal labels while preventing stack overwrite for future or extreme size values; see `docs/font-size-label-bounds.md`.
+
 Compound-string segment size bounds (2026-10-24)
 =================================================
 

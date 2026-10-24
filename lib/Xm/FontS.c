@@ -1725,13 +1725,13 @@ UpdateSizes(XmFontSelectorWidget fsw)
         strs[count++] = XmStringCopy(ANY_STRING(fsw));
 
     for (i = 0; i < XtNumber(GValidSizes); i++) {
-	char buf[10];
+	char buf[32];
 	LongFlag flag = ((LongFlag) 1) << i;
 
 	if (!CheckLongFlag(size_flag, flag) && !IsScaled(fsw, family))
 	    continue;
 
-	sprintf(buf, "%d", GValidSizes[i]);
+	snprintf(buf, sizeof(buf), "%d", GValidSizes[i]);
 	strs[count++] = XmStringCreateLocalized(buf);
 	
 	match |= (SizeMapping(cf->point_size) == flag);
