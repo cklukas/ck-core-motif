@@ -1,3 +1,10 @@
+Mrm pointer-list string bounds (2026-10-25)
+===========================================
+
+- Check terminator-inclusive sizing when appending strings to Mrm pointer lists,
+  preserving ownership and valid appends while rejecting unrepresentable sizes;
+  see `docs/mrm-pointer-list-string-bounds.md`.
+
 Mrm shared string allocation bounds (2026-10-25)
 ===============================================
 

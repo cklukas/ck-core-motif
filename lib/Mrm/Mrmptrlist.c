@@ -57,6 +57,7 @@ static char rcsid[] = "$XConsortium: Mrmptrlist.c /main/12 1996/11/13 14:03:53 d
 #include "MrmMsgI.h"
 #include <limits.h>
 #include <stdint.h>
+#include <string.h>
 
 
 /*
@@ -357,17 +358,23 @@ UrmPlistAppendString (URMPointerListPtr		list_id ,
    */
   Cardinal		result ;	/* function results */
   String			newstg ;	/* allocated string */
+  size_t		stg_len ;
 
   if (list_id == NULL || stg == NULL)
     return Urm__UT_Error ("UrmPlistAppendString", _MrmMMsg_0049,
 				  NULL, NULL, MrmFAILURE) ;
 
-  newstg = XtMalloc (strlen(stg)+1) ;
+  stg_len = strlen(stg);
+  if (stg_len == SIZE_MAX)
+    return Urm__UT_Error ("UrmPlistAppendString", _MrmMMsg_0049,
+			      NULL, NULL, MrmFAILURE) ;
+
+  newstg = XtMalloc (stg_len + 1) ;
   if ( newstg == NULL )
     return Urm__UT_Error ("UrmPlistAppendString", _MrmMMsg_0049,
 			  NULL, NULL, MrmFAILURE) ;
 
-  strcpy (newstg, stg) ;
+  memcpy (newstg, stg, stg_len + 1) ;
   result = UrmPlistAppendPointer (list_id, newstg) ;
   return result ;
 
