@@ -8840,6 +8840,40 @@ df_LoadFontMetrics(
 }
 
 
+static void
+df_WarnInvalidChar(Widget widget, int value)
+{
+   int length;
+   char *message;
+
+   length = snprintf(NULL, 0, MSG5, value);
+   if (length < 0) {
+      XmeWarning(widget, MSG5);
+      return;
+   }
+   message = (char *)XtMalloc((Cardinal)length + 1);
+   (void)snprintf(message, (size_t)length + 1, MSG5, value);
+   XmeWarning(widget, message);
+   XtFree(message);
+}
+
+static void
+df_WarnInvalidString(Widget widget, const char *value)
+{
+   int length;
+   char *message;
+
+   length = snprintf(NULL, 0, WC_MSG1, value);
+   if (length < 0) {
+      XmeWarning(widget, WC_MSG1);
+      return;
+   }
+   message = (char *)XtMalloc((Cardinal)length + 1);
+   (void)snprintf(message, (size_t)length + 1, WC_MSG1, value);
+   XmeWarning(widget, message);
+   XtFree(message);
+}
+
 /* df_ValidateString makes the following assumption:  if MB_CUR_MAX == 1, value
  * is a char*, otherwise value is a wchar_t*.  The Boolean "is_wchar" indicates
  * if value points to char* or wchar_t* data.
@@ -8888,9 +8922,7 @@ df_ValidateString(
                *temp_str = *curr_str;
                temp_str++;
             } else {
-               char warn_str[52];
-               sprintf(warn_str, MSG5, *curr_str);
-               XmeWarning ((Widget)tf, warn_str);
+               df_WarnInvalidChar((Widget)tf, (unsigned char)*curr_str);
             }
 	    curr_str++;
 	    i++;
@@ -8906,9 +8938,7 @@ df_ValidateString(
 		  i++; 
 		}
             } else {
-               char warn_str[52];
-               sprintf(warn_str, MSG5, *curr_str);
-               XmeWarning ((Widget)tf, warn_str);
+               df_WarnInvalidChar((Widget)tf, (unsigned char)*curr_str);
 	       curr_str++;
 	       i++;
             }
@@ -8961,10 +8991,8 @@ df_ValidateString(
 	       wcs_temp_str++;
 	       new_len++;
 	    } else {
-	       char warn_str[52];
 	       scratch[csize]= '\0';
-	       sprintf(warn_str, WC_MSG1, scratch);
-	       XmeWarning ((Widget)tf, warn_str);
+	       df_WarnInvalidString((Widget)tf, scratch);
 	    }
 	 } else {
 	    if (df_FindPixelLength(tf, (char*)wcs_curr_str, 1)) {
@@ -8972,14 +9000,12 @@ df_ValidateString(
 	       wcs_temp_str++;
 	       new_len++;
 	    } else {
-               char warn_str[52];
                csize = wctomb(scratch, *wcs_curr_str);
 	       if (csize >= 0)
                   scratch[csize]= '\0';
 	       else
 		  scratch[0] = '\0';
-               sprintf(warn_str, WC_MSG1, scratch);
-               XmeWarning ((Widget)tf, warn_str);
+               df_WarnInvalidString((Widget)tf, scratch);
 	    }
 	 }
       } 

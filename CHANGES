@@ -1,3 +1,13 @@
+DataField warning formatting (2026-10-24)
+========================================
+
+- Size invalid-character diagnostics from their localized format strings so
+  long translations cannot overflow the former fixed stack buffer. Preserve
+  the full warning text for narrow and wide validation paths.
+- Add a source-contract regression and document the bounded warning helpers in
+  docs/datafield-warning-bounds.md.
+- Native AArch64 libXm build is warning-free and the DataField warning-format
+  regression passes.
 Remove unsafe icon home-directory copy (2026-10-24)
 =====================================================
 - Stop copying arbitrary-length HOME into XmGetIconFile's fixed path scratch
