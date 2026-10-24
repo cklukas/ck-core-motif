@@ -72,6 +72,10 @@ EXTRA_DIST += tests/automated/check-progress-bar.c tests/automated/run-progress-
               docs/progress-bar.md
 EXTRA_DIST += tests/automated/check-spinner.c tests/automated/run-spinner.py \
               docs/spinner.md
+EXTRA_DIST += tests/automated/check-number-box.c tests/automated/run-number-box.py \
+              docs/number-box.md
+EXTRA_DIST += tests/automated/check-stepper.c tests/automated/run-stepper.py \
+              docs/stepper.md
 
 EXTRA_DIST += tests/automated/check-paned-keyboard.c docs/paned-keyboard.md
 

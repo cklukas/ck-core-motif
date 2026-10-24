@@ -936,6 +936,19 @@ distinction between tentative text and committed numeric value.
 NumberBox or compact Stepper without modifying an existing text or spin widget
 contract.
 
+**Status (2026-10-25):** implemented and qualified on uconsole.  The additive
+`XmNumberBox` and `XmStepper` classes use a documented signed-integer contract
+with inclusive bounds, step sizes, clamping/wrapping, explicit dimensions,
+keyboard/pointer stepping and typed value callbacks.  NumberBox keeps tentative
+ASCII decimal text separate from its committed value and reports parse/range
+errors through its invalid callback; neither widget uses private
+`XmTextField`/`XmSpinBox` records.  Installed-prefix Xvfb fixtures passed 15
+NumberBox checks and 10 Stepper checks, including range precedence, boundary
+behavior, focus/sizing, callback delivery and accessible values.  The optional
+labelled-`XmScale` companion remains deferred until a public-child synchronization
+contract and locale/formatting evidence are defined; the core NumberBox and
+Stepper completion criteria are met without changing existing Motif widgets.
+
 ### WP-19: Lightweight flyouts, tooltips and teaching tips
 
 **Depends on:** WP-15.

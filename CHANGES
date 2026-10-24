@@ -2600,3 +2600,12 @@ Additive progress controls (2026-10-25)
   lifetime, accessibility semantics, installed-prefix documentation, and Xvfb
   contract fixtures.  ProgressRing remains explicitly deferred pending
   equivalent evidence.
+
+Additive numeric controls (2026-10-25)
+======================================
+
+- Add `XmNumberBox` and compact `XmStepper` with bounded signed-integer
+  contracts, tentative NumberBox text validation, typed callbacks, keyboard and
+  pointer stepping, accessibility values, installed-prefix documentation, and
+  Xvfb fixtures.  Existing `XmTextField` and `XmSpinBox` contracts remain
+  unchanged; the optional labelled-`XmScale` companion remains deferred.

@@ -19,11 +19,13 @@
 #include <Xm/Label.h>
 #include <Xm/LabelG.h>
 #include <Xm/ListP.h>
+#include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
 #include <Xm/PushBG.h>
 #include <Xm/ProgressBar.h>
 #include <Xm/ScrollBar.h>
 #include <Xm/Spinner.h>
+#include <Xm/Stepper.h>
 #include <Xm/Text.h>
 #include <Xm/TextP.h>
 #include <Xm/TextF.h>
@@ -581,6 +583,12 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     if (XmIsSpinner(w))
       XtAddCallback(w, XmNspinnerStateChangedCallback, text_value_changed,
                     (XtPointer)a);
+    if (XmIsNumberBox(w))
+      XtAddCallback(w, XmNnumberValueChangedCallback, text_value_changed,
+                    (XtPointer)a);
+    if (XmIsStepper(w))
+      XtAddCallback(w, XmNstepperValueChangedCallback, text_value_changed,
+                    (XtPointer)a);
     if (XtIsWidget(w)) {
       XtAddEventHandler(w,
                         FocusChangeMask | StructureNotifyMask |
@@ -681,6 +689,12 @@ static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
                        text_value_changed, (XtPointer)a);
     if (XmIsSpinner(n->widget))
       XtRemoveCallback(n->widget, XmNspinnerStateChangedCallback,
+                       text_value_changed, (XtPointer)a);
+    if (XmIsNumberBox(n->widget))
+      XtRemoveCallback(n->widget, XmNnumberValueChangedCallback,
+                       text_value_changed, (XtPointer)a);
+    if (XmIsStepper(n->widget))
+      XtRemoveCallback(n->widget, XmNstepperValueChangedCallback,
                        text_value_changed, (XtPointer)a);
     if (XtIsWidget(n->widget)) {
       XtRemoveRawEventHandler(n->widget, KeyPressMask | KeyReleaseMask, False,
@@ -1025,6 +1039,28 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     if (label)
       local = XmStringUnparse(label, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
                               NULL, 0, XmOUTPUT_ALL);
+  }
+  if (XmIsNumberBox(w)) {
+    int minimum, maximum;
+    i->role = XmACCESSIBLE_PROGRESS_BAR;
+    i->has_value = True;
+    XmNumberBoxGetRange(w, &minimum, &maximum);
+    i->minimum_value = minimum;
+    i->maximum_value = maximum;
+    i->current_value = XmNumberBoxGetValue(w);
+    i->minimum_increment = 1;
+    i->action_count = 0;
+  }
+  if (XmIsStepper(w)) {
+    int minimum, maximum;
+    i->role = XmACCESSIBLE_PROGRESS_BAR;
+    i->has_value = True;
+    XmStepperGetRange(w, &minimum, &maximum);
+    i->minimum_value = minimum;
+    i->maximum_value = maximum;
+    i->current_value = XmStepperGetValue(w);
+    i->minimum_increment = 1;
+    i->action_count = 0;
   }
   if (XmIsText(w) || XmIsTextField(w)) {
     i->role = XmACCESSIBLE_TEXT;

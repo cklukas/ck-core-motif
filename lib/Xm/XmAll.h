@@ -64,6 +64,7 @@
 #include <Xm/Manager.h>
 #include <Xm/MenuShell.h>
 #include <Xm/MessageB.h>
+#include <Xm/NumberBox.h>
 #include <Xm/MwmUtil.h>
 #include <Xm/Notebook.h>
 #include <Xm/PanedW.h>
@@ -81,6 +82,7 @@
 #include <Xm/SSpinB.h>
 #include <Xm/Scale.h>
 #include <Xm/Spinner.h>
+#include <Xm/Stepper.h>
 #include <Xm/Screen.h>
 #include <Xm/ScrollBar.h>
 #include <Xm/ScrolledW.h>

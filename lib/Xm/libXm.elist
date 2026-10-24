@@ -130,7 +130,9 @@ public XmCreateToggleButton
 public XmCreateToggleButtonGadget
 public XmCreateToggleSwitch
 public XmCreateProgressBar
+public XmCreateNumberBox
 public XmCreateSpinner
+public XmCreateStepper
 public XmCreateWarningDialog
 public XmCreateWorkArea
 public XmCreateWorkingDialog
@@ -496,9 +498,20 @@ public XmProgressBarSetRange
 public XmProgressBarSetValue
 public XmProgressBarGetIndeterminate
 public XmProgressBarSetIndeterminate
+public XmNumberBoxGetRange
+public XmNumberBoxGetValue
+public XmNumberBoxSetRange
+public XmNumberBoxSetValue
+public XmNumberBoxStep
+public XmNumberBoxIsInvalid
 public XmSpinnerGetActive
 public XmSpinnerSetActive
 public XmSpinnerGetPhase
+public XmStepperGetRange
+public XmStepperGetValue
+public XmStepperSetRange
+public XmStepperSetValue
+public XmStepperStep
 public XmTrackingEvent
 public XmTrackingLocate
 public XmTransferDone
@@ -588,6 +601,7 @@ public XmVaCreateManagedToggleButton
 public XmVaCreateManagedToggleButtonGadget
 public XmVaCreateManagedToggleSwitch
 public XmVaCreateManagedProgressBar
+public XmVaCreateManagedNumberBox
 public XmVaCreateManagedSpinner
 public XmVaCreatePushButton
 public XmVaCreatePushButtonGadget
@@ -601,7 +615,10 @@ public XmVaCreateToggleButton
 public XmVaCreateToggleButtonGadget
 public XmVaCreateToggleSwitch
 public XmVaCreateProgressBar
+public XmVaCreateNumberBox
 public XmVaCreateSpinner
+public XmVaCreateManagedStepper
+public XmVaCreateStepper
 
 public XmVaCreateSimpleCheckBox
 public XmVaCreateSimpleMenuBar
@@ -745,8 +762,12 @@ public xmToggleSwitchClassRec
 public xmToggleSwitchWidgetClass
 public xmProgressBarClassRec
 public xmProgressBarWidgetClass
+public xmNumberBoxClassRec
+public xmNumberBoxWidgetClass
 public xmSpinnerClassRec
 public xmSpinnerWidgetClass
+public xmStepperClassRec
+public xmStepperWidgetClass
 public xmUseVersion
 public xmVendorShellExtClassRec
 public xmVendorShellExtObjectClass

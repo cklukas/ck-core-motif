@@ -210,7 +210,7 @@ xm_HEADERS = Accessible.h TextUnicode.h TextLayout.h Appearance.h ArrowB.h      
         TextSelP.h      Text.h          TextInP.h       TextOutP.h \
         TextP.h         TextStrSoP.h    ToggleB.h       ToggleBG.h \
         ToggleBGP.h     ToggleBP.h      ToggleSwitch.h ToggleSwitchP.h \
-        ProgressBar.h   ProgressBarP.h Spinner.h SpinnerP.h XmP.h \
+        NumberBox.h NumberBoxP.h ProgressBar.h ProgressBarP.h Spinner.h SpinnerP.h Stepper.h StepperP.h XmP.h \
         BaseClassP.h    ManagerP.h      PrimitiveP.h    GadgetP.h \
         XmStrDefs.h     XmStrDefs22.h   XmStrDefs23.h \
         VaSimpleP.h     VirtKeys.h      VirtKeysP.h \
@@ -255,8 +255,8 @@ SRCS1 = XmStrDefs.c ArrowB.c        ArrowBG.c       BulletinB.c     CallbackI.c 
         Scale.c         ScrollBar.c     ScrolledW.c     SelectioB.c \
         SeparatoG.c     Separator.c     Simple.c        Text.c \
         TextIn.c        TextOut.c       TextStrSo.c     TextSel.c \
-        ToggleB.c       ToggleBG.c      ToggleSwitch.c  ProgressBar.c   \
-        Spinner.c       TrackLoc.c      UniqueEvnt.c \
+        ToggleB.c       ToggleBG.c      ToggleSwitch.c  NumberBox.c     \
+        ProgressBar.c   Spinner.c       Stepper.c        TrackLoc.c      UniqueEvnt.c \
         VaSimple.c      VirtKeys.c      XmString.c      ResEncod.c\
         TextF.c         TextFSel.c      AtomMgr.c \
         Cache.c         Protocols.c     Primitive.c     Manager.c \
