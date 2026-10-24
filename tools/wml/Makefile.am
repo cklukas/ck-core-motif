@@ -51,8 +51,8 @@ wmldbcreate.o: $(WMLTARGETS) UilLexPars.h
 # builds from racing two recipes that both create the same symlinks.
 UilLexPars.stamp: Uil.c Uil.h
 	$(RM) UilLexPars.h UilLexPars.c
-	$(LN_S) Uil.h UilLexPars.h
-	$(LN_S) Uil.c UilLexPars.c
+	$(LN_S) $(srcdir)/Uil.h UilLexPars.h
+	$(LN_S) $(srcdir)/Uil.c UilLexPars.c
 	$(AM_V_at)touch $@
 
 UilLexPars.c UilLexPars.h: UilLexPars.stamp
