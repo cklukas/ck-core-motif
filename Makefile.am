@@ -276,3 +276,4 @@ EXTRA_DIST += tests/automated/check-mrm-swap-error-bounds.py docs/mrm-swap-error
 EXTRA_DIST += tests/automated/check-mrm-wref-error-bounds.py docs/mrm-wref-error-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-widget-name-bounds.py docs/mrm-widget-name-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-display-string-bounds.py docs/mrm-display-string-bounds.md
+EXTRA_DIST += tests/automated/check-mrm-wci-registration-bounds.py docs/mrm-wci-registration-bounds.md

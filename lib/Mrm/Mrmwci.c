@@ -179,6 +179,7 @@ MrmRegisterClassWithCleanup (
    */
   WCIClassDescPtr	cldesc;		/* creator descriptor being written */
   URMHashTableEntryPtr	hash_entry;	/* new hash entry */
+  size_t		create_name_len;
 
 
   _MrmProcessLock();
@@ -190,8 +191,15 @@ MrmRegisterClassWithCleanup (
       _MrmProcessUnlock();
       return MrmFAILURE;
     }
+  create_name_len = strlen(create_name);
+  if (create_name_len == SIZE_MAX ||
+      sizeof(WCIClassDesc) > SIZE_MAX - (create_name_len + 1))
+    {
+      _MrmProcessUnlock();
+      return MrmFAILURE;
+    }
   cldesc = (WCIClassDescPtr) XtMalloc (sizeof(WCIClassDesc) +
-				       strlen(create_name) + 1);
+				       create_name_len + 1);
   if ( cldesc == NULL )
     {
       _MrmProcessUnlock();

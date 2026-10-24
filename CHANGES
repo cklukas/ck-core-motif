@@ -1,3 +1,10 @@
+Mrm class-registration allocation bounds (2026-10-25)
+==================================================
+
+- Check creator-name allocation arithmetic before registering a widget class,
+  preserving valid registration while rejecting unrepresentable sizes safely;
+  see `docs/mrm-wci-registration-bounds.md`.
+
 Mrm display-string conversion bounds (2026-10-25)
 ================================================
 
