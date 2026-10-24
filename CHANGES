@@ -1,3 +1,10 @@
+Default font-cache allocation bounds (2026-10-25)
+================================================
+
+- Bound per-display default font-list cache growth before converting its byte
+  count to Xt's allocation type, preserving normal cache behavior and failing
+  cleanly for unrepresentable capacity; see `docs/default-font-cache-bounds.md`.
+
 Atom-list allocation bounds (2026-10-25)
 =========================================
 

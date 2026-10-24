@@ -1780,6 +1780,10 @@ static XmFontList DefaultSystemFontList(Display *display, XmFontList fontlist)
 	{
 	    Cardinal nbytes;
 
+	    if (maxnsFontLists > INT_MAX - 8 ||
+		(size_t)(maxnsFontLists + 8) >
+		    UINT_MAX / sizeof(SystemFontList))
+		return NULL;
 	    maxnsFontLists += 8;
 	    nbytes = (Cardinal) sizeof(SystemFontList)*maxnsFontLists;
 	    if (NULL == sFontLists)
