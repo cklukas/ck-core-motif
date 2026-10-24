@@ -44,25 +44,17 @@ XpmWriteFileFromBuffer(
     const char	*filename,
     char	*buffer)
 {
-    size_t len;
-    int close_status;
+    size_t fcheck, len;
     FILE *fp = fopen(filename, "w");
 
     if (!fp)
 	return XpmOpenFailed;
 
     len = strlen(buffer);
-    if (len != 0 && fwrite(buffer, 1, len, fp) != len) {
-	fclose(fp);
-	return XpmOpenFailed;
-    }
-    if (fflush(fp) != 0) {
-	fclose(fp);
-	return XpmOpenFailed;
-    }
-    close_status = fclose(fp);
-    if (close_status != 0)
-	return XpmOpenFailed;
+    fcheck = fwrite(buffer, len, 1, fp);
+    fclose(fp);
+    if (fcheck != 1)
+	return XpmOpenFailed; /* maybe use a better return value */
 
     return XpmSuccess;
 }

@@ -69,12 +69,9 @@ xpmatoui(
 
     n = 0;
     for (i = 0; i < l; i++)
-	if (*p >= '0' && *p <= '9') {
-	    unsigned int digit = (unsigned int)(*p++ - '0');
-	    if (n > (UINT_MAX - digit) / 10)
-		return 0;
-	    n = n * 10 + digit;
-	} else
+	if (*p >= '0' && *p <= '9')
+	    n = n * 10 + *p++ - '0';
+	else
 	    break;
 
     if (i != 0 && i == l) {

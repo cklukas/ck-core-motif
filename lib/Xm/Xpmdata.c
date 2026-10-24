@@ -58,38 +58,62 @@ static int
 ParseComment(xpmData *data)
 {
     if (data->type == XPMBUFFER) {
-	char *start = data->cptr - 1;
-	const char *begin = data->Bcmt;
-	const char *end = data->Ecmt;
-	unsigned int begin_len = (unsigned int)strlen(begin);
-	unsigned int end_len = end ? (unsigned int)strlen(end) : 0;
-	unsigned int n = 0;
-	char *p;
+	register char c;
+	register unsigned int n = 0;
+	unsigned int notend;
+	char *s;
+	const char *s2;
 
-	/* The first marker byte has already been consumed by xpmNextString. */
-	if (strncmp(start, begin, begin_len) != 0) {
-	    data->cptr = start + 1;
+	s = data->Comment;
+	*s = data->Bcmt[0];
+
+	/* skip the string beginning comment */
+	s2 = data->Bcmt;
+	do {
+	    c = *data->cptr++;
+	    *++s = c;
+	    n++;
+	    s2++;
+	} while (c == *s2 && *s2 != '\0' && c);
+
+	if (*s2 != '\0') {
+	    /* this wasn't the beginning of a comment */
+	    data->cptr -= n;
 	    return 0;
 	}
-	data->cptr = start + begin_len;
-	p = data->Comment;
-	while (n < XPMMAXCMTLEN - 1 && n < begin_len)
-	    *p++ = begin[n++];
-	while (*data->cptr != '\0') {
-	    if (end_len != 0 &&
-		strncmp(data->cptr, end, end_len) == 0) {
-		unsigned int i;
-		for (i = 0; i < end_len && n < XPMMAXCMTLEN - 1; ++i)
-		    *p++ = end[i], ++n;
-		data->cptr += end_len;
-		data->CommentLength = (int)n;
-		return 0;
+	/* store comment */
+	data->Comment[0] = *s;
+	s = data->Comment;
+	notend = 1;
+	n = 0;
+	while (notend) {
+	    s2 = data->Ecmt;
+	    while (*s != *s2 && c) {
+		c = *data->cptr++;
+		if (n == XPMMAXCMTLEN - 1)  { /* forget it */
+		    s = data->Comment;
+		    n = 0;
+		}
+		*++s = c;
+		n++;
 	    }
-	    if (n < XPMMAXCMTLEN - 1)
-		*p++ = *data->cptr, ++n;
-	    data->cptr++;
+	    data->CommentLength = n;
+	    do {
+		c = *data->cptr++;
+		if (n == XPMMAXCMTLEN - 1)  { /* forget it */
+		    s = data->Comment;
+		    n = 0;
+		}
+		*++s = c;
+		n++;
+		s2++;
+	    } while (c == *s2 && *s2 != '\0' && c);
+	    if (*s2 == '\0') {
+		/* this is the end of the comment */
+		notend = 0;
+		data->cptr--;
+	    }
 	}
-	data->CommentLength = (int)n;
 	return 0;
     } else {
 	FILE *file = data->stream.file;
@@ -127,10 +151,6 @@ ParseComment(xpmData *data)
 	    s2 = data->Ecmt;
 	    while (*s != *s2 && c != EOF) {
 		c = Getc(data, file);
-		if (c == EOF) {
-		    data->CommentLength = n;
-		    return 0;
-		}
 		if (n == XPMMAXCMTLEN - 1)  { /* forget it */
 		    s = data->Comment;
 		    n = 0;
@@ -141,10 +161,6 @@ ParseComment(xpmData *data)
 	    data->CommentLength = n;
 	    do {
 		c = Getc(data, file);
-		if (c == EOF) {
-		    data->CommentLength = n;
-		    return 0;
-		}
 		if (n == XPMMAXCMTLEN - 1)  { /* forget it */
 		    s = data->Comment;
 		    n = 0;
@@ -176,29 +192,20 @@ xpmNextString(xpmData *data)
 
 	/* get to the end of the current string */
 	if (data->Eos)
-	    while ((c = *data->cptr) != '\0' && c != data->Eos)
-		data->cptr++;
-	if (data->Eos != '\0' && *data->cptr == data->Eos)
-	    data->cptr++;
+	    while ((c = *data->cptr++) && c != data->Eos);
 
 	/*
 	 * then get to the beginning of the next string looking for possible
 	 * comment
 	 */
 	if (data->Bos) {
-	    while ((c = *data->cptr) != '\0' && c != data->Bos) {
-		data->cptr++;
+	    while ((c = *data->cptr++) && c != data->Bos)
 		if (data->Bcmt && c == data->Bcmt[0])
 		    ParseComment(data);
-	    }
-	    if (*data->cptr == data->Bos)
-		data->cptr++;
 	} else if (data->Bcmt) {	/* XPM2 natural */
-	    while (*data->cptr != '\0' &&
-		   (c = *data->cptr++) == data->Bcmt[0])
+	    while ((c = *data->cptr++) == data->Bcmt[0])
 		ParseComment(data);
-	    if (c != '\0')
-		data->cptr--;
+	    data->cptr--;
 	}
     } else {
 	register int c;
@@ -240,23 +247,15 @@ xpmNextWord(
     int c;
 
     if (!data->type || data->type == XPMBUFFER) {
-	while ((c = (unsigned char)*data->cptr) != '\0' &&
-	       c != data->Eos && isspace(c))
+	while (isspace(c = *data->cptr) && c != data->Eos)
 	    data->cptr++;
-	if (*data->cptr == '\0' || *data->cptr == data->Eos)
-	    return 0;
 	do {
-	    c = (unsigned char)*data->cptr;
-	    if (c == '\0')
-		break;
-	    data->cptr++;
+	    c = *data->cptr++;
 	    *buf++ = c;
 	    n++;
 	} while (!isspace(c) && c != data->Eos && n < buflen);
-	if (c != '\0') {
-	    n--;
-	    data->cptr--;
-	}
+	n--;
+	data->cptr--;
     } else {
 	FILE *file = data->stream.file;
 
@@ -303,8 +302,6 @@ xpmGetString(
     if (!data->type || data->type == XPMBUFFER) {
 	if (data->cptr) {
 	    char *start = data->cptr;
-	    if (*start == '\0')
-		return (XpmFileInvalid);
 	    while ((c = *data->cptr) && c != data->Eos)
 		data->cptr++;
 	    n = data->cptr - start + 1;

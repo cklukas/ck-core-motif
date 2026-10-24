@@ -305,8 +305,7 @@ FUNC(xpmGetString, int, (xpmData *mdata, char **sptr, unsigned int *l));
 
 #define xpmGetC(mdata) \
 	((!mdata->type || mdata->type == XPMBUFFER) ? \
-	 ((*(mdata)->cptr == '\0') ? '\0' : \
-	  (unsigned char)*(mdata)->cptr++) : (getc(mdata->stream.file)))
+	 (*mdata->cptr++) : (getc(mdata->stream.file)))
 
 FUNC(xpmNextWord, unsigned int,
      (xpmData *mdata, char *buf, unsigned int buflen));
