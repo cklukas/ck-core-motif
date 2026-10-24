@@ -1,3 +1,10 @@
+JPEG decoder error cleanup (2026-10-24)
+==========================================
+
+- Release decoded JPEG storage on libjpeg long-jump failures, preventing
+  malformed or resource-exhaustion inputs from leaking output pixels; see
+  `docs/jpeg-error-cleanup.md`.
+
 JPEG XImage pixel-layout handling (2026-10-24)
 ================================================
 

@@ -40,6 +40,8 @@ load_jpeg(FILE * infile, unsigned long *pWidth, unsigned long *pHeight,
     jerr.pub.error_exit = _XmJpegErrorExit;
     if ((rc = setjmp(jerr.setjmp_buffer))) {
         jpeg_destroy_decompress(&cinfo);
+        free(*image_data);
+        *image_data = NULL;
         return rc;
     }
     jpeg_create_decompress(&cinfo);
