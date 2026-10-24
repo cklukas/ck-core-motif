@@ -1587,6 +1587,24 @@ _XmGetScaledPixmap(
 			    pix_entry->width,
 			    pix_entry->height,
 			    depth);
+
+    if (pixmap == XmUNSPECIFIED_PIXMAP) {
+	if (ret == NOT_CACHED) {
+	    XDestroyImage(image);
+	    if (old_image_data)
+		XtFree(old_image_data);
+	} else if (old_image_data) {
+	    image->format = old_image_format;
+	    XtFree(image->data);
+	    image->data = old_image_data;
+	    _XmProcessUnlock();
+	}
+	XtFree(pix_entry->image_name);
+	XtFree((char *)pix_entry->acc_color);
+	ReleaseImagePixels(screen, pixels, npixels);
+	XtFree((char *)pix_entry);
+	return (XmUNSPECIFIED_PIXMAP);
+    }
     
     pix_entry->pixmap = pixmap;
     pix_entry->reference_count = 1;

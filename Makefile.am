@@ -159,3 +159,4 @@ EXTRA_DIST += tests/automated/check-image-screen-fallback.py docs/image-screen-f
 EXTRA_DIST += tests/automated/check-image-conversion-cleanup.py docs/image-conversion-cleanup.md
 EXTRA_DIST += tests/automated/check-dpi-control-metrics.c tests/automated/run-dpi-control-metrics.py docs/dpi-control-metrics.md
 EXTRA_DIST += tests/automated/check-cache-pixmap-input.py docs/cache-pixmap-input.md
+EXTRA_DIST += tests/automated/check-pixmap-create-failure.py docs/pixmap-create-failure.md

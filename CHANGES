@@ -1,3 +1,10 @@
+Pixmap creation failure cleanup (2026-10-24)
+===============================================
+
+- Reject an unspecified `XCreatePixmap` result before cache insertion,
+  restoring temporary depth-1 image state and releasing cache-entry, image,
+  and color storage; see `docs/pixmap-create-failure.md`.
+
 Pixmap-cache input validation (2026-10-24)
 =============================================
 
