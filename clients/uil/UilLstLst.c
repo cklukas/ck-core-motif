@@ -450,7 +450,7 @@ void	lst_output_listing()
 	**  place the line and file number in the output buffer
 	*/
 
-	sprintf(src_buffer, "%5d (%d)\t", 
+	snprintf(src_buffer, sizeof(src_buffer), "%5d (%d)\t",
 		az_src_rec->w_line_number, 
 		az_src_rec->b_file_number);
 

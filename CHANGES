@@ -1,3 +1,10 @@
+UIL source listing prefix bounds (2026-10-24)
+===============================================
+
+- Bound the source line/file prefix before appending retrieved UIL source
+  text, preserving listing output while preventing unusual numeric values from
+  overrunning the listing buffer; see `docs/uil-listing.md`.
+
 UIL generated output bounds (2026-10-24)
 ===========================================
 
