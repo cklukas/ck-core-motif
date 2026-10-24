@@ -1,3 +1,10 @@
+UI-thread completion prototype (2026-10-24)
+===========================================
+
+- Add a strict installed-consumer WP-13 prototype for worker-owned results,
+  Xt-thread delivery, cancellation and context teardown; document its
+  POSIX/X11 decision boundary in `docs/ui-thread-completion-prototype.md`.
+
 PNG decoder error cleanup (2026-10-24)
 ========================================
 

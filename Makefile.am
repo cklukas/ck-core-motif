@@ -149,3 +149,4 @@ EXTRA_DIST += tests/automated/check-png-allocation-cleanup.py docs/png-allocatio
 EXTRA_DIST += tests/automated/check-jpeg-pixel-layout.py docs/jpeg-pixel-layout.md
 EXTRA_DIST += tests/automated/check-jpeg-error-cleanup.py docs/jpeg-error-cleanup.md
 EXTRA_DIST += tests/automated/check-png-error-cleanup.py docs/png-error-cleanup.md
+EXTRA_DIST += tests/automated/check-ui-completion-prototype.c tests/automated/run-ui-completion-prototype.py docs/ui-thread-completion-prototype.md

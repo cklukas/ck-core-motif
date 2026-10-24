@@ -695,6 +695,17 @@ event-loop integration leave a generic background-work gap worth standardizing.
 **Complete when:** the decision is backed by a runnable prototype and stress
 evidence.  A no-go result is complete if existing mechanisms are adequate.
 
+**Status (2026-10-24):** phase 1 prototype implemented and qualified on the
+AArch64 `uconsole` host under Xvfb.  Four worker threads posted 320 owned
+results through a POSIX pipe and `XtAppAddInput`; every result was validated
+and freed on the UI thread.  A cancellation phase stopped a larger workload,
+drained and freed queued results before input removal, and destroyed the
+application context.  The fixture passed strict C11 compilation and reported
+31 checks with no invalid results or posting failures.  Existing Xt input
+integration is adequate for the demonstrated POSIX/X11 use case, but a
+library-owned cross-platform completion contract remains uncommitted pending
+real consumer requirements.  See `docs/ui-thread-completion-prototype.md`.
+
 ### WP-14: Optional UI-thread completion API
 
 **Depends on:** WP-13 with a go decision.
