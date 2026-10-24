@@ -1,3 +1,10 @@
+Mrm shared string allocation bounds (2026-10-25)
+===============================================
+
+- Check terminator-inclusive sizing in the shared Mrm string allocator while
+  preserving valid copies and allocation-failure behavior; see
+  `docs/mrm-alloc-string-bounds.md`.
+
 Mrm class-registration allocation bounds (2026-10-25)
 ==================================================
 

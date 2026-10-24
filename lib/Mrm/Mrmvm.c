@@ -54,6 +54,8 @@ static char rcsid[] = "$XConsortium: Mrmvm.c /main/10 1996/11/13 14:05:05 drk $"
  *
  */
 
+#include <stdint.h>
+#include <string.h>
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
 
@@ -99,12 +101,15 @@ Urm__UT_AllocString (String		stg)
    *  Local variables
    */
   String			new_stg ;	/* the string copy */
+  size_t		stg_len ;
 
 
   if ( stg == NULL ) return NULL ;
-  new_stg = (String) XtMalloc (strlen(stg)+1) ;
+  stg_len = strlen(stg);
+  if ( stg_len == SIZE_MAX ) return NULL ;
+  new_stg = (String) XtMalloc (stg_len + 1) ;
   if ( new_stg != NULL )
-    strcpy (new_stg, stg) ;
+    memcpy (new_stg, stg, stg_len + 1) ;
   return new_stg ;
 
 }
