@@ -568,3 +568,10 @@ Development 2.4.0 / Container detail-header bounds
 - Check icon detail-header counts before adding the leading label and
   allocating the Container-owned XmString table.
 - Add a public Container regression and documentation.
+
+Development 2.4.0 / List selection result bounds
+================================================
+
+- Check List match and selection counts before allocating caller-visible
+  integer result arrays.
+- Add a public selection regression and documentation.

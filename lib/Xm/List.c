@@ -33,6 +33,7 @@ static char rcsid[] = "$TOG: List.c /main/47 1999/10/12 16:58:17 mgreess $"
 
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <wchar.h>
 #include <X11/Xatom.h>
 #include <Xm/XmosP.h>
@@ -9609,6 +9610,11 @@ XmListGetMatchPos(Widget w,
     return FALSE;
   }
 
+  if ((size_t)lw->list.itemCount > SIZE_MAX / sizeof(int)) {
+    _XmAppUnlock(app);
+    return FALSE;
+  }
+
   pos = (int *)XtMalloc((sizeof(int) * lw->list.itemCount));
   j = 0;
 
@@ -9700,6 +9706,11 @@ XmListGetSelectedPos(Widget w,
       lw->list.itemCount <= 0 ||
       lw->list.selectedPositions == NULL ||
       lw->list.selectedPositionCount <= 0) {
+    _XmAppUnlock(app);
+    return FALSE;
+  }
+
+  if ((size_t)lw->list.selectedPositionCount > SIZE_MAX / sizeof(int)) {
     _XmAppUnlock(app);
     return FALSE;
   }
