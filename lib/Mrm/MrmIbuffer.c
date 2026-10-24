@@ -581,6 +581,9 @@ Idb__BM_InitRecord (IDBFile                     file_id,
   if (file_id == NULL || buffer_return == NULL)
     return MrmFAILURE;
 
+  if (type < IDBrtMin || type > IDBrtMax)
+    return MrmFAILURE;
+
   if ((Idb__BM_GetBuffer (file_id, buffer_return)) != MrmSUCCESS ||
       *buffer_return == NULL || (*buffer_return)->IDB_record == NULL)
     return MrmFAILURE;

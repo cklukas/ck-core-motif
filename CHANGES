@@ -1,4 +1,7 @@
 2026-10-26
+	* Validate Mrm record types before indexing per-file type counters.
+
+2026-10-26
 	* Guard Mrm buffer cache-hit scans against missing record storage before
 	  reading the cached record number.
 

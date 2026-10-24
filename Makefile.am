@@ -340,3 +340,5 @@ EXTRA_DIST += tests/automated/check-mrm-decommit-state.py docs/mrm-decommit-stat
 EXTRA_DIST += tests/automated/check-mrm-decommit-all-input.py docs/mrm-decommit-all-input.md
 
 EXTRA_DIST += tests/automated/check-mrm-cache-hit-record.py docs/mrm-cache-hit-record.md
+
+EXTRA_DIST += tests/automated/check-mrm-record-type.py docs/mrm-record-type.md
