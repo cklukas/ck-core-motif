@@ -84,6 +84,7 @@ externalref int                                Uil_characters_read;
 /*
  * Defined in UilLstLst
  */
+#define UIL_LISTING_TITLE_SIZE 132
 externalref char				Uil_lst_c_title2[];
 
 /*

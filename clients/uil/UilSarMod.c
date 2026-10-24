@@ -360,7 +360,7 @@ yystype	    *module_frame;
     */
 
     if (Uil_cmd_z_command.v_listing_file)
-	sprintf(Uil_lst_c_title2, 
+	(void)snprintf(Uil_lst_c_title2, UIL_LISTING_TITLE_SIZE,
 		"Module: %s", 
 		name_entry->c_text );
 
@@ -460,7 +460,7 @@ yystype	    *start_frame;
     */
 
     if (Uil_cmd_z_command.v_listing_file)
-	sprintf(Uil_lst_c_title2, 
+	(void)snprintf(Uil_lst_c_title2, UIL_LISTING_TITLE_SIZE,
 		"Module: %s \t Version: %s", 
 		sym_az_module_entry->obj_header.az_name->c_text,
 		value_entry->value.c_value );

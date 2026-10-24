@@ -1,3 +1,10 @@
+UIL listing title bounds (2026-10-24)
+====================================
+
+- Bound module and version title formatting to the existing 132-byte listing
+  field, preserving the full parsed symbol data while preventing long UIL
+  identifiers from overwriting compiler state; see `docs/uil-title-bounds.md`.
+
 UIL WMD path formatting bounds (2026-10-24)
 ============================================
 

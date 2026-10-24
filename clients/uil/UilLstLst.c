@@ -73,7 +73,7 @@ static char rcsid[] = "$TOG: UilLstLst.c /main/20 1999/07/21 09:03:16 vipin $"
 **
 */
 
-externaldef(uil_comp_glbl) char		Uil_lst_c_title2[132];
+externaldef(uil_comp_glbl) char		Uil_lst_c_title2[UIL_LISTING_TITLE_SIZE];
 
 static	    int			lst_l_usable_lines;
 static	    int			lst_l_lines_left;
