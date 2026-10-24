@@ -38,3 +38,8 @@ against the property’s remaining bytes before advancing or converting it. Zero
 or truncated element lengths return `XConverterNotFound` rather than looping or
 reading outside the Xlib payload. The contract is covered by
 `tests/automated/check-compound-string-import.py`.
+
+Locale, STRING, and UTF-8 import handles an empty property as one empty
+`XmString` and uses non-underflowing bounds for non-empty payloads. Oversized
+property lengths are rejected before the `int` element counter is used. The
+contract is covered by `tests/automated/check-text-property-empty.py`.

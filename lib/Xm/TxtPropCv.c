@@ -797,11 +797,24 @@ XmCvtTextPropertyToXmStringTable(Display *display,
     }
 
 
+    if (text_prop->nitems > (unsigned long)INT_MAX) {
+	_XmAppUnlock(app);
+	return BadAlloc;
+    }
+    if (text_prop->nitems == 0) {
+	string_table = (XmStringTable)XtMalloc(sizeof(XmString));
+	string_table[0] = XmStringGenerate((XtPointer)"", tag, type, NULL);
+	*string_table_return = string_table;
+	*count_return = 1;
+	_XmAppUnlock(app);
+	return Success;
+    }
+
     /* We fell through the else-if's so pull apart the data in the text
        property and set up a return string table. */
 
     /* First count up how many string elements there are in the value. */
-    for (i = 0, elements = 1; i < text_prop->nitems - 1; ++i)
+    for (i = 0, elements = 1; i + 1 < (int)text_prop->nitems; ++i)
     {
 	/* The text prop value will have two NULL's at the end,
 	   one for the end of the last string and one to terminate
@@ -818,7 +831,7 @@ XmCvtTextPropertyToXmStringTable(Display *display,
     /* Create XmStrings from each string in the value field */
     string_table[0] = XmStringGenerate((XtPointer)text_prop->value, 
 				       tag, type, NULL);
-    for (i = 0, elements = 1; i < text_prop->nitems - 1; ++i)
+    for (i = 0, elements = 1; i + 1 < (int)text_prop->nitems; ++i)
     {
 	if (text_prop->value[i] == '\0')
 	  string_table[elements++] =

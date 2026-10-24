@@ -1,3 +1,9 @@
+Handle empty text-property imports safely (2026-10-24)
+=======================================================
+- Prevent unsigned `nitems - 1` underflow in locale, STRING, and UTF-8 imports.
+- Return one empty XmString for empty properties and reject oversized lengths
+  before the signed element counter is used.
+- Add a source contract regression and documentation.
 Bound ASN.1 compound-string parsing (2026-10-24)
 ==================================================
 - Verify each encoded element length against the remaining X property bytes
