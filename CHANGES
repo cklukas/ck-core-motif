@@ -1,4 +1,7 @@
 2026-10-26
+	* Remove partial Mrm files when write-mode reopen fails.
+
+2026-10-26
 	* Reject Mrm pointer-list resizes below the active entry count.
 
 2026-10-26

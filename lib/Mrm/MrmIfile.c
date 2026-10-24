@@ -175,7 +175,10 @@ Idb__FU_OpenFile (char 			*name,
       file_desc = open (name, O_RDWR, PMODE);
 
       if (file_desc == FAILURE)		/* verify that worked */
-	return MrmFAILURE;
+	{
+	  (void) unlink (name);
+	  return MrmFAILURE;
+	}
     }
 
 
