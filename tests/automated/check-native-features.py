@@ -31,6 +31,7 @@ FIXTURES = {
     "layout": ("tests/Toolkit/Unicode/layout.c", True),
     "line-context": ("tests/Toolkit/Unicode/line_context.c", True),
     "unicode-widgets": ("tests/Toolkit/Unicode/text_unicode.c", True),
+    "label-gc": ("tests/Toolkit/Unicode/label_gc.c", True),
     "large-text": ("tests/Toolkit/Unicode/large_text.c", True),
     "clipboard": ("tests/Toolkit/CutPaste/clipboard_unicode.c", True),
     "clipboard-lifetime": ("tests/Toolkit/CutPaste/clipboard_unicode.c", True),

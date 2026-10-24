@@ -261,3 +261,17 @@ The same native-query qualification identified an owned compound-string getter
 result retained by accessibility name conversion. Native label and Disclosure
 header queries now release that copy after unparsing; widget-owned labels remain
 valid and are freed through their normal lifecycle.
+
+## Label graphics-context ownership
+
+Label appearance replacement now releases normal, insensitive and shadow graphics
+context references as one set. The inherited replacement path omitted the shadow
+reference even though widget destruction released it, retaining old GCs after
+font/color changes. Changes to topShadowColor also rebuild the insensitive text
+shadow rather than retaining its former color.
+
+The focused label-gc fixture queries the actual GC foreground, changes the shadow
+color alone, and performs32 rounds of independent render-table/color replacement.
+Native ARM64 normal and strict ASan/UBSan toolkit/consumer qualification pass,
+including leak detection. The previous library fails the precise shadow-color
+assertion. This verifies Label GC ownership, not all font or display lifetimes.

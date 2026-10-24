@@ -107,7 +107,7 @@ services. The text fixtures require DejaVu Sans and a CJK-capable fallback font.
 Unavailable services or missing font coverage fail their tests; an in-memory
 semantic substitute does not count as an AT-SPI pass.
 
-The default suite contains 25 fixtures, including `accessibility-modality`,
+The default suite contains 26 fixtures, including `accessibility-modality`,
 `accessibility-clipping`/`accessibility-clipping-events` and the
 `xmstring-empty-concat`/`xmstring-empty-components` public string regressions.
 The string fixtures cover valid empty payloads, construction/copy/traversal,
@@ -117,6 +117,9 @@ and Selection modal-admission regression (plus the mandatory ABI fixture).
 It runs on the runner's isolated Xvfb and requires no AT-SPI service. Select it
 the same way with an instrumented compiler and installed sanitizer prefix for
 ASan/UBSan validation; native allocation-fault interposition remains separate.
+
+`--only label-gc` checks insensitive shadow colors and32 repeated font/color
+replacements, including strict sanitizer leak qualification of the owned GC refs.
 
 The default fixtures cover ABI/version, XIM preedit bounds, shaped glyph readback,
 paragraph/line and bounded font contexts, native Unicode and large text widgets,

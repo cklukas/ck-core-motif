@@ -104,6 +104,7 @@ static void InitializePrehook(Widget req, Widget new_w,
 static void InitializePosthook(Widget req, Widget new_w,
 			       ArgList args, Cardinal *num_args);
 static void SetNormalGC(XmLabelWidget lw);
+static void ReleaseLabelGC(XmLabelWidget lw);
 static void Resize(Widget wid);
 static void Initialize(Widget req, Widget new_w,
 		       ArgList args, Cardinal *num_args);
@@ -661,6 +662,18 @@ InitializePrehook(Widget req,		/* unused */
   else 
     new_w->core.widget_class->core_class.tm_table = (String) menu_parsed;
   _XmProcessUnlock();
+}
+
+/* Every SetNormalGC reference, including the insensitive text shadow, has
+ * the same lifetime: release the complete set before replacement or destroy. */
+static void
+ReleaseLabelGC(XmLabelWidget lw)
+{
+  XtReleaseGC((Widget) lw, lw->label.normal_GC);
+  XtReleaseGC((Widget) lw, lw->label.insensitive_GC);
+#ifdef FIX_1381
+  XtReleaseGC((Widget) lw, lw->label.shadow_GC);
+#endif
 }
 
 /************************************************************************
@@ -1379,11 +1392,7 @@ Destroy(
   if (lw->label.baselines != NULL)
     XtFree ((char*) lw->label.baselines);
 
-  XtReleaseGC ((Widget) lw, lw->label.normal_GC);
-  XtReleaseGC ((Widget) lw, lw->label.insensitive_GC);
-#ifdef FIX_1381
-  XtReleaseGC ((Widget) lw, lw->label.shadow_GC);
-#endif
+  ReleaseLabelGC(lw);
 }
 
 /************************************************************************
@@ -2121,10 +2130,12 @@ SetValues(Widget cw,
   
   if ((new_w->primitive.foreground != current->primitive.foreground) ||
       (new_w->core.background_pixel != current->core.background_pixel) ||
+#ifdef FIX_1381
+      (new_w->primitive.top_shadow_color != current->primitive.top_shadow_color) ||
+#endif
       (newlp->font != curlp->font))
     {
-      XtReleaseGC((Widget) current, current->label.normal_GC);
-      XtReleaseGC((Widget) current, current->label.insensitive_GC);
+      ReleaseLabelGC(current);
       SetNormalGC(new_w);
       flag = TRUE;
     }
