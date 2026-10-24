@@ -159,6 +159,8 @@ Idb__INX_EnterItem (IDBFile		file_id ,
   IDBRecordBufferPtr	bufptr ;	/* buffer into which to stuff entry */
   MrmCount		entndx ;	/* locates pivotal entry in buffer */
 
+  if (file_id == NULL || index == NULL)
+    return MrmFAILURE;
 
   /*
    * Initialize the index with this entry if this is the initial one.
@@ -912,6 +914,8 @@ Idb__INX_InitRootLeafRecord (IDBFile		file_id,
   IDBIndexLeafRecordPtr	recptr ;	/* leaf record in buffer */
   IDBIndexLeafHdrPtr	hdrptr ;	/* record header */
 
+  if (file_id == NULL || buffer_return == NULL)
+    return MrmFAILURE;
 
   /*
    * Acquire a record
@@ -993,6 +997,8 @@ Idb__INX_InitRootNodeRecord (IDBFile			file_id,
   IDBIndexNodeHdrPtr	hdrptr ;	/* record header */
   IDBRecordNumber	recno ;		/* this buffer's record number */
 
+  if (file_id == NULL || buffer_return == NULL || index == NULL)
+    return MrmFAILURE;
 
   /*
    * Acquire a record

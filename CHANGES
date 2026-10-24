@@ -1,3 +1,10 @@
+Mrm index-entry input validation (2026-10-25)
+==============================================
+
+- Validate high-level index entry and root-record initializer pointers before
+  touching index state, preserving valid creation while avoiding malformed
+  input crashes; see `docs/mrm-index-entry-input.md`.
+
 Mrm widget-class lookup validation (2026-10-25)
 ===============================================
 
