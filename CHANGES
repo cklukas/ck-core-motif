@@ -1,3 +1,8 @@
+Mrm hierarchy-open input validation (2026-10-25)
+=================================================
+
+- Reject a missing output pointer, a missing filename list when files are requested, and a missing in-memory UID buffer before opening displays or allocating hierarchy state. Valid file-backed and in-memory opens retain their existing behavior; see `docs/mrm-hierarchy-open-input.md`.
+
 Mrm hierarchy name registration (2026-10-25)
 ===============================================
 
