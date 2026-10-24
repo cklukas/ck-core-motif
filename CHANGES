@@ -1,3 +1,11 @@
+UIL diagnostic location bounds (2026-10-24)
+===============================================
+
+- Bound all UIL source-location diagnostic formatting to its fixed 132-byte
+  buffer, preserving normal messages while preventing long source paths or
+  localized formats from corrupting compiler state; see
+  `docs/uil-diagnostic-location-bounds.md`.
+
 UIL listing title-one bounds (2026-10-24)
 =========================================
 

@@ -298,13 +298,13 @@ void	diag_issue_diagnostic
 	    */
 
 #ifndef NO_MESSAGE_CATALOG
-	    sprintf( loc_buffer,
+	    snprintf( loc_buffer, sizeof(loc_buffer),
 		     catgets(uil_catd, UIL_SET_MISC,
 			     UIL_MISC_0, "\t\t line: %d  file: %s"),
 		     az_src_rec->w_line_number,
 		     src_get_file_name( az_src_rec ) );
 #else
-	    sprintf( loc_buffer,
+	    snprintf( loc_buffer, sizeof(loc_buffer),
 		     "\t\t line: %d  file: %s",
 		     az_src_rec->w_line_number,
 		     src_get_file_name( az_src_rec ) );
@@ -352,7 +352,7 @@ void	diag_issue_diagnostic
 
 	    if (l_start_column != diag_k_no_column)
 #ifndef NO_MESSAGE_CATALOG
-	      sprintf(loc_buffer,
+	      snprintf(loc_buffer, sizeof(loc_buffer),
 		      catgets(uil_catd, UIL_SET_MISC,
 			      UIL_MISC_1, 
 			      "\t\t line: %d  position: %d  file: %s"),
@@ -360,7 +360,7 @@ void	diag_issue_diagnostic
 		      l_start_column + 1,
 		      src_get_file_name( az_src_rec ) );
 #else
-	      sprintf(loc_buffer,
+	      snprintf(loc_buffer, sizeof(loc_buffer),
 		      "\t\t line: %d  position: %d  file: %s",
 		      az_src_rec->w_line_number,
 		      l_start_column + 1,
@@ -368,13 +368,13 @@ void	diag_issue_diagnostic
 #endif
 	    else
 #ifndef NO_MESSAGE_CATALOG
-		sprintf( loc_buffer, catgets(uil_catd, UIL_SET_MISC,
+		snprintf( loc_buffer, sizeof(loc_buffer), catgets(uil_catd, UIL_SET_MISC,
 					     UIL_MISC_0,
 					     "\t\t line: %d  file: %s"),
 			 az_src_rec->w_line_number,
 			 src_get_file_name( az_src_rec ) );
 #else
-		sprintf( loc_buffer,
+		snprintf( loc_buffer, sizeof(loc_buffer),
 			 "\t\t line: %d  file: %s",
 			 az_src_rec->w_line_number,
 			 src_get_file_name( az_src_rec ) );
