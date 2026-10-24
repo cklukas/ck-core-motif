@@ -291,18 +291,18 @@ Idb__DB_PutDataEntry (IDBFile			file_id,
   IDBRecordBufferPtr	curbuf;		/* current record buffer pointer */
   IDBRecordBufferPtr	nxtbuf;		/* next record buffer pointer */
   IDBDataHdrPtr		dataheader;	/* data record header */
-  MrmCount		entsiz ;	/* Number of bytes for new entry */
+  Cardinal		entsiz ;	/* Number of bytes for new entry */
   MrmOffset		entoffs ;	/* Entry offset in buffer */
   Cardinal		num_recs;	/* # records to save overflow */
   Cardinal		cur_rec;	/* the current record */
   char			*dataptr ;	/* pointer to data in context */
-  MrmCount		datarem ;	/* # bytes left to copy in data */
-  MrmCount		cursiz ;	/* # bytse of data in cur. segment */
+  MrmSize		datarem ;	/* # bytes left to copy in data */
+  MrmSize		cursiz ;	/* # bytes of data in current segment */
 
   /*
    * Consistency check
    */
-  if (! UrmRCValid (context_id))
+  if (file_id == NULL || data_entry == NULL || ! UrmRCValid (context_id))
     return Urm__UT_Error ("Idb__DB_PutDataEntry", _MrmMMsg_0006,
 			  NULL, NULL, MrmBAD_CONTEXT) ;
 

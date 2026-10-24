@@ -1,4 +1,7 @@
 2026-10-26
+	* Validate Mrm data-entry writer handles and widen size arithmetic.
+
+2026-10-26
 	* Bound Mrm simple and overflow data payload copies.
 
 2026-10-26
