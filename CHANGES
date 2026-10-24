@@ -1,3 +1,12 @@
+Publication and acceptance policy (2026-10-24)
+====================================================================
+
+Bug fixes require relevant passing automated regression tests before publication.
+Record accepted fixes here and update relevant docs/ pages. Commit and push
+accepted fixes to both rpi4 and GitHub independently of consuming applications'
+gates, development phases or dependency pins. See AGENTS.md for the full policy.
+This policy entry does not assert acceptance of unfinished source changes.
+
 Changes since commit 0f556b0873c72ba1152a12fd54c3198ee039e413
 ====================================================================
 
