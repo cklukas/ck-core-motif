@@ -1,3 +1,10 @@
+Mrm header diagnostic bounds (2026-10-25)
+========================================
+
+- Bound UID header-version error formatting in its fixed-size diagnostic
+  buffer, preserving normal messages while safely truncating long version
+  text; see `docs/mrm-header-error-bounds.md`.
+
 Mrm header-writer input validation (2026-10-25)
 ===============================================
 
