@@ -27,6 +27,8 @@
 #include <config.h>
 #endif
 
+#include <stdio.h>
+
 #define FIX_1181
 
 #include "XmI.h"
@@ -507,7 +509,8 @@ Initialize(
 	      names[i] = ((nscreens <= MAX_SCREENS) ?
 			  &buf[i * MAX_ATOM_LENGTH] : 
 			  XtMalloc(MAX_ATOM_LENGTH));
-	      sprintf(names[i], "%s%d", XmSCUSTOMIZE_DATA, i);
+	      (void)snprintf(names[i], MAX_ATOM_LENGTH, "%s%d",
+			      XmSCUSTOMIZE_DATA, i);
 	    }
 
 	    XInternAtoms(new_obj->color_obj.display, names,

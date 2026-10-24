@@ -1,3 +1,13 @@
+ColorObj atom-name bounds (2026-10-24)
+=====================================
+
+- Bound per-screen color-object atom-name formatting to its 24-byte slot while
+  preserving the existing Motif resource prefix and index naming scheme.
+- Add a source-contract regression and document the protection in
+  docs/color-object-atom-bounds.md.
+- Native ColorObj object compilation is warning-free and the regression passes;
+  the broader libXm build is currently blocked by unrelated held TextSel work.
+
 XIM reference removal (2026-10-24)
 ==================================
 
