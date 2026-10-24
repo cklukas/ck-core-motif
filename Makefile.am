@@ -356,3 +356,5 @@ EXTRA_DIST += tests/automated/check-mrm-data-offset.py docs/mrm-data-offset.md
 EXTRA_DIST += tests/automated/check-mrm-data-payload.py docs/mrm-data-payload.md
 
 EXTRA_DIST += tests/automated/check-mrm-put-entry-inputs.py docs/mrm-put-entry-inputs.md
+
+EXTRA_DIST += tests/automated/check-mrm-entry-read-inputs.py docs/mrm-entry-read-inputs.md

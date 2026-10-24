@@ -1,4 +1,7 @@
 2026-10-26
+	* Reject null Mrm file handles in data-entry readers.
+
+2026-10-26
 	* Validate Mrm data-entry writer handles and widen size arithmetic.
 
 2026-10-26

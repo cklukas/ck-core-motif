@@ -125,6 +125,9 @@ Idb__DB_GetDataEntry (IDBFile			file_id,
   /*
    * Check and see if the context is valid
    */
+  if (file_id == NULL)
+    return MrmFAILURE;
+
   if (! UrmRCValid (context_id))
     return Urm__UT_Error ("Idb__DB_GetDataEntry", _MrmMMsg_0006,
 			  NULL, NULL, MrmBAD_CONTEXT) ;
@@ -546,6 +549,9 @@ Idb__DB_MatchFilter (IDBFile 		file_id,
   IDBRecordBufferPtr	bufptr ;	/* buffer for data record */
   IDBDataRecordPtr	data_rec;	/* pointer data record */
   IDBDataEntryHdrPtr	datahdr ;	/* Header part of entry */
+
+  if (file_id == NULL)
+    return FALSE;
 
   /*
    * Get the record that contains this data, get to the correct offset in
