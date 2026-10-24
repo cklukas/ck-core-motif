@@ -575,3 +575,10 @@ Development 2.4.0 / List selection result bounds
 - Check List match and selection counts before allocating caller-visible
   integer result arrays.
 - Add a public selection regression and documentation.
+
+Development 2.4.0 / Container detail-order bounds
+=================================================
+
+- Check `XmNdetailOrder` counts before allocating copied order arrays during
+  initialization and `SetValues`, rejecting unrepresentable sizes cleanly.
+- Extend the Container maintenance documentation.
