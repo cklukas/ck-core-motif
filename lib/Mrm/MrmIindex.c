@@ -483,16 +483,25 @@ Idb__INX_GetBtreeRecord ( IDBFile		file_id,
    */
   Cardinal		result ;	/* function results */
   IDBIndexNodeRecordPtr	recptr ;	/* node record in buffer */
+  IDBIndexNodeHdrPtr	hdrptr ;	/* node record header */
   IDBRecordNumber	recno ;		/* Record number to read in */
 
   if (file_id == NULL || buffer_return == NULL || *buffer_return == NULL ||
-      (*buffer_return)->IDB_record == NULL || entry_index < 0)
+      (*buffer_return)->IDB_record == NULL)
     return MrmFAILURE;
+
+  if ( ! Idb__INX_ValidNode(*buffer_return) )
+    return MrmBAD_RECORD;
 
   /*
    * Set buffer pointers
    */
   recptr = (IDBIndexNodeRecordPtr) (*buffer_return)->IDB_record ;
+  hdrptr = (IDBIndexNodeHdrPtr) &recptr->node_header ;
+  if (hdrptr->index_count > IDBIndexNodeFreeMax / IDBIndexNodeEntrySize ||
+      hdrptr->heap_start > IDBIndexNodeFreeMax ||
+      entry_index >= hdrptr->index_count)
+    return MrmBAD_RECORD;
 
   /*
    * Retrieve the record number
@@ -509,6 +518,8 @@ Idb__INX_GetBtreeRecord ( IDBFile		file_id,
       return Urm__UT_Error ("Idb__INX_GetBTreeRecord", _MrmMMsg_0010,
 			    file_id, NULL, MrmBAD_ORDER) ;
     }
+  if (recno <= 0)
+    return MrmBAD_RECORD;
 
   /*
    * Retrieve and sanity check the record
