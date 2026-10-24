@@ -349,7 +349,8 @@ Idb__FU_GetBlock (IDBLowLevelFile	*file_id,
   /*
    * Local variables
    */
-  int	number_read;		/* the number of bytes actually read	*/
+  ssize_t	number_read;		/* the number of bytes actually read	*/
+  size_t	bytes_read = 0;
   int	fdesc ;			/* file descriptor from lowlevel desc */
 
   if (file_id == NULL || buffer == NULL || block_num <= 0)
@@ -358,12 +359,18 @@ Idb__FU_GetBlock (IDBLowLevelFile	*file_id,
   fdesc = file_id->file_desc ;
   if (lseek (fdesc, (block_num-1)*IDBRecordSize, 0) == (off_t)-1)
     return MrmFAILURE;
-  number_read = read (file_id->file_desc, buffer, IDBRecordSize);
+  while (bytes_read < IDBRecordSize)
+    {
+    number_read = read (file_id->file_desc, buffer + bytes_read,
+                        IDBRecordSize - bytes_read);
+    if (number_read < 0 && errno == EINTR)
+      continue;
+    if (number_read <= 0)
+      return MrmFAILURE;
+    bytes_read += (size_t)number_read;
+    }
 
-  if (number_read != IDBRecordSize) 
-    return MrmFAILURE;
-  else
-    return MrmSUCCESS;
+  return MrmSUCCESS;
 }
 
 
@@ -411,7 +418,8 @@ Idb__FU_PutBlock (IDBLowLevelFile	*file_id,
   /*
    * Local variables
    */
-  int	number_written;		/* the # of bytes acctually written	*/
+  ssize_t	number_written;		/* the # of bytes acctually written	*/
+  size_t	bytes_written = 0;
   int	fdesc ;			/* file descriptor from lowlevel desc */
 
   if (file_id == NULL || buffer == NULL || block_num <= 0)
@@ -420,11 +428,17 @@ Idb__FU_PutBlock (IDBLowLevelFile	*file_id,
   fdesc = file_id->file_desc ;
   if (lseek (fdesc, (block_num-1)*IDBRecordSize, 0) == (off_t)-1)
     return MrmFAILURE;
-  number_written = write (file_id->file_desc, buffer, IDBRecordSize);
+  while (bytes_written < IDBRecordSize)
+    {
+    number_written = write (file_id->file_desc, buffer + bytes_written,
+                            IDBRecordSize - bytes_written);
+    if (number_written < 0 && errno == EINTR)
+      continue;
+    if (number_written <= 0)
+      return MrmFAILURE;
+    bytes_written += (size_t)number_written;
+    }
 
-  if (number_written != IDBRecordSize)
-    return MrmFAILURE;
-  else
-    return MrmSUCCESS;
+  return MrmSUCCESS;
 }
 

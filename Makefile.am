@@ -304,3 +304,4 @@ EXTRA_DIST += tests/automated/check-mrm-idb-buffer-cleanup.py docs/mrm-idb-buffe
 EXTRA_DIST += tests/automated/check-mrm-idb-open-cleanup.py docs/mrm-idb-open-cleanup.md
 EXTRA_DIST += tests/automated/check-mrm-idb-close-status.py docs/mrm-idb-close-status.md
 EXTRA_DIST += tests/automated/check-mrm-idb-write-conflict-cleanup.py docs/mrm-idb-write-conflict-cleanup.md
+EXTRA_DIST += tests/automated/check-mrm-idb-block-io.py docs/mrm-idb-block-io.md

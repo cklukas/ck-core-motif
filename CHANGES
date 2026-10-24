@@ -1,3 +1,8 @@
+Mrm IDB block I/O completion (2026-10-25)
+==========================================
+
+- Retry interrupted IDB block transfers and complete short reads or writes before returning success, while preserving failure on EOF or other unrecoverable results; see `docs/mrm-idb-block-io.md`.
+
 Mrm IDB write-conflict cleanup (2026-10-25)
 ============================================
 
