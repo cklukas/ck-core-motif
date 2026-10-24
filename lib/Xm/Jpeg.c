@@ -96,33 +96,30 @@ get_cval(unsigned char c, unsigned long mask)
     return (value & mask);
 }
 
-void
-store_pixel(Screen * screen, CTable * p, int x, char *cdata)
+static int
+store_pixel(Screen * screen, CTable * p, XImage *ximage, int x, int y)
 {
     Pixel px = get_cval(p->red, screen->root_visual->red_mask)
         | get_cval(p->green, screen->root_visual->green_mask)
         | get_cval(p->blue, screen->root_visual->blue_mask);
-    if (screen->root_depth <= 16) {
-        if (ImageByteOrder(screen->display) == MSBFirst) {
-            cdata[x * 2] = (px >> 8);
-            cdata[x * 2 + 1] = (px & 0xff);
-        } else {
-            cdata[x * 2] = (px & 0xff);
-            cdata[x * 2 + 1] = (px >> 8);
-        }
+    int pixel_bytes = (ximage->bits_per_pixel + 7) / 8;
+    unsigned char *cdata;
+    int byte;
+
+    if (pixel_bytes < 1 || pixel_bytes > 4)
+        return 0;
+    cdata = (unsigned char *)ximage->data +
+            (size_t)y * (size_t)ximage->bytes_per_line +
+            (size_t)x * (size_t)pixel_bytes;
+    if (ximage->byte_order == MSBFirst) {
+        for (byte = 0; byte < pixel_bytes; byte++)
+            cdata[byte] = (unsigned char)
+                (px >> (8 * (pixel_bytes - byte - 1)));
     } else {
-        if (ImageByteOrder(screen->display) == MSBFirst) {
-            cdata[x * 4] = (px >> 24);
-            cdata[x * 4 + 1] = (px >> 16);
-            cdata[x * 4 + 2] = (px >> 8);
-            cdata[x * 4 + 3] = (px & 0xff);
-        } else {
-            cdata[x * 4 + 3] = (px >> 24);
-            cdata[x * 4 + 2] = (px >> 16);
-            cdata[x * 4 + 1] = (px >> 8);
-            cdata[x * 4] = (px & 0xff);
-        }
+        for (byte = 0; byte < pixel_bytes; byte++)
+            cdata[byte] = (unsigned char)(px >> (8 * byte));
     }
+    return 1;
 }
 
 int
@@ -181,8 +178,12 @@ _XmJpegGetImage(Screen * screen, FILE * infile, XImage ** ximage)
         for (yy = 0; yy < (*ximage)->height; yy++) {
             p = image_data + yy * (*ximage)->width;
             for (xx = 0; xx < (*ximage)->width; xx++, p++)
-                store_pixel(screen, p, xx + yy * (*ximage)->width,
-                            (*ximage)->data);
+                if (!store_pixel(screen, p, *ximage, xx, yy)) {
+                    XDestroyImage(*ximage);
+                    *ximage = NULL;
+                    free(image_data);
+                    return 2;
+                }
         }
     }
 

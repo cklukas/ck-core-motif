@@ -1,3 +1,10 @@
+JPEG XImage pixel-layout handling (2026-10-24)
+================================================
+
+- Derive JPEG destination writes from the created XImage pixel width, byte
+  order, and row stride, fixing depth-8 and 24-bit layouts while preserving
+  visual-mask conversion; see `docs/jpeg-pixel-layout.md`.
+
 PNG allocation-failure cleanup (2026-10-24)
 ===============================================
 

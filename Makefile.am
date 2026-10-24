@@ -146,3 +146,4 @@ EXTRA_DIST += tests/automated/check-png-pixel-layout.py docs/png-pixel-layout.md
 EXTRA_DIST += docs/layout-manager-decision.md
 EXTRA_DIST += tests/automated/check-png-signature-read.py docs/png-signature-validation.md
 EXTRA_DIST += tests/automated/check-png-allocation-cleanup.py docs/png-allocation-cleanup.md
+EXTRA_DIST += tests/automated/check-jpeg-pixel-layout.py docs/jpeg-pixel-layout.md
