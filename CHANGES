@@ -1,3 +1,5 @@
+* Keep render-table lexer position at the terminating NUL for unterminated
+  quoted strings instead of advancing beyond the input buffer.
 * Harden render-table numeric token parsing: consume unrecognized characters
   and range-check strtod results before converting them to int.
 * Fix render-table lexing of empty quoted strings so the token advances past

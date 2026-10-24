@@ -2848,10 +2848,15 @@ ReadToken(char *string, int *position, Token reusetoken)
     pos++;
     break;
   case '"': /* String result */
+    {
+    Boolean closed;
+    int end_offset;
     count = 1;
     while (string[pos + count] != '"' &&
 	   string[pos + count] != '\0')
       count++; /* Scan for end of string */
+    closed = (string[pos + count] == '"');
+    end_offset = count;
     new_token -> type = T_STR;
     count -= 1;
     if (count > 0) {
@@ -2861,8 +2866,9 @@ ReadToken(char *string, int *position, Token reusetoken)
     }
     else
       new_token -> string = XtNewString("");
-    pos += count + 2; /* Move past end quote */
+    pos += closed ? end_offset + 1 : end_offset;
     break;
+    }
   default:
     if (isalpha((unsigned char)string[pos])) /* String result */
       {
