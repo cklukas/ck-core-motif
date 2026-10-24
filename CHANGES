@@ -3059,3 +3059,10 @@ Mrm writer comment input (2026-10-25)
 - Reject null comment pointers before UID writer string operations while
   preserving empty-comment clearing and normal non-empty comments; see
   `docs/mrm-writer-comment-input.md`.
+
+Mrm writer class input (2026-10-25)
+==================================
+
+- Reject null user-defined class names before UID writer string operations,
+  preserving the existing empty-name error and predefined class behavior; see
+  `docs/mrm-writer-class-input.md`.

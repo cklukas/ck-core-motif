@@ -444,3 +444,4 @@ EXTRA_DIST += tests/automated/check-mrm-literal-context-retain.py docs/mrm-liter
 EXTRA_DIST += tests/automated/check-mrm-callback-cleanup-bounds.py docs/mrm-callback-cleanup-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-callback-cleanup-bounds.py docs/mrm-callback-cleanup-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-writer-comment-input.py docs/mrm-writer-comment-input.md
+EXTRA_DIST += tests/automated/check-mrm-writer-class-input.py docs/mrm-writer-class-input.md

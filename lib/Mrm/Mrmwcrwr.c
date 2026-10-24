@@ -264,7 +264,7 @@ UrmCWRSetClass (URMResourceContextPtr	context_id,
    */
   if ( type == UilMrmUnknownCode )
     {
-      if ( strlen(class) <= 0 )
+      if ( class == NULL || strlen(class) <= 0 )
 	return Urm__UT_Error ("UrmCWRSetClass", _MrmMMsg_0090,
 			      NULL, context_id, MrmNO_CLASS_NAME) ;
       result = UrmCWR__AppendString (context_id, class, &offset) ;
