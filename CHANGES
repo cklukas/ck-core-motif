@@ -1,3 +1,10 @@
+IconG mask-name bounds (2026-10-24)
+===================================
+
+- Allocate generated IconG mask names from the caller's image-name length,
+  releasing them after lookup and retaining an unspecified mask on allocation
+  failure; see `docs/icon-mask-name-allocation.md`.
+
 Embedded XPM mask ownership (2026-10-24)
 =========================================
 
