@@ -2890,3 +2890,11 @@ Mrm widget-instance input validation (2026-11-04)
 - Validate override arrays and required output/list pointers before dispatching
   widget-instance creation or auto-child setting; see
   `docs/mrm-widget-instance-input.md`.
+
+
+Mrm deferred pixmap bounds (2026-11-05)
+=======================================
+
+- Guard the fixed deferred-pixmap array before saving icon and bitmap
+  arguments, preventing stack overwrite on oversized argument lists; see
+  `docs/mrm-pixmap-defer-bounds.md`.

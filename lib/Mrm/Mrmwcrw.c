@@ -1327,6 +1327,12 @@ Urm__CW_CreateArglist (Widget			parent,
 	      switch ( reptype )
 		{
 		case MrmRtypeIconImage:
+	  if (pixargs_cnt >= sizeof(pixargs) / sizeof(pixargs[0]))
+	    {
+	      Urm__UT_Error ("Urm__CW_CreateArglist", _MrmMMsg_0048,
+			     NULL, NULL, MrmFAILURE) ;
+	      continue;
+	    }
 		  savepix = &pixargs[pixargs_cnt] ;
 		  savepix->icon = (RGMIconImagePtr) val ;
 		  savepix->pixarg = argptr ;
@@ -1543,6 +1549,12 @@ Urm__CW_CreateArglist (Widget			parent,
 	  pixargs_cnt += 1 ;
 	  continue ;
         case MrmRtypeXBitmapFile:
+	  if (pixargs_cnt >= sizeof(pixargs) / sizeof(pixargs[0]))
+	    {
+	      Urm__UT_Error ("Urm__CW_CreateArglist", _MrmMMsg_0048,
+			     NULL, NULL, MrmFAILURE) ;
+	      continue;
+	    }
 	  savepix = &pixargs[pixargs_cnt] ;
 	  savepix->filename = (String) val ;
 	  savepix->pixarg = argptr ;

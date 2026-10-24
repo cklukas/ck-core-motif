@@ -416,3 +416,4 @@ EXTRA_DIST += tests/automated/check-mrm-wref-allocation.py docs/mrm-wref-allocat
 EXTRA_DIST += tests/automated/check-mrm-register-names-allocation.py docs/mrm-register-names-allocation.md
 EXTRA_DIST += tests/automated/check-mrm-widget-instance-allocation.py docs/mrm-widget-instance-allocation.md
 EXTRA_DIST += tests/automated/check-mrm-widget-instance-input.py docs/mrm-widget-instance-input.md
+EXTRA_DIST += tests/automated/check-mrm-pixmap-defer-bounds.py docs/mrm-pixmap-defer-bounds.md
