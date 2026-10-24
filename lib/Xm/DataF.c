@@ -4437,14 +4437,15 @@ df_SetDestination(
       	    _XmDataFToggleCursorGC(w);
         }
     } else {
-        if (XmTextF_has_destination(tf))
-	   if (!set_time) set_time = df_GetServerTime(w);
+        if (XmTextF_has_destination(tf)) {
+           if (!set_time) set_time = df_GetServerTime(w);
            XtDisownSelection(w, MOTIF_DESTINATION, set_time);
 
           /* Call XmGetDestination(dpy) to get widget that last had
              destination cursor. */
            if (w == XmGetDestination(XtDisplay(w)))
               _XmSetDestination(XtDisplay(w), (Widget)NULL);
+        }
 
            XmTextF_has_destination(tf) = False;
       	   _XmDataFToggleCursorGC(w);
