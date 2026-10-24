@@ -199,6 +199,13 @@ add_token (t)					/* keep sorted by name */
 
 
 
+int
+main (void)
+{
+    yylex ();
+    return 0;
+}
+
 int yywrap ()
 {
     int i;

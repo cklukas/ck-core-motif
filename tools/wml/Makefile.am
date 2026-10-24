@@ -1,6 +1,6 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-EXTRA_DIST = README wmllex.c wmllex.l motif.wml Uil.y Uil.c Uil.h UilLexPars.h UilLexPars.c
+EXTRA_DIST = README wmllex.c wmllex.l motif.wml Uil.y Uil.c Uil.h UilLexPars.h UilLexPars.c docs/wml-build.md
 
 AM_YFLAGS = -d
 #AM_LFLAGS = -l
@@ -47,11 +47,16 @@ wmlsynbld.c: wmlparse.h
 # The object consumes generated headers; the C file is ordinary VPATH source.
 wmldbcreate.o: $(WMLTARGETS) UilLexPars.h
 
-UilLexPars.h: UilLexPars.c
-
-UilLexPars.c: Uil.c
+# Generate the parser source/header pair once.  A stamp target keeps parallel
+# builds from racing two recipes that both create the same symlinks.
+UilLexPars.stamp: Uil.c Uil.h
+	$(RM) UilLexPars.h UilLexPars.c
 	$(LN_S) Uil.h UilLexPars.h
 	$(LN_S) Uil.c UilLexPars.c
+	$(AM_V_at)touch $@
+
+UilLexPars.c UilLexPars.h: UilLexPars.stamp
+	@:
 
 $(WMLTARGETS): wml-uil.mm
 
@@ -70,5 +75,5 @@ motif.wmd: wmldbcreate
 clean-local:
 	$(RM) $(WMLTARGETS) $(WMDTABLE) $(REPORT) lex.yy.c libwml.a wml \
 	*.mm *.sdml *.txt wmlparse.c wmlparse.h wmluiltok wmllex.c \
-	tokens.dat DONE wmluiltok.c Uil.c Uil.h wml.report UilLexPars.[ch] ylwrap
+	tokens.dat DONE wmluiltok.c Uil.c Uil.h wml.report UilLexPars.[ch] UilLexPars.stamp ylwrap
  

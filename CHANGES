@@ -1,3 +1,8 @@
+2026-10-24
+
+* Fix parallel WML parser generation and make wmluiltok provide an explicit
+  scanner entry point for current flex toolchains.
+
 Grow XmPicture state buffers safely (2026-10-24)
 ===============================================
 
