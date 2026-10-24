@@ -1,3 +1,10 @@
+Mrm byte-swap diagnostic bounds (2026-10-25)
+===============================================
+
+- Bound malformed record, callback, and widget-resource diagnostics in the
+  byte-swap routines while preserving their existing error paths; see
+  `docs/mrm-swap-error-bounds.md`.
+
 Mrm literal diagnostic bounds (2026-10-25)
 ========================================
 

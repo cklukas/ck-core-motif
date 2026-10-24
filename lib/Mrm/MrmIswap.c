@@ -209,8 +209,8 @@ Idb__BM_SwapRecordBytes (IDBRecordBufferPtr		buffer)
       break;
 	
     default:
-      sprintf(err_msg, _MrmMMsg_0020, idb_header->record_num,
-	      idb_header->record_type);
+      (void) snprintf(err_msg, sizeof(err_msg), _MrmMMsg_0020,
+	       idb_header->record_num, idb_header->record_type);
       return Urm__UT_Error ("Idb__BM_SwapRecordBytes",
 			    err_msg, NULL, NULL, MrmFAILURE) ;
     }
@@ -290,8 +290,8 @@ Urm__SwapRGMCallbackDesc (RGMCallbackDescPtr	callb_desc,
 	  break;
 	default:
 	  swapbytes( callb_desc->item[ndx].cb_item.datum.offset );
-	  sprintf(err_msg, _MrmMMsg_0021,
-		  callb_desc->item[ndx].cb_item.rep_type, ndx);
+	  (void) snprintf(err_msg, sizeof(err_msg), _MrmMMsg_0021,
+		   callb_desc->item[ndx].cb_item.rep_type, ndx);
 	  return Urm__UT_Error ("Urm__SwapRGMCallbackDesc",
 				err_msg, NULL, NULL, MrmFAILURE) ;
 	  break;
@@ -432,8 +432,8 @@ Urm__SwapRGMWidgetRecord(RGMWidgetRecordPtr	widget_rec)
 	    case MrmRtypeKeysym:
 	    case MrmRtypeWideCharacter:
 	    case MrmRtypeFontSet:
-	      sprintf(err_msg,_MrmMMsg_0022,
-		      arg_list->args[ndx].arg_val.rep_type);
+	      (void) snprintf(err_msg, sizeof(err_msg), _MrmMMsg_0022,
+		       arg_list->args[ndx].arg_val.rep_type);
 	      return Urm__UT_Error ("Urm__SwapRGMWidgetRecord",
 				    err_msg, NULL, NULL, MrmFAILURE) ;
 	      break;
