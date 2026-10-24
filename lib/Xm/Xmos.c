@@ -55,6 +55,7 @@ extern "C" { /* some 'locale.h' do not have prototypes (sun) */
 #endif
 
 #include <ctype.h>		/* for isspace() */
+#include <stdint.h>
 
 #include <sys/time.h>		/* For declaration of select(). */
 
@@ -552,8 +553,15 @@ GetFixedMatchPattern(String pattern)
   char *outputBuf;
   char lastchar = '\0';
   int len;
+  size_t pattern_len;
+
+  if (pattern == NULL)
+    return NULL;
+  pattern_len = strlen(pattern);
+  if (pattern_len > (SIZE_MAX / 2) - 4)
+    return NULL;
   
-  outputBuf = XtCalloc(2, strlen(pattern) + 4);
+  outputBuf = XtCalloc(2, pattern_len + 4);
   
   bufPtr = outputBuf;
   *bufPtr++ = '^';
@@ -1433,7 +1441,7 @@ _XmOSGenerateMaskName(
     else
       len = strlen(imageName);
 
-    strncpy(maskNameBuf, imageName, len);
+    memcpy(maskNameBuf, imageName, (size_t)len);
     maskNameBuf += len;
     strcpy(maskNameBuf, "_m");
     if (suffix) 

@@ -1,3 +1,18 @@
+Xmos mask-name copy cleanup (2026-10-24)
+========================================
+
+- Copy the measured image-name prefix with exact-length `memcpy` before adding
+  the mask marker, preserving generated names while removing the misleading
+  truncation warning; see `docs/xmos-mask-name.md`.
+
+Xmos pattern allocation bounds (2026-10-24)
+============================================
+
+- Reject missing match patterns and check the doubled regular-expression
+  allocation before converting file-selection patterns, preserving normal
+  matching syntax while preventing arithmetic wraparound; see
+  `docs/xmos-pattern-bounds.md`.
+
 Out-of-tree WML lexer generation (2026-10-24)
 ==============================================
 
