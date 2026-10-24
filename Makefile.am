@@ -395,3 +395,5 @@ EXTRA_DIST += tests/automated/check-mrm-close-delete.py docs/mrm-close-delete.md
 EXTRA_DIST += tests/automated/check-mrm-clobber-close.py docs/mrm-clobber-close.md
 
 EXTRA_DIST += tests/automated/check-mrm-no-clobber-close.py docs/mrm-no-clobber-close.md
+
+EXTRA_DIST += tests/automated/check-mrm-pointer-list-append-state.py docs/mrm-pointer-list-append-state.md

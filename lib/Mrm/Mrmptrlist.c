@@ -319,7 +319,9 @@ UrmPlistAppendPointer (URMPointerListPtr	list_id ,
    */
   Cardinal		result ;	/* function results */
 
-  if (list_id == NULL)
+  if (list_id == NULL || list_id->ptr_vec == NULL ||
+      list_id->num_slots <= 0 || list_id->num_ptrs < 0 ||
+      list_id->num_ptrs > list_id->num_slots)
     return Urm__UT_Error ("UrmPlistAppendPointer", _MrmMMsg_0048,
 				  NULL, NULL, MrmFAILURE) ;
 
