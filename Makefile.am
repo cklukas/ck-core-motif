@@ -375,3 +375,5 @@ EXTRA_DIST += tests/automated/check-mrm-index-string-bounds.py docs/mrm-index-st
 EXTRA_DIST += tests/automated/check-mrm-rid-handle-bounds.py docs/mrm-rid-handle-bounds.md
 
 EXTRA_DIST += tests/automated/check-mrm-pointer-list-cleanup.py docs/mrm-pointer-list-cleanup.md
+
+EXTRA_DIST += tests/automated/check-mrm-pointer-list-init-cleanup.py docs/mrm-pointer-list-init-cleanup.md

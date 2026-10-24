@@ -118,8 +118,12 @@ UrmPlistInit (int		size,
 
   (*list_id_return)->ptr_vec = (XtPointer *) XtMalloc (size*sizeof(XtPointer)) ;
   if ( (*list_id_return)->ptr_vec == NULL )
-    return Urm__UT_Error ("UrmPlistInit", _MrmMMsg_0047,
-			  NULL, NULL, MrmFAILURE) ;
+    {
+      XtFree ((char *)*list_id_return);
+      *list_id_return = NULL;
+      return Urm__UT_Error ("UrmPlistInit", _MrmMMsg_0047,
+			    NULL, NULL, MrmFAILURE) ;
+    }
 
   (*list_id_return)->num_slots = size ;
   (*list_id_return)->num_ptrs = 0 ;
