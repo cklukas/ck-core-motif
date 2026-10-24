@@ -115,6 +115,9 @@ UrmGetResourceContext (char			*((*alloc_func) ()),
 		       URMResourceContextPtr	*context_id_return)
 {
 
+  if ( context_id_return == NULL )
+    return MrmFAILURE;
+
   /*
    * Set function defaults if NULL
    */

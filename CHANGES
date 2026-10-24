@@ -1,3 +1,8 @@
+Mrm resource-context output-pointer validation (2026-10-25)
+=============================================================
+
+- Reject a missing resource-context output pointer before selecting allocators or reporting allocation failures, preventing NULL dereferences while preserving valid context creation; see `docs/mrm-context-output-pointer.md`.
+
 Mrm widget-record output-pointer validation (2026-10-25)
 ==========================================================
 
