@@ -1,3 +1,9 @@
+Mrm wide-character bounds (2026-10-25)
+======================================
+
+- Reject negative or unrepresentable serialized wide-character counts before
+  conversion and allocation; see `docs/mrm-widechar-bounds.md`.
+
 Mrm name-registration counts (2026-10-25)
 =========================================
 

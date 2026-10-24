@@ -1795,8 +1795,15 @@ Urm__CW_FixupValue (long			val,
       wcharentry = (RGMWCharEntryPtr)val;
       if (*swap_needed)
 	swapbytes(wcharentry->wchar_item.count);
+      if (wcharentry->wchar_item.count < 0)
+	return Urm__UT_Error("Urm__CW_FixupValue", _MrmMMsg_0110,
+			     NULL, NULL, MrmFAILURE);
       /* Allocate memory */
-      max_size = wcharentry->wchar_item.count;
+      max_size = (size_t)wcharentry->wchar_item.count;
+      if (max_size == SIZE_MAX ||
+          max_size > (SIZE_MAX / sizeof(wchar_t)) - 1)
+	return Urm__UT_Error("Urm__CW_FixupValue", _MrmMMsg_0110,
+			     NULL, NULL, MrmFAILURE);
       wcstr_r = (wchar_t *)XtMalloc(sizeof(wchar_t) * (max_size + 1));
 	
       /* Convert, realloc, store */
