@@ -1332,7 +1332,7 @@ _XmGetScaledPixmap(
 #endif /* NeedWidePrototypes */
     double scaling_ratio)
 {    
-    Display * display = DisplayOfScreen(screen);
+    Display * display;
     XImage * image;
     Pixmap   pixmap;
     GC gc ;
@@ -1351,7 +1351,10 @@ _XmGetScaledPixmap(
     if (!pixmap_data_set) InitializePixmapSets() ;
 
     /* if screen not provided, widget has to be! */
-    if (!screen) screen = XtScreen(widget);
+    if (!screen && widget) screen = XtScreen(widget);
+    if (!screen)
+	return (XmUNSPECIFIED_PIXMAP);
+    display = DisplayOfScreen(screen);
 
     /* since more than one printers can attach to one screen,
        we need to use the print shell in the caching */

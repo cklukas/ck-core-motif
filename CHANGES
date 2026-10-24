@@ -1,3 +1,11 @@
+Scaled-pixmap screen fallback (2026-10-24)
+=============================================
+
+- Resolve the optional screen from a non-null widget before obtaining its
+  display, and reject requests with neither source, preventing null-screen
+  crashes while preserving normal callers; see
+  `docs/image-screen-fallback.md`.
+
 Image rejection cleanup (2026-10-24)
 ====================================
 
