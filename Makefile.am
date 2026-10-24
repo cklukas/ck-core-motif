@@ -338,3 +338,5 @@ EXTRA_DIST += tests/automated/check-mrm-buffer-postconditions.py docs/mrm-buffer
 EXTRA_DIST += tests/automated/check-mrm-buffer-valid-macro.py docs/mrm-buffer-valid-macro.md
 EXTRA_DIST += tests/automated/check-mrm-decommit-state.py docs/mrm-decommit-state.md
 EXTRA_DIST += tests/automated/check-mrm-decommit-all-input.py docs/mrm-decommit-all-input.md
+
+EXTRA_DIST += tests/automated/check-mrm-cache-hit-record.py docs/mrm-cache-hit-record.md

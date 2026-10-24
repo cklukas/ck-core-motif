@@ -468,6 +468,7 @@ Idb__BM_GetRecord (IDBFile                     file_id,
             ndx++,curbuf++ )
         {
 	  if ( (curbuf->cur_file==file_id) &&
+	       (curbuf->IDB_record != NULL) &&
 	       (curbuf->IDB_record->header.record_num==record) )
             {
 	      *buffer_return = curbuf ;
