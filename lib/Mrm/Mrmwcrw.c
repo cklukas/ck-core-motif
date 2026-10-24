@@ -444,6 +444,10 @@ UrmCreateOrSetWidgetInstance (URMResourceContextPtr	context_id,
    */
   RGMWidgetRecordPtr	widgetrec ;	/* widget record in the context */
 
+  if ((ov_num_args > 0 && ov_args == NULL) ||
+      svlist == NULL || w_return == NULL || w_name == NULL)
+    return MrmFAILURE;
+
   /*
    * Validate the context and the widget record in the context.
    * Check the variety and call the appropriate set or create function.

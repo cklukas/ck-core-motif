@@ -2882,3 +2882,11 @@ Mrm widget-instance allocation handling (2026-11-03)
 - Check scratch pointer lists and argument arrays in create and set-values
   instance builders, releasing partial setup on failure; see
   `docs/mrm-widget-instance-allocation.md`.
+
+
+Mrm widget-instance input validation (2026-11-04)
+=================================================
+
+- Validate override arrays and required output/list pointers before dispatching
+  widget-instance creation or auto-child setting; see
+  `docs/mrm-widget-instance-input.md`.

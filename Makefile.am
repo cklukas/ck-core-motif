@@ -415,3 +415,4 @@ EXTRA_DIST += tests/automated/check-mrm-fetch-setvalues-allocation.py docs/mrm-f
 EXTRA_DIST += tests/automated/check-mrm-wref-allocation.py docs/mrm-wref-allocation.md
 EXTRA_DIST += tests/automated/check-mrm-register-names-allocation.py docs/mrm-register-names-allocation.md
 EXTRA_DIST += tests/automated/check-mrm-widget-instance-allocation.py docs/mrm-widget-instance-allocation.md
+EXTRA_DIST += tests/automated/check-mrm-widget-instance-input.py docs/mrm-widget-instance-input.md
