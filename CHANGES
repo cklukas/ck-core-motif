@@ -1,3 +1,11 @@
+Non-text Unicode widget qualification (2026-10-24)
+===================================================
+
+- Add an installed-prefix Xvfb matrix for Label, List and ComboBox values,
+  covering combining marks, a non-BMP character and Han text through their
+  public XmString and selection APIs.
+- Record the round-trip and selection contract in docs/nontext-unicode.md.
+
 Container dynamic tab-list ownership (2026-10-24)
 ==================================================
 

@@ -35,6 +35,7 @@ nav:
       - docs/combo-deletion.md
       - docs/datafield-wide-text.md
       - docs/container-tabs.md
+      - docs/nontext-unicode.md
       - docs/text-source-bounds.md
       - docs/image-scaling.md
       - docs/uil-listing.md
