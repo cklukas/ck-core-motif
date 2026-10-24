@@ -4,6 +4,12 @@ Mrm B-tree child bounds (2026-10-25)
 - Validate node records, entry indices, metadata, and child links before
   loading B-tree children; see `docs/mrm-btree-record-bounds.md`.
 
+Mrm B-tree child bounds (2026-10-25)
+=====================================
+
+- Validate node records, entry indices, metadata, and child links before
+  loading B-tree children; see `docs/mrm-btree-record-bounds.md`.
+
 Mrm read-side index bounds (2026-10-25)
 =======================================
 
