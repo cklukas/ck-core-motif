@@ -136,6 +136,7 @@ Idb__INX_ReturnItem (IDBFile			file_id,
    *  Local variables
    */
   Cardinal		result ;	/* function results */
+
   IDBRecordBufferPtr	bufptr ;	/* buffer containing entry */
   MrmCount		entndx ;	/* entry index */
   IDBIndexLeafRecordPtr	leafrec ;	/* index leaf record */
@@ -237,6 +238,10 @@ Idb__INX_FindIndex (IDBFile			file_id,
    *  Local variables
    */
   Cardinal		result ;	/* function results */
+
+  if (file_id == NULL || index == NULL || buffer_return == NULL ||
+      index_return == NULL)
+    return MrmFAILURE;
 
   /*
    * Initialize search at the root of the index, then continue searching
@@ -341,6 +346,9 @@ Idb__INX_SearchIndex (IDBFile			file_id,
   char			*ndxstg ;	/* pointer to current index string */
   int			cmpres=0;	/* strncmp result */
 
+  if (file_id == NULL || index == NULL || buffer == NULL ||
+      buffer->IDB_record == NULL || index_return == NULL)
+    return MrmFAILURE;
 
   /*
    * Set up search pointers based on the record type
@@ -441,6 +449,10 @@ Idb__INX_GetBtreeRecord ( IDBFile		file_id,
   Cardinal		result ;	/* function results */
   IDBIndexNodeRecordPtr	recptr ;	/* node record in buffer */
   IDBRecordNumber	recno ;		/* Record number to read in */
+
+  if (file_id == NULL || buffer_return == NULL || *buffer_return == NULL ||
+      (*buffer_return)->IDB_record == NULL || entry_index < 0)
+    return MrmFAILURE;
 
   /*
    * Set buffer pointers

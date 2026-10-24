@@ -1,3 +1,8 @@
+Mrm index traversal input validation (2026-10-25)
+================================================
+
+- Reject missing file handles, search strings, record buffers, and output pointers in index and B-tree traversal helpers before dereferencing them; see `docs/mrm-index-inputs.md`.
+
 Mrm IDB decommit failure cleanup (2026-10-25)
 ===============================================
 
