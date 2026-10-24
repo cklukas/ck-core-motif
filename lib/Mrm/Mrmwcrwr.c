@@ -1157,9 +1157,13 @@ UrmCWRSetArgCallback (URMResourceContextPtr	context_id ,
    * Validate record, arglist descriptor, and argument number.
    * Set the argument type.
    */
-  UrmCWR__ValidateContext (context_id, "UrmCWRSetArgCallback") ;
-  UrmCWR__BindArgPtrs
+  if ( cb_offs_return == NULL ) return MrmFAILURE ;
+  result = UrmCWR__ValidateContext (context_id,
+                                    "UrmCWRSetArgCallback") ;
+  if ( result != MrmSUCCESS ) return result ;
+  result = UrmCWR__BindArgPtrs
     (context_id, "UrmCWRSetArgCallback", arg_ndx, &argdesc, &argptr) ;
+  if ( result != MrmSUCCESS ) return result ;
 
   argptr->arg_val.rep_type = MrmRtypeCallback ;
 
@@ -1181,8 +1185,9 @@ UrmCWRSetArgCallback (URMResourceContextPtr	context_id ,
 				   (char **)&cbdesc) ;
   if ( result != MrmSUCCESS ) return result ;
 
-  UrmCWR__BindArgPtrs
+  result = UrmCWR__BindArgPtrs
     (context_id, "UrmCWRSetArgCallback", arg_ndx, &argdesc, &argptr) ;
+  if ( result != MrmSUCCESS ) return result ;
   argptr->arg_val.datum.offset = offset ;
 
   cbdesc->validation = URMCallbackDescriptorValid ;
