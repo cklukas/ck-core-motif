@@ -7907,12 +7907,25 @@ static void ConfigStackPop (void)
 	}
 	else
 	{
-	    char msg[MAXWMPATH+1];
+            const char *format = (char *)GETMESSAGE(60, 39,
+                "Could not reopen configuration file %s");
+            const char *fileName = (pPrev->fileName != NULL) ?
+                pPrev->fileName : "";
+            int messageLength = snprintf(NULL, 0, format, fileName);
+            char *message = (messageLength >= 0) ?
+                (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
 
-	    sprintf(msg, ((char *)GETMESSAGE(60, 39, 
-			    "Could not reopen configuration file %s")),
-		pPrev->fileName);
-	    Warning (msg);
+            if (message != NULL)
+            {
+                (void)snprintf(message, (size_t)messageLength + 1,
+                               format, fileName);
+                Warning(message);
+                XtFree(message);
+            }
+            else
+            {
+                Warning("Could not reopen configuration file");
+            }
 	}
 
 	XtFree ((char *)pConfigStackTop);

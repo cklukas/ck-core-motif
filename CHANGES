@@ -1,3 +1,10 @@
+Mwm configuration-reopen warning bounds (2026-10-24)
+=====================================================
+
+- Dynamically format failed configuration-file reopen diagnostics, preserving
+  include-stack recovery while removing the fixed `MAXWMPATH` message buffer;
+  see `docs/mwm-config-reopen-warning.md`.
+
 Mwm command-tree bounds (2026-10-24)
 ====================================
 
