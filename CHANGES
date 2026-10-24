@@ -547,3 +547,10 @@ Development 2.4.0 / compound-text length checks
 - Check combined compound-text encoding and segment lengths before allocation
   and Xlib conversion, rejecting unrepresentable totals cleanly.
 - Add a public XmString conversion regression and documentation.
+
+Development 2.4.0 / accessibility menu snapshot bounds
+=======================================================
+
+- Check menu-child counts before allocating accessibility ID snapshots,
+  preventing a wrapped `Cardinal`-to-size multiplication.
+- Add a popup-menu lifecycle regression and documentation.
