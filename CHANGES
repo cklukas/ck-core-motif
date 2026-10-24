@@ -1,3 +1,9 @@
+Mrm compound-string append bounds (2026-10-25)
+===============================================
+
+- Keep encoded compound-string lengths in size_t and reject records larger
+  than the format limit; see `docs/mrm-cstring-append-bounds.md`.
+
 Mrm string append bounds (2026-10-25)
 ====================================
 

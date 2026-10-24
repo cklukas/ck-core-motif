@@ -2005,9 +2005,10 @@ UrmCWR__AppendCString (URMResourceContextPtr	context_id ,
    *  Local variables
    */
   Cardinal		result ;	/* function results */
-  int			len ;		/* length of string */
+  size_t		len ;		/* length of string */
   char			*cstgadr ;	/* destination address in record */
   unsigned char		*asn1;
+  int			encoded_len ;
 
   /*
    * Offset zero for empty string or NULL pointer
@@ -2019,13 +2020,18 @@ UrmCWR__AppendCString (URMResourceContextPtr	context_id ,
     }
 
 
-  len = XmCvtXmStringToByteStream(cstg, &asn1) ;
+  encoded_len = XmCvtXmStringToByteStream(cstg, &asn1) ;
 
-  if ( len <= 0 )
+  if ( encoded_len <= 0 )
     {
       *offset = 0;
       return MrmSUCCESS ;
     }
+
+  if ((size_t)encoded_len > MrmMaxResourceSize)
+    return Urm__UT_Error ("UrmCWR__AppendCString", _MrmMMsg_0029,
+			  NULL, context_id, MrmTOO_MANY) ;
+  len = (size_t)encoded_len;
 
   /*
    * Guarantee space and copy in string
