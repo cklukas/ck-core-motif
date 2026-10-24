@@ -1,3 +1,11 @@
+UIL debug listing formatter bounds (2026-10-24)
+===============================================
+
+- Replace the fixed-buffer vsprintf path in debug UIL listings with measured,
+  owned formatting and bounded line emission. Long generated text no longer
+  overwrites listing state or trips the debug assertion.
+- Add a long-output regression and document the debug validation command; the
+  public UIL command-line and release listing behavior remain compatible.
 DataField invalid wide-text conversion (2026-10-24)
 ===================================================
 

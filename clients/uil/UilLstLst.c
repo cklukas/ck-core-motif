@@ -976,6 +976,43 @@ finished_scan:
 static	int	cur_pos=0;
 static	char	buffer[132];
 
+static void
+lst_debug_append(const char *text)
+{
+    while (*text != '\0')
+	{
+	    const char *newline = strchr(text, '\n');
+	    size_t line_length = newline ? (size_t)(newline - text) : strlen(text);
+	    size_t available = sizeof(buffer) - 1 - (size_t)cur_pos;
+	    size_t copy_length = line_length < available ? line_length : available;
+
+	    if (copy_length != 0)
+		{
+		memcpy(&buffer[cur_pos], text, copy_length);
+		cur_pos += (int)copy_length;
+		text += copy_length;
+		}
+
+	    if (copy_length < line_length)
+		{
+		buffer[cur_pos] = '\0';
+		lst_output_line(buffer, FALSE);
+		cur_pos = 0;
+		continue;
+		}
+
+	    if (newline != NULL)
+		{
+		buffer[cur_pos] = '\0';
+		lst_output_line(buffer, FALSE);
+		cur_pos = 0;
+		++text;
+		}
+	    else
+		break;
+	}
+}
+
 void	lst_debug_output
 
 	(char *format, ...)
@@ -994,31 +1031,25 @@ void	lst_debug_output
 
     if (lst_v_listing_open)
     {
-	int	count;
-	char	*ptr;
+	va_list measure_ap;
+	int formatted_length;
+	char *formatted;
 
-	vsprintf( &(buffer[cur_pos]), format, ap );
+	va_copy(measure_ap, ap);
+	formatted_length = vsnprintf(NULL, 0, format, measure_ap);
+	va_end(measure_ap);
+	if (formatted_length < 0)
+	    goto done;
 
-	for ( ptr=buffer; ptr[0] != '\0'; ptr += (count+1) )
-	{
-	    _assert( ptr <= &(buffer[132]), "Overflowed debug listing buffer" );
-	    count = strcspn( ptr, "\n" );
-	    if (count == strlen( ptr )) 
-	    {
-		cur_pos = ptr - buffer + count;
-		return;
-	    } 
-	    else 
-	    {
-		ptr[ count ] = '\0';
-	    }
-	    lst_output_line( ptr, FALSE );
-	}
-	cur_pos = 0;
+	formatted = (char *)_get_memory((size_t)formatted_length + 1);
+	(void)vsnprintf(formatted, (size_t)formatted_length + 1, format, ap);
+	lst_debug_append(formatted);
+	_free_memory(formatted);
 
     }
     else
  	vprintf( format, ap );
 
+done:
     va_end(ap);
 }
