@@ -267,3 +267,4 @@ EXTRA_DIST += tests/automated/check-mrm-index-entry-input.py docs/mrm-index-entr
 EXTRA_DIST += tests/automated/check-mrm-buffer-input.py docs/mrm-buffer-input.md
 EXTRA_DIST += tests/automated/check-mrm-file-io-input.py docs/mrm-file-io-input.md
 EXTRA_DIST += tests/automated/check-mrm-file-io-input.py docs/mrm-file-seek-bounds.md
+EXTRA_DIST += tests/automated/check-mrm-literal-error-bounds.py docs/mrm-literal-error-bounds.md

@@ -1,3 +1,10 @@
+Mrm literal diagnostic bounds (2026-10-25)
+========================================
+
+- Bound literal-fetch and color-literal diagnostics in their fixed-size Mrm
+  buffers, preserving normal messages while safely truncating long indexes;
+  see `docs/mrm-literal-error-bounds.md`.
+
 Mrm file seek checks (2026-10-25)
 ===============================
 
