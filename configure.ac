@@ -145,8 +145,7 @@ then
 	AC_DEFINE(USE_XMTHEMES, 1, "Use XmThemes")
 	XMTHEME_DIST = "Theme.h ThemeP.h DynLibP.h Theme.c DynLib.c"
     else
-	AC_MSG_WARN([--enable-themes specified, but I don't have the code. Disabled])
-	enable_themes="no"
+	AC_MSG_ERROR([--enable-themes was requested, but this source tree does not provide the theme implementation])
     fi
 fi
 AC_SUBST(XMTHEME_DIST)

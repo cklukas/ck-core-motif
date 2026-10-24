@@ -37,6 +37,7 @@ nav:
       - docs/container-tabs.md
       - docs/nontext-unicode.md
       - docs/notebook-order.md
+      - docs/theme-configuration.md
       - docs/text-source-bounds.md
       - docs/image-scaling.md
       - docs/uil-listing.md

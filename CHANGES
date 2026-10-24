@@ -1,3 +1,12 @@
+Clear unavailable-theme configuration (2026-10-24)
+==================================================
+
+- Make `--enable-themes` stop configuration when the historical theme
+  implementation is absent, instead of silently disabling the requested
+  feature.
+- Document the supported resource-default behavior and add a configuration
+  guard regression; see docs/theme-configuration.md.
+
 Notebook page ordering without overflow (2026-10-24)
 ====================================================
 

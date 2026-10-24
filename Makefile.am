@@ -82,3 +82,4 @@ EXTRA_DIST += tests/automated/check-text-source-bounds.c tests/automated/run-tex
 EXTRA_DIST += tests/automated/check-container-tabs.c tests/automated/run-container-regressions.py docs/container-tabs.md
 EXTRA_DIST += tests/automated/check-nontext-unicode.c tests/automated/run-nontext-unicode-regressions.py docs/nontext-unicode.md
 EXTRA_DIST += tests/automated/check-notebook-order.c tests/automated/run-notebook-regressions.py docs/notebook-order.md
+EXTRA_DIST += tests/automated/check-theme-option.sh docs/theme-configuration.md
