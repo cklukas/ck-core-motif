@@ -878,6 +878,9 @@ XmCreateCommand(
     Widget   w;
     ArgList  argsNew;
 
+    if (ac == (Cardinal)~(Cardinal)0)
+	return NULL;
+
     /* add dialogType to arglist and force to XmDIALOG_COMMAND... */
     /* big time bad stuff will happen if they use prompt type...  */
     /* (like, no list gets created, but used all through command) */

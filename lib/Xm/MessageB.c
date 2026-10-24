@@ -32,6 +32,7 @@ static char rcsid[] = "$TOG: MessageB.c /main/18 1999/10/13 16:17:09 mgreess $"
 #endif
 
 #include <string.h>
+#include <limits.h>
 #include <Xm/AccColorT.h>	/* for XmAccessColorDataRec */
 #include <Xm/ActivatableT.h>
 #include <Xm/ArrowB.h>
@@ -1272,6 +1273,9 @@ CreateDialog(
     Widget w;
     ArgList  argsNew;
 /****************/
+
+     if (ac < 0 || ac == INT_MAX)
+	 return NULL;
 
      /* add dialogType to arglist and force to type passed in... */
 

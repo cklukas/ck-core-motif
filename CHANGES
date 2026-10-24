@@ -533,3 +533,10 @@ Development 2.4.0 / dialog constructor count guard
 - Reject the maximum `Cardinal` argument count in `XmeCreateClassDialog`
   before adding the shell argument and allocating the merged list.
 - Add a direct maximal-count regression and documentation.
+
+Development 2.4.0 / dialog argument-count guards
+=================================================
+
+- Reject maximum `Cardinal` counts in Command and MessageBox constructors
+  before adding their internal dialog-type argument.
+- Add direct maximal-count regressions and documentation.
