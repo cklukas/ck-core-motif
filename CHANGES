@@ -1,3 +1,10 @@
+Mwm builtin binding buffer lifetime (2026-10-24)
+================================================
+
+- Check temporary key/button binding expansion allocations and release each
+  parser buffer after use, preventing per-screen leaks and null `sprintf`
+  calls; see `docs/mwm-binding-buffer-lifetime.md`.
+
 Mwm font-load warning bounds (2026-10-24)
 ===========================================
 
