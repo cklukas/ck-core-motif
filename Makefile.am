@@ -424,3 +424,4 @@ EXTRA_DIST += tests/automated/check-mrm-pixmap-defer-bounds.py docs/mrm-pixmap-d
 EXTRA_DIST += tests/automated/check-mrm-widechar-allocation.py docs/mrm-widechar-allocation.md
 EXTRA_DIST += tests/automated/check-mrm-header-version-allocation.py docs/mrm-header-version-allocation.md
 EXTRA_DIST += tests/automated/check-mrm-safe-copy-allocation.py docs/mrm-safe-copy-allocation.md
+EXTRA_DIST += tests/automated/check-mrm-hierarchy-cleanup.py docs/mrm-hierarchy-cleanup.md

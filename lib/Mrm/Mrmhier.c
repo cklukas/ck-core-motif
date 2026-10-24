@@ -238,20 +238,30 @@ Urm__OpenHierarchy (MrmCount			num_files,
 
   hiptr->validation = MrmHIERARCHY_VALID;
   hiptr->num_file = 0 ;
+  hiptr->file_list = NULL;
+  hiptr->name_registry = NULL;
+  for ( ndx=URMgMin ; ndx<=URMgMax ; ndx++ )
+    hiptr->grp_ids[ndx] = NULL;
 
   list_size = num_files * sizeof(IDBFile) ;
   hiptr->file_list = (IDBFile *) XtMalloc (list_size) ;
-  if ( hiptr->file_list == NULL ) return MrmFAILURE ;
+  if ( hiptr->file_list == NULL )
+    {
+      Urm__CloseHierarchy (hiptr);
+      return MrmFAILURE ;
+    }
 
   for ( ndx=URMgMin ; ndx<=URMgMax ; ndx++ )
     {
       hiptr->grp_num[ndx] = 0 ;
       idvec = (IDBFile *) XtMalloc (list_size) ;
-      if ( idvec == NULL ) return MrmFAILURE ;
+      if ( idvec == NULL )
+	{
+	  Urm__CloseHierarchy (hiptr);
+	  return MrmFAILURE ;
+	}
       hiptr->grp_ids[ndx] = idvec ;
     }
-
-  hiptr->name_registry = NULL;
 
   /*
    * Now open each file. Any failure causes an error return, with any
@@ -303,18 +313,43 @@ Urm__OpenHierarchy (MrmCount			num_files,
        */
       cur_file->class_ctable = NULL;
       cur_file->resource_ctable = NULL;
+      class_ctx = NULL;
+      resource_ctx = NULL;
       result = UrmGetResourceContext ((char *(*)())NULL, (void(*)())NULL,
 				      0, &class_ctx);
-      if ( result != MrmSUCCESS ) return result;
+      if ( result != MrmSUCCESS )
+	{
+	  XtFree (uidPath);
+	  uidPath = 0;
+	  Urm__CloseHierarchy (hiptr);
+	  return result;
+	}
       result = UrmGetResourceContext ((char *(*)())NULL, (void(*)())NULL,
 				      0, &resource_ctx);
-      if ( result != MrmSUCCESS ) return result;
+      if ( result != MrmSUCCESS )
+	{
+	  UrmFreeResourceContext (class_ctx);
+	  XtFree (uidPath);
+	  uidPath = 0;
+	  Urm__CloseHierarchy (hiptr);
+	  return result;
+	}
       result = UrmGetIndexedLiteral (cur_file, UilMrmClassTableIndex, 
 				     class_ctx);
-      if ( result != MrmSUCCESS ) continue;
+      if ( result != MrmSUCCESS )
+	{
+	  UrmFreeResourceContext (class_ctx);
+	  UrmFreeResourceContext (resource_ctx);
+	  continue;
+	}
       result = UrmGetIndexedLiteral (cur_file, UilMrmResourceTableIndex, 
 				     resource_ctx);
-      if ( result != MrmSUCCESS ) continue;
+      if ( result != MrmSUCCESS )
+	{
+	  UrmFreeResourceContext (class_ctx);
+	  UrmFreeResourceContext (resource_ctx);
+	  continue;
+	}
 
       /*
        * Retain the buffers from the contexts, but free the contexts

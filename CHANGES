@@ -2926,3 +2926,10 @@ Mrm safe value-copy allocation (2026-10-25)
 - Check all owned value-copy allocations and wide-character size arithmetic
   before publishing callback/resource values; see
   `docs/mrm-safe-copy-allocation.md`.
+
+Mrm hierarchy failure cleanup (2026-10-25)
+===========================================
+
+- Initialize partial hierarchy ownership and release opened files, lists, and
+  resource contexts on construction failures; see
+  `docs/mrm-hierarchy-cleanup.md`.
