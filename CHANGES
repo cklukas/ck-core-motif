@@ -474,3 +474,10 @@ Development 2.4.0 / numeric action parameter parsing
   rejecting overflow before narrowing to `int` while preserving legacy prefix
   syntax.
 - Add a regression and maintenance documentation for the conversion boundary.
+
+Development 2.4.0 / ClipWindow translation storage
+====================================================
+
+- Grow generated ClipWindow translation tables on demand with checked size
+  arithmetic instead of concatenating into a fixed 1000-byte buffer.
+- Add an installed-library ScrolledWindow regression and maintenance notes.

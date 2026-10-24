@@ -39,6 +39,7 @@
 #include "TraversalI.h"
 #include "XmI.h"
 #include "ClipWindTI.h"
+#include <stdint.h>
 
 /********    Static Function Declarations    ********/
 
@@ -261,7 +262,31 @@ static XmConst _XmBuildVirtualKeyStruct ClipWindowKeys[] = {
      {0,           XmVosfPageDown,  "ActionGrab(SWDownPage)\n"}
 };
 
-#define MAX_CLIPWINDOW_TM_SIZE 1000  /* roughly 10lines * 100chars */
+static Boolean
+AppendTranslationText(String *buffer, size_t *capacity, size_t *used,
+                       const char *text)
+{
+  size_t length = strlen(text);
+  size_t required;
+
+  if (length > SIZE_MAX - *used - 1)
+    return False;
+  required = *used + length + 1;
+  if (required > *capacity) {
+    size_t next = *capacity;
+    while (next < required) {
+      if (next > SIZE_MAX / 2)
+        next = required;
+      else
+        next *= 2;
+    }
+    *buffer = (String)XtRealloc(*buffer, next);
+    *capacity = next;
+  }
+  memcpy(*buffer + *used, text, length + 1);
+  *used += length;
+  return True;
+}
 
 static String
 GetRealTranslations(
@@ -269,8 +294,9 @@ GetRealTranslations(
         XmConst _XmBuildVirtualKeyStruct *keys,
         int num_keys )
 {
-  static char buf[MAX_CLIPWINDOW_TM_SIZE]; /* memory used externally */
-  char *tmp = buf;
+  static String buf = NULL; /* memory used externally */
+  static size_t capacity = 0;
+  size_t used = 0;
   char *keystring;
   Cardinal i;
   int num_vkeys;
@@ -278,7 +304,11 @@ GetRealTranslations(
   KeySym    keysym;
   Modifiers mods;
   
-  *tmp = '\0';
+  if (buf == NULL) {
+    capacity = 1024;
+    buf = (String)XtMalloc(capacity);
+  }
+  buf[0] = '\0';
   for (i = 0; i < num_keys; i++) {
     keysym = XStringToKeysym(keys[i].key);
     if (keysym == NoSymbol) break;
@@ -295,19 +325,20 @@ GetRealTranslations(
 	mods = vkeys[num_vkeys].modifiers | keys[i].mod;
 	
 	if (mods & ControlMask)
-	  strcat(tmp, "Ctrl ");
+	  if (!AppendTranslationText(&buf, &capacity, &used, "Ctrl "))
+	    break;
 	if (mods & ShiftMask)
-	  strcat(tmp, "Shift ");
+	  if (!AppendTranslationText(&buf, &capacity, &used, "Shift "))
+	    break;
 	if (mods & Mod1Mask)
-	  strcat(tmp, "Mod1 "); /* "Alt" may not be always right */
+	  if (!AppendTranslationText(&buf, &capacity, &used, "Mod1 "))
+	    break; /* "Alt" may not be always right */
 	
-	strcat(tmp,"<Key>");
-	strcat(tmp, keystring);
-	strcat(tmp,": ");
-	strcat(tmp, keys[i].action); /* actions contain line separators. */
-
-	tmp += strlen(tmp);
-	assert((tmp - buf) < MAX_CLIPWINDOW_TM_SIZE);
+	if (!AppendTranslationText(&buf, &capacity, &used, "<Key>") ||
+	    !AppendTranslationText(&buf, &capacity, &used, keystring) ||
+	    !AppendTranslationText(&buf, &capacity, &used, ": ") ||
+	    !AppendTranslationText(&buf, &capacity, &used, keys[i].action))
+	  break;
       }
 
     XtFree((char*) vkeys);
