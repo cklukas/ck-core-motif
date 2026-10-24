@@ -1225,7 +1225,7 @@ DisplayCurrentFont(XmFontSelectorWidget fsw, String font)
 
     if ((fontdata = XLoadQueryFont(XtDisplay((Widget) fsw), font)) == NULL)
     {
-	sprintf(buf, "Font '%s'\nis not availiable on this machine", font);
+	snprintf(buf, sizeof(buf), "Font '%s'\nis not availiable on this machine", font);
 	DisplayUserError(fsw, buf);
 	err = True;
     }
@@ -1247,7 +1247,7 @@ DisplayCurrentFont(XmFontSelectorWidget fsw, String font)
 
     if ((fontdata->ascent + fontdata->descent) == 0) {
 	if (IsXlfdFont(font)) {
-	    char *ptr, left_buf[BUFSIZ], right_buf[BUFSIZ], fbuf[BUFSIZ];
+	    char *ptr, *left_buf, *right_buf, *fbuf;
 	    register int i, count;
 
 	    /*
@@ -1266,23 +1266,34 @@ DisplayCurrentFont(XmFontSelectorWidget fsw, String font)
 	    }
 
 	    ptr = (char *) strchr(ptr + 1, '-');
-	    strcpy(right_buf, ptr);
-	    strcpy(left_buf, font);
-	    left_buf[i] = '\0';
-	    sprintf(fbuf, "%s-140%s", left_buf, right_buf);
+	    if (ptr == NULL) {
+		fontdata = NULL;
+	    } else {
+		left_buf = (char *)XtMalloc((Cardinal)i + 1);
+		memcpy(left_buf, font, (size_t)i);
+		left_buf[i] = '\0';
+		right_buf = XtNewString(ptr);
+		fbuf = (char *)XtMalloc((Cardinal)(strlen(left_buf) +
+							 strlen(right_buf) + 6));
+		(void)snprintf(fbuf, strlen(left_buf) + strlen(right_buf) + 6,
+				       "%s-140%s", left_buf, right_buf);
 
-	    if ((fontdata = XLoadQueryFont(XtDisplay((Widget) fsw), 
-					   fbuf)) == NULL) 
+		fontdata = XLoadQueryFont(XtDisplay((Widget) fsw), fbuf);
+		XtFree(fbuf);
+		XtFree(right_buf);
+		XtFree(left_buf);
+	    }
+
+	    if (fontdata == NULL)
 	    {
-		sprintf(buf,
-			    "Font '%s'\nis not availiable on this machine",
-			    font);
+		snprintf(buf, sizeof(buf),
+			 "Font '%s'\nis not availiable on this machine", font);
 		DisplayUserError(fsw, buf);
 		    err = True;
 	    }
 	}
 	else {
-		sprintf(buf,
+		snprintf(buf, sizeof(buf),
 			"Font '%s'\n%s",
 			font, 
 		    "is is zero pixels high and cannot be displayed.");
