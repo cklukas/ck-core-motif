@@ -156,7 +156,8 @@ Idb__FU_OpenFile (char 			*name,
 	    }
 	  else if (!os_ext->nam_flg.clobber_flg)
 	    {
-	    (void) close (file_desc);
+	    if (close (file_desc) != 0)
+	      return MrmFAILURE;
 	    return MrmEXISTS;		/* no clobber. return Exists */
 	    }
 	  else if (os_ext->version != MrmOsOpenParamVersion)

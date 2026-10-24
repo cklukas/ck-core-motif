@@ -1,4 +1,7 @@
 2026-10-26
+	* Report Mrm no-clobber close failures accurately.
+
+2026-10-26
 	* Check Mrm clobber-path close failures before recreating files.
 
 2026-10-26
