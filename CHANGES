@@ -1,3 +1,17 @@
+Keyboard button release-animation lifetime (2026-10-24)
+======================================================
+
+- Keep one pending release-animation timeout in ArrowButton, ArrowButtonGadget
+  and push-enabled DrawnButton during repeated keyboard activation, matching
+  PushButton and PushButtonGadget. Destruction can then cancel the owned timeout
+  instead of leaving earlier callbacks scheduled against a retired widget.
+- Preserve every activation callback, public resources, callback data, instance
+  layouts and native ABI. Add a native regression covering repeated activation
+  and destruction in all five button classes; see docs/button-timers.md.
+- Native AArch64 validation passes 630 checks. The unchanged prior library fails
+  the same fixture on its duplicate-timer assertion. Installed ABI, SpinBox,
+  List Unicode and DPI regressions pass against the independent fixed build.
+
 Native composition state query (2026-10-24)
 ==========================================
 

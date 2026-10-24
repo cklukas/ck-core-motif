@@ -61,3 +61,6 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
               docs/abi.md docs/unicode.md docs/accessibility.md \
               docs/components.md docs/disclosure.md docs/documentation.md \
               .gitattributes .ckgit/build-commit .ckgit/ci.yml .github/workflows/pages.yml
+
+# Keyboard activation lifetime regression.
+EXTRA_DIST += tests/automated/check-button-timers.c docs/button-timers.md

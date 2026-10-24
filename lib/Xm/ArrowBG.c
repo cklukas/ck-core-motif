@@ -1189,7 +1189,7 @@ ArmAndActivate(
   
   /* If the button is still around, show it released, after a short delay */
   
-  if (ab->object.being_destroyed == False)
+  if (ab->object.being_destroyed == False && !ab->arrowbutton.timer)
     {
       ab->arrowbutton.timer = 
 	XtAppAddTimeOut(XtWidgetToApplicationContext((Widget) ab),

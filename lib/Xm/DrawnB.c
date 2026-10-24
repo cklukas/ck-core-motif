@@ -675,7 +675,8 @@ ArmAndActivate(
    }
 
    /* If the button is still around, show it released, after a short delay */
-   if (!db->core.being_destroyed && db->drawnbutton.pushbutton_enabled)
+   if (!db->core.being_destroyed && db->drawnbutton.pushbutton_enabled &&
+       !db->drawnbutton.timer)
    {
        db->drawnbutton.timer = XtAppAddTimeOut(
 				       XtWidgetToApplicationContext((Widget)db),

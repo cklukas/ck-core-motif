@@ -30,4 +30,5 @@ nav:
       - docs/unicode.md
       - docs/accessibility.md
       - docs/components.md
+      - docs/button-timers.md
       - docs/disclosure.md
