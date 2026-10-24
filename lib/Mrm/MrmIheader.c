@@ -720,6 +720,16 @@ Idb__HDR_ReturnItem (IDBFile		file_id,
         return MrmNULL_DATA;
     }
   }
+  if (recptr->RID_pointers[resndx].internal_id.rec_no <= 0 ||
+      (recptr->RID_pointers[resndx].internal_id.rec_no ==
+       IDBHeaderRecordNumber &&
+       recptr->RID_pointers[resndx].internal_id.item_offs >
+       IDBHeaderFreeMax - sizeof(IDBDataEntryHdr)) ||
+      (recptr->RID_pointers[resndx].internal_id.rec_no !=
+       IDBHeaderRecordNumber &&
+       recptr->RID_pointers[resndx].internal_id.item_offs >
+       IDBDataFreeMax - sizeof(IDBDataEntryHdr)))
+    return MrmBAD_RECORD;
   entry_return->rec_no = recptr->RID_pointers[resndx].internal_id.rec_no;
   entry_return->item_offs = recptr->RID_pointers[resndx].internal_id.item_offs;
 
