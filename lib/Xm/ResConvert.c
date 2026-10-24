@@ -1408,14 +1408,16 @@ CvtStringToStringTable(
             int size = 50 ;
             int i, len ;
             int csize;
+            Boolean after_comma = False;
 
     if(    (p = from_val->addr) == NULL    )
     {   return( False) ;
         } 
     table = (String *) XtMalloc( sizeof( String) * size) ;
 
-    for(    i = 0 ; *p ; i++    )
+    for(    i = 0 ; *p || after_comma ; i++    )
     {   
+        after_comma = False;
         while(    isspace((unsigned char) *p) && *p != '\0'    )
         {   p++ ;
             } 
@@ -1429,7 +1431,7 @@ CvtStringToStringTable(
                 }
             table[i] = XtMalloc( sizeof( char)) ;
             *(table[i]) = '\0' ;
-
+            ++i;
             break ;
             }
         for(    top = p ; *p != ',' && *p != '\0' ; p+=csize    )
@@ -1454,7 +1456,11 @@ CvtStringToStringTable(
         table[i] = XtMalloc( len + 1) ;
         strncpy( table[i], top, len) ;
 	(table[i])[len] = '\0' ;
-        if (*p != '\0') p++ ;
+        if (*p != '\0')
+        {
+            p++ ;
+            after_comma = True;
+        }
         }
     table = (String *)XtRealloc( (char *) table, sizeof( String) * (i + 1)) ;
     table[i] = NULL ;

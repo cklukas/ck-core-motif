@@ -1,3 +1,11 @@
+Preserve trailing string-table slots (2026-10-24)
+=================================================
+
+- Keep an empty final XmRStringTable field after a trailing comma, matching
+  the existing interior empty-field behavior and preserving positional data.
+- Add an installed-prefix converter regression; see
+  docs/string-table-conversion.md.
+
 Preserve empty KeySym-table slots (2026-10-24)
 ===============================================
 
