@@ -1,3 +1,9 @@
+Mrm text-vector bounds (2026-10-25)
+==================================
+
+- Reject negative and 16-bit record-size-overflowing Char8/CString vector
+  counts before allocation; see `docs/mrm-text-vector-bounds.md`.
+
 Mrm callback-copy bounds (2026-10-25)
 =====================================
 

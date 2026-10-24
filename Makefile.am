@@ -224,3 +224,4 @@ EXTRA_DIST += tests/automated/check-mrm-register-counts.py docs/mrm-register-cou
 EXTRA_DIST += tests/automated/check-mrm-widechar-bounds.py docs/mrm-widechar-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-callback-bounds.py docs/mrm-callback-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-callback-copy-bounds.py docs/mrm-callback-copy-bounds.md
+EXTRA_DIST += tests/automated/check-mrm-text-vector-bounds.py docs/mrm-text-vector-bounds.md
