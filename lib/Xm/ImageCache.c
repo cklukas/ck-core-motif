@@ -45,6 +45,8 @@ static char rcsid[] = "$TOG: ImageCache.c /main/44 1998/10/06 17:26:25 samborn $
 #endif
 #include <Xm/XpmP.h>
 #include <X11/Xresource.h>
+#include <math.h>
+#include <stdint.h>
 #ifdef JPEG_SUPPORTED
 #include "JpegI.h"
 #endif
@@ -182,6 +184,10 @@ static GC GetGCForPutImage(Screen *screen,
 			   int depth,
 			   Pixel foreground,
 			   Pixel background);
+static Boolean XmRoundScaled(double value, unsigned int *rounded);
+static Boolean XmScaledDimension(unsigned int source, double ratio,
+				 Dimension *dimension);
+static Boolean XmImageArrayFits(size_t count, size_t element_size);
 
 static int GetCacheColor(Display *display, Colormap colormap,
 			 char *colorname, XColor *color, void *data);
@@ -1299,6 +1305,7 @@ _XmGetScaledPixmap(
     int npixels;
     int old_image_format;
     char *old_image_data = NULL;
+    Dimension scaled_width, scaled_height;
 
     /*  Error checking  */    
     if (image_name == NULL) return (XmUNSPECIFIED_PIXMAP);
@@ -1392,6 +1399,18 @@ _XmGetScaledPixmap(
 	pix_data.scaling_ratio = (double)pix_data.print_resolution / 
 	    (double)pixmap_resolution ;
     } 
+
+
+    if (image->width <= 0 || image->height <= 0 ||
+	isfinite(pix_data.scaling_ratio) == 0 || pix_data.scaling_ratio <= 0.0 ||
+	!XmScaledDimension((unsigned int)image->width,
+			   pix_data.scaling_ratio, &scaled_width) ||
+	!XmScaledDimension((unsigned int)image->height,
+			   pix_data.scaling_ratio, &scaled_height)) {
+	if (ret == NOT_CACHED)
+	    XDestroyImage(image);
+	return (XmUNSPECIFIED_PIXMAP);
+    }
     
 
     /* now we treat the -depth case: if a negative depth was given
@@ -1491,8 +1510,8 @@ _XmGetScaledPixmap(
     pix_entry->scaling_ratio = scaling_ratio ;
 
     /* use the pixmap scaling ratio for printing  */
-    pix_entry->width = image->width * pix_data.scaling_ratio ;
-    pix_entry->height = image->height * pix_data.scaling_ratio ;
+    pix_entry->width = scaled_width;
+    pix_entry->height = scaled_height;
 
     pixmap = XCreatePixmap (display, RootWindowOfScreen(screen), 
 			    pix_entry->width,
@@ -2019,11 +2038,41 @@ _XmCleanPixmapCache(Screen * screen, Widget shell)
 ***/
 
 
-#define roundint(x)                   MAX(1, (int)((x) + 0.5))
+static Boolean
+XmRoundScaled(double value, unsigned int *rounded)
+{
+    double result;
+
+    if (!isfinite(value) || value <= 0.0)
+	return False;
+    result = value + 0.5;
+    if (!isfinite(result) || result > (double)UINT_MAX)
+	return False;
+    *rounded = result < 1.0 ? 1U : (unsigned int)result;
+    return True;
+}
+
+static Boolean
+XmScaledDimension(unsigned int source, double ratio, Dimension *dimension)
+{
+    unsigned int scaled;
+
+    if (!XmRoundScaled((double)source * ratio, &scaled) ||
+	scaled > (unsigned int)((Dimension)~0))
+	return False;
+    *dimension = (Dimension)scaled;
+    return True;
+}
+
+static Boolean
+XmImageArrayFits(size_t count, size_t element_size)
+{
+    return count <= SIZE_MAX / element_size;
+}
 
 typedef struct {
-  Position *x, *y;
-  Dimension *width, *height;
+  unsigned int *x, *y;
+  unsigned int *width, *height;
 } Table;
 
 void _XmPutScaledImage (    
@@ -2041,12 +2090,27 @@ void _XmPutScaledImage (
     unsigned int	 dest_height) 
 {
     XImage *dest_image;
-    Position x, y, min_y, max_y, src_max_x;
-    Dimension w, h, strip_height;
+    unsigned int x, y, min_y, max_y, src_max_x;
+    unsigned int w, h, strip_height;
     Table table;    
     Pixel pixel;
     double ratio_x, ratio_y;
+    unsigned int scaled_row_bytes;
+    size_t image_bytes;
     Bool fast8;
+
+    if (src_image == NULL || src_image->width <= 0 || src_image->height <= 0 ||
+	src_image->bytes_per_line <= 0 || src_width == 0 || src_height == 0 ||
+	dest_width == 0 || dest_height == 0 || dest_width > INT_MAX ||
+	dest_height > INT_MAX || src_x < 0 || src_y < 0 ||
+	src_x > src_image->width || src_y > src_image->height ||
+	src_width > (unsigned int)(src_image->width - src_x) ||
+	src_height > (unsigned int)(src_image->height - src_y) ||
+	!XmImageArrayFits((size_t)src_image->width + 1, sizeof(*table.x)) ||
+	!XmImageArrayFits((size_t)src_image->height + 1, sizeof(*table.y)) ||
+	!XmImageArrayFits((size_t)src_image->width, sizeof(*table.width)) ||
+	!XmImageArrayFits((size_t)src_image->height, sizeof(*table.height)))
+	return;
 
     if (dest_width == src_width && dest_height == src_height) {
 	/* same for x and y, just send it out */
@@ -2059,6 +2123,7 @@ void _XmPutScaledImage (
     ratio_y = (double)dest_height / (double)src_height;
  
 #ifdef PRINTING_SUPPORTED
+    unsigned int print_height;
     int xp_event, xp_error;
     /*
      * Check that we have uniform scaling, and that the print extension
@@ -2069,8 +2134,9 @@ void _XmPutScaledImage (
      * but it's just one round trip on just the first call per display, so
      * it's not that bad.
      */
-    h = (double)src_height * ratio_x + 0.5;
-    if (dest_height <= h + 1 && h <= dest_height + 1 &&
+	if (XmRoundScaled((double)src_height * ratio_x, &print_height) &&
+	((print_height > dest_height) ?
+	 (print_height - dest_height) : (dest_height - print_height)) <= 1 &&
 	XpQueryExtension(display, &xp_event, &xp_error)) {
 	/*
 	 * We could be clever and try to get the print context first from
@@ -2097,15 +2163,21 @@ void _XmPutScaledImage (
     }
 #endif /* PRINTING_SUPPORTED */
 
-    src_max_x = src_x + src_width;
+    if (!XmRoundScaled(ratio_x * src_image->bytes_per_line,
+		       &scaled_row_bytes))
+	return;
+    src_max_x = (unsigned int)src_x + src_width;
 
-    strip_height = 65536 / roundint(ratio_x * src_image->bytes_per_line);
+    strip_height = 65536U / scaled_row_bytes;
     if (strip_height == 0)
 	strip_height = 1;
     if (strip_height > dest_height)
 	strip_height = dest_height;
 
-    h = strip_height + roundint(ratio_y);
+    if (!XmRoundScaled(ratio_y, &h) ||
+	h > UINT_MAX - strip_height)
+	return;
+    h += strip_height;
     dest_image = XCreateImage(display,
 			      DefaultVisualOfScreen(
 					     DefaultScreenOfDisplay(display)),
@@ -2113,24 +2185,37 @@ void _XmPutScaledImage (
 			      0, NULL,
 			      dest_width, h,
 			      src_image->bitmap_pad, 0);
-    dest_image->data = XtMalloc(dest_image->bytes_per_line * h);
+    if (dest_image == NULL || dest_image->bytes_per_line <= 0 ||
+	    (size_t)h > SIZE_MAX / (size_t)dest_image->bytes_per_line) {
+	if (dest_image != NULL)
+	    XDestroyImage(dest_image);
+	return;
+    }
+    image_bytes = (size_t)dest_image->bytes_per_line * h;
+    dest_image->data = XtMalloc(image_bytes);
     fast8 = (src_image->depth == 8 && src_image->bits_per_pixel == 8 &&
 	     dest_image->bits_per_pixel == 8 && src_image->format == ZPixmap);
 
-    table.x = (Position *) XtMalloc(sizeof(Position) * (src_image->width + 1));
-    table.y = (Position *) XtMalloc(sizeof(Position) * (src_image->height + 1));
-    table.width = (Dimension *) XtMalloc(sizeof(Dimension) * src_image->width);
-    table.height = (Dimension *) XtMalloc(sizeof(Dimension)*src_image->height);
+    table.x = (unsigned int *) XtMalloc(sizeof(*table.x) *
+					((size_t)src_image->width + 1));
+    table.y = (unsigned int *) XtMalloc(sizeof(*table.y) *
+					((size_t)src_image->height + 1));
+    table.width = (unsigned int *) XtMalloc(sizeof(*table.width) *
+					(size_t)src_image->width);
+    table.height = (unsigned int *) XtMalloc(sizeof(*table.height) *
+					(size_t)src_image->height);
     
     table.x[0] = 0;
     for (x = 1; x <= src_image->width; x++) {
-	table.x[x] = roundint(ratio_x * x);
+	if (!XmRoundScaled(ratio_x * x, &table.x[x]))
+	    goto cleanup;
 	table.width[x - 1] = table.x[x] - table.x[x - 1];
     }
 
     table.y[0] = 0;
     for (y = 1; y <= src_image->height; y++) {
-	table.y[y] = roundint(ratio_y * y);
+	if (!XmRoundScaled(ratio_y * y, &table.y[y]))
+	    goto cleanup;
 	table.height[y - 1] = table.y[y] - table.y[y - 1];
     }
 
@@ -2173,6 +2258,7 @@ void _XmPutScaledImage (
 	    break;
     }
     
+cleanup:
     XtFree((char *)table.x);
     XtFree((char *)table.y);
     XtFree((char *)table.width);

@@ -1,3 +1,13 @@
+Checked image scaling dimensions and strides (2026-10-24)
+===========================================================
+
+- Reject invalid image rectangles, non-finite or unrepresentable scaling
+  ratios, overflowing destination dimensions, row strides and coordinate-table
+  sizes before rendering. Use unsigned intermediate coordinates so legacy
+  Position and Dimension narrowing cannot corrupt scaled output.
+- Add native overflow and malformed-image regression coverage and document the
+  installed-prefix runner; ordinary pixmap cache and rendering APIs remain
+  compatible.
 UIL debug listing formatter bounds (2026-10-24)
 ===============================================
 
