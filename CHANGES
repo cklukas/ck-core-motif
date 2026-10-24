@@ -1,3 +1,10 @@
+UIL listing title-one bounds (2026-10-24)
+=========================================
+
+- Bound compiler, version, and timestamp formatting in the first fixed UIL
+  listing title, preserving normal output while preventing oversized metadata
+  from overrunning the title buffer; see `docs/uil-title1-bounds.md`.
+
 UIL diagnostic message bounds (2026-10-24)
 ==========================================
 

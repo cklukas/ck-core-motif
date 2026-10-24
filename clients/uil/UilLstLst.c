@@ -146,7 +146,7 @@ void	lst_open_listing()
     lst_l_page_no = 0;
     lst_v_listing_open = TRUE;
 
-    sprintf(lst_c_title1, 
+	(void)snprintf(lst_c_title1, sizeof(lst_c_title1),
 	    "%s %s \t%s\t\t Page ",
 	    _host_compiler, _compiler_version,
 	    current_time(&ctime_buf));
