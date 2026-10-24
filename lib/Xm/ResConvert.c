@@ -2295,6 +2295,17 @@ CvtStringToAtomList(
     {
       if (atom_count == max_atoms)
 	{
+	  if (max_atoms > INT_MAX / 2 ||
+	      (size_t)max_atoms > SIZE_MAX / (2 * sizeof(char *)))
+	    {
+	      int cleanup;
+	      XtFree(atom_name);
+	      for (cleanup = 0; cleanup < atom_count; ++cleanup)
+		XtFree(name_list[cleanup]);
+	      if (name_list != stack_names)
+		XtFree((char *)name_list);
+	      return(False);
+	    }
 	  max_atoms *= 2;
 
 	  if (name_list == stack_names)
@@ -2314,6 +2325,15 @@ CvtStringToAtomList(
       name_list[atom_count++] = atom_name;
     }
 
+  if ((size_t)atom_count > SIZE_MAX / sizeof(Atom))
+    {
+      int cleanup;
+      for (cleanup = 0; cleanup < atom_count; ++cleanup)
+	XtFree(name_list[cleanup]);
+      if (name_list != stack_names)
+	XtFree((char *)name_list);
+      return(False);
+    }
   atom_list = (Atom *) XtMalloc(sizeof(Atom) * atom_count);
   XInternAtoms(dpy, name_list, atom_count, False, atom_list);
 

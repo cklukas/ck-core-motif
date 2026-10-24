@@ -1,3 +1,10 @@
+Atom-list allocation bounds (2026-10-25)
+=========================================
+
+- Bound temporary atom-name growth and final atom-array sizing, releasing
+  parsed names on rejection while preserving normal comma-delimited resources;
+  see `docs/atom-list-conversion.md`.
+
 KeySym-table allocation bounds (2026-10-25)
 ==============================================
 
