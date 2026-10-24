@@ -352,3 +352,5 @@ EXTRA_DIST += tests/automated/check-mrm-buffer-pool-size.py docs/mrm-buffer-pool
 EXTRA_DIST += tests/automated/check-mrm-match-filter-lifetime.py docs/mrm-match-filter-lifetime.md
 
 EXTRA_DIST += tests/automated/check-mrm-data-offset.py docs/mrm-data-offset.md
+
+EXTRA_DIST += tests/automated/check-mrm-data-payload.py docs/mrm-data-payload.md

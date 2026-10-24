@@ -119,6 +119,7 @@ Idb__DB_GetDataEntry (IDBFile			file_id,
   IDBRecordBufferPtr	curbuf ;	/* temp buffer for record */
   Cardinal		num_recs;	/* # records to save overflow */
   Cardinal		cur_rec;	/* the current record */
+  MrmSize		remaining;	/* overflow bytes still expected */
   char			*buff_ptr;	/* ptr into context buffer */
 
   /*
@@ -181,18 +182,31 @@ Idb__DB_GetDataEntry (IDBFile			file_id,
   switch ( datahdr->entry_type )
     {
     case IDBdrSimple:
+      if (datahdr->entry_size >
+          IDBDataFreeMax - data_entry.item_offs - sizeof(IDBDataEntryHdr))
+        return MrmNOT_VALID;
       sim_data = (IDBSimpleDataPtr) datahdr ;
       UrmBCopy (sim_data->data, buff_ptr, datahdr->entry_size) ;
       return MrmSUCCESS ;
 
     case IDBdrOverflow:
+      if (data_entry.item_offs >
+          IDBDataFreeMax - sizeof(IDBOverflowData))
+        return MrmNOT_VALID;
       ofl_data = (IDBOverflowDataPtr) datahdr ;
       if ( file_id->byte_swapped ) SwapIDBOverflowData(ofl_data);
       num_recs = ofl_data->segment_count ;
+      if (num_recs == 0 || ofl_data->segment_size > IDBDataOverflowMax)
+        return MrmNOT_VALID;
+      remaining = datahdr->entry_size;
       for ( cur_rec=1 ; cur_rec<=num_recs ; cur_rec++ )
 	{
+	  if (ofl_data->segment_num != cur_rec ||
+	      ofl_data->segment_size > remaining)
+	    return MrmNOT_VALID;
 	  UrmBCopy (ofl_data->data, buff_ptr, ofl_data->segment_size) ;
 	  buff_ptr += ofl_data->segment_size ;
+	  remaining -= ofl_data->segment_size;
 
 	  /*
 	   * Read the next record in the chain if this is not the last
@@ -213,8 +227,14 @@ Idb__DB_GetDataEntry (IDBFile			file_id,
 				      NULL, context_id, MrmNOT_VALID) ;
 	      ofl_data = (IDBOverflowDataPtr) datahdr ;
 	      if ( file_id->byte_swapped ) SwapIDBOverflowData(ofl_data);
+	      if (ofl_data->segment_num != cur_rec ||
+		  ofl_data->segment_size > IDBDataOverflowMax ||
+		  ofl_data->segment_size > remaining)
+		return MrmNOT_VALID;
 	    }
 	}
+      if (remaining != 0)
+	return MrmNOT_VALID;
       return MrmSUCCESS ;
 
     default:
