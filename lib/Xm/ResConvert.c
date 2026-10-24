@@ -1922,6 +1922,12 @@ ConvertStringToButtonType(
             return( FALSE) ;
             }
         }
+    if (i != comma_count + 1)
+        {
+        XtDisplayStringConversionWarning(display, in_str, XmRButtonType);
+        XtFree((char *) buttonTable);
+        return(FALSE);
+        }
     XtFree( work_str) ;
 
     _XM_CONVERTER_DONE( to, XmButtonTypeTable, buttonTable, XtFree( (char *) buttonTable) ; )

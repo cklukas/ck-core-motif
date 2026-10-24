@@ -1,3 +1,10 @@
+Reject empty button-type resource tokens (2026-10-24)
+=====================================================
+
+- Make the XmRButtonType converter reject leading, trailing, and repeated
+  commas instead of returning tables with uninitialized entries.
+- Add an installed-prefix converter regression; see docs/button-type-conversion.md.
+
 Clear unavailable-theme configuration (2026-10-24)
 ==================================================
 

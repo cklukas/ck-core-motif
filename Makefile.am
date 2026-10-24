@@ -83,3 +83,4 @@ EXTRA_DIST += tests/automated/check-container-tabs.c tests/automated/run-contain
 EXTRA_DIST += tests/automated/check-nontext-unicode.c tests/automated/run-nontext-unicode-regressions.py docs/nontext-unicode.md
 EXTRA_DIST += tests/automated/check-notebook-order.c tests/automated/run-notebook-regressions.py docs/notebook-order.md
 EXTRA_DIST += tests/automated/check-theme-option.sh docs/theme-configuration.md
+EXTRA_DIST += tests/automated/check-button-type-conversion.c tests/automated/run-button-type-regressions.py docs/button-type-conversion.md
