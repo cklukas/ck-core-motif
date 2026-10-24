@@ -1360,6 +1360,15 @@ CvtStringToXmStringTable(
     {
       if (str_no >= table_size)
 	{
+	  int cleanup;
+	  if (table_size > INT_MAX / 2)
+	    {
+	      XtFree(cs);
+	      for (cleanup = 0; cleanup < str_no; ++cleanup)
+		XmStringFree(table[cleanup]);
+	      XtFree((char *)table);
+	      return False;
+	    }
 	  table_size *= 2;
 	  table = (XmString *)XtRealloc((char *)table, 
 					sizeof(XmString) * table_size);
