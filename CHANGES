@@ -1,3 +1,12 @@
+RepType conversion warning bounds (2026-10-24)
+================================================
+
+- Size unknown-value conversion warnings from their localized format and
+  signed integer value instead of assuming ten spare bytes.
+- Add a source-contract regression and document the corrected diagnostics in
+  docs/reptype-warning-bounds.md.
+- Native AArch64 libXm build is warning-free and the RepType regression passes.
+
 Xmos path construction bounds (2026-10-24)
 ==========================================
 

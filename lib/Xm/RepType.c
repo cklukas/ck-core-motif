@@ -1681,8 +1681,15 @@ ReverseConvertRepType(
  
 
 	/** generate a message and display it */
-    in_str = (char *) XtMalloc (strlen(reverse_message) + 10) ;
-    sprintf(in_str, "%s %d", reverse_message, in_value);
+	{
+	    int message_length = snprintf(NULL, 0, "%s %d",
+					   reverse_message, in_value);
+	    if (message_length < 0)
+		return(FALSE);
+	    in_str = (char *) XtMalloc((Cardinal)message_length + 1);
+	    (void)snprintf(in_str, (size_t)message_length + 1, "%s %d",
+			    reverse_message, in_value);
+	}
 
     XtDisplayStringConversionWarning( disp, in_str, Record->rep_type_name) ;
 
