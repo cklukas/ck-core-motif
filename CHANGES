@@ -1,3 +1,10 @@
+Representation-type table bounds (2026-10-25)
+===============================================
+
+- Bound dynamic representation-type registration and snapshots before count
+  arithmetic or allocation-size conversion can wrap; see
+  `docs/reptype-bounds.md`.
+
 XmPicture repeat node-map bounds (2026-10-25)
 ===============================================
 

@@ -38,6 +38,7 @@ static char rcsid[] = "$TOG: RepType.c /main/17 1997/09/15 10:10:39 cshi $"
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
+#include <stdint.h>
 #include "XmI.h"
 
 #define MESSAGE0 _XmMMsgRepType_0000 
@@ -1301,6 +1302,14 @@ XmRepTypeRegister(
 
     _XmProcessLock();
     /** expand the dynamic table */
+    if (DynamicRepTypeNumRecords == UINT_MAX ||
+	(size_t)DynamicRepTypeNumRecords + 1 >
+	    SIZE_MAX / sizeof(XmRepTypeEntryRec) ||
+	DynamicRepTypeNumRecords > UINT_MAX - StandardNumRecs)
+      {
+	_XmProcessUnlock();
+	return( XmREP_TYPE_INVALID);
+      }
     DynamicRepTypes = (XmRepTypeList) 
 	XtRealloc( (char *) DynamicRepTypes, (sizeof(XmRepTypeEntryRec) 
 				* (DynamicRepTypeNumRecords + 1))) ;
@@ -1426,6 +1435,13 @@ XmRepTypeGetRegistered( void )
 
     _XmProcessLock();
     TotalEntries = StandardNumRecs + DynamicRepTypeNumRecords ;
+
+    if (TotalEntries == UINT_MAX ||
+	(size_t)TotalEntries + 1 > SIZE_MAX / sizeof(XmRepTypeEntryRec))
+      {
+	_XmProcessUnlock();
+	return NULL;
+      }
 
     OutputList = (XmRepTypeList) 
 	XtMalloc((TotalEntries + 1)  * sizeof(XmRepTypeEntryRec)) ;
