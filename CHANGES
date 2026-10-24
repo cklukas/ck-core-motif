@@ -1,10 +1,3 @@
-Mrm timestamp output validation (2026-10-25)
-=============================================
-
-- Reject null timestamp output buffers before platform time conversion,
-  preserving valid header timestamps while avoiding malformed-call crashes; see
-  `docs/mrm-time-output.md`.
-
 Mrm fetch-set-values index bounds (2026-10-25)
 ===============================================
 

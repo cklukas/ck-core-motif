@@ -294,6 +294,8 @@ CSourceWindow
 CSpacing
 CStartTime
 CStateCursorIcon
+CSwitchState
+CSwitchValueChangedCallback
 CStringDirection
 CTearOffModel
 CTextFontList
@@ -688,6 +690,8 @@ NstartTime
 NstateCursorIcon
 NstringDirection
 NsubMenuId
+NSwitchState
+NSwitchValueChangedCallback
 NsymbolPixmap
 NtearOffMenuActivateCallback
 NtearOffMenuDeactivateCallback
