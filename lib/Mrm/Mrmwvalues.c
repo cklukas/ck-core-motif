@@ -160,13 +160,21 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
    */
   if (num_args != 0 && args == NULL)
     return MrmFAILURE;
+  if (num_args == 0)
+    return MrmFAILURE;
   for (ndx = 0; ndx < num_args; ndx++)
     if (args[ndx].value == (XtArgVal)0)
       return MrmFAILURE;
   if ((size_t)num_args > SIZE_MAX / sizeof(Arg))
     return MrmFAILURE;
   locargs = (ArgList) XtMalloc ((size_t)num_args*sizeof(Arg)) ;
-  UrmPlistInit (num_args, &ptrlist) ;
+  if (locargs == NULL)
+    return MrmFAILURE;
+  if (UrmPlistInit (num_args, &ptrlist) != MrmSUCCESS)
+    {
+      XtFree ((char *)locargs);
+      return MrmFAILURE;
+    }
 
   /*
    * Find the longest literal index, and allocate a resource descriptor
@@ -190,6 +198,12 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
       return MrmFAILURE;
     }
   resptr = (RGMResourceDescPtr) XtMalloc (sizeof(RGMResourceDesc)+indexlen) ;
+  if (resptr == NULL)
+    {
+      XtFree ((char *)locargs);
+      UrmPlistFree (ptrlist);
+      return MrmFAILURE;
+    }
   resptr->access = URMaPublic ;
   resptr->type = URMrIndex ;
   resptr->res_group = URMgLiteral ;
@@ -250,6 +264,13 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
 	      RGMFontListPtr fontlist = (RGMFontListPtr)
 		XtMalloc(sizeof(RGMFontList) +
 			 (sizeof(RGMFontItem) * (count - 1)));
+	      if (fontlist == NULL)
+		{
+		  XtFree ((char *)val);
+		  num_succ -= 1;
+		  cvt_fail += 1;
+		  continue;
+		}
 	      result = Urm__CW_FixupValue((long)fontlist, reptype, 
 					  (XtPointer)val, file_id,
 					  &swap_needed);

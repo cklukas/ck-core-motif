@@ -409,3 +409,4 @@ EXTRA_DIST += tests/automated/check-mrm-index-collapse-status.py docs/mrm-index-
 EXTRA_DIST += tests/automated/check-mrm-index-pivot-scan.py docs/mrm-index-pivot-scan.md
 EXTRA_DIST += tests/automated/check-mrm-resource-reload-bounds.py docs/mrm-resource-reload-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-resource-parent-rebind.py docs/mrm-resource-parent-rebind.md
+EXTRA_DIST += tests/automated/check-mrm-fetch-setvalues-allocation.py docs/mrm-fetch-setvalues-allocation.md

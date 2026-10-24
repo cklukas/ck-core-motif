@@ -2841,3 +2841,11 @@ Mrm resource parent rebinding (2026-10-30)
 - Reload and validate the parent node before each resource-entry read after
   recursive traversal, avoiding stale buffer pointers; see
   `docs/mrm-resource-parent-rebind.md`.
+
+
+Mrm set-values allocation handling (2026-10-31)
+================================================
+
+- Validate set-values scratch, descriptor, and legacy font-list allocations,
+  and reject empty argument setup before using pointer-list state; see
+  `docs/mrm-fetch-setvalues-allocation.md`.
