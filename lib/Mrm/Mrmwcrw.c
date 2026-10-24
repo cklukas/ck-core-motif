@@ -307,17 +307,17 @@ UrmCreateWidgetTree (URMResourceContextPtr	context_id,
 	      else
 		result = UrmGetIndexedWidget (file_id, child_idx, child_ctx) ;
 	      if ( result != MrmSUCCESS )
-		sprintf (err_msg, _MrmMMsg_0052, child_idx) ;
+		(void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0052, child_idx) ;
 	      break ;
 	    case URMrRID:
 	      result = UrmGetRIDWidget (file_id, childptr->key.id,
 					child_ctx) ;
 	      if ( result != MrmSUCCESS )
-		sprintf (err_msg, _MrmMMsg_0053, childptr->key.id) ;
+		(void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0053, childptr->key.id) ;
 	      break ;
 	    default:
 	      result = MrmFAILURE ;
-	      sprintf (err_msg, _MrmMMsg_0054, childptr->type) ;
+	      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0054, childptr->type) ;
 	      break ;
 	    }
 	  if ( result != MrmSUCCESS )
@@ -1381,7 +1381,7 @@ Urm__CW_CreateArglist (Widget			parent,
 			 XBlackPixelOfScreen(XDefaultScreenOfDisplay(display)));
 		      if ( result != MrmSUCCESS )
 			{
-			  sprintf (err_msg, _MrmMMsg_0061,
+			  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0061,
 				   (String)(colorptr->desc.name)) ;
 			  result = Urm__UT_Error("Urm__CW_ConvertValue",err_msg,
 						 NULL, NULL, MrmNOT_FOUND) ;
@@ -1393,7 +1393,7 @@ Urm__CW_CreateArglist (Widget			parent,
 			 XBlackPixelOfScreen(XDefaultScreenOfDisplay(display)));
 		      if ( result != MrmSUCCESS )
 			{
-			  sprintf (err_msg, _MrmMMsg_0039,
+			  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0039,
 				   colorptr->desc.rgb.red,
 				   colorptr->desc.rgb.green,
 				   colorptr->desc.rgb.blue) ;
@@ -1402,7 +1402,7 @@ Urm__CW_CreateArglist (Widget			parent,
 			}
 		      break;
 		    default:
-		      sprintf (err_msg, _MrmMMsg_0040);
+		      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0040);
 		      result = Urm__UT_Error ("Urm__CW_ConvertValue",
 					      err_msg, NULL, NULL, MrmFAILURE) ;
 		    };
@@ -1440,7 +1440,7 @@ Urm__CW_CreateArglist (Widget			parent,
 		    (file_id, argptr->tag_code, &resource_name) ;
 		  if ( uncmp_res != MrmSUCCESS )
 		    {
-		      sprintf (err_msg, _MrmMMsg_0062,
+		      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0062,
 			       argptr->tag_code) ;
 		      Urm__UT_Error ("Urm__CW_CreateArglist",
 				     err_msg, NULL, NULL, uncmp_res) ;
@@ -1550,7 +1550,7 @@ Urm__CW_CreateArglist (Widget			parent,
 	    *num_used += 1 ;
 	  else
 	    {
-	      sprintf (err_msg, _MrmMMsg_0062, argptr->tag_code) ;
+	      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0062, argptr->tag_code) ;
 	      Urm__UT_Error ("Urm__CW_CreateArglist", err_msg, 
 			     NULL, NULL, uncmp_res) ;
 	    }
@@ -1599,7 +1599,7 @@ Urm__CW_CreateArglist (Widget			parent,
 	      *num_used += 1;
 	    else
 	      {
-		sprintf (err_msg, _MrmMMsg_0062, argptr->tag_code) ;
+		(void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0062, argptr->tag_code) ;
 		Urm__UT_Error ("Urm__CW_CreateArglist", err_msg, 
 			       NULL, NULL, uncmp_res) ;
 	      }
@@ -2091,7 +2091,7 @@ Urm__CW_ConvertValue (Widget			parent,
     case MrmRtypeIconImage:
       if(reptype == MrmRtypeInteger)
 	{
-	  sprintf(err_msg, _MrmMMsg_0111, (*val)) ;
+	  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0111, (*val)) ;
 	  return Urm__UT_Error ("Urm__CW_ConvertValue",
 				err_msg, NULL, NULL, MrmFAILURE);  
 	}
@@ -2113,7 +2113,7 @@ Urm__CW_ConvertValue (Widget			parent,
 				    XmCHARSET_TEXT, NULL);
 	    if ( cstg == NULL )
 	      {
-		sprintf (err_msg, _MrmMMsg_0064, (String)(*val)) ;
+		(void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0064, (String)(*val)) ;
 		return Urm__UT_Error ("Urm__CW_ConvertValue",
 				      err_msg, NULL, NULL, MrmFAILURE) ;
 	      }
@@ -2134,7 +2134,7 @@ Urm__CW_ConvertValue (Widget			parent,
 	    trans = XtParseTranslationTable ((String)(*val)) ;
 	    if ( trans == NULL )
 	      {
-		sprintf (err_msg, _MrmMMsg_0065, (String)(*val)) ;
+		(void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0065, (String)(*val)) ;
 		return Urm__UT_Error ("Urm__CW_ConvertValue",
 				      err_msg, NULL, NULL, MrmFAILURE) ;
 	      }
@@ -2193,7 +2193,7 @@ Urm__CW_ConvertValue (Widget			parent,
       result = Urm__LookupNameInHierarchy (hierarchy_id, (String)(*val), &addr);
       if ( result != MrmSUCCESS )
 	{
-	  sprintf (err_msg, _MrmMMsg_0066, (String)(*val)) ;
+	  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0066, (String)(*val)) ;
 	  return Urm__UT_Error ("Urm__CW_ConvertValue",
 				err_msg, NULL, NULL, result) ;
 	}
@@ -2241,7 +2241,7 @@ Urm__CW_ConvertValue (Widget			parent,
 	      font = XLoadQueryFont (display, fontstg);
 	      if ( font == NULL )
 		{
-		  sprintf (err_msg, _MrmMMsg_0070, fontstg);
+		  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0070, fontstg);
 		  return Urm__UT_Error ("Urm__CW_ConvertValue",
 					err_msg, NULL, NULL, MrmNOT_FOUND) ;
 		}
@@ -2266,7 +2266,7 @@ Urm__CW_ConvertValue (Widget			parent,
 				       &missing_cset_cnt, &def_string);
 	      if (fontset == NULL)
 		{
-		  sprintf(err_msg, _MrmMMsg_0071, fontstg);
+		  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0071, fontstg);
 		  return Urm__UT_Error ("Urm__CW_ConvertValue",
 					err_msg, NULL, NULL, MrmNOT_FOUND) ;
 		}
@@ -2327,7 +2327,7 @@ Urm__CW_ConvertValue (Widget			parent,
 		  font = XLoadQueryFont (display, fontstg);
 		  if ( font == NULL )
 		    {
-		      sprintf (err_msg, _MrmMMsg_0070, fontstg);
+		      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0070, fontstg);
 		      return Urm__UT_Error ("Urm__CW_ConvertValue",
 					    err_msg, NULL, NULL, MrmNOT_FOUND) ;
 		    }
@@ -2351,14 +2351,14 @@ Urm__CW_ConvertValue (Widget			parent,
 					   &missing_cset_cnt, &def_string);
 		  if (fontset == NULL)
 		    {
-		      sprintf(err_msg, _MrmMMsg_0071, fontstg);
+		      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0071, fontstg);
 		      return Urm__UT_Error ("Urm__CW_ConvertValue",
 					    err_msg, NULL, NULL, MrmNOT_FOUND) ;
 		    }
 
 		  if (missing_csets != NULL)
 		    {
-		      sprintf(err_msg, _MrmMMsg_0072, fontstg);
+		      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0072, fontstg);
 		      XFreeStringList(missing_csets);
 		    }
 		  Urm__WCI_RegisterNames(&dpyandfontstr, 
@@ -2379,7 +2379,7 @@ Urm__CW_ConvertValue (Widget			parent,
 		  (dfontlist, font, fontlist->item[ndx].cset.charset) ;
 	      if ( dfontlist == NULL )
 		{
-		  sprintf (err_msg, _MrmMMsg_0073,
+		  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0073,
 			   fontlist->item[ndx].font.font) ;
 		  return Urm__UT_Error ("Urm__CW_ConvertValue",
 					err_msg, NULL, NULL, MrmFAILURE) ;
@@ -2393,7 +2393,7 @@ Urm__CW_ConvertValue (Widget			parent,
 	      dfontlist = XmFontListAppendEntry(NULL, fontset_entry);
 	      if ( dfontlist == NULL )
 		{
-		  sprintf (err_msg, _MrmMMsg_0074,
+		  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0074,
 			   fontlist->item[ndx].font.font) ;
 		  return Urm__UT_Error ("Urm__CW_ConvertValue",
 					err_msg, NULL, NULL, MrmFAILURE) ;
@@ -2424,7 +2424,7 @@ Urm__CW_ConvertValue (Widget			parent,
 	  if ( result != MrmSUCCESS )
 	    {
 	      if (result == MrmPARTIAL_SUCCESS) result = MrmSUCCESS;
-	      sprintf (err_msg, _MrmMMsg_0061, (String)(colorptr->desc.name)) ;
+	      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0061, (String)(colorptr->desc.name)) ;
 	      return Urm__UT_Error ("Urm__CW_ConvertValue",
 				    err_msg, NULL, NULL, MrmNOT_FOUND) ;
 	    }
@@ -2436,7 +2436,7 @@ Urm__CW_ConvertValue (Widget			parent,
 	  if ( result != MrmSUCCESS )
 	    {
 	      if (result == MrmPARTIAL_SUCCESS) result = MrmSUCCESS;
-	      sprintf (err_msg, _MrmMMsg_0039,
+	      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0039,
 		       colorptr->desc.rgb.red, 
 		       colorptr->desc.rgb.green, 
 		       colorptr->desc.rgb.blue) ;
@@ -2445,7 +2445,7 @@ Urm__CW_ConvertValue (Widget			parent,
 	    }
 	  break;
 	default:
-	  sprintf(err_msg, _MrmMMsg_0040);
+	  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0040);
 	  return Urm__UT_Error ("Urm__CW_ConvertValue",
 				err_msg, NULL, NULL, MrmFAILURE) ;
 	};
@@ -2468,7 +2468,7 @@ Urm__CW_ConvertValue (Widget			parent,
       trans = XtParseTranslationTable ((String)(*val)) ;
       if ( trans == NULL )
 	{
-	  sprintf (err_msg, _MrmMMsg_0065, (String)(*val)) ;
+	  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0065, (String)(*val)) ;
 	  return Urm__UT_Error ("Urm__CW_ConvertValue",
 				err_msg, NULL, NULL, MrmFAILURE) ;
 	}
@@ -2478,7 +2478,7 @@ Urm__CW_ConvertValue (Widget			parent,
       clrec = Urm__WCI_GetClRecOfName ((String)*val) ;
       if ( clrec == NULL )
 	{
-	  sprintf (err_msg, _MrmMMsg_0075, (String)(*val)) ;
+	  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0075, (String)(*val)) ;
 	  return Urm__UT_Error ("Urm__CW_ConvertValue",
 				err_msg, NULL, NULL, MrmNOT_FOUND) ;
 	}
@@ -2488,7 +2488,7 @@ Urm__CW_ConvertValue (Widget			parent,
       xkey = XStringToKeysym ((String)*val);
       if ( xkey == NoSymbol )
 	{
-	  sprintf (err_msg, _MrmMMsg_0076, (String)(*val)) ;
+	  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0076, (String)(*val)) ;
 	  return Urm__UT_Error ("Urm__CW_ConvertValue",
 				err_msg, NULL, NULL, MrmNOT_FOUND) ;
 	}
@@ -2949,7 +2949,7 @@ Urm__CW_ReadLiteral (RGMResourceDescPtr		resptr ,
       if ( result != MrmSUCCESS )
 	{
 	  UrmFreeResourceContext (context_id) ;
-	  sprintf (err_msg, _MrmMMsg_0077, resptr->key.index) ;
+	  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0077, resptr->key.index) ;
 	  return Urm__UT_Error ("Urm__CW_ReadLiteral", err_msg,
 				NULL, NULL, result) ;
 	}
@@ -2960,7 +2960,7 @@ Urm__CW_ReadLiteral (RGMResourceDescPtr		resptr ,
       if ( result != MrmSUCCESS )
 	{
 	  UrmFreeResourceContext (context_id) ;
-	  sprintf (err_msg, _MrmMMsg_0078, resptr->key.id) ;
+	  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0078, resptr->key.id) ;
 	  return Urm__UT_Error ("Urm__CW_ReadLiteral", err_msg,
 				NULL, NULL, result) ;
 	}
@@ -2968,7 +2968,7 @@ Urm__CW_ReadLiteral (RGMResourceDescPtr		resptr ,
     default:
       result = MrmFAILURE ;
       UrmFreeResourceContext (context_id) ;
-      sprintf ( err_msg, _MrmMMsg_0079, resptr->type) ;
+      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0079, resptr->type) ;
       return Urm__UT_Error ("Urm__CW_ReadLiteral", err_msg,
 			    NULL, NULL, result) ;
     }
@@ -3110,7 +3110,7 @@ Urm__CW_LoadIconImage (RGMIconImagePtr		iconptr ,
       if ( result != MrmSUCCESS ) return result ;
       if ( cttype != MrmRtypeColorTable )
 	{
-	  sprintf (err_msg, _MrmMMsg_0080, cttype) ;
+	  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0080, cttype) ;
 	  return Urm__UT_Error ("Urm__CW_LoadIconImage",
 				err_msg, NULL, NULL, MrmNOT_VALID) ;
 	}        
@@ -3118,7 +3118,7 @@ Urm__CW_LoadIconImage (RGMIconImagePtr		iconptr ,
       break ;
     }
     default:
-      sprintf (err_msg, _MrmMMsg_0081, iconptr->ct_type) ;
+      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0081, iconptr->ct_type) ;
       return Urm__UT_Error ("Urm__CW_LoadIconImage",
 			    err_msg, NULL, NULL, MrmNOT_VALID) ;
     }
@@ -3169,14 +3169,14 @@ Urm__CW_LoadIconImage (RGMIconImagePtr		iconptr ,
 	  if ( result != MrmSUCCESS ) return result ;
 	  if ( ctype != MrmRtypeColor )
 	    {
-	      sprintf (err_msg, _MrmMMsg_0082, ctype) ;
+	      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0082, ctype) ;
 	      return Urm__UT_Error ("Urm__CW_LoadIconImage",
 				    err_msg, NULL, NULL, MrmNOT_VALID) ;
 	    }        
 	  break ;
 	}
         default:
-	  sprintf ( err_msg, _MrmMMsg_0083, citem->type) ;
+	  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0083, citem->type) ;
 	  return Urm__UT_Error ("Urm__CW_LoadIconImage",
 				err_msg, NULL, NULL, MrmNOT_VALID) ;
         }
@@ -3271,7 +3271,7 @@ Urm__CW_FixupCallback (Widget			parent ,
       result = Urm__LookupNameInHierarchy (hierarchy_id, rtn_name, &rtn_addr) ;
       if ( result != MrmSUCCESS )
         {
-	  sprintf (err_msg, _MrmMMsg_0084, rtn_name) ;
+	  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0084, rtn_name) ;
 	  return Urm__UT_Error ("Urm__CW_FixupCallback",
 				err_msg, NULL, NULL, result) ;
         }
@@ -3465,18 +3465,18 @@ Urm__CW_LoadWidgetResource (Widget			parent ,
 	result = UrmGetIndexedWidget
 	  (file_id, resptr->key.index, context_id) ;
       if ( result != MrmSUCCESS )
-	sprintf (err_msg, _MrmMMsg_0086, resptr->key.index) ;
+	(void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0086, resptr->key.index) ;
       break ;
 
     case URMrRID:
       result = UrmGetRIDWidget (file_id, resptr->key.id, context_id) ;
       if ( result != MrmSUCCESS )
-	sprintf (err_msg, _MrmMMsg_0087, resptr->key.id) ;
+	(void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0087, resptr->key.id) ;
       break ;
 
     default:
       result = MrmFAILURE ;
-      sprintf ( err_msg, _MrmMMsg_0088, resptr->type) ;
+      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0088, resptr->type) ;
     }
 
   if ( result != MrmSUCCESS )

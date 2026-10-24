@@ -1,3 +1,10 @@
+Mrm conversion diagnostic bounds (2026-10-25)
+==============================================
+
+- Bound all fixed-buffer widget-conversion diagnostics in `Mrmwcrw.c`,
+  preserving normal messages while safely truncating long resource text; see
+  `docs/mrm-conversion-error-bounds.md`.
+
 Clipboard, XPM and lifetime storage hardening (2026-10-25)
 - Checked X property assembly, conversion merges, unified-transfer callbacks,
   XPM bounded parsing, numeric overflow and file I/O error handling.
