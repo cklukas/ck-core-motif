@@ -1,3 +1,10 @@
+Mrm hierarchy file-list bounds (2026-10-25)
+=============================================
+
+- Validate hierarchy file counts before file-list allocation and keep the byte
+  size in size_t to prevent signed or narrow-field wrapping; see
+  `docs/mrm-hierarchy-bounds.md`.
+
 Mrm text-vector bounds (2026-10-25)
 ==================================
 

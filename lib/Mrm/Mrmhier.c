@@ -155,7 +155,7 @@ Urm__OpenHierarchy (MrmCount			num_files,
    */
   Cardinal		result ;	/* function result */
   MrmHierarchy		hiptr ;		/* hierarchy descriptor */
-  MrmCount		list_size ;	/* # bytes for file lists */
+  size_t		list_size ;	/* # bytes for file lists */
   int			ndx ;		/* loop index */
   IDBFile		*idvec ;	/* current file id vector */
   int			file_ndx ;	/* file loop index */
@@ -164,6 +164,10 @@ Urm__OpenHierarchy (MrmCount			num_files,
   URMResourceContextPtr	resource_ctx;	/* for resource compression table */
   Display		*display;	/* display for XtResolvePathNames */
   char                 	err_stg[300];
+
+  if (num_files < 0 ||
+      (size_t)num_files > SIZE_MAX / sizeof(IDBFile))
+    return MrmFAILURE;
 
 #ifndef NO_MESSAGE_CATALOG
   static Boolean first = True;
