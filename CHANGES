@@ -3171,3 +3171,10 @@ Mrm writer children validation (2026-10-25)
 
 - Propagate invalid-context failures from `UrmCWRInitChildren` before child
   descriptor allocation; see `docs/mrm-writer-children-validation.md`.
+
+Mrm writer arg-value rebinds (2026-10-25)
+==========================================
+
+- Propagate all type-specific argument-descriptor rebind failures from
+  `UrmCWRSetArgValue` after record growth; see
+  `docs/mrm-writer-arg-value-rebind.md`.

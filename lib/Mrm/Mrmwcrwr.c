@@ -666,8 +666,9 @@ UrmCWRSetArgValue (URMResourceContextPtr	context_id,
       result = UrmCWR__AppendString
 	(context_id, (char *)arg_val, &offset) ;
       if ( result != MrmSUCCESS ) return result ;
-      UrmCWR__BindArgPtrs
+      result = UrmCWR__BindArgPtrs
 	(context_id, "UrmCWRSetArgValue", arg_ndx, &argdesc, &argptr) ;
+      if ( result != MrmSUCCESS ) return result ;
       argptr->arg_val.datum.offset = offset ;
       return MrmSUCCESS ;
 
@@ -675,8 +676,9 @@ UrmCWRSetArgValue (URMResourceContextPtr	context_id,
       result = UrmCWR__AppendCString
 	(context_id, (XmString)arg_val, &offset) ;
       if ( result != MrmSUCCESS ) return result ;
-      UrmCWR__BindArgPtrs
+      result = UrmCWR__BindArgPtrs
 	(context_id, "UrmCWRSetArgValue", arg_ndx, &argdesc, &argptr) ;
+      if ( result != MrmSUCCESS ) return result ;
       argptr->arg_val.datum.offset = offset ;
       return MrmSUCCESS ;
 
@@ -684,8 +686,9 @@ UrmCWRSetArgValue (URMResourceContextPtr	context_id,
       result = UrmCWR__AppendWcharString
 	(context_id, (wchar_t *)arg_val, &offset) ;
       if ( result != MrmSUCCESS ) return result ;
-      UrmCWR__BindArgPtrs
+      result = UrmCWR__BindArgPtrs
 	(context_id, "UrmCWRSetArgValue", arg_ndx, &argdesc, &argptr) ;
+      if ( result != MrmSUCCESS ) return result ;
       argptr->arg_val.datum.offset = offset ;
       return MrmSUCCESS ;
 
@@ -714,8 +717,9 @@ UrmCWRSetArgValue (URMResourceContextPtr	context_id,
        
       *dblptr = *((double *) arg_val) ;
       _MrmOSHostDoubleToIEEE(dblptr);
-      UrmCWR__BindArgPtrs
+      result = UrmCWR__BindArgPtrs
 	(context_id, "UrmCWRSetArgValue", arg_ndx, &argdesc, &argptr) ;
+      if ( result != MrmSUCCESS ) return result ;
       argptr->arg_val.datum.offset = offset ;
       return MrmSUCCESS ;
 
@@ -731,8 +735,9 @@ UrmCWRSetArgValue (URMResourceContextPtr	context_id,
 	(context_id, UrmColorTableSize(src_ct), &offset, (char **)&dst_ct) ;
       if ( result != MrmSUCCESS )
 	return result ;
-      UrmCWR__BindArgPtrs
+      result = UrmCWR__BindArgPtrs
 	(context_id, "UrmCWRSetArgValue", arg_ndx, &argdesc, &argptr) ;
+      if ( result != MrmSUCCESS ) return result ;
       argptr->arg_val.datum.offset = offset ;
       return MrmSUCCESS ;
 
@@ -747,8 +752,9 @@ UrmCWRSetArgValue (URMResourceContextPtr	context_id,
 	return result ;
       UrmCopyAllocatedIconImage (dst_icon, src_icon) ;
       /* ??relocate pointers to offsets?? */
-      UrmCWR__BindArgPtrs
+      result = UrmCWR__BindArgPtrs
 	(context_id, "UrmCWRSetArgValue", arg_ndx, &argdesc, &argptr) ;
+      if ( result != MrmSUCCESS ) return result ;
       argptr->arg_val.datum.offset = offset ;
       return MrmSUCCESS ;
 
