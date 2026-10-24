@@ -25,6 +25,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <errno.h>
+#include <limits.h>
 
 #include "XmI.h"
 #include <Xm/PanedP.h>
@@ -43,6 +45,28 @@ typedef enum {UpLeftPane = 'U',	/* Adjust panes above or to the left.*/
 #define LARGE_INC ("LargeIncr")
 
 #define XmNisAPane "isAPane"
+
+/* Action parameters are text supplied by translations.  Keep the historic
+ * zero/default behavior, but do not let atoi() wrap a short increment. */
+static short
+ParseSashIncrement(const char *text, Boolean *valid)
+{
+    char *end;
+    long value;
+
+    *valid = False;
+    if (text == NULL || *text == '\0')
+	return 0;
+
+    errno = 0;
+    value = strtol(text, &end, 10);
+    if (errno == ERANGE || end == text || *end != '\0' ||
+	value < SHRT_MIN || value > SHRT_MAX)
+	return 0;
+
+    *valid = True;
+    return (short)value;
+}
 
 /************************************************************
  *       GLOBAL DECLARATIONS
@@ -1635,11 +1659,14 @@ HandleSash(Widget sash, XtPointer junk, XtPointer callData)
 
     if (event->xany.type == KeyPress) {
 	char restptr[BUFSIZ];	/* points to the rest of the string. */
+	Boolean increment_valid;
 
 	/* Get movement size */
 
-	if ((increment = atoi(call_data->params[1])) == 0) {
-	    if (streq(call_data->params[1], LARGE_INC))
+	increment = ParseSashIncrement(call_data->params[1], &increment_valid);
+	if (!increment_valid || increment == 0) {
+	    if (call_data->params[1] != NULL &&
+		streq(call_data->params[1], LARGE_INC))
 		increment = 10;
 	    else
 		increment = 1;

@@ -1,3 +1,11 @@
+Paned sash action increment validation (2026-10-24)
+====================================================
+
+- Parse legacy `XmPaned` keyboard increment parameters with checked bounds
+  before storing them in the existing signed `short`.  Malformed and
+  overflowing values retain the historical one-pixel or `LargeIncr` fallback
+  instead of wrapping; see `docs/paned-action-parameters.md`.
+
 FontSelector numeric field validation (2026-10-24)
 ===================================================
 
