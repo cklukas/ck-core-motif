@@ -309,3 +309,4 @@ EXTRA_DIST += tests/automated/check-mrm-idb-record-bounds.py docs/mrm-idb-record
 EXTRA_DIST += tests/automated/check-mrm-idb-empty-decommit.py docs/mrm-idb-empty-decommit.md
 EXTRA_DIST += tests/automated/check-mrm-idb-close-delete-mode.py docs/mrm-idb-close-delete-mode.md
 EXTRA_DIST += tests/automated/check-mrm-idb-close-keep.py docs/mrm-idb-close-keep.md
+EXTRA_DIST += tests/automated/check-mrm-idb-decommit-cleanup.py docs/mrm-idb-decommit-cleanup.md

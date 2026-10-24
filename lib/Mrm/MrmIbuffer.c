@@ -794,6 +794,7 @@ Idb__BM_DecommitAll (IDBFile		file_id)
    *  Local variables
    */
   Cardinal		result ;	/* function result */
+  Cardinal		first_error = MrmSUCCESS;
   Cardinal		ndx ;		/* loop variable		*/
   IDBRecordBufferPtr	curbuf ;	/* ptr to element in buff pool	*/
 
@@ -807,12 +808,18 @@ Idb__BM_DecommitAll (IDBFile		file_id)
       if (curbuf->cur_file == file_id)
         {
 	  result = Idb__BM_Decommit (curbuf) ;
-	  if ( result != MrmSUCCESS ) return result ;
+	  if ( result != MrmSUCCESS )
+	    {
+	    if (first_error == MrmSUCCESS)
+	      first_error = result;
+	    curbuf->activity = 0;
+	    curbuf->modified = FALSE;
+	    }
 	  curbuf->cur_file = NULL ;
         }
     }
 
-  return MrmSUCCESS ;
+  return first_error ;
 
 }
 

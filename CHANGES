@@ -1,3 +1,8 @@
+Mrm IDB decommit failure cleanup (2026-10-25)
+===============================================
+
+- Attempt every file buffer during decommit, retain the first write error, and detach failed buffers before the file handle is released, preventing dangling `cur_file` pointers; see `docs/mrm-idb-decommit-cleanup.md`.
+
 Mrm IDB keep/discard close semantics (2026-10-25)
 =================================================
 
