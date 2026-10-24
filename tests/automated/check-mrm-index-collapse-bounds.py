@@ -6,12 +6,14 @@ from pathlib import Path
 source = (Path(__file__).parents[2] / "lib" / "Mrm" / "MrmIindexw.c").read_text(encoding="utf-8")
 checks = {
     "Idb__INX_CollapseLeafRecord": (
-        "recptr == NULL || end < start",
+        "recptr == NULL",
+        "start != end + 1",
         "start >= hdrptr->index_count || end >= hdrptr->index_count",
         "strnlen (ndxstg",
     ),
     "Idb__INX_CollapseNodeRecord": (
-        "recptr == NULL || end < start",
+        "recptr == NULL",
+        "start != end + 1",
         "start >= hdrptr->index_count || end >= hdrptr->index_count",
         "strnlen (ndxstg",
     ),

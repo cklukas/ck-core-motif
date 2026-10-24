@@ -623,6 +623,11 @@ Idb__INX_SplitLeafRecord (IDBFile		file_id,
 
   gt_recptr = (IDBIndexLeafRecordPtr) gt_buffer->IDB_record ;
   gt_hdrptr = (IDBIndexLeafHdrPtr) &gt_recptr->leaf_header ;
+  if (gt_hdrptr->index_count < 2 ||
+      gt_hdrptr->index_count > IDBIndexLeafFreeMax / IDBIndexLeafEntrySize ||
+      gt_hdrptr->heap_start > IDBIndexLeafFreeMax ||
+      gt_hdrptr->free_bytes > IDBIndexLeafFreeMax)
+    return MrmBAD_RECORD;
 
   /*
    * If this node has a parent, make sure it can hold a new entry.
@@ -653,7 +658,11 @@ Idb__INX_SplitLeafRecord (IDBFile		file_id,
   lt_cnt = old_cnt / 2 ;
   p_index = lt_cnt ;
   gt_cnt = old_cnt - lt_cnt - 1;
+  if (old_itmvec[p_index].index_stg >= IDBIndexLeafFreeMax)
+    return MrmBAD_RECORD;
   p_index_stgadr = (char *) old_itmvec+old_itmvec[p_index].index_stg ;
+  if (strnlen (p_index_stgadr, IDBMaxIndexLength1) == IDBMaxIndexLength1)
+    return MrmBAD_RECORD;
   strcpy (p_index_stg, p_index_stgadr) ;
   p_data.rec_no = old_itmvec[p_index].data.internal_id.rec_no ;
   p_data.item_offs = old_itmvec[p_index].data.internal_id.item_offs ;
@@ -663,6 +672,8 @@ Idb__INX_SplitLeafRecord (IDBFile		file_id,
    * record into it, then collapse both records into their final form.
    */
   result = Idb__BM_InitRecord (file_id, 0, IDBrtIndexLeaf, &lt_buffer) ;
+  if (result != MrmSUCCESS || lt_buffer == NULL || lt_buffer->IDB_record == NULL)
+    return result == MrmSUCCESS ? MrmFAILURE : result;
   lt_recptr = (IDBIndexLeafRecordPtr) lt_buffer->IDB_record ;
   Idb__INX_CopyLeafRecord (lt_recptr, gt_recptr) ;
   Idb__INX_CollapseLeafRecord (lt_recptr, 0, lt_cnt-1) ;
@@ -796,6 +807,11 @@ Idb__INX_SplitNodeRecord (IDBFile		file_id,
 
   gt_recptr = (IDBIndexNodeRecordPtr) gt_buffer->IDB_record ;
   gt_hdrptr = (IDBIndexNodeHdrPtr) &gt_recptr->node_header ;
+  if (gt_hdrptr->index_count < 2 ||
+      gt_hdrptr->index_count > IDBIndexNodeFreeMax / IDBIndexNodeEntrySize ||
+      gt_hdrptr->heap_start > IDBIndexNodeFreeMax ||
+      gt_hdrptr->free_bytes > IDBIndexNodeFreeMax)
+    return MrmBAD_RECORD;
 
   /*
    * If this node has a parent, make sure it can hold a new entry.
@@ -826,7 +842,11 @@ Idb__INX_SplitNodeRecord (IDBFile		file_id,
   lt_cnt = old_cnt / 2 ;
   p_index = lt_cnt ;
   gt_cnt = old_cnt - lt_cnt - 1;
+  if (old_itmvec[p_index].index_stg >= IDBIndexNodeFreeMax)
+    return MrmBAD_RECORD;
   p_index_stgadr = (char *) old_itmvec+old_itmvec[p_index].index_stg ;
+  if (strnlen (p_index_stgadr, IDBMaxIndexLength1) == IDBMaxIndexLength1)
+    return MrmBAD_RECORD;
   strcpy (p_index_stg, p_index_stgadr) ;
   p_data.rec_no = old_itmvec[p_index].data.internal_id.rec_no ;
   p_data.item_offs = old_itmvec[p_index].data.internal_id.item_offs ;
@@ -836,6 +856,8 @@ Idb__INX_SplitNodeRecord (IDBFile		file_id,
    * record into it, then collapse both records into their final form.
    */
   result = Idb__BM_InitRecord (file_id, 0, IDBrtIndexNode, &lt_buffer) ;
+  if (result != MrmSUCCESS || lt_buffer == NULL || lt_buffer->IDB_record == NULL)
+    return result == MrmSUCCESS ? MrmFAILURE : result;
   lt_recptr = (IDBIndexNodeRecordPtr) lt_buffer->IDB_record ;
   Idb__INX_CopyNodeRecord (lt_recptr, gt_recptr) ;
   Idb__INX_CollapseNodeRecord (lt_recptr, 0, lt_cnt-1) ;
@@ -1247,10 +1269,20 @@ Idb__INX_CollapseLeafRecord (IDBIndexLeafRecordPtr	recptr,
   MrmCount		nfree ;		/* # free bytes in collapsed record */
   MrmOffset		heap_start ;	/* new heap start offset */
 
-  if (recptr == NULL || end < start)
+  if (recptr == NULL)
     return ;
 
   hdrptr = (IDBIndexLeafHdrPtr) &recptr->leaf_header ;
+  if (end < start)
+    {
+      if (start == 0 || start != end + 1 || start > hdrptr->index_count)
+        return ;
+      hdrptr->index_count = 0 ;
+      hdrptr->heap_start = IDBIndexLeafFreeMax ;
+      hdrptr->free_bytes = IDBIndexLeafFreeMax ;
+      return ;
+    }
+
   if (hdrptr->index_count > IDBIndexLeafFreeMax / IDBIndexLeafEntrySize ||
       start >= hdrptr->index_count || end >= hdrptr->index_count ||
       hdrptr->heap_start > IDBIndexLeafFreeMax)
@@ -1376,10 +1408,20 @@ Idb__INX_CollapseNodeRecord (IDBIndexNodeRecordPtr	recptr,
   MrmCount		nfree ;		/* # free bytes in collapsed record */
   MrmOffset		heap_start ;	/* new heap start offset */
 
-  if (recptr == NULL || end < start)
+  if (recptr == NULL)
     return ;
 
   hdrptr = (IDBIndexNodeHdrPtr) &recptr->node_header ;
+  if (end < start)
+    {
+      if (start == 0 || start != end + 1 || start > hdrptr->index_count)
+        return ;
+      hdrptr->index_count = 0 ;
+      hdrptr->heap_start = IDBIndexNodeFreeMax ;
+      hdrptr->free_bytes = IDBIndexNodeFreeMax ;
+      return ;
+    }
+
   if (hdrptr->index_count > IDBIndexNodeFreeMax / IDBIndexNodeEntrySize ||
       start >= hdrptr->index_count || end >= hdrptr->index_count ||
       hdrptr->heap_start > IDBIndexNodeFreeMax)

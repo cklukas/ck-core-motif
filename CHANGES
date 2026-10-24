@@ -1,3 +1,9 @@
+Mrm index split bounds (2026-10-25)
+===================================
+
+- Validate split pivots and left-record allocations, and preserve valid empty
+  split partitions; see `docs/mrm-index-split-bounds.md`.
+
 Mrm index insertion bounds (2026-10-25)
 =======================================
 
