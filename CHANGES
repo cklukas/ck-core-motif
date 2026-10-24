@@ -2677,3 +2677,11 @@ Additive packed-RGBA color picker (2026-10-25)
   committed callbacks, hex readout, accessible value text and installed-prefix
   Xvfb coverage.  `XmColorSelector` and existing color resources remain
   unchanged; gamut conversion and palette policy are not implied.
+
+Additive integer rating control (2026-10-25)
+============================================
+
+- Add `XmRatingControl` with bounded integer selection, explicit clear and
+  readonly policies, keyboard/pointer interaction, non-glyph segment rendering,
+  accessibility values and installed-prefix Xvfb coverage.  Existing toggle
+  button groups remain unchanged; fractional ratings are not implied.

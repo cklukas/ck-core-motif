@@ -132,6 +132,7 @@ public XmCreateToggleSwitch
 public XmCreateProgressBar
 public XmCreateFlyout
 public XmCreateColorPicker
+public XmCreateRatingControl
 public XmCreateNumberBox
 public XmCreateSpinner
 public XmCreateStepper
@@ -506,6 +507,8 @@ public XmFlyoutIsVisible
 public XmColorPickerGetValue
 public XmColorPickerSetValue
 public XmColorPickerPreviewValue
+public XmRatingControlGetValue
+public XmRatingControlSetValue
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -774,6 +777,8 @@ public xmFlyoutClassRec
 public xmFlyoutWidgetClass
 public xmColorPickerClassRec
 public xmColorPickerWidgetClass
+public xmRatingControlClassRec
+public xmRatingControlWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec

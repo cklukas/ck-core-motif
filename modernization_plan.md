@@ -1041,6 +1041,15 @@ particular glyph set or changing toggle-button groups.
 **Complete when:** applications can use a new accessible rating widget without
 depending on undocumented collections of ToggleButtons.
 
+**Status (2026-10-25):** the additive `XmRatingControl` is implemented and
+qualified on uconsole.  It exposes a bounded integer value from zero through
+`XmNratingCount`, explicit clear and readonly policy, keyboard/pointer
+selection, visible focus, and outlined/filled segment rendering that does not
+depend on star glyphs or color alone.  Its installed Xvfb fixture passed 8
+checks across repeated runs, including explicit sizing, boundary clamping,
+callbacks and accessible value semantics.  Fractional ratings and localized
+value text remain outside this integer contract.
+
 ### WP-22: InfoBar
 
 **Depends on:** WP-15.

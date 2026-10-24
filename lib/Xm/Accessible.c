@@ -24,6 +24,7 @@
 #include <Xm/PushB.h>
 #include <Xm/PushBG.h>
 #include <Xm/ProgressBar.h>
+#include <Xm/RatingControl.h>
 #include <Xm/ScrollBar.h>
 #include <Xm/Spinner.h>
 #include <Xm/Stepper.h>
@@ -588,6 +589,9 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     if (XmIsColorPicker(w))
       XtAddCallback(w, XmNcolorPickerValueChangedCallback, text_value_changed,
                     (XtPointer)a);
+    if (XmIsRatingControl(w))
+      XtAddCallback(w, XmNratingValueChangedCallback, text_value_changed,
+                    (XtPointer)a);
     if (XmIsNumberBox(w))
       XtAddCallback(w, XmNnumberValueChangedCallback, text_value_changed,
                     (XtPointer)a);
@@ -697,6 +701,9 @@ static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
                        text_value_changed, (XtPointer)a);
     if (XmIsColorPicker(n->widget))
       XtRemoveCallback(n->widget, XmNcolorPickerValueChangedCallback,
+                       text_value_changed, (XtPointer)a);
+    if (XmIsRatingControl(n->widget))
+      XtRemoveCallback(n->widget, XmNratingValueChangedCallback,
                        text_value_changed, (XtPointer)a);
     if (XmIsNumberBox(n->widget))
       XtRemoveCallback(n->widget, XmNnumberValueChangedCallback,
@@ -1060,6 +1067,17 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     snprintf(value_text, sizeof(value_text), "#%08lx",
              XmColorPickerGetValue(w) & 0xffffffffUL);
     i->value_text = XtNewString(value_text);
+  }
+  if (XmIsRatingControl(w)) {
+    int count = 0;
+    i->role = XmACCESSIBLE_PROGRESS_BAR;
+    i->has_value = True;
+    XtVaGetValues(w, XmNratingCount, &count, NULL);
+    i->minimum_value = 0;
+    i->maximum_value = count;
+    i->current_value = XmRatingControlGetValue(w);
+    i->minimum_increment = 1;
+    i->action_count = XtIsSensitive(w) ? 1 : 0;
   }
   if (XmIsNumberBox(w)) {
     int minimum, maximum;

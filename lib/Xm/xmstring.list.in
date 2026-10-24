@@ -345,6 +345,11 @@ CFlyoutText
 CColorPickerPreviewCallback
 CColorPickerValue
 CColorPickerValueChangedCallback
+CRatingAllowClear
+CRatingCount
+CRatingReadonly
+CRatingValue
+CRatingValueChangedCallback
 CNumberInvalidCallback
 CNumberMaximum
 CNumberMinimum
@@ -786,6 +791,11 @@ NflyoutText
 NcolorPickerPreviewCallback
 NcolorPickerValue
 NcolorPickerValueChangedCallback
+NratingAllowClear
+NratingCount
+NratingReadonly
+NratingValue
+NratingValueChangedCallback
 NnumberInvalidCallback
 NnumberMaximum
 NnumberMinimum
