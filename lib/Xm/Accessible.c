@@ -772,7 +772,9 @@ static char *locale_utf8(const char *s) {
   size_t i;
   memset(&state, 0, sizeof(state));
   count = mbsrtowcs(NULL, &p, 0, &state);
-  if (count == (size_t)-1 || count > (SIZE_MAX - 1) / 4)
+  if (count == (size_t)-1 ||
+      count > SIZE_MAX / sizeof(*wide) - 1 ||
+      count > (SIZE_MAX - 1) / 4)
     return NULL;
   wide = (wchar_t *)XtMalloc((count + 1) * sizeof(*wide));
   p = s;

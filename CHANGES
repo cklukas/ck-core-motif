@@ -1,3 +1,10 @@
+Accessibility UTF-8 scratch bounds (2026-10-25)
+===============================================
+
+- Bound the wide-character scratch allocation used by accessibility UTF-8
+  conversion, preserving normal text output while rejecting wrapped sizes; see
+  `docs/accessibility-utf8-bounds.md`.
+
 XmString rendition-tag allocation bounds (2026-10-25)
 =====================================================
 
