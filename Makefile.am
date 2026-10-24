@@ -223,3 +223,4 @@ EXTRA_DIST += tests/automated/check-mrm-pointerlist-bounds.py docs/mrm-pointerli
 EXTRA_DIST += tests/automated/check-mrm-register-counts.py docs/mrm-register-counts.md
 EXTRA_DIST += tests/automated/check-mrm-widechar-bounds.py docs/mrm-widechar-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-callback-bounds.py docs/mrm-callback-bounds.md
+EXTRA_DIST += tests/automated/check-mrm-callback-copy-bounds.py docs/mrm-callback-copy-bounds.md

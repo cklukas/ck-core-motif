@@ -55,6 +55,7 @@ static char rcsid[] = "$XConsortium: Mrmwrefs.c /main/14 1996/11/13 14:07:43 drk
  */
 
 #include <stdio.h>
+#include <stdint.h>
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
 #include "MrmMsgI.h"
@@ -382,9 +383,18 @@ Urm__CW_AppendCBSVWidgetRef (IDBFile			file_id,
 {
   URMSetValuesDescPtr	svdesc ;	/* new descriptor */
   RGMCallbackDescPtr	cbdesc;		/* Copy of descriptor */
-  MrmSize		descsize;	/* Size of descriptor to be copied */
+  size_t		descsize;	/* Size of descriptor to be copied */
   Cardinal		uncmp_res;	/* function result */
   char			errmsg[300];
+
+  if (cbptr == NULL || cbptr->count < 0 ||
+      (size_t)cbptr->count >
+	  (SIZE_MAX - sizeof(RGMCallbackDesc)) / sizeof(RGMCallbackItem))
+    {
+      Urm__UT_Error ("Urm__CW_AppendCBSVWidgetRef", _MrmMMsg_0048,
+			     NULL, NULL, MrmFAILURE);
+      return;
+    }
 
 
   /*

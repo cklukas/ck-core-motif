@@ -1,3 +1,10 @@
+Mrm callback-copy bounds (2026-10-25)
+=====================================
+
+- Validate SetValues callback descriptor counts before copying, and keep the
+  descriptor size in size_t to prevent truncation; see
+  `docs/mrm-callback-copy-bounds.md`.
+
 Mrm legacy callback bounds (2026-10-25)
 ========================================
 
