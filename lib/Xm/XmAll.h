@@ -68,6 +68,7 @@
 #include <Xm/Flyout.h>
 #include <Xm/InfoBar.h>
 #include <Xm/BreadcrumbBar.h>
+#include <Xm/TreeView.h>
 #include <Xm/NumberBox.h>
 #include <Xm/RatingControl.h>
 #include <Xm/MwmUtil.h>

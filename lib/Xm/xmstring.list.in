@@ -972,6 +972,20 @@ NbreadcrumbSeparator
 NbreadcrumbRtl
 NbreadcrumbActivateCallback
 NbreadcrumbCurrentChangedCallback
+CTreeViewIndent
+CTreeViewRowHeight
+CTreeViewVisibleRows
+CTreeViewTopRow
+CTreeViewRtl
+CTreeViewSelectionCallback
+CTreeViewExpansionCallback
+NtreeViewIndent
+NtreeViewRowHeight
+NtreeViewVisibleRows
+NtreeViewTopRow
+NtreeViewRtl
+NtreeViewSelectionCallback
+NtreeViewExpansionCallback
 
 #table _XmStrings20
 

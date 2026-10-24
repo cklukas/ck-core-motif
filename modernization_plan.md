@@ -1158,6 +1158,14 @@ expansion behavior without altering `XmTree`, `XmOutline` or `XmContainer`.
 **Complete when:** the new view passes its installed-prefix model, interaction
 and accessibility suite, and existing hierarchy widgets are unchanged.
 
+**Status (2026-10-25):** the additive `XmTreeView` is implemented with a
+bounded flat node model (maximum 4096 nodes), copied labels, opaque stable IDs,
+validated parent/child relationships, deterministic expansion and selection,
+finite visible rows, wheel/top-row scrolling, RTL keyboard behavior and a
+tree accessibility summary.  The installed-prefix fixture covers malformed
+model rejection, mutation, expansion/selection callbacks, bounded scrolling
+and accessibility; lazy retrieval and general virtualization remain deferred.
+
 ### WP-26: Calendar, DatePicker and TimePicker
 
 **Depends on:** WP-19 and WP-15.

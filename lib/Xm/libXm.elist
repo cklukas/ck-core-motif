@@ -135,6 +135,7 @@ public XmCreateColorPicker
 public XmCreateRatingControl
 public XmCreateInfoBar
 public XmCreateBreadcrumbBar
+public XmCreateTreeView
 public XmCreateNumberBox
 public XmCreateSpinner
 public XmCreateStepper
@@ -517,6 +518,14 @@ public XmBreadcrumbBarSetSegments
 public XmBreadcrumbBarGetSegmentCount
 public XmBreadcrumbBarGetCurrentIndex
 public XmBreadcrumbBarSetCurrentIndex
+public XmTreeViewSetNodes
+public XmTreeViewGetNodeCount
+public XmTreeViewGetSelectedId
+public XmTreeViewSetSelectedId
+public XmTreeViewSetExpanded
+public XmTreeViewGetExpanded
+public XmTreeViewSetTopRow
+public XmTreeViewGetTopRow
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -791,6 +800,8 @@ public xmInfoBarClassRec
 public xmInfoBarWidgetClass
 public xmBreadcrumbBarClassRec
 public xmBreadcrumbBarWidgetClass
+public xmTreeViewClassRec
+public xmTreeViewWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec

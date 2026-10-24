@@ -21,6 +21,7 @@
 #include <Xm/ListP.h>
 #include <Xm/InfoBar.h>
 #include <Xm/BreadcrumbBar.h>
+#include <Xm/TreeView.h>
 #include <Xm/ColorPicker.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
@@ -600,6 +601,9 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     if (XmIsBreadcrumbBar(w))
       XtAddCallback(w, XmNbreadcrumbCurrentChangedCallback, text_value_changed,
                     (XtPointer)a);
+    if (XmIsTreeView(w))
+      XtAddCallback(w, XmNtreeViewSelectionCallback, text_value_changed,
+                    (XtPointer)a);
     if (XmIsNumberBox(w))
       XtAddCallback(w, XmNnumberValueChangedCallback, text_value_changed,
                     (XtPointer)a);
@@ -718,6 +722,9 @@ static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
                        (XtPointer)a);
     if (XmIsBreadcrumbBar(n->widget))
       XtRemoveCallback(n->widget, XmNbreadcrumbCurrentChangedCallback,
+                       text_value_changed, (XtPointer)a);
+    if (XmIsTreeView(n->widget))
+      XtRemoveCallback(n->widget, XmNtreeViewSelectionCallback,
                        text_value_changed, (XtPointer)a);
     if (XmIsNumberBox(n->widget))
       XtRemoveCallback(n->widget, XmNnumberValueChangedCallback,
@@ -1113,6 +1120,16 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     i->minimum_increment = 1;
     i->text_length = 0;
     i->value_text = XtNewString("");
+  }
+  if (XmIsTreeView(w)) {
+    XtPointer selected = XmTreeViewGetSelectedId(w);
+    i->role = XmACCESSIBLE_TREE;
+    i->has_selection = selected != NULL;
+    i->has_value = True;
+    i->minimum_value = 0;
+    i->maximum_value = XmTreeViewGetNodeCount(w);
+    i->current_value = selected ? 1 : 0;
+    i->minimum_increment = 1;
   }
   if (XmIsNumberBox(w)) {
     int minimum, maximum;

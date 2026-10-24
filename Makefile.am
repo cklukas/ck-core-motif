@@ -87,6 +87,8 @@ EXTRA_DIST += tests/automated/check-info-bar.c tests/automated/run-info-bar.py \
               docs/info-bar.md
 EXTRA_DIST += tests/automated/check-breadcrumb-bar.c tests/automated/run-breadcrumb-bar.py \
               docs/breadcrumb-bar.md
+EXTRA_DIST += tests/automated/check-tree-view.c tests/automated/run-tree-view.py \
+              docs/tree-view.md
 
 EXTRA_DIST += tests/automated/check-paned-keyboard.c docs/paned-keyboard.md
 

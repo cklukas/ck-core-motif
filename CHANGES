@@ -2771,6 +2771,15 @@ Additive BreadcrumbBar (2026-10-25)
   activation and installed-prefix accessibility coverage.  Path parsing and
   navigation remain application responsibilities.
 
+Additive bounded TreeView (2026-10-25)
+======================================
+
+- Add `XmTreeView` with validated flat node models, copied labels, stable
+  application-owned IDs, bounded visible rows, deterministic expansion and
+  selection, RTL keyboard behavior, tree accessibility semantics and an
+  installed-prefix regression fixture.  Lazy providers and general
+  virtualization are intentionally not implied.
+
 
 Mrm index parent-update error propagation (2026-10-26)
 =======================================================
