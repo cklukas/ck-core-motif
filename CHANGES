@@ -1,3 +1,5 @@
+* Bound string-table resource-converter growth and clean up parsed entries
+  when the table capacity limit is reached.
 * Bound XmString table resource-converter growth and release parsed entries
   when the capacity limit is reached.
 * Bound compound-string usable-text concatenation lengths, returning XNoMemory
