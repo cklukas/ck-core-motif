@@ -111,6 +111,7 @@ EXTRA_DIST += tests/automated/check-keysym-table-bounds.py
 EXTRA_DIST += tests/automated/check-string-table-conversion.c tests/automated/run-string-table-regressions.py docs/string-table-conversion.md
 EXTRA_DIST += tests/automated/check-cardinal-list-conversion.c tests/automated/run-cardinal-list-regressions.py docs/cardinal-list-conversion.md
 EXTRA_DIST += tests/automated/check-xmstring-table-conversion.c tests/automated/run-xmstring-table-regressions.py docs/xmstring-table-conversion.md
+EXTRA_DIST += tests/automated/check-picture-copy-bounds.py docs/picture-copy-bounds.md
 EXTRA_DIST += tests/automated/check-accessible-utf8-bounds.py docs/accessibility-utf8-bounds.md
 EXTRA_DIST += tests/automated/check-xmstring-rendition-bounds.py docs/xmstring-rendition-bounds.md
 EXTRA_DIST += tests/automated/check-xmstring-table-growth.py

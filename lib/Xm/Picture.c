@@ -702,6 +702,9 @@ _XmPictureCopySubGraph(XmPictureRec *picture, int n,
      * the XmPictureNode for the newest copy.
      */
     tablesize = picture->num_nodes;
+    if (tablesize <= 0 ||
+	(size_t)tablesize > SIZE_MAX / sizeof(XmPictureNode *))
+	return end;
     table = (XmPictureNode**)
 	    XtMalloc(tablesize * sizeof(XmPictureNode*));
     for(i=0; i<picture->num_nodes; i++)

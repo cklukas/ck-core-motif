@@ -1,3 +1,10 @@
+XmPicture repeat node-map bounds (2026-10-25)
+===============================================
+
+- Check repeat-expansion node-map sizes before allocation, preserving ordinary
+  picture graphs while leaving unrepresentable expansion unchanged; see
+  `docs/picture-copy-bounds.md`.
+
 Accessibility UTF-8 scratch bounds (2026-10-25)
 ===============================================
 
