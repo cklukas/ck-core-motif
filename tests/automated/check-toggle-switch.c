@@ -50,10 +50,10 @@ int main(int argc, char **argv) {
     switch_widget = XmVaCreateManagedToggleSwitch(
         row, (char *)"switch", XmNlabelString, label, NULL);
     XmStringFree(label);
-    XtAddCallback(switch_widget, XmNSwitchValueChangedCallback, changed, NULL);
+    XtAddCallback(switch_widget, XmNvalueChangedCallback, changed, NULL);
     doomed = XmCreateToggleSwitch(row, (char *)"doomed", NULL, 0);
     XtManageChild(doomed);
-    XtAddCallback(doomed, XmNSwitchValueChangedCallback, destroy_on_change, NULL);
+    XtAddCallback(doomed, XmNvalueChangedCallback, destroy_on_change, NULL);
 
     XtRealizeWidget(shell);
     XSync(XtDisplay(shell), False);

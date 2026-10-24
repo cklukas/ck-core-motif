@@ -38,11 +38,11 @@ static XtActionsRec actions[] = {
 
 #define Offset(field) XtOffsetOf(XmToggleSwitchRec, field)
 static XtResource resources[] = {
-    {XmNSwitchState, XmCSwitchState, XmRBoolean, sizeof(Boolean),
+    {XmNset, XmCSet, XmRBoolean, sizeof(Boolean),
      Offset(toggle_switch.set), XmRImmediate, (XtPointer)False},
     {XmNlabelString, XmCXmString, XmRXmString, sizeof(XmString),
      Offset(toggle_switch.label), XmRImmediate, (XtPointer)NULL},
-    {XmNSwitchValueChangedCallback, XmCSwitchValueChangedCallback, XmRCallback,
+    {XmNvalueChangedCallback, XmCValueChangedCallback, XmRCallback,
      sizeof(XtCallbackList), Offset(toggle_switch.value_changed_callback),
      XmRPointer, (XtPointer)NULL},
     {XmNspacing, XmCSpacing, XmRHorizontalDimension, sizeof(Dimension),
@@ -246,7 +246,7 @@ void XmToggleSwitchSetState(Widget widget, Boolean state, Boolean notify) {
     callback.reason = XmCR_VALUE_CHANGED;
     callback.event = NULL;
     callback.set = state;
-    XtCallCallbacks(widget, XmNSwitchValueChangedCallback, &callback);
+    XtCallCallbacks(widget, XmNvalueChangedCallback, &callback);
 }
 
 Widget XmCreateToggleSwitch(Widget parent, char *name, ArgList args,

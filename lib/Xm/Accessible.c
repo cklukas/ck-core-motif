@@ -571,7 +571,7 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
       XtAddCallback(w, XmNvalueChangedCallback, text_value_changed,
                     (XtPointer)a);
     if (XmIsToggleSwitch(w))
-      XtAddCallback(w, XmNSwitchValueChangedCallback, text_value_changed,
+      XtAddCallback(w, XmNvalueChangedCallback, text_value_changed,
                     (XtPointer)a);
     if (XtIsWidget(w)) {
       XtAddEventHandler(w,
@@ -666,7 +666,7 @@ static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
       XtRemoveCallback(n->widget, XmNvalueChangedCallback, text_value_changed,
                        (XtPointer)a);
     if (XmIsToggleSwitch(n->widget))
-      XtRemoveCallback(n->widget, XmNSwitchValueChangedCallback, text_value_changed,
+      XtRemoveCallback(n->widget, XmNvalueChangedCallback, text_value_changed,
                        (XtPointer)a);
     if (XtIsWidget(n->widget)) {
       XtRemoveRawEventHandler(n->widget, KeyPressMask | KeyReleaseMask, False,
@@ -983,10 +983,7 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     i->role = XmACCESSIBLE_CHECK_BOX;
     i->action_count = 1;
     i->states |= XmACCESSIBLE_STATE(11) | XmACCESSIBLE_STATE(41);
-    if (XmIsToggleSwitch(w))
-      XtVaGetValues(w, XmNSwitchState, &checked, NULL);
-    else
-      XtVaGetValues(w, XmNset, &checked, NULL);
+    XtVaGetValues(w, XmNset, &checked, NULL);
     if (checked)
       i->states |= XmACCESSIBLE_STATE(4);
   }

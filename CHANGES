@@ -1,3 +1,10 @@
+Mrm set-values tag-name input validation (2026-10-25)
+=======================================================
+
+- Validate unknown compressed tag names and allocation results before copying
+  them into Mrm set-values descriptors; see
+  `docs/mrm-wref-tagname-input.md`.
+
 Mrm timestamp output validation (2026-10-25)
 =============================================
 

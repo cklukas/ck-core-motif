@@ -314,6 +314,7 @@ Urm__CW_AppendSVWidgetRef (IDBFile		file_id,
    */
   URMSetValuesDescPtr	svdesc ;	/* new descriptor */
   Cardinal		uncmp_res;	/* function result */
+  size_t		argname_len;
   char			errmsg[300];
 
 
@@ -335,8 +336,30 @@ Urm__CW_AppendSVWidgetRef (IDBFile		file_id,
   svdesc->tagcode = argtag ;
   if ( argtag == UilMrmUnknownCode )
     {
-      svdesc->tagname = (String) XtMalloc (strlen(argname)+1);
-      strcpy (svdesc->tagname, argname);
+      if (argname == NULL)
+	{
+	  XtFree ((char *)svdesc);
+	  Urm__UT_Error ("Urm__CW_AppendSVWidgetRef", _MrmMMsg_0049,
+			 NULL, NULL, MrmFAILURE);
+	  return;
+	}
+      argname_len = strlen(argname);
+      if (argname_len == SIZE_MAX)
+	{
+	  XtFree ((char *)svdesc);
+	  Urm__UT_Error ("Urm__CW_AppendSVWidgetRef", _MrmMMsg_0049,
+			 NULL, NULL, MrmFAILURE);
+	  return;
+	}
+      svdesc->tagname = (String) XtMalloc (argname_len + 1);
+      if (svdesc->tagname == NULL)
+	{
+	  XtFree ((char *)svdesc);
+	  Urm__UT_Error ("Urm__CW_AppendSVWidgetRef", _MrmMMsg_0049,
+			 NULL, NULL, MrmFAILURE);
+	  return;
+	}
+      memcpy (svdesc->tagname, argname, argname_len + 1);
     }
   else
     {
@@ -399,6 +422,7 @@ Urm__CW_AppendCBSVWidgetRef (IDBFile			file_id,
   URMSetValuesDescPtr	svdesc ;	/* new descriptor */
   RGMCallbackDescPtr	cbdesc;		/* Copy of descriptor */
   size_t		descsize;	/* Size of descriptor to be copied */
+  size_t		argname_len;
   Cardinal		uncmp_res;	/* function result */
   char			errmsg[300];
 
@@ -430,8 +454,30 @@ Urm__CW_AppendCBSVWidgetRef (IDBFile			file_id,
   svdesc->tagcode = argtag ;
   if ( argtag == UilMrmUnknownCode )
     {
-      svdesc->tagname = (String) XtMalloc (strlen(argname)+1);
-      strcpy (svdesc->tagname, argname);
+      if (argname == NULL)
+	{
+	  XtFree ((char *)svdesc);
+	  Urm__UT_Error ("Urm__CW_AppendCBSVWidgetRef", _MrmMMsg_0049,
+			 NULL, NULL, MrmFAILURE);
+	  return;
+	}
+      argname_len = strlen(argname);
+      if (argname_len == SIZE_MAX)
+	{
+	  XtFree ((char *)svdesc);
+	  Urm__UT_Error ("Urm__CW_AppendCBSVWidgetRef", _MrmMMsg_0049,
+			 NULL, NULL, MrmFAILURE);
+	  return;
+	}
+      svdesc->tagname = (String) XtMalloc (argname_len + 1);
+      if (svdesc->tagname == NULL)
+	{
+	  XtFree ((char *)svdesc);
+	  Urm__UT_Error ("Urm__CW_AppendCBSVWidgetRef", _MrmMMsg_0049,
+			 NULL, NULL, MrmFAILURE);
+	  return;
+	}
+      memcpy (svdesc->tagname, argname, argname_len + 1);
     }
   else
     {

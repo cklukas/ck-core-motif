@@ -7,9 +7,9 @@ variadic constructors.
 
 The widget uses the normal Xt resource model:
 
-- `XmNSwitchState` is the Boolean state.
+- `XmNset` is the Boolean state.
 - `XmNlabelString` supplies the label.
-- `XmNSwitchValueChangedCallback` receives an `XmToggleSwitchCallbackStruct` whose
+- `XmNvalueChangedCallback` receives an `XmToggleSwitchCallbackStruct` whose
   `set` member is the new state. The callback may destroy the widget; callers
   must not use the widget after returning from the callback.
 - `XmToggleSwitchGetState` and `XmToggleSwitchSetState` provide typed state
