@@ -1,3 +1,10 @@
+Mwm feedback-message fallback (2026-10-24)
+============================================
+
+- Correct the non-`MINIMAL_DT` allocation-failure fallback to assign the quit
+  confirmation text to `confirm_mesg[3]`, avoiding a null message pointer while
+  preserving normal localized behavior; see `docs/mwm-feedback-fallback.md`.
+
 Mwm property-warning bounds (2026-10-24)
 ==========================================
 

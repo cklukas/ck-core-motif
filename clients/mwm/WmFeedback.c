@@ -187,7 +187,7 @@ initMesg()
 	    confirm_mesg[3] = "QUIT Workspace Manager?";
 	}
 #else /* MINIMAL_DT */
-	tmpString = ((char *)GETMESSAGE(22, 11, "QUIT Workspace Manager?"));
+	confirm_mesg[3] = ((char *)GETMESSAGE(22, 11, "QUIT Workspace Manager?"));
 #endif /* MINIMAL_DT */
     }
     else
