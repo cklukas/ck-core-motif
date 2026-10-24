@@ -1,3 +1,5 @@
+* Bound compound-string usable-text concatenation lengths, returning XNoMemory
+  instead of allowing an integer wraparound before reallocation.
 * Bound charset-table resource conversion entry and data-size arithmetic,
   returning conversion failure instead of allowing allocation wraparound.
 * Bound text-property item concatenation sizes before allocation, returning

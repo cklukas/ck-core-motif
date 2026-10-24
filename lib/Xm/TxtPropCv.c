@@ -293,7 +293,8 @@ GetUseableText(Display *display, XmString xmstring, char **buffer,
     XTextProperty text_prop_return;
     char *text = NULL, *final_string = NULL, *text_item=NULL, *compound_text;
     unsigned char return_status;
-    int result, size_so_far = 1; /* initialized for the ending NULL */
+    int result;
+    size_t size_so_far = 1; /* initialized for the ending NULL */
     XICCEncodingStyle encoding_style;
 
     /* Initialize the buffer in case we have to abort and return
@@ -321,7 +322,15 @@ GetUseableText(Display *display, XmString xmstring, char **buffer,
 	   GetTextSegment(display, &stack_context, xmstring,
 			  &text, texttype)) == _VALID_SEGMENT)
     {
-	size_so_far += strlen(text);
+	size_t text_length = strlen(text);
+	if (text_length > SIZE_MAX - size_so_far)
+	  {
+	    XtFree(text);
+	    if (final_string) XtFree(final_string);
+	    _XmStringContextFree(&stack_context);
+	    return(XNoMemory);
+	  }
+	size_so_far += text_length;
 	final_string = (char *)XtRealloc(final_string, size_so_far);
 	final_string[0] = '\0';
 	strcat(final_string, text);
