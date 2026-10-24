@@ -1,3 +1,5 @@
+* Reject malformed color database lines that do not contain three RGB channel
+  values before using the parsed color record.
 * Validate null arguments at the XmeParseUnits API boundary, returning
   XmPARSE_ERROR before inspecting malformed input.
 * Accept color database final lines without a trailing newline instead of

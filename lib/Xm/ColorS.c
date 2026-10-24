@@ -1293,8 +1293,9 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 						    sizeof(ColorInfo) * alloc);
 	    }
 
-	    sscanf(buf, "%hu %hu %hu", &(color_info[count].red),
-		   &(color_info[count].green), &(color_info[count].blue));
+	    if (sscanf(buf, "%hu %hu %hu", &(color_info[count].red),
+			&(color_info[count].green), &(color_info[count].blue)) != 3)
+		continue;
 
 	    if ((color_name = find_name(buf)) == NULL)
 		continue;
