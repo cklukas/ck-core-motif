@@ -236,3 +236,4 @@ EXTRA_DIST += tests/automated/check-mrm-wchar-append-bounds.py docs/mrm-wchar-ap
 EXTRA_DIST += tests/automated/check-mrm-string-append-bounds.py docs/mrm-string-append-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-cstring-append-bounds.py docs/mrm-cstring-append-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-resource-index.py docs/mrm-resource-index.md
+EXTRA_DIST += tests/automated/check-mrm-fetch-fontlist-bounds.py docs/mrm-fetch-fontlist-bounds.md

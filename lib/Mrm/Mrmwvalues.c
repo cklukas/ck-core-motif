@@ -231,6 +231,15 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
 	  if (strcmp(file_id->db_version, URM1_1version) <= 0)
 	    {
 	      int count = ((OldRGMFontListPtr)val)->count;
+	      if (count <= 0 ||
+		  (size_t)(count - 1) >
+		      (SIZE_MAX - sizeof(RGMFontList)) / sizeof(RGMFontItem))
+		{
+		  XtFree ((char *)val);
+		  num_succ -= 1;
+		  cvt_fail += 1;
+		  continue;
+		}
 	      RGMFontListPtr fontlist = (RGMFontListPtr)
 		XtMalloc(sizeof(RGMFontList) +
 			 (sizeof(RGMFontItem) * (count - 1)));

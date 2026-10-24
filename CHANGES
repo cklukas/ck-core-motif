@@ -1,3 +1,10 @@
+Mrm fetched font-list bounds (2026-10-25)
+========================================
+
+- Reject invalid legacy font-list counts before variable-size allocation,
+  preserving valid UID conversion while preventing size wraparound; see
+  `docs/mrm-fetch-fontlist-bounds.md`.
+
 Mrm indexed-resource key validation (2026-10-25)
 ================================================
 
