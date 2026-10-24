@@ -2853,14 +2853,15 @@ ReadToken(char *string, int *position, Token reusetoken)
 	   string[pos + count] != '\0')
       count++; /* Scan for end of string */
     new_token -> type = T_STR;
-    new_token -> string = NULL;
     count -= 1;
     if (count > 0) {
       new_token -> string = (char*) XtMalloc(count + 1);
       strncpy(new_token -> string, &string[pos + 1], count);
-      pos += count + 2; /* Move past end quote */
       new_token -> string[count] = 0; /* Null terminate */
     }
+    else
+      new_token -> string = XtNewString("");
+    pos += count + 2; /* Move past end quote */
     break;
   default:
     if (isalpha((unsigned char)string[pos])) /* String result */
