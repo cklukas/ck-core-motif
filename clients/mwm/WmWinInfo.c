@@ -90,6 +90,28 @@ static void FixSubpanelEmbeddedClientGeometry (ClientData *pCD);
 # define LOCALE_MSG "[XmbTextPropertyToTextList]:\n     Locale (%.100s) not supported. (Check $LANG)."
 #endif
 
+static void
+WmWarningWithString(const char *format, const char *value)
+{
+    int messageLength;
+    char *message;
+
+    messageLength = snprintf(NULL, 0, format, value);
+    if (messageLength < 0)
+        return;
+
+    message = (char *)XtMalloc((unsigned int)messageLength + 1);
+    if (message == NULL)
+    {
+        Warning("insufficient memory to format window property warning");
+        return;
+    }
+
+    (void)snprintf(message, (size_t)messageLength + 1, format, value);
+    Warning(message);
+    XtFree(message);
+}
+
 /*
  * Global Variables:
  */
@@ -2215,7 +2237,6 @@ WmICCCMToXmString (XTextProperty *wmNameProp)
   XmString xms_return;
   XmStringTable xmsTable;
   int i, nStrings = -1;
-  char msg[200];
 
   if (wmNameProp->value == 0 || strlen((char *)wmNameProp->value) == 0)
     {
@@ -2230,35 +2251,47 @@ WmICCCMToXmString (XTextProperty *wmNameProp)
       {
       case XConverterNotFound:
 #ifndef MOTIF_ONE_DOT_ONE
-	  sprintf(msg, GETMESSAGE (70,5,
-		    "Window manager cannot convert property %.100s as clientTitle/iconTitle: XmbTextPropertyToTextList"), 
-		  XGetAtomName (DISPLAY,wmNameProp->encoding));
-	  Warning(msg);
+          {
+              char *atomName = XGetAtomName(DISPLAY, wmNameProp->encoding);
+              WmWarningWithString(GETMESSAGE (70,5,
+                  "Window manager cannot convert property %.100s as clientTitle/iconTitle: XmbTextPropertyToTextList"),
+                  atomName != NULL ? atomName : "");
+              if (atomName != NULL)
+                  XFree(atomName);
+          }
 #endif /* MOTIF_ONE_DOT_ONE */
-	  break;
+          break;
 
       case XNoMemory:
-	  sprintf(msg, GETMESSAGE (70, 6, 
-		    "insufficient memory to convert property %.100s as clientTitle/iconTitle: XmbTextPropertyToTextList"),
-		  XGetAtomName(DISPLAY,wmNameProp->encoding));
-	  Warning(msg);
-	  break;
+          {
+              char *atomName = XGetAtomName(DISPLAY, wmNameProp->encoding);
+              WmWarningWithString(GETMESSAGE (70, 6,
+                  "insufficient memory to convert property %.100s as clientTitle/iconTitle: XmbTextPropertyToTextList"),
+                  atomName != NULL ? atomName : "");
+              if (atomName != NULL)
+                  XFree(atomName);
+          }
+          break;
 
       case XLocaleNotSupported:
-	  if ((wmNameProp->encoding == XA_STRING) ||
-	      (wmNameProp->encoding == wmGD.xa_COMPOUND_TEXT))
-	  {
-	      sprintf(msg, LOCALE_MSG, setlocale(LC_ALL, NULL));
-	  }
-	  else
-	  {
-	      /* Atom was neither STRING nor COMPOUND_TEXT */
-	      sprintf(msg, GETMESSAGE(70, 8, 
-			"Window manager received unknown property as clientTitle/iconTitle: %.100s. Property ignored."),
-		      XGetAtomName(DISPLAY, wmNameProp->encoding));
-	  }
-	  Warning(msg);
-	  break;
+          if ((wmNameProp->encoding == XA_STRING) ||
+              (wmNameProp->encoding == wmGD.xa_COMPOUND_TEXT))
+          {
+              const char *localeName = setlocale(LC_ALL, NULL);
+              WmWarningWithString(LOCALE_MSG,
+                                  localeName != NULL ? localeName : "");
+          }
+          else
+          {
+              char *atomName = XGetAtomName(DISPLAY, wmNameProp->encoding);
+              /* Atom was neither STRING nor COMPOUND_TEXT */
+              WmWarningWithString(GETMESSAGE(70, 8,
+                  "Window manager received unknown property as clientTitle/iconTitle: %.100s. Property ignored."),
+                  atomName != NULL ? atomName : "");
+              if (atomName != NULL)
+                  XFree(atomName);
+          }
+          break;
       }
 
       /* Couldn't convert using Xm; apply a default */

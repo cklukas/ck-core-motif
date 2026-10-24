@@ -1,3 +1,10 @@
+Mwm property-warning bounds (2026-10-24)
+==========================================
+
+- Dynamically format localized title-conversion warnings, preserving diagnostic
+  text while avoiding the fixed 200-byte stack buffer and releasing temporary
+  atom names; see `docs/mwm-property-warning-bounds.md`.
+
 Mwm screen display bounds (2026-10-24)
 ========================================
 
