@@ -1587,6 +1587,9 @@ CvtStringToCardinalList(
 	    goto invalid_cardinal;
 	if (crd_array_size == crd_array_count)
 	    {
+	    if (crd_array_size > INT_MAX / 2 ||
+		(size_t)(crd_array_size * 2) > SIZE_MAX / sizeof(Cardinal))
+		goto invalid_cardinal;
 	    crd_array_size *= 2;
 	    crd_array = (Cardinal *)XtRealloc((char *)crd_array,
 			    sizeof(Cardinal) * crd_array_size);
