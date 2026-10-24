@@ -688,15 +688,6 @@ Idb__INX_FindResources (IDBFile			file_id,
       for ( entndx=0 ; entndx<ndxcnt ; entndx++ )
 	{
 	  IDBDataHandle	entry_data;
-	  if (!Idb__INX_StringTerminated
-		(stgbase, node_ndxvec[entndx].index_stg,
-		 IDBIndexNodeFreeMax))
-	    return MrmBAD_RECORD;
-
-	  entry_data.rec_no = node_ndxvec[entndx].data.internal_id.rec_no;
-	  entry_data.item_offs =
-	    node_ndxvec[entndx].data.internal_id.item_offs;
-
 	  result = Idb__BM_GetRecord (file_id, recno, &bufptr) ;
 	  if (result != MrmSUCCESS) return result;
 	  if (!Idb__INX_ValidNode(bufptr)) return MrmBAD_RECORD;
@@ -713,6 +704,10 @@ Idb__INX_FindResources (IDBFile			file_id,
 		(stgbase, node_ndxvec[entndx].index_stg,
 		 IDBIndexNodeFreeMax))
 	    return MrmBAD_RECORD;
+
+	  entry_data.rec_no = node_ndxvec[entndx].data.internal_id.rec_no;
+	  entry_data.item_offs =
+	    node_ndxvec[entndx].data.internal_id.item_offs;
 	  if (node_ndxvec[entndx].GT_record <= 0)
 	    return MrmBAD_RECORD;
 	  if ( Idb__DB_MatchFilter

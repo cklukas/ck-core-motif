@@ -2833,3 +2833,11 @@ Mrm resource reload string bounds (2026-10-29)
 - Revalidate node-entry string offsets after resource traversal reloads a
   buffer, preventing malformed rebound records from being appended; see
   `docs/mrm-resource-reload-bounds.md`.
+
+
+Mrm resource parent rebinding (2026-10-30)
+==========================================
+
+- Reload and validate the parent node before each resource-entry read after
+  recursive traversal, avoiding stale buffer pointers; see
+  `docs/mrm-resource-parent-rebind.md`.
