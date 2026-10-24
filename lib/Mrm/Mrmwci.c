@@ -574,12 +574,16 @@ hash_find_name (URMHashTableEntryPtr	*htable,
   URMHashTableEntryPtr	az_current_name;
   int				l_hash_code;
   int				l_compare_result;
+  size_t			name_length;
 
-  if (c_text == NULL) return(NULL);
+  if (htable == NULL || c_text == NULL) return(NULL);
 
   /* obtain the hash code for the name */
 
-  l_length = strlen (c_text);
+  name_length = strlen (c_text);
+  if (name_length > INT_MAX)
+    return (URMHashTableEntryPtr) NULL;
+  l_length = (int)name_length;
   l_hash_code = hash_function( l_length, c_text );
 
   /*
@@ -775,6 +779,10 @@ hash_delete_name (URMHashTableEntryPtr	*htable,
   URMHashTableEntryPtr	az_current_name;
   int				l_hash_code;
   int				l_compare_result;
+  size_t			name_length;
+
+  if (htable == NULL || c_text == NULL)
+    return (URMHashTableEntryPtr) NULL;
 
   /*
   **  algorithm keeps 2 pointers, one for the previous name and one
@@ -784,7 +792,10 @@ hash_delete_name (URMHashTableEntryPtr	*htable,
 
   /* obtain the hash code of for the name */
 
-  l_length = strlen (c_text);
+  name_length = strlen (c_text);
+  if (name_length > INT_MAX)
+    return (URMHashTableEntryPtr) NULL;
+  l_length = (int)name_length;
   l_hash_code = hash_function( l_length, c_text );
 
   /*

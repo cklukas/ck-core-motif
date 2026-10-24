@@ -1,3 +1,9 @@
+Mrm hash lookup and deletion inputs (2026-10-25)
+===============================================
+
+- Validate hash-table pointers and legacy length narrowing in lookup and delete
+  helpers; see `docs/mrm-wci-hash-helpers.md`.
+
 Mrm hash-table caller failure handling (2026-10-25)
 =================================================
 
