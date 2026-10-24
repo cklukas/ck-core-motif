@@ -470,8 +470,10 @@ ParseKeySym(
 	   *str != '\t' &&
 	   *str != '\n' &&
 	   *str != '\0') str++;
-    (void) strncpy(keySymName, start, str-start);
-    keySymName[str-start] = '\0';
+    if ((size_t)(str - start) >= sizeof(keySymName))
+      return str;
+    memcpy(keySymName, start, (size_t)(str - start));
+    keySymName[str - start] = '\0';
     *detail = XStringToKeysym(keySymName);
   }
   
@@ -542,8 +544,12 @@ ParseModifiers(
     start = str;
     str = ScanAlphanumeric(str);
     if (start != str) {
-         (void) strncpy(modStr, start, str-start);
-          modStr[str-start] = '\0';
+          if ((size_t)(str - start) >= sizeof(modStr)) {
+              *status = FALSE;
+              return str;
+          }
+          memcpy(modStr, start, (size_t)(str - start));
+          modStr[str - start] = '\0';
           if (LookupModifier(modStr, &maskBit))
           {
 	    if (maskBit== None) {
@@ -571,8 +577,12 @@ ParseModifiers(
            *status = FALSE;
            return str;
         }
-        (void) strncpy(modStr, start, str-start);
-        modStr[str-start] = '\0';
+        if ((size_t)(str - start) >= sizeof(modStr)) {
+           *status = FALSE;
+           return str;
+        }
+        memcpy(modStr, start, (size_t)(str - start));
+        modStr[str - start] = '\0';
 
         if (!LookupModifier(modStr, &maskBit))
         {
@@ -628,8 +638,12 @@ ParseEventType(
 
     /* Parse out the event string */
     str = ScanAlphanumeric(str);
-    (void) strncpy(eventTypeStr, start, str-start);
-    eventTypeStr[str-start] = '\0';
+    if ((size_t)(str - start) >= sizeof(eventTypeStr)) {
+       *status = FALSE;
+       return str;
+    }
+    memcpy(eventTypeStr, start, (size_t)(str - start));
+    eventTypeStr[str - start] = '\0';
 
     /* Attempt to match the parsed event against our supported event set */
     signature = XrmStringToQuark(eventTypeStr);
