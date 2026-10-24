@@ -3340,6 +3340,10 @@ XmRenderTableCvtFromProp(Widget w,
 	 rendition to create */
       if (token -> type == T_STR) {
 	name = token -> string;
+	if (freecount >= (int)(sizeof(freelater) / sizeof(freelater[0]))) {
+	  XtFree(token -> string);
+	  goto error;
+	}
 	freelater[freecount] = token -> string; freecount++;
       } else {
 	goto error;
@@ -3349,13 +3353,23 @@ XmRenderTableCvtFromProp(Widget w,
 	 id,  otherwise we are reading in a fontset */
       if (token -> type != T_INT) goto error;
       if (token -> integer != -1) { /* AS IS */ 
+	if (count >= (int)(sizeof(args) / sizeof(args[0]))) goto error;
 	XtSetArg(args[count], XmNfontType, token -> integer); count++;
     token = ReadToken(prop, &scanpointer, &reusetoken);
 	if (token -> type != T_STR) goto error;
+	if (count >= (int)(sizeof(args) / sizeof(args[0]))) {
+	  XtFree(token -> string);
+	  goto error;
+	}
 	XtSetArg(args[count], XmNfontName, token -> string); count++;
+	if (freecount >= (int)(sizeof(freelater) / sizeof(freelater[0]))) {
+	  XtFree(token -> string);
+	  goto error;
+	}
 	freelater[freecount] = token -> string; freecount++;
     token = ReadToken(prop, &scanpointer, &reusetoken);
 	if (token -> type != T_INT) goto error;
+	if (count >= (int)(sizeof(args) / sizeof(args[0]))) goto error;
 	XtSetArg(args[count], XmNloadModel, token -> integer); count++;
       }
     } else if (strcmp(items[j], XmNtabList) == 0) {
@@ -3397,27 +3411,35 @@ XmRenderTableCvtFromProp(Widget w,
 	  if (token -> type == T_SEP)
         token = ReadToken(prop, &scanpointer, &reusetoken);
 	}
+	if (count >= (int)(sizeof(args) / sizeof(args[0]))) {
+	  XmTabListFree(tablist);
+	  goto error;
+	}
 	XtSetArg(args[count], XmNtabList, tablist); count++;
       } else 
 	goto error;
     } else if (strcmp(items[j], XmNbackground) == 0) {
       if (token -> type != T_INT) goto error;
       if (token -> type != -1) {
+	if (count >= (int)(sizeof(args) / sizeof(args[0]))) goto error;
 	XtSetArg(args[count], XmNrenditionBackground, token -> integer); count++;
       }
     } else if (strcmp(items[j], XmNforeground) == 0) {
       if (token -> type != T_INT) goto error;
       if (token -> type != -1) {
+	if (count >= (int)(sizeof(args) / sizeof(args[0]))) goto error;
 	XtSetArg(args[count], XmNrenditionForeground, token -> integer); count++;
       }
     } else if (strcmp(items[j], XmNunderlineType) == 0) {
       if (token -> type != T_INT) goto error;
       if (token -> type != -1) {
+	if (count >= (int)(sizeof(args) / sizeof(args[0]))) goto error;
 	XtSetArg(args[count], XmNunderlineType, token -> integer); count++;
       }
     } else if (strcmp(items[j], XmNstrikethruType) == 0) {
       if (token -> type != T_INT) goto error;
       if (token -> type != -1) {
+	if (count >= (int)(sizeof(args) / sizeof(args[0]))) goto error;
 	XtSetArg(args[count], XmNstrikethruType, token -> integer); count++;
       }
     }
