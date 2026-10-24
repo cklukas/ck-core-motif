@@ -29,6 +29,8 @@ static char rcsid[] = "$XConsortium: Region.c /main/10 1995/07/13 17:46:45 drk $
 #include <config.h>
 #endif
 
+#include <limits.h>
+
 
 /*
  * The functions in this file implement the XmRegion abstraction
@@ -224,6 +226,10 @@ _XmRegionCreateSize(
     long	size )
 {
     XmRegion temp;
+
+    if (size <= 0 || (unsigned long)size >
+	(unsigned long)UINT_MAX / sizeof(XmRegionBox))
+	return (XmRegion) NULL;
 
     if (!(temp = ( XmRegion )XtMalloc(sizeof (XmRegionRec))))
 	return (XmRegion) NULL;

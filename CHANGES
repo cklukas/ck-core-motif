@@ -1,3 +1,8 @@
+Region allocation size bounds (2026-10-25)
+=======================================
+
+- Reject invalid and unrepresentable `_XmRegionCreateSize` counts before narrowing or multiplying, preventing wrapped region allocations; see `docs/region-size-bounds.md`.
+
 UTF-8 conversion bounds (2026-10-24)
 =================================
 
