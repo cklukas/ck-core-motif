@@ -631,7 +631,7 @@ FetchPixelData(Widget w, char * value, int screen)
     /* read color use */
     count = 0;
     sscanf (&(value[count]), "%x_", &colorUse);
-    sprintf(tmp, "%x_", colorUse);
+    (void)snprintf(tmp, sizeof(tmp), "%x_", colorUse);
     count += strlen(tmp);
     tmpColorObj->color_obj.colorUse[screen] = colorUse;
  
@@ -640,8 +640,9 @@ FetchPixelData(Widget w, char * value, int screen)
 	sscanf (&(value[count]), "%lx_%lx_%lx_%lx_%lx_", &(colors[i].bg),
 		&(colors[i].fg), &(colors[i].ts),
 		&(colors[i].bs), &(colors[i].sc));
-	sprintf(tmp,"%lx_%lx_%lx_%lx_%lx_", colors[i].bg, colors[i].fg,
-		colors[i].ts, colors[i].bs, colors[i].sc);
+	(void)snprintf(tmp, sizeof(tmp), "%lx_%lx_%lx_%lx_%lx_",
+		       colors[i].bg, colors[i].fg, colors[i].ts,
+		       colors[i].bs, colors[i].sc);
 	count += strlen(tmp);
     }
     UpdateXrm (colors, screen, tmpColorObj);

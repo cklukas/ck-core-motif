@@ -1,3 +1,14 @@
+ColorObj property serialization bounds (2026-10-24)
+====================================================
+
+- Use capacity-aware formatting for the fixed ColorObj hexadecimal property
+  scratch buffer, preserving its serialized format while preventing numeric
+  field writes from overrunning it.
+- Add a source-contract regression and document the behavior in
+  docs/color-object-property-bounds.md.
+- Native ColorObj object compilation is warning-free and the regression passes;
+  the broader libXm build remains blocked by unrelated held TextSel work.
+
 ColorObj atom-name bounds (2026-10-24)
 =====================================
 
