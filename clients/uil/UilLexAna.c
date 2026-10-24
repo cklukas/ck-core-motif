@@ -70,6 +70,8 @@ double atof();
 #endif
 
 #include <errno.h>	/* needed to support conversion functions */
+#include <limits.h>
+#include <stdint.h>
 #ifdef X_NOT_STDC_ENV
 extern int errno;
 #endif
@@ -1573,18 +1575,34 @@ found_token:
 
   case token_comment:       /* RAP preserve comments */
     {
-      int size;
+      size_t current_length, incoming_length, required, new_size;
 
       if (last_token_seen != token_comment)
 	comment_text[0]=0;
 
-      size = (int)strlen((char *)az_current_lex_buffer->c_text)+1;
-      if ((size  + (int)strlen (comment_text)) >= comment_size)
+      current_length = strlen(comment_text);
+      incoming_length = strlen((char *)az_current_lex_buffer->c_text);
+      if (incoming_length > SIZE_MAX - current_length - 2)
+	XtError("UIL comment is too large");
+      required = current_length + incoming_length + 2; /* text, newline, NUL */
+      if (required > (size_t)comment_size)
 	{
-	  comment_text = XtRealloc(comment_text, INCR_COMMENT_SIZE + strlen(comment_text));
-	  comment_size = INCR_COMMENT_SIZE + strlen (comment_text);
+	  new_size = (size_t)comment_size;
+	  while (new_size < required)
+	    {
+	      if (new_size > SIZE_MAX - INCR_COMMENT_SIZE)
+		{
+		  new_size = required;
+		  break;
+		}
+	      new_size += INCR_COMMENT_SIZE;
+	    }
+	  if (new_size > (size_t)UINT_MAX || new_size > (size_t)INT_MAX)
+	    XtError("UIL comment is too large");
+	  comment_text = XtRealloc(comment_text, (Cardinal)new_size);
+	  comment_size = (int)new_size;
 	}
-	  
+
       strcat (comment_text, (char *)az_current_lex_buffer->c_text);
       strcat (comment_text, "\n");
       last_token_seen = token_comment;

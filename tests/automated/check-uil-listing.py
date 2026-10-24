@@ -13,7 +13,7 @@ assert args.uil.is_absolute() and args.results.is_absolute()
 args.results.mkdir(parents=True, exist_ok=False)
 source = args.results / "long-comment.uil"
 listing = args.results / "long-comment.lis"
-comment = "! " + ("long listing comment " * 5) + "\n"
+comment = "".join("! long listing comment " * 5 + "\n" for _ in range(200))
 source.write_text(
     "module listing_regression\n"
     "version = 'v1.0'\n"

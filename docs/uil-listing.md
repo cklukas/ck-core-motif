@@ -14,3 +14,8 @@ python3 tests/automated/check-uil-listing.py /absolute/path/to/uil /absolute/pat
 
 The normal release build keeps the historical listing format and command-line
 options; this change only makes the debug output path bounded.
+
+Comment preservation also grows its accumulator to the complete incoming line
+plus the newline and terminator. A single comment longer than the old 2000-byte
+growth increment is therefore retained without an intermediate under-sized
+allocation; the regression uses a 14-kilobyte comment.

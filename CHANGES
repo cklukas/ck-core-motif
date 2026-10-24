@@ -1,3 +1,11 @@
+Grow UIL preserved-comment storage safely (2026-10-24)
+=======================================================
+
+- Size the comment accumulator for the complete incoming fragment, newline,
+  and terminator before appending. Long preserved-comment runs no longer rely
+  on an undersized fixed increment; see docs/uil-listing.md.
+- Extend the debug listing regression with a multi-kilobyte comment run.
+
 Bound WML token-table growth (2026-10-24)
 ==========================================
 
