@@ -14,11 +14,11 @@
 static const unsigned char pattern[] =
     "ASCII ";
 static const unsigned char utf8[] =
-    "\xF0\x9F\x8C\x8D" /* globe */
-    " \xE4\xB8\\xE7\x95\x8C" /* CJK */
-    " \xD0\x9F\xD1\x80\xD0\xB8\xD0\xB2\xD0\xB5\xD1\x82" /* Cyrillic */
-    " e\xCC\x81" /* combining acute */
-    " \xD7\x90\xD7\x91\xD7\x92"; /* Hebrew */
+    "\360\237\214\215" /* globe */
+    " \344\270\226\347\225\214" /* CJK */
+    " \320\237\321\200\320\270\320\262\320\245\321\202" /* Cyrillic */
+    " e\314\201" /* combining acute */
+    " \327\220\327\221\327\222"; /* Hebrew */
 
 int main(int argc, char **argv)
 {
@@ -32,7 +32,8 @@ int main(int argc, char **argv)
     const size_t bytes = repeats * (prefix_length + unit_length);
     unsigned char *input, *output;
     size_t offset, split;
-    unsigned long copied = 0, private_id = 0, item;
+    unsigned long copied = 0;
+    long private_id = 0, item;
     int i;
     unsigned long checks = 0;
 
