@@ -18,6 +18,9 @@ if loop < 0:
 trailing = region.find("if (ndx < list_id->num_ptrs)", loop)
 if trailing < 0 or trailing - loop > 2600:
     raise SystemExit("callback cleanup does not discard a dangling final type tag")
+metadata = region.find("if (list_id->num_slots <= 0 || list_id->num_ptrs > list_id->num_slots)")
+if metadata < 0 or metadata < guard:
+    raise SystemExit("callback cleanup does not validate pointer-list bounds")
 free = region.find("UrmPlistFree (list_id)", loop)
 if free < 0:
     raise SystemExit("callback cleanup no longer releases the ownership list")

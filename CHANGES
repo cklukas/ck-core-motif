@@ -3045,3 +3045,10 @@ Mrm callback cleanup bounds (2026-10-25)
 - Bound callback ownership cleanup to complete type/value pairs and tolerate
   null or truncated lists, preventing an out-of-bounds read after partial
   setup; see `docs/mrm-callback-cleanup-bounds.md`.
+
+Mrm callback cleanup metadata validation (2026-10-25)
+=========================================================
+
+- Validate pointer-list slot metadata before callback cleanup traversal and
+  release malformed lists without reading past their storage; see
+  `docs/mrm-callback-cleanup-bounds.md`.

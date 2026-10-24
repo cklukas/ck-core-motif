@@ -2965,6 +2965,11 @@ UrmDestroyCallback (Widget                     w, /* unused */
   if (list_id == NULL || list_id->ptr_vec == NULL ||
       list_id->num_ptrs <= 0)
     return;
+  if (list_id->num_slots <= 0 || list_id->num_ptrs > list_id->num_slots)
+    {
+      UrmPlistFree (list_id);
+      return;
+    }
 
   for (ndx=0 ; ndx + 1 < list_id->num_ptrs ; ndx++)
     {
