@@ -1,3 +1,11 @@
+Form layout diagnostic corpus (2026-10-24)
+==========================================
+
+- Add an installed-consumer WP-10 corpus covering nested Forms, resize storms,
+  map/unmap, child lifecycle and callback-triggered mutation; retain
+  comparative geometry/redraw/event metrics and qualification limits in
+  `docs/form-layout-corpus.md`.
+
 Mwm session-command growth (2026-10-24)
 ========================================
 

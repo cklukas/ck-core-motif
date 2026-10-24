@@ -594,6 +594,20 @@ altering Form's legacy negotiation behavior.
 normal system variation and identifies a concrete, source-backed target for
 WP-11.
 
+**Status (2026-10-24):** phase 1 is implemented and qualified on the AArch64
+`uconsole` Linux host with a fresh installed prefix under Xvfb.  The installed
+consumer now exercises resize storms, map/unmap, nested scroll/layout
+containers, dynamic child insertion/removal and callback-triggered mutation.
+It records public geometry-request/query observations, selected redraw calls,
+Configure/Expose/Map/Unmap activity, final bounds and a receipt with source and
+result hashes.  The interposition counters are explicitly comparative rather
+than a complete accounting of private Form traversals.  No generic Form
+correction is claimed yet; a measured hotspot and negative control are still
+required before WP-11 changes source behavior.
+
+See `docs/form-layout-corpus.md` for the fixture schema, limits and current
+qualification scope.
+
 ### WP-11: Focused Form/hierarchy correction
 
 **Depends on:** WP-10.
