@@ -1,3 +1,11 @@
+UIL machine-list formatting bounds (2026-10-24)
+================================================
+
+- Route UIL machine-code listing descriptions through bounded format and
+  append helpers, preserving normal output while preventing long resource
+  names and decoded values from overrunning 132-byte temporary lines; see
+  `docs/uil-machine-list-bounds.md`.
+
 Xmos mask-name copy cleanup (2026-10-24)
 ========================================
 

@@ -63,6 +63,27 @@ static char rcsid[] = "$TOG: UilLstMac.c /main/15 1997/03/12 15:21:48 dbl $"
 
 #include "UilDefI.h"
 
+enum { UIL_MACHINE_LINE_SIZE = 132 };
+
+static void
+UilListAppend(char *buffer, size_t buffer_size, const char *text)
+{
+    size_t used;
+    size_t remaining;
+
+    if (buffer == NULL || text == NULL || buffer_size == 0)
+	return;
+    used = strlen(buffer);
+    if (used >= buffer_size - 1)
+	return;
+    remaining = buffer_size - used - 1;
+    strncpy(buffer + used, text, remaining);
+    buffer[used + remaining] = '\0';
+}
+
+#define UilListFormat(buffer, ...) \
+    (void)snprintf((buffer), UIL_MACHINE_LINE_SIZE, __VA_ARGS__)
+
 
 /*
 **
@@ -185,7 +206,7 @@ URMResourceContext	* az_context;
 {
 
     RGMWidgetRecordPtr		w_rec;
-    char			buffer [132];
+	char			buffer [UIL_MACHINE_LINE_SIZE];
     unsigned short int		w_rec_size;
     src_source_record_type	* az_src_rec;
 
@@ -196,14 +217,14 @@ URMResourceContext	* az_context;
     az_src_rec = widget_entry->header.az_src_rec;
 
     if (widget_entry->resource_id != 0 ) {
-	sprintf (buffer, "Resource ID: %08lX", widget_entry->resource_id);
+	UilListFormat(buffer, "Resource ID: %08lX", widget_entry->resource_id);
 	src_append_machine_code (
 		az_src_rec,
 		0,
 		0, 0,
 		buffer );
     } else if (widget_entry->obj_header.az_name != NULL) {
-	sprintf (buffer, "Resource index: %s",
+	UilListFormat(buffer, "Resource index: %s",
 		 widget_entry->obj_header.az_name->c_text);
 	src_append_machine_code (
 		az_src_rec,
@@ -220,7 +241,7 @@ URMResourceContext	* az_context;
 		sizeof (w_rec->validation), (char*)& w_rec->validation,
 		"widget record" );
 
-    sprintf (buffer, "size: %d", w_rec->size);
+    UilListFormat(buffer, "size: %d", w_rec->size);
 
     src_append_machine_code (
 		az_src_rec,
@@ -230,7 +251,7 @@ URMResourceContext	* az_context;
 
     w_rec_size = w_rec->size;
 
-    sprintf (buffer, "access: %s",
+    UilListFormat(buffer, "access: %s",
 			access_from_code (w_rec->access) );
 
     src_append_machine_code (
@@ -239,12 +260,12 @@ URMResourceContext	* az_context;
 		sizeof (w_rec->access), (char*)& w_rec->access,
 		buffer );
 
-    sprintf (buffer, "locked: ");
+    UilListFormat(buffer, "locked: ");
 
     if (w_rec->lock) {
-	strcat (buffer, "true");
+	UilListAppend(buffer, UIL_MACHINE_LINE_SIZE, "true");
     } else {
-	strcat (buffer, "false");
+	UilListAppend(buffer, UIL_MACHINE_LINE_SIZE, "false");
     }
 
     src_append_machine_code (
@@ -253,9 +274,9 @@ URMResourceContext	* az_context;
 		sizeof (w_rec->lock), (char*)& w_rec->lock,
 		buffer );
 
-    sprintf (buffer, "type: ");
+    UilListFormat(buffer, "type: ");
 
-    strcat (buffer, class_name_from_code (w_rec->type));
+    UilListAppend(buffer, UIL_MACHINE_LINE_SIZE, class_name_from_code (w_rec->type));
 
     src_append_machine_code (
 		az_src_rec,
@@ -264,9 +285,9 @@ URMResourceContext	* az_context;
 		buffer );
 
     if (w_rec->name_offs == (MrmOffset) 0) {
-	sprintf (buffer, "no name specified");
+	UilListFormat(buffer, "no name specified");
     } else {
-	sprintf (buffer, "name: offset %X (hex)",
+	UilListFormat(buffer, "name: offset %X (hex)",
 		 w_rec->name_offs);
 	off_put (k_name_off, w_rec->name_offs);
     }
@@ -279,9 +300,9 @@ URMResourceContext	* az_context;
 		buffer );
 
     if (w_rec->class_offs == (MrmOffset) 0) {
-	sprintf (buffer, "class: builtin");
+	UilListFormat(buffer, "class: builtin");
     } else {
-	sprintf (buffer, "class: offset %X (hex)",
+	UilListFormat(buffer, "class: offset %X (hex)",
 		 w_rec->class_offs);
 	off_put (k_class_off, w_rec->class_offs);
     }
@@ -294,9 +315,9 @@ URMResourceContext	* az_context;
 		buffer );
 
     if (w_rec->arglist_offs == (MrmOffset) 0) {
-	sprintf (buffer, "no argument list");
+	UilListFormat(buffer, "no argument list");
     } else {
-	sprintf (buffer, "argument list offset: %X (hex)", w_rec->arglist_offs);
+	UilListFormat(buffer, "argument list offset: %X (hex)", w_rec->arglist_offs);
 	off_put (k_arglist_off, w_rec->arglist_offs);
     }
 
@@ -308,9 +329,9 @@ URMResourceContext	* az_context;
 		buffer );
 
     if (w_rec->children_offs == (MrmOffset) 0) {
-	sprintf (buffer, "no children");
+	UilListFormat(buffer, "no children");
     } else {
-	sprintf (buffer, "children list offset: %X (hex)",
+	UilListFormat(buffer, "children list offset: %X (hex)",
 		 w_rec->children_offs);
 	off_put (k_children_off, w_rec->children_offs);
     }
@@ -323,9 +344,9 @@ URMResourceContext	* az_context;
 		buffer );
 
     if (w_rec->comment_offs == (MrmOffset) 0) {
-	sprintf (buffer, "no comment specified");
+	UilListFormat(buffer, "no comment specified");
     } else {
-	sprintf (buffer, "comment: offset %X (hex)",
+	UilListFormat(buffer, "comment: offset %X (hex)",
 		 w_rec->comment_offs);
 	off_put (k_comment_off, w_rec->comment_offs);
     }
@@ -338,9 +359,9 @@ URMResourceContext	* az_context;
 		buffer );
 
     if (w_rec->creation_offs == (MrmOffset) 0) {
-	sprintf (buffer, "no creation callback");
+	UilListFormat(buffer, "no creation callback");
     } else {
-	sprintf (buffer, "creation callback offset: %X (hex)",
+	UilListFormat(buffer, "creation callback offset: %X (hex)",
 		 w_rec->creation_offs);
 	off_put (k_creation_off, w_rec->creation_offs);
     }
@@ -389,7 +410,7 @@ src_source_record_type	*az_src_rec;
 
 {
 
-    char			buffer [132], * ptr;
+	char			buffer [UIL_MACHINE_LINE_SIZE], * ptr;
     int				child_index = 0;
 
     while ( ! off_stack_empty ) {
@@ -443,7 +464,7 @@ src_source_record_type	*az_src_rec;
 
 		argdesc = (RGMArgListDescPtr) _Pointer(rec, off_offset);
 
-		sprintf (buffer, "argument count: %d", argdesc->count);
+		UilListFormat(buffer, "argument count: %d", argdesc->count);
 
 		src_append_machine_code (
 			az_src_rec,
@@ -452,7 +473,7 @@ src_source_record_type	*az_src_rec;
 			(char*)& argdesc->count,
 			buffer );
 
-		sprintf (buffer, "related argument count: %d", argdesc->extra);
+		UilListFormat(buffer, "related argument count: %d", argdesc->extra);
 
 		src_append_machine_code (
 			az_src_rec,
@@ -469,7 +490,7 @@ src_source_record_type	*az_src_rec;
 
 		    if (arg_ptr->tag_code != UilMrmUnknownCode )
 			{
-			sprintf (buffer,
+			UilListFormat(buffer,
 				 "(%d) arg type: %s",
 				 j,
 				 resource_name_from_code(arg_ptr->tag_code));
@@ -478,7 +499,7 @@ src_source_record_type	*az_src_rec;
 			{
 			ptr = (char *)
 			    _Pointer(rec,arg_ptr->stg_or_relcode.tag_offs);
-			sprintf (buffer,
+			UilListFormat(buffer,
 				 "(%d) arg type: %s (user defined)",
 				 j,
 				 ptr);
@@ -492,9 +513,9 @@ src_source_record_type	*az_src_rec;
 			buffer );
 
 		    if (arg_ptr->stg_or_relcode.tag_offs == (MrmOffset) 0) {
-			sprintf (buffer, "(%d) no tag offset", j);
+			UilListFormat(buffer, "(%d) no tag offset", j);
 		    } else {
-			sprintf (buffer, "(%d) tag offset: %X (hex)",
+			UilListFormat(buffer, "(%d) tag offset: %X (hex)",
 					j, arg_ptr->stg_or_relcode.tag_offs);
 			off_put (k_name_off, arg_ptr->stg_or_relcode.tag_offs);
 		    }
@@ -506,7 +527,7 @@ src_source_record_type	*az_src_rec;
 			(char*)& arg_ptr->stg_or_relcode.tag_offs,
 			buffer );
 
-		    sprintf (buffer, "(%d) type: %s",
+		    UilListFormat(buffer, "(%d) type: %s",
 			j, type_from_code (arg_ptr->arg_val.rep_type) );
 
 		    src_append_machine_code (
@@ -517,7 +538,7 @@ src_source_record_type	*az_src_rec;
 			(char*)& arg_ptr->arg_val.rep_type,
 			buffer );
 
-		    sprintf (buffer, "(%d) ", j);
+		    UilListFormat(buffer, "(%d) ", j);
 
 		    format_arg_value (& arg_ptr->arg_val,
 				& buffer [strlen (buffer)]);
@@ -540,7 +561,7 @@ src_source_record_type	*az_src_rec;
 		double	* dptr;
 
 		dptr = (double *) _Pointer (rec, off_offset);
-		sprintf (buffer, "floating point value: %g", (* dptr));
+		UilListFormat(buffer, "floating point value: %g", (* dptr));
 		src_append_machine_code (
 			az_src_rec,
 			off_offset,
@@ -554,7 +575,7 @@ src_source_record_type	*az_src_rec;
 		float *fptr;
 
 		fptr = (float *) _Pointer(rec, off_offset);
-		sprintf(buffer, "Single float value: %g", (* fptr));
+		UilListFormat(buffer, "Single float value: %g", (* fptr));
 		src_append_machine_code (
 					 az_src_rec,
 					 off_offset,
@@ -580,7 +601,7 @@ src_source_record_type	*az_src_rec;
 			(char*)& cb_desc_ptr->validation,
 			"callback descriptor" );
 
-		sprintf (buffer, "callback count: %d", cb_desc_ptr->count);
+		UilListFormat(buffer, "callback count: %d", cb_desc_ptr->count);
 
 		src_append_machine_code (
 			az_src_rec,
@@ -597,7 +618,7 @@ src_source_record_type	*az_src_rec;
 		     j++, cb_item_ptr++,
 				off_offset += sizeof (RGMCallbackItem)) {
 
-		    sprintf (buffer,
+		    UilListFormat(buffer,
 				"(%d) routine name offset: %X (hex)",
 				j, cb_item_ptr->cb_item.routine);
 
@@ -616,7 +637,7 @@ src_source_record_type	*az_src_rec;
 
 		    off_put (k_name_off, cb_item_ptr->cb_item.routine);
 
-		    sprintf (buffer, "(%d) routine tag type: %s",
+		    UilListFormat(buffer, "(%d) routine tag type: %s",
 			j, type_from_code (
 				cb_item_ptr->cb_item.rep_type) );
 
@@ -633,7 +654,7 @@ src_source_record_type	*az_src_rec;
 #endif /* WORD64 */
 			 buffer );
 
-		    sprintf (buffer, "(%d) value: ", j);
+		    UilListFormat(buffer, "(%d) value: ", j);
 		    src_append_machine_code
 			(az_src_rec,
 			 _Offset (RGMCallbackItem, off_offset,
@@ -654,7 +675,7 @@ src_source_record_type	*az_src_rec;
 		r_desc_ptr =
 			(RGMResourceDescPtr) _Pointer (rec, off_offset);
 
-		sprintf (buffer, "resource descriptor, size: %d",
+		UilListFormat(buffer, "resource descriptor, size: %d",
 			 r_desc_ptr->size);
 
 		src_append_machine_code (
@@ -664,7 +685,7 @@ src_source_record_type	*az_src_rec;
 			(char*)& r_desc_ptr->size,
 			buffer );
 
-		sprintf (buffer, "access: %s",
+		UilListFormat(buffer, "access: %s",
 				access_from_code (r_desc_ptr->access) );
 
 		src_append_machine_code (
@@ -676,7 +697,7 @@ src_source_record_type	*az_src_rec;
 
 		switch (r_desc_ptr->type) {
 		    case URMrIndex:
-			sprintf (buffer, "index, offset: %X (hex)",
+			UilListFormat(buffer, "index, offset: %X (hex)",
 				_Offset (RGMResourceDesc, off_offset, key) );
 
 			off_put (k_name_off,
@@ -685,7 +706,7 @@ src_source_record_type	*az_src_rec;
 
 		    case URMrRID:
 
-			sprintf (buffer, "resource ID, offset: %X (hex)",
+			UilListFormat(buffer, "resource ID, offset: %X (hex)",
 				_Offset (RGMResourceDesc, off_offset, key) );
 
 			off_put (k_resource_id_off,
@@ -693,7 +714,7 @@ src_source_record_type	*az_src_rec;
 			break;
 
 		    default:
-			sprintf (buffer, "unknown resource type");
+			UilListFormat(buffer, "unknown resource type");
 			break;
 		}
 
@@ -704,7 +725,7 @@ src_source_record_type	*az_src_rec;
 			(char*)& r_desc_ptr->type,
 			buffer );
 
-		sprintf (buffer, "resource group: %s",
+		UilListFormat(buffer, "resource group: %s",
 			 group_from_code (r_desc_ptr->res_group) );
 
 		src_append_machine_code (
@@ -714,7 +735,7 @@ src_source_record_type	*az_src_rec;
 			(char*)& r_desc_ptr->res_group,
 			buffer );
 
-		sprintf (buffer, "resource type: %s",
+		UilListFormat(buffer, "resource type: %s",
 			(r_desc_ptr->res_group == URMgLiteral) ? 
 				type_from_code (r_desc_ptr->cvt_type) :
 				class_name_from_code (r_desc_ptr->cvt_type) );
@@ -731,7 +752,7 @@ src_source_record_type	*az_src_rec;
 
 	    case k_resource_id_off : {
 
-		sprintf (buffer, "resource id");
+		UilListFormat(buffer, "resource id");
 
 		src_append_machine_code (
 			az_src_rec,
@@ -750,7 +771,7 @@ src_source_record_type	*az_src_rec;
 
 		c_desc_ptr = (RGMChildrenDescPtr) _Pointer(rec, off_offset);
 
-		sprintf (buffer, "Children count: %d",
+		UilListFormat(buffer, "Children count: %d",
 			 c_desc_ptr->count);
 
 		src_append_machine_code (
@@ -786,9 +807,9 @@ src_source_record_type	*az_src_rec;
 		child_index++;
 
 		if (c_ptr->manage) {
-		    sprintf (buffer, "(%d) managed", j);
+		    UilListFormat(buffer, "(%d) managed", j);
 		} else {
-		    sprintf (buffer, "(%d) unmanaged", j);
+		    UilListFormat(buffer, "(%d) unmanaged", j);
 		}
 
 		src_append_machine_code (
@@ -798,7 +819,7 @@ src_source_record_type	*az_src_rec;
 			(char*)& c_ptr->manage,
 			buffer );
 
-		sprintf (buffer, "(%d) access: %s", j,
+		UilListFormat(buffer, "(%d) access: %s", j,
 				access_from_code (c_ptr->access) );
 
 		src_append_machine_code (
@@ -810,7 +831,7 @@ src_source_record_type	*az_src_rec;
 
 		switch (c_ptr->type) {
 		    case URMrIndex:
-			sprintf (buffer, "(%d) index, offset: %X (hex)",
+			UilListFormat(buffer, "(%d) index, offset: %X (hex)",
 				j, c_ptr->key.index_offs);
 
 			src_append_machine_code (
@@ -825,7 +846,7 @@ src_source_record_type	*az_src_rec;
 			break;
 
 		    case URMrRID:
-			sprintf (buffer,
+			UilListFormat(buffer,
 				"(%d) resource ID, offset: %X (hex)",
 				j, _Offset (RGMChildDesc, off_offset, key) );
 
@@ -842,7 +863,7 @@ src_source_record_type	*az_src_rec;
 
 		    default:
 
-			sprintf (buffer, "(%d) unknown class", j);
+			UilListFormat(buffer, "(%d) unknown class", j);
 
 			src_append_machine_code (
 				az_src_rec,
@@ -906,20 +927,20 @@ URMResourceContext	* az_context;
 
 {
     src_source_record_type	* az_src_rec;
-    char			buffer [132], * rc_buffer;
+	char			buffer [UIL_MACHINE_LINE_SIZE], * rc_buffer;
     unsigned short int		rc_size;
 
     az_src_rec = value_entry->header.az_src_rec;
 
     if (value_entry->resource_id != 0) {
-	sprintf (buffer, "Resource ID: %08lX", value_entry->resource_id);
+	UilListFormat(buffer, "Resource ID: %08lX", value_entry->resource_id);
 	src_append_machine_code (
 		az_src_rec,
 		0,
 		0, 0,
 		buffer );
     } else if (value_entry->obj_header.az_name != NULL) {
-	sprintf (buffer, "Resource index: %s",
+	UilListFormat(buffer, "Resource index: %s",
 		 value_entry->obj_header.az_name->c_text);
 	src_append_machine_code
 	    (az_src_rec,
@@ -928,19 +949,19 @@ URMResourceContext	* az_context;
 	     buffer);
     }
 
-    sprintf (buffer, "size: %d, group: %s",
+    UilListFormat(buffer, "size: %d, group: %s",
 	     UrmRCSize (az_context),
 	     group_from_code (UrmRCGroup (az_context)) );
     src_append_machine_code ( az_src_rec, 0, 0, 0, buffer );
 
-    sprintf (buffer, "type: %s, access: %s, locked: ",
+    UilListFormat(buffer, "type: %s, access: %s, locked: ",
 	     type_from_code (UrmRCType (az_context)),
 	     access_from_code (UrmRCAccess (az_context)) );
 
     if (UrmRCLock (az_context)) {
-	strcat (buffer, "true");
+	UilListAppend(buffer, UIL_MACHINE_LINE_SIZE, "true");
     } else {
-	strcat (buffer, "false");
+	UilListAppend(buffer, UIL_MACHINE_LINE_SIZE, "false");
     }
 
     src_append_machine_code ( az_src_rec, 0, 0, 0, buffer );
@@ -957,9 +978,9 @@ URMResourceContext	* az_context;
 	case sym_k_bool_value:
 
 	    if ( * (unsigned long *) rc_buffer )
-		sprintf (buffer, "value: true");
+		UilListFormat(buffer, "value: true");
 	    else
-		sprintf (buffer, "value: false");
+		UilListFormat(buffer, "value: false");
 	    src_append_machine_code (
 		az_src_rec, 0, rc_size, rc_buffer, buffer );
 	    break;
@@ -968,7 +989,7 @@ URMResourceContext	* az_context;
 	case sym_k_horizontal_integer_value:
 	case sym_k_vertical_integer_value:
 
-	    sprintf (buffer, "value: %ld",
+	    UilListFormat(buffer, "value: %ld",
 		     (* (unsigned long *) rc_buffer) );
 	    src_append_machine_code (
 		az_src_rec, 0, rc_size, rc_buffer, buffer );
@@ -982,7 +1003,7 @@ URMResourceContext	* az_context;
 
 	    for (offset = 0; offset < (int)rc_size; offset += sizeof(int), index++)
 		{
-		sprintf (buffer, "value[%d]: %ld",
+		UilListFormat(buffer, "value[%d]: %ld",
 			 index, ((unsigned long *) rc_buffer)[index] );
 		
 		src_append_machine_code
@@ -995,14 +1016,14 @@ URMResourceContext	* az_context;
 	case sym_k_float_value:
 	case sym_k_horizontal_float_value:
 	case sym_k_vertical_float_value:
-	    sprintf (buffer, "value: %g",
+	    UilListFormat(buffer, "value: %g",
 		     (* (double *) rc_buffer) );
 	    src_append_machine_code (
 		az_src_rec, 0, rc_size, rc_buffer, buffer );
 	    break;
 
 	case sym_k_single_float_value:
-	    sprintf (buffer, "value: %g",
+	    UilListFormat(buffer, "value: %g",
 		     (* (float *) rc_buffer));
 	    src_append_machine_code
 		(az_src_rec, 0, rc_size, rc_buffer, buffer );
@@ -1042,7 +1063,7 @@ URMResourceContext	* az_context;
 			(char*)& tv_ptr->validation,
 			"text vector" );
 
-	    sprintf (buffer, "count: %d", tv_ptr->count);
+	    UilListFormat(buffer, "count: %d", tv_ptr->count);
 	    src_append_machine_code (
 			az_src_rec,
 			_Offset (RGMTextVector, off_offset, count),
@@ -1088,7 +1109,7 @@ URMResourceContext	* az_context;
 			te_ptr = (RGMTextEntryPtr)
 					_Pointer (rc_buffer, off_offset);
 
-			sprintf (buffer, "(%d) type: %s, offset: %X (hex)",
+			UilListFormat(buffer, "(%d) type: %s, offset: %X (hex)",
 			    off_cnt,
 			    type_from_code (te_ptr->text_item.rep_type),
 			    te_ptr->text_item.offset );
@@ -1109,7 +1130,7 @@ URMResourceContext	* az_context;
 
 		    default:
 
-			sprintf (buffer, "(%d) unknown text entry", i);
+			UilListFormat(buffer, "(%d) unknown text entry", i);
 
 			src_append_machine_code (
 				az_src_rec,
@@ -1132,7 +1153,7 @@ URMResourceContext	* az_context;
 	    
 	default: {
 
-	    sprintf (buffer, "unknown value");
+	    UilListFormat(buffer, "unknown value");
 
 	    src_append_machine_code (
 		az_src_rec,
@@ -1186,7 +1207,7 @@ URMResourceContext	* az_context;
 
     RGMModuleDescPtr		m_rec;
     RGMTopmostDescPtr		t_rec;
-    char			buffer [132];
+	char			buffer [UIL_MACHINE_LINE_SIZE];
     unsigned short		off_offset;
     int				i;
 
@@ -1200,7 +1221,7 @@ URMResourceContext	* az_context;
 		sizeof (m_rec->validation), (char*)& m_rec->validation,
 		"module record" );
 
-    sprintf (buffer, "topmost count: %d", m_rec->count);
+    UilListFormat(buffer, "topmost count: %d", m_rec->count);
 
     src_append_machine_code (
 		az_src_rec,
@@ -1214,7 +1235,7 @@ URMResourceContext	* az_context;
 	 i < m_rec->count;
 	 i++, t_rec++, off_offset += sizeof (RGMTopmostDesc)) {
 
-	sprintf (buffer, "(%d) %s", i, t_rec->index);
+	UilListFormat(buffer, "(%d) %s", i, t_rec->index);
 
 	src_append_machine_code (
 		az_src_rec,
@@ -1584,14 +1605,14 @@ char			* buffer;
 	case MrmRtypeInteger:
         case MrmRtypeHorizontalInteger:
         case MrmRtypeVerticalInteger:
-	    sprintf (buffer, "value: %d", argval_ptr->datum.ival);
+	    UilListFormat(buffer, "value: %d", argval_ptr->datum.ival);
 	    break;
 
 	case MrmRtypeBoolean:
 	    if (argval_ptr->datum.ival) {
-		sprintf (buffer, "value: true");
+		UilListFormat(buffer, "value: true");
 	    } else {
-		sprintf (buffer, "value: false");
+		UilListFormat(buffer, "value: false");
 	    }
 	    break;
 
@@ -1602,34 +1623,34 @@ char			* buffer;
 	case MrmRtypeCString:
 	case MrmRtypeAddrName:
         case MrmRtypeKeysym:
-	    sprintf (buffer, "offset: %X (hex)", argval_ptr->datum.offset);
+	    UilListFormat(buffer, "offset: %X (hex)", argval_ptr->datum.offset);
 	    off_put (k_unknown_off, argval_ptr->datum.offset);
 	    break;
 
 	case MrmRtypeFloat:
         case MrmRtypeHorizontalFloat:
         case MrmRtypeVerticalFloat:
-	    sprintf (buffer, "offset: %X (hex)", argval_ptr->datum.offset);
+	    UilListFormat(buffer, "offset: %X (hex)", argval_ptr->datum.offset);
 	    off_put (k_float_off, argval_ptr->datum.offset);
 	    break;
 
 	  case MrmRtypeSingleFloat: /* single float data type RAP */
-	    sprintf (buffer, "offset: %X (hex)", argval_ptr->datum.offset);
+	    UilListFormat(buffer, "offset: %X (hex)", argval_ptr->datum.offset);
             off_put (k_single_float_off, argval_ptr->datum.offset);
             break;
 
 	case MrmRtypeCallback:
-	    sprintf (buffer, "offset: %X (hex)", argval_ptr->datum.offset);
+	    UilListFormat(buffer, "offset: %X (hex)", argval_ptr->datum.offset);
 	    off_put (k_callback_off, argval_ptr->datum.offset);
 	    break;
 
 	case MrmRtypeResource:
-	    sprintf (buffer, "offset: %X (hex)", argval_ptr->datum.offset);
+	    UilListFormat(buffer, "offset: %X (hex)", argval_ptr->datum.offset);
 	    off_put (k_resource_off, argval_ptr->datum.offset);
 	    break;
 
 	default:
-	    sprintf (buffer, "value unknown");
+	    UilListFormat(buffer, "value unknown");
 	    break;
     }
 
