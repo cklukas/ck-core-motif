@@ -182,7 +182,9 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
   /*
    * Create a resource descriptor which can be reused to fetch each literal
    */
-  if (indexlen > SIZE_MAX - sizeof(RGMResourceDesc))
+  if (sizeof(RGMResourceDesc) > MrmMaxResourceSize ||
+      indexlen > MrmMaxResourceSize - sizeof(RGMResourceDesc) ||
+      indexlen > SIZE_MAX - sizeof(RGMResourceDesc))
     {
       XtFree((char *)locargs);
       return MrmFAILURE;

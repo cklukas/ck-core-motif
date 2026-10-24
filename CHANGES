@@ -1,3 +1,10 @@
+Mrm fetch-set-values index bounds (2026-10-25)
+===============================================
+
+- Reject literal indexes that exceed the 16-bit resource-descriptor limit or
+  wrap descriptor allocation arithmetic; see
+  `docs/mrm-fetch-index-bounds.md`.
+
 Mrm widget-reference storage bounds (2026-10-25)
 ===============================================
 
