@@ -278,9 +278,11 @@ _XmStringGetSegment(_XmStringContext   context,
       /* Copy the text. */
       if (*text)
 	{
-	  char *tmp = XtMalloc(*char_count + sizeof(wchar_t));
-	  memcpy(tmp, *text, *char_count);
-	  bzero(tmp + *char_count, sizeof(wchar_t));
+	  size_t text_bytes = (*type == XmWIDECHAR_TEXT) ?
+	      (size_t)*char_count * sizeof(wchar_t) : (size_t)*char_count;
+	  char *tmp = XtMalloc(text_bytes + sizeof(wchar_t));
+	  memcpy(tmp, *text, text_bytes);
+	  bzero(tmp + text_bytes, sizeof(wchar_t));
 
 	  *text = (XtPointer) tmp;
 	}

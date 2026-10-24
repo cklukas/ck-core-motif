@@ -1,3 +1,8 @@
+Wide XmString copy width (2026-10-24)
+===================================
+
+- Size copied wide XmString segments by `sizeof(wchar_t)` before copying, preserving byte-text behavior while preventing under-copied wide data; see `docs/xmstring-copy-width.md`.
+
 Modern-dark appearance profile (2026-10-24)
 ===========================================
 
