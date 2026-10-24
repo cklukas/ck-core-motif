@@ -1,4 +1,7 @@
 2026-10-26
+	* Bound Mrm data-entry offsets before forming record pointers.
+
+2026-10-26
 	* Keep Mrm filter buffers active until record filtering completes.
 
 2026-10-26

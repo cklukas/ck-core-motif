@@ -348,3 +348,5 @@ EXTRA_DIST += tests/automated/check-mrm-record-type.py docs/mrm-record-type.md
 EXTRA_DIST += tests/automated/check-mrm-buffer-pool-size.py docs/mrm-buffer-pool-size.md
 
 EXTRA_DIST += tests/automated/check-mrm-match-filter-lifetime.py docs/mrm-match-filter-lifetime.md
+
+EXTRA_DIST += tests/automated/check-mrm-data-offset.py docs/mrm-data-offset.md
