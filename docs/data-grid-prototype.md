@@ -51,3 +51,33 @@ fixture and benchmark corpus establish memory, redraw, geometry, and callback
 behavior for small, typical, and maximum bounded tables, followed by an
 explicit go/no-go decision in this document.  A go decision authorizes WP-28;
 it does not itself add a public DataGrid class.
+
+## Benchmark evidence
+
+The companion benchmark performs 10,000 selection/layout/edit iterations and
+scans every cell in the bounded visible viewport.  It was compiled with
+`-std=c99 -O2 -Wall -Wextra -Werror` and run on the AArch64 `uconsole` on
+2026-10-25:
+
+```text
+case,rows,columns,model_bytes,init_us,operations_us,visible_rows,maxrss_kib
+small,64,8,16896,63,5188,28,12080
+typical,512,16,266240,931,10367,28,12080
+maximum,4096,32,4227072,15026,20637,28,12080
+```
+
+The model storage scales linearly with the bounded row/column product.  The
+maximum case remains a 4 MiB model snapshot and a 28-row viewport; operation
+time rises with visible-column work rather than with unrealized rows.  The
+fixture separately verifies geometry, edit lifecycle, sorting requests,
+public scroll-bar ownership, and table/cell accessibility IDs.
+
+## WP-27 decision
+
+**Go for WP-28, with restrictions.**  Release work may proceed for a bounded
+single-threaded table model using stable application-owned row/column IDs,
+fixed or explicitly measured row heights, bounded viewport realization,
+request-only sorting, explicit edit commit/cancel/error paths, and provider
+backed table/cell accessibility.  Lazy providers, variable-height rows,
+frozen panes, merged cells, formulas, charts, and general data binding remain
+out of scope and must not be implied by the public API.

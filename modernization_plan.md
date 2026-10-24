@@ -1240,6 +1240,15 @@ widget before committing to a public table model.
 **Complete when:** the repository contains the prototype, benchmark evidence
 and an explicit release decision; a no-go outcome is complete.
 
+**Status (2026-10-25):** the public-API-only prototype and installed-prefix
+fixture are implemented and pass 20 checks.  The bounded benchmark covers
+small (64×8), typical (512×16), and maximum (4096×32) models, viewport scans,
+selection/edit/sort operations, and deterministic model-memory measurements.
+The documented decision is **go for WP-28**, with explicit restrictions on
+bounded realization, stable IDs, request-only sorting, edit ownership and
+accessibility providers; lazy providers, variable-height rows, frozen panes,
+merged cells, formulas and general data binding remain excluded.
+
 ### WP-28: DataGrid/TableView release
 
 **Depends on:** WP-27 with a go decision.
