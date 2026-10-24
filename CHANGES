@@ -1,3 +1,21 @@
+Modern-light appearance profile (2026-10-24)
+============================================
+
+- Add the opt-in `XmAPPEARANCE_MODERN_LIGHT` profile with documented light
+  colors, focus ring, shadows, control spacing and traversal defaults through
+  the existing X resource database, preserving application precedence.
+- Add the installed visual/interaction regression; see
+  `docs/appearance-profiles.md`.
+
+Appearance profile contract (2026-10-24)
+========================================
+
+- Add the additive per-display `XmSetAppearanceProfile` and
+  `XmGetAppearanceProfile` API with the classic profile, X-resource storage,
+  unknown-profile rejection and unchanged widget/resource precedence.
+- Add the installed Xvfb regression and API documentation; see
+  `docs/appearance-profiles.md`.
+
 * Reject null widget or property input at the render-table property converter
   boundary before selecting context or lexing.
 * Bound render-table conversion argument and temporary-string arrays, routing
