@@ -1464,7 +1464,8 @@ find_name(char *buffer)
 	    continue;
 
 	temp = (char *) strchr(curr, '\n');
-	*temp = '\0';
+	if (temp != NULL)
+	    *temp = '\0';
 
 	return(curr);
     }

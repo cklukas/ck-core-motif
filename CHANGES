@@ -1,3 +1,5 @@
+* Accept color database final lines without a trailing newline instead of
+  dereferencing a missing newline marker.
 * Make XmParsePicture reject null specifications before copying or parsing
   caller input.
 * Make color-name digit-suffix detection safe for null and empty names,
