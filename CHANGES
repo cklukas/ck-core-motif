@@ -2518,3 +2518,10 @@ DataField printable-text conversion progress (2026-10-24)
 - Reject zero-length `mblen` results as well as negative results in both DataField printable-text validation loops, guaranteeing progress and preventing hangs on NUL or malformed locale input.
 - Preserve valid printable/wide-character behavior, public interfaces and native ABI. Document the progress contract in `docs/datafield-printable-progress.md`.
 - Native AArch64 validation passes the warning-enabled DataField build and Xvfb DataField regression.
+Additive progress controls (2026-10-25)
+=======================================
+
+- Add `XmProgressBar` and `XmSpinner` with bounded state, Xt-managed timer
+  lifetime, accessibility semantics, installed-prefix documentation, and Xvfb
+  contract fixtures.  ProgressRing remains explicitly deferred pending
+  equivalent evidence.
