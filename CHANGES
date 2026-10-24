@@ -3066,3 +3066,10 @@ Mrm writer class input (2026-10-25)
 - Reject null user-defined class names before UID writer string operations,
   preserving the existing empty-name error and predefined class behavior; see
   `docs/mrm-writer-class-input.md`.
+
+Mrm writer callback routine input (2026-10-25)
+===============================================
+
+- Reject null callback routine names before UID writer string operations,
+  preserving the existing empty-name error and valid callback behavior; see
+  `docs/mrm-writer-callback-routine.md`.

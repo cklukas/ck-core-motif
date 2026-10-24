@@ -1260,7 +1260,7 @@ UrmCWRSetCallbackItem (URMResourceContextPtr	context_id,
   /*
    * Validate the routine (must be non-empty)
    */
-  if ( strlen(routine) <= 0 )
+  if ( routine == NULL || strlen(routine) <= 0 )
     return Urm__UT_Error ("UrmCWRSetCallbackItem", _MrmMMsg_0096,
 			  NULL, context_id, MrmNULL_ROUTINE) ;
 
