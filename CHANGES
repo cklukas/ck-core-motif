@@ -1,3 +1,8 @@
+DataField multibyte scratch bounds (2026-10-24)
+===============================================
+
+- Size DataField `wctomb` scratch arrays with `MB_LEN_MAX`, preventing locale-dependent stack overwrites while preserving normal conversion behavior; see `docs/datafield-multibyte-scratch.md`.
+
 XmGetXmScreen index reset (2026-10-24)
 =======================================
 

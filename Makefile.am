@@ -177,3 +177,5 @@ EXTRA_DIST += tests/automated/check-font-size-name-bounds.py docs/font-size-labe
 EXTRA_DIST += tests/automated/check-font-encoding-callback-types.py docs/font-encoding-callback-types.md
 
 EXTRA_DIST += tests/automated/check-screen-index-scan.py docs/screen-index-scan.md
+
+EXTRA_DIST += tests/automated/check-datafield-multibyte-scratch.py docs/datafield-multibyte-scratch.md

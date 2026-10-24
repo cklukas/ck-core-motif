@@ -4845,7 +4845,7 @@ PrintableString(XmDataFieldWidget tf,
 	}
       }
     } else {
-      char scratch[8];
+      char scratch[MB_LEN_MAX];
       wchar_t *ws = (wchar_t *) str;
       for (i = 0; i < n; i++) {
 	if (wctomb(scratch, ws[i]) <= 0)
@@ -4912,7 +4912,7 @@ PrintableString(XmDataFieldWidget tf,
 	  }
 	}
     } else {
-      char scratch[8];
+      char scratch[MB_LEN_MAX];
       wchar_t *ws = (wchar_t *) str;
       for (i = 0; i < n; i++) {
 	if ((csize = wctomb(scratch, ws[i])) <= 0)
@@ -8970,7 +8970,7 @@ df_ValidateString(
       XmStackFree((char *)start_temp, stack_cache);
    } else {  /* pointer passed points to wchar_t* data */
       wchar_t *wc_value, *wcs_temp_str, *wcs_start_temp, *wcs_curr_str;
-      char scratch[8];
+      char scratch[MB_LEN_MAX];
       int new_len = 0;
       int csize = 1;
 
