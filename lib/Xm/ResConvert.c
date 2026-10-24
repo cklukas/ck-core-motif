@@ -43,6 +43,7 @@ static char rcsid[] = "$TOG: ResConvert.c /main/29 1999/05/18 19:19:39 mgreess $
 #include <stdio.h>
 #include <errno.h>
 #include <limits.h>
+#include <stdint.h>
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
@@ -2065,7 +2066,8 @@ CvtStringToCharSetTable(
   String in_str = (String) from->addr;
   XmStringCharSetTable charsetTable;
   unsigned int numCharsets = 0;
-  unsigned int strDataSize = 0;
+  size_t strDataSize = 0;
+  size_t tableSize;
   char * dataPtr;
   int i;
   String work_str, cs_str, separator;
@@ -2078,15 +2080,38 @@ CvtStringToCharSetTable(
       if (separator)
 	*separator = '\0';
       if (*cs_str)
-	strDataSize += strlen(cs_str) + 1;
+	{
+	  size_t itemSize = strlen(cs_str);
+	  if (itemSize == SIZE_MAX || strDataSize > SIZE_MAX - (itemSize + 1))
+	    {
+	      XtFree(work_str);
+	      return(False);
+	    }
+	  strDataSize += itemSize + 1;
+	}
+      if (numCharsets == UINT_MAX)
+	{
+	  XtFree(work_str);
+	  return(False);
+	}
       ++numCharsets;
       if (!separator)
 	break;
     }
   strcpy(work_str, in_str);
 
-  charsetTable = (XmStringCharSetTable) 
-    XtMalloc(strDataSize + sizeof(XmStringCharSet) * (numCharsets+1));
+  if ((size_t)numCharsets > (SIZE_MAX / sizeof(XmStringCharSet)) - 1)
+    {
+      XtFree(work_str);
+      return(False);
+    }
+  tableSize = sizeof(XmStringCharSet) * ((size_t)numCharsets + 1);
+  if (strDataSize > SIZE_MAX - tableSize)
+    {
+      XtFree(work_str);
+      return(False);
+    }
+  charsetTable = (XmStringCharSetTable) XtMalloc(tableSize + strDataSize);
   charsetTable[numCharsets] = (XmStringCharSet)NULL;
   dataPtr = (char *) &charsetTable[numCharsets+1];
   strcpy(work_str, in_str);
