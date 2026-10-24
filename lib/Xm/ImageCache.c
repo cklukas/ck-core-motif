@@ -1218,10 +1218,11 @@ _XmCachePixmap(
    if (!pixmap_data_set) InitializePixmapSets() ;
 
    /* if no information was given, get it from the server */
-   if (!(width && height && depth))
-       XGetGeometry(DisplayOfScreen(screen), pixmap, &root, &x, &y,
-		    &loc_width, &loc_height, &border_width, &loc_depth);
-   else {
+   if (!(width && height && depth)) {
+       if (!XGetGeometry(DisplayOfScreen(screen), pixmap, &root, &x, &y,
+			 &loc_width, &loc_height, &border_width, &loc_depth))
+		   return (False);
+   } else {
 	   loc_width = width ;
 	   loc_height = height ;
 	   loc_depth = depth ;

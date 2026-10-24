@@ -1,3 +1,10 @@
+Pixmap-cache geometry status (2026-10-24)
+===========================================
+
+- Require `XGetGeometry` to succeed before caching dimensions, preventing
+  invalid handles from publishing uninitialized width, height, or depth
+  values; see `docs/cache-geometry-status.md`.
+
 Pixmap creation failure cleanup (2026-10-24)
 ===============================================
 
