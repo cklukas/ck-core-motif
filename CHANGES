@@ -3080,3 +3080,10 @@ Mrm writer resource callback routine input (2026-10-25)
 - Reject null resource callback routine names before UID writer string
   operations, preserving the existing empty-name error and valid callback
   behavior; see `docs/mrm-writer-resource-callback-routine.md`.
+
+Mrm writer child index input (2026-10-25)
+===========================================
+
+- Reject null indexed-child names before UID writer string operations,
+  preserving the existing empty-index error and valid RID/index behavior; see
+  `docs/mrm-writer-child-index.md`.

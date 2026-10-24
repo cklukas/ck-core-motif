@@ -1709,7 +1709,7 @@ UrmCWRSetChild (URMResourceContextPtr	context_id,
   switch ( childptr->type )
     {
     case URMrIndex:
-      if ( strlen(index) <= 0 )
+      if ( index == NULL || strlen(index) <= 0 )
 	return Urm__UT_Error ("UrmCWRSetChild", _MrmMMsg_0102,
 			      NULL, context_id, MrmNULL_INDEX) ;
       result = UrmCWR__AppendString (context_id, index, &offset) ;
