@@ -681,6 +681,8 @@ UrmCWRSetArgValue (URMResourceContextPtr	context_id,
     case MrmRtypeFloat:
     case MrmRtypeHorizontalFloat:
     case MrmRtypeVerticalFloat:
+      if (arg_val == 0)
+	return MrmFAILURE;
       result = UrmCWR__GuaranteeSpace
 	(context_id, sizeof(double), &offset, (char **) &dblptr) ;
       if ( result != MrmSUCCESS ) return result ;
@@ -712,6 +714,8 @@ UrmCWRSetArgValue (URMResourceContextPtr	context_id,
 
     case MrmRtypeColorTable:
       src_ct = (RGMColorTablePtr) arg_val ;
+      if (src_ct == NULL)
+	return MrmFAILURE;
       result = UrmCWR__GuaranteeSpace
 	(context_id, UrmColorTableSize(src_ct), &offset, (char **)&dst_ct) ;
       if ( result != MrmSUCCESS )

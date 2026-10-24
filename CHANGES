@@ -2967,3 +2967,9 @@ Mrm writer vector input validation (2026-10-25)
 
 - Reject null non-empty character and compound-string vectors before UID writer
   traversal; see `docs/mrm-writer-vector-input.md`.
+
+Mrm writer scalar input validation (2026-10-25)
+================================================
+
+- Reject null floating-point and color-table values before Mrm UID writer
+  dereferences them; see `docs/mrm-writer-scalar-input.md`.
