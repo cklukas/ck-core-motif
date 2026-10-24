@@ -2857,3 +2857,11 @@ Mrm widget-reference allocation handling (2026-11-01)
 - Check widget-reference descriptor, name, callback-copy, pointer-list setup,
   and append failures with ownership-aware cleanup; see
   `docs/mrm-wref-allocation.md`.
+
+
+Mrm name-registration allocation handling (2026-11-02)
+========================================================
+
+- Validate registration lists and temporary name/value vectors in global and
+  hierarchy-scoped APIs, with unlock-safe cleanup on failure; see
+  `docs/mrm-register-names-allocation.md`.

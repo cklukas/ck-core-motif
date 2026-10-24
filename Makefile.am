@@ -411,3 +411,4 @@ EXTRA_DIST += tests/automated/check-mrm-resource-reload-bounds.py docs/mrm-resou
 EXTRA_DIST += tests/automated/check-mrm-resource-parent-rebind.py docs/mrm-resource-parent-rebind.md
 EXTRA_DIST += tests/automated/check-mrm-fetch-setvalues-allocation.py docs/mrm-fetch-setvalues-allocation.md
 EXTRA_DIST += tests/automated/check-mrm-wref-allocation.py docs/mrm-wref-allocation.md
+EXTRA_DIST += tests/automated/check-mrm-register-names-allocation.py docs/mrm-register-names-allocation.md

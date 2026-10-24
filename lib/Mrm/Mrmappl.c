@@ -356,6 +356,7 @@ MrmRegisterNames (MrmRegisterArglist		reglist,
   int			ndx;		/* loop index */
 
   if (num_reg < 0 ||
+      (num_reg > 0 && reglist == NULL) ||
       (size_t)num_reg > SIZE_MAX / sizeof(String) ||
       (size_t)num_reg > SIZE_MAX / sizeof(XtPointer))
     return MrmFAILURE;
@@ -368,7 +369,18 @@ MrmRegisterNames (MrmRegisterArglist		reglist,
    * Construct RegisterNames vectors, and call the WCI routine
    */
   names = (String *) XtMalloc (num_reg*sizeof(String));
+  if (names == NULL)
+    {
+      _MrmProcessUnlock();
+      return MrmFAILURE;
+    }
   values = (XtPointer *) XtMalloc (num_reg*sizeof(XtPointer));
+  if (values == NULL)
+    {
+      XtFree ((char *)names);
+      _MrmProcessUnlock();
+      return MrmFAILURE;
+    }
   for ( ndx=0 ; ndx<num_reg ; ndx++ )
     {
       names[ndx] = reglist[ndx].name;
@@ -438,6 +450,7 @@ MrmRegisterNamesInHierarchy (MrmHierarchy		hierarchy_id,
   int			ndx;		/* loop index */
 
   if (num_reg < 0 ||
+      (num_reg > 0 && reglist == NULL) ||
       (size_t)num_reg > SIZE_MAX / sizeof(String) ||
       (size_t)num_reg > SIZE_MAX / sizeof(XtPointer))
     return MrmFAILURE;
@@ -449,7 +462,18 @@ MrmRegisterNamesInHierarchy (MrmHierarchy		hierarchy_id,
    * Construct RegisterNames vectors, and call the hierarchy routine
    */
   names = (String *) XtMalloc (num_reg*sizeof(String));
+  if (names == NULL)
+    {
+      _MrmProcessUnlock();
+      return MrmFAILURE;
+    }
   values = (XtPointer *) XtMalloc (num_reg*sizeof(XtPointer));
+  if (values == NULL)
+    {
+      XtFree ((char *)names);
+      _MrmProcessUnlock();
+      return MrmFAILURE;
+    }
   for ( ndx=0 ; ndx<num_reg ; ndx++ )
     {
       names[ndx] = reglist[ndx].name;
