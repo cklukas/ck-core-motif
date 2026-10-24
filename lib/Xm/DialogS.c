@@ -820,6 +820,7 @@ XmeCreateClassDialog(
     Widget		ds ;		/*  DialogShell		*/
     ArgList		ds_args ;	/*  arglist for shell	*/
     char *              ds_name ;
+    int                 ds_name_length;
 
     if (bb_n == (Cardinal)~(Cardinal)0)
 	return NULL;
@@ -828,9 +829,12 @@ XmeCreateClassDialog(
 
     /*	Create DialogShell parent.
     */
-    ds_name = XtMalloc( (strlen(name)+XmDIALOG_SUFFIX_SIZE+1) * sizeof(char) ) ;
-    strcpy( ds_name, name) ;
-    strcat( ds_name, XmDIALOG_SUFFIX) ;
+    ds_name_length = snprintf(NULL, 0, "%s%s", name, XmDIALOG_SUFFIX);
+    if (ds_name_length < 0)
+	return NULL;
+    ds_name = XtMalloc( (size_t)ds_name_length + 1) ;
+    (void) snprintf(ds_name, (size_t)ds_name_length + 1,
+		    "%s%s", name, XmDIALOG_SUFFIX);
 
     ds_args = (ArgList) XtMalloc( sizeof( Arg) * (bb_n + 1)) ;
     memcpy( ds_args, bb_args, (sizeof( Arg) * bb_n)) ;

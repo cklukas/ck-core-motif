@@ -1,3 +1,11 @@
+Dialog shell name bounds (2026-10-24)
+======================================
+
+- Measure and bound the `_popup` suffix construction in
+  `XmeCreateClassDialog`, preserving convenience-dialog naming while
+  preventing long widget names from wrapping allocation arithmetic; see
+  `docs/dialog-name-bounds.md`.
+
 Mwm bitmap path formatting bounds (2026-10-24)
 ===============================================
 
