@@ -286,6 +286,13 @@ Idb__INX_EnterLeafIndex (IDBFile		file_id,
   ndxsiz = _FULLWORD(ndxsiz);
   entsiz = IDBIndexLeafEntrySize + ndxsiz ;
   nfree = hdrptr->free_bytes ;
+  if (hdrptr->index_count > IDBIndexLeafFreeMax / IDBIndexLeafEntrySize ||
+      hdrptr->heap_start > IDBIndexLeafFreeMax ||
+      hdrptr->free_bytes > IDBIndexLeafFreeMax ||
+      hdrptr->heap_start < ndxsiz ||
+      entry_index > hdrptr->index_count ||
+      (order != MrmINDEX_LT && order != MrmINDEX_GT))
+    return MrmFAILURE;
   if ( entsiz > nfree )
     {
       result = Idb__INX_SplitLeafRecord (file_id, buffer) ;
@@ -303,6 +310,8 @@ Idb__INX_EnterLeafIndex (IDBFile		file_id,
   itemcnt = hdrptr->index_count ;
 
   entndx = (order==MrmINDEX_GT) ? entry_index+1 : entry_index ;
+  if (entndx > itemcnt)
+    return MrmFAILURE;
   ndxstg = (char *) stgheap - ndxsiz ;
 
   for ( ndx=itemcnt ; ndx>entndx ; ndx--)
@@ -422,6 +431,11 @@ Idb__INX_EnterNodeIndex (IDBFile		file_id,
   ndxsiz = _FULLWORD(ndxsiz);
   entsiz = IDBIndexNodeEntrySize + ndxsiz ;
   nfree = hdrptr->free_bytes ;
+  if (hdrptr->index_count > IDBIndexNodeFreeMax / IDBIndexNodeEntrySize ||
+      hdrptr->heap_start > IDBIndexNodeFreeMax ||
+      hdrptr->free_bytes > IDBIndexNodeFreeMax ||
+      hdrptr->heap_start < ndxsiz)
+    return MrmFAILURE;
   if ( entsiz > nfree )
     {
       result = Idb__INX_SplitNodeRecord (file_id, buffer) ;
@@ -442,7 +456,11 @@ Idb__INX_EnterNodeIndex (IDBFile		file_id,
   else
     {
       order = Idb__INX_SearchIndex (file_id, index, buffer, &entry_index) ;
+      if (order != MrmINDEX_LT && order != MrmINDEX_GT)
+        return order;
       entndx = (order==MrmINDEX_GT) ? entry_index+1 : entry_index ;
+      if (entndx > itemcnt)
+        return MrmFAILURE;
       for ( ndx=itemcnt ; ndx>entndx ; ndx--)
         {
 	  itemvec[ndx].index_stg = itemvec[ndx-1].index_stg ;

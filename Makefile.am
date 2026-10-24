@@ -318,3 +318,4 @@ EXTRA_DIST += tests/automated/check-mrm-index-mutation-inputs.py docs/mrm-index-
 EXTRA_DIST += tests/automated/check-mrm-index-record-copies.py docs/mrm-index-record-copies.md
 EXTRA_DIST += tests/automated/check-mrm-index-collapse-bounds.py docs/mrm-index-collapse-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-index-buffer-validation.py docs/mrm-index-buffer-validation.md
+EXTRA_DIST += tests/automated/check-mrm-index-entry-bounds.py docs/mrm-index-entry-bounds.md

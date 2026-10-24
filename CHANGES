@@ -1,3 +1,9 @@
+Mrm index insertion bounds (2026-10-25)
+=======================================
+
+- Validate index header metadata, insertion positions, and search results before
+  moving leaf or node vectors; see `docs/mrm-index-entry-bounds.md`.
+
 Mrm index buffer validation (2026-10-25)
 =========================================
 
