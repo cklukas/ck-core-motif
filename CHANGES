@@ -3038,3 +3038,10 @@ Mrm literal context retention (2026-10-25)
 - Release a literal resource context when ownership-list retention fails and
   propagate the append error instead of leaking or losing ownership tracking;
   see `docs/mrm-literal-context-retain.md`.
+
+Mrm callback cleanup bounds (2026-10-25)
+============================================
+
+- Bound callback ownership cleanup to complete type/value pairs and tolerate
+  null or truncated lists, preventing an out-of-bounds read after partial
+  setup; see `docs/mrm-callback-cleanup-bounds.md`.

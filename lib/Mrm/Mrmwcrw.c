@@ -2962,7 +2962,11 @@ UrmDestroyCallback (Widget                     w, /* unused */
   int                     ndx, i ;
   /* END OSF Fix CR 6843 */
 
-  for (ndx=0 ; ndx<list_id->num_ptrs ; ndx++)
+  if (list_id == NULL || list_id->ptr_vec == NULL ||
+      list_id->num_ptrs <= 0)
+    return;
+
+  for (ndx=0 ; ndx + 1 < list_id->num_ptrs ; ndx++)
     {
       reptype = (MrmType)(long)list_id->ptr_vec[ndx];
       ndx++;
@@ -2994,6 +2998,10 @@ UrmDestroyCallback (Widget                     w, /* unused */
 	  break ;
         }
     }
+
+  /* A failed append can leave a final type tag without its value. */
+  if (ndx < list_id->num_ptrs)
+    list_id->ptr_vec[ndx] = NULL;
 
   UrmPlistFree (list_id);
 
