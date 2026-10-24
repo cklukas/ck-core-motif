@@ -1,3 +1,10 @@
+Legacy rectangle allocation bounds (2026-10-25)
+===============================================
+
+- Bound rectangle-count arithmetic in compatibility shadow and highlight
+  helpers, preserving normal drawing while declining impossible geometry; see
+  `docs/obsolete-rectangle-bounds.md`.
+
 Representation-type table bounds (2026-10-25)
 ===============================================
 

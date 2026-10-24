@@ -32,6 +32,8 @@
 
 
 #include <ctype.h>
+#include <limits.h>
+#include <stdint.h>
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
@@ -251,6 +253,8 @@ void _XmDrawShadow (Display *display, Drawable d,
    if (size > width / 2) size = width / 2;
    if (size > height / 2) size = height / 2;
    if (size <= 0) return;
+   if (size > INT_MAX / 4 ||
+       (size_t)size > SIZE_MAX / (sizeof(XRectangle) * 4)) return;
 
    if (rect_count == 0)
    {
@@ -1024,6 +1028,8 @@ register int height)
    if (size <= 0) return;
 
    size = (size % 2) ? (size-1) : (size);
+   if (size > INT_MAX / 4 ||
+       (size_t)size > SIZE_MAX / (sizeof(XRectangle) * 4)) return;
 
    half_size = size / 2;
    size2 = size + size;
