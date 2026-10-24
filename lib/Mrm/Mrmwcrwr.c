@@ -2246,6 +2246,9 @@ UrmCWR__AppendResource (URMResourceContextPtr	context_id,
     {
     case URMrIndex:
 	{
+	  if (index == NULL)
+	    return Urm__UT_Error ("UrmCWR__AppendResource", _MrmMMsg_0102,
+				  NULL, context_id, MrmNULL_INDEX) ;
 	  size_t index_len = strlen(index);
 	  if (index_len == 0)
 	return Urm__UT_Error ("UrmCWR__AppendResource", _MrmMMsg_0102,

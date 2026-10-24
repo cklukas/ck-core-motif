@@ -1,3 +1,9 @@
+Mrm indexed-resource key validation (2026-10-25)
+================================================
+
+- Reject null indexed-resource keys before strlen with MrmNULL_INDEX; see
+  `docs/mrm-resource-index.md`.
+
 Mrm compound-string append bounds (2026-10-25)
 ===============================================
 
