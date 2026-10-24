@@ -1,5 +1,24 @@
 # Implementation and validation status
 
+## Incremental map qualification
+
+Native AArch64 installed ABI 8 passes 32 selected feature fixtures, including
+immutable incremental maps and realized shared Text/TextField lifecycle checks.
+The native widget fixture performs 69,207,073 assertions. The source-map unit
+passes 19,681,967 assertions against fresh construction and an independent ICU
+oracle. Its allocator-fault companion passes 70,564 assertions across 22 creation
+and 17 replacement failure points; both direct-source fixtures also pass strict
+ASan/UBSan with leak detection enabled. A Unicode-disabled direct-source probe
+checks the unavailable API contract without ICU linkage; this is not a complete
+optional-toolkit configuration build.
+
+The selected native suite excludes clipboard, clipboard lifetime and the opt-in
+external XIM service. Strict native-widget leak acceptance remains open because
+of Xt selection-context lifetime reports. No suppression or disabled leak gate
+is used for this qualification. The source-map result does not establish
+incremental shaping, complete interactive editor projection or x86 acceptance.
+
+
 This is a development fork. Separate source availability, focused verification
 and admission of an installed cohort. Optional features also depend on the
 configuration used to build that cohort.

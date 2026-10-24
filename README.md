@@ -1,5 +1,9 @@
 # CK Core Motif
 
+Development source now requires native ABI8: TextField owns an incremental Unicode
+map cache. Rebuild toolkit libraries and all consumers together; see [ABI policy](ABI.md).
+Installed epoch8 qualification remains separate from the historical results below.
+
 A maintained fork of the Motif native Xt widget toolkit, with corrections for
 modern builds, selection handling, display scaling and input behavior.
 

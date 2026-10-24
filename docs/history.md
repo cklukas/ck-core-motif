@@ -1,6 +1,20 @@
 # Fork history
 
 
+## Immutable incremental Unicode source indexes
+
+Epoch 8 adds retained immutable source maps and fail-atomic replacement deltas.
+Native TextField reuses an unchanged map; shared Text sources retain unaffected
+paragraph bodies after accepted edits. Construction-work counters expose actual
+analysis and sharing. Private TextField layout changes require all native
+consumers to rebuild together. This does not claim incremental shaping.
+
+TextField callback paths also release original insertion scratch on refusal or
+post-verification length rejection. Whole-value verification uses native wide
+characters and scalar lengths, retains the proposal during callbacks, installs
+approved replacement bytes, and discards captures created for a rejected
+proposal. Native regressions cover these ownership and lifecycle boundaries.
+
 ## Semantic coordinate origins and local composition
 
 Component WINDOW coordinates now cross semantic ancestors to their actual native

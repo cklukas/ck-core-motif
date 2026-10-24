@@ -27,6 +27,55 @@ scalars but form one interactive step. Programmatic source scans still count
 scalars. Changing their count unit globally would corrupt geometry and callers
 that correctly expect scalar positions.
 
+## Incremental immutable source maps
+
+`XmTextUnicodeMapRetain` acquires an independent reference; each owned reference
+needs one `XmTextUnicodeMapFree`. Keep all reference operations on the owning
+thread. Maps copy their UTF-8 input and survive their original buffer or native
+widget. `XmTextUnicodeMapReplace(map, first_scalar, last_scalar, utf8, bytes)`
+returns a new owned map for the half-open replacement. It consumes neither input.
+Invalid input, allocation failure or reference/size overflow returns NULL and
+preserves every existing snapshot.
+
+Unchanged LF-delimited paragraph bodies share their byte/scalar/grapheme indexes.
+A replacement reanalyzes whole affected hard paragraphs, including its end
+paragraph. CRLF stays together. This relies on the hard-break rules in
+[Unicode grapheme segmentation](https://www.unicode.org/reports/tr29/), rather
+than an arbitrary character margin. A long single paragraph can still require
+full analysis. The flat paragraph-prefix table costs O(paragraph count), and
+lookups find their paragraph by binary search.
+
+`XmTextUnicodeMapGetUsage` reports the construction's `mapped_bytes`,
+`mapped_scalars`, `rebuilt_paragraphs` and `reused_paragraphs`. These measure
+analysis work, not retained memory or subsequent lookup cost. The 1 MiB,
+8,192-paragraph regression replaces one scalar while mapping 130 bytes and 129
+scalars, rebuilding one paragraph and sharing 8,191. A separate 65 KiB single
+paragraph deliberately allows full-context analysis.
+
+Native TextField retains its map across cursor operations; native shared Text
+sources publish one updated map for all their views. Approved replacement deltas
+are staged and published with committed bytes/length before redraw callbacks.
+Rejected edits preserve the old map. Whole-value assignments invalidate captures;
+appearance-only TextField SetValues retains its map. A verifier may inspect a
+proposal and veto it: the restored value must receive fresh map/layout captures.
+Wide-character SetValues passes native characters and scalar counts to its
+verifier and installs its final approved replacement, including an empty value.
+
+`XmTextUnicodeLocaleAvailable` distinguishes native UTF-8 position semantics
+from explicit UTF-8 map creation, which remains locale-independent. Custom
+sources and non-UTF-8 locales keep native scalar scanning. A failed required
+UTF-8 map refuses the interactive step with a warning instead of splitting a
+grapheme through scalar fallback. Later requests can retry construction.
+
+The immutable map and allocation-failure fixtures compare against full map
+reconstruction and an independent whole-input ICU break iterator. Native widgets
+exercise real public cursor actions, shared sources, callback acceptance/rejection
+and retained snapshots. This establishes incremental source indexing, not
+incremental shaping or complete live-editor projection reuse. Glyphs, wrapping,
+bidi-context changes, selection geometry, external input methods and full
+application acceptance remain separate gates. See the [ABI contract](abi.md):
+the new TextField record requires a coherent epoch 8 rebuild.
+
 ## Paragraphs and line captures
 
 `<Xm/TextLayout.h>` provides `XmTextParagraphCreate`,

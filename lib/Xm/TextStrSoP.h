@@ -39,7 +39,10 @@ extern "C" {
 typedef struct _XmTextUnicodeMap XmTextUnicodeMap;
 
 typedef struct _XmSourceDataRec {
-  XmTextUnicodeMap *unicode_map; /* Reused until source replacement. */
+  /* Owned immutable grapheme index, initialized lazily and replaced by the
+   * approved source delta before sharing-widget redisplay. Retained readers
+   * may keep the previous map independently of later source edits. */
+  XmTextUnicodeMap *unicode_map;
   XmTextSource source;	/* Backpointer to source record. */
   XmTextWidget *widgets;	/* Array of widgets displaying this source. */
   XmTextPosition left, right; /* Left and right extents of selection. */

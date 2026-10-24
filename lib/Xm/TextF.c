@@ -32,6 +32,7 @@ static char rcsid[] = "$TOG: TextF.c /main/65 1999/09/01 17:28:48 mgreess $"
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "XmImI.h"
 #include <limits.h>		/* required for MB_LEN_MAX definition */
 #include <string.h>
@@ -87,7 +88,6 @@ static char rcsid[] = "$TOG: TextF.c /main/65 1999/09/01 17:28:48 mgreess $"
 #endif
 #include <Xm/XmP.h>
 
-#define FIX_1409
 
 #if (defined(__FreeBSD__) && (__FreeBSD__ < 4)) || \
     (defined(__APPLE__) || defined(__NetBSD__) || defined(__OpenBSD__))
@@ -211,6 +211,7 @@ static void TextFieldSetHighlight(XmTextFieldWidget tf,
 static XmTextLayout *TextFieldLayout(XmTextFieldWidget tf);
 static Boolean TextFieldUsesUnicode(XmTextFieldWidget tf);
 static XmTextUnicodeMap *TextFieldUnicodeMap(XmTextFieldWidget tf);
+static void InvalidateTextFieldUnicodeMap(XmTextFieldWidget tf);
 static void InvalidateTextFieldLayout(XmTextFieldWidget tf);
 static Boolean RedisplayUnicodeText(XmTextFieldWidget tf);
 #endif
@@ -2953,7 +2954,9 @@ TextFieldUnicodeMap(XmTextFieldWidget tf)
 {
   char *utf8;
   XmTextUnicodeMap *map;
-  if (!XmTextUnicodeAvailable()) return NULL;
+  if (!XmTextUnicodeLocaleAvailable()) return NULL;
+  if (tf->text.unicode_map)
+    return XmTextUnicodeMapRetain(tf->text.unicode_map);
   utf8 = XmTextFieldGetString((Widget)tf);
   if (!utf8) return NULL;
   map = XmTextUnicodeMapCreate(utf8, strlen(utf8));
@@ -2961,7 +2964,69 @@ TextFieldUnicodeMap(XmTextFieldWidget tf)
   if (map && XmTextUnicodeScalarCount(map) != (size_t)tf->text.string_length) {
     XmTextUnicodeMapFree(map); return NULL;
   }
-  return map;
+  tf->text.unicode_map = map;
+  return XmTextUnicodeMapRetain(map);
+}
+
+static void
+InvalidateTextFieldUnicodeMap(XmTextFieldWidget tf)
+{
+  XmTextUnicodeMapFree(tf->text.unicode_map);
+  tf->text.unicode_map = NULL;
+}
+
+/* Stage only the final approved delta. Native storage uses scalar wchar_t
+ * positions in UTF-8 locales; do not materialize the unchanged source. */
+static XmTextUnicodeMap *
+TextFieldUnicodeReplacement(XmTextFieldWidget tf, XmTextPosition first,
+                           XmTextPosition last, const char *insert, int count)
+{
+  XmTextUnicodeMap *next = NULL;
+  char *utf8;
+  size_t length = 0, i;
+  if (!tf->text.unicode_map || !XmTextUnicodeLocaleAvailable() || count < 0 ||
+      first < 0 || last < first || last > tf->text.string_length ||
+      (count && !insert)) return NULL;
+  if (!count)
+    return XmTextUnicodeMapReplace(tf->text.unicode_map, first, last, NULL, 0);
+  if (tf->text.max_char_size == 1) {
+    next = XmTextUnicodeMapReplace(tf->text.unicode_map, first, last,
+                                  insert, (size_t)count);
+    if (next && XmTextUnicodeScalarCount(next) !=
+        (size_t)tf->text.string_length - (size_t)(last - first) + (size_t)count) {
+      XmTextUnicodeMapFree(next); next = NULL;
+    }
+    return next;
+  }
+  if ((size_t)count > (SIZE_MAX - 1) / 4) return NULL;
+  utf8 = malloc((size_t)count * 4 + 1);
+  if (!utf8) return NULL;
+  for (i = 0; i < (size_t)count; ++i) {
+    uint32_t c = (uint32_t)((const wchar_t *)insert)[i];
+    if (!c || c > 0x10ffff || (c >= 0xd800 && c <= 0xdfff)) goto done;
+    if (c < 0x80) utf8[length++] = (char)c;
+    else if (c < 0x800) {
+      utf8[length++] = (char)(0xc0 | (c >> 6));
+      utf8[length++] = (char)(0x80 | (c & 0x3f));
+    } else if (c < 0x10000) {
+      utf8[length++] = (char)(0xe0 | (c >> 12));
+      utf8[length++] = (char)(0x80 | ((c >> 6) & 0x3f));
+      utf8[length++] = (char)(0x80 | (c & 0x3f));
+    } else {
+      utf8[length++] = (char)(0xf0 | (c >> 18));
+      utf8[length++] = (char)(0x80 | ((c >> 12) & 0x3f));
+      utf8[length++] = (char)(0x80 | ((c >> 6) & 0x3f));
+      utf8[length++] = (char)(0x80 | (c & 0x3f));
+    }
+  }
+  next = XmTextUnicodeMapReplace(tf->text.unicode_map, first, last, utf8, length);
+  if (next && XmTextUnicodeScalarCount(next) !=
+      (size_t)tf->text.string_length - (size_t)(last - first) + (size_t)count) {
+    XmTextUnicodeMapFree(next); next = NULL;
+  }
+done:
+  free(utf8);
+  return next;
 }
 
 #if USE_XFT
@@ -3113,6 +3178,10 @@ SetCursorPosition(XmTextFieldWidget tf,
   if (!FUnderVerifyPreedit(tf)) {
     XmTextUnicodeMap *map = TextFieldUnicodeMap(tf);
     size_t boundary;
+    if (!map && XmTextUnicodeLocaleAvailable()) {
+      XmeWarning((Widget)tf, "Cannot map the field for a Unicode caret action");
+      return;
+    }
     if (map && !XmTextUnicodeIsGraphemeBoundary(map, (size_t)position)) {
       if (position > TextF_CursorPosition(tf))
         XmTextUnicodeNextGrapheme(map, (size_t)position, &boundary);
@@ -3252,6 +3321,7 @@ _XmTextFieldReplaceText(XmTextFieldWidget tf,
   XmTextPosition cursorPos, newInsert;
   XmTextPosition old_pos = replace_prev;
   int free_insert = (int)False;
+  XmTextUnicodeMap *next_unicode_map;
   char *insert_orig;
   int insert_length_orig;
   int size = 0;
@@ -3260,6 +3330,10 @@ _XmTextFieldReplaceText(XmTextFieldWidget tf,
   if (event && !FUnderVerifyPreedit(tf) && replace_prev != replace_next) {
     XmTextUnicodeMap *map = TextFieldUnicodeMap(tf);
     size_t boundary;
+    if (!map && XmTextUnicodeLocaleAvailable()) {
+      XmeWarning((Widget)tf, "Cannot map the field for a Unicode deletion");
+      return False;
+    }
     if (map && !XmTextUnicodeIsGraphemeBoundary(map, (size_t)replace_prev)) {
       XmTextUnicodePreviousGrapheme(map, (size_t)replace_prev, &boundary);
       replace_prev = (XmTextPosition)boundary;
@@ -3330,6 +3404,7 @@ _XmTextFieldReplaceText(XmTextFieldWidget tf,
 	FVerifyCommitNeeded(tf) = True;
 	PreEnd(tf) -= insert_length_orig;
       }
+      XtFree(insert_orig);
       return False;
     } else {
       if (FUnderVerifyPreedit(tf))
@@ -3349,6 +3424,7 @@ _XmTextFieldReplaceText(XmTextFieldWidget tf,
 	  ((tf->text.string_length + delta) - (TextF_MaxLength(tf)) > 0)) { 
 	if (tf->text.verify_bell) XBell(XtDisplay(tf), 0);
 	if (free_insert) XtFree(insert);
+	XtFree(insert_orig);
 	return False;
       }
       
@@ -3356,6 +3432,9 @@ _XmTextFieldReplaceText(XmTextFieldWidget tf,
     XtFree(insert_orig);
   }
   
+  next_unicode_map = TextFieldUnicodeReplacement(tf, replace_prev, replace_next,
+                                                  insert, insert_length);
+
   /* make sure selections are turned off prior to changeing text */
   if (tf->text.has_primary &&
       tf->text.prim_pos_left != tf->text.prim_pos_right)
@@ -3482,6 +3561,14 @@ _XmTextFieldReplaceText(XmTextFieldWidget tf,
     }
   }
   
+  /* Publish source identity before selection redraw can query its geometry. */
+  InvalidateTextFieldUnicodeMap(tf);
+  tf->text.unicode_map = next_unicode_map;
+#if USE_XFT
+  InvalidateTextFieldLayout(tf);
+#endif
+  tf->text.string_length += insert_length - replace_length;
+
   if (tf->text.has_primary &&
       tf->text.prim_pos_left != tf->text.prim_pos_right) {
     if (replace_prev <= tf->text.prim_pos_left) {
@@ -3499,10 +3586,6 @@ _XmTextFieldReplaceText(XmTextFieldWidget tf,
     doSetHighlight((Widget)tf, tf->text.prim_pos_left,
 			    tf->text.prim_pos_right, XmHIGHLIGHT_SELECTED);
   
-#if USE_XFT
-  InvalidateTextFieldLayout(tf);
-#endif
-  tf->text.string_length += insert_length - replace_length;
   
   if (move_cursor) {
     if (TextF_CursorPosition(tf) != newInsert) {
@@ -7118,6 +7201,7 @@ ValidateString(XmTextFieldWidget tf,
   int str_len = 0;
   int i, j;
   char stack_cache[400];
+  InvalidateTextFieldUnicodeMap(tf);
 #if USE_XFT
   InvalidateTextFieldLayout(tf);
 #endif
@@ -7888,6 +7972,7 @@ Initialize(Widget request,
   XmTextFieldWidget new_tf = (XmTextFieldWidget) new_w;
   Dimension width, height;
   
+  new_tf->text.unicode_map = NULL;
   new_tf->text.unicode_font_context = NULL;
   new_tf->text.unicode_layout = NULL;
   new_tf->text.unicode_affinity = 0;
@@ -7955,6 +8040,7 @@ Destroy(Widget wid)
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) wid;
   Widget dest = XmGetDestination(XtDisplay(wid));
+  InvalidateTextFieldUnicodeMap(tf);
 #if USE_XFT
   InvalidateTextFieldLayout(tf);
   XmTextFontContextFree(tf->text.unicode_font_context);
@@ -8192,6 +8278,7 @@ SetValues(Widget old,
   int n = 0;
   
   if (new_w->core.being_destroyed) return False;
+  new_tf->text.unicode_map = XmTextUnicodeMapRetain(old_tf->text.unicode_map);
   new_tf->text.unicode_font_context = NULL;
   new_tf->text.unicode_layout = NULL;
   new_tf->text.unicode_layout_failed = False;
@@ -8350,44 +8437,45 @@ SetValues(Widget old,
       /* If the function ModifyVerify() returns false then don't
        * continue with the action.
        */
-      char *temp, *old;
+      char *temp, *proposed, *snapshot, *current;
       int free_insert = (int)False;
-      XmTextPosition fromPos = 0, toPos;
-      int ret_val = 0;
+      int proposed_length = new_tf->text.string_length;
+      int insert_length = proposed_length;
+      size_t unit = new_tf->text.max_char_size == 1 ? 1 : sizeof(wchar_t);
+      XmTextPosition fromPos = 0, toPos = old_tf->text.string_length;
 
-      toPos = old_tf->text.string_length;
-      if (new_tf->text.max_char_size == 1) {
-	temp = TextF_Value(new_tf);
-	mod_ver_ret = ModifyVerify(new_tf, NULL, &fromPos, &toPos,
-				   &temp, &new_tf->text.string_length,
-				   &newInsert, &free_insert);
-      } else {
-	old = temp = XtMalloc((unsigned)((new_tf->text.string_length + 1) *
-					 new_tf->text.max_char_size));
-	ret_val = wcstombs(temp, TextF_WcValue(new_tf), 
-			   (new_tf->text.string_length + 1) * 
-			   new_tf->text.max_char_size);
-	if (ret_val < 0) temp[0] = '\0';
-
-/* Fixed bug #1214. ModifyVerify needs wchar_t*, not char*. */
-/* old code:
-	mod_ver_ret = ModifyVerify(new_tf, NULL, &fromPos, &toPos, &temp,
-				   &new_tf->text.string_length, &newInsert,
-				   &free_insert);
-*/
-#ifdef FIX_1409
-	mod_ver_ret = ModifyVerify(new_tf, NULL, &fromPos, &toPos,
-	                           &temp, &ret_val, &newInsert, &free_insert);
-#else
-	mod_ver_ret = ModifyVerify(new_tf, NULL, &fromPos, &toPos,
-	                           (char**)&TextF_WcValue(new_tf),
-				   &ret_val, &newInsert, &free_insert);
-#endif
-/* end if fix of bug #1214 */
-
-	if (old != temp) XtFree (old);
+      /* ModifyVerify accepts native characters, never a multibyte scratch
+       * buffer in a wide-character locale. Keep the proposal visible during
+       * callbacks, then adopt an owned copy of the final approved value. */
+      proposed = new_tf->text.max_char_size == 1 ?
+        TextF_Value(new_tf) : (char *)TextF_WcValue(new_tf);
+      snapshot = XtMalloc(((size_t)proposed_length + 1) * unit);
+      memcpy(snapshot, proposed, ((size_t)proposed_length + 1) * unit);
+      temp = snapshot;
+      mod_ver_ret = ModifyVerify(new_tf, NULL, &fromPos, &toPos,
+                                 &temp, &insert_length,
+                                 &newInsert, &free_insert);
+      current = new_tf->text.max_char_size == 1 ?
+        TextF_Value(new_tf) : (char *)TextF_WcValue(new_tf);
+      if (current != proposed || new_tf->text.string_length != proposed_length ||
+          memcmp(current, snapshot, ((size_t)proposed_length + 1) * unit) != 0) {
+        /* A verifier committed a reentrant source change. Its live value wins;
+         * neither free the retired proposal nor restore the outer old value. */
+        mod_ver_ret = True;
+      } else if (mod_ver_ret) {
+        char *approved = XtMalloc(((size_t)insert_length + 1) * unit);
+        if (insert_length) memcpy(approved, temp, (size_t)insert_length * unit);
+        memset(approved + (size_t)insert_length * unit, 0, unit);
+        XtFree(proposed);
+        if (new_tf->text.max_char_size == 1)
+          TextF_Value(new_tf) = approved;
+        else
+          TextF_WcValue(new_tf) = (wchar_t *)approved;
+        new_tf->text.string_length = insert_length;
+        new_tf->text.size_allocd = ((size_t)insert_length + 1) * unit;
       }
       if (free_insert) XtFree(temp);
+      XtFree(snapshot);
       if (!mod_ver_ret) {
 	if (new_tf->text.verify_bell) XBell(XtDisplay(new_w), 0);
 	if (new_tf->text.max_char_size == 1) {
@@ -8414,6 +8502,13 @@ SetValues(Widget old,
 	do_it = False;
       }
     }
+
+    /* Verification may query the proposed value and create captures. They
+     * cannot survive restoration of the old bytes or callback-adjusted values. */
+    InvalidateTextFieldUnicodeMap(new_tf);
+#if USE_XFT
+    InvalidateTextFieldLayout(new_tf);
+#endif
     
     if (do_it) {
       XmAnyCallbackStruct cb;
@@ -8575,6 +8670,7 @@ SetValues(Widget old,
 	   TextF_FontAscent(new_tf) + TextF_FontDescent(new_tf)); n++;
   XmImSetValues((Widget)new_tf, im_args, n);
   
+  InvalidateTextFieldUnicodeMap(old_tf);
 #if USE_XFT
   InvalidateTextFieldLayout(old_tf);
   XmTextFontContextFree(old_tf->text.unicode_font_context);
@@ -8798,6 +8894,7 @@ _XmTextFieldReplaceTextForPreedit(XmTextFieldWidget tf,
   XmTextPosition old_pos = replace_prev;
   XmTextPosition redisplay_start;
   int free_insert = (int)False;
+  XmTextUnicodeMap *next_unicode_map;
 
   VerifyBounds(tf, &replace_prev, &replace_next);
 
@@ -8825,6 +8922,9 @@ _XmTextFieldReplaceTextForPreedit(XmTextFieldWidget tf,
   }
 
   newInsert = TextF_CursorPosition(tf);
+
+  next_unicode_map = TextFieldUnicodeReplacement(tf, replace_prev, replace_next,
+                                                  insert, insert_length);
 
  /* make sure selections are turned off prior to changeing text */
   if (tf->text.has_primary &&
@@ -8918,6 +9018,8 @@ _XmTextFieldReplaceTextForPreedit(XmTextFieldWidget tf,
      }
    }
 
+  InvalidateTextFieldUnicodeMap(tf);
+  tf->text.unicode_map = next_unicode_map;
 #if USE_XFT
   InvalidateTextFieldLayout(tf);
 #endif

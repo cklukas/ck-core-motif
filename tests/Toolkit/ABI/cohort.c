@@ -6,7 +6,7 @@
 #include <stdio.h>
 int main(void)
 {
-    if (XmABI_VERSION != 7 || XmToolkitABI() != XmABI_VERSION ||
+    if (XmABI_VERSION != 8 || XmToolkitABI() != XmABI_VERSION ||
         XmVERSION != 2 || XmREVISION != 4 || XmUPDATE_LEVEL != 0) {
         fputs("Native toolkit header/runtime ABI cohort mismatch\n", stderr); return 1;
     }

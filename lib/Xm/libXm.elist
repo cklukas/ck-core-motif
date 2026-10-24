@@ -3033,3 +3033,21 @@ internal _regcmp
 internal ____loc1
 internal regcmp
 #endif
+
+/* Immutable UTF-8 maps and incremental paragraph metadata. */
+public XmTextUnicodeAvailable
+public XmTextUnicodeLocaleAvailable
+public XmTextUnicodeMapCreate
+public XmTextUnicodeMapRetain
+public XmTextUnicodeMapReplace
+public XmTextUnicodeMapGetUsage
+public XmTextUnicodeMapFree
+public XmTextUnicodeByteCount
+public XmTextUnicodeScalarCount
+public XmTextUnicodeGraphemeCount
+public XmTextUnicodeByteAtScalar
+public XmTextUnicodeScalarAtByte
+public XmTextUnicodeScalarAtGrapheme
+public XmTextUnicodeIsGraphemeBoundary
+public XmTextUnicodePreviousGrapheme
+public XmTextUnicodeNextGrapheme

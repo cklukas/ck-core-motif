@@ -952,6 +952,7 @@ Replace(XmTextWidget initiator,
   register int block_num_chars;  /* number of characters in the block */
   int gap_size;
   int old_maxlength;
+  XmTextUnicodeMap *replacement_map = NULL;
   int char_size = (initiator->text.char_size < 3 ?
 		   (int)initiator->text.char_size :
 		   sizeof(wchar_t));
@@ -1008,9 +1009,22 @@ Replace(XmTextWidget initiator,
     /* Do something to move the allocated space into the buffer */
   } 
   
+  /* Replace receives the final approved range/block, after modify-verify.
+   * Preserve an initialized immutable map through the exact accepted edit;
+   * MapReplace validates the UTF-8 and leaves its input unchanged on failure.
+   * Source positions count locale characters, so only a supported UTF-8
+   * locale may use the bytes directly as Unicode scalar coordinates. */
+  if (data->unicode_map && XmTextUnicodeLocaleAvailable() &&
+      XmTextUnicodeScalarCount(data->unicode_map) == (size_t)data->length) {
+    replacement_map = XmTextUnicodeMapReplace(data->unicode_map,
+        (size_t)*start, (size_t)*end, block->ptr, (size_t)block->length);
+    if (replacement_map &&
+        XmTextUnicodeScalarCount(replacement_map) != (size_t)(data->length + delta)) {
+      XmTextUnicodeMapFree(replacement_map);
+      replacement_map = NULL;
+    }
+  }
   /* NOTE: the value of delta could be truncated by cast to int. */
-  XmTextUnicodeMapFree(data->unicode_map);
-  data->unicode_map = NULL;
   data->length += (int) delta;
   
   if (data->hasselection && *start < data->right && *end > data->left) {
@@ -1054,6 +1068,16 @@ Replace(XmTextWidget initiator,
 			       &block->ptr[0], 
 			       block_num_chars, False,
 			       (int)initiator->text.char_size);
+  }
+
+  /* Publish the cache only after the native source bytes/length commit, and
+   * before invalidation/redisplay can reenter through another sharing widget.
+   * A failed optional cache update never leaves old metadata on new bytes;
+   * the next interactive query may retry building a correct map lazily. */
+  {
+    XmTextUnicodeMap *previous_map = data->unicode_map;
+    data->unicode_map = replacement_map;
+    XmTextUnicodeMapFree(previous_map);
   }
   
   if (data->hasselection && data->left != data->right) {
@@ -1473,9 +1497,13 @@ _XmStringSourceGraphemeStep(XmTextSource source, XmTextPosition position,
 {
   XmSourceData data;
   size_t next;
-  if (source->Scan != Scan || !XmTextUnicodeAvailable())
+  if (source->Scan != Scan || !XmTextUnicodeLocaleAvailable())
     return (*source->Scan)(source, position, XmSELECT_POSITION, direction, 1, True);
   data = source->data;
+  if (direction == XmsdRight && position >= data->length)
+    return data->length;
+  if (direction == XmsdLeft && position <= 0)
+    return 0;
   if (!data->unicode_map) {
     char *utf8 = _XmStringSourceGetValue(source, False);
     data->unicode_map = XmTextUnicodeMapCreate(utf8, strlen(utf8));
@@ -1488,7 +1516,13 @@ _XmStringSourceGraphemeStep(XmTextSource source, XmTextPosition position,
       (direction == XmsdRight ? XmTextUnicodeNextGrapheme(data->unicode_map, (size_t)position, &next)
                              : XmTextUnicodePreviousGrapheme(data->unicode_map, (size_t)position, &next)))
     return (XmTextPosition)next;
-  return (*source->Scan)(source, position, XmSELECT_POSITION, direction, 1, True);
+  /* An enabled Unicode map failure must not silently turn a grapheme action
+   * into one scalar of a combining sequence. Leave the caret/source intact;
+   * retry on a later query after transient allocation failure. Custom sources
+   * and unsupported locales retain their native Scan contract above. */
+  XmeWarning(data->numwidgets ? (Widget)data->widgets[0] : NULL,
+             "Cannot map the text source for a Unicode grapheme action");
+  return position;
 }
 
 /* Public routines. */

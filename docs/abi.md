@@ -1,7 +1,7 @@
 # Native ABI cohort
 
-Development version **2.4.0** uses native ABI epoch **7**. The suite's libtool
-version is `7:0:0`, yielding `libXm.so.7`, `libMrm.so.7` and `libUil.so.7` on ELF
+Development version **2.4.0** uses native ABI epoch **8**. The suite's libtool
+version is `8:0:0`, yielding `libXm.so.8`, `libMrm.so.8` and `libUil.so.8` on ELF
 systems. There is no alias or compatibility shim for the preceding SONAME.
 
 Adding a public function is not the only ABI concern. Cached Unicode maps,
@@ -42,6 +42,16 @@ fixture against the installed prefix before selecting it.
 Keep an older verified prefix isolated while its consumers remain in use.
 Retire it after they have moved to the rebuilt, verified replacement. The
 repository's root `ABI.md` is the source policy for this cohort.
+
+## Epoch 8 incremental native Unicode source maps
+
+TextField now owns an immutable Unicode source-map reference alongside its
+layout capture. Native shared Text sources retain maps through approved edits.
+The TextField private record changes size, so the whole toolkit and all native
+consumers must rebuild for epoch 8. No alias or mixed epoch layout is provided.
+The new map API retains unchanged LF-delimited paragraph bodies and exposes
+construction-work accounting. Captures may retain old immutable maps across edits.
+Fresh installed-prefix/runtime qualification is separate from source implementation.
 
 ## Epoch 7 native list and selection records
 

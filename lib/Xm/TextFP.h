@@ -97,6 +97,7 @@ typedef struct _XmTextFieldPart {
 						  callback */
     struct _XmTextFontContext *unicode_font_context;
     struct _XmTextLayout *unicode_layout;
+    struct _XmTextUnicodeMap *unicode_map;
     int unicode_affinity;
     Boolean unicode_layout_failed;
     char * value;		/* pointer to widget value stored as char * */

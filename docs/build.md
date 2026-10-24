@@ -107,7 +107,7 @@ services. The text fixtures require DejaVu Sans and a CJK-capable fallback font.
 Unavailable services or missing font coverage fail their tests; an in-memory
 semantic substitute does not count as an AT-SPI pass.
 
-The default suite contains 32 fixtures (33 registered, including opt-in XIM),
+The default suite contains 34 fixtures (35 registered, including opt-in XIM),
 including `font-resize`, `accessibility-modality`,
 `accessibility-clipping`/`accessibility-clipping-events` and the
 `xmstring-empty-concat`/`xmstring-empty-components` public string regressions.

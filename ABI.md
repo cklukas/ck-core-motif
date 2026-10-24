@@ -1,8 +1,8 @@
 # Native ABI cohort
 
-CK Core Motif 2.4.0 uses native ABI epoch **7**. The suite's
-libtool version is `7:0:0`: ELF installations provide `libXm.so.7`,
-`libMrm.so.7` and `libUil.so.7`. These are rebuilt together. No alias to the
+CK Core Motif 2.4.0 uses native ABI epoch **8**. The suite's
+libtool version is `8:0:0`: ELF installations provide `libXm.so.8`,
+`libMrm.so.8` and `libUil.so.8`. These are rebuilt together. No alias to the
 previous SONAME is provided.
 
 Unicode input/layout and native semantic-provider changes affect private
@@ -26,7 +26,7 @@ widget library is not an ABI migration. Static linking also requires a clean
 rebuild of affected consumers.
 
 `XmVERSION`, `XmREVISION` and `XmUPDATE_LEVEL` identify source API version
-2.4.0. `XmABI_VERSION` identifies native layout epoch 7;
+2.4.0. `XmABI_VERSION` identifies native layout epoch 8;
 `XmToolkitABI()` returns the linked library's epoch. Admission tests must compare
 these values, prove the compilation header origin and inspect the executable's
 loaded library path and SONAME. The numeric epoch alone does not prove that
@@ -38,6 +38,16 @@ selecting that prefix. Never install a compatibility alias for an earlier SONAME
 old/new headers, or let runtime search paths select a library from another
 prefix. Keep old admitted prefixes isolated while they are still in use, then
 retire them after their consumers have moved to the verified replacement.
+
+## Epoch 8 incremental native Unicode source maps
+
+TextField now owns an immutable Unicode source-map reference alongside its
+layout capture. Native shared Text sources retain maps through approved edits.
+The TextField private record changes size, so the whole toolkit and all native
+consumers must rebuild for epoch 8. No alias or mixed epoch layout is provided.
+The new map API retains unchanged LF-delimited paragraph bodies and exposes
+construction-work accounting. Captures may retain old immutable maps across edits.
+Fresh installed-prefix/runtime qualification is separate from source implementation.
 
 ## Epoch 7 native list and selection records
 
