@@ -29,6 +29,7 @@ FIXTURES = {
     "incremental-widgets": ("tests/Toolkit/Unicode/incremental_widgets.c", True),
     "incremental-layout": ("tests/Toolkit/Unicode/incremental_layout.c", True),
     "preedit": ("tests/Toolkit/Im/preedit_ranges.c", False),
+    "preedit-state": ("tests/Toolkit/Im/preedit_state.c", True),
     "local-compose": ("tests/Toolkit/Im/local_compose.c", False),
     "primary-modality": ("tests/Toolkit/Message/primary_modality.c", True),
     "accessibility-modality": ("tests/accessibility/modality.c", True),

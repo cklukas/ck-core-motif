@@ -282,6 +282,26 @@ XmTextGetEditable(Widget widget)
   return ret_val;
 }
 
+Boolean
+XmTextHasPreedit(Widget widget)
+{
+  Boolean active = False;
+  if (!widget) return False;
+  {
+    _XmWidgetToAppContext(widget);
+    _XmAppLock(app);
+    if (XmIsTextField(widget)) {
+      OnTheSpotData preedit = ((XmTextFieldWidget)widget)->text.onthespot;
+      active = preedit && (preedit->under_preedit || preedit->under_verify_preedit);
+    } else if (XmIsText(widget)) {
+      OnTheSpotDataTW preedit = ((XmTextWidget)widget)->text.onthespot;
+      active = preedit && (preedit->under_preedit || preedit->under_verify_preedit);
+    }
+    _XmAppUnlock(app);
+  }
+  return active;
+}
+
 void 
 XmTextSetEditable(Widget widget,
 #if NeedWidePrototypes

@@ -49,6 +49,7 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
               tests/Toolkit/CutPaste/clipboard_lifetime.py \
               tests/Toolkit/Unicode/layout.c tests/Toolkit/Unicode/line_context.c \
               tests/Toolkit/Unicode/incremental_map.c tests/Toolkit/Unicode/incremental_widgets.c \
+              tests/Toolkit/Im/preedit_state.c \
               tests/Toolkit/Unicode/incremental_layout.c \
               tests/Toolkit/Unicode/text_unicode.c tests/Toolkit/Unicode/large_text.c \
               tests/disclosure/widget.c tests/disclosure/observe.py \

@@ -76,6 +76,23 @@ bidi-context changes, selection geometry, external input methods and full
 application acceptance remain separate gates. See the [ABI contract](abi.md):
 the new TextField record requires a coherent epoch 8 rebuild.
 
+## Native composition state
+
+`XmTextHasPreedit(widget)` queries native Text or TextField composition without
+changing its XIC, committing input or reading temporary composition bytes. It
+returns true for an active preedit, including an empty one, and while a preedit
+change is being verified. NULL and other widget classes return false. The query
+describes toolkit-owned on-the-spot state; an input method rendering its own
+separate preedit UI does not put temporary text in the widget source.
+
+Applications can defer submission and source replacement until this query is
+false, then read committed native text through the normal public API. Keep the
+toolkit's XIM callbacks installed. The `preedit-state` regression controls real
+native widget state records and verifies the getter contract; external XIM
+service and composition behavior require separate integration tests. Native
+ARM64 installed qualification passes the getter's 63 assertions, ABI, existing
+preedit/local-compose fixtures and the 79-assertion font-lifetime fixture.
+
 ## Native hard lines and captured output
 
 In a supported UTF-8 locale, the native shared source's line scans and counts

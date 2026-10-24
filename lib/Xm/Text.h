@@ -134,6 +134,10 @@ extern Boolean XmTextGetAddMode(
                         Widget widget);
 extern Boolean XmTextGetEditable( 
                         Widget widget);
+/* Nonmutating native composition query for Text and TextField. True includes
+ * an empty active preedit and verification of a preedit change. NULL and
+ * other widget classes return False. This neither resets nor commits XIM. */
+extern Boolean XmTextHasPreedit(Widget widget);
 extern void XmTextSetEditable( 
                         Widget widget,
 #if NeedWidePrototypes

@@ -445,6 +445,7 @@ public XmTextGetAddMode
 public XmTextGetBaseline
 public XmTextGetCenterline
 public XmTextGetEditable
+public XmTextHasPreedit
 public XmTextGetInsertionPosition
 public XmTextGetLastPosition
 public XmTextGetMaxLength

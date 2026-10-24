@@ -1,3 +1,16 @@
+Native composition state query (2026-10-24)
+==========================================
+
+- Add XmTextHasPreedit for Text and TextField. This nonmutating public query
+  reports active native preedit, including empty composition and verification,
+  without resetting XIM or exposing temporary composition bytes as committed
+  application input. NULL and other widget classes return False.
+- Add a focused native state-query regression covering independent controls,
+  repeated queries, verification and unchanged source bytes. This controls
+  native state records and does not claim live input-method acceptance.
+- Native ARM64 installed qualification passes the 63-assertion getter fixture,
+  ABI, existing preedit/local-compose fixtures and 79-assertion font lifetime.
+
 Native Unicode hard lines, geometry and retained output (2026-10-24)
 ====================================================================
 
