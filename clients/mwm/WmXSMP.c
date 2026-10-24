@@ -295,8 +295,17 @@ buildDBFileName(char fileNameBuf[MAXPATHLEN], Boolean doingSave)
 
 #else
 
-    strcpy(fileNameBuf, (wmGD.dbFileName == (char *)NULL) ?
-	   dtwmFileName : wmGD.dbFileName);
+    /* Keep the fixed caller buffer bounded for arbitrary session DB paths. */
+    {
+	const char *dbPath = (wmGD.dbFileName == (char *)NULL) ?
+	    dtwmFileName : wmGD.dbFileName;
+	size_t dbPathLength = strlen(dbPath);
+
+	if (dbPathLength < MAXPATHLEN)
+	    memcpy(fileNameBuf, dbPath, dbPathLength + 1);
+	else
+	    strcpy(fileNameBuf, dtwmFileName);
+    }
 
 #endif
 }

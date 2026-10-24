@@ -1,3 +1,11 @@
+Mwm session database path bounds (2026-10-24)
+===============================================
+
+- Bound non-WSM session database path copies before writing the fixed
+  `MAXPATHLEN` buffer, falling back to the standard database filename for
+  overlong configuration while preserving valid paths; see
+  `docs/mwm-session-db-path.md`.
+
 Mwm localized system-menu bounds (2026-10-24)
 ===============================================
 
