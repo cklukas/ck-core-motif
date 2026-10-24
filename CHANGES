@@ -1,3 +1,14 @@
+Virtual-key binding file growth (2026-10-24)
+============================================
+
+- Use size-safe counters and repeated growth when loading large virtual-key
+  binding files. Reject unrepresentable input cleanly while preserving comment
+  handling and binding text.
+- Add a source-contract regression and document the loader behavior in
+  docs/virtkeys-binding-bounds.md.
+- Native AArch64 libXm build is warning-free and the virtual-key growth
+  regression passes.
+
 Render-table property export bounds (2026-10-24)
 ================================================
 

@@ -36,6 +36,8 @@ static char rcsid[] = "$TOG: VirtKeys.c /main/22 1999/06/02 14:45:52 samborn $"
 #endif
 
 #include <stdio.h>
+#include <stdint.h>
+#include <limits.h>
 #include <ctype.h>
 #include <string.h>
 #include <X11/keysym.h>
@@ -836,9 +838,10 @@ _XmVirtKeysLoadFileBindings(char   *fileName,
 			    String *binding )
 {
   FILE *fileP;
-  int buffersize;
-  int count;
+  size_t buffersize;
+  size_t count;
   int firsttime;
+  Boolean complete = True;
   char line[256];
   Boolean skip;
   
@@ -864,21 +867,48 @@ _XmVirtKeysLoadFileBindings(char   *fileName,
 	  }	    
 	}
 
-	/* must be >=, because buffersize is always 1 bigger for '\0' */
-	if (count + strlen(line) >= buffersize) {
-	  buffersize += BUFFERSIZE;
-	  *binding = XtRealloc(*binding, buffersize);
+	/* Keep one byte for the terminating NUL and grow until the whole line fits. */
+	{
+	  size_t line_length = strlen(line);
+	  size_t required;
 
-	  /* always make sure that the end of *binding is null terminated */
-	  if (firsttime) { 
-	    *binding[0] = '\0';
-	    firsttime = 0;
+	  if (line_length > SIZE_MAX - count - 1) {
+	    complete = False;
+	    break;
 	  }
+	  required = count + line_length + 1;
+	  if (required > (size_t)UINT_MAX) {
+	    complete = False;
+	    break;
+	  }
+	  if (required > buffersize) {
+	    size_t new_size = buffersize;
+
+	    while (new_size < required) {
+	      if (new_size > SIZE_MAX - BUFFERSIZE) {
+		new_size = required;
+		break;
+	      }
+	      new_size += BUFFERSIZE;
+	    }
+	    *binding = XtRealloc(*binding, (Cardinal)new_size);
+	    buffersize = new_size;
+
+	    /* always make sure that the end of *binding is null terminated */
+	    if (firsttime) {
+	      *binding[0] = '\0';
+	      firsttime = 0;
+	    }
+	  }
+
+	  count += line_length;
+	  strcat(*binding, line);
 	}
+      }
 
-	count += strlen(line);
-
-	strcat(*binding, line);
+      if (!complete) {
+        fclose(fileP);
+        return False;
       }
      
       /* trim unused buffer space */
