@@ -289,6 +289,15 @@ classic Motif as the default.
 visible keyboard focus, documented contrast decisions and no effect unless
 selected.  `classic` continues to match the WP-00 resource baseline.
 
+**Status (2026-10-24):** implemented and qualified on the AArch64 `uconsole`
+Linux host with a fresh Xft-enabled installed prefix under Xvfb.  The opt-in
+`modern-light` profile supplies documented palette, focus, padding and spacing
+defaults through an Xrm database merged without overriding application
+resources.  The installed fixture passed realized widget color checks,
+explicit and ordinary resource precedence, control metrics and keyboard focus
+traversal.  The WP-00 classic baseline was rerun and retained its prior result
+and image hashes.
+
 **Does not include:** dark mode, live style mutation, SVG loading or a promise
 of platform-native desktop theming.
 
@@ -312,6 +321,15 @@ has proved that the profile mechanism works across core states.
 **Complete when:** high-contrast is fully tested and documented.  Dark mode is
 complete only if it is equally tested; otherwise record it as deferred without
 advertising it as available.
+
+**Status (2026-10-24):** implemented and qualified on the AArch64 `uconsole`
+Linux host with a fresh Xft-enabled installed prefix under Xvfb.  The opt-in
+`high-contrast` profile defines black/white text surfaces, yellow focus,
+blue selection/arm colors, disabled-state foreground and three-pixel focus
+metrics through the same Xrm fallback path.  The installed fixture passed
+calculated contrast targets, realized colors, application precedence and
+keyboard traversal.  `modern-dark` remains deferred pending equivalent
+image/pixmap and disabled-state qualification.
 
 ### WP-04: Scaled control-metric audit
 

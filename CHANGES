@@ -1,3 +1,12 @@
+High-contrast appearance profile (2026-10-24)
+==============================================
+
+- Add the opt-in `XmAPPEARANCE_HIGH_CONTRAST` profile with black/white text,
+  yellow focus, blue selection/arm colors, disabled-state foreground and
+  documented contrast targets through the existing X resource database.
+- Add the installed contrast and keyboard-interaction regression; see
+  `docs/appearance-profiles.md`.
+
 UIL file-summary path bounds (2026-10-24)
 =========================================
 
