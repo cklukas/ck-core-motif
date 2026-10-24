@@ -406,6 +406,16 @@ change, and ordinary Xorg/X11 runs retain the previous global-DPI behavior.
 **Does not include:** claiming that generic RandR, Xft.dpi, output transforms
 or physical monitor dimensions constitute a portable per-output scale contract.
 
+**Status (2026-10-24):** phase 1 is implemented and qualified.  The optional
+`--enable-xlibre-dpi` build detects Xrandr development dependencies at
+configure time, validates XLibre's `DPI` output property (INTEGER/32-bit,
+single finite value, bounded range) and safely rejects ordinary X servers.
+The installed fixture passes valid/invalid parser cases and the non-XLibre
+Xvfb fallback on `uconsole`.  It also supports running against a real XLibre
+display, where every reported output must provide a valid property.  Shell
+output selection, RandR event subscription, live reflow and explicit-resource
+transactions remain phase 2 and are not advertised by this increment.
+
 ### WP-05: Optional SVG image loading
 
 **Depends on:** WP-04.

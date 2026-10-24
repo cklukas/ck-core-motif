@@ -317,6 +317,23 @@ fi
 AM_CONDITIONAL(XFT_TEXT_LAYOUT, test "x$enable_xft" = "xyes")
 AC_IMAGE_SUPPORT
 
+AC_ARG_ENABLE([xlibre-dpi],
+  [AS_HELP_STRING([--enable-xlibre-dpi],
+    [enable optional XLibre RandR output-DPI probing (default=no)])],
+  [], [enable_xlibre_dpi=no])
+if test "x$enable_xlibre_dpi" = "xyes"; then
+  AC_CHECK_HEADERS([X11/extensions/Xrandr.h], [],
+    [AC_MSG_ERROR([--enable-xlibre-dpi requires Xrandr.h])])
+  AC_CHECK_LIB([Xrandr], [XRRQueryExtension],
+    [XLIBRE_DPI_LIBS="-lXrandr"],
+    [AC_MSG_ERROR([--enable-xlibre-dpi requires libXrandr])],
+    [$X_LIBS -lX11])
+else
+  XLIBRE_DPI_LIBS=
+fi
+AC_SUBST([XLIBRE_DPI_LIBS])
+AM_CONDITIONAL([OM_XLIBRE_DPI], [test "x$enable_xlibre_dpi" = "xyes"])
+
 
 
 # AM_CONDITIONAL(Motif22Compatibility, test x$enable_motif22_compatibility = xyes)

@@ -1,3 +1,11 @@
+XLibre RandR DPI contract probe (2026-10-24)
+=============================================
+
+- Add the opt-in `--enable-xlibre-dpi` build and strict installed probe for
+  XLibre’s `DPI` output property, with safe fallback on ordinary X servers.
+- Keep live shell selection/reflow deferred to the next phase; see
+  `docs/xlibre-dpi-contract.md`.
+
 Column label-name preservation (2026-10-24)
 ==============================================
 

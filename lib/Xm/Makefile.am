@@ -65,13 +65,21 @@ PNG_SRCS =
 PNG_HDRS =
 endif
 
+if OM_XLIBRE_DPI
+XLIBRE_DPI_SRCS = XlibreDpi.c
+XLIBRE_DPI_HDRS = XlibreDpiI.h
+else
+XLIBRE_DPI_SRCS =
+XLIBRE_DPI_HDRS =
+endif
+
 if PRINTING
 PRINTS_SRC = PrintS.c
 else
 PRINTS_SRC =
 endif
 
-libXm_la_LIBADD = ${X_LIBS} ${X_XMU} -lXt -lXext ${LIB_XP} -lX11 ${X_EXTRA_LIBS} $(ATSPI_LIBS) $(UNICODE_TEXT_LIBS)
+libXm_la_LIBADD = ${X_LIBS} ${X_XMU} -lXt -lXext ${LIB_XP} -lX11 ${X_EXTRA_LIBS} $(ATSPI_LIBS) $(UNICODE_TEXT_LIBS) $(XLIBRE_DPI_LIBS)
 
 noinst_HEADERS = AccessibleI.h BaseClassI.h \
 BitmapsI.h \
@@ -168,7 +176,8 @@ XpmI.h \
 EditresComI.h \
 $(JPEG_HDRS) \
 $(PNG_HDRS) \
-$(TIP_HDRS)
+$(TIP_HDRS) \
+$(XLIBRE_DPI_HDRS)
 
 xm_HEADERS = Accessible.h TextUnicode.h TextLayout.h Appearance.h ArrowB.h      ArrowBG.h       ArrowBGP.h      ArrowBP.h \
         BulletinB.h     BulletinBP.h    CacheP.h        CascadeB.h \
@@ -286,7 +295,7 @@ TEXT_LAYOUT_SRCS =
 endif
 
 libXm_la_SOURCES = Accessible.c XtInput.c TextUnicode.c $(TEXT_LAYOUT_SRCS) $(ATSPI_SRCS) $(SRCS1) $(SRCS2) $(OBSO_SRCS) $(XPM_SRCS) $(NEW_WID_SRCS) $(SLIDE_SRCS) \
-        $(TIP_SRCS) $(EDITRES_SRCS) $(EXTRA_SRCS) $(JPEG_SRCS) $(PNG_SRCS)
+        $(TIP_SRCS) $(EDITRES_SRCS) $(EXTRA_SRCS) $(JPEG_SRCS) $(PNG_SRCS) $(XLIBRE_DPI_SRCS)
 
 EXTRA_libXm_la_SOURCES = $(SLIDE_SRCS) $(TIP_SRCS)
 
