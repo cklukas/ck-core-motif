@@ -821,6 +821,9 @@ XmeCreateClassDialog(
     ArgList		ds_args ;	/*  arglist for shell	*/
     char *              ds_name ;
 
+    if (bb_n == (Cardinal)~(Cardinal)0)
+	return NULL;
+
     if (!name) name = "";
 
     /*	Create DialogShell parent.

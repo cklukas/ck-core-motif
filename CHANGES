@@ -526,3 +526,10 @@ Development 2.4.0 / constructor argument-count guards
 - Reject Scrolled Text and List argument counts that would overflow internal
   `Cardinal` additions before merging or allocating argument arrays.
 - Add direct maximal-count regressions and documentation.
+
+Development 2.4.0 / dialog constructor count guard
+===================================================
+
+- Reject the maximum `Cardinal` argument count in `XmeCreateClassDialog`
+  before adding the shell argument and allocating the merged list.
+- Add a direct maximal-count regression and documentation.
