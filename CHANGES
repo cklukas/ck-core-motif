@@ -1,4 +1,7 @@
 2026-10-26
+	* Honor Mrm file deletion requests after close failures.
+
+2026-10-26
 	* Remove partial Mrm files when write-mode reopen fails.
 
 2026-10-26

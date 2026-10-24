@@ -291,6 +291,8 @@ Idb__FU_CloseFile (IDBLowLevelFile	*file_id ,
   status = close (file_id->file_desc);
   if (status != 0)
 	{
+	if (delete)
+	  (void) unlink (file_id->name);
 	XtFree (file_id->name);
 	XtFree ((char*)file_id);
 	return MrmFAILURE;
