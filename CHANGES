@@ -703,3 +703,10 @@ TextField selection export bounds (2026-10-24)
 - Treat zero or negative `mblen` results as conversion failure in narrow TextField selection export, preventing non-progressing loops and unsigned length underflow. Check wide selection lengths before multiplying by `sizeof(wchar_t)`.
 - Preserve valid narrow/wide selection contents, ownership, public interfaces and native ABI. Extend the selection timestamp regression to cover both export formats and document the contract in `docs/textfield-selection-export-bounds.md`.
 - Native AArch64 validation passes the rebuilt TextField source and eight-case selection/timestamp regression.
+
+Text preedit recovery conversion bounds (2026-10-24)
+=====================================================
+
+- Validate every `mblen` step while recovering overstrike preedit text in the Text widget, preventing invalid pointer movement and append lengths for malformed locale sequences.
+- Preserve valid composition behavior, callbacks, public interfaces and native ABI. Document the recovery contract in `docs/text-preedit-recovery-bounds.md`.
+- Native AArch64 validation passes the warning-enabled Text source build.

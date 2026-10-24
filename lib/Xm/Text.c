@@ -3544,6 +3544,7 @@ PreeditDraw(XIC xic,
   size_t mb_siz;
   Widget p =w;
   Boolean need_verify, end_preedit = False;
+  Boolean recovery_valid;
 
   if (!PreUnder(tw))
     return;
@@ -3675,16 +3676,32 @@ PreeditDraw(XIC xic,
     }
     
     if (recover_len > 0) {
-      mb = XtRealloc(mb, strlen(mb) + (recover_len + 1 ) * tw->text.char_size);
       ptr = PreOverStr(tw);
-      for (i=0; i<PreOverMaxLen(tw); i++)
-	ptr += mblen(ptr, 4);
+      recovery_valid = True;
+      for (i=0; i<PreOverMaxLen(tw); i++) {
+        int char_len = mblen(ptr, 4);
+        if (char_len <= 0) {
+          recovery_valid = False;
+          break;
+        }
+	ptr += char_len;
+      }
       total_mb_len = 0;
-      for (i=0; i<recover_len; i++)
-	total_mb_len += mblen(ptr + total_mb_len, 4);
-      i = strlen(mb);
-      strncat(mb, ptr, total_mb_len);
-      mb[i+total_mb_len] = '\0';
+      for (i=0; recovery_valid && i<recover_len; i++) {
+        int char_len = mblen(ptr + total_mb_len, 4);
+        if (char_len <= 0) {
+          recovery_valid = False;
+          break;
+        }
+	total_mb_len += char_len;
+      }
+      if (recovery_valid) {
+	mb = XtRealloc(mb, strlen(mb) + (recover_len + 1) *
+			       tw->text.char_size);
+	i = strlen(mb);
+	strncat(mb, ptr, total_mb_len);
+	mb[i+total_mb_len] = '\0';
+      }
     }
   } 
   else {
