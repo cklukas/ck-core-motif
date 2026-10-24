@@ -1,3 +1,11 @@
+EditRes diagnostic formatting bounds (2026-10-24)
+===================================================
+
+- Measure rendered no-colormap errors and bound every EditRes diagnostic
+  write, preserving short-message fallbacks while preventing format expansion
+  from overrunning stack or heap storage; see
+  `docs/editres-error-bounds.md`.
+
 Dialog shell name bounds (2026-10-24)
 ======================================
 

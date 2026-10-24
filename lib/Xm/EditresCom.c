@@ -405,7 +405,8 @@ unsigned long length;
 	{
 	    char buf[BUFSIZ];
 	    
-	    sprintf(buf, "Unknown Protocol request %d.",event->any_event.type);
+	    snprintf(buf, sizeof(buf), "Unknown Protocol request %d.",
+		     event->any_event.type);
 	    SendFailure(w, sel, ident, buf);
 	    return(NULL);
 	}
@@ -531,7 +532,8 @@ EditresEvent * event;
     default: 
         {
 	    char buf[BUFSIZ];
-	    sprintf(buf,"Unknown Protocol request %d.",event->any_event.type);
+	    snprintf(buf, sizeof(buf), "Unknown Protocol request %d.",
+			 event->any_event.type);
 	    SendFailure(w, sel, ident, buf);
 	    return;
 	}
@@ -896,23 +898,27 @@ Cardinal * num_params;
 	    pbuf = buf;
 	if (pbuf == NULL) {
 	    pbuf = buf;
-	    sprintf(pbuf, "A%s", msg2);
+	    (void) snprintf(pbuf, (pbuf == buf) ? sizeof(buf) : (size_t)len,
+			"A%s", msg2);
 	} else {
-	    sprintf(pbuf, "%s%s%s", msg1, info->event->name, msg2); 
+	    (void) snprintf(pbuf, (pbuf == buf) ? sizeof(buf) : (size_t)len,
+			"%s%s%s", msg1, info->event->name, msg2);
 	}
     } else if ( streq(name, "noColormap") ) {
-	len = strlen(msg) + 1;
-	if (params[0])
-	    len += strlen(params[0]);
+	len = snprintf(NULL, 0, msg, params[0]);
+	if (len < 0)
+	    len = 0;
+	else
+	    ++len;
 	if (len > sizeof(buf))
 	    pbuf = XtMalloc(len);
 	else
 	    pbuf = buf;
 	if (pbuf == NULL) {
 	    pbuf = buf;
-	    sprintf(pbuf, "Message too long");
+	    (void) snprintf(pbuf, sizeof(buf), "Message too long");
 	} else {
-	    sprintf(pbuf, msg, params[0]); 
+	    (void) snprintf(pbuf, (size_t)len, msg, params[0]);
 	}
     }
     else if (streq(name, "conversionFailed") || streq(name, "conversionError"))
@@ -937,17 +943,19 @@ Cardinal * num_params;
 	if (streq(info->event->value, XtRString)) {
 	    if (pbuf == NULL) {
 		pbuf = buf;
-		sprintf(pbuf, "Could not convert a string");
+		(void) snprintf(pbuf, sizeof(buf), "Could not convert a string");
 	    } else {
-		sprintf(pbuf, "%s%s%s%s%s", msg1, (char *)info->event->value, msg2,
-			info->event->name, msg3);
+		(void) snprintf(pbuf, (pbuf == buf) ? sizeof(buf) : (size_t)len,
+				"%s%s%s%s%s", msg1, (char *)info->event->value, msg2,
+				info->event->name, msg3);
 	    }
 	} else {
 	    if (pbuf == NULL) {
 		pbuf = buf;
-		sprintf(pbuf, "Could not convert a resource");
+		(void) snprintf(pbuf, sizeof(buf), "Could not convert a resource");
 	    } else {
-		sprintf(pbuf, "%s%s%s", msg1, info->event->name, msg2);
+		(void) snprintf(pbuf, (pbuf == buf) ? sizeof(buf) : (size_t)len,
+				"%s%s%s", msg1, info->event->name, msg2);
 	    }
 	}
     } else {
@@ -961,9 +969,10 @@ Cardinal * num_params;
 	    pbuf = buf;
 	if (pbuf == NULL) {
 	    pbuf = buf;
-	    sprintf(pbuf, "Message too long to show");
+	    (void) snprintf(pbuf, sizeof(buf), "Message too long to show");
 	} else {
-	    sprintf(pbuf, "%s%s%s%s%s%s%s%s", msg1, name, msg2, type,
+	    (void) snprintf(pbuf, (pbuf == buf) ? sizeof(buf) : (size_t)len,
+			"%s%s%s%s%s%s%s%s", msg1, name, msg2, type,
 			msg3, class, msg4, msg);
 	}
     }
