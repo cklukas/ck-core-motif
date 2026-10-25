@@ -7263,8 +7263,11 @@ ListProcessDrag(Widget wid,
 
   location_data = 0;
 
-  lw->list.drag_conv = ListDragConv = (XmListDragConvertStruct *)
+  ListDragConv = (XmListDragConvertStruct *)
     XtMalloc(sizeof(XmListDragConvertStruct));
+  if (ListDragConv == NULL)
+    return;
+  lw->list.drag_conv = ListDragConv;
 
   ListDragConv->w = wid;
 
@@ -7273,6 +7276,11 @@ ListProcessDrag(Widget wid,
       /* CR 8878: selectedItems may contain extraneous items. */
       ListDragConv->strings = (XmString *)
 	XtMalloc(sizeof(XmString) * lw->list.selectedPositionCount);
+      if (ListDragConv->strings == NULL) {
+	  XtFree((char *)ListDragConv);
+	  lw->list.drag_conv = NULL;
+	  return;
+      }
       ListDragConv->num_strings = lw->list.selectedPositionCount;
       for (i = 0; i < lw->list.selectedPositionCount; i++) {
 	ListDragConv->strings[i] =
@@ -7282,6 +7290,11 @@ ListProcessDrag(Widget wid,
   else
     {
       ListDragConv->strings = (XmString *) XtMalloc(sizeof(XmString));
+      if (ListDragConv->strings == NULL) {
+	  XtFree((char *)ListDragConv);
+	  lw->list.drag_conv = NULL;
+	  return;
+      }
       ListDragConv->num_strings = 1;
       ListDragConv->strings[0] = XmStringCopy(lw->list.items[item]);
       location_data = item;
