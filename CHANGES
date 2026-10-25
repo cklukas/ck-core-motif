@@ -1,3 +1,10 @@
+Auto-suggest string-copy allocation guards (2026-10-26)
+========================================================
+
+- Return cleanly when `XmAutoSuggestBox` cannot allocate a temporary text
+  buffer while copying an item string; see
+  `docs/auto-suggest-string-copy-guards.md`.
+
 WSM reply payload validation (2026-10-26)
 =========================================
 
