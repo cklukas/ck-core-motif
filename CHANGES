@@ -9210,3 +9210,10 @@ XmList copy-helper rollback (2026-10-29)
 - Roll back partial `XmString` copies and clear failed list resources, and
   bound selected-position copies against Xt's `Cardinal` size; see
   `docs/list-copy-helper-rollback.md`.
+
+XmList item mutation rollback (2026-10-29)
+==========================================
+
+- Make item insertion restore the original list when an `XmString` copy
+  fails, and obtain replacement strings before releasing existing values; see
+  `docs/list-item-mutation-rollback.md`.

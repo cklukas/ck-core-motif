@@ -3638,7 +3638,8 @@ AddItems(XmListWidget lw,
       nitems > INT_MAX - lw->list.itemCount)
     return False;
   TotalItems = lw->list.itemCount + nitems;
-  if ((size_t)TotalItems > SIZE_MAX / sizeof(*new_items))
+  if ((size_t)TotalItems > SIZE_MAX / sizeof(*new_items) ||
+      (size_t)TotalItems > UINT_MAX / sizeof(*new_items))
     return False;
 
   new_items = (XmString *)XtRealloc((char *)lw->list.items,
@@ -3655,7 +3656,18 @@ AddItems(XmListWidget lw,
 
   /* Insert the new items into the array. */
   for (i = 0; i < nitems; i++)
-    lw->list.items[pos + i] = XmStringCopy(items[i]);
+    {
+      lw->list.items[pos + i] = XmStringCopy(items[i]);
+      if (lw->list.items[pos + i] == NULL)
+	{
+	  while (i != 0)
+	    XmStringFree(lw->list.items[pos + --i]);
+	  memmove((char *) (lw->list.items + pos),
+		  (char *) (lw->list.items + pos + nitems),
+		  (lw->list.itemCount - pos) * sizeof(XmString));
+	  return False;
+	}
+    }
 
   lw->list.itemCount = TotalItems;
   return True;
@@ -3815,10 +3827,15 @@ ReplaceItem(XmListWidget lw,
 	    int pos)
 {
   int i;
+  XmString replacement;
+  XmString selected_replacement;
   pos--;
 
+  replacement = XmStringCopy(item);
+  if (replacement == NULL)
+    return;
   XmStringFree(lw->list.items[pos]);
-  lw->list.items[pos] = XmStringCopy(item);
+  lw->list.items[pos] = replacement;
   /*Selected items should be replaced also*/
 #ifdef FIX_1390
   UpdateSelectedPositions(lw, lw->list.selectedItemCount);
@@ -3826,8 +3843,11 @@ ReplaceItem(XmListWidget lw,
   for(i=0; i<lw->list.selectedItemCount; i++)
   {
       if(lw->list.selectedPositions[i]==pos+1) {
-         XmStringFree(lw->list.selectedItems[i]);
-	 lw->list.selectedItems[i]=XmStringCopy(item);
+	 selected_replacement = XmStringCopy(item);
+	 if (selected_replacement != NULL) {
+	   XmStringFree(lw->list.selectedItems[i]);
+	   lw->list.selectedItems[i] = selected_replacement;
+	 }
       }
   }
 }
