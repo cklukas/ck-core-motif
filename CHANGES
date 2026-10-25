@@ -79,6 +79,13 @@ XIM preedit callback guards (2026-10-26)
 - Ignore preedit callbacks with missing client data instead of asserting and
   continuing into a null widget lookup; see `docs/xim-preedit-callbacks.md`.
 
+XIM input-policy validation (2026-10-26)
+=========================================
+
+- Reject invalid input-policy values before XIC creation and make remaining
+  policy dispatch defaults harmless instead of asserting; see
+  `docs/xim-input-policy.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 

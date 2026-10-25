@@ -614,7 +614,7 @@ XmImRegister(Widget w,
       break;
 
     default:
-      assert(False);
+      break;
     }
   _XmAppUnlock(app);
 }
@@ -990,7 +990,7 @@ XmImGetXIC(Widget 	 w,
       break;
       
     default:
-      assert(False);
+      break;
     }
   
   /* Register an XIC with the desired input policy. */
@@ -1385,6 +1385,11 @@ create_xic_info(Widget		shell,
   char *cpend = NULL;
   register XIMStyles *styles;
   XmImXICInfo xic_info;
+
+  if (input_policy != XmPER_SHELL &&
+      input_policy != XmPER_WIDGET &&
+      input_policy != XmINHERIT_POLICY)
+    return NULL;
   
   /* Determine the input style to be used for this XIC. */
   styles = xim_info->styles;
@@ -1477,7 +1482,7 @@ create_xic_info(Widget		shell,
       break;
  
     default:
-      assert(False);
+      break;
     }
   
   return xic_info;
@@ -1657,7 +1662,7 @@ set_values(Widget w,
       case XmPER_WIDGET:
 	break;
       default:
-	assert(False);
+	break;
       }
   } else {
     /* Try to modify the existing XIC. */
