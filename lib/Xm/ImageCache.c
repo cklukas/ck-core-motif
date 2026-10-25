@@ -1210,9 +1210,13 @@ InitializePixmapSets( void )
     XmHashTable new_pixmap_set;
 
     /* Allocate both tables before publishing either global. */
-    assert (pixmap_data_set == NULL && pixmap_set == NULL);
-
     _XmProcessLock();
+    if (pixmap_data_set != NULL || pixmap_set != NULL)
+      {
+        _XmProcessUnlock();
+        return;
+      }
+
     new_pixmap_data_set = _XmAllocHashTable (100, ComparePixmapDatas,
                                              HashPixmapData);
     new_pixmap_set = _XmAllocHashTable (100, ComparePixmaps, HashPixmap);

@@ -275,6 +275,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  docs/xm-get-pixmap-data-validation.md.
 
 2026-10-25
+	* Serialize lazy Xm pixmap-cache table initialization under the process lock;
+	  see docs/xm-pixmap-set-initialization.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,
