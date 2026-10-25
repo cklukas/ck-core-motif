@@ -4337,6 +4337,12 @@ Guard XmRegion API NULL inputs (2026-10-25)
 
 - Make region destruction and rectangle output collection safe for absent
   regions or output pointers; see `docs/region-api-null-guards.md`.
+
+Handle XmScreen scratch-cache insertion failures (2026-10-25)
+===============================================================
+
+- Release scratch pixmaps and ownership keys when hash-table insertion cannot
+  allocate a bucket; see `docs/screen-scratch-cache-failure.md`.
 Mrm writer cstring-vector validation (2026-10-25)
 ====================================================
 

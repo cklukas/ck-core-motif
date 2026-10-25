@@ -1029,8 +1029,15 @@ _XmAllocScratchPixmap(
         }
     }
 
-    /* Place key in inUse table */
-    _XmAddHashEntry(inUseTable, (XmHashKey) scratchPixmap, returned_key);
+    /* Place key in inUse table.  If the hash bucket cannot be allocated,
+     * do not return an untracked pixmap to the caller. */
+    if (!_XmAddHashEntry(inUseTable, (XmHashKey) scratchPixmap, returned_key))
+      {
+        XFreePixmap(XtDisplay(xmScreen), scratchPixmap);
+        XtFree((char *)returned_key);
+        _XmProcessUnlock();
+        return (None);
+      }
 
     _XmProcessUnlock();
     return(scratchPixmap);
@@ -1063,7 +1070,11 @@ _XmFreeScratchPixmap(
 
     _XmRemoveHashEntry(inUseTable, (XmHashKey) pixmap);
 
-    _XmAddHashEntry(scratchTable, returned_key, (XtPointer) pixmap);
+    if (!_XmAddHashEntry(scratchTable, returned_key, (XtPointer) pixmap))
+      {
+        XFreePixmap(XtDisplay(xmScreen), pixmap);
+        XtFree((char *)returned_key);
+      }
     _XmProcessUnlock();
 }
 
