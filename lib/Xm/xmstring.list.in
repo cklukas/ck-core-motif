@@ -1152,6 +1152,11 @@ NskeletonAnimated
 NskeletonReducedMotion
 NskeletonInterval
 
+CRowActionsSide
+CRowActionsInvokeCallback
+NrowActionsSide
+NrowActionsInvokeCallback
+
 #table _XmStrings20
 
 NtearOffTitle

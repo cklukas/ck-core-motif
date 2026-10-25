@@ -84,6 +84,7 @@
 #include <Xm/Toast.h>
 #include <Xm/CommandPalette.h>
 #include <Xm/Skeleton.h>
+#include <Xm/RowActions.h>
 #include <Xm/NumberBox.h>
 #include <Xm/RatingControl.h>
 #include <Xm/MwmUtil.h>

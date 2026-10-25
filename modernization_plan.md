@@ -1597,8 +1597,12 @@ keyboard equivalent and existing lists, menus and DnD behavior are unchanged.
 **Status (2026-10-25):** `XmSkeleton` is implemented as the first bounded
 loading surface.  It has an explicit static fallback, per-instance timer,
 reduced-motion switch, copied accessibility label and deterministic start/
-stop teardown; its installed fixture passes 7 checks.  Row actions and drag
-feedback remain separate work items.
+stop teardown; its installed fixture passes 7 checks.  `XmRowActions` is now
+implemented as an opt-in sibling/overlay strip with copied IDs, labels and
+shortcuts, explicit reveal/hide and keyboard equivalents, application-owned
+dispatch, accessibility actions and destruction-safe child ownership.  Its
+installed fixture passes 13 checks and confirms that an existing `XmList`
+selection remains unchanged.  Drag feedback remains a separate work item.
 
 ### WP-40: Bounded application-chrome composites
 

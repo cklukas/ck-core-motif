@@ -38,6 +38,7 @@
 #include <Xm/Toast.h>
 #include <Xm/CommandPalette.h>
 #include <Xm/Skeleton.h>
+#include <Xm/RowActions.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
 #include <Xm/PushBG.h>
@@ -1371,6 +1372,11 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
       local = XmStringUnparse(label, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
                               NULL, 0, XmOUTPUT_ALL);
   }
+  if (XmIsRowActions(w)) {
+    i->role = XmACCESSIBLE_PANEL;
+    i->action_count = XmRowActionsIsRevealed(w) ? XmRowActionsGetItemCount(w) : 0;
+    local = XtNewString("Row actions");
+  }
   if (XmIsNumberBox(w)) {
     int minimum, maximum;
     i->role = XmACCESSIBLE_PROGRESS_BAR;
@@ -1634,6 +1640,10 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
   if (XmIsCommandPalette(n->widget) && action == 0) {
     XmCommandPaletteInvokeSelection(n->widget, NULL);
     return True;
+  }
+  if (XmIsRowActions(n->widget) && XmRowActionsIsRevealed(n->widget)) {
+    XmRowActionsInvoke(n->widget, action, NULL);
+    return action < XmRowActionsGetItemCount(n->widget);
   }
   if (XmIsArrowButton(n->widget)) {
     XmArrowButtonCallbackStruct cb;
