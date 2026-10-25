@@ -4750,3 +4750,9 @@ Accessibility D-Bus property input validation (2026-10-25)
 
 - Return safely for unknown or incomplete property requests instead of
   dereferencing a null signature; see `docs/accessibility-dbus-property-inputs.md`.
+
+XmIm reference-table growth (2026-10-25)
+=========================================
+
+- Grow XIM widget and callback reference arrays transactionally; see
+  `docs/xmim-reference-growth.md`.

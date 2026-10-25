@@ -2803,15 +2803,34 @@ add_ref(XmImRefInfo refs,
   /* Make room in the array. */
   if (refs->num_refs == refs->max_refs)
     {
+      Widget *new_refs;
+      XIMCallback **new_callbacks;
+      Cardinal new_max;
+
       if (refs->max_refs == 0)
-	refs->max_refs = 10;
+	new_max = 10;
       else
-	refs->max_refs += (refs->max_refs / 2);
-      
-      refs->refs = (Widget*) XtRealloc((char *) refs->refs, 
-				       refs->max_refs * sizeof(Widget));
-      refs->callbacks = (XIMCallback **) XtRealloc((char *) refs->callbacks,
-                                       refs->max_refs * sizeof(XIMCallback *));
+	new_max = refs->max_refs + (refs->max_refs / 2);
+
+      new_refs = (Widget *)XtMalloc((size_t)new_max * sizeof(*new_refs));
+      new_callbacks = (XIMCallback **)XtCalloc(
+	  new_max, sizeof(*new_callbacks));
+      if (new_refs == NULL || new_callbacks == NULL) {
+	XtFree((char *)new_refs);
+	XtFree((char *)new_callbacks);
+	return 0;
+      }
+      if (refs->num_refs != 0) {
+	memcpy(new_refs, refs->refs,
+	       refs->num_refs * sizeof(*new_refs));
+	memcpy(new_callbacks, refs->callbacks,
+	       refs->num_refs * sizeof(*new_callbacks));
+      }
+      XtFree((char *)refs->refs);
+      XtFree((char *)refs->callbacks);
+      refs->refs = new_refs;
+      refs->callbacks = new_callbacks;
+      refs->max_refs = new_max;
     }
   assert(refs->num_refs < refs->max_refs);
   
