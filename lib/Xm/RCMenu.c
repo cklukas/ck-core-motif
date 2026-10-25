@@ -2968,7 +2968,7 @@ ButtonMenuPopDown(
 {
    XmRowColumnWidget rc = FindMenu(w);
    XmRowColumnWidget pane = (XmRowColumnWidget) NULL;
-   short depth;
+   int depth;
    Boolean posted;
    XmDisplay dd = (XmDisplay)XmGetXmDisplay(XtDisplay(w));
    XmExcludedParentPaneRec *excPP =
@@ -2984,16 +2984,27 @@ ButtonMenuPopDown(
 	 XmIsMenuShell(XtParent(pane)));
 	depth++)
    {
-       if ((depth+1) > excPP->pane_list_size)
+       if (depth < 0 || depth >= SHRT_MAX ||
+	   depth >= excPP->pane_list_size)
        {
-	  if (excPP->pane_list_size > SHRT_MAX - 4 ||
-	      (size_t)(excPP->pane_list_size + 4) >
-		  SIZE_MAX / sizeof(Widget))
+	  int old_size = excPP->pane_list_size;
+	  int new_size = old_size;
+	  Widget *new_pane;
+
+	  if (new_size < depth)
+	      new_size = depth;
+	  if (new_size > SHRT_MAX - 4 ||
+	      (size_t)(new_size + 4) > SIZE_MAX / sizeof(Widget) ||
+	      (size_t)(new_size + 4) > (size_t)UINT_MAX / sizeof(Widget))
 	    break;
-	  excPP->pane_list_size += 4;
-	  excPP->pane = (Widget *) 
-			XtRealloc((char *)excPP->pane, 
-				  sizeof(Widget) * excPP->pane_list_size);
+	  new_size += 4;
+	  new_pane = (Widget *)XtRealloc(
+	      (char *)excPP->pane,
+	      (Cardinal)((size_t)new_size * sizeof(Widget)));
+	  if (new_pane == NULL)
+	    break;
+	  excPP->pane = new_pane;
+	  excPP->pane_list_size = (short)new_size;
        }
        (excPP->pane)[depth] = (Widget)pane;
  
@@ -3011,7 +3022,7 @@ ButtonMenuPopDown(
 	   ! XmIsRowColumn(pane)) break;
    }
 
-   excPP->num_panes = depth;
+   excPP->num_panes = (short)depth;
 
    _XmMenuPopDown((Widget)rc, event, &posted);
 

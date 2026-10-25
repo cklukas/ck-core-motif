@@ -1,3 +1,10 @@
+RCMenu excluded-parent-pane growth (2026-10-27)
+================================================
+
+- Make excluded-parent-pane storage growth transactional and guard the signed
+  depth, capacity, and byte-size limits.  Menu popdown now retains existing
+  pane entries when the replacement allocation fails.
+
 RCMenu post-from-list growth (2026-10-27)
 =========================================
 
