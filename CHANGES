@@ -258,6 +258,8 @@ Render-table locking (2026-10-26)
   array; see `docs/render-table-add-null-entry.md`.
 - Validate render-table removal tables, counts, and tag entries before locking
   or comparing strings; see `docs/render-table-remove-inputs.md`.
+- Make `XmRenderTableGetTags` roll back when an entry or tag is null instead
+  of copying malformed data; see `docs/render-table-tag-entry-guards.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================

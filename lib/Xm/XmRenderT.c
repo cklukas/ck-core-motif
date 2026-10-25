@@ -2108,6 +2108,15 @@ XmRenderTableGetTags(XmRenderTable table,
 
 	  for (i = 0; i < tag_count; i++)
 	    {
+	      if (_XmRTRenditions(table)[i] == NULL ||
+		  _XmRendTag(_XmRTRenditions(table)[i]) == NULL)
+		{
+		  while (i != 0)
+		    XtFree(tags[--i]);
+		  XtFree((char *)tags);
+		  tags = NULL;
+		  goto done;
+		}
 	      tags[i] = XtNewString(_XmRendTag(_XmRTRenditions(table)[i]));
 	      if (tags[i] == NULL)
 		{
