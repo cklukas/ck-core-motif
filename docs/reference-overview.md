@@ -42,6 +42,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 ## MWM and window-management protocol
 
 - [MWM protocol overview](mwm-protocol-oom.md) — protocol conversion and allocation-failure behavior.
+- [MWM WSM session-file path bounds](mwm-session-path.md) — safe session path construction.
 - [MWM home-directory path bounds](mwm-home-path.md) — bounded legacy home-path resolution.
 - [MWM session database suffix updates](mwm-db-name-suffix.md) — bounded session-name suffix handling.
 - [Workspace-management command messages](command-message-argument-allocation.md) — bounded command-message construction.

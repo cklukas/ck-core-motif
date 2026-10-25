@@ -272,13 +272,20 @@ buildDBFileName(char fileNameBuf[MAXPATHLEN], Boolean doingSave)
 
 	if (DtSessionSavePath(wmGD.topLevelW, &savePath, &saveFile))
 	{
+	    size_t pathLength;
+	    size_t fileLength;
+
 	    XtFree(saveFile);
 
 	    if ((ptr = strrchr(savePath, '/')) != (char *)NULL)
 		*ptr = '\0';
 
-	    if (strlen(savePath) + strlen(dtwmFileName) + 2 < MAXPATHLEN)
-		sprintf(fileNameBuf, "%s/%s", savePath, dtwmFileName);
+	    pathLength = strlen(savePath);
+	    fileLength = strlen(dtwmFileName);
+	    if (pathLength <= SIZE_MAX - fileLength - 2 &&
+		pathLength + fileLength + 2 < MAXPATHLEN)
+		(void)snprintf(fileNameBuf, MAXPATHLEN, "%s/%s",
+		               savePath, dtwmFileName);
 
 	    XtFree(savePath);
 	}
@@ -287,8 +294,8 @@ buildDBFileName(char fileNameBuf[MAXPATHLEN], Boolean doingSave)
     {
 	if (DtSessionRestorePath(wmGD.topLevelW, &savePath, dtwmFileName))
 	{
-	    if ((int)strlen(savePath) < MAXPATHLEN)
-		strcpy(fileNameBuf, savePath);
+	    if (strlen(savePath) < MAXPATHLEN)
+		(void)snprintf(fileNameBuf, MAXPATHLEN, "%s", savePath);
 
 	    XtFree(savePath);
 	}
