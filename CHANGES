@@ -121,6 +121,12 @@ XmString rendition resize failures (2026-10-26)
 - Preserve rendition arrays and counts when `XtRealloc` fails in begin/end
   setters; see `docs/xmstring-rendition-resize.md`.
 
+XmString entry allocation failures (2026-10-26)
+================================================
+
+- Check internal array-entry allocations before initialization and preserve
+  copied ownership on failure; see `docs/xmstring-entry-allocation.md`.
+
 XmString extraction output validation (2026-10-26)
 ====================================================
 

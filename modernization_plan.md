@@ -2079,6 +2079,11 @@ Rendition begin/end setters now commit resized tag arrays and counts only after
 The source contract is recorded in
 `tests/automated/check-xmstring-rendition-resize.py` and
 `docs/xmstring-rendition-resize.md`.
+Internal unoptimization and segment insertion now check array-entry
+allocations before initialization, preserving source and copied ownership on
+failure. The source contract is recorded in
+`tests/automated/check-xmstring-entry-allocation.py` and
+`docs/xmstring-entry-allocation.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the
