@@ -1,3 +1,9 @@
+CascadeButton gadget origin bounds (2026-10-26)
+================================================
+
+- Compute shadow and highlight origins in signed arithmetic, preserving
+  negative/off-edge positions; see `docs/cascadebg-origin-bounds.md`.
+
 PushButton gadget highlight bounds (2026-10-26)
 =================================================
 

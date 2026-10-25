@@ -854,8 +854,10 @@ DrawShadow(
 	 XmeDrawShadows (XtDisplay (cb), XtWindow (XtParent(cb)),
 			LabG_TopShadowGC(cb),
 			LabG_BottomShadowGC(cb),
-			cb->gadget.highlight_thickness + cb->rectangle.x,
-			cb->gadget.highlight_thickness + cb->rectangle.y,
+			(Position) ((int) cb->rectangle.x +
+			    (int) cb->gadget.highlight_thickness),
+			(Position) ((int) cb->rectangle.y +
+			    (int) cb->gadget.highlight_thickness),
 			 cb->rectangle.width - 2 * 
 			cb->gadget.highlight_thickness,
 			 cb->rectangle.height - 2 * 
@@ -1525,8 +1527,10 @@ Disarm(
 		 XmeDrawHighlight(XtDisplay(cb),
 				  XtWindow(cb), 
 				  LabG_BackgroundGC(cb), 
-			    cb->gadget.highlight_thickness + cb->rectangle.x,
-			    cb->gadget.highlight_thickness + cb->rectangle.y,
+			    (Position) ((int) cb->rectangle.x +
+				(int) cb->gadget.highlight_thickness),
+			    (Position) ((int) cb->rectangle.y +
+				(int) cb->gadget.highlight_thickness),
 				  (int) cb->rectangle.width -
 				  2 * (int) cb->gadget.highlight_thickness,
 				  (int) cb->rectangle.height -
