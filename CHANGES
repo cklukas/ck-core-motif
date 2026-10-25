@@ -1,3 +1,9 @@
+Tab-list converter validation and rollback (2026-10-25)
+========================================================
+
+- Validate tab parsing inputs and roll back partial lists when insertion
+  allocation fails; see `docs/tablist-converter-inputs.md`.
+
 Select-color converter input validation (2026-10-25)
 =====================================================
 

@@ -3041,6 +3041,10 @@ GetNextTab(char **s,
   char 	sign[2];
   char	*tmp;
 
+  if (s == NULL || *s == NULL || value == NULL || unitType == NULL ||
+      offsetModel == NULL)
+    return FALSE;
+
   bzero(sign, sizeof(sign));
   unitType[0] = '\0';
   
@@ -3124,6 +3128,10 @@ CvtStringToXmTabList(Display *dpy,
   XmParseResult	result;
   XmTab		tab;
   XmTabList	tl = NULL;
+  XmTabList	new_tl;
+
+  if (dpy == NULL || from == NULL || from->addr == NULL || to == NULL)
+    return FALSE;
   
   if (from->addr)
     {   
@@ -3152,7 +3160,13 @@ CvtStringToXmTabList(Display *dpy,
 	    return FALSE;
 	  }
 	  
-	  tl = XmTabListInsertTabs(tl, &tab, 1, -1);
+  new_tl = XmTabListInsertTabs(tl, &tab, 1, -1);
+  if (new_tl == NULL) {
+    XmTabFree(tab);
+    XmTabListFree(tl);
+    return FALSE;
+  }
+  tl = new_tl;
 	  
 	  XmTabFree(tab);
 	}
