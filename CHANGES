@@ -1,3 +1,10 @@
+InfoBar close-icon geometry bounds (2026-10-25)
+================================================
+
+- Guard fixed-offset close-icon drawing for small InfoBars and use signed
+  coordinates, preventing wrapped X line endpoints; see
+  `docs/infobar-close-geometry.md`.
+
 Use size-aware scaled-image row offsets (2026-10-25)
 ====================================================
 
