@@ -135,6 +135,49 @@ extern int errno;
  * Global Variables And Tables:
  */
 static char cfileName[MAXWMPATH+1];
+static Boolean configPathValid = TRUE;
+
+static Boolean
+SetConfigPath(const char *value)
+{
+    int length = snprintf(cfileName, sizeof(cfileName), "%s",
+                          value != NULL ? value : "");
+    if (length < 0 || (size_t)length >= sizeof(cfileName))
+    {
+        cfileName[0] = '\0';
+        configPathValid = FALSE;
+        return (FALSE);
+    }
+    configPathValid = TRUE;
+    return (TRUE);
+}
+
+static Boolean
+AppendConfigPath(const char *value)
+{
+    size_t used;
+    int length;
+
+    if (!configPathValid)
+        return (FALSE);
+    used = strlen(cfileName);
+    if (used >= sizeof(cfileName))
+    {
+        cfileName[0] = '\0';
+        configPathValid = FALSE;
+        return (FALSE);
+    }
+    length = snprintf(cfileName + used, sizeof(cfileName) - used, "%s",
+                      value != NULL ? value : "");
+    if (length < 0 || (size_t)length >= sizeof(cfileName) - used)
+    {
+        cfileName[0] = '\0';
+        configPathValid = FALSE;
+        return (FALSE);
+    }
+    return (TRUE);
+}
+
 #ifdef WSM
 #ifndef NO_MESSAGE_CATALOG
 char * pWarningStringFile;
@@ -2125,6 +2168,8 @@ FILE *FopenConfigFile (void)
     Boolean stackPushed;
 #endif /* PANELIST */
 
+    configPathValid = TRUE;
+
     /*
      * Get the LANG environment variable
      * make copy since another call to getenv will blast the value.
@@ -2178,14 +2223,14 @@ FILE *FopenConfigFile (void)
 #ifdef MOTIF_ONE_DOT_ONE
 	    GetHomeDirName(cfileName);
 #else
-	    strcpy (cfileName, homeDir);
+	    (void)SetConfigPath(homeDir);
 #endif
 	    if (LANG != NULL)
 	    {
-		strncat(cfileName, "/", MAXWMPATH-strlen(cfileName));
-		strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
+		(void)AppendConfigPath("/");
+		(void)AppendConfigPath(LANG);
 	    }
-	    strncat(cfileName, &(wmGD.configFile[1]), MAXWMPATH-strlen(cfileName));
+	    (void)AppendConfigPath(&(wmGD.configFile[1]));
 	    if ((fileP = fopen (cfileName, "r")) != NULL)
 	    {
 		if (LANG != NULL) { 
@@ -2204,10 +2249,9 @@ FILE *FopenConfigFile (void)
 #ifdef MOTIF_ONE_DOT_ONE
 		GetHomeDirName(cfileName);
 #else
-		strcpy (cfileName, homeDir);
+		(void)SetConfigPath(homeDir);
 #endif
-		strncat(cfileName, &(wmGD.configFile[1]), 
-			MAXWMPATH-strlen(cfileName));
+		(void)AppendConfigPath(&(wmGD.configFile[1]));
 		if ((fileP = fopen (cfileName, "r")) != NULL)
 		{
 		  if (LANG != NULL) {
@@ -2232,7 +2276,7 @@ FILE *FopenConfigFile (void)
 
 	    if ((fileP = fopen (pch, "r")) != NULL)
 	    {
-	        strncpy (cfileName, pch, MAXWMPATH);
+	        (void)SetConfigPath(pch);
 	    }
 	    XtFree (pch);
   
@@ -2251,7 +2295,7 @@ FILE *FopenConfigFile (void)
 	  }
 	  else if ((fileP == NULL) && stackPushed)
 	  {
-		strcpy (cfileName, wmGD.configFile);
+		(void)SetConfigPath(wmGD.configFile);
 	  }
 #endif /* PANELIST */
 	}
@@ -2272,7 +2316,7 @@ FILE *FopenConfigFile (void)
 #ifdef MOTIF_ONE_DOT_ONE
     GetHomeDirName(cfileName);
 #else
-    strcpy (cfileName, homeDir);
+    (void)SetConfigPath(homeDir);
 #endif
 
 #ifdef WSM
@@ -2287,10 +2331,10 @@ FILE *FopenConfigFile (void)
 	 */
 	if (LANG != NULL)
 	{
-	    strncat(cfileName, "/", MAXWMPATH-strlen(cfileName));
-	    strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
+	    (void)AppendConfigPath("/");
+	    (void)AppendConfigPath(LANG);
 	}
-	strncat(cfileName, HOME_MWMRC, MAXWMPATH - strlen(cfileName));
+	(void)AppendConfigPath(HOME_MWMRC);
     }
     else
     {
@@ -2303,21 +2347,21 @@ FILE *FopenConfigFile (void)
 	 *  Looking for $HOME/.dt/dtwmrc
 	 *
 	 */
-	strncat(cfileName, "/.dt/", MAXWMPATH-strlen(cfileName));
+	(void)AppendConfigPath("/.dt/");
 
 	if (LANG != NULL)
 	{
-	    strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
+	    (void)AppendConfigPath(LANG);
 	}
-	strncat(cfileName, LANG_DT_WMRC, MAXWMPATH - strlen(cfileName));
+	(void)AppendConfigPath(LANG_DT_WMRC);
     }
 #else /* WSM */
     if (LANG != NULL)
     {
-	strncat(cfileName, "/", MAXWMPATH-strlen(cfileName));
-	strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
+	(void)AppendConfigPath("/");
+	(void)AppendConfigPath(LANG);
     }
-    strncat(cfileName, HOME_MWMRC, MAXWMPATH - strlen(cfileName));
+    (void)AppendConfigPath(HOME_MWMRC);
 #endif /* WSM */
     if ((fileP = fopen (cfileName, "r")) != NULL)
     {
@@ -2337,7 +2381,7 @@ FILE *FopenConfigFile (void)
 #ifdef MOTIF_ONE_DOT_ONE
 	GetHomeDirName(cfileName);
 #else
-    strcpy (cfileName, homeDir);
+    (void)SetConfigPath(homeDir);
 #endif
 #ifdef WSM
 	if (MwmBehavior)
@@ -2345,17 +2389,17 @@ FILE *FopenConfigFile (void)
 	    /* 
 	     * Just try $HOME/.mwmrc
 	     */
-	    strncat(cfileName, HOME_MWMRC, MAXWMPATH - strlen(cfileName));
+	    (void)AppendConfigPath(HOME_MWMRC);
 	}
 	else
 	{
 	    /* 
 	     * Just try $HOME/.dt/dtwmrc
 	     */
-	    strncat(cfileName, HOME_DT_WMRC, MAXWMPATH - strlen(cfileName));
+	    (void)AppendConfigPath(HOME_DT_WMRC);
 	}
 #else /* WSM */
-        strncat(cfileName, HOME_MWMRC, MAXWMPATH - strlen(cfileName));
+        (void)AppendConfigPath(HOME_MWMRC);
 #endif /* WSM */
 	if ((fileP = fopen (cfileName, "r")) != NULL)
 	{
@@ -2380,17 +2424,17 @@ FILE *FopenConfigFile (void)
     /* 
      * No home-based config file. Try the admin directory.
      */
-    strcpy(cfileName, DTADMINDIR);
-    strncat(cfileName, RC_CONFIG_SUBDIR, MAXWMPATH-strlen(cfileName));
-    strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
-    strncat(cfileName, SLASH_DT_WMRC, MAXWMPATH - strlen(cfileName));
+    (void)SetConfigPath(DTADMINDIR);
+    (void)AppendConfigPath(RC_CONFIG_SUBDIR);
+    (void)AppendConfigPath(LANG);
+    (void)AppendConfigPath(SLASH_DT_WMRC);
 
     if (((fileP = fopen (cfileName, "r")) == NULL) && LANG && *LANG)
     {
 	/* Try it with no LANG */
-	strcpy(cfileName, DTADMINDIR);
-	strncat(cfileName, RC_CONFIG_SUBDIR, MAXWMPATH-strlen(cfileName));
-	strncat(cfileName, SLASH_DT_WMRC, MAXWMPATH - strlen(cfileName));
+	(void)SetConfigPath(DTADMINDIR);
+	(void)AppendConfigPath(RC_CONFIG_SUBDIR);
+	(void)AppendConfigPath(SLASH_DT_WMRC);
     }
 
     if ((fileP = fopen (cfileName, "r")) != NULL)
@@ -2412,26 +2456,26 @@ FILE *FopenConfigFile (void)
 #ifdef WSM
 	if (MwmBehavior)
 	{
-	    strcpy(cfileName, MWMRCDIR);
-	    strncat(cfileName, "/", MAXWMPATH-strlen(cfileName));
-	    strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
-	    strncat(cfileName, SLASH_MWMRC, MAXWMPATH - strlen(cfileName));
+	    (void)SetConfigPath(MWMRCDIR);
+	    (void)AppendConfigPath("/");
+	    (void)AppendConfigPath(LANG);
+	    (void)AppendConfigPath(SLASH_MWMRC);
 	}
 	else
 	{
-	    strcpy(cfileName, DTLIBDIR);
-	    strncat(cfileName, RC_CONFIG_SUBDIR, MAXWMPATH-strlen(cfileName));
-	    strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
-	    strncat(cfileName, SLASH_DT_WMRC, MAXWMPATH - strlen(cfileName));
+	    (void)SetConfigPath(DTLIBDIR);
+	    (void)AppendConfigPath(RC_CONFIG_SUBDIR);
+	    (void)AppendConfigPath(LANG);
+	    (void)AppendConfigPath(SLASH_DT_WMRC);
 	}
 #else /* WSM */
        /*
 	* Try /$LANG/system.mwmrc within the install tree
 	*/
-	strcpy(cfileName, MWMRCDIR);
-	strncat(cfileName, "/", MAXWMPATH-strlen(cfileName));
-	strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
-	strncat(cfileName, SLASH_MWMRC, MAXWMPATH - strlen(cfileName));
+	(void)SetConfigPath(MWMRCDIR);
+	(void)AppendConfigPath("/");
+	(void)AppendConfigPath(LANG);
+	(void)AppendConfigPath(SLASH_MWMRC);
 #endif /* WSM */
 	if ((fileP = fopen (cfileName, "r")) != NULL)
 	{
@@ -2450,8 +2494,8 @@ FILE *FopenConfigFile (void)
 #ifdef WSM
     if (MwmBehavior)
     {
-	strcpy(cfileName, MWMRCDIR);
-	strncat(cfileName, SLASH_MWMRC, MAXWMPATH - strlen(cfileName));
+	(void)SetConfigPath(MWMRCDIR);
+	(void)AppendConfigPath(SLASH_MWMRC);
 #ifdef PANELIST
 	fileP = fopen (cfileName, "r");
 #else /* PANELIST */
@@ -2460,10 +2504,9 @@ FILE *FopenConfigFile (void)
     }
     else
     {
-	strcpy(cfileName, DTLIBDIR);
-	strncat(cfileName, RC_DEFAULT_CONFIG_SUBDIR, 
-					MAXWMPATH - strlen(cfileName));
-	strncat(cfileName, SLASH_DT_WMRC, MAXWMPATH - strlen(cfileName));
+	(void)SetConfigPath(DTLIBDIR);
+	(void)AppendConfigPath(RC_DEFAULT_CONFIG_SUBDIR);
+	(void)AppendConfigPath(SLASH_DT_WMRC);
 #ifdef PANELIST
 	fileP = fopen (cfileName, "r");
 #else /* PANELIST */
@@ -2474,8 +2517,8 @@ FILE *FopenConfigFile (void)
     /*
      * Try /system.mwmrc within the install tree
      */
-    strcpy(cfileName, MWMRCDIR);
-    strncat(cfileName, SLASH_MWMRC, MAXWMPATH - strlen(cfileName));
+    (void)SetConfigPath(MWMRCDIR);
+    (void)AppendConfigPath(SLASH_MWMRC);
 
     if (LANG != NULL) 
     {
@@ -2483,7 +2526,6 @@ FILE *FopenConfigFile (void)
        LANG = NULL;
     }
 #ifdef PANELIST
-    strcpy(cfileName, cfileName);
     fileP = fopen (cfileName, "r");
 #else /* PANELIST */
     return (fopen (cfileName, "r"));
@@ -2503,7 +2545,7 @@ FILE *FopenConfigFile (void)
 	pch = (char *) GetNetworkFileName (cfileName);
 	if ((fileP = fopen (cfileName, "r")) != NULL)
 	{
-	    strncpy (cfileName, pch, MAXWMPATH);
+	    (void)SetConfigPath(pch);
 	    XtFree (pch);
 	}
 

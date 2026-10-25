@@ -1,3 +1,10 @@
+Mwm config-file path bounds (2026-10-25)
+=========================================
+
+- Build resource and system config paths through checked bounded helpers,
+  avoiding fixed-buffer copy overflow and `strncat` size underflow; see
+  `docs/config-path-bounds.md`.
+
 WSM backdrop search-path bounds (2026-10-25)
 ==============================================
 
