@@ -360,6 +360,7 @@ remember_widget(XmImDisplayInfo info, Widget w)
   for (r = info->registrations; r; r = r->next)
     if (r->widget == w) return r;
   r = (XmImRegistration)XtCalloc(1, sizeof(*r));
+  if (r == NULL) return NULL;
   r->widget = w;
   r->next = info->registrations;
   info->registrations = r;
@@ -399,6 +400,7 @@ remember_values(XmImDisplayInfo info, Widget w, ArgList args, Cardinal n)
   Cardinal i, j, k;
   if (!info || info->restoring || !n) return;
   r = remember_widget(info, w);
+  if (r == NULL) return;
   for (i = 0; i < n; ++i) {
     XtArgVal value = args[i].value;
     size_t bytes = 0;
@@ -407,12 +409,16 @@ remember_values(XmImDisplayInfo info, Widget w, ArgList args, Cardinal n)
     if (k == XtNumber(XmImResList)) continue;
     if (!strcmp(args[i].name, XmNfontList) || !strcmp(args[i].name, XmNrenderTable))
       value = (XtArgVal)XmFontListCopy((XmFontList)value);
+    if (value == (XtArgVal)NULL && args[i].value != (XtArgVal)NULL)
+      continue;
     else {
       if (!strcmp(args[i].name, XmNspotLocation)) bytes = sizeof(XPoint);
       else if (!strcmp(args[i].name, XmNarea)) bytes = sizeof(XRectangle);
       else if (strstr(args[i].name, "Callback")) bytes = sizeof(XIMCallback);
       if (bytes && value) {
         char *copy = XtMalloc(bytes);
+        if (copy == NULL)
+          continue;
         memcpy(copy, (void *)value, bytes);
         value = (XtArgVal)copy;
       }
@@ -421,8 +427,18 @@ remember_values(XmImDisplayInfo info, Widget w, ArgList args, Cardinal n)
       if (!strcmp(r->args[j].name, args[i].name)) break;
     if (j < r->count) free_saved_arg(&r->args[j]);
     else {
+      ArgList new_args;
+      if (r->count == (Cardinal)-1)
+        continue;
+      new_args = (ArgList)XtRealloc((char *)r->args,
+                                    ((size_t)r->count + 1) * sizeof(Arg));
+      if (new_args == NULL) {
+        if (bytes && value)
+          XtFree((char *)value);
+        continue;
+      }
+      r->args = new_args;
       ++r->count;
-      r->args = (ArgList)XtRealloc((char *)r->args, r->count * sizeof(Arg));
     }
     r->args[j].name = XmImResList[k].xmstring;
     r->args[j].value = value;

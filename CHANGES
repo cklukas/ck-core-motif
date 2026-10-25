@@ -6082,3 +6082,10 @@ Guard Label baseline allocations (2026-10-25)
   `docs/label-baseline-allocation.md`.
 
 Guard LabelGadget baseline allocations (2026-10-25)
+Guard XmIm registration allocations (2026-10-25)
+================================================
+
+- Make per-widget snapshot creation, value copies, and argument growth
+  failure-safe; see `docs/xmim-registration-allocation.md`.
+
+Guard Label baseline allocations (2026-10-25)
