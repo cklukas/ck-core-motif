@@ -476,3 +476,4 @@ EXTRA_DIST += tests/automated/check-mrm-convert-char8-null.py docs/mrm-convert-c
 EXTRA_DIST += tests/automated/check-mrm-convert-pointer-null.py docs/mrm-convert-pointer-null.md
 EXTRA_DIST += tests/automated/check-mrm-convert-primitive-pointer-validation.py docs/mrm-convert-primitive-pointer-validation.md
 EXTRA_DIST += tests/automated/check-mrm-callback-fixup-validation.py docs/mrm-callback-fixup-validation.md
+EXTRA_DIST += tests/automated/check-mrm-callback-routine-offset.py docs/mrm-callback-routine-offset.md

@@ -3481,6 +3481,8 @@ Urm__CW_FixupCallback (Widget			parent ,
        * Set the routine pointer to the actual routine address. This
        * routine name must be a registered URM callback.
        */
+      if ( itmptr->cb_item.routine == 0 )
+        return MrmFAILURE ;
       rtn_name = (String) bufptr + itmptr->cb_item.routine ;
       result = Urm__LookupNameInHierarchy (hierarchy_id, rtn_name, &rtn_addr) ;
       if ( result != MrmSUCCESS )
