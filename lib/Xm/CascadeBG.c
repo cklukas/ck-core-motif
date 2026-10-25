@@ -875,11 +875,12 @@ DrawCascade(
       if ((LabG_MenuType(cb) == XmMENU_OPTION) &&
 	  (CBG_CascadePixmap(cb) == XmUNSPECIFIED_PIXMAP))
       {
-	 Dimension height, width;
-	 Dimension offset_y;
+	 Dimension height, offset_y;
          Dimension offset_x;
+         int width;
 
-	 switch(CBG_Cascade_height(cb) - 2*G_ShadowThickness(cb)) {
+	 switch((int)CBG_Cascade_height(cb) -
+	        2 * (int)G_ShadowThickness(cb)) {
 	    case 5:
 	    case 6:
 	       height = 1;
@@ -903,8 +904,15 @@ DrawCascade(
 	       width =  CBG_Cascade_width(cb) - 6;
 	       break;
 	 }
-	 width -= 2*G_ShadowThickness(cb);
-	 offset_y =  (CBG_Cascade_height(cb)- height)/2;
+	 width -= 2 * (int)G_ShadowThickness(cb);
+         if (width <= 0 || CBG_Cascade_height(cb) < height ||
+             !XtIsRealized(XtParent(cb)) ||
+             LabG_BackgroundGC(cb) == NULL ||
+             LabG_TopShadowGC(cb) == NULL ||
+             LabG_BottomShadowGC(cb) == NULL ||
+             G_ShadowThickness(cb) == 0)
+             return;
+	 offset_y = (CBG_Cascade_height(cb) - height) / 2;
 
 	 if (LayoutIsRtoLG(cb))
 	   {

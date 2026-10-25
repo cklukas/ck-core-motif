@@ -1,3 +1,10 @@
+CascadeButtonGadget cascade glyph bounds (2026-10-25)
+=====================================================
+
+- Reject undersized option-menu cascade glyph geometry and missing parent or
+  drawing GCs before filling or drawing the glyph; see
+  `docs/cascade-button-gadget-glyph-guards.md`.
+
 ArrowButtonGadget redisplay guards (2026-10-25)
 ================================================
 
