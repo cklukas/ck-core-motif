@@ -296,6 +296,7 @@ WSMProcessProtoTarget(Widget w, Atom target, XtPointer input,
 {
     Display *dpy;
     int scr_num;
+    WSMRequestType request_type;
     WSMScreenInfo *screen_info;
     WSMRequest request;
     WSMReply reply;    
@@ -325,13 +326,19 @@ WSMProcessProtoTarget(Widget w, Atom target, XtPointer input,
 
     dpy = XtDisplay(w);
     scr_num = XScreenNumberOfScreen(XtScreen(w));
+    request_type = _WSMTargetToReqType(dpy, target);
+
+    /* CONFIG_FMT is the only request with no encoded payload.  The other
+     * decoders read at least one field and must not receive a null value. */
+    if (input == NULL && input_len == 0 && request_type != WSM_CONFIG_FMT)
+	return(False);
 
     /*
      * Unpack up the request from the wire.
      */
     
     _WSMUnpackRequest(dpy, scr_num, (MessageData) input, input_len, 
-		      _WSMTargetToReqType(dpy, target), &request);
+		      request_type, &request);
 
     /*
      * Call the app's callback function to process the request.

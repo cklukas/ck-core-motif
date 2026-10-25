@@ -7,6 +7,13 @@ WSM reply payload validation (2026-10-26)
 - Reject empty successful replies for request types that require encoded data;
   preserve the valid payload-less `WSM_SET_STATE` response.
 
+WSM empty request validation (2026-10-26)
+==========================================
+
+- Reject empty selection requests before payload-bearing WSM decoders run;
+  preserve the payload-less `WSM_CONFIG_FMT` request; see
+  `docs/wsm-empty-request-guards.md`.
+
 WSM reply packing failure handling (2026-10-26)
 ===============================================
 
