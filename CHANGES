@@ -6252,3 +6252,9 @@ XmIm preedit allocation failure handling (2026-10-25)
 
 - Preserve active preedit state when replacement, feedback or callback-view
   buffers cannot be allocated; see `docs/xmim-preedit-allocation.md`.
+XmIm callback registration guards (2026-10-25)
+===============================================
+
+- Ignore stale widget references and failed callback-array allocation instead
+  of writing through an invalid XIM callback slot; see
+  `docs/xmim-callback-registration.md`.
