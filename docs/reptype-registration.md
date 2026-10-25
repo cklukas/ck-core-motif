@@ -8,5 +8,8 @@ types and converter state. `XmRepTypeGetRegistered` likewise returns `NULL`
 when its result list cannot be allocated, without touching the process-wide
 registry.
 
+`XmRepTypeGetRecord` also checks its individual record allocation and returns
+`NULL` without leaving the process lock held when memory is unavailable.
+
 This keeps the public registration API and successful registration behavior
 unchanged while preventing a null-table dereference under memory pressure.

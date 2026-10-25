@@ -1,3 +1,10 @@
+Representation-type record allocation guard (2026-10-25)
+=========================================================
+
+- Return `NULL` from `XmRepTypeGetRecord` when its output record cannot be
+  allocated, releasing the process lock before returning; see
+  `docs/reptype-registration.md`.
+
 Representation-type list allocation guard (2026-10-25)
 ======================================================
 
