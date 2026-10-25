@@ -2053,6 +2053,7 @@ Redisplay(
 
 	large_icon_x = GetLargeIconX(wid); /* no rtl yet */
 	
+	depth = 0;
 	XmeGetPixmapData(XtScreen(wid),
 			 IG_LargeIconPixmap(wid),
 			 NULL,    
@@ -2115,6 +2116,7 @@ Redisplay(
 
 	small_icon_y = GetSmallIconY(wid);
 
+	depth = 0;
 	XmeGetPixmapData(XtScreen(wid),
 			 IG_SmallIconPixmap(wid),
 			 NULL,    
@@ -2475,15 +2477,16 @@ SetValues(
 	    Relayout = Redraw = True;
 
 	/* if the new icon is different, refetch the sizes */
-	if (PIXMAP_VALID(IG_LargeIconPixmap(nw)))
+	if (PIXMAP_VALID(IG_LargeIconPixmap(nw))) {
+	    w = h = 0;
 	    XmeGetPixmapData(XtScreen(nw),
 			     IG_LargeIconPixmap(nw),
 			     NULL,    
 			     NULL,
 			     NULL, NULL,
 			     NULL, NULL,
-			     &w, &h); 
-	else {
+			     &w, &h);
+	} else {
 	    w = h = 0 ;
 	}
 
@@ -2508,15 +2511,16 @@ SetValues(
 	if (IG_ViewType(nw) == XmSMALL_ICON)
 	    Relayout = Redraw = True;
 
-	if (PIXMAP_VALID(IG_SmallIconPixmap(nw)))
+	if (PIXMAP_VALID(IG_SmallIconPixmap(nw))) {
+	    w = h = 0;
 	    XmeGetPixmapData(XtScreen(nw),
 			     IG_SmallIconPixmap(nw),
 			     NULL,    
 			     NULL,
 			     NULL, NULL,
 			     NULL, NULL,
-			     &w, &h); 
-	else {
+			     &w, &h);
+	} else {
 	    w = h = 0 ;
 	}
 
@@ -3102,6 +3106,7 @@ UpdateGCs(
     if (PIXMAP_VALID(IG_BackgroundPixmap(wid))) {
 	int depth ;
 
+	depth = 0;
 	XmeGetPixmapData(XtScreen(wid),IG_BackgroundPixmap(wid) ,
 			 NULL,    
 			 &depth,
@@ -3111,7 +3116,7 @@ UpdateGCs(
 	    valueMask |= GCFillStyle | GCStipple ;
 	    values.fill_style = FillOpaqueStippled;
 	    values.stipple = IG_BackgroundPixmap(wid);
-	} else {
+	} else if (depth > 1) {
 	    valueMask |= GCFillStyle | GCTile ;
 	    values.fill_style = FillTiled;
 	    values.tile = IG_BackgroundPixmap(wid);
