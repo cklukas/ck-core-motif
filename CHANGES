@@ -14316,3 +14316,9 @@ GrabShell geometry initialization (2026-10-26)
 - Initialize the shell geometry request before adding border and shadow
   extents, avoiding undefined dimensions when no child size is supplied; see
   `docs/grab-shell-geometry-init.md`.
+Text-field drop location lifetime (2026-10-26)
+==============================================
+
+- Keep text-field drop coordinates in transfer-owned storage instead of a
+  callback-local `XPoint`, releasing them after the transfer completes; see
+  `docs/text-field-drop-location-lifetime.md`.

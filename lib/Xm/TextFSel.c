@@ -1623,7 +1623,7 @@ TextFieldDestinationCallback(Widget w,
   enum { XmATARGETS, XmA_MOTIF_DROP, NUM_ATOMS };
   static char *atom_names[] = { XmSTARGETS, XmS_MOTIF_DROP };
   Atom atoms[XtNumber(atom_names)];
-  XPoint DropPoint;
+  XPoint *drop_point;
 
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);
@@ -1653,13 +1653,24 @@ TextFieldDestinationCallback(Widget w,
     XmDropProcCallbackStruct *cb = 
       (XmDropProcCallbackStruct *) ds->destination_data;
     
-    DropPoint.x = cb->x;
-    DropPoint.y = cb->y;
-    
-    ds->location_data = (XtPointer) &DropPoint;
-    
+    drop_point = (XPoint *) XtMalloc(sizeof(*drop_point));
+    if (drop_point == NULL) {
+      ds->location_data = NULL;
+      if (cb->dropAction != XmDROP_HELP)
+        XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+      return;
+    }
+    drop_point->x = cb->x;
+    drop_point->y = cb->y;
+
+    ds->location_data = (XtPointer) drop_point;
+
     if (cb->dropAction != XmDROP_HELP) {
+      XmeTransferAddDoneProc(ds->transfer_id, FreeLocationData);
       HandleDrop(w, cb, ds);
+    } else {
+      XtFree((char *) ds->location_data);
+      ds->location_data = NULL;
     }
   } else if (ds->selection == XA_SECONDARY) {
     Atom CS_OF_ENCODING;
