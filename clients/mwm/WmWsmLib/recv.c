@@ -304,6 +304,11 @@ WSMProcessProtoTarget(Widget w, Atom target, XtPointer input,
         output_len == NULL || output_fmt == NULL ||
         (input == NULL && input_len != 0))
 	return(False);
+
+    *return_type = None;
+    *output = NULL;
+    *output_len = 0;
+    *output_fmt = WSM_PROTO_FMT;
     
     /*
      * Check the Target to make sure it is valid.
@@ -346,6 +351,11 @@ WSMProcessProtoTarget(Widget w, Atom target, XtPointer input,
      */
 
     *output = (XtPointer) _WSMPackReply(dpy, scr_num, &reply, output_len);
+    if (*output == NULL && *output_len != 0) {
+	FreeReply(&reply);
+	FreeRequest(&request);
+	return(False);
+    }
     *output_fmt = WSM_PROTO_FMT;
     *return_type = target;	/* Is this the right return type? */
 

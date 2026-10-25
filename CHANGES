@@ -1,3 +1,10 @@
+WSM reply packing failure handling (2026-10-26)
+===============================================
+
+- Initialize WSM conversion outputs and reject a null packed reply when a
+  non-empty response was requested, returning failure after releasing request
+  and reply state; see `docs/wsm-reply-packing-guards.md`.
+
 MWM virtual-screen request bounds (2026-10-26)
 ===============================================
 
