@@ -3818,6 +3818,13 @@ Guard compound-text encoding buffer (2026-10-25)
 - Check the temporary octet buffer used to combine registered encoding and
   item data before copying; see `docs/motif-resencod-octets.md`.
 
+Make segment-encoding registry updates transactional (2026-10-25)
+===================================================================
+
+- Allocate replacement strings and new entries before publishing registry
+  changes, and check registry export storage; see
+  `docs/motif-resencod-registry.md`.
+
 Handle single text-property copy failure (2026-10-25)
 ======================================================
 

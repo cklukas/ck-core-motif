@@ -221,6 +221,7 @@ EXTRA_DIST += tests/automated/check-txtpropcv-string-table-allocation.py docs/mo
 EXTRA_DIST += tests/automated/check-iconv-output-allocation.py docs/motif-resencod-iconv.md
 EXTRA_DIST += tests/automated/check-resencod-prefix-allocation.py docs/motif-resencod-prefix.md
 EXTRA_DIST += tests/automated/check-resencod-octet-allocation.py docs/motif-resencod-octets.md
+EXTRA_DIST += tests/automated/check-resencod-registry-allocation.py docs/motif-resencod-registry.md
 EXTRA_DIST += tests/automated/check-txtpropcv-single-allocation.py docs/motif-txtpropcv-single.md
 EXTRA_DIST += tests/automated/check-mwm-session-db-path.py docs/mwm-session-db-path.md
 EXTRA_DIST += tests/automated/check-mwm-display-env-bounds.py docs/mwm-display-env-bounds.md
