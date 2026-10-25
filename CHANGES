@@ -1,3 +1,10 @@
+Guard empty ASN.1 string-table allocation (2026-10-25)
+=========================================================
+
+- Return `BadAlloc` with balanced locking when the empty Motif
+  compound-string table cannot be allocated; see
+  `docs/motif-txtpropcv-empty-asn1-table.md`.
+
 Guard bounded compound-text segment copies (2026-10-25)
 =========================================================
 

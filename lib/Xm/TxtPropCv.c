@@ -834,6 +834,10 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 
 	if (text_prop->nitems == 0) {
 	    *string_table_return = (XmStringTable)XtMalloc(sizeof(XmString));
+	    if (*string_table_return == NULL) {
+		_XmAppUnlock(app);
+		return BadAlloc;
+	    }
 	    *count_return = 0;
 	    _XmAppUnlock(app);
 	    return Success;
