@@ -10091,6 +10091,13 @@ DropTransfer initialization transaction (2026-10-25)
   failure transactionally, leaving a safe empty transfer set; see
   `docs/drop-transfer-initialization.md`.
 
+Callback-list allocation failure guards (2026-10-25)
+====================================================
+
+- Preserve active internal callback lists when callback-copy or resize
+  allocation fails, avoiding null dereferences and dangling deferred-free
+  state; see `docs/callback-allocation-failure.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
