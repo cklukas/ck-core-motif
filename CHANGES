@@ -11405,3 +11405,9 @@ MWM screen-conflict warning allocation width (2026-10-25)
 
 - Check the localized startup-conflict warning length before Xt allocation;
   see `docs/mwm-screen-conflict-warning.md`.
+
+MWM bitmap-cache path allocation (2026-10-25)
+==============================================
+
+- Check cached bitmap-path lengths before copying them into Xt-owned storage;
+  see `docs/mwm-bitmap-cache-path-allocation.md`.

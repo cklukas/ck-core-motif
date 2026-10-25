@@ -41,6 +41,7 @@ static char rcsid[] = "$XConsortium: WmImage.c /main/7 1996/11/14 13:50:30 rswis
 #include "WmGlobal.h"
 #include <stdio.h>
 #include <stdint.h>
+#include <limits.h>
 
 #define MWM_NEED_IIMAGE
 #include "WmIBitmap.h"
@@ -842,8 +843,16 @@ int GetBitmapIndex (WmScreenData *pSD, char *name)
 
     if (path)
     {
+        size_t pathLength = strlen(path);
+
+        if (pathLength >= UINT_MAX)
+        {
+            MWarning (((char *)GETMESSAGE(38, 6,
+                       "Insufficient memory for bitmap %s\n")), name);
+            return (-1);
+        }
         if ((bitmapc->path = (String)
-                 XtMalloc ((unsigned int)(strlen (path) + 1))) == NULL)
+                 XtMalloc ((Cardinal)pathLength + 1)) == NULL)
         {
             MWarning (((char *)GETMESSAGE(38, 6, "Insufficient memory for bitmap %s\n")), name);
 	    return (-1);

@@ -42,6 +42,7 @@ clients exchanging Motif window-management messages.
 - [Property-warning allocation widths](mwm-property-warning-allocation.md)
 - [Font-warning allocation widths](mwm-font-warning-allocation.md)
 - [Screen-warp warning allocation widths](mwm-screen-warp-warning-allocation.md)
+- [Bitmap-cache path allocation](mwm-bitmap-cache-path-allocation.md)
 - [Menu argument allocation](mwm-menu-args-allocation.md)
 - [Home-directory path bounds](mwm-home-path.md)
 - [Action-argument reallocation](mwm-action-arg-reallocation.md)

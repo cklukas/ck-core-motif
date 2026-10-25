@@ -53,6 +53,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM property-warning allocation widths](mwm-property-warning-allocation.md) — guard shared localized warnings.
 - [MWM font-warning allocation widths](mwm-font-warning-allocation.md) — guard appearance-font diagnostics.
 - [MWM screen-warp warning allocation widths](mwm-screen-warp-warning-allocation.md) — guard unmanaged-screen diagnostics.
+- [MWM bitmap-cache path allocation](mwm-bitmap-cache-path-allocation.md) — guard cached bitmap path copies.
 - [MWM home-directory path bounds](mwm-home-path.md) — bounded legacy home-path resolution.
 - [MWM session database suffix updates](mwm-db-name-suffix.md) — bounded session-name suffix handling.
 - [Workspace-management command messages](command-message-argument-allocation.md) — bounded command-message construction.
