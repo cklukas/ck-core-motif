@@ -598,11 +598,15 @@ results are reviewed, and there is an explicit go/no-go decision for WP-09.
 **Does not include:** integrating the prototype into `libXm` or claiming a new
 OO object model.
 
-**Status (2026-10-24):** the public design proposal and explicit decision are
-recorded in `docs/cpp-support-library-proposal.md`. The consumer-only prototype
-has a GO decision; an installed WP-09 release remains NO-GO until its callback
-exception barrier, widget-destruction ordering and mixed C/C++ ownership
-fixture pass against a fresh prefix.
+**Status (2026-10-25):** the public design proposal is now backed by a
+consumer-only C++17 prototype and installed-prefix fixture. The prototype
+exercises copied/moved `XmString` ownership, one-shot argument storage,
+non-owning raw-widget interoperation, callback exception capture and
+destruction-before-connection-release without private Xm records or a global
+registry. The fixture passes on the qualified AArch64 install; see
+`docs/cpp-support-library-prototype.md`. An installed WP-09 release remains
+NO-GO until the prototype's callback/destruction contract is reviewed across
+the required compiler and sanitizer matrix.
 
 ### WP-09: Optional C++ support-library release
 

@@ -1,4 +1,10 @@
 2026-10-25
+	* Add the consumer-only WP-08 C++17 support prototype for owned XmString
+	  values, one-shot Xt arguments, non-owning widget views and exception-safe
+	  callback connections; it is tested against an installed prefix but is not
+	  an installed SDK; see docs/cpp-support-library-prototype.md.
+
+2026-10-25
 	* Clarify the WP-06 native text matrix: bounded large UTF-8 clipboard and
 	  interrupted INCR transfers pass for Text and TextField with the pinned
 	  corrected Xt dependency on AArch64, while x86_64, application workflows,
