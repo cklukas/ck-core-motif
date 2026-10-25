@@ -46,7 +46,7 @@ XmHashTable _XmAllocHashTable(Cardinal, XmHashCompareProc, XmHashFunction);
 void _XmResizeHashTable(XmHashTable, Cardinal);
 void _XmFreeHashTable(XmHashTable);
 XtPointer _XmGetHashEntryIterate(XmHashTable, XmHashKey, XtPointer*);
-void _XmAddHashEntry(XmHashTable, XmHashKey, XtPointer);
+Boolean _XmAddHashEntry(XmHashTable, XmHashKey, XtPointer);
 XtPointer _XmRemoveHashEntry(XmHashTable, XmHashKey);
 XtPointer _XmRemoveHashIterator(XmHashTable, XtPointer*);
 Cardinal _XmHashTableCount(XmHashTable);

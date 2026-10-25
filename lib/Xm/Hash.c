@@ -247,7 +247,7 @@ _XmGetHashEntryIterate(XmHashTable table, XmHashKey key, XtPointer *iterator)
   return(NULL);
 }
 
-void 
+Boolean
 _XmAddHashEntry(XmHashTable table, XmHashKey key, XtPointer value)
 {
   int hash;
@@ -255,19 +255,20 @@ _XmAddHashEntry(XmHashTable table, XmHashKey key, XtPointer value)
   XmHashBucket entry;
 
   if (table == NULL || table->buckets == NULL || table->size == 0)
-    return;
+    return False;
   hash = table -> hasher(key);
   index = hash % table -> size;
 
   entry = NewBucket();
   if (entry == NULL)
-    return;
+    return False;
   entry -> hashed_key = hash;
   entry -> hash_key = key;
   entry -> value = value;
   entry -> next = table -> buckets[index];
   table -> buckets[index] = entry;
   table -> count++;
+  return True;
 }
 
 XtPointer
