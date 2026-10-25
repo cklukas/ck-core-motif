@@ -876,6 +876,12 @@ List drag conversion allocation (2026-10-25)
 - Cancel list drag initiation cleanly when its conversion record or string
   array cannot be allocated; see `docs/list-drag-allocation.md`.
 
+Drop-down selection-table allocation (2026-10-25)
+====================================================
+
+- Handle converted selection-table allocation failure through the existing
+  drop-down error path; see `docs/dropdown-selection-bounds.md`.
+
 Accessibility UTF-8 allocation failures (2026-10-25)
 =====================================================
 
