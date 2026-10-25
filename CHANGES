@@ -54,6 +54,12 @@ Breadcrumb text-length bounds (2026-10-26)
 - Bound breadcrumb label/separator lengths and final text positioning before
   Xlib drawing; see `docs/breadcrumb-text-bounds.md`.
 
+Prompt text-length bounds (2026-10-26)
+======================================
+
+- Bound prompt text lengths before passing them to Xlib; see
+  `docs/prompt-text-bounds.md`.
+
 Info-bar text geometry bounds (2026-10-26)
 ==========================================
 
