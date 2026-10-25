@@ -591,6 +591,8 @@ XmGetIconFileName(
     String	hostPrefix,
     unsigned int size)
 {
+    if (screen == NULL)
+	return NULL;
     Display		*display = DisplayOfScreen(screen);
     String		fileName = NULL;
     String		names[2];
