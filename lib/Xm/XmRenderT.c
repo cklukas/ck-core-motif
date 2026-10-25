@@ -2921,7 +2921,7 @@ XmRenditionUpdate(XmRendition rendition,
    ** had a real fontName specified */
   else if ((oldname == NULL) && NameIsString(_XmRendFontName(rendition)))
     {
-      if (oldfont == _XmRendFontName(rendition))
+      if (oldfont != NULL)
 	_XmRendFont(rendition) = NULL;
     }
 

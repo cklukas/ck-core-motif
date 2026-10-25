@@ -239,6 +239,9 @@ Render-table locking (2026-10-26)
   checking the `XmAS_IS` marker; see `docs/render-rendition-null-font-name.md`.
 - Fix rendition merging so an unspecified strikethrough value inherits
   independently of underline; see `docs/render-rendition-merge.md`.
+- Invalidate an existing loaded font when `XmRenditionUpdate` adds a font
+  name to a rendition that previously had none; see
+  `docs/render-rendition-font-name-update.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================
