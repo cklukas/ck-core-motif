@@ -1,3 +1,9 @@
+Mrm widget-name record bounds (2026-10-25)
+============================================
+
+- Validate serialized widget-name and class strings before lookup or creation;
+  see `docs/mrm-widget-name-record-bounds.md`.
+
 Mrm argument-list record bounds (2026-10-25)
 =============================================
 

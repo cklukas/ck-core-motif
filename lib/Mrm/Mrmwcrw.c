@@ -98,6 +98,15 @@ static void DisplayDestroyCallback (Widget w,
 				     ((float_value) + 0.5) : \
 				     ((float_value) - 0.5)))
 
+static Boolean
+UrmWidgetStringValid(RGMWidgetRecordPtr widgetrec, MrmOffset offset)
+{
+  if (offset < RGMWidgetRecordHdrSize || offset >= widgetrec->size)
+    return False;
+  return memchr((char *)widgetrec + offset, '\0',
+                widgetrec->size - offset) != NULL;
+}
+
 
 
 /*
@@ -160,6 +169,9 @@ UrmCreateWidgetInstanceCleanup (URMResourceContextPtr	context_id,
 
   if (widgetrec->variety == UilMrmWidgetVariety)
     {
+      if (widgetrec->class_offs != 0 &&
+          !UrmWidgetStringValid(widgetrec, widgetrec->class_offs))
+        return MrmFAILURE;
       result = Urm__FindClassDescriptor (file_id,
 				     widgetrec->type,
 				     (XtPointer)
@@ -633,9 +645,11 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
     return Urm__UT_Error ("UrmCreateWidgetInstance", _MrmMMsg_0026,
 			  NULL, context_id, MrmBAD_WIDGET_REC) ;
   if ((widgetrec->class_offs != 0 &&
-       widgetrec->class_offs >= widgetrec->size) ||
+       !UrmWidgetStringValid(widgetrec, widgetrec->class_offs)) ||
       (widgetrec->creation_offs != 0 &&
-       widgetrec->creation_offs >= widgetrec->size))
+       widgetrec->creation_offs >= widgetrec->size) ||
+      (ov_name == NULL &&
+       !UrmWidgetStringValid(widgetrec, widgetrec->name_offs)))
     return MrmFAILURE ;
 
   result = Urm__FindClassDescriptor (file_id,
