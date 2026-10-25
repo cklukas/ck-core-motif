@@ -241,19 +241,22 @@ void SetupWmICCC (void)
 	Warning (((char *)GETMESSAGE(56, 2, "Insufficient memory to XInternAtom _MOTIF_WM_QUERY_nn")));
     }
 
-    for (scr = 0; scr < wmGD.numScreens; scr++)
+    if (xa_WM_QUERY != NULL)
     {
-	if (wmGD.Screens[scr].managed)
+	for (scr = 0; scr < wmGD.numScreens; scr++)
 	{
-	  char wm_query_scr[32];
+	    if (wmGD.Screens[scr].managed)
+	    {
+	      char wm_query_scr[32];
 
-          sprintf(wm_query_scr, "_MOTIF_WM_QUERY_%d",
+	      sprintf(wm_query_scr, "_MOTIF_WM_QUERY_%d",
                                         wmGD.Screens[scr].screen);
-          xa_WM_QUERY[scr] = XInternAtom(DISPLAY, wm_query_scr, False);
-        }
-        else
-        {
-          xa_WM_QUERY[scr] = 0;
+	      xa_WM_QUERY[scr] = XInternAtom(DISPLAY, wm_query_scr, False);
+	    }
+	    else
+	    {
+	      xa_WM_QUERY[scr] = 0;
+	    }
 	}
     }
     xa_WM_CLIENT_WINDOW  = atoms[XA_MOTIF_WM_CLIENT_WINDOW];
@@ -1187,6 +1190,12 @@ OwnWMSelections ( Time timestamp )
   
   
   wmGD.xa_WM = (Atom *) XtMalloc (wmGD.numScreens * (sizeof (Atom)));
+  if (wmGD.xa_WM == NULL)
+    {
+      Warning (((char *)GETMESSAGE(56, 7,
+				   "Insufficient memory to own WM_nn selections")));
+      return;
+    }
   
   for (scr = 0; scr < wmGD.numScreens; scr++)
     {

@@ -28,6 +28,12 @@ Mwm menu command stream bounds (2026-10-25)
 - Reserve the separator and terminator in parsed menu command streams and
   reject unrepresentable lengths; see `docs/menu-stream-bounds.md`.
 
+Mwm protocol allocation failure handling (2026-10-25)
+=======================================================
+
+- Avoid dereferencing failed atom-array allocations during protocol setup;
+  see `docs/mwm-protocol-oom.md`.
+
 Bounded Latin-1 resource conversion (2026-10-25)
 ==================================================
 
