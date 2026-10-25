@@ -91,9 +91,10 @@ These are real coverage gaps rather than claims of known source defects:
 6. **Input-method services.** Local composition and selected IBus/m17n cases
    pass, but provider differences, candidate panels, keyboard layouts, and
    restart/cancellation behavior need a repeatable matrix.
-7. **DPI and monitor changes.** Geometry defaults are covered; live mixed-scale
-   monitor changes, pixmaps, clipping, hit testing, and explicit pixel sizes
-   need measured 1x/2x/4x qualification.
+7. **DPI and monitor changes.** The installed control-metric fixture now
+   exercises 1x/2x/4x plus a 8x boundary while preserving explicit pixel sizes.
+   Live mixed-scale monitor changes, pixmaps, clipping, and hit testing still
+   need measured qualification.
 
 ## Product-level usability gaps
 

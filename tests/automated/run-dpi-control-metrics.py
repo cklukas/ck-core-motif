@@ -83,7 +83,7 @@ try:
     log = run("run", ["xvfb-run", "-a", "-s", "-screen 0 1024x768x24",
                        binary])
     rows = [line for line in log.splitlines() if line.startswith("DPI ")]
-    if len(rows) != 3 or {row.split()[1] for row in rows} != {"75", "150", "300"}:
+    if len(rows) != 4 or {row.split()[1] for row in rows} != {"75", "150", "300", "600"}:
         raise RuntimeError("audit did not report all three DPI rows")
     for row in rows:
         fields = row.split()
