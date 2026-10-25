@@ -6209,3 +6209,10 @@ Guard XmString tag-cache entry allocation (2026-10-25)
   lock on failure; see `docs/xmstring-tag-allocation.md` and its focused source
   check.
 
+Guard XmString segment allocation (2026-10-25)
+===============================================
+
+- Make segment insertion transactional across entry/segment-array growth and
+  copied-child failures, with checked count-to-byte conversion; see
+  `docs/xmstring-segment-allocation.md` and its focused source check.
+
