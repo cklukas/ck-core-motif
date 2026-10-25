@@ -3650,6 +3650,17 @@ ClassPartInitialize(WidgetClass w_class)
  */
 
 /* ARGSUSED */
+static XmString
+CopyFontSelectorString(XmString source)
+{
+    XmString copy;
+
+    if (source == NULL)
+        return NULL;
+    copy = XmStringCopy(source);
+    return copy != NULL ? copy : XmStringCreateLocalized("");
+}
+
 static void 
 Initialize(Widget request, Widget set, ArgList args, Cardinal * num_args)
 {
@@ -3674,24 +3685,24 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal * num_args)
     XmFontS_get_font(fsw) = (String) XtMalloc(sizeof(char) * GET_FONT_SIZE);
 
     /* duplicate strings so that user can query them later */
-    ANY_STRING(fsw)		= XmStringCopy(ANY_STRING(fsw)); 
-    BOLD_STRING(fsw)		= XmStringCopy(BOLD_STRING(fsw)); 
-    BOTH_STRING(fsw)		= XmStringCopy(BOTH_STRING(fsw)); 
-    DPI100_STRING(fsw)		= XmStringCopy(DPI100_STRING(fsw)); 
-    DPI75_STRING(fsw)		= XmStringCopy(DPI75_STRING(fsw)); 
-    ENCODING_ONLY_STRING(fsw)	= XmStringCopy(ENCODING_ONLY_STRING(fsw)); 
-    FAMILY_STRING(fsw)		= XmStringCopy(FAMILY_STRING(fsw)); 
-    ITALIC_STRING(fsw)		= XmStringCopy(ITALIC_STRING(fsw)); 
-    LOWER_ANY_STRING(fsw)	= XmStringCopy(LOWER_ANY_STRING(fsw)); 
-    MONO_SPACE_STRING(fsw)	= XmStringCopy(MONO_SPACE_STRING(fsw)); 
-    OPTION_STRING(fsw)		= XmStringCopy(OPTION_STRING(fsw)); 
-    OTHER_FONT_STRING(fsw)	= XmStringCopy(OTHER_FONT_STRING(fsw)); 
-    PROPORTIONAL_STRING(fsw)	= XmStringCopy(PROPORTIONAL_STRING(fsw)); 
-    SAMPLE_TEXT(fsw)		= XmStringCopy(SAMPLE_TEXT(fsw)); 
-    SCALING_STRING(fsw)		= XmStringCopy(SCALING_STRING(fsw)); 
-    SHOW_NAME_STRING(fsw)	= XmStringCopy(SHOW_NAME_STRING(fsw)); 
-    SIZE_STRING(fsw)		= XmStringCopy(SIZE_STRING(fsw)); 
-    XLFD_STRING(fsw)		= XmStringCopy(XLFD_STRING(fsw)); 
+    ANY_STRING(fsw)		= CopyFontSelectorString(ANY_STRING(fsw));
+    BOLD_STRING(fsw)		= CopyFontSelectorString(BOLD_STRING(fsw));
+    BOTH_STRING(fsw)		= CopyFontSelectorString(BOTH_STRING(fsw));
+    DPI100_STRING(fsw)		= CopyFontSelectorString(DPI100_STRING(fsw));
+    DPI75_STRING(fsw)		= CopyFontSelectorString(DPI75_STRING(fsw));
+    ENCODING_ONLY_STRING(fsw)	= CopyFontSelectorString(ENCODING_ONLY_STRING(fsw));
+    FAMILY_STRING(fsw)		= CopyFontSelectorString(FAMILY_STRING(fsw));
+    ITALIC_STRING(fsw)		= CopyFontSelectorString(ITALIC_STRING(fsw));
+    LOWER_ANY_STRING(fsw)	= CopyFontSelectorString(LOWER_ANY_STRING(fsw));
+    MONO_SPACE_STRING(fsw)	= CopyFontSelectorString(MONO_SPACE_STRING(fsw));
+    OPTION_STRING(fsw)		= CopyFontSelectorString(OPTION_STRING(fsw));
+    OTHER_FONT_STRING(fsw)	= CopyFontSelectorString(OTHER_FONT_STRING(fsw));
+    PROPORTIONAL_STRING(fsw)	= CopyFontSelectorString(PROPORTIONAL_STRING(fsw));
+    SAMPLE_TEXT(fsw)		= CopyFontSelectorString(SAMPLE_TEXT(fsw));
+    SCALING_STRING(fsw)		= CopyFontSelectorString(SCALING_STRING(fsw));
+    SHOW_NAME_STRING(fsw)	= CopyFontSelectorString(SHOW_NAME_STRING(fsw));
+    SIZE_STRING(fsw)		= CopyFontSelectorString(SIZE_STRING(fsw));
+    XLFD_STRING(fsw)		= CopyFontSelectorString(XLFD_STRING(fsw));
 
     ENCODING_STRING(fsw)	= XtNewString(ENCODING_STRING(fsw)); 
     /* XmFontS_current_font(fsw) handled internally */

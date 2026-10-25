@@ -9537,3 +9537,12 @@ Label initialization rollback (2026-10-28)
 
 IconGadget label initialization rollback (2026-10-28)
 =======================================================
+FontSelector label initialization rollback (2026-10-28)
+==========================================================
+
+- Check all built-in label copies and use an empty-string fallback on
+  allocation failure, preserving selector child-label safety; see
+  `docs/fontselector-label-init-rollback.md`.
+
+Label initialization rollback (2026-10-28)
+============================================
