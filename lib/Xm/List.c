@@ -3785,8 +3785,15 @@ DeleteItemPositions(XmListWidget  lw,
 
   if (TotalItems)
     {
-	lw->list.items = (XmString *) XtRealloc((char *) lw->list.items,
-					TotalItems * sizeof(XmString));
+	if ((size_t)TotalItems <= SIZE_MAX / sizeof(XmString) &&
+	    (size_t)TotalItems <= UINT_MAX / sizeof(XmString))
+	  {
+	    XmString *new_items = (XmString *)XtRealloc(
+		(char *)lw->list.items,
+		(Cardinal)(sizeof(XmString) * (size_t)TotalItems));
+	    if (new_items != NULL)
+	      lw->list.items = new_items;
+	  }
     }
   else
     {

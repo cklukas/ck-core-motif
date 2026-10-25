@@ -6288,3 +6288,10 @@ Bound List item compaction allocation width (2026-10-25)
 - Keep List item compaction transactional and enforce Xt's `Cardinal` byte
   limit when shrinking the external item array; see the focused List checks.
 
+Bound List position-delete compaction width (2026-10-25)
+==========================================================
+
+- Apply the same checked Xt `Cardinal` byte count to the position-based List
+  deletion path, preserving the existing item array when a shrink cannot be
+  represented or allocated; see `docs/list-internal-growth.md`.
+
