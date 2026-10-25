@@ -1,3 +1,9 @@
+Mrm writer context validation (2026-10-25)
+============================================
+
+- Reject null or invalid resource contexts before writer APIs inspect group or
+  type fields; see `docs/mrm-writer-context-validation.md`.
+
 Mrm write-open output initialization (2026-10-25)
 ================================================
 

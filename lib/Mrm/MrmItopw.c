@@ -273,9 +273,10 @@ UrmIdbPutIndexedResource (IDBFile		file_id,
   if ( (result=Idb__FIL_Valid(file_id)) != MrmSUCCESS ) return result ;
 
   /*
-   * Validity check on group and type, and make sure entry doesn't
-   * currently exist.
+   * Validity check on the context, group, and type, and make sure entry
+   * doesn't currently exist.
    */
+  if ( context_id == NULL || !UrmRCValid(context_id) ) return MrmFAILURE ;
   if ( UrmRCGroup(context_id) == URMgNul ) return MrmNUL_GROUP ;
   if ( UrmRCType(context_id) == URMtNul) return MrmNUL_TYPE ;
   result = Idb__INX_FindIndex (file_id, index, &bufptr, &recno) ;
@@ -358,9 +359,10 @@ UrmIdbPutRIDResource (IDBFile			file_id ,
   if ( (result=Idb__FIL_Valid(file_id)) != MrmSUCCESS ) return result ;
 
   /*
-   * Validity check on group and type, and make sure entry doesn't
-   * currently exist.
+   * Validity check on the context, group, and type, and make sure entry
+   * doesn't currently exist.
    */
+  if ( context_id == NULL || !UrmRCValid(context_id) ) return MrmFAILURE ;
   if ( UrmRCGroup(context_id) == URMgNul ) return MrmNUL_GROUP ;
   if ( UrmRCType(context_id) == URMtNul) return MrmNUL_TYPE ;
   result = Idb__RID_ReturnItem (file_id, resource_id, FALSE, &data_entry) ;
