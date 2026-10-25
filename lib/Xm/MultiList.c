@@ -696,15 +696,17 @@ GeometryManager(Widget w, XtWidgetGeometry * request,
 
 	if (request->request_mode & CWWidth)
 	{
-	    ext_request.width = elist->core.width -
-		(w->core.width - request->width);
+	    int width = (int)elist->core.width -
+		((int)w->core.width - (int)request->width);
+	    ext_request.width = (Dimension)(width > 0 ? width : 1);
 	    ext_request.request_mode |= CWWidth;
 	}
 
 	if (request->request_mode & CWHeight)
 	{
-	    ext_request.height = elist->core.height -
-		(w->core.height - request->height);
+	    int height = (int)elist->core.height -
+		((int)w->core.height - (int)request->height);
+	    ext_request.height = (Dimension)(height > 0 ? height : 1);
 	    ext_request.request_mode |= CWHeight;
 	}
 

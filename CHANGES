@@ -6968,3 +6968,11 @@ VendorShell resize bounds (2026-10-25)
   calculations during resize; see `docs/vendorshell-resize-bounds.md`.
 
 PushButton default-glyph bounds (2026-10-25)
+MultiList geometry request bounds (2026-10-25)
+==============================================
+
+- Bound signed parent width and height requests in the MultiList geometry
+  manager, preventing unsigned wraparound during child shrink requests; see
+  `docs/multilist-geometry-bounds.md`.
+
+VendorShell resize bounds (2026-10-25)
