@@ -1330,6 +1330,49 @@ _XmGetPixmapData(
 
 
 /*******************************************************************/
+/* Release temporary state when scaled-pixmap construction cannot
+ * allocate its cache record. */
+static void
+DiscardScaledPixmapBuild(
+    XtEnum ret,
+    XImage *image,
+    char *old_image_data,
+    int old_image_format,
+    Boolean image_lock_held,
+    Screen *screen,
+    Pixel *pixels,
+    int npixels,
+    PixmapData *pix_entry)
+{
+    if (image_lock_held)
+      {
+        if (old_image_data != NULL)
+          {
+            image->format = old_image_format;
+            if (image->data != old_image_data)
+              XtFree(image->data);
+            image->data = old_image_data;
+          }
+        _XmProcessUnlock();
+      }
+
+    if (ret == NOT_CACHED)
+      {
+        XDestroyImage(image);
+        if (old_image_data != NULL)
+          XtFree(old_image_data);
+      }
+
+    if (pix_entry != NULL)
+      {
+        XtFree(pix_entry->image_name);
+        XtFree((char *)pix_entry->acc_color);
+        XtFree((char *)pix_entry);
+      }
+    ReleaseImagePixels(screen, pixels, npixels);
+}
+
+/*******************************************************************/
 /* the real one, used by PixConv and locally too */
 Pixmap 
 _XmGetScaledPixmap(
@@ -1356,6 +1399,7 @@ _XmGetScaledPixmap(
     int npixels;
     int old_image_format;
     char *old_image_data = NULL;
+    Boolean image_lock_held = False;
     Dimension scaled_width, scaled_height;
 
     /*  Error checking  */    
@@ -1512,7 +1556,10 @@ _XmGetScaledPixmap(
 	case XYPixmap:
 	  /* We're going to muck with the shared image... */
 	  if (ret != NOT_CACHED)
-	    _XmProcessLock();
+	    {
+	      _XmProcessLock();
+	      image_lock_held = True;
+	    }
 
 	  /* Assume black == fg in the image. */
 	  if ((BlackPixelOfScreen(screen) == 0) ||
@@ -1571,13 +1618,36 @@ _XmGetScaledPixmap(
      */
     
     pix_entry = XtNew (PixmapData);
+    if (pix_entry == NULL)
+      {
+        DiscardScaledPixmapBuild(ret, image, old_image_data,
+                                 old_image_format, image_lock_held,
+                                 screen, pixels, npixels, NULL);
+        return (XmUNSPECIFIED_PIXMAP);
+      }
+    pix_entry->acc_color = NULL;
+    pix_entry->image_name = NULL;
 
     pix_entry->screen = screen;
     pix_entry->acc_color = XtNew(XmAccessColorDataRec);
+    if (pix_entry->acc_color == NULL)
+      {
+        DiscardScaledPixmapBuild(ret, image, old_image_data,
+                                 old_image_format, image_lock_held,
+                                 screen, pixels, npixels, pix_entry);
+        return (XmUNSPECIFIED_PIXMAP);
+      }
     memcpy((void*)pix_entry->acc_color, (void*)acc_color,
 	   sizeof(XmAccessColorDataRec));
     pix_entry->depth = depth;
     pix_entry->image_name = XtNewString(image_name);
+    if (pix_entry->image_name == NULL)
+      {
+        DiscardScaledPixmapBuild(ret, image, old_image_data,
+                                 old_image_format, image_lock_held,
+                                 screen, pixels, npixels, pix_entry);
+        return (XmUNSPECIFIED_PIXMAP);
+      }
     pix_entry->print_shell = pix_data.print_shell;
     pix_entry->print_resolution = pix_data.print_resolution ;
     pix_entry->pixels = pixels;
