@@ -1,0 +1,16 @@
+# Picture state allocation
+
+`XmGetNewPictureState` now treats state construction as a transaction.  It
+rejects a null picture and node counts that cannot be represented by the
+ABI-preserved `int statesize` field, and checks every allocation before the
+state is initialized or published.  If a later allocation fails, all earlier
+allocations are released and the function returns `NULL`.
+
+The state-vector size is computed in `size_t` before conversion to `int`, so a
+large or malformed picture cannot overflow the old `num_nodes * sizeof(char)`
+expression.  Existing callers that receive a valid state retain the same
+layout and behavior; callers must continue to handle the documented `NULL`
+result from allocation failure.
+
+The source-level regression check is
+`tests/automated/check-picture-state-allocation.py`.

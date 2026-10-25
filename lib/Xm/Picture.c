@@ -78,16 +78,48 @@ XmPictureState
 XmGetNewPictureState(XmPicture picture)
 {
     int i;
+    size_t state_bytes;
     XmPictureStateRec *state;
 
-    state = XtNew(XmPictureStateRec);
+    if (picture == NULL || picture->num_nodes < 0)
+	return NULL;
 
-    state->statesize = 1 + (picture->num_nodes * sizeof(char) / 8);
+    /* statesize is part of the public private-structure ABI and remains an
+     * int, so reject a picture whose state vector cannot be represented. */
+    state_bytes = 1U + ((size_t)picture->num_nodes / 8U);
+    if (state_bytes > (size_t)INT_MAX)
+	return NULL;
+
+    state = XtNew(XmPictureStateRec);
+    if (state == NULL)
+	return NULL;
+
+    state->statesize = (int)state_bytes;
 
     state->picture = picture;
 
     state->state = (unsigned char*) XtMalloc(state->statesize);
+    if (state->state == NULL) {
+	XtFree((char*)state);
+	return NULL;
+    }
+
     state->newstate = (unsigned char*) XtMalloc(state->statesize);
+    if (state->newstate == NULL) {
+	XtFree((char*)state->state);
+	XtFree((char*)state);
+	return NULL;
+    }
+
+    state->current_capacity = 1024;
+    state->current_string = XtMalloc(state->current_capacity);
+    if (state->current_string == NULL) {
+	XtFree((char*)state->newstate);
+	XtFree((char*)state->state);
+	XtFree((char*)state);
+	return NULL;
+    }
+
     for(i=0; i<state->statesize; i++) {
 	state->state[i] = 0;
 	state->newstate[i] = 0;
@@ -95,8 +127,6 @@ XmGetNewPictureState(XmPicture picture)
 
     _XmPictureSetState(state->state, picture->start_node);
 
-    state->current_capacity = 1024;
-    state->current_string = XtMalloc(state->current_capacity);
     state->current_string[0] = '\0';
     state->append = state->current_string;
 
