@@ -529,3 +529,5 @@ EXTRA_DIST += tests/automated/check-mrm-context-valid-macro.py docs/mrm-context-
 EXTRA_DIST += tests/automated/check-mrm-validation-macros.py docs/mrm-validation-macros.md
 EXTRA_DIST += tests/automated/check-mrm-widget-read-null.py docs/mrm-widget-read-null.md
 EXTRA_DIST += tests/automated/check-mrm-interface-module-null.py docs/mrm-interface-module-null.md
+
+EXTRA_DIST += tests/automated/check-mrm-fetch-literal-output.py docs/mrm-fetch-literal-output.md

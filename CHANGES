@@ -1,3 +1,10 @@
+Mrm literal output validation (2026-10-25)
+===========================================
+
+- Reject missing `MrmFetchLiteral` output pointers before entering the locked
+  fetch path, and initialize both outputs on each call; see
+  `docs/mrm-fetch-literal-output.md`.
+
 Mrm interface-module null guards (2026-10-25)
 ===============================================
 
