@@ -6368,6 +6368,10 @@ LayoutSpatial(
   int		cell_width,cell_height;
   int		width_in_cells,height_in_cells;
   CwidNode	node;
+  int		new_cell_count;
+  int		old_cell_count;
+  int		*new_cells;
+  int		i;
   
     if (!((XmContainerWidgetClass)XtClass(wid))->container_class.place_item)
 	return;
@@ -6398,23 +6402,39 @@ LayoutSpatial(
 	     * has changed.
 	     */
 	    {
+	    if (width_in_cells <= 0 || height_in_cells <= 0 ||
+		width_in_cells > INT_MAX / height_in_cells)
+		return;
+	    new_cell_count = width_in_cells * height_in_cells;
+	    if (CtrIsHORIZONTAL(wid)) /* For "clipped" items */
+	      {
+		if (new_cell_count > INT_MAX - height_in_cells)
+		    return;
+		new_cell_count += height_in_cells;
+	      }
+	    else
+	      {
+		if (new_cell_count > INT_MAX - width_in_cells)
+		    return;
+		new_cell_count += width_in_cells;
+	      }
+	    if (new_cell_count > cw->container.cell_count)
+	      {
+		old_cell_count = cw->container.cell_count;
+		if ((size_t)new_cell_count > SIZE_MAX / sizeof(*new_cells))
+		    return;
+		new_cells = (int *)XtRealloc((char *)cw->container.cells,
+					     (size_t)new_cell_count *
+					     sizeof(*new_cells));
+		if (new_cells == NULL)
+		    return;
+		for (i = old_cell_count; i < new_cell_count; i++)
+		    new_cells[i] = 0;
+		cw->container.cells = new_cells;
+		cw->container.cell_count = new_cell_count;
+	      }
 	    cw->container.current_width_in_cells = width_in_cells;
 	    cw->container.current_height_in_cells = height_in_cells;
-	    if ((width_in_cells * height_in_cells) > cw->container.cell_count)
-	    	{
-	      	int	i,old_cell_count = cw->container.cell_count;
-	      
-	      	cw->container.cell_count = width_in_cells * height_in_cells;
-	      	if (CtrIsHORIZONTAL(cw)) /* For "clipped" items */
-		    cw->container.cell_count += height_in_cells;
-	      	else
-		    cw->container.cell_count += width_in_cells;
-	      	cw->container.cells = 
-			(int *)XtRealloc((char *)cw->container.cells,
-				 (sizeof(int) * (cw->container.cell_count)));
-	      	for (i = old_cell_count; i < cw->container.cell_count; i++)
-		    cw->container.cells[i] = 0;
-	        }
 	    }
         }
   

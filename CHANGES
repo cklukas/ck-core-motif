@@ -4769,3 +4769,9 @@ Guard Container zero-sized cell metrics (2026-10-25)
 
 - Avoid dividing by zero while dynamic Container cell dimensions are not yet
   available; see `docs/container-zero-cell-guards.md`.
+
+Make Container cell growth transactional (2026-10-25)
+=====================================================
+
+- Check cell-count arithmetic and preserve the existing cell array when
+  `XtRealloc` fails; see `docs/container-cell-growth.md`.
