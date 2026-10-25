@@ -1094,10 +1094,17 @@ XmeQueryBestCursorSize(
         Dimension *height )
 {
     XmScreen	xmScreen;
+
+    if (w == NULL || width == NULL || height == NULL)
+        return;
     _XmWidgetToAppContext(w);
 
     _XmAppLock(app);
     xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(w));
+    if (xmScreen == NULL) {
+        _XmAppUnlock(app);
+        return;
+    }
     *width = (Dimension)xmScreen->screen.maxCursorWidth;
     *height = (Dimension)xmScreen->screen.maxCursorHeight;
     _XmAppUnlock(app);
