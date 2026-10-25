@@ -1,3 +1,7 @@
+2026-10-25
+	* Handle allocation failure in the UIL debug-listing formatter before
+	  passing its buffer to `vsnprintf`; see docs/uil-debug-allocation.md.
+
 Guard MainWindow auto-scroll rectangles (2026-10-25)
 =====================================================
 
