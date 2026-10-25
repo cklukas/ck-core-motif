@@ -1959,6 +1959,10 @@ XmRenderTableCopy(XmRenderTable table, XmStringTag *tags, int tag_count)
   } else {
     if (!tags) _XmRTRefcountDec(table); /* Undo overflow before detaching. */
     capacity = tags ? (tag_count > 0 ? tag_count : 0) : _XmRTCount(table);
+    if ((capacity > RENDITIONS_IN_STRUCT) &&
+        ((size_t)(capacity - RENDITIONS_IN_STRUCT) >
+         (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition)))
+      goto unlock_return;
     body = (_XmRenderTable)XtMalloc(sizeof(_XmRenderTableRec) +
         sizeof(XmRendition) * (capacity > RENDITIONS_IN_STRUCT
             ? capacity - RENDITIONS_IN_STRUCT : 0));

@@ -22,4 +22,6 @@ assert "if (result == NULL)" in copy_region
 assert "copy_failed:" in copy_region
 assert "FreeRendition(_XmRTRenditions(result)[count]);" in copy_region
 assert "FreeHandle(_XmRTRenditions(result)[count]);" in copy_region
+assert "SIZE_MAX - sizeof(_XmRenderTableRec)" in copy_region
+assert "capacity - RENDITIONS_IN_STRUCT" in copy_region
 print("PASS XmRenderTableCopy avoids recursive lookup locking and cleans failures")

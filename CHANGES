@@ -34,6 +34,8 @@ Render-table locking (2026-10-26)
   its source table when a new allocation or entry copy fails.
 - Reject unrepresentable rendition counts and guard render-table/match-array
   size arithmetic before allocation.
+- Bound copied render-table body sizes before `XmRenderTableCopy` allocates
+  storage for large selections or full-table copies.
 - Roll back shared-table cloning in `_XmRenderTableRemoveRenditions` when a
   table body, handle, or rendition copy cannot be allocated; see
   `docs/render-table-removal.md`.
