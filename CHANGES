@@ -1,3 +1,9 @@
+Mrm indexed-resource enumeration validation (2026-10-25)
+=========================================================
+
+- Reject a null output list before indexed-resource enumeration; see
+  `docs/mrm-find-indexed-output.md`.
+
 Mrm indexed-resource input validation (2026-10-25)
 ==================================================
 

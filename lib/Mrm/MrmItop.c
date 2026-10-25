@@ -513,6 +513,8 @@ UrmIdbFindIndexedResource (IDBFile		file_id,
    * Validate file id, then initiate search with the root node. Return
    * immediately if there are no indexed resources.
    */
+  if ( index_list == NULL )
+    return MrmFAILURE ;
   if ( (result=Idb__FIL_Valid(file_id)) != MrmSUCCESS ) return result ;
 
   if ( file_id->num_indexed <= 0 ) return MrmSUCCESS ;
