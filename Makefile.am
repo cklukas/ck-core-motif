@@ -631,3 +631,5 @@ EXTRA_DIST += tests/automated/check-xm-messagebox-child-null.py docs/xm-messageb
 EXTRA_DIST += tests/automated/check-xm-selectionbox-child-null.py docs/xm-selectionbox-child-null.md
 
 EXTRA_DIST += tests/automated/check-xm-filesb-api-null.py docs/xm-filesb-api-null.md
+
+EXTRA_DIST += tests/automated/check-xm-color-api-null.py docs/xm-color-api-null.md

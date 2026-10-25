@@ -1,3 +1,9 @@
+Xm color API null-safety (2026-10-25)
+======================================
+
+- Guard color lookup and default-pixel conversion against null screens,
+  widgets, and output values; see `docs/xm-color-api-null.md`.
+
 XmFileSelectionBox API null-safety (2026-10-25)
 ================================================
 

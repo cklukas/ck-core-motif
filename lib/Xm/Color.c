@@ -1087,6 +1087,8 @@ XmGetColors(
 {
 	XmColorData *cd;
 
+        if (screen == NULL)
+                return;
         _XmDisplayToAppContext(DisplayOfScreen(screen));
         _XmAppLock(app);
 	_XmProcessLock();
@@ -1126,7 +1128,9 @@ XmeGetDefaultPixel(
     XmColorData *color_data;
     Pixel background = 0 ;
     Widget parent;
-    
+
+    if (widget == NULL || value == NULL)
+        return;
     _XmWidgetToAppContext(widget);
 
     _XmAppLock(app);
