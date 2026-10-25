@@ -21,6 +21,9 @@ allocation. The append path now publishes its replacement table only after
 the table handle and every copied rendition are available; failed allocation
 or copying leaves the pre-append table available to the caller.
 
+Shared-table merges similarly roll back the temporary body, handle and copied
+renditions if any part of the detached copy cannot be allocated.
+
 Removal uses a planning pass and publishes the compacted table only after its
 replacement storage and copied rendition handles are ready. Allocation failure
 therefore leaves the original table and its ownership unchanged; see

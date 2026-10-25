@@ -1388,8 +1388,14 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 		     (sizeof(XmRendition) *
 		      (_XmRTCount(oldtable) > RENDITIONS_IN_STRUCT
                 ? _XmRTCount(oldtable) - RENDITIONS_IN_STRUCT : 0)));
+	  if (table == NULL)
+	    goto merge_abort;
 
 	  newtable = GetHandle(_XmRenderTable);
+	  if (newtable == NULL) {
+	    XtFree((char *)table);
+	    goto merge_abort;
+	  }
 	  SetPtr(newtable, table);
 
 	  _XmRTDisplay(newtable) = _XmRTDisplay(oldtable);
@@ -1397,7 +1403,20 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 
 	  /* Each table body owns its entry handles independently. */
 	  for (i = 0; i < _XmRTCount(oldtable); i++)
-	    _XmRTRenditions(newtable)[i] = CopyRendition(_XmRTRenditions(oldtable)[i]);
+	    {
+	      _XmRTRenditions(newtable)[i] = CopyRendition(_XmRTRenditions(oldtable)[i]);
+	      if (_XmRTRenditions(newtable)[i] == NULL) {
+	        while (i > 0) {
+	          --i;
+	          FreeRendition(_XmRTRenditions(newtable)[i]);
+	          FreeHandle(_XmRTRenditions(newtable)[i]);
+	        }
+	        XtFree((char *)GetPtr(newtable));
+	        FreeHandle(newtable);
+	        newtable = NULL;
+	        goto merge_abort;
+	      }
+	    }
 
 	  _XmRTCount(newtable) = _XmRTCount(oldtable);
 	  _XmRTRefcountDec(oldtable);
@@ -1568,6 +1587,10 @@ append_abort:
     oldtable = tmptable;
     tmptable = NULL;
   }
+  DEALLOCATE_LOCAL((char *)matches);
+  goto unlock_return;
+
+merge_abort:
   DEALLOCATE_LOCAL((char *)matches);
   goto unlock_return;
 

@@ -1958,7 +1958,8 @@ removal, ownership retention and empty-table behavior. The full libXm rebuild
 and gallery integration pass on `uconsole`. The unmatched-rendition append path
 also rolls back replacement bodies and copied handles before returning the
 source table on allocation or copy failure. Further peer render-table changes
-remain separate packages until their earlier-branch dependencies are reviewed.
+remain separate packages until their earlier-branch dependencies are reviewed;
+shared-table merge-copy rollback is now covered as the next slice.
 
 ## Acceptance criteria for every increment
 
