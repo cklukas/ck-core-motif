@@ -10975,5 +10975,5 @@ MWM action-argument size checks (2026-10-25)
 ============================================
 
 - Bound action-string and argument-vector size arithmetic before Xt allocation
-  or growth, and release temporary parser strings on every path; see
-  `docs/mwm-action-arg-reallocation.md`.
+  or growth, release temporary parser strings on every path, and avoid
+  publishing partial action records; see `docs/mwm-action-arg-reallocation.md`.

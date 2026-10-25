@@ -14,6 +14,9 @@ assert "size_t argument_length;" in body
 assert "int new_arg_size;" in body
 assert "unsigned char *allocated_string;" in body
 assert "XtFree((char *)allocated_string);" in body
+assert "pAP->actionName = NULL;" in body
+assert "pAP->aap = NULL;" in body
+assert "XtFree((char *)string);" in body
 assert "argument_length > UINT_MAX - 1" in body
 assert "if (new_pch == NULL)" in body
 assert "if (new_aap == NULL)" in body

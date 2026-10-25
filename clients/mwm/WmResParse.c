@@ -8196,17 +8196,40 @@ Boolean ParseWmFuncActionArg (unsigned char **linePP,
     int iArgSz;
 
     pAP = XtNew (WmActionArg);
-    if (pAP && (string = GetString (linePP)) != NULL)
+    if (pAP == NULL)
     {
-	/* Got action name */
-	pAP->actionName = XtNewString ((char *) string);
+	*pArgs = NULL;
+	return FALSE;
+    }
+    pAP->actionName = NULL;
+    pAP->aap = NULL;
+    pAP->numArgs = 0;
+    pAP->szExecParms = NULL;
 
-	/* Get action arguments, if any */
-	if (pAP->aap = (DtActionArg *) 
-		XtMalloc (WM_ACTION_ARG_INCREMENT * sizeof (DtActionArg)))
+    string = GetString (linePP);
+    if (string == NULL)
+    {
+	XtFree((char *)pAP);
+	*pArgs = NULL;
+	return TRUE;
+    }
+
+    /* Got action name. */
+    pAP->actionName = XtNewString ((char *) string);
+    XtFree((char *)string);
+    if (pAP->actionName == NULL)
+    {
+	XtFree((char *)pAP);
+	*pArgs = NULL;
+	return FALSE;
+    }
+
+    /* Get action arguments, if any. */
+    pAP->aap = (DtActionArg *)
+	XtMalloc (WM_ACTION_ARG_INCREMENT * sizeof (DtActionArg));
+	if (pAP->aap != NULL)
 	{
 	    iArgSz = WM_ACTION_ARG_INCREMENT;
-	    pAP->numArgs = 0;
 
 	    while ((allocated_string = GetString (linePP)) != NULL)
 	    {
@@ -8298,14 +8321,14 @@ Boolean ParseWmFuncActionArg (unsigned char **linePP,
 	    }
 
 	}
-	pAP->szExecParms = NULL;
-        *pArgs = (String) pAP;
-    }
-    else
-    /* NULL string argument */
-    {
-        *pArgs = NULL;
-    }
+	else
+	{
+	    XtFree((char *)pAP->actionName);
+	    XtFree((char *)pAP);
+	    *pArgs = NULL;
+	    return FALSE;
+	}
+	*pArgs = (String) pAP;
 
     return (TRUE);
 
