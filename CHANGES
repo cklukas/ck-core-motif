@@ -1,3 +1,10 @@
+Guard Text UTF-8 value allocation (2026-10-25)
+===============================================
+
+- Refuse UTF-8 conversion cleanly when its returned-value buffer cannot be
+  allocated, releasing the Xlib property first; see
+  `docs/motif-textsel-utf8-value.md`.
+
 Guard Text compound-text value allocation (2026-10-25)
 =======================================================
 
