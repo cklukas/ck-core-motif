@@ -2203,6 +2203,7 @@ VendorExtSetValues(
   XmVendorShellExtObject  ov = (XmVendorShellExtObject) old;
   XmVendorShellExtObject  nv = (XmVendorShellExtObject) new_w;
   XmFontList		  defaultFont;
+  char                    *replacement;
   
   ove = (XmVendorShellExtPartPtr) &(ov->vendor);
   nve = (XmVendorShellExtPartPtr) &(nv->vendor);
@@ -2234,14 +2235,28 @@ VendorExtSetValues(
   
   if (nve->input_method_string != ove->input_method_string)
     {
-      XtFree(ove->input_method_string);
-      nve->input_method_string = XtNewString(nve->input_method_string);
+      replacement = nve->input_method_string != NULL
+        ? XtNewString(nve->input_method_string) : NULL;
+      if (nve->input_method_string == NULL || replacement != NULL)
+        {
+          XtFree(ove->input_method_string);
+          nve->input_method_string = replacement;
+        }
+      else
+        nve->input_method_string = ove->input_method_string;
     }
   
   if (nve->preedit_type_string != ove->preedit_type_string)
     {
-      XtFree(ove->preedit_type_string);
-      nve->preedit_type_string = XtNewString(nve->preedit_type_string);
+      replacement = nve->preedit_type_string != NULL
+        ? XtNewString(nve->preedit_type_string) : NULL;
+      if (nve->preedit_type_string == NULL || replacement != NULL)
+        {
+          XtFree(ove->preedit_type_string);
+          nve->preedit_type_string = replacement;
+        }
+      else
+        nve->preedit_type_string = ove->preedit_type_string;
     }
   
   if (nve->button_font_list != ove->button_font_list)

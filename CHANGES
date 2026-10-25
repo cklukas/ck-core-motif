@@ -9308,3 +9308,10 @@ Tab-list modification rollback (2026-10-29)
 - Copy replacement tab labels before releasing copied values, and leave
   shared-to-copy mode changes unchanged when allocation fails; see
   `docs/tablist-modify-rollback.md`.
+
+Vendor input-method string rollback (2026-10-29)
+=================================================
+
+- Preserve existing input-method and preedit-type strings until replacement
+  copies succeed, while retaining NULL as explicit clearing; see
+  `docs/vendor-im-string-rollback.md`.
