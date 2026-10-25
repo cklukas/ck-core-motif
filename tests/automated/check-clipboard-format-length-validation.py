@@ -17,7 +17,7 @@ def main() -> None:
     assert "format != 32" in function
     assert "outlength < 1" in function
     assert function.index("if ( outpointer == 0") < function.index(
-        "*format_length = *((long *)outpointer)"
+        "long stored_length = *((long *)outpointer)"
     )
 
 

@@ -11,7 +11,7 @@ def main() -> None:
     start = SOURCE.index("XmClipboardInquireFormat(")
     end = SOURCE.index("_XmDisplayToAppContext(display);", start)
     body = SOURCE[start:end]
-    assert "if (buffer == NULL && bufferlength != 0)" in body
+    assert "buffer == NULL && bufferlength != 0" in body
     assert "return ClipboardBadFormat;" in body
 
 

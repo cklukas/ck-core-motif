@@ -15,10 +15,10 @@ def main() -> None:
     assert "if (formatptr == NULL)" in function
     assert "root_clipboard_header = NULL;" in function
     assert "status = ClipboardFindItem" in function
-    assert "headerlength < sizeof(ClipboardHeaderRec)" in function
+    assert "ClipboardHeaderRecordValid(root_clipboard_header, headerlength)" in function
     assert "XtFree( (char *)root_clipboard_header);" in function
     assert function.index("root_clipboard_header->recopyId") > function.index(
-        "headerlength < sizeof(ClipboardHeaderRec)"
+        "ClipboardHeaderRecordValid(root_clipboard_header, headerlength)"
     )
 
 

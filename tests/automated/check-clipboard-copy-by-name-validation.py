@@ -13,7 +13,7 @@ def main() -> None:
     function = SOURCE[start:end]
 
     assert "root_clipboard_header = NULL;" in function
-    assert "headerlength < sizeof(ClipboardHeaderRec)" in function
+    assert "ClipboardHeaderRecordValid(root_clipboard_header, headerlength)" in function
     assert "formatheader = NULL;" in function
     assert "formatlength >= sizeof(ClipboardFormatItemRec)" in function
     assert "formatdataptr = NULL;" in function
