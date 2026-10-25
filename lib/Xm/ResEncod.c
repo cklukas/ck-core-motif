@@ -1588,6 +1588,23 @@ outputXmString(
       unsigned int	start = 0;
       Octet		c;
       Boolean		curseg_is_gl;
+
+      /* Empty segments are legal while decoding compound text.  Do not
+       * inspect item[0] until a byte is known to be present; retain the
+       * separator semantics of the normal final-segment path. */
+      if (ctx->itemlen == 0)
+	{
+	  ctx->xmstring = concatStringToXmString
+	    (ctx->xmstring, (char *)ctx->item, 0,
+	     (char *)ctx->gl_charset,
+	     (XmStringDirection) ((_CurDir(ctx) == ct_Dir_LeftToRight) ?
+				  XmSTRING_DIRECTION_L_TO_R :
+				  ((_CurDir(ctx) == ct_Dir_RightToLeft) ?
+				   XmSTRING_DIRECTION_R_TO_L :
+				   XmSTRING_DIRECTION_UNSET)),
+	     separator);
+	  return;
+	}
       
       curseg_is_gl = isascii((unsigned char)ctx->item[0]);
       

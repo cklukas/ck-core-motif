@@ -60,6 +60,13 @@ XmIm shell-sharing teardown guard (2026-10-26)
   asserting during shell destruction; see
   `docs/xmim-stale-shell-reference.md`.
 
+Compound-text empty-segment guard (2026-10-26)
+================================================
+
+- Handle zero-length non-paired charset segments without reading `item[0]`,
+  preserving separator output instead of risking an out-of-bounds read; see
+  `docs/compound-text-empty-segment.md`.
+
 List single-selection normalization (2026-10-26)
 =================================================
 
