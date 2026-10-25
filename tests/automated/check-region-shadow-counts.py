@@ -11,4 +11,7 @@ assert "INT_MAX / 2" in region
 assert "INT_MAX / ((long)shadow_thick * 2)" in region
 assert "(long)nrects * (long)shadow_thick * 2" in region
 assert "UINT_MAX / sizeof(XSegment)" in region
+allocation = source[source.index("if (!(topSegms", end):]
+assert "XtMalloc((Cardinal)(sizeof (XSegment) * (size_t)topSegmCount))" in allocation
+assert "XtMalloc((Cardinal)(sizeof (XSegment) * (size_t)botSegmCount))" in allocation
 print("region shadow segment counts are checked before allocation")

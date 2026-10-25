@@ -10,7 +10,7 @@ geometry could wrap the count and under-allocate the arrays used while
 drawing.
 
 The code now validates the product against both `INT_MAX` and Xt's
-`Cardinal` byte limit before allocating and uses a widened multiplication for
-the valid case. Ordinary shadows are unchanged, while unrepresentable geometry
+`Cardinal` byte limit before allocating, and passes valid segment-array sizes
+explicitly as Xt `Cardinal` values. Ordinary shadows are unchanged, while unrepresentable geometry
 emits the existing warning and returns safely. The source regression in
 `tests/automated/check-region-shadow-counts.py` protects the check.

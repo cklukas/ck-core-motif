@@ -2289,7 +2289,7 @@ _XmRegionDrawShadow(
 	(int)((long)nrects * (long)shadow_thick * 2);
 
     if (!(topSegms = (XSegment *)
-	    XtMalloc(sizeof (XSegment) * topSegmCount))) {
+	    XtMalloc((Cardinal)(sizeof (XSegment) * (size_t)topSegmCount)))) {
 	XmeWarning(NULL, MESSAGE1);
 	_XmRegionDestroy (workReg);
 	_XmRegionDestroy (scReg2);
@@ -2297,7 +2297,7 @@ _XmRegionDrawShadow(
 	return;
     }
     if (!(botSegms = (XSegment *)
-	    XtMalloc(sizeof (XSegment) * botSegmCount))) {
+	    XtMalloc((Cardinal)(sizeof (XSegment) * (size_t)botSegmCount)))) {
 	XmeWarning(NULL, MESSAGE1);
 	XtFree((char *) topSegms);
 	_XmRegionDestroy (workReg);
