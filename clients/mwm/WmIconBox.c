@@ -3434,7 +3434,13 @@ void IconScrollVisibleCallback (Widget w, caddr_t client_data, XmAnyCallbackStru
 {
     XmTraverseObscuredCallbackStruct *vis_data;
 
+    if (call_data == NULL || ACTIVE_WS == NULL || ACTIVE_WS->pIconBox == NULL ||
+	ACTIVE_WS->pIconBox->scrolledWidget == NULL)
+	return;
+
     vis_data = (XmTraverseObscuredCallbackStruct *) call_data;
+    if (vis_data->traversal_destination == NULL)
+	return;
 
     XmScrollVisible(ACTIVE_WS->pIconBox->scrolledWidget,
 		    vis_data->traversal_destination,

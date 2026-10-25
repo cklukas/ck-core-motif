@@ -1,3 +1,9 @@
+Scroll-visible callback validation (2026-10-25)
+================================================
+
+- Validate callback data, workspace widgets, and traversal destinations before
+  scrolling an icon into view; see `docs/scroll-visible-callback-guards.md`.
+
 Icon visibility validation (2026-10-25)
 =======================================
 
