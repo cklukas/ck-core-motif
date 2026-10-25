@@ -2949,6 +2949,13 @@ void PackIconBox (IconBoxData *pIBD, Boolean packVert, Boolean packHorz, int pas
     WmWorkspaceData *pWS;
 #endif /* WSM */
 
+    if (pIBD == NULL || pIBD->bBoardWidget == NULL ||
+	pIBD->clipWidget == NULL || pIBD->pCD_iconBox == NULL ||
+	pIBD->pCD_iconBox->widthInc <= 0 ||
+	pIBD->pCD_iconBox->heightInc <= 0 ||
+	pIBD->IPD.placeList == NULL || pIBD->IPD.totalPlaces <= 0)
+	return;
+
     i = 0;
     XtSetArg (args[i], XmNwidth, (XtArgVal) &oldWidth ); i++;
     XtSetArg (args[i], XmNheight, (XtArgVal) &oldHeight ); i++;

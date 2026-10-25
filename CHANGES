@@ -1,3 +1,9 @@
+Icon-box packing validation (2026-10-25)
+========================================
+
+- Validate packing widgets, increments, and placement storage before layout;
+  see `docs/pack-icon-box-guards.md`.
+
 Icon-list realignment validation (2026-10-25)
 ==============================================
 
