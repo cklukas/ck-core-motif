@@ -275,7 +275,9 @@ GetDefaultColors(
 		int new_size;
 		if (default_set_size > INT_MAX - 10 ||
 		    SIZE_MAX / sizeof(XmColorData) <
-		    (size_t)(default_set_size + 10))
+		    (size_t)(default_set_size + 10) ||
+		    (size_t)(default_set_size + 10) >
+		    UINT_MAX / sizeof(XmColorData))
 		{
 		    _XmProcessUnlock();
 		    return NULL;
@@ -438,7 +440,8 @@ _XmAddToColorCache(
 		int new_size;
 		if (Set_Size > INT_MAX - 10 ||
 		    SIZE_MAX / sizeof(XmColorData) <
-		    (size_t)(Set_Size + 10))
+		    (size_t)(Set_Size + 10) ||
+		    (size_t)(Set_Size + 10) > UINT_MAX / sizeof(XmColorData))
 		{
 		    _XmProcessUnlock();
 		    return NULL;
