@@ -4817,3 +4817,9 @@ Fix TabList simple modify forwarding (2026-10-25)
 
 - Pass the requested label through `XmTabbedStackListSimpleModify` instead of
   using an uninitialized attribute record; see `docs/tablist-simple-modify.md`.
+
+Guard TabList attribute cleanup (2026-10-25)
+=============================================
+
+- Make `XmTabAttributesFree` tolerate a NULL record for optional cleanup
+  paths; see `docs/tablist-attributes-free.md`.
