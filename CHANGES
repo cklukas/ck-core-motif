@@ -883,6 +883,18 @@ List drag conversion allocation (2026-10-25)
 - Cancel list drag initiation cleanly when its conversion record or string
   array cannot be allocated; see `docs/list-drag-allocation.md`.
 
+Protocol registration growth bounds (2026-10-25)
+==================================================
+
+- Reject protocol-count and array-size overflow and publish expanded protocol
+  capacity only after reallocation succeeds; see `docs/protocol-allocation.md`.
+
+Protocol registration allocation (2026-10-25)
+===============================================
+
+- Roll back partially allocated protocol records when registration cannot
+  allocate the next record; see `docs/protocol-allocation.md`.
+
 Drop-down selection-table allocation (2026-10-25)
 ====================================================
 
