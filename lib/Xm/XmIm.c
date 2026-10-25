@@ -2014,8 +2014,13 @@ regist_real_callback(Widget w,
     }
   }
 
+  if (i == refs.num_refs)
+    return;
+
   if (!refs.callbacks[target])
     refs.callbacks[target] = (XIMCallback *)XtCalloc(4, sizeof(XIMCallback));
+  if (refs.callbacks[target] == NULL)
+    return;
 
   refs.callbacks[target][swc] = *call;
 }

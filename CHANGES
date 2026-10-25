@@ -4349,6 +4349,13 @@ XmIm initialization allocation guards (2026-10-25)
 
 - Check display-state and locale-modifier scratch allocations before use; see
   `docs/xmim-init-allocation.md`.
+
+XmIm callback registration guards (2026-10-25)
+===============================================
+
+- Ignore stale widget references and failed callback-array allocation instead
+  of writing through an invalid XIM callback slot; see
+  `docs/xmim-callback-registration.md`.
 Mrm writer cstring-vector validation (2026-10-25)
 ====================================================
 

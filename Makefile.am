@@ -563,6 +563,8 @@ EXTRA_DIST += tests/automated/check-region-api-null-guards.py docs/region-api-nu
 EXTRA_DIST += tests/automated/check-screen-scratch-cache-failure.py docs/screen-scratch-cache-failure.md
 
 EXTRA_DIST += tests/automated/check-xmim-init-allocation.py docs/xmim-init-allocation.md
+
+EXTRA_DIST += tests/automated/check-xmim-callback-registration.py docs/xmim-callback-registration.md
 EXTRA_DIST += tests/automated/check-mrm-writer-resource-ref-validation.py docs/mrm-writer-resource-ref-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-char8-vector-validation.py docs/mrm-writer-char8-vector-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-cstring-vector-validation.py docs/mrm-writer-cstring-vector-validation.md
