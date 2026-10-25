@@ -3604,7 +3604,11 @@ Urm__CW_FixupCallback (Widget			parent ,
        * Set the routine pointer to the actual routine address. This
        * routine name must be a registered URM callback.
        */
-      if ( itmptr->cb_item.routine == 0 )
+      if ( itmptr->cb_item.routine < RGMWidgetRecordHdrSize ||
+           itmptr->cb_item.routine >= ((RGMWidgetRecordPtr)bufptr)->size ||
+           memchr ((char *)bufptr + itmptr->cb_item.routine, '\0',
+                   ((RGMWidgetRecordPtr)bufptr)->size -
+                   itmptr->cb_item.routine) == NULL )
         return MrmFAILURE ;
       rtn_name = (String) bufptr + itmptr->cb_item.routine ;
       result = Urm__LookupNameInHierarchy (hierarchy_id, rtn_name, &rtn_addr) ;
