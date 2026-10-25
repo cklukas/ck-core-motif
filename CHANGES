@@ -1,3 +1,10 @@
+Cardinal-list converter allocation guards (2026-10-25)
+=======================================================
+
+- Check initial and growth allocations while converting Cardinal lists, routing
+  failures through the existing cleanup path; see
+  `docs/cardinal-list-converter-allocation.md`.
+
 String-table converter allocation rollback (2026-10-25)
 ========================================================
 

@@ -1685,6 +1685,8 @@ CvtStringToCardinalList(
 
     crd_array = (Cardinal *)XtCalloc
 			(crd_array_size,sizeof(Cardinal));
+    if (crd_array == NULL)
+	return(False);
     while (*p != '\0')
 	{
 	while ((isspace((unsigned char)*p) || *p == ',') && *p != '\0')
@@ -1705,8 +1707,13 @@ CvtStringToCardinalList(
 		(size_t)(crd_array_size * 2) > SIZE_MAX / sizeof(Cardinal))
 		goto invalid_cardinal;
 	    crd_array_size *= 2;
-	    crd_array = (Cardinal *)XtRealloc((char *)crd_array,
-			    sizeof(Cardinal) * crd_array_size);
+	    {
+	    Cardinal *new_array = (Cardinal *)XtRealloc((char *)crd_array,
+						 sizeof(Cardinal) * crd_array_size);
+	    if (new_array == NULL)
+		goto invalid_cardinal;
+	    crd_array = new_array;
+	    }
 	    }
 	crd_array[crd_array_count++] = (Cardinal)new_element;
 	p = end;
