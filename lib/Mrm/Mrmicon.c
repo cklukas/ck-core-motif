@@ -1108,7 +1108,7 @@ Urm__RealizeColorTable (Screen			*screen,
 			Widget			parent)
 {
 
-  if ( ctable == NULL )
+  if ( ctable == NULL || ctable->count < URMColorTableUserMin )
     return MrmNOT_VALID;
 
   /*
