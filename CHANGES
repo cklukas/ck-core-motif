@@ -10,6 +10,13 @@ WSM target-list allocation guards (2026-10-25)
 - Reject a missing length output pointer and handle target-array allocation
   failure before filling the WSM target list; see `docs/wsm-target-cache-guards.md`.
 
+Bound WSM debug output (2026-10-25)
+===================================
+
+- Route WSM request and reply diagnostics through bounded appends so large
+  extension and attribute lists cannot overflow the static debug buffer; see
+  `docs/wsm-debug-config-format.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 
