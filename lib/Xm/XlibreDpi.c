@@ -417,6 +417,25 @@ _XmXlibreDpiParseProperty(Atom actual_type,
 }
 
 Boolean
+_XmXlibreDpiDecodeProperty(Atom actual_type,
+                           int actual_format,
+                           unsigned long item_count,
+                           unsigned long bytes_after,
+                           const long *property_data,
+                           double *dpi_return)
+{
+    /* Validate the shape before touching property_data.  On LP64, Xlib's
+     * format-32 representation is a long array, while malformed format-8 or
+     * format-16 replies can be shorter than one long. */
+    if (property_data == NULL || actual_type != XA_INTEGER ||
+        actual_format != 32 || item_count != 1 || bytes_after != 0)
+        return False;
+    return _XmXlibreDpiParseProperty(actual_type, actual_format,
+                                      item_count, bytes_after,
+                                      property_data[0], dpi_return);
+}
+
+Boolean
 _XmXlibreDpiServerSupported(Display *display)
 {
     int event_base;
@@ -464,9 +483,9 @@ _XmXlibreDpiGetOutputDpi(Display *display,
         return False;
 
     /* Xlib presents format-32 property data as a long-sized value. */
-    valid = _XmXlibreDpiParseProperty(actual_type, actual_format,
-                                       item_count, bytes_after,
-                                       ((long *)data)[0], dpi_return);
+    valid = _XmXlibreDpiDecodeProperty(actual_type, actual_format,
+                                        item_count, bytes_after,
+                                        (const long *)data, dpi_return);
     XFree(data);
     return valid;
 }

@@ -18,6 +18,13 @@ not become a zero or guessed scale. The optional build is disabled by default;
 requesting it without the Xrandr development header and library fails during
 configuration rather than producing a partially working library.
 
+The property decoder validates that metadata before reading the Xlib buffer.
+This ordering matters on 64-bit hosts: a malformed format-8 or format-16
+reply can be shorter than the `long` representation Xlib uses for format 32.
+The installed contract fixture passes a null buffer for those malformed shapes
+and verifies rejection under the sanitizer configuration, so the safety
+guarantee does not depend only on the final Boolean result.
+
 The internal shell-boundary policy is now defined without changing the public
 Widget ABI. For a realized shell client area, the output containing its center
 is selected. If the center is in no output (for example while a window is in a
@@ -76,6 +83,17 @@ task-local runner output is retained at
 multi-output server was available, so live property mutation, output
 hotplug, spanning-window reflow and destruction during queued reflow remain
 unqualified.
+
+The decode-hardening follow-up was rebuilt on AArch64 `uconsole` from
+13:59:58 through 14:03:17 UTC on 2026-10-25 (clean opt-in build, 3:03
+elapsed), installing to `/tmp/ckmotif-xlibre-hardening-20261025/prefix`.
+Three fresh ordinary-Xvfb contract runs and a consumer ASan/UBSan run
+(`ASAN_OPTIONS=detect_leaks=0`, `UBSAN_OPTIONS=halt_on_error=1`) passed. The
+installed `libXm.so.8.0.0` SHA-256 was
+`21d18b98341991c6e0e04ce3d56121c1c2f76c7b3e4b9e3809e39a53c52f6a59`; logs
+remain under `/tmp/ckmotif-xlibre-hardening-20261025/`. This is malformed
+property safety evidence only and does not qualify a real multi-output
+XLibre server.
 
 This is an implementation step toward the live contract, not a claim that a
 generic Xorg server provides per-output DPI. The remaining qualification must

@@ -495,6 +495,15 @@ source-contract regression covers the retain/release ordering. A real
 multi-output XLibre run is still required for live property changes and
 destruction during queued reflow.
 
+The RandR property boundary is now hardened as well: the decoder validates
+type, format, item count and trailing data before reading Xlib's format-32
+buffer, avoiding an out-of-bounds read for malformed format-8/16 replies. The
+installed contract fixture covers the malformed-metadata ordering under the
+sanitizer configuration. This closes a toolkit safety defect but does not
+replace the required real multi-output qualification.
+The AArch64 receipt and installed-library fingerprint are recorded in
+`docs/xlibre-dpi-contract.md`.
+
 ### WP-05: Optional SVG image loading
 
 **Depends on:** WP-04.

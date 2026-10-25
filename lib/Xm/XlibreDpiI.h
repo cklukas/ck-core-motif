@@ -22,6 +22,13 @@ Boolean _XmXlibreDpiParseProperty(Atom actual_type,
                                   unsigned long bytes_after,
                                   long property_value,
                                   double *dpi_return);
+/* Decode an Xlib format-32 property only after validating its metadata. */
+Boolean _XmXlibreDpiDecodeProperty(Atom actual_type,
+                                   int actual_format,
+                                   unsigned long item_count,
+                                   unsigned long bytes_after,
+                                   const long *property_data,
+                                   double *dpi_return);
 
 Boolean _XmXlibreDpiServerSupported(Display *display);
 Boolean _XmXlibreDpiGetOutputDpi(Display *display,
