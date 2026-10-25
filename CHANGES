@@ -1,3 +1,10 @@
+UIL source filename capacity (2026-10-27)
+=========================================
+
+- Match root and include source filename fields to the 256-byte path
+  capacity, preserving maximum-length names and their NUL terminators; see
+  `docs/uil-file-name-capacity.md`.
+
 UIL expanded filename capacity (2026-10-27)
 ===========================================
 

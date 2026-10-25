@@ -854,7 +854,7 @@ typedef struct _sym_include_file_entry_type
     sym_section_entry_type	*sections;
 	/* pointer to a section list; this list is all of the sections that */
 	/* exist in this include file.					    */
-    char			file_name[255];
+    char			file_name[256];
 	/* the file name as specified in the include statement in the UIL   */
 	/* source.							    */
     char			full_file_name[256];
@@ -874,7 +874,7 @@ typedef struct _sym_root_entry_type
 	/* common header						    */
     struct _src_source_record_type	*src_record_list;
 	/* pointer to a list of source records.				    */
-    char			file_name[255];
+    char			file_name[256];
 	/* the main UIL file name as specified on the command line.	    */
     char			full_file_name[256];
 	/* the expanded name for the main UIL file that was actually	    */
