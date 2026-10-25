@@ -1151,6 +1151,13 @@ RefigureLocations(XmPanedWidget pw, int paneindex, Direction dir)
  *                 XtGeometryYes policy as Motif1.2 dictates.
  */
 
+static Dimension
+PanedAvailableSpan(Dimension total, int offset, Dimension border)
+{
+    int available = (int) total - 2 * (offset + (int) border);
+    return (Dimension) ((available > 0) ? available : 1);
+}
+
 static void 
 CommitNewLocations(XmPanedWidget pw, Widget no_resize_child)
 {
@@ -1188,15 +1195,14 @@ CommitNewLocations(XmPanedWidget pw, Widget no_resize_child)
 	    if (*childP == no_resize_child) {
 		(*childP)->core.x = offset;
 		(*childP)->core.y = pane->delta;
-		(*childP)->core.width = (pw->core.width -
-					 2 * (offset + 
-					      (*childP)->core.border_width));
+		(*childP)->core.width = PanedAvailableSpan(
+		    pw->core.width, offset, (*childP)->core.border_width);
 		(*childP)->core.height = pane->size;
 	    }
 	    else {
 		_XmConfigureWidget(*childP, (Position) offset, pane->delta,
-				   pw->core.width -
-				   2*(offset + (*childP)->core.border_width),
+				   PanedAvailableSpan(pw->core.width, offset,
+					       (*childP)->core.border_width),
 				   (Dimension) pane->size,
 				   (Dimension) (*childP)->core.border_width);
 	    }
@@ -1235,15 +1241,14 @@ CommitNewLocations(XmPanedWidget pw, Widget no_resize_child)
 		(*childP)->core.x = pane->delta;
 		(*childP)->core.y = offset;
 		(*childP)->core.width = pane->size;
-		(*childP)->core.height = (pw->core.height -
-					  2 * (offset +
-					       (*childP)->core.border_width));
+		(*childP)->core.height = PanedAvailableSpan(
+		    pw->core.height, offset, (*childP)->core.border_width);
 	    }
 	    else {
 		_XmConfigureWidget(*childP, pane->delta, (Position) offset,
 				   (Dimension) pane->size,
-				   pw->core.height -
-				   2*(offset + (*childP)->core.border_width),
+				   PanedAvailableSpan(pw->core.height, offset,
+					       (*childP)->core.border_width),
 				   (Dimension) (*childP)->core.border_width);
 	    }
 	    	    

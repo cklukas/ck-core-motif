@@ -7340,3 +7340,12 @@ Notebook status geometry bounds (2026-10-26)
 
 Input-method preedit-position bounds (2026-10-26)
 ==================================================
+Paned child span bounds (2026-10-26)
+====================================
+
+- Bound child width and height after Paned margins and borders, preventing
+  wrapped dimensions in collapsed containers; see
+  `docs/paned-child-spans.md`.
+
+Notebook status geometry bounds (2026-10-26)
+============================================
