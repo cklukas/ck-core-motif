@@ -6179,3 +6179,9 @@ XmString ASN.1 truncation allocation failures (2026-10-25)
 - Check replacement and resize allocations in `_XmStringTruncateASN1`,
   returning a clean failure to `XmStringNCopy`; see
   `docs/xmstring-truncation-allocation.md`.
+XmString lazy parse-table allocation (2026-10-25)
+==================================================
+
+- Validate the output pointer and lazy parse-table allocation used by
+  `XmStringGenerate` and `_XmStringUngenerate`; see
+  `docs/xmstring-parse-table-allocation.md`.

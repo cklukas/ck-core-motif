@@ -9695,6 +9695,9 @@ _get_generate_parse_table (XmParseTable *gen_table)
   static XmParseTable table = NULL;
 
 
+  if (gen_table == NULL)
+	return(0);
+
   _XmProcessLock();
   /* Allocate a parse table only if necessary. */
   if (table)
@@ -9706,6 +9709,12 @@ _get_generate_parse_table (XmParseTable *gen_table)
   else
     {
       table = (XmParseTable) XtCalloc (table_size, sizeof(XmParseMapping));
+      if (table == NULL)
+	{
+	  *gen_table = NULL;
+	  _XmProcessUnlock();
+	  return(0);
+	}
       *gen_table = table;
     }
   _XmProcessUnlock();
