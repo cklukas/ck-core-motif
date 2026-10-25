@@ -5061,3 +5061,9 @@ Separator redisplay guards (2026-10-25)
 - Avoid separator drawing before realization, without its line GC, with
   incomplete shadow GCs, or when highlight margins consume the widget; see
   `docs/separator-redisplay-guards.md`.
+DrawnButton shadow redisplay guards (2026-10-25)
+================================================
+
+- Validate DrawnButton realization, shadow GCs, thickness, and drawable
+  geometry before issuing shadow drawing requests; see
+  `docs/drawn-button-shadow-redisplay-guards.md`.
