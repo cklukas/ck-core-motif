@@ -226,10 +226,15 @@ _XmCreateTabList(Widget parent,
 {
   XmRendition	rend = (XmRendition)parent;
   XmTabList	tl = NULL;
+
+  if (rend == NULL)
+    return((Widget)NULL);
   
   if (_XmRendTabs(rend) == NULL) 
     {
       tl = (XmTabList)XtMalloc(sizeof(_XmTabListRec));
+      if (tl == NULL)
+	return((Widget)NULL);
       bzero((char *)tl, sizeof(_XmTabListRec));
       _XmRendTabs(rend) = tl;
     }
@@ -606,6 +611,9 @@ _XmCreateTab(Widget parent,
   char 		*decimal = ".";
   XmTab		tab, start;
   int		i;
+
+  if (tl == NULL)
+    return((Widget)NULL);
   
   /* Init quark list */
   if (quarks[0] == 0)
