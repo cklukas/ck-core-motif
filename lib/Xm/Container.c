@@ -3896,6 +3896,8 @@ PlaceItemReset(
 	cw->container.real_small_cellw : cw->container.real_large_cellw;
     cell_height = (CtrViewIsSMALL_ICON(cw)) ?
 	cw->container.real_small_cellh : cw->container.real_large_cellh;
+    if (cell_width == 0 || cell_height == 0)
+	return;
     if (cw->core.width > cell_width + 2 * cw->container.margin_w)
 	width_in_cells = (cw->core.width - 2 * cw->container.margin_w)
 		/ cell_width;
@@ -3907,8 +3909,24 @@ PlaceItemReset(
     else
 	height_in_cells = 1;
 
+    if (width_in_cells <= 0 || height_in_cells <= 0 ||
+	width_in_cells > INT_MAX / height_in_cells)
+	{
+	cw->container.cell_count = 0;
+	cw->container.current_width_in_cells = 0;
+	cw->container.current_height_in_cells = 0;
+	return;
+	}
     cw->container.cell_count = width_in_cells * height_in_cells;
-    cw->container.cells = (int *)XtCalloc(cw->container.cell_count,sizeof(int));
+    cw->container.cells = (int *)XtCalloc((size_t)cw->container.cell_count,
+					 sizeof(*cw->container.cells));
+    if (cw->container.cells == NULL)
+	{
+	cw->container.cell_count = 0;
+	cw->container.current_width_in_cells = 0;
+	cw->container.current_height_in_cells = 0;
+	return;
+	}
     cw->container.next_free_cell = 0;
     cw->container.current_width_in_cells = width_in_cells;
     cw->container.current_height_in_cells = height_in_cells;
