@@ -227,21 +227,30 @@ void XmeDrawHighlight(Display *display, Drawable d,
 {
     XRectangle rect[4] ;
     XtAppContext app;
+    int draw_width, draw_height, thickness;
 
-    if (!d || !highlight_thickness || !width || !height) return ;
+    draw_width = (int) width;
+    draw_height = (int) height;
+    thickness = (int) highlight_thickness;
+    if (!d || draw_width <= 0 || draw_height <= 0 || thickness <= 0)
+	return ;
+    if (thickness > draw_width)
+	thickness = draw_width;
+    if (thickness > draw_height)
+	thickness = draw_height;
 
     app = XtDisplayToApplicationContext(display);
 
     _XmAppLock(app);
 
     rect[0].x = rect[1].x = rect[2].x = x ;
-    rect[3].x = x + width - highlight_thickness ;
+    rect[3].x = (short) ((int) x + draw_width - thickness) ;
     rect[0].y = rect[2].y = rect[3].y = y ;
-    rect[1].y = y + height - highlight_thickness ;
-    rect[0].width = rect[1].width = width ;
-    rect[2].width = rect[3].width = highlight_thickness ;
-    rect[0].height = rect[1].height = highlight_thickness ;
-    rect[2].height = rect[3].height = height ;
+    rect[1].y = (short) ((int) y + draw_height - thickness) ;
+    rect[0].width = rect[1].width = (unsigned short) draw_width ;
+    rect[2].width = rect[3].width = (unsigned short) thickness ;
+    rect[0].height = rect[1].height = (unsigned short) thickness ;
+    rect[2].height = rect[3].height = (unsigned short) draw_height ;
     
     XFillRectangles (display, d, gc, rect, 4);
 

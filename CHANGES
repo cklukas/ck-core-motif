@@ -1,3 +1,9 @@
+XmeDrawHighlight bounds (2026-10-26)
+======================================
+
+- Clamp oversized highlight thickness and compute right/bottom rectangles in
+  signed arithmetic; see `docs/draw-highlight-bounds.md`.
+
 XmeClearBorder span bounds (2026-10-26)
 =========================================
 
