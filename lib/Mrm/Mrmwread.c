@@ -129,6 +129,9 @@ UrmHGetWidget (MrmHierarchy		hierarchy_id,
    * Validate the widget record in the context
    */
   widgetrec = (RGMWidgetRecordPtr) UrmRCBuffer (context_id) ;
+  if ( widgetrec == NULL )
+    return Urm__UT_Error("UrmHGetWidget", _MrmMMsg_0026,
+                         NULL, context_id, MrmBAD_WIDGET_REC) ;
   if ( UrmWRValid(widgetrec) ) 
     return MrmSUCCESS ;
   else
@@ -202,6 +205,9 @@ UrmGetIndexedWidget (IDBFile			file_id,
    * Validate the widget record in the context
    */
   widgetrec = (RGMWidgetRecordPtr) UrmRCBuffer (context_id) ;
+  if ( widgetrec == NULL )
+    return Urm__UT_Error("UrmGetIndexedWidget", _MrmMMsg_0026,
+                         NULL, context_id, MrmBAD_WIDGET_REC) ;
   if ( UrmWRValid(widgetrec) ) 
     return MrmSUCCESS ;
   else
@@ -275,6 +281,9 @@ UrmGetRIDWidget (IDBFile		file_id,
    * Validate the widget record in the context
    */
   widgetrec = (RGMWidgetRecordPtr) UrmRCBuffer (context_id) ;
+  if ( widgetrec == NULL )
+    return Urm__UT_Error("UrmGetRIDWidget", _MrmMMsg_0026,
+                         NULL, context_id, MrmBAD_WIDGET_REC) ;
   if ( UrmWRValid(widgetrec) ) 
     return MrmSUCCESS ;
   else

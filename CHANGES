@@ -1,3 +1,10 @@
+Mrm widget-read null-record guards (2026-10-25)
+================================================
+
+- Reject null widget records before byte-swapping malformed read results in
+  hierarchy, indexed, and RID widget accessors; see
+  `docs/mrm-widget-read-null.md`.
+
 Mrm validation macros null safety (2026-10-25)
 ===============================================
 
