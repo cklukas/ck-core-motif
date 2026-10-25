@@ -6947,3 +6947,10 @@ MainWindow layout bounds (2026-10-25)
   small windows; see `docs/mainw-layout-bounds.md`.
 
 List geometry bounds (2026-10-25)
+PushButton erase-shadow bounds (2026-10-25)
+===========================================
+
+- Guard default-shadow erasure against collapsed dimensions and unsigned
+  subtraction wraparound; see `docs/pushb-erase-shadow-bounds.md`.
+
+MainWindow layout bounds (2026-10-25)

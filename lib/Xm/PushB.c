@@ -985,9 +985,13 @@ EraseDefaultButtonShadow(
 	}
 
       size += Xm3D_ENHANCE_PIXEL;
+      if ((int)pb->core.width <= 2 * delta ||
+          (int)pb->core.height <= 2 * delta)
+        return;
+
       x = y = delta;
-      width = pb->core.width - (2 * delta);
-      height = pb->core.height - (2 * delta);
+      width = (int)pb->core.width - (2 * delta);
+      height = (int)pb->core.height - (2 * delta);
 
       FillBorderWithParentColor(pb, size, x, y, width, height);
     }
