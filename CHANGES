@@ -1,3 +1,10 @@
+Notebook pixmap metadata guard (2026-10-25)
+=============================================
+
+- Skip binding pixmap rendering when `XmeGetPixmapData` cannot resolve the
+  pixmap depth, avoiding an uninitialized depth branch; see
+  `docs/notebook-pixmap-metadata.md`.
+
 CascadeButton pixmap metadata guard (2026-10-25)
 ================================================
 

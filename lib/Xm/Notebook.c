@@ -4513,8 +4513,9 @@ DrawPixmapBinding (
 	return;
 
     /* get Pixmap depth */
-    XmeGetPixmapData(XtScreen(nb), pixmap,
-			NULL, &depth, NULL, NULL, NULL, NULL, NULL, NULL);
+    if (!XmeGetPixmapData(XtScreen(nb), pixmap,
+			 NULL, &depth, NULL, NULL, NULL, NULL, NULL, NULL))
+	return;
 
     /* creating the gc */
     if (depth == 1)
