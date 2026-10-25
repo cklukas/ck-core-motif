@@ -6540,3 +6540,10 @@ Hierarchy child-list allocation width (2026-10-25)
 - Pass the checked `XmHierarchyGetChildNodes` byte count explicitly as an Xt
   `Cardinal`; see `docs/hierarchy-child-lists.md`.
 
+Hierarchy initialization failure safety (2026-10-25)
+======================================================
+
+- Initialize Hierarchy ownership fields before root-node allocation and make
+  destruction tolerate allocation failure; see
+  `docs/hierarchy-init-failure.md`.
+
