@@ -1169,6 +1169,13 @@ CRowActionsInvokeCallback
 NrowActionsSide
 NrowActionsInvokeCallback
 
+CDropHighlightState
+CDropHighlightThickness
+CDropHighlightLabel
+NdropHighlightState
+NdropHighlightThickness
+NdropHighlightLabel
+
 #table _XmStrings20
 
 NtearOffTitle

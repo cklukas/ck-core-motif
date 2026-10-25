@@ -39,6 +39,7 @@
 #include <Xm/CommandPalette.h>
 #include <Xm/Skeleton.h>
 #include <Xm/RowActions.h>
+#include <Xm/DropHighlight.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
 #include <Xm/PushBG.h>
@@ -1376,6 +1377,14 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     i->role = XmACCESSIBLE_PANEL;
     i->action_count = XmRowActionsIsRevealed(w) ? XmRowActionsGetItemCount(w) : 0;
     local = XtNewString("Row actions");
+  }
+  if (XmIsDropHighlight(w)) {
+    XmString label = NULL;
+    i->role = XmACCESSIBLE_PANEL;
+    XtVaGetValues(w, XmNdropHighlightLabel, &label, NULL);
+    if (label)
+      local = XmStringUnparse(label, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
+                              NULL, 0, XmOUTPUT_ALL);
   }
   if (XmIsNumberBox(w)) {
     int minimum, maximum;

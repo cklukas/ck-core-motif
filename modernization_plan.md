@@ -1602,7 +1602,11 @@ implemented as an opt-in sibling/overlay strip with copied IDs, labels and
 shortcuts, explicit reveal/hide and keyboard equivalents, application-owned
 dispatch, accessibility actions and destruction-safe child ownership.  Its
 installed fixture passes 13 checks and confirms that an existing `XmList`
-selection remains unchanged.  Drag feedback remains a separate work item.
+selection remains unchanged.  `XmDropHighlight` is now implemented as a
+static, opt-in valid/invalid outline with a keyboard- and animation-free
+state API and an accessible label; it never registers a drop site or changes
+transfer ownership.  Its installed fixture passes 14 checks.  Context-menu
+entries remain a separate work item.
 
 ### WP-40: Bounded application-chrome composites
 
