@@ -809,6 +809,8 @@ XmGetDragContext(
 	XmDragContext	matchedDC = NULL, dc = NULL;
 	Cardinal		i;
 
+        if (w == NULL)
+                return NULL;
 	_XmWidgetToAppContext(w);
 	_XmAppLock(app);
 
@@ -836,6 +838,8 @@ _XmGetDragContextFromHandle(
 	XmDragContext	dc;
 	Cardinal		i;
 
+        if (w == NULL)
+                return NULL;
 	xmDisplay = (XmDisplay)XmGetXmDisplay(XtDisplay(w));
 
 	for(i = 0; i < xmDisplay->composite.num_children; i++)
@@ -1176,6 +1180,9 @@ XmGetXmDisplay(
 {
 	XmDisplayClass dC;
 	Widget w;
+
+        if (display == NULL)
+                return NULL;
 	_XmDisplayToAppContext(display);
 
 	/*

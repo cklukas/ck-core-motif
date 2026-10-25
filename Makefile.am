@@ -641,3 +641,5 @@ EXTRA_DIST += tests/automated/check-xm-notebook-page-null.py docs/xm-notebook-pa
 EXTRA_DIST += tests/automated/check-xm-protocols-shell-null.py docs/xm-protocols-shell-null.md
 
 EXTRA_DIST += tests/automated/check-xm-rcmenu-api-null.py docs/xm-rcmenu-api-null.md
+
+EXTRA_DIST += tests/automated/check-xm-display-api-null.py docs/xm-display-api-null.md
