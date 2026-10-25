@@ -920,6 +920,12 @@ Accessibility transport allocation (2026-10-25)
 - Handle transport-state allocation failure during AT-SPI startup and close
   the temporary D-Bus session cleanly; see `docs/accessibility.md`.
 
+Accessibility display-hook allocation (2026-10-25)
+====================================================
+
+- Check per-display accessibility hook bookkeeping allocation before callback
+  registration; see `docs/accessibility.md`.
+
 Accessibility UTF-8 allocation failures (2026-10-25)
 =====================================================
 
