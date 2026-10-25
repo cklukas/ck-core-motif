@@ -148,6 +148,9 @@ the required status 77. The installed prefix fingerprint was unchanged at
 The companion `check-xlibre-live-source.py` regression also verifies that the
 fixture restores the original property before observer teardown and retains an
 explicit distinction between an ordinary-Xvfb skip and a real-display pass.
+Each run writes a `receipt.json` with the fixture/header/runner hashes, the
+installed `libXm` hash, exact compile/run commands, elapsed time and whether
+the expected pass or skip contract was observed.
 
 This is an implementation step toward the live contract, not a claim that a
 generic Xorg server provides per-output DPI. The remaining qualification must
