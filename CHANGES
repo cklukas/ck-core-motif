@@ -1,3 +1,9 @@
+Use size-aware scaled-image row offsets (2026-10-25)
+====================================================
+
+- Form source and destination pixel row offsets in `size_t` arithmetic after
+  validating their backing allocations; see `docs/image-row-offset-types.md`.
+
 Guard scaled-image source stride arithmetic (2026-10-25)
 =========================================================
 
