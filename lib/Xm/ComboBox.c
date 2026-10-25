@@ -2065,7 +2065,7 @@ CBListAction(Widget    widget,
 		break;
 	
 	      default:
-		assert(FALSE);
+		break;
 	      }
 	  }
 	else if (num_items)
@@ -2096,7 +2096,7 @@ CBListAction(Widget    widget,
       break;
 
     default:
-      assert(FALSE);
+      break;
     }
 }
 

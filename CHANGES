@@ -59,6 +59,13 @@ ToggleButton indicator fallback (2026-10-26)
   in ToggleButton and ToggleButtonGadget instead of asserting; see
   `docs/togglebutton-indicator-fallback.md`.
 
+ComboBox action fallback (2026-10-26)
+======================================
+
+- Ignore malformed ComboBox action directions instead of asserting in the
+  dispatch defaults; recognized navigation actions retain their behavior. See
+  `docs/combobox-action-fallback.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 
