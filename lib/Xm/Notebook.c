@@ -5416,6 +5416,12 @@ NewPreferredGeometry (
 	   4. back pages and frame are clipped
 
 -----------------------------------------------------------------------------*/
+static Dimension
+NotebookRemaining(Dimension value, Dimension consumed)
+{
+    return value > consumed ? value - consumed : 0;
+}
+
 static void
 AdjustGeometry (
     XmNotebookWidget nb,
@@ -5451,14 +5457,14 @@ AdjustGeometry (
 	    if (nb->notebook.orientation == XmHORIZONTAL)
 	    {
 		/* minimize the binding area */
-		min -= nb->notebook.real_binding_width;
+		min = NotebookRemaining(min, nb->notebook.real_binding_width);
 		if (nb->core.width >= min)
 		    nb->notebook.real_binding_width = nb->core.width - min;
 		else
 		{
 		    /* minimize major tabs */
 		    nb->notebook.real_binding_width = 0;
-		    min -= nb->notebook.major_width;
+		    min = NotebookRemaining(min, nb->notebook.major_width);
 		    if (nb->core.width > min)
 			nb->notebook.major_width = nb->core.width - min;
 		    else
@@ -5468,7 +5474,7 @@ AdjustGeometry (
 	    else
 	    {
 		/* minimize minor tabs */
-		min -= nb->notebook.minor_width;
+		min = NotebookRemaining(min, nb->notebook.minor_width);
 		if (nb->core.width > min)
 		    nb->notebook.minor_width = nb->core.width - min;
 		else
@@ -5493,7 +5499,7 @@ AdjustGeometry (
 	{
 	    /* minimize the page scroller area */
 	    nb->notebook.page_height = 0;
-	    min -= nb->notebook.scroller_height;
+	    min = NotebookRemaining(min, nb->notebook.scroller_height);
 	    if (nb->core.height >= min)
 		nb->notebook.scroller_height = nb->notebook.status_height =
 			nb->core.height - min;
@@ -5503,14 +5509,14 @@ AdjustGeometry (
 		if (nb->notebook.orientation == XmVERTICAL)
 		{
 		    /* minimize the binding area */
-		    min -= nb->notebook.real_binding_width;
+		    min = NotebookRemaining(min, nb->notebook.real_binding_width);
 		    if (nb->core.height >= min)
 			nb->notebook.real_binding_width = nb->core.height - min;
 		    else
 		    {
 			/* minimize major tabs */
 			nb->notebook.real_binding_width = 0;
-			min -= nb->notebook.major_height;
+			min = NotebookRemaining(min, nb->notebook.major_height);
 			if (nb->core.height > min)
 			    nb->notebook.major_height = nb->core.height - min;
 			else
@@ -5520,7 +5526,7 @@ AdjustGeometry (
 		else
 		{
 		    /* minimize minor tabs */
-		    min -= nb->notebook.minor_height;
+		    min = NotebookRemaining(min, nb->notebook.minor_height);
 		    if (nb->core.height > min)
 			nb->notebook.minor_height = nb->core.height - min;
 		    else

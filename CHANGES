@@ -1,3 +1,10 @@
+Notebook shrinking geometry bounds (2026-10-25)
+===============================================
+
+- Saturate Notebook region reductions at zero, preventing wrapped remaining
+  sizes while fitting a very small notebook; see
+  `docs/notebook-shrink-geometry.md`.
+
 Container dynamic tab width bounds (2026-10-25)
 ===============================================
 
