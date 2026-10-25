@@ -727,8 +727,10 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 	      request->wm_windows.match_attributes[i] = (AttributePair *)
 		XtMalloc(sizeof(AttributePair));
 	      if (request->wm_windows.match_attributes[i] == NULL) {
-		for (j = 0; j < num * 2; j++)
+		for (j = 0; j < num; j++) {
 		  (void) UnpackProperty(&data);
+		  (void) UnpackProperty(&data);
+		}
 		for (j = 0; j < i; j++)
 		  {
 		    XtFree((XtPointer)request->wm_windows.match_attributes[j]->allowed_attributes);
@@ -759,8 +761,10 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 	      if ((num != 0 &&
 		   (request->wm_windows.match_attributes[i]->allowed_attributes == NULL ||
 		    request->wm_windows.match_attributes[i]->prohibited_attributes == NULL))) {
-		for (j = 0; j < num * 2; j++)
+		for (j = 0; j < num; j++) {
 		  (void) UnpackProperty(&data);
+		  (void) UnpackProperty(&data);
+		}
 		XtFree((XtPointer)request->wm_windows.match_attributes[i]->allowed_attributes);
 		XtFree((XtPointer)request->wm_windows.match_attributes[i]->prohibited_attributes);
 		XtFree((XtPointer)request->wm_windows.match_attributes[i]);

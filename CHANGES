@@ -13342,6 +13342,13 @@ Icon-box title conversion safety (2026-10-26)
 - Omit icon-box title resources when `XmString` conversion fails so a shell
   can use its normal defaults; see `docs/iconbox-title-conversion.md`.
 
+WSM paired-property cleanup bounds (2026-10-26)
+================================================
+
+- Consume paired match-attribute properties with two bounded reads per list
+  item instead of an overflow-prone `num * 2` cleanup count; see
+  `docs/wsm-paired-property-cleanup.md`.
+
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================
 
