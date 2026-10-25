@@ -18,6 +18,12 @@ assert "if (state == NULL || is_finished == NULL)" in public_region
 assert "if (p == NULL)" in public_region
 assert "if (s == NULL)" in public_region
 assert "if (state == NULL)" in public_region
+autofill_start = source.index("XmPictureDoAutoFill(XmPictureState state)")
+autofill_end = source.index("\n}\n", autofill_start) + 2
+autofill_region = source[autofill_start:autofill_end]
+assert "processed = XmPictureProcessCharacter" in autofill_region
+assert "if (processed == NULL && !finished)" in autofill_region
+assert autofill_region.index("if (processed == NULL && !finished)") < autofill_region.index("if(finished)")
 
 start = source.index("XmGetNewPictureState(XmPicture picture)")
 end = source.index("\n/*", start)

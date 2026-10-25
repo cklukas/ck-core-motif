@@ -298,6 +298,7 @@ XmPictureDoAutoFill(XmPictureState state)
     XmAutoFill fill;
     int i;
     Boolean finished = False;
+    char *processed;
 
     if (state == NULL)
 	return NULL;
@@ -331,7 +332,9 @@ XmPictureDoAutoFill(XmPictureState state)
 
 	if(fill.reject) return state->current_string;
 
-	XmPictureProcessCharacter(state, fill.c, &finished);
+	processed = XmPictureProcessCharacter(state, fill.c, &finished);
+	if (processed == NULL && !finished)
+	    return state->current_string;
 
 	if(finished) return state->current_string;
     }

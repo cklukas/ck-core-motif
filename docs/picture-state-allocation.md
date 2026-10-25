@@ -16,7 +16,9 @@ expression.  Existing callers that receive a valid state retain the same
 layout and behavior; callers must continue to handle the documented `NULL`
 result from allocation failure.  The public processing, deletion, query, and
 auto-fill helpers also reject null handles, making cleanup and optional
-processing paths safe without changing valid-handle behavior.
+processing paths safe without changing valid-handle behavior.  Auto-fill also
+stops and returns the current partial string when character processing cannot
+grow its buffer, instead of retrying indefinitely.
 
 The source-level regression check is
 `tests/automated/check-picture-state-allocation.py`.
