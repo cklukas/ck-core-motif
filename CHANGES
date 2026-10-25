@@ -4604,3 +4604,9 @@ Mrm writer uncompressed-tag validation (2026-10-25)
 - Propagate context and argument-binding failures from
   `UrmCWRSetUncompressedArgTag` before and after appending the tag string; see
   `docs/mrm-writer-uncompressed-tag-validation.md`.
+
+Xmos cache reset allocation (2026-10-25)
+========================================
+
+- Fall back to uncached directory enumeration when the cache path buffer
+  cannot be allocated; see `docs/xmos-reset-cache.md`.
