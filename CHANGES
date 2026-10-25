@@ -1,3 +1,9 @@
+Workspace-list allocation (2026-10-25)
+=======================================
+
+- Check the initial workspace-name pointer array before parsing resource data;
+  see `docs/workspace-list-allocation.md`.
+
 Menu command-match allocation (2026-10-25)
 ===========================================
 

@@ -5127,6 +5127,12 @@ ProcessWorkspaceList (WmScreenData *pSD)
 	 */
 	wsNamesAlloced = WS_ALLOC_AMOUNT;
 	ppchWsNames = (char **) XtMalloc (wsNamesAlloced * sizeof (char *));
+	if (ppchWsNames == NULL)
+	{
+	    Warning (((char *)GETMESSAGE(62, 26,
+		"Insufficient memory for workspace names")));
+	    ExitWM (WM_ERROR_EXIT_VALUE);
+	}
 	if (pSD->workspaceList)
 	{
 	    lineP = (unsigned char *) pSD->workspaceList;
