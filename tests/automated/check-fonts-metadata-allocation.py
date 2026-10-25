@@ -8,3 +8,4 @@ assert "if (font_info == NULL)" in source
 assert "if (fam == NULL)" in source
 assert "FamilyInfo *new_fam" in source
 assert "if (XmFontS_font_info(fsw) == NULL)" in source
+assert source.count("UINT_MAX / sizeof(*new_list)") >= 2

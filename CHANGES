@@ -67,6 +67,12 @@ MainW child-array Xt byte bounds (2026-10-28)
 - Check Xt `Cardinal` byte limits while moving clip-window children into the
   MainW composite list; see `docs/mainw-child-growth.md`.
 
+FontSelector list Xt byte bounds (2026-10-28)
+=============================================
+
+- Check Xt `Cardinal` byte limits while growing FontSelector XLFD and
+  alternate-font lists; see `docs/font-selector-list-growth.md`.
+
 Compound-text concatenation failure handling (2026-10-28)
 ============================================================
 

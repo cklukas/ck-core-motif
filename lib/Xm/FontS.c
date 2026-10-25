@@ -811,7 +811,8 @@ AddToXlfdList(XmFontSelectorWidget fsw,
 	if (*alloc > INT_MAX - ALLOC_INC)
 	    return;
 	new_alloc = *alloc + ALLOC_INC;
-	if ((size_t)new_alloc > SIZE_MAX / sizeof(*new_list))
+	if ((size_t)new_alloc > SIZE_MAX / sizeof(*new_list) ||
+	    (size_t)new_alloc > UINT_MAX / sizeof(*new_list))
 	    return;
 	new_list = (FontData *) XtRealloc((XtPointer) *list,
 				  sizeof(*new_list) * (size_t)new_alloc);
@@ -850,7 +851,8 @@ AddToOtherList(char *name, String **list, int *num, int *alloc)
 	if (*alloc > INT_MAX - ALLOC_INC)
 	    return;
 	new_alloc = *alloc + ALLOC_INC;
-	if ((size_t)new_alloc > SIZE_MAX / sizeof(*new_list))
+	if ((size_t)new_alloc > SIZE_MAX / sizeof(*new_list) ||
+	    (size_t)new_alloc > UINT_MAX / sizeof(*new_list))
 	    return;
 	new_list = (String *) XtRealloc((XtPointer) *list,
 				       sizeof(*new_list) * (size_t)new_alloc);
