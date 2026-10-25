@@ -14,6 +14,10 @@ for needle in (
     "count > SIZE_MAX / sizeof(*wide) - 1",
     "count > (SIZE_MAX - 1) / 4",
     "wide = (wchar_t *)XtMalloc((count + 1) * sizeof(*wide));",
+    "if (!wide)",
+    "result = (char *)XtMalloc(count * 4 + 1);",
+    "if (!result)",
+    "XtFree((char *)wide);",
 ):
     if needle not in region:
         raise SystemExit(f"accessibility UTF-8 capacity guard missing: {needle}")
