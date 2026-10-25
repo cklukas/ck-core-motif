@@ -526,3 +526,4 @@ EXTRA_DIST += tests/automated/check-mrm-writer-context-validation.py docs/mrm-wr
 EXTRA_DIST += tests/automated/check-mrm-writer-lookup-errors.py docs/mrm-writer-lookup-errors.md
 EXTRA_DIST += tests/automated/check-mrm-data-context-null.py docs/mrm-data-context-null.md
 EXTRA_DIST += tests/automated/check-mrm-context-valid-macro.py docs/mrm-context-valid-macro.md
+EXTRA_DIST += tests/automated/check-mrm-validation-macros.py docs/mrm-validation-macros.md

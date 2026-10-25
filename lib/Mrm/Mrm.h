@@ -369,7 +369,7 @@ typedef unsigned        IDBResource ;		/* a declaration for RIDs
  */
 #define	URMWCIClassDescValid	39963371
 #define	UrmWCIClassDescValid(classdesc)	\
-    ((classdesc)->validation==URMWCIClassDescValid)
+    ((classdesc) != NULL && (classdesc)->validation==URMWCIClassDescValid)
 
 typedef struct _WCIClassDesc {
 	unsigned	validation ;	/* URMWCIClassDescValid */
@@ -547,7 +547,7 @@ typedef struct MrmHierarchyDescStruct {
  * Validation macro
  */
 #define	MrmHierarchyValid(hierarchy)		\
-    ((hierarchy)->validation==MrmHIERARCHY_VALID)
+    ((hierarchy) != NULL && (hierarchy)->validation==MrmHIERARCHY_VALID)
 
 
 
@@ -609,7 +609,7 @@ typedef struct {
  * the context buffer CAST to RGMWidgetRecordptr.
  */
 #define	UrmWRValid(widgetrec)	\
-    ((widgetrec)->validation==URMWidgetRecordValid)
+    ((widgetrec) != NULL && (widgetrec)->validation==URMWidgetRecordValid)
 
 /*
  * Accessor macros for the widget record header
@@ -983,7 +983,7 @@ typedef struct {
  * Validation macro
  */
 #define	UrmInterfaceModuleValid(module)		\
-    ((module)->validation==URMInterfaceModuleValid)
+    ((module) != NULL && (module)->validation==URMInterfaceModuleValid)
 
 
 
