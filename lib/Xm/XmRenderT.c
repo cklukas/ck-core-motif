@@ -1828,15 +1828,29 @@ _XmRenderTableRemoveRenditions(XmRenderTable oldtable,
   else if (count < _XmRTCount(oldtable))
     {
       /* Realloc table */
-      table = (_XmRenderTable)XtRealloc((char *)*oldtable,
-					sizeof(_XmRenderTableRec) +
-					(sizeof(XmRendition) *
-					 (count - RENDITIONS_IN_STRUCT)));
-      if (newtable == NULL) 
-	{
-	  newtable = GetHandle(_XmRenderTable);
-	  FreeHandle(oldtable);
-	}      
+      if (newtable == NULL) {
+	newtable = GetHandle(_XmRenderTable);
+	if (newtable == NULL)
+	  return(oldtable);
+	table = (_XmRenderTable)XtRealloc((char *)*oldtable,
+					  sizeof(_XmRenderTableRec) +
+					  (sizeof(XmRendition) *
+					   (count - RENDITIONS_IN_STRUCT)));
+	if (table == NULL) {
+	  FreeHandle(newtable);
+	  newtable = NULL;
+	  return(oldtable);
+	}
+	FreeHandle(oldtable);
+      }
+      else {
+	table = (_XmRenderTable)XtRealloc((char *)*oldtable,
+					  sizeof(_XmRenderTableRec) +
+					  (sizeof(XmRendition) *
+					   (count - RENDITIONS_IN_STRUCT)));
+	if (table == NULL)
+	  return(oldtable);
+      }
       SetPtr(newtable, table);
 
       _XmRTCount(newtable) = count;

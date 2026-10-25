@@ -38,6 +38,9 @@ Render-table locking (2026-10-26)
 - Make `XmRenderTableGetDefaultFontExtents` handle a null table safely and
   initialize supplied outputs to zero; see
   `docs/render-table-default-extents.md`.
+- Make render-table compaction check `XtRealloc` and replacement-handle
+  failures before publishing the resized body; see
+  `docs/render-table-resize.md`.
 - Guard the temporary merge-match allocation in `XmRenderTableAddRenditions`
   so allocation failure returns without dereferencing a null buffer.
 

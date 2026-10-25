@@ -40,4 +40,6 @@ assert "if (table == NULL)" in remove_region
 assert "if (newtable == NULL)" in remove_region
 assert "while (i > 0)" in remove_region
 assert "return(oldtable);" in remove_region
+assert "if (table == NULL)" in remove_region
+assert "if (newtable == NULL)" in remove_region
 print("PASS XmRenderT rendition allocations are guarded")
