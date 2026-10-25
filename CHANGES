@@ -11084,3 +11084,10 @@ WSM message packing allocation (2026-10-25)
 - Check request and reply output-buffer allocation before packing, returning
   safely for non-empty messages when memory is unavailable; see
   `docs/wsm-pack-oom.md`.
+
+WSM window-entry reply sizing (2026-10-25)
+==========================================
+
+- Preserve both window-ID and match-property contributions when sizing WSM
+  replies, preventing underallocation during packing; see
+  `docs/wsm-win-entry-size.md`.

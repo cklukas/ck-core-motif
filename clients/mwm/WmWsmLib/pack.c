@@ -851,7 +851,7 @@ WinEntrySizePacked(Display *dpy, int screen_num, WSMWinEntry *win_entry)
 
     size  = sizeof(CARD32);
     size += sizeof(CARD32) * win_entry->num_windows;
-    size  = sizeof(CARD32);
+    size += sizeof(CARD32);
     size += sizeof(WindowProperty) * win_entry->num_match_properties;
 
     return(size);
