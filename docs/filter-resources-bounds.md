@@ -8,6 +8,8 @@ nav_exclude: true
 the result in a second pass. This removes the former fixed 256-entry temporary
 index limit, checks the result-size arithmetic, and reports allocation failure
 with an empty result instead of writing through `NULL`.
+Null resource, class, or output pointers now return an empty result before
+the filter is inspected.
 
 The focused regression check is
 `tests/automated/check-filter-resources-bounds.py`.

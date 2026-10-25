@@ -1504,6 +1504,12 @@ _XmFilterResources(
     Cardinal		filterOffset;
     Cardinal		i, j;
 
+    if (filteredResourcesRtn == NULL)
+	return 0;
+    *filteredResourcesRtn = NULL;
+    if (resources == NULL || filterClass == NULL)
+	return 0;
+
     filterOffset = filterClass->core_class.widget_size;
 
     for (i = 0, j = 0; i < numResources; i++)
@@ -1515,13 +1521,11 @@ _XmFilterResources(
       }
 
     if ((size_t)j > SIZE_MAX / sizeof(XtResource)) {
-	*filteredResourcesRtn = NULL;
 	return 0;
     }
     filteredResources = (XtResource *) XtMalloc(j * sizeof(XtResource));
 
     if (filteredResources == NULL && j != 0) {
-	*filteredResourcesRtn = NULL;
 	return 0;
     }
 
