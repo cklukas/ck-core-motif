@@ -1,3 +1,10 @@
+Guard text-property list concatenation allocation (2026-10-25)
+=================================================================
+
+- Release the Xlib text list and return `XNoMemory` when the concatenated
+  result buffer cannot be allocated; see
+  `docs/motif-txtpropcv-concat.md`.
+
 Guard compound-text iconv output allocation (2026-10-25)
 ===========================================================
 
