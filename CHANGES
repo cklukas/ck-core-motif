@@ -1,4 +1,8 @@
 2026-10-25
+	* Guard tab-array and tab-string allocations in `XmTabCreate`, releasing
+	  partial objects on failure; see docs/tab-allocation.md.
+
+2026-10-25
 	* Roll back partial tab-list copies when a later tab allocation fails,
 	  avoiding null-link dereferences and retaining marked-tab ownership
 	  semantics; see docs/tablist-copy-rollback.md.

@@ -543,6 +543,10 @@ XmTabCreate(float value,
 
   _XmProcessLock();
   tab = (XmTab)XtMalloc(sizeof(_XmTabRec));
+  if (tab == NULL) {
+    _XmProcessUnlock();
+    return(NULL);
+  }
   
   _XmTabMark(tab) = FALSE;
   if (value >= 0) 
@@ -557,7 +561,12 @@ XmTabCreate(float value,
   _XmTabUnits(tab) = units;
   _XmTabModel(tab) = offset_model;
   _XmTabAlign(tab) = alignment;
-  _XmTabDecimal(tab) = XtNewString(decimal);
+  _XmTabDecimal(tab) = decimal == NULL ? NULL : XtNewString(decimal);
+  if (decimal != NULL && _XmTabDecimal(tab) == NULL) {
+    XtFree((char *)tab);
+    _XmProcessUnlock();
+    return(NULL);
+  }
 
   _XmProcessUnlock();
   return(tab);
@@ -610,6 +619,8 @@ _XmCreateTab(Widget parent,
     }
   
   tab = XmTabCreate(value, units, model, alignment, decimal);
+  if (tab == NULL)
+    return((Widget)NULL);
   
   if (_XmTabLCount(tl) == 0)
     {
@@ -673,13 +684,23 @@ XmTab
 _XmTabCopy(XmTab tab)
 {
   XmTab	new_tab;
+
+  if (tab == NULL)
+    return(NULL);
   
   new_tab = (XmTab)XtMalloc(sizeof(_XmTabRec));
+  if (new_tab == NULL)
+    return(NULL);
   
   memcpy((char *)new_tab, (char *)tab, sizeof(_XmTabRec));
   
   _XmTabMark(new_tab) = FALSE;
-  _XmTabDecimal(new_tab) = XtNewString(_XmTabDecimal(tab));
+  _XmTabDecimal(new_tab) = _XmTabDecimal(tab) == NULL ? NULL :
+    XtNewString(_XmTabDecimal(tab));
+  if (_XmTabDecimal(tab) != NULL && _XmTabDecimal(new_tab) == NULL) {
+    XtFree((char *)new_tab);
+    return(NULL);
+  }
   
   return(new_tab);
 }
