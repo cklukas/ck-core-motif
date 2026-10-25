@@ -715,7 +715,7 @@ ConstraintSetValues(Widget current, Widget request, Widget set,
     OutlineConstraints set_node = GetNodeInfo(set);
     OutlineConstraints old_node = GetNodeInfo(current);
     Boolean insert_change = False, redisplay = False;
-    int i;
+    Cardinal i;
 
     for (i = 0; i < *num_args; i++) 
 	if (streq(args[i].name, XmNinsertBefore)) {
@@ -1219,7 +1219,7 @@ GetNodeHeightAndWidth(Widget w, OutlineConstraints node,
 		      Cardinal outline_depth, Boolean recurse, Cardinal * num)
 {
     XmOutlineWidget ow = (XmOutlineWidget) w;
-    register int i;
+    register Cardinal i;
     XtWidgetGeometry geom_pref;
 
     if ((node == NULL) || ((XmHierarchyC_widget(node) != NULL) &&
