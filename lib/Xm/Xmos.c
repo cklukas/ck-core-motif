@@ -173,16 +173,30 @@ AddEntryToCache(char *entryName,
 {   
   struct stat statBuf;
   unsigned char result = 0;
+  XmDirCache new_cache;
+
+  if (entryName == NULL || entryNameLen > (size_t)-1 -
+      sizeof(XmDirCacheRec) - 1)
+    return 0;
 
   if (numCacheEntries == numCacheAlloc)
     {
-      numCacheAlloc += FILE_LIST_BLOCK;
-      dirCache = (XmDirCache) 
-	XtRealloc((char *) dirCache, numCacheAlloc * sizeof(XmDirCacheRec *));
+      unsigned new_alloc;
+      if (numCacheAlloc > (unsigned)-1 - FILE_LIST_BLOCK)
+	return 0;
+      new_alloc = numCacheAlloc + FILE_LIST_BLOCK;
+      new_cache = (XmDirCache)XtRealloc(
+	(char *)dirCache, (size_t)new_alloc * sizeof(*new_cache));
+      if (new_cache == NULL)
+	return 0;
+      dirCache = new_cache;
+      numCacheAlloc = new_alloc;
     } 
 
   dirCache[numCacheEntries] = (XmDirCacheRec *) 
     XtMalloc(sizeof(XmDirCacheRec) + entryNameLen + 1);
+  if (dirCache[numCacheEntries] == NULL)
+    return 0;
   strcpy(dirCache[numCacheEntries]->file_name, entryName);
 
   /* Use dirCacheName character array as temporary buffer for full file name.*/
