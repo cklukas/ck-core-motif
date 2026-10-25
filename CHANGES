@@ -1,3 +1,10 @@
+Sash highlight geometry bounds (2026-10-25)
+=============================================
+
+- Skip Sash focus fill and clear operations when shadow insets consume the
+  widget, preventing wrapped rectangles on tiny controls; see
+  `docs/sash-highlight-geometry.md`.
+
 PushButtonGadget unhighlight geometry bounds (2026-10-25)
 ===========================================================
 
