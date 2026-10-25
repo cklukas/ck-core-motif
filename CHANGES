@@ -14356,3 +14356,5 @@ CommandPalette size-limit header (2026-10-26)
 * Include `<limits.h>` for the Desktop child-array `UINT_MAX` guard.
 * Make `_XmOSQualifyFileSpec` report allocation failure with initialized
   output pointers and valid `void` returns.
+* Split the global display-scale resource reader from the compatibility
+  `_XmGetDpiScale` wrapper and declare both helpers consistently.

@@ -607,7 +607,7 @@ XmClearDisplayScaleOverride(Display *display)
 }
 
 Boolean
-_XmGetDpiScale(Display *display, double *scale)
+_XmGetGlobalDpiScale(Display *display, double *scale)
 {
   XrmDatabase db;
   XrmValue value;
