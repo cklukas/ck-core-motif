@@ -4375,6 +4375,13 @@ XmString parse-mapping allocation (2026-10-25)
 - Check `XmParseMappingCreate` construction before initialization so parser
   setup returns `NULL` cleanly when memory is unavailable; see
   `docs/xmstring-parse-mapping-allocation.md`.
+
+XmString lazy parse-table allocation (2026-10-25)
+==================================================
+
+- Validate the output pointer and lazy parse-table allocation used by
+  `XmStringGenerate` and `_XmStringUngenerate`; see
+  `docs/xmstring-parse-table-allocation.md`.
 Mrm writer cstring-vector validation (2026-10-25)
 ====================================================
 
