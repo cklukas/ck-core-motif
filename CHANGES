@@ -14304,3 +14304,9 @@ XPM zero-height image cleanup (2026-10-26)
   zero-height, zero-stride, or overflowing XPM images, avoiding leaks and
   dangling outputs on malformed or empty input; see
   `docs/xpm-zero-height-cleanup.md`.
+XPM next-string lookahead initialization (2026-10-26)
+======================================================
+
+- Initialize the XPM buffer scanner's lookahead character before empty/end of
+  buffer checks, avoiding undefined reads on malformed input; see
+  `docs/xpm-next-string-init.md`.

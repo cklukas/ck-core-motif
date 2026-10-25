@@ -172,7 +172,7 @@ xpmNextString(xpmData *data)
     if (!data->type)
 	data->cptr = (data->stream.data)[++data->line];
     else if (data->type == XPMBUFFER) {
-	register char c;
+	register char c = '\0';
 
 	/* get to the end of the current string */
 	if (data->Eos)
