@@ -3844,6 +3844,13 @@ XmRenderTableGetDefaultFontExtents(XmRenderTable rendertable,
     Boolean         success;
     short           indx;
     int             h,a,d;
+
+    if (rendertable == NULL) {
+        if (height) *height = 0;
+        if (ascent) *ascent = 0;
+        if (descent) *descent = 0;
+        return;
+    }
   
 #ifdef XTHREADS
   XtAppContext	       app=NULL;

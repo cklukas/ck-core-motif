@@ -35,6 +35,9 @@ Render-table locking (2026-10-26)
 - Roll back shared-table cloning in `_XmRenderTableRemoveRenditions` when a
   table body, handle, or rendition copy cannot be allocated; see
   `docs/render-table-removal.md`.
+- Make `XmRenderTableGetDefaultFontExtents` handle a null table safely and
+  initialize supplied outputs to zero; see
+  `docs/render-table-default-extents.md`.
 - Guard the temporary merge-match allocation in `XmRenderTableAddRenditions`
   so allocation failure returns without dereferencing a null buffer.
 
