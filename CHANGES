@@ -3656,3 +3656,9 @@ Guard Text selection timestamp allocation (2026-10-25)
 
 - Refuse timestamp conversion cleanly when its temporary `Time` allocation
   fails; see `docs/motif-textsel-timestamp.md`.
+Guard Text drop and selection value allocations (2026-10-25)
+==============================================================
+
+- Reject failed text drop-record, TARGETS, encoding, XA_STRING,
+  compound-text, UTF-8 and source-value allocations before initialization or
+  copying; see the corresponding `docs/motif-text*.md` contracts.
