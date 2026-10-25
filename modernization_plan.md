@@ -521,13 +521,16 @@ highest-risk remaining boundaries into explicit tested contracts.
 new native failures have regressions or explicit limits, and the status page
 does not overstate external-IME or sanitizer acceptance.
 
-**Status (2026-10-24):** phase 1 is implemented and documented for the
+**Status (2026-10-25):** phase 1 is implemented and documented for the
 qualified AArch64 Linux cohort. The installed native fixtures cover scalar and
 grapheme movement, the maintained mixed-script/fallback corpus, local Compose,
-real IBus XIM commit/cancellation and focused provider restart/loss behavior,
-plus UTF-8 clipboard round trips. `docs/native-text-ime-matrix.md` records
-the exact evidence boundary and keeps x86_64, broader provider/engine
-interoperability, candidate panels and sanitizer exit ownership as explicit
+real IBus XIM commit/cancellation and focused provider restart/loss behavior.
+The large UTF-8 clipboard and interrupted INCR-transfer fixtures also pass
+when Motif and its consumer use the pinned corrected Xt dependency; the
+system-Xt failure and the exact dependency receipt remain recorded. The
+`docs/native-text-ime-matrix.md` table records this bounded result and keeps
+x86_64, broader provider/engine interoperability, candidate panels, complete
+application clipboard/DnD workflows and sanitizer exit ownership as explicit
 open gates. The matrix does not treat unavailable services or interposed
 callbacks as provider passes.
 

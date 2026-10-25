@@ -12,7 +12,7 @@ separate toolkit-contract test.
 | Local Compose/dead key | Pass with private `@im=none` Xvfb | Pending | XTest fixture proves local XIM/XIC registration and exact commits; it is not a physical-keyboard test. |
 | IBus XIM composition, commit and cancellation | Focused pass | Pending | Real IBus/m17n fixture; standalone combining-mark commit and candidate panels remain gaps. |
 | Provider restart and transport loss | Focused pass | Pending | Same-process service loss/reconnect fixture; broader engines/providers remain unqualified. |
-| Clipboard UTF-8 round trip and INCR | Pass in the installed cohort | Pending | Large UTF-8 and interrupted-transfer fixtures; application workflows remain separate. |
+| Clipboard UTF-8 round trip and interrupted INCR lifetime | Pass for the bounded AArch64 cohort with pinned corrected Xt | Pending | Multi-megabyte UTF-8 bytes, cancellation, and a fresh transfer from the surviving owner pass for Text and TextField; system-Xt failure, application workflows, broader DnD, and x86_64 remain separate. |
 | Strict ASan/UBSan | Body completes; exit leak gate open | Pending | Xt selection-context and Fontconfig ownership reports are retained, not suppressed. |
 
 Run the focused installed service fixture with:
