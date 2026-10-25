@@ -1,3 +1,9 @@
+Traversal focus-entry validation (2026-10-25)
+==============================================
+
+- Guard focus validation, destruction, traversal, and empty focus-moved
+  callbacks against missing widgets; see `docs/traversal-focus-entry-inputs.md`.
+
 Traversal widget input validation (2026-10-25)
 ===============================================
 

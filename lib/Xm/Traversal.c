@@ -493,6 +493,8 @@ void
 _XmValidateFocus(
         Widget wid )
 {
+  if (wid == NULL)
+    return;
   XmFocusData focus_data = _XmGetFocusData( wid) ;
 
   if(    focus_data
@@ -527,7 +529,11 @@ _XmNavigDestroy(
    * stale pointers to the widget being destroyed in any of its
    * data structures.
    */
-  XmFocusData focusData = _XmGetFocusData( wid) ;
+  XmFocusData focusData;
+
+  if (wid == NULL)
+    return;
+  focusData = _XmGetFocusData( wid) ;
 
   if(    focusData    )
     {
@@ -598,6 +604,9 @@ CallFocusMoved(Widget		    old,
   Widget topShell ;
   XtCallbackList callbacks ;
   Boolean contin = TRUE ;
+
+  if (old == NULL && new_wid == NULL)
+    return FALSE;
   
   if (old) 
     w = old;
@@ -661,9 +670,16 @@ _XmMgrTraversal(
   Widget new_active_tab ;
   XmFocusData focus_data;
   XmTravGraph trav_list ;
+  XmDisplay dd;
   Boolean rtnVal = FALSE ;
   XmTraversalDirection local_dir;
-  XmDisplay dd = (XmDisplay)XmGetXmDisplay(XtDisplay(wid));
+
+  if (wid == NULL)
+    return FALSE;
+
+  dd = (XmDisplay)XmGetXmDisplay(XtDisplay(wid));
+  if (dd == NULL)
+    return FALSE;
 
 #define traversal_in_progress \
    ((XmDisplayInfo *)(dd->display.displayInfo))->traversal_in_progress
