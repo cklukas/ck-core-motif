@@ -141,10 +141,12 @@ static void Destroy(Widget widget) {
 
 static void UpdateGCs(XmSpinnerWidget spinner) {
     Display *display = XtDisplay((Widget)spinner);
-    XSetForeground(display, spinner->spinner.ring_gc,
-                   spinner->primitive.foreground);
-    XSetForeground(display, spinner->spinner.text_gc,
-                   spinner->primitive.foreground);
+    if (spinner->spinner.ring_gc)
+        XSetForeground(display, spinner->spinner.ring_gc,
+                       spinner->primitive.foreground);
+    if (spinner->spinner.text_gc)
+        XSetForeground(display, spinner->spinner.text_gc,
+                       spinner->primitive.foreground);
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {
@@ -157,15 +159,20 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     GC gc;
     int start;
     (void)event; (void)region;
-    if (!window) return;
+    if (!window || !spinner->core.width || !spinner->core.height) return;
     UpdateGCs(spinner);
+    gc = spinner->spinner.ring_gc ? spinner->spinner.ring_gc
+                                  : spinner->spinner.text_gc;
+    if (!gc) return;
     XClearWindow(display, window);
     if (spinner->spinner.font)
         XmStringExtent(spinner->spinner.font, spinner->spinner.label,
                        &label_width, &label_height);
-    gc = spinner->spinner.ring_gc;
-    diameter = spinner->core.height > 24 ? spinner->core.height - 2 *
-        spinner->spinner.spacing : 16;
+    {
+        int available = (int)spinner->core.height -
+                        2 * (int)spinner->spinner.spacing;
+        diameter = available > 16 ? (Dimension)available : 16;
+    }
     if (diameter > spinner->core.width) diameter = spinner->core.width;
     if (diameter > 32) diameter = 32;
     center_x = (Position)(spinner->spinner.spacing + diameter / 2);
@@ -182,8 +189,10 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                      label_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(spinner), NULL);
     }
-    if (spinner->primitive.highlighted && spinner->primitive.highlight_thickness)
-        XDrawRectangle(display, window, spinner->spinner.ring_gc,
+    if (spinner->primitive.highlighted && spinner->primitive.highlight_thickness &&
+        spinner->core.width > 2 * spinner->primitive.highlight_thickness &&
+        spinner->core.height > 2 * spinner->primitive.highlight_thickness)
+        XDrawRectangle(display, window, gc,
                        spinner->primitive.highlight_thickness - 1,
                        spinner->primitive.highlight_thickness - 1,
                        spinner->core.width - 2 * spinner->primitive.highlight_thickness,

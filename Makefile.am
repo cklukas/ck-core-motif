@@ -844,3 +844,4 @@ EXTRA_DIST += tests/automated/check-rating-control-geometry-guards.py docs/ratin
 EXTRA_DIST += tests/automated/check-toggle-switch-redisplay-guards.py docs/toggle-switch-redisplay-guards.md
 EXTRA_DIST += tests/automated/check-progress-bar-redisplay-guards.py docs/progress-bar-redisplay-guards.md
 EXTRA_DIST += tests/automated/check-date-picker-redisplay-guard.py docs/date-picker-redisplay-guard.md
+EXTRA_DIST += tests/automated/check-spinner-redisplay-guards.py docs/spinner-redisplay-guards.md
