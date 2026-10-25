@@ -652,7 +652,9 @@ FetchPixelData(Widget w, char * value, unsigned long value_length, int screen)
     XmColorObj tmpColorObj = (XmColorObj)w;
     Colors   colors;
 
-    if (value == NULL || value_length == 0 || value_length > UINT_MAX - 1)
+    if (value == NULL || value_length == 0 || value_length > UINT_MAX - 1 ||
+	screen < 0 || screen >= tmpColorObj->color_obj.numScreens ||
+	tmpColorObj->color_obj.colorUse == NULL)
     {
         if (value != NULL)
             XFree(value);

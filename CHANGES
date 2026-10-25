@@ -1,3 +1,9 @@
+Color-object pixel-data screen validation (2026-10-25)
+=======================================================
+
+- Reject invalid per-screen indices before ColorObj property writes; see
+  `docs/color-object-screen-index.md`.
+
 Color-object atom-name allocation guard (2026-10-25)
 =====================================================
 
