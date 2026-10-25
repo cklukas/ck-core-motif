@@ -480,7 +480,8 @@ XmCvtXmStringTableToTextProperty(Display *display,
   switch (style)
     {
     case XmSTYLE_COMPOUND_TEXT:
-      if ((size_t)count > SIZE_MAX / sizeof(char *)) {
+      if ((size_t)count > SIZE_MAX / sizeof(char *) ||
+	  (size_t)count > UINT_MAX / sizeof(char *)) {
 	_XmAppUnlock(app);
 	return BadAlloc;
       }
