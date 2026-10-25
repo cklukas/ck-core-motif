@@ -232,12 +232,16 @@ static XmHashValue
 HashString (XmHashKey key)
 {
   char *data = (char *) key;
-  unsigned int len;
+  size_t len;
+  unsigned int folded_len;
 
   if (data == NULL)
     return 0;
   len = strlen(data);
-  return (((len << 8) | data[0]) << 8) | data[len];
+  folded_len = (unsigned int)((uintmax_t)len ^ ((uintmax_t)len >> 32));
+  return (XmHashValue)((((folded_len << 8) |
+			      (unsigned int)(unsigned char)data[0]) << 8) |
+			    (unsigned int)(unsigned char)data[len]);
 }
 
 #ifdef SVG_SUPPORTED

@@ -4883,3 +4883,9 @@ Make cached-pixmap insertion transactional (2026-10-25)
 
 - Roll back partial pixmap-cache publication and free its entry when either
   hash insertion fails; see `docs/cache-pixmap-insertion-failure.md`.
+
+Preserve ImageCache string-hash length (2026-10-25)
+===================================================
+
+- Hash image-name lengths without truncating `strlen` to 32 bits; see
+  `docs/image-string-hash-width.md`.

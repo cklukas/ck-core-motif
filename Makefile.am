@@ -814,3 +814,5 @@ EXTRA_DIST += tests/automated/check-pixmap-dual-insertion.py docs/pixmap-dual-ta
 EXTRA_DIST += tests/automated/check-xm-gc-insertion-failure.py docs/gc-cache-insertion-failure.md
 
 EXTRA_DIST += tests/automated/check-xm-cache-pixmap-insertion.py docs/cache-pixmap-insertion-failure.md
+
+EXTRA_DIST += tests/automated/check-image-string-hash-width.py docs/image-string-hash-width.md
