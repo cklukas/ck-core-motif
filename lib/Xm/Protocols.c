@@ -276,10 +276,9 @@ RemoveAllPMgrHandler(
     XmAllProtocolsMgr ap_mgr = (XmAllProtocolsMgr) closure ;
     Cardinal	i;
     
-    for (i = 0; i < ap_mgr->num_protocol_mgrs; i++)
-      {
-	  RemoveProtocolMgr(ap_mgr, ap_mgr->protocol_mgrs[i]);
-      }
+    while (ap_mgr->num_protocol_mgrs != 0 &&
+	   ap_mgr->protocol_mgrs != NULL)
+      RemoveProtocolMgr(ap_mgr, ap_mgr->protocol_mgrs[0]);
     /* free the context manager entry ||| */
     XDeleteContext(XtDisplay(w), 
 		   (Window)w, 
@@ -682,8 +681,20 @@ RemoveProtocolMgr(
         XmAllProtocolsMgr ap_mgr,
         XmProtocolMgr p_mgr )
 {
-    Widget	shell = ap_mgr->shell;
+    Widget	shell;
     Cardinal 	i;
+
+    if (ap_mgr == NULL || p_mgr == NULL ||
+	 ap_mgr->protocol_mgrs == NULL)
+	return;
+
+    for (i = 0; i < ap_mgr->num_protocol_mgrs; i++)
+      if (ap_mgr->protocol_mgrs[i] == p_mgr)
+	break;
+    if (i == ap_mgr->num_protocol_mgrs)
+	return;
+
+    shell = ap_mgr->shell;
     
     for (i = 0; i < p_mgr->num_protocols; i++)
       {
@@ -696,16 +707,13 @@ RemoveProtocolMgr(
 			XtWindow(shell), 
 			p_mgr->property);
     
-    for (i = 0;  i < ap_mgr->num_protocol_mgrs;  i++)
-      if (ap_mgr->protocol_mgrs[i] == p_mgr)
-	break;
-
     XtFree((char *) p_mgr->protocols);
     XtFree((char *) p_mgr);
 
     /* ripple mgrs down */
     for ( ; i < ap_mgr->num_protocol_mgrs-1; i++)
       ap_mgr->protocol_mgrs[i] = ap_mgr->protocol_mgrs[i+1];
+    ap_mgr->num_protocol_mgrs--;
 }
 /************************************<+>*************************************
  *

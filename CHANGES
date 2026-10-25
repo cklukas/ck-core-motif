@@ -10215,6 +10215,13 @@ ScrollFrame callback removal guard (2026-10-25)
 - Check for the navigator trait's `changeMoveCB` hook before invoking it
   during removal; see `docs/scrollframe-remove-callback.md`.
 
+Protocol-manager teardown fix (2026-10-25)
+==========================================
+
+- Compact and count protocol managers during removal, and tear down all
+  managers without iterating freed entries; see
+  `docs/protocol-manager-removal.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
