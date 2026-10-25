@@ -13,7 +13,7 @@ separate toolkit-contract test.
 | Local Compose/dead key | Pass with private `@im=none` Xvfb | Pending | XTest fixture proves local XIM/XIC registration and exact commits; it is not a physical-keyboard test. |
 | IBus XIM composition, commit and cancellation | Focused pass | Pending | Real IBus/m17n fixture; standalone combining-mark commit and candidate panels remain gaps. |
 | Provider restart and transport loss | Focused pass | Pending | Same-process service loss/reconnect fixture; broader engines/providers remain unqualified. |
-| Clipboard UTF-8 round trip and interrupted INCR lifetime | Pass for the bounded AArch64 cohort with pinned corrected Xt | Pending | Multi-megabyte UTF-8 bytes, direct Motif-to-Motif Text/TextField round trips, cancellation, a fresh transfer from the surviving owner, and the installed 8/16/32-bit transfer-storage/owner-replacement cohort pass; system-Xt failure, broader DnD, and x86_64 remain separate. |
+| Clipboard UTF-8 round trip and interrupted INCR lifetime | Pass for the bounded AArch64 cohort with pinned corrected Xt | Bounded pass with pinned corrected Xt | Multi-megabyte UTF-8 bytes, direct Motif-to-Motif Text/TextField round trips, cancellation, a fresh transfer from the surviving owner, and the installed 8/16/32-bit transfer-storage/owner-replacement cohort pass; x86_64 now has the bounded large round trip, storage modes and cancelled-transfer lifetime with the pinned Xt. Broader DnD remains separate. |
 | Motif drag/drop transfer, receiver/source cancellation and initiator cancellation | Focused pass | Independent-client modes pass | Installed XTEST gestures cover same-process and independent-client copy transfer, same-process and independent-client two-target transfers, independent-client 4 MiB incremental assembly, receiver-side delayed/active `XmDropTransfer` destruction, request cancellation and requestor-shell teardown, source-side owner replacement during an active drag and post-drop incremental transfer, drop admission, source conversion, transfer-entry client data, Xt-owned selection values and `XmDragCancel` finish notification; x86_64 evidence is limited to three fresh runs of the independent-client 14/22/116-check modes. Complete application workflows remain open. See `docs/dnd-transfer-lifecycle.md`. |
 | Strict ASan/UBSan | Bounded pass with pinned Xt; matrix-wide gate pending | Pending | A fresh helper-built Xt cohort passes ABI, incremental-layout and clipboard-lifetime with leak detection enabled. The strict FontSelector consumer still reports one 160-byte shared Xt/Xlib GC-cache allocation at process exit; Fontconfig and broader ownership paths remain separate gates. See `docs/fontselector-sanitizer-boundary.md`. |
 
@@ -112,3 +112,22 @@ loading the pinned Xt directory; its receipt records both the Motif and
 dependency paths. A strict attempt reaches the fixture body but remains
 bounded by the external Fontconfig ownership report, so that result is kept as
 a dependency-sanitizer boundary rather than suppressed.
+
+On 2026-10-25, the x86_64 installed cohort passed the 11-check large UTF-8
+clipboard round trip and the four transfer-storage modes (`clipboard`, `merge`,
+`bounds` and `lifetime`) under the ordinary Xvfb profile. The strict storage
+rerun initially reported 104 and 416 bytes rooted in system Xt for the
+clipboard and lifetime modes. Repeating those modes with the pinned libXt
+1.3.1 correction passed all four with ASan/UBSan leak detection enabled. The
+native cancelled-transfer observer then passed its ABI and lifetime checks
+with the same pinned Xt, using the fingerprinted color-font configuration to
+avoid unrelated text-layout warnings. The x86 toolkit fingerprint is
+`58bc39a032d63a600942e90554ab67655dd08eed4b3303e878b59e3f135ccf94`; the
+pinned Xt library fingerprint is
+`0588577bc669adc2c71a0a09b061970c7a944fe9f1f61a699cef05346bf8e538`.
+Receipts are retained under
+`/mnt/v/tmp/ckmotif-x86-20261025/results/storage-x86-xt-asan-r1/` and
+`/mnt/v/tmp/ckmotif-x86-20261025/results/clipboard-native-x86-xt-r2/`.
+This closes only the bounded x86 clipboard/selection-lifetime cohort; broader
+application workflows, other providers and matrix-wide sanitizer ownership
+remain open.

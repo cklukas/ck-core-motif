@@ -63,6 +63,15 @@ fixtures pass under Xvfb, together with the source lifetime guard. The
 multi-output XLibre server scenario remains unqualified and is not inferred
 from this fallback run.
 
+The same x86_64 cohort now also passes the bounded large UTF-8 clipboard
+round-trip and transfer-storage clipboard/merge/bounds/lifetime modes. The
+strict rerun passes with the pinned corrected libXt 1.3.1 prefix and leak
+detection enabled; the unpinned run's system-Xt allocations are retained as
+the external ownership boundary rather than suppressed. The cancelled-transfer
+observer passes ABI and lifetime checks with the same dependency and the
+fingerprinted color-font configuration. This does not qualify application
+clipboard managers, broader DnD workflows or matrix-wide sanitizer ownership.
+
 The same installed x86_64 prefix now passes the bounded text cohort
 (`incremental-map`, `preedit`, `layout`, `line-context`, `unicode-widgets`,
 `font-resize` and `large-text`) with a task-local CJK/Unicode/color-emoji

@@ -677,6 +677,13 @@ the installed `abi`, `layout` and `large-text` fixtures; its host lacks the
 Xrandr headers required for the optional XLibre-DPI adapter, so that focused
 check intentionally excludes only that adapter.
 
+The x86_64 cohort also now passes the bounded large UTF-8 clipboard round trip,
+the installed transfer-storage clipboard/merge/bounds/lifetime modes and the
+cancelled-transfer observer when the pinned corrected libXt 1.3.1 prefix is
+used. The unpinned system-Xt sanitizer allocations remain recorded as an
+external dependency boundary; this does not close application clipboard/DnD,
+other providers or matrix-wide sanitizer acceptance.
+
 ### WP-07: Screen-reader usability and semantic completion
 
 **Depends on:** WP-06 for text-specific claims; basic provider work may start
