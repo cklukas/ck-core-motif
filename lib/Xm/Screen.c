@@ -977,13 +977,18 @@ _XmAllocScratchPixmap(
         Dimension height )
 #endif /* NeedWidePrototypes */
 {
-    XmHashTable		scratchTable =
-      (XmHashTable) xmScreen->screen.scratchPixmaps;
-    XmHashTable		inUseTable = 
-      (XmHashTable) xmScreen->screen.inUsePixmaps;
+    XmHashTable		scratchTable;
+    XmHashTable		inUseTable;
     Pixmap		scratchPixmap = None;
     XmScratchPixmapKeyRec	key;
     XmScratchPixmapKey	returned_key;
+
+    if (xmScreen == NULL)
+      return (None);
+    scratchTable = (XmHashTable) xmScreen->screen.scratchPixmaps;
+    inUseTable = (XmHashTable) xmScreen->screen.inUsePixmaps;
+    if (scratchTable == NULL || inUseTable == NULL)
+      return (None);
 
     key.height = height;
     key.width = width;
@@ -998,6 +1003,11 @@ _XmAllocScratchPixmap(
 	_XmRemoveHashEntry(scratchTable, &key);
     } else {
       returned_key = XtNew(XmScratchPixmapKeyRec);
+      if (returned_key == NULL)
+        {
+          _XmProcessUnlock();
+          return (None);
+        }
       returned_key->width = width;
       returned_key->height = height;
       returned_key->depth = depth;
@@ -1005,6 +1015,12 @@ _XmAllocScratchPixmap(
 				     RootWindowOfScreen(XtScreen(xmScreen)),
 				     width, height,
 				     depth);
+      if (scratchPixmap == None)
+        {
+          XtFree((char *)returned_key);
+          _XmProcessUnlock();
+          return (None);
+        }
     }
 
     /* Place key in inUse table */

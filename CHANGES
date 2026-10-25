@@ -1,3 +1,10 @@
+Xm scratch-pixmap allocation failures (2026-10-25)
+======================================================
+
+- Guard scratch-cache tables and key/pixmap allocation in
+  `_XmAllocScratchPixmap`, avoiding invalid in-use entries; see
+  `docs/xm-scratch-pixmap-failure.md`.
+
 Xm image-cache string null safety (2026-10-25)
 ===============================================
 
