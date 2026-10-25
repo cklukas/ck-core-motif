@@ -44,6 +44,31 @@ check_property_parser(Display *display)
 }
 
 static void
+check_property_decode(Display *display)
+{
+    Atom string_type = XInternAtom(display, "STRING", False);
+    const long valid_value = 144;
+    double dpi = -1.0;
+
+    if (!_XmXlibreDpiDecodeProperty(XA_INTEGER, 32, 1, 0,
+                                    &valid_value, &dpi) || dpi != 144.0) {
+        fprintf(stderr, "valid format-32 property did not decode\n");
+        failed = 1;
+    }
+    /* Pass no buffer for malformed metadata.  The decoder must reject the
+     * shape before dereferencing it; ASan/UBSan runs make this ordering
+     * observable rather than merely checking the eventual Boolean result. */
+    if (_XmXlibreDpiDecodeProperty(string_type, 8, 1, 0, NULL, &dpi) ||
+        _XmXlibreDpiDecodeProperty(XA_INTEGER, 16, 1, 0, NULL, &dpi) ||
+        _XmXlibreDpiDecodeProperty(XA_INTEGER, 32, 2, 0, NULL, &dpi) ||
+        _XmXlibreDpiDecodeProperty(XA_INTEGER, 32, 1, 4, NULL, &dpi) ||
+        _XmXlibreDpiDecodeProperty(XA_INTEGER, 32, 1, 0, NULL, &dpi)) {
+        fprintf(stderr, "malformed property metadata was accepted\n");
+        failed = 1;
+    }
+}
+
+static void
 check_server_contract(Display *display)
 {
     const char *vendor = ServerVendor(display);
@@ -103,6 +128,7 @@ main(void)
         return EXIT_FAILURE;
     }
     check_property_parser(display);
+    check_property_decode(display);
     check_server_contract(display);
     XCloseDisplay(display);
     if (failed)

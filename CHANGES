@@ -1,3 +1,12 @@
+XLibre RandR property decode hardening (2026-10-25)
+====================================================
+
+- Validate the RandR property type, format, item count and trailing-byte
+  metadata before reading the returned format-32 buffer. Malformed format-8
+  or format-16 properties are now rejected without an out-of-bounds read;
+  the installed contract fixture exercises the decode boundary under the
+  sanitizer configuration.
+
 Deterministic display-scale override (2026-10-25)
 =================================================
 

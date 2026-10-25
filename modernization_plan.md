@@ -463,6 +463,45 @@ display, where every reported output must provide a valid property.  Shell
 output selection, RandR event subscription, live reflow and explicit-resource
 transactions remain phase 2 and are not advertised by this increment.
 
+**Phase-2 progress (2026-10-25):** the internal shell-boundary selector and
+the opt-in live observer are now implemented and installed-fixture qualified.
+The observer subscribes to RandR screen/output/property notifications, drains
+them on the owning Xt application context, coalesces a burst into one work
+procedure, re-resolves the shell output and invokes one normal Xt resize before
+the change hook. It chooses the output containing the shell client-area center,
+falls back to the nearest output with a lowest-RandR-ID tie-break (using the
+sum of horizontal and vertical distances), and retains global-DPI behavior for
+invalid or unavailable properties. Explicit-resource preservation and the
+derived-metric callback boundary are documented. A real multi-output XLibre
+session is still required to qualify live property modification, output
+removal/addition, spanning windows and destruction during a queued update.
+The installed contract runner now uses a supplied real display for the shell
+observer and checks two-shell registration, positive descendant scale lookup,
+idempotent re-registration and retirement of one shell without invalidating
+the other; its no-display Xvfb run remains an ordinary-server fallback.
+
+The observer teardown contract now also removes its destroy callback before
+freeing state on explicit unregistration. The installed observer regression
+exercises unregistration followed by shell destruction, preventing a stale
+callback closure from becoming a use-after-free path.
+
+The queued work procedure now retains its observer state across the Xt resize
+transaction. If reentrant application code destroys the shell, retirement
+unlinks and cancels the observer while reclamation waits for the active work
+reference; the optional change hook is not called after retirement. The
+source-contract regression covers the retain/release ordering. A real
+multi-output XLibre run is still required for live property changes and
+destruction during queued reflow.
+
+The RandR property boundary is now hardened as well: the decoder validates
+type, format, item count and trailing data before reading Xlib's format-32
+buffer, avoiding an out-of-bounds read for malformed format-8/16 replies. The
+installed contract fixture covers the malformed-metadata ordering under the
+sanitizer configuration. This closes a toolkit safety defect but does not
+replace the required real multi-output qualification.
+The AArch64 receipt and installed-library fingerprint are recorded in
+`docs/xlibre-dpi-contract.md`.
+
 ### WP-05: Optional SVG image loading
 
 **Depends on:** WP-04.
