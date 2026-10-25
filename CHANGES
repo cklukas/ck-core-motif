@@ -113,6 +113,13 @@ Accessibility text extraction allocation guard (2026-10-26)
   allocation before calling text-widget substring APIs; see
   `docs/accessibility-text-allocation.md`.
 
+CascadeButton pixmap metadata guard (2026-10-26)
+=================================================
+
+- Check `XmeGetPixmapData` success before using cascade pixmap depth metadata,
+  avoiding copy operations for unavailable pixmaps; see
+  `docs/cascade-pixmap-metadata.md`.
+
 Accessibility name allocation rollback (2026-10-26)
 ====================================================
 
