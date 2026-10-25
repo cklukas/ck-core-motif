@@ -4556,3 +4556,9 @@ MakeIcon argument guards (2026-10-25)
 
 - Reject detached workspace or client state before icon creation;
   see `docs/make-icon-guards.md`.
+
+AddClientToList argument guards (2026-10-25)
+============================================
+
+- Reject missing workspace or client state before updating the client list;
+  see `docs/add-client-list-guards.md`.

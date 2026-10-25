@@ -102,6 +102,11 @@ extern void SetMwmClientList(Window propWindow, Window *wmWindowList, unsigned i
 
 void AddClientToList (WmWorkspaceData *pWS, ClientData *pCD, Boolean onTop)
 {
+    if (pWS == NULL || pCD == NULL)
+    {
+        return;
+    }
+
     Boolean belowSystemModal = False;
     XWindowChanges windowChanges;
     WmScreenData *pSD = pWS->pSD;
