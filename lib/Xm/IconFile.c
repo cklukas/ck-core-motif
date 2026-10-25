@@ -831,6 +831,10 @@ XmGetIconFileName(
 	if (iNameEntry == NULL)
 	    goto skip_icon_name_cache;
 	iNameEntry->key_name = XtNewString(name_used);
+	if (iNameEntry->key_name == NULL) {
+	    XtFree((char *)iNameEntry);
+	    goto skip_icon_name_cache;
+	}
       
 #ifndef XTHREADS
         if (useIconFileCache)
