@@ -1,3 +1,9 @@
+Icon-list source validation (2026-10-25)
+========================================
+
+- Reject missing placement storage before copying existing icon-box entries;
+  see `docs/icon-list-source-guard.md`.
+
 Icon-place alternate bounds (2026-10-25)
 ========================================
 

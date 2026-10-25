@@ -2867,7 +2867,8 @@ Boolean ExtendIconList (IconBoxData *pIBD, int incr)
     IconInfo *pTmp;
 
     if (pIBD == NULL || incr <= 0 || pIBD->IPD.totalPlaces < 0 ||
-	incr > INT_MAX - pIBD->IPD.totalPlaces)
+	incr > INT_MAX - pIBD->IPD.totalPlaces ||
+	(pIBD->IPD.totalPlaces > 0 && pIBD->IPD.placeList == NULL))
 	return (False);
 
     newSize = pIBD->IPD.totalPlaces + incr;
