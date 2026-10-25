@@ -2043,6 +2043,13 @@ XmPicture repeat node-map bounds (2026-10-25)
   picture graphs while leaving unrepresentable expansion unchanged; see
   `docs/picture-copy-bounds.md`.
 
+Cached icon-path joining bounds (2026-10-25)
+===============================================
+
+- Keep cached directory and leaf lengths in `size_t`, check the joined path
+  size, and skip an unavailable cache entry safely; see
+  `docs/icon-file-bounds.md`.
+
 Sized icon-name construction bounds (2026-10-25)
 =================================================
 

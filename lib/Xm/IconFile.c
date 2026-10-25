@@ -709,30 +709,32 @@ XmGetIconFileName(
 		_XmGetHashEntry(iconNameCache, (XmHashKey)&iNameData);
 
 	    if (iNameEntry) {
-		int dirLen, leafLen;
+		size_t dirLen, leafLen;
 
 		dirLen = strlen(iNameEntry->dirName);
 		leafLen = strlen(iNameEntry->leafName);
-		fileName = XtMalloc(dirLen + leafLen + 2);
-
-		memmove(&fileName[0],
-	      		iNameEntry->dirName,
-			dirLen);
+		if (leafLen <= SIZE_MAX - dirLen - 2) {
+			fileName = XtMalloc(dirLen + leafLen + 2);
+			if (fileName != NULL) {
+				memmove(&fileName[0],
+				       iNameEntry->dirName,
+				       dirLen);
 #ifdef FIX_1427
-		if (dirLen == 0) {
-			memmove(&fileName[dirLen], iNameEntry->leafName, leafLen);
-			fileName[dirLen + leafLen] = '\0';
-		} else {
+				if (dirLen == 0) {
+					memmove(&fileName[dirLen], iNameEntry->leafName, leafLen);
+					fileName[dirLen + leafLen] = '\0';
+				} else {
 #endif
-		fileName[dirLen] = '/';
-		memmove(&fileName[dirLen + 1],
-	      		iNameEntry->leafName,
-			leafLen);
-
-		fileName[dirLen + leafLen + 1] = '\0';
+				fileName[dirLen] = '/';
+				memmove(&fileName[dirLen + 1],
+				       iNameEntry->leafName,
+				       leafLen);
+				fileName[dirLen + leafLen + 1] = '\0';
 #ifdef FIX_1427
+				}
+#endif
+			}
 		}
-#endif
 	    }
 	}
 
