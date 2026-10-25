@@ -4129,3 +4129,8 @@ Mrm wide-character fixup null check (2026-10-25)
 
 - Reject null serialized wide-character entries before fixup dereferences;
   see `docs/mrm-fixup-widechar-null.md`.
+Mrm color/font reader boundary checks (2026-10-25)
+====================================================
+
+- Reject missing color descriptors and font fixup records before dereference;
+  see `docs/mrm-createarg-color-fontfixup.md`.

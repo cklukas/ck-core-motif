@@ -1445,6 +1445,8 @@ Urm__CW_CreateArglist (Widget			parent,
 		  }
                       
 		  colorptr = (RGMColorDescPtr) val;
+		  if ( colorptr == NULL )
+		    continue ;
 		  switch (colorptr->desc_type)
 		    {
 		    case URMColorDescTypeName:
@@ -1922,6 +1924,8 @@ Urm__CW_FixupValue (long			val,
     case MrmRtypeFont:
     case MrmRtypeFontSet:
       fontitem = (RGMFontItemPtr) val;
+      if ( fontitem == NULL || bufptr == NULL )
+	return MrmFAILURE ;
       if ( *swap_needed )
 	{
 	  swapbytes( fontitem->cset.cs_offs );
