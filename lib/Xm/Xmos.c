@@ -858,11 +858,21 @@ void
 	    continue;
 	  if (*pNumEntries == *pNumAlloc)
 	    {
-	      *pNumAlloc += FILE_LIST_BLOCK;
-	      *pEntries = (String *) 
-		XtRealloc((char*) *pEntries, (*pNumAlloc* sizeof(char *)));
+	      String *new_entries;
+	      unsigned new_alloc;
+	      if (*pNumAlloc > (unsigned)-1 - FILE_LIST_BLOCK)
+		break;
+	      new_alloc = *pNumAlloc + FILE_LIST_BLOCK;
+	      new_entries = (String *)XtRealloc(
+		(char *)*pEntries, (size_t)new_alloc * sizeof(*new_entries));
+	      if (new_entries == NULL)
+		break;
+	      *pEntries = new_entries;
+	      *pNumAlloc = new_alloc;
 	    } 
 	  entryPtr = XtMalloc(dirNameLen + dirLen + 1);
+	  if (entryPtr == NULL)
+	    break;
 	  strcpy(entryPtr, qualifiedDir);
 	  strcpy(&entryPtr[dirLen], dirName);
 	  
@@ -909,6 +919,8 @@ void
 		   */
 		  XtFree(entryPtr);
 		  entryPtr = XtMalloc(dirNameLen + 1);
+		  if (entryPtr == NULL)
+		    break;
 		  strcpy(entryPtr, dirName);
 		  (*pEntries)[(*pNumEntries)++] = entryPtr;
 		} 

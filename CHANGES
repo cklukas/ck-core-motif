@@ -6103,3 +6103,10 @@ Guard Xmos cache reset allocation (2026-10-25)
   cannot be allocated; see `docs/xmos-reset-cache.md`.
 
 Guard Xmos directory-cache allocations (2026-10-25)
+Guard Xmos directory-entry list allocations (2026-10-25)
+==========================================================
+
+- Make entry-pointer growth and full/basename string creation failure-safe;
+  see `docs/xmos-entry-list-allocation.md`.
+
+Guard Xmos cache reset allocation (2026-10-25)
