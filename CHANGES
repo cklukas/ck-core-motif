@@ -1,3 +1,9 @@
+Mrm resource-id output validation (2026-10-25)
+===============================================
+
+- Reject a null resource-id output pointer before RID allocation; see
+  `docs/mrm-resource-id-output.md`.
+
 Mrm RID-resource context validation (2026-10-25)
 ================================================
 
