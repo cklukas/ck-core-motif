@@ -5,6 +5,13 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+XmString component context guards (2026-10-26)
+===============================================
+
+- Return `XmSTRING_COMPONENT_END` for null contexts in the public component
+  readers instead of dereferencing invalid state; see
+  `docs/xmstring-get-context-guard.md`.
+
 XmStringNCopy input validation (2026-10-26)
 ============================================
 

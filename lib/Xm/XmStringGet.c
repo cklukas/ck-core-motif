@@ -48,7 +48,7 @@ XmStringGetNextComponent(
   unsigned int  	len;
   XtPointer		val;
   
-  if (text == NULL || str_tag == NULL || direction == NULL ||
+  if (context == NULL || text == NULL || str_tag == NULL || direction == NULL ||
       unknown_tag == NULL || unknown_length == NULL || unknown_value == NULL) {
     return XmSTRING_COMPONENT_END;
   }
@@ -86,6 +86,9 @@ XmStringPeekNextComponent(XmStringContext context)
 {
   unsigned int len;
   XtPointer    val;
+
+  if (context == NULL)
+    return XmSTRING_COMPONENT_END;
 
   return XmeStringGetComponent((_XmStringContext) context, False, False, &len, &val);
 }
