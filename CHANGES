@@ -1,3 +1,10 @@
+XmeVLCreateWidget argument-list allocation (2026-10-28)
+=========================================================
+
+- Validate the shared variable-argument count before byte multiplication,
+  handle empty lists without a zero-byte allocation, and return safely on Xt
+  allocation failure; see `docs/xme-vlcreate-allocation.md`.
+
 Convenience-constructor allocation failures (2026-10-28)
 ==========================================================
 

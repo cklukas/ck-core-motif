@@ -34,6 +34,7 @@ static char rcsid[] = "$XConsortium: VaSimple.c /main/11 1995/10/25 20:26:43 cde
 #include <Xm/VaSimpleP.h>
 #include <X11/StringDefs.h>
 #include <X11/Shell.h>
+#include <stdint.h>
 #include "MessagesI.h"
 #include "VaSimpleI.h"
 #include "XmI.h"
@@ -981,11 +982,20 @@ XmeVLCreateWidget(
     int n;
     String attr;
 
+    if (count < 0 ||
+        (size_t)count >= SIZE_MAX / sizeof(Arg) ||
+        (unsigned int)count >= UINT_MAX / sizeof(Arg))
+        return NULL;
+
     _XmWidgetToAppContext(parent);
     _XmAppLock(app);
     
     /* The size as specified from count */
-    args = (ArgList)XtMalloc(count * sizeof(Arg));
+    args = count ? (ArgList)XtMalloc((size_t)count * sizeof(Arg)) : NULL;
+    if (count != 0 && args == NULL) {
+        _XmAppUnlock(app);
+        return NULL;
+    }
     
     /*
      * go through each element and copy the name and the value
