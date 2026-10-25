@@ -12,6 +12,12 @@ Render-table token allocation guards (2026-10-26)
   `docs/render-token-allocation.md`.
 - Check quoted and alphabetic token lengths before Xt allocation.
 
+XmRenderT scratch-tag allocation guard (2026-10-26)
+===================================================
+
+- Release partial cloned renditions when scratch-tag copying cannot allocate
+  its tag array; see `docs/xmrender-tag-copy-allocation.md`.
+
 Gallery screenshot qualification receipts (2026-10-25)
 ========================================================
 

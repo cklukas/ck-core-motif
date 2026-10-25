@@ -1987,6 +1987,8 @@ parser path on allocation failure; the source contract and both installed
 library build variants pass on `uconsole`.
 Quoted and alphabetic token lengths are also checked against Xt's `Cardinal`
 width before allocation.
+Cloned rendition scratch-tag copies now release the partial rendition and
+handle when their tag array cannot be allocated.
 
 ## Acceptance criteria for every increment
 
