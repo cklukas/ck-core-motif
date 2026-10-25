@@ -85,8 +85,8 @@ def extract_archive(archive, destination):
             if (not member.name or relative.is_absolute() or
                     ".." in relative.parts):
                 raise RuntimeError("unsafe dependency archive path: " + member.name)
-            if member.issym() or member.islnk():
-                raise RuntimeError("dependency archive links are unsupported: " +
+            if not member.isfile() and not member.isdir():
+                raise RuntimeError("unsupported dependency archive entry: " +
                                    member.name)
             target = (destination / relative).resolve()
             try:
