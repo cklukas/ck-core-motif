@@ -6355,3 +6355,9 @@ Bound GeoUtils scratch-table byte sizes (2026-10-25)
   allocator width before narrowing the byte count; see
   `docs/geoutils-fit-boxes-allocation.md`.
 
+Legacy resource-filter bounds (2026-10-25)
+==========================================
+
+- Remove the fixed 256-resource temporary index limit and guard result
+  allocation in `_XmFilterResources`; see `docs/filter-resources-bounds.md`.
+
