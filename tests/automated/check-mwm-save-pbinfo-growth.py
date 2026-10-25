@@ -12,4 +12,6 @@ assert "if (newButtons == NULL)" in region
 assert "topMenuSpec->menuButtons = newButtons;" in region
 assert "topMenuSpec->menuButtonSize += MENU_BUTTON_INC" not in region
 assert "SIZE_MAX / sizeof(*newButtons)" in region
+assert "UINT_MAX / sizeof(*newButtons)" in region
+assert "(Cardinal)(newSize * sizeof(*newButtons))" in region
 print("PASS MWM push-button growth is transactional")

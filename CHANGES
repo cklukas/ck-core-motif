@@ -11490,6 +11490,12 @@ MWM client-list allocation width (2026-10-25)
 - Check client-list growth against Xt's allocation width; see
   `docs/mwm-client-list-growth.md`.
 
+MWM push-button array allocation width (2026-10-25)
+====================================================
+
+- Check menu push-button growth against Xt's allocation width; see
+  `docs/mwm-save-pbinfo-growth.md`.
+
 MWM per-screen display allocation width (2026-10-25)
 =====================================================
 
