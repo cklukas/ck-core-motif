@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+"""Build and run the installed-prefix XmAvatar fixture."""
+from pathlib import Path
+import os
+import subprocess
+import tempfile
+
+root = Path(__file__).resolve().parents[2]
+prefix = Path(os.environ.get("MOTIF_TEST_PREFIX", ""))
+if not prefix:
+    raise SystemExit("usage: MOTIF_TEST_PREFIX=PREFIX run-avatar.py")
+env = os.environ.copy()
+env["LD_LIBRARY_PATH"] = str(prefix / "lib")
+with tempfile.TemporaryDirectory(prefix="avatar-", dir=env.get("TMPDIR")) as tmp:
+    binary = Path(tmp) / "check-avatar"
+    subprocess.run([os.environ.get("CC", "cc"), "-std=c99", "-Werror",
+                    "-I" + str(prefix / "include"),
+                    str(root / "tests/automated/check-avatar.c"),
+                    "-L" + str(prefix / "lib"), "-lXm", "-lXt", "-lX11",
+                    "-o", str(binary)], check=True, env=env)
+    subprocess.run(["xvfb-run", "-a", str(binary)], check=True, env=env)

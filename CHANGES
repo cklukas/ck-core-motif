@@ -5134,6 +5134,11 @@ Mrm writer CString-vector rebind checks (2026-10-25)
 	  labels, explicit pixmap/placement ownership, RTL-aware icon placement and
 	  accessibility projections; see docs/icon-label-divider.md.
 
+2026-10-25
+	* Add additive XmAvatar presentation with borrowed-pixmap validation,
+	  deterministic initials fallback, explicit sizing and accessibility;
+	  see docs/avatar.md.
+
 2026-10-26
 	* Validate Mrm pointer-list state before freeing contents.
 

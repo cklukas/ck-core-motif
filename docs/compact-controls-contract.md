@@ -50,6 +50,10 @@ deterministic and does not load files or URLs.  The control is non-interactive
 unless an application composes it with a separate button.  It does not create
 a global image cache or modify host geometry.
 
+The additive implementation is documented in `docs/avatar.md`; its installed
+fixture covers explicit sizing, unspecified-pixmap fallback, initials
+ownership and the read-only accessibility label.
+
 ## Work packages and acceptance
 
 1. Implement and test `XmChip` with label/pixmap ownership, remove and
