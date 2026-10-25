@@ -254,6 +254,10 @@ XmStringTableToXmString(XmStringTable  table,
   XmString	str = NULL, tmp1, tmp2;
 
   _XmProcessLock();
+  if ((table == NULL) || (count == 0)) {
+    _XmProcessUnlock();
+    return(NULL);
+  }
   tmp1 = NULL;
 
   for (i = 0; i < count; i++)

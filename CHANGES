@@ -1,3 +1,9 @@
+Validate XmString table concatenation input (2026-10-25)
+=========================================================
+
+- Reject null and empty XmString tables before concatenation, with balanced
+  process locking; see `docs/motif-xmstring-table-concat.md`.
+
 Guard XmString table unparse allocation (2026-10-25)
 =====================================================
 
