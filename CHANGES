@@ -12346,3 +12346,10 @@ Tabbed-stack list allocation bounds (2026-10-26)
   `Cardinal` width; see `docs/tabbed-stack-bounds.md`.
 
 Optimized XmString concatenation allocation (2026-10-26)
+Compound-text direction-stack bounds (2026-10-26)
+==================================================
+
+- Bound direction-stack growth against Xt's `Cardinal` allocation width in
+  `_PushDir`; see `docs/direction-stack-bounds.md`.
+
+Tabbed-stack list allocation bounds (2026-10-26)

@@ -276,11 +276,13 @@ _PushDir(ct_context *ctx, ct_Direction dir)
         unsigned int new_size = ctx->dirstacksize + 8;
         ct_Direction *new_stack;
 
-        if (new_size < ctx->dirstacksize)
+        if (new_size < ctx->dirstacksize ||
+            (size_t)new_size > SIZE_MAX / sizeof(*new_stack) ||
+            (size_t)new_size > UINT_MAX / sizeof(*new_stack))
             return False;
         new_stack = (ct_Direction *)XtRealloc(
             (char *)ctx->dirstack,
-            (size_t)new_size * sizeof(*new_stack));
+            (Cardinal)((size_t)new_size * sizeof(*new_stack)));
         if (new_stack == NULL)
             return False;
         ctx->dirstack = new_stack;
