@@ -1,3 +1,10 @@
+Outline child-width geometry bounds (2026-10-25)
+===============================================
+
+- Compute available child width in signed arithmetic and clamp it before Xt
+  negotiation, preventing wrapped widths for out-of-bounds children; see
+  `docs/outline-node-width-geometry.md`.
+
 Form fallback offset geometry bounds (2026-10-25)
 ================================================
 

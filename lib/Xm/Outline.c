@@ -1599,12 +1599,15 @@ MoveNodesTimer(XtPointer data)
 static void
 NegotiateNodeWidth(Widget w, OutlineConstraints node)
 {
-    Dimension width_avail;
+    int width_avail;
     XtWidgetGeometry geom_asked, geom_agreed;
     XtGeometryResult result;
     Dimension curr_width, curr_height;
 
-    width_avail = w->core.width - XmOutlineC_widget_x(node);
+    width_avail = (int)w->core.width -
+        (int)XmOutlineC_widget_x(node);
+    if (width_avail < 1)
+        width_avail = 1;
 
     curr_width = XmHierarchyC_widget(node)->core.width;
     curr_height = XmHierarchyC_widget(node)->core.height;
