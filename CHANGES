@@ -3742,3 +3742,10 @@ Guard text segment temporary buffers (2026-10-25)
 - Check locale, charset and separator temporary buffers and return an invalid
   segment after cleanup when allocation fails; see
   `docs/motif-txtpropcv-segment.md`.
+
+Guard text-property result growth (2026-10-25)
+===============================================
+
+- Check `GetUseableText` result-buffer growth through a temporary pointer and
+  release the current segment, partial result and context on failure; see
+  `docs/motif-txtpropcv-growth.md`.
