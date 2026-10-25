@@ -369,6 +369,10 @@ XmParseTableFree(XmParseTable parse_table,
   Cardinal i;
 
   _XmProcessLock();
+  if (parse_table == NULL) {
+    _XmProcessUnlock();
+    return;
+  }
   for (i = 0; i < parse_count; i++)
     XmParseMappingFree(parse_table[i]);
 

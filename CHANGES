@@ -10184,6 +10184,12 @@ Parse-mapping ArgList validation (2026-10-25)
   `XmParseMappingGetValues` instead of dereferencing them; see
   `docs/parse-mapping-arglist-validation.md`.
 
+Parse-table cleanup guard (2026-10-25)
+======================================
+
+- Make `XmParseTableFree` safely accept a NULL table pointer; see
+  `docs/parse-table-free.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
