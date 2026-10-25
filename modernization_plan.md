@@ -637,7 +637,8 @@ list/menu announcements, synthesized PCM and clean exit of the owned
 services.  The observer identity check was corrected
 to the project's ABI 8 contract; it could no longer pass against an older
 `libXm.so.6` installation.  `docs/accessibility-journey-matrix.md` records
-the 36.06-second receipt and evidence boundary.  Complete x86_64, all
+the 37.02-second receipt with 113 utterances and the evidence boundary.
+Complete x86_64, all
 desktop screen-readers, application journeys, complete List/Menu semantics
 and clean sanitizer exit ownership remain explicit gates.
 

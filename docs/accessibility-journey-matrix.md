@@ -25,10 +25,11 @@ The bounded native-chrome journey was rerun from a fresh installed prefix on
 the AArch64 `uconsole` host with `--enable-atspi --enable-xft
 --enable-unicode-text`.  The observer compiled `native_controls.c` against
 that prefix and verified the fixture process mapped exactly its
-`libXm.so.8.0.0`.  The 36.06-second receipt reports 23 AT-SPI cache objects,
-nine direct text/selection protocol calls, and all required native utterances
+`libXm.so.8.0.0`.  The 37.02-second receipt reports 23 AT-SPI cache objects,
+nine direct text/selection protocol calls, 113 recorded utterances, and all
+required native utterances
 for buttons, toggles, text fields, list/list-items, menu/menu-items,
-disclosure and the horizontal scrollbar.  It produced 2,414,994 bytes of
+disclosure and the horizontal scrollbar.  It produced 2,436,594 bytes of
 synthesized eSpeak PCM.  Orca, Speech Dispatcher, the fixture and Openbox all
 exited cleanly, and the receipt contains the executable and library SHA-256
 fingerprints.
