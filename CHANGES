@@ -27,6 +27,9 @@ XmFontList constructor locking (2026-10-25)
   `XmFontListRemoveEntry` while they call
   charset, rendition and render-table helpers; see
   `docs/xmfontlist-locking.md`.
+- Keep a shared rendition handle while `XmFontListGetNextFont` performs
+  post-lock font retrieval, preventing a concurrent table update from
+  invalidating the returned rendition.
 
 Bound render-table count arithmetic (2026-10-25)
 =================================================

@@ -80,7 +80,9 @@ end = source.index("\nvoid\nXmFontListFreeFontContext", start)
 next_font = source[start:end]
 next_font_body = next_font[next_font.index("rend = _XmRTRenditions(table)"):]
 assert next_font_body.index("FLContextIndex(context)++") < next_font_body.index("_XmProcessUnlock();")
-assert next_font_body.index("_XmProcessUnlock();") < next_font_body.index("_XmGetFirstFont(rend)")
+assert next_font_body.index("_XmRenditionCopy(rend, True)") < next_font_body.index("_XmProcessUnlock();")
+assert next_font_body.index("_XmProcessUnlock();") < next_font_body.index("_XmGetFirstFont(retained)")
+assert next_font_body.index("XmRenditionFree(retained)") > next_font_body.index("XmRenditionRetrieve(retained, args, n)")
 
 start = source.index("XmFontListRemoveEntry(")
 end = source.index("\nXmFontListEntry\nXmFontListEntryLoad", start)

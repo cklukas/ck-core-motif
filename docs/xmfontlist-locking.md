@@ -15,9 +15,10 @@ The source contract is covered by
 `tests/automated/check-xmfontlist-locking.py`; the installed library build and
 the existing Xft font-lifetime fixture qualify the changed call path.
 
-`XmFontListGetNextFont` advances its context index while the process lock is
-held, then retrieves the font and tag after unlocking so rendition accessors do
-not recurse into that lock.
+`XmFontListGetNextFont` advances its context and retains a shared rendition
+handle under lock, then retrieves the font and tag after unlocking so rendition
+accessors do not recurse into the process lock without exposing a use-after-free
+when another thread updates the table.
 
 `XmFontListRemoveEntry` retrieves rendition data before taking the table
 mutation lock and uses a copied tag while removing the entry. This avoids
