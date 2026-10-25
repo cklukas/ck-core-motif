@@ -686,6 +686,11 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 		fmt->num_attrs = UnpackListNum(&data);
 		fmt->attr_list = (WSMAttribute *) 
 		    XtMalloc(sizeof(WSMAttribute) * fmt->num_attrs);
+		if (fmt->attr_list == NULL) {
+		    fmt->num_attrs = 0;
+		    _WSMClearConfigScreenInfo(dpy, screen_num);
+		    return;
+		}
 
 		for (i = 0; i < fmt->num_attrs; i++) {
 		    String str = UnpackString(&data);

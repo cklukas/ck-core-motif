@@ -95,6 +95,12 @@ WSM config-format reply guard (2026-10-25)
   unavailable, avoiding a null screen-record dereference; see
   `docs/wsm-config-reply-oom.md`.
 
+WSM configuration attribute allocation guard (2026-10-25)
+==========================================================
+
+- Check each configuration-format attribute list and roll back earlier lists
+  if a later allocation fails; see `docs/wsm-config-attr-oom.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 
