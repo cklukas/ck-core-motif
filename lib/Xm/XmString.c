@@ -1458,7 +1458,10 @@ Unoptimize(_XmStringEntry entry, int free)
     } else {
       size_t segment_count = (size_t)_XmEntrySegmentCount(entry);
       _XmStringNREntry *segments;
-      _XmEntryCreate(new_entry, XmSTRING_ENTRY_ARRAY);
+      new_entry = (_XmStringEntry)XtMalloc(sizeof(_XmStringArraySegRec));
+      if (new_entry == NULL)
+	return NULL;
+      _XmEntryInit(new_entry, XmSTRING_ENTRY_ARRAY);
       if (segment_count > SIZE_MAX / sizeof(*segments) ||
 	  segment_count * sizeof(*segments) > (size_t)((Cardinal)~0))
 	return NULL;
@@ -5442,7 +5445,14 @@ _XmStringSegmentNew(
 		_XmStringEntryFree(new_value);
 	    return;
 	}
-	_XmEntryCreate(line, XmSTRING_ENTRY_ARRAY);
+	line = (_XmStringEntry)XtMalloc(sizeof(_XmStringArraySegRec));
+	if (line == NULL) {
+	    XtFree((char *)new_segments);
+	    if (copy)
+		_XmStringEntryFree(new_value);
+	    return;
+	}
+	_XmEntryInit(line, XmSTRING_ENTRY_ARRAY);
 	_XmEntrySegmentCount(line) = sc;
 	_XmEntrySoftNewlineSet(line, _XmEntrySoftNewlineGet(seg));
 	_XmEntrySegment(line) = new_segments;

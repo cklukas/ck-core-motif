@@ -1,3 +1,9 @@
+XmString entry allocation failures (2026-10-26)
+================================================
+
+- Check array-entry allocations during unoptimization and segment insertion;
+  see `docs/xmstring-entry-allocation.md`.
+
 XmString component allocation failures (2026-10-26)
 ====================================================
 
