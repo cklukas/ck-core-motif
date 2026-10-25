@@ -103,7 +103,7 @@ static Boolean CvtStringToNodeState(Display *, XrmValuePtr, Cardinal *,
  * Internal Routines.
  *********************/
 
-static void BumpChildren(HierarchyConstraints *, int, int);
+static void BumpChildren(HierarchyConstraints *, Cardinal, Cardinal);
 static void RemoveNodeFromParent(HierarchyConstraints);
 static void AddChild(HierarchyConstraints, HierarchyConstraints);
 static void AddChildToList(HierarchyConstraints **, Cardinal *, Cardinal *,
@@ -744,7 +744,7 @@ ConstraintSetValues(Widget current, Widget request, Widget set,
     HierarchyConstraints new_node = GetNodeInfo(set);
     HierarchyConstraints old_node = GetNodeInfo(current);
     Boolean insert_change = False;
-    int i;
+    Cardinal i;
 
     for (i = 0; i < *num_args; i++) 
 	if (streq(args[i].name, XmNinsertBefore)) {
@@ -827,7 +827,7 @@ ConstraintSetValues(Widget current, Widget request, Widget set,
 static void
 ChangeNodeState(HierarchyConstraints node)
 {
-    register int i, num;
+    register Cardinal i, num;
     HierarchyConstraints * childp;
     XmHierarchyWidget hw = (XmHierarchyWidget)
 	                   XtParent(XmHierarchyC_widget(node));
@@ -896,9 +896,9 @@ AncestorClosed(HierarchyConstraints node)
 static void
 UnmapAllExtraNodes(Widget w, HierarchyConstraints node)
 {
-    register int i;
+    register Cardinal i;
     XmHierarchyWidgetClass hc = (XmHierarchyWidgetClass) (XtClass(w));
-    register int num;
+    register Cardinal num;
     register HierarchyConstraints * ptr;
 
     void (*unmap_extra)(Widget, HierarchyConstraints);
@@ -972,7 +972,7 @@ static void
 _BuildNodeTable(Widget w, HierarchyConstraints node, Cardinal * current_index)
 {
     XmHierarchyWidget hw = (XmHierarchyWidget) w;
-    register int i;
+    register Cardinal i;
     
     if ((node == NULL) || ((XmHierarchyC_widget(node) != NULL) && 
 			   !XtIsManaged(XmHierarchyC_widget(node))))
@@ -1325,7 +1325,7 @@ DestroyFolderImages(Widget w)
 static void
 RemoveChildren(HierarchyConstraints * list, Cardinal num)
 {
-    register int i;
+    register Cardinal i;
 
     for (i = 0 ; i < num ; i++, list++ ) {
 	/*
@@ -1369,7 +1369,7 @@ static void
 AddChildToList(HierarchyConstraints ** list, Cardinal * num, Cardinal * alloc,
 	       HierarchyConstraints child)
 {
-    register int i, j;
+    register Cardinal i, j;
     HierarchyConstraints *l_child;
     SuccessType success = DONT_CARE;
     Widget insert_before = XmHierarchyC_insert_before(child);
@@ -1404,13 +1404,17 @@ AddChildToList(HierarchyConstraints ** list, Cardinal * num, Cardinal * alloc,
 	 * Hunt for the sibling that matches the insert_before widget.
 	 */
 	
-	for (l_child = (*list) + (i = (*num - 1)); i >= 0; i--, l_child--)
+	for (i = *num; i > 0; ) {
+	    --i;
+	    l_child = (*list) + i;
 	    if (XmHierarchyC_widget(*l_child) == insert_before) {
 		/*
 		 * Bump each child down and then insert the new child.
 		 */
-		for (j = (*num - 1); j >= i; j--) 
+		for (j = *num; j > i; ) {
+		    --j;
 		    (*list)[j + 1] = (*list)[j];
+		}
 		(*list)[i] = child;
 
 		success = YES;
@@ -1454,7 +1458,7 @@ GetNodeInfo(Widget w)
 static void
 RemoveNodeFromParent(HierarchyConstraints node)
 {
-    register int i;
+    register Cardinal i;
     HierarchyConstraints pnode;
 
     if (XmHierarchyC_status(node) & PARENT_GONE)
@@ -1471,8 +1475,8 @@ RemoveNodeFromParent(HierarchyConstraints node)
 
     for (i = 0; i < XmHierarchyC_num_children(pnode); i++) {
 	if (XmHierarchyC_children(pnode)[i] == node) {
-	    BumpChildren(XmHierarchyC_children(pnode), i,
-			 (int) XmHierarchyC_num_children(pnode));
+		    BumpChildren(XmHierarchyC_children(pnode), i,
+				 XmHierarchyC_num_children(pnode));
 	    XmHierarchyC_num_children(pnode)--;
 	    return;
 	}
@@ -1488,9 +1492,9 @@ RemoveNodeFromParent(HierarchyConstraints node)
  */
 
 static void
-BumpChildren(HierarchyConstraints * nlist, int i, int num)
+BumpChildren(HierarchyConstraints * nlist, Cardinal i, Cardinal num)
 {
-    for (i++ ; i < num ; i++ )
+    for (++i; i < num; ++i)
 	nlist[i - 1] = nlist[i];
 }
 
