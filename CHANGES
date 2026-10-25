@@ -243,6 +243,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  is absent; see docs/xm-pixmap-hotspot-output.md.
 
 2026-10-25
+	* Validate and clear Xm image-cache outputs before lookup so failed loads
+	  cannot expose stale XImage pointers; see docs/xm-get-image-output.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,

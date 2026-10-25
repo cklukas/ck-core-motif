@@ -892,6 +892,10 @@ GetImage(
 	 int *npixels)
 {
     static XImage  * built_in_image = NULL;
+
+    if (image == NULL)
+        return FALSE;
+    *image = NULL;
     register Display *display = DisplayOfScreen(screen);
     ImageData *entry;
     char *file_name;
