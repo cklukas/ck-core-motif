@@ -11,6 +11,7 @@ region = source[start:end]
 
 assert "a != NULL && a == b" in region
 assert "XmString duplicate = XmStringCopy(b);" in region
+assert "XmStringFree(a);" in region
 assert "b = duplicate;" in region
 
 print("XmString self-concatenation separates aliased operands")

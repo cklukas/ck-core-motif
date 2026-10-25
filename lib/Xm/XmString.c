@@ -1552,8 +1552,10 @@ XmStringConcatAndFree(XmString a,
    ** giving the second operand its own reference. */
   if (a != NULL && a == b) {
     XmString duplicate = XmStringCopy(b);
-    if (duplicate == NULL)
+    if (duplicate == NULL) {
+      XmStringFree(a);
       return NULL;
+    }
     b = duplicate;
   }
   
