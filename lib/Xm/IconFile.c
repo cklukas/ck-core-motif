@@ -487,6 +487,8 @@ static String
 find_slash(String str)
 {
   int n;
+  if (str == NULL)
+    return NULL;
   if (MB_CUR_MAX == 1) {
       return strchr(str, '/');
   } else {

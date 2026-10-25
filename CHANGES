@@ -4920,3 +4920,9 @@ Avoid nested XmInstallImage process locking (2026-10-25)
 - Delegate public image installation directly to its synchronized helper so
   the same Xt process lock is not acquired twice; see
   `docs/install-image-locking.md`.
+
+Guard IconFile path scanning input (2026-10-25)
+===============================================
+
+- Reject a null path before multibyte slash scanning; see
+  `docs/icon-find-slash-input.md`.
