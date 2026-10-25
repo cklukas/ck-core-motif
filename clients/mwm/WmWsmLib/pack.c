@@ -921,8 +921,10 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
     case WSM_GET_STATE:
 	{
 	    int num =reply->get_state.num_win_info_list = UnpackListNum(&data);
-	    reply->get_state.win_info_list = 
-		(WSMWinInfo *) XtMalloc(sizeof(WSMWinInfo) * num);
+	    reply->get_state.win_info_list =
+		(num >= 0 && (size_t)num <= UINT_MAX / sizeof(WSMWinInfo)) ?
+		(WSMWinInfo *) XtMalloc((Cardinal)((size_t)num * sizeof(WSMWinInfo))) :
+		NULL;
 	    if (reply->get_state.win_info_list == NULL) {
 		reply->get_state.num_win_info_list = 0;
 		return;

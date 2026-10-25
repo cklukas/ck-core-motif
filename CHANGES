@@ -11568,6 +11568,12 @@ WSM nested match-attribute allocation width (2026-10-25)
 - Check nested allowed/prohibited property counts before allocation; see
   `docs/wsm-match-attrs-oom.md`.
 
+WSM get-state allocation width (2026-10-25)
+============================================
+
+- Check decoded `GET_STATE` counts before window-info allocation; see
+  `docs/wsm-get-state-unpack-oom.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 

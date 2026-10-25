@@ -12,4 +12,8 @@ region = text[start:end]
 assert "if (reply->get_state.win_info_list == NULL)" in region
 assert "reply->get_state.num_win_info_list = 0;" in region
 assert "reply->get_state.allocated = True;" in region
+assert "num >= 0" in region
+assert "UINT_MAX / sizeof(WSMWinInfo)" in region
+assert "XtMalloc((Cardinal)((size_t)num * sizeof(WSMWinInfo)))" in region
+assert "XtMalloc(sizeof(WSMWinInfo) * num)" not in region
 print("WSM get-state unpacking handles allocation failure")
