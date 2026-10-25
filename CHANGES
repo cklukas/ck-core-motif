@@ -1,3 +1,12 @@
+XLibre transient-query fallback (2026-10-25)
+==============================================
+
+- Return to the global display scale when a realized shell's client-area or
+  RandR resource query is temporarily unavailable, instead of retaining a
+  stale per-output scale. The source-contract regression covers initialization
+  and each early-return fallback; real output hotplug qualification remains a
+  separate XLibre gate.
+
 XLibre vendor predicate hardening (2026-10-25)
 ================================================
 

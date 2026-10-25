@@ -503,6 +503,9 @@ The AArch64 receipt and installed-library fingerprint are recorded in
 `docs/xlibre-dpi-contract.md`.
 The supported-server predicate also requires an exact `XLibre` vendor token;
 the installed fixture covers versioned names and spoofed substrings.
+Transient client-area, resource-query and allocation failures now return the
+global-DPI fallback rather than preserving stale per-output state; the source
+contract regression covers those early-return paths.
 
 ### WP-05: Optional SVG image loading
 

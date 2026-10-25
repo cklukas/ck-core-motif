@@ -29,6 +29,12 @@ The installed fixture checks the parser's valid and invalid cases and verifies
 that ordinary Xvfb falls back safely. Pass `--display` to the runner when a
 real XLibre display is available; in that mode every reported output must
 expose a valid `DPI` property.
+If a realized shell's client-area or RandR resource query is temporarily
+unavailable, the observer returns the existing global display scale and output
+`None`. It does not retain a stale per-output scale across a transient query
+failure. Output removal with valid RandR resources follows the same fallback
+through the no-selected-output path.
+
 The vendor check is token-based rather than a substring search: names such as
 `NotXLibre` and `XLibre-server` are rejected. This keeps the optional adapter
 bound to the server family that defines the property instead of treating an
@@ -118,6 +124,13 @@ fingerprint is
 `e8e0655256f43b187ea45c06e78f603976835bd1207959ae8ee9da122a6150f1`.
 The separate `vendor-v1` through `vendor-v3` and `sanitizer-vendor` receipts
 remain under `/tmp/ckmotif-xlibre-hardening-20261025/`.
+
+The transient-query fallback rebuild completed at 14:06:32 UTC on the same
+prefix. Three fresh installed contract runs, the source-contract guard and a
+consumer ASan/UBSan decoder run passed; the installed library fingerprint is
+`dc2ff61fd9994fcb261a861fd702657c80f2add301ccdee7cb13f7e764df6144`.
+The `fallback-f1` through `fallback-f3` and `sanitizer-fallback` receipts are
+retained under `/tmp/ckmotif-xlibre-hardening-20261025/`.
 
 This is an implementation step toward the live contract, not a claim that a
 generic Xorg server provides per-output DPI. The remaining qualification must

@@ -149,17 +149,25 @@ _XmXlibreDpiResolve(_XmXlibreDpiShellState *state,
     Boolean have_global;
     Boolean have_output = False;
 
-    if (state == NULL || output_return == NULL || scale_return == NULL ||
-        !_XmXlibreDpiClientArea(state, &area))
+    if (state == NULL || output_return == NULL || scale_return == NULL)
         return False;
+    /* A transient geometry/RandR query failure must not preserve a stale
+     * per-output scale.  Initialize the result to the documented global
+     * fallback and return it below whenever the optional output data cannot
+     * be resolved. */
+    have_global = _XmGetGlobalDpiScale(state->display, &global_scale);
+    *output_return = None;
+    *scale_return = have_global ? global_scale : 1.0;
+    if (!_XmXlibreDpiClientArea(state, &area))
+        return True;
     resources = XRRGetScreenResourcesCurrent(state->display, state->root);
     if (resources == NULL)
-        return False;
+        return True;
     outputs = ( _XmXlibreDpiOutput *)calloc(resources->noutput,
                                              sizeof(*outputs));
     if (outputs == NULL) {
         XRRFreeScreenResources(resources);
-        return False;
+        return True;
     }
     for (i = 0; i < (size_t)resources->noutput; ++i) {
         XRROutputInfo *output_info = XRRGetOutputInfo(
@@ -192,7 +200,6 @@ _XmXlibreDpiResolve(_XmXlibreDpiShellState *state,
         XRRFreeOutputInfo(output_info);
     }
     selected = _XmXlibreDpiSelectOutput(outputs, output_count, &area);
-    have_global = _XmGetGlobalDpiScale(state->display, &global_scale);
     *output_return = selected;
     *scale_return = have_global ? global_scale : 1.0;
     if (selected != None) {
