@@ -1196,8 +1196,8 @@ XmSetMenuCursor(
        what will happen if we were only setting the default display here) */
 
     _XmAppLock(app);
-    for (i=0, scr = ScreenOfDisplay(display, i); i < ScreenCount(display);
-       i++, scr = ScreenOfDisplay(display, i)) {
+    for (i = 0; i < ScreenCount(display); i++) {
+      scr = ScreenOfDisplay(display, i);
 
       xmScreen = (XmScreen) XmGetXmScreen(scr);
       xmScreen->screen.menuCursor = cursorId ;
@@ -1289,8 +1289,8 @@ XmSetFontUnits(
        what will happen if we were only setting the default display here) */
 
     _XmAppLock(app);
-    for (i=0, scr = ScreenOfDisplay(display, i); i < ScreenCount(display);
-       i++, scr = ScreenOfDisplay(display, i)) {
+    for (i = 0; i < ScreenCount(display); i++) {
+      scr = ScreenOfDisplay(display, i);
 
       xmScreen = (XmScreen) XmGetXmScreen(scr);
       xmScreen->screen.h_unit =  h_value ;
