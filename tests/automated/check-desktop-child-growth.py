@@ -11,6 +11,7 @@ body = text[start:text.index("\nstatic void \nDeleteChild", start)]
 for needle in (
     "(Cardinal)(~(Cardinal)0 - 2)",
     "SIZE_MAX / sizeof(*new_children)",
+    "UINT_MAX / sizeof(*new_children)",
     "if (new_children == NULL)",
     "cw->desktop.num_slots = new_slots",
 ):

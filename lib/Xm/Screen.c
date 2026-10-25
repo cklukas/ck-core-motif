@@ -706,7 +706,8 @@ InsertChild(
             return;
         new_slots = cw->desktop.num_slots +
                     (cw->desktop.num_slots / 2) + 2;
-        if ((size_t)new_slots > SIZE_MAX / sizeof(*new_children))
+        if ((size_t)new_slots > SIZE_MAX / sizeof(*new_children) ||
+            (size_t)new_slots > UINT_MAX / sizeof(*new_children))
             return;
         new_children = (WidgetList)XtRealloc(
             (char *)children, (size_t)new_slots * sizeof(*new_children));
