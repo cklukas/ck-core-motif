@@ -438,7 +438,7 @@ _XmVaToTypedArgList(
         return;
 
     args = (XtTypedArgList)
-	XtMalloc((size_t)max_count * sizeof(XtTypedArg));
+	XtMalloc((Cardinal)((size_t)max_count * sizeof(XtTypedArg)));
     if (args == NULL)
         return;
 
@@ -522,23 +522,35 @@ _XmVaProcessEverything(
     *buttonAcceleratorText = NULL;
 
     if (num_args != 0 &&
-        (*args = (ArgList)XtMalloc((size_t)num_args * sizeof(Arg))) == NULL)
+        (*args = (ArgList)XtMalloc(
+            (Cardinal)((size_t)num_args * sizeof(Arg)))) == NULL)
         goto allocation_failure;
 
 /* Process the routine specific args */
     if (button_count != 0 &&
         ((size_t)button_count > SIZE_MAX / sizeof(XmButtonType *) ||
          (size_t)button_count > UINT_MAX / sizeof(XmButtonType *) ||
+         (size_t)button_count > SIZE_MAX / sizeof(XmString *) ||
+         (size_t)button_count > UINT_MAX / sizeof(XmString *) ||
+         (size_t)button_count > SIZE_MAX / sizeof(KeySym *) ||
+         (size_t)button_count > UINT_MAX / sizeof(KeySym *) ||
+         (size_t)button_count > SIZE_MAX / sizeof(String *) ||
+         (size_t)button_count > UINT_MAX / sizeof(String *) ||
          (*buttonTypes = (XmButtonTypeTable)
-          XtMalloc((size_t)button_count * sizeof(XmButtonType *))) == NULL ||
+          XtMalloc((Cardinal)((size_t)button_count *
+                              sizeof(XmButtonType *)))) == NULL ||
          (*buttonStrings = (XmStringTable)
-          XtMalloc((size_t)button_count * sizeof(XmString *))) == NULL ||
+          XtMalloc((Cardinal)((size_t)button_count *
+                              sizeof(XmString *)))) == NULL ||
          (*buttonMnemonics = (XmKeySymTable)
-          XtMalloc((size_t)button_count * sizeof(KeySym *))) == NULL ||
+          XtMalloc((Cardinal)((size_t)button_count *
+                              sizeof(KeySym *)))) == NULL ||
          (*buttonAccelerators = (String *)
-          XtMalloc((size_t)button_count * sizeof(String *))) == NULL ||
+          XtMalloc((Cardinal)((size_t)button_count *
+                              sizeof(String *)))) == NULL ||
          (*buttonAcceleratorText = (XmStringTable)
-          XtMalloc((size_t)button_count * sizeof(XmString *))) == NULL))
+          XtMalloc((Cardinal)((size_t)button_count *
+                              sizeof(XmString *)))) == NULL))
         goto allocation_failure;
 
     bcount = 0;

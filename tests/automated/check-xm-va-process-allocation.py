@@ -9,6 +9,11 @@ region = source[start:source.index("\n}\n", start) + 2]
 assert "static Boolean" in source[source.rfind("static Boolean", 0, start):start]
 assert "(size_t)num_args > SIZE_MAX / sizeof(Arg)" in region
 assert "(size_t)num_args > UINT_MAX / sizeof(Arg)" in region
+assert "(Cardinal)((size_t)num_args * sizeof(Arg))" in region
+for type_name in ("XmString *", "KeySym *", "String *"):
+    assert f"SIZE_MAX / sizeof({type_name})" in region
+    assert f"UINT_MAX / sizeof({type_name})" in region
+assert region.count("XtMalloc((Cardinal)((size_t)button_count *") >= 5
 assert "goto allocation_failure" in region
 assert "return False;" in region
 assert "return True;" in region
