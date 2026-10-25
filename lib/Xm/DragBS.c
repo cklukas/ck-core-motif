@@ -925,6 +925,10 @@ WriteTargetsTable(
     dataSize = sizeof(xmMotifTargetsPropertyRec);
 
     for (i = 0; i < targetsTable->numEntries; i++) {
+	if (targetsTable->entries[i].numTargets > UINT16_MAX) {
+	    XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE5);
+	    return;
+	}
 	if (targetsTable->entries[i].numTargets != 0 &&
 	    targetsTable->entries[i].targets == NULL) {
 	    XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE5);

@@ -4761,3 +4761,9 @@ Drag target-table serialization guards (2026-10-25)
 
 - Reject unrepresentable, incomplete, or size-overflowing target tables and
   failed serialization allocations; see `docs/dragbs-targets-write-guards.md`.
+
+Drag target-list count validation (2026-10-25)
+===============================================
+
+- Reject per-list target counts that exceed the serialized 16-bit field; see
+  `docs/dragbs-target-count-guards.md`.
