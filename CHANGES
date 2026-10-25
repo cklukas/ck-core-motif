@@ -13349,6 +13349,12 @@ WSM paired-property cleanup bounds (2026-10-26)
   item instead of an overflow-prone `num * 2` cleanup count; see
   `docs/wsm-paired-property-cleanup.md`.
 
+Command-palette item allocation safety (2026-10-26)
+====================================================
+
+- Reject null item arrays and allocation failures before populating command
+  palette entries; see `docs/command-palette-item-allocation.md`.
+
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================
 
