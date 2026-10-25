@@ -4720,3 +4720,9 @@ Traversal redirect-cycle fallback (2026-10-25)
 
 - Preserve the current focus widget when traversal-control redirects reach the
   recursion limit; see `docs/traversal-redirect-cycle.md`.
+
+Internal XmList allocation failure handling (2026-10-25)
+==========================================================
+
+- Leave internal list links unchanged when node-batch allocation fails; see
+  `docs/xmlist-allocation-failure.md`.

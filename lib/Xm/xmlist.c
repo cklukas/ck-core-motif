@@ -359,6 +359,7 @@ _XmQElem *
 _Xm_GetNewElement(XmQueue queue)
 {
     _XmQElem *elem;
+    _XmQElem *new_elems;
 
     if ((elem = _Xm_RemQueue(&queue->free_elems)) == NULL) {
 	register int i;
@@ -367,7 +368,10 @@ _Xm_GetNewElement(XmQueue queue)
 	 * We are out of free elements, alloc some more.
 	 */
 
-	queue->free_elems = (_XmQElem *) XtCalloc(sizeof(_XmQElem), QUEUE_INC);
+	new_elems = (_XmQElem *) XtCalloc(sizeof(_XmQElem), QUEUE_INC);
+	if (new_elems == NULL)
+	    return(NULL);
+	queue->free_elems = new_elems;
 	queue->free_elems->alloced = True;
 
 	queue->free_elems->next = elem = queue->free_elems + 1;
@@ -437,6 +441,9 @@ XmListElem *
 _XmListAddAfter(XmList list, XmListElem *elem_in, XtPointer data_in)
 {
     XmListElem *elem = (XmListElem *) _Xm_GetNewElement((XmQueue) list);
+
+    if (elem == NULL)
+	return(NULL);
 
     _Xm_AddQueue((XmQueue) list, elem_in, elem);
 

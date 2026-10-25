@@ -760,3 +760,5 @@ EXTRA_DIST += tests/automated/check-xmstring-next-segment-input.py docs/xmstring
 EXTRA_DIST += tests/automated/check-container-tab-rebuild-failure.py docs/container-tab-rebuild-failure.md
 
 EXTRA_DIST += tests/automated/check-traversal-redirect-cycle.py docs/traversal-redirect-cycle.md
+
+EXTRA_DIST += tests/automated/check-xmlist-allocation-failure.py docs/xmlist-allocation-failure.md
