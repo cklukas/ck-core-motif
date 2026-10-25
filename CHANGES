@@ -6161,3 +6161,9 @@ List selection callback allocation failures (2026-10-25)
 - Check both temporary arrays used by multiple and extended List selection
   callbacks before populating them; see
   `docs/list-selection-callback-allocation.md`.
+XmString baseline allocation failures (2026-10-25)
+===================================================
+
+- Validate `_XmStringGetBaselines` output pointers and baseline-array
+  allocations, returning an empty result on failure; see
+  `docs/xmstring-baseline-allocation.md`.

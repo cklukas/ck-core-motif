@@ -7106,6 +7106,9 @@ _XmStringGetBaselines(XmRenderTable rendertable,
 		      Dimension **baselines,
 		      Cardinal *line_count)
 {
+	if (baselines == NULL || line_count == NULL)
+	  return;
+
   /* Initialize the return values. */
   *baselines = NULL;
   *line_count = 0;
@@ -7116,6 +7119,11 @@ _XmStringGetBaselines(XmRenderTable rendertable,
   if (*line_count == 1)
     {
       *baselines = (Dimension*) XtMalloc(*line_count * sizeof(Dimension));
+	  if (*baselines == NULL)
+	    {
+	      *line_count = 0;
+	      return;
+	    }
       (*baselines)[0] = XmStringBaseline(rendertable, string);
     }
   else if (*line_count > 1)
@@ -7131,6 +7139,11 @@ _XmStringGetBaselines(XmRenderTable rendertable,
       _XmStringArraySegRec array_seg;
       
       *baselines = (Dimension*) XtMalloc(*line_count * sizeof(Dimension));
+	  if (*baselines == NULL)
+	    {
+	      *line_count = 0;
+	      return;
+	    }
 
       /* Initialize the scratch rendition for tabs. */
       bzero((char*) &scratch, sizeof(_XmRenditionRec));
