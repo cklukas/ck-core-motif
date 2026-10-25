@@ -1,3 +1,9 @@
+Scrolled-list name allocation checks (2026-10-25)
+==================================================
+
+- Reject impossible or failed child-name allocations before copying the
+  scrolled-list suffix; see `docs/scrolled-list-name-allocation.md`.
+
 Scaled-image X11 input validation (2026-10-25)
 ===============================================
 

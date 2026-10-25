@@ -243,6 +243,7 @@ EXTRA_DIST += tests/automated/check-unit-overflow-nan.py docs/unit-overflow-nan.
 EXTRA_DIST += tests/automated/check-table-destructor-pointers.py docs/table-destructor-pointers.md
 EXTRA_DIST += tests/automated/check-xmstring-table-size-failure.py docs/xmstring-table-size-failure.md
 EXTRA_DIST += tests/automated/check-image-scaling-x11-inputs.py docs/image-scaling-x11-inputs.md
+EXTRA_DIST += tests/automated/check-scrolled-list-name-allocation.py docs/scrolled-list-name-allocation.md
 EXTRA_DIST += tests/automated/check-accessibility-name-allocation.py docs/accessibility-name-allocation.md
 EXTRA_DIST += tests/automated/check-font-selector-buffer-allocation.py docs/font-selector-buffer-allocation.md
 EXTRA_DIST += tests/automated/check-font-selector-current-font-allocation.py docs/font-selector-current-font-allocation.md
