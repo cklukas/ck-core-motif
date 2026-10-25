@@ -129,7 +129,8 @@ static void normalize_visible(XmCalendarWidget calendar) {
 static void notify_date(XmCalendarWidget calendar, XEvent *event,
                         String callback_name, int reason) {
     XmCalendarCallbackStruct callback;
-    XtCallbackList list = callback_name == XmNcalendarActivateCallback
+    XtCallbackList list = callback_name &&
+        strcmp(callback_name, XmNcalendarActivateCallback) == 0
         ? calendar->calendar.activate_callback
         : calendar->calendar.date_changed_callback;
     if (!list)
@@ -242,12 +243,14 @@ static void draw_day(XmCalendarWidget calendar, int col, int row, int day,
     Window window = XtWindow((Widget)calendar);
     int cell_width = (int)calendar->core.width / 7;
     int x = col * cell_width + 4;
+    if (!calendar->calendar.gc || cell_width < 1)
+        return;
     int y = 48 + row * 22;
     char text[12];
     snprintf(text, sizeof(text), "%2d", day);
     if (selected)
         XDrawRectangle(display, window, calendar->calendar.gc, x - 2, y - 15,
-                       (unsigned)(cell_width - 5), 20);
+                       (unsigned)(cell_width > 5 ? cell_width - 5 : 1), 20);
     if (enabled)
         XDrawString(display, window, calendar->calendar.gc, x, y, text, 2);
 }
@@ -266,7 +269,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     static const char *weekdays[] = {"Su", "Mo", "Tu", "We", "Th", "Fr",
                                      "Sa"};
     (void)event; (void)region;
-    if (!XtIsRealized(widget))
+    if (!XtIsRealized(widget) || !calendar->calendar.gc ||
+        calendar->core.width < 7)
         return;
     XClearWindow(display, window);
     snprintf(heading, sizeof(heading), "%s %d", month_name(calendar->calendar.visible_month),
@@ -363,7 +367,12 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
     }
     if (event->type != ButtonPress || event->xbutton.y < 40)
         return;
-    col = event->xbutton.x / ((int)calendar->core.width / 7);
+    {
+        int cell_width = (int)calendar->core.width / 7;
+        if (cell_width < 1)
+            return;
+        col = event->xbutton.x / cell_width;
+    }
     row = (event->xbutton.y - 40) / 22;
     if (col < 0 || col > 6 || row < 0 || row > 5)
         return;
