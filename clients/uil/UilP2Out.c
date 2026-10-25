@@ -3821,7 +3821,8 @@ status	urm_status;
 		_assert (FALSE, "unknown argument")
 		}
 	    else
-	        arg_value_size += strlen(uil_argument_toolkit_names[i]) + 1;
+	        out_add_value_size(&arg_value_size,
+	            strlen(uil_argument_toolkit_names[i]) + 1);
 	    }
 	}
 
@@ -3842,7 +3843,8 @@ status	urm_status;
 		_assert (FALSE, "unknown argument")
 		}
 	    else
-	        arg_value_size += strlen(uil_reason_toolkit_names[i]) + 1;
+	        out_add_value_size(&arg_value_size,
+	            strlen(uil_reason_toolkit_names[i]) + 1);
 	    }
 	}
 
@@ -3856,7 +3858,8 @@ status	urm_status;
 	  {
 	    arg_value_count++;
 	    next_code++;
-	    arg_value_size += strlen(uil_child_names[i]) + 1;
+	    out_add_value_size(&arg_value_size,
+	        strlen(uil_child_names[i]) + 1);
 	  }
       }
 
@@ -3865,7 +3868,8 @@ status	urm_status;
     ** one more space than we need, but as a zero-based code has the
     ** correct number in it).
     */
-    arg_value_size += sizeof(UidCTableEntry) * next_code;
+    out_add_value_size(&arg_value_size,
+	sizeof(UidCTableEntry) * (size_t) next_code);
 
 
     /*
@@ -3995,14 +3999,16 @@ status	urm_status;
 		_assert (FALSE, "unknown class")
 		}
 	    else
-	        class_value_size += strlen(uil_widget_funcs[i]) + 1;
+	        out_add_value_size(&class_value_size,
+	            strlen(uil_widget_funcs[i]) + 1);
 	    }
 
     /*
     ** Again, compute the additional size for the vector.
     */
 
-    class_value_size += sizeof(UidCTableEntry) * next_code;
+    out_add_value_size(&class_value_size,
+	sizeof(UidCTableEntry) * (size_t) next_code);
 
     /*
     ** Check that the resource context is large enough to hold the value

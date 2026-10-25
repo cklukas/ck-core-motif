@@ -1,3 +1,9 @@
+UIL compression-table size bounds (2026-10-27)
+===============================================
+
+- Check argument, reason, child, and class compression-table size additions
+  before resource-context allocation.
+
 UIL compound-string size bounds (2026-10-27)
 =============================================
 
