@@ -11223,3 +11223,10 @@ WSM extension array state (2026-10-25)
 - Reject positive extension counts paired with null pointer arrays before
   sizing or indexing requests and replies; see
   `docs/wsm-extension-array-state.md`.
+
+WSM request array state (2026-10-25)
+====================================
+
+- Validate `CONNECT`, `SET_STATE`, and `WM_WINDOWS` request arrays, including
+  nested match attributes, before sizing or packing; see
+  `docs/wsm-request-array-state.md`.

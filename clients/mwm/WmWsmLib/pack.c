@@ -187,6 +187,9 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
      */
     switch (request->any.type) {
     case WSM_CONNECT:
+	if (request->connect.num_versions != 0 &&
+	    request->connect.known_versions == NULL)
+	    return(NULL);
 	size = COUNT_SIZE;
 	size += sizeof(CARD8) * request->connect.num_versions;
 	break;
@@ -207,6 +210,9 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 	size = sizeof(CARD32) + BOOL_SIZE;
 	break;
     case WSM_SET_STATE:
+	if (request->set_state.num_win_info_list != 0 &&
+	    request->set_state.win_info_list == NULL)
+	    return(NULL);
 	size = COUNT_SIZE;	/* The count of window info. */
 	win_info = request->set_state.win_info_list;
 	for (i = 0; i < request->set_state.num_win_info_list; i++,win_info++)
@@ -222,6 +228,17 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 	size = sizeof(CARD32);
 	break;
     case WSM_WM_WINDOWS:
+	if ((request->wm_windows.num_window_properties != 0 &&
+	     request->wm_windows.window_properties == NULL) ||
+	    (request->wm_windows.num_match_attributes != 0 &&
+	     request->wm_windows.match_attributes == NULL))
+	    return(NULL);
+	for (i = 0; i < request->wm_windows.num_match_attributes; i++)
+	    if (request->wm_windows.match_attributes[i] == NULL ||
+		(request->wm_windows.match_attributes[i]->num_attributes != 0 &&
+		 (request->wm_windows.match_attributes[i]->allowed_attributes == NULL ||
+		  request->wm_windows.match_attributes[i]->prohibited_attributes == NULL)))
+		return(NULL);
 	size = sizeof(CARD32); /* flag */
 	size += COUNT_SIZE;    /* prop count */
 	size += request->wm_windows.num_window_properties * sizeof(Window);
