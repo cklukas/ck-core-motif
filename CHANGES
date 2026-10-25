@@ -1,4 +1,9 @@
 2026-10-25
+	* Guard new-list and first-tab allocations in `XmTabListInsertTabs`,
+	  preserving cleanup and process-lock behavior on failure; see
+	  docs/tablist-insert-allocation.md.
+
+2026-10-25
 	* Check `XmTabCreate` during tab-list resource conversion and release
 	  partial output on failure; see docs/tablist-converter-allocation.md.
 
