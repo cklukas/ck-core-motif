@@ -987,6 +987,7 @@ ReadTargetsTable(
     Atom			type;
     int				i, j;
     Atom		        *targets;
+    xmTargetsTableEntry	new_entries;
     Boolean			ret;
     Window			motifWindow;
     CARD16Item			shortItem;
@@ -1053,23 +1054,34 @@ ReadTargetsTable(
 	if (ret && targetsTable == NULL)
         {
             targetsTable = (xmTargetsTable)XtMalloc(sizeof(xmTargetsTableRec));
-            targetsTable->numEntries = 0;
-            targetsTable->entries = NULL;
+	    if (targetsTable == NULL)
+		ret = False;
+	    else
+	    {
+		targetsTable->numEntries = 0;
+		targetsTable->entries = NULL;
 
-            SetTargetsTable (display, targetsTable);
+		SetTargetsTable (display, targetsTable);
+	    }
         }
 
-	if (propertyRecPtr->info.num_target_lists > targetsTable->numEntries) {
+	if (ret && propertyRecPtr->info.num_target_lists > targetsTable->numEntries) {
 
 	    /*
 	     *  expand the target table
 	     */
 
-            targetsTable->entries = (xmTargetsTableEntry) 
-	      XtRealloc(
+	    new_entries = (xmTargetsTableEntry)XtRealloc(
 			(char *)targetsTable->entries,	/* NULL ok */
 			sizeof(xmTargetsTableEntryRec) * 
 			propertyRecPtr->info.num_target_lists);
+	    if (new_entries == NULL)
+	    {
+		ret = False;
+	    }
+	    else
+	    {
+		targetsTable->entries = new_entries;
 
 	    /*
 	     *  read the new entries
@@ -1116,6 +1128,7 @@ ReadTargetsTable(
                 targetsTable->numEntries++;
                 targetsTable->entries[i].numTargets = num_targets;
                 targetsTable->entries[i].targets = targets;
+	    }
 	    }
 	}
     }      
