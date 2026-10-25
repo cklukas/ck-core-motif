@@ -2298,11 +2298,13 @@ ClipboardMarkItem(
     ClipboardDataItem itemheader;
     unsigned long itemlength;
     Atom itemtype;
+    int status;
 
     if ( dataitemid == 0 ) return;
 
     /* get a pointer to the item */
-    ClipboardFindItem(display, 
+	itemheader = NULL;
+    status = ClipboardFindItem(display,
 		      dataitemid,
 		      (XtPointer *) &itemheader,
 		      &itemlength,
@@ -2310,10 +2312,10 @@ ClipboardMarkItem(
 		      0,
 		      XM_DATA_ITEM_RECORD_TYPE );
 
-    if ( itemheader == 0 ) 
+    if (status != ClipboardSuccess || itemheader == NULL ||
+	itemlength < sizeof(ClipboardDataItemRec))
     {
-	CleanupHeader (display);
-	ClipboardError( CLIPBOARD_CORRUPT, CORRUPT_DATA_STRUCTURE );
+	XtFree( (char *)itemheader);
     	return;
     }
 

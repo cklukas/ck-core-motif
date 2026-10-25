@@ -1,3 +1,9 @@
+Clipboard mark-item validation (2026-10-26)
+============================================
+
+- Validate data-item records before marking them pending for deletion; see
+  `docs/clipboard-mark-item-validation.md`.
+
 Clipboard copy ID validation (2026-10-26)
 ==========================================
 
