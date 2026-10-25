@@ -2270,7 +2270,9 @@ _XmRegionDrawShadow(
     }
 
     if (nrects <= 0 || shadow_thick > (unsigned int)INT_MAX / 2 ||
-	(long)nrects > (long)INT_MAX / ((long)shadow_thick * 2)) {
+	(long)nrects > (long)INT_MAX / ((long)shadow_thick * 2) ||
+	(long)nrects * (long)shadow_thick * 2 >
+	    (long)(UINT_MAX / sizeof(XSegment))) {
 	XmeWarning(NULL, MESSAGE1);
 	_XmRegionDestroy (workReg);
 	_XmRegionDestroy (scReg2);

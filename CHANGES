@@ -85,6 +85,13 @@ DrawUtils bevel-buffer Xt byte bounds (2026-10-28)
 - Check Xt `Cardinal` byte limits before growing the dynamic bevel rectangle
   buffer; see `docs/drawutils-bevel-growth.md`.
 
+Region shadow-buffer Xt byte bounds (2026-10-28)
+=================================================
+
+- Reject region shadow segment products that exceed Xt's `Cardinal` byte
+  allocation limit before creating the draw buffers; see
+  `docs/region-shadow-counts.md`.
+
 Compound-text concatenation failure handling (2026-10-28)
 ============================================================
 

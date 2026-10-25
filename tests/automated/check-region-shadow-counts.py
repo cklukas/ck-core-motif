@@ -10,4 +10,5 @@ assert "nrects <= 0" in region
 assert "INT_MAX / 2" in region
 assert "INT_MAX / ((long)shadow_thick * 2)" in region
 assert "(long)nrects * (long)shadow_thick * 2" in region
+assert "UINT_MAX / sizeof(XSegment)" in region
 print("region shadow segment counts are checked before allocation")
