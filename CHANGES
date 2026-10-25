@@ -1,3 +1,10 @@
+BulletinBoard dialog-title initialization rollback (2026-10-28)
+===================================================================
+
+- Keep the initial dialog title when its private `XmStringCopy` fails, avoiding
+  a NULL window-manager title during construction; see
+  `docs/bulletin-dialog-title-init-rollback.md`.
+
 Label accelerator initialization rollback (2026-10-28)
 =========================================================
 
