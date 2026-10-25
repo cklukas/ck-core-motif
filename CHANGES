@@ -24,6 +24,13 @@ XmStringExtent output-pointer guards (2026-10-26)
 - Treat null width or height output pointers as a safe no-op instead of
   dereferencing them before validation; see `docs/xmstring-extent-output.md`.
 
+XmString unparse context-end guard (2026-10-26)
+================================================
+
+- Stop safely when a matched unparse pattern reaches the source context end
+  while skipping components instead of asserting; see
+  `docs/xmstring-unparse-context-end.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 

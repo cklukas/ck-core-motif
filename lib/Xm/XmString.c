@@ -9029,7 +9029,8 @@ unparse_components(char          **result,
 		{
 		  m_ctype = XmeStringGetComponent(context, True, False,
 					  &m_length, &m_value);
-		  assert(m_ctype != XmSTRING_COMPONENT_END);
+		  if (m_ctype == XmSTRING_COMPONENT_END)
+		    break;
 		}
 	    }
 	  
