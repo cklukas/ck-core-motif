@@ -1227,7 +1227,8 @@ RemoveLines(XmTextWidget tw,
 	    int num_lines,
 	    unsigned int cur_index)
 {
-  if (!num_lines) return;
+  if (num_lines <= 0 || (unsigned int)num_lines > tw->text.total_lines)
+    return;
   
   /* move the existing lines at the end of the buffer */
   if (tw->text.total_lines > cur_index)
@@ -1248,19 +1249,29 @@ RemoveLines(XmTextWidget tw,
   if ((tw->text.table_size > TABLE_INCREMENT &&
        tw->text.total_lines <= tw->text.table_size-TABLE_INCREMENT) ||
       tw->text.total_lines <= tw->text.table_size >> 1) {
-    
-    tw->text.table_size = INIT_TABLE_SIZE;
-    
-    while (tw->text.total_lines >= tw->text.table_size) {
-      if (tw->text.table_size < TABLE_INCREMENT)
-	tw->text.table_size *= 2;
-      else
-	tw->text.table_size += TABLE_INCREMENT;
+    unsigned int new_size = INIT_TABLE_SIZE;
+    XmTextLineTable new_table;
+    while (tw->text.total_lines >= new_size) {
+      if (new_size < TABLE_INCREMENT) {
+	if (new_size > UINT_MAX / 2)
+	  return;
+	new_size *= 2;
+      } else {
+	if (new_size > UINT_MAX - TABLE_INCREMENT)
+	  return;
+	new_size += TABLE_INCREMENT;
+      }
     }
-    
-    tw->text.line_table = (XmTextLineTable)
-      XtRealloc((char *) tw->text.line_table,
-		tw->text.table_size * sizeof(XmTextLineTableRec));
+    if ((size_t)new_size > SIZE_MAX / sizeof(XmTextLineTableRec) ||
+	(size_t)new_size > UINT_MAX / sizeof(XmTextLineTableRec))
+      return;
+    new_table = (XmTextLineTable)XtRealloc(
+		(char *)tw->text.line_table,
+		(Cardinal)((size_t)new_size * sizeof(XmTextLineTableRec)));
+    if (new_table == NULL)
+      return;
+    tw->text.line_table = new_table;
+    tw->text.table_size = new_size;
   }
 }
 

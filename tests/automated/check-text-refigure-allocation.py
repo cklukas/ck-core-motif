@@ -22,4 +22,6 @@ assert "line_table == NULL" in source
 assert "temp_index > UINT_MAX - tw->text.total_lines" in source
 assert "new_table == NULL" in source
 assert "new_size > UINT_MAX - TABLE_INCREMENT" in source
+assert "num_lines <= 0" in source
+assert "new_table == NULL" in source
 print("PASS Text line-table reflow allocation guard")
