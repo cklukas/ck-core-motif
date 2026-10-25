@@ -56,9 +56,12 @@ These are real coverage gaps rather than claims of known source defects:
 
 - Motif remains X11/Xft based. Xwayland is the supported Wayland deployment
   route; a native Wayland backend would require a separate backend design.
-- The theme option is deliberately disabled because its implementation is not
-  present. A bounded color/metric/focus/hover API can improve integration while
-  preserving classic resource defaults.
+- The historical `XmThemes` option remains deliberately disabled; it is not
+  the implementation used by this fork. The additive `XmAppearance` profiles
+  (`classic`, `modern-light`, `modern-dark` and `high-contrast`) provide the
+  qualified color, metric and focus defaults while preserving classic resource
+  precedence. They are selected before widget creation and do not mutate
+  realized widgets.
 - The historical manual and visual corpus should be promoted selectively into
   deterministic Xvfb/native fixtures with loaded-library proof and receipts.
 - The container layout code has already moved away from its old static tab-pool
@@ -72,6 +75,6 @@ These are real coverage gaps rather than claims of known source defects:
    unrelated held storage changes.
 3. Expand non-text Unicode and accessibility user-journey fixtures.
 4. Resolve the Xt selection-context sanitizer ownership issue.
-5. Add opt-in theme metrics and complete mixed-DPI qualification.
+5. Complete mixed-DPI qualification and expand the documented profile corpus.
 
 Each item should land with a focused regression and a short entry in `CHANGES`.
