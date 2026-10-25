@@ -1508,7 +1508,8 @@ Destroy(
     if (cw->container.cells)
 	XtFree((char*)cw->container.cells);
 
-    XDestroyRegion(cw->container.cells_region);
+    if (cw->container.cells_region != NULL)
+	XDestroyRegion(cw->container.cells_region);
 
     if (scrollFrameTrait && cw->container.icon_header != NULL) {
 	/* only destroy the icon_header if not a child of the
@@ -3364,6 +3365,9 @@ TestFitItem(
 	    return(False);
     if (CtrSpatialStyleIsGRID(cw) || CtrSpatialStyleIsCELLS(cw))
 	{
+	  if (CtrSpatialStyleIsCELLS(cw) &&
+	      cw->container.cells_region == NULL)
+	    return(False);
 	  trial_cell = GetCellFromCoord(wid,x,y);
 	  if (trial_cell < 0 || trial_cell >= cw->container.cell_count ||
 	      cw->container.cells == NULL)
@@ -3701,7 +3705,8 @@ PlaceItemGridCells(
   XRectangle	cwidrect;
 
   /* A failed or incomplete reset leaves no usable occupancy grid. */
-  if (cw->container.cells == NULL || cw->container.cell_count <= 0)
+  if (cw->container.cells == NULL || cw->container.cell_count <= 0 ||
+      (CtrSpatialStyleIsCELLS(cw) && cw->container.cells_region == NULL))
 	return;
   
   if (CtrIncludeIsAPPEND(cw))
@@ -3962,7 +3967,8 @@ PlaceItemReset(
 
     if (CtrSpatialStyleIsGRID(cw))
 	return;
-    XSubtractRegion(cw->container.cells_region,cw->container.cells_region,
+    if (cw->container.cells_region != NULL)
+	XSubtractRegion(cw->container.cells_region,cw->container.cells_region,
 			cw->container.cells_region);
 }
 
