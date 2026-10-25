@@ -2525,8 +2525,14 @@ _XmRenditionCreate(Display *display,
 
   /* Allocate rendition. */
   rend_int = (_XmRendition)XtMalloc(sizeof(_XmRenditionRec));
+  if (rend_int == NULL)
+    return(NULL);
   bzero((char*)rend_int, sizeof(_XmRenditionRec));
   rend = GetHandle(_XmRendition);
+  if (rend == NULL) {
+    XtFree((char *)rend_int);
+    return(NULL);
+  }
   SetPtr(rend, rend_int);
   
   _XmRendRefcount(rend) = 1;

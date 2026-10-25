@@ -12,6 +12,12 @@ assert "if (copy == NULL)" in clone_region
 assert "if (copy_handle == NULL)" in clone_region
 assert "XtFree((char *)copy);" in clone_region
 assert "if (copy == NULL)" in renew_region
+create_start = source.index("_XmRenditionCreate(Display *display")
+create_end = source.index("/* Mrm create function", create_start)
+create_region = source[create_start:create_end]
+assert "if (rend_int == NULL)" in create_region
+assert "if (rend == NULL)" in create_region
+assert "XtFree((char *)rend_int);" in create_region
 add_start = source.index("XmRenderTableAddRenditions(")
 add_end = source.index("/* Remove matching renditions. */", add_start)
 add_region = source[add_start:add_end]
