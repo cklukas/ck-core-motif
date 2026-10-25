@@ -651,7 +651,7 @@ ChangeManaged(
      * CHILD BEING UNMANAGED
      */
     else {
-        int i, j;
+        Cardinal i, j;
 	/*
 	 * Fix for CR5043, CR5758 and CR8825 -
 	 * For nested Dialog Shells, it is necessary to unmanage
