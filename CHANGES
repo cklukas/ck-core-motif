@@ -1,4 +1,8 @@
 2026-10-25
+	* Guard UTF-8-to-UCS-2 conversion allocation before writing the result;
+	  see docs/utf8-ucs2-allocation.md.
+
+2026-10-25
 	* Guard KeySym converter table and mutable-input allocations, releasing
 	  partial state on failure; see docs/keysym-converter-allocation.md.
 
