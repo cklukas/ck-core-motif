@@ -3615,7 +3615,7 @@ SubStringPosition(
 	    else {
 	      XGlyphInfo ext;
 	      XftTextExtents16(_XmRendDisplay(entry), _XmRendXftFont(entry),
-	                      (FcChar16*)a, begin, &ext);
+	                      (FcChar16*)a, begin / 2, &ext);
 	      *under_begin = x + ext.xOff;
 	    }
 #endif
@@ -3630,7 +3630,7 @@ SubStringPosition(
 	    else {
 	      XGlyphInfo ext;
 	      XftTextExtents16(_XmRendDisplay(entry), _XmRendXftFont(entry),
-	                      (FcChar16*)b, under_seg_len, &ext);
+	                      (FcChar16*)b, under_seg_len / 2, &ext);
 	      width = ext.xOff;
 	    }
 #endif
