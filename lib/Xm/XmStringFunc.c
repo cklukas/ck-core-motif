@@ -309,7 +309,7 @@ XmParseMappingGetValues(XmParseMapping mapping,
 
   _XmProcessLock();
   /* Do a little error checking. */
-  if (mapping == NULL) {
+  if (mapping == NULL || (arg_count != 0 && arg_list == NULL)) {
     _XmProcessUnlock();
     return;
   }
@@ -318,6 +318,11 @@ XmParseMappingGetValues(XmParseMapping mapping,
   for (i = 0; i < arg_count; i++)
     {
       arg_name = arg_list[i].name;
+
+      /* ArgLists are application-supplied; ignore incomplete entries rather
+         than passing NULL to strcmp or writing through a NULL value. */
+      if (arg_name == NULL || arg_list[i].value == NULL)
+	continue;
 
       if ((arg_name == XmNpattern) ||
 	  (strcmp(arg_name, XmNpattern) == 0))

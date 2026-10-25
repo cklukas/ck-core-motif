@@ -10177,6 +10177,13 @@ XmString substring line allocation guards (2026-10-25)
   failures instead of dereferencing partial state; see
   `docs/xmstring-new-line-allocation.md`.
 
+Parse-mapping ArgList validation (2026-10-25)
+=============================================
+
+- Ignore missing or incomplete application ArgList entries in
+  `XmParseMappingGetValues` instead of dereferencing them; see
+  `docs/parse-mapping-arglist-validation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

@@ -46,6 +46,7 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
 	      tests/automated/check-xmstring-charset-null.py \
 	      tests/automated/check-xmstring-clone-allocation.py \
 	      tests/automated/check-xmstring-new-line-allocation.py \
+	      tests/automated/check-parse-mapping-args.py \
               tests/automated/check-docs-provenance.py tests/automated/check-makestrs-comments.py \
               tests/automated/check-native-features.py \
               tests/Toolkit/ABI/cohort.c tests/Toolkit/Im/preedit_ranges.c \
