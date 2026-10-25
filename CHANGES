@@ -1,3 +1,10 @@
+I18List target-list conversion allocation (2026-10-28)
+=========================================================
+
+- Refuse target-list conversion when standard-target allocation fails and
+  reserve space for the optional pixmap target in export-target lists; see
+  `docs/i18list-target-list-allocation.md`.
+
 I18List pixmap conversion allocation guard (2026-10-28)
 ==========================================================
 

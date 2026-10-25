@@ -3691,6 +3691,11 @@ ListConvert(Widget w, XtPointer client_data,
     {
 	Atom *targs = XmeStandardTargets(w, 5, &target_count);
 
+	if (targs == NULL)
+	{
+	    cs->status = XmCONVERT_REFUSE;
+	    return;
+	}
 	value = (XtPointer) targs;
 	targs[target_count++] = atoms[XmA_MOTIF_COMPOUND_STRING];
 	targs[target_count++] = atoms[XmACOMPOUND_TEXT];
@@ -3708,7 +3713,7 @@ ListConvert(Widget w, XtPointer client_data,
     else if ((cs->target == atoms[XmA_MOTIF_EXPORT_TARGETS]) ||
 	     (cs->target == atoms[XmA_MOTIF_CLIPBOARD_TARGETS]))
     {
-	Atom *targs = (Atom *) XtMalloc(sizeof(Atom) * 5);
+	Atom *targs = (Atom *) XtMalloc(sizeof(Atom) * 6);
 	int n = 0;
 
 	value = (XtPointer) targs;
