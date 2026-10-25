@@ -11001,4 +11001,5 @@ MWM network-file path sizing (2026-10-25)
 =========================================
 
 - Check home-directory expansion sizes and allocation results for network and
-  local configuration paths; see `docs/mwm-network-path-size.md`.
+  local configuration paths, and handle failed temporary-name copies safely;
+  see `docs/mwm-network-path-size.md`.

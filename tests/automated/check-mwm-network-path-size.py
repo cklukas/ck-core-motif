@@ -16,5 +16,7 @@ assert "hostLength + 1 + homeLength + fileLength + 1 > UINT_MAX" in body
 assert "homeLength + fileLength + 1 > UINT_MAX" in body
 assert "goto fallback;" in body
 assert "if (pch == NULL)" in body
+assert body.count("if (sName == NULL)") >= 2
+assert "XtFree(sName);" in body
 
 print("MWM network-file path sizing is checked")

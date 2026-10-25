@@ -8499,8 +8499,17 @@ GetNetworkFileName (char *pchFile)
 		 * copy the string so we don't munge data
 		 * inside shellscan 
 		 */
-		host_part = sName = XtNewString ((String) host_part);
+		sName = XtNewString ((String) host_part);
+		if (sName == NULL)
+		    goto fallback;
+		host_part = sName;
 		pch = strchr (sName, ':');
+		if (pch == NULL)
+		{
+		    XtFree(sName);
+		    sName = NULL;
+		    goto fallback;
+		}
 
 		/*
 		 * separate the host and file parts of the
@@ -8569,8 +8578,17 @@ GetNetworkFileName (char *pchFile)
 	     * just operate on the name as-is.
 	     * temporarily replace ':' with a NULL 
 	     */
-	    host_part = sName = XtNewString ((String) pchFile);
+	    sName = XtNewString ((String) pchFile);
+	    if (sName == NULL)
+		goto fallback;
+	    host_part = sName;
 	    pch = strchr (sName, ':');
+	    if (pch == NULL)
+	    {
+		XtFree(sName);
+		sName = NULL;
+		goto fallback;
+	    }
 	    *pch = '\0';
 	    host_part = pchFile;
 	    file_part = pch+1;
