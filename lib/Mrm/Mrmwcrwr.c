@@ -1605,7 +1605,8 @@ UrmCWRInitChildren (URMResourceContextPtr	context_id ,
   /*
    * Validate record
    */
-  UrmCWR__ValidateContext (context_id, "UrmCWRInitChildren") ;
+  result = UrmCWR__ValidateContext (context_id, "UrmCWRInitChildren") ;
+  if ( result != MrmSUCCESS ) return result ;
 
   /*
    * Error check that the number of children is reasonable

@@ -554,3 +554,4 @@ EXTRA_DIST += tests/automated/check-mrm-writer-char8-vector-validation.py docs/m
 EXTRA_DIST += tests/automated/check-mrm-writer-cstring-vector-validation.py docs/mrm-writer-cstring-vector-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-callback-arg-validation.py docs/mrm-writer-callback-arg-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-child-validation.py docs/mrm-writer-child-validation.md
+EXTRA_DIST += tests/automated/check-mrm-writer-children-validation.py docs/mrm-writer-children-validation.md
