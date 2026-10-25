@@ -4,6 +4,7 @@
 #endif
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
 #include <stdint.h>
@@ -50,6 +51,23 @@ static void normalize(XmStepperWidget s) {
 static void redraw(XmStepperWidget s) {
     if (XtIsRealized((Widget)s)) XClearArea(XtDisplay((Widget)s), XtWindow((Widget)s), 0, 0, 0, 0, True);
 }
+
+static int text_baseline(XmStepperWidget s) {
+    XGCValues values;
+    XFontStruct *font;
+    long long baseline;
+    if (!s->stepper.gc ||
+        !XGetGCValues(XtDisplay((Widget)s), s->stepper.gc, GCFont, &values))
+        return (int)s->core.height / 2;
+    font = XQueryFont(XtDisplay((Widget)s), values.font);
+    if (!font)
+        return (int)s->core.height / 2;
+    baseline = ((long long)s->core.height - font->ascent - font->descent) /
+               2 + font->ascent;
+    XFreeFontInfo(NULL, font, 1);
+    return baseline < INT_MIN ? INT_MIN :
+           baseline > INT_MAX ? INT_MAX : (int)baseline;
+}
 static void notify(XmStepperWidget s, XEvent *event) {
     XmStepperCallbackStruct c = {XmCR_VALUE_CHANGED, event, s->stepper.minimum,
                                  s->stepper.maximum, s->stepper.value, s->stepper.step};
@@ -76,7 +94,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (!w || !s->stepper.gc) return;
     XClearWindow(d, w);
     snprintf(text, sizeof(text), "%d", s->stepper.value);
-    baseline = (int)(s->core.height / 2);
+    baseline = text_baseline(s);
     XDrawString(d, w, s->stepper.gc, 8, baseline, text, (int)strlen(text));
     split = s->core.width > 28 ? s->core.width - 28 : 0;
     XDrawLine(d, w, s->stepper.gc, split, 0, split, s->core.height);

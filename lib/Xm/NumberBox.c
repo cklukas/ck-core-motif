@@ -108,6 +108,24 @@ static void redraw(XmNumberBoxWidget number) {
                    0, 0, 0, 0, True);
 }
 
+static int text_baseline(XmNumberBoxWidget number) {
+    XGCValues values;
+    XFontStruct *font;
+    long long baseline;
+    if (!number->number_box.text_gc ||
+        !XGetGCValues(XtDisplay((Widget)number), number->number_box.text_gc,
+                      GCFont, &values))
+        return (int)number->core.height / 2;
+    font = XQueryFont(XtDisplay((Widget)number), values.font);
+    if (!font)
+        return (int)number->core.height / 2;
+    baseline = ((long long)number->core.height - font->ascent - font->descent) /
+               2 + font->ascent;
+    XFreeFontInfo(NULL, font, 1);
+    return baseline < INT_MIN ? INT_MIN :
+           baseline > INT_MAX ? INT_MAX : (int)baseline;
+}
+
 static void notify_value(XmNumberBoxWidget number, XEvent *event) {
     XmNumberBoxCallbackStruct callback;
     callback.reason = XmCR_VALUE_CHANGED;
@@ -180,7 +198,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (!text_gc)
         return;
     XClearWindow(display, window);
-    baseline = (int)(number->core.height / 2);
+    baseline = text_baseline(number);
     XDrawString(display, window, text_gc, (int)number->number_box.spacing,
                 baseline, number->number_box.text,
                 bounded_text_length(number->number_box.text));

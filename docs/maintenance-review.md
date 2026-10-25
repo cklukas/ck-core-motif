@@ -77,3 +77,11 @@ baselines as well.  The focused check is:
 ```sh
 python3 tests/automated/check-calendar-text-metrics.py
 ```
+
+NumberBox and Stepper value text use the same measured-baseline rule, keeping
+compact numeric controls aligned with adjacent labels at different font sizes.
+The focused check is:
+
+```sh
+python3 tests/automated/check-number-stepper-text-metrics.py
+```

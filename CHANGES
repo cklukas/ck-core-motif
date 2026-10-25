@@ -126,6 +126,13 @@ Calendar font-aware text layout (2026-10-27)
   active X font rather than fixed y coordinates, keeping calendar text aligned
   when applications use a different font size.
 
+Numeric control font-aware text layout (2026-10-27)
+====================================================
+
+- Center NumberBox and Stepper values using the active X font metrics instead
+  of half-height baselines, preventing values from appearing too high or low
+  when applications select a non-default font.
+
 InfoBar close control and FontSelector bounds (2026-10-27)
 ============================================================
 
