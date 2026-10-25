@@ -1,3 +1,10 @@
+Xm null-cursor failure handling (2026-10-25)
+===============================================
+
+- Check null-cursor pixmap and cursor creation, release the app lock on
+  failure, and avoid caching invalid cursor state; see
+  `docs/xm-null-cursor-failure.md`.
+
 Xm screen lifecycle failure handling (2026-10-25)
 ===================================================
 

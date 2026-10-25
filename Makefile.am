@@ -593,3 +593,5 @@ EXTRA_DIST += tests/automated/check-xm-geometry-compare.py docs/xm-geometry-comp
 EXTRA_DIST += tests/automated/check-xm-pixmap-data-optional-outputs.py docs/xm-pixmap-data-optional-outputs.md
 
 EXTRA_DIST += tests/automated/check-xm-screen-lifecycle-failure.py docs/xm-screen-lifecycle-failure.md
+
+EXTRA_DIST += tests/automated/check-xm-null-cursor-failure.py docs/xm-null-cursor-failure.md
