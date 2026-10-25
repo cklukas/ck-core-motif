@@ -13,7 +13,8 @@ typedef struct _XmStepperPart {
     Boolean wrap;
     XtCallbackList value_changed_callback;
     GC gc;
-    XFontStruct *font;
+    XmRenderTable render_table;
+    Boolean check_set_render_table;
 } XmStepperPart;
 typedef struct _XmStepperRec {
     CorePart core;

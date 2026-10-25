@@ -138,8 +138,8 @@ focused check is:
 python3 tests/automated/check-numberbox-font-fallback.py
 ```
 
-Stepper now installs the same managed fallback font for its value GC.  The
-focused check is:
+Stepper now draws its value through an owned copy of `XmNrenderTable`, keeping
+numeric text aligned with the active Motif typography. The focused check is:
 
 ```sh
 python3 tests/automated/check-stepper-font-fallback.py

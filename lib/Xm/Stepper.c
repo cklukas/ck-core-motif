@@ -20,6 +20,17 @@ static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
+static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
+{
+    XmStepperWidget stepper = (XmStepperWidget)widget;
+    (void)offset;
+    if (stepper->stepper.check_set_render_table)
+        value->addr = NULL;
+    else {
+        stepper->stepper.check_set_render_table = True;
+        value->addr = (char *)&stepper->stepper.render_table;
+    }
+}
 #define Offset(field) XtOffsetOf(XmStepperRec, field)
 static XtResource resources[] = {
     {XmNstepperMinimum, XmCStepperMinimum, XmRInt, sizeof(int), Offset(stepper.minimum), XmRImmediate, (XtPointer)0},
@@ -28,6 +39,8 @@ static XtResource resources[] = {
     {XmNstepperStep, XmCStepperStep, XmRInt, sizeof(int), Offset(stepper.step), XmRImmediate, (XtPointer)1},
     {XmNstepperWrap, XmCStepperWrap, XmRBoolean, sizeof(Boolean), Offset(stepper.wrap), XmRImmediate, (XtPointer)False},
     {XmNstepperValueChangedCallback, XmCStepperValueChangedCallback, XmRCallback, sizeof(XtCallbackList), Offset(stepper.value_changed_callback), XmRPointer, (XtPointer)NULL},
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmRenderTable), Offset(stepper.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmRenderTable), Offset(stepper.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean), Offset(primitive.traversal_on), XmRImmediate, (XtPointer)True},
     {XmNhighlightThickness, XmCHighlightThickness, XmRHorizontalDimension, sizeof(Dimension), Offset(primitive.highlight_thickness), XmRCallProc, (XtPointer)_XmSetThickness}
 };
@@ -52,22 +65,6 @@ static void redraw(XmStepperWidget s) {
     if (XtIsRealized((Widget)s)) XClearArea(XtDisplay((Widget)s), XtWindow((Widget)s), 0, 0, 0, 0, True);
 }
 
-static int text_baseline(XmStepperWidget s) {
-    XGCValues values;
-    XFontStruct *font;
-    long long baseline;
-    if (!s->stepper.gc ||
-        !XGetGCValues(XtDisplay((Widget)s), s->stepper.gc, GCFont, &values))
-        return (int)s->core.height / 2;
-    font = XQueryFont(XtDisplay((Widget)s), values.font);
-    if (!font)
-        return (int)s->core.height / 2;
-    baseline = ((long long)s->core.height - font->ascent - font->descent) /
-               2 + font->ascent;
-    XFreeFontInfo(NULL, font, 1);
-    return baseline < INT_MIN ? INT_MIN :
-           baseline > INT_MAX ? INT_MAX : (int)baseline;
-}
 static void notify(XmStepperWidget s, XEvent *event) {
     XmStepperCallbackStruct c = {XmCR_VALUE_CHANGED, event, s->stepper.minimum,
                                  s->stepper.maximum, s->stepper.value, s->stepper.step};
@@ -79,28 +76,42 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
     if (!s->core.width) s->core.width = 72;
     if (!s->core.height) s->core.height = 32;
     values.foreground = s->primitive.foreground; values.background = s->core.background_pixel;
-    s->stepper.font = XLoadQueryFont(XtDisplay(widget), "fixed");
-    if (s->stepper.font) values.font = s->stepper.font->fid;
+    if (s->stepper.render_table == NULL)
+        s->stepper.render_table = XmFontListCopy(
+            XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+    else
+        s->stepper.render_table = XmFontListCopy(s->stepper.render_table);
     s->stepper.gc = XCreateGC(XtDisplay(widget), DefaultRootWindow(XtDisplay(widget)),
-                              GCForeground | GCBackground |
-                              (s->stepper.font ? GCFont : 0), &values);
+                              GCForeground | GCBackground, &values);
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events, NULL);
 }
 static void Destroy(Widget widget) {
     XmStepperWidget s = (XmStepperWidget)widget;
     XtRemoveEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events, NULL);
     if (s->stepper.gc) XFreeGC(XtDisplay(widget), s->stepper.gc);
-    if (s->stepper.font) XFreeFont(XtDisplay(widget), s->stepper.font);
+    if (s->stepper.render_table)
+        XmRenderTableFree(s->stepper.render_table);
 }
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmStepperWidget s = (XmStepperWidget)widget; Display *d = XtDisplay(widget); Window w = XtWindow(widget);
-    char text[32]; int baseline; Position split;
+    char text[32]; Position split;
     (void)event; (void)region;
     if (!w || !s->stepper.gc) return;
     XClearWindow(d, w);
     snprintf(text, sizeof(text), "%d", s->stepper.value);
-    baseline = text_baseline(s);
-    XDrawString(d, w, s->stepper.gc, 8, baseline, text, (int)strlen(text));
+    if (s->stepper.render_table) {
+        XmString value = XmStringCreateLocalized(text);
+        Dimension text_width = 0, text_height = 0;
+        if (value) {
+            XmStringExtent(s->stepper.render_table, value,
+                           &text_width, &text_height);
+            XmStringDraw(d, w, s->stepper.render_table, value, s->stepper.gc,
+                         8, ((int)s->core.height - (int)text_height) / 2,
+                         text_width, XmALIGNMENT_BEGINNING,
+                         XmPrim_layout_direction(s), NULL);
+            XmStringFree(value);
+        }
+    }
     split = s->core.width > 28 ? s->core.width - 28 : 0;
     XDrawLine(d, w, s->stepper.gc, split, 0, split, s->core.height);
     XDrawLine(d, w, s->stepper.gc, split + 14, 5, split + 14, s->core.height - 5);
@@ -134,6 +145,15 @@ static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispat
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget, ArgList args, Cardinal *count) {
     XmStepperWidget old = (XmStepperWidget)old_widget, s = (XmStepperWidget)widget; Boolean redraw_needed = False;
     (void)request; (void)args; (void)count; normalize(s);
+    if (old->stepper.render_table != s->stepper.render_table) {
+        XmRenderTable new_table = s->stepper.render_table ?
+            XmFontListCopy(s->stepper.render_table) :
+            XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+        if (old->stepper.render_table)
+            XmRenderTableFree(old->stepper.render_table);
+        s->stepper.render_table = new_table;
+        redraw_needed = True;
+    }
     if (old->stepper.minimum != s->stepper.minimum || old->stepper.maximum != s->stepper.maximum || old->stepper.value != s->stepper.value || old->stepper.step != s->stepper.step || old->stepper.wrap != s->stepper.wrap) redraw_needed = True;
     return redraw_needed;
 }

@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Check Stepper installs a drawable fallback text font."""
+"""Check Stepper value text follows the widget render table."""
 from pathlib import Path
 
 source = Path("lib/Xm/Stepper.c").read_text(encoding="utf-8")
-assert 'XLoadQueryFont(XtDisplay(widget), "fixed")' in source
-assert "GCFont" in source
-assert "XFreeFont(XtDisplay(widget), s->stepper.font)" in source
-print("PASS Stepper installs and releases a fallback text font")
+assert "XmNrenderTable" in source
+assert "XmStringExtent" in source
+assert "XmStringDraw" in source
+assert "XmFontListCopy" in source
+assert "XmRenderTableFree" in source
+print("PASS Stepper draws value text through its render table")
