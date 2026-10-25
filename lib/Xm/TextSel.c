@@ -509,6 +509,10 @@ _XmTextConvert(
   } else if (*target == atoms[XmATIMESTAMP]) {
     Time *timestamp;
     timestamp = (Time *) XtMalloc(sizeof(Time));
+    if (timestamp == NULL) {
+      *value = NULL;
+      return False;
+    }
     if (is_primary)
       *timestamp = source->data->prim_time;
     else if (is_destination)

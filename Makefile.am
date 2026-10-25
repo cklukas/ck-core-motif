@@ -163,6 +163,7 @@ EXTRA_DIST += tests/automated/check-high-contrast-profile.c tests/automated/run-
 EXTRA_DIST += docs/dpi-defaults.md
 EXTRA_DIST += tests/automated/check-xlibre-dpi-contract.c tests/automated/check-xlibre-output-selection.c tests/automated/run-xlibre-dpi-contract.py docs/xlibre-dpi-contract.md
 EXTRA_DIST += tests/automated/check-textdest-location-lifetime.py docs/motif-textdest-location-lifetime.md
+EXTRA_DIST += tests/automated/check-textsel-timestamp-allocation.py docs/motif-textsel-timestamp.md
 EXTRA_DIST += tests/automated/check-mwm-session-db-path.py docs/mwm-session-db-path.md
 EXTRA_DIST += tests/automated/check-mwm-display-env-bounds.py docs/mwm-display-env-bounds.md
 EXTRA_DIST += tests/automated/check-mwm-screen-display-bounds.py docs/mwm-screen-display-bounds.md
