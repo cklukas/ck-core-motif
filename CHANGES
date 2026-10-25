@@ -14421,3 +14421,8 @@ TextField portability warning cleanup (2026-10-26)
 - Use type-correct zero constants for TextField input-method registration and
   wide-character initialization; see
   `docs/textfield-portability-warnings.md`.
+Mwm graphics size-limit header (2026-10-26)
+=============================================
+
+- Include `<limits.h>` for the Mwm rectangle-list `INT_MAX`/`UINT_MAX`
+  allocation guard; see `docs/wm-graphics-size-limit-header.md`.

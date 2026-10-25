@@ -40,6 +40,7 @@ static char rcsid[] = "$XConsortium: WmGraphics.c /main/4 1995/11/01 11:38:53 rs
 
 #include "WmGlobal.h"
 
+#include <limits.h>
 #include <stdio.h>
 #include <X11/Xlib.h>
 #include <X11/StringDefs.h>
