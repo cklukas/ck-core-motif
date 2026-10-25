@@ -6373,15 +6373,17 @@ WmScreenData *pSD;
 	 */
 
         char *buffer;
+	const char *root_menu;
 
+	root_menu = pSD->rootMenu ? pSD->rootMenu : "DefaultRootMenu";
 	buffer = (char *) XtMalloc(strlen(builtinKeyBindings) +
-				   strlen(pSD->rootMenu) + 1);
+				   strlen(root_menu) + 1);
 	if (buffer == NULL)
 	{
 	    Warning("Insufficient memory for builtin key bindings");
 	    ExitWM(WM_ERROR_EXIT_VALUE);
 	}
-	sprintf(buffer, builtinKeyBindings, pSD->rootMenu);
+	sprintf(buffer, builtinKeyBindings, root_menu);
 
 	ParseKeyStr (pSD, (unsigned char *)buffer);
 	XtFree(buffer);
@@ -6431,15 +6433,17 @@ WmScreenData *pSD;
 	 */
 
         char *buffer;
+	const char *root_menu;
 
+	root_menu = pSD->rootMenu ? pSD->rootMenu : "DefaultRootMenu";
 	buffer = (char *) XtMalloc(strlen(builtinButtonBindings) +
-				   strlen(pSD->rootMenu) + 1);
+				   strlen(root_menu) + 1);
 	if (buffer == NULL)
 	{
 	    Warning("Insufficient memory for builtin button bindings");
 	    ExitWM(WM_ERROR_EXIT_VALUE);
 	}
-	sprintf(buffer, builtinButtonBindings, pSD->rootMenu);
+	sprintf(buffer, builtinButtonBindings, root_menu);
 
 	ParseButtonStr (pSD, (unsigned char *)buffer);
 	XtFree(buffer);

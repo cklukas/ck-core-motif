@@ -1,3 +1,9 @@
+MWM built-in root-menu fallback (2026-10-25)
+==============================================
+
+- Use `DefaultRootMenu` when built-in bindings lack a root-menu resource;
+  see `docs/mwm-root-menu-fallback.md`.
+
 List query and horizontal-position validation (2026-10-25)
 ============================================================
 
