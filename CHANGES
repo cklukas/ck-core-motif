@@ -1,3 +1,10 @@
+MenuShell placement geometry bounds (2026-10-25)
+================================================
+
+- Compute menu edge positions in signed intermediates, preventing wrapped
+  placement checks for oversized or temporarily out-of-range menus; see
+  `docs/menushell-placement-geometry.md`.
+
 Notebook shrinking geometry bounds (2026-10-25)
 ===============================================
 

@@ -912,8 +912,8 @@ ForceMenuPaneOnScreen(
         register Position *x,
         register Position *y )
 {
-   Position rightEdgeOfMenu, bottomEdgeOfMenu;
-   Dimension dispWidth, dispHeight;
+   int rightEdgeOfMenu, bottomEdgeOfMenu;
+   int dispWidth, dispHeight;
    Widget pulldown_button = RC_CascadeBtn(rowcol);
    Dimension RowColBorderWidth = rowcol->core.border_width << 1;
    Dimension CascadeBorderWidth = 0;
@@ -923,8 +923,10 @@ ForceMenuPaneOnScreen(
 
    /* Force the rowcol to be completely visible */
 
-   rightEdgeOfMenu = *x + RowColBorderWidth + rowcol->core.width;
-   bottomEdgeOfMenu = *y + RowColBorderWidth + rowcol->core.height;
+   rightEdgeOfMenu = (int)*x + (int)RowColBorderWidth +
+                     (int)rowcol->core.width;
+   bottomEdgeOfMenu = (int)*y + (int)RowColBorderWidth +
+                      (int)rowcol->core.height;
    dispWidth = WidthOfScreen (XtScreen(rowcol));
    dispHeight = HeightOfScreen (XtScreen(rowcol));
 
