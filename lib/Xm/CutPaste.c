@@ -4579,7 +4579,7 @@ XmClipboardInquireFormat(
     Atom ignoretype;
     int ignoreformat;
 
-    if (buffer == NULL && bufferlength != 0)
+    if (outlength == NULL || (buffer == NULL && bufferlength != 0))
 	return ClipboardBadFormat;
 
     _XmDisplayToAppContext(display);
@@ -4595,6 +4595,13 @@ XmClipboardInquireFormat(
 
     /* get the clipboard header */
     header = ClipboardOpen( display, 0 );
+
+    if (header == NULL)
+    {
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
 
     /* check to see if we need to reclaim the selection */
     InitializeSelection( display, header, window, 

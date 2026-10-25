@@ -1,3 +1,9 @@
+Clipboard format inquiry guards (2026-10-26)
+=============================================
+
+- Validate `outlength` and clipboard header state before format inquiries use
+  them; see `docs/clipboard-inquire-format-guards.md`.
+
 Clipboard inquire-count header guard (2026-10-26)
 ==================================================
 
