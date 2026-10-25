@@ -2665,6 +2665,7 @@ XmRenderFormat(char *buffer, size_t buffer_size, const char *format, ...)
 #define CVTaddString(dest, src, srcsize) do {\
    size_t required = (size_t)chars_used + (size_t)(srcsize) + 1;\
    size_t new_size = (size_t)allocated_size;\
+   char *new_buffer;\
    if (required < (size_t)chars_used) {\
      XtFree(buffer);\
      _XmAppUnlock(app);\
@@ -2678,8 +2679,19 @@ XmRenderFormat(char *buffer, size_t buffer_size, const char *format, ...)
      }\
      new_size *= 2;\
    }\
+   if (new_size > UINT_MAX) {\
+     XtFree(buffer);\
+     _XmAppUnlock(app);\
+     return 0;\
+   }\
    if (new_size != (size_t)allocated_size) {\
-     buffer = XtRealloc(buffer, new_size);\
+     new_buffer = (char *)XtRealloc(buffer, (Cardinal)new_size);\
+     if (new_buffer == NULL) {\
+       XtFree(buffer);\
+       _XmAppUnlock(app);\
+       return 0;\
+     }\
+     buffer = new_buffer;\
      allocated_size = new_size;\
    }\
    memcpy(buffer + chars_used, src, (size_t)(srcsize) + 1);\
