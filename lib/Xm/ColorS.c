@@ -1151,7 +1151,7 @@ static void
 compute_size(XmColorSelectorWidget csw)
 {
     XtWidgetGeometry	input, radio_geom, color_geom;
-    Dimension		width, height;
+    int			width, height;
     Position		x,y;			/* positions		*/
 
     /*
@@ -1160,7 +1160,10 @@ compute_size(XmColorSelectorWidget csw)
     
     y = XmColorS_margin_height(csw);
     x = XmColorS_margin_width(csw);
-    width = csw->core.width - (2 * XmColorS_margin_width(csw));
+    width = (int)csw->core.width -
+	(2 * (int)XmColorS_margin_width(csw));
+    if (width < 0)
+	width = 0;
 
     input.width = width;
     input.request_mode = CWWidth;
@@ -1168,17 +1171,23 @@ compute_size(XmColorSelectorWidget csw)
     (void) XtQueryGeometry(XmColorS_chose_radio(csw), NULL, &radio_geom);
     (void) XtQueryGeometry(XmColorS_color_window(csw), &input, &color_geom);
 	
-    height = (csw->core.height - 4 * XmColorS_margin_height(csw) - 
-	      (radio_geom.height + 2 * radio_geom.border_width));
+    height = (int)csw->core.height -
+	(4 * (int)XmColorS_margin_height(csw)) -
+	((int)radio_geom.height + 2 * (int)radio_geom.border_width);
+    if (height < 0)
+	height = 0;
 
     /*
      * Leave space for the margins and make the color area 1/3 the height
      * of the scrolled list and button box.
      */
 
-    color_geom.height = height / 4;
-    height -= color_geom.height;
-    color_geom.height -= 2 * color_geom.border_width;
+    color_geom.height = (Dimension)(height / 4);
+    height -= (int)color_geom.height;
+    if (color_geom.height > 2 * color_geom.border_width)
+	color_geom.height -= 2 * color_geom.border_width;
+    else
+	color_geom.height = 0;
 
     _XmConfigureWidget(XmColorS_bb(csw), x, y, width, height, 0);
     _XmConfigureWidget(XmColorS_scrolled_list(csw), x, y, width, height, 0);
@@ -1190,7 +1199,7 @@ compute_size(XmColorSelectorWidget csw)
      */
     
     if ( radio_geom.width < csw->core.width )
-	x = (int)(csw->core.width - radio_geom.width) / 2;
+	x = ((int)csw->core.width - (int)radio_geom.width) / 2;
     else
 	x = XmColorS_margin_width(csw);
 
