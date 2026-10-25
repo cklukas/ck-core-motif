@@ -5603,7 +5603,8 @@ GetVisualEmphasis(
     XmContainerItemTrait        cItemTrait;
 
     if ((cItemTrait = (XmContainerItemTrait)
-        XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL)
+        XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL ||
+        cItemTrait->getValues == NULL)
         return(XmNOT_SELECTED);
     cItemData.valueMask = ContItemVisualEmphasis;
     cItemTrait->getValues(cwid,(XmContainerItemData)&cItemData);
@@ -5623,7 +5624,8 @@ SetVisualEmphasis(
     XmContainerItemTrait	cItemTrait;
 
     if ((cItemTrait = (XmContainerItemTrait)
-	XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL)
+	XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL ||
+	cItemTrait->setValues == NULL)
 	return;
     cItemData.valueMask = ContItemVisualEmphasis;
     cItemData.visual_emphasis = emphasis;
@@ -5643,7 +5645,8 @@ GetViewType(
     XmContainerItemTrait        cItemTrait;
 
     if ((cItemTrait = (XmContainerItemTrait)
-        XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL)
+        XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL ||
+        cItemTrait->getValues == NULL)
         return(XmLARGE_ICON);
     cItemData.valueMask = ContItemViewType;
     cItemTrait->getValues(cwid,(XmContainerItemData)&cItemData);
@@ -5663,7 +5666,8 @@ SetViewType(
     XmContainerItemTrait        cItemTrait;
 
     if ((cItemTrait = (XmContainerItemTrait)
-        XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL)
+        XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL ||
+        cItemTrait->setValues == NULL)
         return;
     cItemData.valueMask = ContItemViewType;
     cItemData.view_type = viewtype;
@@ -5683,7 +5687,8 @@ GetIconWidth(
     XmContainerItemTrait        cItemTrait;
 
     if ((cItemTrait = (XmContainerItemTrait)
-        XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL)
+        XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL ||
+        cItemTrait->getValues == NULL)
         return(cwid->core.width);
     cItemData.valueMask = ContItemIconWidth;
     cItemTrait->getValues(cwid,(XmContainerItemData)&cItemData);
@@ -5712,9 +5717,11 @@ GetDefaultDetailCount(
 
 	cItemTrait = (XmContainerItemTrait)
 		XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem);
-	cItemData.valueMask = ContItemDetailCount;
-	cItemTrait->getValues(cwid,(XmContainerItemData)&cItemData);
-	detail_count = MAX(detail_count,cItemData.detail_count);
+	if (cItemTrait != NULL && cItemTrait->getValues != NULL) {
+	    cItemData.valueMask = ContItemDetailCount;
+	    cItemTrait->getValues(cwid,(XmContainerItemData)&cItemData);
+	    detail_count = MAX(detail_count,cItemData.detail_count);
+	}
     }
     /*
      * Get MAX detail count of all Icons now
@@ -5724,7 +5731,8 @@ GetDefaultDetailCount(
 	{ 
 	cwid = node->widget_ptr;
 	if ((cItemTrait = (XmContainerItemTrait)
-            XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) != NULL)
+            XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) != NULL &&
+	    cItemTrait->getValues != NULL)
 	    {
 	    cItemData.valueMask = ContItemDetailCount;
 	    cItemTrait->getValues(cwid,(XmContainerItemData)&cItemData);
@@ -5857,9 +5865,11 @@ GetDynFirstColWidth(
 
 	cItemTrait = (XmContainerItemTrait)
                 XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem);
-        cItemData.valueMask = ContItemIconWidth;
-        cItemTrait->getValues(cwid,(XmContainerItemData)&cItemData);
-	fcw = MAX(fcw,cItemData.icon_width);
+	if (cItemTrait != NULL && cItemTrait->getValues != NULL) {
+            cItemData.valueMask = ContItemIconWidth;
+            cItemTrait->getValues(cwid,(XmContainerItemData)&cItemData);
+	    fcw = MAX(fcw,cItemData.icon_width);
+        }
         }
     /*
      * Get MAX icon_width of all Icons
@@ -5869,7 +5879,8 @@ GetDynFirstColWidth(
         {
         cwid = node->widget_ptr;
         if ((cItemTrait = (XmContainerItemTrait)
-            XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) != NULL)
+            XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) != NULL &&
+            cItemTrait->getValues != NULL)
             {
 	    cItemData.valueMask = ContItemIconWidth;
             cItemTrait->getValues(cwid,(XmContainerItemData)&cItemData);
@@ -9600,6 +9611,9 @@ ScrollProc(
     for (i=0; i < num_nav_list; i++, nav++) {
 	navigatorTrait = (XmNavigatorTrait)
 	    XmeTraitGet((XtPointer)XtClass(*nav), XmQTnavigator);
+	if (navigatorTrait == NULL || navigatorTrait->getValue == NULL ||
+	    navigatorTrait->setValue == NULL)
+	    continue;
 	/* get the current position */
 	nav_data.valueMask =
 	    NavValue | NavIncrement | NavMinimum | NavMaximum | NavSliderSize;

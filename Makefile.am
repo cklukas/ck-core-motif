@@ -233,6 +233,7 @@ EXTRA_DIST += tests/automated/check-traversal-tablist-allocation.py docs/travers
 EXTRA_DIST += tests/automated/check-clip-window-translation-allocation.py docs/clip-window-translations.md
 EXTRA_DIST += tests/automated/check-hierarchy-growth-allocation.py docs/hierarchy-allocation.md
 EXTRA_DIST += tests/automated/check-scrollframe-callbacks.py docs/motif-scrollframe-callbacks.md
+EXTRA_DIST += tests/automated/check-container-trait-callbacks.py docs/motif-container-trait-callbacks.md
 EXTRA_DIST += tests/automated/check-txtpropcv-single-allocation.py docs/motif-txtpropcv-single.md
 EXTRA_DIST += tests/automated/check-mwm-session-db-path.py docs/mwm-session-db-path.md
 EXTRA_DIST += tests/automated/check-mwm-display-env-bounds.py docs/mwm-display-env-bounds.md

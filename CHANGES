@@ -3906,3 +3906,10 @@ Guard ScrollFrame navigator callbacks (2026-10-25)
 - Validate navigator `setValue` and conditional `changeMoveCB` callbacks
   before registration, preserving the existing warning and list state; see
   `docs/motif-scrollframe-callbacks.md`.
+
+Guard Container trait callbacks (2026-10-25)
+=============================================
+
+- Validate Container item and navigator trait callbacks before every private
+  callback dispatch, preserving fallback geometry/selection behavior; see
+  `docs/motif-container-trait-callbacks.md`.
