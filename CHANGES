@@ -4,6 +4,13 @@ Guard XmRegion API NULL inputs (2026-10-26)
 - Make region destruction and rectangle output collection safe for absent
   regions or output pointers; see `docs/region-api-null-guards.md`.
 
+Validate scaled-pixmap color input (2026-10-26)
+================================================
+
+- Reject a missing `XmAccessColorData` record before scaled-pixmap cache
+  construction can dereference it; see
+  `docs/scaled-pixmap-color-input.md`.
+
 Guard XmRegion geometry query NULL inputs (2026-10-26)
 =======================================================
 

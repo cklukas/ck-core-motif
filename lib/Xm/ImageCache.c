@@ -1493,7 +1493,8 @@ _XmGetScaledPixmap(
     Dimension scaled_width, scaled_height;
 
     /*  Error checking  */    
-    if (image_name == NULL) return (XmUNSPECIFIED_PIXMAP);
+    if (image_name == NULL || acc_color == NULL)
+	return (XmUNSPECIFIED_PIXMAP);
 
     if (!pixmap_data_set) InitializePixmapSets() ;
     if (pixmap_data_set == NULL || pixmap_set == NULL)
