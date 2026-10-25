@@ -1,3 +1,10 @@
+Fast-subclass lookup sequencing (2026-10-25)
+================================================
+
+- Keep non-threaded fast-subclass extension lookups in local variables instead
+  of a shared temporary used in one expression; see
+  `docs/fast-subclass.md`.
+
 Notebook preferred-geometry initialization (2026-10-25)
 ===========================================================
 

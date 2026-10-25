@@ -661,3 +661,5 @@ EXTRA_DIST += tests/automated/check-xm-resind-null.py docs/xm-resind-null.md
 EXTRA_DIST += tests/automated/check-xm-default-render-null.py docs/xm-default-render-null.md
 
 EXTRA_DIST += tests/automated/check-notebook-geometry-init.py docs/notebook-geometry.md
+
+EXTRA_DIST += tests/automated/check-fast-subclass-sequencing.py docs/fast-subclass.md
