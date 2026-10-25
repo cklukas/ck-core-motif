@@ -1,3 +1,10 @@
+List clear geometry bounds (2026-10-25)
+======================================
+
+- Bound List highlight clipping and empty-list cleanup rectangles, preventing
+  wrapped clear regions for collapsed lists; see
+  `docs/list-clear-geometry.md`.
+
 List hit-test geometry bounds (2026-10-25)
 ==========================================
 

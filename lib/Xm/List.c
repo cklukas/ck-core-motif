@@ -2650,10 +2650,12 @@ DrawHighlight(XmListWidget lw,
 
   {
     /* Set highlight clip */
+    int clip_height;
     rect.x = x;
     rect.y = lw->list.BaseY - ht;
     rect.width = width;
-    rect.height = lw->core.height - 2 * rect.y;
+    clip_height = (int)lw->core.height - 2 * (int)rect.y;
+    rect.height = clip_height > 0 ? (Dimension)clip_height : 0;
     XSetClipRectangles(XtDisplay(lw), lw->list.HighlightGC, 0, 0,
 		       &rect, 1, Unsorted);
   }
@@ -8237,19 +8239,22 @@ CleanUpList(XmListWidget lw,
 	    Boolean always)
 {
   Dimension VertMargin, HorzMargin;
+  int clear_width, clear_height;
 
   /* Special case for deleting the last item */
   if (always || !lw->list.itemCount)
     {
       HorzMargin = lw->list.margin_width + lw->primitive.shadow_thickness;
       VertMargin = lw->list.margin_height + lw->primitive.shadow_thickness;
+      clear_width = (int)lw->core.width - 2 * (int)HorzMargin;
+      clear_height = (int)lw->core.height - 2 * (int)VertMargin;
 
-      if (XtIsRealized((Widget)lw))
+	  if (XtIsRealized((Widget)lw) && clear_width > 0 && clear_height > 0)
 	XClearArea(XtDisplay (lw), XtWindow (lw),
 		   HorzMargin,
 		   VertMargin,
-		   lw->core.width - (2 * HorzMargin),
-		   lw->core.height - (2 * VertMargin),
+		   (Dimension)clear_width,
+		   (Dimension)clear_height,
 		   False);
     }
 }
