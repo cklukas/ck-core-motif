@@ -1,3 +1,9 @@
+Mrm font-list fixup validation (2026-10-25)
+=============================================
+
+- Validate legacy and current font-list buffers and counts before fixup; see
+  `docs/mrm-fixup-fontlist-validation.md`.
+
 Mrm argument-list resource null check (2026-10-25)
 ====================================================
 

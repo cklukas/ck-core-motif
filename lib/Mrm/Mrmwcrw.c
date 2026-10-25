@@ -1940,10 +1940,14 @@ Urm__CW_FixupValue (long			val,
       *swap_needed = FALSE;
       break;
     case MrmRtypeFontList:
+      if ( bufptr == NULL || val == 0 )
+	return MrmFAILURE ;
       if (strcmp(file_id->db_version, URM1_1version) <= 0)
 	/* Converting an old style fontlist */
 	{
 	  oldlist = (OldRGMFontListPtr)bufptr;
+	  if ( oldlist->count > RGMListSizeMax )
+	    return MrmFAILURE ;
 
 	  fontlist = (RGMFontListPtr)val;
 	    
@@ -1966,6 +1970,8 @@ Urm__CW_FixupValue (long			val,
       else
 	{
 	  fontlist = (RGMFontListPtr) val ;
+	  if ( fontlist->count > RGMListSizeMax )
+	    return MrmFAILURE ;
 	  if ( *swap_needed )
 	    {
 	      swapbytes( fontlist->validation );
