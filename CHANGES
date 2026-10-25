@@ -24,6 +24,13 @@ WSM callback registration guard (2026-10-25)
   preventing a null dereference after WSM cache allocation failure; see
   `docs/wsm-request-callback.md`.
 
+WSM selection ownership guard (2026-10-25)
+==========================================
+
+- Refuse default WSM selection ownership when the selection atom is unavailable,
+  avoiding an invalid Xlib query after display metadata failure; see
+  `docs/wsm-request-callback.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 

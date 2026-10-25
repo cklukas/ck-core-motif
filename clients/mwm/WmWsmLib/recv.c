@@ -73,6 +73,9 @@ WSMDefaultOwnSelection(Widget w, WSMClientType client_type,
     Atom own_selection =
 	_WSMGetSelectionAtom(dpy, 
 			     XScreenNumberOfScreen(XtScreen(w)), client_type);
+
+    if (own_selection == None)
+	return(False);
     
     if (XGetSelectionOwner(dpy, own_selection) != None) {
 	/*

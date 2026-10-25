@@ -9,4 +9,8 @@ Callback registration also tolerates a missing screen record, which can occur
 when WSM display metadata allocation fails. The registration request is then
 ignored safely and no partially initialized record is dereferenced.
 
+Selection ownership also stops when the selection atom cannot be obtained. This
+avoids sending `None` to `XGetSelectionOwner` or claiming a selection without
+usable WSM display metadata.
+
 `tests/automated/check-wsm-request-callback.py` protects this lifecycle path.
