@@ -5976,8 +5976,15 @@ _XmTextInputCreate(Widget wid,
   InputData data;
   XtPointer temp_ptr;
   
-  tw->text.input = input = (Input) XtMalloc((unsigned) sizeof(InputRec));
-  input->data = data = (InputData) XtMalloc((unsigned) sizeof(InputDataRec));
+  tw->text.input = input = (Input) XtMalloc((Cardinal)sizeof(InputRec));
+  if (input == NULL)
+    return;
+  input->data = data = (InputData) XtMalloc((Cardinal)sizeof(InputDataRec));
+  if (data == NULL) {
+    XtFree((char *)input);
+    tw->text.input = NULL;
+    return;
+  }
   XtGetSubresources(wid, (XtPointer)data, NULL, NULL, input_resources,
 		    XtNumber(input_resources), args, num_args);
   data->widget = tw;
