@@ -800,3 +800,5 @@ EXTRA_DIST += tests/automated/check-hash-table-allocation.py docs/hash-table-all
 EXTRA_DIST += tests/automated/check-region-copy-growth.py docs/region-copy-growth.md
 
 EXTRA_DIST += tests/automated/check-xm-scaled-pixmap-color-input.py docs/scaled-pixmap-color-input.md
+
+EXTRA_DIST += tests/automated/check-xm-pixmap-wrapper-inputs.py docs/pixmap-wrapper-input-guards.md

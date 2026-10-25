@@ -1873,6 +1873,9 @@ XmGetScaledPixmap(
 {  
     XmAccessColorDataRec acc_color_rec;
     Pixmap ret_val;
+
+    if (widget == NULL || image_name == NULL)
+	return XmUNSPECIFIED_PIXMAP;
     XtAppContext app = XtWidgetToApplicationContext(widget);
 
     _XmAppLock(app);
@@ -1912,6 +1915,9 @@ XmGetPixmapByDepth(
 {    
     XmAccessColorDataRec acc_color_rec;
     Pixmap ret_val;
+
+    if (screen == NULL || image_name == NULL)
+	return XmUNSPECIFIED_PIXMAP;
     XtAppContext app = XtDisplayToApplicationContext(
 				DisplayOfScreen(screen));
 
@@ -1947,6 +1953,9 @@ XmGetPixmap(
         Pixel background )
 {
     Pixmap	ret_val;
+
+    if (screen == NULL || image_name == NULL)
+	return XmUNSPECIFIED_PIXMAP;
 
     XtAppContext app = XtDisplayToApplicationContext(
 				DisplayOfScreen(screen));
