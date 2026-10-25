@@ -324,6 +324,8 @@ XmeReplyToQueryGeometry(Widget widget,
 			XtWidgetGeometry * intended,
 			XtWidgetGeometry * desired)
 {
+    if (widget == NULL || desired == NULL)
+        return XtGeometryNo;
     _XmWidgetToAppContext(widget);
     /* the caller should have set desired width and height*/
     desired->request_mode = (CWWidth | CWHeight) ;
@@ -335,7 +337,7 @@ XmeReplyToQueryGeometry(Widget widget,
        width and height that differ from the desired size, return No
        if the desired is the current and Almost if the desired size
        is different from the current size */
-    if ((IsWidth(intended)) &&
+    if (intended != NULL && (IsWidth(intended)) &&
       (intended->width == desired->width) &&
       (IsHeight(intended)) &&
       (intended->height == desired->height)) {

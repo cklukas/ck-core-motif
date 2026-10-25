@@ -1,3 +1,9 @@
+Xm geometry reply null-safety (2026-10-25)
+============================================
+
+- Validate widget, intended, and desired inputs in `XmeReplyToQueryGeometry`;
+  see `docs/xm-gmutils-query-null.md`.
+
 Xm gadget utility null-safety (2026-10-25)
 ===========================================
 
