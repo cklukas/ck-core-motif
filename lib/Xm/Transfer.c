@@ -2150,6 +2150,14 @@ XmeStandardConvert(Widget w,
     if (XmIsGadget(w)) w = XtParent(w);
 
     fg = (Pixel *) XtMalloc(sizeof(Pixel));
+    if (fg == NULL) {
+      cs -> value = NULL;
+      cs -> format = 32;
+      cs -> length = 0;
+      cs -> type = atoms[XmAPIXEL];
+      _XmAppUnlock(app);
+      return;
+    }
     XtSetArg(arg[0], XtNforeground, fg);
     XtGetValues(w, arg, 1);
 
@@ -2163,6 +2171,14 @@ XmeStandardConvert(Widget w,
     if (XmIsGadget(w)) w = XtParent(w);
 
     bg = (Pixel *) XtMalloc(sizeof(Pixel));
+    if (bg == NULL) {
+      cs -> value = NULL;
+      cs -> format = 32;
+      cs -> length = 0;
+      cs -> type = atoms[XmAPIXEL];
+      _XmAppUnlock(app);
+      return;
+    }
     XtSetArg(arg[0], XtNbackground, bg);
     XtGetValues(w, arg, 1);
 
@@ -2176,6 +2192,14 @@ XmeStandardConvert(Widget w,
     if (XmIsGadget(w)) w = XtParent(w);
 
     cmap = (Colormap *) XtMalloc(sizeof(Colormap));
+    if (cmap == NULL) {
+      cs -> value = NULL;
+      cs -> format = 32;
+      cs -> length = 0;
+      cs -> type = XA_COLORMAP;
+      _XmAppUnlock(app);
+      return;
+    }
     XtSetArg(arg[0], XtNcolormap, cmap);
     XtGetValues(w, arg, 1);
 

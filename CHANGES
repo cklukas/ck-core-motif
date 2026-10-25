@@ -6026,3 +6026,10 @@ Guard transfer merge allocation failure (2026-10-25)
   the merged value; see `docs/transfer-merge-allocation.md`.
 
 Guard standard transfer target allocation (2026-10-25)
+Guard standard conversion scalar allocations (2026-10-25)
+===========================================================
+
+- Handle foreground, background, and colormap allocation failure before
+  resource reads; see `docs/standard-convert-scalars.md`.
+
+Guard transfer merge allocation failure (2026-10-25)
