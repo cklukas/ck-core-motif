@@ -2685,6 +2685,11 @@ VirtKeys4DIN(
     }
 
   prop_atoms = (Atom *) XtMalloc( sizeof( Atom) * num_props) ;
+  if (prop_atoms == NULL)
+    {
+      XtFree( (char *) vkeysym_xref) ;
+      return PropChanged4DIN ;
+    }
   XInternAtoms(dsp, prop_names, num_props, FALSE, prop_atoms);
 
   prop_existed = FALSE ;

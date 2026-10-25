@@ -1,3 +1,10 @@
+MWM virtual-key atom allocation guard (2026-10-28)
+====================================================
+
+- Handle failure to allocate the virtual-key remapping atom array before
+  calling `XInternAtoms`, preserving normal bindings and avoiding a null
+  pointer write; see `docs/mwm-virtual-key-atom-allocation.md`.
+
 MWM TARGETS conversion allocation guard (2026-10-28)
 ========================================================
 
