@@ -7,4 +7,5 @@ Container selection callbacks now tolerate allocation failure. Single-item
 callbacks report zero selected items when their temporary array cannot be
 allocated, and multi-item collection rejects oversized requests, checks the
 allocation against both `size_t` and Xt `Cardinal` byte limits, and frees an
-incomplete result before returning.
+incomplete result before returning. The checked multi-item byte count is passed
+explicitly as an Xt `Cardinal` value.

@@ -9119,7 +9119,8 @@ GetSelectedCwids(
 		return(NULL);
 
 	selected_items = (WidgetList)XtMalloc
-			(cw->container.selected_item_count * sizeof(Widget));
+			((Cardinal)(sizeof(Widget) *
+					(size_t)cw->container.selected_item_count));
 	if (selected_items == NULL)
 		return(NULL);
 	/* 

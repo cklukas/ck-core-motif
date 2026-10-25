@@ -5767,6 +5767,12 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+Container selection snapshot allocation cast (2026-10-25)
+==========================================================
+
+- Pass the bounded multi-selection callback snapshot size explicitly as an Xt
+  `Cardinal`; see `docs/container-selection-guards.md`.
+
 Container cell-growth Xt width (2026-10-25)
 ============================================
 
