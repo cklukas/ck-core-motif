@@ -10,6 +10,12 @@ Xmos directory-cache entry bounds (2026-10-25)
 - Reserve space for the terminating byte when caching directory entry names;
   see `docs/xmos-cache-bounds.md`.
 
+Label wide-string conversion bounds (2026-10-25)
+==================================================
+
+- Reserve the terminating byte and reject size arithmetic overflow when
+  converting wide label values; see `docs/label-wcs-bounds.md`.
+
 Bounded Latin-1 resource conversion (2026-10-25)
 ==================================================
 

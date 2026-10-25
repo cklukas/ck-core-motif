@@ -72,6 +72,7 @@ static char rcsid[] = "$TOG: Label.c /main/26 1997/06/18 17:40:00 samborn $"
 #ifdef FIX_1381
 #include <Xm/ColorI.h>
 #endif
+#include <stdint.h>
 #ifdef FIX_1521
 #ifdef USE_XFT
 #include "XmRenderTI.h"
@@ -3167,6 +3168,7 @@ LabelSetValue(Widget w, XtPointer value, int type)
       if (type == XmFORMAT_WCS) 
 	{
 	  int length;
+	  size_t byte_length;
 	  char *str;
 	  wchar_t *str2;
 	  str2 = (wchar_t *) value;
@@ -3175,8 +3177,14 @@ LabelSetValue(Widget w, XtPointer value, int type)
 	  length = 0;
 	  while (str2[length] != 0)
 	    length++;
-	  str = (char*) XtMalloc(MB_CUR_MAX * length);
-	  wcstombs(str, str2, length * MB_CUR_MAX);
+	  if ((size_t) length > (SIZE_MAX - 1) / (size_t) MB_CUR_MAX)
+	    {
+	      XtFree((char *) value);
+	      return;
+	    }
+	  byte_length = (size_t) MB_CUR_MAX * (size_t) length + 1;
+	  str = (char*) XtMalloc(byte_length);
+	  wcstombs(str, str2, byte_length);
 	  XtFree((char*) value);
 	  value = str;
 	}
