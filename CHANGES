@@ -3242,6 +3242,12 @@ Drag target-table property validation (2026-10-25)
 
 - Validate `_MOTIF_DRAG_TARGETS` encoding and serialized list boundaries
   before parsing the cache; see `docs/dragbs-targets-read-guards.md`.
+
+Drag target-table allocation handling (2026-10-25)
+===================================================
+
+- Check target-cache table allocation and growth before dereferencing the
+  resulting pointers; see `docs/dragbs-targets-allocation-guards.md`.
 2026-10-25
 	* Add an opt-in XmSegmentedControl composite with copied item ownership,
 	  bounded clipping, RTL keyboard traversal and accessibility selection state.
