@@ -2194,13 +2194,15 @@ FileSelectionBoxUpdate(
                   {   
                     len = strlen( dirString) ;
                     maskString = XtMalloc( len + strlen( patternString) + 1) ;
-                    strcpy( maskString, dirString) ;
-                    strcpy( &maskString[len], patternString) ;
+                    if(    maskString != NULL    )
+                    {   strcpy( maskString, dirString) ;
+                        strcpy( &maskString[len], patternString) ;
 
-		    XmTextFieldSetString( FS_FilterText( fs), maskString) ;
-		    XmTextFieldSetInsertionPosition( FS_FilterText( fs),
-			     XmTextFieldGetLastPosition( FS_FilterText( fs))) ;
-                    XtFree( maskString) ;
+			    XmTextFieldSetString( FS_FilterText( fs), maskString) ;
+			    XmTextFieldSetInsertionPosition( FS_FilterText( fs),
+			             XmTextFieldGetLastPosition( FS_FilterText( fs))) ;
+                        XtFree( maskString) ;
+                        }
                     XtFree( patternString) ;
                   } 
                 XtFree( dirString) ;

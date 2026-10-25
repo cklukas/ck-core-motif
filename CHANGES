@@ -1,3 +1,10 @@
+Guard FileSB filter-mask update allocation (2026-10-25)
+========================================================
+
+- Check the temporary full-path filter buffer before copying into it, while
+  preserving cleanup and the existing filter text on failure; see
+  `docs/motif-filesb-filter-mask-update.md`.
+
 Guard FileSB qualified-mask allocation (2026-10-25)
 ====================================================
 
