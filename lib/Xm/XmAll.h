@@ -90,6 +90,7 @@
 #include <Xm/StatusBar.h>
 #include <Xm/Toolbar.h>
 #include <Xm/Sidebar.h>
+#include <Xm/AutoSuggestBox.h>
 #include <Xm/NumberBox.h>
 #include <Xm/RatingControl.h>
 #include <Xm/MwmUtil.h>
