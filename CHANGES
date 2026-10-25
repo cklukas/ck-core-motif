@@ -1,3 +1,9 @@
+IconG clip Y origins (2026-10-26)
+=================================
+
+- Compute icon clip Y origins in signed arithmetic before assigning X
+  rectangles; see `docs/icong-clip-origins.md`.
+
 Toggle indicator bounds (2026-10-26)
 ===================================
 

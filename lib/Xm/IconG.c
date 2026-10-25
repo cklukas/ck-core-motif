@@ -2103,7 +2103,7 @@ Redisplay(
 
 	    XSetClipOrigin(XtDisplay(wid), IG_NormalGC(wid),
 			   ig->rectangle.x + large_icon_x,
-			   ig->rectangle.y + ht + mh);
+			   (short) ((int) ig->rectangle.y + (int) ht + (int) mh));
 	} else {
 	    XSetClipMask(XtDisplay(wid), IG_NormalGC(wid),None);
 	}
@@ -2194,7 +2194,7 @@ Redisplay(
 			   ig->rectangle.y + small_icon_y, 1);
     }
 
-    clip_rect.y = ig->rectangle.y + ht + mh;
+    clip_rect.y = (short) ((int) ig->rectangle.y + (int) ht + (int) mh);
     available_width = (int) ig->rectangle.width - 2 * (int) ht -
 	2 * (int) mw;
     if ((int) container_data.first_column_width - (int) ht - (int) mw <
@@ -2354,7 +2354,7 @@ Redisplay(
 			clip_rect.x = (short) clip_x;
 		    }
 			
-		    clip_rect.y = ig->rectangle.y + ht + mh;
+		    clip_rect.y = (short) ((int) ig->rectangle.y + (int) ht + (int) mh);
 		    available_height = (int) ig->rectangle.height - 2 * (int) ht -
 			2 * (int) mh;
 		    clip_rect.height = (Dimension) (available_height > 0 ? available_height : 0);
@@ -2364,7 +2364,7 @@ Redisplay(
 		    XmStringExtent(IG_RenderTable(wid), new_detail[i], &w, &h);
 		    if (!clip_set) {
 			clip_rect.x = (short) ((int) ig->rectangle.x + (int) ht + (int) mw);
-			clip_rect.y = ig->rectangle.y + ht + mh;
+			clip_rect.y = (short) ((int) ig->rectangle.y + (int) ht + (int) mh);
 			available_width = (int) ig->rectangle.width - 2 * (int) ht -
 			    2 * (int) mw;
 			clip_rect.width = (Dimension) (available_width > 0 ?
