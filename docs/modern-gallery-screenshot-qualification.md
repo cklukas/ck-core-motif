@@ -74,6 +74,17 @@ DISPLAY=:121 python3 tests/automated/run-gallery-screenshot-matrix.py \
   --out /tmp/ckmotif-gallery-screenshot-matrix
 ```
 
+On 2026-10-25, the repaired installed AArch64 `uconsole` prefix passed the
+default 16-cell matrix (four profiles crossed with 1.0, 1.5, 2.0 and 3.0)
+across all 94 manifest entries: 1,504 captures, 471.628 seconds, and no
+failed or skipped child receipts. The matrix used `--discard-captures`, so
+only hashes and receipts were retained at
+`/tmp/ckmotif-gallery-screenshot-matrix-20261025-r2/`; this is qualification
+evidence, not publication imagery. The gallery binary fingerprint was
+`bcd9940a094352c0862887397300e675c059eae77138ac9fe2f5a94c30a63602` and the
+installed `libXm.so.8.0.0` fingerprint was
+`3fe2f3d43371e8cb4639a50b04c5ead68aa6fb735d85d6f115958c6bb96ea5c9`.
+
 Published PNGs are projected into `docs/gallery-screenshots/manifest.json` by
 `tests/automated/generate-gallery-screenshot-manifest.py`. The companion
 `tests/automated/check-gallery-screenshot-assets.py` verifies the manifest
