@@ -2843,9 +2843,20 @@ processCharsetAndText(XmStringCharSet tag,
     else {
       /* Must be a non-standard character set! */
       OctetPtr        temp;
+      size_t           tag_len;
+      size_t           allocation_size;
 
-      len = strlen(tag);
-      temp = (unsigned char *) XtMalloc(*outlen + 6 + len + 2);
+      tag_len = strlen(tag);
+      if (tag_len > (size_t)UINT_MAX - 7U ||
+          *outlen > UINT_MAX - 7U - (unsigned int)tag_len ||
+          tag_len > SIZE_MAX - (size_t)*outlen - 8)
+        return(False);
+
+      len = (unsigned int)tag_len;
+      allocation_size = (size_t)*outlen + 6 + tag_len + 2;
+      temp = (unsigned char *) XtMalloc(allocation_size);
+      if (temp == NULL)
+        return(False);
       /* orig + header + tag + STX + EOS */
       memcpy( temp, *outc, *outlen);
       XtFree((char *) *outc);

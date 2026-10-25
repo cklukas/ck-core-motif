@@ -1,3 +1,10 @@
+Guard compound-text custom charset prefixes (2026-10-25)
+===============================================================
+
+- Bound custom charset prefix size calculations and handle temporary buffer
+  allocation failure before copying compound-text output; see
+  `docs/motif-resencod-prefix.md`.
+
 Use size-aware scaled-image row offsets (2026-10-25)
 ====================================================
 
