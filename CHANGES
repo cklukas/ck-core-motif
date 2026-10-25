@@ -242,6 +242,8 @@ Render-table locking (2026-10-26)
 - Invalidate an existing loaded font when `XmRenditionUpdate` adds a font
   name to a rendition that previously had none; see
   `docs/render-rendition-font-name-update.md`.
+- Skip null-tag entries during render-table lookup and removal instead of
+  passing them to `strcmp`; see `docs/render-table-null-entry-tag.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================

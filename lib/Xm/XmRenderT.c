@@ -769,9 +769,10 @@ _XmRenderTableFindRendition(XmRenderTable table,
 	{
 	  rend = _XmRTRenditions(table)[i];
       
-	  if ((cached_tag) ?
-	      (_XmRendTag(rend) == tag) :
-	      (strcmp(_XmRendTag(rend), tag) == 0))
+	  if (_XmRendTag(rend) != NULL &&
+	      ((cached_tag) ?
+	       (_XmRendTag(rend) == tag) :
+	       (strcmp(_XmRendTag(rend), tag) == 0)))
 	    {
 	      hit = TRUE;
 	  
@@ -1811,7 +1812,8 @@ _XmRenderTableRemoveRenditions(XmRenderTable oldtable,
       /* Match against tags */
       for (j = 0; j < tag_count; j++)
 	{
-	  if ((strcmp(_XmRendTag(_XmRTRenditions(oldtable)[i]),
+	  if ((_XmRendTag(_XmRTRenditions(oldtable)[i]) != NULL) &&
+	      (strcmp(_XmRendTag(_XmRTRenditions(oldtable)[i]),
 		      tags[j]) == 0) &&
 	      (!chk_font ||
 	       ((font == _XmRendFont(_XmRTRenditions(oldtable)[i])) &&
