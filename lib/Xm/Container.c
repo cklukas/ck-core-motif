@@ -9238,6 +9238,8 @@ DragStart(
       int n, midpoint = DRAG_STATE_SIZE / 2, farpoint = DRAG_STATE_SIZE;
 
       dragIconInfo = (DragIconInfo) XtMalloc(sizeof(DragIconInfoRec));
+      if (dragIconInfo == NULL)
+	  return;
       XSaveContext(XtDisplay(cw), None, dragIconInfoContext, 
 		   (char*) dragIconInfo);
       dragIconInfo -> source = (Widget) NULL;

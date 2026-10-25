@@ -8180,3 +8180,12 @@ Container reorder allocation failure (2026-10-27)
 
 Container child-list allocation failure (2026-10-27)
 ====================================================
+Container drag-icon cache allocation (2026-10-27)
+=================================================
+
+- Check the cached drag-icon record allocation before saving or initializing
+  it in `DragStart`.  Drag initiation now returns cleanly when the record
+  cannot be allocated instead of dereferencing a null pointer.
+
+Container reorder allocation failure (2026-10-27)
+=================================================
