@@ -74,6 +74,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [WSM property wire width](wsm-wire-width.md) — size serialized properties at protocol width.
 - [WSM request counts](wsm-request-counts.md) — reject negative list counts before packing.
 - [WSM reply counts](wsm-reply-counts.md) — reject negative reply list counts before packing.
+- [WSM reply configuration metadata](wsm-reply-config-null.md) — reject unavailable formats safely.
 - [WM state read guards](wmstate-read-guards.md) — safe handling of window-manager state properties.
 
 ## Accessibility and diagnostics

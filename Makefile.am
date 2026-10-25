@@ -958,6 +958,7 @@ EXTRA_DIST += tests/automated/check-wsm-wire-width.py docs/wsm-wire-width.md
 
 EXTRA_DIST += tests/automated/check-wsm-request-counts.py docs/wsm-request-counts.md
 EXTRA_DIST += tests/automated/check-wsm-reply-counts.py docs/wsm-reply-counts.md
+EXTRA_DIST += tests/automated/check-wsm-reply-config-null.py docs/wsm-reply-config-null.md
 
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 

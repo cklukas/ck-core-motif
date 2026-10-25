@@ -78,6 +78,7 @@ clients exchanging Motif window-management messages.
 - [WSM property wire width](wsm-wire-width.md)
 - [WSM request counts](wsm-request-counts.md)
 - [WSM reply counts](wsm-reply-counts.md)
+- [WSM reply configuration metadata](wsm-reply-config-null.md)
 
 These focused pages document compatibility-preserving guards; they do not
 change public MWM resource or message formats.

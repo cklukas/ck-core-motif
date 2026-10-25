@@ -220,13 +220,19 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 	    request->set_state.win_info_list == NULL)
 	    return(NULL);
 	for (i = 0; i < request->set_state.num_win_info_list; i++)
-	    if (request->set_state.win_info_list[i].num_data_list != 0 &&
+	    if (request->set_state.win_info_list[i].num_data_list < 0 ||
+		(request->set_state.win_info_list[i].num_data_list != 0 &&
 		request->set_state.win_info_list[i].data_list == NULL)
+		)
 		return(NULL);
 	size = COUNT_SIZE;	/* The count of window info. */
 	win_info = request->set_state.win_info_list;
-	for (i = 0; i < request->set_state.num_win_info_list; i++,win_info++)
-	    size += WinInfoSizePacked(dpy, screen_num, win_info);
+	for (i = 0; i < request->set_state.num_win_info_list; i++,win_info++) {
+	    int win_size = WinInfoSizePacked(dpy, screen_num, win_info);
+	    if (win_size < 0)
+		return(NULL);
+	    size += win_size;
+	}
 	break;
     case WSM_REG_WINDOW:
 	size = sizeof(CARD32);
@@ -456,8 +462,12 @@ _WSMPackReply(Display *dpy, int screen_num,
 		return(NULL);
 	size = COUNT_SIZE;	/* The count of window info. */
 	win_info = reply->get_state.win_info_list;
-	for (i = 0; i < reply->get_state.num_win_info_list; i++,win_info++)
-	    size += WinInfoSizePacked(dpy, screen_num, win_info);
+	for (i = 0; i < reply->get_state.num_win_info_list; i++,win_info++) {
+	    int win_size = WinInfoSizePacked(dpy, screen_num, win_info);
+	    if (win_size < 0)
+		return(NULL);
+	    size += win_size;
+	}
 	break;
     case WSM_SET_STATE:
 	size = 0;
@@ -472,6 +482,8 @@ _WSMPackReply(Display *dpy, int screen_num,
 				 reply->register_window.window_data,
 				 reply->register_window.num_window_data,
 				 WSM_WINDOW_FMT);
+	if (size < 0)
+	    return(NULL);
 	break;
     case WSM_WM_GET_BACKGROUND_WINDOW:
 	size = sizeof(CARD32);
@@ -966,9 +978,12 @@ static int
 WinInfoSizePacked(Display *dpy, int screen_num, WSMWinInfo *win_info)
 {
     int size = sizeof(CARD32);
-    size += WinDataSizePacked(dpy, screen_num, 
-			      win_info->data_list, win_info->num_data_list,
-			      _WSMGetConfigFormatType(win_info->window));
+    int data_size = WinDataSizePacked(dpy, screen_num,
+				       win_info->data_list, win_info->num_data_list,
+				       _WSMGetConfigFormatType(win_info->window));
+    if (data_size < 0)
+	return(-1);
+    size += data_size;
     return(size);
 }
 
@@ -1011,6 +1026,10 @@ WinDataSizePacked(Display *dpy, int screen_num,
 {
     register int i, size;
     WSMConfigFormatData *fmt_data = _WSMGetConfigFormat(dpy, screen_num, fmt);
+
+    if (fmt_data == NULL ||
+	(fmt_data->num_attrs != 0 && fmt_data->attr_list == NULL))
+	return(-1);
 
     size = fmt_data->num_attrs / 8 + 1;	/* Size of header bits. */
     for ( i = 0; i < num; i++, win_data++) {
@@ -1176,7 +1195,13 @@ PackWinData(Display *dpy, int screen_num, MessageData data,
     WSMConfigFormatData *conf_fmt = _WSMGetConfigFormat(dpy, screen_num, fmt);
     MessageData mask_pos = data;
     WSMAttribute *attr;
-    register int i, size = (conf_fmt->num_attrs / 8) + 1;
+    register int i, size;
+
+    if (conf_fmt == NULL ||
+	(conf_fmt->num_attrs != 0 && conf_fmt->attr_list == NULL))
+	return(NULL);
+
+    size = (conf_fmt->num_attrs / 8) + 1;
 
     data = (MessageData) ((char *)data + size);
     bzero((char *) mask_pos, size);	/* Set all bits to zero initially*/

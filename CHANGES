@@ -11256,3 +11256,9 @@ WSM reply counts (2026-10-25)
 
 - Reject negative reply and nested list counts before packing, preventing
   invalid unsigned wire counts; see `docs/wsm-reply-counts.md`.
+
+WSM reply configuration metadata (2026-10-25)
+==============================================
+
+- Reject missing WSM reply format metadata before sizing or packing, avoiding
+  null dereferences; see `docs/wsm-reply-config-null.md`.

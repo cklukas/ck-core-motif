@@ -11,6 +11,7 @@ for field in (
     "request->connect.num_versions < 0",
     "request->extensions.num_extensions < 0",
     "request->set_state.num_win_info_list < 0",
+    "request->set_state.win_info_list[i].num_data_list < 0",
     "request->wm_windows.num_window_properties < 0",
     "request->wm_windows.num_match_attributes < 0",
     "request->wm_windows.match_attributes[i]->num_attributes < 0",
