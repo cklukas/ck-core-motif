@@ -135,6 +135,7 @@ EXTRA_DIST += tests/automated/check-mwm-workspace-restore-allocation.py docs/mwm
 EXTRA_DIST += tests/automated/check-mwm-restart-command-allocation.py docs/mwm-restart-command-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-client-list-growth.py docs/mwm-client-list-growth.md
 EXTRA_DIST += tests/automated/check-mwm-db-home-allocation.py docs/mwm-db-home-allocation.md
+EXTRA_DIST += tests/automated/check-mwm-workspace-list-serialization.py docs/mwm-workspace-list-serialization.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md
 EXTRA_DIST += tests/automated/check-editres-error-bounds.py docs/editres-error-bounds.md
 EXTRA_DIST += tests/automated/check-spinbox-name-bounds.py docs/spinbox-name-bounds.md

@@ -9783,6 +9783,13 @@ FontSelector label initialization rollback (2026-10-28)
 SpinBox value-list SetValues rollback (2026-10-28)
 =====================================================
 
+MWM workspace-list serialization guard (2026-10-25)
+====================================================
+
+- Make WSM workspace serialization deterministic for empty/nameless lists and
+  bound accumulated string lengths before growth; see
+  `docs/mwm-workspace-list-serialization.md`.
+
 MWM database-home allocation guard (2026-10-25)
 ===============================================
 

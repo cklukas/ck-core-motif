@@ -523,8 +523,9 @@ getClientWorkspaces(ClientData *pCD)
     /* Easy but slow way to do this would be to use XGetAtomName(). */
     /* To avoid XServer round trips (and to weed out invalid WS names) */
     /* we look through workspaces attached to this screen for ID matches. */
-    char *cwsP, *tmpP, *wsNameP;
-    int pLen = 0;
+    char *cwsP = NULL, *tmpP, *wsNameP;
+    size_t pLen = 0;
+    size_t nameLength;
     int i;
 
     for (i = 0; i < pCD->numInhabited; i++)
@@ -533,10 +534,15 @@ getClientWorkspaces(ClientData *pCD)
 	    != (WmWorkspaceData *)NULL)
 	{
 	    wsNameP = pWS->name;
+	    if (wsNameP == NULL)
+		continue;
+	    nameLength = strlen(wsNameP);
 	    if (pLen == 0)
 	    {
-		pLen = strlen(wsNameP) + 1;  /* 1 for null termination */
-		if ((cwsP = (char *)XtMalloc(pLen * sizeof(char)))
+		if (nameLength == SIZE_MAX)
+		    return (char *)NULL;
+		pLen = nameLength + 1;  /* 1 for null termination */
+		if ((cwsP = (char *)XtMalloc(pLen))
 		    == (char *)NULL)
 		    return (char *)NULL;
 
@@ -544,8 +550,13 @@ getClientWorkspaces(ClientData *pCD)
 	    }
 	    else
 	    {
-		pLen += strlen(wsNameP) + 1;  /* 1 for space */
-		if ((tmpP = (char *)XtRealloc(cwsP, pLen * sizeof(char)))
+		if (nameLength > SIZE_MAX - pLen - 1)
+		{
+		    XtFree((char *)cwsP);
+		    return (char *)NULL;
+		}
+		pLen += nameLength + 1;  /* 1 for space */
+		if ((tmpP = (char *)XtRealloc(cwsP, pLen))
 		    == (char *)NULL)
 		{
 		    XtFree((char *)cwsP);
