@@ -10313,6 +10313,12 @@ GeoUtils reply comparison input validation (2026-10-25)
 - Require both geometry records before `_XmGeoReplyYes` evaluates request
   masks; see `docs/geo-reply-yes-inputs.md`.
 
+GeoUtils request input validation (2026-10-25)
+==============================================
+
+- Return `XtGeometryNo` for missing widget or geometry request pointers before
+  calling Xt; see `docs/geo-request-input.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

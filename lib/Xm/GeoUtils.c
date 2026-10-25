@@ -2833,6 +2833,8 @@ _XmMakeGeometryRequest(
   XtGeometryResult answer ;
 /****************/
 
+  if (w == NULL || geom == NULL)
+    return XtGeometryNo;
   answer = XtMakeGeometryRequest( w, geom, &allowed) ;
 
   /* On an almost, accept the returned value and make 
