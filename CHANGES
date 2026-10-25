@@ -4,6 +4,12 @@ Guard IconFile path scanning input (2026-10-27)
 - Reject a null path before multibyte slash scanning; see
   `docs/icon-find-slash-input.md`.
 
+Guard InfoBar redisplay resources (2026-10-25)
+===============================================
+
+- Return safely when the InfoBar drawing GC or queried X11 font is unavailable;
+  see `docs/info-bar-redisplay-guard.md`.
+
 Guard IconFile cache directory input (2026-10-27)
 ==================================================
 
