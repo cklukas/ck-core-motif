@@ -965,7 +965,11 @@ WinDataSizePacked(Display *dpy, int screen_num,
 MessageData
 PackString(MessageData data, String str)
 {
-    register int i, len = strlen(str);
+    register int i, len;
+
+    if (str == NULL)
+	str = "";
+    len = strlen(str);
 
     data = PackListNum(data, len);
     for (i = 0; i < len; i++, str++) 

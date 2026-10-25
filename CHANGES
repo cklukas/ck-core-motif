@@ -11183,3 +11183,10 @@ WSM configuration quark serialization (2026-10-25)
 - Serialize invalid configuration quarks as empty names consistently during
   size calculation and packing, avoiding null-string crashes; see
   `docs/wsm-quark-string-null.md`.
+
+WSM string packing (2026-10-25)
+===============================
+
+- Serialize null inputs as empty strings in `PackString`, avoiding a null
+  `strlen` while preserving the length-prefixed format; see
+  `docs/wsm-pack-string-null.md`.
