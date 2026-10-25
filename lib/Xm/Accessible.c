@@ -890,7 +890,9 @@ static char *locale_utf8(const char *s) {
   count = mbsrtowcs(NULL, &p, 0, &state);
   if (count == (size_t)-1 ||
       count > SIZE_MAX / sizeof(*wide) - 1 ||
-      count > (SIZE_MAX - 1) / 4)
+      count > ((size_t)((Cardinal)~0) / sizeof(*wide)) - 1 ||
+      count > (SIZE_MAX - 1) / 4 ||
+      count > ((size_t)((Cardinal)~0) - 1) / 4)
     return NULL;
   wide = (wchar_t *)XtMalloc((count + 1) * sizeof(*wide));
   if (!wide)
