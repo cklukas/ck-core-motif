@@ -5252,3 +5252,11 @@ ToggleButton redisplay bounds (2026-10-25)
   widgets; see `docs/toggle-redisplay-bounds.md`.
 
 List geometry bounds (2026-10-25)
+Notebook pixmap binding metadata (2026-10-25)
+=============================================
+
+- Draw valid uncached binding pixmaps by validating resolved depth rather than
+  treating `XmeGetPixmapData`'s cache-status Boolean as an error; see
+  `docs/notebook-pixmap-binding.md`.
+
+CascadeButton pixmap binding metadata (2026-10-25)
