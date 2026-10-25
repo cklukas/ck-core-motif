@@ -855,3 +855,4 @@ EXTRA_DIST += tests/automated/check-arrow-button-gadget-redisplay-guards.py docs
 EXTRA_DIST += tests/automated/check-frame-shadow-redisplay-guards.py docs/frame-shadow-redisplay-guards.md
 EXTRA_DIST += tests/automated/check-separator-redisplay-guards.py docs/separator-redisplay-guards.md
 EXTRA_DIST += tests/automated/check-drawn-button-shadow-redisplay-guards.py docs/drawn-button-shadow-redisplay-guards.md
+EXTRA_DIST += tests/automated/check-scale-value-redisplay-guards.py docs/scale-value-redisplay-guards.md

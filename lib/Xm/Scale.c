@@ -2885,7 +2885,19 @@ ShowValue(
     XRectangle value_rect;
     XmString tmp_str;
     
-    if (!XtIsRealized((Widget)sw)) return;
+    if (!XtIsRealized((Widget)sw) ||
+        sw->scale.value_region == NULL ||
+        sw->scale.foreground_GC == NULL ||
+        sw->composite.num_children < 2 ||
+        sw->composite.children[1] == NULL)
+        return;
+#if USE_XFT
+    if (sw->scale.font_list == NULL)
+        return;
+#else
+    if (sw->scale.font_struct == NULL)
+        return;
+#endif
     
     x = sw->scale.show_value_x;
     y = sw->scale.show_value_y;

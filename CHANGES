@@ -5067,3 +5067,9 @@ DrawnButton shadow redisplay guards (2026-10-25)
 - Validate DrawnButton realization, shadow GCs, thickness, and drawable
   geometry before issuing shadow drawing requests; see
   `docs/drawn-button-shadow-redisplay-guards.md`.
+Scale value redisplay guards (2026-10-25)
+===========================================
+
+- Validate the Scale value region, foreground GC, value font, and scrollbar
+  child before measuring or drawing the value label; see
+  `docs/scale-value-redisplay-guards.md`.
