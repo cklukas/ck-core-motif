@@ -5726,6 +5726,15 @@ Appearance display-state lifetime (2026-10-25)
   destruction path, and correct Xrm database enumeration semantics so profile
   selection remains reliable for every application resource set.
 
+Appearance transaction reentrancy (2026-10-25)
+===============================================
+
+- Reject nested `XmApplyAppearanceProfile` and `XmSetAppearanceProfile` calls
+  from a widget `SetValues` hook while a live appearance transaction is in
+  progress. The per-display guard prevents interleaved Xrm snapshots while
+  preserving the outer transaction's resource and widget state; the installed
+  consumer fixture exercises both nested paths under Xvfb.
+
 Display-scale transaction rollback (2026-10-25)
 ===============================================
 
