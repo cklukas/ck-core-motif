@@ -73,6 +73,12 @@ Compound-text extended-header bound (2026-10-26)
 - Validate the compatibility parser's two-octet extended-segment length
   header before reading it; see `docs/compound-text-extended-segment-bounds.md`.
 
+Compound-text control-sequence bounds (2026-10-26)
+===================================================
+
+- Reject truncated ESC and CSI sequences before dispatchers index their
+  second byte; see `docs/compound-text-control-sequence-bounds.md`.
+
 Compound-text empty-segment guard (2026-10-26)
 ================================================
 

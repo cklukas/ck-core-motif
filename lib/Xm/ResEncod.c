@@ -985,6 +985,9 @@ processESCHack(
 {
     Boolean	    ok;
 
+    if (ctx->itemlen < 2)
+	return False;
+
     switch (ctx->item[1]) {
     case 0x24:			/* 02/04 - invoke 94(n) charset into GL or GR */
 	ok = process94n(ctx, final);
@@ -1730,6 +1733,9 @@ processESC(
 {
     Boolean	    ok;
 
+    if (ctx->itemlen < 2)
+	return False;
+
     switch (ctx->item[1]) {
     case 0x24:			/* 02/04 - invoke 94(n) charset into GL or GR */
 	ok = process94n(ctx, final);
@@ -1777,6 +1783,9 @@ processCSI(
 #endif /* NeedWidePrototypes */
 {
     Boolean	    ok = True;
+
+    if (ctx->itemlen < 2)
+	return False;
 
     switch (final) {
     case 0x5d:				/* end of direction sequence */
