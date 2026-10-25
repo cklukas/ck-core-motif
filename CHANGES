@@ -146,6 +146,12 @@ Cached XmString constructor safety (2026-10-26)
 - Check cached direction/separator allocations and release the process lock
   before rollover cleanup and recursion; see `docs/xmstring-cached-create.md`.
 
+XmString creation allocation failure (2026-10-26)
+==================================================
+
+- Check optimized and non-optimized `_XmStringNCreate` representations before
+  initialization; see `docs/xmstring-create-failure.md`.
+
 XmString extraction output validation (2026-10-26)
 ====================================================
 

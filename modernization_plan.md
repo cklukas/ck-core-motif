@@ -2099,6 +2099,11 @@ and release the process lock before rollover cleanup and recursive recreation.
 The source contract is recorded in
 `tests/automated/check-xmstring-cached-create.py` and
 `docs/xmstring-cached-create.md`.
+`_XmStringNCreate` now checks optimized and non-optimized representation
+allocations before initialization and returns `NULL` cleanly on failure. The
+source contract is recorded in
+`tests/automated/check-xmstring-create-failure.py` and
+`docs/xmstring-create-failure.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the
