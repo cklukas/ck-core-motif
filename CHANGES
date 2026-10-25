@@ -187,6 +187,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  docs/mrm-resource-id-output-init.md.
 
 2026-10-25
+	* Clear the Mrm write-open output descriptor before opening or allocating;
+	  see docs/mrm-open-write-output.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,
