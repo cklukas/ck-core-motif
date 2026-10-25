@@ -40,6 +40,7 @@ clients exchanging Motif window-management messages.
 - [Inline-menu allocation widths](mwm-inline-menu-allocation.md)
 - [Diagnostic allocation widths](mwm-error-allocation-widths.md)
 - [Property-warning allocation widths](mwm-property-warning-allocation.md)
+- [Font-warning allocation widths](mwm-font-warning-allocation.md)
 - [Menu argument allocation](mwm-menu-args-allocation.md)
 - [Home-directory path bounds](mwm-home-path.md)
 - [Action-argument reallocation](mwm-action-arg-reallocation.md)

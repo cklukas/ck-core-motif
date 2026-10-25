@@ -45,6 +45,7 @@ static char rcsid[] = "$TOG: WmResource.c /main/14 1997/04/15 10:30:02 dbl $"
 #include "WmIBitmap.h"
 
 #include <stdio.h>
+#include <limits.h>
 #include <stdint.h>
 
 #include <Xm/XmP.h>
@@ -4478,8 +4479,9 @@ MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean make
         const char *fontList = (pAData->fontList != NULL) ?
             (const char *)pAData->fontList : "";
         int messageLength = snprintf(NULL, 0, format, fontList);
-        char *message = (messageLength >= 0) ?
-            (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+        char *message = (messageLength >= 0 &&
+                         (unsigned int)messageLength < UINT_MAX) ?
+            (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
         if (message != NULL)
         {

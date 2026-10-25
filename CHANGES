@@ -11350,3 +11350,9 @@ MWM property-warning allocation widths (2026-10-25)
 
 - Check shared localized property-warning lengths before Xt allocation; see
   `docs/mwm-property-warning-allocation.md`.
+
+MWM font-warning allocation widths (2026-10-25)
+================================================
+
+- Check appearance-font diagnostic lengths before Xt allocation; see
+  `docs/mwm-font-warning-allocation.md`.

@@ -51,6 +51,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM inline-menu allocation widths](mwm-inline-menu-allocation.md) — reject unrepresentable inline menu strings.
 - [MWM diagnostic allocation widths](mwm-error-allocation-widths.md) — guard formatted warning sizes.
 - [MWM property-warning allocation widths](mwm-property-warning-allocation.md) — guard shared localized warnings.
+- [MWM font-warning allocation widths](mwm-font-warning-allocation.md) — guard appearance-font diagnostics.
 - [MWM home-directory path bounds](mwm-home-path.md) — bounded legacy home-path resolution.
 - [MWM session database suffix updates](mwm-db-name-suffix.md) — bounded session-name suffix handling.
 - [Workspace-management command messages](command-message-argument-allocation.md) — bounded command-message construction.
