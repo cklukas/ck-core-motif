@@ -8,6 +8,8 @@ Accessibility D-Bus memo allocation (2026-10-27)
   request failure safely under transport memory pressure.
 - Guard AT-SPI state, window, cache, hierarchy, and property-change signal
   construction before using their message iterators.
+- Handle failed session-bus and registry-embed method-message construction,
+  releasing a partially initialized transport safely.
 
 Accessibility text allocation (2026-10-27)
 ===========================================

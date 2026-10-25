@@ -19,3 +19,6 @@ null-message crash.
 AT-SPI state, window, cache, hierarchy, and property-change signals now use
 the same fail-closed rule: a missing signal is skipped without touching an
 uninitialized iterator or changing the native widget state.
+
+Session-bus address lookup and registry embedding also handle failed method
+message construction, releasing the partially initialized transport cleanly.

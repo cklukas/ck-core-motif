@@ -1546,6 +1546,12 @@ XmAccessibilityStatus _XmAccessibilityTransportConnect(XmAccessibility *a) {
   dbus_connection_set_exit_on_disconnect(session, FALSE);
   call = dbus_message_new_method_call("org.a11y.Bus", "/org/a11y/bus",
                                       "org.a11y.Bus", "GetAddress");
+  if (!call) {
+    dbus_connection_close(session);
+    dbus_connection_unref(session);
+    dbus_error_free(&error);
+    return a->status = XmACCESSIBILITY_UNAVAILABLE;
+  }
   reply =
       dbus_connection_send_with_reply_and_block(session, call, 1000, &error);
   dbus_message_unref(call);
@@ -1599,6 +1605,11 @@ XmAccessibilityStatus _XmAccessibilityTransportConnect(XmAccessibility *a) {
                              timer_ready, (XtPointer)t);
   call = dbus_message_new_method_call("org.a11y.atspi.Registry", ROOT,
                                       "org.a11y.atspi.Socket", "Embed");
+  if (!call) {
+    a->status = XmACCESSIBILITY_UNAVAILABLE;
+    _XmAccessibilityTransportDestroy(a);
+    return a->status;
+  }
   dbus_message_iter_init_append(call, &out);
   reference(&out, t, 1);
   if (!dbus_connection_send_with_reply(t->connection, call, &t->embed, 2000) ||

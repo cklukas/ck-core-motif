@@ -22,4 +22,9 @@ for marker in (
 ):
     assert marker in source
 assert 'if (!message)\n    return;' in source
+assert source.count(
+    'call = dbus_message_new_method_call("org.a11y.Bus"') == 1
+assert 'if (!call) {\n    dbus_connection_close(session);' in source
+assert 'call = dbus_message_new_method_call("org.a11y.atspi.Registry", ROOT,' in source
+assert 'if (!call) {\n    a->status = XmACCESSIBILITY_UNAVAILABLE;' in source
 print("PASS accessibility D-Bus memo allocation failures are guarded")
