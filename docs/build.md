@@ -145,6 +145,9 @@ scalar carets, committed-value callback counts, unfocused-widget isolation and
 grapheme motion/deletion are checked for Compose, dead acute and a two-scalar
 combining commit. This source contract is separate from runtime qualification;
 it does not imply external-provider, physical-keyboard or Escape behavior.
+If a strict child exits before its final response, the observer waits for the
+real status and includes the child stderr tail in the failure, preserving
+sanitizer ownership evidence rather than converting it into an ambiguous EOF.
 `--only accessibility-coordinates` checks Component screen/window/parent
 coordinates on a private AT-SPI bus across two native shells, nested semantic
 providers, a moved shell, unavailable origins, integer boundaries and a target

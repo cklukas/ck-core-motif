@@ -40,6 +40,9 @@ Native dependency-runner propagation (2026-10-25)
   silently falling back to system Xt. Strict execution reaches the fixture
   body but remains bounded by the external Fontconfig ownership report; no
   leak suppression was added.
+- When a strict child exits before its final protocol response, retain its
+  exit status and stderr tail in the observer failure instead of reporting a
+  racy EOF with no ownership evidence.
 
 UIL literal-only module output (2026-10-25)
 ============================================

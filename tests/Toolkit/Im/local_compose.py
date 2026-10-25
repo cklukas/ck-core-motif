@@ -118,7 +118,15 @@ def main():
             ready=select.select([p.stdout],[],[],max(0,deadline-time.monotonic()))[0]
             assert ready, 'Native reply timed out: '+name
             block=os.read(p.stdout.fileno(),65536)
-            assert block, 'Native fixture exited: '+str(p.poll())
+            if not block:
+                try:
+                    exit_code=p.wait(timeout=1)
+                except subprocess.TimeoutExpired:
+                    exit_code=p.poll()
+                stderr_path=out/(name+'.stderr.log')
+                stderr_tail=stderr_path.read_text(errors='replace').splitlines()[-20:]
+                raise AssertionError(dict(name=name,exit_code=exit_code,
+                                          stderr_tail=stderr_tail))
             buffers[name]+=block
         line,buffers[name]=buffers[name].split(b'\n',1)
         with (out/(name+'.stdout.log')).open('ab') as stream: stream.write(line+b'\n')
