@@ -1,3 +1,9 @@
+Clipboard copy ID validation (2026-10-26)
+==========================================
+
+- Validate the copy header and generated format IDs before linking new records;
+  see `docs/clipboard-copy-id-validation.md`.
+
 Clipboard item-ID allocation validation (2026-10-26)
 =====================================================
 

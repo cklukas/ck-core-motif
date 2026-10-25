@@ -3421,6 +3421,13 @@ XmClipboardCopy(
     /* get the clipboard header */
     header = ClipboardOpen( display, 0 );
  
+    if (header == NULL)
+    {
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
+
     if (!header->startCopyCalled) {
 	XmeWarning(NULL, XM_CLIPBOARD_MESSAGE1);
         ClipboardUnlock( display, window, 0 );
@@ -3479,6 +3486,15 @@ XmClipboardCopy(
 
 	formatid     = ClipboardGetNewItemId( display ); 
 	formatdataid = ClipboardGetNewItemId( display ); 
+	if (formatid == 0 || formatdataid == 0)
+	{
+	    XtFree( (char *)formatptr);
+	    XtFree( (char *)itemheader);
+	    ClipboardClose( display, header );
+	    ClipboardUnlock( display, window, 0 );
+	    _XmAppUnlock(app);
+	    return ClipboardFail;
+	}
 
 	/* put format record id in data item's format id list */
 	idptr = (itemId*)( (char *)itemheader + (itemlength - sizeof(itemId)) );
