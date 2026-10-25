@@ -16,4 +16,6 @@ accelerator = text[text.index("tmpstr = XmStringCreateLocalized(menuItem->accelT
 accelerator = accelerator[:accelerator.index("if ((accelKeySpec")]
 assert "if (tmpstr != NULL)" in accelerator
 assert "XmNacceleratorText" in accelerator
+rename = text[text.index("labelString = XmStringGenerate"):text.index("case REMOVE", text.index("labelString = XmStringGenerate"))]
+assert "if (labelString != NULL)" in rename
 print("MWM menu label conversion is guarded")

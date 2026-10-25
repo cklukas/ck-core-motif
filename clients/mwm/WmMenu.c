@@ -2807,10 +2807,12 @@ static Boolean ModifyClientCommandForMenuSpec (MenuSpec *menuSpec,
 		  labelString = XmStringGenerate(curMenuItem->label,
 						 XmFONTLIST_DEFAULT_TAG, 
 						 XmCHARSET_TEXT, NULL);
-		  XtVaSetValues(menuSpec->menuButtons[i].buttonWidget,
-				XmNlabelString, labelString,
-				NULL);
-		  XmStringFree(labelString);
+		  if (labelString != NULL) {
+		      XtVaSetValues(menuSpec->menuButtons[i].buttonWidget,
+				    XmNlabelString, labelString,
+				    NULL);
+		      XmStringFree(labelString);
+		  }
 		}
 		break;
 	      case REMOVE:
