@@ -307,6 +307,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  fails during scaling; see docs/xm-scaled-pixmap-table-null.md.
 
 2026-10-25
+	* Reject null Xm pixmap records or color metadata before cache-key comparison;
+	  see docs/xm-pixmap-compare-null.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,

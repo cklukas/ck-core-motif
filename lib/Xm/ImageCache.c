@@ -1149,8 +1149,10 @@ ComparePixmapDatas (XmHashKey key_1,
     /* if a negative depth is given, we must look for a matching
        pixmap of -depth or 1 */
 
-    return 
-	((data_2->pixmap == XmUNSPECIFIED_PIXMAP ||
+    return
+        (data_1 != NULL && data_2 != NULL &&
+         data_1->acc_color != NULL && data_2->acc_color != NULL &&
+	 (data_2->pixmap == XmUNSPECIFIED_PIXMAP ||
 	  data_1->pixmap == data_2->pixmap) &&
 	 data_1->image_name != NULL &&
 	 data_2->image_name != NULL &&
