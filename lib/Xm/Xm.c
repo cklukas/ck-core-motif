@@ -377,10 +377,12 @@ _XmIsISO10646(Display *dpy, XFontStruct *font)
 	 ok == False && i < font->n_properties; xfp++, i++) {
 	if (xfp->name == registry) {
 	    regname = XGetAtomName(dpy, (Atom) xfp->card32);
-	    if (strcmp(regname, "ISO10646") == 0 ||
-		strcmp(regname, "iso10646") == 0)
+	    if (regname != NULL &&
+		(strcmp(regname, "ISO10646") == 0 ||
+		 strcmp(regname, "iso10646") == 0))
 	      ok = True;
-	    XFree(regname);
+	    if (regname != NULL)
+	      XFree(regname);
 	}
     }
     return ok;
