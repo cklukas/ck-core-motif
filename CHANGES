@@ -9783,6 +9783,13 @@ FontSelector label initialization rollback (2026-10-28)
 SpinBox value-list SetValues rollback (2026-10-28)
 =====================================================
 
+MWM command-tree path allocation guard (2026-10-25)
+====================================================
+
+- Check the bounded command-path buffer before formatting during client-command
+  insertion, preventing a null write on allocation failure; see
+  `docs/mwm-insert-tree-allocation.md`.
+
 MWM menu-button array bounds (2026-10-25)
 =========================================
 

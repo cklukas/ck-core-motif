@@ -2287,6 +2287,8 @@ static void InsertTreeOnClient (WmScreenData *pSD, ClientData *pCD,
 	    return;
 	length = command_length + name_length + 4;
 	new_command_str = XtMalloc((Cardinal) length);
+	if (new_command_str == (String)NULL)
+	    return;
 	if (command_so_far != (String) NULL)
 	  (void) snprintf(new_command_str, length, "%s.<%s>",
 			   command_so_far, tree_name);
