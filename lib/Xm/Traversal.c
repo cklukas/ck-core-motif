@@ -852,6 +852,9 @@ CallTraverseObsured(
   XRectangle clip_rect;		/* Area a given ancestor obscures. */
   XRectangle view_rect;		/* Temporary intersection of the two. */
   XmTraverseObscuredCallbackStruct call_data;
+
+  if (new_focus == NULL)
+    return FALSE;
   
   call_data.reason = XmCR_OBSCURED_TRAVERSAL;
   call_data.event = NULL;
@@ -916,6 +919,8 @@ _XmClearFocusPath(
 	}
       wid = XtParent( wid) ;
     }
+  if (wid == NULL)
+    return;
   if(    (focus_data = _XmGetFocusData( wid)) != NULL    )
     {
       focus_data->focus_item = NULL ;
@@ -946,6 +951,9 @@ _XmGetFocusPolicy(
         Widget w )
 {   
   Widget topmost_shell ;
+
+  if (w == NULL)
+    return XmPOINTER;
   
   /* Find the topmost shell widget
    */

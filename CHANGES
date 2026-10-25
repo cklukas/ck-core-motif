@@ -1,3 +1,9 @@
+Traversal query input validation (2026-10-25)
+==============================================
+
+- Guard obscured traversal, focus-path clearing, and focus-policy queries when
+  required widget ancestry is absent; see `docs/traversal-query-inputs.md`.
+
 Traversal active-item and shell validation (2026-10-25)
 =========================================================
 
