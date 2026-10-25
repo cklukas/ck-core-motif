@@ -842,11 +842,15 @@ DrawShadow(
   etched_in = dpy -> display.enable_etched_in_menu 
     && (! (LabG_MenuType(cb) == XmMENU_OPTION)) ;
 
-  if (CBG_IsArmed(cb) ||
-      (LabG_MenuType(cb) == XmMENU_OPTION))
+  if ((CBG_IsArmed(cb) ||
+       (LabG_MenuType(cb) == XmMENU_OPTION)) &&
+      XtIsRealized(XtParent(cb)) &&
+      LabG_TopShadowGC(cb) != NULL &&
+      LabG_BottomShadowGC(cb) != NULL &&
+      cb->gadget.shadow_thickness != 0 &&
+      cb->rectangle.width > 2 * cb->gadget.highlight_thickness &&
+      cb->rectangle.height > 2 * cb->gadget.highlight_thickness)
     {
-      if (XtIsRealized(XtParent(cb)))
-      {
 	 XmeDrawShadows (XtDisplay (cb), XtWindow (XtParent(cb)),
 			LabG_TopShadowGC(cb),
 			LabG_BottomShadowGC(cb),
@@ -858,7 +862,6 @@ DrawShadow(
 			cb->gadget.highlight_thickness,
 			cb->gadget.shadow_thickness,
 			etched_in ? XmSHADOW_IN : XmSHADOW_OUT);
-      }
    }
 }
 
