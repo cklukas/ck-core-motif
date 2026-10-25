@@ -152,7 +152,10 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 
     *error = WSM_SUCCESS;
 
-    if (global_attrs == NULL || win_attrs == NULL || icon_attrs == NULL) {
+    if (global_attrs == NULL || win_attrs == NULL || icon_attrs == NULL ||
+	(global_attrs->num_attrs != 0 && global_attrs->attr_list == NULL) ||
+	(win_attrs->num_attrs != 0 && win_attrs->attr_list == NULL) ||
+	(icon_attrs->num_attrs != 0 && icon_attrs->attr_list == NULL)) {
 	*error = WSM_ERROR_INTERNAL;
 	return(NULL);
     }

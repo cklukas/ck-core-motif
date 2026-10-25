@@ -11155,7 +11155,8 @@ WSM packer configuration failure (2026-10-25)
 ==============================================
 
 - Reject request packing when display configuration metadata is unavailable,
-  and make null format lookups return no match; see
+  including incomplete attribute arrays, and make null format lookups return
+  no match; see
   `docs/wsm-packer-config-null.md`.
 
 WSM WM-target mapping (2026-10-25)
@@ -11260,5 +11261,6 @@ WSM reply counts (2026-10-25)
 WSM reply configuration metadata (2026-10-25)
 ==============================================
 
-- Reject missing WSM reply format metadata before sizing or packing, avoiding
-  null dereferences; see `docs/wsm-reply-config-null.md`.
+- Reject missing or incomplete WSM request/reply format metadata before sizing
+  or packing, avoiding null dereferences and preserving internal-error
+  reporting; see `docs/wsm-reply-config-null.md`.
