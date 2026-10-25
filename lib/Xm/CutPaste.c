@@ -4098,6 +4098,13 @@ XmClipboardStartRetrieve(
 
     header = ClipboardOpen( display, 0 );
 
+    if (header == NULL)
+    {
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
+
     header->incrementalCopyFrom = True;
     header->copyFromTimestamp = timestamp;
     header->foreignCopiedLength = 0;
@@ -4121,6 +4128,12 @@ XmClipboardEndRetrieve(
 
     _XmAppLock(app);
     header = ClipboardOpen( display, 0 );
+
+    if (header == NULL)
+    {
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
 
     header->incrementalCopyFrom = False;
     header->copyFromTimestamp   = CurrentTime;
@@ -4188,6 +4201,12 @@ ClipboardRetrieve(Display *display, Window window,
 
     /* get the clipboard header */
     header = ClipboardOpen( display, 0 );
+
+    if (header == NULL)
+	{
+	ClipboardUnlock( display, window, 0 );
+	return ClipboardFail;
+    }
     timestamp = header->copyFromTimestamp;
 
     loc_outlength = 0;

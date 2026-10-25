@@ -1,3 +1,9 @@
+Clipboard retrieve header guards (2026-10-26)
+==============================================
+
+- Check retrieval transaction headers before accessing state and clean up
+  locks/mutexes on failure; see `docs/clipboard-retrieve-header-guards.md`.
+
 Clipboard undo-copy validation (2026-10-26)
 ============================================
 
