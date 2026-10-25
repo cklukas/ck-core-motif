@@ -4610,3 +4610,9 @@ Xmos cache reset allocation (2026-10-25)
 
 - Fall back to uncached directory enumeration when the cache path buffer
   cannot be allocated; see `docs/xmos-reset-cache.md`.
+
+Xmos directory-cache allocations (2026-10-25)
+==============================================
+
+- Make directory-cache growth and entry creation transactional; see
+  `docs/xmos-dir-cache-allocation.md`.

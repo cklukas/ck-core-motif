@@ -726,3 +726,5 @@ EXTRA_DIST += tests/automated/check-mrm-writer-uncompressed-tag-validation.py do
 EXTRA_DIST += tests/automated/check-mrm-hierarchy-name-inputs.py docs/mrm-hierarchy-name-inputs.md
 
 EXTRA_DIST += tests/automated/check-xmos-reset-cache.py docs/xmos-reset-cache.md
+
+EXTRA_DIST += tests/automated/check-xmos-dir-cache-allocation.py docs/xmos-dir-cache-allocation.md
