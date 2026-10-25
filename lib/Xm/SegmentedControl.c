@@ -5,7 +5,9 @@
 
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
+#include <limits.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <Xm/SegmentedControlP.h>
 #include <Xm/ToggleB.h>
 #include <Xm/VaSimpleP.h>
@@ -270,7 +272,11 @@ Boolean XmSegmentedControlSetItems(Widget widget,
     if (!XmIsSegmentedControl(widget) || (count && !items)) return False;
     control = (XmSegmentedControlWidget)widget;
     if (count) {
-        copy = (XmSegmentedControlItemRec *)XtCalloc(count, sizeof(*copy));
+        if ((size_t)count > SIZE_MAX / sizeof(*copy) ||
+            (size_t)count > UINT_MAX / sizeof(*copy))
+            return False;
+        copy = (XmSegmentedControlItemRec *)XtCalloc(
+            (Cardinal)count, sizeof(*copy));
         if (!copy) return False;
         for (i = 0; i < count; ++i) {
             copy[i].id = XtNewString(items[i].id ? items[i].id : "");

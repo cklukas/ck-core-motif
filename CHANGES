@@ -1,3 +1,9 @@
+Cardinal item-list allocation bounds (2026-10-26)
+==================================================
+
+- Bound breadcrumb and segmented-control item-array allocations against
+  both `size_t` and Xt `Cardinal`; see `docs/cardinal-item-bounds.md`.
+
 ColorObj failed-initialization cleanup (2026-10-26)
 ====================================================
 

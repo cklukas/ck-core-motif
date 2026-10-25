@@ -324,13 +324,14 @@ void XmBreadcrumbBarSetSegments(Widget widget,
     bar = (XmBreadcrumbBarWidget)widget;
     free_items(bar);
     if (count) {
-        if ((size_t)count > SIZE_MAX / sizeof(*bar->breadcrumb.items))
+        if ((size_t)count > SIZE_MAX / sizeof(*bar->breadcrumb.items) ||
+            (size_t)count > UINT_MAX / sizeof(*bar->breadcrumb.items))
         {
             bar->breadcrumb.current = -1;
             return;
         }
-        bar->breadcrumb.items = (XmBreadcrumbBarItem *)XtCalloc(count,
-                                                                  sizeof(*bar->breadcrumb.items));
+        bar->breadcrumb.items = (XmBreadcrumbBarItem *)XtCalloc(
+            (Cardinal)count, sizeof(*bar->breadcrumb.items));
         if (!bar->breadcrumb.items) {
             bar->breadcrumb.current = -1;
             return;
