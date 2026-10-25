@@ -138,6 +138,7 @@ EXTRA_DIST += tests/automated/check-mwm-db-home-allocation.py docs/mwm-db-home-a
 EXTRA_DIST += tests/automated/check-mwm-workspace-list-serialization.py docs/mwm-workspace-list-serialization.md
 EXTRA_DIST += tests/automated/check-mwm-label-parse-allocation.py docs/mwm-label-parse-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-separator-template-allocation.py docs/mwm-separator-template-allocation.md
+EXTRA_DIST += tests/automated/check-container-cell-info-allocation.py docs/container-cell-info-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md
 EXTRA_DIST += tests/automated/check-editres-error-bounds.py docs/editres-error-bounds.md
 EXTRA_DIST += tests/automated/check-spinbox-name-bounds.py docs/spinbox-name-bounds.md
