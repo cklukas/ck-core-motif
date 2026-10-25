@@ -4001,6 +4001,9 @@ XmBaselineMargins *margins_rec)
 {
     XmLabelGCacheObjPart localCache;
 
+    if (w == NULL || margins_rec == NULL)
+        return;
+
         if (margins_rec->get_or_set == XmBASELINE_SET)
     {
         _XmQualifyLabelLocalCache(&localCache, (XmLabelGadget)w);

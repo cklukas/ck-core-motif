@@ -10259,6 +10259,12 @@ Label display-rectangle validation (2026-10-25)
 - Validate Label gadget display-rectangle query pointers before reading
   geometry; see `docs/label-display-rect-validation.md`.
 
+Label margins input validation (2026-10-25)
+============================================
+
+- Treat missing Label gadget margins inputs as a safe no-op; see
+  `docs/label-margins-input-validation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
