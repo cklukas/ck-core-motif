@@ -189,7 +189,7 @@ XmStringTableParseStringArray(XtPointer   *strings,
 			      Cardinal     parse_count,
 			      XtPointer    call_data)
 {
-  int	i;
+  Cardinal i;
   XmStringTable strs;
 
   _XmProcessLock();
@@ -227,7 +227,7 @@ XmStringTableUnparse(XmStringTable     table,
 		     XmParseModel      parse_model)
 {
   XtPointer	*strs;
-  int		i;
+  Cardinal	i;
   
   _XmProcessLock();
   if ((table == NULL) || (count == 0) ||
@@ -256,7 +256,7 @@ XmStringTableToXmString(XmStringTable  table,
 			XmString       break_comp)
 {
   /* Note: this is a very expensive way to do this.  Fix for Beta */
-  int		i;
+  Cardinal	i;
   XmString	str = NULL, tmp1, tmp2;
 
   _XmProcessLock();
