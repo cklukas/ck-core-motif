@@ -815,6 +815,7 @@ EXTRA_DIST += tests/automated/check-toggle-button-geometry-bounds.py docs/toggle
 EXTRA_DIST += tests/automated/check-toggle-button-geometry.c tests/automated/run-toggle-button-geometry.py
 EXTRA_DIST += tests/automated/check-xmfontlist-locking.py docs/xmfontlist-locking.md
 EXTRA_DIST += tests/automated/check-xmstring-obsolete-locking.py docs/xmstring-obsolete-locking.md
+EXTRA_DIST += tests/automated/check-xmstring-generate-locking.py docs/xmstring-generate-locking.md
 EXTRA_DIST += docs/render-table-resize.md
 EXTRA_DIST += docs/render-table-default-extents.md
 

@@ -9880,7 +9880,6 @@ XmStringGenerate(XtPointer   text,
   XmParseTable gen_table;
   int i;
   
-  _XmProcessLock();
   /*
   ** Get the parse table shared by generate and ungenerate.
   */
@@ -9892,7 +9891,6 @@ XmStringGenerate(XtPointer   text,
 
   /* If no rendition was supplied return the parsetext result. */
   if (rendition == NULL) {
-    _XmProcessUnlock();
     return result;
   }
 
@@ -9908,7 +9906,6 @@ XmStringGenerate(XtPointer   text,
 	{
 	  _XmStrRendIndex(result) = rend_index;
 	  _XmStrRendBegin(result) = _XmStrRendEnd(result) = True;
-    	  _XmProcessUnlock();
 	  return result;
 	}
     }
@@ -9950,7 +9947,6 @@ XmStringGenerate(XtPointer   text,
 		if (_XmEntryOptimized(seg)) {
 		  _XmStringEntry new_seg = EntryCvtToUnopt(seg);
 		  if (new_seg == NULL) {
-		    _XmProcessUnlock();
 		    return result;
 		  }
 		  _XmStringEntryFree(seg);
@@ -9965,14 +9961,12 @@ XmStringGenerate(XtPointer   text,
 		  XmStringTag *new_tags;
 		  if (count > SIZE_MAX / sizeof(XmStringTag) ||
 		      count * sizeof(XmStringTag) > (size_t)((Cardinal)~0)) {
-		    _XmProcessUnlock();
 		    return result;
 		  }
 		  new_tags = (XmStringTag *)XtRealloc(
 		      (char *)_XmUnoptSegRendBegins(seg),
 		      (Cardinal)(count * sizeof(XmStringTag)));
 		  if (!new_tags) {
-		    _XmProcessUnlock();
 		    return result;
 		  }
 		  _XmUnoptSegRendBegins(seg) = new_tags;
@@ -10017,7 +10011,6 @@ XmStringGenerate(XtPointer   text,
 		    (rend_index < REND_INDEX_MAX)) {
 		  _XmEntryRendIndex(seg) = rend_index;
 		  _XmEntryRendEndCountSet(seg, 1);
-    	  	  _XmProcessUnlock();
 		  return result;
 		} else {
 		  break;
@@ -10026,7 +10019,6 @@ XmStringGenerate(XtPointer   text,
 		if (_XmEntryOptimized(seg)) {
 		  _XmStringEntry new_seg = EntryCvtToUnopt(seg);
 		  if (new_seg == NULL) {
-		    _XmProcessUnlock();
 		    return result;
 		  }
 		  if (_XmEntryMultiple(line))
@@ -10041,14 +10033,12 @@ XmStringGenerate(XtPointer   text,
 		  XmStringTag *new_tags;
 		  if (count > SIZE_MAX / sizeof(XmStringTag) ||
 		      count * sizeof(XmStringTag) > (size_t)((Cardinal)~0)) {
-		    _XmProcessUnlock();
 		    return result;
 		  }
 		  new_tags = (XmStringTag *)XtRealloc(
 		      (char *)_XmUnoptSegRendEnds(seg),
 		      (Cardinal)(count * sizeof(XmStringTag)));
 		  if (!new_tags) {
-		    _XmProcessUnlock();
 		    return result;
 		  }
 		  _XmUnoptSegRendEnds(seg) = new_tags;
@@ -10056,7 +10046,6 @@ XmStringGenerate(XtPointer   text,
 		_XmUnoptSegRendEnds(seg)[_XmUnoptSegRendEndCount(seg)] = 
 		  cached_rend;
 		_XmUnoptSegRendEndCount(seg)++;
-	  	_XmProcessUnlock();
 		return result;
 	      }
 	    }
@@ -10079,7 +10068,6 @@ XmStringGenerate(XtPointer   text,
 				    strlen(rendition), rendition);
     result = XmStringConcatAndFree(tmp_1, tmp_2);
   }
-  _XmProcessUnlock();
   return result;
 }
 

@@ -2014,6 +2014,10 @@ direction, concatenation and separator constructors; its compatibility
 ownership contract is protected by
 `tests/automated/check-xmstring-obsolete-locking.py` and
 `docs/xmstring-obsolete-locking.md`.
+`XmStringGenerate` now follows the same lock delegation rule across its parse,
+cache, component and concatenation helpers; the source contract is recorded in
+`tests/automated/check-xmstring-generate-locking.py` and
+`docs/xmstring-generate-locking.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the
