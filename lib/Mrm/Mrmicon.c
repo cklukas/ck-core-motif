@@ -103,6 +103,10 @@ UrmCreatePixmap (RGMIconImagePtr	icon,
 		 Widget			parent)
 {
 
+  if ( icon == NULL || pixmap == NULL )
+    return MrmFAILURE;
+  *pixmap = 0;
+
   /*
    *  Local variables
    */
@@ -225,6 +229,10 @@ UrmCreateBitmap (RGMIconImagePtr	icon,
 		 Display		*display,
 		 Pixel			*pixmap)
 {
+
+  if ( icon == NULL || pixmap == NULL )
+    return MrmFAILURE;
+  *pixmap = 0;
 
   /*
    *  Local variables

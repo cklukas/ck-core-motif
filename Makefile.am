@@ -533,3 +533,5 @@ EXTRA_DIST += tests/automated/check-mrm-interface-module-null.py docs/mrm-interf
 EXTRA_DIST += tests/automated/check-mrm-fetch-literal-output.py docs/mrm-fetch-literal-output.md
 
 EXTRA_DIST += tests/automated/check-mrm-literal-convenience-outputs.py docs/mrm-literal-convenience-outputs.md
+
+EXTRA_DIST += tests/automated/check-mrm-icon-converter-inputs.py docs/mrm-icon-converter-inputs.md

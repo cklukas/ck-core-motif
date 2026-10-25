@@ -1,3 +1,10 @@
+Mrm icon converter input validation (2026-10-25)
+===================================================
+
+- Reject null icon records and result pointers before shared pixmap conversion,
+  and clear valid outputs before mapping; see
+  `docs/mrm-icon-converter-inputs.md`.
+
 Mrm literal convenience output validation (2026-10-25)
 ==========================================================
 
