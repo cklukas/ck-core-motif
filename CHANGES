@@ -6061,3 +6061,10 @@ Guard destination-handler allocations (2026-10-25)
   initialization; see `docs/destination-handler-allocation.md`.
 
 Guard drop-sink setup allocations (2026-10-25)
+Guard transfer request-block allocation (2026-10-25)
+=====================================================
+
+- Stop `XmTransferValue` cleanly when a request block cannot be allocated;
+  see `docs/transfer-block-allocation.md`.
+
+Guard destination-handler allocations (2026-10-25)

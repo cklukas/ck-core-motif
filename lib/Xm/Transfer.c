@@ -1625,6 +1625,10 @@ XmTransferValue(XtPointer transfer_id,
     time = XtLastTimestampProcessed(XtDisplay(tc -> widget));  
 
   tb = AddTransferBlock(tc);
+  if (tb == NULL) {
+    _XmAppUnlock(app);
+    return;
+  }
 
   tb -> client_data = client_data;
   tb -> selection_proc = proc;
@@ -2056,6 +2060,8 @@ AddTransferBlock(TransferContext tc)
   TransferBlock tb;
 
   tb = (TransferBlock) XtMalloc(sizeof(TransferBlockRec));
+  if (tb == NULL)
+    return(NULL);
   tb -> next = NULL;
   /* we append blocks to the end of the list */
   if (tc -> requests == NULL) 
