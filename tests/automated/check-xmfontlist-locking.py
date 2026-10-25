@@ -22,4 +22,12 @@ assert "_XmProcessUnlock();" not in add
 assert "_XmStringCacheTag" in add
 assert "XmRenderTableAddRenditions" in add
 
+start = source.index("XmFontListEntryLoad(")
+end = source.index("\n}\n", start)
+load = source[start:end]
+assert "_XmAppLock" not in load
+assert "_XmAppUnlock" not in load
+assert "_XmStringCacheTag" in load
+assert "_XmRenditionCreate" in load
+
 print("XmFontList constructors avoid recursive process locking")
