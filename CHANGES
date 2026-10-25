@@ -14340,3 +14340,9 @@ File-selection directory cleanup (2026-10-26)
 - Initialize the directory-list pointer before FileSB allocation and string
   conversion failures reach shared cleanup, avoiding an invalid free; see
   `docs/file-selection-dir-cleanup.md`.
+Text line look-pointer guard (2026-10-26)
+=========================================
+
+- Check the pointer returned by `Look()` against `NULL` before dereferencing
+  it during line selection, avoiding an invalid pointer/value comparison; see
+  `docs/text-line-look-pointer.md`.
