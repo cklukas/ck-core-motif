@@ -237,6 +237,8 @@ Render-table locking (2026-10-26)
   so allocation failure returns without dereferencing a null buffer.
 - Make rendition resource cleanup tolerate a missing `XmNfontName` before
   checking the `XmAS_IS` marker; see `docs/render-rendition-null-font-name.md`.
+- Fix rendition merging so an unspecified strikethrough value inherits
+  independently of underline; see `docs/render-rendition-merge.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================

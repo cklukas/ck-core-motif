@@ -1274,7 +1274,7 @@ MergeInto(XmRendition toRend,
 #endif
   if (_XmRendUnderlineType(toRend) == XmAS_IS)
     _XmRendUnderlineType(toRend) = _XmRendUnderlineType(fromRend);
-  if (_XmRendUnderlineType(toRend) == XmAS_IS)
+  if (_XmRendStrikethruType(toRend) == XmAS_IS)
     _XmRendStrikethruType(toRend) = _XmRendStrikethruType(fromRend);
 }
 
