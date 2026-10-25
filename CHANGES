@@ -4562,3 +4562,9 @@ AddClientToList argument guards (2026-10-25)
 
 - Reject missing workspace or client state before updating the client list;
   see `docs/add-client-list-guards.md`.
+
+DeleteClientFromList guards (2026-10-25)
+=======================================
+
+- Validate detached workspace/client state before unlinking list entries;
+  see `docs/delete-client-list-guards.md`.

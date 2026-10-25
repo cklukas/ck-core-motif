@@ -177,7 +177,7 @@ void AddClientToList (WmWorkspaceData *pWS, ClientData *pCD, Boolean onTop)
 
 
 #ifdef WSM
-	if (!pWsc->pIconBox && pWsc->iconFrameWin)
+	if (pWsc != NULL && !pWsc->pIconBox && pWsc->iconFrameWin)
 #else /* WSM */
 	if (!pCD->pIconBox && pCD->iconFrameWin)
 #endif /* WSM */
@@ -457,9 +457,19 @@ void DeleteEntryFromList (WmWorkspaceData *pWS, ClientListEntry *pListEntry)
 void DeleteClientFromList (WmWorkspaceData *pWS, ClientData *pCD)
 {
 #ifdef WSM
-    WsClientData *pWsc = GetWsClientData (pWS, pCD);
+    WsClientData *pWsc;
 #endif /* WSM */
-    WmScreenData *pSD = pWS->pSD;
+    WmScreenData *pSD;
+
+    if (pWS == NULL || pCD == NULL || pWS->pSD == NULL)
+    {
+        return;
+    }
+
+    pSD = pWS->pSD;
+#ifdef WSM
+    pWsc = GetWsClientData (pWS, pCD);
+#endif /* WSM */
 
     if (pCD->transientLeader)
     {
@@ -482,7 +492,7 @@ void DeleteClientFromList (WmWorkspaceData *pWS, ClientData *pCD)
 	 */
 
 #ifdef WSM
-	if (!pWsc->pIconBox && pWsc->iconFrameWin)
+	if (pWsc != NULL && !pWsc->pIconBox && pWsc->iconFrameWin)
 #else /* WSM */
 	if (!pCD->pIconBox && pCD->iconFrameWin)
 #endif /* WSM */
