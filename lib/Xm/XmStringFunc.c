@@ -200,7 +200,8 @@ XmStringTableParseStringArray(XtPointer   *strings,
     return(NULL);
   }
   
-  strs = (XmStringTable)XtMalloc((size_t)count * sizeof(XmString));
+  strs = (XmStringTable)XtMalloc(
+      (Cardinal)((size_t)count * sizeof(XmString)));
   if (strs == NULL) {
     _XmProcessUnlock();
     return(NULL);
@@ -237,7 +238,8 @@ XmStringTableUnparse(XmStringTable     table,
     return(NULL);
   }
   
-  strs = (XtPointer *)XtMalloc((size_t)count * sizeof(XtPointer));
+  strs = (XtPointer *)XtMalloc(
+      (Cardinal)((size_t)count * sizeof(XtPointer)));
   if (strs == NULL) {
     _XmProcessUnlock();
     return(NULL);
