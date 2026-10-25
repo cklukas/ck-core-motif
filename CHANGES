@@ -8507,3 +8507,11 @@ ScrolledWindow scroll-frame allocation (2026-10-27)
 
 - Check private scroll-frame data allocation, clear the initialized flag on
   failure, and return before dereferencing missing trait state.
+ToggleButtonGadget resource-list allocation (2026-10-25)
+==========================================================
+
+- Check merged resource counts, byte-size arithmetic, and allocation before
+  populating the ToggleButtonGadget cache-object resource list.
+
+Icon directory cache size arithmetic (2026-10-25)
+==================================================

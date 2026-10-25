@@ -32,6 +32,7 @@ static char rcsid[] = "$TOG: ToggleBG.c /main/46 1999/12/06 18:10:15 samborn $"
 #endif
 
 #include <stdio.h>
+#include <stdint.h>
 #include "XmI.h"
 #include <X11/ShellP.h>
 #include <Xm/CareVisualT.h>
@@ -662,6 +663,7 @@ ClassInitialize( void )
   int                         i, j;
   XtResourceList              uncompiled;
   Cardinal                    num;
+  size_t                      merged_count;
   
   /*
    * Label's and Togglebutton's resource lists are being merged into one
@@ -679,8 +681,16 @@ ClassInitialize( void )
   
   sc_num_res = xmLabelGCacheObjClassRec.object_class.num_resources;
   
-  merged_list = (XtResource *)
-    XtMalloc((sizeof(XtResource) * (wc_num_res + sc_num_res)));
+  if ((size_t)wc_num_res > SIZE_MAX / sizeof(XtResource) -
+	      (size_t)sc_num_res)
+    return;
+  merged_count = (size_t)wc_num_res + (size_t)sc_num_res;
+  if (merged_count > (size_t)UINT_MAX / sizeof(XtResource))
+    return;
+  merged_list = (XtResource *)XtMalloc(
+    (Cardinal)(merged_count * sizeof(XtResource)));
+  if (merged_list == NULL)
+    return;
   
   _XmTransformSubResources(xmLabelGCacheObjClassRec.object_class.resources,
                            sc_num_res, &uncompiled, &num);
