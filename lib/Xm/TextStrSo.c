@@ -303,10 +303,10 @@ _XmStringSourceGetString(XmTextWidget tw,
   char *buf;
   wchar_t *wc_buf;
   XmTextBlockRec block;
-  int destpos;
+  size_t destpos;
   XmTextPosition pos, ret_pos;
   size_t allocation;
-  int return_val = 0;
+  size_t return_val = 0;
 
   if (!TextSourceRangeBytes(from, to,
 				want_wchar ? sizeof(wchar_t) : tw->text.char_size,
@@ -321,7 +321,10 @@ _XmStringSourceGetString(XmTextWidget tw,
       pos = ReadSource(tw->text.source, pos, to, &block);
       if (block.length == 0)
 	break;
-      
+	  if ((size_t)block.length > allocation - 1 - destpos) {
+	    XtFree(buf);
+	    return NULL;
+	  }
       (void)memcpy((void*)&buf[destpos], (void*)block.ptr, block.length);
       destpos += block.length;
     }
@@ -336,10 +339,19 @@ _XmStringSourceGetString(XmTextWidget tw,
       ret_pos = ReadSource(tw->text.source, pos, to, &block);
       if (block.length == 0)
 	break;
-      
+	  if (ret_pos < pos ||
+	      (size_t)(ret_pos - pos) >
+	      (allocation / sizeof(wchar_t)) - 1 - destpos) {
+	    XtFree(buf);
+	    return NULL;
+	  }
       return_val =  mbstowcs(&wc_buf[destpos], block.ptr,
 			     (size_t) (ret_pos - pos));
-      if (return_val > 0) destpos += return_val;
+	  if (return_val == (size_t)-1) {
+	    XtFree(buf);
+	    return NULL;
+	  }
+	  if (return_val > 0) destpos += return_val;
       pos = ret_pos;
     }
     wc_buf[destpos] = (wchar_t)0L;
