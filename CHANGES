@@ -1,3 +1,10 @@
+Label conversion allocation guards (2026-10-28)
+==================================================
+
+- Refuse Label and LabelGadget conversions when target-list, pixmap, or color
+  result allocations fail, avoiding NULL dereferences and incomplete payloads;
+  see `docs/label-conversion-allocation.md`.
+
 CutPaste target/timestamp allocation guards (2026-10-28)
 ============================================================
 

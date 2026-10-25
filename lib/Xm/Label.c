@@ -2847,6 +2847,10 @@ _XmLabelConvert(Widget w,
 	target_count = 0;
 	targs = (Atom *) XtMalloc(sizeof(Atom) * 7);
       }
+	if (targs == NULL) {
+	  cs->status = XmCONVERT_REFUSE;
+	  return;
+	}
       
       value = (XtPointer) targs;
       
@@ -2981,6 +2985,10 @@ _XmLabelConvert(Widget w,
       Pixmap *pix;
       
       pix = (Pixmap *) XtMalloc(sizeof(Pixmap));
+	if (pix == NULL) {
+	  cs->status = XmCONVERT_REFUSE;
+	  return;
+	}
       *pix = label_pixmap;
       /* value, type, size, and format must be set */
       value = (XtPointer) pix;
@@ -2995,6 +3003,10 @@ _XmLabelConvert(Widget w,
       Pixel *background;
       
       background = (Pixel *) XtMalloc(sizeof(Pixel));
+	if (background == NULL) {
+	  cs->status = XmCONVERT_REFUSE;
+	  return;
+	}
       if (XtIsWidget(w))
 	*background = ((XmLabelWidget) w)->core.background_pixel;
       else
@@ -3012,6 +3024,10 @@ _XmLabelConvert(Widget w,
       Pixel *foreground;
       
       foreground = (Pixel *) XtMalloc(sizeof(Pixel));
+	if (foreground == NULL) {
+	  cs->status = XmCONVERT_REFUSE;
+	  return;
+	}
       if (XtIsWidget(w))
 	*foreground = ((XmLabelWidget) w)->primitive.foreground;
       else
@@ -3029,6 +3045,10 @@ _XmLabelConvert(Widget w,
       Colormap *colormap;
       
       colormap = (Colormap *) XtMalloc(sizeof(Colormap));
+      if (colormap == NULL) {
+	cs->status = XmCONVERT_REFUSE;
+	return;
+      }
       if (XtIsWidget(w))
 	*colormap = w->core.colormap;
       else
