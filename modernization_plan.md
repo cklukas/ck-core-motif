@@ -1652,6 +1652,10 @@ installed fixture passes 13 checks; collapsible-sidebar work remains separate.
 explicit content host ownership, expanded/collapsed widths, Ctrl+M keyboard
 toggle and restoration of focus into content after expansion.  Its installed
 fixture passes 13 checks; adaptive navigation remains application-owned.
+The header-bar evaluation is closed as a documented **defer**: ordinary Xt/X11
+does not define portable ownership of window-manager decorations or title-bar
+input.  See `docs/header-bar-decision.md`; reopening requires a versioned
+server/desktop contract and real-window evidence.
 
 Appearance and scalable assets are intentionally the first delivery track: they
 produce user-visible improvement while preserving the established programming

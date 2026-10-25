@@ -5119,6 +5119,11 @@ Mrm writer CString-vector rebind checks (2026-10-25)
 	* Add the opt-in XmSidebar composite with explicit content hosting,
 	  bounded collapse/expansion and focus restoration; see docs/sidebar.md.
 
+2026-10-25
+	* Record the WP-40 header-bar evaluation as deferred because ordinary
+	  Xt/X11 has no portable window-manager decoration contract; see
+	  docs/header-bar-decision.md.
+
 2026-10-26
 	* Validate Mrm pointer-list state before freeing contents.
 
