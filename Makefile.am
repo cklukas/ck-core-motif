@@ -258,6 +258,7 @@ EXTRA_DIST += tests/automated/check-list-navigation-inputs.py docs/list-navigati
 EXTRA_DIST += tests/automated/check-list-item-navigation-inputs.py docs/list-item-navigation-inputs.md
 EXTRA_DIST += tests/automated/check-list-query-inputs.py docs/list-query-inputs.md
 EXTRA_DIST += tests/automated/check-mwm-root-menu-fallback.py docs/mwm-root-menu-fallback.md
+EXTRA_DIST += tests/automated/check-color-object-name-array.py docs/color-object-name-array.md
 EXTRA_DIST += tests/automated/check-accessibility-name-allocation.py docs/accessibility-name-allocation.md
 EXTRA_DIST += tests/automated/check-font-selector-buffer-allocation.py docs/font-selector-buffer-allocation.md
 EXTRA_DIST += tests/automated/check-font-selector-current-font-allocation.py docs/font-selector-current-font-allocation.md
