@@ -600,10 +600,16 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 	      num = UnpackListNum(&data);
 
 	      request->wm_windows.match_attributes[i] = (AttributePair *)
-		XtMalloc(sizeof(AttributePair) * num * 2 + sizeof(int));
+		XtMalloc(sizeof(AttributePair));
 	      if (request->wm_windows.match_attributes[i] == NULL) {
+		for (j = 0; j < num * 2; j++)
+		  (void) UnpackProperty(&data);
 		for (j = 0; j < i; j++)
-		  XtFree((XtPointer)request->wm_windows.match_attributes[j]);
+		  {
+		    XtFree((XtPointer)request->wm_windows.match_attributes[j]->allowed_attributes);
+		    XtFree((XtPointer)request->wm_windows.match_attributes[j]->prohibited_attributes);
+		    XtFree((XtPointer)request->wm_windows.match_attributes[j]);
+		  }
 		XtFree((XtPointer)request->wm_windows.match_attributes);
 		XtFree((XtPointer)request->wm_windows.window_properties);
 		request->wm_windows.window_properties = NULL;
@@ -613,7 +619,38 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 		return;
 	      }
 
+	      request->wm_windows.match_attributes[i]->allowed_attributes = NULL;
+	      request->wm_windows.match_attributes[i]->prohibited_attributes = NULL;
 	      request->wm_windows.match_attributes[i]->num_attributes = num;
+	      if (num != 0) {
+		request->wm_windows.match_attributes[i]->allowed_attributes =
+		  (WindowProperty *) XtMalloc(sizeof(WindowProperty) * num);
+		request->wm_windows.match_attributes[i]->prohibited_attributes =
+		  (WindowProperty *) XtMalloc(sizeof(WindowProperty) * num);
+	      }
+	      if ((num != 0 &&
+		   (request->wm_windows.match_attributes[i]->allowed_attributes == NULL ||
+		    request->wm_windows.match_attributes[i]->prohibited_attributes == NULL))) {
+		for (j = 0; j < num * 2; j++)
+		  (void) UnpackProperty(&data);
+		XtFree((XtPointer)request->wm_windows.match_attributes[i]->allowed_attributes);
+		XtFree((XtPointer)request->wm_windows.match_attributes[i]->prohibited_attributes);
+		XtFree((XtPointer)request->wm_windows.match_attributes[i]);
+		for (j = 0; j < i; j++)
+		  {
+		    XtFree((XtPointer)request->wm_windows.match_attributes[j]->allowed_attributes);
+		    XtFree((XtPointer)request->wm_windows.match_attributes[j]->prohibited_attributes);
+		    XtFree((XtPointer)request->wm_windows.match_attributes[j]);
+		  }
+		XtFree((XtPointer)request->wm_windows.match_attributes);
+		XtFree((XtPointer)request->wm_windows.window_properties);
+		request->wm_windows.window_properties = NULL;
+		request->wm_windows.num_window_properties = 0;
+		request->wm_windows.match_attributes = NULL;
+		request->wm_windows.num_match_attributes = 0;
+		return;
+	      }
+
 	      for (j=0; j<num; j++)
 		{
 		  request->wm_windows.match_attributes[i]->allowed_attributes[j] =

@@ -11097,3 +11097,10 @@ WSM window-request ownership (2026-10-25)
 
 - Mark decoded window-request arrays with their own ownership flag so cleanup
   releases them correctly; see `docs/wsm-windows-owned.md`.
+
+WSM nested window-array ownership (2026-10-25)
+==============================================
+
+- Initialize and free nested match-attribute arrays in WSM window messages,
+  and release window-entry reply arrays during cleanup; see
+  `docs/wsm-windows-nested-ownership.md`.

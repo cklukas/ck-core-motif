@@ -75,6 +75,15 @@ FreeRequest(WSMRequest *request)
 	    XtFree((XtPointer) request->set_state.win_info_list);
 	}
 	break;
+	case WSM_WM_WINDOWS:
+	    for (i = 0; i < request->wm_windows.num_match_attributes; i++) {
+		XtFree((XtPointer) request->wm_windows.match_attributes[i]->allowed_attributes);
+		XtFree((XtPointer) request->wm_windows.match_attributes[i]->prohibited_attributes);
+		XtFree((XtPointer) request->wm_windows.match_attributes[i]);
+	    }
+	    XtFree((XtPointer) request->wm_windows.match_attributes);
+	    XtFree((XtPointer) request->wm_windows.window_properties);
+	    break;
     default:
 	break;
     }
@@ -123,6 +132,13 @@ FreeReply(WSMReply *reply)
 	FreeWinData(reply->register_window.window_data,
 		    reply->register_window.num_window_data);
 	break;
+	case WSM_WM_WINDOWS:
+	    for (i = 0; i < reply->wm_windows.num_win_entry_list; i++) {
+		XtFree((XtPointer) reply->wm_windows.win_entry_list[i].windows);
+		XtFree((XtPointer) reply->wm_windows.win_entry_list[i].match_properties);
+	    }
+	    XtFree((XtPointer) reply->wm_windows.win_entry_list);
+	    break;
     default:
 	break;
     }

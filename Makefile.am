@@ -914,6 +914,8 @@ EXTRA_DIST += tests/automated/check-wsm-win-entry-size.py docs/wsm-win-entry-siz
 
 EXTRA_DIST += tests/automated/check-wsm-windows-owned.py docs/wsm-windows-owned.md
 
+EXTRA_DIST += tests/automated/check-wsm-windows-nested-ownership.py docs/wsm-windows-nested-ownership.md
+
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 
 EXTRA_DIST += tests/automated/check-latin-lower-bounds.py docs/latin-lower-bounds.md
