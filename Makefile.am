@@ -504,3 +504,4 @@ EXTRA_DIST += tests/automated/check-mrm-pixmap-tag-failure.py docs/mrm-pixmap-ta
 EXTRA_DIST += tests/automated/check-mrm-related-count-type.py docs/mrm-related-count-type.md
 EXTRA_DIST += tests/automated/check-mrm-compression-inputs.py docs/mrm-compression-inputs.md
 EXTRA_DIST += tests/automated/check-mrm-table-fixup-inputs.py docs/mrm-table-fixup-inputs.md
+EXTRA_DIST += tests/automated/check-mrm-table-offset-bounds.py docs/mrm-table-offset-bounds.md

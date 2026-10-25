@@ -55,6 +55,7 @@ static char rcsid[] = "$XConsortium: Mrmtable.c /main/13 1996/11/13 14:04:22 drk
 #include <X11/Intrinsic.h>
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
+#include <stdint.h>
 #include "MrmMsgI.h"
 
 
@@ -129,9 +130,17 @@ Urm__FixupCompressionTable (UidCompressionTablePtr	ctable,
     }
   if ( ctable->num_entries < UilMrmMinValidCode )
     return MrmFAILURE ;
+  if ((size_t)ctable->num_entries >
+      (SIZE_MAX - (sizeof(UidCompressionTable) - sizeof(UidCTableEntry))) /
+      sizeof(UidCTableEntry))
+    return MrmFAILURE ;
+  size_t table_bytes = (sizeof(UidCompressionTable) - sizeof(UidCTableEntry)) +
+                       ((size_t)ctable->num_entries * sizeof(UidCTableEntry));
   for ( fixndx=UilMrmMinValidCode ; fixndx<ctable->num_entries ; fixndx++ )
     {
       if ( byte_swapped ) swapbytes(ctable->entry[fixndx].stoffset);
+      if ((size_t)ctable->entry[fixndx].stoffset < table_bytes)
+        return MrmFAILURE ;
       ctable->entry[fixndx].cstring = 
 	((char *)ctable+ctable->entry[fixndx].stoffset);
     }	

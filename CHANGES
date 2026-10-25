@@ -1,3 +1,9 @@
+Mrm compression-table offset bounds (2026-10-25)
+==================================================
+
+- Reject string offsets that point into compression-table metadata before
+  converting them to pointers; see `docs/mrm-table-offset-bounds.md`.
+
 Mrm compression-table fixup bounds (2026-10-25)
 ===============================================
 
