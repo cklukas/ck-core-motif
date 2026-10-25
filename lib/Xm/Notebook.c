@@ -5429,6 +5429,7 @@ AdjustGeometry (
     XtWidgetGeometry *desired)
 {
     Dimension ideal_width,ideal_height;
+    int available_width;
 
     /* the value min is the minimum width/height that the Notebook can be
        after a component is reduced to its minimum */
@@ -5537,8 +5538,9 @@ AdjustGeometry (
     }
 
     /* Calculate status w/h based on page,margin,& scroller w/h */
-    nb->notebook.status_width = MAX(0,(int)(nb->notebook.page_width -
-	nb->notebook.margin_width - nb->notebook.scroller_width));
+    available_width = (int) nb->notebook.page_width -
+	nb->notebook.margin_width - nb->notebook.scroller_width;
+    nb->notebook.status_width = (available_width > 0) ? available_width : 0;
     nb->notebook.status_height = nb->notebook.scroller_height =
 	MAX(nb->notebook.status_height, nb->notebook.scroller_height);
 

@@ -7331,3 +7331,12 @@ Input-method preedit-position bounds (2026-10-26)
 
 Input-method preedit width bounds (2026-10-26)
 ==============================================
+Notebook status geometry bounds (2026-10-26)
+============================================
+
+- Bound status-area width and height calculations after margins and scrollers,
+  preventing unsigned wraparound in collapsed notebooks; see
+  `docs/notebook-status-geometry.md`.
+
+Input-method preedit-position bounds (2026-10-26)
+==================================================
