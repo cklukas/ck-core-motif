@@ -586,7 +586,8 @@ Initialize(Widget    request,	/* unused */
   /* Ignore XmNheight resource value for descedants */
   num_child_args = 0;
   if (*num_args != 0 &&
-      (size_t)*num_args > SIZE_MAX / sizeof(Arg))
+      ((size_t)*num_args > SIZE_MAX / sizeof(Arg) ||
+       (size_t)*num_args > UINT_MAX / sizeof(Arg)))
     child_args = NULL;
   else
     child_args = (ArgList) XtMalloc(sizeof(Arg) * (size_t)*num_args);

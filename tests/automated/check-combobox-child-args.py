@@ -9,4 +9,5 @@ assert "child_args != NULL || *num_args == 0" in body
 assert "CreateChildren(new_w, args, num_args);" in source
 assert "Cardinal i;" in source
 assert "SIZE_MAX / sizeof(Arg)" in body
+assert "UINT_MAX / sizeof(Arg)" in body
 assert "sizeof(Arg) * (size_t)*num_args" in body

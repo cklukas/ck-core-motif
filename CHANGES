@@ -116,6 +116,13 @@ BaseClass indirection-table Xt byte bounds (2026-10-28)
 - Check Xt `Cardinal` byte limits before allocating resource indirection
   tables; see `docs/baseclass-indirection-bounds.md`.
 
+ComboBox child-argument Xt byte bounds (2026-10-28)
+====================================================
+
+- Check Xt `Cardinal` byte limits before filtering ComboBox child arguments,
+  preserving the existing original-argument fallback; see
+  `docs/combobox-child-argument-bounds.md`.
+
 Compound-text concatenation failure handling (2026-10-28)
 ============================================================
 
