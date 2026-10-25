@@ -4700,3 +4700,9 @@ Color-cache property cleanup (2026-10-25)
 
 - Release failed or malformed pixel-set property buffers in the color
   cache reader; see `docs/color-cache-property-cleanup.md`.
+
+Data-field insert-selection validation (2026-10-25)
+=====================================================
+
+- Validate `ATOM_PAIR` type, format, and length before reading insert
+  selection data; see `docs/datafsel-insert-pair-guards.md`.
