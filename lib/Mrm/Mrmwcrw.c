@@ -3635,6 +3635,14 @@ Urm__CW_FixupCallback (Widget			parent ,
        * Evaluate the tag value, and set in the item.
        */
       reptype = itmptr->cb_item.rep_type ;
+      if (reptype != MrmRtypeInteger &&
+          reptype != MrmRtypeBoolean &&
+          reptype != MrmRtypeSingleFloat &&
+          reptype != MrmRtypeNull &&
+          (itmptr->cb_item.datum.offset < RGMWidgetRecordHdrSize ||
+           itmptr->cb_item.datum.offset >=
+             ((RGMWidgetRecordPtr)bufptr)->size))
+        return MrmFAILURE;
       tag_val = Urm__CW_EvaluateValOrOffset (reptype, bufptr,
 					     itmptr->cb_item.datum.ival, 
 					     itmptr->cb_item.datum.offset) ;
