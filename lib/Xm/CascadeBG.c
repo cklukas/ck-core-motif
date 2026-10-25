@@ -961,6 +961,12 @@ DrawCascade(
 	      (CBG_ArmedPixmap(cb) != XmUNSPECIFIED_PIXMAP) ?
 		  CBG_ArmedPixmap(cb) : CBG_CascadePixmap(cb) ;
 
+	  if (!XtIsRealized(XtParent(cb)) ||
+	      CBG_Cascade_height(cb) == 0 ||
+	      pixmap == XmUNSPECIFIED_PIXMAP ||
+	      LabG_NormalGC(cb) == NULL)
+	      return;
+
 	  XmeGetPixmapData(XtScreen(cb),
 			   pixmap,
 			   NULL,    

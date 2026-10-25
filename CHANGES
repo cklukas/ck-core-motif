@@ -1,3 +1,10 @@
+CascadeButtonGadget pixmap draw guards (2026-10-25)
+===================================================
+
+- Validate parent realization, cascade height, pixmap identity, and label GC
+  before CascadeButtonGadget pixmap copies; see
+  `docs/cascade-button-gadget-pixmap-guards.md`.
+
 CascadeButton armed fill guard (2026-10-25)
 ===========================================
 
