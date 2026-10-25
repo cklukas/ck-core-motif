@@ -1,3 +1,10 @@
+Clipboard lock-marker format validation (2026-10-26)
+=====================================================
+
+- Require the lock-access marker to use its expected 8-bit X11 property
+  format before accepting the window as an active lock owner; see
+  `docs/clipboard-lock-marker-format.md`.
+
 Clipboard copy length truncation guard (2026-10-26)
 ===================================================
 

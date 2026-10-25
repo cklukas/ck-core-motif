@@ -3257,7 +3257,8 @@ ClipboardWindowExists(
 			&bytes_left,
 			&outpointer );
 
-	if ( ret_value != Success || outpointer == 0 || outlength == 0 )
+	if ( ret_value != Success || outpointer == 0 || outlength == 0 ||
+	    format != 8 )
     	{
     	    /* not the same window that locked the clipboard */
 	    exists = 0;
