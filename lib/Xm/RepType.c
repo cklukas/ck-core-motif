@@ -1193,7 +1193,8 @@ CopyStringArray(
 	 if (StrArray == NULL || StrArray[Index] == NULL)
 	     goto failure;
 	 length = strlen(StrArray[Index]);
-	 if (length > SIZE_MAX - prefix_size - 1)
+	 if (length > SIZE_MAX - prefix_size - 1 ||
+	     length > (size_t)UINT_MAX - prefix_size - 1)
 	     goto failure;
 	 TmpStr[Index] = XtMalloc(prefix_size + length + 1);
 	 if (TmpStr[Index] == NULL)
