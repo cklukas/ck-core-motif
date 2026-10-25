@@ -1,3 +1,9 @@
+Mrm reader arg-list offset bounds (2026-10-25)
+===============================================
+
+- Verify argument-list offsets stay inside widget records before descriptor
+  access; see `docs/mrm-arglist-offset-bounds.md`.
+
 Mrm reader arg-list count bounds (2026-10-25)
 ===============================================
 
