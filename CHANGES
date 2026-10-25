@@ -1,3 +1,10 @@
+Mwm icon-placement allocation bounds (2026-10-25)
+==================================================
+
+- Check row, column, and slot-array size arithmetic before allocation and clean
+  up partial placement state on failure; see
+  `docs/icon-placement-allocation-bounds.md`.
+
 Mwm colormap-reference allocation failures (2026-10-25)
 =========================================================
 

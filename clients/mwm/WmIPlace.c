@@ -39,6 +39,8 @@ static char rcsid[] = "$XConsortium: WmIPlace.c /main/4 1995/11/01 11:41:20 rswi
  */
 
 #include "WmGlobal.h"
+#include <limits.h>
+#include <stdint.h>
 
 /*
  * include extern functions
@@ -104,6 +106,12 @@ void InitIconPlacement (WmWorkspaceData *pWS)
     int extraPX;
     int extraPY;
     int i;
+    size_t rowCount;
+    size_t colCount;
+    size_t rowBytes;
+    size_t colBytes;
+    size_t totalPlaces;
+    size_t placeBytes;
 
 
     xMargin = yMargin = extraPX = extraPY = 0;
@@ -277,11 +285,30 @@ void InitIconPlacement (WmWorkspaceData *pWS)
     }
 
     /*
-     * Setup array of grid row positions and grid column positions:
+     * Setup array of grid row positions and grid column positions. Keep the
+     * arithmetic in size_t before passing it to XtMalloc's Cardinal API.
      */
 
+    rowCount = (size_t)pWS->IPData.placementRows + 2;
+    colCount = (size_t)pWS->IPData.placementCols + 2;
+    if (rowCount > SIZE_MAX / sizeof(int) ||
+        colCount > SIZE_MAX / sizeof(int))
+    {
+	Warning (((char *)GETMESSAGE(34, 1, "Icon placement dimensions are too large")));
+	wmGD.iconAutoPlace = False;
+	return;
+    }
+    rowBytes = rowCount * sizeof(int);
+    colBytes = colCount * sizeof(int);
+    if (rowBytes > UINT_MAX || colBytes > UINT_MAX)
+    {
+	Warning (((char *)GETMESSAGE(34, 1, "Icon placement dimensions are too large")));
+	wmGD.iconAutoPlace = False;
+	return;
+    }
+
     if ((pWS->IPData.placementRowY =
-	    (int *)XtMalloc ((pWS->IPData.placementRows+2) * sizeof (int)))
+	    (int *)XtMalloc ((Cardinal)rowBytes))
 	== NULL)
     {
 	Warning (((char *)GETMESSAGE(34, 1, "Insufficient memory for icon placement")));
@@ -289,7 +316,7 @@ void InitIconPlacement (WmWorkspaceData *pWS)
 	return;
     }
     else if ((pWS->IPData.placementColX =
-		(int *)XtMalloc ((pWS->IPData.placementCols+2) * sizeof (int)))
+		(int *)XtMalloc ((Cardinal)colBytes))
 	     == NULL)
     {
 	XtFree ((char *)pWS->IPData.placementRowY);
@@ -327,11 +354,30 @@ void InitIconPlacement (WmWorkspaceData *pWS)
      * Setup an array of icon places.
      */
 
-    pWS->IPData.totalPlaces = 
-	pWS->IPData.placementRows * pWS->IPData.placementCols;
+    totalPlaces = (size_t)pWS->IPData.placementRows *
+	(size_t)pWS->IPData.placementCols;
+    if (totalPlaces > (size_t)INT_MAX ||
+	totalPlaces > SIZE_MAX / sizeof(IconInfo))
+    {
+	Warning (((char *)GETMESSAGE(34, 3, "Icon placement dimensions are too large")));
+	XtFree ((char *)pWS->IPData.placementRowY);
+	XtFree ((char *)pWS->IPData.placementColX);
+	wmGD.iconAutoPlace = False;
+	return;
+    }
+    pWS->IPData.totalPlaces = (int)totalPlaces;
+    placeBytes = totalPlaces * sizeof(IconInfo);
+    if (placeBytes > UINT_MAX)
+    {
+	Warning (((char *)GETMESSAGE(34, 3, "Icon placement dimensions are too large")));
+	XtFree ((char *)pWS->IPData.placementRowY);
+	XtFree ((char *)pWS->IPData.placementColX);
+	wmGD.iconAutoPlace = False;
+	return;
+    }
 
     if ((pWS->IPData.placeList =
-	  (IconInfo *)XtMalloc (pWS->IPData.totalPlaces * sizeof (IconInfo)))
+	  (IconInfo *)XtMalloc ((Cardinal)placeBytes))
 	== NULL)
     {
 	Warning (((char *)GETMESSAGE(34, 3, "Insufficient memory for icon placement")));
@@ -341,8 +387,7 @@ void InitIconPlacement (WmWorkspaceData *pWS)
 	return;
     }
 
-    memset ((char *)pWS->IPData.placeList, 0, 
-	pWS->IPData.totalPlaces * sizeof (IconInfo));
+    memset ((char *)pWS->IPData.placeList, 0, placeBytes);
 
     pWS->IPData.onRootWindow = True;
 
