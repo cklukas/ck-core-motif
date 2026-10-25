@@ -8,6 +8,9 @@ end = source.index("static void step(", start)
 function = source[start:end]
 
 assert "!w || !s->stepper.gc" in function
+assert "XGetGCValues" in function
+assert "GCFont" in function
+assert "XGContextFromGC(" not in function
 font_query = function.index("font = XQueryFont")
 font_guard = function.index("if (!font)")
 font_use = function.index("font->ascent")

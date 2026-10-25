@@ -10,6 +10,9 @@ function = source[start:end]
 assert "!window || !picker->color_picker.gc" in function
 assert "if (swatch)" in function
 assert "picker->core.height > 10" in function
+assert "XGetGCValues" in function
+assert "GCFont" in function
+assert "XGContextFromGC(" not in function
 font_query = function.index("font = XQueryFont")
 font_guard = function.index("if (!font)")
 font_use = function.index("font->ascent")
