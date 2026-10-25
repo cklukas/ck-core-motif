@@ -4634,3 +4634,9 @@ WSM transient helper guards (2026-10-25)
 
 - Validate WSM transient tree and output-list state before stacking;
   see `docs/wsm-transient-guards.md`.
+
+Screen client-list update guards (2026-10-25)
+=============================================
+
+- Handle detached entries and allocation failures before updating
+  `_MWM_CLIENT_LIST`; see `docs/screen-client-list-guards.md`.

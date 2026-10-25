@@ -3019,21 +3019,31 @@ LeaderOnTop (
 void UpdateScreenClientList (
     WmScreenData *pSD)
 {
-    Window *windows;
+    Window *windows = NULL;
+    Window *resized;
     int count = 0;
     ClientListEntry *pEntry;
 
-    windows = malloc (sizeof (Window));
-    pEntry = pSD->clientList;
+    if (pSD == NULL)
+    {
+        return;
+    }
 
+    pEntry = pSD->clientList;
     while (pEntry)
     {
         /*
-         * Filter out entries for icons
+         * Filter out entries for icons and detached clients.
          */
-        if (pEntry->type != MINIMIZED_STATE)
+        if (pEntry->type != MINIMIZED_STATE && pEntry->pCD != NULL)
         {
-            windows = realloc (windows, (count + 1) * sizeof (Window));
+            resized = realloc (windows, (count + 1) * sizeof (Window));
+            if (resized == NULL)
+            {
+                free (windows);
+                return;
+            }
+            windows = resized;
             windows[count] = (XID) pEntry->pCD->client;
             count++;
         }
