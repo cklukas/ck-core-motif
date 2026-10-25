@@ -1,3 +1,9 @@
+Client withdrawal placement validation (2026-10-25)
+====================================================
+
+- Bounds-check icon placement cleanup during client withdrawal; see
+  `docs/manage-place-cleanup.md`.
+
 Window-configuration occupancy sentinel (2026-10-25)
 =====================================================
 
