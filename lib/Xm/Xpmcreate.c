@@ -998,8 +998,11 @@ CreateXImage(
 	return XpmNoMemory;
     }
     /* now that bytes_per_line must have been set properly alloc data */
-    if((*image_return)->bytes_per_line == 0 ||  height == 0)
-    	return XpmNoMemory;
+    if((*image_return)->bytes_per_line == 0 ||  height == 0) {
+	XDestroyImage(*image_return);
+	*image_return = NULL;
+	return XpmNoMemory;
+    }
     (*image_return)->data =
 	(char *) XpmMalloc((size_t)(*image_return)->bytes_per_line *
 			   (size_t)height);
