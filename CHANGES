@@ -9952,6 +9952,12 @@ Legacy resource-string allocation guards (2026-10-25)
 - Guard compatibility file-selection and menu-accelerator string copies
   against allocation failure; see `docs/obsolete-resource-allocation.md`.
 
+XmString tag-cache allocation guard (2026-10-25)
+================================================
+
+- Check cached tag storage before copying tag bytes and release the process
+  lock on failure; see `docs/xmstring-tag-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
