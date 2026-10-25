@@ -1,3 +1,9 @@
+Guard Color selector loader allocations (2026-10-25)
+=====================================================
+
+- Make RGB color-table growth and temporary XmString-list allocation
+  transactional; see `docs/motif-colors-loader-allocation.md`.
+
 Validate XmString rendition-tag tables (2026-10-25)
 ====================================================
 

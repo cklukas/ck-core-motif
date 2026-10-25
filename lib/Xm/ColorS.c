@@ -32,6 +32,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <limits.h>
+#include <stdint.h>
 
 #include "ColorSP.h"
 
@@ -1273,6 +1275,7 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
     if ((file = fopen(XmColorS_rgb_file(csw), "r")) != NULL) {
 	register int alloc, count, len;
 	register char *name;
+	Boolean allocation_failed = False;
 
 	alloc = count = 0;
 
@@ -1288,10 +1291,25 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 		else
 			{
 #define ALLOC_INC 	20
+			if (alloc > INT_MAX - ALLOC_INC) {
+				allocation_failed = True;
+				break;
+			}
 			alloc += ALLOC_INC;
 			}
-		color_info = (ColorInfo *)XtRealloc((XtPointer) color_info,
-						    sizeof(ColorInfo) * alloc);
+		if ((size_t)alloc > SIZE_MAX / sizeof(*color_info)) {
+		    allocation_failed = True;
+		    break;
+		}
+		{
+		    ColorInfo *new_info = (ColorInfo *)XtRealloc(
+			(XtPointer) color_info, sizeof(*color_info) * (size_t)alloc);
+		    if (new_info == NULL) {
+			allocation_failed = True;
+			break;
+		    }
+		    color_info = new_info;
+		}
 	    }
 
 	    if (sscanf(buf, "%hu %hu %hu", &(color_info[count].red),
@@ -1346,6 +1364,10 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 	    count++;
 	}
 	fclose(file);
+	if (allocation_failed) {
+	    XtFree((char *)color_info);
+	    return;
+	}
 	    
 	qsort(color_info, count, sizeof(ColorInfo), CmpColors);
 
@@ -1384,7 +1406,16 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 	}
 
 	{
-		XmString *strs = (XmString*)XtMalloc(sizeof(XmString)*count);
+		XmString *strs;
+		if ((size_t)count > SIZE_MAX / sizeof(*strs)) {
+		    XtFree((char *)color_info);
+		    return;
+		}
+		strs = (XmString*)XtMalloc(sizeof(*strs) * (size_t)count);
+		if (strs == NULL && count != 0) {
+		    XtFree((char *)color_info);
+		    return;
+		}
 		for (i = 0; i < count; i++) 
 			strs[i] = XmStringCreateLocalized(color_info[i].name);
 		XtVaSetValues(XmColorS_list(csw),
