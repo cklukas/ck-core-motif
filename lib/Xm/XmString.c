@@ -9528,7 +9528,12 @@ XmeStringGetComponent(_XmStringContext context,
     begin_count = _XmStrRendBegin(opt);
     end_count   = _XmStrRendEnd(opt);
     if (begin_count || end_count) {
-      assert(_XmStrRendIndex(opt) != REND_INDEX_UNSET);
+      if (_XmStrRendIndex(opt) == REND_INDEX_UNSET ||
+	  _tag_cache == NULL || _XmStrRendIndex(opt) >= _cache_count) {
+	_XmStrContError(context) = True;
+	_XmProcessUnlock();
+	return XmSTRING_COMPONENT_END;
+      }
       rend_tag = _tag_cache + _XmStrRendIndex(opt);
     }
     begin_rends = (begin_count ? rend_tag : NULL);
