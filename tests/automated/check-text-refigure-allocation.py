@@ -19,4 +19,7 @@ assert "requested_lines * sizeof(LineRec)" in region
 assert "InitializeLineTable" in source
 assert "SIZE_MAX / sizeof(XmTextLineTableRec)" in source
 assert "line_table == NULL" in source
+assert "temp_index > UINT_MAX - tw->text.total_lines" in source
+assert "new_table == NULL" in source
+assert "new_size > UINT_MAX - TABLE_INCREMENT" in source
 print("PASS Text line-table reflow allocation guard")

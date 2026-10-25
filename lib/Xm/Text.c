@@ -1277,18 +1277,35 @@ AddLines(XmTextWidget tw,
 
   cur_index = current_index;
   temp_index = tmp_index;
+  if (temp_index > UINT_MAX - tw->text.total_lines)
+    return;
   size_needed = tw->text.total_lines + temp_index;
   
   /* make sure table is big enough to handle the additional lines */
   if (tw->text.table_size < size_needed) {
-    while (tw->text.table_size < size_needed)
-      if (tw->text.table_size < TABLE_INCREMENT)
-	tw->text.table_size *= 2;
-      else
-	tw->text.table_size += TABLE_INCREMENT;
-    tw->text.line_table = (XmTextLineTable)
-      XtRealloc((char *) tw->text.line_table,
-		tw->text.table_size * sizeof(XmTextLineTableRec));
+    unsigned int new_size = tw->text.table_size;
+    XmTextLineTable new_table;
+    while (new_size < size_needed) {
+      if (new_size < TABLE_INCREMENT) {
+	if (new_size > UINT_MAX / 2)
+	  return;
+	new_size *= 2;
+      } else {
+	if (new_size > UINT_MAX - TABLE_INCREMENT)
+	  return;
+	new_size += TABLE_INCREMENT;
+      }
+    }
+    if ((size_t)new_size > SIZE_MAX / sizeof(XmTextLineTableRec) ||
+	(size_t)new_size > UINT_MAX / sizeof(XmTextLineTableRec))
+      return;
+    new_table = (XmTextLineTable)XtRealloc(
+		(char *)tw->text.line_table,
+		(Cardinal)((size_t)new_size * sizeof(XmTextLineTableRec)));
+    if (new_table == NULL)
+      return;
+    tw->text.line_table = new_table;
+    tw->text.table_size = new_size;
   }
   
   /* move the existing lines at the end of the buffer */
