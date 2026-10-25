@@ -541,3 +541,5 @@ EXTRA_DIST += tests/automated/check-mrm-icon-colortable-validation.py docs/mrm-i
 EXTRA_DIST += tests/automated/check-mrm-icon-colortable-count.py docs/mrm-icon-colortable-count.md
 
 EXTRA_DIST += tests/automated/check-mrm-icon-loader-inputs.py docs/mrm-icon-loader-inputs.md
+
+EXTRA_DIST += tests/automated/check-xm-pixmap-hotspot-output.py docs/xm-pixmap-hotspot-output.md

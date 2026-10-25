@@ -1312,6 +1312,9 @@ _XmGetPixmapData(
 	*image_name = pix_entry->image_name;
 	*width = pix_entry->width;
 	*height = pix_entry->height;
+	/* Hotspots are optional image metadata; default them when absent. */
+	*hot_x = 0;
+	*hot_y = 0;
 	/* try to get the hot spot data from the image cache */
 	if (image_set)  {
 	    entry = (ImageData *) _XmGetHashEntry(image_set, *image_name);

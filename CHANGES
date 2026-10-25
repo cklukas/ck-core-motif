@@ -1,3 +1,10 @@
+Xm pixmap hotspot output initialization (2026-10-25)
+========================================================
+
+- Initialize cached pixmap hotspot outputs when optional image metadata is
+  absent, avoiding indeterminate coordinates; see
+  `docs/xm-pixmap-hotspot-output.md`.
+
 Mrm icon loader input validation (2026-10-25)
 ===============================================
 
