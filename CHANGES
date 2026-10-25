@@ -1,3 +1,10 @@
+Guard Text XA_STRING value allocation (2026-10-25)
+===================================================
+
+- Refuse XA_STRING conversion cleanly when the returned-value buffer cannot be
+  allocated, releasing the Xlib property first; see
+  `docs/motif-textsel-string-value.md`.
+
 Guard Text drop transfer-record allocation (2026-10-25)
 =========================================================
 
