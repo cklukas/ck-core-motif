@@ -1069,10 +1069,27 @@ RefigureLines(XmTextWidget tw)
   startcopy = endcopy = lastcopy = destcopy = -99;
   for (i = 0; i == 0 || !line[i-1].past_end; i++) {
     if (i+2 > tw->text.maximum_lines) {
-      tw->text.maximum_lines = i+2;
-      line = tw->text.line = (Line)
-	XtRealloc((char *)line, 
-		  tw->text.maximum_lines * sizeof(LineRec));
+      Cardinal requested_lines;
+      Line resized_line;
+      if (i > UINT_MAX - 2 ||
+	  (size_t)(i + 2) > SIZE_MAX / sizeof(LineRec) ||
+	  (size_t)(i + 2) > UINT_MAX / sizeof(LineRec)) {
+	XtFree((char *)oldline);
+	tw->text.needs_refigure_lines = TRUE;
+	tw->text.in_refigure_lines = FALSE;
+	return;
+      }
+      requested_lines = (Cardinal)(i + 2);
+      resized_line = (Line)XtRealloc((char *)line,
+				      requested_lines * sizeof(LineRec));
+      if (resized_line == NULL) {
+	XtFree((char *)oldline);
+	tw->text.needs_refigure_lines = TRUE;
+	tw->text.in_refigure_lines = FALSE;
+	return;
+      }
+      tw->text.maximum_lines = requested_lines;
+      line = tw->text.line = resized_line;
     }
     while (j < oldNumLines && oldline[j].start < line[i].start)
       j++;
