@@ -6388,10 +6388,12 @@ LayoutSpatial(
 	    cw->container.real_small_cellh : cw->container.real_large_cellh;
         if (cell_width <= 0 || cell_height <= 0)
             return;
-      	width_in_cells = (cw->core.width - 2 * cw->container.margin_w) 
-					/ cell_width;
-        height_in_cells = (cw->core.height - 2 * cw->container.margin_h)
-					/ cell_height;
+      width_in_cells = ((int)cw->core.width -
+                        (2 * (int)cw->container.margin_w)) / cell_width;
+        height_in_cells = ((int)cw->core.height -
+                           (2 * (int)cw->container.margin_h)) / cell_height;
+        if (width_in_cells <= 0 || height_in_cells <= 0)
+            return;
       	if (((width_in_cells != cw->container.current_width_in_cells) &&
 	     (CtrIsHORIZONTAL(wid)))  ||
 	    ((height_in_cells != cw->container.current_height_in_cells) &&

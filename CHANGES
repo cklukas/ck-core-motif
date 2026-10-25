@@ -1,3 +1,10 @@
+Container cell geometry bounds (2026-10-25)
+===========================================
+
+- Compute grid and cell available dimensions in signed arithmetic and reject
+  non-positive spans, preventing wrapped cell counts in narrow containers; see
+  `docs/container-cell-geometry.md`.
+
 MenuShell placement geometry bounds (2026-10-25)
 ================================================
 
