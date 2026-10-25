@@ -3707,6 +3707,8 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal * num_args)
     XLFD_STRING(fsw)		= CopyFontSelectorString(XLFD_STRING(fsw));
 
     ENCODING_STRING(fsw)	= XtNewString(ENCODING_STRING(fsw)); 
+    if (ENCODING_STRING(fsw) == NULL)
+	return;
     /* XmFontS_current_font(fsw) handled internally */
 
     {
