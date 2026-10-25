@@ -281,6 +281,7 @@ UrmIdbPutIndexedResource (IDBFile		file_id,
   if ( UrmRCType(context_id) == URMtNul) return MrmNUL_TYPE ;
   result = Idb__INX_FindIndex (file_id, index, &bufptr, &recno) ;
   if ( result == MrmSUCCESS) return MrmEXISTS ;
+  if ( result != MrmINDEX_GT && result != MrmINDEX_LT ) return result ;
 
   /*
    * Create the data entry for this item
@@ -367,6 +368,7 @@ UrmIdbPutRIDResource (IDBFile			file_id ,
   if ( UrmRCType(context_id) == URMtNul) return MrmNUL_TYPE ;
   result = Idb__RID_ReturnItem (file_id, resource_id, FALSE, &data_entry) ;
   if ( result == MrmSUCCESS) return MrmEXISTS ;
+  if ( result != MrmNULL_DATA ) return result ;
 
   /*
    * Create the data entry for this item

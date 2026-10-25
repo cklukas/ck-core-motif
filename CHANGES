@@ -195,6 +195,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  fields; see docs/mrm-writer-context-validation.md.
 
 2026-10-25
+	* Propagate Mrm writer lookup failures, accepting only documented absence
+	  statuses before creating records; see docs/mrm-writer-lookup-errors.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,
