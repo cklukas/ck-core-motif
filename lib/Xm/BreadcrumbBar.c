@@ -3,6 +3,7 @@
 #endif
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
+#include <limits.h>
 #include <Xm/BreadcrumbBarP.h>
 #include <Xm/XmP.h>
 #include "PrimitiveI.h"
@@ -106,10 +107,27 @@ static int item_width(XmBreadcrumbBarWidget bar, Cardinal index) {
                         bar->breadcrumb.items[index].label : "";
     const char *separator = bar->breadcrumb.separator ?
                             bar->breadcrumb.separator : "";
-    int width = (int)strlen(label) * 8 + 10;
-    if (index)
-        width += (int)strlen(separator) * 8 + 8;
+    size_t label_len = strlen(label), separator_len = strlen(separator);
+    int width;
+    if (label_len > (size_t)(INT_MAX - 10) / 8)
+        width = INT_MAX;
+    else
+        width = (int)(label_len * 8) + 10;
+    if (index) {
+        if (separator_len > (size_t)(INT_MAX - 8) / 8 ||
+            width > INT_MAX - (int)(separator_len * 8) - 8)
+            width = INT_MAX;
+        else
+            width += (int)(separator_len * 8) + 8;
+    }
     return width;
+}
+
+static void advance_cursor(int *cursor, int width) {
+    if (*cursor >= INT_MAX - width)
+        *cursor = INT_MAX;
+    else
+        *cursor += width;
 }
 
 static Cardinal visible_start(XmBreadcrumbBarWidget bar) {
@@ -130,16 +148,16 @@ static int hit_test(XmBreadcrumbBarWidget bar, int x) {
     if (!bar->breadcrumb.rtl) {
         for (i = start; i < bar->breadcrumb.count; ++i) {
             int width = item_width(bar, i);
-            if (x >= cursor && x < cursor + width)
+            if (x >= cursor && (width == INT_MAX || x - cursor < width))
                 return (int)i;
-            cursor += width;
+            advance_cursor(&cursor, width);
         }
     } else {
         for (i = bar->breadcrumb.count; i-- > start; ) {
             int width = item_width(bar, i);
-            if (x >= cursor && x < cursor + width)
+            if (x >= cursor && (width == INT_MAX || x - cursor < width))
                 return (int)i;
-            cursor += width;
+            advance_cursor(&cursor, width);
         }
     }
     return -1;
@@ -193,7 +211,7 @@ static void draw_item(XmBreadcrumbBarWidget bar, Cardinal index, int *cursor,
                        (unsigned)(width > 4 ? width - 4 : 1), 19);
     XDrawString(display, window, bar->breadcrumb.gc, text_x, 18,
                 label, (int)strlen(label));
-    *cursor += width;
+    advance_cursor(cursor, width);
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {
@@ -276,8 +294,14 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     Cardinal i;
     int width = 8;
     (void)request;
-    for (i = 0; i < bar->breadcrumb.count; ++i)
-        width += item_width(bar, i);
+    for (i = 0; i < bar->breadcrumb.count; ++i) {
+        int item = item_width(bar, i);
+        if (width >= INT_MAX - item) {
+            width = INT_MAX;
+            break;
+        }
+        width += item;
+    }
     reply->request_mode = CWWidth | CWHeight;
     reply->width = (Dimension)(width > 240 ? 240 : width);
     reply->height = 28;

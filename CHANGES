@@ -7817,3 +7817,10 @@ BreadcrumbBar RTL hit testing (2026-10-27)
 
 - Match RTL hit-test traversal to RTL rendering, so clicks select the
   breadcrumb segment under the pointer; see `docs/breadcrumb-rtl-hit-test.md`.
+
+BreadcrumbBar size bounds (2026-10-27)
+======================================
+
+- Saturate label, separator, cursor, and preferred-width arithmetic for
+  oversized breadcrumb content, preventing signed geometry wrap; see
+  `docs/breadcrumb-size-bounds.md`.
