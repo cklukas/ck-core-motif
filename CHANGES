@@ -1,3 +1,10 @@
+Guard FileSB qualified-mask allocation (2026-10-25)
+====================================================
+
+- Initialize qualified search output fields and release intermediate text
+  buffers when the temporary combined mask cannot be allocated; see
+  `docs/motif-filesb-qualified-mask.md`.
+
 Guard FileSB directory navigation list allocation (2026-10-25)
 ================================================================
 

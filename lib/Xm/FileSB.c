@@ -1958,6 +1958,15 @@ QualifySearchDataProc(
             unsigned int    qDirLen ;
 /****************/
 
+    qualifiedSearchData->value = NULL ;
+    qualifiedSearchData->mask = NULL ;
+    qualifiedSearchData->dir = NULL ;
+    qualifiedSearchData->pattern = NULL ;
+    qualifiedSearchData->length = 0 ;
+    qualifiedSearchData->mask_length = 0 ;
+    qualifiedSearchData->dir_length = 0 ;
+    qualifiedSearchData->pattern_length = 0 ;
+
     maskString = _XmStringGetTextConcat( searchData->mask) ;
     dirString = _XmStringGetTextConcat( searchData->dir) ;
     patternString = _XmStringGetTextConcat( searchData->pattern) ;
@@ -2041,6 +2050,14 @@ QualifySearchDataProc(
         }
     qDirLen = strlen( qualifiedDir) ;
     qualifiedMask = XtMalloc( 1 + qDirLen + strlen( qualifiedPattern)) ;
+    if(    qualifiedMask == NULL    )
+    {   XtFree( qualifiedPattern) ;
+        XtFree( qualifiedDir) ;
+        XtFree( patternString) ;
+        XtFree( dirString) ;
+        XtFree( maskString) ;
+        return ;
+        }
     strcpy( qualifiedMask, qualifiedDir) ;
     strcpy( &qualifiedMask[qDirLen], qualifiedPattern) ;
 
