@@ -22,6 +22,9 @@ for body, field, count in (
     assert field in body
     assert count in body
 
+assert "XtMalloc((Cardinal)(sizeof(XmString) *" in items
+assert "XtMalloc((Cardinal)(sizeof(XmString) *" in selected
+
 assert "UINT_MAX / sizeof(int)" in positions
 assert "XtMalloc((Cardinal)size)" in positions
 print("XmList copy helpers roll back partial copies and bound Xt sizes")

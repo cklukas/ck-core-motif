@@ -3947,7 +3947,8 @@ CopyItems(XmListWidget lw)
       if ((size_t)lw->list.itemCount > SIZE_MAX / sizeof(XmString) ||
           (size_t)lw->list.itemCount > UINT_MAX / sizeof(XmString))
         return;
-      il = (XmString *)XtMalloc(sizeof(XmString) * (lw->list.itemCount));
+      il = (XmString *)XtMalloc((Cardinal)(sizeof(XmString) *
+					   (size_t)lw->list.itemCount));
       if (il == NULL)
         return;
       for (i = 0; i < lw->list.itemCount; i++)
@@ -3986,8 +3987,8 @@ CopySelectedItems(XmListWidget lw)
       if ((size_t)lw->list.selectedItemCount > SIZE_MAX / sizeof(XmString) ||
           (size_t)lw->list.selectedItemCount > UINT_MAX / sizeof(XmString))
         return;
-      sl = (XmString *) XtMalloc(sizeof(XmString) *
-				 (lw->list.selectedItemCount));
+      sl = (XmString *) XtMalloc((Cardinal)(sizeof(XmString) *
+						 (size_t)lw->list.selectedItemCount));
       if (sl == NULL)
         return;
       for (i = 0; i < lw->list.selectedItemCount; i++)
