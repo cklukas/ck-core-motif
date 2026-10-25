@@ -31,6 +31,13 @@ WSM selection ownership guard (2026-10-25)
   avoiding an invalid Xlib query after display metadata failure; see
   `docs/wsm-request-callback.md`.
 
+WSM send failure cleanup (2026-10-25)
+=====================================
+
+- Check widget realization before packing WSM requests, guard optional reply
+  callbacks, and clean up packed data when request-state allocation fails; see
+  `docs/wsm-send-failures.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 

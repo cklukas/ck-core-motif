@@ -86,27 +86,33 @@ WSMSendMessage(Widget w, WSMClientType send_to, WSMRequest *request,
 	return(False);
     }
 
-    /*
-     * Package human-readable request data into protocol package.
-     */
-    msg_data = _WSMPackRequest(dpy, screen_num, request, &msg_len, &error);
-    if (msg_data == NULL) {
-	(*reply_callback)(w, reply_data, NULL, error);
-	return(False);
-    }
-
-    req_info = (RequestInfo *) XtMalloc(sizeof(RequestInfo));
-    req_info->reply_callback = reply_callback;	/* The reply callback func */
-    req_info->reply_data = reply_data;	/* user data for the callback func */
-    req_info->request_type = request->any.type;/*request kind for cross check*/
-    req_info->send_atom = send_atom;	/* Atom we sent this message to. */
-
     if (!XtIsRealized(w)) {
 	fprintf(stderr, "%s WSMSendMessage must be realized, and is not.\n",
 		"Programmer Error: Widget passed to");
 	return(False);
     }
 
+    /*
+     * Package human-readable request data into protocol package.
+     */
+    msg_data = _WSMPackRequest(dpy, screen_num, request, &msg_len, &error);
+    if (msg_data == NULL) {
+	if (reply_callback != NULL)
+	    (*reply_callback)(w, reply_data, NULL, error);
+	return(False);
+    }
+
+    req_info = (RequestInfo *) XtMalloc(sizeof(RequestInfo));
+    if (req_info == NULL) {
+	XtFree((XtPointer) msg_data);
+	if (reply_callback != NULL)
+	    (*reply_callback)(w, reply_data, NULL, WSM_ERROR_INTERNAL);
+	return(False);
+    }
+    req_info->reply_callback = reply_callback;	/* The reply callback func */
+    req_info->reply_data = reply_data;	/* user data for the callback func */
+    req_info->request_type = request->any.type;/*request kind for cross check*/
+    req_info->send_atom = send_atom;	/* Atom we sent this message to. */
     UTMSendMessage(w,
 		   send_atom,
 		   _WSMReqTypeToTarget(dpy, request->any.type),
