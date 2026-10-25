@@ -3994,3 +3994,8 @@ Preserve ComboBox child creation on filter allocation failure (2026-10-25)
 
 - Fall back to the original child arguments when the optional height-filter
   array cannot be allocated; see `docs/motif-combobox-child-args.md`.
+Guard Font selector metadata allocations (2026-10-25)
+=========================================================
+
+- Check FontInfo and family-table allocation failures during initialization;
+  see `docs/motif-fonts-metadata-allocation.md`.
