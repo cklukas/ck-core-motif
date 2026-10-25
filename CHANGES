@@ -7,6 +7,13 @@ Gallery live-page startup and TabStack examples (2026-10-27)
 - Populate the TabStack example with real Overview, Details, and Activity tab
   pages instead of an empty manager frame.
 
+InfoBar live rendering (2026-10-27)
+===================================
+
+- Install a fallback X11 font in the InfoBar GC.  Previously its redisplay
+  path saw `GCFont == None` and returned without drawing the live message,
+  making the gallery example appear empty.
+
 Gallery control rendering and MWM placement (2026-10-27)
 =========================================================
 

@@ -16,8 +16,8 @@ static int bounded_text_length(const char *text){size_t length=text?strlen(text)
 static XtResource resources[]={{XmNinfoMessage,XmCInfoMessage,XmRString,sizeof(String),Offset(info.message),XmRImmediate,(XtPointer)""},{XmNinfoSeverity,XmCInfoSeverity,XmRUnsignedChar,sizeof(unsigned char),Offset(info.severity),XmRImmediate,(XtPointer)XmINFO_SEVERITY_INFO},{XmNinfoClosable,XmCInfoClosable,XmRBoolean,sizeof(Boolean),Offset(info.closable),XmRImmediate,(XtPointer)True},{XmNinfoActionLabel,XmCInfoActionLabel,XmRString,sizeof(String),Offset(info.action_label),XmRImmediate,(XtPointer)NULL},{XmNinfoDismissCallback,XmCInfoDismissCallback,XmRCallback,sizeof(XtCallbackList),Offset(info.dismiss_callback),XmRPointer,(XtPointer)NULL},{XmNinfoActionCallback,XmCInfoActionCallback,XmRCallback,sizeof(XtCallbackList),Offset(info.action_callback),XmRPointer,(XtPointer)NULL},{XmNtraversalOn,XmCTraversalOn,XmRBoolean,sizeof(Boolean),Offset(primitive.traversal_on),XmRImmediate,(XtPointer)True},{XmNhighlightThickness,XmCHighlightThickness,XmRHorizontalDimension,sizeof(Dimension),Offset(primitive.highlight_thickness),XmRCallProc,(XtPointer)_XmSetThickness}};
 externaldef(xminfobarclassrec) XmInfoBarClassRec xmInfoBarClassRec={{(WidgetClass)&xmPrimitiveClassRec,"XmInfoBar",sizeof(XmInfoBarRec),NULL,NULL,False,Initialize,NULL,XtInheritRealize,NULL,0,resources,XtNumber(resources),NULLQUARK,True,XtExposeCompressMaximal,True,False,Destroy,NULL,Redisplay,SetValues,NULL,XtInheritSetValuesAlmost,NULL,NULL,XtVersion,NULL,XtInheritTranslations,QueryGeometry,NULL,NULL},{XmInheritBorderHighlight,XmInheritBorderUnhighlight,XtInheritTranslations,NULL,NULL,0,NULL},{NULL}};
 externaldef(xminfobarwidgetclass) WidgetClass xmInfoBarWidgetClass=(WidgetClass)&xmInfoBarClassRec;
-static void Initialize(Widget request,Widget widget,ArgList args,Cardinal*count){XmInfoBarWidget bar=(XmInfoBarWidget)widget;XGCValues values;(void)request;(void)args;(void)count;if(bar->info.severity>XmINFO_SEVERITY_ERROR)bar->info.severity=XmINFO_SEVERITY_INFO;if(!bar->core.width)bar->core.width=360;if(!bar->core.height)bar->core.height=34;values.foreground=bar->primitive.foreground;values.background=bar->core.background_pixel;bar->info.gc=XCreateGC(XtDisplay(widget),DefaultRootWindow(XtDisplay(widget)),GCForeground|GCBackground,&values);XtAddEventHandler(widget,KeyPressMask|ButtonPressMask,False,Events,NULL);}
-static void Destroy(Widget widget){XmInfoBarWidget bar=(XmInfoBarWidget)widget;XtRemoveEventHandler(widget,KeyPressMask|ButtonPressMask,False,Events,NULL);if(bar->info.gc)XFreeGC(XtDisplay(widget),bar->info.gc);}
+static void Initialize(Widget request,Widget widget,ArgList args,Cardinal*count){XmInfoBarWidget bar=(XmInfoBarWidget)widget;XGCValues values;Display *display=XtDisplay(widget);(void)request;(void)args;(void)count;if(bar->info.severity>XmINFO_SEVERITY_ERROR)bar->info.severity=XmINFO_SEVERITY_INFO;if(!bar->core.width)bar->core.width=360;if(!bar->core.height)bar->core.height=34;bar->info.font=XLoadQueryFont(display,"fixed");values.foreground=bar->primitive.foreground;values.background=bar->core.background_pixel;if(bar->info.font)values.font=bar->info.font->fid;bar->info.gc=XCreateGC(display,DefaultRootWindow(display),GCForeground|GCBackground|(bar->info.font?GCFont:0),&values);XtAddEventHandler(widget,KeyPressMask|ButtonPressMask,False,Events,NULL);}
+static void Destroy(Widget widget){XmInfoBarWidget bar=(XmInfoBarWidget)widget;XtRemoveEventHandler(widget,KeyPressMask|ButtonPressMask,False,Events,NULL);if(bar->info.gc)XFreeGC(XtDisplay(widget),bar->info.gc);if(bar->info.font)XFreeFont(XtDisplay(widget),bar->info.font);}
 static void Redisplay(Widget widget, XEvent *event, Region region)
 {
     XmInfoBarWidget bar = (XmInfoBarWidget)widget;
@@ -25,7 +25,6 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
     Window window = XtWindow(widget);
     const char *prefix;
     XFontStruct *font;
-    XGCValues gc_values;
     int baseline;
 
     (void)event;
@@ -37,10 +36,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
     prefix = bar->info.severity == XmINFO_SEVERITY_ERROR ? "Error: " :
              bar->info.severity == XmINFO_SEVERITY_WARNING ? "Warning: " :
              "Info: ";
-    if (!XGetGCValues(display, bar->info.gc, GCFont, &gc_values) ||
-        gc_values.font == None)
-        return;
-    font = XQueryFont(display, gc_values.font);
+    font = bar->info.font;
     if (!font)
         return;
 
