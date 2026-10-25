@@ -6075,3 +6075,10 @@ Guard LabelGadget baseline allocations (2026-10-25)
   `docs/labelg-baseline-allocation.md`.
 
 Guard transfer request-block allocation (2026-10-25)
+Guard Label baseline allocations (2026-10-25)
+==============================================
+
+- Make Label baseline caching and caller copies failure-safe; see
+  `docs/label-baseline-allocation.md`.
+
+Guard LabelGadget baseline allocations (2026-10-25)

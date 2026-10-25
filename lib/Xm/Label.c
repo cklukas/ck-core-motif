@@ -2552,13 +2552,26 @@ XmLabelGetBaselines(Widget wid,
   /* Compute raw baselines if unavailable. */
   if (lw->label.baselines == NULL)
     {
+      Dimension *new_baselines;
+
       _XmStringGetBaselines(lw->label.font, lw->label._label,
 			    &(lw->label.baselines), &count);
-      assert(lw->label.baselines != NULL);
+      if (lw->label.baselines == NULL || count == (Cardinal)-1 ||
+	  (size_t)(count + 1) > (size_t)-1 / sizeof(*new_baselines)) {
+	  lw->label.baselines = NULL;
+	  return False;
+      }
 
       /* Store the current offset in an extra location. */
-      lw->label.baselines = (Dimension*)
-	XtRealloc((char*) lw->label.baselines, (count+1) * sizeof(Dimension));
+      new_baselines = (Dimension *)XtRealloc(
+	  (char *)lw->label.baselines,
+	  (size_t)(count + 1) * sizeof(*new_baselines));
+      if (new_baselines == NULL) {
+	XtFree((char *)lw->label.baselines);
+	lw->label.baselines = NULL;
+	return False;
+      }
+      lw->label.baselines = new_baselines;
       lw->label.baselines[count] = 0;
     }
   else
@@ -2577,7 +2590,14 @@ XmLabelGetBaselines(Widget wid,
 
   /* Copy the cached data. */
   *line_count = count;
-  *baselines = (Dimension*) XtMalloc(*line_count * sizeof(Dimension));
+  if (count == 0) {
+    *baselines = NULL;
+    return True;
+  }
+  *baselines = (Dimension*) XtMalloc((size_t)*line_count *
+				     sizeof(Dimension));
+  if (*baselines == NULL)
+    return False;
   memcpy((char*) *baselines, (char*) lw->label.baselines,
 	 *line_count * sizeof(Dimension));
 
