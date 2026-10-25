@@ -1,5 +1,13 @@
 # Implementation and validation status
 
+The first WP-05.2 gallery/tooling increment now provides a deterministic
+per-display scale override through `<Xm/Display.h>`.  The installed AArch64
+uconsole consumer passes three fresh Xvfb runs and a consumer-only
+ASan/UBSan run while preserving Xrm identity and scaling an unlabelled
+ToggleButton default.  This is input/creation-time qualification only; live
+realized-hierarchy appearance/DPI transactions and real multi-output XLibre
+reflow remain open.
+
 ## Native hard-line and geometry qualification
 
 The focused native AArch64 installed ABI 8 cohort passes all 33 selected feature
