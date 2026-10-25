@@ -4445,6 +4445,7 @@ SetToggleSize(
     {
       if (!IsNull(PixmapOn(newtbg)))
 	{
+	  tmpW = tmpH = 0;
 	  XmeGetPixmapData(XtScreen(newtbg), PixmapOn(newtbg),
 			   NULL, NULL, NULL, NULL, NULL, NULL,
 			   &tmpW, &tmpH); 
@@ -4454,6 +4455,7 @@ SetToggleSize(
       
       if (!IsNull(PixmapOff(newtbg)))
 	{
+	  tmpW = tmpH = 0;
 	  XmeGetPixmapData(XtScreen(newtbg), PixmapOff(newtbg),
 			   NULL, NULL, NULL, NULL, NULL, NULL,
 			   &tmpW, &tmpH); 
@@ -4463,6 +4465,7 @@ SetToggleSize(
 
       if (!IsNull(PixmapInd(newtbg)))
 	{
+	  tmpW = tmpH = 0;
 	  XmeGetPixmapData(XtScreen(newtbg), PixmapInd(newtbg),
 			   NULL, NULL, NULL, NULL, NULL, NULL,
 			   &tmpW, &tmpH); 
@@ -4474,6 +4477,7 @@ SetToggleSize(
     {
       if (!IsNull(PixmapInsenOn(newtbg)))
 	{
+	  tmpW = tmpH = 0;
 	  XmeGetPixmapData(XtScreen(newtbg), PixmapInsenOn(newtbg),
 			   NULL, NULL, NULL, NULL, NULL, NULL,
 			   &tmpW, &tmpH); 
@@ -4483,6 +4487,7 @@ SetToggleSize(
       
       if (!IsNull(PixmapInsenOff(newtbg)))
 	{
+	  tmpW = tmpH = 0;
 	  XmeGetPixmapData(XtScreen(newtbg), PixmapInsenOff(newtbg),
 			   NULL, NULL, NULL, NULL, NULL, NULL,
 			   &tmpW, &tmpH); 
@@ -4492,6 +4497,7 @@ SetToggleSize(
       
       if (!IsNull(PixmapInsenInd(newtbg)))
 	{
+	  tmpW = tmpH = 0;
 	  XmeGetPixmapData(XtScreen(newtbg), PixmapInsenInd(newtbg),
 			   NULL, NULL, NULL, NULL, NULL, NULL,
 			   &tmpW, &tmpH); 

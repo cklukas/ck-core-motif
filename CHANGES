@@ -6862,3 +6862,11 @@ Container drag-icon pixmap metadata (2026-10-25)
   `docs/container-drag-pixmap-metadata.md`.
 
 IconG pixmap metadata guards (2026-10-25)
+ToggleButtonGadget pixmap sizing dimensions (2026-10-25)
+=========================================================
+
+- Reset temporary pixmap dimensions before every `SetToggleSize` lookup so an
+  unresolved gadget pixmap cannot reuse a preceding size; see
+  `docs/togglebg-size-pixmap-dimensions.md`.
+
+Container drag-icon pixmap metadata (2026-10-25)
