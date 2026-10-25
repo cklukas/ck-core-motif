@@ -83,9 +83,10 @@ static void table_count(XmRenderTable table, int expected) {
 static void table_lifetime(Widget owner, XmRendition value) {
   XmRenderTable original = XmRenderTableAddRenditions(NULL, &value, 1, XmMERGE_REPLACE);
   XmRenderTable copy = XmRenderTableCopy(original, NULL, 0), filtered;
+  XmRenderTable unique;
   XmStringTag wanted[] = {"missing", XmFONTLIST_DEFAULT_TAG};
   XmStringTag remove[] = {XmFONTLIST_DEFAULT_TAG};
-  XmRendition decoration, retained;
+  XmRendition decoration, unique_decoration, retained;
   Arg arg;
   XtSetArg(arg, XmNunderlineType, XmSINGLE_LINE);
   decoration = XmRenditionCreate(owner, "decoration", &arg, 1);
@@ -99,6 +100,28 @@ static void table_lifetime(Widget owner, XmRendition value) {
   require(retained != NULL, "filtered public table lost its existing font");
   XmRenderTableFree(filtered);
   XmRenditionFree(retained);
+
+  /* A unique table keeps its public handle while compaction publishes only
+   * after the resized body is ready. */
+  unique = XmRenderTableAddRenditions(NULL, &value, 1, XmMERGE_REPLACE);
+  unique_decoration = XmRenditionCreate(owner, "unique-decoration", &arg, 1);
+  require(unique_decoration != NULL, "unique table rendition setup failed");
+  unique = XmRenderTableAddRenditions(unique, &unique_decoration, 1, XmDUPLICATE);
+  XmRenditionFree(unique_decoration);
+  require(unique != NULL, "unique table setup failed");
+  table_count(unique, 2);
+  unique = XmRenderTableRemoveRenditions(unique, remove, 1);
+  table_count(unique, 1);
+  XmRenderTableFree(unique);
+
+  /* A shared table receives an independent compacted body and leaves the
+   * source table untouched. */
+  filtered = XmRenderTableCopy(copy, NULL, 0);
+  filtered = XmRenderTableRemoveRenditions(filtered, remove, 1);
+  table_count(filtered, 1);
+  table_count(copy, 2);
+  XmRenderTableFree(filtered);
+
   filtered = XmRenderTableCopy(original, NULL, 0);
   filtered = XmRenderTableRemoveRenditions(filtered, remove, 1);
   require(filtered == NULL, "removing the only copied entry must empty that copy");
