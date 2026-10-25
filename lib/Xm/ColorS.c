@@ -589,34 +589,61 @@ SetValues(Widget current, Widget request, Widget set,
 
     {
     int i;
+    XmString replacement;
     for( i = 0; i < 3; i++ )
 	{
     	if (XmColorS_strings(curr).slider_labels[i] != XmColorS_strings(csw).slider_labels[i])
 		{
-		XmStringFree(XmColorS_strings(curr).slider_labels[i]);
-    		XmColorS_strings(csw).slider_labels[i] = XmStringCopy(XmColorS_strings(csw).slider_labels[i]);
-		XtVaSetValues(XmColorS_sliders(csw)[i], XmNtitleString, XmColorS_strings(csw).slider_labels[i], NULL); 
+		replacement = XmStringCopy(XmColorS_strings(csw).slider_labels[i]);
+		if (replacement != NULL) {
+		    XmStringFree(XmColorS_strings(curr).slider_labels[i]);
+		    XmColorS_strings(csw).slider_labels[i] = replacement;
+		    XtVaSetValues(XmColorS_sliders(csw)[i], XmNtitleString,
+			XmColorS_strings(csw).slider_labels[i], NULL);
+		} else {
+		    XmColorS_strings(csw).slider_labels[i] =
+			XmColorS_strings(curr).slider_labels[i];
+		}
 		}
 	}
     for (i = 0; i< XmColorSelector_NUM_TOGGLES; i++) 
 	{
 	if (XmColorS_strings(curr).tog_labels[i] != XmColorS_strings(csw).tog_labels[i])
 		{
-		XmStringFree(XmColorS_strings(curr).tog_labels[i]);
-		XmColorS_strings(csw).tog_labels[i] = XmStringCopy(XmColorS_strings(csw).tog_labels[i]);
-		XtVaSetValues(XmColorS_chose_mode(csw)[i], XmNlabelString, XmColorS_strings(csw).tog_labels[i], NULL);
+		replacement = XmStringCopy(XmColorS_strings(csw).tog_labels[i]);
+		if (replacement != NULL) {
+		    XmStringFree(XmColorS_strings(curr).tog_labels[i]);
+		    XmColorS_strings(csw).tog_labels[i] = replacement;
+		    XtVaSetValues(XmColorS_chose_mode(csw)[i], XmNlabelString,
+			XmColorS_strings(csw).tog_labels[i], NULL);
+		} else {
+		    XmColorS_strings(csw).tog_labels[i] =
+			XmColorS_strings(curr).tog_labels[i];
+		}
 		}
 	}
 
 	if (XmColorS_strings(curr).file_read_error != XmColorS_strings(csw).file_read_error)
 	{
-		XmStringFree(XmColorS_strings(curr).file_read_error);
-		XmColorS_strings(csw).file_read_error = XmStringCopy(XmColorS_strings(csw).file_read_error);
+		replacement = XmStringCopy(XmColorS_strings(csw).file_read_error);
+		if (replacement != NULL) {
+		    XmStringFree(XmColorS_strings(curr).file_read_error);
+		    XmColorS_strings(csw).file_read_error = replacement;
+		} else {
+		    XmColorS_strings(csw).file_read_error =
+			XmColorS_strings(curr).file_read_error;
+		}
 	}
 	if (XmColorS_strings(curr).no_cell_error != XmColorS_strings(csw).no_cell_error)
 	{
-		XmStringFree(XmColorS_strings(curr).no_cell_error);
-		XmColorS_strings(csw).no_cell_error = XmStringCopy(XmColorS_strings(csw).no_cell_error);
+		replacement = XmStringCopy(XmColorS_strings(csw).no_cell_error);
+		if (replacement != NULL) {
+		    XmStringFree(XmColorS_strings(curr).no_cell_error);
+		    XmColorS_strings(csw).no_cell_error = replacement;
+		} else {
+		    XmColorS_strings(csw).no_cell_error =
+			XmColorS_strings(curr).no_cell_error;
+		}
 	}
     }
 

@@ -9273,3 +9273,10 @@ FontSelector list-refresh rollback (2026-10-29)
 - Reject failed temporary family/size `XmString` creation, release partial
   arrays, and leave the existing selector lists unchanged; see
   `docs/fontselector-list-refresh-rollback.md`.
+
+ColorSelector string-resource rollback (2026-10-29)
+====================================================
+
+- Copy slider labels, mode labels, and error strings before releasing current
+  values during `SetValues`, preserving usable selector controls on failure;
+  see `docs/colors-selector-string-rollback.md`.
