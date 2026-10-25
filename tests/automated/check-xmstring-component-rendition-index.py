@@ -12,6 +12,7 @@ function = source[start:end]
 assert "_XmStrRendIndex(opt) == REND_INDEX_UNSET" in function
 assert "_tag_cache == NULL" in function
 assert "_XmStrRendIndex(opt) >= _cache_count" in function
+assert "_tag_cache[_XmStrRendIndex(opt)] == NULL" in function
 assert "_XmStrContError(context) = True;" in function
 
 print("XmString optimized rendition indices are validated")

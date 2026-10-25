@@ -9529,7 +9529,8 @@ XmeStringGetComponent(_XmStringContext context,
     end_count   = _XmStrRendEnd(opt);
     if (begin_count || end_count) {
       if (_XmStrRendIndex(opt) == REND_INDEX_UNSET ||
-	  _tag_cache == NULL || _XmStrRendIndex(opt) >= _cache_count) {
+	  _tag_cache == NULL || _XmStrRendIndex(opt) >= _cache_count ||
+	  _tag_cache[_XmStrRendIndex(opt)] == NULL) {
 	_XmStrContError(context) = True;
 	_XmProcessUnlock();
 	return XmSTRING_COMPONENT_END;
