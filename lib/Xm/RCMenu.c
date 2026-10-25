@@ -3465,11 +3465,13 @@ ChildsActivateCallback(
 	  count = 0;
 	  while (callbacks[count].callback != NULL)
 	    count++;
-	  if ((size_t)count > SIZE_MAX / sizeof(XtPointer))
+	  if ((size_t)count > SIZE_MAX / sizeof(XtPointer) ||
+	      (size_t)count > UINT_MAX / sizeof(XtPointer))
 	    return;
 	  	  
 	  callbackClosure =
-	      (XtPointer *) XtMalloc(sizeof(XtPointer) * count);
+	      (XtPointer *) XtMalloc((Cardinal)(sizeof(XtPointer) *
+					   (size_t)count));
 	  if (callbackClosure == NULL)
 	      return;
 

@@ -5767,6 +5767,13 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+RCMenu callback-closure Xt width (2026-10-25)
+==============================================
+
+- Check callback-closure snapshot sizes against Xt's `Cardinal` width before
+  allocation, preserving safe return behavior for unrepresentable lists; see
+  `docs/rcmenu-callback-closure-allocation.md`.
+
 Mask-name Xt width (2026-10-25)
 ===============================
 
