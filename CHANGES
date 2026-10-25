@@ -1,3 +1,9 @@
+Icon-place alternate bounds (2026-10-25)
+========================================
+
+- Validate converted alternate positions before reading icon placement
+  storage; see `docs/find-place-alternates.md`.
+
 Icon-place sentinel handling (2026-10-25)
 ==========================================
 
