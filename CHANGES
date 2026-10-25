@@ -4968,3 +4968,9 @@ Guard Stepper redisplay resources (2026-10-25)
 
 - Return safely when Stepper's drawing GC or queried X11 font is unavailable;
   see `docs/stepper-redisplay-guard.md`.
+
+Guard ColorPicker redisplay resources (2026-10-25)
+===================================================
+
+- Handle missing ColorPicker drawing resources and clamp short-widget swatch
+  height arithmetic; see `docs/color-picker-redisplay-guard.md`.

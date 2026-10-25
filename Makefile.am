@@ -839,3 +839,4 @@ EXTRA_DIST += tests/automated/check-xpm-create-image-size.py docs/xpm-create-ima
 EXTRA_DIST += tests/automated/check-info-bar-redisplay-guard.py docs/info-bar-redisplay-guard.md
 EXTRA_DIST += tests/automated/check-number-box-redisplay-guard.py docs/number-box-redisplay-guard.md
 EXTRA_DIST += tests/automated/check-stepper-redisplay-guard.py docs/stepper-redisplay-guard.md
+EXTRA_DIST += tests/automated/check-color-picker-redisplay-guard.py docs/color-picker-redisplay-guard.md
