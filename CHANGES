@@ -1,3 +1,9 @@
+DrawnButton menu geometry guards (2026-10-25)
+===============================================
+
+- Guard menu arm shadows and unhighlight border clears against missing GCs or
+  undersized widget interiors; see `docs/drawn-button-menu-bounds.md`.
+
 ToggleButton geometry bounds (2026-10-25)
 ===========================================
 
