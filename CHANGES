@@ -1,3 +1,9 @@
+Transactional tab-list removal (2026-10-25)
+=============================================
+
+- Remove tabs from a private copy and retain the caller's original list when
+  that copy cannot be allocated; see `docs/tablist-remove-rollback.md`.
+
 Transactional tab-list replacement (2026-10-25)
 =================================================
 

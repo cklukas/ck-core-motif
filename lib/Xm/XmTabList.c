@@ -457,8 +457,8 @@ XmTabListReplacePositions(XmTabList oldlist,
  * This routine uses a mark/sweep algorithm.
  * A pass over position_list is made to mark tabs for removal without
  * disturbing their positions.
- * Then a pass is made over the oldlist removing marked tabs.
- * A final pass is made to copy the remaining tabs.
+ * Then a pass is made over the private copy removing marked tabs before it
+ * replaces the caller's list.
  */
 XmTabList
 XmTabListRemoveTabs(XmTabList oldlist,
@@ -477,21 +477,28 @@ XmTabListRemoveTabs(XmTabList oldlist,
     return(oldlist);
   }
   
-  cur_tab = _XmTabLStart(oldlist);
+  /* Work on a private copy so a failed allocation cannot consume oldlist. */
+  tl = XmTabListCopy(oldlist, 0, 0);
+  if (tl == NULL) {
+    _XmProcessUnlock();
+    return(oldlist);
+  }
+
+  cur_tab = _XmTabLStart(tl);
   cur_pos = 0;
 
   /* Get position, set mark */
   for (i = 0; i < position_count; i++)
     {
-      cur_tab = GetNthTab(oldlist, position_list[i],
+      cur_tab = GetNthTab(tl, position_list[i],
 			  cur_tab, cur_pos);
       cur_pos = position_list[i];
       _XmTabMark(cur_tab) = TRUE;
     }
   
   /* Free marked tabs */
-  for (tab = _XmTabNext(_XmTabLStart(oldlist));
-       tab != _XmTabLStart(oldlist);
+  for (tab = _XmTabNext(_XmTabLStart(tl));
+       tab != _XmTabLStart(tl);
        tab = next)
     {
       if (_XmTabMark(tab))
@@ -503,7 +510,7 @@ XmTabListRemoveTabs(XmTabList oldlist,
 	  _XmTabPrev(next) = prev;
 
 	  XmTabFree(tab);
-	  _XmTabLCount(oldlist) --;
+	  _XmTabLCount(tl) --;
 	}
       else
 	  next = _XmTabNext(tab);
@@ -515,14 +522,15 @@ XmTabListRemoveTabs(XmTabList oldlist,
       if (tab == _XmTabNext(tab))
 	/* We've deleted all the tabs. */
 	{
-	  _XmTabLCount(oldlist) = 1;
+	  _XmTabLCount(tl) = 1;
 	  _XmTabMark(tab) = FALSE;
+	  XmTabListFree(tl);
 	  XmTabListFree(oldlist);
 	  _XmProcessUnlock();
 	  return((XmTabList)NULL);
 	}
       
-      _XmTabLStart(oldlist) = _XmTabNext(tab);
+      _XmTabLStart(tl) = _XmTabNext(tab);
 
       prev = _XmTabPrev(tab);
       next = _XmTabNext(tab);
@@ -531,10 +539,9 @@ XmTabListRemoveTabs(XmTabList oldlist,
       _XmTabPrev(next) = prev;
       
       XmTabFree(tab);
-      _XmTabLCount(oldlist) --;
+      _XmTabLCount(tl) --;
     }
 
-  tl = XmTabListCopy(oldlist, 0, 0);
   XmTabListFree(oldlist);
   
   _XmProcessUnlock();
