@@ -276,6 +276,8 @@ Render-table locking (2026-10-26)
   see `docs/xmstring-unparse-array-inputs.md`.
 - Reject null elements in `XmStringTableToXmString` instead of silently
   skipping them; see `docs/xmstring-table-inputs.md`.
+- Make `XmStringPutRendition` propagate component-allocation failure instead
+  of returning an unadorned string; see `docs/xmstring-put-rendition-failure.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================
