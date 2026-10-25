@@ -6026,3 +6026,10 @@ Harden XmString unoptimized-entry copies (2026-10-25)
   and unwind partial entries on allocation failure; see
   `docs/xmstring-unoptimized-copy.md` and its focused source check.
 
+Harden XmString optimized-entry copies (2026-10-25)
+=====================================================
+
+- Compute inline-entry copy sizes with checked `size_t` arithmetic, enforce
+  Xt's allocation-width contract, and unwind failed copies; see
+  `docs/xmstring-optimized-copy.md` and its focused source check.
+

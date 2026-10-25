@@ -5834,7 +5834,8 @@ _XmStringEntryCopy(_XmStringEntry entry)
 {
   int i;
   int j;
-  int size;
+  size_t size;
+  size_t allocation_size;
   XtPointer text;
   _XmStringEntry new_entry = NULL;
   unsigned int entry_len;
@@ -5847,19 +5848,33 @@ _XmStringEntryCopy(_XmStringEntry entry)
   switch (_XmEntryType(entry)) {
   case XmSTRING_ENTRY_OPTIMIZED:
     if (_XmEntryImm(entry)) {
-      if (entry_len > sizeof(XtPointer))
-	size = sizeof(_XmStringOptSegRec) + entry_len - sizeof(XtPointer);
-      else
-	size = sizeof(_XmStringOptSegRec);
-      new_entry = (_XmStringEntry)XtMalloc(size);
+      if (entry_len > sizeof(XtPointer)) {
+	size_t inline_base = sizeof(_XmStringOptSegRec) - sizeof(XtPointer);
+	if ((size_t)entry_len > SIZE_MAX - inline_base)
+	  return NULL;
+	allocation_size = inline_base + (size_t)entry_len;
+      } else
+	allocation_size = sizeof(_XmStringOptSegRec);
+      if (allocation_size > UINT_MAX)
+	return NULL;
+	new_entry = (_XmStringEntry)XtMalloc((Cardinal)allocation_size);
+	if (new_entry == NULL)
+	return NULL;
+	size = allocation_size;
       memcpy((char *)new_entry, (char *)entry, size);
     } else {
       new_entry = (_XmStringEntry)XtMalloc(sizeof(_XmStringOptSegRec));
+	if (new_entry == NULL)
+	return NULL;
       memcpy((char *)new_entry, (char *)entry, sizeof(_XmStringOptSegRec));
       if (_XmEntryPermGet(entry)) {
 	_XmEntryTextSet(new_entry, _XmEntryTextGet(entry));
       } else if (entry_len > 0) {
 	text = (XtPointer)XtMalloc(entry_len);
+	if (text == NULL) {
+	  XtFree((char *)new_entry);
+	  return NULL;
+	}
 	memcpy((char *)text, (char *)_XmEntryTextGet(entry), entry_len);
 	_XmEntryTextSet(new_entry, text);
       } else
