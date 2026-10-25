@@ -599,6 +599,14 @@ SecondaryObjectCreate(
 
   _XmProcessUnlock();
 
+  if (newSec == NULL || reqSec == NULL) {
+    if (newSec != NULL)
+      _XmExtObjFree(newSec);
+    if (reqSec != NULL)
+      _XmExtObjFree(reqSec);
+    return;
+  }
+
     /*
      * Since the resource lists for label and cascadebutton were merged at
      * ClassInitialize time we need to make only one call to
@@ -626,6 +634,11 @@ SecondaryObjectCreate(
                     args, *num_args );
 
   extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+  if (extData == NULL) {
+    _XmExtObjFree(newSec);
+    _XmExtObjFree(reqSec);
+    return;
+  }
   extData->widget = (Widget)newSec;
   extData->reqWidget = (Widget)reqSec;
 
@@ -700,6 +713,10 @@ InitializePosthook(
     * free the req subobject used for comparisons
     */
     _XmPopWidgetExtData((Widget) cbw, &ext, XmCACHE_EXTENSION);
+    if (ext == NULL) {
+      _XmProcessUnlock();
+      return;
+    }
     _XmExtObjFree((XtPointer) ext->widget);
     _XmExtObjFree((XtPointer) ext->reqWidget);
     XtFree( (char *) ext);
@@ -2400,6 +2417,14 @@ SetValuesPrehook(
 
     _XmProcessUnlock();
 
+    if (newSec == NULL || reqSec == NULL) {
+        if (newSec != NULL)
+            _XmExtObjFree((XtPointer)newSec);
+        if (reqSec != NULL)
+            _XmExtObjFree((XtPointer)reqSec);
+        return FALSE;
+    }
+
     newSec->object.self = (Widget)newSec;
     newSec->object.widget_class = ec;
     newSec->object.parent = XtParent(newParent);
@@ -2420,6 +2445,11 @@ SetValuesPrehook(
             sizeof(XmCascadeButtonGCacheObjPart));
 
     extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+    if (extData == NULL) {
+        _XmExtObjFree((XtPointer)newSec);
+        _XmExtObjFree((XtPointer)reqSec);
+        return FALSE;
+    }
     extData->widget = (Widget)newSec;
     extData->reqWidget = (Widget)reqSec;
     _XmPushWidgetExtData(newParent, extData, XmCACHE_EXTENSION);
@@ -2484,6 +2514,9 @@ GetValuesPrehook(
     newSec = (XmCascadeButtonGCacheObject)_XmExtObjAlloc(size);
     _XmProcessUnlock();
 
+    if (newSec == NULL)
+        return;
+
     newSec->object.self = (Widget)newSec;
     newSec->object.widget_class = ec;
     newSec->object.parent = XtParent(newParent);
@@ -2504,6 +2537,10 @@ GetValuesPrehook(
             sizeof(XmCascadeButtonGCacheObjPart));
 
     extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+    if (extData == NULL) {
+        _XmExtObjFree((XtPointer)newSec);
+        return;
+    }
     extData->widget = (Widget)newSec;
     _XmPushWidgetExtData(newParent, extData, XmCACHE_EXTENSION);
 
@@ -2546,6 +2583,9 @@ GetValuesPosthook(
     XmWidgetExtData             ext;
 
     _XmPopWidgetExtData(new_w, &ext, XmCACHE_EXTENSION);
+
+    if (ext == NULL)
+        return;
 
     _XmProcessLock();
     _XmExtObjFree((XtPointer) ext->widget);
@@ -2603,6 +2643,11 @@ SetValuesPosthook(
       CBG_Cache(new_w) = CBG_Cache(current);
 
   _XmPopWidgetExtData(new_w, &ext, XmCACHE_EXTENSION);
+
+  if (ext == NULL) {
+    _XmProcessUnlock();
+    return FALSE;
+  }
 
   _XmExtObjFree((XtPointer) ext->widget);
   _XmExtObjFree((XtPointer) ext->reqWidget);
