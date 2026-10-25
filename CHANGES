@@ -1,3 +1,10 @@
+XmStack growth bounds (2026-10-27)
+==================================
+
+- Check stack index and capacity arithmetic before growing the internal
+  pointer array.  Exhausted or unrepresentable stacks now reject a push
+  without wrapping the allocation size.
+
 XmString rendition merge allocation failures (2026-10-27)
 ===========================================================
 
