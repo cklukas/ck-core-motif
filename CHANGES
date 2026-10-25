@@ -1,3 +1,9 @@
+Font-list converter input validation (2026-10-25)
+==================================================
+
+- Validate source and destination `XrmValue` pointers before font-list
+  conversion; see `docs/fontlist-converter-inputs.md`.
+
 XmString converter input validation (2026-10-25)
 =================================================
 

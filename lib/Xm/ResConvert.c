@@ -901,6 +901,9 @@ CvtStringToXmFontList(
   char delim;
   XmFontListEntry fontListEntry;
   XmFontList      fontList = NULL;
+
+  if (from == NULL || from->addr == NULL || to == NULL)
+    return FALSE;
   
   if (from->addr)
     {   
