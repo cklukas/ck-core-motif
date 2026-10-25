@@ -1072,6 +1072,17 @@ NbadgeCount
 NbadgeMaximum
 NbadgeSeverity
 
+CLinkLabel
+CLinkTarget
+CLinkVisited
+CLinkVisitOnActivate
+CLinkActivateCallback
+NlinkLabel
+NlinkTarget
+NlinkVisited
+NlinkVisitOnActivate
+NlinkActivateCallback
+
 #table _XmStrings20
 
 NtearOffTitle

@@ -576,6 +576,8 @@ public XmChipInvoke
 public XmChipRemove
 public XmCreateBadge
 public XmBadgeGetDisplayedCount
+public XmCreateLink
+public XmLinkActivate
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -866,6 +868,8 @@ public xmChipClassRec
 public xmChipWidgetClass
 public xmBadgeClassRec
 public xmBadgeWidgetClass
+public xmLinkClassRec
+public xmLinkWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec
