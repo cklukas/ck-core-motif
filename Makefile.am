@@ -845,3 +845,4 @@ EXTRA_DIST += tests/automated/check-toggle-switch-redisplay-guards.py docs/toggl
 EXTRA_DIST += tests/automated/check-progress-bar-redisplay-guards.py docs/progress-bar-redisplay-guards.md
 EXTRA_DIST += tests/automated/check-date-picker-redisplay-guard.py docs/date-picker-redisplay-guard.md
 EXTRA_DIST += tests/automated/check-spinner-redisplay-guards.py docs/spinner-redisplay-guards.md
+EXTRA_DIST += tests/automated/check-data-grid-redisplay-guards.py docs/data-grid-redisplay-guards.md

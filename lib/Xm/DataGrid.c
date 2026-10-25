@@ -309,6 +309,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
 }
 
 static void draw_text(XmDataGridWidget grid, int x, int y, const char *text) {
+    if (!grid->data_grid.gc) return;
+    if (!text) text = "";
     XDrawString(XtDisplay((Widget)grid), XtWindow((Widget)grid),
                 grid->data_grid.gc, x, y, text, (int)strlen(text));
 }
@@ -324,7 +326,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Cardinal row, column;
     int cell_width;
     (void)event; (void)region;
-    if (!XtIsRealized(widget)) return;
+    if (!XtIsRealized(widget) || !grid->data_grid.gc) return;
     XClearWindow(XtDisplay(widget), XtWindow(widget));
     cell_width = grid->data_grid.column_count ?
         (int)grid->core.width / (int)grid->data_grid.column_count : 1;
@@ -349,8 +351,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                 XDrawRectangle(XtDisplay(widget), XtWindow(widget),
                                grid->data_grid.gc, x - 2,
                                y - (int)grid->data_grid.row_height + 2,
-                               (unsigned)(cell_width - 5),
-                               (unsigned)(grid->data_grid.row_height - 3));
+                               (unsigned)(cell_width > 5 ? cell_width - 5 : 1),
+                               (unsigned)(grid->data_grid.row_height > 3 ?
+                                          grid->data_grid.row_height - 3 : 1));
             draw_text(grid, x, y,
                       grid->data_grid.rows[model_row].values[column]);
         }
