@@ -1,3 +1,9 @@
+List query and horizontal-position validation (2026-10-25)
+============================================================
+
+- Guard horizontal positioning and special position-zero selection queries
+  against invalid list state; see `docs/list-query-inputs.md`.
+
 Item-based list navigation input validation (2026-10-25)
 ==========================================================
 

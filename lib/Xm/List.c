@@ -10111,6 +10111,8 @@ XmListSetHorizPos(Widget w,
 		  int position)
 {
   XmListWidget  lw = (XmListWidget) w;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -10292,7 +10294,9 @@ XmListPosSelected(Widget w,
 
   _XmAppLock(app);
 
-  if ((lw->list.items == NULL) || (pos < 0) || (pos > lw->list.itemCount)) {
+  if ((lw->list.items == NULL) || (lw->list.itemCount <= 0) ||
+      (pos < 0) || (pos > lw->list.itemCount) ||
+      (pos == 0 && lw->list.LastItem <= 0)) {
     _XmAppUnlock(app);
     return False;
   }
