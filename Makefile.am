@@ -149,6 +149,7 @@ EXTRA_DIST += tests/modernization/baseline.c tests/automated/run-modernization-b
               docs/modernization-baseline.md modernization_plan.md
 EXTRA_DIST += tests/automated/check-appearance-profile.c tests/automated/run-appearance-profile.py docs/appearance-profiles.md
 EXTRA_DIST += tests/automated/check-live-appearance.c tests/automated/run-live-appearance.py
+EXTRA_DIST += tests/automated/check-dnd-source-cancel-source.py
 EXTRA_DIST += tests/automated/check-button-type-conversion.c tests/automated/run-button-type-regressions.py docs/button-type-conversion.md
 EXTRA_DIST += tests/automated/check-charset-table-conversion.c tests/automated/run-charset-table-regressions.py docs/charset-table-conversion.md
 EXTRA_DIST += tests/automated/check-keysym-table-conversion.c tests/automated/run-keysym-table-regressions.py docs/keysym-table-conversion.md

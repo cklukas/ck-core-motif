@@ -143,6 +143,13 @@ cross-process (12 checks) and initiator-cancellation (3 checks) probes in
 three fresh runs each.  Cross-process multiple-target and full application
 DND workflows remain open.
 
+`tests/automated/check-dnd-source-cancel-source.py` protects the corresponding
+teardown ownership boundary in source review: the finish path releases the
+Motif atom through the still-live source shell and reads the retained source
+widget directly, rather than querying the retiring drag context. This static
+contract complements the display-backed owner-replacement and post-drop runs;
+it does not broaden their application-workflow scope.
+
 `tests/automated/check-dnd-multiple-targets.c` covers a two-target transfer in
 one `XmDropTransferStart` request.  The source exports two atoms with distinct
 payloads, the destination imports both, and the transfer callback verifies

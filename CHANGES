@@ -6,6 +6,13 @@ Live appearance Text initialization regression (2026-10-25)
   profile transitions, covering the deferred output-backend initialization
   boundary used by the Motif bug fix.
 
+Source-side drag teardown contract (2026-10-25)
+================================================
+
+- Add a source-contract regression requiring drag-finish atom release through
+  the live source shell and direct retained-source lookup, guarding the
+  owner-replacement lifetime fix alongside the installed DnD probes.
+
 XLibre live property fixture (2026-10-25)
 ==========================================
 
