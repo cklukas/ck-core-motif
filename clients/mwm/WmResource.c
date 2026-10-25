@@ -182,6 +182,23 @@ char *builtinSystemMenu = BUILTINSYSTEMMENU;
 }"
 #endif /* WSM */
 
+static char *
+CopyCatalogString(const char *text)
+{
+    size_t length;
+    char *copy;
+
+    if (text == NULL)
+	return(NULL);
+    length = strlen(text);
+    if (length >= UINT_MAX)
+	return(NULL);
+    copy = (char *)XtMalloc((Cardinal)(length + 1));
+    if (copy != NULL)
+	memcpy(copy, text, length + 1);
+    return(copy);
+}
+
 void InitBuiltinSystemMenu(void)
 {
     char * tmpString;
@@ -210,7 +227,7 @@ void InitBuiltinSystemMenu(void)
         tmpString = ((char *)GETMESSAGE(62, 49, "Restore _R  f.restore"));
 #endif
         if ((ResString =
-             (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+             CopyCatalogString(tmpString)) == NULL)
         {
             Warning (((char *)GETMESSAGE(62, 2, "Insufficient memory for local default menu.")));
             gotItAll = False;
@@ -228,7 +245,7 @@ void InitBuiltinSystemMenu(void)
         tmpString = ((char *)GETMESSAGE(62, 50, "Move _M  f.move"));
 #endif
         if ((MovString =
-             (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+             CopyCatalogString(tmpString)) == NULL)
         {
             Warning (((char *)GETMESSAGE(62, 4, "Insufficient memory for local default menu.")));
             gotItAll = False;
@@ -246,7 +263,7 @@ void InitBuiltinSystemMenu(void)
         tmpString = ((char *)GETMESSAGE(62, 51, "Size _S  f.resize"));
 #endif
         if ((SizString =
-             (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+             CopyCatalogString(tmpString)) == NULL)
         {
             Warning (((char *)GETMESSAGE(62, 6, "Insufficient memory for local default menu.")));
             gotItAll = False;
@@ -264,7 +281,7 @@ void InitBuiltinSystemMenu(void)
         tmpString = ((char *)GETMESSAGE(62, 52, "Minimize _n  f.minimize"));
 #endif
         if ((MinString =
-             (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+             CopyCatalogString(tmpString)) == NULL)
         {
             Warning (((char *)GETMESSAGE(62, 8, "Insufficient memory for local default menu.")));
             gotItAll = False;
@@ -282,7 +299,7 @@ void InitBuiltinSystemMenu(void)
 	tmpString = ((char *)GETMESSAGE(62, 53, "Maximize _x  f.maximize"));
 #endif
 	if ((MaxString =
-             (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+             CopyCatalogString(tmpString)) == NULL)
         {
             Warning (((char *)GETMESSAGE(62, 10, "Insufficient memory for local default menu.")));
             gotItAll = False;
@@ -300,7 +317,7 @@ void InitBuiltinSystemMenu(void)
         tmpString = ((char *)GETMESSAGE(62, 54, "Lower _L  f.lower"));
 #endif
         if ((LowString =
-             (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+             CopyCatalogString(tmpString)) == NULL)
         {
             Warning (((char *)GETMESSAGE(62, 12, "Insufficient memory for local default menu.")));
             gotItAll = False;
@@ -317,8 +334,7 @@ void InitBuiltinSystemMenu(void)
 	{
 	    tmpString = ((char *)GETMESSAGE(62, 55, "Occupy\\ Workspace\\.\\.\\. _O  f.workspace_presence"));
 	    if ((OcpString =
-		 (char *)XtMalloc ((unsigned int) 
-				 (strlen(tmpString) + 1))) == NULL)
+		 CopyCatalogString(tmpString)) == NULL)
 	    {
 		Warning (((char *)GETMESSAGE(62, 14, "Insufficient memory for local default menu.")));
 		gotItAll = False;
@@ -332,8 +348,7 @@ void InitBuiltinSystemMenu(void)
 	{
 	    tmpString = ((char *)GETMESSAGE(62, 56, "Occupy\\ All\\ Workspaces _A  f.occupy_all"));
 	    if ((OcaString =
-		 (char *)XtMalloc ((unsigned int) 
-				 (strlen(tmpString) + 1))) == NULL)
+		 CopyCatalogString(tmpString)) == NULL)
 	    {
 		Warning (((char *)GETMESSAGE(62, 16, "Insufficient memory for local default menu.")));
 		gotItAll = False;
@@ -347,8 +362,7 @@ void InitBuiltinSystemMenu(void)
 	{
 	    tmpString = ((char *)GETMESSAGE(62, 57, "Unoccupy\\ Workspace _U  f.remove"));
 	    if ((RemString =
-		 (char *)XtMalloc ((unsigned int) 
-				 (strlen(tmpString) + 1))) == NULL)
+		 CopyCatalogString(tmpString)) == NULL)
 	    {
 		Warning (((char *)GETMESSAGE(62, 18, "Insufficient memory for local default menu.")));
 		gotItAll = False;
@@ -364,7 +378,7 @@ void InitBuiltinSystemMenu(void)
     {
         tmpString = ((char *)GETMESSAGE(62, 48, "Close _C Alt<Key>F4 f.kill"));
         if ((CloString =
-             (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+             CopyCatalogString(tmpString)) == NULL)
         {
             Warning (((char *)GETMESSAGE(62, 20, "Insufficient memory for local default menu.")));
             gotItAll = False;
@@ -5402,7 +5416,7 @@ ProcessPresenceResources (WmScreenData *pSD)
 
 	tmpString = ((char *)GETMESSAGE(62, 59, "Occupy Workspace"));
 	if ((default_ws_pres_title =
-	     (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+	     CopyCatalogString(tmpString)) == NULL)
 	{
 	    Warning (((char *)GETMESSAGE(62, 31, "Insufficient memory for local message string")));
 	    default_ws_pres_title = "Occupy Workspace";

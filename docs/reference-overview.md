@@ -45,6 +45,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM WSM session-file path bounds](mwm-session-path.md) — safe session path construction.
 - [MWM locale-copy allocation](mwm-locale-allocation.md) — width-checked locale copying.
 - [MWM localized system-menu allocation](mwm-system-menu-allocation.md) — safe generated-menu sizing.
+- [MWM catalog-string allocation](mwm-catalog-allocation.md) — checked localized-string copies.
 - [MWM home-directory path bounds](mwm-home-path.md) — bounded legacy home-path resolution.
 - [MWM session database suffix updates](mwm-db-name-suffix.md) — bounded session-name suffix handling.
 - [Workspace-management command messages](command-message-argument-allocation.md) — bounded command-message construction.
