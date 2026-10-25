@@ -14334,3 +14334,9 @@ Drop-transfer size-limit header (2026-10-26)
 - Include `<stdint.h>` for the drop-transfer allocation guard's `SIZE_MAX`
   check, restoring portable compilation of the overflow protection; see
   `docs/drop-transfer-size-limit-header.md`.
+File-selection directory cleanup (2026-10-26)
+==============================================
+
+- Initialize the directory-list pointer before FileSB allocation and string
+  conversion failures reach shared cleanup, avoiding an invalid free; see
+  `docs/file-selection-dir-cleanup.md`.

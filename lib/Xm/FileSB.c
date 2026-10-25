@@ -2368,7 +2368,7 @@ DirSearchProc(
             String *        dirList ;
             unsigned int    numDirs ;
             unsigned int    numAlloc ;
-            XmString *      XmStringDirList ;
+            XmString *      XmStringDirList = NULL ;
             struct stat     curDirStats ;
             time_t          curDirModTime = 0 ;
 	    unsigned        numItems = 0 ;
