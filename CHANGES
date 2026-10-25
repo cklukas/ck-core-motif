@@ -16,6 +16,12 @@ Harden IconFile cache hashing and insertion (2026-10-27)
 - Preserve long icon-name hash lengths and free constructed entries when hash
   insertion fails; see `docs/icon-cache-hash-failure.md`.
 
+Guard IconFile cache comparison (2026-10-27)
+============================================
+
+- Validate icon-cache entries and key strings before comparison; see
+  `docs/icon-cache-comparator.md`.
+
 Guard XmRegion API NULL inputs (2026-10-26)
 ============================================
 
