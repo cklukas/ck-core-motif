@@ -407,21 +407,39 @@ GetAllProtocolsMgr(
  *   UpdateProtocolMgrProperty
  *
  *************************************<+>************************************/
-static void 
+static void
 UpdateProtocolMgrProperty(
         Widget shell,
         XmProtocolMgr p_mgr )
 {
-    Cardinal	i, num_active = 0;
-    Atom	active_protocols[MAX_PROTOCOLS];
-    XmProtocolList	protocols = p_mgr->protocols;
-    
-    for (i = 0; i < p_mgr->num_protocols; i++) {
-	if (protocols[i]->protocol.active)
-	  active_protocols[num_active++] = protocols[i]->protocol.atom;
+    Cardinal        i, num_active = 0;
+    Atom            active_protocols_stack[MAX_PROTOCOLS];
+    Atom            *active_protocols = active_protocols_stack;
+    XmProtocolList  protocols = p_mgr->protocols;
+
+    if (p_mgr->num_protocols > XtNumber(active_protocols_stack))
+    {
+        size_t protocol_bytes = (size_t)p_mgr->num_protocols *
+                                sizeof(*active_protocols);
+        if (protocol_bytes / sizeof(*active_protocols) !=
+            (size_t)p_mgr->num_protocols)
+        {
+            XmeWarning(NULL, MSG3);
+            return;
+        }
+        active_protocols = (Atom *)XtMalloc(protocol_bytes);
+        if (!active_protocols)
+            return;
     }
-    SetProtocolProperty(shell, p_mgr->property, XA_ATOM, 
-		(unsigned char *)active_protocols, num_active);
+
+    for (i = 0; i < p_mgr->num_protocols; i++)
+        if (protocols[i]->protocol.active)
+            active_protocols[num_active++] = protocols[i]->protocol.atom;
+
+    SetProtocolProperty(shell, p_mgr->property, XA_ATOM,
+                        (unsigned char *)active_protocols, num_active);
+    if (active_protocols != active_protocols_stack)
+        XtFree((char *)active_protocols);
 }
 
 
@@ -727,53 +745,40 @@ AddProtocols(
  *
  *************************************<+>************************************/
 /*ARGSUSED*/
-static void 
+static void
 RemoveProtocols(
-        Widget shell,		/* unused */
+        Widget shell,          /* unused */
         XmProtocolMgr p_mgr,
         Atom *protocols,
         Cardinal num_protocols )
 {
-    Boolean	match_list[MAX_PROTOCOLS];
-    Cardinal		i, j;
-    
-    if (!p_mgr || !p_mgr->num_protocols || !num_protocols) return;
-    
-    if (p_mgr->num_protocols > MAX_PROTOCOLS)
-      XmeWarning(NULL, MSG3);
-    
-    for (i = 0; i <= p_mgr->num_protocols; i++)
-      match_list[i] = FALSE;
-    
-    /* setup the match list */
-    for (i = 0; i < num_protocols; i++)
-      {
-	  j = 0;
-	  while ((j < p_mgr->num_protocols) &&
-		 (p_mgr->protocols[j]->protocol.atom != protocols[i]))
-	    j++;
-	  if (j < p_mgr->num_protocols)
-	    match_list[j] = TRUE;
-      }
-    
-    /* 
-     * keep only the protocols that arent in the match list. 
-     */
-    for (j = 0, i = 0; i < p_mgr->num_protocols; i++)
-      {
-	  if ( ! match_list[i] ) {
-	      p_mgr->protocols[j] = p_mgr->protocols[i];
-	      j++;
-	  }
-	  else 
-          {
-            _XmRemoveAllCallbacks((InternalCallbackList *) &(p_mgr->protocols[i]->protocol.callbacks));
-            XtFree((char *) p_mgr->protocols[i]);
-          }
-      }
+    Cardinal i, j, kept = 0;
 
-    p_mgr->num_protocols = j;
-    
+    if (!p_mgr || !p_mgr->num_protocols || !protocols || !num_protocols)
+        return;
+
+    for (i = 0; i < p_mgr->num_protocols; i++)
+    {
+        Boolean matched = False;
+
+        for (j = 0; j < num_protocols; j++)
+            if (p_mgr->protocols[i]->protocol.atom == protocols[j])
+            {
+                matched = True;
+                break;
+            }
+
+        if (matched)
+        {
+            _XmRemoveAllCallbacks((InternalCallbackList *)
+                &(p_mgr->protocols[i]->protocol.callbacks));
+            XtFree((char *)p_mgr->protocols[i]);
+        }
+        else
+            p_mgr->protocols[kept++] = p_mgr->protocols[i];
+    }
+
+    p_mgr->num_protocols = kept;
 }
 
 
@@ -817,7 +822,7 @@ XmAddProtocols(
 {
     XmAllProtocolsMgr	ap_mgr; 
     XmProtocolMgr	p_mgr ;
-    if (shell == NULL)
+    if (shell == NULL || protocols == NULL)
         return;
     _XmWidgetToAppContext(shell);
 
@@ -860,7 +865,7 @@ XmRemoveProtocols(
 {
     XmAllProtocolsMgr	ap_mgr; 
     XmProtocolMgr	p_mgr ;
-    if (shell == NULL)
+    if (shell == NULL || protocols == NULL)
         return;
     _XmWidgetToAppContext(shell);
 

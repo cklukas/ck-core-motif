@@ -669,3 +669,5 @@ EXTRA_DIST += tests/automated/check-rowcolumn-menupost.py docs/rowcolumn-menupos
 EXTRA_DIST += tests/automated/check-xcontext-zero.py docs/xcontext-null.md
 
 EXTRA_DIST += tests/automated/check-mwm-bitmap-path-bounds.py docs/mwm-bitmap-path-bounds.md
+
+EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
