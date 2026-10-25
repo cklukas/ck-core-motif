@@ -905,6 +905,8 @@ _XmGeoSetupKid(
         Widget kidWid )
 {
 /****************/
+    if (geo == NULL)
+        return FALSE;
     if(    !kidWid  ||  !XtIsManaged( kidWid)    )
     {   return( FALSE) ;
         } 

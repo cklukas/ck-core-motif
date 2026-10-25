@@ -10319,6 +10319,12 @@ GeoUtils request input validation (2026-10-25)
 - Return `XtGeometryNo` for missing widget or geometry request pointers before
   calling Xt; see `docs/geo-request-input.md`.
 
+GeoUtils child setup input guard (2026-10-25)
+=============================================
+
+- Return `False` when `_XmGeoSetupKid` has no destination geometry record;
+  see `docs/geo-setup-kid-input.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
