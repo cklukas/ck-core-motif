@@ -5304,3 +5304,10 @@ Guard compound-string segment copies (2026-10-25)
   `docs/string-segment-copy-guards.md`.
 
 Guard DialogShell resource merging (2026-10-25)
+Guard compound-string wide-text conversion (2026-10-25)
+=========================================================
+
+- Check the converted wide-text buffer before calling `wcstombs` and release
+  the tag on allocation failure; see `docs/string-wide-conversion-guards.md`.
+
+Guard compound-string rendition copies (2026-10-25)

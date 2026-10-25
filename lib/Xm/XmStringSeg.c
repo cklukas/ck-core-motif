@@ -375,15 +375,20 @@ _XmStringGetNextSegment(
       } else {
 	len = (size_t)*char_count * MB_CUR_MAX;
 	*text = (char *)XtMalloc(len + 1);
+	if (*text == NULL) {
+	  result = False;
+	  XtFree((char *)*tag); *tag = NULL;
+	} else {
 	converted = wcstombs(*text, wtext, len);
 	if (converted == (size_t)-1 || converted > SHRT_MAX) {
 	  result = False;
 	  XtFree(*text); *text = NULL;
 	  XtFree((char *)*tag); *tag = NULL;
-      } else
+	} else
 	{
 	  *char_count = (short)converted;
 	  (*text)[converted] = '\0';
+	}
 	}
 	}
       XtFree((char *)wtext);
