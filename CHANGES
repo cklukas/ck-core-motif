@@ -8,6 +8,9 @@ XmFontList constructor locking (2026-10-26)
   `XmFontListEntryGetTag`, `XmeRenderTableGetDefaultFont`,
   `XmFontListGetNextFont`, and `XmFontListRemoveEntry`; see
   `docs/xmfontlist-locking.md`.
+- Keep a shared rendition handle while `XmFontListGetNextFont` performs
+  post-lock font retrieval, preventing a concurrent table update from
+  invalidating the returned rendition.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================

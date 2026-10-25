@@ -666,6 +666,7 @@ XmFontListGetNextFont(
   Cardinal	n;
   Arg		args[1];
   XmStringTag	tag;
+  XmRendition	retained;
 
   _XmProcessLock();
   if ((context == NULL) || FLContextError(context) ||
@@ -685,14 +686,19 @@ XmFontListGetNextFont(
 
   rend = _XmRTRenditions(table)[FLContextIndex(context)];
   FLContextIndex(context)++;
+  retained = _XmRenditionCopy(rend, True);
   _XmProcessUnlock();
 
-  *font = _XmGetFirstFont(rend);
+  if (retained == NULL)
+    return (FALSE);
+
+  *font = _XmGetFirstFont(retained);
   n = 0; 
   XtSetArg(args[n], XmNtag, &tag); n++;
-  XmRenditionRetrieve(rend, args, n);
+  XmRenditionRetrieve(retained, args, n);
 
   *charset = XtNewString(tag);
+  XmRenditionFree(retained);
   return (TRUE);
 }
 

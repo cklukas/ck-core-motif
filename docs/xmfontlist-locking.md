@@ -10,9 +10,10 @@ render-table helpers instead of
 holding a process/app lock across those calls. Their validation and ownership
 behavior remain unchanged.
 
-`XmFontListGetNextFont` advances its context under lock, then retrieves the
-font and tag after unlocking so rendition accessors do not recurse into the
-process lock.
+`XmFontListGetNextFont` advances its context and retains a shared rendition
+handle under lock, then retrieves the font and tag after unlocking so rendition
+accessors do not recurse into the process lock without exposing a use-after-free
+when another thread updates the table.
 
 `XmFontListRemoveEntry` now retrieves rendition data before taking the table
 mutation lock and uses a copied tag while removing the entry. This avoids
