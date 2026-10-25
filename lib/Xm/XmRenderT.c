@@ -3709,6 +3709,8 @@ XmRenderTableCvtFromProp(Widget w,
         token = ReadToken(prop, &scanpointer, &reusetoken);
       /* Store rendition */
       rendition = XmRenditionCreate(w, name, args, count);
+      if (rendition == NULL)
+	goto error;
       name = "";
       count = 0;
       /* Reset index into namelist */
@@ -3848,6 +3850,7 @@ XmRenderTableCvtFromProp(Widget w,
  finish:
   new_rt = XmRenderTableAddRenditions(new_rt, rarray, rarray_count, XmMERGE_REPLACE);
   for (i = 0; i < rarray_count; i++) XmRenditionFree(rarray[i]);
+  XtFree((char *)rarray);
   _XmAppUnlock(app);
   return(new_rt);
 

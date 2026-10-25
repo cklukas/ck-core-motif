@@ -10,6 +10,8 @@ assert "int new_max;" in body
 assert "SIZE_MAX / sizeof(XmRendition)" in body
 assert "if (new_array == NULL)" in body
 assert "rarray_max = new_max;" in body
+assert "if (rendition == NULL)" in body
+assert "XtFree((char *)rarray);" in body
 extents_start = end
 extents_end = source.index("\n}", extents_start)
 extents = source[extents_start:extents_end]

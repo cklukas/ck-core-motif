@@ -201,6 +201,8 @@ Render-table locking (2026-10-26)
   size arithmetic before allocation.
 - Bound copied render-table body sizes before `XmRenderTableCopy` allocates
   storage for large selections or full-table copies.
+- Make `XmRenderTableCvtFromProp` reject failed rendition creation and release
+  its temporary rendition array; see `docs/render-table-property-conversion.md`.
 - Roll back shared-table cloning in `_XmRenderTableRemoveRenditions` when a
   table body, handle, or rendition copy cannot be allocated; see
   `docs/render-table-removal.md`.
