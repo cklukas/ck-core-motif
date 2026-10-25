@@ -6243,3 +6243,10 @@ Bound XmString charset allocation widths (2026-10-25)
 - Promote locale-derived charset lengths before checking the cached `int` and
   Xt `Cardinal` limits; see `docs/xmstring-charset-allocation.md`.
 
+Bound XmString rendition merge allocation widths (2026-10-25)
+===============================================================
+
+- Enforce Xt's `Cardinal` byte limit when merging rendition arrays, preserving
+  the original arrays on an unrepresentable request; see
+  `docs/xmstring-rendition-merge.md`.
+

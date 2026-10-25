@@ -8,7 +8,9 @@ for name, pointer in (("MergeEnds", "new_ends"), ("MergeBegins", "new_begins")):
     body = source[start:end]
     assert "total_count" in body
     assert "SIZE_MAX / sizeof(XmStringTag)" in body
+    assert "UINT_MAX / sizeof(XmStringTag)" in body
     assert pointer in body
     assert "if (" + pointer + " == NULL)" in body
+    assert "(Cardinal)(sizeof(XmStringTag) * (size_t)total_count)" in body
     assert " = " + pointer + ";" in body
 print("XmString rendition merge guards present")
