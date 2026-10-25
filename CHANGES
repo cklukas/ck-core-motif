@@ -5387,3 +5387,9 @@ Prevent ImageCache pixmap reference underflow (2026-10-25)
   decrements them; see `docs/image-pixmap-refcount.md`.
 
 Prevent ImageCache color reference underflow (2026-10-25)
+
+Harden Xm hash-table allocation and resizing (2026-10-25)
+==========================================================
+
+- Guard bucket-pool creation, avoid one-past-end free-list links, and make
+  hash-table resizing transactional; see `docs/xm-hash-allocation.md`.
