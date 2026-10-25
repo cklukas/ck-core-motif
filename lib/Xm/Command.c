@@ -890,7 +890,8 @@ XmCreateCommand(
     /* (like, no list gets created, but used all through command) */
 
     /*  allocate arglist, copy args, add dialog type arg */
-    argsNew = (ArgList) XtMalloc (sizeof(Arg) * (ac + 1));
+    argsNew = (ArgList) XtMalloc ((Cardinal)(sizeof(Arg) *
+					 ((size_t)ac + 1)));
     if (argsNew == NULL)
 	return NULL;
     if (ac != 0)

@@ -15,7 +15,7 @@ source pointer.
 
 The temporary array is checked before copying or appending the internal
 argument; allocation failure returns `NULL` without modifying caller-owned
-arguments.
+arguments. The checked byte count is passed explicitly as an Xt `Cardinal`.
 
 The focused source regression is
 `tests/automated/check-command-message-argument-bounds.py`.

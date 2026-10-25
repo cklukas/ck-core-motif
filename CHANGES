@@ -6398,6 +6398,13 @@ Convenience-constructor allocation failures (2026-10-25)
   appending the internal dialog-type argument; see
   `docs/command-message-argument-allocation.md`.
 
+Command and message-dialog allocation widths (2026-10-25)
+===========================================================
+
+- Pass the bounded temporary argument-array sizes explicitly as Xt `Cardinal`
+  values in both convenience-constructor paths; see
+  `docs/command-message-argument-allocation.md`.
+
 Bound legacy resource-filter byte sizes (2026-10-25)
 =====================================================
 
