@@ -2587,6 +2587,9 @@ _XmCreateRenderTable(Widget parent,
 {
   XmRenderTable 	newtable;
   _XmRenderTable	table;
+
+  if (parent == NULL)
+    return((Widget)NULL);
   
   /* Malloc new table */
   table = (_XmRenderTable)XtMalloc(sizeof(_XmRenderTableRec));

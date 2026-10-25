@@ -213,6 +213,8 @@ Render-table locking (2026-10-26)
   releasing the new rendition when mutation cannot complete.
 - Bound `_XmCreateRendition`'s resized body count before applying the table
   reallocation.
+- Reject a null parent in `_XmCreateRenderTable` before attempting display
+  lookup.
 - Bound widget-ancestor resource paths in `GetResources`, reserving entries for
   the requested resource, optional tag, and terminators; see
   `docs/render-table-resource-path.md`.
