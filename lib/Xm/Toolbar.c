@@ -227,7 +227,7 @@ static Cardinal choose_actions(XmToolbarWidget toolbar, Boolean *chosen,
 static void layout(XmToolbarWidget toolbar)
 {
     Cardinal i, visible, overflow = 0;
-    Position x = 0;
+    long x = 0;
     Dimension width, height, *action_width, *action_height;
     Boolean *chosen;
     unsigned long total = 0;
@@ -294,14 +294,20 @@ static void layout(XmToolbarWidget toolbar)
         else
             XtUnmanageChild(action->menu_button);
         if (action->visible) {
-            XmeConfigureObject(action->button, x, 0, action_width[i],
+            Position placement = x > SHRT_MAX ? SHRT_MAX : (Position)x;
+            XmeConfigureObject(action->button, placement, 0, action_width[i],
                                action_height[i], 0);
-            x += action_width[i] + toolbar->toolbar.spacing;
+            if (x <= SHRT_MAX)
+                x += action_width[i] + toolbar->toolbar.spacing;
         }
     }
     if (has_overflow) {
         preferred(toolbar->toolbar.overflow_button, &width, &height);
-        XmeConfigureObject(toolbar->toolbar.overflow_button, x, 0, width, height, 0);
+        {
+            Position placement = x > SHRT_MAX ? SHRT_MAX : (Position)x;
+            XmeConfigureObject(toolbar->toolbar.overflow_button, placement, 0,
+                               width, height, 0);
+        }
     }
     toolbar->toolbar.visible_count = visible;
     toolbar->toolbar.overflow_count = overflow;

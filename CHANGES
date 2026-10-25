@@ -13,6 +13,12 @@ RowActions layout bounds (2026-10-27)
 - Keep action placement arithmetic wider than X11 `Position` and clamp
   unrepresentable coordinates instead of allowing signed wraparound.
 
+Toolbar and status-bar layout bounds (2026-10-27)
+==================================================
+
+- Apply the same wide-accumulator and X11-position clamp to toolbar actions
+  and status-bar items, preventing large composite layouts from wrapping.
+
 Gallery inventory and human-readable navigation (2026-10-27)
 ==============================================================
 

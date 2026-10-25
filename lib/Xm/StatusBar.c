@@ -163,7 +163,7 @@ static void layout(XmStatusBarWidget bar)
     Dimension width, height;
     unsigned long total = 0;
     Boolean *chosen;
-    Position x = 0;
+    long x = 0;
 
     if (bar->status_bar.initializing || bar->status_bar.laying_out)
         return;
@@ -216,8 +216,10 @@ static void layout(XmStatusBarWidget bar)
         item->visible = chosen && chosen[i];
         XtSetMappedWhenManaged(item->child, item->visible);
         if (item->visible) {
-            XmeConfigureObject(item->child, x, 0, width, height, 0);
-            x += width + bar->status_bar.spacing;
+            Position placement = x > SHRT_MAX ? SHRT_MAX : (Position)x;
+            XmeConfigureObject(item->child, placement, 0, width, height, 0);
+            if (x <= SHRT_MAX)
+                x += width + bar->status_bar.spacing;
         }
     }
     bar->status_bar.visible_count = visible;
