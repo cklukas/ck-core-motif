@@ -1,3 +1,10 @@
+XmString unoptimized-entry copy bounds (2026-10-27)
+====================================================
+
+- Check rendition begin/end array sizes during unoptimized-entry copies and
+  clean up owned text and tags when allocation fails.  Copies no longer leave
+  original rendition pointers exposed to failure cleanup.
+
 XmString array-entry copy bounds (2026-10-27)
 ============================================
 
