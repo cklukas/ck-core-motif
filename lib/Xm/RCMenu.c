@@ -1109,7 +1109,7 @@ _XmRCArmAndActivate(
         Cardinal *num_parms )
 {
    XmRowColumnWidget m = (XmRowColumnWidget) w ;
-   int i;
+   Cardinal i;
    XmCascadeButtonWidget child = NULL;
    XmMenuState mst = _XmGetMenuState((Widget)w);
    Time _time;
@@ -1436,7 +1436,7 @@ ProcessMenuTree(
         XmRowColumnWidget w,
         int mode )
 {
-   int i;
+   Cardinal i;
    Widget child;
 
    if (w == NULL)
@@ -3071,7 +3071,7 @@ SearchMenu(
 #endif /* NeedWidePrototypes */
 {
     register Widget *q;
-    register int i;
+    register Cardinal i;
 
     if ( ! InMenu (search_m, parent_m, child, w))
     {
@@ -3164,7 +3164,7 @@ IsInWidgetList(
         RectObj w )
 {
     register Widget *q;
-    register int i;
+    register Cardinal i;
 
     if ((m == NULL) || (w == NULL)) return (FALSE);
 
