@@ -9,6 +9,8 @@ to_file = source[start:end]
 assert "callback = (FileCallbackRec *) XtMalloc(sizeof(FileCallbackRec));" in to_file
 assert "if (callback == NULL)" in to_file
 assert "close(filedes[0]);" in to_file
+assert "else if (pid < 0)" in to_file
+assert to_file.count("close(filedes[0]);") >= 2
 pdm = source[source.index("pdm_select_data = (PDMSelectData *) XtMalloc"):]
 assert "if (pdm_select_data == NULL)" in pdm
 assert "return XmPDM_NOTIFY_FAIL;" in pdm

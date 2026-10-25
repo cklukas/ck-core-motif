@@ -853,6 +853,8 @@ XtEnum XmPrintToFile(Display *pdpy,
     }
     else if (pid < 0) {
       fclose(file);
+      close(filedes[0]);
+      close(filedes[1]);
       return False;
     }
 

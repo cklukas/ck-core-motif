@@ -9842,8 +9842,8 @@ Legacy real-translation allocation guard (2026-10-25)
 Print setup allocation guards (2026-10-25)
 ==========================================
 
-- Check print-to-file and print-display-manager callback allocations and
-  close or fail their setup cleanly when unavailable; see
+- Check print-to-file and print-display-manager callback allocations, close
+  fork-failure pipe descriptors, and fail setup cleanly when unavailable; see
   `docs/print-allocation.md`.
 
 FileSelectionBox filter allocation fallback (2026-10-25)
