@@ -2348,7 +2348,11 @@ ClipboardSendMessage(
     ClipboardHeader root_clipboard_header;
     Boolean dummy;
     Atom headertype;
+    int status;
     Atom atoms[XtNumber(atom_names)];
+
+    if (formatptr == NULL)
+	return 0;
 
     widgetwindow = formatptr->cutByNameWindow;
 
@@ -2366,13 +2370,20 @@ ClipboardSendMessage(
 	case XM_DATA_REQUEST_MESSAGE:	
 
 	    /* get the clipboard header */
-	    ClipboardFindItem( display, 
+	    root_clipboard_header = NULL;
+	    status = ClipboardFindItem( display,
 				   XM_HEADER_ID,
 				   (XtPointer *) &root_clipboard_header,
 				   &headerlength,
 				   &headertype,
 				   0,
 				   0 );
+	    if (status != ClipboardSuccess || root_clipboard_header == NULL ||
+		headerlength < sizeof(ClipboardHeaderRec))
+	    {
+		XtFree( (char *)root_clipboard_header);
+		return 0;
+	    }
 
 	    /* set the recopy item id in the header (so locking 
 	       can be circumvented) */

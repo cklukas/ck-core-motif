@@ -1,3 +1,9 @@
+Clipboard send-message guards (2026-10-26)
+===========================================
+
+- Validate cut-by-name format records and clipboard headers before sending
+  data-request messages; see `docs/clipboard-send-message-guards.md`.
+
 Clipboard receive callback validation (2026-10-26)
 ===================================================
 
