@@ -1,4 +1,9 @@
 2026-10-25
+	* Check mutable font-list input copies before parsing in both the resource
+	  converter and default-render-table fallback; see
+	  docs/font-list-input-allocation.md.
+
+2026-10-25
 	* Make per-display font-list cache growth transactional, returning `NULL`
 	  without changing capacity when allocation fails; see
 	  docs/default-font-cache-allocation.md.
