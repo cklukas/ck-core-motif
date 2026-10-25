@@ -13357,6 +13357,12 @@ Command-palette item allocation safety (2026-10-26)
   `docs/command-palette-item-allocation.md` (including per-item display and
   size-overflow failures).
 
+SearchBox placeholder ownership (2026-10-26)
+=============================================
+
+- Release replaced placeholder copies during `SetValues`, retaining the old
+  value if copying fails; see `docs/searchbox-placeholder-lifecycle.md`.
+
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================
 
