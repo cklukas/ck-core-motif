@@ -9607,6 +9607,10 @@ XmParseMappingCreate(ArgList  arg_list,
 {
   /* Allocate and initialize the return value. */
   XmParseMapping result = XtNew(_XmParseMappingRec);
+
+  if (result == NULL)
+	return(NULL);
+
   bzero((char*)result, sizeof(_XmParseMappingRec));
 
   /* Default values are established by bzero().
