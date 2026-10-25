@@ -4670,3 +4670,9 @@ MWM info read guards (2026-10-25)
 
 - Require the expected format and item count for `_MOTIF_WM_INFO`;
   see `docs/mwm-info-read-guards.md`.
+
+WM_STATE read guards (2026-10-25)
+=================================
+
+- Require the expected format and item count when reading WM_STATE;
+  see `docs/wmstate-read-guards.md`.

@@ -571,6 +571,7 @@ GetWMState(
 		  &nitems, &leftover, (unsigned char **)&property);
 
     if (!((ret_val == Success) && (actual_type == wmGD.xa_WM_STATE) &&
+         (actual_format == 32) &&
          (nitems == PROP_WM_STATE_ELEMENTS)))
     {
         /*
