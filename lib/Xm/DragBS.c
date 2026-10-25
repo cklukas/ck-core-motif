@@ -978,7 +978,9 @@ ReadTargetsTable(
     } *propertyRecPtr = NULL;
 
     char			*bufptr;
-    short			num_targets;
+    unsigned short		num_targets;
+    size_t		remaining;
+    unsigned char		*scanptr;
     Atom                        targetsTableAtom;
     int				format;
     unsigned long 		bytesafter, lengthRtn; 
@@ -1005,7 +1007,9 @@ ReadTargetsTable(
 			        &lengthRtn,
 			        &bytesafter,
 			        (unsigned char **) &propertyRecPtr) == Success) &&
-           (lengthRtn >= sizeof(xmMotifTargetsPropertyRec)));
+	           (type == targetsTableAtom) &&
+	           (format == 8) &&
+	           (lengthRtn >= sizeof(xmMotifTargetsPropertyRec)));
     EndProtectedSection (display);
     if (bad_window) {
 	XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE1);
@@ -1024,7 +1028,29 @@ ReadTargetsTable(
 	    swap4bytes(propertyRecPtr->info.heap_offset);
 	}
 
-        if (targetsTable == NULL)
+	remaining = (size_t)lengthRtn - sizeof(xmMotifTargetsPropertyRec);
+	scanptr = (unsigned char *)propertyRecPtr +
+	    sizeof(xmMotifTargetsPropertyRec);
+	for (i = 0; ret && i < (int)propertyRecPtr->info.num_target_lists; i++) {
+	    if (remaining < 2) {
+		ret = False;
+		break;
+	    }
+	    memcpy(&shortItem, scanptr, sizeof(shortItem));
+	    if (propertyRecPtr->info.byte_order != _XmByteOrderChar)
+		swap2bytes(shortItem.value);
+	    num_targets = shortItem.value;
+	    if ((size_t)num_targets > (remaining - 2) / 4) {
+		ret = False;
+		break;
+	    }
+	    scanptr += 2 + (size_t)num_targets * 4;
+	    remaining -= 2 + (size_t)num_targets * 4;
+	}
+	if (!ret)
+	    XmeWarning ((Widget) XmGetXmDisplay (display), MESSAGE2);
+
+	if (ret && targetsTable == NULL)
         {
             targetsTable = (xmTargetsTable)XtMalloc(sizeof(xmTargetsTableRec));
             targetsTable->numEntries = 0;
