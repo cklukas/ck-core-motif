@@ -529,6 +529,8 @@ GetWrapperData(
   if (!*wcePtr)
     {
       *wcePtr = (XmBaseClassExt) XtCalloc(1, sizeof(XmBaseClassExtRec));
+      if (!*wcePtr)
+	return NULL;
       (*wcePtr)->next_extension = NULL;
       (*wcePtr)->record_type 	= XmQmotif;
       (*wcePtr)->version	= XmBaseClassExtVersion;
@@ -603,6 +605,8 @@ _XmPushWidgetExtData(
   XContext     widgetExtContext = ExtTypeToContext(extType);
   
   newData = (XmAssocData) XtCalloc(1, sizeof(XmAssocDataRec));
+  if (!newData)
+    return;
   
   newData->data = (XtPointer)data;
   

@@ -8374,3 +8374,10 @@ ComboBox argument merging (2026-10-27)
 - Check every merged argument list used by ComboBox child and convenience
   constructors, returning a null widget result instead of passing a null list
   to Xt when allocation fails.
+
+BaseClass extension allocation (2026-10-27)
+============================================
+
+- Check lazy class-extension allocation before initializing it and make
+  _XmPushWidgetExtData return safely when its association node cannot be
+  allocated.
