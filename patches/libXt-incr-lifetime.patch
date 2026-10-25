@@ -1,8 +1,72 @@
 --- a/src/Selection.c
 +++ b/src/Selection.c
-@@ -605 +605 @@
+@@ -365,0 +366,28 @@
++static Select
++LookupCtx(Display *dpy, Atom selection)
++{
++    Select ctx = NULL;
++
++    LOCK_PROCESS;
++    if (selectContext != 0 &&
++        XFindContext(dpy, (Window) selection, selectContext,
++                     (XPointer *) &ctx))
++        ctx = NULL;
++    UNLOCK_PROCESS;
++    return ctx;
++}
++
++static void
++FreeContext(Select ctx)
++{
++    XPointer current = NULL;
++
++    LOCK_PROCESS;
++    if (XFindContext(ctx->dpy, (Window) ctx->selection, selectContext,
++                     &current) == 0 && (Select) current == ctx)
++        (void) XDeleteContext(ctx->dpy, (Window) ctx->selection,
++                              selectContext);
++    UNLOCK_PROCESS;
++    XtFree((char *) ctx);
++}
++
+@@ -372,2 +400,3 @@
+-        if (ctx->free_when_done)
+-            XtFree((char *) ctx);
++        ctx->widget = NULL;
++        if (ctx->ref_count == 0)
++            FreeContext(ctx);
+@@ -375 +404 @@
+-            ctx->widget = NULL;
++            ctx->free_when_done = TRUE;
+@@ -572 +601 @@
+-        XtFree((char *) ctx);
++        FreeContext(ctx);
+@@ -605 +634 @@
 -    if (ctx->notify == NULL)
 +    if (ctx->notify == NULL) {
-@@ -606,0 +607,2 @@
+@@ -606,0 +636,2 @@
 +        req->value = NULL;
 +    }
+@@ -640 +671 @@
+-            XtFree((char *) ctx);
++            FreeContext(ctx);
+@@ -1000 +1031 @@
+-            XtFree((char *) oldctx);
++            FreeContext(oldctx);
+@@ -1056,3 +1087,7 @@
+-    ctx = FindCtx(XtDisplay(widget), selection);
+-    if (LoseSelection(ctx, widget, selection, time))
+-        XSetSelectionOwner(XtDisplay(widget), selection, None, time);
++    ctx = LookupCtx(XtDisplay(widget), selection);
++    if (ctx == NULL || LoseSelection(ctx, widget, selection, time)) {
++        if (XGetSelectionOwner(XtDisplay(widget), selection) == XtWindow(widget))
++            XSetSelectionOwner(XtDisplay(widget), selection, None, time);
++    }
++    if (ctx != NULL && ctx->widget == NULL && !ctx->ref_count && ctx->free_when_done)
++        FreeContext(ctx);
+@@ -1616 +1651 @@
+-            XtFree((char *) ctx);
++            FreeContext(ctx);
+@@ -1724 +1759 @@
+-            XtFree((char *) ctx);
++            FreeContext(ctx);

@@ -7,7 +7,7 @@ fixtures. The initial run's private accessibility socket placement failure is
 retained; a suffix run with an explicit short runtime path completes the remaining
 checks against identical installed library/header fingerprints. This is aggregated
 fixture coverage, not one uninterrupted green run. Clipboard, clipboard lifetime
-and the opt-in external XIM service remain excluded from this cohort.
+and the opt-in external XIM service remain excluded from this aggregate cohort.
 
 The new native retained-output regression passes 12,890,100 assertions and 417
 native/fresh line comparisons with zero layout-failure warnings. It covers shared
@@ -17,14 +17,18 @@ capture lifetime. Unaffected paragraph captures retain identity; edited hard
 paragraphs may require full-context work. This does not claim incremental shaping
 inside an edited paragraph or complete live editor/input acceptance.
 
-Strict ASan/UBSan reaches the same completed native regression body, then reports
-208 bytes in two Xt selection-context allocations. Its native exit leak gate stays
-unaccepted. Separate strict font-lifetime qualification passes 79 assertions on
-two independent displays with zero X errors and no leaks. An additional strict
-legacy layout probe reports 8,839 bytes in 128 Fontconfig allocations; broad
-sanitizer acceptance is not claimed. No warning suppression, removed focus action
-or disabled leak detection is used. Native record layout and ABI epoch 8 remain
-unchanged. All x86_64 compilation/runtime checks remain pending.
+The earlier strict ASan/UBSan profile reported 208 bytes in two Xt
+selection-context allocations. The pinned Xt dependency patch now retires both
+the destroyed-widget context and the final INCR value safely. A fresh helper-built
+Xt prefix passed strict installed-prefix `abi`, `incremental-layout` and
+`clipboard-lifetime` fixtures with no sanitizer diagnostics; see the dependency
+receipt recorded by the native matrix. Separate strict font-lifetime
+qualification passes 79 assertions on two independent displays with zero X errors
+and no leaks. An additional strict legacy layout probe reports 8,839 bytes in 128
+Fontconfig allocations; broad matrix-wide sanitizer acceptance is not claimed.
+No warning suppression, removed focus action or disabled leak detection is used.
+Native record layout and ABI epoch 8 remain unchanged. All x86_64
+compilation/runtime checks remain pending.
 
 ## Earlier incremental map qualification
 
@@ -38,11 +42,13 @@ ASan/UBSan with leak detection enabled. A Unicode-disabled direct-source probe
 checks the unavailable API contract without ICU linkage; this is not a complete
 optional-toolkit configuration build.
 
-The selected native suite excludes clipboard, clipboard lifetime and the opt-in
-external XIM service. Strict native-widget leak acceptance remains open because
-of Xt selection-context lifetime reports. No suppression or disabled leak gate
-is used for this qualification. The source-map result does not establish
-incremental shaping, complete interactive editor projection or x86 acceptance.
+The selected aggregate suite excludes clipboard, clipboard lifetime and the
+opt-in external XIM service. The bounded strict dependency-cohort fixtures cover
+the two clipboard/selection lifetime paths separately; matrix-wide leak
+acceptance remains open for Fontconfig and other unqualified ownership paths.
+No suppression or disabled leak gate is used for this qualification. The
+source-map result does not establish incremental shaping, complete interactive
+editor projection or x86 acceptance.
 
 
 This is a development fork. Separate source availability, focused verification

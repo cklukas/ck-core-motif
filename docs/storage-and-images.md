@@ -23,8 +23,10 @@ An empty append is a no-op; appending data from the existing value is supported.
 
 Unified transfer owners retain one destroy callback per widget/selection,
 including after repeated acquisition. The callback releases the selection atom
-from its closure. This correction does not qualify all Xt selection-context
-lifetimes, interrupted transfers or inherited dependency leaks.
+from its closure. The pinned Xt dependency patch additionally retires destroyed
+widget selection contexts and interrupted INCR storage; application-level
+drag-and-drop workflows and other inherited dependency ownership remain separate
+qualification gates.
 
 ## XPM parsing and file errors
 

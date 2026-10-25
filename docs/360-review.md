@@ -31,9 +31,10 @@ These are real coverage gaps rather than claims of known source defects:
    AT-SPI, the pinned Xt, and independent C and C++ consumers.
 2. **Strict sanitizer lifecycle.** The synthesized DropSMgr clipper leak is
    fixed and passes three repeated native runs plus a strict ASan/UBSan
-   auto-drag lifetime fixture. The separate leak report at the Xt
-   selection-context boundary remains open and must not be counted as a
-   toolkit pass.
+   auto-drag lifetime fixture. The pinned Xt dependency patch also retires the
+   destroyed-widget selection context; strict ABI, incremental-layout and
+   clipboard-lifetime consumers pass with leak detection enabled. Fontconfig,
+   broader application ownership and other architectures remain open.
 3. **External clipboard and DnD matrix.** The bounded Text/TextField fixture
    proves two-client INCR cancellation followed by a fresh transfer from the
    surviving owner when the pinned corrected Xt dependency is used. The
@@ -41,8 +42,8 @@ These are real coverage gaps rather than claims of known source defects:
    8/16/32-bit format assembly, merge bounds and repeated owner destruction
    against that dependency. DropSMgr auto-drag teardown now passes its own
    strict sanitizer fixture; drag-and-drop transfer cancellation,
-   application-level clipboard workflows and the separate Xt selection-context
-   sanitizer ownership remain open.
+   application-level clipboard workflows, broader drag-and-drop ownership and
+   unqualified system-library sanitizer ownership remain open.
 4. **Non-text Unicode matrix.** The installed Label/List/ComboBox fixture now
    covers combining, non-BMP and Han values through public APIs. Menus, file
    selection, mnemonics, search, compound strings, keyboard layouts and full
@@ -81,7 +82,8 @@ These are real coverage gaps rather than claims of known source defects:
 2. Extend the qualified clipboard cohort to drag-and-drop and application
    workflows without mixing it with unrelated held-storage changes.
 3. Expand non-text Unicode and accessibility user-journey fixtures.
-4. Resolve the Xt selection-context sanitizer ownership issue.
+4. Extend strict ownership coverage to Fontconfig, drag-and-drop and full
+   application workflows without weakening the dependency boundary.
 5. Complete mixed-DPI qualification and expand the documented profile corpus.
 
 Each item should land with a focused regression and a short entry in `CHANGES`.

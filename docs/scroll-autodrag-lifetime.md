@@ -41,9 +41,12 @@ the rebuilt installed `libXm.so.8.0.0` hash was
 `ff96b78d4548dab3d38f803090dbef643d73f798607e94da6a2411d769d81443` and it
 was run with the pinned corrected Xt dependency.
 
-The sanitizer run before the fix reported 360 bytes in nine allocations from
-the synthesized DropSMgr clipper records.  `DestroyInfo` now retires those
+The sanitizer run before the toolkit fix reported 360 bytes in nine allocations
+from the synthesized DropSMgr clipper records.  `DestroyInfo` now retires those
 internal clipper subtrees before releasing the owning drop-site tree.  The
-remaining sanitizer ownership issue in the broader native matrix is the
-separate Xt selection-context boundary; this result does not claim that gate
-is closed.
+earlier broader run also exposed a separate Xt selection-context allocation;
+the pinned dependency patch now retires that context during widget-destroy and
+disown ordering.  A fresh helper-built Xt prefix passes strict `abi`,
+`incremental-layout` and `clipboard-lifetime` consumer fixtures.  Application
+drag-and-drop ownership, Fontconfig allocations and other architectures remain
+separate gates.

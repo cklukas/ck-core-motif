@@ -14,7 +14,7 @@ separate toolkit-contract test.
 | IBus XIM composition, commit and cancellation | Focused pass | Pending | Real IBus/m17n fixture; standalone combining-mark commit and candidate panels remain gaps. |
 | Provider restart and transport loss | Focused pass | Pending | Same-process service loss/reconnect fixture; broader engines/providers remain unqualified. |
 | Clipboard UTF-8 round trip and interrupted INCR lifetime | Pass for the bounded AArch64 cohort with pinned corrected Xt | Pending | Multi-megabyte UTF-8 bytes, cancellation, a fresh transfer from the surviving owner, and the installed 8/16/32-bit transfer-storage/owner-replacement cohort pass; system-Xt failure, application workflows, broader DnD, and x86_64 remain separate. |
-| Strict ASan/UBSan | Body completes; exit leak gate open | Pending | Xt selection-context and Fontconfig ownership reports are retained, not suppressed. |
+| Strict ASan/UBSan | Bounded pass with pinned Xt; matrix-wide gate pending | Pending | A fresh helper-built Xt cohort passes ABI, incremental-layout and clipboard-lifetime with leak detection enabled; Fontconfig and broader ownership paths remain separate gates. |
 
 Run the focused installed service fixture with:
 
@@ -31,7 +31,7 @@ replaced by synthetic callbacks or treated as successful provider coverage.
 
 The current matrix deliberately does not claim x86_64 qualification, complete
 desktop input-method interoperability, physical keyboard layouts, candidate
-panels, screen-reader usability, or a clean sanitizer exit. Detailed provider
+panels, screen-reader usability, or a matrix-wide clean sanitizer exit. Detailed provider
 behavior and the recorded ARM64 versions are in `docs/unicode.md`; aggregate
 admission limits are in `docs/status.md`.
 
@@ -52,10 +52,11 @@ while the pinned dependency cohort keeps the owner alive and completes the
 fresh transfer. This is a dependency qualification boundary, not a suppressed
 toolkit failure.
 
-The same pinned cohort passed the consumer `--sanitize` run for the
-interrupted-clipboard fixture on 2026-10-25. That result covers the transfer
-body and its fixture process only; it does not close the matrix-wide leak gate
-for Xt selection-context or Fontconfig ownership.
+On 2026-10-25, the official dependency build helper produced a fresh pinned Xt
+prefix, and the consumer `--sanitize` run passed ABI, `incremental-layout` and
+`clipboard-lifetime` with leak detection enabled. This closes the bounded Xt
+selection-context and interrupted-INCR ownership regressions; it does not close
+the matrix-wide leak gate for Fontconfig or other unqualified ownership paths.
 
 The transfer-storage fixture also passes its clipboard, merge, bounds and
 lifetime modes against the pinned corrected Xt cohort. It exercises 8-, 16-

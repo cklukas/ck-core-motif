@@ -355,6 +355,8 @@ of copying them into stack storage; the source contract is covered by
 
 The native retained-output regression passes 12,890,100 assertions and 417
 native/fresh line comparisons, including a first-strong bidi change after 360
-neutral scalars and a zero-layout-warning gate. Strict ASan/UBSan completes its
-body but still rejects exit-time Xt selection-context leaks; this is not full
-native sanitizer acceptance. See the [status page](status.md) for exact limits.
+neutral scalars and a zero-layout-warning gate. The pinned Xt dependency cohort
+now passes the bounded strict `incremental-layout` and clipboard-lifetime
+consumer fixtures with leak detection enabled; Fontconfig and other broader
+ownership paths remain outside full native sanitizer acceptance. See the
+[status page](status.md) for exact limits.

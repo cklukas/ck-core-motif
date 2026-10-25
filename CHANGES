@@ -17,6 +17,20 @@ DropSMgr clipper teardown (2026-10-25)
   the existing Xt callback and drag/drop contracts; the native fixture passes
   repeated destruction/reentrancy scenarios and strict consumer ASan/UBSan.
 
+Xt selection-context lifetime dependency patch (2026-10-25)
+=============================================================
+
+- Extend the pinned libXt 1.3.1 patch with a lookup-only disown path and
+  guarded context retirement: a widget-destroy callback removes an inactive
+  context immediately, active transfers retire it at their final reference,
+  and `XtDisownSelection` clears the X selection owner only when that widget
+  still owns it.  The patch also clears the final INCR value pointer after Xt
+  frees it.  This keeps the existing Xt/Motif API and callback order.
+- The official dependency build helper and a fresh AArch64 installed-prefix
+  run pass ABI, `incremental-layout` and `clipboard-lifetime` under strict
+  ASan/UBSan leak detection.  Broader Fontconfig, application drag-and-drop
+  and cross-architecture ownership gates remain explicitly separate.
+
 UIL literal-only module output (2026-10-25)
 ============================================
 
@@ -3138,12 +3152,13 @@ Native Unicode hard lines, geometry and retained output (2026-10-24)
   zero layout warnings; negative controls expose the prior faults. It measures
   reuse of unaffected hard paragraphs, not incremental shaping within an edited
   paragraph or complete interactive editor/input acceptance.
-- Strict ASan/UBSan completes that regression body but its exit leak gate still
-  reports 208 bytes in two Xt selection-context allocations. A separate strict
-  font-lifetime fixture passes 79 assertions across two displays, zero X errors.
-  An additional strict legacy layout probe reports Fontconfig allocations, so
-  broad sanitizer acceptance is not claimed. No suppression or disabled leak
-  detection is used. See docs/status.md and docs/unicode.md for qualification.
+- An earlier strict ASan/UBSan profile reported 208 bytes in two Xt
+  selection-context allocations. The pinned dependency patch now closes that
+  bounded context path; a separate strict font-lifetime fixture passes 79
+  assertions across two displays, zero X errors. An additional strict legacy
+  layout probe reports Fontconfig allocations, so broad sanitizer acceptance
+  is not claimed. No suppression or disabled leak detection is used. See
+  docs/status.md and docs/unicode.md for qualification.
 
 Documentation links and artwork (2026-10-24)
 ====================================================================

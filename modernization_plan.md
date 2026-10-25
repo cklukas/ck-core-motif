@@ -566,8 +566,12 @@ promoting menu, file-selection, physical-keyboard or application-level Unicode
 coverage to complete.
 
 A strict consumer ASan/UBSan run of the interrupted-clipboard fixture also
-passed against that cohort. It is recorded as bounded transfer evidence, not
-as closure of the matrix-wide sanitizer ownership gate.
+passed against that cohort. The updated pinned Xt patch now covers both the
+interrupted INCR value lifetime and the destroyed-widget selection-context
+lifetime; the official helper-built cohort passes ABI, incremental-layout and
+clipboard-lifetime with leak detection enabled. This is bounded dependency
+evidence, not closure of the matrix-wide Fontconfig, application-DnD or
+cross-architecture sanitizer gates.
 
 ### WP-07: Screen-reader usability and semantic completion
 
@@ -720,8 +724,11 @@ remain safe when application code destroys the active frame.  This is a
 lifecycle correction, not a change to Form attachment negotiation.  The
 synthesized DropSMgr clipper records are also retired during owner teardown;
 three repeated native runs and a strict consumer ASan/UBSan run pass all eight
-scenarios and 81 checks.  The separate Xt selection-context leak remains an
-open dependency boundary; see `docs/scroll-autodrag-lifetime.md`.
+scenarios and 81 checks.  The pinned Xt dependency patch now also retires the
+selection context after widget-destroy/disown ordering; strict ABI,
+incremental-layout and clipboard-lifetime consumers pass against the fresh
+helper-built cohort.  Broader system-library ownership, application DnD and
+other architectures remain explicit gates; see `docs/scroll-autodrag-lifetime.md`.
 
 See `docs/form-layout-corpus.md` for the fixture schema, limits and current
 qualification scope.

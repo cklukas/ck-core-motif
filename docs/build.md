@@ -36,12 +36,18 @@ such a policy. The command sequence is a build example, not validation evidence.
 
 ## Xt clipboard dependency
 
-The complete clipboard lifetime gate requires the Xt INCR ownership correction.
-Uncorrected Xt can free its atomic selection value after sending the final
-segment and free the same pointer again if the peer disconnects before the final
-acknowledgement. This is corrected in Xt's `Selection.c`, not with a toolkit shim
-or a longer timeout. `patches/libXt-incr-lifetime.patch` clears the released
-pointer so timeout cleanup remains safe.
+The complete clipboard lifetime gate requires the Xt selection-ownership
+corrections. Uncorrected Xt can free its atomic selection value after sending
+the final INCR segment and free the same pointer again if the peer disconnects
+before the final acknowledgement. It can also leave a selection context
+allocation behind when a widget is destroyed before its destroy callbacks
+disown the selection. Both cases are corrected in Xt's `Selection.c`, not with
+a toolkit shim or a longer timeout. `patches/libXt-incr-lifetime.patch` clears
+the released value pointer and gives Xt a lookup-only disown path. A destroyed
+widget's context is removed immediately when no transfer is active, or after
+its final transfer reference; the server owner is cleared only when it still
+names that widget. Every refcount retirement verifies and deletes the matching
+X context before freeing the record.
 
 On Linux, `scripts/build-xt-dependency.py` accepts the upstream
 [libXt 1.3.1 archive](https://www.x.org/releases/individual/lib/libXt-1.3.1.tar.xz),
@@ -51,6 +57,21 @@ downloads or system installation. Pass `--archive /absolute/libXt-1.3.1.tar.xz`,
 `--output /absolute/xt-build` and optionally `--prefix /absolute/combined-prefix`.
 An explicit prefix must be fresh or empty. The source/build/install receipts
 record hashes, flags, compiler, timing and instrumentation scope.
+
+On 2026-10-25, the AArch64 `uconsole` qualification used the pinned archive
+SHA-256 above, patch SHA-256
+`218f87c254c716c8be3fb4a797849213fd224d87db33306a4edf2fd400a6e8f3`, and
+patched `Selection.c` SHA-256
+`451cc19b94b041fe14f0bbbc689de5e76fe49a45cbbaba2679d01a09684da53f`.  The
+official helper completed a fresh shared Xt build, and a strict installed-prefix
+consumer run passed `abi`, `incremental-layout` and `clipboard-lifetime` with
+ASan/UBSan leak detection enabled.  The same run is the evidence boundary for
+the dependency patch; it does not qualify Fontconfig ownership, application
+drag-and-drop workflows or x86_64.  The retained helper receipt was
+`xt-selection-next-r7-helper/receipt.json` on the task host; its installed
+`libXt.so.6.0.0` SHA-256 was
+`336b193562786d87c3b0f22343be767eae1fda5b982521fedabf6e382161b6f7`, and the
+consumer receipt was `results/xt-selection-next-r7/receipt.json`.
 
 Build Motif into the same selected prefix afterward. Set `CPPFLAGS` to include
 its `include`, `LDFLAGS` to `-L` and `-Wl,-rpath,` its `lib`, and
