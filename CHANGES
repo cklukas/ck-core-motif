@@ -4068,3 +4068,8 @@ Mrm class/comment validation checks (2026-10-25)
 
 - Propagate invalid-context failures before class and comment record access;
   see `docs/mrm-class-comment-validation.md`.
+Mrm writer Char8-vector rebind checks (2026-10-25)
+====================================================
+
+- Propagate the argument descriptor rebind failure after Char8-vector
+  allocation; see `docs/mrm-writer-char8-vector-rebind.md`.

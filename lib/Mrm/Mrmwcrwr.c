@@ -942,8 +942,9 @@ UrmCWRSetArgChar8Vec (URMResourceContextPtr	context_id,
 				   (char **)&vecptr) ;
   if ( result != MrmSUCCESS ) return result ;
 
-  UrmCWR__BindArgPtrs
+  result = UrmCWR__BindArgPtrs
     (context_id, "UrmCWRSetArgChar8Vec", arg_ndx, &argdesc, &argptr) ;
+  if ( result != MrmSUCCESS ) return result ;
   argptr->arg_val.rep_type = MrmRtypeChar8Vector ;
   argptr->arg_val.datum.offset = vecoffs ;
 
