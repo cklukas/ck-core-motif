@@ -6269,3 +6269,9 @@ Bound XmString rendition-stack allocation widths (2026-10-25)
   retaining valid storage when shrinking cannot complete; see
   `docs/xmstring-rendition-stack.md`.
 
+Bound XmString tag-cache allocation widths (2026-10-25)
+=========================================================
+
+- Use explicit Xt `Cardinal` byte sizes for tag-cache initialization and
+  growth, rejecting unrepresentable counts; see `docs/xmstring-tag-cache.md`.
+
