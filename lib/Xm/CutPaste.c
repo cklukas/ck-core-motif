@@ -2097,16 +2097,14 @@ ClipboardIsMarkedForDelete(
     ClipboardDataItem curritem;
     unsigned long return_value, reclength;
     Atom rectype;
+    int status;
 
     if ( itemid == 0 ) 
-    {
-	CleanupHeader (display);
-	ClipboardError( CLIPBOARD_CORRUPT, CORRUPT_DATA_STRUCTURE );
-    	return 0;
-    }
+	return 0;
 
     /* get the next format */
-    ClipboardFindItem( display, 
+	curritem = NULL;
+    status = ClipboardFindItem( display,
 			   itemid,
 			   (XtPointer *) &curritem,
 			   &reclength,
@@ -2114,11 +2112,11 @@ ClipboardIsMarkedForDelete(
 			   0,
     			   XM_DATA_ITEM_RECORD_TYPE );
 
-    if ( curritem == 0 ) 
+    if (status != ClipboardSuccess || curritem == NULL ||
+	reclength < sizeof(ClipboardDataItemRec))
     {
-	CleanupHeader (display);
-	ClipboardError( CLIPBOARD_CORRUPT, CORRUPT_DATA_STRUCTURE );
-    	return 0;
+	XtFree( (char *)curritem);
+	return 0;
     }
 
     return_value = curritem->deletePendingFlag;

@@ -1,3 +1,9 @@
+Clipboard delete-state validation (2026-10-26)
+===============================================
+
+- Validate item records before reading deletion state during clipboard scans;
+  see `docs/clipboard-delete-state-validation.md`.
+
 Clipboard delete-formats validation (2026-10-26)
 =================================================
 
