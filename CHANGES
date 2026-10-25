@@ -1,4 +1,8 @@
 2026-10-25
+	* Make tab-list removal transactional, preserving the original list when
+	  result allocation fails; see docs/tablist-remove-rollback.md.
+
+2026-10-25
 	* Make tab-list replacement transactional, retaining the original list when
 	  a replacement tab cannot be allocated; see docs/tablist-replace-rollback.md.
 
