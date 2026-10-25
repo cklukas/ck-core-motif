@@ -1715,6 +1715,15 @@ XmRenderTableRemoveRenditions(XmRenderTable oldtable,
 			      int tag_count)
 {
   XmRenderTable ret_val;
+  int i;
+
+  if (oldtable == NULL || tags == NULL || tag_count <= 0)
+	return oldtable;
+
+  for (i = 0; i < tag_count; i++)
+	if (tags[i] == NULL)
+	  return oldtable;
+
 #ifdef XTHREADS
   XtAppContext  app=NULL;
 
@@ -1760,8 +1769,12 @@ _XmRenderTableRemoveRenditions(XmRenderTable oldtable,
   _XmRenderTable	table;
   XmRenderTable		newtable = NULL;
 
-  if ((oldtable == NULL) || (tags == NULL) || (tag_count == 0))
+  if ((oldtable == NULL) || (tags == NULL) || (tag_count <= 0))
     return(oldtable);
+
+  for (j = 0; j < tag_count; j++)
+    if (tags[j] == NULL)
+      return(oldtable);
   
   count = 0;
   

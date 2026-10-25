@@ -256,6 +256,8 @@ Render-table locking (2026-10-26)
   adding entries to a render table; see `docs/xmfontlist-create-failure.md`.
 - Reject null entries in `XmRenderTableAddRenditions` before dereferencing the
   array; see `docs/render-table-add-null-entry.md`.
+- Validate render-table removal tables, counts, and tag entries before locking
+  or comparing strings; see `docs/render-table-remove-inputs.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================
