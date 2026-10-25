@@ -1,12 +1,12 @@
 ---
 nav_exclude: true
 ---
-# Accessibility application-name allocation
 
-`XmAccessibilityCreate` now treats failure to copy the application name as a
-creation failure, releasing the partially initialized accessibility object
-before returning. Successful accessibility registration and naming are
-unchanged.
+# Accessibility name allocation rollback
 
-`tests/automated/check-accessibility-name-allocation.py` protects this
-contract.
+`XmAccessibilityCreate` now destroys its partially initialized state and
+returns NULL when copying the application name fails.  Valid names and the
+public ABI are unchanged.
+
+The static regression check is
+`tests/automated/check-accessibility-name-allocation.py`.

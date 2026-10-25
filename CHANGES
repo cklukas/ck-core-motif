@@ -113,6 +113,13 @@ Accessibility text extraction allocation guard (2026-10-26)
   allocation before calling text-widget substring APIs; see
   `docs/accessibility-text-allocation.md`.
 
+Accessibility name allocation rollback (2026-10-26)
+====================================================
+
+- Roll back accessibility creation when the application-name copy fails,
+  avoiding a partially initialized object; see
+  `docs/accessibility-name-allocation.md`.
+
 Accessibility UTF-8 allocation guards (2026-10-26)
 ===================================================
 

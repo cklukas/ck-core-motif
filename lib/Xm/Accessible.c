@@ -709,6 +709,10 @@ XmAccessibility *XmAccessibilityCreate(Widget root, const char *name) {
   a->root = root;
   a->app = XtWidgetToApplicationContext(root);
   a->name = XtNewString(name ? name : XtName(root));
+  if (!a->name) {
+    XmAccessibilityDestroy(a);
+    return NULL;
+  }
   a->status = XmACCESSIBILITY_NOT_BUILT;
   n = add_node(a, 0);
   if (!n) { XmAccessibilityDestroy(a); return NULL; }
