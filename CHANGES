@@ -5455,3 +5455,9 @@ Harden traversal exclusive tab-list allocation (2026-10-25)
 
 - Preserve tab-list storage across growth and shrink allocation failures; see
   `docs/traversal-tab-list.md`.
+
+Harden compound-text direction-stack growth (2026-10-25)
+============================================================
+
+- Preserve direction-stack state when growth allocation fails and propagate the
+  conversion error; see `docs/resencod-direction-stack.md`.

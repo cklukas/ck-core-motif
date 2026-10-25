@@ -269,15 +269,27 @@ static XmConst char UTF8_R_TO_L[] = "\342\200\217";
     (ctx)->gr_charset_size = (size);\
     (ctx)->gr_octets_per_char = (octets)
 
-#define _PushDir(ctx, dir)\
-    if ( (ctx)->dirsp == ((ctx)->dirstacksize - 1) ) {\
-	(ctx)->dirstacksize += 8;\
-	(ctx)->dirstack = \
-	    (ct_Direction *)XtRealloc((char *)(ctx)->dirstack,\
-				(ctx)->dirstacksize * sizeof(ct_Direction));\
-    }\
-    (ctx)->dirstack[++((ctx)->dirsp)] = dir;\
-    (ctx)->flags.dircs = True
+static Boolean
+_PushDir(ct_context *ctx, ct_Direction dir)
+{
+    if (ctx->dirsp == ctx->dirstacksize - 1) {
+        unsigned int new_size = ctx->dirstacksize + 8;
+        ct_Direction *new_stack;
+
+        if (new_size < ctx->dirstacksize)
+            return False;
+        new_stack = (ct_Direction *)XtRealloc(
+            (char *)ctx->dirstack,
+            (size_t)new_size * sizeof(*new_stack));
+        if (new_stack == NULL)
+            return False;
+        ctx->dirstack = new_stack;
+        ctx->dirstacksize = new_size;
+    }
+    ctx->dirstack[++ctx->dirsp] = dir;
+    ctx->flags.dircs = True;
+    return True;
+}
 
 #define _PopDir(ctx)	((ctx)->dirsp)--
 
@@ -1702,14 +1714,16 @@ processCSI(
 	    if (ctx->flags.gchar && ctx->dirsp == 0) {
 		ok = False;
 	    } else {
-		_PushDir(ctx, ct_Dir_LeftToRight);
+                if (!_PushDir(ctx, ct_Dir_LeftToRight))
+                    ok = False;
 	    }
 	    break;
 	case 0x32:			/* start right to left */
 	    if (ctx->flags.gchar && ctx->dirsp == 0) {
 		ok = False;
 	    } else {
-		_PushDir(ctx, ct_Dir_RightToLeft);
+                if (!_PushDir(ctx, ct_Dir_RightToLeft))
+                    ok = False;
 	    }
 	    break;
 	case 0x5d:			/* Just CSI EOS - revert */
