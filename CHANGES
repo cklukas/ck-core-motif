@@ -9921,6 +9921,13 @@ XmString multibyte conversion allocation guards (2026-10-25)
 - Check both compound-string conversion result buffers and release active
   conversion state on failure; see `docs/xmstring-mb-allocation.md`.
 
+Paned sash and separator list allocation guards (2026-10-25)
+=============================================================
+
+- Size temporary lists for every child, handle empty child sets, and release
+  partial allocations before Paned layout-state updates continue; see
+  `docs/paned-sash-list-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

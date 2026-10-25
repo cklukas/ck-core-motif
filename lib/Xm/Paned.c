@@ -1786,11 +1786,27 @@ ManageAndUnmanageSashs(XmPanedWidget pw)
    Cardinal alloc_size;
    Boolean last_child_has_sash = False;
 
-   alloc_size = (Cardinal) sizeof(Widget) * pw->composite.num_children / 2;
-   managedP = managed_sashs = (WidgetList) XtMalloc(alloc_size);
-   unmanagedP = unmanaged_sashs = (WidgetList) XtMalloc(alloc_size);
-   managedS = managed_seps = (WidgetList) XtMalloc(alloc_size);
-   unmanagedS = unmanaged_seps = (WidgetList) XtMalloc(alloc_size);
+   if (pw->composite.num_children > UINT_MAX / sizeof(Widget))
+       return;
+   alloc_size = (Cardinal) sizeof(Widget) * pw->composite.num_children;
+   if (alloc_size == 0)
+       return;
+   managed_sashs = (WidgetList) XtMalloc(alloc_size);
+   unmanaged_sashs = (WidgetList) XtMalloc(alloc_size);
+   managed_seps = (WidgetList) XtMalloc(alloc_size);
+   unmanaged_seps = (WidgetList) XtMalloc(alloc_size);
+   if (managed_sashs == NULL || unmanaged_sashs == NULL ||
+       managed_seps == NULL || unmanaged_seps == NULL) {
+       XtFree((char *)managed_sashs);
+       XtFree((char *)unmanaged_sashs);
+       XtFree((char *)managed_seps);
+       XtFree((char *)unmanaged_seps);
+       return;
+   }
+   managedP = managed_sashs;
+   unmanagedP = unmanaged_sashs;
+   managedS = managed_seps;
+   unmanagedS = unmanaged_seps;
 
    ForAllChildren(pw, childP) {
        if (!IsPane(*childP))
