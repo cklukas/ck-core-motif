@@ -8734,12 +8734,16 @@ CallActionCB(
 		{
 		cbs.selected_items = GetSelectedCwids((Widget)cw);
 		cbs.selected_item_count = cw->container.selected_item_count;
+		if (cbs.selected_items == NULL)
+		    cbs.selected_item_count = 0;
 		}
 	else
 		{
 		cbs.selected_items = (WidgetList)XtMalloc(sizeof(Widget));
-		cbs.selected_items[0] = cwid;
-		cbs.selected_item_count = 1;
+		if (cbs.selected_items != NULL) {
+		    cbs.selected_items[0] = cwid;
+		    cbs.selected_item_count = 1;
+		}
 		}
 	cbs.auto_selection_type = XmAUTO_UNSET;
 	XtCallCallbackList((Widget)cw,cw->container.default_action_cb,&cbs);
@@ -8775,9 +8779,11 @@ CallSelectCB(
 				{
 				cbs.selected_items = (WidgetList)
 						XtMalloc(sizeof(Widget));
-        			cbs.selected_items[0] =
+				if (cbs.selected_items != NULL) {
+				    cbs.selected_items[0] =
 					cw->container.anchor_cwid;
 				cbs.selected_item_count = 1;
+				}
 				}
 			break;
 	case	XmMULTIPLE_SELECT:
@@ -8788,6 +8794,8 @@ CallSelectCB(
 			cbs.selected_items = GetSelectedCwids(wid);
 			cbs.selected_item_count = 
 				cw->container.selected_item_count;
+			if (cbs.selected_items == NULL)
+				cbs.selected_item_count = 0;
 			break;
 	}
 	cbs.event = event;
@@ -8812,9 +8820,14 @@ GetSelectedCwids(
 	
 	if (cw->container.selected_item_count == 0)
 		return(NULL);
+	if ((size_t)cw->container.selected_item_count >
+	    SIZE_MAX / sizeof(Widget))
+		return(NULL);
 
 	selected_items = (WidgetList)XtMalloc
 			(cw->container.selected_item_count * sizeof(Widget));
+	if (selected_items == NULL)
+		return(NULL);
 	/* 
 	 * Search through all the visible items first - it'll work 99% of
 	 * the time and it's faster than searching through all the items.
@@ -8860,6 +8873,7 @@ GetSelectedCwids(
 			else
 				node = GetNextUpLevelNode(node);
 		}
+	XtFree((char *)selected_items);
 	return(NULL);
 }
 

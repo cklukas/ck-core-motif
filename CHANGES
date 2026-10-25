@@ -1,4 +1,8 @@
 2026-10-25
+	* Check Container selection-array sizing and preserve selection state when
+	  growth fails; see docs/container-selection-guards.md.
+
+2026-10-25
 	* Guard Container detail-order copies and preserve the previous order when
 	  a new array cannot be allocated; see docs/container-detail-order-guards.md.
 
