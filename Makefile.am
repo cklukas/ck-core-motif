@@ -125,6 +125,7 @@ EXTRA_DIST += tests/automated/check-mwm-menu-item-allocation.py docs/mwm-menu-it
 EXTRA_DIST += tests/automated/check-mwm-match-insertion-allocation.py docs/mwm-match-insertion-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-menu-button-array-bounds.py docs/mwm-menu-button-array-bounds.md
 EXTRA_DIST += tests/automated/check-mwm-insert-tree-allocation.py docs/mwm-insert-tree-allocation.md
+EXTRA_DIST += tests/automated/check-mwm-save-pbinfo-growth.py docs/mwm-save-pbinfo-growth.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md
 EXTRA_DIST += tests/automated/check-editres-error-bounds.py docs/editres-error-bounds.md
 EXTRA_DIST += tests/automated/check-spinbox-name-bounds.py docs/spinbox-name-bounds.md

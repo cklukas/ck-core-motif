@@ -9790,6 +9790,13 @@ MWM command-tree path allocation guard (2026-10-25)
   insertion, preventing a null write on allocation failure; see
   `docs/mwm-insert-tree-allocation.md`.
 
+MWM push-button growth transaction (2026-10-25)
+===============================================
+
+- Grow the push-button tracking array with checked temporary capacity and
+  pointer ownership, preserving existing state when allocation fails; see
+  `docs/mwm-save-pbinfo-growth.md`.
+
 MWM menu-button array bounds (2026-10-25)
 =========================================
 

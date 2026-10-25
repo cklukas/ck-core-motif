@@ -3308,6 +3308,8 @@ static Boolean SavePBInfo (MenuSpec *topMenuSpec, MenuItem *menuItem,
 			     Widget itemW)
 {
     MenuButton *menuButton;
+    MenuButton *newButtons;
+    unsigned int newSize;
 
 
     /* check for bad input value - shouldn't happen. */
@@ -3316,25 +3318,30 @@ static Boolean SavePBInfo (MenuSpec *topMenuSpec, MenuItem *menuItem,
     if (topMenuSpec->menuButtonSize == 0)
     /* need to create array */
     {
-        topMenuSpec->menuButtonSize = MENU_BUTTON_INC;
-        topMenuSpec->menuButtons =
-	    (MenuButton *) XtMalloc (MENU_BUTTON_INC * sizeof(MenuButton));
+        newSize = MENU_BUTTON_INC;
+        if ((size_t)newSize > SIZE_MAX / sizeof(*newButtons))
+	    return (FALSE);
+        newButtons = (MenuButton *)XtMalloc(newSize * sizeof(*newButtons));
+        if (newButtons == NULL)
+	    return (FALSE);
+        topMenuSpec->menuButtons = newButtons;
+        topMenuSpec->menuButtonSize = newSize;
     }
     else if (topMenuSpec->menuButtonCount == topMenuSpec->menuButtonSize)
     /* need larger array */
     {
-        topMenuSpec->menuButtonSize += MENU_BUTTON_INC;
-        topMenuSpec->menuButtons = (MenuButton *) 
-	    XtRealloc ((char*)topMenuSpec->menuButtons,
-		     topMenuSpec->menuButtonSize * sizeof(MenuButton));
-    }
-
-    if (topMenuSpec->menuButtons == NULL)
-    /* insufficent memory */
-    {
-	topMenuSpec->menuButtonSize = 0;
-	topMenuSpec->menuButtonCount = 0;
-	return (FALSE);
+        if (topMenuSpec->menuButtonSize > UINT_MAX - MENU_BUTTON_INC)
+	    return (FALSE);
+        newSize = topMenuSpec->menuButtonSize + MENU_BUTTON_INC;
+        if ((size_t)newSize > SIZE_MAX / sizeof(*newButtons))
+	    return (FALSE);
+        newButtons = (MenuButton *)XtRealloc(
+	    (char *)topMenuSpec->menuButtons,
+	    newSize * sizeof(*newButtons));
+        if (newButtons == NULL)
+	    return (FALSE);
+        topMenuSpec->menuButtons = newButtons;
+        topMenuSpec->menuButtonSize = newSize;
     }
 
     menuButton = &(topMenuSpec->menuButtons[topMenuSpec->menuButtonCount]);
