@@ -1,4 +1,8 @@
 2026-10-25
+	* Check `XmTabCreate` during tab-list resource conversion and release
+	  partial output on failure; see docs/tablist-converter-allocation.md.
+
+2026-10-25
 	* Check the mutable render-table input copy before tokenization and fail the
 	  conversion cleanly when it cannot be allocated; see
 	  docs/render-table-input-allocation.md.
