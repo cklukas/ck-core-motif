@@ -1,3 +1,9 @@
+Guard Container detail-header cache allocation (2026-10-25)
+=============================================================
+
+- Clear stale cached detail headers and return safely when the replacement
+  table cannot be allocated; see `docs/container-detail-header-guards.md`.
+
 Free empty tab lists safely (2026-10-25)
 =========================================
 
