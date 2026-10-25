@@ -50,9 +50,12 @@ colors, focus metrics, keyboard traversal and both explicit and ordinary
 application-resource precedence. Pixmaps are not recolored, so application
 supplied pixmaps retain their normal resource precedence.
 
-`modern-dark` remains deliberately deferred. It will not be advertised until
-its image, disabled-state and contrast behavior can meet the same installed
-fixture and actual-window review bar.
+WP-03 also adds the opt-in `modern-dark` profile. It supplies dark surfaces,
+light text, visible blue focus, dark selection/arm surfaces and a distinct
+disabled foreground through the same immutable Xrm fallback path. Its
+installed fixture checks realized colors, disabled state, keyboard traversal,
+explicit application precedence and application pixmap identity; see
+`docs/modern-dark-profile.md` for the qualified scope and limits.
 
 Profile precedence is unchanged and testable: explicit widget arguments win
 over ordinary X resources, and ordinary X resources win over toolkit defaults.
