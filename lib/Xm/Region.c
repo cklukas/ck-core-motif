@@ -1088,12 +1088,19 @@ miRegionOp(
 	if (newReg->numRects)
 	{
 	    XmRegionBox *prev_rects = newReg->rects;
+	    int prev_size = newReg->size;
+	    XmRegionBox *new_rects;
 
-	    newReg->size = newReg->numRects;
-	    newReg->rects = (XmRegionBox *) XtRealloc ((char *) newReg->rects,
-			     (Cardinal) (sizeof(XmRegionBox) * newReg->size));
-	    if (! newReg->rects)
+	    new_rects = (XmRegionBox *)XtRealloc(
+		(char *)prev_rects,
+		(Cardinal)(sizeof(XmRegionBox) * newReg->numRects));
+	    if (new_rects != NULL) {
+		newReg->rects = new_rects;
+		newReg->size = newReg->numRects;
+	    } else {
 		newReg->rects = prev_rects;
+		newReg->size = prev_size;
+	    }
 	}
 	else
 	{

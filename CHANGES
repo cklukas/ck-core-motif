@@ -8088,3 +8088,12 @@ FontS list-size bounds (2026-10-27)
 
 XmIm reference-list shrinking (2026-10-27)
 ===========================================
+Region rectangle-shrink metadata (2026-10-27)
+===============================================
+
+- Commit the region rectangle pointer and its capacity together when
+  shrinking.  A failed shrink now retains the old size metadata as well as
+  the old allocation.
+
+FontS list-size bounds (2026-10-27)
+===================================
