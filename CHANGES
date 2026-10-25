@@ -1,3 +1,10 @@
+ToggleButton pixmap centering bounds (2026-10-25)
+================================================
+
+- Compute pixmap centering differences with signed heights before clamping,
+  preventing wrapped vertical positions in small buttons; see
+  `docs/toggle-pixmap-center-geometry.md`.
+
 InfoBar close-icon geometry bounds (2026-10-25)
 ===============================================
 
