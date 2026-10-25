@@ -1,8 +1,9 @@
 /*
  * Motif appearance-profile selection.
  *
- * This interface deliberately selects a profile before widgets are created;
- * it does not mutate realized widgets or replace the Xt resource model.
+ * XmSetAppearanceProfile selects the profile used by subsequently-created
+ * widgets. XmApplyAppearanceProfile additionally applies a profile to an
+ * existing widget hierarchy without replacing the Xt resource model.
  */
 #ifndef _XmAppearance_h
 #define _XmAppearance_h
@@ -27,6 +28,10 @@ extern Boolean XmSetAppearanceProfile(
 extern Boolean XmGetAppearanceProfile(
     Display *display,
     XmAppearanceProfile *profile_return);
+
+extern Boolean XmApplyAppearanceProfile(
+    Display *display,
+    XmAppearanceProfile profile);
 
 #ifdef __cplusplus
 }  /* Close scope of 'extern "C"'. */

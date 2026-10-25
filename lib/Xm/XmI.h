@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include <Xm/XmP.h>
+#include <Xm/Appearance.h>
 #include "XmStrDefsI.h"
 
 #ifdef __cplusplus
@@ -260,6 +261,12 @@ extern void _XmScaleRelayoutWidget(Widget widget,
                                    double old_scale,
                                    double new_scale,
                                    XtPointer closure);
+extern Boolean _XmRegisterAppearanceChange(Widget widget,
+                                            ArgList args,
+                                            Cardinal num_args);
+extern Boolean _XmApplyAppearanceChange(Display *display,
+                                        XmAppearanceProfile old_profile,
+                                        XmAppearanceProfile new_profile);
 extern Boolean _XmIsISO10646(Display *dpy,
                              XFontStruct *font);
 extern XChar2b* _XmUtf8ToUcs2(char *draw_text,

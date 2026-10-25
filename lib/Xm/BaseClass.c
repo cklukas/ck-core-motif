@@ -1926,6 +1926,7 @@ InitializeRootWrapper(
             * transaction.  Class-specific handlers register alongside this
             * baseline relayout hook after the leaf initializer has completed. */
            (void)_XmRegisterScaleChange(new_w, _XmScaleRelayoutWidget, NULL);
+           (void)_XmRegisterAppearanceChange(new_w, args, *num_args);
 	}
 }
 

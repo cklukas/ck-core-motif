@@ -5719,4 +5719,17 @@ PixConv pixmap metadata guard (2026-10-25)
   avoiding uninitialized-depth behavior for unresolved pixmaps; see
   `docs/pixconv-pixmap-metadata.md`.
 
+Live appearance profile transaction (2026-10-25)
+================================================
+
+- Add the additive `XmApplyAppearanceProfile` API. It applies the existing
+  classic, modern-light, modern-dark and high-contrast profiles to a realized
+  core-widget hierarchy without changing the Xt resource model or explicit
+  application values.
+- Track profile-owned values separately from explicit widget arguments and
+  ordinary X resources, preserve widget state/callbacks, and preflight color
+  conversion before committing a transaction. See
+  `docs/appearance-profiles.md` and
+  `tests/automated/run-live-appearance.py`.
+
 LabelG background pixmap metadata guard (2026-10-25)

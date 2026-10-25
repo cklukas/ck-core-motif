@@ -1,5 +1,11 @@
 # Appearance-profile contract
 
+The appearance API has two deliberately separate operations. Selection is
+creation-time and keeps the original Xt resource model intact; the live
+operation is an explicit UI-thread transaction for an already-created core
+widget hierarchy. Neither operation is a desktop-theme bridge or a replacement
+for application resources.
+
 WP-01 adds a small, additive selector without replacing Xt resources or
 mutating realized widgets:
 
@@ -14,8 +20,28 @@ but before creating application widgets. The selected profile is stored in that
 display's existing X resource database. `XmGetAppearanceProfile` reports the selected
 profile; an unselected display behaves as `classic`. Unknown enum values are
 rejected. Profile selection is immutable for a display: selecting a different
-profile after one has been selected fails, because realized widgets are never
-mutated behind an application's back.
+profile after one has been selected fails. Applications that need to change an
+existing hierarchy use `XmApplyAppearanceProfile` explicitly instead:
+
+```c
+XmApplyAppearanceProfile(display, XmAPPEARANCE_MODERN_DARK);
+```
+
+The live operation updates registered core widgets, then replaces the
+display's profile fallback database only after the widget transaction passes
+its conversion preflight. It can move between all four profiles, including
+back to `classic`. Explicit widget arguments and ordinary application X
+resources remain authoritative. Toolkit-owned values are tracked per resource,
+so a later application `XtSetValues` change stops that resource from being
+changed by subsequent profile transitions. Widget state, callbacks, focus and
+selection state are not reinitialized.
+
+The operation is a UI-thread transaction: callers must not destroy widgets or
+run concurrent Xt mutations while it is in progress. Allocation and resource
+conversion are preflighted before the first widget is changed; a failed
+preflight leaves both widget values and profile selection unchanged.
+Callback-driven reentrancy and non-core gadget coverage remain explicit later
+work-package gates, as does a complete historical-widget matrix.
 
 WP-02 adds the opt-in `modern-light` profile:
 
@@ -60,8 +86,9 @@ explicit application precedence and application pixmap identity; see
 Profile precedence is unchanged and testable: explicit widget arguments win
 over ordinary X resources, and ordinary X resources win over toolkit defaults.
 Future profiles must add only documented fallback values and must preserve this
-ordering. Profile selection does not provide live style mutation; applications
-must select a profile before creating widgets.
+ordering. Applications should still select a profile before creating their
+widgets; live transitions are an opt-in update for an existing core-widget
+hierarchy, not a substitute for choosing an initial profile.
 
 The installed consumer regression is
 `tests/automated/run-appearance-profile.py`. It verifies default/selected
@@ -78,3 +105,9 @@ integration.
 
 The WP-03 installed accessibility regression is
 `tests/automated/run-high-contrast-profile.py`.
+
+The WP-05.1 installed live-transition regression is
+`tests/automated/run-live-appearance.py`. It runs against the installed
+library under Xvfb, transitions through modern-light, modern-dark,
+high-contrast and classic, and verifies ordinary-versus-explicit foreground
+precedence, realized backgrounds, toggle state and callback counts.
