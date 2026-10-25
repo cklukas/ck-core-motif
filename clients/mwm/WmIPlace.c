@@ -126,6 +126,12 @@ void InitIconPlacement (WmWorkspaceData *pWS)
 	pWS->IPData.placementRows = sH / pWS->pSD->iconHeight;
     }
 
+    /* A small display still needs one valid placement slot. */
+    if (pWS->IPData.placementCols < 1)
+	pWS->IPData.placementCols = 1;
+    if (pWS->IPData.placementRows < 1)
+	pWS->IPData.placementRows = 1;
+
     if (pWS->IPData.iconPlacement & ICON_PLACE_TIGHT)
     {
 	iSpaceX = 0;
@@ -135,6 +141,8 @@ void InitIconPlacement (WmWorkspaceData *pWS)
     }
     else
     {
+	if (pWS->IPData.placementCols > 1)
+	{
 	do
 	{
 	    if (useMargin)
@@ -155,8 +163,16 @@ void InitIconPlacement (WmWorkspaceData *pWS)
 	        pWS->IPData.placementCols--;
 	    }
 	}
-	while (iSpaceX < MINIMUM_ICON_SPACING);
+	while (pWS->IPData.placementCols > 1 &&
+	       iSpaceX < MINIMUM_ICON_SPACING);
+	if (iSpaceX < MINIMUM_ICON_SPACING)
+	    iSpaceX = 0;
+	}
+	else
+	    iSpaceX = 0;
 
+	if (pWS->IPData.placementRows > 1)
+	{
 	do
 	{
 	    if (useMargin)
@@ -176,7 +192,13 @@ void InitIconPlacement (WmWorkspaceData *pWS)
 	        pWS->IPData.placementRows--;
 	    }
 	}
-	while (iSpaceY < MINIMUM_ICON_SPACING);
+	while (pWS->IPData.placementRows > 1 &&
+	       iSpaceY < MINIMUM_ICON_SPACING);
+	if (iSpaceY < MINIMUM_ICON_SPACING)
+	    iSpaceY = 0;
+	}
+	else
+	    iSpaceY = 0;
     }
 
     pWS->IPData.iPlaceW = pWS->pSD->iconWidth + iSpaceX;

@@ -1,3 +1,9 @@
+Mwm small-display icon placement (2026-10-25)
+===============================================
+
+- Keep at least one icon-placement slot and avoid zero-divisor spacing math on
+  small displays or large margins; see `docs/icon-placement-small-display.md`.
+
 Mwm config-file path bounds (2026-10-25)
 =========================================
 
