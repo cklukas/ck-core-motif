@@ -190,9 +190,9 @@ Pixmap GetNamedPixmap (Screen *scr, String iconName,
 	
 	pathLength = snprintf(NULL, 0, "%s/%s", wmGD.bitmapDirectory,
 				     iconName);
-	if (pathLength < 0 || (size_t)pathLength == SIZE_MAX)
+	if (pathLength < 0 || (size_t)pathLength >= UINT_MAX)
 	    return pixmap;
-	fullPathName = (char*) XtMalloc((size_t)pathLength + 1);
+	fullPathName = (char*) XtMalloc((Cardinal)pathLength + 1);
 	if (fullPathName == NULL)
 	    return pixmap;
 	(void) snprintf(fullPathName, (size_t)pathLength + 1,

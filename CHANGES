@@ -11580,6 +11580,12 @@ WSM WM_WINDOWS reply allocation width (2026-10-25)
 - Check reply window-entry counts before allocation; see
   `docs/wsm-win-reply-oom.md`.
 
+MWM bitmap-path allocation width (2026-10-25)
+==============================================
+
+- Check measured bitmap paths against Xt's allocation width; see
+  `docs/mwm-image-path-allocation.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 
