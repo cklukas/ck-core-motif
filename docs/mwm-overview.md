@@ -48,6 +48,7 @@ clients exchanging Motif window-management messages.
 ## WSM message packing and ownership
 
 - [WSM string unpack allocation](wsm-unpack-string-oom.md)
+- [WSM null input streams](wsm-unpack-null.md)
 - [WSM configuration-string rollback](wsm-config-string-oom.md)
 - [WSM window-entry allocation](wsm-win-entry-oom.md)
 - [WSM window-list rollback](wsm-windows-rollback.md)

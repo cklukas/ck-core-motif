@@ -1649,8 +1649,13 @@ String
 UnpackString(MessageData *data_ptr)
 {
     register int i;
-    int len = UnpackListNum(data_ptr);
+    int len;
     char *str, *top;
+
+    if (data_ptr == NULL || *data_ptr == NULL)
+	return(NULL);
+
+    len = UnpackListNum(data_ptr);
 
     top = XtMalloc((size_t) len + 1);
     if (top == NULL)
@@ -1707,6 +1712,9 @@ UnpackCARD16(MessageData *data_ptr)
 CARD8
 UnpackCARD8(MessageData *data_ptr)
 {
+    if (data_ptr == NULL || *data_ptr == NULL)
+	return(0);
+
     CARD8 ret_val = *((char *) *data_ptr);
 
     *data_ptr = ((char *) *data_ptr) + 1;

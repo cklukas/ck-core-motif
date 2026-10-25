@@ -11264,3 +11264,9 @@ WSM reply configuration metadata (2026-10-25)
 - Reject missing or incomplete WSM request/reply format metadata before sizing
   or packing, avoiding null dereferences and preserving internal-error
   reporting; see `docs/wsm-reply-config-null.md`.
+
+WSM null input streams (2026-10-25)
+====================================
+
+- Make primitive WSM byte and string decoders tolerate null input streams
+  without dereferencing them; see `docs/wsm-unpack-null.md`.
