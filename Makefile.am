@@ -928,5 +928,6 @@ EXTRA_DIST += tests/automated/check-xmstring-entry-create-allocation.py docs/xms
 EXTRA_DIST += tests/automated/check-xmstring-cache-allocation.py docs/xmstring-cache-allocation.md
 EXTRA_DIST += tests/automated/check-xmstring-charset-allocation.py docs/xmstring-charset-allocation.md
 EXTRA_DIST += tests/automated/check-xmstring-tag-allocation.py docs/xmstring-tag-allocation.md
+EXTRA_DIST += tests/automated/check-xmstring-clone-allocation.py docs/xmstring-clone-allocation.md
 EXTRA_DIST += tests/automated/check-xmstring-segment-allocation.py docs/xmstring-segment-allocation.md
 EXTRA_DIST += tests/automated/check-xmstring-charset-null.py docs/xmstring-charset-comparison.md
