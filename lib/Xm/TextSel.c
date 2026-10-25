@@ -569,6 +569,10 @@ _XmTextConvert(
     *format = 8;
     if (is_destination || !has_selection) return False;
     *value = (XtPointer)_XmStringSourceGetString(tw, left, right, False);
+    if (*value == NULL) {
+      *length = 0;
+      return False;
+    }
     *length = strlen((char*) *value);
   } else if (*target == atoms[XmACOMPOUND_TEXT]) {
     *type = atoms[XmACOMPOUND_TEXT];
