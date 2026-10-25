@@ -4348,6 +4348,13 @@ ProcessAppearanceResources (WmScreenData *pSD)
     clientW = XtCreateWidget (WmNclient, xmRowColumnWidgetClass, 
 			pSD->screenTopLevelW, (ArgList) args, i);
 
+    if (clientW == NULL)
+    {
+        Warning ("Cannot create the client appearance resource widget");
+        ExitWM (WM_ERROR_EXIT_VALUE);
+        return;
+    }
+
 
 	/* fetch "client.title" subpart appearance resources */
 

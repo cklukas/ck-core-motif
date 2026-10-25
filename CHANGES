@@ -1,3 +1,10 @@
+MWM appearance resource widget guard (2026-10-26)
+==================================================
+
+- Fail startup cleanly when the temporary client widget used for appearance
+  resource lookup cannot be created, instead of querying a null widget; see
+  `docs/mwm-appearance-resource-widget.md`.
+
 MWM startup widget creation checks (2026-10-26)
 ================================================
 
