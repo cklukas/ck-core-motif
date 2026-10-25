@@ -109,13 +109,14 @@ hash tables and iterative subtree removal. Source-linked checks exercise
 structural signals, native focus and authoritative wrapped visual lines.
 These lifecycle, geometry and real D-Bus tree checks also pass against the
 installed `b726c1d` library, with matching private fixture headers where required.
-Actual Orca/eSpeak diagnostics against that prefix speak the covered native button/toggle/text,
-selection, Disclosure and ScrollBar controls. Precise editing notifications,
-native list/menu item semantics, complete application journeys and human
-screen-reader usability remain unqualified. Initial registration state and
-first-collapse behavior pass in the complete rebuilt suite. The Orca baseline
-records 98 utterances and 2,123,786 bytes of synthesized PCM with no reported
-errors; it explicitly leaves the listed semantic and usability gaps open.
+Actual Orca/eSpeak diagnostics against that prefix speak the covered native
+button/toggle/text, list/list-item, menu/menu-item, selection, Disclosure and
+ScrollBar controls. Precise editing notifications, complete desktop/application
+journeys and human screen-reader usability remain unqualified. Initial
+registration state and first-collapse behavior pass in the complete rebuilt
+suite. The latest bounded Orca receipt records 113 utterances and 2,436,594
+bytes of synthesized PCM with no reported errors; it explicitly leaves the
+listed semantic and usability gaps open.
 
 The independent Xlib clipboard fixture exercises exact Unicode bytes and both
 directions of large INCR transfer. Diagnostics identified a peer event-queue
@@ -123,9 +124,11 @@ wait error and a separate Xt timeout ownership defect. Correcting the peer's
 flush-before-queue-check ordering passes repeated instrumented transfers. The
 interrupted-transfer regression fails with system Xt and passes for Text and
 TextField with the pinned corrected Xt dependency, including a fresh transfer
-from the same surviving owner. Both regressions also pass in the combined
+from the same surviving owner. Direct Motif-to-Motif Text/TextField owner/import
+round trips also pass for mixed-script and multi-megabyte payloads, with an
+independent Xlib re-export check. Both regressions also pass in the combined
 installed-prefix suite. See the [dependency build](build.md). This verifies the
-recorded native toolkit/dependency/consumer scope; application workflows,
+recorded native toolkit/dependency/consumer scope; drag-and-drop workflows,
 physical display/input qualification and other architectures remain separate
 admission gates.
 
