@@ -1,3 +1,10 @@
+MWM feedback dialog creation checks (2026-10-26)
+=================================================
+
+- Validate confirmation-dialog shell, message-box, and required button
+  creation before use, rolling back partial dialogs safely; see
+  `docs/mwm-feedback-dialog-creation.md`.
+
 MWM menu child creation checks (2026-10-26)
 ============================================
 

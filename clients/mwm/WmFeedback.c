@@ -770,6 +770,9 @@ void ConfirmAction (WmScreenData *pSD, int nbr)
     int           x, y;
     Dimension     width, height;
     Widget        dialogShellW = NULL;
+    Widget        okButtonW = NULL;
+    Widget        cancelButtonW = NULL;
+    Widget        helpButtonW = NULL;
     XmString	  messageString;
     static XmString	  defaultMessageString = NULL;
 
@@ -817,6 +820,9 @@ void ConfirmAction (WmScreenData *pSD, int nbr)
 				    transientShellWidgetClass,
 		                    pSD->screenTopLevelW, args, n);
 
+        if (dialogShellW == NULL)
+            return;
+
         /* 
          * Create a QuestionBox as a child of the popup shell.
 	 * Set traversalOn and add callbacks for the OK and CANCEL buttons.
@@ -840,6 +846,25 @@ void ConfirmAction (WmScreenData *pSD, int nbr)
 	    XtCreateManagedWidget (confirm_widget[nbr], xmMessageBoxWidgetClass,
                                    dialogShellW, args, n);
 
+        if (pSD->confirmboxW[nbr] == NULL)
+        {
+            XtDestroyWidget (dialogShellW);
+            return;
+        }
+
+        okButtonW = XmMessageBoxGetChild (pSD->confirmboxW[nbr],
+                                          XmDIALOG_OK_BUTTON);
+        cancelButtonW = XmMessageBoxGetChild (pSD->confirmboxW[nbr],
+                                              XmDIALOG_CANCEL_BUTTON);
+        helpButtonW = XmMessageBoxGetChild (pSD->confirmboxW[nbr],
+                                            XmDIALOG_HELP_BUTTON);
+        if (okButtonW == NULL || cancelButtonW == NULL || helpButtonW == NULL)
+        {
+            XtDestroyWidget (dialogShellW);
+            pSD->confirmboxW[nbr] = NULL;
+            return;
+        }
+
         n = 0;
         XtSetArg(args[n], XmNmessageString, &messageString); n++;
         XtGetValues(pSD->confirmboxW[nbr], (ArgList) args, n);
@@ -856,7 +881,8 @@ void ConfirmAction (WmScreenData *pSD, int nbr)
 	 * 'reasonable' in instead.
 	 */
 
-	if (XmStringCompare( messageString, defaultMessageString ))
+	if (messageString != NULL && defaultMessageString != NULL &&
+	    XmStringCompare (messageString, defaultMessageString))
 	{
             messageString = XmStringCreateLocalized(confirm_mesg[nbr]);
 	    XtSetArg(args[n], XmNmessageString, (XtArgVal) messageString); n++;
@@ -871,22 +897,18 @@ void ConfirmAction (WmScreenData *pSD, int nbr)
 #ifndef NO_MESSAGE_CATALOG
 	XtSetArg(args[n], XmNlabelString, wmGD.okLabel); n++;
 #endif
-        XtSetValues ( XmMessageBoxGetChild (pSD->confirmboxW[nbr], 
-			    XmDIALOG_OK_BUTTON), args, n);
+        XtSetValues (okButtonW, args, n);
 #ifndef NO_MESSAGE_CATALOG
 	n--;
 	XtSetArg(args[n], XmNlabelString, wmGD.cancelLabel); n++;
 #endif
-        XtSetValues ( XmMessageBoxGetChild (pSD->confirmboxW[nbr], 
-			    XmDIALOG_CANCEL_BUTTON), args, n);
+        XtSetValues (cancelButtonW, args, n);
         XtAddCallback (pSD->confirmboxW[nbr], XmNokCallback, 
 	    (XtCallbackProc)OkCB, (XtPointer)pSD); 
         XtAddCallback (pSD->confirmboxW[nbr], XmNcancelCallback, 
 	    (XtCallbackProc)CancelCB, (XtPointer)NULL); 
 
-        XtUnmanageChild
-	    (XmMessageBoxGetChild (pSD->confirmboxW[nbr], 
-		XmDIALOG_HELP_BUTTON));
+        XtUnmanageChild (helpButtonW);
 
         XtRealizeWidget (dialogShellW);
 
