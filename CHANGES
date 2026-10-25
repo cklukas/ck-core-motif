@@ -1,3 +1,9 @@
+Traversal widget input validation (2026-10-25)
+===============================================
+
+- Guard traversal lifecycle hooks before widget/context access when the widget
+  argument is missing; see `docs/traversal-widget-inputs.md`.
+
 Traversal focus-data input validation (2026-10-25)
 ===================================================
 

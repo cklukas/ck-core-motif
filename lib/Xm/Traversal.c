@@ -117,6 +117,9 @@ _XmNavigInitialize(
 {   
   XmFocusData focusData ;
 
+  if (new_wid == NULL)
+    return;
+
   if(    (focusData = _XmGetFocusData( new_wid)) != NULL    )
     {
       XmNavigationType navType = _XmGetNavigationType( new_wid) ;
@@ -177,6 +180,9 @@ _XmNavigSetValues(
    */
 
   XmFocusData focusData ;
+
+  if (current == NULL || new_wid == NULL)
+    return FALSE;
 
   if(    (focusData = _XmGetFocusData( new_wid)) != NULL    )
     {
@@ -325,6 +331,9 @@ XmeNavigChangeManaged(
    * now eligible to have the focus; the focus is then initialized.
    */
   XmFocusData focus_data ;
+
+  if (wid == NULL)
+    return;
   _XmWidgetToAppContext(wid);
 
   _XmAppLock(app);
@@ -414,6 +423,9 @@ _XmNavigResize(
    * of Scrolled Window or by finding an alternative focus widget.
    */
   XmFocusData focus_data ;
+
+  if (wid == NULL)
+    return;
 
   if(    XtIsRealized( wid)  &&  !XtIsShell( wid)
      &&  (focus_data = _XmGetFocusData( wid))    )
