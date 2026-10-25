@@ -1,3 +1,9 @@
+Reject non-progressing Text source reads (2026-10-25)
+========================================================
+
+- Clear stale blocks and require forward progress while extracting byte and
+  wide-character strings; see `docs/motif-text-source-progress.md`.
+
 Guard Container trait callbacks (2026-10-25)
 ===============================================
 

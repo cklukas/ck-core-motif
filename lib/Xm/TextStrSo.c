@@ -307,6 +307,7 @@ _XmStringSourceGetString(XmTextWidget tw,
   XmTextPosition pos, ret_pos;
   size_t allocation;
   size_t return_val = 0;
+  XmTextPosition start_pos;
 
   if (!TextSourceRangeBytes(from, to,
 				want_wchar ? sizeof(wchar_t) : tw->text.char_size,
@@ -318,8 +319,10 @@ _XmStringSourceGetString(XmTextWidget tw,
     if (buf == NULL)
 	return NULL;
     for (pos = from; pos < to; ) {
+	start_pos = pos;
+	block.length = 0;
       pos = ReadSource(tw->text.source, pos, to, &block);
-      if (block.length == 0)
+	if (pos <= start_pos || block.length == 0)
 	break;
 	  if ((size_t)block.length > allocation - 1 - destpos) {
 	    XtFree(buf);
@@ -336,8 +339,10 @@ _XmStringSourceGetString(XmTextWidget tw,
 	return NULL;
     wc_buf = (wchar_t *)buf;
     for (pos = from; pos < to; ) {
+	start_pos = pos;
+	block.length = 0;
       ret_pos = ReadSource(tw->text.source, pos, to, &block);
-      if (block.length == 0)
+	if (ret_pos <= start_pos || block.length == 0)
 	break;
 	  if (ret_pos < pos ||
 	      (size_t)(ret_pos - pos) >
