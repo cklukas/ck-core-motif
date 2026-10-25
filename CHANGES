@@ -12036,3 +12036,10 @@ Bound simple-menu metadata allocation widths (2026-10-26)
   `docs/xm-va-process-allocation.md`.
 
 Make TextIn selection-array copies failure-safe (2026-10-26)
+Make XmeVLCreateWidget allocation width explicit (2026-10-26)
+===============================================================
+
+- Pass the validated temporary `Arg` array byte size explicitly as an Xt
+  `Cardinal`; see `docs/xme-vlcreate-allocation.md`.
+
+Bound simple-menu metadata allocation widths (2026-10-26)

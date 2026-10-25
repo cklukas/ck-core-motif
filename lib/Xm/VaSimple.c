@@ -1150,7 +1150,8 @@ XmeVLCreateWidget(
     _XmAppLock(app);
     
     /* The size as specified from count */
-    args = count ? (ArgList)XtMalloc((size_t)count * sizeof(Arg)) : NULL;
+    args = count ? (ArgList)XtMalloc(
+        (Cardinal)((size_t)count * sizeof(Arg))) : NULL;
     if (count != 0 && args == NULL) {
         _XmAppUnlock(app);
         return NULL;
