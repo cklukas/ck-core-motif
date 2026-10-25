@@ -1,3 +1,9 @@
+Unit conversion NaN handling (2026-10-25)
+==========================================
+
+- Treat NaN intermediate values as overflow before integer conversion; see
+  `docs/unit-overflow-nan.md`.
+
 Float-unit conversion output validation (2026-10-25)
 =====================================================
 

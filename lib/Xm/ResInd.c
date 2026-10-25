@@ -55,7 +55,8 @@ static char rcsid[] = "$XConsortium: ResInd.c /main/17 1996/06/07 11:40:05 danie
             ((float_value) * -1.0))
  
 #define OVERFLOW(float_value) \
-            (FLOATABS(float_value) > (float) INT_MAX) ? 1 : 0
+            ((float_value) != (float_value) || \
+             FLOATABS(float_value) > (float) INT_MAX) ? 1 : 0
 
 /********    Static Function Declarations    ********/
 
