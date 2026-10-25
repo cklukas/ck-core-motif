@@ -91,6 +91,16 @@ next_font_body = next_font[next_font.index("rend = _XmRTRenditions(table)"):]
 assert next_font_body.index("FLContextIndex(context)++") < next_font_body.index("_XmProcessUnlock();")
 assert next_font_body.index("_XmProcessUnlock();") < next_font_body.index("_XmGetFirstFont(rend)")
 
+start = source.index("XmFontListRemoveEntry(")
+end = source.index("\nXmFontListEntry\nXmFontListEntryLoad", start)
+remove = source[start:end]
+retrieve = remove.index("XmRenditionRetrieve(entry, args, n);")
+lock = remove.index("_XmProcessLock();")
+assert retrieve < lock
+assert remove.index("tags[0] = XtNewString(tags[0]);") < lock
+assert "if (tags[0] == NULL)" in remove
+assert "XtFree(tags[0]);" in remove
+
 start = source.index("XmFontListEntryCreate(")
 end = source.index("\n}\n", start)
 create = source[start:end]
