@@ -12,6 +12,7 @@ assert "XiTabRect *actual;" in layout
 assert "actual = (XiTabRect*)" in layout
 assert "UINT_MAX / sizeof(*actual)" in layout
 assert "if (actual == NULL)" in layout
+assert "(Cardinal)(sizeof(*actual) * (size_t)count)" in layout
 assert layout.index("if (actual == NULL)") < layout.index("XmTabBox__actual(tab) = actual")
 assert layout.index("XmTabBox__actual(tab) = actual") < layout.index("XmTabBox__num_actual(tab) = count")
 
@@ -22,6 +23,7 @@ assert "if( count <= 0 )" in geometry
 assert "XRectangle *wanted;" in geometry
 assert "UINT_MAX / sizeof(*wanted)" in geometry
 assert "if (wanted == NULL)" in geometry
+assert "(Cardinal)(sizeof(*wanted) * (size_t)count)" in geometry
 assert geometry.index("if (wanted == NULL)") < geometry.index("XmTabBox__wanted(tab) = wanted")
 
 cache_start = source.index("ResetImageCache(XmTabBoxWidget tab)")
