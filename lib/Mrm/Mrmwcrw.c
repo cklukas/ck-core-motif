@@ -742,7 +742,8 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
     }
   if ( num_listent > 0 )
     {
-      if ((size_t)num_listent > SIZE_MAX / sizeof(Arg))
+      if ((size_t)num_listent > SIZE_MAX / sizeof(Arg) ||
+          num_listent > UINT_MAX / sizeof(Arg))
 	return MrmFAILURE;
       args = (Arg *) XtMalloc ((size_t)num_listent*sizeof(Arg)) ;
       if (args == NULL)
@@ -1091,7 +1092,8 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
     }
   if ( num_listent > 0 )
     {
-      if ((size_t)num_listent > SIZE_MAX / sizeof(Arg))
+      if ((size_t)num_listent > SIZE_MAX / sizeof(Arg) ||
+          num_listent > UINT_MAX / sizeof(Arg))
 	return MrmFAILURE;
       args = (Arg *) XtMalloc ((size_t)num_listent*sizeof(Arg)) ;
       if (args == NULL)

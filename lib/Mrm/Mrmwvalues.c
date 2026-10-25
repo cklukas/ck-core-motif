@@ -165,7 +165,8 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
   for (ndx = 0; ndx < num_args; ndx++)
     if (args[ndx].value == (XtArgVal)0)
       return MrmFAILURE;
-  if ((size_t)num_args > SIZE_MAX / sizeof(Arg))
+  if ((size_t)num_args > SIZE_MAX / sizeof(Arg) ||
+      num_args > UINT_MAX / sizeof(Arg))
     return MrmFAILURE;
   locargs = (ArgList) XtMalloc ((size_t)num_args*sizeof(Arg)) ;
   if (locargs == NULL)
