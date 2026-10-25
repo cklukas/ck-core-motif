@@ -752,6 +752,7 @@ ReadAtomsTable(
     unsigned long 		bytesafter, lengthRtn; 
     Atom			type;
     int				i;
+    xmAtomsTableEntry		new_entries;
     Boolean			ret;
     Window			motifWindow;
 
@@ -816,10 +817,15 @@ ReadAtomsTable(
 	if (ret && atomsTable == NULL)
         {
             atomsTable = (xmAtomsTable) XtMalloc(sizeof(xmAtomsTableRec));
-            atomsTable->numEntries = 0;
-            atomsTable->entries = NULL;
+	    if (atomsTable == NULL)
+		ret = False;
+	    else
+	    {
+		atomsTable->numEntries = 0;
+		atomsTable->entries = NULL;
 
-            SetAtomsTable (display, atomsTable);
+		SetAtomsTable (display, atomsTable);
+	    }
         }
 
 	if (ret && propertyRecPtr->info.num_atoms > atomsTable->numEntries) {
@@ -833,9 +839,17 @@ ReadAtomsTable(
 	     *  expand the atoms table
 	     */
 
-            atomsTable->entries = (xmAtomsTableEntry) XtRealloc(
+	    new_entries = (xmAtomsTableEntry) XtRealloc(
 	        (char *)atomsTable->entries,	/* NULL ok */
 		sizeof(xmAtomsTableEntryRec) * propertyRecPtr->info.num_atoms);
+	    if (new_entries == NULL)
+	    {
+		ret = False;
+	    }
+	    else
+	    {
+		atomsTable->entries = new_entries;
+	    }
 	    }
 	}
 
