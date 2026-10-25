@@ -6367,21 +6367,20 @@ WmScreenData *pSD;
 
         char *buffer;
 	const char *root_menu;
-	size_t formatLength;
-	size_t rootLength;
+	int messageLength;
 	size_t bufferLength;
 
 	root_menu = pSD->rootMenu ? pSD->rootMenu : "DefaultRootMenu";
-	formatLength = strlen(builtinKeyBindings);
-	rootLength = strlen(root_menu);
-	if (rootLength > SIZE_MAX - formatLength - 1 ||
-	    formatLength + rootLength + 1 > UINT_MAX)
+	messageLength = snprintf(NULL, 0, builtinKeyBindings, root_menu);
+	if (messageLength < 0 || (size_t)messageLength >= UINT_MAX)
 	{
 	    Warning("Root menu name is too long for builtin key bindings");
 	    root_menu = "DefaultRootMenu";
-	    rootLength = strlen(root_menu);
+	    messageLength = snprintf(NULL, 0, builtinKeyBindings, root_menu);
 	}
-	bufferLength = formatLength + rootLength + 1;
+	if (messageLength < 0 || (size_t)messageLength >= UINT_MAX)
+	    return;
+	bufferLength = (size_t)messageLength + 1;
 	buffer = (char *) XtMalloc((Cardinal)bufferLength);
 	if (buffer == NULL)
 	{
@@ -6439,21 +6438,20 @@ WmScreenData *pSD;
 
         char *buffer;
 	const char *root_menu;
-	size_t formatLength;
-	size_t rootLength;
+	int messageLength;
 	size_t bufferLength;
 
 	root_menu = pSD->rootMenu ? pSD->rootMenu : "DefaultRootMenu";
-	formatLength = strlen(builtinButtonBindings);
-	rootLength = strlen(root_menu);
-	if (rootLength > SIZE_MAX - formatLength - 1 ||
-	    formatLength + rootLength + 1 > UINT_MAX)
+	messageLength = snprintf(NULL, 0, builtinButtonBindings, root_menu);
+	if (messageLength < 0 || (size_t)messageLength >= UINT_MAX)
 	{
 	    Warning("Root menu name is too long for builtin button bindings");
 	    root_menu = "DefaultRootMenu";
-	    rootLength = strlen(root_menu);
+	    messageLength = snprintf(NULL, 0, builtinButtonBindings, root_menu);
 	}
-	bufferLength = formatLength + rootLength + 1;
+	if (messageLength < 0 || (size_t)messageLength >= UINT_MAX)
+	    return;
+	bufferLength = (size_t)messageLength + 1;
 	buffer = (char *) XtMalloc((Cardinal)bufferLength);
 	if (buffer == NULL)
 	{

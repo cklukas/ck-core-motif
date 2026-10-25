@@ -11288,3 +11288,10 @@ MWM home-directory path bounds (2026-10-25)
 
 - Bound legacy `$HOME` and passwd-derived path copies to `MAXWMPATH`; see
   `docs/mwm-home-path.md`.
+
+MWM formatted binding sizes (2026-10-25)
+========================================
+
+- Size built-in key and button binding buffers from their formatted output,
+  preventing under-allocation for long root-menu names; see
+  `docs/mwm-binding-buffer-size.md`.
