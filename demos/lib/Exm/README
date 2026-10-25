@@ -58,9 +58,9 @@ how to create a
 ExmString
 *********
 The ExmString widget consists of three files: 
-   * String.c
-   * String.h
-   * StringP.h
+   * ExmString.c
+   * ExmString.h
+   * ExmStringP.h
 The ExmString widget demonstrates how to handle compound strings in Motif
 widgets.  The ExmString widget is similar to the XmLabel widget.  
 The biggest difference between the two is that an XmLabel can 

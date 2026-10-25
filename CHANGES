@@ -1,3 +1,18 @@
+Case-insensitive Exm demonstration build (2026-10-25)
+======================================================
+
+- Remove the duplicate `demos/lib/Exm/String.h` filename and point the stale
+  private header at the existing `ExmString.h`. On case-insensitive development
+  filesystems the old name was exposed as lowercase `string.h`, so X11's
+  standard-library include loaded the Exm widget header before Xt declared
+  `Widget`, `Arg`, `Cardinal` and `externalref`.
+- Refresh the Exm README file lists to describe the source files actually built.
+  The demonstration widget's collision-free `ExmString.h` API remains the
+  public name; this does not alter `libXm` or the Motif C ABI.
+- A fresh x86_64 out-of-tree full-tree `make -j4` now completes core, WML/UIL,
+  demos, unsupported examples and program-guide consumers. Existing legacy
+  warnings are retained and are not described as a warning-free build.
+
 Bounded x86_64 installed-cohort qualification (2026-10-25)
 =============================================================
 

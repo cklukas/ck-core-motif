@@ -34,8 +34,10 @@ These are real coverage gaps rather than claims of known source defects:
    DPI-fallback, independent-client DnD, C++ and C++ ASan/UBSan fixtures pass.
    This does not yet qualify full ICU/HarfBuzz text readback, external IME,
    real AT-SPI/screen-reader, clipboard, application-DnD or matrix-wide
-   sanitizer journeys. The legacy optional `demos/lib/Exm` tree was not
-   admitted because its headers lack required Xt declarations.
+   sanitizer journeys. The full optional Exm/demo tree also compiles on that
+   cohort after removing its case-insensitive `String.h`/`<string.h>` header
+   collision; its historical warnings remain outside the toolkit warning gate.
+   See `docs/exm-demo-build.md` for the reproducible build boundary.
 2. **Strict sanitizer lifecycle.** The synthesized DropSMgr clipper leak is
    fixed and passes three repeated native runs plus a strict ASan/UBSan
    auto-drag lifetime fixture. The pinned Xt dependency patch also retires the

@@ -43,7 +43,7 @@ extern "C" {
 
 
 /* Include appropriate files. */
-#include <Exm/String.h>  /* public header file for the ExmString widget */
+#include <Exm/ExmString.h>  /* public header file for the ExmString widget */
 #include <Exm/SimpleP.h> /* private header file for the ExmSimple widget */
 
 /* No new inheritable methods. */

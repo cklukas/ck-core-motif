@@ -27,7 +27,7 @@
 
 /*******************************************************************************
  *
- * String.h: The widget public header file for the ExmString demonstration
+ * ExmString.h: The widget public header file for the ExmString demonstration
  *            widget.
  *
  ******************************************************************************/

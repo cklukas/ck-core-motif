@@ -48,9 +48,9 @@ fresh runs each; the source fixture records hash
 `053a76d5d7c8d44447fd320e8b6da19d9e5fe0de85cafe87a5ee09deb402f0f1`.
 
 This is bounded x86_64 evidence, not complete architecture acceptance. The
-full optional demo tree was not admitted because the legacy `demos/lib/Exm`
-headers fail to compile with missing Xt declarations; the core toolkit,
-WML/UIL path and installed consumers above were built and validated. Full
+full optional demo tree now also compiles in that cohort after removing the
+case-insensitive `String.h`/`<string.h>` collision in the Exm demonstration
+library; the build still reports the historical demo warnings. Full
 ICU/HarfBuzz text readback, external IME services, real AT-SPI/screen-reader
 journeys, clipboard workflows, application DnD, physical display/input and
 matrix-wide sanitizer ownership remain explicit gates.

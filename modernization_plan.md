@@ -259,7 +259,9 @@ Linux host with Xvfb.  Fresh installed-prefix runs passed at Xft.dpi 96 and
 full source-tree build and install now pass after correcting the bounded
 text-selection compile error, the WML build graph, and UIL literal-only module
 output; the focused WML and zero-topmost regressions remain recorded in the
-repository.
+repository. A fresh x86_64 out-of-tree source-tree build also passes after
+removing the Exm demonstration library's case-insensitive `String.h` collision
+with the C `<string.h>` header; legacy demo warnings remain explicit.
 
 **Does not include:** appearance changes, performance optimizations, internal
 instrumentation without a defined contract, or a claim that the baseline
