@@ -1436,7 +1436,7 @@ static void
 CheckRemoveMotionHandlers(
         XmManagerWidget mw )
 {
-   register int i;
+   register Cardinal i;
    register Widget child;
 
 
