@@ -189,12 +189,18 @@ XmeTraitSet(XtPointer object, XrmQuark name, XtPointer data)
 
   /* Create key,  this will be freed if the record is removed */
   entry = (XmTraitEntry) XtMalloc(sizeof(XmTraitEntryRec));
+  if (entry == NULL)
+    return False;
   entry -> obj = object;
   entry -> name = name;
 
   _XmProcessLock();
   if (data != NULL) {
-    _XmAddHashEntry(TraitTable, entry, data);
+    if (!_XmAddHashEntry(TraitTable, entry, data)) {
+      XtFree((char *)entry);
+      _XmProcessUnlock();
+      return False;
+    }
   }
   else { /* if data == NULL then remove the context */
     XtPointer key;
