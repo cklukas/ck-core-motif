@@ -18,4 +18,8 @@ add_region = source[add_start:add_end]
 assert "matches =" in add_region
 assert "if (matches == NULL)" in add_region
 assert "goto unlock_return;" in add_region
+assert "if (table == NULL)" in add_region
+assert "if (oldtable == NULL)" in add_region
+assert "initial_copy_failed:" in add_region
+assert "FreeRendition(_XmRTRenditions(oldtable)[j]);" in add_region
 print("PASS XmRenderT rendition allocations are guarded")
