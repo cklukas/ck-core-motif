@@ -30,6 +30,7 @@ static char rcsid[] = "$XConsortium: DialogS.c /main/17 1996/03/25 17:50:11 bars
 #include <config.h>
 #endif
 
+#include <stdint.h>
 
 #include "XmI.h"
 #include <Xm/DialogSP.h>
@@ -198,8 +199,21 @@ ClassInitialize( void )
 
   sc_num_res = xmVendorShellExtClassRec.object_class.num_resources;
 
-  merged_list = (XtResource *)XtMalloc((sizeof(XtResource) * (wc_unique_res +
-                                                                 sc_num_res)));
+  if ((size_t)wc_unique_res > SIZE_MAX / sizeof(XtResource) ||
+      (size_t)sc_num_res >
+      (SIZE_MAX / sizeof(XtResource)) - wc_unique_res) {
+    xmDialogShellExtObjectClass->core_class.class_initialize();
+    myBaseClassExtRec.record_type = XmQmotif;
+    return;
+  }
+
+  merged_list = (XtResource *)XtMalloc
+    (sizeof(XtResource) * ((size_t)wc_unique_res + sc_num_res));
+  if (merged_list == NULL) {
+    xmDialogShellExtObjectClass->core_class.class_initialize();
+    myBaseClassExtRec.record_type = XmQmotif;
+    return;
+  }
 
   _XmTransformSubResources(xmVendorShellExtClassRec.object_class.resources,
                            sc_num_res, &uncompiled, &num);

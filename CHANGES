@@ -1,4 +1,8 @@
 2026-10-25
+	* Guard DialogShell resource-array merging and preserve the original
+	  resource set when growth fails; see docs/dialog-resource-guards.md.
+
+2026-10-25
 	* Validate MainWindow auto-scroll rectangle arithmetic before allocating
 	  geometry state; see docs/mainw-rect-guards.md.
 
