@@ -6103,3 +6103,10 @@ Guard XmString direction-component copies (2026-10-25)
   values; see `docs/xmstring-direction-copy-allocation.md` and its focused
   source check.
 
+Make XmString context rendition growth transactional (2026-10-25)
+===================================================================
+
+- Check active-rendition count and `Cardinal` byte limits before growth, keep
+  the existing array on failure, and mark the context error; see
+  `docs/xmstring-context-rendition-growth.md` and its focused source check.
+
