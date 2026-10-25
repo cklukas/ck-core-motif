@@ -1,3 +1,10 @@
+Nested typed varargs bounds (2026-10-28)
+=========================================
+
+- Bound recursive `XtVaNestedList` expansion by the allocated typed-argument
+  capacity and fail safely on null or oversized nested lists; see
+  `docs/xm-va-nested-bounds.md`.
+
 Typed varargs argument-list allocation (2026-10-28)
 =====================================================
 
