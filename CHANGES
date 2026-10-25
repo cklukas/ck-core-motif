@@ -7408,3 +7408,11 @@ Scale trailing tick bounds (2026-10-26)
 
 ScrollBar redisplay shadow bounds (2026-10-26)
 ===============================================
+ComboBox collapsed geometry bounds (2026-10-26)
+================================================
+
+- Bound dropdown shell width and right-side arrow hit-area placement for
+  collapsed ComboBoxes; see `docs/combobox-collapsed-geometry.md`.
+
+Scale trailing tick bounds (2026-10-26)
+=======================================

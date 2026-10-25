@@ -1814,7 +1814,8 @@ CBDropDownList(Widget    widget,
 	  shell_y = MAX(0, tmp);
 
 	  /* CR 8446: The shell width may have changed unexpectedly. */
-	  shell_width = XtWidth(cb) - 2 * CB_HighlightThickness(cb);
+	  shell_width = (XtWidth(cb) > 2 * CB_HighlightThickness(cb)) ?
+	      XtWidth(cb) - 2 * CB_HighlightThickness(cb) : 1;
 
 	  n = 0;
 	  XtSetArg(args[n], XmNx, shell_x), n++;
@@ -2844,7 +2845,8 @@ SetHitArea(Widget w)
     }
   else
     {
-      CB_HitRect(cb).x = XtWidth(cb) - thickW - CB_ArrowSize(cb);
+      CB_HitRect(cb).x = (Position) ((int) XtWidth(cb) -
+	  (int) thickW - (int) CB_ArrowSize(cb));
       CB_HitRect(cb).y = thickH;
     }
 }
