@@ -1,3 +1,10 @@
+ToggleButton gadget highlight bounds (2026-10-26)
+==================================================
+
+- Pass menu-leave highlight dimensions to XmeDrawHighlight in signed
+  arithmetic, preventing collapsed gadgets from wrapping spans; see
+  `docs/togglebg-highlight-bounds.md`.
+
 LabelG text geometry bounds (2026-10-26)
 ==========================================
 

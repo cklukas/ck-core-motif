@@ -1360,10 +1360,10 @@ Leave(
 			   LabG_BackgroundGC(w), 
 			   w->rectangle.x + w->gadget.highlight_thickness,
 			   w->rectangle .y + w->gadget.highlight_thickness,
-			   w->rectangle.width - 2 *
-			   w->gadget.highlight_thickness,
-			   w->rectangle.height - 2 *
-			   w->gadget.highlight_thickness,
+			   (int) w->rectangle.width -
+			   2 * (int) w->gadget.highlight_thickness,
+			   (int) w->rectangle.height -
+			   2 * (int) w->gadget.highlight_thickness,
 			   w->gadget.shadow_thickness);
 	  
 	  
