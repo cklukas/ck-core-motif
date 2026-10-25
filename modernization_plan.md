@@ -1989,6 +1989,9 @@ Quoted and alphabetic token lengths are also checked against Xt's `Cardinal`
 width before allocation.
 Cloned rendition scratch-tag copies now release the partial rendition and
 handle when their tag array cannot be allocated.
+Display-less `XmRenderTableGetTags` and `XmRenderTableGetRendition` calls now
+use the process lock instead of deriving an application context from a null
+display.
 
 ## Acceptance criteria for every increment
 

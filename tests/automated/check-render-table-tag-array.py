@@ -15,4 +15,7 @@ assert "if (tags == NULL)" in region
 assert "XtNewString(_XmRendTag" in region
 assert "while (i != 0)" in region
 assert "XtFree((char *)tags);" in region
+assert "if (_XmRTDisplay(table))" in region
+assert "_XmProcessLock();" in region
+assert "_XmProcessUnlock();" in region
 print("PASS render-table tag result handles allocation failure")

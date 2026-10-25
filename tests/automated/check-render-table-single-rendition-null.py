@@ -9,5 +9,8 @@ region = source[start:end]
 
 assert "if (table == NULL)" in region
 assert "return(NULL);" in region
-assert region.index("if (table == NULL)") < region.index("_XmDisplayToAppContext")
+assert region.index("if (table == NULL)") < region.index("if (_XmRTDisplay(table))")
+assert "if (_XmRTDisplay(table))" in region
+assert "_XmProcessLock();" in region
+assert "_XmProcessUnlock();" in region
 print("PASS render-table single-rendition lookup handles null tables")
