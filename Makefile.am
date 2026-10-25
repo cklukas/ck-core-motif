@@ -243,6 +243,7 @@ EXTRA_DIST += tests/automated/check-textout-navigator-trait.py docs/motif-textou
 EXTRA_DIST += tests/automated/check-text-textual-trait.py docs/motif-text-textual-trait.md
 EXTRA_DIST += tests/automated/check-selectionbox-compound-text.py docs/motif-selectionbox-compound-text.md
 EXTRA_DIST += tests/automated/check-xmstring-segment-tags.py docs/motif-xmstring-segment-tags.md
+EXTRA_DIST += tests/automated/check-colors-loader-allocation.py docs/motif-colors-loader-allocation.md
 EXTRA_DIST += tests/automated/check-txtpropcv-single-allocation.py docs/motif-txtpropcv-single.md
 EXTRA_DIST += tests/automated/check-mwm-session-db-path.py docs/mwm-session-db-path.md
 EXTRA_DIST += tests/automated/check-mwm-display-env-bounds.py docs/mwm-display-env-bounds.md

@@ -3972,3 +3972,8 @@ Validate XmString rendition-tag tables (2026-10-25)
 - Reject null rendition-tag tables and entries before copying, while
   preserving borrowed-pointer ownership; see
   `docs/motif-xmstring-segment-tags.md`.
+Guard Color selector loader allocations (2026-10-25)
+=====================================================
+
+- Make RGB color-table growth and temporary XmString-list allocation
+  transactional; see `docs/motif-colors-loader-allocation.md`.
