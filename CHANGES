@@ -9868,6 +9868,12 @@ Render-table token allocation guards (2026-10-25)
   allocation failure through the parser's EOF path; see
   `docs/render-token-allocation.md`.
 
+XIM callback slot validation (2026-10-25)
+=========================================
+
+- Reject null callbacks and out-of-range internal callback slots before
+  indexing the fixed XIM callback array; see `docs/xim-callback-index.md`.
+
 MWM label-parse allocation guard (2026-10-25)
 ==============================================
 

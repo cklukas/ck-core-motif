@@ -2039,6 +2039,9 @@ regist_real_callback(Widget w,
   XmImRefRec refs;
   int i, target = 0;
 
+  if (call == NULL || swc < 0 || swc >= 4)
+    return;
+
   p = w;
   while (!XtIsShell(p))
   {
