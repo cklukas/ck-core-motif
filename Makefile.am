@@ -170,6 +170,7 @@ EXTRA_DIST += tests/automated/check-scale-convert-allocation.py docs/scale-conve
 EXTRA_DIST += tests/automated/check-accessibility-name-allocation.py docs/accessibility-name-allocation.md
 EXTRA_DIST += tests/automated/check-font-selector-buffer-allocation.py docs/font-selector-buffer-allocation.md
 EXTRA_DIST += tests/automated/check-font-selector-current-font-allocation.py docs/font-selector-current-font-allocation.md
+EXTRA_DIST += tests/automated/check-font-selector-encoding-list-allocation.py docs/font-selector-encoding-list-allocation.md
 EXTRA_DIST += tests/automated/check-xim-info-allocation.py docs/xim-info-allocation.md
 EXTRA_DIST += tests/automated/check-xim-recreate-allocation.py docs/xim-recreate-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md

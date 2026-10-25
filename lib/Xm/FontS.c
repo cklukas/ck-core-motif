@@ -3717,8 +3717,18 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal * num_args)
 		i++;
 	i++;
 	newList = (String*)XtMalloc(sizeof(String) * i);
+	if (newList == NULL)
+	    return;
 	for (i=0, encodings = ENCODING_LIST(fsw); *encodings != NULL; i++, encodings++) 
-		newList[i] = XtNewString(*encodings);
+	{
+	    newList[i] = XtNewString(*encodings);
+	    if (newList[i] == NULL) {
+		while (i > 0)
+		    XtFree(newList[--i]);
+		XtFree((char *)newList);
+		return;
+	    }
+	}
 	newList[i] = NULL;
 	ENCODING_LIST(fsw) = newList;
     }

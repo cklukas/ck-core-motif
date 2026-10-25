@@ -10002,6 +10002,13 @@ FontSelector current-font allocation guard (2026-10-25)
 - Stop FontSelector display setup when its current `FontData` record cannot be
   allocated; see `docs/font-selector-current-font-allocation.md`.
 
+FontSelector encoding-list allocation guards (2026-10-25)
+==========================================================
+
+- Make encoding-list duplication atomic and release partial copies before
+  retaining the original resource list; see
+  `docs/font-selector-encoding-list-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
