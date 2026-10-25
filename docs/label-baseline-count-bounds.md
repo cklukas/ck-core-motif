@@ -9,6 +9,9 @@ then incorrectly accepted for reallocation.
 The offset-adjustment loop also uses a `Cardinal` index, so a valid wide
 baseline table cannot wrap a signed counter while applying the cached delta.
 
+Counts that cannot be returned through the historical `int *line_count` API
+are rejected before the `Cardinal` value is narrowed.
+
 Normal baseline measurement and the public `XmWidgetGetBaselines` behavior are
 unchanged.  The allocation regressions are covered by
 `tests/automated/check-label-baseline-allocation.py` and

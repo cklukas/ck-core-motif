@@ -73,6 +73,7 @@ static char rcsid[] = "$TOG: Label.c /main/26 1997/06/18 17:40:00 samborn $"
 #include <Xm/ColorI.h>
 #endif
 #include <stdint.h>
+#include <limits.h>
 #ifdef FIX_1521
 #ifdef USE_XFT
 #include "XmRenderTI.h"
@@ -2584,6 +2585,7 @@ XmLabelGetBaselines(Widget wid,
       _XmStringGetBaselines(lw->label.font, lw->label._label,
 			    &(lw->label.baselines), &count);
       if (lw->label.baselines == NULL || count == (Cardinal)-1 ||
+          count > (Cardinal)INT_MAX ||
 	  (size_t)count >= SIZE_MAX / sizeof(*new_baselines)) {
 	  lw->label.baselines = NULL;
 	  return False;

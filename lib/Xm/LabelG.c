@@ -36,6 +36,7 @@ static char rcsid[] = "$TOG: LabelG.c /main/24 1999/01/26 15:31:18 mgreess $"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdint.h>
+#include <limits.h>
 #include <X11/IntrinsicP.h>
 #include <X11/ShellP.h>
 #include <X11/Xatom.h>
@@ -3869,6 +3870,7 @@ int *line_count)
         _XmStringGetBaselines(LabG_Font(lw), LabG__label(lw),
             &(lw->label.baselines), &count);
         if (lw->label.baselines == NULL || count == (Cardinal)-1 ||
+            count > (Cardinal)INT_MAX ||
             (size_t)count >= SIZE_MAX / sizeof(*new_baselines)) {
             lw->label.baselines = NULL;
             return False;

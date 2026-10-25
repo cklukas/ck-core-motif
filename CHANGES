@@ -2,7 +2,8 @@ Label baseline count bounds (2026-10-28)
 =========================================
 
 - Check the `Cardinal` baseline count before adding the cached offset element
-  in Label and LabelGadget, and use a full-width adjustment index, preventing
+  in Label and LabelGadget, reject counts that cannot fit the historical
+  `int *line_count` API, and use a full-width adjustment index, preventing
   count wraparound from bypassing the allocation guard or loop; see
   `docs/label-baseline-count-bounds.md`.
 
