@@ -14771,6 +14771,12 @@ Gallery notebook page spacing (2026-10-27)
 - Give the Welcome, Example, and Source notebook pages consistent inner
   margins so headings, controls, and source views do not touch the page frame.
 
+Badge render-table text (2026-10-27)
+====================================
+
+- Draw Badge labels and counts through an owned `XmNrenderTable` copy using
+  `XmStringExtent` and `XmStringDraw`, replacing raw X11 font measurement.
+
 Chip render-table text (2026-10-27)
 ===================================
 

@@ -109,8 +109,8 @@ check is:
 python3 tests/automated/check-datepicker-text-metrics.py
 ```
 
-Badge labels and counts now use measured font width and ascent/descent for
-preferred geometry and drawing.  The focused check is:
+Badge labels and counts now use an owned copy of `XmNrenderTable` for extent
+measurement and drawing. The focused check is:
 
 ```sh
 python3 tests/automated/check-badge-text-metrics.py

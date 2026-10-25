@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Check Badge text uses measured font geometry."""
+"""Check Badge text follows the widget render table."""
 from pathlib import Path
 
 source = Path("lib/Xm/Badge.c").read_text(encoding="utf-8")
-assert "XQueryFont" in source
-assert "XTextWidth" in source
-assert "XFreeFontInfo(NULL, font, 1)" in source
-assert "text_metrics(badge, text" in source
-print("PASS Badge text uses measured font geometry")
+assert "XmNrenderTable" in source
+assert "XmStringExtent" in source
+assert "XmStringDraw" in source
+assert "XmFontListCopy" in source
+assert "XmRenderTableFree" in source
+print("PASS Badge text uses its render table")

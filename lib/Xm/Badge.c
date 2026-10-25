@@ -15,12 +15,27 @@ static void Destroy(Widget);
 static void Redisplay(Widget, XEvent *, Region);
 static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
+static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
+{
+    XmBadgeWidget badge = (XmBadgeWidget)widget;
+    (void)offset;
+    if (badge->badge.check_set_render_table)
+        value->addr = NULL;
+    else {
+        badge->badge.check_set_render_table = True;
+        value->addr = (char *)&badge->badge.font;
+    }
+}
 #define Offset(field) XtOffsetOf(XmBadgeRec, field)
 static XtResource resources[] = {
     {XmNbadgeLabel, XmCBadgeLabel, XmRXmString, sizeof(XmString), Offset(badge.label), XmRImmediate, NULL},
     {XmNbadgeCount, XmCBadgeCount, XmRInt, sizeof(int), Offset(badge.count), XmRImmediate, (XtPointer)-1},
     {XmNbadgeMaximum, XmCBadgeMaximum, XmRInt, sizeof(int), Offset(badge.maximum), XmRImmediate, (XtPointer)99},
     {XmNbadgeSeverity, XmCBadgeSeverity, XmRUnsignedChar, sizeof(unsigned char), Offset(badge.severity), XmRImmediate, (XtPointer)XmBADGE_INFO},
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmRenderTable),
+     Offset(badge.font), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmRenderTable),
+     Offset(badge.font), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean), Offset(primitive.traversal_on), XmRImmediate, (XtPointer)False}
 };
 externaldef(xmbadgeclassrec) XmBadgeClassRec xmBadgeClassRec = {
@@ -46,6 +61,11 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
     XmBadgeWidget badge = (XmBadgeWidget)widget; XGCValues values;
     (void)request; (void)args; (void)count;
     badge->badge.label = copy_label(badge->badge.label);
+    if (badge->badge.font == NULL)
+        badge->badge.font = XmFontListCopy(
+            XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+    else
+        badge->badge.font = XmFontListCopy(badge->badge.font);
     if (badge->badge.maximum < 0) badge->badge.maximum = 0;
     if (badge->badge.count < -1) badge->badge.count = -1;
     values.foreground = badge->primitive.foreground;
@@ -59,6 +79,7 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
 static void Destroy(Widget widget) {
     XmBadgeWidget badge = (XmBadgeWidget)widget;
     if (badge->badge.foreground_gc) XFreeGC(XtDisplay(widget), badge->badge.foreground_gc);
+    if (badge->badge.font) XmRenderTableFree(badge->badge.font);
     /* Xt releases XmNbadgeLabel resource storage after Destroy. */
 }
 static void text_value(XmBadgeWidget badge, char *buffer, size_t size) {
@@ -73,44 +94,37 @@ static void text_value(XmBadgeWidget badge, char *buffer, size_t size) {
         else buffer[0] = '\0';
     }
 }
-static int text_metrics(XmBadgeWidget badge, const char *text, int length,
-                        int *ascent, int *descent) {
-    XGCValues values;
-    XFontStruct *font;
-    int width = 0;
-    *ascent = *descent = 0;
-    if (!badge->badge.foreground_gc ||
-        !XGetGCValues(XtDisplay((Widget)badge), badge->badge.foreground_gc,
-                      GCFont, &values))
-        return 0;
-    font = XQueryFont(XtDisplay((Widget)badge), values.font);
-    if (!font)
-        return 0;
-    *ascent = font->ascent;
-    *descent = font->descent;
-    if (text && length > 0)
-        width = XTextWidth(font, text, length);
-    XFreeFontInfo(NULL, font, 1);
-    return width < 0 ? 0 : width;
-}
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmBadgeWidget badge = (XmBadgeWidget)widget; char text[64];
-    int ascent, descent;
+    XmString label; Dimension text_width = 0, text_height = 0;
     (void)event; (void)region; text_value(badge, text, sizeof(text));
     if (!XtWindow(widget) || !badge->badge.foreground_gc) return;
     XClearWindow(XtDisplay(widget), XtWindow(widget));
     XDrawRectangle(XtDisplay(widget), XtWindow(widget), badge->badge.foreground_gc,
                    0, 0, badge->core.width - 1, badge->core.height - 1);
-    text_metrics(badge, text, (int)strlen(text), &ascent, &descent);
-    XDrawString(XtDisplay(widget), XtWindow(widget), badge->badge.foreground_gc,
-                6, (int)(((long long)badge->core.height - ascent - descent) / 2 + ascent),
-                text, (int)strlen(text));
+    label = (badge->badge.count >= 0) ? XmStringCreateLocalized(text) :
+        badge->badge.label;
+    if (badge->badge.font && label) {
+        XmStringExtent(badge->badge.font, label, &text_width, &text_height);
+        XmStringDraw(XtDisplay(widget), XtWindow(widget), badge->badge.font,
+                     label, badge->badge.foreground_gc, 6,
+                     ((int)badge->core.height - (int)text_height) / 2,
+                     text_width, XmALIGNMENT_BEGINNING,
+                     XmPrim_layout_direction(badge), NULL);
+    }
+    if (badge->badge.count >= 0 && label) XmStringFree(label);
 }
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmBadgeWidget old = (XmBadgeWidget)old_widget, badge = (XmBadgeWidget)widget;
     XmString replacement;
     (void)request; (void)args; (void)count;
+    if (old->badge.font != badge->badge.font) {
+        XmRenderTable new_font = badge->badge.font ? XmFontListCopy(badge->badge.font) :
+            XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+        if (old->badge.font) XmRenderTableFree(old->badge.font);
+        badge->badge.font = new_font;
+    }
     if (old->badge.label != badge->badge.label) {
         replacement = copy_label(badge->badge.label);
         if (replacement) {
@@ -133,11 +147,14 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     reply->request_mode = CWWidth | CWHeight;
     length = strlen(text);
     {
-        int ascent, descent;
-        int measured = text_metrics(badge, text,
-                                     length > (size_t)INT_MAX ? INT_MAX : (int)length,
-                                     &ascent, &descent);
-        unsigned long width = measured > 0 ? (unsigned long)measured :
+        Dimension measured_width = 0, measured_height = 0;
+        XmString query_label = (badge->badge.count >= 0) ?
+            XmStringCreateLocalized(text) : badge->badge.label;
+        if (badge->badge.font && query_label)
+            XmStringExtent(badge->badge.font, query_label,
+                           &measured_width, &measured_height);
+        if (badge->badge.count >= 0 && query_label) XmStringFree(query_label);
+        unsigned long width = measured_width > 0 ? (unsigned long)measured_width :
                                length > ULONG_MAX / 8UL ? ULONG_MAX : length * 8UL;
         reply->width = width > (unsigned long)(Dimension)-1 - 12UL
                            ? (Dimension)-1 : (Dimension)(width + 12UL);
