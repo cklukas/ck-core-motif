@@ -1,8 +1,9 @@
 # List allocation failure handling
 
 List insertion now treats the internal item-array resize as a transaction. It
-checks integer and `size_t` bounds, keeps the old array when `XtRealloc` fails,
-and stops the insertion before internal rows or selection state are updated.
+checks integer, host `size_t`, and Xt `Cardinal` bounds, keeps the old array
+when `XtRealloc` fails, and stops the insertion before internal rows or
+selection state are updated.
 The traversal highlight is changed only after the resize succeeds, keeping the
 widget coherent under memory pressure while preserving the public
 `XmListAdd*` API behavior.

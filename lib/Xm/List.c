@@ -3637,11 +3637,13 @@ AddItems(XmListWidget lw,
       nitems > INT_MAX - lw->list.itemCount)
     return False;
   TotalItems = lw->list.itemCount + nitems;
-  if ((size_t)TotalItems > SIZE_MAX / sizeof(*new_items))
+  if ((size_t)TotalItems > SIZE_MAX / sizeof(*new_items) ||
+      (size_t)TotalItems > UINT_MAX / sizeof(*new_items))
     return False;
 
   new_items = (XmString *)XtRealloc((char *)lw->list.items,
-				    sizeof(*new_items) * (size_t)TotalItems);
+				    (Cardinal)(sizeof(*new_items) *
+					       (size_t)TotalItems));
   if (new_items == NULL)
     return False;
   lw->list.items = new_items;

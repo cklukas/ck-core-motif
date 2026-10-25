@@ -6295,3 +6295,10 @@ Bound List position-delete compaction width (2026-10-25)
   deletion path, preserving the existing item array when a shrink cannot be
   represented or allocated; see `docs/list-internal-growth.md`.
 
+Bound List insertion allocation width (2026-10-25)
+====================================================
+
+- Reject item-array insertion sizes outside both host `size_t` and Xt's
+  `Cardinal` range, and pass the checked byte count explicitly to `XtRealloc`;
+  see `docs/list-growth-allocation.md`.
+
