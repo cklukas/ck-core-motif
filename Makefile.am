@@ -212,6 +212,7 @@ EXTRA_DIST += tests/automated/check-txtpropcv-empty-segment.py docs/motif-txtpro
 EXTRA_DIST += tests/automated/check-txtpropcv-segment-allocation.py docs/motif-txtpropcv-segment.md
 EXTRA_DIST += tests/automated/check-txtpropcv-growth-allocation.py docs/motif-txtpropcv-growth.md
 EXTRA_DIST += tests/automated/check-txtpropcv-value-allocation.py docs/motif-txtpropcv-value.md
+EXTRA_DIST += tests/automated/check-txtpropcv-single-allocation.py docs/motif-txtpropcv-single.md
 EXTRA_DIST += tests/automated/check-mwm-session-db-path.py docs/mwm-session-db-path.md
 EXTRA_DIST += tests/automated/check-mwm-display-env-bounds.py docs/mwm-display-env-bounds.md
 EXTRA_DIST += tests/automated/check-mwm-screen-display-bounds.py docs/mwm-screen-display-bounds.md

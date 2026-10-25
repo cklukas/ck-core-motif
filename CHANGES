@@ -3756,3 +3756,9 @@ Guard fallback text-property value allocation (2026-10-25)
 - Check the temporary compound-text property value before copying and release
   its source and string context on failure; see
   `docs/motif-txtpropcv-value.md`.
+
+Handle single text-property copy failure (2026-10-25)
+======================================================
+
+- Release the Xlib text list when copying its sole item fails and return
+  `XNoMemory`; see `docs/motif-txtpropcv-single.md`.
