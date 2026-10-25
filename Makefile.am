@@ -119,6 +119,7 @@ EXTRA_DIST += tests/automated/check-xmos-init-path-bounds.py docs/xmos-init-path
 EXTRA_DIST += tests/automated/check-xmos-cache-bounds.py docs/xmos-cache-bounds.md
 EXTRA_DIST += tests/automated/check-label-wcs-bounds.py docs/label-wcs-bounds.md
 EXTRA_DIST += tests/automated/check-font-pattern-bounds.py docs/font-pattern-bounds.md
+EXTRA_DIST += tests/automated/check-menu-stream-bounds.py docs/menu-stream-bounds.md
 EXTRA_DIST += tests/automated/check-tablist-debug-bounds.py docs/tablist-debug-bounds.md
 EXTRA_DIST += tests/automated/check-charset-canonicalize-bounds.py docs/charset-canonicalization-bounds.md
 EXTRA_DIST += tests/automated/check-tabstack-atom-name.py docs/tabstack-atom-name.md

@@ -22,6 +22,12 @@ Font selector pattern formatting bounds (2026-10-25)
 - Bound default font-pattern formatting when the encoding resource is long;
   see `docs/font-pattern-bounds.md`.
 
+Mwm menu command stream bounds (2026-10-25)
+=============================================
+
+- Reserve the separator and terminator in parsed menu command streams and
+  reject unrepresentable lengths; see `docs/menu-stream-bounds.md`.
+
 Bounded Latin-1 resource conversion (2026-10-25)
 ==================================================
 

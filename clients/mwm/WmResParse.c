@@ -60,7 +60,9 @@ static char rcsid[] = "$XConsortium: WmResParse.c /main/9 1996/11/01 10:17:34 dr
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
 #include <ctype.h>
+#include <limits.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #include <X11/Xlocale.h>
 
@@ -3229,7 +3231,10 @@ static Boolean ParseClientCommand (unsigned char **linePP, MenuSpec *menuSpec,
 				   MenuItem *menuItem, unsigned char *string,
 				   Boolean *use_separators)
 {
-    int token, linelen, i;
+    int token, i;
+    size_t stream_length;
+    size_t prefix_length;
+    size_t suffix_length;
     int state = PRS_BEGIN;
     String stream, unchanged_stream, exclusion_text;
     Boolean return_val = FALSE;
@@ -3239,9 +3244,19 @@ static Boolean ParseClientCommand (unsigned char **linePP, MenuSpec *menuSpec,
 
     /* Construct one input stream out of the string and the linePP that
        we were given. */
-    linelen = strlen((char *)string) + strlen((char *)*linePP) + 1;
+    prefix_length = strlen((char *)string);
+    suffix_length = strlen((char *)*linePP);
+    if (prefix_length > SIZE_MAX - suffix_length ||
+        prefix_length + suffix_length > SIZE_MAX - 2 ||
+        prefix_length + suffix_length + 2 > UINT_MAX)
+    {
+	PWarning (((char *)GETMESSAGE(60, 42,
+		    "Menu item label is too long")));
+	return (FALSE);
+    }
+    stream_length = prefix_length + suffix_length + 2;
     if ((unchanged_stream = stream = (String)
-	 XtMalloc((unsigned int)(sizeof(unsigned char) * linelen))) == NULL)
+	 XtMalloc((Cardinal)stream_length)) == NULL)
     {
 	PWarning (((char *)GETMESSAGE(60, 42,
 		    "Insufficient memory for menu item label")));
