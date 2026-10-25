@@ -11386,3 +11386,9 @@ MWM parser-warning allocation width (2026-10-25)
 
 - Check localized parser-warning lengths before Xt allocation; see
   `docs/mwm-parser-warning-bounds.md`.
+
+MWM motif-bindings allocation width (2026-10-25)
+=================================================
+
+- Use the checked Xt allocation width for the `.motifbind` path; see
+  `docs/mwm-bindings-path-size.md`.

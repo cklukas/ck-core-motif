@@ -7553,7 +7553,7 @@ void ProcessMotifBindings (void)
         homeLength + bindingLength + 2 > UINT_MAX)
         return;
     fileNameLength = homeLength + bindingLength + 2;
-    fileName = (char *)XtMalloc((unsigned int)fileNameLength);
+    fileName = (char *)XtMalloc((Cardinal)fileNameLength);
     if (fileName == NULL)
         return;
     (void)snprintf(fileName, fileNameLength, "%s/%s", homeDir,
