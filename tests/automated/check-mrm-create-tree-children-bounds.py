@@ -9,7 +9,9 @@ end = text.find("\n\n\f", start)
 region = text[start:end]
 for needle in (
     "if ( widgetrec->children_offs >= widgetrec->size )",
-    "if ( childrendesc->count > RGMListSizeMax )",
+    "childrendesc->count < 0",
+    "childrendesc->count > RGMListSizeMax",
+    "sizeof(RGMChildDesc)",
 ):
     if needle not in region:
         raise SystemExit(f"missing child-tree guard: {needle}")

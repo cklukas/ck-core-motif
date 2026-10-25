@@ -8,7 +8,8 @@ search = source[source.index("\nIdb__INX_SearchIndex (") : source.index("\nCardi
 assert "MrmCount\t\tlowlim" in search
 assert "if (*index_return == 0)" in search
 assert "if (ndxcnt == 0)" in search
-assert "strnlen (ndxstg" in search
+assert "Idb__INX_StringTerminated (stgbase, stg_offs" in search
+assert "Idb__INX_StringTerminated" in source
 resources = source[source.index("\nIdb__INX_FindResources (") :]
 for guard in (
     "recno <= 0 || index_list == NULL",
