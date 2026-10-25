@@ -1019,7 +1019,7 @@ _XmSelectionBoxGeoMatrixCreate(
     Boolean         listLabelBox ;
     Boolean         selLabelBox ;
     Dimension       vspace = BB_MarginHeight(sb);
-    int             i;
+    Cardinal        i;
 
 /*
  * Layout SelectionBox XmGeoMatrix.
