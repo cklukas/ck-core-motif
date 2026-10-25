@@ -254,13 +254,14 @@ GetDefaultColors(
 	if (default_set == NULL)
 	{
 		XmColorData *new_set;
-		if (SIZE_MAX / sizeof(XmColorData) < 10)
+		if (SIZE_MAX / sizeof(XmColorData) < 10 ||
+		    UINT_MAX / sizeof(XmColorData) < 10)
 		{
 		    _XmProcessUnlock();
 		    return NULL;
 		}
 		new_set = (XmColorData *)XtMalloc(
-		    sizeof(XmColorData) * 10);
+		    (Cardinal)(sizeof(XmColorData) * 10));
 		if (new_set == NULL)
 		{
 		    _XmProcessUnlock();
@@ -284,7 +285,8 @@ GetDefaultColors(
 		}
 		new_size = default_set_size + 10;
 		new_set = (XmColorData *)XtRealloc(
-		    (char *)default_set, sizeof(XmColorData) * (size_t)new_size);
+		    (char *)default_set,
+		    (Cardinal)(sizeof(XmColorData) * (size_t)new_size));
 		if (new_set == NULL)
 		{
 		    _XmProcessUnlock();
@@ -448,7 +450,8 @@ _XmAddToColorCache(
 		}
 		new_size = Set_Size + 10;
 		new_set = (XmColorData *)XtRealloc(
-		    (char *)Color_Set, sizeof(XmColorData) * (size_t)new_size);
+		    (char *)Color_Set,
+		    (Cardinal)(sizeof(XmColorData) * (size_t)new_size));
 		if (new_set == NULL)
 		{
 		    _XmProcessUnlock();
