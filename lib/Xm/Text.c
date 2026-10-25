@@ -168,7 +168,7 @@ static void AddLines(XmTextWidget tw,
 		     unsigned int tmp_index,
 		     unsigned int current_index);
 
-static void InitializeLineTable(XmTextWidget tw,
+static Boolean InitializeLineTable(XmTextWidget tw,
 				register int size);
 
 static void FindHighlightingChanges(XmTextWidget tw);
@@ -1379,14 +1379,20 @@ _XmTextRealignLineTable(XmTextWidget tw,
   }
 }
 
-static void
+static Boolean
 InitializeLineTable(XmTextWidget tw,
 		    register int size)
 {
   register unsigned int t_index;
   register XmTextLineTable line_table;
   
-  line_table = (XmTextLineTable) XtMalloc(size * sizeof(XmTextLineTableRec));
+  if (size <= 0 || (size_t)size > SIZE_MAX / sizeof(XmTextLineTableRec) ||
+      (size_t)size > UINT_MAX / sizeof(XmTextLineTableRec))
+    return False;
+  line_table = (XmTextLineTable) XtMalloc(
+                 (Cardinal)((size_t)size * sizeof(XmTextLineTableRec)));
+  if (line_table == NULL)
+    return False;
   
   for (t_index = 0; t_index < size; t_index++) {
     line_table[t_index].start_pos = 0;
@@ -1396,6 +1402,7 @@ InitializeLineTable(XmTextWidget tw,
   tw->text.line_table = line_table;
   tw->text.table_index = 0;
   tw->text.table_size = size;
+  return True;
 }
 
 unsigned int
@@ -1471,11 +1478,13 @@ _XmTextUpdateLineTable(Widget widget,
   {
     if (tw->text.edit_mode == XmSINGLE_LINE_EDIT)
     {
-      InitializeLineTable(tw, 1);
+      if (!InitializeLineTable(tw, 1))
+	return;
     }
     else
     {
-      InitializeLineTable(tw, INIT_TABLE_SIZE);
+      if (!InitializeLineTable(tw, INIT_TABLE_SIZE))
+	return;
     }
   }
   /* if there is no change or we expect RelignLineTable()

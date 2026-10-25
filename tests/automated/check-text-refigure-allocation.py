@@ -16,4 +16,7 @@ assert "tw->text.needs_refigure_lines = TRUE" in region
 assert "tw->text.in_refigure_lines = FALSE" in region
 assert "resized_line == NULL" in region
 assert "requested_lines * sizeof(LineRec)" in region
+assert "InitializeLineTable" in source
+assert "SIZE_MAX / sizeof(XmTextLineTableRec)" in source
+assert "line_table == NULL" in source
 print("PASS Text line-table reflow allocation guard")

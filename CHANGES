@@ -40,6 +40,8 @@ Text line-table reflow allocation guard (2026-10-27)
 - Validate the legacy Text reflow line-table size and allocation before
   copying old line records.  A failed or unrepresentable allocation now keeps
   reflow pending for a later redisplay instead of dereferencing null storage.
+- Apply the same checked allocation contract when a Text widget first creates
+  its line table.
 
 Text warning cleanup (2026-10-27)
 =================================
