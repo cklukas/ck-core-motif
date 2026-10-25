@@ -1,3 +1,10 @@
+Guard fallback text-property value allocation (2026-10-25)
+==============================================================
+
+- Release fallback conversion state and return `XNoMemory` before copying when
+  the temporary text-property value cannot be allocated; see
+  `docs/motif-txtpropcv-value.md`.
+
 Handle single text-property copy failure (2026-10-25)
 =======================================================
 
