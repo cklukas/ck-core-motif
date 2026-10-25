@@ -642,6 +642,14 @@ XmString array-entry copy bounds (2026-10-27)
   allocation-limited strings no longer cause a wrapped allocation or partial
   array dereference.
 
+XmStack Xt allocation-size bounds (2026-10-29)
+===============================================
+
+- Reject internal stack growth whose pointer-array byte count exceeds Xt's
+  `Cardinal` allocation-size range.  This prevents truncation on narrower
+  platforms while retaining the existing signed and `size_t` overflow checks;
+  see `docs/xmstack-growth-bounds.md`.
+
 XmStack growth bounds (2026-10-27)
 ==================================
 

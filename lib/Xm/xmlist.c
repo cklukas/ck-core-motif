@@ -89,7 +89,9 @@ _XmStackPush(XmStack stack, XtPointer elem)
 	int new_alloc;
 	if (stack->alloc > INT_MAX - STACK_INC ||
 	    (size_t)(stack->alloc + STACK_INC) >
-	    SIZE_MAX / sizeof(XtPointer))
+	    SIZE_MAX / sizeof(XtPointer) ||
+	    (size_t)(stack->alloc + STACK_INC) >
+	    UINT_MAX / sizeof(XtPointer))
 	    return;
 	new_alloc = stack->alloc + STACK_INC;
 	new_elems = (XtPointer *) XtRealloc((XtPointer) stack->elems,

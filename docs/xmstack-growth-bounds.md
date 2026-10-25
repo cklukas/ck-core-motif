@@ -6,5 +6,6 @@ overflow.  A wrapped capacity could then produce a too-small allocation and
 an out-of-bounds write.
 
 Push now rejects invalid or exhausted counters, checks the new capacity in
-`size_t`, and commits the capacity only after `XtRealloc` succeeds.  The
-stack API and normal growth behavior remain unchanged.
+both `size_t` and Xt's `Cardinal` byte-size range, and commits the capacity
+only after `XtRealloc` succeeds.  The stack API and normal growth behavior
+remain unchanged on platforms where the allocation is representable.
