@@ -102,9 +102,13 @@ static void set_current(XmBreadcrumbBarWidget bar, int index,
 }
 
 static int item_width(XmBreadcrumbBarWidget bar, Cardinal index) {
-    int width = (int)strlen(bar->breadcrumb.items[index].label) * 8 + 10;
+    const char *label = bar->breadcrumb.items[index].label ?
+                        bar->breadcrumb.items[index].label : "";
+    const char *separator = bar->breadcrumb.separator ?
+                            bar->breadcrumb.separator : "";
+    int width = (int)strlen(label) * 8 + 10;
     if (index)
-        width += (int)strlen(bar->breadcrumb.separator) * 8 + 8;
+        width += (int)strlen(separator) * 8 + 8;
     return width;
 }
 
@@ -166,18 +170,20 @@ static void draw_item(XmBreadcrumbBarWidget bar, Cardinal index, int *cursor,
                       Boolean first) {
     Display *display = XtDisplay((Widget)bar);
     Window window = XtWindow((Widget)bar);
+    const char *label = bar->breadcrumb.items[index].label ?
+                        bar->breadcrumb.items[index].label : "";
+    const char *separator = bar->breadcrumb.separator ?
+                            bar->breadcrumb.separator : "";
     int width = item_width(bar, index);
     int text_x = *cursor + (first ? 0 : 4);
     if (!first)
         XDrawString(display, window, bar->breadcrumb.gc, *cursor, 18,
-                    bar->breadcrumb.separator,
-                    (int)strlen(bar->breadcrumb.separator));
+                    separator, (int)strlen(separator));
     if ((int)index == bar->breadcrumb.current)
         XFillRectangle(display, window, bar->breadcrumb.gc, text_x - 2, 5,
-                       (unsigned)(width - 4), 19);
+                       (unsigned)(width > 4 ? width - 4 : 1), 19);
     XDrawString(display, window, bar->breadcrumb.gc, text_x, 18,
-                bar->breadcrumb.items[index].label,
-                (int)strlen(bar->breadcrumb.items[index].label));
+                label, (int)strlen(label));
     *cursor += width;
 }
 
@@ -188,7 +194,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Cardinal i, start = visible_start(bar);
     int cursor = 4;
     (void)event; (void)region;
-    if (!window)
+    if (!window || !bar->breadcrumb.gc)
         return;
     XClearWindow(display, window);
     if (start) {
@@ -202,7 +208,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         for (i = bar->breadcrumb.count; i-- > start; )
             draw_item(bar, i, &cursor, i == bar->breadcrumb.count - 1);
     }
-    if (bar->primitive.highlighted && bar->primitive.highlight_thickness)
+    if (bar->primitive.highlighted && bar->primitive.highlight_thickness &&
+        bar->core.width > 2 * bar->primitive.highlight_thickness &&
+        bar->core.height > 2 * bar->primitive.highlight_thickness)
         XDrawRectangle(display, window, bar->breadcrumb.gc,
                        bar->primitive.highlight_thickness - 1,
                        bar->primitive.highlight_thickness - 1,
