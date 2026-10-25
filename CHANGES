@@ -85,6 +85,12 @@ Guard Calendar small-widget geometry (2026-10-25)
 - Handle missing Calendar GCs, clamp selected-day geometry, and avoid zero-width
   cell division in pointer handling; see `docs/calendar-geometry-guards.md`.
 
+Guard BreadcrumbBar redisplay inputs (2026-10-25)
+==================================================
+
+- Handle missing BreadcrumbBar GCs, null separators or labels, and narrow focus
+  geometry; see `docs/breadcrumb-bar-redisplay-guards.md`.
+
 Guard IconFile cache directory input (2026-10-27)
 ==================================================
 
