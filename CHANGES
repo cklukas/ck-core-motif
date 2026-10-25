@@ -3846,6 +3846,13 @@ Guard extended compound-text segment buffers (2026-10-25)
   releasing the charset copy when the text allocation fails; see
   `docs/motif-resencod-segments.md`.
 
+Harden icon-directory cache growth (2026-10-25)
+================================================
+
+- Publish directory-array growth only after checked reallocation, bound the
+  count arithmetic, and clean up directory-name/cache-entry failures; see
+  `docs/icon-directory-cache.md`.
+
 Handle single text-property copy failure (2026-10-25)
 ======================================================
 
