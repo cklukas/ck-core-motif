@@ -566,3 +566,4 @@ EXTRA_DIST += tests/automated/check-mrm-safe-copy-null-sources.py docs/mrm-safe-
 EXTRA_DIST += tests/automated/check-mrm-convert-vector-validation.py docs/mrm-convert-vector-validation.md
 EXTRA_DIST += tests/automated/check-mrm-convert-font-validation.py docs/mrm-convert-font-validation.md
 EXTRA_DIST += tests/automated/check-mrm-convert-char8-null.py docs/mrm-convert-char8-null.md
+EXTRA_DIST += tests/automated/check-mrm-convert-pointer-null.py docs/mrm-convert-pointer-null.md
