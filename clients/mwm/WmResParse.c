@@ -3837,6 +3837,7 @@ static Boolean ParseWmAccelerator (unsigned char **linePP, MenuItem *menuItem)
 static void ParseMenuItemName (unsigned char **linePP, MenuItem *menuItem)
 {
     unsigned char *lineP, *endquote;
+    size_t nameLength;
 #ifndef NO_MULTIBYTE
     int chlen = 0;
 #endif
@@ -3878,13 +3879,14 @@ static void ParseMenuItemName (unsigned char **linePP, MenuItem *menuItem)
 
 	/* Well, we have a valid menu item name. Store it in the 
 	   client command name field. Don't include the double quotes. */
-	menuItem->clientCommandName =
-	  XtMalloc(sizeof(char) * (endquote - lineP) + 1);
-	{
-	    size_t nameLength = (size_t)(endquote - lineP);
-	    memcpy(menuItem->clientCommandName, lineP, nameLength);
-	    menuItem->clientCommandName[nameLength] = '\0';
-	}
+	nameLength = (size_t)(endquote - lineP);
+	if (nameLength == SIZE_MAX)
+	    return;
+	menuItem->clientCommandName = XtMalloc(nameLength + 1);
+	if (menuItem->clientCommandName == NULL)
+	    return;
+	memcpy(menuItem->clientCommandName, lineP, nameLength);
+	menuItem->clientCommandName[nameLength] = '\0';
     }
     else
     {

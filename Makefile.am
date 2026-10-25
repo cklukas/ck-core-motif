@@ -115,6 +115,7 @@ EXTRA_DIST += tests/automated/check-uil-output-bounds.py docs/uil-output-bounds.
 EXTRA_DIST += tests/automated/check-mwm-image-path-bounds.py docs/mwm-image-path-bounds.md
 EXTRA_DIST += tests/automated/check-mwm-image-path-allocation.py docs/mwm-image-path-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-exclusion-allocation.py docs/mwm-exclusion-allocation.md
+EXTRA_DIST += tests/automated/check-mwm-menu-name-allocation.py docs/mwm-menu-name-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md
 EXTRA_DIST += tests/automated/check-editres-error-bounds.py docs/editres-error-bounds.md
 EXTRA_DIST += tests/automated/check-spinbox-name-bounds.py docs/spinbox-name-bounds.md

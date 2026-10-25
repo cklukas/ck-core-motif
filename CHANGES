@@ -34,6 +34,13 @@ MWM menu-exclusion allocation guard (2026-10-25)
   have been allocated, avoiding partial parser state on resource exhaustion;
   see `docs/mwm-exclusion-allocation.md`.
 
+MWM quoted menu-name allocation guard (2026-10-25)
+==================================================
+
+- Check quoted client-command menu-name sizing and allocation before copying
+  user resource text, avoiding a null write while preserving valid menu
+  labels; see `docs/mwm-menu-name-allocation.md`.
+
 MWM invoke-message allocation guard (2026-10-28)
 ==================================================
 
