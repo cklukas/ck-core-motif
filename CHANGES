@@ -11622,6 +11622,12 @@ FileSB full-path value allocation width (2026-10-25)
 - Check combined directory/filename lengths before value-buffer allocation;
   see `docs/motif-filesb-value-buffer.md`.
 
+FileSB filter-mask allocation width (2026-10-25)
+=================================================
+
+- Check full-path filter lengths before mask-buffer allocation; see
+  `docs/motif-filesb-filter-mask-update.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 

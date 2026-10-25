@@ -216,6 +216,7 @@ EXTRA_DIST += tests/automated/check-mwm-image-path-bounds.py docs/mwm-image-path
 EXTRA_DIST += tests/automated/check-mwm-image-path-allocation.py docs/mwm-image-path-allocation.md
 EXTRA_DIST += tests/automated/check-filesb-qualified-mask-allocation.py docs/motif-filesb-qualified-mask.md
 EXTRA_DIST += tests/automated/check-filesb-value-buffer-allocation.py docs/motif-filesb-value-buffer.md
+EXTRA_DIST += tests/automated/check-filesb-filter-mask-update.py docs/motif-filesb-filter-mask-update.md
 EXTRA_DIST += tests/automated/check-mwm-exclusion-allocation.py docs/mwm-exclusion-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-menu-name-allocation.py docs/mwm-menu-name-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-menu-spec-allocation.py docs/mwm-menu-spec-allocation.md
