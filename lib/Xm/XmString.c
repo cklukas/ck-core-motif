@@ -9899,7 +9899,10 @@ XmeStringGetComponent(_XmStringContext context,
 	      _XmProcessUnlock();
 	      return XmSTRING_COMPONENT_WIDECHAR_TEXT;
 	    case XmNO_TEXT:
-	      assert(FALSE);
+	      if (update_context)
+		_XmStrContError(context) = True;
+	      _XmProcessUnlock();
+	      return XmSTRING_COMPONENT_END;
 	    }
 	  
 	case XmNO_TEXT:
@@ -9907,7 +9910,6 @@ XmeStringGetComponent(_XmStringContext context,
 	  
 	default:
 	  /* Something is wrong! */
-	  assert(False);
 	  if (update_context)
 	    _XmStrContError(context) = True;
 	  _XmProcessUnlock();
@@ -10013,11 +10015,13 @@ XmeStringGetComponent(_XmStringContext context,
 	  return answer;
 	}
       /*NOTREACHED*/
-      assert(False);
+      if (update_context)
+	_XmStrContError(context) = True;
+      _XmProcessUnlock();
+      return XmSTRING_COMPONENT_END;
 
     default:
       /* An unknown _XmStrContState? */
-      assert(False);
       if (update_context)
 	_XmStrContError(context) = True;
       _XmProcessUnlock();

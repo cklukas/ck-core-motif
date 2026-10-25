@@ -5,6 +5,12 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+XmString malformed-state handling (2026-10-26)
+================================================
+
+- Replace assertion-based component-reader aborts with context-error returns;
+  see `docs/xmstring-component-assertions.md`.
+
 XmString rendition bookkeeping guards (2026-10-26)
 ===================================================
 
