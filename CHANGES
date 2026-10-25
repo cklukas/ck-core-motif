@@ -1,3 +1,10 @@
+Mrm close retry after decommit failure (2026-10-25)
+===================================================
+
+- Keep `IDBFile` descriptors alive when `UrmIdbCloseFile` cannot decommit a
+  buffer, allowing callers to retry without dangling buffer ownership; see
+  `docs/mrm-close-decommit-failure.md`.
+
 Mrm buffer decommit failure retention (2026-10-25)
 ===================================================
 
