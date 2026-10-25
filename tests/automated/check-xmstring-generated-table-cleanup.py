@@ -9,9 +9,9 @@ start = source.index("static int\n_get_generate_parse_table (XmParseTable *gen_t
 end = source.index("\n}\n", start)
 function = source[start:end]
 
-assert "if (table[0] == NULL)" in function
-assert "if (table[1] == NULL)" in function
-assert function.count("XmParseMappingFree(table[0]);") == 1
+assert "if (table[0] == NULL || table[0]->substitute == NULL)" in function
+assert "if (table[1] == NULL || table[1]->substitute == NULL)" in function
+assert function.count("XmParseMappingFree(table[0]);") >= 2
 assert function.count("XmStringFree(tmp);") >= 2
 assert "table = NULL;" in function
 

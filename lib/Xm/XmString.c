@@ -10438,6 +10438,12 @@ _get_generate_parse_table (XmParseTable *gen_table)
 
   /* Parse tab characters. */
   tmp = XmStringComponentCreate(XmSTRING_COMPONENT_TAB, 0, NULL);
+  if (tmp == NULL) {
+    XtFree((char *)table);
+    table = NULL;
+    *gen_table = NULL;
+    return 0;
+  }
   nargs = 0;
   XtSetArg(args[nargs], XmNincludeStatus, XmINSERT), nargs++;
   XtSetArg(args[nargs], XmNsubstitute, tmp), 	 nargs++;
@@ -10448,7 +10454,8 @@ _get_generate_parse_table (XmParseTable *gen_table)
   _XmProcessUnlock();
   XmStringFree(tmp);
 
-  if (table[0] == NULL) {
+  if (table[0] == NULL || table[0]->substitute == NULL) {
+    XmParseMappingFree(table[0]);
     XtFree((char *)table);
     table = NULL;
     *gen_table = NULL;
@@ -10457,6 +10464,13 @@ _get_generate_parse_table (XmParseTable *gen_table)
 
   /* Parse newline characters. */
   tmp = XmStringSeparatorCreate();
+  if (tmp == NULL) {
+    XmParseMappingFree(table[0]);
+    XtFree((char *)table);
+    table = NULL;
+    *gen_table = NULL;
+    return 0;
+  }
   nargs = 0;
   XtSetArg(args[nargs], XmNincludeStatus, XmINSERT), nargs++;
   XtSetArg(args[nargs], XmNsubstitute, tmp),	 nargs++;
@@ -10467,7 +10481,7 @@ _get_generate_parse_table (XmParseTable *gen_table)
   _XmProcessUnlock();
   XmStringFree(tmp);
 
-  if (table[1] == NULL) {
+  if (table[1] == NULL || table[1]->substitute == NULL) {
     XmParseMappingFree(table[0]);
     XtFree((char *)table);
     table = NULL;
