@@ -30,6 +30,8 @@ Xft compound-string line height (2026-10-27)
   large composite trees remain searchable for drag-and-drop targets.
 - Make RowColumn traversal child-list construction transactional, with checked
   `(num_children + 1)` sizing and clean failure outputs.
+- Keep RowColumn managed-child search indices and copied child counts in
+  full-width `Cardinal` variables.
 - Use `Cardinal` indices in the public XmString table parse, unparse, and
   concatenation loops so full-width caller counts cannot wrap signed counters.
 - Use the native Xft font height for compound-string geometry instead of

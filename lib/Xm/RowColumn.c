@@ -3774,8 +3774,8 @@ FindFirstManagedChild(
 #endif /* NeedWidePrototypes */
 {
     register Widget *kid;
-    register int i = 0;
-    register int n;
+    register Cardinal i = 0;
+    register Cardinal n;
 
     if (!m)
        return(NULL);
