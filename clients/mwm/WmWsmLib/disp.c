@@ -204,8 +204,11 @@ _WSMGetScreenInfo(Display *dpy, int screen_number)
 
     screen_info->next = NULL;
     screen_info->global.num_attrs = 0;
+    screen_info->global.attr_list = NULL;
     screen_info->window.num_attrs = 0;
+    screen_info->window.attr_list = NULL;
     screen_info->icon.num_attrs = 0;
+    screen_info->icon.attr_list = NULL;
     screen_info->request_callback = NULL;
     screen_info->request_data = NULL;
 
@@ -252,23 +255,23 @@ _WSMClearConfigScreenInfo(Display *dpy, int screen_number)
 	  screen_info = screen_info->next;
 	}
 
-	if (screen_info->global.num_attrs != 0){
+	if (screen_info->global.attr_list != NULL){
 	  XtFree((XtPointer)screen_info->global.attr_list);
 	  screen_info->global.attr_list = NULL;
-	  screen_info->global.num_attrs = 0;
 	}
+	screen_info->global.num_attrs = 0;
 	
-	if (screen_info->window.num_attrs != 0){
+	if (screen_info->window.attr_list != NULL){
 	  XtFree((XtPointer)screen_info->window.attr_list);
 	  screen_info->window.attr_list = NULL;
-	  screen_info->window.num_attrs = 0;
 	}
+	screen_info->window.num_attrs = 0;
 	
-	if (screen_info->icon.num_attrs != 0){
+	if (screen_info->icon.attr_list != NULL){
 	  XtFree((XtPointer)screen_info->icon.attr_list);
 	  screen_info->icon.attr_list = NULL;
-	  screen_info->icon.num_attrs = 0;
 	}
+	screen_info->icon.num_attrs = 0;
       }
 
 }

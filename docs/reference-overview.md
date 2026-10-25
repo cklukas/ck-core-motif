@@ -57,6 +57,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [WSM null transfer data](wsm-reply-null-data.md) — handle malformed selection callbacks safely.
 - [WSM null request context](wsm-reply-null-context.md) — guard missing pending-request state.
 - [WSM configuration rollback pointers](wsm-config-clear-pointers.md) — clear freed attribute-array references.
+- [WSM configuration pointer lifetime](wsm-config-pointer-lifecycle.md) — initialize and release arrays independently of counts.
 - [WM state read guards](wmstate-read-guards.md) — safe handling of window-manager state properties.
 
 ## Accessibility and diagnostics

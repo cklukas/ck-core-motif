@@ -11136,3 +11136,10 @@ WSM configuration rollback pointers (2026-10-25)
 - Null freed attribute-array pointers when clearing screen configuration,
   avoiding stale references after rollback; see
   `docs/wsm-config-clear-pointers.md`.
+
+WSM configuration pointer lifetime (2026-10-25)
+===============================================
+
+- Initialize configuration pointers and release them independently of
+  attribute counts, covering zero-attribute allocations; see
+  `docs/wsm-config-pointer-lifecycle.md`.
