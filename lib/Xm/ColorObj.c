@@ -507,23 +507,34 @@ Initialize(
 	    char buf[MAX_SCREENS * MAX_ATOM_LENGTH];
 	    char *name_buf[MAX_SCREENS];
 	    char **names;
+	    int names_allocated = 0;
+	    Boolean names_ok = True;
 
 	    names = (char**) XmStackAlloc(nscreens * sizeof(char *), name_buf);
-	    for (i = 0; i < nscreens; i++) {
-	      names[i] = ((nscreens <= MAX_SCREENS) ?
-			  &buf[i * MAX_ATOM_LENGTH] : 
-			  XtMalloc(MAX_ATOM_LENGTH));
-	      (void)snprintf(names[i], MAX_ATOM_LENGTH, "%s%d",
-			      XmSCUSTOMIZE_DATA, i);
+	    if (names != NULL) {
+	      for (i = 0; i < nscreens; i++) {
+		if (nscreens <= MAX_SCREENS)
+		  names[i] = &buf[i * MAX_ATOM_LENGTH];
+		else {
+		  names[i] = XtMalloc(MAX_ATOM_LENGTH);
+		  if (names[i] == NULL) {
+		    names_ok = False;
+		    break;
+		  }
+		  names_allocated++;
+		}
+		(void)snprintf(names[i], MAX_ATOM_LENGTH, "%s%d",
+			       XmSCUSTOMIZE_DATA, i);
+	      }
+
+	      if (names_ok)
+		XInternAtoms(new_obj->color_obj.display, names,
+			     nscreens, FALSE, new_obj->color_obj.atoms);
+
+	      while (names_allocated > 0)
+		XtFree(names[--names_allocated]);
+	      XmStackFree((char *)names, name_buf);
 	    }
-
-	    XInternAtoms(new_obj->color_obj.display, names,
-			 nscreens, FALSE, new_obj->color_obj.atoms);
-
-	    if (nscreens > MAX_SCREENS)
-	      for (i = 0; i < nscreens; i++)
-		XtFree(names[i]);
-	    XmStackFree((char*) names, name_buf);
 #undef MAX_SCREENS
 #undef MAX_ATOM_LENGTH
 	  }
