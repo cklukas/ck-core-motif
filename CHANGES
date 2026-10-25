@@ -1,3 +1,9 @@
+Xm gadget utility null-safety (2026-10-25)
+===========================================
+
+- Guard gadget configuration and redisplay helpers against null widget/event
+  inputs; see `docs/xm-gadgetutil-null.md`.
+
 XmDropDown API null-safety (2026-10-25)
 =========================================
 

@@ -645,3 +645,5 @@ EXTRA_DIST += tests/automated/check-xm-rcmenu-api-null.py docs/xm-rcmenu-api-nul
 EXTRA_DIST += tests/automated/check-xm-display-api-null.py docs/xm-display-api-null.md
 
 EXTRA_DIST += tests/automated/check-xm-dropdown-api-null.py docs/xm-dropdown-api-null.md
+
+EXTRA_DIST += tests/automated/check-xm-gadgetutil-null.py docs/xm-gadgetutil-null.md

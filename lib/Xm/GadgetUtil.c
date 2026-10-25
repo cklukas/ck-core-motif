@@ -99,6 +99,8 @@ XmeConfigureObject(
         Dimension border_width )
 #endif /* NeedWidePrototypes */
 {
+    if (wid == NULL)
+        return;
     _XmWidgetToAppContext(wid);
     XmDropSiteStartUpdate(wid);
 
@@ -139,7 +141,9 @@ XmeRedisplayGadgets(
    register int i;
    register Widget child;
    XtExposeProc expose;
-  
+
+   if (w == NULL || (region == NULL && event == NULL))
+      return;
    _XmWidgetToAppContext(w);
 
    _XmAppLock(app);
