@@ -2274,7 +2274,7 @@ RenditionWarning(char *tag,
      d = _XmGetDefaultDisplay();
   if (d)
     XtAppWarningMsg (XtDisplayToApplicationContext(d),
-		     tag, type, "XmRendition", 
+		     tag ? tag : "XmRendition", type, "XmRendition",
 		     message, params, &num_params);
   else XtWarning(message);
 }

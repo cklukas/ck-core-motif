@@ -344,8 +344,13 @@ Boolean XmSegmentedControlSetItems(Widget widget,
                       (XtPointer)control);
         XtAddEventHandler(copy[i].button, KeyPressMask, False, child_key,
                           (XtPointer)control);
-        XtManageChild(copy[i].button);
     }
+    /* Manage only after every item has a valid button.  Managing inside the
+     * creation loop invokes the composite change-managed hook early; layout
+     * then walks later, still-uninitialized item slots and dereferences a
+     * null child. */
+    for (i = 0; i < count; ++i)
+        XtManageChild(copy[i].button);
     control->segmented.rebuilding = False;
     layout(control);
     return True;

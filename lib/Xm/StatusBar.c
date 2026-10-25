@@ -171,6 +171,21 @@ static void layout(XmStatusBarWidget bar)
     chosen = bar->status_bar.item_count
                  ? XtCalloc(bar->status_bar.item_count, sizeof(Boolean))
                  : NULL;
+    if (bar->status_bar.item_count && !chosen) {
+        /* Keep the bar usable when the priority scratch array cannot be
+         * allocated.  A resize must never turn an allocation failure into a
+         * NULL dereference; hide the existing presentation children and
+         * report all items as overflow for the caller's recovery policy. */
+        for (i = 0; i < bar->status_bar.item_count; ++i) {
+            bar->status_bar.items[i].visible = False;
+            XtSetMappedWhenManaged(bar->status_bar.items[i].child, False);
+        }
+        bar->status_bar.visible_count = 0;
+        bar->status_bar.overflow_count = bar->status_bar.item_count;
+        bar->status_bar.laying_out = False;
+        XtWarning("XmStatusBar: unable to allocate layout scratch storage");
+        return;
+    }
     for (selected = 0; selected < bar->status_bar.item_count; ++selected) {
         Cardinal candidate = bar->status_bar.item_count;
         unsigned char priority = 0;

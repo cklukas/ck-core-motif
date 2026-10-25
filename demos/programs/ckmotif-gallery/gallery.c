@@ -19,6 +19,9 @@
 extern Widget gallery_create_component_example(Widget, WidgetClass,
                                                const char *, XtCallbackProc,
                                                XtPointer);
+extern Widget gallery_create_segmented_control_example(Widget, const char *,
+                                                       XtCallbackProc,
+                                                       XtPointer);
 extern Widget gallery_create_shell_example(Widget, WidgetClass, const char *);
 extern void gallery_destroy_component_example(Widget *);
 extern Widget gallery_create_drag_source_example(Widget, XtCallbackProc, XtPointer);
@@ -168,9 +171,8 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
     XmString title, details_string;
     char details[768];
     state->selected = entry;
-    snprintf(details, sizeof(details), "Class: %s | Test: %s | Docs: %s | Screenshot: %s",
-             entry->class_symbol, entry->interaction, entry->docs_anchor,
-             entry->screenshot);
+    snprintf(details, sizeof(details), "Interactive %s example — use the control below",
+             entry->kind);
     if (!state->example) {
         state->example = XtVaCreateWidget("examplePage", xmFormWidgetClass,
                                           state->notebook, XmNnotebookChildType,
@@ -262,12 +264,16 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
                 XmNtopWidget, state->provenance,
                 XmNleftAttachment, XmATTACH_FORM,
                 XmNrightAttachment, XmATTACH_FORM,
-                XmNwidth, 240, XmNheight, 96,
+                XmNwidth, 420, XmNheight, 140,
                 XmNrowColumnType, row_column_type,
                 XmNorientation, XmVERTICAL, NULL);
-            state->component = gallery_create_component_example(
-                state->component_host, entry->class, name,
-                component_activate, state);
+            if (!strcmp(entry->class_symbol, "xmSegmentedControlWidgetClass"))
+                state->component = gallery_create_segmented_control_example(
+                    state->component_host, name, component_activate, state);
+            else
+                state->component = gallery_create_component_example(
+                    state->component_host, entry->class, name,
+                    component_activate, state);
             anchor = state->component_host;
         }
     } else {
@@ -573,7 +579,8 @@ int main(int argc, char **argv)
     argv[argc] = NULL;
     gallery_manifest_initialize();
     shell = XtVaAppInitialize(&app, "CkMotifGallery", NULL, 0, &argc, argv,
-                              NULL, XmNallowShellResize, True, NULL);
+                              NULL, XmNallowShellResize, True,
+                              XmNwidth, 1100, XmNheight, 700, NULL);
     state.shell = shell;
     state.profile = requested_profile ? requested_profile_value
                                       : XmAPPEARANCE_CLASSIC;
@@ -624,12 +631,15 @@ int main(int argc, char **argv)
     state.status = XmVaCreateManagedStatusBar(root, "status", XmNbottomAttachment, XmATTACH_FORM,
                                               XmNleftAttachment, XmATTACH_FORM,
                                               XmNrightAttachment, XmATTACH_FORM, NULL);
-    body = XmVaCreateManagedPanedWindow(root, "body", XmNtopAttachment, XmATTACH_WIDGET,
+    body = XmVaCreateManagedPanedWindow(root, "body", XmNorientation, XmHORIZONTAL,
+                                        XmNtopAttachment, XmATTACH_WIDGET,
                                         XmNtopWidget, header, XmNleftAttachment, XmATTACH_FORM,
                                         XmNrightAttachment, XmATTACH_FORM,
                                         XmNbottomAttachment, XmATTACH_WIDGET,
                                         XmNbottomWidget, state.status, NULL);
-    sidebar = XmVaCreateManagedSidebar(body, "navigation", XmNtraversalOn, True, NULL);
+    sidebar = XmVaCreateManagedSidebar(body, "navigation",
+                                       XmNsidebarExpandedWidth, 280,
+                                       XmNtraversalOn, True, NULL);
     state.sidebar = sidebar;
     {
         Arg tree_args[1];

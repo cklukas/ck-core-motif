@@ -40,6 +40,9 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [Container tab conversion](container-tabs.md) — container data conversion and tab behavior.
 - [FileSB qualified-mask allocation](motif-filesb-qualified-mask.md) — bounded file-selection mask assembly.
 - [FileSB full-path value allocation](motif-filesb-value-buffer.md) — bounded directory/filename assembly.
+- [Rendition warning name](rendition-warning-name.md) — safe Xt diagnostics for null rendition tags.
+- [Segmented gallery example](segmented-gallery-example.md) — real item construction and safe child management.
+- [Status-bar layout allocation](status-bar-layout-allocation.md) — clean overflow reporting when layout scratch storage is unavailable.
 - [FileSB filter-mask allocation](motif-filesb-filter-mask-update.md) — bounded full-path filter assembly.
 - [FileSB resource filter-mask allocation](motif-filesb-resource-filter-mask.md) — bounded navigation filter updates.
 - [FileSB item-filter allocation](motif-filesb-item-filter.md) — bounded restored filter assembly.

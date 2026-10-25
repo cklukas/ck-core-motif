@@ -14453,3 +14453,26 @@ UIL locale charset input bounds (2026-10-25)
 
 - Reject null and oversized `LANG` charset names before copying them into the
   UIL semantic-analysis buffer; see `docs/uil-charset-input-bounds.md`.
+
+Status-bar layout allocation failure (2026-10-27)
+===================================================
+
+- Contain failure to allocate the `XmStatusBar` priority scratch array by
+  hiding its presentation children and reporting all items as overflow instead
+  of dereferencing a null pointer; see
+  `docs/status-bar-layout-allocation.md`.
+Rendition warning name (2026-10-27)
+===================================
+
+- Supply a non-null Xt warning name when rendition validation reports a null
+  string tag, preventing warning formatting from crashing List and other
+  render-table initialization paths; see
+  `docs/rendition-warning-name.md`.
+
+Segmented gallery construction (2026-10-27)
+=============================================
+
+- Manage all `XmSegmentedControl` item buttons only after the complete model
+  has been constructed, preventing early layout from dereferencing an
+  uninitialized child when real gallery items are populated; see
+  `docs/segmented-gallery-example.md`.

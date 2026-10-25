@@ -38,7 +38,8 @@ def main() -> int:
             fail(f"unterminated annotation {key}")
         blocks[key] = source[begin.end():end.start()].strip("\n")
     for required_block in ("shared-public-construction", "public-teardown",
-                           "drag-public-construction", "shell-public-construction"):
+                           "drag-public-construction", "shell-public-construction",
+                           "segmented-control-construction"):
         if required_block not in blocks:
             fail(f"missing {required_block} annotation")
     for entry in entries:
@@ -105,7 +106,9 @@ def main() -> int:
                "} GallerySourceFragment;", "", "static const GallerySourceFragment gallery_sources[] = {"]
     for entry in entries:
         popup_shell = int(entry["constructible"] and "Shell" in entry["class_symbol"])
-        if entry["class_symbol"] == "xmDragOverShellWidgetClass":
+        if entry["class_symbol"] == "xmSegmentedControlWidgetClass":
+            construction = blocks["segmented-control-construction"]
+        elif entry["class_symbol"] == "xmDragOverShellWidgetClass":
             construction = (blocks["shared-public-construction"] + "\n\n" +
                             blocks["drag-public-construction"])
         else:

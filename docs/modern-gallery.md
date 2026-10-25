@@ -16,6 +16,10 @@ The shell is deliberately assembled from public toolkit interfaces:
 - `XmNotebook` provides the **Example** and **Source** pages; and
 - `XmStatusBar` reports selection, callback, and capability state.
 
+The sidebar is the left pane of a horizontal split: categories and component
+entries stay visible on the left while the selected live control occupies the
+right pane.
+
 The native integration mode exercises sidebar collapse/restore, manifest
 selection across every available constructible entry, notebook page
 switching, generated-source lookup, callback delivery, status-bar updates,
@@ -36,6 +40,12 @@ selection (activate/value-change/help fallback), and public `XtDestroyWidget`
 teardown used by the live example. The component class pointer, source ID,
 interaction ID, documentation anchor, and screenshot ID remain linked to the
 same manifest record.
+
+Compound controls are populated with real public models before they are shown.
+For example, the segmented-control entry renders three selectable segments —
+`Overview`, `Details`, and `Activity` — and selects `Overview`; it is not a
+metadata-only placeholder. The same construction block powers the live
+component pane and its Source tab.
 
 Each gallery build also emits `gallery_provenance.json`, including the manifest
 and annotated-source hashes plus one record for every component. `make check`
