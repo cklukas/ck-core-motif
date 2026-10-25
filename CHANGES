@@ -1,3 +1,10 @@
+Mrm literal convenience output validation (2026-10-25)
+==========================================================
+
+- Validate and initialize the pixmap, dimensions, and pixel outputs used by
+  public literal convenience APIs before fetching; see
+  `docs/mrm-literal-convenience-outputs.md`.
+
 Mrm literal output validation (2026-10-25)
 ===========================================
 
