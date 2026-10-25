@@ -995,6 +995,7 @@ CreateXImage(
     if (height != 0 &&
 	(size_t)(*image_return)->bytes_per_line > SIZE_MAX / (size_t)height) {
 	XDestroyImage(*image_return);
+	*image_return = NULL;
 	return XpmNoMemory;
     }
     /* now that bytes_per_line must have been set properly alloc data */

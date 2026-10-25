@@ -14,4 +14,8 @@ guard_start = function.index(guard)
 guard_body = function[guard_start:function.index("return XpmNoMemory;", guard_start)]
 assert "XDestroyImage(*image_return);" in guard_body
 assert "*image_return = NULL;" in guard_body
+overflow_start = function.index("SIZE_MAX / (size_t)height")
+overflow_body = function[overflow_start:function.index("return XpmNoMemory;", overflow_start)]
+assert "XDestroyImage(*image_return);" in overflow_body
+assert "*image_return = NULL;" in overflow_body
 print("PASS XPM zero-height cleanup")

@@ -14300,6 +14300,7 @@ Clipboard inquiry lock cleanup (2026-10-26)
 XPM zero-height image cleanup (2026-10-26)
 ===========================================
 
-- Destroy the temporary `XImage` before rejecting zero-height or zero-stride
-  XPM images, avoiding a resource leak on malformed or empty input; see
+- Destroy the temporary `XImage` and clear the output pointer before rejecting
+  zero-height, zero-stride, or overflowing XPM images, avoiding leaks and
+  dangling outputs on malformed or empty input; see
   `docs/xpm-zero-height-cleanup.md`.
