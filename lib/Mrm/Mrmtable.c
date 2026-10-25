@@ -120,11 +120,15 @@ Urm__FixupCompressionTable (UidCompressionTablePtr	ctable,
   /*
    * Swap bytes if necessary and fix up the table offsets to be pointers
    */
+  if ( ctable == NULL )
+    return MrmFAILURE ;
   if ( byte_swapped )
     {
       swapbytes(ctable->validation);
       swapbytes(ctable->num_entries);
     }
+  if ( ctable->num_entries < UilMrmMinValidCode )
+    return MrmFAILURE ;
   for ( fixndx=UilMrmMinValidCode ; fixndx<ctable->num_entries ; fixndx++ )
     {
       if ( byte_swapped ) swapbytes(ctable->entry[fixndx].stoffset);
