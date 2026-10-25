@@ -5373,3 +5373,10 @@ Make ImageCache color-cache growth transactional (2026-10-25)
   cache cannot grow; see `docs/image-color-cache-growth.md`.
 
 Use size-aware scaled-image row offsets (2026-10-25)
+Prevent ImageCache color reference underflow (2026-10-25)
+==========================================================
+
+- Reject duplicate releases of an already-empty cached-color reference count;
+  see `docs/image-color-refcount.md`.
+
+Make ImageCache color-cache growth transactional (2026-10-25)
