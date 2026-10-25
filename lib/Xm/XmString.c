@@ -6148,11 +6148,12 @@ _XmStringEntryCopy(_XmStringEntry entry)
   switch (_XmEntryType(entry)) {
   case XmSTRING_ENTRY_OPTIMIZED:
     if (_XmEntryImm(entry)) {
-      if (entry_len > sizeof(XtPointer))
-	allocation_size = sizeof(_XmStringOptSegRec) +
-	    (size_t)entry_len - sizeof(XtPointer);
-      else
-	allocation_size = sizeof(_XmStringOptSegRec);
+	      if (entry_len > sizeof(XtPointer)) {
+		allocation_size = sizeof(_XmStringOptSegRec) +
+		    (size_t)entry_len - sizeof(XtPointer);
+	      } else {
+		allocation_size = sizeof(_XmStringOptSegRec);
+	      }
 	if (allocation_size > UINT_MAX) {
 	  return NULL;
 	}
