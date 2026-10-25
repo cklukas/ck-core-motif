@@ -1,3 +1,10 @@
+RCPopup list growth failures (2026-10-27)
+=========================================
+
+- Check popup-count byte arithmetic and commit the resized popup list only
+  after `XtRealloc` succeeds.  Popup registration now preserves existing
+  entries under allocation pressure.
+
 XmString optimized-entry copy bounds (2026-10-27)
 ==================================================
 

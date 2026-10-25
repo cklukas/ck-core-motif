@@ -39,6 +39,7 @@ static char *rcsid = "$XConsortium: RCPopup.c /main/7 1996/03/28 15:15:24 daniel
 
 #include <stdio.h>
 #include <ctype.h>
+#include <stdint.h>
 #include "XmI.h"
 #include <X11/IntrinsicP.h>
 #include <X11/CoreP.h>
@@ -1188,10 +1189,24 @@ XmAddToPostFromList(
       }
       _XmProcessUnlock();
 
-      /* Add to list,  we add the menu's shell parent */
-      list -> popups = (WidgetList) XtRealloc((char*) list -> popups,
-					      sizeof(Widget) * 
-					      (list -> num_popups + 1));
+      /* Add to list, we add the menu's shell parent. */
+      if (list->num_popups == (Cardinal)-1 ||
+          (size_t)(list->num_popups + 1) > SIZE_MAX / sizeof(Widget))
+        {
+          _XmAppUnlock(app);
+          return;
+        }
+      {
+        WidgetList new_popups = (WidgetList)XtRealloc(
+            (char *)list->popups,
+            sizeof(Widget) * (size_t)(list->num_popups + 1));
+        if (new_popups == NULL)
+          {
+            _XmAppUnlock(app);
+            return;
+          }
+        list->popups = new_popups;
+      }
       list -> popups[list -> num_popups] = XtParent(m);
       list -> num_popups++;
 
