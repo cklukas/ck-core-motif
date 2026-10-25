@@ -18,8 +18,9 @@ XmFontList constructor locking (2026-10-25)
 =============================================
 
 - Avoid recursive process/application locking in `XmFontListCreate`,
-  `XmFontListAdd`, and `XmFontListEntryLoad` while they call charset, rendition
-  and render-table helpers; see `docs/xmfontlist-locking.md`.
+  `XmFontListAdd`, `XmFontListEntryLoad`, and `XmFontListAppendEntry` while
+  they call charset, rendition and render-table helpers; see
+  `docs/xmfontlist-locking.md`.
 
 Bound render-table count arithmetic (2026-10-25)
 =================================================

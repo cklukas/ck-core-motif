@@ -1,8 +1,9 @@
 # XmFontList constructor locking
 
-`XmFontListCreate`, `XmFontListAdd`, and `XmFontListEntryLoad` now delegate
-synchronization to the charset, rendition, and render-table helpers instead of
-holding a process or application lock across those calls.  This avoids
+`XmFontListCreate`, `XmFontListAdd`, `XmFontListEntryLoad`, and
+`XmFontListAppendEntry` now delegate synchronization to the charset, rendition,
+and render-table helpers instead of holding a process or application lock
+across those calls.  This avoids
 recursive locking when the helpers establish their own display/application
 context while preserving the existing validation, ownership, and public
 return-value behavior.

@@ -284,34 +284,13 @@ XmFontListAppendEntry(
 {
   XmRendition	rends[1];
   XmFontList ret_val;
-#ifdef XTHREADS
-  XtAppContext app=NULL;
-#endif
 
   if (!entry) {
      return (old);
   }
 
-#ifdef XTHREADS
-  if (_XmRendDisplay((XmRendition)entry))
-      app = XtDisplayToApplicationContext(_XmRendDisplay((XmRendition)entry));
-
-  if (app)
-    _XmAppLock(app);
-  else
-    _XmProcessLock();
-#endif
-
   rends[0] = entry;
   ret_val = XmRenderTableAddRenditions(old, rends, 1, XmDUPLICATE);
-
-#ifdef XTHREADS
-  if (app)
-    _XmAppUnlock(app);
-  else
-    _XmProcessUnlock();
-#endif
-
   return ret_val;
 }
 
