@@ -9153,3 +9153,13 @@ Compound text-property table Xt bounds (2026-10-29)
 
 IconFile directory-cache Xt allocation-size bounds (2026-10-29)
 =================================================================
+Text-property table Xt allocation-size bounds (2026-10-29)
+============================================================
+
+- Bound usable-text, compound-text, and plain text-property table arrays
+  against Xt's `Cardinal` allocation range, preserving `BadAlloc` cleanup
+  behavior for extreme counts; see the relevant `docs/motif-txtpropcv-*.md`
+  pages.
+
+Compound text-property table Xt bounds (2026-10-29)
+====================================================

@@ -618,7 +618,8 @@ XmCvtXmStringTableToTextProperty(Display *display,
 	  break;
 	}
       /* Get useable text for each compound string */
-      if ((size_t)count > SIZE_MAX / sizeof(char *)) {
+	    if ((size_t)count > SIZE_MAX / sizeof(char *) ||
+		(size_t)count > UINT_MAX / sizeof(char *)) {
 	_XmAppUnlock(app);
 	return BadAlloc;
       }
@@ -779,7 +780,8 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 		(*count_return)++;
 	    }
 	}
-	if ((size_t)*count_return > SIZE_MAX / sizeof(XmString)) {
+	if ((size_t)*count_return > SIZE_MAX / sizeof(XmString) ||
+	    (size_t)*count_return > UINT_MAX / sizeof(XmString)) {
 	    _XmAppUnlock(app);
 	    return BadAlloc;
 	}
@@ -867,6 +869,11 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	}
 
 	/* Now allocate a string table to put them in */
+	if ((size_t)elements > SIZE_MAX / sizeof(XmString) ||
+	    (size_t)elements > UINT_MAX / sizeof(XmString)) {
+	    _XmAppUnlock(app);
+	    return BadAlloc;
+	}
 	string_table = (XmStringTable)XtMalloc(sizeof(XmString) *
 					(elements ? elements : 1));
 	if (string_table == NULL) {
@@ -968,7 +975,8 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	if (text_prop->value[i] == '\0')
 	  ++elements;
     }
-    if ((size_t)elements > SIZE_MAX / sizeof(XmString)) {
+	if ((size_t)elements > SIZE_MAX / sizeof(XmString) ||
+	    (size_t)elements > UINT_MAX / sizeof(XmString)) {
 	_XmAppUnlock(app);
 	return BadAlloc;
     }
