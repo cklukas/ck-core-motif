@@ -7,7 +7,7 @@ text = source.read_text(encoding="utf-8")
 start = text.index("static void menu_changed(")
 end = text.index("\nstatic void node_destroyed", start)
 region = text[start:end]
-assert "XmAccessibleId *ids = count" in region
+assert "XmAccessibleId *ids = (XmAccessibleId *)XtMalloc" in region
 assert "count > UINT_MAX / sizeof(XmAccessibleId)" in region
 assert "(Cardinal)(count * sizeof(*ids))" in region
 assert "if (count != 0 && !ids)" in region

@@ -99,6 +99,13 @@ Accessibility display-hook allocation guard (2026-10-26)
   fails instead of dereferencing NULL; see
   `docs/accessibility-hook-allocation.md`.
 
+Accessibility menu snapshot allocation guard (2026-10-26)
+===========================================================
+
+- Bound menu snapshot allocations by Xt `Cardinal` capacity and handle
+  allocation failure before filling IDs; see
+  `docs/accessibility-menu-snapshot-allocation.md`.
+
 Accessibility UTF-8 allocation guards (2026-10-26)
 ===================================================
 
