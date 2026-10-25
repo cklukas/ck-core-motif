@@ -52,6 +52,8 @@ Gallery category disclosure state (2026-10-27)
 - Start component categories collapsed so their disclosure glyph is `+` when
   children are hidden; selecting a component explicitly expands its category
   and shows the corresponding child row.
+- Resolve the selected entry's category by value rather than relying on
+  unrelated string pointer identities.
 
 Live text baselines (2026-10-27)
 ================================

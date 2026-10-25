@@ -220,8 +220,15 @@ static const GalleryManifestEntry *find_entry(const char *id)
 
 static void expand_entry_category(Widget tree, const GalleryManifestEntry *entry)
 {
-    if (entry && entry->category)
-        (void)XmTreeViewSetExpanded(tree, (XtPointer)entry->category, True, False);
+    Cardinal i;
+    if (!entry || !entry->category)
+        return;
+    for (i = 0; i < GALLERY_CATEGORY_COUNT; ++i)
+        if (!strcmp(entry->category, gallery_categories[i])) {
+            (void)XmTreeViewSetExpanded(tree, (XtPointer)gallery_categories[i],
+                                        True, False);
+            return;
+        }
 }
 
 static const char *source_for(const GalleryManifestEntry *entry)
