@@ -11418,6 +11418,12 @@ MWM menu-pane name allocation (2026-10-25)
 - Check parsed menu-pane name lengths before Xt allocation; see
   `docs/mwm-menu-pane-name-allocation.md`.
 
+MWM executable identity allocation width (2026-10-25)
+=======================================================
+
+- Check the executable-name length before copying the identity basename; see
+  `docs/mwm-identity-basename.md`.
+
 MWM per-screen display allocation width (2026-10-25)
 =====================================================
 

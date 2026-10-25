@@ -11,6 +11,9 @@ start = source.index("int WmReturnIdentity")
 body = source[start : source.index("} /* END OF FUNCTION WmReturnIdentity", start)]
 assert "baseName = strrchr(argv[0], '/');" in body
 assert "baseName++;" in body
+assert "executableLength >= UINT_MAX" in body
+assert "XtMalloc((Cardinal)executableLength + 1)" in body
+assert "XtMalloc ((unsigned int)(strlen (argv[0]) + 1))" not in body
 assert "strcpy(tempString, baseName);" in body
 assert "tempString++;" not in body
 

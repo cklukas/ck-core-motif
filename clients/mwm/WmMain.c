@@ -41,6 +41,7 @@ static char rcsid[] = "$TOG: WmMain.c /main/8 1998/04/20 13:01:09 mgreess $"
 #include "WmGlobal.h"
 
 #include <X11/Xlocale.h>
+#include <limits.h>
 #ifdef WSM
 #include <Dt/Message.h>
 #include <Dt/EnvControlP.h>
@@ -259,13 +260,15 @@ int WmReturnIdentity ( int argc, char *argv[], char *environ[])
 	char *tempString;
 	char *origPtr;
 	char *baseName;
+	size_t executableLength;
 
 	/* assume it's dtwm until proven differently */
 
  	int retVal = DT_MWM;
 
-	if (!(tempString = 
-	      (char *)(XtMalloc ((unsigned int)(strlen (argv[0]) + 1)))))
+	executableLength = strlen(argv[0]);
+	if (executableLength >= UINT_MAX ||
+	    !(tempString = (char *)XtMalloc((Cardinal)executableLength + 1)))
 	{
 		Warning(((char *)GETMESSAGE(44, 2, "Insufficient memory for name of window manager")));
 		exit(WM_ERROR_EXIT_VALUE);
