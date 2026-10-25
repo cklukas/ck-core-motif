@@ -17,4 +17,8 @@ assert '"result": "fail"' in source
 assert 'receipt["result"] = "skip"' in source
 assert 'receipt["result"] = "pass"' in source
 assert 'receipt["current_entry"]' in source
+assert 'parser.add_argument("--appearance"' in source
+assert 'parser.add_argument("--scale"' in source
+assert '"--appearance", args.appearance' in source
+assert '"--scale", str(args.scale)' in source
 print("PASS gallery screenshot runner contract")

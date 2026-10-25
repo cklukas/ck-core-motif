@@ -90,6 +90,10 @@ def main() -> int:
     parser.add_argument("--binary", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--display", default=os.environ.get("DISPLAY"))
+    parser.add_argument("--appearance", choices=("classic", "modern-light",
+                                                   "high-contrast", "modern-dark"),
+                        default="classic")
+    parser.add_argument("--scale", type=float, default=1.0)
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[2]
     manifest_path = root / "docs/modern-gallery-manifest.json"
@@ -102,6 +106,8 @@ def main() -> int:
         parser.error("Mac screenshot output must be under an approved temporary volume")
     if args.out.exists():
         parser.error(f"output already exists: {args.out}")
+    if not 0.0 < args.scale <= 64.0:
+        parser.error("--scale must be finite and in the range (0, 64]")
     args.out.mkdir(parents=True)
     xwd = shutil.which("xwd")
     xwininfo = shutil.which("xwininfo")
@@ -115,6 +121,8 @@ def main() -> int:
         "binary": str(args.binary),
         "binary_sha256": sha256(args.binary) if args.binary.is_file() else None,
         "display": args.display,
+        "appearance": args.appearance,
+        "scale": args.scale,
         "window_name": WINDOW_NAME,
         "output": str(args.out),
         "tools": {"xwd": xwd, "xwininfo": xwininfo,
@@ -144,7 +152,8 @@ def main() -> int:
             entry_started = time.monotonic()
             receipt["current_entry"] = entry["id"]
             process = subprocess.Popen(
-                [str(args.binary), "--component", entry["id"], "--screenshot-mode"],
+                [str(args.binary), "--component", entry["id"], "--screenshot-mode",
+                 "--appearance", args.appearance, "--scale", str(args.scale)],
                 env=env, cwd=root, stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
             )

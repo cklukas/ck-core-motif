@@ -1,6 +1,9 @@
 /* ckmotif-gallery: a manifest-driven native component gallery. */
 #include <stdio.h>
+#include <errno.h>
+#include <math.h>
 #include <string.h>
+#include <stdlib.h>
 #include <Xm/XmAll.h>
 #include <Xm/Sidebar.h>
 #include <Xm/TreeView.h>
@@ -34,6 +37,36 @@ typedef struct {
 } GalleryState;
 
 static XmString text(const char *value) { return XmStringCreateLocalized((char *)value); }
+
+static Boolean parse_appearance(const char *value,
+                                XmAppearanceProfile *profile_return)
+{
+    if (!strcmp(value, "classic"))
+        *profile_return = XmAPPEARANCE_CLASSIC;
+    else if (!strcmp(value, "modern-light"))
+        *profile_return = XmAPPEARANCE_MODERN_LIGHT;
+    else if (!strcmp(value, "high-contrast"))
+        *profile_return = XmAPPEARANCE_HIGH_CONTRAST;
+    else if (!strcmp(value, "modern-dark"))
+        *profile_return = XmAPPEARANCE_MODERN_DARK;
+    else
+        return False;
+    return True;
+}
+
+static Boolean parse_scale(const char *value, double *scale_return)
+{
+    char *end;
+    double scale;
+
+    errno = 0;
+    scale = strtod(value, &end);
+    if (end == value || *end != '\0' || errno == ERANGE ||
+        !isfinite(scale) || scale <= 0.0 || scale > 64.0)
+        return False;
+    *scale_return = scale;
+    return True;
+}
 
 static const GalleryManifestEntry *find_entry(const char *id)
 {
@@ -465,6 +498,10 @@ int main(int argc, char **argv)
     int integration_mode = 0;
     int screenshot_mode = 0;
     const char *initial_id = NULL;
+    Boolean requested_profile = False;
+    XmAppearanceProfile requested_profile_value = XmAPPEARANCE_CLASSIC;
+    Boolean requested_scale = False;
+    double requested_scale_value = 1.0;
     int argument;
     for (argument = 1; argument < argc;) {
         int remove_count = 0;
@@ -476,6 +513,42 @@ int main(int argc, char **argv)
             remove_count = 1;
         } else if (!strcmp(argv[argument], "--screenshot-mode")) {
             screenshot_mode = 1;
+            remove_count = 1;
+        } else if (!strcmp(argv[argument], "--appearance") &&
+                   argument + 1 < argc) {
+            if (!parse_appearance(argv[argument + 1],
+                                  &requested_profile_value)) {
+                fprintf(stderr, "unknown appearance profile: %s\n",
+                        argv[argument + 1]);
+                return 2;
+            }
+            requested_profile = True;
+            remove_count = 2;
+        } else if (!strncmp(argv[argument], "--appearance=", 13)) {
+            if (!parse_appearance(argv[argument] + 13,
+                                  &requested_profile_value)) {
+                fprintf(stderr, "unknown appearance profile: %s\n",
+                        argv[argument] + 13);
+                return 2;
+            }
+            requested_profile = True;
+            remove_count = 1;
+        } else if (!strcmp(argv[argument], "--scale") &&
+                   argument + 1 < argc) {
+            if (!parse_scale(argv[argument + 1], &requested_scale_value)) {
+                fprintf(stderr, "invalid display scale: %s\n",
+                        argv[argument + 1]);
+                return 2;
+            }
+            requested_scale = True;
+            remove_count = 2;
+        } else if (!strncmp(argv[argument], "--scale=", 8)) {
+            if (!parse_scale(argv[argument] + 8, &requested_scale_value)) {
+                fprintf(stderr, "invalid display scale: %s\n",
+                        argv[argument] + 8);
+                return 2;
+            }
+            requested_scale = True;
             remove_count = 1;
         } else if (!strcmp(argv[argument], "--component") && argument + 1 < argc) {
             initial_id = argv[argument + 1];
@@ -571,6 +644,22 @@ int main(int argc, char **argv)
         XmAccessibilityAttachShell(state.accessibility, shell);
         XmAccessibilityRefresh(state.accessibility);
     }
+    if (requested_profile &&
+        !XmApplyAppearanceProfile(XtDisplay(shell), requested_profile_value)) {
+        fprintf(stderr, "gallery: requested appearance profile failed\n");
+        if (state.accessibility) XmAccessibilityDestroy(state.accessibility);
+        return 3;
+    }
+    if (requested_profile)
+        state.profile = requested_profile_value;
+    if (requested_scale &&
+        !XmSetDisplayScaleOverride(XtDisplay(shell), requested_scale_value)) {
+        fprintf(stderr, "gallery: requested display scale failed\n");
+        if (state.accessibility) XmAccessibilityDestroy(state.accessibility);
+        return 3;
+    }
+    if (requested_profile || requested_scale)
+        XSync(XtDisplay(shell), False);
     if (integration_mode == 1) {
         int result = run_integration_test(&state);
         if (state.accessibility) XmAccessibilityDestroy(state.accessibility);
