@@ -1,3 +1,9 @@
+Mrm writer lookup error propagation (2026-10-25)
+================================================
+
+- Distinguish “absent” index and RID entries from lookup failures before
+  creating writer records; see `docs/mrm-writer-lookup-errors.md`.
+
 Mrm writer context validation (2026-10-25)
 ============================================
 
