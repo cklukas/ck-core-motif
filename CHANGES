@@ -8360,3 +8360,10 @@ Gadget secondary-argument merging (2026-10-27)
 - Check the argument list returned by XtMergeArgLists before passing it to
   secondary-object creation, avoiding a null argument-list dereference when
   allocation fails.
+
+ColorSelector argument merging (2026-10-27)
+============================================
+
+- Check every merged argument list used to create ColorSelector child widgets,
+  returning cleanly on allocation failure instead of dereferencing or passing a
+  null list.
