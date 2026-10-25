@@ -1296,8 +1296,12 @@ WMiConvert (
   int      scr;
   Boolean  found = False;
 
-  
+  if (w == NULL || outputType == NULL || output == NULL ||
+      outputLen == NULL || outputFmt == NULL)
+    return False;
+
   /* set up some defaults. selection code doesn't like garbage! */
+  *outputType = None;
   *outputLen = 0;
   *output    = NULL;
   *outputFmt = 8;

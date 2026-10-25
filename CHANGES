@@ -1,3 +1,10 @@
+MWM selection conversion defaults (2026-10-26)
+===============================================
+
+- Guard `WMiConvert` against null widget/output arguments and initialize its
+  output type to `None` before target dispatch; see
+  `docs/mwm-selection-conversion-guards.md`.
+
 MWM automation reply type (2026-10-26)
 ======================================
 
