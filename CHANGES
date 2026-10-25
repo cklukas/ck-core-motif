@@ -93,6 +93,13 @@ ToggleButton visual-state fallback (2026-10-26)
   invalid visual state, instead of asserting; documented visual states are
   unchanged. See `docs/togglebutton-visual-state.md`.
 
+Image-cache format restoration (2026-10-26)
+============================================
+
+- Restore the original XImage format without asserting that it was exactly
+  `XYPixmap`, allowing unusual but recoverable image metadata to clean up
+  safely; see `docs/image-cache-format-restoration.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 

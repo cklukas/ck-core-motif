@@ -1868,9 +1868,8 @@ _XmGetScaledPixmap(
       }
     else if (image->format != old_image_format)
       {
-	/* Undo the XYPixmap to XYBitmap conversion done earlier. */
+	/* Restore the original image format after temporary conversion. */
 	image->format = old_image_format;
-	assert(old_image_format == XYPixmap);
 
 	if (old_image_data)
 	  {
