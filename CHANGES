@@ -126,6 +126,13 @@ CascadeButtonGadget pixmap metadata guard (2026-10-26)
 - Check gadget pixmap metadata lookup success before drawing, matching the
   widget path; see `docs/cascade-gadget-pixmap-metadata.md`.
 
+ColorObj property parse status (2026-10-26)
+============================================
+
+- Propagate malformed or failed color-property parsing so selection fallback
+  remains available instead of reporting a false cache hit; see
+  `docs/colorobj-property-parse-status.md`.
+
 Accessibility name allocation rollback (2026-10-26)
 ====================================================
 

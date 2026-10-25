@@ -97,8 +97,8 @@ static void UpdateXrm(
                         int screen,
                         XmColorObj tmpColorObj);
 
-static void FetchPixelData(Widget w, char * value, unsigned long value_length,
-                           int screen);
+static Boolean FetchPixelData(Widget w, char * value,
+                              unsigned long value_length, int screen);
 
 static Boolean ColorCachePropertyExists(
 			Display *dpy,
@@ -652,7 +652,7 @@ Initialize(
     }
 }
 
-static void
+static Boolean
 FetchPixelData(Widget w, char * value, unsigned long value_length, int screen)
 {    
     int      i, count, colorUse;
@@ -669,12 +669,12 @@ FetchPixelData(Widget w, char * value, unsigned long value_length, int screen)
     {
         if (value != NULL)
             XFree(value);
-        return;
+        return False;
     }
     bounded_value = (char *)XtMalloc((Cardinal)value_length + 1);
     if (bounded_value == NULL) {
         XFree(value);
-        return;
+        return False;
     }
     memcpy(bounded_value, value, (size_t)value_length);
     bounded_value[value_length] = '\0';
@@ -685,7 +685,7 @@ FetchPixelData(Widget w, char * value, unsigned long value_length, int screen)
     if (sscanf (bounded_value, "%x_%n", &colorUse, &consumed) != 1)
     {
         XtFree(bounded_value);
-        return;
+        return False;
     }
     count = consumed;
     tmpColorObj->color_obj.colorUse[screen] = colorUse;
@@ -697,13 +697,14 @@ FetchPixelData(Widget w, char * value, unsigned long value_length, int screen)
 		    &(colors[i].bs), &(colors[i].sc), &consumed) != 5)
 	{
 	    XtFree(bounded_value);
-	    return;
+	    return False;
 	}
 	count += consumed;
     }
     UpdateXrm (colors, screen, tmpColorObj);
     tmpColorObj->color_obj.colorIsRunning = True;
     XtFree(bounded_value);
+    return True;
 }
 
 static Boolean
@@ -748,12 +749,12 @@ ColorCachePropertyExists(
 	}
 	value[length - 1] = 0 ; /* extract version info */
 
-        FetchPixelData(w, value, length - 1, screen);
+        result = FetchPixelData(w, value, length - 1, screen);
     }
 	else if (value != NULL)
 	    XFree(value);
  
-    return True ; 
+    return result;
 }
 
 /**********************************************************************/
