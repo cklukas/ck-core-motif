@@ -8446,8 +8446,19 @@ XmListDeleteItems(Widget w,
       return;
     }
 
+  if ((size_t)item_count > SIZE_MAX / sizeof(XmString))
+    {
+      _XmAppUnlock(app);
+      return;
+    }
+
   /* Make a copy of items in case of XmNitems from w */
   copy = (XmString *)ALLOCATE_LOCAL(item_count * sizeof(XmString));
+  if (copy == NULL)
+    {
+      _XmAppUnlock(app);
+      return;
+    }
   for (i = 0; i < item_count; i++)
     copy[i] = XmStringCopy(items[i]);
 

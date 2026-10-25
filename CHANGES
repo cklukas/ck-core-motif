@@ -1,3 +1,9 @@
+List deletion copy allocation checks (2026-10-25)
+==================================================
+
+- Reject overflowed or failed temporary item-copy allocations before list
+  deletion; see `docs/list-delete-copy-allocation.md`.
+
 Scrolled-list name allocation checks (2026-10-25)
 ==================================================
 
