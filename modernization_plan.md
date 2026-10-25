@@ -593,6 +593,11 @@ the 36.06-second receipt and evidence boundary.  Complete x86_64, all
 desktop screen-readers, application journeys, complete List/Menu semantics
 and clean sanitizer exit ownership remain explicit gates.
 
+The focused installed semantic rerun on 2026-10-25 passed the strict
+accessibility, text-event, List and Menu fixtures in 19.79 seconds using the
+pinned Xt dependency cohort. It adds regression evidence without promoting
+those bounded provider checks to complete desktop/application semantics.
+
 ### WP-08: Optional C++ support-library design
 
 **Depends on:** none.

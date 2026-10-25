@@ -40,6 +40,16 @@ desktop/application shells, precise edit-event echo, candidate panels, a
 complete application, human usability, x86_64, other screen readers/desktops
 or sanitizer ownership to supported scope.
 
+## 2026-10-25 focused semantic rerun
+
+The fresh installed ABI-8 cohort also passed the strict native/provider
+fixtures for accessibility, text events, List and Menu (`accessibility`,
+`text-events`, `list-accessibility` and `menu-accessibility`) in 19.79 seconds.
+The run used the pinned corrected Xt dependency directory recorded by the
+native-feature receipt and kept the exact `libXm.so.8` prefix mapping. This
+extends regression evidence for the existing semantics; it does not close the
+desktop/application-shell or x86_64 boundaries in the matrix above.
+
 When extending this matrix, add a native regression for a toolkit defect first,
 then rerun the actual client journey. If a service or screen-reader is absent,
 record it as unavailable instead of substituting a direct provider call.
