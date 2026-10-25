@@ -513,9 +513,9 @@ ClipboardSetNextItemId(
     unsigned long length;
     ClipboardHeader header;
     Atom type;
+    int status;
     itemId current_item;
     itemId last_item;
-    int status;
 
     header = ClipboardOpen( display, 0 );
     current_item = header->nextPasteItemId;
@@ -3652,6 +3652,7 @@ XmClipboardCancelCopy(
     unsigned long length;
     ClipboardHeader header;
     Atom type;
+    int status;
     _XmDisplayToAppContext(display);
 
     _XmAppLock(app);
@@ -3677,13 +3678,23 @@ XmClipboardCancelCopy(
      * reset the startCopyCalled flag and reset the XM_NEXT_ID property
      * it's value prior to StartCopy. 
      *******************************************************************/
-    ClipboardFindItem( display,
-			XM_NEXT_ID,
-			&int_ptr,
-			&length,
-			&type,
-			0,
-			0 );
+    int_ptr = NULL;
+    status = ClipboardFindItem( display,
+				XM_NEXT_ID,
+				&int_ptr,
+				&length,
+				&type,
+				0,
+				0 );
+
+    if (status != ClipboardSuccess || int_ptr == NULL ||
+	length < sizeof(long))
+    {
+	XtFree( (char *)int_ptr);
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
 
     previous = itemid - 1;
     *(long *) int_ptr = previous;
@@ -3698,6 +3709,12 @@ XmClipboardCancelCopy(
 			XA_INTEGER );
 
     header = ClipboardOpen( display, 0);
+    if (header == NULL)
+    {
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
     header->startCopyCalled = False;
     ClipboardClose( display, header );
 

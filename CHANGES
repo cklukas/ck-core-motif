@@ -1,3 +1,9 @@
+Clipboard cancel-copy validation (2026-10-26)
+================================================
+
+- Validate next-id storage and the clipboard header before restoring cancel
+  state; see `docs/clipboard-cancel-copy-validation.md`.
+
 Clipboard format-length validation (2026-10-26)
 ================================================
 
