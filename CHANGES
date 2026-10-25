@@ -1,3 +1,10 @@
+Xmos basename conversion rollback (2026-10-28)
+================================================
+
+- Allocate compatibility-mode basename entries before releasing their full
+  paths, avoiding lost entries and double frees when allocation fails; see
+  `docs/xmos-basename-rollback.md`.
+
 Accessibility D-Bus memo rollback (2026-10-28)
 ================================================
 

@@ -683,6 +683,7 @@ void
 {
   char *          fixedMatchPattern;
   String          entryPtr;
+  String          replacement;
   DIR *           dirStream = NULL;
   struct stat     statBuf;
   Boolean         entryTypeOK;
@@ -919,11 +920,15 @@ void
 		  /* This is ONLY for BC in a (apparently unused) API, (w/o
 		   *  full path) so don't worry too much about efficiency.
 		   */
+		  replacement = XtMalloc(dirNameLen + 1);
+		  if (replacement == NULL)
+		    {
+		      XtFree(entryPtr);
+		      break;
+		    }
+		  strcpy(replacement, dirName);
 		  XtFree(entryPtr);
-		  entryPtr = XtMalloc(dirNameLen + 1);
-		  if (entryPtr == NULL)
-		    break;
-		  strcpy(entryPtr, dirName);
+		  entryPtr = replacement;
 		  (*pEntries)[(*pNumEntries)++] = entryPtr;
 		} 
 	    } 
