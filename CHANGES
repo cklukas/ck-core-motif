@@ -1,4 +1,9 @@
 2026-10-25
+	* Treat empty tab lists as a valid cleanup case and release their shell
+	  state without dereferencing a missing first tab; see
+	  docs/tablist-free-empty.md.
+
+2026-10-25
 	* Guard tab-list widget constructors against missing lists and allocation
 	  failures before publishing child state; see docs/tab-constructor-guards.md.
 
