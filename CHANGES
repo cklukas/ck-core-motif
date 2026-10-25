@@ -1,3 +1,10 @@
+XmString table count bounds (2026-10-25)
+=========================================
+
+- Bound public XmString table allocations and content-derived split counts
+  before converting them to Xt's allocator count type; see
+  `docs/xmstring-table-count-bounds.md`.
+
 PushButton label rectangle bounds (2026-10-25)
 ===============================================
 
