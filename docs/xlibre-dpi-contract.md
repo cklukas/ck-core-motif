@@ -108,9 +108,11 @@ multi-output server was available, so live property mutation, output
 hotplug, spanning-window reflow and destruction during queued reflow remain
 unqualified.
 
-The decode-hardening follow-up was rebuilt on AArch64 `uconsole` from
-13:59:58 through 14:03:17 UTC on 2026-10-25 (clean opt-in build, 3:03
-elapsed), installing to `/tmp/ckmotif-xlibre-hardening-20261025/prefix`.
+The decode-hardening follow-up was rebuilt on AArch64 `uconsole` on
+2026-10-25; the recorded bootstrap/install log window is 14:00:04 through
+14:03:17 UTC, installing to
+`/tmp/ckmotif-xlibre-hardening-20261025/prefix`. The first timestamp is the
+earliest recorded bootstrap event, not an inferred command-start time.
 Three fresh ordinary-Xvfb contract runs and a consumer ASan/UBSan run
 (`ASAN_OPTIONS=detect_leaks=0`, `UBSAN_OPTIONS=halt_on_error=1`) passed. The
 installed `libXm.so.8.0.0` SHA-256 was
