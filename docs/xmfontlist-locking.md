@@ -9,3 +9,7 @@ synchronization to charset, rendition, and
 render-table helpers instead of
 holding a process/app lock across those calls. Their validation and ownership
 behavior remain unchanged.
+
+`XmFontListGetNextFont` advances its context under lock, then retrieves the
+font and tag after unlocking so rendition accessors do not recurse into the
+process lock.

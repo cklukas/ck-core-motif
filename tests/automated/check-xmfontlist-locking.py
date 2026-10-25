@@ -84,6 +84,13 @@ assert "_XmProcessLock" not in default_font
 assert "_XmProcessUnlock" not in default_font
 assert "_XmFontListSearch" in default_font
 
+start = source.index("Boolean \nXmFontListGetNextFont(")
+end = source.index("\nvoid\nXmFontListFreeFontContext", start)
+next_font = source[start:end]
+next_font_body = next_font[next_font.index("rend = _XmRTRenditions(table)"):]
+assert next_font_body.index("FLContextIndex(context)++") < next_font_body.index("_XmProcessUnlock();")
+assert next_font_body.index("_XmProcessUnlock();") < next_font_body.index("_XmGetFirstFont(rend)")
+
 start = source.index("XmFontListEntryCreate(")
 end = source.index("\n}\n", start)
 create = source[start:end]
