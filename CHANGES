@@ -1,3 +1,10 @@
+ToggleButtonGadget layout geometry bounds (2026-10-25)
+======================================================
+
+- Use signed arithmetic for gadget pixmap, accelerator, and label placement,
+  preventing wrapped origins in tiny ToggleButtonGadgets; see
+  `docs/togglebg-layout-geometry.md`.
+
 ToggleButton ComputeSpace geometry bounds (2026-10-25)
 ======================================================
 

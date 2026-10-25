@@ -1121,7 +1121,7 @@ redisplayPixmap(XmToggleButtonGadget tb, XEvent *event, Region region)
 		     NULL, NULL, NULL, NULL, NULL, NULL,
 		     &onW, &onH);
   
-  h = (tb->rectangle.height - onH) / 2 ;
+  h = ((int)tb->rectangle.height - (int)onH) / 2;
   LabG_TextRect_y(tb) = MAX(h, 0);
   LabG_TextRect_height(tb) = onH;
   LabG_TextRect_width(tb) = onW;
@@ -2376,11 +2376,11 @@ Initialize(
       }
 	else
         {
-	  LabG_AccTextRect(new_w).x = new_w->rectangle.width -
-	    new_w->gadget.highlight_thickness -
-	      new_w->gadget.shadow_thickness -
-		LabG_MarginHeight(new_w) -
-		  LabG_MarginRight(new_w) + LABELG_ACC_PAD;
+	  LabG_AccTextRect(new_w).x = (short)((int)new_w->rectangle.width -
+	    (int)new_w->gadget.highlight_thickness -
+	      (int)new_w->gadget.shadow_thickness -
+		(int)LabG_MarginHeight(new_w) -
+		  (int)LabG_MarginRight(new_w) + LABELG_ACC_PAD);
       }
       }
     }
@@ -2396,12 +2396,12 @@ Initialize(
   LabG_TextRect(new_w).y = new_w->gadget.highlight_thickness
     + new_w->gadget.shadow_thickness
       + LabG_MarginHeight(new_w) + LabG_MarginTop(new_w) +
-	((new_w->rectangle.height - LabG_MarginTop(new_w)
-	  - LabG_MarginBottom(new_w)
-	  - (2 * (LabG_MarginHeight(new_w)
-		  + new_w->gadget.highlight_thickness
-		  + new_w->gadget.shadow_thickness))
-	  - LabG_TextRect(new_w).height) / 2);
+	(((int)new_w->rectangle.height - (int)LabG_MarginTop(new_w)
+	  - (int)LabG_MarginBottom(new_w)
+	  - (2 * ((int)LabG_MarginHeight(new_w)
+		  + (int)new_w->gadget.highlight_thickness
+		  + (int)new_w->gadget.shadow_thickness))
+	  - (int)LabG_TextRect(new_w).height) / 2);
   
   if (new_w->rectangle.height == 0)
     new_w->rectangle.height = 1;
@@ -3015,12 +3015,12 @@ ComputeSpace(
 	tb->gadget.highlight_thickness +
 	  LabG_MarginHeight(tb) +
 	    LabG_MarginTop(tb) +
-	      ((tb->rectangle.height - LabG_MarginTop(tb)
-		- LabG_MarginBottom(tb)
-		- (2 * (LabG_MarginHeight(tb)
-			+ tb->gadget.highlight_thickness
-			+ tb->gadget.shadow_thickness))
-		- LabG_TextRect(tb).height) / 2);
+	      (((int)tb->rectangle.height - (int)LabG_MarginTop(tb)
+		- (int)LabG_MarginBottom(tb)
+		- (2 * ((int)LabG_MarginHeight(tb)
+			+ (int)tb->gadget.highlight_thickness
+			+ (int)tb->gadget.shadow_thickness))
+		- (int)LabG_TextRect(tb).height) / 2);
   
   if (LayoutIsRtoLG(tb))
     {
