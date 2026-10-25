@@ -55,6 +55,12 @@ XmString byte-stream conversion locking (2026-10-26)
 - Avoid recursive process locking during ASN.1 byte-stream conversion; see
   `docs/xmstring-byte-conversion-locking.md`.
 
+XmString tab-list proposal locking (2026-10-26)
+=================================================
+
+- Avoid recursive process locking across tab-list and rendering helpers; see
+  `docs/xmstring-tablist-locking.md`.
+
 Gallery screenshot qualification receipts (2026-10-25)
 ========================================================
 

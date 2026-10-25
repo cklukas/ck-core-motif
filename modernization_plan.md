@@ -2023,6 +2023,11 @@ representation helpers rather than holding the process lock across ASN.1
 conversion; the source contract is recorded in
 `tests/automated/check-xmstring-byte-conversion-locking.py` and
 `docs/xmstring-byte-conversion-locking.md`.
+`XmStringTableProposeTablist` now delegates synchronization to tab-list,
+conversion, and rendering helpers rather than holding the process lock across
+them; the source contract is recorded in
+`tests/automated/check-xmstring-tablist-locking.py` and
+`docs/xmstring-tablist-locking.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the
