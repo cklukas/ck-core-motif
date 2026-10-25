@@ -6412,6 +6412,12 @@ MainW child-list growth failures (2026-10-25)
   only after `XtRealloc` succeeds. Main-window child migration leaves the
   existing list intact when growth fails; see `docs/mainw-child-growth.md`.
 
+Bound MainW child-array Xt byte sizes (2026-10-25)
+===================================================
+
+- Check Xt `Cardinal` byte limits while moving clip-window children into the
+  MainW composite list; see `docs/mainw-child-growth.md`.
+
 Bound legacy resource-filter byte sizes (2026-10-25)
 =====================================================
 
