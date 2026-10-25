@@ -1,3 +1,10 @@
+RCPopup table and list allocation (2026-10-27)
+================================================
+
+- Check automatic popup-table and per-widget list allocations, releasing
+  process and application locks on failure instead of dereferencing or
+  publishing null popup state.
+
 VendorShell SetValues allocation (2026-10-27)
 ==============================================
 

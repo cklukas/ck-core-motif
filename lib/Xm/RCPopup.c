@@ -1171,6 +1171,11 @@ XmAddToPostFromList(
       if (! popup_table) {
 	popup_table = _XmAllocHashTable(100, NULL, NULL);
       }
+      if (!popup_table) {
+	_XmProcessUnlock();
+	_XmAppUnlock(app);
+	return;
+      }
 
       /* See if we have an associated table.  If not,  create
 	 one. */
@@ -1182,6 +1187,11 @@ XmAddToPostFromList(
 	  _XmResizeHashTable(popup_table, 2 * _XmHashTableSize(popup_table));
     
 	list = (PopupList) XtMalloc(sizeof(PopupListRec));
+	if (list == NULL) {
+	  _XmProcessUnlock();
+	  _XmAppUnlock(app);
+	  return;
+	}
 	list -> popups = (WidgetList) NULL;
 	list -> num_popups = 0;
 	_XmAddHashEntry(popup_table, (XmHashKey) widget, (XtPointer) list);
