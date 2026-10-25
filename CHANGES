@@ -9546,3 +9546,12 @@ FontSelector label initialization rollback (2026-10-28)
 
 Label initialization rollback (2026-10-28)
 ============================================
+SpinBox value-list initialization rollback (2026-10-28)
+==========================================================
+
+- Roll back partial string-child value lists when initialization copies fail,
+  preventing NULL entries from reaching SpinBox text and position logic; see
+  `docs/spinbox-value-init-rollback.md`.
+
+FontSelector label initialization rollback (2026-10-28)
+==========================================================

@@ -871,6 +871,7 @@ ConstraintInitialize(Widget req,
   XmSpinBoxConstraint	reqC = SB_GetConstraintRec(req);
   XmSpinBoxWidget	spinW;
   int			valLoop;
+  XmString		copy;
   char			*error = (char *) NULL;
   
   spinW = (XmSpinBoxWidget)XtParent(new_w);
@@ -905,7 +906,19 @@ ConstraintInitialize(Widget req,
       
       if (newC->values != NULL)
 	for (valLoop = 0; valLoop < reqC->num_values; valLoop++)
-	  newC->values[valLoop] = XmStringCopy(reqC->values[valLoop]);
+	  {
+	    copy = XmStringCopy(reqC->values[valLoop]);
+	    if (copy == NULL)
+	      {
+		while (valLoop != 0)
+		  XmStringFree(newC->values[--valLoop]);
+		XtFree((char *)newC->values);
+		newC->values = NULL;
+		newC->num_values = 0;
+		break;
+	      }
+	    newC->values[valLoop] = copy;
+	  }
       }
 
 #if 0
