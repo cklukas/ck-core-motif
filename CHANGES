@@ -6227,3 +6227,8 @@ Internal XmList stack allocation failure handling (2026-10-25)
 
 - Keep cleanup-stack state intact when stack growth allocation fails; see
   `docs/xmlist-stack-allocation.md`.
+Internal XmList lifecycle input guards (2026-10-25)
+====================================================
+
+- Make queue and list helpers safely handle null lifecycle inputs; see
+  `docs/xmlist-lifecycle-inputs.md`.

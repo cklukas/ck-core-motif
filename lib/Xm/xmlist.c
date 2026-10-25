@@ -157,8 +157,13 @@ void
 _XmQueueFree(XmQueue queue)
 {
     int count;
-    _XmQElem *elem = queue->first;
-    XmStack stack = _XmStackInit();
+    _XmQElem *elem;
+    XmStack stack;
+
+    if (queue == NULL)
+	return;
+    elem = queue->first;
+    stack = _XmStackInit();
 
     for (count = 0; count < 2; count++) {
 	while (elem != NULL) {
@@ -224,6 +229,8 @@ QueuePush(XmQueue queue, XtPointer data_in)
 XtPointer
 _XmQueuePop(XmQueue queue)
 {
+    if (queue == NULL)
+	return(NULL);
     _XmQElem *first = _Xm_RemQueue(&queue->first);
 
     if (queue->first == NULL)
@@ -252,7 +259,11 @@ int
 _XmQueueCount(XmQueue queue)
 {
     register int i;
-    register _XmQElem *elem = queue->first;
+    register _XmQElem *elem;
+
+    if (queue == NULL)
+	return(0);
+    elem = queue->first;
 
     for (i = 0; elem != NULL; i++)
 	elem = elem->next;
@@ -450,7 +461,11 @@ _XmListFree(XmList list)
 XmListElem *
 _XmListAddAfter(XmList list, XmListElem *elem_in, XtPointer data_in)
 {
-    XmListElem *elem = (XmListElem *) _Xm_GetNewElement((XmQueue) list);
+    XmListElem *elem;
+
+    if (list == NULL)
+	return(NULL);
+    elem = (XmListElem *) _Xm_GetNewElement((XmQueue) list);
 
     if (elem == NULL)
 	return(NULL);
@@ -483,6 +498,9 @@ _XmListAddBefore(XmList list, XmListElem *elem_in, XtPointer data_in)
 {
     XmListElem *after;
 
+    if (list == NULL)
+	return(NULL);
+
     if (elem_in == NULL) 
 	after = list->last;
     else
@@ -500,7 +518,11 @@ _XmListAddBefore(XmList list, XmListElem *elem_in, XtPointer data_in)
 void
 _XmListRemove(XmList list, XmListElem *elem)
 {
-    XmListElem *dead = (XmListElem *) _Xm_RemQueue((_XmQElem **) &elem);    
+    XmListElem *dead;
+
+    if (list == NULL || elem == NULL)
+	return;
+    dead = (XmListElem *) _Xm_RemQueue((_XmQElem **) &elem);
 
     /*
      * if NULL is passed, then no action is taken.
@@ -555,6 +577,8 @@ XmListElem *
 _XmListExec(XmList list, XmListElem *start, XmListElem *end, 
 	 XmListFunc func, XtPointer data)
 {
+    if (list == NULL || func == NULL)
+	return(NULL);
     if (start == NULL)
 	start = list->first;
 
