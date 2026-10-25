@@ -1,3 +1,10 @@
+ToggleButton geometry bounds (2026-10-25)
+===========================================
+
+- Guard shadow and fill rectangles against unsigned Dimension wraparound on
+  undersized widgets, and skip shadow drawing when its GCs are unavailable;
+  see `docs/toggle-button-geometry-bounds.md`.
+
 IconButton redisplay bounds (2026-10-25)
 ========================================
 
