@@ -1,3 +1,10 @@
+ScrolledWindow scrollbar request bounds (2026-10-26)
+=====================================================
+
+- Bound parent size calculations for scrollbar resize requests, preventing
+  unsigned wraparound when a scrollbar is larger than a collapsed window; see
+  `docs/scrolledwindow-scrollbar-request.md`.
+
 ScrolledWindow scrollbar placement bounds (2026-10-26)
 =======================================================
 

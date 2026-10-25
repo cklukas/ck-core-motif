@@ -2785,6 +2785,7 @@ XtWidgetGeometry *reply )
     XmScrollBarWidget hsb, vsb;
     XtGeometryResult  retval = XtGeometryNo;
     Dimension       newWidth,newHeight;
+    int             parentWidth, parentHeight;
     Dimension       hsheight,vswidth;
     Dimension       hsbht, vsbht, bw, ht;
     XtWidgetGeometry  parent_request ;
@@ -2882,15 +2883,15 @@ XtWidgetGeometry *reply )
         /* Visible scrollbar request */
 
         /* we already eliminated the bad case */
+        parentWidth = (int) sw->core.width;
         if(request->request_mode & CWWidth)
-            newWidth = sw->core.width - w->core.width + request->width;
-        else
-            newWidth = sw->core.width ;
-
+            parentWidth += (int) request->width - (int) w->core.width;
+        parentHeight = (int) sw->core.height;
         if(request->request_mode & CWHeight)
-            newHeight = sw->core.height - w->core.height + request->height;
-        else
-            newHeight = sw->core.height ;
+            parentHeight += (int) request->height - (int) w->core.height;
+
+        newWidth = (Dimension) ((parentWidth > 0) ? parentWidth : 0);
+        newHeight = (Dimension) ((parentHeight > 0) ? parentHeight : 0);
 
         parent_request.request_mode = CWWidth | CWHeight;
         parent_request.width = newWidth ;
