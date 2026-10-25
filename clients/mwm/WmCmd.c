@@ -1768,7 +1768,7 @@ GetIconMenuItemSelectInfo(ClientData *pcd, XtPointer reply, Boolean use_icon_box
       sensitiveCount = 0;
 
       for (n = 0, NewMenuButton = menuSpec->menuButtons;
-	   n < menuSpec->menuButtonCount;
+	   n < menuSpec->menuButtonCount && n < MAX_MENU_ITEMS;
 	   n++, NewMenuButton++)
 	{
 	  if (NewMenuButton->managed == FALSE)
@@ -1966,7 +1966,7 @@ GetWindowItemSelectInfo(ClientData *pcd, XtPointer reply)
    sensitiveCount = 0;
 
       for (n = 0, NewMenuButton = menuSpec->menuButtons;
-	   n < menuSpec->menuButtonCount;
+	   n < menuSpec->menuButtonCount && n < MAX_MENU_ITEMS;
 	   n++, NewMenuButton++)
 	{
 	  if (NewMenuButton->managed == FALSE)
@@ -2031,7 +2031,7 @@ GetItemCheckInfo(ClientData *pcd, XtPointer reply)
   menuWin = XtWindow (menuSpec->menuWidget);
 
       for (i = 0, NewMenuButton = menuSpec->menuButtons;
-	   i < menuSpec->menuButtonCount;
+	   i < menuSpec->menuButtonCount && i < MAX_MENU_ITEMS;
 	   i++, NewMenuButton++)
 	{
 	  if (NewMenuButton->managed == FALSE)

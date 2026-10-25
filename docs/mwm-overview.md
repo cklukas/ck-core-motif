@@ -41,6 +41,7 @@ clients exchanging Motif window-management messages.
 - [Display-string bounds](mwm-display-string-bounds.md)
 - [Executable identity basename](mwm-identity-basename.md)
 - [Builtin binding buffer size](mwm-binding-buffer-size.md)
+- [Menu query array bounds](mwm-menu-array-bounds.md)
 
 These focused pages document compatibility-preserving guards; they do not
 change public MWM resource or message formats.

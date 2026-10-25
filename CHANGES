@@ -11022,3 +11022,9 @@ MWM builtin binding buffer size (2026-10-25)
 - Check root-menu substitution sizes for builtin key and button bindings before
   Xt allocation, falling back safely when unrepresentable; see
   `docs/mwm-binding-buffer-size.md`.
+
+MWM menu query array bounds (2026-10-25)
+========================================
+
+- Cap icon, window-item, and item-check menu traversals at `MAX_MENU_ITEMS` to
+  avoid overwriting fixed reply arrays; see `docs/mwm-menu-array-bounds.md`.
