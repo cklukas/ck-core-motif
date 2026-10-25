@@ -1462,6 +1462,8 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
     {
       matches =
 	(Boolean *)ALLOCATE_LOCAL(rendition_count * sizeof(Boolean));
+      if (matches == NULL)
+	goto unlock_return;
       bzero(matches, rendition_count * sizeof(Boolean));
       
       /* May have to copy table if shared. */
@@ -1597,6 +1599,7 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
     }
 
   if (tmptable != NULL) FreeHandle(tmptable);
+unlock_return:
 #ifdef XTHREADS
   if (app) {
       _XmAppUnlock(app);

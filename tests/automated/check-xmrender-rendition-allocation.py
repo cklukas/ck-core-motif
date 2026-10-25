@@ -12,4 +12,10 @@ assert "if (copy == NULL)" in clone_region
 assert "if (copy_handle == NULL)" in clone_region
 assert "XtFree((char *)copy);" in clone_region
 assert "if (copy == NULL)" in renew_region
+add_start = source.index("XmRenderTableAddRenditions(")
+add_end = source.index("/* Remove matching renditions. */", add_start)
+add_region = source[add_start:add_end]
+assert "matches =" in add_region
+assert "if (matches == NULL)" in add_region
+assert "goto unlock_return;" in add_region
 print("PASS XmRenderT rendition allocations are guarded")

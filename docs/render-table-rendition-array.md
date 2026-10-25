@@ -24,3 +24,6 @@ it does not recursively acquire the process lock.
 held, and rolls back copied handles if an allocation fails. Tagged copies
 therefore avoid recursive locking and never return a partially initialized
 table.
+
+`XmRenderTableAddRenditions` also checks its temporary merge-match array
+before clearing it, returning the original table if that allocation fails.
