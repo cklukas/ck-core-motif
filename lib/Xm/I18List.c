@@ -2317,6 +2317,7 @@ CalcColumnInfo(Widget w, Boolean force)
     int max_width = 0, max_title_height = 0, max_height = 0;
     Dimension width, height;
     XmString ptr;
+    short *new_column_widths;
 
     register int num_cols = XmI18List_num_columns(ilist);
     register int num_rows = XmI18List_num_rows(ilist);
@@ -2326,10 +2327,12 @@ CalcColumnInfo(Widget w, Boolean force)
 
     if (((XmI18List_column_widths(ilist) == NULL) || force) && (num_cols != 0))
     {
+	new_column_widths = (short *) XtMalloc(sizeof(short) * num_cols);
+	if (new_column_widths == NULL)
+	    return;
 	if (force)
 	    XtFree((XtPointer) XmI18List_column_widths(ilist));
-	XmI18List_column_widths(ilist) = (short *) XtMalloc(sizeof(short) *
-							num_cols);
+	XmI18List_column_widths(ilist) = new_column_widths;
     }
 
     for (i = 0 ; i < num_cols; i++) {

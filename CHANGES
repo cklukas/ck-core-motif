@@ -9421,3 +9421,10 @@ BulletinBoard dialog-title rollback (2026-10-29)
 - Copy changed dialog titles before releasing the current value, preserving
   the window-manager title when allocation fails; see
   `docs/bulletin-dialog-title-rollback.md`.
+
+I18List column-width rollback (2026-10-29)
+===========================================
+
+- Allocate replacement column-width storage before releasing the current
+  array, and return safely on initial allocation failure; see
+  `docs/i18list-column-width-rollback.md`.
