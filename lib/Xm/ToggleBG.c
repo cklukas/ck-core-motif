@@ -2679,7 +2679,6 @@ DrawToggle(
 
 	default:
 	  return;
-	  return;
 	}
 
       switch (NormalizeIndType(w))
