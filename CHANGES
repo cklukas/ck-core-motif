@@ -5866,3 +5866,10 @@ Guard ScrollFrame navigator updates (2026-10-25)
   navigator values; see `docs/motif-scrollframe-update-guards.md`.
 
 Validate ScrollFrame navigator removal inputs (2026-10-25)
+Validate ScrollFrame navigator addition inputs (2026-10-25)
+============================================================
+
+- Reject null frame, navigator, and scroll-frame state pointers before
+  navigator setup; see `docs/motif-scrollframe-add-input.md`.
+
+Guard ScrollFrame navigator updates (2026-10-25)

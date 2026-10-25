@@ -60,6 +60,9 @@ _XmSFAddNavigator(
     XmNavigatorTrait nav_trait ;
     XmNavigatorDataRec nav_data ;
 
+    if ((sf == NULL) || (nav == NULL) || (scroll_frame_data == NULL))
+	return;
+
     if ((nav_trait = (XmNavigatorTrait) 
 	 XmeTraitGet((XtPointer) XtClass(nav), XmQTnavigator)) != NULL) {
 	
