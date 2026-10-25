@@ -7963,8 +7963,9 @@ WarnConfigAllocation(const char *fileName)
         "Insufficient memory to process included file: %s");
     const char *path = (fileName != NULL) ? fileName : "";
     int messageLength = snprintf(NULL, 0, format, path);
-    char *message = (messageLength >= 0) ?
-        (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+    char *message = (messageLength >= 0 &&
+			(unsigned int)messageLength < UINT_MAX) ?
+        (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
     if (message != NULL)
     {
@@ -8149,8 +8150,9 @@ static void ConfigStackPop (void)
             const char *fileName = (pPrev->fileName != NULL) ?
                 pPrev->fileName : "";
             int messageLength = snprintf(NULL, 0, format, fileName);
-            char *message = (messageLength >= 0) ?
-                (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+            char *message = (messageLength >= 0 &&
+				     (unsigned int)messageLength < UINT_MAX) ?
+                (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
             if (message != NULL)
             {

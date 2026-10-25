@@ -11392,3 +11392,10 @@ MWM motif-bindings allocation width (2026-10-25)
 
 - Use the checked Xt allocation width for the `.motifbind` path; see
   `docs/mwm-bindings-path-size.md`.
+
+MWM configuration-warning allocation widths (2026-10-25)
+==========================================================
+
+- Check include-stack and configuration-reopen warning lengths before Xt
+  allocation; see `docs/mwm-config-allocation-warning.md` and
+  `docs/mwm-config-reopen-warning.md`.
