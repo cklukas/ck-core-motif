@@ -24,6 +24,9 @@ it does not recursively acquire the process lock.
 rendition copies before publishing the table. If any allocation fails, already
 copied renditions are released and the call returns `NULL`.
 
+Merge modes also retain the existing rendition when a replacement or clone
+cannot be allocated; no merge mode publishes a null rendition slot.
+
 `XmRenderTableCopy` uses the internal rendition lookup while its table lock is
 held, and rolls back copied handles if an allocation fails. Tagged copies
 therefore avoid recursive locking and never return a partially initialized

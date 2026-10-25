@@ -26,6 +26,8 @@ Render-table locking (2026-10-26)
   cleanup instead of recursively calling the public rendition accessor.
 - Guard new-table body, handle, and initial rendition allocations in
   `XmRenderTableAddRenditions`, releasing partial state on failure.
+- Preserve existing entries when `XmMERGE_REPLACE`, `XmMERGE_OLD`, or
+  `XmMERGE_NEW` cannot allocate their replacement rendition.
 - Guard the temporary merge-match allocation in `XmRenderTableAddRenditions`
   so allocation failure returns without dereferencing a null buffer.
 

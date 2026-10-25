@@ -1415,7 +1415,7 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 {
   int			i, j, next;
   int			count = rendition_count;
-  XmRendition		rend, match;
+  XmRendition		rend, match, copy;
   _XmRenderTable	table;
   XmRenderTable		newtable, tmptable = NULL;
   Boolean		*matches;
@@ -1516,10 +1516,12 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 	      switch (merge_mode)
 		{
 		case XmMERGE_REPLACE:
+		  copy = CopyRendition(rend);
+		  if (copy == NULL)
+		    break;
 		  FreeRendition(match);
                   FreeHandle(match);
-		  _XmRTRenditions(oldtable)[idx] = 
-		    CopyRendition(rend);
+		  _XmRTRenditions(oldtable)[idx] = copy;
 		  break;
 		  
 		case XmSKIP:
@@ -1529,18 +1531,23 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 		  if (_XmRendRefcount(match) > 1) 
 		    {
                       XmRendition previous = match;
-		      match = CloneRendition(previous);
+		      copy = CloneRendition(previous);
+		      if (copy == NULL)
+			break;
                       FreeRendition(previous);
                       FreeHandle(previous);
+		      match = copy;
 		      _XmRTRenditions(oldtable)[idx] = match;
 		    }		      
 		  MergeInto(match, rend);
 		  break;
 		  
 		case XmMERGE_NEW:
-		  rend = CloneRendition(rend);
-		  MergeInto(rend, match);
-		  _XmRTRenditions(oldtable)[idx] = rend;
+		  copy = CloneRendition(rend);
+		  if (copy == NULL)
+		    break;
+		  MergeInto(copy, match);
+		  _XmRTRenditions(oldtable)[idx] = copy;
 		  FreeRendition(match);
                   FreeHandle(match);
 		  break;
