@@ -42,6 +42,8 @@ Native dependency-cohort qualification (2026-10-25)
 The XLibre contract runner now executes its shell observer on the supplied
 real display, checking registration and scale lookup there; its Xvfb path
 continues to require ordinary-server fallback.
+The fixture also checks that unrealized shells are never registered and that
+ordinary-server scale lookup falls back cleanly.
 
 Source-contract verifier maintenance (2026-10-25)
 ==================================================

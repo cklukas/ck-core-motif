@@ -48,9 +48,9 @@ procedure before releasing the state.
 
 The installed observer fixture runs on the requested `--display` when a real
 XLibre server is supplied. It checks shell registration, positive scale lookup
-and idempotent re-registration there; without `--display` it runs under Xvfb
-and requires the ordinary-server fallback. This keeps the fallback test from
-being mistaken for live XLibre qualification.
+idempotent re-registration and refusal before realization there; without
+`--display` it runs under Xvfb and requires the ordinary-server fallback. This
+keeps the fallback test from being mistaken for live XLibre qualification.
 
 This is an implementation step toward the live contract, not a claim that a
 generic Xorg server provides per-output DPI. The remaining qualification must

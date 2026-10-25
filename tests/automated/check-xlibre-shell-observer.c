@@ -8,6 +8,13 @@
 
 #include "XlibreDpiI.h"
 
+#define CHECK(condition) do { \
+    if (!(condition)) { \
+        fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, #condition); \
+        return EXIT_FAILURE; \
+    } \
+} while (0)
+
 int
 main(int argc, char **argv)
 {
@@ -18,6 +25,7 @@ main(int argc, char **argv)
 
     shell = XtVaAppInitialize(&app, (String)"XlibreObserver", NULL, 0,
                               &argc, argv, NULL, NULL);
+    CHECK(!_XmXlibreDpiInstallShell(shell, NULL, NULL));
     XtRealizeWidget(shell);
     installed = _XmXlibreDpiInstallShell(shell, NULL, NULL);
     if (installed) {
@@ -30,6 +38,7 @@ main(int argc, char **argv)
         }
         puts("PASS XLibre shell observer registration");
     } else {
+        CHECK(!_XmXlibreDpiGetWidgetScale(shell, &scale));
         puts("PASS XLibre shell observer fallback");
     }
     XtDestroyWidget(shell);
