@@ -1733,11 +1733,24 @@ AddKeycodeToKeyboardList(
    /* Add to the list of keyboard entries */
    if (MGR_NumKeyboardEntries(rowcol) >= MGR_SizeKeyboardList(rowcol))
    {
-      /* Grow list */
-      MGR_SizeKeyboardList(rowcol) += 10;
-      MGR_KeyboardList(rowcol) = 
-	     (XmKeyboardData *)XtRealloc( (char *) MGR_KeyboardList(rowcol), 
-		  (MGR_SizeKeyboardList(rowcol) * sizeof(XmKeyboardData)));
+      short old_size = MGR_SizeKeyboardList(rowcol);
+      short new_size;
+      XmKeyboardData *new_list;
+
+      /* Grow the list only after the new allocation has succeeded. */
+      if (old_size < 0 || old_size > SHRT_MAX - 10)
+	 return;
+      new_size = (short)(old_size + 10);
+      if ((size_t)new_size > SIZE_MAX / sizeof(XmKeyboardData) ||
+	  (size_t)new_size > (size_t)UINT_MAX / sizeof(XmKeyboardData))
+	 return;
+      new_list = (XmKeyboardData *)XtRealloc(
+	  (char *)MGR_KeyboardList(rowcol),
+	  (Cardinal)((size_t)new_size * sizeof(XmKeyboardData)));
+      if (new_list == NULL)
+	 return;
+      MGR_KeyboardList(rowcol) = new_list;
+      MGR_SizeKeyboardList(rowcol) = new_size;
    }
 
    list = MGR_KeyboardList(rowcol);

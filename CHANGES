@@ -1,3 +1,11 @@
+RCMenu keyboard accelerator-list growth (2026-10-27)
+=====================================================
+
+- Check the short capacity and allocation-size arithmetic before growing a
+  row-column keyboard list, and publish the replacement only after `XtRealloc`
+  succeeds.  Allocation failure now leaves existing accelerator entries valid
+  instead of dereferencing a null list.
+
 Region shadow segment growth (2026-10-27)
 =========================================
 
