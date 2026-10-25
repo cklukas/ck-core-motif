@@ -4164,3 +4164,9 @@ Mrm widget-tree child bounds (2026-10-25)
 
 - Bound child-list offsets and counts before widget-tree iteration; see
   `docs/mrm-create-tree-children-bounds.md`.
+Mrm widget-tree child index bounds (2026-10-25)
+==================================================
+
+- Validate serialized child descriptor storage and NUL-terminated index
+  strings before widget-tree lookup; see
+  `docs/mrm-create-tree-child-index-bounds.md`.
