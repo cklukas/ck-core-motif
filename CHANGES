@@ -1,3 +1,9 @@
+Callback-list capacity bounds (2026-10-26)
+===========================================
+
+- Reject callback-list growth at the unsigned-short count limit and before
+  allocation-width overflow; see `docs/callback-capacity.md`.
+
 Rendition tag-copy allocation bounds (2026-10-26)
 ==================================================
 

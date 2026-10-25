@@ -32,6 +32,7 @@ static char rcsid[] = "$XConsortium: CallbackI.c /main/8 1995/07/14 10:13:10 drk
 
 
 #include "CallbackI.h"
+#include <limits.h>
 
 
 /********************************************************************
@@ -56,6 +57,14 @@ _XmAddCallback(InternalCallbackList* callbacks,
   register InternalCallbackList icl = *callbacks;
   register InternalCallbackList new_icl;
   register int count = icl ? icl->count : 0;
+
+  if (count == USHRT_MAX ||
+      (size_t)count >
+          (SIZE_MAX - sizeof(InternalCallbackRec)) /
+              sizeof(XtCallbackRec) ||
+      sizeof(InternalCallbackRec) + sizeof(XtCallbackRec) *
+          (size_t)count > UINT_MAX)
+    return;
   
   if (icl && icl->call_state) 
     {
