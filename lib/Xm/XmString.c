@@ -5899,12 +5899,14 @@ _XmStringEntryCopy(_XmStringEntry entry)
 	allocation_size = inline_base + (size_t)entry_len;
       } else
 	allocation_size = sizeof(_XmStringOptSegRec);
-      if (allocation_size > UINT_MAX)
+      if (allocation_size > UINT_MAX) {
 	return NULL;
-	new_entry = (_XmStringEntry)XtMalloc((Cardinal)allocation_size);
-	if (new_entry == NULL)
+      }
+      new_entry = (_XmStringEntry)XtMalloc((Cardinal)allocation_size);
+      if (new_entry == NULL) {
 	return NULL;
-	size = allocation_size;
+      }
+      size = allocation_size;
       memcpy((char *)new_entry, (char *)entry, size);
     } else {
       new_entry = (_XmStringEntry)XtMalloc(sizeof(_XmStringOptSegRec));
