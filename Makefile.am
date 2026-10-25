@@ -619,3 +619,5 @@ EXTRA_DIST += tests/automated/check-xm-list-mutator-null.py docs/xm-list-mutator
 EXTRA_DIST += tests/automated/check-xm-scrollbar-api-null.py docs/xm-scrollbar-api-null.md
 
 EXTRA_DIST += tests/automated/check-xm-scale-api-null.py docs/xm-scale-api-null.md
+
+EXTRA_DIST += tests/automated/check-xm-toggle-api-null.py docs/xm-toggle-api-null.md

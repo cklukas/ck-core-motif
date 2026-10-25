@@ -3235,8 +3235,11 @@ XmToggleButtonGetState(
 {
   XmToggleButtonWidget tw = (XmToggleButtonWidget) w;
   Boolean ret_val;
-  XtAppContext app = XtWidgetToApplicationContext(w);
+  XtAppContext app;
 
+  if (w == NULL)
+    return False;
+  app = XtWidgetToApplicationContext(w);
   if (XmIsGadget(w))
     return XmToggleButtonGadgetGetState(w);
     
@@ -3266,9 +3269,12 @@ XmToggleButtonSetState(
 {
   XmToggleButtonWidget tw = (XmToggleButtonWidget) w;
   XmMenuSystemTrait menuSTrait;
-  XtAppContext app = XtWidgetToApplicationContext(w);
+  XtAppContext app;
   XmToggleButtonState newstate;
-  
+
+  if (w == NULL)
+    return;
+  app = XtWidgetToApplicationContext(w);
   if (XmIsGadget(w)) {
     XmToggleButtonGadgetSetState(w, bnewstate, notify);
     return;
@@ -3349,8 +3355,11 @@ XmToggleButtonSetValue(
 #endif /* NeedWidePrototypes */
 {
   XmToggleButtonWidget tw = (XmToggleButtonWidget) w;
-  XtAppContext app = XtWidgetToApplicationContext(w);
-  
+  XtAppContext app;
+
+  if (w == NULL)
+    return False;
+  app = XtWidgetToApplicationContext(w);
   if (XmIsGadget(w))
     return XmToggleButtonGadgetSetValue(w, newstate, notify);
   

@@ -1,3 +1,9 @@
+XmToggleButton API null-safety (2026-10-25)
+==============================================
+
+- Guard toggle state get/set APIs against null widgets before Xt context and
+  gadget handling; see `docs/xm-toggle-api-null.md`.
+
 XmScale API null-safety (2026-10-25)
 =====================================
 
