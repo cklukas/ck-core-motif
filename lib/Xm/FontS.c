@@ -3683,6 +3683,8 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal * num_args)
     XmFontS_num_xlfd_sensitive(fsw) = XmFontS_alloc_xlfd_sensitive(fsw) = 0;
 
     XmFontS_get_font(fsw) = (String) XtMalloc(sizeof(char) * GET_FONT_SIZE);
+    if (XmFontS_get_font(fsw) == NULL)
+	return;
 
     /* duplicate strings so that user can query them later */
     ANY_STRING(fsw)		= CopyFontSelectorString(ANY_STRING(fsw));

@@ -9989,6 +9989,13 @@ Accessibility name allocation guard (2026-10-25)
 - Fail accessibility creation cleanly when application-name storage cannot be
   allocated; see `docs/accessibility-name-allocation.md`.
 
+FontSelector buffer allocation guard (2026-10-25)
+=================================================
+
+- Stop FontSelector initialization before later formatting if its reusable
+  font buffer cannot be allocated; see
+  `docs/font-selector-buffer-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
