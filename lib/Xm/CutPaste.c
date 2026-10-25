@@ -1590,6 +1590,7 @@ ClipboardOpen(
     XtPointer int_ptr;
 
     ret_value = ClipboardSuccess;
+    root_clipboard_header = NULL;
 
     if ( add_length == 0 )
     {
@@ -1646,6 +1647,9 @@ ClipboardOpen(
 					      0);
 	}
     }
+
+    if (root_clipboard_header == NULL)
+	return NULL;
 
     /* means clipboard header had not been initialized */
     if ( ret_value != ClipboardSuccess ) 

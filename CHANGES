@@ -1,3 +1,10 @@
+Clipboard header allocation failure handling (2026-10-26)
+==========================================================
+
+- Return cleanly from `ClipboardOpen` when header storage cannot be allocated,
+  avoiding initialization through a null pointer; see
+  `docs/clipboard-open-allocation-failure.md`.
+
 Clipboard conversion header failure handling (2026-10-26)
 ==========================================================
 
