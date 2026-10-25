@@ -396,10 +396,14 @@ XmeGetNextCharacter(XtPointer     *in_out,
 		    XmString      *str_include,
 		    XtPointer      call_data) /* unused */
 {
-  char* ptr = (char*) *in_out;
+  char* ptr;
   int len = 0;
   XmStringComponentType comp_type;
-  assert(in_out != NULL);
+
+  if (in_out == NULL || *in_out == NULL || str_include == NULL ||
+      pattern_length < 0)
+    return XmINSERT;
+  ptr = (char *)*in_out;
 
   _XmProcessLock();
   /* Initialize the out parameters */

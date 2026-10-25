@@ -10190,6 +10190,13 @@ Parse-table cleanup guard (2026-10-25)
 - Make `XmParseTableFree` safely accept a NULL table pointer; see
   `docs/parse-table-free.md`.
 
+Parse callback input validation (2026-10-25)
+============================================
+
+- Validate `XmeGetNextCharacter` callback pointers and pattern lengths before
+  dereferencing or advancing the input; see
+  `docs/next-character-input-validation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
