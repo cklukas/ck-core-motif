@@ -2131,6 +2131,8 @@ ConvertStringToButtonTypeDestroy(
         XrmValue *args,		/* unused */
         Cardinal *num_args)	/* unused */
 {   
+    if (to == NULL || to->addr == NULL)
+        return;
     XtFree( *((char **) to->addr)) ;
 
     return ;
@@ -2146,13 +2148,16 @@ ConvertStringToButtonType(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
-    String in_str = (String) from->addr ;
+    String in_str;
     unsigned int in_str_size = 0 ;
     XmButtonTypeTable buttonTable ;
     int i, comma_count ;
     String work_str, btype_str ;
     _Xstrtokparams strtok_buf;
 
+    if (display == NULL || from == NULL || from->addr == NULL || to == NULL)
+        return FALSE;
+    in_str = (String) from->addr ;
     if (in_str == NULL)
         return(FALSE);
     
@@ -2225,6 +2230,8 @@ CvtStringToKeySymTableDestroy(
         XrmValue *args,		/* unused */
         Cardinal *num_args)	/* unused */
 {   
+    if (to == NULL || to->addr == NULL)
+        return;
     XtFree( *((char **) to->addr)) ;
 
     return ;
@@ -2240,13 +2247,16 @@ CvtStringToKeySymTable(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
-  String in_str = (String) from->addr;
+  String in_str;
   size_t in_str_size = 0;
   XmKeySymTable keySymTable;
   size_t i, comma_count;
   String work_str, ks_str, separator;
   KeySym ks;
 
+  if (display == NULL || from == NULL || from->addr == NULL || to == NULL)
+    return FALSE;
+  in_str = (String) from->addr;
   if (in_str == NULL)
     return(FALSE);
 
@@ -2310,6 +2320,8 @@ CvtStringToCharSetTableDestroy(
         XrmValue *args,		/* unused */
         Cardinal *num_args)	/* unused */
 {   
+    if (to == NULL || to->addr == NULL)
+        return;
     XtFree( *((char **) to->addr)) ;
 
     return ;
@@ -2325,7 +2337,7 @@ CvtStringToCharSetTable(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
-  String in_str = (String) from->addr;
+  String in_str;
   XmStringCharSetTable charsetTable;
   unsigned int numCharsets = 0;
   size_t strDataSize = 0;
@@ -2334,6 +2346,9 @@ CvtStringToCharSetTable(
   int i;
   String work_str, cs_str, separator;
 
+  if (from == NULL || from->addr == NULL || to == NULL)
+    return FALSE;
+  in_str = (String) from->addr;
   if (in_str == NULL)
     return(False);
 

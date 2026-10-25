@@ -1,3 +1,10 @@
+Named-table converter input validation (2026-10-25)
+====================================================
+
+- Guard button-type, keysym-table, and charset-table conversion and cleanup
+  callbacks against missing Xt values; see
+  `docs/named-table-converter-inputs.md`.
+
 Resource integer parser overflow handling (2026-10-25)
 =======================================================
 
