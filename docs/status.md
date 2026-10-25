@@ -11,6 +11,21 @@ realized `ToggleButton`, toolkit-owned `SpinBox` defaults, and
 historical-widget coverage, live appearance
 transactions and real multi-output XLibre reflow remain open.
 
+The first WP-05.1 live appearance increment is now implemented through the
+additive `XmApplyAppearanceProfile` API.  A fresh AArch64 `uconsole` build
+(`--enable-xft --enable-unicode-text --enable-atspi --enable-jpeg
+--enable-png --disable-svg --disable-xlibre-dpi --disable-printing`) installs
+`libXm.so.8.0.0` with fingerprint
+`640fb4002be647efcbc13cf01fbbdfb239d09605c4186b1fee3885281ce54dbc`.
+Three repeated installed Xvfb runs pass the modern-light, modern-dark,
+high-contrast and classic transition fixture, preserving ordinary and explicit
+resource precedence, toggle state and callbacks.  A consumer-only ASan/UBSan
+run with leak detection disabled reports no invalid access or undefined
+behavior; leak-enabled output is limited to 224 bytes in 10 libX11/Xt Xrm
+allocations at process exit and remains an external ownership boundary.  The
+live scope is registered core widgets; gadget coverage, callback reentrancy,
+failure injection and the complete historical-widget matrix remain open.
+
 ## Native hard-line and geometry qualification
 
 The focused native AArch64 installed ABI 8 cohort passes all 33 selected feature
