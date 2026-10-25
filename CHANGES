@@ -8507,6 +8507,13 @@ ScrolledWindow scroll-frame allocation (2026-10-27)
 
 - Check private scroll-frame data allocation, clear the initialized flag on
   failure, and return before dereferencing missing trait state.
+CascadeButtonGadget resource-list allocation (2026-10-25)
+===========================================================
+
+- Check the merged CascadeButtonGadget resource-list allocation before
+  populating the table, preserving fail-closed class initialization under
+  memory pressure.
+
 ToggleButtonGadget resource-list allocation (2026-10-25)
 ==========================================================
 

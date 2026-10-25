@@ -530,6 +530,8 @@ ClassInitialize( void )
 
   merged_list = (XtResource *)XtMalloc((sizeof(XtResource) * (wc_num_res +
                                                                  sc_num_res)));
+  if (merged_list == NULL)
+    return;
 
   _XmTransformSubResources(xmLabelGCacheObjClassRec.object_class.resources,
                            sc_num_res, &uncompiled, &num);
