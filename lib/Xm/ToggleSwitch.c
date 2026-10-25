@@ -190,12 +190,19 @@ static Boolean SetValues(Widget current, Widget request, Widget new_widget,
     XmToggleSwitchWidget old_sw = (XmToggleSwitchWidget)current;
     XmToggleSwitchWidget new_sw = (XmToggleSwitchWidget)new_widget;
     Boolean redraw = False;
+    XmString replacement;
     (void)request; (void)args; (void)num_args;
     if (old_sw->toggle_switch.set != new_sw->toggle_switch.set) redraw = True;
     if (old_sw->toggle_switch.label != new_sw->toggle_switch.label) {
-        if (new_sw->toggle_switch.label)
-            new_sw->toggle_switch.label = XmStringCopy(new_sw->toggle_switch.label);
-        if (old_sw->toggle_switch.label) XmStringFree(old_sw->toggle_switch.label);
+        replacement = new_sw->toggle_switch.label != NULL
+            ? XmStringCopy(new_sw->toggle_switch.label) : NULL;
+        if (new_sw->toggle_switch.label == NULL || replacement != NULL) {
+            if (old_sw->toggle_switch.label)
+                XmStringFree(old_sw->toggle_switch.label);
+            new_sw->toggle_switch.label = replacement;
+        } else {
+            new_sw->toggle_switch.label = old_sw->toggle_switch.label;
+        }
         redraw = True;
     }
     if (old_sw->primitive.foreground != new_sw->primitive.foreground ||

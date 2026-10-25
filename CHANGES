@@ -9389,3 +9389,9 @@ ColorSelector equal-name copy rollback (2026-10-29)
 
 - Preserve an existing color name until a distinct equal-value replacement
   copy succeeds; see `docs/color-selector-name-copy-rollback.md`.
+
+ToggleSwitch label rollback (2026-10-29)
+=========================================
+
+- Copy changed labels before releasing the current value, preserving the
+  switch label when allocation fails; see `docs/toggle-switch-label-rollback.md`.
