@@ -1876,6 +1876,7 @@ _XmCharsetCanonicalize(
       len = strlen(XmSTRING_ISO8859_1);
       
       new_s = XtMalloc(len + 1);
+      if (new_s == NULL) return (NULL);
       memcpy(new_s, XmSTRING_ISO8859_1, len);
       new_s[len] = '\0';
     }
@@ -1883,6 +1884,7 @@ _XmCharsetCanonicalize(
     {
       /* "ISO####-#" */
       new_s = XtMalloc(3 + 4 + 1 + 1 + 1);
+      if (new_s == NULL) return (NULL);
       (void) snprintf(new_s, 10, "ISO%s", charset);
       new_s[7] = '-';
       new_s[8] = charset[4];
@@ -1894,6 +1896,7 @@ _XmCharsetCanonicalize(
       len = strlen(charset);
       
       new_s = XtMalloc(len + 1);
+      if (new_s == NULL) return (NULL);
       memcpy(new_s, charset, len);
       new_s[len] = '\0';
     }

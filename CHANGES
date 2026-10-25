@@ -10105,6 +10105,13 @@ Editres payload allocation guards (2026-10-25)
   data, preserving the existing parse-failure cleanup path; see
   `docs/editres-payload-allocation.md`.
 
+Legacy charset canonicalization allocation guards (2026-10-25)
+===============================================================
+
+- Check compatibility charset-result allocations before writing canonical
+  strings, returning `NULL` on failure; see
+  `docs/charset-canonicalize-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
