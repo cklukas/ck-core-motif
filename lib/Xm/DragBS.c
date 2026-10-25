@@ -1253,10 +1253,17 @@ CreateDefaultAtomsTable(
     xmAtomsTable	atomsTable;
 
     atomsTable = (xmAtomsTable) XtMalloc(sizeof(xmAtomsTableRec));
+	if (atomsTable == NULL)
+	    return (NULL);
 
     atomsTable->numEntries = 1;
     atomsTable->entries =
 	(xmAtomsTableEntry) XtMalloc(sizeof(xmAtomsTableEntryRec));
+	if (atomsTable->entries == NULL)
+	{
+	    XtFree((char *)atomsTable);
+	    return (NULL);
+	}
 
     atomsTable->entries[0].atom =
 	XInternAtom (display, XmS_MOTIF_ATOM_0, False);
