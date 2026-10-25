@@ -2570,10 +2570,15 @@ _XmGeoClearRectObjAreas(
         RectObj r,
         XWindowChanges *old )
 {
-            Widget          parent = XtParent( r) ;
+            Widget          parent;
             int             bw2 ;
 /****************/
 
+    if (r == NULL || old == NULL)
+        return;
+    parent = XtParent(r);
+    if (parent == NULL)
+        return;
     bw2 = old->border_width << 1;
     XClearArea( XtDisplay( parent), XtWindow( parent), old->x, old->y,
                                    old->width + bw2, old->height + bw2, TRUE) ;

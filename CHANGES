@@ -10289,6 +10289,12 @@ GeoUtils comparison input validation (2026-10-25)
 - Require a widget and both geometry records before `_XmGeometryEqual`
   evaluates request masks; see `docs/geo-equal-input-validation.md`.
 
+GeoUtils clear-area input validation (2026-10-25)
+=================================================
+
+- Validate rectangle, old-geometry, and parent inputs before clearing expose
+  areas; see `docs/geo-clear-areas-input.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
