@@ -1389,7 +1389,8 @@ CvtStringToXmStringTable(
 
   s = (char *) from_val->addr;
   table_size = 100;
-  table = (XmString *) XtMalloc(sizeof(XmString) * table_size);
+  table = (XmString *) XtMalloc(
+	(Cardinal)(sizeof(XmString) * (size_t)table_size));
   if (table == NULL)
     return FALSE;
   for (str_no = 0;;)
@@ -1420,7 +1421,8 @@ CvtStringToXmStringTable(
 	    }
 	  table_size *= 2;
 	  new_table = (XmString *)XtRealloc((char *)table,
-					      sizeof(XmString) * table_size);
+					      (Cardinal)(sizeof(XmString) *
+							 (size_t)table_size));
 	  if (new_table == NULL) {
 	      for (cleanup = 0; cleanup < str_no; ++cleanup)
 		XmStringFree(table[cleanup]);
@@ -1455,7 +1457,8 @@ CvtStringToXmStringTable(
   table_size = str_no + 1;
   {
     XmString *new_table = (XmString *)XtRealloc((char *) table,
-						 sizeof(XmString) * table_size);
+						 (Cardinal)(sizeof(XmString) *
+							    (size_t)table_size));
     if (new_table == NULL) {
       int cleanup;
       for (cleanup = 0; cleanup < str_no; ++cleanup)

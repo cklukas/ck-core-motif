@@ -12171,3 +12171,10 @@ Protocol property allocation width (2026-10-26)
 
 - Reject protocol-property buffers that exceed Xt's `Cardinal` byte range
   and pass accepted sizes explicitly; see `docs/protocol-list-bounds.md`.
+
+XmString table conversion allocation widths (2026-10-26)
+==========================================================
+
+- Pass initial, growth, and terminating pointer-table sizes explicitly as Xt
+  `Cardinal` values after the existing capacity checks; see
+  `docs/xmstring-table-growth.md`.
