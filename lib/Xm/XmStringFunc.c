@@ -243,6 +243,12 @@ XmStringTableUnparse(XmStringTable     table,
   }
   
   for (i = 0; i < count; i++) {
+    if (table[i] == NULL) {
+      while (i > 0)
+        XtFree((char *)strs[--i]);
+      XtFree((char *)strs);
+      return(NULL);
+    }
     strs[i] = XmStringUnparse(table[i], tag, tag_type, output_type,
 			      parse, parse_count, parse_model);
     if (strs[i] == NULL) {
