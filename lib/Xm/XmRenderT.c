@@ -1742,7 +1742,10 @@ XmRenderTableCopy(XmRenderTable table, XmStringTag *tags, int tag_count)
     if ((capacity > RENDITIONS_IN_STRUCT) &&
         ((size_t)(capacity - RENDITIONS_IN_STRUCT) >
          (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition)))
-      goto unlock_return;
+      {
+        result = NULL;
+        goto copy_unlock_return;
+      }
     body = (_XmRenderTable)XtMalloc(sizeof(_XmRenderTableRec) +
         sizeof(XmRendition) * (capacity > RENDITIONS_IN_STRUCT
             ? capacity - RENDITIONS_IN_STRUCT : 0));
@@ -1762,6 +1765,13 @@ XmRenderTableCopy(XmRenderTable table, XmStringTag *tags, int tag_count)
     }
     _XmRTCount(result) = count;
   }
+#ifdef XTHREADS
+  if (app) _XmAppUnlock(app);
+  else _XmProcessUnlock();
+#endif
+  return result;
+
+copy_unlock_return:
 #ifdef XTHREADS
   if (app) _XmAppUnlock(app);
   else _XmProcessUnlock();
