@@ -6040,3 +6040,10 @@ Harden XmString rendition stacks (2026-10-25)
   allocation cannot be completed; see `docs/xmstring-rendition-stack.md` and
   its focused source check.
 
+Preserve Xft compound-string line height (2026-10-25)
+=======================================================
+
+- Use the native Xft line height while retaining ascent/descent baseline
+  metrics, preventing leading from being clipped; see
+  `docs/xft-string-height.md` and its focused source check.
+
