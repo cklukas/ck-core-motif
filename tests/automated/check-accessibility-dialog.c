@@ -67,6 +67,8 @@ int main(int argc, char **argv)
         CHECK(XmAccessibilityQuery(accessibility, ok_id, &info));
         CHECK(info.role == XmACCESSIBLE_BUTTON && info.action_count >= 1);
         XmAccessibleInfoClear(&info);
+        CHECK(XmAccessibilityAction(accessibility, ok_id, 0));
+        CHECK(!XtIsManaged(dialog));
         XtDestroyWidget(dialog);
     }
 
