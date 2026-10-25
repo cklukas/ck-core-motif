@@ -3920,3 +3920,10 @@ Reject non-progressing Text source reads (2026-10-25)
 - Clear source blocks before each read and require strictly advancing byte
   positions in both narrow and wide extraction paths; see
   `docs/motif-text-source-progress.md`.
+
+Guard navigator slider callbacks (2026-10-25)
+==============================================
+
+- Validate List and ScrolledW navigator traits before reading slider state,
+  avoiding null callback dispatch while preserving complete navigator behavior;
+  see `docs/motif-navigator-slider-callbacks.md`.

@@ -643,13 +643,17 @@ XtPointer cd )
     XmScrolledWindowConstraint swc;
     Widget child ;
     XmNavigatorDataRec nav_data ;
+    XmNavigatorTrait nav_trait;
 
     /* get the navigator information using the trait getValue since I
        cannot use a callback struct */
 
     nav_data.valueMask = NavValue ;
-    ((XmNavigatorTrait)XmeTraitGet((XtPointer) XtClass(w), XmQTnavigator))
-        ->getValue(w, &nav_data) ;
+    nav_trait = (XmNavigatorTrait)
+        XmeTraitGet((XtPointer) XtClass(w), XmQTnavigator);
+    if (nav_trait == NULL || nav_trait->getValue == NULL)
+        return;
+    nav_trait->getValue(w, &nav_data);
 
     /* look at the kind of navigator and make the appropriate move */
 
