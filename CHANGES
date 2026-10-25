@@ -1,3 +1,10 @@
+Clipboard header validation in copy/message paths (2026-10-26)
+===============================================================
+
+- Reuse the serialized header-list validator in data-request messaging and
+  copy-by-name paths, preventing malformed headers from bypassing bounds
+  checks; see `docs/clipboard-header-validation-callers.md`.
+
 Clipboard lock-marker format validation (2026-10-26)
 =====================================================
 

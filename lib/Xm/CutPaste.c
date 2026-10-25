@@ -363,6 +363,9 @@ static int ClipboardGetLenFromFormat(
                         Display *display,
                         char *format_name,
                         int *format_length) ;
+static Boolean ClipboardHeaderRecordValid(
+                        ClipboardHeader header,
+                        unsigned long length) ;
 static ClipboardHeader ClipboardOpen( 
                         Display *display,
                         int add_length) ;
@@ -2495,8 +2498,8 @@ ClipboardSendMessage(
 				   &headertype,
 				   0,
 				   0 );
-	    if (status != ClipboardSuccess || root_clipboard_header == NULL ||
-		headerlength < sizeof(ClipboardHeaderRec))
+	    if (status != ClipboardSuccess ||
+		!ClipboardHeaderRecordValid(root_clipboard_header, headerlength))
 	    {
 		XtFree( (char *)root_clipboard_header);
 		return 0;
@@ -4039,8 +4042,8 @@ XmClipboardCopyByName(
 			   0,
     			   0 );
 
-    if (status != ClipboardSuccess || root_clipboard_header == NULL ||
-	headerlength < sizeof(ClipboardHeaderRec))
+    if (status != ClipboardSuccess ||
+	!ClipboardHeaderRecordValid(root_clipboard_header, headerlength))
     {
 	XtFree( (char *)root_clipboard_header);
 	_XmAppUnlock(app);
