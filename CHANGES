@@ -12367,3 +12367,10 @@ Tab creation argument validation (2026-10-26)
   argument count; see `docs/tab-arglist-guard.md`.
 
 XmTabList lock boundaries (2026-10-26)
+Tab value API null guards (2026-10-26)
+======================================
+
+- Guard `XmTabGetValues` and `XmTabSetValue` against null tab handles; see
+  `docs/tab-null-guards.md`.
+
+Tab creation argument validation (2026-10-26)

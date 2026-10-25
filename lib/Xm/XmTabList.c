@@ -730,6 +730,10 @@ XmTabGetValues(XmTab tab,
 {
   float ret_val;
   _XmProcessLock();
+  if (tab == NULL) {
+    _XmProcessUnlock();
+    return 0.0;
+  }
   if (units != NULL) *units = _XmTabUnits(tab);
   if (offset != NULL) *offset = _XmTabModel(tab);
   if (alignment != NULL) *alignment = _XmTabAlign(tab);
@@ -745,6 +749,10 @@ XmTabSetValue(XmTab tab,
 	      float value)
 {
   _XmProcessLock();
+  if (tab == NULL) {
+    _XmProcessUnlock();
+    return;
+  }
   if (value >= 0) _XmTabValue(tab) = value;
   else XmeWarning(NULL, NEGATIVE_VALUE_MSG);
   _XmProcessUnlock();
