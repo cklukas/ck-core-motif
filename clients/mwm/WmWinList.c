@@ -416,7 +416,11 @@ void MoveEntryInList (WmWorkspaceData *pWS, ClientListEntry *pEntry, Boolean onT
 
 void DeleteEntryFromList (WmWorkspaceData *pWS, ClientListEntry *pListEntry)
 {
-    
+    if (pWS == NULL || pListEntry == NULL || pWS->pSD == NULL)
+    {
+        return;
+    }
+
     if (pListEntry->prevSibling)
     {
 	pListEntry->prevSibling->nextSibling = pListEntry->nextSibling;

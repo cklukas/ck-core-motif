@@ -4574,3 +4574,9 @@ AddEntryToList guards (2026-10-25)
 
 - Validate workspace, screen, and entry state before linking list nodes;
   see `docs/add-entry-list-guards.md`.
+
+DeleteEntryFromList guards (2026-10-25)
+=======================================
+
+- Validate list ownership before unlinking sibling entries;
+  see `docs/delete-entry-list-guards.md`.
