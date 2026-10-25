@@ -126,6 +126,7 @@ UrmIdbOpenFileRead (String			name,
 
   if ( name == NULL || file_id_return == NULL )
     return MrmFAILURE;
+  *file_id_return = NULL;
 
   /*
    *  Local variables
@@ -224,6 +225,7 @@ UrmIdbOpenBuffer (unsigned char 		*uid_buffer,
 
   if ( uid_buffer == NULL || file_id_return == NULL )
     return MrmFAILURE;
+  *file_id_return = NULL;
 
   /*
    *  Local variables

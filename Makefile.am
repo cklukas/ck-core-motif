@@ -514,3 +514,4 @@ EXTRA_DIST += tests/automated/check-mrm-rid-context.py docs/mrm-rid-context.md
 EXTRA_DIST += tests/automated/check-mrm-resource-id-output.py docs/mrm-resource-id-output.md
 EXTRA_DIST += tests/automated/check-mrm-open-name-input.py docs/mrm-open-name-input.md
 EXTRA_DIST += tests/automated/check-mrm-memory-close.py docs/mrm-memory-close.md
+EXTRA_DIST += tests/automated/check-mrm-open-output-init.py docs/mrm-open-output-init.md

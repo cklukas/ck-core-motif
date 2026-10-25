@@ -1,3 +1,9 @@
+Mrm open output initialization (2026-10-25)
+============================================
+
+- Clear file handles before file and buffer opens so failures cannot expose stale
+  descriptors; see `docs/mrm-open-output-init.md`.
+
 Mrm memory-backed file cleanup (2026-10-25)
 ============================================
 
