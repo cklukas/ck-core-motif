@@ -4956,3 +4956,9 @@ Guard InfoBar redisplay resources (2026-10-25)
 
 - Return safely when the InfoBar drawing GC or queried X11 font is unavailable;
   see `docs/info-bar-redisplay-guard.md`.
+
+Guard NumberBox redisplay resources (2026-10-25)
+=================================================
+
+- Return safely when NumberBox drawing GCs or its queried X11 font is
+  unavailable; see `docs/number-box-redisplay-guard.md`.

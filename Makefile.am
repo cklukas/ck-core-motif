@@ -837,3 +837,4 @@ EXTRA_DIST += tests/automated/check-icon-cache-comparator.py docs/icon-cache-com
 
 EXTRA_DIST += tests/automated/check-xpm-create-image-size.py docs/xpm-create-image-size.md
 EXTRA_DIST += tests/automated/check-info-bar-redisplay-guard.py docs/info-bar-redisplay-guard.md
+EXTRA_DIST += tests/automated/check-number-box-redisplay-guard.py docs/number-box-redisplay-guard.md

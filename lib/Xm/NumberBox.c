@@ -166,19 +166,23 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Display *display = XtDisplay(widget);
     Window window = XtWindow(widget);
     XFontStruct *font;
-    int text_width, baseline;
+    int baseline;
     Position arrow_x;
     XPoint up[3], down[3];
     GC text_gc;
     (void)event; (void)region;
-    if (!window) return;
-    XClearWindow(display, window);
-    font = XQueryFont(display, XGContextFromGC(number->number_box.text_gc));
-    text_width = XTextWidth(font, number->number_box.text,
-                            (int)strlen(number->number_box.text));
-    baseline = (int)((number->core.height + font->ascent - font->descent) / 2);
+    if (!window || !number->number_box.text_gc ||
+        !number->number_box.arrow_gc)
+        return;
     text_gc = number->number_box.invalid ? number->number_box.invalid_gc
                                          : number->number_box.text_gc;
+    if (!text_gc)
+        return;
+    XClearWindow(display, window);
+    font = XQueryFont(display, XGContextFromGC(number->number_box.text_gc));
+    if (!font)
+        return;
+    baseline = (int)((number->core.height + font->ascent - font->descent) / 2);
     XDrawString(display, window, text_gc, (int)number->number_box.spacing,
                 baseline, number->number_box.text,
                 (int)strlen(number->number_box.text));
@@ -202,7 +206,6 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                        number->primitive.highlight_thickness - 1,
                        number->core.width - 2 * number->primitive.highlight_thickness,
                        number->core.height - 2 * number->primitive.highlight_thickness);
-    (void)text_width;
 }
 
 static void commit_text(XmNumberBoxWidget number, XEvent *event) {
