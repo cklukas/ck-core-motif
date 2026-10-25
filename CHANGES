@@ -53,6 +53,12 @@ Guard DatePicker redisplay GC (2026-10-25)
 - Skip drawing safely when DatePicker's X11 drawing GC is unavailable; see
   `docs/date-picker-redisplay-guard.md`.
 
+Guard Spinner redisplay resources (2026-10-25)
+===============================================
+
+- Handle partial Spinner GC allocation, signed diameter geometry and tiny
+  focus rectangles; see `docs/spinner-redisplay-guards.md`.
+
 Guard IconFile cache directory input (2026-10-27)
 ==================================================
 
