@@ -3697,3 +3697,9 @@ Guard XmString input and tab-list allocations (2026-10-25)
   proposed tab-list allocations, and roll back tab-list growth before
   returning `NULL`; see the corresponding `docs/motif-xmstring-*.md`
   contracts.
+Guard ScrollFrame navigator-list growth (2026-10-25)
+=====================================================
+
+- Keep navigator-list capacity metadata unchanged until `XtRealloc` succeeds,
+  returning safely on failure instead of writing through a null list; see
+  `docs/motif-scrollframe-nav-growth.md`.

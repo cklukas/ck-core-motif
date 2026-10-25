@@ -197,6 +197,7 @@ EXTRA_DIST += tests/automated/check-xmstring-rendition-input.py docs/motif-xmstr
 EXTRA_DIST += tests/automated/check-xmstring-table-split.py docs/motif-xmstring-table-split.md
 EXTRA_DIST += tests/automated/check-xmstring-tablist-create.py docs/motif-xmstring-tablist.md
 EXTRA_DIST += tests/automated/check-xmstring-tab-growth-allocation.py docs/motif-xmstring-tab-growth.md
+EXTRA_DIST += tests/automated/check-scrollframe-nav-growth.py docs/motif-scrollframe-nav-growth.md
 EXTRA_DIST += tests/automated/check-mwm-session-db-path.py docs/mwm-session-db-path.md
 EXTRA_DIST += tests/automated/check-mwm-display-env-bounds.py docs/mwm-display-env-bounds.md
 EXTRA_DIST += tests/automated/check-mwm-screen-display-bounds.py docs/mwm-screen-display-bounds.md
