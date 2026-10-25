@@ -24,6 +24,10 @@ or copying leaves the pre-append table available to the caller.
 Shared-table merges similarly roll back the temporary body, handle and copied
 renditions if any part of the detached copy cannot be allocated.
 
+Merge replacement and copy-on-write modes allocate their replacement before
+releasing the existing rendition. A failed clone therefore preserves the
+existing entry instead of publishing a null slot.
+
 Removal uses a planning pass and publishes the compacted table only after its
 replacement storage and copied rendition handles are ready. Allocation failure
 therefore leaves the original table and its ownership unchanged; see

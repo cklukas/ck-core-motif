@@ -1960,6 +1960,8 @@ also rolls back replacement bodies and copied handles before returning the
 source table on allocation or copy failure. Further peer render-table changes
 remain separate packages until their earlier-branch dependencies are reviewed;
 shared-table merge-copy rollback is now covered as the next slice.
+Merge replacement and copy-on-write clone failures now preserve their
+existing rendition as well.
 
 ## Acceptance criteria for every increment
 

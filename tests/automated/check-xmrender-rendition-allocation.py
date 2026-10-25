@@ -18,6 +18,10 @@ assert "while (next > copy_start)" in region
 assert "if (newtable == NULL)" in region
 assert "merge_abort:" in region
 assert "while (i > 0)" in region
+assert "copy = CopyRendition(rend);" in region
+assert "copy = CloneRendition(previous);" in region
+assert "copy = CloneRendition(rend);" in region
+assert "if (copy == NULL)" in region
 assert "goto unlock_return;" in region
 print("PASS render-table count and allocation-size guards")
 
