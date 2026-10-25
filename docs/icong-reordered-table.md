@@ -6,5 +6,5 @@ table at `order[i] - 1`, reading before the table.  Its static reordered-table
 buffer was also replaced without checking allocation failure.
 
 Zero is now treated as an invalid order entry and produces a null output slot.
-Buffer growth checks its byte count and commits the replacement only after
-allocation succeeds.
+Buffer growth checks both host `size_t` and Xt `Cardinal` byte counts, and
+commits the replacement only after allocation succeeds.

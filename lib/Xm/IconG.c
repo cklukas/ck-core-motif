@@ -3321,7 +3321,8 @@ GetStringTableReOrdered(
     if (count > Max_st_count) {
 	Cardinal new_max = MAX(count, 33);
 	XmStringTable new_table;
-	if ((size_t)new_max > SIZE_MAX / sizeof(XmString))
+	if ((size_t)new_max > SIZE_MAX / sizeof(XmString) ||
+	    new_max > UINT_MAX / sizeof(XmString))
 	    return NULL;
 	new_table = (XmStringTable)XtRealloc(
 	    (char *)Default_st, (size_t)new_max * sizeof(XmString));

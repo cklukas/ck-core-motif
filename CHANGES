@@ -28,6 +28,12 @@ Render-table rendition result byte bounds (2026-10-28)
 - Check Xt `Cardinal` byte limits before allocating the positional rendition
   result array; see `docs/render-table-rendition-array.md`.
 
+IconG reordered-table Xt byte bounds (2026-10-28)
+==================================================
+
+- Check Xt `Cardinal` byte limits before growing the reusable IconG string
+  table; see `docs/icong-reordered-table.md`.
+
 Compound-text concatenation failure handling (2026-10-28)
 ============================================================
 
