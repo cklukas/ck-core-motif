@@ -31,3 +31,20 @@ The installed consumer fixture is
 `tests/automated/run-display-scale-override.py`.  It checks invalid values,
 per-display retention, resource-database identity, default indicator scaling,
 and reversible cleanup against the selected installed `libXm`.
+
+## Qualification evidence
+
+The first qualification ran on the AArch64 `uconsole` Linux host from a
+fresh Clang/Xft/Unicode/AT-SPI installed prefix.  The current installed
+`libXm.so.8.0.0` fingerprint is
+`db1cb5845391519431410918d11dbc2e64daf8e4a18c13318151b20c52319d99`; the
+fixture source fingerprint is
+`6686399e4f9beaae331c0ece828f770d7993cf4d598dc768cf332ab38e569977`.
+Three independent Xvfb runs passed in
+`/tmp/ckmotif-scale-20261025/results/scale-override-r6/`, `-r7/` and `-r8/`.
+A consumer-only ASan/UBSan run with leak detection enabled also passed; its
+output is retained in
+`/tmp/ckmotif-scale-20261025/results/scale-override-asan-r2/`.
+The C23 configure probe was separately run with GCC 14 and reported the C11
+atomic capability as available.  This evidence qualifies deterministic input
+and default-widget creation, not live appearance/DPI transactions.
