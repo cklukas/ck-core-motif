@@ -5237,6 +5237,13 @@ ToggleButton pixmap centering bounds (2026-10-25)
 - Compute pixmap centering differences with signed heights before clamping,
   preventing wrapped vertical positions in small buttons; see
   `docs/toggle-pixmap-center-geometry.md`.
+CascadeButton pixmap binding metadata (2026-10-25)
+==================================================
+
+- Draw valid uncached cascade glyph pixmaps by validating resolved depth
+  instead of treating `XmeGetPixmapData`'s cache-status Boolean as failure;
+  see `docs/cascade-pixmap-binding.md`.
+
 ToggleButton redisplay bounds (2026-10-25)
 ==========================================
 

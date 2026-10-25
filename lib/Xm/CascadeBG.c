@@ -947,7 +947,7 @@ DrawCascade(
       }
       else {
 	  Pixmap pixmap ;
-	  int depth ;
+	  int depth = 0;
 
 	  pixmap = CBG_IsArmed(cb) && 
 	      (CBG_ArmedPixmap(cb) != XmUNSPECIFIED_PIXMAP) ?
@@ -959,7 +959,10 @@ DrawCascade(
 			   &depth,
 			   NULL, NULL,
 			   NULL, NULL,
-			   NULL, NULL); 
+			   NULL, NULL);
+
+	  if (depth <= 0)
+	      return;
 
 	  if (depth == XtParent(cb)->core.depth)
 	      XCopyArea (XtDisplay(cb), pixmap, 
