@@ -3933,3 +3933,10 @@ Guard ComboBox textual trait callbacks (2026-10-25)
 
 - Check access-textual traits and their specific get/set callbacks before
   ComboBox edit-box dispatch; see `docs/motif-combobox-text-trait.md`.
+
+Guard IconGadget container trait callbacks (2026-10-25)
+========================================================
+
+- Validate the resolved container and `getValues` callback before IconGadget
+  trait dispatch, retaining safe defaults for absent parents or traits; see
+  `docs/motif-icong-container-trait.md`.
