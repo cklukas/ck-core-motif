@@ -6019,3 +6019,10 @@ Guard standard transfer target allocation (2026-10-25)
   filling atoms; see `docs/standard-targets-allocation.md`.
 
 Make transfer completion-callback growth transactional (2026-10-25)
+Guard transfer merge allocation failure (2026-10-25)
+=====================================================
+
+- Keep existing conversion data intact when `XmeConvertMerge` cannot allocate
+  the merged value; see `docs/transfer-merge-allocation.md`.
+
+Guard standard transfer target allocation (2026-10-25)

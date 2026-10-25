@@ -547,6 +547,11 @@ XmeConvertMerge(XtPointer data, Atom type, int format,
       offset = cs->length * unit;
       user_bytes = size * unit;
       merged = XtMalloc((Cardinal)(offset + user_bytes));
+      if (merged == NULL) {
+        TransferWarning(NULL, MERGE, ARG, BAD_MATCHED_CONVERT);
+        _XmProcessUnlock();
+        return;
+      }
       if (offset != 0)
         memcpy(merged, cs->value, (size_t)offset);
       memcpy(merged + offset, data, (size_t)user_bytes);
