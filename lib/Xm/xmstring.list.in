@@ -1064,6 +1064,17 @@ NSegmentedOverflow
 NSegmentedSpacing
 NSegmentedSelectionCallback
 
+CChipLabel
+CChipPixmap
+CChipRemovable
+CChipActivateCallback
+CChipRemoveCallback
+NchipLabel
+NchipPixmap
+NchipRemovable
+NchipActivateCallback
+NchipRemoveCallback
+
 #table _XmStrings20
 
 NtearOffTitle

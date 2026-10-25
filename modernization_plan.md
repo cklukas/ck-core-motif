@@ -410,12 +410,6 @@ preserved.  The observed constant-versus-scaled values are documented as an
 audit classification; no additional source correction is claimed.  See
 `docs/dpi-control-metrics.md`.
 
-The additive live display-scale transaction now also rejects nested scale
-changes from a callback, preserving the outer transaction's override and
-retiring its per-display guard with the Motif display. The installed
-`run-display-scale-reentrant.py` fixture is the focused regression; the full
-historical-widget scale matrix remains open.
-
 ### WP-04A: XLibre per-output scaling integration
 
 **Depends on:** WP-04.
@@ -468,61 +462,6 @@ Xvfb fallback on `uconsole`.  It also supports running against a real XLibre
 display, where every reported output must provide a valid property.  Shell
 output selection, RandR event subscription, live reflow and explicit-resource
 transactions remain phase 2 and are not advertised by this increment.
-
-**Phase-2 progress (2026-10-25):** the internal shell-boundary selector and
-the opt-in live observer are now implemented and installed-fixture qualified.
-The observer subscribes to RandR screen/output/property notifications, drains
-them on the owning Xt application context, coalesces a burst into one work
-procedure, re-resolves the shell output and invokes one normal Xt resize before
-the change hook. It chooses the output containing the shell client-area center,
-falls back to the nearest output with a lowest-RandR-ID tie-break (using the
-sum of horizontal and vertical distances), and retains global-DPI behavior for
-invalid or unavailable properties. Explicit-resource preservation and the
-derived-metric callback boundary are documented. A real multi-output XLibre
-session is still required to qualify live property modification, output
-removal/addition, spanning windows and destruction during a queued update.
-The installed contract runner now uses a supplied real display for the shell
-observer and checks two-shell registration, positive descendant scale lookup,
-idempotent re-registration and retirement of one shell without invalidating
-the other; its no-display Xvfb run remains an ordinary-server fallback.
-
-The observer teardown contract now also removes its destroy callback before
-freeing state on explicit unregistration. The installed observer regression
-exercises unregistration followed by shell destruction, preventing a stale
-callback closure from becoming a use-after-free path.
-
-The queued work procedure now retains its observer state across the Xt resize
-transaction. If reentrant application code destroys the shell, retirement
-unlinks and cancels the observer while reclamation waits for the active work
-reference; the optional change hook is not called after retirement. The
-source-contract regression covers the retain/release ordering. A real
-multi-output XLibre run is still required for live property changes and
-destruction during queued reflow.
-
-The RandR property boundary is now hardened as well: the decoder validates
-type, format, item count and trailing data before reading Xlib's format-32
-buffer, avoiding an out-of-bounds read for malformed format-8/16 replies. The
-installed contract fixture covers the malformed-metadata ordering under the
-sanitizer configuration. This closes a toolkit safety defect but does not
-replace the required real multi-output qualification.
-The AArch64 receipt and installed-library fingerprint are recorded in
-`docs/xlibre-dpi-contract.md`.
-The supported-server predicate also requires an exact `XLibre` vendor token;
-the installed fixture covers versioned names and spoofed substrings.
-Transient client-area, resource-query and allocation failures now return the
-global-DPI fallback rather than preserving stale per-output state; the source
-contract regression covers those early-return paths.
-The installed runner now emits a `receipt.json` recording source/library
-fingerprints, exact commands, display mode and elapsed time, keeping ordinary
-Xvfb fallback evidence distinct from future real-XLibre qualification.
-The opt-in `run-xlibre-live.py` fixture now exercises writable output-property
-mutation and cleanup when a real display is supplied, while its Xvfb mode
-returns an explicit skip rather than counting fallback as live evidence.
-The companion source-contract regression locks in property restoration before
-observer teardown, one-callback verification and the status-77 ordinary-Xvfb
-boundary. Its runner also records source/library fingerprints and exact
-commands in a receipt with an explicit pass/skip/fail result; this does not
-substitute for a real multi-output XLibre run.
 
 ### WP-05: Optional SVG image loading
 
@@ -1044,10 +983,8 @@ flyout destruction.  Escape/Return and pointer activation dismiss it through a
 typed callback without installing a global event loop or changing menu/dialog
 admission.  The installed Xvfb fixture passed 5 checks across repeated runs,
 including show/hide, dismissal delivery, edge-owner geometry and owner-unmap
-cleanup.  `XmTeachingTip` now supplies the delayed, copied title/body layer
-over this primitive with cancellation, edge clamping, non-modal dismissal and
-panel accessibility semantics; its installed fixture passes 10 checks.
-Existing Motif tooltip behavior remains unchanged.
+cleanup.  Delayed tooltips and teaching-tip presentation remain a later layer
+over this primitive; existing Motif tooltip behavior is unchanged.
 
 ### WP-20: ColorPicker standardization
 
@@ -1522,6 +1459,12 @@ high-contrast/high-DPI output, accessibility and teardown.
 
 **Complete when:** every shipped compact control has a bounded public contract,
 and existing `XmLabel`, `XmSeparator` and pixmap behavior are unchanged.
+
+**Status (2026-10-25):** the package is decomposed into independently
+releasable contracts in `docs/compact-controls-contract.md`.  The additive
+`XmChip` implementation and installed fixture are complete and documented in
+`docs/chip.md`; Badge, icon-label/Divider and Avatar remain separate work
+items with explicit ownership, accessibility and teardown gates.
 
 ### WP-36: Search, prompt text and Link controls
 
