@@ -1,3 +1,9 @@
+Clipboard next-id validation (2026-10-26)
+==========================================
+
+- Validate and recover malformed `_MOTIF_CLIP_NEXT_ID` properties before future
+  item allocation; see `docs/clipboard-next-id-validation.md`.
+
 Clipboard close size guard (2026-10-26)
 =======================================
 

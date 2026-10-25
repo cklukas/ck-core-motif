@@ -1661,6 +1661,14 @@ ClipboardOpen(
 				  0,
 				  0 );
 
+    if (ret_value == ClipboardSuccess &&
+	(int_ptr == NULL || length < sizeof(long)))
+    {
+	XtFree( (char *)int_ptr);
+	int_ptr = NULL;
+	ret_value = ClipboardFail;
+    }
+
     if ( ret_value != ClipboardSuccess ) 
     {
 	number = XM_FIRST_FREE_ID;
