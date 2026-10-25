@@ -66,7 +66,10 @@ static char rcsid[] = "$TOG: ScrolledW.c /main/16 1997/07/25 16:49:57 samborn $"
 typedef struct _AutoDragClosure
 {
     Widget widget;
+    Widget owner;
     unsigned char direction ;
+    Boolean active;
+    Boolean cancelled;
 } AutoDragClosure;
 
 typedef struct _AutoDragRects
@@ -248,6 +251,21 @@ static void HandleDrag(
     Widget       w,
     XtPointer    client_data,
     XtPointer    call_data);
+
+static void CancelAutoDrag(
+    XmScrolledWindowWidget sw);
+
+static void AutoDragWidgetDestroyed(
+    Widget widget,
+    XtPointer closure,
+    XtPointer call_data);
+
+static void FreeAutoDragClosureTimeout(
+    XtPointer closure,
+    XtIntervalId *id);
+
+static void ReleaseAutoDragClosure(
+    AutoDragClosure *closure);
 
 static void ScrollFrameInit (
     Widget sf,
@@ -1527,7 +1545,11 @@ Widget child )
 
     if (child == sw->swindow.WorkWindow)
         sw->swindow.WorkWindow = NULL;
-    /* auto drag will stop by itself when destroying these */
+    /* Retire a pending or active auto-drag callback before releasing either
+       scrollbar.  The callback may be in a reentrant value notification. */
+    if (child == (Widget) sw->swindow.hScrollBar ||
+        child == (Widget) sw->swindow.vScrollBar)
+        CancelAutoDrag(sw);
     if (child == (Widget) sw->swindow.hScrollBar)
         sw->swindow.hScrollBar = NULL;
     if (child == (Widget) sw->swindow.vScrollBar)
@@ -2277,17 +2299,35 @@ XtPointer closure,
 XtIntervalId *id)                                 /* unused */
 {
     AutoDragClosure * auto_clos = (AutoDragClosure *) closure ;
-    XmScrollBarWidget scrb = (XmScrollBarWidget) auto_clos->widget ;
-    XmScrolledWindowWidget sw = (XmScrolledWindowWidget) XtParent(scrb) ;
-    unsigned char direction = auto_clos->direction;
+    XmScrollBarWidget scrb;
+    XmScrolledWindowWidget sw;
+    unsigned char direction;
     Boolean hit = False ;
     int value ;
     XmNavigatorDataRec nav_data ;
     int repeat_delay = 100 ;
 
+    (void)id;
+    if (auto_clos == NULL)
+        return;
+    if (auto_clos->cancelled || auto_clos->owner == NULL ||
+        ((Widget)auto_clos->owner)->core.being_destroyed) {
+        ReleaseAutoDragClosure(auto_clos);
+        return;
+    }
+    sw = (XmScrolledWindowWidget)auto_clos->owner;
+    auto_clos->active = True;
+    sw->swindow.auto_drag_timer = 0;
+    scrb = (XmScrollBarWidget)auto_clos->widget;
+    direction = auto_clos->direction;
+
     /* for now, I don't have the get_range for all navigators,
        so special case the scrollbar which I know */
-    if (!XmIsScrollBar(auto_clos->widget)) return ;
+    if (!XmIsScrollBar(auto_clos->widget)) {
+        auto_clos->active = False;
+        ReleaseAutoDragClosure(auto_clos);
+        return;
+    }
 
     /* use XmScrollBar: value, increment, maximum, slider_size, minimum */
 
@@ -2330,6 +2370,16 @@ XtIntervalId *id)                                 /* unused */
 
     _XmSFUpdateNavigatorsValue ((Widget)sw, &nav_data, True);
 
+    /* The value callback may disable auto-drag, destroy the scrollbar, or
+       destroy the scrolled window.  CancelAutoDrag marks this closure before
+       releasing the owning widget, so no widget record is touched here. */
+    if (auto_clos->cancelled || auto_clos->owner == NULL) {
+        auto_clos->active = False;
+        ReleaseAutoDragClosure(auto_clos);
+        return;
+    }
+    sw = (XmScrolledWindowWidget)auto_clos->owner;
+
     XSync (XtDisplay (scrb), False);              /* needed ? */
 
     /* reactivate the timer with the same closure if not hit */
@@ -2340,11 +2390,16 @@ XtIntervalId *id)                                 /* unused */
             XtWidgetToApplicationContext((Widget) scrb),
             repeat_delay,
             TimerEvent, closure);
+        auto_clos->active = False;
     }
     else
     {
         /* free the closure and mark the timer as non existent */
-        XtFree((char*) closure);
+        sw->swindow.auto_drag_closure = NULL;
+        auto_clos->active = False;
+        XtRemoveCallback(auto_clos->widget, XmNdestroyCallback,
+                         AutoDragWidgetDestroyed, (XtPointer)sw);
+        ReleaseAutoDragClosure(auto_clos);
         sw->swindow.auto_drag_timer = 0 ;
     }
 }
@@ -2380,6 +2435,11 @@ XtPointer    call_data)
             sw->swindow.auto_drag_closure = auto_clos =
                 (AutoDragClosure *) XtMalloc(sizeof(AutoDragClosure)) ;
             auto_clos->widget = w ;
+            auto_clos->owner = (Widget)sw;
+            auto_clos->active = False;
+            auto_clos->cancelled = False;
+            XtAddCallback(w, XmNdestroyCallback, AutoDragWidgetDestroyed,
+                          (XtPointer)sw);
 
             /* Here we need to find in which direction to move.
                This is done using a private protocol between the
@@ -2411,13 +2471,88 @@ XtPointer    call_data)
 
         XmDropSiteEndUpdate(w);
 
-        if (sw->swindow.auto_drag_timer)
-        {
-            XtRemoveTimeOut (sw->swindow.auto_drag_timer);
-            XtFree(sw->swindow.auto_drag_closure);
-            sw->swindow.auto_drag_timer = 0 ;
-        }
+        CancelAutoDrag(sw);
     }
+}
+
+static void
+CancelAutoDrag(
+XmScrolledWindowWidget sw)
+{
+    AutoDragClosure *closure;
+    XtIntervalId timer;
+    Boolean destroying;
+
+    if (sw == NULL)
+        return;
+    destroying = sw->core.being_destroyed;
+    timer = sw->swindow.auto_drag_timer;
+    closure = (AutoDragClosure *)sw->swindow.auto_drag_closure;
+    sw->swindow.auto_drag_timer = 0;
+    sw->swindow.auto_drag_closure = NULL;
+    if (timer)
+        XtRemoveTimeOut(timer);
+    if (closure != NULL) {
+        if (!destroying && !closure->cancelled && closure->widget != NULL)
+            XtRemoveCallback(closure->widget, XmNdestroyCallback,
+                             AutoDragWidgetDestroyed, (XtPointer)sw);
+        closure->cancelled = True;
+        closure->owner = NULL;
+        if (!closure->active)
+            XtFree((char *)closure);
+    }
+}
+
+static void
+ReleaseAutoDragClosure(
+AutoDragClosure *closure)
+{
+    XmScrolledWindowWidget sw;
+
+    if (closure == NULL)
+        return;
+    sw = (XmScrolledWindowWidget)closure->owner;
+    if (sw != NULL && sw->swindow.auto_drag_closure == closure)
+        sw->swindow.auto_drag_closure = NULL;
+    closure->owner = NULL;
+    XtFree((char *)closure);
+}
+
+static void
+AutoDragWidgetDestroyed(
+Widget widget,
+XtPointer closure,
+XtPointer call_data)
+{
+    XmScrolledWindowWidget sw = (XmScrolledWindowWidget)closure;
+    AutoDragClosure *auto_clos;
+    XtIntervalId timer;
+
+    (void)call_data;
+    if (sw == NULL || sw->swindow.auto_drag_closure == NULL)
+        return;
+    auto_clos = (AutoDragClosure *)sw->swindow.auto_drag_closure;
+    if (auto_clos->widget != widget)
+        return;
+    timer = sw->swindow.auto_drag_timer;
+    sw->swindow.auto_drag_timer = 0;
+    if (timer)
+        XtRemoveTimeOut(timer);
+    auto_clos->cancelled = True;
+    sw->swindow.auto_drag_closure = NULL;
+    auto_clos->owner = NULL;
+    if (!auto_clos->active)
+        XtAppAddTimeOut(XtWidgetToApplicationContext(widget), 0,
+                        FreeAutoDragClosureTimeout, (XtPointer)auto_clos);
+}
+
+static void
+FreeAutoDragClosureTimeout(
+XtPointer closure,
+XtIntervalId *id)
+{
+    (void)id;
+    XtFree((char *)closure);
 }
 
 
@@ -2649,6 +2784,8 @@ Destroy(
 Widget wid )
 {
     XmScrolledWindowWidget sw = (XmScrolledWindowWidget) wid ;
+
+    CancelAutoDrag(sw);
 
     if (sw->swindow.scroll_frame_inited)
     {
@@ -3469,6 +3606,20 @@ Cardinal *num_args )                              /* unused */
         }
         else
         {
+            Widget auto_drag_widget = NULL;
+            AutoDragClosure *auto_drag_closure =
+                (AutoDragClosure *)current->swindow.auto_drag_closure;
+
+            if (auto_drag_closure != NULL)
+                auto_drag_widget = auto_drag_closure->widget;
+            /* XtSetValues evaluates this method on a prospective widget
+               copy.  The timer and closure live on the current instance;
+               retire them there before the new resource copy is committed. */
+            CancelAutoDrag(current);
+            new_w->swindow.auto_drag_timer = 0;
+            new_w->swindow.auto_drag_closure = NULL;
+            if (auto_drag_widget != NULL)
+                XmDropSiteEndUpdate(auto_drag_widget);
             /* moving from enable to disable, unregister the d&d site
                but leave the drag_rect around */
             if (new_w->swindow.hScrollBar)

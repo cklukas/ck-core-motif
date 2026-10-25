@@ -1,4 +1,11 @@
 2026-10-25
+	* Retire ScrolledWindow auto-drag timers and callback payloads across
+	  scrollbar destruction, model changes and reentrant navigator callbacks;
+	  snapshot scrollbar callback lists before application dispatch and stop
+	  navigator iteration when a scroll frame is being destroyed; see
+	  docs/scroll-autodrag-lifetime.md.
+
+2026-10-25
 	* Document the optional WML lexer/parser generation contract and its
 	  disposable out-of-tree outputs; see tools/wml/docs/wml-build.md.
 

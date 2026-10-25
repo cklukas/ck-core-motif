@@ -229,6 +229,10 @@ static void ScrollCallback(
                         int xpixel,
                         int ypixel,
                         XEvent *event) ;
+static void CallScrollCallbackList(
+                        Widget widget,
+                        XtCallbackList callbacks,
+                        XtPointer call_data);
 static void ExportScrollBarValue( 
                         Widget wid,
                         int offset,
@@ -4103,7 +4107,28 @@ TimerEvent(
  *	main callback is called.
  *
  ************************************************************************/
-static void 
+static void
+CallScrollCallbackList(
+        Widget widget,
+        XtCallbackList callbacks,
+        XtPointer call_data)
+{
+    XtCallbackList snapshot;
+    Cardinal count = 0;
+    Cardinal i;
+
+    if (callbacks == NULL)
+        return;
+    while (callbacks[count].callback != NULL)
+        count++;
+    snapshot = (XtCallbackList)XtMalloc((count + 1) * sizeof(*snapshot));
+    for (i = 0; i <= count; i++)
+        snapshot[i] = callbacks[i];
+    XtCallCallbackList(widget, snapshot, call_data);
+    XtFree((char *)snapshot);
+}
+
+static void
 ScrollCallback(
         XmScrollBarWidget sbw,
         int reason,
@@ -4153,85 +4178,85 @@ ScrollCallback(
    switch (reason) {
 
    case XmCR_VALUE_CHANGED:
-       XtCallCallbackList ((Widget) sbw, sbw->scrollBar.value_changed_callback,
+       CallScrollCallbackList ((Widget) sbw, sbw->scrollBar.value_changed_callback,
 			   &call_value);
        break;
-       
+
    case XmCR_INCREMENT:
        if  (sbw->scrollBar.increment_callback)
-	   XtCallCallbackList ((Widget) sbw, 
+	   CallScrollCallbackList ((Widget) sbw,
 			       sbw->scrollBar.increment_callback, &call_value);
        else
 	   {
 	       call_value.reason = XmCR_VALUE_CHANGED;
-	       XtCallCallbackList ((Widget) sbw, 
+	       CallScrollCallbackList ((Widget) sbw,
 				 sbw->scrollBar.value_changed_callback, &call_value);
 	   }
        break;
-       
+
    case XmCR_DECREMENT:
        if  (sbw->scrollBar.decrement_callback)
-	   XtCallCallbackList ((Widget) sbw, 
+	   CallScrollCallbackList ((Widget) sbw,
 			       sbw->scrollBar.decrement_callback, &call_value);
        else
 	   {
 	       call_value.reason = XmCR_VALUE_CHANGED;
-	       XtCallCallbackList ((Widget) sbw, 
+	       CallScrollCallbackList ((Widget) sbw,
 				sbw->scrollBar.value_changed_callback, &call_value);
 	   }
        break;
-       
+
    case XmCR_PAGE_INCREMENT:
        if  (sbw->scrollBar.page_increment_callback)
-	   XtCallCallbackList ((Widget) sbw, 
+	   CallScrollCallbackList ((Widget) sbw,
 			       sbw->scrollBar.page_increment_callback, &call_value);
-       else 
+       else
 	   {
 	       call_value.reason = XmCR_VALUE_CHANGED;
-	       XtCallCallbackList ((Widget) sbw, 
+	       CallScrollCallbackList ((Widget) sbw,
 				sbw->scrollBar.value_changed_callback, &call_value);
 	   }
        break;
-       
+
    case XmCR_PAGE_DECREMENT:
        if  (sbw->scrollBar.page_decrement_callback)
-	   XtCallCallbackList ((Widget) sbw, 
+	   CallScrollCallbackList ((Widget) sbw,
 			       sbw->scrollBar.page_decrement_callback, &call_value);
        else
 	   {
 	       call_value.reason = XmCR_VALUE_CHANGED;
-	       XtCallCallbackList ((Widget) sbw, 
+	       CallScrollCallbackList ((Widget) sbw,
 				 sbw->scrollBar.value_changed_callback, &call_value);
 	   }
        break;
-       
+
    case XmCR_TO_TOP:
        if (sbw->scrollBar.to_top_callback)
-	   XtCallCallbackList ((Widget) sbw, 
+	   CallScrollCallbackList ((Widget) sbw,
 			       sbw->scrollBar.to_top_callback, &call_value);
-       else 
+       else
 	   {
 	       call_value.reason = XmCR_VALUE_CHANGED;
-	       XtCallCallbackList ((Widget) sbw, 
+	       CallScrollCallbackList ((Widget) sbw,
 				sbw->scrollBar.value_changed_callback, &call_value);
 	   }
        break;
-       
+
    case XmCR_TO_BOTTOM:
        if (sbw->scrollBar.to_bottom_callback)
-	   XtCallCallbackList ((Widget) sbw, 
+	   CallScrollCallbackList ((Widget) sbw,
 			       sbw->scrollBar.to_bottom_callback, &call_value);
        else
 	   {
 	       call_value.reason = XmCR_VALUE_CHANGED;
-	       XtCallCallbackList ((Widget) sbw, 
+	       CallScrollCallbackList ((Widget) sbw,
 				 sbw->scrollBar.value_changed_callback, &call_value);
 	   }
        break;
-       
+
    case XmCR_DRAG:
        if (sbw->scrollBar.drag_callback)
-	   XtCallCallbackList ((Widget) sbw,
+	   CallScrollCallbackList ((Widget) sbw,
 			       sbw->scrollBar.drag_callback, &call_value);
        break;
    }
@@ -4294,6 +4319,8 @@ NavigSetValue(
 {
     XmScrollBarWidget sbw = (XmScrollBarWidget) nav;
     int save_value;
+    int callback_value = 0;
+    Boolean value_changed = False;
     Arg arglist[6];
     Cardinal n;
 
@@ -4370,9 +4397,16 @@ NavigSetValue(
     
     if (n) XtSetValues (nav, arglist, n);
 
-    if (notify && sbw->scrollBar.value != save_value)
-	ScrollCallback (sbw, XmCR_VALUE_CHANGED, 
-			sbw->scrollBar.value, 0, 0, NULL); 
+    if (notify && sbw->scrollBar.value != save_value) {
+	value_changed = True;
+	callback_value = sbw->scrollBar.value;
+    }
+    /* The callback may destroy the scrollbar and its parent.  Capture all
+       widget state before entering user code; do not read sbw again after
+       XtCallCallbackList has returned. */
+    if (value_changed)
+	ScrollCallback (sbw, XmCR_VALUE_CHANGED,
+			callback_value, 0, 0, NULL);
 
 }
 

@@ -175,6 +175,11 @@ _XmSFUpdateNavigatorsValue(
 	     XmeTraitGet((XtPointer) XtClass(nav), XmQTnavigator))->setValue;
 
 	nav_setValue(nav, nav_data, notify);
+	/* A navigator callback may destroy the scroll frame.  The navigation
+	   list is borrowed from the frame, so continuing the loop after that
+	   callback would dereference the frame's retired list or child widgets. */
+	if (((WidgetRec *)sf)->core.being_destroyed)
+	    break;
     }
 }
 
