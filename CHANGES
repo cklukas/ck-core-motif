@@ -1,3 +1,10 @@
+MWM TARGETS conversion allocation guard (2026-10-28)
+========================================================
+
+- Refuse MWM TARGETS conversion cleanly when its atom-array allocation fails,
+  avoiding writes through NULL while preserving the normal protocol response;
+  see `docs/mwm-targets-conversion-allocation.md`.
+
 Xm argument-filter allocation guard (2026-10-28)
 ==================================================
 

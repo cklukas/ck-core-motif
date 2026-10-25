@@ -1293,6 +1293,12 @@ WMiConvert (
     if (target == wmGD.xa_TARGETS) {
       Atom *targs       = (Atom *)XtMalloc((unsigned) (28 * sizeof(Atom)));
       int   targetCount = 0;
+
+      if (targs == NULL)
+	{
+	  found = False;
+	  return found;
+	}
       
       *output = (XtPointer) targs;
       
