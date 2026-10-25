@@ -5726,6 +5726,13 @@ Appearance display-state lifetime (2026-10-25)
   destruction path, and correct Xrm database enumeration semantics so profile
   selection remains reliable for every application resource set.
 
+Display-scale transaction rollback (2026-10-25)
+===============================================
+
+- Restore the previous display-scale override when transaction staging cannot
+  allocate its callback snapshot, for both setting and clearing an override.
+  The installed fault-injection consumer verifies the rollback contract.
+
 Live appearance profile transaction (2026-10-25)
 ================================================
 
