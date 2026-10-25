@@ -4658,3 +4658,9 @@ Workspace-info serialization guards (2026-10-25)
 
 - Validate counted workspace-info data and size arithmetic before publishing;
   see `docs/workspace-info-guards.md`.
+
+MWM hints read guards (2026-10-25)
+=================================
+
+- Reject truncated or mis-typed `_MOTIF_WM_HINTS` properties;
+  see `docs/mwm-hints-read-guards.md`.

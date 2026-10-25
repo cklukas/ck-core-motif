@@ -698,7 +698,9 @@ GetMwmHints(
      *    since Mwm 1.1.n won't try to access the extra elements.
      */
 
-    if ((ret_val == Success) && (actual_type == wmGD.xa_MWM_HINTS))
+    if ((ret_val == Success) && (actual_type == wmGD.xa_MWM_HINTS) &&
+        (actual_format == 32) &&
+        (nitems >= PROP_MWM_HINTS_ELEMENTS))
     {
 	return (property);			/* indicate success */
     }
