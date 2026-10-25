@@ -33,6 +33,7 @@
 #include "XmI.h"
 #include <Xm/TraitP.h>
 #include <Xm/ScrollFrameT.h>
+#include <stdint.h>
 #include <Xm/NavigatorT.h>
 #include "MessagesI.h"
 #include "ScrollFramTI.h"

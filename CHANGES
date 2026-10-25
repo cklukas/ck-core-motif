@@ -14358,3 +14358,4 @@ CommandPalette size-limit header (2026-10-26)
   output pointers and valid `void` returns.
 * Split the global display-scale resource reader from the compatibility
   `_XmGetDpiScale` wrapper and declare both helpers consistently.
+* Include `<stdint.h>` for the ScrollFrameT `SIZE_MAX` allocation guard.
