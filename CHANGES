@@ -5,7 +5,9 @@ GeoUtils matrix allocation bounds (2026-10-28)
   extension storage, reject requests wider than Xt's `Cardinal` allocator, and
   handle allocation failure before pointer setup; make matching cleanup
   NULL-safe; and propagate constructor failure in SelectionBox,
-  FileSelectionBox, and MessageBox; see
+  FileSelectionBox, and MessageBox.  Shared geometry query, manager, and
+  resize paths now also fail safely when a custom matrix creator returns NULL;
+  see
   `docs/geoutils-matrix-allocation.md`.
 
 Label baseline count bounds (2026-10-28)

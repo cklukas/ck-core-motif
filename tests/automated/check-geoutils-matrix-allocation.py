@@ -22,5 +22,6 @@ for source_name in ("SelectioB.c", "FileSB.c", "MessageB.c"):
         encoding="utf-8"
     )
     assert widget_source.count("if (geoSpec == NULL)") >= 1
+assert source.count("if (geoSpec == NULL)") >= 3
 
 print("GeoUtils matrix allocation guards passed")

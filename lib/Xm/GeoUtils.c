@@ -223,6 +223,11 @@ _XmHandleQueryGeometry(
 	if (GMode( intended) & CWHeight) height = intended->height;
 
 	geoSpec = (*createMatrix)( widget, NULL, NULL) ;
+	if (geoSpec == NULL) {
+	    desired->width = XtWidth(widget);
+	    desired->height = XtHeight(widget);
+	    return XmeReplyToQueryGeometry(widget, intended, desired);
+	}
 	_XmGeoMatrixGet( geoSpec, XmGET_PREFERRED_SIZE) ;
 	_XmGeoArrangeBoxes( geoSpec, (Position) 0, (Position) 0, 
 			   &width, &height) ;
@@ -322,6 +327,9 @@ _XmHandleGeometryManager(
     /*	Get box list and arrange boxes according to policy.
     */
     geoSpec = (*createMatrix)( wid, instigator, desired) ;
+
+    if (geoSpec == NULL)
+	return( XtGeometryNo) ;
 
     if(    geoSpec->no_geo_request
         && (*geoSpec->no_geo_request)( geoSpec)    )
@@ -711,6 +719,9 @@ _XmHandleSizeUpdate(
 /****************/
 
     geoSpec = (*createMatrix)( wid, NULL, NULL) ;
+
+    if (geoSpec == NULL)
+	return;
 
     _XmGeoMatrixGet( geoSpec, XmGET_PREFERRED_SIZE) ;
 
