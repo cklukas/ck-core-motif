@@ -2778,7 +2778,7 @@ CalcEdgeValue(
 		  AssignValue(a, temp1);
 	      }
 	    } else
-	      AssignValue(a, fw->core.width - GetFormOffset(fw,which,att));
+	      AssignValue(a, (int)fw->core.width - GetFormOffset(fw,which,att));
 	    break;
 	  case BOTTOM:
 	    if (fheight != NULL) {
@@ -2801,7 +2801,7 @@ CalcEdgeValue(
 		  AssignValue(a, temp1);
 	      }
 	    } else
-	      AssignValue(a, fw->core.height - GetFormOffset(fw,which,att));
+	      AssignValue(a, (int)fw->core.height - GetFormOffset(fw,which,att));
 	    break;
 	  }
 	return;
@@ -3028,7 +3028,7 @@ CalcEdgeValue(
 		  AssignValue(a, temp1);
 	      }
 	    } else
-	      AssignValue(a, fw->core.width - GetFormOffset(fw,which,att));
+	      AssignValue(a, (int)fw->core.width - GetFormOffset(fw,which,att));
 	    break;
 	  case BOTTOM:
 	    if (fheight != NULL) {
@@ -3051,7 +3051,7 @@ CalcEdgeValue(
 		  AssignValue(a, temp1);
 	      }
 	    } else
-	      AssignValue(a, fw->core.height - GetFormOffset(fw,which,att));
+	      AssignValue(a, (int)fw->core.height - GetFormOffset(fw,which,att));
 	    break;
 	  }
 	return;
