@@ -3131,8 +3131,18 @@ static void StoreExclusion (MenuSpec *menuSpec, String string)
 {
     MenuExclusion *exclusion;
 
+    if (menuSpec == NULL || string == NULL)
+	return;
+
     exclusion = (MenuExclusion *)XtMalloc(sizeof(MenuExclusion));
+    if (exclusion == NULL)
+	return;
+
     exclusion->command_string = XtNewString(string);
+    if (exclusion->command_string == NULL) {
+	XtFree((char *)exclusion);
+	return;
+    }
 
     /* We don't care what order the exclusions are in so stick it
        at the head of the list because it is easier. */

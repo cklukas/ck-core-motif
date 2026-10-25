@@ -27,6 +27,13 @@ MWM bitmap path allocation guard (2026-10-25)
   write while preserving lookup behavior; see
   `docs/mwm-image-path-allocation.md`.
 
+MWM menu-exclusion allocation guard (2026-10-25)
+================================================
+
+- Add menu exclusions only after both the record and copied command string
+  have been allocated, avoiding partial parser state on resource exhaustion;
+  see `docs/mwm-exclusion-allocation.md`.
+
 MWM invoke-message allocation guard (2026-10-28)
 ==================================================
 
