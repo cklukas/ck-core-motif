@@ -1214,6 +1214,7 @@ ConstraintSetValues(Widget current, Widget request, Widget new_w,
     Boolean                relayout = False;
     Arg                    args[10];
     Cardinal               i = 0;
+    XmString               replacement;
 
     if( XiC(new_w)->label_widget == NULL ) return( False );
 
@@ -1244,9 +1245,14 @@ ConstraintSetValues(Widget current, Widget request, Widget new_w,
 
     if( cc->label_string != sc->label_string )
     {
-	XmStringFree(cc->label_string);
-	sc->label_string = XmStringCopy(sc->label_string);
-	XtSetArg(args[i], XmNlabelString, sc->label_string); ++i;
+	replacement = XmStringCopy(sc->label_string);
+	if (replacement != NULL) {
+	    XmStringFree(cc->label_string);
+	    sc->label_string = replacement;
+	    XtSetArg(args[i], XmNlabelString, sc->label_string); ++i;
+	} else {
+	    sc->label_string = cc->label_string;
+	}
     }
 
     if( cc->label_pixmap != sc->label_pixmap )

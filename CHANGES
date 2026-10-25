@@ -9287,3 +9287,10 @@ ToolTip string rollback (2026-10-29)
 - Preserve an existing tooltip when copying a non-NULL replacement fails,
   while retaining NULL as the explicit clear operation; see
   `docs/tooltip-string-rollback.md`.
+
+Column label rollback (2026-10-29)
+==================================
+
+- Copy constraint label strings before releasing the current value, preserving
+  the existing column label if the replacement cannot be allocated; see
+  `docs/column-label-rollback.md`.
