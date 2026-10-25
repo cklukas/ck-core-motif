@@ -1,3 +1,9 @@
+Xft compound-string line height (2026-10-27)
+===============================================
+
+- Use the native Xft font height for compound-string geometry instead of
+  dropping leading by reducing it to ascent plus descent.
+
 Accessibility D-Bus memo allocation (2026-10-27)
 =================================================
 

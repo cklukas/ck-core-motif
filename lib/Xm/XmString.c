@@ -6445,12 +6445,10 @@ ComputeMetrics(XmRendition rend,
     case XmFONT_IS_XFT:
 	asc = _XmRendXftFont(rend)->ascent;
 	desc = _XmRendXftFont(rend)->descent;
-	/* FIXME
-	 * Following Keith Packard comments it should be
-	 *  hi = _XmRendXftFont(rend)->height;
-	 * but is looking ascent + descent better. Is it a bug?
-	 */
-	hi = asc+desc;
+	/* XftFont::height includes the font's line spacing.  Using only
+	 * ascent+descent clips fonts with leading and makes mixed-font compound
+	 * strings vertically inconsistent with the Xft text renderer. */
+	hi = _XmRendXftFont(rend)->height;
     {
 	XGlyphInfo	info;
 	XftTextExtentsUtf8(_XmRendDisplay(rend),
