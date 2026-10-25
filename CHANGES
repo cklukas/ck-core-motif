@@ -1,3 +1,10 @@
+PanedWindow separator allocation (2026-10-27)
+==============================================
+
+- Size separator collection from the full child count with checked arithmetic
+  and guard allocation failure, preventing under-allocation writes and null
+  dereferences when toggling separator visibility.
+
 LabelGadget accelerator allocation (2026-10-27)
 ================================================
 

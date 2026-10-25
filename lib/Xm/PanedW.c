@@ -2300,26 +2300,31 @@ SetValues(
       WidgetList sep_children;
       Cardinal num_separators = 0;
 
-     /* This should be more than enough space */
-      sep_children = (WidgetList) XtMalloc((num_children/3) * sizeof(Widget));
+      if ((size_t)num_children <= SIZE_MAX / sizeof(*sep_children))
+         sep_children = (WidgetList) XtMalloc((size_t)num_children *
+                                              sizeof(*sep_children));
+      else
+         sep_children = NULL;
 
-      for (childP = children, i = 0; i < num_children; childP++, i++) {
-          if (IsPane(*childP)) {
-             Widget separator = PaneInfo(*childP)->panedw.separator;
-             if (separator) {
-                sep_children[num_separators] = separator;
-                num_separators++;
-             }
-          }
-       }
-      if (num_separators != 0) {
-         if (newpw->paned_window.separator_on)
-            XtManageChildren((WidgetList) sep_children, num_separators);
-         else
-            XtUnmanageChildren((WidgetList) sep_children, num_separators);
+      if (sep_children != NULL) {
+         for (childP = children, i = 0; i < num_children; childP++, i++) {
+            if (IsPane(*childP)) {
+               Widget separator = PaneInfo(*childP)->panedw.separator;
+               if (separator) {
+                  sep_children[num_separators] = separator;
+                  num_separators++;
+               }
+            }
+         }
+         if (num_separators != 0) {
+            if (newpw->paned_window.separator_on)
+               XtManageChildren((WidgetList) sep_children, num_separators);
+            else
+               XtUnmanageChildren((WidgetList) sep_children, num_separators);
+         }
+
+         XtFree((char *)sep_children);
       }
-         
-      XtFree((char *)sep_children);
    }
 
    if(!XmRepTypeValidValue( XmRID_ORIENTATION,
