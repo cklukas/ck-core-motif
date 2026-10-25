@@ -516,7 +516,7 @@ Layout(
 	bw = mw->mwindow.MenuBar->core.border_width;
 	mbx = MyXpad;
 	mby = MyYpad;
-	tmp = mw->core.width - (2 * (MyXpad + bw));
+	tmp = (int)mw->core.width - (2 * (int)(MyXpad + bw));
 	if (tmp <= 0) mbwidth = 10; else  mbwidth = tmp ;
 	mbheight = mw->mwindow.MenuBar->core.height;
 
@@ -558,7 +558,7 @@ Layout(
     if (ExistManaged(mw->mwindow.CommandWindow))
     {
         bw = mw->mwindow.CommandWindow->core.border_width;
-	tmp = mw->core.width - (2 * (MyXpad + bw));
+	tmp = (int)mw->core.width - (2 * (int)(MyXpad + bw));
 	if (tmp <= 0) cwwidth = 10; else cwwidth = tmp ;
 	cwheight = mw->mwindow.CommandWindow->core.height;
 
@@ -575,8 +575,10 @@ Layout(
 	    cwheight = preferred.height;
         }
 
-        if ((cwheight + cwy + (2 * bw)) > (mw->core.height - MyYpad)) {
-	    tmp = mw->core.height - (2 * bw) - MyYpad - cwy;
+        if ((int)cwheight + (int)cwy + (2 * (int)bw) >
+            (int)mw->core.height - (int)MyYpad) {
+	    tmp = (int)mw->core.height - (2 * (int)bw) -
+                  (int)MyYpad - (int)cwy;
 	    if (tmp <= 0) cwheight = 10 ; else cwheight = tmp;
 	}
 
@@ -591,7 +593,8 @@ Layout(
         if (mw->mwindow.CommandLoc == XmCOMMAND_BELOW_WORKSPACE)
         {
             mby = swy; 
-            sep2y = cwy + (mw->core.height - swy - MyYpad);
+            sep2y = cwy + ((int)mw->core.height - (int)swy -
+                           (int)MyYpad);
             swy = cwy;
             mw->swindow.HeightPad = sep2h + cwheight
 		+ mw->mwindow.margin_height;
@@ -612,7 +615,7 @@ Layout(
     {
         bw = mw->mwindow.Message->core.border_width;
 	mwx = MyXpad;
-	tmp = mw->core.width - (2 * (MyXpad + bw));
+	tmp = (int)mw->core.width - (2 * (int)(MyXpad + bw));
 	if (tmp <= 0) mwwidth = 10 ; else mwwidth = tmp ;
 	mwheight = mw->mwindow.Message->core.height;
 
@@ -633,8 +636,8 @@ Layout(
         else
             sep3h = 0;
 
-        sepy = mw->core.height - mwheight - (2 * bw) - 
-	    mw->mwindow.margin_height - sep3h;
+        sepy = (int)mw->core.height - (int)mwheight - (2 * (int)bw) -
+	    (int)mw->mwindow.margin_height - (int)sep3h;
         mwy = sepy + sep3h;
 
         if (mw->mwindow.CommandLoc == XmCOMMAND_BELOW_WORKSPACE)
