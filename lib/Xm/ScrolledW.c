@@ -1879,8 +1879,10 @@ XmScrolledWindowWidget sw )
     /* Compute the available size after a subclass, like mainwindow,
        has taken its share of layout. */
 
-    MyWidth = sw->core.width - sw->swindow.XOffset  - sw->swindow.WidthPad;
-    MyHeight = sw->core.height - sw->swindow.YOffset  - sw->swindow.HeightPad;
+    MyWidth = (int)sw->core.width - (int)sw->swindow.XOffset -
+              (int)sw->swindow.WidthPad;
+    MyHeight = (int)sw->core.height - (int)sw->swindow.YOffset -
+               (int)sw->swindow.HeightPad;
 
     HSBExists = ExistManaged((Widget) sw->swindow.hScrollBar);
     VSBExists = ExistManaged((Widget) sw->swindow.vScrollBar);
@@ -1918,10 +1920,12 @@ XmScrolledWindowWidget sw )
         }
 
         /* looks bogus, but who care of this extreme case */
-        sw->swindow.AreaWidth = sw->core.width  -
-            sw->swindow.WidthPad - ((shad * 2) );
-        sw->swindow.AreaHeight = sw->core.height -
-            sw->swindow.HeightPad - ((shad * 2) );
+        sw->swindow.AreaWidth = (sw->core.width >
+            sw->swindow.WidthPad + (shad * 2)) ?
+            sw->core.width - sw->swindow.WidthPad - (shad * 2) : 0;
+        sw->swindow.AreaHeight = (sw->core.height >
+            sw->swindow.HeightPad + (shad * 2)) ?
+            sw->core.height - sw->swindow.HeightPad - (shad * 2) : 0;
 
         XmeConfigureObject((Widget) clip,
             shad + sw->swindow.XOffset,

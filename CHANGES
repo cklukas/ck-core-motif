@@ -1,3 +1,10 @@
+ScrolledWindow constant-layout bounds (2026-10-25)
+===================================================
+
+- Bound constant-policy available-area calculations and empty-work-window
+  geometry, preventing wrapped clip regions in collapsed scrolled windows; see
+  `docs/scrolledwindow-constant-layout.md`.
+
 List highlight geometry bounds (2026-10-25)
 ==========================================
 
