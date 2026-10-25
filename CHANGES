@@ -6082,3 +6082,10 @@ Guard XmString component copies (2026-10-25)
   cleanly on allocation failure; see
   `docs/xmstring-component-copy-allocation.md` and its focused source check.
 
+Harden XmString context rendition copies (2026-10-25)
+=======================================================
+
+- Copy active rendition tags with checked sizing, clear borrowed pointers
+  before allocation, and preserve a safe empty context on failure; see
+  `docs/xmstring-context-copy-allocation.md` and its focused source check.
+

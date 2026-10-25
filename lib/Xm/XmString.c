@@ -9505,7 +9505,8 @@ void
 _XmStringContextCopy(_XmStringContext target,
 		     _XmStringContext source)
 {
-  int size;
+  size_t size;
+  size_t count;
   assert(source && target && (source != target));
 
   /* Copy the normal fields. */
@@ -9513,8 +9514,19 @@ _XmStringContextCopy(_XmStringContext target,
 
   /* Copy the active renditions list so we can modify it. */
   if (_XmStrContRendCount(target) > 0) {
-     size = sizeof(XmStringTag) * _XmStrContRendCount(target);
-     _XmStrContRendTags(target) = (XmStringTag*) XtMalloc(size);
+     count = (size_t)_XmStrContRendCount(target);
+     _XmStrContRendTags(target) = NULL;
+     if (count > SIZE_MAX / sizeof(XmStringTag) ||
+         count > UINT_MAX / sizeof(XmStringTag)) {
+        _XmStrContRendCount(target) = 0;
+        return;
+     }
+     size = sizeof(XmStringTag) * count;
+     _XmStrContRendTags(target) = (XmStringTag*) XtMalloc((Cardinal)size);
+     if (_XmStrContRendTags(target) == NULL) {
+        _XmStrContRendCount(target) = 0;
+        return;
+     }
      memcpy(_XmStrContRendTags(target), _XmStrContRendTags(source), size);
   }
 }
