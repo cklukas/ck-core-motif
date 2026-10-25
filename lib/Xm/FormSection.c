@@ -70,7 +70,12 @@ static void natural(XmFormSectionWidget section, Dimension *width, Dimension *he
     preferred(section->section.header, &hw, &hh); preferred(section->section.content, &cw, &ch);
     if (footer_visible(section)) preferred(section->section.footer, &fw, &fh);
     *width = dimension(2UL * section->section.margin_width + (hw > cw ? hw : cw));
-    if (fw > *width - 2 * section->section.margin_width) *width = dimension(2UL * section->section.margin_width + fw);
+    {
+        unsigned long inner_width = *width > 2UL * section->section.margin_width
+            ? *width - 2UL * section->section.margin_width : 0;
+        if ((unsigned long)fw > inner_width)
+            *width = dimension(2UL * section->section.margin_width + fw);
+    }
     *height = dimension(2UL * section->section.margin_height + hh + section->section.spacing + ch +
                         (footer_visible(section) ? section->section.spacing + fh : 0));
 }

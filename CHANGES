@@ -30,6 +30,12 @@ Progress-ring geometry bounds (2026-10-26)
 - Clamp progress-ring default and queried geometry arithmetic to the
   `Dimension` range; see `docs/progress-ring-geometry-bounds.md`.
 
+Form-section margin comparison (2026-10-26)
+===========================================
+
+- Avoid unsigned width underflow when deciding whether a footer fits inside
+  large form-section margins; see `docs/form-section-margin-bounds.md`.
+
 Tree-view RTL label bounds (2026-10-26)
 =======================================
 
