@@ -30,6 +30,7 @@ Boolean _XmXlibreDpiDecodeProperty(Atom actual_type,
                                    double *dpi_return);
 
 Boolean _XmXlibreDpiServerSupported(Display *display);
+Boolean _XmXlibreDpiVendorSupported(const char *vendor);
 Boolean _XmXlibreDpiGetOutputDpi(Display *display,
                                  RROutput output,
                                  double *dpi_return);

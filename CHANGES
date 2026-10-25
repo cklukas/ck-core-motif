@@ -1,3 +1,11 @@
+XLibre vendor predicate hardening (2026-10-25)
+================================================
+
+- Require the server vendor string to be exactly `XLibre` or `XLibre` followed
+  by whitespace and a version suffix. Substrings such as `NotXLibre` and
+  `XLibre-server` are no longer treated as the versioned XLibre contract; the
+  installed fixture covers positive, spoofed and malformed vendor names.
+
 XLibre RandR property decode hardening (2026-10-25)
 ====================================================
 

@@ -11,6 +11,7 @@
 #include <config.h>
 #endif
 
+#include <ctype.h>
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
@@ -436,6 +437,18 @@ _XmXlibreDpiDecodeProperty(Atom actual_type,
 }
 
 Boolean
+_XmXlibreDpiVendorSupported(const char *vendor)
+{
+    static const char name[] = "XLibre";
+    size_t name_length = sizeof(name) - 1;
+
+    if (vendor == NULL || strncmp(vendor, name, name_length) != 0)
+        return False;
+    return vendor[name_length] == '\0' ||
+           isspace((unsigned char)vendor[name_length]);
+}
+
+Boolean
 _XmXlibreDpiServerSupported(Display *display)
 {
     int event_base;
@@ -451,7 +464,7 @@ _XmXlibreDpiServerSupported(Display *display)
         return False;
 
     vendor = ServerVendor(display);
-    return vendor != NULL && strstr(vendor, "XLibre") != NULL;
+    return _XmXlibreDpiVendorSupported(vendor);
 }
 
 Boolean
