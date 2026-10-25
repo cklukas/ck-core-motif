@@ -29,6 +29,7 @@
 #include <Xm/SegmentedControl.h>
 #include <Xm/ColorPicker.h>
 #include <Xm/Chip.h>
+#include <Xm/Badge.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
 #include <Xm/PushBG.h>
@@ -1235,6 +1236,25 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     if (label_string)
       local = XmStringUnparse(label_string, NULL, XmCHARSET_TEXT,
                               XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+  }
+  if (XmIsBadge(w)) {
+    XmString label_string = NULL;
+    char value[64];
+    int displayed = XmBadgeGetDisplayedCount(w);
+    i->role = XmACCESSIBLE_LABEL;
+    i->has_value = displayed >= 0;
+    i->minimum_value = 0;
+    i->maximum_value = displayed >= 0 ? displayed : 0;
+    i->current_value = displayed >= 0 ? displayed : 0;
+    i->minimum_increment = 1;
+    XtVaGetValues(w, XmNbadgeLabel, &label_string, NULL);
+    if (displayed >= 0) {
+      snprintf(value, sizeof(value), "%d", displayed);
+      i->value_text = XtNewString(value);
+    } else if (label_string) {
+      i->value_text = XmStringUnparse(label_string, NULL, XmCHARSET_TEXT,
+                                      XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+    }
   }
   if (XmIsNumberBox(w)) {
     int minimum, maximum;

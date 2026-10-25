@@ -76,6 +76,7 @@
 #include <Xm/DataGrid.h>
 #include <Xm/SegmentedControl.h>
 #include <Xm/Chip.h>
+#include <Xm/Badge.h>
 #include <Xm/NumberBox.h>
 #include <Xm/RatingControl.h>
 #include <Xm/MwmUtil.h>

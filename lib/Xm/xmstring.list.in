@@ -1075,6 +1075,15 @@ NchipRemovable
 NchipActivateCallback
 NchipRemoveCallback
 
+CBadgeLabel
+CBadgeCount
+CBadgeMaximum
+CBadgeSeverity
+NbadgeLabel
+NbadgeCount
+NbadgeMaximum
+NbadgeSeverity
+
 #table _XmStrings20
 
 NtearOffTitle
