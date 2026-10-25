@@ -51,6 +51,12 @@ failed clear retain the previous override. Three repeated installed AArch64
 `uconsole` runs pass against the current prefix; this fault-injection check is
 separate from the normal no-fault scale matrix.
 
+Scale callbacks cannot start a second display-scale transaction while the
+outer transaction is dispatching. `tests/automated/run-display-scale-reentrant.py`
+registers a callback that attempts a nested override and verifies rejection,
+outer-value precedence and reversible cleanup. This prevents a callback from
+observing or replacing a partially applied derived-metric update.
+
 ## Qualification evidence
 
 The first qualification ran on the AArch64 `uconsole` Linux host from a
@@ -92,3 +98,11 @@ same-thread transaction, default indicator reflow, explicit-size preservation,
 toggle-state preservation, SpinBox and ProgressRing default reflow, and
 reversible cleanup;
 full historical-widget coverage and live appearance transactions remain open.
+
+The reentrancy guard was rebuilt on AArch64 `uconsole` from 14:08:35 through
+14:11:38 UTC on 2026-10-25 (clean build, 3:03 elapsed). Three fresh installed
+`run-display-scale-reentrant.py` runs and two existing display-scale override
+runs passed; a consumer ASan/UBSan reentrancy run with leak detection disabled
+also passed. The installed `libXm.so.8.0.0` fingerprint was
+`8bcba14d8924a0283037a66f7547eca74d38da4d40d4792ad77feccc549e80a8`; receipts
+are retained under `/tmp/ckmotif-scale-reentrant-20261025/`.

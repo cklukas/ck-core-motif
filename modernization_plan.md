@@ -412,6 +412,12 @@ preserved.  The observed constant-versus-scaled values are documented as an
 audit classification; no additional source correction is claimed.  See
 `docs/dpi-control-metrics.md`.
 
+The additive live display-scale transaction now also rejects nested scale
+changes from a callback, preserving the outer transaction's override and
+retiring its per-display guard with the Motif display. The installed
+`run-display-scale-reentrant.py` fixture is the focused regression; the full
+historical-widget scale matrix remains open.
+
 ### WP-04A: XLibre per-output scaling integration
 
 **Depends on:** WP-04.
