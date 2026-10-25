@@ -4343,6 +4343,12 @@ Handle XmScreen scratch-cache insertion failures (2026-10-25)
 
 - Release scratch pixmaps and ownership keys when hash-table insertion cannot
   allocate a bucket; see `docs/screen-scratch-cache-failure.md`.
+
+XmIm initialization allocation guards (2026-10-25)
+====================================================
+
+- Check display-state and locale-modifier scratch allocations before use; see
+  `docs/xmim-init-allocation.md`.
 Mrm writer cstring-vector validation (2026-10-25)
 ====================================================
 
