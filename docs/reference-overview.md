@@ -1,0 +1,52 @@
+# Reference by topic
+
+This page is the starting point for the detailed Motif maintenance notes.
+The site navigation intentionally stays short; individual fix notes remain
+available through search and the generated site index, while these topics
+provide stable paths to the material most useful when integrating or
+debugging a client.
+
+## Build, compatibility, and qualification
+
+- [Build and test workflow](build.md) — configure, build, test, and inspect an installed library.
+- [ABI and compatibility](abi.md) — compatibility promises and boundaries used by this fork.
+- [Maintenance review](maintenance-review.md) — current review scope and remaining qualification work.
+- [Current status](status.md) — platform and feature qualification status.
+
+## Text, Unicode, and input
+
+- [Unicode support](unicode.md) — locale, composition, shaping, and input behavior.
+- [Non-text Unicode coverage](nontext-unicode.md) — multilingual labels, lists, menus, and other widgets.
+- [Text-source bounds](text-source-bounds.md) — safe range and size handling in text sources.
+- [Input-method rollback](vendor-im-string-rollback.md) — failure cleanup at the input-method boundary.
+
+## Rendering, images, and display metrics
+
+- [Image scaling](image-scaling.md) — scaling behavior and compatibility constraints.
+- [Image scaling allocation guards](image-scaling-allocations.md) — malformed or oversized image handling.
+- [Image scaling coordinate bounds](image-scaling-coordinate-bounds.md) — coordinate conversion limits.
+- [DPI control metrics](dpi-control-metrics.md) — display-aware sizing rules.
+- [Theme configuration](theme-configuration.md) — classic and optional visual configuration.
+
+## Selection, drag-and-drop, and data conversion
+
+- [Motif text selection targets](motif-textsel-targets.md) — target discovery and conversion behavior.
+- [Selection-box compound text](motif-selectionbox-compound-text.md) — compound-string selection data.
+- [Drag-and-drop target allocation](dragbs-targets-allocation-guards.md) — allocation failure handling.
+- [Container tab conversion](container-tabs.md) — container data conversion and tab behavior.
+
+## MWM and window-management protocol
+
+- [MWM protocol overview](mwm-protocol-oom.md) — protocol conversion and allocation-failure behavior.
+- [Workspace-management command messages](command-message-argument-allocation.md) — bounded command-message construction.
+- [WM state read guards](wmstate-read-guards.md) — safe handling of window-manager state properties.
+
+## Accessibility and diagnostics
+
+- [Accessibility support](accessibility.md) — AT-SPI integration and qualification boundaries.
+- [UIL listing safety](uil-listing.md) — bounded compiler listing output.
+- [Documentation build](documentation.md) — generated reference and hosted-site behavior.
+
+The detailed notes are intentionally small and issue-focused. When a topic
+needs a broader design decision, the review and status pages above are the
+authoritative summaries.

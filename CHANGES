@@ -12,6 +12,13 @@ Documentation navigation completeness (2026-10-25)
   builds retain them in the site index without overflowing the pinned config
   parser; see `tests/automated/check-docs-nav-complete.py`.
 
+Topical reference overview (2026-10-25)
+=======================================
+
+- Add a compact overview linking the detailed build, text, rendering,
+  selection, MWM, accessibility, and diagnostics notes; validate every link
+  so the overview remains useful as individual notes evolve.
+
 MWM invoke-message allocation guard (2026-10-28)
 ==================================================
 

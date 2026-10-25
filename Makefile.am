@@ -690,3 +690,5 @@ EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-b
 EXTRA_DIST += tests/automated/check-latin-lower-bounds.py docs/latin-lower-bounds.md
 
 EXTRA_DIST += tests/automated/check-font-family-bounds.py docs/font-family-bounds.md
+
+EXTRA_DIST += tests/automated/check-reference-overview-links.py docs/reference-overview.md
