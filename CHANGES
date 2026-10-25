@@ -11909,3 +11909,11 @@ Command argument allocation cast (2026-10-25)
 
 MainW child-growth allocation cast (2026-10-25)
 ================================================
+Font selector family-array allocation cast (2026-10-25)
+=========================================================
+
+- Pass the bounded FontS family-array size explicitly as an Xt `Cardinal`
+  during family refresh; see `docs/motif-fonts-family-allocation.md`.
+
+Message-dialog argument allocation cast (2026-10-25)
+=====================================================
