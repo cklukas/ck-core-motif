@@ -1746,7 +1746,7 @@ static Dimension
 MaxLabelWidth(
         XmScaleWidget sw )
 {
-    register int i;
+    register Cardinal i;
     register Widget c;
     Dimension max = 0;
 
@@ -1766,7 +1766,7 @@ static Dimension
 MaxLabelHeight(
         XmScaleWidget sw )
 {
-    register int i;
+    register Cardinal i;
     register Widget c;
     Dimension max = 0;
 
@@ -2320,7 +2320,7 @@ LayoutHorizontalLabels(
 	XmScrollBarWidget sb = (XmScrollBarWidget)
 		(sw->composite.children[1]);
 	Widget w, first_tic;
-	int i;
+	Cardinal i;
 	Position x, y, y1;
 	Cardinal num_managed ;
 
@@ -2557,7 +2557,7 @@ LayoutVerticalLabels(
 	XmScrollBarWidget sb = (XmScrollBarWidget)
 		(sw->composite.children[1]);
 	Widget w, first_tic;
-	int i;
+	Cardinal i;
 	float tmp, tic_interval;
 	Position x, x1, y;
 	Cardinal num_managed ;
