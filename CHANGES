@@ -10028,6 +10028,12 @@ RowColumn menu resource allocation guards (2026-10-25)
 - Guard returned menu-accelerator and menu-post copies against allocation
   failure; see `docs/rowcolumn-resource-allocation.md`.
 
+RowColumn popup-name allocation guard (2026-10-25)
+==================================================
+
+- Check temporary popup-shell name storage before formatting and creation; see
+  `docs/rowcolumn-popup-name-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

@@ -3299,6 +3299,8 @@ create(
 #endif
 
 	    b = XtMalloc(strlen(POPUP_PREFIX) + strlen(name) + 1);
+	    if (b == NULL)
+		return NULL;
             sprintf (b, POPUP_PREFIX, name);
 
             pop = (XmMenuShellWidget)XtCreatePopupShell(b, 
