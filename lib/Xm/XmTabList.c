@@ -354,6 +354,12 @@ XmTabListFree(XmTabList tablist)
 	_XmProcessUnlock();
 	return;
   }
+
+  if (_XmTabLCount(tablist) == 0 || _XmTabLStart(tablist) == NULL) {
+	_XmProcessUnlock();
+	XtFree((char *)tablist);
+	return;
+  }
   
   tab = _XmTabLStart(tablist);
   

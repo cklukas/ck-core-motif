@@ -1,3 +1,9 @@
+Free empty tab lists safely (2026-10-25)
+=========================================
+
+- Allow zero-count tab lists to be freed without dereferencing a null start
+  tab; see `docs/tablist-free-empty.md`.
+
 Guard tab-list widget constructors (2026-10-25)
 ================================================
 
