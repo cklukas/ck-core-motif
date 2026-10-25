@@ -13,13 +13,16 @@ static XtAppContext app;
 static Display *display;
 static Widget source;
 static Widget destination;
+static Widget destination_shell;
 static Atom target_atom;
 static XmDropTransferEntryRec transfer_entry;
 static Boolean finished;
 static Boolean transfer_called;
 static Boolean active_mode;
+static Boolean requestor_mode;
 static Boolean destroy_scheduled;
 static Boolean transfer_destroyed;
+static Boolean requestor_destroyed;
 static Widget transfer_object;
 static unsigned transfer_calls;
 static int result = EXIT_SUCCESS;
@@ -41,7 +44,9 @@ finish(XtPointer closure, XtIntervalId *id)
 {
     (void)closure;
     (void)id;
-    if (active_mode)
+    if (requestor_mode)
+        CHECK(requestor_destroyed && !transfer_called);
+    else if (active_mode)
         CHECK(transfer_destroyed && transfer_calls > 0);
     else
         CHECK(!transfer_called);
@@ -59,6 +64,19 @@ destroy_transfer(XtPointer closure, XtIntervalId *id)
         transfer_destroyed = True;
         XtDestroyWidget(transfer_object);
         transfer_object = NULL;
+    }
+}
+
+static void
+destroy_requestor(XtPointer closure, XtIntervalId *id)
+{
+    (void)closure;
+    (void)id;
+    CHECK(destination_shell != NULL);
+    if (destination_shell != NULL) {
+        requestor_destroyed = True;
+        XtDestroyWidget(destination_shell);
+        destination_shell = NULL;
     }
 }
 
@@ -128,6 +146,8 @@ drop(Widget widget, XtPointer closure, XtPointer call_data)
         XtSetArg(args[count], XmNincremental, True);
         ++count;
     }
+    if (requestor_mode)
+        XtAppAddTimeOut(app, 0, destroy_requestor, NULL);
     transfer_object = XmDropTransferStart(drop_data->dragContext,
                                           args, count);
     CHECK(transfer_object != NULL);
@@ -192,7 +212,6 @@ int
 main(int argc, char **argv)
 {
     Widget source_shell;
-    Widget destination_shell;
     XmString label;
     Arg args[4];
     Cardinal count = 0;
@@ -202,6 +221,7 @@ main(int argc, char **argv)
     int minor;
 
     active_mode = argc > 1 && strcmp(argv[1], "active") == 0;
+    requestor_mode = argc > 1 && strcmp(argv[1], "requestor") == 0;
 
     source_shell = XtVaAppInitialize(&app, "DndTransferCancel", NULL, 0,
                                      &argc, argv, NULL,
@@ -239,7 +259,8 @@ main(int argc, char **argv)
     XtAppAddTimeOut(app, 20, start_drag, NULL);
     XtAppAddTimeOut(app, 3000, finish, NULL);
     XtAppMainLoop(app);
-    XtDestroyWidget(destination_shell);
+    if (destination_shell != NULL)
+        XtDestroyWidget(destination_shell);
     XtDestroyWidget(source_shell);
     XtDestroyApplicationContext(app);
     if (!finished)

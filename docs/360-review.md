@@ -55,8 +55,9 @@ These are real coverage gaps rather than claims of known source defects:
    now passes conversion, drop admission, transfer-entry client-data
    propagation and selection-value ownership checks, and the initiator-side
    `XmDragCancel` probe passes its finish notification contract. The receiver
-   `XmDropTransfer` lifetime probe also covers delayed-start and active
-   incremental request cancellation. The source-side probe now covers owner
+   `XmDropTransfer` lifetime probe also covers delayed-start, active
+   incremental request cancellation and requestor-shell teardown. The
+   source-side probe now covers owner
    replacement during an active drag and post-drop incremental cancellation.
    Same-process two-target transfer is now covered; cross-process
    multiple-target/application drag-and-drop ownership and unqualified

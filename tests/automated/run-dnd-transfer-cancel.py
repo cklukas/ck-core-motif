@@ -54,7 +54,7 @@ try:
     (args.results / "link.log").write_text(link_result.stdout)
     if link_result.returncode or str(args.prefix / "lib/libXm.so.") not in link_result.stdout:
         raise SystemExit("DropTransfer cancellation probe loaded the wrong libXm")
-    for mode in ("immediate", "active"):
+    for mode in ("immediate", "active", "requestor"):
         command = ["xvfb-run", "-a", "timeout", "10s", str(binary)]
         if mode == "active":
             command.append("active")

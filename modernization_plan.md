@@ -632,8 +632,9 @@ replacement or transfer cancellation. Multiple targets and application-DnD
 journeys remain separate gates. The companion installed `check-dnd-cancel`
 probe also passes the initiator-side `XmDragCancel` and finish-notification
 contract in three repeated runs. The receiver-side `check-dnd-transfer-cancel`
-consumer also passes delayed-start and active-incremental request cancellation
-in three fresh runs each. The source-side `check-dnd-source-cancel` consumer
+consumer also passes delayed-start, active-incremental and requestor-shell
+destruction cancellation in three fresh runs each. The source-side
+`check-dnd-source-cancel` consumer
 also passes owner replacement during an active drag and post-drop incremental
 transfer cancellation in three fresh runs each; multiple-target/application-DnD
 journeys remain open. The installed `check-dnd-multiple-targets` consumer also

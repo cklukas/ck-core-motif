@@ -44,8 +44,9 @@ DropTransfer cancellation and lifetime safety (2026-10-25)
   callbacks, cancel a genuinely outstanding Xt selection request, and clear
   completed transfer arrays after release. This fixes the stale-timer crash
   and completed-transfer double free without changing the public C API.
-- Add immediate and active-incremental installed regressions. Three fresh
-  AArch64 Xvfb runs pass 7 checks in immediate mode and 8 in active mode;
+- Add immediate, active-incremental and requestor-destruction installed
+  regressions. Three fresh AArch64 Xvfb runs pass 7 checks in immediate mode,
+  8 in active mode and 7 while destroying the requestor shell;
   source-side post-drop cancellation, owner replacement and broader workflows
   remain separate. See `docs/dnd-transfer-lifecycle.md`.
 

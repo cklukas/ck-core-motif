@@ -138,9 +138,10 @@ independent-client Motif drag gestures now pass conversion, valid-drop
 admission, transfer-entry client-data propagation and Xt-owned selection-value
 checks in three repeated Xvfb runs each. The companion initiator-side
 `XmDragCancel` probe also passes its finish notification contract. The
-receiver-side `XmDropTransfer` lifetime probe now passes both delayed-start and
-active-incremental request cancellation, including destruction from the first
-transfer callback, in three repeated runs each. The source-side probe now
+receiver-side `XmDropTransfer` lifetime probe now passes delayed-start,
+active-incremental request cancellation and requestor-shell destruction,
+including destruction from the first transfer callback, in three repeated runs
+each. The source-side probe now
 passes owner replacement during an active drag and post-drop incremental
 transfer cancellation in three repeated runs each. The same-process
 multiple-target probe also passes its two-target client-data/payload contract

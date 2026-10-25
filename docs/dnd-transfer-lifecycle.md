@@ -65,12 +65,13 @@ workflow.
 `tests/automated/check-dnd-transfer-cancel.c` covers the receiver-side
 DropTransfer lifetime contract. Its immediate mode destroys the object before
 the delayed start timer runs; its active mode requests a 2 MiB incremental
-selection and destroys the object from the first transfer callback. The
-toolkit now retains and removes the delayed timer, unregisters the drag-context
-callback, cancels an outstanding Xt selection request when destruction really
-interrupts it, and only forgets a request that has already completed. Completed
-transfer arrays are nulled after release so the later source-notification
-destruction cannot free them twice.
+selection and destroys the object from the first transfer callback; and its
+requestor mode destroys the destination shell while the request is queued.
+The toolkit now retains and removes the delayed timer, unregisters the
+drag-context and requestor callbacks, cancels an outstanding Xt selection
+request when destruction really interrupts it, and only forgets a request that
+has already completed. Completed transfer arrays are nulled after release so
+the later source-notification destruction cannot free them twice.
 
 Run it with:
 
@@ -79,13 +80,13 @@ python3 tests/automated/run-dnd-transfer-cancel.py \
   /absolute/installed/prefix /absolute/fresh/results
 ```
 
-The AArch64 `uconsole` qualification on 2026-10-25 passed the immediate
-7-check and active 8-check modes in three fresh Xvfb runs each. All receipts
-used the rebuilt `libXm.so.8.0.0` SHA-256
-(`84fa1a406a31da1e09d64d8a42b77f340689dea49a911d0aa0d5ac0e672ee706`) and
+The latest AArch64 `uconsole` qualification on 2026-10-25 passed the immediate
+7-check, active 8-check and requestor 7-check modes in three fresh Xvfb runs
+each. All receipts used the installed `libXm.so.8.0.0` SHA-256
+(`1a38e360f82964e7a318bc61099f7300be6c05ec5a75c3e09814646f9adf545`) and
 the probe source SHA-256
-(`57f3ad7f8bbdbe5914755f25482d2a66bd6312b659e7a38e26f3d5c6e2ae89ec`).
-This closes the bounded receiver-object/timer/request cancellation contract;
+(`f872d518414a7b8cfe36a5eb693669bedffadcc867c9c285788fb8089866df9a`).
+This closes the bounded receiver-object/timer/requestor cancellation contract;
 source-side cancellation and owner replacement are covered separately below;
 multiple targets and complete application workflows remain separate gates.
 
