@@ -6212,3 +6212,8 @@ Container dynamic tab-list rebuild rollback (2026-10-25)
 
 - Keep the previous usable detail tab list when replacement tab allocation
   fails; see `docs/container-tab-rebuild-failure.md`.
+Traversal redirect-cycle fallback (2026-10-25)
+===============================================
+
+- Preserve the current focus widget when traversal-control redirects reach the
+  recursion limit; see `docs/traversal-redirect-cycle.md`.
