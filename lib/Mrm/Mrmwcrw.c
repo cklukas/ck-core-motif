@@ -1837,6 +1837,9 @@ Urm__CW_CreateArglist (Widget			parent,
 		vecptr = (RGMTextVectorPtr) argval;
 		args[*num_used].value = (XtArgVal)vecptr->count;
 		break;
+	      default:
+		/* A related code is a vector-count resource by definition. */
+		continue;
 	      }
 	    uncmp_res = Urm__UncompressCode
 	      (file_id, argptr->stg_or_relcode.related_code,

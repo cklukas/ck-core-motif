@@ -110,6 +110,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  finalization; see docs/mrm-pixmap-tag-failure.md.
 
 2026-10-25
+	* Restrict related Mrm count codes to vector-valued arguments; see
+	  docs/mrm-related-count-type.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,
