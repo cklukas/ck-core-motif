@@ -21,6 +21,11 @@ The sidebar is the left pane of a horizontal split: categories and component
 entries stay visible on the left while the selected live control occupies the
 right pane.
 
+Categories start collapsed and use conventional disclosure indicators: `+`
+means the category is closed and `−` means it is open.  A component launched
+with `--component` automatically opens its category so the selected child is
+visible in the left navigation.
+
 When launched with `--component xm.infobarwidgetclass` (or any other
 constructible manifest ID), the gallery creates the Example page only after
 the notebook's Example, Source, and Built-in Icons tabs are registered.  This

@@ -46,6 +46,13 @@ InfoBar close control and FontSelector bounds (2026-10-27)
 - Bound FontSelector DPI scoring with 64-bit arithmetic and saturating square
   calculations, including zero-millimetre screen guards.
 
+Gallery category disclosure state (2026-10-27)
+==============================================
+
+- Start component categories collapsed so their disclosure glyph is `+` when
+  children are hidden; selecting a component explicitly expands its category
+  and shows the corresponding child row.
+
 Live text baselines (2026-10-27)
 ================================
 
