@@ -31,6 +31,14 @@ Harden TextIn allocation rollback (2026-10-25)
   arrays; see `docs/text-selection-array-bounds.md` and the focused automated
   TextIn allocation checks.
 
+Harden XmString allocation boundaries (2026-10-25)
+===================================================
+
+- Guard baseline extraction, byte-stream sizing, ASN.1 truncation, lazy parse
+  tables, and parse-mapping construction against overflow and allocation
+  failure while preserving successful compound-string behavior; see the
+  corresponding `xmstring-*-allocation.md` pages and focused checks.
+
 Harden simple-menu varargs processing (2026-10-25)
 ===================================================
 

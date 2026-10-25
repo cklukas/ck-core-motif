@@ -620,6 +620,7 @@ EXTRA_DIST += tests/automated/check-xmim-preedit-allocation.py docs/xmim-preedit
 EXTRA_DIST += tests/automated/check-xmim-varargs-allocation.py docs/xmim-varargs-allocation.md
 
 EXTRA_DIST += tests/automated/check-xmstring-parse-mapping-allocation.py docs/xmstring-parse-mapping-allocation.md
+EXTRA_DIST += tests/automated/check-xmstring-baseline-allocation.py docs/xmstring-baseline-allocation.md
 
 EXTRA_DIST += tests/automated/check-xmstring-parse-table-allocation.py docs/xmstring-parse-table-allocation.md
 
