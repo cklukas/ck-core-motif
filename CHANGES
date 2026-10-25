@@ -1,3 +1,10 @@
+Screen resource lookup null validation (2026-10-25)
+====================================================
+
+- Return `NULL` from `XmGetXmScreen` when no `Screen` is supplied, avoiding
+  an early `DisplayOfScreen` dereference; see
+  `docs/screen-getxm-null.md`.
+
 Documentation workflow trigger scope (2026-10-25)
 ====================================================
 

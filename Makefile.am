@@ -81,6 +81,7 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
 	      tests/automated/check-screen-font-unit-input.py \
 	      tests/automated/check-screen-per-screen-getters.py \
 	      tests/automated/check-screen-default-glyph-input.py \
+	      tests/automated/check-screen-getxm-null.py \
               tests/automated/check-docs-provenance.py tests/automated/check-makestrs-comments.py \
               tests/automated/check-native-features.py \
               tests/Toolkit/ABI/cohort.c tests/Toolkit/Im/preedit_ranges.c \

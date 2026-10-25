@@ -1578,6 +1578,10 @@ XmGetXmScreen(
     Cardinal i;
     Screen *scr;
     char name[25];
+
+    if (screen == NULL)
+	return(NULL);
+
     _XmDisplayToAppContext(DisplayOfScreen(screen));
 
     _XmAppLock(app);
