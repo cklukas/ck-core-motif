@@ -5910,9 +5910,11 @@ GetDumbTabList(
     Cardinal i;
 
     if (asked_num_tab == 0 ||
-        (size_t)asked_num_tab > SIZE_MAX / sizeof(*tab_pool))
+        (size_t)asked_num_tab > SIZE_MAX / sizeof(*tab_pool) ||
+        (size_t)asked_num_tab > UINT_MAX / sizeof(*tab_pool))
         return NULL;
-    tab_pool = (XmTab *)XtMalloc((size_t)asked_num_tab * sizeof(*tab_pool));
+    tab_pool = (XmTab *)XtMalloc((Cardinal)((size_t)asked_num_tab *
+						 sizeof(*tab_pool)));
     if (tab_pool == NULL)
         return NULL;
 

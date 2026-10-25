@@ -5767,6 +5767,13 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+Container tab-pool Xt width (2026-10-25)
+========================================
+
+- Check dynamic detail-tab pool sizes against Xt's `Cardinal` allocation width
+  before allocating the temporary array; see
+  `docs/container-tab-pool-guards.md`.
+
 Container reorder Xt width (2026-10-25)
 =======================================
 
