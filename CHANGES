@@ -52,6 +52,13 @@ PushButton emphasis fallback (2026-10-26)
   path for PushButton and PushButtonGadget drawing routines instead of
   terminating on assertions; see `docs/pushbutton-emphasis-fallback.md`.
 
+ToggleButton indicator fallback (2026-10-26)
+=============================================
+
+- Treat an unnormalized `XmONE_OF_MANY` indicator state as a no-draw branch
+  in ToggleButton and ToggleButtonGadget instead of asserting; see
+  `docs/togglebutton-indicator-fallback.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 

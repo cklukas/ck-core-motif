@@ -2356,7 +2356,7 @@ DrawToggle
 
 	case XmONE_OF_MANY:
 	  /* This value should have been normalized away! */
-	  assert(FALSE);
+	  break;
 
 	case XmONE_OF_MANY_DIAMOND:
 	  XmeDrawDiamond(dpy, drawable, top_gc, bot_gc, fill_gc, x, y,
