@@ -59,6 +59,21 @@ the out-of-tree rule supplies it. The bootstrap still emits pre-existing
 missing-lexer or generated-parser error occurred, and the warnings are not
 described as a warning-free build.
 
+The generated C file can contain build-directory context from the selected
+`flex` implementation, so its digest is evidence for one build result rather
+than a source reproducibility key. A later incremental `uconsole` build using
+`flex 2.6.4` (GCC 14.2.0) retained the same lexer-source digest and generated
+the following output:
+
+| Input/output | SHA-256 |
+| --- | --- |
+| `tools/wml/wmllex.l` | `1b09024869b107af3b4c4e5d3fe8500d1ab9e26b0eec7b5116d6a67fb0762fb3` |
+| generated `tools/wml/wmllex.c` | `8774317dc630ca4052891b75149f40fdf6300d043135e5ceccabf5190ed35810` |
+
+The stable acceptance condition is successful generation and compilation from
+the checked-in `.l` source; generated-output hashes remain useful provenance
+for the exact build directory and toolchain recorded alongside them.
+
 The WML key-table emitter now converts its bounded keyword length once to the
 `int` field required by the generated table, eliminating the `size_t`/`%d`
 format mismatch while retaining the existing generated output. The source

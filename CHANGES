@@ -6513,3 +6513,10 @@ RowColumn popup-shell name allocation width (2026-10-25)
 - Bound generated popup-shell names by both host and Xt allocator widths;
   see `docs/rowcolumn-popup-name-allocation.md`.
 
+Clarify WML generated-output receipt provenance (2026-10-25)
+==============================================================
+
+- Distinguish the stable `wmllex.l` source digest from generated `wmllex.c`
+  output digests that may include build-directory context; record the latest
+  `uconsole` `flex 2.6.4` receipt in `docs/wml-build.md`.
+
