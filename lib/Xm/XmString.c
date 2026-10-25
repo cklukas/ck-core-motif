@@ -9149,6 +9149,11 @@ XmStringComponentCreate(XmStringComponentType c_type,
       }
 
       tag_index = _XmStringIndexCacheTag((char*) value, length);
+      if (_XmStringIndexGetTag(tag_index) == NULL ||
+	  strcmp(_XmStringIndexGetTag(tag_index), (char *)value) != 0) {
+	_XmProcessUnlock();
+	return NULL;
+      }
       optimized = (tag_index < TAG_INDEX_MAX);
       if (optimized) {
 	_XmStrTextType((_XmString)&opt) = XmCHARSET_TEXT;
@@ -9194,6 +9199,12 @@ XmStringComponentCreate(XmStringComponentType c_type,
 				(char*) XmFONTLIST_DEFAULT_TAG,
 				XmSTRING_TAG_STRLEN);
 
+      if (_XmStringIndexGetTag(tag_index) == NULL ||
+	  strcmp(_XmStringIndexGetTag(tag_index), XmFONTLIST_DEFAULT_TAG) != 0) {
+	_XmProcessUnlock();
+	return NULL;
+      }
+
       if (length < (1 << BYTE_COUNT_BITS))
 	optimized = (tag_index < TAG_INDEX_MAX);
 
@@ -9222,6 +9233,11 @@ XmStringComponentCreate(XmStringComponentType c_type,
       }
 
       tag_index = _XmStringIndexCacheTag((char*) value, length);
+      if (_XmStringIndexGetTag(tag_index) == NULL ||
+	  strcmp(_XmStringIndexGetTag(tag_index), (char *)value) != 0) {
+	_XmProcessUnlock();
+	return NULL;
+      }
       optimized = (tag_index < TAG_INDEX_MAX);
       if (optimized) {
 	_XmStrTextType((_XmString)&opt) = XmMULTIBYTE_TEXT;
@@ -9276,6 +9292,11 @@ XmStringComponentCreate(XmStringComponentType c_type,
       }
 
       tag_index = _XmStringIndexCacheTag((char *)value, length);
+      if (_XmStringIndexGetTag(tag_index) == NULL ||
+	  strcmp(_XmStringIndexGetTag(tag_index), (char *)value) != 0) {
+	_XmProcessUnlock();
+	return NULL;
+      }
       optimized = (tag_index < REND_INDEX_MAX);
       if (optimized)
 	{
@@ -9297,6 +9318,11 @@ XmStringComponentCreate(XmStringComponentType c_type,
       }
 
       tag_index = _XmStringIndexCacheTag((char *)value, length);
+      if (_XmStringIndexGetTag(tag_index) == NULL ||
+	  strcmp(_XmStringIndexGetTag(tag_index), (char *)value) != 0) {
+	_XmProcessUnlock();
+	return NULL;
+      }
       optimized = (tag_index < REND_INDEX_MAX);
       if (optimized)
 	{
