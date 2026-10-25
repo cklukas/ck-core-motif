@@ -32,6 +32,10 @@ clients exchanging Motif window-management messages.
 
 - [Client workspace-list allocation](mwm-client-workspace-list-allocation.md)
 
+## Initialization
+
+- [Argument-vector allocation](mwm-argv-allocation.md)
+
 ## Workspace and persistence data
 
 - [Workspace-list serialization](mwm-workspace-list-serialization.md)

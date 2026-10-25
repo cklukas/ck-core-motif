@@ -11508,6 +11508,12 @@ MWM CCI label-prefix allocation width (2026-10-25)
 - Check combined CCI label-prefix lengths against Xt's allocation width; see
   `docs/mwm-cci-label-prefix.md`.
 
+MWM argument-vector allocation width (2026-10-25)
+==================================================
+
+- Check private initialization argument-vector copies before allocation; see
+  `docs/mwm-argv-allocation.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 

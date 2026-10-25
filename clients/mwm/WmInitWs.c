@@ -2279,7 +2279,8 @@ void CopyArgv (int argc, char *argv [])
     int i;
 
 
-    if ((wmGD.argv = (char **)XtMalloc ((argc + 1) * sizeof (char *))) == NULL)
+	if (argc < 0 || (size_t)argc + 1 > UINT_MAX / sizeof(char *) ||
+	    (wmGD.argv = (char **)XtMalloc ((Cardinal)(((size_t)argc + 1) * sizeof(char *)))) == NULL)
     {
 	Warning (((char *)GETMESSAGE(40, 10, "Insufficient memory for window manager data")));
 	wmGD.argv = argv;
@@ -2295,7 +2296,8 @@ void CopyArgv (int argc, char *argv [])
 	}
 	wmGD.argv[i] = NULL;
 #ifdef WSM
-	if ((dpy2Argv = (char **)XtMalloc((argc + 1) * sizeof(char *))) == NULL)
+	if (argc < 0 || (size_t)argc + 1 > UINT_MAX / sizeof(char *) ||
+	    (dpy2Argv = (char **)XtMalloc((Cardinal)(((size_t)argc + 1) * sizeof(char *)))) == NULL)
 	{
 	    Warning (((char *)GETMESSAGE(40, 11, "Insufficient memory for window manager data")));
 	    dpy2Argv = argv;
