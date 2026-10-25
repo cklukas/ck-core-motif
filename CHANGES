@@ -264,6 +264,8 @@ Render-table locking (2026-10-26)
   names transactionally; see `docs/render-table-export-entry-guards.md`.
 - Normalize both nullable rendition tags during XmString substring matching;
   see `docs/xmstring-substring-null-tags.md`.
+- Handle optimized XmString concatenation resize failure transactionally
+  before moving text; see `docs/xmstring-concat-realloc.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================

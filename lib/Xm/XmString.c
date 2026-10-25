@@ -1750,9 +1750,18 @@ XmStringConcatAndFree(XmString a,
 	 * string does not have this padding. 
 	 */
 	unsigned int size = sizeof(_XmStringOptSegRec);
+	XmString resized_b;
 	if (_XmStrByteCount(b) > sizeof(XtPointer))
 	  size += _XmStrByteCount(b) - sizeof(XtPointer);
-	b = (XmString)XtRealloc((char *)b, size);
+	resized_b = (XmString)XtRealloc((char *)b, size);
+	if (resized_b == NULL) {
+	  _XmStrRefCountSet(b, 1);
+	  _XmProcessUnlock();
+	  XmStringFree(a);
+	  XmStringFree(b);
+	  return NULL;
+	}
+	b = resized_b;
 	memmove(_XmEntryTextGet((_XmStringEntry)b),
 		_XmStrText(b),
 		_XmStrByteCount(b));
