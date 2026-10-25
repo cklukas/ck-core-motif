@@ -4598,3 +4598,9 @@ Transient traversal guards (2026-10-25)
 
 - Handle detached clients safely in transient leader, top, and count helpers;
   see `docs/transient-traversal-guards.md`.
+
+Transient sibling guards (2026-10-25)
+=====================================
+
+- Validate sibling chains before transient reordering;
+  see `docs/transient-sibling-guards.md`.

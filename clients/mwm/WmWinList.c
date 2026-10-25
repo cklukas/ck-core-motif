@@ -1047,6 +1047,10 @@ Boolean PutTransientOnTop (ClientData *pcd)
     ClientData *pcdPrev;
     Boolean restack = False;
 
+    if (pcd == NULL)
+    {
+        return (False);
+    }
 
     pcdLeader = pcd->transientLeader;
     if (pcdLeader != NULL)
@@ -1054,11 +1058,16 @@ Boolean PutTransientOnTop (ClientData *pcd)
 	pcdPrev = pcdLeader->transientChildren;
 	if (pcdPrev != pcd)
 	{
-	    while (pcdPrev->transientSiblings != pcd)
-	    {
-		pcdPrev = pcdPrev->transientSiblings;
-	    }
-	    pcdPrev->transientSiblings = pcd->transientSiblings;
+            while (pcdPrev != NULL &&
+                   pcdPrev->transientSiblings != pcd)
+            {
+                pcdPrev = pcdPrev->transientSiblings;
+            }
+            if (pcdPrev == NULL)
+            {
+                return (restack);
+            }
+            pcdPrev->transientSiblings = pcd->transientSiblings;
 	    pcd->transientSiblings = pcdLeader->transientChildren;
 	    pcdLeader->transientChildren = pcd;
 	    restack = True;
@@ -1112,6 +1121,10 @@ Boolean PutTransientBelowSiblings (ClientData *pcd)
     ClientData *pcdNext;
     Boolean restack = False;
 
+    if (pcd == NULL)
+    {
+        return (False);
+    }
 
     pcdLeader = pcd->transientLeader;
     if (pcdLeader)
@@ -1124,8 +1137,13 @@ Boolean PutTransientBelowSiblings (ClientData *pcd)
 	        pcdLeader->transientChildren = pcd->transientSiblings;
 	    }
 
-	    pcdNext = pcdLeader->transientChildren;
-	    while (pcdNext->transientSiblings)
+            pcdNext = pcdLeader->transientChildren;
+            if (pcdNext == NULL)
+            {
+                pcd->transientSiblings = NULL;
+                return (restack);
+            }
+            while (pcdNext->transientSiblings)
 	    {
 		if (pcdNext->transientSiblings == pcd)
 		{
