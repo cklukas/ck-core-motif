@@ -1,3 +1,10 @@
+Clipboard property replacement input validation (2026-10-26)
+==============================================================
+
+- Reject unsupported X11 property formats, null non-empty buffers, and
+  non-unit-aligned byte lengths before clipboard replacement arithmetic; see
+  `docs/clipboard-replace-input-validation.md`.
+
 Clipboard retrieval-size overflow guard (2026-10-26)
 =====================================================
 

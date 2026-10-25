@@ -1413,6 +1413,15 @@ ClipboardReplaceItem(
     int loc_mode;
     unsigned int max_req_size;
 
+    if ((format != 8 && format != 16 && format != 32) ||
+	(pointer == NULL && length != 0) ||
+	(length % BYTELENGTH(1, format)) != 0)
+    {
+	if (free_flag == True)
+	    XtFree((char *)pointer);
+	return;
+    }
+
     loc_pointer = pointer;
     loc_mode = mode;
 
