@@ -1,3 +1,9 @@
+XmList mutator null-safety (2026-10-25)
+=======================================
+
+- Guard keyboard-position, horizontal-position, and add-mode mutators against
+  null widgets; see `docs/xm-list-mutator-null.md`.
+
 XmList selection helper null-safety (2026-10-25)
 ===============================================
 

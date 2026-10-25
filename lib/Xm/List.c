@@ -9085,6 +9085,8 @@ XmListSelectPos(Widget w,
 #endif /* NeedWidePrototypes */
 {
   XmListWidget  lw = (XmListWidget) w;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9392,6 +9394,8 @@ XmListSetAddMode(Widget w,
 #endif /* NeedWidePrototypes */
 {
   XmListWidget  lw = (XmListWidget) w;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9562,6 +9566,8 @@ XmListSetKbdItemPos(Widget w,
 		    int    pos)
 {
   XmListWidget  lw = (XmListWidget) w;
+  if (w == NULL)
+    return False;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
