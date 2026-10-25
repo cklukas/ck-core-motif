@@ -16,8 +16,9 @@ aggregate sizing contract is covered by
 `tests/automated/check-text-property-size.py`.
 
 The compound-string (ASN.1) branch applies the same checked aggregate sizing,
-allocates space for its final terminator, and verifies each conversion result
-before copying it. The branch contract is covered by
+rejects totals outside Xt's `Cardinal` byte range, passes an explicit
+Xt-sized allocation, allocates space for its final terminator, and verifies
+each conversion result before copying it. The branch contract is covered by
 `tests/automated/check-compound-string-bounds.py`.
 
 Locale, text, and string conversion applies the same pointer-array and signed

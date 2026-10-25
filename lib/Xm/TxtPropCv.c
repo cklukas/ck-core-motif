@@ -566,8 +566,13 @@ XmCvtXmStringTableToTextProperty(Display *display,
       }
       /* Allocate that amount of space and convert the compound strings
 	 to ASN1 strings, putting them directly into the buffer. */
+	      if ((size_t)total_size + 1 > UINT_MAX) {
+		_XmAppUnlock(app);
+		return BadAlloc;
+	      }
       text_prop_return->value = ubufptr =
-	(unsigned char *) XtMalloc(sizeof(unsigned char) * ((size_t)total_size + 1));
+	(unsigned char *) XtMalloc(
+		(Cardinal)(sizeof(unsigned char) * ((size_t)total_size + 1)));
       if (text_prop_return->value == NULL) {
 	_XmAppUnlock(app);
 	return BadAlloc;

@@ -12078,3 +12078,10 @@ Make internal XmList stack allocation width explicit (2026-10-26)
   see `docs/xmlist-stack-allocation.md`.
 
 Bound RCPopup list allocation width (2026-10-26)
+Bound compound text-property allocation width (2026-10-26)
+===========================================================
+
+- Reject compound-text totals outside Xt's `Cardinal` range and pass an
+  explicit final-buffer size; see `docs/text-property-bounds.md`.
+
+Make internal XmList stack allocation width explicit (2026-10-26)
