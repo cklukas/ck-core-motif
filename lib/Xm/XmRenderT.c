@@ -2002,6 +2002,10 @@ XmRenderTableGetRenditions(XmRenderTable table,
      app = XtDisplayToApplicationContext(_XmRTDisplay(table));
      _XmAppLock(app);
   }
+  else
+  {
+     _XmProcessLock();
+  }
 #endif
 	if ((size_t)tag_count > SIZE_MAX / sizeof(*rends) ||
 	    tag_count > UINT_MAX / sizeof(*rends))
@@ -2035,7 +2039,10 @@ XmRenderTableGetRenditions(XmRenderTable table,
 	    {
 		for (i = 0; i < tag_count; i++)
 		    if (rends[i] != NULL)
-			XmRenditionFree(rends[i]);
+			{
+			    FreeRendition(rends[i]);
+			    FreeHandle(rends[i]);
+			}
 	    }
 	    XtFree((char *)rends);
 	    rends = NULL;
@@ -2045,6 +2052,9 @@ unlock_return:
 #ifdef XTHREADS
   if (app) {
      _XmAppUnlock(app);
+  }
+  else {
+     _XmProcessUnlock();
   }
 #endif
   return(rends);

@@ -15,3 +15,7 @@ and a partially copied result is released before returning.
 Successful matching and rendition ownership remain unchanged; callers still
 release each non-`NULL` rendition with `XmRenditionFree` and the array with
 `XtFree`.
+
+Display-less tables are protected by the process lock. Allocation-failure
+cleanup releases copied renditions through the internal lock-held helpers, so
+it does not recursively acquire the process lock.
