@@ -415,8 +415,13 @@ audit classification; no additional source correction is claimed.  See
 The additive live display-scale transaction now also rejects nested scale
 changes from a callback, preserving the outer transaction's override and
 retiring its per-display guard with the Motif display. The installed
-`run-display-scale-reentrant.py` fixture is the focused regression; the full
-historical-widget scale matrix remains open.
+`run-display-scale-reentrant.py` fixture is the focused regression. The
+manifest-driven gallery then qualifies the realized historical-widget cohort
+through the public transaction at 1.0, 1.5, 2.0 and 3.0 scales: all 94
+manifest scenarios pass in the 16-cell matrix (1,504 captures, with hashes
+and receipts retained). This closes the simulated historical-widget matrix;
+real XLibre output changes and the separately listed metric-audit limits
+remain open under WP-04A.
 
 ### WP-04A: XLibre per-output scaling integration
 
