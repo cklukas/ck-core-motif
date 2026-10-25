@@ -355,7 +355,11 @@ static void
 DrawShadow(
         XmFrameWidget fw )
 {
-   if (XtIsRealized((Widget)fw)) {
+   if (XtIsRealized((Widget)fw) &&
+       fw->manager.top_shadow_GC != NULL &&
+       fw->manager.bottom_shadow_GC != NULL &&
+       fw->frame.old_width != 0 && fw->frame.old_height != 0 &&
+       fw->frame.old_shadow_thickness != 0) {
        XmeDrawShadows(XtDisplay (fw), XtWindow (fw),
 		fw->manager.top_shadow_GC, fw->manager.bottom_shadow_GC,
 		fw->frame.old_shadow_x, fw->frame.old_shadow_y,

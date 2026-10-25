@@ -5049,3 +5049,8 @@ ArrowButtonGadget redisplay guards (2026-10-25)
 - Validate background, shadow, and arrow GCs plus computed geometry before
   ArrowButtonGadget drawing; see
   `docs/arrow-button-gadget-redisplay-guards.md`.
+Frame shadow redisplay guards (2026-10-25)
+===========================================
+
+- Skip frame shadow drawing until its manager GCs, cached dimensions, and
+  shadow thickness are valid; see `docs/frame-shadow-redisplay-guards.md`.
