@@ -146,6 +146,14 @@ UTMReplyReceived(Widget w, XtPointer clientData, XtPointer callData)
   Boolean errorFound = False;
   Atom type = _WSMReqTypeToTarget(XtDisplay(w), req_info->request_type);
 
+  if (scs == NULL) {
+    if (req_info->reply_callback != NULL)
+      (*req_info->reply_callback)(w, req_info->reply_data, NULL,
+				  WSM_ERROR_INTERNAL);
+    XtFree((XtPointer) req_info);
+    return;
+  }
+
   /* Let's check some other values just to make sure things are ok. */
   if (scs->reason != XmCR_OK) {
     fprintf(stderr, "ERROR: Bad reason value received in UTMReplyReceived.\n");

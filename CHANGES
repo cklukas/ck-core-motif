@@ -11117,3 +11117,9 @@ WSM reply callback lifecycle (2026-10-25)
 - Guard optional reply callbacks and release pending request state when a
   transfer callback reports malformed status; see
   `docs/wsm-reply-callback-lifecycle.md`.
+
+WSM null transfer data (2026-10-25)
+===================================
+
+- Reject null selection callback data with a safe internal-error cleanup path;
+  see `docs/wsm-reply-null-data.md`.
