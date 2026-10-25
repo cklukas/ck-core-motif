@@ -3507,6 +3507,9 @@ GetSpatialSize (
             cell_height = cw->container.real_large_cellh;
             }
 	}
+    if (CtrSpatialStyleIsCELLS(cw) &&
+	(cell_width == 0 || cell_height == 0))
+	return;
     /*
      * Must allocate array to hold cwid information so we can use it to 
      * calculate adjustments to ideal size when we're in XmCELLS.  Don't
