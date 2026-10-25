@@ -1,3 +1,9 @@
+Window-configuration placement validation (2026-10-25)
+=======================================================
+
+- Normalize invalid icon-place conversion results before occupancy lookup; see
+  `docs/winconf-place-sentinel.md`.
+
 Minimized-icon placement validation (2026-10-25)
 =================================================
 

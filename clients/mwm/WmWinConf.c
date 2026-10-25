@@ -1173,6 +1173,11 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 		centerX = moveX + ICON_WIDTH(pcd) / 2;
 		centerY = moveY + ICON_HEIGHT(pcd) / 2;
 		place = CvtIconPositionToPlace (pIPD, centerX, centerY);
+		if (place < 0 || place >= pIPD->totalPlaces ||
+		    pIPD->placeList == NULL)
+		{
+		    place = NO_ICON_PLACE;
+		}
 
 		if (place != ICON_PLACE(pcd))
 		{
