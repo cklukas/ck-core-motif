@@ -8079,3 +8079,12 @@ XmIm reference-list shrinking (2026-10-27)
 
 XmString rendition-stack extents (2026-10-27)
 ==============================================
+FontS list-size bounds (2026-10-27)
+===================================
+
+- Check font-selector list capacities before multiplying them into allocation
+  byte counts, preserving the existing failure behavior for unrepresentable
+  growth requests.
+
+XmIm reference-list shrinking (2026-10-27)
+===========================================
