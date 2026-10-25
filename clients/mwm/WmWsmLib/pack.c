@@ -139,6 +139,11 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 
     *error = WSM_SUCCESS;
 
+    if (global_attrs == NULL || win_attrs == NULL || icon_attrs == NULL) {
+	*error = WSM_ERROR_INTERNAL;
+	return(NULL);
+    }
+
     if (_WSMRequiresConfigFormat(request->any.type) && 
 	(global_attrs->num_attrs == 0) && 
 	(win_attrs->num_attrs == 0) && (icon_attrs->num_attrs == 0))

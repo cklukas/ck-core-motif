@@ -186,7 +186,11 @@ WSMAttribute *
 _WSMGetMatchingAttr(XrmQuark nameq, WSMConfigFormatData *fmt_data)
 {
     register int i;
-    WSMAttribute * attr = fmt_data->attr_list;
+    WSMAttribute * attr;
+
+    if (fmt_data == NULL)
+	return(NULL);
+    attr = fmt_data->attr_list;
 
     for (i = 0; i < fmt_data->num_attrs; i++, attr++) {
 	if (nameq == attr->nameq)

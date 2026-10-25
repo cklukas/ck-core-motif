@@ -11150,3 +11150,10 @@ WSM target conversion allocation failure (2026-10-25)
 - Return safe unknown/none values when display metadata cannot be allocated,
   avoiding null dereferences in target conversion; see
   `docs/wsm-target-conversion-null.md`.
+
+WSM packer configuration failure (2026-10-25)
+==============================================
+
+- Reject request packing when display configuration metadata is unavailable,
+  and make null format lookups return no match; see
+  `docs/wsm-packer-config-null.md`.
