@@ -7409,6 +7409,8 @@ XmStringByteStreamLength(unsigned char *string)
 
     if (string == NULL)
 	return(0);
+    if (!_is_asn1(string))
+	return(0);
 
     _XmProcessLock();
     len = _read_string_length( string );

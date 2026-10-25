@@ -149,6 +149,12 @@ XmString unparse output validation (2026-10-26)
   preventing unterminated output for invalid callers; see
   `docs/xmstring-unparse-output.md`.
 
+XmString byte-stream header validation (2026-10-26)
+====================================================
+
+- Reject non-ASN.1 input before reading byte-stream length fields, matching the
+  converter’s existing validation; see `docs/xmstring-byte-stream-length.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 
