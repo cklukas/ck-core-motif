@@ -1370,6 +1370,8 @@ _XmRenditionCopy(XmRendition rend,
 
   if (shared) toRend = CopyRendition(rend);
   else toRend = CloneRendition(rend);
+  if (toRend == NULL)
+    return(NULL);
 
   /* If we had to clone, copy the 'scratch' info. */
   if (*toRend != *rend)

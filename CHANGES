@@ -10046,6 +10046,12 @@ XmRenderT shared-handle allocation guard (2026-10-25)
 - Undo shared-rendition reference increments when handle allocation fails;
   see `docs/xmrender-shared-handle-allocation.md`.
 
+XmRenderT copy failure propagation (2026-10-25)
+===============================================
+
+- Propagate failed shared or cloned rendition allocation before scratch-state
+  access; see `docs/xmrender-copy-propagation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
