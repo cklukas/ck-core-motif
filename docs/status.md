@@ -28,8 +28,11 @@ resources remain unchanged.  A consumer-only ASan/UBSan run with leak
 detection disabled reports no invalid access or undefined behavior;
 leak-enabled output is limited to 224 bytes in 10 libX11/Xt Xrm allocations at
 process exit and remains an external ownership boundary.  The live scope is
-registered core widgets; non-core gadget coverage and the complete
-historical-widget matrix remain open.
+registered core widgets and cache-backed gadgets; the complete
+historical-widget matrix remains open. Three repeated installed gadget runs
+and a consumer-only ASan/UBSan gadget run cover explicit-resource preservation,
+stale gadget-state pruning after destruction, and replacement under the active
+profile.
 
 ## Native hard-line and geometry qualification
 

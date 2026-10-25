@@ -5743,6 +5743,16 @@ Appearance transaction atomicity (2026-10-25)
   consumer verifies that staging allocation failure leaves the selected
   profile and realized resources unchanged, then permits a later transition.
 
+Live appearance gadget coverage (2026-10-25)
+=============================================
+
+- Register cache-backed Motif gadgets in the live appearance transaction,
+  defer their first value snapshot until the gadget cache is initialized, and
+  prune destroyed gadgets by parent-manager membership because gadgets do not
+  have a normal widget destroy callback. The installed `PushButtonGadget`
+  fixture covers explicit-resource preservation, destruction, replacement and
+  consumer ASan/UBSan execution.
+
 Display-scale transaction rollback (2026-10-25)
 ===============================================
 

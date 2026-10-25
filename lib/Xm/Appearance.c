@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include <X11/IntrinsicP.h>
+#include <X11/CompositeP.h>
 #include <X11/StringDefs.h>
 #include <X11/Xresource.h>
 #include <X11/Xutil.h>
@@ -120,6 +121,7 @@ typedef enum {
 
 typedef struct _XmAppearanceWidgetState {
     Widget widget;
+    Widget parent;
     Display *display;
     Boolean supported[AP_COUNT];
     Boolean explicit_arg[AP_COUNT];
@@ -129,6 +131,7 @@ typedef struct _XmAppearanceWidgetState {
     unsigned int references;
     Boolean retired;
     Boolean initialized;
+    Boolean gadget;
     struct _XmAppearanceWidgetState *next;
 } XmAppearanceWidgetState;
 
@@ -151,6 +154,8 @@ typedef struct _XmAppearanceDisplayState {
 static XmAppearanceWidgetState *appearance_widgets;
 static XmAppearanceDisplayState *appearance_displays;
 
+static void appearance_release_gadget_states(Display *display);
+
 void
 _XmDestroyAppearanceDisplay(Display *display)
 {
@@ -161,6 +166,8 @@ _XmDestroyAppearanceDisplay(Display *display)
 
     if (display == NULL)
         return;
+
+    appearance_release_gadget_states(display);
 
     _XmProcessLock();
     link = &appearance_displays;
@@ -518,6 +525,79 @@ appearance_transaction_is_active(Display *display)
     return active;
 }
 
+static XmAppearanceWidgetState *
+find_live_widget_state(Widget widget)
+{
+    XmAppearanceWidgetState *state;
+
+    for (state = appearance_widgets; state != NULL; state = state->next)
+        if (!state->gadget && !state->retired && state->widget == widget)
+            return state;
+    return NULL;
+}
+
+static Boolean
+appearance_gadget_is_live(XmAppearanceWidgetState *state)
+{
+    CompositeWidget parent;
+
+    if (!state->gadget || state->widget == NULL || state->parent == NULL)
+        return False;
+    if (find_live_widget_state(state->parent) == NULL ||
+        !XtIsComposite(state->parent))
+        return False;
+    parent = (CompositeWidget)state->parent;
+    for (Cardinal i = 0; i < parent->composite.num_children; ++i)
+        if (parent->composite.children[i] == state->widget)
+            return True;
+    return False;
+}
+
+static void
+appearance_prune_gadgets(Display *display)
+{
+    XmAppearanceWidgetState **link;
+    XmAppearanceWidgetState *state;
+
+    _XmProcessLock();
+    link = &appearance_widgets;
+    while (*link != NULL) {
+        state = *link;
+        if (state->display == display && state->gadget &&
+            !appearance_gadget_is_live(state)) {
+            state->retired = True;
+            *link = state->next;
+            if (state->references == 0)
+                XtFree((char *)state);
+            continue;
+        }
+        link = &state->next;
+    }
+    _XmProcessUnlock();
+}
+
+static void
+appearance_release_gadget_states(Display *display)
+{
+    XmAppearanceWidgetState **link;
+    XmAppearanceWidgetState *state;
+
+    _XmProcessLock();
+    link = &appearance_widgets;
+    while (*link != NULL) {
+        state = *link;
+        if (state->display == display && state->gadget) {
+            state->retired = True;
+            *link = state->next;
+            if (state->references == 0)
+                XtFree((char *)state);
+            continue;
+        }
+        link = &state->next;
+    }
+    _XmProcessUnlock();
+}
+
 static XmAppearanceDisplayState *
 ensure_display_state(Display *display)
 {
@@ -632,11 +712,14 @@ appearance_widget_commit(XmAppearanceChangePlan *plan)
         }
     if (count != 0)
         XtSetValues(state->widget, set_args, count);
-    if (state->widget != NULL) {
+    if (state->widget != NULL && XtIsWidget(state->widget)) {
         read_appearance_values(state, state->last);
         if (XtIsRealized(state->widget))
             XClearArea(XtDisplay(state->widget), XtWindow(state->widget),
                        0, 0, 0, 0, True);
+    } else if (state->parent != NULL && XtIsRealized(state->parent)) {
+        XClearArea(XtDisplay(state->parent), XtWindow(state->parent),
+                   0, 0, 0, 0, True);
     }
 }
 
@@ -671,12 +754,14 @@ _XmRegisterAppearanceChange(Widget widget, ArgList args, Cardinal num_args)
     XmAppearanceProfile profile = XmAPPEARANCE_CLASSIC;
     XmAppearanceWidgetState *existing;
 
-    if (widget == NULL || !XtIsWidget(widget))
+    if (widget == NULL || !XtIsObject(widget))
         return False;
     state = (XmAppearanceWidgetState *)XtCalloc(1, sizeof(*state));
     if (state == NULL)
         return False;
     state->widget = widget;
+    state->gadget = !XtIsWidget(widget);
+    state->parent = state->gadget ? XtParent(widget) : NULL;
     state->display = XtDisplayOfObject(widget);
     for (AppearanceProperty property = 0; property < AP_COUNT; ++property)
         state->supported[property] = appearance_resource_supported(widget,
@@ -684,7 +769,7 @@ _XmRegisterAppearanceChange(Widget widget, ArgList args, Cardinal num_args)
     for (AppearanceProperty property = 0; property < AP_COUNT; ++property)
         state->explicit_arg[property] = appearance_explicit_arg(args, num_args,
                                                                  property);
-    if (!XtIsShell(widget)) {
+    if (!state->gadget && !XtIsShell(widget)) {
         (void)XmGetAppearanceProfile(state->display, &profile);
         initialize_appearance_state(state, profile);
     }
@@ -699,8 +784,9 @@ _XmRegisterAppearanceChange(Widget widget, ArgList args, Cardinal num_args)
     state->next = appearance_widgets;
     appearance_widgets = state;
     _XmProcessUnlock();
-    XtAddCallback(widget, XmNdestroyCallback, appearance_widget_destroyed,
-                  (XtPointer)state);
+    if (!state->gadget)
+        XtAddCallback(widget, XmNdestroyCallback, appearance_widget_destroyed,
+                      (XtPointer)state);
     return True;
 }
 
@@ -714,6 +800,7 @@ _XmApplyAppearanceChange(Display *display, XmAppearanceProfile old_profile,
     Cardinal count = 0;
     Boolean success = True;
 
+    appearance_prune_gadgets(display);
     _XmProcessLock();
     for (state = appearance_widgets; state != NULL; state = state->next)
         if (!state->retired && state->display == display)
