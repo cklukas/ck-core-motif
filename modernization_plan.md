@@ -636,7 +636,10 @@ consumer also passes delayed-start and active-incremental request cancellation
 in three fresh runs each. The source-side `check-dnd-source-cancel` consumer
 also passes owner replacement during an active drag and post-drop incremental
 transfer cancellation in three fresh runs each; multiple-target/application-DnD
-journeys remain open. See
+journeys remain open. The installed `check-dnd-multiple-targets` consumer also
+passes a same-process two-target transfer, preserving each target's client
+data and payload in three fresh runs; cross-process multiple-target and full
+application journeys remain open. See
 `docs/dropsite-lifecycle.md` and `docs/dnd-transfer-lifecycle.md`.
 
 ### WP-07: Screen-reader usability and semantic completion

@@ -58,7 +58,8 @@ These are real coverage gaps rather than claims of known source defects:
    `XmDropTransfer` lifetime probe also covers delayed-start and active
    incremental request cancellation. The source-side probe now covers owner
    replacement during an active drag and post-drop incremental cancellation.
-   Multiple-target/application drag-and-drop ownership and unqualified
+   Same-process two-target transfer is now covered; cross-process
+   multiple-target/application drag-and-drop ownership and unqualified
    system-library sanitizer ownership remain open; see
    `docs/dropsite-lifecycle.md` and `docs/dnd-transfer-lifecycle.md`.
 4. **Non-text Unicode matrix.** The installed public-API fixture now covers

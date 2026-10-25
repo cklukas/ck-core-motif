@@ -142,9 +142,11 @@ receiver-side `XmDropTransfer` lifetime probe now passes both delayed-start and
 active-incremental request cancellation, including destruction from the first
 transfer callback, in three repeated runs each. The source-side probe now
 passes owner replacement during an active drag and post-drop incremental
-transfer cancellation in three repeated runs each. Multiple-target and
-broader application drag-and-drop workflows, physical display/input
-qualification and other architectures remain separate admission gates. See
+transfer cancellation in three repeated runs each. The same-process
+multiple-target probe also passes its two-target client-data/payload contract
+in three repeated runs. Cross-process multiple-target and broader application
+drag-and-drop workflows, physical display/input qualification and other
+architectures remain separate admission gates. See
 `docs/dnd-transfer-lifecycle.md`.
 
 The newer ABI 6 candidate, its consumers and documentation deployment remain

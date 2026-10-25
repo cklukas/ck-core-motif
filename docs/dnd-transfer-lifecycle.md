@@ -32,10 +32,10 @@ the same probe source SHA-256
 runner records the exact prefix, compiler output, loaded-library proof,
 source/library hashes, output path and elapsed time.
 
-This is a bounded same-process transfer contract. It does not claim
-cancellation, owner replacement, incremental payload assembly, multiple
-targets, or a complete application drag-and-drop journey; those remain
-separate qualification gates.
+This is a bounded same-process single-target transfer contract. Multiple
+targets, cancellation and owner replacement are qualified by separate probes;
+incremental payload assembly and a complete application drag-and-drop journey
+remain separate gates.
 
 `tests/automated/check-dnd-cross-process.c` is the companion two-client probe.
 It forks before opening displays, gives the source and destination independent
@@ -126,5 +126,27 @@ source probe hash was
 `275a0576d79c1e971553a7b723e82f94f65d0942fe986b182011ad94e0aa5ec6`.
 The same prefix also passed the existing same-process (11 checks),
 cross-process (12 checks) and initiator-cancellation (3 checks) probes in
-three fresh runs each.  Multiple targets and full application DnD workflows
-remain open.
+three fresh runs each.  Cross-process multiple-target and full application
+DND workflows remain open.
+
+`tests/automated/check-dnd-multiple-targets.c` covers a two-target transfer in
+one `XmDropTransferStart` request.  The source exports two atoms with distinct
+payloads, the destination imports both, and the transfer callback verifies
+that each target retains its own client data, type, format and bytes exactly
+once.  This exercises the array ownership and completion path without
+introducing a new public API.
+
+Run it with:
+
+```sh
+python3 tests/automated/run-dnd-multiple-targets.py \
+  /absolute/installed/prefix /absolute/fresh/results
+```
+
+The AArch64 `uconsole` qualification on 2026-10-25 passed 21 checks in three
+fresh Xvfb runs.  The installed `libXm.so.8.0.0` hash was
+`1a38e360f82964e7a318bc61099f7300be6c05ec5a75c3e09814646f9adf545`; the
+probe source hash was
+`28c60357f3e2c80244f6107eb2ff21a3e7fa13e96696fb75a88b347f280ca631`.
+Cross-process multiple targets, incremental payload assembly and complete
+application workflows remain open.

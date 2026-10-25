@@ -73,6 +73,16 @@ Source-side drag selection loss (2026-10-25)
   targets and complete application workflows remain open. See
   `docs/dnd-transfer-lifecycle.md`.
 
+Multiple-target drag transfer (2026-10-25)
+==========================================
+
+- Add an installed two-target transfer regression using the existing
+  `XmDropTransferStart` array contract. It verifies that each target's
+  client-data pointer, type, format and payload survive asynchronous transfer
+  exactly once. Three fresh AArch64 Xvfb runs pass 21 checks each against the
+  rebuilt prefix; cross-process multiple-target and full application DnD
+  journeys remain open. See `docs/dnd-transfer-lifecycle.md`.
+
 FontSelector sanitizer ownership boundary (2026-10-25)
 ========================================================
 
