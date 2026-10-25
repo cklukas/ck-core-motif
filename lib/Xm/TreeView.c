@@ -17,6 +17,28 @@ static int clamp_coordinate(long long value) {
            value > INT_MAX ? INT_MAX : (int)value;
 }
 
+static void text_metrics(XmTreeViewWidget view, int *ascent, int *descent,
+                         int *width, const char *text, int length) {
+    XGCValues values;
+    XFontStruct *font = NULL;
+    int measured = 0;
+    *ascent = 0;
+    *descent = 0;
+    *width = 0;
+    if (!view->tree_view.gc ||
+        !XGetGCValues(XtDisplay((Widget)view), view->tree_view.gc, GCFont,
+                      &values))
+        return;
+    font = XQueryFont(XtDisplay((Widget)view), values.font);
+    if (!font)
+        return;
+    *ascent = font->ascent;
+    *descent = font->descent;
+    measured = (text && length > 0) ? XTextWidth(font, text, length) : 0;
+    *width = measured < 0 ? 0 : measured;
+    XFreeFontInfo(NULL, font, 1);
+}
+
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Redisplay(Widget, XEvent *, Region);
 static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
@@ -216,9 +238,16 @@ static void redraw(XmTreeViewWidget view) {
 
 static void select_id(XmTreeViewWidget view, XtPointer id, Boolean notify,
                       XEvent *event) {
+    int row;
     if (find_id(view, id) < 0 || view->tree_view.selected_id == id)
         return;
     view->tree_view.selected_id = id;
+    row = visible_row_for_id(view, id);
+    if (row >= 0 && (Cardinal)row >= view->tree_view.top_row +
+                    view->tree_view.visible_rows)
+        view->tree_view.top_row = (Cardinal)row - view->tree_view.visible_rows + 1;
+    else if (row >= 0 && (Cardinal)row < view->tree_view.top_row)
+        view->tree_view.top_row = (Cardinal)row;
     redraw(view);
     if (notify)
         notify_selection(view, event);
@@ -301,10 +330,12 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Window window = XtWindow(widget);
     Cardinal row, total = visible_count(view);
     int index;
+    int font_ascent, font_descent, unused_width;
     const char *label;
     (void)event; (void)region;
     if (!window || !view->tree_view.gc)
         return;
+    text_metrics(view, &font_ascent, &font_descent, &unused_width, NULL, 0);
     XClearWindow(display, window);
     for (row = 0; row < view->tree_view.visible_rows; ++row) {
         Cardinal absolute = view->tree_view.top_row + row;
@@ -344,8 +375,13 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             size_t label_length = strlen(label);
             int draw_length = label_length > (size_t)INT_MAX ? INT_MAX :
                               (int)label_length;
-            int label_width = label_length > (size_t)(INT_MAX - 4) / 8 ?
-                              INT_MAX - 4 : (int)(label_length * 8);
+            int label_width = 0;
+            int baseline;
+            text_metrics(view, &font_ascent, &font_descent, &label_width,
+                         label, draw_length);
+            baseline = clamp_coordinate((long long)y +
+                ((long long)view->tree_view.row_height - font_ascent - font_descent) / 2 +
+                font_ascent);
         if (!view->tree_view.rtl)
             x += 14;
         else {
@@ -354,8 +390,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                 (rtl_x > INT_MAX ? INT_MAX : (int)rtl_x);
         }
         XDrawString(display, window, view->tree_view.gc, x,
-                    clamp_coordinate((long long)y +
-                                     (long long)view->tree_view.row_height - 6),
+                    baseline,
                     label, draw_length);
         }
     }

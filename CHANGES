@@ -97,6 +97,15 @@ Gallery layout fixtures and TreeView coordinates (2026-10-27)
 - Widen and clamp TreeView row coordinates before converting to X11 integers;
   extreme row-height/visible-row resources no longer wrap during redisplay.
 
+TreeView text metrics and selection visibility (2026-10-27)
+============================================================
+
+- Derive TreeView label widths and baselines from the active X font instead of
+  fixed eight-pixel/row-height guesses, preventing clipped or vertically
+  misaligned labels when the application changes the font or row height.
+- Keep a programmatically selected visible node in the viewport, matching the
+  keyboard navigation behavior without changing the public selection API.
+
 Gallery data-view fixtures (2026-10-27)
 =======================================
 

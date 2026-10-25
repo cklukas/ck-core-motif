@@ -49,3 +49,16 @@ A general replacement of X11 geometry, a complete Unicode conformance claim or
 an incompatible default scaling policy needs a separate design and evidence.
 The immediate maintenance path is concrete fixes plus reusable tests, followed
 by the next reproducible issue in these work packages.
+
+## TreeView typography and selection
+
+TreeView labels now use the active X font's ascent, descent, and measured width
+for their baseline and RTL placement.  This keeps text readable when an
+application supplies a larger or smaller font and avoids the former fixed
+eight-pixel width estimate.  `XmTreeViewSetSelectedId` also scrolls a visible
+selected node into view, which makes programmatic navigation behave like the
+existing keyboard path.  The focused source check is:
+
+```sh
+python3 tests/automated/check-treeview-text-metrics.py
+```
