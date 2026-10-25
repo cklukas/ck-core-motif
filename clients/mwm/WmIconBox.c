@@ -116,6 +116,7 @@ Cardinal insertPosition = 0;
 #define    DEFAULT_ICON_BOX_TITLE "Icons"
 Const char *szhorizontal = "horizontal";
 Const char *szvertical = "vertical";
+static char defaultIconBoxPolicy[] = "all";
 
 
 /*************************************<->*************************************
@@ -860,13 +861,16 @@ void InitializeIconBoxData (WmWorkspaceData *pWS, IconBoxData *pIBD)
     pIBD->wsID = pWS->id;
 #endif /* WSM */
 
-    ToLower ((unsigned char *) pWS->pSD->iconBoxSBDisplayPolicy);
-    
+    if (pWS->pSD->iconBoxSBDisplayPolicy == NULL)
+	pWS->pSD->iconBoxSBDisplayPolicy = defaultIconBoxPolicy;
+    else
+	ToLower ((unsigned char *) pWS->pSD->iconBoxSBDisplayPolicy);
+
     if (!((!strcmp(pWS->pSD->iconBoxSBDisplayPolicy , "all"))      ||
 	  (!strcmp(pWS->pSD->iconBoxSBDisplayPolicy , szvertical)) ||
 	  (!strcmp(pWS->pSD->iconBoxSBDisplayPolicy , szhorizontal))))
     {
-	strcpy(pWS->pSD->iconBoxSBDisplayPolicy, "all");
+	pWS->pSD->iconBoxSBDisplayPolicy = defaultIconBoxPolicy;
     }
 
 	

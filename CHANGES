@@ -4297,3 +4297,11 @@ Icon-box resize guards (2026-10-25)
 
 Icon-box virtual-space expansion bounds (2026-10-25)
 =====================================================
+Icon-box policy fallback (2026-10-25)
+======================================
+
+- Handle missing or invalid icon-box scrollbar policy values with a safe
+  writable fallback; see `docs/icon-policy-fallback.md`.
+
+Icon-box resize guards (2026-10-25)
+====================================
