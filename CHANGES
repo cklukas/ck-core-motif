@@ -3248,6 +3248,12 @@ Drag target-table allocation handling (2026-10-25)
 
 - Check target-cache table allocation and growth before dereferencing the
   resulting pointers; see `docs/dragbs-targets-allocation-guards.md`.
+
+Drag target-entry allocation handling (2026-10-25)
+===================================================
+
+- Roll back partially added target lists when an atom-array allocation fails;
+  see `docs/dragbs-target-entry-allocation.md`.
 2026-10-25
 	* Add an opt-in XmSegmentedControl composite with copied item ownership,
 	  bounded clipping, RTL keyboard traversal and accessibility selection state.
