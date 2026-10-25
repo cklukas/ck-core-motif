@@ -5091,3 +5091,9 @@ CascadeButtonGadget shadow redisplay guards (2026-10-25)
 - Validate parent realization, shadow GCs, thickness, and gadget geometry before
   drawing CascadeButtonGadget shadows; see
   `docs/cascade-button-gadget-shadow-redisplay-guards.md`.
+BulletinBoard shadow redisplay guards (2026-10-25)
+==================================================
+
+- Validate realization, manager shadow GCs, thickness, and dimensions before
+  drawing the BulletinBoard expose shadow; see
+  `docs/bulletin-board-shadow-redisplay-guards.md`.

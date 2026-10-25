@@ -1680,8 +1680,12 @@ Redisplay(
 
     /*	Draw shadow.
     */
-    if(    bb->manager.shadow_thickness    )
-    {   
+    if (bb->manager.shadow_thickness != 0 &&
+        XtIsRealized((Widget)bb) &&
+        bb->manager.top_shadow_GC != NULL &&
+        bb->manager.bottom_shadow_GC != NULL &&
+        bb->core.width != 0 && bb->core.height != 0)
+    {
         XmeDrawShadows(XtDisplay((Widget) bb), 
 			XtWindow((Widget) bb),
 			bb->manager.top_shadow_GC,

@@ -859,3 +859,4 @@ EXTRA_DIST += tests/automated/check-scale-value-redisplay-guards.py docs/scale-v
 EXTRA_DIST += tests/automated/check-form-shadow-redisplay-guards.py docs/form-shadow-redisplay-guards.md
 EXTRA_DIST += tests/automated/check-cascade-button-shadow-redisplay-guards.py docs/cascade-button-shadow-redisplay-guards.md
 EXTRA_DIST += tests/automated/check-cascade-button-gadget-shadow-redisplay-guards.py docs/cascade-button-gadget-shadow-redisplay-guards.md
+EXTRA_DIST += tests/automated/check-bulletin-board-shadow-redisplay-guards.py docs/bulletin-board-shadow-redisplay-guards.md
