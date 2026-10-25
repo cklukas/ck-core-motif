@@ -689,6 +689,10 @@ WriteAtomsTable(
     }
     dataSize = sizeof(xmMotifAtomsPropertyRec) +
       atomsTable->numEntries * sizeof(xmMotifAtomsTableRec);
+	if (dataSize > UINT32_MAX) {
+	XmeWarning((Widget) XmGetXmDisplay(display), MESSAGE4);
+	return;
+	}
 
     if ( dataSize > MAXSTACK ) {
 	propertyRecPtr = (struct _propertyRec *)XtMalloc( dataSize );
