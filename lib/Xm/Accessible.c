@@ -43,6 +43,7 @@
 #include <Xm/StatusBar.h>
 #include <Xm/Toolbar.h>
 #include <Xm/Sidebar.h>
+#include <Xm/AutoSuggestBox.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
 #include <Xm/PushBG.h>
@@ -1402,6 +1403,11 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     i->role = XmACCESSIBLE_PANEL;
     i->action_count = 1;
     local = XtNewString("Sidebar");
+  }
+  if (XmIsAutoSuggestBox(w)) {
+    i->role = XmACCESSIBLE_PANEL;
+    i->action_count = XmAutoSuggestBoxGetSuggestionCount(w) ? 1 : 0;
+    local = XtNewString("Suggestions");
   }
   if (XmIsNumberBox(w)) {
     int minimum, maximum;

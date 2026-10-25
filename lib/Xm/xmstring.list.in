@@ -1183,6 +1183,15 @@ NsidebarExpanded
 CSidebarToggleCallback
 NsidebarToggleCallback
 
+CAutoSuggestNoResultsLabel
+NautoSuggestNoResultsLabel
+CAutoSuggestQueryChangedCallback
+NautoSuggestQueryChangedCallback
+CAutoSuggestCommittedCallback
+NautoSuggestCommittedCallback
+CAutoSuggestDismissedCallback
+NautoSuggestDismissedCallback
+
 #table _XmStrings20
 
 NtearOffTitle

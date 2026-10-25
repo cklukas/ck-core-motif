@@ -1103,6 +1103,14 @@ ordinary `XmTextField`, `XmList` and ComboBox contracts.
 **Complete when:** an application can supply and retire suggestions safely
 without a global popup, private widget access or changed text/list semantics.
 
+**Status (2026-10-25):** `XmAutoSuggestBox` is implemented as a per-instance
+composition of the public `XmSearchBox` and `XmList` facilities.  It copies
+suggestion IDs and labels, binds updates to a monotonically increasing query
+generation, rejects stale/future results, provides keyboard/pointer selection,
+explicit no-results and dismissal behavior, and restores focus to the search
+field.  Its installed fixture passes 13 checks; providers and all model/I/O
+work remain application-owned and UI-thread-bound.
+
 ### WP-24: BreadcrumbBar
 
 **Depends on:** WP-15.

@@ -649,6 +649,16 @@ public XmSidebarGetContent
 public XmSidebarSetExpanded
 public XmSidebarGetExpanded
 public XmSidebarToggle
+public XmCreateAutoSuggestBox
+public XmVaCreateAutoSuggestBox
+public XmVaCreateManagedAutoSuggestBox
+public XmAutoSuggestBoxSetSuggestions
+public XmAutoSuggestBoxGetSuggestionCount
+public XmAutoSuggestBoxGetGeneration
+public XmAutoSuggestBoxShow
+public XmAutoSuggestBoxDismiss
+public XmAutoSuggestBoxCommit
+public XmAutoSuggestBoxGetSearchField
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -965,6 +975,8 @@ public xmToolbarClassRec
 public xmToolbarWidgetClass
 public xmSidebarClassRec
 public xmSidebarWidgetClass
+public xmAutoSuggestBoxClassRec
+public xmAutoSuggestBoxWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec
