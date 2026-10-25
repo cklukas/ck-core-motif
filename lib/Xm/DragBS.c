@@ -915,11 +915,27 @@ WriteTargetsTable(
 	XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE5);
 	return;
     }
+	if (targetsTable->numEntries > UINT16_MAX ||
+	    (targetsTable->numEntries != 0 && targetsTable->entries == NULL)) {
+	XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE5);
+	return;
+	}
 
     /* Calculate the total size of the property. */
     dataSize = sizeof(xmMotifTargetsPropertyRec);
 
     for (i = 0; i < targetsTable->numEntries; i++) {
+	if (targetsTable->entries[i].numTargets != 0 &&
+	    targetsTable->entries[i].targets == NULL) {
+	    XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE5);
+	    return;
+	}
+	if (dataSize > SIZE_MAX - 2 ||
+	    targetsTable->entries[i].numTargets >
+	    (SIZE_MAX - dataSize - 2) / 4) {
+	    XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE5);
+	    return;
+	}
 	dataSize += targetsTable->entries[i].numTargets * 4 + 2;
     }
 
@@ -928,6 +944,10 @@ WriteTargetsTable(
      */
     if ( dataSize > MAXSTACK ){
 	propertyRecPtr = (struct _propertyRec *)XtMalloc( dataSize );
+	if (propertyRecPtr == NULL) {
+	    XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE5);
+	    return;
+	}
     } else {
 	propertyRecPtr = (struct _propertyRec *)stackData ;
     }
