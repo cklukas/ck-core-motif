@@ -45,7 +45,7 @@ typedef struct _DataQueueRec {
 static DataQueueRec *dataQueue, *dataQueueTail  = NULL;
 
 
-static void EnqueueUtmData(
+static Boolean EnqueueUtmData(
 XtPointer
 );
 
@@ -96,6 +96,10 @@ UTMSendMessage(
 
   /* allocates and builds utm package to send. */
   pUtmData = (UTMPackageRec *) XtMalloc(sizeof(UTMPackageRec));
+  if (pUtmData == NULL) {
+    fprintf(stderr, "UTM Error: unable to allocate transfer package.\n");
+    return;
+  }
   pUtmData->fmt = paramFmt;
   pUtmData->len = paramLen;
   pUtmData->target = target;
@@ -110,7 +114,11 @@ UTMSendMessage(
    * to UTMDestionationProc!
    */
 
-  EnqueueUtmData(pUtmData);
+  if (!EnqueueUtmData(pUtmData)) {
+    XtFree((char *)pUtmData);
+    fprintf(stderr, "UTM Error: unable to queue transfer package.\n");
+    return;
+  }
 
   /*
    * This causes the DestinationCB to be invoked.
@@ -207,10 +215,13 @@ UTMDestinationProc (
  | Puts data onto the queue between sending messages and having   |
  | the destination callback invoked.                              |
  *----------------------------------------------------------------*/
-static void
+static Boolean
 EnqueueUtmData(XtPointer data)
 {
   DataQueueRec *dataRec = (DataQueueRec *)XtMalloc(sizeof(DataQueueRec));
+
+  if (dataRec == NULL)
+    return(False);
 
   dataRec->data = data;
   dataRec->next = dataQueue;
@@ -222,7 +233,7 @@ EnqueueUtmData(XtPointer data)
     dataQueue->prev = dataRec;
   dataQueue = dataRec;
 
-  return;
+  return(True);
 }
 
 

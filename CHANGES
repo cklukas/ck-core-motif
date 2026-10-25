@@ -38,6 +38,12 @@ WSM send failure cleanup (2026-10-25)
   callbacks, and clean up packed data when request-state allocation fails; see
   `docs/wsm-send-failures.md`.
 
+UTM send allocation guards (2026-10-25)
+=======================================
+
+- Check transfer-package and queue-node allocations before use, dropping an
+  unsent request safely on low-memory failure; see `docs/utm-send-allocations.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 
