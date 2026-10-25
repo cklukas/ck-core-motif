@@ -1303,20 +1303,22 @@ _XmLabelSetBackgroundGC(XmLabelGadget lw)
     {
         int depth;
 
-        XmeGetPixmapData(XtScreen((Widget)lw), mw->core.background_pixmap,
-            NULL, &depth, NULL, NULL, NULL, NULL, NULL, NULL);
-
-        if (depth == 1)
+        if (XmeGetPixmapData(XtScreen((Widget)lw),
+                             mw->core.background_pixmap,
+                             NULL, &depth, NULL, NULL, NULL, NULL, NULL, NULL))
         {
-            valueMask |= GCFillStyle | GCStipple ;
-            values.fill_style = FillOpaqueStippled;
-            values.stipple = mw->core.background_pixmap;
-        }
-        else
-        {
-            valueMask |= GCFillStyle | GCTile ;
-            values.fill_style = FillTiled;
-            values.tile = mw->core.background_pixmap;
+            if (depth == 1)
+            {
+                valueMask |= GCFillStyle | GCStipple ;
+                values.fill_style = FillOpaqueStippled;
+                values.stipple = mw->core.background_pixmap;
+            }
+            else
+            {
+                valueMask |= GCFillStyle | GCTile ;
+                values.fill_style = FillTiled;
+                values.tile = mw->core.background_pixmap;
+            }
         }
     }
 
