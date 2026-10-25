@@ -4337,3 +4337,11 @@ Icon placement initialization guards (2026-10-25)
 
 Icon-place lookup guards (2026-10-25)
 ======================================
+Icon-place search guards (2026-10-25)
+======================================
+
+- Validate icon-place search inputs and root coordinate arrays before lookup
+  or conversion; see `docs/find-place-guards.md`.
+
+Icon placement initialization guards (2026-10-25)
+===================================================

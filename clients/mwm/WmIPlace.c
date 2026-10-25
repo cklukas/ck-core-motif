@@ -513,6 +513,12 @@ void CvtIconPlaceToPosition (IconPlacementData *pIPD, int place, int *pX, int *p
 
     if (pIPD->onRootWindow)
     {
+	if (pIPD->placementColX == NULL || pIPD->placementRowY == NULL)
+	{
+	    *pX = 0;
+	    *pY = 0;
+	    return;
+	}
 	*pX = pIPD->placementColX[col] + pIPD->placeIconX;
 	*pY = pIPD->placementRowY[row] + pIPD->placeIconY;
     }
@@ -571,6 +577,11 @@ int FindIconPlace (ClientData *pCD, IconPlacementData *pIPD, int x, int y)
     int altX;
     int altY;
     int amt;
+
+    if (pCD == NULL || pIPD == NULL || pIPD->placeList == NULL ||
+	pIPD->totalPlaces <= 0 || pIPD->iPlaceW <= 0 ||
+	pIPD->iPlaceH <= 0)
+	return (NO_ICON_PLACE);
 
 
     place = CvtIconPositionToPlace (pIPD, x, y);
