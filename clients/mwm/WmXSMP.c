@@ -116,6 +116,7 @@ static Boolean smClientDBCheckpointed = False;
 /* Session mgmt callbacks. */
 static void smSaveYourselfCallback(Widget, XtPointer, XtPointer);
 static void smDieCallback(Widget, XtPointer, XtPointer);
+static void freeNewRestartCmd(char **);
 
 /* Build client database file name. */
 static void buildDBFileName(char [MAXPATHLEN], Boolean);
@@ -445,7 +446,10 @@ getNewRestartCmd(void)
 	argc += 2;
     }
 
-    if ((newRestartCmd = (char **)XtMalloc((argc + 1) * sizeof(char *)))
+    if (argc < 0 || (size_t)argc > (SIZE_MAX / sizeof(char *)) - 1)
+	return (char **)NULL;
+    if ((newRestartCmd = (char **)XtCalloc((size_t)argc + 1,
+					   sizeof(char *)))
 	== (char **)NULL)
 	return (char **)NULL;
 
@@ -454,16 +458,26 @@ getNewRestartCmd(void)
 	if (i != fileArgIndex)
 	{
 	    newRestartCmd[i] = XtNewString(restartCmd[i]);
+	    if (newRestartCmd[i] == (char *)NULL)
+		goto failure;
 	}
 	else
 	{
 	    newRestartCmd[i++] = XtNewString(dbFileArgStr);
+	    if (newRestartCmd[i - 1] == (char *)NULL)
+		goto failure;
 	    newRestartCmd[i] = XtNewString(wmGD.dbFileName);
+	    if (newRestartCmd[i] == (char *)NULL)
+		goto failure;
 	}
     }
     newRestartCmd[i] = (char *)NULL;
 
     return newRestartCmd;
+
+failure:
+    freeNewRestartCmd(newRestartCmd);
+    return (char **)NULL;
 }
 
 static void

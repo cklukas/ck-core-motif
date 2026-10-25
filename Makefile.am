@@ -132,6 +132,7 @@ EXTRA_DIST += tests/automated/check-mwm-cci-argument-allocation.py docs/mwm-cci-
 EXTRA_DIST += tests/automated/check-mwm-cci-label-prefix.py docs/mwm-cci-label-prefix.md
 EXTRA_DIST += tests/automated/check-mwm-default-menu-allocation.py docs/mwm-default-menu-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-workspace-restore-allocation.py docs/mwm-workspace-restore-allocation.md
+EXTRA_DIST += tests/automated/check-mwm-restart-command-allocation.py docs/mwm-restart-command-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md
 EXTRA_DIST += tests/automated/check-editres-error-bounds.py docs/editres-error-bounds.md
 EXTRA_DIST += tests/automated/check-spinbox-name-bounds.py docs/spinbox-name-bounds.md

@@ -9783,6 +9783,13 @@ FontSelector label initialization rollback (2026-10-28)
 SpinBox value-list SetValues rollback (2026-10-28)
 =====================================================
 
+MWM restart-command allocation guard (2026-10-25)
+=================================================
+
+- Build session restart-command arrays transactionally, checking array sizing
+  and every copied argument before publishing the command; see
+  `docs/mwm-restart-command-allocation.md`.
+
 MWM workspace-restore allocation guard (2026-10-25)
 ====================================================
 
