@@ -1,3 +1,9 @@
+Workspace information property allocation (2026-10-25)
+========================================================
+
+- Check and clean up temporary workspace-property buffers before use; see
+  `docs/workspace-info-allocation.md`.
+
 WSM target cache guards (2026-10-25)
 =====================================
 

@@ -1436,6 +1436,16 @@ SetWorkspaceInfoProperty (WmWorkspaceData *pWS)
     /* allocate string vector */
     ppchList = (char **) XtMalloc (iNumStrings * sizeof (char *));
     pch = (char *) XtMalloc (iNumStrings * WIP_NUMBER_SIZE * sizeof(char));
+
+    if (ppchList == NULL || pch == NULL)
+    {
+	Warning ("Insufficient memory for workspace information property");
+	if (ppchList != NULL)
+	    XtFree ((char *) ppchList);
+	if (pch != NULL)
+	    XtFree (pch);
+	return;
+    }
     
     i = 0;
 
