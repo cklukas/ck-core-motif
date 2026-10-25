@@ -5137,7 +5137,8 @@ ProcessWorkspaceList (WmScreenData *pSD)
 	}
 	wsNameCount = 0;
 
-	while (((string = GetString(&lineP)) != NULL))
+	while (wsNameCount < MAX_WORKSPACE_COUNT &&
+	       ((string = GetString(&lineP)) != NULL))
 	{
 	    ppchWsNames[wsNameCount] = (char *) string;
 

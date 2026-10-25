@@ -1,3 +1,10 @@
+Mwm workspace-list parsing bound (2026-10-25)
+===============================================
+
+- Apply the existing 64-workspace limit while parsing resource names so extra
+  entries cannot grow temporary storage without bound; see
+  `docs/workspace-list-limit.md`.
+
 Mwm workspace property-name bounds (2026-10-25)
 =================================================
 
