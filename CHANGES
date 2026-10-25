@@ -14409,3 +14409,9 @@ CommandPalette size-limit header (2026-10-26)
   output pointers and valid `void` returns.
 * Split the global display-scale resource reader from the compatibility
   `_XmGetDpiScale` wrapper and declare both helpers consistently.
+Mwm feedback size-limit header (2026-10-26)
+============================================
+
+- Include `<limits.h>` for the Mwm feedback-string `UINT_MAX` allocation
+  guard, restoring standalone compilation; see
+  `docs/wm-feedback-size-limit-header.md`.
