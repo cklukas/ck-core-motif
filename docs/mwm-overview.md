@@ -32,6 +32,7 @@ clients exchanging Motif window-management messages.
 - [Restart-command allocation](mwm-restart-command-allocation.md)
 - [Session database-name allocation](mwm-db-name-allocation.md)
 - [Session database suffix updates](mwm-db-name-suffix.md)
+- [Home-directory path bounds](mwm-home-path.md)
 - [Action-argument reallocation](mwm-action-arg-reallocation.md)
 - [Session-command parsing rollback](mwm-session-command-rollback.md)
 - [Motif-bindings path sizing](mwm-bindings-path-size.md)

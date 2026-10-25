@@ -11282,3 +11282,9 @@ MWM session database suffix updates (2026-10-25)
 
 - Bound numeric suffix conversion and non-numeric suffix appends for session
   database names; see `docs/mwm-db-name-suffix.md`.
+
+MWM home-directory path bounds (2026-10-25)
+===========================================
+
+- Bound legacy `$HOME` and passwd-derived path copies to `MAXWMPATH`; see
+  `docs/mwm-home-path.md`.

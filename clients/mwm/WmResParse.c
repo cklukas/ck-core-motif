@@ -1869,6 +1869,7 @@ unsigned int PeekAhead(unsigned char *currentChar,
 void GetHomeDirName(String  fileName)
 {
         int uid;
+        int length;
         struct passwd *pw;
         char *ptr = NULL;
 
@@ -1893,7 +1894,9 @@ void GetHomeDirName(String  fileName)
                 ptr = "";
 	    }
         }
-        strcpy(fileName, ptr);
+        length = snprintf(fileName, MAXWMPATH + 1, "%s", ptr);
+        if (length < 0 || length > MAXWMPATH)
+            fileName[0] = '\0';
 }
 #endif
 

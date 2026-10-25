@@ -962,6 +962,7 @@ EXTRA_DIST += tests/automated/check-wsm-reply-config-null.py docs/wsm-reply-conf
 EXTRA_DIST += tests/automated/check-wsm-unpack-null.py docs/wsm-unpack-null.md
 EXTRA_DIST += tests/automated/check-wsm-free-null.py docs/wsm-free-null.md
 EXTRA_DIST += tests/automated/check-mwm-db-name-suffix.py docs/mwm-db-name-suffix.md
+EXTRA_DIST += tests/automated/check-mwm-home-path.py docs/mwm-home-path.md
 
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 
