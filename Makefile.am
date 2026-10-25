@@ -932,6 +932,8 @@ EXTRA_DIST += tests/automated/check-wsm-target-conversion-null.py docs/wsm-targe
 
 EXTRA_DIST += tests/automated/check-wsm-packer-config-null.py docs/wsm-packer-config-null.md
 
+EXTRA_DIST += tests/automated/check-wsm-wm-target-mapping.py docs/wsm-wm-target-mapping.md
+
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 
 EXTRA_DIST += tests/automated/check-latin-lower-bounds.py docs/latin-lower-bounds.md

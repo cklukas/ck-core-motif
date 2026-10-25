@@ -57,6 +57,16 @@ _WSMReqTypeToName(WSMRequestType req_type)
 	return("Set State");
     case WSM_REG_WINDOW:
 	return("Register Window");
+    case WSM_WM_GET_BACKGROUND_WINDOW:
+	return("WM Get Background Window");
+    case WSM_WM_SET_BACKGROUND_WINDOW:
+	return("WM Set Background Window");
+    case WSM_WM_WINDOWS:
+	return("WM Windows");
+    case WSM_WM_FOCUS:
+	return("WM Focus");
+    case WSM_WM_POINTER:
+	return("WM Pointer");
     default:
 	return("unknown");
     }
@@ -90,6 +100,16 @@ _WSMTargetToReqType(Display *dpy, Atom target)
 	return(WSM_SET_STATE);
     if (target == disp_atoms->reg_window) 
 	return(WSM_REG_WINDOW); 
+    if (target == disp_atoms->get_background)
+	return(WSM_WM_GET_BACKGROUND_WINDOW);
+    if (target == disp_atoms->set_background)
+	return(WSM_WM_SET_BACKGROUND_WINDOW);
+    if (target == disp_atoms->wm_windows)
+	return(WSM_WM_WINDOWS);
+    if (target == disp_atoms->wm_focus)
+	return(WSM_WM_FOCUS);
+    if (target == disp_atoms->wm_pointer)
+	return(WSM_WM_POINTER);
 
     /*
      * Atom doesn't match any request, generate error message.
@@ -127,6 +147,16 @@ _WSMReqTypeToTarget(Display *dpy, WSMRequestType req_type)
 	return(disp_atoms->set_state);
     case WSM_REG_WINDOW:
 	return(disp_atoms->reg_window);
+    case WSM_WM_GET_BACKGROUND_WINDOW:
+	return(disp_atoms->get_background);
+    case WSM_WM_SET_BACKGROUND_WINDOW:
+	return(disp_atoms->set_background);
+    case WSM_WM_WINDOWS:
+	return(disp_atoms->wm_windows);
+    case WSM_WM_FOCUS:
+	return(disp_atoms->wm_focus);
+    case WSM_WM_POINTER:
+	return(disp_atoms->wm_pointer);
     default:
 	break;
     }

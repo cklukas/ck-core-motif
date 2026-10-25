@@ -11157,3 +11157,10 @@ WSM packer configuration failure (2026-10-25)
 - Reject request packing when display configuration metadata is unavailable,
   and make null format lookups return no match; see
   `docs/wsm-packer-config-null.md`.
+
+WSM WM-target mapping (2026-10-25)
+==================================
+
+- Map WM-specific background, windows, focus, and pointer atoms through the
+  target/type helpers, including diagnostic names; see
+  `docs/wsm-wm-target-mapping.md`.
