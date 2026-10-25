@@ -6440,6 +6440,13 @@ PanedWindow separator allocation (2026-10-25)
   dereferences when toggling separator visibility; see
   `docs/paned-window-separator-allocation.md`.
 
+Bound PanedWindow separator allocation width (2026-10-25)
+===========================================================
+
+- Check temporary separator-list sizes against Xt's `Cardinal` allocation
+  width before collecting pane separators; see
+  `docs/paned-window-separator-allocation.md`.
+
 Bound legacy resource-filter byte sizes (2026-10-25)
 =====================================================
 

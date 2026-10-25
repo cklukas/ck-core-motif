@@ -2307,9 +2307,10 @@ SetValues(
       WidgetList sep_children;
       Cardinal num_separators = 0;
 
-      if ((size_t)num_children <= SIZE_MAX / sizeof(*sep_children))
-         sep_children = (WidgetList) XtMalloc((size_t)num_children *
-                                              sizeof(*sep_children));
+      if ((size_t)num_children <= SIZE_MAX / sizeof(*sep_children) &&
+          (size_t)num_children <= UINT_MAX / sizeof(*sep_children))
+         sep_children = (WidgetList) XtMalloc(
+             (Cardinal)((size_t)num_children * sizeof(*sep_children)));
       else
          sep_children = NULL;
 
