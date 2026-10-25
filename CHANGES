@@ -6275,3 +6275,10 @@ Bound XmString tag-cache allocation widths (2026-10-25)
 - Use explicit Xt `Cardinal` byte sizes for tag-cache initialization and
   growth, rejecting unrepresentable counts; see `docs/xmstring-tag-cache.md`.
 
+Bound List internal-array allocation widths (2026-10-25)
+=========================================================
+
+- Enforce both host and Xt `Cardinal` byte limits for internal List growth and
+  shrink paths while preserving the old allocation on failure; see
+  `docs/list-internal-growth.md` and its focused source check.
+

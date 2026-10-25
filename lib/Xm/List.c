@@ -3314,9 +3314,18 @@ AddInternalElements(XmListWidget lw,
   old_max_width = lw->list.MaxWidth;
   old_max_height = lw->list.MaxItemHeight;
 
-  lw->list.InternalList = (ElementPtr *)
-    XtRealloc((char *)lw->list.InternalList,
-	      (sizeof(Element *) * lw->list.itemCount));
+  if (lw->list.itemCount < 0 ||
+      (size_t)lw->list.itemCount > SIZE_MAX / sizeof(ElementPtr) ||
+      (size_t)lw->list.itemCount > UINT_MAX / sizeof(ElementPtr))
+    return 0;
+  {
+    ElementPtr *new_internal = (ElementPtr *)XtRealloc(
+        (char *)lw->list.InternalList,
+        (Cardinal)(sizeof(ElementPtr) * (size_t)lw->list.itemCount));
+    if (new_internal == NULL)
+      return 0;
+    lw->list.InternalList = new_internal;
+  }
 
   /* Make room in the InternalList for the new items. */
   if (pos < lw->list.LastItem)
@@ -3427,9 +3436,16 @@ DeleteInternalElements(XmListWidget lw,
 
   if (lw->list.itemCount)
     {
-      lw->list.InternalList = (ElementPtr *)
-	XtRealloc((char *) lw->list.InternalList,
-		  (sizeof(Element *) * lw->list.itemCount));
+      if ((size_t)lw->list.itemCount <= SIZE_MAX / sizeof(ElementPtr) &&
+          (size_t)lw->list.itemCount <= UINT_MAX / sizeof(ElementPtr))
+	{
+          ElementPtr *new_internal = (ElementPtr *)XtRealloc(
+              (char *)lw->list.InternalList,
+              (Cardinal)(sizeof(ElementPtr) *
+                         (size_t)lw->list.itemCount));
+          if (new_internal != NULL)
+            lw->list.InternalList = new_internal;
+	}
     }
   else
     {
@@ -3531,9 +3547,16 @@ DeleteInternalElementPositions(XmListWidget  lw,
 
   if (lw->list.itemCount)
     {
-      lw->list.InternalList = (ElementPtr*)
-	XtRealloc((char*) lw->list.InternalList,
-		  (sizeof(ElementPtr) * lw->list.itemCount));
+      if ((size_t)lw->list.itemCount <= SIZE_MAX / sizeof(ElementPtr) &&
+          (size_t)lw->list.itemCount <= UINT_MAX / sizeof(ElementPtr))
+	{
+          ElementPtr *new_internal = (ElementPtr *)XtRealloc(
+              (char *)lw->list.InternalList,
+              (Cardinal)(sizeof(ElementPtr) *
+                         (size_t)lw->list.itemCount));
+          if (new_internal != NULL)
+            lw->list.InternalList = new_internal;
+	}
     }
   else
     {
