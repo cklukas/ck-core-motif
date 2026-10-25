@@ -2511,10 +2511,22 @@ _XmGetKidGeo(
             int             i ;
             int             j = 0 ;
             Boolean         helpFound = FALSE ;
+            int             kid_count ;
+            size_t          geo_count ;
 /****************/
 
-    geo = (XmKidGeometry) XtMalloc( 
-                            (_XmGeoCount_kids (c) + 1) * sizeof (XmKidGeometryRec)) ;
+    if (wid == NULL)
+        return NULL;
+    kid_count = _XmGeoCount_kids(c);
+    if (kid_count < 0 || (size_t)kid_count >= SIZE_MAX / sizeof(XmKidGeometryRec))
+        return NULL;
+    geo_count = (size_t)kid_count + 1;
+    if (geo_count > SIZE_MAX / sizeof(XmKidGeometryRec) ||
+        geo_count > (size_t)(Cardinal)-1 / sizeof(XmKidGeometryRec))
+        return NULL;
+    geo = (XmKidGeometry) XtMalloc(geo_count * sizeof(XmKidGeometryRec));
+    if (geo == NULL)
+        return NULL;
     /* load all managed kids */
     for(    i = 0 ; i < c->composite.num_children ; i++    )
     {   

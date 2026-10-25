@@ -10271,6 +10271,12 @@ Label drag-icon input validation (2026-10-25)
 - Return no drag icon for a missing Label widget before querying screen or
   pixmap state; see `docs/label-drag-icon-input-validation.md`.
 
+GeoUtils child-list allocation guards (2026-10-25)
+==================================================
+
+- Validate `_XmGetKidGeo` list sizing and allocation before populating child
+  geometry records; see `docs/geo-kid-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
