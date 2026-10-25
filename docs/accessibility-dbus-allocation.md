@@ -15,3 +15,7 @@ created is skipped and the remaining tree continues to be announced.
 Method-return message construction is also checked before initializing an
 iterator, so D-Bus memory pressure produces a handled request rather than a
 null-message crash.
+
+AT-SPI state, window, cache, hierarchy, and property-change signals now use
+the same fail-closed rule: a missing signal is skipped without touching an
+uninitialized iterator or changing the native widget state.

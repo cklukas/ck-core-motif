@@ -6,6 +6,8 @@ Accessibility D-Bus memo allocation (2026-10-27)
   pressure, including initial tree seeding.
 - Check D-Bus method-return allocation before initializing iterators, handling
   request failure safely under transport memory pressure.
+- Guard AT-SPI state, window, cache, hierarchy, and property-change signal
+  construction before using their message iterators.
 
 Accessibility text allocation (2026-10-27)
 ===========================================
