@@ -79,6 +79,12 @@ FontSelector family-list Xt byte bounds (2026-10-28)
 - Check Xt `Cardinal` byte limits before building the FontSelector family
   list; see `docs/motif-fonts-family-allocation.md`.
 
+DrawUtils bevel-buffer Xt byte bounds (2026-10-28)
+===================================================
+
+- Check Xt `Cardinal` byte limits before growing the dynamic bevel rectangle
+  buffer; see `docs/drawutils-bevel-growth.md`.
+
 Compound-text concatenation failure handling (2026-10-28)
 ============================================================
 

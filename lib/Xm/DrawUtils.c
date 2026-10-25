@@ -87,7 +87,8 @@ XmDrawBevel(dpy, d, top_gc, bottom_gc, x, y, size, option)
 	if( size > numAlloced )
 	{
 	    XRectangle *new_alloced;
-	    if ((size_t)size > SIZE_MAX / sizeof(XRectangle))
+	    if ((size_t)size > SIZE_MAX / sizeof(XRectangle) ||
+		(size_t)size > UINT_MAX / sizeof(XRectangle))
 		return;
 	    new_alloced = (XRectangle*)XtMalloc(
 		(sizeof(XRectangle) * (size_t)size));

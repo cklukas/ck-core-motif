@@ -5,6 +5,7 @@ buffer for larger ones.  The previous growth path updated its capacity before
 checking `XtRealloc`, so allocation failure could leave a null buffer that
 the drawing loop immediately dereferenced.
 
-The dynamic path now checks the byte count, allocates a replacement, and
-commits the pointer and capacity only after success.  The existing buffer is
-retained when growth cannot be completed.
+The dynamic path now checks the byte count against both host `size_t` and Xt
+`Cardinal` limits, allocates a replacement, and commits the pointer and
+capacity only after success. The existing buffer is retained when growth
+cannot be completed.

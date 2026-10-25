@@ -5,6 +5,7 @@ source = Path("lib/Xm/DrawUtils.c").read_text()
 assert "#include <stdint.h>" in source
 assert "unsigned int numAlloced" in source
 assert "SIZE_MAX / sizeof(XRectangle)" in source
+assert "UINT_MAX / sizeof(XRectangle)" in source
 assert "XRectangle *new_alloced" in source
 assert "if (new_alloced == NULL)" in source
 assert "numAlloced = size;" in source
