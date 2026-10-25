@@ -1,3 +1,9 @@
+Mrm unknown argument-tag bounds (2026-10-25)
+===============================================
+
+- Validate unknown argument-tag strings before deferred or final argument
+  use; see `docs/mrm-arg-tag-string-bounds.md`.
+
 Mrm callback-valued argument bounds (2026-10-25)
 ================================================
 
