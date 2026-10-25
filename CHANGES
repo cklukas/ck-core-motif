@@ -271,6 +271,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  partial entries on allocation failure; see docs/xm-image-table-initialization.md.
 
 2026-10-25
+	* Validate Xm pixmap-data arguments and clear all outputs before lookup; see
+	  docs/xm-get-pixmap-data-validation.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,

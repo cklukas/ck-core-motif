@@ -1342,7 +1342,27 @@ _XmGetPixmapData(
     PixmapData pix_data, *pix_entry;
     ImageData * entry;
 
+    /* All outputs are required by this internal API.  Reject invalid calls
+       before touching the screen or cache tables, then clear outputs so a
+       failed lookup cannot leave stale metadata in the caller. */
+    if (screen == NULL || pixmap == XmUNSPECIFIED_PIXMAP ||
+        image_name == NULL || depth == NULL || foreground == NULL ||
+        background == NULL || hot_x == NULL || hot_y == NULL ||
+        width == NULL || height == NULL)
+        return False;
+
+    *image_name = NULL;
+    *depth = 0;
+    *foreground = 0;
+    *background = 0;
+    *hot_x = 0;
+    *hot_y = 0;
+    *width = 0;
+    *height = 0;
+
     if (!pixmap_data_set) InitializePixmapSets() ;
+    if (pixmap_data_set == NULL || pixmap_set == NULL)
+        return False;
 
     /*  checks for a matching screen and pixmap.            */
     

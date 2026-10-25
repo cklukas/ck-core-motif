@@ -639,5 +639,9 @@ EXTRA_DIST += tests/automated/check-xm-image-cache-init-failure.py docs/xm-image
 EXTRA_DIST += tests/automated/check-xm-pixmap-table-initialization.py docs/xm-pixmap-table-initialization.md
 
 EXTRA_DIST += tests/automated/check-xm-image-table-initialization.py docs/xm-image-table-initialization.md
+
+EXTRA_DIST += tests/automated/check-xm-scaled-pixmap-entry.py docs/xm-scaled-pixmap-entry-allocation.md
+
+EXTRA_DIST += tests/automated/check-xm-get-pixmap-data-validation.py docs/xm-get-pixmap-data-validation.md
 EXTRA_DIST += tests/automated/check-mrm-hget-output-pointer.py docs/mrm-hget-output-pointer.md
 EXTRA_DIST += tests/automated/check-mrm-hierarchy-name-inputs.py docs/mrm-hierarchy-name-inputs.md
