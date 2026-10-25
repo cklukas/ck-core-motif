@@ -780,3 +780,5 @@ EXTRA_DIST += tests/automated/check-container-zero-cell-guards.py docs/container
 EXTRA_DIST += tests/automated/check-container-cell-growth.py docs/container-cell-growth.md
 
 EXTRA_DIST += tests/automated/check-screen-child-growth.py docs/screen-child-growth.md
+
+EXTRA_DIST += tests/automated/check-tablist-growth.py docs/tablist-growth.md

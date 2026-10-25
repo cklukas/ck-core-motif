@@ -4781,3 +4781,9 @@ Make XmScreen child growth transactional (2026-10-25)
 
 - Preserve the desktop child array when `XtRealloc` fails and check slot-size
   arithmetic; see `docs/screen-child-growth.md`.
+
+Make TabList growth transactional (2026-10-25)
+===============================================
+
+- Preserve the existing tab list when growth allocation fails and reject slot
+  arithmetic overflow; see `docs/tablist-growth.md`.

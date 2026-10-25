@@ -25,6 +25,8 @@
 #include <Xm/Xm.h>
 #include <Xm/Ext.h>
 #include <Xm/TabList.h>
+#include <stdint.h>
+#include <limits.h>
 
 typedef struct _XmTabbedStackListRec {
     int    allocated;
@@ -278,6 +280,8 @@ XmTabbedStackListInsert(tab_list, position, mask, attributes)
 #endif
 {
     XmTabAttributes newTab;
+    XmTabAttributes newTabs;
+    int newAllocated;
 
     /*
      * First let's see if they gave us a valid XmTabbedStackList and position
@@ -297,10 +301,18 @@ XmTabbedStackListInsert(tab_list, position, mask, attributes)
 	 * Our list is not large enough to take another tab, so lets
 	 * grow the list by XmLIST_GROWTH_FACTOR.
 	 */
-	tab_list->allocated += XmLIST_GROWTH_FACTOR;
-	tab_list->tabs = (XmTabAttributes)
-	    XtRealloc((XtPointer) tab_list->tabs,
-		      sizeof(XmTabAttributeRec) * tab_list->allocated);
+        if (tab_list->allocated > INT_MAX - XmLIST_GROWTH_FACTOR ||
+            (size_t)(tab_list->allocated + XmLIST_GROWTH_FACTOR) >
+            SIZE_MAX / sizeof(XmTabAttributeRec))
+            return XmTAB_NOT_FOUND;
+        newAllocated = tab_list->allocated + XmLIST_GROWTH_FACTOR;
+        newTabs = (XmTabAttributes)XtRealloc(
+            (XtPointer)tab_list->tabs,
+            (size_t)newAllocated * sizeof(XmTabAttributeRec));
+        if (newTabs == NULL)
+            return XmTAB_NOT_FOUND;
+        tab_list->tabs = newTabs;
+        tab_list->allocated = newAllocated;
     }
 
     /*
