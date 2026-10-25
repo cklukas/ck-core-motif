@@ -583,6 +583,9 @@ public XmSearchBoxGetString
 public XmSearchBoxSetString
 public XmSearchBoxClear
 public XmSearchBoxCommit
+public XmCreatePrompt
+public XmPromptSetVisible
+public XmPromptGetVisible
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -877,6 +880,8 @@ public xmLinkClassRec
 public xmLinkWidgetClass
 public xmSearchBoxClassRec
 public xmSearchBoxWidgetClass
+public xmPromptClassRec
+public xmPromptWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec

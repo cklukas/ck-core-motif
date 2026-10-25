@@ -1094,6 +1094,11 @@ NsearchQueryChangedCallback
 NsearchCommittedCallback
 NsearchClearedCallback
 
+CPromptText
+CPromptVisible
+NpromptText
+NpromptVisible
+
 #table _XmStrings20
 
 NtearOffTitle

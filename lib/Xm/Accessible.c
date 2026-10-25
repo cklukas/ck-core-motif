@@ -32,6 +32,7 @@
 #include <Xm/Badge.h>
 #include <Xm/Link.h>
 #include <Xm/SearchBox.h>
+#include <Xm/Prompt.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
 #include <Xm/PushBG.h>
@@ -1298,6 +1299,21 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     i->name = XtNewString("Search");
     if (query) XtFree(query);
   }
+  if (XmIsPrompt(w)) {
+    char *text = NULL;
+    i->role = XmACCESSIBLE_LABEL;
+    if (XmPromptGetVisible(w)) {
+      XmString value = NULL;
+      XtVaGetValues(w, XmNpromptText, &value, NULL);
+      if (value) text = XmStringUnparse(value, NULL, XmCHARSET_TEXT,
+                                        XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+    }
+    if (text) {
+      i->name = text;
+      i->has_text = True;
+      i->text_length = (int)strlen(text);
+    }
+  }
   if (XmIsNumberBox(w)) {
     int minimum, maximum;
     i->role = XmACCESSIBLE_PROGRESS_BAR;
@@ -1409,8 +1425,12 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
   }
   i->name = locale_utf8(local ? local : XtName(w));
   XtFree(local);
+  if (XmIsPrompt(w) && !XmPromptGetVisible(w)) {
+    XtFree(i->name);
+    i->name = NULL;
+  }
   if (!i->name)
-    i->name = XtNewString("");
+    i->name = XmIsPrompt(w) && !XmPromptGetVisible(w) ? NULL : XtNewString("");
   return True;
 }
 static char *text_impl(XmAccessibility *a, XmAccessibleId id, int start,
