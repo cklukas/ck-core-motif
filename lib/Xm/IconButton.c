@@ -1302,16 +1302,32 @@ AddPixCache(Display *disp, Pixmap pixmap,
 {
     XmListElem * elem = GetCacheElem(disp, pixmap);
     PixCacheEntry * entry;
+    Boolean created_list = False;
 
     if (elem == NULL) 
     {
 	entry = (PixCacheEntry *) XtCalloc(sizeof(PixCacheEntry), 1);
+	if (entry == NULL)
+	    return;
 	entry->display = disp;
 	entry->pixmap = pixmap;
 
-	if (pix_cache_list == NULL)
+	if (pix_cache_list == NULL) {
 	    pix_cache_list = _XmListInit();
-	_XmListAddBefore(pix_cache_list, NULL, (XtPointer) entry);
+	    if (pix_cache_list == NULL) {
+		XtFree((char *)entry);
+		return;
+	    }
+	    created_list = True;
+	}
+	if (_XmListAddBefore(pix_cache_list, NULL, (XtPointer) entry) == NULL) {
+	XtFree((char *)entry);
+	if (created_list) {
+	    _XmListFree(pix_cache_list);
+	    pix_cache_list = NULL;
+	}
+	return;
+	}
     }
     else
 	entry = (PixCacheEntry *) XmListElemData(elem);

@@ -8417,3 +8417,9 @@ Font family encoding allocation (2026-10-27)
 
 - Check initial family encoding-table allocation and leave an empty table on
   failure so later font enumeration treats the family as unavailable safely.
+
+IconButton pixel-cache allocation (2026-10-27)
+================================================
+
+- Check pixel-cache entry, list, and element allocations, releasing partial
+  state and a newly-created empty list when insertion cannot be completed.
