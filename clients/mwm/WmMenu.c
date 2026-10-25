@@ -110,8 +110,8 @@ MakeMenuFunctionArgs(CmdTree *tree, ClientData *pCD, Atom selection)
     if (tree->subTrees != (CmdTree *)NULL)
     {
         length = snprintf(NULL, 0, "<%s>", tree->name);
-        args = (length >= 0) ?
-            (String)XtMalloc((unsigned int)length + 1) : (String)NULL;
+        args = (length >= 0 && length < UINT_MAX) ?
+            (String)XtMalloc((Cardinal)length + 1) : (String)NULL;
         if (args != (String)NULL)
             (void)snprintf(args, (size_t)length + 1, "<%s>", tree->name);
     }
@@ -119,8 +119,8 @@ MakeMenuFunctionArgs(CmdTree *tree, ClientData *pCD, Atom selection)
     {
         length = snprintf(NULL, 0, "%d %ld %ld", (int)tree->commandID,
                           (pCD == NULL ? None : pCD->client), selection);
-        args = (length >= 0) ?
-            (String)XtMalloc((unsigned int)length + 1) : (String)NULL;
+        args = (length >= 0 && length < UINT_MAX) ?
+            (String)XtMalloc((Cardinal)length + 1) : (String)NULL;
         if (args != (String)NULL)
             (void)snprintf(args, (size_t)length + 1, "%d %ld %ld",
                            (int)tree->commandID,

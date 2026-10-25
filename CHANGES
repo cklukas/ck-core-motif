@@ -11326,3 +11326,9 @@ MWM feedback catalog allocation (2026-10-25)
 
 - Check localized confirmation-prompt allocation sizes before copying them;
   see `docs/mwm-feedback-allocation.md`.
+
+MWM menu argument allocation (2026-10-25)
+=========================================
+
+- Check formatted menu-function argument lengths before Xt allocation;
+  see `docs/mwm-menu-args-allocation.md`.
