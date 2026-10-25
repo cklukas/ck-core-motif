@@ -1,3 +1,9 @@
+Guard compound-text iconv output allocation (2026-10-25)
+===========================================================
+
+- Check initial and growth allocations in `ConvertWithIconv` before using or
+  replacing the output buffer; see `docs/motif-resencod-iconv.md`.
+
 Guard compound-text custom charset prefixes (2026-10-25)
 ===============================================================
 

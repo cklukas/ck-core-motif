@@ -2961,6 +2961,7 @@ ConvertWithIconv(const char  *str,
     size_t outbytes_remaining;
     size_t err;
     size_t outbuf_size;
+    char *new_dest;
     Boolean have_error = FALSE;
   
     if (str == NULL || converter == (iconv_t) -1)
@@ -2974,6 +2975,8 @@ ConvertWithIconv(const char  *str,
 
    outbytes_remaining = outbuf_size - 1; /* -1 for nul */
    outp = dest = XtMalloc(outbuf_size);
+   if (dest == NULL)
+       return NULL;
 
 again:
   
@@ -2994,7 +2997,12 @@ again:
                     return NULL;
                 }
                 outbuf_size *= 2;
-                dest = XtRealloc(dest, outbuf_size);
+                new_dest = XtRealloc(dest, outbuf_size);
+                if (new_dest == NULL) {
+                    XtFree(dest);
+                    return NULL;
+                }
+                dest = new_dest;
 		
                 outp = dest + used;
                 outbytes_remaining = outbuf_size - used - 1; /* -1 for nul */
