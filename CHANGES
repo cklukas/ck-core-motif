@@ -10034,6 +10034,12 @@ RowColumn popup-name allocation guard (2026-10-25)
 - Check temporary popup-shell name storage before formatting and creation; see
   `docs/rowcolumn-popup-name-allocation.md`.
 
+XmRenderT rendition allocation guards (2026-10-25)
+===================================================
+
+- Check rendition record and handle allocations before clearing, copying, or
+  publishing render state; see `docs/xmrender-rendition-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

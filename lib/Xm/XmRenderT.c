@@ -1283,8 +1283,14 @@ CloneRendition(XmRendition rend)
   if (rend == NULL) return(NULL);
   
   copy = (_XmRendition)XtMalloc(sizeof(_XmRenditionRec));
+  if (copy == NULL)
+    return(NULL);
   bzero((char*)copy, sizeof(_XmRenditionRec));
   copy_handle = GetHandle(_XmRendition);
+  if (copy_handle == NULL) {
+    XtFree((char *)copy);
+    return(NULL);
+  }
   SetPtr(copy_handle, copy);
   
   _XmRendFontOnly(copy_handle) = FALSE;
@@ -1303,6 +1309,8 @@ RenewRendition(XmRendition rend)
   if (rend == NULL) return(NULL);
   
   copy = (_XmRendition)XtMalloc(sizeof(_XmRenditionRec));
+  if (copy == NULL)
+    return(NULL);
   memcpy((char *)copy, (char *)GetPtr(rend), sizeof(_XmRenditionRec));
   SetPtr(rend, copy);
   
