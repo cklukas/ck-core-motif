@@ -6068,3 +6068,10 @@ Guard transfer request-block allocation (2026-10-25)
   see `docs/transfer-block-allocation.md`.
 
 Guard destination-handler allocations (2026-10-25)
+Guard LabelGadget baseline allocations (2026-10-25)
+====================================================
+
+- Make cached baseline growth and caller-copy allocation failure-safe; see
+  `docs/labelg-baseline-allocation.md`.
+
+Guard transfer request-block allocation (2026-10-25)
