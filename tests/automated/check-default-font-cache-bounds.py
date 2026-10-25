@@ -13,8 +13,10 @@ region = text[start:end]
 for needle in (
     "maxnsFontLists > INT_MAX - 8",
     "UINT_MAX / sizeof(SystemFontList)",
+    "new_maxns_font_lists = maxnsFontLists + 8",
+    "XtRealloc((char*) sFontLists, nbytes)",
     "return NULL;",
-    "maxnsFontLists += 8;",
+    "maxnsFontLists = new_maxns_font_lists;",
 ):
     if needle not in region:
         raise SystemExit(f"default font-cache capacity guard missing: {needle}")
