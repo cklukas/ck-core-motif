@@ -765,9 +765,7 @@ XmStringTableProposeTablist(XmStringTable strings,
   XmRenderTable		rt;
   NextTabResult		ret_val;
   
-  _XmProcessLock();
   if ((strings == NULL) || (num_strings == 0) || (widget == NULL)) {
-    _XmProcessUnlock();
     return ((XmTabList)NULL);
   }
   
@@ -790,14 +788,12 @@ XmStringTableProposeTablist(XmStringTable strings,
 
   tab = XmTabCreate(0.0, units, offset_model, XmALIGNMENT_BEGINNING, ".");
   if (tab == NULL) {
-    _XmProcessUnlock();
     return ((XmTabList)NULL);
   }
 
   tl = XmTabListInsertTabs(NULL, &tab, 1, 0);
   if (tl == NULL) {
     XmTabFree(tab);
-    _XmProcessUnlock();
     return ((XmTabList)NULL);
   }
 
@@ -809,7 +805,6 @@ XmStringTableProposeTablist(XmStringTable strings,
 	{
 	  /* Clean up */
 	  XmTabListFree(tl);
-	  _XmProcessUnlock();
 	  return((XmTabList)NULL);
 	}
       _XmStringContextReInit(&stack_ctx, strings[i]);      
@@ -841,7 +836,6 @@ XmStringTableProposeTablist(XmStringTable strings,
 	      if (tab == NULL) {
 		_XmStringContextFree(&stack_ctx);
 		XmTabListFree(tl);
-		_XmProcessUnlock();
 		return ((XmTabList)NULL);
 	      }
 	      start = _XmTabLStart(tl);
@@ -878,7 +872,6 @@ XmStringTableProposeTablist(XmStringTable strings,
 	}
     }
   
-  _XmProcessUnlock();
   return(tl);
 }
 

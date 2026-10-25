@@ -1,3 +1,9 @@
+XmString tab-list proposal locking (2026-10-26)
+=================================================
+
+- Avoid recursive process locking across tab-list and rendering helpers; see
+  `docs/xmstring-tablist-locking.md`.
+
 XmString helper locking (2026-10-26)
 =====================================
 
