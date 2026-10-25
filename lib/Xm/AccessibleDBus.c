@@ -666,6 +666,11 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       return DBUS_HANDLER_RESULT_HANDLED;
     }
     ids = (XmAccessibleId *)XtMalloc((Cardinal)(count * sizeof(*ids)));
+    if (!ids) {
+      error_reply(t, call, "org.freedesktop.DBus.Error.NoMemory",
+                  "Unable to snapshot the accessibility tree");
+      return DBUS_HANDLER_RESULT_HANDLED;
+    }
     for (node = a->nodes, k = 0; node; node = node->next) ids[k++] = node->id;
     reply = dbus_message_new_method_return(call);
     dbus_message_iter_init_append(reply, &out);

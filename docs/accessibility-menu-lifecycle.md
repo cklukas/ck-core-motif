@@ -10,3 +10,9 @@ The snapshot allocation is also checked for failure before callback dispatch,
 so an unavailable buffer leaves the notification path unchanged and avoids a
 null dereference. The source regression is
 `tests/automated/check-accessibility-menu-snapshot-allocation.py`.
+
+
+The AT-SPI cache `GetItems` snapshot also reports a D-Bus `NoMemory` error
+when its ID array cannot be allocated, rather than dereferencing a null
+buffer. The source regression is
+`tests/automated/check-accessibility-cache-snapshot-allocation.py`.

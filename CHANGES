@@ -2043,6 +2043,12 @@ XmPicture repeat node-map bounds (2026-10-25)
   picture graphs while leaving unrepresentable expansion unchanged; see
   `docs/picture-copy-bounds.md`.
 
+Accessibility cache snapshot allocation (2026-10-25)
+======================================================
+
+- Report a D-Bus `NoMemory` error when the AT-SPI cache ID snapshot cannot be
+  allocated; see `docs/accessibility-menu-lifecycle.md`.
+
 Accessibility menu snapshot allocation (2026-10-25)
 ====================================================
 
