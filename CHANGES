@@ -1,3 +1,10 @@
+Mrm buffer decommit failure retention (2026-10-25)
+===================================================
+
+- Keep failed writes attached to their dirty buffers so callers can retry
+  instead of silently losing pending UID data; see
+  `docs/mrm-decommit-all-failure.md`.
+
 Mrm buffer decommit record validation (2026-10-25)
 =================================================
 
