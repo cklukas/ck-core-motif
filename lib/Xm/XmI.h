@@ -129,9 +129,11 @@ void _XmInitModifiers (void);
 			 WIDTH, HEIGHT,\
 			 8,\
 			 (WIDTH+7) >> 3);\
-    IMAGE->byte_order = BYTE_ORDER;\
-    IMAGE->bitmap_unit = 8;\
-    IMAGE->bitmap_bit_order = LSBFirst;\
+    if (IMAGE != NULL) {\
+      IMAGE->byte_order = BYTE_ORDER;\
+      IMAGE->bitmap_unit = 8;\
+      IMAGE->bitmap_bit_order = LSBFirst;\
+    }\
 }
 
 #endif /* NO_XM_1_2_BC */

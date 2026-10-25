@@ -569,3 +569,5 @@ EXTRA_DIST += tests/automated/check-xm-gc-cache-failure.py docs/xm-gc-cache-fail
 EXTRA_DIST += tests/automated/check-xm-gc-callsite-rollback.py docs/xm-gc-callsite-rollback.md
 
 EXTRA_DIST += tests/automated/check-xm-install-image-failure.py docs/xm-install-image-failure.md
+
+EXTRA_DIST += tests/automated/check-xm-create-image-null.py docs/xm-create-image-null.md
