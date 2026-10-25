@@ -4093,3 +4093,8 @@ Mrm conversion vector validation (2026-10-25)
 
 - Validate vector pointers, markers, and counts before converting serialized
   values for Xt; see `docs/mrm-convert-vector-validation.md`.
+Mrm font conversion validation (2026-10-25)
+=============================================
+
+- Validate font records and strings before conversion accesses and X font
+  loading; see `docs/mrm-convert-font-validation.md`.
