@@ -32,10 +32,11 @@ These are real coverage gaps rather than claims of known source defects:
 2. **Strict sanitizer lifecycle.** The existing leak report is at the Xt
    selection-context boundary. It needs an ownership-level fix or a narrowly
    scoped native lifecycle test before it can be called clean.
-3. **External clipboard and DnD matrix.** The current regression proves an
-   external selection owner lifecycle and a large UTF-8 clipboard transfer.
-   Two-client INCR cancellation, target replacement, 8/16/32-bit formats,
-   drag-and-drop cancellation, callback destruction, and leak checks remain.
+3. **External clipboard and DnD matrix.** The bounded Text/TextField fixture
+   now proves two-client INCR cancellation followed by a fresh transfer from
+   the surviving owner when the pinned corrected Xt dependency is used. The
+   broader matrix still needs target replacement, 8/16/32-bit formats,
+   drag-and-drop cancellation, callback destruction, and leak checks.
 4. **Non-text Unicode matrix.** Lists, menus, labels, combo boxes, file
    selection, mnemonics, search, and compound strings need the same mixed-script,
    combining-mark, supplementary-plane, and keyboard-navigation coverage as

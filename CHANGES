@@ -6,6 +6,11 @@
 	  modernization_plan.md and docs/native-text-ime-matrix.md.
 
 2026-10-25
+	* Align the 360 review's clipboard gap with the bounded corrected-Xt
+	  cancellation result while retaining the broader DnD and format coverage
+	  limits; see docs/360-review.md.
+
+2026-10-25
 	* Extend the installed Orca journey assertions to cover native list/list-item
 	  and menu/menu-item announcements, while retaining the broader desktop and
 	  application-shell limits; see docs/accessibility-journey-matrix.md.
