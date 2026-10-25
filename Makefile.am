@@ -133,6 +133,10 @@ EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bound
 EXTRA_DIST += tests/automated/check-editres-error-bounds.py docs/editres-error-bounds.md
 EXTRA_DIST += tests/automated/check-spinbox-name-bounds.py docs/spinbox-name-bounds.md
 EXTRA_DIST += tests/automated/check-column-label-name-bounds.py docs/column-label-name-bounds.md
+EXTRA_DIST += tests/automated/check-column-label-allocation.py \
+              docs/column-label-allocation.md docs/column-label-init-rollback.md \
+              docs/column-label-rollback.md
+EXTRA_DIST += tests/automated/check-rcpopup-list-growth.py docs/rcpopup-list-growth.md
 EXTRA_DIST += tests/automated/check-xmos-init-path-bounds.py docs/xmos-init-path-bounds.md
 EXTRA_DIST += tests/automated/check-tablist-debug-bounds.py docs/tablist-debug-bounds.md
 EXTRA_DIST += tests/automated/check-charset-canonicalize-bounds.py docs/charset-canonicalization-bounds.md
