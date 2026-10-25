@@ -4,6 +4,12 @@ Protocol list bounds (2026-10-25)
 - Handle protocol lists larger than the historical 32-entry stack buffers and
   reject null protocol arrays; see `docs/protocol-list-bounds.md`.
 
+Protocol list bounds (2026-10-25)
+==================================
+
+- Handle protocol lists larger than the historical 32-entry stack buffers and
+  reject null protocol arrays; see `docs/protocol-list-bounds.md`.
+
 Mwm bitmap path assembly bounds (2026-10-25)
 ===============================================
 
