@@ -1,3 +1,10 @@
+MWM UTM selection setup guard (2026-10-26)
+===========================================
+
+- Skip WM selection callback registration when the optional UTM widget was not
+  created, avoiding a null callback target; see
+  `docs/mwm-utm-selection-guard.md`.
+
 MWM menu retry-state cleanup (2026-10-26)
 ==========================================
 

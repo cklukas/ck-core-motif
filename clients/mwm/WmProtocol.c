@@ -1242,6 +1242,12 @@ OwnWMSelections ( Time timestamp )
 	   * XmNconvertCallback resource.
 	   */
 
+	  if (wmGD.Screens[scr].utmShell == NULL)
+	    {
+	      Warning ("Cannot register WM selection without the UTM widget");
+	      continue;
+	    }
+
 	  XtAddCallback(wmGD.Screens[scr].utmShell, XmNconvertCallback,
 			WMiConvertCB, NULL);
 
