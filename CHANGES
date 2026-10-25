@@ -1,3 +1,9 @@
+Mrm conversion pointer null checks (2026-10-25)
+================================================
+
+- Reject null CString, address-name, icon-image, and bitmap-file values before
+  conversion helpers; see `docs/mrm-convert-pointer-null.md`.
+
 Mrm Char8 conversion null-source check (2026-10-25)
 ====================================================
 

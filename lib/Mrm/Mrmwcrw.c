@@ -2286,6 +2286,8 @@ Urm__CW_ConvertValue (Widget			parent,
 	break;
       }
     case MrmRtypeCString:
+      if ( *val == 0 )
+	return MrmFAILURE ;
       cstg = XmCvtByteStreamToXmString((unsigned char *)*val);
       *val = (long)cstg;
       /* BEGIN OSF Fix CR 8392 */
@@ -2309,6 +2311,8 @@ Urm__CW_ConvertValue (Widget			parent,
         break ;
       }
     case MrmRtypeAddrName:
+      if ( *val == 0 )
+	return MrmFAILURE ;
       result = Urm__LookupNameInHierarchy (hierarchy_id, (String)(*val), &addr);
       if ( result != MrmSUCCESS )
 	{
@@ -2319,6 +2323,8 @@ Urm__CW_ConvertValue (Widget			parent,
       *val = (long) addr ;
       break ;
     case MrmRtypeIconImage:
+      if ( *val == 0 )
+	return MrmFAILURE ;
       Urm__CW_GetPixmapParms(parent, &screen, &display, &fgint, &bgint);
       result = UrmCreatePixmap((RGMIconImagePtr)(*val), screen, display,
 			       fgint, bgint, &pixmap, parent);
@@ -2329,6 +2335,8 @@ Urm__CW_ConvertValue (Widget			parent,
       break;
 
     case MrmRtypeXBitmapFile:
+      if ( *val == 0 )
+	return MrmFAILURE ;
       Urm__CW_GetPixmapParms(parent, &screen, &display, &fgint, &bgint);
       result = Urm__CW_ReadBitmapFile((char *)(*val), screen, 
 				      fgint, bgint, &pixmap, parent);
