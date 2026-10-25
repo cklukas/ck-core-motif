@@ -2310,10 +2310,12 @@ LRectangle *background_box)
     if (availH < (marginal_height + max_text_height) ||
         availW < (marginal_width + LabG_TextRect(lw).width))
     {
-        clip_rect.x = lw->rectangle.x + lw->gadget.highlight_thickness +
-            lw->gadget.shadow_thickness + LabG_MarginLeft(lw);
-        clip_rect.y = lw->rectangle.y + lw->gadget.highlight_thickness +
-            lw->gadget.shadow_thickness + LabG_MarginTop(lw);
+        clip_rect.x = (short) ((int) lw->rectangle.x +
+            (int) lw->gadget.highlight_thickness +
+            (int) lw->gadget.shadow_thickness + (int) LabG_MarginLeft(lw));
+        clip_rect.y = (short) ((int) lw->rectangle.y +
+            (int) lw->gadget.highlight_thickness +
+            (int) lw->gadget.shadow_thickness + (int) LabG_MarginTop(lw));
 
         /* Don't allow negative dimensions */
         if (availW > marginal_width)

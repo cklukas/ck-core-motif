@@ -1,3 +1,9 @@
+LabelG clip origins (2026-10-26)
+================================
+
+- Compute narrow-layout clip origins in signed arithmetic, preserving
+  off-edge label positions; see `docs/labelg-clip-origins.md`.
+
 PushButton gadget origin bounds (2026-10-26)
 ===============================================
 
