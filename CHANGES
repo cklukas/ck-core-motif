@@ -282,6 +282,8 @@ Render-table locking (2026-10-26)
   `XmStringTableToXmString`; see `docs/xmstring-table-break-copy.md`.
 - Propagate break-component concatenation failure in
   `XmStringTableToXmString`; see `docs/xmstring-table-break-concat.md`.
+- Propagate table-entry copy failure in `XmStringTableToXmString`; see
+  `docs/xmstring-table-entry-copy.md`.
 - Make `XmStringPutRendition` propagate component-allocation failure instead
   of returning an unadorned string; see `docs/xmstring-put-rendition-failure.md`.
 - Propagate source-copy failure in `XmStringPutRendition` before adding
