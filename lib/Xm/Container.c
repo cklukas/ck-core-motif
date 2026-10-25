@@ -6104,6 +6104,7 @@ LayoutOutlineDetail(
     Widget		cwid;
     int                 n_outline_segs,seg_idx;
     XPoint *            point_at_depth = NULL;
+    XSegment *          new_outline_segs = NULL;
     int                 i;
     Boolean             outline_ready = True;
 
@@ -6137,16 +6138,18 @@ LayoutOutlineDetail(
 	}
     if (cw->container.outline_seg_count != n_outline_segs)
 	{
-	if (cw->container.outline_segs)
-	    XtFree((char*)cw->container.outline_segs);
-	cw->container.outline_segs = (XSegment *)XtCalloc
+	if (n_outline_segs != 0)
+	    new_outline_segs = (XSegment *)XtCalloc
 				(n_outline_segs,sizeof(XSegment));
-	cw->container.outline_seg_count = n_outline_segs;
-	if (n_outline_segs != 0 && cw->container.outline_segs == NULL)
+	if (n_outline_segs == 0 || new_outline_segs != NULL)
 	    {
-	    cw->container.outline_seg_count = 0;
-	    outline_ready = False;
+	    if (cw->container.outline_segs)
+		XtFree((char*)cw->container.outline_segs);
+	    cw->container.outline_segs = new_outline_segs;
+	    cw->container.outline_seg_count = n_outline_segs;
 	    }
+	else
+	    outline_ready = False;
 	}
     if ((size_t)cw->container.max_depth >
 	SIZE_MAX / sizeof(*point_at_depth) - 1)
