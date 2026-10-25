@@ -10,6 +10,9 @@ render-table helpers instead of
 holding a process/app lock across those calls. Their validation and ownership
 behavior remain unchanged.
 
+`XmFontListInitFontContext` now reports allocation failure before touching the
+new context record.
+
 `XmFontListEntryGetFont` also rejects a null type-output pointer before
 retrieving rendition resources, avoiding an invalid write on malformed calls.
 

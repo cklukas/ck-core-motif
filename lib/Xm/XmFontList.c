@@ -646,6 +646,10 @@ XmFontListInitFontContext(
   }
 
   p = (XmFontContext) XtMalloc (sizeof (XmFontListContextRec));
+  if (p == NULL) {
+    _XmProcessUnlock();
+    return (FALSE);
+  }
 
   FLContextIndex(p) = 0;
   FLContextTable(p) = fontlist;

@@ -218,6 +218,8 @@ Render-table locking (2026-10-26)
   retrieving rendition data.
 - Propagate charset-copy failure from `XmFontListGetNextFont` after releasing
   its retained rendition.
+- Make `XmFontListInitFontContext` return failure when its context allocation
+  cannot be completed.
 - Roll back shared-table cloning in `_XmRenderTableRemoveRenditions` when a
   table body, handle, or rendition copy cannot be allocated; see
   `docs/render-table-removal.md`.

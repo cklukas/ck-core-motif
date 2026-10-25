@@ -6,6 +6,12 @@ from pathlib import Path
 
 source = Path("lib/Xm/XmFontList.c").read_text()
 
+start = source.index("XmFontListInitFontContext(")
+end = source.index("\nBoolean \nXmFontListGetNextFont", start)
+init_context = source[start:end]
+assert "if (p == NULL)" in init_context
+assert "return (FALSE);" in init_context
+
 start = source.index("XmFontListCreate(")
 end = source.index("\n}\n", start)
 create = source[start:end]
