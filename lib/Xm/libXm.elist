@@ -24,6 +24,7 @@ public XmAddToPostFromList
 public XmCascadeButtonGadgetHighlight
 public XmCascadeButtonHighlight
 public XmChangeColor
+public XmClearDisplayScaleOverride
 public XmClipboardBeginCopy
 public XmClipboardCancelCopy
 public XmClipboardCopy
@@ -199,6 +200,7 @@ public XmGetAtomName
 public XmGetColorCalculation
 public XmGetColors
 public XmGetDestination
+public XmGetDisplayScaleOverride
 public XmGetDragContext
 public XmGetFocusWidget
 public XmGetIconFileName
@@ -348,6 +350,7 @@ public XmScrollVisible
 public XmScrolledWindowSetAreas
 public XmSelectionBoxGetChild
 public XmSetColorCalculation
+public XmSetDisplayScaleOverride
 public XmSetFontUnit
 public XmSetFontUnits
 public XmSetMenuCursor
