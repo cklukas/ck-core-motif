@@ -4201,6 +4201,11 @@ XmClipboardInquireCount(
 		        char *str;
 
 			str =  XGetAtomName( display, *atomptr );
+			if (str == NULL)
+			{
+			    atomptr++;
+			    continue;
+			}
 			temp = strlen(str);
 			XFree(str);
 

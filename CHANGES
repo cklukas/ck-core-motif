@@ -13698,3 +13698,10 @@ CutPaste atom-name guards (2026-10-26)
   `docs/cutpaste-atom-name-guards.md`.
 
 DataF clipboard atom-name guard (2026-10-26)
+Clipboard format enumeration guard (2026-10-26)
+================================================
+
+- Skip clipboard targets whose atom names cannot be resolved instead of
+  passing null names to `strlen`; see `docs/cutpaste-format-enumeration.md`.
+
+CutPaste atom-name guards (2026-10-26)
