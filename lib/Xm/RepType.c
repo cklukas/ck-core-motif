@@ -1178,9 +1178,11 @@ CopyStringArray(
     String * TmpStr ;
     size_t prefix_size = UppercaseFormat ? 2 : 0;
 
-    if ((size_t)NumEntries + 1 > SIZE_MAX / sizeof(String))
+    if ((size_t)NumEntries + 1 > SIZE_MAX / sizeof(String) ||
+	(size_t)NumEntries + 1 > UINT_MAX / sizeof(String))
 	return NULL;
-    TmpStr = (String *) XtMalloc(((size_t)NumEntries + 1) * sizeof(String));
+    TmpStr = (String *) XtMalloc(
+	(Cardinal)(((size_t)NumEntries + 1) * sizeof(String)));
     if (TmpStr == NULL)
 	return NULL;
     TmpStr[NumEntries] = NULL ;
@@ -1196,7 +1198,7 @@ CopyStringArray(
 	 if (length > SIZE_MAX - prefix_size - 1 ||
 	     length > (size_t)UINT_MAX - prefix_size - 1)
 	     goto failure;
-	 TmpStr[Index] = XtMalloc(prefix_size + length + 1);
+	TmpStr[Index] = XtMalloc((Cardinal)(prefix_size + length + 1));
 	 if (TmpStr[Index] == NULL)
 	     goto failure;
 	 strcpy(TmpStr[Index] + prefix_size, StrArray[Index]);

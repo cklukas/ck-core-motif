@@ -17,6 +17,11 @@ for needle in ("if (TmpStr == NULL)", "goto failure;", "XtFree((char *)TmpStr);"
         raise SystemExit(f"string-array rollback is missing {needle}")
 if "length > (size_t)UINT_MAX - prefix_size - 1" not in copy_block:
     raise SystemExit("string-array copy lacks Xt allocation-size guard")
+for needle in ("UINT_MAX / sizeof(String)",
+               "(Cardinal)(((size_t)NumEntries + 1) * sizeof(String))",
+               "XtMalloc((Cardinal)(prefix_size + length + 1))"):
+    if needle not in copy_block:
+        raise SystemExit(f"string-array copy lacks explicit Xt sizing: {needle}")
 for needle in ("if (OutputEntry->value_names == NULL)",
                "FreeCopiedRecord(OutputEntry);",
                "return FALSE;"):
