@@ -35,6 +35,8 @@ Xft compound-string line height (2026-10-27)
   passing a null trait to the trait registry or dereferencing it.
 - Make ExtObject initialization stop safely when its widget-extension record
   cannot be allocated.
+- Make FontSelector scaled-font name construction tolerate intermediate string
+  allocation failures without copying through null buffers.
 - Use full-width `Cardinal` indices throughout Hierarchy child traversal and
   rewrite reverse insertion shifts without signed negative sentinels.
 - Use a full-width `Cardinal` index while scanning Manager composite children

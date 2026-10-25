@@ -1360,9 +1360,16 @@ DisplayCurrentFont(XmFontSelectorWidget fsw, String font)
 	    size_t left_len, right_len, fbuf_size;
 
 		left_buf = (char *)XtMalloc((Cardinal)i + 1);
-		memcpy(left_buf, font, (size_t)i);
-		left_buf[i] = '\0';
-		right_buf = XtNewString(ptr);
+		if (left_buf == NULL) {
+		    fontdata = NULL;
+		} else {
+		    memcpy(left_buf, font, (size_t)i);
+		    left_buf[i] = '\0';
+		    right_buf = XtNewString(ptr);
+		    if (right_buf == NULL) {
+			XtFree(left_buf);
+			fontdata = NULL;
+		    } else {
 	    left_len = strlen(left_buf);
 	    right_len = strlen(right_buf);
 	    if (right_len > SIZE_MAX - 6 ||
@@ -1371,12 +1378,18 @@ DisplayCurrentFont(XmFontSelectorWidget fsw, String font)
 		fontdata = NULL;
 	    } else {
 		fbuf = (char *)XtMalloc((Cardinal)fbuf_size);
-		(void)snprintf(fbuf, fbuf_size, "%s-140%s", left_buf, right_buf);
-		fontdata = XLoadQueryFont(XtDisplay((Widget) fsw), fbuf);
-		XtFree(fbuf);
+		if (fbuf == NULL) {
+		    fontdata = NULL;
+		} else {
+		    (void)snprintf(fbuf, fbuf_size, "%s-140%s", left_buf, right_buf);
+		    fontdata = XLoadQueryFont(XtDisplay((Widget) fsw), fbuf);
+		    XtFree(fbuf);
+		}
 	    }
 		XtFree(right_buf);
 		XtFree(left_buf);
+		    }
+		}
 	    }
 
 	    if (fontdata == NULL)
