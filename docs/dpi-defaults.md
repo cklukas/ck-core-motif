@@ -22,8 +22,9 @@ explicit pixel resources are preserved.
 
 The current qualified scope is deliberately global-per-display. It covers
 unlabelled ToggleButton and ToggleButtonGadget indicators and SpinBox arrow
-defaults for creation-time conversion; the live transaction currently
-qualifies the toggle indicator path and common resize boundary. It does not
+defaults for creation-time conversion, and the live transaction now reflows
+SpinBox arrow defaults as well. Explicit SpinBox arrow sizes are tracked as
+application-owned even when they match the old default. It does not
 claim complete historical-widget reflow, per-monitor output selection,
 automatic pixmap scaling, compositor scaling or physical-monitor-DPI
 inference. Those require the separate XLibre-specific contract in WP-04A.

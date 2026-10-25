@@ -9,6 +9,10 @@ Deterministic display-scale override (2026-10-25)
   feeds the shared UI-thread transaction boundary used by the Xft/XLibre
   default path; complete historical-widget coverage remains open.  See
   `docs/display-scale-override.md`.
+- Reflow toolkit-owned SpinBox arrow defaults when the live display scale
+  changes, while preserving explicit `XmNarrowSize` values (including values
+  supplied after construction). The installed display-scale fixture now
+  covers reversible default reflow and explicit-size preservation.
 - Update the `--enable-unicode-text` configure probe to use `atomic_init`,
   which remains available when current GCC and Clang drivers select C23 mode.
 

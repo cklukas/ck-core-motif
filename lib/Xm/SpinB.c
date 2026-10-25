@@ -68,6 +68,8 @@
 
 static void ClassInitialize(void);
 static void ArrowSizeDefault(Widget widget, int offset, XrmValue *value);
+static void ScaleChanged(Widget widget, double old_scale, double new_scale,
+                         XtPointer closure);
 static void ClassPartInitialize(WidgetClass classPart);
 static void Initialize(Widget req, Widget w,
 		       ArgList args, Cardinal *num_args);
@@ -467,6 +469,7 @@ ArrowSizeDefault(Widget widget, int offset, XrmValue *value)
   XmSpinBoxWidget spin = (XmSpinBoxWidget)widget;
   (void)offset;
   spin->spinBox.arrow_size = _XmDpiDefaultDimension(widget, DEFAULT_ARROW_SIZE);
+  spin->spinBox.arrow_size_default = True;
   value->addr = (char *)&spin->spinBox.arrow_size;
   value->size = sizeof(spin->spinBox.arrow_size);
 }
@@ -560,6 +563,8 @@ Initialize(Widget req,		/* unused */
   /* share GC with ArrowButton */
   spinW->spinBox.insensitive_gc = XtAllocateGC(new_w, 0, GCmask, &GCvalues, 
 					       GCClipMask, unusedMask);
+
+  (void)_XmRegisterScaleChange(new_w, ScaleChanged, NULL);
 }
 
 static void
@@ -648,7 +653,7 @@ SetValues(Widget old,
 	  Widget req, 
 	  Widget new_w, 
 	  ArgList args,		/* unused */
-	  Cardinal *num_args )	/* unused */
+	  Cardinal *num_args )
 {
   XtWidgetGeometry spinG;
   XmSpinBoxWidget	 oldW = (XmSpinBoxWidget)old;
@@ -657,6 +662,10 @@ SetValues(Widget old,
   Boolean		 displayFlag;
   
   displayFlag = False;
+
+  for (Cardinal i = 0; i < *num_args; ++i)
+    if (strcmp(args[i].name, XmNarrowSize) == 0)
+      newW->spinBox.arrow_size_default = False;
   
   /*  Initial delay must be positive	*/
   if (newW->spinBox.initial_delay < 1)
@@ -695,6 +704,26 @@ SetValues(Widget old,
     displayFlag = True;
 
   return(displayFlag);
+}
+
+static void
+ScaleChanged(Widget widget, double old_scale, double new_scale,
+             XtPointer closure)
+{
+  XmSpinBoxWidget spin = (XmSpinBoxWidget)widget;
+  Dimension old_dimension, new_dimension;
+  (void)closure;
+
+  if (!spin->spinBox.arrow_size_default)
+    return;
+  old_dimension = _XmDpiScaleDimension(old_scale, DEFAULT_ARROW_SIZE);
+  if (spin->spinBox.arrow_size != old_dimension)
+    return;
+  new_dimension = _XmDpiScaleDimension(new_scale, DEFAULT_ARROW_SIZE);
+  if (new_dimension == old_dimension)
+    return;
+  XtVaSetValues(widget, XmNarrowSize, new_dimension, NULL);
+  spin->spinBox.arrow_size_default = True;
 }
 
 static XtGeometryResult
