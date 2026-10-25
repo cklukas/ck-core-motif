@@ -254,6 +254,8 @@ _XmGetRealXlations(
   Modifiers mods;
   
   result = XtMalloc((Cardinal)capacity);
+  if (result == NULL)
+    return (NULL);
   result[0] = '\0';
   for (i = 0; i < num_keys; i++)
     {

@@ -9832,6 +9832,13 @@ ScrolledWindow auto-drag allocation guard (2026-10-25)
   avoiding a null dereference and stale update state; see
   `docs/scrolled-window-drag-allocation.md`.
 
+Legacy real-translation allocation guard (2026-10-25)
+======================================================
+
+- Check the initial virtual-key translation buffer before writing it, safely
+  returning no translation on allocation failure; see
+  `docs/real-xlations-allocation.md`.
+
 MWM label-parse allocation guard (2026-10-25)
 ==============================================
 
