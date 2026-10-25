@@ -33,6 +33,7 @@ static char rcsid[] = "$TOG: MessageB.c /main/18 1999/10/13 16:17:09 mgreess $"
 
 #include <string.h>
 #include <limits.h>
+#include <stdint.h>
 #include <Xm/AccColorT.h>	/* for XmAccessColorDataRec */
 #include <Xm/ActivatableT.h>
 #include <Xm/ArrowB.h>
@@ -1276,14 +1277,18 @@ CreateDialog(
     ArgList  argsNew;
 /****************/
 
-     if (ac < 0 || ac == INT_MAX)
+     if (ac < 0 || ac == INT_MAX ||
+         (size_t)ac >= SIZE_MAX / sizeof(Arg) ||
+         (unsigned int)ac >= UINT_MAX / sizeof(Arg) ||
+         (ac != 0 && al == NULL))
 	 return NULL;
 
      /* add dialogType to arglist and force to type passed in... */
 
     /*  allocate arglist, copy args, add dialog type arg */
     argsNew = (ArgList) XtMalloc (sizeof(Arg) * (ac + 1));
-    memcpy( argsNew, al, sizeof(Arg) * ac);
+    if (ac != 0)
+        memcpy(argsNew, al, sizeof(Arg) * (size_t)ac);
     XtSetArg (argsNew[ac], XmNdialogType, type);  ac++;
 
     /*  create MessageBoxDialog free argsNew, return */

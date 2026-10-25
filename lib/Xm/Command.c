@@ -41,6 +41,7 @@ static char rcsid[] = "$TOG: Command.c /main/21 1999/01/26 18:12:51 mgreess $"
 #include "XmStringI.h"
 
 #include <string.h>
+#include <stdint.h>
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
@@ -878,7 +879,10 @@ XmCreateCommand(
     Widget   w;
     ArgList  argsNew;
 
-    if (ac == (Cardinal)~(Cardinal)0)
+    if (ac == (Cardinal)~(Cardinal)0 ||
+        (size_t)ac >= SIZE_MAX / sizeof(Arg) ||
+        ac >= (Cardinal)(UINT_MAX / sizeof(Arg)) ||
+        (ac != 0 && al == NULL))
 	return NULL;
 
     /* add dialogType to arglist and force to XmDIALOG_COMMAND... */
@@ -887,7 +891,8 @@ XmCreateCommand(
 
     /*  allocate arglist, copy args, add dialog type arg */
     argsNew = (ArgList) XtMalloc (sizeof(Arg) * (ac + 1));
-    memcpy( argsNew, al, sizeof(Arg) * ac);
+    if (ac != 0)
+        memcpy(argsNew, al, sizeof(Arg) * (size_t)ac);
     XtSetArg (argsNew[ac], XmNdialogType, XmDIALOG_COMMAND);  ac++;
 
     /*  create Command, free argsNew, return */
