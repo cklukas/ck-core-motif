@@ -95,8 +95,8 @@ _XmStackPush(XmStack stack, XtPointer elem)
 	    return;
 	new_alloc = stack->alloc + STACK_INC;
 	new_elems = (XtPointer *) XtRealloc((XtPointer) stack->elems,
-					 sizeof(XtPointer) *
-					     (size_t)new_alloc);
+					 (Cardinal)(sizeof(XtPointer) *
+					     (size_t)new_alloc));
 	if (new_elems == NULL)
 	    return;
 	stack->elems = new_elems;

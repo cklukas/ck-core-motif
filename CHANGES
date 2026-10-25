@@ -12071,3 +12071,10 @@ Bound RCPopup list allocation width (2026-10-26)
   popup-list growth; see `docs/rcpopup-list-growth.md`.
 
 Bound RepType table allocation widths (2026-10-26)
+Make internal XmList stack allocation width explicit (2026-10-26)
+===================================================================
+
+- Pass the validated cleanup-stack growth size explicitly as an Xt `Cardinal`;
+  see `docs/xmlist-stack-allocation.md`.
+
+Bound RCPopup list allocation width (2026-10-26)
