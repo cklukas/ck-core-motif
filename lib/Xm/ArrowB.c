@@ -381,7 +381,9 @@ Redisplay(
   /*  Draw the arrow  */
   if ((iwidth > 0) && (iheight > 0))
     {
-      if (aw->primitive.shadow_thickness > 0)
+      if (aw->primitive.shadow_thickness > 0 &&
+          aw->primitive.top_shadow_GC != NULL &&
+          aw->primitive.bottom_shadow_GC != NULL)
 	XmeDrawShadows(XtDisplay (aw), XtWindow (aw),
 		       aw->primitive.top_shadow_GC,
 		       aw->primitive.bottom_shadow_GC,
@@ -897,12 +899,20 @@ DrawArrow(XmArrowButtonWidget aw,
       height = 0;
     }
   
+  /* A partially initialized widget can reach redisplay after a failed
+     resource allocation.  Do not pass missing GCs or empty geometry into
+     the X drawing helpers. */
+  if (width == 0 || height == 0 || top_gc == NULL || bottom_gc == NULL)
+    return;
+
   /* The way we currently handle 1 shadowThickness in XmeDrawArrow 
      is by drawing the center a little bit bigger, so the center_gc has
      to be present. Kinda hacky... */
   if (!center_gc && 
       aw->arrowbutton.detail_shadow_thickness == 1) 
       center_gc = aw->arrowbutton.arrow_GC ;
+  if (!center_gc && aw->arrowbutton.detail_shadow_thickness == 1)
+    return;
 
   if (center_gc)
     XSetClipMask(XtDisplay((Widget)aw), center_gc, None);

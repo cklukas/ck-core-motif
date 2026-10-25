@@ -1,3 +1,9 @@
+ArrowButton redisplay guards (2026-10-25)
+===========================================
+
+- Skip shadow and arrow drawing when required GCs are unavailable or the
+  computed arrow geometry is empty; see `docs/arrow-button-redisplay-guards.md`.
+
 Guard IconFile path scanning input (2026-10-27)
 ===============================================
 
