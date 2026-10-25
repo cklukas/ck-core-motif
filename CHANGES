@@ -1,3 +1,9 @@
+XmStringGenerate locking (2026-10-26)
+=======================================
+
+- Avoid recursive process locking across parse and rendition helpers; see
+  `docs/xmstring-generate-locking.md`.
+
 XmString byte-stream conversion locking (2026-10-26)
 ======================================================
 
