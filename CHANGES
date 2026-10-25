@@ -6110,3 +6110,11 @@ Make XmString context rendition growth transactional (2026-10-25)
   the existing array on failure, and mark the context error; see
   `docs/xmstring-context-rendition-growth.md` and its focused source check.
 
+Guard XmStringGenerate rendition wrapping (2026-10-25)
+=======================================================
+
+- Check segment conversion and rendition-tag growth before publishing wrapped
+  state, preserving the original result on failure; see
+  `docs/xmstring-generate-rendition-allocation.md` and its focused source
+  check.
+
