@@ -860,6 +860,11 @@ XmGetIconFileName(
            }
 
            dirName = (String)XtMalloc(dirNameLen + 1);
+	   if (dirName == NULL) {
+	       XtFree(iNameEntry->key_name);
+	       XtFree((char *)iNameEntry);
+	       goto skip_icon_name_cache;
+	   }
 	   strncpy(dirName, fileName, dirNameLen);
 	   dirName[dirNameLen] = '\0';
 

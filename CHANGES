@@ -1,3 +1,10 @@
+Guard icon-file cache directory allocation (2026-10-25)
+========================================================
+
+- Release the partial cache entry and skip optional caching when the derived
+  directory buffer cannot be allocated; see
+  `docs/motif-iconfile-cache-directory.md`.
+
 Guard icon-file cache key allocation (2026-10-25)
 =================================================
 
