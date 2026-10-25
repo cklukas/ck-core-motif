@@ -1,3 +1,9 @@
+Mrm conversion vector validation (2026-10-25)
+===============================================
+
+- Validate vector pointers, markers, and counts before converting serialized
+  values for Xt; see `docs/mrm-convert-vector-validation.md`.
+
 Mrm safe-copy null-source checks (2026-10-25)
 ===============================================
 
