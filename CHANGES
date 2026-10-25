@@ -60,6 +60,12 @@ Rollback failed image GC-cache insertion (2026-10-26)
 - Release a newly created GC and cache entry when GC-table bucket insertion
   fails; see `docs/gc-cache-insertion-failure.md`.
 
+Make cached-pixmap insertion transactional (2026-10-26)
+========================================================
+
+- Roll back partial pixmap-cache publication and free its entry when either
+  hash insertion fails; see `docs/cache-pixmap-insertion-failure.md`.
+
 Guard XmRegion geometry query NULL inputs (2026-10-26)
 =======================================================
 
