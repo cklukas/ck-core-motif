@@ -24,6 +24,20 @@ Chip geometry bounds (2026-10-26)
 - Bound chip label, pixmap, removal affordance, and vertical padding arithmetic
   to the `Dimension` range; see `docs/chip-geometry-bounds.md`.
 
+Optional C++ support-library install path (2026-10-26)
+=======================================================
+
+- Add opt-in `--enable-cxx-support` installation for the header-only
+  `ckmotif++-8` package without changing the default C build or libXm ABI; see
+  `docs/cpp-support-library-release-decision.md`.
+
+Build portability include (2026-10-26)
+======================================
+
+- Include the standard integer limit definitions where the scroll-frame
+  navigator capacity guard uses `SIZE_MAX`, keeping clean C builds portable
+  across toolchains.
+
 Progress-ring geometry bounds (2026-10-26)
 ==========================================
 

@@ -624,6 +624,12 @@ SDK is installed or required by `libXm`; see
 `docs/cpp-support-library-release-decision.md` for the release gate and reopen
 criteria.
 
+**Implementation progress (2026-10-25):** the optional release install path is
+now implemented behind `--enable-cxx-support`. It installs the header-only
+`ckmotif++-8` package metadata and leaves the default C-only build unchanged.
+Fresh installed-prefix consumer and sanitizer qualification remain the release
+evidence gate; this package does not claim completion until those runs pass.
+
 ### WP-10: Form and hierarchy diagnostic corpus
 
 **Depends on:** WP-00.

@@ -29,6 +29,7 @@
 #include <config.h>
 #endif
 
+#include <stdint.h>
 
 #include "XmI.h"
 #include <Xm/TraitP.h>

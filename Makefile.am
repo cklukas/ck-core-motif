@@ -1151,3 +1151,16 @@ EXTRA_DIST += tests/automated/check-gallery-screenshot-runner.py \
               tests/automated/run-gallery-screenshot-matrix.py \
               docs/modern-gallery-screenshot-qualification.md
 EXTRA_DIST += tests/automated/check-gallery-screenshot-assets.py tests/automated/generate-gallery-screenshot-manifest.py docs/gallery-screenshots/manifest.json docs/gallery-screenshots/*.png
+
+EXTRA_DIST += cpp/ckmotif++/motif_support.hpp ckmotif++-8.pc.in
+EXTRA_DIST += docs/cpp-support-library.md docs/cpp-support-library-proposal.md
+EXTRA_DIST += docs/cpp-support-library-release-decision.md tests/cpp/support_lifecycle.cpp
+EXTRA_DIST += tests/automated/run-cpp-support-prototype.py
+EXTRA_DIST += tests/automated/check-cxx-support-install.py
+
+if CXX_SUPPORT
+ckmotifxxincludedir = $(includedir)/ckmotif++
+ckmotifxxinclude_HEADERS = cpp/ckmotif++/motif_support.hpp
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = ckmotif++-8.pc
+endif

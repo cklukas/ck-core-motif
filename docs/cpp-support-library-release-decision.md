@@ -29,3 +29,16 @@ minimum:
 The package remains optional, separately versioned and independent of a clean C
 `libXm` build. The native AArch64 result does not close the toolkit-wide
 x86_64 qualification gate.
+
+## Installation contract
+
+Configure with `--enable-cxx-support` to install the header and
+`ckmotif++-8.pc`. The default C build does not install or compile this optional
+package, and `libXm` retains its unchanged C ABI. The installed-prefix
+consumer fixture remains the release gate for callback, ownership and
+destruction behavior.
+
+The clean qualification build also covers the core C library: the scroll-frame
+navigator capacity guard includes the standard integer-limit definitions it
+uses, so the optional package does not depend on an incidental transitive
+include from a particular compiler or system header set.

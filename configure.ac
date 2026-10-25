@@ -36,6 +36,12 @@ dnl AC_DISABLE_STATIC
 AC_CONFIG_HEADERS(include/config.h lib/Xm/Xm.h)
 AC_CONFIG_FILES([ckmotif++-8.pc])
 
+AC_ARG_ENABLE([cxx-support],
+  [AS_HELP_STRING([--enable-cxx-support],
+                  [install the optional header-only C++ support package (default=no)])],
+  [], [enable_cxx_support=no])
+AM_CONDITIONAL([CXX_SUPPORT], [test "x$enable_cxx_support" = "xyes"])
+
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CPP
