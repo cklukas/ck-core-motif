@@ -235,6 +235,8 @@ Render-table locking (2026-10-26)
   `docs/render-table-resize.md`.
 - Guard the temporary merge-match allocation in `XmRenderTableAddRenditions`
   so allocation failure returns without dereferencing a null buffer.
+- Make rendition resource cleanup tolerate a missing `XmNfontName` before
+  checking the `XmAS_IS` marker; see `docs/render-rendition-null-font-name.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================

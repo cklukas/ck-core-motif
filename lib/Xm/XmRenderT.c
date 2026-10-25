@@ -2270,7 +2270,8 @@ CleanupResources(XmRendition rend,
   }
 #endif
 
-  if (((unsigned int)(unsigned long)_XmRendFontName(rend) == XmAS_IS) ||
+  if ((_XmRendFontName(rend) == NULL) ||
+      ((unsigned int)(unsigned long)_XmRendFontName(rend) == XmAS_IS) ||
       (strcmp(_XmRendFontName(rend), XmSXmAS_IS) == 0))
     _XmRendFontName(rend) = NULL;
   else if (copy)
