@@ -3288,6 +3288,10 @@ AddInternalElements(XmListWidget lw,
   ElementPtr new_el;
   int i;
   int nsel = 0;
+  int inserted = 0;
+  int original_pos;
+  Dimension old_max_width;
+  Dimension old_max_height;
 
   if (nitems <= 0)
     return nsel;
@@ -3300,6 +3304,9 @@ AddInternalElements(XmListWidget lw,
     pos = position - 1;
   else
     pos = lw->list.LastItem;
+  original_pos = pos;
+  old_max_width = lw->list.MaxWidth;
+  old_max_height = lw->list.MaxItemHeight;
 
   lw->list.InternalList = (ElementPtr *)
     XtRealloc((char *)lw->list.InternalList,
@@ -3314,6 +3321,18 @@ AddInternalElements(XmListWidget lw,
   for (i = 0; i < nitems; i++)
     {
       new_el = (ElementPtr)XtMalloc(sizeof(Element));
+      if (new_el == NULL)
+        {
+          while (inserted > 0)
+            XtFree((char *)lw->list.InternalList[original_pos + --inserted]);
+          if (original_pos < lw->list.LastItem)
+            memmove((char *)(lw->list.InternalList + original_pos),
+                    (char *)(lw->list.InternalList + original_pos + nitems),
+                    (lw->list.LastItem - original_pos) * sizeof(ElementPtr));
+          lw->list.MaxWidth = old_max_width;
+          lw->list.MaxItemHeight = old_max_height;
+          return 0;
+        }
       new_el->accessible_identity = next_item_identity(lw);
 
       /* Store an alias for string in the internal table. */
@@ -3333,6 +3352,7 @@ AddInternalElements(XmListWidget lw,
 
       lw->list.InternalList[pos] = new_el;
       pos++;
+      inserted++;
     }
 
   lw->list.LastItem += nitems;

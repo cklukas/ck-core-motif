@@ -1,3 +1,9 @@
+Rollback List internal element allocation (2026-10-25)
+=======================================================
+
+- Restore the internal list and cached extents when an item record allocation
+  fails during insertion; see `docs/motif-list-elements.md`.
+
 Guard List translation allocation (2026-10-25)
 ===============================================
 
