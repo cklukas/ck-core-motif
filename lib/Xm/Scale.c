@@ -132,12 +132,14 @@ static Region null_region = NULL;
 		     + (Dimension) (((float) SLIDER_SIZE(sca) / 2.0) + 0.5))
 #define LeadYTic(sb, sca) (sb->scrollBar.slider_area_y \
 		     + (Dimension) (((float) SLIDER_SIZE(sca) / 2.0) + 0.5))
-#define TrailXTic(sb, sca) (sb->core.width - (sb->scrollBar.slider_area_x \
-		     + sb->scrollBar.slider_area_width\
-		      - (Dimension) (((float) SLIDER_SIZE(sca) / 2.0) + 0.5)))
-#define TrailYTic(sb, sca) (sb->core.height - (sb->scrollBar.slider_area_y \
-		     + sb->scrollBar.slider_area_height\
-		      - (Dimension) (((float) SLIDER_SIZE(sca) / 2.0) + 0.5)))
+#define TrailXTic(sb, sca) ((int)(sb)->core.width - \
+		     ((int)(sb)->scrollBar.slider_area_x + \
+		      (int)(sb)->scrollBar.slider_area_width - \
+		      (int)(((float) SLIDER_SIZE(sca) / 2.0) + 0.5)))
+#define TrailYTic(sb, sca) ((int)(sb)->core.height - \
+		     ((int)(sb)->scrollBar.slider_area_y + \
+		      (int)(sb)->scrollBar.slider_area_height - \
+		      (int)(((float) SLIDER_SIZE(sca) / 2.0) + 0.5)))
 		
 
 /********    Static Function Declarations    ********/

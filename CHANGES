@@ -7399,3 +7399,12 @@ ScrollBar redisplay shadow bounds (2026-10-26)
 
 MenuShell popup placement bounds (2026-10-26)
 ==============================================
+Scale trailing tick bounds (2026-10-26)
+=======================================
+
+- Compute trailing tick coordinates in signed arithmetic, preventing wrapped
+  positions when slider extents exceed a Scale widget; see
+  `docs/scale-trailing-ticks.md`.
+
+ScrollBar redisplay shadow bounds (2026-10-26)
+===============================================
