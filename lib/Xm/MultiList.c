@@ -555,6 +555,7 @@ SetValues(Widget current, Widget request, Widget set,
     ArgList f_args;
     Cardinal f_num_args;
     Boolean redisplay = False;
+    XmString replacement;
 
     /*
      * Pass the SetValues request through to all children.
@@ -591,14 +592,17 @@ SetValues(Widget current, Widget request, Widget set,
 	Arg args[1];
 
 	redisplay = True;
-	XmStringFree(XmMultiList_find_label(e_old));
-
-	if (XmMultiList_find_label(e_set) != NULL) 
-	    XmMultiList_find_label(e_set) = 
-		XmStringCopy(XmMultiList_find_label(e_set));
-	else 
-	    XmMultiList_find_label(e_set) = 
-		XmStringCreateLocalized(FIND_STRING);
+	if (XmMultiList_find_label(e_set) != NULL)
+	    replacement = XmStringCopy(XmMultiList_find_label(e_set));
+	else
+	    replacement = XmStringCreateLocalized(FIND_STRING);
+	if (replacement != NULL)
+	{
+	    XmStringFree(XmMultiList_find_label(e_old));
+	    XmMultiList_find_label(e_set) = replacement;
+	}
+	else
+	    XmMultiList_find_label(e_set) = XmMultiList_find_label(e_old);
 
 	XtSetArg(args[0], XmNlabelString, XmMultiList_find_label(e_set));
 	XtSetValues(XmMultiList_find(e_set), args, 1);
@@ -635,14 +639,20 @@ SetValues(Widget current, Widget request, Widget set,
 	{
 	    Arg		zargs[2];
 	    Cardinal	znum_args = 0;
-	    
-	    *title = XmStringCopy(*title);
 
-	    XtSetArg(zargs[znum_args], XmNlabelString, *title); znum_args++;
-	    XtSetValues(XmMultiList_title_wid(e_set), zargs, znum_args);
+	    replacement = XmStringCopy(*title);
+	    if (replacement != NULL)
+	    {
+		*title = replacement;
+		XtSetArg(zargs[znum_args], XmNlabelString, *title); znum_args++;
+		XtSetValues(XmMultiList_title_wid(e_set), zargs, znum_args);
+	    }
+	    else
+		*title = old_title;
 	}
 
-	XmStringFree(old_title);
+	if (*title != old_title)
+	    XmStringFree(old_title);
     }
 
     return(redisplay);   

@@ -9407,3 +9407,10 @@ ProgressBar label rollback (2026-10-29)
 
 - Copy changed labels before releasing the current value, preserving the
   progress label when allocation fails; see `docs/progressbar-label-rollback.md`.
+
+MultiList label rollback (2026-10-29)
+======================================
+
+- Preserve find and title labels until replacement `XmString` copies succeed,
+  avoiding label loss on allocation failure; see
+  `docs/multilist-label-rollback.md`.
