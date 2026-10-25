@@ -6132,3 +6132,8 @@ Render-table rendition result positions (2026-10-25)
   guard the result allocation and clean up partially copied renditions. This
   matches the documented positional API and keeps unmatched tags as `NULL`;
   see `docs/render-table-rendition-array.md`.
+Render-table tag result allocation (2026-10-25)
+================================================
+
+- Validate `XmRenderTableGetTags` output and allocation inputs, and roll back
+  partially copied tags on failure; see `docs/render-table-tag-array.md`.
