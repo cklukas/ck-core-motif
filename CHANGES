@@ -1,3 +1,11 @@
+Region shadow segment growth (2026-10-27)
+=========================================
+
+- Preserve existing shadow segment buffers when a growth allocation fails and
+  validate the doubled count before converting it to an Xt allocation size.
+  Region shadow rendering now retains the valid segment count and retries
+  growth without overwriting entries or wrapping capacity metadata.
+
 RCPopup list growth failures (2026-10-27)
 =========================================
 

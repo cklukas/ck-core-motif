@@ -1946,14 +1946,25 @@ CreateLeftShadow(
     Position	end_y = here->y2;
 
     if (*segmi >= *segmc) {
-	*segml = (XSegment *) XtRealloc ((char *)(*segml),
-		 (Cardinal) ((sizeof(XSegment) << 1) * (*segmc)));
-        if (*segml == NULL) {
+	XSegment *new_segml;
+	size_t new_count;
+	if (*segmc <= 0 || *segmc > INT_MAX / 2 ||
+	    (size_t)*segmc > SIZE_MAX / (2 * sizeof(XSegment)) ||
+	    (size_t)*segmc > (size_t)UINT_MAX / (2 * sizeof(XSegment))) {
 	    XmeWarning(NULL, MESSAGE1);
-	    *segmi = *segmc = 0;
+	    *segmc = *segmi;
 	    return;
 	}
-	*segmc *= 2;
+	new_count = (size_t)*segmc * 2;
+	new_segml = (XSegment *) XtRealloc ((char *)(*segml),
+		 (Cardinal) (sizeof(XSegment) * new_count));
+	if (new_segml == NULL) {
+	    XmeWarning(NULL, MESSAGE1);
+	    *segmc = *segmi;
+	    return;
+	}
+	*segml = new_segml;
+	*segmc = (int)new_count;
     }
 
     if (mask & BL_OPEN) {
@@ -1987,14 +1998,25 @@ CreateRightShadow(
     Position	end_y = here->y2;
 
     if (*segmi >= *segmc) {
-	*segml = (XSegment *) XtRealloc ((char *)(*segml),
-		 (Cardinal) ((sizeof(XSegment) << 1) * (*segmc)));
-        if (*segml == NULL) {
+	XSegment *new_segml;
+	size_t new_count;
+	if (*segmc <= 0 || *segmc > INT_MAX / 2 ||
+	    (size_t)*segmc > SIZE_MAX / (2 * sizeof(XSegment)) ||
+	    (size_t)*segmc > (size_t)UINT_MAX / (2 * sizeof(XSegment))) {
 	    XmeWarning(NULL, MESSAGE1);
-	    *segmi = *segmc = 0;
+	    *segmc = *segmi;
 	    return;
 	}
-	*segmc *= 2;
+	new_count = (size_t)*segmc * 2;
+	new_segml = (XSegment *) XtRealloc ((char *)(*segml),
+		 (Cardinal) (sizeof(XSegment) * new_count));
+	if (new_segml == NULL) {
+	    XmeWarning(NULL, MESSAGE1);
+	    *segmc = *segmi;
+	    return;
+	}
+	*segml = new_segml;
+	*segmc = (int)new_count;
     }
 
     if (!(mask & TR_MATCH)) {
@@ -2034,14 +2056,25 @@ CreateTopShadow(
     int			*segmi )
 {
     if (*segmi >= *segmc) {
-	*segml = (XSegment *) XtRealloc ((char *)(*segml),
-		 (Cardinal) ((sizeof(XSegment) << 1) * (*segmc)));
-        if (*segml == NULL) {
+	XSegment *new_segml;
+	size_t new_count;
+	if (*segmc <= 0 || *segmc > INT_MAX / 2 ||
+	    (size_t)*segmc > SIZE_MAX / (2 * sizeof(XSegment)) ||
+	    (size_t)*segmc > (size_t)UINT_MAX / (2 * sizeof(XSegment))) {
 	    XmeWarning(NULL, MESSAGE1);
-	    *segmi = *segmc = 0;
+	    *segmc = *segmi;
 	    return;
 	}
-	*segmc *= 2;
+	new_count = (size_t)*segmc * 2;
+	new_segml = (XSegment *) XtRealloc ((char *)(*segml),
+		 (Cardinal) (sizeof(XSegment) * new_count));
+	if (new_segml == NULL) {
+	    XmeWarning(NULL, MESSAGE1);
+	    *segmc = *segmi;
+	    return;
+	}
+	*segml = new_segml;
+	*segmc = (int)new_count;
     }
 
     if (mask & TL_OPEN) {
@@ -2078,14 +2111,25 @@ CreateBottomShadow(
     int			*segmi )
 {
     if (*segmi >= *segmc) {
-	*segml = (XSegment *) XtRealloc ((char *)(*segml),
-		 (Cardinal) ((sizeof(XSegment) << 1) * (*segmc)));
-        if (*segml == NULL) {
+	XSegment *new_segml;
+	size_t new_count;
+	if (*segmc <= 0 || *segmc > INT_MAX / 2 ||
+	    (size_t)*segmc > SIZE_MAX / (2 * sizeof(XSegment)) ||
+	    (size_t)*segmc > (size_t)UINT_MAX / (2 * sizeof(XSegment))) {
 	    XmeWarning(NULL, MESSAGE1);
-	    *segmi = *segmc = 0;
+	    *segmc = *segmi;
 	    return;
 	}
-	*segmc *= 2;
+	new_count = (size_t)*segmc * 2;
+	new_segml = (XSegment *) XtRealloc ((char *)(*segml),
+		 (Cardinal) (sizeof(XSegment) * new_count));
+	if (new_segml == NULL) {
+	    XmeWarning(NULL, MESSAGE1);
+	    *segmc = *segmi;
+	    return;
+	}
+	*segml = new_segml;
+	*segmc = (int)new_count;
     }
 
     if (!(mask & BL_OPEN)) {
