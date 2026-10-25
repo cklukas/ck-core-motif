@@ -868,6 +868,10 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	/* Now allocate a string table to put them in */
 	string_table = (XmStringTable)XtMalloc(sizeof(XmString) *
 					(elements ? elements : 1));
+	if (string_table == NULL) {
+	    _XmAppUnlock(app);
+	    return BadAlloc;
+	}
 
 	/* Run through again, converting the strings. */
 	offset = 0;
