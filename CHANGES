@@ -13353,7 +13353,8 @@ Command-palette item allocation safety (2026-10-26)
 ====================================================
 
 - Reject null item arrays and allocation failures before populating command
-  palette entries; see `docs/command-palette-item-allocation.md`.
+  palette entries, and guard visible-index allocation during filtering; see
+  `docs/command-palette-item-allocation.md`.
 
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================

@@ -13,4 +13,7 @@ assert "if (!items)" in body
 assert "if (!palette->palette.items)" in body
 assert "XtWarning" in body
 assert "palette->palette.items[i].id" in body
+rebuild = text[text.index("static void rebuild"):start]
+assert "palette->palette.item_count && !palette->palette.visible" in rebuild
+assert "unable to allocate visible item index" in rebuild
 print("command-palette item input and allocation failures are guarded")
