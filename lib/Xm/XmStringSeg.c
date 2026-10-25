@@ -43,6 +43,37 @@ static char rcsid[] = "$XConsortium: XmStringSeg.c /main/7 1995/09/19 23:13:59 c
 #include "XmStringI.h"
 #include "XmRenderTI.h"
 
+static Boolean
+CopyRenditionTags(XmStringTag *source,
+                  unsigned int count,
+                  Boolean copy_data,
+                  XmStringTag **result)
+{
+  XmStringTag *tags;
+  unsigned int i;
+
+  *result = NULL;
+  if (count == 0)
+    return True;
+  if ((size_t)count > SIZE_MAX / sizeof(*tags))
+    return False;
+
+  tags = (XmStringTag *)XtMalloc(sizeof(*tags) * count);
+  if (tags == NULL)
+    return False;
+  for (i = 0; i < count; i++) {
+    tags[i] = copy_data ? XtNewString(source[i]) : source[i];
+    if (copy_data && tags[i] == NULL) {
+      while (i != 0)
+        XtFree((char *)tags[--i]);
+      XtFree((char *)tags);
+      return False;
+    }
+  }
+  *result = tags;
+  return True;
+}
+
 
 /*
  * _XmStringGetSegment: A generalized version of XmStringGetNextSegment.
@@ -66,7 +97,6 @@ _XmStringGetSegment(_XmStringContext   context,
 		    XmDirection       *push_before,
 		    Boolean	      *pop_after)
 {
-  XmStringTag*   	perm_rends = NULL;
   _XmStringContextRec	local_context_data;
   _XmStringContext	local_context = context;
   Boolean		result = FALSE;
@@ -151,23 +181,13 @@ _XmStringGetSegment(_XmStringContext   context,
 		      done = TRUE;
 		      break;
 		    }
-		  if (copy_data)
+		  if (!CopyRenditionTags(_XmStrContRendTags(local_context),
+					  *tag_count, copy_data, rendition_tags))
 		    {
-		      int tmp;
-		      *rendition_tags = (XmStringTag *)
-			XtMalloc(sizeof(XmStringTag) * *tag_count);
-		      for (tmp = 0; tmp < *tag_count; tmp++)
-			(*rendition_tags)[tmp] = 
-			  XtNewString(_XmStrContRendTags(local_context)[tmp]);
-		    }
-		  else
-		    {
-		      perm_rends = (XmStringTag *)
-			XtMalloc(sizeof(XmStringTag) * *tag_count);
-		      memcpy((char*) perm_rends,
-			     _XmStrContRendTags(local_context),
-			     sizeof(XmStringTag) * *tag_count);
-		      *rendition_tags = perm_rends;
+		      *tag_count = 0;
+		      result = FALSE;
+		      done = TRUE;
+		      break;
 		    }
 		}
 
@@ -226,23 +246,13 @@ _XmStringGetSegment(_XmStringContext   context,
 			done = TRUE;
 			break;
 		      }
-		  if (copy_data)
+		  if (!CopyRenditionTags(_XmStrContRendTags(local_context),
+					  *tag_count, copy_data, rendition_tags))
 		    {
-		      int tmp;
-		      *rendition_tags = (XmStringTag*)
-			XtMalloc(sizeof(XmStringTag) * *tag_count);
-		      for (tmp = 0; tmp < *tag_count; tmp++)
-			(*rendition_tags)[tmp] = 
-			  XtNewString(_XmStrContRendTags(local_context)[tmp]);
-		    }
-		  else
-		    {
-		      perm_rends = (XmStringTag *)
-			XtMalloc(sizeof(XmStringTag) * *tag_count);
-		      memcpy((char*) perm_rends,
-			     _XmStrContRendTags(local_context),
-			     sizeof(XmStringTag) * *tag_count);
-		      *rendition_tags = perm_rends;
+		      *tag_count = 0;
+		      result = FALSE;
+		      done = TRUE;
+		      break;
 		    }
 		}
 	    }

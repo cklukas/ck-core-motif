@@ -5289,6 +5289,13 @@ Guard DialogShell resource merging (2026-10-25)
   `docs/dialog-resource-guards.md`.
 
 Guard MainWindow auto-scroll rectangles (2026-10-25)
+Guard compound-string rendition copies (2026-10-25)
+=====================================================
+
+- Centralize rendition-tag array and per-tag allocation cleanup, returning a
+  failed segment without partial output; see
+  `docs/string-rendition-guards.md`.
+
 Guard compound-string segment copies (2026-10-25)
 ===================================================
 
