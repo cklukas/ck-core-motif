@@ -1345,6 +1345,10 @@ Urm__CW_CreateArglist (Widget			parent,
   for ( ndx=0 ; ndx<argdesc->count ; ndx++ )
     {
       argptr = &argdesc->args[ndx] ;
+      if (argptr->tag_code == UilMrmUnknownCode &&
+          !UrmWidgetStringValid(widgetrec,
+                                argptr->stg_or_relcode.tag_offs))
+        continue;
       reptype = argptr->arg_val.rep_type ;
       swap_needed = FALSE ;
 
