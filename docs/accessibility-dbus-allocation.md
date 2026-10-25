@@ -11,3 +11,7 @@ bridge, while allowing later notifications to retry record creation.
 
 Initial tree seeding follows the same rule: a node whose memo record cannot be
 created is skipped and the remaining tree continues to be announced.
+
+Method-return message construction is also checked before initializing an
+iterator, so D-Bus memory pressure produces a handled request rather than a
+null-message crash.

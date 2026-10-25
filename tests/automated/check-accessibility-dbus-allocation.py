@@ -2,6 +2,7 @@
 """Check that AT-SPI memo-record allocations fail closed."""
 
 from pathlib import Path
+import re
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "AccessibleDBus.c").read_text()
 
@@ -11,4 +12,7 @@ assert "TransportState *record = memo_get(t, id, 1);" in source
 assert source.count("record = memo_get(t, id, 1);\n  if (!record)") >= 2
 assert "record = memo_get(t, id, 1);\n    if (!record)" in source
 assert "record = memo_get(t, ids[k], 1);\n    if (!record)" in source
+assert len(re.findall(
+    r"reply = dbus_message_new_method_return\(call\);\n\s+if \(!reply\)",
+    source)) >= 3
 print("PASS accessibility D-Bus memo allocation failures are guarded")

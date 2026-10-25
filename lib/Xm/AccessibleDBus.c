@@ -671,6 +671,8 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
         "<signal name='AddAccessible'><arg type='" CACHE_ITEM "'/></signal>"
         "<signal name='RemoveAccessible'><arg type='(so)'/></signal></interface></node>";
       reply = dbus_message_new_method_return(call);
+      if (!reply)
+        return DBUS_HANDLER_RESULT_HANDLED;
       dbus_message_iter_init_append(reply, &out);
       string_value(&out, xml);
       send_reply(t, reply);
@@ -696,6 +698,10 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
     }
     for (node = a->nodes, k = 0; node; node = node->next) ids[k++] = node->id;
     reply = dbus_message_new_method_return(call);
+    if (!reply) {
+      XtFree((char *)ids);
+      return DBUS_HANDLER_RESULT_HANDLED;
+    }
     dbus_message_iter_init_append(reply, &out);
     dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, CACHE_ITEM, &array);
     for (k = 0; k < count; ++k) cache_item(&array, t, ids[k]);
@@ -726,6 +732,10 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
     return DBUS_HANDLER_RESULT_HANDLED;
   }
   reply = dbus_message_new_method_return(call);
+  if (!reply) {
+    XmAccessibleInfoClear(&info);
+    return DBUS_HANDLER_RESULT_HANDLED;
+  }
   dbus_message_iter_init_append(reply, &out);
   if (!strcmp(iface, "org.freedesktop.DBus.Introspectable") &&
       !strcmp(method, "Introspect")) {
