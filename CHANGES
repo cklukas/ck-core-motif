@@ -32,6 +32,13 @@ Container empty-heading guard (2026-10-26)
   empty instead of terminating on an assertion; see
   `docs/container-empty-heading-guard.md`.
 
+List single-selection normalization (2026-10-26)
+=================================================
+
+- Normalize stale extra selections when a list uses single or browse policy
+  after a multi-selection state, avoiding an assertion and preserving the
+  single-selection contract; see `docs/list-single-selection-normalization.md`.
+
 XmString context utility null guards (2026-10-26)
 ===================================================
 

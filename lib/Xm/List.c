@@ -8239,8 +8239,29 @@ APIAddItems(XmListWidget lw,
   /* CR 5833: Enforce single/browse selection_policy. */
   if (select && !selectable)
     {
+      /* A policy change from multiple selection can leave more than one
+       * position selected until the next list update.  Keep the first
+       * selection and clear the stale extras before applying the single-item
+       * insertion rule. */
+      if (lw->list.selectedPositionCount > 1 &&
+          lw->list.selectedPositions != NULL)
+	{
+	  for (i = 1; i < lw->list.selectedPositionCount; i++)
+	    {
+	      int old_sel = lw->list.selectedPositions[i];
+	      if (old_sel >= pos)
+		old_sel += item_count;
+	      if (old_sel > 0 && old_sel <= lw->list.itemCount)
+		{
+		  lw->list.InternalList[old_sel - 1]->selected = FALSE;
+		  lw->list.InternalList[old_sel - 1]->last_selected = FALSE;
+		}
+	      nsel--;
+	    }
+	  UpdateSelectedList(lw, TRUE);
+	}
+
       /* Find the last matching item. */
-      assert(lw->list.selectedPositionCount <= 1);
       i = item_count;
       while (i-- > 0)
 	{
