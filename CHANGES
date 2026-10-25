@@ -10367,6 +10367,12 @@ Screen menu-cursor input validation (2026-10-25)
 - Validate display, screen, and `XmScreen` state in menu-cursor setters and
   getters; see `docs/screen-menu-cursor-input.md`.
 
+Screen unpost-behavior input validation (2026-10-25)
+=====================================================
+
+- Return `XmUNPOST_AND_REPLAY` for missing widget or screen inputs when
+  querying unpost behavior; see `docs/screen-unpost-behavior-input.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

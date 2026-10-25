@@ -1343,7 +1343,13 @@ unsigned char
 _XmGetUnpostBehavior(
         Widget wid )
 {
-   XmScreen	xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(wid));
+   XmScreen	xmScreen;
+
+   if (wid == NULL)
+     return XmUNPOST_AND_REPLAY;
+   xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(wid));
+   if (xmScreen == NULL)
+     return XmUNPOST_AND_REPLAY;
 
    return(xmScreen->screen.unpostBehavior);
 }
