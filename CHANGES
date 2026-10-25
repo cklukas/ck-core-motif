@@ -6223,3 +6223,10 @@ Guard XmString charset comparison (2026-10-25)
   valid comparisons; see `docs/xmstring-charset-comparison.md` and its focused
   source check.
 
+Guard optimized XmString cloning (2026-10-25)
+===============================================
+
+- Validate optimized clone payload arithmetic and allocation before copying,
+  complementing the existing non-optimized transactional clone path; see
+  `docs/xmstring-clone-allocation.md` and its focused source check.
+

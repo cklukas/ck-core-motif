@@ -1,6 +1,12 @@
+---
+nav_exclude: true
+---
 # XmString clone allocation
 
-Non-optimized `XmStringCopy` clones now check the entry-array size and every
-entry copy.  A failed clone releases all entries copied so far and the new
-top-level string, returning `NULL` without publishing a partially initialized
-compound string.
+Both optimized and non-optimized `XmStringCopy` clones validate allocation
+sizes and results before copying. The non-optimized path releases every entry
+copied so far when a child copy fails; the optimized path rejects wrapped
+payload sizes and failed allocation. Neither path publishes a partial clone.
+
+The focused regression check is
+`tests/automated/check-xmstring-clone-allocation.py`.

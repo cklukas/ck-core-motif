@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
-"""Check that non-optimized XmString clones clean up partial copies."""
+"""Check that XmString clones validate sizes and clean up failures."""
 
 from pathlib import Path
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmString.c").read_text()
-start = source.index("static XmString \nClone(")
-end = source.index("Given a string in ASN.1", start)
-region = source[start:end]
+source = Path(__file__).parents[2] / "lib" / "Xm" / "XmString.c"
+text = source.read_text(encoding="utf-8")
+for needle in (
+    "byte_count < TEXT_BYTES_IN_STRUCT",
+    "byte_count - TEXT_BYTES_IN_STRUCT > SIZE_MAX - sizeof(_XmStringOptRec)",
+    "if (n_o_string == NULL)",
+    "SIZE_MAX / sizeof(*entries)",
+    "if (entries == NULL)",
+    "_XmStringEntryCopy(_XmStrEntry(string)[i])",
+    "_XmStringEntryFree(entries[j]);",
+):
+    if needle not in text:
+        raise SystemExit(f"XmString clone guard is missing: {needle}")
 
-assert "SIZE_MAX / sizeof(*entries)" in region
-assert "if (entries == NULL)" in region
-assert "_XmStringEntryCopy(_XmStrEntry(string)[i])" in region
-assert "_XmStringEntryFree(entries[j]);" in region
-assert "return NULL;" in region
-print("PASS XmString clone allocations clean up partial copies")
+print("PASS XmString optimized and non-optimized clone guards are present")

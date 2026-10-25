@@ -7173,15 +7173,28 @@ Clone(XmString string,
   
   if (_XmStrOptimized(string))
     {
+      size_t byte_count = (size_t)_XmStrByteCount(string);
+      size_t payload;
       _XmStringOpt n_o_string = 
-	(_XmStringOpt) _XmStrMalloc(sizeof(_XmStringOptRec) + 
-				    _XmStrByteCount(string) -
-				    TEXT_BYTES_IN_STRUCT); 
+        (_XmStringOpt) NULL;
 
-      memcpy(n_o_string, string, 
-	     sizeof(_XmStringOptRec) + 
-	     _XmStrByteCount(string) -
-	     TEXT_BYTES_IN_STRUCT) ;
+      if (byte_count < TEXT_BYTES_IN_STRUCT ||
+          byte_count - TEXT_BYTES_IN_STRUCT > SIZE_MAX - sizeof(_XmStringOptRec))
+		return NULL;
+      payload = sizeof(_XmStringOptRec) +
+		(byte_count - TEXT_BYTES_IN_STRUCT);
+#ifdef _XmDEBUG_XMSTRING_MEM
+      if (payload > (size_t)((Cardinal)~0) - STR_OFFSET)
+		return NULL;
+#else
+      if (payload > (size_t)((Cardinal)~0))
+		return NULL;
+#endif
+      n_o_string = (_XmStringOpt) _XmStrMalloc(payload);
+      if (n_o_string == NULL)
+		return NULL;
+
+      memcpy(n_o_string, string, payload);
       new_string = (XmString)n_o_string;        
     }
   else
