@@ -938,6 +938,12 @@ Accessibility cache snapshot allocation (2026-10-25)
 - Report a D-Bus `NoMemory` error when the AT-SPI cache ID snapshot cannot be
   allocated; see `docs/accessibility-menu-lifecycle.md`.
 
+Accessibility menu snapshot allocation (2026-10-25)
+====================================================
+
+- Check the menu notification ID-snapshot allocation before filling it; see
+  `docs/accessibility-menu-lifecycle.md`.
+
 Accessibility UTF-8 allocation failures (2026-10-25)
 =====================================================
 
