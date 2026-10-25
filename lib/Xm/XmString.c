@@ -892,6 +892,10 @@ _XmStringNCreate(char *text,
 
   tag_index = _XmStringIndexCacheTag(curtag, XmSTRING_TAG_STRLEN);
 
+  if (_XmStringIndexGetTag(tag_index) == NULL ||
+      strcmp(_XmStringIndexGetTag(tag_index), curtag) != 0)
+    return((XmString) NULL);
+
   if ((tag_index < TAG_INDEX_UNSET) &&
       (t_length < (1 << BYTE_COUNT_BITS)))
     /* Create optimized string. */
@@ -915,6 +919,10 @@ _XmStringNCreate(char *text,
       _XmEntryInit((_XmStringEntry)&seg, XmSTRING_ENTRY_UNOPTIMIZED);
       
       _XmUnoptSegTag(&seg) = _XmStringCacheTag(curtag, XmSTRING_TAG_STRLEN);
+      if (_XmUnoptSegTag(&seg) == NULL) {
+	_XmStrFree(str);
+	return((XmString) NULL);
+      }
 
       _XmEntryTextTypeSet(&seg, type);
       _XmEntryTextSet((_XmStringEntry)&seg, text);
