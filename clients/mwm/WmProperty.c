@@ -1849,6 +1849,10 @@ GetDtWmRequest (
 	    (actualFormat != 8))
 	{
 	    /* The property does not exist or it is an invalid type. */
+	    if (property != NULL)
+	    {
+		XFree ((char *)property);
+	    }
 	    property = NULL;
 	    iNext = -1;
 	    nitems = 0;

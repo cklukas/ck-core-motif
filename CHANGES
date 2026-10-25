@@ -4688,3 +4688,9 @@ SM client ID property handling (2026-10-25)
 
 - Copy non-empty `SM_CLIENT_ID` property data into a terminated Xt-owned
   string before consumers use it; see `docs/sm-client-id-read-guards.md`.
+
+DT window-management request cleanup (2026-10-25)
+===================================================
+
+- Free invalid `_DT_WM_REQUEST` property buffers before resetting the
+  request parser state; see `docs/dt-wm-request-cleanup.md`.
