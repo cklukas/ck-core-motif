@@ -1,4 +1,8 @@
 2026-10-25
+	* Validate MainWindow auto-scroll rectangle arithmetic before allocating
+	  geometry state; see docs/mainw-rect-guards.md.
+
+2026-10-25
 	* Check Container selection-array sizing and preserve selection state when
 	  growth fails; see docs/container-selection-guards.md.
 

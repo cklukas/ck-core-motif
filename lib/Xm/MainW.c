@@ -1216,8 +1216,12 @@ GetVertRects(
     Widget w ;
     XmMainWindowWidget mw = (XmMainWindowWidget) sw ;
 
+    *num_vrect = 0 ;
+    *vrect = NULL ;
+    *vrect = (XRectangle *) XtMalloc(sizeof(XRectangle) * 2) ;
+    if (*vrect == NULL)
+	return;
     *num_vrect = 2 ;
-    *vrect = (XRectangle *) XtMalloc(sizeof(XRectangle) * (*num_vrect)) ;
 
     /* The vertical rectangles are the ones that vertically auto scroll,
        they are defined by areas on the top and bottom of the
