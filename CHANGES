@@ -1,3 +1,12 @@
+Live gallery controls and Unicode welcome page (2026-10-27)
+============================================================
+
+- Populate every constructible gallery entry with a real control or live child
+  surface, keep categories in a left navigation pane, and add a dedicated
+  first-page welcome screen with English, German, Japanese, and Chinese text.
+  The welcome renderer uses Xft fallback fonts for reliable Unicode glyphs;
+  see `docs/modern-gallery.md`.
+
 Auto-suggest string-copy allocation guards (2026-10-26)
 ========================================================
 

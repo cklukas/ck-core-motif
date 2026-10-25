@@ -119,6 +119,71 @@ gallery_create_component_example(Widget parent, WidgetClass class,
                                           XmNminimum, 0, XmNmaximum, 100,
                                           XmNvalue, 65, XmNwidth, 320,
                                           XmNheight, 48, NULL);
+    } else if (class == xmNumberBoxWidgetClass) {
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNwidth, 220, XmNheight, 48, NULL);
+        XmNumberBoxSetRange(example, 0, 100, False);
+        XmNumberBoxSetValue(example, 42, False);
+    } else if (class == xmRatingControlWidgetClass) {
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNwidth, 260, XmNheight, 48, NULL);
+        XmRatingControlSetValue(example, 4, False);
+    } else if (class == xmProgressBarWidgetClass) {
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNwidth, 360, XmNheight, 40, NULL);
+        XmProgressBarSetRange(example, 0, 100, False);
+        XmProgressBarSetValue(example, 68, False);
+    } else if (class == xmProgressRingWidgetClass) {
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNwidth, 96, XmNheight, 96, NULL);
+        XmProgressRingSetRange(example, 0, 100, False);
+        XmProgressRingSetValue(example, 68, False);
+    } else if (class == xmSpinnerWidgetClass) {
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNwidth, 72, XmNheight, 72, NULL);
+        XmSpinnerSetActive(example, True, False);
+    } else if (class == xmStepperWidgetClass) {
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNwidth, 180, XmNheight, 48, NULL);
+        XmStepperSetRange(example, 0, 100, False);
+        XmStepperSetValue(example, 7, False);
+    } else if (class == xmColorPickerWidgetClass) {
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNwidth, 180, XmNheight, 48, NULL);
+        XmColorPickerSetValue(example, 0x3478d4ffUL, False);
+    } else if (class == xmBreadcrumbBarWidgetClass) {
+        XmBreadcrumbSegment segments[3] = {
+            {"Home", (XtPointer)"home"},
+            {"Components", (XtPointer)"components"},
+            {"Current", (XtPointer)"current"}
+        };
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNwidth, 420, XmNheight, 44, NULL);
+        XmBreadcrumbBarSetSegments(example, segments, 3);
+        XmBreadcrumbBarSetCurrentIndex(example, 2, False);
+    } else if (class == xmAutoSuggestBoxWidgetClass) {
+        XmString suggestions_text[3];
+        XmAutoSuggestItem suggestions[3];
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNwidth, 360, XmNheight, 48, NULL);
+        suggestions_text[0] = XmStringCreateLocalized((char *)"Open document");
+        suggestions_text[1] = XmStringCreateLocalized((char *)"Open folder");
+        suggestions_text[2] = XmStringCreateLocalized((char *)"Open recent");
+        suggestions[0] = (XmAutoSuggestItem){"document", suggestions_text[0], NULL};
+        suggestions[1] = (XmAutoSuggestItem){"folder", suggestions_text[1], NULL};
+        suggestions[2] = (XmAutoSuggestItem){"recent", suggestions_text[2], NULL};
+        XmAutoSuggestBoxSetSuggestions(example, suggestions, 3, 1);
+        XmStringFree(suggestions_text[0]); XmStringFree(suggestions_text[1]);
+        XmStringFree(suggestions_text[2]);
+    } else if (class == xmInfoBarWidgetClass) {
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNinfoMessage, (char *)"Changes saved",
+                                          XmNinfoActionLabel, (char *)"Undo",
+                                          XmNwidth, 420, XmNheight, 48, NULL);
+    } else if (class == xmToastWidgetClass) {
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNwidth, 360, XmNheight, 64, NULL);
+        XmToastShow(example);
     } else if (class == xmSegmentedControlWidgetClass) {
         /* This branch is retained for callers outside the gallery's
          * specialized constructor.  It still renders real segments. */

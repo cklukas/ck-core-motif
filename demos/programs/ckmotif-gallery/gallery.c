@@ -4,6 +4,8 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+#include <locale.h>
+#include <X11/Xft/Xft.h>
 #include <Xm/XmAll.h>
 #include <Xm/Sidebar.h>
 #include <Xm/TreeView.h>
@@ -27,7 +29,7 @@ extern void gallery_destroy_component_example(Widget *);
 extern Widget gallery_create_drag_source_example(Widget, XtCallbackProc, XtPointer);
 
 typedef struct {
-    Widget shell, sidebar, tree, notebook, example, source, status;
+    Widget shell, sidebar, tree, notebook, welcome, example, source, status;
     Widget title, provenance, action, component, component_host, source_text;
     unsigned int example_serial;
     unsigned long callback_count;
@@ -40,6 +42,59 @@ typedef struct {
 } GalleryState;
 
 static XmString text(const char *value) { return XmStringCreateLocalized((char *)value); }
+static XmString utf8_text(const char *value) {
+    /* Motif's default font-list tag resolves through the active locale and
+     * keeps the string in its native multibyte form.  Passing a literal
+     * UTF-8 tag is rejected by older charset registries, which leaves labels
+     * showing their widget name instead of the requested text. */
+    return XmStringCreateLtoR((char *)value, XmFONTLIST_DEFAULT_TAG);
+}
+
+static void welcome_expose(Widget widget, XtPointer client_data, XtPointer call_data) {
+    static const char *lines[] = {
+        "Hello world!", "Hallo Welt!", "こんにちは世界！", "你好，世界！",
+        "", "Choose a component category on the left to explore live examples."
+    };
+    Display *display = XtDisplay(widget);
+    Window window = XtWindow(widget);
+    XftDraw *draw;
+    XftFont *font;
+    XftFont *cjk_font;
+    XftColor color;
+    XGlyphInfo extents;
+    Dimension width, height;
+    size_t i;
+    (void)client_data;
+    (void)call_data;
+    if (!window) return;
+    XtVaGetValues(widget, XmNwidth, &width, XmNheight, &height, NULL);
+    draw = XftDrawCreate(display, window, DefaultVisual(display, DefaultScreen(display)),
+                         DefaultColormap(display, DefaultScreen(display)));
+    font = XftFontOpenName(display, DefaultScreen(display), "Noto Sans-16");
+    if (!font) font = XftFontOpenName(display, DefaultScreen(display), "DejaVu Sans-16");
+    cjk_font = XftFontOpenName(display, DefaultScreen(display), "Droid Sans Fallback-16");
+    if (!draw || !font || !cjk_font) {
+        if (cjk_font) XftFontClose(display, cjk_font);
+        if (font) XftFontClose(display, font);
+        if (draw) XftDrawDestroy(draw);
+        return;
+    }
+    XftColorAllocName(display, DefaultVisual(display, DefaultScreen(display)),
+                      DefaultColormap(display, DefaultScreen(display)), "#202020", &color);
+    for (i = 0; i < sizeof(lines) / sizeof(lines[0]); ++i) {
+        XftFont *line_font = (i == 2 || i == 3) ? cjk_font : font;
+        XftTextExtentsUtf8(display, line_font, (const FcChar8 *)lines[i], strlen(lines[i]), &extents);
+        XftDrawStringUtf8(draw, &color, line_font,
+                          (int)((width > extents.width ? width - extents.width : 0) / 2),
+                          (int)(height / 2 - 70 + i * (font->height + 4)),
+                          (const FcChar8 *)lines[i], strlen(lines[i]));
+    }
+    XftColorFree(display, DefaultVisual(display, DefaultScreen(display)),
+                 DefaultColormap(display, DefaultScreen(display)), &color);
+    XftFontClose(display, font);
+    XftFontClose(display, cjk_font);
+    XftDrawDestroy(draw);
+}
 
 static Boolean parse_appearance(const char *value,
                                 XmAppearanceProfile *profile_return)
@@ -82,6 +137,8 @@ static const GalleryManifestEntry *find_entry(const char *id)
 static const char *source_for(const GalleryManifestEntry *entry)
 {
     Cardinal i;
+    if (!entry || !entry->interaction || !entry->docs_anchor || !entry->screenshot)
+        return "Source fragment unavailable";
     for (i = 0; i < GALLERY_MANIFEST_COUNT; ++i)
         if (!strcmp(gallery_sources[i].fragment, entry->source_fragment))
             return gallery_sources[i].text;
@@ -173,17 +230,18 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
     state->selected = entry;
     snprintf(details, sizeof(details), "Interactive %s example — use the control below",
              entry->kind);
+    XtVaSetValues(state->notebook, XmNcurrentPageNumber, 2, NULL);
     if (!state->example) {
         state->example = XtVaCreateWidget("examplePage", xmFormWidgetClass,
                                           state->notebook, XmNnotebookChildType,
-                                          XmPAGE, XmNpageNumber, 1, NULL);
+                                          XmPAGE, XmNpageNumber, 2, NULL);
         title = text(entry->id);
         state->title = XtVaCreateManagedWidget("componentTitle", xmLabelWidgetClass,
                                               state->example, XmNlabelString, title,
                                               XmNtopAttachment, XmATTACH_FORM,
                                               XmNleftAttachment, XmATTACH_FORM, NULL);
         XmStringFree(title);
-        details_string = text(details);
+        details_string = utf8_text(details);
         state->provenance = XtVaCreateManagedWidget(
             "provenance", xmLabelWidgetClass, state->example,
             XmNlabelString, details_string, XmNtopAttachment, XmATTACH_WIDGET,
@@ -199,7 +257,7 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
 
         state->source = XtVaCreateWidget("sourcePage", xmFormWidgetClass,
                                          state->notebook, XmNnotebookChildType,
-                                         XmPAGE, XmNpageNumber, 2, NULL);
+                                         XmPAGE, XmNpageNumber, 3, NULL);
         {
             Arg args[1];
             XtSetArg(args[0], XmNeditable, False);
@@ -217,7 +275,7 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
     title = text(entry->id);
     XtVaSetValues(state->title, XmNlabelString, title, NULL);
     XmStringFree(title);
-    details_string = text(details);
+    details_string = utf8_text(details);
     XtVaSetValues(state->provenance, XmNlabelString, details_string, NULL);
     XmStringFree(details_string);
     if (state->drag_context) {
@@ -405,7 +463,7 @@ static int run_integration_test(GalleryState *state)
             return 1;
         }
     }
-    XtVaSetValues(state->notebook, XmNcurrentPageNumber, 2, NULL);
+    XtVaSetValues(state->notebook, XmNcurrentPageNumber, 3, NULL);
     if (exercise_component_matrix(state))
         return 1;
     {
@@ -413,7 +471,7 @@ static int run_integration_test(GalleryState *state)
         XmNotebookPageInfo page_info;
         XtVaGetValues(state->notebook, XmNcurrentPageNumber, &current_page, NULL);
         if (current_page != 2 || XmStatusBarGetItemCount(state->status) != 1 ||
-            XmNotebookGetPageInfo(state->notebook, 2, &page_info) != XmPAGE_FOUND) {
+            XmNotebookGetPageInfo(state->notebook, 3, &page_info) != XmPAGE_FOUND) {
             fprintf(stderr, "gallery integration: notebook/status check failed (page=%d status=%u)\n",
                     current_page, (unsigned)XmStatusBarGetItemCount(state->status));
             return 1;
@@ -577,6 +635,16 @@ int main(int argc, char **argv)
         argc -= remove_count;
     }
     argv[argc] = NULL;
+    /* The gallery deliberately exercises UTF-8 strings, including its
+     * welcome page.  Prefer the system locale, then use the portable UTF-8
+     * locale shipped by the Linux qualification images when the environment
+     * is still the historical C locale. */
+    if (!setlocale(LC_ALL, "") || !strcmp(setlocale(LC_ALL, NULL), "C")) {
+        (void)setenv("LANG", "C.utf8", 1);
+        (void)setenv("LC_CTYPE", "C.utf8", 1);
+        (void)setlocale(LC_ALL, "C.utf8");
+    }
+    XtSetLanguageProc(NULL, NULL, NULL);
     gallery_manifest_initialize();
     shell = XtVaAppInitialize(&app, "CkMotifGallery", NULL, 0, &argc, argv,
                               NULL, XmNallowShellResize, True,
@@ -650,6 +718,20 @@ int main(int argc, char **argv)
     XtManageChild(state.tree);
     notebook = XmVaCreateManagedNotebook(body, "content", XmNtraversalOn, True, NULL);
     state.notebook = notebook;
+    state.welcome = XtVaCreateWidget(
+        "welcomePage", xmFormWidgetClass, notebook,
+        XmNnotebookChildType, XmPAGE, XmNpageNumber, 1, NULL);
+    {
+        Widget welcome_text = XtVaCreateManagedWidget("welcomeText", xmDrawingAreaWidgetClass,
+                                state.welcome,
+                                XmNtopAttachment, XmATTACH_FORM,
+                                XmNbottomAttachment, XmATTACH_FORM,
+                                XmNleftAttachment, XmATTACH_FORM,
+                                XmNrightAttachment, XmATTACH_FORM,
+                                XmNwidth, 520, XmNheight, 220, NULL);
+        XtAddCallback(welcome_text, XmNexposeCallback, welcome_expose, NULL);
+    }
+    XtManageChild(state.welcome);
     XtAddCallback(state.tree, XmNtreeViewSelectionCallback, tree_selected, &state);
     XtAddCallback(sidebar, XmNsidebarToggleCallback, toggle_sidebar, &state);
     add_tree_nodes(state.tree);
@@ -661,13 +743,21 @@ int main(int argc, char **argv)
             return 2;
         }
         XmTreeViewSetSelectedId(state.tree, (XtPointer)initial->id, False);
-        show_entry(&state, initial);
+        if (initial_id)
+            show_entry(&state, initial);
+        else {
+            XtVaSetValues(state.notebook, XmNcurrentPageNumber, 1, NULL);
+            set_status(&state, "Welcome - choose a component category to begin");
+        }
     }
-    XtVaCreateManagedWidget("exampleTab", xmLabelWidgetClass, notebook,
+    XtVaCreateManagedWidget("welcomeTab", xmLabelWidgetClass, notebook,
                             XmNnotebookChildType, XmMAJOR_TAB, XmNpageNumber, 1,
+                            XmNlabelString, text("Welcome"), NULL);
+    XtVaCreateManagedWidget("exampleTab", xmLabelWidgetClass, notebook,
+                            XmNnotebookChildType, XmMAJOR_TAB, XmNpageNumber, 2,
                             XmNlabelString, text("Example"), NULL);
     XtVaCreateManagedWidget("sourceTab", xmLabelWidgetClass, notebook,
-                            XmNnotebookChildType, XmMAJOR_TAB, XmNpageNumber, 2,
+                            XmNnotebookChildType, XmMAJOR_TAB, XmNpageNumber, 3,
                             XmNlabelString, text("Source"), NULL);
     XtManageChild(root);
     XtRealizeWidget(shell);

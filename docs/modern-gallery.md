@@ -13,12 +13,18 @@ The shell is deliberately assembled from public toolkit interfaces:
 
 - `XmSidebar` owns the collapsible navigation content;
 - `XmTreeView` presents manifest categories and component entries;
-- `XmNotebook` provides the **Example** and **Source** pages; and
+- `XmNotebook` provides the **Welcome**, **Example**, and **Source** pages; and
 - `XmStatusBar` reports selection, callback, and capability state.
 
 The sidebar is the left pane of a horizontal split: categories and component
 entries stay visible on the left while the selected live control occupies the
 right pane.
+
+Startup opens the first notebook page as a dedicated welcome screen with
+“Hello world!” in English, German, Japanese, and Chinese.  The CJK lines are
+drawn through the toolkit's Xft-backed path using installed fallback fonts, so
+the gallery exercises real Unicode glyph rendering rather than displaying
+encoded byte sequences or metadata.
 
 The native integration mode exercises sidebar collapse/restore, manifest
 selection across every available constructible entry, notebook page
@@ -46,6 +52,14 @@ For example, the segmented-control entry renders three selectable segments —
 `Overview`, `Details`, and `Activity` — and selects `Overview`; it is not a
 metadata-only placeholder. The same construction block powers the live
 component pane and its Source tab.
+
+The same rule applies to the other data-driven controls: lists and combo boxes
+receive sample rows, text controls receive editable text, and numeric,
+progress, rating, color, breadcrumb, suggestion, notification, and status
+controls are initialized through their public setters/resources. Every
+constructible manifest entry therefore renders a control or a live child
+surface in the Example tab; entries that are intentionally non-constructible
+remain explicitly marked as such.
 
 Each gallery build also emits `gallery_provenance.json`, including the manifest
 and annotated-source hashes plus one record for every component. `make check`
