@@ -3230,6 +3230,12 @@ Drag initiator-info property validation (2026-10-25)
 
 - Validate `_MOTIF_DRAG_INITIATOR_INFO` type, format, completeness, and
   header length before parsing; see `docs/dragicc-initiator-info-guards.md`.
+
+Drag atom-table property validation (2026-10-25)
+=================================================
+
+- Validate `_MOTIF_DRAG_ATOMS` encoding and advertised entry storage before
+  parsing the cache; see `docs/dragbs-atoms-read-guards.md`.
 2026-10-25
 	* Add an opt-in XmSegmentedControl composite with copied item ownership,
 	  bounded clipping, RTL keyboard traversal and accessibility selection state.
