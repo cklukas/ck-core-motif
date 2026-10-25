@@ -3294,8 +3294,8 @@ FileSelectionBoxRestore(
             String          itemString ;
             String          dir ;
             String          mask ;
-            int             dirLen ;
-            int             maskLen ;
+            size_t          dirLen ;
+            size_t          maskLen ;
             Widget          activeChild ;
 /****************/
 
@@ -3316,7 +3316,12 @@ FileSelectionBoxRestore(
                 if ((mask = _XmStringGetTextConcat( FS_Pattern( fsb))) != NULL)
                   {   
                     maskLen = strlen( mask) ;
-                    itemString = XtMalloc( dirLen + maskLen + 1) ;
+                    if (maskLen == SIZE_MAX ||
+                        dirLen > SIZE_MAX - maskLen - 1 ||
+                        dirLen + maskLen + 1 > UINT_MAX)
+                        itemString = NULL;
+                    else
+                        itemString = XtMalloc((Cardinal)(dirLen + maskLen + 1)) ;
                     if(    itemString != NULL    )
                     {   strcpy( itemString, dir) ;
                         strcpy( &itemString[dirLen], mask) ;
