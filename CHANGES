@@ -92,6 +92,12 @@ Region shadow-buffer Xt byte bounds (2026-10-28)
   allocation limit before creating the draw buffers; see
   `docs/region-shadow-counts.md`.
 
+TabBox geometry-buffer Xt byte bounds (2026-10-28)
+===================================================
+
+- Check Xt `Cardinal` byte limits before growing actual-tab, wanted-tab, and
+  image-cache arrays; see `docs/tabbox-geometry-allocation.md`.
+
 Compound-text concatenation failure handling (2026-10-28)
 ============================================================
 

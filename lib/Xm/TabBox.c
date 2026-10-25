@@ -4689,7 +4689,8 @@ Layout(tab)
     {
 	XiTabRect *actual;
 
-	if ((size_t)count > SIZE_MAX / sizeof(*actual))
+	if ((size_t)count > SIZE_MAX / sizeof(*actual) ||
+	    (size_t)count > UINT_MAX / sizeof(*actual))
 	    return;
 	actual = (XiTabRect*)
 	    XtRealloc((XtPointer) XmTabBox__actual(tab),
@@ -5194,7 +5195,8 @@ CalcTabGeometry(tab)
     {
 	XRectangle *wanted;
 
-	if ((size_t)count > SIZE_MAX / sizeof(*wanted))
+	if ((size_t)count > SIZE_MAX / sizeof(*wanted) ||
+	    (size_t)count > UINT_MAX / sizeof(*wanted))
 	    return;
 	wanted = (XRectangle*)
 	    XtRealloc((XtPointer)XmTabBox__wanted(tab),
@@ -9368,7 +9370,8 @@ ResetImageCache(tab)
     {
 	XiCache *cache;
 
-	if (cnt < 0 || (size_t)cnt > SIZE_MAX / sizeof(*cache))
+	if (cnt < 0 || (size_t)cnt > SIZE_MAX / sizeof(*cache) ||
+	    (size_t)cnt > UINT_MAX / sizeof(*cache))
 	    return;
 	cache = (XiCache *)XtMalloc(sizeof(*cache) * (size_t)cnt);
 	if (cache == NULL) {
