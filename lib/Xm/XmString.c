@@ -9641,7 +9641,7 @@ XmParseMappingSetValues(XmParseMapping mapping,
 
   _XmProcessLock();
   /* Do a little error checking. */
-  if (mapping == NULL) {
+  if (mapping == NULL || (arg_count != 0 && arg_list == NULL)) {
     _XmProcessUnlock();
     return;
   }
@@ -9650,6 +9650,11 @@ XmParseMappingSetValues(XmParseMapping mapping,
   for (i = 0; i < arg_count; i++)
     {
       arg_name = arg_list[i].name;
+
+      if (arg_name == NULL) {
+	unknown++;
+	continue;
+      }
 
       if ((arg_name == XmNpattern) ||
 	  (strcmp(arg_name, XmNpattern) == 0))

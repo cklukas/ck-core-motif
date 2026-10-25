@@ -6191,3 +6191,9 @@ XmString parse-mapping allocation (2026-10-25)
 - Check `XmParseMappingCreate` construction before initialization so parser
   setup returns `NULL` cleanly when memory is unavailable; see
   `docs/xmstring-parse-mapping-allocation.md`.
+XmString parse-mapping input validation (2026-10-25)
+=====================================================
+
+- Reject missing argument lists and skip null argument names in
+  `XmParseMappingSetValues`; see
+  `docs/xmstring-parse-mapping-input-validation.md`.
