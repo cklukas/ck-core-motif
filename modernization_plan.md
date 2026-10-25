@@ -2028,6 +2028,11 @@ conversion, and rendering helpers rather than holding the process lock across
 them; the source contract is recorded in
 `tests/automated/check-xmstring-tablist-locking.py` and
 `docs/xmstring-tablist-locking.md`.
+`XmStringHasSubstring` and `XmeGetNextCharacter` now delegate synchronization
+to their string and component helpers rather than holding the process lock
+across substring scans and parse callback creation; the source contract is
+recorded in `tests/automated/check-xmstring-function-locking.py` and
+`docs/xmstring-function-locking.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the
