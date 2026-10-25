@@ -1,3 +1,10 @@
+Clipboard close size guard (2026-10-26)
+=======================================
+
+- Reject null headers and overflowing serialized item counts during clipboard
+  close, preventing invalid property lengths; see
+  `docs/clipboard-close-size-guard.md`.
+
 Clipboard header validation (2026-10-26)
 =========================================
 

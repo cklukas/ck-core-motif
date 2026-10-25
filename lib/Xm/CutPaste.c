@@ -1692,6 +1692,11 @@ ClipboardClose(
 {
     unsigned long headerlength;
 
+    if (root_clipboard_header == NULL ||
+	root_clipboard_header->currItems >
+	(ULONG_MAX - sizeof(ClipboardHeaderRec)) / sizeof(itemId))
+	return;
+
     headerlength = sizeof( ClipboardHeaderRec ) + 
     		(root_clipboard_header -> currItems) * sizeof( itemId );
 
