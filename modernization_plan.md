@@ -548,13 +548,14 @@ qualified AArch64 Linux cohort. The installed native fixtures cover scalar and
 grapheme movement, the maintained mixed-script/fallback corpus, local Compose,
 real IBus XIM commit/cancellation and focused provider restart/loss behavior.
 The large UTF-8 clipboard and interrupted INCR-transfer fixtures also pass
-when Motif and its consumer use the pinned corrected Xt dependency; the
-system-Xt failure and the exact dependency receipt remain recorded. The
+when Motif and its consumer use the pinned corrected Xt dependency. Direct
+Motif-to-Motif Text/TextField owner/import round trips now pass for mixed-script
+and multi-megabyte payloads, with an independent Xlib re-export check. The
+system-Xt failure and exact dependency receipt remain recorded. The
 `docs/native-text-ime-matrix.md` table records this bounded result and keeps
-x86_64, broader provider/engine interoperability, candidate panels, complete
-application clipboard/DnD workflows and sanitizer exit ownership as explicit
-open gates. The matrix does not treat unavailable services or interposed
-callbacks as provider passes.
+x86_64, broader provider/engine interoperability, candidate panels, drag-and-
+drop workflows and sanitizer exit ownership as explicit open gates. The matrix
+does not treat unavailable services or interposed callbacks as provider passes.
 
 The native feature runner now accepts repeated `--runtime-library-dir`
 arguments and records them in the receipt. This keeps the Xt dependency
