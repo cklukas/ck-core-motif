@@ -226,6 +226,7 @@ EXTRA_DIST += tests/automated/check-resencod-context-allocation.py docs/resencod
 EXTRA_DIST += tests/automated/check-resencod-direction-stack.py
 EXTRA_DIST += tests/automated/check-resencod-segment-allocation.py docs/motif-resencod-segments.md
 EXTRA_DIST += tests/automated/check-icon-cache-growth-allocation.py docs/icon-directory-cache.md
+EXTRA_DIST += tests/automated/check-traversal-node-allocation.py docs/traversal-node-allocation.md
 EXTRA_DIST += tests/automated/check-txtpropcv-single-allocation.py docs/motif-txtpropcv-single.md
 EXTRA_DIST += tests/automated/check-mwm-session-db-path.py docs/mwm-session-db-path.md
 EXTRA_DIST += tests/automated/check-mwm-display-env-bounds.py docs/mwm-display-env-bounds.md

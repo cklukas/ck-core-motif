@@ -3858,3 +3858,10 @@ Handle single text-property copy failure (2026-10-25)
 
 - Release the Xlib text list when copying its sole item fails and return
   `XNoMemory`; see `docs/motif-txtpropcv-single.md`.
+
+Harden traversal-node pool growth (2026-10-25)
+================================================
+
+- Publish traversal-pool growth only after checked allocation and stop graph
+  construction cleanly when node entries cannot be allocated; see
+  `docs/traversal-node-allocation.md`.

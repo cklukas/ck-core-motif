@@ -46,6 +46,8 @@ static char rcsid[] = "$TOG: TraversalI.c /main/13 1997/10/13 11:28:33 cshi $"
 #include "ScrolledWI.h"
 #include "TravActI.h"
 #include "TraversalI.h"
+#include <stdint.h>
+
 #include "XmI.h"
 
 #define FIX_1272
@@ -1145,33 +1147,41 @@ _XmNewTravGraph(XmTravGraph trav_list,
 
 #define UnallocLastListEntry(list) (--(list->num_entries))
 
-static XmTraversalNode 
+static XmTraversalNode
 AllocListEntry(
         XmTravGraph list)
 {
+  size_t new_alloc;
+  XmTraversalNode new_head;
+
   if (!(list->num_alloc))
     {
       /* Use next_alloc (from previous allocation of list)
        * as starting point for size of array.
        */
-      if (list->next_alloc)
-	list->num_alloc = list->next_alloc;
-      else
-	list->num_alloc = XmTRAV_LIST_ALLOC_INCREMENT;
-
-      list->head = (XmTraversalNode) 
-	XtMalloc(list->num_alloc * sizeof(XmTraversalNodeRec));
+      new_alloc = list->next_alloc ? list->next_alloc :
+                  XmTRAV_LIST_ALLOC_INCREMENT;
+      if (new_alloc > SIZE_MAX / sizeof(XmTraversalNodeRec))
+	return NULL;
+      new_head = (XmTraversalNode)
+	XtMalloc(new_alloc * sizeof(XmTraversalNodeRec));
+      if (new_head == NULL)
+	return NULL;
+      list->head = new_head;
+      list->num_alloc = new_alloc;
     }
-  else
+  else if (list->num_entries == list->num_alloc)
     {
-      if (list->num_entries == list->num_alloc)
-	{   
-	  list->num_alloc += XmTRAV_LIST_ALLOC_INCREMENT;
-
-	  list->head = (XmTraversalNode) 
-	    XtRealloc((char *) list->head,
-		      list->num_alloc * sizeof(XmTraversalNodeRec));
-	} 
+      new_alloc = (size_t)list->num_alloc + XmTRAV_LIST_ALLOC_INCREMENT;
+      if (new_alloc > SIZE_MAX / sizeof(XmTraversalNodeRec))
+	return NULL;
+      new_head = (XmTraversalNode)
+	XtRealloc((char *)list->head,
+	          new_alloc * sizeof(XmTraversalNodeRec));
+      if (new_head == NULL)
+	return NULL;
+      list->head = new_head;
+      list->num_alloc = new_alloc;
     }
 
   return &(list->head[list->num_entries++]);
@@ -1232,6 +1242,8 @@ GetNodeList(Widget wid,
 
   list_entry_offset = (int) trav_list->num_entries;
   list_entry = AllocListEntry(trav_list);
+  if (list_entry == NULL)
+	return;
 
   list_entry->any.widget = wid;
   list_entry->any.rect.x = parent_rect->x + XtX(wid) + XtBorderWidth(wid);
@@ -1292,6 +1304,10 @@ GetNodeList(Widget wid,
 
 	  controls_graph_offset = list_entry_offset + 1;
 	  controls_graph = AllocListEntry(trav_list);
+	  if (controls_graph == NULL) {
+	    UnallocLastListEntry(trav_list);
+	    return;
+	  }
 	  *controls_graph = trav_list->head[list_entry_offset];
 	  controls_graph->any.tab_parent.offset = list_entry_offset;
 	  controls_graph->any.type = XmCONTROL_GRAPH_NODE;
