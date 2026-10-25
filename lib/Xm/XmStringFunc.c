@@ -298,10 +298,8 @@ XmParseMappingGetValues(XmParseMapping mapping,
   register Cardinal i;
   register String arg_name;
 
-  _XmProcessLock();
   /* Do a little error checking. */
   if (mapping == NULL || (arg_count != 0 && arg_list == NULL)) {
-    _XmProcessUnlock();
     return;
   }
 
@@ -334,7 +332,6 @@ XmParseMappingGetValues(XmParseMapping mapping,
 	       (strcmp(arg_name, XmNincludeStatus) == 0))
 	*((XmIncludeStatus*)arg_list[i].value) = mapping->include_status;
     }
-  _XmProcessUnlock();
 }
 
 void 

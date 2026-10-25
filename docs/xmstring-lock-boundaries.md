@@ -9,3 +9,7 @@ preserving the existing ownership behavior.
 The table parse and unparse helpers follow the same rule: their per-string
 conversion APIs own the process lock, so the table loops no longer add an
 outer lock.
+
+Parse-mapping value access follows the same rule when copying a substitute
+string: the mapping helper does not hold an outer process lock around
+`XmStringCopy`.

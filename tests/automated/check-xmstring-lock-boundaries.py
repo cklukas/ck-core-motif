@@ -32,5 +32,9 @@ assert "XmStringUnparse" in unparse_fn
 assert "_XmProcessLock" not in unparse_fn
 assert "XmStringParseText" in parse_array_fn
 assert "_XmProcessLock" not in parse_array_fn
+get_start = source.index("XmParseMappingGetValues(")
+get_end = source.index("XmParseMappingFree(", get_start)
+assert "XmStringCopy(mapping->substitute)" in source[get_start:get_end]
+assert "_XmProcessLock" not in source[get_start:get_end]
 
 print("XmString helper lock boundaries avoid recursive locking")

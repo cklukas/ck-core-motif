@@ -10163,10 +10163,8 @@ XmParseMappingSetValues(XmParseMapping mapping,
   register String arg_name;
   Cardinal unknown = 0;
 
-  _XmProcessLock();
   /* Do a little error checking. */
   if (mapping == NULL || (arg_count != 0 && arg_list == NULL)) {
-    _XmProcessUnlock();
     return;
   }
 
@@ -10205,7 +10203,6 @@ XmParseMappingSetValues(XmParseMapping mapping,
   /* If there were any known values reset internal_flags. */
   if (unknown < arg_count)
     mapping->internal_flags = XmSTRING_UNPARSE_UNKNOWN;
-  _XmProcessUnlock();
 }
 
 
