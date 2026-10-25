@@ -1088,6 +1088,7 @@ Initialize(
 {
   XmLabelWidget lw = (XmLabelWidget) new_w;
   XmMenuSystemTrait menuSTrait;
+  XmString label_copy;
   XtTranslations	trans;
   
   lw->label.baselines = NULL;
@@ -1202,7 +1203,11 @@ Initialize(
     }
   else if (XmeStringIsValid(lw->label._label))
     {
-      lw->label._label= XmStringCopy(lw->label._label);
+      label_copy = XmStringCopy(lw->label._label);
+      if (label_copy != NULL)
+	lw->label._label = label_copy;
+      else
+	lw->label._label = XmStringCreateLocalized(lw->core.name);
     }
   else
     {

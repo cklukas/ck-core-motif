@@ -9528,3 +9528,12 @@ Column constraint-label initialization rollback (2026-10-28)
 
 ProgressBar label initialization rollback (2026-10-28)
 ==========================================================
+Label initialization rollback (2026-10-28)
+============================================
+
+- Check initial valid `XmNlabelString` copies and rebuild the caption from the
+  widget name on failure, preventing NULL label use during geometry; see
+  `docs/label-init-rollback.md`.
+
+IconGadget label initialization rollback (2026-10-28)
+=======================================================
