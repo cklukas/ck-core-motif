@@ -1279,7 +1279,9 @@ MergeEnds(_XmStringEntry a,
 	  _XmStringEntry b)
 {
   int		i;
+	int		total_count;
   short		a_count, b_count;
+	XmStringTag *new_ends;
   
   a_count = _XmEntryRendEndCountGet(a);
   b_count = _XmEntryRendEndCountGet(b);
@@ -1297,15 +1299,21 @@ MergeEnds(_XmStringEntry a,
     return;
   }
 
-  _XmUnoptSegRendEnds(a) =
-    (XmStringTag *)XtRealloc((char *)_XmUnoptSegRendEnds(a),
-			     (sizeof(XmStringTag) *
-			      (a_count + b_count)));
+	  total_count = (int)a_count + (int)b_count;
+	  if (total_count < 0 ||
+	      (size_t)total_count > SIZE_MAX / sizeof(XmStringTag))
+	    return;
+	  new_ends = (XmStringTag *)XtRealloc(
+	      (char *)_XmUnoptSegRendEnds(a),
+	      sizeof(XmStringTag) * (size_t)total_count);
+	  if (new_ends == NULL)
+	    return;
+	  _XmUnoptSegRendEnds(a) = new_ends;
 	      
   for (i = 0; i < b_count; i++)
       _XmUnoptSegRendEnds(a)[(a_count + i)] = _XmEntryRendEndGet(b, i);
 
-  _XmEntryRendEndCountSet(a, (a_count + b_count));
+	_XmEntryRendEndCountSet(a, total_count);
 }
 
 static void
@@ -1316,6 +1324,8 @@ MergeBegins(_XmStringEntry a,
   short		a_b_cnt;
   short		b_b_cnt;
   int		i;
+	int		total_count;
+	XmStringTag *new_begins;
   
   a_b_cnt = _XmEntryRendBeginCountGet(a);
   b_b_cnt = _XmEntryRendBeginCountGet(b);
@@ -1333,14 +1343,21 @@ MergeBegins(_XmStringEntry a,
     return;
   }
 
-  _XmUnoptSegRendBegins(a) =
-    (XmStringTag *)XtRealloc((char *)_XmUnoptSegRendBegins(a),
-			     sizeof(XmStringTag) * (a_b_cnt + b_b_cnt));
+	  total_count = (int)a_b_cnt + (int)b_b_cnt;
+	  if (total_count < 0 ||
+	      (size_t)total_count > SIZE_MAX / sizeof(XmStringTag))
+	    return;
+	  new_begins = (XmStringTag *)XtRealloc(
+	      (char *)_XmUnoptSegRendBegins(a),
+	      sizeof(XmStringTag) * (size_t)total_count);
+	  if (new_begins == NULL)
+	    return;
+	  _XmUnoptSegRendBegins(a) = new_begins;
 
   for (i = 0; i < b_b_cnt; i++)
       _XmUnoptSegRendBegins(a)[(a_b_cnt + i)] = _XmEntryRendBeginGet(b, i);
 
-  _XmEntryRendBeginCountSet(a, (a_b_cnt + b_b_cnt));
+	_XmEntryRendBeginCountSet(a, total_count);
 }
 
 /*

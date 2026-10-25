@@ -6005,3 +6005,10 @@ Harden XmString tag-cache bounds and growth (2026-10-25)
   initialization/growth transactional when allocation fails; see
   `docs/xmstring-tag-cache.md` and its focused source check.
 
+Harden XmString rendition merges (2026-10-25)
+==============================================
+
+- Bound merged rendition counts and commit `XtRealloc` results only after
+  success, preserving the original arrays on failure; see
+  `docs/xmstring-rendition-merge.md` and its focused source check.
+
