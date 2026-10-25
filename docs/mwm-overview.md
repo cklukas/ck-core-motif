@@ -92,6 +92,7 @@ clients exchanging Motif window-management messages.
 - [WSM window-list rollback](wsm-windows-rollback.md)
 - [WSM window-data alignment](wsm-windata-alignment.md)
 - [WSM window-data allocation width](wsm-win-data-allocation-width.md)
+- [WSM list-payload allocation width](wsm-list-payload-allocation-width.md)
 - [WSM message packing allocation](wsm-pack-oom.md)
 - [WSM window-entry reply sizing](wsm-win-entry-size.md)
 - [WSM window-request ownership](wsm-windows-owned.md)
