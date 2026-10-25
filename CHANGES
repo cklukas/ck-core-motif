@@ -5281,3 +5281,11 @@ Tab-list copy rollback (2026-10-25)
   `docs/tablist-copy-rollback.md`.
 
 Tab-list copy allocation guards (2026-10-25)
+Guard DialogShell resource merging (2026-10-25)
+================================================
+
+- Reject resource-table size overflow and allocation failure before merging
+  vendor resources, while still completing class initialization; see
+  `docs/dialog-resource-guards.md`.
+
+Guard MainWindow auto-scroll rectangles (2026-10-25)
