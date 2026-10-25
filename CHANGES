@@ -295,6 +295,8 @@ Render-table locking (2026-10-26)
   `docs/xmstring-parse-unmatched-failure.md`.
 - Validate `XmStringToXmStringTable` input and roll back partial output on
   copy/slice failure; see `docs/xmstring-table-conversion.md`.
+- Detect failed segment insertion in XmString context slicing;
+  see `docs/xmstring-make-str-failure.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================

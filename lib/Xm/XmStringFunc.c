@@ -569,6 +569,11 @@ MakeStrFromSeg(XmStringContext start)
 	seg = segs[_XmStrContCurrSeg(start)];
 	
 	_XmStringSegmentNew(str, 0, seg, True);
+	if (_XmEntrySegmentCount(_XmStrEntry(str)[0]) == 0) {
+	  _XmStrContError(start) = TRUE;
+	  _XmStrFree(str);
+	  return NULL;
+	}
 	
 	_XmStrContCurrSeg(start)++;
 	
@@ -587,6 +592,11 @@ MakeStrFromSeg(XmStringContext start)
     } else {
       seg = line[_XmStrContCurrLine(start)];
       _XmStringSegmentNew(str, 0, seg, True);
+	if (_XmStrEntryCount(str) == 0) {
+	  _XmStrContError(start) = TRUE;
+	  _XmStrFree(str);
+	  return NULL;
+	}
       
       _XmStrContCurrSeg(start) = 0;
       _XmStrContCurrLine(start)++;
