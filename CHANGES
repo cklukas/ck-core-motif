@@ -11320,3 +11320,9 @@ MWM catalog-string allocation (2026-10-25)
 
 - Route localized MWM menu and title strings through checked allocation
   sizing; see `docs/mwm-catalog-allocation.md`.
+
+MWM feedback catalog allocation (2026-10-25)
+============================================
+
+- Check localized confirmation-prompt allocation sizes before copying them;
+  see `docs/mwm-feedback-allocation.md`.

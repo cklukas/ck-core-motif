@@ -36,6 +36,7 @@ clients exchanging Motif window-management messages.
 - [Locale-copy allocation](mwm-locale-allocation.md)
 - [Localized system-menu allocation](mwm-system-menu-allocation.md)
 - [Catalog-string allocation](mwm-catalog-allocation.md)
+- [Feedback catalog allocation](mwm-feedback-allocation.md)
 - [Home-directory path bounds](mwm-home-path.md)
 - [Action-argument reallocation](mwm-action-arg-reallocation.md)
 - [Session-command parsing rollback](mwm-session-command-rollback.md)

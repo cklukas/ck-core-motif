@@ -69,12 +69,30 @@ static char rcsid[] = "$XConsortium: WmFeedback.c /main/6 1996/10/23 17:20:55 rs
 #include "WmManage.h"
 #include "WmColormap.h"
 #include "stdio.h"
+#include <stdint.h>
 
 
 /*
  * Global Variables:
  */
 static Cursor  waitCursor = (Cursor)0L;
+
+static char *
+CopyFeedbackString(const char *text)
+{
+    size_t length;
+    char *copy;
+
+    if (text == NULL)
+	return(NULL);
+    length = strlen(text);
+    if (length >= UINT_MAX)
+	return(NULL);
+    copy = (char *)XtMalloc((Cardinal)(length + 1));
+    if (copy != NULL)
+	memcpy(copy, text, length + 1);
+    return(copy);
+}
 
 /* see WmGlobal.h for index defines: */
 
@@ -98,7 +116,7 @@ initMesg()
 
     tmpString = ((char *)GETMESSAGE(22, 12, "Switch to Default Behavior?"));
     if ((confirm_mesg[0] =
-         (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+         CopyFeedbackString(tmpString)) == NULL)
     {
         Warning (((char *)GETMESSAGE(22, 2, "Insufficient memory for local message string")));
 	confirm_mesg[0] = "Switch to Default Behavior?";
@@ -110,7 +128,7 @@ initMesg()
 
     tmpString = ((char *)GETMESSAGE(22, 13, "Switch to Custom Behavior?"));
     if ((confirm_mesg[1] =
-         (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+         CopyFeedbackString(tmpString)) == NULL)
     {
         Warning (((char *)GETMESSAGE(22, 2, "Insufficient memory for local message string")));
 	confirm_mesg[1] = "Switch to Custom Behavior?";
@@ -129,7 +147,7 @@ initMesg()
 	tmpString = ((char *)GETMESSAGE(22, 10, "Restart Workspace Manager?"));
     }
     if ((confirm_mesg[2] =
-         (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+         CopyFeedbackString(tmpString)) == NULL)
     {
         Warning (((char *)GETMESSAGE(22, 5, "Insufficient memory for local message string")));
 	if (MwmBehavior)
@@ -169,7 +187,7 @@ initMesg()
     }
     
     if ((confirm_mesg[3] =
-         (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+         CopyFeedbackString(tmpString)) == NULL)
     {
         Warning (((char *)GETMESSAGE(22, 8, "Insufficient memory for local message string")));
 	if (MwmBehavior)
