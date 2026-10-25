@@ -60,6 +60,9 @@ XmeGetPixmapData(
     unsigned int *width,
     unsigned int *height)
 {
+    if (screen == NULL)
+	return False;
+
     char *loc_image_name;
     int loc_depth;
     Pixel loc_foreground;

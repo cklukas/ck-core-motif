@@ -547,3 +547,5 @@ EXTRA_DIST += tests/automated/check-xm-pixmap-hotspot-output.py docs/xm-pixmap-h
 EXTRA_DIST += tests/automated/check-xm-get-image-output.py docs/xm-get-image-output.md
 
 EXTRA_DIST += tests/automated/check-xm-get-image-screen.py docs/xm-get-image-screen-validation.md
+
+EXTRA_DIST += tests/automated/check-xme-pixmap-data-screen.py docs/xme-pixmap-data-screen-validation.md

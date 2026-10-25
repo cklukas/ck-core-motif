@@ -1,3 +1,10 @@
+Xme pixmap-data screen validation (2026-10-25)
+==================================================
+
+- Reject null screens before `XmeGetPixmapData` obtains an application
+  context, avoiding a `DisplayOfScreen` crash; see
+  `docs/xme-pixmap-data-screen-validation.md`.
+
 Xm image-cache screen validation (2026-10-25)
 =================================================
 
