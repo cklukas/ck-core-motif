@@ -1,3 +1,9 @@
+List replacement input validation (2026-10-25)
+===============================================
+
+- Reject invalid widgets, counts, and `XmString` elements before replacement;
+  see `docs/list-replace-inputs.md`.
+
 Position-based list deletion input validation (2026-10-25)
 ============================================================
 

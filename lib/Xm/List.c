@@ -8909,11 +8909,12 @@ APIReplaceItems(Widget w,
   Boolean      replaced_first = FALSE;
   int	       nsel = lw->list.selectedPositionCount;
 
-  if ((old_items == NULL)     ||
-      (new_items == NULL)     ||
-      (lw->list.items == NULL)||
-      (item_count == 0))
+  if (old_items == NULL || new_items == NULL ||
+      lw->list.items == NULL || item_count <= 0)
     return;
+  for (i = 0; i < item_count; ++i)
+    if (old_items[i] == NULL || new_items[i] == NULL)
+      return;
 
   for (i = 0; i < item_count; i++)
     {
@@ -8971,6 +8972,8 @@ XmListReplaceItems(Widget w,
 		   int item_count,
 		   XmString *new_items)
 {
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
   APIReplaceItems(w, old_items, item_count, new_items, TRUE);
@@ -8990,6 +8993,8 @@ XmListReplaceItemsUnselected(Widget w,
 			     int item_count,
 			     XmString *new_items)
 {
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
   APIReplaceItems(w, old_items, item_count, new_items, FALSE);
@@ -9022,8 +9027,11 @@ APIReplaceItemsPos(Widget w,
   if ((position < 1)          ||
       (new_items == NULL)     ||
       (lw->list.items == NULL)||
-      (item_count == 0))
+      (item_count <= 0))
     return;
+  for (i = 0; i < item_count; ++i)
+    if (new_items[i] == NULL)
+      return;
 
   intern_pos = position - 1;
 
@@ -9082,6 +9090,8 @@ XmListReplaceItemsPos(Widget w,
 		      int item_count,
 		      int position)
 {
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
   APIReplaceItemsPos( w, new_items, item_count, position, TRUE);
@@ -9102,6 +9112,8 @@ XmListReplaceItemsPosUnselected(Widget w,
 				int item_count,
 				int position)
 {
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
   APIReplaceItemsPos( w, new_items, item_count, position, FALSE);
