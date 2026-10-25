@@ -12,6 +12,6 @@ for filename in ("CascadeB.c", "CascadeBG.c"):
         raise SystemExit(f"{filename} cascade depth is not initialized")
     if "if (depth <= 0)" not in body:
         raise SystemExit(f"{filename} does not reject unresolved pixmap depth")
-    if "if (!XmeGetPixmapData" in body:
-        raise SystemExit(f"{filename} still treats cache status as failure")
+    if "if (!XmeGetPixmapData" not in body:
+        raise SystemExit(f"{filename} does not handle missing pixmap metadata")
 print("CascadeButton pixmap glyphs accept fetched metadata")
