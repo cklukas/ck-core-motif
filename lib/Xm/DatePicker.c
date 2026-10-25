@@ -4,6 +4,7 @@
 #include <X11/IntrinsicP.h>
 #include <X11/Shell.h>
 #include <X11/keysym.h>
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 #include <Xm/DatePickerP.h>
@@ -19,6 +20,24 @@ static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
 static void calendar_changed(Widget, XtPointer, XtPointer);
+
+static int text_baseline(XmDatePickerWidget picker) {
+    XGCValues values;
+    XFontStruct *font;
+    long long baseline;
+    if (!picker->date_picker.gc ||
+        !XGetGCValues(XtDisplay((Widget)picker), picker->date_picker.gc,
+                      GCFont, &values))
+        return (int)picker->core.height / 2;
+    font = XQueryFont(XtDisplay((Widget)picker), values.font);
+    if (!font)
+        return (int)picker->core.height / 2;
+    baseline = ((long long)picker->core.height - font->ascent - font->descent) /
+               2 + font->ascent;
+    XFreeFontInfo(NULL, font, 1);
+    return baseline < INT_MIN ? INT_MIN :
+           baseline > INT_MAX ? INT_MAX : (int)baseline;
+}
 
 #define Offset(field) XtOffsetOf(XmDatePickerRec, field)
 static XtResource resources[] = {
@@ -215,7 +234,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
              picker->date_picker.date.year, picker->date_picker.date.month,
              picker->date_picker.date.day);
     XDrawString(XtDisplay(widget), XtWindow(widget), picker->date_picker.gc,
-                6, 18, text, (int)strlen(text));
+                6, text_baseline(picker), text, (int)strlen(text));
 }
 
 static void Events(Widget widget, XtPointer closure, XEvent *event,

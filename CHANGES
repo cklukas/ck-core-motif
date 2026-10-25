@@ -148,6 +148,12 @@ ColorPicker font-aware text layout (2026-10-27)
   a half-height baseline, keeping the hexadecimal value aligned at different
   application font sizes.
 
+DatePicker font-aware text layout (2026-10-27)
+===============================================
+
+- Center the DatePicker value from active X font metrics instead of a fixed
+  eighteen-pixel baseline, keeping the date readable with custom fonts.
+
 InfoBar close control and FontSelector bounds (2026-10-27)
 ============================================================
 

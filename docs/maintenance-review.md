@@ -101,3 +101,10 @@ sizes.  The focused check is:
 ```sh
 python3 tests/automated/check-colorpicker-text-metrics.py
 ```
+
+DatePicker's ISO date value uses the same measured-baseline rule.  The focused
+check is:
+
+```sh
+python3 tests/automated/check-datepicker-text-metrics.py
+```
