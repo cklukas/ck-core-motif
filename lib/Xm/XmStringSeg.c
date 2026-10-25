@@ -378,13 +378,14 @@ _XmStringGetNextSegment(
       size_t converted;
       wchar_t *wtext = (wchar_t *)(*text);
 
-      if ((size_t)*char_count > (SIZE_MAX - 1) / MB_CUR_MAX) {
+	if ((size_t)*char_count > (SIZE_MAX - 1) / MB_CUR_MAX ||
+	    (size_t)*char_count * MB_CUR_MAX + 1 > UINT_MAX) {
 	result = False;
 	*text = NULL;
 	XtFree((char *)*tag); *tag = NULL;
       } else {
 	len = (size_t)*char_count * MB_CUR_MAX;
-	*text = (char *)XtMalloc(len + 1);
+	*text = (char *)XtMalloc((Cardinal)(len + 1));
 	if (*text == NULL) {
 	  result = False;
 	  XtFree((char *)*tag); *tag = NULL;

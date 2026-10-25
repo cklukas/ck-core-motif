@@ -11640,6 +11640,12 @@ FileSB item-filter allocation width (2026-10-25)
 - Preserve full component lengths and check item-filter size before allocation;
   see `docs/motif-filesb-item-filter.md`.
 
+XmString wide-conversion allocation width (2026-10-25)
+=======================================================
+
+- Check wide-segment multibyte capacity against Xt's allocation width; see
+  `docs/xmstring-wide-conversion-bounds.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 
