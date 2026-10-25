@@ -1,3 +1,10 @@
+ProgressRing additive control (2026-10-25)
+===========================================
+
+- Add a compact determinate/indeterminate progress ring using the existing
+  progress range, value, label, callback and accessibility contracts; see
+  `docs/progress-ring.md`.
+
 ToggleButton pixmap sizing dimensions (2026-10-25)
 ===================================================
 
@@ -3552,8 +3559,9 @@ Additive progress controls (2026-10-25)
 
 - Add `XmProgressBar` and `XmSpinner` with bounded state, Xt-managed timer
   lifetime, accessibility semantics, installed-prefix documentation, and Xvfb
-  contract fixtures.  ProgressRing remains explicitly deferred pending
-  equivalent evidence.
+  contract fixtures.  Add `XmProgressRing` with the same bounded progress
+  contract, static indeterminate rendering, accessibility semantics, and a
+  15-check installed-prefix Xvfb fixture; see `docs/progress-ring.md`.
 
 Additive numeric controls (2026-10-25)
 ======================================

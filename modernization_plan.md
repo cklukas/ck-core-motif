@@ -930,9 +930,14 @@ Xt timer only while realized, managed, mapped, sensitive and active; it cancels
 the timer on deactivation, unmanagement and destruction, and exposes busy
 accessibility semantics without a numeric value.  The installed-prefix
 fixtures passed 17 ProgressBar checks and 13 Spinner checks under Xvfb,
-including repeated timer advancement/cancellation and callback re-entry.  A
-ProgressRing is explicitly deferred: its sizing, focus, high-contrast and
-accessible-value evidence is not yet equivalent to these controls.
+including repeated timer advancement/cancellation and callback re-entry.  The
+additive `XmProgressRing` now supplies the equivalent compact presentation:
+it shares the bounded range/value, label, callback and accessibility contract,
+preserves explicit dimensions, uses DPI-derived defaults, renders determinate
+and static indeterminate states, and has no animation timer.  Its installed
+prefix fixture passed 15 checks under Xvfb, including range/value clamping,
+callbacks, focus traversal, accessibility value/busy state and teardown.  See
+`docs/progress-ring.md` and `tests/automated/run-progress-ring.py`.
 
 ### WP-18: NumberBox and Stepper
 

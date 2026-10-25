@@ -130,6 +130,7 @@ public XmCreateToggleButton
 public XmCreateToggleButtonGadget
 public XmCreateToggleSwitch
 public XmCreateProgressBar
+public XmCreateProgressRing
 public XmCreateFlyout
 public XmCreateTeachingTip
 public XmCreateColorPicker
@@ -507,6 +508,12 @@ public XmProgressBarSetRange
 public XmProgressBarSetValue
 public XmProgressBarGetIndeterminate
 public XmProgressBarSetIndeterminate
+public XmProgressRingGetRange
+public XmProgressRingGetValue
+public XmProgressRingSetRange
+public XmProgressRingSetValue
+public XmProgressRingGetIndeterminate
+public XmProgressRingSetIndeterminate
 public XmFlyoutShow
 public XmFlyoutHide
 public XmFlyoutIsVisible
@@ -775,6 +782,7 @@ public XmVaCreateManagedToggleButton
 public XmVaCreateManagedToggleButtonGadget
 public XmVaCreateManagedToggleSwitch
 public XmVaCreateManagedProgressBar
+public XmVaCreateManagedProgressRing
 public XmVaCreateManagedNumberBox
 public XmVaCreateManagedSpinner
 public XmVaCreatePushButton
@@ -789,6 +797,7 @@ public XmVaCreateToggleButton
 public XmVaCreateToggleButtonGadget
 public XmVaCreateToggleSwitch
 public XmVaCreateProgressBar
+public XmVaCreateProgressRing
 public XmVaCreateNumberBox
 public XmVaCreateSpinner
 public XmVaCreateManagedStepper
@@ -936,6 +945,8 @@ public xmToggleSwitchClassRec
 public xmToggleSwitchWidgetClass
 public xmProgressBarClassRec
 public xmProgressBarWidgetClass
+public xmProgressRingClassRec
+public xmProgressRingWidgetClass
 public xmFlyoutClassRec
 public xmFlyoutWidgetClass
 public xmTeachingTipClassRec

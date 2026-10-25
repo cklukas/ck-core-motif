@@ -107,6 +107,7 @@
 #include <Xm/Protocols.h>
 #include <Xm/PushB.h>
 #include <Xm/ProgressBar.h>
+#include <Xm/ProgressRing.h>
 #include <Xm/PushBG.h>
 #include <Xm/RepType.h>
 #include <Xm/RowColumn.h>
