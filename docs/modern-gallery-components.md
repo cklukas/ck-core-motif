@@ -1,212 +1,23 @@
 # CK Core Motif component catalogue
 
 <!-- Generated from docs/modern-gallery-manifest.json; do not edit. -->
-<!-- manifest-sha256: 3464be585011b31b215ed5a16ba8e4a4f96e7cbb49adbd9f7195d7a2aa19dc32 -->
+<!-- manifest-sha256: 3f3f2a18ea80f887737d9750dd3eac87299eaef1741dea727e7af11a3bd9a423 -->
 
 This catalogue is generated from the gallery manifest. Each anchor is
 the documentation target recorded by the corresponding manifest entry.
 
-## buttons-selection
-
-<a id="gallery.component.arrowbuttonwidgetclass"></a>
-### `xm.arrowbuttonwidgetclass`
-
-- Class: `xmArrowButtonWidgetClass`
-- Example: `gallery.source.arrowbuttonwidgetclass`
-- Interaction: `gallery.interaction.arrowbuttonwidgetclass`
-- Screenshot: `gallery.screenshot.arrowbuttonwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-arrowbuttonwidgetclass.png)
-
-<a id="gallery.component.arrowbuttongadgetclass"></a>
-### `xm.arrowbuttongadgetclass`
-
-- Class: `xmArrowButtonGadgetClass`
-- Example: `gallery.source.arrowbuttongadgetclass`
-- Interaction: `gallery.interaction.arrowbuttongadgetclass`
-- Screenshot: `gallery.screenshot.arrowbuttongadgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-arrowbuttongadgetclass.png)
-
-<a id="gallery.component.iconbuttonwidgetclass"></a>
-### `xm.iconbuttonwidgetclass`
-
-- Class: `xmIconButtonWidgetClass`
-- Example: `gallery.source.iconbuttonwidgetclass`
-- Interaction: `gallery.interaction.iconbuttonwidgetclass`
-- Screenshot: `gallery.screenshot.iconbuttonwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-iconbuttonwidgetclass.png)
-
-<a id="gallery.component.listwidgetclass"></a>
-### `xm.listwidgetclass`
-
-- Class: `xmListWidgetClass`
-- Example: `gallery.source.listwidgetclass`
-- Interaction: `gallery.interaction.listwidgetclass`
-- Screenshot: `gallery.screenshot.listwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-listwidgetclass.png)
-
-<a id="gallery.component.colorpickerwidgetclass"></a>
-### `xm.colorpickerwidgetclass`
-
-- Class: `xmColorPickerWidgetClass`
-- Example: `gallery.source.colorpickerwidgetclass`
-- Interaction: `gallery.interaction.colorpickerwidgetclass`
-- Screenshot: `gallery.screenshot.colorpickerwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-colorpickerwidgetclass.png)
-
-<a id="gallery.component.segmentedcontrolwidgetclass"></a>
-### `xm.segmentedcontrolwidgetclass`
-
-- Class: `xmSegmentedControlWidgetClass`
-- Example: `gallery.source.segmentedcontrolwidgetclass`
-- Interaction: `gallery.interaction.segmentedcontrolwidgetclass`
-- Screenshot: `gallery.screenshot.segmentedcontrolwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-segmentedcontrolwidgetclass.png)
-
-<a id="gallery.component.ratingcontrolwidgetclass"></a>
-### `xm.ratingcontrolwidgetclass`
-
-- Class: `xmRatingControlWidgetClass`
-- Example: `gallery.source.ratingcontrolwidgetclass`
-- Interaction: `gallery.interaction.ratingcontrolwidgetclass`
-- Screenshot: `gallery.screenshot.ratingcontrolwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-ratingcontrolwidgetclass.png)
-
-<a id="gallery.component.pushbuttonwidgetclass"></a>
-### `xm.pushbuttonwidgetclass`
-
-- Class: `xmPushButtonWidgetClass`
-- Example: `gallery.source.pushbuttonwidgetclass`
-- Interaction: `gallery.interaction.pushbuttonwidgetclass`
-- Screenshot: `gallery.screenshot.pushbuttonwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-pushbuttonwidgetclass.png)
-
-<a id="gallery.component.pushbuttongadgetclass"></a>
-### `xm.pushbuttongadgetclass`
-
-- Class: `xmPushButtonGadgetClass`
-- Example: `gallery.source.pushbuttongadgetclass`
-- Interaction: `gallery.interaction.pushbuttongadgetclass`
-- Screenshot: `gallery.screenshot.pushbuttongadgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-pushbuttongadgetclass.png)
-
-<a id="gallery.component.simplespinboxwidgetclass"></a>
-### `xm.simplespinboxwidgetclass`
-
-- Class: `xmSimpleSpinBoxWidgetClass`
-- Example: `gallery.source.simplespinboxwidgetclass`
-- Interaction: `gallery.interaction.simplespinboxwidgetclass`
-- Screenshot: `gallery.screenshot.simplespinboxwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-simplespinboxwidgetclass.png)
-
-<a id="gallery.component.scalewidgetclass"></a>
-### `xm.scalewidgetclass`
-
-- Class: `xmScaleWidgetClass`
-- Example: `gallery.source.scalewidgetclass`
-- Interaction: `gallery.interaction.scalewidgetclass`
-- Screenshot: `gallery.screenshot.scalewidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-scalewidgetclass.png)
-
-<a id="gallery.component.spinnerwidgetclass"></a>
-### `xm.spinnerwidgetclass`
-
-- Class: `xmSpinnerWidgetClass`
-- Example: `gallery.source.spinnerwidgetclass`
-- Interaction: `gallery.interaction.spinnerwidgetclass`
-- Screenshot: `gallery.screenshot.spinnerwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-spinnerwidgetclass.png)
-
-<a id="gallery.component.stepperwidgetclass"></a>
-### `xm.stepperwidgetclass`
-
-- Class: `xmStepperWidgetClass`
-- Example: `gallery.source.stepperwidgetclass`
-- Interaction: `gallery.interaction.stepperwidgetclass`
-- Screenshot: `gallery.screenshot.stepperwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-stepperwidgetclass.png)
-
-<a id="gallery.component.scrollbarwidgetclass"></a>
-### `xm.scrollbarwidgetclass`
-
-- Class: `xmScrollBarWidgetClass`
-- Example: `gallery.source.scrollbarwidgetclass`
-- Interaction: `gallery.interaction.scrollbarwidgetclass`
-- Screenshot: `gallery.screenshot.scrollbarwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-scrollbarwidgetclass.png)
-
-<a id="gallery.component.spinboxwidgetclass"></a>
-### `xm.spinboxwidgetclass`
-
-- Class: `xmSpinBoxWidgetClass`
-- Example: `gallery.source.spinboxwidgetclass`
-- Interaction: `gallery.interaction.spinboxwidgetclass`
-- Screenshot: `gallery.screenshot.spinboxwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-spinboxwidgetclass.png)
-
-<a id="gallery.component.togglebuttonwidgetclass"></a>
-### `xm.togglebuttonwidgetclass`
-
-- Class: `xmToggleButtonWidgetClass`
-- Example: `gallery.source.togglebuttonwidgetclass`
-- Interaction: `gallery.interaction.togglebuttonwidgetclass`
-- Screenshot: `gallery.screenshot.togglebuttonwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-togglebuttonwidgetclass.png)
-
-<a id="gallery.component.toggleswitchwidgetclass"></a>
-### `xm.toggleswitchwidgetclass`
-
-- Class: `xmToggleSwitchWidgetClass`
-- Example: `gallery.source.toggleswitchwidgetclass`
-- Interaction: `gallery.interaction.toggleswitchwidgetclass`
-- Screenshot: `gallery.screenshot.toggleswitchwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-toggleswitchwidgetclass.png)
-
-<a id="gallery.component.togglebuttongadgetclass"></a>
-### `xm.togglebuttongadgetclass`
-
-- Class: `xmToggleButtonGadgetClass`
-- Example: `gallery.source.togglebuttongadgetclass`
-- Interaction: `gallery.interaction.togglebuttongadgetclass`
-- Screenshot: `gallery.screenshot.togglebuttongadgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-togglebuttongadgetclass.png)
-
 ## layout
+
+<a id="gallery.component.buttonboxwidgetclass"></a>
+### `xm.buttonboxwidgetclass`
+
+- Class: `xmButtonBoxWidgetClass`
+- Example: `gallery.source.buttonboxwidgetclass`
+- Interaction: `gallery.interaction.buttonboxwidgetclass`
+- Screenshot: `gallery.screenshot.buttonboxwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-buttonboxwidgetclass.png)
 
 <a id="gallery.component.bulletinboardwidgetclass"></a>
 ### `xm.bulletinboardwidgetclass`
@@ -571,7 +382,141 @@ the documentation target recorded by the corresponding manifest entry.
 
 ![Gallery screenshot](gallery-screenshots/xm-tabstackwidgetclass.png)
 
+## feedback-dialogs
+
+<a id="gallery.component.colorselectorwidgetclass"></a>
+### `xm.colorselectorwidgetclass`
+
+- Class: `xmColorSelectorWidgetClass`
+- Example: `gallery.source.colorselectorwidgetclass`
+- Interaction: `gallery.interaction.colorselectorwidgetclass`
+- Screenshot: `gallery.screenshot.colorselectorwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-colorselectorwidgetclass.png)
+
+<a id="gallery.component.infobarwidgetclass"></a>
+### `xm.infobarwidgetclass`
+
+- Class: `xmInfoBarWidgetClass`
+- Example: `gallery.source.infobarwidgetclass`
+- Interaction: `gallery.interaction.infobarwidgetclass`
+- Screenshot: `gallery.screenshot.infobarwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-infobarwidgetclass.png)
+
+<a id="gallery.component.chipwidgetclass"></a>
+### `xm.chipwidgetclass`
+
+- Class: `xmChipWidgetClass`
+- Example: `gallery.source.chipwidgetclass`
+- Interaction: `gallery.interaction.chipwidgetclass`
+- Screenshot: `gallery.screenshot.chipwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-chipwidgetclass.png)
+
+<a id="gallery.component.badgewidgetclass"></a>
+### `xm.badgewidgetclass`
+
+- Class: `xmBadgeWidgetClass`
+- Example: `gallery.source.badgewidgetclass`
+- Interaction: `gallery.interaction.badgewidgetclass`
+- Screenshot: `gallery.screenshot.badgewidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-badgewidgetclass.png)
+
+<a id="gallery.component.avatarwidgetclass"></a>
+### `xm.avatarwidgetclass`
+
+- Class: `xmAvatarWidgetClass`
+- Example: `gallery.source.avatarwidgetclass`
+- Interaction: `gallery.interaction.avatarwidgetclass`
+- Screenshot: `gallery.screenshot.avatarwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-avatarwidgetclass.png)
+
+<a id="gallery.component.emptystatewidgetclass"></a>
+### `xm.emptystatewidgetclass`
+
+- Class: `xmEmptyStateWidgetClass`
+- Example: `gallery.source.emptystatewidgetclass`
+- Interaction: `gallery.interaction.emptystatewidgetclass`
+- Screenshot: `gallery.screenshot.emptystatewidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-emptystatewidgetclass.png)
+
+<a id="gallery.component.skeletonwidgetclass"></a>
+### `xm.skeletonwidgetclass`
+
+- Class: `xmSkeletonWidgetClass`
+- Example: `gallery.source.skeletonwidgetclass`
+- Interaction: `gallery.interaction.skeletonwidgetclass`
+- Screenshot: `gallery.screenshot.skeletonwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-skeletonwidgetclass.png)
+
+<a id="gallery.component.numberboxwidgetclass"></a>
+### `xm.numberboxwidgetclass`
+
+- Class: `xmNumberBoxWidgetClass`
+- Example: `gallery.source.numberboxwidgetclass`
+- Interaction: `gallery.interaction.numberboxwidgetclass`
+- Screenshot: `gallery.screenshot.numberboxwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-numberboxwidgetclass.png)
+
+<a id="gallery.component.progressbarwidgetclass"></a>
+### `xm.progressbarwidgetclass`
+
+- Class: `xmProgressBarWidgetClass`
+- Example: `gallery.source.progressbarwidgetclass`
+- Interaction: `gallery.interaction.progressbarwidgetclass`
+- Screenshot: `gallery.screenshot.progressbarwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-progressbarwidgetclass.png)
+
+<a id="gallery.component.progressringwidgetclass"></a>
+### `xm.progressringwidgetclass`
+
+- Class: `xmProgressRingWidgetClass`
+- Example: `gallery.source.progressringwidgetclass`
+- Interaction: `gallery.interaction.progressringwidgetclass`
+- Screenshot: `gallery.screenshot.progressringwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-progressringwidgetclass.png)
+
 ## commands-navigation
+
+<a id="gallery.component.combinationbox2widgetclass"></a>
+### `xm.combinationbox2widgetclass`
+
+- Class: `xmCombinationBox2WidgetClass`
+- Example: `gallery.source.combinationbox2widgetclass`
+- Interaction: `gallery.interaction.combinationbox2widgetclass`
+- Screenshot: `gallery.screenshot.combinationbox2widgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-combinationbox2widgetclass.png)
+
+<a id="gallery.component.disclosurewidgetclass"></a>
+### `xm.disclosurewidgetclass`
+
+- Class: `xmDisclosureWidgetClass`
+- Example: `gallery.source.disclosurewidgetclass`
+- Interaction: `gallery.interaction.disclosurewidgetclass`
+- Screenshot: `gallery.screenshot.disclosurewidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-disclosurewidgetclass.png)
 
 <a id="gallery.component.cascadebuttonwidgetclass"></a>
 ### `xm.cascadebuttonwidgetclass`
@@ -740,6 +685,17 @@ the documentation target recorded by the corresponding manifest entry.
 
 ## text-input
 
+<a id="gallery.component.fontselectorwidgetclass"></a>
+### `xm.fontselectorwidgetclass`
+
+- Class: `xmFontSelectorWidgetClass`
+- Example: `gallery.source.fontselectorwidgetclass`
+- Interaction: `gallery.interaction.fontselectorwidgetclass`
+- Screenshot: `gallery.screenshot.fontselectorwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-fontselectorwidgetclass.png)
+
 <a id="gallery.component.datafieldwidgetclass"></a>
 ### `xm.datafieldwidgetclass`
 
@@ -839,6 +795,318 @@ the documentation target recorded by the corresponding manifest entry.
 
 ![Gallery screenshot](gallery-screenshots/xm-textfieldwidgetclass.png)
 
+## data-views
+
+<a id="gallery.component.hierarchywidgetclass"></a>
+### `xm.hierarchywidgetclass`
+
+- Class: `xmHierarchyWidgetClass`
+- Example: `gallery.source.hierarchywidgetclass`
+- Interaction: `gallery.interaction.hierarchywidgetclass`
+- Screenshot: `gallery.screenshot.hierarchywidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-hierarchywidgetclass.png)
+
+<a id="gallery.component.ext18listwidgetclass"></a>
+### `xm.ext18listwidgetclass`
+
+- Class: `xmExt18ListWidgetClass`
+- Example: `gallery.source.ext18listwidgetclass`
+- Interaction: `gallery.interaction.ext18listwidgetclass`
+- Screenshot: `gallery.screenshot.ext18listwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-ext18listwidgetclass.png)
+
+<a id="gallery.component.multilistwidgetclass"></a>
+### `xm.multilistwidgetclass`
+
+- Class: `xmMultiListWidgetClass`
+- Example: `gallery.source.multilistwidgetclass`
+- Interaction: `gallery.interaction.multilistwidgetclass`
+- Screenshot: `gallery.screenshot.multilistwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-multilistwidgetclass.png)
+
+<a id="gallery.component.iconboxwidgetclass"></a>
+### `xm.iconboxwidgetclass`
+
+- Class: `xmIconBoxWidgetClass`
+- Example: `gallery.source.iconboxwidgetclass`
+- Interaction: `gallery.interaction.iconboxwidgetclass`
+- Screenshot: `gallery.screenshot.iconboxwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-iconboxwidgetclass.png)
+
+<a id="gallery.component.outlinewidgetclass"></a>
+### `xm.outlinewidgetclass`
+
+- Class: `xmOutlineWidgetClass`
+- Example: `gallery.source.outlinewidgetclass`
+- Interaction: `gallery.interaction.outlinewidgetclass`
+- Screenshot: `gallery.screenshot.outlinewidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-outlinewidgetclass.png)
+
+<a id="gallery.component.treewidgetclass"></a>
+### `xm.treewidgetclass`
+
+- Class: `xmTreeWidgetClass`
+- Example: `gallery.source.treewidgetclass`
+- Interaction: `gallery.interaction.treewidgetclass`
+- Screenshot: `gallery.screenshot.treewidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-treewidgetclass.png)
+
+<a id="gallery.component.calendarwidgetclass"></a>
+### `xm.calendarwidgetclass`
+
+- Class: `xmCalendarWidgetClass`
+- Example: `gallery.source.calendarwidgetclass`
+- Interaction: `gallery.interaction.calendarwidgetclass`
+- Screenshot: `gallery.screenshot.calendarwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-calendarwidgetclass.png)
+
+<a id="gallery.component.datepickerwidgetclass"></a>
+### `xm.datepickerwidgetclass`
+
+- Class: `xmDatePickerWidgetClass`
+- Example: `gallery.source.datepickerwidgetclass`
+- Interaction: `gallery.interaction.datepickerwidgetclass`
+- Screenshot: `gallery.screenshot.datepickerwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-datepickerwidgetclass.png)
+
+<a id="gallery.component.timepickerwidgetclass"></a>
+### `xm.timepickerwidgetclass`
+
+- Class: `xmTimePickerWidgetClass`
+- Example: `gallery.source.timepickerwidgetclass`
+- Interaction: `gallery.interaction.timepickerwidgetclass`
+- Screenshot: `gallery.screenshot.timepickerwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-timepickerwidgetclass.png)
+
+<a id="gallery.component.datagridwidgetclass"></a>
+### `xm.datagridwidgetclass`
+
+- Class: `xmDataGridWidgetClass`
+- Example: `gallery.source.datagridwidgetclass`
+- Interaction: `gallery.interaction.datagridwidgetclass`
+- Screenshot: `gallery.screenshot.datagridwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-datagridwidgetclass.png)
+
+## buttons-selection
+
+<a id="gallery.component.arrowbuttonwidgetclass"></a>
+### `xm.arrowbuttonwidgetclass`
+
+- Class: `xmArrowButtonWidgetClass`
+- Example: `gallery.source.arrowbuttonwidgetclass`
+- Interaction: `gallery.interaction.arrowbuttonwidgetclass`
+- Screenshot: `gallery.screenshot.arrowbuttonwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-arrowbuttonwidgetclass.png)
+
+<a id="gallery.component.arrowbuttongadgetclass"></a>
+### `xm.arrowbuttongadgetclass`
+
+- Class: `xmArrowButtonGadgetClass`
+- Example: `gallery.source.arrowbuttongadgetclass`
+- Interaction: `gallery.interaction.arrowbuttongadgetclass`
+- Screenshot: `gallery.screenshot.arrowbuttongadgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-arrowbuttongadgetclass.png)
+
+<a id="gallery.component.iconbuttonwidgetclass"></a>
+### `xm.iconbuttonwidgetclass`
+
+- Class: `xmIconButtonWidgetClass`
+- Example: `gallery.source.iconbuttonwidgetclass`
+- Interaction: `gallery.interaction.iconbuttonwidgetclass`
+- Screenshot: `gallery.screenshot.iconbuttonwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-iconbuttonwidgetclass.png)
+
+<a id="gallery.component.listwidgetclass"></a>
+### `xm.listwidgetclass`
+
+- Class: `xmListWidgetClass`
+- Example: `gallery.source.listwidgetclass`
+- Interaction: `gallery.interaction.listwidgetclass`
+- Screenshot: `gallery.screenshot.listwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-listwidgetclass.png)
+
+<a id="gallery.component.colorpickerwidgetclass"></a>
+### `xm.colorpickerwidgetclass`
+
+- Class: `xmColorPickerWidgetClass`
+- Example: `gallery.source.colorpickerwidgetclass`
+- Interaction: `gallery.interaction.colorpickerwidgetclass`
+- Screenshot: `gallery.screenshot.colorpickerwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-colorpickerwidgetclass.png)
+
+<a id="gallery.component.segmentedcontrolwidgetclass"></a>
+### `xm.segmentedcontrolwidgetclass`
+
+- Class: `xmSegmentedControlWidgetClass`
+- Example: `gallery.source.segmentedcontrolwidgetclass`
+- Interaction: `gallery.interaction.segmentedcontrolwidgetclass`
+- Screenshot: `gallery.screenshot.segmentedcontrolwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-segmentedcontrolwidgetclass.png)
+
+<a id="gallery.component.ratingcontrolwidgetclass"></a>
+### `xm.ratingcontrolwidgetclass`
+
+- Class: `xmRatingControlWidgetClass`
+- Example: `gallery.source.ratingcontrolwidgetclass`
+- Interaction: `gallery.interaction.ratingcontrolwidgetclass`
+- Screenshot: `gallery.screenshot.ratingcontrolwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-ratingcontrolwidgetclass.png)
+
+<a id="gallery.component.pushbuttonwidgetclass"></a>
+### `xm.pushbuttonwidgetclass`
+
+- Class: `xmPushButtonWidgetClass`
+- Example: `gallery.source.pushbuttonwidgetclass`
+- Interaction: `gallery.interaction.pushbuttonwidgetclass`
+- Screenshot: `gallery.screenshot.pushbuttonwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-pushbuttonwidgetclass.png)
+
+<a id="gallery.component.pushbuttongadgetclass"></a>
+### `xm.pushbuttongadgetclass`
+
+- Class: `xmPushButtonGadgetClass`
+- Example: `gallery.source.pushbuttongadgetclass`
+- Interaction: `gallery.interaction.pushbuttongadgetclass`
+- Screenshot: `gallery.screenshot.pushbuttongadgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-pushbuttongadgetclass.png)
+
+<a id="gallery.component.simplespinboxwidgetclass"></a>
+### `xm.simplespinboxwidgetclass`
+
+- Class: `xmSimpleSpinBoxWidgetClass`
+- Example: `gallery.source.simplespinboxwidgetclass`
+- Interaction: `gallery.interaction.simplespinboxwidgetclass`
+- Screenshot: `gallery.screenshot.simplespinboxwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-simplespinboxwidgetclass.png)
+
+<a id="gallery.component.scalewidgetclass"></a>
+### `xm.scalewidgetclass`
+
+- Class: `xmScaleWidgetClass`
+- Example: `gallery.source.scalewidgetclass`
+- Interaction: `gallery.interaction.scalewidgetclass`
+- Screenshot: `gallery.screenshot.scalewidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-scalewidgetclass.png)
+
+<a id="gallery.component.spinnerwidgetclass"></a>
+### `xm.spinnerwidgetclass`
+
+- Class: `xmSpinnerWidgetClass`
+- Example: `gallery.source.spinnerwidgetclass`
+- Interaction: `gallery.interaction.spinnerwidgetclass`
+- Screenshot: `gallery.screenshot.spinnerwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-spinnerwidgetclass.png)
+
+<a id="gallery.component.stepperwidgetclass"></a>
+### `xm.stepperwidgetclass`
+
+- Class: `xmStepperWidgetClass`
+- Example: `gallery.source.stepperwidgetclass`
+- Interaction: `gallery.interaction.stepperwidgetclass`
+- Screenshot: `gallery.screenshot.stepperwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-stepperwidgetclass.png)
+
+<a id="gallery.component.scrollbarwidgetclass"></a>
+### `xm.scrollbarwidgetclass`
+
+- Class: `xmScrollBarWidgetClass`
+- Example: `gallery.source.scrollbarwidgetclass`
+- Interaction: `gallery.interaction.scrollbarwidgetclass`
+- Screenshot: `gallery.screenshot.scrollbarwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-scrollbarwidgetclass.png)
+
+<a id="gallery.component.spinboxwidgetclass"></a>
+### `xm.spinboxwidgetclass`
+
+- Class: `xmSpinBoxWidgetClass`
+- Example: `gallery.source.spinboxwidgetclass`
+- Interaction: `gallery.interaction.spinboxwidgetclass`
+- Screenshot: `gallery.screenshot.spinboxwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-spinboxwidgetclass.png)
+
+<a id="gallery.component.togglebuttonwidgetclass"></a>
+### `xm.togglebuttonwidgetclass`
+
+- Class: `xmToggleButtonWidgetClass`
+- Example: `gallery.source.togglebuttonwidgetclass`
+- Interaction: `gallery.interaction.togglebuttonwidgetclass`
+- Screenshot: `gallery.screenshot.togglebuttonwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-togglebuttonwidgetclass.png)
+
+<a id="gallery.component.toggleswitchwidgetclass"></a>
+### `xm.toggleswitchwidgetclass`
+
+- Class: `xmToggleSwitchWidgetClass`
+- Example: `gallery.source.toggleswitchwidgetclass`
+- Interaction: `gallery.interaction.toggleswitchwidgetclass`
+- Screenshot: `gallery.screenshot.toggleswitchwidgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-toggleswitchwidgetclass.png)
+
+<a id="gallery.component.togglebuttongadgetclass"></a>
+### `xm.togglebuttongadgetclass`
+
+- Class: `xmToggleButtonGadgetClass`
+- Example: `gallery.source.togglebuttongadgetclass`
+- Interaction: `gallery.interaction.togglebuttongadgetclass`
+- Screenshot: `gallery.screenshot.togglebuttongadgetclass`
+- Capability: constructible
+
+![Gallery screenshot](gallery-screenshots/xm-togglebuttongadgetclass.png)
+
 ## media
 
 <a id="gallery.component.drawingareawidgetclass"></a>
@@ -906,150 +1174,3 @@ the documentation target recorded by the corresponding manifest entry.
 - Capability: constructible
 
 ![Gallery screenshot](gallery-screenshots/xm-drophighlightwidgetclass.png)
-
-## feedback-dialogs
-
-<a id="gallery.component.infobarwidgetclass"></a>
-### `xm.infobarwidgetclass`
-
-- Class: `xmInfoBarWidgetClass`
-- Example: `gallery.source.infobarwidgetclass`
-- Interaction: `gallery.interaction.infobarwidgetclass`
-- Screenshot: `gallery.screenshot.infobarwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-infobarwidgetclass.png)
-
-<a id="gallery.component.chipwidgetclass"></a>
-### `xm.chipwidgetclass`
-
-- Class: `xmChipWidgetClass`
-- Example: `gallery.source.chipwidgetclass`
-- Interaction: `gallery.interaction.chipwidgetclass`
-- Screenshot: `gallery.screenshot.chipwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-chipwidgetclass.png)
-
-<a id="gallery.component.badgewidgetclass"></a>
-### `xm.badgewidgetclass`
-
-- Class: `xmBadgeWidgetClass`
-- Example: `gallery.source.badgewidgetclass`
-- Interaction: `gallery.interaction.badgewidgetclass`
-- Screenshot: `gallery.screenshot.badgewidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-badgewidgetclass.png)
-
-<a id="gallery.component.avatarwidgetclass"></a>
-### `xm.avatarwidgetclass`
-
-- Class: `xmAvatarWidgetClass`
-- Example: `gallery.source.avatarwidgetclass`
-- Interaction: `gallery.interaction.avatarwidgetclass`
-- Screenshot: `gallery.screenshot.avatarwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-avatarwidgetclass.png)
-
-<a id="gallery.component.emptystatewidgetclass"></a>
-### `xm.emptystatewidgetclass`
-
-- Class: `xmEmptyStateWidgetClass`
-- Example: `gallery.source.emptystatewidgetclass`
-- Interaction: `gallery.interaction.emptystatewidgetclass`
-- Screenshot: `gallery.screenshot.emptystatewidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-emptystatewidgetclass.png)
-
-<a id="gallery.component.skeletonwidgetclass"></a>
-### `xm.skeletonwidgetclass`
-
-- Class: `xmSkeletonWidgetClass`
-- Example: `gallery.source.skeletonwidgetclass`
-- Interaction: `gallery.interaction.skeletonwidgetclass`
-- Screenshot: `gallery.screenshot.skeletonwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-skeletonwidgetclass.png)
-
-<a id="gallery.component.numberboxwidgetclass"></a>
-### `xm.numberboxwidgetclass`
-
-- Class: `xmNumberBoxWidgetClass`
-- Example: `gallery.source.numberboxwidgetclass`
-- Interaction: `gallery.interaction.numberboxwidgetclass`
-- Screenshot: `gallery.screenshot.numberboxwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-numberboxwidgetclass.png)
-
-<a id="gallery.component.progressbarwidgetclass"></a>
-### `xm.progressbarwidgetclass`
-
-- Class: `xmProgressBarWidgetClass`
-- Example: `gallery.source.progressbarwidgetclass`
-- Interaction: `gallery.interaction.progressbarwidgetclass`
-- Screenshot: `gallery.screenshot.progressbarwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-progressbarwidgetclass.png)
-
-<a id="gallery.component.progressringwidgetclass"></a>
-### `xm.progressringwidgetclass`
-
-- Class: `xmProgressRingWidgetClass`
-- Example: `gallery.source.progressringwidgetclass`
-- Interaction: `gallery.interaction.progressringwidgetclass`
-- Screenshot: `gallery.screenshot.progressringwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-progressringwidgetclass.png)
-
-## data-views
-
-<a id="gallery.component.calendarwidgetclass"></a>
-### `xm.calendarwidgetclass`
-
-- Class: `xmCalendarWidgetClass`
-- Example: `gallery.source.calendarwidgetclass`
-- Interaction: `gallery.interaction.calendarwidgetclass`
-- Screenshot: `gallery.screenshot.calendarwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-calendarwidgetclass.png)
-
-<a id="gallery.component.datepickerwidgetclass"></a>
-### `xm.datepickerwidgetclass`
-
-- Class: `xmDatePickerWidgetClass`
-- Example: `gallery.source.datepickerwidgetclass`
-- Interaction: `gallery.interaction.datepickerwidgetclass`
-- Screenshot: `gallery.screenshot.datepickerwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-datepickerwidgetclass.png)
-
-<a id="gallery.component.timepickerwidgetclass"></a>
-### `xm.timepickerwidgetclass`
-
-- Class: `xmTimePickerWidgetClass`
-- Example: `gallery.source.timepickerwidgetclass`
-- Interaction: `gallery.interaction.timepickerwidgetclass`
-- Screenshot: `gallery.screenshot.timepickerwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-timepickerwidgetclass.png)
-
-<a id="gallery.component.datagridwidgetclass"></a>
-### `xm.datagridwidgetclass`
-
-- Class: `xmDataGridWidgetClass`
-- Example: `gallery.source.datagridwidgetclass`
-- Interaction: `gallery.interaction.datagridwidgetclass`
-- Screenshot: `gallery.screenshot.datagridwidgetclass`
-- Capability: constructible
-
-![Gallery screenshot](gallery-screenshots/xm-datagridwidgetclass.png)

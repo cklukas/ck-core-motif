@@ -35,6 +35,30 @@ Xt popup-shell construction; ordinary widget and gadget entries use their
 manifest-bound public class pointer and invoke the first available semantic
 public callback (with a help callback fallback).
 
+## Welcome and built-in icons
+
+The first item in the left sidebar is **Welcome**; it is a real first page,
+not a component tab. The next item, **Built-in Icons**, renders the standard
+Motif dialog bitmaps in a grid and prints each resource name below its image.
+
+![Current gallery welcome page](gallery-screenshots/welcome.png)
+
+![Current gallery built-in icon grid](gallery-screenshots/icons.png)
+
+The dialog bitmap names are also the names accepted by `XmGetPixmap`:
+
+```c
+Pixmap question = XmGetPixmap(XtScreen(parent), "dialog_question",
+                              BlackPixelOfScreen(XtScreen(parent)),
+                              WhitePixelOfScreen(XtScreen(parent)));
+Widget dialog = XmCreateQuestionDialog(parent, "question", args, count);
+```
+
+The corresponding constructors for the other standard dialog types are
+`XmCreateErrorDialog`, `XmCreateInformationDialog`, `XmCreateWarningDialog`,
+and `XmCreateWorkingDialog`. Their dialog-type bitmaps are shown together on
+the Built-in Icons page so applications can compare the actual Motif assets.
+
 When the public accessibility bridge is available, the gallery attaches it to
 the realized shell and verifies the navigation tree's semantic role during
 the native integration run. The optional AT-SPI transport remains optional;

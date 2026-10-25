@@ -29,7 +29,7 @@ extern void gallery_destroy_component_example(Widget *);
 extern Widget gallery_create_drag_source_example(Widget, XtCallbackProc, XtPointer);
 
 typedef struct {
-    Widget shell, sidebar, tree, notebook, welcome, example, source, status;
+    Widget shell, sidebar, tree, notebook, welcome, example, source, icons, status;
     Widget title, provenance, action, component, component_host, source_text;
     unsigned int example_serial;
     unsigned long callback_count;
@@ -588,6 +588,11 @@ static void tree_selected(Widget widget, XtPointer client, XtPointer call)
             set_status(state, "Welcome - choose a component category to begin");
             return;
         }
+        if (!strcmp((const char *)callback->id, "gallery.icons")) {
+            XtVaSetValues(state->notebook, XmNcurrentPageNumber, 4, NULL);
+            set_status(state, "Built-in Motif bitmaps");
+            return;
+        }
         if (!entry) {
             set_status(state, "Category expanded; choose a component example");
             return;
@@ -610,15 +615,19 @@ static void toggle_sidebar(Widget widget, XtPointer client, XtPointer call)
 static void add_tree_nodes(Widget tree)
 {
     static char labels[128][96];
-    XmTreeViewNode nodes[128]; Cardinal i, offset = GALLERY_CATEGORY_COUNT + 1;
-    if (GALLERY_MANIFEST_COUNT + GALLERY_CATEGORY_COUNT + 1 > XtNumber(nodes)) return;
+    XmTreeViewNode nodes[128]; Cardinal i, offset = GALLERY_CATEGORY_COUNT + 2;
+    if (GALLERY_MANIFEST_COUNT + GALLERY_CATEGORY_COUNT + 2 > XtNumber(nodes)) return;
     nodes[0].id = (XtPointer)"gallery.welcome";
     nodes[0].parent_id = NULL;
     nodes[0].label = "Welcome";
     nodes[0].has_children = False; nodes[0].expanded = False;
+    nodes[1].id = (XtPointer)"gallery.icons";
+    nodes[1].parent_id = NULL;
+    nodes[1].label = "Built-in Icons";
+    nodes[1].has_children = False; nodes[1].expanded = False;
     for (i = 0; i < GALLERY_CATEGORY_COUNT; ++i) {
-        nodes[i + 1].id = (XtPointer)gallery_categories[i];
-        nodes[i + 1].parent_id = NULL;
+        nodes[i + 2].id = (XtPointer)gallery_categories[i];
+        nodes[i + 2].parent_id = NULL;
         const char *title = gallery_categories[i];
         if (!strcmp(title, "buttons-selection")) title = "Buttons & Selection";
         else if (!strcmp(title, "commands-navigation")) title = "Commands & Navigation";
@@ -627,9 +636,9 @@ static void add_tree_nodes(Widget tree)
         else if (!strcmp(title, "feedback-dialogs")) title = "Feedback & Dialogs";
         else if (!strcmp(title, "layout")) title = "Layout";
         else if (!strcmp(title, "media")) title = "Media";
-        snprintf(labels[i + 1], sizeof(labels[i + 1]), "%s", title);
-        nodes[i + 1].label = labels[i + 1];
-        nodes[i + 1].has_children = True; nodes[i + 1].expanded = True;
+        snprintf(labels[i + 2], sizeof(labels[i + 2]), "%s", title);
+        nodes[i + 2].label = labels[i + 2];
+        nodes[i + 2].has_children = True; nodes[i + 2].expanded = True;
     }
     for (i = 0; i < GALLERY_MANIFEST_COUNT; ++i) {
         Cardinal category;
@@ -660,6 +669,49 @@ static void add_tree_nodes(Widget tree)
     }
     XmTreeViewSetNodes(tree, nodes, offset + GALLERY_MANIFEST_COUNT);
     XmTreeViewSetSelectedId(tree, nodes[offset].id, False);
+}
+
+static Widget create_icon_page(Widget notebook)
+{
+    static const char *names[] = {
+        "dialog_error", "dialog_information", "dialog_question",
+        "dialog_warning", "dialog_working", "50_foreground",
+        "menu_cascade", "menu_checkmark", "menu_dash"
+    };
+    Widget page = XtVaCreateWidget("iconsPage", xmFormWidgetClass, notebook,
+                                   XmNnotebookChildType, XmPAGE,
+                                   XmNpageNumber, 4, NULL);
+    Widget grid = XtVaCreateManagedWidget("iconGrid", xmRowColumnWidgetClass, page,
+                                         XmNnumColumns, 3,
+                                         XmNorientation, XmHORIZONTAL,
+                                         XmNpacking, XmPACK_TIGHT,
+                                         XmNspacing, 18,
+                                         XmNleftAttachment, XmATTACH_FORM,
+                                         XmNrightAttachment, XmATTACH_FORM,
+                                         XmNtopAttachment, XmATTACH_FORM, NULL);
+    size_t i;
+    for (i = 0; i < XtNumber(names); ++i) {
+        Pixmap pixmap = XmGetPixmap(XtScreen(page), (char *)names[i],
+                                    BlackPixelOfScreen(XtScreen(page)),
+                                    WhitePixelOfScreen(XtScreen(page)));
+        XmString label = XmStringCreateLocalized((char *)names[i]);
+        Widget cell = XtVaCreateManagedWidget("iconCell", xmFormWidgetClass, grid,
+                                              XmNwidth, 150, XmNheight, 88, NULL);
+        XtVaCreateManagedWidget("bitmap", xmLabelWidgetClass, cell,
+                                XmNlabelType, XmPIXMAP, XmNlabelPixmap, pixmap,
+                                XmNtopAttachment, XmATTACH_FORM,
+                                XmNleftAttachment, XmATTACH_FORM,
+                                XmNrightAttachment, XmATTACH_FORM, NULL);
+        XtVaCreateManagedWidget("name", xmLabelWidgetClass, cell,
+                                XmNlabelString, label,
+                                XmNtopAttachment, XmATTACH_WIDGET,
+                                XmNtopWidget, XtNameToWidget(cell, "bitmap"),
+                                XmNleftAttachment, XmATTACH_FORM,
+                                XmNrightAttachment, XmATTACH_FORM, NULL);
+        XmStringFree(label);
+    }
+    XtManageChild(page);
+    return page;
 }
 
 int main(int argc, char **argv)
@@ -851,19 +903,24 @@ int main(int argc, char **argv)
         XtAddCallback(welcome_text, XmNexposeCallback, welcome_expose, NULL);
     }
     XtManageChild(state.welcome);
+    state.icons = create_icon_page(notebook);
     XtAddCallback(state.tree, XmNtreeViewSelectionCallback, tree_selected, &state);
     XtAddCallback(sidebar, XmNsidebarToggleCallback, toggle_sidebar, &state);
     add_tree_nodes(state.tree);
     {
         const GalleryManifestEntry *initial = initial_id ? find_entry(initial_id)
                                                          : &gallery_manifest[0];
-        if (initial_id && strcmp(initial->id, initial_id)) {
+        Boolean special_page = initial_id && (!strcmp(initial_id, "gallery.welcome") ||
+                                              !strcmp(initial_id, "gallery.icons"));
+        if (initial_id && !special_page && (!initial || strcmp(initial->id, initial_id))) {
             fprintf(stderr, "unknown gallery component: %s\n", initial_id);
             return 2;
         }
-        XmTreeViewSetSelectedId(state.tree, (XtPointer)(initial_id ? initial->id : "gallery.welcome"), False);
-        if (initial_id)
+        XmTreeViewSetSelectedId(state.tree, (XtPointer)(initial_id ? initial_id : "gallery.welcome"), False);
+        if (initial_id && !special_page)
             show_entry(&state, initial);
+        else if (initial_id && !strcmp(initial_id, "gallery.icons"))
+            XtVaSetValues(state.notebook, XmNcurrentPageNumber, 4, NULL);
         else {
             XtVaSetValues(state.notebook, XmNcurrentPageNumber, 1, NULL);
             set_status(&state, "Welcome - choose a component category to begin");
@@ -875,6 +932,9 @@ int main(int argc, char **argv)
     XtVaCreateManagedWidget("sourceTab", xmLabelWidgetClass, notebook,
                             XmNnotebookChildType, XmMAJOR_TAB, XmNpageNumber, 3,
                             XmNlabelString, text("Source"), NULL);
+    XtVaCreateManagedWidget("iconsTab", xmLabelWidgetClass, notebook,
+                            XmNnotebookChildType, XmMAJOR_TAB, XmNpageNumber, 4,
+                            XmNlabelString, text("Built-in Icons"), NULL);
     if (initial_id)
         XtVaSetValues(state.notebook, XmNcurrentPageNumber, 2, NULL);
     XtManageChild(root);
