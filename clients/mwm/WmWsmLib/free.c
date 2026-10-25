@@ -44,7 +44,7 @@ FreeRequest(WSMRequest *request)
 {
     register int i;
 
-    if (!request->any.allocated)
+    if (request == NULL || !request->any.allocated)
 	return;			/* Nothing to free. */
 
     switch(request->any.type) {
@@ -58,8 +58,9 @@ FreeRequest(WSMRequest *request)
 
 	    num = request->extensions.num_extensions;
 	    ptr = request->extensions.extension_suggestions;
-	    for (i = 0; i < num; i++, ptr++) 
-		XtFree((XtPointer) *ptr);
+	    if (ptr != NULL)
+		for (i = 0; i < num; i++, ptr++)
+		    XtFree((XtPointer) *ptr);
 
 	    XtFree((XtPointer) request->extensions.extension_suggestions);
 	}
@@ -69,18 +70,21 @@ FreeRequest(WSMRequest *request)
 	    register int num = request->set_state.num_win_info_list;
 	    WSMWinInfo *win_info = request->set_state.win_info_list;
 
-	    for (i = 0; i < num; i++, win_info++) 
-		FreeWinData(win_info->data_list, win_info->num_data_list);
+	    if (win_info != NULL)
+		for (i = 0; i < num; i++, win_info++)
+		    FreeWinData(win_info->data_list, win_info->num_data_list);
 
 	    XtFree((XtPointer) request->set_state.win_info_list);
 	}
 	break;
 	case WSM_WM_WINDOWS:
-	    for (i = 0; i < request->wm_windows.num_match_attributes; i++) {
-		XtFree((XtPointer) request->wm_windows.match_attributes[i]->allowed_attributes);
-		XtFree((XtPointer) request->wm_windows.match_attributes[i]->prohibited_attributes);
-		XtFree((XtPointer) request->wm_windows.match_attributes[i]);
-	    }
+	    if (request->wm_windows.match_attributes != NULL)
+		for (i = 0; i < request->wm_windows.num_match_attributes; i++)
+		    if (request->wm_windows.match_attributes[i] != NULL) {
+			XtFree((XtPointer) request->wm_windows.match_attributes[i]->allowed_attributes);
+			XtFree((XtPointer) request->wm_windows.match_attributes[i]->prohibited_attributes);
+			XtFree((XtPointer) request->wm_windows.match_attributes[i]);
+		    }
 	    XtFree((XtPointer) request->wm_windows.match_attributes);
 	    XtFree((XtPointer) request->wm_windows.window_properties);
 	    break;
@@ -101,7 +105,7 @@ FreeReply(WSMReply *reply)
 {
     register int i;
 
-    if (!reply->any.allocated)
+    if (reply == NULL || !reply->any.allocated)
 	return;			/* Nothing to free. */
 
     switch(reply->any.type) {
@@ -112,8 +116,9 @@ FreeReply(WSMReply *reply)
 
 	    num = reply->extensions.num_extensions;
 	    ptr = reply->extensions.extensions;
-	    for (i = 0; i < num; i++, ptr++) 
-		XtFree((XtPointer) *ptr);
+	    if (ptr != NULL)
+		for (i = 0; i < num; i++, ptr++)
+		    XtFree((XtPointer) *ptr);
 
 	    XtFree((XtPointer) reply->extensions.extensions);
 	}
@@ -123,8 +128,9 @@ FreeReply(WSMReply *reply)
 	    WSMWinInfo *win_info = reply->get_state.win_info_list;
 	    register int num = reply->get_state.num_win_info_list;
 
-	    for (i = 0; i < num; i++, win_info++) 
-		FreeWinData(win_info->data_list, win_info->num_data_list);
+	    if (win_info != NULL)
+		for (i = 0; i < num; i++, win_info++)
+		    FreeWinData(win_info->data_list, win_info->num_data_list);
 
 	    XtFree((XtPointer) reply->get_state.win_info_list);
 	}
@@ -134,10 +140,11 @@ FreeReply(WSMReply *reply)
 		    reply->register_window.num_window_data);
 	break;
 	case WSM_WM_WINDOWS:
-	    for (i = 0; i < reply->wm_windows.num_win_entry_list; i++) {
-		XtFree((XtPointer) reply->wm_windows.win_entry_list[i].windows);
-		XtFree((XtPointer) reply->wm_windows.win_entry_list[i].match_properties);
-	    }
+	    if (reply->wm_windows.win_entry_list != NULL)
+		for (i = 0; i < reply->wm_windows.num_win_entry_list; i++) {
+		    XtFree((XtPointer) reply->wm_windows.win_entry_list[i].windows);
+		    XtFree((XtPointer) reply->wm_windows.win_entry_list[i].match_properties);
+		}
 	    XtFree((XtPointer) reply->wm_windows.win_entry_list);
 	    break;
     default:
@@ -164,6 +171,11 @@ FreeWinData(WSMWinData *data, int num)
 {
     register int i;
     WSMWinData *top = data;
+
+    if (data == NULL || num <= 0) {
+	XtFree((XtPointer) top);
+	return;
+    }
 
     for (i = 0; i < num; i++, data++) {
 	switch (data->type) {

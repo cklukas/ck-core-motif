@@ -58,6 +58,7 @@ clients exchanging Motif window-management messages.
 - [WSM window-request ownership](wsm-windows-owned.md)
 - [WSM nested window-array ownership](wsm-windows-nested-ownership.md)
 - [WSM cleanup idempotence](wsm-free-idempotent.md)
+- [WSM cleanup null-safety](wsm-free-null.md)
 - [WSM reply callback lifecycle](wsm-reply-callback-lifecycle.md)
 - [WSM null transfer data](wsm-reply-null-data.md)
 - [WSM null request context](wsm-reply-null-context.md)

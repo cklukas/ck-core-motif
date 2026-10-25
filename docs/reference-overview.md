@@ -54,6 +54,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [WSM window-request ownership](wsm-windows-owned.md) — track decoded array ownership correctly.
 - [WSM nested window-array ownership](wsm-windows-nested-ownership.md) — initialize and release nested property arrays.
 - [WSM cleanup idempotence](wsm-free-idempotent.md) — prevent repeated cleanup from double-freeing.
+- [WSM cleanup null-safety](wsm-free-null.md) — tolerate partial cleanup structures safely.
 - [WSM reply callback lifecycle](wsm-reply-callback-lifecycle.md) — guard optional callbacks and failure cleanup.
 - [WSM null transfer data](wsm-reply-null-data.md) — handle malformed selection callbacks safely.
 - [WSM null request context](wsm-reply-null-context.md) — guard missing pending-request state.

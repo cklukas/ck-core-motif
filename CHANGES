@@ -11270,3 +11270,9 @@ WSM null input streams (2026-10-25)
 
 - Make primitive WSM byte and string decoders tolerate null input streams
   without dereferencing them; see `docs/wsm-unpack-null.md`.
+
+WSM cleanup null-safety (2026-10-25)
+=====================================
+
+- Make WSM request and reply cleanup tolerate null handles and partial nested
+  arrays; see `docs/wsm-free-null.md`.
