@@ -661,6 +661,13 @@ geometry requests or Configure events on the qualification run.  No generic
 Form correction is claimed yet; a measured hotspot and source-backed decision
 are still required before WP-11 changes source behavior.
 
+The callback-triggered scroll-container extension is now separately qualified:
+auto-drag timers and payloads retire across leave, disable, scrollbar removal,
+parent destruction and value-callback mutation, while navigator callback lists
+remain safe when application code destroys the active frame.  This is a
+lifecycle correction, not a change to Form attachment negotiation; see
+`docs/scroll-autodrag-lifetime.md`.
+
 See `docs/form-layout-corpus.md` for the fixture schema, limits and current
 qualification scope.
 
