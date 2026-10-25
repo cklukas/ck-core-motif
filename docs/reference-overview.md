@@ -44,6 +44,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM protocol overview](mwm-protocol-oom.md) — protocol conversion and allocation-failure behavior.
 - [Workspace-management command messages](command-message-argument-allocation.md) — bounded command-message construction.
 - [WSM string unpack allocation](wsm-unpack-string-oom.md) — safe failure handling for decoded strings.
+- [WSM configuration-string failure](wsm-config-string-oom.md) — rollback of partial format updates.
 - [WM state read guards](wmstate-read-guards.md) — safe handling of window-manager state properties.
 
 ## Accessibility and diagnostics

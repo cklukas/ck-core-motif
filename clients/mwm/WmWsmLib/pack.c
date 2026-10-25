@@ -710,6 +710,11 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 
 		for (i = 0; i < fmt->num_attrs; i++) {
 		    String str = UnpackString(&data);
+	    if (str == NULL) {
+		fmt->num_attrs = 0;
+		_WSMClearConfigScreenInfo(dpy, screen_num);
+		return;
+	    }
 		    fmt->attr_list[i].nameq = XrmStringToQuark(str);
 		    XtFree(str);
 		    fmt->attr_list[i].size = UnpackCARD8(&data);

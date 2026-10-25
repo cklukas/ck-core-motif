@@ -11050,3 +11050,10 @@ WSM string unpack allocation (2026-10-25)
 
 - Check decoded-string allocation before writing unpacked bytes, preventing a
   null-pointer write under memory pressure; see `docs/wsm-unpack-string-oom.md`.
+
+WSM configuration-string failure (2026-10-25)
+==============================================
+
+- Roll back partially decoded configuration formats when an attribute string
+  cannot be allocated, avoiding invalid quark conversion; see
+  `docs/wsm-config-string-oom.md`.
