@@ -6,7 +6,7 @@ from pathlib import Path
 source = Path(__file__).parents[2] / "lib/Xm/SearchBox.c"
 text = source.read_text(encoding="utf-8")
 
-start = text.index("static Boolean SetValues")
+start = text.index("static Boolean SetValues(Widget old_widget")
 end = text.index("static void query_changed", start)
 body = text[start:end]
 assert "XmString replacement;" in body
