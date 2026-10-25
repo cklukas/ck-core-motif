@@ -1,3 +1,10 @@
+Guard IconGadget container trait callbacks (2026-10-25)
+=======================================================
+
+- Validate container parent widgets and `getValues` callbacks before IconGadget
+  initialization and color lookup; see
+  `docs/motif-icong-container-trait.md`.
+
 Guard ComboBox textual trait callbacks (2026-10-25)
 ====================================================
 

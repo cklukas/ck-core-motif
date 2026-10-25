@@ -1901,11 +1901,13 @@ GetContainerData(
     /* first get the widget id from which to fetch the trait */
     container_id = (igc->icong_class.get_container_parent)?
 	(*(igc->icong_class.get_container_parent))(wid) : XtParent(wid);
+    if (container_id == NULL)
+	return;
     /* then get the trait info */
     container_trait = (XmContainerTrait) XmeTraitGet((XtPointer)
 						     XtClass(container_id), 
 						     XmQTcontainer) ;
-    if (container_trait)
+    if (container_trait != NULL && container_trait->getValues != NULL)
 	container_trait->getValues(container_id, container_data);
     else return ;
 
@@ -3544,13 +3546,14 @@ GetColors(Widget w,
 	  container_id = (igc->icong_class.get_container_parent) ?
 	    (*(igc->icong_class.get_container_parent))(w) : XtParent(w);
 
-	  container_trait = (XmContainerTrait) 
-	    XmeTraitGet((XtPointer)XtClass(container_id), XmQTcontainer) ;
+	  container_trait = (XmContainerTrait)
+	    (container_id != NULL ?
+	     XmeTraitGet((XtPointer)XtClass(container_id), XmQTcontainer) : NULL);
 
 	  /* remove message about uninitialized memory read */
 	  container_data.first_column_width = 0;
 	  container_data.select_color = XmREVERSED_GROUND_COLORS;
-	  if (container_trait)
+	  if (container_trait != NULL && container_trait->getValues != NULL)
 	    container_trait->getValues(container_id, &container_data);
 	}
 	if (container_data.valueMask & ContSelectColor) {
