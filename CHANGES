@@ -6054,3 +6054,10 @@ Guard drop-sink setup allocations (2026-10-25)
   `docs/drop-sink-allocation.md`.
 
 Guard drag-source setup allocations (2026-10-25)
+Guard destination-handler allocations (2026-10-25)
+====================================================
+
+- Check callback structures, transfer contexts, and DnD callback copies before
+  initialization; see `docs/destination-handler-allocation.md`.
+
+Guard drop-sink setup allocations (2026-10-25)

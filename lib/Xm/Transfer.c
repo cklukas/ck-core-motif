@@ -1123,8 +1123,10 @@ _XmDestinationHandler(Widget wid, Atom selection, XtEnum op,
   XmTransferTrait ttrait;
   Atom MOTIF_DROP = XInternAtom(XtDisplay(wid), XmS_MOTIF_DROP, False);
 
-  cbstruct = (XmDestinationCallbackStruct *) 
+  cbstruct = (XmDestinationCallbackStruct *)
     XtMalloc(sizeof(XmDestinationCallbackStruct));
+  if (cbstruct == NULL)
+    return(False);
 
   cbstruct -> reason = XmCR_OK;
   cbstruct -> event = (XEvent *) event;
@@ -1137,6 +1139,10 @@ _XmDestinationHandler(Widget wid, Atom selection, XtEnum op,
 
   /* Setup transfer */
   cbstruct -> transfer_id = (XtPointer) GetTransferID();
+  if (cbstruct -> transfer_id == NULL) {
+    XtFree((char *)cbstruct);
+    return(False);
+  }
   tc = (TransferContext) cbstruct -> transfer_id;
   tc -> widget = wid;
   tc -> numDoneProcs = 0;
@@ -1165,7 +1171,17 @@ _XmDestinationHandler(Widget wid, Atom selection, XtEnum op,
     int i;
     Arg args[1];
 
+    if (ds == NULL) {
+      XtFree((char *)cbstruct);
+      FreeTransferID((XtPointer)tc);
+      return(False);
+    }
     malloc_ds = XtMalloc(sizeof(XmDropProcCallbackStruct));
+    if (malloc_ds == NULL) {
+      XtFree((char *)cbstruct);
+      FreeTransferID((XtPointer)tc);
+      return(False);
+    }
     memcpy(malloc_ds, ds, sizeof(XmDropProcCallbackStruct));
     location_data = malloc_ds;
     XmeTransferAddDoneProc((XtPointer) tc, DeleteDropCBStruct);
@@ -1962,6 +1978,11 @@ GetTransferID(void)
     }
   else
     rval = (TransferContext) XtMalloc(sizeof(TransferContextRec));
+
+  if (rval == NULL) {
+    _XmProcessUnlock();
+    return(NULL);
+  }
 
   /* Put it on the chain */
 
