@@ -107,6 +107,31 @@ UrmWidgetStringValid(RGMWidgetRecordPtr widgetrec, MrmOffset offset)
                 widgetrec->size - offset) != NULL;
 }
 
+static Boolean
+UrmCallbackRecordValid(RGMWidgetRecordPtr widgetrec, MrmOffset offset,
+                       Boolean old_format)
+{
+  size_t header_size = old_format ?
+    sizeof(OldRGMCallbackDesc) - sizeof(OldRGMCallbackItem) :
+    sizeof(RGMCallbackDesc) - sizeof(RGMCallbackItem);
+  size_t item_size = old_format ? sizeof(OldRGMCallbackItem) :
+    sizeof(RGMCallbackItem);
+  MrmCount count;
+  size_t available;
+
+  if (offset < RGMWidgetRecordHdrSize || offset >= widgetrec->size ||
+      widgetrec->size - offset < header_size)
+    return False;
+  if (old_format)
+    count = ((OldRGMCallbackDescPtr)((char *)widgetrec + offset))->count;
+  else
+    count = ((RGMCallbackDescPtr)((char *)widgetrec + offset))->count;
+  if (count < 0 || count > RGMListSizeMax)
+    return False;
+  available = widgetrec->size - offset - header_size;
+  return (size_t)count + 1 <= available / item_size;
+}
+
 
 
 /*
@@ -647,7 +672,8 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
   if ((widgetrec->class_offs != 0 &&
        !UrmWidgetStringValid(widgetrec, widgetrec->class_offs)) ||
       (widgetrec->creation_offs != 0 &&
-       widgetrec->creation_offs >= widgetrec->size) ||
+       (!UrmCallbackRecordValid(widgetrec, widgetrec->creation_offs,
+                                 strcmp(file_id->db_version, URM1_1version) <= 0))) ||
       (ov_name == NULL &&
        !UrmWidgetStringValid(widgetrec, widgetrec->name_offs)))
     return MrmFAILURE ;
@@ -756,7 +782,8 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
    */
   if ( widgetrec->creation_offs != 0)
     {
-      if (strcmp(file_id->db_version, URM1_1version) <= 0)
+      Boolean old_callbacks = strcmp(file_id->db_version, URM1_1version) <= 0;
+      if (old_callbacks)
 	cbptr = Urm__CW_TranslateOldCallback((OldRGMCallbackDescPtr)
 					     ((char *)widgetrec + 
 					      widgetrec->creation_offs));
@@ -966,7 +993,8 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
   if ((widgetrec->class_offs != 0 &&
        widgetrec->class_offs >= widgetrec->size) ||
       (widgetrec->creation_offs != 0 &&
-       widgetrec->creation_offs >= widgetrec->size))
+       !UrmCallbackRecordValid(widgetrec, widgetrec->creation_offs,
+                               strcmp(file_id->db_version, URM1_1version) <= 0)))
     return MrmFAILURE ;
 
   result = Urm__UncompressCode (file_id, widgetrec->type, &c_name) ;
@@ -1101,7 +1129,8 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
    */
   if ( widgetrec->creation_offs != 0)
     {
-      if (strcmp(file_id->db_version, URM1_1version) <= 0)
+      Boolean old_callbacks = strcmp(file_id->db_version, URM1_1version) <= 0;
+      if (old_callbacks)
 	cbptr = Urm__CW_TranslateOldCallback((OldRGMCallbackDescPtr)
 					     ((char *)widgetrec + 
 					      widgetrec->creation_offs));

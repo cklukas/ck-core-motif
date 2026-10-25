@@ -58,6 +58,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  creation; see docs/mrm-widget-name-record-bounds.md.
 
 2026-10-25
+	* Bound legacy and current Mrm creation callback records before fixup; see
+	  docs/mrm-callback-record-bounds.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,
