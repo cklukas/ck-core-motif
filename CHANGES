@@ -14442,3 +14442,8 @@ Mwm parser sentinel portability (2026-10-26)
 
 - Use type-correct zero sentinels in the Mwm resource parser tables, removing
   pointer-to-integer diagnostics; see `docs/wm-resparse-sentinels.md`.
+Mwm menu sentinel portability (2026-10-26)
+============================================
+
+- Use type-correct zero values for Mwm menu KeySym, KeyCode and CARD32
+  sentinels; see `docs/wm-menu-sentinels.md`.
