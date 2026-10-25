@@ -190,6 +190,8 @@ GetTextSegment(Display *display, /* unused */
 	    {
 	      /* The text should be already be valid locale text */
 	      char *tmp = XtMalloc(char_count + sizeof(wchar_t));
+	      if (tmp == NULL)
+		return(_INVALID_SEGMENT);
 	      memcpy(tmp, text, char_count);
 	      bzero(tmp + char_count, sizeof(wchar_t));
 
@@ -214,6 +216,8 @@ GetTextSegment(Display *display, /* unused */
 		  /* Given the above charset encodings, the text should
 		     already be valid locale text. */
 		  char *tmp = XtMalloc(char_count + sizeof(wchar_t));
+		  if (tmp == NULL)
+		    return(_INVALID_SEGMENT);
 		  memcpy(tmp, text, char_count);
 		  bzero(tmp + char_count, sizeof(wchar_t));
 
@@ -224,6 +228,8 @@ GetTextSegment(Display *display, /* unused */
 		{
 		  /* The text is valid STRING text */
 		  char *tmp = XtMalloc(char_count + sizeof(wchar_t));
+		  if (tmp == NULL)
+		    return(_INVALID_SEGMENT);
 		  memcpy(tmp, text, char_count);
 		  bzero(tmp + char_count, sizeof(wchar_t));
 
@@ -254,6 +260,12 @@ GetTextSegment(Display *display, /* unused */
 	    }
 	    newlength = buffer_length + prefix_length;
 	    newstring = (char *)XtMalloc(sizeof(char) * (newlength + 1));
+	    if (newstring == NULL)
+	      {
+		XtFree(*buffer);
+		*buffer = NULL;
+		return(_INVALID_SEGMENT);
+	      }
 	    for (i = 0; i < tabs; i++) newstring[i] = '\t';
 	    if (*buffer != NULL)
 	      strcpy(&newstring[i], *buffer);

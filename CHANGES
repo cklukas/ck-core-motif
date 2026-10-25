@@ -3735,3 +3735,10 @@ Handle empty text segments safely (2026-10-25)
 - Treat separator and tab decoration on an `XmNO_TEXT` segment as an empty
   buffer instead of dereferencing null storage; see
   `docs/motif-txtpropcv-empty-segment.md`.
+
+Guard text segment temporary buffers (2026-10-25)
+=================================================
+
+- Check locale, charset and separator temporary buffers and return an invalid
+  segment after cleanup when allocation fails; see
+  `docs/motif-txtpropcv-segment.md`.
