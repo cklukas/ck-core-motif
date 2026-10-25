@@ -5164,3 +5164,11 @@ Default font-list cache allocation guard (2026-10-25)
   `docs/default-font-cache-allocation.md`.
 
 Atom-list converter allocation guards (2026-10-25)
+Font-list input-copy allocation guards (2026-10-25)
+====================================================
+
+- Check mutable font-list input copies before parsing in both the resource
+  converter and default-render-table fallback; see
+  `docs/font-list-input-allocation.md`.
+
+Default font-list cache allocation guard (2026-10-25)

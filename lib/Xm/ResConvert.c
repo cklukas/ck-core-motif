@@ -892,6 +892,8 @@ CvtStringToXmFontList(
       /* Copy the input string. */
       s = (char *) from->addr;
       sPtr = newString = XtNewString(s);
+      if (newString == NULL)
+	return FALSE;
 
       /* Get the first fontlist entries. */
       if (!GetNextFontListEntry(&sPtr, &fontName, &fontTag,
@@ -900,6 +902,8 @@ CvtStringToXmFontList(
 	  XtFree(newString);
 	  s = (char *) XmDEFAULT_FONT;
 	  sPtr = newString = XtNewString(s);
+	  if (newString == NULL)
+	    return FALSE;
 
 
 	  if (!GetNextFontListEntry(&sPtr, &fontName, &fontTag,
@@ -2013,6 +2017,10 @@ XmeGetDefaultRenderTable(
 	/* Begin fixing OSF 4735 */
 	s = (char *) XmDEFAULT_FONT;
 	sPtr = newString = XtNewString (s);
+	if (newString == NULL) {
+	    _XmProcessUnlock();
+	    return NULL;
+	}
 
 	if (!GetNextFontListEntry (&sPtr, &fontName, &fontTag,
 				   &fontType, &delim)) {
