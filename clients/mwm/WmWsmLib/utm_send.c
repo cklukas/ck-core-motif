@@ -123,6 +123,7 @@ UTMSendMessage(
    */
 
   if (!EnqueueUtmData(pUtmData)) {
+    XtFree((char *)pUtmData->param);
     XtFree((char *)pUtmData);
     fprintf(stderr, "UTM Error: unable to queue transfer package.\n");
     return;
@@ -139,7 +140,10 @@ UTMSendMessage(
 			     free in TransferDone proc. */
 		    time)) {
 	    if (RemoveUtmData((XtPointer)pUtmData))
+	    {
+	      XtFree((char *)pUtmData->param);
 	      XtFree((char *)pUtmData);
+	    }
 	    fprintf(stderr, "UTM Error: UTMSendMessage failed.\n");
   }
 
@@ -181,7 +185,10 @@ UTMDestinationProc (
        * otherwise the next destination callback would consume stale state. */
       pUtmData = (UTMPackageRec *)DequeueUtmData();
       if (pUtmData != NULL)
-	XtFree((char *)pUtmData);
+	{
+	  XtFree((char *)pUtmData->param);
+	  XtFree((char *)pUtmData);
+	}
       return;
     }
 

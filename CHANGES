@@ -1,3 +1,10 @@
+UTM payload failure cleanup (2026-10-26)
+=========================================
+
+- Release UTM parameter payloads when queueing, sink dispatch, or destination
+  callback setup fails, while retaining successful transfer ownership; see
+  `docs/utm-payload-failure-cleanup.md`.
+
 WSM widget input validation (2026-10-26)
 ========================================
 
