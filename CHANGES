@@ -6047,3 +6047,10 @@ Preserve Xft compound-string line height (2026-10-25)
   metrics, preventing leading from being clipped; see
   `docs/xft-string-height.md` and its focused source check.
 
+Correct Xft UTF-16 underline lengths (2026-10-25)
+===================================================
+
+- Convert wide-character underline offsets from bytes to 16-bit character
+  counts before Xft measurement; see `docs/xft-underline-length.md` and its
+  focused source check.
+
