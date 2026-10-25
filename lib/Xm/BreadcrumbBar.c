@@ -4,6 +4,7 @@
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
 #include <limits.h>
+#include <stdint.h>
 #include <Xm/BreadcrumbBarP.h>
 #include <Xm/XmP.h>
 #include "PrimitiveI.h"
@@ -323,11 +324,30 @@ void XmBreadcrumbBarSetSegments(Widget widget,
     bar = (XmBreadcrumbBarWidget)widget;
     free_items(bar);
     if (count) {
+        if ((size_t)count > SIZE_MAX / sizeof(*bar->breadcrumb.items))
+        {
+            bar->breadcrumb.current = -1;
+            return;
+        }
         bar->breadcrumb.items = (XmBreadcrumbBarItem *)XtCalloc(count,
                                                                   sizeof(*bar->breadcrumb.items));
+        if (!bar->breadcrumb.items) {
+            bar->breadcrumb.current = -1;
+            return;
+        }
         for (i = 0; i < count; ++i) {
             bar->breadcrumb.items[i].label = XtNewString(
                 segments && segments[i].label ? segments[i].label : "");
+            if (!bar->breadcrumb.items[i].label) {
+                while (i != 0) {
+                    --i;
+                    XtFree(bar->breadcrumb.items[i].label);
+                }
+                XtFree((char *)bar->breadcrumb.items);
+                bar->breadcrumb.items = NULL;
+                bar->breadcrumb.current = -1;
+                return;
+            }
             bar->breadcrumb.items[i].id = segments ? segments[i].id : NULL;
         }
         bar->breadcrumb.count = count;

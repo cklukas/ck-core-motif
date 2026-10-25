@@ -8393,3 +8393,9 @@ Column label allocation (2026-10-27)
 
 - Check generated label-name allocation and implicit label-widget creation,
   avoiding callback registration and null dereferences when either fails.
+
+BreadcrumbBar segment allocation (2026-10-27)
+===============================================
+
+- Check segment-array and label allocations, release partial replacement data,
+  and reset the current index when segment replacement cannot be completed.
