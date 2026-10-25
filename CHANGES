@@ -12005,3 +12005,10 @@ Bound XmString segment-growth byte sizes (2026-10-26)
   an explicit Xt-sized byte count; see `docs/xmstring-segment-allocation.md`.
 
 Bound XmString entry-copy array widths (2026-10-26)
+Bound XmString rendition-stack widths (2026-10-26)
+==================================================
+
+- Apply Xt `Cardinal` checks and explicit byte sizes to rendition-stack growth
+  and shrink paths; see `docs/xmstring-rendition-stack.md`.
+
+Bound XmString segment-growth byte sizes (2026-10-26)

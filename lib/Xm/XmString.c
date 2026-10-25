@@ -6749,10 +6749,12 @@ SpecifiedSegmentExtents(_XmStringEntry entry,
       if (count > 0)
 	{
 	  new_tag_count = (size_t)tag_count + (size_t)count;
-	  if (new_tag_count > SIZE_MAX / sizeof(XmStringTag))
+	  if (new_tag_count > SIZE_MAX / sizeof(XmStringTag) ||
+	      new_tag_count > UINT_MAX / sizeof(XmStringTag))
 	    return False;
 	  new_tags = (XmStringTag *)XtRealloc(
-	      (char *)tags, sizeof(XmStringTag) * new_tag_count);
+	      (char *)tags,
+	      (Cardinal)(sizeof(XmStringTag) * new_tag_count));
 	  if (new_tags == NULL)
 	    return False;
 	  tags = new_tags;
@@ -6984,9 +6986,11 @@ SpecifiedSegmentExtents(_XmStringEntry entry,
 
 	  if(tags != NULL && tag_count - hits)
 	    new_tag_count = (size_t)(tag_count - hits);
-	    if (new_tag_count <= SIZE_MAX / sizeof(XmStringTag)) {
+	    if (new_tag_count <= SIZE_MAX / sizeof(XmStringTag) &&
+		new_tag_count <= UINT_MAX / sizeof(XmStringTag)) {
 	      new_tags = (XmStringTag *)XtRealloc(
-		  (char *)tags, sizeof(XmStringTag) * new_tag_count);
+		  (char *)tags,
+		  (Cardinal)(sizeof(XmStringTag) * new_tag_count));
 	      if (new_tags != NULL)
 		tags = new_tags;
 	    }
