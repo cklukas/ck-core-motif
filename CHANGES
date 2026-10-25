@@ -1,3 +1,9 @@
+Mrm auto-child class-string bounds (2026-10-25)
+================================================
+
+- Apply record-bounded class-string validation to auto-child updates; see
+  `docs/mrm-set-widget-class-bounds.md`.
+
 Mrm creation callback record bounds (2026-10-25)
 ==================================================
 
