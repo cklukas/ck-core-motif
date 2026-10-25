@@ -79,10 +79,14 @@ DrawSimpleShadow (Display *display,
   static int segm_count = 0;
 
   register int i, size2, size3;
+  int ix = (int) x;
+  int iy = (int) y;
+  int iw = (int) width;
+  int ih = (int) height;
   
   if (!d) return;
-  ASSIGN_MIN(shadow_thick, (width >> 1));
-  ASSIGN_MIN(shadow_thick, (height >> 1));
+  ASSIGN_MIN(shadow_thick, (iw >> 1));
+  ASSIGN_MIN(shadow_thick, (ih >> 1));
   if (shadow_thick <= 0) return;
   
   size2 = (shadow_thick << 1);
@@ -97,22 +101,25 @@ DrawSimpleShadow (Display *display,
   
   for (i = 0; i < shadow_thick; i++) {
     /*  Top segments  */
-    segms[i].x1 = x;
-    segms[i].y2 = segms[i].y1 = y + i;
-    segms[i].x2 = x + width - i - 1;
+    segms[i].x1 = (short) ix;
+    segms[i].y2 = segms[i].y1 = (short) (iy + i);
+    segms[i].x2 = (short) (ix + iw - i - 1);
     /*  Left segments  */
-    segms[i + shadow_thick].x2 = segms[i + shadow_thick].x1 = x + i;
-    segms[i + shadow_thick].y1 = y + shadow_thick;
-    segms[i + shadow_thick].y2 = y + height - i - 1;
+    segms[i + shadow_thick].x2 = segms[i + shadow_thick].x1 =
+      (short) (ix + i);
+    segms[i + shadow_thick].y1 = (short) (iy + shadow_thick);
+    segms[i + shadow_thick].y2 = (short) (iy + ih - i - 1);
     
     /*  Bottom segments  */
-    segms[i + size2].x1 = x + i + ((cor)?0:1) ;
-    segms[i + size2].y2 = segms[i + size2].y1 = y + height - i - 1;
-    segms[i + size2].x2 = x + width - 1 ;
+    segms[i + size2].x1 = (short) (ix + i + ((cor)?0:1));
+    segms[i + size2].y2 = segms[i + size2].y1 =
+      (short) (iy + ih - i - 1);
+    segms[i + size2].x2 = (short) (ix + iw - 1);
     /*  Right segments  */
-    segms[i + size3].x2 = segms[i + size3].x1 = x + width - i - 1;
-    segms[i + size3].y1 = y + i + 1 - cor;
-    segms[i + size3].y2 = y + height - 1 ;
+    segms[i + size3].x2 = segms[i + size3].x1 =
+      (short) (ix + iw - i - 1);
+    segms[i + size3].y1 = (short) (iy + i + 1 - (int) cor);
+    segms[i + size3].y2 = (short) (iy + ih - 1);
   }
   
   XDrawSegments (display, d, top_gc, &segms[0], size2);
