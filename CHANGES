@@ -3,7 +3,8 @@ GeoUtils empty-row dimensions (2026-10-28)
 
 - Avoid `numBoxes - 1` underflow when computing fill width for empty GeoUtils
   rows, saturate box and row dimension accumulation, and return safely for
-  incomplete matrix descriptors; see
+  incomplete matrix descriptors.  Vertical fill and row-height totals are
+  saturated as well, with guarded final margin subtraction; see
   `docs/geoutils-dimension-bounds.md`.
 
 GeoUtils fill-spacing guards (2026-10-28)

@@ -8,6 +8,8 @@ returns safely for an incomplete matrix descriptor.
 Box-plus-border extents and accumulated row/fill widths are also saturated to
 the maximum representable `Dimension`, preventing large borders or many
 children from wrapping layout dimensions.
+Vertical fill and row-height totals use the same saturating arithmetic, and the
+final margin reduction is guarded against unsigned underflow.
 
 Nonempty rows retain their existing spacing calculation.  The regression is
 `tests/automated/check-geoutils-dimensions.py`.

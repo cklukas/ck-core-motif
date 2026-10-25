@@ -16,5 +16,8 @@ assert "unsigned long   maxDimension" in body
 assert "if ((unsigned long)rowW > maxDimension - extent)" in body
 assert "fillWidth > maxDimension" in body
 assert "betweenCount >" in body
+assert "matrixFillH >" in body
+assert "matrixBoxesH > maxDimension - rowH" in body
+assert "matrixFillH >= marginH" in body
 
 print("GeoUtils dimension traversal guards passed")

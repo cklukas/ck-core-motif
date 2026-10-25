@@ -1223,24 +1223,40 @@ _XmGeoGetDimensions(
         /* Maximum row width is the overall matrix width, less margins.  Add
         *   box width to fill width for total width this row.
         */
-        rowW += layoutPtr->fill_width ;
+        if ((unsigned long)rowW > maxDimension - layoutPtr->fill_width)
+            rowW = (Dimension)maxDimension;
+        else
+            rowW += layoutPtr->fill_width;
         ASSIGN_MAX( matrixW, rowW) ;
         rowPtr = boxPtr + 1 ;   /* Skip over NULL box marking the end of row.*/
         ++layoutPtr ;           /* Go to next row layout record.*/
         /* Accumulate heights of each row.
         */
-        matrixFillH += layoutPtr->space_above ;
-        matrixBoxesH += rowH ;
+        if ((unsigned long)matrixFillH >
+            maxDimension - layoutPtr->space_above)
+            matrixFillH = (Dimension)maxDimension;
+        else
+            matrixFillH += layoutPtr->space_above;
+        if ((unsigned long)matrixBoxesH > maxDimension - rowH)
+            matrixBoxesH = (Dimension)maxDimension;
+        else
+            matrixBoxesH += rowH;
         } 
     /* The matrixFillH variable already has fill space included from the final
     *   row layout record.  This must be reduced by the amount of the margin,
     *   or a smaller amount if the amount specified was less than the margin.
     */
     if(    layoutPtr->space_above < marginH    )
-    {   matrixFillH -= layoutPtr->space_above ;
+    {   if (matrixFillH >= layoutPtr->space_above)
+            matrixFillH -= layoutPtr->space_above;
+        else
+            matrixFillH = 0;
         } 
     else
-    {   matrixFillH -= marginH ;
+    {   if (matrixFillH >= marginH)
+            matrixFillH -= marginH;
+        else
+            matrixFillH = 0;
         } 
     geoSpec->max_major = matrixW ;         /* Widest row, excluding margins. */
     geoSpec->boxes_minor = matrixBoxesH ;  /* Sum of tallest box in each row.*/
