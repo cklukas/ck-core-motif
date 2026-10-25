@@ -513,9 +513,12 @@ UrmCWRSetUncompressedArgTag (URMResourceContextPtr	context_id ,
   /*
    * Validate record, arglist descriptor, and argument number
    */
-  UrmCWR__ValidateContext (context_id, "UrmCWRSetUncompressedArgTag") ;
-  UrmCWR__BindArgPtrs
+  result = UrmCWR__ValidateContext (context_id,
+				    "UrmCWRSetUncompressedArgTag") ;
+  if ( result != MrmSUCCESS ) return result ;
+  result = UrmCWR__BindArgPtrs
     (context_id, "UrmCWRSetUncompressedArgTag", arg_ndx, &argdesc, &argptr) ;
+  if ( result != MrmSUCCESS ) return result ;
 
   /*
    * Append the tag string to the record and set the argument
@@ -523,8 +526,9 @@ UrmCWRSetUncompressedArgTag (URMResourceContextPtr	context_id ,
   result = UrmCWR__AppendString (context_id, tag, &offset) ;
   if ( result != MrmSUCCESS ) return result ;
 
-  UrmCWR__BindArgPtrs
+  result = UrmCWR__BindArgPtrs
     (context_id, "UrmCWRSetUncompressedArgTag", arg_ndx, &argdesc, &argptr) ;
+  if ( result != MrmSUCCESS ) return result ;
 
   argptr->tag_code = UilMrmUnknownCode ;
   argptr->stg_or_relcode.tag_offs = offset ;
@@ -630,9 +634,11 @@ UrmCWRSetArgValue (URMResourceContextPtr	context_id,
    * Validate record, arglist descriptor, and argument number.
    * Set the argument type now.
    */
-  UrmCWR__ValidateContext (context_id, "UrmCWRSetArgValue") ;
-  UrmCWR__BindArgPtrs
+  result = UrmCWR__ValidateContext (context_id, "UrmCWRSetArgValue") ;
+  if ( result != MrmSUCCESS ) return result ;
+  result = UrmCWR__BindArgPtrs
     (context_id, "UrmCWRSetArgValue", arg_ndx, &argdesc, &argptr) ;
+  if ( result != MrmSUCCESS ) return result ;
 
   argptr->arg_val.rep_type = type ;
 

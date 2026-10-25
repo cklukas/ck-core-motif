@@ -4490,3 +4490,17 @@ Xm geometry wrapper null-safety (2026-10-25)
 
 - Guard private move, resize, and configure wrappers against null widgets;
   see `docs/xm-extutil-geometry-null.md`.
+
+Mrm writer arg-value validation (2026-10-25)
+==============================================
+
+- Propagate context and argument-binding failures from `UrmCWRSetArgValue`
+  before modifying the argument record; see
+  `docs/mrm-writer-arg-value-validation.md`.
+
+Mrm writer uncompressed-tag validation (2026-10-25)
+=====================================================
+
+- Propagate context and argument-binding failures from
+  `UrmCWRSetUncompressedArgTag` before and after appending the tag string; see
+  `docs/mrm-writer-uncompressed-tag-validation.md`.
