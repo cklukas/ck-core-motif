@@ -368,17 +368,21 @@ void _XmGetArrowDrawRects (int highlight_thickness, int shadow_thickness, unsign
    XRectangle *new_bot;
 
 
+   if (top_count == NULL || cent_count == NULL || bot_count == NULL ||
+       top == NULL || cent == NULL || bot == NULL)
+       return;
+
    /*  Free the old lists  */
 
    if (*top != NULL)
-   {
       XtFree ((char *) *top);   *top  = NULL;
+   if (*cent != NULL)
       XtFree ((char *) *cent);  *cent = NULL;
+   if (*bot != NULL)
       XtFree ((char *) *bot);   *bot  = NULL;
-      *top_count = 0;
-      *cent_count = 0;
-      *bot_count = 0;
-   }
+   *top_count = 0;
+   *cent_count = 0;
+   *bot_count = 0;
 
 
    /*  Get the size and allocate the rectangle lists  */

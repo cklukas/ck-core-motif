@@ -12,4 +12,5 @@ assert "new_cent = (XRectangle *) XtMalloc" in region
 assert "new_bot = (XRectangle *) XtMalloc" in region
 assert "if (new_top == NULL || new_cent == NULL || new_bot == NULL)" in region
 assert region.count("XtFree((char *)new_") == 3
+assert "if (top_count == NULL || cent_count == NULL || bot_count == NULL" in region
 print("PASS legacy arrow geometry allocation is guarded")
