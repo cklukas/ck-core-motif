@@ -199,9 +199,11 @@ Urm__FindClassDescriptor (IDBFile		cfile,
   /*
    * Use the built-in tables if the file has none. Else a simple lookup.
    */
+  if ( class_return == NULL )
+    return MrmFAILURE ;
   if ( code == UilMrmUnknownCode )
     return Urm__WCI_LookupClassDescriptor (name, class_return);
-  if ( cfile->class_ctable == NULL )
+  if ( cfile == NULL || cfile->class_ctable == NULL )
     return Urm__UT_Error ("Urm__FindClassDescriptor", _MrmMMsg_0050,
 			  NULL, NULL, MrmFAILURE);
   if ( code < UilMrmMinValidCode )
@@ -260,6 +262,8 @@ Urm__UncompressCode (IDBFile			cfile,
   /*
    * A simple lookup in the file's compression tables.
    */
+  if ( cfile == NULL || stg_return == NULL )
+    return MrmFAILURE ;
   if ( cfile->resource_ctable == NULL )
     return Urm__UT_Error ("Urm__UncompressCode", _MrmMMsg_0050,
 			  NULL, NULL, MrmFAILURE);
@@ -268,6 +272,8 @@ Urm__UncompressCode (IDBFile			cfile,
   if ( code >= cfile->resource_ctable->num_entries )
     return MrmFAILURE;
   *stg_return = cfile->resource_ctable->entry[code].cstring;
+  if ( *stg_return == NULL )
+    return MrmFAILURE ;
   return MrmSUCCESS;
 
 }    
@@ -316,11 +322,15 @@ Urm__IsSubtreeResource (IDBFile			cfile,
   /*
    * Do a string comparison for for the subtree resources.
    */
+  if ( cfile == NULL || cfile->resource_ctable == NULL )
+    return FALSE;
   if ( code < UilMrmMinValidCode )
     return FALSE;
   if ( code >= cfile->resource_ctable->num_entries )
     return FALSE;
 
+  if ( cfile->resource_ctable->entry[code].cstring == NULL )
+    return FALSE;
   if ( strcmp(cfile->resource_ctable->entry[code].cstring,XmNsubMenuId) == 0 )
     return TRUE;
   return FALSE;

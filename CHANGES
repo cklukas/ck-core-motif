@@ -1,3 +1,9 @@
+Mrm compression-table input validation (2026-10-25)
+====================================================
+
+- Reject null file/table inputs and empty compressed entries before lookup;
+  see `docs/mrm-compression-inputs.md`.
+
 Mrm related-code type validation (2026-10-25)
 ===============================================
 
