@@ -4457,3 +4457,9 @@ Xm pixmap-data optional outputs (2026-10-25)
 - Preserve optional output pointers in `_XmGetPixmapData` while validating
   screen and pixmap inputs, including metadata-only widget callers; see
   `docs/xm-pixmap-data-optional-outputs.md`.
+Xm screen lifecycle failure handling (2026-10-25)
+===================================================
+
+- Guard screen-info allocation and skip absent hash tables during screen
+  destruction, allowing partial initialization to unwind safely; see
+  `docs/xm-screen-lifecycle-failure.md`.

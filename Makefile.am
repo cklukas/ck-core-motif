@@ -673,5 +673,7 @@ EXTRA_DIST += tests/automated/check-xm-stippled-pixmap-race.py docs/xm-stippled-
 EXTRA_DIST += tests/automated/check-xm-geometry-compare.py docs/xm-geometry-compare.md
 
 EXTRA_DIST += tests/automated/check-xm-pixmap-data-optional-outputs.py docs/xm-pixmap-data-optional-outputs.md
+
+EXTRA_DIST += tests/automated/check-xm-screen-lifecycle-failure.py docs/xm-screen-lifecycle-failure.md
 EXTRA_DIST += tests/automated/check-mrm-hget-output-pointer.py docs/mrm-hget-output-pointer.md
 EXTRA_DIST += tests/automated/check-mrm-hierarchy-name-inputs.py docs/mrm-hierarchy-name-inputs.md
