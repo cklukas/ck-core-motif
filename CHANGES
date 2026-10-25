@@ -1,3 +1,10 @@
+Label layout geometry bounds (2026-10-25)
+========================================
+
+- Perform signed arithmetic when centering label and accelerator text,
+  preventing wrapped offsets for tiny labels and gadgets; see
+  `docs/label-layout-geometry.md`.
+
 Cascade gadget position geometry bounds (2026-10-25)
 ====================================================
 

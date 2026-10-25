@@ -1615,12 +1615,12 @@ Resize(Widget wid)
         (short) (newlw->gadget.highlight_thickness
         + newlw->gadget.shadow_thickness
         + LabG_MarginHeight(newlw) + LabG_MarginTop(newlw) +
-        ((int) (newlw->rectangle.height - LabG_MarginTop(newlw)
-        - LabG_MarginBottom(newlw)
-        - (2 * (LabG_MarginHeight(newlw)
-        + newlw->gadget.highlight_thickness
-        + newlw->gadget.shadow_thickness))
-        - LabG_TextRect(newlw).height) / 2));
+        (((int)newlw->rectangle.height - (int)LabG_MarginTop(newlw)
+        - (int)LabG_MarginBottom(newlw)
+        - (2 * ((int)LabG_MarginHeight(newlw)
+        + (int)newlw->gadget.highlight_thickness
+        + (int)newlw->gadget.shadow_thickness))
+        - (int)LabG_TextRect(newlw).height) / 2));
 
     if (LabG__acceleratorText(newlw) != NULL)
     {
@@ -1632,22 +1632,22 @@ Resize(Widget wid)
                 newlw->gadget.shadow_thickness +
                 LabG_MarginWidth(newlw));
         else
-            LabG_AccTextRect(newlw).x = (newlw->rectangle.width -
-                newlw->gadget.highlight_thickness -
-                newlw->gadget.shadow_thickness -
-                LabG_MarginWidth(newlw) -
-                LabG_MarginRight(newlw) +
+            LabG_AccTextRect(newlw).x = (short)((int)newlw->rectangle.width -
+                (int)newlw->gadget.highlight_thickness -
+                (int)newlw->gadget.shadow_thickness -
+                (int)LabG_MarginWidth(newlw) -
+                (int)LabG_MarginRight(newlw) +
                 LABELG_ACC_PAD);
 
         LabG_AccTextRect(newlw).y = newlw->gadget.highlight_thickness
             + newlw->gadget.shadow_thickness
             + LabG_MarginHeight(newlw) + LabG_MarginTop(newlw) +
-            ((int) (newlw->rectangle.height - LabG_MarginTop(newlw)
-            - LabG_MarginBottom(newlw)
-            - (2 * (LabG_MarginHeight(newlw)
-            + newlw->gadget.highlight_thickness
-            + newlw->gadget.shadow_thickness))
-            - LabG_AccTextRect(newlw).height) / 2);
+            (((int)newlw->rectangle.height - (int)LabG_MarginTop(newlw)
+            - (int)LabG_MarginBottom(newlw)
+            - (2 * ((int)LabG_MarginHeight(newlw)
+            + (int)newlw->gadget.highlight_thickness
+            + (int)newlw->gadget.shadow_thickness))
+            - (int)LabG_AccTextRect(newlw).height) / 2);
 
         /* make sure the label and accelerator text line up */
         /* when the fonts are different */

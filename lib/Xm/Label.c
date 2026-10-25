@@ -1010,12 +1010,12 @@ Resize(Widget wid)
   lp->TextRect.y =  (short) (newlw->primitive.highlight_thickness
 			     + newlw->primitive.shadow_thickness
 			     + lp->margin_height + lp->margin_top +
-			     ((int) (newlw->core.height - lp->margin_top
-			       - lp->margin_bottom
-			       - (2 * (lp->margin_height
-				       + newlw->primitive.highlight_thickness
-				       + newlw->primitive.shadow_thickness))
-			       - lp->TextRect.height) / 2));
+			     (((int)newlw->core.height - (int)lp->margin_top
+			       - (int)lp->margin_bottom
+			       - (2 * ((int)lp->margin_height
+				       + (int)newlw->primitive.highlight_thickness
+				       + (int)newlw->primitive.shadow_thickness))
+			       - (int)lp->TextRect.height) / 2));
   
   if (lp->_acc_text != NULL)
     {
@@ -1026,22 +1026,22 @@ Resize(Widget wid)
 	  newlw->primitive.shadow_thickness +
 	    newlw->label.margin_width;
       else
-	lp->acc_TextRect.x = (short) newlw->core.width - 
-	  newlw->primitive.highlight_thickness -
-	    newlw->primitive.shadow_thickness -
-	      newlw->label.margin_width -
-		newlw->label.margin_right + LABEL_ACC_PAD;
+	lp->acc_TextRect.x = (short)((int)newlw->core.width -
+	  (int)newlw->primitive.highlight_thickness -
+	    (int)newlw->primitive.shadow_thickness -
+	      (int)newlw->label.margin_width -
+		(int)newlw->label.margin_right + LABEL_ACC_PAD);
       
       lp->acc_TextRect.y =
 	(short) (newlw->primitive.highlight_thickness
 		 + newlw->primitive.shadow_thickness
 		 + lp->margin_height + lp->margin_top +
-		 ((int) (newlw->core.height - lp->margin_top
-		   - lp->margin_bottom
-		   - (2 * (lp->margin_height
-			   + newlw->primitive.highlight_thickness
-			   + newlw->primitive.shadow_thickness))
-				       - lp->acc_TextRect.height) / 2));
+		 (((int)newlw->core.height - (int)lp->margin_top
+			       - (int)lp->margin_bottom
+			       - (2 * ((int)lp->margin_height
+				       + (int)newlw->primitive.highlight_thickness
+				       + (int)newlw->primitive.shadow_thickness))
+			       - (int)lp->acc_TextRect.height) / 2));
       
       /* make sure the label and accelerator text line up */
       /* when the fonts are different */
