@@ -3885,3 +3885,10 @@ Harden traversal exclusive tab-list allocation (2026-10-25)
 
 - Publish exclusive tab-list creation, growth and opportunistic shrinking only
   after successful allocation; see `docs/traversal-tab-list.md`.
+
+Harden ClipWindow translation-buffer growth (2026-10-25)
+==========================================================
+
+- Handle empty initial capacity, publish translation-buffer growth only after
+  successful reallocation, and abort cleanly on initial allocation failure;
+  see `docs/clip-window-translations.md`.
