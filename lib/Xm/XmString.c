@@ -3296,9 +3296,14 @@ XmStringExtent(
   Display *d;
   XtAppContext app = NULL;
   
-  *width = 0, *height = 0;
+  if (width != NULL)
+    *width = 0;
+  if (height != NULL)
+    *height = 0;
 
-  if ((rendertable == NULL) || (string == NULL)) return;
+  if (width == NULL || height == NULL ||
+      rendertable == NULL || string == NULL)
+    return;
 
 #ifdef XTHREADS
   if (_XmRTDisplay(rendertable))

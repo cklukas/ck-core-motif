@@ -18,6 +18,12 @@ XmString generated parse-table publication (2026-10-26)
   all entries are initialized, preventing concurrent callers from observing a
   partial table; see `docs/xmstring-generated-table-publication.md`.
 
+XmStringExtent output-pointer guards (2026-10-26)
+==================================================
+
+- Treat null width or height output pointers as a safe no-op instead of
+  dereferencing them before validation; see `docs/xmstring-extent-output.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 
