@@ -8387,3 +8387,9 @@ Class dialog allocation (2026-10-27)
 
 - Validate class-dialog argument input and generated name, argument-array, and
   dialog-shell allocations before use, returning cleanly on failure.
+
+Column label allocation (2026-10-27)
+====================================
+
+- Check generated label-name allocation and implicit label-widget creation,
+  avoiding callback registration and null dereferences when either fails.

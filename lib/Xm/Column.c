@@ -1131,6 +1131,8 @@ ConstraintInitialize(Widget request, Widget new_w, ArgList arg_list,
 	if (buf_length < 0)
 	    return;
 	buf = XtMalloc((size_t)buf_length + 1);
+	if (!buf)
+	    return;
 	(void) snprintf(buf, (size_t)buf_length + 1, "%s_label",
 			XtName(new_w));
 
@@ -1165,6 +1167,10 @@ ConstraintInitialize(Widget request, Widget new_w, ArgList arg_list,
 	label = XtCreateWidget(buf, xmLabelWidgetClass, (Widget) cw,
 		       args, nargs);
 	XtFree(buf);
+	if (!label) {
+	    label_widget = False;
+	    return;
+	}
 	XiC(new_w)->label_widget = label;
 
 	XtAddCallback(label, XmNdestroyCallback,
