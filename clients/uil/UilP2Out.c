@@ -1331,6 +1331,18 @@ out_add_value_size(int *value_size, size_t amount)
     *value_size += (int) amount;
 }
 
+static void
+out_set_value_size(int *value_size, size_t amount)
+{
+    if (amount > (size_t) INT_MAX)
+    {
+	issue_urm_error("calculating resource size");
+	*value_size = INT_MAX;
+	return;
+    }
+    *value_size = (int) amount;
+}
+
 void	out_emit_value( value_entry )
 
 sym_value_entry_type	*value_entry;
@@ -1404,9 +1416,9 @@ sym_value_entry_type	*value_entry;
 
 	case sym_k_compound_string_value:
 	    tmp_str = value_entry->value.xms_value;
-	    value_size = 
-	      XmCvtXmStringToByteStream(tmp_str, 
-				(unsigned char **)&(value_entry->value.c_value));
+	    out_set_value_size(&value_size,
+	      XmCvtXmStringToByteStream(tmp_str,
+				(unsigned char **)&(value_entry->value.c_value)));
 	    XmStringFree(tmp_str);
 	    break;
 

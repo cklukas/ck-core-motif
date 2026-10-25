@@ -1,3 +1,9 @@
+UIL compound-string size bounds (2026-10-27)
+=============================================
+
+- Check compound-string byte counts before narrowing them into UIL resource
+  sizes.
+
 UIL single-font size bounds (2026-10-27)
 ========================================
 
