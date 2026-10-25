@@ -1,3 +1,9 @@
+Mwm menu-warning bounds (2026-10-25)
+=====================================
+
+- Keep long resource-defined menu warnings visible with bounded formatting
+  instead of dropping them; see `docs/mwarning-bounds.md`.
+
 Mwm feedback text bounds (2026-10-25)
 =======================================
 

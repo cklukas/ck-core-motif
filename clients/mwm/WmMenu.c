@@ -4363,14 +4363,11 @@ static void UnmapCallback (Widget w, XtPointer client_data,
 
 void MWarning (char *format, char *message)
 {
+    char pch[MAXWMPATH + 1];
 
-    if (strlen(format) + strlen(message)  <  (size_t) MAXWMPATH)
-      {
-	 char pch[MAXWMPATH+1];
-
-	 sprintf (pch, format, message);
-	 Warning (pch);
-      }
+    /* Keep diagnostics visible even when a resource-defined name is long. */
+    (void)snprintf(pch, sizeof pch, format, message);
+    Warning(pch);
 
 } /* END OF FUNCTION MWarning */
 
