@@ -191,6 +191,9 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 	size += sizeof(CARD8) * request->connect.num_versions;
 	break;
     case WSM_EXTENSIONS:
+	if (request->extensions.num_extensions != 0 &&
+	    request->extensions.extension_suggestions == NULL)
+	    return(NULL);
 	size = COUNT_SIZE;
 	for (i = 0; i < request->extensions.num_extensions; i++) {
 	    size += (WSMStringLength(request->extensions.extension_suggestions[i]) +
@@ -347,6 +350,9 @@ _WSMPackReply(Display *dpy, int screen_num,
 	size = sizeof(CARD8);
 	break;
     case WSM_EXTENSIONS:
+	if (reply->extensions.num_extensions != 0 &&
+	    reply->extensions.extensions == NULL)
+	    return(NULL);
 	size = COUNT_SIZE;
 	for (i = 0; i < reply->extensions.num_extensions; i++) {
 	    size += (WSMStringLength(reply->extensions.extensions[i]) + COUNT_SIZE);

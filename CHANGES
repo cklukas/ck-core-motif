@@ -11216,3 +11216,10 @@ WSM reply array state (2026-10-25)
 - Validate `GET_STATE`, `REG_WINDOW`, and WM-window reply arrays before size
   calculation, rejecting inconsistent positive-count states; see
   `docs/wsm-reply-array-state.md`.
+
+WSM extension array state (2026-10-25)
+======================================
+
+- Reject positive extension counts paired with null pointer arrays before
+  sizing or indexing requests and replies; see
+  `docs/wsm-extension-array-state.md`.

@@ -68,6 +68,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [WSM extension sizing](wsm-extension-size-null.md) — size null entries consistently.
 - [WSM configuration reply arrays](wsm-config-reply-arrays.md) — validate count/array consistency.
 - [WSM reply array state](wsm-reply-array-state.md) — validate state-list pointers before sizing.
+- [WSM extension array state](wsm-extension-array-state.md) — validate extension-list pointers.
 - [WM state read guards](wmstate-read-guards.md) — safe handling of window-manager state properties.
 
 ## Accessibility and diagnostics
