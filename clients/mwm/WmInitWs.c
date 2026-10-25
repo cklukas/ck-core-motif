@@ -2556,12 +2556,20 @@ GetReplacementList(
   str_xref resized ;
   unsigned num_xref = 0 ;
 
-  XDisplayKeycodes( dsp, &min_kc, &max_kc) ;
-  kc_count = max_kc + 1 - min_kc ;
+  if (!XDisplayKeycodes(dsp, &min_kc, &max_kc) ||
+      max_kc < min_kc ||
+      (long)max_kc - (long)min_kc + 1 > INT_MAX)
+    return NULL;
+  kc_count = (int)((long)max_kc - (long)min_kc + 1);
   key_map = XGetKeyboardMapping( dsp, min_kc, kc_count, &ks_per_kc) ;
   if(    key_map == NULL    )
     {
       return NULL ;
+    }
+  if (ks_per_kc <= 0 || kc_count > INT_MAX / ks_per_kc)
+    {
+      XFree((char *)key_map);
+      return NULL;
     }
   kc_count *= ks_per_kc ;
 
