@@ -7956,3 +7956,12 @@ DrawUtils bevel-buffer growth (2026-10-27)
 
 DrArrow geometry-array growth (2026-10-27)
 ===========================================
+Draw shadow segment-buffer growth (2026-10-27)
+==============================================
+
+- Make the shared shadow segment buffer grow transactionally and check its
+  byte count.  Failed growth now returns without updating the capacity or
+  dereferencing a null segment array.
+
+DrawUtils bevel-buffer growth (2026-10-27)
+==========================================

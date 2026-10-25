@@ -31,6 +31,7 @@ static char rcsid[] = "$XConsortium: Draw.c /main/12 1995/10/25 20:02:15 cde-sun
 #include <config.h>
 #endif
 
+#include <stdint.h>
 
 #include "XmI.h"
 #include <Xm/DrawP.h>
@@ -94,8 +95,20 @@ DrawSimpleShadow (Display *display,
   
   _XmProcessLock();
   if (segm_count < shadow_thick) {
-    segms = (XSegment *) XtRealloc((char*)segms, 
-				   sizeof (XSegment) * (size2 << 1));
+    size_t segment_count = (size_t)shadow_thick * 4;
+    XSegment *new_segms;
+    if (segment_count > SIZE_MAX / sizeof(XSegment)) {
+      _XmProcessUnlock();
+      return;
+    }
+    new_segms = (XSegment *)XtMalloc(
+        sizeof(XSegment) * segment_count);
+    if (new_segms == NULL) {
+      _XmProcessUnlock();
+      return;
+    }
+    XtFree((char *)segms);
+    segms = new_segms;
     segm_count = shadow_thick;
   }
   
