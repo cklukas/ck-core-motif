@@ -21,6 +21,14 @@ Toolbar gallery example (2026-10-27)
   (including conventional shortcuts) through `XmToolbarSetActions`, instead
   of showing an empty manager surface.
 
+Gallery layout fixtures and TreeView coordinates (2026-10-27)
+===============================================================
+
+- Give layout-manager entries visible Header, Content, and Footer panels with
+  deterministic colors, making their geometry inspectable in the live gallery.
+- Widen and clamp TreeView row coordinates before converting to X11 integers;
+  extreme row-height/visible-row resources no longer wrap during redisplay.
+
 Live text baselines (2026-10-27)
 ================================
 

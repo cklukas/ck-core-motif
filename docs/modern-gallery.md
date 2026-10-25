@@ -31,6 +31,8 @@ and Activity pages.
 The Toolbar entry likewise uses real `XmToolbarAction` records for Open, Save,
 Print, and Undo, with their keyboard shortcuts visible through the native
 overflow-aware toolbar.
+Layout-manager entries are populated with colored Header, Content, and Footer
+panels so their geometry is visible and inspectable rather than an empty frame.
 
 Startup opens the first sidebar item as a dedicated welcome screen with
 “Hello world!” in English, German, Japanese, and Chinese.  The CJK lines are

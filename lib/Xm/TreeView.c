@@ -12,6 +12,11 @@
 
 #define TREE_VIEW_MAX_NODES 4096
 
+static int clamp_coordinate(long long value) {
+    return value < INT_MIN ? INT_MIN :
+           value > INT_MAX ? INT_MAX : (int)value;
+}
+
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Redisplay(Widget, XEvent *, Region);
 static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
@@ -249,9 +254,13 @@ static void Initialize(Widget request, Widget widget, ArgList args,
                                    GCForeground | GCBackground, &values);
     if (!view->core.width)
         view->core.width = 280;
-    if (!view->core.height)
-        view->core.height = view->tree_view.row_height *
-                            view->tree_view.visible_rows;
+    if (!view->core.height) {
+        unsigned long long height =
+            (unsigned long long)view->tree_view.row_height *
+            (unsigned long long)view->tree_view.visible_rows;
+        view->core.height = height > (unsigned long long)(Dimension)-1 ?
+                            (Dimension)-1 : (Dimension)height;
+    }
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events,
                       NULL);
 }
@@ -292,7 +301,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     XClearWindow(display, window);
     for (row = 0; row < view->tree_view.visible_rows; ++row) {
         Cardinal absolute = view->tree_view.top_row + row;
-        int x, y = (int)(row * view->tree_view.row_height);
+        int x;
+        int y = clamp_coordinate((long long)row *
+                                 (long long)view->tree_view.row_height);
         if (absolute >= total)
             break;
         index = visible_item(view, absolute);
@@ -336,7 +347,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                 (rtl_x > INT_MAX ? INT_MAX : (int)rtl_x);
         }
         XDrawString(display, window, view->tree_view.gc, x,
-                    y + (int)view->tree_view.row_height - 6,
+                    clamp_coordinate((long long)y +
+                                     (long long)view->tree_view.row_height - 6),
                     label, draw_length);
         }
     }

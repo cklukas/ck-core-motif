@@ -12,6 +12,16 @@
 #include <Xm/SegmentedControl.h>
 #include <Xm/TabStack.h>
 #include <Xm/Toolbar.h>
+#include <X11/Xlib.h>
+
+static Pixel gallery_named_color(Widget widget, const char *name, Pixel fallback)
+{
+    XColor exact, screen;
+    Display *display = XtDisplay(widget);
+    Colormap colormap = DefaultColormapOfScreen(XtScreen(widget));
+    return XAllocNamedColor(display, colormap, name, &screen, &exact)
+        ? screen.pixel : fallback;
+}
 
 /* GALLERY-EXAMPLE-BEGIN: shared-public-construction */
 static void
@@ -278,6 +288,43 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         XmStringFree(labels[2]); XmStringFree(labels[3]);
         XmStringFree(shortcuts[0]); XmStringFree(shortcuts[1]);
         XmStringFree(shortcuts[2]); XmStringFree(shortcuts[3]);
+    } else if (class == xmFormWidgetClass || class == xmFrameWidgetClass ||
+               class == xmBulletinBoardWidgetClass || class == xmRowColumnWidgetClass ||
+               class == xmColumnWidgetClass || class == xmButtonBoxWidgetClass ||
+               class == xmPanedWindowWidgetClass || class == xmPanedWidgetClass ||
+               class == xmMainWindowWidgetClass || class == xmContainerWidgetClass ||
+               class == xmScrolledWindowWidgetClass || class == xmFormSectionWidgetClass) {
+        Widget panels;
+        Pixel blue = gallery_named_color(parent, "#dbeafe",
+                                         WhitePixelOfScreen(XtScreen(parent)));
+        Pixel green = gallery_named_color(parent, "#dcfce7",
+                                          WhitePixelOfScreen(XtScreen(parent)));
+        Pixel amber = gallery_named_color(parent, "#fef3c7",
+                                          WhitePixelOfScreen(XtScreen(parent)));
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNwidth, 420, XmNheight, 160, NULL);
+        panels = XtVaCreateManagedWidget("layoutPanels", xmRowColumnWidgetClass,
+                                         example, XmNorientation, XmVERTICAL,
+                                         XmNpacking, XmPACK_TIGHT,
+                                         XmNspacing, 4, XmNwidth, 400,
+                                         XmNheight, 145, NULL);
+        {
+            XmString label = XmStringCreateLocalized((char *)"Header panel");
+            XtVaCreateManagedWidget("headerPanel", xmLabelWidgetClass, panels,
+                                    XmNlabelString, label, XmNbackground, blue,
+                                    XmNheight, 38, NULL);
+            XmStringFree(label);
+            label = XmStringCreateLocalized((char *)"Content panel");
+            XtVaCreateManagedWidget("contentPanel", xmLabelWidgetClass, panels,
+                                    XmNlabelString, label, XmNbackground, green,
+                                    XmNheight, 54, NULL);
+            XmStringFree(label);
+            label = XmStringCreateLocalized((char *)"Footer panel");
+            XtVaCreateManagedWidget("footerPanel", xmLabelWidgetClass, panels,
+                                    XmNlabelString, label, XmNbackground, amber,
+                                    XmNheight, 38, NULL);
+            XmStringFree(label);
+        }
     } else {
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNwidth, 360, XmNheight, 64, NULL);

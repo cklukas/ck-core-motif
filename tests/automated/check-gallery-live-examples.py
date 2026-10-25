@@ -17,4 +17,7 @@ toolbar = toolbar[:toolbar.index('} else {', 1)]
 for label in ("Open", "Save", "Print", "Undo"):
     assert f'"{label}"' in toolbar
 assert "XmToolbarSetActions(example, actions, 4)" in toolbar
+for panel in ("Header panel", "Content panel", "Footer panel"):
+    assert f'"{panel}"' in source
+assert 'gallery_named_color(parent, "#dbeafe"' in source
 print("PASS gallery manager examples render live controls")
