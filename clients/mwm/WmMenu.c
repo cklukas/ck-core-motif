@@ -516,37 +516,33 @@ MakeMenuSpec (String menuName, CARD32 commandID)
 static MenuItem *
 DuplicateMenuItems (MenuItem *menuItems)
 {
-    MenuItem *newMenuItem = (MenuItem *) NULL, *returnMenuItem = NULL, *curMenuItem;
+    MenuItem *returnMenuItem = NULL, *lastMenuItem = NULL, *curMenuItem;
+    MenuItem *newMenuItem = NULL;
     
     for (curMenuItem = menuItems;
 	 curMenuItem != (MenuItem *) NULL;
 	 curMenuItem = curMenuItem->nextMenuItem)
     {
-	/* If its the first one ... */
-	if (newMenuItem == (MenuItem *) NULL)
-	{
-	    newMenuItem = (MenuItem *)XtMalloc(sizeof(MenuItem));
-	    returnMenuItem = newMenuItem;
-	}
-	else /* ... otherwise, get the next menuItem. */
-	{
-	    newMenuItem->nextMenuItem =
-	      (MenuItem *)XtMalloc(sizeof(MenuItem));
-	    newMenuItem = newMenuItem->nextMenuItem;
-	}
+	newMenuItem = (MenuItem *)XtCalloc(1, sizeof(MenuItem));
+	if (newMenuItem == (MenuItem *)NULL)
+	    goto failure;
 	
 	newMenuItem->labelType = curMenuItem->labelType;
-	if (curMenuItem->label != (String) NULL)
+	if (curMenuItem->label != (String) NULL) {
 	  newMenuItem->label = XtNewString(curMenuItem->label);
-	else
+	  if (newMenuItem->label == (String)NULL)
+	      goto failure;
+	} else
 	  newMenuItem->label = NULL;
 	newMenuItem->labelBitmapIndex = curMenuItem->labelBitmapIndex;
 	newMenuItem->mnemonic = curMenuItem->mnemonic;
 	newMenuItem->accelState = curMenuItem->accelState;
 	newMenuItem->accelKeyCode = curMenuItem->accelKeyCode;
-	if (curMenuItem->accelText != (String) NULL)
+	if (curMenuItem->accelText != (String) NULL) {
 	  newMenuItem->accelText = XtNewString(curMenuItem->accelText);
-	else
+	  if (newMenuItem->accelText == (String)NULL)
+	      goto failure;
+	} else
 	  newMenuItem->accelText = NULL;
 	newMenuItem->wmFunction = curMenuItem->wmFunction;
 
@@ -570,22 +566,42 @@ DuplicateMenuItems (MenuItem *menuItems)
 #endif /* WSM */
 	    )
 	  newMenuItem->wmFuncArgs = curMenuItem->wmFuncArgs;
-	else if (curMenuItem->wmFuncArgs != (String) NULL)
+	else if (curMenuItem->wmFuncArgs != (String) NULL) {
 	  newMenuItem->wmFuncArgs = XtNewString(curMenuItem->wmFuncArgs);
-	else
+	  if (newMenuItem->wmFuncArgs == (String)NULL)
+	      goto failure;
+	} else
 	  newMenuItem->wmFuncArgs = NULL;
 
 	newMenuItem->greyedContext = curMenuItem->greyedContext;
 	newMenuItem->mgtMask = curMenuItem->mgtMask;
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
-	newMenuItem->clientCommandName = 
-	  XtNewString(curMenuItem->clientCommandName);
+	if (curMenuItem->clientCommandName != (String)NULL) {
+	    newMenuItem->clientCommandName =
+	      XtNewString(curMenuItem->clientCommandName);
+	    if (newMenuItem->clientCommandName == (String)NULL)
+		goto failure;
+	}
 	newMenuItem->clientCommandID = curMenuItem->clientCommandID;
 #endif
-	newMenuItem->nextMenuItem = (MenuItem *) NULL;
+	if (lastMenuItem != (MenuItem *)NULL)
+	    lastMenuItem->nextMenuItem = newMenuItem;
+	else
+	    returnMenuItem = newMenuItem;
+	lastMenuItem = newMenuItem;
+	newMenuItem = NULL;
     }
-    
     return(returnMenuItem);
+
+failure:
+    if (newMenuItem != (MenuItem *)NULL)
+	FreeMenuItem(newMenuItem);
+    while (returnMenuItem != (MenuItem *)NULL) {
+	newMenuItem = returnMenuItem->nextMenuItem;
+	FreeMenuItem(returnMenuItem);
+	returnMenuItem = newMenuItem;
+    }
+    return (NULL);
 }
 
 

@@ -9790,6 +9790,13 @@ MWM menu-spec copy allocation guard (2026-10-25)
   record before exposing partial state; see
   `docs/mwm-menu-spec-copy-allocation.md`.
 
+MWM menu-item copy transaction (2026-10-25)
+===========================================
+
+- Copy custom-menu items transactionally, checking owned-string allocations
+  and releasing partial lists on failure while preserving valid ordering and
+  ownership; see `docs/mwm-menu-item-copy-allocation.md`.
+
 - Preserve the current string-child value list when replacement allocation or
   copying fails during `SetValues`, rolling back partial copies safely; see
   `docs/spinbox-value-setvalues-rollback.md`.
