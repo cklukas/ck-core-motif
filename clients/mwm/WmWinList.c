@@ -263,7 +263,14 @@ void AddClientToList (WmWorkspaceData *pWS, ClientData *pCD, Boolean onTop)
 
 void AddEntryToList (WmWorkspaceData *pWS, ClientListEntry *pEntry, Boolean onTop, ClientListEntry *pStackEntry)
 {
-    WmScreenData *pSD = pWS->pSD;
+    WmScreenData *pSD;
+
+    if (pWS == NULL || pEntry == NULL || pWS->pSD == NULL)
+    {
+        return;
+    }
+
+    pSD = pWS->pSD;
 
     if (onTop)
     {

@@ -4568,3 +4568,9 @@ DeleteClientFromList guards (2026-10-25)
 
 - Validate detached workspace/client state before unlinking list entries;
   see `docs/delete-client-list-guards.md`.
+
+AddEntryToList guards (2026-10-25)
+==================================
+
+- Validate workspace, screen, and entry state before linking list nodes;
+  see `docs/add-entry-list-guards.md`.
