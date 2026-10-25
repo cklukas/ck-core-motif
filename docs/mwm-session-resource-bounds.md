@@ -12,4 +12,8 @@ Both paths now measure and allocate the complete resource name, release the
 temporary buffer after the Xrm operation, and preserve the existing resource
 keys and database update behavior.
 
+The signed formatter result is checked against the Xt allocation width before
+conversion, including the extra delimiter byte used when removing a
+proxy-client entry.
+
 `tests/automated/check-mwm-session-resource-bounds.py` protects this contract.
