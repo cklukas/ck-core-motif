@@ -717,9 +717,16 @@ GetCellFromXY(Widget w,
 	      Position x, Position y, Position * cell_x, Position * cell_y)
 {
     XmIconBoxWidget ibw = (XmIconBoxWidget) w;
+    unsigned int cell_width = (unsigned int)XmIconBox_cell_width(ibw) +
+	(unsigned int)XmIconBox_h_margin(ibw);
+    unsigned int cell_height = (unsigned int)XmIconBox_cell_height(ibw) +
+	(unsigned int)XmIconBox_v_margin(ibw);
     
-    *cell_x = (int)x / (int)(XmIconBox_cell_width(ibw) + XmIconBox_h_margin(ibw));
-    *cell_y = (int)y / (int)(XmIconBox_cell_height(ibw) + XmIconBox_v_margin(ibw));
+    /* Zero-sized cells are legal resource input; keep hit testing defined. */
+    if (!cell_width) cell_width = 1;
+    if (!cell_height) cell_height = 1;
+    *cell_x = (int)x / (int)cell_width;
+    *cell_y = (int)y / (int)cell_height;
 }
 
 /*	Function Name: Find Nearest Cell Location

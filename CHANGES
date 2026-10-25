@@ -7771,3 +7771,10 @@ TabBox stack-count bounds (2026-10-27)
 - Clamp invalid zero or negative `XmNnumStacks` values before stacked layout
   divisions, preventing divide-by-zero crashes; see
   `docs/tabbox-num-stacks-bounds.md`.
+
+IconBox cell-span bounds (2026-10-27)
+====================================
+
+- Keep hit testing defined when cell dimensions and margins sum to zero,
+  preventing coordinate conversion divide-by-zero crashes; see
+  `docs/iconbox-cell-span-bounds.md`.
