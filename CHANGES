@@ -11538,6 +11538,12 @@ WSM configuration-reply allocation width (2026-10-25)
 - Check decoded WSM attribute counts before configuration-array allocation;
   see `docs/wsm-config-reply-allocation-width.md`.
 
+WSM set-state allocation width (2026-10-25)
+=============================================
+
+- Check decoded `SET_STATE` counts before window-info allocation; see
+  `docs/wsm-set-state-unpack-oom.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 
