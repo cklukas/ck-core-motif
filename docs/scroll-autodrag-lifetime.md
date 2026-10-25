@@ -28,3 +28,22 @@ The native lifetime regression exercises destruction, disable, leave,
 repeated-timer, and callback-triggered mutation scenarios.  Run it against an
 installed build under Xvfb; repeat the process to cover allocator and event
 ordering differences.  Sanitizer builds should run the same scenario set.
+
+## Qualification record
+
+On 2026-10-25, the installed AArch64 `uconsole` cohort ran all eight scenarios
+three times under separate Xvfb displays.  Each run completed 81 checks.  A
+strict consumer ASan/UBSan run (`detect_leaks=1`, `abort_on_error=1`,
+`halt_on_error=1`) completed the same 81 checks with no sanitizer diagnostics.
+The fixture source hash was
+`24a045c0d0a640765e60cd8f4cedcd0aa57af7dd57faadbc171c422fb2ff9ae3`;
+the rebuilt installed `libXm.so.8.0.0` hash was
+`ff96b78d4548dab3d38f803090dbef643d73f798607e94da6a2411d769d81443` and it
+was run with the pinned corrected Xt dependency.
+
+The sanitizer run before the fix reported 360 bytes in nine allocations from
+the synthesized DropSMgr clipper records.  `DestroyInfo` now retires those
+internal clipper subtrees before releasing the owning drop-site tree.  The
+remaining sanitizer ownership issue in the broader native matrix is the
+separate Xt selection-context boundary; this result does not claim that gate
+is closed.

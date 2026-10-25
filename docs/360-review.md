@@ -29,16 +29,20 @@ These are real coverage gaps rather than claims of known source defects:
 1. **x86_64 acceptance.** The native installed cohort is qualified on ARM64;
    x86_64 still needs a clean build and runtime pass covering Xft, ICU/HarfBuzz,
    AT-SPI, the pinned Xt, and independent C and C++ consumers.
-2. **Strict sanitizer lifecycle.** The existing leak report is at the Xt
-   selection-context boundary. It needs an ownership-level fix or a narrowly
-   scoped native lifecycle test before it can be called clean.
+2. **Strict sanitizer lifecycle.** The synthesized DropSMgr clipper leak is
+   fixed and passes three repeated native runs plus a strict ASan/UBSan
+   auto-drag lifetime fixture. The separate leak report at the Xt
+   selection-context boundary remains open and must not be counted as a
+   toolkit pass.
 3. **External clipboard and DnD matrix.** The bounded Text/TextField fixture
    proves two-client INCR cancellation followed by a fresh transfer from the
    surviving owner when the pinned corrected Xt dependency is used. The
    installed transfer-storage cohort additionally passes target replacement,
    8/16/32-bit format assembly, merge bounds and repeated owner destruction
-   against that dependency. Drag-and-drop cancellation, application-level
-   clipboard workflows and a clean sanitizer exit remain open.
+   against that dependency. DropSMgr auto-drag teardown now passes its own
+   strict sanitizer fixture; drag-and-drop transfer cancellation,
+   application-level clipboard workflows and the separate Xt selection-context
+   sanitizer ownership remain open.
 4. **Non-text Unicode matrix.** The installed Label/List/ComboBox fixture now
    covers combining, non-BMP and Han values through public APIs. Menus, file
    selection, mnemonics, search, compound strings, keyboard layouts and full

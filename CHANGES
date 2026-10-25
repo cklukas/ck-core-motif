@@ -9,6 +9,14 @@ Optional ckmotif++ support package and WML build graph (2026-10-25)
   `libXm`, allowing the WML tools to link from a fresh checkout; this is
   independent of the UIL literal-only module fix below.
 
+DropSMgr clipper teardown (2026-10-25)
+======================================
+
+- Retire synthesized DropSMgr clipper records before their owning drop-site
+  tree is destroyed.  This closes the auto-drag teardown leak while preserving
+  the existing Xt callback and drag/drop contracts; the native fixture passes
+  repeated destruction/reentrancy scenarios and strict consumer ASan/UBSan.
+
 UIL literal-only module output (2026-10-25)
 ============================================
 

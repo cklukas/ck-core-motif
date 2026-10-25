@@ -717,8 +717,11 @@ The callback-triggered scroll-container extension is now separately qualified:
 auto-drag timers and payloads retire across leave, disable, scrollbar removal,
 parent destruction and value-callback mutation, while navigator callback lists
 remain safe when application code destroys the active frame.  This is a
-lifecycle correction, not a change to Form attachment negotiation; see
-`docs/scroll-autodrag-lifetime.md`.
+lifecycle correction, not a change to Form attachment negotiation.  The
+synthesized DropSMgr clipper records are also retired during owner teardown;
+three repeated native runs and a strict consumer ASan/UBSan run pass all eight
+scenarios and 81 checks.  The separate Xt selection-context leak remains an
+open dependency boundary; see `docs/scroll-autodrag-lifetime.md`.
 
 See `docs/form-layout-corpus.md` for the fixture schema, limits and current
 qualification scope.
