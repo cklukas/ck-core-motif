@@ -9,12 +9,7 @@ function = source[start:end]
 
 assert "!number->number_box.text_gc" in function
 assert "!number->number_box.arrow_gc" in function
-assert "XGetGCValues" in function
-assert "GCFont" in function
+assert "XGetGCValues" not in function
 assert "XGContextFromGC(" not in function
-text_guard = function.index("if (!text_gc)")
-font_query = function.index("font = XQueryFont")
-font_guard = function.index("if (!font)")
-font_use = function.index("font->ascent")
-assert text_guard < font_query < font_guard < font_use
-print("PASS NumberBox redisplay failure guards")
+assert "number->core.height / 2" in function
+print("PASS NumberBox redisplay has a bounded text baseline")

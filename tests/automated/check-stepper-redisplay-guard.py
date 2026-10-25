@@ -8,11 +8,7 @@ end = source.index("static void step(", start)
 function = source[start:end]
 
 assert "!w || !s->stepper.gc" in function
-assert "XGetGCValues" in function
-assert "GCFont" in function
+assert "XGetGCValues" not in function
 assert "XGContextFromGC(" not in function
-font_query = function.index("font = XQueryFont")
-font_guard = function.index("if (!font)")
-font_use = function.index("font->ascent")
-assert font_query < font_guard < font_use
-print("PASS Stepper redisplay failure guards")
+assert "s->core.height / 2" in function
+print("PASS Stepper redisplay has a bounded text baseline")

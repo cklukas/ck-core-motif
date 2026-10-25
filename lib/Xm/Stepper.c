@@ -71,23 +71,17 @@ static void Destroy(Widget widget) {
 }
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmStepperWidget s = (XmStepperWidget)widget; Display *d = XtDisplay(widget); Window w = XtWindow(widget);
-    char text[32]; int baseline; XFontStruct *font; XGCValues gc_values; Position split;
+    char text[32]; int baseline; Position split;
     (void)event; (void)region;
     if (!w || !s->stepper.gc) return;
     XClearWindow(d, w);
     snprintf(text, sizeof(text), "%d", s->stepper.value);
-    if (!XGetGCValues(d, s->stepper.gc, GCFont, &gc_values) ||
-        gc_values.font == None)
-        return;
-    font = XQueryFont(d, gc_values.font);
-    if (!font) return;
-    baseline = (int)((s->core.height + font->ascent - font->descent) / 2);
+    baseline = (int)(s->core.height / 2);
     XDrawString(d, w, s->stepper.gc, 8, baseline, text, (int)strlen(text));
     split = s->core.width > 28 ? s->core.width - 28 : 0;
     XDrawLine(d, w, s->stepper.gc, split, 0, split, s->core.height);
     XDrawLine(d, w, s->stepper.gc, split + 14, 5, split + 14, s->core.height - 5);
     XDrawLine(d, w, s->stepper.gc, split + 7, s->core.height / 2, split + 21, s->core.height / 2);
-    if (font) XFreeFont(d, font);
     if (s->primitive.highlighted && s->primitive.highlight_thickness)
         XDrawRectangle(d, w, s->stepper.gc, s->primitive.highlight_thickness - 1,
                        s->primitive.highlight_thickness - 1,

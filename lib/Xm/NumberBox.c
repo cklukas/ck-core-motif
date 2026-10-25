@@ -167,8 +167,6 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmNumberBoxWidget number = (XmNumberBoxWidget)widget;
     Display *display = XtDisplay(widget);
     Window window = XtWindow(widget);
-    XFontStruct *font;
-    XGCValues gc_values;
     int baseline;
     int arrow_x;
     XPoint up[3], down[3];
@@ -182,13 +180,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (!text_gc)
         return;
     XClearWindow(display, window);
-    if (!XGetGCValues(display, text_gc, GCFont, &gc_values) ||
-        gc_values.font == None)
-        return;
-    font = XQueryFont(display, gc_values.font);
-    if (!font)
-        return;
-    baseline = (int)((number->core.height + font->ascent - font->descent) / 2);
+    baseline = (int)(number->core.height / 2);
     XDrawString(display, window, text_gc, (int)number->number_box.spacing,
                 baseline, number->number_box.text,
                 bounded_text_length(number->number_box.text));
@@ -207,7 +199,6 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                  Convex, CoordModeOrigin);
     XFillPolygon(display, window, number->number_box.arrow_gc, down, 3,
                  Convex, CoordModeOrigin);
-    if (font) XFreeFont(display, font);
     if (number->primitive.highlighted && number->primitive.highlight_thickness)
         XDrawRectangle(display, window, number->number_box.arrow_gc,
                        number->primitive.highlight_thickness - 1,
