@@ -852,6 +852,12 @@ XmPicture repeat node-map bounds (2026-10-25)
   picture graphs while leaving unrepresentable expansion unchanged; see
   `docs/picture-copy-bounds.md`.
 
+Spin-box item-count bounds (2026-10-25)
+=========================================
+
+- Reject spin-box item-count and string-table size overflow before insertion;
+  see `docs/spinbox-bounds.md`.
+
 List drag conversion allocation (2026-10-25)
 ===============================================
 
