@@ -1,3 +1,9 @@
+Traversal active-item and shell validation (2026-10-25)
+=========================================================
+
+- Guard active-item lookup and focus-moved shell resolution against missing
+  widgets or shells; see `docs/traversal-active-item-shell.md`.
+
 Traversal focus-entry validation (2026-10-25)
 ==============================================
 

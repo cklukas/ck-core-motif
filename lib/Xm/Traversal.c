@@ -104,6 +104,8 @@ Widget
 _XmGetActiveItem(
         Widget w )
 {
+  if (w == NULL)
+    return NULL;
   return XmGetFocusWidget( w) ;
 }
 
@@ -614,6 +616,8 @@ CallFocusMoved(Widget		    old,
     w = new_wid;
   
   topShell 	= (Widget) _XmFindTopMostShell(w);
+  if (topShell == NULL)
+    return FALSE;
   
   /*
    * make sure it's a shell that has a vendorExt object
