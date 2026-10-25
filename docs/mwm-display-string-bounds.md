@@ -7,6 +7,8 @@ nav_exclude: true
 Per-screen MWM display strings are derived from the X display name and screen
 number. Construction now checks the allocation-size arithmetic and uses
 `snprintf`, rejecting truncation before publishing a partial display string.
+The private display-name copy uses the checked Xt `Cardinal` width explicitly
+after the representability test.
 Normal display names and screen formatting remain unchanged.
 
 The focused regression check is

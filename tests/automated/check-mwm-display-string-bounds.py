@@ -11,6 +11,8 @@ start = source.index("InitWmScreen (WmScreenData")
 body = source[start : source.index("} /* END OF FUNCTION  InitWmScreen", start)]
 assert "displayNameLength > SIZE_MAX - 64" in body
 assert "displayNameLength + 64 > UINT_MAX" in body
+assert "XtMalloc((Cardinal)displayNameLength)" in body
+assert "XtMalloc((unsigned int)displayNameLength)" not in body
 assert "snprintf(buffer, bufferLength" in body
 assert "renderedLength < 0" in body
 assert "goto display_string_cleanup;" in body

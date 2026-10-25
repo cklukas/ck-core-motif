@@ -11374,3 +11374,9 @@ MWM DISPLAY environment allocation widths (2026-10-25)
 
 - Reject overflow and unrepresentable `DISPLAY=` lengths before Xt allocation;
   see `docs/mwm-display-env-bounds.md`.
+
+MWM screen display allocation width (2026-10-25)
+=================================================
+
+- Use the checked Xt allocation width for private per-screen display-name
+  copies; see `docs/mwm-display-string-bounds.md`.

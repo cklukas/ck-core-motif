@@ -1635,7 +1635,7 @@ InitWmScreen (WmScreenData *pSD, int sNum)
         return;
     }
     bufferLength = displayNameLength + 64;
-    displayName = (char *)XtMalloc((unsigned int)displayNameLength);
+    displayName = (char *)XtMalloc((Cardinal)displayNameLength);
     buffer = (char *)XtMalloc((Cardinal)bufferLength);
     if (displayName == NULL || buffer == NULL)
     {
