@@ -4678,7 +4678,7 @@ Layout(tab)
     int        count = _XmTabbedStackListCount(list);
     XRectangle geometry;
     
-    if( count == 0 )
+    if( count <= 0 )
     {
 	XmTabBox__num_columns(tab) = 0;
 	XmTabBox__num_rows(tab) = 0;
@@ -4687,10 +4687,17 @@ Layout(tab)
 
     if( count > XmTabBox__num_actual(tab) )
     {
-	XmTabBox__num_actual(tab) = count;
-	XmTabBox__actual(tab) = (XiTabRect*)
+	XiTabRect *actual;
+
+	if ((size_t)count > SIZE_MAX / sizeof(*actual))
+	    return;
+	actual = (XiTabRect*)
 	    XtRealloc((XtPointer) XmTabBox__actual(tab),
-		      sizeof(XiTabRect) * count);
+		      sizeof(*actual) * (size_t)count);
+	if (actual == NULL)
+	    return;
+	XmTabBox__actual(tab) = actual;
+	XmTabBox__num_actual(tab) = count;
     }
 
     switch( XmTabBox_tab_mode(tab) )
@@ -5180,12 +5187,22 @@ CalcTabGeometry(tab)
      * First lets see if we have enough room to cache all the geometries
      * and if not lets increase our cache so there is room.
      */
+    if( count <= 0 )
+	return;
+
     if( count > XmTabBox__num_wanted(tab) )
     {
-	XmTabBox__num_wanted(tab) = count;
-	XmTabBox__wanted(tab) = (XRectangle*)
+	XRectangle *wanted;
+
+	if ((size_t)count > SIZE_MAX / sizeof(*wanted))
+	    return;
+	wanted = (XRectangle*)
 	    XtRealloc((XtPointer)XmTabBox__wanted(tab),
-		      sizeof(XRectangle) * count);
+		      sizeof(*wanted) * (size_t)count);
+	if (wanted == NULL)
+	    return;
+	XmTabBox__wanted(tab) = wanted;
+	XmTabBox__num_wanted(tab) = count;
     }
     geom = XmTabBox__wanted(tab);
 
@@ -9349,10 +9366,20 @@ ResetImageCache(tab)
      */
     if( cnt != XmTabBox__cache_size(tab) )
     {
+	XiCache *cache;
+
+	if (cnt < 0 || (size_t)cnt > SIZE_MAX / sizeof(*cache))
+	    return;
+	cache = (XiCache *)XtMalloc(sizeof(*cache) * (size_t)cnt);
+	if (cache == NULL) {
+	    XtFree((XtPointer)XmTabBox__cache(tab));
+	    XmTabBox__cache(tab) = NULL;
+	    XmTabBox__cache_size(tab) = 0;
+	    return;
+	}
+	XtFree((XtPointer)XmTabBox__cache(tab));
+	XmTabBox__cache(tab) = cache;
 	XmTabBox__cache_size(tab) = cnt;
-	XmTabBox__cache(tab) = (XiCache*)
-	    XtRealloc((XtPointer)XmTabBox__cache(tab), 
-		      sizeof(XiCache) * cnt);
     }
 
     /*

@@ -1,3 +1,10 @@
+TabBox geometry and cache allocation (2026-10-27)
+==================================================
+
+- Validate TabBox geometry growth and publish replacement arrays only after
+  allocation succeeds.  Image-cache replacement now fails closed with an
+  empty cache instead of dereferencing a null `XtRealloc` result.
+
 Primitive class-extension allocation (2026-10-27)
 ===================================================
 
