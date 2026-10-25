@@ -1,3 +1,10 @@
+PushButtonGadget unhighlight geometry bounds (2026-10-25)
+===========================================================
+
+- Check menu and internal highlight insets before clearing a gadget border,
+  preventing wrapped dimensions on very small controls; see
+  `docs/pushbuttongadget-unhighlight-geometry.md`.
+
 Sash highlight geometry bounds (2026-10-25)
 =============================================
 
