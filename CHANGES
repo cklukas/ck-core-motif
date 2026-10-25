@@ -1,3 +1,10 @@
+Shared separator shadow span bounds (2026-10-26)
+==================================================
+
+- Reject shadowed separators whose margins consume the available span, using
+  one signed bound for both orientations; see
+  `docs/draw-separator-span-bounds.md`.
+
 ToggleButton shadow redisplay bounds (2026-10-26)
 ================================================
 

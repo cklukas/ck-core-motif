@@ -256,7 +256,7 @@ void XmeDrawSeparator(Display *display, Drawable d,
    Position center;
    XSegment segs[2];
    GC   tmp_gc;
-   int i, ndash, shadow_dash_size ;
+   int i, ndash, shadow_dash_size, separator_span;
    XtAppContext app;
 
    if (!d || (separator_type == XmNO_LINE)) return ;
@@ -307,6 +307,10 @@ void XmeDrawSeparator(Display *display, Drawable d,
    /* only shadowed stuff in the following, so shadowThickness has to be
       something real */
    if (!shadow_thick) { _XmAppUnlock(app); return ; }
+
+   separator_span = (orientation == XmHORIZONTAL ? (int) width :
+							(int) height) - 2 * (int) margin;
+   if (separator_span <= 0) { _XmAppUnlock(app); return ; }
    
    /* do the in/out effect now */
    if (separator_type == XmSHADOW_ETCHED_IN || 
@@ -339,15 +343,14 @@ void XmeDrawSeparator(Display *display, Drawable d,
    else
 
    /* regular case, only one dash, the length of the separator */
-       shadow_dash_size = (orientation == XmHORIZONTAL)?
-           (width - 2*margin):(height - 2*margin) ;
+       shadow_dash_size = separator_span;
 
    /* special case for shadowThickness = 1 */
    if (shadow_dash_size == 0) shadow_dash_size = 5 ;
 
    /* ndash value will be 1 for the regular shadow case (not dashed) */
    if (orientation == XmHORIZONTAL) {
-       ndash = ((width - 2*margin)/shadow_dash_size + 1)/2 ;       
+       ndash = (separator_span/shadow_dash_size + 1)/2 ;
        for (i=0; i<ndash; i++)
            if (shadow_thick < 4) {
 	       XDrawLine(display, d, top_gc, 
@@ -369,14 +372,14 @@ void XmeDrawSeparator(Display *display, Drawable d,
 				  shadow_thick/2, 0);
 	   }
        /* draw the last dash, with possibly a different size */
-       if (i*2*shadow_dash_size < (width - 2*margin))
+       if (i*2*shadow_dash_size < separator_span)
        {
            if (shadow_thick < 4) 
            {
 	       XDrawLine(display, d, top_gc, 
 			 x + margin + 2*i*shadow_dash_size, 
 			 center - shadow_thick/2, 
-			 x + (width - 2*margin), 
+				 x + separator_span,
 			 center - shadow_thick/2); 
 	       if (shadow_thick > 1)
                {
@@ -390,13 +393,13 @@ void XmeDrawSeparator(Display *display, Drawable d,
 	       DrawSimpleShadow(display, d, top_gc, bottom_gc, 
 				  x + margin + i*2*shadow_dash_size, 
 				  center - shadow_thick/2, 
-				  (width - 2*margin) - i*2*shadow_dash_size, 
+				   separator_span - i*2*shadow_dash_size,
 				  (shadow_thick/2)*2, 
 				  shadow_thick/2, 0);
 	   }
        }
    } else {
-       ndash = ((height - 2*margin)/shadow_dash_size + 1)/2 ;
+       ndash = (separator_span/shadow_dash_size + 1)/2 ;
        for (i=0; i<ndash; i++)
            if (shadow_thick < 4) {
 	       XDrawLine(display, d, top_gc, 
@@ -417,7 +420,7 @@ void XmeDrawSeparator(Display *display, Drawable d,
 				  (shadow_thick/2)*2, shadow_dash_size, 
 				  shadow_thick/2, 0);
 	   }
-       if (i*2*shadow_dash_size < (height - 2*margin))
+       if (i*2*shadow_dash_size < separator_span)
        {
            if (shadow_thick < 4) 
            {
@@ -425,7 +428,7 @@ void XmeDrawSeparator(Display *display, Drawable d,
 			 center - shadow_thick/2, 
 			 y + margin + 2*i*shadow_dash_size, 
 			 center - shadow_thick/2,
-			 y + (height - 2*margin)); 
+				 y + separator_span);
 	       if (shadow_thick > 1)
 		   XDrawLine(display, d, bottom_gc, 
 			 center, 
@@ -437,7 +440,7 @@ void XmeDrawSeparator(Display *display, Drawable d,
 				  center - shadow_thick/2, 
 				  y + margin + i*2*shadow_dash_size, 
 				  (shadow_thick/2)*2, 
-				  (height - 2*margin) - i*2*shadow_dash_size, 
+				   separator_span - i*2*shadow_dash_size,
 				  shadow_thick/2, 0);
            }
         }
