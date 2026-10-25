@@ -7435,9 +7435,16 @@ _XmStringGetBaselines(XmRenderTable rendertable,
   if (rendertable && string) 
     *line_count = XmStringLineCount(string);
 
+  if ((size_t)*line_count > UINT_MAX / sizeof(Dimension))
+    {
+      *line_count = 0;
+      return;
+    }
+
   if (*line_count == 1)
     {
-      *baselines = (Dimension*) XtMalloc(*line_count * sizeof(Dimension));
+	*baselines = (Dimension*) XtMalloc((Cardinal)
+	    ((size_t)*line_count * sizeof(Dimension)));
 	  if (*baselines == NULL)
 	    {
 	      *line_count = 0;
@@ -7457,7 +7464,8 @@ _XmStringGetBaselines(XmRenderTable rendertable,
       XmRendition	   rend = &tmp;
       _XmStringArraySegRec array_seg;
       
-      *baselines = (Dimension*) XtMalloc(*line_count * sizeof(Dimension));
+      *baselines = (Dimension*) XtMalloc((Cardinal)
+	  ((size_t)*line_count * sizeof(Dimension)));
 	  if (*baselines == NULL)
 	    {
 	      *line_count = 0;
