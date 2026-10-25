@@ -8761,6 +8761,9 @@ unparse_text(char                **result,
 	     unsigned int	   c_length,
 	     XtPointer	           c_value)
 {
+  if (c_length != 0 && c_value == NULL)
+    return;
+
   /* If we have an invalid character, treat it as a single byte. */
   if ((int)c_length < 0) 
     c_length = 1;
