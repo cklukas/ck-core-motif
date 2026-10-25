@@ -1,3 +1,9 @@
+Mrm callback-value offset bounds (2026-10-25)
+===============================================
+
+- Validate non-immediate callback datum offsets before pointer evaluation;
+  see `docs/mrm-callback-value-offset-bounds.md`.
+
 Mrm unknown argument-tag bounds (2026-10-25)
 ===============================================
 
