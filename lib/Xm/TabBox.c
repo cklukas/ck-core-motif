@@ -39,6 +39,8 @@
 #endif
 
 #include <stdlib.h>
+#include <limits.h>
+#include <stdint.h>
 #include "XmI.h"
 #include <Xm/TabBoxP.h>
 #ifdef SCROLLED_LAYOUT
@@ -4868,7 +4870,8 @@ XiRotateImage(tab, src, degree)
 {
     XImage *dst;
     char   *data;
-    int    x, y, width, height, depth, tmp;
+    int    x, y, width, height, depth;
+    size_t allocation, packed_width;
 
     if( src == NULL ) return( NULL );
 
@@ -4876,26 +4879,39 @@ XiRotateImage(tab, src, degree)
     height = XImageHeight(src);
     depth = XImageDepth(src);
 
+    if (width <= 0 || height <= 0 || depth <= 0)
+        return NULL;
+
     if( depth < 8 )
     {
 	int cnt = 8/depth;
 
-	if( degree == 0 || degree == 180 )
+	packed_width = ((size_t)width + (size_t)cnt - 1) / (size_t)cnt;
+	if (packed_width > SIZE_MAX / (size_t)height)
+	    return NULL;
+	allocation = packed_width * (size_t)height;
+
+	if (degree != 0 && degree != 180)
 	{
-	    tmp = (width/cnt) + ((width % cnt != 0) ? 1 : 0);
-	    tmp = tmp * height;
-	}
-	else
-	{
-	    tmp = (height/cnt) + ((height % cnt != 0) ? 1 : 0);
-	    tmp = tmp * width;
+	    if ((size_t)height > SIZE_MAX / (size_t)cnt ||
+		((size_t)height + (size_t)cnt - 1) / (size_t)cnt >
+		    SIZE_MAX / (size_t)width)
+		return NULL;
+	    allocation = (((size_t)height + (size_t)cnt - 1) /
+			  (size_t)cnt) * (size_t)width;
 	}
     }
     else
     {
-	tmp = width * height * depth;
+	if ((size_t)width > SIZE_MAX / (size_t)height ||
+	    (size_t)width * (size_t)height >
+		SIZE_MAX / (size_t)depth)
+	    return NULL;
+	allocation = (size_t)width * (size_t)height * (size_t)depth;
     }
-    data = (char*) XtMalloc(tmp);
+    if (allocation > UINT_MAX)
+	return NULL;
+    data = (char*) XtMalloc((Cardinal)allocation);
 
     if( degree == 0 || degree == 180 )
     {

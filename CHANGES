@@ -7797,3 +7797,10 @@ InfoBar hit-zone bounds (2026-10-27)
 
 - Clamp close and action hit-zone origins on narrow bars, preventing ordinary
   message clicks from invoking controls; see `docs/infobar-hit-zone-bounds.md`.
+
+TabBox image size bounds (2026-10-27)
+=====================================
+
+- Check XImage rotation dimensions and allocation arithmetic before narrowing
+  to Xt `Cardinal`, preventing wrapped image buffers; see
+  `docs/tabbox-image-size-bounds.md`.
