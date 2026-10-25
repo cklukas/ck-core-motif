@@ -7938,3 +7938,12 @@ ButtonBox size bounds (2026-10-27)
 - Saturate child totals, preferred sizes, and layout requests at `Dimension`'s
   maximum, preventing wrapped geometry for large child sets; see
   `docs/buttonbox-size-bounds.md`.
+DrArrow geometry-array growth (2026-10-27)
+===========================================
+
+- Grow the top, center, and bottom rectangle arrays atomically.  Failed
+  geometry allocation no longer records a larger capacity with a null or
+  partially resized array.
+
+RCPopup list growth failures (2026-10-27)
+=========================================
