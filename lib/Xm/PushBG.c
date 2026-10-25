@@ -1436,7 +1436,7 @@ DrawBorderHighlight(
 {   
   XmPushButtonGadget pb = (XmPushButtonGadget) wid;
   int x, y, width, height, delta;
-  Dimension highlight_width;
+  int highlight_width;
   XtEnum default_button_emphasis;
   
   if (!pb->rectangle.width || !pb->rectangle.height)
@@ -1446,7 +1446,11 @@ DrawBorderHighlight(
   pb->gadget.highlight_drawn = True;
   
   if ((PBG_DefaultButtonShadowThickness(pb) > 0))
-    highlight_width = pb->gadget.highlight_thickness - Xm3D_ENHANCE_PIXEL;
+    {
+      if (pb->gadget.highlight_thickness <= Xm3D_ENHANCE_PIXEL)
+        return;
+      highlight_width = pb->gadget.highlight_thickness - Xm3D_ENHANCE_PIXEL;
+    }
   else
     highlight_width = pb->gadget.highlight_thickness;
   
@@ -1476,6 +1480,10 @@ DrawBorderHighlight(
 	  assert(FALSE);
 	  return;
 	}
+
+      if (pb->rectangle.width <= 2 * delta ||
+          pb->rectangle.height <= 2 * delta)
+        return;
 
       x = pb->rectangle.x + delta;
       y = pb->rectangle.y + delta;

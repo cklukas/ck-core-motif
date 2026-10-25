@@ -1,3 +1,10 @@
+PushButtonGadget highlight geometry bounds (2026-10-25)
+========================================================
+
+- Guard signed highlight-width and tiny-gadget calculations before drawing
+  focus borders, preventing wrapped or negative rectangles; see
+  `docs/pushbuttongadget-highlight-geometry.md`.
+
 PushButtonGadget label rectangle bounds (2026-10-25)
 =====================================================
 
