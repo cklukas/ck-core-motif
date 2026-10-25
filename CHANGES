@@ -4889,3 +4889,9 @@ Preserve ImageCache string-hash length (2026-10-25)
 
 - Hash image-name lengths without truncating `strlen` to 32 bits; see
   `docs/image-string-hash-width.md`.
+
+Track ownership of uncached image GCs (2026-10-25)
+==================================================
+
+- Release temporary GCs created when the GC cache is unavailable or cannot
+  allocate an entry; see `docs/gc-ownership-fallback.md`.

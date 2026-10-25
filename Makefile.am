@@ -816,3 +816,5 @@ EXTRA_DIST += tests/automated/check-xm-gc-insertion-failure.py docs/gc-cache-ins
 EXTRA_DIST += tests/automated/check-xm-cache-pixmap-insertion.py docs/cache-pixmap-insertion-failure.md
 
 EXTRA_DIST += tests/automated/check-image-string-hash-width.py docs/image-string-hash-width.md
+
+EXTRA_DIST += tests/automated/check-xm-gc-ownership.py docs/gc-ownership-fallback.md
