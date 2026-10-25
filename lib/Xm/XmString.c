@@ -5826,21 +5826,17 @@ XmCvtByteStreamToXmString(unsigned char *property)
   unsigned int 	      end_index = REND_INDEX_MAX;
   unsigned char	      tab_cnt;
  
-  _XmProcessLock();
   if (!property) {
-      _XmProcessUnlock();
       return((XmString) NULL);
   }
   /* If property isn't an asn.1 conformant string, return NULL. */
   if (!_is_asn1(property)) {
-      _XmProcessUnlock();
       return ((XmString) NULL);
   }
 
   c  = (unsigned char *) _read_header((unsigned char *) property);
   end = c + _read_string_length ((unsigned char *) property);
   if (c >= end) {
-      _XmProcessUnlock();
       return ((_XmString) NULL);
   }
    
@@ -5971,7 +5967,6 @@ XmCvtByteStreamToXmString(unsigned char *property)
     _XmStringOptCreate(c, end, txtlength, havetag, tag_index);
   else string = _XmStringNonOptCreate(c, end, havetag);   
 
-  _XmProcessUnlock();
   return (string);
 }
 

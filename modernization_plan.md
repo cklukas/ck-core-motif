@@ -2018,6 +2018,11 @@ ownership contract is protected by
 cache, component and concatenation helpers; the source contract is recorded in
 `tests/automated/check-xmstring-generate-locking.py` and
 `docs/xmstring-generate-locking.md`.
+`XmCvtByteStreamToXmString` now delegates synchronization to its cache and
+representation helpers rather than holding the process lock across ASN.1
+conversion; the source contract is recorded in
+`tests/automated/check-xmstring-byte-conversion-locking.py` and
+`docs/xmstring-byte-conversion-locking.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the

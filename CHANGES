@@ -49,6 +49,12 @@ XmStringGenerate locking (2026-10-26)
 - Avoid recursive process locking across parse, cache, rendition and
   concatenation helpers; see `docs/xmstring-generate-locking.md`.
 
+XmString byte-stream conversion locking (2026-10-26)
+=====================================================
+
+- Avoid recursive process locking during ASN.1 byte-stream conversion; see
+  `docs/xmstring-byte-conversion-locking.md`.
+
 Gallery screenshot qualification receipts (2026-10-25)
 ========================================================
 
