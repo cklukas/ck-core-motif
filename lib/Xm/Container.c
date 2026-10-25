@@ -5713,9 +5713,18 @@ GetDumbTabList(
         return NULL;
     tab_pool = (XmTab *)XtMalloc((size_t)asked_num_tab * sizeof(*tab_pool));
 
-    for (i = 0; i < asked_num_tab; i++)
+    for (i = 0; i < asked_num_tab; i++) {
         tab_pool[i] = XmTabCreate(0.0, XmPIXELS, XmABSOLUTE,
                                    XmALIGNMENT_BEGINNING, XmS);
+        if (tab_pool[i] == NULL) {
+            while (i != 0) {
+                --i;
+                XmTabFree(tab_pool[i]);
+            }
+            XtFree((char *)tab_pool);
+            return NULL;
+        }
+    }
 
     /* update the values */
     for (i = 0; i < asked_num_tab; i++)

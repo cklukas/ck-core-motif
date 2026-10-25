@@ -1,3 +1,10 @@
+Container tab allocation rollback (2026-10-25)
+==============================================
+
+- Check each dynamic `XmTabCreate` result and release already-created tabs
+  when a later allocation fails, preventing a null dereference and preserving
+  the Container's existing fail-closed behavior; see `docs/container-tabs.md`.
+
 Image scaling destination coordinate bounds (2026-10-25)
 =========================================================
 

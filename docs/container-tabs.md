@@ -5,7 +5,9 @@ temporary `XmTab` values are released after `XmTabListInsertTabs` copies them,
 so separate Containers no longer share a process-global pool or retain stale
 capacity. Valid narrow layouts keep their tab list instead of silently
 disabling detail columns at a fixed 30-pixel cutoff. The public resource and
-tab-list behavior is unchanged.
+tab-list behavior is unchanged. If an individual tab allocation fails, already
+created tabs are released and the Container returns no tab list instead of
+calling `XmTabSetValue` through a null pointer.
 
 Run the native regression against an installed prefix with:
 
