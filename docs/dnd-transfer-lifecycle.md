@@ -59,8 +59,8 @@ fresh Xvfb runs. All three receipts used the same `libXm.so.8.0.0` SHA-256
 the same probe source SHA-256
 (`93ca01fad2a8280d2bbd6b7dd36ca0952d92530fd874f97a74876ce20aa1946e`).
 This qualifies one cross-process copy transfer; it does not qualify
-source-side cancellation after a drop, owner replacement, incremental payload
-assembly, multiple targets or a complete application DnD workflow.
+incremental payload assembly, multiple targets or a complete application DnD
+workflow.
 
 `tests/automated/check-dnd-transfer-cancel.c` covers the receiver-side
 DropTransfer lifetime contract. Its immediate mode destroys the object before
@@ -86,8 +86,8 @@ used the rebuilt `libXm.so.8.0.0` SHA-256
 the probe source SHA-256
 (`57f3ad7f8bbdbe5914755f25482d2a66bd6312b659e7a38e26f3d5c6e2ae89ec`).
 This closes the bounded receiver-object/timer/request cancellation contract;
-source-side drag cancellation after a drop, owner replacement, multiple
-targets and complete application workflows remain separate gates.
+source-side cancellation and owner replacement are covered separately below;
+multiple targets and complete application workflows remain separate gates.
 
 `tests/automated/check-dnd-cancel.c` covers the related initiator-side
 cancellation contract. It starts a Motif drag, calls the public
@@ -100,3 +100,31 @@ receipt and loaded-library evidence.
 This does not promote source-side cancellation after a drop, owner
 replacement, multiple-target transfer or application-level journeys to
 complete.
+
+`tests/automated/check-dnd-source-cancel.c` covers source-side selection loss.
+The owner-replacement mode takes the source selection while the pointer drag
+is still active; the post-drop mode starts an incremental 4 MiB transfer and
+replaces the source owner while the receiver is requesting data.  The source
+now treats selection loss as a terminal ownership event: an active pointer
+drag is cancelled, while a pointer-complete but not-yet-finished drop is
+completed with failure.  Both paths retire the drag context exactly once and
+retain the existing warning so an unexpected owner replacement remains
+diagnosable.
+
+Run it with:
+
+```sh
+python3 tests/automated/run-dnd-source-cancel.py \
+  /absolute/installed/prefix /absolute/fresh/results
+```
+
+The AArch64 `uconsole` qualification on 2026-10-25 passed the owner-
+replacement mode with 8 checks and the post-drop mode with 14 checks in three
+fresh Xvfb runs each.  The installed `libXm.so.8.0.0` hash was
+`1a38e360f82964e7a318bc61099f7300be6c05ec5a75c3e09814646f9adf545a`; the
+source probe hash was
+`275a0576d79c1e971553a7b723e82f94f65d0942fe986b182011ad94e0aa5ec6`.
+The same prefix also passed the existing same-process (11 checks),
+cross-process (12 checks) and initiator-cancellation (3 checks) probes in
+three fresh runs each.  Multiple targets and full application DnD workflows
+remain open.

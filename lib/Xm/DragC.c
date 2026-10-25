@@ -1371,15 +1371,36 @@ DropLoseSelection(
 {   
   XmDragContext	dc ;
 
+  if (selection == NULL)
+    {
+      XmeWarning(w, MESSAGE2) ;
+      return;
+    }
+
   if (!(dc = (XmDragContext) _XmGetDragContextFromHandle( w, *selection)))
     {
       XmeWarning(w, MESSAGE2) ;
+      return;
     }
 
-  if (dc && dc->drag.dropFinishTime == 0) 
-    {   
-      XmeWarning(w, MESSAGE3) ;
-    }
+  if (dc->drag.dropFinishTime != 0)
+    return;
+
+  /* Losing the ICC selection means that the source can no longer answer
+   * the receiver's transfer requests.  The old code only warned here and
+   * left the drag context alive, so a later conversion or timeout could
+   * dereference a source that no longer owned the selection.  Cancel an
+   * active drag immediately.  Once the pointer action has already finished,
+   * complete the pending drop with failure instead of running FinishAction a
+   * second time. */
+  XmeWarning(w, MESSAGE3) ;
+  if (dc->drag.dragFinishTime == 0) {
+    DragCancel(dc);
+  } else {
+    dc->drag.dragDropCompletionStatus = XmDROP_FAILURE;
+    dc->drag.dropFinishTime = dc->drag.dragFinishTime;
+    DragDropFinish(dc);
+  }
 } 
 
 static void 

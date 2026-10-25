@@ -58,6 +58,21 @@ Drag-initiator cancellation qualification (2026-10-25)
   three checks; source-side post-drop cancellation and owner replacement
   remain separate gates. See `docs/dnd-transfer-lifecycle.md`.
 
+Source-side drag selection loss (2026-10-25)
+============================================
+
+- Treat loss of the Motif drag selection as a terminal ownership event. An
+  active pointer drag is cancelled immediately; a pointer-complete drop that
+  is still awaiting transfer completion is finished with failure. This retires
+  the drag context once instead of leaving later conversion or timeout work
+  pointed at a source that no longer owns the selection.
+- Add owner-replacement and post-drop incremental-transfer installed probes.
+  Three fresh AArch64 Xvfb runs pass 8 checks for active owner replacement and
+  14 checks for post-drop cancellation in each run. The existing same-process,
+  cross-process and initiator-cancellation DnD probes remain green; multiple
+  targets and complete application workflows remain open. See
+  `docs/dnd-transfer-lifecycle.md`.
+
 FontSelector sanitizer ownership boundary (2026-10-25)
 ========================================================
 

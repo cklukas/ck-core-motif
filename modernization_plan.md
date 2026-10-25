@@ -633,8 +633,10 @@ journeys remain separate gates. The companion installed `check-dnd-cancel`
 probe also passes the initiator-side `XmDragCancel` and finish-notification
 contract in three repeated runs. The receiver-side `check-dnd-transfer-cancel`
 consumer also passes delayed-start and active-incremental request cancellation
-in three fresh runs each; source-side post-drop cancellation, owner replacement
-and multiple-target/application-DnD journeys remain open. See
+in three fresh runs each. The source-side `check-dnd-source-cancel` consumer
+also passes owner replacement during an active drag and post-drop incremental
+transfer cancellation in three fresh runs each; multiple-target/application-DnD
+journeys remain open. See
 `docs/dropsite-lifecycle.md` and `docs/dnd-transfer-lifecycle.md`.
 
 ### WP-07: Screen-reader usability and semantic completion
