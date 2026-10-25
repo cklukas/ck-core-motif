@@ -4742,3 +4742,9 @@ Default drag atom-table allocation handling (2026-10-25)
 
 - Check and clean up allocations while creating the default atom cache;
   see `docs/dragbs-default-atoms-allocation.md`.
+
+Drag atom-table allocation handling (2026-10-25)
+=================================================
+
+- Check lazy atom-cache creation and entry-array growth before parsing
+  entries; see `docs/dragbs-atoms-allocation-guards.md`.
