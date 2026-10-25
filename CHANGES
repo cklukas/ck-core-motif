@@ -1,3 +1,10 @@
+XmString-table converter allocation rollback (2026-10-25)
+==========================================================
+
+- Check per-item and table allocations during XmString-table conversion and
+  release partial strings/tables on failure; see
+  `docs/xmstring-table-converter-allocation.md`.
+
 Button-type converter allocation guards (2026-10-25)
 =====================================================
 

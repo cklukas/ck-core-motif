@@ -1248,11 +1248,15 @@ GetNextXmString(
    char *tmp;
    int csize;
 
+   *cs = NULL;
+
    if (**s == '\0')
    {
       if (!*after_delimiter)
          return(FALSE);
       *cs = XtMalloc(1);
+      if (*cs == NULL)
+	 return(TRUE);
       **cs = '\0';
       *after_delimiter = False;
       return(TRUE);
@@ -1268,6 +1272,8 @@ GetNextXmString(
       if (!*after_delimiter)
          return(FALSE);
       *cs = XtMalloc(1);
+      if (*cs == NULL)
+	 return(TRUE);
       **cs = '\0';
       *after_delimiter = False;
       return(TRUE);
@@ -1278,6 +1284,8 @@ GetNextXmString(
    /* the next string                                                */
 
    *cs = XtMalloc(strlen(*s) + 1);
+   if (*cs == NULL)
+	 return(TRUE);
    tmp = *cs;
 
    while((**s) != '\0') 
@@ -1356,11 +1364,25 @@ CvtStringToXmStringTable(
   s = (char *) from_val->addr;
   table_size = 100;
   table = (XmString *) XtMalloc(sizeof(XmString) * table_size);
-  for (str_no = 0; GetNextXmString(&s, &cs, &after_delimiter); str_no++)
+  if (table == NULL)
+    return FALSE;
+  for (str_no = 0;;)
     {
+      cs = NULL;
+      if (!GetNextXmString(&s, &cs, &after_delimiter))
+	break;
+      if (cs == NULL)
+	{
+	  int cleanup;
+	  for (cleanup = 0; cleanup < str_no; ++cleanup)
+	    XmStringFree(table[cleanup]);
+	  XtFree((char *)table);
+	  return False;
+	}
       if (str_no >= table_size)
 	{
 	  int cleanup;
+	  XmString *new_table;
 	  if (table_size > INT_MAX / 2 ||
 	      (unsigned int)table_size > UINT_MAX / (2 * sizeof(XmString)))
 	    {
@@ -1371,12 +1393,28 @@ CvtStringToXmStringTable(
 	      return False;
 	    }
 	  table_size *= 2;
-	  table = (XmString *)XtRealloc((char *)table, 
-					sizeof(XmString) * table_size);
+	  new_table = (XmString *)XtRealloc((char *)table,
+					      sizeof(XmString) * table_size);
+	  if (new_table == NULL) {
+	      for (cleanup = 0; cleanup < str_no; ++cleanup)
+		XmStringFree(table[cleanup]);
+	      XtFree((char *)table);
+	      XtFree(cs);
+	      return False;
+	  }
+	  table = new_table;
 	}
       table[str_no] = XmStringGenerate(cs, XmFONTLIST_DEFAULT_TAG,
 				       XmCHARSET_TEXT, NULL);
       XtFree(cs);
+      if (table[str_no] == NULL) {
+	  int cleanup;
+	  for (cleanup = 0; cleanup < str_no; ++cleanup)
+	    XmStringFree(table[cleanup]);
+	  XtFree((char *)table);
+	  return False;
+      }
+      ++str_no;
     }
 
   /* NULL terminate the array... */
@@ -1389,7 +1427,18 @@ CvtStringToXmStringTable(
       return False;
     }
   table_size = str_no + 1;
-  table = (XmString *)XtRealloc((char *) table, sizeof(XmString) * table_size);
+  {
+    XmString *new_table = (XmString *)XtRealloc((char *) table,
+						 sizeof(XmString) * table_size);
+    if (new_table == NULL) {
+      int cleanup;
+      for (cleanup = 0; cleanup < str_no; ++cleanup)
+	  XmStringFree(table[cleanup]);
+      XtFree((char *)table);
+      return False;
+    }
+    table = new_table;
+  }
   table[str_no] = (XmString) NULL;
 
   if (to_val->addr != NULL) 
