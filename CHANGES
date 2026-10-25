@@ -7280,3 +7280,12 @@ PushButtonGadget default-glyph bounds (2026-10-25)
   margins and unsigned height subtraction; see `docs/pushbg-glyph-bounds.md`.
 
 MultiList geometry request bounds (2026-10-25)
+Frame title placement bounds (2026-10-26)
+=========================================
+
+- Use signed arithmetic for Frame title alignment coordinates, preventing
+  wrapped positions when a title exceeds a collapsed frame; see
+  `docs/frame-title-placement.md`.
+
+ScrollBar resize span bounds (2026-10-26)
+=========================================
