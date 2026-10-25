@@ -98,6 +98,12 @@ TabBox geometry-buffer Xt byte bounds (2026-10-28)
 - Check Xt `Cardinal` byte limits before growing actual-tab, wanted-tab, and
   image-cache arrays; see `docs/tabbox-geometry-allocation.md`.
 
+Traversal-node pool Xt byte bounds (2026-10-28)
+================================================
+
+- Check Xt `Cardinal` byte limits during traversal-node pool creation and
+  growth; see `docs/traversal-node-allocation.md`.
+
 Compound-text concatenation failure handling (2026-10-28)
 ============================================================
 

@@ -8,6 +8,7 @@ alloc = source[source.index("size_t new_alloc"):source.index("static Boolean \nG
 get_nodes = source[source.index("list_entry_offset ="):source.index("if (free_child_list)")]
 assert "XmTraversalNode new_head" in alloc
 assert "if (new_head == NULL)" in alloc
+assert alloc.count("UINT_MAX / sizeof(XmTraversalNodeRec)") >= 2
 assert "list->head = new_head" in alloc
 assert "return NULL;" in alloc
 assert "if (list_entry == NULL)" in get_nodes

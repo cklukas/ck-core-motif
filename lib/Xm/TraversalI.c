@@ -1167,7 +1167,8 @@ AllocListEntry(
        */
       new_alloc = list->next_alloc ? list->next_alloc :
                   XmTRAV_LIST_ALLOC_INCREMENT;
-      if (new_alloc > SIZE_MAX / sizeof(XmTraversalNodeRec))
+      if (new_alloc > SIZE_MAX / sizeof(XmTraversalNodeRec) ||
+          new_alloc > UINT_MAX / sizeof(XmTraversalNodeRec))
         return NULL;
       new_head = (XmTraversalNode)
         XtMalloc(new_alloc * sizeof(XmTraversalNodeRec));
@@ -1179,7 +1180,8 @@ AllocListEntry(
   else if (list->num_entries == list->num_alloc)
     {
       new_alloc = (size_t)list->num_alloc + XmTRAV_LIST_ALLOC_INCREMENT;
-      if (new_alloc > SIZE_MAX / sizeof(XmTraversalNodeRec))
+      if (new_alloc > SIZE_MAX / sizeof(XmTraversalNodeRec) ||
+          new_alloc > UINT_MAX / sizeof(XmTraversalNodeRec))
         return NULL;
       new_head = (XmTraversalNode)
         XtRealloc((char *)list->head,
