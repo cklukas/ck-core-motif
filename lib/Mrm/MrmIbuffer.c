@@ -751,7 +751,7 @@ Idb__BM_Decommit (IDBRecordBufferPtr		buffer)
 			  NULL, NULL, MrmNOT_VALID) ;
 
   if ((buffer->access == URMWriteAccess) && (buffer->modified == TRUE) &&
-      buffer->cur_file == NULL)
+      (buffer->cur_file == NULL || buffer->IDB_record == NULL))
     return MrmFAILURE;
 
   if ((buffer->access == URMWriteAccess) && (buffer->modified == TRUE))

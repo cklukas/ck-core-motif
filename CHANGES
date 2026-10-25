@@ -1,3 +1,9 @@
+Mrm buffer decommit record validation (2026-10-25)
+=================================================
+
+- Reject modified buffers without record storage before low-level writes; see
+  `docs/mrm-decommit-record.md`.
+
 Mrm in-memory record source validation (2026-10-25)
 ====================================================
 
