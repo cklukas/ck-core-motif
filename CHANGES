@@ -3723,3 +3723,8 @@ Guard text-property XmString tables (2026-10-25)
   validate size multiplication, and clean up already generated XmStrings when
   later generation fails; see the corresponding `docs/motif-txtpropcv-*.md`
   contracts.
+Guard bounded compound-text segment copies (2026-10-25)
+=========================================================
+
+- Clean up converted entries and return `BadAlloc` when a temporary segment
+  copy cannot be allocated; see `docs/motif-txtpropcv-segment-copy.md`.
