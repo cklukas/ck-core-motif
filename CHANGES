@@ -1,3 +1,10 @@
+Clipboard format-unit validation (2026-10-26)
+==============================================
+
+- Reject unsupported serialized format-unit sizes instead of propagating them
+  into later clipboard copy operations; see
+  `docs/clipboard-format-unit-validation.md`.
+
 Clipboard header validation in copy/message paths (2026-10-26)
 ===============================================================
 

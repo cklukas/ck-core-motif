@@ -1552,7 +1552,6 @@ ClipboardGetLenFromFormat(
     unsigned char *outpointer;
     Atom type;
     int format;
-    int ret_value;
     unsigned long bytes_left;
 
     if (format_length == NULL)
@@ -1592,11 +1591,19 @@ ClipboardGetLenFromFormat(
 
 	*format_length = 8;
 
-    }else{
-	ret_value = ClipboardSuccess;
+	}else{
+	long stored_length = *((long *)outpointer);
 
-	/* return the length of the format */
-	*format_length = *((long *)outpointer);
+	if (stored_length != 8 && stored_length != 16 && stored_length != 32)
+	{
+	    ret_value = ClipboardFail;
+	    *format_length = 8;
+	}
+	else
+	{
+	    ret_value = ClipboardSuccess;
+	    *format_length = (int)stored_length;
+	}
     }
 
     if (outpointer != NULL)
