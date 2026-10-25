@@ -6976,3 +6976,10 @@ MultiList geometry request bounds (2026-10-25)
   `docs/multilist-geometry-bounds.md`.
 
 VendorShell resize bounds (2026-10-25)
+PushButtonGadget default-glyph bounds (2026-10-25)
+==================================================
+
+- Guard optional gadget default-glyph placement and erasure against collapsed
+  margins and unsigned height subtraction; see `docs/pushbg-glyph-bounds.md`.
+
+MultiList geometry request bounds (2026-10-25)
