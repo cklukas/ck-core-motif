@@ -9543,6 +9543,12 @@ XmeStringGetComponent(_XmStringContext context,
   } else {
     _XmString str = _XmStrContString(context);
     _XmStringEntry line;
+
+    if (str == NULL) {
+	_XmStrContError(context) = True;
+	_XmProcessUnlock();
+	return XmSTRING_COMPONENT_END;
+    }
     
     /* If we've run off the end we're done. */
     if (_XmStrContCurrLine(context) >= _XmStrLineCountGet(str)) {
@@ -9554,15 +9560,31 @@ XmeStringGetComponent(_XmStringContext context,
     
     if (_XmStrImplicitLine(str))
       {
+	if (_XmStrEntry(str) == NULL) {
+	  _XmStrContError(context) = True;
+	  _XmProcessUnlock();
+	  return XmSTRING_COMPONENT_END;
+	}
 	line = _XmStrEntry(str)[_XmStrContCurrLine(context)];
       }
     else
       {
+	if (_XmStrEntry(str) == NULL) {
+	  _XmStrContError(context) = True;
+	  _XmProcessUnlock();
+	  return XmSTRING_COMPONENT_END;
+	}
 	_XmEntryType(&array_seg) = XmSTRING_ENTRY_ARRAY;
 	_XmEntrySegmentCount(&array_seg) = _XmStrEntryCount(str);
 	_XmEntrySegment(&array_seg) = (_XmStringNREntry *)_XmStrEntry(str);
 	line = (_XmStringEntry)&array_seg;
       }
+
+    if (line == NULL) {
+	_XmStrContError(context) = True;
+	_XmProcessUnlock();
+	return XmSTRING_COMPONENT_END;
+    }
 
     last_line = (_XmStrContCurrLine(context) + 1 >= _XmStrLineCountGet(str));
     if (_XmEntryMultiple(line))
@@ -9582,6 +9604,12 @@ XmeStringGetComponent(_XmStringContext context,
 	  (_XmStringEntry)_XmEntrySegment(line)[_XmStrContCurrSeg(context)];
       else 
 	seg = line;
+
+      if (seg == NULL) {
+	_XmStrContError(context) = True;
+	_XmProcessUnlock();
+	return XmSTRING_COMPONENT_END;
+      }
       
       /* Only lookup pop_dir when we need it. */
       /* Only lookup push_dir when we need it. */
@@ -9594,6 +9622,12 @@ XmeStringGetComponent(_XmStringContext context,
       begin_rends = _XmEntryRendCountedBegins(seg, begin_count);
       end_count   = _XmEntryRendEndCountGet(seg);
       end_rends   = _XmEntryRendCountedEnds(seg, end_count);
+      if ((begin_count != 0 && begin_rends == NULL) ||
+	  (end_count != 0 && end_rends == NULL)) {
+	_XmStrContError(context) = True;
+	_XmProcessUnlock();
+	return XmSTRING_COMPONENT_END;
+      }
       /* Only lookup tabs when we need it. */
     }
   }
