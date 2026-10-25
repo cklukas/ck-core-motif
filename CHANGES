@@ -86,6 +86,12 @@ Compound-text compatibility length tracking (2026-10-26)
   reject NULL text, and bound the optional version header; see
   `docs/compound-text-compatibility-length.md`.
 
+Accessibility creation input guards (2026-10-26)
+=================================================
+
+- Reject a NULL root and handle failed accessibility-state allocation before
+  using the new object; see `docs/accessibility-create-inputs.md`.
+
 Accessibility UTF-8 allocation guards (2026-10-26)
 ===================================================
 
