@@ -222,6 +222,8 @@ static void DrawEtchedInMenu(
                         XmToggleButtonGadget tb) ;
 static void DrawToggleShadow( 
                         XmToggleButtonGadget tb) ;
+static Boolean ToggleShadowBoxFits(
+			XmToggleButtonGadget tb) ;
 static void SetToggleSize( 
                         XmToggleButtonGadget newtbg) ;
 static void NextState(unsigned char *state);
@@ -1425,7 +1427,8 @@ Enter(
 		   DrawToggle(w);
 	   }
 
-	  XmeDrawShadows (XtDisplay (w), XtWindow (w),
+	  if (ToggleShadowBoxFits(w))
+	    XmeDrawShadows (XtDisplay (w), XtWindow (w),
 			  LabG_TopShadowGC(w),
 			  LabG_BottomShadowGC(w),
 			  w->rectangle.x + w->gadget.highlight_thickness,
@@ -1842,7 +1845,8 @@ BtnDown(
 	     DrawToggle(tb);
      }
 					   
-  XmeDrawShadows (XtDisplay (tb), XtWindow (tb),
+  if (ToggleShadowBoxFits(tb))
+    XmeDrawShadows (XtDisplay (tb), XtWindow (tb),
 		  LabG_TopShadowGC(tb),
 		  LabG_BottomShadowGC(tb),
 		  tb->rectangle.x + tb->gadget.highlight_thickness,
@@ -2845,7 +2849,8 @@ BorderHighlight(
 		DrawToggle(tb);
 	}
 
-      XmeDrawShadows (XtDisplay (tb), XtWindow (tb),
+      if (ToggleShadowBoxFits(tb))
+	XmeDrawShadows (XtDisplay (tb), XtWindow (tb),
 		      LabG_TopShadowGC(tb),
 		      LabG_BottomShadowGC(tb),
 		      tb->rectangle.x + tb->gadget.highlight_thickness,
@@ -3115,7 +3120,7 @@ Redisplay(
       XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(w));
       Boolean etched_in = dpy -> display.enable_etched_in_menu;
 
-      if (TBG_Armed(tb))
+	  if (TBG_Armed(tb) && ToggleShadowBoxFits(tb))
 	XmeDrawShadows(XtDisplay (tb), XtWindow (tb),
 		       LabG_TopShadowGC(tb),
 		       LabG_BottomShadowGC(tb),
@@ -4383,6 +4388,16 @@ DrawEtchedInMenu(
 #endif
 }
 
+static Boolean
+ToggleShadowBoxFits(
+	XmToggleButtonGadget tb)
+{
+    int highlight = (int) tb->gadget.highlight_thickness;
+
+    return (int) tb->rectangle.width > 2 * highlight &&
+	   (int) tb->rectangle.height > 2 * highlight;
+}
+
 /*
  * DrawToggleShadow (tb)
  *   - Should be called only if ToggleShadow are to be drawn ;

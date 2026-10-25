@@ -1,3 +1,9 @@
+ToggleButton gadget shadow bounds (2026-10-26)
+===============================================
+
+- Guard menu-arming shadow draws against collapsed gadget dimensions, avoiding
+  wrapped inset spans; see `docs/toggle-shadow-bounds.md`.
+
 IconG horizontal clip bounds (2026-10-26)
 ============================================
 
