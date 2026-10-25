@@ -14447,3 +14447,9 @@ Mwm menu sentinel portability (2026-10-26)
 
 - Use type-correct zero values for Mwm menu KeySym, KeyCode and CARD32
   sentinels; see `docs/wm-menu-sentinels.md`.
+
+UIL locale charset input bounds (2026-10-25)
+============================================
+
+- Reject null and oversized `LANG` charset names before copying them into the
+  UIL semantic-analysis buffer; see `docs/uil-charset-input-bounds.md`.

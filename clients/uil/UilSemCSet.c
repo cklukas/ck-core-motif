@@ -268,6 +268,7 @@ int sem_charset_lang_name (lang_charset)
 {
 
 char		uname[200];	/* upper-case character set name */
+size_t		name_length;
 int		ndx;		/* loop index */
 
 
@@ -275,7 +276,12 @@ int		ndx;		/* loop index */
  * Convert name to upper case, then search table (which is already in
  * upper case).
  */
-strcpy (uname, lang_charset);
+if (lang_charset == NULL)
+    return 0;
+name_length = strlen(lang_charset);
+if (name_length >= sizeof(uname))
+    return 0;
+memcpy(uname, lang_charset, name_length + 1);
 for ( ndx=0 ; ndx<(int)strlen(uname) ; ndx++ )
     uname[ndx] = _upper (uname[ndx]);
 

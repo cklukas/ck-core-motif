@@ -58,4 +58,5 @@ nav:
       - docs/text-source-bounds.md
       - docs/image-scaling.md
       - docs/uil-listing.md
+      - docs/uil-charset-input-bounds.md
       - docs/disclosure.md
