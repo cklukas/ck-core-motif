@@ -2045,6 +2045,11 @@ Boolean InsertIconIntoBox (IconBoxData *pIBD, ClientData *pCD)
 					   P_ICON_BOX(pCD)->bBoardWidget,
 #endif /* WSM */
 					   (ArgList)setArgs, i);
+	    if (iconWidget == NULL) {
+		MWarning(((char *)GETMESSAGE(48, 7,
+			"Insufficient memory for icon box widget\n")));
+		return (NULL);
+	    }
 
 	    if (dummyString == NULL)
 	    {

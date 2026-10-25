@@ -13461,6 +13461,12 @@ MWM menu widget creation safety (2026-10-26)
   sensitivity, bookkeeping, and callback setup; see
   `docs/mwm-menu-widget-creation.md`.
 
+MWM icon-box widget creation safety (2026-10-26)
+=================================================
+
+- Check icon-box item widget creation before applying labels or window state;
+  see `docs/mwm-icon-widget-creation.md`.
+
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================
 
