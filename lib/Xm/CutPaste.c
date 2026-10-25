@@ -2804,9 +2804,17 @@ ClipboardGetNewItemId(
     unsigned long length;
     itemId loc_id;
     Atom type;
+    int status;
 
-    ClipboardFindItem(display, XM_NEXT_ID, &propertynumber, &length,
-		      &type, 0, 0 );
+    propertynumber = NULL;
+    status = ClipboardFindItem(display, XM_NEXT_ID, &propertynumber, &length,
+			       &type, 0, 0 );
+    if (status != ClipboardSuccess || propertynumber == NULL ||
+	length < sizeof(itemId))
+    {
+	XtFree( (char *)propertynumber);
+	return 0;
+    }
 
     loc_id = ++*((itemId*)propertynumber);
 
@@ -3167,6 +3175,13 @@ XmClipboardStartCopy(
     /* get the clipboard header, make sure clipboard is initialized */
     header = ClipboardOpen( display, 0 );
 
+    if (header == NULL)
+    {
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
+
     /* allocate storage for the data item  */ 
     itemlength = sizeof( ClipboardDataItemRec );
 
@@ -3187,6 +3202,17 @@ XmClipboardStartCopy(
 
     loc_itemid = ClipboardGetNewItemId( display ); 
 
+    if (loc_itemid == 0)
+    {
+	XtFree( (char *)itemheader);
+	header->selectionTimestamp = previousTimestamp;
+	header->startCopyCalled = previousStartCopyCalled;
+	ClipboardClose( display, header );
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
+
     /* initialize fields in the data item */
     itemheader->thisItemId = loc_itemid;
     itemheader->adjunctData = 0;
@@ -3194,6 +3220,17 @@ XmClipboardStartCopy(
     itemheader->displayId = display;
     itemheader->windowId  = window;
     itemheader->dataItemLabelId = ClipboardGetNewItemId( display ); 
+
+    if (itemheader->dataItemLabelId == 0)
+    {
+	XtFree( (char *)itemheader);
+	header->selectionTimestamp = previousTimestamp;
+	header->startCopyCalled = previousStartCopyCalled;
+	ClipboardClose( display, header );
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
     itemheader->formatIdList = itemlength / CONVERT_32_FACTOR; /* offset */
     itemheader->formatCount = 0;
     itemheader->cancelledFormatCount = 0;

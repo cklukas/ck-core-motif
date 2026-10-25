@@ -1,3 +1,9 @@
+Clipboard item-ID allocation validation (2026-10-26)
+=====================================================
+
+- Validate the next-ID property and abort start-copy cleanly when item or label
+  IDs cannot be allocated; see `docs/clipboard-item-id-allocation.md`.
+
 Clipboard data-wait cleanup (2026-10-26)
 =========================================
 
