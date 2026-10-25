@@ -3542,7 +3542,8 @@ XmClipboardCopy(
     unsigned long maxname, formatlength, itemlength, formatdatalength;
     Atom type;
 
-    if (format == NULL || (buffer == NULL && length != 0))
+    if (format == NULL || (buffer == NULL && length != 0) ||
+	length > INT_MAX)
 	return ClipboardBadFormat;
 
     _XmDisplayToAppContext(display);
@@ -4021,7 +4022,7 @@ XmClipboardCopyByName(
     Atom headertype, formattype;
     Atom type;
 
-    if (buffer == NULL && length != 0)
+    if ((buffer == NULL && length != 0) || length > INT_MAX)
 	return ClipboardBadFormat;
 
     _XmDisplayToAppContext(display);

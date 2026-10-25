@@ -1,3 +1,10 @@
+Clipboard copy length truncation guard (2026-10-26)
+===================================================
+
+- Reject public clipboard copy lengths above `INT_MAX` before the legacy
+  retrieval helper's integer extension parameter truncates them; see
+  `docs/clipboard-copy-length-guard.md`.
+
 Clipboard lock-marker property bound (2026-10-26)
 =================================================
 
