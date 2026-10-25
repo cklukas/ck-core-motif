@@ -5767,6 +5767,13 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+List selection-position Xt width (2026-10-25)
+==============================================
+
+- Check rebuilt selected-position arrays against Xt's `Cardinal` allocation
+  width before copying positions; see
+  `docs/list-selection-rebuild-allocation.md`.
+
 Container child-list Xt allocation cast (2026-10-25)
 =====================================================
 

@@ -16,6 +16,8 @@ positions_start = source.rindex("BuildSelectedPositions(XmListWidget lw")
 positions_end = source.index("UpdateSelectedList(", positions_start)
 positions = source[positions_start:positions_end]
 assert "lw->list.selectedPositions = (int *) XtMalloc" in positions
+assert "UINT_MAX / sizeof(int)" in positions
+assert "(Cardinal)(sizeof(int) * (size_t)nsel)" in positions
 assert "if (lw->list.selectedPositions == NULL)" in positions
 assert positions.index("if (lw->list.selectedPositions == NULL)") < positions.index("lw->list.selectedPositions[nsel]")
 print("PASS List selection rebuild allocation failures are handled")

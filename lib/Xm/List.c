@@ -4224,14 +4224,17 @@ BuildSelectedPositions(XmListWidget lw,
     }
 
   lw->list.selectedPositionCount = nsel;
-  if (nsel <= 0 || (size_t)nsel > SIZE_MAX / sizeof(int))
+  if (nsel <= 0 ||
+      (size_t)nsel > SIZE_MAX / sizeof(int) ||
+      (size_t)nsel > UINT_MAX / sizeof(int))
     {
       lw->list.selectedPositionCount = 0;
       lw->list.selectedPositions = NULL;
     }
   else
     {
-      lw->list.selectedPositions = (int *) XtMalloc(sizeof(int) * nsel);
+      lw->list.selectedPositions = (int *) XtMalloc(
+		  (Cardinal)(sizeof(int) * (size_t)nsel));
       if (lw->list.selectedPositions == NULL)
 	{
 	  lw->list.selectedPositionCount = 0;
