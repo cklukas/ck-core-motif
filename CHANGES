@@ -9996,6 +9996,12 @@ FontSelector buffer allocation guard (2026-10-25)
   font buffer cannot be allocated; see
   `docs/font-selector-buffer-allocation.md`.
 
+FontSelector current-font allocation guard (2026-10-25)
+========================================================
+
+- Stop FontSelector display setup when its current `FontData` record cannot be
+  allocated; see `docs/font-selector-current-font-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

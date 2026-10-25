@@ -3739,6 +3739,8 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal * num_args)
      */
 
     XmFontS_font_info(fsw)->current_font = (FontData *) XtMalloc(sizeof(FontData));
+    if (XmFontS_font_info(fsw)->current_font == NULL)
+	return;
     SetDisplayedFont(fsw, XmFontS_current_font(fsw));
 
 }
