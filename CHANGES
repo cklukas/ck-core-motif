@@ -2043,6 +2043,12 @@ XmPicture repeat node-map bounds (2026-10-25)
   picture graphs while leaving unrepresentable expansion unchanged; see
   `docs/picture-copy-bounds.md`.
 
+Accessibility display-hook allocation (2026-10-25)
+====================================================
+
+- Check per-display accessibility hook bookkeeping allocation before callback
+  registration; see `docs/accessibility.md`.
+
 Accessibility tree-seed snapshot allocation (2026-10-25)
 ============================================================
 

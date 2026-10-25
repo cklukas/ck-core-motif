@@ -387,6 +387,8 @@ static void watch_display(XmAccessibility *a, Widget widget) {
     if (hook->hooks == hooks)
       return;
   hook = (XmAccessibleDisplayHook *)XtMalloc(sizeof(*hook));
+  if (!hook)
+    return;
   hook->hooks = hooks;
   hook->next = a->display_hooks;
   a->display_hooks = hook;
