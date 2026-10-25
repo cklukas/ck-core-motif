@@ -24,10 +24,10 @@ static Atom target_atoms[2];
 static XmDropTransferEntryRec transfer_entries[2];
 static const char payload[] = "cross-process drag payload";
 static const char transfer_cookie[] = "cross-process transfer cookie";
-static const char multi_payloads[2][24] = {
+static const char *const multi_payloads[2] = {
     "cross-process target one", "cross-process target two"
 };
-static const char multi_cookies[2][24] = {
+static const char *const multi_cookies[2] = {
     "cross-process cookie one", "cross-process cookie two"
 };
 static unsigned transfer_count;
