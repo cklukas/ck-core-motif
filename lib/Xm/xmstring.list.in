@@ -1143,6 +1143,15 @@ CCommandPaletteDismissCallback
 NcommandPaletteInvokeCallback
 NcommandPaletteDismissCallback
 
+CSkeletonLabel
+CSkeletonAnimated
+CSkeletonReducedMotion
+CSkeletonInterval
+NskeletonLabel
+NskeletonAnimated
+NskeletonReducedMotion
+NskeletonInterval
+
 #table _XmStrings20
 
 NtearOffTitle
