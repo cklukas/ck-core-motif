@@ -4712,3 +4712,9 @@ Drag atom-table property validation (2026-10-25)
 
 - Validate `_MOTIF_DRAG_ATOMS` encoding and advertised entry storage before
   parsing the cache; see `docs/dragbs-atoms-read-guards.md`.
+
+Drag target-table property validation (2026-10-25)
+====================================================
+
+- Validate `_MOTIF_DRAG_TARGETS` encoding and serialized list boundaries
+  before parsing the cache; see `docs/dragbs-targets-read-guards.md`.
