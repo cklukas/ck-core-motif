@@ -720,6 +720,8 @@ SetValues(Widget current, Widget request, Widget set,
     Boolean pixmapChanged = False;
     Boolean pixmapGeoChanged = False;
     Boolean resetPixmapValues = False;
+    XmString label_string_copy;
+    String label_copy;
     
     reinit_l = reinit_ls = resetGCs = recalc = redisplay = False;
 
@@ -870,14 +872,26 @@ SetValues(Widget current, Widget request, Widget set,
 	*/
 	/* Boolean	was_from_name; */
 	if (reinit_ls) {
-		XmStringFree(XmIconButton_label_string(old_iw));
-		if (XmIconButton_label_string(set_iw))
-			XmIconButton_label_string(set_iw) = XmStringCopy(XmIconButton_label_string(set_iw));
+		label_string_copy = XmIconButton_label_string(set_iw) != NULL
+		    ? XmStringCopy(XmIconButton_label_string(set_iw)) : NULL;
+		if (XmIconButton_label_string(set_iw) == NULL ||
+		    label_string_copy != NULL) {
+		    XmStringFree(XmIconButton_label_string(old_iw));
+		    XmIconButton_label_string(set_iw) = label_string_copy;
+		} else {
+		    XmIconButton_label_string(set_iw) =
+			XmIconButton_label_string(old_iw);
+		}
 	    }
 	    if (reinit_l) {
-		XtFree(XmIconButton_label(old_iw));
-		if (XmIconButton_label(set_iw))
-			XmIconButton_label(set_iw) = XtNewString(XmIconButton_label(set_iw));
+		label_copy = XmIconButton_label(set_iw) != NULL
+		    ? XtNewString(XmIconButton_label(set_iw)) : NULL;
+		if (XmIconButton_label(set_iw) == NULL || label_copy != NULL) {
+		    XtFree(XmIconButton_label(old_iw));
+		    XmIconButton_label(set_iw) = label_copy;
+		} else {
+		    XmIconButton_label(set_iw) = XmIconButton_label(old_iw);
+		}
 	    }
 	    /* was_from_name = XmIconButton_label_from_name(set_iw); */
 	    XmIconButton_label_from_name(set_iw) = False;

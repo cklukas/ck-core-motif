@@ -9315,3 +9315,10 @@ Vendor input-method string rollback (2026-10-29)
 - Preserve existing input-method and preedit-type strings until replacement
   copies succeed, while retaining NULL as explicit clearing; see
   `docs/vendor-im-string-rollback.md`.
+
+IconButton label rollback (2026-10-29)
+======================================
+
+- Copy changed label resources before releasing their current values, keeping
+  existing labels usable when allocation fails; see
+  `docs/iconbutton-label-rollback.md`.
