@@ -5959,6 +5959,7 @@ XmCvtByteStreamToXmString(unsigned char *property)
   Boolean     	      havetag;
   Boolean	      begin_seen, end_seen;
   Boolean	      txt_seen;
+  Boolean              malformed = FALSE;
   unsigned int 	      tag_index = TAG_INDEX_MAX;
   unsigned int 	      begin_index = REND_INDEX_MAX;
   unsigned int 	      end_index = REND_INDEX_MAX;
@@ -5996,7 +5997,24 @@ XmCvtByteStreamToXmString(unsigned char *property)
   
   while (continue_flag)
     {
+      size_t remaining;
+
+      if (c_opt >= end) {
+	malformed = TRUE;
+	break;
+      }
+      remaining = (size_t)(end - c_opt);
+      if (remaining < (size_t)(ASNTAG + CSSHORTLEN) ||
+	  (_is_asn1_long(c_opt) &&
+	   remaining < (size_t)(ASNTAG + CSLONGLEN))) {
+	malformed = TRUE;
+	break;
+      }
       length = _read_asn1_length (c_opt);
+	  if ((size_t)length > remaining - (size_t)_asn1_size(length)) {
+	malformed = TRUE;
+	break;
+	  }
 
       switch (*c_opt)
         {
@@ -6100,6 +6118,9 @@ XmCvtByteStreamToXmString(unsigned char *property)
       if ((c_opt >= end) || (!optimized))
 	continue_flag = FALSE;
     }
+
+  if (malformed)
+    return NULL;
 
   if (optimized) string = (_XmString)
     _XmStringOptCreate(c, end, txtlength, havetag, tag_index);

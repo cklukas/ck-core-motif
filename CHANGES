@@ -155,6 +155,13 @@ XmString byte-stream header validation (2026-10-26)
 - Reject non-ASN.1 input before reading byte-stream length fields, matching the
   converter’s existing validation; see `docs/xmstring-byte-stream-length.md`.
 
+XmString byte-stream bounds validation (2026-10-26)
+====================================================
+
+- Reject truncated ASN.1 components before reading or advancing past their
+  declared payloads; valid compound strings convert as before. See
+  `docs/xmstring-byte-stream-bounds.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 
