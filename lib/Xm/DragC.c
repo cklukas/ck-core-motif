@@ -1430,13 +1430,16 @@ DragDropFinish(
 		      dc->drag.iccHandle,
 		      dc->drag.dragFinishTime);
 
-    _XmFreeMotifAtom((Widget)dc, dc->drag.iccHandle);
+    /* The drag context may already be in its teardown path here.  The
+     * source shell remains the live display-owning widget and is the stable
+     * owner to use while releasing the Motif selection atom. */
+    _XmFreeMotifAtom(dc->drag.srcShell, dc->drag.iccHandle);
 
     XtRemoveEventHandler(dc->drag.srcShell, FocusChangeMask, True,
 			 InitiatorMsgHandler, 
 			 (XtPointer)dc);
 
-    XtVaGetValues((Widget)dc, XmNsourceWidget, &w, NULL);
+    w = dc->drag.sourceWidget;
     if (w)
 	XtRemoveCallback(w, XmNdestroyCallback, cancelDrag, (XtPointer)dc);
 
