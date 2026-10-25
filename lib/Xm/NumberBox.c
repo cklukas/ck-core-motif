@@ -24,8 +24,18 @@ static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
-static int bounded_text_length(const char *text){size_t length=text?strlen(text):0;return length>(size_t)INT_MAX?INT_MAX:(int)length;}
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
+static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
+{
+    XmNumberBoxWidget number = (XmNumberBoxWidget)widget;
+    (void)offset;
+    if (number->number_box.check_set_render_table)
+        value->addr = NULL;
+    else {
+        number->number_box.check_set_render_table = True;
+        value->addr = (char *)&number->number_box.render_table;
+    }
+}
 
 #define Offset(field) XtOffsetOf(XmNumberBoxRec, field)
 static XtResource resources[] = {
@@ -49,6 +59,10 @@ static XtResource resources[] = {
      (XtPointer)NULL},
     {XmNspacing, XmCSpacing, XmRHorizontalDimension, sizeof(Dimension),
      Offset(number_box.spacing), XmRImmediate, (XtPointer)6},
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmRenderTable),
+     Offset(number_box.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmRenderTable),
+     Offset(number_box.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean),
      Offset(primitive.traversal_on), XmRImmediate, (XtPointer)True},
     {XmNhighlightThickness, XmCHighlightThickness, XmRHorizontalDimension,
@@ -108,24 +122,6 @@ static void redraw(XmNumberBoxWidget number) {
                    0, 0, 0, 0, True);
 }
 
-static int text_baseline(XmNumberBoxWidget number) {
-    XGCValues values;
-    XFontStruct *font;
-    long long baseline;
-    if (!number->number_box.text_gc ||
-        !XGetGCValues(XtDisplay((Widget)number), number->number_box.text_gc,
-                      GCFont, &values))
-        return (int)number->core.height / 2;
-    font = XQueryFont(XtDisplay((Widget)number), values.font);
-    if (!font)
-        return (int)number->core.height / 2;
-    baseline = ((long long)number->core.height - font->ascent - font->descent) /
-               2 + font->ascent;
-    XFreeFontInfo(NULL, font, 1);
-    return baseline < INT_MIN ? INT_MIN :
-           baseline > INT_MAX ? INT_MAX : (int)baseline;
-}
-
 static void notify_value(XmNumberBoxWidget number, XEvent *event) {
     XmNumberBoxCallbackStruct callback;
     callback.reason = XmCR_VALUE_CHANGED;
@@ -157,17 +153,20 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     format_value(number);
     values.foreground = number->primitive.foreground;
     values.background = number->core.background_pixel;
-    number->number_box.font = XLoadQueryFont(display, "fixed");
-    if (number->number_box.font)
-        values.font = number->number_box.font->fid;
+    if (number->number_box.render_table == NULL)
+        number->number_box.render_table = XmFontListCopy(
+            XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+    else
+        number->number_box.render_table = XmFontListCopy(
+            number->number_box.render_table);
     number->number_box.text_gc = XCreateGC(display, DefaultRootWindow(display),
-                                           mask | (number->number_box.font ? GCFont : 0), &values);
+                                           mask, &values);
     values.foreground = number->primitive.foreground;
     number->number_box.arrow_gc = XCreateGC(display, DefaultRootWindow(display),
-                                            mask | (number->number_box.font ? GCFont : 0), &values);
+                                            mask, &values);
     values.foreground = number->primitive.bottom_shadow_color;
     number->number_box.invalid_gc = XCreateGC(display, DefaultRootWindow(display),
-                                              mask | (number->number_box.font ? GCFont : 0), &values);
+                                              mask, &values);
     if (!number->core.width) number->core.width = 140;
     if (!number->core.height) number->core.height = 32;
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events,
@@ -182,14 +181,14 @@ static void Destroy(Widget widget) {
     if (number->number_box.text_gc) XFreeGC(display, number->number_box.text_gc);
     if (number->number_box.arrow_gc) XFreeGC(display, number->number_box.arrow_gc);
     if (number->number_box.invalid_gc) XFreeGC(display, number->number_box.invalid_gc);
-    if (number->number_box.font) XFreeFont(display, number->number_box.font);
+    if (number->number_box.render_table)
+        XmRenderTableFree(number->number_box.render_table);
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmNumberBoxWidget number = (XmNumberBoxWidget)widget;
     Display *display = XtDisplay(widget);
     Window window = XtWindow(widget);
-    int baseline;
     int arrow_x;
     XPoint up[3], down[3];
     GC text_gc;
@@ -202,10 +201,20 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (!text_gc)
         return;
     XClearWindow(display, window);
-    baseline = text_baseline(number);
-    XDrawString(display, window, text_gc, (int)number->number_box.spacing,
-                baseline, number->number_box.text,
-                bounded_text_length(number->number_box.text));
+    if (number->number_box.render_table) {
+        XmString value = XmStringCreateLocalized(number->number_box.text);
+        Dimension text_width = 0, text_height = 0;
+        if (value) {
+            XmStringExtent(number->number_box.render_table, value,
+                           &text_width, &text_height);
+            XmStringDraw(display, window, number->number_box.render_table,
+                         value, text_gc, (int)number->number_box.spacing,
+                         ((int)number->core.height - (int)text_height) / 2,
+                         text_width, XmALIGNMENT_BEGINNING,
+                         XmPrim_layout_direction(number), NULL);
+            XmStringFree(value);
+        }
+    }
     arrow_x = number->core.width > 24 ? number->core.width - 24 : 0;
     if (arrow_x > SHRT_MAX - 19)
         arrow_x = SHRT_MAX - 19;
@@ -310,6 +319,15 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     Boolean redraw_needed = False;
     (void)request; (void)args; (void)count;
     normalize(number);
+    if (old->number_box.render_table != number->number_box.render_table) {
+        XmRenderTable new_table = number->number_box.render_table ?
+            XmFontListCopy(number->number_box.render_table) :
+            XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+        if (old->number_box.render_table)
+            XmRenderTableFree(old->number_box.render_table);
+        number->number_box.render_table = new_table;
+        redraw_needed = True;
+    }
     if (old->number_box.minimum != number->number_box.minimum ||
         old->number_box.maximum != number->number_box.maximum ||
         old->number_box.value != number->number_box.value ||

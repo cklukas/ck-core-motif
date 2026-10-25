@@ -19,7 +19,8 @@ typedef struct _XmNumberBoxPart {
     XtCallbackList value_changed_callback, invalid_callback;
     Dimension spacing;
     GC text_gc, arrow_gc, invalid_gc;
-    XFontStruct *font;
+    XmRenderTable render_table;
+    Boolean check_set_render_table;
 } XmNumberBoxPart;
 
 typedef struct _XmNumberBoxRec {
