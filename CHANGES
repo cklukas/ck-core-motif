@@ -21,6 +21,12 @@ Default render-table entry parsing (2026-10-26)
   successful load, preserving the complete render table; see
   `docs/default-render-table-entry-parsing.md`.
 
+Toolbar action-label allocation guards (2026-10-26)
+====================================================
+
+- Handle failed label conversions and bounded combined-label sizing in
+  `XmToolbar`; see `docs/toolbar-action-label-guards.md`.
+
 WSM reply packing failure handling (2026-10-26)
 ===============================================
 
