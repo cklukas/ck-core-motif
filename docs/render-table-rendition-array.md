@@ -13,7 +13,9 @@ release each non-`NULL` rendition with `XmRenditionFree` and the array with
 `XtFree`.
 
 `XmRenderTableCopy` applies the same body-size bound before allocating a copied
-table for a large tag selection or full-table copy.
+table for a large tag selection or full-table copy. It now checks the body and
+public-handle allocations, rolls back copied rendition handles on failure, and
+uses the internal lookup while its table lock is held.
 
 `XmRenderTableAddRenditions` rejects counts that cannot be represented by its
 integer counters and checks the new-table and match-array sizes before

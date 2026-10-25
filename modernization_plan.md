@@ -1949,8 +1949,9 @@ backlog item that depends on a broader refactor remains explicitly deferred
 rather than being represented as complete.
 
 **Status (2026-10-25):** the first render-table slice is implemented and
-qualified. `XmRenderTableCopy` and `XmRenderTableAddRenditions` now reject
-unrepresentable allocation sizes; `XmRenderTableRemoveRenditions` plans
+qualified. `XmRenderTableCopy` now checks replacement allocations and rolls
+back copied entries; `XmRenderTableAddRenditions` rejects unrepresentable
+allocation sizes; `XmRenderTableRemoveRenditions` plans
 retained entries and publishes unique-table compaction or shared-table
 detachment only after allocation and rendition-copy success. Source checks and
 the installed Xft `font-lifetime` fixture cover count guards, unique and shared

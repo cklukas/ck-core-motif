@@ -13,6 +13,8 @@ Bound render-table count arithmetic (2026-10-25)
 - Reject unrepresentable rendition counts and guard render-table and match-array
   size arithmetic before allocation; see
   `docs/render-table-rendition-array.md`.
+- Make `XmRenderTableCopy` transactional across body, public-handle and
+  rendition-copy allocation, and avoid recursive public lookup under its lock.
 - Keep unmatched-rendition append allocation and copy failures from publishing
   a partial render table.
 - Roll back shared-table merge copies when their temporary body, handle or

@@ -1897,7 +1897,10 @@ XmRenderTableCopy(XmRenderTable table, XmStringTag *tags, int tag_count)
   XmRenderTable result;
   _XmRenderTable body;
   int index, count, capacity;
+  XmRendition match, copy;
   XtAppContext app = NULL;
+  result = NULL;
+  body = NULL;
   if (!table) return NULL;
 #ifdef XTHREADS
   if (_XmRTDisplay(table)) app = XtDisplayToApplicationContext(_XmRTDisplay(table));
@@ -1908,6 +1911,10 @@ XmRenderTableCopy(XmRenderTable table, XmStringTag *tags, int tag_count)
     /* The shared body owns its entry handles once, independent of how many
      * public table handles point at it. */
     result = GetHandle(_XmRenderTable);
+    if (result == NULL) {
+      _XmRTRefcountDec(table);
+      goto copy_unlock_return;
+    }
     SetPtr(result, GetPtr(table));
   } else {
     if (!tags) _XmRTRefcountDec(table); /* Undo overflow before detaching. */
@@ -1922,19 +1929,36 @@ XmRenderTableCopy(XmRenderTable table, XmStringTag *tags, int tag_count)
     body = (_XmRenderTable)XtMalloc(sizeof(_XmRenderTableRec) +
         sizeof(XmRendition) * (capacity > RENDITIONS_IN_STRUCT
             ? capacity - RENDITIONS_IN_STRUCT : 0));
+    if (body == NULL)
+      goto copy_unlock_return;
     result = GetHandle(_XmRenderTable);
+    if (result == NULL) {
+      XtFree((char *)body);
+      body = NULL;
+      goto copy_unlock_return;
+    }
     SetPtr(result, body);
     _XmRTRefcount(result) = 1;
     _XmRTDisplay(result) = _XmRTDisplay(table);
     count = 0;
     if (tags) {
       for (index = 0; index < tag_count; ++index) {
-        XmRendition match = XmRenderTableGetRendition(table, tags[index]);
-        if (match) _XmRTRenditions(result)[count++] = match;
+        match = _XmRenderTableFindRendition(table, tags[index],
+                                            FALSE, FALSE, FALSE, NULL);
+        if (match) {
+          copy = CopyRendition(match);
+          if (copy == NULL)
+            goto copy_failed;
+          _XmRTRenditions(result)[count++] = copy;
+        }
       }
     } else {
-      for (index = 0; index < _XmRTCount(table); ++index)
-        _XmRTRenditions(result)[count++] = CopyRendition(_XmRTRenditions(table)[index]);
+      for (index = 0; index < _XmRTCount(table); ++index) {
+        copy = CopyRendition(_XmRTRenditions(table)[index]);
+        if (copy == NULL)
+          goto copy_failed;
+        _XmRTRenditions(result)[count++] = copy;
+      }
     }
     _XmRTCount(result) = count;
   }
@@ -1943,6 +1967,18 @@ XmRenderTableCopy(XmRenderTable table, XmStringTag *tags, int tag_count)
   else _XmProcessUnlock();
 #endif
   return result;
+
+copy_failed:
+  while (count > 0) {
+    --count;
+    FreeRendition(_XmRTRenditions(result)[count]);
+    FreeHandle(_XmRTRenditions(result)[count]);
+  }
+  XtFree((char *)GetPtr(result));
+  FreeHandle(result);
+  result = NULL;
+  body = NULL;
+  goto copy_unlock_return;
 
 copy_unlock_return:
 #ifdef XTHREADS
