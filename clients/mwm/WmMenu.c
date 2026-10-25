@@ -1940,12 +1940,33 @@ static void StoreMatchedCommand (MatchList **matchlist, MenuSpec *menuSpec,
     
     /* Well, we didn't find a match, so store the entry */
     new = (MatchList *)XtMalloc(sizeof(MatchList));
+    if (new == (MatchList *) NULL)
+    {
+	Warning ("Insufficient memory for menu command matching");
+	return;
+    }
     new->menuspec = menuSpec;
     new->menuitem = menuItem;
-    new->command_string = XtNewString(command_string);
+    new->command_string = (command_string != (String) NULL) ?
+	XtNewString(command_string) : (String) NULL;
+    if (command_string != (String) NULL &&
+	new->command_string == (String) NULL)
+    {
+	XtFree ((char *) new);
+	Warning ("Insufficient memory for menu command matching");
+	return;
+    }
     new->treenode = treenode;
     new->function = function;
-    new->funcargs = XtNewString(funcargs);
+    new->funcargs = (funcargs != (String) NULL) ?
+	XtNewString(funcargs) : (String) NULL;
+    if (funcargs != (String) NULL && new->funcargs == (String) NULL)
+    {
+	XtFree ((char *) new->command_string);
+	XtFree ((char *) new);
+	Warning ("Insufficient memory for menu command matching");
+	return;
+    }
     new->greyed_context = greyed_context;
     new->next = (MatchList *) NULL;
     
