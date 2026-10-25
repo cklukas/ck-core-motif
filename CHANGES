@@ -1,3 +1,10 @@
+Tab allocation and copy guards (2026-10-25)
+============================================
+
+- Make tab creation and copying fail cleanly when the tab record or decimal
+  string cannot be allocated, and stop resource creation before it
+  dereferences a failed tab; see `docs/tab-allocation.md`.
+
 Tab-list converter allocation guard (2026-10-25)
 ================================================
 
