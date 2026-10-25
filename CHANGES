@@ -23,6 +23,14 @@ Harden representation-type registration and copies (2026-10-25)
   copy, converter, warning, and null-name paths; see the `reptype-*` pages in
   `docs/`.
 
+Harden TextIn allocation rollback (2026-10-25)
+==============================================
+
+- Make selection-array copies, input-state creation, and secondary TextIn
+  allocations fail closed without replacing live state or leaking partial
+  arrays; see `docs/text-selection-array-bounds.md` and the focused automated
+  TextIn allocation checks.
+
 Harden simple-menu varargs processing (2026-10-25)
 ===================================================
 

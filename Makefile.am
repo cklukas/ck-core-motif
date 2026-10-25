@@ -190,6 +190,10 @@ EXTRA_DIST += tests/automated/check-reptype-register-allocation.py \
               tests/automated/check-reptype-getid-null.py \
               docs/reptype-registration.md docs/reptype-converter-inputs.md \
               docs/reptype-getid-null.md
+EXTRA_DIST += tests/automated/check-text-selection-array-bounds.py \
+              tests/automated/check-text-input-create-allocation.py \
+              tests/automated/check-text-input-secondary-allocations.py \
+              docs/text-selection-array-bounds.md
 EXTRA_DIST += tests/automated/check-picture-copy-bounds.py docs/picture-copy-bounds.md
 EXTRA_DIST += tests/automated/check-accessible-utf8-bounds.py docs/accessibility-utf8-bounds.md
 EXTRA_DIST += tests/automated/check-xmstring-rendition-bounds.py docs/xmstring-rendition-bounds.md
