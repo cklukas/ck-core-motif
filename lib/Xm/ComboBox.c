@@ -30,6 +30,7 @@
 #include <config.h>
 #endif
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <Xm/XmP.h>
 #include <Xm/XmosP.h>		/* for bzero et al */
@@ -504,7 +505,7 @@ Initialize(Widget    request,	/* unused */
 {
   XmComboBoxWidget newcb = (XmComboBoxWidget)new_w;
   Widget	   ancestor;
-  int i; 
+  Cardinal i;
 #ifdef FIX_1473
   Cardinal num_child_args;
   ArgList child_args;
@@ -584,7 +585,11 @@ Initialize(Widget    request,	/* unused */
 #ifdef FIX_1473
   /* Ignore XmNheight resource value for descedants */
   num_child_args = 0;
-  child_args = (ArgList) XtMalloc(sizeof(Arg) * *num_args);
+  if (*num_args != 0 &&
+      (size_t)*num_args > SIZE_MAX / sizeof(Arg))
+    child_args = NULL;
+  else
+    child_args = (ArgList) XtMalloc(sizeof(Arg) * (size_t)*num_args);
   if (child_args != NULL || *num_args == 0) {
     for (i = 0; i < *num_args; i++)
 	  if (strcmp(args[i].name, "height")) {

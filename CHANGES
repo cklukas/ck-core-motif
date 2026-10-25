@@ -1,3 +1,11 @@
+ComboBox child-argument bounds (2026-10-28)
+============================================
+
+- Check filtered child-argument allocation arithmetic before multiplying the
+  Xt `Cardinal` count by `sizeof(Arg)`, and use a full-width copy index.  On
+  overflow, preserve the existing fallback to the original argument list;
+  see `docs/combobox-child-argument-bounds.md`.
+
 Xft compound-string line height (2026-10-27)
 ===============================================
 
