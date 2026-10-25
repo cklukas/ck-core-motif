@@ -1,3 +1,9 @@
+XmCommand API null-safety (2026-10-25)
+========================================
+
+- Guard command child, value, append, and error APIs against null widgets and
+  strings; see `docs/xm-command-api-null.md`.
+
 XmToggleButton API null-safety (2026-10-25)
 ==============================================
 
