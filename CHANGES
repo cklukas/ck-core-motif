@@ -5073,3 +5073,9 @@ Scale value redisplay guards (2026-10-25)
 - Validate the Scale value region, foreground GC, value font, and scrollbar
   child before measuring or drawing the value label; see
   `docs/scale-value-redisplay-guards.md`.
+Form shadow redisplay guards (2026-10-25)
+=========================================
+
+- Share validated realization, GC, thickness, and geometry checks between
+  Form resize and expose shadow drawing; see
+  `docs/form-shadow-redisplay-guards.md`.
