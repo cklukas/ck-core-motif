@@ -2747,6 +2747,7 @@ ChangeManaged(
 {
     XmContainerWidget   cw = (XmContainerWidget)wid;
     int                 i;
+    Boolean             outline_ready = True;
     Widget              cwid;
     XmContainerConstraint c;
 
@@ -5972,6 +5973,7 @@ LayoutOutlineDetail(
     int                 n_outline_segs,seg_idx;
     XPoint *            point_at_depth = NULL;
     int                 i;
+    Boolean             outline_ready = True;
 
     if (CtrLayoutIsDETAIL(cw))
 	{
@@ -6008,9 +6010,22 @@ LayoutOutlineDetail(
 	cw->container.outline_segs = (XSegment *)XtCalloc
 				(n_outline_segs,sizeof(XSegment));
 	cw->container.outline_seg_count = n_outline_segs;
+	if (n_outline_segs != 0 && cw->container.outline_segs == NULL)
+	    {
+	    cw->container.outline_seg_count = 0;
+	    outline_ready = False;
+	    }
 	}
-    point_at_depth = (XPoint *)XtCalloc((cw->container.max_depth + 1),
+    if ((size_t)cw->container.max_depth >
+	SIZE_MAX / sizeof(*point_at_depth) - 1)
+	outline_ready = False;
+    else
+	{
+	point_at_depth = (XPoint *)XtCalloc((size_t)cw->container.max_depth + 1,
 					sizeof(XPoint));
+	if (point_at_depth == NULL)
+	    outline_ready = False;
+	}
 
     y = cw->container.margin_h;
     if (CtrLayoutIsDETAIL(cw) && cw->container.icon_header) {
@@ -6116,8 +6131,10 @@ LayoutOutlineDetail(
 			+ cw->container.real_first_col_width - 1));
 
 	/*
-	 * Calculate Outline lines
+	 * Calculate Outline lines when all temporary geometry is available.
 	 */
+        if (outline_ready)
+        {
         if (point_at_depth[c->depth].x == 0)
 	    {
             point_at_depth[c->depth].x = cw->container.margin_w
@@ -6170,6 +6187,7 @@ LayoutOutlineDetail(
                                 cw->container.outline_segs[seg_idx].y2;
             seg_idx += 2;
             }
+        }
 
         if (LayoutIsRtoLM(cw))
 	    x = x - (Position)cwid->core.width;
