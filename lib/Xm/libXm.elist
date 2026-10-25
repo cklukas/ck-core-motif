@@ -131,6 +131,7 @@ public XmCreateToggleButtonGadget
 public XmCreateToggleSwitch
 public XmCreateProgressBar
 public XmCreateFlyout
+public XmCreateTeachingTip
 public XmCreateColorPicker
 public XmCreateRatingControl
 public XmCreateInfoBar
@@ -509,6 +510,9 @@ public XmProgressBarSetIndeterminate
 public XmFlyoutShow
 public XmFlyoutHide
 public XmFlyoutIsVisible
+public XmTeachingTipShow
+public XmTeachingTipHide
+public XmTeachingTipIsVisible
 public XmColorPickerGetValue
 public XmColorPickerSetValue
 public XmColorPickerPreviewValue
@@ -934,6 +938,8 @@ public xmProgressBarClassRec
 public xmProgressBarWidgetClass
 public xmFlyoutClassRec
 public xmFlyoutWidgetClass
+public xmTeachingTipClassRec
+public xmTeachingTipWidgetClass
 public xmColorPickerClassRec
 public xmColorPickerWidgetClass
 public xmRatingControlClassRec

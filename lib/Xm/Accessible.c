@@ -33,6 +33,7 @@
 #include <Xm/IconLabel.h>
 #include <Xm/Divider.h>
 #include <Xm/Avatar.h>
+#include <Xm/TeachingTip.h>
 #include <Xm/Link.h>
 #include <Xm/SearchBox.h>
 #include <Xm/Prompt.h>
@@ -1324,6 +1325,29 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
       if (local)
         XtFree(local);
       local = XtNewString("Avatar");
+    }
+  }
+  if (XmIsTeachingTip(w)) {
+    XmString title = NULL;
+    XmString text = NULL;
+    i->role = XmACCESSIBLE_PANEL;
+    i->has_text = True;
+    XtVaGetValues(w, XmNteachingTipTitle, &title,
+                  XmNteachingTipText, &text, NULL);
+    if (title)
+      local = XmStringUnparse(title, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
+                              NULL, 0, XmOUTPUT_ALL);
+    if (!local || !*local) {
+      if (local)
+        XtFree(local);
+      local = text ? XmStringUnparse(text, NULL, XmCHARSET_TEXT,
+                                     XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL)
+                   : NULL;
+    }
+    if (!local || !*local) {
+      if (local)
+        XtFree(local);
+      local = XtNewString("Teaching tip");
     }
   }
   if (XmIsLink(w)) {

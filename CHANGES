@@ -1,4 +1,9 @@
 2026-10-25
+	* Add the opt-in XmTeachingTip delayed anchored presentation with bounded
+	  timer ownership, non-modal dismissal and panel accessibility semantics;
+	  see docs/teaching-tip.md.
+
+2026-10-25
 	* Add the opt-in XmStatusBar composite with copied item presentation,
 	  priority-based overflow reporting, progress labels and accessible panel
 	  semantics; see docs/status-bar.md.

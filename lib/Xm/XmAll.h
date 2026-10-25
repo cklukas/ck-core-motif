@@ -66,6 +66,7 @@
 #include <Xm/MessageB.h>
 #include <Xm/ColorPicker.h>
 #include <Xm/Flyout.h>
+#include <Xm/TeachingTip.h>
 #include <Xm/InfoBar.h>
 #include <Xm/BreadcrumbBar.h>
 #include <Xm/TreeView.h>
