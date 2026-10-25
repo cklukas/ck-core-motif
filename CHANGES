@@ -9893,6 +9893,13 @@ XIM info allocation guards (2026-10-25)
 - Make XIM context and preedit-buffer creation transactional, releasing
   partial state on allocation failure; see `docs/xim-info-allocation.md`.
 
+External XIC reconstruction allocation guard (2026-10-25)
+==========================================================
+
+- Check application-created XIC record reconstruction before initialization,
+  leaving the existing context untouched if allocation fails; see
+  `docs/xim-recreate-allocation.md`.
+
 MWM label-parse allocation guard (2026-10-25)
 ==============================================
 

@@ -1347,6 +1347,8 @@ recreate_xic_info(XIC		  xic,
   
   /* This XIC must have been created by the application directly. */
   xic_info = XtNew(XmImXICRec);
+  if (xic_info == NULL)
+	return NULL;
   bzero((char*) xic_info, sizeof(XmImXICRec));
   (void) XGetICValues(xic, XNInputStyle, &xic_info->input_style, NULL);
   xic_info->next = im_info->iclist;
