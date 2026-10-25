@@ -5741,16 +5741,25 @@ InputSetValues(Widget oldw,
    */
   if ((XtPointer)data->sarray != temp_ptr)
     {
-      XtFree((char *)temp_ptr);
-      if ((size_t)data->sarraycount > SIZE_MAX / sizeof(XmTextScanType)) {
+      if ((size_t)data->sarraycount > SIZE_MAX / sizeof(XmTextScanType) ||
+          (size_t)data->sarraycount > UINT_MAX / sizeof(XmTextScanType)) {
         data->sarray = (XmTextScanType *)sarray;
         data->sarraycount = XtNumber(sarray);
+        XtFree((char *)temp_ptr);
       } else {
-        temp_ptr = (XtPointer)data->sarray;
-        data->sarray = (XmTextScanType *)XtMalloc(data->sarraycount *
-						sizeof(XmTextScanType));
-        memcpy((void *)data->sarray, (void *)temp_ptr,
+        XmTextScanType *new_sarray = (XmTextScanType *)XtMalloc(
+            (Cardinal)((size_t)data->sarraycount *
+                       sizeof(XmTextScanType)));
+        if (new_sarray == NULL) {
+          data->sarray = (XmTextScanType *)sarray;
+          data->sarraycount = XtNumber(sarray);
+          XtFree((char *)temp_ptr);
+          return;
+        }
+        memcpy((void *)new_sarray, (void *)temp_ptr,
                data->sarraycount * sizeof(XmTextScanType));
+        XtFree((char *)temp_ptr);
+        data->sarray = new_sarray;
       }
     }
   /*
@@ -5798,7 +5807,8 @@ InputDestroy(Widget w)
   /*
    * Fix for HaL DTS 9841 - release the data for the selectionArray.
    */
-  XtFree((char *)tw->text.input->data->sarray);
+  if (tw->text.input->data->sarray != (XmTextScanType *)sarray)
+    XtFree((char *)tw->text.input->data->sarray);
   XtFree((char *)tw->text.input->data);
   XtFree((char *)tw->text.input);
   /*
@@ -5980,14 +5990,20 @@ _XmTextInputCreate(Widget wid,
    * Fix for HaL DTS 9841 - copy the selectionArray into dedicated memory.
    */
   temp_ptr = (XtPointer)data->sarray;
-  if ((size_t)data->sarraycount > SIZE_MAX / sizeof(XmTextScanType)) {
+  if ((size_t)data->sarraycount > SIZE_MAX / sizeof(XmTextScanType) ||
+      (size_t)data->sarraycount > UINT_MAX / sizeof(XmTextScanType)) {
     data->sarray = (XmTextScanType *)sarray;
     data->sarraycount = XtNumber(sarray);
   } else {
-    data->sarray = (XmTextScanType *)XtMalloc(data->sarraycount *
-					    sizeof(XmTextScanType));
-    memcpy((void *)data->sarray, (void *)temp_ptr,
+    data->sarray = (XmTextScanType *)XtMalloc(
+        (Cardinal)((size_t)data->sarraycount * sizeof(XmTextScanType)));
+    if (data->sarray == NULL) {
+      data->sarray = (XmTextScanType *)sarray;
+      data->sarraycount = XtNumber(sarray);
+    } else {
+      memcpy((void *)data->sarray, (void *)temp_ptr,
            data->sarraycount * sizeof(XmTextScanType));
+    }
   }
   /*
    * End fix for HaL DTS 9841

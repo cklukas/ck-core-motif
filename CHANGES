@@ -12019,3 +12019,12 @@ Bound XmString tag-cache allocation widths (2026-10-26)
   initialization and growth; see `docs/xmstring-tag-cache.md`.
 
 Bound XmString rendition-stack widths (2026-10-26)
+Make TextIn selection-array copies failure-safe (2026-10-26)
+============================================================
+
+- Reject selection-array sizes outside Xt's `Cardinal` range and fall back to
+  the built-in scan table when copying allocation fails, avoiding a null
+  `memcpy` in both creation and resource-update paths; see
+  `docs/text-selection-array-bounds.md`.
+
+Bound XmString tag-cache allocation widths (2026-10-26)
