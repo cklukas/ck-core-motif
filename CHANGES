@@ -5,6 +5,12 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+XmStringUnparse parse-table validation (2026-10-26)
+=====================================================
+
+- Reject null parse tables and skip null mapping entries during unparse;
+  see `docs/xmstring-unparse-table.md`.
+
 XmString unparse null-value guard (2026-10-26)
 ===============================================
 

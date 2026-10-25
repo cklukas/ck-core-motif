@@ -8929,6 +8929,8 @@ unparse_components(char          **result,
   for (n_pat = 0; !match && (n_pat < parse_count); n_pat++)
     {
       pat = parse_table[n_pat];
+      if (pat == NULL)
+	continue;
       if (unparse_is_plausible(pat))
 	{
 	  _XmStringContextRec   m_context, p_context;
@@ -9027,6 +9029,10 @@ XmStringUnparse(XmString          string,
   XtPointer	        c_value;
 
   _XmProcessLock();
+  if (parse_count != 0 && parse_table == NULL) {
+    _XmProcessUnlock();
+    return NULL;
+  }
   /* Convert special tags to real values. */
   if ((tag_type == XmCHARSET_TEXT) && tag &&
       ((tag == XmSTRING_DEFAULT_CHARSET) ||
