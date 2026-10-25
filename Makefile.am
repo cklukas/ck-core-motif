@@ -501,3 +501,4 @@ EXTRA_DIST += tests/automated/check-mrm-related-tag-lookup-failure.py docs/mrm-r
 EXTRA_DIST += tests/automated/check-mrm-related-tag-diagnostic.py docs/mrm-related-tag-diagnostic.md
 EXTRA_DIST += tests/automated/check-mrm-icon-pixargs-bounds.py docs/mrm-icon-pixargs-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-pixmap-tag-failure.py docs/mrm-pixmap-tag-failure.md
+EXTRA_DIST += tests/automated/check-mrm-related-count-type.py docs/mrm-related-count-type.md

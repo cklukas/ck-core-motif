@@ -1,3 +1,10 @@
+Mrm related-code type validation (2026-10-25)
+===============================================
+
+- Skip malformed related codes attached to non-vector values instead of
+  appending an uninitialized count argument; see
+  `docs/mrm-related-count-type.md`.
+
 Mrm deferred pixmap tag failures (2026-10-25)
 ===============================================
 
