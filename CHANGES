@@ -1,3 +1,9 @@
+Visibility region allocation handling (2026-10-25)
+===================================================
+
+- Handle partial Xlib region allocation failure in `XmGetVisibility` with
+  cleanup and a conservative fallback; see `docs/visibility-region-allocation.md`.
+
 Tab-group mutator input validation (2026-10-25)
 ================================================
 

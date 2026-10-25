@@ -1582,6 +1582,16 @@ XmGetVisibility(
       Region left_region = XCreateRegion();
       XmVisibility value;
 
+      if (region == NULL || tmp_region == NULL || left_region == NULL)
+        {
+          if (region) XDestroyRegion(region);
+          if (tmp_region) XDestroyRegion(tmp_region);
+          if (left_region) XDestroyRegion(left_region);
+          if (children) XFree(children);
+          _XmAppUnlock(app);
+          return XmVISIBILITY_FULLY_OBSCURED;
+        }
+
       XUnionRectWithRegion(&rect, region, region);
       while(i < numchildren) { 
         XGetWindowAttributes(XtDisplay(wid), *windowptr, 

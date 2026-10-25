@@ -97,6 +97,7 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
 	      tests/automated/check-traversal-geometry-inputs.py \
 	      tests/automated/check-traversal-public-inputs.py \
 	      tests/automated/check-tab-group-mutators.py \
+	      tests/automated/check-visibility-region-allocation.py \
               tests/automated/check-docs-provenance.py tests/automated/check-makestrs-comments.py \
               tests/automated/check-native-features.py \
               tests/Toolkit/ABI/cohort.c tests/Toolkit/Im/preedit_ranges.c \
