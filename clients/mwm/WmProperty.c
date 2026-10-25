@@ -1239,9 +1239,14 @@ Status GetWorkspaceHints (Display *display, Window window,
  *
  *************************************<->***********************************/
 
-void SetEmbeddedClientsProperty (Window propWindow, 
+void SetEmbeddedClientsProperty (Window propWindow,
     Window *pEmbeddedClients, unsigned long cEmbeddedClients)
 {
+    if (cEmbeddedClients > 0 && pEmbeddedClients == NULL)
+    {
+        return;
+    }
+
     XChangeProperty (DISPLAY, propWindow, wmGD.xa_DT_EMBEDDED_CLIENTS, 
 	wmGD.xa_DT_EMBEDDED_CLIENTS,
 	32, PropModeReplace, (unsigned char *)pEmbeddedClients,
@@ -1653,6 +1658,11 @@ WorkspacePropertyName (WmWorkspaceData *pWS)
 
 void SetWorkspacePresence (Window propWindow, Atom *pWsPresence, unsigned long cPresence)
 {
+    if (cPresence > 0 && pWsPresence == NULL)
+    {
+        return;
+    }
+
     XChangeProperty (DISPLAY, propWindow, wmGD.xa_DT_WORKSPACE_PRESENCE, 
 	wmGD.xa_DT_WORKSPACE_PRESENCE, 32, PropModeReplace, 
 	(unsigned char *)pWsPresence, cPresence);

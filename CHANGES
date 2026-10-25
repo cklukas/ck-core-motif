@@ -4646,3 +4646,9 @@ Workspace property guards (2026-10-25)
 
 - Handle empty or detached workspace state safely when publishing desktop
   properties; see `docs/workspace-property-guards.md`.
+
+Property buffer guards (2026-10-25)
+===================================
+
+- Validate counted embedded-client and workspace-presence buffers before
+  publishing properties; see `docs/property-buffer-guards.md`.
