@@ -1,3 +1,10 @@
+Guard XIM registration failure paths (2026-10-26)
+=================================================
+
+- Avoid dereferencing missing registration records and avoid saving an Xlib
+  context when widget-reference growth fails; see
+  `docs/xmim-registration-lifecycle.md`.
+
 Make transfer completion-callback growth transactional (2026-10-25)
 =====================================================================
 
