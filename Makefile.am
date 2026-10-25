@@ -659,3 +659,5 @@ EXTRA_DIST += tests/automated/check-xm-hierarchy-api-null.py docs/xm-hierarchy-a
 EXTRA_DIST += tests/automated/check-xm-resind-null.py docs/xm-resind-null.md
 
 EXTRA_DIST += tests/automated/check-xm-default-render-null.py docs/xm-default-render-null.md
+
+EXTRA_DIST += tests/automated/check-notebook-geometry-init.py docs/notebook-geometry.md

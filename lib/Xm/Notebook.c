@@ -1335,7 +1335,7 @@ SetValues (
     if (relayout)
 	{
 	Dimension save_width, save_height;
-	XtWidgetGeometry preferred_geo;
+	XtWidgetGeometry preferred_geo = { 0 };
 
 	/* Store new w/h, restore old w/h, and adjust geometry to the old */
 	save_width = XtWidth(new_w);

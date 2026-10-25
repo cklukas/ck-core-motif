@@ -1,3 +1,10 @@
+Notebook preferred-geometry initialization (2026-10-25)
+===========================================================
+
+- Initialize the optional `XmNotebook` preferred geometry reply before
+  independent width and height negotiation; see
+  `docs/notebook-geometry.md`.
+
 Xm default render-table null-safety (2026-10-25)
 ================================================
 
