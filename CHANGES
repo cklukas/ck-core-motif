@@ -5767,6 +5767,14 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+Mask-name Xt width (2026-10-25)
+===============================
+
+- Reject generated mask-name buffers that exceed Xt's `Cardinal` allocation
+  width before either XmeGetMask or embedded-mask installation calls
+  `XtMalloc`; see `docs/mask-name-allocation.md` and
+  `docs/embedded-mask-ownership.md`.
+
 Mask-name allocation bounds (2026-10-24)
 =========================================
 

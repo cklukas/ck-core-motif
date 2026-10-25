@@ -833,7 +833,7 @@ GetXpmImage(
 	    String mask_name = NULL;
 
 	    if (XmMaskNameSize(image_name, &mask_name_size))
-		mask_name = XtMalloc(mask_name_size);
+		mask_name = XtMalloc((Cardinal)mask_name_size);
 
 	    if (mask_name != NULL) {
 		Boolean installed;
@@ -2042,7 +2042,7 @@ XmeGetMask(
 
     app = XtDisplayToApplicationContext(DisplayOfScreen(screen));
 
-    mask_name = XtMalloc(mask_name_size);
+    mask_name = XtMalloc((Cardinal)mask_name_size);
     if (mask_name == NULL)
 	return XmUNSPECIFIED_PIXMAP;
 
@@ -2451,6 +2451,8 @@ XmMaskNameSize(String image_name, size_t *size)
     if (length > SIZE_MAX - 3)
 	return False;
     *size = length + 3;
+	if (*size > UINT_MAX)
+	return False;
     return True;
 }
 

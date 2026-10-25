@@ -6,7 +6,9 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "ImageCache.c").read_text()
 start = source.index("if (mask_image && useMask)")
 end = source.index("\n\n\t/* now we have to adjust", start)
 region = source[start:end]
-assert "String mask_name = XtMalloc(strlen(image_name) + 3);" in region
+assert "String mask_name = NULL;" in region
+assert "XmMaskNameSize(image_name, &mask_name_size)" in region
+assert "XtMalloc((Cardinal)mask_name_size)" in region
 assert "if (!installed)" in region
 assert "XDestroyImage(mask_image);" in region
 assert "char mask_name[255]" not in region
