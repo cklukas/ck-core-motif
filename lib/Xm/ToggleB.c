@@ -3508,8 +3508,13 @@ DrawToggleShadow(
     }
   
   hilite_thickness = tb->primitive.highlight_thickness;
-  width = (int) (tb->core.width - (hilite_thickness << 1));
-  height = (int) (tb->core.height - (hilite_thickness << 1));
+  if ((int)tb->core.width <= (hilite_thickness << 1) ||
+      (int)tb->core.height <= (hilite_thickness << 1) ||
+      top_gc == NULL || bot_gc == NULL)
+    return;
+
+  width = (int)tb->core.width - (hilite_thickness << 1);
+  height = (int)tb->core.height - (hilite_thickness << 1);
   
   XmeDrawShadows (XtDisplay (tb), XtWindow (tb), top_gc, bot_gc,
 		  hilite_thickness, hilite_thickness, width, height,
@@ -3530,10 +3535,16 @@ DrawToggleLabel(
 		      tb->primitive.shadow_thickness);
   Position fx = margin;
   Position fy = margin;
-  int fw = tb->core.width - 2 * margin;
-  int fh = tb->core.height - 2 * margin;
+  int fw, fh;
   Boolean restore_gc = False;
   GC tmp_gc = None, fill_gc;
+
+  if ((int)tb->core.width <= 2 * (int)margin ||
+      (int)tb->core.height <= 2 * (int)margin)
+    return;
+
+  fw = (int)tb->core.width - 2 * (int)margin;
+  fh = (int)tb->core.height - 2 * (int)margin;
   
   if (tb->primitive.top_shadow_color == tb->toggle.select_color ||
       tb->primitive.bottom_shadow_color == tb->toggle.select_color)
@@ -3544,7 +3555,7 @@ DrawToggleLabel(
       fh -= 2;
     }
   
-  if (fw < 0 || fh < 0)
+  if (fw <= 0 || fh <= 0)
     return;
 
   switch (tb->toggle.visual_set)
@@ -3628,13 +3639,19 @@ DrawEtchedInMenu(
 		      tb->primitive.shadow_thickness);
   Position fx = margin;
   Position fy = margin;
-  int fw = tb->core.width - 2 * margin;
-  int fh = tb->core.height - 2 * margin;
+  int fw, fh;
   Boolean restore_gc = False;
   GC tmp_gc = None;
   XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(tb));
   Boolean etched_in = dpy->display.enable_etched_in_menu;
   Pixel select_pix, tmpc;
+
+  if ((int)tb->core.width <= 2 * (int)margin ||
+      (int)tb->core.height <= 2 * (int)margin)
+    return;
+
+  fw = (int)tb->core.width - 2 * (int)margin;
+  fh = (int)tb->core.height - 2 * (int)margin;
   
   if (tb->primitive.top_shadow_color == tb->toggle.select_color ||
       tb->primitive.bottom_shadow_color == tb->toggle.select_color)
@@ -3645,7 +3662,7 @@ DrawEtchedInMenu(
       fh -= 2;
     }
   
-  if (fw < 0 || fh < 0)
+  if (fw <= 0 || fh <= 0)
     return;
 
   XFillRectangle (XtDisplay(tb), XtWindow(tb), 

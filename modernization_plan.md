@@ -1965,6 +1965,9 @@ Merge replacement and copy-on-write clone failures now preserve their
 existing rendition as well. Rendition helper and initial-table allocation
 failures are guarded and rollback-safe; the exact Xft `font-lifetime` fixture
 and the no-Xft gallery integration both pass on `uconsole`.
+ToggleButton shadow, fill, and etched-menu paths now reject undersized geometry
+before unsigned `Dimension` subtraction and skip unavailable shadow GCs; the
+source contract and fresh library/gallery qualification pass on `uconsole`.
 
 ## Acceptance criteria for every increment
 
