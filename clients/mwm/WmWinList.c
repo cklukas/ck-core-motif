@@ -1849,6 +1849,10 @@ void StackTransientWindow (ClientData *pcd)
     XWindowChanges changes;
     ClientData *pcdPrev;
 
+    if (pcd == NULL || pcd->transientLeader == NULL)
+    {
+        return;
+    }
 
     if (pcd->transientLeader->transientChildren == pcd)
     {
@@ -1865,11 +1869,16 @@ void StackTransientWindow (ClientData *pcd)
     else
     {
 	pcdPrev = pcd->transientLeader;
-	while (pcdPrev->transientSiblings != pcd)
-	{
-	    pcdPrev = pcdPrev->transientSiblings;
-	}
-	changes.sibling = pcdPrev->clientFrameWin;
+        while (pcdPrev != NULL &&
+               pcdPrev->transientSiblings != pcd)
+        {
+            pcdPrev = pcdPrev->transientSiblings;
+        }
+        if (pcdPrev == NULL)
+        {
+            return;
+        }
+        changes.sibling = pcdPrev->clientFrameWin;
 	changes.stack_mode = Below;
     }
 

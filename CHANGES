@@ -4616,3 +4616,9 @@ Transient window-list guards (2026-10-25)
 
 - Validate transient list output and client inputs before writing windows;
   see `docs/transient-window-list-guards.md`.
+
+StackTransientWindow guards (2026-10-25)
+========================================
+
+- Validate transient ancestry before issuing a stacking request;
+  see `docs/stack-transient-window-guards.md`.
