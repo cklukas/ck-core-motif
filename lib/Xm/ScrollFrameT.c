@@ -141,6 +141,10 @@ _XmSFRemoveNavigator(
 	return ;
     }
 
+    if (scroll_frame_data->num_nav_list != 0 &&
+	    scroll_frame_data->nav_list == NULL)
+	return;
+
     for (position = 0; position<scroll_frame_data->num_nav_list; position++) {
         if (scroll_frame_data->nav_list[position] == nav) {
 	    break;

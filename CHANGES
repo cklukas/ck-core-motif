@@ -10203,6 +10203,12 @@ ScrollFrame navigator growth bounds (2026-10-25)
 - Reject wrapped or unrepresentable navigator-list growth before reallocating;
   see `docs/scrollframe-navigator-growth.md`.
 
+ScrollFrame navigator removal guard (2026-10-25)
+================================================
+
+- Safely ignore inconsistent nonempty navigator state with no backing list
+  during removal; see `docs/scrollframe-navigator-removal.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
