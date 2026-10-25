@@ -353,6 +353,13 @@ _WSMPackReply(Display *dpy, int screen_num,
 	}
 	break;
     case WSM_CONFIG_FMT:
+	if ((reply->config_format.num_global_formats != 0 &&
+	     reply->config_format.global_formats == NULL) ||
+	    (reply->config_format.num_window_formats != 0 &&
+	     reply->config_format.window_formats == NULL) ||
+	    (reply->config_format.num_icon_formats != 0 &&
+	     reply->config_format.icon_formats == NULL))
+	    return(NULL);
 	size = BOOL_SIZE;	/* accept_diffs. */
 	size += COUNT_SIZE;	/* The count of global attributes. */
 	attr = reply->config_format.global_formats;

@@ -11202,3 +11202,10 @@ WSM extension sizing (2026-10-25)
 
 - Use null-safe string lengths while sizing extension requests and replies,
   matching `PackString` behavior; see `docs/wsm-extension-size-null.md`.
+
+WSM configuration reply arrays (2026-10-25)
+===========================================
+
+- Reject positive configuration attribute counts with null arrays before
+  reply sizing, avoiding invalid traversal; see
+  `docs/wsm-config-reply-arrays.md`.
