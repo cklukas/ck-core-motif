@@ -1,3 +1,10 @@
+Xm image-cache output validation (2026-10-25)
+================================================
+
+- Reject null image outputs and clear valid outputs before cache lookup, so
+  failed loads cannot expose stale `XImage` pointers; see
+  `docs/xm-get-image-output.md`.
+
 Xm pixmap hotspot output initialization (2026-10-25)
 ========================================================
 
