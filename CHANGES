@@ -21,6 +21,8 @@ Xft compound-string line height (2026-10-27)
   their temporary buffers cannot be allocated.
 - Make active XmString rendition growth transactional, checking count/size
   arithmetic and retaining existing tags on `XtRealloc` failure.
+- Make XmStringGenerate rendition wrapping transactional across segment
+  conversion and begin/end tag-array growth failures.
 
 Accessibility D-Bus memo allocation (2026-10-27)
 =================================================

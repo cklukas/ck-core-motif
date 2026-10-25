@@ -9721,6 +9721,10 @@ XmStringGenerate(XtPointer   text,
 	      } else {
 		if (_XmEntryOptimized(seg)) {
 		  _XmStringEntry new_seg = EntryCvtToUnopt(seg);
+		  if (new_seg == NULL) {
+		    _XmProcessUnlock();
+		    return result;
+		  }
 		  _XmStringEntryFree(seg);
 		  seg = new_seg;
 		  if (_XmEntryMultiple(line))
@@ -9728,10 +9732,23 @@ XmStringGenerate(XtPointer   text,
 		  else
 		    _XmStrEntry(result)[n_line] = seg;
 		}
-		_XmUnoptSegRendBegins(seg) = (XmStringTag*)
-		  XtRealloc((char*) _XmUnoptSegRendBegins(seg),
-			    (_XmUnoptSegRendBeginCount(seg) + 1)*
-			    sizeof(XmStringTag));
+		{
+		  size_t count = (size_t)_XmUnoptSegRendBeginCount(seg) + 1;
+		  XmStringTag *new_tags;
+		  if (count > SIZE_MAX / sizeof(XmStringTag) ||
+		      count * sizeof(XmStringTag) > (size_t)((Cardinal)~0)) {
+		    _XmProcessUnlock();
+		    return result;
+		  }
+		  new_tags = (XmStringTag *)XtRealloc(
+		      (char *)_XmUnoptSegRendBegins(seg),
+		      (Cardinal)(count * sizeof(XmStringTag)));
+		  if (!new_tags) {
+		    _XmProcessUnlock();
+		    return result;
+		  }
+		  _XmUnoptSegRendBegins(seg) = new_tags;
+		}
 		/* Put rendition first in begins. */
 		for (i = 0; i < _XmUnoptSegRendBeginCount(seg); i++)
 		  _XmUnoptSegRendBegins(seg)[i + 1] = 
@@ -9780,6 +9797,10 @@ XmStringGenerate(XtPointer   text,
 	      } else {
 		if (_XmEntryOptimized(seg)) {
 		  _XmStringEntry new_seg = EntryCvtToUnopt(seg);
+		  if (new_seg == NULL) {
+		    _XmProcessUnlock();
+		    return result;
+		  }
 		  if (_XmEntryMultiple(line))
 		    _XmEntrySegment(line)[0] = (_XmStringNREntry)new_seg;
 		  else
@@ -9787,10 +9808,23 @@ XmStringGenerate(XtPointer   text,
 		  _XmStringEntryFree(seg);
 		  seg = new_seg;
 		}
-		_XmUnoptSegRendEnds(seg) = (XmStringTag*)
-		  XtRealloc((char*) _XmUnoptSegRendEnds(seg),
-			    (_XmUnoptSegRendEndCount(seg) + 1) *
-			    sizeof(XmStringTag));
+		{
+		  size_t count = (size_t)_XmUnoptSegRendEndCount(seg) + 1;
+		  XmStringTag *new_tags;
+		  if (count > SIZE_MAX / sizeof(XmStringTag) ||
+		      count * sizeof(XmStringTag) > (size_t)((Cardinal)~0)) {
+		    _XmProcessUnlock();
+		    return result;
+		  }
+		  new_tags = (XmStringTag *)XtRealloc(
+		      (char *)_XmUnoptSegRendEnds(seg),
+		      (Cardinal)(count * sizeof(XmStringTag)));
+		  if (!new_tags) {
+		    _XmProcessUnlock();
+		    return result;
+		  }
+		  _XmUnoptSegRendEnds(seg) = new_tags;
+		}
 		_XmUnoptSegRendEnds(seg)[_XmUnoptSegRendEndCount(seg)] = 
 		  cached_rend;
 		_XmUnoptSegRendEndCount(seg)++;
