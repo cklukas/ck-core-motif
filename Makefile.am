@@ -971,6 +971,7 @@ EXTRA_DIST += tests/automated/check-mwm-feedback-allocation.py docs/mwm-feedback
 EXTRA_DIST += tests/automated/check-mwm-menu-args-allocation.py docs/mwm-menu-args-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-inline-menu-allocation.py docs/mwm-inline-menu-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-error-bounds.py docs/mwm-error-allocation-widths.md
+EXTRA_DIST += tests/automated/check-mwm-property-warning-bounds.py docs/mwm-property-warning-allocation.md
 
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 

@@ -11,5 +11,7 @@ assert "sprintf(msg" not in region
 assert region.count("WmWarningWithString") == 4
 helper = source[source.index("static void\nWmWarningWithString"):start]
 assert "snprintf(NULL, 0, format, value)" in helper
-assert "XtMalloc((unsigned int)messageLength + 1)" in helper
+assert "messageLength < 0 || (unsigned int)messageLength >= UINT_MAX" in helper
+assert "XtMalloc((Cardinal)messageLength + 1)" in helper
+assert "XtMalloc((unsigned int)messageLength + 1)" not in helper
 print("mwm property warnings are dynamically bounded")

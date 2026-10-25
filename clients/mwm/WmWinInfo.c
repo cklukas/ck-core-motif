@@ -99,10 +99,10 @@ WmWarningWithString(const char *format, const char *value)
     char *message;
 
     messageLength = snprintf(NULL, 0, format, value);
-    if (messageLength < 0)
+    if (messageLength < 0 || (unsigned int)messageLength >= UINT_MAX)
         return;
 
-    message = (char *)XtMalloc((unsigned int)messageLength + 1);
+    message = (char *)XtMalloc((Cardinal)messageLength + 1);
     if (message == NULL)
     {
         Warning("insufficient memory to format window property warning");
