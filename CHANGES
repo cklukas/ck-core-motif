@@ -1,3 +1,9 @@
+Resource-name comparison input validation (2026-10-25)
+========================================================
+
+- Make `XmeNamesAreEqual` safely reject missing strings while preserving valid
+  Motif name matching; see `docs/name-comparison-inputs.md`.
+
 Visibility region allocation handling (2026-10-25)
 ===================================================
 

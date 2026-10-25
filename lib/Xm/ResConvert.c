@@ -608,6 +608,9 @@ XmeNamesAreEqual(
 {
         register char i ;
 
+    if (in_str == NULL || test_str == NULL)
+        return False;
+
     if(    ((in_str[0] == 'X') || (in_str[0] == 'x'))
         && ((in_str[1] == 'M') || (in_str[1] == 'm'))    )
     {   
