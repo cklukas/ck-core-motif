@@ -1539,7 +1539,8 @@ set_values(Widget w,
     return;
   
   im_info = get_im_info(p, False);
-  assert(im_info != NULL);
+  if (im_info == NULL)
+    return;
   
   if (!XtIsRealized(p)) {
     /* If vendor widget not realized, then the current info

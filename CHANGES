@@ -19,6 +19,12 @@ XmIm stale shell-reference guard (2026-10-26)
   teardown instead of asserting while reconstructing an XIC; see
   `docs/xmim-stale-shell-reference.md`.
 
+XmIm missing-shell-data update guard (2026-10-26)
+===================================================
+
+- Treat resource updates arriving after per-shell IM data teardown as a safe
+  no-op instead of asserting; see `docs/xmim-missing-shell-data.md`.
+
 XmString context utility null guards (2026-10-26)
 ===================================================
 
