@@ -1,3 +1,10 @@
+Guard ASN.1 compound-string output allocation (2026-10-25)
+===============================================================
+
+- Return `BadAlloc` before filling the ASN.1 output buffer when its allocation
+  fails, preserving application-lock cleanup; see
+  `docs/motif-txtpropcv-asn1.md`.
+
 Guard compound-text table conversion buffers (2026-10-25)
 =============================================================
 
