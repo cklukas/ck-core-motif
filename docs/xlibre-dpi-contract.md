@@ -40,11 +40,11 @@ with the owning Xt application context. The toolkit selects the RandR
 notifications on the screen root, drains only those notifications from the
 Xlib queue on the UI thread, and schedules one Xt work procedure for a burst
 of changes. The work procedure resolves the shell's current output and scale,
-invokes the normal Xt resize wrapper once, and then calls the internal change
-hook after the resize is stable. Explicit pixel resources are never rewritten;
-the hook is the transaction boundary for controls that have documented
-derived/default metrics. Shell destruction removes the input and pending work
-procedure before releasing the state.
+applies the shared UI-thread scale transaction to that shell's descendant
+hierarchy, and then calls the internal change hook after the resize is stable.
+Explicit pixel resources are never rewritten; registered controls update only
+documented derived/default metrics. Shell destruction removes the input and
+pending work procedure before releasing the state.
 
 The installed observer fixture runs on the requested `--display` when a real
 XLibre server is supplied. It checks registration for two realized shells on

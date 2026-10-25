@@ -133,6 +133,266 @@ typedef struct {
   double scale;
 } XmDisplayScaleOverride;
 
+typedef struct _XmScaleCallback XmScaleCallback;
+typedef struct _XmScaleWidgetState XmScaleWidgetState;
+
+struct _XmScaleCallback {
+  XmScaleWidgetState *state;
+  _XmScaleChangeProc proc;
+  XtPointer closure;
+  unsigned int references;
+  Boolean retired;
+  XmScaleCallback *next;
+};
+
+struct _XmScaleWidgetState {
+  Widget widget;
+  Display *display;
+  XmScaleCallback *callbacks;
+  unsigned int references;
+  Boolean retired;
+  XmScaleWidgetState *next;
+};
+
+static XmScaleWidgetState *scaleWidgetStates;
+
+static void
+scale_widget_destroyed(Widget widget, XtPointer client_data,
+                       XtPointer call_data)
+{
+  XmScaleWidgetState *state = (XmScaleWidgetState *)client_data;
+  XmScaleWidgetState **link;
+  XmScaleCallback *callback;
+  (void)widget;
+  (void)call_data;
+
+  _XmProcessLock();
+  if (state == NULL || state->retired) {
+    _XmProcessUnlock();
+    return;
+  }
+  state->retired = True;
+  link = &scaleWidgetStates;
+  while (*link != NULL && *link != state)
+    link = &(*link)->next;
+  if (*link == state)
+    *link = state->next;
+  for (callback = state->callbacks; callback != NULL;
+       callback = callback->next)
+    callback->retired = True;
+  if (state->references == 0) {
+    callback = state->callbacks;
+    while (callback != NULL) {
+      XmScaleCallback *next = callback->next;
+      XtFree((char *)callback);
+      callback = next;
+    }
+    XtFree((char *)state);
+  }
+  _XmProcessUnlock();
+}
+
+Boolean
+_XmRegisterScaleChange(Widget widget, _XmScaleChangeProc proc,
+                       XtPointer closure)
+{
+  XmScaleWidgetState *state;
+  XmScaleCallback *callback;
+  Boolean install_destroy_callback = False;
+
+  if (widget == NULL || proc == NULL)
+    return False;
+
+  _XmProcessLock();
+  for (state = scaleWidgetStates; state != NULL; state = state->next)
+    if (state->widget == widget)
+      break;
+  if (state == NULL) {
+    state = (XmScaleWidgetState *)XtCalloc(1, sizeof(*state));
+    if (state == NULL) {
+      _XmProcessUnlock();
+      return False;
+    }
+    state->widget = widget;
+    state->display = XtDisplayOfObject(widget);
+    state->next = scaleWidgetStates;
+    scaleWidgetStates = state;
+    install_destroy_callback = True;
+  }
+  for (callback = state->callbacks; callback != NULL;
+       callback = callback->next)
+    if (!callback->retired && callback->proc == proc &&
+        callback->closure == closure) {
+      _XmProcessUnlock();
+      return True;
+    }
+  callback = (XmScaleCallback *)XtCalloc(1, sizeof(*callback));
+  if (callback == NULL) {
+    _XmProcessUnlock();
+    return False;
+  }
+  callback->state = state;
+  callback->proc = proc;
+  callback->closure = closure;
+  callback->next = state->callbacks;
+  state->callbacks = callback;
+  _XmProcessUnlock();
+  if (install_destroy_callback)
+    XtAddCallback(widget, XmNdestroyCallback, scale_widget_destroyed,
+                  (XtPointer)state);
+  return True;
+}
+
+void
+_XmUnregisterScaleChange(Widget widget, _XmScaleChangeProc proc,
+                         XtPointer closure)
+{
+  XmScaleWidgetState *state;
+  XmScaleCallback **link;
+  XmScaleCallback *callback;
+
+  if (widget == NULL || proc == NULL)
+    return;
+  _XmProcessLock();
+  for (state = scaleWidgetStates; state != NULL; state = state->next)
+    if (state->widget == widget)
+      break;
+  if (state == NULL) {
+    _XmProcessUnlock();
+    return;
+  }
+  link = &state->callbacks;
+  while (*link != NULL) {
+    callback = *link;
+    if (!callback->retired && callback->proc == proc &&
+        callback->closure == closure) {
+      callback->retired = True;
+      *link = callback->next;
+      if (callback->references == 0)
+        XtFree((char *)callback);
+      break;
+    }
+    link = &callback->next;
+  }
+  _XmProcessUnlock();
+}
+
+static Boolean
+scale_widget_is_descendant(Widget widget, Widget root)
+{
+  Widget current;
+
+  if (root == NULL)
+    return True;
+  for (current = widget; current != NULL; current = XtParent(current))
+    if (current == root)
+      return True;
+  return False;
+}
+
+static Boolean
+apply_scale_change(Display *display, Widget root,
+                   double old_scale, double new_scale)
+{
+  XmScaleWidgetState *state;
+  XmScaleCallback *callback;
+  XmScaleCallback **callbacks = NULL;
+  size_t count = 0;
+  size_t i = 0;
+  Boolean success = True;
+
+  if (display == NULL || !isfinite(old_scale) || !isfinite(new_scale) ||
+      old_scale <= 0.0 || new_scale <= 0.0)
+    return False;
+  if (fabs(old_scale - new_scale) < 0.000001)
+    return True;
+
+  _XmProcessLock();
+  for (state = scaleWidgetStates; state != NULL; state = state->next)
+    if (!state->retired && state->display == display &&
+        scale_widget_is_descendant(state->widget, root))
+      for (callback = state->callbacks; callback != NULL;
+           callback = callback->next)
+        if (!callback->retired)
+          ++count;
+  if (count != 0)
+    callbacks = (XmScaleCallback **)calloc(count, sizeof(*callbacks));
+  if (count != 0 && callbacks == NULL) {
+    _XmProcessUnlock();
+    return False;
+  }
+  for (state = scaleWidgetStates; state != NULL; state = state->next)
+    if (!state->retired && state->display == display &&
+        scale_widget_is_descendant(state->widget, root))
+      for (callback = state->callbacks; callback != NULL;
+           callback = callback->next)
+        if (!callback->retired) {
+          callback->references++;
+          state->references++;
+          callbacks[i++] = callback;
+        }
+  _XmProcessUnlock();
+
+  for (i = 0; i < count; ++i) {
+    XmScaleWidgetState *callback_state = callbacks[i]->state;
+    if (!callbacks[i]->retired)
+      callbacks[i]->proc(callback_state->widget, old_scale, new_scale,
+                         callbacks[i]->closure);
+    _XmProcessLock();
+    if (callbacks[i]->references != 0)
+      --callbacks[i]->references;
+    if (callback_state->references != 0)
+      --callback_state->references;
+    if (callbacks[i]->retired && callbacks[i]->references == 0) {
+      XmScaleCallback **link = &callback_state->callbacks;
+      while (*link != NULL && *link != callbacks[i])
+        link = &(*link)->next;
+      if (*link == callbacks[i]) {
+        *link = callbacks[i]->next;
+        XtFree((char *)callbacks[i]);
+      }
+    }
+    if (callback_state->retired && callback_state->references == 0 &&
+        callback_state->callbacks == NULL) {
+      XtFree((char *)callback_state);
+    }
+    _XmProcessUnlock();
+  }
+  free(callbacks);
+  return success;
+}
+
+Boolean
+_XmApplyScaleChange(Display *display, double old_scale, double new_scale)
+{
+  return apply_scale_change(display, NULL, old_scale, new_scale);
+}
+
+Boolean
+_XmApplyScaleChangeForWidget(Widget root, double old_scale, double new_scale)
+{
+  if (root == NULL)
+    return False;
+  return apply_scale_change(XtDisplayOfObject(root), root,
+                            old_scale, new_scale);
+}
+
+void
+_XmScaleRelayoutWidget(Widget widget, double old_scale, double new_scale,
+                       XtPointer closure)
+{
+  Dimension width, height, border_width;
+  (void)old_scale;
+  (void)new_scale;
+  (void)closure;
+
+  if (widget == NULL || !XtIsWidget(widget) || !XtIsRealized(widget))
+    return;
+  XtVaGetValues(widget, XmNwidth, &width, XmNheight, &height,
+                XmNborderWidth, &border_width, NULL);
+  XtResizeWidget(widget, width, height, border_width);
+}
+
 static Boolean
 get_display_scale_override(Display *display, double *scale_return)
 {
@@ -159,6 +419,16 @@ XmSetDisplayScaleOverride(Display *display, double scale)
 {
   XmDisplayScaleOverride *override;
   XContext context;
+  double old_scale = 1.0;
+  Boolean had_old = False;
+
+  if (display != NULL) {
+    had_old = get_display_scale_override(display, &old_scale);
+    if (!had_old)
+      had_old = _XmGetGlobalDpiScale(display, &old_scale);
+    if (!had_old)
+      old_scale = 1.0;
+  }
 
   if (display == NULL || !isfinite(scale) || scale <= 0.0)
     return False;
@@ -174,7 +444,7 @@ XmSetDisplayScaleOverride(Display *display, double scale)
   if (!XFindContext(display, None, context, (char **)&override)) {
     override->scale = scale;
     _XmProcessUnlock();
-    return True;
+    return _XmApplyScaleChange(display, old_scale, scale);
   }
   override = (XmDisplayScaleOverride *)XtMalloc(sizeof(*override));
   if (override == NULL) {
@@ -188,7 +458,7 @@ XmSetDisplayScaleOverride(Display *display, double scale)
     return False;
   }
   _XmProcessUnlock();
-  return True;
+  return _XmApplyScaleChange(display, old_scale, scale);
 }
 
 Boolean
@@ -202,6 +472,7 @@ XmClearDisplayScaleOverride(Display *display)
 {
   XmDisplayScaleOverride *override;
   XContext context;
+  double old_scale;
 
   if (display == NULL)
     return False;
@@ -213,13 +484,19 @@ XmClearDisplayScaleOverride(Display *display)
     _XmProcessUnlock();
     return False;
   }
+  old_scale = override->scale;
   if (XDeleteContext(display, None, context) != 0) {
     _XmProcessUnlock();
     return False;
   }
   _XmProcessUnlock();
   XtFree((char *)override);
-  return True;
+  {
+    double new_scale;
+    if (!_XmGetGlobalDpiScale(display, &new_scale))
+      new_scale = 1.0;
+    return _XmApplyScaleChange(display, old_scale, new_scale);
+  }
 }
 
 Boolean
@@ -299,15 +576,24 @@ _XmGetWidgetDpiScale(Widget widget, double *scale)
 
 /* Explicit application dimensions bypass this bounded default conversion. */
 Dimension
-_XmDpiDefaultDimension(Widget widget, Dimension baseline)
+_XmDpiScaleDimension(double scale, Dimension baseline)
 {
-  double scale, size;
+  double size;
   Dimension maximum = (Dimension)~(Dimension)0;
-  if (!_XmGetWidgetDpiScale(widget, &scale) || scale <= 1.0)
+  if (!isfinite(scale) || scale <= 1.0)
     return baseline;
   size = baseline * scale + 0.5;
   if (size >= maximum) return maximum;
   return (Dimension)size;
+}
+
+Dimension
+_XmDpiDefaultDimension(Widget widget, Dimension baseline)
+{
+  double scale;
+  if (!_XmGetWidgetDpiScale(widget, &scale))
+    return baseline;
+  return _XmDpiScaleDimension(scale, baseline);
 }
 
 static XtResource resources[] = {

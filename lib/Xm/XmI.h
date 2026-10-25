@@ -238,6 +238,28 @@ extern Boolean _XmGetDpiScale(Display *display, double *scale);
 extern Boolean _XmGetGlobalDpiScale(Display *display, double *scale);
 extern Boolean _XmGetWidgetDpiScale(Widget widget, double *scale);
 extern Dimension _XmDpiDefaultDimension(Widget widget, Dimension baseline);
+extern Dimension _XmDpiScaleDimension(double scale, Dimension baseline);
+
+typedef void (*_XmScaleChangeProc)(Widget widget,
+                                   double old_scale,
+                                   double new_scale,
+                                   XtPointer closure);
+extern Boolean _XmRegisterScaleChange(Widget widget,
+                                      _XmScaleChangeProc proc,
+                                      XtPointer closure);
+extern void _XmUnregisterScaleChange(Widget widget,
+                                     _XmScaleChangeProc proc,
+                                     XtPointer closure);
+extern Boolean _XmApplyScaleChange(Display *display,
+                                   double old_scale,
+                                   double new_scale);
+extern Boolean _XmApplyScaleChangeForWidget(Widget root,
+                                            double old_scale,
+                                            double new_scale);
+extern void _XmScaleRelayoutWidget(Widget widget,
+                                   double old_scale,
+                                   double new_scale,
+                                   XtPointer closure);
 extern Boolean _XmIsISO10646(Display *dpy,
                              XFontStruct *font);
 extern XChar2b* _XmUtf8ToUcs2(char *draw_text,

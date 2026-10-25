@@ -25,6 +25,7 @@ main(int argc, char **argv)
     XrmDatabase database;
     double scale;
     Dimension baseline_indicator;
+    Dimension live_indicator;
     Dimension scaled_indicator;
     Dimension explicit_indicator;
     XmString empty_label;
@@ -55,9 +56,23 @@ main(int argc, char **argv)
     XmStringFree(empty_label);
     XtManageChild(baseline_toggle);
 
+    XtRealizeWidget(shell);
+    XtVaGetValues(baseline_toggle, XmNindicatorSize, &baseline_indicator,
+                  NULL);
+    XmToggleButtonSetState(baseline_toggle, True, False);
+    if (!XmToggleButtonGetState(baseline_toggle))
+        return fail("toggle state could not be established before reflow");
+
     if (!XmSetDisplayScaleOverride(display, 2.0) ||
         !XmGetDisplayScaleOverride(display, &scale) || scale != 2.0)
-        return fail("updated override was not retained");
+        return fail("live override was not retained");
+    XSync(display, False);
+    XtVaGetValues(baseline_toggle, XmNindicatorSize, &live_indicator, NULL);
+    if (live_indicator <= baseline_indicator)
+        return fail("realized default metric did not reflow");
+    if (!XmToggleButtonGetState(baseline_toggle))
+        return fail("toggle state changed during reflow");
+
     empty_label = XmStringCreateLocalized("");
     XtSetArg(empty_args[0], XmNlabelString, empty_label);
     scaled_toggle = XmCreateToggleButton(shell, "scaled", empty_args, 1);
@@ -71,14 +86,20 @@ main(int argc, char **argv)
     XtManageChild(explicit_toggle);
     XtRealizeWidget(shell);
 
-    XtVaGetValues(baseline_toggle, XmNindicatorSize, &baseline_indicator, NULL);
     XtVaGetValues(scaled_toggle, XmNindicatorSize, &scaled_indicator, NULL);
     XtVaGetValues(explicit_toggle, XmNindicatorSize, &explicit_indicator, NULL);
-    if (baseline_indicator == 0 || scaled_indicator <= baseline_indicator)
+    if (baseline_indicator == 0 || live_indicator <= baseline_indicator ||
+        scaled_indicator <= baseline_indicator)
         return fail("scaled default metric did not increase");
     if (explicit_indicator != 7)
         return fail("explicit pixel metric was changed by scale override");
 
+    if (!XmSetDisplayScaleOverride(display, 1.0))
+        return fail("one-times live override was not retained");
+    XSync(display, False);
+    XtVaGetValues(baseline_toggle, XmNindicatorSize, &live_indicator, NULL);
+    if (live_indicator != baseline_indicator)
+        return fail("live scale reflow was not reversible");
     if (!XmClearDisplayScaleOverride(display) ||
         XmGetDisplayScaleOverride(display, &scale))
         return fail("override did not clear");

@@ -242,16 +242,14 @@ _XmXlibreDpiWork(XtPointer closure)
         return True;
     }
 
-    /* A same-size resize invokes the normal Xt/Xm resize wrappers once.  It
-     * does not mutate explicit pixel resources; the optional callback is the
-     * transaction boundary for widgets with documented derived metrics. */
-    {
-        XWindowAttributes attributes;
-        if (XGetWindowAttributes(state->display, XtWindow(state->shell),
-                                 &attributes))
-            XtResizeWidget(state->shell, (Dimension)attributes.width,
-                           (Dimension)attributes.height,
-                           (Dimension)attributes.border_width);
+    /* Use the same UI-thread transaction as deterministic developer
+     * overrides.  Registered widgets update only toolkit-owned derived
+     * defaults; explicit application resources remain untouched. */
+    if (!_XmApplyScaleChangeForWidget(state->shell, old_scale, scale)) {
+        state->scale = old_scale;
+        state->output = old_output;
+        _XmXlibreDpiRelease(state);
+        return True;
     }
     if (!state->retired && state->change_proc != NULL)
         state->change_proc(state->shell, old_scale, scale, old_output, output,
