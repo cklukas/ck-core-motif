@@ -129,6 +129,8 @@ WSMRegisterRequestCallback(Display *disp, int scr_num,
     WSMScreenInfo *scr_info;
 
     scr_info = _WSMGetScreenInfo(disp, scr_num);
+    if (scr_info == NULL)
+	return;
 
     /*
      * Since only one client can own a particular selection, we can hang

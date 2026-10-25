@@ -17,6 +17,13 @@ Bound WSM debug output (2026-10-25)
   extension and attribute lists cannot overflow the static debug buffer; see
   `docs/wsm-debug-config-format.md`.
 
+WSM callback registration guard (2026-10-25)
+============================================
+
+- Ignore callback registration when the screen metadata record is unavailable,
+  preventing a null dereference after WSM cache allocation failure; see
+  `docs/wsm-request-callback.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 
