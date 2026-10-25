@@ -1,3 +1,9 @@
+Menu button border-clear bounds (2026-10-25)
+=============================================
+
+- Guard CascadeButton, PushButton, and ToggleButton menu leave/disarm border
+  clears against undersized interiors; see `docs/menu-border-clear-bounds.md`.
+
 DrawnButton menu geometry guards (2026-10-25)
 ===============================================
 

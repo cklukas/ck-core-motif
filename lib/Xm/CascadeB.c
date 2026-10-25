@@ -921,15 +921,16 @@ Disarm(
 
 	     if (etched_in) 
 		 Redisplay((Widget) cb, NULL, NULL);
-	     else
-		 XmeClearBorder (XtDisplay (cb), XtWindow (cb),
-				 cb->primitive.highlight_thickness,
-				 cb->primitive.highlight_thickness,
-				 cb->core.width - 2 * 
-				 cb->primitive.highlight_thickness,
-				 cb->core.height - 2 * 
-				 cb->primitive.highlight_thickness,
-				 cb->primitive.shadow_thickness);
+	 else if ((int)cb->core.width > 2 * (int)cb->primitive.highlight_thickness &&
+		  (int)cb->core.height > 2 * (int)cb->primitive.highlight_thickness)
+	     XmeClearBorder (XtDisplay (cb), XtWindow (cb),
+			 cb->primitive.highlight_thickness,
+			 cb->primitive.highlight_thickness,
+			 (int)cb->core.width -
+			 2 * (int)cb->primitive.highlight_thickness,
+			 (int)cb->core.height -
+			 2 * (int)cb->primitive.highlight_thickness,
+			 cb->primitive.shadow_thickness);
 	 }
       }
       DrawCascade(cb);

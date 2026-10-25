@@ -910,13 +910,16 @@ Leave(
 		if (w->toggle.ind_on)
 		    DrawToggle(w);
 	    }
-			
-	  XmeClearBorder(XtDisplay (w), XtWindow (w),
-			 w->primitive.highlight_thickness,
-			 w->primitive.highlight_thickness,
-			 w->core.width - 2 * w->primitive.highlight_thickness,
-			 w->core.height - 2 * w->primitive.highlight_thickness,
-			 w->primitive.shadow_thickness);
+	  if ((int)w->core.width > 2 * (int)w->primitive.highlight_thickness &&
+	      (int)w->core.height > 2 * (int)w->primitive.highlight_thickness)
+	    XmeClearBorder(XtDisplay (w), XtWindow (w),
+			   w->primitive.highlight_thickness,
+			   w->primitive.highlight_thickness,
+			   (int)w->core.width -
+			   2 * (int)w->primitive.highlight_thickness,
+			   (int)w->core.height -
+			   2 * (int)w->primitive.highlight_thickness,
+			   w->primitive.shadow_thickness);
 	  
 	  if (w->toggle.disarm_CB)
 	    {
@@ -2457,12 +2460,15 @@ BorderUnhighlight(
 	  if (tb->toggle.ind_on)
 	      DrawToggle(tb);
 	}
-
-      XmeClearBorder (XtDisplay (tb), XtWindow (tb),
+      if ((int)tb->core.width > 2 * (int)tb->primitive.highlight_thickness &&
+	  (int)tb->core.height > 2 * (int)tb->primitive.highlight_thickness)
+	XmeClearBorder (XtDisplay (tb), XtWindow (tb),
 		      tb->primitive.highlight_thickness,
 		      tb->primitive.highlight_thickness,
-		      tb->core.width - 2 * tb->primitive.highlight_thickness,
-		      tb->core.height - 2 * tb->primitive.highlight_thickness,
+		      (int)tb->core.width -
+		      2 * (int)tb->primitive.highlight_thickness,
+		      (int)tb->core.height -
+		      2 * (int)tb->primitive.highlight_thickness,
 		      tb->primitive.shadow_thickness);
       
       if (tb->toggle.Armed && tb->toggle.disarm_CB)
