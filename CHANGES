@@ -7845,3 +7845,10 @@ Spinner interval rescheduling (2026-10-27)
 - Replace pending Spinner timeouts immediately when `XmNspinnerInterval`
   changes, so active controls use the new interval without a stale tick; see
   `docs/spinner-interval-reschedule.md`.
+
+Spinner preferred-size bounds (2026-10-27)
+==========================================
+
+- Saturate Spinner preferred width and height arithmetic at `Dimension`'s
+  maximum, preventing wrapped geometry for large spacing or font metrics; see
+  `docs/spinner-size-bounds.md`.

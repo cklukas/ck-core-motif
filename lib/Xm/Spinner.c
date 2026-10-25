@@ -63,6 +63,11 @@ static int bounded_interval(int interval) {
     return interval;
 }
 
+static Dimension bounded_dimension(size_t value) {
+    const size_t maximum = (size_t)(Dimension)~(Dimension)0;
+    return (Dimension)(value > maximum ? maximum : value);
+}
+
 static Boolean eligible(XmSpinnerWidget spinner) {
     XWindowAttributes attributes;
     Widget widget = (Widget)spinner;
@@ -110,10 +115,12 @@ static void Initialize(Widget request, Widget widget, ArgList args,
         XmStringExtent(spinner->spinner.font, spinner->spinner.label,
                        &label_width, &label_height);
     if (!spinner->core.width)
-        spinner->core.width = label_width + 40 + 2 * spinner->spinner.spacing;
+        spinner->core.width = bounded_dimension((size_t)label_width + 40 +
+                                                2 * (size_t)spinner->spinner.spacing);
     if (!spinner->core.height)
-        spinner->core.height = (label_height > 28 ? label_height : 28) +
-                               2 * spinner->spinner.spacing;
+        spinner->core.height = bounded_dimension((size_t)(label_height > 28 ?
+                                                label_height : 28) +
+                                                 2 * (size_t)spinner->spinner.spacing);
     values.foreground = spinner->primitive.foreground;
     values.background = spinner->core.background_pixel;
     spinner->spinner.ring_gc = XCreateGC(display, DefaultRootWindow(display),
@@ -240,8 +247,10 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
         XmStringExtent(spinner->spinner.font, spinner->spinner.label,
                        &width, &height);
     reply->request_mode = CWWidth | CWHeight;
-    reply->width = width + 40 + 2 * spinner->spinner.spacing;
-    reply->height = (height > 28 ? height : 28) + 2 * spinner->spinner.spacing;
+    reply->width = bounded_dimension((size_t)width + 40 +
+                                     2 * (size_t)spinner->spinner.spacing);
+    reply->height = bounded_dimension((size_t)(height > 28 ? height : 28) +
+                                      2 * (size_t)spinner->spinner.spacing);
     return (widget->core.width == reply->width && widget->core.height == reply->height)
                ? XtGeometryYes : XtGeometryAlmost;
 }
