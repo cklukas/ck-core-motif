@@ -1272,6 +1272,7 @@ GetNextXmString(
         Boolean *after_delimiter )
 {
    char *tmp;
+   size_t input_length;
    int csize;
 
    *cs = NULL;
@@ -1309,7 +1310,10 @@ GetNextXmString(
    /* Found something. Allocate some space (ugh!) and start copying  */
    /* the next string                                                */
 
-   *cs = XtMalloc(strlen(*s) + 1);
+   input_length = strlen(*s);
+   if (input_length > (size_t)UINT_MAX - 1)
+	 return(TRUE);
+   *cs = XtMalloc((Cardinal)(input_length + 1));
    if (*cs == NULL)
 	 return(TRUE);
    tmp = *cs;

@@ -11,6 +11,8 @@ block = text[start:end]
 
 for needle in (
     "*cs = NULL;",
+    "input_length > (size_t)UINT_MAX - 1",
+    "XtMalloc((Cardinal)(input_length + 1))",
     "if (*cs == NULL)",
     "if (table == NULL)",
     "if (new_table == NULL)",

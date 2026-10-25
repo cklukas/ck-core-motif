@@ -12221,3 +12221,9 @@ Atom-list conversion allocation widths (2026-10-26)
 
 - Pass checked name-array growth and atom-array sizes explicitly as Xt
   `Cardinal` values; see `docs/atom-list-conversion.md`.
+
+XmString-table item length bounds (2026-10-26)
+==============================================
+
+- Reject per-item input strings that cannot fit Xt's `Cardinal` allocation
+  range before copying; see `docs/xmstring-table-converter-allocation.md`.
