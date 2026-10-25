@@ -1,3 +1,10 @@
+Clipboard receive callback validation (2026-10-26)
+===================================================
+
+- Validate selection callback context, output pointers, formats, and payloads
+  before byte-count conversion; release rejected data; see
+  `docs/clipboard-receive-callback-validation.md`.
+
 Clipboard external-selection output guards (2026-10-26)
 =========================================================
 

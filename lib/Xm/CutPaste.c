@@ -2615,9 +2615,24 @@ ClipboardReceiveData(Widget dest, /* unused */
 
   info = ( ClipboardSelectionInfo ) client_data;
 
+  if (info == NULL)
+  {
+	XtFree( (char *)value );
+	return;
+  }
+
   info->received = TRUE;
 
-  if ( *type != XT_CONVERT_FAIL )
+  info->format = 8;
+  info->count = 0;
+  info->type = None;
+  info->data = NULL;
+  info->success = FALSE;
+
+  if (type != NULL && length != NULL && format != NULL &&
+	*type != XT_CONVERT_FAIL &&
+	(*format == 8 || *format == 16 || *format == 32) &&
+	(value != NULL || *length == 0))
     {
       info -> format = *format;
       info -> count = BYTELENGTH(*length, *format);
@@ -2625,14 +2640,8 @@ ClipboardReceiveData(Widget dest, /* unused */
       info -> data = (char*) value;
       info -> success = TRUE;
     }
-  else 
-    {
-      info -> format = 8;
-      info -> count = 0;
-      info -> type = None;
-      info -> data = NULL;
-      info -> success = FALSE;
-    }
+  else
+    XtFree( (char *)value );
 }
 
 static int 
