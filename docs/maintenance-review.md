@@ -115,3 +115,10 @@ preferred geometry and drawing.  The focused check is:
 ```sh
 python3 tests/automated/check-badge-text-metrics.py
 ```
+
+Link labels and their visited-state rules now use measured font geometry.  The
+focused check is:
+
+```sh
+python3 tests/automated/check-link-text-metrics.py
+```

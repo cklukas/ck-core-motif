@@ -160,6 +160,12 @@ Badge font-aware text layout (2026-10-27)
 - Measure Badge text with the active X font for both baseline and preferred
   width, preventing custom fonts from being clipped or vertically misaligned.
 
+Link font-aware text layout (2026-10-27)
+=========================================
+
+- Measure Link labels for baseline, underline length, and preferred width so
+  custom fonts do not leave the text or visited-state rule misaligned.
+
 InfoBar close control and FontSelector bounds (2026-10-27)
 ============================================================
 

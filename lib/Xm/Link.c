@@ -8,6 +8,7 @@
 #include <Xm/XmP.h>
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 #include "PrimitiveI.h"
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
@@ -70,21 +71,43 @@ static void text_value(XmLinkWidget link, char *buffer, size_t size) {
     if (text) { snprintf(buffer, size, "%s", text); XtFree(text); }
     else buffer[0] = '\0';
 }
+static int text_metrics(XmLinkWidget link, const char *text, int length,
+                        int *ascent, int *descent) {
+    XGCValues values;
+    XFontStruct *font;
+    int width = 0;
+    *ascent = *descent = 0;
+    if (!link->link.gc ||
+        !XGetGCValues(XtDisplay((Widget)link), link->link.gc, GCFont, &values))
+        return 0;
+    font = XQueryFont(XtDisplay((Widget)link), values.font);
+    if (!font)
+        return 0;
+    *ascent = font->ascent;
+    *descent = font->descent;
+    if (text && length > 0)
+        width = XTextWidth(font, text, length);
+    XFreeFontInfo(NULL, font, 1);
+    return width < 0 ? 0 : width;
+}
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmLinkWidget link = (XmLinkWidget)widget; char text[256]; int length;
+    int ascent, descent, text_width;
     (void)event; (void)region; text_value(link, text, sizeof(text)); length = (int)strlen(text);
     if (!XtWindow(widget) || !link->link.gc) return;
     XClearWindow(XtDisplay(widget), XtWindow(widget));
+    text_width = text_metrics(link, text, length, &ascent, &descent);
     XDrawString(XtDisplay(widget), XtWindow(widget), link->link.gc, 4,
-                (int)link->core.height - 8, text, length);
+                (int)(((long long)link->core.height - ascent - descent) / 2 + ascent),
+                text, length);
     XDrawLine(XtDisplay(widget), XtWindow(widget), link->link.gc, 4,
-              (int)link->core.height - 5, 4 + length * 8,
+              (int)link->core.height - 5, 4 + text_width,
               (int)link->core.height - 5);
     /* Visited state is visible without depending on colour: a second rule
        distinguishes it in monochrome and high-contrast themes. */
     if (link->link.visited)
         XDrawLine(XtDisplay(widget), XtWindow(widget), link->link.gc, 4,
-                  (int)link->core.height - 2, 4 + length * 8,
+                  (int)link->core.height - 2, 4 + text_width,
                   (int)link->core.height - 2);
     if (link->primitive.highlighted && link->primitive.highlight_thickness)
         XDrawRectangle(XtDisplay(widget), XtWindow(widget), link->link.gc,
@@ -128,9 +151,16 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     (void)request; text_value(link, text, sizeof(text));
     reply->request_mode = CWWidth | CWHeight;
     length = strlen(text);
-    reply->width = length > ((unsigned long)(Dimension)-1 - 8UL) / 8UL
-                       ? (Dimension)-1
-                       : (Dimension)(length * 8UL + 8UL);
+    {
+        int ascent, descent;
+        int measured = text_metrics(link, text,
+                                     length > (size_t)INT_MAX ? INT_MAX : (int)length,
+                                     &ascent, &descent);
+        unsigned long width = measured > 0 ? (unsigned long)measured :
+                               length > ULONG_MAX / 8UL ? ULONG_MAX : length * 8UL;
+        reply->width = width > (unsigned long)(Dimension)-1 - 8UL
+                           ? (Dimension)-1 : (Dimension)(width + 8UL);
+    }
     reply->height = 24;
     return (widget->core.width == reply->width && widget->core.height == reply->height)
                ? XtGeometryYes : XtGeometryAlmost;
