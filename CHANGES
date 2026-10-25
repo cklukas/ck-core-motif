@@ -1,3 +1,9 @@
+Icon-info move validation (2026-10-25)
+=======================================
+
+- Reject invalid placement storage, indices, self-moves, and empty source
+  entries before moving icon metadata; see `docs/move-icon-info-guards.md`.
+
 Dynamic default-color cache allocation (2026-10-25)
 =====================================================
 

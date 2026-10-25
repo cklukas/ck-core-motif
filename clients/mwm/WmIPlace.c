@@ -1022,6 +1022,12 @@ void MoveIconInfo (IconPlacementData *pIPD, int p1, int p2)
     WsClientData *pWsc;
 #endif /* WSM */
 
+    if (pIPD == NULL || pIPD->placeList == NULL ||
+	pIPD->totalPlaces <= 0 || p1 < 0 || p2 < 0 ||
+	p1 >= pIPD->totalPlaces || p2 >= pIPD->totalPlaces || p1 == p2 ||
+	pIPD->placeList[p1].pCD == NULL)
+	return;
+
     /* only move if destination is empty */
     if (pIPD->placeList[p2].pCD == NULL)
     {
@@ -1031,7 +1037,8 @@ void MoveIconInfo (IconPlacementData *pIPD, int p1, int p2)
 
 	pWsc = GetWsClientData (pIPD->placeList[p2].pCD->pSD->pActiveWS,
 				pIPD->placeList[p2].pCD);
-	pWsc->iconPlace = p2;
+	if (pWsc != NULL)
+	    pWsc->iconPlace = p2;
 #else /* WSM */
 	pIPD->placeList[p2].pCD->iconPlace = p2;
 #endif /* WSM */
