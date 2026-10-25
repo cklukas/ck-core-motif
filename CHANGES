@@ -9971,6 +9971,12 @@ Virtual-key fallback allocation guards (2026-10-25)
 - Skip failed fallback filename construction and binding copies before
   `fopen` or `strlen`; see `docs/virtkeys-fallback-allocation.md`.
 
+Virtual-key vendor allocation guard (2026-10-25)
+================================================
+
+- Check server-vendor data and the formatted vendor/version buffer before
+  matching vendor-specific bindings; see `docs/virtkeys-vendor-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

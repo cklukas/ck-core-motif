@@ -960,7 +960,11 @@ LoadVendorBindings(Display *display,
   char *start;
   
   vendor = ServerVendor(display);
+  if (vendor == NULL)
+    return;
   vendorV = XtMalloc (strlen(vendor) + 20); /* assume rel.# is < 19 digits */
+  if (vendorV == NULL)
+    return;
   sprintf (vendorV, "%s %d", vendor, VendorRelease(display));
   
   while (fgets (buffer, MAXLINE, fp) != NULL) 
