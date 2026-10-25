@@ -1179,6 +1179,12 @@ UnpackWinData(MessageData *data_ptr, Display *dpy, int screen_num,
     unsigned char *bit_mask, *current_mask, check_mask;
     WSMAttribute *attr;
     WSMWinData *ptr;
+
+    *win_data = NULL;
+    *num = 0;
+    if (conf_fmt == NULL ||
+	(conf_fmt->num_attrs != 0 && conf_fmt->attr_list == NULL))
+	return;
     
     /*
      * Figure out how many values have been specified so we know how much
@@ -1187,6 +1193,8 @@ UnpackWinData(MessageData *data_ptr, Display *dpy, int screen_num,
 
     size = conf_fmt->num_attrs / 8 + 1;
     current_mask = bit_mask = (unsigned char *) XtMalloc(size);
+    if (bit_mask == NULL)
+	return;
 
     /*
      * Unpack the bits from the wire.
@@ -1208,6 +1216,11 @@ UnpackWinData(MessageData *data_ptr, Display *dpy, int screen_num,
     }
 
     ptr = *win_data = (WSMWinData *) XtMalloc(*num * sizeof(WSMWinData));
+    if (ptr == NULL) {
+	XtFree((XtPointer) bit_mask);
+	*num = 0;
+	return;
+    }
 
     /*
      * For each value that was specified pack the data into the window

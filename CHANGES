@@ -126,6 +126,13 @@ WSM WM_WINDOWS reply allocation guard (2026-10-25)
 - Check the WSM `WM_WINDOWS` reply window-entry allocation before unpacking;
   see `docs/wsm-win-reply-oom.md`.
 
+WSM window-data unpack guards (2026-10-25)
+==========================================
+
+- Make shared WSM window-data unpacking fail closed when configuration state,
+  bit-mask, or result-array allocation is unavailable; see
+  `docs/wsm-windata-oom.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 
