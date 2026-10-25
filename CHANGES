@@ -4058,3 +4058,8 @@ Mrm writer CString-vector rebind checks (2026-10-25)
 
 - Propagate per-element argument rebinding failures after CString-vector
   appends; see `docs/mrm-writer-cstring-vector-rebind.md`.
+Mrm callback item binding checks (2026-10-25)
+===============================================
+
+- Propagate callback descriptor validation and rebind failures after callback
+  data appends; see `docs/mrm-callback-item-binding.md`.
