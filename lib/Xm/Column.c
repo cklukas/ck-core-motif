@@ -1079,6 +1079,7 @@ ConstraintInitialize(Widget request, Widget new_w, ArgList arg_list,
     static         Boolean label_widget = False;	/* STATIC DATA */
     XmColumnWidget cw = (XmColumnWidget) XtParent(new_w);
     XmBulletinBoardPart *bbpart;
+    XmString label_copy;
 
 	/* CR03562 CR02961 When ChangeManaged is bypassed, request width and height
 	   are not set. The 2 line will prevent this assumption which sometimes
@@ -1103,7 +1104,11 @@ ConstraintInitialize(Widget request, Widget new_w, ArgList arg_list,
 	XiC(new_w)->request_height = 0;
 #endif
 
-    XiC(new_w)->label_string = XmStringCopy(XiC(new_w)->label_string);
+    label_copy = XiC(new_w)->label_string != NULL
+        ? XmStringCopy(XiC(new_w)->label_string) : NULL;
+    if (XiC(new_w)->label_string != NULL && label_copy == NULL)
+        label_copy = XmStringCreateLocalized("");
+    XiC(new_w)->label_string = label_copy;
     if( label_widget )
     {
 	XiC(new_w)->label_alignment = XmALIGNMENT_UNSPECIFIED;

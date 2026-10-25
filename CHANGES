@@ -9512,3 +9512,12 @@ MWM menu-name rollback (2026-10-29)
 - Allocate duplicated system-menu names before releasing existing metadata,
   preserving usable menu specifications on allocation failure; see
   `docs/mwm-menu-name-rollback.md`.
+Column constraint-label initialization rollback (2026-10-28)
+===============================================================
+
+- Check child constraint-label copies during initialization and install a safe
+  empty fallback, preventing the destroy path from freeing an unowned pointer;
+  see `docs/column-label-init-rollback.md`.
+
+ProgressBar label initialization rollback (2026-10-28)
+==========================================================
