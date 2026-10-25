@@ -48,7 +48,6 @@ XmStringGetNextComponent(
   unsigned int  	len;
   XtPointer		val;
   
-  _XmProcessLock();
   type = XmeStringGetComponent((_XmStringContext) context, True, True, &len, &val);
 
   /* Case on return type */
@@ -75,7 +74,6 @@ XmStringGetNextComponent(
       *unknown_value = (unsigned char *)val; 
       type = XmSTRING_COMPONENT_UNKNOWN;
     }
-  _XmProcessUnlock();
   return(type);
 }
       

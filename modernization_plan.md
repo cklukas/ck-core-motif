@@ -2043,6 +2043,11 @@ to `XmeStringGetComponent` rather than holding the process lock across repeated
 component reads; the source contract is recorded in
 `tests/automated/check-xmstring-enumeration-locking.py` and
 `docs/xmstring-enumeration-locking.md`.
+`XmStringGetNextComponent` now delegates synchronization to
+`XmeStringGetComponent` rather than holding the process lock across component
+extraction; the source contract is recorded in
+`tests/automated/check-xmstring-getcomponent-locking.py` and
+`docs/xmstring-getcomponent-locking.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the
