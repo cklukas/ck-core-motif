@@ -127,6 +127,10 @@ typedef struct {
    XtIntervalId auto_drag_timer; 
 
    Boolean scroll_frame_inited ;
+   Boolean scale_default_width;
+   Boolean scale_default_height;
+   Dimension scale_last_width;
+   Dimension scale_last_height;
    XmScrollFrameData scroll_frame_data ;
 
    XtPointer	auto_drag_rects;

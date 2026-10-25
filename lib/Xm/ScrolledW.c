@@ -167,6 +167,12 @@ static void Initialize(
     ArgList args,
     Cardinal *num_args) ;
 
+static void ScaleChanged(
+    Widget widget,
+    double old_scale,
+    double new_scale,
+    XtPointer closure) ;
+
 static void Redisplay(
     Widget wid,
     XEvent *event,
@@ -1172,6 +1178,13 @@ Cardinal *num_args )
       Initialize the scroll_frame flag */
 
     new_w->swindow.scroll_frame_inited = False;
+    new_w->swindow.scale_default_width = (request->core.width == 0);
+    new_w->swindow.scale_default_height = (request->core.height == 0);
+    new_w->swindow.scale_last_width =
+        _XmDpiDefaultDimension((Widget)new_w, DEFAULT_SIZE);
+    new_w->swindow.scale_last_height =
+        _XmDpiDefaultDimension((Widget)new_w, DEFAULT_SIZE);
+    (void)_XmRegisterScaleChange((Widget)new_w, ScaleChanged, NULL);
 
     /****************
      *
@@ -1191,9 +1204,13 @@ Cardinal *num_args )
            If the SW doesn't get a child, its size will be DEFAULT_SIZE if
            it hasn't one already (if it is null). */
 
-        if (new_w->core.width == 0) future_width = DEFAULT_SIZE ;
+        if (new_w->core.width == 0)
+            future_width = _XmDpiDefaultDimension((Widget)new_w,
+                                                   DEFAULT_SIZE);
         else future_width = new_w->core.width ;
-        if (new_w->core.height == 0) future_height = DEFAULT_SIZE ;
+        if (new_w->core.height == 0)
+            future_height = _XmDpiDefaultDimension((Widget)new_w,
+                                                    DEFAULT_SIZE);
         else future_height = new_w->core.height ;
 
         if (future_width > new_w->manager.shadow_thickness*2)
@@ -1226,8 +1243,14 @@ Cardinal *num_args )
 
     /* Default dimension here, not in ChangeManaged because
        auto mode isn't based on children size */
-    if (new_w->core.width == 0) new_w->core.width = DEFAULT_SIZE ;
-    if (new_w->core.height == 0) new_w->core.height = DEFAULT_SIZE ;
+    if (new_w->core.width == 0)
+        new_w->core.width = _XmDpiDefaultDimension((Widget)new_w,
+                                                    DEFAULT_SIZE);
+    if (new_w->core.height == 0)
+        new_w->core.height = _XmDpiDefaultDimension((Widget)new_w,
+                                                     DEFAULT_SIZE);
+    new_w->swindow.scale_last_width = new_w->core.width;
+    new_w->swindow.scale_last_height = new_w->core.height;
 
     /* default Area fields too, see above comments */
     if (new_w->core.width > new_w->manager.shadow_thickness*2)
@@ -1302,6 +1325,45 @@ Cardinal *num_args )
 
     /* turn off the InsertChild flag */
     new_w->swindow.InInit = FALSE;
+}
+
+static void
+ScaleChanged(Widget widget, double old_scale, double new_scale,
+             XtPointer closure)
+{
+    XmScrolledWindowWidget sw = (XmScrolledWindowWidget)widget;
+    Dimension width = sw->core.width;
+    Dimension height = sw->core.height;
+    Dimension shadow = sw->manager.shadow_thickness;
+    Boolean changed = False;
+    (void)closure;
+
+    if (sw->swindow.scale_default_width) {
+        if (sw->core.width != sw->swindow.scale_last_width)
+            sw->swindow.scale_default_width = False;
+        else {
+            width = _XmDpiScaleDimension(new_scale, DEFAULT_SIZE);
+            sw->swindow.scale_last_width = width;
+            changed = True;
+        }
+    }
+    if (sw->swindow.scale_default_height) {
+        if (sw->core.height != sw->swindow.scale_last_height)
+            sw->swindow.scale_default_height = False;
+        else {
+            height = _XmDpiScaleDimension(new_scale, DEFAULT_SIZE);
+            sw->swindow.scale_last_height = height;
+            changed = True;
+        }
+    }
+    (void)old_scale;
+    if (!changed || !XtIsRealized(widget))
+        return;
+    if (width > shadow * 2)
+        sw->swindow.AreaWidth = width - shadow * 2;
+    if (height > shadow * 2)
+        sw->swindow.AreaHeight = height - shadow * 2;
+    XtResizeWidget(widget, width, height, sw->core.border_width);
 }
 
 

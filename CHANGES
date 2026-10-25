@@ -23,6 +23,15 @@ Deterministic display-scale override (2026-10-25)
 - Update the `--enable-unicode-text` configure probe to use `atomic_init`,
   which remains available when current GCC and Clang drivers select C23 mode.
 
+ScrolledWindow display-scale defaults (2026-10-25)
+===================================================
+
+- Scale automatic `XmScrolledWindow` toolkit-owned 100-pixel width and height
+  defaults at construction and during live display-scale transactions, while
+  retaining explicit dimensions as application-owned. The installed fixture
+  covers 1x/2x construction, live expansion, reversible reset and consumer
+  ASan/UBSan execution; broader historical geometry coverage remains open.
+
 XLibre observer reentrant lifetime guard (2026-10-25)
 ======================================================
 
