@@ -559,15 +559,21 @@ getClientWorkspaces(ClientData *pCD)
 static Boolean
 addClientToList(ClientData ***cdList, int *nClients, ClientData *pCD)
 {
+    size_t newCount;
     ClientData **newPtr = (ClientData **)
-	XtRealloc((char *)*cdList, (*nClients + 1) * sizeof(ClientData *));
+	NULL;
+
+    if (cdList == NULL || nClients == NULL || *nClients < 0 ||
+	*nClients == INT_MAX)
+	return False;
+    newCount = (size_t)*nClients + 1;
+    if (newCount > SIZE_MAX / sizeof(*newPtr))
+	return False;
+    newPtr = (ClientData **)XtRealloc((char *)*cdList,
+					  newCount * sizeof(*newPtr));
 
     if (newPtr == (ClientData **)NULL)
-    {
-	if (*cdList != (ClientData **)NULL)
-	    XtFree((char *)*cdList);
 	return False;
-    }
 
     *cdList = newPtr;
     newPtr[*nClients] = pCD;

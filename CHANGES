@@ -9783,6 +9783,13 @@ FontSelector label initialization rollback (2026-10-28)
 SpinBox value-list SetValues rollback (2026-10-28)
 =====================================================
 
+MWM client-list growth transaction (2026-10-25)
+===============================================
+
+- Preserve the existing session client list on failed growth and bound its
+  count multiplication before `XtRealloc`; see
+  `docs/mwm-client-list-growth.md`.
+
 MWM restart-command allocation guard (2026-10-25)
 =================================================
 
