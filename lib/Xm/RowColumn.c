@@ -3325,6 +3325,9 @@ create(
         if (pop == NULL)
         {
             char *b;
+            size_t prefix_length = strlen(POPUP_PREFIX);
+            size_t name_length = strlen(name);
+            size_t name_size;
 
             /* should pass in the old al */
             for (i=0; i<old_ac; i++) s_al[s_ac++] = old_al[i];
@@ -3337,7 +3340,12 @@ create(
             XtSetArg (s_al[s_ac], XtNancestorSensitive, TRUE);  s_ac++;
 #endif
 
-	    b = XtMalloc(strlen(POPUP_PREFIX) + strlen(name) + 1);
+	    if (prefix_length > SIZE_MAX - name_length - 1)
+		return NULL;
+	    name_size = prefix_length + name_length + 1;
+	    if (name_size > UINT_MAX)
+		return NULL;
+	    b = XtMalloc((Cardinal)name_size);
 	    if (b == NULL)
 		return NULL;
             sprintf (b, POPUP_PREFIX, name);

@@ -5767,6 +5767,13 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+RowColumn popup-name width (2026-10-25)
+=======================================
+
+- Check popup-shell prefix/name arithmetic against Xt's `Cardinal` allocation
+  width before formatting the temporary shell name; see
+  `docs/rowcolumn-popup-name-allocation.md`.
+
 RowColumn accelerator replacement rollback (2026-10-25)
 =========================================================
 
