@@ -267,6 +267,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  freeing partial state on failure; see docs/xm-pixmap-table-initialization.md.
 
 2026-10-25
+	* Build and publish the Xm built-in image table transactionally, freeing
+	  partial entries on allocation failure; see docs/xm-image-table-initialization.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,

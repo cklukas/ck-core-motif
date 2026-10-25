@@ -120,8 +120,14 @@ _XmAllocHashTable(Cardinal size_hint, XmHashCompareProc cproc,
   table -> size = size_table[i];
   table -> count = 0;
 
-  /* Create the array of pointers */
+  /* Create the array of pointers.  Keep the public result atomic: callers
+     cannot inspect the opaque table to distinguish a partial allocation. */
   table->buckets = (XmHashBucket*) XtCalloc(table->size, sizeof(XmHashBucket));
+  if (table->buckets == NULL)
+    {
+      XtFree((char *) table);
+      return (XmHashTable) NULL;
+    }
 
   return(table);
 }
