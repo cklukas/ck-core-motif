@@ -1,3 +1,10 @@
+ArrowButtonGadget redisplay guards (2026-10-25)
+================================================
+
+- Validate background, shadow, and arrow GCs plus computed geometry before
+  ArrowButtonGadget drawing; see
+  `docs/arrow-button-gadget-redisplay-guards.md`.
+
 BulletinBoard shadow redisplay guards (2026-10-25)
 ==================================================
 

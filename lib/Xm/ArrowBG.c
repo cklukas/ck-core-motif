@@ -529,7 +529,9 @@ Redisplay(
   background_height = iheight - 2 * aw->gadget.shadow_thickness;
   background_width = iwidth - 2 * aw->gadget.shadow_thickness;
   
-  if (aw->arrowbutton.fill_bg_box)
+  if (aw->arrowbutton.fill_bg_box &&
+      aw->arrowbutton.background_GC != NULL &&
+      background_width > 0 && background_height > 0)
     XFillRectangle(XtDisplay(aw),
 		   XtWindow((Widget) aw),
 		   aw->arrowbutton.background_GC,
@@ -541,7 +543,9 @@ Redisplay(
   /*  Draw the arrow  */
   if ((iwidth > 0) && (iheight > 0))
     {
-      if (aw->gadget.shadow_thickness > 0)
+      if (aw->gadget.shadow_thickness > 0 &&
+          aw->arrowbutton.top_shadow_GC != NULL &&
+          aw->arrowbutton.bottom_shadow_GC != NULL)
 	XmeDrawShadows (XtDisplay (aw), XtWindow (aw),
 			aw->arrowbutton.top_shadow_GC,
 			aw->arrowbutton.bottom_shadow_GC,
@@ -1439,12 +1443,19 @@ DrawArrowG(XmArrowButtonGadget ag,
       height = 0;
     }
 
+  /* Do not pass incomplete resources or empty geometry into the X helper. */
+  if (width == 0 || height == 0 || top_gc == NULL || bottom_gc == NULL)
+    return;
+
   /* The way we currently handle 1 shadowThickness in XmeDrawArrow 
      is by drawing the center a little bit bigger, so the center_gc has
      to be present. Kinda hacky... */
   if (!center_gc && 
       ag->arrowbutton.detail_shadow_thickness == 1) 
       center_gc = ag->arrowbutton.arrow_GC ;
+  if (!center_gc && ag->arrowbutton.detail_shadow_thickness == 1)
+    return;
+
   if (center_gc)
     XSetClipMask(XtDisplay((Widget) ag), center_gc, None);
 
