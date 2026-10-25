@@ -89,10 +89,8 @@ XmFontListEntryCreate(
     Arg		args[4];
     XmFontListEntry ret_val;
 
-    _XmProcessLock();
     if ((font == NULL) || (tag == NULL) ||
         ((type != XmFONT_IS_FONTSET) && (type != XmFONT_IS_FONT))) {
-	 _XmProcessUnlock();
          return (NULL);
     }
   
@@ -110,7 +108,6 @@ XmFontListEntryCreate(
       XmRenditionCreate(NULL,
 		_XmStringCacheTag(derived_tag, XmSTRING_TAG_STRLEN),
 			args, n);
-    _XmProcessUnlock();
     return ret_val;
 }
 
