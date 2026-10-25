@@ -1227,7 +1227,9 @@ RemoveLines(XmTextWidget tw,
 	    int num_lines,
 	    unsigned int cur_index)
 {
-  if (num_lines <= 0 || (unsigned int)num_lines > tw->text.total_lines)
+  if (num_lines <= 0 || (unsigned int)num_lines > tw->text.total_lines ||
+      cur_index < (unsigned int)num_lines ||
+      cur_index > tw->text.total_lines)
     return;
   
   /* move the existing lines at the end of the buffer */
