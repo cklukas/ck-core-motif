@@ -467,11 +467,14 @@ DrawHighlight(
     offset = aSaveData->borderWidth;
 
     if (_XmRegionGetNumRectangles(aSaveData->dropSiteRegion) == 1L) {
+	if ((int)extents.width <= (int)(offset << 1) ||
+	    (int)extents.height <= (int)(offset << 1))
+	    return;
 
         x = extents.x + offset;
         y = extents.y + offset;
-        width = extents.width - (offset << 1);
-        height = extents.height - (offset << 1);
+        width = (Dimension)((int)extents.width - (int)(offset << 1));
+        height = (Dimension)((int)extents.height - (int)(offset << 1));
 
         if (SaveSegments (aSaveData, x, y, width, height,
                           &aSaveData->highlightThickness)) {
@@ -598,11 +601,14 @@ DrawShadow(
     offset = aSaveData->borderWidth + aSaveData->highlightThickness;
 
     if (_XmRegionGetNumRectangles(aSaveData->dropSiteRegion) == 1L) {
+	if ((int)extents.width <= (int)(offset << 1) ||
+	    (int)extents.height <= (int)(offset << 1))
+	    return;
 
         x = extents.x + offset;
         y = extents.y + offset;
-        width = extents.width - (offset << 1);
-        height = extents.height - (offset << 1);
+        width = (Dimension)((int)extents.width - (int)(offset << 1));
+        height = (Dimension)((int)extents.height - (int)(offset << 1));
 
         if (SaveSegments (aSaveData, x, y, width, height,
                           &aSaveData->shadowThickness)) {

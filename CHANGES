@@ -6899,3 +6899,11 @@ ToggleButtonGadget box bounds (2026-10-25)
   avoiding invalid geometry requests; see `docs/togglebg-box-bounds.md`.
 
 ToggleButtonGadget geometry bounds (2026-10-25)
+DragUnder region geometry bounds (2026-10-25)
+=============================================
+
+- Guard single-region highlight and shadow extents before border subtraction,
+  avoiding unsigned wraparound for collapsed drop sites; see
+  `docs/dragunder-geometry-bounds.md`.
+
+DragUnder pixmap metadata guards (2026-10-25)
