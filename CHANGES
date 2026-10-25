@@ -5,6 +5,13 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+Legacy XmString constructor failure propagation (2026-10-26)
+===============================================================
+
+- Stop legacy left-to-right and segment constructors after a failed component
+  or separator concat instead of silently dropping earlier text; see
+  `docs/xmstring-obsolete-concat-failure.md`.
+
 Gallery screenshot qualification receipts (2026-10-25)
 ========================================================
 

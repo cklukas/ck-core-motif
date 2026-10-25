@@ -76,10 +76,15 @@ XmStringLtoRCreate(
         string = XmStringConcatAndFree (string, 
 					_XmStringNCreate(start, tag, 
 							 end - start));
+
+      if (string == NULL)
+	return (NULL);
       
       /* Make a separator if this isn't the last segment. */
       if (!done) {
         string = XmStringConcatAndFree(string, XmStringSeparatorCreate());
+	if (string == NULL)
+	  return (NULL);
 	start = ++end;		/* start at next char */
       }
     }
@@ -115,6 +120,9 @@ XmStringSegmentCreate(
 
   result = XmStringConcatAndFree (XmStringDirectionCreate (direction),
 				  XmStringCreate (text, tag));
+
+  if (result == NULL)
+    return (NULL);
 
   if (separator)
     result = XmStringConcatAndFree (result, XmStringSeparatorCreate ());
