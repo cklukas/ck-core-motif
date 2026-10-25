@@ -4,6 +4,12 @@ Image scaling destination coordinate bounds (2026-10-25)
 - Reject scaled image uploads whose destination y origin plus image height
   would overflow the signed X11 coordinate type; see `docs/image-scaling.md`.
 
+WSM target-list allocation guards (2026-10-25)
+==============================================
+
+- Reject a missing length output pointer and handle target-array allocation
+  failure before filling the WSM target list; see `docs/wsm-target-cache-guards.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 

@@ -213,6 +213,9 @@ WSMGetTargetList(Widget w, Boolean include_defaults, unsigned long *len_ret)
     register int i;
     Atom *list;
 
+    if (len_ret == NULL)
+	return(NULL);
+
     if (disp_info == NULL) {
 	*len_ret = 0;
 	return(NULL);
@@ -223,6 +226,10 @@ WSMGetTargetList(Widget w, Boolean include_defaults, unsigned long *len_ret)
 	*len_ret += NUM_EXTRA_TARGETS;
 
     list = (Atom *) XtMalloc(sizeof(Atom) * (*len_ret));
+    if (list == NULL) {
+	*len_ret = 0;
+	return(NULL);
+    }
 
     i = 0;
     list[i++] = disp_info->connect;
