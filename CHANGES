@@ -10197,6 +10197,12 @@ Parse callback input validation (2026-10-25)
   dereferencing or advancing the input; see
   `docs/next-character-input-validation.md`.
 
+ScrollFrame navigator growth bounds (2026-10-25)
+=================================================
+
+- Reject wrapped or unrepresentable navigator-list growth before reallocating;
+  see `docs/scrollframe-navigator-growth.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

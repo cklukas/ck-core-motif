@@ -83,8 +83,15 @@ _XmSFAddNavigator(
 
 	if (scroll_frame_data->num_nav_list == 
 	    scroll_frame_data->num_nav_slots) {
+	    Cardinal new_slots;
 	    /* Allocate more space */
-	    Cardinal new_slots = scroll_frame_data->num_nav_slots + 2;
+	    if (scroll_frame_data->num_nav_slots > (Cardinal)-1 - 2 ||
+		(size_t)(scroll_frame_data->num_nav_slots + 2) >
+		  SIZE_MAX / sizeof(Widget) ||
+		(size_t)(scroll_frame_data->num_nav_slots + 2) >
+		  (size_t)(Cardinal)-1 / sizeof(Widget))
+		return;
+	    new_slots = scroll_frame_data->num_nav_slots + 2;
 	    WidgetList new_list =
 		(WidgetList) XtRealloc((char*)scroll_frame_data->nav_list,
 			new_slots * sizeof(Widget));
