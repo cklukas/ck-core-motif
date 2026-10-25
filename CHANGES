@@ -1,3 +1,9 @@
+ColorObj failed-initialization cleanup (2026-10-26)
+====================================================
+
+- Unregister ColorObj instances from the X context and global chain when
+  per-screen allocation fails; see `docs/colorobj-init-cleanup.md`.
+
 Edit-resources child enumeration bounds (2026-10-26)
 =====================================================
 

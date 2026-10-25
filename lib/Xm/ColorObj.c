@@ -446,6 +446,15 @@ Initialize(
 	      new_obj->color_obj.colors = NULL;
 	      new_obj->color_obj.atoms = NULL;
 	      new_obj->color_obj.colorUse = NULL;
+	      _XmProcessLock();
+	      XDeleteContext(new_obj->color_obj.display, None, colorObjContext);
+	      {
+		XmColorObj *link = &_XmDefaultColorObj;
+		while (*link && *link != new_obj)
+		    link = &(*link)->color_obj.next;
+		if (*link) *link = new_obj->color_obj.next;
+	      }
+	      _XmProcessUnlock();
 	      XmeWarning(nw, WARNING1); 
 	      /* couldn't allocate memory */
 	      new_obj->color_obj.colorIsRunning = False;
