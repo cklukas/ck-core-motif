@@ -1026,9 +1026,12 @@ UrmCWRSetArgCStringVec (URMResourceContextPtr	context_id,
   /*
    * Validate record, arglist descriptor, and argument number.
    */
-  UrmCWR__ValidateContext (context_id, "UrmCWRSetArgCStringVec") ;
-  UrmCWR__BindArgPtrs
+  result = UrmCWR__ValidateContext (context_id,
+                                    "UrmCWRSetArgCStringVec") ;
+  if ( result != MrmSUCCESS ) return result ;
+  result = UrmCWR__BindArgPtrs
     (context_id, "UrmCWRSetArgCStringVec", arg_ndx, &argdesc, &argptr) ;
+  if ( result != MrmSUCCESS ) return result ;
 
   /*
    * Validate vector - make sure it doesn't contain too many elements
@@ -1053,8 +1056,9 @@ UrmCWRSetArgCStringVec (URMResourceContextPtr	context_id,
 				   (char **)&vecptr) ;
   if ( result != MrmSUCCESS ) return result ;
 
-  UrmCWR__BindArgPtrs
+  result = UrmCWR__BindArgPtrs
     (context_id, "UrmCWRSetArgCStringVec", arg_ndx, &argdesc, &argptr) ;
+  if ( result != MrmSUCCESS ) return result ;
   argptr->arg_val.rep_type = MrmRtypeCStringVector ;
   argptr->arg_val.datum.offset = vecoffs ;
 
