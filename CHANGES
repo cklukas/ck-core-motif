@@ -1,3 +1,10 @@
+Transactional tab-list replacement (2026-10-25)
+=================================================
+
+- Perform position replacements on a copied list and abandon that copy on a
+  failed tab allocation, leaving the caller's original list intact; see
+  `docs/tablist-replace-rollback.md`.
+
 Transactional tab-list insertion (2026-10-25)
 ===============================================
 
