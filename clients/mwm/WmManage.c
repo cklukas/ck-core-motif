@@ -1246,11 +1246,18 @@ void WithdrawWindow (ClientData *pCD)
      * Count backward for efficiency  --  
      *     removes from end of list.
      */
-    for (i = pCD->numInhabited - 1; i >= 0; i--)
+    if (pCD->pSD != NULL && pCD->pWsList != NULL)
     {
-	TakeClientOutOfWorkspace (
-	    GetWorkspaceData(pCD->pSD, pCD->pWsList[i].wsID),
-	    pCD);
+        for (i = pCD->numInhabited - 1; i >= 0; i--)
+        {
+            WmWorkspaceData *pWS =
+                GetWorkspaceData (pCD->pSD, pCD->pWsList[i].wsID);
+
+            if (pWS != NULL)
+            {
+                TakeClientOutOfWorkspace (pWS, pCD);
+            }
+        }
     }
 #endif /* WSM */
 
@@ -1698,11 +1705,18 @@ void WithdrawDialog (Widget dialogboxW)
      * Count backward for efficiency  --  
      *     removes from end of list.
      */
-    for (i = pCD->numInhabited - 1; i >= 0; i--)
+    if (pCD->pSD != NULL && pCD->pWsList != NULL)
     {
-	TakeClientOutOfWorkspace (
-	    GetWorkspaceData(pCD->pSD, pCD->pWsList[i].wsID),
-	    pCD);
+        for (i = pCD->numInhabited - 1; i >= 0; i--)
+        {
+            WmWorkspaceData *pWS =
+                GetWorkspaceData (pCD->pSD, pCD->pWsList[i].wsID);
+
+            if (pWS != NULL)
+            {
+                TakeClientOutOfWorkspace (pWS, pCD);
+            }
+        }
     }
 #endif /* WSM */
     ResetWithdrawnFocii (pCD);

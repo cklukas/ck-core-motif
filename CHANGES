@@ -4537,3 +4537,9 @@ FreeIcon teardown guards (2026-10-25)
 
 - Validate client/screen state and workspace-list bounds before icon cleanup;
   see `docs/free-icon-guards.md`.
+
+WSM withdrawal workspace guards (2026-10-25)
+============================================
+
+- Validate workspace lists and lookups before removing withdrawn clients;
+  see `docs/withdraw-workspace-guards.md`.
