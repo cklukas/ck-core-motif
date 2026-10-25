@@ -1687,12 +1687,12 @@ _XmRenderTableRemoveRenditions(XmRenderTable oldtable,
     goto remove_abort;
   for (i = 0; i < total; i++) {
     if (removed[i]) {
-      FreeRendition(_XmRTRenditions(table)[i]);
-      FreeHandle(_XmRTRenditions(table)[i]);
+      FreeRendition(table->renditions[i]);
+      FreeHandle(table->renditions[i]);
     }
   }
   for (i = 0; i < count; i++)
-    _XmRTRenditions(table)[i] = kept[i];
+    table->renditions[i] = kept[i];
   SetPtr(oldtable, table);
   _XmRTCount(oldtable) = (unsigned short)count;
   XtFree((char *)removed);
