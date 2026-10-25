@@ -11562,6 +11562,12 @@ WSM WM_WINDOWS allocation width (2026-10-25)
 - Check request window-property and match-attribute counts before allocation;
   see `docs/wsm-wm-windows-oom.md`.
 
+WSM nested match-attribute allocation width (2026-10-25)
+==========================================================
+
+- Check nested allowed/prohibited property counts before allocation; see
+  `docs/wsm-match-attrs-oom.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 

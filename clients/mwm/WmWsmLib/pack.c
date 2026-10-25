@@ -747,11 +747,14 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 	      request->wm_windows.match_attributes[i]->allowed_attributes = NULL;
 	      request->wm_windows.match_attributes[i]->prohibited_attributes = NULL;
 	      request->wm_windows.match_attributes[i]->num_attributes = num;
-	      if (num != 0) {
+	      if (num != 0 &&
+		  (size_t)num <= UINT_MAX / sizeof(WindowProperty)) {
 		request->wm_windows.match_attributes[i]->allowed_attributes =
-		  (WindowProperty *) XtMalloc(sizeof(WindowProperty) * num);
+		  (WindowProperty *) XtMalloc((Cardinal)
+		      ((size_t)num * sizeof(WindowProperty)));
 		request->wm_windows.match_attributes[i]->prohibited_attributes =
-		  (WindowProperty *) XtMalloc(sizeof(WindowProperty) * num);
+		  (WindowProperty *) XtMalloc((Cardinal)
+		      ((size_t)num * sizeof(WindowProperty)));
 	      }
 	      if ((num != 0 &&
 		   (request->wm_windows.match_attributes[i]->allowed_attributes == NULL ||

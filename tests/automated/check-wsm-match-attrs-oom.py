@@ -11,5 +11,7 @@ region = text[start:end]
 
 assert "if (request->wm_windows.match_attributes == NULL)" in region
 assert "request->wm_windows.num_match_attributes = 0;" in region
+assert "num <= UINT_MAX / sizeof(WindowProperty)" in region
+assert "XtMalloc((Cardinal)" in region
 assert region.index("if (request->wm_windows.match_attributes == NULL)") < region.index("for (i=0; i<request->wm_windows.num_match_attributes")
 print("WSM match-attribute unpacking handles allocation failure")
