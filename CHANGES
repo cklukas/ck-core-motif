@@ -642,6 +642,13 @@ XmString array-entry copy bounds (2026-10-27)
   allocation-limited strings no longer cause a wrapped allocation or partial
   array dereference.
 
+Atom-list Xt allocation-size bounds (2026-10-29)
+=================================================
+
+- Reject atom-list token and result arrays whose byte counts exceed Xt's
+  `Cardinal` allocation range, retaining the existing cleanup behavior; see
+  `docs/atom-list-converter-allocation.md`.
+
 Cardinal-list Xt allocation-size bounds (2026-10-29)
 =====================================================
 

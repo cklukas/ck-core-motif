@@ -2442,7 +2442,8 @@ CvtStringToAtomList(
       if (atom_count == max_atoms)
 	{
 	  if (max_atoms > INT_MAX / 2 ||
-	      (size_t)max_atoms > SIZE_MAX / (2 * sizeof(char *)))
+	      (size_t)max_atoms > SIZE_MAX / (2 * sizeof(char *)) ||
+	      (size_t)max_atoms > UINT_MAX / (2 * sizeof(char *)))
 	    {
 	      int cleanup;
 	      XtFree(atom_name);
@@ -2487,7 +2488,8 @@ CvtStringToAtomList(
       name_list[atom_count++] = atom_name;
     }
 
-  if ((size_t)atom_count > SIZE_MAX / sizeof(Atom))
+  if ((size_t)atom_count > SIZE_MAX / sizeof(Atom) ||
+      (size_t)atom_count > UINT_MAX / sizeof(Atom))
     {
       int cleanup;
       for (cleanup = 0; cleanup < atom_count; ++cleanup)
