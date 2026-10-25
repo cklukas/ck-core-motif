@@ -2065,6 +2065,10 @@ writing them; the source contract is recorded in
 output pointers before advancing or initializing extraction state; the source
 contract is recorded in `tests/automated/check-xmstring-get-outputs.py` and
 `docs/xmstring-get-output-validation.md`.
+`XmStringGetLtoR` now delegates locking to its context helpers and checks
+context initialization before enumeration, with the source contract recorded
+in `tests/automated/check-xmstring-getltoR-locking.py` and
+`docs/xmstring-getltr-locking.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the

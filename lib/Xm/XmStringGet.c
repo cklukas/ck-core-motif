@@ -106,13 +106,10 @@ XmStringGetLtoR(
   XmStringDirection d;
   Boolean s, is_local = FALSE, done = FALSE, is_default = FALSE;
   
-  _XmProcessLock();
   if (text == NULL || !string) {
-	_XmProcessUnlock();
 	return(FALSE);
   }
   if (!tag) {
-	_XmProcessUnlock();
 	return (FALSE);
   }
   
@@ -132,7 +129,8 @@ XmStringGetLtoR(
       else curtag = tag;
     }
   
-  XmStringInitContext (&context, string);
+  if (!XmStringInitContext (&context, string))
+    return FALSE;
   
   while ( ! done)
     {
@@ -160,7 +158,6 @@ XmStringGetLtoR(
     }
   
   XmStringFreeContext (context);
-  _XmProcessUnlock();
   return (*text != NULL);
 }
 
