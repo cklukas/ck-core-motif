@@ -17,6 +17,17 @@ static void Redisplay(Widget, XEvent *, Region);
 static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
+static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
+{
+    XmLinkWidget link = (XmLinkWidget)widget;
+    (void)offset;
+    if (link->link.check_set_render_table)
+        value->addr = NULL;
+    else {
+        link->link.check_set_render_table = True;
+        value->addr = (char *)&link->link.render_table;
+    }
+}
 #define Offset(field) XtOffsetOf(XmLinkRec, field)
 static XtResource resources[] = {
     {XmNlinkLabel, XmCLinkLabel, XmRXmString, sizeof(XmString), Offset(link.label), XmRImmediate, NULL},
@@ -24,6 +35,10 @@ static XtResource resources[] = {
     {XmNlinkVisited, XmCLinkVisited, XmRBoolean, sizeof(Boolean), Offset(link.visited), XmRImmediate, (XtPointer)False},
     {XmNlinkVisitOnActivate, XmCLinkVisitOnActivate, XmRBoolean, sizeof(Boolean), Offset(link.visit_on_activate), XmRImmediate, (XtPointer)True},
     {XmNlinkActivateCallback, XmCLinkActivateCallback, XmRCallback, sizeof(XtCallbackList), Offset(link.activate_callback), XmRPointer, NULL},
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmRenderTable),
+     Offset(link.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmRenderTable),
+     Offset(link.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean), Offset(primitive.traversal_on), XmRImmediate, (XtPointer)True}
 };
 externaldef(xmlinkclassrec) XmLinkClassRec xmLinkClassRec = {
@@ -52,11 +67,13 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
     link->link.target = link->link.target ? XtNewString(link->link.target) : XtNewString("");
     values.foreground = link->primitive.foreground;
     values.background = link->core.background_pixel;
-    link->link.font = XLoadQueryFont(XtDisplay(widget), "fixed");
-    if (link->link.font) values.font = link->link.font->fid;
+    if (link->link.render_table == NULL)
+        link->link.render_table = XmFontListCopy(
+            XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+    else
+        link->link.render_table = XmFontListCopy(link->link.render_table);
     link->link.gc = XCreateGC(XtDisplay(widget), DefaultRootWindow(XtDisplay(widget)),
-                              GCForeground | GCBackground |
-                              (link->link.font ? GCFont : 0), &values);
+                              GCForeground | GCBackground, &values);
     if (!link->core.width) link->core.width = 80;
     if (!link->core.height) link->core.height = 24;
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events, NULL);
@@ -65,7 +82,8 @@ static void Destroy(Widget widget) {
     XmLinkWidget link = (XmLinkWidget)widget;
     XtRemoveEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events, NULL);
     if (link->link.gc) XFreeGC(XtDisplay(widget), link->link.gc);
-    if (link->link.font) XFreeFont(XtDisplay(widget), link->link.font);
+    if (link->link.render_table)
+        XmRenderTableFree(link->link.render_table);
     if (link->link.target) XtFree(link->link.target);
     /* Xt releases XmNlinkLabel resource storage after Destroy. */
 }
@@ -75,35 +93,21 @@ static void text_value(XmLinkWidget link, char *buffer, size_t size) {
     if (text) { snprintf(buffer, size, "%s", text); XtFree(text); }
     else buffer[0] = '\0';
 }
-static int text_metrics(XmLinkWidget link, const char *text, int length,
-                        int *ascent, int *descent) {
-    XGCValues values;
-    XFontStruct *font;
-    int width = 0;
-    *ascent = *descent = 0;
-    if (!link->link.gc ||
-        !XGetGCValues(XtDisplay((Widget)link), link->link.gc, GCFont, &values))
-        return 0;
-    font = XQueryFont(XtDisplay((Widget)link), values.font);
-    if (!font)
-        return 0;
-    *ascent = font->ascent;
-    *descent = font->descent;
-    if (text && length > 0)
-        width = XTextWidth(font, text, length);
-    XFreeFontInfo(NULL, font, 1);
-    return width < 0 ? 0 : width;
-}
 static void Redisplay(Widget widget, XEvent *event, Region region) {
-    XmLinkWidget link = (XmLinkWidget)widget; char text[256]; int length;
-    int ascent, descent, text_width;
-    (void)event; (void)region; text_value(link, text, sizeof(text)); length = (int)strlen(text);
+    XmLinkWidget link = (XmLinkWidget)widget; Dimension text_width = 0, text_height = 0;
+    XmString label;
+    (void)event; (void)region;
     if (!XtWindow(widget) || !link->link.gc) return;
     XClearWindow(XtDisplay(widget), XtWindow(widget));
-    text_width = text_metrics(link, text, length, &ascent, &descent);
-    XDrawString(XtDisplay(widget), XtWindow(widget), link->link.gc, 4,
-                (int)(((long long)link->core.height - ascent - descent) / 2 + ascent),
-                text, length);
+    label = link->link.label;
+    if (link->link.render_table && label) {
+        XmStringExtent(link->link.render_table, label, &text_width, &text_height);
+        XmStringDraw(XtDisplay(widget), XtWindow(widget), link->link.render_table,
+                     label, link->link.gc, 4,
+                     ((int)link->core.height - (int)text_height) / 2,
+                     text_width, XmALIGNMENT_BEGINNING,
+                     XmPrim_layout_direction(link), NULL);
+    }
     XDrawLine(XtDisplay(widget), XtWindow(widget), link->link.gc, 4,
               (int)link->core.height - 5, 4 + text_width,
               (int)link->core.height - 5);
@@ -124,6 +128,15 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmString label_replacement;
     char *target_replacement;
     (void)request; (void)args; (void)count;
+    if (old->link.render_table != link->link.render_table) {
+        XmRenderTable new_table = link->link.render_table ?
+            XmFontListCopy(link->link.render_table) :
+            XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+        if (old->link.render_table)
+            XmRenderTableFree(old->link.render_table);
+        link->link.render_table = new_table;
+        redraw = True;
+    }
     if (old->link.label != link->link.label) {
         label_replacement = copy_label(link->link.label);
         if (label_replacement) {
@@ -156,11 +169,11 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     reply->request_mode = CWWidth | CWHeight;
     length = strlen(text);
     {
-        int ascent, descent;
-        int measured = text_metrics(link, text,
-                                     length > (size_t)INT_MAX ? INT_MAX : (int)length,
-                                     &ascent, &descent);
-        unsigned long width = measured > 0 ? (unsigned long)measured :
+        Dimension measured_width = 0, measured_height = 0;
+        if (link->link.render_table && link->link.label)
+            XmStringExtent(link->link.render_table, link->link.label,
+                           &measured_width, &measured_height);
+        unsigned long width = measured_width > 0 ? (unsigned long)measured_width :
                                length > ULONG_MAX / 8UL ? ULONG_MAX : length * 8UL;
         reply->width = width > (unsigned long)(Dimension)-1 - 8UL
                            ? (Dimension)-1 : (Dimension)(width + 8UL);

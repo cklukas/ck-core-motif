@@ -152,8 +152,8 @@ keeping color text aligned with active Motif typography. The focused check is:
 python3 tests/automated/check-colorpicker-font-fallback.py
 ```
 
-Link now installs the same managed fallback font for its label GC.  The focused
-check is:
+Link now draws labels through an owned copy of `XmNrenderTable`, preserving
+active typography and localized metrics. The focused check is:
 
 ```sh
 python3 tests/automated/check-link-font-fallback.py
