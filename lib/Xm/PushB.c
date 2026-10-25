@@ -1875,19 +1875,23 @@ BorderUnhighlight(
      pb->pushbutton.armed = FALSE;
 
      if (etched_in && !XmIsTearOffButton(pb) ) {
-	  XFillRectangle (XtDisplay(pb), XtWindow(pb),
-			  pb->pushbutton.background_gc,
-			  0, 0, pb->core.width, pb->core.height);
+	  if (pb->pushbutton.background_gc != NULL &&
+	      pb->core.width != 0 && pb->core.height != 0)
+	    XFillRectangle (XtDisplay(pb), XtWindow(pb),
+			    pb->pushbutton.background_gc,
+			    0, 0, pb->core.width, pb->core.height);
 	  DrawPushButtonLabel (pb, event, NULL);
      }
       else
-	  XmeClearBorder (
-		  XtDisplay (pb), XtWindow (pb),
-		  pb->primitive.highlight_thickness,
-		  pb->primitive.highlight_thickness,
-		  pb->core.width - 2 * pb->primitive.highlight_thickness,
-		  pb->core.height - 2 * pb->primitive.highlight_thickness,
-		  pb->primitive.shadow_thickness);
+	  if (pb->core.width > 2 * pb->primitive.highlight_thickness &&
+	      pb->core.height > 2 * pb->primitive.highlight_thickness)
+	    XmeClearBorder (
+		    XtDisplay (pb), XtWindow (pb),
+		    pb->primitive.highlight_thickness,
+		    pb->primitive.highlight_thickness,
+		    pb->core.width - 2 * pb->primitive.highlight_thickness,
+		    pb->core.height - 2 * pb->primitive.highlight_thickness,
+		    pb->primitive.shadow_thickness);
       
       
       if (already_armed && pb->pushbutton.disarm_callback)

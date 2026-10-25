@@ -1,3 +1,10 @@
+PushButton menu unhighlight guards (2026-10-25)
+===============================================
+
+- Skip menu background fills with missing GCs and avoid clearing borders whose
+  highlight margins consume the widget; see
+  `docs/push-button-menu-unhighlight-guards.md`.
+
 PushButton unhighlight bounds (2026-10-25)
 ===========================================
 
