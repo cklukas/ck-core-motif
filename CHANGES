@@ -4622,3 +4622,9 @@ StackTransientWindow guards (2026-10-25)
 
 - Validate transient ancestry before issuing a stacking request;
   see `docs/stack-transient-window-guards.md`.
+
+Modal-tree guards (2026-10-25)
+==============================
+
+- Validate recursive modal-tree inputs before updating counts or grabs;
+  see `docs/modal-tree-guards.md`.

@@ -710,6 +710,11 @@ void AddTransient (WmWorkspaceData *pWS, ClientData *pCD)
 
 void MarkModalSubtree (ClientData *pcdTree, ClientData *pcdAvoid)
 {
+    if (pcdTree == NULL)
+    {
+        return;
+    }
+
     /* Mark children, if any */
 
     if (pcdTree->transientChildren)
@@ -750,6 +755,11 @@ void MarkModalSubtree (ClientData *pcdTree, ClientData *pcdAvoid)
 
 void MarkModalTransient (ClientData *pcdLeader, ClientData *pCD)
 {
+    if (pcdLeader == NULL || pCD == NULL)
+    {
+        return;
+    }
+
     if (!IS_APP_MODALIZED(pcdLeader))
     {
 	/*
@@ -898,6 +908,10 @@ void DeleteTransient (ClientData *pCD)
 
 void DeleteFullAppModalChildren (ClientData *pcdLeader, ClientData *pCD)
 {
+    if (pcdLeader == NULL || pCD == NULL)
+    {
+        return;
+    }
 
     /* recursively do children first */
     if (pCD->transientChildren)
@@ -941,6 +955,10 @@ void
 FixupFullAppModalCounts (ClientData *pcdLeader, ClientData *pcdDelete)
 
 {
+    if (pcdLeader == NULL || pcdDelete == NULL)
+    {
+        return;
+    }
 
     /* fixup children */
     if (pcdLeader->transientChildren) 
@@ -989,6 +1007,11 @@ FixupFullAppModalCounts (ClientData *pcdLeader, ClientData *pcdDelete)
 
 void UnMarkModalTransient (ClientData *pcdModee, int modalCount, ClientData *pcdModal)
 {
+    if (pcdModee == NULL || pcdModal == NULL || modalCount <= 0)
+    {
+        return;
+    }
+
     /* decrement application modal count */
     if (pcdModal->inputMode == MWM_INPUT_FULL_APPLICATION_MODAL)
 	pcdModee->fullModalCount -= modalCount;
