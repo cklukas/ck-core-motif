@@ -89,6 +89,7 @@
 #include <Xm/DropHighlight.h>
 #include <Xm/StatusBar.h>
 #include <Xm/Toolbar.h>
+#include <Xm/Sidebar.h>
 #include <Xm/NumberBox.h>
 #include <Xm/RatingControl.h>
 #include <Xm/MwmUtil.h>

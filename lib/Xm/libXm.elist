@@ -649,6 +649,13 @@ public XmToolbarGetActionCount
 public XmToolbarGetVisibleActionCount
 public XmToolbarGetOverflowCount
 public XmToolbarInvoke
+public XmCreateSidebar
+public XmVaCreateSidebar
+public XmVaCreateManagedSidebar
+public XmSidebarGetContent
+public XmSidebarSetExpanded
+public XmSidebarGetExpanded
+public XmSidebarToggle
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -965,6 +972,8 @@ public xmStatusBarClassRec
 public xmStatusBarWidgetClass
 public xmToolbarClassRec
 public xmToolbarWidgetClass
+public xmSidebarClassRec
+public xmSidebarWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec

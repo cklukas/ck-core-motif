@@ -1648,6 +1648,10 @@ labels and shortcut text, keeps explicitly non-overflowable actions in the
 strip, moves lower-priority overflowable actions into an ordinary Motif menu,
 preserves application dispatch and exposes a named toolbar panel.  Its
 installed fixture passes 13 checks; collapsible-sidebar work remains separate.
+`XmSidebar` is implemented as the bounded toggle/content composite with
+explicit content host ownership, expanded/collapsed widths, Ctrl+M keyboard
+toggle and restoration of focus into content after expansion.  Its installed
+fixture passes 13 checks; adaptive navigation remains application-owned.
 
 Appearance and scalable assets are intentionally the first delivery track: they
 produce user-visible improvement while preserving the established programming
