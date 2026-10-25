@@ -22,6 +22,7 @@ They separate immutable values and lifetime rules from application behavior.
 | Need | Toolkit facility | Reuse boundary |
 | --- | --- | --- |
 | Collapsible inspector/settings sections | `XmDisclosure` | Stable child ownership, focus transfer and expansion state; application owns the section contents. |
+| Labelled form sections | `XmFormSection` | Toolkit owns header/footer presentation and the content host; applications own content children and form/data semantics. |
 | Numeric navigation | Native ScrollBar with accessible Value/actions | Application maps its model range to the native control; toolkit owns native interaction and semantics. |
 | Unicode fields and editors | Text/TextField plus bounded text contexts | Toolkit owns input, shaping and widget projection; application owns document operations and undo. |
 | Custom canvases | Accessibility provider API | Application supplies semantic objects; transport and native lifetime remain shared toolkit services. |

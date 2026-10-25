@@ -33,6 +33,7 @@
 #include <Xm/Link.h>
 #include <Xm/SearchBox.h>
 #include <Xm/Prompt.h>
+#include <Xm/FormSection.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
 #include <Xm/PushBG.h>
@@ -1313,6 +1314,14 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
       i->has_text = True;
       i->text_length = (int)strlen(text);
     }
+  }
+  if (XmIsFormSection(w)) {
+    XmString header = NULL;
+    i->role = XmACCESSIBLE_PANEL;
+    XtVaGetValues(w, XmNformSectionHeader, &header, NULL);
+    if (header)
+      local = XmStringUnparse(header, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
+                              NULL, 0, XmOUTPUT_ALL);
   }
   if (XmIsNumberBox(w)) {
     int minimum, maximum;

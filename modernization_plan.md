@@ -1525,6 +1525,14 @@ reentrancy against an installed prefix.
 **Complete when:** the composites are independently usable and have no effect
 on existing Frame, RowColumn, List or Container behavior.
 
+**Status (2026-10-25):** the existing `XmDisclosure` implementation already
+meets the disclosure portion of this package and is documented in
+`docs/disclosure.md`.  `XmFormSection` is now implemented as an additive
+presentation manager with owned header/footer children, an application-owned
+content host, copied `XmString` resources, bounded narrow-layout negotiation
+and a panel accessibility projection; its installed fixture passes 11 checks.
+`EmptyState` remains a separate work item and is not claimed complete here.
+
 ### WP-38: CommandPalette and Toast notification
 
 **Depends on:** WP-19 and WP-23.
