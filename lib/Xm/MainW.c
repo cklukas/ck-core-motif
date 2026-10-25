@@ -1322,6 +1322,8 @@ XmMainWindowSetAreas(
      Arg args[5] ;
      Cardinal    n;
 
+     if (w == NULL)
+         return;
      n = 0;
      if (menu) {
 	 XtSetArg (args[n], XmNmenuBar, menu); n++;
@@ -1356,6 +1358,8 @@ XmMainWindowSep1(
 {
     XmMainWindowWidget   mw = (XmMainWindowWidget) w;
     Widget separator;
+    if (w == NULL)
+        return NULL;
     _XmWidgetToAppContext(w);
 
     _XmAppLock(app);
@@ -1371,6 +1375,8 @@ XmMainWindowSep2(
 {
     XmMainWindowWidget   mw = (XmMainWindowWidget) w;
     Widget separator;
+    if (w == NULL)
+        return NULL;
     _XmWidgetToAppContext(w);
 
     _XmAppLock(app);
@@ -1387,6 +1393,8 @@ XmMainWindowSep3(
 {
     XmMainWindowWidget   mw = (XmMainWindowWidget) w;
     Widget separator;
+    if (w == NULL)
+        return NULL;
     _XmWidgetToAppContext(w);
 
     _XmAppLock(app);
