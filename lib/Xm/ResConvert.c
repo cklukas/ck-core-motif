@@ -656,15 +656,17 @@ StringToEntity(
         XtPointer *converter_data) /* unused */
 {
     Widget child;
-    Widget widget = *(Widget*) args[0].addr ;
+    Widget widget;
     static Widget  itsChild;
     Boolean        success;
 
-    if (*n_args != 1) 
-      XtAppWarningMsg (
-            XtDisplayToApplicationContext(disp),
-            "wrongParameters", "cvtStringToWidget", "XtToolkitError",
-            MSG12, (String*)NULL, (Cardinal*)NULL );
+    if (args == NULL || args[0].addr == NULL || n_args == NULL ||
+	*n_args != 1 || from == NULL || from->addr == NULL || to == NULL)
+      return False;
+
+    widget = *(Widget*) args[0].addr ;
+    if (widget == NULL)
+      return False;
 
     /* handle the XmSELF case */
     if (XmeNamesAreEqual ((String) from->addr, "self"))
