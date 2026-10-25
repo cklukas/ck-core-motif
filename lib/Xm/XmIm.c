@@ -2749,9 +2749,11 @@ ImCreateArgList(va_list var,
   ArgList args;
   register int i;
 
-  if (total_count <= 0)
+  if (total_count <= 0 ||
+      (size_t)total_count > SIZE_MAX / sizeof(Arg) ||
+      (size_t)total_count > UINT_MAX / sizeof(Arg))
     return NULL;
-  args = (ArgList)XtCalloc(total_count, sizeof(Arg));
+  args = (ArgList)XtCalloc((Cardinal)total_count, sizeof(Arg));
   if (args == NULL)
     return NULL;
   for (i = 0; i < total_count; i++)

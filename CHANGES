@@ -1,3 +1,10 @@
+Input-method varargs count bounds (2026-10-28)
+================================================
+
+- Reject input-method argument counts whose `Arg` array size cannot fit the
+  `size_t` or Xt `Cardinal` byte limits before `XtCalloc`; see
+  `docs/xmim-varargs-count-bounds.md`.
+
 Null nested varargs lists (2026-10-28)
 =======================================
 
