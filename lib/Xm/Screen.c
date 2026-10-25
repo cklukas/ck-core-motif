@@ -1481,10 +1481,9 @@ XmGetXmScreen(
 	 * leaves i at num_children, which is unrelated to the display's
 	 * screen indexes. */
 	i = 0;
-	for (scr = ScreenOfDisplay(XtDisplay(xmDisplay), i);
-		i < ScreenCount(XtDisplay(xmDisplay));
-		i++, scr = ScreenOfDisplay(XtDisplay(xmDisplay), i))
+	for (; i < ScreenCount(XtDisplay(xmDisplay)); i++)
 	{
+		scr = ScreenOfDisplay(XtDisplay(xmDisplay), i);
 		if (scr == screen)
 			break;
 	}

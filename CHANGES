@@ -4394,6 +4394,12 @@ Icon-place sentinel handling (2026-10-25)
 
 - Reject invalid coordinate sentinels before indexing or extending the icon
   placement list; see `docs/find-place-sentinel.md`.
+
+XmScreen lookup bounds (2026-10-25)
+====================================
+
+- Check the display screen bound before each `ScreenOfDisplay` lookup; see
+  `docs/screen-lookup-bounds.md`.
 Mrm writer cstring-vector validation (2026-10-25)
 ====================================================
 

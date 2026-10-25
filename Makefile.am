@@ -577,6 +577,8 @@ EXTRA_DIST += tests/automated/check-xmstring-parse-table-allocation.py docs/xmst
 EXTRA_DIST += tests/automated/check-xmstring-conversion-guards.py docs/xmstring-conversion-guards.md
 
 EXTRA_DIST += tests/automated/check-find-place-sentinel.py docs/find-place-sentinel.md
+
+EXTRA_DIST += tests/automated/check-screen-lookup-bounds.py docs/screen-lookup-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-writer-resource-ref-validation.py docs/mrm-writer-resource-ref-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-char8-vector-validation.py docs/mrm-writer-char8-vector-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-cstring-vector-validation.py docs/mrm-writer-cstring-vector-validation.md
