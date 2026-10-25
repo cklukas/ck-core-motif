@@ -4313,3 +4313,11 @@ Icon-box bounds recalculation guards (2026-10-25)
 
 Icon-box policy fallback (2026-10-25)
 ======================================
+Icon placement conversion guards (2026-10-25)
+==============================================
+
+- Validate icon placement dimensions and coordinate arrays before conversion;
+  see `docs/placement-conversion-guards.md`.
+
+Icon-box bounds recalculation guards (2026-10-25)
+==================================================

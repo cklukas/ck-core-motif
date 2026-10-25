@@ -467,6 +467,15 @@ void CvtIconPlaceToPosition (IconPlacementData *pIPD, int place, int *pX, int *p
     int row;
     int col;
 
+    if (pX == NULL || pY == NULL)
+	return;
+    *pX = 0;
+    *pY = 0;
+    if (pIPD == NULL || place < 0 || pIPD->placementCols <= 0 ||
+	pIPD->placementRows <= 0 || pIPD->iPlaceW <= 0 ||
+	pIPD->iPlaceH <= 0)
+	return;
+
 
     if (pIPD->iconPlacement &
 	(ICON_PLACE_LEFT_PRIMARY | ICON_PLACE_RIGHT_PRIMARY))
@@ -781,9 +790,15 @@ int CvtIconPositionToPlace (IconPlacementData *pIPD, int x, int y)
     int row;
     int col;
 
+    if (pIPD == NULL || pIPD->placementCols <= 0 ||
+	pIPD->placementRows <= 0 || x < 0 || y < 0)
+	return (NO_ICON_PLACE);
+
 
     if (pIPD->onRootWindow)
     {
+	if (pIPD->placementColX == NULL || pIPD->placementRowY == NULL)
+	    return (NO_ICON_PLACE);
 	/*
 	 * Scan through the root window row/column arrays and find the 
 	 * placement position.
@@ -824,6 +839,8 @@ int CvtIconPositionToPlace (IconPlacementData *pIPD, int x, int y)
 	/* 
 	 * convert icon box coords
 	 */
+	if (pIPD->iPlaceW <= 0 || pIPD->iPlaceH <= 0)
+	    return (NO_ICON_PLACE);
 	col = x / pIPD->iPlaceW;
 	row = y / pIPD->iPlaceH;
     }
