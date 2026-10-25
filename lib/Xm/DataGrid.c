@@ -498,7 +498,10 @@ Boolean XmDataGridGetSelectedCell(Widget widget, XtPointer *row_id_return,
     if (!widget || !XmIsDataGrid(widget) || !row_id_return ||
         !column_id_return) return False;
     grid = (XmDataGridWidget)widget;
-    if (grid->data_grid.selected_row < 0 || grid->data_grid.selected_column < 0)
+    if (grid->data_grid.selected_row < 0 ||
+        grid->data_grid.selected_column < 0 ||
+        (Cardinal)grid->data_grid.selected_row >= grid->data_grid.row_count ||
+        (Cardinal)grid->data_grid.selected_column >= grid->data_grid.column_count)
         return False;
     *row_id_return = grid->data_grid.rows[grid->data_grid.selected_row].id;
     *column_id_return = grid->data_grid.columns[grid->data_grid.selected_column].id;
@@ -526,6 +529,8 @@ Boolean XmDataGridBeginEdit(Widget widget) {
     if (!widget || !XmIsDataGrid(widget)) return False;
     grid = (XmDataGridWidget)widget;
     if (grid->data_grid.selected_row < 0 || grid->data_grid.selected_column < 0 ||
+        (Cardinal)grid->data_grid.selected_row >= grid->data_grid.row_count ||
+        (Cardinal)grid->data_grid.selected_column >= grid->data_grid.column_count ||
         !grid->data_grid.columns[grid->data_grid.selected_column].editable)
         return False;
     value = grid->data_grid.rows[grid->data_grid.selected_row]
