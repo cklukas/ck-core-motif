@@ -12,4 +12,10 @@ assert "labelLength = strlen((char *)string);" in region
 assert "labelLength >= UINT_MAX" in region
 assert "XtMalloc((Cardinal)labelLength + 1)" in region
 assert "XtMalloc(labelLength + 1)" not in region
+name_start = source.index("nameLength = (size_t)(endquote - lineP);")
+name_end = source.index("    else\n", name_start)
+name_region = source[name_start:name_end]
+assert "nameLength >= UINT_MAX" in name_region
+assert "XtMalloc((Cardinal)nameLength + 1)" in name_region
+assert "XtMalloc(nameLength + 1)" not in name_region
 print("PASS MWM label parsing validates input and allocation")

@@ -3966,9 +3966,9 @@ static void ParseMenuItemName (unsigned char **linePP, MenuItem *menuItem)
 	/* Well, we have a valid menu item name. Store it in the 
 	   client command name field. Don't include the double quotes. */
 	nameLength = (size_t)(endquote - lineP);
-	if (nameLength == SIZE_MAX)
+	if (nameLength == SIZE_MAX || nameLength >= UINT_MAX)
 	    return;
-	menuItem->clientCommandName = XtMalloc(nameLength + 1);
+	menuItem->clientCommandName = XtMalloc((Cardinal)nameLength + 1);
 	if (menuItem->clientCommandName == NULL)
 	    return;
 	memcpy(menuItem->clientCommandName, lineP, nameLength);

@@ -11496,6 +11496,12 @@ MWM client workspace-list allocation (2026-10-25)
 - Check per-client workspace-list counts before allocation; see
   `docs/mwm-client-workspace-list-allocation.md`.
 
+MWM client-command name allocation width (2026-10-25)
+=======================================================
+
+- Check quoted client-command name lengths against Xt's allocation width;
+  see `docs/mwm-label-parse-allocation.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 
