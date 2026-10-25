@@ -32,6 +32,8 @@ assert "if (rend == NULL)" in mrend_region
 assert "if (table == NULL)" in mrend_region
 assert "copy = CopyRendition(rend);" in mrend_region
 assert "if (copy == NULL)" in mrend_region
+assert "required_count = (size_t)_XmRTCount(rt) + 1" in mrend_region
+assert "SIZE_MAX - sizeof(_XmRenderTableRec)" in mrend_region
 assert "XM_RESOURCE_PATH_CAPACITY - 3" in source
 assert "names[XM_RESOURCE_PATH_CAPACITY]" in source
 assert "classes[XM_RESOURCE_PATH_CAPACITY]" in source

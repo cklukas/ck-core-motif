@@ -2615,6 +2615,7 @@ _XmCreateRendition(Widget parent,
   XmRenderTable		rt = (XmRenderTable)parent;
   _XmRenderTable	table;
   XmRendition		rend, copy;
+  size_t		required_count;
 
   if (rt == NULL || GetPtr(rt) == NULL)
     return((Widget)NULL);
@@ -2625,6 +2626,15 @@ _XmCreateRendition(Widget parent,
 			    name, arglist, argcount, NULL);
   if (rend == NULL)
     return((Widget)NULL);
+
+  required_count = (size_t)_XmRTCount(rt) + 1;
+  if ((required_count > RENDITIONS_IN_STRUCT) &&
+      (required_count - RENDITIONS_IN_STRUCT >
+       (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition))) {
+    FreeRendition(rend);
+    FreeHandle(rend);
+    return((Widget)NULL);
+  }
   
   /* Ignore repeats */
   if (_XmRenderTableFindRendition(rt, _XmRendTag(rend),
