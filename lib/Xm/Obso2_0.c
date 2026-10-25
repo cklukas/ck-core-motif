@@ -218,13 +218,19 @@ XmAppendTranslationText(char **buffer, size_t *used, size_t *capacity,
     return False;
   while (*capacity < required) {
     size_t new_capacity = *capacity;
+    char *new_buffer;
+    if (new_capacity == 0)
+      new_capacity = 1;
     if (new_capacity > SIZE_MAX / 2)
       new_capacity = required;
     else
       new_capacity *= 2;
     if (new_capacity < required || new_capacity > (size_t)UINT_MAX)
       return False;
-    *buffer = XtRealloc(*buffer, (Cardinal)new_capacity);
+    new_buffer = (char *)XtRealloc(*buffer, (Cardinal)new_capacity);
+    if (new_buffer == NULL)
+      return False;
+    *buffer = new_buffer;
     *capacity = new_capacity;
   }
   memcpy(*buffer + *used, text, length + 1);
