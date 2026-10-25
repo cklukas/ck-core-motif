@@ -585,3 +585,4 @@ EXTRA_DIST += tests/automated/check-mrm-widget-name-record-bounds.py docs/mrm-wi
 EXTRA_DIST += tests/automated/check-mrm-callback-record-bounds.py docs/mrm-callback-record-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-set-widget-class-bounds.py docs/mrm-set-widget-class-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-callback-routine-string-bounds.py docs/mrm-callback-routine-string-bounds.md
+EXTRA_DIST += tests/automated/check-mrm-arg-value-offset-bounds.py docs/mrm-arg-value-offset-bounds.md
