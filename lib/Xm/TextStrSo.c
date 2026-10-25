@@ -1873,12 +1873,17 @@ _XmStringSourceGetValue(XmTextSource source,
   char * temp;
   wchar_t * wc_temp;
   int return_val;
+  size_t allocation;
 
   if (!want_wchar) {
-    if (data->length > 0)
-      temp = (char *) XtMalloc((unsigned)
-			       (data->length + 1) * (int)tw->text.char_size);
-    else
+    if (data->length > 0) {
+      if (!TextSourceRangeBytes(0, data->length, tw->text.char_size,
+				 &allocation))
+	return NULL;
+      temp = (char *) XtMalloc(allocation);
+      if (temp == NULL)
+	return NULL;
+    } else
       return(XtNewString(""));
     
     last_pos = (XmTextPosition) data->length;
@@ -1896,11 +1901,17 @@ _XmStringSourceGetValue(XmTextSource source,
     return (temp);
   } else {
     
-    if (data->length > 0)
-      wc_temp = (wchar_t*)XtMalloc((unsigned)
-				   (data->length+1) * sizeof(wchar_t));
-    else {
-      wc_temp = (wchar_t*)XtMalloc((unsigned) sizeof(wchar_t));
+    if (data->length > 0) {
+      if (!TextSourceRangeBytes(0, data->length, sizeof(wchar_t),
+				 &allocation))
+	return NULL;
+      wc_temp = (wchar_t*)XtMalloc(allocation);
+      if (wc_temp == NULL)
+	return NULL;
+    } else {
+      wc_temp = (wchar_t*)XtMalloc(sizeof(wchar_t));
+      if (wc_temp == NULL)
+	return NULL;
       wc_temp[0] = (wchar_t)0L;
       return (char*) wc_temp;
     }
@@ -1912,8 +1923,12 @@ _XmStringSourceGetValue(XmTextSource source,
       if (block.length == 0)
 	break;
       
-      /* NOTE: ret_pos - pos could result in a truncated long. */
-      return_val = mbstowcs(&wc_temp[length], block.ptr, (int)(ret_pos - pos));
+      if (ret_pos < pos) {
+	XtFree((char *)wc_temp);
+	return NULL;
+      }
+      return_val = mbstowcs(&wc_temp[length], block.ptr,
+			     (size_t)(ret_pos - pos));
       if (return_val > 0) length += return_val;
       pos = ret_pos;
     }
