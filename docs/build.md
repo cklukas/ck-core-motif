@@ -136,8 +136,11 @@ including `font-resize`, `accessibility-modality`,
 Xvfb/Openbox rather than an ambient display. It requires Xvfb, Openbox, xdotool,
 xdpyinfo, xprop and native libXtst. Its frozen standalone Compose table and the
 private server's original, mapped and restored keymaps are fingerprinted.
-The observer requires actual local XIM/XIC registration, then sends XTest keys
-through Text/TextField under both input-sharing policies. Exact UTF-8 bytes,
+The observer accepts the same repeated `--runtime-library-dir` dependency
+directories as the runner and records them in its receipt, so an external
+pinned Xt is validated rather than silently replaced by system Xt. It requires
+actual local XIM/XIC registration, then sends XTest keys through Text/TextField
+under both input-sharing policies. Exact UTF-8 bytes,
 scalar carets, committed-value callback counts, unfocused-widget isolation and
 grapheme motion/deletion are checked for Compose, dead acute and a two-scalar
 combining commit. This source contract is separate from runtime qualification;

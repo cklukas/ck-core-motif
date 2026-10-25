@@ -559,6 +559,11 @@ while the same cancellation fixture exposes the known system-Xt owner-exit
 failure. The external failure is retained as a dependency limitation rather
 than hidden or counted as a toolkit pass.
 
+The same runtime-directory contract is propagated into the local Compose
+observer. Its normal installed-prefix fixture passes with the pinned Xt loaded
+from the recorded dependency directory; strict execution reaches the fixture
+body but remains bounded by the external Fontconfig ownership report.
+
 The installed native cohort also includes the bounded `nontext-unicode`
 public-API fixture for combining, non-BMP and Han values through Label, List
 and ComboBox resources. It adds evidence for those controls without

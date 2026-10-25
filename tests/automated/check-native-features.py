@@ -320,8 +320,11 @@ def main():
                 observer = source / "tests/Toolkit/Im/local_compose.py"
                 remember(observer)
                 remember(source / "tests/Toolkit/Im/local_compose.Compose")
-                run(name, [sys.executable, observer, binary,
-                           output / "local-compose-observer", "--prefix", prefix])
+                observer_command = [sys.executable, observer, binary,
+                                    output / "local-compose-observer", "--prefix", prefix]
+                for path in runtime_library_dirs:
+                    observer_command += ["--runtime-library-dir", path]
+                run(name, observer_command)
             elif name == "xim-service":
                 observer = source / "tests/Toolkit/Im/service.py"
                 remember(observer)

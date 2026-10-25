@@ -74,3 +74,10 @@ python3 tests/automated/run-storage-regressions.py \
 The optional `--runtime-library-dir` is recorded in the receipt and keeps this
 focused result distinct from the separate Xt callback-lifetime fixture and
 from application-level drag-and-drop workflows.
+
+The same dependency-directory contract reaches the local Compose observer. A
+normal installed-prefix run passed the local XIM/XIC and dead-key fixture while
+loading the pinned Xt directory; its receipt records both the Motif and
+dependency paths. A strict attempt reaches the fixture body but remains
+bounded by the external Fontconfig ownership report, so that result is kept as
+a dependency-sanitizer boundary rather than suppressed.

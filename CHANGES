@@ -31,6 +31,16 @@ Xt selection-context lifetime dependency patch (2026-10-25)
   ASan/UBSan leak detection.  Broader Fontconfig, application drag-and-drop
   and cross-architecture ownership gates remain explicitly separate.
 
+Native dependency-runner propagation (2026-10-25)
+==================================================
+
+- Propagate repeated `--runtime-library-dir` arguments into the local Compose
+  observer and record them in its receipt. The normal installed-prefix local
+  XIM/XIC fixture now proves that the pinned external Xt is loaded instead of
+  silently falling back to system Xt. Strict execution reaches the fixture
+  body but remains bounded by the external Fontconfig ownership report; no
+  leak suppression was added.
+
 UIL literal-only module output (2026-10-25)
 ============================================
 

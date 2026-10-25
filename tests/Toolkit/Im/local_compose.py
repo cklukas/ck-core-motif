@@ -2,6 +2,7 @@
 """Qualify local Compose/dead keys through real XTest and native XIM lookup.
 
 Usage: local_compose.py ABSOLUTE_BINARY FRESH_ABSOLUTE_OUTPUT --prefix PREFIX
+       [--runtime-library-dir DIRECTORY ...]
 The caller compiles the matching C fixture; this observer never builds anything.
 It owns an authenticated Xvfb/Openbox and changes only that server's unused keys.
 No IBus, external XIM, clipboard, physical desktop or Escape behavior is tested.
@@ -38,10 +39,19 @@ def main():
     parser.add_argument('binary',type=Path)
     parser.add_argument('output',type=Path)
     parser.add_argument('--prefix',required=True,type=Path)
+    parser.add_argument('--runtime-library-dir',action='append',default=[],type=Path,
+                        help='additional absolute runtime library directory; may be repeated')
     args = parser.parse_args()
     assert os.uname().sysname == 'Linux', 'Run native qualification on Linux'
     assert all(p.is_absolute() for p in (args.binary,args.output,args.prefix))
     binary=args.binary.resolve(strict=True); prefix=args.prefix.resolve(strict=True)
+    runtime_library_dirs=[]
+    for path in args.runtime_library_dir:
+        assert path.is_absolute(), '--runtime-library-dir must be absolute'
+        path=path.resolve(strict=True)
+        assert ':' not in str(path), 'runtime library directories must have no colon'
+        runtime_library_dirs.append(path)
+    library_roots=((prefix/'lib').resolve(strict=True), *runtime_library_dirs)
     out=args.output
     assert not out.exists() and not out.resolve().is_relative_to(prefix)
     assert binary.is_file() and os.access(binary,os.X_OK)
@@ -60,7 +70,7 @@ def main():
              XDG_RUNTIME_DIR=str(out/'runtime'),XDG_CACHE_HOME=str(out/'cache'),
              XDG_CONFIG_HOME=str(out/'config'),XDG_STATE_HOME=str(out/'state'),
              DBUS_SESSION_BUS_ADDRESS='unix:path='+str(out/'absent.bus'),
-             LD_LIBRARY_PATH=str(prefix/'lib'))
+             LD_LIBRARY_PATH=os.pathsep.join(str(path) for path in library_roots))
     for name in ('DISPLAY','XAUTHORITY','WAYLAND_DISPLAY','AT_SPI_BUS_ADDRESS',
                  'IBUS_ADDRESS','SESSION_MANAGER','LD_PRELOAD','LD_AUDIT'):
         env.pop(name,None)
@@ -68,7 +78,8 @@ def main():
                 binary=dict(path=str(binary),sha256=sha(binary),mtime_ns=binary.stat().st_mtime_ns),
                 sources={str(p):sha(p) for p in (Path(__file__),source,compose)},
                 compose_input=dict(path=str(compose_copy),sha256=sha(compose_copy)),
-                processes={},observations=[],key_events=[],policies={})
+                processes={},observations=[],key_events=[],policies={},
+                runtime_library_dirs=[str(path) for path in runtime_library_dirs])
     children={}; identities={}; buffers={}; streams={}
     reader=writer=-1; display=None; original_map=None; mappings={}; x11=xtst=None
 
@@ -211,7 +222,10 @@ def main():
             libraries=sorted({line.split()[-1] for line in maps.splitlines() if '/' in line and '.so' in line})
             for stem in ('libXm.so','libXt.so'):
                 selected=[Path(path) for path in libraries if Path(path).name.startswith(stem)]
-                assert len(selected)==1 and selected[0].resolve().is_relative_to(prefix/'lib'), (stem,selected)
+                selected_path=selected[0].resolve() if len(selected)==1 else None
+                allowed = selected_path is not None and any(
+                    selected_path.is_relative_to(root) for root in library_roots)
+                assert allowed, (stem,selected,library_roots)
             record['policies'][policy]=dict(initial=initial,libraries={path:sha(path) for path in libraries})
             expected={'field':'','text':''}; counts={'field':0,'text':0}; carets={'field':0,'text':0}
 
