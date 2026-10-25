@@ -43,6 +43,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [FileSB filter-mask allocation](motif-filesb-filter-mask-update.md) — bounded full-path filter assembly.
 - [FileSB resource filter-mask allocation](motif-filesb-resource-filter-mask.md) — bounded navigation filter updates.
 - [FileSB item-filter allocation](motif-filesb-item-filter.md) — bounded restored filter assembly.
+- [DialogShell name allocation width](dialogshell-name-allocation-width.md) — bounded suffix construction.
 
 ## MWM and window-management protocol
 

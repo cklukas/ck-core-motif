@@ -849,9 +849,9 @@ XmeCreateClassDialog(
     /*	Create DialogShell parent.
     */
     ds_name_length = snprintf(NULL, 0, "%s%s", name, XmDIALOG_SUFFIX);
-    if (ds_name_length < 0)
+    if (ds_name_length < 0 || (size_t)ds_name_length >= UINT_MAX)
 	return NULL;
-    ds_name = XtMalloc( (size_t)ds_name_length + 1) ;
+    ds_name = XtMalloc((Cardinal)ds_name_length + 1) ;
     if (!ds_name)
 	return NULL;
     (void) snprintf(ds_name, (size_t)ds_name_length + 1,

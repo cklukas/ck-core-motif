@@ -11664,6 +11664,12 @@ XmString charset allocation width (2026-10-25)
 - Check locale-derived charset lengths before cache allocation; see
   `docs/xmstring-charset-allocation.md`.
 
+DialogShell name allocation width (2026-10-25)
+==============================================
+
+- Check measured DialogShell names before temporary allocation; see
+  `docs/dialogshell-name-allocation-width.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 

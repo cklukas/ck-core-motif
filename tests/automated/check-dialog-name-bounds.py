@@ -7,7 +7,9 @@ start = source.index("Widget \nXmeCreateClassDialog")
 end = source.index("\n}\n", start) + 2
 region = source[start:end]
 assert 'ds_name_length = snprintf(NULL, 0, "%s%s"' in region
-assert 'ds_name = XtMalloc( (size_t)ds_name_length + 1)' in region
+assert 'ds_name_length < 0 || (size_t)ds_name_length >= UINT_MAX' in region
+assert 'ds_name = XtMalloc((Cardinal)ds_name_length + 1)' in region
+assert 'XtMalloc( (size_t)ds_name_length + 1)' not in region
 assert 'snprintf(ds_name, (size_t)ds_name_length + 1' in region
 assert 'strcpy( ds_name, name)' not in region
 assert 'strcat( ds_name, XmDIALOG_SUFFIX)' not in region
