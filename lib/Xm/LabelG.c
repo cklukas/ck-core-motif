@@ -3067,16 +3067,37 @@ Cardinal *num_args)                               /* unused */
     {
         if (LabG_Accelerator(new_w) != NULL)
         {
+            String accelerator;
+
             /* Copy the accelerator into local space */
-            LabG_Accelerator(new_w) = XtNewString(LabG_Accelerator(new_w));
+            accelerator = XtNewString(LabG_Accelerator(new_w));
+            if (accelerator == NULL)
+            {
+                /* Keep the currently installed binding when replacement fails. */
+                LabG_Accelerator(new_w) = LabG_Accelerator(current);
+                LabG_Accelerator(req) = NULL;
+            }
+            else
+            {
+                LabG_Accelerator(new_w) = accelerator;
+
+                if (LabG_Accelerator(current) != NULL)
+                    XtFree(LabG_Accelerator(current));
+
+                LabG_Accelerator(current) = NULL;
+                LabG_Accelerator(req) = NULL;
+                ProcessFlag = TRUE;
+            }
         }
+        else
+        {
+            if (LabG_Accelerator(current) != NULL)
+                XtFree(LabG_Accelerator(current));
 
-        if (LabG_Accelerator(current) != NULL)
-            XtFree(LabG_Accelerator(current));
-
-        LabG_Accelerator(current) = NULL;
-        LabG_Accelerator(req) = NULL;
-        ProcessFlag = TRUE;
+            LabG_Accelerator(current) = NULL;
+            LabG_Accelerator(req) = NULL;
+            ProcessFlag = TRUE;
+        }
     }
     else
         LabG_Accelerator(new_w) = LabG_Accelerator(current);
@@ -3364,6 +3385,12 @@ XtArgVal *value)
 {
     XmLabelGadget lw = (XmLabelGadget) wid;
     String string;
+
+    if (LabG_Accelerator(lw) == NULL)
+    {
+        *value = (XtArgVal) NULL;
+        return;
+    }
 
     string = XtNewString(LabG_Accelerator(lw));
 

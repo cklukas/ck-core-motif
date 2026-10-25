@@ -1,3 +1,10 @@
+LabelGadget accelerator allocation (2026-10-27)
+================================================
+
+- Make menu LabelGadget accelerator replacement transactional under
+  `XtNewString` failure and return a null value directly when no accelerator
+  is installed.
+
 Label accelerator allocation (2026-10-27)
 ==========================================
 
