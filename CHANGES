@@ -1,3 +1,10 @@
+ColorSelector label initialization rollback (2026-10-28)
+============================================================
+
+- Keep each built-in slider, mode, and error label when its initialization
+  copy cannot be allocated, avoiding NULL labels and partial string-table
+  state; see `docs/color-selector-label-init-rollback.md`.
+
 RowColumn tear-off title initialization rollback (2026-10-28)
 ==================================================================
 

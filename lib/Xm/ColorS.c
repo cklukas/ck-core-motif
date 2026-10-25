@@ -434,12 +434,25 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal *num_args)
 
     {
     int i;
+    XmString replacement;
     for( i = 0; i < 3; i++ )
-    	XmColorS_strings(csw).slider_labels[i] = XmStringCopy(XmColorS_strings(csw).slider_labels[i]);
+	{
+	replacement = XmStringCopy(XmColorS_strings(csw).slider_labels[i]);
+	if (replacement != NULL)
+	    XmColorS_strings(csw).slider_labels[i] = replacement;
+	}
     for (i = 0; i< XmColorSelector_NUM_TOGGLES; i++) 
-	XmColorS_strings(csw).tog_labels[i] = XmStringCopy(XmColorS_strings(csw).tog_labels[i]);
-    XmColorS_strings(csw).file_read_error = XmStringCopy(XmColorS_strings(csw).file_read_error);
-    XmColorS_strings(csw).no_cell_error = XmStringCopy(XmColorS_strings(csw).no_cell_error); 
+	{
+	replacement = XmStringCopy(XmColorS_strings(csw).tog_labels[i]);
+	if (replacement != NULL)
+	    XmColorS_strings(csw).tog_labels[i] = replacement;
+	}
+    replacement = XmStringCopy(XmColorS_strings(csw).file_read_error);
+    if (replacement != NULL)
+	XmColorS_strings(csw).file_read_error = replacement;
+    replacement = XmStringCopy(XmColorS_strings(csw).no_cell_error);
+    if (replacement != NULL)
+	XmColorS_strings(csw).no_cell_error = replacement;
     }
 
 }
