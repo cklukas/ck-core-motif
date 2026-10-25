@@ -9,6 +9,15 @@ Optional ckmotif++ support package and WML build graph (2026-10-25)
   `libXm`, allowing the WML tools to link from a fresh checkout; this is
   independent of the UIL literal-only module fix below.
 
+FontSelector sanitizer ownership boundary (2026-10-25)
+========================================================
+
+- Record the strict installed FontSelector result: Motif label teardown
+  releases its observed GCs, while one 160-byte shared Xt/Xlib GC-cache
+  allocation remains at process exit. The result is kept as an explicit
+  dependency boundary without suppressing LeakSanitizer or claiming a clean
+  toolkit-wide sanitizer matrix; see `docs/fontselector-sanitizer-boundary.md`.
+
 Non-text Unicode resource coverage (2026-10-25)
 ================================================
 

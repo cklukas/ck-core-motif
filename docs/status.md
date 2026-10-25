@@ -26,6 +26,11 @@ receipt recorded by the native matrix. Separate strict font-lifetime
 qualification passes 79 assertions on two independent displays with zero X errors
 and no leaks. An additional strict legacy layout probe reports 8,839 bytes in 128
 Fontconfig allocations; broad matrix-wide sanitizer acceptance is not claimed.
+The strict installed FontSelector consumer also reports one 160-byte shared
+Xt/Xlib GC-cache allocation at process exit after all observed Motif label
+destroy paths release their GCs. This is retained as an external ownership
+boundary, not suppressed or counted as a toolkit pass; see
+`docs/fontselector-sanitizer-boundary.md`.
 No warning suppression, removed focus action or disabled leak detection is used.
 Native record layout and ABI epoch 8 remain unchanged. All x86_64
 compilation/runtime checks remain pending.

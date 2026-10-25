@@ -590,6 +590,15 @@ Unicode result is a single 104-byte allocation rooted in the system Xt
 selection-owner implementation; it is recorded as an external dependency
 boundary rather than suppressed or misreported as a toolkit pass.
 
+A strict installed FontSelector consumer was also qualified during this phase.
+All observed Motif label destroy paths release their normal and insensitive
+GCs, but the process still reports one 160-byte shared Xt/Xlib GC-cache
+allocation rooted at `XtAllocateGC`/`XCreateGC`. This remains an explicit
+dependency-ownership failure rather than a toolkit pass; see
+`docs/fontselector-sanitizer-boundary.md`. A matching instrumented Xt/Xlib
+qualification or a source-backed `libXm` reproducer is required before the
+matrix-wide sanitizer gate can close.
+
 The installed native cohort also includes the bounded `nontext-unicode`
 public-API fixture for combining, non-BMP and Han values through Label, List,
 ComboBox, Menu and FileSelection resources. The fresh 11-check run now covers

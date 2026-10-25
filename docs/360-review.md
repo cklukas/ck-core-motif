@@ -35,8 +35,12 @@ These are real coverage gaps rather than claims of known source defects:
    fixed and passes three repeated native runs plus a strict ASan/UBSan
    auto-drag lifetime fixture. The pinned Xt dependency patch also retires the
    destroyed-widget selection context; strict ABI, incremental-layout and
-   clipboard-lifetime consumers pass with leak detection enabled. Fontconfig,
-   broader application ownership and other architectures remain open.
+   clipboard-lifetime consumers pass with leak detection enabled. A strict
+   FontSelector run still reports one 160-byte shared Xt/Xlib GC-cache
+   allocation at process exit after Motif label teardown; the dependency
+   boundary is documented in `docs/fontselector-sanitizer-boundary.md` and is
+   not suppressed. Fontconfig, broader application ownership and other
+   architectures remain open.
 3. **External clipboard and DnD matrix.** The bounded Text/TextField fixture
    proves two-client INCR cancellation followed by a fresh transfer from the
    surviving owner when the pinned corrected Xt dependency is used. The

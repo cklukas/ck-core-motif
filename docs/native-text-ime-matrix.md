@@ -14,7 +14,7 @@ separate toolkit-contract test.
 | IBus XIM composition, commit and cancellation | Focused pass | Pending | Real IBus/m17n fixture; standalone combining-mark commit and candidate panels remain gaps. |
 | Provider restart and transport loss | Focused pass | Pending | Same-process service loss/reconnect fixture; broader engines/providers remain unqualified. |
 | Clipboard UTF-8 round trip and interrupted INCR lifetime | Pass for the bounded AArch64 cohort with pinned corrected Xt | Pending | Multi-megabyte UTF-8 bytes, direct Motif-to-Motif Text/TextField round trips, cancellation, a fresh transfer from the surviving owner, and the installed 8/16/32-bit transfer-storage/owner-replacement cohort pass; system-Xt failure, broader DnD, and x86_64 remain separate. |
-| Strict ASan/UBSan | Bounded pass with pinned Xt; matrix-wide gate pending | Pending | A fresh helper-built Xt cohort passes ABI, incremental-layout and clipboard-lifetime with leak detection enabled; Fontconfig and broader ownership paths remain separate gates. |
+| Strict ASan/UBSan | Bounded pass with pinned Xt; matrix-wide gate pending | Pending | A fresh helper-built Xt cohort passes ABI, incremental-layout and clipboard-lifetime with leak detection enabled. The strict FontSelector consumer still reports one 160-byte shared Xt/Xlib GC-cache allocation at process exit; Fontconfig and broader ownership paths remain separate gates. See `docs/fontselector-sanitizer-boundary.md`. |
 
 Run the focused installed service fixture with:
 
@@ -57,7 +57,10 @@ On 2026-10-25, the official dependency build helper produced a fresh pinned Xt
 prefix, and the consumer `--sanitize` run passed ABI, `incremental-layout` and
 `clipboard-lifetime` with leak detection enabled. This closes the bounded Xt
 selection-context and interrupted-INCR ownership regressions; it does not close
-the matrix-wide leak gate for Fontconfig or other unqualified ownership paths.
+the matrix-wide leak gate for Fontconfig, the strict FontSelector Xt/Xlib GC
+cache boundary, or other unqualified ownership paths. The FontSelector result
+is retained as a failure rather than suppressed; see
+`docs/fontselector-sanitizer-boundary.md`.
 
 The clipboard observer now additionally runs direct Motif-to-Motif Text and
 TextField owner/import workflows for both the mixed-script and large payloads.
