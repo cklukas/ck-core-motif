@@ -8,7 +8,8 @@ start = source.index("void\n_XmStringContextCopy(")
 end = source.index("\n/*\n * _XmStringContextFree", start)
 region = source[start:end]
 
-assert "_XmStrContRendTags(target) = (XmStringTag*) XtMalloc(size);" in region
+assert "_XmStrContRendTags(target) =" in region
+assert "(XmStringTag*) XtMalloc((Cardinal)size);" in region
 assert "size_t size;" in region
 assert "size_t count;" in region
 assert "count > SIZE_MAX / sizeof(XmStringTag)" in region

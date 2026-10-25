@@ -12234,3 +12234,9 @@ Resource converter token span bounds (2026-10-26)
 - Measure shared token spans in `size_t`, reject unrepresentable lengths, and
   pass accepted storage explicitly as an Xt `Cardinal`; see
   `docs/motif-resconvert-token.md`.
+
+XmString context-copy allocation width (2026-10-26)
+====================================================
+
+- Pass the already checked rendition-tag byte count explicitly as an Xt
+  `Cardinal`; see `docs/xmstring-context-copy-allocation.md`.

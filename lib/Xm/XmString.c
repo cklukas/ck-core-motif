@@ -9752,7 +9752,8 @@ _XmStringContextCopy(_XmStringContext target,
 	return;
      }
      size = count * sizeof(XmStringTag);
-     _XmStrContRendTags(target) = (XmStringTag*) XtMalloc(size);
+     _XmStrContRendTags(target) =
+	 (XmStringTag*) XtMalloc((Cardinal)size);
      if (_XmStrContRendTags(target) == NULL) {
         _XmStrContRendCount(target) = 0;
         return;
