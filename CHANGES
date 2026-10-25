@@ -11604,6 +11604,12 @@ MWM virtual-key keymap bounds (2026-10-25)
 - Validate X keymap status and keycode/keysym count arithmetic before scanning;
   see `docs/mwm-virtual-key-replacement-allocation.md`.
 
+WSM string allocation width (2026-10-25)
+==========================================
+
+- Check decoded WSM string lengths before Xt allocation; see
+  `docs/wsm-unpack-string-oom.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 

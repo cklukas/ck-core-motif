@@ -1696,7 +1696,9 @@ UnpackString(MessageData *data_ptr)
 
     len = UnpackListNum(data_ptr);
 
-    top = XtMalloc((size_t) len + 1);
+    if (len < 0 || (size_t)len >= UINT_MAX)
+	return(NULL);
+    top = XtMalloc((Cardinal)len + 1);
     if (top == NULL)
 	return(NULL);
     

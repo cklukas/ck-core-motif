@@ -5,7 +5,8 @@ nav_exclude: true
 # WSM string unpack allocation
 
 The WSM protocol unpacker allocates storage for length-prefixed strings.
-`UnpackString` now checks that allocation before writing the decoded bytes and
-returns `NULL` on failure.  This preserves the wire format while preventing a
-null-pointer write when a process is under memory pressure; existing callers
-can propagate their normal allocation-failure handling.
+`UnpackString` now checks both the decoded length and Xt's `Cardinal` width
+before allocation, then checks the allocation before writing decoded bytes. It
+returns `NULL` on failure, preserving the wire format while preventing narrow
+size conversion and null-pointer writes; existing callers can propagate their
+normal allocation-failure handling.
