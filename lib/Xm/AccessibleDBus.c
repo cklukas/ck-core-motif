@@ -230,6 +230,13 @@ static int cache_item(DBusMessageIter *out, Transport *t,
     XmAccessibleInfoClear(&info);
     return 0;
   }
+  {
+    TransportState *record = memo_get(t, id, 1);
+    if (!record) {
+      XmAccessibleInfoClear(&info);
+      return 0;
+    }
+  }
   index = index_in_parent(t->owner, node);
   count = child_count(t->owner, id);
   role = info.role;
@@ -246,9 +253,11 @@ static int cache_item(DBusMessageIter *out, Transport *t,
   states(&item, info.states);
   dbus_message_iter_close_container(out, &item);
   {
-    TransportState *record = memo_get(t, id, 1);
-    record->known = 1;
-    XtFree(record->name); record->name = XtNewString(text(info.name));
+    TransportState *record = memo_get(t, id, 0);
+    if (record) {
+      record->known = 1;
+      XtFree(record->name); record->name = XtNewString(text(info.name));
+    }
   }
   XmAccessibleInfoClear(&info);
   return 1;
@@ -1375,6 +1384,10 @@ static void sync_text(Transport *t, XmAccessibleId id,
   node->text_snapshot_busy = False;
   if (node->change_serial != serial) { XtFree(current); current = NULL; }
   record = memo_get(t, id, 1);
+  if (!record) {
+    XtFree(current);
+    return;
+  }
   previous = record->text_content;
   known = record->text_known;
   old_length = record->text_length; old_caret = record->caret;
@@ -1706,6 +1719,10 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
   }
   path_for(id, path, sizeof(path));
   record = memo_get(t, id, 1);
+  if (!record) {
+    XmAccessibleInfoClear(&info);
+    return;
+  }
   old_states = record->states;
   name_changed = record->known && strcmp(text(record->name), text(info.name));
   value_changed = info.has_value && (!record->has_value ||
@@ -1744,6 +1761,10 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
       return;
     }
     record = memo_get(t, id, 1);
+    if (!record) {
+      XmAccessibleInfoClear(&info);
+      return;
+    }
     record->known = 1;
     record->states = info.states; record->role = info.role;
     record->has_value = info.has_value;
