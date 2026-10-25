@@ -33,6 +33,8 @@ static char rcsid[] = "$TOG: Text.c /main/47 1999/01/26 15:18:26 mgreess $"
 #define TEXT
 
 #include <string.h>
+#include <stdint.h>
+#include <limits.h>
 #include <X11/Xos.h>
 #include <X11/keysymdef.h>
 #include <Xm/AccTextT.h>
@@ -1036,7 +1038,16 @@ RefigureLines(XmTextWidget tw)
   tw->text.in_refigure_lines = TRUE;
   tw->text.needs_refigure_lines = FALSE;
   if (XtIsRealized((Widget)tw)) EraseInsertionPoint(tw);
-  oldline = (Line) XtMalloc((oldNumLines + 2) * sizeof(LineRec));
+  if (oldNumLines < 0 || oldNumLines >= INT_MAX ||
+      (size_t)(oldNumLines + 2) > SIZE_MAX / sizeof(LineRec) ||
+      (size_t)(oldNumLines + 2) > UINT_MAX / sizeof(LineRec) ||
+      (oldline = (Line) XtMalloc((Cardinal)((size_t)(oldNumLines + 2) *
+                                            sizeof(LineRec)))) == NULL) {
+    /* Keep the request pending so a later redisplay can retry safely. */
+    tw->text.needs_refigure_lines = TRUE;
+    tw->text.in_refigure_lines = FALSE;
+    return;
+  }
 
   memcpy((void *) oldline, (void *) line,
 	 (size_t) (oldNumLines + 1) * sizeof(LineRec));

@@ -34,6 +34,13 @@ Drag-over colormap-window bounds (2026-10-27)
   shell and allocating the replacement array.  Invalid or unrepresentable
   counts now leave the existing property untouched instead of wrapping.
 
+Text line-table reflow allocation guard (2026-10-27)
+====================================================
+
+- Validate the legacy Text reflow line-table size and allocation before
+  copying old line records.  A failed or unrepresentable allocation now keeps
+  reflow pending for a later redisplay instead of dereferencing null storage.
+
 Gallery live-page startup and TabStack examples (2026-10-27)
 ===============================================================
 
