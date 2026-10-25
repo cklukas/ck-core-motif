@@ -48,6 +48,10 @@ XmStringGetNextComponent(
   unsigned int  	len;
   XtPointer		val;
   
+  if (text == NULL || str_tag == NULL || direction == NULL ||
+      unknown_tag == NULL || unknown_length == NULL || unknown_value == NULL) {
+    return XmSTRING_COMPONENT_END;
+  }
   type = XmeStringGetComponent((_XmStringContext) context, True, True, &len, &val);
 
   /* Case on return type */
@@ -103,7 +107,7 @@ XmStringGetLtoR(
   Boolean s, is_local = FALSE, done = FALSE, is_default = FALSE;
   
   _XmProcessLock();
-  if (!string) {
+  if (text == NULL || !string) {
 	_XmProcessUnlock();
 	return(FALSE);
   }

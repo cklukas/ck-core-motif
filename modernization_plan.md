@@ -2061,6 +2061,10 @@ the source contract is recorded in
 writing them; the source contract is recorded in
 `tests/automated/check-xmstring-single-segment-outputs.py` and
 `docs/xmstring-single-segment-outputs.md`.
+`XmStringGetNextComponent` and `XmStringGetLtoR` now reject missing required
+output pointers before advancing or initializing extraction state; the source
+contract is recorded in `tests/automated/check-xmstring-get-outputs.py` and
+`docs/xmstring-get-output-validation.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the
