@@ -1,3 +1,10 @@
+Guard FileSB full-path value allocation (2026-10-25)
+=====================================================
+
+- Check directory text and combined-value allocation during search
+  qualification, retaining the typed filename as a safe fallback; see
+  `docs/motif-filesb-value-buffer.md`.
+
 Guard FileSB item filter allocation (2026-10-25)
 =================================================
 

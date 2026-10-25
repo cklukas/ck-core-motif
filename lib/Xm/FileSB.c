@@ -2087,13 +2087,23 @@ QualifySearchDataProc(
             else
               {   
                 String dirStr = _XmStringGetTextConcat( FS_Directory( fs)) ;
-                unsigned dirLen = strlen( dirStr) ;
+                if(    dirStr == NULL    )
+                  {   valueString = fileStr ;
+                      }
+                else
+                  {   unsigned dirLen = strlen( dirStr) ;
 
-                valueString = XtMalloc( dirLen + strlen( fileStr) + 1) ;
-                strcpy( valueString, dirStr) ;
-                strcpy( &valueString[dirLen], fileStr) ;
-                XtFree( fileStr) ;
-                XtFree( dirStr) ;
+                      valueString = XtMalloc( dirLen + strlen( fileStr) + 1) ;
+                      if(    valueString != NULL    )
+                        {   strcpy( valueString, dirStr) ;
+                            strcpy( &valueString[dirLen], fileStr) ;
+                            XtFree( fileStr) ;
+                            }
+                      else
+                        {   valueString = fileStr ;
+                            }
+                      XtFree( dirStr) ;
+                      }
               } 
           } 
         qualifiedSearchData->value =
