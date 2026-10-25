@@ -5185,3 +5185,11 @@ Font-list input-copy allocation guards (2026-10-25)
   `docs/font-list-input-allocation.md`.
 
 Default font-list cache allocation guard (2026-10-25)
+Tab-list insertion allocation guards (2026-10-25)
+==================================================
+
+- Guard new-list and first-tab allocations in `XmTabListInsertTabs`, preserving
+  cleanup and process-lock behavior on failure; see
+  `docs/tablist-insert-allocation.md`.
+
+Tab-list converter allocation guard (2026-10-25)

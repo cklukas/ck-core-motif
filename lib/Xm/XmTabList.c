@@ -141,10 +141,19 @@ XmTabListInsertTabs(XmTabList oldlist,
   if (oldlist == NULL)
     {
       tl = (XmTabList)XtMalloc(sizeof(_XmTabListRec));
+      if (tl == NULL) {
+	_XmProcessUnlock();
+	return(NULL);
+      }
   
       _XmTabLCount(tl) = tab_count;
       
       prev_tab = _XmTabCopy(tabs[0]);
+      if (prev_tab == NULL) {
+	XtFree((char *)tl);
+	_XmProcessUnlock();
+	return(NULL);
+      }
 
       _XmTabLStart(tl) = prev_tab;
 
@@ -163,9 +172,18 @@ XmTabListInsertTabs(XmTabList oldlist,
   else
     {
       tl = XmTabListCopy(oldlist, 0, 0);
+      if (tl == NULL) {
+	_XmProcessUnlock();
+	return(NULL);
+      }
       
       /* Hook in first tab */
       tab = _XmTabCopy(tabs[0]);
+      if (tab == NULL) {
+	_XmProcessUnlock();
+	XmTabListFree(tl);
+	return(NULL);
+      }
 
       prev_tab = GetNthTab(tl, position, NULL, 0);
       
