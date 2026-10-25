@@ -122,3 +122,10 @@ focused check is:
 ```sh
 python3 tests/automated/check-link-text-metrics.py
 ```
+
+Chip labels now use measured active-font width and ascent/descent for both
+preferred geometry and drawing.  The focused check is:
+
+```sh
+python3 tests/automated/check-chip-text-metrics.py
+```

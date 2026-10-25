@@ -110,9 +110,31 @@ static void Destroy(Widget widget) {
     /* chip->font is borrowed from the parent/display default render table. */
 }
 
+static int label_text_metrics(XmChipWidget chip, const char *text, int length,
+                              int *ascent, int *descent) {
+    XGCValues values;
+    XFontStruct *font;
+    int width = 0;
+    *ascent = *descent = 0;
+    if (!chip->chip.foreground_gc ||
+        !XGetGCValues(XtDisplay((Widget)chip), chip->chip.foreground_gc,
+                      GCFont, &values))
+        return 0;
+    font = XQueryFont(XtDisplay((Widget)chip), values.font);
+    if (!font)
+        return 0;
+    *ascent = font->ascent;
+    *descent = font->descent;
+    if (text && length > 0)
+        width = XTextWidth(font, text, length);
+    XFreeFontInfo(NULL, font, 1);
+    return width < 0 ? 0 : width;
+}
+
 static void label_metrics(XmChipWidget chip, Dimension *width,
                           Dimension *height, Dimension *icon_width) {
     Dimension label_width = 0, label_height = 16;
+    int ascent, descent;
     char *text = NULL;
     Dimension iw = 0, ih = 0;
     if (chip->chip.label) {
@@ -120,8 +142,15 @@ static void label_metrics(XmChipWidget chip, Dimension *width,
                                XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
         if (text) {
             size_t text_length = strlen(text);
-            label_width = text_length > (size_t)USHRT_MAX / 8 ? USHRT_MAX :
-                          (Dimension)(text_length * 8);
+            int measured = label_text_metrics(chip, text,
+                text_length > (size_t)INT_MAX ? INT_MAX : (int)text_length,
+                &ascent, &descent);
+            label_width = measured > (int)USHRT_MAX ? USHRT_MAX :
+                          (Dimension)(measured > 0 ? measured :
+                                      (text_length > (size_t)USHRT_MAX / 8 ?
+                                       USHRT_MAX : text_length * 8));
+            if (ascent + descent > (int)label_height)
+                label_height = (Dimension)(ascent + descent);
             XtFree(text);
         }
     }
@@ -187,7 +216,12 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         char *text = XmStringUnparse(chip->chip.label, NULL, XmCHARSET_TEXT,
                                      XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
         if (text) {
-            XDrawString(display, window, chip->chip.foreground_gc, x, y + 12,
+            int ascent, descent;
+            label_text_metrics(chip, text,
+                               strlen(text) > (size_t)INT_MAX ? INT_MAX :
+                               (int)strlen(text), &ascent, &descent);
+            XDrawString(display, window, chip->chip.foreground_gc, x,
+                        y + ((int)label_height - ascent - descent) / 2 + ascent,
                         text, (int)strlen(text));
             XtFree(text);
         }
