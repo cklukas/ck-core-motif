@@ -10128,6 +10128,9 @@ XmStringGenerate(XtPointer   text,
   result = XmStringParseText
     (text, NULL, tag, type, gen_table, table_size, NULL);
 
+  if (result == NULL)
+    return NULL;
+
   /* If no rendition was supplied return the parsetext result. */
   if (rendition == NULL) {
     return result;
