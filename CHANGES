@@ -12409,3 +12409,10 @@ Tab-list position screen validation (2026-10-26)
   conversion; see `docs/tab-position-screen-guard.md`.
 
 VendorS secondary-object lock balance (2026-10-26)
+XmString table conversion transactions (2026-10-26)
+=====================================================
+
+- Clean partial parse/unparse results when an element conversion fails; see
+  `docs/xmstring-table-transaction.md`.
+
+Tab-list position screen validation (2026-10-26)
