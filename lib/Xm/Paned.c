@@ -2074,6 +2074,9 @@ static void
 PushPaneStack(XmPanedWidget pw, Pane pane)
 {
     PaneStack * stack = (PaneStack *) XtMalloc(sizeof(PaneStack));
+
+    if (stack == NULL)
+	return;
     
     stack->next = XmPaned_stack(pw);
     stack->pane = pane;
