@@ -34,6 +34,12 @@ Mwm protocol allocation failure handling (2026-10-25)
 - Avoid dereferencing failed atom-array allocations during protocol setup;
   see `docs/mwm-protocol-oom.md`.
 
+Mwm multi-screen selection naming (2026-10-25)
+================================================
+
+- Name each `WM_S*` selection from its managed screen number instead of
+  reusing the display default; see `docs/mwm-multiscreen-selection.md`.
+
 Bounded Latin-1 resource conversion (2026-10-25)
 ==================================================
 

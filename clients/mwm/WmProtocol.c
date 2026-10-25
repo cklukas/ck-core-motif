@@ -1201,9 +1201,10 @@ OwnWMSelections ( Time timestamp )
     {
       if (wmGD.Screens[scr].managed)
 	{
-	  char wm_scr[8];
+	  char wm_scr[32];
 	  
- 	  sprintf(wm_scr, "WM_S%d", DefaultScreen(DISPLAY));
+	  (void) snprintf(wm_scr, sizeof(wm_scr), "WM_S%d",
+			   wmGD.Screens[scr].screen);
 	  wmGD.xa_WM[scr] = XInternAtom (DISPLAY, wm_scr, False);
 	  
 #ifdef MWM_WSM
