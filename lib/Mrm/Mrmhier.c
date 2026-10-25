@@ -598,8 +598,13 @@ Urm__RegisterNamesInHierarchy (MrmHierarchy		hierarchy_id,
   char			*current_name;
   char			*current_value;
 
+  if ( hierarchy_id == NULL || !MrmHierarchyValid(hierarchy_id) )
+    return MrmBAD_HIERARCHY;
   if (num_cb < 0 || (num_cb > 0 && (names == NULL || values == NULL)))
     return MrmFAILURE;
+  for (ndx = 0 ; ndx < num_cb ; ndx++)
+    if (names[ndx] == NULL)
+      return MrmFAILURE;
 
 
   /*
@@ -680,6 +685,11 @@ Urm__LookupNameInHierarchy (MrmHierarchy	hierarchy_id,
   URMHashTableEntryPtr	*name_table;
   URMHashTableEntryPtr	hash_entry;
 
+
+  if ( hierarchy_id == NULL || !MrmHierarchyValid(hierarchy_id) )
+    return MrmBAD_HIERARCHY;
+  if ( name == NULL || value_return == NULL )
+    return MrmFAILURE;
 
   /*
    * Look up in hierarchy first (if there is a registry)
