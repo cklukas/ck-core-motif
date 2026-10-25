@@ -1,3 +1,9 @@
+WSM config-format debug destination (2026-10-25)
+=================================================
+
+- Corrected `PrintConfigFormat` so its initial diagnostic line is written to
+  the supplied buffer; see `docs/wsm-debug-config-format.md`.
+
 Mwm automation menu-label sizing (2026-10-25)
 ===============================================
 

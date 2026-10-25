@@ -304,7 +304,8 @@ PrintConfigFormat(
 {
     register int i;
 
-    sprintf("Accepts Diffs: %s\n",
+
+    sprintf(str, "Accepts Diffs: %s\n",
 	    (config_fmt->accepts_diffs ? "True" : "False"));
 
     for (i = 0; i < 3; i++) {
