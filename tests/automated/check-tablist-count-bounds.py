@@ -15,4 +15,7 @@ free_end = source.index("\nCardinal\nXmTabListTabCount", free_start)
 free = source[free_start:free_end]
 assert "Cardinal i;" in free
 assert "int\ti;" not in free
+create_start = source.index("Widget\n_XmCreateTab(Widget")
+create_end = source.index("\nvoid\nXmTabFree", create_start)
+assert "Cardinal\ti;" in source[create_start:create_end]
 print("XmTabList count growth and cleanup are full-width")

@@ -11,7 +11,7 @@ block = text[start:end]
 
 if block.count("if (tl == NULL)") < 1:
     raise SystemExit("tab-list insertion does not guard new-list allocation")
-if block.count("if (prev_tab == NULL)") < 1:
+if "prev_tab == NULL" not in block or "next_tab = _XmTabNext(prev_tab)" not in block:
     raise SystemExit("tab-list insertion does not guard first-tab allocation")
 if "if (tab == NULL)" not in block:
     raise SystemExit("tab-list insertion does not guard copied-list first tab")

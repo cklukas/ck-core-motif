@@ -177,7 +177,11 @@ XmTabListInsertTabs(XmTabList oldlist,
       }
       
 	  prev_tab = GetNthTab(tl, position, NULL, 0);
-	  next_tab = _XmTabNext(prev_tab);
+	  if (prev_tab == NULL || (next_tab = _XmTabNext(prev_tab)) == NULL) {
+	    XmTabListFree(tl);
+	    _XmProcessUnlock();
+	    return(NULL);
+	  }
 	  insert_start = NULL;
 	  insert_end = NULL;
     }
@@ -641,7 +645,7 @@ _XmCreateTab(Widget parent,
   unsigned char	alignment = XmALIGNMENT_BEGINNING;
   char 		*decimal = ".";
   XmTab		tab, start;
-  int		i;
+  Cardinal	i;
 
   if (tl == NULL)
     return((Widget)NULL);
