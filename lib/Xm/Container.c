@@ -3557,7 +3557,8 @@ GetSpatialSize (
 	    /*
 	     * CtrSpatialStyleIsGRID: One cell per cwid
 	     */
-	    cell_count++;
+	    if (cell_count != INT_MAX)
+		cell_count++;
 	if (CtrSpatialStyleIsCELLS(cw))
 	    /*
 	     * CtrSpatialStyleIsCELLS: Need enough cells to completely 
@@ -3574,7 +3575,13 @@ GetSpatialSize (
 		cwid_height_in_cells++;
 	    min_height_in_cells = MAX(min_height_in_cells,
 					cwid_height_in_cells);
-	    cell_count += cwid_width_in_cells * cwid_height_in_cells;
+	    if (cwid_width_in_cells > 0 && cwid_height_in_cells > 0 &&
+		(cwid_width_in_cells > INT_MAX / cwid_height_in_cells ||
+		 cwid_width_in_cells * cwid_height_in_cells >
+		 INT_MAX - cell_count))
+		cell_count = INT_MAX;
+	    else if (cell_count != INT_MAX)
+		cell_count += cwid_width_in_cells * cwid_height_in_cells;
 	    cwid_info[cwid_info_count].cwid_width_in_cells =
 						cwid_width_in_cells;
 	    cwid_info[cwid_info_count].cwid_height_in_cells = 
