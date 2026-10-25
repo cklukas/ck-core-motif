@@ -1,3 +1,10 @@
+PushButtonGadget default-shadow geometry bounds (2026-10-25)
+============================================================
+
+- Guard gadget default-shadow erase calculations before subtracting emphasis
+  insets, preventing wrapped clear regions for tiny menu entries; see
+  `docs/pushbuttongadget-default-shadow-geometry.md`.
+
 PushButton default-shadow geometry bounds (2026-10-25)
 =======================================================
 

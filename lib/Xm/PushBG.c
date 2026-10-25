@@ -2824,6 +2824,10 @@ EraseDefaultButtonShadow(
 	}
 
       size += Xm3D_ENHANCE_PIXEL;
+      if ((int)pb->rectangle.width <= 2 * delta ||
+	  (int)pb->rectangle.height <= 2 * delta)
+	return;
+
       x = pb->rectangle.x + delta;
       y = pb->rectangle.y + delta;
       width = pb->rectangle.width - (2 * delta);
@@ -3185,6 +3189,10 @@ EraseDefaultButtonShadows(
 	  assert(FALSE);
 	  return;
 	}
+
+      if ((int)pb->rectangle.width <= 2 * delta ||
+	  (int)pb->rectangle.height <= 2 * delta)
+	return;
 
       x = pb->rectangle.x + delta;
       y = pb->rectangle.y + delta;
