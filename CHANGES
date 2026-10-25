@@ -1,3 +1,10 @@
+WM_COLORMAP_WINDOWS allocation bounds (2026-10-25)
+=====================================================
+
+- Allocate complete extra elements for Mwm colormap-window properties and
+  check size conversion and partial failures; see
+  `docs/colormap-property-allocation.md`.
+
 Mwm icon-placement allocation bounds (2026-10-25)
 ==================================================
 
