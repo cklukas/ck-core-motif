@@ -524,6 +524,9 @@ int main(int argc, char **argv)
             }
             requested_profile = True;
             remove_count = 2;
+        } else if (!strcmp(argv[argument], "--appearance")) {
+            fprintf(stderr, "--appearance requires a profile name\n");
+            return 2;
         } else if (!strncmp(argv[argument], "--appearance=", 13)) {
             if (!parse_appearance(argv[argument] + 13,
                                   &requested_profile_value)) {
@@ -542,6 +545,9 @@ int main(int argc, char **argv)
             }
             requested_scale = True;
             remove_count = 2;
+        } else if (!strcmp(argv[argument], "--scale")) {
+            fprintf(stderr, "--scale requires a numeric value\n");
+            return 2;
         } else if (!strncmp(argv[argument], "--scale=", 8)) {
             if (!parse_scale(argv[argument] + 8, &requested_scale_value)) {
                 fprintf(stderr, "invalid display scale: %s\n",
@@ -660,6 +666,8 @@ int main(int argc, char **argv)
     }
     if (requested_profile || requested_scale)
         XSync(XtDisplay(shell), False);
+    if (state.accessibility && (requested_profile || requested_scale))
+        XmAccessibilityRefresh(state.accessibility);
     if (integration_mode == 1) {
         int result = run_integration_test(&state);
         if (state.accessibility) XmAccessibilityDestroy(state.accessibility);
