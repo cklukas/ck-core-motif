@@ -841,10 +841,16 @@ _XmScreenGetOperationIcon(
         unsigned char operation )
 #endif /* NeedWidePrototypes */
 {
-    XmScreen		xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(w));
+    XmScreen		xmScreen;
     XrmQuark		nameQuark = NULLQUARK;
     XmDragIconObject	*ptr = NULL;
     XmDragIconObject	*pt2 = NULL;
+
+    if (w == NULL)
+	return NULL;
+    xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(w));
+    if (xmScreen == NULL)
+	return NULL;
 
     switch ((int) operation) {
 	case XmDROP_MOVE:
@@ -900,9 +906,15 @@ _XmScreenGetStateIcon(
         unsigned char state )
 #endif /* NeedWidePrototypes */
 {
-    XmScreen		xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(w));
+    XmScreen		xmScreen;
     XrmQuark		nameQuark = NULLQUARK;
     XmDragIconObject	icon = NULL;
+
+    if (w == NULL)
+	return NULL;
+    xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(w));
+    if (xmScreen == NULL)
+	return NULL;
 
     switch(state) {
 	default:
@@ -962,7 +974,13 @@ XmDragIconObject
 _XmScreenGetSourceIcon(
         Widget w )
 {
-    XmScreen	xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(w));
+    XmScreen	xmScreen;
+
+    if (w == NULL)
+	return NULL;
+    xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(w));
+    if (xmScreen == NULL)
+	return NULL;
 
     if (xmScreen->screen.defaultSourceCursorIcon == NULL) {
 

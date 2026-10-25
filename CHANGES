@@ -10343,6 +10343,12 @@ Screen child insertion input validation (2026-10-25)
 - Validate Screen child, parent capacity, and backing-list state before
   insertion; see `docs/screen-insert-child-input.md`.
 
+Screen icon helper input validation (2026-10-25)
+================================================
+
+- Validate widget and screen inputs in operation, state, and source drag-icon
+  helpers; see `docs/screen-icon-inputs.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
