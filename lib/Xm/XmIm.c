@@ -2237,6 +2237,7 @@ ImGetGeo(Widget  vw,
   XmVendorShellExtObject ve;
   XmWidgetExtData extData;
   int height = 0;
+  int available_width;
   XRectangle rect;
   XRectangle *rp;
   XmImShellInfo im_info;
@@ -2286,8 +2287,10 @@ ImGetGeo(Widget  vw,
 	if ((int) rp->height > height)
 	  height = rp->height;
 	
-	icp->preedit_width = MIN((int) rp->width,
-				 (int) (vw->core.width - icp->status_width));
+	available_width = (int) vw->core.width - icp->status_width;
+	if (available_width < 0)
+	  available_width = 0;
+	icp->preedit_width = MIN((int) rp->width, available_width);
 	if (icp->sp_height < (int) rp->height)
 	  icp->sp_height = rp->height;
 	XFree(rp);

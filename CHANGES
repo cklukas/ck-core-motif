@@ -7314,3 +7314,11 @@ TabBox right-to-left placement bounds (2026-10-26)
 
 ScrollBar arrow position bounds (2026-10-26)
 ============================================
+Input-method preedit width bounds (2026-10-26)
+==============================================
+
+- Bound preedit width after subtracting the input-method status area, avoiding
+  unsigned wraparound in narrow shells; see `docs/xmim-preedit-width.md`.
+
+TabBox right-to-left placement bounds (2026-10-26)
+===================================================
