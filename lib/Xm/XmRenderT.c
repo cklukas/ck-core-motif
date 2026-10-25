@@ -1433,6 +1433,10 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
       (rendition_count > INT_MAX))
     return(oldtable);
 
+  for (i = 0; i < rendition_count; i++)
+    if (renditions[i] == NULL)
+      return(oldtable);
+
 #ifdef XTHREADS
   if (_XmRendDisplay(renditions[0]))
 	app = XtDisplayToApplicationContext(_XmRendDisplay(renditions[0]));
