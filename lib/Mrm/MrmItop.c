@@ -579,6 +579,8 @@ UrmIdbGetRIDResource (IDBFile			file_id,
   MrmCode		type ;		/* data entry's type */
 
 
+  if ( context_id == NULL )
+    return MrmFAILURE ;
   if ( (result=Idb__FIL_Valid(file_id)) != MrmSUCCESS ) return result ;
 
   /*

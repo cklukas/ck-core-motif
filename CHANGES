@@ -1,3 +1,9 @@
+Mrm RID-resource context validation (2026-10-25)
+================================================
+
+- Reject a null resource context before RID lookup; see
+  `docs/mrm-rid-context.md`.
+
 Mrm indexed-resource enumeration validation (2026-10-25)
 =========================================================
 
