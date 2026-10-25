@@ -9874,6 +9874,13 @@ XIM callback slot validation (2026-10-25)
 - Reject null callbacks and out-of-range internal callback slots before
   indexing the fixed XIM callback array; see `docs/xim-callback-index.md`.
 
+XmDisplay private-state allocation guard (2026-10-25)
+======================================================
+
+- Check `XmDisplayInfo` creation before initializing its fields, matching the
+  existing screen-state allocation guard; see
+  `docs/display-info-allocation.md`.
+
 MWM label-parse allocation guard (2026-10-25)
 ==============================================
 

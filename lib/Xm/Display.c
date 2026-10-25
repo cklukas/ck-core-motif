@@ -598,6 +598,8 @@ DisplayInitialize(
     xmDisplay->display.xmim_info = NULL;
 
     xmDisplay->display.displayInfo = (XtPointer) XtNew(XmDisplayInfo);
+    if (xmDisplay->display.displayInfo == NULL)
+	return;
     ((XmDisplayInfo *)(xmDisplay->display.displayInfo))->SashCursor = 0L;
     ((XmDisplayInfo *)(xmDisplay->display.displayInfo))->TearOffCursor = 0L;
     ((XmDisplayInfo *)(xmDisplay->display.displayInfo))->UniqueStamp = 0L;

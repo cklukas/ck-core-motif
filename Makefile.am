@@ -150,6 +150,7 @@ EXTRA_DIST += tests/automated/check-filesb-filter-allocation.py docs/filesb-filt
 EXTRA_DIST += tests/automated/check-picture-subgraph-allocation.py docs/picture-subgraph-allocation.md
 EXTRA_DIST += tests/automated/check-render-token-allocation.py docs/render-token-allocation.md
 EXTRA_DIST += tests/automated/check-xim-callback-index.py docs/xim-callback-index.md
+EXTRA_DIST += tests/automated/check-display-info-allocation.py docs/display-info-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md
 EXTRA_DIST += tests/automated/check-editres-error-bounds.py docs/editres-error-bounds.md
 EXTRA_DIST += tests/automated/check-spinbox-name-bounds.py docs/spinbox-name-bounds.md
