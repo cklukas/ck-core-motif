@@ -1200,7 +1200,7 @@ FileSBGeoMatrixCreate(
     Boolean         selLabelBox ;
     Boolean         filterLabelBox ;
     Dimension       vspace = BB_MarginHeight(fsb);
-    int             i;
+    Cardinal        i;
 
 /*
  * Layout FileSelectionBox XmGeoMatrix.

@@ -49,6 +49,8 @@ Xft compound-string line height (2026-10-27)
   and managed-child traversal.
 - Use full-width `Cardinal` counters for VendorShell argument and child-list
   traversals.
+- Use a full-width `Cardinal` index for FileSelectionBox menu and button child
+  layout traversals, including right-to-left ordering.
 - Use full-width `Cardinal` indices throughout Hierarchy child traversal and
   rewrite reverse insertion shifts without signed negative sentinels.
 - Use a full-width `Cardinal` index while scanning Manager composite children
