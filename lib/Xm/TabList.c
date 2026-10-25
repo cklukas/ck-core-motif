@@ -838,6 +838,8 @@ XmTabAttributesFree(attributes)
     XmTabAttributes attributes;
 #endif
 {
+    if (attributes == NULL)
+        return;
     if( attributes->value_mode == XmTAB_VALUE_COPY )
     {
 	XiXmStringFree(attributes->label_string);

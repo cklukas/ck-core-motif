@@ -1,3 +1,9 @@
+Guard TabList attribute cleanup (2026-10-26)
+=============================================
+
+- Make `XmTabAttributesFree` tolerate a NULL record for optional cleanup
+  paths; see `docs/tablist-attributes-free.md`.
+
 Fix TabList simple modify forwarding (2026-10-26)
 =================================================
 
