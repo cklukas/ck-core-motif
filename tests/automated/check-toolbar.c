@@ -63,6 +63,10 @@ int main(int argc, char **argv)
                                       XmNwidth, 120, XmNheight, 32, NULL);
     XtAddCallback(toolbar, XmNtoolbarActivateCallback, activated, NULL);
     XmToolbarSetActions(toolbar, actions, 4);
+    {
+        Pixmap icons[4] = {None, None, None, None};
+        XmToolbarSetActionIcons(toolbar, icons, 4);
+    }
     XmStringFree(fixed);
     XmStringFree(important);
     XmStringFree(secondary);
