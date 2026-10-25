@@ -702,9 +702,21 @@ ClipboardConvertProc(Widget wid,
 				     (itemId) NULL, 1, &dummy, 
 				     &count, &dummy );
 
+      if (count < 0 || count > INT_MAX - 2 ||
+	  (size_t)(count + 2) > UINT_MAX / sizeof(Atom))
+	{
+	  rval = False;
+	  goto done;
+	}
+
       /* allocate storage for list of target atoms, 
 	 plus the necessary */
       ptr = (Atom *)XtMalloc( sizeof(Atom) * (count + 2));
+      if (ptr == NULL)
+	{
+	  rval = False;
+	  goto done;
+	}
       save_ptr = ptr;
 
       /* Put required ICCCM targets which are supported */
@@ -735,6 +747,11 @@ ClipboardConvertProc(Widget wid,
       timeStamp *timestamp;
 
       timestamp = (timeStamp *)XtMalloc(sizeof(timeStamp));
+      if (timestamp == NULL)
+	{
+	  rval = False;
+	  goto done;
+	}
       *timestamp  = header->selectionTimestamp;
       *value = (char *) timestamp;
       *size = 1;

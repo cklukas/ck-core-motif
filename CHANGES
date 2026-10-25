@@ -1,3 +1,10 @@
+CutPaste target/timestamp allocation guards (2026-10-28)
+============================================================
+
+- Bound clipboard target-array sizing and check target/timestamp allocations,
+  refusing conversion cleanly instead of dereferencing NULL; see
+  `docs/cutpaste-conversion-allocation.md`.
+
 I18List target-list conversion allocation (2026-10-28)
 =========================================================
 
