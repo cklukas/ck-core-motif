@@ -55,6 +55,14 @@ ICU/HarfBuzz text readback, external IME services, real AT-SPI/screen-reader
 journeys, clipboard workflows, application DnD, physical display/input and
 matrix-wide sanitizer ownership remain explicit gates.
 
+The XLibre observer lifetime follow-up was rebuilt separately on x86_64 with
+the adapter enabled. Its installed `libXm.so.8.0.0` fingerprint is
+`58bc39a032d63a600942e90554ab67655dd08eed4b3303e878b59e3f135ccf94`; the
+parser/fallback, deterministic output-selection and ordinary-server observer
+fixtures pass under Xvfb, together with the source lifetime guard. The
+multi-output XLibre server scenario remains unqualified and is not inferred
+from this fallback run.
+
 The same installed x86_64 prefix now passes the bounded text cohort
 (`incremental-map`, `preedit`, `layout`, `line-context`, `unicode-widgets`,
 `font-resize` and `large-text`) with a task-local CJK/Unicode/color-emoji
