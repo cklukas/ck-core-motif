@@ -4628,3 +4628,9 @@ Virtual-key binding allocations (2026-10-25)
 
 - Make binding-file growth and final trimming transactional; see
   `docs/virtkeys-binding-allocation.md`.
+
+Virtual-key result allocation (2026-10-25)
+==========================================
+
+- Check `XmeVirtualToActualKeysyms` output arguments and result allocation;
+  see `docs/virtkeys-actual-allocation.md`.
