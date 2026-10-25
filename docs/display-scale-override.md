@@ -30,6 +30,14 @@ it does not claim that every historical Motif metric reflows or that a real
 multi-output server has been qualified.  Those remain separate work-package
 gates with stronger geometry and XLibre evidence requirements.
 
+Automatic `XmScrolledWindow` defaults now participate in the same contract.
+Its toolkit-owned 100-pixel width and height are scaled at construction and
+reflow live on a display-scale transaction; explicit dimensions remain
+application-owned. The installed `tests/automated/run-display-scale-scrolled.py`
+fixture verifies 1x/2x construction, live expansion, reversible reset and
+explicit-size preservation. This is one additional qualified historical
+widget, not a claim that all legacy geometry defaults are audited.
+
 The installed consumer fixture is
 `tests/automated/run-display-scale-override.py`.  It checks invalid values,
 per-display retention, resource-database identity, default indicator scaling,

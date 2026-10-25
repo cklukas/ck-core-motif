@@ -8,8 +8,13 @@ explicit indicator and SpinBox arrow resources, and reflowing unlabelled
 realized `ToggleButton`, toolkit-owned `SpinBox` defaults, and
 `ProgressRing` preferred dimensions.  The same fixture now covers the
 96/144/192/288-DPI matrix.  Complete
-historical-widget coverage, live appearance
-transactions and real multi-output XLibre reflow remain open.
+historical-widget coverage beyond the qualified scale-aware subset and real
+multi-output XLibre reflow remain open.
+
+The scale-aware subset now also includes automatic `XmScrolledWindow`
+dimensions. Three repeated installed runs cover 1x/2x construction, live
+expansion, reversible reset and explicit-size preservation; a consumer-only
+ASan/UBSan run reports no invalid access or undefined behavior.
 
 The first WP-05.1 live appearance increment is now implemented through the
 additive `XmApplyAppearanceProfile` API.  A fresh AArch64 `uconsole` build
