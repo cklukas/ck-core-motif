@@ -10957,3 +10957,10 @@ MWM action-argument reallocation (2026-10-25)
 - Keep environment-expanded action strings and growing argument arrays
   transactional on allocation failure, and release the outer argument array
   during cleanup; see `docs/mwm-action-arg-reallocation.md`.
+
+MWM session-command parsing rollback (2026-10-25)
+==================================================
+
+- Build restored command vectors transactionally, checking sizes and freeing
+  temporary tokens when an allocation fails; see
+  `docs/mwm-session-command-rollback.md`.

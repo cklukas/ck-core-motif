@@ -1537,6 +1537,8 @@ void ParseSessionCommand (WmScreenData *pSD,  int count,
     unsigned char **argv;
     int  argc = 0;
     int  iSizeArgv;
+    int  cleanup_index;
+    size_t string_length;
     
     unsigned char *string;
     
@@ -1556,13 +1558,36 @@ void ParseSessionCommand (WmScreenData *pSD,  int count,
         {
             unsigned char **newArgv;
 
+            if (iSizeArgv > INT_MAX - ARG_AMT)
+            {
+                Warning (((char *)GETMESSAGE(60, 3,
+                    "Insufficient memory for commandArgv array")));
+                for (cleanup_index = 0; cleanup_index < argc;
+                     cleanup_index++)
+                    XtFree((char *)argv[cleanup_index]);
+                XtFree((char *)argv);
+                return;
+            }
             iSizeArgv += ARG_AMT;
+            if ((size_t)iSizeArgv > SIZE_MAX / sizeof(char *))
+            {
+                Warning (((char *)GETMESSAGE(60, 3,
+                    "Insufficient memory for commandArgv array")));
+                for (cleanup_index = 0; cleanup_index < argc;
+                     cleanup_index++)
+                    XtFree((char *)argv[cleanup_index]);
+                XtFree((char *)argv);
+                return;
+            }
             newArgv = (unsigned char **)XtRealloc(
                 (char *)argv, iSizeArgv * sizeof(char *));
             if (newArgv == NULL)
             {
                 Warning (((char *)GETMESSAGE(60, 3,
                     "Insufficient memory for commandArgv array")));
+                for (cleanup_index = 0; cleanup_index < argc;
+                     cleanup_index++)
+                    XtFree((char *)argv[cleanup_index]);
                 XtFree((char *)argv);
                 return;
             }
@@ -1571,28 +1596,51 @@ void ParseSessionCommand (WmScreenData *pSD,  int count,
 
         argv[argc++] = string;
     }
-    if ((pSD->pDtSessionItems[count].commandArgv =
-         (char **)XtMalloc ((argc) * sizeof(char * ))) == NULL)
+    pSD->pDtSessionItems[count].commandArgv = NULL;
+    pSD->pDtSessionItems[count].commandArgc = 0;
+    if (argc == 0)
+    {
+        XtFree ((char *) argv);
+        return;
+    }
+    if ((size_t)argc > SIZE_MAX / sizeof(char *) ||
+        (pSD->pDtSessionItems[count].commandArgv =
+         (char **)XtMalloc ((size_t)argc * sizeof(char *))) == NULL)
     {
         /*
          * Allocate space for saved argv
          */
 	
         Warning (((char *)GETMESSAGE(60, 3, "Insufficient memory for commandArgv array")));
+        for (cleanup_index = 0; cleanup_index < argc; cleanup_index++)
+            XtFree((char *)argv[cleanup_index]);
     }
     else
     {
         pSD->pDtSessionItems[count].commandArgc = argc;
         for (xindex = 0; xindex < argc ; xindex++)
         {
-            if ((pSD->pDtSessionItems[count].commandArgv[xindex] =
-                 (String) XtMalloc
-                 ((unsigned int) (strlen((char *)argv[xindex]) + 1))) == NULL)
+            string_length = strlen((char *)argv[xindex]);
+            if (string_length > UINT_MAX - 1 ||
+                (pSD->pDtSessionItems[count].commandArgv[xindex] =
+                 (String) XtMalloc((Cardinal)(string_length + 1))) == NULL)
             {
                 /*
                  * Allocate space for the next command segment.
                  */
                 Warning (((char *)GETMESSAGE(60, 4, "Insufficient memory for commandArgv item")));
+                for (cleanup_index = 0; cleanup_index < xindex;
+                     cleanup_index++)
+                    XtFree(pSD->pDtSessionItems[count].commandArgv[
+                        cleanup_index]);
+                XtFree((char *)pSD->pDtSessionItems[count].commandArgv);
+                pSD->pDtSessionItems[count].commandArgv = NULL;
+                for (cleanup_index = 0; cleanup_index < argc;
+                     cleanup_index++)
+                    XtFree((char *)argv[cleanup_index]);
+                pSD->pDtSessionItems[count].commandArgc = 0;
+                XtFree((char *)argv);
+                return;
             }
             else
             {
@@ -1602,6 +1650,8 @@ void ParseSessionCommand (WmScreenData *pSD,  int count,
         }
     }
 
+    for (cleanup_index = 0; cleanup_index < argc; cleanup_index++)
+        XtFree((char *)argv[cleanup_index]);
     XtFree ((char *) argv);
     
 } /* END OF FUNCTION ParseSessionCommand */
