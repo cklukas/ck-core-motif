@@ -241,6 +241,12 @@ int main(int argc, char **argv) {
   XtSetLanguageProc(NULL, NULL, NULL);
   shell = XtVaAppInitialize(&app, "FontLifetime", NULL, 0, &argc, argv,
                             NULL, XmNtitle, "First font owner", NULL);
+  {
+    int height = -1, ascent = -1, descent = -1;
+    XmRenderTableGetDefaultFontExtents(NULL, &height, &ascent, &descent);
+    require(height == 0 && ascent == 0 && descent == 0,
+            "null render-table extents did not initialize outputs");
+  }
   first = XtDisplay(shell);
   first_display_widget = XmGetXmDisplay(first);
   require(first_display_widget != NULL, "first native display owner unavailable");

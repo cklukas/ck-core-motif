@@ -22,3 +22,12 @@ assert "if (table == NULL)" in remove_region
 assert "if (newtable == NULL)" in remove_region
 assert "remove_abort:" in remove_region
 print("PASS render-table removal publishes only after allocation success")
+
+extents_start = source.index("XmRenderTableGetDefaultFontExtents(")
+extents_end = source.index("\n}", extents_start)
+extents_region = source[extents_start:extents_end]
+assert "if (height) *height = 0;" in extents_region
+assert "if (ascent) *ascent = 0;" in extents_region
+assert "if (descent) *descent = 0;" in extents_region
+assert "if (rendertable == NULL)" in extents_region
+print("PASS null render-table extents initialize outputs")

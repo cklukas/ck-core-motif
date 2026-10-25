@@ -21,6 +21,13 @@ Make render-table removal transactional (2026-10-25)
   bodies only after allocation and copy success; see
   `docs/render-table-resize.md`.
 
+Harden null render-table extents (2026-10-25)
+==============================================
+
+- Make `XmRenderTableGetDefaultFontExtents` return zeroed outputs for a null
+  table before any display-lock or lookup operation; see
+  `docs/render-table-default-extents.md`.
+
 Harden typed varargs allocation (2026-10-25)
 ============================================
 
