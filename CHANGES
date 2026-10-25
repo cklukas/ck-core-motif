@@ -20,6 +20,8 @@ Xft compound-string line height (2026-10-27)
   rewrite reverse insertion shifts without signed negative sentinels.
 - Use a full-width `Cardinal` index while scanning Manager composite children
   for motion-event requirements.
+- Use full-width `Cardinal` indices throughout Notebook composite-child loops,
+  including page-number lookup helpers.
 - Use `Cardinal` indices in the public XmString table parse, unparse, and
   concatenation loops so full-width caller counts cannot wrap signed counters.
 - Use the native Xft font height for compound-string geometry instead of
