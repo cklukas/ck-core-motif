@@ -932,6 +932,12 @@ Accessibility tree-seed snapshot allocation (2026-10-25)
 - Abort initial AT-SPI tree seeding cleanly when its ID snapshot cannot be
   allocated; see `docs/accessibility-menu-lifecycle.md`.
 
+Accessibility cache snapshot allocation (2026-10-25)
+======================================================
+
+- Report a D-Bus `NoMemory` error when the AT-SPI cache ID snapshot cannot be
+  allocated; see `docs/accessibility-menu-lifecycle.md`.
+
 Accessibility UTF-8 allocation failures (2026-10-25)
 =====================================================
 
