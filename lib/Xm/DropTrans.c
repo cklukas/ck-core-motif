@@ -37,6 +37,7 @@ static char rcsid[] = "$XConsortium: DropTrans.c /main/15 1996/05/02 13:50:19 pa
 #include "DragCI.h"
 #include "DragICCI.h"
 #include <Xm/AtomMgr.h>
+#include <stdint.h>
 #include <stdio.h>
 
 /* Deactivated the fix, since it causes crash.
