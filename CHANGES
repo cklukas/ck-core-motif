@@ -1,3 +1,9 @@
+Converter destructor input validation (2026-10-25)
+===================================================
+
+- Make converter cleanup callbacks safe for missing destination values; see
+  `docs/converter-destructor-inputs.md`.
+
 Render-table converter input validation (2026-10-25)
 =====================================================
 

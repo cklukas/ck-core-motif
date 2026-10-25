@@ -111,6 +111,7 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
 	      tests/automated/check-select-color-converter-inputs.py \
 	      tests/automated/check-tablist-converter-inputs.py \
 	      tests/automated/check-render-table-converter-inputs.py \
+	      tests/automated/check-converter-destructors.py \
               tests/automated/check-docs-provenance.py tests/automated/check-makestrs-comments.py \
               tests/automated/check-native-features.py \
               tests/Toolkit/ABI/cohort.c tests/Toolkit/Im/preedit_ranges.c \

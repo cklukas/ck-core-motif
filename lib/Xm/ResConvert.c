@@ -801,6 +801,8 @@ CvtStringToXmStringDestroy(
         XrmValue *args,		/* unused */
         Cardinal *num_args)	/* unused */
 {   
+    if (to == NULL || to->addr == NULL)
+        return;
     XmStringFree( *((XmString *) to->addr)) ;
     return ;
     } 
@@ -851,6 +853,8 @@ CvtStringToXmFontListDestroy(
         XrmValue *args,		/* unused */
         Cardinal *num_args)	/* unused */
 {   
+    if (to == NULL || to->addr == NULL)
+        return;
     XmFontListFree( *((XmFontList *) to->addr)) ;
 
     return ;
@@ -1496,6 +1500,8 @@ XmStringCvtDestroy(
         Cardinal *num_args )	/* unused */
 {
    int i;
+   if (to == NULL || to->addr == NULL)
+       return;
    XmString *table = *(XmString **)(to->addr);
    for (i = 0; table[i] != NULL; i++)
        XmStringFree(table[i]);       
@@ -1676,6 +1682,8 @@ StringCvtDestroy(
         Cardinal *num_args)	/* unused */
 {   
             int i ;
+            if (to == NULL || to->addr == NULL)
+                return;
             String *table = * (String **) (to->addr) ;
 
     for(    i = 0 ; table[i] != NULL ; i++    )
@@ -1761,6 +1769,8 @@ CardinalListCvtDestroy(
         XrmValue *args,		/* unused */
         Cardinal *num_args)	/* unused */
 {
+        if (to == NULL || to->addr == NULL)
+            return;
         XtFree((XPointer)to->addr);
 }
 
@@ -2614,7 +2624,10 @@ SimpleDestructor(
         XrmValue *args,		/* unused */
         Cardinal *num_args )	/* unused */
 {
-   char *simple_struct = *(char **)(to->addr);
+   char *simple_struct;
+   if (to == NULL || to->addr == NULL)
+       return;
+   simple_struct = *(char **)(to->addr);
 
    XtFree(simple_struct);
 }
@@ -3090,6 +3103,8 @@ CvtStringToXmTabListDestroy(XtAppContext app, /* unused */
 			       XrmValue *args, /* unused */
 			       Cardinal *num_args) /* unused */
 {   
+  if (to == NULL || to->addr == NULL)
+    return;
   XmTabListFree(*((XmTabList *)to->addr));
 
   return;
@@ -3370,5 +3385,7 @@ CvtStringToXmRenderTableDestroy(XtAppContext app, /* unused */
 				 XrmValue *args, /* unused */
 				 Cardinal *num_args) /* unused */
 {   
+  if (to == NULL || to->addr == NULL)
+    return;
   XmRenderTableFree(*((XmRenderTable *)to->addr));
 }
