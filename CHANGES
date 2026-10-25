@@ -1,3 +1,9 @@
+XmPanedGetPanes null-safety (2026-10-25)
+=========================================
+
+- Validate widget and output pointers in `XmPanedGetPanes`; see
+  `docs/xm-paned-getpanes-null.md`.
+
 XmChangeColor null-safety (2026-10-25)
 =======================================
 

@@ -2921,6 +2921,8 @@ XmPanedGetPanes(Widget w, WidgetList *panes, int *num)
 {
     XmPanedWidget pw = (XmPanedWidget) w;
 
+    if (w == NULL || panes == NULL || num == NULL)
+        return 0;
     _XmWidgetToAppContext(w);
     _XmAppLock(app);
 
