@@ -351,7 +351,7 @@ XmeDrawIndicator(Display *display,
 {
   _XmDisplayToAppContext(display);
 
-  if (!d || !gc)
+  if (!d || !gc || width <= 0 || height <= 0)
     return;
 
   _XmAppLock(app);

@@ -6,4 +6,4 @@ start = source.index("XmeDrawIndicator(Display *display")
 end = source.index("void\nXmeDrawCircle", start)
 body = source[start:end]
 
-assert "if (!d || !gc)" in body
+assert "!d || !gc || width <= 0 || height <= 0" in body

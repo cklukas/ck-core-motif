@@ -1,3 +1,9 @@
+Indicator drawing size guard (2026-10-27)
+========================================
+
+- Reject non-positive indicator dimensions before signed-to-unsigned dispatch
+  conversion; see `docs/drtog-indicator-size-guard.md`.
+
 Indicator drawing GC guard (2026-10-27)
 =======================================
 
