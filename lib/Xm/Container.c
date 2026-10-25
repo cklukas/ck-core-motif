@@ -9031,7 +9031,9 @@ GetSelectedCwids(
 	if (cw->container.selected_item_count == 0)
 		return(NULL);
 	if ((size_t)cw->container.selected_item_count >
-	    SIZE_MAX / sizeof(Widget))
+	    SIZE_MAX / sizeof(Widget) ||
+	    (size_t)cw->container.selected_item_count >
+	    UINT_MAX / sizeof(Widget))
 		return(NULL);
 
 	selected_items = (WidgetList)XtMalloc
@@ -9898,7 +9900,8 @@ XmContainerGetItemChildren(
 		clist_count++;
 		node = node->next_ptr;
 		}
-	if ((size_t)clist_count > SIZE_MAX / sizeof(Widget)) {
+	if ((size_t)clist_count > SIZE_MAX / sizeof(Widget) ||
+	    (size_t)clist_count > UINT_MAX / sizeof(Widget)) {
 		_XmAppUnlock(app);
 		return (0);
 	}

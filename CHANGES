@@ -34,6 +34,13 @@ IconG reordered-table Xt byte bounds (2026-10-28)
 - Check Xt `Cardinal` byte limits before growing the reusable IconG string
   table; see `docs/icong-reordered-table.md`.
 
+Container child-array Xt byte bounds (2026-10-28)
+==================================================
+
+- Check Xt `Cardinal` byte limits for selected-item callbacks and child-list
+  snapshots, in addition to existing `size_t` checks; see the Container
+  allocation notes in `docs/`.
+
 Compound-text concatenation failure handling (2026-10-28)
 ============================================================
 
