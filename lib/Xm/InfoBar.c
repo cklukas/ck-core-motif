@@ -48,11 +48,14 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
         XDrawString(display, window, bar->info.gc,
                     (int)bar->core.width - 100, baseline,
                     bar->info.action_label, (int)strlen(bar->info.action_label));
-    if (bar->info.closable) {
-        XDrawLine(display, window, bar->info.gc, bar->core.width - 18, 8,
-                  bar->core.width - 8, bar->core.height - 8);
-        XDrawLine(display, window, bar->info.gc, bar->core.width - 8, 8,
-                  bar->core.width - 18, bar->core.height - 8);
+    if (bar->info.closable && bar->core.width >= 18 &&
+        bar->core.height >= 8) {
+        XDrawLine(display, window, bar->info.gc,
+                  (int)bar->core.width - 18, 8,
+                  (int)bar->core.width - 8, (int)bar->core.height - 8);
+        XDrawLine(display, window, bar->info.gc,
+                  (int)bar->core.width - 8, 8,
+                  (int)bar->core.width - 18, (int)bar->core.height - 8);
     }
     XFreeFont(display, font);
 }
