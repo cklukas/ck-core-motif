@@ -9128,3 +9128,12 @@ XmRenderTable resource-cache allocation guards (2026-10-29)
 
 ImageCache color-cache Xt allocation-size bounds (2026-10-29)
 ==============================================================
+XmString copied rendition-tag Xt bounds (2026-10-29)
+=====================================================
+
+- Check copied rendition-tag arrays against Xt's `Cardinal` allocation-size
+  range as well as `size_t`, preserving clean failure for extreme counts; see
+  `docs/xmstring-rendition-bounds.md`.
+
+XmRenderTable resource-cache allocation guards (2026-10-29)
+=============================================================

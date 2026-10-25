@@ -57,7 +57,8 @@ CopyRenditionTags(XmStringTag *source,
     return True;
   if (source == NULL)
     return False;
-  if ((size_t)count > SIZE_MAX / sizeof(*tags))
+  if ((size_t)count > SIZE_MAX / sizeof(*tags) ||
+      (size_t)count > UINT_MAX / sizeof(*tags))
     return False;
 
   tags = (XmStringTag *)XtMalloc(sizeof(*tags) * count);

@@ -13,5 +13,7 @@ for needle in (
 ):
     if text.count(needle) < 2:
         raise SystemExit(f"XmString rendition capacity guard missing twice: {needle}")
+if "(size_t)count > UINT_MAX / sizeof(*tags)" not in text:
+    raise SystemExit("XmString copied rendition tags lack Xt size guard")
 
 print("XmString rendition-tag allocation sizing is bounded")
