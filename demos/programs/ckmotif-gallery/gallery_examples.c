@@ -12,6 +12,9 @@
 #include <Xm/SegmentedControl.h>
 #include <Xm/TabStack.h>
 #include <Xm/Toolbar.h>
+#include <Xm/TreeView.h>
+#include <Xm/DataGrid.h>
+#include <Xm/Calendar.h>
 #include <X11/Xlib.h>
 
 static Pixel gallery_named_color(Widget widget, const char *name, Pixel fallback)
@@ -288,6 +291,44 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         XmStringFree(labels[2]); XmStringFree(labels[3]);
         XmStringFree(shortcuts[0]); XmStringFree(shortcuts[1]);
         XmStringFree(shortcuts[2]); XmStringFree(shortcuts[3]);
+    } else if (class == xmTreeViewWidgetClass) {
+        static const XmTreeViewNode nodes[] = {
+            {(XtPointer)"root", NULL, "Project", True, True},
+            {(XtPointer)"src", (XtPointer)"root", "Source", True, True},
+            {(XtPointer)"gallery", (XtPointer)"src", "Gallery", False, False},
+            {(XtPointer)"docs", (XtPointer)"root", "Documentation", False, False}
+        };
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNwidth, 360, XmNheight, 140,
+                                          XmNtreeViewVisibleRows, 5, NULL);
+        XmTreeViewSetNodes(example, nodes, XtNumber(nodes));
+        XmTreeViewSetSelectedId(example, (XtPointer)"gallery", False);
+    } else if (class == xmDataGridWidgetClass) {
+        static const char *const values0[] = {"Button", "Enabled", "Ready"};
+        static const char *const values1[] = {"Slider", "Enabled", "65%"};
+        static const char *const values2[] = {"Dialog", "Preview", "Open"};
+        static const XmDataGridColumn columns[] = {
+            {(XtPointer)"component", "Component", False, 0},
+            {(XtPointer)"state", "State", False, 0},
+            {(XtPointer)"value", "Value", False, 0}
+        };
+        static const XmDataGridRow rows[] = {
+            {(XtPointer)"button", values0},
+            {(XtPointer)"slider", values1},
+            {(XtPointer)"dialog", values2}
+        };
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNwidth, 420, XmNheight, 140,
+                                          XmNdataGridVisibleRows, 4, NULL);
+        XmDataGridSetModel(example, columns, XtNumber(columns), rows,
+                           XtNumber(rows));
+        XmDataGridSetSelectedCell(example, (XtPointer)"slider",
+                                  (XtPointer)"value", False);
+    } else if (class == xmCalendarWidgetClass) {
+        XmCalendarDate date = {2026, 10, 25};
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNwidth, 300, XmNheight, 220, NULL);
+        XmCalendarSetDate(example, &date, False);
     } else if (class == xmFormWidgetClass || class == xmFrameWidgetClass ||
                class == xmBulletinBoardWidgetClass || class == xmRowColumnWidgetClass ||
                class == xmColumnWidgetClass || class == xmButtonBoxWidgetClass ||

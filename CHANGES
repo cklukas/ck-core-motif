@@ -29,6 +29,12 @@ Gallery layout fixtures and TreeView coordinates (2026-10-27)
 - Widen and clamp TreeView row coordinates before converting to X11 integers;
   extreme row-height/visible-row resources no longer wrap during redisplay.
 
+Gallery data-view fixtures (2026-10-27)
+=======================================
+
+- Populate TreeView, DataGrid, and Calendar entries through their public model
+  APIs, with selected sample data visible in the live Example page.
+
 Live text baselines (2026-10-27)
 ================================
 

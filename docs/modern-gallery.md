@@ -33,6 +33,9 @@ Print, and Undo, with their keyboard shortcuts visible through the native
 overflow-aware toolbar.
 Layout-manager entries are populated with colored Header, Content, and Footer
 panels so their geometry is visible and inspectable rather than an empty frame.
+TreeView, DataGrid, and Calendar entries are also backed by small real models
+and dates through their public APIs, so data-view pages show actual rows,
+selection, hierarchy, and calendar state.
 
 Startup opens the first sidebar item as a dedicated welcome screen with
 “Hello world!” in English, German, Japanese, and Chinese.  The CJK lines are

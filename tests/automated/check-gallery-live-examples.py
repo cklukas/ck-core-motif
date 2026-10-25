@@ -20,4 +20,7 @@ assert "XmToolbarSetActions(example, actions, 4)" in toolbar
 for panel in ("Header panel", "Content panel", "Footer panel"):
     assert f'"{panel}"' in source
 assert 'gallery_named_color(parent, "#dbeafe"' in source
+assert "XmTreeViewSetNodes(example, nodes, XtNumber(nodes))" in source
+assert "XmDataGridSetModel(example, columns, XtNumber(columns), rows" in source
+assert "XmCalendarSetDate(example, &date, False)" in source
 print("PASS gallery manager examples render live controls")
