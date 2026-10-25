@@ -2062,17 +2062,29 @@ _XmRC_AddToPostFromList(
         Widget widget )
 {
    
-   if (m->row_column.postFromListSize == m->row_column.postFromCount)
+   if (m->row_column.postFromCount < 0 ||
+       m->row_column.postFromListSize < 0 ||
+       m->row_column.postFromCount >= m->row_column.postFromListSize)
    {
-      /* increase the size to fit the new one and one more */
-	  if (m->row_column.postFromListSize > INT_MAX - 2 ||
-	      (size_t)(m->row_column.postFromListSize + 2) >
-		  SIZE_MAX / sizeof(Widget))
+	  int old_size = m->row_column.postFromListSize;
+	  int new_size = old_size;
+	  Widget *new_list;
+
+	  /* Increase the size to fit the new entry and one more. */
+	  if (new_size < m->row_column.postFromCount)
+	      new_size = m->row_column.postFromCount;
+	  if (new_size > INT_MAX - 2 ||
+	      (size_t)(new_size + 2) > SIZE_MAX / sizeof(Widget) ||
+	      (size_t)(new_size + 2) > (size_t)UINT_MAX / sizeof(Widget))
 	    return;
-      m->row_column.postFromListSize += 2;
-      m->row_column.postFromList = (Widget *)
-	  XtRealloc ( (char *) m->row_column.postFromList,
-		     m->row_column.postFromListSize * sizeof(Widget));
+	  new_size += 2;
+	  new_list = (Widget *)XtRealloc(
+	      (char *)m->row_column.postFromList,
+	      (Cardinal)((size_t)new_size * sizeof(Widget)));
+	  if (new_list == NULL)
+	    return;
+	  m->row_column.postFromList = new_list;
+	  m->row_column.postFromListSize = new_size;
    }
 
    m->row_column.postFromList[m->row_column.postFromCount++] = widget;

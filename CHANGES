@@ -1,3 +1,11 @@
+RCMenu post-from-list growth (2026-10-27)
+=========================================
+
+- Grow popup post-from lists transactionally, validate malformed counts and
+  allocation-size arithmetic, and use a capacity check that also handles a
+  count already beyond its recorded size.  Failed growth now preserves the
+  existing list instead of writing through a null or undersized pointer.
+
 RCMenu keyboard accelerator-list growth (2026-10-27)
 =====================================================
 
