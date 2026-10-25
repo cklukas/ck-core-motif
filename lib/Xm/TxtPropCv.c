@@ -545,6 +545,10 @@ XmCvtXmStringTableToTextProperty(Display *display,
 	 to ASN1 strings, putting them directly into the buffer. */
       text_prop_return->value = ubufptr =
 	(unsigned char *) XtMalloc(sizeof(unsigned char) * ((size_t)total_size + 1));
+      if (text_prop_return->value == NULL) {
+	_XmAppUnlock(app);
+	return BadAlloc;
+      }
       for (i = 0; i < count; ++i)
 	{
 	  int size;

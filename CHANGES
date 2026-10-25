@@ -3779,6 +3779,12 @@ Guard final text-property conversion buffer (2026-10-25)
   null-separated result buffer cannot be allocated; see
   `docs/motif-txtpropcv-final.md`.
 
+Guard ASN.1 compound-string output (2026-10-25)
+================================================
+
+- Check the output buffer for Motif compound-string text properties before
+  serializing ASN.1 data; see `docs/motif-txtpropcv-asn1.md`.
+
 Handle single text-property copy failure (2026-10-25)
 ======================================================
 
