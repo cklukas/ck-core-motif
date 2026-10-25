@@ -93,10 +93,19 @@ static void layout(XmSegmentedControlWidget control) {
             if (pref_total <= (int)available)
                 XtVaGetValues(control->segmented.items[i].button, XmNwidth,
                               &width, NULL);
-            if (x + width > available) width = available - x;
+	    if (x >= available)
+		width = 0;
+	    else if (width > available - x)
+		width = available - x;
             XtConfigureWidget(control->segmented.items[i].button, x, 0, width,
                               height, 0);
-            x += width + spacing;
+	    if (x < available && width < available - x) {
+		 x += width;
+		 if (spacing < available - x) x += spacing;
+		 else x = available;
+	    } else {
+		 x = available;
+	    }
         }
     }
 }

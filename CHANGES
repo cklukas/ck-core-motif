@@ -7804,3 +7804,10 @@ TabBox image size bounds (2026-10-27)
 - Check XImage rotation dimensions and allocation arithmetic before narrowing
   to Xt `Cardinal`, preventing wrapped image buffers; see
   `docs/tabbox-image-size-bounds.md`.
+
+SegmentedControl layout bounds (2026-10-27)
+===========================================
+
+- Clamp trailing segment widths and cursor movement at the available edge,
+  preventing unsigned layout underflow when segments do not fit; see
+  `docs/segmented-layout-bounds.md`.
