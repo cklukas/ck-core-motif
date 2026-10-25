@@ -6,5 +6,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "FontS.c").read_text()
 start = source.index("UpdateFamilies(XmFontSelectorWidget fsw)")
 body = source[start:source.index("/*\tFunction Name:", start + 20)]
 assert "SIZE_MAX / sizeof(*strs)" in body
+assert "UINT_MAX / sizeof(*strs)" in body
+assert "XtMalloc((Cardinal)(sizeof(XmString) *" in body
 assert "strs == NULL && num != 0" in body
 print("PASS Font selector family allocation is guarded")

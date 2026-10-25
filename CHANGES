@@ -6361,6 +6361,13 @@ Legacy resource-filter bounds (2026-10-25)
 - Remove the fixed 256-resource temporary index limit and guard result
   allocation in `_XmFilterResources`; see `docs/filter-resources-bounds.md`.
 
+Bound Font selector family allocation width (2026-10-25)
+==========================================================
+
+- Enforce Xt `Cardinal` byte limits and pass an explicit allocation width when
+  refreshing the FontS family list; see
+  `docs/motif-fonts-family-allocation.md`.
+
 Bound legacy resource-filter byte sizes (2026-10-25)
 =====================================================
 

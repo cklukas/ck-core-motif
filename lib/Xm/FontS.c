@@ -1612,9 +1612,11 @@ UpdateFamilies(XmFontSelectorWidget fsw)
 
     num = XmFontS_font_info(fsw)->num_families;
 
-    if ((size_t)num > SIZE_MAX / sizeof(*strs))
+    if ((size_t)num > SIZE_MAX / sizeof(*strs) ||
+	(size_t)num > UINT_MAX / sizeof(*strs))
 	return;
-    strs = (XmString *) XtMalloc(sizeof(XmString) * num);
+    strs = (XmString *) XtMalloc((Cardinal)(sizeof(XmString) *
+					 (size_t)num));
     if (strs == NULL && num != 0)
 	return;
     size_flag = SizeMapping(cf->point_size);
