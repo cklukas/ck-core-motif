@@ -1,3 +1,10 @@
+IconG vertical render bounds (2026-10-26)
+===========================================
+
+- Clamp pixmap and detail clip heights after signed inset calculations, so
+  collapsed gadgets do not wrap `Dimension` spans; see
+  `docs/icong-height-bounds.md`.
+
 IconG RTL render placement bounds (2026-10-26)
 ===============================================
 

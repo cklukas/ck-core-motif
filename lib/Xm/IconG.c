@@ -2000,6 +2000,7 @@ Redisplay(
     Boolean		clip_set = False;
     int depth;
     int icon_x;
+    int available_height;
     XmContainerDataRec container_data ;
     Position large_icon_x = 0, small_icon_y = 0, small_icon_x,
              label_x = 0, label_y = 0 ;
@@ -2085,8 +2086,12 @@ Redisplay(
 	}
 
 	pm_height = IG_LargeIconRectHeight(wid) ;
-	if (ht + ist + pm_height > ig->rectangle.height - 2*ht)
-	    pm_height = ig->rectangle.height - ist - ht;
+	available_height = (int) ig->rectangle.height - 2 * (int) ht;
+	if ((int) ht + (int) ist + (int) pm_height > available_height) {
+	    available_height = (int) ig->rectangle.height - (int) ist -
+		(int) ht;
+	    pm_height = (Dimension) (available_height > 0 ? available_height : 0);
+	}
 
 	/* clip with the mask if any */
 	if (PIXMAP_VALID(IG_LargeIconMask(wid))) {
@@ -2155,8 +2160,11 @@ Redisplay(
 	}
 
 	pm_height = IG_SmallIconRectHeight(wid);
-	if (small_icon_y + pm_height > ig->rectangle.height - 2*ht)
-	    pm_height = ig->rectangle.height - small_icon_y;
+	available_height = (int) ig->rectangle.height - 2 * (int) ht;
+	if ((int) small_icon_y + (int) pm_height > available_height) {
+	    available_height = (int) ig->rectangle.height - (int) small_icon_y;
+	    pm_height = (Dimension) (available_height > 0 ? available_height : 0);
+	}
 
 	/* clip with the mask if any */
 	if (PIXMAP_VALID(IG_SmallIconMask(wid))) {
@@ -2187,7 +2195,9 @@ Redisplay(
     clip_rect.y = ig->rectangle.y + ht + mh;
     clip_rect.width = MIN(ig->rectangle.width - 2*ht - 2*mw,
 			  container_data.first_column_width - ht - mw);
-    clip_rect.height = ig->rectangle.height - 2*ht - 2*mh;
+    available_height = (int) ig->rectangle.height - 2 * (int) ht -
+	2 * (int) mh;
+    clip_rect.height = (Dimension) (available_height > 0 ? available_height : 0);
 
     if (LayoutIsRtoLG(wid)) {
 	clip_rect.x = ig->rectangle.x + ig->rectangle.width -
@@ -2328,7 +2338,9 @@ Redisplay(
 			    - detail_x - clip_rect.width;
 			
 		    clip_rect.y = ig->rectangle.y + ht + mh;
-		    clip_rect.height = ig->rectangle.height - 2*ht - 2*mh;
+		    available_height = (int) ig->rectangle.height - 2 * (int) ht -
+			2 * (int) mh;
+		    clip_rect.height = (Dimension) (available_height > 0 ? available_height : 0);
 		    XSetClipRectangles(XtDisplay(wid),gc,0,0,&clip_rect,1,
 				       Unsorted);
 		} else {
@@ -2337,7 +2349,9 @@ Redisplay(
 			clip_rect.x = ig->rectangle.x + ht + mw;
 			clip_rect.y = ig->rectangle.y + ht + mh;
 			clip_rect.width = ig->rectangle.width - 2*ht - 2*mw;
-			clip_rect.height = ig->rectangle.height - 2*ht - 2*mh;
+		    available_height = (int) ig->rectangle.height - 2 * (int) ht -
+			2 * (int) mh;
+		    clip_rect.height = (Dimension) (available_height > 0 ? available_height : 0);
 			XSetClipRectangles(XtDisplay(wid),gc,0,0,&clip_rect,1,
 					   Unsorted);
 			/* only set this clip once */
