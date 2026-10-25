@@ -2859,7 +2859,9 @@ isInteger(
     Boolean foundDigit = False;
     Boolean isNegative = False;
     Boolean isPositive = False;
-    int val = 0;
+    unsigned long val = 0;
+    unsigned long limit;
+    unsigned int digit;
     char ch;
 
     if (string == NULL || value == NULL)
@@ -2868,8 +2870,12 @@ isInteger(
     while ((ch = *string) == ' ' || ch == '\t') string++;
     while ((ch = *string++) != '\0') {
 	if (ch >= '0' && ch <= '9') {
-	    val *= 10;
-	    val += ch - '0';
+	    digit = (unsigned int)(ch - '0');
+	    limit = isNegative ? (unsigned long)INT_MAX + 1UL :
+		(unsigned long)INT_MAX;
+	    if (val > (limit - digit) / 10UL)
+		return False;
+	    val = val * 10UL + digit;
 	    foundDigit = True;
 	    continue;
 	}
@@ -2894,9 +2900,10 @@ isInteger(
     }
     if (ch == '\0') {
 	if (isNegative)
-	    *value = -val;
+	    *value = (val == (unsigned long)INT_MAX + 1UL) ? INT_MIN :
+		-(int)val;
 	else
-	    *value = val;
+	    *value = (int)val;
 	return True;
     }
     return False;

@@ -1,3 +1,9 @@
+Resource integer parser overflow handling (2026-10-25)
+=======================================================
+
+- Bound-check integer conversion before accumulation while retaining valid
+  signed ranges including `INT_MIN`; see `docs/integer-parser-overflow.md`.
+
 Converter destructor input validation (2026-10-25)
 ===================================================
 
