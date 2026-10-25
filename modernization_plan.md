@@ -520,6 +520,9 @@ Xvfb fallback evidence distinct from future real-XLibre qualification.
 The opt-in `run-xlibre-live.py` fixture now exercises writable output-property
 mutation and cleanup when a real display is supplied, while its Xvfb mode
 returns an explicit skip rather than counting fallback as live evidence.
+The companion source-contract regression locks in property restoration before
+observer teardown, one-callback verification and the status-77 ordinary-Xvfb
+boundary; it does not substitute for a real multi-output XLibre run.
 
 ### WP-05: Optional SVG image loading
 

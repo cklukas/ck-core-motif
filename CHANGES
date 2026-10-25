@@ -7,6 +7,8 @@ XLibre live property fixture (2026-10-25)
   original property on every exit path. Without a supplied XLibre display it
   explicitly returns the ordinary-Xvfb skip status; no fallback run is counted
   as live qualification.
+- Add a source-contract regression for the live fixture's property restoration,
+  teardown ordering, callback cardinality and real-display/status-77 boundary.
 
 XLibre contract receipt provenance (2026-10-25)
 ================================================

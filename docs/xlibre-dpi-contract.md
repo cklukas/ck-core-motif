@@ -145,6 +145,9 @@ ASan/UBSan fallback run passed at
 `/tmp/ckmotif-xlibre-hardening-20261025/live-sanitizer-fallback/` and returned
 the required status 77. The installed prefix fingerprint was unchanged at
 `dc2ff61fd9994fcb261a861fd702657c80f2add301ccdee7cb13f7e764df6144`.
+The companion `check-xlibre-live-source.py` regression also verifies that the
+fixture restores the original property before observer teardown and retains an
+explicit distinction between an ordinary-Xvfb skip and a real-display pass.
 
 This is an implementation step toward the live contract, not a claim that a
 generic Xorg server provides per-output DPI. The remaining qualification must
