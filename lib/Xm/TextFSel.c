@@ -38,6 +38,7 @@ static char rcsid[] = "$TOG: TextFSel.c /main/22 1997/10/14 15:38:30 cshi $"
 #include <Xm/TransferP.h>
 #include <Xm/TransferT.h>
 #include <Xm/XmosP.h>
+#include <limits.h>
 #include "TextFI.h"
 #include "TextFSelI.h"
 #include "TransferI.h"		/* for _XmConvertComplete() */
@@ -96,6 +97,21 @@ static void DropTransferProc(Widget w,
 static void DoStuff(Widget w, 
 		    XtPointer ignore, 
 		    XmSelectionCallbackStruct *ds);
+
+static Boolean
+text_field_selection_span_to_int(XmTextPosition left, XmTextPosition right,
+                                 int *span)
+{
+  XmTextPosition length;
+
+  if (left < 0 || right < left)
+    return False;
+  length = right - left;
+  if (length > (XmTextPosition)INT_MAX)
+    return False;
+  *span = (int)length;
+  return True;
+}
 
 /********    End Static Function Declarations    ********/
 
@@ -526,11 +542,12 @@ _XmTextFieldConvert(
     
     /* put a char* value into tmp_value, then convert to 8859.1 */
     if (tf->text.max_char_size != 1) {
-      int stat ;
+      int stat, selection_span;
       
-      /* NOTE: casting (right - left) could result in a truncated long. */
+      if (!text_field_selection_span_to_int(left, right, &selection_span))
+	return False;
       *length = _XmTextFieldCountBytes(tf, TextF_WcValue(tf) + left, 
-				       (int)(right - left));
+				       selection_span);
       tmp_value = XtMalloc((unsigned) *length + 1);
       stat = wcstombs(tmp_value, TextF_WcValue(tf) + left,
 		      (unsigned)*length); /* NOTE: casting *length could
@@ -566,11 +583,12 @@ _XmTextFieldConvert(
     *format = 8;
     if (is_destination || !has_selection) return False;
     if (tf->text.max_char_size != 1) {
-      int stat ;
+      int stat, selection_span;
       
-      /* NOTE: casting (right - left) could result in a truncated long. */
+      if (!text_field_selection_span_to_int(left, right, &selection_span))
+	return False;
       *length = _XmTextFieldCountBytes(tf, TextF_WcValue(tf) + left,
-				       (int)(right - left));
+				       selection_span);
       *value = XtMalloc((unsigned) *length + 1);
       stat = wcstombs((char *)*value, TextF_WcValue(tf) + left,
 		      (unsigned)*length); /* NOTE: casting *length could
@@ -592,13 +610,13 @@ _XmTextFieldConvert(
     *format = 8;
     if (is_destination || !has_selection) return False;
     if (tf->text.max_char_size != 1) { 
-      int stat ;
+      int stat, selection_span;
       
-      /* convert to char* before converting to CT.  NOTE: casting
-       * (right - left) could result in a truncated long.
-       */
+      if (!text_field_selection_span_to_int(left, right, &selection_span))
+	return False;
+      /* Convert to char* before converting to compound text. */
       *length = _XmTextFieldCountBytes(tf, TextF_WcValue(tf) + left,
-				       (int)(right - left));
+				       selection_span);
       tmp_value = XtMalloc((unsigned) *length + 1);
       stat = wcstombs(tmp_value, TextF_WcValue(tf) + left,
 		      (unsigned)*length); /* NOTE: casting *length could
@@ -636,13 +654,13 @@ _XmTextFieldConvert(
     *format = 8;
     if (is_destination || !has_selection) return False;
     if (tf->text.max_char_size != 1) { 
-      int stat ;
+      int stat, selection_span;
       
-      /* convert to char* before converting to CT.  NOTE: casting
-       * (right - left) could result in a truncated long.
-       */
+      if (!text_field_selection_span_to_int(left, right, &selection_span))
+	return False;
+      /* Convert to char* before converting to UTF-8. */
       *length = _XmTextFieldCountBytes(tf, TextF_WcValue(tf) + left,
-				       (int)(right - left));
+				       selection_span);
       tmp_value = XtMalloc((unsigned) *length + 1);
       stat = wcstombs(tmp_value, TextF_WcValue(tf) + left,
 		      (unsigned)*length); /* NOTE: casting *length could

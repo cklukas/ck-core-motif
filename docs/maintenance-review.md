@@ -194,3 +194,10 @@ them to the legacy `int` byte-count helper.  The focused check is:
 ```sh
 python3 tests/automated/check-datafield-selection-span.py
 ```
+
+TextField selection exports apply the same range validation before calling
+their legacy byte-count helper.  The focused check is:
+
+```sh
+python3 tests/automated/check-textfield-selection-span.py
+```
