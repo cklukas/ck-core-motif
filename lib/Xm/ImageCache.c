@@ -372,7 +372,13 @@ _XmInstallImage(
      }
    entry->builtin_data = NULL;
 
-   _XmAddHashEntry(image_set, entry->image_name, entry);
+   if (!_XmAddHashEntry(image_set, entry->image_name, entry))
+     {
+       XtFree(entry->image_name);
+       XtFree((char *)entry);
+       _XmProcessUnlock();
+       return (False);
+     }
 
    _XmProcessUnlock();
    return (True);
