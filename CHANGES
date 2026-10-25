@@ -10379,6 +10379,12 @@ Screen font-unit input validation (2026-10-25)
 - Validate display and screen state in font-unit setters/getters; see
   `docs/screen-font-unit-input.md`.
 
+Screen per-screen getter validation (2026-10-25)
+=================================================
+
+- Validate screen/widget state in color, bitmap-model, and insensitive-stipple
+  getters; see `docs/screen-per-screen-getters.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

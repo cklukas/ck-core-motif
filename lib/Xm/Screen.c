@@ -1452,7 +1452,11 @@ _XmGetColorCalculationProc(
 {
     XmScreen          xmScreen;
 
+    if (screen == NULL)
+        return NULL;
     xmScreen = (XmScreen) XmGetXmScreen(screen);
+    if (xmScreen == NULL)
+        return NULL;
     return(xmScreen->screen.color_calc_proc);
 }
 
@@ -1467,7 +1471,11 @@ _XmGetColorAllocationProc(
 {
     XmScreen          xmScreen;
 
+    if (screen == NULL)
+        return NULL;
     xmScreen = (XmScreen) XmGetXmScreen(screen);
+    if (xmScreen == NULL)
+        return NULL;
     return(xmScreen->screen.color_alloc_proc);
 }
 
@@ -1483,7 +1491,11 @@ _XmGetBitmapConversionModel(
 {
     XmScreen          xmScreen;
 
+    if (screen == NULL)
+        return XmMATCH_DEPTH;
     xmScreen = (XmScreen) XmGetXmScreen(screen);
+    if (xmScreen == NULL)
+        return XmMATCH_DEPTH;
     return(xmScreen->screen.bitmap_conversion_model);
 }
 
@@ -1500,7 +1512,13 @@ _XmGetBitmapConversionModel(
 Pixmap
 _XmGetInsensitiveStippleBitmap (Widget w)
 {
-    XmScreen    xmScreen = (XmScreen) XmGetXmScreen(XtScreen(w));
+    XmScreen    xmScreen;
+
+    if (w == NULL)
+        return None;
+    xmScreen = (XmScreen) XmGetXmScreen(XtScreen(w));
+    if (xmScreen == NULL)
+        return None;
 
     return(xmScreen->screen.insensitive_stipple_bitmap);
 }
