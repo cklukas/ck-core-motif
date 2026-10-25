@@ -2410,13 +2410,20 @@ AppendRealKeyText(String *buffer, size_t *capacity, size_t *used,
    required = *used + length + 1;
    if (required > *capacity) {
       size_t next = *capacity;
+      String new_buffer;
+
+      if (next == 0)
+	next = 1;
       while (next < required) {
 	 if (next > SIZE_MAX / 2)
 	   next = required;
 	 else
 	   next *= 2;
       }
-      *buffer = (String)XtRealloc(*buffer, next);
+      new_buffer = (String)XtRealloc(*buffer, next);
+      if (new_buffer == NULL)
+	return False;
+      *buffer = new_buffer;
       *capacity = next;
    }
    memcpy(*buffer + *used, text, length + 1);
@@ -2443,6 +2450,8 @@ GetRealKey(
       return(NULL);
             
    buf = (String)XtMalloc(capacity);
+   if (buf == NULL)
+     return(NULL);
    buf[0] = '\0';
    num_keys = XmeVirtualToActualKeysyms(XtDisplay(rc), keysym, &keys);
    while (--num_keys >= 0)

@@ -4014,3 +4014,8 @@ Make List item growth failure-safe (2026-10-25)
 
 - Make item insertion and match-position resizing transactional on allocation
   failure; see `docs/list-growth-allocation.md`.
+Guard RowColumn accelerator text buffers (2026-10-25)
+=======================================================
+
+- Check initial and growable accelerator text allocations; see
+  `docs/rowcolumn-key-buffer-allocation.md`.
