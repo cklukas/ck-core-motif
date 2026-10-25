@@ -3393,8 +3393,20 @@ _XmTextFieldReplaceText(XmTextFieldWidget tf,
 	    size = sizeof(char);
 	else
 	    size = sizeof(wchar_t);
-	insert_orig = XtMalloc(insert_length * size);
-	bcopy(insert, insert_orig, insert_length * size);
+	if ((size_t)insert_length > SIZE_MAX / size ||
+	    (size_t)insert_length > UINT_MAX / size) {
+	    if (tf->text.verify_bell) XBell(XtDisplay(tf), 0);
+	    return False;
+	}
+	{
+	    size_t insert_bytes = (size_t)insert_length * size;
+	    insert_orig = XtMalloc((Cardinal)insert_bytes);
+	    if (insert_orig == NULL) {
+		if (tf->text.verify_bell) XBell(XtDisplay(tf), 0);
+		return False;
+	    }
+	    bcopy(insert, insert_orig, insert_bytes);
+	}
     } else
 	insert_orig = NULL;
     if (!ModifyVerify(tf, event, &replace_prev, &replace_next,

@@ -47,6 +47,13 @@ Text warning cleanup (2026-10-27)
 - Use integer zero values for Xlib `XContext` state and the unsigned input to
   `XmImRegister`, removing pointer-to-integer casts from the Text build.
 
+TextField verify-snapshot bounds (2026-10-27)
+=============================================
+
+- Bound the modify-verify snapshot size against `size_t` and Xt `Cardinal`,
+  and handle snapshot allocation failure before copying edit data.  Oversized
+  or exhausted edits now fail safely without dereferencing null storage.
+
 Gallery live-page startup and TabStack examples (2026-10-27)
 ===============================================================
 
