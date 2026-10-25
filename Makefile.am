@@ -768,3 +768,5 @@ EXTRA_DIST += tests/automated/check-xmlist-stack-allocation.py docs/xmlist-stack
 EXTRA_DIST += tests/automated/check-xmlist-lifecycle-inputs.py docs/xmlist-lifecycle-inputs.md
 
 EXTRA_DIST += tests/automated/check-accessibility-create-inputs.py docs/accessibility-create-inputs.md
+
+EXTRA_DIST += tests/automated/check-accessibility-dbus-property-inputs.py docs/accessibility-dbus-property-inputs.md

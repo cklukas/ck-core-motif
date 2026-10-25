@@ -332,7 +332,12 @@ static void property_value(DBusMessageIter *out, Transport *t,
                            const char *iface, const char *name) {
   dbus_int32_t number = 0;
   dbus_uint32_t version = 1;
-  if (!strcmp(iface, VALUE) && !strcmp(property_signature(iface, name), "d")) {
+  const char *signature;
+
+  if (!iface || !name)
+    return;
+  signature = property_signature(iface, name);
+  if (!strcmp(iface, VALUE) && signature && !strcmp(signature, "d")) {
     double value = !strcmp(name, "MinimumValue")       ? info->minimum_value
                    : !strcmp(name, "MaximumValue")     ? info->maximum_value
                    : !strcmp(name, "MinimumIncrement") ? info->minimum_increment
@@ -348,7 +353,7 @@ static void property_value(DBusMessageIter *out, Transport *t,
     dbus_message_iter_append_basic(out, DBUS_TYPE_UINT32, &version);
     return;
   }
-  if (!strcmp(property_signature(iface, name), "s")) {
+  if (signature && !strcmp(signature, "s")) {
     const char *value = "";
     if (!strcmp(iface, VALUE) && !strcmp(name, "Text"))
       value = text(info->value_text);
