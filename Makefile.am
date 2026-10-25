@@ -657,3 +657,5 @@ EXTRA_DIST += tests/automated/check-xm-paned-getpanes-null.py docs/xm-paned-getp
 EXTRA_DIST += tests/automated/check-xm-hierarchy-api-null.py docs/xm-hierarchy-api-null.md
 
 EXTRA_DIST += tests/automated/check-xm-resind-null.py docs/xm-resind-null.md
+
+EXTRA_DIST += tests/automated/check-xm-default-render-null.py docs/xm-default-render-null.md

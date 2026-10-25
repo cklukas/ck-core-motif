@@ -1,3 +1,9 @@
+Xm default render-table null-safety (2026-10-25)
+================================================
+
+- Guard `XmeGetDefaultRenderTable` against null widgets before display and
+  ancestor traversal; see `docs/xm-default-render-null.md`.
+
 Xm unit conversion null-safety (2026-10-25)
 ===============================================
 

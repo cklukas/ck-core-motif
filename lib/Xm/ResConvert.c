@@ -1873,6 +1873,9 @@ XmeGetDefaultRenderTable(
     XmFontType fontType;
     char delim;
     XmSpecRenderTrait trait ;
+
+    if (w == NULL)
+        return NULL;
     _XmWidgetToAppContext(w);
 
     if (fontListType) {
