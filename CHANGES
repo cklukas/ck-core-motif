@@ -1,3 +1,10 @@
+Clipboard pending-list allocation checks (2026-10-26)
+======================================================
+
+- Check pending-item list sizing and allocation, while preserving an empty
+  clipboard as a valid zero-length result; see
+  `docs/clipboard-pending-list-allocation.md`.
+
 Clipboard callback table growth (2026-10-26)
 ==============================================
 

@@ -4627,8 +4627,22 @@ XmClipboardInquirePendingItems(
     id_ptr = (itemId*)((char *) header +
 		       header->dataItemList * CONVERT_32_FACTOR);
 
-    itemlist = (XmClipboardPendingList)XtMalloc( (size_t)
-    			(header->currItems * sizeof( XmClipboardPendingRec)));
+    if (header->currItems == 0)
+	itemlist = NULL;
+    else if ((size_t)header->currItems >
+		     (size_t)-1 / sizeof(XmClipboardPendingRec))
+	itemlist = NULL;
+    else
+	itemlist = (XmClipboardPendingList)XtMalloc( (size_t)
+			(header->currItems * sizeof( XmClipboardPendingRec)));
+
+    if (header->currItems != 0 && itemlist == NULL)
+    {
+	ClipboardClose( display, header );
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
 
     nextlistptr = itemlist;
 
