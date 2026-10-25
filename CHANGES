@@ -42,6 +42,12 @@ Progress-bar text allocation guard (2026-10-26)
 - Skip optional percentage text when `XmProgressBar` cannot allocate its
   display string; see `docs/progress-bar-text-allocation.md`.
 
+Info-bar text geometry bounds (2026-10-26)
+==========================================
+
+- Bound InfoBar prefix positioning and Xlib text lengths for unusually long
+  messages; see `docs/info-bar-text-bounds.md`.
+
 Progress-ring text allocation guard (2026-10-26)
 ================================================
 
