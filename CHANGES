@@ -4368,6 +4368,13 @@ XmIm varargs allocation failure handling (2026-10-25)
 
 - Stop safely when temporary input-method argument arrays cannot be allocated;
   see `docs/xmim-varargs-allocation.md`.
+
+XmString parse-mapping allocation (2026-10-25)
+================================================
+
+- Check `XmParseMappingCreate` construction before initialization so parser
+  setup returns `NULL` cleanly when memory is unavailable; see
+  `docs/xmstring-parse-mapping-allocation.md`.
 Mrm writer cstring-vector validation (2026-10-25)
 ====================================================
 
