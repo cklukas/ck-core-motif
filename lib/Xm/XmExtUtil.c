@@ -542,6 +542,8 @@ _XmGetMBStringFromXmString(XmString xmstr)
 void 
 _XmMoveWidget(Widget w, Position x, Position y)
 {
+    if (w == NULL)
+        return;
     XmDropSiteStartUpdate(w);
     XtMoveWidget(w, x, y);
     XmDropSiteEndUpdate(w);
@@ -558,6 +560,8 @@ _XmMoveWidget(Widget w, Position x, Position y)
 void 
 _XmResizeWidget(Widget w, Dimension width, Dimension height, Dimension bw)
 {
+    if (w == NULL)
+        return;
     XmDropSiteStartUpdate(w);
     XtResizeWidget(w, width, height, bw);
     XmDropSiteEndUpdate(w);
