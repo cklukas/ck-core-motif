@@ -722,12 +722,16 @@ XmCvtCTToXmString(
     Octet	    c;
     XmString	    xmsReturned;	/* returned Xm string */
 
+    if (text == NULL)
+	return NULL;
+
     ctx = (ct_context *)XtMalloc(sizeof(*ctx));
     if (ctx == NULL)
         return NULL;
 
 /* initialize the context block */
     ctx->octet = (OctetPtr)text;
+    ctx->lastoctet = ctx->octet + strlen(text);
     ctx->flags.dircs = False;
     ctx->flags.gchar = False;
     ctx->flags.ignext = False;
@@ -776,7 +780,9 @@ XmCvtCTToXmString(
 **		ESC 02/03 V 03/01   ignoring extensions is not OK
 **  where V is in the range 02/00 thru 02/15 and represents versions 1 thru 16
 */
-    if (    (ctx->octet[0] == ESC)
+
+    if (    ((ctx->lastoctet - ctx->octet) >= 4)
+	&&  (ctx->octet[0] == ESC)
 	&&  (ctx->octet[1] == 0x23)
 	&&  (_IsInColumn2(ctx->octet[2])
 	&&  ((ctx->octet[3] == 0x30) || ctx->octet[3] == 0x31))
