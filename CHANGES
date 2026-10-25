@@ -12178,3 +12178,9 @@ XmString table conversion allocation widths (2026-10-26)
 - Pass initial, growth, and terminating pointer-table sizes explicitly as Xt
   `Cardinal` values after the existing capacity checks; see
   `docs/xmstring-table-growth.md`.
+
+String-table conversion allocation widths (2026-10-26)
+=======================================================
+
+- Pass the checked plain-string table sizes explicitly as Xt `Cardinal`
+  values; see `docs/string-table-conversion.md`.

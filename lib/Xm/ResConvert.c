@@ -1540,7 +1540,8 @@ CvtStringToStringTable(
         (p = from_val->addr) == NULL)
     {   return( False) ;
         } 
-    table = (String *) XtMalloc( sizeof( String) * size) ;
+    table = (String *) XtMalloc(
+	(Cardinal)(sizeof(String) * (size_t)size));
     if (table == NULL)
 	return(False);
 
@@ -1566,7 +1567,8 @@ CvtStringToStringTable(
                 }
                 size++ ;
                 new_table = (String *)XtRealloc((char *)table,
-						 sizeof(String) * size);
+							 (Cardinal)(sizeof(String) *
+								    (size_t)size));
                 if (new_table == NULL) {
                     for (cleanup = 0; cleanup < i; ++cleanup)
 				XtFree((char *)table[cleanup]);
@@ -1613,7 +1615,8 @@ CvtStringToStringTable(
             }
             size *= 2 ;
             new_table = (String *)XtRealloc((char *)table,
-						 sizeof(String) * size);
+							 (Cardinal)(sizeof(String) *
+								    (size_t)size));
             if (new_table == NULL) {
                 for (cleanup = 0; cleanup < i; ++cleanup)
 			    XtFree((char *)table[cleanup]);
@@ -1649,7 +1652,8 @@ CvtStringToStringTable(
     }
     {
         String *new_table = (String *)XtRealloc((char *)table,
-						 sizeof(String) * (i + 1));
+						 (Cardinal)(sizeof(String) *
+							    (size_t)(i + 1)));
         if (new_table == NULL) {
             int cleanup;
             for (cleanup = 0; cleanup < i; ++cleanup)
