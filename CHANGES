@@ -9958,6 +9958,13 @@ XmString tag-cache allocation guard (2026-10-25)
 - Check cached tag storage before copying tag bytes and release the process
   lock on failure; see `docs/xmstring-tag-allocation.md`.
 
+XmOS filename allocation guards (2026-10-25)
+============================================
+
+- Check home-directory and constructed filename buffers before copying,
+  preserving safe empty/`NULL` failure results; see
+  `docs/xmos-filename-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

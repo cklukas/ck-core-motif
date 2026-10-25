@@ -1100,7 +1100,10 @@ XmeGetHomeDirName(void)
       if (ptr != NULL) 
 	{
 	  homeDir = XtMalloc (strlen(ptr) + 1);
-	  strcpy (homeDir, ptr);
+	  if (homeDir != NULL)
+	    strcpy (homeDir, ptr);
+	  else
+	    homeDir = &empty;
 	}
       else 
 	{
@@ -1439,11 +1442,15 @@ _XmOSBuildFileName(String path,
   if (file[0] == '/') 
     {
       fileName = XtMalloc (strlen (file) + 1);
+      if (fileName == NULL)
+	return NULL;
       strcpy (fileName, file);
     }
   else 
     {
       fileName = XtMalloc (strlen(path) + strlen (file) + 2);
+      if (fileName == NULL)
+	return NULL;
       strcpy (fileName, path);
       strcat (fileName, "/");
       strcat (fileName, file);
