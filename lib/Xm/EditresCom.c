@@ -740,18 +740,32 @@ Boolean normal, popup;
     
     num_children = 0;
 
-    if (XtIsWidget(parent) && popup)
+    if (XtIsWidget(parent) && popup) {
+	if (parent->core.num_popups > INT_MAX - num_children)
+	    return(0);
 	num_children += parent->core.num_popups;
+	}
 	
-    if (XtIsComposite(parent) && normal) 
+    if (XtIsComposite(parent) && normal) {
+	if (cw->composite.num_children > INT_MAX - num_children)
+	    return(0);
 	num_children += cw->composite.num_children; 
+	}
 
     if (num_children == 0) {	
 	*children = NULL; 
 	return(0);
     }
 
-    *children =(Widget*) XtMalloc((Cardinal) sizeof(Widget) * num_children);
+    if ((size_t)num_children > SIZE_MAX / sizeof(Widget) ||
+	(size_t)num_children > UINT_MAX / sizeof(Widget)) {
+	*children = NULL;
+	return(0);
+    }
+    *children =(Widget*) XtMalloc((Cardinal)(sizeof(Widget) *
+	(size_t)num_children));
+    if (*children == NULL)
+	return(0);
 
     if (XtIsComposite(parent) && normal)
 	for (i = 0; i < cw->composite.num_children; i++,current++) 

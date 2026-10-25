@@ -1,3 +1,9 @@
+Edit-resources child enumeration bounds (2026-10-26)
+=====================================================
+
+- Guard combined child-count arithmetic and allocation failure in
+  `FindChildren`; see `docs/editres-child-bounds.md`.
+
 Callback-list capacity bounds (2026-10-26)
 ===========================================
 
