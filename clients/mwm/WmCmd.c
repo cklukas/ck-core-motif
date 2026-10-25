@@ -2452,6 +2452,7 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
       }
 
   *outputLen = (unsigned long)size;
+	*outputType = wmGD._MOTIF_WM_AUTOMATION;
 	*outputFmt = WSM_PROTO_FMT;
 	#undef ALLOC_AUTOMATION_REPLY
 	return;

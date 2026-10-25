@@ -1,3 +1,10 @@
+MWM automation reply type (2026-10-26)
+======================================
+
+- Set the automation selection conversion type on successful replies, matching
+  the workspace-manager protocol contract instead of returning `None`; see
+  `docs/mwm-automation-reply-type.md`.
+
 MWM automation reply allocation guards (2026-10-26)
 ====================================================
 
