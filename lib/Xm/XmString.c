@@ -8332,6 +8332,10 @@ match_pattern(XtPointer      text,
     {
       return dir_change;
     }
+  else if (pattern->pattern == NULL)
+    {
+      return False;
+    }
   else if ((pattern->pattern_type == XmWIDECHAR_TEXT) &&
 	   (type == XmWIDECHAR_TEXT))
     {

@@ -5,6 +5,12 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+XmString null parse-pattern guard (2026-10-26)
+================================================
+
+- Treat null non-direction parse patterns as non-matches before string access;
+  see `docs/xmstring-match-pattern.md`.
+
 XmString empty text concatenation (2026-10-26)
 ===============================================
 
