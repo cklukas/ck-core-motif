@@ -49,8 +49,11 @@ These are real coverage gaps rather than claims of known source defects:
    against that dependency. DropSMgr auto-drag teardown now passes its own
    strict sanitizer fixture; direct Motif-to-Motif Text/TextField clipboard
    workflows now pass for mixed-script and multi-megabyte payloads;
-   drag-and-drop transfer cancellation, broader drag-and-drop ownership and
-   unqualified system-library sanitizer ownership remain open.
+   The new installed drop-site lifecycle probe covers registration,
+   retrieval, update bracketing, explicit unregister/re-register and implicit
+   registered-widget teardown. Drag-and-drop transfer cancellation, broader
+   drag-and-drop ownership and unqualified system-library sanitizer ownership
+   remain open; see `docs/dropsite-lifecycle.md`.
 4. **Non-text Unicode matrix.** The installed public-API fixture now covers
    Label, List, ComboBox, Menu and FileSelection values for combining, non-BMP
    and Han text, plus a bounded two-segment compound `XmString` and List item

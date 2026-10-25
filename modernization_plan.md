@@ -615,6 +615,14 @@ clipboard-lifetime with leak detection enabled. This is bounded dependency
 evidence, not closure of the matrix-wide Fontconfig, application-DnD or
 cross-architecture sanitizer gates.
 
+The installed `check-dropsite-lifecycle` consumer now also covers the public
+drop-site registration contract: operation and import-target retrieval,
+callback identity, update bracketing, explicit unregister/re-register, and
+implicit teardown of a registered widget. Three repeated Xvfb runs pass all
+seven checks on `uconsole`; this is a bounded lifecycle result and does not
+close two-process transfer, cancellation, owner-replacement or application-DnD
+gates. See `docs/dropsite-lifecycle.md`.
+
 ### WP-07: Screen-reader usability and semantic completion
 
 **Depends on:** WP-06 for text-specific claims; basic provider work may start

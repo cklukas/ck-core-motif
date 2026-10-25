@@ -35,6 +35,15 @@ Direct Motif clipboard workflows (2026-10-25)
   TextField owner/import round trips for mixed-script and multi-megabyte
   payloads, retaining independent Xlib verification and explicit DnD limits.
 
+Drop-site lifecycle qualification (2026-10-25)
+===============================================
+
+- Add an installed public-API drop-site probe covering registration,
+  retrieval, update bracketing, explicit unregister/re-register and implicit
+  registered-widget teardown. Three repeated Xvfb runs pass on AArch64;
+  full transfer and application-DnD gates remain separate. See
+  `docs/dropsite-lifecycle.md`.
+
 DropSMgr clipper teardown (2026-10-25)
 ======================================
 
