@@ -1,3 +1,9 @@
+Protocol manager allocation (2026-10-25)
+=========================================
+
+- Check per-shell protocol-manager allocation and make manager-list growth
+  transactional, preserving existing protocol state when allocation fails.
+
 Region empty-shrink allocation (2026-10-25)
 ============================================
 

@@ -366,6 +366,8 @@ GetAllProtocolsMgr(
 			   (char **)&ap_mgr))
 	    {
 		ap_mgr = XtNew(XmAllProtocolsMgrRec);
+		if (ap_mgr == NULL)
+		    return NULL;
 		
 		ap_mgr->shell = shell;
 		ap_mgr->num_protocol_mgrs = 
@@ -583,7 +585,18 @@ AddProtocolMgr(
         Atom property )
 {
     XmProtocolMgr	p_mgr;
+    XmProtocolMgrList resized;
+    Cardinal		new_max;
+    Cardinal		max_cardinal = (Cardinal)~0;
     Cardinal		i;
+
+    if (ap_mgr == NULL)
+	return NULL;
+
+    /* Allocate the manager before publishing any capacity change. */
+    p_mgr = XtNew(XmProtocolMgrRec);
+    if (p_mgr == NULL)
+	return NULL;
     
     i = 0;
     while ((i < ap_mgr->num_protocol_mgrs) &&
@@ -595,16 +608,30 @@ AddProtocolMgr(
 	  XmeWarning(NULL, MSG2);
       }
     
-    if (ap_mgr->num_protocol_mgrs + 2 >= ap_mgr->max_protocol_mgrs) 
+    if (ap_mgr->num_protocol_mgrs > max_cardinal - 2 ||
+	 ap_mgr->num_protocol_mgrs + 2 >= ap_mgr->max_protocol_mgrs)
       {
-	  ap_mgr->max_protocol_mgrs += 2;
-	  ap_mgr->protocol_mgrs = (XmProtocolMgrList) 
-	    XtRealloc((char *) ap_mgr->protocol_mgrs ,
-		      ((unsigned) (ap_mgr->max_protocol_mgrs) 
-		       * sizeof(XmProtocolMgr)));
+	  if (ap_mgr->max_protocol_mgrs > max_cardinal - 2) {
+	      XtFree((char *)p_mgr);
+	      return NULL;
+	  }
+	  new_max = ap_mgr->max_protocol_mgrs + 2;
+	  if (new_max > max_cardinal / sizeof(XmProtocolMgr)) {
+	      XtFree((char *)p_mgr);
+	      return NULL;
+	  }
+	  resized = (XmProtocolMgrList)
+	    XtRealloc((char *) ap_mgr->protocol_mgrs,
+		      (size_t)new_max * sizeof(XmProtocolMgr));
+	  if (resized == NULL) {
+	      XtFree((char *)p_mgr);
+	      return NULL;
+	  }
+	  ap_mgr->protocol_mgrs = resized;
+	  ap_mgr->max_protocol_mgrs = new_max;
       }
     ap_mgr->protocol_mgrs[ap_mgr->num_protocol_mgrs++] 
-      = p_mgr = XtNew(XmProtocolMgrRec);
+      = p_mgr;
     
     p_mgr->property = property;
     p_mgr->num_protocols =
@@ -859,6 +886,11 @@ XmAddProtocols(
     if ((p_mgr = GetProtocolMgr(ap_mgr, property)) == 0)
       p_mgr = AddProtocolMgr(ap_mgr, property);
 
+    if (p_mgr == NULL) {
+	_XmAppUnlock(app);
+	return;
+    }
+
     /* get rid of duplicates and then append to end */
     RemoveProtocols(shell, p_mgr, protocols, num_protocols);
     AddProtocols(shell, p_mgr, protocols, num_protocols);
@@ -941,6 +973,10 @@ XmAddProtocolCallback(
     }
     if ((p_mgr = GetProtocolMgr(ap_mgr, property)) == (XmProtocolMgr)0)
       p_mgr = AddProtocolMgr(ap_mgr, property);
+    if (p_mgr == NULL) {
+	_XmAppUnlock(app);
+	return;
+    }
     if ((protocol = GetProtocol(p_mgr, proto_atom)) == (XmProtocol)0)
       {
 	  XmAddProtocols(shell, property, &proto_atom, 1);
