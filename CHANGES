@@ -9783,6 +9783,13 @@ FontSelector label initialization rollback (2026-10-28)
 SpinBox value-list SetValues rollback (2026-10-28)
 =====================================================
 
+MWM client-command label allocation guard (2026-10-25)
+=======================================================
+
+- Check the normalized client-command label copy and release its temporary
+  parse buffer on failure, preventing incomplete menu items; see
+  `docs/mwm-client-command-label-allocation.md`.
+
 MWM command-tree path allocation guard (2026-10-25)
 ====================================================
 

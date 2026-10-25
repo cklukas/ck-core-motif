@@ -3531,6 +3531,11 @@ static Boolean ParseClientCommand (unsigned char **linePP, MenuSpec *menuSpec,
 	else
 	{
 	    menuItem->label = XtNewString(unchanged_stream);
+	    if (menuItem->label == NULL) {
+		XtFree((char *)unchanged_stream);
+		return_val = FALSE;
+		return (return_val);
+	    }
 	    menuItem->labelType = XmSTRING;
 	}
     }
