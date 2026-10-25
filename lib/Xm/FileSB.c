@@ -1863,6 +1863,15 @@ FileSearchProc(
 		  _XmOSFileCompare) ;
 	
         XmStringFileList = (XmString *) XtMalloc(numFiles * sizeof( XmString)) ;
+        if(    XmStringFileList == NULL    )
+        {   Index = numFiles ;
+            while(    Index--    )
+            {   XtFree( fileList[Index]) ;
+                }
+            XtFree( (char *) fileList) ;
+            fileList = NULL ;
+            goto file_search_done ;
+            }
         
         Index = 0 ;
 	dirLen = strlen( dir) ;
@@ -1904,6 +1913,7 @@ FileSearchProc(
     {   XtSetArg( args[0], XmNitemCount, 0) ;
         XtSetValues( SB_List( fs), args, 1) ;
         } 
+file_search_done:
     FS_ListUpdated( fs) = TRUE ;
 
     XtFree( (char *) fileList) ;

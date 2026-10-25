@@ -1,3 +1,10 @@
+Guard FileSB directory-list allocation (2026-10-25)
+====================================================
+
+- Check the temporary `XmString` array before populating it, clean up the
+  filename list on failure, and leave the existing file list intact; see
+  `docs/motif-filesb-list-allocation.md`.
+
 Harden FileSB empty text fallbacks (2026-10-25)
 ===============================================
 
