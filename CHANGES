@@ -2043,6 +2043,12 @@ XmPicture repeat node-map bounds (2026-10-25)
   picture graphs while leaving unrepresentable expansion unchanged; see
   `docs/picture-copy-bounds.md`.
 
+List drag conversion allocation (2026-10-25)
+===============================================
+
+- Cancel list drag initiation cleanly when its conversion record or string
+  array cannot be allocated; see `docs/list-drag-allocation.md`.
+
 Drop-down selection-table allocation (2026-10-25)
 ====================================================
 
