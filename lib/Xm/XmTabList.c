@@ -178,8 +178,8 @@ XmTabListInsertTabs(XmTabList oldlist,
       
 	  prev_tab = GetNthTab(tl, position, NULL, 0);
 	  if (prev_tab == NULL || (next_tab = _XmTabNext(prev_tab)) == NULL) {
-	    XmTabListFree(tl);
 	    _XmProcessUnlock();
+	    XmTabListFree(tl);
 	    return(NULL);
 	  }
 	  insert_start = NULL;
@@ -201,9 +201,9 @@ XmTabListInsertTabs(XmTabList oldlist,
 	    }
 	  if (oldlist == NULL)
 	    XtFree((char *)tl);
-	  else
-	    XmTabListFree(tl);
 	  _XmProcessUnlock();
+	  if (oldlist != NULL)
+	    XmTabListFree(tl);
 	  return(NULL);
 	}
 
@@ -232,10 +232,11 @@ XmTabListInsertTabs(XmTabList oldlist,
       if (position == 0)
 	_XmTabLStart(tl) = insert_start;
       _XmTabLCount(tl) += tab_count;
-      XmTabListFree(oldlist);
     }
 
   _XmProcessUnlock();
+  if (oldlist != NULL)
+    XmTabListFree(oldlist);
   return(tl);
 }
 

@@ -12353,3 +12353,10 @@ Compound-text direction-stack bounds (2026-10-26)
   `_PushDir`; see `docs/direction-stack-bounds.md`.
 
 Tabbed-stack list allocation bounds (2026-10-26)
+XmTabList lock boundaries (2026-10-26)
+=======================================
+
+- Release the process lock before insert/copy paths call `XmTabListFree`,
+  preventing recursive-lock deadlocks; see `docs/tablist-lock-boundaries.md`.
+
+Compound-text direction-stack bounds (2026-10-26)
