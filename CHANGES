@@ -12402,3 +12402,10 @@ VendorS secondary-object lock balance (2026-10-26)
   move allocations outside the lock; see `docs/vendors-lock-balance.md`.
 
 Legacy XmString compatibility lock boundaries (2026-10-26)
+Tab-list position screen validation (2026-10-26)
+=================================================
+
+- Guard `_XmTabListGetPosition` against a null `Screen` before unit
+  conversion; see `docs/tab-position-screen-guard.md`.
+
+VendorS secondary-object lock balance (2026-10-26)
