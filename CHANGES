@@ -11380,3 +11380,9 @@ MWM screen display allocation width (2026-10-25)
 
 - Use the checked Xt allocation width for private per-screen display-name
   copies; see `docs/mwm-display-string-bounds.md`.
+
+MWM parser-warning allocation width (2026-10-25)
+=================================================
+
+- Check localized parser-warning lengths before Xt allocation; see
+  `docs/mwm-parser-warning-bounds.md`.

@@ -7011,8 +7011,9 @@ PWarning (char *message)
         messageLength = snprintf(NULL, 0, pWarningStringLine,
                                  managerName, messageText, linec);
     }
-    formattedMessage = (messageLength >= 0) ?
-        (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+    formattedMessage = (messageLength >= 0 &&
+			(unsigned int)messageLength < UINT_MAX) ?
+        (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
     if (formattedMessage != NULL)
     {
         if (cfileP != NULL)
