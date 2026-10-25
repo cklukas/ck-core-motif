@@ -6348,3 +6348,10 @@ GeoUtils box-fitting allocation guards (2026-10-25)
   and temporary allocation failure without dereferencing a null sort table;
   see `docs/geoutils-fit-boxes-allocation.md`.
 
+Bound GeoUtils scratch-table byte sizes (2026-10-25)
+=====================================================
+
+- Reject `FitBoxesAveraging` pointer-table sizes that exceed Xt's `Cardinal`
+  allocator width before narrowing the byte count; see
+  `docs/geoutils-fit-boxes-allocation.md`.
+

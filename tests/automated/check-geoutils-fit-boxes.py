@@ -10,7 +10,8 @@ start = source.index("FitBoxesAveraging(", 10000)
 body = source[start:source.index("FitBoxesProportional(", start)]
 assert "numBoxes == 0" in body
 assert "SIZE_MAX / sizeof(*sortedBoxes)" in body
+assert "UINT_MAX / sizeof(*sortedBoxes)" in body
 assert "if (sortedBoxes == NULL)" in body
-assert "XtMalloc((size_t)numBoxes" in body
+assert "XtMalloc(\n        (Cardinal)((size_t)numBoxes *" in body
 
 print("GeoUtils box-sorting allocation guards passed")
