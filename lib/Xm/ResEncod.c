@@ -1083,6 +1083,8 @@ processExtendedSegmentsHack(
 		break;
 	    }
 	    charset_copy = XtMalloc(len + 1);
+	    if (charset_copy == NULL)
+		return False;
 	    strncpy(charset_copy, (char *) esptr, len);
 	    charset_copy[len] = EOS;
 	    esptr += len + 1;			/* point to text part */
@@ -1096,6 +1098,10 @@ processExtendedSegmentsHack(
             }
 	    
 	    text_copy = (unsigned char *) XtMalloc(len + 1);
+	    if (text_copy == NULL) {
+		XtFree(charset_copy);
+		return False;
+	    }
 	    memcpy( text_copy, esptr, len);
 	    text_copy[len] = EOS;
 	    tempxm1 = XmStringConcatAndFree(
@@ -1855,11 +1861,17 @@ processExtendedSegments(
 		break;
 	    }
 	    charset_copy = XtMalloc(len + 1);
+	    if (charset_copy == NULL)
+		return False;
 	    strncpy(charset_copy, (char *) esptr, len);
 	    charset_copy[len] = EOS;
 	    esptr += len + 1;			/* point to text part */
 	    len = seglen - len - 1;		/* calc length of text part */
 	    text_copy = (unsigned char *) XtMalloc(len + 1);
+	    if (text_copy == NULL) {
+		XtFree(charset_copy);
+		return False;
+	    }
 	    memcpy( text_copy, esptr, len);
 	    text_copy[len] = EOS;
 	    tempxm1 = XmStringConcatAndFree(

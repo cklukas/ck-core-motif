@@ -3839,6 +3839,13 @@ Harden compound-text direction-stack growth (2026-10-25)
   stack on failure and reports CSI processing failure; see
   `docs/resencod-direction-stack.md`.
 
+Guard extended compound-text segment buffers (2026-10-25)
+===========================================================
+
+- Check temporary charset and text copies in both extended-segment decoders,
+  releasing the charset copy when the text allocation fails; see
+  `docs/motif-resencod-segments.md`.
+
 Handle single text-property copy failure (2026-10-25)
 ======================================================
 
