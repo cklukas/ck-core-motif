@@ -128,6 +128,9 @@ _XmConvertFloatUnitsToIntUnits(int unitType, float unitValue,
 {
     float multiplier;
 
+    if (intUnitType == NULL || intUnitValue == NULL)
+	return(False);
+
     switch (unitType) 
     {
       case XmINCHES:

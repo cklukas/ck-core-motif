@@ -1,3 +1,9 @@
+Float-unit conversion output validation (2026-10-25)
+=====================================================
+
+- Reject missing output pointers before internal float-unit conversion writes;
+  see `docs/float-units-outputs.md`.
+
 Named-table converter input validation (2026-10-25)
 ====================================================
 

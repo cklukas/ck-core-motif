@@ -238,6 +238,7 @@ EXTRA_DIST += tests/automated/check-xmos-filename-allocation.py docs/xmos-filena
 EXTRA_DIST += tests/automated/check-virtkeys-fallback-allocation.py docs/virtkeys-fallback-allocation.md
 EXTRA_DIST += tests/automated/check-virtkeys-vendor-allocation.py docs/virtkeys-vendor-allocation.md
 EXTRA_DIST += tests/automated/check-scale-convert-allocation.py docs/scale-convert-allocation.md
+EXTRA_DIST += tests/automated/check-float-units-outputs.py docs/float-units-outputs.md
 EXTRA_DIST += tests/automated/check-accessibility-name-allocation.py docs/accessibility-name-allocation.md
 EXTRA_DIST += tests/automated/check-font-selector-buffer-allocation.py docs/font-selector-buffer-allocation.md
 EXTRA_DIST += tests/automated/check-font-selector-current-font-allocation.py docs/font-selector-current-font-allocation.md
