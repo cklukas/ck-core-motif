@@ -17,6 +17,8 @@ Xft compound-string line height (2026-10-27)
   preserving a valid context with no active tags on failure.
 - Make non-optimized XmString clones transactional across entry-array and
   per-entry allocations, releasing partial copies on failure.
+- Guard copied XmString direction components and end iteration safely when
+  their temporary buffers cannot be allocated.
 
 Accessibility D-Bus memo allocation (2026-10-27)
 =================================================
