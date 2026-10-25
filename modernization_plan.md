@@ -1642,7 +1642,12 @@ application-chrome composite.  It copies item IDs and labels, renders text or
 progress indicators, keeps higher-priority items visible under constrained
 width, reports overflow count, exposes a named accessibility panel and tears
 down its owned children safely.  Its installed fixture and toolbar/sidebar
-work remain separate packages.
+work remain separate packages.  The installed fixture passes 13 checks.
+`XmToolbar` is implemented as the second package: it copies action IDs,
+labels and shortcut text, keeps explicitly non-overflowable actions in the
+strip, moves lower-priority overflowable actions into an ordinary Motif menu,
+preserves application dispatch and exposes a named toolbar panel.  Its
+installed fixture passes 13 checks; collapsible-sidebar work remains separate.
 
 Appearance and scalable assets are intentionally the first delivery track: they
 produce user-visible improvement while preserving the established programming
