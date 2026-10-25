@@ -82,6 +82,7 @@
 #include <Xm/FormSection.h>
 #include <Xm/EmptyState.h>
 #include <Xm/Toast.h>
+#include <Xm/CommandPalette.h>
 #include <Xm/NumberBox.h>
 #include <Xm/RatingControl.h>
 #include <Xm/MwmUtil.h>

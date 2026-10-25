@@ -1563,8 +1563,12 @@ are bounded and they do not alter dialogs, menus or application navigation.
 **Status (2026-10-25):** `XmToast` is implemented as a per-instance,
 application-placed composite with copied message/action strings, explicit
 show/dismiss/pause semantics, bounded timeout ownership and accessible action
-dispatch; its installed fixture passes 10 checks.  It does not create a global
-queue or move shells.  CommandPalette remains a separate work item.
+dispatch; its installed fixture passes 10 checks.  `XmCommandPalette` is an
+additive, non-modal chooser with copied stable IDs/labels/shortcuts,
+case-insensitive filtering, focus restoration, explicit application dispatch
+and accessible panel/action semantics; its installed fixture passes 11 checks.
+Neither control creates process-global state or alters dialogs, menus or
+application navigation.
 
 ### WP-39: Loading, row-action and drag-feedback surfaces
 

@@ -1138,6 +1138,11 @@ NtoastTimeout
 NtoastActionCallback
 NtoastDismissCallback
 
+CCommandPaletteInvokeCallback
+CCommandPaletteDismissCallback
+NcommandPaletteInvokeCallback
+NcommandPaletteDismissCallback
+
 #table _XmStrings20
 
 NtearOffTitle

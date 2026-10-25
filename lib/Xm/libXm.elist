@@ -600,6 +600,16 @@ public XmToastDismiss
 public XmToastPause
 public XmToastInvokeAction
 public XmToastIsShown
+public XmCreateCommandPalette
+public XmCommandPaletteSetItems
+public XmCommandPaletteGetItemCount
+public XmCommandPaletteGetVisibleCount
+public XmCommandPaletteSetFilter
+public XmCommandPaletteGetFilter
+public XmCommandPaletteShow
+public XmCommandPaletteDismiss
+public XmCommandPaletteInvokeSelection
+public XmCommandPaletteIsShown
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -902,6 +912,8 @@ public xmEmptyStateClassRec
 public xmEmptyStateWidgetClass
 public xmToastClassRec
 public xmToastWidgetClass
+public xmCommandPaletteClassRec
+public xmCommandPaletteWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec

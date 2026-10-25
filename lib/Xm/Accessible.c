@@ -36,6 +36,7 @@
 #include <Xm/FormSection.h>
 #include <Xm/EmptyState.h>
 #include <Xm/Toast.h>
+#include <Xm/CommandPalette.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
 #include <Xm/PushBG.h>
@@ -1356,6 +1357,11 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
       i->action_count = 1;
     XtFree(action_text);
   }
+  if (XmIsCommandPalette(w)) {
+    i->role = XmACCESSIBLE_PANEL;
+    i->action_count = 1;
+    local = XtNewString("Command palette");
+  }
   if (XmIsNumberBox(w)) {
     int minimum, maximum;
     i->role = XmACCESSIBLE_PROGRESS_BAR;
@@ -1614,6 +1620,10 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
   }
   if (XmIsToast(n->widget) && action == 0) {
     XmToastInvokeAction(n->widget, NULL);
+    return True;
+  }
+  if (XmIsCommandPalette(n->widget) && action == 0) {
+    XmCommandPaletteInvokeSelection(n->widget, NULL);
     return True;
   }
   if (XmIsArrowButton(n->widget)) {
