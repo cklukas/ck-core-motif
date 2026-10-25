@@ -1222,10 +1222,12 @@ CommitNewLocations(XmPanedWidget pw, Widget no_resize_child)
 		} else {
 	            changes.x = XmPaned_sash_indent(pw);
 		}
-		changes.y = ((*childP)->core.y + (*childP)->core.height +
-			     2 * (*childP)->core.border_width +
-			     internal_space/2 - sash->core.height/2 -
-			     sash->core.border_width); 
+		sash_pos = (int) (*childP)->core.y +
+		    (int) (*childP)->core.height +
+		    2 * (int) (*childP)->core.border_width +
+		    internal_space / 2 - (int) sash->core.height / 2 -
+		    (int) sash->core.border_width;
+		changes.y = (Position) sash_pos;
 	    }
 
 	    if (separator != NULL) {
@@ -1257,14 +1259,16 @@ CommitNewLocations(XmPanedWidget pw, Widget no_resize_child)
 	    	    
 	    if (sash != NULL) {	    /* Move and Display the Sash */
 		if (LayoutIsRtoLM(pw))
-		    changes.x = ((*childP)->core.x -
-			     internal_space / 2 - sash->core.width/2 -
-			     sash->core.border_width); 
+		    sash_pos = (int) (*childP)->core.x -
+			     internal_space / 2 - (int) sash->core.width / 2 -
+			     (int) sash->core.border_width;
 		else
-		    changes.x = ((*childP)->core.x + (*childP)->core.width +
-			     2 * (*childP)->core.border_width +
-			     internal_space / 2 - sash->core.width/2 -
-			     sash->core.border_width); 
+		    sash_pos = (int) (*childP)->core.x +
+			     (int) (*childP)->core.width +
+			     2 * (int) (*childP)->core.border_width +
+			     internal_space / 2 - (int) sash->core.width / 2 -
+			     (int) sash->core.border_width;
+		changes.x = (Position) sash_pos;
 		/* Motif style does - indent from right edge, pos from left */
 	        if(XmPaned_sash_indent(pw) < 0) {
 		    sash_pos = (int) pw->core.height +

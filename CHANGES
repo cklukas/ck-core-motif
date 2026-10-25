@@ -7373,3 +7373,12 @@ Paned separator position bounds (2026-10-26)
 
 Paned negative sash-indent bounds (2026-10-26)
 ===============================================
+Paned regular sash position bounds (2026-10-26)
+================================================
+
+- Compute regular sash x/y coordinates in signed arithmetic, preventing
+  wrapped positions in narrow or overfull panes; see
+  `docs/paned-sash-positions.md`.
+
+Paned separator position bounds (2026-10-26)
+=============================================
