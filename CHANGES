@@ -1,3 +1,9 @@
+LabelG pixmap metadata guards (2026-10-25)
+===========================================
+
+- Guard sensitive and insensitive LabelG pixmap copies and stipple fallback on
+  successful metadata lookup; see `docs/labelg-pixmap-metadata.md`.
+
 Label pixmap metadata guards (2026-10-25)
 =========================================
 

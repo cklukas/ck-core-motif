@@ -2385,9 +2385,9 @@ LRectangle *background_box)
             {
                 gc = LabG_NormalGC(lw);
 
-                XmeGetPixmapData(XtScreen(lw), Pix(lw), NULL, &depth,
-                    NULL, NULL, NULL, NULL, NULL, NULL);
-
+                if (XmeGetPixmapData(XtScreen(lw), Pix(lw), NULL, &depth,
+                    NULL, NULL, NULL, NULL, NULL, NULL))
+                {
                 if (depth == XtParent(lw)->core.depth)
                     XCopyArea (XtDisplay(lw), Pix(lw), XtWindow(lw), gc, 0, 0,
                         LabG_PixmapRect(lw).width, LabG_PixmapRect(lw).height,
@@ -2404,6 +2404,7 @@ LRectangle *background_box)
                             lw->rectangle.y + LabG_TextRect(lw).y +
 				LabG_PixmapRect(lw).y,
 			    1);
+                }
             }
         }
         else
@@ -2420,9 +2421,9 @@ LRectangle *background_box)
             {
                 gc = LabG_InsensitiveGC(lw);
 
-                XmeGetPixmapData(XtScreen(lw), pix_use, NULL, &depth,
-                    NULL, NULL, NULL, NULL, NULL, NULL);
-
+                if (XmeGetPixmapData(XtScreen(lw), pix_use, NULL, &depth,
+                    NULL, NULL, NULL, NULL, NULL, NULL))
+                {
                 if (depth == XtParent(lw)->core.depth)
                     XCopyArea (XtDisplay(lw), pix_use, XtWindow(lw), gc, 0, 0,
                         LabG_PixmapRect(lw).width, LabG_PixmapRect(lw).height,
@@ -2469,6 +2470,7 @@ LRectangle *background_box)
                     XSetFillStyle(XtDisplay(lw), gc, FillSolid);
                 }
 #endif
+                }
             }
         }
     }
