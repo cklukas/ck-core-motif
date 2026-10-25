@@ -1,5 +1,15 @@
 # Build and install
 
+## Hosted documentation workflow
+
+The GitHub Pages workflow is intentionally scoped to documentation inputs. It
+runs automatically on `master` pushes and pull requests that change `docs/`,
+`ckdocs.yml`, the pinned documentation builder, its provenance inputs, or the
+workflow itself. Ordinary library and client commits do not start or cancel a
+documentation run. Use the workflow's **Run workflow** action
+(`workflow_dispatch`) when a documentation rebuild is needed without changing
+one of those files.
+
 Use an isolated source checkout, build directory and installation prefix.
 Do not overlay development headers or libraries onto an older installation.
 GNU make, a C compiler, Autoconf, Automake, Libtool, Flex/Bison and the X11/Xt

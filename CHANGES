@@ -1,3 +1,10 @@
+Documentation workflow trigger scope (2026-10-25)
+====================================================
+
+- Restrict GitHub Pages documentation runs to documentation and builder inputs,
+  while retaining an explicit `workflow_dispatch` trigger; see
+  `docs/build.md`.
+
 MWM invoke-message allocation guard (2026-10-28)
 ==================================================
 
