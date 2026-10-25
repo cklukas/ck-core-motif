@@ -4543,3 +4543,10 @@ WSM withdrawal workspace guards (2026-10-25)
 
 - Validate workspace lists and lookups before removing withdrawn clients;
   see `docs/withdraw-workspace-guards.md`.
+
+
+Active workspace icon placement guard (2026-10-25)
+===================================================
+
+- Preserve icon hints when no active workspace exists instead of dereferencing
+  a null placement grid; see `docs/active-workspace-icon-placement.md`.

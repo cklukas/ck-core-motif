@@ -1367,14 +1367,26 @@ ProcessWmHints (ClientData *pCD, Boolean firstTime)
 		      pCD->iconX : pXWMHints->icon_x;
 		    tmpIconY = (pCD->clientFlags & SM_ICON_Y) ?
 		      pCD->iconY : pXWMHints->icon_y;
-		    pCD->iconPlace = 
-			FindIconPlace (pCD, &(pCD->pSD->pActiveWS->IPData),
-				       tmpIconX, tmpIconY);
-		    if (pCD->iconPlace != NO_ICON_PLACE)
-		    {
-		        CvtIconPlaceToPosition (&(pCD->pSD->pActiveWS->IPData),
-			    pCD->iconPlace, &pCD->iconX, &pCD->iconY);
-		    }
+            if (pCD->pSD->pActiveWS != NULL)
+            {
+                pCD->iconPlace =
+                    FindIconPlace (pCD,
+                        &(pCD->pSD->pActiveWS->IPData),
+                        tmpIconX, tmpIconY);
+                if (pCD->iconPlace != NO_ICON_PLACE)
+                {
+                    CvtIconPlaceToPosition (
+                        &(pCD->pSD->pActiveWS->IPData),
+                        pCD->iconPlace,
+                        &pCD->iconX, &pCD->iconY);
+                }
+            }
+            else
+            {
+                pCD->iconPlace = NO_ICON_PLACE;
+                pCD->iconX = tmpIconX;
+                pCD->iconY = tmpIconY;
+            }
 	        }
 	        else
 	        {
