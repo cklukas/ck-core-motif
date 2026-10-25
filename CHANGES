@@ -7831,3 +7831,10 @@ Stepper arithmetic bounds (2026-10-27)
 - Use `int64_t` for range-step intermediates so extreme `int` values do not
   overflow on 32-bit platforms before clamping; see
   `docs/stepper-arithmetic-bounds.md`.
+
+NumberBox arithmetic bounds (2026-10-27)
+========================================
+
+- Use `int64_t` for range-step intermediates so extreme `int` values do not
+  overflow on 32-bit platforms before clamping; see
+  `docs/numberbox-arithmetic-bounds.md`.
