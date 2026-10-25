@@ -1461,6 +1461,10 @@ static void seed_connected_tree(Transport *t) {
       XmAccessibleInfoClear(&info); continue;
     }
     record = memo_get(t, ids[k], 1);
+    if (!record) {
+      XmAccessibleInfoClear(&info);
+      continue;
+    }
     record->known = 1; record->states = info.states; record->role = info.role;
     XtFree(record->name); record->name = XtNewString(text(info.name));
     record->has_value = info.has_value;

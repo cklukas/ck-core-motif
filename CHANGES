@@ -3,7 +3,7 @@ Accessibility D-Bus memo allocation (2026-10-27)
 
 - Treat failed per-node AT-SPI memo-record allocations as recoverable
   transport failures instead of dereferencing null state under memory
-  pressure.
+  pressure, including initial tree seeding.
 
 Accessibility text allocation (2026-10-27)
 ===========================================
