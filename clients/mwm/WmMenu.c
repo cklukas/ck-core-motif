@@ -2782,11 +2782,15 @@ static Boolean ModifyClientCommandForMenuSpec (MenuSpec *menuSpec,
 		   * will disappear when it is destroyed. CR 9719
 		   */
 		  XmString labelString;
+		  String replacement;
 
 		  /* Change the label of the menu item */
+		  replacement = XtNewString(newname);
+		  if (replacement == NULL)
+		    break;
 		  XtFree(curMenuItem->label);
 		  /* Give the menu item the new name */
-		  curMenuItem->label = XtNewString(newname);
+		  curMenuItem->label = replacement;
 		  was_changed = False;  /*  all taken care of here. */
 		  
 		  /* This is needed when changing the label since

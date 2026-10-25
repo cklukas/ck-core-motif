@@ -9797,6 +9797,13 @@ MWM push-button growth transaction (2026-10-25)
   pointer ownership, preserving existing state when allocation fails; see
   `docs/mwm-save-pbinfo-growth.md`.
 
+MWM command rename allocation guard (2026-10-25)
+================================================
+
+- Copy a replacement label before swapping it into a live menu item, preserving
+  the old label and widget state when allocation fails; see
+  `docs/mwm-rename-allocation.md`.
+
 MWM menu-button array bounds (2026-10-25)
 =========================================
 
