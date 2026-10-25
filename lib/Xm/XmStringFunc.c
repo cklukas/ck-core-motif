@@ -77,9 +77,7 @@ XmStringHasSubstring(
   unsigned int        len;
   XtPointer	      val;
     
-  _XmProcessLock();
   if ((string == NULL) || (substring == NULL) || (XmStringEmpty(substring))) {
-    _XmProcessUnlock();
     return (FALSE);
   }
 
@@ -88,13 +86,11 @@ XmStringHasSubstring(
    */
   
   if (_XmStrEntryCountGet(substring) != 1) {
-    _XmProcessUnlock();
     return (FALSE);
   }
 
   if (((entry = _XmStrEntryGet(substring)) != NULL) && 
       _XmEntrySegmentCountGet(entry[0]) > 1) {
-    _XmProcessUnlock();
     return (FALSE);
   }
 
@@ -125,13 +121,11 @@ XmStringHasSubstring(
 	}
     }
   else { 		  /* Oops, some weird string! */
-    _XmProcessUnlock();
     return (FALSE);
   }
   
     
   if ((subchar_count == 0) || (subtext == NULL)) {
-    _XmProcessUnlock();
     return (FALSE);
   }
 
@@ -164,7 +158,6 @@ XmStringHasSubstring(
 		}
 		if (found) {
 		  _XmStringContextFree(&stack_context);
-    		  _XmProcessUnlock();
 		  return(TRUE);
 		}
 	      }
@@ -176,7 +169,6 @@ XmStringHasSubstring(
       }
     _XmStringContextFree(&stack_context);
   }
-  _XmProcessUnlock();
   return (FALSE);
 }
 
@@ -403,7 +395,6 @@ XmeGetNextCharacter(XtPointer     *in_out,
     return XmINSERT;
   ptr = (char *)*in_out;
 
-  _XmProcessLock();
   /* Initialize the out parameters */
   *str_include = NULL;
 
@@ -452,7 +443,6 @@ XmeGetNextCharacter(XtPointer     *in_out,
   if ((len <= 0) || (comp_type == XmSTRING_COMPONENT_UNKNOWN))
     {
       *in_out = (XtPointer) ptr;
-      _XmProcessUnlock();
       return XmINSERT;
     }
 
@@ -461,7 +451,6 @@ XmeGetNextCharacter(XtPointer     *in_out,
   ptr += len;
   *in_out = (XtPointer) ptr;
   
-  _XmProcessUnlock();
   return XmINSERT;
 }
 
