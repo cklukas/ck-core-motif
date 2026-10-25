@@ -6096,3 +6096,10 @@ Make XmString clone allocation transactional (2026-10-25)
   entry before returning a failed clone; see
   `docs/xmstring-clone-allocation.md` and its focused source check.
 
+Guard XmString direction-component copies (2026-10-25)
+=======================================================
+
+- Fail closed when copied direction components cannot allocate their temporary
+  values; see `docs/xmstring-direction-copy-allocation.md` and its focused
+  source check.
+

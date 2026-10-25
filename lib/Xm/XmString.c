@@ -9169,6 +9169,11 @@ XmeStringGetComponent(_XmStringContext context,
 	  if (copy_data)
 	    {
 	      XmDirection* tmp = XtNew(XmDirection);
+	      if (!tmp) {
+		if (update_context) _XmStrContError(context) = True;
+		_XmProcessUnlock();
+		return XmSTRING_COMPONENT_END;
+	      }
 	      *tmp = push_dir;
 	      *value = (XtPointer) tmp;
 	      *length = sizeof(XmDirection);
@@ -9315,6 +9320,11 @@ XmeStringGetComponent(_XmStringContext context,
 	      if (copy_data)
 		{
 		  XmStringDirection* tmp = XtNew(XmStringDirection);
+		  if (!tmp) {
+		    if (update_context) _XmStrContError(context) = True;
+		    _XmProcessUnlock();
+		    return XmSTRING_COMPONENT_END;
+		  }
 		  *tmp = dir;
 		  *value = (XtPointer) tmp;
 		  *length = sizeof(XmStringDirection);
