@@ -668,12 +668,12 @@ redisplayPixmap(XmToggleButtonWidget tb,
 
   y = offset + tb->label.margin_height + tb->label.margin_top;
 
-  w = XtWidth(tb) - x - offset - tb->label.margin_right
+  w = (int)XtWidth(tb) - x - offset - tb->label.margin_right
     - tb->label.margin_width;
 
   ASSIGN_MAX(w, 0);
 
-  h = XtHeight(tb) - y - offset - tb->label.margin_bottom
+  h = (int)XtHeight(tb) - y - offset - tb->label.margin_bottom
     - tb->label.margin_height;
 
   ASSIGN_MAX(h, 0);

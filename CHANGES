@@ -5237,3 +5237,11 @@ ToggleButton pixmap centering bounds (2026-10-25)
 - Compute pixmap centering differences with signed heights before clamping,
   preventing wrapped vertical positions in small buttons; see
   `docs/toggle-pixmap-center-geometry.md`.
+ToggleButton redisplay bounds (2026-10-25)
+==========================================
+
+- Use signed arithmetic before subtracting redisplay margins in ToggleButton
+  and ToggleButtonGadget, preventing wrapped clear rectangles for tiny
+  widgets; see `docs/toggle-redisplay-bounds.md`.
+
+List geometry bounds (2026-10-25)

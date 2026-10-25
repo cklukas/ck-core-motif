@@ -1087,12 +1087,12 @@ redisplayPixmap(XmToggleButtonGadget tb, XEvent *event, Region region)
   
   y = offset + LabG_MarginHeight(tb) + LabG_MarginTop(tb);
   
-  w = tb->rectangle.width - x - offset 
+  w = (int)tb->rectangle.width - x - offset
     - LabG_MarginRight(tb) - LabG_MarginWidth(tb);
   
   ASSIGN_MAX(w, 0);
   
-  h = tb->rectangle.height - y - offset - LabG_MarginBottom(tb)
+  h = (int)tb->rectangle.height - y - offset - LabG_MarginBottom(tb)
     - LabG_MarginHeight(tb);
   
   ASSIGN_MAX(h, 0);
