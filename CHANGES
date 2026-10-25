@@ -11532,6 +11532,12 @@ WSM list-payload allocation width (2026-10-25)
 - Check typed WSM list counts before native element allocation; see
   `docs/wsm-list-payload-allocation-width.md`.
 
+WSM configuration-reply allocation width (2026-10-25)
+=======================================================
+
+- Check decoded WSM attribute counts before configuration-array allocation;
+  see `docs/wsm-config-reply-allocation-width.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 

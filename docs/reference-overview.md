@@ -80,6 +80,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [WSM window-data alignment](wsm-windata-alignment.md) — preserve stream offsets on data OOM.
 - [WSM window-data allocation width](wsm-win-data-allocation-width.md) — bound decoded data arrays.
 - [WSM list-payload allocation width](wsm-list-payload-allocation-width.md) — bound typed value lists.
+- [WSM configuration-reply allocation width](wsm-config-reply-allocation-width.md) — bound decoded attribute arrays.
 - [WSM message packing allocation](wsm-pack-oom.md) — reject non-empty buffer OOM safely.
 - [WSM window-entry reply sizing](wsm-win-entry-size.md) — account for both variable arrays.
 - [WSM window-request ownership](wsm-windows-owned.md) — track decoded array ownership correctly.
