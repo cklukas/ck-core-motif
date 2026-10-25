@@ -8507,6 +8507,12 @@ ScrolledWindow scroll-frame allocation (2026-10-27)
 
 - Check private scroll-frame data allocation, clear the initialized flag on
   failure, and return before dereferencing missing trait state.
+SegmentedControl model replacement allocation (2026-10-25)
+============================================================
+
+- Make item-model copying transactional, releasing partial IDs and labels and
+  preserving the existing SegmentedControl when allocation fails.
+
 TabStack conversion allocation (2026-10-25)
 ============================================
 

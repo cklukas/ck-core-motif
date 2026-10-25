@@ -271,10 +271,20 @@ Boolean XmSegmentedControlSetItems(Widget widget,
     control = (XmSegmentedControlWidget)widget;
     if (count) {
         copy = (XmSegmentedControlItemRec *)XtCalloc(count, sizeof(*copy));
+        if (!copy) return False;
         for (i = 0; i < count; ++i) {
             copy[i].id = XtNewString(items[i].id ? items[i].id : "");
             copy[i].label = items[i].label ? XmStringCopy(items[i].label)
                                            : XmStringCreateLocalized("");
+            if (!copy[i].id || !copy[i].label) {
+                Cardinal j;
+                for (j = 0; j <= i; ++j) {
+                    XtFree(copy[j].id);
+                    XmStringFree(copy[j].label);
+                }
+                XtFree((char *)copy);
+                return False;
+            }
             copy[i].pixmap = items[i].pixmap;
             copy[i].enabled = items[i].enabled;
         }

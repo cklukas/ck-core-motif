@@ -7,7 +7,9 @@ treatment.  Existing toggle buttons and radio groups are unchanged.
 
 Applications replace the item model with `XmSegmentedControlSetItems`.  The
 control copies each item ID and label, so callers may release their input
-after the call.  `XmSegmentedControlGetItemId` returns a borrowed ID that is
+after the call.  Replacement is transactional: if the model copy cannot be
+allocated, the existing children and selection remain unchanged.
+`XmSegmentedControlGetItemId` returns a borrowed ID that is
 valid until the next item replacement or widget destruction.  `Pixmap` is
 optional (`XmUNSPECIFIED_PIXMAP` means label-only); icons are rendered with
 the normal Motif label/pixmap rules.
