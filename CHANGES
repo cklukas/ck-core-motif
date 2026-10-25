@@ -24,6 +24,13 @@ Chip geometry bounds (2026-10-26)
 - Bound chip label, pixmap, removal affordance, and vertical padding arithmetic
   to the `Dimension` range; see `docs/chip-geometry-bounds.md`.
 
+Hierarchy child insertion control flow (2026-10-26)
+====================================================
+
+- Close the outer insertion-search block in `AddChildToList`, restoring clean
+  C compilation without changing child ordering; see
+  `docs/hierarchy-child-insertion-braces.md`.
+
 XmString rendering and color-selector compile fixes (2026-10-26)
 =================================================================
 

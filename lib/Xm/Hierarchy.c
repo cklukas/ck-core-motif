@@ -1423,6 +1423,7 @@ AddChildToList(HierarchyConstraints ** list, Cardinal * num, Cardinal * alloc,
 		break;
 	    }
     }
+    }
     
     if (success == NO) {
 	String params[1];
