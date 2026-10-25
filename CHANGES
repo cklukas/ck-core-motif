@@ -12381,3 +12381,10 @@ Tab-list mutation position bounds (2026-10-26)
   `docs/tab-position-bounds.md`.
 
 Tab value API null guards (2026-10-26)
+XmString helper lock boundaries (2026-10-26)
+=============================================
+
+- Remove redundant outer process locks around string concatenation and
+  parse-table cleanup; see `docs/xmstring-lock-boundaries.md`.
+
+Tab-list mutation position bounds (2026-10-26)

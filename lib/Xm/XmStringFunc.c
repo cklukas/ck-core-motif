@@ -261,9 +261,7 @@ XmStringTableToXmString(XmStringTable  table,
   Cardinal	i;
   XmString	str = NULL, tmp1, tmp2;
 
-  _XmProcessLock();
   if ((table == NULL) || (count == 0)) {
-    _XmProcessUnlock();
     return(NULL);
   }
   tmp1 = NULL;
@@ -276,7 +274,6 @@ XmStringTableToXmString(XmStringTable  table,
       tmp1 = str;
     }
   
-  _XmProcessUnlock();
   return(str);
 }
 
@@ -351,16 +348,16 @@ XmParseMappingGetValues(XmParseMapping mapping,
 void 
 XmParseMappingFree(XmParseMapping mapping)
 {
-  _XmProcessLock();
   if (mapping != NULL)
     {
       /* Free copied data. */
-      XmStringFree(mapping->substitute);
+      XmString substitute = mapping->substitute;
+      mapping->substitute = NULL;
 
       /* Free the record. */
       XtFree((char*) mapping);
+      XmStringFree(substitute);
     }
-  _XmProcessUnlock();
 }
 
 void 
@@ -370,9 +367,7 @@ XmParseTableFree(XmParseTable parse_table,
   /* Free each entry in the table. */
   Cardinal i;
 
-  _XmProcessLock();
   if (parse_table == NULL) {
-    _XmProcessUnlock();
     return;
   }
   for (i = 0; i < parse_count; i++)
@@ -380,7 +375,6 @@ XmParseTableFree(XmParseTable parse_table,
 
   /* Free the table itself. */
   XtFree((char*) parse_table);
-  _XmProcessUnlock();
 }
 
 /*
