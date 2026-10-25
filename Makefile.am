@@ -744,3 +744,5 @@ EXTRA_DIST += tests/automated/check-render-table-rendition-array.py docs/render-
 EXTRA_DIST += tests/automated/check-list-result-allocation.py docs/list-result-allocation.md
 
 EXTRA_DIST += tests/automated/check-list-selection-rebuild-allocation.py docs/list-selection-rebuild-allocation.md
+
+EXTRA_DIST += tests/automated/check-list-selection-callback-allocation.py docs/list-selection-callback-allocation.md
