@@ -1297,6 +1297,8 @@ Urm__CW_CreateArglist (Widget			parent,
 	  break ;
         case MrmRtypeResource:
 	  resptr = (RGMResourceDescPtr) val ;
+	  if ( resptr == NULL )
+	    continue ;
 	  if (resptr->cvt_type & MrmResourceUnswapped)
 	    {
 	      resptr->cvt_type &= ~MrmResourceUnswapped;
