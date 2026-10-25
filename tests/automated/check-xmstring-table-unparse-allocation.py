@@ -4,7 +4,7 @@ from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmStringFunc.c").read_text()
 start_func = source.index("XmStringTableUnparse(")
-allocation = source.index("strs = (XtPointer *)XtMalloc((size_t)count * sizeof(XtPointer));", start_func)
+allocation = source.index("strs = (XtPointer *)XtMalloc(\n      (Cardinal)((size_t)count * sizeof(XtPointer)));", start_func)
 guard = source.index("if (strs == NULL)", allocation)
 write = source.index("strs[i] = XmStringUnparse", guard)
 assert allocation < guard < write

@@ -6309,3 +6309,9 @@ Bound traversal row allocation widths (2026-10-25)
   and reject unrepresentable traversal-row growth before allocation; see
   `docs/traversal-row-allocation.md` and `docs/traversal-node-allocation.md`.
 
+Make XmString table conversion widths explicit (2026-10-25)
+============================================================
+
+- Pass validated parse and unparse table byte sizes explicitly as Xt
+  `Cardinal` values; see the related XmString table conversion docs.
+
