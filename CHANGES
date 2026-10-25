@@ -1,3 +1,9 @@
+Mrm resource-tag lookup failure handling (2026-10-25)
+=======================================================
+
+- Stop failed compressed-tag conversion before resource-name string use; see
+  `docs/mrm-resource-tag-lookup-failure.md`.
+
 Mrm resource-descriptor bounds (2026-10-25)
 =============================================
 
