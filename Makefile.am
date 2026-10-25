@@ -201,6 +201,7 @@ EXTRA_DIST += tests/automated/check-scrollframe-nav-growth.py docs/motif-scrollf
 EXTRA_DIST += tests/automated/check-scrollframe-add-input.py docs/motif-scrollframe-add-input.md
 EXTRA_DIST += tests/automated/check-scrollframe-remove-input.py docs/motif-scrollframe-remove-input.md
 EXTRA_DIST += tests/automated/check-scrollframe-update-guards.py docs/motif-scrollframe-update-guards.md
+EXTRA_DIST += tests/automated/check-resconvert-token-allocation.py docs/motif-resconvert-token.md
 EXTRA_DIST += tests/automated/check-mwm-session-db-path.py docs/mwm-session-db-path.md
 EXTRA_DIST += tests/automated/check-mwm-display-env-bounds.py docs/mwm-display-env-bounds.md
 EXTRA_DIST += tests/automated/check-mwm-screen-display-bounds.py docs/mwm-screen-display-bounds.md

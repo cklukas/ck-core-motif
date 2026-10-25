@@ -2650,6 +2650,8 @@ GetNextToken(
 		if (terminated)
 		{
 			buf = (char *) XtMalloc(1);
+			if (buf == NULL)
+				return(NULL);
 			*buf = '\0';
 			return(buf);
 		}
@@ -2665,6 +2667,8 @@ GetNextToken(
 	len = (e - s) + 1;
 
 	p = buf = XtMalloc(len + 1);
+	if (buf == NULL)
+		return(NULL);
 	while (s != e)
 	{
 		if ((*s == '\\') && 

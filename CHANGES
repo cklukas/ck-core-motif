@@ -3710,3 +3710,9 @@ Guard ScrollFrame navigator inputs and traits (2026-10-25)
   before callback or value-update dispatch, skipping partially initialized
   entries safely; see the corresponding `docs/motif-scrollframe-*.md`
   contracts.
+Guard resource-converter token buffers (2026-10-25)
+====================================================
+
+- Check terminated-token and normal token-buffer allocations before writing,
+  returning `NULL` through the existing converter path on failure; see
+  `docs/motif-resconvert-token.md`.
