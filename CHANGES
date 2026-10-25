@@ -11104,3 +11104,9 @@ WSM nested window-array ownership (2026-10-25)
 - Initialize and free nested match-attribute arrays in WSM window messages,
   and release window-entry reply arrays during cleanup; see
   `docs/wsm-windows-nested-ownership.md`.
+
+WSM cleanup idempotence (2026-10-25)
+====================================
+
+- Clear request and reply ownership flags after cleanup so repeated release
+  calls are safe; see `docs/wsm-free-idempotent.md`.

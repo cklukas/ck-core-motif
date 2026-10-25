@@ -916,6 +916,8 @@ EXTRA_DIST += tests/automated/check-wsm-windows-owned.py docs/wsm-windows-owned.
 
 EXTRA_DIST += tests/automated/check-wsm-windows-nested-ownership.py docs/wsm-windows-nested-ownership.md
 
+EXTRA_DIST += tests/automated/check-wsm-free-idempotent.py docs/wsm-free-idempotent.md
+
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 
 EXTRA_DIST += tests/automated/check-latin-lower-bounds.py docs/latin-lower-bounds.md

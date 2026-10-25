@@ -87,6 +87,7 @@ FreeRequest(WSMRequest *request)
     default:
 	break;
     }
+    request->any.allocated = False;
 }
 
 /*	Function Name: FreeRequest
@@ -142,6 +143,7 @@ FreeReply(WSMReply *reply)
     default:
 	break;
     }
+    reply->any.allocated = False;
 }
 
 /************************************************************
