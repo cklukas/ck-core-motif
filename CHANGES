@@ -6474,3 +6474,10 @@ Container cell-grid Xt allocation width (2026-10-25)
   pass the checked size explicitly to `XtRealloc`; see
   `docs/container-cell-growth.md`.
 
+Container selection snapshot allocation width (2026-10-25)
+============================================================
+
+- Bound multi-item selection snapshots against Xt's `Cardinal` byte limit and
+  pass the checked size explicitly to `XtMalloc`; see
+  `docs/container-selection-guards.md`.
+
