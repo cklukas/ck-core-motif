@@ -30,6 +30,7 @@
 #endif
 
 
+#include <stdint.h>
 #include <Xm/AccColorT.h>
 #include <Xm/CareVisualT.h>
 #include <Xm/ContItemT.h>
@@ -3282,14 +3283,21 @@ GetStringTableReOrdered(
     count = MIN(order_count, st_count);
 
     if (count > Max_st_count) {
-	Max_st_count = MAX(count, 33);
-	Default_st = (XmStringTable) XtRealloc((char*) Default_st,
-					Max_st_count * sizeof(XmString));
+	Cardinal new_max = MAX(count, 33);
+	XmStringTable new_table;
+	if ((size_t)new_max > SIZE_MAX / sizeof(XmString))
+	    return NULL;
+	new_table = (XmStringTable)XtRealloc(
+	    (char *)Default_st, (size_t)new_max * sizeof(XmString));
+	if (new_table == NULL)
+	    return NULL;
+	Default_st = new_table;
+	Max_st_count = new_max;
     }
 
     for (i = 0; i < count; i++) {
 	if (order) {
-	    if (order[i] <= st_count) 
+	    if (order[i] > 0 && order[i] <= st_count)
 		Default_st[i] = st[order[i] - 1];
 	    else 
 		Default_st[i] = NULL ;

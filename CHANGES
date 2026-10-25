@@ -7983,3 +7983,11 @@ MapEvents parallel-array growth (2026-10-27)
 
 MainW child-list growth failures (2026-10-27)
 ==============================================
+IconG reordered-table bounds (2026-10-27)
+=========================================
+
+- Reject zero-based-invalid order entries before indexing the source table,
+  and make the reusable reordered-table allocation transactional.
+
+MapEvents parallel-array growth (2026-10-27)
+=============================================
