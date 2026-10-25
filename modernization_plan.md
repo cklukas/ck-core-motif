@@ -547,6 +547,14 @@ application clipboard/DnD workflows and sanitizer exit ownership as explicit
 open gates. The matrix does not treat unavailable services or interposed
 callbacks as provider passes.
 
+The native feature runner now accepts repeated `--runtime-library-dir`
+arguments and records them in the receipt. This keeps the Xt dependency
+boundary explicit: the interrupted clipboard-transfer and real IBus/m17n
+service fixtures pass against the pinned corrected Xt cohort on `uconsole`,
+while the same cancellation fixture exposes the known system-Xt owner-exit
+failure. The external failure is retained as a dependency limitation rather
+than hidden or counted as a toolkit pass.
+
 ### WP-07: Screen-reader usability and semantic completion
 
 **Depends on:** WP-06 for text-specific claims; basic provider work may start

@@ -130,6 +130,8 @@ def main():
     parser.add_argument("--prefix", required=True, type=Path, help="absolute installed toolkit prefix")
     parser.add_argument("--out", required=True, type=Path, help="fresh absolute result/scratch directory")
     parser.add_argument("--libdir", type=Path, help="absolute library directory inside prefix (default: prefix/lib)")
+    parser.add_argument("--runtime-library-dir", action="append", type=Path,
+                        help="additional absolute dependency library directory; may be repeated")
     parser.add_argument("--cc", default="cc", help="native C compiler executable")
     parser.add_argument("--sanitize", action="store_true",
                         help="instrument fixtures for an ASan/UBSan toolkit prefix; strict leak/error checks")
@@ -148,6 +150,14 @@ def main():
     library_dir = (args.libdir or prefix / "lib").resolve(strict=True)
     if not library_dir.is_relative_to(prefix) or (args.libdir and not args.libdir.is_absolute()):
         parser.error("--libdir must be an absolute directory inside the selected prefix")
+    runtime_library_dirs = []
+    for path in args.runtime_library_dir or []:
+        if not path.is_absolute():
+            parser.error("--runtime-library-dir must be absolute")
+        path = path.resolve(strict=True)
+        if ":" in str(path):
+            parser.error("runtime library directories must have no colon")
+        runtime_library_dirs.append(path)
     if ":" in str(library_dir) or args.timeout < 1:
         parser.error("library directory must have no colon; timeout must be positive")
     if output.exists() or output.is_relative_to(prefix) or prefix.is_relative_to(output):
@@ -157,8 +167,10 @@ def main():
                 (name in args.only if args.only else name != "xim-service")]
     output.mkdir(parents=True)
     (output / "tmp").mkdir()
+    runtime_search_path = os.pathsep.join(
+        [str(library_dir), *(str(path) for path in runtime_library_dirs)])
     env = dict(os.environ, TMPDIR=str(output / "tmp"), LC_ALL="C.UTF-8",
-               LD_LIBRARY_PATH=str(library_dir), PYTHONDONTWRITEBYTECODE="1")
+               LD_LIBRARY_PATH=runtime_search_path, PYTHONDONTWRITEBYTECODE="1")
     instrumentation_flags = []
     if args.sanitize:
         instrumentation_flags = ["-fsanitize=address,undefined", "-fno-omit-frame-pointer"]
@@ -168,7 +180,9 @@ def main():
     for name in ("LD_PRELOAD", "LD_AUDIT", "DISPLAY"):
         env.pop(name, None)
     receipt = dict(started_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
-                   prefix=str(prefix), library_dir=str(library_dir), output=str(output),
+                   prefix=str(prefix), library_dir=str(library_dir),
+                   runtime_library_dirs=[str(path) for path in runtime_library_dirs],
+                   output=str(output),
                    fixture_source=str(source), requested_fixtures=selected,
                    fixture_instrumentation=instrumentation_flags,
                    runtime_options={name: env[name] for name in ("ASAN_OPTIONS", "UBSAN_OPTIONS") if name in env},
@@ -265,6 +279,7 @@ def main():
             binary = output / name
             dependencies = output / (name + ".d")
             extra_flags = []
+            runtime_link_flags = ["-L" + str(path) for path in runtime_library_dirs]
             if name == "color-display-lifetime":
                 extra_flags = ["-ldl"]
             if name == "primary-modality":
@@ -274,7 +289,8 @@ def main():
             run("compile-" + name, [args.cc, "-std=c11", "-O2", "-Wall", "-Wextra",
                 "-Wpedantic", "-Werror", "-D_POSIX_C_SOURCE=200809L", "-I" + str(prefix / "include"), "-MD", "-MF", dependencies,
                 *instrumentation_flags, fixture, "-L" + str(library_dir), "-Wl,-rpath," + str(library_dir),
-                "-lXm", "-lXt", "-lX11", *flags, *extra_flags, "-lm", "-o", binary])
+                *runtime_link_flags, "-lXm", "-lXt", "-lX11", *flags, *extra_flags,
+                "-lm", "-o", binary])
             if not before <= binary.stat().st_mtime_ns <= time.time_ns():
                 raise RuntimeError("compiled fixture timestamp does not prove freshness")
             header_inputs = verify_headers(dependencies, prefix)

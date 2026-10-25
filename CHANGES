@@ -29,6 +29,16 @@ XLibre live RandR observer (2026-10-25)
   ordinary X11/Xorg builds remain unchanged. A real multi-output XLibre
   session is still required for the final live qualification gate.
 
+Native dependency-cohort qualification (2026-10-25)
+====================================================
+
+- Allow the native feature runner to receive explicit additional runtime/link
+  library directories for a pinned Xt/X11 dependency cohort. The selected
+  Motif prefix remains authoritative for `libXm`; every extra directory is
+  recorded in the receipt so system-library failures are distinguished from
+  toolkit results. The native text/IME matrix documents the interrupted
+  clipboard-transfer boundary.
+
 Source-contract verifier maintenance (2026-10-25)
 ==================================================
 

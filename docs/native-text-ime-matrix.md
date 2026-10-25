@@ -33,3 +33,14 @@ desktop input-method interoperability, physical keyboard layouts, candidate
 panels, screen-reader usability, or a clean sanitizer exit. Detailed provider
 behavior and the recorded ARM64 versions are in `docs/unicode.md`; aggregate
 admission limits are in `docs/status.md`.
+
+The native runner accepts repeated `--runtime-library-dir` arguments for a
+known dependency cohort. The selected Motif library directory remains first in
+the runtime and link search path, while the additional directories supply
+matching Xt/X11 dependencies. The receipt records every directory so a result
+cannot be mistaken for a system-library run. For example, the interrupted
+clipboard transfer fixture must be run with the pinned corrected Xt directory;
+the system Xt on `uconsole` exits the owner during cancelled-transfer cleanup,
+while the pinned dependency cohort keeps the owner alive and completes the
+fresh transfer. This is a dependency qualification boundary, not a suppressed
+toolkit failure.
