@@ -1115,8 +1115,9 @@ _XmNewTravGraph(XmTravGraph trav_list,
 
   GetNodeList(top_wid, &w_rect, trav_list, -1, -1);
 
-  if ((trav_list->num_entries + XmTRAV_LIST_ALLOC_INCREMENT) <
-      trav_list->num_alloc)
+  if (trav_list->num_alloc > XmTRAV_LIST_ALLOC_INCREMENT &&
+      trav_list->num_entries <
+      trav_list->num_alloc - XmTRAV_LIST_ALLOC_INCREMENT)
     {
       /* Except for the very first allocation of the traversal graph for
        * this shell hierarchy, the size of the initial allocation is based
@@ -1125,9 +1126,14 @@ _XmNewTravGraph(XmTravGraph trav_list,
        * a "grow-only" behavior in the size of the allocation, we must
        * routinely attempt to prune excessive memory allocation.
        */
-      trav_list->num_alloc -= XmTRAV_LIST_ALLOC_INCREMENT;
-      trav_list->head = (XmTraversalNode) XtRealloc((char *) trav_list->head,
-		          trav_list->num_alloc * sizeof(XmTraversalNodeRec));
+      size_t new_alloc = trav_list->num_alloc - XmTRAV_LIST_ALLOC_INCREMENT;
+      XmTraversalNode new_head = (XmTraversalNode)XtRealloc(
+	  (char *)trav_list->head,
+	  new_alloc * sizeof(XmTraversalNodeRec));
+      if (new_head != NULL) {
+	trav_list->head = new_head;
+	trav_list->num_alloc = new_alloc;
+      }
     }
 
   LinkNodeList(trav_list);
