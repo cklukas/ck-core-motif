@@ -3560,6 +3560,13 @@ XmClipboardEndCopy(
     /* get the clipboard header */
     header = ClipboardOpen( display, sizeof( itemId ) );
 
+    if (header == NULL)
+    {
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
+
     if (!header->startCopyCalled) {
 	XmeWarning(NULL, XM_CLIPBOARD_MESSAGE2);
         ClipboardUnlock( display, window, 0 );

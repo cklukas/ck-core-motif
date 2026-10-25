@@ -1,3 +1,10 @@
+Clipboard end-copy header guard (2026-10-26)
+=============================================
+
+- Check the header returned by `ClipboardOpen` before finalizing a copy and
+  release locks cleanly when retrieval fails; see
+  `docs/clipboard-end-copy-header-guard.md`.
+
 Clipboard cancel-copy validation (2026-10-26)
 ================================================
 
