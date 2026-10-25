@@ -2053,8 +2053,6 @@ TransferWarning(Widget w, char* name, char* type, char* message)
  * integer
  */
 
-#define MAXBUILTIN 12
-
 Atom*
 XmeStandardTargets(Widget w, int count, int *tcount)
 {
@@ -2070,16 +2068,24 @@ XmeStandardTargets(Widget w, int count, int *tcount)
   Atom atoms[XtNumber(atom_names)];
   Atom *targets;
   const size_t builtin_count = XtNumber(atom_names) + 1; /* XA_COLORMAP */
+  size_t target_count;
 
   if (!w || !tcount || count < 0 ||
       (size_t)count > (size_t)UINT_MAX / sizeof(Atom) - builtin_count) {
     if (tcount) *tcount = 0;
     return NULL;
   }
+  target_count = (size_t)count + builtin_count;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
-  targets = (Atom *) XtMalloc(sizeof(Atom) * MAXBUILTIN);
+  targets = (Atom *)XtMalloc(sizeof(*targets) * target_count);
+  if (targets == NULL)
+    {
+      *tcount = 0;
+      _XmAppUnlock(app);
+      return NULL;
+    }
 
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);
@@ -2094,9 +2100,6 @@ XmeStandardTargets(Widget w, int count, int *tcount)
   targets[i] = atoms[XmACLIENT_WINDOW]; i++;
   targets[i] = atoms[XmA_MOTIF_RENDER_TABLE]; i++;
   targets[i] = atoms[XmA_MOTIF_ENCODING_REGISTRY]; i++;
-
-  /* Realloc the full size now */
-  targets = (Atom *) XtRealloc((char*) targets, sizeof(Atom) * (count + i));
 
   *tcount = i; /* Return the builtin target count */
   _XmAppUnlock(app);

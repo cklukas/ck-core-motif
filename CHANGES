@@ -6012,3 +6012,10 @@ Validate ScrollFrame navigator addition inputs (2026-10-25)
   navigator setup; see `docs/motif-scrollframe-add-input.md`.
 
 Guard ScrollFrame navigator updates (2026-10-25)
+Guard standard transfer target allocation (2026-10-25)
+========================================================
+
+- Allocate the full standard-target capacity once and handle failure before
+  filling atoms; see `docs/standard-targets-allocation.md`.
+
+Make transfer completion-callback growth transactional (2026-10-25)
