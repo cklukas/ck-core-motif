@@ -8162,3 +8162,12 @@ FontSelector family-encoding growth (2026-10-27)
 
 UIL comment-buffer growth (2026-10-27)
 ======================================
+Container child-list allocation failure (2026-10-27)
+====================================================
+
+- Check the child-list allocation in `XmContainerGetItemChildren` before
+  filling it.  Allocation pressure now returns an empty result without
+  dereferencing a null list or leaving the application lock held.
+
+FontSelector family-encoding growth (2026-10-27)
+=================================================

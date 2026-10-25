@@ -9870,6 +9870,10 @@ XmContainerGetItemChildren(
 		return (0);
 	}
 	clist = (WidgetList)XtMalloc(clist_count * sizeof(Widget));
+	if (clist == NULL) {
+		_XmAppUnlock(app);
+		return (0);
+	}
 	node = first_child_node;
 	for (i = 0; i < clist_count; i++)
 		{
