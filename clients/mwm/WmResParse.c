@@ -1585,7 +1585,8 @@ void ParseSessionCommand (WmScreenData *pSD,  int count,
                 return;
             }
             iSizeArgv += ARG_AMT;
-            if ((size_t)iSizeArgv > SIZE_MAX / sizeof(char *))
+            if ((size_t)iSizeArgv > SIZE_MAX / sizeof(char *) ||
+                (size_t)iSizeArgv > UINT_MAX / sizeof(char *))
             {
                 Warning (((char *)GETMESSAGE(60, 3,
                     "Insufficient memory for commandArgv array")));
@@ -1596,7 +1597,8 @@ void ParseSessionCommand (WmScreenData *pSD,  int count,
                 return;
             }
             newArgv = (unsigned char **)XtRealloc(
-                (char *)argv, iSizeArgv * sizeof(char *));
+                (char *)argv,
+                (Cardinal)(iSizeArgv * sizeof(char *)));
             if (newArgv == NULL)
             {
                 Warning (((char *)GETMESSAGE(60, 3,
@@ -1620,8 +1622,9 @@ void ParseSessionCommand (WmScreenData *pSD,  int count,
         return;
     }
     if ((size_t)argc > SIZE_MAX / sizeof(char *) ||
+        (size_t)argc > UINT_MAX / sizeof(char *) ||
         (pSD->pDtSessionItems[count].commandArgv =
-         (char **)XtMalloc ((size_t)argc * sizeof(char *))) == NULL)
+         (char **)XtMalloc((Cardinal)((size_t)argc * sizeof(char *)))) == NULL)
     {
         /*
          * Allocate space for saved argv

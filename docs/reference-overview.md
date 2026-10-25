@@ -63,6 +63,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM command window-array width](mwm-command-window-array-width.md) — guard WSM command counts.
 - [MWM colormap-reference array width](mwm-colormap-reference-width.md) — guard dynamic reference lists.
 - [MWM transient-list growth](transient-list-growth.md) — propagate temporary-list allocation failure.
+- [MWM session command-vector width](mwm-session-command-vector-width.md) — guard restore vectors.
 - [MWM query-XID buffer growth](mwm-query-xid-growth.md) — guard protocol conversion growth.
 - [MWM session workspace-string growth](mwm-session-workspace-growth.md) — guard joined session names.
 - [MWM home-directory path bounds](mwm-home-path.md) — bounded legacy home-path resolution.

@@ -57,6 +57,7 @@ clients exchanging Motif window-management messages.
 - [Menu argument allocation](mwm-menu-args-allocation.md)
 - [Home-directory path bounds](mwm-home-path.md)
 - [Action-argument reallocation](mwm-action-arg-reallocation.md)
+- [Session command-vector width](mwm-session-command-vector-width.md)
 - [Session-command parsing rollback](mwm-session-command-rollback.md)
 - [Motif-bindings path sizing](mwm-bindings-path-size.md)
 - [Session workspace and host string sizing](mwm-session-string-size.md)

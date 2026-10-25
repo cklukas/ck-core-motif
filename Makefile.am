@@ -984,6 +984,7 @@ EXTRA_DIST += tests/automated/check-mwm-property-array-allocation.py docs/mwm-pr
 EXTRA_DIST += tests/automated/check-mwm-command-window-array-width.py docs/mwm-command-window-array-width.md
 EXTRA_DIST += tests/automated/check-colormap-reference-oom.py docs/mwm-colormap-reference-width.md
 EXTRA_DIST += tests/automated/check-transient-list-growth.py docs/transient-list-growth.md
+EXTRA_DIST += tests/automated/check-mwm-session-command-vector-width.py docs/mwm-session-command-vector-width.md
 EXTRA_DIST += tests/automated/check-mwm-query-xid-growth.py docs/mwm-query-xid-growth.md
 EXTRA_DIST += tests/automated/check-mwm-session-workspace-growth.py docs/mwm-session-workspace-growth.md
 

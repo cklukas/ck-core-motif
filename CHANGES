@@ -11472,6 +11472,12 @@ MWM transient-list growth failure handling (2026-10-25)
 - Propagate transient-window list growth failures and release partial lists;
   see `docs/transient-list-growth.md`.
 
+MWM session command-vector allocation widths (2026-10-25)
+===========================================================
+
+- Check restore command-vector counts before Xt allocation and reallocation;
+  see `docs/mwm-session-command-vector-width.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 
