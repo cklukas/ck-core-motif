@@ -32,6 +32,7 @@ int main(int argc, char **argv)
     };
     char *label_text = NULL;
     int *positions = NULL, position_count = 0;
+    int *matches = NULL, match_count = 0;
     XmStringContext context;
     char *segment_text = NULL;
     XmStringCharSet segment_charset = NULL;
@@ -109,6 +110,11 @@ int main(int argc, char **argv)
     CHECK(XmListGetSelectedPos(list, &positions, &position_count));
     CHECK(position_count == 1 && positions[0] == 3);
     XtFree((char *)positions);
+    CHECK(XmListItemExists(list, expected_label));
+    CHECK(XmListItemPos(list, expected_label) == 2);
+    CHECK(XmListGetMatchPos(list, expected_label, &matches, &match_count));
+    CHECK(match_count == 1 && matches[0] == 2);
+    XtFree((char *)matches);
 
     XmComboBoxSelectItem(combo, expected_combo);
     XtVaGetValues(combo, XmNselectedItem, &selected, NULL);

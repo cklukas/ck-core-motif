@@ -10,8 +10,10 @@ the same deterministic Xvfb validation used by the other widget fixtures. It
 is still a public-API consumer check, not a physical-keyboard or full
 application journey.
 
-The current qualified run passes 16 checks. Compound-string iteration verifies
+The current qualified run passes 20 checks. Compound-string iteration verifies
 both segments and releases the segment buffers returned by the public iterator.
+List item existence, positional lookup and match-position search also use the
+non-BMP item, so this does not rely only on display round-trips.
 
 Run it with:
 

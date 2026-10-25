@@ -23,6 +23,7 @@ Non-text Unicode resource coverage (2026-10-25)
 
 - Extend the installed public-API Unicode regression through Menu and
   FileSelection resources and add a two-segment compound `XmString` check,
+  plus List existence, position and match search for the non-BMP item,
   preserving the bounded physical-keyboard and application-journey limits;
   see `docs/nontext-unicode.md` and
   `docs/native-text-ime-matrix.md`.
