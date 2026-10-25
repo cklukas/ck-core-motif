@@ -261,31 +261,52 @@ static void
 InitializeImageSet( void )
 {
   register int i;
+  XmHashTable new_image_set;
+  ImageData *entries[MAX_BUILTIN_IMAGES] = { NULL };
 
-  /* Allocate the hash table. */
-  assert (image_set == NULL);
-
+  /* Build the table privately, then publish it only when complete. */
   _XmProcessLock();
-  image_set = 
-    _XmAllocHashTable (MAX_BUILTIN_IMAGES + 100, CompareStrings, HashString);
+  if (image_set != NULL)
+    {
+      _XmProcessUnlock();
+      return;
+    }
 
-  /* Load the built-in image data.
-     Builtins have a non NULL builtin data.
-     Their image field is setdynamically at GetImage time */
+  new_image_set =
+    _XmAllocHashTable (MAX_BUILTIN_IMAGES + 100, CompareStrings, HashString);
+  if (new_image_set == NULL)
+    {
+      _XmProcessUnlock();
+      return;
+    }
+
   for (i = 0; i < MAX_BUILTIN_IMAGES ; i++)
     {
-      ImageData *entry = XtNew(ImageData);
+      entries[i] = XtNew(ImageData);
+      if (entries[i] == NULL)
+        goto allocation_failure;
 
-      entry->hot_x = 0;
-      entry->hot_y = 0;
-      entry->image = NULL;
-      entry->image_name = (char*) bitmap_name_set[i];
-      entry->builtin_data = (unsigned char *) bitmaps[i];
+      entries[i]->hot_x = 0;
+      entries[i]->hot_y = 0;
+      entries[i]->image = NULL;
+      entries[i]->image_name = (char*) bitmap_name_set[i];
+      entries[i]->builtin_data = (unsigned char *) bitmaps[i];
 
-      _XmAddHashEntry(image_set, entry->image_name, entry);
+      _XmAddHashEntry(new_image_set, entries[i]->image_name, entries[i]);
     }
+
+  image_set = new_image_set;
   _XmProcessUnlock();
+  return;
+
+allocation_failure:
+  _XmProcessUnlock();
+  for (i = 0; i < MAX_BUILTIN_IMAGES ; i++)
+    if (entries[i] != NULL)
+      XtFree((char *)entries[i]);
+  _XmFreeHashTable(new_image_set);
 }
+
 
 /************************************************************************
  *

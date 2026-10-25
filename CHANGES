@@ -1,3 +1,11 @@
+Xm image-table initialization (2026-10-25)
+==============================================
+
+- Build and publish the built-in image table transactionally, freeing partial
+  entries when allocation fails; make hash-table allocation atomic so callers
+  never receive an unusable opaque table; see
+  `docs/xm-image-table-initialization.md`.
+
 Xm pixmap-table initialization (2026-10-25)
 ===============================================
 
