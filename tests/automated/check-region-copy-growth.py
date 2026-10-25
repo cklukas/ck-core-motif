@@ -13,4 +13,5 @@ assert "SIZE_MAX / sizeof(XmRegionBox)" in region
 assert "new_rects = (XmRegionBox *)XtRealloc" in region
 assert "if (new_rects == NULL)" in region
 assert region.index("new_rects =") < region.index("dstrgn->rects = new_rects")
+assert "(size_t) rgn->numRects * sizeof(XmRegionBox)" in region
 print("PASS region-copy transactional growth")
