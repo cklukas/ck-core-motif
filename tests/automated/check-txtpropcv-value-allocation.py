@@ -3,6 +3,7 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "TxtPropCv.c").read_text()
+assert "(Cardinal)(sizeof(char *) * (size_t)count)" in source
 start = source.index("txt_value = XtMalloc")
 body = source[start:source.index("strcpy(txt_value", start)]
 assert "if (txt_value == NULL)" in body

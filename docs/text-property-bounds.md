@@ -22,7 +22,8 @@ each conversion result before copying it. The branch contract is covered by
 `tests/automated/check-compound-string-bounds.py`.
 
 Locale, text, and string conversion applies the same pointer-array and signed
-aggregate checks, including cleanup of all temporary converted strings when the
+aggregate checks, passes explicit Xt `Cardinal` byte sizes for its pointer and
+final buffers, and includes cleanup of all temporary converted strings when the
 total cannot be represented. The branch contract is covered by
 `tests/automated/check-locale-text-property-size.py`.
 

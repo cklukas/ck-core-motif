@@ -12093,3 +12093,11 @@ Bound compound-text table allocation widths (2026-10-26)
   `docs/motif-txtpropcv-compound-table.md`.
 
 Bound compound text-property allocation width (2026-10-26)
+Bound locale text-property allocation widths (2026-10-26)
+==========================================================
+
+- Pass explicit Xt-sized pointer and final-buffer allocations through the
+  locale/text/string conversion branch, rejecting totals outside Xt's
+  `Cardinal` range; see `docs/text-property-bounds.md`.
+
+Bound compound-text table allocation widths (2026-10-26)

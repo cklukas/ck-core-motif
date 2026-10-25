@@ -647,7 +647,8 @@ XmCvtXmStringTableToTextProperty(Display *display,
 	_XmAppUnlock(app);
 	return BadAlloc;
       }
-      useable_text = (char **)XtMalloc(sizeof(char *) * count);
+      useable_text = (char **)XtMalloc(
+	  (Cardinal)(sizeof(char *) * (size_t)count));
       if (count > 0 && useable_text == NULL) {
 	_XmAppUnlock(app);
 	return BadAlloc;
@@ -705,8 +706,15 @@ XmCvtXmStringTableToTextProperty(Display *display,
 	}
 	total_size += (int)item_size;
       }
-      final_string =
-	(unsigned char *)XtMalloc(sizeof(char) * (total_size + 1));
+	  if ((size_t)total_size + 1 > UINT_MAX) {
+	    for (i = 0; i < count; ++i) XtFree(useable_text[i]);
+	    XtFree((char *)useable_text);
+	    _XmAppUnlock(app);
+	    return BadAlloc;
+	  }
+	  final_string =
+	(unsigned char *)XtMalloc(
+	    (Cardinal)(sizeof(char) * ((size_t)total_size + 1)));
       if (final_string == NULL) {
 	for (i = 0; i < count; ++i) XtFree(useable_text[i]);
 	XtFree((char *)useable_text);
