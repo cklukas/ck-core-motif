@@ -4799,3 +4799,9 @@ Guard TabList masked NULL arguments (2026-10-25)
 
 - Reject NULL attribute pointers before masked insert/modify operations can
   dereference them; see `docs/tablist-argument-guards.md`.
+
+Handle NULL TabList comparisons (2026-10-25)
+=============================================
+
+- Treat two absent lists as equal and avoid dereferencing either pointer; see
+  `docs/tablist-compare-null.md`.

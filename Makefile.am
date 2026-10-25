@@ -786,3 +786,5 @@ EXTRA_DIST += tests/automated/check-tablist-growth.py docs/tablist-growth.md
 EXTRA_DIST += tests/automated/check-tablist-constructors.py docs/tablist-constructors.md
 
 EXTRA_DIST += tests/automated/check-tablist-argument-guards.py docs/tablist-argument-guards.md
+
+EXTRA_DIST += tests/automated/check-tablist-compare-null.py docs/tablist-compare-null.md
