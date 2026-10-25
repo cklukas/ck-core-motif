@@ -5289,3 +5289,11 @@ Guard DialogShell resource merging (2026-10-25)
   `docs/dialog-resource-guards.md`.
 
 Guard MainWindow auto-scroll rectangles (2026-10-25)
+Guard compound-string segment copies (2026-10-25)
+===================================================
+
+- Check copied tag and text allocations and release partial output on failure,
+  avoiding null writes and leaks in compound-string segment retrieval; see
+  `docs/string-segment-copy-guards.md`.
+
+Guard DialogShell resource merging (2026-10-25)
