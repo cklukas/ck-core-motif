@@ -1,3 +1,10 @@
+XmString rendition merge allocation failures (2026-10-27)
+===========================================================
+
+- Make rendition begin/end array growth transactional and check the combined
+  tag count before allocation.  Failed merges now retain the existing arrays
+  instead of copying through a null result.
+
 XmString tag-cache bounds and growth (2026-10-27)
 ==================================================
 
