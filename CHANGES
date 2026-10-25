@@ -73,6 +73,12 @@ FontSelector list Xt byte bounds (2026-10-28)
 - Check Xt `Cardinal` byte limits while growing FontSelector XLFD and
   alternate-font lists; see `docs/font-selector-list-growth.md`.
 
+FontSelector family-list Xt byte bounds (2026-10-28)
+=====================================================
+
+- Check Xt `Cardinal` byte limits before building the FontSelector family
+  list; see `docs/motif-fonts-family-allocation.md`.
+
 Compound-text concatenation failure handling (2026-10-28)
 ============================================================
 
