@@ -1601,8 +1601,8 @@ XmStringConcatAndFree(XmString a,
 	  (a_type == b_type || a_type == XmNO_TEXT || b_type == XmNO_TEXT) &&
 	  (a_len < (1U << BYTE_COUNT_BITS) &&
 	   b_len < (1U << BYTE_COUNT_BITS) - a_len) &&
-	  ((_XmStrText(a) && b_tabs==0) || 
-	   (!_XmStrText(a) && a_tabs+b_tabs <= 3)))
+	  (((a_type != XmNO_TEXT) && b_tabs == 0) ||
+	   ((a_type == XmNO_TEXT) && a_tabs + b_tabs <= 3)))
 	{
 	  /* Compatible strings.  Make an optimized string. */
 	  if ((b_len == 0) && (_XmStrRefCountGet(a) == 1))

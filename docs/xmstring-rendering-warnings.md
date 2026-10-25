@@ -12,3 +12,8 @@ rendition-tag cleanup only reallocates an initialized size. When all tags are
 removed, the old tag array is released explicitly. These changes preserve the
 existing XmString and rendition APIs while making ownership and bounds
 contracts explicit.
+
+The optimized concatenation path now tests the text type rather than the
+address of its inline text array, which is never null. This retains the
+intended tab-compatibility decision and removes a misleading always-true
+diagnostic.
