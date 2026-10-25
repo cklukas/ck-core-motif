@@ -730,6 +730,11 @@ void
       *pNumEntries = 0;
       *pNumAlloc = FILE_LIST_BLOCK;
       *pEntries = (String *) XtMalloc(FILE_LIST_BLOCK * sizeof(char *));
+      if (*pEntries == NULL) {
+	*pNumAlloc = 0;
+	_XmProcessUnlock();
+	return;
+      }
     } 
   fixedMatchPattern = GetFixedMatchPattern(matchPattern);
   

@@ -9934,6 +9934,12 @@ Widget part-offset allocation guards (2026-10-25)
 - Validate offset-table sizing and release partial tables without leaving the
   Motif process lock held; see `docs/part-offset-allocation.md`.
 
+Directory-entry initial allocation guard (2026-10-25)
+=====================================================
+
+- Check the file-selector entry-list allocation and release the process lock
+  before returning on failure; see `docs/dir-entries-initial-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
