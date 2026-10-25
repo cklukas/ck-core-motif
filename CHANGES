@@ -98,6 +98,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  failure; see docs/mrm-related-tag-lookup-failure.md.
 
 2026-10-25
+	* Report related Mrm tag codes accurately and stop failed related-tag
+	  arguments; see docs/mrm-related-tag-diagnostic.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,

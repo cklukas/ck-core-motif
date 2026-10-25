@@ -1839,9 +1839,10 @@ Urm__CW_CreateArglist (Widget			parent,
 	      *num_used += 1;
 	    else
 	      {
-		(void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0062, argptr->tag_code) ;
+		(void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0062, argptr->stg_or_relcode.related_code) ;
 		Urm__UT_Error ("Urm__CW_CreateArglist", err_msg, 
 			       NULL, NULL, uncmp_res) ;
+		continue;
 	      }
 	  }
 
