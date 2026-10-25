@@ -1,3 +1,10 @@
+Clipboard format inquiry zero-length copy (2026-10-26)
+========================================================
+
+- Skip destination copying when the effective format-name length is zero,
+  keeping null zero-length queries safe; see
+  `docs/clipboard-inquire-format-zero-length.md`.
+
 Clipboard pending-items header guard (2026-10-26)
 ==================================================
 

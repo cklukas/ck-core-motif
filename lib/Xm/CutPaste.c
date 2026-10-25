@@ -4679,7 +4679,8 @@ XmClipboardInquireFormat(
 
 	    loc_outlength = bufferlength;
 	}
-	strncpy( (char *) buffer, ptr, (unsigned) loc_outlength );
+	if (loc_outlength != 0)
+	    strncpy( (char *) buffer, ptr, (unsigned) loc_outlength );
 	/* loc_outlenght is truncated above.*/
 
 	XtFree( (char *) ptr );
