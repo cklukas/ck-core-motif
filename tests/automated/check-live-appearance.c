@@ -1,6 +1,12 @@
 /* Installed-consumer proof for the live appearance transaction. */
 #include <Xm/Appearance.h>
+#include <Xm/Disclosure.h>
+#include <Xm/Label.h>
+#include <Xm/List.h>
+#include <Xm/MessageB.h>
 #include <Xm/PushB.h>
+#include <Xm/RowColumn.h>
+#include <Xm/ScrollBar.h>
 #include <Xm/Text.h>
 #include <Xm/TextF.h>
 #include <Xm/ToggleB.h>
@@ -74,11 +80,23 @@ named_pixel(Display *display, const char *name)
     return screen.pixel;
 }
 
+static Boolean
+background_changed(Widget widget, Pixel original)
+{
+    Pixel current;
+    XtVaGetValues(widget, XmNbackground, &current, NULL);
+    return current != original;
+}
+
 int
 main(int argc, char **argv)
 {
     XtAppContext app;
     Widget shell, ordinary, explicit, toggle, text, text_field;
+    Widget label, list, scroll_bar, menu, menu_item, message_box;
+    Widget disclosure, disclosure_label;
+    Widget matrix[6];
+    Pixel matrix_baseline[6];
     Display *display;
     Pixel baseline_background, light_background, contrast_background;
     Pixel dark_background, classic_background;
@@ -101,6 +119,20 @@ main(int argc, char **argv)
     toggle = XmCreateToggleButton(shell, "toggle", NULL, 0);
     text = XmCreateText(shell, "text", NULL, 0);
     text_field = XmCreateTextField(shell, "textField", NULL, 0);
+    label = XmCreateLabel(shell, "label", NULL, 0);
+    list = XmCreateList(shell, "list", NULL, 0);
+    scroll_bar = XmCreateScrollBar(shell, "scrollBar", NULL, 0);
+    menu = XmCreatePulldownMenu(shell, "menu", NULL, 0);
+    menu_item = XmCreatePushButton(menu, "menuItem", NULL, 0);
+    message_box = XmCreateMessageBox(shell, "messageBox", NULL, 0);
+    disclosure = XmCreateDisclosure(shell, "disclosure", NULL, 0);
+    disclosure_label = XmCreateLabel(XmDisclosureGetContent(disclosure),
+                                     "disclosureLabel", NULL, 0);
+    {
+        XmString item = XmStringCreateLocalized((char *)"appearance item");
+        XmListAddItem(list, item, 0);
+        XmStringFree(item);
+    }
     XtVaSetValues(explicit, XmNforeground, red, NULL);
     XtAddCallback(toggle, XmNvalueChangedCallback, value_changed,
                   (XtPointer)&callback_count);
@@ -109,6 +141,13 @@ main(int argc, char **argv)
     XtManageChild(toggle);
     XtManageChild(text);
     XtManageChild(text_field);
+    XtManageChild(label);
+    XtManageChild(list);
+    XtManageChild(scroll_bar);
+    XtManageChild(menu_item);
+    XtManageChild(message_box);
+    XtManageChild(disclosure_label);
+    XtManageChild(disclosure);
     XtRealizeWidget(shell);
     XSync(display, False);
     XmTextSetString(text, "appearance text");
@@ -119,6 +158,14 @@ main(int argc, char **argv)
     XtVaGetValues(ordinary, XmNbackground, &baseline_background, NULL);
     XtVaGetValues(ordinary, XmNforeground, &ordinary_foreground, NULL);
     XtVaGetValues(explicit, XmNforeground, &explicit_foreground, NULL);
+    matrix[0] = label;
+    matrix[1] = list;
+    matrix[2] = scroll_bar;
+    matrix[3] = menu_item;
+    matrix[4] = message_box;
+    matrix[5] = disclosure;
+    for (unsigned int i = 0; i < XtNumber(matrix); ++i)
+        XtVaGetValues(matrix[i], XmNbackground, &matrix_baseline[i], NULL);
     XmToggleButtonSetState(toggle, True, True);
     if (!XmToggleButtonGetState(toggle) || callback_count != 1)
         return fail("toggle state/callback setup failed");
@@ -130,6 +177,9 @@ main(int argc, char **argv)
     XtVaGetValues(ordinary, XmNbackground, &light_background, NULL);
     if (light_background == baseline_background)
         return fail("modern-light did not update a realized widget");
+    for (unsigned int i = 0; i < XtNumber(matrix); ++i)
+        if (!background_changed(matrix[i], matrix_baseline[i]))
+            return fail("modern-light did not update the representative matrix");
     XtVaGetValues(ordinary, XmNforeground, &ordinary_foreground, NULL);
     XtVaGetValues(explicit, XmNforeground, &explicit_foreground, NULL);
     if (ordinary_foreground != ordinary_expected ||
@@ -166,6 +216,9 @@ main(int argc, char **argv)
         !XmToggleButtonGetState(toggle) || callback_count != 1 ||
         !text_values_intact(text, text_field))
         return fail("dark transition changed owned state or precedence");
+    for (unsigned int i = 0; i < XtNumber(matrix); ++i)
+        if (!background_changed(matrix[i], matrix_baseline[i]))
+            return fail("modern-dark did not retain the representative matrix");
 
     if (!XmApplyAppearanceProfile(display, XmAPPEARANCE_HIGH_CONTRAST) ||
         !XmGetAppearanceProfile(display, &profile) ||
@@ -178,6 +231,9 @@ main(int argc, char **argv)
         explicit_foreground != red || !XmToggleButtonGetState(toggle) ||
         callback_count != 1 || !text_values_intact(text, text_field))
         return fail("high-contrast transition changed owned state or precedence");
+    for (unsigned int i = 0; i < XtNumber(matrix); ++i)
+        if (!background_changed(matrix[i], matrix_baseline[i]))
+            return fail("high-contrast did not retain the representative matrix");
 
     if (!XmApplyAppearanceProfile(display, XmAPPEARANCE_CLASSIC))
         return fail("classic transition failed");

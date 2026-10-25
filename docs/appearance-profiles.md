@@ -59,7 +59,9 @@ process-wide serialization requirement. Gadget coverage is part of the same
 transaction now: cache-backed gadgets defer their first value snapshot until
 their `GetValues` path is ready, and parent-manager membership prunes gadgets
 that have been destroyed without a normal widget destroy callback. A complete
-historical-widget matrix remains an explicit later work-package gate.
+historical-widget matrix remains an explicit later work-package gate; the
+representative consumer matrix below is an incremental qualification boundary,
+not a claim of full class coverage.
 
 The installed gadget regression is
 `tests/automated/run-live-appearance-gadget.py`. It transitions a
@@ -75,6 +77,14 @@ its first value snapshot for these classes until that backend exists. The
 regression is intentionally an installed consumer test, so a null backend or
 an accidental text-value reset is a failure rather than an inferred source
 property.
+
+The same consumer now constructs a representative historical matrix: Label,
+List, ScrollBar, a pulldown-menu item, MessageBox, and Disclosure. It records
+their classic backgrounds, then verifies that each toolkit-owned background
+participates in modern-light, modern-dark, and high-contrast transitions. This
+does not claim complete historical-widget coverage; it ensures the live
+transaction is exercised beyond the button/text subset before additional
+classes are admitted.
 
 WP-02 adds the opt-in `modern-light` profile:
 
