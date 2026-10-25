@@ -851,3 +851,4 @@ EXTRA_DIST += tests/automated/check-tree-view-redisplay-guards.py docs/tree-view
 EXTRA_DIST += tests/automated/check-calendar-geometry-guards.py docs/calendar-geometry-guards.md
 EXTRA_DIST += tests/automated/check-breadcrumb-bar-redisplay-guards.py docs/breadcrumb-bar-redisplay-guards.md
 EXTRA_DIST += tests/automated/check-arrow-button-redisplay-guards.py docs/arrow-button-redisplay-guards.md
+EXTRA_DIST += tests/automated/check-arrow-button-gadget-redisplay-guards.py docs/arrow-button-gadget-redisplay-guards.md
