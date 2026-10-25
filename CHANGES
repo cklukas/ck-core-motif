@@ -1,4 +1,9 @@
 2026-10-25
+	* Roll back partial tab-list copies when a later tab allocation fails,
+	  avoiding null-link dereferences and retaining marked-tab ownership
+	  semantics; see docs/tablist-copy-rollback.md.
+
+2026-10-25
 	* Guard tab-list result and first-tab allocations, and reject empty copy
 	  ranges safely; see docs/tablist-copy-allocation.md.
 
