@@ -1647,6 +1647,8 @@ _XmHeapCreate(
     XmHeap	heap;
 
     heap = XtNew(XmHeapRec);
+    if (heap == NULL)
+	return NULL;
     heap->start = NULL;
     heap->segment_size = segment_size;
     heap->bytes_remaining = 0;

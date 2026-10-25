@@ -9881,6 +9881,12 @@ XmDisplay private-state allocation guard (2026-10-25)
   existing screen-state allocation guard; see
   `docs/display-info-allocation.md`.
 
+Legacy XmHeap allocation guard (2026-10-25)
+===========================================
+
+- Check the compatibility heap record before initialization and return
+  `NULL` cleanly when unavailable; see `docs/xmheap-allocation.md`.
+
 MWM label-parse allocation guard (2026-10-25)
 ==============================================
 
