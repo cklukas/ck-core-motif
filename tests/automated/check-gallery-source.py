@@ -43,7 +43,9 @@ def main() -> int:
             print(f"gallery shell is missing {api}", file=sys.stderr)
             return 1
     for contract in ("parse_appearance", "parse_scale", "XmApplyAppearanceProfile",
-                     "XmSetDisplayScaleOverride", "XSync(XtDisplay(shell), False)"):
+                     "XmSetDisplayScaleOverride", "XSync(XtDisplay(shell), False)",
+                     "--appearance requires a profile name",
+                     "--scale requires a numeric value"):
         if contract not in gallery:
             print(f"gallery screenshot configuration is missing {contract}",
                   file=sys.stderr)
