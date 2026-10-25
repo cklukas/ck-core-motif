@@ -4763,3 +4763,9 @@ Guard XIM registration failure paths (2026-10-25)
 - Avoid dereferencing missing registration records and avoid saving an Xlib
   context when widget-reference growth fails; see
   `docs/xmim-registration-lifecycle.md`.
+
+Guard Container zero-sized cell metrics (2026-10-25)
+=====================================================
+
+- Avoid dividing by zero while dynamic Container cell dimensions are not yet
+  available; see `docs/container-zero-cell-guards.md`.
