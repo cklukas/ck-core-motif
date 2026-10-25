@@ -571,6 +571,19 @@ prefix passes the invalid-boundary consumer and the strict local-Compose
 fixture; this is a toolkit safety correction, distinct from the remaining
 external Fontconfig ownership gate.
 
+The layout and line-context consumers now also call `FcFini()` only after
+closing their Xft fonts and displays. Their strict results therefore do not
+attribute Fontconfig's process-global configuration to the fixture or hide it
+with a sanitizer suppression.
+
+The DataField destroy path now frees the private render-table copy made during
+initialization regardless of whether the source `XmNfontList` was supplied by
+the application or obtained from the default table. This removes the toolkit's
+Xft-rendition leak from the strict Unicode fixture. The remaining strict
+Unicode result is a single 104-byte allocation rooted in the system Xt
+selection-owner implementation; it is recorded as an external dependency
+boundary rather than suppressed or misreported as a toolkit pass.
+
 The installed native cohort also includes the bounded `nontext-unicode`
 public-API fixture for combining, non-BMP and Han values through Label, List
 and ComboBox resources. It adds evidence for those controls without

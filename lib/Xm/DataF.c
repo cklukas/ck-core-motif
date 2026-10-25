@@ -10290,7 +10290,11 @@ df_Destroy(
 
     XtFree((char *)XmTextF_highlight(tf).list);
 
-    if (XmTextF_fontlist_created(tf))
+    /* InitializeTextStruct always installs a private copy of the
+     * application/default render table.  The fontlist_created flag only
+     * described where the source table came from, so consulting it here
+     * leaked copies supplied through XmNfontList. */
+    if (XmTextF_font_list(tf) != NULL)
        XmFontListFree((XmFontList)XmTextF_font_list(tf));
 
     if (XmTextF_add_mode_cursor(tf) != XmUNSPECIFIED_PIXMAP)

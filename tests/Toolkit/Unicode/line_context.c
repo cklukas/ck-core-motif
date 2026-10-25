@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.0-or-later */
 #include <Xm/TextLayout.h>
+#include <fontconfig/fontconfig.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,7 +64,7 @@ int main(void)
         require(lines >= 3, "wrap fixture did not compose multiple lines");
         XmTextParagraphFree(paragraph);
     }
-    XftFontClose(display, font); XCloseDisplay(display);
+    XftFontClose(display, font); XCloseDisplay(display); FcFini();
     puts("Full paragraph bidi/isolate context, line boundary shaping and retained captures passed");
     return 0;
 }

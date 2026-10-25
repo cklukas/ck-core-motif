@@ -7,6 +7,7 @@
 #include <Xm/Form.h>
 #include <Xm/TextUnicode.h>
 #include <Xm/TextLayout.h>
+#include <fontconfig/fontconfig.h>
 #include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -218,7 +219,8 @@ int main(int argc, char **argv) {
     check_complex(field, 1); check_complex(text, 0); check_wrapped(wrapped);
     check_font_reset(field,1);check_font_reset(text,0);
     check_column_geometry(row);
-    XtDestroyWidget(shell); XtDestroyApplicationContext(application);
+    XtDestroyWidget(shell);
+    XtDestroyApplicationContext(application); FcFini();
     puts("Unicode maps, preedit bounds and real Text/TextField grapheme actions passed");
     return 0;
 }

@@ -2,6 +2,7 @@
 #include <Xm/TextLayout.h>
 #include <Xm/TextUnicode.h>
 #include <X11/Xutil.h>
+#include <fontconfig/fontconfig.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -164,7 +165,7 @@ int main(void) {
     XDestroyImage(image); XftColorFree(display, DefaultVisual(display, DefaultScreen(display)), DefaultColormap(display, DefaultScreen(display)), &color);
     XftDrawDestroy(draw); XFreePixmap(display, pixmap);
     XmTextLayoutFree(arabic); XmTextLayoutFree(mixed); XmTextLayoutFree(combining); XmTextLayoutFree(ligature); XmTextLayoutFree(fallback); XmTextLayoutFree(tabs);
-    XftFontClose(display, font); XCloseDisplay(display);
+    XftFontClose(display, font); XCloseDisplay(display); FcFini();
     puts("Shaped Arabic/Hebrew/Latin paragraph glyphs, grapheme carets and visual hits passed");
     return 0;
 }

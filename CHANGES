@@ -53,6 +53,23 @@ Virtual-keycode range guard (2026-10-25)
   not add a per-event round trip. A strict installed local-Compose run and a
   focused invalid-boundary consumer pass on a fresh AArch64 prefix.
 
+Native text-fixture Fontconfig teardown (2026-10-25)
+=====================================================
+
+- Release the process-global Fontconfig configuration in the layout and
+  line-context consumers after their Xft fonts and displays are closed. Strict
+  sanitizer results now distinguish consumer teardown from the toolkit's
+  remaining external ownership boundary without disabling leak detection.
+
+DataField render-table ownership (2026-10-25)
+==============================================
+
+- Free the private render-table copy installed by DataField even when the
+  source `XmNfontList` came from the application. The previous provenance flag
+  skipped that copy and leaked every Xft rendition in the widget's table.
+  The strict Unicode fixture now reaches the separate 104-byte system-Xt
+  selection-owner report instead of retaining the toolkit's render tables.
+
 UIL literal-only module output (2026-10-25)
 ============================================
 
