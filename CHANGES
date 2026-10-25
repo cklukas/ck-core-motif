@@ -9401,3 +9401,9 @@ Spinner label rollback (2026-10-29)
 
 - Copy changed labels before releasing the current value, preserving the
   spinner label when allocation fails; see `docs/spinner-label-rollback.md`.
+
+ProgressBar label rollback (2026-10-29)
+=======================================
+
+- Copy changed labels before releasing the current value, preserving the
+  progress label when allocation fails; see `docs/progressbar-label-rollback.md`.

@@ -230,12 +230,18 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmProgressBarWidget old = (XmProgressBarWidget)old_widget;
     XmProgressBarWidget progress = (XmProgressBarWidget)widget;
     Boolean redraw = False;
+    XmString replacement;
     (void)request; (void)args; (void)count;
     Normalize(progress);
     if (old->progress.label != progress->progress.label) {
-        if (progress->progress.label)
-            progress->progress.label = XmStringCopy(progress->progress.label);
-        if (old->progress.label) XmStringFree(old->progress.label);
+        replacement = progress->progress.label != NULL
+            ? XmStringCopy(progress->progress.label) : NULL;
+        if (progress->progress.label == NULL || replacement != NULL) {
+            if (old->progress.label) XmStringFree(old->progress.label);
+            progress->progress.label = replacement;
+        } else {
+            progress->progress.label = old->progress.label;
+        }
         redraw = True;
     }
     if (old->progress.minimum != progress->progress.minimum ||
