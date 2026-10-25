@@ -1,3 +1,9 @@
+Xm menu API null-safety (2026-10-25)
+=====================================
+
+- Guard posted-widget, tear-off, and menu-position APIs against null inputs;
+  see `docs/xm-rcmenu-api-null.md`.
+
 Xm protocol API null-safety (2026-10-25)
 ==========================================
 

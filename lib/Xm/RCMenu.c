@@ -3720,6 +3720,8 @@ XmGetPostedFromWidget(
 {
    XmRowColumnWidget toplevel;
    Widget wid = NULL;
+   if (menu == NULL)
+      return NULL;
    _XmWidgetToAppContext(menu);
 
    _XmAppLock(app);
@@ -3745,6 +3747,8 @@ XmGetTearOffControl(
         Widget menu )
 {
    Widget wid = NULL;
+   if (menu == NULL)
+      return NULL;
    _XmWidgetToAppContext(menu);
 
    _XmAppLock(app);
@@ -3760,6 +3764,8 @@ XmMenuPosition(
         Widget p,
         XButtonPressedEvent *event )
 {
+   if (p == NULL || event == NULL)
+      return;
    _XmWidgetToAppContext(p);
    _XmAppLock(app);
    PositionMenu ((XmRowColumnWidget) p, event);
