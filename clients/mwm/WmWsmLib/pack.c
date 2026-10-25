@@ -540,7 +540,11 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 	    request->set_state.num_win_info_list = num;
 	    request->set_state.win_info_list = 
 		(WSMWinInfo *) XtMalloc(sizeof(WSMWinInfo) * num);
-	    request->extensions.allocated = True;
+	    if (request->set_state.win_info_list == NULL) {
+		request->set_state.num_win_info_list = 0;
+		return;
+	    }
+	    request->set_state.allocated = True;
 
 	    for (i = 0; i < num; i++) {
 		UnpackWinInfo(&data, dpy, screen_num, 
