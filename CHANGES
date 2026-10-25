@@ -33,6 +33,8 @@ Xft compound-string line height (2026-10-27)
   children.
 - Make `XmSetToolTipString` tolerate tooltip-trait allocation failure without
   passing a null trait to the trait registry or dereferencing it.
+- Make ExtObject initialization stop safely when its widget-extension record
+  cannot be allocated.
 - Use full-width `Cardinal` indices throughout Hierarchy child traversal and
   rewrite reverse insertion shifts without signed negative sentinels.
 - Use a full-width `Cardinal` index while scanning Manager composite children

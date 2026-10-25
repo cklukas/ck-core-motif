@@ -317,6 +317,8 @@ Initialize(Widget req,
       if (resParent)
 	{
 	  extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+	  if (extData == NULL)
+	    return;
 	  _XmPushWidgetExtData(resParent, extData, ne->ext.extensionType);
 	  
 	  extData->widget = new_w;
