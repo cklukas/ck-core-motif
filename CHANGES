@@ -5431,3 +5431,9 @@ Harden icon-directory cache growth (2026-10-25)
 
 - Preserve the directory cache on growth failure and release partial entries
   when icon-directory allocations fail; see `docs/icon-directory-cache.md`.
+
+Harden traversal-node pool growth (2026-10-25)
+================================================
+
+- Preserve traversal graph storage on allocation failure and stop node
+  construction safely; see `docs/traversal-node-allocation.md`.
