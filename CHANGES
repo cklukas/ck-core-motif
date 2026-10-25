@@ -6854,3 +6854,11 @@ XmIm initialization allocation guards (2026-10-25)
 
 - Check display-state and locale-modifier scratch allocations before use; see
   `docs/xmim-init-allocation.md`.
+Container drag-icon pixmap metadata (2026-10-25)
+================================================
+
+- Initialize drag-icon pixmap width, height, and depth outputs before querying
+  metadata, avoiding arbitrary resource values for invalid pixmaps; see
+  `docs/container-drag-pixmap-metadata.md`.
+
+IconG pixmap metadata guards (2026-10-25)

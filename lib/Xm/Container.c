@@ -9276,8 +9276,8 @@ DragStart(
     n = 0;
     if (pixmap != XmUNSPECIFIED_PIXMAP)
 	{
-	  unsigned int rh, rw;
-	  int rd;
+	  unsigned int rh = 0, rw = 0;
+	  int rd = 0;
 	  int ix, iy;
 
 	  _XmIconGadgetIconPos((Widget) g, &ix, &iy);
