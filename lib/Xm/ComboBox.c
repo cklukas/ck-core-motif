@@ -30,6 +30,7 @@
 #include <config.h>
 #endif
 #include <stdio.h>
+#include <limits.h>
 #include <stdint.h>
 #include <string.h>
 #include <Xm/XmP.h>
@@ -2388,8 +2389,13 @@ CBSetSelectedPos(Widget    widget,
 
   /* Implement bogus zero-based positions for DtComboBox compatibility. */
   new_pos = (int)*value;
-  if (CB_PositionMode(cb) == XmZERO_BASED)
+  if (CB_PositionMode(cb) == XmZERO_BASED) {
+    /* The public resource is an int; INT_MAX has no representable
+     * one-based List position after the compatibility offset. */
+    if (new_pos == INT_MAX)
+      return XmSYNTHETIC_NONE;
     new_pos++;
+  }
 
   if (curpos != new_pos)
     XmListSelectPos(CB_List(cb), new_pos, TRUE);

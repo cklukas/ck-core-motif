@@ -6,6 +6,13 @@ XmList match-position bounds (2026-10-27)
   signed overflow.  The existing result contract is unchanged for every
   representable list size.
 
+ComboBox zero-based position bounds (2026-10-27)
+================================================
+
+- Ignore an imported zero-based `INT_MAX` selected position instead of
+  incrementing it into a negative one-based List position.  Representable
+  selections retain the existing compatibility conversion.
+
 Gallery live-page startup and TabStack examples (2026-10-27)
 ===============================================================
 
