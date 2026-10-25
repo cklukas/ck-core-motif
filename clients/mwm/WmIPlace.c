@@ -488,6 +488,9 @@ int FindIconPlace (ClientData *pCD, IconPlacementData *pIPD, int x, int y)
 
     place = CvtIconPositionToPlace (pIPD, x, y);
 
+    if (place < 0)
+	return (NO_ICON_PLACE);
+
     if (place < pIPD->totalPlaces)
     {
 	if (pIPD->placeList[place].pCD == (ClientData *)NULL)
