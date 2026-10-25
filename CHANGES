@@ -1,3 +1,10 @@
+Mrm resource-id output initialization (2026-10-25)
+==================================================
+
+- Initialize resource-id outputs before validation and RID allocation so failed
+  calls cannot expose an indeterminate value; see
+  `docs/mrm-resource-id-output-init.md`.
+
 Mrm record-buffer output initialization (2026-10-25)
 ====================================================
 
