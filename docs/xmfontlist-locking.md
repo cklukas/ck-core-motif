@@ -1,7 +1,7 @@
 # XmFontList constructor locking
 
-`XmFontListCreate`, `XmFontListAdd`, `XmFontListEntryCreate`,
-`XmFontListEntryCreate_r`,
+`XmFontListCreate`, `XmFontListCreate_r`, `XmFontListAdd`,
+`XmFontListEntryCreate`, `XmFontListEntryCreate_r`,
 `XmFontListEntryLoad`, and
 `XmFontListAppendEntry`, `XmFontListEntryGetFont`, and
 `XmFontListEntryGetTag` now delegate synchronization to the charset, rendition,

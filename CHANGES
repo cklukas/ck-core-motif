@@ -18,7 +18,8 @@ XmFontList constructor locking (2026-10-25)
 =============================================
 
 - Avoid recursive process/application locking in `XmFontListCreate`,
-  `XmFontListAdd`, `XmFontListEntryCreate`, `XmFontListEntryCreate_r`,
+  `XmFontListCreate_r`, `XmFontListAdd`, `XmFontListEntryCreate`,
+  `XmFontListEntryCreate_r`,
   `XmFontListEntryLoad`,
   `XmFontListAppendEntry`,
   `XmFontListEntryGetFont`, and `XmFontListEntryGetTag` while they call

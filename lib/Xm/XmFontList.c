@@ -403,11 +403,7 @@ XmFontListCreate_r(
   XmStringCharSet       curcharset;
   XmRenderTable         ret_val;
  
- 
-  _XmWidgetToAppContext(wid);
-  _XmAppLock(app);
   if ((font == NULL) || (charset == NULL)) {
-        _XmAppUnlock(app);
         return (NULL);
   }
  
@@ -430,7 +426,6 @@ XmFontListCreate_r(
  
   XmRenditionFree(rends[0]);
  
-  _XmAppUnlock(app);
   return(ret_val);
 }
 
