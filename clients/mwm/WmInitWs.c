@@ -2368,6 +2368,19 @@ void InitScreenNames (void)
 }
 #ifndef NO_MESSAGE_CATALOG
 
+static char *
+AllocateNlsString(const char *value)
+{
+    size_t length;
+
+    if (value == NULL)
+        return NULL;
+    length = strlen(value);
+    if (length >= UINT_MAX)
+        return NULL;
+    return (char *)XtMalloc((Cardinal)length + 1);
+}
+
 
 void InitNlsStrings (void)
 {
@@ -2389,7 +2402,7 @@ void InitNlsStrings (void)
 
     tmpString = ((char *)GETMESSAGE(40, 14, "Icons"));
     if ((wmNLS.default_icon_box_title =
-	 (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+	 AllocateNlsString(tmpString)) == NULL)
     {
 	Warning (((char *)GETMESSAGE(40, 15, "Insufficient memory for local message string")));
 	wmNLS.default_icon_box_title = "Icons";
@@ -2402,7 +2415,7 @@ void InitNlsStrings (void)
 #ifdef WSM
     tmpString = ((char *)GETMESSAGE(40, 20, "%s: %s on line %d of configuration file %s\n"));
     if ((pWarningStringFile =
-	 (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+	 AllocateNlsString(tmpString)) == NULL)
     {
 	Warning (((char *)GETMESSAGE(40, 17, "Insufficient memory for local message string")));
 	pWarningStringFile = "%s: %s on line %d of configuration file %s\n";
@@ -2414,7 +2427,7 @@ void InitNlsStrings (void)
 
     tmpString = ((char *)GETMESSAGE(40, 21, "%s: %s on line %d of specification string\n"));
     if ((pWarningStringLine =
-	 (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+	 AllocateNlsString(tmpString)) == NULL)
     {
 	Warning (((char *)GETMESSAGE(40, 19, "Insufficient memory for local message string")));
 	pWarningStringLine = "%s: %s on line %d of specification string\n";
@@ -2427,7 +2440,7 @@ void InitNlsStrings (void)
 
     tmpString = ((char *)GETMESSAGE(40, 22, "About Workspace Manager"));
     if ((wmNLS.defaultVersionTitle =
-	 (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+	 AllocateNlsString(tmpString)) == NULL)
     {
 	Warning (((char *)GETMESSAGE(40, 15, "Insufficient memory for local message string")));
 	wmNLS.defaultVersionTitle = "About Workspace Manager";
@@ -2439,7 +2452,7 @@ void InitNlsStrings (void)
 
     tmpString = ((char *)GETMESSAGE(40, 23, "Workspace Manager - Help"));
     if ((wmNLS.defaultDtwmHelpTitle =
-	 (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+	 AllocateNlsString(tmpString)) == NULL)
     {
 	Warning (((char *)GETMESSAGE(40, 15, "Insufficient memory for local message string")));
 	wmNLS.defaultDtwmHelpTitle = "Workspace Manager - Help";
@@ -2451,7 +2464,7 @@ void InitNlsStrings (void)
 
     tmpString = ((char *)GETMESSAGE(40, 24, "Workspace Manager - Help"));
     if ((wmNLS.defaultHelpTitle =
-	 (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+	 AllocateNlsString(tmpString)) == NULL)
     {
 	Warning (((char *)GETMESSAGE(40, 15, "Insufficient memory for local message string")));
 	wmNLS.defaultHelpTitle = "Workspace Manager - Help";

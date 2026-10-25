@@ -11424,6 +11424,12 @@ MWM executable identity allocation width (2026-10-25)
 - Check the executable-name length before copying the identity basename; see
   `docs/mwm-identity-basename.md`.
 
+MWM catalog-string allocation widths (2026-10-25)
+==================================================
+
+- Centralize width-checked copies of localized titles and warning formats; see
+  `docs/mwm-nls-string-allocation.md`.
+
 MWM per-screen display allocation width (2026-10-25)
 =====================================================
 
