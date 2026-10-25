@@ -14346,3 +14346,9 @@ Text line look-pointer guard (2026-10-26)
 - Check the pointer returned by `Look()` against `NULL` before dereferencing
   it during line selection, avoiding an invalid pointer/value comparison; see
   `docs/text-line-look-pointer.md`.
+CommandPalette size-limit header (2026-10-26)
+==============================================
+
+- Include `<stdint.h>` for the CommandPalette text-size guard's `SIZE_MAX`
+  check, restoring portable compilation of the overflow protection; see
+  `docs/command-palette-size-limit-header.md`.

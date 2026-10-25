@@ -8,6 +8,7 @@
 #include <Xm/XmP.h>
 #include <X11/keysym.h>
 #include <ctype.h>
+#include <stdint.h>
 #include <string.h>
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *); static void Destroy(Widget); static void Resize(Widget); static void ChangeManaged(Widget);
