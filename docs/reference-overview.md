@@ -65,6 +65,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [WSM atom initialization rollback](wsm-atom-init-rollback.md) — discard partial display metadata safely.
 - [WSM configuration quark serialization](wsm-quark-string-null.md) — handle invalid quarks without crashing.
 - [WSM string packing](wsm-pack-string-null.md) — serialize null strings safely.
+- [WSM extension sizing](wsm-extension-size-null.md) — size null entries consistently.
 - [WM state read guards](wmstate-read-guards.md) — safe handling of window-manager state properties.
 
 ## Accessibility and diagnostics

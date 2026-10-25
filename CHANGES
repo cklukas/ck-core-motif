@@ -11196,3 +11196,9 @@ WSM attribute lookup consistency (2026-10-25)
 
 - Reject format records whose attribute count and array disagree, avoiding
   traversal through a null attribute list; see `docs/wsm-packer-config-null.md`.
+
+WSM extension sizing (2026-10-25)
+=================================
+
+- Use null-safe string lengths while sizing extension requests and replies,
+  matching `PackString` behavior; see `docs/wsm-extension-size-null.md`.

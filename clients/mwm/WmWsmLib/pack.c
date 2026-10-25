@@ -73,6 +73,12 @@ WSMQuarkString(XrmQuark quark)
     return(string != NULL ? string : "");
 }
 
+static size_t
+WSMStringLength(String string)
+{
+    return(string != NULL ? strlen(string) : 0);
+}
+
 /*
  * Routines for packing protocol data stream.
  */
@@ -187,7 +193,7 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
     case WSM_EXTENSIONS:
 	size = COUNT_SIZE;
 	for (i = 0; i < request->extensions.num_extensions; i++) {
-	    size += (strlen(request->extensions.extension_suggestions[i]) +
+	    size += (WSMStringLength(request->extensions.extension_suggestions[i]) +
 		     COUNT_SIZE);
 	}
 	break;
@@ -343,7 +349,7 @@ _WSMPackReply(Display *dpy, int screen_num,
     case WSM_EXTENSIONS:
 	size = COUNT_SIZE;
 	for (i = 0; i < reply->extensions.num_extensions; i++) {
-	    size += (strlen(reply->extensions.extensions[i]) + COUNT_SIZE);
+	    size += (WSMStringLength(reply->extensions.extensions[i]) + COUNT_SIZE);
 	}
 	break;
     case WSM_CONFIG_FMT:

@@ -942,6 +942,8 @@ EXTRA_DIST += tests/automated/check-wsm-quark-string-null.py docs/wsm-quark-stri
 
 EXTRA_DIST += tests/automated/check-wsm-pack-string-null.py docs/wsm-pack-string-null.md
 
+EXTRA_DIST += tests/automated/check-wsm-extension-size-null.py docs/wsm-extension-size-null.md
+
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 
 EXTRA_DIST += tests/automated/check-latin-lower-bounds.py docs/latin-lower-bounds.md
