@@ -5097,3 +5097,9 @@ BulletinBoard shadow redisplay guards (2026-10-25)
 - Validate realization, manager shadow GCs, thickness, and dimensions before
   drawing the BulletinBoard expose shadow; see
   `docs/bulletin-board-shadow-redisplay-guards.md`.
+ColorSelector layout geometry bounds (2026-10-25)
+=================================================
+
+- Clamp signed available width and height calculations and avoid wrapped
+  color-area dimensions when a selector is smaller than its margins or child
+  borders; see `docs/color-selector-layout-geometry.md`.
