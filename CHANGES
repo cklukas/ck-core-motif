@@ -1,3 +1,9 @@
+Make TabList growth transactional (2026-10-26)
+===============================================
+
+- Preserve tab-list contents when insertion growth fails and reject oversized
+  allocations; see `docs/tablist-growth.md`.
+
 Make XmScreen child growth transactional (2026-10-26)
 ====================================================
 
