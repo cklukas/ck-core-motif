@@ -1,3 +1,9 @@
+Mwm colormap-reference allocation failures (2026-10-25)
+=========================================================
+
+- Check colormap-reference array allocations before copying or publishing
+  them; see `docs/colormap-reference-oom.md`.
+
 Mwm small-display icon placement (2026-10-25)
 ===============================================
 

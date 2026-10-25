@@ -45,6 +45,7 @@ static char rcsid[] = "$XConsortium: WmColormap.c /main/5 1996/10/30 11:14:44 dr
  */
 
 #include "WmColormap.h"
+#include "WmError.h"
 #include "WmKeyFocus.h"
 
 static Bool ProcessEvents(Display *dpy, XEvent *Event, char *c_pCD);
@@ -434,6 +435,11 @@ void AddColormapWindowReference (ClientData *pCD, Window window)
         }
         new_cmap_window_data = (ClientData **)
                                 XtMalloc((i + 2 ) * sizeof(ClientData *));
+        if (new_cmap_window_data == NULL)
+        {
+            Warning("Insufficient memory for colormap window references");
+            return;
+        }
         memcpy((void *)new_cmap_window_data,(void *)cmap_window_data,
                         (i + 1) * sizeof(ClientData *));
         XtFree((char *) cmap_window_data);
@@ -444,6 +450,11 @@ void AddColormapWindowReference (ClientData *pCD, Window window)
         i = 0;
         new_cmap_window_data = (ClientData **)
                                 XtMalloc(2 * sizeof(ClientData *));
+    }
+    if (new_cmap_window_data == NULL)
+    {
+        Warning("Insufficient memory for colormap window references");
+        return;
     }
     new_cmap_window_data[i] = pCD;
     new_cmap_window_data[i + 1] = NULL;
@@ -490,6 +501,11 @@ void RemoveColormapWindowReference (ClientData *pCD, Window window)
 
             new_cmap_window_data = (ClientData **)
                                         XtMalloc(i * sizeof(ClientData *));
+            if (new_cmap_window_data == NULL)
+            {
+                Warning("Insufficient memory for colormap window references");
+                return;
+            }
             idx = 0;
             for (j = 0; cmap_window_data[j] != NULL; j++)
             {
