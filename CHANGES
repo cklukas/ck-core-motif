@@ -29,6 +29,8 @@ Xft compound-string line height (2026-10-27)
   the hardened Screen child-list path.
 - Make ScrolledWindow auto-drag rectangle allocation failure-safe, returning
   an empty rectangle set instead of dereferencing a null allocation.
+- Use a full-width `Cardinal` index when exposing GrabShell composite
+  children.
 - Use full-width `Cardinal` indices throughout Hierarchy child traversal and
   rewrite reverse insertion shifts without signed negative sentinels.
 - Use a full-width `Cardinal` index while scanning Manager composite children

@@ -689,7 +689,7 @@ Resize(Widget w)
 static void 
 _XmFastExpose(Widget widg)
 {
-  register int i;
+  register Cardinal i;
   register Widget child;
   XmGrabShellWidget gs = (XmGrabShellWidget)widg;
 
