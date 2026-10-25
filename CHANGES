@@ -5767,6 +5767,13 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+Container detail-order Xt width (2026-10-25)
+=============================================
+
+- Check detail-order array products against Xt's `Cardinal` allocation width
+  during widget initialization and resource updates; see
+  `docs/container-detail-order-guards.md`.
+
 RCMenu callback-closure Xt width (2026-10-25)
 ==============================================
 

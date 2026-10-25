@@ -1274,12 +1274,15 @@ Initialize(
      */
     if (ncw->container.detail_order_count && ncw->container.detail_order) {
 	if ((size_t)ncw->container.detail_order_count >
-	    SIZE_MAX / sizeof(Cardinal)) {
+		SIZE_MAX / sizeof(Cardinal) ||
+	    (size_t)ncw->container.detail_order_count >
+		UINT_MAX / sizeof(Cardinal)) {
 	    ncw->container.detail_order = NULL;
 	    ncw->container.detail_order_count = 0;
 	} else {
 	ncw->container.detail_order = (Cardinal *)
-	    XtMalloc(sizeof(Cardinal) * ncw->container.detail_order_count);
+	    XtMalloc((Cardinal)(sizeof(Cardinal) *
+				 (size_t)ncw->container.detail_order_count));
 	if (ncw->container.detail_order == NULL) {
 	    ncw->container.detail_order_count = 0;
 	} else {
@@ -1985,12 +1988,15 @@ SetValues(
 	    ncw->container.detail_order) {
 	    Cardinal * detail_order ;
 	    if ((size_t)ncw->container.detail_order_count >
-		SIZE_MAX / sizeof(Cardinal)) {
+		SIZE_MAX / sizeof(Cardinal) ||
+		(size_t)ncw->container.detail_order_count >
+		UINT_MAX / sizeof(Cardinal)) {
 		ncw->container.detail_order = NULL;
 		ncw->container.detail_order_count = 0;
 	    } else {
 		detail_order = (Cardinal *)
-		    XtMalloc(sizeof(Cardinal) * ncw->container.detail_order_count);
+		    XtMalloc((Cardinal)(sizeof(Cardinal) *
+					 (size_t)ncw->container.detail_order_count));
 		if (detail_order == NULL) {
 		    ncw->container.detail_order = NULL;
 		    ncw->container.detail_order_count = 0;
