@@ -26,6 +26,14 @@ Toolbar action-label allocation guards (2026-10-26)
 
 - Handle failed label conversions and bounded combined-label sizing in
   `XmToolbar`; see `docs/toolbar-action-label-guards.md`.
+- Return cleanly when toolbar item-string copying cannot allocate.
+
+Row-actions string-copy allocation guards (2026-10-26)
+=======================================================
+
+- Return cleanly when `XmRowActions` cannot copy an item string instead of
+  passing a null conversion buffer to `XmStringCreateLocalized`; see
+  `docs/row-actions-string-copy-guards.md`.
 
 Status-bar label allocation guards (2026-10-26)
 ================================================
