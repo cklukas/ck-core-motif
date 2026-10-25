@@ -1,3 +1,9 @@
+Guard Text primary-selection state allocation (2026-10-25)
+===========================================================
+
+- Release the process lock and callback data when primary-selection state
+  allocation fails; see `docs/motif-textsel-primary-state.md`.
+
 Guard Text/encoding value conversion (2026-10-25)
 =================================================
 

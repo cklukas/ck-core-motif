@@ -951,6 +951,12 @@ HandleTargets(Widget w,
   } else {
     prim_select = (_XmTextPrimSelect *)
       XtMalloc((unsigned) sizeof(_XmTextPrimSelect));
+    if (prim_select == NULL) {
+      _XmProcessUnlock();
+      XtFree((char *)ds->value);
+      ds->value = NULL;
+      return;
+    }
   }
   prim_select->position = select_pos;
   prim_select->time = XtLastTimestampProcessed(XtDisplay(w));
