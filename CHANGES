@@ -6878,3 +6878,10 @@ ToggleButtonGadget geometry bounds (2026-10-25)
   `docs/togglebg-geometry-bounds.md`.
 
 ToggleButtonGadget pixmap sizing dimensions (2026-10-25)
+ToggleButtonGadget box bounds (2026-10-25)
+==========================================
+
+- Skip `DrawBox` rendering for non-positive edges or missing shadow GCs,
+  avoiding invalid geometry requests; see `docs/togglebg-box-bounds.md`.
+
+ToggleButtonGadget geometry bounds (2026-10-25)

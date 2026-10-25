@@ -2492,6 +2492,9 @@ DrawBox(XmToggleButtonGadget w,
 {
   int shadow = w->toggle.detail_shadow_thickness;
 
+  if (edge <= 0 || top_gc == NULL || bot_gc == NULL)
+    return;
+
   XmeDrawShadows(XtDisplay ((Widget) w),
 		 XtWindow ((Widget) w),
 		 top_gc,
