@@ -4682,3 +4682,9 @@ WM save-hint property validation (2026-10-25)
 
 - Require a non-empty 32-bit save-hint property before dereferencing it;
   see `docs/wmsave-hint-read-guards.md`.
+
+SM client ID property handling (2026-10-25)
+============================================
+
+- Copy non-empty `SM_CLIENT_ID` property data into a terminated Xt-owned
+  string before consumers use it; see `docs/sm-client-id-read-guards.md`.

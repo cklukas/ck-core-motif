@@ -48,6 +48,8 @@ static char rcsid[] = "$TOG: WmWinInfo.c /main/18 1999/02/04 15:17:25 mgreess $"
 
 #include <Xm/Xm.h>
 #include <X11/Xlocale.h>
+#include <limits.h>
+#include <string.h>
 #ifdef PANELIST
 #include "WmPanelP.h"
 #endif /* PANELIST */
@@ -969,11 +971,11 @@ ProcessSmClientID (ClientData *pCD)
     Atom actualType;
     int actualFormat;
     unsigned long nitems, leftover;
-    char *clientID;
+    char *clientID = NULL;
 
     if (pCD->smClientID != (String)NULL)
     {
-	XFree(pCD->smClientID);
+	XtFree(pCD->smClientID);
 	pCD->smClientID = (String)NULL;
     }
 
@@ -982,11 +984,20 @@ ProcessSmClientID (ClientData *pCD)
 			    &actualType, &actualFormat, &nitems,
 			    &leftover, (unsigned char **)&clientID)
 	 == Success) &&
-	(actualType != None) && (actualFormat == 8))
+	(actualType != None) && (actualFormat == 8) && (nitems > 0) &&
+	(nitems < (unsigned long)UINT_MAX))
     {
-	/* the SM_CLIENT_ID property exists for the client window */
-	pCD->smClientID = clientID;
+	/* Copy the property into a terminated Xt-owned string. */
+	pCD->smClientID = (String)XtMalloc((Cardinal)nitems + 1);
+	if (pCD->smClientID != (String)NULL)
+	{
+	    memcpy(pCD->smClientID, clientID, (size_t)nitems);
+	    pCD->smClientID[nitems] = '\0';
+	}
     }
+
+    if (clientID != NULL)
+	XFree(clientID);
 
 } /* END OF FUNCTION ProcessSmClientID */
 
