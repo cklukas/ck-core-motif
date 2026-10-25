@@ -858,6 +858,13 @@ Spin-box item-count bounds (2026-10-25)
 - Reject spin-box item-count and string-table size overflow before insertion;
   see `docs/spinbox-bounds.md`.
 
+Hierarchy child-list bounds (2026-10-25)
+=========================================
+
+- Guard null-terminated hierarchy child-list count conversion and allocation,
+  preserving the public list contract for valid trees; see
+  `docs/hierarchy-child-lists.md`.
+
 List drag size bounds (2026-10-25)
 =================================
 
