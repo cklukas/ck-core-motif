@@ -137,12 +137,9 @@ XmFontListEntryCreate_r(char *tag,
   Arg         args[4];
   XmFontListEntry ret_val;
  
-  _XmWidgetToAppContext(wid);
-  _XmAppLock(app);
   if ((font == NULL) || (tag == NULL) ||
       ((type != XmFONT_IS_FONTSET) && (type != XmFONT_IS_FONT)))
     {
-      _XmAppUnlock(app);
       return (NULL);
     }
  
@@ -161,7 +158,6 @@ XmFontListEntryCreate_r(char *tag,
       XmRenditionCreate(wid,
 			_XmStringCacheTag(derived_tag, XmSTRING_TAG_STRLEN),
 			args, n);
-  _XmAppUnlock(app);
   return ret_val;
 }
 

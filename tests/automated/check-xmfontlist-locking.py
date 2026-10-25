@@ -57,4 +57,13 @@ assert "_XmProcessLock" not in get_tag
 assert "_XmProcessUnlock" not in get_tag
 assert "XmRenditionRetrieve" in get_tag
 
+start = source.index("XmFontListEntryCreate_r(")
+end = source.index("\n}\n", start)
+create_r = source[start:end]
+assert "_XmWidgetToAppContext" not in create_r
+assert "_XmAppLock" not in create_r
+assert "_XmAppUnlock" not in create_r
+assert "_XmStringCacheTag" in create_r
+assert "XmRenditionCreate" in create_r
+
 print("XmFontList constructors avoid recursive process locking")
