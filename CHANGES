@@ -1,3 +1,10 @@
+List geometry bounds (2026-10-25)
+================================
+
+- Use signed intermediates for traversal highlight and horizontal scrollbar
+  dimensions, preventing unsigned wraparound in collapsed lists; see
+  `docs/list-geometry-bounds.md`.
+
 MainWindow layout bounds (2026-10-25)
 =====================================
 
