@@ -1755,6 +1755,9 @@ PopdownKids(
    if ((subShell = (ShellWidget)
 	RC_PopupPosted(menushell->composite.children[0])) != NULL)
    {
+      if (subShell->composite.num_children == 0)
+	 return;
+
       Widget rowcol = subShell->composite.children[0];
 
       /* mark this row colum as popping down */

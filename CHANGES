@@ -1,3 +1,9 @@
+MenuShell posted-child guard (2026-10-27)
+=========================================
+
+- Guard recursive popdown when a posted child shell is empty; see
+  `docs/menushell-posted-child-guard.md`.
+
 Menu cascade traversal guard (2026-10-27)
 =========================================
 
