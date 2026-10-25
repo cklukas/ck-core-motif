@@ -30,6 +30,12 @@ Guard XmRegion operation inputs (2026-10-26)
   rectangles before intersection, union, subtraction and shrink operations;
   see `docs/region-operation-input-guards.md`.
 
+Check image mask-name allocation sizes (2026-10-26)
+===================================================
+
+- Check prefix and terminator arithmetic before allocating generated mask
+  names; see `docs/mask-name-size-checks.md`.
+
 Guard XmRegion geometry query NULL inputs (2026-10-26)
 =======================================================
 
