@@ -3648,24 +3648,40 @@ TraversalChildren (
         Cardinal * numChildren )
 {
     XmRowColumnWidget rc = (XmRowColumnWidget) wid;
-    int i;
+    Cardinal i;
+    Cardinal child_count;
+    size_t slot_count;
+    WidgetList new_children;
+
+    if (childList == NULL || numChildren == NULL)
+      return (False);
+    *childList = NULL;
+    *numChildren = 0;
 
     if (RC_TearOffControl(rc))
     {
      /*
       * add the TOC to the children list
       */
-     *childList = 
-       (WidgetList) XtMalloc(sizeof(Widget) * (rc->composite.num_children+1));
+     child_count = rc->composite.num_children;
+     if (child_count == (Cardinal)~0 ||
+         (size_t)child_count > SIZE_MAX / sizeof(Widget) - 1 ||
+         (size_t)child_count > (size_t)((Cardinal)~0) / sizeof(Widget) - 1)
+       return (False);
+     slot_count = (size_t)child_count + 1;
+     new_children = (WidgetList) XtMalloc(slot_count * sizeof(Widget));
+     if (new_children == NULL)
+       return (False);
 
-     (*childList)[0] = RC_TearOffControl(rc);
+     new_children[0] = RC_TearOffControl(rc);
 
-     for (i=1; i <= rc->composite.num_children; i++)
+     for (i = 1; i <= child_count; i++)
      {
-       (*childList)[i] = rc->composite.children[i-1];
+       new_children[i] = rc->composite.children[i-1];
      }
 
-     *numChildren = rc->composite.num_children+1;
+     *childList = new_children;
+     *numChildren = child_count + 1;
 
      return (True);
  }
