@@ -583,6 +583,8 @@ GetFixedMatchPattern(String pattern)
     return NULL;
   
   outputBuf = XtCalloc(2, pattern_len + 4);
+  if (outputBuf == NULL)
+    return NULL;
   
   bufPtr = outputBuf;
   *bufPtr++ = '^';

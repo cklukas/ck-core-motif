@@ -41,6 +41,8 @@ Xft compound-string line height (2026-10-27)
   before returning cell IDs or entering edit mode.
 - Make ColorSelector color-name replacement transactional when `XtNewString`
   fails, avoiding null-name formatting and preserving the previous value.
+- Make Xmos fixed-pattern conversion return cleanly when its output buffer
+  allocation fails.
 - Use full-width `Cardinal` indices throughout Hierarchy child traversal and
   rewrite reverse insertion shifts without signed negative sentinels.
 - Use a full-width `Cardinal` index while scanning Manager composite children
