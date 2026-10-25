@@ -2727,6 +2727,7 @@ Cardinal *num_args)                               /* unused */
     Boolean ProcessFlag = FALSE;
     Boolean CleanupFontFlag = FALSE;
     Boolean Call_Resize = False;
+    XmString replacement;
     XmMenuSystemTrait menuSTrait;
 
     /* Invalidate the basline cache if necessary. */
@@ -2755,7 +2756,13 @@ Cardinal *num_args)                               /* unused */
         {
             if (XmeStringIsValid((XmString) LabG__label(new_w)))
             {
-                LabG__label(new_w) = XmStringCopy((XmString) LabG__label(new_w));
+                replacement = XmStringCopy((XmString) LabG__label(new_w));
+                if (replacement != NULL)
+                {
+                    LabG__label(new_w) = replacement;
+                }
+                else
+                    LabG__label(new_w) = LabG__label(current);
             }
             else
             {
@@ -2765,8 +2772,11 @@ Cardinal *num_args)                               /* unused */
             }
         }
 
-        XmStringFree(LabG__label(current));
-        LabG__label(current)= NULL;
+        if (LabG__label(new_w) != LabG__label(current))
+        {
+            XmStringFree(LabG__label(current));
+            LabG__label(current)= NULL;
+        }
         LabG__label(req)= NULL;
     }
 
@@ -2789,10 +2799,22 @@ Cardinal *num_args)                               /* unused */
                     (LabG__acceleratorText(new_w) != NULL))
                     LabG__acceleratorText(new_w) = NULL;
                 else
-                    LabG__acceleratorText(new_w) =
-                        XmStringCopy(LabG__acceleratorText(new_w));
-                XmStringFree(LabG__acceleratorText(current));
-                LabG__acceleratorText(current)= NULL;
+                {
+                    replacement = XmStringCopy(LabG__acceleratorText(new_w));
+                    if (replacement != NULL)
+                    {
+                        LabG__acceleratorText(new_w) = replacement;
+                    }
+                    else
+                        LabG__acceleratorText(new_w) =
+                            LabG__acceleratorText(current);
+                }
+                if (LabG__acceleratorText(new_w) !=
+                    LabG__acceleratorText(current))
+                {
+                    XmStringFree(LabG__acceleratorText(current));
+                    LabG__acceleratorText(current)= NULL;
+                }
                 LabG__acceleratorText(req)= NULL;
             }
             else

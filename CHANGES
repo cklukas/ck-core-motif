@@ -1,3 +1,10 @@
+LabelGadget SetValues rollback (2026-10-28)
+=============================================
+
+- Preserve valid labels and menu accelerator text when replacement
+  `XmStringCopy` operations fail, avoiding silent disappearance of visible
+  strings; see `docs/labelg-setvalues-rollback.md`.
+
 RowColumn menu-post rollback (2026-10-28)
 ===========================================
 
