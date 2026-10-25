@@ -2586,6 +2586,7 @@ DoLayout(Widget widg)
   Dimension	   listW = 0, listH = 0 ;
   Dimension	   diff, htLeft = 0;
   int available_edit_width, available_edit_height;
+  int available_list_width, available_list_height;
   XtWidgetGeometry geom, replygeom;
   XtGeometryResult result;
 
@@ -2644,17 +2645,24 @@ DoLayout(Widget widg)
       Dimension new_width = XtWidth(CB_ScrolledW(cb));
       Dimension new_height = XtHeight(CB_ScrolledW(cb));
 
-      htLeft = XtHeight(cb) -
-	2 * (XtBorderWidth(CB_EditBox(cb)) + XtBorderWidth(CB_ScrolledW(cb)) +
-	     CB_HighlightThickness(cb) + MGR_ShadowThickness(cb) +
-	     CB_MarginHeight(cb));
+      available_list_height = (int) XtHeight(cb) -
+	2 * ((int) XtBorderWidth(CB_EditBox(cb)) +
+	     (int) XtBorderWidth(CB_ScrolledW(cb)) +
+	     (int) CB_HighlightThickness(cb) + (int) MGR_ShadowThickness(cb) +
+	     (int) CB_MarginHeight(cb));
+      htLeft = (Dimension) ((available_list_height > 0) ?
+	  available_list_height : 1);
       if (!cb->combo_box.ideal_ebheight)
 	GetIdealTextSize((Widget)cb, NULL, &cb->combo_box.ideal_ebheight);
 
       /* If ideal edit box height fits, use it. */
-      ebH = MIN(htLeft - MINLIST, cb->combo_box.ideal_ebheight);
-      listW = XtWidth(cb) - 2 * (thickW + XtBorderWidth(CB_ScrolledW(cb)));
-      listH = htLeft - ebH;
+      ebH = (htLeft > MINLIST) ?
+	  MIN(htLeft - MINLIST, cb->combo_box.ideal_ebheight) : 1;
+      available_list_width = (int) XtWidth(cb) -
+	  2 * ((int) thickW + (int) XtBorderWidth(CB_ScrolledW(cb)));
+      listW = (Dimension) ((available_list_width > 0) ?
+	  available_list_width : 1);
+      listH = (htLeft > ebH) ? htLeft - ebH : 1;
 
       /* Ask ScrolledW if this size is okay */
       geom.request_mode = 0;

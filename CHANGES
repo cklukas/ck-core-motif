@@ -7425,3 +7425,12 @@ ComboBox edit-field geometry bounds (2026-10-26)
 
 ComboBox collapsed geometry bounds (2026-10-26)
 ================================================
+ComboBox scrolled-list geometry bounds (2026-10-26)
+====================================================
+
+- Bound scrolled-list width and height after ComboBox insets, preventing
+  unsigned wraparound in collapsed controls; see
+  `docs/combobox-list-geometry.md`.
+
+ComboBox edit-field geometry bounds (2026-10-26)
+=================================================
