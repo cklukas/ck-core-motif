@@ -1,3 +1,10 @@
+FileSelectionBox initialization-copy rollback (2026-10-28)
+==============================================================
+
+- Preserve no-match, directory, and pattern resources when initialization
+  copies fail, provide a default mask when needed, and avoid measuring NULL
+  strings; see `docs/filesb-init-copy-rollback.md`.
+
 BulletinBoard dialog-title initialization rollback (2026-10-28)
 ===================================================================
 

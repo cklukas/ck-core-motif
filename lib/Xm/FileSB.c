@@ -676,6 +676,7 @@ Initialize(
     int             numArgs ;
     XmFileSelectionBoxCallbackStruct searchData ;
     XmString local_xmstring ;
+    XmString replacement ;
 /****************/
 
     FS_StateFlags( new_w) = 0 ;
@@ -794,7 +795,9 @@ Initialize(
 	   XmStringCreate(" [    ] ", XmFONTLIST_DEFAULT_TAG));
     }
     else {   
-	FS_NoMatchString( new_w) = XmStringCopy( FS_NoMatchString( new_w)) ;
+	replacement = XmStringCopy( FS_NoMatchString( new_w));
+	if (replacement != NULL)
+	    FS_NoMatchString( new_w) = replacement;
     } 
 
     searchData.reason = XmCR_NONE ;
@@ -817,11 +820,14 @@ Initialize(
     if(FS_DirMask( new_w) != (XmString) XmUNSPECIFIED    )
     {   
         searchData.mask = XmStringCopy(FS_DirMask( new_w)) ;
+        if (searchData.mask == NULL)
+	    searchData.mask = XmStringCreate("*", XmFONTLIST_DEFAULT_TAG);
     } else {
 	searchData.mask = XmStringCreate("*", XmFONTLIST_DEFAULT_TAG);
     }
 
-    searchData.mask_length = XmStringLength( searchData.mask) ;
+    if (searchData.mask != NULL)
+	searchData.mask_length = XmStringLength( searchData.mask) ;
 
         /* The DirMask field will be set after subsequent call to
         *   the DirSearchProc.  Set field to NULL to prevent freeing of
@@ -832,24 +838,30 @@ Initialize(
     if(    FS_Directory( new_w)    )
     {
         searchData.dir = XmStringCopy( FS_Directory( new_w)) ;
-        searchData.dir_length = XmStringLength( searchData.dir) ;
+        if (searchData.dir != NULL)
+	{
+	    searchData.dir_length = XmStringLength( searchData.dir) ;
 
         /* The Directory field will be set after subsequent call to
         *   the DirSearchProc.  Set field to NULL to prevent freeing of
         *   memory owned by request.
         */
-        FS_Directory( new_w) = NULL ;
+	    FS_Directory( new_w) = NULL ;
+	}
         }
     if(    FS_Pattern( new_w)    )
     {
         searchData.pattern = XmStringCopy( FS_Pattern( new_w)) ;
-        searchData.pattern_length = XmStringLength( searchData.pattern) ;
+        if (searchData.pattern != NULL)
+	{
+	    searchData.pattern_length = XmStringLength( searchData.pattern) ;
 
         /* The Pattern field will be set after subsequent call to
         *   the DirSearchProc.  Set field to NULL to prevent freeing of
         *   memory owned by request.
         */
-        FS_Pattern( new_w) = NULL ;
+	    FS_Pattern( new_w) = NULL ;
+	}
         }
 
     if(    !FS_QualifySearchDataProc( new_w)    )
