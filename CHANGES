@@ -1,3 +1,10 @@
+Representation-type list allocation guard (2026-10-25)
+======================================================
+
+- Return `NULL` when `XmRepTypeGetRegistered` cannot allocate its result list,
+  avoiding a null write while preserving the existing registry; see
+  `docs/reptype-registration.md`.
+
 Representation-type registration allocation guard (2026-10-25)
 ===============================================================
 
