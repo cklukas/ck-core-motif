@@ -3728,3 +3728,10 @@ Guard bounded compound-text segment copies (2026-10-25)
 
 - Clean up converted entries and return `BadAlloc` when a temporary segment
   copy cannot be allocated; see `docs/motif-txtpropcv-segment-copy.md`.
+
+Handle empty text segments safely (2026-10-25)
+===============================================
+
+- Treat separator and tab decoration on an `XmNO_TEXT` segment as an empty
+  buffer instead of dereferencing null storage; see
+  `docs/motif-txtpropcv-empty-segment.md`.
