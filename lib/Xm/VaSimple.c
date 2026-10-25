@@ -77,7 +77,8 @@ static int _XmNestedArgtoArg(
                         Cardinal num_resources) ;
 static int _XmNestedArgtoTypedArg( 
                         XtTypedArgList args,
-                        XtTypedArgList avlist) ;
+                        XtTypedArgList avlist,
+                        int capacity) ;
 static void _XmVaProcessEverything( 
                         Widget widget,
                         va_list var,
@@ -353,11 +354,17 @@ _XmNestedArgtoArg(
 static int 
 _XmNestedArgtoTypedArg(
         XtTypedArgList args,
-        XtTypedArgList avlist )
+        XtTypedArgList avlist,
+        int capacity )
 {    
     int         count = 0;
+
+    if (args == NULL || avlist == NULL || capacity < 0)
+        return -1;
      
     for (; avlist->name != NULL; avlist++) { 
+        if (count >= capacity)
+            return -1;
         if (avlist->type != NULL) { 
             (args+count)->name = avlist->name; 
             (args+count)->type = avlist->type; 
@@ -366,7 +373,10 @@ _XmNestedArgtoTypedArg(
             ++count; 
         } else if(strcmp(avlist->name, XtVaNestedList) == 0) {             
             count += _XmNestedArgtoTypedArg((args+count),  
-                            (XtTypedArgList)avlist->value); 
+                            (XtTypedArgList)avlist->value,
+                            capacity - count);
+            if (count < 0)
+                return -1;
         } else {                             
             (args+count)->name = avlist->name; 
 	    (args+count)->type = NULL;
@@ -411,6 +421,11 @@ _XmVaToTypedArgList(
 
     for(attr = va_arg(var, String), count = 0 ; attr != NULL;
 		    attr = va_arg(var, String)) {
+        if (count >= max_count) {
+            XtFree((char *)args);
+            *args_return = NULL;
+            return;
+        }
         if (strcmp(attr, XtVaTypedArg) == 0) {
 	    args[count].name = va_arg(var, String);
 	    args[count].type = va_arg(var, String);
@@ -419,7 +434,12 @@ _XmVaToTypedArgList(
 	    ++count;
 	} else if (strcmp(attr, XtVaNestedList) == 0) {
    	    count += _XmNestedArgtoTypedArg(&args[count], 
-			va_arg(var, XtTypedArgList));
+			va_arg(var, XtTypedArgList), max_count - count);
+	    if (count < 0) {
+		XtFree((char *)args);
+		*args_return = NULL;
+		return;
+	    }
 	} else {
 	    args[count].name = attr;
 	    args[count].type = NULL;
