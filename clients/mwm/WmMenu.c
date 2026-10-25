@@ -322,6 +322,13 @@ MenuSpec *MakeMenu (WmScreenData *pSD,
     }
     if (n)
     {
+        if ((size_t)n > SIZE_MAX / sizeof(*menuSpec->menuButtons))
+        {
+            MWarning(((char *)GETMESSAGE(48, 3,
+                      "Menu button array is too large for menu %s\n")),
+                     menuName);
+            return (NULL);
+        }
         if ((menuSpec->menuButtons =
 	       (MenuButton *) XtMalloc (n * sizeof(MenuButton))) == NULL)
         /* insufficent memory */

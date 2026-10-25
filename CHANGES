@@ -9783,6 +9783,13 @@ FontSelector label initialization rollback (2026-10-28)
 SpinBox value-list SetValues rollback (2026-10-28)
 =====================================================
 
+MWM menu-button array bounds (2026-10-25)
+=========================================
+
+- Bound menu-button element-count multiplication before allocation, rejecting
+  unrepresentable arrays while preserving normal menu construction; see
+  `docs/mwm-menu-button-array-bounds.md`.
+
 MWM menu-item allocation guard (2026-10-25)
 ===========================================
 
