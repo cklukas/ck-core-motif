@@ -119,10 +119,12 @@ static void check_font_context(Display *display,XftFont *font) {
 int main(void) {
     Display *display = XOpenDisplay(NULL);
     XftFont *font;
-    XmTextLayout *arabic, *mixed, *combining, *ligature, *fallback, *tabs;
+    XmTextLayout *arabic, *mixed, *combining, *ligature, *fallback, *flags, *rtl_flags, *tabs;
     double beginning, end;
     const char *arabic_text = "\xd8\xa7\xd9\x84\xd8\xb9\xd8\xb1\xd8\xa8\xd9\x8a\xd8\xa9";
     const char *mixed_text = "abc \xd7\x90\xd7\x91\xd7\x92 \xd8\xa8\xd8\xad\xd8\xb1 xyz";
+    const char *flags_text = "\xf0\x9f\x87\xa9\xf0\x9f\x87\xaa";
+    const char *rtl_flags_text = "\xd7\x90\xd7\x91 \xf0\x9f\x87\xa9\xf0\x9f\x87\xaa";
     XftDraw *draw;
     XftColor color;
     Pixmap pixmap;
@@ -139,14 +141,18 @@ int main(void) {
     combining = XmTextLayoutCreate(display, font, "e\xcc\x81", 3);
     ligature = XmTextLayoutCreate(display, font, "office", 6);
     fallback = XmTextLayoutCreate(display, font, "latin \xe4\xb8\xad\xe6\x96\x87", 12);
+    flags = XmTextLayoutCreate(display, font, flags_text, strlen(flags_text));
+    rtl_flags = XmTextLayoutCreate(display, font, rtl_flags_text, strlen(rtl_flags_text));
     tabs = XmTextLayoutCreateWithTabWidth(display, font, "a\tb", 3, 64);
     require(arabic != NULL, "Arabic paragraph creation failed");
     require(mixed != NULL, "mixed paragraph creation failed");
     require(combining != NULL, "combining paragraph creation failed");
     require(ligature != NULL, "ligature paragraph creation failed");
     require(fallback != NULL, "font fallback paragraph creation failed");
+    require(flags != NULL, "regional-indicator grapheme layout failed");
+    require(rtl_flags != NULL, "RTL regional-indicator grapheme layout failed");
     require(tabs != NULL, "tab paragraph creation failed");
-    check_positions(arabic, arabic_text); check_positions(mixed, mixed_text); check_positions(combining, "e\xcc\x81"); check_positions(ligature, "office");
+    check_positions(arabic, arabic_text); check_positions(mixed, mixed_text); check_positions(combining, "e\xcc\x81"); check_positions(ligature, "office"); check_positions(flags, flags_text); check_positions(rtl_flags, rtl_flags_text);
     require(XmTextLayoutCaret(arabic, 0, 0, &beginning) && XmTextLayoutCaret(arabic, 7, 0, &end) && beginning > end, "RTL caret order is logical instead of visual");
     check_positions(fallback, "latin \xe4\xb8\xad\xe6\x96\x87"); check_positions(tabs, "a\tb");
     require(XmTextLayoutCaret(tabs, 2, 0, &beginning) && fabs(beginning - 64) < 0.01, "tab did not use the capture tab stop");
@@ -164,7 +170,7 @@ int main(void) {
     require(changed > 100, "shaped glyph capture painted no real text");
     XDestroyImage(image); XftColorFree(display, DefaultVisual(display, DefaultScreen(display)), DefaultColormap(display, DefaultScreen(display)), &color);
     XftDrawDestroy(draw); XFreePixmap(display, pixmap);
-    XmTextLayoutFree(arabic); XmTextLayoutFree(mixed); XmTextLayoutFree(combining); XmTextLayoutFree(ligature); XmTextLayoutFree(fallback); XmTextLayoutFree(tabs);
+    XmTextLayoutFree(arabic); XmTextLayoutFree(mixed); XmTextLayoutFree(combining); XmTextLayoutFree(ligature); XmTextLayoutFree(fallback); XmTextLayoutFree(flags); XmTextLayoutFree(rtl_flags); XmTextLayoutFree(tabs);
     XftFontClose(display, font); XCloseDisplay(display); FcFini();
     puts("Shaped Arabic/Hebrew/Latin paragraph glyphs, grapheme carets and visual hits passed");
     return 0;

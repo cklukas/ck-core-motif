@@ -722,7 +722,8 @@ XmTextLayout *XmTextParagraphLine(XmTextParagraph *paragraph, size_t first, size
      * without GDEF use evenly spaced insertion positions within that ligature. */
     pen = 0;
     for (i = 0; i < count;) {
-        size_t next = i + 1, cluster = glyphs[i].cluster, end_byte = length, first_scalar, last_scalar, j, stops = 0;
+        size_t next = i + 1, cluster = glyphs[i].cluster, end_byte = length;
+        size_t first_scalar, last_scalar, grapheme_first, grapheme_last, j, stops = 0;
         int64_t advance = glyphs[i].x_advance;
         double left = (double)pen / 64.0, right;
         int rtl;
@@ -734,6 +735,28 @@ XmTextLayout *XmTextParagraphLine(XmTextParagraph *paragraph, size_t first, size
             end_byte = clusters[lower];
         }
         if (!XmTextUnicodeScalarAtByte(layout->map, cluster, &first_scalar) || !XmTextUnicodeScalarAtByte(layout->map, end_byte, &last_scalar)) goto fail;
+        /* HarfBuzz may keep the two Regional Indicators (or a base and its
+         * combining marks) in separate glyph clusters even though Unicode
+         * treats them as one extended grapheme.  Caret geometry belongs to
+         * the complete grapheme, so extend this visual glyph group to its
+         * grapheme boundary before assigning stops. */
+        grapheme_first = first_scalar;
+        if (!XmTextUnicodeIsGraphemeBoundary(layout->map, grapheme_first) &&
+            !XmTextUnicodePreviousGrapheme(layout->map, grapheme_first, &grapheme_first)) goto fail;
+        if (!XmTextUnicodeNextGrapheme(layout->map, grapheme_first, &grapheme_last)) goto fail;
+        first_scalar = grapheme_first;
+        if (last_scalar < grapheme_last) {
+            if (!XmTextUnicodeByteAtScalar(layout->map, grapheme_last, &end_byte)) goto fail;
+            last_scalar = grapheme_last;
+        }
+        if (last_scalar == grapheme_last) {
+            while (next < count) {
+                size_t next_scalar;
+                if (!XmTextUnicodeScalarAtByte(layout->map, glyphs[next].cluster, &next_scalar)) goto fail;
+                if (next_scalar < grapheme_first || next_scalar >= grapheme_last) break;
+                advance += glyphs[next].x_advance; ++next;
+            }
+        }
         right = (double)(pen + advance) / 64.0;
         rtl = glyphs[i].rtl;
         for (j = first_scalar; j <= last_scalar; ++j) if (XmTextUnicodeIsGraphemeBoundary(layout->map, j)) ++stops;
@@ -1002,6 +1025,16 @@ int XmTextLayoutDraw(const XmTextLayout *layout, XftDraw *draw, const XftColor *
         if (gx < SHRT_MIN || gx > SHRT_MAX || gy < SHRT_MIN || gy > SHRT_MAX) continue;
         specs[count++] = (XftGlyphFontSpec){layout->glyphs[i].font, layout->glyphs[i].glyph, (short)lround(gx), (short)lround(gy)};
     }
-    XftDrawSetClip(draw, selection); XftDrawGlyphFontSpec(draw, color, specs, count);
+    /* Keep each Xft glyph request bounded.  Color glyphs can carry much more
+     * raster data than their advance suggests, and RenderAddGlyphs has a
+     * finite X11 request size.  The specs are already shaped and positioned,
+     * so batching them here cannot split a shaping run or change geometry. */
+    XftDrawSetClip(draw, selection);
+    for (i = 0; i < (size_t)count; ) {
+        size_t batch = (size_t)count - i;
+        if (batch > 8) batch = 8;
+        XftDrawGlyphFontSpec(draw, color, specs + i, (int)batch);
+        i += batch;
+    }
     XftDrawSetClip(draw, NULL); XDestroyRegion(selection); free(specs); return 1;
 }

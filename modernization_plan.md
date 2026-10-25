@@ -654,14 +654,16 @@ application journeys remain open. See
 `docs/dropsite-lifecycle.md` and `docs/dnd-transfer-lifecycle.md`.
 
 The x86_64 cohort now also passes the bounded installed text subset
-(`incremental-map`, `preedit`, `layout`, `line-context`, `unicode-widgets` and
-`font-resize`) using an explicit, fingerprinted fontconfig corpus. The runner
-records `--fontconfig-file` and its hash in the receipt. The large-text stress
-fixture remains open: enabling color-emoji fallback reaches an Xvfb
-`RenderAddGlyphs` `BadLength`, while the monochrome fallback lacks complete
-distant supplementary coverage. The result is retained as an environment and
-font-server boundary rather than weakening the fixture or claiming full
-x86_64 text acceptance.
+(`incremental-map`, `preedit`, `layout`, `line-context`, `unicode-widgets`,
+`font-resize` and `large-text`) using an explicit, fingerprinted fontconfig
+corpus. The runner records `--fontconfig-file` and its hash in the receipt.
+The text-layout implementation now groups separate HarfBuzz clusters that
+belong to one extended grapheme and batches Xft glyph requests so color-glyph
+captures remain within the X11 Render request limit. The 1 MiB large-text
+fixture passes with the color-emoji corpus; it records 1,073,152 bytes,
+761,856 scalars and 696,320 graphemes per widget with no X error or paragraph
+layout warning. This closes that bounded x86_64 text gate without claiming
+physical-display, external-IME or complete architecture acceptance.
 
 ### WP-07: Screen-reader usability and semantic completion
 

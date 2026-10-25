@@ -1,3 +1,18 @@
+Unicode grapheme capture and bounded Xft requests (2026-10-25)
+===============================================================
+
+- Keep glyph clusters that fall inside one extended grapheme together when
+  constructing caret geometry. This covers regional-indicator flags and other
+  graphemes whose shaping engine emits multiple clusters without changing the
+  public scalar-position API or splitting a visible grapheme.
+- Bound `XftDrawGlyphFontSpec` calls to small batches so large color-glyph
+  captures cannot exceed the finite X11 Render request size. Shaping and
+  coordinates remain unchanged; only the transport batching is different.
+- The installed x86_64 text cohort now passes the 1 MiB mixed-script,
+  combining, emoji, flag, ZWJ-family, RTL, CJK and wrap fixture with the
+  fingerprinted color-emoji fallback corpus. See
+  `docs/x86-text-qualification.md` and `docs/native-text-ime-matrix.md`.
+
 Bounded x86_64 Unicode text qualification (2026-10-25)
 ========================================================
 
@@ -6,9 +21,9 @@ Bounded x86_64 Unicode text qualification (2026-10-25)
   are reproducible instead of inherited from the ambient environment.
 - Qualify the x86_64 installed scalar/map, preedit-range, layout,
   line-context, Unicode-widget and font-resize fixtures with a task-local
-  CJK/Unicode corpus. The large-text stress case remains an explicit Xvfb
-  XRender/font-server boundary: color-emoji fallback reaches `BadLength`, and
-  the monochrome fallback lacks complete distant supplementary coverage.
+  CJK/Unicode corpus. The initial large-text run exposed the Xvfb
+  XRender/font-server boundary; the subsequent grapheme-capture and bounded
+  request fix is recorded in the entry above.
 
 Case-insensitive Exm demonstration build (2026-10-25)
 ======================================================

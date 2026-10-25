@@ -7,8 +7,8 @@ separate toolkit-contract test.
 
 | Boundary | AArch64 Linux (`uconsole`) | x86_64 Linux | Evidence / remaining gap |
 | --- | --- | --- | --- |
-| UTF-8 scalar and UAX #29 grapheme movement/deletion | Pass | Bounded pass | Installed scalar/map/preedit/widget fixtures pass on x86_64; the large-text stress case remains open at the Xvfb/XRender boundary described below. |
-| Combining, emoji, RTL, CJK and fallback-font corpus | Pass for recorded corpus | Bounded pass | The recorded x86_64 fontconfig corpus passes layout, line-context, Unicode-widget and font-resize fixtures; large-text emoji stress remains open. |
+| UTF-8 scalar and UAX #29 grapheme movement/deletion | Pass | Bounded pass | Installed scalar/map/preedit/widget fixtures and the 1 MiB large-text stress fixture pass on x86_64 with the recorded fallback corpus. |
+| Combining, emoji, RTL, CJK and fallback-font corpus | Pass for recorded corpus | Bounded pass | The recorded x86_64 fontconfig corpus passes layout, line-context, Unicode-widget, font-resize and large-text fixtures, including flags, ZWJ families and color-glyph transport. |
 | Non-text Unicode labels, compound strings, List search, mnemonics, ComboBox, Menu and FileSelection values | Focused pass | Focused pass | `run-nontext-unicode-regressions.py` covers combining, non-BMP and Han values, a two-segment compound `XmString` with separator checks, a non-ASCII `XmNmnemonic` round trip, and List existence/position/match search through public Label, List, ComboBox, Menu and FileSelection APIs; physical-keyboard and application journeys remain open. |
 | Local Compose/dead key | Pass with private `@im=none` Xvfb | Pending | XTest fixture proves local XIM/XIC registration and exact commits; it is not a physical-keyboard test. |
 | IBus XIM composition, commit and cancellation | Focused pass | Pending | Real IBus/m17n fixture; standalone combining-mark commit and candidate panels remain gaps. |
@@ -46,19 +46,22 @@ and file-selection directory-spec paths. It does not substitute for an
 application journey or for the remaining physical-keyboard matrix.
 
 On 2026-10-25, the x86_64 WSL2 cohort passed the installed `abi`,
-`incremental-map`, `preedit`, `layout`, `line-context`, `unicode-widgets` and
-`font-resize` fixtures. The fresh receipt is
-`/mnt/v/tmp/ckmotif-x86-20261025/results/text-pass-r2/receipt.json`; it records
-the x86_64 ELF checks, installed-header/library fingerprints and fontconfig
-file hash `3a514e14d4ddc49ef8a8eec8d293d551753ec374d03393925c22eb47d436f778`.
+`incremental-map`, `preedit`, `layout`, `line-context`, `unicode-widgets`,
+`font-resize` and `large-text` fixtures. The fresh receipt is
+`/mnt/v/tmp/ckmotif-x86-20261025/results/text-pass-r5/receipt.json`; it records
+the x86_64 ELF checks, installed-header/library fingerprints and the color-
+enabled fontconfig file hash
+`524b8206b678c48169cf9a7310303934a43618b2bafd7be8adbf231151d2fda3`.
 The task-local corpus uses Noto CJK `1:20220127+repack1-1`, Noto core
-`20201225-1build1` and Symbola `2.60-1.1`, with the Noto Color Emoji
-`2.047-0ubuntu0.22.04.1` face explicitly rejected for this Xvfb run. The
-large-text stress fixture remains unqualified: allowing the color face reaches
-an X11 RenderAddGlyphs `BadLength`, while the monochrome fallback does not
-provide a complete distant supplementary caret path. This is retained as an
-environment/font-server boundary, not converted into a weaker passing test.
-Full receipt and asset fingerprints are in `docs/x86-text-qualification.md`.
+`20201225-1build1`, Symbola `2.60-1.1` and Noto Color Emoji
+`2.047-0ubuntu0.22.04.1`. The layout capture now groups glyph clusters that
+belong to one extended grapheme, including regional-indicator flags in both LTR
+and RTL context, and drawing batches Xft glyph requests to stay
+inside the X11 Render request limit. The large fixture passes with
+1,073,152 bytes, 761,856 scalars and 696,320 graphemes per widget. This is
+bounded Xvfb evidence; physical displays, external IME services and broader
+architecture acceptance remain separate gates. Full receipt and asset
+fingerprints are in `docs/x86-text-qualification.md`.
 
 The native runner accepts repeated `--runtime-library-dir` arguments for a
 known dependency cohort. The selected Motif library directory remains first in
