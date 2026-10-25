@@ -1451,6 +1451,10 @@ XmRepTypeGetRegistered( void )
 
     OutputList = (XmRepTypeList) 
 	XtMalloc((TotalEntries + 1)  * sizeof(XmRepTypeEntryRec)) ;
+    if (OutputList == NULL) {
+	_XmProcessUnlock();
+	return NULL;
+    }
 
 
     for ( Index = 0; Index < StandardNumRecs; Index++ )
