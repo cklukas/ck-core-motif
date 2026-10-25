@@ -69,6 +69,7 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
               docs/components.md docs/disclosure.md docs/documentation.md \
               docs/modern-gallery-work-plan.md docs/modern-gallery-manifest.md \
               docs/modern-gallery-manifest.json \
+              docs/display-scale-override.md \
               .gitattributes .ckgit/build-commit .ckgit/ci.yml .github/workflows/pages.yml
 
 # Keyboard activation lifetime regression.
@@ -309,7 +310,9 @@ EXTRA_DIST += cpp/ckmotif++/motif_support.hpp tests/cpp/support_lifecycle.cpp \
 EXTRA_DIST += tests/automated/check-image-rejection-cleanup.py docs/image-rejection-cleanup.md
 EXTRA_DIST += tests/automated/check-image-screen-fallback.py docs/image-screen-fallback.md
 EXTRA_DIST += tests/automated/check-image-conversion-cleanup.py docs/image-conversion-cleanup.md
-EXTRA_DIST += tests/automated/check-dpi-control-metrics.c tests/automated/run-dpi-control-metrics.py docs/dpi-control-metrics.md
+EXTRA_DIST += tests/automated/check-dpi-control-metrics.c tests/automated/run-dpi-control-metrics.py docs/dpi-control-metrics.md \
+              tests/automated/check-display-scale-override.c tests/automated/run-display-scale-override.py
+EXTRA_DIST += tests/automated/check-configure-atomic.py
 EXTRA_DIST += tests/automated/check-cache-pixmap-input.py docs/cache-pixmap-input.md
 EXTRA_DIST += tests/automated/check-pixmap-create-failure.py docs/pixmap-create-failure.md
 EXTRA_DIST += tests/automated/check-cache-geometry-status.py docs/cache-geometry-status.md

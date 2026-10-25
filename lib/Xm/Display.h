@@ -63,6 +63,23 @@ extern Widget XmGetDragContext(
 extern Widget XmGetXmDisplay( 
                         Display *display) ;
 
+/*
+ * Set or clear a process-local scale override for this display.  The
+ * override is intended for deterministic test tools and developer controls;
+ * it is not written to the X resource database.  A finite positive value is
+ * accepted.  Toolkit defaults that use the DPI contract saturate at their
+ * documented Dimension limit, while explicit application pixel resources are
+ * unaffected.
+ */
+extern Boolean XmSetDisplayScaleOverride(
+                        Display *display,
+                        double scale);
+extern Boolean XmGetDisplayScaleOverride(
+                        Display *display,
+                        double *scale_return);
+extern Boolean XmClearDisplayScaleOverride(
+                        Display *display);
+
 /********    End Public Function Declarations    ********/
 
 #ifdef __cplusplus

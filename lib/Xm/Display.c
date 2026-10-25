@@ -126,7 +126,94 @@ static Widget GetDisplay(
 externaldef(displaymsg) String	_Xm_MOTIF_DRAG_AND_DROP_MESSAGE = NULL;
 
 static XContext	displayContext = 0;
+static XContext	displayScaleOverrideContext = 0;
 static WidgetClass curDisplayClass = NULL;
+
+typedef struct {
+  double scale;
+} XmDisplayScaleOverride;
+
+static Boolean
+get_display_scale_override(Display *display, double *scale_return)
+{
+  XmDisplayScaleOverride *override;
+  XContext context;
+
+  if (display == NULL || scale_return == NULL)
+    return False;
+
+  _XmProcessLock();
+  context = displayScaleOverrideContext;
+  if (context == 0 || XFindContext(display, None, context,
+                                  (char **)&override)) {
+    _XmProcessUnlock();
+    return False;
+  }
+  *scale_return = override->scale;
+  _XmProcessUnlock();
+  return True;
+}
+
+Boolean
+XmSetDisplayScaleOverride(Display *display, double scale)
+{
+  XmDisplayScaleOverride *override;
+  XContext context;
+
+  if (display == NULL || !isfinite(scale) || scale <= 0.0)
+    return False;
+
+  _XmProcessLock();
+  if (displayScaleOverrideContext == 0)
+    displayScaleOverrideContext = XUniqueContext();
+  context = displayScaleOverrideContext;
+  if (!XFindContext(display, None, context, (char **)&override)) {
+    override->scale = scale;
+    _XmProcessUnlock();
+    return True;
+  }
+  override = (XmDisplayScaleOverride *)XtMalloc(sizeof(*override));
+  if (override == NULL) {
+    _XmProcessUnlock();
+    return False;
+  }
+  override->scale = scale;
+  if (XSaveContext(display, None, context, (char *)override) != 0) {
+    XtFree((char *)override);
+    _XmProcessUnlock();
+    return False;
+  }
+  _XmProcessUnlock();
+  return True;
+}
+
+Boolean
+XmGetDisplayScaleOverride(Display *display, double *scale_return)
+{
+  return get_display_scale_override(display, scale_return);
+}
+
+Boolean
+XmClearDisplayScaleOverride(Display *display)
+{
+  XmDisplayScaleOverride *override;
+  XContext context;
+
+  if (display == NULL)
+    return False;
+
+  _XmProcessLock();
+  context = displayScaleOverrideContext;
+  if (context == 0 || XFindContext(display, None, context,
+                                  (char **)&override)) {
+    _XmProcessUnlock();
+    return False;
+  }
+  XDeleteContext(display, None, context);
+  _XmProcessUnlock();
+  XtFree((char *)override);
+  return True;
+}
 
 Boolean
 _XmGetGlobalDpiScale(Display *display, double *scale)
@@ -140,6 +227,9 @@ _XmGetGlobalDpiScale(Display *display, double *scale)
 
   if (display == NULL || scale == NULL)
     return False;
+
+  if (get_display_scale_override(display, scale))
+    return True;
 
   db = XrmGetDatabase(display);
   if (db == NULL)
@@ -189,6 +279,9 @@ _XmGetDpiScale(Display *display, double *scale)
 Boolean
 _XmGetWidgetDpiScale(Widget widget, double *scale)
 {
+  if (widget != NULL &&
+      get_display_scale_override(XtDisplayOfObject(widget), scale))
+    return True;
 #ifdef HAVE_XLIBRE_DPI
   if (widget != NULL && _XmXlibreDpiGetWidgetScale(widget, scale))
     return True;
@@ -763,6 +856,17 @@ DisplayDestroy(
     _XmFreeDefaultRenderTable(XtDisplay(w));
 
     _XmVirtKeysDestroy (w);
+
+    _XmProcessLock();
+    if (displayScaleOverrideContext != 0) {
+        XmDisplayScaleOverride *override = NULL;
+        if (!XFindContext(XtDisplay(w), None, displayScaleOverrideContext,
+                          (char **)&override)) {
+            XDeleteContext(XtDisplay(w), None, displayScaleOverrideContext);
+            XtFree((char *)override);
+        }
+    }
+    _XmProcessUnlock();
 
     XDeleteContext( XtDisplay( w), None, context) ;
 }

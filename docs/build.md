@@ -15,6 +15,9 @@ HarfBuzz through `pkg-config`; it requires Xft to be enabled. There is one
 ICU bidi/HarfBuzz shaping pipeline, with no GTK, Pango or Raqm dependency.
 `--enable-atspi` enables the optional D-Bus transport and requires `dbus-1`.
 The semantic provider API remains usable without that transport.
+The Unicode configure probe uses `atomic_init` rather than the removed
+`ATOMIC_VAR_INIT` macro, so current GCC and Clang drivers that select C23 mode
+still pass the C11 atomic capability check.
 
 Select explicit absolute paths appropriate to the machine:
 
