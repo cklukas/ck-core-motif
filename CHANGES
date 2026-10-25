@@ -9983,6 +9983,12 @@ XmScale conversion allocation guards (2026-10-25)
 - Refuse target conversion cleanly when target-list, string, or compound-text
   result allocation fails; see `docs/scale-convert-allocation.md`.
 
+Accessibility name allocation guard (2026-10-25)
+================================================
+
+- Fail accessibility creation cleanly when application-name storage cannot be
+  allocated; see `docs/accessibility-name-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
