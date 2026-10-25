@@ -10,4 +10,6 @@ region = source[start:end]
 assert "label_length > (size_t)(INT_MAX - 4) / 8" in region
 assert "long long rtl_x" in region
 assert "draw_length" in region
+assert "long long depth_offset" in source
+assert "item_x < INT_MIN" in source
 print("PASS tree-view RTL label geometry is bounded")

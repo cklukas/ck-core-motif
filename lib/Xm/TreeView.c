@@ -303,11 +303,16 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                            view->core.width > 3 ? view->core.width - 3 : 1,
                            view->tree_view.row_height > 3 ?
                            view->tree_view.row_height - 3 : 1);
-        if (!view->tree_view.rtl)
-            x = 4 + depth_of(view, (Cardinal)index) * view->tree_view.indent;
-        else
-            x = (int)view->core.width - 14 -
-                depth_of(view, (Cardinal)index) * view->tree_view.indent;
+        {
+            long long depth_offset = (long long)depth_of(view, (Cardinal)index) *
+                                     view->tree_view.indent;
+            long long origin = view->tree_view.rtl ?
+                               (long long)view->core.width - 14 : 4;
+            long long item_x = view->tree_view.rtl ? origin - depth_offset :
+                               origin + depth_offset;
+            x = item_x < INT_MIN ? INT_MIN :
+                (item_x > INT_MAX ? INT_MAX : (int)item_x);
+        }
         if (view->tree_view.items[index].has_children) {
             if (!view->tree_view.rtl)
                 draw_disclosure(view, x, y, view->tree_view.items[index].expanded);
