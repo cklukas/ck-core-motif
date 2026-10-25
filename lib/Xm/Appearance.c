@@ -132,6 +132,13 @@ typedef struct _XmAppearanceWidgetState {
     struct _XmAppearanceWidgetState *next;
 } XmAppearanceWidgetState;
 
+typedef struct {
+    XmAppearanceWidgetState *state;
+    XtArgVal values[AP_COUNT];
+    Boolean owned[AP_COUNT];
+    Boolean apply[AP_COUNT];
+} XmAppearanceChangePlan;
+
 typedef struct _XmAppearanceDisplayState {
     Display *display;
     XrmDatabase application_database;
@@ -574,69 +581,63 @@ static void initialize_appearance_state(XmAppearanceWidgetState *state,
                                         XmAppearanceProfile current_profile);
 
 static Boolean
-appearance_widget_validate(XmAppearanceWidgetState *state,
-                            XmAppearanceProfile new_profile)
+appearance_widget_prepare(XmAppearanceWidgetState *state,
+                           XmAppearanceProfile new_profile,
+                           XmAppearanceChangePlan *plan)
 {
-    XtArgVal values[AP_COUNT];
+    XtArgVal current[AP_COUNT];
 
-    read_appearance_values(state, values);
+    plan->state = state;
+    memcpy(plan->owned, state->owned, sizeof(plan->owned));
+    read_appearance_values(state, current);
     for (AppearanceProperty property = 0; property < AP_COUNT; ++property) {
         const char *profile_text;
-        XtArgVal converted;
 
-        if (!state->supported[property] || !state->owned[property])
-            continue;
-        /* A value changed outside the transaction is no longer toolkit-owned;
-         * appearance_widget_apply() will preserve it. */
-        if (values[property] != state->last[property])
-            continue;
-        profile_text = profile_property_string(state->widget, new_profile,
-                                               property);
-        if (profile_text != NULL &&
-            !profile_property_value(state->widget, new_profile, property,
-                                    &converted))
-            return False;
-    }
-    return True;
-}
-
-static Boolean
-appearance_widget_apply(XmAppearanceWidgetState *state,
-                         XmAppearanceProfile new_profile)
-{
-    Arg set_args[AP_COUNT];
-    XtArgVal values[AP_COUNT];
-    Cardinal count = 0;
-
-    read_appearance_values(state, values);
-    for (AppearanceProperty property = 0; property < AP_COUNT; ++property) {
-        XtArgVal value;
-        const char *profile_text;
         if (!state->supported[property])
             continue;
-        if (state->owned[property] && values[property] != state->last[property])
-            state->owned[property] = False;
-        if (!state->owned[property])
+        /* A value changed outside the transaction is no longer toolkit-owned;
+         * the prepared plan preserves that application value. */
+        if (plan->owned[property] &&
+            current[property] != state->last[property])
+            plan->owned[property] = False;
+        if (!plan->owned[property])
             continue;
         profile_text = profile_property_string(state->widget, new_profile,
                                                property);
         if (profile_text == NULL)
-            value = state->original[property];
+            plan->values[property] = state->original[property];
         else if (!profile_property_value(state->widget, new_profile, property,
-                                         &value))
+                                         &plan->values[property]))
             return False;
-        XtSetArg(set_args[count], (String)appearance_property_name(property),
-                 value);
-        ++count;
-        state->last[property] = value;
+        plan->apply[property] = True;
     }
+    return True;
+}
+
+static void
+appearance_widget_commit(XmAppearanceChangePlan *plan)
+{
+    XmAppearanceWidgetState *state = plan->state;
+    Arg set_args[AP_COUNT];
+    Cardinal count = 0;
+
+    memcpy(state->owned, plan->owned, sizeof(state->owned));
+    for (AppearanceProperty property = 0; property < AP_COUNT; ++property)
+        if (plan->apply[property]) {
+            XtSetArg(set_args[count],
+                     (String)appearance_property_name(property),
+                     plan->values[property]);
+            ++count;
+            state->last[property] = plan->values[property];
+        }
     if (count != 0)
         XtSetValues(state->widget, set_args, count);
-    read_appearance_values(state, state->last);
-    if (XtIsRealized(state->widget))
-        XClearArea(XtDisplay(state->widget), XtWindow(state->widget),
-                   0, 0, 0, 0, True);
-    return True;
+    if (state->widget != NULL) {
+        read_appearance_values(state, state->last);
+        if (XtIsRealized(state->widget))
+            XClearArea(XtDisplay(state->widget), XtWindow(state->widget),
+                       0, 0, 0, 0, True);
+    }
 }
 
 static void
@@ -708,6 +709,7 @@ _XmApplyAppearanceChange(Display *display, XmAppearanceProfile old_profile,
                          XmAppearanceProfile new_profile)
 {
     XmAppearanceWidgetState **snapshot = NULL;
+    XmAppearanceChangePlan *plans = NULL;
     XmAppearanceWidgetState *state;
     Cardinal count = 0;
     Boolean success = True;
@@ -719,6 +721,13 @@ _XmApplyAppearanceChange(Display *display, XmAppearanceProfile old_profile,
     if (count != 0)
         snapshot = (XmAppearanceWidgetState **)XtMalloc(count * sizeof(*snapshot));
     if (count != 0 && snapshot == NULL) {
+        _XmProcessUnlock();
+        return False;
+    }
+    if (count != 0)
+        plans = (XmAppearanceChangePlan *)calloc(count, sizeof(*plans));
+    if (count != 0 && plans == NULL) {
+        XtFree((char *)snapshot);
         _XmProcessUnlock();
         return False;
     }
@@ -735,7 +744,7 @@ _XmApplyAppearanceChange(Display *display, XmAppearanceProfile old_profile,
         if (!state->retired && state->widget != NULL) {
             if (!state->initialized)
                 initialize_appearance_state(state, old_profile);
-            if (!appearance_widget_validate(state, new_profile))
+            if (!appearance_widget_prepare(state, new_profile, &plans[i]))
                 success = False;
         }
         if (!success)
@@ -753,13 +762,14 @@ _XmApplyAppearanceChange(Display *display, XmAppearanceProfile old_profile,
         }
         if (snapshot != NULL)
             XtFree((char *)snapshot);
+        if (plans != NULL)
+            free(plans);
         return False;
     }
     for (Cardinal i = 0; i < count; ++i) {
         state = snapshot[i];
-        if (!state->retired && state->widget != NULL &&
-            !appearance_widget_apply(state, new_profile))
-            success = False;
+        if (!state->retired && state->widget != NULL)
+            appearance_widget_commit(&plans[i]);
         _XmProcessLock();
         if (state->references != 0)
             --state->references;
@@ -769,6 +779,8 @@ _XmApplyAppearanceChange(Display *display, XmAppearanceProfile old_profile,
     }
     if (snapshot != NULL)
         XtFree((char *)snapshot);
+    if (plans != NULL)
+        free(plans);
     return success;
 }
 

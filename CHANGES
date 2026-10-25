@@ -5735,6 +5735,14 @@ Appearance transaction reentrancy (2026-10-25)
   preserving the outer transaction's resource and widget state; the installed
   consumer fixture exercises both nested paths under Xvfb.
 
+Appearance transaction atomicity (2026-10-25)
+==============================================
+
+- Prepare all profile-owned conversions before committing any widget values,
+  retaining one conversion result per widget. A Linux fault-injection
+  consumer verifies that staging allocation failure leaves the selected
+  profile and realized resources unchanged, then permits a later transition.
+
 Display-scale transaction rollback (2026-10-25)
 ===============================================
 
