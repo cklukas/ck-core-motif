@@ -10,4 +10,5 @@ assert "Table table = { NULL, NULL, NULL, NULL };" in region
 assert "if (dest_image->data == NULL)" in region
 assert "if (table.x == NULL || table.y == NULL" in region
 assert "goto cleanup;" in region
+assert "dest_y > INT_MAX - (int)dest_height" in region
 print("image scaling checks destination and lookup-table allocations")

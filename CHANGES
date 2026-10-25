@@ -1,3 +1,9 @@
+Image scaling destination coordinate bounds (2026-10-25)
+=========================================================
+
+- Reject scaled image uploads whose destination y origin plus image height
+  would overflow the signed X11 coordinate type; see `docs/image-scaling.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 
