@@ -655,12 +655,16 @@ Pixmap
 XiCreateStippledPixmap(Screen *screen, 
 		       Pixel fore, Pixel back, unsigned int depth)
 {
-    register Display *display = DisplayOfScreen(screen);
+    register Display *display;
     CacheEntry *cachePtr;
     Pixmap stippled_pixmap;
     static unsigned char pixmap_bits[] = {
 	0x02, 0x01,
     };
+
+    if (screen == NULL)
+        return (XmUNSPECIFIED_PIXMAP);
+    display = DisplayOfScreen(screen);
 
     /* see if we already have a pixmap suitable for this screen */
     for (cachePtr = pixmapCache; cachePtr; cachePtr = cachePtr->next) {
@@ -672,9 +676,15 @@ XiCreateStippledPixmap(Screen *screen,
     stippled_pixmap = XCreatePixmapFromBitmapData (display,
 			RootWindowOfScreen(screen), (char *)pixmap_bits, 
 			pixmap_width, pixmap_height, fore, back, depth);
+    if (stippled_pixmap == XmUNSPECIFIED_PIXMAP)
+        return (XmUNSPECIFIED_PIXMAP);
 
     /* and insert it at the head of the cache */
     cachePtr = XtNew(CacheEntry);
+    if (cachePtr == NULL) {
+        XFreePixmap(display, stippled_pixmap);
+        return (XmUNSPECIFIED_PIXMAP);
+    }
     cachePtr->screen = screen;
     cachePtr->foreground = fore;
     cachePtr->background = back;
@@ -692,8 +702,12 @@ XiCreateStippledPixmap(Screen *screen,
 void 
 XiReleaseStippledPixmap(Screen *screen, Pixmap pixmap)
 {
-    register Display *display = DisplayOfScreen(screen);
+    register Display *display;
     CacheEntry *cachePtr, **prevP;
+
+    if (screen == NULL || pixmap == XmUNSPECIFIED_PIXMAP)
+        return;
+    display = DisplayOfScreen(screen);
 
     _XmProcessLock();
     for (prevP = &pixmapCache, cachePtr = pixmapCache; cachePtr;)

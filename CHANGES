@@ -319,6 +319,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  in-use entries; see docs/xm-scratch-pixmap-failure.md.
 
 2026-10-25
+	* Guard Xm stippled-pixmap creation, cache-entry allocation, and release
+	  arguments; see docs/xm-stippled-pixmap-failure.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,
