@@ -10170,6 +10170,13 @@ XmString optimized clone allocation guards (2026-10-25)
   preventing wraparound and null-pointer dereferences; see
   `docs/xmstring-clone-allocation.md`.
 
+XmString substring line allocation guards (2026-10-25)
+=======================================================
+
+- Create substring line entries transactionally and propagate allocation
+  failures instead of dereferencing partial state; see
+  `docs/xmstring-new-line-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

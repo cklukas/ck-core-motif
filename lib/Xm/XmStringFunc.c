@@ -46,7 +46,7 @@ static char rcsid[] = "$TOG: XmStringFunc.c /main/9 1999/10/14 11:20:50 mgreess 
 
 /********    Static Function Declarations    ********/
 
-static void new_line(_XmString string) ;
+static Boolean new_line(_XmString string) ;
 
 /********    End Static Function Declarations    ********/
 
@@ -454,26 +454,47 @@ XmeGetNextCharacter(XtPointer     *in_out,
   return XmINSERT;
 }
 
-static void 
+static Boolean
 new_line(
         _XmString string )
 {
     int lc = _XmStrEntryCount(string);
     _XmStringEntry line;
+    _XmStringEntry *entries;
+    size_t count;
+
+    if (lc < 0)
+      return False;
+    count = (size_t)lc + 1;
+    if (count > SIZE_MAX / sizeof(*entries) ||
+        count > (size_t)UINT_MAX / sizeof(*entries))
+      return False;
+
+    /* _XmEntryCreate predates allocation-failure handling and dereferences
+       its result immediately, so create this array entry transactionally. */
+    line = (_XmStringEntry)XtMalloc(sizeof(_XmStringArraySegRec));
+    if (line == NULL)
+      return False;
+    bzero((char *)line, sizeof(_XmStringArraySegRec));
+    _XmEntryType(line) = XmSTRING_ENTRY_ARRAY;
+    _XmEntryTextTypeSet(line, XmNO_TEXT);
+
+    entries = (_XmStringEntry *)XtRealloc((char *)_XmStrEntry(string),
+                                           count * sizeof(*entries));
+    if (entries == NULL) {
+      XtFree((char *)line);
+      return False;
+    }
     
     _XmStrImplicitLine(string) = TRUE;
-
-    _XmStrEntry(string) = (_XmStringEntry *) 
-      XtRealloc((char *) _XmStrEntry(string), 
-		sizeof(_XmStringEntry) * (lc + 1));
-    
-    _XmEntryCreate(line, XmSTRING_ENTRY_ARRAY);
-    _XmStrEntry(string)[lc] = line;
+    _XmStrEntry(string) = entries;
+    entries[lc] = line;
 
     _XmEntrySegmentCount(line) = 0;
     _XmEntrySegment(line) = NULL;
 
     _XmStrEntryCount(string)++;
+    return True;
 }
 
 static XmString
@@ -496,7 +517,11 @@ MakeStrFromSeg(XmStringContext start)
     if (_XmEntryMultiple(line[_XmStrContCurrLine(start)])) {
       segs = (_XmStringEntry*)_XmEntrySegment(line[_XmStrContCurrLine(start)]);
       
-      new_line(str);
+      if (!new_line(str)) {
+	_XmStrContError(start) = TRUE;
+	_XmStrFree(str);
+	return NULL;
+      }
     
       if (_XmStrContCurrSeg(start) < _XmEntrySegmentCount(line)) {
 	seg = segs[_XmStrContCurrSeg(start)];
@@ -509,7 +534,11 @@ MakeStrFromSeg(XmStringContext start)
 	_XmStrContTag(start)     = _XmEntryTag(seg);
 	_XmStrContTagType(start) = (XmTextType) _XmEntryTextTypeGet(seg);
       } else {
-	new_line(str);
+	if (!new_line(str)) {
+	  _XmStrContError(start) = TRUE;
+	  _XmStrFree(str);
+	  return NULL;
+	}
 	_XmStrContCurrSeg(start) = 0;
 	_XmStrContCurrLine(start)++;
       }
