@@ -1,3 +1,9 @@
+Handle NULL TabList comparisons (2026-10-26)
+=============================================
+
+- Treat two absent lists as equal and avoid dereferencing either pointer; see
+  `docs/tablist-compare-null.md`.
+
 Guard TabList masked NULL arguments (2026-10-26)
 ================================================
 
