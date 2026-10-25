@@ -201,3 +201,11 @@ their legacy byte-count helper.  The focused check is:
 ```sh
 python3 tests/automated/check-textfield-selection-span.py
 ```
+
+TreeView labels now use an owned copy of the widget render table for extent
+measurement and drawing, including localized `XmString` content.  The focused
+check is:
+
+```sh
+python3 tests/automated/check-treeview-text-metrics.py
+```

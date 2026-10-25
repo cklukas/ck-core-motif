@@ -14771,6 +14771,13 @@ Gallery notebook page spacing (2026-10-27)
 - Give the Welcome, Example, and Source notebook pages consistent inner
   margins so headings, controls, and source views do not touch the page frame.
 
+TreeView render-table text (2026-10-27)
+=======================================
+
+- Draw TreeView labels through the widget's copied `XmNrenderTable` using
+  `XmStringExtent`/`XmStringDraw`, so locale text and gallery font resources
+  use the same metrics as other Motif controls.
+
 Validate TextField selection spans (2026-10-27)
 ================================================
 

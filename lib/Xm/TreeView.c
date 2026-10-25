@@ -17,28 +17,6 @@ static int clamp_coordinate(long long value) {
            value > INT_MAX ? INT_MAX : (int)value;
 }
 
-static void text_metrics(XmTreeViewWidget view, int *ascent, int *descent,
-                         int *width, const char *text, int length) {
-    XGCValues values;
-    XFontStruct *font = NULL;
-    int measured = 0;
-    *ascent = 0;
-    *descent = 0;
-    *width = 0;
-    if (!view->tree_view.gc ||
-        !XGetGCValues(XtDisplay((Widget)view), view->tree_view.gc, GCFont,
-                      &values))
-        return;
-    font = XQueryFont(XtDisplay((Widget)view), values.font);
-    if (!font)
-        return;
-    *ascent = font->ascent;
-    *descent = font->descent;
-    measured = (text && length > 0) ? XTextWidth(font, text, length) : 0;
-    *width = measured < 0 ? 0 : measured;
-    XFreeFontInfo(NULL, font, 1);
-}
-
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Redisplay(Widget, XEvent *, Region);
 static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
@@ -46,6 +24,18 @@ static void Destroy(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
+
+static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
+{
+    XmTreeViewWidget view = (XmTreeViewWidget)widget;
+    (void)offset;
+    if (view->tree_view.check_set_render_table)
+        value->addr = NULL;
+    else {
+        view->tree_view.check_set_render_table = True;
+        value->addr = (char *)&view->tree_view.render_table;
+    }
+}
 
 #define Offset(field) XtOffsetOf(XmTreeViewRec, field)
 static XtResource resources[] = {
@@ -59,6 +49,10 @@ static XtResource resources[] = {
      sizeof(Cardinal), Offset(tree_view.top_row), XmRImmediate, (XtPointer)0},
     {XmNtreeViewRtl, XmCTreeViewRtl, XmRBoolean, sizeof(Boolean),
      Offset(tree_view.rtl), XmRImmediate, (XtPointer)False},
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmRenderTable),
+     Offset(tree_view.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmRenderTable),
+     Offset(tree_view.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNtreeViewSelectionCallback, XmCTreeViewSelectionCallback, XmRCallback,
      sizeof(XtCallbackList), Offset(tree_view.selection_callback), XmRPointer,
      (XtPointer)NULL},
@@ -272,6 +266,12 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     view->tree_view.items = NULL;
     view->tree_view.count = 0;
     view->tree_view.selected_id = NULL;
+    if (view->tree_view.render_table == NULL)
+        view->tree_view.render_table = XmFontListCopy(
+            XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+    else
+        view->tree_view.render_table = XmFontListCopy(
+            view->tree_view.render_table);
     if (!view->tree_view.row_height)
         view->tree_view.row_height = 1;
     if (!view->tree_view.visible_rows)
@@ -302,6 +302,8 @@ static void Destroy(Widget widget) {
     for (i = 0; i < view->tree_view.count; ++i)
         XtFree(view->tree_view.items[i].label);
     XtFree((char *)view->tree_view.items);
+    if (view->tree_view.render_table)
+        XmRenderTableFree(view->tree_view.render_table);
     if (view->tree_view.gc)
         XFreeGC(XtDisplay(widget), view->tree_view.gc);
 }
@@ -336,12 +338,10 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Window window = XtWindow(widget);
     Cardinal row, total = visible_count(view);
     int index;
-    int font_ascent, font_descent, unused_width;
     const char *label;
     (void)event; (void)region;
     if (!window || !view->tree_view.gc)
         return;
-    text_metrics(view, &font_ascent, &font_descent, &unused_width, NULL, 0);
     XClearWindow(display, window);
     for (row = 0; row < view->tree_view.visible_rows; ++row) {
         Cardinal absolute = view->tree_view.top_row + row;
@@ -378,26 +378,28 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         label = view->tree_view.items[index].label ?
                 view->tree_view.items[index].label : "";
         {
-            size_t label_length = strlen(label);
-            int draw_length = label_length > (size_t)INT_MAX ? INT_MAX :
-                              (int)label_length;
-            int label_width = 0;
-            int baseline;
-            text_metrics(view, &font_ascent, &font_descent, &label_width,
-                         label, draw_length);
-            baseline = clamp_coordinate((long long)y +
-                ((long long)view->tree_view.row_height - font_ascent - font_descent) / 2 +
-                font_ascent);
+            Dimension label_width = 0, label_height = 0;
+            XmString label_string = XmStringCreateLocalized((char *)label);
+            if (view->tree_view.render_table && label_string)
+                XmStringExtent(view->tree_view.render_table, label_string,
+                               &label_width, &label_height);
         if (!view->tree_view.rtl)
             x += 14;
         else {
-            long long rtl_x = (long long)x - label_width - 4;
+            long long rtl_x = (long long)x - (long long)label_width - 4;
             x = rtl_x < INT_MIN ? INT_MIN :
                 (rtl_x > INT_MAX ? INT_MAX : (int)rtl_x);
         }
-        XDrawString(display, window, view->tree_view.gc, x,
-                    baseline,
-                    label, draw_length);
+        if (view->tree_view.render_table && label_string) {
+            int label_y = y + ((int)view->tree_view.row_height -
+                               (int)label_height) / 2;
+            XmStringDraw(display, window, view->tree_view.render_table,
+                         label_string, view->tree_view.gc, x, label_y,
+                         label_width, XmALIGNMENT_BEGINNING,
+                         XmPrim_layout_direction(view), NULL);
+        }
+        if (label_string)
+            XmStringFree(label_string);
         }
     }
     if (view->primitive.highlighted && view->primitive.highlight_thickness &&
@@ -524,11 +526,20 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         view->tree_view.row_height = 1;
     if (view->tree_view.visible_rows == 0)
         view->tree_view.visible_rows = 1;
+    if (old->tree_view.render_table != view->tree_view.render_table) {
+        XmRenderTable new_table = view->tree_view.render_table ?
+            XmFontListCopy(view->tree_view.render_table) :
+            XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+        if (old->tree_view.render_table)
+            XmRenderTableFree(old->tree_view.render_table);
+        view->tree_view.render_table = new_table;
+    }
     return old->tree_view.indent != view->tree_view.indent ||
            old->tree_view.row_height != view->tree_view.row_height ||
            old->tree_view.visible_rows != view->tree_view.visible_rows ||
            old->tree_view.top_row != view->tree_view.top_row ||
-           old->tree_view.rtl != view->tree_view.rtl;
+           old->tree_view.rtl != view->tree_view.rtl ||
+           old->tree_view.render_table != view->tree_view.render_table;
 }
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,

@@ -29,6 +29,8 @@ typedef struct _XmTreeViewPart {
     Dimension row_height;
     Cardinal visible_rows;
     Boolean rtl;
+    XmRenderTable render_table;
+    Boolean check_set_render_table;
     XtCallbackList selection_callback;
     XtCallbackList expansion_callback;
     GC gc;
