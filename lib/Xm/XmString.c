@@ -1687,14 +1687,31 @@ XmStringConcatAndFree(XmString a,
     }
   else if (_XmStrOptimized(a))
     {
+	_XmStringEntry *new_entries;
       a_str = _XmStringOptToNonOpt((_XmStringOpt)a);
+      if (a_str == NULL) {
+	_XmProcessUnlock();
+	XmStringFree(a);
+	XmStringFree(b);
+	return NULL;
+      }
       if (a_lc > 1 && !_XmStrAddNewline(a) && _XmStrAddNewline(b)) {
 	segs = _XmStrEntry(a_str);
 	_XmStrEntry(a_str) = NULL;
       }
-      _XmStrEntry(a_str) = (_XmStringEntry *)
-	XtRealloc((char*) _XmStrEntry(a_str),
-		  (Cardinal)(sizeof(_XmStringEntry) * (size_t)lc));
+      new_entries = (_XmStringEntry *)XtRealloc(
+	  (char*) _XmStrEntry(a_str),
+	  (Cardinal)(sizeof(_XmStringEntry) * (size_t)lc));
+      if (new_entries == NULL) {
+	if (segs)
+	  _XmStrEntry(a_str) = segs;
+	_XmProcessUnlock();
+	XmStringFree(a_str);
+	XmStringFree(a);
+	XmStringFree(b);
+	return NULL;
+      }
+      _XmStrEntry(a_str) = new_entries;
       for (i = (segs ? 0 : a_lc); i < lc; i++)
 	_XmStrEntry(a_str)[i] = NULL;
     }
