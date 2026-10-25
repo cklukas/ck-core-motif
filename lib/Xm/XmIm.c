@@ -1174,7 +1174,10 @@ _XmImFreeShellData(Widget     widget,
       assert((xic_info != im_info->iclist) ||
 	     (reference != xic_info->widget_refs.refs[0]));
     }
-  assert(im_info->shell_xic == NULL);
+  /* A stale sharing pointer may survive an unusual teardown ordering even
+   * after the XIC list is empty.  The shell is being released, so discard it
+   * rather than aborting destruction. */
+  im_info->shell_xic = NULL;
   
   /* Delete the dummy widget. */
 #ifdef FIX_1534

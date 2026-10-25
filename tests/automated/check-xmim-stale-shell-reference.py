@@ -15,5 +15,9 @@ close_start = source.index("XmImCloseXIM(")
 close = source[close_start:source.index("/*********************", close_start)]
 assert "remove_ref(&xim_info->shell_refs, shell)" in close
 assert "assert((xim_info->shell_refs.refs == NULL)" not in close
+free_start = source.index("_XmImFreeShellData(")
+free_shell = source[free_start:source.index("/* Delete the dummy widget.", free_start)]
+assert "im_info->shell_xic = NULL;" in free_shell
+assert "assert(im_info->shell_xic == NULL)" not in free_shell
 
 print("XmIm stale shell-reference guard: ok")

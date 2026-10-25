@@ -53,6 +53,13 @@ XmIm close stale-reference cleanup (2026-10-26)
   closing an XIM instead of asserting and aborting shutdown; see
   `docs/xmim-stale-shell-reference.md`.
 
+XmIm shell-sharing teardown guard (2026-10-26)
+===============================================
+
+- Clear a leftover per-shell sharing pointer after XIC cleanup instead of
+  asserting during shell destruction; see
+  `docs/xmim-stale-shell-reference.md`.
+
 List single-selection normalization (2026-10-26)
 =================================================
 
