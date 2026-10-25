@@ -19,6 +19,12 @@ Toolbar and status-bar layout bounds (2026-10-27)
 - Apply the same wide-accumulator and X11-position clamp to toolbar actions
   and status-bar items, preventing large composite layouts from wrapping.
 
+NumberBox arrow coordinate bounds (2026-10-27)
+==============================================
+
+- Clamp the arrow origin before converting its polygon points to X11 shorts,
+  keeping maximum-width NumberBox controls drawable instead of wrapping left.
+
 Gallery inventory and human-readable navigation (2026-10-27)
 ==============================================================
 

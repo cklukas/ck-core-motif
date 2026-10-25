@@ -170,7 +170,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     XFontStruct *font;
     XGCValues gc_values;
     int baseline;
-    Position arrow_x;
+    int arrow_x;
     XPoint up[3], down[3];
     GC text_gc;
     (void)event; (void)region;
@@ -193,6 +193,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                 baseline, number->number_box.text,
                 bounded_text_length(number->number_box.text));
     arrow_x = number->core.width > 24 ? number->core.width - 24 : 0;
+    if (arrow_x > SHRT_MAX - 19)
+        arrow_x = SHRT_MAX - 19;
     XDrawLine(display, window, number->number_box.arrow_gc, arrow_x, 0,
               arrow_x, number->core.height);
     up[0].x = (short)(arrow_x + 12); up[0].y = 5;
