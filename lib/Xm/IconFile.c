@@ -581,9 +581,16 @@ static XmHashValue
 HashIconName (XmHashKey key)
 {
   DtIconNameEntry data = (DtIconNameEntry) key;
-  unsigned int len = strlen(data->key_name);
+  size_t len;
+  unsigned int folded_len;
 
-  return (((len << 8) | data->key_name[0]) << 8) | data->key_name[len];
+  if (data == NULL || data->key_name == NULL)
+    return 0;
+  len = strlen(data->key_name);
+  folded_len = (unsigned int)((uintmax_t)len ^ ((uintmax_t)len >> 32));
+  return (XmHashValue)((((folded_len << 8) |
+			      (unsigned int)(unsigned char)data->key_name[0]) << 8) |
+			    (unsigned int)(unsigned char)data->key_name[len]);
 }
 
 
@@ -896,8 +903,15 @@ XmGetIconFileName(
 
 	if (iconNameCache != NULL) {
 	    _XmProcessLock();
-	    _XmAddHashEntry(iconNameCache, (XmHashKey)iNameEntry,
-			    (XtPointer)iNameEntry);
+	    if (!_XmAddHashEntry(iconNameCache, (XmHashKey)iNameEntry,
+				 (XtPointer)iNameEntry)) {
+		_XmProcessUnlock();
+		XtFree(iNameEntry->leafName);
+		XtFree(iNameEntry->dirName);
+		XtFree(iNameEntry->key_name);
+		XtFree((char *)iNameEntry);
+		goto skip_icon_name_cache;
+	    }
 	    _XmProcessUnlock();
 	} else {
 	    XtFree(iNameEntry->leafName);
