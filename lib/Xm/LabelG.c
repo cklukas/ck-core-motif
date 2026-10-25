@@ -3895,7 +3895,7 @@ int *line_count)
     delta = LabG_TextRect_y(lw) - lw->label.baselines[count];
         if (delta)
     {
-        int tmp;
+        Cardinal tmp;
             for (tmp = 0; tmp <= count; tmp++)
             lw->label.baselines[tmp] += delta;
     }
