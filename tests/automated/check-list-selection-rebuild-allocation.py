@@ -8,6 +8,7 @@ items_start = source.rindex("BuildSelectedList(XmListWidget lw")
 items_end = source.index("BuildSelectedPositions(", items_start)
 items = source[items_start:items_end]
 assert "lw->list.selectedItems = (XmString *)XtMalloc" in items
+assert "UINT_MAX / sizeof(XmString)" in items
 assert "if (lw->list.selectedItems == NULL)" in items
 assert items.index("if (lw->list.selectedItems == NULL)") < items.index("lw->list.selectedItems[j]")
 

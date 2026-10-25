@@ -1,3 +1,9 @@
+List selection-copy allocation bounds (2026-10-28)
+===================================================
+
+- Check Xt `Cardinal` byte limits alongside `size_t` before copying List item
+  and selection arrays; see `docs/list-copy-allocation-bounds.md`.
+
 Compound-text concatenation failure handling (2026-10-28)
 ============================================================
 
