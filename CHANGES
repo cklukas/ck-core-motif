@@ -3879,3 +3879,9 @@ Make traversal pool shrinking transactional (2026-10-25)
 - Trim excess traversal storage only after a successful reallocation, and use
   overflow-safe capacity comparisons; see
   `docs/traversal-node-allocation.md`.
+
+Harden traversal exclusive tab-list allocation (2026-10-25)
+==============================================================
+
+- Publish exclusive tab-list creation, growth and opportunistic shrinking only
+  after successful allocation; see `docs/traversal-tab-list.md`.

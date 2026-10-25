@@ -229,6 +229,7 @@ EXTRA_DIST += tests/automated/check-icon-cache-growth-allocation.py docs/icon-di
 EXTRA_DIST += tests/automated/check-traversal-node-allocation.py docs/traversal-node-allocation.md
 EXTRA_DIST += tests/automated/check-traversal-row-allocation.py docs/traversal-row-allocation.md
 EXTRA_DIST += tests/automated/check-traversal-shrink-allocation.py
+EXTRA_DIST += tests/automated/check-traversal-tablist-allocation.py docs/traversal-tab-list.md
 EXTRA_DIST += tests/automated/check-txtpropcv-single-allocation.py docs/motif-txtpropcv-single.md
 EXTRA_DIST += tests/automated/check-mwm-session-db-path.py docs/mwm-session-db-path.md
 EXTRA_DIST += tests/automated/check-mwm-display-env-bounds.py docs/mwm-display-env-bounds.md
