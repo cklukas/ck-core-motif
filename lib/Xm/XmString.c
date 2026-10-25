@@ -9510,6 +9510,10 @@ _XmStringContextCopy(_XmStringContext target,
   if (_XmStrContRendCount(target) > 0) {
      size = sizeof(XmStringTag) * _XmStrContRendCount(target);
      _XmStrContRendTags(target) = (XmStringTag*) XtMalloc(size);
+     if (_XmStrContRendTags(target) == NULL) {
+        _XmStrContRendCount(target) = 0;
+        return;
+     }
      memcpy(_XmStrContRendTags(target), _XmStrContRendTags(source), size);
   }
 }

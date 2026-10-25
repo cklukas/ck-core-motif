@@ -13,6 +13,8 @@ Xft compound-string line height (2026-10-27)
   allocations, result growth, and size arithmetic before copying.
 - Guard copied XmString text-component buffers and end iteration safely when
   their size is unrepresentable or allocation fails.
+- Guard active rendition-tag allocation when copying an XmString context,
+  preserving a valid context with no active tags on failure.
 
 Accessibility D-Bus memo allocation (2026-10-27)
 =================================================
