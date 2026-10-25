@@ -370,6 +370,10 @@ _XmIsISO10646(Display *dpy, XFontStruct *font)
     Atom registry;
     XFontProp *xfp;
 
+    if (dpy == NULL || font == NULL ||
+        (font->n_properties != 0 && font->properties == NULL))
+	return False;
+
     ok = False;
     registry = XInternAtom(dpy, "CHARSET_REGISTRY", False);
 

@@ -11,6 +11,8 @@ def main() -> None:
     start = SOURCE.index("_XmIsISO10646")
     end = SOURCE.index("XChar2b*", start)
     body = SOURCE[start:end]
+    assert "if (dpy == NULL || font == NULL" in body
+    assert "font->properties == NULL" in body
     assert "regname != NULL" in body
     assert "strcmp(regname, \"ISO10646\")" in body
     assert "XFree(regname);" in body

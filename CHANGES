@@ -13671,7 +13671,8 @@ Cached XmString constructor safety (2026-10-26)
 ISO-10646 registry lookup guard (2026-10-26)
 ==============================================
 
-- Handle failed `XGetAtomName` lookups safely in `_XmIsISO10646`; see
+- Reject missing font inputs and handle failed `XGetAtomName` lookups safely
+  in `_XmIsISO10646`; see
   `docs/xm-iso10646-registry.md`.
 
 Xme class-dialog child rollback (2026-10-26)
