@@ -483,6 +483,10 @@ MakeStrFromSeg(XmStringContext start)
     
     /* Create XmString structure */
     _XmStrCreate(str, XmSTRING_MULTIPLE_ENTRY, 0);
+    if (str == NULL) {
+      _XmStrContError(start) = TRUE;
+      return NULL;
+    }
     
     if (_XmEntryMultiple(line[_XmStrContCurrLine(start)])) {
       segs = (_XmStringEntry*)_XmEntrySegment(line[_XmStrContCurrLine(start)]);

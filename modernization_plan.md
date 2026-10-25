@@ -2084,6 +2084,11 @@ allocations before initialization, preserving source and copied ownership on
 failure. The source contract is recorded in
 `tests/automated/check-xmstring-entry-allocation.py` and
 `docs/xmstring-entry-allocation.md`.
+Internal XmString conversion constructors now check representation allocations
+before initialization, and segment extraction reports failed construction
+through its context error state. The source contract is recorded in
+`tests/automated/check-xmstring-conversion-failures.py` and
+`docs/xmstring-conversion-failures.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the

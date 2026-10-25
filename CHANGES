@@ -127,6 +127,13 @@ XmString entry allocation failures (2026-10-26)
 - Check internal array-entry allocations before initialization and preserve
   copied ownership on failure; see `docs/xmstring-entry-allocation.md`.
 
+XmString conversion allocation failures (2026-10-26)
+======================================================
+
+- Check internal conversion representations before initialization and
+  propagate failed segment extraction cleanly; see
+  `docs/xmstring-conversion-failures.md`.
+
 XmString extraction output validation (2026-10-26)
 ====================================================
 
