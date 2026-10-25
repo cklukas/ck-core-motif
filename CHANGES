@@ -1,4 +1,8 @@
 2026-10-25
+	* Validate tab-list copy offsets and ranges before calculating source
+	  addresses; see docs/tablist-copy-offset.md.
+
+2026-10-25
 	* Treat empty tab lists as a valid cleanup case and release their shell
 	  state without dereferencing a missing first tab; see
 	  docs/tablist-free-empty.md.
