@@ -184,8 +184,8 @@ _XmResizeHashTable(XmHashTable table, Cardinal new_size)
   /* Replace the bucket array only after the new allocation succeeds. */
   oldsize = table -> size;
   old_buckets = table->buckets;
-  new_buckets = (XmHashBucket *)XtMalloc((size_t)size_table[i] *
-                                         sizeof(*new_buckets));
+  new_buckets = (XmHashBucket *)XtMalloc((Cardinal)((size_t)size_table[i] *
+                                         sizeof(*new_buckets)));
   if (new_buckets == NULL)
     return;
   memcpy(new_buckets, old_buckets,

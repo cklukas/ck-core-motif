@@ -12146,3 +12146,9 @@ Hierarchy child-list allocation width (2026-10-26)
 
 - Pass the checked child-list byte count explicitly as an Xt `Cardinal`;
   see `docs/hierarchy-child-lists.md`.
+
+Xm hash resize allocation width (2026-10-26)
+============================================
+
+- Pass the bounded replacement bucket-array size explicitly as an Xt
+  `Cardinal`; see `docs/xm-hash-allocation.md`.
