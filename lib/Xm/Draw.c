@@ -232,7 +232,7 @@ void XmeDrawHighlight(Display *display, Drawable d,
     draw_width = (int) width;
     draw_height = (int) height;
     thickness = (int) highlight_thickness;
-    if (!d || draw_width <= 0 || draw_height <= 0 || thickness <= 0)
+    if (!d || !gc || draw_width <= 0 || draw_height <= 0 || thickness <= 0)
 	return ;
     if (thickness > draw_width)
 	thickness = draw_width;

@@ -1,3 +1,10 @@
+XmeDrawHighlight graphics-context guard (2026-10-26)
+======================================================
+
+- Return early when the highlight GC is missing, avoiding invalid Xlib fill
+  calls during widget initialization or teardown; see
+  `docs/draw-highlight-gc-guards.md`.
+
 XmeDrawShadows graphics-context guards (2026-10-26)
 ====================================================
 
