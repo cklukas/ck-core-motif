@@ -6954,3 +6954,10 @@ PushButton erase-shadow bounds (2026-10-25)
   subtraction wraparound; see `docs/pushb-erase-shadow-bounds.md`.
 
 MainWindow layout bounds (2026-10-25)
+PushButton default-glyph bounds (2026-10-25)
+============================================
+
+- Guard optional default-glyph placement and erasure against collapsed margins
+  and unsigned height subtraction; see `docs/pushb-glyph-bounds.md`.
+
+PushButton erase-shadow bounds (2026-10-25)

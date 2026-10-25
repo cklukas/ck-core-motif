@@ -890,24 +890,33 @@ DrawDefaultGlyphPixmap(
         XmPushButtonWidget pb )
 { 
   int dx, dy, width, height ;
+  int content_height;
+  int right_offset;
   Pixmap def_pixmap ;
   unsigned int def_pixmap_width, def_pixmap_height ;
   
   def_pixmap = _XmGetDefaultGlyphPixmap(XtScreen((Widget)(pb)), 
 					&def_pixmap_width, 
 					&def_pixmap_height) ;
+
+  content_height = MAX((int)Lab_TextRect_height(pb),
+			       (int)pb->label.acc_TextRect.height);
+  right_offset = (int)(Lab_MarginRight(pb) + Lab_MarginWidth(pb)) +
+	                (int)pb->primitive.highlight_thickness +
+	                (int)pb->primitive.shadow_thickness;
+  if ((int)pb->core.width <= right_offset || content_height <= 0 ||
+      def_pixmap_width == 0 || def_pixmap_height == 0)
+    return;
   
   /* we draw in the margin right area here */
-  dx = pb->core.width -
-    (Lab_MarginRight(pb) + Lab_MarginWidth(pb) +
-     pb->primitive.highlight_thickness + pb->primitive.shadow_thickness) ;
+  dx = (int)pb->core.width - right_offset;
   dy = pb->primitive.highlight_thickness +
     pb->primitive.shadow_thickness + Lab_MarginTop(pb) + Lab_MarginHeight(pb) + 
-      (MAX(Lab_TextRect_height(pb),
-	   pb->label.acc_TextRect.height) - def_pixmap_height)/2;
+      (content_height - (int)def_pixmap_height)/2;
   width = MIN(def_pixmap_width, Lab_MarginRight(pb));
-  height = MIN(def_pixmap_height, 
-	       MAX(Lab_TextRect_height(pb), pb->label.acc_TextRect.height));
+  height = MIN((int)def_pixmap_height, content_height);
+  if (width <= 0 || height <= 0)
+    return;
   XCopyPlane (XtDisplay (pb), def_pixmap, XtWindow (pb),
 	      pb->label.normal_GC, 0, 0, width, height, dx, dy, 1);
 }
@@ -924,16 +933,23 @@ EraseDefaultGlyphPixmap(
         XmPushButtonWidget pb )
 { 
   int dx, dy, width, height ;
+  int right_offset;
+
+  right_offset = (int)(Lab_MarginRight(pb) + Lab_MarginWidth(pb)) +
+                 (int)pb->primitive.highlight_thickness +
+                 (int)pb->primitive.shadow_thickness;
+  if ((int)pb->core.width <= right_offset)
+    return;
   
   /* we clear the margin right area here */
-  dx = pb->core.width -
-    (Lab_MarginRight(pb) + Lab_MarginWidth(pb) +
-     pb->primitive.highlight_thickness + pb->primitive.shadow_thickness) ;
+  dx = (int)pb->core.width - right_offset;
   dy = pb->primitive.highlight_thickness +
     pb->primitive.shadow_thickness + Lab_MarginTop(pb) + Lab_MarginHeight(pb) ;
 
   width = Lab_MarginRight(pb) ;
   height = MAX(Lab_TextRect_height(pb), pb->label.acc_TextRect.height) ;
+  if (width <= 0 || height <= 0)
+    return;
 
   XClearArea (XtDisplay (pb), XtWindow (pb),
 	      dx, dy, width, height, False);
