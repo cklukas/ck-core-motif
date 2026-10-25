@@ -14310,3 +14310,9 @@ XPM next-string lookahead initialization (2026-10-26)
 - Initialize the XPM buffer scanner's lookahead character before empty/end of
   buffer checks, avoiding undefined reads on malformed input; see
   `docs/xpm-next-string-init.md`.
+GrabShell geometry initialization (2026-10-26)
+==============================================
+
+- Initialize the shell geometry request before adding border and shadow
+  extents, avoiding undefined dimensions when no child size is supplied; see
+  `docs/grab-shell-geometry-init.md`.

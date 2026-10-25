@@ -617,7 +617,7 @@ ChangeManaged(Widget wid)
   XmGrabShellWidget gs = (XmGrabShellWidget)wid;
   ShellWidget       shell = (ShellWidget)wid;
   Dimension         bw = 0;
-  XtWidgetGeometry  pref, mygeom, replygeom;
+  XtWidgetGeometry  pref, mygeom = { 0 }, replygeom;
   XtGeometryResult  result;
   Widget	    child;
   
