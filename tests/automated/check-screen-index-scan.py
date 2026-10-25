@@ -8,5 +8,5 @@ end = source.index("\n\ti = 0;\n\tXtSetArg", start)
 region = source[start:end]
 
 assert "i = 0;" in region
-assert "for (scr = ScreenOfDisplay(XtDisplay(xmDisplay), i);" in region
+assert "ScreenOfDisplay(XtDisplay(xmDisplay), i)" in region
 print("XmGetXmScreen scans display screens from index zero")

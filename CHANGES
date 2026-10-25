@@ -1,3 +1,11 @@
+Source-contract verifier maintenance (2026-10-25)
+==================================================
+
+- Refresh the no-argument automated checks for the current bounded Mrm, image,
+  XmString, render-table, screen, tab-list and resource-converter paths.  The
+  checks now validate the active safety and ownership contracts instead of
+  relying on pre-hardening formatting or removed implementation text.
+
 ProgressRing additive control (2026-10-25)
 ===========================================
 

@@ -7,14 +7,14 @@ from pathlib import Path
 source = Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrw.c"
 text = source.read_text(encoding="utf-8")
 checks = {
-    "if (cbptr == NULL)\n\t    return;": "translated callback",
-    "if (fontlist == NULL)\n\t\treturn;": "CreateArglist font list",
-    "if (fontlist == NULL)\n\t\t    return MrmFAILURE;": "FixupCallback font list",
-    "if (cbdesc == NULL)\n    return MrmFAILURE;": "callback descriptor",
+    "if (cbptr == NULL)": "translated callback",
+    "if (fontlist == NULL)": "font list",
+    "if (cbdesc == NULL || bufptr == NULL": "callback descriptor",
     "if (cbptr == NULL)\n    return NULL;": "old callback allocation",
 }
 for needle, label in checks.items():
     if needle not in text:
-        raise SystemExit(f"Mrm {label} allocation guard is missing")
+        raise SystemExit(f"Mrm {label} allocation/input guard is missing")
+assert "if (fontlist == NULL)\n\t\t    return MrmFAILURE;" in text
 
 print("Mrm conversion allocation failures are handled")

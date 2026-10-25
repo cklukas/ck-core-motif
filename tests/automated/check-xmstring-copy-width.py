@@ -4,7 +4,7 @@ from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmStringSeg.c").read_text()
 start = source.index("/* Copy the text. */")
-end = source.index("\n\t  *text = (XtPointer) tmp;", start)
+end = source.index("\n  /* Free the local context. */", start)
 region = source[start:end]
 assert "type == XmWIDECHAR_TEXT" in region
 assert "sizeof(wchar_t)" in region

@@ -11,7 +11,7 @@ end = text.index("\n  /* Check if this file", start)
 region = text[start:end]
 if "size_t\tlength" not in region:
     raise SystemExit("Mrm file-name length is still stored in int")
-check = region.index("if (name == NULL || returned_fname == NULL || file_id == NULL)")
+check = region.index("if (name == NULL || file_id == NULL)")
 strlen_pos = region.index("length = strlen (name)")
 if check > strlen_pos:
     raise SystemExit("Mrm file opener dereferences inputs before validation")

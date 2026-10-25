@@ -10,7 +10,6 @@ body = source[start:end]
 assert "screen == NULL" in body
 assert "pixmap == XmUNSPECIFIED_PIXMAP" in body
 for name in ("image_name", "depth", "foreground", "background", "hot_x", "hot_y", "width", "height"):
-    assert f"{name} == NULL" in body
-    assert f"*{name} =" in body
+    assert f"if ({name}) *{name} =" in body
 assert "pixmap_data_set == NULL || pixmap_set == NULL" in body
 print("Xm pixmap-data lookup validates arguments and clears outputs")

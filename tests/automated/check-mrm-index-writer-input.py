@@ -7,10 +7,10 @@ from pathlib import Path
 source = Path(__file__).parents[2] / "lib" / "Mrm" / "MrmIindexw.c"
 text = source.read_text(encoding="utf-8")
 for name in ("Idb__INX_EnterLeafIndex", "Idb__INX_EnterNodeIndex"):
-    start = text.index(name + " (", text.index("Cardinal", text.index(name)))
-    next_function = text.index("\n}\n", start)
-    region = text[start:next_function]
-    guard = region.index("if (file_id == NULL || buffer == NULL || index == NULL)")
+    start = text.index(name + " (")
+    next_function = text.find("\n\f", start)
+    region = text[start:] if next_function < 0 else text[start:next_function]
+    guard = region.index("file_id == NULL || buffer == NULL || buffer->IDB_record == NULL")
     strlen = region.index("strlen(index)")
     if guard > strlen:
         raise SystemExit(f"{name} dereferences index before validation")

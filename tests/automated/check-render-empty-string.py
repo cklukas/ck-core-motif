@@ -9,7 +9,7 @@ text = source.read_text(encoding="utf-8")
 
 if 'new_token -> string = XtNewString("");' not in text:
     raise SystemExit("empty quoted token does not produce an empty string")
-if "pos += count + 2; /* Move past end quote */" not in text:
-    raise SystemExit("empty quoted token does not advance past the quote")
+if "pos += closed ? end_offset + 1 : end_offset;" not in text:
+    raise SystemExit("quoted token does not advance past its closing quote")
 
 print("render lexer advances empty quoted tokens")

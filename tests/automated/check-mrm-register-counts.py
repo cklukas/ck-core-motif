@@ -22,7 +22,7 @@ for function, source in (
             raise SystemExit(f"{function} count guard missing: {needle}")
 
 for label, source in (("global", wci), ("hierarchy", hier)):
-    if "if (num_cb < 0)" not in source:
+    if "if (num_cb < 0 || (num_cb > 0 &&" not in source:
         raise SystemExit(f"{label} internal registration count guard missing")
 
 print("Mrm name-registration counts are validated")

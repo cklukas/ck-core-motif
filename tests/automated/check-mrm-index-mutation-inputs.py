@@ -14,5 +14,8 @@ for function, guard in checks.items():
     start = source.index("\n" + function + " (")
     next_start = source.find("\nCardinal\n", start + 1)
     region = source[start:] if next_start < 0 else source[start:next_start]
-    assert guard in region, function
+    if function == "Idb__INX_ConfirmNodeSpace":
+        assert "file_id == NULL || ! Idb__INX_ValidNode(buffer)" in region, function
+    else:
+        assert guard in region, function
 print("Mrm index mutation helpers validate record inputs")
