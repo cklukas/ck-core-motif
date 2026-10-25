@@ -1,3 +1,10 @@
+ComboBox default-action copy failure (2026-10-28)
+====================================================
+
+- Avoid dispatching a default-action callback with a NULL copied item when
+  the edit value cannot be duplicated; the original edit value remains owned
+  by the ComboBox; see `docs/combobox-default-action-copy.md`.
+
 SpinBox constraint value-table bounds (2026-10-28)
 =====================================================
 

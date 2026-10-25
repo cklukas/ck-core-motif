@@ -1457,19 +1457,25 @@ ComboBoxParentProcess(Widget		  wid,
 	      if (pos)
 		{
 		  call_data.item		    = XmStringCopy(item);
-		  call_data.item_length             = XmStringLength(item);
-		  call_data.item_position	    = pos;
-		  call_data.selected_item_count     = 1;
-		  call_data.selected_item_positions = &pos;
-		  call_data.selected_items	    = &item;
+		  if (call_data.item != NULL)
+		    {
+		      call_data.item_length         = XmStringLength(item);
+		      call_data.item_position	    = pos;
+		      call_data.selected_item_count = 1;
+		      call_data.selected_item_positions = &pos;
+		      call_data.selected_items	    = &item;
+		    }
 		}
-	      call_data.reason = XmCR_DEFAULT_ACTION;
-	      call_data.event = event->input_action.event;
+	      if (call_data.item != NULL)
+		{
+		  call_data.reason = XmCR_DEFAULT_ACTION;
+		  call_data.event = event->input_action.event;
 
-	      XtCallCallbacks(CB_List(cb), XmNdefaultActionCallback,
-			      (XtPointer)&call_data);
+		  XtCallCallbacks(CB_List(cb), XmNdefaultActionCallback,
+				  (XtPointer)&call_data);
 
-	      XmStringFree(call_data.item);
+		  XmStringFree(call_data.item);
+		}
 	    }
 
 	  XmStringFree(item);
