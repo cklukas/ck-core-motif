@@ -20,4 +20,5 @@ assert "if (!label) continue;" in rebuild
 assert "if (!shortcut)" in rebuild
 assert "if (!combined)" in rebuild
 assert "if (display)" in rebuild
+assert "SIZE_MAX - 3" in rebuild
 print("command-palette item input and allocation failures are guarded")
