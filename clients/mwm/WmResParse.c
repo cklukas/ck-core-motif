@@ -7508,6 +7508,8 @@ void ProcessMotifBindings (void)
     char           *fileName;
     char           *homeDir = XmeGetHomeDirName();
     size_t          fileNameLength;
+    size_t          homeLength;
+    size_t          bindingLength;
 #else
     char           fileName[MAXWMPATH+1];
     FILE          *fileP;
@@ -7525,7 +7527,12 @@ void ProcessMotifBindings (void)
 #else
     if (homeDir == NULL)
         homeDir = "";
-    fileNameLength = strlen(homeDir) + strlen(MOTIF_BINDINGS_FILE) + 2;
+    homeLength = strlen(homeDir);
+    bindingLength = strlen(MOTIF_BINDINGS_FILE);
+    if (homeLength > SIZE_MAX - bindingLength - 2 ||
+        homeLength + bindingLength + 2 > UINT_MAX)
+        return;
+    fileNameLength = homeLength + bindingLength + 2;
     fileName = (char *)XtMalloc((unsigned int)fileNameLength);
     if (fileName == NULL)
         return;

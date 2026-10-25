@@ -145,6 +145,8 @@ EXTRA_DIST += tests/automated/check-mwm-action-arg-realloc.py \
               docs/mwm-action-arg-reallocation.md
 EXTRA_DIST += tests/automated/check-mwm-session-command-rollback.py \
               docs/mwm-session-command-rollback.md
+EXTRA_DIST += tests/automated/check-mwm-bindings-path-size.py \
+              docs/mwm-bindings-path-size.md
 
 # Keyboard activation lifetime regression.
 EXTRA_DIST += tests/automated/check-button-timers.c docs/button-timers.md

@@ -10964,3 +10964,9 @@ MWM session-command parsing rollback (2026-10-25)
 - Build restored command vectors transactionally, checking sizes and freeing
   temporary tokens when an allocation fails; see
   `docs/mwm-session-command-rollback.md`.
+
+MWM motif-bindings path sizing (2026-10-25)
+============================================
+
+- Check the combined home-directory and `.motifbind` path length before
+  allocating the generated filename; see `docs/mwm-bindings-path-size.md`.

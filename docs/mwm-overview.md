@@ -33,6 +33,7 @@ clients exchanging Motif window-management messages.
 - [Session database-name allocation](mwm-db-name-allocation.md)
 - [Action-argument reallocation](mwm-action-arg-reallocation.md)
 - [Session-command parsing rollback](mwm-session-command-rollback.md)
+- [Motif-bindings path sizing](mwm-bindings-path-size.md)
 
 These focused pages document compatibility-preserving guards; they do not
 change public MWM resource or message formats.
