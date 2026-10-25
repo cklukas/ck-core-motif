@@ -818,7 +818,8 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	    return BadAlloc;
 	}
 	string_table =
-	    (XmStringTable)XtMalloc(sizeof(XmString) * (*count_return));
+	    (XmStringTable)XtMalloc(
+		(Cardinal)(sizeof(XmString) * (size_t)*count_return));
 	if (string_table == NULL) {
 	    _XmAppUnlock(app);
 	    return BadAlloc;
@@ -839,7 +840,15 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 					 remaining);
 	    segment_length = nul ? (size_t)(nul - (text_prop->value + offset))
 				  : remaining;
-	    segment = (char *)XtMalloc(segment_length + 1);
+	    if (segment_length + 1 > UINT_MAX) {
+		int cleanup;
+		for (cleanup = 0; cleanup < i; ++cleanup)
+		    XmStringFree(string_table[cleanup]);
+		XtFree((char *)string_table);
+		_XmAppUnlock(app);
+		return BadAlloc;
+	    }
+	    segment = (char *)XtMalloc((Cardinal)(segment_length + 1));
 	    if (segment == NULL) {
 		int cleanup;
 		for (cleanup = 0; cleanup < i; ++cleanup)

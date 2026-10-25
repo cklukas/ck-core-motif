@@ -33,10 +33,11 @@ rejects `int` counter overflow and pointer-table allocation overflow. The input
 contract is covered by `tests/automated/check-text-property-inputs.py`.
 
 Compound-text import now finds segment boundaries with `memchr` limited to the
-declared property length, copies each segment into a terminated temporary string,
-and retains the historical trailing empty element. Missing terminators therefore
-cannot make the converter read beyond Xlib’s payload. The parser contract is
-covered by `tests/automated/check-compound-text-import.py`.
+declared property length, checks Xt-sized table and segment allocations, copies
+each segment into a terminated temporary string, and retains the historical
+trailing empty element. Missing terminators therefore cannot make the converter
+read beyond Xlib’s payload. The parser contract is covered by
+`tests/automated/check-compound-text-import.py`.
 
 Motif compound-string (ASN.1) import now verifies every encoded element length
 against the property’s remaining bytes before advancing or converting it. Zero

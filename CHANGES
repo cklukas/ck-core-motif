@@ -12101,3 +12101,11 @@ Bound locale text-property allocation widths (2026-10-26)
   `Cardinal` range; see `docs/text-property-bounds.md`.
 
 Bound compound-text table allocation widths (2026-10-26)
+Bound compound-text import allocation widths (2026-10-26)
+=========================================================
+
+- Pass explicit Xt-sized table and segment allocations through compound-text
+  import and reject unrepresentable segment lengths; see
+  `docs/text-property-bounds.md`.
+
+Bound locale text-property allocation widths (2026-10-26)

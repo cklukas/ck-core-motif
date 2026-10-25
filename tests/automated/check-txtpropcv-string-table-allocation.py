@@ -3,6 +3,7 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "TxtPropCv.c").read_text()
+assert "(Cardinal)(sizeof(XmString) * (size_t)*count_return)" in source
 start = source.index("if (text_prop->encoding == atoms[XmACOMPOUND_TEXT])")
 body = source[start:source.index("/* Now convert each bounded", start)]
 assert "string_table =" in body
