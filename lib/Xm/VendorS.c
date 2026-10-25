@@ -651,6 +651,7 @@ ClassInitialize( void )
   int                         i, j;
   XtResourceList              uncompiled;
   Cardinal                    num;
+  size_t                      merged_count;
 
 /**************************************************************************
    ShellExt's and VendorShellExt's resource lists are being merged into one
@@ -669,8 +670,20 @@ ClassInitialize( void )
 
   sc_num_res = xmShellExtClassRec.object_class.num_resources;
 
-  merged_list = (XtResource *)XtMalloc((sizeof(XtResource) * (wc_num_res +
-                                                                 sc_num_res)));
+  if ((size_t)wc_num_res > SIZE_MAX / sizeof(XtResource) -
+      (size_t)sc_num_res ||
+      (size_t)wc_num_res + (size_t)sc_num_res >
+      (size_t)UINT_MAX / sizeof(XtResource)) {
+    _XmProcessUnlock();
+    return;
+  }
+  merged_count = (size_t)wc_num_res + (size_t)sc_num_res;
+  merged_list = (XtResource *)XtMalloc(
+      (Cardinal)(merged_count * sizeof(XtResource)));
+  if (merged_list == NULL) {
+    _XmProcessUnlock();
+    return;
+  }
 
   _XmTransformSubResources(xmShellExtClassRec.object_class.resources,
                            sc_num_res, &uncompiled, &num);

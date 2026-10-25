@@ -8243,3 +8243,12 @@ MWM binding-string growth (2026-10-27)
 
 RCMenu callback-closure snapshot allocation (2026-10-27)
 ========================================================
+VendorShell resource-list allocation (2026-10-27)
+=================================================
+
+- Validate merged resource-list sizing and check allocation before filling the
+  VendorShell extension table.  Class initialization now unlocks and returns
+  safely when the merged list cannot be allocated.
+
+MWM binding-string growth (2026-10-27)
+======================================
