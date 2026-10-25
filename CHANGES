@@ -211,6 +211,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  docs/mrm-context-valid-macro.md.
 
 2026-10-25
+	* Reject null Mrm widget records before byte-swapping malformed read
+	  results; see docs/mrm-widget-read-null.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,
