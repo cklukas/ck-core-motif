@@ -506,22 +506,22 @@ _XmGetPixmapBasedGC(
    if ((pixmap != None) && (pixmap != XmUNSPECIFIED_PIXMAP)) {
        int depth ;
 
-       XmeGetPixmapData(XtScreen(w), pixmap,
-			NULL,    
+	if (XmeGetPixmapData(XtScreen(w), pixmap,
+			NULL,
 			&depth,
-			NULL, NULL, NULL, NULL, NULL, NULL); 
-        
-       if (depth == 1) {
-	   valueMask |= GCFillStyle | GCStipple ;
-	   values.fill_style = FillOpaqueStippled;
-	   values.stipple = pixmap;
-	   /* topShadowPixmap has a foreground=background=1 */
-	   if (foreground == background) values.foreground = background?0:1;
-       } else {
-	   valueMask |= GCFillStyle | GCTile ;
-	   values.fill_style = FillTiled;
-	   values.tile = pixmap;
-       }	   
+			NULL, NULL, NULL, NULL, NULL, NULL)) {
+	   if (depth == 1) {
+	       valueMask |= GCFillStyle | GCStipple ;
+	       values.fill_style = FillOpaqueStippled;
+	       values.stipple = pixmap;
+	       /* topShadowPixmap has a foreground=background=1 */
+	       if (foreground == background) values.foreground = background?0:1;
+	   } else {
+	       valueMask |= GCFillStyle | GCTile ;
+	       values.fill_style = FillTiled;
+	       values.tile = pixmap;
+	   }
+	}
 	       
    }
 

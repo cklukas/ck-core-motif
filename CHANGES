@@ -1,3 +1,10 @@
+PixConv pixmap metadata guard (2026-10-25)
+===========================================
+
+- Configure tile and stipple GCs only after successful pixmap metadata lookup,
+  avoiding uninitialized-depth behavior for unresolved pixmaps; see
+  `docs/pixconv-pixmap-metadata.md`.
+
 LabelG pixmap metadata guards (2026-10-25)
 ===========================================
 
