@@ -3959,3 +3959,10 @@ Guard Text textual trait callbacks (2026-10-25)
 
 - Validate access-textual callbacks in the public Text string helpers; see
   `docs/motif-text-textual-trait.md`.
+
+Fix SelectionBox compound-text updates (2026-10-25)
+=====================================================
+
+- Pass converted compound text to the text child, handle conversion failure
+  without leaking the transfer buffer, and validate the textual trait
+  callback; see `docs/motif-selectionbox-compound-text.md`.

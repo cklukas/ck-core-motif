@@ -1318,11 +1318,13 @@ ListCallback(
 	unsigned long	size;
 	int		format;
 	Boolean		success;
+	Boolean		update_success;
 	
 
 	textTrait = (XmAccessTextualTrait)
 	  XmeTraitGet((XtPointer) XtClass(SB_Text(sel)), XmQTaccessTextual);
-	if (textTrait == NULL) return; /* Abort if text child is broken */
+	if (textTrait == NULL || textTrait->setValue == NULL)
+	    return; /* Abort if text child is broken */
 
 	assert(XtNumber(atom_names) == NUM_ATOMS);
 	XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), 
@@ -1335,6 +1337,7 @@ ListCallback(
                                                        callback->item_position;
 
 	success = False;
+	update_success = False;
 	/* 
 	 * Obtain item.  
 	 * 
@@ -1357,24 +1360,31 @@ ListCallback(
 	  if (type == atoms[XmA_MOTIF_COMPOUND_STRING]) {
 	    XmString temp;
 	    temp = XmCvtByteStreamToXmString((unsigned char *) value);
-	    
-	    textTrait -> setValue(SB_Text(sel), temp, XmFORMAT_XmSTRING);
-	    XmStringFree(temp);
+	    if (temp != NULL) {
+	      textTrait -> setValue(SB_Text(sel), temp, XmFORMAT_XmSTRING);
+	      XmStringFree(temp);
+	      update_success = True;
+	    }
 	  } else if (type == atoms[XmACOMPOUND_TEXT]) {
 	    XmString temp;
 	    temp = XmCvtCTToXmString((char*) value);
-	    textTrait -> setValue(SB_Text(sel), value, XmFORMAT_XmSTRING);
-	    XmStringFree(temp);
+	    if (temp != NULL) {
+	      textTrait -> setValue(SB_Text(sel), temp, XmFORMAT_XmSTRING);
+	      XmStringFree(temp);
+	      update_success = True;
+	    }
 	  } else if (type == XA_STRING) {
 	    textTrait -> setValue(SB_Text(sel), value, XmFORMAT_MBYTE);
+	    update_success = True;
 	  }
 	}
 
 	if(success)
 	{   
-	  XmTextFieldSetInsertionPosition(SB_Text (sel),
-				       XmTextFieldGetLastPosition( SB_Text( sel))) ;
 	  XtFree((char*) value);
+	  if (update_success)
+	    XmTextFieldSetInsertionPosition(SB_Text (sel),
+				         XmTextFieldGetLastPosition( SB_Text( sel))) ;
 	} 
         /* Catch only double-click default action here.
         *  Key press events are handled through the ParentProcess routine.
