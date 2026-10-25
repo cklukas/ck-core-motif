@@ -3662,3 +3662,10 @@ Guard Text drop and selection value allocations (2026-10-25)
 - Reject failed text drop-record, TARGETS, encoding, XA_STRING,
   compound-text, UTF-8 and source-value allocations before initialization or
   copying; see the corresponding `docs/motif-text*.md` contracts.
+Guard FileSB allocation failures (2026-10-25)
+==============================================
+
+- Check File Selection Box temporary text, list, qualified-mask and
+  conversion-target allocations before initialization or copying, preserving
+  existing widget state and releasing owned intermediates on failure; see the
+  corresponding `docs/motif-filesb-*.md` contracts.

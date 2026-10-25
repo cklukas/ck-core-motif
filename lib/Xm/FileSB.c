@@ -1059,6 +1059,8 @@ FSBCreateFilterText(
             Arg             arglist[10] ;
             int             argCount ;
             char *          stext_value ;
+            Boolean         stext_owned = True;
+            static char     empty_value[] = "";
             XtAccelerators  temp_accelerators ;
 /****************/
 
@@ -1070,7 +1072,12 @@ FSBCreateFilterText(
     */
     if(    !(stext_value = _XmStringGetTextConcat( FS_Pattern( fs)))    )
     {   stext_value = (char *) XtMalloc( 1) ;
-        stext_value[0] = '\0' ;
+        if (stext_value != NULL)
+            stext_value[0] = '\0' ;
+        else {
+            stext_value = empty_value;
+            stext_owned = False;
+        }
         }
     argCount = 0 ;
     XtSetArg( arglist[argCount], XmNcolumns, 
@@ -1088,7 +1095,8 @@ FSBCreateFilterText(
     XtInstallAccelerators( FS_FilterText( fs), (Widget) fs) ;
     fs->core.accelerators = temp_accelerators ;
 
-    XtFree( stext_value) ;
+    if (stext_owned)
+        XtFree( stext_value) ;
     return ;
     }
 
@@ -1100,6 +1108,8 @@ FSBCreateDirText(
             Arg             arglist[10] ;
             int             argCount ;
             char *          stext_value ;
+            Boolean         stext_owned = True;
+            static char     empty_value[] = "";
             XtAccelerators  temp_accelerators ;
 /****************/
 
@@ -1111,7 +1121,12 @@ FSBCreateDirText(
     */
     if(    !(stext_value = _XmStringGetTextConcat( FS_Directory( fs)))    )
     {   stext_value = (char *) XtMalloc( 1) ;
-        stext_value[0] = '\0' ;
+        if (stext_value != NULL)
+            stext_value[0] = '\0' ;
+        else {
+            stext_value = empty_value;
+            stext_owned = False;
+        }
         }
     argCount = 0 ;
     XtSetArg( arglist[argCount], XmNcolumns, 
@@ -1129,7 +1144,8 @@ FSBCreateDirText(
     XtInstallAccelerators(FS_DirText( fs), (Widget) fs) ;
     fs->core.accelerators = temp_accelerators ;
 
-    XtFree( stext_value) ;
+    if (stext_owned)
+        XtFree( stext_value) ;
     return ;
     }
 
@@ -1847,6 +1863,15 @@ FileSearchProc(
 		  _XmOSFileCompare) ;
 	
         XmStringFileList = (XmString *) XtMalloc(numFiles * sizeof( XmString)) ;
+        if(    XmStringFileList == NULL    )
+        {   Index = numFiles ;
+            while(    Index--    )
+            {   XtFree( fileList[Index]) ;
+                }
+            XtFree( (char *) fileList) ;
+            fileList = NULL ;
+            goto file_search_done ;
+            }
         
         Index = 0 ;
 	dirLen = strlen( dir) ;
@@ -1888,6 +1913,7 @@ FileSearchProc(
     {   XtSetArg( args[0], XmNitemCount, 0) ;
         XtSetValues( SB_List( fs), args, 1) ;
         } 
+file_search_done:
     FS_ListUpdated( fs) = TRUE ;
 
     XtFree( (char *) fileList) ;
@@ -1931,6 +1957,15 @@ QualifySearchDataProc(
             char *          patternPartPtr ;
             unsigned int    qDirLen ;
 /****************/
+
+    qualifiedSearchData->value = NULL ;
+    qualifiedSearchData->mask = NULL ;
+    qualifiedSearchData->dir = NULL ;
+    qualifiedSearchData->pattern = NULL ;
+    qualifiedSearchData->length = 0 ;
+    qualifiedSearchData->mask_length = 0 ;
+    qualifiedSearchData->dir_length = 0 ;
+    qualifiedSearchData->pattern_length = 0 ;
 
     maskString = _XmStringGetTextConcat( searchData->mask) ;
     dirString = _XmStringGetTextConcat( searchData->dir) ;
@@ -2015,6 +2050,14 @@ QualifySearchDataProc(
         }
     qDirLen = strlen( qualifiedDir) ;
     qualifiedMask = XtMalloc( 1 + qDirLen + strlen( qualifiedPattern)) ;
+    if(    qualifiedMask == NULL    )
+    {   XtFree( qualifiedPattern) ;
+        XtFree( qualifiedDir) ;
+        XtFree( patternString) ;
+        XtFree( dirString) ;
+        XtFree( maskString) ;
+        return ;
+        }
     strcpy( qualifiedMask, qualifiedDir) ;
     strcpy( &qualifiedMask[qDirLen], qualifiedPattern) ;
 
@@ -2044,13 +2087,23 @@ QualifySearchDataProc(
             else
               {   
                 String dirStr = _XmStringGetTextConcat( FS_Directory( fs)) ;
-                unsigned dirLen = strlen( dirStr) ;
+                if(    dirStr == NULL    )
+                  {   valueString = fileStr ;
+                      }
+                else
+                  {   unsigned dirLen = strlen( dirStr) ;
 
-                valueString = XtMalloc( dirLen + strlen( fileStr) + 1) ;
-                strcpy( valueString, dirStr) ;
-                strcpy( &valueString[dirLen], fileStr) ;
-                XtFree( fileStr) ;
-                XtFree( dirStr) ;
+                      valueString = XtMalloc( dirLen + strlen( fileStr) + 1) ;
+                      if(    valueString != NULL    )
+                        {   strcpy( valueString, dirStr) ;
+                            strcpy( &valueString[dirLen], fileStr) ;
+                            XtFree( fileStr) ;
+                            }
+                      else
+                        {   valueString = fileStr ;
+                            }
+                      XtFree( dirStr) ;
+                      }
               } 
           } 
         qualifiedSearchData->value =
@@ -2151,13 +2204,15 @@ FileSelectionBoxUpdate(
                   {   
                     len = strlen( dirString) ;
                     maskString = XtMalloc( len + strlen( patternString) + 1) ;
-                    strcpy( maskString, dirString) ;
-                    strcpy( &maskString[len], patternString) ;
+                    if(    maskString != NULL    )
+                    {   strcpy( maskString, dirString) ;
+                        strcpy( &maskString[len], patternString) ;
 
-		    XmTextFieldSetString( FS_FilterText( fs), maskString) ;
-		    XmTextFieldSetInsertionPosition( FS_FilterText( fs),
-			     XmTextFieldGetLastPosition( FS_FilterText( fs))) ;
-                    XtFree( maskString) ;
+			    XmTextFieldSetString( FS_FilterText( fs), maskString) ;
+			    XmTextFieldSetInsertionPosition( FS_FilterText( fs),
+			             XmTextFieldGetLastPosition( FS_FilterText( fs))) ;
+                        XtFree( maskString) ;
+                        }
                     XtFree( patternString) ;
                   } 
                 XtFree( dirString) ;
@@ -2310,6 +2365,15 @@ DirSearchProc(
         {   qsort( (void *)dirList, numDirs, sizeof( char *), _XmOSFileCompare) ;
             } 
         XmStringDirList = (XmString *) XtMalloc( numDirs * sizeof( XmString)) ;
+        if(    XmStringDirList == NULL    )
+        {   Index = numDirs ;
+            while(    Index--    )
+            {   XtFree( dirList[Index]) ;
+                }
+            XtFree( (char *) dirList) ;
+            dirList = NULL ;
+            goto dir_search_done ;
+            }
 
 	Index = 0 ;
 	dirLen = strlen( qualifiedDir) ;
@@ -2359,6 +2423,7 @@ DirSearchProc(
         FS_ListUpdated( fs) = TRUE ;
         FS_PrevDirModTime( fs) = curDirModTime ;
         }
+dir_search_done:
     XtFree( (char *) qualifiedDir) ;
     
     FS_DirectoryValid( fs) = TRUE ;
@@ -2438,14 +2503,17 @@ ListCallback(
                             len = strlen( dirString) ;
                             maskString = XtMalloc( len
                                                  + strlen( patternString) + 1) ;
-                            strcpy( maskString, dirString) ;
-                            strcpy( &maskString[len], patternString) ;
-                            XmTextFieldSetString( FS_FilterText( fsb),
-                                                                  maskString) ;
-                            XmTextFieldSetInsertionPosition( FS_FilterText( fsb),
-                                                    XmTextFieldGetLastPosition(
-                                                        FS_FilterText( fsb))) ;
-                            XtFree( maskString) ;
+                            if(    maskString != NULL    )
+                            {   strcpy( maskString, dirString) ;
+                                strcpy( &maskString[len], patternString) ;
+                                XmTextFieldSetString( FS_FilterText( fsb),
+                                                                      maskString) ;
+                                XmTextFieldSetInsertionPosition(
+                                    FS_FilterText( fsb),
+                                    XmTextFieldGetLastPosition(
+                                        FS_FilterText( fsb))) ;
+                                XtFree( maskString) ;
+                                }
                             XtFree( patternString) ;
                           } 
                         XtFree( dirString) ;
@@ -3141,12 +3209,14 @@ FileSelectionBoxRestore(
                   {   
                     maskLen = strlen( mask) ;
                     itemString = XtMalloc( dirLen + maskLen + 1) ;
-                    strcpy( itemString, dir) ;
-                    strcpy( &itemString[dirLen], mask) ;
-                    XmTextFieldSetString( FS_FilterText( fsb), itemString) ;
-                    XmTextFieldSetInsertionPosition( FS_FilterText( fsb),
-			    XmTextFieldGetLastPosition( FS_FilterText( fsb))) ;
-                    XtFree( itemString) ;
+                    if(    itemString != NULL    )
+                    {   strcpy( itemString, dir) ;
+                        strcpy( &itemString[dirLen], mask) ;
+                        XmTextFieldSetString( FS_FilterText( fsb), itemString) ;
+                        XmTextFieldSetInsertionPosition( FS_FilterText( fsb),
+			        XmTextFieldGetLastPosition( FS_FilterText( fsb))) ;
+                        XtFree( itemString) ;
+                        }
                     XtFree( mask) ;
                   } 
                 XtFree( dir) ;
@@ -3601,6 +3671,10 @@ FSBConvert(Widget wid, XtPointer client_data, XtPointer cb_struct)
 	 cs -> target == atoms[XmA_MOTIF_CLIPBOARD_TARGETS])) {
       Atom *targs;
       targs = (Atom *) XtMalloc(sizeof(Atom) * 2);
+      if (targs == NULL) {
+	cs -> status = XmCONVERT_REFUSE;
+	return;
+      }
       targs[0] = atoms[XmAFILE];
       targs[1] = atoms[XmAFILE_NAME];
       cs -> value = (XtPointer) targs;
