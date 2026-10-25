@@ -9383,3 +9383,9 @@ Container outline count bounds (2026-10-29)
 - Reject outline-segment counts that would overflow the legacy integer count,
   retaining the current outline instead of wrapping allocation sizes; see
   `docs/container-outline-count-bounds.md`.
+
+ColorSelector equal-name copy rollback (2026-10-29)
+====================================================
+
+- Preserve an existing color name until a distinct equal-value replacement
+  copy succeeds; see `docs/color-selector-name-copy-rollback.md`.

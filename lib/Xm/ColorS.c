@@ -516,6 +516,7 @@ SetValues(Widget current, Widget request, Widget set,
     XmColorSelectorWidget	csw = (XmColorSelectorWidget)set;
     XmColorSelectorWidget	curr = (XmColorSelectorWidget)current;
     String rgb_file_copy;
+    String color_name_copy;
     Boolean rgb_file_changed;
 
     /*
@@ -591,8 +592,14 @@ SetValues(Widget current, Widget request, Widget set,
 	    }
 	}
 	else {
-	    XtFree(oldValue);
-	    XmColorS_color_name(csw) = XtNewString(newValue);
+	    color_name_copy = newValue != NULL ? XtNewString(newValue) : NULL;
+	    if (newValue == NULL || color_name_copy != NULL)
+	    {
+		XtFree(oldValue);
+		XmColorS_color_name(csw) = color_name_copy;
+	    }
+	    else
+		XmColorS_color_name(csw) = oldValue;
 	}
     }
 
