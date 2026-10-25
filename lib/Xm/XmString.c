@@ -9525,6 +9525,11 @@ XmeStringGetComponent(_XmStringContext context,
     char_count  = _XmStrByteCount(opt);
     text_type   = (XmTextType) _XmStrTextType(opt);
     seg_text    = _XmStrText(opt);
+    if (char_count != 0 && seg_text == NULL) {
+	_XmStrContError(context) = True;
+	_XmProcessUnlock();
+	return XmSTRING_COMPONENT_END;
+    }
     begin_count = _XmStrRendBegin(opt);
     end_count   = _XmStrRendEnd(opt);
     if (begin_count || end_count) {
@@ -9618,6 +9623,11 @@ XmeStringGetComponent(_XmStringContext context,
       char_count  = _XmEntryByteCountGet(seg);
       text_type   = (XmTextType) _XmEntryTextTypeGet(seg);
       seg_text    = (char*) _XmEntryTextGet(seg);
+      if (char_count != 0 && seg_text == NULL) {
+	_XmStrContError(context) = True;
+	_XmProcessUnlock();
+	return XmSTRING_COMPONENT_END;
+      }
       begin_count = _XmEntryRendBeginCountGet(seg);
       begin_rends = _XmEntryRendCountedBegins(seg, begin_count);
       end_count   = _XmEntryRendEndCountGet(seg);
