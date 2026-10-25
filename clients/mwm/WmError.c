@@ -117,7 +117,8 @@ WmInitErrorHandler (Display *display)
 			       pchErrorFormatNames[i], 
 			       pchDefaultErrorFormat[i], buffer, BUFSIZ);
 
-	if ((pchErrorFormat[i] = (char *) XtMalloc (1+strlen(buffer))) == NULL)
+	if (strlen(buffer) >= UINT_MAX ||
+	    (pchErrorFormat[i] = (char *)XtMalloc((Cardinal)(strlen(buffer) + 1))) == NULL)
 	{
 	    Warning ("Insufficient memory for error message initialization.");
 	    ExitWM (1);

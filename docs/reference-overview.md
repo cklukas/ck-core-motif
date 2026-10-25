@@ -57,6 +57,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM menu-pane name allocation](mwm-menu-pane-name-allocation.md) — guard parsed menu names.
 - [MWM NLS catalog-string allocation](mwm-nls-string-allocation.md) — centralize localized-string sizing.
 - [MWM workspace-string allocation](mwm-workspace-string-allocation.md) — reuse checked workspace copies.
+- [MWM X-error format allocation](mwm-error-format-allocation.md) — guard DEBUG error-format copies.
 - [MWM home-directory path bounds](mwm-home-path.md) — bounded legacy home-path resolution.
 - [MWM session database suffix updates](mwm-db-name-suffix.md) — bounded session-name suffix handling.
 - [Workspace-management command messages](command-message-argument-allocation.md) — bounded command-message construction.

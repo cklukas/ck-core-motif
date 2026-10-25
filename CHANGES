@@ -11436,6 +11436,12 @@ MWM workspace-string allocation (2026-10-25)
 - Route workspace names and presence titles through checked string copies; see
   `docs/mwm-workspace-string-allocation.md`.
 
+MWM X-error format allocation width (2026-10-25)
+================================================
+
+- Check DEBUG X-error format lengths before copying them into Xt storage; see
+  `docs/mwm-error-format-allocation.md`.
+
 MWM per-screen display allocation width (2026-10-25)
 =====================================================
 

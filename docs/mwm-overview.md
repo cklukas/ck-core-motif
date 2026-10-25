@@ -46,6 +46,7 @@ clients exchanging Motif window-management messages.
 - [Menu-pane name allocation](mwm-menu-pane-name-allocation.md)
 - [NLS catalog-string allocation](mwm-nls-string-allocation.md)
 - [Workspace-string allocation](mwm-workspace-string-allocation.md)
+- [X-error format allocation](mwm-error-format-allocation.md)
 - [Menu argument allocation](mwm-menu-args-allocation.md)
 - [Home-directory path bounds](mwm-home-path.md)
 - [Action-argument reallocation](mwm-action-arg-reallocation.md)
