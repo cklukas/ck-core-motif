@@ -20,6 +20,10 @@ Display-less tables are protected by the process lock. Allocation-failure
 cleanup releases copied renditions through the internal lock-held helpers, so
 it does not recursively acquire the process lock.
 
+`XmRenderTableAddRenditions` checks the new-table body, handle, and initial
+rendition copies before publishing the table. If any allocation fails, already
+copied renditions are released and the call returns `NULL`.
+
 `XmRenderTableCopy` uses the internal rendition lookup while its table lock is
 held, and rolls back copied handles if an allocation fails. Tagged copies
 therefore avoid recursive locking and never return a partially initialized
