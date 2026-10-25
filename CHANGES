@@ -200,6 +200,13 @@ Link text rendering fallback (2026-10-27)
   link text and visited-state rules from disappearing when inherited GC font
   state is unavailable.
 
+Chip text rendering fallback (2026-10-27)
+==========================================
+
+- Install and release a valid fallback font on both Chip GCs, preventing the
+  label and removable-state drawing from disappearing when inherited GC font
+  state is unavailable.
+
 InfoBar close control and FontSelector bounds (2026-10-27)
 ============================================================
 

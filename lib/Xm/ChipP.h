@@ -20,6 +20,7 @@ typedef struct _XmChipPart {
     XtCallbackList remove_callback;
     GC foreground_gc;
     GC background_gc;
+    XFontStruct *fallback_font;
 } XmChipPart;
 
 typedef struct _XmChipRec {

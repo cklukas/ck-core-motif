@@ -61,11 +61,15 @@ static void create_gcs(XmChipWidget chip) {
     Display *display = XtDisplay((Widget)chip);
     values.foreground = chip->primitive.foreground;
     values.background = chip->core.background_pixel;
+    chip->chip.fallback_font = XLoadQueryFont(display, "fixed");
+    if (chip->chip.fallback_font) values.font = chip->chip.fallback_font->fid;
     chip->chip.foreground_gc = XCreateGC(display, DefaultRootWindow(display),
-                                         GCForeground | GCBackground, &values);
+                                         GCForeground | GCBackground |
+                                         (chip->chip.fallback_font ? GCFont : 0), &values);
     values.foreground = chip->core.background_pixel;
     chip->chip.background_gc = XCreateGC(display, DefaultRootWindow(display),
-                                         GCForeground | GCBackground, &values);
+                                         GCForeground | GCBackground |
+                                         (chip->chip.fallback_font ? GCFont : 0), &values);
 }
 
 /* XmStringCopy in older Motif builds can retain a shared optimized payload.
@@ -106,6 +110,7 @@ static void Destroy(Widget widget) {
                          NULL);
     if (chip->chip.foreground_gc) XFreeGC(display, chip->chip.foreground_gc);
     if (chip->chip.background_gc) XFreeGC(display, chip->chip.background_gc);
+    if (chip->chip.fallback_font) XFreeFont(display, chip->chip.fallback_font);
     /* Xt owns XmNchipLabel resource storage and releases it after Destroy. */
     /* chip->font is borrowed from the parent/display default render table. */
 }

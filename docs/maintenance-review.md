@@ -158,3 +158,10 @@ check is:
 ```sh
 python3 tests/automated/check-link-font-fallback.py
 ```
+
+Chip now installs the same managed fallback font on both of its drawing GCs.
+The focused check is:
+
+```sh
+python3 tests/automated/check-chip-font-fallback.py
+```
