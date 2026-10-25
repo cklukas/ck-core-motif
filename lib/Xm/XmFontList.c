@@ -587,26 +587,8 @@ XmeRenderTableGetDefaultFont(
   XmStringTag	       tag = XmFONTLIST_DEFAULT_TAG;
   short		       indx = -1;
   Boolean	       retval;
-#ifdef XTHREADS
-  XtAppContext	       app=NULL;
-
-  if ( _XmRTDisplay((XmRenderTable)fontlist) )
-    app = XtDisplayToApplicationContext(_XmRTDisplay((XmRenderTable)fontlist));
-
-  if (app)
-    _XmAppLock(app);
-  else
-    _XmProcessLock();
-#endif
 
   retval = _XmFontListSearch (fontlist, tag, &indx, font_struct);
-
-#ifdef XTHREADS
-  if (app)
-    _XmAppUnlock(app);
-  else
-    _XmProcessUnlock();
-#endif
 
   return(retval);
 }
