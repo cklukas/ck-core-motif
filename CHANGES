@@ -1,3 +1,9 @@
+UIL single-font size bounds (2026-10-27)
+========================================
+
+- Route single font and fontset string lengths through checked resource-size
+  accumulation before allocation.
+
 UIL value-size bounds (2026-10-27)
 =================================
 

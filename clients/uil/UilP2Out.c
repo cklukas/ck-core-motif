@@ -1417,10 +1417,13 @@ sym_value_entry_type	*value_entry;
 	     * Size is FontItem plus size of charset name string and
 	     * size of font name string.
 	     */
-	     value_size = sizeof(RGMFontItem)
-	       + strlen(sem_charset_name(value_entry->b_charset,
-					 value_entry->az_charset_value)) 
-		 + 1 + strlen(value_entry->value.c_value) + 1;
+	     value_size = sizeof(RGMFontItem);
+	     out_add_value_size(&value_size,
+	       strlen(sem_charset_name(value_entry->b_charset,
+					 value_entry->az_charset_value)));
+	     out_add_value_size(&value_size, 1);
+	     out_add_value_size(&value_size, strlen(value_entry->value.c_value));
+	     out_add_value_size(&value_size, 1);
 	    break;
 	    }
 	case sym_k_color_value:
