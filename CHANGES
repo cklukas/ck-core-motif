@@ -1,3 +1,10 @@
+DropSMgr pixmap depth storage (2026-10-25)
+==========================================
+
+- Query animation pixmap depth through a local `int` before assigning the
+  `Cardinal` resource field, avoiding pointer aliasing and width assumptions;
+  see `docs/dropsmgr-pixmap-depth.md`.
+
 IconG pixmap metadata guards (2026-10-25)
 ==========================================
 
