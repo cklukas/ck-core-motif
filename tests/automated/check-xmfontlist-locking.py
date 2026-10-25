@@ -39,4 +39,22 @@ assert "_XmProcessLock" not in append
 assert "_XmProcessUnlock" not in append
 assert "XmRenderTableAddRenditions" in append
 
+start = source.index("XmFontListEntryGetFont(")
+end = source.index("\n}\n", start)
+get_font = source[start:end]
+assert "_XmAppLock" not in get_font
+assert "_XmAppUnlock" not in get_font
+assert "_XmProcessLock" not in get_font
+assert "_XmProcessUnlock" not in get_font
+assert "XmRenditionRetrieve" in get_font
+
+start = source.index("XmFontListEntryGetTag(")
+end = source.index("\n}\n", start)
+get_tag = source[start:end]
+assert "_XmAppLock" not in get_tag
+assert "_XmAppUnlock" not in get_tag
+assert "_XmProcessLock" not in get_tag
+assert "_XmProcessUnlock" not in get_tag
+assert "XmRenditionRetrieve" in get_tag
+
 print("XmFontList constructors avoid recursive process locking")
