@@ -611,3 +611,5 @@ EXTRA_DIST += tests/automated/check-xm-list-query-null.py docs/xm-list-query-nul
 EXTRA_DIST += tests/automated/check-xm-list-readonly-null.py docs/xm-list-readonly-null.md
 
 EXTRA_DIST += tests/automated/check-xm-list-posbounds-null.py docs/xm-list-posbounds-null.md
+
+EXTRA_DIST += tests/automated/check-xm-list-selection-null.py docs/xm-list-selection-null.md

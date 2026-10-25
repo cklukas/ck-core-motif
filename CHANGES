@@ -1,3 +1,9 @@
+XmList selection helper null-safety (2026-10-25)
+===============================================
+
+- Guard selection regeneration and position queries against null widgets; see
+  `docs/xm-list-selection-null.md`.
+
 XmList position-bounds null-safety (2026-10-25)
 ===============================================
 

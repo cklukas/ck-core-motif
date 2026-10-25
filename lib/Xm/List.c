@@ -9909,6 +9909,8 @@ void
 XmListUpdateSelectedList(Widget w)
 {
   XmListWidget  lw = (XmListWidget) w;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9931,6 +9933,8 @@ XmListPosSelected(Widget w,
   int		int_pos;
   XmListWidget	lw = (XmListWidget) w;
   Boolean	selected;
+  if (w == NULL)
+    return False;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
