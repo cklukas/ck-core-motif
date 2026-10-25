@@ -4400,6 +4400,12 @@ XmScreen lookup bounds (2026-10-25)
 
 - Check the display screen bound before each `ScreenOfDisplay` lookup; see
   `docs/screen-lookup-bounds.md`.
+
+Xmos directory-cache entry bounds (2026-10-25)
+================================================
+
+- Reserve space for the terminating byte when caching directory entry names;
+  see `docs/xmos-cache-bounds.md`.
 Mrm writer cstring-vector validation (2026-10-25)
 ====================================================
 
