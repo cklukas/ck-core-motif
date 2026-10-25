@@ -1,3 +1,9 @@
+Mrm icon color-table count validation (2026-10-25)
+=====================================================
+
+- Reject color tables smaller than their two reserved pixel entries before
+  realization; see `docs/mrm-icon-colortable-count.md`.
+
 Mrm icon color-table validation (2026-10-25)
 ================================================
 

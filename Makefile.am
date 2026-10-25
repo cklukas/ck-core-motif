@@ -537,3 +537,5 @@ EXTRA_DIST += tests/automated/check-mrm-literal-convenience-outputs.py docs/mrm-
 EXTRA_DIST += tests/automated/check-mrm-icon-converter-inputs.py docs/mrm-icon-converter-inputs.md
 
 EXTRA_DIST += tests/automated/check-mrm-icon-colortable-validation.py docs/mrm-icon-colortable-validation.md
+
+EXTRA_DIST += tests/automated/check-mrm-icon-colortable-count.py docs/mrm-icon-colortable-count.md
