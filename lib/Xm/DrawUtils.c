@@ -21,6 +21,7 @@
  * Floor, Boston, MA 02110-1301 USA
 */
 
+#include <stdint.h>
 #include <X11/Intrinsic.h>
 #include <Xm/DrawUtils.h>
 
@@ -60,7 +61,7 @@ XmDrawBevel(dpy, d, top_gc, bottom_gc, x, y, size, option)
 #endif
 {
     static     XRectangle saved[STATIC_RECTS], *alloced = NULL;
-    static int numAlloced = 0;
+    static unsigned int numAlloced = 0;
     XRectangle *rt;
     int        i;
 
@@ -85,9 +86,16 @@ XmDrawBevel(dpy, d, top_gc, bottom_gc, x, y, size, option)
 	 */
 	if( size > numAlloced )
 	{
+	    XRectangle *new_alloced;
+	    if ((size_t)size > SIZE_MAX / sizeof(XRectangle))
+		return;
+	    new_alloced = (XRectangle*)XtMalloc(
+		(sizeof(XRectangle) * (size_t)size));
+	    if (new_alloced == NULL)
+		return;
+	    XtFree((XtPointer)alloced);
+	    alloced = new_alloced;
 	    numAlloced = size;
-	    alloced = (XRectangle*) XtRealloc((XtPointer) alloced,
-					      sizeof(XRectangle) * numAlloced);
 	}
 	rt = alloced;
     }

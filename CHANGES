@@ -7947,3 +7947,12 @@ DrArrow geometry-array growth (2026-10-27)
 
 RCPopup list growth failures (2026-10-27)
 =========================================
+DrawUtils bevel-buffer growth (2026-10-27)
+==========================================
+
+- Make the dynamic bevel rectangle buffer grow transactionally and check the
+  rectangle-count byte conversion.  Failed growth now returns without
+  replacing the existing buffer or recording an invalid capacity.
+
+DrArrow geometry-array growth (2026-10-27)
+===========================================
