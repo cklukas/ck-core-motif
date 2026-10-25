@@ -605,5 +605,6 @@ EXTRA_DIST += tests/automated/check-mrm-find-indexed-output.py docs/mrm-find-ind
 EXTRA_DIST += tests/automated/check-mrm-idb-indexed-inputs.py docs/mrm-idb-indexed-inputs.md
 EXTRA_DIST += tests/automated/check-mrm-rid-context.py docs/mrm-rid-context.md
 EXTRA_DIST += tests/automated/check-mrm-resource-id-output.py docs/mrm-resource-id-output.md
+EXTRA_DIST += tests/automated/check-mrm-memory-close.py docs/mrm-memory-close.md
 EXTRA_DIST += tests/automated/check-mrm-hget-output-pointer.py docs/mrm-hget-output-pointer.md
 EXTRA_DIST += tests/automated/check-mrm-hierarchy-name-inputs.py docs/mrm-hierarchy-name-inputs.md

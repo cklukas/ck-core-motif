@@ -321,8 +321,9 @@ UrmIdbCloseFile (IDBFile		file_id,
    */
 #define	_error_close()					\
   {							\
-	    Idb__FU_CloseFile(file_id->lowlevel_id,	\
-				file_id->access == URMWriteAccess) ;\
+	    if ( !file_id->in_memory )	\
+	      Idb__FU_CloseFile(file_id->lowlevel_id,\
+				      file_id->access == URMWriteAccess) ;\
     file_id->validation = 0 ;				\
     XtFree((char*)file_id) ;				\
     return MrmFAILURE ;					\
@@ -358,9 +359,12 @@ UrmIdbCloseFile (IDBFile		file_id,
   /*
    * Close the file and deallocate the file descriptor
    */
-  result = Idb__FU_CloseFile
-    (file_id->lowlevel_id,
-     file_id->access == URMWriteAccess && !keep_new_file) ;
+  if ( file_id->in_memory )
+    result = MrmSUCCESS ;
+  else
+    result = Idb__FU_CloseFile
+      (file_id->lowlevel_id,
+       file_id->access == URMWriteAccess && !keep_new_file) ;
   file_id->validation = 0 ;
   XtFree ((char*)file_id) ;
 
