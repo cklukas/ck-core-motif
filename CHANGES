@@ -13441,6 +13441,12 @@ Text-control geometry bounds (2026-10-26)
 - Bound Prompt, Link, and Badge preferred-width calculations before converting
   to `Dimension`; see `docs/text-control-geometry-bounds.md`.
 
+Segmented-control geometry bounds (2026-10-26)
+===============================================
+
+- Accumulate preferred segment width in a wider type and clamp it to
+  `Dimension` range; see `docs/segmented-geometry-bounds.md`.
+
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================
 

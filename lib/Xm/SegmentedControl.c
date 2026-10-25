@@ -153,22 +153,26 @@ static XtGeometryResult GeometryManager(Widget child, XtWidgetGeometry *request,
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
     XmSegmentedControlWidget control = (XmSegmentedControlWidget)widget;
-    Dimension width = 0, height = 1;
+    unsigned long width = 0;
+    Dimension height = 1;
     Cardinal i;
     (void)request;
     for (i = 0; i < control->segmented.item_count; ++i) {
         Dimension child_width = 1, child_height = 1;
         XtVaGetValues(control->segmented.items[i].button, XmNwidth, &child_width,
                       XmNheight, &child_height, NULL);
-        width += child_width;
+        width += (unsigned long)child_width;
         if (child_height > height) height = child_height;
     }
     if (control->segmented.item_count > 1)
-        width += control->segmented.spacing * (control->segmented.item_count - 1);
+        width += (unsigned long)control->segmented.spacing *
+                 (unsigned long)(control->segmented.item_count - 1);
     if (!width) width = 120;
+    if (width > (unsigned long)(Dimension)-1)
+        width = (unsigned long)(Dimension)-1;
     if (height < 24) height = 24;
     reply->request_mode = CWWidth | CWHeight;
-    reply->width = width; reply->height = height;
+    reply->width = (Dimension)width; reply->height = height;
     return (widget->core.width == width && widget->core.height == height)
                ? XtGeometryYes : XtGeometryAlmost;
 }
