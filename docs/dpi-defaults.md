@@ -33,6 +33,11 @@ claim complete historical-widget reflow, per-monitor output selection,
 automatic pixmap scaling, compositor scaling or physical-monitor-DPI
 inference. Those require the separate XLibre-specific contract in WP-04A.
 
+The deterministic live fixture also exercises the gallery's logical DPI
+matrix: 96, 144, 192 and 288 DPI map to scales 1.28, 1.92, 2.56 and 3.84
+against the historical 75-DPI baseline. It verifies rounded ToggleButton,
+SpinBox and ProgressRing defaults at every step and reverses the transitions.
+
 The installed fixture is `tests/automated/check-dpi.c`, run by
 `tests/automated/run-widget-regressions.py`. It exercises 75, 150 and 300
 DPI, malformed and non-finite values, saturation, and explicit-size

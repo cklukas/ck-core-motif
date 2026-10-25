@@ -100,12 +100,13 @@ static void UpdateGCs(XmProgressRingWidget ring) {
 static void Initialize(Widget request, Widget widget, ArgList args,
                        Cardinal *count) {
     XmProgressRingWidget ring = (XmProgressRingWidget)widget;
+    Widget request_widget = request;
     Display *display = XtDisplay(widget);
     XGCValues values;
     XmFontList defaults;
     Dimension label_width = 0, label_height = 0, diameter;
     unsigned long mask = GCForeground | GCBackground;
-    (void)request; (void)args; (void)count;
+    (void)args; (void)count;
     Normalize(ring);
     ring->progress_ring.label = ring->progress_ring.label
         ? XmStringCopy(ring->progress_ring.label)
@@ -117,13 +118,14 @@ static void Initialize(Widget request, Widget widget, ArgList args,
                        &label_width, &label_height);
     diameter = _XmDpiDefaultDimension(widget, 64);
     if (diameter < 32) diameter = 32;
-    ring->progress_ring.height_default = (ring->core.height == 0);
-    ring->progress_ring.width_default = (ring->core.width == 0);
+    ring->progress_ring.height_default = (request_widget->core.height == 0);
+    ring->progress_ring.width_default = (request_widget->core.width == 0);
     if (ring->progress_ring.height_default)
-        ring->core.height = diameter + 2 * ring->progress_ring.spacing;
+        ring->core.height = ring->progress_ring.default_height =
+            diameter + 2 * ring->progress_ring.spacing;
     if (ring->progress_ring.width_default)
-        ring->core.width = diameter + label_width +
-                           3 * ring->progress_ring.spacing + 8;
+        ring->core.width = ring->progress_ring.default_width =
+            diameter + label_width + 3 * ring->progress_ring.spacing + 8;
     values.foreground = ring->primitive.bottom_shadow_color;
     values.background = ring->core.background_pixel;
     ring->progress_ring.track_gc = XCreateGC(display, DefaultRootWindow(display),
@@ -280,19 +282,24 @@ static void ScaleChanged(Widget widget, double old_scale, double new_scale,
     Dimension old_diameter, new_diameter;
     Dimension width, height;
     (void)closure;
-
     old_diameter = RingDiameter(old_scale);
     new_diameter = RingDiameter(new_scale);
     if (old_diameter == new_diameter)
         return;
     width = ring->core.width;
     height = ring->core.height;
-    if (ring->progress_ring.width_default)
-        width = (Dimension)((int)width + (int)new_diameter -
-                            (int)old_diameter);
-    if (ring->progress_ring.height_default)
-        height = (Dimension)((int)height + (int)new_diameter -
-                             (int)old_diameter);
+    if (ring->progress_ring.width_default) {
+        ring->progress_ring.default_width =
+            (Dimension)((int)ring->progress_ring.default_width +
+                        (int)new_diameter - (int)old_diameter);
+        width = ring->progress_ring.default_width;
+    }
+    if (ring->progress_ring.height_default) {
+        ring->progress_ring.default_height =
+            (Dimension)((int)ring->progress_ring.default_height +
+                        (int)new_diameter - (int)old_diameter);
+        height = ring->progress_ring.default_height;
+    }
     if (width != ring->core.width || height != ring->core.height)
         XtResizeWidget(widget, width, height, ring->core.border_width);
     if (XtIsRealized(widget))

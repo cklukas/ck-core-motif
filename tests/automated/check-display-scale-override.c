@@ -15,6 +15,12 @@ fail(const char *message)
     return 1;
 }
 
+static Dimension
+scaled_dimension(Dimension baseline, double scale)
+{
+    return (Dimension)(baseline * scale + 0.5);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -40,6 +46,7 @@ main(int argc, char **argv)
     Dimension baseline_ring_height;
     Dimension live_ring_height;
     Dimension explicit_ring_height;
+    const double gallery_scales[] = {1.28, 1.92, 2.56, 3.84};
     XmString empty_label;
     Arg empty_args[1];
     Arg explicit_args[2];
@@ -150,6 +157,22 @@ main(int argc, char **argv)
     XtVaGetValues(explicit_spin, XmNarrowSize, &explicit_arrow, NULL);
     if (explicit_arrow != 16)
         return fail("spin box explicit pixel metric changed by scale override");
+
+    for (size_t i = 0; i < XtNumber(gallery_scales); ++i) {
+        Dimension indicator, arrow, ring_height;
+        Dimension expected_indicator = scaled_dimension(9, gallery_scales[i]);
+        Dimension expected_arrow = scaled_dimension(16, gallery_scales[i]);
+        Dimension expected_ring = scaled_dimension(64, gallery_scales[i]) + 16;
+        if (!XmSetDisplayScaleOverride(display, gallery_scales[i]))
+            return fail("gallery DPI override was not retained");
+        XSync(display, False);
+        XtVaGetValues(baseline_toggle, XmNindicatorSize, &indicator, NULL);
+        XtVaGetValues(baseline_spin, XmNarrowSize, &arrow, NULL);
+        XtVaGetValues(baseline_ring, XtNheight, &ring_height, NULL);
+        if (indicator != expected_indicator || arrow != expected_arrow ||
+            ring_height != expected_ring)
+            return fail("gallery DPI matrix produced an unexpected default");
+    }
 
     if (!XmSetDisplayScaleOverride(display, 1.0))
         return fail("one-times live override was not retained");
