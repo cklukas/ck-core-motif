@@ -3749,3 +3749,10 @@ Guard text-property result growth (2026-10-25)
 - Check `GetUseableText` result-buffer growth through a temporary pointer and
   release the current segment, partial result and context on failure; see
   `docs/motif-txtpropcv-growth.md`.
+
+Guard fallback text-property value allocation (2026-10-25)
+============================================================
+
+- Check the temporary compound-text property value before copying and release
+  its source and string context on failure; see
+  `docs/motif-txtpropcv-value.md`.

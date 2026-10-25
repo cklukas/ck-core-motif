@@ -408,6 +408,12 @@ GetUseableText(Display *display, XmString xmstring, char **buffer,
 	    return XNoMemory;
 	  }
 	txt_value = XtMalloc((txt_len + 2) * sizeof(char));
+	if (txt_value == NULL)
+	  {
+	    XtFree(compound_text);
+	    _XmStringContextFree(&stack_context);
+	    return XNoMemory;
+	  }
 	strcpy(txt_value, compound_text);
 	text_prop_return.value = (unsigned char *) txt_value;
 	text_prop_return.value[txt_len] = '\0';
