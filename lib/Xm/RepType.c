@@ -1794,6 +1794,8 @@ ReverseConvertRepType(
 	    if (message_length < 0)
 		return(FALSE);
 	    in_str = (char *) XtMalloc((Cardinal)message_length + 1);
+	    if (in_str == NULL)
+		return(FALSE);
 	    (void)snprintf(in_str, (size_t)message_length + 1, "%s %d",
 			    reverse_message, in_value);
 	}

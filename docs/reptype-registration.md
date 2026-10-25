@@ -15,5 +15,9 @@ The shared copy helper now checks every string and value allocation. Partial
 records are released before a failure is returned, and list/record queries
 clean up entries copied before the failed one.
 
+Reverse conversion warnings also return `False` if their temporary formatted
+message cannot be allocated, avoiding a null pointer passed to Xt's warning
+path.
+
 This keeps the public registration API and successful registration behavior
 unchanged while preventing a null-table dereference under memory pressure.
