@@ -78,11 +78,12 @@ Hash(XmHashKey x)
 
 /* Hash callbacks historically return a signed value.  Convert it to an
  * unsigned bucket domain before taking the modulo so pointer-derived hashes
- * cannot address a negative bucket on 64-bit hosts. */
+ * cannot address a negative bucket on 64-bit hosts.  Keep the full native
+ * width: narrowing to unsigned int discards upper pointer/hash bits. */
 static Cardinal
 HashIndex(XmHashValue hash, Cardinal size)
 {
-  return (Cardinal)((unsigned int)hash % size);
+  return (Cardinal)((unsigned long)hash % size);
 }
 
 /* Available table sizes,  should be prime numbers */

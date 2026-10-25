@@ -84,6 +84,7 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
 	      tests/automated/check-screen-getxm-null.py \
 	      tests/automated/check-icon-control-info-outputs.py \
 	      tests/automated/check-desktop-color-cells-capacity.py \
+	      tests/automated/check-hash-index-width.py \
               tests/automated/check-docs-provenance.py tests/automated/check-makestrs-comments.py \
               tests/automated/check-native-features.py \
               tests/Toolkit/ABI/cohort.c tests/Toolkit/Im/preedit_ranges.c \

@@ -1,3 +1,9 @@
+Hash index native-width preservation (2026-10-25)
+=================================================
+
+- Preserve full-width pointer-derived hash values when selecting buckets on
+  64-bit systems; see `docs/hash-index-width.md`.
+
 Desktop color-cell capacity validation (2026-10-25)
 ====================================================
 
