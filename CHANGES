@@ -1,3 +1,9 @@
+MenuShell empty-child guards (2026-10-27)
+=========================================
+
+- Guard menu popdown helpers when a shell has no child, preserving safe
+  teardown; see `docs/menushell-empty-guards.md`.
+
 Indicator drawing size guard (2026-10-27)
 ========================================
 

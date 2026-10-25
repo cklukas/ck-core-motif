@@ -417,6 +417,11 @@ static void
 _XmFastPopdown(
         XmMenuShellWidget shell )
 {
+   if (shell->composite.num_children == 0) {
+       XtUnmapWidget(shell);
+       return;
+   }
+
    if (RC_PopupPosted(shell->composite.children[0]))
        _XmFastPopdown((XmMenuShellWidget) RC_PopupPosted(shell->composite.children[0]));
    
@@ -1688,6 +1693,12 @@ Popdown(
         XmMenuShellWidget menushell,
         XEvent *event )
 {
+    if (menushell->composite.num_children == 0) {
+        if (menushell->shell.popped_up)
+            _XmPopdown((Widget) menushell);
+        return;
+    }
+
     XmRowColumnWidget  rowcol = (XmRowColumnWidget) 
                                  menushell->composite.children[0];
     XmMenuSystemTrait menuSTrait;
@@ -1737,6 +1748,9 @@ PopdownKids(
         XEvent *event )
 {
    ShellWidget subShell;
+
+   if (menushell->composite.num_children == 0)
+      return;
 
    if ((subShell = (ShellWidget)
 	RC_PopupPosted(menushell->composite.children[0])) != NULL)
