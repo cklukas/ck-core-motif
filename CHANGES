@@ -1,3 +1,10 @@
+Spinner label initialization rollback (2026-10-28)
+=====================================================
+
+- Check the initial label copy and fall back to an empty compound string,
+  avoiding NULL label measurement during construction; see
+  `docs/spinner-label-init-rollback.md`.
+
 ToggleSwitch label initialization rollback (2026-10-28)
 ==========================================================
 

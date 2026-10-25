@@ -102,16 +102,22 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     Display *display = XtDisplay(widget);
     XGCValues values;
     XmFontList defaults;
+    XmString replacement;
     Dimension label_width = 0, label_height = 0;
     unsigned long mask = GCForeground | GCBackground;
     (void)request; (void)args; (void)count;
     spinner->spinner.interval = bounded_interval(spinner->spinner.interval);
-    spinner->spinner.label = spinner->spinner.label
-        ? XmStringCopy(spinner->spinner.label)
-        : XmStringCreateLocalized("");
+    if (spinner->spinner.label)
+    {
+        replacement = XmStringCopy(spinner->spinner.label);
+        spinner->spinner.label = replacement != NULL
+            ? replacement : XmStringCreateLocalized("");
+    }
+    else
+        spinner->spinner.label = XmStringCreateLocalized("");
     defaults = XmeGetDefaultRenderTable(widget, XmTEXT_FONTLIST);
     spinner->spinner.font = defaults ? XmFontListCopy(defaults) : NULL;
-    if (spinner->spinner.font)
+    if (spinner->spinner.font && spinner->spinner.label)
         XmStringExtent(spinner->spinner.font, spinner->spinner.label,
                        &label_width, &label_height);
     if (!spinner->core.width)
