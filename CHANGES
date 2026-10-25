@@ -1,3 +1,9 @@
+Mrm file-open filename validation (2026-10-25)
+===============================================
+
+- Reject a null filename before opening a UID file; see
+  `docs/mrm-open-name-input.md`.
+
 Mrm resource-id output validation (2026-10-25)
 ===============================================
 
