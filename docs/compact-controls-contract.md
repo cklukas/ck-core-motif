@@ -30,6 +30,10 @@ is an enum with informational, success, warning, and error values; severity
 never relies on colour alone.  Badges do not attach themselves to a host
 widget and never resize or overlay one implicitly.
 
+The additive implementation is documented in `docs/badge.md`; its installed
+fixture covers count clamping, label ownership, severity resources and the
+read-only accessibility value.
+
 ## Icon-and-text label and Divider
 
 An icon-and-text label is an additive configuration of a label-like control:
