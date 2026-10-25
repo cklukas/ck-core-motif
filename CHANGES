@@ -1,3 +1,10 @@
+Cascade gadget position geometry bounds (2026-10-25)
+====================================================
+
+- Use signed, clamped coordinates when positioning submenu indicators in
+  tiny menu entries, preventing wrapped cascade offsets; see
+  `docs/cascade-position-geometry.md`.
+
 ClipWindow RTL resize geometry bounds (2026-10-25)
 ==================================================
 

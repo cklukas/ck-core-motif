@@ -1005,28 +1005,39 @@ static void
 position_cascade(
         XmCascadeButtonGadget cascadebtn )
 {
-   Dimension buffer;
+   int x, y, buffer, available_height;
 
    if (CBG_HasCascade(cascadebtn))
    { 
       if (LayoutIsRtoLG(cascadebtn))
-         CBG_Cascade_x(cascadebtn) = cascadebtn->gadget.highlight_thickness +
-                                     cascadebtn->gadget.shadow_thickness +
-                                     LabG_MarginWidth(cascadebtn);
+         x = (int)cascadebtn->gadget.highlight_thickness +
+             (int)cascadebtn->gadget.shadow_thickness +
+             (int)LabG_MarginWidth(cascadebtn);
       else
-	CBG_Cascade_x(cascadebtn) = cascadebtn->rectangle.width -
-	                            cascadebtn->gadget.highlight_thickness -
-	                            cascadebtn->gadget.shadow_thickness -
-	                            LabG_MarginWidth(cascadebtn) -
-		                    CBG_Cascade_width(cascadebtn);
+	x = (int)cascadebtn->rectangle.width -
+	    (int)cascadebtn->gadget.highlight_thickness -
+	    (int)cascadebtn->gadget.shadow_thickness -
+	    (int)LabG_MarginWidth(cascadebtn) -
+	    (int)CBG_Cascade_width(cascadebtn);
 
-      buffer = cascadebtn->gadget.highlight_thickness +
-             cascadebtn->gadget.shadow_thickness +
-             LabG_MarginHeight(cascadebtn);
+      if (x < INT16_MIN)
+	x = INT16_MIN;
+      else if (x > INT16_MAX)
+	x = INT16_MAX;
+      CBG_Cascade_x(cascadebtn) = (Position)x;
 
-      CBG_Cascade_y(cascadebtn) = buffer +
-                               ((cascadebtn->rectangle.height -  2*buffer) -
-                                CBG_Cascade_height(cascadebtn)) / 2;
+      buffer = (int)cascadebtn->gadget.highlight_thickness +
+             (int)cascadebtn->gadget.shadow_thickness +
+             (int)LabG_MarginHeight(cascadebtn);
+      available_height = (int)cascadebtn->rectangle.height -
+                         (2 * buffer) -
+                         (int)CBG_Cascade_height(cascadebtn);
+      y = buffer + (available_height > 0 ? available_height / 2 : 0);
+      if (y < INT16_MIN)
+	y = INT16_MIN;
+      else if (y > INT16_MAX)
+	y = INT16_MAX;
+      CBG_Cascade_y(cascadebtn) = (Position)y;
    }
    else
    {
