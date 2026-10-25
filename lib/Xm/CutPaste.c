@@ -3026,13 +3026,21 @@ XmClipboardStartCopy(
     /* get the clipboard header, make sure clipboard is initialized */
     header = ClipboardOpen( display, 0 );
 
-    header->selectionTimestamp = timestamp;
-    header->startCopyCalled = (unsigned long) True;
-
     /* allocate storage for the data item  */ 
     itemlength = sizeof( ClipboardDataItemRec );
 
     itemheader = (ClipboardDataItem)XtMalloc( (size_t) itemlength );
+
+    if (itemheader == NULL)
+    {
+	ClipboardClose( display, header );
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
+
+    header->selectionTimestamp = timestamp;
+    header->startCopyCalled = (unsigned long) True;
 
     loc_itemid = ClipboardGetNewItemId( display ); 
 

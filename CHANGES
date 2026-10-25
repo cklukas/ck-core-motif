@@ -1,3 +1,9 @@
+Clipboard start-copy allocation checks (2026-10-26)
+=====================================================
+
+- Check the clipboard data-item allocation before changing header state or
+  dereferencing it; see `docs/clipboard-start-copy-allocation.md`.
+
 Clipboard retrieval allocation checks (2026-10-26)
 ===================================================
 
