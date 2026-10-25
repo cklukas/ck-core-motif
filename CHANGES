@@ -12215,3 +12215,9 @@ Button-type converter bounds (2026-10-26)
 - Widen input and comma counters, reject unrepresentable table/string sizes,
   and pass accepted allocations explicitly as Xt `Cardinal` values; see
   `docs/button-type-conversion.md`.
+
+Atom-list conversion allocation widths (2026-10-26)
+====================================================
+
+- Pass checked name-array growth and atom-array sizes explicitly as Xt
+  `Cardinal` values; see `docs/atom-list-conversion.md`.

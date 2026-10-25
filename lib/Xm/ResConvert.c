@@ -2590,7 +2590,8 @@ CvtStringToAtomList(
 
 	  if (name_list == stack_names)
 	    {
-	      char **new_names = (char **) XtMalloc(sizeof(char *) * max_atoms);
+	      char **new_names = (char **) XtMalloc(
+		(Cardinal)(sizeof(char *) * (size_t)max_atoms));
 	      if (new_names == NULL) {
 		int cleanup;
 		XtFree(atom_name);
@@ -2605,7 +2606,8 @@ CvtStringToAtomList(
 	  else
 	    {
 	      char **new_names = (char **) XtRealloc((char *)name_list,
-						     sizeof(char *) * max_atoms);
+						     (Cardinal)(sizeof(char *) *
+								 (size_t)max_atoms));
 	      if (new_names == NULL) {
 		int cleanup;
 		XtFree(atom_name);
@@ -2631,7 +2633,8 @@ CvtStringToAtomList(
 	XtFree((char *)name_list);
       return(False);
     }
-  atom_list = (Atom *) XtMalloc(sizeof(Atom) * atom_count);
+  atom_list = (Atom *) XtMalloc(
+	(Cardinal)(sizeof(Atom) * (size_t)atom_count));
   if (atom_list == NULL) {
     int cleanup;
     for (cleanup = 0; cleanup < atom_count; ++cleanup)
