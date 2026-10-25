@@ -9783,6 +9783,13 @@ FontSelector label initialization rollback (2026-10-28)
 SpinBox value-list SetValues rollback (2026-10-28)
 =====================================================
 
+MWM CCI argument allocation guard (2026-10-25)
+===============================================
+
+- Make `f.cci` argument parsing transactional across record and entry-string
+  allocations, preserving valid modifiers while cleaning up failed parses;
+  see `docs/mwm-cci-argument-allocation.md`.
+
 MWM client-command label allocation guard (2026-10-25)
 =======================================================
 

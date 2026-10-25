@@ -4544,11 +4544,15 @@ static Boolean ParseWmFuncCCIArgs (unsigned char **linePP,
 
 
   cciArg = XtNew(CCIFuncArg);
+  if (cciArg == NULL)
+    return (FALSE);
+  cciArg->cciEntry = NULL;
 
   if ((string = GetString(linePP)) == NULL)
     {
       /* Error - no data for f.cci command. cci_entry_list is required. */
       fprintf(stderr, "Incorrect format for f.cci command.\n");
+      XtFree((char *)cciArg);
       return (FALSE);
     }
   else
@@ -4558,6 +4562,11 @@ static Boolean ParseWmFuncCCIArgs (unsigned char **linePP,
 	{
 	  cciArg->mod      = NONE;
 	  cciArg->cciEntry = XtNewString((char*)string);
+	  if (cciArg->cciEntry == NULL)
+	    {
+	      XtFree((char *)cciArg);
+	      return (FALSE);
+	    }
 	}
       else
 	{
@@ -4565,6 +4574,11 @@ static Boolean ParseWmFuncCCIArgs (unsigned char **linePP,
 	    {
 	      cciArg->mod      = NONE;
 	      cciArg->cciEntry = XtNewString("");
+	      if (cciArg->cciEntry == NULL)
+		{
+		  XtFree((char *)cciArg);
+		  return (FALSE);
+		}
 	    }
 	  else
 	    {
@@ -4574,11 +4588,17 @@ static Boolean ParseWmFuncCCIArgs (unsigned char **linePP,
 		{
 		  /* Found a modifier, but there's no cci_entry_list. */
 		  fprintf(stderr, "Incorrect format for f.cci command.\n");
+		  XtFree((char *)cciArg);
 		  return(FALSE);
 		}
 	      else
 		{
 		  cciArg->cciEntry = XtNewString((char*)string);
+		  if (cciArg->cciEntry == NULL)
+		    {
+		      XtFree((char *)cciArg);
+		      return (FALSE);
+		    }
 		}
 	    }
 	}
