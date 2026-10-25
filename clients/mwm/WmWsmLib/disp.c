@@ -56,6 +56,7 @@ _WSMGetDispInfo(Display *dpy)
 
     WSMDispInfo * disp_info;
     WSMDispInfo *new_disp_info;
+    WSMDispInfo *parent_disp_info = NULL;
     Atom atoms[XtNumber(atom_names)];
 
     if (GDispInfo == NULL) {
@@ -87,6 +88,7 @@ _WSMGetDispInfo(Display *dpy)
 	    XtWarning("Unable to allocate WSM display information");
 	    return(NULL);
 	}
+	parent_disp_info = disp_info;
 	disp_info->next = new_disp_info;
 	disp_info = new_disp_info;
     }
@@ -99,7 +101,14 @@ _WSMGetDispInfo(Display *dpy)
      * ||| Should use XtConvertAndStore().
      */
 
-    XInternAtoms(dpy, atom_names, XtNumber(atom_names), False, atoms);
+    if (!XInternAtoms(dpy, atom_names, XtNumber(atom_names), False, atoms)) {
+	if (parent_disp_info != NULL)
+	    parent_disp_info->next = NULL;
+	else
+	    GDispInfo = NULL;
+	XtFree((XtPointer) disp_info);
+	return(NULL);
+    }
 
     disp_info->connect = atoms[XA_WSM_NAME_CONNECT];
     disp_info->extensions = atoms[XA_WSM_NAME_EXTENSIONS];

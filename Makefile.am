@@ -936,6 +936,8 @@ EXTRA_DIST += tests/automated/check-wsm-wm-target-mapping.py docs/wsm-wm-target-
 
 EXTRA_DIST += tests/automated/check-wsm-win-data-lookup-null.py docs/wsm-win-data-lookup-null.md
 
+EXTRA_DIST += tests/automated/check-wsm-atom-init-rollback.py docs/wsm-atom-init-rollback.md
+
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 
 EXTRA_DIST += tests/automated/check-latin-lower-bounds.py docs/latin-lower-bounds.md

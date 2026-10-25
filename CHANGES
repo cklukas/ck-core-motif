@@ -11170,3 +11170,9 @@ WSM window-data lookup (2026-10-25)
 
 - Return no match for null or empty window-data lists instead of traversing an
   invalid pointer; see `docs/wsm-win-data-lookup-null.md`.
+
+WSM atom initialization rollback (2026-10-25)
+==============================================
+
+- Roll back display metadata when `XInternAtoms` fails, avoiding partial
+  records with invalid protocol atoms; see `docs/wsm-atom-init-rollback.md`.
