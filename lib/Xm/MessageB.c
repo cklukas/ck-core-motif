@@ -1287,6 +1287,8 @@ CreateDialog(
 
     /*  allocate arglist, copy args, add dialog type arg */
     argsNew = (ArgList) XtMalloc (sizeof(Arg) * (ac + 1));
+    if (argsNew == NULL)
+	return NULL;
     if (ac != 0)
         memcpy(argsNew, al, sizeof(Arg) * (size_t)ac);
     XtSetArg (argsNew[ac], XmNdialogType, type);  ac++;

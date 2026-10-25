@@ -1,3 +1,11 @@
+Convenience-constructor allocation failures (2026-10-28)
+==========================================================
+
+- Return `NULL` when the temporary argument arrays for Command and
+  message-dialog constructors cannot be allocated, before copying or
+  appending the internal dialog-type argument; see
+  `docs/constructor-argument-allocation-failure.md`.
+
 Selection and prompt dialog argument allocation bounds (2026-10-28)
 =====================================================================
 
