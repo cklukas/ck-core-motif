@@ -4550,3 +4550,9 @@ Active workspace icon placement guard (2026-10-25)
 
 - Preserve icon hints when no active workspace exists instead of dereferencing
   a null placement grid; see `docs/active-workspace-icon-placement.md`.
+
+MakeIcon argument guards (2026-10-25)
+=====================================
+
+- Reject detached workspace or client state before icon creation;
+  see `docs/make-icon-guards.md`.

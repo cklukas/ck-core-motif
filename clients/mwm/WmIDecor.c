@@ -100,6 +100,11 @@ static unsigned int iconShrinkHeight;
 
 Boolean MakeIcon (WmWorkspaceData *pWS, ClientData *pcd)
 {
+    if (pWS == NULL || pcd == NULL)
+    {
+        return False;
+    }
+
     XSetWindowAttributes window_attribs;
     unsigned long attr_mask;
     int xOffset;
