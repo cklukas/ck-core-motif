@@ -1,3 +1,9 @@
+Mrm hierarchy open parameter validation (2026-10-25)
+=====================================================
+
+- Reject a null platform-parameter object before hierarchy opening dereferences
+  it; see `docs/mrm-openhierarchy-os-input.md`.
+
 Mrm compression-table offset bounds (2026-10-25)
 ==================================================
 

@@ -169,7 +169,8 @@ Urm__OpenHierarchy (MrmCount			num_files,
       (size_t)num_files > SIZE_MAX / sizeof(IDBFile) ||
       hierarchy_id_return == NULL ||
       (num_files > 0 && name_list == NULL) ||
-      (in_memory && uid_buffer == NULL))
+      (in_memory && uid_buffer == NULL) ||
+      (os_ext_list != NULL && *os_ext_list == NULL))
     return MrmFAILURE;
 
 #ifndef NO_MESSAGE_CATALOG
