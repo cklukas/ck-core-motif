@@ -1083,6 +1083,17 @@ NlinkVisited
 NlinkVisitOnActivate
 NlinkActivateCallback
 
+CSearchPlaceholder
+CSearchClearButton
+CSearchQueryChangedCallback
+CSearchCommittedCallback
+CSearchClearedCallback
+NsearchPlaceholder
+NsearchClearButton
+NsearchQueryChangedCallback
+NsearchCommittedCallback
+NsearchClearedCallback
+
 #table _XmStrings20
 
 NtearOffTitle

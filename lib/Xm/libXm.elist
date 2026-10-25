@@ -578,6 +578,11 @@ public XmCreateBadge
 public XmBadgeGetDisplayedCount
 public XmCreateLink
 public XmLinkActivate
+public XmCreateSearchBox
+public XmSearchBoxGetString
+public XmSearchBoxSetString
+public XmSearchBoxClear
+public XmSearchBoxCommit
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -870,6 +875,8 @@ public xmBadgeClassRec
 public xmBadgeWidgetClass
 public xmLinkClassRec
 public xmLinkWidgetClass
+public xmSearchBoxClassRec
+public xmSearchBoxWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec
