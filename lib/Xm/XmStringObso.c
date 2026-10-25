@@ -151,7 +151,9 @@ XmStringNConcat(XmString first,
   XmString	tmp, ret_val;
   
   tmp = XmStringConcat(first, second);
-  
+  if (tmp == NULL)
+    return (NULL);
+
   ret_val = XmStringNCopy(tmp, XmStringLength(first) + n);
   
   XmStringFree(tmp);
