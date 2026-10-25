@@ -4805,3 +4805,9 @@ Handle NULL TabList comparisons (2026-10-25)
 
 - Treat two absent lists as equal and avoid dereferencing either pointer; see
   `docs/tablist-compare-null.md`.
+
+Guard TabList query outputs (2026-10-25)
+========================================
+
+- Validate query output pointers and invalid lists before copying or reading
+  attributes; see `docs/tablist-query-guards.md`.

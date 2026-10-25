@@ -601,7 +601,8 @@ XmTabbedStackListQuery(tab_list, position, attributes)
      * Make sure that we have valid data and if not "asta la vesta, baby"
      * I have NO idea how to spell that.
      */
-    if( tab_list == NULL || position < 0 || position >= tab_list->used )
+    if( tab_list == NULL || tab_list->tabs == NULL || attributes == NULL ||
+        position < 0 || position >= tab_list->used )
     {
 	return;
     }
@@ -803,6 +804,9 @@ XmTabbedStackListSimpleQuery(tab_list, position)
 {
     XmTabAttributeRec attributes;
 
+    if (tab_list == NULL || tab_list->tabs == NULL || position < 0 ||
+        position >= tab_list->used)
+        return NULL;
     XmTabbedStackListQuery(tab_list, position, &attributes);
 
     if( attributes.value_mode != XmTAB_VALUE_COPY )
