@@ -7709,7 +7709,6 @@ ListProcessBtn1(Widget wid,
       break;
 
     default:
-      assert(FALSE);
       break;
     }
 }
@@ -7761,7 +7760,6 @@ ListProcessBtn2(Widget wid,
       break;
 
     default:
-      assert(FALSE);
       break;
     }
 }

@@ -38,6 +38,13 @@ Image-cache unsupported-format cleanup (2026-10-26)
   unsupported XImage format is encountered instead of asserting; see
   `docs/image-cache-unsupported-format.md`.
 
+List button-transfer fallback (2026-10-26)
+===========================================
+
+- Treat invalid `enableBtn1Transfer` values as no-ops in both List button
+  handlers instead of terminating on an assertion; see
+  `docs/list-button-transfer-fallback.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 
