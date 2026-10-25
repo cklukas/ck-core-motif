@@ -24,6 +24,13 @@ Chip geometry bounds (2026-10-26)
 - Bound chip label, pixmap, removal affordance, and vertical padding arithmetic
   to the `Dimension` range; see `docs/chip-geometry-bounds.md`.
 
+Icon cache pointer conversions (2026-10-26)
+===========================================
+
+- Make the two opaque icon-directory cache conversions explicit, restoring
+  clean compilation without changing the cache ABI; see
+  `docs/icon-cache-pointer-types.md`.
+
 XmStringFunc warning-backed guards (2026-10-26)
 ================================================
 
