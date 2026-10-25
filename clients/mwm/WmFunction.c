@@ -60,6 +60,7 @@ extern pid_t vfork();
 #include <signal.h>
 #endif
 #include <stdio.h>
+#include <limits.h>
 #include <X11/Xos.h>
 #include "WmICCC.h"
 #ifdef WSM
@@ -4590,8 +4591,9 @@ Boolean F_Screen (String args, ClientData *pCD, XEvent *event)
             {
                 const char *format = "Unable to warp to unmanaged screen %d\n";
                 int messageLength = snprintf(NULL, 0, format, scr);
-                char *message = (messageLength >= 0) ?
-                    (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+                char *message = (messageLength >= 0 &&
+                                 (unsigned int)messageLength < UINT_MAX) ?
+                    (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
                 if (message != NULL)
                 {

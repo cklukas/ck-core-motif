@@ -11356,3 +11356,9 @@ MWM font-warning allocation widths (2026-10-25)
 
 - Check appearance-font diagnostic lengths before Xt allocation; see
   `docs/mwm-font-warning-allocation.md`.
+
+MWM screen-warp warning allocation widths (2026-10-25)
+========================================================
+
+- Check unmanaged-screen warning lengths before Xt allocation; see
+  `docs/mwm-screen-warp-warning-allocation.md`.
