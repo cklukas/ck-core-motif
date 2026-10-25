@@ -6230,3 +6230,10 @@ Guard optimized XmString cloning (2026-10-25)
   complementing the existing non-optimized transactional clone path; see
   `docs/xmstring-clone-allocation.md` and its focused source check.
 
+Bound XmString baseline allocation widths (2026-10-25)
+=======================================================
+
+- Check baseline line counts against Xt's `Cardinal` allocation width and use
+  explicit byte sizes for both single- and multi-line arrays; see
+  `docs/xmstring-baseline-allocation.md`.
+

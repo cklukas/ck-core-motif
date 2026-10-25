@@ -9,4 +9,7 @@ region = source[start:end]
 assert "if (baselines == NULL || line_count == NULL)" in region
 assert region.count("if (*baselines == NULL)") == 2
 assert region.count("*line_count = 0;") >= 2
+assert "UINT_MAX / sizeof(Dimension)" in region
+assert region.count("XtMalloc((Cardinal)") >= 2
+assert "XtMalloc(*line_count * sizeof(Dimension))" not in region
 print("PASS XmString baseline extraction handles allocation failure")
