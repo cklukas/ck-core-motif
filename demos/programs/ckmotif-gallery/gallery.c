@@ -161,11 +161,25 @@ static void welcome_expose(Widget widget, XtPointer client_data, XtPointer call_
 static Widget create_gallery_tab(Widget notebook, const char *name,
                                  int page_number, const char *label)
 {
+    static Pixel outline_pixel = 0;
+    static Boolean outline_initialized = False;
+    XColor color, exact;
+    if (!outline_initialized) {
+        if (XAllocNamedColor(XtDisplay(notebook),
+                             DefaultColormapOfScreen(XtScreen(notebook)),
+                             "#aeb7c2", &color, &exact))
+            outline_pixel = color.pixel;
+        else
+            outline_pixel = BlackPixelOfScreen(XtScreen(notebook));
+        outline_initialized = True;
+    }
     Widget frame = XtVaCreateManagedWidget(
         name, xmFrameWidgetClass, notebook,
         XmNnotebookChildType, XmMAJOR_TAB,
         XmNpageNumber, page_number,
         XmNshadowThickness, 1,
+        XmNtopShadowColor, outline_pixel,
+        XmNbottomShadowColor, outline_pixel,
         XmNmarginWidth, 8,
         XmNmarginHeight, 3, NULL);
     XtVaCreateManagedWidget("tabLabel", xmLabelWidgetClass, frame,

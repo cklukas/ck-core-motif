@@ -14611,7 +14611,8 @@ Modern profile frame metrics (2026-10-26)
   the gallery's modern presentation. The live pages now have one clean outer
   boundary, without the stray vertical line beside the binding.
 - Render all gallery notebook tabs as framed tab surfaces, including inactive
-  Source and Built-in Icons tabs, instead of leaving them as floating labels.
+  Source and Built-in Icons tabs, instead of leaving them as floating labels;
+  their inactive outlines use the modern muted gray shadow color.
 - Wrap the welcome-page instruction using measured Xft text widths so narrow
   windows do not clip the final line.
 

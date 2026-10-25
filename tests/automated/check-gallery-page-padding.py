@@ -14,4 +14,5 @@ assert "candidate_extents.width" in source
 assert 'strtok(remaining, " ")' in source
 assert "create_gallery_tab" in source
 assert "xmFrameWidgetClass" in source
+assert '"#aeb7c2"' in source
 print("PASS gallery notebook pages use consistent inner padding")

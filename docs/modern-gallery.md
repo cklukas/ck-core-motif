@@ -31,6 +31,9 @@ states keep identical alignment.
 The modern presentation also removes the Form page's nested manager shadow
 and uses a single Notebook boundary. This keeps the page edge from appearing
 as a second frame beside the binding or around the page spinner.
+The Example, Source, and Built-in Icons tabs are framed surfaces; inactive tab
+outlines use a muted gray so they remain visible without competing with the
+selected tab.
 
 The welcome explanation is width-aware: it measures each word with the active
 Xft font and wraps the prompt inside the page margins, so the instruction is
