@@ -9940,6 +9940,12 @@ Directory-entry initial allocation guard (2026-10-25)
 - Check the file-selector entry-list allocation and release the process lock
   before returning on failure; see `docs/dir-entries-initial-allocation.md`.
 
+XmOS initialization path allocation guards (2026-10-25)
+========================================================
+
+- Check absolute, generated, and environment-provided resource-path buffers
+  before formatting or copying; see `docs/xmos-init-path-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

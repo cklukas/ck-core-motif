@@ -1323,6 +1323,8 @@ _XmOSInitPath(String   file_name,
   
   if (file_name && _XmOSAbsolutePathName(file_name, &file_name, homedir)) {
       path = XtNewString(ABSOLUTE_PATH);
+      if (path == NULL)
+	return NULL;
   } 
   else
     {
@@ -1341,6 +1343,8 @@ _XmOSInitPath(String   file_name,
 	      if (path_length < 0)
 		  return NULL;
 	      path = XtMalloc((size_t)path_length + 1);
+	      if (path == NULL)
+		return NULL;
 	      (void) snprintf(path, (size_t)path_length + 1, PATH_DEFAULT,
 		      homedir, homedir, homedir,
 		      homedir, homedir, homedir, homedir, homedir, homedir,
@@ -1357,6 +1361,8 @@ _XmOSInitPath(String   file_name,
 	      if (path_length < 0)
 		  return NULL;
 	      path = XtMalloc((size_t)path_length + 1);
+	      if (path == NULL)
+		return NULL;
 	      (void) snprintf(path, (size_t)path_length + 1, XAPPLRES_DEFAULT,
 		      old_path, old_path, old_path, old_path, old_path,
 		      old_path, old_path, old_path, homedir, homedir,
@@ -1367,6 +1373,8 @@ _XmOSInitPath(String   file_name,
       else
 	{
 	  path = XtMalloc(strlen(local_path) + 1);
+	  if (path == NULL)
+	    return NULL;
 	  strcpy (path, local_path);
 	  *user_path = True;
 	}
