@@ -1774,9 +1774,14 @@ ClipboardFindFormat(
     ClipboardFormatItem currformat, matchformat;
     unsigned long reclength ;
     int i, free_flag, index;
+    int status;
     itemId currformatid, queryitemid, *idptr;
     Atom formatatom;
     Atom rectype;
+
+    if (header == NULL || maxnamelength == NULL || count == NULL ||
+	matchlength == NULL)
+	return 0;
 
     *count = 0;
     *maxnamelength = 0;
@@ -1798,17 +1803,38 @@ ClipboardFindFormat(
     if ( queryitemid == 0 ) return 0;
 
     /* get the query item */
-    if (ClipboardFindItem(display, queryitemid, (XtPointer *) &queryitem,
+	queryitem = NULL;
+    reclength = 0;
+    status = ClipboardFindItem(display, queryitemid, (XtPointer *) &queryitem,
 			  &reclength, &rectype, 0,
-			  XM_DATA_ITEM_RECORD_TYPE ) == ClipboardFail ) 
-    	return 0;
+			  XM_DATA_ITEM_RECORD_TYPE );
 
-    if ( queryitem == 0 )
+    if (status != ClipboardSuccess || queryitem == NULL ||
+	    reclength < sizeof(ClipboardDataItemRec))
+	{
+	XtFree((char *)queryitem);
+    	return 0;
+    }
+
+    if (queryitem->formatCount < 0 ||
+	queryitem->formatIdList > ULONG_MAX / CONVERT_32_FACTOR)
     {
+	XtFree((char *)queryitem);
 	CleanupHeader (display);
 	ClipboardError( CLIPBOARD_CORRUPT, CORRUPT_DATA_STRUCTURE );
 	return 0;
     }
+
+    if ((unsigned long)queryitem->formatIdList * CONVERT_32_FACTOR > reclength ||
+	(unsigned long)queryitem->formatCount >
+	(reclength - (unsigned long)queryitem->formatIdList * CONVERT_32_FACTOR) /
+	 sizeof(itemId))
+	{
+	XtFree((char *)queryitem);
+	CleanupHeader (display);
+	ClipboardError( CLIPBOARD_CORRUPT, CORRUPT_DATA_STRUCTURE );
+	return 0;
+	}
 
     *count = queryitem->formatCount - queryitem->cancelledFormatCount;
 
@@ -1833,15 +1859,20 @@ ClipboardFindFormat(
     	free_flag = 1;
 
 	/* get the next format */
-	ClipboardFindItem(display, currformatid,
+	currformat = NULL;
+	reclength = 0;
+	status = ClipboardFindItem(display, currformatid,
 			  (XtPointer *) &currformat,
 			  &reclength,
 			  &rectype,
 			  0,
 			  XM_FORMAT_HEADER_TYPE );
 
-    	if ( currformat == 0 )
+	if (status != ClipboardSuccess || currformat == NULL ||
+	    reclength < sizeof(ClipboardFormatItemRec))
     	{
+	    XtFree((char *)currformat);
+	    XtFree((char *)queryitem);
 	    CleanupHeader (display);
 	    ClipboardError( CLIPBOARD_CORRUPT, CORRUPT_DATA_STRUCTURE );
     	    return 0;

@@ -1,3 +1,10 @@
+Clipboard format enumeration bounds validation (2026-10-26)
+============================================================
+
+- Validate data-item list bounds and format records before enumerating
+  clipboard formats, rejecting malformed serialized lists safely; see
+  `docs/clipboard-format-enumeration-bounds.md`.
+
 Clipboard header allocation failure handling (2026-10-26)
 ==========================================================
 
