@@ -1,3 +1,10 @@
+MWM invoke-message UTM guard (2026-10-26)
+==========================================
+
+- Skip command invoke-message transport and release its payload when the
+  optional active-screen UTM widget is unavailable; see
+  `docs/mwm-invoke-message-guard.md`.
+
 MWM UTM selection setup guard (2026-10-26)
 ===========================================
 

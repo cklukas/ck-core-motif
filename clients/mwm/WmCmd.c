@@ -1162,6 +1162,13 @@ SendInvokeMessage (
   msg = fulldata = (MessageData)XtMalloc(sizeof(CARD8) * size);
   if (fulldata == NULL)
 	return;
+
+  if (ACTIVE_PSD == NULL || ACTIVE_PSD->utmShell == NULL)
+  {
+    XtFree ((char *) fulldata);
+    return;
+  }
+
   msg = PackCARD32(msg, commandID);
   msg = PackCARD32(msg, clientWindow);
 
