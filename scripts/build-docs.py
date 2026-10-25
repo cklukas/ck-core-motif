@@ -164,9 +164,11 @@ def main():
             receipt["steps"].append({"name": name, "command": command,
                 "started_ns": step_start_ns, "ended_ns": time.time_ns(),
                 "seconds": time.monotonic() - step_start, "exit": result.returncode})
-            if result.returncode:
+            if result.returncode not in (0, 3):
                 print("\n".join((work / (name + ".log")).read_text(errors="replace").splitlines()[-100:]), file=sys.stderr)
                 raise RuntimeError("failed " + name + "; see " + str(work / (name + ".log")))
+            if name == "site" and result.returncode == 3:
+                receipt["site_warnings"] = True
             if name == "tool":
                 if not (step_start_ns <= binary.stat().st_mtime_ns <= time.time_ns()):
                     raise RuntimeError("tool timestamp does not establish a fresh build")
