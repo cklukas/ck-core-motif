@@ -258,16 +258,17 @@ GetTextSegment(Display *display, /* unused */
 	    (separator == True || tabs != 0))
 	{
 	    size_t newlength;
+	    size_t buffer_length = *buffer ? strlen(*buffer) : 0;
 	    size_t prefix_length = (size_t)tabs + (separator ? 1U : 0U);
 	    char *newstring;
 
-	    if (strlen(*buffer) > SIZE_MAX - prefix_length - 1U)
+	    if (buffer_length > SIZE_MAX - prefix_length - 1U)
 	    {
 		XtFree(*buffer);
 		*buffer = NULL;
 		return(_INVALID_SEGMENT);
 	    }
-	    newlength = strlen(*buffer) + prefix_length;
+	    newlength = buffer_length + prefix_length;
 	    newstring = (char *)XtMalloc(sizeof(char) * (newlength + 1));
 	    if (newstring == NULL)
 	      {
@@ -276,7 +277,10 @@ GetTextSegment(Display *display, /* unused */
 		return(_INVALID_SEGMENT);
 	      }
 	    for (i = 0; i < tabs; i++) newstring[i] = '\t';
-	    strcpy(&newstring[i], *buffer);
+	    if (*buffer != NULL)
+	      strcpy(&newstring[i], *buffer);
+	    else
+	      newstring[i] = '\0';
 	    strcat(newstring, "\n");
 	    XtFree(*buffer);
 	    *buffer = newstring;

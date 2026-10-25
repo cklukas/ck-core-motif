@@ -1,3 +1,9 @@
+Handle empty text segments during separator insertion (2026-10-25)
+=====================================================================
+
+- Treat null `XmNO_TEXT` segment buffers as empty strings when adding tabs or
+  separators; see `docs/motif-txtpropcv-empty-segment.md`.
+
 Guard text segment temporary buffers (2026-10-25)
 ================================================
 
