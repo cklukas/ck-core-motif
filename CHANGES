@@ -1,3 +1,9 @@
+Guard List translation allocation (2026-10-25)
+===============================================
+
+- Return safely from List class initialization when its local translation
+  buffer cannot be allocated; see `docs/motif-list-translations.md`.
+
 Guard List drag target allocation (2026-10-25)
 ==============================================
 

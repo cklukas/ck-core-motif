@@ -952,6 +952,8 @@ ClassPartInitialize(WidgetClass wc)
 
   xlats = (char *)
     ALLOCATE_LOCAL(strlen(ListXlations1) + strlen(ListXlations2) + 1);
+  if (xlats == NULL)
+    return;
   strcpy(xlats, ListXlations1);
   strcat(xlats, ListXlations2);
   wc->core_class.tm_table =(String) XtParseTranslationTable(xlats);
