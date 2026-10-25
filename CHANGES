@@ -1,3 +1,9 @@
+Mrm icon loader input validation (2026-10-25)
+===============================================
+
+- Reject null icon, serialized-buffer, and context-list inputs before icon
+  relocation and resource loading; see `docs/mrm-icon-loader-inputs.md`.
+
 Mrm icon color-table count validation (2026-10-25)
 =====================================================
 

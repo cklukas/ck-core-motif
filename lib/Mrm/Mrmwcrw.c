@@ -3452,6 +3452,9 @@ Urm__CW_LoadIconImage (RGMIconImagePtr		iconptr ,
 		       IDBFile			file_id ,
 		       URMPointerListPtr	ctxlist )
 {
+  if ( iconptr == NULL || bufptr == NULL || ctxlist == NULL )
+    return MrmFAILURE;
+
   /*
    *  Local variables
    */
