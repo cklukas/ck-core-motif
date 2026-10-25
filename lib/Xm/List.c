@@ -4067,6 +4067,11 @@ BuildSelectedList(XmListWidget lw,
       return;
     }
   lw->list.selectedItems = (XmString *)XtMalloc(sizeof(XmString) * j);
+  if (lw->list.selectedItems == NULL)
+    {
+      lw->list.selectedItemCount = 0;
+      return;
+    }
 
   for (i = 0, j = 0; i < count; i++)
     {
@@ -4112,6 +4117,11 @@ BuildSelectedPositions(XmListWidget lw,
   else
     {
       lw->list.selectedPositions = (int *) XtMalloc(sizeof(int) * nsel);
+      if (lw->list.selectedPositions == NULL)
+	{
+	  lw->list.selectedPositionCount = 0;
+	  return;
+	}
 
       for (pos = 0, nsel = 0; pos < nitems; pos++)
 	{
