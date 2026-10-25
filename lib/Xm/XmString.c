@@ -9078,6 +9078,12 @@ XmStringUnparse(XmString          string,
   unsigned int	        c_length;
   XtPointer	        c_value;
 
+  if (output_type != XmCHARSET_TEXT &&
+      output_type != XmMULTIBYTE_TEXT &&
+      output_type != XmWIDECHAR_TEXT &&
+      output_type != XmNO_TEXT)
+    return NULL;
+
   _XmProcessLock();
   if (parse_count != 0 && parse_table == NULL) {
     _XmProcessUnlock();

@@ -142,6 +142,13 @@ XmString tab conversion guards (2026-10-26)
   as zero-width results instead of asserting or dereferencing null state; see
   `docs/xmstring-tab-conversion.md`.
 
+XmString unparse output validation (2026-10-26)
+================================================
+
+- Reject unsupported `XmStringUnparse` output types before building a result,
+  preventing unterminated output for invalid callers; see
+  `docs/xmstring-unparse-output.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 
