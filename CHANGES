@@ -1,3 +1,9 @@
+Xm unit conversion null-safety (2026-10-25)
+===============================================
+
+- Guard resource-unit conversions and Xme hooks against null widgets, screens,
+  and values; see `docs/xm-resind-null.md`.
+
 XmHierarchy API null-safety (2026-10-25)
 ===========================================
 

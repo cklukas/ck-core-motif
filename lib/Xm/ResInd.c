@@ -98,6 +98,8 @@ XmConvertStringToUnits(
         XtEnum *parse_error) /* RETURN */
 {
   int value;
+  if (screen == NULL)
+    return 0;
   _XmDisplayToAppContext(DisplayOfScreen(screen));
 
   _XmAppLock(app);
@@ -484,6 +486,8 @@ XmConvertUnits(
 {
   int value;
   Screen *screen;
+  if (widget == NULL)
+    return 0;
   _XmWidgetToAppContext(widget);
     
   _XmAppLock(app);
@@ -509,6 +513,8 @@ XmCvtToHorizontalPixels(
         register int from_type )
 {
   int value;
+  if (screen == NULL)
+    return 0;
   _XmDisplayToAppContext(DisplayOfScreen(screen));
 
   _XmAppLock(app);
@@ -565,6 +571,8 @@ XmeToHorizontalPixels(
         XtArgVal *value )
 {
    XmImportOperator ret_value;
+   if (widget == NULL || value == NULL)
+     return XmSYNTHETIC_LOAD;
    _XmWidgetToAppContext(widget);
 
    _XmAppLock(app);
@@ -587,6 +595,8 @@ XmCvtToVerticalPixels(
         register int from_type )
 {
   int value;
+  if (screen == NULL)
+    return 0;
   _XmDisplayToAppContext(DisplayOfScreen(screen));
 
   _XmAppLock(app);
@@ -636,6 +646,8 @@ XmCvtFromHorizontalPixels(
         register int to_type )
 {
   int value;
+  if (screen == NULL)
+    return 0;
   _XmDisplayToAppContext(DisplayOfScreen(screen));
 
   _XmAppLock(app);
@@ -691,6 +703,8 @@ XmeFromHorizontalPixels(
         int offset,
         XtArgVal *value )
 {
+  if (widget == NULL || value == NULL)
+    return;
   _XmWidgetToAppContext(widget);
   _XmAppLock(app);
   FromPixels(widget, offset, value, XmHORIZONTAL);
@@ -713,6 +727,8 @@ XmCvtFromVerticalPixels(
         register int to_type )
 {
   int value;
+  if (screen == NULL)
+    return 0;
   _XmDisplayToAppContext(DisplayOfScreen(screen));
 
   _XmAppLock(app);
@@ -737,6 +753,8 @@ XmeFromVerticalPixels(
         int offset,
         XtArgVal *value )
 {
+  if (widget == NULL || value == NULL)
+    return;
   _XmWidgetToAppContext(widget);
   _XmAppLock(app);
   FromPixels(widget, offset, value, XmVERTICAL);
