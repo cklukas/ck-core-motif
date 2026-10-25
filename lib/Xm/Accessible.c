@@ -28,6 +28,26 @@
 #include <Xm/DataGrid.h>
 #include <Xm/SegmentedControl.h>
 #include <Xm/ColorPicker.h>
+#include <Xm/Chip.h>
+#include <Xm/Badge.h>
+#include <Xm/IconLabel.h>
+#include <Xm/Divider.h>
+#include <Xm/Avatar.h>
+#include <Xm/TeachingTip.h>
+#include <Xm/Link.h>
+#include <Xm/SearchBox.h>
+#include <Xm/Prompt.h>
+#include <Xm/FormSection.h>
+#include <Xm/EmptyState.h>
+#include <Xm/Toast.h>
+#include <Xm/CommandPalette.h>
+#include <Xm/Skeleton.h>
+#include <Xm/RowActions.h>
+#include <Xm/DropHighlight.h>
+#include <Xm/StatusBar.h>
+#include <Xm/Toolbar.h>
+#include <Xm/Sidebar.h>
+#include <Xm/AutoSuggestBox.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
 #include <Xm/PushBG.h>
@@ -204,14 +224,9 @@ static void menu_changed(XmAccessibility *a, Widget w) {
   } else if (XmIsMenuShell(w)) {
     XtVaGetValues(w, XtNchildren, &children, XtNnumChildren, &count, NULL);
     /* Snapshot IDs: notification can run client/provider code and retire nodes. */
-    if ((size_t)count > SIZE_MAX / sizeof(XmAccessibleId) ||
-        count > UINT_MAX / sizeof(XmAccessibleId))
+    if ((size_t)count > SIZE_MAX / sizeof(XmAccessibleId))
       return;
-    XmAccessibleId *ids = count
-        ? (XmAccessibleId *)XtMalloc(
-	      (Cardinal)(count * sizeof(*ids))) : NULL;
-    if (count != 0 && !ids)
-      return;
+    XmAccessibleId *ids = (XmAccessibleId *)XtMalloc(count * sizeof(*ids));
     for (k = 0; k < count; ++k)
       ids[k] = menu_pane(children[k])
                    ? XmAccessibilityWidget(a, RC_CascadeBtn(children[k])) : 0;
@@ -390,8 +405,6 @@ static void watch_display(XmAccessibility *a, Widget widget) {
     if (hook->hooks == hooks)
       return;
   hook = (XmAccessibleDisplayHook *)XtMalloc(sizeof(*hook));
-  if (!hook)
-    return;
   hook->hooks = hooks;
   hook->next = a->display_hooks;
   a->display_hooks = hook;
@@ -631,6 +644,23 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     if (XmIsSegmentedControl(w))
       XtAddCallback(w, XmNSegmentedSelectionCallback, text_value_changed,
                     (XtPointer)a);
+    if (XmIsChip(w)) {
+      XtAddCallback(w, XmNchipActivateCallback, text_value_changed,
+                    (XtPointer)a);
+      XtAddCallback(w, XmNchipRemoveCallback, text_value_changed,
+                    (XtPointer)a);
+    }
+    if (XmIsLink(w))
+      XtAddCallback(w, XmNlinkActivateCallback, text_value_changed,
+                    (XtPointer)a);
+    if (XmIsSearchBox(w)) {
+      XtAddCallback(w, XmNsearchQueryChangedCallback, text_value_changed,
+                    (XtPointer)a);
+      XtAddCallback(w, XmNsearchCommittedCallback, text_value_changed,
+                    (XtPointer)a);
+      XtAddCallback(w, XmNsearchClearedCallback, text_value_changed,
+                    (XtPointer)a);
+    }
     if (XmIsNumberBox(w))
       XtAddCallback(w, XmNnumberValueChangedCallback, text_value_changed,
                     (XtPointer)a);
@@ -660,21 +690,11 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
   if (XmIsList(w)) (void)sync_native_list(a, _XmAccessibilityNode(a, id));
 }
 XmAccessibility *XmAccessibilityCreate(Widget root, const char *name) {
-  XmAccessibility *a;
+  XmAccessibility *a = (XmAccessibility *)XtCalloc(1, sizeof(*a));
   XmAccessibleNode *n;
-
-  if (!root)
-    return NULL;
-  a = (XmAccessibility *)XtCalloc(1, sizeof(*a));
-  if (!a)
-    return NULL;
   a->root = root;
   a->app = XtWidgetToApplicationContext(root);
   a->name = XtNewString(name ? name : XtName(root));
-  if (!a->name) {
-    XmAccessibilityDestroy(a);
-    return NULL;
-  }
   a->status = XmACCESSIBILITY_NOT_BUILT;
   n = add_node(a, 0);
   if (!n) { XmAccessibilityDestroy(a); return NULL; }
@@ -778,6 +798,23 @@ static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
     if (XmIsSegmentedControl(n->widget))
       XtRemoveCallback(n->widget, XmNSegmentedSelectionCallback,
                        text_value_changed, (XtPointer)a);
+    if (XmIsChip(n->widget)) {
+      XtRemoveCallback(n->widget, XmNchipActivateCallback, text_value_changed,
+                       (XtPointer)a);
+      XtRemoveCallback(n->widget, XmNchipRemoveCallback, text_value_changed,
+                       (XtPointer)a);
+    }
+    if (XmIsLink(n->widget))
+      XtRemoveCallback(n->widget, XmNlinkActivateCallback, text_value_changed,
+                       (XtPointer)a);
+    if (XmIsSearchBox(n->widget)) {
+      XtRemoveCallback(n->widget, XmNsearchQueryChangedCallback,
+                       text_value_changed, (XtPointer)a);
+      XtRemoveCallback(n->widget, XmNsearchCommittedCallback,
+                       text_value_changed, (XtPointer)a);
+      XtRemoveCallback(n->widget, XmNsearchClearedCallback,
+                       text_value_changed, (XtPointer)a);
+    }
     if (XmIsNumberBox(n->widget))
       XtRemoveCallback(n->widget, XmNnumberValueChangedCallback,
                        text_value_changed, (XtPointer)a);
@@ -897,25 +934,16 @@ static char *locale_utf8(const char *s) {
   count = mbsrtowcs(NULL, &p, 0, &state);
   if (count == (size_t)-1 ||
       count > SIZE_MAX / sizeof(*wide) - 1 ||
-      count > ((size_t)((Cardinal)~0) / sizeof(*wide)) - 1 ||
-      count > (SIZE_MAX - 1) / 4 ||
-      count > ((size_t)((Cardinal)~0) - 1) / 4)
+      count > (SIZE_MAX - 1) / 4)
     return NULL;
-  wide = (wchar_t *)XtMalloc(
-	(Cardinal)((count + 1) * sizeof(*wide)));
-  if (!wide)
-    return NULL;
+  wide = (wchar_t *)XtMalloc((count + 1) * sizeof(*wide));
   p = s;
   memset(&state, 0, sizeof(state));
   if (mbsrtowcs(wide, &p, count + 1, &state) == (size_t)-1) {
     XtFree((char *)wide);
     return NULL;
   }
-  result = (char *)XtMalloc((Cardinal)(count * 4 + 1));
-  if (!result) {
-    XtFree((char *)wide);
-    return NULL;
-  }
+  result = (char *)XtMalloc(count * 4 + 1);
   out = result;
   for (i = 0; i < count; i++) {
     uint32_t c = (uint32_t)wide[i];
@@ -1240,6 +1268,205 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     i->current_value = selected;
     i->minimum_increment = 1;
   }
+  if (XmIsChip(w)) {
+    XmString label_string = NULL;
+    i->role = XmACCESSIBLE_BUTTON;
+    i->action_count = 1;
+    XtVaGetValues(w, XmNchipLabel, &label_string, NULL);
+    if (label_string)
+      local = XmStringUnparse(label_string, NULL, XmCHARSET_TEXT,
+                              XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+  }
+  if (XmIsBadge(w)) {
+    XmString label_string = NULL;
+    char value[64];
+    int displayed = XmBadgeGetDisplayedCount(w);
+    i->role = XmACCESSIBLE_LABEL;
+    i->has_value = displayed >= 0;
+    i->minimum_value = 0;
+    i->maximum_value = displayed >= 0 ? displayed : 0;
+    i->current_value = displayed >= 0 ? displayed : 0;
+    i->minimum_increment = 1;
+    XtVaGetValues(w, XmNbadgeLabel, &label_string, NULL);
+    if (displayed >= 0) {
+      snprintf(value, sizeof(value), "%d", displayed);
+      i->value_text = XtNewString(value);
+    } else if (label_string) {
+      i->value_text = XmStringUnparse(label_string, NULL, XmCHARSET_TEXT,
+                                      XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+    }
+  }
+  if (XmIsIconLabel(w)) {
+    XmString label_string = NULL;
+    i->role = XmACCESSIBLE_LABEL;
+    XtVaGetValues(w, XmNiconLabelLabel, &label_string, NULL);
+    if (label_string)
+      local = XmStringUnparse(label_string, NULL, XmCHARSET_TEXT,
+                              XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+  }
+  if (XmIsDivider(w)) {
+    XmString label_string = NULL;
+    i->role = XmACCESSIBLE_LABEL;
+    XtVaGetValues(w, XmNdividerLabel, &label_string, NULL);
+    if (label_string)
+      local = XmStringUnparse(label_string, NULL, XmCHARSET_TEXT,
+                              XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+    else
+      local = XtNewString("Divider");
+  }
+  if (XmIsAvatar(w)) {
+    XmString initials = NULL;
+    i->role = XmACCESSIBLE_LABEL;
+    XtVaGetValues(w, XmNavatarInitials, &initials, NULL);
+    if (initials)
+      local = XmStringUnparse(initials, NULL, XmCHARSET_TEXT,
+                              XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+    if (!local || !*local) {
+      if (local)
+        XtFree(local);
+      local = XtNewString("Avatar");
+    }
+  }
+  if (XmIsTeachingTip(w)) {
+    XmString title = NULL;
+    XmString text = NULL;
+    i->role = XmACCESSIBLE_PANEL;
+    i->has_text = True;
+    XtVaGetValues(w, XmNteachingTipTitle, &title,
+                  XmNteachingTipText, &text, NULL);
+    if (title)
+      local = XmStringUnparse(title, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
+                              NULL, 0, XmOUTPUT_ALL);
+    if (!local || !*local) {
+      if (local)
+        XtFree(local);
+      local = text ? XmStringUnparse(text, NULL, XmCHARSET_TEXT,
+                                     XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL)
+                   : NULL;
+    }
+    if (!local || !*local) {
+      if (local)
+        XtFree(local);
+      local = XtNewString("Teaching tip");
+    }
+  }
+  if (XmIsLink(w)) {
+    XmString label_string = NULL;
+    i->role = XmACCESSIBLE_BUTTON;
+    i->action_count = 1;
+    XtVaGetValues(w, XmNlinkLabel, &label_string, NULL);
+    if (label_string)
+      local = XmStringUnparse(label_string, NULL, XmCHARSET_TEXT,
+                              XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+  }
+  if (XmIsSearchBox(w)) {
+    char *query = XmSearchBoxGetString(w);
+    i->role = XmACCESSIBLE_TEXT;
+    i->has_text = True;
+    i->text_length = query ? (int)strlen(query) : 0;
+    i->action_count = 1;
+    i->name = XtNewString("Search");
+    if (query) XtFree(query);
+  }
+  if (XmIsPrompt(w)) {
+    char *text = NULL;
+    i->role = XmACCESSIBLE_LABEL;
+    if (XmPromptGetVisible(w)) {
+      XmString value = NULL;
+      XtVaGetValues(w, XmNpromptText, &value, NULL);
+      if (value) text = XmStringUnparse(value, NULL, XmCHARSET_TEXT,
+                                        XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+    }
+    if (text) {
+      i->name = text;
+      i->has_text = True;
+      i->text_length = (int)strlen(text);
+    }
+  }
+  if (XmIsFormSection(w)) {
+    XmString header = NULL;
+    i->role = XmACCESSIBLE_PANEL;
+    XtVaGetValues(w, XmNformSectionHeader, &header, NULL);
+    if (header)
+      local = XmStringUnparse(header, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
+                              NULL, 0, XmOUTPUT_ALL);
+  }
+  if (XmIsEmptyState(w)) {
+    XmString message = NULL;
+    Boolean action_mapped = False;
+    i->role = XmACCESSIBLE_PANEL;
+    XtVaGetValues(w, XmNemptyStateMessage, &message, NULL);
+    if (message)
+      local = XmStringUnparse(message, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
+                              NULL, 0, XmOUTPUT_ALL);
+    if (XmEmptyStateGetAction(w))
+      XtVaGetValues(XmEmptyStateGetAction(w), XmNmappedWhenManaged,
+                    &action_mapped, NULL);
+    if (action_mapped)
+      i->action_count = 1;
+  }
+  if (XmIsToast(w)) {
+    XmString message = NULL;
+    XmString action_label = NULL;
+    char *action_text = NULL;
+    i->role = XmACCESSIBLE_PANEL;
+    XtVaGetValues(w, XmNtoastMessage, &message, NULL);
+    if (message)
+      local = XmStringUnparse(message, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
+                              NULL, 0, XmOUTPUT_ALL);
+    XtVaGetValues(w, XmNtoastActionLabel, &action_label, NULL);
+    if (action_label)
+      action_text = XmStringUnparse(action_label, NULL, XmCHARSET_TEXT,
+                                    XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+    if (XmToastIsShown(w) && XtIsManaged(w) && action_text && *action_text)
+      i->action_count = 1;
+    XtFree(action_text);
+  }
+  if (XmIsCommandPalette(w)) {
+    i->role = XmACCESSIBLE_PANEL;
+    i->action_count = 1;
+    local = XtNewString("Command palette");
+  }
+  if (XmIsSkeleton(w)) {
+    XmString label = NULL;
+    i->role = XmACCESSIBLE_PANEL;
+    XtVaGetValues(w, XmNskeletonLabel, &label, NULL);
+    if (label)
+      local = XmStringUnparse(label, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
+                              NULL, 0, XmOUTPUT_ALL);
+  }
+  if (XmIsRowActions(w)) {
+    i->role = XmACCESSIBLE_PANEL;
+    i->action_count = XmRowActionsIsRevealed(w) ? XmRowActionsGetItemCount(w) : 0;
+    local = XtNewString("Row actions");
+  }
+  if (XmIsDropHighlight(w)) {
+    XmString label = NULL;
+    i->role = XmACCESSIBLE_PANEL;
+    XtVaGetValues(w, XmNdropHighlightLabel, &label, NULL);
+    if (label)
+      local = XmStringUnparse(label, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
+                              NULL, 0, XmOUTPUT_ALL);
+  }
+  if (XmIsStatusBar(w)) {
+    i->role = XmACCESSIBLE_PANEL;
+    local = XtNewString("Status bar");
+  }
+  if (XmIsToolbar(w)) {
+    i->role = XmACCESSIBLE_PANEL;
+    i->action_count = XmToolbarGetOverflowCount(w) ? 1 : 0;
+    local = XtNewString("Toolbar");
+  }
+  if (XmIsSidebar(w)) {
+    i->role = XmACCESSIBLE_PANEL;
+    i->action_count = 1;
+    local = XtNewString("Sidebar");
+  }
+  if (XmIsAutoSuggestBox(w)) {
+    i->role = XmACCESSIBLE_PANEL;
+    i->action_count = XmAutoSuggestBoxGetSuggestionCount(w) ? 1 : 0;
+    local = XtNewString("Suggestions");
+  }
   if (XmIsNumberBox(w)) {
     int minimum, maximum;
     i->role = XmACCESSIBLE_PROGRESS_BAR;
@@ -1351,8 +1578,12 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
   }
   i->name = locale_utf8(local ? local : XtName(w));
   XtFree(local);
+  if (XmIsPrompt(w) && !XmPromptGetVisible(w)) {
+    XtFree(i->name);
+    i->name = NULL;
+  }
   if (!i->name)
-    i->name = XtNewString("");
+    i->name = XmIsPrompt(w) && !XmPromptGetVisible(w) ? NULL : XtNewString("");
   return True;
 }
 static char *text_impl(XmAccessibility *a, XmAccessibleId id, int start,
@@ -1386,8 +1617,6 @@ static char *text_impl(XmAccessibility *a, XmAccessibleId id, int start,
     return NULL;
   capacity = (size_t)(end - start) * MB_CUR_MAX + 1;
   local = XtMalloc((Cardinal)capacity);
-  if (local == NULL)
-    return NULL;
   status = XmIsText(n->widget)
                ? XmTextGetSubstring(n->widget, start, end - start,
                                     (int)capacity, local)
@@ -1471,6 +1700,40 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
     XmDisclosureSetExpanded(n->widget, !XmDisclosureGetExpanded(n->widget),
                             True);
     return True;
+  }
+  if (XmIsChip(n->widget)) {
+    XmChipInvoke(n->widget, NULL);
+    return True;
+  }
+  if (XmIsLink(n->widget)) {
+    XmLinkActivate(n->widget, NULL);
+    return True;
+  }
+  if (XmIsSearchBox(n->widget)) {
+    XmSearchBoxCommit(n->widget, NULL);
+    return True;
+  }
+  if (XmIsEmptyState(n->widget) && action == 0) {
+    Boolean action_mapped = False;
+    if (XmEmptyStateGetAction(n->widget))
+      XtVaGetValues(XmEmptyStateGetAction(n->widget), XmNmappedWhenManaged,
+                    &action_mapped, NULL);
+    if (!action_mapped)
+      return False;
+    XmEmptyStateInvokeAction(n->widget, NULL);
+    return True;
+  }
+  if (XmIsToast(n->widget) && action == 0) {
+    XmToastInvokeAction(n->widget, NULL);
+    return True;
+  }
+  if (XmIsCommandPalette(n->widget) && action == 0) {
+    XmCommandPaletteInvokeSelection(n->widget, NULL);
+    return True;
+  }
+  if (XmIsRowActions(n->widget) && XmRowActionsIsRevealed(n->widget)) {
+    XmRowActionsInvoke(n->widget, action, NULL);
+    return action < XmRowActionsGetItemCount(n->widget);
   }
   if (XmIsArrowButton(n->widget)) {
     XmArrowButtonCallbackStruct cb;

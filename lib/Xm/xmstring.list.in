@@ -902,6 +902,12 @@ CFlyoutDismissCallback
 CFlyoutOffsetX
 CFlyoutOffsetY
 CFlyoutText
+CTeachingTipTitle
+CTeachingTipText
+CTeachingTipOffsetX
+CTeachingTipOffsetY
+CTeachingTipDelay
+CTeachingTipDismissCallback
 CColorPickerPreviewCallback
 CColorPickerValue
 CColorPickerValueChangedCallback
@@ -939,6 +945,12 @@ NflyoutDismissCallback
 NflyoutOffsetX
 NflyoutOffsetY
 NflyoutText
+NteachingTipTitle
+NteachingTipText
+NteachingTipOffsetX
+NteachingTipOffsetY
+NteachingTipDelay
+NteachingTipDismissCallback
 NcolorPickerPreviewCallback
 NcolorPickerValue
 NcolorPickerValueChangedCallback

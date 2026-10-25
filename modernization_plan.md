@@ -1044,8 +1044,10 @@ flyout destruction.  Escape/Return and pointer activation dismiss it through a
 typed callback without installing a global event loop or changing menu/dialog
 admission.  The installed Xvfb fixture passed 5 checks across repeated runs,
 including show/hide, dismissal delivery, edge-owner geometry and owner-unmap
-cleanup.  Delayed tooltips and teaching-tip presentation remain a later layer
-over this primitive; existing Motif tooltip behavior is unchanged.
+cleanup.  `XmTeachingTip` now supplies the delayed, copied title/body layer
+over this primitive with cancellation, edge clamping, non-modal dismissal and
+panel accessibility semantics; its installed fixture passes 10 checks.
+Existing Motif tooltip behavior remains unchanged.
 
 ### WP-20: ColorPicker standardization
 
