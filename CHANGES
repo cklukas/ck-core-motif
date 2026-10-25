@@ -5461,3 +5461,9 @@ Harden compound-text direction-stack growth (2026-10-25)
 
 - Preserve direction-stack state when growth allocation fails and propagate the
   conversion error; see `docs/resencod-direction-stack.md`.
+
+Guard compound-text conversion context allocation (2026-10-25)
+=================================================================
+
+- Check context and initial direction-stack allocations in both conversion
+  entry points; see `docs/resencod-direction-stack.md`.

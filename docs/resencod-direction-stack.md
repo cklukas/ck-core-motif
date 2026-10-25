@@ -6,3 +6,7 @@ causes CSI processing to report failure instead of writing through a null or
 partially published stack.
 
 `tests/automated/check-resencod-direction-stack.py` protects this path.
+
+Both public and resource-converter context constructors now check their
+context and initial direction-stack allocations and release partial state on
+failure.
