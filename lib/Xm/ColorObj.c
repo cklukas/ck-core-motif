@@ -1266,6 +1266,10 @@ XmeGetIconControlInfo(
 {
     XmColorObj tmpColorObj;
 
+    if (useMaskRtn == NULL || useMultiColorIconsRtn == NULL ||
+	useIconFileCacheRtn == NULL)
+	return False;
+
     _XmProcessLock();
     tmpColorObj = screen ? _XmColorObjForDisplay(DisplayOfScreen(screen)) : NULL;
     /* return False if color srv is not running, or color obj not used */

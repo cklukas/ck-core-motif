@@ -1,3 +1,9 @@
+Icon-control query output validation (2026-10-25)
+=================================================
+
+- Reject missing output pointers in `XmeGetIconControlInfo` before fallback or
+  color-object writes; see `docs/icon-control-info-outputs.md`.
+
 Screen resource lookup null validation (2026-10-25)
 ====================================================
 
