@@ -1,3 +1,15 @@
+Bounded x86_64 Unicode text qualification (2026-10-25)
+========================================================
+
+- Extend the installed native-feature runner with an explicit
+  `--fontconfig-file` option and receipt fingerprint so fallback-font cohorts
+  are reproducible instead of inherited from the ambient environment.
+- Qualify the x86_64 installed scalar/map, preedit-range, layout,
+  line-context, Unicode-widget and font-resize fixtures with a task-local
+  CJK/Unicode corpus. The large-text stress case remains an explicit Xvfb
+  XRender/font-server boundary: color-emoji fallback reaches `BadLength`, and
+  the monochrome fallback lacks complete distant supplementary coverage.
+
 Case-insensitive Exm demonstration build (2026-10-25)
 ======================================================
 

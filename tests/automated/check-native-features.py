@@ -132,6 +132,8 @@ def main():
     parser.add_argument("--libdir", type=Path, help="absolute library directory inside prefix (default: prefix/lib)")
     parser.add_argument("--runtime-library-dir", action="append", type=Path,
                         help="additional absolute dependency library directory; may be repeated")
+    parser.add_argument("--fontconfig-file", type=Path,
+                        help="absolute fontconfig file to use and fingerprint for text fixtures")
     parser.add_argument("--cc", default="cc", help="native C compiler executable")
     parser.add_argument("--sanitize", action="store_true",
                         help="instrument fixtures for an ASan/UBSan toolkit prefix; strict leak/error checks")
@@ -158,6 +160,11 @@ def main():
         if ":" in str(path):
             parser.error("runtime library directories must have no colon")
         runtime_library_dirs.append(path)
+    fontconfig_file = None
+    if args.fontconfig_file:
+        if not args.fontconfig_file.is_absolute():
+            parser.error("--fontconfig-file must be absolute")
+        fontconfig_file = args.fontconfig_file.resolve(strict=True)
     if ":" in str(library_dir) or args.timeout < 1:
         parser.error("library directory must have no colon; timeout must be positive")
     if output.exists() or output.is_relative_to(prefix) or prefix.is_relative_to(output):
@@ -171,6 +178,8 @@ def main():
         [str(library_dir), *(str(path) for path in runtime_library_dirs)])
     env = dict(os.environ, TMPDIR=str(output / "tmp"), LC_ALL="C.UTF-8",
                LD_LIBRARY_PATH=runtime_search_path, PYTHONDONTWRITEBYTECODE="1")
+    if fontconfig_file:
+        env["FONTCONFIG_FILE"] = str(fontconfig_file)
     instrumentation_flags = []
     if args.sanitize:
         instrumentation_flags = ["-fsanitize=address,undefined", "-fno-omit-frame-pointer"]
@@ -182,6 +191,8 @@ def main():
     receipt = dict(started_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
                    prefix=str(prefix), library_dir=str(library_dir),
                    runtime_library_dirs=[str(path) for path in runtime_library_dirs],
+                   fontconfig_file=(dict(path=str(fontconfig_file), sha256=sha(fontconfig_file))
+                                    if fontconfig_file else None),
                    output=str(output),
                    fixture_source=str(source), requested_fixtures=selected,
                    fixture_instrumentation=instrumentation_flags,

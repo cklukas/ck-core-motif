@@ -55,6 +55,20 @@ ICU/HarfBuzz text readback, external IME services, real AT-SPI/screen-reader
 journeys, clipboard workflows, application DnD, physical display/input and
 matrix-wide sanitizer ownership remain explicit gates.
 
+The same installed x86_64 prefix also passes the bounded text cohort
+(`incremental-map`, `preedit`, `layout`, `line-context`, `unicode-widgets` and
+`font-resize`) with a task-local CJK/Unicode fallback corpus. The runner now
+accepts and fingerprints an explicit `--fontconfig-file`; the fresh receipt is
+`/mnt/v/tmp/ckmotif-x86-20261025/results/text-pass-r2/receipt.json` and the
+fontconfig hash is
+`3a514e14d4ddc49ef8a8eec8d293d551753ec374d03393925c22eb47d436f778`.
+The large-text stress fixture remains open because color-emoji fallback reaches
+Xvfb's XRender `BadLength` request limit and the monochrome fallback does not
+provide complete distant supplementary coverage. This is recorded as an
+environment/font-server boundary, not a suppressed toolkit failure.
+The complete receipt and staged-font fingerprints are retained in
+`docs/x86-text-qualification.md`.
+
 ## Earlier incremental map qualification
 
 Native AArch64 installed ABI 8 passes 32 selected feature fixtures, including

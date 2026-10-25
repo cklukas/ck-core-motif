@@ -652,6 +652,16 @@ same two-target contract and a 4 MiB incremental transfer, while full
 application journeys remain open. See
 `docs/dropsite-lifecycle.md` and `docs/dnd-transfer-lifecycle.md`.
 
+The x86_64 cohort now also passes the bounded installed text subset
+(`incremental-map`, `preedit`, `layout`, `line-context`, `unicode-widgets` and
+`font-resize`) using an explicit, fingerprinted fontconfig corpus. The runner
+records `--fontconfig-file` and its hash in the receipt. The large-text stress
+fixture remains open: enabling color-emoji fallback reaches an Xvfb
+`RenderAddGlyphs` `BadLength`, while the monochrome fallback lacks complete
+distant supplementary coverage. The result is retained as an environment and
+font-server boundary rather than weakening the fixture or claiming full
+x86_64 text acceptance.
+
 ### WP-07: Screen-reader usability and semantic completion
 
 **Depends on:** WP-06 for text-specific claims; basic provider work may start
