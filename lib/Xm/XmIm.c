@@ -2631,6 +2631,11 @@ XmImVaSetFocusValues(Widget w,
   Va_start(var,w);
   args  = ImCreateArgList(var, total_count);
   va_end(var);
+
+  if (total_count != 0 && args == NULL) {
+    _XmAppUnlock(app);
+    return;
+  }
   
   XmImSetFocusValues(w, args, total_count);
   XtFree((char *)args);
@@ -2655,6 +2660,11 @@ void
   Va_start(var,w);
   args  = ImCreateArgList(var, total_count);
   va_end(var);
+
+  if (total_count != 0 && args == NULL) {
+    _XmAppUnlock(app);
+    return;
+  }
   
   XmImSetValues(w, args, total_count);
   XtFree((char *)args);
@@ -2681,10 +2691,14 @@ static ArgList
 ImCreateArgList(va_list var,
 		int total_count )
 {
-  ArgList args = (ArgList)XtCalloc(total_count, sizeof(Arg));
+  ArgList args;
   register int i;
-  
-  assert(args || (total_count == 0));
+
+  if (total_count <= 0)
+    return NULL;
+  args = (ArgList)XtCalloc(total_count, sizeof(Arg));
+  if (args == NULL)
+    return NULL;
   for (i = 0; i < total_count; i++)
     {
       args[i].name = va_arg(var,String);

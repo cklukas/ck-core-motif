@@ -567,6 +567,8 @@ EXTRA_DIST += tests/automated/check-xmim-init-allocation.py docs/xmim-init-alloc
 EXTRA_DIST += tests/automated/check-xmim-callback-registration.py docs/xmim-callback-registration.md
 
 EXTRA_DIST += tests/automated/check-xmim-preedit-allocation.py docs/xmim-preedit-allocation.md
+
+EXTRA_DIST += tests/automated/check-xmim-varargs-allocation.py docs/xmim-varargs-allocation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-resource-ref-validation.py docs/mrm-writer-resource-ref-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-char8-vector-validation.py docs/mrm-writer-char8-vector-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-cstring-vector-validation.py docs/mrm-writer-cstring-vector-validation.md
