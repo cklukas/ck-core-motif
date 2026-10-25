@@ -13740,3 +13740,11 @@ Clipboard inquiry lock cleanup (2026-10-26)
   `docs/clipboard-inquiry-lock-cleanup.md`.
 
 Clipboard copy input validation (2026-10-26)
+Clipboard inquiry result validation (2026-10-26)
+=================================================
+
+- Fail closed on null external-selection allocations paired with nonzero byte
+  counts in clipboard inquiries, releasing locks before returning no-data; see
+  `docs/clipboard-inquiry-result-validation.md`.
+
+Clipboard inquiry lock cleanup (2026-10-26)

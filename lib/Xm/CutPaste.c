@@ -4199,6 +4199,14 @@ XmClipboardInquireCount(
             Atom *atomptr;
             int i;
 
+            if (alloc_to_free == NULL && loc_count_len != 0)
+            {
+		ClipboardClose (display, header);
+		ClipboardUnlock (display, window, 0);
+		_XmAppUnlock(app);
+		return ClipboardNoData;
+	    }
+
             atomptr   = (Atom*)alloc_to_free;
 
             /* returned count is in bytes, targets are atoms of
@@ -4334,6 +4342,15 @@ XmClipboardInquireFormat(
             /* we obtained a TARGETS type selection conversion */
             Atom *nth_atom;
 
+            if (alloc_to_free == NULL && loc_matchlength != 0)
+            {
+		*outlength = 0;
+		ClipboardClose (display, header);
+		ClipboardUnlock (display, window, 0);
+		_XmAppUnlock(app);
+		return ClipboardNoData;
+	    }
+
             nth_atom = (Atom*)alloc_to_free;
 
             /* returned count is in bytes, targets are atoms 
@@ -4457,6 +4474,13 @@ XmClipboardInquireLength(
             return ClipboardNoData;
 
         }else{
+	    if (alloc_to_free == NULL && loc_length != 0)
+	    {
+		ClipboardClose (display, header);
+		ClipboardUnlock (display, window, 0);
+		_XmAppUnlock(app);
+		return ClipboardNoData;
+	    }
 
             XtFree( (char *) alloc_to_free );
 	}
