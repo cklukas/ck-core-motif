@@ -196,6 +196,12 @@ GetTextSegment(Display *display, /* unused */
 			    &separator, &tabs, &char_count,
 			    &push_before, &pop_after))
     {
+	/* The legacy segment API reports its length through a signed short.
+	 * Reject an unrepresentable component before it can become a huge
+	 * unsigned allocation size below. */
+	if (char_count < 0)
+	    return(_INVALID_SEGMENT);
+
 	switch (type)
 	{
 	  case XmMULTIBYTE_TEXT:

@@ -12121,3 +12121,10 @@ TxtPropCv plain import allocation width (2026-10-26)
 
 - Pass the checked locale/STRING/UTF-8 table byte count explicitly as an Xt
   `Cardinal`; see `docs/motif-txtpropcv-plain-table.md`.
+
+TxtPropCv segment length validation (2026-10-26)
+================================================
+
+- Reject negative legacy segment lengths before temporary text allocation so
+  an unrepresentable long component cannot wrap into a huge unsigned size;
+  see `docs/motif-txtpropcv-segment.md`.
