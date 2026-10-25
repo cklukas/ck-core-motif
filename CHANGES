@@ -1,3 +1,10 @@
+CascadeButton pixmap draw guards (2026-10-25)
+==============================================
+
+- Avoid cascade pixmap copies for unrealized widgets, empty geometry,
+  unspecified pixmaps, or missing label GCs; see
+  `docs/cascade-button-pixmap-draw-guards.md`.
+
 PushButton menu unhighlight guards (2026-10-25)
 ===============================================
 

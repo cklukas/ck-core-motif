@@ -548,7 +548,8 @@ static void
 DrawCascade(
         register XmCascadeButtonWidget cb )
 {
-   if ((CB_HasCascade(cb)) && (CB_Cascade_width(cb) != 0))
+   if ((CB_HasCascade(cb)) && (CB_Cascade_width(cb) != 0) &&
+       (CB_Cascade_height(cb) != 0) && XtIsRealized((Widget)cb))
    {
       Pixmap pixmap ;
       int depth ;
@@ -556,6 +557,9 @@ DrawCascade(
       pixmap = CB_IsArmed(cb) && 
 	  (CB_ArmedPixmap(cb) != XmUNSPECIFIED_PIXMAP) ? 
 	      CB_ArmedPixmap(cb) : CB_CascadePixmap(cb) ;
+
+      if (pixmap == XmUNSPECIFIED_PIXMAP || cb->label.normal_GC == NULL)
+          return;
 
       XmeGetPixmapData(XtScreen(cb),
 		       pixmap,
