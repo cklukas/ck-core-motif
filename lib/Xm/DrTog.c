@@ -215,7 +215,7 @@ void XmeDrawDiamond(Display *display, Drawable d,
    int delta;
    _XmDisplayToAppContext(display);
 
-   if (!d || !width) return ;
+   if (!d || !width || !top_gc) return ;
 
    _XmAppLock(app);
    if (width % 2 == 0) width--;
@@ -237,6 +237,10 @@ void XmeDrawDiamond(Display *display, Drawable d,
        _XmAppUnlock(app);
        return ;
    } else   {        /* NORMAL SIZED ToggleButtonS : initial width >= 5 */
+       if (!bottom_gc) {
+           _XmAppUnlock(app);
+           return;
+       }
        midX = x + (width + 1) / 2;
        midY = y + (width + 1) / 2;
        /*  The top shadow segments  */
@@ -386,7 +390,8 @@ XmeDrawCircle(Display *display,
   int line_width = MIN(shadow_thick, MIN(width, height) / 2);
   _XmDisplayToAppContext(display);
 
-  if ((width <= 0) || (height <= 0))
+  if ((width <= 0) || (height <= 0) ||
+      (shadow_thick > 0 && (top_gc == NULL || bottom_gc == NULL)))
     return;
 
   _XmAppLock(app);

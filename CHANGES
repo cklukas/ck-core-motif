@@ -1,3 +1,9 @@
+Toggle drawing GC guards (2026-10-26)
+=====================================
+
+- Guard diamond and circle drawing helpers against missing required graphics
+  contexts; see `docs/drtog-gc-guards.md`.
+
 IconG clip Y origins (2026-10-26)
 =================================
 
