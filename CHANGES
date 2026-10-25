@@ -14415,3 +14415,9 @@ Mwm feedback size-limit header (2026-10-26)
 - Include `<limits.h>` for the Mwm feedback-string `UINT_MAX` allocation
   guard, restoring standalone compilation; see
   `docs/wm-feedback-size-limit-header.md`.
+TextField portability warning cleanup (2026-10-26)
+====================================================
+
+- Use type-correct zero constants for TextField input-method registration and
+  wide-character initialization; see
+  `docs/textfield-portability-warnings.md`.

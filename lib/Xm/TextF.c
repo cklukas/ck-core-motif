@@ -7527,7 +7527,7 @@ InitializeTextStruct(XmTextFieldWidget tf)
   XmTextFieldSetEditable((Widget)tf, TextF_Editable(tf));
   
   if (TextF_Editable(tf)) {
-    XmImRegister((Widget)tf, (unsigned int) NULL);
+    XmImRegister((Widget)tf, 0);
     GetXYFromPos(tf, TextF_CursorPosition(tf), &xmim_point.x, &xmim_point.y);
     (void)TextFieldGetDisplayRect((Widget)tf, &xmim_area);
     n = 0;
@@ -8420,7 +8420,7 @@ SetValues(Widget old,
       diff_values = True;
       if (TextF_WcValue(new_tf) == NULL) {
 	TextF_WcValue(new_tf) = (wchar_t*) XtMalloc(sizeof(wchar_t));
-	*TextF_WcValue(new_tf) = (wchar_t)NULL;
+	*TextF_WcValue(new_tf) = (wchar_t)0;
       }
       ValidateString(new_tf, (char*)TextF_WcValue(new_tf), True);
     } else if (TextF_Value(new_tf) != TextF_Value(old_tf)) {
@@ -10341,7 +10341,7 @@ XmTextFieldSetEditable(Widget w,
    * give the IM the relevent values. */
   
   if (!TextF_Editable(tf) && editable) { 
-    XmImRegister((Widget)tf, (unsigned int) NULL);
+    XmImRegister((Widget)tf, 0);
     
     GetXYFromPos(tf, TextF_CursorPosition(tf), &xmim_point.x, 
 		 &xmim_point.y);
