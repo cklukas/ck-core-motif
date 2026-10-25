@@ -1,3 +1,10 @@
+Dialog argument allocation bounds (2026-10-28)
+===============================================
+
+- Reject unrepresentable `XmeCreateClassDialog` argument-list byte sizes
+  before adding the internal shell argument or allocating the merged list;
+  see `docs/dialog-argument-allocation-bounds.md`.
+
 Empty accessibility cache snapshots (2026-10-28)
 =================================================
 

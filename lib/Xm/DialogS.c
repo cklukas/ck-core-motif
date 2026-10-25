@@ -840,6 +840,9 @@ XmeCreateClassDialog(
 	return NULL;
     if (bb_n && !bb_args)
 	return NULL;
+    if ((size_t)bb_n >= SIZE_MAX / sizeof(Arg) ||
+        bb_n >= (Cardinal)(UINT_MAX / sizeof(Arg)))
+	return NULL;
 
     if (!name) name = "";
 
@@ -854,7 +857,7 @@ XmeCreateClassDialog(
     (void) snprintf(ds_name, (size_t)ds_name_length + 1,
 		    "%s%s", name, XmDIALOG_SUFFIX);
 
-    ds_args = (ArgList) XtMalloc( sizeof( Arg) * (bb_n + 1)) ;
+    ds_args = (ArgList) XtMalloc((Cardinal)(((size_t)bb_n + 1) * sizeof(Arg)));
     if (!ds_args) {
 	XtFree(ds_name);
 	return NULL;
