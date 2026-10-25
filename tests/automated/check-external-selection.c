@@ -24,12 +24,14 @@ int main(int argc, char **argv)
     XtRealizeWidget(shell);
     display = XtDisplay(shell);
     selection = XInternAtom(display, "XM_EXTERNAL_OWNER_REGRESSION", False);
+    CHECK(!XmeNamedSource(NULL, selection, CurrentTime));
     foreign = XCreateSimpleWindow(display, XtWindow(shell), 0, 0, 1, 1, 0, 0, 0);
     XSetSelectionOwner(display, selection, foreign, CurrentTime);
     XFlush(display);
     CHECK(XGetSelectionOwner(display, selection) == foreign);
 
     owner = XtVaCreateManagedWidget("owner", xmPrimitiveWidgetClass, shell, NULL);
+    CHECK(!XmeNamedSource(owner, None, CurrentTime));
     CHECK(XmeNamedSource(owner, selection, CurrentTime));
     XFlush(display);
     CHECK(XGetSelectionOwner(display, selection) == XtWindow(owner));

@@ -13,6 +13,13 @@ ComboBox zero-based position bounds (2026-10-27)
   incrementing it into a negative one-based List position.  Representable
   selections retain the existing compatibility conversion.
 
+Named selection input validation (2026-10-27)
+=============================================
+
+- Make `XmeNamedSource` reject a null widget or `None` selection atom before
+  entering Xt application-context state.  Valid ownership and replacement
+  behavior is unchanged, while invalid callers now receive `False` safely.
+
 Gallery live-page startup and TabStack examples (2026-10-27)
 ===============================================================
 

@@ -635,6 +635,12 @@ XmeNamedSource(Widget w, Atom sel, Time time)
 {
   Boolean status;
 
+  /* Reject invalid ownership requests before deriving an application
+   * context.  Besides being a clearer API contract, this keeps a null
+   * widget from being dereferenced by _XmWidgetToAppContext(). */
+  if (w == NULL || sel == None)
+    return False;
+
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
