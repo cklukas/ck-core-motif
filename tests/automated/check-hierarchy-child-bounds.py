@@ -11,6 +11,7 @@ assert "child_count == (Cardinal)~0" in region
 assert "(size_t)child_count >" in region
 assert "(size_t)((Cardinal)~0) / sizeof(Widget) - 1" in region
 assert "(size_t)child_count + 1" in region
+assert "XtMalloc((Cardinal)(((size_t)child_count + 1) *" in region
 assert "if (retval == NULL)" in region
 assert "return NULL;" in region
 assert "Cardinal i;" in text

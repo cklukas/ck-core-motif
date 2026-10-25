@@ -1581,7 +1581,8 @@ WidgetList XmHierarchyGetChildNodes(Widget nw)
 	return retval;
     }
 
-    retval = (WidgetList)XtMalloc(((size_t)child_count + 1) * sizeof(Widget));
+    retval = (WidgetList)XtMalloc((Cardinal)(((size_t)child_count + 1) *
+					 sizeof(Widget)));
     if (retval == NULL) {
 	_XmAppUnlock(app);
 	return NULL;
