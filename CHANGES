@@ -1,3 +1,10 @@
+DropDown child geometry bounds (2026-10-25)
+===========================================
+
+- Bound child height, horizontal placement, and border spans during DropDown
+  resize, preventing wrapped child geometry in collapsed controls; see
+  `docs/dropdown-child-geometry.md`.
+
 DropDown expose geometry bounds (2026-10-25)
 ============================================
 
