@@ -1710,6 +1710,8 @@ InitializePrehook(
     if (ttp == NULL)
     {
         ttp = (XmToolTipConfigTrait) XtMalloc (sizeof (XmToolTipConfigTraitRec));
+	if (ttp == NULL)
+	    return;
 
         ttp->post_delay = 5000;
         ttp->post_duration = 5000;

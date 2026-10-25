@@ -8252,3 +8252,12 @@ VendorShell resource-list allocation (2026-10-27)
 
 MWM binding-string growth (2026-10-27)
 ======================================
+VendorShell tooltip-trait allocation (2026-10-27)
+=================================================
+
+- Check tooltip-trait allocation during the VendorShell initialization prehook
+  before assigning defaults.  Widget creation now returns safely instead of
+  dereferencing a null trait record under allocation pressure.
+
+VendorShell resource-list allocation (2026-10-27)
+=================================================
