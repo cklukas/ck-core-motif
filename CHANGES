@@ -1,3 +1,10 @@
+Accessibility D-Bus memo rollback (2026-10-28)
+================================================
+
+- Replace cached accessible names and value text only after their new copies
+  succeed, preserving AT-SPI semantics and change-detection baselines on
+  allocation failure; see `docs/accessibility-dbus-memo-rollback.md`.
+
 FileSelectionBox update-resource rollback (2026-10-28)
 =========================================================
 

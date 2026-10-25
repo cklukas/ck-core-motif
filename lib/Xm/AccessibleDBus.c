@@ -59,6 +59,14 @@ typedef struct {
   size_t memo_capacity, memo_count;
 } Transport;
 static const char *text(const char *s) { return s ? s : ""; }
+static Boolean memo_replace(char **slot, const char *value) {
+  char *replacement = value ? XtNewString(value) : NULL;
+  if (value && !replacement)
+    return False;
+  XtFree(*slot);
+  *slot = replacement;
+  return True;
+}
 static void path_for(XmAccessibleId id, char *buffer, size_t length) {
   if (id == 1)
     snprintf(buffer, length, "%s", ROOT);
@@ -256,7 +264,7 @@ static int cache_item(DBusMessageIter *out, Transport *t,
     TransportState *record = memo_get(t, id, 0);
     if (record) {
       record->known = 1;
-      XtFree(record->name); record->name = XtNewString(text(info.name));
+      memo_replace(&record->name, text(info.name));
     }
   }
   XmAccessibleInfoClear(&info);
@@ -1477,11 +1485,11 @@ static void seed_connected_tree(Transport *t) {
       continue;
     }
     record->known = 1; record->states = info.states; record->role = info.role;
-    XtFree(record->name); record->name = XtNewString(text(info.name));
+    memo_replace(&record->name, text(info.name));
     record->has_value = info.has_value;
     record->minimum = info.minimum_value; record->maximum = info.maximum_value;
     record->current = info.current_value; record->increment = info.minimum_increment;
-    XtFree(record->value_text); record->value_text = XtNewString(text(info.value_text));
+    memo_replace(&record->value_text, text(info.value_text));
     sync_text(t, ids[k], &info, 0);
     XmAccessibleInfoClear(&info);
   }
@@ -1810,8 +1818,8 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
     record->has_value = info.has_value;
     record->minimum = info.minimum_value; record->maximum = info.maximum_value;
     record->current = info.current_value; record->increment = info.minimum_increment;
-    XtFree(record->value_text); record->value_text = XtNewString(text(info.value_text));
-    XtFree(record->name); record->name = XtNewString(text(info.name));
+    memo_replace(&record->value_text, text(info.value_text));
+    memo_replace(&record->name, text(info.name));
     if (was_active != active) {
       state_event(t, path, "active", active);
       if (info.role == XmACCESSIBLE_FRAME)
