@@ -677,6 +677,10 @@ WriteAtomsTable(
 	XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE4);
 	return;
 	}
+	if (atomsTable->numEntries > UINT16_MAX) {
+	XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE4);
+	return;
+	}
 
     /* If the data is bigger than the default stack allocation, then 
      * allocate heap storage, else use automatic storage.
