@@ -327,6 +327,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  duplicate creations; see docs/xm-stippled-pixmap-race.md.
 
 2026-10-25
+	* Correct Xm geometry width comparisons and reject null geometry inputs;
+	  see docs/xm-geometry-compare.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,

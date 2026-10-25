@@ -768,10 +768,13 @@ XmCompareXtWidgetGeometryToWidget(XtWidgetGeometry *geom, Widget widget)
 {
     Boolean returnValue = True;
 
+    if (geom == NULL || widget == NULL)
+        return False;
+
     _XmProcessLock();
     if( (geom->request_mode & CWX && geom->x != widget->core.x) ||
         (geom->request_mode & CWY && geom->y != widget->core.y) ||
-        (geom->request_mode & CWWidth && geom->width != XtHeight(widget)) ||
+        (geom->request_mode & CWWidth && geom->width != XtWidth(widget)) ||
         (geom->request_mode & CWHeight && geom->height != XtHeight(widget)) ||
         (geom->request_mode & CWBorderWidth && geom->border_width != widget->core.border_width) )
     {
@@ -795,6 +798,9 @@ XmCompareXtWidgetGeometryToWidget(XtWidgetGeometry *geom, Widget widget)
 Boolean
 XmCompareXtWidgetGeometry(XtWidgetGeometry *geom1, XtWidgetGeometry *geom2)
 {
+    if (geom1 == NULL || geom2 == NULL)
+        return False;
+
     if( geom1->request_mode != geom2->request_mode )
         return( False );
 
