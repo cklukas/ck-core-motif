@@ -1,3 +1,10 @@
+Xm pixmap-cache cleanup null guards (2026-10-25)
+=================================================
+
+- Skip absent GC and pixmap tables during cache cleanup, avoiding null hash
+  traversal after initialization failure; see
+  `docs/xm-clean-pixmap-cache-null.md`.
+
 Xm image-file open cleanup (2026-10-25)
 =============================================
 

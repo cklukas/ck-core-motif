@@ -2290,8 +2290,10 @@ _XmCleanPixmapCache(Screen * screen, Widget shell)
     ck.screen = screen;
     ck.shell = shell ;
 
-    _XmMapHashTable(gc_set, CleanGCMapProc, &ck);
-    _XmMapHashTable(pixmap_set, CleanPixmapMapProc, &ck);
+    if (gc_set != NULL)
+        _XmMapHashTable(gc_set, CleanGCMapProc, &ck);
+    if (pixmap_set != NULL)
+        _XmMapHashTable(pixmap_set, CleanPixmapMapProc, &ck);
 }
 
 

@@ -573,3 +573,5 @@ EXTRA_DIST += tests/automated/check-xm-install-image-failure.py docs/xm-install-
 EXTRA_DIST += tests/automated/check-xm-create-image-null.py docs/xm-create-image-null.md
 
 EXTRA_DIST += tests/automated/check-xm-image-file-open-cleanup.py docs/xm-image-file-open-cleanup.md
+
+EXTRA_DIST += tests/automated/check-xm-clean-pixmap-cache-null.py docs/xm-clean-pixmap-cache-null.md
