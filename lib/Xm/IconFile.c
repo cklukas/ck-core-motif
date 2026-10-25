@@ -828,6 +828,8 @@ XmGetIconFileName(
 
 	/** alloc a icon cache entry **/
 	iNameEntry = (DtIconNameEntry) XtMalloc(sizeof(DtIconNameEntryRec));
+	if (iNameEntry == NULL)
+	    goto skip_icon_name_cache;
 	iNameEntry->key_name = XtNewString(name_used);
       
 #ifndef XTHREADS
@@ -867,6 +869,7 @@ XmGetIconFileName(
 	_XmProcessUnlock();
     }
 
+skip_icon_name_cache:
     /*
      * CDExc20823 (memory leak): free names_w_size[i] if not NULL.
      */

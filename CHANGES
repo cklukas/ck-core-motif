@@ -1,3 +1,9 @@
+Guard icon-file cache entry allocation (2026-10-25)
+====================================================
+
+- Skip optional icon-name caching when its entry allocation fails, preserving
+  the resolved filename; see `docs/motif-iconfile-cache-entry.md`.
+
 Guard IconButton grey-stipple cache allocation (2026-10-25)
 =============================================================
 
