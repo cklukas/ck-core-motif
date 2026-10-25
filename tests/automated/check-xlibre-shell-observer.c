@@ -55,11 +55,12 @@ main(int argc, char **argv)
         CHECK(second_installed);
         CHECK(_XmXlibreDpiGetWidgetScale(second, &second_scale));
         CHECK(second_scale > 0.0);
+        _XmXlibreDpiUninstallShell(second);
+        CHECK(!_XmXlibreDpiGetWidgetScale(second, &second_scale));
+        CHECK(!_XmXlibreDpiGetWidgetScale(second_child, &second_scale));
         XtDestroyWidget(shell);
-        CHECK(_XmXlibreDpiGetWidgetScale(second_child, &second_scale));
-        CHECK(second_scale > 0.0);
         XtDestroyWidget(second);
-        puts("PASS XLibre multi-shell observer registration and retirement");
+        puts("PASS XLibre multi-shell observer registration, explicit unregistration and retirement");
     } else {
         CHECK(!_XmXlibreDpiGetWidgetScale(shell, &scale));
         CHECK(!_XmXlibreDpiGetWidgetScale(child, &scale));

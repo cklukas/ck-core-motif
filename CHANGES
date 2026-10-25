@@ -61,6 +61,15 @@ Native text-fixture Fontconfig teardown (2026-10-25)
   sanitizer results now distinguish consumer teardown from the toolkit's
   remaining external ownership boundary without disabling leak detection.
 
+XLibre shell observer teardown (2026-10-25)
+============================================
+
+- Remove the RandR observer's destroy callback when an application explicitly
+  unregisters a realized shell, before releasing the observer state. A later
+  shell destruction can no longer invoke a freed callback closure. The
+  installed observer regression now exercises explicit unregistration and
+  post-unregistration destruction.
+
 DataField render-table ownership (2026-10-25)
 ==============================================
 

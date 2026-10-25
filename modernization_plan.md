@@ -480,6 +480,11 @@ observer and checks two-shell registration, positive descendant scale lookup,
 idempotent re-registration and retirement of one shell without invalidating
 the other; its no-display Xvfb run remains an ordinary-server fallback.
 
+The observer teardown contract now also removes its destroy callback before
+freeing state on explicit unregistration. The installed observer regression
+exercises unregistration followed by shell destruction, preventing a stale
+callback closure from becoming a use-after-free path.
+
 ### WP-05: Optional SVG image loading
 
 **Depends on:** WP-04.

@@ -49,10 +49,12 @@ procedure before releasing the state.
 The installed observer fixture runs on the requested `--display` when a real
 XLibre server is supplied. It checks registration for two realized shells on
 one Xt display, positive shell and descendant scale lookup, idempotent
-re-registration, retirement of one shell without invalidating the other, and
-refusal before realization. Without `--display` it runs under Xvfb and
-requires the ordinary-server fallback. This keeps the fallback test from
-being mistaken for live XLibre qualification.
+re-registration, explicit unregistration before shell destruction, retirement
+of one shell without invalidating the other, and refusal before realization.
+Explicit unregistration removes the destroy callback before releasing the
+state, so a later shell teardown cannot call through a stale closure. Without
+`--display` it runs under Xvfb and requires the ordinary-server fallback. This
+keeps the fallback test from being mistaken for live XLibre qualification.
 
 This is an implementation step toward the live contract, not a claim that a
 generic Xorg server provides per-output DPI. The remaining qualification must

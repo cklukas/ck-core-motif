@@ -42,6 +42,10 @@ struct _XmXlibreDpiShellState {
 
 static _XmXlibreDpiShellState *shell_states;
 
+static void
+_XmXlibreDpiUninstallState(_XmXlibreDpiShellState *state,
+                           Boolean remove_destroy_callback);
+
 static Boolean
 _XmXlibreDpiIsNotifyEvent(const _XmXlibreDpiShellState *state,
                            const XEvent *event)
@@ -246,7 +250,7 @@ _XmXlibreDpiDestroy(Widget shell, XtPointer closure, XtPointer call_data)
     (void)shell;
     (void)call_data;
     if (state != NULL)
-        _XmXlibreDpiUninstallShell(state->shell);
+        _XmXlibreDpiUninstallState(state, False);
 }
 
 static _XmXlibreDpiShellState *
@@ -324,15 +328,28 @@ _XmXlibreDpiInstallShell(Widget shell,
 void
 _XmXlibreDpiUninstallShell(Widget shell)
 {
-    _XmXlibreDpiShellState **link = &shell_states;
     _XmXlibreDpiShellState *state;
 
-    while (*link != NULL && (*link)->shell != shell)
-        link = &(*link)->next;
-    state = *link;
+    state = _XmXlibreDpiFindShell(shell);
     if (state == NULL)
         return;
+    _XmXlibreDpiUninstallState(state, True);
+}
+
+static void
+_XmXlibreDpiUninstallState(_XmXlibreDpiShellState *state,
+                           Boolean remove_destroy_callback)
+{
+    _XmXlibreDpiShellState **link = &shell_states;
+
+    while (*link != NULL && *link != state)
+        link = &(*link)->next;
+    if (*link == NULL)
+        return;
     *link = state->next;
+    if (remove_destroy_callback)
+        XtRemoveCallback(state->shell, XtNdestroyCallback,
+                         _XmXlibreDpiDestroy, (XtPointer)state);
     if (state->input_id != (XtInputId)0)
         XtRemoveInput(state->input_id);
     if (state->work_pending && state->work_id != (XtWorkProcId)0)
