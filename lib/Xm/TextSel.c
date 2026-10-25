@@ -770,6 +770,10 @@ HandleDrop(Widget w,
     /* intialize data to send to drop transfer callback */
     transfer_rec = (_XmTextDropTransferRec *)
       XtMalloc(sizeof(_XmTextDropTransferRec));
+    if (transfer_rec == NULL) {
+      XmTransferDone(tid, XmTRANSFER_DONE_FAIL);
+      return;
+    }
     transfer_rec->widget = w;
     transfer_rec->insert_pos = insert_pos;
     transfer_rec->num_chars = 0;
