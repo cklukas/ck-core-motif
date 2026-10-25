@@ -1184,13 +1184,22 @@ CreateDefaultTargetsTable(
         Display *display )
 {
     xmTargetsTable	targetsTable;
+    xmTargetsTableEntry entries;
     Cardinal		size;
 
     targetsTable = (xmTargetsTable) XtMalloc(sizeof(xmTargetsTableRec));
+	if (targetsTable == NULL)
+	    return (NULL);
+
+    entries = (xmTargetsTableEntry) XtMalloc(sizeof(xmTargetsTableEntryRec) * 2);
+	if (entries == NULL)
+	{
+	    XtFree((char *)targetsTable);
+	    return (NULL);
+	}
 
     targetsTable->numEntries = 2;
-    targetsTable->entries =
-	(xmTargetsTableEntry) XtMalloc(sizeof(xmTargetsTableEntryRec) * 2);
+    targetsTable->entries = entries;
 
 /* According to specs and man pages, default values of XmNimportTargets 
  * and XmNnumImportTargets should be NULL and zero respectively. The 
@@ -1218,6 +1227,12 @@ CreateDefaultTargetsTable(
     targetsTable->entries[1].numTargets = XtNumber(stringTargets);
     size = sizeof(Atom) * targetsTable->entries[1].numTargets;
     targetsTable->entries[1].targets = (Atom*) XtMalloc(size);
+	if (targetsTable->entries[1].targets == NULL)
+	{
+	    XtFree((char *)targetsTable->entries);
+	    XtFree((char *)targetsTable);
+	    return (NULL);
+	}
     memcpy(targetsTable->entries[1].targets, stringTargets, size);
 
     SetTargetsTable (display, targetsTable);
