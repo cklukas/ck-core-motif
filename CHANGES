@@ -11514,6 +11514,12 @@ MWM argument-vector allocation width (2026-10-25)
 - Check private initialization argument-vector copies before allocation; see
   `docs/mwm-argv-allocation.md`.
 
+WSM window-data allocation width (2026-10-25)
+==============================================
+
+- Check decoded `WSMWinData` counts before array allocation; see
+  `docs/wsm-win-data-allocation-width.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 

@@ -1400,7 +1400,11 @@ UnpackWinData(MessageData *data_ptr, Display *dpy, int screen_num,
 	}
     }
 
-    ptr = *win_data = (WSMWinData *) XtMalloc(*num * sizeof(WSMWinData));
+    if (*num < 0 || (size_t)*num > UINT_MAX / sizeof(WSMWinData))
+	ptr = NULL;
+    else
+	ptr = *win_data = (WSMWinData *)
+	    XtMalloc((Cardinal)((size_t)*num * sizeof(WSMWinData)));
     if (ptr == NULL) {
 	current_mask = bit_mask;
 	check_mask = START_CHECK_MASK;

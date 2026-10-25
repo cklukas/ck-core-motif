@@ -938,6 +938,7 @@ EXTRA_DIST += tests/automated/check-wsm-packer-config-null.py docs/wsm-packer-co
 EXTRA_DIST += tests/automated/check-wsm-wm-target-mapping.py docs/wsm-wm-target-mapping.md
 
 EXTRA_DIST += tests/automated/check-wsm-win-data-lookup-null.py docs/wsm-win-data-lookup-null.md
+EXTRA_DIST += tests/automated/check-wsm-win-data-allocation-width.py docs/wsm-win-data-allocation-width.md
 
 EXTRA_DIST += tests/automated/check-wsm-atom-init-rollback.py docs/wsm-atom-init-rollback.md
 

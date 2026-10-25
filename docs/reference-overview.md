@@ -78,6 +78,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [WSM window-entry allocation](wsm-win-entry-oom.md) — safe decoding of variable-length entry arrays.
 - [WSM window-list rollback](wsm-windows-rollback.md) — cleanup of partial request decoding.
 - [WSM window-data alignment](wsm-windata-alignment.md) — preserve stream offsets on data OOM.
+- [WSM window-data allocation width](wsm-win-data-allocation-width.md) — bound decoded data arrays.
 - [WSM message packing allocation](wsm-pack-oom.md) — reject non-empty buffer OOM safely.
 - [WSM window-entry reply sizing](wsm-win-entry-size.md) — account for both variable arrays.
 - [WSM window-request ownership](wsm-windows-owned.md) — track decoded array ownership correctly.
