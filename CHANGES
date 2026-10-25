@@ -13683,3 +13683,10 @@ UTF-8 conversion input validation (2026-10-26)
   `_XmUtf8ToUcs2`; see `docs/utf8-conversion-input-validation.md`.
 
 ISO-10646 registry lookup guard (2026-10-26)
+DataF clipboard atom-name guard (2026-10-26)
+==============================================
+
+- Cancel clipboard copies cleanly when `XGetAtomName` cannot resolve the
+  converted property encoding; see `docs/dataf-clipboard-atom-name.md`.
+
+UTF-8 conversion input validation (2026-10-26)
