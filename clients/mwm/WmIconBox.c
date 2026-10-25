@@ -2165,6 +2165,9 @@ IconInfo *InsertIconInfo (pIBD, pCD, theWidget)
     WsClientData *pWsc;
 #endif /* WSM */
 
+    if (pIBD == NULL || pCD == NULL)
+	return (NULL);
+
     place = GetNextIconPlace (&pIBD->IPD);
     if (place == NO_ICON_PLACE)
     {
@@ -2193,6 +2196,9 @@ IconInfo *InsertIconInfo (pIBD, pCD, theWidget)
 	}
 	place = GetNextIconPlace (&pIBD->IPD);
     }
+
+    if (place == NO_ICON_PLACE)
+	return (NULL);
 
     insertPosition = place;
 

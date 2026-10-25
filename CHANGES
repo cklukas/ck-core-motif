@@ -1,3 +1,9 @@
+Icon insertion validation (2026-10-25)
+======================================
+
+- Validate icon-box/client inputs and post-growth placement availability before
+  updating icon metadata; see `docs/insert-icon-info-guards.md`.
+
 Icon-list source validation (2026-10-25)
 ========================================
 
