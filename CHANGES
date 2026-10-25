@@ -8153,3 +8153,12 @@ UIL comment-buffer growth (2026-10-27)
 
 FontSelector widget-list growth (2026-10-27)
 =============================================
+FontSelector family-encoding growth (2026-10-27)
+=================================================
+
+- Validate family encoding-table capacity arithmetic and publish a replacement
+  table only after `XtRealloc` succeeds.  A failed family update now preserves
+  the existing encoding table instead of clearing through a null pointer.
+
+UIL comment-buffer growth (2026-10-27)
+======================================

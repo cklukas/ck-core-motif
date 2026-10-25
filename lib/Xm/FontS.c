@@ -1187,10 +1187,22 @@ UpdateExistingFamily(FamilyInfo *fam, FontData *font)
     {
 	if (i == fam->encoding_alloc)
 	{
-	    fam->encoding_alloc += NUM_BUTTONS;
-	    fam->encodings = 
-		(XrmQuark *) XtRealloc((char *) fam->encodings, 
-				       sizeof(XrmQuark) * fam->encoding_alloc);
+	    int new_alloc;
+	    XrmQuark *new_encodings;
+	    if (fam->encoding_alloc < 0 ||
+		fam->encoding_alloc > INT_MAX - NUM_BUTTONS)
+		return;
+	    new_alloc = fam->encoding_alloc + NUM_BUTTONS;
+	    if ((size_t)new_alloc > SIZE_MAX / sizeof(XrmQuark) ||
+		(size_t)new_alloc > (size_t)UINT_MAX / sizeof(XrmQuark))
+		return;
+	    new_encodings = (XrmQuark *)XtRealloc(
+		(char *)fam->encodings,
+		(Cardinal)((size_t)new_alloc * sizeof(XrmQuark)));
+	    if (new_encodings == NULL)
+		return;
+	    fam->encodings = new_encodings;
+	    fam->encoding_alloc = new_alloc;
 	    memset((char *) (fam->encodings + i), 0, 
 		   sizeof(XrmQuark) * NUM_BUTTONS);
 	}
