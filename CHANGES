@@ -6033,3 +6033,10 @@ Guard standard conversion scalar allocations (2026-10-25)
   resource reads; see `docs/standard-convert-scalars.md`.
 
 Guard transfer merge allocation failure (2026-10-25)
+Bound locale text aggregation allocation (2026-10-25)
+======================================================
+
+- Check aggregate string sizing and allocation in `_XmTextToLocaleText`; see
+  `docs/text-locale-allocation.md`.
+
+Guard standard conversion scalar allocations (2026-10-25)

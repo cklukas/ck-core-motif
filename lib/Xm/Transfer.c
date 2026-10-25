@@ -2356,7 +2356,7 @@ _XmTextToLocaleText(Widget w,
   char ** values;
   int num_values = 0;
   char *total_value = NULL;
-  int malloc_size = 0;
+  size_t malloc_size = 0;
   int i;
 
   if (type == XA_STRING || type == COMPOUND_TEXT
@@ -2380,10 +2380,35 @@ _XmTextToLocaleText(Widget w,
     }
 
     if (num_values) { 
-      for (i = 0; i < num_values ; i++)
-	malloc_size += strlen(values[i]);
+      for (i = 0; i < num_values ; i++) {
+	size_t value_size;
 
-      total_value = XtMalloc ((unsigned) malloc_size + 1);
+	if (values[i] == NULL) {
+	  XFreeStringList(values);
+	  if (success != NULL) *success = False;
+	  return NULL;
+	}
+	value_size = strlen(values[i]);
+	if (value_size > (size_t)-1 - malloc_size) {
+	  XFreeStringList(values);
+	  if (success != NULL) *success = False;
+	  return NULL;
+	}
+	malloc_size += value_size;
+	}
+
+	if (malloc_size == (size_t)-1) {
+	  XFreeStringList(values);
+	  if (success != NULL) *success = False;
+	  return NULL;
+	}
+
+      total_value = XtMalloc (malloc_size + 1);
+      if (total_value == NULL) {
+	XFreeStringList(values);
+	if (success != NULL) *success = False;
+	return NULL;
+      }
       total_value[0] = '\0';
       for (i = 0; i < num_values ; i++)
 	strcat(total_value, values[i]);
