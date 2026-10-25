@@ -6,7 +6,8 @@ installed AArch64 `uconsole` consumer passes three fresh live Xvfb runs and a
 consumer-only ASan/UBSan run while preserving Xrm identity, toggle state and
 explicit indicator and SpinBox arrow resources, and reflowing unlabelled
 realized `ToggleButton`, toolkit-owned `SpinBox` defaults, and
-`ProgressRing` preferred dimensions.  Complete
+`ProgressRing` preferred dimensions.  The same fixture now covers the
+96/144/192/288-DPI matrix.  Complete
 historical-widget coverage, live appearance
 transactions and real multi-output XLibre reflow remain open.
 

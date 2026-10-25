@@ -16,6 +16,10 @@ Deterministic display-scale override (2026-10-25)
 - Extend the same live transaction to `XmProgressRing`'s toolkit-owned
   preferred dimensions and scale-derived stroke repaint, while preserving
   explicit width and height resources.
+- Qualify the 96/144/192/288-DPI gallery scale matrix across ToggleButton,
+  SpinBox and ProgressRing. Correct ProgressRing's inherited Primitive
+  geometry bookkeeping so parent negotiation cannot make a toolkit default
+  look application-owned during a later live scale transition.
 - Update the `--enable-unicode-text` configure probe to use `atomic_init`,
   which remains available when current GCC and Clang drivers select C23 mode.
 

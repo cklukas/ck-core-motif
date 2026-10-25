@@ -64,6 +64,13 @@ The same installed prefix then qualified ProgressRing preferred-size reflow in
 `fixture-ring-r1-2/`, `-3/` and `-4/`, with a consumer-only strict ASan/UBSan
 run in `fixture-ring-asan-r1/`. The fixture source for that combined cohort is
 `5cb2a55003cab57222f4f06cf1a934a68492c3c8338a526c56db1ee9c3dfd106`.
+After correcting inherited Primitive geometry ownership, the 96/144/192/288
+matrix passed in `fixture-matrix-final-1/`, `-2/` and `-3/`, with a strict
+consumer ASan/UBSan run in `fixture-matrix-asan-final/`. The resulting
+installed library fingerprint is
+`99b423d62c5ae79097401b1ecbbf1cf4353a4157905947d3e3a5e95bd1051d17`, and
+the fixture source is
+`65fed9c30ad5f67458638cea744402fcddfe94131d97beec9c25b29b96c327b9`.
 The C23 configure probe was separately run with GCC 14 and reported the C11
 atomic capability as available.  The expanded fixture evidence qualifies the
 same-thread transaction, default indicator reflow, explicit-size preservation,

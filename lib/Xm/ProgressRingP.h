@@ -21,6 +21,8 @@ typedef struct _XmProgressRingPart {
     Dimension spacing;
     Boolean width_default;
     Boolean height_default;
+    Dimension default_width;
+    Dimension default_height;
     GC track_gc, fill_gc, text_gc;
 } XmProgressRingPart;
 
