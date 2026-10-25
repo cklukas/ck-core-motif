@@ -134,6 +134,8 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
               docs/abi.md docs/unicode.md docs/accessibility.md \
               docs/components.md docs/disclosure.md docs/documentation.md \
               docs/maintenance-overview.md docs/mwm-overview.md \
+              docs/modern-gallery-work-plan.md docs/modern-gallery-manifest.md \
+              docs/modern-gallery-manifest.json \
               .gitattributes .ckgit/build-commit .ckgit/ci.yml .github/workflows/pages.yml
 
 EXTRA_DIST += tests/automated/check-doc-overviews.py
