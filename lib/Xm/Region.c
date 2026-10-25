@@ -289,6 +289,8 @@ void
 _XmRegionClear(
     XmRegion	r )
 {
+    if (r == NULL)
+        return;
     r->numRects = 0;
     r->extents.x1 = 0;
     r->extents.y1 = 0;
@@ -307,7 +309,7 @@ Boolean
 _XmRegionIsEmpty(
     XmRegion	r )
 {
-    return ISEMPTY(r);
+    return (r == NULL) ? True : ISEMPTY(r);
 }
 
 /************************************************************************
@@ -323,6 +325,9 @@ _XmRegionEqual(
     register XmRegion	r2 )
 {
     register int i;
+
+    if (r1 == NULL || r2 == NULL)
+	return (r1 == r2);
 
     if (r1->numRects != r2->numRects) {
 	return( False );
@@ -375,7 +380,7 @@ _XmRegionPointInRegion(
 {
     register int i;
 
-    if (ISEMPTY(r)) {
+    if (r == NULL || ISEMPTY(r)) {
         return(False);
     }
     if (!INBOX(r->extents, x, y)) {
@@ -404,6 +409,9 @@ _XmRegionOffset(
 {
     register long		nbox;
     register XmRegionBox	*pbox;
+
+    if (r == NULL)
+	return;
 
     pbox = r->rects;
     nbox = r->numRects;
@@ -435,6 +443,8 @@ _XmRegionGetExtents(
     XmRegion	r,
     XRectangle	*rect )
 {
+    if (r == NULL || rect == NULL)
+	return;
     rect->x = r->extents.x1;
     rect->y = r->extents.y1;
     rect->width = r->extents.x2 - r->extents.x1;
@@ -452,7 +462,7 @@ long
 _XmRegionGetNumRectangles(
     XmRegion 	r )
 {
-    return (r->numRects);
+    return (r == NULL) ? 0L : r->numRects;
 }
 
 /************************************************************************

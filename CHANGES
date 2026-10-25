@@ -4,6 +4,13 @@ Guard XmRegion API NULL inputs (2026-10-26)
 - Make region destruction and rectangle output collection safe for absent
   regions or output pointers; see `docs/region-api-null-guards.md`.
 
+Guard XmRegion geometry query NULL inputs (2026-10-26)
+=======================================================
+
+- Make region clearing, comparison, point queries, offsets, extents and count
+  queries safe for optional NULL state; see
+  `docs/region-query-null-guards.md`.
+
 Handle NULL XmRegion destination storage (2026-10-26)
 ====================================================
 
