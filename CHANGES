@@ -9804,6 +9804,13 @@ Container transfer allocation guards (2026-10-25)
   abandoning only the current transfer on allocation failure; see
   `docs/container-transfer-allocation.md`.
 
+XmString cache allocation guards (2026-10-25)
+=============================================
+
+- Check optional scanning and rendering cache allocations before
+  initialization, preserving uncached behavior under memory pressure; see
+  `docs/xmstring-cache-allocation.md`.
+
 MWM label-parse allocation guard (2026-10-25)
 ==============================================
 

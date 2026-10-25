@@ -2922,6 +2922,8 @@ CacheGet(_XmStringEntry entry,
             cache = cache->next;
           if (!cache && create) {
             cache = (_XmStringCache)XtCalloc(1, sizeof(_XmStringScanningRec));
+            if (!cache)
+              return NULL;
             cache->cache_type = type;
             cache->dirty = True;
             cache->next = _XmEntryCacheGet(entry);
@@ -2946,6 +2948,8 @@ CacheGet(_XmStringEntry entry,
             cache = cache->next;
           if (!cache && create) {
             cache = (_XmStringCache)XtCalloc(1, sizeof(_XmStringRenderingRec));
+            if (!cache)
+              return NULL;
             cache->cache_type = type;
             cache->dirty = True;
             cache->next = _XmEntryCacheGet(entry);
