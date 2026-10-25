@@ -507,3 +507,4 @@ EXTRA_DIST += tests/automated/check-mrm-table-fixup-inputs.py docs/mrm-table-fix
 EXTRA_DIST += tests/automated/check-mrm-table-offset-bounds.py docs/mrm-table-offset-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-openhierarchy-os-input.py docs/mrm-openhierarchy-os-input.md
 EXTRA_DIST += tests/automated/check-mrm-hierarchy-name-inputs.py docs/mrm-hierarchy-name-inputs.md
+EXTRA_DIST += tests/automated/check-mrm-hget-output-pointer.py docs/mrm-hget-output-pointer.md

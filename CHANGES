@@ -1,3 +1,9 @@
+Mrm hierarchy resource output validation (2026-10-25)
+======================================================
+
+- Reject a null file-result pointer before hierarchy resource lookup; see
+  `docs/mrm-hget-output-pointer.md`.
+
 Mrm hierarchy name API input validation (2026-10-25)
 ====================================================
 
