@@ -9329,3 +9329,10 @@ TabStack label rollback (2026-10-29)
 - Preserve tab and tear-off labels until replacement `XmString` copies
   succeed, while retaining NULL as explicit clearing; see
   `docs/tabstack-label-rollback.md`.
+
+MultiList search allocation guard (2026-10-29)
+===============================================
+
+- Abort safely when search text extraction returns NULL, preserving the
+  previous search term and freeing any wide-string result; see
+  `docs/multilist-search-allocation.md`.

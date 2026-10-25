@@ -782,6 +782,12 @@ ActivateTextSearch(Widget w, XtPointer elist_ptr, XtPointer client)
     ptr = XmTextFieldGetString(XmMultiList_find_text(elist));
     wc_string = XmTextFieldGetStringWcs(XmMultiList_find_text(elist));
 
+    if (ptr == NULL)
+    {
+	XtFree((XtPointer)wc_string);
+	return;
+    }
+
     if (XmMultiList_last_search(elist))
       reset = !streq(ptr, XmMultiList_last_search(elist));
 
