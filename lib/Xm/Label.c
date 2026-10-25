@@ -1088,6 +1088,7 @@ Initialize(
 {
   XmLabelWidget lw = (XmLabelWidget) new_w;
   XmMenuSystemTrait menuSTrait;
+  XmString accelerator_copy;
   XmString label_copy;
   XtTranslations	trans;
   
@@ -1237,8 +1238,11 @@ Initialize(
 	  if (XmIsCascadeButton(lw))
 	    lw->label._acc_text = NULL;
 	  else
-	    lw->label._acc_text =
-	      XmStringCopy((XmString) lw->label._acc_text);
+	    {
+	      accelerator_copy = XmStringCopy((XmString) lw->label._acc_text);
+	      if (accelerator_copy != NULL)
+		lw->label._acc_text = accelerator_copy;
+	    }
         }
       else
         {

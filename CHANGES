@@ -1,3 +1,10 @@
+Label accelerator initialization rollback (2026-10-28)
+=========================================================
+
+- Preserve a valid menu accelerator string when the initial `XmStringCopy`
+  fails, matching the existing label-copy fallback; see
+  `docs/label-init-rollback.md`.
+
 LabelGadget label initialization rollback (2026-10-28)
 ==========================================================
 
