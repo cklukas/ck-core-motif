@@ -2410,18 +2410,37 @@ _XmTabListAdd(XmTravGraph graph,
 	{
 	  Widget shell = _XmFindTopMostShell(wid);
 
-	  graph->tab_list_alloc = XmTAB_LIST_ALLOC_INCREMENT;
-	  graph->excl_tab_list = (Widget *) 
-	    XtMalloc(graph->tab_list_alloc * sizeof(Widget));
+          Widget *new_list;
+	  Cardinal new_alloc = XmTAB_LIST_ALLOC_INCREMENT;
+
+          new_list = (Widget *)XtMalloc(
+              (size_t)new_alloc * sizeof(*new_list));
+          if (new_list == NULL)
+            return;
+          graph->tab_list_alloc = new_alloc;
+          graph->excl_tab_list = new_list;
 	  graph->excl_tab_list[graph->num_tab_list++] = shell;
 	}
 
       if (graph->num_tab_list >= graph->tab_list_alloc)
 	{
-	  graph->tab_list_alloc += XmTAB_LIST_ALLOC_INCREMENT;
-	  graph->excl_tab_list = (Widget *) 
-	    XtRealloc((char *) graph->excl_tab_list,
-		      graph->tab_list_alloc * sizeof(Widget));
+          Widget *new_list;
+          Cardinal new_alloc;
+          size_t list_count;
+
+          new_alloc = graph->tab_list_alloc + XmTAB_LIST_ALLOC_INCREMENT;
+          if (new_alloc < graph->tab_list_alloc)
+            return;
+          list_count = (size_t)new_alloc;
+          if (list_count != 0 && SIZE_MAX / list_count < sizeof(*new_list))
+            return;
+          new_list = (Widget *)XtRealloc(
+              (char *)graph->excl_tab_list,
+              list_count * sizeof(*new_list));
+          if (new_list == NULL)
+            return;
+          graph->excl_tab_list = new_list;
+          graph->tab_list_alloc = new_alloc;
 	}
 
       graph->excl_tab_list[graph->num_tab_list++] = wid;
@@ -2434,13 +2453,19 @@ _XmTabListDelete(XmTravGraph graph,
 {
   DeleteFromTabList(graph, SearchTabList(graph, wid));
 
-  if ((graph->num_tab_list + XmTAB_LIST_ALLOC_INCREMENT) <
-      graph->tab_list_alloc)
+  if (graph->tab_list_alloc > XmTAB_LIST_ALLOC_INCREMENT &&
+      graph->num_tab_list <
+      graph->tab_list_alloc - XmTAB_LIST_ALLOC_INCREMENT)
     {
-      graph->tab_list_alloc -= XmTAB_LIST_ALLOC_INCREMENT;
-      graph->excl_tab_list = (Widget *) 
-	XtRealloc((char *) graph->excl_tab_list,
-		  graph->tab_list_alloc * sizeof(Widget));
+      Cardinal new_alloc = graph->tab_list_alloc -
+                           XmTAB_LIST_ALLOC_INCREMENT;
+      Widget *new_list = (Widget *)XtRealloc(
+          (char *)graph->excl_tab_list,
+          (size_t)new_alloc * sizeof(*new_list));
+      if (new_list != NULL) {
+        graph->excl_tab_list = new_list;
+        graph->tab_list_alloc = new_alloc;
+      }
     }
 }
 
