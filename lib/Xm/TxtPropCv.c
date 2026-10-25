@@ -967,9 +967,17 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	if (text_prop->value[i] == '\0')
 	  ++elements;
     }
+    if ((size_t)elements > SIZE_MAX / sizeof(XmString)) {
+	_XmAppUnlock(app);
+	return BadAlloc;
+    }
     /* Create an appropriately sized array of xmstrings */
     string_table =
       (XmStringTable)XtMalloc(sizeof(XmString) * (elements));
+    if (string_table == NULL) {
+	_XmAppUnlock(app);
+	return BadAlloc;
+    }
     
     /* Create XmStrings from each string in the value field */
     string_table[0] = XmStringGenerate((XtPointer)text_prop->value, 

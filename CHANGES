@@ -1,3 +1,10 @@
+Guard non-empty plain text-property table allocation (2026-10-25)
+===================================================================
+
+- Validate element-count multiplication and check the output table before
+  generating locale, ISO-8859-1, or UTF-8 strings; see
+  `docs/motif-txtpropcv-plain-table.md`.
+
 Guard empty plain text-property table allocation (2026-10-25)
 ================================================================
 
