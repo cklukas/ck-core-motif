@@ -5770,9 +5770,17 @@ GetDumbTabList(
     if (tab_pool == NULL)
         return NULL;
 
-    for (i = 0; i < asked_num_tab; i++)
+    for (i = 0; i < asked_num_tab; i++) {
         tab_pool[i] = XmTabCreate(0.0, XmPIXELS, XmABSOLUTE,
-                                   XmALIGNMENT_BEGINNING, XmS);
+                                  XmALIGNMENT_BEGINNING, XmS);
+        if (tab_pool[i] == NULL) {
+            Cardinal j;
+            for (j = 0; j < i; j++)
+                XmTabFree(tab_pool[j]);
+            XtFree((char *)tab_pool);
+            return NULL;
+        }
+    }
 
     /* update the values */
     for (i = 0; i < asked_num_tab; i++)
