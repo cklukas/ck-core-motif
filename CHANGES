@@ -4325,6 +4325,12 @@ Guard XmRegion GC handles (2026-10-25)
 
 - Return safely from `_XmRegionSetGCRegion` when the display or GC is absent;
   see `docs/region-gc-input-guards.md`.
+
+Guard XmRegion geometry query NULL inputs (2026-10-25)
+=======================================================
+
+- Make region clearing, comparison, point queries, offsets, extents and count
+  queries safe for optional NULL state; see `docs/region-query-null-guards.md`.
 Mrm writer cstring-vector validation (2026-10-25)
 ====================================================
 
