@@ -14,6 +14,13 @@ WSM empty request validation (2026-10-26)
   preserve the payload-less `WSM_CONFIG_FMT` request; see
   `docs/wsm-empty-request-guards.md`.
 
+Default render-table entry parsing (2026-10-26)
+================================================
+
+- Continue parsing comma-separated default font-list entries after the first
+  successful load, preserving the complete render table; see
+  `docs/default-render-table-entry-parsing.md`.
+
 WSM reply packing failure handling (2026-10-26)
 ===============================================
 

@@ -2140,7 +2140,7 @@ XmeGetDefaultRenderTable(
 						     fontName, XmRFontList);
 	    }
 	}
-	while ((delim == ',') && *++sPtr && !fontlist &&
+	while ((delim == ',') && *++sPtr &&
 	       GetNextFontListEntry (&sPtr, &fontName, &fontTag,
 				     &fontType, &delim));
 	XtFree (newString);
