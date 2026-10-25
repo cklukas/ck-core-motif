@@ -6,3 +6,6 @@ out-of-memory error when a nonempty snapshot allocation fails.
 
 Nonempty snapshots and their failure cleanup are unchanged. The regression is
 covered by `tests/automated/check-accessibility-cache-snapshot-allocation.py`.
+
+The menu-change snapshot path uses the same zero-item handling, so an empty
+menu does not turn a notification into a spurious allocation failure.

@@ -2,7 +2,8 @@ Empty accessibility cache snapshots (2026-10-28)
 =================================================
 
 - Return a valid empty AT-SPI cache result instead of treating `XtMalloc(0)`
-  as an out-of-memory failure; see `docs/accessibility-cache-empty.md`.
+  as an out-of-memory failure, and apply the same rule to empty menu-change
+  snapshots; see `docs/accessibility-cache-empty.md`.
 
 Image-cache byte counter width (2026-10-28)
 ============================================

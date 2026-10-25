@@ -206,8 +206,9 @@ static void menu_changed(XmAccessibility *a, Widget w) {
     /* Snapshot IDs: notification can run client/provider code and retire nodes. */
     if ((size_t)count > SIZE_MAX / sizeof(XmAccessibleId))
       return;
-    XmAccessibleId *ids = (XmAccessibleId *)XtMalloc(count * sizeof(*ids));
-    if (!ids)
+    XmAccessibleId *ids = count
+        ? (XmAccessibleId *)XtMalloc(count * sizeof(*ids)) : NULL;
+    if (count != 0 && !ids)
       return;
     for (k = 0; k < count; ++k)
       ids[k] = menu_pane(children[k])
