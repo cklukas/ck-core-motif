@@ -8901,3 +8901,11 @@ ToggleButtonGadget resource-list allocation (2026-10-25)
 
 Icon directory cache size arithmetic (2026-10-25)
 ==================================================
+Simple-menu varargs allocation failures (2026-10-28)
+======================================================
+
+- Bound and check the shared simple-menu varargs temporary arrays, clean up
+  partial allocations, and propagate failure through all six convenience
+  constructors; see `docs/xm-va-process-allocation.md`.
+
+Input-method varargs count bounds (2026-10-28)
