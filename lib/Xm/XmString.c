@@ -10036,7 +10036,7 @@ _XmStringContextReInit(_XmStringContext context,
   bzero((char*) context, sizeof(_XmStringContextRec));
 
   _XmStrContString(context) = string;
-  _XmStrContOpt(context)    = _XmStrOptimized(string);
+  _XmStrContOpt(context)    = (string != NULL) && _XmStrOptimized(string);
   _XmStrContDir(context)    = XmSTRING_DIRECTION_UNSET;
 }
 
@@ -10060,6 +10060,10 @@ _XmStringContextCopy(_XmStringContext target,
   /* Copy the active renditions list so we can modify it. */
   if (_XmStrContRendCount(target) > 0) {
      count = (size_t) _XmStrContRendCount(target);
+     if (_XmStrContRendTags(target) == NULL) {
+	_XmStrContRendCount(target) = 0;
+	return;
+     }
      if (count > SIZE_MAX / sizeof(XmStringTag) ||
 	 count * sizeof(XmStringTag) > (size_t)((Cardinal)~0)) {
 	_XmStrContRendCount(target) = 0;
