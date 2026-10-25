@@ -1,4 +1,8 @@
 2026-10-25
+	* Document the optional WML lexer/parser generation contract and its
+	  disposable out-of-tree outputs; see tools/wml/docs/wml-build.md.
+
+2026-10-25
 	* Add the opt-in XmTeachingTip delayed anchored presentation with bounded
 	  timer ownership, non-modal dismissal and panel accessibility semantics;
 	  see docs/teaching-tip.md.
