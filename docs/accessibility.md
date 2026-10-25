@@ -336,3 +336,13 @@ Ten focused native ARM64 fixtures also pass with the toolkit and consumers
 instrumented by ASan/UBSan, including the new modal-admission regression.
 Xt/system dependencies are uninstrumented, leak checking is disabled, and
 allocator-fault interposition remains exclusive to the normal native suite.
+
+
+Display-hook registration checks its per-display bookkeeping allocation before
+linking or registering callbacks. If that allocation fails, the display stays
+usable and registration can be retried later.
+
+
+AT-SPI transport startup also checks its transport-state allocation and closes
+the temporary D-Bus session cleanly when memory is unavailable, preserving the
+normal unavailable status and allowing a later retry.
