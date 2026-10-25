@@ -14,6 +14,13 @@ Bound render-table count arithmetic (2026-10-25)
   size arithmetic before allocation; see
   `docs/render-table-rendition-array.md`.
 
+Make render-table removal transactional (2026-10-25)
+=====================================================
+
+- Plan retained renditions before compaction and publish resized or detached
+  bodies only after allocation and copy success; see
+  `docs/render-table-resize.md`.
+
 Harden typed varargs allocation (2026-10-25)
 ============================================
 

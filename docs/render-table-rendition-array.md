@@ -18,3 +18,8 @@ table for a large tag selection or full-table copy.
 `XmRenderTableAddRenditions` rejects counts that cannot be represented by its
 integer counters and checks the new-table and match-array sizes before
 allocation.
+
+Removal uses a planning pass and publishes the compacted table only after its
+replacement storage and copied rendition handles are ready. Allocation failure
+therefore leaves the original table and its ownership unchanged; see
+`docs/render-table-resize.md`.

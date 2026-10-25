@@ -1580,92 +1580,128 @@ _XmRenderTableRemoveRenditions(XmRenderTable oldtable,
 			       XmFontType type,
 			       XtPointer font)
 {
-  int			i, j;
-  int			count;
-  _XmRenderTable	table;
-  XmRenderTable		newtable = NULL;
+  int i, j;
+  int count = 0;
+  unsigned short total;
+  XmRendition *kept;
+  Boolean *removed;
+  _XmRenderTable table;
+  XmRenderTable newtable = NULL;
 
   if ((oldtable == NULL) || (tags == NULL) || (tag_count == 0))
     return(oldtable);
-  
-  count = 0;
-  
-  if (_XmRTRefcount(oldtable) > 1)
-    {
-      /* Allocate new table */
-      table = (_XmRenderTable)
-	XtMalloc(sizeof(_XmRenderTableRec) +
-		 (sizeof(XmRendition) *
-		  (_XmRTCount(oldtable) > RENDITIONS_IN_STRUCT
-                ? _XmRTCount(oldtable) - RENDITIONS_IN_STRUCT : 0)));
 
-      newtable = GetHandle(_XmRenderTable);
-      SetPtr(newtable, table);
+  total = _XmRTCount(oldtable);
+  if (total == 0 || (size_t)total > SIZE_MAX / sizeof(*kept))
+    return(oldtable);
 
-      _XmRTDisplay(newtable) = _XmRTDisplay(oldtable);
-      _XmRTRefcount(newtable) = 1;
+  /* Plan the removal without changing the live table. */
+  kept = (XmRendition *)XtMalloc((size_t)total * sizeof(*kept));
+  if (kept == NULL)
+    return(oldtable);
+  removed = (Boolean *)XtMalloc((size_t)total * sizeof(*removed));
+  if (removed == NULL) {
+    XtFree((char *)kept);
+    return(oldtable);
+  }
 
-      /* Detach entry handles as well as the shared table body. */
-      for (i = 0; i < _XmRTCount(oldtable); i++)
-	_XmRTRenditions(newtable)[i] = CopyRendition(_XmRTRenditions(oldtable)[i]);
-      _XmRTCount(newtable) = _XmRTCount(oldtable);
-      
-      if (_XmRTRefcountDec(oldtable) == 0)
-	XtFree((char *)GetPtr(oldtable));
-      FreeHandle(oldtable);
-      
-      oldtable = newtable;
+  for (i = 0; i < total; i++) {
+    XmRendition entry = _XmRTRenditions(oldtable)[i];
+    removed[i] = False;
+    for (j = 0; j < tag_count; j++) {
+      if ((strcmp(_XmRendTag(entry), tags[j]) == 0) &&
+          (!chk_font ||
+           ((font == _XmRendFont(entry)) &&
+            (type == _XmRendFontType(entry))))) {
+        removed[i] = True;
+        break;
+      }
     }
-  /* Iterate over renditions */
-  for (i = 0; i < _XmRTCount(oldtable); i++)
-    {
-      /* Match against tags */
-      for (j = 0; j < tag_count; j++)
-	{
-	  if ((strcmp(_XmRendTag(_XmRTRenditions(oldtable)[i]),
-		      tags[j]) == 0) &&
-	      (!chk_font ||
-	       ((font == _XmRendFont(_XmRTRenditions(oldtable)[i])) &&
-		(type == _XmRendFontType(_XmRTRenditions(oldtable)[i])))))
-	    {
-              FreeRendition(_XmRTRenditions(oldtable)[i]);
-              FreeHandle(_XmRTRenditions(oldtable)[i]);
-	      _XmRTRenditions(oldtable)[i] = NULL;
-	      break;
-	    }
-	}
-      if (_XmRTRenditions(oldtable)[i] != NULL) 
-	{
-	  if (count != i)
-	    _XmRTRenditions(oldtable)[count] = _XmRTRenditions(oldtable)[i];
+    if (!removed[i])
+      kept[count++] = entry;
+  }
 
-	  count++;
-	}
-    }
-  if (count == 0)
-    /* No renditions left. Return NULL. */
-    {
-      XmRenderTableFree(oldtable);
-      return(NULL);
-    }
-  else if (count < _XmRTCount(oldtable))
-    {
-      /* Realloc table */
-      table = (_XmRenderTable)XtRealloc((char *)*oldtable,
-					sizeof(_XmRenderTableRec) +
-					(sizeof(XmRendition) *
-					 (count - RENDITIONS_IN_STRUCT)));
-      if (newtable == NULL) 
-	{
-	  newtable = GetHandle(_XmRenderTable);
-	  FreeHandle(oldtable);
-	}      
-      SetPtr(newtable, table);
+  if (count == total) {
+    XtFree((char *)removed);
+    XtFree((char *)kept);
+    return(oldtable);
+  }
+  if (count == 0) {
+    XtFree((char *)removed);
+    XtFree((char *)kept);
+    XmRenderTableFree(oldtable);
+    return(NULL);
+  }
 
-      _XmRTCount(newtable) = count;
-  
-      return(newtable);
+  if (_XmRTRefcount(oldtable) > 1) {
+    size_t body_size;
+    if ((count > RENDITIONS_IN_STRUCT) &&
+        ((size_t)(count - RENDITIONS_IN_STRUCT) >
+         (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition)))
+      goto remove_abort;
+    body_size = sizeof(_XmRenderTableRec) +
+      sizeof(XmRendition) * (count > RENDITIONS_IN_STRUCT
+          ? count - RENDITIONS_IN_STRUCT : 0);
+    table = (_XmRenderTable)XtMalloc(body_size);
+    if (table == NULL)
+      goto remove_abort;
+    newtable = GetHandle(_XmRenderTable);
+    if (newtable == NULL) {
+      XtFree((char *)table);
+      goto remove_abort;
     }
+    SetPtr(newtable, table);
+    _XmRTDisplay(newtable) = _XmRTDisplay(oldtable);
+    _XmRTRefcount(newtable) = 1;
+    for (i = 0; i < count; i++) {
+      _XmRTRenditions(newtable)[i] = CopyRendition(kept[i]);
+      if (_XmRTRenditions(newtable)[i] == NULL) {
+        while (i > 0) {
+          --i;
+          FreeRendition(_XmRTRenditions(newtable)[i]);
+          FreeHandle(_XmRTRenditions(newtable)[i]);
+        }
+        XtFree((char *)GetPtr(newtable));
+        FreeHandle(newtable);
+        newtable = NULL;
+        goto remove_abort;
+      }
+    }
+    _XmRTCount(newtable) = (unsigned short)count;
+    XtFree((char *)removed);
+    XtFree((char *)kept);
+    XmRenderTableFree(oldtable);
+    return(newtable);
+  }
+
+  /* A unique table keeps its public handle; resize only after planning. */
+  if ((count > RENDITIONS_IN_STRUCT) &&
+      ((size_t)(count - RENDITIONS_IN_STRUCT) >
+       (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition)))
+    goto remove_abort;
+  table = (_XmRenderTable)XtRealloc((char *)GetPtr(oldtable),
+      sizeof(_XmRenderTableRec) +
+      sizeof(XmRendition) * (count > RENDITIONS_IN_STRUCT
+          ? count - RENDITIONS_IN_STRUCT : 0));
+  if (table == NULL)
+    goto remove_abort;
+  for (i = 0; i < total; i++) {
+    if (removed[i]) {
+      FreeRendition(_XmRTRenditions(table)[i]);
+      FreeHandle(_XmRTRenditions(table)[i]);
+    }
+  }
+  for (i = 0; i < count; i++)
+    _XmRTRenditions(table)[i] = kept[i];
+  SetPtr(oldtable, table);
+  _XmRTCount(oldtable) = (unsigned short)count;
+  XtFree((char *)removed);
+  XtFree((char *)kept);
+  return(oldtable);
+
+remove_abort:
+  XtFree((char *)removed);
+  XtFree((char *)kept);
   return(oldtable);
 }
 

@@ -807,6 +807,7 @@ EXTRA_DIST += tests/automated/check-render-table-single-rendition-null.py docs/r
 EXTRA_DIST += tests/automated/check-render-table-rendition-array.py docs/render-table-rendition-array.md
 EXTRA_DIST += tests/automated/check-xmrender-copy-propagation.py
 EXTRA_DIST += tests/automated/check-xmrender-rendition-allocation.py
+EXTRA_DIST += docs/render-table-resize.md
 
 EXTRA_DIST += tests/automated/check-list-result-allocation.py docs/list-result-allocation.md
 
