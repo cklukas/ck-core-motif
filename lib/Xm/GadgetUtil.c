@@ -138,7 +138,7 @@ XmeRedisplayGadgets(
         Region region )
 {
    CompositeWidget mw = (CompositeWidget) w ;
-   register int i;
+   register Cardinal i;
    register Widget child;
    XtExposeProc expose;
 
