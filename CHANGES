@@ -1,3 +1,10 @@
+ToggleButton pixmap sizing dimensions (2026-10-25)
+===================================================
+
+- Reset temporary pixmap dimensions before each `SetToggleSize` lookup so an
+  unresolved pixmap cannot reuse a preceding pixmap's size; see
+  `docs/toggle-size-pixmap-dimensions.md`.
+
 PixConv pixmap metadata guard (2026-10-25)
 ===========================================
 
