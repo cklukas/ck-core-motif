@@ -5,6 +5,12 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+XmString tag-cache input validation (2026-10-26)
+==================================================
+
+- Reject null tags and negative lengths before tag-cache comparisons and
+  allocation; see `docs/xmstring-tag-cache-input.md`.
+
 XmString component context guards (2026-10-26)
 ===============================================
 
