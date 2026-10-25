@@ -6181,3 +6181,10 @@ Avoid XmString concat length wraparound (2026-10-25)
   byte counts; see `docs/xmstring-concat-length-bound.md` and its focused
   source check.
 
+Bound XmString context-copy size arithmetic (2026-10-25)
+=========================================================
+
+- Promote active rendition counts before multiplication and bound them for the
+  Xt `Cardinal` allocator, retaining a safe empty destination on failure; see
+  `docs/xmstring-context-copy-allocation.md`.
+
