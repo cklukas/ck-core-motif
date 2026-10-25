@@ -858,6 +858,12 @@ Spin-box item-count bounds (2026-10-25)
 - Reject spin-box item-count and string-table size overflow before insertion;
   see `docs/spinbox-bounds.md`.
 
+List drag size bounds (2026-10-25)
+=================================
+
+- Check selected-position string-array size arithmetic before list drag
+  allocation; see `docs/list-drag-allocation.md`.
+
 List drag conversion allocation (2026-10-25)
 ===============================================
 

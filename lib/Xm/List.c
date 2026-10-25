@@ -7274,6 +7274,12 @@ ListProcessDrag(Widget wid,
   if (lw->list.InternalList[item]->selected)
     {
       /* CR 8878: selectedItems may contain extraneous items. */
+      if ((size_t)lw->list.selectedPositionCount >
+          SIZE_MAX / sizeof(XmString)) {
+	  XtFree((char *)ListDragConv);
+	  lw->list.drag_conv = NULL;
+	  return;
+      }
       ListDragConv->strings = (XmString *)
 	XtMalloc(sizeof(XmString) * lw->list.selectedPositionCount);
       if (ListDragConv->strings == NULL) {
