@@ -11091,3 +11091,9 @@ WSM window-entry reply sizing (2026-10-25)
 - Preserve both window-ID and match-property contributions when sizing WSM
   replies, preventing underallocation during packing; see
   `docs/wsm-win-entry-size.md`.
+
+WSM window-request ownership (2026-10-25)
+=========================================
+
+- Mark decoded window-request arrays with their own ownership flag so cleanup
+  releases them correctly; see `docs/wsm-windows-owned.md`.

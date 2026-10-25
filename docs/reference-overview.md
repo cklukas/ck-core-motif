@@ -50,6 +50,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [WSM window-data alignment](wsm-windata-alignment.md) — preserve stream offsets on data OOM.
 - [WSM message packing allocation](wsm-pack-oom.md) — reject non-empty buffer OOM safely.
 - [WSM window-entry reply sizing](wsm-win-entry-size.md) — account for both variable arrays.
+- [WSM window-request ownership](wsm-windows-owned.md) — track decoded array ownership correctly.
 - [WM state read guards](wmstate-read-guards.md) — safe handling of window-manager state properties.
 
 ## Accessibility and diagnostics

@@ -570,7 +570,7 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 	{
 	  int num, i, j;
 
-	  request->extensions.allocated = True;
+	  request->wm_windows.allocated = True;
 	  request->wm_windows.location_flag = UnpackCARD32(&data);
 
 	  num = request->wm_windows.num_window_properties = UnpackListNum(&data);
