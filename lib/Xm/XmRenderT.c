@@ -3008,7 +3008,12 @@ ReadToken(char *string, int *position, Token reusetoken)
     new_token -> type = T_STR;
     count -= 1;
     if (count > 0) {
-      new_token -> string = (char*) XtMalloc(count + 1);
+      if ((size_t)count >= UINT_MAX) {
+        new_token -> type = T_EOF;
+        *position = pos;
+        return new_token;
+      }
+      new_token -> string = (char*) XtMalloc((Cardinal)count + 1);
       if (new_token -> string == NULL) {
         new_token -> type = T_EOF;
         *position = pos;
@@ -3039,6 +3044,11 @@ ReadToken(char *string, int *position, Token reusetoken)
 	  ;
 	pos += count;
 	new_token -> type = T_STR;
+	if ((size_t)count >= UINT_MAX) {
+	  new_token -> type = T_EOF;
+	  *position = pos;
+	  return new_token;
+	}
 	new_token -> string = (char *)XtMalloc((Cardinal)count + 1);
 	if (new_token -> string == NULL) {
 	  new_token -> type = T_EOF;

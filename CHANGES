@@ -11646,6 +11646,12 @@ XmString wide-conversion allocation width (2026-10-25)
 - Check wide-segment multibyte capacity against Xt's allocation width; see
   `docs/xmstring-wide-conversion-bounds.md`.
 
+XmRenderTable token allocation width (2026-10-25)
+==================================================
+
+- Check quoted and alphabetic token lengths before Xt allocation; see
+  `docs/render-token-allocation.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 
