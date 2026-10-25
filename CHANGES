@@ -1,3 +1,10 @@
+Label drag-icon pixmap metadata (2026-10-25)
+============================================
+
+- Initialize Label and LabelG drag-icon pixmap dimensions and depth before
+  metadata lookup, avoiding undefined resource values for invalid pixmaps; see
+  `docs/label-drag-pixmap-metadata.md`.
+
 IconG pixmap metadata guards (2026-10-25)
 ==========================================
 

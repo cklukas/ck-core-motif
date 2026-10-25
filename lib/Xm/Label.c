@@ -2641,6 +2641,9 @@ GetPixmapDragIcon(Widget w)
   Widget screen_object = XmGetXmScreen(XtScreen(w));
   unsigned int width, height;
   int depth;
+
+  width = height = 0;
+  depth = 0;
   
   /* It's a labelPixmap, use directly the pixmap */
   
