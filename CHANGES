@@ -4736,3 +4736,9 @@ Default drag target-table allocation handling (2026-10-25)
 
 - Check and clean up all allocations while creating the default target
   cache; see `docs/dragbs-default-targets-allocation.md`.
+
+Default drag atom-table allocation handling (2026-10-25)
+==========================================================
+
+- Check and clean up allocations while creating the default atom cache;
+  see `docs/dragbs-default-atoms-allocation.md`.
