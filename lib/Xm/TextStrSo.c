@@ -247,6 +247,10 @@ _XmTextCharactersToBytes(char * bytes,
     bits16_ptr = (BITS16 *) characters;
     byte_ptr = (unsigned char*) bytes;
     temp_char = (unsigned char*) XtMalloc (max_char_size);
+    if (temp_char == NULL) {
+	*bytes = '\0';
+	return 0;
+    }
     for (i = 0; i < num_chars && *bits16_ptr != 0; i++, bits16_ptr++) {
       temp_bits16 = *bits16_ptr;
       /* create an array of chars; char[max_char_size - 1] contains the 
