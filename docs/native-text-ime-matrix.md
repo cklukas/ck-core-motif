@@ -44,3 +44,8 @@ the system Xt on `uconsole` exits the owner during cancelled-transfer cleanup,
 while the pinned dependency cohort keeps the owner alive and completes the
 fresh transfer. This is a dependency qualification boundary, not a suppressed
 toolkit failure.
+
+The same pinned cohort passed the consumer `--sanitize` run for the
+interrupted-clipboard fixture on 2026-10-25. That result covers the transfer
+body and its fixture process only; it does not close the matrix-wide leak gate
+for Xt selection-context or Fontconfig ownership.

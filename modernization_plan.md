@@ -555,6 +555,10 @@ while the same cancellation fixture exposes the known system-Xt owner-exit
 failure. The external failure is retained as a dependency limitation rather
 than hidden or counted as a toolkit pass.
 
+A strict consumer ASan/UBSan run of the interrupted-clipboard fixture also
+passed against that cohort. It is recorded as bounded transfer evidence, not
+as closure of the matrix-wide sanitizer ownership gate.
+
 ### WP-07: Screen-reader usability and semantic completion
 
 **Depends on:** WP-06 for text-specific claims; basic provider work may start
