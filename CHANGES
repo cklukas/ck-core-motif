@@ -9512,6 +9512,13 @@ MWM menu-name rollback (2026-10-29)
 - Allocate duplicated system-menu names before releasing existing metadata,
   preserving usable menu specifications on allocation failure; see
   `docs/mwm-menu-name-rollback.md`.
+IconGadget label initialization rollback (2026-10-28)
+=======================================================
+
+- Check initial `XmNlabelString` copies, rebuild from the gadget name on
+  failure, and guard NULL label geometry measurement; see
+  `docs/icong-label-init-rollback.md`.
+
 Column constraint-label initialization rollback (2026-10-28)
 ===============================================================
 

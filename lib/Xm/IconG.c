@@ -1293,6 +1293,7 @@ Initialize(
     XmIconGadget	new_ig = (XmIconGadget)nw;
     unsigned int w = 0, h = 0;
     Cardinal i ;
+    XmString label_copy;
 
     /* XmNviewType */
     if (!XmRepTypeValidValue(XmRID_VIEW_TYPE,IG_ViewType(nw),nw))
@@ -1329,7 +1330,15 @@ Initialize(
 				(char *) NULL, nw, XmNlabelString,
 				XrmQuarkToString(new_ig->object.xrm_name));
     } else 
-	IG_LabelString(nw) = XmStringCopy(IG_LabelString(nw));
+	{
+	label_copy = XmStringCopy(IG_LabelString(nw));
+	if (label_copy != NULL)
+	    IG_LabelString(nw) = label_copy;
+	else
+	    IG_LabelString(nw) = XmeGetLocalizedString(
+			(char *) NULL, nw, XmNlabelString,
+			XrmQuarkToString(new_ig->object.xrm_name));
+	}
 
 	
 
@@ -1344,7 +1353,7 @@ Initialize(
 
 
     /* get the label size */
-    if (!XmStringEmpty(IG_LabelString(nw)))
+    if (IG_LabelString(nw) != NULL && !XmStringEmpty(IG_LabelString(nw)))
 	XmStringExtent(IG_RenderTable(nw), IG_LabelString(nw),
 		       &(IG_LabelRectWidth(nw)),
 		       &(IG_LabelRectHeight(nw)));
