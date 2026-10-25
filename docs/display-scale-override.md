@@ -36,6 +36,13 @@ per-display retention, resource-database identity, default indicator scaling,
 explicit pixel-resource preservation, and reversible cleanup against the
 selected installed `libXm`.
 
+The transaction rollback fixture is
+`tests/automated/run-display-scale-rollback.py`. It injects a deterministic
+callback-snapshot allocation failure and verifies that both a failed set and a
+failed clear retain the previous override. Three repeated installed AArch64
+`uconsole` runs pass against the current prefix; this fault-injection check is
+separate from the normal no-fault scale matrix.
+
 ## Qualification evidence
 
 The first qualification ran on the AArch64 `uconsole` Linux host from a

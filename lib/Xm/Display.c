@@ -441,7 +441,13 @@ XmSetDisplayScaleOverride(Display *display, double scale)
   if (!XFindContext(display, None, context, (char **)&override)) {
     override->scale = scale;
     _XmProcessUnlock();
-    return _XmApplyScaleChange(display, old_scale, scale);
+    if (_XmApplyScaleChange(display, old_scale, scale))
+      return True;
+    _XmProcessLock();
+    if (!XFindContext(display, None, context, (char **)&override))
+      override->scale = old_scale;
+    _XmProcessUnlock();
+    return False;
   }
   override = (XmDisplayScaleOverride *)XtMalloc(sizeof(*override));
   if (override == NULL) {
@@ -455,7 +461,15 @@ XmSetDisplayScaleOverride(Display *display, double scale)
     return False;
   }
   _XmProcessUnlock();
-  return _XmApplyScaleChange(display, old_scale, scale);
+  if (_XmApplyScaleChange(display, old_scale, scale))
+    return True;
+  _XmProcessLock();
+  if (!XFindContext(display, None, context, (char **)&override)) {
+    if (XDeleteContext(display, None, context) == 0)
+      XtFree((char *)override);
+  }
+  _XmProcessUnlock();
+  return False;
 }
 
 Boolean
@@ -468,10 +482,15 @@ Boolean
 XmClearDisplayScaleOverride(Display *display)
 {
   XmDisplayScaleOverride *override;
+  XmDisplayScaleOverride *rollback;
   XContext context;
   double old_scale;
 
   if (display == NULL)
+    return False;
+
+  rollback = (XmDisplayScaleOverride *)XtMalloc(sizeof(*rollback));
+  if (rollback == NULL)
     return False;
 
   _XmProcessLock();
@@ -479,11 +498,14 @@ XmClearDisplayScaleOverride(Display *display)
   if (context == 0 || XFindContext(display, None, context,
                                   (char **)&override)) {
     _XmProcessUnlock();
+    XtFree((char *)rollback);
     return False;
   }
   old_scale = override->scale;
+  rollback->scale = old_scale;
   if (XDeleteContext(display, None, context) != 0) {
     _XmProcessUnlock();
+    XtFree((char *)rollback);
     return False;
   }
   _XmProcessUnlock();
@@ -492,7 +514,20 @@ XmClearDisplayScaleOverride(Display *display)
     double new_scale;
     if (!_XmGetGlobalDpiScale(display, &new_scale))
       new_scale = 1.0;
-    return _XmApplyScaleChange(display, old_scale, new_scale);
+    if (_XmApplyScaleChange(display, old_scale, new_scale)) {
+      XtFree((char *)rollback);
+      return True;
+    }
+    _XmProcessLock();
+    if (displayScaleOverrideContext != 0 &&
+        XSaveContext(display, None, displayScaleOverrideContext,
+                     (char *)rollback) == 0) {
+      rollback = NULL;
+    }
+    _XmProcessUnlock();
+    if (rollback != NULL)
+      XtFree((char *)rollback);
+    return False;
   }
 }
 
