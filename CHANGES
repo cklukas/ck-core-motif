@@ -14,6 +14,8 @@ Xft compound-string line height (2026-10-27)
   before splicing copied tabs.
 - Use a full-width `Cardinal` index when removing tabs from a public position
   list, avoiding signed counter wraparound for large valid requests.
+- Use full-width `Cardinal` indices when scanning Tree argument and child
+  counts, preventing signed loop wraparound in large widget hierarchies.
 - Use `Cardinal` indices in the public XmString table parse, unparse, and
   concatenation loops so full-width caller counts cannot wrap signed counters.
 - Use the native Xft font height for compound-string geometry instead of

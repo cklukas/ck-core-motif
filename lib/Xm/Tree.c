@@ -858,7 +858,7 @@ ConstraintSetValues(Widget current, Widget request, Widget set,
     TreeConstraints old_node = GetNodeInfo(current);
     Boolean redisplay = False;
     Boolean insert_change = False;
-    int i;
+    Cardinal i;
 
     for (i = 0; i < *num_args; i++) 
 	if (streq(args[i].name, XmNinsertBefore)) {
@@ -1543,7 +1543,7 @@ CalcLocations(Widget w, Boolean resize_it)
     XmTreeWidget      tw = (XmTreeWidget) w;
     TreeConstraints   node;
     XmTreeWidgetClass tc = (XmTreeWidgetClass) XtClass(w);
-    register int      i;
+    register Cardinal i;
 
     /*
      * Reset each node to be hidden;
