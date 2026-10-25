@@ -943,6 +943,13 @@ XmStringTableProposeTablist(XmStringTable strings,
 	  else val = _XmTabValue(tab);
 	  j++;
 	}
+
+      if (_XmStrContError(&stack_ctx))
+	{
+	  _XmStringContextFree(&stack_ctx);
+	  XmTabListFree(tl);
+	  return ((XmTabList)NULL);
+	}
       
       _XmStringContextFree(&stack_ctx);
     }
