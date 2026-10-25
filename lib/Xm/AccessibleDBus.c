@@ -533,10 +533,14 @@ static int text_range(XmAccessibility *a, XmAccessibleId id, int length,
       if (!count || breaks[count - 1] != candidate) { \
         if (count == capacity) { \
           int next; \
+          int *new_breaks; \
           if (capacity > INT_MAX / 2) goto range_failed; \
           next = capacity ? capacity * 2 : 32; \
           if ((size_t)next > UINT_MAX / sizeof(*breaks)) goto range_failed; \
-          breaks = (int *)XtRealloc((char *)breaks, (Cardinal)((size_t)next * sizeof(*breaks))); \
+          new_breaks = (int *)XtRealloc( \
+              (char *)breaks, (Cardinal)((size_t)next * sizeof(*breaks))); \
+          if (!new_breaks) goto range_failed; \
+          breaks = new_breaks; \
           capacity = next; \
         } \
         breaks[count++] = candidate; \

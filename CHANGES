@@ -8026,3 +8026,12 @@ DragICC write-buffer growth (2026-10-27)
 
 Obso2 translation-buffer growth (2026-10-27)
 =============================================
+AccessibleDBus break-array growth (2026-10-27)
+==============================================
+
+- Check breakpoint-array reallocations before committing the pointer.  Text
+  boundary calculation now follows its existing range-failure cleanup path
+  instead of writing through a null array.
+
+DragICC write-buffer growth (2026-10-27)
+========================================
