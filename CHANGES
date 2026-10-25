@@ -1,3 +1,9 @@
+Mrm related-tag diagnostic handling (2026-10-25)
+================================================
+
+- Report the related compressed code on lookup failure and stop that argument;
+  see `docs/mrm-related-tag-diagnostic.md`.
+
 Mrm primary tag lookup failure handling (2026-10-25)
 ======================================================
 
