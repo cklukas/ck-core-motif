@@ -303,7 +303,8 @@ XmTabbedStackListInsert(tab_list, position, mask, attributes)
      * and if not let's just leave.
      */
     if( tab_list == NULL || position < XmTAB_LAST_POSITION ||
-        (position > 0 && position >= tab_list->used) ) return XmTAB_NOT_FOUND;
+        (position > 0 && position >= tab_list->used) ||
+        (mask != 0 && attributes == NULL) ) return XmTAB_NOT_FOUND;
 
     /*
      * Now lets add our new tab to the list in the correct position.
@@ -493,7 +494,8 @@ XmTabbedStackListModify(tab_list, position, mask, attributes)
      * First lets see if they gave us anything valid to work with and
      * if they did not lets vacate the premises.
      */
-    if( tab_list == NULL || position < 0 || position >= tab_list->used )
+    if( tab_list == NULL || position < 0 || position >= tab_list->used ||
+        (mask != 0 && attributes == NULL))
     {
 	return;
     }

@@ -1,3 +1,9 @@
+Guard TabList masked NULL arguments (2026-10-26)
+================================================
+
+- Reject NULL attribute pointers before masked insert/modify operations can
+  dereference them; see `docs/tablist-argument-guards.md`.
+
 Guard TabList constructor allocations (2026-10-26)
 ================================================
 
