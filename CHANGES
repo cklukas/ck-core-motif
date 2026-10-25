@@ -2043,6 +2043,12 @@ XmPicture repeat node-map bounds (2026-10-25)
   picture graphs while leaving unrepresentable expansion unchanged; see
   `docs/picture-copy-bounds.md`.
 
+Drop-down selection-table allocation (2026-10-25)
+====================================================
+
+- Handle converted selection-table allocation failure through the existing
+  drop-down error path; see `docs/dropdown-selection-bounds.md`.
+
 Hierarchy child-list bounds (2026-10-25)
 =========================================
 

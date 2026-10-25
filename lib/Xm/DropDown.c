@@ -2377,6 +2377,10 @@ SetListFromText(Widget w, Boolean no_action)
 		count = 0;
 	    } else {
 	    sel_table = (XmStringTable) XtMalloc(sizeof(XmString) * count);
+	    if (sel_table == NULL) {
+		error = TRUE;
+		count = 0;
+	    } else {
 	    for(tptr = table, count = 0; *tptr != NULL ; tptr++) {
 		if (XmListItemExists(XmDropDown_list(cbw), *tptr))
 		    sel_table[count++] = *tptr;
@@ -2384,6 +2388,7 @@ SetListFromText(Widget w, Boolean no_action)
 		    error = TRUE;
 		    break;
 		}
+	    }
 	    }
 	    }
 	}
