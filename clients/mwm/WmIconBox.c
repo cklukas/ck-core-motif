@@ -2674,6 +2674,7 @@ void CheckIconBoxResize (ClientData *pCD, unsigned int changedValues, int newWid
 
     if (pCD == NULL || pCD->thisIconBox == NULL ||
         pCD->thisIconBox->bBoardWidget == NULL ||
+	pCD->thisIconBox->clipWidget == NULL ||
         pCD->widthInc <= 0 || pCD->heightInc <= 0)
         return;
 
@@ -2681,6 +2682,10 @@ void CheckIconBoxResize (ClientData *pCD, unsigned int changedValues, int newWid
     pIBD = pCD->thisIconBox;
 
     pSD = &(wmGD.Screens[SCREEN_FOR_CLIENT(pCD)]);
+
+    if (pSD->iconBoxSBDisplayPolicy == NULL ||
+	pIPD->placementCols <= 0 || pIPD->placementRows <= 0)
+	return;
 
     
     i=0;
@@ -2692,6 +2697,8 @@ void CheckIconBoxResize (ClientData *pCD, unsigned int changedValues, int newWid
     newRows = pIPD->placementRows;
     newWidth = newWidth - pCD->baseWidth;	    	
     newHeight = newHeight - pCD->baseHeight;
+	if (newWidth < 0 || newHeight < 0)
+	return;
     
     i = 0;
     

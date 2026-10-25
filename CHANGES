@@ -1,3 +1,9 @@
+Icon-box resize validation (2026-10-25)
+=======================================
+
+- Validate resize widgets, policy, dimensions, and content sizes before layout
+  calculations; see `docs/iconbox-resize-guards.md`.
+
 Icon-box size validation (2026-10-25)
 =====================================
 
