@@ -133,6 +133,9 @@ consumer ASan/UBSan decoder run passed; the installed library fingerprint is
 `dc2ff61fd9994fcb261a861fd702657c80f2add301ccdee7cb13f7e764df6144`.
 The `fallback-f1` through `fallback-f3` and `sanitizer-fallback` receipts are
 retained under `/tmp/ckmotif-xlibre-hardening-20261025/`.
+The receipt-schema validation run is retained at
+`/tmp/ckmotif-xlibre-hardening-20261025/receipt-r1/receipt.json` and records
+the same installed fingerprint.
 
 This is an implementation step toward the live contract, not a claim that a
 generic Xorg server provides per-output DPI. The remaining qualification must
