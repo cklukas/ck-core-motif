@@ -396,6 +396,12 @@ _XmUtf8ToUcs2(char *draw_text, size_t seg_len, size_t *ret_str_len)
     XChar2b *ptr;
     XChar2b *buf2b;
 
+    if (ret_str_len == NULL)
+	return NULL;
+    *ret_str_len = 0;
+    if (draw_text == NULL && seg_len != 0)
+	return NULL;
+
     /*
      * Convert to UCS2 string on the fly.
      */
