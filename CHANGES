@@ -1,3 +1,9 @@
+ColorObj selection callback validation (2026-10-25)
+====================================================
+
+- Validate selection callback widget, atom, screen, and transfer-length
+  inputs before ColorObj state access; see `docs/color-selection-inputs.md`.
+
 ColorObj cache-property input validation (2026-10-25)
 =======================================================
 

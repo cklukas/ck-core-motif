@@ -769,6 +769,11 @@ GetSelection(
     char * value = (char*) val ;
     int  i, screen;
 
+    if (w == NULL || selection == NULL ||
+	tmpColorObj->color_obj.atoms == NULL ||
+	tmpColorObj->color_obj.numScreens <= 0)
+	return;
+
     tmpColorObj->color_obj.done = TRUE;
 
     /** get screen number **/
@@ -787,7 +792,7 @@ GetSelection(
         return;
     }
 
-    if (value != NULL)  {
+    if (value != NULL && length != NULL)  {
 	FetchPixelData(w, value, *length, screen);
     }
 }
