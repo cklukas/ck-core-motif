@@ -39,10 +39,11 @@ These are real coverage gaps rather than claims of known source defects:
    8/16/32-bit format assembly, merge bounds and repeated owner destruction
    against that dependency. Drag-and-drop cancellation, application-level
    clipboard workflows and a clean sanitizer exit remain open.
-4. **Non-text Unicode matrix.** Lists, menus, labels, combo boxes, file
-   selection, mnemonics, search, and compound strings need the same mixed-script,
-   combining-mark, supplementary-plane, and keyboard-navigation coverage as
-   Text and TextField.
+4. **Non-text Unicode matrix.** The installed Label/List/ComboBox fixture now
+   covers combining, non-BMP and Han values through public APIs. Menus, file
+   selection, mnemonics, search, compound strings, keyboard layouts and full
+   application navigation still need the broader mixed-script and
+   supplementary-plane journey coverage of Text and TextField.
 5. **Accessibility user journeys.** AT-SPI protocol fixtures cover transport,
    cache identity, actions, selection, text boundaries, and multiple shells.
    Repeatable Orca journeys for menus, lists, editable text, dialogs, selection,
