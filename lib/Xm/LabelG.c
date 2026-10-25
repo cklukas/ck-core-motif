@@ -3897,6 +3897,9 @@ GetPixmapDragIcon(Widget w)
         unsigned int wid, hei;
         int d;
 
+        wid = hei = 0;
+        d = 0;
+
     /* it's a labelPixmap, use directly the pixmap */
 
         XmeGetPixmapData(XtScreen(lw), Pix(lw), NULL, &d,
