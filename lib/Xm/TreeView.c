@@ -280,12 +280,18 @@ static void Destroy(Widget widget) {
 static void draw_disclosure(XmTreeViewWidget view, int x, int y, Boolean open) {
     Display *display = XtDisplay((Widget)view);
     Window window = XtWindow((Widget)view);
-    XDrawRectangle(display, window, view->tree_view.gc, x, y + 6, 9, 9);
-    XDrawLine(display, window, view->tree_view.gc, x + 2, y + 10, x + 7,
-              y + 10);
+    /* Use one shared ten-pixel box and its exact integer centre for both
+     * strokes.  The old nine-pixel box put the cross half a pixel off-centre
+     * and made the closed '+' look visibly heavier on one side. */
+    const int top = y + 5;
+    const int center_x = x + 5;
+    const int center_y = top + 5;
+    XDrawRectangle(display, window, view->tree_view.gc, x, top, 9, 9);
+    XDrawLine(display, window, view->tree_view.gc, x + 2, center_y, x + 8,
+              center_y);
     if (!open)
-        XDrawLine(display, window, view->tree_view.gc, x + 5, y + 7, x + 5,
-                  y + 13);
+        XDrawLine(display, window, view->tree_view.gc, center_x, top + 2,
+                  center_x, top + 8);
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {

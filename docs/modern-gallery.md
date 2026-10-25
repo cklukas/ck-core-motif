@@ -25,6 +25,8 @@ Categories start collapsed and use conventional disclosure indicators: `+`
 means the category is closed and `−` means it is open.  A component launched
 with `--component` automatically opens its category so the selected child is
 visible in the left navigation.
+Both strokes are centered in the same symmetric disclosure box so the two
+states keep identical alignment.
 
 When launched with `--component xm.infobarwidgetclass` (or any other
 constructible manifest ID), the gallery creates the Example page only after
@@ -57,6 +59,11 @@ keyboard traversal, and focus restoration. Shell-class entries use public
 Xt popup-shell construction; ordinary widget and gadget entries use their
 manifest-bound public class pointer and invoke the first available semantic
 public callback (with a help callback fallback).
+
+The Welcome, Example, and Source notebook pages share a 16-pixel horizontal
+and 12-pixel vertical inner margin. This keeps headings and live controls
+visibly separated from the notebook frame instead of placing text directly
+against the page border.
 
 ## Welcome and built-in icons
 

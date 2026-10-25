@@ -14589,3 +14589,15 @@ Segmented gallery construction (2026-10-27)
   has been constructed, preventing early layout from dereferencing an
   uninitialized child when real gallery items are populated; see
   `docs/segmented-gallery-example.md`.
+Gallery notebook page spacing (2026-10-27)
+===========================================
+
+- Give the Welcome, Example, and Source notebook pages consistent inner
+  margins so headings, controls, and source views do not touch the page frame.
+
+TreeView disclosure geometry (2026-10-27)
+=========================================
+
+- Center the closed `+` and open `−` strokes on one shared pixel centre inside
+  a symmetric ten-pixel disclosure box. The gallery's category indicators now
+  render without the one-sided offset visible in the previous nine-pixel box.

@@ -333,7 +333,9 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
     if (!state->example) {
         state->example = XtVaCreateWidget("examplePage", xmFormWidgetClass,
                                           state->notebook, XmNnotebookChildType,
-                                          XmPAGE, XmNpageNumber, 2, NULL);
+                                          XmPAGE, XmNpageNumber, 2,
+                                          XmNmarginWidth, 16,
+                                          XmNmarginHeight, 12, NULL);
         title = text(entry->id);
         state->title = XtVaCreateManagedWidget("componentTitle", xmLabelWidgetClass,
                                               state->example, XmNlabelString, title,
@@ -356,7 +358,9 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
 
         state->source = XtVaCreateWidget("sourcePage", xmFormWidgetClass,
                                          state->notebook, XmNnotebookChildType,
-                                         XmPAGE, XmNpageNumber, 3, NULL);
+                                         XmPAGE, XmNpageNumber, 3,
+                                         XmNmarginWidth, 16,
+                                         XmNmarginHeight, 12, NULL);
         {
             Arg args[1];
             XtSetArg(args[0], XmNeditable, False);
@@ -935,7 +939,8 @@ int main(int argc, char **argv)
     state.notebook = notebook;
     state.welcome = XtVaCreateWidget(
         "welcomePage", xmFormWidgetClass, notebook,
-        XmNnotebookChildType, XmPAGE, XmNpageNumber, 1, NULL);
+        XmNnotebookChildType, XmPAGE, XmNpageNumber, 1,
+        XmNmarginWidth, 16, XmNmarginHeight, 12, NULL);
     {
         Widget welcome_text = XtVaCreateManagedWidget("welcomeText", xmDrawingAreaWidgetClass,
                                 state.welcome,
