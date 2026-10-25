@@ -1641,8 +1641,19 @@ SecondaryObjectCreate(
 	newSec = XtMalloc(size);
 	reqSec = _XmExtObjAlloc(size);
 	_XmProcessUnlock();
+	if (newSec == NULL || reqSec == NULL) {
+	    XtFree((char *)newSec);
+	    if (reqSec != NULL)
+		_XmExtObjFree(reqSec);
+	    return;
+	}
 
 	extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+	if (extData == NULL) {
+	    XtFree((char *)newSec);
+	    _XmExtObjFree(reqSec);
+	    return;
+	}
 	extData->widget = (Widget)newSec;
 	extData->reqWidget = (Widget)reqSec;
 
