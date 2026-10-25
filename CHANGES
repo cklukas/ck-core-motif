@@ -1,3 +1,9 @@
+Mrm deferred icon storage bounds (2026-10-25)
+===============================================
+
+- Reject an eleventh deferred icon argument before loading or storing it; see
+  `docs/mrm-icon-pixargs-bounds.md`.
+
 Mrm related-tag diagnostic handling (2026-10-25)
 ================================================
 
