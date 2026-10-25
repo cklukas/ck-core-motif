@@ -1,3 +1,10 @@
+Primitive class-extension allocation (2026-10-27)
+===================================================
+
+- Check the shared `XmPrimitive` class-extension allocation before
+  initializing the record, failing class setup closed instead of dereferencing
+  a null extension under allocation pressure.
+
 Container child-node allocation (2026-10-27)
 =============================================
 

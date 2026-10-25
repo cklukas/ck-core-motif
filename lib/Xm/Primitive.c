@@ -679,6 +679,8 @@ ClassPartInitialize(
     if (*wcePtr == NULL) {
 	*wcePtr = (XmPrimitiveClassExt) XtCalloc(1, 
 					 sizeof(XmPrimitiveClassExtRec)) ;
+	if (*wcePtr == NULL)
+	    return;
 	(*wcePtr)->next_extension = NULL;
 	(*wcePtr)->record_type 	= NULLQUARK;
 	(*wcePtr)->version	= XmPrimitiveClassExtVersion ;
