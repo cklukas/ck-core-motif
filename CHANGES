@@ -1,3 +1,9 @@
+Render-table converter input validation (2026-10-25)
+=====================================================
+
+- Validate render-table wrapper and helper inputs before rendition creation;
+  see `docs/render-table-converter-inputs.md`.
+
 Tab-list converter validation and rollback (2026-10-25)
 ========================================================
 

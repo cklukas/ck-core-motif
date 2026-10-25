@@ -3194,6 +3194,10 @@ cvtStringToXmRenderTable(Display *dpy,
   char		*tag;
   Boolean	has_default = FALSE, in_db = FALSE;
   _Xstrtokparams strtok_buf;
+
+  if (dpy == NULL || widget == NULL || from == NULL || from->addr == NULL ||
+      to == NULL)
+    return FALSE;
   
   if (from->addr)
     {   
@@ -3272,8 +3276,14 @@ CvtStringToRenderTable(Display *dpy,
 			  XtPointer *converter_data) /* unused */
 {
   Widget wid;
+
+  if (dpy == NULL || args == NULL || args[0].addr == NULL ||
+      from == NULL || to == NULL)
+    return FALSE;
   
   wid = *(Widget *)args[0].addr;
+  if (wid == NULL)
+    return FALSE;
 
   return(cvtStringToXmRenderTable(dpy, wid,
 				  XmNrenderTable, XmCRenderTable,
@@ -3290,8 +3300,14 @@ CvtStringToButtonRenderTable(Display *dpy,
 				XtPointer *converter_data) /* unused */
 {
   Widget wid;
+
+  if (dpy == NULL || args == NULL || args[0].addr == NULL ||
+      from == NULL || to == NULL)
+    return FALSE;
   
   wid = *(Widget *)args[0].addr;
+  if (wid == NULL)
+    return FALSE;
 
   return(cvtStringToXmRenderTable(dpy, wid,
 				  XmNbuttonRenderTable, XmCButtonRenderTable,
@@ -3308,8 +3324,14 @@ CvtStringToLabelRenderTable(Display *dpy,
 			       XtPointer *converter_data) /* unused */
 {
   Widget wid;
+
+  if (dpy == NULL || args == NULL || args[0].addr == NULL ||
+      from == NULL || to == NULL)
+    return FALSE;
   
   wid = *(Widget *)args[0].addr;
+  if (wid == NULL)
+    return FALSE;
 
   return(cvtStringToXmRenderTable(dpy, wid,
 				  XmNlabelRenderTable, XmCLabelRenderTable,
@@ -3326,8 +3348,14 @@ CvtStringToTextRenderTable(Display *dpy,
 			      XtPointer *converter_data) /* unused */
 {
   Widget wid;
+
+  if (dpy == NULL || args == NULL || args[0].addr == NULL ||
+      from == NULL || to == NULL)
+    return FALSE;
   
   wid = *(Widget *)args[0].addr;
+  if (wid == NULL)
+    return FALSE;
 
   return(cvtStringToXmRenderTable(dpy, wid,
 				  XmNtextRenderTable, XmCTextRenderTable,
