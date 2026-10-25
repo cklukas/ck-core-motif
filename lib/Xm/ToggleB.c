@@ -2598,12 +2598,12 @@ ComputeSpace(
 	tb->primitive.highlight_thickness +
 	  tb->label.margin_height +
 	    tb->label.margin_top +
-	      ((tb->core.height - tb->label.margin_top
-		- tb->label.margin_bottom
-		- (2 * (tb->label.margin_height
-			+ tb->primitive.highlight_thickness
-			+ tb->primitive.shadow_thickness))
-		- tb->label.TextRect.height) / 2);
+	      (((int)tb->core.height - (int)tb->label.margin_top
+		- (int)tb->label.margin_bottom
+		- (2 * ((int)tb->label.margin_height
+			+ (int)tb->primitive.highlight_thickness
+			+ (int)tb->primitive.shadow_thickness))
+		- (int)tb->label.TextRect.height) / 2);
   
   if (LayoutIsRtoLP(tb))
     {
@@ -2616,12 +2616,12 @@ ComputeSpace(
 	  (needed_width == tb->core.width))
 	{
 	  if (tb->toggle.ind_on)
-	    tb->label.TextRect.x = tb->core.width -
-	      (tb->primitive.shadow_thickness +
-	       tb->primitive.highlight_thickness +
-	       tb->label.margin_width +
-	       tb->label.margin_right +
-	       tb->label.TextRect.width);
+	    tb->label.TextRect.x = (short)((int)tb->core.width -
+	      ((int)tb->primitive.shadow_thickness +
+	       (int)tb->primitive.highlight_thickness +
+	       (int)tb->label.margin_width +
+	       (int)tb->label.margin_right +
+	       (int)tb->label.TextRect.width));
 	}
     }
   else

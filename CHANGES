@@ -1,3 +1,10 @@
+ToggleButton ComputeSpace geometry bounds (2026-10-25)
+======================================================
+
+- Use signed arithmetic when recomputing label positions for undersized
+  ToggleButtons, preventing wrapped origins during redisplay; see
+  `docs/toggle-compute-space-geometry.md`.
+
 ToggleButton layout geometry bounds (2026-10-25)
 ================================================
 
