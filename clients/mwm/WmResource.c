@@ -427,9 +427,10 @@ void InitBuiltinSystemMenu(void)
                 " no-label  f.separator\n%s\n}",
                 defaultSystemMenuName, ResString, MovString, SizString,
                 MinString, MaxString, LowString, CloString);
-        if (dsm_length < 0)
-            dsm_length = 0;
-        dsm = XtMalloc((size_t)dsm_length + 1);
+        if (dsm_length < 0 || (size_t)dsm_length >= UINT_MAX)
+            dsm = NULL;
+        else
+            dsm = XtMalloc((Cardinal)dsm_length + 1);
         if (dsm == NULL)
         {
             Warning (((char *)GETMESSAGE(62, 21,

@@ -6,7 +6,9 @@ source = (Path(__file__).parents[2] / "clients" / "mwm" / "WmResource.c").read_t
 start = source.index("void InitBuiltinSystemMenu(void)")
 end = source.index("\n}", start) + 2
 region = source[start:end]
-assert "dsm = XtMalloc((size_t)dsm_length + 1);" in region
+assert "(size_t)dsm_length >= UINT_MAX" in region
+assert "dsm = XtMalloc((Cardinal)dsm_length + 1);" in region
+assert "dsm = XtMalloc((size_t)dsm_length + 1);" not in region
 assert "if (dsm == NULL)" in region
 assert "goto dsm_done;" in region
 assert "dsm_done:" in region
