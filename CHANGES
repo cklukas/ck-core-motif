@@ -18,6 +18,12 @@ Avatar initials geometry bounds (2026-10-26)
 - Bound long-initials text-width arithmetic before centering avatar fallback
   text; see `docs/avatar-initials-geometry-bounds.md`.
 
+Chip geometry bounds (2026-10-26)
+=================================
+
+- Bound chip label, pixmap, removal affordance, and vertical padding arithmetic
+  to the `Dimension` range; see `docs/chip-geometry-bounds.md`.
+
 WSM reply payload validation (2026-10-26)
 =========================================
 
