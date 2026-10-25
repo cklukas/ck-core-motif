@@ -1,3 +1,9 @@
+WSM workspace-property allocation failures (2026-10-25)
+=========================================================
+
+- Check and handle workspace-hint and workspace-list atom-array allocations
+  before copying or publishing them; see `docs/workspace-property-oom.md`.
+
 Mwm window-management request termination (2026-10-25)
 =========================================================
 

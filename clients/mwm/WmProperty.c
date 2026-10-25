@@ -1174,24 +1174,31 @@ Status GetWorkspaceHints (Display *display, Window window,
     DtWorkspaceHints *pWsHints;
     Atom *paWs;
 
+    *ppWsAtoms = NULL;
+    *pCount = 0;
+    *pbAll = False;
     rcode = _DtWsmGetWorkspaceHints(display, window, &pWsHints);
     if (rcode == Success)
     {
 	if (pWsHints->flags & DT_WORKSPACE_HINTS_WORKSPACES)
 	{
-	    paWs = (Atom *) 
-		XtMalloc (pWsHints->numWorkspaces * sizeof(Atom));
-	    memcpy (paWs, 
-		    pWsHints->pWorkspaces, 
-		    (pWsHints->numWorkspaces * sizeof(Atom)));
+	    if (pWsHints->numWorkspaces > UINT_MAX / sizeof(Atom))
+	    {
+		_DtWsmFreeWorkspaceHints (pWsHints);
+		return (BadAlloc);
+	    }
+	    paWs = (Atom *)XtMalloc
+		((Cardinal)(pWsHints->numWorkspaces * sizeof(Atom)));
+	    if (paWs == NULL)
+	    {
+		_DtWsmFreeWorkspaceHints (pWsHints);
+		return (BadAlloc);
+	    }
+	    memcpy (paWs, pWsHints->pWorkspaces,
+		    pWsHints->numWorkspaces * sizeof(Atom));
 
 	    *pCount = pWsHints->numWorkspaces;
 	    *ppWsAtoms = paWs;
-	}
-	else
-	{
-	    *pCount = 0;
-	    *ppWsAtoms = NULL;
 	}
 
 	if ((pWsHints->flags & DT_WORKSPACE_HINTS_WSFLAGS) &&
@@ -1298,8 +1305,19 @@ SetWorkspaceListProperty (WmScreenData *pSD)
     Atom *pWsList;
     int count;
 
-    pWsList = (Atom *) 
-	XtMalloc (pSD->numWorkspaces * sizeof(Atom));
+    if (pSD->numWorkspaces < 0 ||
+        (size_t)pSD->numWorkspaces > UINT_MAX / sizeof(Atom))
+    {
+	Warning ("Workspace list is too large");
+	return;
+    }
+    pWsList = (Atom *)XtMalloc
+	((Cardinal)((size_t)pSD->numWorkspaces * sizeof(Atom)));
+    if (pWsList == NULL)
+    {
+	Warning ("Insufficient memory for workspace list");
+	return;
+    }
 
     pws = pSD->pWS;
     for (count = 0; count < pSD->numWorkspaces; count++)
