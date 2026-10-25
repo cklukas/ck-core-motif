@@ -6907,3 +6907,11 @@ DragUnder region geometry bounds (2026-10-25)
   `docs/dragunder-geometry-bounds.md`.
 
 DragUnder pixmap metadata guards (2026-10-25)
+Notebook pixmap binding metadata (2026-10-25)
+=============================================
+
+- Draw valid uncached binding pixmaps by validating resolved depth rather than
+  treating `XmeGetPixmapData`'s cache-status Boolean as an error; see
+  `docs/notebook-pixmap-binding.md`.
+
+DragUnder region geometry bounds (2026-10-25)

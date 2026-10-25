@@ -4503,7 +4503,7 @@ DrawPixmapBinding (
     Dimension height,
     Pixmap pixmap)
 {
-    int depth;
+    int depth = 0;
     int x_origin, y_origin;
     XGCValues values;
     XtGCMask mask;
@@ -4513,8 +4513,10 @@ DrawPixmapBinding (
 	return;
 
     /* get Pixmap depth */
-    if (!XmeGetPixmapData(XtScreen(nb), pixmap,
-			 NULL, &depth, NULL, NULL, NULL, NULL, NULL, NULL))
+	XmeGetPixmapData(XtScreen(nb), pixmap,
+			 NULL, &depth, NULL, NULL, NULL, NULL, NULL, NULL);
+
+    if (depth <= 0)
 	return;
 
     /* creating the gc */
