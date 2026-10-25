@@ -1380,7 +1380,7 @@ CvtStringToXmStringTable(
   int	  str_no, table_size;
   Boolean after_delimiter = False;
 
-  if (from_val->addr == NULL)
+  if (from_val == NULL || from_val->addr == NULL || to_val == NULL)
     return FALSE;
 
   s = (char *) from_val->addr;
@@ -1521,7 +1521,8 @@ CvtStringToStringTable(
             int csize;
             Boolean after_comma = False;
 
-    if(    (p = from_val->addr) == NULL    )
+    if (from_val == NULL || to_val == NULL ||
+        (p = from_val->addr) == NULL)
     {   return( False) ;
         } 
     table = (String *) XtMalloc( sizeof( String) * size) ;
@@ -1702,7 +1703,8 @@ CvtStringToCardinalList(
     int			crd_array_count = 0;
     unsigned long	new_element;
 
-    if ((p = from_val->addr) == NULL)
+    if (from_val == NULL || to_val == NULL ||
+        (p = from_val->addr) == NULL)
         return(False);
 
     crd_array = (Cardinal *)XtCalloc

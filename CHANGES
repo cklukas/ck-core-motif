@@ -1,3 +1,9 @@
+Table converter input validation (2026-10-25)
+===============================================
+
+- Validate source and destination values before string-table, `XmString`
+  table, and cardinal-list conversion; see `docs/table-converter-inputs.md`.
+
 Numeric resource-converter input validation (2026-10-25)
 =========================================================
 
