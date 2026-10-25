@@ -5767,6 +5767,12 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+Container cell-growth Xt width (2026-10-25)
+============================================
+
+- Check Container cell-grid growth against Xt's `Cardinal` allocation width
+  before `XtRealloc`; see `docs/container-cell-growth.md`.
+
 TabBox geometry reallocation casts (2026-10-25)
 ===============================================
 

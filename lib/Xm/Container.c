@@ -6513,11 +6513,12 @@ LayoutSpatial(
         if (new_cell_count > cw->container.cell_count)
           {
             old_cell_count = cw->container.cell_count;
-            if ((size_t)new_cell_count > SIZE_MAX / sizeof(*new_cells))
+            if ((size_t)new_cell_count > SIZE_MAX / sizeof(*new_cells) ||
+                (size_t)new_cell_count > UINT_MAX / sizeof(*new_cells))
                 return;
             new_cells = (int *)XtRealloc((char *)cw->container.cells,
-                                         (size_t)new_cell_count *
-                                         sizeof(*new_cells));
+                                         (Cardinal)((size_t)new_cell_count *
+                                                    sizeof(*new_cells)));
             if (new_cells == NULL)
                 return;
             for (i = old_cell_count; i < new_cell_count; i++)
