@@ -308,6 +308,7 @@ GetUseableText(Display *display, XmString xmstring, char **buffer,
     _XmStringContextRec stack_context;
     XTextProperty text_prop_return;
     char *text = NULL, *final_string = NULL, *text_item=NULL, *compound_text;
+    char *new_final_string;
     unsigned char return_status;
     int result;
     size_t size_so_far = 1; /* initialized for the ending NULL */
@@ -348,7 +349,15 @@ GetUseableText(Display *display, XmString xmstring, char **buffer,
 	    return(XNoMemory);
 	  }
 	size_so_far += text_length;
-	final_string = (char *)XtRealloc(final_string, size_so_far + 1);
+	new_final_string = (char *)XtRealloc(final_string, size_so_far + 1);
+	if (new_final_string == NULL)
+	  {
+	    XtFree(text);
+	    XtFree(final_string);
+	    _XmStringContextFree(&stack_context);
+	    return(XNoMemory);
+	  }
+	final_string = new_final_string;
 	final_string[0] = '\0';
 	strcat(final_string, text);
 	XtFree(text);
