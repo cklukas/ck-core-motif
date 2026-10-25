@@ -979,6 +979,7 @@ EXTRA_DIST += tests/automated/check-mwm-menu-pane-name-allocation.py docs/mwm-me
 EXTRA_DIST += tests/automated/check-mwm-nls-string-allocation.py docs/mwm-nls-string-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-workspace-string-allocation.py docs/mwm-workspace-string-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-error-format-allocation.py docs/mwm-error-format-allocation.md
+EXTRA_DIST += tests/automated/check-mwm-backdrop-path-allocation.py docs/mwm-backdrop-path-allocation.md
 
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 

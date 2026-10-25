@@ -11442,6 +11442,12 @@ MWM X-error format allocation width (2026-10-25)
 - Check DEBUG X-error format lengths before copying them into Xt storage; see
   `docs/mwm-error-format-allocation.md`.
 
+MWM backdrop-request path allocation (2026-10-25)
+==================================================
+
+- Check WSM backdrop-request path lengths before Xt allocation; see
+  `docs/mwm-backdrop-path-allocation.md`.
+
 MWM per-screen display allocation width (2026-10-25)
 =====================================================
 
