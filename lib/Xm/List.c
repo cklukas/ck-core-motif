@@ -3324,12 +3324,13 @@ AddInternalElements(XmListWidget lw,
    * NULL without freeing its input, so assigning it directly would lose the
    * list and the following insertion move would dereference NULL. */
   if (lw->list.itemCount < 0 ||
-      (size_t)lw->list.itemCount > SIZE_MAX / sizeof(ElementPtr))
+      (size_t)lw->list.itemCount > SIZE_MAX / sizeof(ElementPtr) ||
+      (size_t)lw->list.itemCount > UINT_MAX / sizeof(ElementPtr))
     return 0;
   {
     ElementPtr *new_internal = (ElementPtr *)XtRealloc(
         (char *)lw->list.InternalList,
-        sizeof(ElementPtr) * (size_t)lw->list.itemCount);
+        (Cardinal)(sizeof(ElementPtr) * (size_t)lw->list.itemCount));
     if (new_internal == NULL)
       return 0;
     lw->list.InternalList = new_internal;
@@ -3444,11 +3445,13 @@ DeleteInternalElements(XmListWidget lw,
 
   if (lw->list.itemCount)
     {
-      if ((size_t)lw->list.itemCount <= SIZE_MAX / sizeof(ElementPtr))
+      if ((size_t)lw->list.itemCount <= SIZE_MAX / sizeof(ElementPtr) &&
+          (size_t)lw->list.itemCount <= UINT_MAX / sizeof(ElementPtr))
 	{
           ElementPtr *new_internal = (ElementPtr *)XtRealloc(
               (char *)lw->list.InternalList,
-              sizeof(ElementPtr) * (size_t)lw->list.itemCount);
+              (Cardinal)(sizeof(ElementPtr) *
+                         (size_t)lw->list.itemCount));
           if (new_internal != NULL)
             lw->list.InternalList = new_internal;
 	}
@@ -3553,11 +3556,13 @@ DeleteInternalElementPositions(XmListWidget  lw,
 
   if (lw->list.itemCount)
     {
-      if ((size_t)lw->list.itemCount <= SIZE_MAX / sizeof(ElementPtr))
+      if ((size_t)lw->list.itemCount <= SIZE_MAX / sizeof(ElementPtr) &&
+          (size_t)lw->list.itemCount <= UINT_MAX / sizeof(ElementPtr))
 	{
 	  ElementPtr *new_internal = (ElementPtr *)XtRealloc(
 	      (char *)lw->list.InternalList,
-	      sizeof(ElementPtr) * (size_t)lw->list.itemCount);
+              (Cardinal)(sizeof(ElementPtr) *
+                         (size_t)lw->list.itemCount));
 	  if (new_internal != NULL)
 	    lw->list.InternalList = new_internal;
 	}

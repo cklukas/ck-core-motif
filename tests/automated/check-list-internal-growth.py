@@ -7,6 +7,8 @@ end = source.index("\n}\n", start) + 2
 body = source[start:end]
 
 assert "SIZE_MAX / sizeof(ElementPtr)" in body
+assert "UINT_MAX / sizeof(ElementPtr)" in body
+assert "(Cardinal)(sizeof(ElementPtr) * (size_t)lw->list.itemCount)" in body
 assert "ElementPtr *new_internal" in body
 assert "if (new_internal == NULL)" in body
 assert "lw->list.InternalList = new_internal;" in body

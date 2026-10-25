@@ -10667,6 +10667,13 @@ Legacy charset canonicalization allocation guards (2026-10-25)
   strings, returning `NULL` on failure; see
   `docs/charset-canonicalize-allocation.md`.
 
+Bound List internal-array allocation widths (2026-10-26)
+=========================================================
+
+- Apply Xt `Cardinal` byte-size checks and explicit allocation widths to List
+  internal insertion and deletion paths; see
+  `docs/list-internal-growth.md`.
+
 Bound traversal row allocation widths (2026-10-26)
 ==================================================
 
