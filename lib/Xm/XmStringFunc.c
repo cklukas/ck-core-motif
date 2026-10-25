@@ -290,6 +290,8 @@ XmStringTableToXmString(XmStringTable  table,
         return(NULL);
       }
       str = XmStringConcatAndFree(tmp2, copied_break);
+      if (str == NULL)
+        return(NULL);
 
       tmp1 = str;
     }
