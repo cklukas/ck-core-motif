@@ -268,7 +268,7 @@ XmStringTableToXmString(XmStringTable  table,
 {
   /* Note: this is a very expensive way to do this.  Fix for Beta */
   Cardinal	i;
-  XmString	str = NULL, tmp1, tmp2;
+  XmString	str = NULL, tmp1, tmp2, copied_break;
 
   if ((table == NULL) || (count == 0)) {
     return(NULL);
@@ -284,7 +284,12 @@ XmStringTableToXmString(XmStringTable  table,
       tmp2 = XmStringConcatAndFree(tmp1, XmStringCopy(table[i]));
       if (tmp2 == NULL)
         return(NULL);
-      str = XmStringConcatAndFree(tmp2, XmStringCopy(break_comp));
+      copied_break = break_comp ? XmStringCopy(break_comp) : NULL;
+      if (break_comp != NULL && copied_break == NULL) {
+        XmStringFree(tmp2);
+        return(NULL);
+      }
+      str = XmStringConcatAndFree(tmp2, copied_break);
 
       tmp1 = str;
     }
