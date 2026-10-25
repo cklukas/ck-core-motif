@@ -1538,7 +1538,17 @@ _XmGetDefaultGlyphPixmap(
 {
     XmScreen          xmScreen;
 
+    if (screen == NULL) {
+        if (width) *width = 0;
+        if (height) *height = 0;
+        return None;
+    }
     xmScreen = (XmScreen) XmGetXmScreen(screen);
+    if (xmScreen == NULL) {
+        if (width) *width = 0;
+        if (height) *height = 0;
+        return None;
+    }
 
     if (width) *width = xmScreen->screen.default_glyph_pixmap_width ;
     if (height) *height = xmScreen->screen.default_glyph_pixmap_height ;

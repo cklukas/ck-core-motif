@@ -10385,6 +10385,12 @@ Screen per-screen getter validation (2026-10-25)
 - Validate screen/widget state in color, bitmap-model, and insensitive-stipple
   getters; see `docs/screen-per-screen-getters.md`.
 
+Screen default-glyph input validation (2026-10-25)
+===================================================
+
+- Return `None` and clear optional dimensions when default-glyph lookup has no
+  screen; see `docs/screen-default-glyph-input.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
