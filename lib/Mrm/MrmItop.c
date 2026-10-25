@@ -124,7 +124,7 @@ UrmIdbOpenFileRead (String			name,
 		    char			*fname_return)
 {
 
-  if ( file_id_return == NULL )
+  if ( name == NULL || file_id_return == NULL )
     return MrmFAILURE;
 
   /*
