@@ -545,3 +545,5 @@ EXTRA_DIST += tests/automated/check-mrm-icon-loader-inputs.py docs/mrm-icon-load
 EXTRA_DIST += tests/automated/check-xm-pixmap-hotspot-output.py docs/xm-pixmap-hotspot-output.md
 
 EXTRA_DIST += tests/automated/check-xm-get-image-output.py docs/xm-get-image-output.md
+
+EXTRA_DIST += tests/automated/check-xm-get-image-screen.py docs/xm-get-image-screen-validation.md

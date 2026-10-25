@@ -1,3 +1,9 @@
+Xm image-cache screen validation (2026-10-25)
+=================================================
+
+- Reject null screens before image-cache display access, avoiding a null
+  `DisplayOfScreen` dereference; see `docs/xm-get-image-screen-validation.md`.
+
 Xm image-cache output validation (2026-10-25)
 ================================================
 
