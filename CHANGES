@@ -1,4 +1,9 @@
 2026-10-25
+	* Guard string-table resource conversion buffers and item growth, rolling
+	  back partial results on conversion or output-size failure; see
+	  docs/string-table-converter-allocation.md.
+
+2026-10-25
 	* Guard Cardinal-list converter allocations and route initial/growth
 	  failures through the existing cleanup path; see
 	  docs/cardinal-list-converter-allocation.md.
