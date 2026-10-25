@@ -8411,3 +8411,9 @@ Accessibility D-Bus memo allocation (2026-10-27)
 
 - Check memo-table resize and record allocations, propagating failure to memo
   callers instead of dereferencing null accessibility transport state.
+
+Font family encoding allocation (2026-10-27)
+=============================================
+
+- Check initial family encoding-table allocation and leave an empty table on
+  failure so later font enumeration treats the family as unavailable safely.

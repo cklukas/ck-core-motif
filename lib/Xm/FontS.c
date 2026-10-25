@@ -1266,6 +1266,10 @@ FillNewFamily(FamilyInfo *fam, FontData *font)
     fam->encoding_alloc = NUM_BUTTONS;
     fam->encodings = (XrmQuark *) XtCalloc(fam->encoding_alloc,
 					   sizeof(XrmQuark));
+    if (fam->encodings == NULL) {
+	fam->encoding_alloc = 0;
+	return;
+    }
     fam->encodings[0] = fam->encoding_alloc;
 }
 
