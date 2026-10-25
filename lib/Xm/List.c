@@ -5820,11 +5820,19 @@ DefaultAction(XmListWidget lw,
 	(XmString *)ALLOCATE_LOCAL(sizeof(XmString) * SLcount);
       cb.selected_item_positions =
 	(int *)ALLOCATE_LOCAL(sizeof(int) * SLcount);
-      for (i = 0; i < SLcount; i++)
+      if (cb.selected_items == NULL || cb.selected_item_positions == NULL)
 	{
-	  cb.selected_items[i] = XmStringCopy(lw->list.selectedItems[i]);
-	  cb.selected_item_positions[i] = lw->list.selectedPositions[i];
+	  DEALLOCATE_LOCAL((char *)cb.selected_items);
+	  DEALLOCATE_LOCAL((char *)cb.selected_item_positions);
+	  cb.selected_items = NULL;
+	  cb.selected_item_positions = NULL;
 	}
+      else
+	for (i = 0; i < SLcount; i++)
+	  {
+	    cb.selected_items[i] = XmStringCopy(lw->list.selectedItems[i]);
+	    cb.selected_item_positions[i] = lw->list.selectedPositions[i];
+	  }
     }
   cb.selected_item_count = SLcount;
   cb.auto_selection_type = lw->list.AutoSelectionType;
@@ -5832,8 +5840,9 @@ DefaultAction(XmListWidget lw,
   XtCallCallbackList((Widget) lw, lw->list.DefaultCallback, &cb);
 
   lw->list.AutoSelectionType = XmAUTO_UNSET;
-  for (i = 0; i < SLcount; i++)
-    XmStringFree(cb.selected_items[i]);
+  if (cb.selected_items)
+    for (i = 0; i < SLcount; i++)
+	  if (cb.selected_items[i]) XmStringFree(cb.selected_items[i]);
   DEALLOCATE_LOCAL((char*)cb.selected_items);
   DEALLOCATE_LOCAL((char*)cb.selected_item_positions);
   XmStringFree(cb.item);
@@ -5906,11 +5915,19 @@ ClickElement(XmListWidget lw,
 	    (XmString *)ALLOCATE_LOCAL(sizeof(XmString) * SLcount);
 	  cb.selected_item_positions =
 	    (int *)ALLOCATE_LOCAL(sizeof(int) * SLcount);
-	  for (i = 0; i < SLcount; i++)
+	  if (cb.selected_items == NULL || cb.selected_item_positions == NULL)
 	    {
-	      cb.selected_items[i] = XmStringCopy(lw->list.selectedItems[i]);
-	      cb.selected_item_positions[i] = lw->list.selectedPositions[i];
+	      DEALLOCATE_LOCAL((char *)cb.selected_items);
+	      DEALLOCATE_LOCAL((char *)cb.selected_item_positions);
+	      cb.selected_items = NULL;
+	      cb.selected_item_positions = NULL;
 	    }
+	  else
+	    for (i = 0; i < SLcount; i++)
+	      {
+		cb.selected_items[i] = XmStringCopy(lw->list.selectedItems[i]);
+		cb.selected_item_positions[i] = lw->list.selectedPositions[i];
+	      }
 	}
     }
   /* BEGIN OSF Fix CR 4576 */

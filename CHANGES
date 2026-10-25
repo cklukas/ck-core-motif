@@ -6155,3 +6155,9 @@ List selection rebuild allocation failures (2026-10-25)
 - Check selected-item and selected-position rebuild allocations and reset the
   affected selection state on failure; see
   `docs/list-selection-rebuild-allocation.md`.
+List selection callback allocation failures (2026-10-25)
+==========================================================
+
+- Check both temporary arrays used by multiple and extended List selection
+  callbacks before populating them; see
+  `docs/list-selection-callback-allocation.md`.
