@@ -11502,6 +11502,12 @@ MWM client-command name allocation width (2026-10-25)
 - Check quoted client-command name lengths against Xt's allocation width;
   see `docs/mwm-label-parse-allocation.md`.
 
+MWM CCI label-prefix allocation width (2026-10-25)
+====================================================
+
+- Check combined CCI label-prefix lengths against Xt's allocation width; see
+  `docs/mwm-cci-label-prefix.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 

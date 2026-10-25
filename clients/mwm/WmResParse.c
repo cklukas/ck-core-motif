@@ -6403,9 +6403,10 @@ static Boolean PrefixMenuItemLabel (MenuItem *menuItem, const char *prefix)
   if (menuItem == NULL || menuItem->label == NULL)
     return (FALSE);
   labelLength = strlen(menuItem->label);
-  if (labelLength > SIZE_MAX - prefixLength - 1)
+  if (prefixLength > SIZE_MAX - labelLength - 1 ||
+      prefixLength + labelLength + 1 > UINT_MAX)
     return (FALSE);
-  replacement = (String)XtMalloc(prefixLength + labelLength + 1);
+  replacement = (String)XtMalloc((Cardinal)(prefixLength + labelLength + 1));
   if (replacement == NULL)
     return (FALSE);
   memcpy(replacement, prefix, prefixLength);
