@@ -33,6 +33,7 @@ static char rcsid[] = "$TOG: Xmos.c /main/33 1998/01/21 11:07:25 csn $"
 
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 
 #ifdef __cplusplus
 extern "C" { /* some 'locale.h' do not have prototypes (sun) */
@@ -160,11 +161,17 @@ FreeDirCache(void)
 static Boolean
 ResetCache(char *qDirName)
 {   
+  size_t name_len;
+
   FreeDirCache();
 
   if (qDirName == NULL)
     return False;
-  dirCacheNameLen = strlen(qDirName);
+  name_len = strlen(qDirName);
+  if (name_len > SIZE_MAX - MAX_USER_NAME_LEN - 1 ||
+      name_len > UINT_MAX - MAX_USER_NAME_LEN - 1)
+    return False;
+  dirCacheNameLen = (unsigned)name_len;
   dirCacheName = XtMalloc(dirCacheNameLen + MAX_USER_NAME_LEN + 1);
   if (dirCacheName == NULL) {
     dirCacheNameLen = 0;

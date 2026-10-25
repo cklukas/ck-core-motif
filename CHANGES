@@ -9896,6 +9896,13 @@ Directory-cache backing-state guard (2026-10-25)
   buffer is unavailable, avoiding a null write after reset failure; see
   `docs/dir-cache-state.md`.
 
+Directory-cache reset bounds (2026-10-25)
+========================================
+
+- Bound qualified-directory sizing before narrowing and adding the cache
+  suffix budget, rejecting oversized paths without allocation wraparound; see
+  `docs/dir-cache-reset-bounds.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
