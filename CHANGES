@@ -10361,6 +10361,12 @@ Screen null-cursor input validation (2026-10-25)
 - Return `None` for missing widget or screen inputs in `XmeGetNullCursor`;
   see `docs/screen-null-cursor-input.md`.
 
+Screen menu-cursor input validation (2026-10-25)
+=================================================
+
+- Validate display, screen, and `XmScreen` state in menu-cursor setters and
+  getters; see `docs/screen-menu-cursor-input.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

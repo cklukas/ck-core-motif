@@ -1263,6 +1263,8 @@ XmSetMenuCursor(
     XmScreen          xmScreen;
     Screen            *scr;
     int i ;
+    if (display == NULL)
+        return;
     _XmDisplayToAppContext(display);
 
     /* This function has no screen parameter, so we have to set the
@@ -1277,7 +1279,8 @@ XmSetMenuCursor(
       scr = ScreenOfDisplay(display, i);
 
       xmScreen = (XmScreen) XmGetXmScreen(scr);
-      xmScreen->screen.menuCursor = cursorId ;
+      if (xmScreen != NULL)
+        xmScreen->screen.menuCursor = cursorId ;
     }
     _XmAppUnlock(app);
 }
@@ -1289,12 +1292,18 @@ XmGetMenuCursor(
 {
    XmScreen           xmScreen;
    Cursor	      cursor;
+   if (display == NULL)
+     return None;
    _XmDisplayToAppContext(display);
 
    /* get the default screen menuCursor since there is no
       other information available to this function */
    _XmAppLock(app);
    xmScreen = (XmScreen) XmGetXmScreen(DefaultScreenOfDisplay(display));
+   if (xmScreen == NULL) {
+     _XmAppUnlock(app);
+     return None;
+   }
    cursor = xmScreen->screen.menuCursor;
    _XmAppUnlock(app);
    return cursor;
@@ -1307,7 +1316,11 @@ _XmGetMenuCursorByScreen(
 {
    XmScreen           xmScreen;
 
+   if (screen == NULL)
+     return None;
    xmScreen = (XmScreen) XmGetXmScreen(screen);
+   if (xmScreen == NULL)
+     return None;
    return(xmScreen->screen.menuCursor);
 }
 
@@ -1317,7 +1330,11 @@ _XmGetMoveOpaqueByScreen(
 {
    XmScreen           xmScreen;
 
+   if (screen == NULL)
+     return False;
    xmScreen = (XmScreen) XmGetXmScreen(screen);
+   if (xmScreen == NULL)
+     return False;
    return(xmScreen->screen.moveOpaque);
 }
 
