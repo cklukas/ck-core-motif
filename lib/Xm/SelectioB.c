@@ -42,6 +42,8 @@ static char rcsid[] = "$TOG: SelectioB.c /main/19 1997/06/18 17:42:11 samborn $"
 #include <stdlib.h>
 #endif
 
+#include <stdint.h>
+
 #include <Xm/AccTextT.h>
 #include <Xm/ActivatableT.h>
 #include <Xm/ArrowB.h>
@@ -2150,11 +2152,20 @@ XmCreateSelectionDialog(
 {
     ArgList		_sb_args;	/*  arglist for sb	*/
     Widget w;
+
+    if (sb_n == (Cardinal)~(Cardinal)0 ||
+        (size_t)sb_n >= SIZE_MAX / sizeof(Arg) ||
+        sb_n >= (Cardinal)(UINT_MAX / sizeof(Arg)) ||
+        (sb_n != 0 && sb_args == NULL))
+	return NULL;
     
     /*  allocate arglist, copy args, add dialog type arg
      */
     _sb_args = (ArgList) XtMalloc (sizeof (Arg) * (sb_n + 1));
-    memcpy(_sb_args, sb_args, sizeof (Arg) * sb_n);
+    if (_sb_args == NULL)
+	return NULL;
+    if (sb_n != 0)
+        memcpy(_sb_args, sb_args, sizeof (Arg) * (size_t)sb_n);
     XtSetArg (_sb_args[sb_n], XmNdialogType, XmDIALOG_SELECTION);  sb_n++;
 
     /*  create SelectionBoxDialog, free args, return */
@@ -2179,11 +2190,20 @@ XmCreatePromptDialog(
 {
     ArgList		_sb_args;	/*  arglist for sb	*/
     Widget w;
+
+    if (sb_n == (Cardinal)~(Cardinal)0 ||
+        (size_t)sb_n >= SIZE_MAX / sizeof(Arg) ||
+        sb_n >= (Cardinal)(UINT_MAX / sizeof(Arg)) ||
+        (sb_n != 0 && sb_args == NULL))
+	return NULL;
     
     /*  allocate arglist, copy args, add dialog type arg
      */
     _sb_args = (ArgList) XtMalloc (sizeof (Arg) * (sb_n + 1));
-    memcpy(_sb_args, sb_args, sizeof (Arg) * sb_n);
+    if (_sb_args == NULL)
+	return NULL;
+    if (sb_n != 0)
+        memcpy(_sb_args, sb_args, sizeof (Arg) * (size_t)sb_n);
     XtSetArg (_sb_args[sb_n], XmNdialogType, XmDIALOG_PROMPT);  sb_n++;
 
     /*  create SelectionBoxDialog, free args, return */

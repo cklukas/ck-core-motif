@@ -1,3 +1,11 @@
+Selection and prompt dialog argument allocation bounds (2026-10-28)
+=====================================================================
+
+- Reject unrepresentable temporary argument-list byte sizes in
+  `XmCreateSelectionDialog` and `XmCreatePromptDialog` before multiplication
+  or allocation, and safely accept empty null argument lists; see
+  `docs/selection-dialog-argument-allocation.md`.
+
 Command and message-dialog argument allocation bounds (2026-10-28)
 ====================================================================
 
