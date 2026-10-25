@@ -40,6 +40,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <limits.h>
 #include <string.h>
 #include <ctype.h>
 #include <X11/StringDefs.h>
@@ -911,6 +913,12 @@ XmSimpleSpinBoxAddItem(	Widget		ssb_w,
     else
       pos--;
 
+    if (ssb_p->num_values == INT_MAX ||
+        (size_t)ssb_p->num_values >
+          (SIZE_MAX - sizeof(XmString)) / sizeof(XmString)) {
+      _XmAppUnlock(app);
+      return;
+    }
     new_nvalues = ssb_p->num_values + 1;
 
     /*
