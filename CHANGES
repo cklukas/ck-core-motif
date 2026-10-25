@@ -6923,3 +6923,11 @@ CascadeButton pixmap binding metadata (2026-10-25)
   see `docs/cascade-pixmap-binding.md`.
 
 Notebook pixmap binding metadata (2026-10-25)
+ToggleButton redisplay bounds (2026-10-25)
+==========================================
+
+- Use signed arithmetic before subtracting redisplay margins in ToggleButton
+  and ToggleButtonGadget, preventing wrapped clear rectangles for tiny
+  widgets; see `docs/toggle-redisplay-bounds.md`.
+
+CascadeButton pixmap binding metadata (2026-10-25)
