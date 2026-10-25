@@ -1454,8 +1454,10 @@ cvtCTsegment(ct_context *ctx,
   
   if (ctx->encoding) {
     if (ctx->encoding + ctx->encodinglen != item) {
-      octets = 
+      octets =
 	(OctetPtr)XtMalloc((size_t)total_length * sizeof(Octet));
+      if (octets == NULL)
+        return NULL;
       memcpy((char *)octets, (char *)ctx->encoding, ctx->encodinglen);
       memcpy((char *)(octets + ctx->encodinglen), (char *)item, length);
       free_octets = True;

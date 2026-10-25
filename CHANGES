@@ -5479,3 +5479,9 @@ Guard extended compound-text segment buffers (2026-10-25)
 
 - Check mirrored charset/text temporary allocations and release partial
   buffers on failure; see `docs/motif-resencod-segments.md`.
+
+Guard compound-text encoding concatenation buffers (2026-10-25)
+==================================================================
+
+- Check temporary octet allocation before combining registered encodings; see
+  `docs/motif-resencod-octets.md`.
