@@ -26,6 +26,44 @@ static Pixel gallery_named_color(Widget widget, const char *name, Pixel fallback
         ? screen.pixel : fallback;
 }
 
+static void gallery_toolbar_icons(Widget widget, Pixmap icons[4])
+{
+    static const unsigned char open_bits[32] = {
+        0x00,0x00,0xfc,0x1f,0x04,0x10,0x04,0x10,
+        0x04,0x10,0x04,0x10,0x04,0x10,0xfc,0x1f,
+        0x04,0x10,0x04,0x10,0x04,0x10,0x04,0x10,
+        0x04,0x10,0x04,0x10,0xfc,0x1f,0x00,0x00
+    };
+    static const unsigned char save_bits[32] = {
+        0xfc,0x1f,0x04,0x10,0x04,0x10,0xfc,0x1f,
+        0x84,0x11,0x84,0x11,0x84,0x11,0xfc,0x1f,
+        0x04,0x10,0x04,0x10,0x04,0x10,0x04,0x10,
+        0x04,0x10,0x04,0x10,0x04,0x10,0xfc,0x1f
+    };
+    static const unsigned char print_bits[32] = {
+        0x00,0x00,0xfc,0x1f,0x04,0x10,0xfc,0x1f,
+        0x04,0x10,0x04,0x10,0xfc,0x1f,0x04,0x10,
+        0xfc,0x1f,0x04,0x10,0x04,0x10,0xfc,0x1f,
+        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+    };
+    static const unsigned char undo_bits[32] = {
+        0x00,0x00,0x10,0x10,0x30,0x18,0x7c,0x1e,
+        0xfc,0x1f,0x7c,0x1e,0x30,0x18,0x10,0x10,
+        0x10,0x10,0x10,0x10,0x10,0x10,0x10,0x10,
+        0x10,0x10,0x10,0x10,0x10,0x10,0x10,0x10
+    };
+    Display *display = XtDisplay(widget);
+    Window root = RootWindowOfScreen(XtScreen(widget));
+    Pixel foreground = BlackPixelOfScreen(XtScreen(widget));
+    Pixel background = WhitePixelOfScreen(XtScreen(widget));
+    const unsigned char *bits[4] = {open_bits, save_bits, print_bits, undo_bits};
+    Cardinal i;
+    for (i = 0; i < 4; ++i)
+        icons[i] = XCreatePixmapFromBitmapData(display, root, (char *)bits[i],
+                                               16, 16, foreground, background,
+                                               DefaultDepthOfScreen(XtScreen(widget)));
+}
+
 /* GALLERY-EXAMPLE-BEGIN: shared-public-construction */
 static void
 gallery_attach_public_callback(Widget example, XtCallbackProc callback,
@@ -285,6 +323,11 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNwidth, 420, XmNheight, 48, NULL);
         XmToolbarSetActions(example, actions, 4);
+        {
+            Pixmap icons[4];
+            gallery_toolbar_icons(example, icons);
+            XmToolbarSetActionIcons(example, icons, 4);
+        }
         if (callback)
             XtAddCallback(example, XmNtoolbarActivateCallback, callback, client_data);
         XmStringFree(labels[0]); XmStringFree(labels[1]);

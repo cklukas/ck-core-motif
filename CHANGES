@@ -20,6 +20,9 @@ Toolbar gallery example (2026-10-27)
 - Populate the live Toolbar entry with Open, Save, Print, and Undo actions
   (including conventional shortcuts) through `XmToolbarSetActions`, instead
   of showing an empty manager surface.
+- Add the additive `XmToolbarSetActionIcons` API for borrowed pixmaps and use
+  four native 16x16 toolbar glyphs in the gallery without changing the legacy
+  `XmToolbarAction` layout.
 
 Gallery layout fixtures and TreeView coordinates (2026-10-27)
 ===============================================================

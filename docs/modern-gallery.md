@@ -30,7 +30,9 @@ real child controls; for example, TabStack shows selectable Overview, Details,
 and Activity pages.
 The Toolbar entry likewise uses real `XmToolbarAction` records for Open, Save,
 Print, and Undo, with their keyboard shortcuts visible through the native
-overflow-aware toolbar.
+overflow-aware toolbar.  Its visible actions also use native 16x16 pixmaps;
+the additive `XmToolbarSetActionIcons` API keeps those pixmaps borrowed so
+existing action-model callers remain source and ABI compatible.
 Layout-manager entries are populated with colored Header, Content, and Footer
 panels so their geometry is visible and inspectable rather than an empty frame.
 TreeView, DataGrid, and Calendar entries are also backed by small real models

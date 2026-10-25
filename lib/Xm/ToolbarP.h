@@ -25,6 +25,7 @@ typedef struct _XmToolbarStoredAction {
     XtPointer user_data;
     Widget button;
     Widget menu_button;
+    Pixmap icon;
     Boolean visible;
 } XmToolbarStoredAction;
 

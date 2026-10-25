@@ -39,6 +39,10 @@ Widget XmVaCreateToolbar(Widget parent, char *name, ...);
 Widget XmVaCreateManagedToolbar(Widget parent, char *name, ...);
 void XmToolbarSetActions(Widget widget, const XmToolbarAction *actions,
                          Cardinal count);
+/* Set optional borrowed icon pixmaps for the current actions.  A None entry
+ * keeps the normal text label; the toolbar does not take ownership. */
+void XmToolbarSetActionIcons(Widget widget, const Pixmap *icons,
+                             Cardinal count);
 Cardinal XmToolbarGetActionCount(Widget widget);
 Cardinal XmToolbarGetVisibleActionCount(Widget widget);
 Cardinal XmToolbarGetOverflowCount(Widget widget);

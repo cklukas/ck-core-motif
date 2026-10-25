@@ -479,6 +479,7 @@ void XmToolbarSetActions(Widget widget, const XmToolbarAction *actions,
         stored->overflowable = actions[i].overflowable;
         stored->priority = actions[i].priority;
         stored->user_data = actions[i].user_data;
+        stored->icon = None;
         stored->button = XtVaCreateManagedWidget(
             "action", xmPushButtonWidgetClass, widget, XmNlabelString, label,
             XmNborderWidth, 0, NULL);
@@ -492,6 +493,32 @@ void XmToolbarSetActions(Widget widget, const XmToolbarAction *actions,
     }
     toolbar->toolbar.action_count = count;
     toolbar->toolbar.laying_out = False;
+    layout(toolbar);
+    negotiate(toolbar);
+}
+
+void XmToolbarSetActionIcons(Widget widget, const Pixmap *icons,
+                             Cardinal count)
+{
+    XmToolbarWidget toolbar;
+    Cardinal i;
+    if (!widget || !XmIsToolbar(widget) || (count && !icons))
+        return;
+    toolbar = (XmToolbarWidget)widget;
+    if (count > toolbar->toolbar.action_count)
+        count = toolbar->toolbar.action_count;
+    for (i = 0; i < count; ++i) {
+        Arg args[2];
+        toolbar->toolbar.actions[i].icon = icons[i];
+        if (icons[i] != None && icons[i] != XmUNSPECIFIED_PIXMAP) {
+            XtSetArg(args[0], XmNlabelType, XmPIXMAP);
+            XtSetArg(args[1], XmNlabelPixmap, icons[i]);
+            XtSetValues(toolbar->toolbar.actions[i].button, args, 2);
+        } else {
+            XtSetArg(args[0], XmNlabelType, XmSTRING);
+            XtSetValues(toolbar->toolbar.actions[i].button, args, 1);
+        }
+    }
     layout(toolbar);
     negotiate(toolbar);
 }
