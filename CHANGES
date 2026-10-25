@@ -5054,3 +5054,10 @@ Frame shadow redisplay guards (2026-10-25)
 
 - Skip frame shadow drawing until its manager GCs, cached dimensions, and
   shadow thickness are valid; see `docs/frame-shadow-redisplay-guards.md`.
+
+Separator redisplay guards (2026-10-25)
+==============================================
+
+- Avoid separator drawing before realization, without its line GC, with
+  incomplete shadow GCs, or when highlight margins consume the widget; see
+  `docs/separator-redisplay-guards.md`.

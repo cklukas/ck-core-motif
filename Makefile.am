@@ -853,3 +853,4 @@ EXTRA_DIST += tests/automated/check-breadcrumb-bar-redisplay-guards.py docs/brea
 EXTRA_DIST += tests/automated/check-arrow-button-redisplay-guards.py docs/arrow-button-redisplay-guards.md
 EXTRA_DIST += tests/automated/check-arrow-button-gadget-redisplay-guards.py docs/arrow-button-gadget-redisplay-guards.md
 EXTRA_DIST += tests/automated/check-frame-shadow-redisplay-guards.py docs/frame-shadow-redisplay-guards.md
+EXTRA_DIST += tests/automated/check-separator-redisplay-guards.py docs/separator-redisplay-guards.md
