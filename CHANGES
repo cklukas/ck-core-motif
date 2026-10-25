@@ -1,3 +1,9 @@
+Representation-type lookup null validation (2026-10-25)
+=========================================================
+
+- Return `XmREP_TYPE_INVALID` for a missing name in `XmRepTypeGetId`, avoiding
+  an invalid string comparison; see `docs/reptype-getid-null.md`.
+
 Trait replacement ownership (2026-10-25)
 =========================================
 

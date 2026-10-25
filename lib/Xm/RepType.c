@@ -1605,6 +1605,8 @@ XmRepTypeGetId(
 {
     Cardinal Index ;
 
+    if (rep_type_name == NULL)
+	return XmREP_TYPE_INVALID;
 
     _XmProcessLock();
     /* First look in the statically defined lists */
