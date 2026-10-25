@@ -1,3 +1,9 @@
+List item deletion input validation (2026-10-25)
+=================================================
+
+- Reject null widgets and items before list item lookup; see
+  `docs/list-delete-item-inputs.md`.
+
 List add input validation (2026-10-25)
 =======================================
 

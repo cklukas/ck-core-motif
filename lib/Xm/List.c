@@ -8364,6 +8364,8 @@ XmListDeleteItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int item_pos;
+  if (w == NULL || item == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);

@@ -248,6 +248,7 @@ EXTRA_DIST += tests/automated/check-list-delete-copy-allocation.py docs/list-del
 EXTRA_DIST += tests/automated/check-scrolled-list-arg-merge.py docs/scrolled-list-arg-merge.md
 EXTRA_DIST += tests/automated/check-list-delete-inputs.py docs/list-delete-inputs.md
 EXTRA_DIST += tests/automated/check-list-add-inputs.py docs/list-add-inputs.md
+EXTRA_DIST += tests/automated/check-list-delete-item-inputs.py docs/list-delete-item-inputs.md
 EXTRA_DIST += tests/automated/check-accessibility-name-allocation.py docs/accessibility-name-allocation.md
 EXTRA_DIST += tests/automated/check-font-selector-buffer-allocation.py docs/font-selector-buffer-allocation.md
 EXTRA_DIST += tests/automated/check-font-selector-current-font-allocation.py docs/font-selector-current-font-allocation.md
