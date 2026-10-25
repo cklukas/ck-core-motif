@@ -1165,7 +1165,7 @@ CommitNewLocations(XmPanedWidget pw, Widget no_resize_child)
     register Widget *childP;
     XWindowChanges changes;
     XWindowChanges sep;
-    int	offset, sash_size;
+    int	offset, sash_size, sash_pos;
     
     if (!XmPaned_refiguremode(pw))
 	return;
@@ -1215,9 +1215,10 @@ CommitNewLocations(XmPanedWidget pw, Widget no_resize_child)
 		 */
 
 	        if(XmPaned_sash_indent(pw) < 0) {
-	            changes.x = (pw->core.width + XmPaned_sash_indent(pw) -
-				 sash->core.width -
-				 sash->core.border_width * 2);
+	            sash_pos = (int) pw->core.width +
+			    XmPaned_sash_indent(pw) - (int) sash->core.width -
+			    (int) sash->core.border_width * 2;
+	            changes.x = (Position) sash_pos;
 		} else {
 	            changes.x = XmPaned_sash_indent(pw);
 		}
@@ -1265,8 +1266,10 @@ CommitNewLocations(XmPanedWidget pw, Widget no_resize_child)
 			     sash->core.border_width); 
 		/* Motif style does - indent from right edge, pos from left */
 	        if(XmPaned_sash_indent(pw) < 0) {
-		    changes.y = pw->core.height + XmPaned_sash_indent(pw) -
-			sash->core.height - sash->core.border_width*2;
+		    sash_pos = (int) pw->core.height +
+			    XmPaned_sash_indent(pw) - (int) sash->core.height -
+			    (int) sash->core.border_width * 2;
+		    changes.y = (Position) sash_pos;
 		} 
 		else {
 		    changes.y = XmPaned_sash_indent(pw);

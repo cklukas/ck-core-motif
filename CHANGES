@@ -7349,6 +7349,13 @@ Paned child span bounds (2026-10-26)
 
 Notebook status geometry bounds (2026-10-26)
 ============================================
+Paned negative sash-indent bounds (2026-10-26)
+===============================================
+
+- Bound negative-indent sash coordinates in signed arithmetic, preventing
+  wrapped sash positions in narrow Paned containers; see
+  `docs/paned-sash-indent.md`.
+
 Paned right-to-left origin bounds (2026-10-26)
 ===============================================
 
