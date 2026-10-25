@@ -2760,7 +2760,7 @@ CalcEdgeValue(
 	  case LEFT:
 	    if (fwidth != NULL) {
 	      if ((att + RIGHT)->type == XmATTACH_NONE) {
-		temp1 = *fwidth - (GetFormOffset(fw, which, att));
+		temp1 = (int)*fwidth - GetFormOffset(fw, which, att);
 		temp2 = temp1 - size;
 		if (temp2 < 0) {
 		  *fwidth += abs(temp2);
@@ -2768,12 +2768,13 @@ CalcEdgeValue(
 		} else
 		  AssignValue(a, temp1);
 	      } else {
-		temp1 = *fwidth - (GetFormOffset(fw, which, att));
+		temp1 = (int)*fwidth - GetFormOffset(fw, which, att);
 		temp2 = Value(att + RIGHT);
 		temp3 = temp1 - temp2 - size;
 		if (temp3 < 0) {
 		  *fwidth += abs(temp3);
-		  AssignValue(a, (*fwidth - size - GetFormOffset(fw, which, att)));
+		  AssignValue(a, ((int)*fwidth - (int)size -
+				   GetFormOffset(fw, which, att)));
 		} else
 		  AssignValue(a, temp1);
 	      }
@@ -2783,7 +2784,7 @@ CalcEdgeValue(
 	  case BOTTOM:
 	    if (fheight != NULL) {
 	      if ((att + TOP)->type == XmATTACH_NONE) {
-		temp1 = *fheight - GetFormOffset(fw, which, att);
+		temp1 = (int)*fheight - GetFormOffset(fw, which, att);
 		temp2 = temp1 - size;
 		if (temp2 < 0) {
 		  *fheight += abs(temp2);
@@ -2791,12 +2792,13 @@ CalcEdgeValue(
 		} else
 		  AssignValue(a, temp1);
 	      } else {
-		temp1 = *fheight - GetFormOffset(fw, which, att);
+		temp1 = (int)*fheight - GetFormOffset(fw, which, att);
 		temp2 = Value(att + TOP);
 		temp3 = temp1 - temp2 - size;
 		if (temp3 < 0) {
 		  *fheight += abs(temp3);
-		  AssignValue(a, (*fheight - size - GetFormOffset(fw, which, att)));
+		  AssignValue(a, ((int)*fheight - (int)size -
+				   GetFormOffset(fw, which, att)));
 		} else
 		  AssignValue(a, temp1);
 	      }
@@ -3010,7 +3012,7 @@ CalcEdgeValue(
 	  case RIGHT:
 	    if (fwidth != NULL) {
 	      if ((att + LEFT)->type == XmATTACH_NONE) {
-		temp1 = *fwidth - (GetFormOffset(fw, which, att));
+		temp1 = (int)*fwidth - GetFormOffset(fw, which, att);
 		temp2 = temp1 - size;
 		if (temp2 < 0) {
 		  *fwidth += abs(temp2);
@@ -3018,12 +3020,13 @@ CalcEdgeValue(
 		} else
 		  AssignValue(a, temp1);
 	      } else {
-		temp1 = *fwidth - (GetFormOffset(fw, which, att));
+		temp1 = (int)*fwidth - GetFormOffset(fw, which, att);
 		temp2 = Value(att + LEFT);
 		temp3 = temp1 - temp2 - size;
 		if (temp3 < 0) {
 		  *fwidth += abs(temp3);
-		  AssignValue(a, (*fwidth - size - GetFormOffset(fw, which, att)));
+		  AssignValue(a, ((int)*fwidth - (int)size -
+				   GetFormOffset(fw, which, att)));
 		} else
 		  AssignValue(a, temp1);
 	      }
@@ -3033,7 +3036,7 @@ CalcEdgeValue(
 	  case BOTTOM:
 	    if (fheight != NULL) {
 	      if ((att + TOP)->type == XmATTACH_NONE) {
-		temp1 = *fheight - GetFormOffset(fw, which, att);
+		temp1 = (int)*fheight - GetFormOffset(fw, which, att);
 		temp2 = temp1 - size;
 		if (temp2 < 0) {
 		  *fheight += abs(temp2);
@@ -3041,12 +3044,13 @@ CalcEdgeValue(
 		} else
 		  AssignValue(a, temp1);
 	      } else {
-		temp1 = *fheight - GetFormOffset(fw, which, att);
+		temp1 = (int)*fheight - GetFormOffset(fw, which, att);
 		temp2 = Value(att + TOP);
 		temp3 = temp1 - temp2 - size;
 		if (temp3 < 0) {
 		  *fheight += abs(temp3);
-		  AssignValue(a, (*fheight - size - GetFormOffset(fw, which, att)));
+		  AssignValue(a, ((int)*fheight - (int)size -
+				   GetFormOffset(fw, which, att)));
 		} else
 		  AssignValue(a, temp1);
 	      }

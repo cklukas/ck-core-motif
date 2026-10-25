@@ -1,3 +1,10 @@
+Form measured-size geometry bounds (2026-10-25)
+===============================================
+
+- Perform signed arithmetic when subtracting attachment offsets from Form
+  measured dimensions, preventing wrapped child requests in narrow forms; see
+  `docs/form-measured-size-geometry.md`.
+
 Container cell geometry bounds (2026-10-25)
 ===========================================
 
