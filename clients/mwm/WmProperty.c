@@ -41,6 +41,8 @@ static char rcsid[] = "$TOG: WmProperty.c /main/7 1997/12/02 10:00:00 bill $"
 #include "WmGlobal.h"
 #include "WmICCC.h"
 #include <stdio.h>
+#include <stdint.h>
+#include <limits.h>
 #ifdef WSM
 #include <Dt/WsmP.h>
 #include <X11/Xatom.h>
@@ -1374,6 +1376,11 @@ SetWorkspaceInfoProperty (WmWorkspaceData *pWS)
      * Construct our property name
      */
     pch = WorkspacePropertyName (pWS);
+    if (pch == NULL)
+    {
+        Warning("Workspace property name is too long");
+        return;
+    }
 
     aProperty = XmInternAtom (DISPLAY, pch, FALSE);
 
@@ -1494,6 +1501,11 @@ DeleteWorkspaceInfoProperty (WmWorkspaceData *pWS)
      * Get the atom for the workspace property.
      */
     pch = WorkspacePropertyName (pWS);
+    if (pch == NULL)
+    {
+        Warning("Workspace property name is too long");
+        return;
+    }
 
     aProperty = XmInternAtom (DISPLAY, pch, FALSE);
 
@@ -1536,19 +1548,32 @@ WorkspacePropertyName (WmWorkspaceData *pWS)
 {
     char *pch;
     char *pchName;
-    int len;
-    Atom aProperty;
+    size_t prefixLength;
+    size_t nameLength;
+    size_t totalLength;
 
     /*
-     * Construct our property name
+     * Construct our property name.  XtMalloc takes a Cardinal, so reject
+     * lengths that cannot be represented before converting the size.
      */
     pchName = pWS->name;
-    len = strlen(pchName) + strlen (_XA_DT_WORKSPACE_INFO) + 4;
+    prefixLength = strlen(_XA_DT_WORKSPACE_INFO);
+    nameLength = strlen(pchName);
+    if (prefixLength > SIZE_MAX - nameLength ||
+        prefixLength + nameLength > SIZE_MAX - 2 ||
+        prefixLength + nameLength + 2 > UINT_MAX)
+    {
+        return (NULL);
+    }
+    totalLength = prefixLength + nameLength + 2;
 
-    pch = (char *) XtMalloc (len);
-    strcpy (pch, _XA_DT_WORKSPACE_INFO);
-    strcat (pch, "_");
-    strcat (pch, pchName);
+    pch = (char *) XtMalloc ((Cardinal) totalLength);
+    if (pch == NULL)
+    {
+        return (NULL);
+    }
+    (void)snprintf(pch, totalLength, "%s_%s", _XA_DT_WORKSPACE_INFO,
+                   pchName);
 
     return (pch);
 

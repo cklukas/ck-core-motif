@@ -1,3 +1,9 @@
+Mwm workspace property-name bounds (2026-10-25)
+=================================================
+
+- Check workspace-name size arithmetic and allocation limits before building
+  `_DT_WORKSPACE_INFO_*` atoms; see `docs/workspace-property-name-bounds.md`.
+
 Mwm workspace-info property width (2026-10-25)
 ===============================================
 
