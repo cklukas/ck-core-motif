@@ -1,4 +1,8 @@
 2026-10-25
+	* Guard Container detail-header cache growth and leave the existing cache
+	  unchanged when allocation fails; see docs/container-detail-header-guards.md.
+
+2026-10-25
 	* Validate tab-list copy offsets and ranges before calculating source
 	  addresses; see docs/tablist-copy-offset.md.
 

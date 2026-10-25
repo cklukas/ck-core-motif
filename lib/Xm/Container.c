@@ -1093,13 +1093,15 @@ GetDetailHeader(
 	   done in Destroy */
  	if (cw->container.cache_detail_heading)
  	    XtFree((char*)cw->container.cache_detail_heading) ;
+	 cw->container.cache_detail_heading = NULL;
 	  if ((size_t)icon_detail_header_count >
 	      (SIZE_MAX / sizeof(XmString)) - 1) {
-	      cw->container.cache_detail_heading = NULL;
 	      return;
 	  }
  	cw->container.cache_detail_heading = (XmStringTable) 
   	    XtMalloc(sizeof(XmString) * (icon_detail_header_count + 1)) ;
+	 if (cw->container.cache_detail_heading == NULL)
+	     return;
   	for (i=0; i < icon_detail_header_count; i++)
  	    cw->container.cache_detail_heading[i+1] = icon_detail_header[i] ;
  	cw->container.cache_detail_heading[0] = label_string ;
