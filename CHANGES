@@ -6061,3 +6061,10 @@ Guard Xft UTF-8 metric conversion (2026-10-25)
   release successful temporary buffers; see
   `docs/xft-utf8-metrics-allocation.md` and its focused source check.
 
+Guard Xft UTF-8 drawing conversion (2026-10-25)
+================================================
+
+- Skip core-font drawing when UTF-8-to-UCS-2 conversion fails and release
+  successful temporary buffers with Xt ownership; see
+  `docs/xft-utf8-drawing-allocation.md` and its focused source check.
+

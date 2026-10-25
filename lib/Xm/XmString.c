@@ -4185,8 +4185,10 @@ _XmStringDrawSegment(Display *d,
 		/* TODO: it is very unoptimized convert the same sting
 		 * twice - for getting extents and drawing */
 		ucs_str = _XmUtf8ToUcs2(draw_text, seg_len, &ucs_str_len);
-		XDrawImageString16(d, w, gc, x, y, ucs_str, ucs_str_len);
-		XFree(ucs_str);
+		if (ucs_str != NULL) {
+		    XDrawImageString16(d, w, gc, x, y, ucs_str, ucs_str_len);
+		    XtFree((char *)ucs_str);
+		}
 	    } else
 	        XDrawImageString16(d, w, gc, x, y, (XChar2b*)draw_text, 
 			       Half(seg_len));
@@ -4217,8 +4219,10 @@ _XmStringDrawSegment(Display *d,
 		/* TODO: it is very unoptimized convert the same sting
 		 * twice - for getting extents and drawing */
 		ucs_str = _XmUtf8ToUcs2(draw_text, seg_len, &ucs_str_len);
-		XDrawString16(d, w, gc, x, y, ucs_str, ucs_str_len);
-		XFree(ucs_str);
+		if (ucs_str != NULL) {
+		    XDrawString16(d, w, gc, x, y, ucs_str, ucs_str_len);
+		    XtFree((char *)ucs_str);
+		}
 	    } else
 		    XDrawString16 (d, w, gc, x, y, (XChar2b *)draw_text,
 				    Half(seg_len));
