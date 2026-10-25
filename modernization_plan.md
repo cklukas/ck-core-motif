@@ -1347,6 +1347,10 @@ without changing `XmRowColumn` defaults or Form attachments.
 **Complete when:** StackLayout passes its installed geometry and lifecycle
 suite while equivalent existing `XmRowColumn` fixtures remain unchanged.
 
+**Status (2026-10-25):** deferred as **no-go**.  WP-29 found no installed
+consumer requirement that exceeds existing `XmRowColumn` composition; reopen
+only with the geometry, focus and accessibility evidence listed there.
+
 ### WP-31: FlexLayout and FlowLayout
 
 **Depends on:** WP-30 and a Flex/Flow go decision from WP-29.
@@ -1370,6 +1374,10 @@ and optional wrapping, without claiming browser-compatible CSS Flexbox.
 documented difference from CSS/browser layout; FlowLayout is a documented
 configuration or is deferred rather than shipped as a duplicate class.
 
+**Status (2026-10-25):** deferred as **no-go** with WP-29's independent
+Flex/Flow decision.  No browser-style layout contract is introduced without a
+new installed-client corpus and an explicit go decision.
+
 ### WP-32: GridLayout
 
 **Depends on:** WP-30 and a Grid go decision from WP-29.
@@ -1391,6 +1399,10 @@ storms and callback/destruction reentrancy against an installed prefix.
 
 **Complete when:** GridLayout's constraints and failure behavior are documented
 and its fixtures prove that existing Form geometry is unaffected.
+
+**Status (2026-10-25):** deferred as **no-go** with WP-29's independent Grid
+decision.  The toolkit retains existing Form, RowColumn and container
+composition until a measured requirement justifies a new manager.
 
 ### WP-33: Overlay, Split and optional Dock layouts
 
@@ -1415,6 +1427,10 @@ geometry negotiation, accessibility and destruction/reentrancy.
 **Complete when:** each approved manager passes its own installed-prefix suite.
 Unjustified managers remain deferred rather than becoming a broad layout
 framework.
+
+**Status (2026-10-25):** deferred as **no-go**.  WP-29 did not justify Overlay,
+Split or Dock as a generic family; reopening requires an individual evidence-
+backed contract and installed consumer fixture.
 
 ### WP-34: SegmentedControl
 
