@@ -67,6 +67,15 @@ The installed gadget regression is
 that the next transition prunes its stale state, and creates a replacement
 gadget under the active profile.
 
+The live-transition consumer also creates an `XmText` and an `XmTextField`
+before realizing the shell, then verifies their committed strings after every
+profile transition. Text classes initialize their output/input backends in a
+later Motif initialization hook; the appearance registration therefore defers
+its first value snapshot for these classes until that backend exists. The
+regression is intentionally an installed consumer test, so a null backend or
+an accidental text-value reset is a failure rather than an inferred source
+property.
+
 WP-02 adds the opt-in `modern-light` profile:
 
 ```c
