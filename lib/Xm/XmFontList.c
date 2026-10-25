@@ -698,6 +698,10 @@ XmFontListGetNextFont(
   XmRenditionRetrieve(retained, args, n);
 
   *charset = XtNewString(tag);
+  if (*charset == NULL) {
+    XmRenditionFree(retained);
+    return (FALSE);
+  }
   XmRenditionFree(retained);
   return (TRUE);
 }

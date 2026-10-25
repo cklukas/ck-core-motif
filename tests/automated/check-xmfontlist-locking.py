@@ -93,6 +93,7 @@ assert next_font_body.index("FLContextIndex(context)++") < next_font_body.index(
 assert next_font_body.index("_XmRenditionCopy(rend, True)") < next_font_body.index("_XmProcessUnlock();")
 assert next_font_body.index("_XmProcessUnlock();") < next_font_body.index("_XmGetFirstFont(retained)")
 assert next_font_body.index("XmRenditionFree(retained)") > next_font_body.index("XmRenditionRetrieve(retained, args, n)")
+assert "if (*charset == NULL)" in next_font_body
 
 start = source.index("XmFontListRemoveEntry(")
 end = source.index("\nXmFontListEntry\nXmFontListEntryLoad", start)

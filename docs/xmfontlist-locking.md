@@ -18,6 +18,10 @@ handle under lock, then retrieves the font and tag after unlocking so rendition
 accessors do not recurse into the process lock without exposing a use-after-free
 when another thread updates the table.
 
+If copying the returned charset fails, `XmFontListGetNextFont` releases its
+retained rendition and reports failure instead of returning a successful step
+with a null charset.
+
 `XmFontListRemoveEntry` now retrieves rendition data before taking the table
 mutation lock and uses a copied tag while removing the entry. This avoids
 recursive locking and keeps the comparison stable if the table releases the

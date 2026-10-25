@@ -216,6 +216,8 @@ Render-table locking (2026-10-26)
   `docs/render-table-resource-path.md`.
 - Make `XmFontListEntryGetFont` reject a null type-output pointer before
   retrieving rendition data.
+- Propagate charset-copy failure from `XmFontListGetNextFont` after releasing
+  its retained rendition.
 - Roll back shared-table cloning in `_XmRenderTableRemoveRenditions` when a
   table body, handle, or rendition copy cannot be allocated; see
   `docs/render-table-removal.md`.
