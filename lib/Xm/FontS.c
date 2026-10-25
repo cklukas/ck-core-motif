@@ -42,6 +42,7 @@
 #include <Xm/DropDown.h>
 #include <Xm/ButtonBox.h>
 #include <Xm/ExtP.h>
+#include <Xm/Ext.h>
 #include "Xm/XmI.h"
 
 #define NUM_XLFD_DASHES 14
@@ -1907,10 +1908,10 @@ SetDisplayedFont(XmFontSelectorWidget fsw, String new_font)
     FontData 	*cf = XmFontS_font_info(fsw)->current_font;
     char 	buf[BUFSIZ];
 
-    sprintf(buf, "--%s-%s-%s----0-%d-%d-*--%s",
-	    STAR_STRING, DEFAULT_WEIGHT, DEFAULT_SLANT, 
-	    XmFontS_font_info(fsw)->resolution,
-	    XmFontS_font_info(fsw)->resolution, ENCODING_STRING(fsw));
+	(void) snprintf(buf, sizeof(buf), "--%s-%s-%s----0-%d-%d-*--%s",
+		STAR_STRING, DEFAULT_WEIGHT, DEFAULT_SLANT,
+		XmFontS_font_info(fsw)->resolution,
+		XmFontS_font_info(fsw)->resolution, ENCODING_STRING(fsw));
 	
     FillData(fsw, cf, buf);		/* Put in default data. */
 

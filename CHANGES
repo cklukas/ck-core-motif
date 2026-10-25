@@ -16,6 +16,12 @@ Label wide-string conversion bounds (2026-10-25)
 - Reserve the terminating byte and reject size arithmetic overflow when
   converting wide label values; see `docs/label-wcs-bounds.md`.
 
+Font selector pattern formatting bounds (2026-10-25)
+======================================================
+
+- Bound default font-pattern formatting when the encoding resource is long;
+  see `docs/font-pattern-bounds.md`.
+
 Bounded Latin-1 resource conversion (2026-10-25)
 ==================================================
 
