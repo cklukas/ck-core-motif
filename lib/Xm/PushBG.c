@@ -1480,7 +1480,6 @@ DrawBorderHighlight(
 	  break;
 
 	default:
-	  assert(FALSE);
 	  return;
 	}
 
@@ -1585,7 +1584,6 @@ BorderUnhighlight(
 	  break;
 
 	default:
-	  assert(FALSE);
 	  return;
 	}
     } 
@@ -2867,7 +2865,6 @@ EraseDefaultButtonShadow(
 	  break;
 
 	default:
-	  assert(FALSE);
 	  return;
 	}
 
@@ -3234,7 +3231,6 @@ EraseDefaultButtonShadows(
 	  break;
 
 	default:
-	  assert(FALSE);
 	  return;
 	}
 
@@ -3315,7 +3311,6 @@ DrawDefaultButtonShadows(
 	  break;
 
 	default:
-	  assert(FALSE);
 	  return;
 	}
 

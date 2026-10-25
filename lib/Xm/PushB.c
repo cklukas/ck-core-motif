@@ -996,7 +996,6 @@ EraseDefaultButtonShadow(
 	  break;
 
 	default:
-	  assert(FALSE);
 	  return;
 	}
 
@@ -1468,9 +1467,8 @@ DrawPushButtonShadows(
       adjust = 0;
       break;
 
-    default:
-      assert(FALSE);
-      return;
+	default:
+	  return;
     }
 
   if (adjust < 0)
@@ -1739,9 +1737,8 @@ DrawDefaultButtonShadows(
       delta = Xm3D_ENHANCE_PIXEL;
       break;
 
-    default:
-      assert(FALSE);
-      return;
+	default:
+	  return;
     }
 
   if (pb->core.width <= 2 * delta || pb->core.height <= 2 * delta)
@@ -1865,7 +1862,6 @@ DrawBorderHighlight(
 	  break;
 
 	default:
-	  assert(FALSE);
 	  return;
 	}
 
@@ -1977,7 +1973,6 @@ BorderUnhighlight(
 	  break;
 
 	default:
-	  assert(FALSE);
 	  return;
 	}
     }

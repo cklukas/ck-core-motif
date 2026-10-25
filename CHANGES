@@ -45,6 +45,13 @@ List button-transfer fallback (2026-10-26)
   handlers instead of terminating on an assertion; see
   `docs/list-button-transfer-fallback.md`.
 
+PushButton emphasis fallback (2026-10-26)
+==========================================
+
+- Keep invalid `default_button_emphasis` values on the existing safe return
+  path for PushButton and PushButtonGadget drawing routines instead of
+  terminating on assertions; see `docs/pushbutton-emphasis-fallback.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 
