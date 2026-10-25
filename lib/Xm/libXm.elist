@@ -597,6 +597,10 @@ public XmCreateFormSection
 public XmFormSectionGetContent
 public XmFormSectionGetHeader
 public XmFormSectionGetFooter
+public XmCreateEmptyState
+public XmEmptyStateGetMessage
+public XmEmptyStateGetAction
+public XmEmptyStateInvokeAction
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -897,6 +901,8 @@ public xmPromptClassRec
 public xmPromptWidgetClass
 public xmFormSectionClassRec
 public xmFormSectionWidgetClass
+public xmEmptyStateClassRec
+public xmEmptyStateWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec
