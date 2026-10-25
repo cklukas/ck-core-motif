@@ -138,6 +138,7 @@ void XmeDrawShadows(Display *display, Drawable d,
 {
     GC  tmp_gc ;
     XtAppContext app;
+    int inner_width, inner_height, inner_thickness;
 
     if(!d) return ;
 
@@ -153,12 +154,18 @@ void XmeDrawShadows(Display *display, Drawable d,
 
     if ((shad_type == XmSHADOW_ETCHED_IN || 
          shad_type == XmSHADOW_ETCHED_OUT) && (shad_thick != 1)) {
+        inner_thickness = (int) shad_thick / 2;
+        inner_width = (int) width - 2 * inner_thickness;
+        inner_height = (int) height - 2 * inner_thickness;
         DrawSimpleShadow (display, d, top_gc, bottom_gc, x, y, 
-                            width, height, shad_thick/2, 1);
-        DrawSimpleShadow (display, d, bottom_gc, top_gc, 
-                            x + shad_thick/2, y + shad_thick/2, 
-                            width - (shad_thick/2)*2, 
-                            height - (shad_thick/2)*2, shad_thick/2, 1);
+                            width, height, inner_thickness, 1);
+        if (inner_width > 0 && inner_height > 0)
+            DrawSimpleShadow (display, d, bottom_gc, top_gc,
+                            (Position) ((int) x + inner_thickness),
+                            (Position) ((int) y + inner_thickness),
+                            (Dimension) inner_width,
+                            (Dimension) inner_height,
+                            (Dimension) inner_thickness, 1);
     } else
         DrawSimpleShadow (display, d, top_gc, bottom_gc, x, y, 
                             width, height, shad_thick, 0);

@@ -1,3 +1,10 @@
+Shared etched shadow span bounds (2026-10-26)
+===============================================
+
+- Bound the inner etched-shadow rectangle in signed arithmetic and skip it
+  when a tiny widget cannot contain it; see
+  `docs/draw-shadow-span-bounds.md`.
+
 Shared separator shadow span bounds (2026-10-26)
 ==================================================
 
