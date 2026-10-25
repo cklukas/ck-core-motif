@@ -3912,7 +3912,14 @@ SetValues(Widget old, Widget request, Widget set,
 
 	{
 	Boolean reset = False;
-#define DoCheck(old_one,new_one)	{ reset = False; if (old_one != new_one) { XmStringFree(old_one); new_one = XmStringCopy(new_one); reset = True; } }
+#define DoCheck(old_one,new_one) \
+	{ XmString replacement; reset = False; \
+	  if (old_one != new_one) { \
+	    replacement = (new_one != NULL) ? XmStringCopy(new_one) : NULL; \
+	    if (new_one == NULL || replacement != NULL) { \
+	      XmStringFree(old_one); new_one = replacement; reset = True; \
+	    } else { new_one = old_one; } \
+	  } }
 
 	DoCheck( ANY_STRING(old_fsw), ANY_STRING(set_fsw)); /* PUNT! or else we need to check if on-screen right now */
 	DoCheck( BOLD_STRING(old_fsw), BOLD_STRING(set_fsw)); if (reset) XtVaSetValues( XmFontS_bold_toggle(set_fsw), XmNlabelString, BOLD_STRING(set_fsw), NULL);

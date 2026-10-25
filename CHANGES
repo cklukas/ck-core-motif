@@ -9336,3 +9336,10 @@ MultiList search allocation guard (2026-10-29)
 - Abort safely when search text extraction returns NULL, preserving the
   previous search term and freeing any wide-string result; see
   `docs/multilist-search-allocation.md`.
+
+FontSelector string rollback (2026-10-29)
+==========================================
+
+- Preserve selector labels until replacement `XmString` copies succeed,
+  avoiding partial label loss on allocation failure; see
+  `docs/fontselector-string-rollback.md`.
