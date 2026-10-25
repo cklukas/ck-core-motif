@@ -10253,6 +10253,12 @@ Label baseline output validation (2026-10-25)
 - Validate Label gadget baseline query pointers before accessing widget state;
   see `docs/label-baseline-output-validation.md`.
 
+Label display-rectangle validation (2026-10-25)
+================================================
+
+- Validate Label gadget display-rectangle query pointers before reading
+  geometry; see `docs/label-display-rect-validation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

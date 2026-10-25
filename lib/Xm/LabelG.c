@@ -3976,6 +3976,9 @@ XRectangle *displayrect)
 {
     XmLabelGadget wid = (XmLabelGadget) w;
 
+    if (w == NULL || displayrect == NULL)
+        return False;
+
         displayrect->x = wid->label.TextRect.x;
         displayrect->y = wid->label.TextRect.y;
         displayrect->width = wid->label.TextRect.width;
