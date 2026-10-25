@@ -2984,8 +2984,14 @@ CvtStringToSelectColor(Display *disp,
 			  XrmValue *to_val,
 			  XtPointer *converter_data )
 {
-  String 	str = (String)from_val->addr;
+  String 	str;
   Boolean	result = False;
+
+  if (disp == NULL || num_args == NULL || from_val == NULL ||
+      from_val->addr == NULL || to_val == NULL ||
+      (*num_args != 0 && args == NULL))
+    return False;
+  str = (String)from_val->addr;
 
   /* in those 3 cases, just return the constant and the widget
      will have to do teh onversion itself. It's ok, since the widget
@@ -3007,12 +3013,14 @@ CvtStringToSelectColor(Display *disp,
   
   if (result == False)
     {
-      *converter_data = False;
+      if (converter_data != NULL)
+        *converter_data = False;
       return False;
     }
   else
     {
-      *converter_data = (char *)True;
+      if (converter_data != NULL)
+        *converter_data = (char *)True;
       return True;
     }
 }
