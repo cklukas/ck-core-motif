@@ -9860,6 +9860,13 @@ Picture subgraph allocation guard (2026-10-25)
   graph end unchanged when unavailable; see
   `docs/picture-subgraph-allocation.md`.
 
+Render-table token allocation guards (2026-10-25)
+================================================
+
+- Check temporary strings created by render-table property parsing and route
+  allocation failure through the parser's EOF path; see
+  `docs/render-token-allocation.md`.
+
 MWM label-parse allocation guard (2026-10-25)
 ==============================================
 

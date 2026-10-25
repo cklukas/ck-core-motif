@@ -2990,11 +2990,23 @@ ReadToken(char *string, int *position, Token reusetoken)
     count -= 1;
     if (count > 0) {
       new_token -> string = (char*) XtMalloc(count + 1);
+      if (new_token -> string == NULL) {
+        new_token -> type = T_EOF;
+        *position = pos;
+        return new_token;
+      }
       strncpy(new_token -> string, &string[pos + 1], count);
       new_token -> string[count] = 0; /* Null terminate */
     }
     else
+      {
       new_token -> string = XtNewString("");
+      if (new_token -> string == NULL) {
+        new_token -> type = T_EOF;
+        *position = pos;
+        return new_token;
+      }
+      }
     pos += closed ? end_offset + 1 : end_offset;
     break;
     }
@@ -3009,6 +3021,11 @@ ReadToken(char *string, int *position, Token reusetoken)
 	pos += count;
 	new_token -> type = T_STR;
 	new_token -> string = (char *)XtMalloc((Cardinal)count + 1);
+	if (new_token -> string == NULL) {
+	  new_token -> type = T_EOF;
+	  *position = pos;
+	  return new_token;
+	}
 	memcpy(new_token -> string, string + pos - count, count);
 	new_token -> string[count] = '\0';
       }
@@ -3023,6 +3040,11 @@ ReadToken(char *string, int *position, Token reusetoken)
 	if (newpos == &string[pos]) {
 	  new_token -> type = T_STR;
 	  new_token -> string = (char *)XtMalloc(2);
+	  if (new_token -> string == NULL) {
+	    new_token -> type = T_EOF;
+	    *position = pos;
+	    return new_token;
+	  }
 	  new_token -> string[0] = string[pos++];
 	  new_token -> string[1] = '\0';
 	  break;
