@@ -1,3 +1,10 @@
+Input-method registration cache growth (2026-10-28)
+=====================================================
+
+- Check `Arg` array byte-size limits before growing the input-method
+  registration cache with `XtRealloc`; see
+  `docs/xmim-registration-growth.md`.
+
 Simple-menu varargs counter bounds (2026-10-28)
 ================================================
 
@@ -8922,11 +8929,3 @@ ToggleButtonGadget resource-list allocation (2026-10-25)
 
 Icon directory cache size arithmetic (2026-10-25)
 ==================================================
-Input-method registration cache growth (2026-10-28)
-=====================================================
-
-- Check `Arg` array byte-size limits before growing the input-method
-  registration cache with `XtRealloc`; see
-  `docs/xmim-registration-growth.md`.
-
-Simple-menu varargs counter bounds (2026-10-28)
