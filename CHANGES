@@ -12360,3 +12360,10 @@ XmTabList lock boundaries (2026-10-26)
   preventing recursive-lock deadlocks; see `docs/tablist-lock-boundaries.md`.
 
 Compound-text direction-stack bounds (2026-10-26)
+Tab creation argument validation (2026-10-26)
+===============================================
+
+- Reject missing argument arrays before `_XmCreateTab` iterates a nonzero
+  argument count; see `docs/tab-arglist-guard.md`.
+
+XmTabList lock boundaries (2026-10-26)
