@@ -30,6 +30,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [Image scaling coordinate bounds](image-scaling-coordinate-bounds.md) — coordinate conversion limits.
 - [DPI control metrics](dpi-control-metrics.md) — display-aware sizing rules.
 - [Theme configuration](theme-configuration.md) — classic and optional visual configuration.
+- [Desktop color-cell allocation](desktop-color-cells-allocation.md) — safe icon-color population under colormap pressure.
 
 ## Selection, drag-and-drop, and data conversion
 

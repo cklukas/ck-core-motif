@@ -1458,6 +1458,7 @@ XmeGetDesktopColorCells (Screen * screen,
     int colorUse ;
     XmPixelSet pixelSet[XmCO_NUM_COLORS] ; 
     int i, k, num_icon_colors ;
+    XColor icon_color;
     short primary, secondary, text, active, inactive;
     int reorder[XmCO_NUM_COLORS] ;
 
@@ -1537,13 +1538,13 @@ XmeGetDesktopColorCells (Screen * screen,
 	   and then the pixel in the default colormap. 
 	   The query color below will get the rgb again for nothing,
 	   no big deal */
-	XParseColor(DisplayOfScreen(screen),
-		    DefaultColormapOfScreen(screen), 
-		    IconColorNames[k],
-		    &(colors[i])); 
-	XAllocColor(DisplayOfScreen(screen),
-		    DefaultColormapOfScreen(screen),
-		    &(colors[i++])); 
+	if (!XParseColor(DisplayOfScreen(screen),
+			 DefaultColormapOfScreen(screen),
+			 IconColorNames[k], &icon_color) ||
+	    !XAllocColor(DisplayOfScreen(screen),
+			 DefaultColormapOfScreen(screen), &icon_color))
+	    continue;
+	colors[i++] = icon_color;
     }
    
     /* now the shadows */
