@@ -642,6 +642,13 @@ XmString array-entry copy bounds (2026-10-27)
   allocation-limited strings no longer cause a wrapped allocation or partial
   array dereference.
 
+XmRegion copy allocation-size bounds (2026-10-29)
+==================================================
+
+- Reject region-copy rectangle arrays whose byte count cannot be represented
+  by Xt's `Cardinal` allocation size, avoiding truncation on narrower
+  platforms; see `docs/region-copy-growth.md`.
+
 XmStack Xt allocation-size bounds (2026-10-29)
 ===============================================
 

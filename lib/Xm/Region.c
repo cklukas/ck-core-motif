@@ -645,7 +645,9 @@ miRegionCopy(
         if (dstrgn->size < rgn->numRects)
         {
             if ((size_t)rgn->numRects >
-                SIZE_MAX / sizeof(XmRegionBox))
+                SIZE_MAX / sizeof(XmRegionBox) ||
+                (size_t)rgn->numRects >
+                UINT_MAX / sizeof(XmRegionBox))
                 return;
             new_rects = (XmRegionBox *)XtRealloc(
                 (char *)dstrgn->rects,

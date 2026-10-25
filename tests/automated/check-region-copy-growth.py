@@ -11,5 +11,6 @@ assert "if (dstrgn->rects)" not in region
 assert "if (new_rects == NULL)" in region
 assert region.index("if (new_rects == NULL)") < region.index("dstrgn->rects = new_rects")
 assert "SIZE_MAX / sizeof(XmRegionBox)" in region
+assert "UINT_MAX / sizeof(XmRegionBox)" in region
 assert "dstrgn->rects = (XmRegionBox *)\n\t\t       XtRealloc" not in region
 print("PASS XmRegion copy-growth transaction")
