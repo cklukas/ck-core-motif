@@ -1546,6 +1546,16 @@ XmStringConcatAndFree(XmString a,
   Boolean		modify_a, modify_b, free_b;
   Boolean               a_needs_unopt=False, b_needs_unopt=False;
   _XmStringArraySegRec	array_seg;
+
+  /* Self-concatenation must not let the in-place conversion paths modify the
+   ** same object through both operands. Preserve the usual ownership rule by
+   ** giving the second operand its own reference. */
+  if (a != NULL && a == b) {
+    XmString duplicate = XmStringCopy(b);
+    if (duplicate == NULL)
+      return NULL;
+    b = duplicate;
+  }
   
   _XmProcessLock();
   if (a == NULL) 

@@ -128,6 +128,13 @@ ComboBox arrow helper guard (2026-10-26)
   which do not have arrows, instead of asserting; see
   `docs/combobox-arrow-helper.md`.
 
+XmString self-concatenation (2026-10-26)
+=========================================
+
+- Give aliased operands in `XmStringConcatAndFree` an independent reference
+  before conversion, making self-concatenation safe; see
+  `docs/xmstring-self-concat.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 
