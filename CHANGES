@@ -12240,3 +12240,9 @@ XmString context-copy allocation width (2026-10-26)
 
 - Pass the already checked rendition-tag byte count explicitly as an Xt
   `Cardinal`; see `docs/xmstring-context-copy-allocation.md`.
+
+GeoUtils child geometry allocation width (2026-10-26)
+======================================================
+
+- Pass the checked child geometry-list byte count explicitly as an Xt
+  `Cardinal`; see `docs/geo-kid-allocation.md`.

@@ -2536,7 +2536,8 @@ _XmGetKidGeo(
     if (geo_count > SIZE_MAX / sizeof(XmKidGeometryRec) ||
         geo_count > (size_t)(Cardinal)-1 / sizeof(XmKidGeometryRec))
         return NULL;
-    geo = (XmKidGeometry) XtMalloc(geo_count * sizeof(XmKidGeometryRec));
+    geo = (XmKidGeometry) XtMalloc(
+	(Cardinal)(geo_count * sizeof(XmKidGeometryRec)));
     if (geo == NULL)
         return NULL;
     /* load all managed kids */

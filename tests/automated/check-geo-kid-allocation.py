@@ -9,6 +9,7 @@ text = source.read_text(encoding="utf-8")
 for needle in (
     "if (wid == NULL)",
     "geo_count > SIZE_MAX / sizeof(XmKidGeometryRec)",
+    "XtMalloc(\n\t(Cardinal)(geo_count * sizeof(XmKidGeometryRec)))",
     "if (geo == NULL)",
 ):
     if needle not in text:
