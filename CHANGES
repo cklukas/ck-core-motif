@@ -4119,3 +4119,8 @@ Mrm callback fixup validation (2026-10-25)
 
 - Validate callback descriptors and resource pointers, and propagate value
   conversion failures; see `docs/mrm-callback-fixup-validation.md`.
+Mrm callback routine-offset check (2026-10-25)
+===============================================
+
+- Reject zero callback routine-name offsets before hierarchy lookup; see
+  `docs/mrm-callback-routine-offset.md`.
