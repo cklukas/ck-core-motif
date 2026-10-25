@@ -94,6 +94,15 @@ binary for that run was
 against `libXm.so.8.0.0`
 `e84df8544290de7ac4fd8918425680da59e211f0140f70257bd97234ca5305f5`.
 
+Subsequent peer-aligned allocation hardening in `RCPopup`, `Column`,
+`VaSimple`, `RepType`, and `TextIn` was rebuilt into the same installed
+cohort. Its current `libXm.so.8.0.0` fingerprint is
+`f63991cbeac85c3100ed3debd346e846b5a5407e6dbb17198324a2cb576466da`; the
+gallery integration, dropdown, standard-targets, text-source, and large-UTF-8
+clipboard smoke receipts all pass against it. The 16-cell screenshot receipt
+above remains tied to its explicitly recorded earlier binary/library hashes;
+it is not relabeled as evidence for this later library revision.
+
 Published PNGs are projected into `docs/gallery-screenshots/manifest.json` by
 `tests/automated/generate-gallery-screenshot-manifest.py`. The companion
 `tests/automated/check-gallery-screenshot-assets.py` verifies the manifest
