@@ -2379,9 +2379,13 @@ CvtStringToBooleanDimension(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
-        char *in_str = (char *) from->addr ;
+        char *in_str;
         Dimension outVal ;
         int intermediate;
+
+        if (from == NULL || from->addr == NULL || to == NULL)
+            return FALSE;
+        in_str = (char *) from->addr ;
 
     if (isInteger(from->addr, &intermediate))
     {   
@@ -2389,9 +2393,17 @@ CvtStringToBooleanDimension(
         *   to preserve 1.0 compatibility (the resource actually behaves like
         *   a boolean in version 1.1).
         */
-        Widget widget = *(Widget*) args[0].addr ;
-        Screen * screen = XtScreen(widget) ;
-        unsigned char unitType = _XmGetUnitType(widget) ;
+        Widget widget;
+        Screen *screen;
+        unsigned char unitType;
+
+        if (args == NULL || args[0].addr == NULL)
+            return FALSE;
+        widget = *(Widget*) args[0].addr ;
+        if (widget == NULL)
+            return FALSE;
+        screen = XtScreen(widget) ;
+        unitType = _XmGetUnitType(widget) ;
 	
         if(    intermediate < 0    )
         {   XtDisplayStringConversionWarning(display, (char *)from->addr,
@@ -2722,6 +2734,8 @@ CvtStringToCardinal(
 {
     Cardinal value;
     int intermediate;
+    if (from == NULL || from->addr == NULL || to == NULL)
+        return False;
     if (!isInteger(from->addr,&intermediate) || intermediate < 0)
 	{
 	XtDisplayStringConversionWarning(display, (char *)from->addr,
@@ -2746,6 +2760,8 @@ CvtStringToTextPosition(
 {
     XmTextPosition value;
     int intermediate;
+    if (from == NULL || from->addr == NULL || to == NULL)
+        return False;
     if (!isInteger(from->addr,&intermediate) || intermediate < 0)
         {
         XtDisplayStringConversionWarning(display, (char *)from->addr, 
@@ -2770,6 +2786,8 @@ CvtStringToTopItemPosition(
 {
     int value;
     int intermediate;
+    if (from == NULL || from->addr == NULL || to == NULL)
+        return False;
     if (!isInteger(from->addr,&intermediate) || intermediate < 0)
         {
         XtDisplayStringConversionWarning(display, (char *)from->addr,

@@ -1,3 +1,10 @@
+Numeric resource-converter input validation (2026-10-25)
+=========================================================
+
+- Guard boolean-dimension, cardinal, text-position, and top-item-position
+  converters before parsing or unit conversion; see
+  `docs/numeric-converter-inputs.md`.
+
 Font-list converter input validation (2026-10-25)
 ==================================================
 
