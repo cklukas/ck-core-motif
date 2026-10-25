@@ -809,6 +809,7 @@ EXTRA_DIST += tests/automated/check-render-table-rendition-array.py docs/render-
 EXTRA_DIST += tests/automated/check-xmrender-copy-propagation.py
 EXTRA_DIST += tests/automated/check-xmrender-rendition-allocation.py
 EXTRA_DIST += tests/automated/check-rendition-copy-bounds.py docs/rendition-copy-bounds.md
+EXTRA_DIST += tests/automated/check-render-token-allocation.py docs/render-token-allocation.md
 EXTRA_DIST += tests/automated/check-toggle-button-geometry-bounds.py docs/toggle-button-geometry-bounds.md
 EXTRA_DIST += tests/automated/check-toggle-button-geometry.c tests/automated/run-toggle-button-geometry.py
 EXTRA_DIST += tests/automated/check-xmfontlist-locking.py docs/xmfontlist-locking.md

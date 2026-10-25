@@ -1982,6 +1982,9 @@ contract and both no-Xft/Xft installed-library fixtures pass on `uconsole`.
 represented by `size_t` or Xt's `Cardinal` allocator width before copying;
 the source contract and both installed-library build variants pass on
 `uconsole`.
+Render-table property token allocations now terminate through the existing EOF
+parser path on allocation failure; the source contract and both installed
+library build variants pass on `uconsole`.
 
 ## Acceptance criteria for every increment
 

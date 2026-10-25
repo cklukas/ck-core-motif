@@ -4,6 +4,13 @@ Rendition tag-copy allocation bounds (2026-10-26)
 - Reject unrepresentable tag-array byte counts before `_XmRenditionCopy`
   allocates; see `docs/rendition-copy-bounds.md`.
 
+Render-table token allocation guards (2026-10-26)
+================================================
+
+- Check temporary strings created by render-table property parsing and route
+  allocation failure through the parser's EOF path; see
+  `docs/render-token-allocation.md`.
+
 Gallery screenshot qualification receipts (2026-10-25)
 ========================================================
 
