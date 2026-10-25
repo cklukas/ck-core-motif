@@ -6520,3 +6520,10 @@ Clarify WML generated-output receipt provenance (2026-10-25)
   output digests that may include build-directory context; record the latest
   `uconsole` `flex 2.6.4` receipt in `docs/wml-build.md`.
 
+Align strict C++ header fixture with ABI epoch 8 (2026-10-25)
+===============================================================
+
+- Update the C++20 installed-header assertion to match the current `Xm.h`
+  ABI epoch, preventing a stale fixture from rejecting the supported header
+  cohort.
+
