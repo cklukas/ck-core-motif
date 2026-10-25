@@ -1,3 +1,10 @@
+Guard ScrollFrame navigator callbacks (2026-10-25)
+========================================================
+
+- Reject navigator traits without required callbacks before registration,
+  preventing null function-pointer calls; see
+  `docs/motif-scrollframe-callbacks.md`.
+
 Validate XmString rendition inputs (2026-10-25)
 ===============================================
 
