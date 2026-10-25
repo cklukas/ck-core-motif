@@ -1,3 +1,9 @@
+Clipboard delete-label validation (2026-10-26)
+================================================
+
+- Validate data-item records before deleting their label properties; see
+  `docs/clipboard-delete-label-validation.md`.
+
 Clipboard mark-item validation (2026-10-26)
 ============================================
 

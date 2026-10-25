@@ -2050,9 +2050,11 @@ ClipboardDeleteItemLabel(
      ClipboardDataItem datalist;
      unsigned long length;
      Atom type;
+     int status;
 
      /* first get the data item out of the root */
-     ClipboardFindItem( display,
+     datalist = NULL;
+     status = ClipboardFindItem( display,
                           dataitemid,
                           (XtPointer *) &datalist,
                           &length,
@@ -2060,10 +2062,10 @@ ClipboardDeleteItemLabel(
                           0,
                           XM_DATA_ITEM_RECORD_TYPE );
 
-     if ( datalist == 0 )
+     if (status != ClipboardSuccess || datalist == NULL ||
+	 length < sizeof(ClipboardDataItemRec))
      {
-	CleanupHeader (display);
-	ClipboardError( CLIPBOARD_CORRUPT, CORRUPT_DATA_STRUCTURE );
+	XtFree( (char *)datalist);
 	return;
      }
      /* delete item label */
