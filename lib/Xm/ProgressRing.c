@@ -215,7 +215,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                      ((long long)ring->progress_ring.maximum -
                       ring->progress_ring.minimum)));
         text_string = XmStringCreateLocalized(text);
-        {
+        if (text_string) {
             Dimension text_width = 0, text_height = 0;
             XmStringExtent(ring->progress_ring.font, text_string, &text_width,
                            &text_height);
@@ -224,8 +224,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                          center_y - (Position)text_height / 2, text_width,
                          XmALIGNMENT_BEGINNING,
                          XmPrim_layout_direction(ring), NULL);
+            XmStringFree(text_string);
         }
-        XmStringFree(text_string);
     }
     if (ring->progress_ring.label && ring->progress_ring.font && label_width) {
         XmStringDraw(display, window, ring->progress_ring.font,

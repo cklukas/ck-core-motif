@@ -36,6 +36,13 @@ Form-section margin comparison (2026-10-26)
 - Avoid unsigned width underflow when deciding whether a footer fits inside
   large form-section margins; see `docs/form-section-margin-bounds.md`.
 
+Progress-ring text allocation guard (2026-10-26)
+================================================
+
+- Skip optional percentage text when `XmStringCreateLocalized` cannot
+  allocate, avoiding a null dereference during redisplay; see
+  `docs/progress-ring-text-allocation.md`.
+
 Tree-view RTL label bounds (2026-10-26)
 =======================================
 
