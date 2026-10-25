@@ -116,6 +116,12 @@ _XmStringGetSegment(_XmStringContext   context,
   XmStringComponentType ctype;
   unsigned int 		len;
   XtPointer 		val;
+
+  /* Validate context before compatibility output initialization reads it. */
+  if (! (context && text && tag && type && rendition_tags && tag_count
+	 && direction && separator && tabs && char_count && push_before
+	 && pop_after))
+    return False;
   
   /* Initialize the out parameters */
   if (text)           *text           = NULL;

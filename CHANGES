@@ -1,3 +1,9 @@
+XmString segment validation (2026-10-26)
+=========================================
+
+- Validate segment-extraction context and outputs before reading context state;
+  see `docs/xmstring-segment-validation.md`.
+
 XmStringGetLtoR locking and initialization (2026-10-26)
 ==========================================================
 
