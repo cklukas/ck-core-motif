@@ -149,6 +149,8 @@ static void Redisplay(
                         Widget wid,
                         XEvent *event,
                         Region region) ;
+static Boolean CanDrawShadow(
+                        XmDrawnButtonWidget db) ;
 static void DrawPushButton( 
                         XmDrawnButtonWidget db,
 #if NeedWidePrototypes
@@ -1385,7 +1387,7 @@ Redisplay(
  	if (db->drawnbutton.pushbutton_enabled)
  	    DrawPushButton(db, db->drawnbutton.armed);
   
- 	else
+	else if (CanDrawShadow(db))
  	    XmeDrawShadows(XtDisplay((Widget) db),
  			    XtWindow((Widget) db),
  			    db -> primitive.top_shadow_GC,
@@ -1413,6 +1415,18 @@ Redisplay(
 }
 
 
+static Boolean
+CanDrawShadow(
+        XmDrawnButtonWidget db)
+{
+  return (XtIsRealized((Widget) db) &&
+          db->primitive.top_shadow_GC != NULL &&
+          db->primitive.bottom_shadow_GC != NULL &&
+          db->primitive.shadow_thickness != 0 &&
+          db->core.width > 2 * db->primitive.highlight_thickness &&
+          db->core.height > 2 * db->primitive.highlight_thickness);
+}
+
 static void 
 DrawPushButton(
         XmDrawnButtonWidget db,
@@ -1422,11 +1436,18 @@ DrawPushButton(
         Boolean armed )
 #endif /* NeedWidePrototypes */
 {
-  XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay((Widget) db));
-  Boolean etched_in = dpy -> display.enable_etched_in_menu;
-  Boolean in_menu = Lab_IsMenupane((Widget) db);
+  XmDisplay dpy;
+  Boolean etched_in;
+  Boolean in_menu;
   Boolean do_draw;
   unsigned int type;
+
+  if (!CanDrawShadow(db))
+    return;
+
+  dpy = (XmDisplay) XmGetXmDisplay(XtDisplay((Widget) db));
+  etched_in = dpy -> display.enable_etched_in_menu;
+  in_menu = Lab_IsMenupane((Widget) db);
 
   do_draw = (! in_menu) || (in_menu && armed);
 

@@ -1,3 +1,10 @@
+DrawnButton shadow redisplay guards (2026-10-25)
+================================================
+
+- Validate DrawnButton realization, shadow GCs, thickness, and drawable
+  geometry before issuing shadow drawing requests; see
+  `docs/drawn-button-shadow-redisplay-guards.md`.
+
 Separator redisplay guards (2026-10-25)
 ==============================================
 
