@@ -10112,6 +10112,13 @@ Legacy charset canonicalization allocation guards (2026-10-25)
   strings, returning `NULL` on failure; see
   `docs/charset-canonicalize-allocation.md`.
 
+Legacy shadow-buffer allocation guards (2026-10-25)
+===================================================
+
+- Preserve the cached shadow rectangle buffer when initial allocation or
+  growth fails, avoiding null writes during legacy drawing; see
+  `docs/draw-shadow-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

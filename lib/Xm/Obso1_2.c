@@ -248,6 +248,7 @@ void _XmDrawShadow (Display *display, Drawable d,
    register int i;
    register int size2;
    register int size3;
+   XRectangle *new_rects;
 
    if (size <= 0) return;
    if (size > width / 2) size = width / 2;
@@ -258,13 +259,18 @@ void _XmDrawShadow (Display *display, Drawable d,
 
    if (rect_count == 0)
    {
-      rects = (XRectangle *) XtMalloc (sizeof (XRectangle) * size * 4);
+      new_rects = (XRectangle *) XtMalloc (sizeof (XRectangle) * size * 4);
+      if (new_rects == NULL) return;
+      rects = new_rects;
       rect_count = size;
    }
 
    if (rect_count < size)
    {
-      rects = (XRectangle *) XtRealloc((char *)rects, sizeof (XRectangle) * size * 4);
+      new_rects = (XRectangle *) XtRealloc((char *)rects,
+						 sizeof (XRectangle) * size * 4);
+      if (new_rects == NULL) return;
+      rects = new_rects;
       rect_count = size;
    }
 

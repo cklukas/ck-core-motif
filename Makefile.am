@@ -187,6 +187,7 @@ EXTRA_DIST += tests/automated/check-drop-transfer-initialization.py docs/drop-tr
 EXTRA_DIST += tests/automated/check-callback-allocation-failure.py docs/callback-allocation-failure.md
 EXTRA_DIST += tests/automated/check-editres-payload-allocation.py docs/editres-payload-allocation.md
 EXTRA_DIST += tests/automated/check-charset-canonicalize-allocation.py docs/charset-canonicalize-allocation.md
+EXTRA_DIST += tests/automated/check-draw-shadow-allocation.py docs/draw-shadow-allocation.md
 EXTRA_DIST += tests/automated/check-xim-info-allocation.py docs/xim-info-allocation.md
 EXTRA_DIST += tests/automated/check-xim-recreate-allocation.py docs/xim-recreate-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md
