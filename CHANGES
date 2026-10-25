@@ -1,3 +1,9 @@
+XmList read-only query null-safety (2026-10-25)
+===============================================
+
+- Guard item, keyboard-position, and coordinate queries against null widgets
+  and items; see `docs/xm-list-readonly-null.md`.
+
 XmList query output validation (2026-10-25)
 =============================================
 

@@ -9474,6 +9474,9 @@ XmListItemExists(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   Boolean exists;
+
+  if (w == NULL || item == NULL)
+    return FALSE;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9501,6 +9504,9 @@ XmListItemPos(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int pos;
+
+  if (w == NULL || item == NULL)
+    return 0;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9527,6 +9533,9 @@ XmListGetKbdItemPos(Widget w)
 {
   XmListWidget  lw = (XmListWidget) w;
   int pos;
+
+  if (w == NULL)
+    return 0;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9803,6 +9812,9 @@ XmListYToPos(Widget w,
   /* BEGIN OSF Fix CR 5081 */
   XmListWidget lw = (XmListWidget)w;
   int pos;
+
+  if (w == NULL)
+    return 0;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
