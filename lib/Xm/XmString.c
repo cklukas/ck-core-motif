@@ -8572,6 +8572,11 @@ XmStringParseText(XtPointer    text,
       XtSetArg(args[nargs], XmNpattern, XmDIRECTION_CHANGE),	  nargs++;
       assert(nargs < XtNumber(args));
       default_dir_pattern = XmParseMappingCreate(args, nargs);
+      if (default_dir_pattern == NULL) {
+	XmStringFree(result);
+	_XmProcessUnlock();
+	return NULL;
+      }
     }
 
   /* Process characters until text has been consumed. */
