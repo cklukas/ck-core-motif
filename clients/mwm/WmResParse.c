@@ -2760,6 +2760,7 @@ static void ParseMenuSet (WmScreenData *pSD, unsigned char *lineP)
 {
     unsigned char     *string;
     MenuSpec *menuSpec;
+    size_t menuNameLength;
     
     /*
      * If menu name is NULL then skip this pane specification.
@@ -2796,9 +2797,9 @@ static void ParseMenuSet (WmScreenData *pSD, unsigned char *lineP)
      * Allocate and fill space for the menu name.
      */
 
-    if ((menuSpec->name = 
-	 (String)XtMalloc ((unsigned int) (strlen ((char *)string) + 1))) 
-	 == NULL)
+    menuNameLength = strlen((char *)string);
+    if (menuNameLength >= UINT_MAX ||
+	(menuSpec->name = (String)XtMalloc((Cardinal)menuNameLength + 1)) == NULL)
     {
         PWarning (((char *)GETMESSAGE(60, 10, "Insufficient memory for menu")));
 	XtFree ((char *)menuSpec);

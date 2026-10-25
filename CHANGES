@@ -11412,6 +11412,12 @@ MWM bitmap-cache path allocation (2026-10-25)
 - Check cached bitmap-path lengths before copying them into Xt-owned storage;
   see `docs/mwm-bitmap-cache-path-allocation.md`.
 
+MWM menu-pane name allocation (2026-10-25)
+===========================================
+
+- Check parsed menu-pane name lengths before Xt allocation; see
+  `docs/mwm-menu-pane-name-allocation.md`.
+
 MWM session database allocation widths (2026-10-25)
 ====================================================
 
