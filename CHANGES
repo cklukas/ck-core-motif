@@ -9121,7 +9121,8 @@ XmRenderTable resource-cache allocation guards (2026-10-29)
 =============================================================
 
 - Handle failed quark and flag-cache allocations and bound argument-driven
-  quark-cache growth before Xt allocation, preventing null dereferences and
+  quark-cache growth before Xt allocation; bound Xrm search-list doubling and
+  route failed growth through cleanup, preventing null dereferences and
   truncation; see `docs/xmrender-resource-cache-allocation.md`.
 
 ImageCache color-cache Xt allocation-size bounds (2026-10-29)

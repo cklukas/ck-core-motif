@@ -13,4 +13,9 @@ assert "UINT_MAX / sizeof(XrmQuark)" in region
 assert "XrmQuark *new_quarks" in region
 assert "if (new_quarks == NULL)" in region
 assert region.index("new_quarks =") < region.index("quarks = new_quarks")
+assert "next_size = searchListSize * 2" in region
+assert "SIZE_MAX /" in region
+assert "UINT_MAX /" in region
+assert "new_search_list == NULL" in region
+assert "goto resource_failure" in region
 print("XmRenderTable resource-cache allocations are guarded")

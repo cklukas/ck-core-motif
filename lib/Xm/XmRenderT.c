@@ -539,11 +539,24 @@ GetResources(XmRendition rend,
       while (!XrmQGetSearchList(db, names, classes,
 				searchList, searchListSize))
 	{
+	  unsigned int next_size;
+	  XrmHashTable *new_search_list;
+	  if (searchListSize > UINT_MAX / 2 ||
+	      (size_t)searchListSize > SIZE_MAX /
+		(2 * sizeof(XrmHashTable)) ||
+	      (size_t)searchListSize > UINT_MAX /
+		(2 * sizeof(XrmHashTable)))
+	    goto resource_failure;
+	  next_size = searchListSize * 2;
 	  if (searchList == stackSearchList)
 	    searchList = NULL;
-	  searchList = (XrmHashTable *)XtRealloc((char*)searchList,
-						 sizeof(XrmHashTable) *
-						 (searchListSize *= 2));
+	  new_search_list = (XrmHashTable *)XtRealloc((char*)searchList,
+						 (Cardinal)((size_t)next_size *
+							    sizeof(XrmHashTable)));
+	  if (new_search_list == NULL)
+	    goto resource_failure;
+	  searchList = new_search_list;
+	  searchListSize = next_size;
 	}
     }
   
@@ -628,6 +641,7 @@ GetResources(XmRendition rend,
 	      
 	}
     }
+resource_failure:
   if (searchList != stackSearchList) XtFree((char *)searchList);
 
 #ifdef XTHREADS
