@@ -1694,6 +1694,18 @@ _XmGetScaledPixmap(
 			  image, pixmap, depth,
 			  acc_color->foreground,
 			  acc_color->background);
+    if (gc == NULL)
+      {
+        _XmProcessLock();
+        _XmRemoveHashEntry(pixmap_data_set, pix_entry);
+        _XmRemoveHashEntry(pixmap_set, pix_entry);
+        _XmProcessUnlock();
+        XFreePixmap(display, pixmap);
+        DiscardScaledPixmapBuild(ret, image, old_image_data,
+                                 old_image_format, image_lock_held,
+                                 screen, pixels, npixels, pix_entry);
+        return (XmUNSPECIFIED_PIXMAP);
+      }
 
     /* transfer and scale the image */
     _XmPutScaledImage (display, pixmap, gc, image, 
