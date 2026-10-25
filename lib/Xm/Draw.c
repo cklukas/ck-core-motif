@@ -184,18 +184,27 @@ void XmeClearBorder (Display *display, Window w,
 #endif /* NeedWidePrototypes */
 {
     XtAppContext app;
+    int clear_width, clear_height, border;
 
-    if (!w || !shadow_thick || !width || !height) return ;
+    clear_width = (int) width;
+    clear_height = (int) height;
+    border = (int) shadow_thick;
+    if (!w || clear_width <= 0 || clear_height <= 0 || border <= 0)
+	return ;
+    if (border > clear_width)
+	border = clear_width;
+    if (border > clear_height)
+	border = clear_height;
 
     app = XtDisplayToApplicationContext(display);
     _XmAppLock(app);
 
-    XClearArea (display, w, x, y, width, shadow_thick, FALSE);
-    XClearArea (display, w, x, y + height - shadow_thick, width, 
-                shadow_thick, FALSE);
-    XClearArea (display, w, x, y, shadow_thick, height, FALSE);
-    XClearArea (display, w, x + width - shadow_thick, y, shadow_thick, 
-                height, FALSE);
+    XClearArea (display, w, x, y, clear_width, border, FALSE);
+    XClearArea (display, w, x, (int) y + clear_height - border,
+			clear_width, border, FALSE);
+    XClearArea (display, w, x, y, border, clear_height, FALSE);
+    XClearArea (display, w, (int) x + clear_width - border, y,
+			border, clear_height, FALSE);
     _XmAppUnlock(app);
 }
 

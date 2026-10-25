@@ -1,3 +1,10 @@
+XmeClearBorder span bounds (2026-10-26)
+=========================================
+
+- Clamp oversized border thickness before computing bottom and right clear
+  regions, preventing wrapped Xlib clear origins; see
+  `docs/clearborder-bounds.md`.
+
 Shared etched shadow span bounds (2026-10-26)
 ===============================================
 
