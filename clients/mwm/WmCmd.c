@@ -384,7 +384,17 @@ IncludeCommand (
   selection = UnpackCARD32(&data);
   count     = UnpackCARD32(&data);
 
-  if (count > 0) windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if (count == 0)
+    {
+      PRINT("No windows supplied for IncludeCommand.\n");
+      return;
+    }
+  windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if (windowIDs == NULL)
+    {
+      PRINT("Unable to allocate window list for IncludeCommand.\n");
+      return;
+    }
   for (win=0; win<count; win++)
   {
       windowIDs[win] = UnpackCARD32(&data);
@@ -509,7 +519,17 @@ EnableCommand (
   commandID = UnpackCARD32(&data);
   count     = UnpackCARD32(&data);
 
-  if (count > 0) windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if (count == 0)
+    {
+      PRINT("No windows supplied for EnableCommand.\n");
+      return;
+    }
+  windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if (windowIDs == NULL)
+    {
+      PRINT("Unable to allocate window list for EnableCommand.\n");
+      return;
+    }
   for (win=0; win<count; win++)
     {
       windowIDs[win] = UnpackCARD32(&data);
@@ -631,7 +651,17 @@ DisableCommand (
   commandID = UnpackCARD32(&data);
   count     = UnpackCARD32(&data);
 
-  if (count > 0) windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if (count == 0)
+    {
+      PRINT("No windows supplied for DisableCommand.\n");
+      return;
+    }
+  windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if (windowIDs == NULL)
+    {
+      PRINT("Unable to allocate window list for DisableCommand.\n");
+      return;
+    }
   for (win=0; win<count; win++)
     {
       windowIDs[win] = UnpackCARD32(&data);
@@ -755,7 +785,17 @@ RenameCommand (
   newname   = UnpackString(&data);
   count     = UnpackCARD32(&data);
 
-  if (count > 0) windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if (count == 0)
+    {
+      PRINT("No windows supplied for RenameCommand.\n");
+      return;
+    }
+  windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if (windowIDs == NULL)
+    {
+      PRINT("Unable to allocate window list for RenameCommand.\n");
+      return;
+    }
   for (win=0; win<count; win++)
     {
       windowIDs[win] = UnpackCARD32(&data);
@@ -877,7 +917,17 @@ RemoveCommand (
   commandID = UnpackCARD32(&data);
   count     = UnpackCARD32(&data);
 
-  if (count > 0) windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if (count == 0)
+    {
+      PRINT("No windows supplied for RemoveCommand.\n");
+      return;
+    }
+  windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if (windowIDs == NULL)
+    {
+      PRINT("Unable to allocate window list for RemoveCommand.\n");
+      return;
+    }
   for (win=0; win<count; win++)
     {
       windowIDs[win] = UnpackCARD32(&data);
