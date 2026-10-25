@@ -116,6 +116,15 @@ measurement and drawing. The focused check is:
 python3 tests/automated/check-badge-text-metrics.py
 ```
 
+InfoBar text now uses an owned render table for prefix, message, and action
+extents/drawing; it no longer frees a live font during Redisplay. The focused
+checks are:
+
+```sh
+python3 tests/automated/check-infobar-font-guard.py
+python3 tests/automated/check-info-bar-text-bounds.py
+```
+
 Link labels and their visited-state rules now use measured font geometry.  The
 focused check is:
 

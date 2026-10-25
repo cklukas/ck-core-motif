@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Ensure XmInfoBar installs a drawable GC font instead of silently skipping text."""
+"""Ensure XmInfoBar draws through its render table."""
 from pathlib import Path
 
 root = Path(__file__).parents[2]
 part = (root / "lib/Xm/InfoBarP.h").read_text(encoding="utf-8")
 source = (root / "lib/Xm/InfoBar.c").read_text(encoding="utf-8")
-assert "XFontStruct *font" in part
-assert 'XLoadQueryFont(display,"fixed")' in source
-assert "GCFont" in source
-assert "font = bar->info.font;" in source
-assert "XGetGCValues" not in source
-print("PASS InfoBar text GC has an installed fallback font")
+assert "XmRenderTable font" in part
+assert "XmNrenderTable" in source
+assert "XmStringExtent" in source
+assert "XmStringDraw" in source
+assert "XmRenderTableFree" in source
+print("PASS InfoBar text uses its render table")
