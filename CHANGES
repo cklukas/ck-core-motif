@@ -12085,3 +12085,11 @@ Bound compound text-property allocation width (2026-10-26)
   explicit final-buffer size; see `docs/text-property-bounds.md`.
 
 Make internal XmList stack allocation width explicit (2026-10-26)
+Bound compound-text table allocation widths (2026-10-26)
+========================================================
+
+- Pass explicit Xt-sized byte counts for the compound-text pointer table and
+  output buffer, rejecting totals outside Xt's `Cardinal` range; see
+  `docs/motif-txtpropcv-compound-table.md`.
+
+Bound compound text-property allocation width (2026-10-26)
