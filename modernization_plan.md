@@ -523,8 +523,8 @@ returns an explicit skip rather than counting fallback as live evidence.
 The companion source-contract regression locks in property restoration before
 observer teardown, one-callback verification and the status-77 ordinary-Xvfb
 boundary. Its runner also records source/library fingerprints and exact
-commands in a receipt; this does not substitute for a real multi-output XLibre
-run.
+commands in a receipt with an explicit pass/skip/fail result; this does not
+substitute for a real multi-output XLibre run.
 
 ### WP-05: Optional SVG image loading
 

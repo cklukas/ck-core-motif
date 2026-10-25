@@ -52,6 +52,7 @@ def main() -> int:
         "xrandr_root": str(args.xrandr_root.resolve(strict=True))
         if args.xrandr_root else None,
         "mode": "real-display" if args.display else "ordinary-xvfb-fallback",
+        "result": "pending",
         "steps": [],
         "success": False,
     }
@@ -110,13 +111,16 @@ def main() -> int:
             expected = (result.returncode == 77 and
                         "SKIP XLibre live observer" in result.stdout)
         if not expected:
+            receipt["result"] = "fail"
             print(result.stdout, end="", file=sys.stderr)
             print(result.stderr, end="", file=sys.stderr)
             return result.returncode or 1
         receipt["success"] = True
+        receipt["result"] = "pass" if args.display else "skip"
         print(result.stdout, end="")
         return 0
     except (OSError, RuntimeError) as error:
+        receipt["result"] = "fail"
         print(f"XLibre live fixture: {error}", file=sys.stderr)
         return 1
     finally:
