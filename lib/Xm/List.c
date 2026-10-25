@@ -3550,9 +3550,14 @@ DeleteInternalElementPositions(XmListWidget  lw,
 
   if (lw->list.itemCount)
     {
-      lw->list.InternalList = (ElementPtr*)
-	XtRealloc((char*) lw->list.InternalList,
-		  (sizeof(ElementPtr) * lw->list.itemCount));
+      if ((size_t)lw->list.itemCount <= SIZE_MAX / sizeof(ElementPtr))
+	{
+	  ElementPtr *new_internal = (ElementPtr *)XtRealloc(
+	      (char *)lw->list.InternalList,
+	      sizeof(ElementPtr) * (size_t)lw->list.itemCount);
+	  if (new_internal != NULL)
+	    lw->list.InternalList = new_internal;
+	}
     }
   else
     {

@@ -1,3 +1,10 @@
+List internal deletion shrink (2026-10-25)
+===========================================
+
+- Preserve the compacted `XmList` internal-element array when its optional
+  shrink allocation fails, matching the existing transactional item-deletion
+  path.
+
 VendorShell composite-extension allocation (2026-10-25)
 ==========================================================
 
