@@ -1,3 +1,11 @@
+XmList match-position bounds (2026-10-27)
+========================================
+
+- Reject an internal list count of `INT_MAX` in `XmListGetMatchPos`, whose
+  one-based public `int` positions cannot represent the final index without
+  signed overflow.  The existing result contract is unchanged for every
+  representable list size.
+
 Gallery live-page startup and TabStack examples (2026-10-27)
 ===============================================================
 

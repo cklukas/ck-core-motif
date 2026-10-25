@@ -33,6 +33,7 @@ static char rcsid[] = "$TOG: List.c /main/47 1999/10/12 16:58:17 mgreess $"
 
 #include <string.h>
 #include <stdio.h>
+#include <limits.h>
 #include <stdint.h>
 #include <wchar.h>
 #include <X11/Xatom.h>
@@ -9993,7 +9994,11 @@ XmListGetMatchPos(Widget w,
   _XmAppLock(app);
 
   if ((lw->list.items == NULL) ||
-      (lw->list.itemCount <= 0)) {
+      (lw->list.itemCount <= 0) ||
+      /* Positions are one-based and returned as int.  A list with
+       * INT_MAX items would require returning INT_MAX + 1 for its last
+       * item, which cannot be represented by this API. */
+      (lw->list.itemCount >= INT_MAX)) {
     _XmAppUnlock(app);
     return FALSE;
   }
