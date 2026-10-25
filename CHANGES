@@ -1,3 +1,9 @@
+ColorObj cache-property input validation (2026-10-25)
+=======================================================
+
+- Validate display, widget, owner, and screen inputs before cache-property
+  access; see `docs/color-cache-property-inputs.md`.
+
 Color-object pixel-data widget validation (2026-10-25)
 =======================================================
 

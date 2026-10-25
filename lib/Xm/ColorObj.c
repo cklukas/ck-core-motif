@@ -710,8 +710,10 @@ ColorCachePropertyExists(
     int format = 0 ;
     Atom target; 
     int result = False ;
+    XmColorObj color_obj = (XmColorObj)w;
 
-    if (!SelOwner)
+    if (dpy == NULL || w == NULL || !SelOwner || screen < 0 ||
+	screen >= color_obj->color_obj.numScreens)
 	return False ; 
 
     /* try to get the property if it exist only */
