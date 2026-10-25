@@ -13690,3 +13690,11 @@ DataF clipboard atom-name guard (2026-10-26)
   converted property encoding; see `docs/dataf-clipboard-atom-name.md`.
 
 UTF-8 conversion input validation (2026-10-26)
+CutPaste atom-name guards (2026-10-26)
+=======================================
+
+- Handle failed target and returned-type atom-name lookups during clipboard
+  conversion without dereferencing null strings; see
+  `docs/cutpaste-atom-name-guards.md`.
+
+DataF clipboard atom-name guard (2026-10-26)

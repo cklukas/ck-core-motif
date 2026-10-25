@@ -763,6 +763,10 @@ ClipboardConvertProc(Widget wid,
 
       /* convert atom to format name */
       format_name = XGetAtomName( display, *target );
+      if (format_name == NULL) {
+	rval = False;
+	goto done;
+      }
       ClipboardGetLenFromFormat( display, format_name, format) ;
 
       /* Make sure a byname item is first retrieved */
@@ -1224,6 +1228,11 @@ GetWindowProperty(
 
       len = strlen(match);
       temp = XGetAtomName(display, loc_type);
+
+      if (temp == NULL) {
+	*type = loc_type;
+	return ClipboardSuccess;
+      }
 
       for(i = 0; i < len; i++) {
 	if (temp[i] == 0 || temp[i] != match[i]) {
