@@ -501,6 +501,9 @@ XmObjectAtPoint(
         Position x,
         Position y )
 {
+    if (wid == NULL)
+	return NULL;
+
     XmManagerWidgetClass mw = (XmManagerWidgetClass) XtClass(wid);
     XmManagerClassExt *mext ;
     Widget return_wid = NULL;
