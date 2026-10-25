@@ -71,6 +71,14 @@ Xvfb evidence, not complete physical-display, external-IME or architecture
 acceptance. The complete receipt and staged-font fingerprints are retained in
 `docs/x86-text-qualification.md`.
 
+An isolated AArch64 `uconsole` rebuild of commit `1c2e4379` with Xft, Unicode
+text and AT-SPI enabled also passes the installed `abi`, `layout` and
+`large-text` fixtures in 10.44 seconds. Its 1 MiB run reports the same
+1,073,152-byte, 761,856-scalar and 696,320-grapheme-per-widget contract. The
+host lacks Xrandr headers, so this focused check intentionally omits the
+optional XLibre-DPI adapter; that host capability boundary does not affect the
+text-layout qualification.
+
 ## Earlier incremental map qualification
 
 Native AArch64 installed ABI 8 passes 32 selected feature fixtures, including

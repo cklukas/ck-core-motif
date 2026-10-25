@@ -664,6 +664,10 @@ fixture passes with the color-emoji corpus; it records 1,073,152 bytes,
 761,856 scalars and 696,320 graphemes per widget with no X error or paragraph
 layout warning. This closes that bounded x86_64 text gate without claiming
 physical-display, external-IME or complete architecture acceptance.
+An isolated AArch64 `uconsole` rebuild of commit `1c2e4379` independently passes
+the installed `abi`, `layout` and `large-text` fixtures; its host lacks the
+Xrandr headers required for the optional XLibre-DPI adapter, so that focused
+check intentionally excludes only that adapter.
 
 ### WP-07: Screen-reader usability and semantic completion
 
