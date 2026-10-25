@@ -131,6 +131,9 @@ _XmRequestNewSize(Widget w, Boolean query_only,
     XtGeometryResult ret_val;
     XtWidgetGeometry request, result;
 
+    if (w == NULL)
+        return (XtGeometryNo);
+
     request.width = width;
     request.height = height;
     request.request_mode = CWWidth | CWHeight;
@@ -144,16 +147,22 @@ _XmRequestNewSize(Widget w, Boolean query_only,
 	if (!query_only)
 	    ret_val = XtMakeGeometryRequest(w, &result, NULL);
 
-	*r_width = result.width;
-	*r_height = result.height;
+	if (r_width != NULL)
+            *r_width = result.width;
+        if (r_height != NULL)
+            *r_height = result.height;
     }
     else if (ret_val == XtGeometryYes) {
-	*r_width = request.width;
-	*r_height = request.height;
+	if (r_width != NULL)
+            *r_width = request.width;
+        if (r_height != NULL)
+            *r_height = request.height;
     }
     else {
-	*r_width = w->core.width;
-	*r_height = w->core.height;
+	if (r_width != NULL)
+            *r_width = w->core.width;
+        if (r_height != NULL)
+            *r_height = w->core.height;
     }
 
     return(ret_val);
@@ -174,6 +183,9 @@ _XmRequestNewSize(Widget w, Boolean query_only,
 XtGeometryResult
 _XmHWQuery(Widget w, XtWidgetGeometry * intended, XtWidgetGeometry * preferred)
 {
+    if (w == NULL || preferred == NULL)
+        return (XtGeometryNo);
+
     if (intended == NULL) {
 	if ((preferred->width == w->core.width) &&
  	    (preferred->height == w->core.height))

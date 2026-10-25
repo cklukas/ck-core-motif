@@ -1,3 +1,10 @@
+Xm geometry helper null-safety (2026-10-25)
+===========================================
+
+- Reject null widgets and preferred geometry records in private geometry
+  helpers, and make negotiated size outputs optional; see
+  `docs/xm-extutil-null.md`.
+
 Xm cursor-size query validation (2026-10-25)
 ===============================================
 
