@@ -1429,6 +1429,10 @@ Window * MakeTransientWindowList (Window *windows, ClientData *pcd)
 {
     ClientData *pcdNext;
 
+    if (windows == NULL || pcd == NULL)
+    {
+        return (windows);
+    }
 
     pcdNext = pcd->transientChildren;
     while (pcdNext)

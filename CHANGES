@@ -4610,3 +4610,9 @@ Transient focus and stacking guards (2026-10-25)
 
 - Handle detached clients safely during focus repair and tree normalization;
   see `docs/transient-focus-stack-guards.md`.
+
+Transient window-list guards (2026-10-25)
+=========================================
+
+- Validate transient list output and client inputs before writing windows;
+  see `docs/transient-window-list-guards.md`.
