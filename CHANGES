@@ -10052,6 +10052,12 @@ XmRenderT copy failure propagation (2026-10-25)
 - Propagate failed shared or cloned rendition allocation before scratch-state
   access; see `docs/xmrender-copy-propagation.md`.
 
+XmRenderT scratch-tag allocation guard (2026-10-25)
+===================================================
+
+- Release partial cloned renditions when scratch-tag copying cannot allocate
+  its tag array; see `docs/xmrender-tag-copy-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

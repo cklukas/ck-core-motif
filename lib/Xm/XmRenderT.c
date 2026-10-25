@@ -1382,6 +1382,11 @@ _XmRenditionCopy(XmRendition rend,
       _XmRendTags(toRend) = _XmRendTagCount(rend)
           ? (XmStringTag *)XtMalloc(sizeof(XmStringTag) * _XmRendTagCount(rend))
           : NULL;
+      if (_XmRendTagCount(rend) != 0 && _XmRendTags(toRend) == NULL) {
+	FreeRendition(toRend);
+	FreeHandle(toRend);
+	return(NULL);
+      }
       for (i = 0; i < _XmRendTagCount(rend); i++)
 	_XmRendTags(toRend)[i] = _XmRendTags(rend)[i];
     }
