@@ -4628,3 +4628,9 @@ Modal-tree guards (2026-10-25)
 
 - Validate recursive modal-tree inputs before updating counts or grabs;
   see `docs/modal-tree-guards.md`.
+
+WSM transient helper guards (2026-10-25)
+========================================
+
+- Validate WSM transient tree and output-list state before stacking;
+  see `docs/wsm-transient-guards.md`.

@@ -2752,6 +2752,11 @@ FindSubLeaderToTop (
     ClientData *pcdRet = NULL;
     ClientData *pcdNext;
 
+    if (pcd == NULL)
+    {
+        return (NULL);
+    }
+
     pcdNext = pcd->transientChildren;
     while (pcdNext && (!pcdRet))
     {
@@ -2809,7 +2814,14 @@ MakeTransientFamilyStackingList (
 {
     ClientData *pcdNext, *pcdSub;
     Window *nextWindow, wSave, wTemp, wTop;
-    int count = CountTransientChildren (pcdLeader);
+    int count;
+
+    if (windows == NULL || pcdLeader == NULL)
+    {
+        return;
+    }
+
+    count = CountTransientChildren (pcdLeader);
     register int i, j;
 
     /*
@@ -2817,6 +2829,10 @@ MakeTransientFamilyStackingList (
      * normal Motif rules.
      */
     nextWindow = MakeTransientWindowList (windows, pcdLeader);
+    if (nextWindow == NULL)
+    {
+        return;
+    }
 
     if (!(pcdLeader->secondariesOnTop))
     {
@@ -2959,8 +2975,14 @@ LeaderOnTop (
 
 {
     Boolean bOnTop = False;
-    int count = CountTransientChildren (pcdLeader);
+    int count;
 
+    if (pcdLeader == NULL)
+    {
+        return (False);
+    }
+
+    count = CountTransientChildren (pcdLeader);
     if ((pcdLeader->primaryStackPosition > 0) &&
 	(pcdLeader->primaryStackPosition < count))
     {
