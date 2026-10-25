@@ -1,3 +1,10 @@
+Xm image-cache initialization failure handling (2026-10-25)
+===============================================================
+
+- Check lazy image-table initialization before hash lookup, returning failure
+  instead of dereferencing a null table; see
+  `docs/xm-image-cache-init-failure.md`.
+
 Xm pixmap-cache allocation failure handling (2026-10-25)
 ==============================================================
 

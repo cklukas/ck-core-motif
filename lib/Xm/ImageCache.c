@@ -914,6 +914,8 @@ GetImage(
     /***  Check for the initial allocation of the image set array  */
     
     if (image_set == NULL) InitializeImageSet();
+    if (image_set == NULL)
+        return FALSE;
 
     if (!image_name) return FALSE ;
 
