@@ -11430,6 +11430,12 @@ MWM catalog-string allocation widths (2026-10-25)
 - Centralize width-checked copies of localized titles and warning formats; see
   `docs/mwm-nls-string-allocation.md`.
 
+MWM workspace-string allocation (2026-10-25)
+=============================================
+
+- Route workspace names and presence titles through checked string copies; see
+  `docs/mwm-workspace-string-allocation.md`.
+
 MWM per-screen display allocation width (2026-10-25)
 =====================================================
 

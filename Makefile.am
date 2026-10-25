@@ -977,6 +977,7 @@ EXTRA_DIST += tests/automated/check-mwm-screen-warp-warning.py docs/mwm-screen-w
 EXTRA_DIST += tests/automated/check-mwm-bitmap-cache-path-allocation.py docs/mwm-bitmap-cache-path-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-menu-pane-name-allocation.py docs/mwm-menu-pane-name-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-nls-string-allocation.py docs/mwm-nls-string-allocation.md
+EXTRA_DIST += tests/automated/check-mwm-workspace-string-allocation.py docs/mwm-workspace-string-allocation.md
 
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 

@@ -5238,7 +5238,7 @@ ProcessWorkspaceList (WmScreenData *pSD)
 	{
 	    string = GenerateWorkspaceName (pSD, i);
 	}
-	if (!(pwsI->name = (String) XtMalloc (1+strlen((char *)string))))
+	if (!(pwsI->name = CopyCatalogString((char *)string)))
 	{
 	    Warning (((char *)GETMESSAGE(62, 27, "Insufficient memory for workspace data")));
 	    ExitWM(WM_ERROR_EXIT_VALUE);
@@ -5444,11 +5444,8 @@ ProcessPresenceResources (WmScreenData *pSD)
 	    pch1 = (unsigned char *) 
 		    WmXmStringToString (pSD->presence.title);
 
-	    if (pch1 && (pch2 = (unsigned char *) 
-				XtMalloc (1+strlen((char *)pch1))))
-	    {
-		strcpy ((char *)pch2, (char *)pch1);
-	    }
+	    if (pch1)
+		pch2 = (unsigned char *)CopyCatalogString((char *)pch1);
 	}
 
 	if (!pch2)
