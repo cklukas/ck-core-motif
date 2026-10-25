@@ -844,6 +844,9 @@ _XmVirtKeysLoadFileBindings(char   *fileName,
   Boolean complete = True;
   char line[256];
   Boolean skip;
+
+  if (fileName == NULL || binding == NULL)
+    return False;
   
   if ((fileP = fopen (fileName, "r")) != NULL) 
     {
@@ -883,6 +886,7 @@ _XmVirtKeysLoadFileBindings(char   *fileName,
 	  }
 	  if (required > buffersize) {
 	    size_t new_size = buffersize;
+	    String new_binding;
 
 	    while (new_size < required) {
 	      if (new_size > SIZE_MAX - BUFFERSIZE) {
@@ -891,7 +895,12 @@ _XmVirtKeysLoadFileBindings(char   *fileName,
 	      }
 	      new_size += BUFFERSIZE;
 	    }
-	    *binding = XtRealloc(*binding, (Cardinal)new_size);
+	    new_binding = XtRealloc(*binding, (Cardinal)new_size);
+	    if (new_binding == NULL) {
+	      complete = False;
+	      break;
+	    }
+	    *binding = new_binding;
 	    buffersize = new_size;
 
 	    /* always make sure that the end of *binding is null terminated */
@@ -912,7 +921,14 @@ _XmVirtKeysLoadFileBindings(char   *fileName,
       }
      
       /* trim unused buffer space */
-      *binding = XtRealloc (*binding, count + 1);
+      {
+	String trimmed = XtRealloc(*binding, count + 1);
+	if (trimmed == NULL) {
+	  fclose(fileP);
+	  return False;
+	}
+	*binding = trimmed;
+      }
 
       fclose (fileP);
       return True;

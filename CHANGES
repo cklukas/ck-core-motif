@@ -4622,3 +4622,9 @@ Xmos directory-entry list allocations (2026-10-25)
 
 - Make entry-pointer growth and full/basename string creation failure-safe;
   see `docs/xmos-entry-list-allocation.md`.
+
+Virtual-key binding allocations (2026-10-25)
+=============================================
+
+- Make binding-file growth and final trimming transactional; see
+  `docs/virtkeys-binding-allocation.md`.

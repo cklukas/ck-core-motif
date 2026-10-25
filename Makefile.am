@@ -730,3 +730,5 @@ EXTRA_DIST += tests/automated/check-xmos-reset-cache.py docs/xmos-reset-cache.md
 EXTRA_DIST += tests/automated/check-xmos-dir-cache-allocation.py docs/xmos-dir-cache-allocation.md
 
 EXTRA_DIST += tests/automated/check-xmos-entry-list-allocation.py docs/xmos-entry-list-allocation.md
+
+EXTRA_DIST += tests/automated/check-virtkeys-binding-allocation.py docs/virtkeys-binding-allocation.md
