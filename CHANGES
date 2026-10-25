@@ -73,6 +73,12 @@ XmString table conversion locking (2026-10-26)
 - Avoid recursive locking in `XmStringToXmStringTable` and clean its table
   allocation failure path; see `docs/xmstring-table-locking.md`.
 
+XmString enumeration locking (2026-10-26)
+==========================================
+
+- Avoid recursive process locking in `XmStringIsVoid` and
+  `XmCvtXmStringToByteStream`; see `docs/xmstring-enumeration-locking.md`.
+
 Gallery screenshot qualification receipts (2026-10-25)
 ========================================================
 
