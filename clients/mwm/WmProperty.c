@@ -1487,6 +1487,13 @@ SetWorkspaceInfoProperty (WmWorkspaceData *pWS)
 
     /* Convert workspace title to ascii */
     sTitle = (String) WmXmStringToString (pWS->title);
+    if (sTitle == NULL)
+    {
+	Warning ("Unable to convert workspace title for workspace information property");
+	XtFree ((char *) ppchList);
+	XtFree (pch);
+	return;
+    }
     ppchList[i++] = (char *) sTitle;
 
     /*  Pixel set id */

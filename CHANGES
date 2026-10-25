@@ -13330,6 +13330,13 @@ Tabbed-stack list allocation bounds (2026-10-26)
 
 Optimized XmString concatenation allocation (2026-10-26)
 Compound-text direction-stack bounds (2026-10-26)
+Workspace-info title conversion safety (2026-10-26)
+====================================================
+
+- Reject failed workspace-title conversion before passing a null entry to
+  Xlib's text-property encoder; see `docs/workspace-info-title.md`.
+
+Compound-text direction-stack bounds (2026-10-26)
 ==================================================
 
 - Bound direction-stack growth against Xt's `Cardinal` allocation width in
