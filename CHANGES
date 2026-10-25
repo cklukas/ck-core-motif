@@ -36,6 +36,12 @@ Form-section margin comparison (2026-10-26)
 - Avoid unsigned width underflow when deciding whether a footer fits inside
   large form-section margins; see `docs/form-section-margin-bounds.md`.
 
+Progress-bar text allocation guard (2026-10-26)
+================================================
+
+- Skip optional percentage text when `XmProgressBar` cannot allocate its
+  display string; see `docs/progress-bar-text-allocation.md`.
+
 Progress-ring text allocation guard (2026-10-26)
 ================================================
 

@@ -209,7 +209,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                      ((long long)progress->progress.maximum -
                       (long long)progress->progress.minimum)));
         text_string = XmStringCreateLocalized(text);
-        if (progress->progress.font) {
+        if (text_string && progress->progress.font) {
             Dimension text_width = 0, text_height = 0;
             XmStringExtent(progress->progress.font, text_string, &text_width,
                            &text_height);
@@ -219,7 +219,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                          XmALIGNMENT_BEGINNING,
                          XmPrim_layout_direction(progress), NULL);
         }
-        XmStringFree(text_string);
+        if (text_string)
+            XmStringFree(text_string);
     }
     if (progress->primitive.highlighted && progress->primitive.highlight_thickness &&
         progress->core.width > 2 * progress->primitive.highlight_thickness &&
