@@ -621,8 +621,8 @@ drop-site registration contract: operation and import-target retrieval,
 callback identity, update bracketing, explicit unregister/re-register, and
 implicit teardown of a registered widget. Three repeated Xvfb runs pass all
 seven checks on `uconsole`; this is a bounded lifecycle result and does not
-close two-process transfer, cancellation, owner-replacement or application-DnD
-gates. The new installed `check-dnd-transfer` consumer adds a real
+close cancellation, owner-replacement or application-DnD gates. The new
+installed `check-dnd-transfer` consumer adds a real
 same-process Motif drag gesture and passes conversion, valid-drop admission,
 transfer-entry client-data propagation and selection-value ownership checks in
 three repeated Xvfb runs. The installed `check-dnd-cross-process` consumer
