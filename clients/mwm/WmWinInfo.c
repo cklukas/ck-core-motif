@@ -2425,6 +2425,8 @@ ProcessWmWindowTitle (ClientData *pCD, Boolean firstTime)
 	if (pCD->clientName)
         {
 	    pCD->clientTitle = XmStringCreateLocalized(pCD->clientName);
+	    if (!pCD->clientTitle)
+		pCD->clientTitle = wmGD.clientDefaultTitle;
         }
         else
         {

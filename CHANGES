@@ -13423,6 +13423,12 @@ TreeView geometry bounds (2026-10-26)
 - Compute TreeView preferred height in a wider type and clamp it to
   `Dimension` range; see `docs/treeview-geometry-bounds.md`.
 
+MWM title fallback safety (2026-10-26)
+=======================================
+
+- Fall back to the shared default title when localized client-title creation
+  fails before later measurement or drawing; see `docs/mwm-title-fallback.md`.
+
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================
 
