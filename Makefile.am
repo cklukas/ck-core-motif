@@ -620,6 +620,7 @@ EXTRA_DIST += tests/automated/check-xmim-callback-registration.py docs/xmim-call
 EXTRA_DIST += tests/automated/check-xmim-preedit-allocation.py docs/xmim-preedit-allocation.md
 
 EXTRA_DIST += tests/automated/check-xmim-varargs-allocation.py docs/xmim-varargs-allocation.md
+EXTRA_DIST += tests/automated/check-xm-color-api-null.py docs/xm-color-api-null.md
 
 EXTRA_DIST += tests/automated/check-xmstring-parse-mapping-allocation.py docs/xmstring-parse-mapping-allocation.md
 EXTRA_DIST += tests/automated/check-xmstring-baseline-allocation.py docs/xmstring-baseline-allocation.md
