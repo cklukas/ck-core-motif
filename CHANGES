@@ -1,3 +1,9 @@
+Atom-list converter input validation (2026-10-25)
+==================================================
+
+- Validate display and `XrmValue` inputs before atom-list tokenization and
+  interning; see `docs/atom-list-converter-inputs.md`.
+
 Table converter input validation (2026-10-25)
 ===============================================
 

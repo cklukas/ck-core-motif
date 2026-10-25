@@ -2463,7 +2463,7 @@ CvtStringToAtomList(
   Atom *atom_list;
   char *context_string;
 
-  if (from->addr == NULL)
+  if (dpy == NULL || from == NULL || from->addr == NULL || to == NULL)
     return(False);
 	
   atom_count = 0;
