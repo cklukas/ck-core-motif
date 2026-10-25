@@ -30,6 +30,7 @@
 
 #include "XmI.h"
 #include <Xm/HierarchyP.h>
+#include <Xm/Ext.h>
 #include <Xm/PushB.h>
 #include <Xm/IconButton.h>
 
@@ -1007,15 +1008,23 @@ BuildNodeTable(Widget w, HierarchyConstraints node, Cardinal * current_index)
     if ((XmHierarchy_node_table(hw) == NULL) || 
 	(XmHierarchy_alloc_nodes(hw) < hw->composite.num_children))
     {
+        HierarchyConstraints *new_table;
+
 	/*
 	 * This will allocate more space than we need, but shouldn't be too
-	 * terrible.
+	 * terrible.  Keep the existing table until the replacement succeeds.
 	 */
+        size_t node_count = (size_t)hw->composite.num_children;
+        size_t node_bytes;
 
-	XmHierarchy_node_table(hw) = (HierarchyConstraints *)
-	    XtRealloc((XtPointer) XmHierarchy_node_table(hw),
-		    sizeof(HierarchyConstraints) * hw->composite.num_children);
-
+        if (node_count != 0 && SIZE_MAX / node_count < sizeof(*new_table))
+            return;
+        node_bytes = node_count * sizeof(*new_table);
+        new_table = (HierarchyConstraints *)XtRealloc(
+            (XtPointer)XmHierarchy_node_table(hw), node_bytes);
+        if (new_table == NULL)
+            return;
+        XmHierarchy_node_table(hw) = new_table;
 	XmHierarchy_alloc_nodes(hw) = hw->composite.num_children;
     }
 
@@ -1364,12 +1373,27 @@ AddChildToList(HierarchyConstraints ** list, Cardinal * num, Cardinal * alloc,
     Widget insert_before = XmHierarchyC_insert_before(child);
     
     if (*alloc <= *num) {
-	Cardinal size;
-	
-	(*alloc) += ALLOC_INC;
-	size = sizeof(HierarchyConstraints) * (*alloc);
-	*list = (HierarchyConstraints *) XtRealloc((XtPointer)*list, size);
+        Cardinal new_alloc;
+        HierarchyConstraints *new_list;
+        size_t list_count;
+        size_t list_bytes;
+
+        if (*alloc > (Cardinal)-1 - ALLOC_INC)
+            return;
+        new_alloc = *alloc + ALLOC_INC;
+        list_count = (size_t)new_alloc;
+        if (list_count != 0 && SIZE_MAX / list_count < sizeof(*new_list))
+            return;
+        list_bytes = list_count * sizeof(*new_list);
+        new_list = (HierarchyConstraints *)XtRealloc(
+            (XtPointer)*list, list_bytes);
+        if (new_list == NULL)
+            return;
+        *list = new_list;
+        *alloc = new_alloc;
     }
+    if (*num == (Cardinal)-1)
+        return;
     
     if (insert_before != NULL) {
 	success = NO;

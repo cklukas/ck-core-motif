@@ -5413,3 +5413,9 @@ Normalize Xm hash bucket indices (2026-10-25)
 - Convert signed hash callbacks to an unsigned bucket domain before modulo,
   preventing negative indices on 64-bit hosts; see
   `docs/xm-hash-allocation.md`.
+
+Make Hierarchy list growth transactional (2026-10-25)
+=======================================================
+
+- Preserve node tables and child lists when growth allocation fails, with
+  checked size arithmetic; see `docs/hierarchy-allocation.md`.
