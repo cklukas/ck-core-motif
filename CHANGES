@@ -88,6 +88,13 @@ WSM get-state unpack allocation guard (2026-10-25)
 - Check the WSM `GET_STATE` reply window-info allocation before unpacking and
   cleanup; see `docs/wsm-get-state-unpack-oom.md`.
 
+WSM config-format reply guard (2026-10-25)
+===========================================
+
+- Reject configuration-format replies cleanly when screen metadata is
+  unavailable, avoiding a null screen-record dereference; see
+  `docs/wsm-config-reply-oom.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 

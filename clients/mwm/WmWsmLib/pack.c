@@ -664,6 +664,9 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 	    WSMConfigFormatReply * config_format = &(reply->config_format);
 	    WSMConfigFormatData *fmt;
 	    WSMScreenInfo *scr_info = _WSMGetScreenInfo(dpy, screen_num);
+
+	    if (scr_info == NULL)
+		return;
 	    
 	    config_format->accepts_diffs = UnpackBoolean(&data);
 
