@@ -1429,20 +1429,41 @@ Unoptimize(_XmStringEntry entry, int free)
       }
       new_entry = entry;
     } else {
+      size_t segment_count = (size_t)_XmEntrySegmentCount(entry);
+      _XmStringNREntry *segments;
       _XmEntryCreate(new_entry, XmSTRING_ENTRY_ARRAY);
+      if (new_entry == NULL)
+	return NULL;
+      if (segment_count > SIZE_MAX / sizeof(*segments) ||
+	  segment_count * sizeof(*segments) > (size_t)((Cardinal)~0))
+	{
+	  _XmStringEntryFree(new_entry);
+	  return NULL;
+	}
       _XmEntrySegmentCount(new_entry) = _XmEntrySegmentCount(entry);
       _XmEntrySoftNewlineSet(new_entry, _XmEntrySoftNewlineGet(entry));
-      _XmEntrySegment(new_entry) = 
-	(_XmStringNREntry *)XtMalloc(_XmEntrySegmentCount(entry) *
-				     sizeof(_XmStringNREntry));
+      segments = (_XmStringNREntry *)XtMalloc(
+					 (Cardinal)(segment_count * sizeof(*segments)));
+      if (!segments) {
+	_XmStringEntryFree(new_entry);
+	return NULL;
+      }
+      _XmEntrySegment(new_entry) = segments;
       for (j = 0; j < _XmEntrySegmentCount(entry); j++) {
 	tmp_seg = _XmEntrySegment(entry)[j];
 	if (_XmEntryType(tmp_seg) == XmSTRING_ENTRY_OPTIMIZED)
-	  _XmEntrySegment(new_entry)[j] = 
-	    (_XmStringNREntry)EntryCvtToUnopt((_XmStringEntry)tmp_seg);
+	  segments[j] = (_XmStringNREntry)
+	    EntryCvtToUnopt((_XmStringEntry)tmp_seg);
 	else
-	  _XmEntrySegment(new_entry)[j] = 
-	    (_XmStringNREntry)_XmStringEntryCopy((_XmStringEntry)tmp_seg);
+	  segments[j] = (_XmStringNREntry)
+	    _XmStringEntryCopy((_XmStringEntry)tmp_seg);
+	if (!segments[j]) {
+	  int k;
+	  for (k = 0; k < j; k++)
+	    _XmStringEntryFree((_XmStringEntry)segments[k]);
+	  _XmStringEntryFree(new_entry);
+	  return NULL;
+	}
       }
     }
   } else {

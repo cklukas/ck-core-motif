@@ -6160,3 +6160,10 @@ Harden XmString separator creation (2026-10-25)
   separators before returning `NULL`; see
   `docs/xmstring-separator-allocation.md` and its focused source check.
 
+Guard XmString unoptimization copies (2026-10-25)
+==================================================
+
+- Bound non-destructive segment-array conversion and unwind every partial
+  segment on failure; see `docs/xmstring-unoptimize-allocation.md` and its
+  focused source check.
+
