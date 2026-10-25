@@ -180,6 +180,12 @@ NumberBox text rendering fallback (2026-10-27)
   live value render completely blank on displays without inherited GC font
   state.
 
+Stepper text rendering fallback (2026-10-27)
+=============================================
+
+- Install and release a valid fallback font for the Stepper value GC, avoiding
+  blank values when a display does not provide an inherited GC font.
+
 InfoBar close control and FontSelector bounds (2026-10-27)
 ============================================================
 

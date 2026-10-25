@@ -137,3 +137,10 @@ default GC font is unset.  The focused check is:
 ```sh
 python3 tests/automated/check-numberbox-font-fallback.py
 ```
+
+Stepper now installs the same managed fallback font for its value GC.  The
+focused check is:
+
+```sh
+python3 tests/automated/check-stepper-font-fallback.py
+```

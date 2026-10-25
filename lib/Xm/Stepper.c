@@ -79,13 +79,18 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
     if (!s->core.width) s->core.width = 72;
     if (!s->core.height) s->core.height = 32;
     values.foreground = s->primitive.foreground; values.background = s->core.background_pixel;
-    s->stepper.gc = XCreateGC(XtDisplay(widget), DefaultRootWindow(XtDisplay(widget)), GCForeground | GCBackground, &values);
+    s->stepper.font = XLoadQueryFont(XtDisplay(widget), "fixed");
+    if (s->stepper.font) values.font = s->stepper.font->fid;
+    s->stepper.gc = XCreateGC(XtDisplay(widget), DefaultRootWindow(XtDisplay(widget)),
+                              GCForeground | GCBackground |
+                              (s->stepper.font ? GCFont : 0), &values);
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events, NULL);
 }
 static void Destroy(Widget widget) {
     XmStepperWidget s = (XmStepperWidget)widget;
     XtRemoveEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events, NULL);
     if (s->stepper.gc) XFreeGC(XtDisplay(widget), s->stepper.gc);
+    if (s->stepper.font) XFreeFont(XtDisplay(widget), s->stepper.font);
 }
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmStepperWidget s = (XmStepperWidget)widget; Display *d = XtDisplay(widget); Window w = XtWindow(widget);
