@@ -9203,3 +9203,10 @@ I18List column-title copy allocation (2026-10-29)
 - Make column-title copying transactional, check Xt allocation-size bounds,
   and release partial `XmString` copies on failure; see
   `docs/i18list-column-title-allocation.md`.
+
+XmList copy-helper rollback (2026-10-29)
+========================================
+
+- Roll back partial `XmString` copies and clear failed list resources, and
+  bound selected-position copies against Xt's `Cardinal` size; see
+  `docs/list-copy-helper-rollback.md`.

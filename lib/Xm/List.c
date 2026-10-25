@@ -3928,7 +3928,18 @@ CopyItems(XmListWidget lw)
       if (il == NULL)
         return;
       for (i = 0; i < lw->list.itemCount; i++)
-	il[i] = XmStringCopy(lw->list.items[i]);
+	{
+	  il[i] = XmStringCopy(lw->list.items[i]);
+	  if (il[i] == NULL)
+	    {
+	      while (i != 0)
+		XmStringFree(il[--i]);
+	      XtFree((char *)il);
+	      lw->list.items = NULL;
+	      lw->list.itemCount = 0;
+	      return;
+	    }
+	}
 
       lw->list.items = il;
     }
@@ -3957,7 +3968,18 @@ CopySelectedItems(XmListWidget lw)
       if (sl == NULL)
         return;
       for (i = 0; i < lw->list.selectedItemCount; i++)
-	sl[i] = XmStringCopy(lw->list.selectedItems[i]);
+	{
+	  sl[i] = XmStringCopy(lw->list.selectedItems[i]);
+	  if (sl[i] == NULL)
+	    {
+	      while (i != 0)
+		XmStringFree(sl[--i]);
+	      XtFree((char *)sl);
+	      lw->list.selectedItems = NULL;
+	      lw->list.selectedItemCount = 0;
+	      return;
+	    }
+	}
 
       lw->list.selectedItems = sl;
     }
@@ -3974,13 +3996,14 @@ CopySelectedPositions(XmListWidget lw)
 {
   if (lw->list.selectedPositions && lw->list.selectedPositionCount)
     {
-      int size;
+      size_t size;
       int *sl;
 
-      if ((size_t)lw->list.selectedPositionCount > SIZE_MAX / sizeof(int))
+      if ((size_t)lw->list.selectedPositionCount > SIZE_MAX / sizeof(int) ||
+          (size_t)lw->list.selectedPositionCount > UINT_MAX / sizeof(int))
         return;
-      size = sizeof(int) * lw->list.selectedPositionCount;
-      sl = (int *) XtMalloc(size);
+      size = sizeof(int) * (size_t)lw->list.selectedPositionCount;
+      sl = (int *) XtMalloc((Cardinal)size);
       if (sl == NULL)
         return;
 
