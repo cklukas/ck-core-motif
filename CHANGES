@@ -1,3 +1,10 @@
+Guard Text compound-text value allocation (2026-10-25)
+=======================================================
+
+- Refuse compound-text conversion cleanly when its returned-value buffer
+  cannot be allocated, releasing the Xlib property first; see
+  `docs/motif-textsel-compound-value.md`.
+
 Guard Text XA_STRING value allocation (2026-10-25)
 ===================================================
 
