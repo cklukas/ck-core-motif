@@ -2871,7 +2871,19 @@ add_ref(XmImRefInfo refs,
       if (refs->max_refs == 0)
 	new_max = 10;
       else
-	new_max = refs->max_refs + (refs->max_refs / 2);
+        {
+          Cardinal increment = refs->max_refs / 2;
+          if (increment == 0)
+            increment = 1;
+          if (refs->max_refs > (Cardinal)-1 - increment)
+            return 0;
+          new_max = refs->max_refs + increment;
+        }
+
+      if ((size_t)new_max > SIZE_MAX / sizeof(*new_refs) ||
+          new_max > UINT_MAX / sizeof(*new_refs) ||
+          new_max > UINT_MAX / sizeof(*new_callbacks))
+        return 0;
 
       new_refs = (Widget *)XtMalloc((size_t)new_max * sizeof(*new_refs));
       new_callbacks = (XIMCallback **)XtCalloc(
@@ -2937,9 +2949,15 @@ remove_ref(XmImRefInfo refs,
 	  (refs->max_refs >= 20))
 	{
 	  Cardinal new_max = refs->max_refs / 2;
-	  Widget *new_refs = (Widget *)XtMalloc(
+	  Widget *new_refs;
+	  XIMCallback **new_callbacks;
+	  if ((size_t)new_max > SIZE_MAX / sizeof(Widget) ||
+	      new_max > UINT_MAX / sizeof(Widget) ||
+	      new_max > UINT_MAX / sizeof(XIMCallback *))
+	    return refs->num_refs;
+	  new_refs = (Widget *)XtMalloc(
 	      (size_t)new_max * sizeof(Widget));
-	  XIMCallback **new_callbacks = (XIMCallback **)XtMalloc(
+	  new_callbacks = (XIMCallback **)XtMalloc(
 	      (size_t)new_max * sizeof(XIMCallback *));
 	  if (new_refs != NULL && new_callbacks != NULL) {
 	    memcpy(new_refs, refs->refs,

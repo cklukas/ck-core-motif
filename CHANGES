@@ -4,6 +4,12 @@ List selection-copy allocation bounds (2026-10-28)
 - Check Xt `Cardinal` byte limits alongside `size_t` before copying List item
   and selection arrays; see `docs/list-copy-allocation-bounds.md`.
 
+XmIm reference-table growth bounds (2026-10-28)
+================================================
+
+- Guard reference-array growth against `Cardinal`/`size_t` overflow and ensure
+  degenerate one-entry tables make progress; see `docs/xmim-reference-growth.md`.
+
 Compound-text concatenation failure handling (2026-10-28)
 ============================================================
 
