@@ -929,3 +929,4 @@ EXTRA_DIST += tests/automated/check-xmstring-cache-allocation.py docs/xmstring-c
 EXTRA_DIST += tests/automated/check-xmstring-charset-allocation.py docs/xmstring-charset-allocation.md
 EXTRA_DIST += tests/automated/check-xmstring-tag-allocation.py docs/xmstring-tag-allocation.md
 EXTRA_DIST += tests/automated/check-xmstring-segment-allocation.py docs/xmstring-segment-allocation.md
+EXTRA_DIST += tests/automated/check-xmstring-charset-null.py docs/xmstring-charset-comparison.md

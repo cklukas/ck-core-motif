@@ -7125,6 +7125,10 @@ _XmStringGetCurrentCharset( void )
 Boolean
 _XmStringIsCurrentCharset( XmStringCharSet c )
 {
+  /* Charset tags may come from optional application metadata.  Treat a
+     missing tag as a non-match instead of passing NULL to strcmp(). */
+  if (c == NULL)
+    return False;
   return (strcmp(c, _XmStringGetCurrentCharset()) == 0);
 }
 

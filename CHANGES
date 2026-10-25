@@ -6216,3 +6216,10 @@ Guard XmString segment allocation (2026-10-25)
   copied-child failures, with checked count-to-byte conversion; see
   `docs/xmstring-segment-allocation.md` and its focused source check.
 
+Guard XmString charset comparison (2026-10-25)
+================================================
+
+- Treat missing charset metadata as a non-match before `strcmp`, preserving
+  valid comparisons; see `docs/xmstring-charset-comparison.md` and its focused
+  source check.
+
