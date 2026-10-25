@@ -1108,6 +1108,9 @@ _XmComputeVisibilityRect(Widget      w,
    * then the clip window is used as the initial rectangle for w. 
    */
   Widget sw;
+
+  if (w == NULL || rectPtr == NULL)
+    return False;
   
   if (!_XmIsViewable(w))
     {   
@@ -1183,6 +1186,9 @@ _XmSetRect(
    */
    Position x, y;
 
+   if (rect == NULL || w == NULL)
+     return;
+
    XtTranslateCoords(XtParent(w), w->core.x, w->core.y, &x, &y);
    rect->x = x + w->core.border_width;
    rect->y = y + w->core.border_width;
@@ -1202,6 +1208,9 @@ _XmIntersectRect(
    */
   XRectangle srcRectB;
 
+  if (srcRectA == NULL || widget == NULL || dstRect == NULL)
+    return False;
+
   _XmSetRect(&srcRectB, widget);
   
   return( (int) _XmIntersectionOf( srcRectA, &srcRectB, dstRect)) ;
@@ -1211,6 +1220,8 @@ int
 _XmEmptyRect(
         register XRectangle *r )
 {
+   if (r == NULL)
+      return TRUE;
    if (r->width <= 0 || r->height <= 0)
       return (TRUE);
 
@@ -1221,6 +1232,8 @@ void
 _XmClearRect(
         register XRectangle *r )
 {
+   if (r == NULL)
+      return;
    r->x = 0;
    r->y = 0;
    r->width = 0;

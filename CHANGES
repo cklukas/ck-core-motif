@@ -1,3 +1,9 @@
+Traversal geometry input validation (2026-10-25)
+=================================================
+
+- Guard traversal visibility and rectangle helpers against missing geometry or
+  widget inputs; see `docs/traversal-geometry-inputs.md`.
+
 Traversal query input validation (2026-10-25)
 ==============================================
 
