@@ -209,7 +209,8 @@ GetTextSegment(Display *display, /* unused */
 	    if (texttype == _LOCALE_TEXT)
 	    {
 	      /* The text should be already be valid locale text */
-	      char *tmp = XtMalloc(char_count + sizeof(wchar_t));
+	      char *tmp = XtMalloc((Cardinal)((size_t)char_count +
+					 sizeof(wchar_t)));
 	      if (tmp == NULL)
 		return(_INVALID_SEGMENT);
 	      memcpy(tmp, text, char_count);
@@ -235,7 +236,8 @@ GetTextSegment(Display *display, /* unused */
 		{
 		  /* Given the above charset encodings, the text should
 		     already be valid locale text. */
-		  char *tmp = XtMalloc(char_count + sizeof(wchar_t));
+		  char *tmp = XtMalloc((Cardinal)((size_t)char_count +
+					   sizeof(wchar_t)));
 		  if (tmp == NULL)
 		    return(_INVALID_SEGMENT);
 		  memcpy(tmp, text, char_count);
@@ -247,7 +249,8 @@ GetTextSegment(Display *display, /* unused */
 			 (strcmp(encoding, "ISO8859-1") == 0))
 		{
 		  /* The text is valid STRING text */
-		  char *tmp = XtMalloc(char_count + sizeof(wchar_t));
+		  char *tmp = XtMalloc((Cardinal)((size_t)char_count +
+					   sizeof(wchar_t)));
 		  if (tmp == NULL)
 		    return(_INVALID_SEGMENT);
 		  memcpy(tmp, text, char_count);

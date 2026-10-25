@@ -12134,3 +12134,9 @@ TxtPropCv fallback value allocation width (2026-10-26)
 
 - Pass the checked fallback text-property byte count explicitly as an Xt
   `Cardinal`; see `docs/motif-txtpropcv-value.md`.
+
+TxtPropCv segment allocation widths (2026-10-26)
+=================================================
+
+- Pass all validated temporary segment-copy sizes explicitly as Xt
+  `Cardinal` values; see `docs/motif-txtpropcv-segment.md`.
