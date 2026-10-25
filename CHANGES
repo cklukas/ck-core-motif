@@ -3865,3 +3865,10 @@ Harden traversal-node pool growth (2026-10-25)
 - Publish traversal-pool growth only after checked allocation and stop graph
   construction cleanly when node entries cannot be allocated; see
   `docs/traversal-node-allocation.md`.
+
+Harden traversal row allocation (2026-10-25)
+==============================================
+
+- Publish replacement row/item arrays only after checked allocation and clean
+  up partial rows when sorting cannot grow its storage; see
+  `docs/traversal-row-allocation.md`.

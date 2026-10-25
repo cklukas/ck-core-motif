@@ -100,7 +100,7 @@ static void TruncateRow(XmTraversalRow  *row,
 			Cardinal	 max_free,
 			Boolean		 horizontal,
 			XmDirection	 layout);
-static void AppendToRow(XmTraversalNode  item,
+static Boolean AppendToRow(XmTraversalNode  item,
 			XmTraversalRow  *row,
 			Boolean		 horizontal,
 			XmDirection	 layout);
@@ -108,7 +108,7 @@ static Boolean NodeDominates(XmTraversalNode node_1,
 			     XmTraversalNode node_2,
 			     Boolean	     horizontal,
 			     XmDirection     layout);
-static void Sort(XmTraversalNode *nodes,
+static Boolean Sort(XmTraversalNode *nodes,
 		 size_t           n_mem, 
 		 Boolean          horizontal,
 		 XmDirection      layout);
@@ -1509,7 +1509,7 @@ TruncateRow(XmTraversalRow  *row,
 }
 
 /* A helper for Sort().  Append a node to a row. */
-static void
+static Boolean
 AppendToRow(XmTraversalNode item,
 	    XmTraversalRow *row,
 	    Boolean	    horizontal,
@@ -1521,9 +1521,23 @@ AppendToRow(XmTraversalNode item,
   assert (row->num_items <= row->max_items);
   if (row->num_items == row->max_items)
     {
-      row->max_items += 10;
-      row->items = (XmTraversalNode *)
-	XtRealloc((char*)row->items, row->max_items * sizeof(XmTraversalNode));
+      Cardinal new_max_items = row->max_items + 10;
+      XmTraversalNode *new_items;
+      size_t item_count;
+      size_t item_bytes;
+
+      if (new_max_items < row->max_items)
+	return False;
+      item_count = (size_t)new_max_items;
+      if (item_count != 0 && SIZE_MAX / item_count < sizeof(*new_items))
+	return False;
+      item_bytes = item_count * sizeof(*new_items);
+      new_items = (XmTraversalNode *)XtRealloc(
+	  (char *)row->items, item_bytes);
+      if (new_items == NULL)
+	return False;
+      row->items = new_items;
+      row->max_items = new_max_items;
     }
 
   /* Append this item.*/
@@ -1558,6 +1572,7 @@ AppendToRow(XmTraversalNode item,
 	  ASSIGN_MAX(row->max_hint, node->any.rect.x + node->any.rect.width);
 	}
     }
+  return True;
 }
 
 /*
@@ -1589,7 +1604,7 @@ NodeDominates(XmTraversalNode node_1,
     }
 }
 
-static void 
+static Boolean
 Sort(XmTraversalNode *list,
      size_t           n_mem, 
      Boolean	      horizontal,
@@ -1605,7 +1620,7 @@ Sort(XmTraversalNode *list,
 
   /* Take the easy out in degenerate cases. */
   if (n_mem <= 1)
-    return;
+    return True;
 
   /* First sort everything based simply on the absolute coordinates. */
   if (horizontal)
@@ -1650,7 +1665,8 @@ Sort(XmTraversalNode *list,
 	    {
 	      TruncateRow(rows + row, row_len, list, &first_free, n_mem, 
 			  horizontal, layout);
-	      AppendToRow(node, rows + row, horizontal, layout);
+	      if (!AppendToRow(node, rows + row, horizontal, layout))
+		goto allocation_failure;
 	      done = True;
 	    }
 
@@ -1678,7 +1694,9 @@ Sort(XmTraversalNode *list,
 	  XmTraversalRow new_data;
 	  Cardinal new_index = num_rows;
 
-	  new_data.items = XtNew(XmTraversalNode);
+	  new_data.items = (XmTraversalNode *)XtMalloc(sizeof(*new_data.items));
+	  if (new_data.items == NULL)
+	    goto allocation_failure;
 	  new_data.items[0] = node;
 	  new_data.lead_item = node;
 	  new_data.num_items = 1;
@@ -1694,9 +1712,22 @@ Sort(XmTraversalNode *list,
 	      new_data.max_hint = node->any.rect.x + node->any.rect.width;
 	    }
 	  
-	  num_rows++;
-	  rows = (XmTraversalRow *) 
-	    XtRealloc((char*) rows, num_rows * sizeof(XmTraversalRow));
+	  {
+	    XmTraversalRow *new_rows;
+	    size_t new_row_count = (size_t)num_rows + 1;
+	    if (new_row_count > SIZE_MAX / sizeof(*new_rows)) {
+	      XtFree((char *)new_data.items);
+	      goto allocation_failure;
+	    }
+	    new_rows = (XmTraversalRow *)XtRealloc(
+		(char *)rows, new_row_count * sizeof(*new_rows));
+	    if (new_rows == NULL) {
+	      XtFree((char *)new_data.items);
+	      goto allocation_failure;
+	    }
+	    rows = new_rows;
+	    num_rows++;
+	  }
 	  
 	  /* Keep rows sorted by initial element. */
 	  for (row = new_index; row > 0; row--)
@@ -1746,6 +1777,13 @@ Sort(XmTraversalNode *list,
     }
   assert(first_free == n_mem);
   XtFree((char*) rows);
+  return True;
+
+allocation_failure:
+  for (row = 0; row < num_rows; row++)
+    XtFree((char *)rows[row].items);
+  XtFree((char *)rows);
+  return False;
 }
 
 static int 
