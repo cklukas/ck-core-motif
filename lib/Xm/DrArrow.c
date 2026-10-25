@@ -62,7 +62,7 @@ void XmeDrawArrow(Display *display, Drawable d,
    short t = 0 , b = 0 , c = 0 ;
    XtAppContext app;
 
-   if (!d) return ;
+   if (!d || (shadow_thick && (!top_gc || !bot_gc))) return ;
 
    app = XtDisplayToApplicationContext(display);
    _XmAppLock(app);

@@ -1,3 +1,9 @@
+Arrow drawing GC guards (2026-10-26)
+===================================
+
+- Guard shadowed arrow rendering when a required shadow graphics context is
+  missing; see `docs/drarrow-gc-guards.md`.
+
 Toggle drawing GC guards (2026-10-26)
 =====================================
 
