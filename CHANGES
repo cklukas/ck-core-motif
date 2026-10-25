@@ -48,6 +48,12 @@ Data-grid text-length bounds (2026-10-26)
 - Bound shared DataGrid cell/header text lengths before passing them to Xlib;
   see `docs/data-grid-text-bounds.md`.
 
+Breadcrumb text-length bounds (2026-10-26)
+==========================================
+
+- Bound breadcrumb label/separator lengths and final text positioning before
+  Xlib drawing; see `docs/breadcrumb-text-bounds.md`.
+
 Info-bar text geometry bounds (2026-10-26)
 ==========================================
 
