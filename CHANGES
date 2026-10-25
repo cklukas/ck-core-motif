@@ -12264,3 +12264,9 @@ Region shadow allocation widths (2026-10-26)
 
 - Pass checked top and bottom shadow segment sizes explicitly as Xt
   `Cardinal` values; see `docs/region-shadow-counts.md`.
+
+XmString rendition-tag allocation width (2026-10-26)
+=====================================================
+
+- Pass the checked copied rendition-tag array size explicitly as an Xt
+  `Cardinal`; see `docs/xmstring-rendition-bounds.md`.
