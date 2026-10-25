@@ -1,4 +1,9 @@
 2026-10-25
+	* Record the WP-39 context-menu entry no-go: existing public popup,
+	  PushButton icon, accelerator, shortcut-text and activation APIs already
+	  provide the required contract; see docs/context-menu-decision.md.
+
+2026-10-25
 	* Retire ScrolledWindow auto-drag timers and callback payloads across
 	  scrollbar destruction, model changes and reentrant navigator callbacks;
 	  snapshot scrollbar callback lists before application dispatch and stop
