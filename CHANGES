@@ -49,6 +49,13 @@ Text warning cleanup (2026-10-27)
 - Use integer zero values for Xlib `XContext` state and the unsigned input to
   `XmImRegister`, removing pointer-to-integer casts from the Text build.
 
+Label application-pixmap rendering (2026-10-27)
+===============================================
+
+- Fall back to `XGetGeometry` when a label pixmap is not present in Motif's
+  metadata cache. Application-owned pixmaps now receive dimensions and draw
+  normally instead of appearing blank.
+
 TextField verify-snapshot bounds (2026-10-27)
 =============================================
 

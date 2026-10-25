@@ -92,6 +92,39 @@ static char rcsid[] = "$TOG: Label.c /main/26 1997/06/18 17:40:00 samborn $"
 #define Pix(w)			((w)->label.pixmap)
 #define Pix_insen(w)		((w)->label.pixmap_insen)
 
+/* Pixmap metadata is cached for Motif-created images, but application-owned
+ * pixmaps are valid label resources too.  Fall back to XGetGeometry so those
+ * pixmaps still receive dimensions and are drawn. */
+static Boolean
+LabelGetPixmapData(Screen *screen, Pixmap pixmap, int *depth,
+                   unsigned int *width, unsigned int *height)
+{
+    int cached_depth;
+    unsigned int cached_width;
+    unsigned int cached_height;
+    Window root;
+    int x, y;
+    unsigned int border, geometry_depth;
+
+    if (screen == NULL || pixmap == XmUNSPECIFIED_PIXMAP)
+        return False;
+    if (XmeGetPixmapData(screen, pixmap, NULL, &cached_depth, NULL, NULL,
+                         NULL, NULL, &cached_width, &cached_height)) {
+        if (depth) *depth = cached_depth;
+        if (width) *width = cached_width;
+        if (height) *height = cached_height;
+        return True;
+    }
+    if (!XGetGeometry(DisplayOfScreen(screen), pixmap, &root, &x, &y,
+                      &cached_width, &cached_height, &border, &geometry_depth))
+        return False;
+    cached_depth = (int)geometry_depth;
+    if (depth) *depth = cached_depth;
+    if (width) *width = cached_width;
+    if (height) *height = cached_height;
+    return True;
+}
+
 /* Warning Messages */
 
 #define CS_STRING_MESSAGE	_XmMMsgLabel_0003
@@ -770,9 +803,7 @@ _XmCalcLabelDimensions(Widget wid)
 	{
 	  if (Pix(newlw) != XmUNSPECIFIED_PIXMAP)
 	    {
-	      XmeGetPixmapData(XtScreen(newlw), Pix(newlw),
-			       NULL, NULL, NULL, NULL, NULL, NULL,
-			       &w, &h);         
+	      LabelGetPixmapData(XtScreen(newlw), Pix(newlw), NULL, &w, &h);
 	      
 	      lp->PixmapRect.width = (unsigned short) w;
 	      lp->PixmapRect.height = (unsigned short) h;
@@ -787,9 +818,7 @@ _XmCalcLabelDimensions(Widget wid)
 
 	  if (pix_use != XmUNSPECIFIED_PIXMAP)
 	    {
-	      XmeGetPixmapData(XtScreen(newlw), pix_use,
-			       NULL, NULL, NULL, NULL, NULL, NULL,
-			       &w, &h);         
+	      LabelGetPixmapData(XtScreen(newlw), pix_use, NULL, &w, &h);
 	      
 	      lp->PixmapRect.width = (unsigned short) w;
 	      lp->PixmapRect.height = (unsigned short) h;
@@ -1511,8 +1540,7 @@ Redisplay(
 	    {
 	      gc = lp->normal_GC;
 	      
-	      if (XmeGetPixmapData(XtScreen(lw), Pix(lw), NULL, &depth,
-			       NULL, NULL, NULL, NULL, NULL, NULL))
+	      if (LabelGetPixmapData(XtScreen(lw), Pix(lw), &depth, NULL, NULL))
 	      {
 		if (depth == lw->core.depth)
 		  XCopyArea (XtDisplay(lw), Pix(lw), XtWindow(lw), gc, 0, 0,
@@ -1545,8 +1573,7 @@ Redisplay(
 	    {
 	      gc = lp->insensitive_GC;
 	      
-	      if (XmeGetPixmapData(XtScreen(lw), pix_use, NULL, &depth,
-			       NULL, NULL, NULL, NULL, NULL, NULL))
+	      if (LabelGetPixmapData(XtScreen(lw), pix_use, &depth, NULL, NULL))
 	      {
 	      if (depth == lw->core.depth)
 		XCopyArea (XtDisplay(lw), pix_use, XtWindow(lw), 
