@@ -1,3 +1,9 @@
+Clipboard inquire-count header guard (2026-10-26)
+==================================================
+
+- Check the clipboard header before count inquiries access retrieval state;
+  see `docs/clipboard-inquire-count-header-guard.md`.
+
 Clipboard retrieve data bounds (2026-10-26)
 ============================================
 

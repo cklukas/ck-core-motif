@@ -4443,6 +4443,13 @@ XmClipboardInquireCount(
     /* get the clipboard header */
     header = ClipboardOpen( display, 0 );
 
+    if (header == NULL)
+    {
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
+
     /* If StartRetrieve wasn't called use latest Timestamp from server */
 
     if ( header->copyFromTimestamp == CurrentTime )
