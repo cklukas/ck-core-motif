@@ -3977,3 +3977,9 @@ Guard Color selector loader allocations (2026-10-25)
 
 - Make RGB color-table growth and temporary XmString-list allocation
   transactional; see `docs/motif-colors-loader-allocation.md`.
+Guard Font selector family-list allocation (2026-10-25)
+==========================================================
+
+- Validate the temporary family XmString array before filling it, preserving
+  the current list on allocation failure; see
+  `docs/motif-fonts-family-allocation.md`.

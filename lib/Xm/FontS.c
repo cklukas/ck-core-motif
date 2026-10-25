@@ -1574,7 +1574,11 @@ UpdateFamilies(XmFontSelectorWidget fsw)
 
     num = XmFontS_font_info(fsw)->num_families;
 
+    if ((size_t)num > SIZE_MAX / sizeof(*strs))
+	return;
     strs = (XmString *) XtMalloc(sizeof(XmString) * num);
+    if (strs == NULL && num != 0)
+	return;
     size_flag = SizeMapping(cf->point_size);
     for (i = count = 0; i < num; i++, fam++) {
 	Boolean ok_75, ok_100, spacing_match, resolution_ok, has_sizes;
