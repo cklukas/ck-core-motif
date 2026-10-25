@@ -3235,6 +3235,13 @@ XmClipboardCopy(
 
 	/* allocate local storage for the data format record */ 
 	formatptr     = (ClipboardFormatItem)XtMalloc( (size_t) formatlength );
+	if (formatptr == NULL)
+	{
+	    XtFree( (char *)itemheader);
+	    ClipboardUnlock( display, window, 0 );
+	    _XmAppUnlock(app);
+	    return ClipboardFail;
+	}
 
 	formatid     = ClipboardGetNewItemId( display ); 
 	formatdataid = ClipboardGetNewItemId( display ); 
@@ -3282,12 +3289,20 @@ XmClipboardCopy(
 	  ClipboardGetLenFromFormat( display, format, &format_len );
 	}
 
+	formatdataptr = XtMalloc( (size_t) formatdatalength );
+	if (formatdataptr == NULL && formatdatalength != 0)
+	{
+	    XtFree( (char *)formatptr);
+	    XtFree( (char *)itemheader);
+	    ClipboardUnlock( display, window, 0 );
+	    _XmAppUnlock(app);
+	    return ClipboardFail;
+	}
+
 	/* return the property on the root window for the item */
 	ClipboardReplaceItem(display, itemid, (XtPointer)itemheader,
 			     itemlength, PropModeReplace, 32,
 			     True, XA_INTEGER );
-
-	formatdataptr = XtMalloc( (size_t) formatdatalength );
 
         to_ptr = formatdataptr; 
     }else{
@@ -3295,7 +3310,8 @@ XmClipboardCopy(
     	formatdataid = formatptr->formatDataId;
     	
     	/* the format already existed so get the data and append */
-    	ClipboardRetrieveItem(display, 
+	    formatdataptr = NULL;
+	    status = ClipboardRetrieveItem(display,
 			      formatdataid,
 			      (int) length, /* BAD NEWS: truncation here.*/
 			      0,
@@ -3306,7 +3322,19 @@ XmClipboardCopy(
 			      0,
 			      0 );
 
-	to_ptr = (char *)formatdataptr + (formatdatalength - length);
+	    if (status != ClipboardSuccess ||
+		(formatdataptr == NULL && formatdatalength != 0) ||
+		formatdatalength < length)
+	    {
+		if (formatdataptr != NULL)
+		    XtFree( (char *)formatdataptr);
+		ClipboardClose( display, header );
+		ClipboardUnlock( display, window, 0 );
+		_XmAppUnlock(app);
+		return (status == ClipboardSuccess) ? ClipboardFail : status;
+	    }
+
+	    to_ptr = (char *)formatdataptr + (formatdatalength - length);
     }
 
     if ( buffer != 0 )

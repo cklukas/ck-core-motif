@@ -1,3 +1,10 @@
+Clipboard copy allocation checks (2026-10-26)
+==============================================
+
+- Check clipboard format/data allocations and existing-format retrievals
+  before dereferencing or publishing them; see
+  `docs/clipboard-copy-allocation.md`.
+
 Xme class-dialog child rollback (2026-10-26)
 ===============================================
 
