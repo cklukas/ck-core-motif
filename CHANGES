@@ -8198,3 +8198,12 @@ Hierarchy top-node allocation (2026-10-27)
 
 Container drag-icon cache allocation (2026-10-27)
 =================================================
+ColorObj pixel-data allocation (2026-10-27)
+===========================================
+
+- Check the bounded pixel-data buffer allocation before copying server data
+  into it.  Allocation pressure now releases the X buffer and returns without
+  dereferencing a null conversion buffer.
+
+Hierarchy top-node allocation (2026-10-27)
+==========================================

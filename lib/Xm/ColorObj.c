@@ -640,6 +640,10 @@ FetchPixelData(Widget w, char * value, unsigned long value_length, int screen)
         return;
     }
     bounded_value = (char *)XtMalloc((Cardinal)value_length + 1);
+    if (bounded_value == NULL) {
+        XFree(value);
+        return;
+    }
     memcpy(bounded_value, value, (size_t)value_length);
     bounded_value[value_length] = '\0';
     XFree(value);
