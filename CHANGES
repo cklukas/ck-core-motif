@@ -1,3 +1,10 @@
+Clipboard conversion allocation checks (2026-10-26)
+=====================================================
+
+- Check selection-conversion output allocation and release it when retrieval
+  fails, clearing invalid output state; see
+  `docs/clipboard-convert-allocation.md`.
+
 Clipboard pending-list allocation checks (2026-10-26)
 ======================================================
 

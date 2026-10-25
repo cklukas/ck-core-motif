@@ -785,9 +785,18 @@ ClipboardConvertProc(Widget wid,
       
       *value = XtMalloc( (int) *size );
 
+      if (*value == NULL) {
+	rval = False;
+	*size = 0;
+	goto done;
+      }
+
       if (ClipboardRetrieve(display, window, format_name, 
 			    (XtPointer) *value, *size, &outlength, 
 			    &private_id, type) != ClipboardSuccess ) {
+	XtFree( (char *) *value );
+	*value = NULL;
+	*size = 0;
 	rval = False;
 	goto done;
       }
