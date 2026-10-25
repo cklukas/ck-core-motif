@@ -9825,6 +9825,13 @@ XmString charset allocation fallback (2026-10-25)
   allocation fails, allowing later initialization retry; see
   `docs/xmstring-charset-allocation.md`.
 
+ScrolledWindow auto-drag allocation guard (2026-10-25)
+=======================================================
+
+- Balance the drop-site update when auto-scroll closure allocation fails,
+  avoiding a null dereference and stale update state; see
+  `docs/scrolled-window-drag-allocation.md`.
+
 MWM label-parse allocation guard (2026-10-25)
 ==============================================
 

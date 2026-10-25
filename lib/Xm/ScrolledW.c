@@ -2392,6 +2392,11 @@ XtPointer    call_data)
         {
             sw->swindow.auto_drag_closure = auto_clos =
                 (AutoDragClosure *) XtMalloc(sizeof(AutoDragClosure)) ;
+            if (auto_clos == NULL) {
+                sw->swindow.auto_drag_closure = NULL;
+                XmDropSiteEndUpdate(w);
+                return;
+            }
             auto_clos->widget = w ;
 
             /* Here we need to find in which direction to move.
