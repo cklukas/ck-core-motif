@@ -1,4 +1,8 @@
 2026-10-25
+	* Guard Container detail-order copies and preserve the previous order when
+	  a new array cannot be allocated; see docs/container-detail-order-guards.md.
+
+2026-10-25
 	* Guard Container detail-header cache growth and leave the existing cache
 	  unchanged when allocation fails; see docs/container-detail-header-guards.md.
 

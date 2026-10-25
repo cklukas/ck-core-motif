@@ -1279,9 +1279,13 @@ Initialize(
 	} else {
 	ncw->container.detail_order = (Cardinal *)
 	    XtMalloc(sizeof(Cardinal) * ncw->container.detail_order_count);
-	for (i=0; i < ncw->container.detail_order_count; i++)
-	    ncw->container.detail_order[i] = 
-		rcw->container.detail_order[i] ;
+	if (ncw->container.detail_order == NULL) {
+	    ncw->container.detail_order_count = 0;
+	} else {
+	    for (i=0; i < ncw->container.detail_order_count; i++)
+		ncw->container.detail_order[i] =
+		    rcw->container.detail_order[i] ;
+	}
 	}
     }     
     
@@ -1985,9 +1989,14 @@ SetValues(
 	    } else {
 		detail_order = (Cardinal *)
 		    XtMalloc(sizeof(Cardinal) * ncw->container.detail_order_count);
-		for (i=0; i < ncw->container.detail_order_count; i++)
-		    detail_order[i] = ncw->container.detail_order[i] ;
-		ncw->container.detail_order = detail_order ;
+		if (detail_order == NULL) {
+		    ncw->container.detail_order = NULL;
+		    ncw->container.detail_order_count = 0;
+		} else {
+		    for (i=0; i < ncw->container.detail_order_count; i++)
+			detail_order[i] = ncw->container.detail_order[i] ;
+		    ncw->container.detail_order = detail_order ;
+		}
 	    }
 	}     
     }
