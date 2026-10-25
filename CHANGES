@@ -278,6 +278,8 @@ Render-table locking (2026-10-26)
   skipping them; see `docs/xmstring-table-inputs.md`.
 - Make `XmStringPutRendition` propagate component-allocation failure instead
   of returning an unadorned string; see `docs/xmstring-put-rendition-failure.md`.
+- Propagate source-copy failure in `XmStringPutRendition` before adding
+  rendition markers; see `docs/xmstring-put-rendition-copy.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================

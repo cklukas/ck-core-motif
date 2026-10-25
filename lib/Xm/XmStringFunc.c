@@ -298,13 +298,18 @@ XmStringPutRendition(XmString string,
     return(NULL);
 
   /* Quick and dirty.  Fix for beta! */
-  XmString	str, tmp1, tmp2;
+  XmString	str, tmp1, tmp2, copied;
   
   tmp1 = XmStringComponentCreate(XmSTRING_COMPONENT_RENDITION_BEGIN,
 				 strlen(rendition), (XtPointer)rendition);
   if (tmp1 == NULL)
     return(NULL);
-  tmp2 = XmStringConcatAndFree(tmp1, XmStringCopy(string));
+  copied = XmStringCopy(string);
+  if (copied == NULL) {
+    XmStringFree(tmp1);
+    return(NULL);
+  }
+  tmp2 = XmStringConcatAndFree(tmp1, copied);
   if (tmp2 == NULL)
     return(NULL);
 
