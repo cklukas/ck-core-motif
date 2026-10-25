@@ -1,3 +1,9 @@
+XmFileSelectionBox API null-safety (2026-10-25)
+================================================
+
+- Guard file-selection child lookup and search APIs against null widgets; see
+  `docs/xm-filesb-api-null.md`.
+
 XmSelectionBox child lookup null-safety (2026-10-25)
 ====================================================
 

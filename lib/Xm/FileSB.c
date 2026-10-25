@@ -3406,9 +3406,11 @@ XmFileSelectionBoxGetChild(
         unsigned char which )
 #endif /* NeedWidePrototypes */
 {   
-            Widget          child ;
+            Widget          child = NULL;
 /****************/
 
+    if (fs == NULL)
+        return NULL;
     _XmWidgetToAppContext(fs);
     _XmAppLock(app);
 
@@ -3449,6 +3451,8 @@ XmFileSelectionDoSearch(
             String          textString ;
 /****************/
 
+    if (fs == NULL)
+        return;
     _XmWidgetToAppContext(fs);
     _XmAppLock(app);
 
