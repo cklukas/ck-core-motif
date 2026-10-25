@@ -8462,6 +8462,8 @@ parse_pattern(XmString      *result,
     case XmINSERT:
       if (insertion != NULL)
 	*result = XmStringConcatAndFree(*result, insertion);
+      if (*result == NULL)
+	return False;
       break;
 
     default:
@@ -8557,7 +8559,8 @@ XmStringParseText(XtPointer    text,
   /* Did the user provide an XmDIRECTION_CHANGE pattern? */
   has_dir_pattern = False;
   for (index = 0; (index < parse_count) && !has_dir_pattern; index++)
-    has_dir_pattern = (parse_table[index]->pattern == XmDIRECTION_CHANGE);
+    has_dir_pattern = (parse_table[index] != NULL &&
+		       parse_table[index]->pattern == XmDIRECTION_CHANGE);
   if (!has_dir_pattern && !default_dir_pattern)
     {
       /* Create a default direction pattern. */
@@ -8610,6 +8613,10 @@ XmStringParseText(XtPointer    text,
 	  advanced = 
 	    parse_pattern(&result, &ptr, end_ptr, tag, type,
 			  default_dir_pattern, len, call_data, &halt);
+	  if (result == NULL) {
+	    _XmProcessUnlock();
+	    return NULL;
+	  }
 	}
 
       /* Try to match this character against the patterns. */
@@ -8625,6 +8632,11 @@ XmStringParseText(XtPointer    text,
 	      }
 	      advanced = parse_pattern(&result, &ptr, end_ptr, tag,
 				       type, pat, len, call_data, &halt);
+	      if (result == NULL) {
+		XmStringFree(result);
+		_XmProcessUnlock();
+		return NULL;
+	      }
 #ifdef FIX_1398	      
 	      /* Insert the charset component after pattern insertion */
 	      result = XmStringConcatAndFree(result, XmStringComponentCreate(tag_type, strlen(tag), (XtPointer) tag));
