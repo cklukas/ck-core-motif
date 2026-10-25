@@ -6054,3 +6054,10 @@ Correct Xft UTF-16 underline lengths (2026-10-25)
   counts before Xft measurement; see `docs/xft-underline-length.md` and its
   focused source check.
 
+Guard Xft UTF-8 metric conversion (2026-10-25)
+================================================
+
+- Handle failed UTF-8-to-UCS-2 conversion before core-font measurement and
+  release successful temporary buffers; see
+  `docs/xft-utf8-metrics-allocation.md` and its focused source check.
+
