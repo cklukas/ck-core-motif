@@ -22,6 +22,12 @@ Mrm Arg-list Xt byte bounds (2026-10-28)
 - Apply Xt `Cardinal` byte-size checks to all Mrm Arg-list allocations, in
   addition to the existing `size_t` checks; see `docs/mrm-arg-bounds.md`.
 
+Render-table rendition result byte bounds (2026-10-28)
+=======================================================
+
+- Check Xt `Cardinal` byte limits before allocating the positional rendition
+  result array; see `docs/render-table-rendition-array.md`.
+
 Compound-text concatenation failure handling (2026-10-28)
 ============================================================
 

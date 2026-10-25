@@ -1886,7 +1886,8 @@ XmRenderTableGetRenditions(XmRenderTable table,
      _XmAppLock(app);
   }
 #endif
-	if ((size_t)tag_count > SIZE_MAX / sizeof(*rends))
+	if ((size_t)tag_count > SIZE_MAX / sizeof(*rends) ||
+	    tag_count > UINT_MAX / sizeof(*rends))
 	    goto unlock_return;
 
 	rends = (XmRendition *)XtMalloc((size_t)tag_count * sizeof(*rends));
