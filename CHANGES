@@ -3812,6 +3812,12 @@ Guard compound-text custom charset prefixes (2026-10-25)
   allocation contracts, and report allocation failure without replacing the
   existing output; see `docs/motif-resencod-prefix.md`.
 
+Guard compound-text encoding buffer (2026-10-25)
+=================================================
+
+- Check the temporary octet buffer used to combine registered encoding and
+  item data before copying; see `docs/motif-resencod-octets.md`.
+
 Handle single text-property copy failure (2026-10-25)
 ======================================================
 
