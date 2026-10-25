@@ -1,3 +1,10 @@
+Guard FileSB item filter allocation (2026-10-25)
+=================================================
+
+- Check the temporary full-path filter buffer during text restoration and
+  preserve cleanup and the current filter text on failure; see
+  `docs/motif-filesb-item-filter.md`.
+
 Guard FileSB resource-change filter-mask allocation (2026-10-25)
 =================================================================
 

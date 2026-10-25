@@ -3199,12 +3199,14 @@ FileSelectionBoxRestore(
                   {   
                     maskLen = strlen( mask) ;
                     itemString = XtMalloc( dirLen + maskLen + 1) ;
-                    strcpy( itemString, dir) ;
-                    strcpy( &itemString[dirLen], mask) ;
-                    XmTextFieldSetString( FS_FilterText( fsb), itemString) ;
-                    XmTextFieldSetInsertionPosition( FS_FilterText( fsb),
-			    XmTextFieldGetLastPosition( FS_FilterText( fsb))) ;
-                    XtFree( itemString) ;
+                    if(    itemString != NULL    )
+                    {   strcpy( itemString, dir) ;
+                        strcpy( &itemString[dirLen], mask) ;
+                        XmTextFieldSetString( FS_FilterText( fsb), itemString) ;
+                        XmTextFieldSetInsertionPosition( FS_FilterText( fsb),
+			        XmTextFieldGetLastPosition( FS_FilterText( fsb))) ;
+                        XtFree( itemString) ;
+                        }
                     XtFree( mask) ;
                   } 
                 XtFree( dir) ;
