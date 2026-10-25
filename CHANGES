@@ -25,6 +25,13 @@ XmIm missing-shell-data update guard (2026-10-26)
 - Treat resource updates arriving after per-shell IM data teardown as a safe
   no-op instead of asserting; see `docs/xmim-missing-shell-data.md`.
 
+Container empty-heading guard (2026-10-26)
+===========================================
+
+- Skip icon-header creation when detail headings are temporarily absent or
+  empty instead of terminating on an assertion; see
+  `docs/container-empty-heading-guard.md`.
+
 XmString context utility null guards (2026-10-26)
 ===================================================
 

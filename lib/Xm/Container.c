@@ -7011,7 +7011,14 @@ CreateIconHeader(
     XtSetArg(sargs[n],XmNlargeIconPixmap, XmUNSPECIFIED_PIXMAP); n++;
     XtSetArg(sargs[n],XmNsmallIconPixmap, XmUNSPECIFIED_PIXMAP); n++;
 
-    assert(cw->container.detail_heading_count > 0) ;
+    /* A heading list can be temporarily absent while resources are being
+     * rebuilt, or an application can explicitly provide an empty list.  A
+     * container without an icon header is still usable; do not abort while
+     * handling that state. */
+    if (cw->container.detail_heading == NULL ||
+        cw->container.detail_heading_count == 0 ||
+        cw->container.detail_heading_count == INVALID_COUNT)
+      return;
 
     XtSetArg(sargs[n],XmNlabelString, 
 	     cw->container.detail_heading[0]); n++;
