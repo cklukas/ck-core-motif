@@ -9790,6 +9790,13 @@ MWM menu-item allocation guard (2026-10-25)
   releasing partial copies when label, accelerator, or argument allocation
   fails; see `docs/mwm-menu-item-allocation.md`.
 
+MWM match-list insertion allocation guard (2026-10-25)
+=======================================================
+
+- Let the menu-item constructor own match strings and skip failed insertions
+  safely, eliminating temporary-string leaks and null dereferences; see
+  `docs/mwm-match-insertion-allocation.md`.
+
 MWM menu-spec copy allocation guard (2026-10-25)
 ================================================
 

@@ -1467,6 +1467,8 @@ static void PerformInsertionsOnMatchList (MatchList **matchlist)
 	    MakeMenuItemFromTemplate(curmatch->menuitem,
 				     curmatch->treenode->defaultName,
 				     curmatch->funcargs);
+	  if (newMenuItem == (MenuItem *)NULL)
+	    continue;
 	  newMenuItem->wmFunction = curmatch->function;
 	  newMenuItem->greyedContext = curmatch->greyed_context;
 	  newMenuItem->nextMenuItem = curitem->nextMenuItem;
@@ -1497,8 +1499,9 @@ static void PerformInsertionsOnMatchList (MatchList **matchlist)
 	  /* Create a new client command menu item */
 	  newMenuItem =
 	    MakeClientCommandMenuItem
-	      (XtNewString(curmatch->treenode->defaultName),
-	       XtNewString(curmatch->funcargs));
+	      (curmatch->treenode->defaultName, curmatch->funcargs);
+	  if (newMenuItem == (MenuItem *)NULL)
+	    continue;
 	  newMenuItem->wmFunction = curmatch->function;
 	  newMenuItem->greyedContext = curmatch->greyed_context;
 	  newMenuItem->clientCommandID = curmatch->treenode->commandID;
