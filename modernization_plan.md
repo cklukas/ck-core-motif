@@ -512,6 +512,9 @@ the installed fixture covers versioned names and spoofed substrings.
 Transient client-area, resource-query and allocation failures now return the
 global-DPI fallback rather than preserving stale per-output state; the source
 contract regression covers those early-return paths.
+The installed runner now emits a `receipt.json` recording source/library
+fingerprints, exact commands, display mode and elapsed time, keeping ordinary
+Xvfb fallback evidence distinct from future real-XLibre qualification.
 
 ### WP-05: Optional SVG image loading
 
