@@ -1,3 +1,9 @@
+XmList position-bounds null-safety (2026-10-25)
+===============================================
+
+- Reject null widgets in `XmListPosToBounds` before Xt realization checks; see
+  `docs/xm-list-posbounds-null.md`.
+
 XmList read-only query null-safety (2026-10-25)
 ===============================================
 

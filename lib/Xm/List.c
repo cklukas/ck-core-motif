@@ -9853,6 +9853,9 @@ XmListPosToBounds(Widget      w,
   Position   iy;          /* ...of time...             */
   Dimension  iwidth;      /* ...for debugging...       */
   Dimension  iheight;     /* ...purposes               */
+
+  if (w == NULL)
+    return False;
   _XmWidgetToAppContext(w);
 
   if (!XtIsRealized(w))
