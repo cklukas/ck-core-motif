@@ -1,3 +1,10 @@
+List selection-callback snapshot rollback (2026-10-28)
+=========================================================
+
+- Roll back partial callback `XmString` snapshots and report zero selected
+  items when a selected-item copy fails, avoiding NULL entries with a nonzero
+  count; see `docs/list-selection-callback-snapshot-rollback.md`.
+
 MWM workspace-title initialization rollback (2026-10-28)
 ===========================================================
 

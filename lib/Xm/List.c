@@ -199,6 +199,9 @@ static int ItemExists(XmListWidget lw, XmString item);
 static Boolean OnSelectedList(XmListWidget lw, XmString item, int pos);
 static void CopyItems(XmListWidget lw);
 static void CopySelectedItems(XmListWidget lw);
+static Boolean CopyCallbackSelectedItems(XmListWidget lw,
+                                         XmString *items,
+                                         int count);
 static void CopySelectedPositions(XmListWidget lw);
 static void ClearItemList(XmListWidget lw);
 static void ClearSelectedList(XmListWidget lw);
@@ -4004,6 +4007,25 @@ CopySelectedItems(XmListWidget lw)
       lw->list.selectedItems = sl;
     }
 }
+
+/* Copy a temporary callback snapshot transactionally. */
+static Boolean
+CopyCallbackSelectedItems(XmListWidget lw, XmString *items, int count)
+{
+  int i;
+
+  for (i = 0; i < count; i++)
+    {
+      items[i] = XmStringCopy(lw->list.selectedItems[i]);
+      if (items[i] == NULL)
+	{
+	  while (i != 0)
+	    XmStringFree(items[--i]);
+	  return False;
+	}
+    }
+  return True;
+}
 
 /************************************************************************
  *									*
@@ -5921,11 +5943,17 @@ DefaultAction(XmListWidget lw,
 	  cb.selected_item_positions = NULL;
 	}
       else
-	for (i = 0; i < SLcount; i++)
+	if (!CopyCallbackSelectedItems(lw, cb.selected_items, SLcount))
 	  {
-	    cb.selected_items[i] = XmStringCopy(lw->list.selectedItems[i]);
-	    cb.selected_item_positions[i] = lw->list.selectedPositions[i];
+	    DEALLOCATE_LOCAL((char *)cb.selected_items);
+	    DEALLOCATE_LOCAL((char *)cb.selected_item_positions);
+	    cb.selected_items = NULL;
+	    cb.selected_item_positions = NULL;
+	    SLcount = 0;
 	  }
+	else
+	  for (i = 0; i < SLcount; i++)
+	    cb.selected_item_positions[i] = lw->list.selectedPositions[i];
     }
   cb.selected_item_count = SLcount;
   cb.auto_selection_type = lw->list.AutoSelectionType;
@@ -6016,11 +6044,17 @@ ClickElement(XmListWidget lw,
 	      cb.selected_item_positions = NULL;
 	    }
 	  else
-	    for (i = 0; i < SLcount; i++)
+	    if (!CopyCallbackSelectedItems(lw, cb.selected_items, SLcount))
 	      {
-		cb.selected_items[i] = XmStringCopy(lw->list.selectedItems[i]);
-		cb.selected_item_positions[i] = lw->list.selectedPositions[i];
+		DEALLOCATE_LOCAL((char *)cb.selected_items);
+		DEALLOCATE_LOCAL((char *)cb.selected_item_positions);
+		cb.selected_items = NULL;
+		cb.selected_item_positions = NULL;
+		SLcount = 0;
 	      }
+	    else
+	      for (i = 0; i < SLcount; i++)
+		cb.selected_item_positions[i] = lw->list.selectedPositions[i];
 	}
     }
   /* BEGIN OSF Fix CR 4576 */
