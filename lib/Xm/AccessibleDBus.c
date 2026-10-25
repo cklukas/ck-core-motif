@@ -1272,6 +1272,8 @@ static char *text_snapshot(XmAccessibility *a, XmAccessibleId id, int length,
   if (length < 0 || (size_t)length > (UINT_MAX - 1) / 4) return NULL;
   capacity = (size_t)length * 4 + 1;
   result = XtMalloc((Cardinal)capacity);
+  if (!result)
+    return NULL;
   for (start = 0; start < length;) {
     int end = length - start > 1024 ? start + 1024 : length;
     char *part = XmAccessibilityText(a, id, start, end), *p;
