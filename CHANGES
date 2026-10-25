@@ -120,6 +120,12 @@ CascadeButton pixmap metadata guard (2026-10-26)
   avoiding copy operations for unavailable pixmaps; see
   `docs/cascade-pixmap-metadata.md`.
 
+CascadeButtonGadget pixmap metadata guard (2026-10-26)
+=======================================================
+
+- Check gadget pixmap metadata lookup success before drawing, matching the
+  widget path; see `docs/cascade-gadget-pixmap-metadata.md`.
+
 Accessibility name allocation rollback (2026-10-26)
 ====================================================
 

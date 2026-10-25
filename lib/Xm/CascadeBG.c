@@ -988,13 +988,14 @@ DrawCascade(
 	      LabG_NormalGC(cb) == NULL)
 	      return;
 
-	  XmeGetPixmapData(XtScreen(cb),
+	  if (!XmeGetPixmapData(XtScreen(cb),
 				 pixmap,
 				 NULL,
 				 &depth,
 				 NULL, NULL,
 				 NULL, NULL,
-				 NULL, NULL);
+				 NULL, NULL))
+	      return;
 
 	  if (depth <= 0)
 	      return;

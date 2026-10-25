@@ -1,13 +1,12 @@
 ---
 nav_exclude: true
 ---
-# CascadeButtonGadget pixmap metadata
 
-CascadeButtonGadget glyph rendering now checks the result of
-`XmeGetPixmapData` before using the returned depth.  If the pixmap metadata is
-unavailable, the glyph copy is skipped safely instead of branching on an
-uninitialized depth value.
+# CascadeButtonGadget pixmap metadata guard
 
-Successful lookups retain the existing depth-matched `XCopyArea` or bitmap
-`XCopyPlane` behavior.  The focused regression is
+CascadeButtonGadget drawing now checks `XmeGetPixmapData` success before using
+the returned depth.  Invalid or unavailable cascade pixmaps are skipped safely
+while valid gadget rendering is unchanged.
+
+The static regression check is
 `tests/automated/check-cascade-gadget-pixmap-metadata.py`.
