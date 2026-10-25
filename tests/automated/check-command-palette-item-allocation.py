@@ -16,4 +16,8 @@ assert "palette->palette.items[i].id" in body
 rebuild = text[text.index("static void rebuild"):start]
 assert "palette->palette.item_count && !palette->palette.visible" in rebuild
 assert "unable to allocate visible item index" in rebuild
+assert "if (!label) continue;" in rebuild
+assert "if (!shortcut)" in rebuild
+assert "if (!combined)" in rebuild
+assert "if (display)" in rebuild
 print("command-palette item input and allocation failures are guarded")

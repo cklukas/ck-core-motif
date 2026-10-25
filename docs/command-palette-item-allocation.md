@@ -6,8 +6,10 @@ nav_exclude: true
 `XmCommandPaletteSetItems` now rejects a `NULL` item array for a nonzero
 count and handles item-array allocation failure before populating entries.
 Filtering also handles failure to allocate its visible-index array before
-writing matches.  The palette remains empty and can be populated again later;
-valid arrays and the public item-copying contract are unchanged.
+writing matches, and skips an individual item if its copied display strings,
+combined display buffer, or `XmString` cannot be allocated.  The palette
+remains usable and can be populated again later; valid arrays and the public
+item-copying contract are unchanged.
 
 `tests/automated/check-command-palette-item-allocation.py` protects these
 failure paths.
