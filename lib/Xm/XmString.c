@@ -6564,6 +6564,8 @@ SpecifiedSegmentExtents(_XmStringEntry entry,
   XmStringTag		entry_tag;
   XmRendition		rend, cached_rend = NULL, def_rend;
   int			i, j, depth, hits, ref_cnt, rt_ref_cnt;
+  size_t		new_tag_count;
+  XmStringTag		*new_tags;
   Dimension		h, w, asc, dsc;
   Boolean		can_do = TRUE;
   _XmRendition		rend_int;
@@ -6612,9 +6614,15 @@ SpecifiedSegmentExtents(_XmStringEntry entry,
       /* Update tag stack. */
       if (count > 0)
 	{
-	  tags = (XmStringTag *)XtRealloc((char *)tags,
-					  (sizeof(XmStringTag) *
-					   (tag_count + count)));
+	  new_tag_count = (size_t)tag_count + (size_t)count;
+	  if (new_tag_count > SIZE_MAX / sizeof(XmStringTag) ||
+	      new_tag_count > UINT_MAX / sizeof(XmStringTag))
+	    return False;
+	  new_tags = (XmStringTag *)XtRealloc(
+	      (char *)tags, (Cardinal)(sizeof(XmStringTag) * new_tag_count));
+	  if (new_tags == NULL)
+	    return False;
+	  tags = new_tags;
 	  for (i = 0; i < count; i++)
 	    tags[tag_count + i] = _XmEntryRendBeginGet(entry, i);
   
@@ -6841,10 +6849,17 @@ SpecifiedSegmentExtents(_XmStringEntry entry,
 		j++;
 	      }
 
-	  if(tags != NULL && tag_count - hits)
-	    tags = (XmStringTag *)XtRealloc((char *)tags,
-					  (sizeof(XmStringTag) *
-					   (tag_count - hits)));
+	  if(tags != NULL && tag_count - hits) {
+	    new_tag_count = (size_t)(tag_count - hits);
+	    if (new_tag_count <= SIZE_MAX / sizeof(XmStringTag) &&
+		new_tag_count <= UINT_MAX / sizeof(XmStringTag)) {
+	      new_tags = (XmStringTag *)XtRealloc(
+		  (char *)tags,
+		  (Cardinal)(sizeof(XmStringTag) * new_tag_count));
+	      if (new_tags != NULL)
+		tags = new_tags;
+	    }
+	  }
 	  tag_count -= hits;
 	  _XmRendHadEnds(*rend_in_out) = TRUE;
 	}

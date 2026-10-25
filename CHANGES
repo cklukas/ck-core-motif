@@ -6033,3 +6033,10 @@ Harden XmString optimized-entry copies (2026-10-25)
   Xt's allocation-width contract, and unwind failed copies; see
   `docs/xmstring-optimized-copy.md` and its focused source check.
 
+Harden XmString rendition stacks (2026-10-25)
+===============================================
+
+- Bound temporary rendition-tag growth and retain valid storage when a shrink
+  allocation cannot be completed; see `docs/xmstring-rendition-stack.md` and
+  its focused source check.
+
