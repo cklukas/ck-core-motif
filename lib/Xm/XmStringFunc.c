@@ -198,6 +198,12 @@ XmStringTableParseStringArray(XtPointer   *strings,
   
   for (i = 0; i < count; i++)
     {
+      if (strings[i] == NULL) {
+        while (i > 0)
+          XmStringFree(strs[--i]);
+        XtFree((char *)strs);
+        return(NULL);
+      }
       strs[i] = XmStringParseText(strings[i], NULL, tag, type, 
 				  parse, parse_count, call_data);
       if (strs[i] == NULL) {

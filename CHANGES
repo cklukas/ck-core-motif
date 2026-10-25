@@ -270,6 +270,8 @@ Render-table locking (2026-10-26)
   see `docs/xmstring-concat-entry-resize.md`.
 - Guard optimized-left XmString conversion and entry-array resizing;
   see `docs/xmstring-concat-optimized-a.md`.
+- Reject null source elements in `XmStringTableParseStringArray` with full
+  rollback; see `docs/xmstring-parse-array-inputs.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================
