@@ -52,6 +52,12 @@ Mwm icon resource-key bounds (2026-10-25)
 - Bound workspace-name formatting for saved icon-position resource keys; see
   `docs/mwm-icon-resource-bounds.md`.
 
+Mwm command-tree bounds (2026-10-25)
+=====================================
+
+- Use checked size arithmetic and bounded formatting while constructing nested
+  menu command names; see `docs/mwm-menutree-bounds.md`.
+
 Bounded Latin-1 resource conversion (2026-10-25)
 ==================================================
 

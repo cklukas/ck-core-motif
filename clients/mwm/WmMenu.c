@@ -47,6 +47,8 @@ static char rcsid[] = "$XConsortium: WmMenu.c /main/15 1996/11/20 15:20:17 rswis
 #endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
 #include <stdio.h>
 #include <ctype.h>
+#include <limits.h>
+#include <stdint.h>
 
 #include <X11/Shell.h>
 
@@ -102,7 +104,7 @@ static Boolean FindClientCommandMatch (MenuSpec *menuSpec,
 static String
 MakeMenuFunctionArgs(CmdTree *tree, ClientData *pCD, Atom selection)
 {
-    int length;
+    size_t length;
     String args;
 
     if (tree->subTrees != (CmdTree *)NULL)
@@ -2155,16 +2157,24 @@ static void InsertTreeOnClient (WmScreenData *pSD, ClientData *pCD,
     while (tree != (CmdTree *) NULL)
     {
         String funcarg_buf;
+	const char *tree_name = (tree->name != NULL) ? tree->name : "";
+	size_t command_length = (command_so_far != NULL) ?
+	    strlen(command_so_far) : 0;
+	size_t name_length = strlen(tree_name);
 	/* The "4" below is to allow for brackets to surround the
 	   tree->name, the period to separate it from the command
 	   so far and a NULL. */
-	length = (command_so_far != NULL ? strlen(command_so_far) : 0) + 
-	         (tree->name != NULL ? strlen(tree->name) : 0) + 4;
-	new_command_str = XtMalloc(sizeof(unsigned char) * length);
+	if (command_length > SIZE_MAX - name_length ||
+	    command_length + name_length > SIZE_MAX - 4 ||
+	    command_length + name_length + 4 > UINT_MAX)
+	    return;
+	length = command_length + name_length + 4;
+	new_command_str = XtMalloc((Cardinal) length);
 	if (command_so_far != (String) NULL)
-	  sprintf(new_command_str, "%s.<%s>", command_so_far, tree->name);
+	  (void) snprintf(new_command_str, length, "%s.<%s>",
+			   command_so_far, tree_name);
 	else
-	  sprintf(new_command_str, "<%s>", tree->name);
+	  (void) snprintf(new_command_str, length, "<%s>", tree_name);
 
 	/* If there is an exclusion preventing this command from being 
 	   inserted, then just continue the loop. @RGC: This is wrong.
