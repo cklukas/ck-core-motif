@@ -784,8 +784,9 @@ Idb__BM_Decommit (IDBRecordBufferPtr		buffer)
  *	for a file. It records the first error while attempting every buffer, so one
  *	failed write does not prevent other buffers from being released.
  *
- *	Since this routine removes all buffers for a file in prepration
- *	for closing it, it also wipes out the file pointer in each buffer.
+ *	Since this routine releases successfully decommitted buffers for a file
+ *	in preparation for closing it, it wipes out their file pointers. Failed
+ *	 buffers remain attached so their writes can be retried.
  *
  *  FORMAL PARAMETERS:
  *
