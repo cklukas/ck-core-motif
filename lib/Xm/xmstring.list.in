@@ -1137,6 +1137,19 @@ NemptyStateMarginWidth
 NemptyStateMarginHeight
 NemptyStateSpacing
 
+CToastMessage
+CToastActionLabel
+CToastSeverity
+CToastTimeout
+CToastActionCallback
+CToastDismissCallback
+NtoastMessage
+NtoastActionLabel
+NtoastSeverity
+NtoastTimeout
+NtoastActionCallback
+NtoastDismissCallback
+
 #table _XmStrings20
 
 NtearOffTitle

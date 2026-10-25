@@ -1560,6 +1560,12 @@ teardown, accessibility, keyboard-only operation and callback reentrancy.
 **Complete when:** installed fixtures prove that palette and toast lifetimes
 are bounded and they do not alter dialogs, menus or application navigation.
 
+**Status (2026-10-25):** `XmToast` is implemented as a per-instance,
+application-placed composite with copied message/action strings, explicit
+show/dismiss/pause semantics, bounded timeout ownership and accessible action
+dispatch; its installed fixture passes 10 checks.  It does not create a global
+queue or move shells.  CommandPalette remains a separate work item.
+
 ### WP-39: Loading, row-action and drag-feedback surfaces
 
 **Depends on:** WP-17, WP-19 and WP-15.
