@@ -1,3 +1,9 @@
+Xm stippled-pixmap failure handling (2026-10-25)
+===================================================
+
+- Guard stippled-pixmap creation and cache-entry allocation, and ignore
+  invalid release arguments; see `docs/xm-stippled-pixmap-failure.md`.
+
 Xm scratch-pixmap allocation failures (2026-10-25)
 ======================================================
 
