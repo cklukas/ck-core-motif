@@ -577,3 +577,4 @@ EXTRA_DIST += tests/automated/check-mrm-fixup-fontlist-validation.py docs/mrm-fi
 EXTRA_DIST += tests/automated/check-mrm-arglist-reader-counts.py docs/mrm-arglist-reader-counts.md
 EXTRA_DIST += tests/automated/check-mrm-arglist-offset-bounds.py docs/mrm-arglist-offset-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-widget-offset-bounds.py docs/mrm-widget-offset-bounds.md
+EXTRA_DIST += tests/automated/check-mrm-create-tree-children-bounds.py docs/mrm-create-tree-children-bounds.md
