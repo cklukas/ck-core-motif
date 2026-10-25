@@ -3390,8 +3390,11 @@ XmScaleSetValue(
         int value )
 {
     XmScaleWidget sw = (XmScaleWidget) w;
-    XtAppContext app = XtWidgetToApplicationContext(w);
+    XtAppContext app;
 
+    if (w == NULL)
+        return;
+    app = XtWidgetToApplicationContext(w);
     _XmAppLock(app);
 
     if (value < sw->scale.minimum) {
@@ -3427,8 +3430,11 @@ XmScaleGetValue(
         int *value )
 {
    XmScaleWidget sw = (XmScaleWidget) w;
-   XtAppContext app = XtWidgetToApplicationContext(w);
+   XtAppContext app;
 
+   if (w == NULL || value == NULL)
+      return;
+   app = XtWidgetToApplicationContext(w);
    _XmAppLock(app);
    *value = sw->scale.value;
    _XmAppUnlock(app);

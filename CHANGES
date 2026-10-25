@@ -1,3 +1,9 @@
+XmScale API null-safety (2026-10-25)
+=====================================
+
+- Guard scale set/get APIs against null widgets and output pointers; see
+  `docs/xm-scale-api-null.md`.
+
 XmScrollBar API null-safety (2026-10-25)
 =========================================
 
