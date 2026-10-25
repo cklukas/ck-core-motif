@@ -7450,3 +7450,11 @@ ComboBox hit and drawing bounds (2026-10-26)
 
 ComboBox geometry negotiation bounds (2026-10-26)
 ==================================================
+IconG right-to-left label bounds (2026-10-26)
+=============================================
+
+- Compute RTL IconG label origins in signed arithmetic, preventing wrapped
+  positions in narrow gadgets; see `docs/icong-rtl-label.md`.
+
+ComboBox hit and drawing bounds (2026-10-26)
+=============================================

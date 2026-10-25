@@ -1526,8 +1526,8 @@ GetLabelXY(
     label_x += IG_MarginWidth(wid);
     /* test LayoutIsRtoLG(wid) here */
     if (LayoutIsRtoLG(wid)) {
-	label_x = XtWidth(wid) - label_x - IG_LabelRectWidth(wid) 
-	    - IG_HLThickness(wid);
+	label_x = (Position) ((int) XtWidth(wid) - (int) label_x -
+	    (int) IG_LabelRectWidth(wid) - (int) IG_HLThickness(wid));
     } else {
 	label_x += IG_HLThickness(wid) ;
     }
