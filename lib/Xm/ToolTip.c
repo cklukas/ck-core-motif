@@ -348,6 +348,8 @@ XmSetToolTipString (Widget w,
     ttp = (XmToolTipTrait)XmeTraitGet(w, XmQTtoolTip);
     if (!ttp) {
         ttp = (XmToolTipTrait)XtCalloc(1, sizeof(XmToolTipTraitRec));
+        if (!ttp)
+            return;
         XmeTraitSet(w, XmQTtoolTip, ttp);
     }
     if (ttp->tool_tip_string)
