@@ -11658,6 +11658,12 @@ XmString baseline allocation width (2026-10-25)
 - Check baseline line counts before Dimension-array allocation; see
   `docs/xmstring-baseline-allocation.md`.
 
+XmString charset allocation width (2026-10-25)
+===============================================
+
+- Check locale-derived charset lengths before cache allocation; see
+  `docs/xmstring-charset-allocation.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 

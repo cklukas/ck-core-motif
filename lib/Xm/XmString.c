@@ -7047,7 +7047,7 @@ _XmStringGetCurrentCharset( void )
     char *ptr;
     int  chlen;
     int  indx;
-    int  len;
+    size_t len;
     char *ret_val;
 
     _XmProcessLock();
@@ -7075,7 +7075,13 @@ _XmStringGetCurrentCharset( void )
 	  len = strlen(XmFALLBACK_CHARSET);
 	  ptr = XmFALLBACK_CHARSET;
         }
-        locale.tag = (char *) XtMalloc(len + 1);
+        if (len > INT_MAX || len >= UINT_MAX)
+        {
+            ret_val = XmFALLBACK_CHARSET;
+            _XmProcessUnlock();
+            return (ret_val);
+        }
+        locale.tag = (char *) XtMalloc((Cardinal)len + 1);
         if (locale.tag == NULL)
         {
             ret_val = XmFALLBACK_CHARSET;
@@ -7084,7 +7090,7 @@ _XmStringGetCurrentCharset( void )
         }
         strncpy(locale.tag, ptr, len);
         locale.tag[len] = '\0';
-        locale.taglen = len;
+        locale.taglen = (int)len;
 
 	/* Register XmSTRING_DEFAULT_CHARSET for compound text conversion. */
 	XmRegisterSegmentEncoding(XmSTRING_DEFAULT_CHARSET, 
