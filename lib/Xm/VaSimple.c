@@ -79,7 +79,7 @@ static int _XmNestedArgtoTypedArg(
                         XtTypedArgList args,
                         XtTypedArgList avlist,
                         int capacity) ;
-static void _XmVaProcessEverything( 
+static Boolean _XmVaProcessEverything(
                         Widget widget,
                         va_list var,
                         XmButtonTypeTable *buttonTypes,
@@ -458,7 +458,7 @@ _XmVaToTypedArgList(
     *num_args_return = count;
 }
 
-static void 
+static Boolean
 _XmVaProcessEverything(
         Widget widget,
         va_list var,
@@ -478,23 +478,39 @@ _XmVaProcessEverything(
 
 
 
-    *args = (ArgList) XtMalloc(num_args * sizeof(Arg));
+    if (args == NULL || buttonTypes == NULL || buttonStrings == NULL ||
+        buttonMnemonics == NULL || buttonAccelerators == NULL ||
+        buttonAcceleratorText == NULL || num_args < 0 || button_count < 0 ||
+        (size_t)num_args > SIZE_MAX / sizeof(Arg) ||
+        (size_t)num_args > UINT_MAX / sizeof(Arg))
+        return False;
+
+    *args = NULL;
+    *buttonTypes = NULL;
+    *buttonStrings = NULL;
+    *buttonMnemonics = NULL;
+    *buttonAccelerators = NULL;
+    *buttonAcceleratorText = NULL;
+
+    if (num_args != 0 &&
+        (*args = (ArgList)XtMalloc((size_t)num_args * sizeof(Arg))) == NULL)
+        goto allocation_failure;
 
 /* Process the routine specific args */
-    *buttonTypes = (XmButtonTypeTable)
-	XtMalloc((unsigned)(button_count * sizeof(XmButtonType *)));
-
-    *buttonStrings = (XmStringTable)
-	XtMalloc((unsigned)(button_count * sizeof(XmString *)));
-
-    *buttonMnemonics = (XmKeySymTable)
-	XtMalloc((unsigned)(button_count * sizeof(KeySym *)));
-
-    *buttonAccelerators = (String *)
-	XtMalloc((unsigned)(button_count * sizeof(String *)));
-
-    *buttonAcceleratorText = (XmStringTable)
-	XtMalloc((unsigned)(button_count * sizeof(XmString *)));
+    if (button_count != 0 &&
+        ((size_t)button_count > SIZE_MAX / sizeof(XmButtonType *) ||
+         (size_t)button_count > UINT_MAX / sizeof(XmButtonType *) ||
+         (*buttonTypes = (XmButtonTypeTable)
+          XtMalloc((size_t)button_count * sizeof(XmButtonType *))) == NULL ||
+         (*buttonStrings = (XmStringTable)
+          XtMalloc((size_t)button_count * sizeof(XmString *))) == NULL ||
+         (*buttonMnemonics = (XmKeySymTable)
+          XtMalloc((size_t)button_count * sizeof(KeySym *))) == NULL ||
+         (*buttonAccelerators = (String *)
+          XtMalloc((size_t)button_count * sizeof(String *))) == NULL ||
+         (*buttonAcceleratorText = (XmStringTable)
+          XtMalloc((size_t)button_count * sizeof(XmString *))) == NULL))
+        goto allocation_failure;
 
     bcount = 0;
     for(attr = va_arg(var, String), count = 0 ; attr != NULL;
@@ -545,6 +561,23 @@ _XmVaProcessEverything(
 	}
 
     }
+
+    return True;
+
+allocation_failure:
+    XtFree((char *)*args);
+    XtFree((char *)*buttonTypes);
+    XtFree((char *)*buttonStrings);
+    XtFree((char *)*buttonMnemonics);
+    XtFree((char *)*buttonAccelerators);
+    XtFree((char *)*buttonAcceleratorText);
+    *args = NULL;
+    *buttonTypes = NULL;
+    *buttonStrings = NULL;
+    *buttonMnemonics = NULL;
+    *buttonAccelerators = NULL;
+    *buttonAcceleratorText = NULL;
+    return False;
 }
 
 
@@ -579,9 +612,13 @@ XmVaCreateSimpleMenuBar(Widget parent, String name, ...)
 
     num_args = args_count + (XMCASCADE_ARGS_PER_LIST + MB_EXTRA_ARGS);
 
-    _XmVaProcessEverything(parent, var, &menuBarButtonTypes, &menuBarStrings,
+    if (!_XmVaProcessEverything(parent, var, &menuBarButtonTypes, &menuBarStrings,
 		&menuBarMnemonics, &menuBarAccelerators, &menuBarAcceleratorText,
-		button_count, &args, num_args);
+		button_count, &args, num_args)) {
+	va_end(var);
+	_XmAppUnlock(app);
+	return NULL;
+    }
 
     n = args_count;
     XtSetArg (args[n], XmNbuttonCount, button_count); n++;
@@ -646,10 +683,14 @@ XmVaCreateSimplePulldownMenu(Widget parent, String name, int post_from_button, X
 
     num_args = args_count + (XMBUTTONS_ARGS_PER_LIST + PD_EXTRA_ARGS);
 
-    _XmVaProcessEverything(parent, var, &pulldownMenuButtonTypes,
-		&pulldownMenuStrings, &pulldownMenuMnemonics, 
+    if (!_XmVaProcessEverything(parent, var, &pulldownMenuButtonTypes,
+		&pulldownMenuStrings, &pulldownMenuMnemonics,
 		&pulldownMenuAccelerators, &pulldownMenuAcceleratorText,
-		button_count, &args, num_args);
+		button_count, &args, num_args)) {
+	va_end(var);
+	_XmAppUnlock(app);
+	return NULL;
+    }
 
     n = args_count;
     XtSetArg (args[n], XmNsimpleCallback, callback); n++;
@@ -721,10 +762,14 @@ XmVaCreateSimplePopupMenu(Widget parent, String name, XtCallbackProc callback, .
 
     num_args = args_count + (XMBUTTONS_ARGS_PER_LIST + PU_EXTRA_ARGS);
 
-    _XmVaProcessEverything(parent, var, &popupMenuButtonTypes,
-		&popupMenuStrings, &popupMenuMnemonics, 
+    if (!_XmVaProcessEverything(parent, var, &popupMenuButtonTypes,
+		&popupMenuStrings, &popupMenuMnemonics,
 		&popupMenuAccelerators, &popupMenuAcceleratorText,
-		button_count, &args, num_args);
+		button_count, &args, num_args)) {
+	va_end(var);
+	_XmAppUnlock(app);
+	return NULL;
+    }
 
     n = args_count;
     XtSetArg (args[n], XmNsimpleCallback, callback); n++;
@@ -795,10 +840,14 @@ XmVaCreateSimpleOptionMenu(Widget parent, String name, XmString option_label, Ke
 
     num_args = args_count + (XMBUTTONS_ARGS_PER_LIST + OM_EXTRA_ARGS);
 
-    _XmVaProcessEverything(parent, var, &optionMenuButtonTypes,
-		&optionMenuStrings, &optionMenuMnemonics, 
+    if (!_XmVaProcessEverything(parent, var, &optionMenuButtonTypes,
+		&optionMenuStrings, &optionMenuMnemonics,
 		&optionMenuAccelerators, &optionMenuAcceleratorText,
-		button_count, &args, num_args);
+		button_count, &args, num_args)) {
+	va_end(var);
+	_XmAppUnlock(app);
+	return NULL;
+    }
 
     n = args_count;
     XtSetArg (args[n], XmNsimpleCallback, callback); n++;
@@ -871,10 +920,14 @@ XmVaCreateSimpleRadioBox(Widget parent, String name, int button_set, XtCallbackP
 
     num_args = args_count + (XMBUTTONS_ARGS_PER_LIST + RB_EXTRA_ARGS);
 
-    _XmVaProcessEverything(parent, var, &radioBoxButtonTypes,
-		&radioBoxStrings, &radioBoxMnemonics, 
+    if (!_XmVaProcessEverything(parent, var, &radioBoxButtonTypes,
+		&radioBoxStrings, &radioBoxMnemonics,
 		&radioBoxAccelerators, &radioBoxAcceleratorText,
-		button_count, &args, num_args);
+		button_count, &args, num_args)) {
+	va_end(var);
+	_XmAppUnlock(app);
+	return NULL;
+    }
 
     n = args_count;
     XtSetArg (args[n], XmNsimpleCallback, callback); n++;
@@ -945,10 +998,14 @@ XmVaCreateSimpleCheckBox(Widget parent, String name, XtCallbackProc callback, ..
 
     num_args = args_count + (XMBUTTONS_ARGS_PER_LIST + CB_EXTRA_ARGS);
 
-    _XmVaProcessEverything(parent, var, &checkBoxButtonTypes,
-		&checkBoxStrings, &checkBoxMnemonics, 
+    if (!_XmVaProcessEverything(parent, var, &checkBoxButtonTypes,
+		&checkBoxStrings, &checkBoxMnemonics,
 		&checkBoxAccelerators, &checkBoxAcceleratorText,
-		button_count, &args, num_args);
+		button_count, &args, num_args)) {
+	va_end(var);
+	_XmAppUnlock(app);
+	return NULL;
+    }
 
     n = args_count;
     XtSetArg (args[n], XmNsimpleCallback, callback); n++;
