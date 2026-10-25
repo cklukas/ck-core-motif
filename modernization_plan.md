@@ -554,8 +554,14 @@ and multi-megabyte payloads, with an independent Xlib re-export check. The
 system-Xt failure and exact dependency receipt remain recorded. The
 `docs/native-text-ime-matrix.md` table records this bounded result and keeps
 x86_64, broader provider/engine interoperability, candidate panels, drag-and-
-drop workflows and sanitizer exit ownership as explicit open gates. The matrix
-does not treat unavailable services or interposed callbacks as provider passes.
+drop workflows and sanitizer exit ownership as explicit open gates. A fresh
+x86_64 installed cohort now passes the baseline, WML token, non-text Unicode,
+accessibility-menu, XLibre DPI-contract, independent-client DnD and C++
+fixtures (including the C++ ASan/UBSan run); this is recorded admission
+evidence, not complete x86_64 text/IME or accessibility acceptance. The full
+optional `demos/lib/Exm` tree remains outside that admission because its legacy
+headers lack required Xt declarations. The matrix does not treat unavailable
+services or interposed callbacks as provider passes.
 
 The native feature runner now accepts repeated `--runtime-library-dir`
 arguments and records them in the receipt. This keeps the Xt dependency
@@ -679,9 +685,11 @@ services.  The observer identity check was corrected
 to the project's ABI 8 contract; it could no longer pass against an older
 `libXm.so.6` installation.  `docs/accessibility-journey-matrix.md` records
 the 37.02-second receipt with 113 utterances and the evidence boundary.
-Complete x86_64, all
-desktop screen-readers, application journeys, complete List/Menu semantics
-and clean sanitizer exit ownership remain explicit gates.
+Complete x86_64 text/IME and accessibility journeys, all desktop
+screen-readers, application journeys, complete List/Menu semantics and clean
+sanitizer exit ownership remain explicit gates. The bounded x86_64
+accessibility-menu fixture is recorded separately and does not imply a real
+AT-SPI or screen-reader journey.
 
 The focused installed semantic rerun on 2026-10-25 passed the strict
 accessibility, text-event, List and Menu fixtures in 19.79 seconds using the

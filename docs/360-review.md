@@ -28,9 +28,14 @@ The following high-impact defects are fixed and have focused regressions:
 
 These are real coverage gaps rather than claims of known source defects:
 
-1. **x86_64 acceptance.** The native installed cohort is qualified on ARM64;
-   x86_64 still needs a clean build and runtime pass covering Xft, ICU/HarfBuzz,
-   AT-SPI, the pinned Xt, and independent C and C++ consumers.
+1. **Complete x86_64 acceptance.** A fresh installed x86_64 cohort now has
+   bounded evidence: the core toolkit and WML/UIL path build with the modern
+   options, and baseline, WML, non-text Unicode, accessibility-menu, XLibre
+   DPI-fallback, independent-client DnD, C++ and C++ ASan/UBSan fixtures pass.
+   This does not yet qualify full ICU/HarfBuzz text readback, external IME,
+   real AT-SPI/screen-reader, clipboard, application-DnD or matrix-wide
+   sanitizer journeys. The legacy optional `demos/lib/Exm` tree was not
+   admitted because its headers lack required Xt declarations.
 2. **Strict sanitizer lifecycle.** The synthesized DropSMgr clipper leak is
    fixed and passes three repeated native runs plus a strict ASan/UBSan
    auto-drag lifetime fixture. The pinned Xt dependency patch also retires the
@@ -101,8 +106,9 @@ These are real coverage gaps rather than claims of known source defects:
 
 ## Recommended order
 
-1. Qualify the current installed cohort on x86_64.
-2. Extend the qualified clipboard cohort to drag-and-drop and application
+1. Extend the bounded x86_64 cohort to full text/IME, accessibility and
+   clipboard qualification.
+2. Extend the qualified transfer cohort to application drag-and-drop
    workflows without mixing it with unrelated held-storage changes.
 3. Expand non-text Unicode and accessibility user-journey fixtures.
 4. Extend strict ownership coverage to Fontconfig, drag-and-drop and full

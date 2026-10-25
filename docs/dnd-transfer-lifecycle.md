@@ -66,6 +66,15 @@ This qualifies one independent-client copy transfer, its two-target array
 contract and incremental payload assembly; a complete application DnD
 workflow remains a separate gate.
 
+The same three modes were independently qualified on x86_64 Linux on
+2026-10-25 against an installed `libXm.so.8.0.0` whose SHA-256 is
+`757d92118e67438f71f5d9f3917632947c6406b99da2258e565ca4bc6dfa6935`.
+Each mode passed three fresh runs: 14 single-target checks, 22 multiple-target
+checks and 116 incremental checks. The x86_64 source fixture uses the portable
+string-pointer representation recorded in the source receipt; same-process
+cancellation, owner replacement and complete application workflows remain
+covered only by the separately identified native evidence above.
+
 `tests/automated/check-dnd-transfer-cancel.c` covers the receiver-side
 DropTransfer lifetime contract. Its immediate mode destroys the object before
 the delayed start timer runs; its active mode requests a 2 MiB incremental

@@ -1,3 +1,24 @@
+Bounded x86_64 installed-cohort qualification (2026-10-25)
+=============================================================
+
+- Qualify a fresh x86_64 Linux core cohort configured with Xft, Unicode text,
+  AT-SPI, JPEG, PNG, SVG and the explicit XLibre DPI contract. The installed
+  `libXm.so.8.0.0` fingerprint is
+  `757d92118e67438f71f5d9f3917632947c6406b99da2258e565ca4bc6dfa6935`.
+- The cohort passes the WP-00 baseline, WML token-boundary, 25-check non-text
+  Unicode, accessibility-menu, XLibre DPI-contract/fallback and independent
+  client DnD fixtures. Cross-process DnD passes 14 single-target, 22
+  multiple-target and 116 incremental checks in three fresh runs each.
+- The C++17 support fixture passes against the installed prefix in standard and
+  ASan/UBSan configurations. The cross-process fixture's string tables use
+  pointer arrays so x86 GCC does not diagnose exact-size non-NUL arrays as
+  overreads; the source hash is recorded in `docs/status.md`.
+- This is bounded architecture evidence, not complete x86_64 acceptance. Full
+  text/IME, real AT-SPI/screen-reader, clipboard, application DnD, physical
+  display/input and matrix-wide sanitizer journeys remain open. The optional
+  legacy `demos/lib/Exm` tree was not admitted because its headers lack Xt
+  declarations; the core toolkit and WML/UIL path were built and validated.
+
 Optional ckmotif++ support package and WML build graph (2026-10-25)
 ====================================================================
 

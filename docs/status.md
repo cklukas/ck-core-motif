@@ -32,8 +32,28 @@ destroy paths release their GCs. This is retained as an external ownership
 boundary, not suppressed or counted as a toolkit pass; see
 `docs/fontselector-sanitizer-boundary.md`.
 No warning suppression, removed focus action or disabled leak detection is used.
-Native record layout and ABI epoch 8 remain unchanged. All x86_64
-compilation/runtime checks remain pending.
+Native record layout and ABI epoch 8 remain unchanged. A fresh x86_64
+installed cohort was qualified on 2026-10-25 from an out-of-tree build with
+`--enable-xft --enable-unicode-text --enable-atspi --enable-jpeg
+--enable-png --enable-svg --enable-xlibre-dpi --disable-printing`. The
+installed `libXm.so.8.0.0` fingerprint is
+`757d92118e67438f71f5d9f3917632947c6406b99da2258e565ca4bc6dfa6935`; the
+cohort also installed `libMrm`, `libUil`, the public headers and the UIL
+compiler. WP-00 baseline, WML token bounds, the 25-check non-text Unicode
+fixture, the accessibility-menu fixture, the XLibre RandR-DPI contract and
+fallback, independent-client DnD (14 single-target, 22 multiple-target and
+116 incremental checks), and the C++ support fixture (including ASan/UBSan)
+pass against that exact prefix. The cross-process DnD modes passed in three
+fresh runs each; the source fixture records hash
+`053a76d5d7c8d44447fd320e8b6da19d9e5fe0de85cafe87a5ee09deb402f0f1`.
+
+This is bounded x86_64 evidence, not complete architecture acceptance. The
+full optional demo tree was not admitted because the legacy `demos/lib/Exm`
+headers fail to compile with missing Xt declarations; the core toolkit,
+WML/UIL path and installed consumers above were built and validated. Full
+ICU/HarfBuzz text readback, external IME services, real AT-SPI/screen-reader
+journeys, clipboard workflows, application DnD, physical display/input and
+matrix-wide sanitizer ownership remain explicit gates.
 
 ## Earlier incremental map qualification
 

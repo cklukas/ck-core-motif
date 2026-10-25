@@ -9,12 +9,12 @@ separate toolkit-contract test.
 | --- | --- | --- | --- |
 | UTF-8 scalar and UAX #29 grapheme movement/deletion | Pass | Pending | Installed native text and map fixtures; x86_64 admission remains open. |
 | Combining, emoji, RTL, CJK and fallback-font corpus | Pass for recorded corpus | Pending | Native layout/readback corpus; not exhaustive font coverage. |
-| Non-text Unicode labels, compound strings, List search, mnemonics, ComboBox, Menu and FileSelection values | Focused pass | Pending | `run-nontext-unicode-regressions.py` covers combining, non-BMP and Han values, a two-segment compound `XmString` with separator checks, a non-ASCII `XmNmnemonic` round trip, and List existence/position/match search through public Label, List, ComboBox, Menu and FileSelection APIs; physical-keyboard and application journeys remain open. |
+| Non-text Unicode labels, compound strings, List search, mnemonics, ComboBox, Menu and FileSelection values | Focused pass | Focused pass | `run-nontext-unicode-regressions.py` covers combining, non-BMP and Han values, a two-segment compound `XmString` with separator checks, a non-ASCII `XmNmnemonic` round trip, and List existence/position/match search through public Label, List, ComboBox, Menu and FileSelection APIs; physical-keyboard and application journeys remain open. |
 | Local Compose/dead key | Pass with private `@im=none` Xvfb | Pending | XTest fixture proves local XIM/XIC registration and exact commits; it is not a physical-keyboard test. |
 | IBus XIM composition, commit and cancellation | Focused pass | Pending | Real IBus/m17n fixture; standalone combining-mark commit and candidate panels remain gaps. |
 | Provider restart and transport loss | Focused pass | Pending | Same-process service loss/reconnect fixture; broader engines/providers remain unqualified. |
 | Clipboard UTF-8 round trip and interrupted INCR lifetime | Pass for the bounded AArch64 cohort with pinned corrected Xt | Pending | Multi-megabyte UTF-8 bytes, direct Motif-to-Motif Text/TextField round trips, cancellation, a fresh transfer from the surviving owner, and the installed 8/16/32-bit transfer-storage/owner-replacement cohort pass; system-Xt failure, broader DnD, and x86_64 remain separate. |
-| Motif drag/drop transfer, receiver/source cancellation and initiator cancellation | Focused pass | Pending | Installed XTEST gestures cover same-process and independent-client copy transfer, same-process and independent-client two-target transfers, independent-client 4 MiB incremental assembly, receiver-side delayed/active `XmDropTransfer` destruction, request cancellation and requestor-shell teardown, source-side owner replacement during an active drag and post-drop incremental transfer, drop admission, source conversion, transfer-entry client data, Xt-owned selection values and `XmDragCancel` finish notification; complete application workflows and x86_64 remain open. See `docs/dnd-transfer-lifecycle.md`. |
+| Motif drag/drop transfer, receiver/source cancellation and initiator cancellation | Focused pass | Independent-client modes pass | Installed XTEST gestures cover same-process and independent-client copy transfer, same-process and independent-client two-target transfers, independent-client 4 MiB incremental assembly, receiver-side delayed/active `XmDropTransfer` destruction, request cancellation and requestor-shell teardown, source-side owner replacement during an active drag and post-drop incremental transfer, drop admission, source conversion, transfer-entry client data, Xt-owned selection values and `XmDragCancel` finish notification; x86_64 evidence is limited to three fresh runs of the independent-client 14/22/116-check modes. Complete application workflows remain open. See `docs/dnd-transfer-lifecycle.md`. |
 | Strict ASan/UBSan | Bounded pass with pinned Xt; matrix-wide gate pending | Pending | A fresh helper-built Xt cohort passes ABI, incremental-layout and clipboard-lifetime with leak detection enabled. The strict FontSelector consumer still reports one 160-byte shared Xt/Xlib GC-cache allocation at process exit; Fontconfig and broader ownership paths remain separate gates. See `docs/fontselector-sanitizer-boundary.md`. |
 
 Run the focused installed service fixture with:
@@ -30,9 +30,11 @@ against one clean installed cohort with matching headers and libraries. Missing
 services or fonts are recorded as unavailable matrix entries; they are not
 replaced by synthetic callbacks or treated as successful provider coverage.
 
-The current matrix deliberately does not claim x86_64 qualification, complete
-desktop input-method interoperability, physical keyboard layouts, candidate
-panels, screen-reader usability, or a matrix-wide clean sanitizer exit. Detailed provider
+The current matrix deliberately does not claim complete x86_64 text/IME or
+accessibility qualification, complete desktop input-method interoperability,
+physical keyboard layouts, candidate panels, screen-reader usability, or a
+matrix-wide clean sanitizer exit. The bounded x86_64 results are recorded in
+`docs/status.md`; they do not substitute for the missing journeys. Detailed provider
 behavior and the recorded ARM64 versions are in `docs/unicode.md`; aggregate
 admission limits are in `docs/status.md`.
 
