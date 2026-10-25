@@ -836,7 +836,10 @@ _XmMapKeyEvents(String      str,
       item_count = (size_t)count + 1;
       if (item_count > SIZE_MAX / sizeof(**eventTypes) ||
 	  item_count > SIZE_MAX / sizeof(**keysyms) ||
-	  item_count > SIZE_MAX / sizeof(**modifiers))
+	  item_count > SIZE_MAX / sizeof(**modifiers) ||
+	  item_count > UINT_MAX / sizeof(**eventTypes) ||
+	  item_count > UINT_MAX / sizeof(**keysyms) ||
+	  item_count > UINT_MAX / sizeof(**modifiers))
 	{
 	  status = FALSE;
 	  break;

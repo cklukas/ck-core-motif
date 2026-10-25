@@ -123,6 +123,12 @@ ComboBox child-argument Xt byte bounds (2026-10-28)
   preserving the existing original-argument fallback; see
   `docs/combobox-child-argument-bounds.md`.
 
+MapEvents parallel-array Xt byte bounds (2026-10-28)
+=====================================================
+
+- Check Xt `Cardinal` byte limits before growing the event-type, KeySym, and
+  modifier arrays together; see `docs/mapevents-array-growth.md`.
+
 Compound-text concatenation failure handling (2026-10-28)
 ============================================================
 
