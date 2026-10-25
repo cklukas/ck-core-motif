@@ -490,6 +490,9 @@ SymbolicColorUsed(String color_name,
 {
     Cardinal i;
 
+    if (color_name == NULL || xpm_colors == NULL)
+	return False;
+
     /* first look if the color is present as a symbolic in the 
        colorTable */
     for (i = 0; i < ncolors; i++, xpm_colors++) {
@@ -500,7 +503,7 @@ SymbolicColorUsed(String color_name,
 
     if (i == ncolors) return False ;	
 
-    return False ;
+    return True ;
 }
 
 
