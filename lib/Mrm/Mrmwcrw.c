@@ -1348,6 +1348,14 @@ Urm__CW_CreateArglist (Widget			parent,
       reptype = argptr->arg_val.rep_type ;
       swap_needed = FALSE ;
 
+      if (reptype != MrmRtypeInteger &&
+          reptype != MrmRtypeBoolean &&
+          reptype != MrmRtypeSingleFloat &&
+          reptype != MrmRtypeNull &&
+          (argptr->arg_val.datum.offset < RGMWidgetRecordHdrSize ||
+           argptr->arg_val.datum.offset >= widgetrec->size))
+        continue;
+
       /*
        * Create the value. Some representation types and arguments require
        * special handling. First, the immediate value or pointer is evaluated.

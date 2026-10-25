@@ -1,3 +1,9 @@
+Mrm argument-value offset bounds (2026-10-25)
+===============================================
+
+- Reject out-of-record non-immediate argument offsets before pointer
+  evaluation; see `docs/mrm-arg-value-offset-bounds.md`.
+
 Mrm callback routine-string bounds (2026-10-25)
 ================================================
 
