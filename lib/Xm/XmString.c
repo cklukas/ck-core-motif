@@ -1601,15 +1601,36 @@ XmStringConcatAndFree(XmString a,
   b_lc = _XmStrEntryCountGet(b);
 
   if (_XmStrAddNewline(a)) {
-    if (_XmStrAddNewline(b) && b_lc > 0)
+    if (_XmStrAddNewline(b) && b_lc > 0) {
+      if (a_lc > UINT_MAX - b_lc + 1) {
+        _XmProcessUnlock();
+        XmStringFree(a);
+        XmStringFree(b);
+        return NULL;
+      }
       lc = a_lc + b_lc - 1;
-    else 
+    } else
       lc = a_lc;
   } else {
     if (_XmStrAddNewline(b))
       lc = b_lc ? b_lc : 1;
-    else 
+    else {
+      if (a_lc > UINT_MAX - b_lc) {
+        _XmProcessUnlock();
+        XmStringFree(a);
+        XmStringFree(b);
+        return NULL;
+      }
       lc = a_lc + b_lc;
+    }
+  }
+
+  if ((size_t)lc > SIZE_MAX / sizeof(_XmStringEntry) ||
+      (size_t)lc > UINT_MAX / sizeof(_XmStringEntry)) {
+    _XmProcessUnlock();
+    XmStringFree(a);
+    XmStringFree(b);
+    return NULL;
   }
   
   modify_a = !_XmStrOptimized(a) && (_XmStrRefCountGet(a) == 1);
@@ -1622,7 +1643,7 @@ XmStringConcatAndFree(XmString a,
       } 
       _XmStrEntry(a_str) = (_XmStringEntry *)
 	XtRealloc((char*) _XmStrEntry(a_str),
-		  sizeof(_XmStringEntry) * lc);
+		  (Cardinal)(sizeof(_XmStringEntry) * (size_t)lc));
       for (i = (segs ? 0 : a_lc); i < lc; i++)
 	_XmStrEntry(a_str)[i] = NULL;
     }
@@ -1635,7 +1656,7 @@ XmStringConcatAndFree(XmString a,
       }
       _XmStrEntry(a_str) = (_XmStringEntry *)
 	XtRealloc((char*) _XmStrEntry(a_str),
-		  sizeof(_XmStringEntry) * lc);
+		  (Cardinal)(sizeof(_XmStringEntry) * (size_t)lc));
       for (i = (segs ? 0 : a_lc); i < lc; i++)
 	_XmStrEntry(a_str)[i] = NULL;
     }

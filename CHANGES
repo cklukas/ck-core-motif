@@ -1,3 +1,10 @@
+XmString concatenation line-table bounds (2026-10-26)
+=======================================================
+
+- Reject overflowing combined line counts before `XmStringConcatAndFree`
+  resizes a non-optimized string table; see
+  `docs/xmstring-concat-bounds.md`.
+
 ColorObj read-side storage validation (2026-10-25)
 ===================================================
 
