@@ -5,6 +5,12 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+XmStringGenerate rendition cache validation (2026-10-26)
+==========================================================
+
+- Reject rendition-cache failures during generation instead of attaching null
+  rendition tags; see `docs/xmstring-generate-rendition.md`.
+
 XmStringGenerate parse-result guard (2026-10-26)
 ==================================================
 

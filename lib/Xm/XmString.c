@@ -10144,6 +10144,11 @@ XmStringGenerate(XtPointer   text,
 
       rend_index = _XmStringIndexCacheTag((char *)rendition, 
 					  XmSTRING_TAG_STRLEN);
+      if (_XmStringIndexGetTag(rend_index) == NULL ||
+	  strcmp(_XmStringIndexGetTag(rend_index), rendition) != 0) {
+	XmStringFree(result);
+	return NULL;
+      }
       if (rend_index < REND_INDEX_MAX)
 	{
 	  _XmStrRendIndex(result) = rend_index;
@@ -10161,6 +10166,11 @@ XmStringGenerate(XtPointer   text,
       int n_line;
       _XmStringEntry line;
       _XmStringEntry seg;
+
+      if (cached_rend == NULL) {
+	XmStringFree(result);
+	return NULL;
+      }
 
       /* Locate the first segment. */
       for (n_line = 0; n_line < _XmStrEntryCount(result); n_line++)
@@ -10181,6 +10191,11 @@ XmStringGenerate(XtPointer   text,
 		
 		rend_index = _XmStringIndexCacheTag((char *)rendition, 
 						    XmSTRING_TAG_STRLEN);
+		if (_XmStringIndexGetTag(rend_index) == NULL ||
+		    strcmp(_XmStringIndexGetTag(rend_index), rendition) != 0) {
+		  XmStringFree(result);
+		  return NULL;
+		}
 		if (rend_index < REND_INDEX_MAX) {
 		  _XmEntryRendIndex(seg) = rend_index;
 		  _XmEntryRendBeginCountSet(seg, 1);
@@ -10241,6 +10256,11 @@ XmStringGenerate(XtPointer   text,
 		  unsigned int rend_index;
 		  rend_index = _XmStringIndexCacheTag((char *)rendition, 
 						      XmSTRING_TAG_STRLEN);
+		if (_XmStringIndexGetTag(rend_index) == NULL ||
+		    strcmp(_XmStringIndexGetTag(rend_index), rendition) != 0) {
+		  XmStringFree(result);
+		  return NULL;
+		}
 		  
 		  assert ((_XmEntryRendBeginCountGet(seg) <= 1) && 
 			  (_XmEntryRendEndCountGet(seg) == 0));	
