@@ -1020,6 +1020,7 @@ GetImage(
 
 #if defined (JPEG_SUPPORTED) || defined (PNG_SUPPORTED)
     if (!(infile = fopen(file_name, "rb"))) {
+        XtFree(file_name);
         return FALSE;
     }
 

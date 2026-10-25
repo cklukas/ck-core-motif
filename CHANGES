@@ -1,3 +1,9 @@
+Xm image-file open cleanup (2026-10-25)
+=============================================
+
+- Free resolved image paths when JPEG/PNG file opening fails, avoiding a
+  repeated-load leak; see `docs/xm-image-file-open-cleanup.md`.
+
 Xm XImage construction failure handling (2026-10-25)
 ========================================================
 
