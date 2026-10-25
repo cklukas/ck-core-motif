@@ -10301,6 +10301,12 @@ GeoUtils value-loading input validation (2026-10-25)
 - Validate widget, request, and output records before loading geometry values;
   see `docs/geo-load-values-input.md`.
 
+GeoUtils managed-child counting guards (2026-10-25)
+===================================================
+
+- Handle missing composites, child arrays, and null child slots while counting
+  managed children; see `docs/geo-count-kids-input.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

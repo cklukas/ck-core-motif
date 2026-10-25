@@ -2476,9 +2476,14 @@ _XmGeoCount_kids(
     register int i, n = 0 ;
 /****************/
 
+    if (c == NULL ||
+        (c->composite.num_children != 0 &&
+         c->composite.children == NULL))
+        return 0;
     for(    i = 0 ; i < c->composite.num_children ; i++    )
     {   
-        if(    c->composite.children[i]->core.managed    ) 
+        if(    c->composite.children[i] != NULL &&
+               c->composite.children[i]->core.managed    )
         {   n++ ;
             } 
         }
