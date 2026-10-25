@@ -1277,10 +1277,22 @@ void SetEmbeddedClientsProperty (Window propWindow,
 
 void SetWorkspaceInfo (Window propWindow, WorkspaceInfo *pWsInfo, unsigned long cInfo)
 {
-    XChangeProperty (DISPLAY, propWindow, wmGD.xa_DT_WORKSPACE_INFO, 
+    size_t bytes;
+
+    if (cInfo > 0 && pWsInfo == NULL)
+    {
+        return;
+    }
+    if (cInfo > (size_t)-1 / sizeof(WorkspaceInfo))
+    {
+        return;
+    }
+
+    bytes = (size_t)cInfo * sizeof(WorkspaceInfo);
+    XChangeProperty (DISPLAY, propWindow, wmGD.xa_DT_WORKSPACE_INFO,
 	wmGD.xa_DT_WORKSPACE_INFO,
 	32, PropModeReplace, (unsigned char *)pWsInfo,
-	(cInfo * sizeof(WorkspaceInfo))/sizeof(long));
+	bytes / sizeof(long));
 
 } /* END OF FUNCTION SetWorkspaceInfo */
 #endif /* HP_VUE */

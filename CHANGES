@@ -4652,3 +4652,9 @@ Property buffer guards (2026-10-25)
 
 - Validate counted embedded-client and workspace-presence buffers before
   publishing properties; see `docs/property-buffer-guards.md`.
+
+Workspace-info serialization guards (2026-10-25)
+=================================================
+
+- Validate counted workspace-info data and size arithmetic before publishing;
+  see `docs/workspace-info-guards.md`.
