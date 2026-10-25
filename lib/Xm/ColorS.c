@@ -1026,12 +1026,11 @@ UpdateColorWindow(XmColorSelectorWidget csw, Boolean use_name)
     XColor color;
     Pixel foreground;
     char buf[XmColorSelector_COLOR_NAME_SIZE], new_label[BUFSIZ];
+    char *new_name;
 
     if (!use_name) /* Update color names */
     {	
 	char	*freeMe;
-	char	*new_name;
-	
 	freeMe = XmColorS_color_name(csw);
 	(void) snprintf(buf, sizeof(buf), "#%02x%02x%02x", XmColorS_slider_red(csw),
 		XmColorS_slider_green(csw), XmColorS_slider_blue(csw));

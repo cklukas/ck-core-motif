@@ -3654,10 +3654,10 @@ _XmStringOptToNonOpt(_XmStringOpt string)
 
   _XmEntryTagIndex(&seg) = _XmStrTagIndex((_XmString)string);
   _XmEntryRendIndex(&seg) = _XmStrRendIndex((_XmString)string);
-  _XmEntryRendBeginCountSet(&seg, _XmStrRendBegin((_XmString)string));
-  _XmEntryRendEndCountSet(&seg, _XmStrRendEnd((_XmString)string));
+  seg.header.rend_begin = _XmStrRendBegin((_XmString)string);
+  seg.header.rend_end = _XmStrRendEnd((_XmString)string);
   _XmEntryTextTypeSet(&seg, (XmTextType) _XmStrTextType((_XmString)string));
-  _XmEntryByteCountSet(&seg, _XmStrByteCount((_XmString)string));
+  seg.header.byte_count = _XmStrByteCount((_XmString)string);
   _XmEntryDirectionSet((_XmStringEntry)&seg,
 		       _XmStrDirection((_XmString)string));
   _XmEntryTabsSet(&seg, _XmStrTabs((_XmString)string));
@@ -6153,8 +6153,9 @@ _XmStringEntryCopy(_XmStringEntry entry)
 	    (size_t)entry_len - sizeof(XtPointer);
       else
 	allocation_size = sizeof(_XmStringOptSegRec);
-      if (allocation_size > UINT_MAX)
-	return NULL;
+	if (allocation_size > UINT_MAX) {
+	  return NULL;
+	}
 	new_entry = (_XmStringEntry)XtMalloc((Cardinal)allocation_size);
 	if (new_entry == NULL)
 	return NULL;
@@ -7162,16 +7163,22 @@ SpecifiedSegmentExtents(_XmStringEntry entry,
 		j++;
 	      }
 
-	  if(tags != NULL && tag_count - hits)
-	    new_tag_count = (size_t)(tag_count - hits);
-	    if (new_tag_count <= SIZE_MAX / sizeof(XmStringTag) &&
-		new_tag_count <= UINT_MAX / sizeof(XmStringTag)) {
-	      new_tags = (XmStringTag *)XtRealloc(
-		  (char *)tags,
-		  (Cardinal)(sizeof(XmStringTag) * new_tag_count));
-	      if (new_tags != NULL)
-		tags = new_tags;
+	  if (tags != NULL) {
+	    if (tag_count > hits) {
+	      new_tag_count = (size_t)(tag_count - hits);
+	      if (new_tag_count <= SIZE_MAX / sizeof(XmStringTag) &&
+		  new_tag_count <= UINT_MAX / sizeof(XmStringTag)) {
+		new_tags = (XmStringTag *)XtRealloc(
+		    (char *)tags,
+		    (Cardinal)(sizeof(XmStringTag) * new_tag_count));
+		if (new_tags != NULL)
+		  tags = new_tags;
+	      }
+	    } else {
+	      XtFree((XtPointer)tags);
+	      tags = NULL;
 	    }
+	  }
 	  tag_count -= hits;
 	  _XmRendHadEnds(*rend_in_out) = TRUE;
 	}

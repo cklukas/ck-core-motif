@@ -24,6 +24,15 @@ Chip geometry bounds (2026-10-26)
 - Bound chip label, pixmap, removal affordance, and vertical padding arithmetic
   to the `Dimension` range; see `docs/chip-geometry-bounds.md`.
 
+XmString rendering and color-selector compile fixes (2026-10-26)
+=================================================================
+
+- Use concrete optimized-entry fields, brace the entry-copy allocation guard,
+  and make rendition-tag cleanup initialize and release its working array;
+  keep color-selector replacement names in function scope. See
+  `docs/xmstring-rendering-warnings.md` and
+  `docs/color-selector-name-scope.md`.
+
 Optional C++ support-library install path (2026-10-26)
 =======================================================
 
