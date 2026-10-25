@@ -1715,6 +1715,9 @@ DrawDefaultButtonShadows(
       return;
     }
 
+  if (pb->core.width <= 2 * delta || pb->core.height <= 2 * delta)
+    return;
+
   x = y = delta;
   width = pb->core.width - 2 * delta;
   height = pb->core.height - 2 * delta;

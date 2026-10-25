@@ -1,3 +1,10 @@
+PushButton default shadow bounds (2026-10-25)
+=============================================
+
+- Validate the selected default-button shadow delta before computing the
+  inner widget shadow rectangle; see
+  `docs/push-button-default-shadow-bounds.md`.
+
 PushButtonGadget default shadow bounds (2026-10-25)
 ===================================================
 
