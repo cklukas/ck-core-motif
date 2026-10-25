@@ -5767,6 +5767,13 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+PanedWindow separator Xt width (2026-10-25)
+============================================
+
+- Check temporary separator-list sizes against Xt's `Cardinal` allocation
+  width before collecting pane separators; see
+  `docs/paned-window-separator-allocation.md`.
+
 RowColumn popup-name width (2026-10-25)
 =======================================
 
