@@ -2488,6 +2488,10 @@ void DeleteIconInfo (IconBoxData *pIBD, ClientData *pCD)
     int ix, count;
     IconInfo *pII;
 
+    if (pIBD == NULL || pCD == NULL || pIBD->IPD.placeList == NULL ||
+	pIBD->IPD.totalPlaces <= 0)
+	return;
+
     /* find first matching entry in list */
 
     pII = &pIBD->IPD.placeList[0]; 

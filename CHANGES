@@ -1,3 +1,9 @@
+Icon-info deletion validation (2026-10-25)
+===========================================
+
+- Validate client and placement storage before deleting icon metadata; see
+  `docs/delete-icon-info-guards.md`.
+
 Client withdrawal placement validation (2026-10-25)
 ====================================================
 
