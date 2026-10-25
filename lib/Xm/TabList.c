@@ -126,13 +126,15 @@ XmTabbedStackListCopy(tab_list)
          * item by item the list.
          */
         if (tab_list->tabs == NULL ||
-            (size_t)newList->used > SIZE_MAX / sizeof(XmTabAttributeRec))
+            (size_t)newList->used > SIZE_MAX / sizeof(XmTabAttributeRec) ||
+            (size_t)newList->used > UINT_MAX / sizeof(XmTabAttributeRec))
         {
             XtFree((XtPointer)newList);
             return NULL;
         }
         newList->tabs = (XmTabAttributes)
-            XtMalloc(sizeof(XmTabAttributeRec) * (size_t)newList->used);
+            XtMalloc((Cardinal)(sizeof(XmTabAttributeRec) *
+                                (size_t)newList->used));
         if (newList->tabs == NULL)
         {
             XtFree((XtPointer)newList);
@@ -319,12 +321,14 @@ XmTabbedStackListInsert(tab_list, position, mask, attributes)
 	 */
         if (tab_list->allocated > INT_MAX - XmLIST_GROWTH_FACTOR ||
             (size_t)(tab_list->allocated + XmLIST_GROWTH_FACTOR) >
-            SIZE_MAX / sizeof(XmTabAttributeRec))
+            SIZE_MAX / sizeof(XmTabAttributeRec) ||
+            (size_t)(tab_list->allocated + XmLIST_GROWTH_FACTOR) >
+            UINT_MAX / sizeof(XmTabAttributeRec))
             return XmTAB_NOT_FOUND;
         newAllocated = tab_list->allocated + XmLIST_GROWTH_FACTOR;
         newTabs = (XmTabAttributes)XtRealloc(
             (XtPointer)tab_list->tabs,
-            (size_t)newAllocated * sizeof(XmTabAttributeRec));
+            (Cardinal)((size_t)newAllocated * sizeof(XmTabAttributeRec)));
         if (newTabs == NULL)
             return XmTAB_NOT_FOUND;
         tab_list->tabs = newTabs;

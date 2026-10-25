@@ -12339,3 +12339,10 @@ Optimized XmString concatenation allocation (2026-10-26)
   dereferencing the result; see `docs/xmstring-concat-allocation.md`.
 
 Tab-list proposal widget validation (2026-10-26)
+Tabbed-stack list allocation bounds (2026-10-26)
+================================================
+
+- Bound tabbed-stack attribute-array copy and growth allocations against Xt's
+  `Cardinal` width; see `docs/tabbed-stack-bounds.md`.
+
+Optimized XmString concatenation allocation (2026-10-26)
