@@ -1959,8 +1959,11 @@ removal, ownership retention and empty-table behavior. The full libXm rebuild
 and gallery integration pass on `uconsole`. The unmatched-rendition append path
 also rolls back replacement bodies and copied handles before returning the
 source table on allocation or copy failure. Shared-table merge-copy rollback is
-also covered in this slice. Further peer render-table changes remain separate
-packages until their earlier-branch dependencies are reviewed.
+also covered in this slice. The reviewed peer render-table sequence through
+copy-size, count, compaction, null-extents, removal-copy, append, merge,
+creation, copy-locking, rendition-lookup-locking, and display-less-locking
+guards is now integrated as separate commits; no peer patch was copied without
+checking its ownership and locking dependencies in this fork.
 Merge replacement and copy-on-write clone failures now preserve their
 existing rendition as well. Rendition helper and initial-table allocation
 failures are guarded and rollback-safe; the exact Xft `font-lifetime` fixture
