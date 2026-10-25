@@ -5268,3 +5268,11 @@ DragUnder region geometry bounds (2026-10-25)
   `docs/dragunder-geometry-bounds.md`.
 
 Notebook pixmap binding metadata (2026-10-25)
+DragUnder pixmap metadata guards (2026-10-25)
+=============================================
+
+- Guard highlight and shadow GC pixmap depth handling against unresolved
+  metadata, retaining solid GC fallback; see
+  `docs/dragunder-pixmap-metadata.md`.
+
+DragUnder region geometry bounds (2026-10-25)
