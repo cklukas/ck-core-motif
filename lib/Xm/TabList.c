@@ -66,6 +66,8 @@ XmTabbedStackListCreate()
      * caller.
      */
     tabList = (XmTabbedStackList) XtMalloc(sizeof(XmTabbedStackListRec));
+    if (tabList == NULL)
+        return NULL;
     tabList->allocated = tabList->used = 0;
     tabList->tabs = (XmTabAttributes) NULL;
 
@@ -105,6 +107,8 @@ XmTabbedStackListCopy(tab_list)
      * to the number of items we need.
      */
     newList = (XmTabbedStackList) XtMalloc(sizeof(XmTabbedStackListRec));
+    if (newList == NULL)
+        return NULL;
     newList->allocated = newList->used = tab_list->used;
 
     /*
@@ -121,8 +125,19 @@ XmTabbedStackListCopy(tab_list)
          * First allocate the memory for all the entries. and then copy
          * item by item the list.
          */
+        if (tab_list->tabs == NULL ||
+            (size_t)newList->used > SIZE_MAX / sizeof(XmTabAttributeRec))
+        {
+            XtFree((XtPointer)newList);
+            return NULL;
+        }
         newList->tabs = (XmTabAttributes)
-            XtMalloc(sizeof(XmTabAttributeRec) * newList->used);
+            XtMalloc(sizeof(XmTabAttributeRec) * (size_t)newList->used);
+        if (newList->tabs == NULL)
+        {
+            XtFree((XtPointer)newList);
+            return NULL;
+        }
 
         for( i = 0; i < newList->used; ++i )
         {
