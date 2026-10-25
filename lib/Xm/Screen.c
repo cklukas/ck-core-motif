@@ -1462,9 +1462,9 @@ XmGetXmScreen(
     XmDisplay	xmDisplay;
     WidgetList	children;
     Widget 	widget;
-    int	num_children;
+    Cardinal num_children;
     Arg args[5];
-    int i;
+    Cardinal i;
     Screen *scr;
     char name[25];
     _XmDisplayToAppContext(DisplayOfScreen(screen));
