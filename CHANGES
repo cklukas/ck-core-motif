@@ -3669,3 +3669,10 @@ Guard FileSB allocation failures (2026-10-25)
   conversion-target allocations before initialization or copying, preserving
   existing widget state and releasing owned intermediates on failure; see the
   corresponding `docs/motif-filesb-*.md` contracts.
+Guard Text/List allocation failures (2026-10-25)
+=================================================
+
+- Refuse failed List target and translation allocations, roll back partial
+  List internal-element insertion, and release failed primary-selection state
+  data without crossing the Xt process lock; see the corresponding
+  `docs/motif-textsel-primary-state.md` and `docs/motif-list-*.md` contracts.
