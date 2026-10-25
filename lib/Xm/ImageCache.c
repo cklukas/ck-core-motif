@@ -2026,6 +2026,11 @@ XmDestroyPixmap(
 
    if ((pix_entry = (PixmapData*) 
 	_XmGetHashEntry(pixmap_set, (XmHashKey)&pix_data)) != NULL) {
+      if (pix_entry->reference_count <= 0) {
+	  _XmProcessUnlock();
+	  _XmAppUnlock(app);
+	  return False;
+      }
       pix_entry->reference_count--;
       if (pix_entry->reference_count == 0) {
 	  _XmRemoveHashEntry (pixmap_data_set, pix_entry);

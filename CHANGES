@@ -5380,3 +5380,10 @@ Prevent ImageCache color reference underflow (2026-10-25)
   see `docs/image-color-refcount.md`.
 
 Make ImageCache color-cache growth transactional (2026-10-25)
+Prevent ImageCache pixmap reference underflow (2026-10-25)
+===========================================================
+
+- Reject invalid cached-pixmap reference counts before `XmDestroyPixmap`
+  decrements them; see `docs/image-pixmap-refcount.md`.
+
+Prevent ImageCache color reference underflow (2026-10-25)
