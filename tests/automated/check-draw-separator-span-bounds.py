@@ -5,7 +5,7 @@ from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "Draw.c").read_text()
 
-assert "int i, ndash, shadow_dash_size, separator_span;" in source
+assert "int i, ndash, shadow_dash_size, separator_span, line_span;" in source
 assert "separator_span = (orientation == XmHORIZONTAL" in source
 assert "if (separator_span <= 0)" in source
 assert "shadow_dash_size = separator_span;" in source
