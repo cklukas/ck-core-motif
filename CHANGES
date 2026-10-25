@@ -4706,3 +4706,9 @@ Data-field insert-selection validation (2026-10-25)
 
 - Validate `ATOM_PAIR` type, format, and length before reading insert
   selection data; see `docs/datafsel-insert-pair-guards.md`.
+
+Drag atom-table property validation (2026-10-25)
+=================================================
+
+- Validate `_MOTIF_DRAG_ATOMS` encoding and advertised entry storage before
+  parsing the cache; see `docs/dragbs-atoms-read-guards.md`.

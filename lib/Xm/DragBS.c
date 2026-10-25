@@ -772,7 +772,9 @@ ReadAtomsTable(
 			        (unsigned char **) &propertyRecPtr)
 						/* returned data */
 	    == Success) &&
-           (lengthRtn >= sizeof(xmMotifAtomsPropertyRec)));
+	           (type == atomsTableAtom) &&
+	           (format == 8) &&
+	           (lengthRtn >= sizeof(xmMotifAtomsPropertyRec)));
     EndProtectedSection (display);
 
     if (bad_window) {
@@ -804,7 +806,14 @@ ReadAtomsTable(
 	    swap4bytes(propertyRecPtr->info.heap_offset);
 	}
 
-        if (atomsTable == NULL)
+	if (lengthRtn < sizeof(xmMotifAtomsPropertyRec) +
+	    (size_t)propertyRecPtr->info.num_atoms *
+	    sizeof(xmMotifAtomsTableRec)) {
+	    XmeWarning ((Widget) XmGetXmDisplay (display), MESSAGE2);
+	    ret = False;
+	}
+
+	if (ret && atomsTable == NULL)
         {
             atomsTable = (xmAtomsTable) XtMalloc(sizeof(xmAtomsTableRec));
             atomsTable->numEntries = 0;
@@ -813,7 +822,7 @@ ReadAtomsTable(
             SetAtomsTable (display, atomsTable);
         }
 
-	if (propertyRecPtr->info.num_atoms > atomsTable->numEntries) {
+	if (ret && propertyRecPtr->info.num_atoms > atomsTable->numEntries) {
 	    if (propertyRecPtr->info.num_atoms >
 		SIZE_MAX / sizeof(xmAtomsTableEntryRec)) {
 		XmeWarning((Widget) XmGetXmDisplay(display), MESSAGE2);
