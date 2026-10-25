@@ -4,9 +4,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 static unsigned checks, previews, changes;
+static unsigned x_errors;
 #define CHECK(c) do { if (!(c)) { fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, #c); return EXIT_FAILURE; } ++checks; } while (0)
 static void preview(Widget w, XtPointer c, XtPointer data) { (void)w; (void)c; (void)data; ++previews; }
 static void changed(Widget w, XtPointer c, XtPointer data) { (void)w; (void)c; (void)data; ++changes; }
+static int x_error(Display *display, XErrorEvent *event) {
+    (void)display; (void)event; ++x_errors; return 0;
+}
 int main(int argc, char **argv) {
     XtAppContext app; Widget shell, board, picker; XmAccessibility *a;
     XmAccessibleInfo info; XmAccessibleId id; Dimension width, height;
@@ -18,7 +22,13 @@ int main(int argc, char **argv) {
                   XmNheight, 40, NULL);
     XtAddCallback(picker, XmNcolorPickerPreviewCallback, preview, NULL);
     XtAddCallback(picker, XmNcolorPickerValueChangedCallback, changed, NULL);
-    XtManageChild(picker); XtRealizeWidget(shell); XSync(XtDisplay(shell), False);
+    XtManageChild(picker); XtRealizeWidget(shell);
+    XSetErrorHandler(x_error);
+    XClearArea(XtDisplay(picker), XtWindow(picker), 0, 0, 0, 0, True);
+    XSync(XtDisplay(shell), False);
+    while (XtAppPending(app) & XtIMXEvent)
+        XtAppProcessEvent(app, XtIMXEvent);
+    CHECK(x_errors == 0);
     XtVaGetValues(picker, XmNwidth, &width, XmNheight, &height, NULL);
     CHECK(width == 220 && height == 40); CHECK(XmColorPickerGetValue(picker) == 0x11223344UL);
     XmColorPickerPreviewValue(picker, 0xaabbccddUL);

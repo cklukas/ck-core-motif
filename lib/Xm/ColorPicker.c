@@ -73,7 +73,7 @@ static void Destroy(Widget widget) {
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmColorPickerWidget picker = (XmColorPickerWidget)widget;
     Display *display = XtDisplay(widget); Window window = XtWindow(widget);
-    char text[16]; XFontStruct *font; int baseline;
+    char text[16]; XFontStruct *font; XGCValues gc_values; int baseline;
     unsigned long value = picker->color_picker.preview;
     XGCValues values; GC swatch; XColor color;
     (void)event; (void)region;
@@ -95,7 +95,14 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         XFreeGC(display, swatch);
     }
     snprintf(text, sizeof(text), "#%08lx", value & 0xffffffffUL);
-    font = XQueryFont(display, XGContextFromGC(picker->color_picker.gc));
+    /* XGContextFromGC returns the GC's resource ID, not its font ID.  Passing
+     * that value to XQueryFont raises BadFont on servers that do not happen
+     * to reuse the two resource namespaces.  Read the font selected in the
+     * live GC before querying its metrics. */
+    if (!XGetGCValues(display, picker->color_picker.gc, GCFont, &gc_values) ||
+        gc_values.font == None)
+        return;
+    font = XQueryFont(display, gc_values.font);
     if (!font) return;
     baseline = (int)((picker->core.height + font->ascent - font->descent) / 2);
     XDrawString(display, window, picker->color_picker.gc, 38, baseline, text,

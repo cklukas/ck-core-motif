@@ -23,6 +23,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
     Window window = XtWindow(widget);
     const char *prefix;
     XFontStruct *font;
+    XGCValues gc_values;
     int baseline;
 
     (void)event;
@@ -34,7 +35,10 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
     prefix = bar->info.severity == XmINFO_SEVERITY_ERROR ? "Error: " :
              bar->info.severity == XmINFO_SEVERITY_WARNING ? "Warning: " :
              "Info: ";
-    font = XQueryFont(display, XGContextFromGC(bar->info.gc));
+    if (!XGetGCValues(display, bar->info.gc, GCFont, &gc_values) ||
+        gc_values.font == None)
+        return;
+    font = XQueryFont(display, gc_values.font);
     if (!font)
         return;
 

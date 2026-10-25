@@ -166,6 +166,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Display *display = XtDisplay(widget);
     Window window = XtWindow(widget);
     XFontStruct *font;
+    XGCValues gc_values;
     int baseline;
     Position arrow_x;
     XPoint up[3], down[3];
@@ -179,7 +180,10 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (!text_gc)
         return;
     XClearWindow(display, window);
-    font = XQueryFont(display, XGContextFromGC(number->number_box.text_gc));
+    if (!XGetGCValues(display, text_gc, GCFont, &gc_values) ||
+        gc_values.font == None)
+        return;
+    font = XQueryFont(display, gc_values.font);
     if (!font)
         return;
     baseline = (int)((number->core.height + font->ascent - font->descent) / 2);

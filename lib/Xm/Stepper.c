@@ -70,12 +70,15 @@ static void Destroy(Widget widget) {
 }
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmStepperWidget s = (XmStepperWidget)widget; Display *d = XtDisplay(widget); Window w = XtWindow(widget);
-    char text[32]; int baseline; XFontStruct *font; Position split;
+    char text[32]; int baseline; XFontStruct *font; XGCValues gc_values; Position split;
     (void)event; (void)region;
     if (!w || !s->stepper.gc) return;
     XClearWindow(d, w);
     snprintf(text, sizeof(text), "%d", s->stepper.value);
-    font = XQueryFont(d, XGContextFromGC(s->stepper.gc));
+    if (!XGetGCValues(d, s->stepper.gc, GCFont, &gc_values) ||
+        gc_values.font == None)
+        return;
+    font = XQueryFont(d, gc_values.font);
     if (!font) return;
     baseline = (int)((s->core.height + font->ascent - font->descent) / 2);
     XDrawString(d, w, s->stepper.gc, 8, baseline, text, (int)strlen(text));

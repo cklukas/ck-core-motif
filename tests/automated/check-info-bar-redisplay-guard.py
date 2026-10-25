@@ -8,6 +8,9 @@ end = source.index("static void Events(", start)
 function = source[start:end]
 
 assert "if (!window || !bar->info.gc)" in function
+assert "XGetGCValues" in function
+assert "GCFont" in function
+assert "XGContextFromGC(" not in function
 font_query = function.index("font = XQueryFont")
 font_guard = function.index("if (!font)")
 font_use = function.index("font->ascent")

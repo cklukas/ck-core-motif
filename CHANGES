@@ -1,3 +1,20 @@
+ColorPicker redisplay font-resource contract (2026-10-25)
+============================================================
+
+- Read the font selected by the live ColorPicker GC before querying its
+  metrics. Passing the GC context ID as a font ID raised `BadFont` during
+  redisplay on servers with independent X11 resource namespaces. The focused
+  installed consumer now requests an expose and fails on any asynchronous X
+  error; see `docs/color-picker-redisplay-guard.md`.
+
+Shared redisplay font-resource contract (2026-10-25)
+=====================================================
+
+- Apply the same live-GC font lookup to InfoBar, NumberBox and Stepper. Their
+  redisplay paths no longer pass a GC context ID to `XQueryFont`, eliminating
+  the same `BadFont` failure from the remaining modern drawing controls; see
+  their focused redisplay-guard documentation.
+
 Live appearance Text initialization regression (2026-10-25)
 ============================================================
 

@@ -9,6 +9,9 @@ function = source[start:end]
 
 assert "!number->number_box.text_gc" in function
 assert "!number->number_box.arrow_gc" in function
+assert "XGetGCValues" in function
+assert "GCFont" in function
+assert "XGContextFromGC(" not in function
 text_guard = function.index("if (!text_gc)")
 font_query = function.index("font = XQueryFont")
 font_guard = function.index("if (!font)")
