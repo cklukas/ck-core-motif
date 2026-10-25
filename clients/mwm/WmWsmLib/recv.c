@@ -160,6 +160,9 @@ WSMIsKnownTarget(Widget w, Atom target)
 {
     WSMDispInfo * disp_info = _WSMGetDispInfo(XtDisplay(w));
 
+    if (disp_info == NULL)
+	return(False);
+
     /*
      * Can't switch on dynamic data, sigh...
      */
@@ -209,6 +212,11 @@ WSMGetTargetList(Widget w, Boolean include_defaults, unsigned long *len_ret)
     WSMDispInfo *disp_info = _WSMGetDispInfo(XtDisplay(w));
     register int i;
     Atom *list;
+
+    if (disp_info == NULL) {
+	*len_ret = 0;
+	return(NULL);
+    }
 
     *len_ret = NUM_WSM_TARGETS;
     if (include_defaults)

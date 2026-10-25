@@ -1,3 +1,9 @@
+WSM target cache guards (2026-10-25)
+=====================================
+
+- Handle missing display metadata in target validation and target-list
+  construction; see `docs/wsm-target-cache-guards.md`.
+
 WSM request callback guard (2026-10-25)
 ========================================
 
