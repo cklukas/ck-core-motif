@@ -1458,8 +1458,15 @@ _XmGeoCalcFill(
         Dimension *pEndSpace,       /* Receives end spacing.*/
         Dimension *pBetweenSpace )  /* Receives between spacing.*/
 {   
-            Dimension       totalSpecSpace ;/* Sum of specified spacing.*/
+            unsigned long   totalSpecSpace ;/* Sum of specified spacing.*/
 /****************/
+
+    if (pEndSpace == NULL || pBetweenSpace == NULL)
+        return;
+    *pEndSpace = 0;
+    *pBetweenSpace = 0;
+    if (numBoxes == 0)
+        return;
 
     if(    !endSpec    )
     {   if(    numBoxes == 1    )
@@ -1471,12 +1478,16 @@ _XmGeoCalcFill(
                 } 
             }
         } 
-    totalSpecSpace = (betweenSpec * (numBoxes - 1)) + (endSpec << 1) ;
-    *pEndSpace = (endSpec * fillSpace) / totalSpecSpace ;
+    totalSpecSpace = ((unsigned long)betweenSpec * (numBoxes - 1)) +
+                     ((unsigned long)endSpec << 1);
+    if (totalSpecSpace == 0)
+        return;
+    *pEndSpace = (Dimension)(((unsigned long)endSpec * (unsigned long)fillSpace) /
+                             totalSpecSpace);
 
     if(    *pEndSpace < margin    )
     {   
-        if(    (endSpec << 1) < totalSpecSpace    )
+        if(    ((unsigned long)endSpec << 1) < totalSpecSpace    )
         {   totalSpecSpace -= endSpec << 1 ;
             } 
         else
@@ -1490,7 +1501,8 @@ _XmGeoCalcFill(
             } 
         *pEndSpace = margin ;
         } 
-    *pBetweenSpace = (betweenSpec * fillSpace) / totalSpecSpace ;
+    *pBetweenSpace = (Dimension)(((unsigned long)betweenSpec *
+                                  (unsigned long)fillSpace) / totalSpecSpace);
     return ;
     }
 

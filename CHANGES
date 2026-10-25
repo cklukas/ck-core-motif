@@ -1,3 +1,10 @@
+GeoUtils fill-spacing guards (2026-10-28)
+==========================================
+
+- Make empty and zero-spec rows safe in the fill-spacing helper, check output
+  pointers, and use wider spacing-sum arithmetic to prevent division by zero
+  and `Dimension` wraparound; see `docs/geoutils-fill-spacing.md`.
+
 GeoUtils matrix allocation bounds (2026-10-28)
 ===============================================
 
