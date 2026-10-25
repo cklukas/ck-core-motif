@@ -204,7 +204,8 @@ static void menu_changed(XmAccessibility *a, Widget w) {
   } else if (XmIsMenuShell(w)) {
     XtVaGetValues(w, XtNchildren, &children, XtNnumChildren, &count, NULL);
     /* Snapshot IDs: notification can run client/provider code and retire nodes. */
-    if ((size_t)count > SIZE_MAX / sizeof(XmAccessibleId))
+    if ((size_t)count > SIZE_MAX / sizeof(XmAccessibleId) ||
+        count > UINT_MAX / sizeof(XmAccessibleId))
       return;
     XmAccessibleId *ids = count
         ? (XmAccessibleId *)XtMalloc(count * sizeof(*ids)) : NULL;

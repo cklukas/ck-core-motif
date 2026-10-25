@@ -9,3 +9,5 @@ covered by `tests/automated/check-accessibility-cache-snapshot-allocation.py`.
 
 The menu-change snapshot path uses the same zero-item handling, so an empty
 menu does not turn a notification into a spurious allocation failure.
+The menu snapshot also rejects counts that cannot fit Xt's `Cardinal` byte-size
+argument before performing the allocation.
