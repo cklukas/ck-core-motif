@@ -30,4 +30,13 @@ uninstall = source[uninstall_start:uninstall_end]
 assert "state->retired = True;" in uninstall
 assert "_XmXlibreDpiRelease(state); /* drop registry ownership */" in uninstall
 
+resolve_start = source.index("_XmXlibreDpiResolve(")
+resolve_end = source.index("static Boolean\n_XmXlibreDpiWork", resolve_start)
+resolve = source[resolve_start:resolve_end]
+fallback = resolve.index("*output_return = None;")
+assert fallback < resolve.index("if (!_XmXlibreDpiClientArea")
+assert "if (resources == NULL)\n        return True;" in resolve
+assert "if (outputs == NULL)" in resolve
+assert "return True;\n    }" in resolve[resolve.index("if (outputs == NULL)"):]
+
 print("PASS XLibre observer reentrant lifetime guards are present")
