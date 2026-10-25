@@ -5833,6 +5833,7 @@ _XmStringEntry
 _XmStringEntryCopy(_XmStringEntry entry)
 {
   int i;
+  int j;
   int size;
   XtPointer text;
   _XmStringEntry new_entry = NULL;
@@ -5868,15 +5869,34 @@ _XmStringEntryCopy(_XmStringEntry entry)
   case XmSTRING_ENTRY_ARRAY:
     {
       _XmStringNREntry *arr;
+      size_t segment_count = (size_t)_XmEntrySegmentCount(entry);
       new_entry = (_XmStringEntry)XtMalloc(sizeof(_XmStringArraySegRec));
+      if (new_entry == NULL)
+        return NULL;
       memcpy((char *)new_entry, (char *)entry, sizeof(_XmStringArraySegRec));
-      if (_XmEntrySegmentCount(entry) > 0) {
-	arr = (_XmStringNREntry *)XtMalloc(_XmEntrySegmentCount(entry) *
-					   sizeof(_XmStringNREntry));
-	for (i = 0; i < _XmEntrySegmentCount(entry); i++)
+	if (segment_count > 0) {
+	if (segment_count > SIZE_MAX / sizeof(_XmStringNREntry)) {
+	  XtFree((char *)new_entry);
+	  return NULL;
+	}
+	arr = (_XmStringNREntry *)XtMalloc(
+	    segment_count * sizeof(_XmStringNREntry));
+	if (arr == NULL) {
+	  XtFree((char *)new_entry);
+	  return NULL;
+	}
+	_XmEntrySegment(new_entry) = arr;
+	for (i = 0; i < (int)segment_count; i++) {
 	  arr[i] = (_XmStringNREntry)
 	    _XmStringEntryCopy((_XmStringEntry)_XmEntrySegment(entry)[i]);
-	_XmEntrySegment(new_entry) = arr;
+	  if (arr[i] == NULL) {
+    for (j = 0; j < i; j++)
+      _XmStringEntryFree((_XmStringEntry)arr[j]);
+    XtFree((char *)arr);
+    XtFree((char *)new_entry);
+	    return NULL;
+	  }
+	}
       } else 
 	_XmEntrySegment(new_entry) = NULL;
     }

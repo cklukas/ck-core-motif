@@ -6012,3 +6012,10 @@ Harden XmString rendition merges (2026-10-25)
   success, preserving the original arrays on failure; see
   `docs/xmstring-rendition-merge.md` and its focused source check.
 
+Harden XmString array-entry copies (2026-10-25)
+=================================================
+
+- Check segment-table sizing and unwind partially copied children when a
+  compound-string entry copy fails; see `docs/xmstring-array-copy.md` and its
+  focused source check.
+
