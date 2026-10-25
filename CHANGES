@@ -1,3 +1,9 @@
+Minimized-icon state placement validation (2026-10-25)
+=======================================================
+
+- Validate workspace placement storage and stored indices before minimized
+  icon occupancy checks; see `docs/show-icon-state-place-guards.md`.
+
 Window-configuration placement validation (2026-10-25)
 =======================================================
 

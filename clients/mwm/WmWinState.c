@@ -1359,7 +1359,14 @@ void MapClientWindows (ClientData *pCD)
 
 void ShowIconForMinimizedClient (WmWorkspaceData *pWS, ClientData *pCD)
 {
-    WmScreenData *pSD = PSD_FOR_CLIENT(pCD);
+    WmScreenData *pSD;
+
+    if (pWS == NULL || pCD == NULL)
+	return;
+    pSD = PSD_FOR_CLIENT(pCD);
+    if (pSD == NULL || pWS->IPData.placeList == NULL ||
+	pWS->IPData.totalPlaces <= 0)
+	return;
 
     /*
      * Handle auto-placement for root icons (icons not in an icon
@@ -1367,7 +1374,8 @@ void ShowIconForMinimizedClient (WmWorkspaceData *pWS, ClientData *pCD)
      */
     if (wmGD.iconAutoPlace && !P_ICON_BOX(pCD))
     {
-        if ((ICON_PLACE(pCD) == NO_ICON_PLACE) ||
+	if (ICON_PLACE(pCD) < 0 ||
+	    ICON_PLACE(pCD) >= pWS->IPData.totalPlaces ||
 	    ((pWS->IPData.placeList[ICON_PLACE(pCD)].pCD) &&
 	     (pWS->IPData.placeList[ICON_PLACE(pCD)].pCD != pCD)))
         {
