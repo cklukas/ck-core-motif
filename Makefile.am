@@ -485,3 +485,4 @@ EXTRA_DIST += tests/automated/check-mrm-arglist-reader-counts.py docs/mrm-arglis
 EXTRA_DIST += tests/automated/check-mrm-arglist-offset-bounds.py docs/mrm-arglist-offset-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-widget-offset-bounds.py docs/mrm-widget-offset-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-create-tree-children-bounds.py docs/mrm-create-tree-children-bounds.md
+EXTRA_DIST += tests/automated/check-mrm-create-tree-child-index-bounds.py docs/mrm-create-tree-child-index-bounds.md

@@ -53,6 +53,7 @@ static char rcsid[] = "$TOG: Mrmwcrw.c /main/20 1999/05/19 15:26:23 mgreess $"
  */
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
 #include "MrmosI.h"
@@ -291,10 +292,24 @@ UrmCreateWidgetTree (URMResourceContextPtr	context_id,
 	return Urm__UT_Error ("UrmCreateWidgetTree", _MrmMMsg_0001,
 				      NULL, NULL,
 				      result == MrmSUCCESS ? MrmFAILURE : result);
+      if ( (size_t)widgetrec->children_offs > widgetrec->size ||
+	   widgetrec->size - widgetrec->children_offs <
+	     sizeof(RGMChildrenDesc) - sizeof(RGMChildDesc) )
+	{
+	UrmFreeResourceContext (child_ctx) ;
+	return MrmFAILURE ;
+	}
       childrendesc =
 	(RGMChildrenDescPtr)((char *)widgetrec+widgetrec->children_offs);
-      if ( childrendesc->count > RGMListSizeMax )
+      if ( childrendesc->count < 0 || childrendesc->count > RGMListSizeMax ||
+	   (size_t)childrendesc->count >
+	     (widgetrec->size - widgetrec->children_offs -
+	      (sizeof(RGMChildrenDesc) - sizeof(RGMChildDesc))) /
+	     sizeof(RGMChildDesc) )
+	{
+	UrmFreeResourceContext (child_ctx) ;
 	return MrmFAILURE ;
+	}
 
       for ( ndx=0 ; ndx<childrendesc->count ; ndx++ )
 	{
@@ -309,6 +324,17 @@ UrmCreateWidgetTree (URMResourceContextPtr	context_id,
 	  switch ( childptr->type )
 	    {
 	    case URMrIndex:
+	      if ( childptr->key.index_offs < RGMWidgetRecordHdrSize ||
+		   childptr->key.index_offs >= widgetrec->size ||
+		   memchr ((char *)widgetrec + childptr->key.index_offs, '\0',
+			  widgetrec->size - childptr->key.index_offs) == NULL )
+		{
+		result = MrmFAILURE ;
+		(void)snprintf (err_msg, sizeof(err_msg),
+			       "invalid child index offset %d",
+			       childptr->key.index_offs) ;
+		break ;
+		}
 	      child_idx = (char *) widgetrec+childptr->key.index_offs ;
 	      if ( childptr->access == URMaPublic )
 		result = UrmHGetWidget (hierarchy_id, child_idx,
