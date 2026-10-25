@@ -2439,6 +2439,9 @@ TabVal(Display *d,
   int	intValue;
   float	multiplier, convertValue;
 
+  if (d == NULL || pscreen == NULL || (*pscreen == NULL && w == 0))
+    return 0;
+
   fromType = _XmConvertFactor(_XmTabUnits(tab), &multiplier);
   
   convertValue = multiplier * _XmTabValue(tab);
@@ -2455,7 +2458,6 @@ TabVal(Display *d,
    * several round trips to the server to draw a single string???
    */ 
   /* All we really want is the screen, but we may only have a drawable. */
-  assert(w || *pscreen);
   if (*pscreen == NULL)
     {
       Widget widget = XtWindowToWidget(d, w);

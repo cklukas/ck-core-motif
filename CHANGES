@@ -135,6 +135,13 @@ XmString self-concatenation (2026-10-26)
   before conversion, making self-concatenation safe; see
   `docs/xmstring-self-concat.md`.
 
+XmString tab conversion guards (2026-10-26)
+===========================================
+
+- Treat missing display, screen storage, or drawable inputs to tab conversion
+  as zero-width results instead of asserting or dereferencing null state; see
+  `docs/xmstring-tab-conversion.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 
