@@ -66,6 +66,12 @@ Guard DataGrid redisplay inputs (2026-10-25)
   geometry for narrow columns and short rows; see
   `docs/data-grid-redisplay-guards.md`.
 
+Guard TimePicker redisplay and callbacks (2026-10-25)
+======================================================
+
+- Skip drawing without a TimePicker GC and route callback resources by string
+  content; see `docs/time-picker-redisplay-guard.md`.
+
 Guard IconFile cache directory input (2026-10-27)
 ==================================================
 
