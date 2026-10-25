@@ -35,6 +35,7 @@
 #include <Xm/Prompt.h>
 #include <Xm/FormSection.h>
 #include <Xm/EmptyState.h>
+#include <Xm/Toast.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
 #include <Xm/PushBG.h>
@@ -1334,6 +1335,23 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     if (XmEmptyStateGetAction(w) && XtIsManaged(XmEmptyStateGetAction(w)))
       i->action_count = 1;
   }
+  if (XmIsToast(w)) {
+    XmString message = NULL;
+    XmString action_label = NULL;
+    char *action_text = NULL;
+    i->role = XmACCESSIBLE_PANEL;
+    XtVaGetValues(w, XmNtoastMessage, &message, NULL);
+    if (message)
+      local = XmStringUnparse(message, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
+                              NULL, 0, XmOUTPUT_ALL);
+    XtVaGetValues(w, XmNtoastActionLabel, &action_label, NULL);
+    if (action_label)
+      action_text = XmStringUnparse(action_label, NULL, XmCHARSET_TEXT,
+                                    XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+    if (XmToastIsShown(w) && XtIsManaged(w) && action_text && *action_text)
+      i->action_count = 1;
+    XtFree(action_text);
+  }
   if (XmIsNumberBox(w)) {
     int minimum, maximum;
     i->role = XmACCESSIBLE_PROGRESS_BAR;
@@ -1582,6 +1600,10 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
   }
   if (XmIsEmptyState(n->widget) && action == 0) {
     XmEmptyStateInvokeAction(n->widget, NULL);
+    return True;
+  }
+  if (XmIsToast(n->widget) && action == 0) {
+    XmToastInvokeAction(n->widget, NULL);
     return True;
   }
   if (XmIsArrowButton(n->widget)) {
