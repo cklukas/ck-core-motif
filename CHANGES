@@ -1,3 +1,10 @@
+Clipboard format-atom allocation checks (2026-10-26)
+======================================================
+
+- Validate clipboard format names and synthetic atom-name allocation before
+  formatting, returning `None` on failure; see
+  `docs/clipboard-format-atom-allocation.md`.
+
 Clipboard conversion allocation checks (2026-10-26)
 =====================================================
 

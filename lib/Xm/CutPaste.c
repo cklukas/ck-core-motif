@@ -1452,9 +1452,21 @@ ClipboardGetAtomFromFormat(
 {
     char *atomname_format = "_MOTIF_CLIP_FORMAT_%s";
     char *item;
+    size_t format_name_length;
+    size_t prefix_length;
     Atom ret_value;
 
-    item = XtMalloc( strlen( format_name ) + strlen( atomname_format ) + 1 );
+    if (format_name == NULL)
+	return None;
+
+    format_name_length = strlen( format_name );
+    prefix_length = strlen( atomname_format );
+    if (format_name_length > (size_t)-1 - prefix_length - 1)
+	return None;
+
+    item = XtMalloc( format_name_length + prefix_length + 1 );
+    if (item == NULL)
+	return None;
 
     sprintf( item, atomname_format, format_name );
 
