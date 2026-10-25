@@ -1,3 +1,9 @@
+Guard bounded compound-text segment copies (2026-10-25)
+=========================================================
+
+- Clean up converted entries and return `BadAlloc` when a temporary segment
+  copy cannot be allocated; see `docs/motif-txtpropcv-segment-copy.md`.
+
 Guard compound-text string-table allocation (2026-10-25)
 ===========================================================
 

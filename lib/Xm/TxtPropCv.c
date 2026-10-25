@@ -805,6 +805,14 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	    segment_length = nul ? (size_t)(nul - (text_prop->value + offset))
 				  : remaining;
 	    segment = (char *)XtMalloc(segment_length + 1);
+	    if (segment == NULL) {
+		int cleanup;
+		for (cleanup = 0; cleanup < i; ++cleanup)
+		    XmStringFree(string_table[cleanup]);
+		XtFree((char *)string_table);
+		_XmAppUnlock(app);
+		return BadAlloc;
+	    }
 	    memcpy(segment, text_prop->value + offset, segment_length);
 	    segment[segment_length] = '\0';
 	    tempstr = XmCvtCTToXmString(segment);
