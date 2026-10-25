@@ -622,6 +622,11 @@ public XmRowActionsGetItemCount
 public XmRowActionsReveal
 public XmRowActionsIsRevealed
 public XmRowActionsInvoke
+public XmCreateDropHighlight
+public XmVaCreateDropHighlight
+public XmVaCreateManagedDropHighlight
+public XmDropHighlightSetState
+public XmDropHighlightGetState
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -930,6 +935,8 @@ public xmSkeletonClassRec
 public xmSkeletonWidgetClass
 public xmRowActionsClassRec
 public xmRowActionsWidgetClass
+public xmDropHighlightClassRec
+public xmDropHighlightWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec
