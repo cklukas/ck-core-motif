@@ -1,3 +1,10 @@
+Guard Container CELLS region lifecycle (2026-10-25)
+===================================================
+
+- Handle unavailable persistent occupancy regions during Container CELLS
+  placement, reset, and teardown; see
+  `docs/container-cells-region-lifecycle.md`.
+
 Guard Container region removal allocation (2026-10-25)
 =======================================================
 
