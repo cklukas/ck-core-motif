@@ -1527,10 +1527,10 @@ Disarm(
 				  LabG_BackgroundGC(cb), 
 			    cb->gadget.highlight_thickness + cb->rectangle.x,
 			    cb->gadget.highlight_thickness + cb->rectangle.y,
-				  cb->rectangle.width - 2 * 
-				  cb->gadget.highlight_thickness,
-				  cb->rectangle.height - 2 * 
-				  cb->gadget.highlight_thickness,
+				  (int) cb->rectangle.width -
+				  2 * (int) cb->gadget.highlight_thickness,
+				  (int) cb->rectangle.height -
+				  2 * (int) cb->gadget.highlight_thickness,
 				  cb->gadget.shadow_thickness);
 	 }
       }

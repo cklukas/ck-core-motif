@@ -1,3 +1,10 @@
+CascadeButton gadget highlight bounds (2026-10-26)
+====================================================
+
+- Pass menu-leave highlight dimensions in signed arithmetic, preventing
+  collapsed CascadeButton gadgets from wrapping spans; see
+  `docs/cascadebg-highlight-bounds.md`.
+
 ToggleButton gadget highlight bounds (2026-10-26)
 ==================================================
 
