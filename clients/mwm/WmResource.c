@@ -6387,7 +6387,7 @@ WmScreenData *pSD;
 	    Warning("Insufficient memory for builtin key bindings");
 	    ExitWM(WM_ERROR_EXIT_VALUE);
 	}
-	sprintf(buffer, builtinKeyBindings, root_menu);
+	(void)snprintf(buffer, bufferLength, builtinKeyBindings, root_menu);
 
 	ParseKeyStr (pSD, (unsigned char *)buffer);
 	XtFree(buffer);
@@ -6458,7 +6458,7 @@ WmScreenData *pSD;
 	    Warning("Insufficient memory for builtin button bindings");
 	    ExitWM(WM_ERROR_EXIT_VALUE);
 	}
-	sprintf(buffer, builtinButtonBindings, root_menu);
+	(void)snprintf(buffer, bufferLength, builtinButtonBindings, root_menu);
 
 	ParseButtonStr (pSD, (unsigned char *)buffer);
 	XtFree(buffer);

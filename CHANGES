@@ -11293,5 +11293,6 @@ MWM formatted binding sizes (2026-10-25)
 ========================================
 
 - Size built-in key and button binding buffers from their formatted output,
-  preventing under-allocation for long root-menu names; see
+  and use bounded writes, preventing under-allocation or format drift for long
+  root-menu names; see
   `docs/mwm-binding-buffer-size.md`.

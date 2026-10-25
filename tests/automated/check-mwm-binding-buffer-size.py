@@ -13,6 +13,7 @@ for body, template in ((key, "builtinKeyBindings"), (button, "builtinButtonBindi
     assert f"snprintf(NULL, 0, {template}, root_menu)" in body
     assert "messageLength < 0 || (size_t)messageLength >= UINT_MAX" in body
     assert "bufferLength = (size_t)messageLength + 1;" in body
+    assert f"snprintf(buffer, bufferLength, {template}, root_menu)" in body
     assert "XtMalloc((Cardinal)bufferLength)" in body
 
 print("MWM builtin binding buffer sizing is checked")
