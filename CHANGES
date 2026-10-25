@@ -1,3 +1,9 @@
+Mrm deferred pixmap tag failures (2026-10-25)
+===============================================
+
+- Reject failed tag decompression while finalizing deferred pixmaps and release
+  the just-created pixmap; see `docs/mrm-pixmap-tag-failure.md`.
+
 Mrm deferred icon storage bounds (2026-10-25)
 ===============================================
 
