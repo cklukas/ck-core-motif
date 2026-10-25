@@ -436,6 +436,7 @@ DrawHighlight(
     if (aSaveData->highlightPixmap != None &&
 	aSaveData->highlightPixmap != XmUNSPECIFIED_PIXMAP) {
 	int depth ;
+	depth = 0;
 	       
 	XmeGetPixmapData(XtScreen(aSaveData->xmScreen), 
 			 aSaveData->highlightPixmap,
@@ -447,7 +448,7 @@ DrawHighlight(
 	   v.fill_style = FillStippled;
 	   v.stipple = aSaveData->highlightPixmap;
 	   vmask |= GCStipple | GCFillStyle;
-       } else {
+	} else if (depth > 1) {
 	   v.fill_style = FillTiled;
 	   v.tile = aSaveData->highlightPixmap;
 	   vmask |= GCTile | GCFillStyle;
@@ -525,6 +526,7 @@ DrawShadow(
     if (aSaveData->topShadowPixmap != None &&
         aSaveData->topShadowPixmap != XmUNSPECIFIED_PIXMAP) {
 	int depth ;
+	depth = 0;
 	       
 	XmeGetPixmapData(XtScreen(aSaveData->xmScreen), 
 			 aSaveData->topShadowPixmap,
@@ -536,7 +538,7 @@ DrawShadow(
 	   v.fill_style = FillStippled;
 	   v.stipple = aSaveData->topShadowPixmap;
 	   vmask |= GCStipple | GCFillStyle;
-       } else {
+	} else if (depth > 1) {
 	   v.fill_style = FillTiled;
 	   v.tile = aSaveData->topShadowPixmap;
 	   vmask |= GCTile | GCFillStyle;
@@ -562,6 +564,7 @@ DrawShadow(
     if (aSaveData->bottomShadowPixmap != None &&
         aSaveData->bottomShadowPixmap != XmUNSPECIFIED_PIXMAP) {
 		int depth ;
+		depth = 0;
 	       
 	XmeGetPixmapData(XtScreen(aSaveData->xmScreen), 
 			 aSaveData->bottomShadowPixmap,
@@ -573,7 +576,7 @@ DrawShadow(
 	   v.fill_style = FillStippled;
 	   v.stipple = aSaveData->bottomShadowPixmap;
 	   vmask |= GCStipple | GCFillStyle;
-       } else {
+	} else if (depth > 1) {
 	   v.fill_style = FillTiled;
 	   v.tile = aSaveData->bottomShadowPixmap;
 	   vmask |= GCTile | GCFillStyle;
