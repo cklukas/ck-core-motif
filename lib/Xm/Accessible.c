@@ -940,16 +940,25 @@ static char *locale_utf8(const char *s) {
   count = mbsrtowcs(NULL, &p, 0, &state);
   if (count == (size_t)-1 ||
       count > SIZE_MAX / sizeof(*wide) - 1 ||
-      count > (SIZE_MAX - 1) / 4)
+      count > ((size_t)((Cardinal)~0) / sizeof(*wide)) - 1 ||
+      count > (SIZE_MAX - 1) / 4 ||
+      count > ((size_t)((Cardinal)~0) - 1) / 4)
     return NULL;
-  wide = (wchar_t *)XtMalloc((count + 1) * sizeof(*wide));
+  wide = (wchar_t *)XtMalloc(
+	(Cardinal)((count + 1) * sizeof(*wide)));
+  if (!wide)
+    return NULL;
   p = s;
   memset(&state, 0, sizeof(state));
   if (mbsrtowcs(wide, &p, count + 1, &state) == (size_t)-1) {
     XtFree((char *)wide);
     return NULL;
   }
-  result = (char *)XtMalloc(count * 4 + 1);
+  result = (char *)XtMalloc((Cardinal)(count * 4 + 1));
+  if (!result) {
+    XtFree((char *)wide);
+    return NULL;
+  }
   out = result;
   for (i = 0; i < count; i++) {
     uint32_t c = (uint32_t)wide[i];

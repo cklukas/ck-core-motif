@@ -86,6 +86,13 @@ Compound-text compatibility length tracking (2026-10-26)
   reject NULL text, and bound the optional version header; see
   `docs/compound-text-compatibility-length.md`.
 
+Accessibility UTF-8 allocation guards (2026-10-26)
+===================================================
+
+- Bound locale-to-UTF-8 allocations by both `size_t` and Xt `Cardinal`
+  limits, and handle allocation failure before writing output; see
+  `docs/accessibility-utf8-allocation.md`.
+
 Compound-text empty-segment guard (2026-10-26)
 ================================================
 
