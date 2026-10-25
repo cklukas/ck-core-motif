@@ -6939,3 +6939,11 @@ List geometry bounds (2026-10-25)
   `docs/list-geometry-bounds.md`.
 
 ToggleButton redisplay bounds (2026-10-25)
+MainWindow layout bounds (2026-10-25)
+=====================================
+
+- Use signed operands for menu, command, message, and separator layout
+  subtraction before fallback checks, preventing wrapped child geometry in
+  small windows; see `docs/mainw-layout-bounds.md`.
+
+List geometry bounds (2026-10-25)
