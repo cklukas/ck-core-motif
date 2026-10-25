@@ -11244,3 +11244,9 @@ WSM property wire width (2026-10-25)
 - Size serialized WM-window property fields at their 32-bit protocol width,
   avoiding oversized messages and uninitialized host-width padding; see
   `docs/wsm-wire-width.md`.
+
+WSM request counts (2026-10-25)
+===============================
+
+- Reject negative request and nested match-attribute counts before packing,
+  preventing invalid unsigned wire counts; see `docs/wsm-request-counts.md`.

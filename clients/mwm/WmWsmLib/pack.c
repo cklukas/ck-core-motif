@@ -187,6 +187,8 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
      */
     switch (request->any.type) {
     case WSM_CONNECT:
+	if (request->connect.num_versions < 0)
+	    return(NULL);
 	if (request->connect.num_versions != 0 &&
 	    request->connect.known_versions == NULL)
 	    return(NULL);
@@ -194,6 +196,8 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 	size += sizeof(CARD8) * request->connect.num_versions;
 	break;
     case WSM_EXTENSIONS:
+	if (request->extensions.num_extensions < 0)
+	    return(NULL);
 	if (request->extensions.num_extensions != 0 &&
 	    request->extensions.extension_suggestions == NULL)
 	    return(NULL);
@@ -210,6 +214,8 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 	size = sizeof(CARD32) + BOOL_SIZE;
 	break;
     case WSM_SET_STATE:
+	if (request->set_state.num_win_info_list < 0)
+	    return(NULL);
 	if (request->set_state.num_win_info_list != 0 &&
 	    request->set_state.win_info_list == NULL)
 	    return(NULL);
@@ -232,6 +238,9 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 	size = sizeof(CARD32);
 	break;
     case WSM_WM_WINDOWS:
+	if (request->wm_windows.num_window_properties < 0 ||
+	    request->wm_windows.num_match_attributes < 0)
+	    return(NULL);
 	if ((request->wm_windows.num_window_properties != 0 &&
 	     request->wm_windows.window_properties == NULL) ||
 	    (request->wm_windows.num_match_attributes != 0 &&
@@ -239,6 +248,7 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 	    return(NULL);
 	for (i = 0; i < request->wm_windows.num_match_attributes; i++)
 	    if (request->wm_windows.match_attributes[i] == NULL ||
+		request->wm_windows.match_attributes[i]->num_attributes < 0 ||
 		(request->wm_windows.match_attributes[i]->num_attributes != 0 &&
 		 (request->wm_windows.match_attributes[i]->allowed_attributes == NULL ||
 		  request->wm_windows.match_attributes[i]->prohibited_attributes == NULL)))
