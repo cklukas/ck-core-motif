@@ -1,3 +1,10 @@
+Mrm record-buffer output initialization (2026-10-25)
+====================================================
+
+- Clear record-buffer outputs before validation and allocation, and reject an
+  invalid buffer-pool size before selection; see
+  `docs/mrm-buffer-output-init.md`.
+
 Mrm close retry after decommit failure (2026-10-25)
 ===================================================
 

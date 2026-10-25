@@ -519,3 +519,4 @@ EXTRA_DIST += tests/automated/check-mrm-buffer-null-source.py docs/mrm-buffer-nu
 EXTRA_DIST += tests/automated/check-mrm-decommit-record.py docs/mrm-decommit-record.md
 EXTRA_DIST += tests/automated/check-mrm-decommit-all-failure.py docs/mrm-decommit-all-failure.md
 EXTRA_DIST += tests/automated/check-mrm-close-decommit-failure.py docs/mrm-close-decommit-failure.md
+EXTRA_DIST += tests/automated/check-mrm-buffer-output-init.py docs/mrm-buffer-output-init.md

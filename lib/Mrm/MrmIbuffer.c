@@ -252,6 +252,10 @@ Idb__BM_GetBuffer (IDBFile			file_id,
   if (file_id == NULL || buffer_return == NULL)
     return MrmFAILURE;
 
+  *buffer_return = NULL;
+  if (idb__buffer_pool_size <= 0)
+    return MrmFAILURE;
+
   /*
    * If the buffer pool is uninitialized, allocate it and
    * return the first buffer in the pool. Else search the buffer pool for the
@@ -450,6 +454,8 @@ Idb__BM_GetRecord (IDBFile                     file_id,
   if (file_id == NULL || buffer_return == NULL || record <= 0)
     return MrmFAILURE;
 
+  *buffer_return = NULL;
+
   if (file_id->in_memory &&
       (file_id->uid_buffer == NULL ||
        (record != IDBHeaderRecordNumber && record > file_id->last_record)))
@@ -587,6 +593,8 @@ Idb__BM_InitRecord (IDBFile                     file_id,
   if (file_id == NULL || buffer_return == NULL)
     return MrmFAILURE;
 
+  *buffer_return = NULL;
+
   if (type < IDBrtMin || type > IDBrtMax)
     return MrmFAILURE;
 
@@ -677,6 +685,7 @@ Idb__BM_InitDataRecord (IDBFile			file_id,
   if (file_id == NULL || buffer_return == NULL)
     return MrmFAILURE;
 
+  *buffer_return = NULL;
 
   /*
    * Get a new record
