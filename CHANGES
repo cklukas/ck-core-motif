@@ -1,3 +1,10 @@
+MWM virtual-screen request bounds (2026-10-26)
+===============================================
+
+- Validate WSM format and payload lengths before unpacking PAN and GOTO
+  requests, rejecting malformed selection data without changing valid
+  virtual-screen operations; see `docs/mwm-virtual-screen-request-guards.md`.
+
 MWM selection conversion defaults (2026-10-26)
 ===============================================
 

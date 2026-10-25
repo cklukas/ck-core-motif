@@ -1377,6 +1377,12 @@ WMiConvert (
 	int     dx, dy;
 	Boolean config;
 
+	if (input == NULL || inputFmt != WSM_PROTO_FMT || inputLen < 9)
+	  {
+	    found = False;
+	  }
+	else
+	  {
 	dx     = (int) UnpackCARD32(&input);
 	dy     = (int) UnpackCARD32(&input);
 	config = (Boolean) UnpackCARD8(&input);
@@ -1390,17 +1396,25 @@ WMiConvert (
 	SetPanPosition (ACTIVE_PSD->panDx, ACTIVE_PSD->panDy);
 	
 	found = True;
+	  }
       }
     else if (target == wmGD._MOTIF_WM_GOTO)
       {
 	int  x, y;
 
+	if (input == NULL || inputFmt != WSM_PROTO_FMT || inputLen < 8)
+	  {
+	    found = False;
+	  }
+	else
+	  {
 	x = (int) UnpackCARD32(&input);
 	y = (int) UnpackCARD32(&input);
 
 	PanRoot(x - ACTIVE_PSD->panDx, y - ACTIVE_PSD->panDy, 1);
 
 	found = True;
+	  }
       }
     
     /*
