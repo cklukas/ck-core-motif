@@ -5767,6 +5767,12 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+RowColumn traversal allocation cast (2026-10-25)
+================================================
+
+- Pass the bounded RowColumn traversal child-list size explicitly as an Xt
+  `Cardinal`; see `docs/rowcolumn-traversal-children.md`.
+
 RowColumn post-from-list preparation (2026-10-25)
 ==================================================
 

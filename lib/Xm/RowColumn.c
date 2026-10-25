@@ -3711,7 +3711,8 @@ TraversalChildren (
          (size_t)child_count > (size_t)((Cardinal)~0) / sizeof(Widget) - 1)
        return (False);
      slot_count = (size_t)child_count + 1;
-     new_children = (WidgetList) XtMalloc(slot_count * sizeof(Widget));
+     new_children = (WidgetList) XtMalloc(
+		 (Cardinal)(slot_count * sizeof(Widget)));
      if (new_children == NULL)
        return (False);
 

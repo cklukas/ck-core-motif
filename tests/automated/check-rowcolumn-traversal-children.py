@@ -13,7 +13,7 @@ for needle in (
     "child_count == (Cardinal)~0",
     "SIZE_MAX / sizeof(Widget) - 1",
     "(size_t)((Cardinal)~0) / sizeof(Widget) - 1",
-    "new_children = (WidgetList) XtMalloc",
+    "new_children = (WidgetList) XtMalloc(\n\t\t (Cardinal)(slot_count * sizeof(Widget)))",
     "if (new_children == NULL)",
     "*childList = new_children;",
     "Cardinal i;",
