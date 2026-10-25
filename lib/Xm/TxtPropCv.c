@@ -622,6 +622,10 @@ XmCvtXmStringTableToTextProperty(Display *display,
 	return BadAlloc;
       }
       useable_text = (char **)XtMalloc(sizeof(char *) * count);
+      if (count > 0 && useable_text == NULL) {
+	_XmAppUnlock(app);
+	return BadAlloc;
+      }
       for (i = 0; i < count; ++i)
 	{
 	  result = GetUseableText(display, string_table[i],
