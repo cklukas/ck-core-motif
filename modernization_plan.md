@@ -2057,6 +2057,10 @@ their length, returning end-of-context and updating the error flag on failure;
 the source contract is recorded in
 `tests/automated/check-xmstring-context-copy-failure.py` and
 `docs/xmstring-context-copy-failure.md`.
+`_XmStringSingleSegment` now validates both output pointers before clearing or
+writing them; the source contract is recorded in
+`tests/automated/check-xmstring-single-segment-outputs.py` and
+`docs/xmstring-single-segment-outputs.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the

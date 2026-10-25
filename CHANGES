@@ -97,6 +97,12 @@ XmString context copied-component failures (2026-10-26)
 - Check copied rendition and tag strings before measuring their length; see
   `docs/xmstring-context-copy-failure.md`.
 
+XmString single-segment output validation (2026-10-26)
+========================================================
+
+- Reject missing `_XmStringSingleSegment` output pointers before use; see
+  `docs/xmstring-single-segment-outputs.md`.
+
 Gallery screenshot qualification receipts (2026-10-25)
 ========================================================
 
