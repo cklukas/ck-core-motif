@@ -1,7 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.0-or-later */
 #include <Xm/ComboBox.h>
+#include <Xm/CascadeB.h>
+#include <Xm/FileSB.h>
 #include <Xm/Label.h>
 #include <Xm/List.h>
+#include <Xm/PushB.h>
+#include <Xm/RowColumn.h>
 #include <Xm/Xm.h>
 #include <locale.h>
 #include <stdio.h>
@@ -17,8 +21,10 @@ static unsigned long checks;
 int main(int argc, char **argv)
 {
     XtAppContext app;
-    Widget shell, label, list, combo;
+    Widget shell, row, menu, pulldown, cascade, menu_item;
+    Widget label, list, combo, files;
     XmString items[3], selected = NULL, expected_label, expected_combo;
+    XmString expected_menu, expected_file;
     const char *values[] = {
         "e\314\201clair",       /* combining acute */
         "\360\237\230\200 cafe", /* non-BMP emoji */
@@ -36,6 +42,20 @@ int main(int argc, char **argv)
     items[2] = XmStringCreateLocalized((char *)values[2]);
     expected_label = XmStringCreateLocalized((char *)values[1]);
     expected_combo = XmStringCreateLocalized((char *)values[2]);
+    expected_menu = XmStringCreateLocalized((char *)values[0]);
+    expected_file = XmStringCreateLocalized((char *)values[2]);
+
+    row = XtVaCreateManagedWidget("row", xmRowColumnWidgetClass, shell,
+                                  XmNorientation, XmVERTICAL, NULL);
+    menu = XmCreateMenuBar(row, "menu", NULL, 0);
+    XtManageChild(menu);
+    pulldown = XmCreatePulldownMenu(menu, "pulldown", NULL, 0);
+    menu_item = XtVaCreateManagedWidget("menu-item", xmPushButtonWidgetClass,
+                                       pulldown, XmNlabelString, expected_menu,
+                                       NULL);
+    cascade = XtVaCreateManagedWidget("cascade", xmCascadeButtonWidgetClass,
+                                      menu, XmNsubMenuId, pulldown, NULL);
+    (void)cascade;
 
     label = XtVaCreateManagedWidget("label", xmLabelWidgetClass, shell,
                                    XmNlabelString, items[1], NULL);
@@ -45,6 +65,8 @@ int main(int argc, char **argv)
     combo = XmVaCreateManagedComboBox(shell, "combo",
                                       XmNitems, items, XmNitemCount, 3,
                                       NULL);
+    files = XmCreateFileSelectionBox(shell, "files", NULL, 0);
+    XtManageChild(files);
     for (unsigned int i = 0; i < XtNumber(items); ++i)
         XmStringFree(items[i]);
 
@@ -66,11 +88,21 @@ int main(int argc, char **argv)
     CHECK(XmStringGetLtoR(selected, XmFONTLIST_DEFAULT_TAG, &label_text));
     CHECK(XmStringByteCompare(selected, expected_combo));
     XtFree(label_text);
+
+    XtVaGetValues(menu_item, XmNlabelString, &selected, NULL);
+    CHECK(selected != NULL && XmStringByteCompare(selected, expected_menu));
+
+    XtVaSetValues(files, XmNdirSpec, expected_file, NULL);
+    XtVaGetValues(files, XmNdirSpec, &selected, NULL);
+    CHECK(selected != NULL && XmStringByteCompare(selected, expected_file));
+
     XmStringFree(expected_label);
     XmStringFree(expected_combo);
+    XmStringFree(expected_menu);
+    XmStringFree(expected_file);
 
     XtDestroyWidget(shell);
     XtDestroyApplicationContext(app);
-    printf("PASS non-text Unicode label/list/ComboBox matrix: %lu checks\n", checks);
+    printf("PASS non-text Unicode label/list/ComboBox/menu/file-selection matrix: %lu checks\n", checks);
     return 0;
 }

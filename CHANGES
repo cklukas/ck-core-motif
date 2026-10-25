@@ -9,6 +9,14 @@ Optional ckmotif++ support package and WML build graph (2026-10-25)
   `libXm`, allowing the WML tools to link from a fresh checkout; this is
   independent of the UIL literal-only module fix below.
 
+Non-text Unicode resource coverage (2026-10-25)
+================================================
+
+- Extend the installed public-API Unicode regression through Menu and
+  FileSelection resources, preserving the bounded physical-keyboard and
+  application-journey limits; see `docs/nontext-unicode.md` and
+  `docs/native-text-ime-matrix.md`.
+
 DropSMgr clipper teardown (2026-10-25)
 ======================================
 

@@ -590,10 +590,10 @@ selection-owner implementation; it is recorded as an external dependency
 boundary rather than suppressed or misreported as a toolkit pass.
 
 The installed native cohort also includes the bounded `nontext-unicode`
-public-API fixture for combining, non-BMP and Han values through Label, List
-and ComboBox resources. It adds evidence for those controls without
-promoting menu, file-selection, physical-keyboard or application-level Unicode
-coverage to complete.
+public-API fixture for combining, non-BMP and Han values through Label, List,
+ComboBox, Menu and FileSelection resources. The fresh 11-check run now covers
+those resource paths without promoting physical-keyboard or application-level
+Unicode coverage to complete.
 
 A strict consumer ASan/UBSan run of the interrupted-clipboard fixture also
 passed against that cohort. The updated pinned Xt patch now covers both the
