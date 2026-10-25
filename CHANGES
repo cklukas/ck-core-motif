@@ -54,6 +54,12 @@ Make scaled-pixmap cache publication transactional (2026-10-26)
 - Roll back the first hash-table insertion and release the pixmap when the
   second cache insertion fails; see `docs/pixmap-dual-table-insertion.md`.
 
+Rollback failed image GC-cache insertion (2026-10-26)
+======================================================
+
+- Release a newly created GC and cache entry when GC-table bucket insertion
+  fails; see `docs/gc-cache-insertion-failure.md`.
+
 Guard XmRegion geometry query NULL inputs (2026-10-26)
 =======================================================
 

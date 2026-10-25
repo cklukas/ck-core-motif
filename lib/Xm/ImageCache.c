@@ -2218,7 +2218,13 @@ GetGCForPutImage(Screen *screen,
       }
 
     _XmProcessLock();
-    _XmAddHashEntry(gc_set, (XmHashKey)gc_entry, (XtPointer)gc_entry);
+    if (!_XmAddHashEntry(gc_set, (XmHashKey)gc_entry, (XtPointer)gc_entry))
+      {
+        _XmProcessUnlock();
+        XFreeGC(DisplayOfScreen(screen), gc_entry->gc);
+        XtFree((char *)gc_entry);
+        return (GC) NULL;
+      }
     _XmProcessUnlock();
 
     return gc_entry->gc ;
