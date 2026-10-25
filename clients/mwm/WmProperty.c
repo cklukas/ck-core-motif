@@ -1302,28 +1302,32 @@ void
 SetWorkspaceListProperty (WmScreenData *pSD)
 {
     WmWorkspaceData *pws;
-    Atom *pWsList;
+    Atom *pWsList = NULL;
     int count;
 
-    if (pSD->numWorkspaces < 0 ||
+    if (pSD == NULL || pSD->numWorkspaces < 0 ||
+        (pSD->numWorkspaces > 0 && pSD->pWS == NULL) ||
         (size_t)pSD->numWorkspaces > UINT_MAX / sizeof(Atom))
     {
 	Warning ("Workspace list is too large");
 	return;
     }
-    pWsList = (Atom *)XtMalloc
-	((Cardinal)((size_t)pSD->numWorkspaces * sizeof(Atom)));
-    if (pWsList == NULL)
+    if (pSD->numWorkspaces > 0)
     {
-	Warning ("Insufficient memory for workspace list");
-	return;
-    }
+        pWsList = (Atom *)XtMalloc
+            ((Cardinal)((size_t)pSD->numWorkspaces * sizeof(Atom)));
+        if (pWsList == NULL)
+        {
+            Warning ("Insufficient memory for workspace list");
+            return;
+        }
 
-    pws = pSD->pWS;
-    for (count = 0; count < pSD->numWorkspaces; count++)
-    {
-	pWsList[count] = pws->id;
-	pws++;
+        pws = pSD->pWS;
+        for (count = 0; count < pSD->numWorkspaces; count++)
+        {
+            pWsList[count] = pws->id;
+            pws++;
+        }
     }
 
     XChangeProperty (DISPLAY, pSD->wmWorkspaceWin, 
@@ -1358,6 +1362,11 @@ void
 SetCurrentWorkspaceProperty (WmScreenData *pSD)
 {
     Atom aCurrent;
+
+    if (pSD == NULL || pSD->pActiveWS == NULL)
+    {
+        return;
+    }
 
     aCurrent = pSD->pActiveWS->id;
 

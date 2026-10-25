@@ -4640,3 +4640,9 @@ Screen client-list update guards (2026-10-25)
 
 - Handle detached entries and allocation failures before updating
   `_MWM_CLIENT_LIST`; see `docs/screen-client-list-guards.md`.
+
+Workspace property guards (2026-10-25)
+======================================
+
+- Handle empty or detached workspace state safely when publishing desktop
+  properties; see `docs/workspace-property-guards.md`.
