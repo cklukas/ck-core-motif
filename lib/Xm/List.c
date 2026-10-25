@@ -9602,11 +9602,15 @@ XmListGetMatchPos(Widget w,
   XmListWidget  lw = (XmListWidget) w;
   register int  i, *pos;
   int           j;
-  _XmWidgetToAppContext(w);
 
   /* CR 7648: Be friendly and initialize the out parameters. */
+  if (pos_list == NULL || pos_count == NULL)
+    return FALSE;
   *pos_list = NULL;
   *pos_count = 0;
+  if (w == NULL || item == NULL)
+    return FALSE;
+  _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
 
@@ -9700,11 +9704,15 @@ XmListGetSelectedPos(Widget w,
   XmListWidget  lw = (XmListWidget) w;
   register int *posList;
   int count;
-  _XmWidgetToAppContext(w);
 
   /* CR 7648: Be friendly and initialize the out parameters. */
+  if (pos_list == NULL || pos_count == NULL)
+    return FALSE;
   *pos_list = NULL;
   *pos_count = 0;
+  if (w == NULL)
+    return FALSE;
+  _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
 

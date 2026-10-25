@@ -1,3 +1,9 @@
+XmList query output validation (2026-10-25)
+=============================================
+
+- Validate widget, item, and output pointers in list match and selection
+  queries; see `docs/xm-list-query-null.md`.
+
 Xm child-update argument validation (2026-10-25)
 ================================================
 

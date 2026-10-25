@@ -605,3 +605,5 @@ EXTRA_DIST += tests/automated/check-xm-extutil-widget-null.py docs/xm-extutil-wi
 EXTRA_DIST += tests/automated/check-xm-extutil-geometry-null.py docs/xm-extutil-geometry-null.md
 
 EXTRA_DIST += tests/automated/check-xm-setvalues-args-null.py docs/xm-setvalues-args-null.md
+
+EXTRA_DIST += tests/automated/check-xm-list-query-null.py docs/xm-list-query-null.md
