@@ -889,6 +889,12 @@ Protocol registration growth bounds (2026-10-25)
 - Reject protocol-count and array-size overflow and publish expanded protocol
   capacity only after reallocation succeeds; see `docs/protocol-allocation.md`.
 
+Sized icon-name construction bounds (2026-10-25)
+=================================================
+
+- Bound icon-name suffix length arithmetic and handle suffix-buffer allocation
+  failure without dereferencing a null pointer; see `docs/icon-file-bounds.md`.
+
 Protocol registration allocation (2026-10-25)
 ===============================================
 

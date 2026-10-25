@@ -43,6 +43,7 @@
 
 
 #include <stdio.h>
+#include <stdint.h>
 #include <X11/Xlocale.h>
 
 #define X_INCLUDE_DIRENT_H
@@ -664,14 +665,24 @@ XmGetIconFileName(
 
        /* need to add size suffix if size is specified */
         if (size != XmUNSPECIFIED_ICON_SIZE) {
-           int basenameLen = strlen(names[i]);
-           int sizeLen = strlen(iconSubs[M_SUB].substitution);
-	   char * ext_name = XtMalloc(basenameLen + sizeLen + 1);
-	   /* XmosP.h takes care of bcopy translation */
-	   memmove(&ext_name[0], names[i], basenameLen);
-	   memmove(&ext_name[basenameLen],
-	           iconSubs[M_SUB].substitution, sizeLen);
-	   ext_name[basenameLen + sizeLen] = '\0';
+           size_t basenameLen = strlen(names[i]);
+           size_t sizeLen = strlen(iconSubs[M_SUB].substitution);
+           char *ext_name;
+
+           if (sizeLen > SIZE_MAX - basenameLen - 1) {
+               names_w_size[i] = NULL;
+               continue;
+           }
+           ext_name = XtMalloc(basenameLen + sizeLen + 1);
+           if (ext_name == NULL) {
+               names_w_size[i] = NULL;
+               continue;
+           }
+           /* XmosP.h takes care of bcopy translation */
+           memmove(&ext_name[0], names[i], basenameLen);
+           memmove(&ext_name[basenameLen],
+                   iconSubs[M_SUB].substitution, sizeLen);
+           ext_name[basenameLen + sizeLen] = '\0';
 
            names_w_size[i] = ext_name;
 
