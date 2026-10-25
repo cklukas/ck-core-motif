@@ -181,6 +181,7 @@ EXTRA_DIST += tests/automated/check-xmrender-copy-propagation.py docs/xmrender-c
 EXTRA_DIST += tests/automated/check-xmrender-tag-copy-allocation.py docs/xmrender-tag-copy-allocation.md
 EXTRA_DIST += tests/automated/check-menustate-allocation.py docs/menustate-allocation.md
 EXTRA_DIST += tests/automated/check-editres-event-allocation.py docs/editres-event-allocation.md
+EXTRA_DIST += tests/automated/check-editres-widget-array-allocation.py docs/editres-widget-array-allocation.md
 EXTRA_DIST += tests/automated/check-xim-info-allocation.py docs/xim-info-allocation.md
 EXTRA_DIST += tests/automated/check-xim-recreate-allocation.py docs/xim-recreate-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md

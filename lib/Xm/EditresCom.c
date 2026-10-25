@@ -354,6 +354,8 @@ unsigned long length;
 
 	    sv_event->widgets = (WidgetInfo *)
 		XtCalloc(sizeof(WidgetInfo), sv_event->num_entries);
+	    if (sv_event->widgets == NULL && sv_event->num_entries != 0)
+		goto done;
 	    
 	    for (i = 0; i < sv_event->num_entries; i++) {
 		if (!_XEditResGetWidgetInfo(stream, sv_event->widgets + i))
@@ -367,6 +369,8 @@ unsigned long length;
 	    
 	    find_event->widgets = (WidgetInfo *) 
 		                  XtCalloc(sizeof(WidgetInfo), 1);
+	    if (find_event->widgets == NULL)
+		goto done;
 
 	    if (!(_XEditResGetWidgetInfo(stream, find_event->widgets) &&
 		  _XEditResGetSigned16(stream, &(find_event->x)) &&
@@ -387,6 +391,8 @@ unsigned long length;
 		
 	    get_event->widgets = (WidgetInfo *)
 		XtCalloc(sizeof(WidgetInfo), get_event->num_entries);
+	    if (get_event->widgets == NULL && get_event->num_entries != 0)
+		goto done;
 	    for (i = 0; i < get_event->num_entries; i++) {
 		if (!_XEditResGetWidgetInfo(stream, get_event->widgets + i)) 
 		    goto done;
@@ -397,11 +403,16 @@ unsigned long length;
     case GetValues: 
         {
             GetValuesEvent * gv_event = (GetValuesEvent *) event;
-            _XEditResGetString8(stream, &(gv_event->name));
-            _XEditResGet16(stream, &(gv_event->num_entries));
+	    if (!_XEditResGetString8(stream, &(gv_event->name)) ||
+		!_XEditResGet16(stream, &(gv_event->num_entries)) ||
+		gv_event->num_entries == 0)
+		goto done;
 	    gv_event->widgets = (WidgetInfo *)
 		XtCalloc(sizeof(WidgetInfo), gv_event->num_entries);
-            _XEditResGetWidgetInfo(stream, gv_event->widgets);
+	    if (gv_event->widgets == NULL)
+		goto done;
+	    if (!_XEditResGetWidgetInfo(stream, gv_event->widgets))
+		goto done;
         }
         break;	
 

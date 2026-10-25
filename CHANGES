@@ -10070,6 +10070,13 @@ Editres event allocation guards (2026-10-25)
 - Check editres event and SetValues payload buffers before parsing into them;
   see `docs/editres-event-allocation.md`.
 
+Editres widget-array allocation guards (2026-10-25)
+===================================================
+
+- Check SetValues, FindChild, geometry/resource, and GetValues widget arrays
+  before parsing protocol entries; see
+  `docs/editres-widget-array-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
