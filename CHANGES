@@ -46,6 +46,12 @@ Mwm single-screen navigation index (2026-10-25)
 - Keep the `F_Screen back` index within the managed screen array when the
   display's default screen number is nonzero; see `docs/mwm-fscreen-default.md`.
 
+Mwm icon resource-key bounds (2026-10-25)
+==========================================
+
+- Bound workspace-name formatting for saved icon-position resource keys; see
+  `docs/mwm-icon-resource-bounds.md`.
+
 Bounded Latin-1 resource conversion (2026-10-25)
 ==================================================
 

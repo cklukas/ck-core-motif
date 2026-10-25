@@ -1357,6 +1357,14 @@ SortClientListByWorkspace(ClientData **clients, int nClients)
 }
 
 #ifdef WSM
+static Boolean
+BuildIconResource(char *buffer, size_t buffer_size, const char *format,
+                  const char *workspace)
+{
+    int length = snprintf(buffer, buffer_size, format, "%s", workspace);
+    return length >= 0 && (size_t) length < buffer_size;
+}
+
 /* This needs to be called if WSM defined; if WSM not defined, icon */
 /* positions are read at the same time as other resources. */
 void
@@ -1378,7 +1386,9 @@ LoadClientIconPositions(ClientData *pCD)
 	    if ((pWS = GetWorkspaceData(pSD, pCD->pWsList[i].wsID))
 		!= (WmWorkspaceData *)NULL)
 	    {
-		sprintf(resourceBuf, iconXPosStr, "%s", pWS->name);
+		if (!BuildIconResource(resourceBuf, sizeof(resourceBuf),
+				       iconXPosStr, pWS->name))
+		    continue;
 		if ((resourcePtr =
 		     getXSMPResource(pCD, WMSAVE_ICON_X, resourceBuf))
 		    != (char *)NULL)
@@ -1387,7 +1397,9 @@ LoadClientIconPositions(ClientData *pCD)
 		    pCD->clientFlags |= SM_ICON_X;
 		}
 
-		sprintf(resourceBuf, iconYPosStr, "%s", pWS->name);
+		if (!BuildIconResource(resourceBuf, sizeof(resourceBuf),
+				       iconYPosStr, pWS->name))
+		    continue;
 		if ((resourcePtr =
 		     getXSMPResource(pCD, WMSAVE_ICON_Y, resourceBuf))
 		    != (char *)NULL)
@@ -1412,7 +1424,9 @@ LoadClientIconPositions(ClientData *pCD)
 		if ((pWS = GetWorkspaceData(pSD, pCD->pWsList[i].wsID))
 		    != (WmWorkspaceData *)NULL)
 		{
-		    sprintf(resourceBuf, iconXPosStr, "%s", pWS->name);
+		    if (!BuildIconResource(resourceBuf, sizeof(resourceBuf),
+					   iconXPosStr, pWS->name))
+			    continue;
 		    if ((resourcePtr =
 			 getClientResource(proxyClientID, resourceBuf))
 			!= (char *)NULL)
@@ -1421,7 +1435,9 @@ LoadClientIconPositions(ClientData *pCD)
 			pCD->clientFlags |= SM_ICON_X;
 		    }
 
-		    sprintf(resourceBuf, iconYPosStr, "%s", pWS->name);
+		    if (!BuildIconResource(resourceBuf, sizeof(resourceBuf),
+					   iconYPosStr, pWS->name))
+			    continue;
 		    if ((resourcePtr =
 			 getClientResource(proxyClientID, resourceBuf))
 			!= (char *)NULL)
