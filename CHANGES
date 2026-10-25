@@ -5,6 +5,12 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+XmString context utility null guards (2026-10-26)
+===================================================
+
+- Make context reinitialization, copying, and cleanup tolerate invalid pointer
+  inputs without assertions; see `docs/xmstring-context-null-utils.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 

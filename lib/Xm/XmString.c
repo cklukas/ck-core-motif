@@ -10036,7 +10036,8 @@ void
 _XmStringContextReInit(_XmStringContext context,
 		       _XmString	string)
 {
-  assert(context != NULL);
+  if (context == NULL)
+    return;
   bzero((char*) context, sizeof(_XmStringContextRec));
 
   _XmStrContString(context) = string;
@@ -10056,7 +10057,8 @@ _XmStringContextCopy(_XmStringContext target,
 {
   size_t size;
   size_t count;
-  assert(source && target && (source != target));
+  if (source == NULL || target == NULL || source == target)
+    return;
 
   /* Copy the normal fields. */
   memcpy(target, source, sizeof(_XmStringContextRec));
@@ -10091,7 +10093,8 @@ _XmStringContextCopy(_XmStringContext target,
 void
 _XmStringContextFree(_XmStringContext context)
 {
-  assert(context);
+  if (context == NULL)
+    return;
 
   /* Free the active rendition list. */
   if (_XmStrContRendTags(context)) {
