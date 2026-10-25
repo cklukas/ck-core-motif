@@ -4055,6 +4055,9 @@ SnapCwid(
 	cell_height = cw->container.real_large_cellh;
 	}
 
+    if (cell_width <= 0 || cell_height <= 0)
+	return point;
+
     if (CtrSpatialStyleIsGRID(cw))
 	width_in_cells = height_in_cells = 1;
     else
@@ -6378,6 +6381,8 @@ LayoutSpatial(
 	    cw->container.real_small_cellw : cw->container.real_large_cellw;
       	cell_height = (CtrViewIsSMALL_ICON(cw)) ?
 	    cw->container.real_small_cellh : cw->container.real_large_cellh;
+        if (cell_width <= 0 || cell_height <= 0)
+            return;
       	width_in_cells = (cw->core.width - 2 * cw->container.margin_w) 
 					/ cell_width;
         height_in_cells = (cw->core.height - 2 * cw->container.margin_h)
