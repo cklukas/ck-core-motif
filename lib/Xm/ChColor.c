@@ -64,6 +64,8 @@ XmChangeColor(
    * passed in.
    */
 
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
 

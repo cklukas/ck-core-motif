@@ -1,3 +1,9 @@
+XmChangeColor null-safety (2026-10-25)
+=======================================
+
+- Guard `XmChangeColor` against null widgets before color and parent access; see
+  `docs/xm-chcolor-null.md`.
+
 Xm geometry reply null-safety (2026-10-25)
 ============================================
 

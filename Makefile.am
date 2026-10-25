@@ -649,3 +649,5 @@ EXTRA_DIST += tests/automated/check-xm-dropdown-api-null.py docs/xm-dropdown-api
 EXTRA_DIST += tests/automated/check-xm-gadgetutil-null.py docs/xm-gadgetutil-null.md
 
 EXTRA_DIST += tests/automated/check-xm-gmutils-query-null.py docs/xm-gmutils-query-null.md
+
+EXTRA_DIST += tests/automated/check-xm-chcolor-null.py docs/xm-chcolor-null.md
