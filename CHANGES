@@ -11917,3 +11917,11 @@ Font selector family-array allocation cast (2026-10-25)
 
 Message-dialog argument allocation cast (2026-10-25)
 =====================================================
+Font selector size-array allocation cast (2026-10-25)
+=======================================================
+
+- Pass the bounded FontS size-list array size explicitly as an Xt `Cardinal`;
+  see `docs/motif-fonts-size-list-allocation.md`.
+
+Font selector family-array allocation cast (2026-10-25)
+=========================================================

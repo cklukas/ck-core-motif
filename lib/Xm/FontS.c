@@ -1824,7 +1824,8 @@ UpdateSizes(XmFontSelectorWidget fsw)
 	size_flag |= family->sizes_100;
 
     size = sizeof(LongFlag) * 8; /* There are 8 bits in a BYTE */
-    strs = (XmString *) XtMalloc(sizeof(XmString) * (size + 1));
+    strs = (XmString *) XtMalloc((Cardinal)(sizeof(XmString) *
+					 (size_t)(size + 1)));
     if (strs == NULL)
 	return;
     /*
