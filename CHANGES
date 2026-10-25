@@ -12395,3 +12395,10 @@ Legacy XmString compatibility lock boundaries (2026-10-26)
   see `docs/xmstring-obsolete-locks.md`.
 
 XmString helper lock boundaries (2026-10-26)
+VendorS secondary-object lock balance (2026-10-26)
+===================================================
+
+- Balance the process lock around VendorS secondary-object size lookup and
+  move allocations outside the lock; see `docs/vendors-lock-balance.md`.
+
+Legacy XmString compatibility lock boundaries (2026-10-26)
