@@ -7757,3 +7757,10 @@ IconG right-to-left icon bounds (2026-10-26)
 
 IconG right-to-left label bounds (2026-10-26)
 =============================================
+
+Font fallback name size bounds (2026-10-27)
+===========================================
+
+- Check synthesized XLFD lengths before narrowing them to Xt `Cardinal`,
+  preventing wrapped allocations for oversized font names; see
+  `docs/font-fallback-size-bounds.md`.

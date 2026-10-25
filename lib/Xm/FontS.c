@@ -1337,17 +1337,24 @@ DisplayCurrentFont(XmFontSelectorWidget fsw, String font)
 	    if (ptr == NULL) {
 		fontdata = NULL;
 	    } else {
+	    size_t left_len, right_len, fbuf_size;
+
 		left_buf = (char *)XtMalloc((Cardinal)i + 1);
 		memcpy(left_buf, font, (size_t)i);
 		left_buf[i] = '\0';
 		right_buf = XtNewString(ptr);
-		fbuf = (char *)XtMalloc((Cardinal)(strlen(left_buf) +
-							 strlen(right_buf) + 6));
-		(void)snprintf(fbuf, strlen(left_buf) + strlen(right_buf) + 6,
-				       "%s-140%s", left_buf, right_buf);
-
+	    left_len = strlen(left_buf);
+	    right_len = strlen(right_buf);
+	    if (right_len > SIZE_MAX - 6 ||
+		left_len > SIZE_MAX - right_len - 6 ||
+		(fbuf_size = left_len + right_len + 6) > UINT_MAX) {
+		fontdata = NULL;
+	    } else {
+		fbuf = (char *)XtMalloc((Cardinal)fbuf_size);
+		(void)snprintf(fbuf, fbuf_size, "%s-140%s", left_buf, right_buf);
 		fontdata = XLoadQueryFont(XtDisplay((Widget) fsw), fbuf);
 		XtFree(fbuf);
+	    }
 		XtFree(right_buf);
 		XtFree(left_buf);
 	    }
