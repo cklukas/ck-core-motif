@@ -5767,6 +5767,13 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+Container child-list Xt allocation cast (2026-10-25)
+=====================================================
+
+- Pass the already-bounded child-list byte count explicitly as an Xt
+  `Cardinal` during snapshot allocation; see
+  `docs/container-child-list-allocation.md`.
+
 Container tab-pool Xt width (2026-10-25)
 ========================================
 

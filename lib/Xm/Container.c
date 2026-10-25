@@ -9986,7 +9986,8 @@ XmContainerGetItemChildren(
 		_XmAppUnlock(app);
 		return (0);
 	}
-	clist = (WidgetList)XtMalloc(clist_count * sizeof(Widget));
+	clist = (WidgetList)XtMalloc((Cardinal)(sizeof(Widget) *
+					(size_t)clist_count));
 	if (clist == NULL) {
 		_XmAppUnlock(app);
 		return (0);
