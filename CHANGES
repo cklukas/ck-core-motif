@@ -1,3 +1,9 @@
+List hit-test geometry bounds (2026-10-25)
+==========================================
+
+- Use signed content-height arithmetic in List hit testing, preventing wrapped
+  selection bounds for collapsed lists; see `docs/list-hit-test-geometry.md`.
+
 List keyboard page geometry bounds (2026-10-25)
 ================================================
 
