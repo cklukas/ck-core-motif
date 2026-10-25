@@ -14,6 +14,13 @@ ToggleButton geometry bounds (2026-10-25)
   undersized widgets, and skip shadow drawing when its GCs are unavailable;
   see `docs/toggle-button-geometry-bounds.md`.
 
+XmFontList constructor locking (2026-10-25)
+=============================================
+
+- Avoid recursive process/application locking in `XmFontListCreate` and
+  `XmFontListAdd` while they call charset, rendition and render-table helpers;
+  see `docs/xmfontlist-locking.md`.
+
 Bound render-table count arithmetic (2026-10-25)
 =================================================
 
