@@ -60,6 +60,14 @@ Transfer-storage dependency cohort (2026-10-25)
   not promote the separate Xt callback-lifetime, drag-and-drop or application
   workflow gates to toolkit acceptance.
 
+Non-text Unicode consumer qualification note (2026-10-25)
+===========================================================
+
+- Record the bounded installed `nontext-unicode` consumer scope: combining,
+  non-BMP and Han values round-trip through public Label, List and ComboBox
+  APIs, while menu, file-selection, physical-keyboard and application-journey
+  coverage remain separate gates.
+
 Source-contract verifier maintenance (2026-10-25)
 ==================================================
 

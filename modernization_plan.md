@@ -559,6 +559,12 @@ while the same cancellation fixture exposes the known system-Xt owner-exit
 failure. The external failure is retained as a dependency limitation rather
 than hidden or counted as a toolkit pass.
 
+The installed native cohort also includes the bounded `nontext-unicode`
+public-API fixture for combining, non-BMP and Han values through Label, List
+and ComboBox resources. It adds evidence for those controls without
+promoting menu, file-selection, physical-keyboard or application-level Unicode
+coverage to complete.
+
 A strict consumer ASan/UBSan run of the interrupted-clipboard fixture also
 passed against that cohort. It is recorded as bounded transfer evidence, not
 as closure of the matrix-wide sanitizer ownership gate.

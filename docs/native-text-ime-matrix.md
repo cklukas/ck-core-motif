@@ -9,6 +9,7 @@ separate toolkit-contract test.
 | --- | --- | --- | --- |
 | UTF-8 scalar and UAX #29 grapheme movement/deletion | Pass | Pending | Installed native text and map fixtures; x86_64 admission remains open. |
 | Combining, emoji, RTL, CJK and fallback-font corpus | Pass for recorded corpus | Pending | Native layout/readback corpus; not exhaustive font coverage. |
+| Non-text Unicode labels, List and ComboBox values | Focused pass | Pending | `run-nontext-unicode-regressions.py` covers combining, non-BMP and Han values through public Label, List and ComboBox APIs; broader menu, file-selection and physical-keyboard journeys remain open. |
 | Local Compose/dead key | Pass with private `@im=none` Xvfb | Pending | XTest fixture proves local XIM/XIC registration and exact commits; it is not a physical-keyboard test. |
 | IBus XIM composition, commit and cancellation | Focused pass | Pending | Real IBus/m17n fixture; standalone combining-mark commit and candidate panels remain gaps. |
 | Provider restart and transport loss | Focused pass | Pending | Same-process service loss/reconnect fixture; broader engines/providers remain unqualified. |
@@ -33,6 +34,12 @@ desktop input-method interoperability, physical keyboard layouts, candidate
 panels, screen-reader usability, or a clean sanitizer exit. Detailed provider
 behavior and the recorded ARM64 versions are in `docs/unicode.md`; aggregate
 admission limits are in `docs/status.md`.
+
+The installed `nontext-unicode` fixture is a deliberately bounded public-API
+consumer check. It round-trips combining, non-BMP and Han `XmString` values
+through Label, List and ComboBox resources and verifies List selection. It does
+not substitute for an application journey or for the remaining menu,
+file-selection and physical-keyboard matrix.
 
 The native runner accepts repeated `--runtime-library-dir` arguments for a
 known dependency cohort. The selected Motif library directory remains first in
