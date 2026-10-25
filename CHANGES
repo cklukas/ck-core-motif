@@ -7852,3 +7852,10 @@ Spinner preferred-size bounds (2026-10-27)
 - Saturate Spinner preferred width and height arithmetic at `Dimension`'s
   maximum, preventing wrapped geometry for large spacing or font metrics; see
   `docs/spinner-size-bounds.md`.
+
+ProgressBar preferred-size bounds (2026-10-27)
+==============================================
+
+- Saturate ProgressBar preferred width and height arithmetic at `Dimension`'s
+  maximum, preventing wrapped geometry for large spacing or font metrics; see
+  `docs/progressbar-size-bounds.md`.

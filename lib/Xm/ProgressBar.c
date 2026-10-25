@@ -76,6 +76,11 @@ static void Normalize(XmProgressBarWidget progress) {
         progress->progress.value = progress->progress.maximum;
 }
 
+static Dimension bounded_dimension(size_t value) {
+    const size_t maximum = (size_t)(Dimension)~(Dimension)0;
+    return (Dimension)(value > maximum ? maximum : value);
+}
+
 static void UpdateGCs(XmProgressBarWidget progress) {
     Display *display = XtDisplay((Widget)progress);
     if (progress->progress.track_gc)
@@ -108,9 +113,11 @@ static void Initialize(Widget request, Widget widget, ArgList args,
         XmStringExtent(progress->progress.font, progress->progress.label,
                        &label_width, &label_height);
     if (!progress->core.width)
-        progress->core.width = label_width + 180 + 2 * progress->progress.spacing;
+        progress->core.width = bounded_dimension((size_t)label_width + 180 +
+                                                 2 * (size_t)progress->progress.spacing);
     if (!progress->core.height)
-        progress->core.height = label_height + 34 + 2 * progress->progress.spacing;
+        progress->core.height = bounded_dimension((size_t)label_height + 34 +
+                                                  2 * (size_t)progress->progress.spacing);
     values.foreground = progress->primitive.bottom_shadow_color;
     values.background = progress->core.background_pixel;
     progress->progress.track_gc = XCreateGC(display, DefaultRootWindow(display),
@@ -252,8 +259,10 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
         XmStringExtent(progress->progress.font, progress->progress.label,
                        &label_width, &label_height);
     reply->request_mode = CWWidth | CWHeight;
-    reply->width = label_width + 180 + 2 * progress->progress.spacing;
-    reply->height = label_height + 34 + 2 * progress->progress.spacing;
+    reply->width = bounded_dimension((size_t)label_width + 180 +
+                                     2 * (size_t)progress->progress.spacing);
+    reply->height = bounded_dimension((size_t)label_height + 34 +
+                                      2 * (size_t)progress->progress.spacing);
     return (widget->core.width == reply->width && widget->core.height == reply->height)
                ? XtGeometryYes : XtGeometryAlmost;
 }
