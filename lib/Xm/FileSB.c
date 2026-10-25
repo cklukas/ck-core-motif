@@ -1211,6 +1211,8 @@ FileSBGeoMatrixCreate(
     geoSpec = _XmGeoMatrixAlloc( XmFSB_MAX_WIDGETS_VERT,
                               fsb->composite.num_children,
                               sizeof( FS_GeoExtensionRec)) ;
+    if (geoSpec == NULL)
+        return NULL;
     geoSpec->composite = (Widget) fsb ;
     geoSpec->instigator = (Widget) instigator ;
     if(    desired    )

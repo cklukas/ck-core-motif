@@ -17,5 +17,10 @@ assert "if (geoSpecPtr == NULL)" in body
 free_start = source.index("void\n_XmGeoMatrixFree", start)
 free_body = source[free_start:source.index("/****************************************************************", free_start)]
 assert "if (geo_spec == NULL)" in free_body
+for source_name in ("SelectioB.c", "FileSB.c", "MessageB.c"):
+    widget_source = (Path(__file__).parents[2] / "lib" / "Xm" / source_name).read_text(
+        encoding="utf-8"
+    )
+    assert widget_source.count("if (geoSpec == NULL)") >= 1
 
 print("GeoUtils matrix allocation guards passed")

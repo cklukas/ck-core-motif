@@ -992,6 +992,8 @@ _XmMessageBoxGeoMatrixCreate(
 	nrows += 1;
 
     geoSpec = _XmGeoMatrixAlloc( nrows, nchildren, 0) ;
+    if (geoSpec == NULL)
+        return NULL;
     geoSpec->composite = (Widget) mb ;
     geoSpec->instigator = (Widget) instigator ;
     if (desired)

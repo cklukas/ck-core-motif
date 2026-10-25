@@ -4,7 +4,8 @@ GeoUtils matrix allocation bounds (2026-10-28)
 - Use checked `size_t` arithmetic for GeoUtils matrix layout, child-box, and
   extension storage, reject requests wider than Xt's `Cardinal` allocator, and
   handle allocation failure before pointer setup; make matching cleanup
-  NULL-safe; see
+  NULL-safe; and propagate constructor failure in SelectionBox,
+  FileSelectionBox, and MessageBox; see
   `docs/geoutils-matrix-allocation.md`.
 
 Label baseline count bounds (2026-10-28)

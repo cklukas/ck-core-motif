@@ -1029,6 +1029,8 @@ _XmSelectionBoxGeoMatrixCreate(
 
     geoSpec = _XmGeoMatrixAlloc( XmSB_MAX_WIDGETS_VERT,
                               sb->composite.num_children, 0) ;
+    if (geoSpec == NULL)
+        return NULL;
     geoSpec->composite = (Widget) sb ;
     geoSpec->instigator = (Widget) instigator ;
     if(    desired    )
