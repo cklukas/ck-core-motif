@@ -3090,7 +3090,7 @@ CreateChildren(Widget    widget,
       break;
 
     default:
-      assert(False);
+      break;
     }
 
   /* Install the standard ComboBox accelerators everywhere. */

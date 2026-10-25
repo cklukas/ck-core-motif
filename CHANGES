@@ -114,6 +114,13 @@ ToggleButton color-conversion fallback (2026-10-26)
   or wrong-sized `Pixel` payload instead of asserting; see
   `docs/togglebutton-color-conversion.md`.
 
+ComboBox type fallback (2026-10-26)
+===================================
+
+- Skip type-specific translation setup for an invalid ComboBox type instead
+  of asserting; shared accelerator setup continues normally. See
+  `docs/combobox-type-fallback.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 
