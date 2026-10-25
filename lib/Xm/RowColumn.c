@@ -2902,6 +2902,7 @@ Initialize(
     XmRowColumnWidget req = (XmRowColumnWidget) rw ;
     XmRowColumnWidget m = (XmRowColumnWidget) nw ;
     Boolean CallNavigInitAgain = FALSE ;
+    XmString replacement;
 
     if (!XtWidth(req))
     {
@@ -3067,7 +3068,11 @@ Initialize(
 
     /* Copy tearofftitle if given */
     if (RC_TearOffTitle(m) != NULL)
-      RC_TearOffTitle(m) = XmStringCopy(RC_TearOffTitle(m));
+    {
+      replacement = XmStringCopy(RC_TearOffTitle(m));
+      RC_TearOffTitle(m) = replacement != NULL
+        ? replacement : XmStringCreateLocalized("");
+    }
 }
 
 /* ARGSUSED */

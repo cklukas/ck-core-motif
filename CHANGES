@@ -1,3 +1,10 @@
+RowColumn tear-off title initialization rollback (2026-10-28)
+==================================================================
+
+- Check the initial tear-off title copy and use an empty compound string when
+  allocation fails, avoiding NULL title propagation during menu construction;
+  see `docs/rowcolumn-tearoff-title-init-rollback.md`.
+
 TabStack tear-off label initialization rollback (2026-10-28)
 ==============================================================
 
