@@ -28,4 +28,11 @@ For manifest screenshot scenarios, pass a fresh output directory under the
 approved temporary volume:
 
   python3 tests/automated/run-gallery-screenshots.py --binary ABSOLUTE_BINARY \
-    --out /Volumes/S8T/tmp/ckmotif-gallery-screenshots
+    --out /Volumes/S8T/tmp/ckmotif-gallery-screenshots \
+    --appearance modern-light --scale 1.5
+
+The screenshot runner starts each component with explicit `--appearance` and
+`--scale` values. The gallery parses those values strictly and applies them
+through the public `XmApplyAppearanceProfile` and
+`XmSetDisplayScaleOverride` transactions after realization; invalid values or
+a failed transaction abort the scenario.

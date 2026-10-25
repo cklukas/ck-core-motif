@@ -79,6 +79,10 @@ python3 tests/automated/run-gallery-screenshots.py \
 
 The runner selects each manifest component through `--component`, captures the
 named gallery window with `xwd`, and skips when the required runtime is absent.
+Pass `--appearance classic|modern-light|high-contrast|modern-dark` and
+`--scale SCALE` to qualify an explicit profile and simulated display scale;
+these options use the public toolkit transactions and are recorded in the
+capture receipt.
 
 The generated component catalogue links each manifest entry to its captured
 PNG under `docs/gallery-screenshots/`. The XWD captures are retained beside
