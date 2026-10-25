@@ -10156,6 +10156,13 @@ XmString segment allocation guards (2026-10-25)
 - Guard XmString entry and segment array growth before publishing mutations;
   see `docs/xmstring-segment-allocation.md`.
 
+XmString charset comparison guard (2026-10-25)
+===============================================
+
+- Treat a NULL XmString charset tag as a non-match instead of passing it to
+  `strcmp` and crashing callers with optional charset metadata; see
+  `docs/xmstring-charset-comparison.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
