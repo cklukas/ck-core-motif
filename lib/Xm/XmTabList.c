@@ -257,16 +257,30 @@ XmTabListCopy(XmTabList tablist,
   }
   
   tl = (XmTabList)XtMalloc(sizeof(_XmTabListRec));
+  if (tl == NULL) {
+	_XmProcessUnlock();
+	return(NULL);
+  }
   
   /* Zero count implies copy from offset to end/beginning */
   if (count == 0) count = (_XmTabLCount(tablist) - abs(offset));
 
   if (count > _XmTabLCount(tablist)) count = _XmTabLCount(tablist);
+  if (count == 0) {
+	XtFree((char *)tl);
+	_XmProcessUnlock();
+	return(NULL);
+  }
   
   old_tab = GetNthTab(tablist, offset, NULL, 0);
 
   /* If marked, routine called by insert/replace. Don't copy. */
   tab = _XmTabMark(old_tab) ? old_tab : _XmTabCopy(old_tab);
+  if (tab == NULL) {
+	XtFree((char *)tl);
+	_XmProcessUnlock();
+	return(NULL);
+  }
   
   /* Add first. */
   _XmTabLCount(tl) = count;
