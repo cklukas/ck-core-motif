@@ -1992,6 +1992,11 @@ handle when their tag array cannot be allocated.
 Display-less `XmRenderTableGetTags` and `XmRenderTableGetRendition` calls now
 use the process lock instead of deriving an application context from a null
 display.
+`XmRenderTableGetRenditions` follows the same display-less process-lock
+contract. Its allocation-failure cleanup uses the internal rendition and
+handle release helpers while the lock is held, avoiding recursive public
+locking without changing the returned-array ownership contract. The installed
+source test is `tests/automated/check-render-table-rendition-array.py`.
 
 ## Acceptance criteria for every increment
 

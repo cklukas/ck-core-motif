@@ -13,4 +13,10 @@ assert "memset(rends, 0, (size_t)tag_count * sizeof(*rends));" in region
 assert "rends[i] = CopyRendition(rend);" in region
 assert "XtRealloc" not in region
 assert "if (count == 0 || copy_failed)" in region
+assert "if (_XmRTDisplay(table))" in region
+assert "_XmProcessLock();" in region
+assert "_XmProcessUnlock();" in region
+assert "FreeRendition(rends[i]);" in region
+assert "FreeHandle(rends[i]);" in region
+assert "XmRenditionFree(rends[i]);" not in region
 print("PASS render-table rendition result preserves tag positions")

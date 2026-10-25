@@ -26,6 +26,11 @@ or copying leaves the pre-append table available to the caller.
 Shared-table merges similarly roll back the temporary body, handle and copied
 renditions if any part of the detached copy cannot be allocated.
 
+Display-less tables use the process lock, while display-backed tables use their
+application-context lock. Allocation-failure cleanup releases copied
+renditions through the internal lock-held helpers, avoiding recursive locking
+while preserving the public ownership contract.
+
 Merge replacement and copy-on-write modes allocate their replacement before
 releasing the existing rendition. A failed clone therefore preserves the
 existing entry instead of publishing a null slot.
