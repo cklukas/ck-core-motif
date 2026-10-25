@@ -107,6 +107,13 @@ List click-state guard (2026-10-26)
   rather than asserting during teardown or callback-driven mutation; see
   `docs/list-click-state.md`.
 
+ToggleButton color-conversion fallback (2026-10-26)
+====================================================
+
+- Fall back to the foreground when select-color conversion returns a missing
+  or wrong-sized `Pixel` payload instead of asserting; see
+  `docs/togglebutton-color-conversion.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 

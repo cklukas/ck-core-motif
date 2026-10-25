@@ -2043,8 +2043,10 @@ Initialize(
 			    XtOffsetOf(XmToggleButtonRec, 
 				       toggle.select_color),
 			    &value);
-      assert(value.size == sizeof(Pixel));
-      new_w->toggle.select_color = *((Pixel*) value.addr);
+      if (value.addr != NULL && value.size == sizeof(Pixel))
+	new_w->toggle.select_color = *((Pixel*) value.addr);
+      else
+	new_w->toggle.select_color = new_w->primitive.foreground;
     }
   else if (new_w->toggle.select_color == XmREVERSED_GROUND_COLORS)
     {
@@ -3154,8 +3156,10 @@ if (newcbox->toggle.indicator_dim != curcbox->toggle.indicator_dim)
 	  DefaultSelectColor((Widget)newcbox,
 			     XtOffsetOf(XmToggleButtonRec,toggle.select_color),
 			     &value);
-	  assert(value.size == sizeof(Pixel));
-	  newcbox->toggle.select_color = *((Pixel*) value.addr);
+	  if (value.addr != NULL && value.size == sizeof(Pixel))
+	    newcbox->toggle.select_color = *((Pixel*) value.addr);
+	  else
+	    newcbox->toggle.select_color = newcbox->primitive.foreground;
 	}
       else if (newcbox->toggle.select_color == XmREVERSED_GROUND_COLORS)
 	{
