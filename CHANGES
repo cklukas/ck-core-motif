@@ -5829,3 +5829,11 @@ Fix XmString table splitting allocation and indexing (2026-10-25)
   `docs/motif-xmstring-table-split.md`.
 
 Validate XmString rendition inputs (2026-10-25)
+Guard XmString tab-list construction (2026-10-25)
+==================================================
+
+- Check initial tab and tab-list creation in tab-list proposal, releasing
+  partial state and the process lock on failure; see
+  `docs/motif-xmstring-tablist.md`.
+
+Fix XmString table splitting allocation and indexing (2026-10-25)

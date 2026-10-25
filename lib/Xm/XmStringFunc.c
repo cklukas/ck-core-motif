@@ -743,9 +743,18 @@ XmStringTableProposeTablist(XmStringTable strings,
   if (rt == NULL) rt = XmeGetDefaultRenderTable(widget, XmTEXT_FONTLIST);
 
   tab = XmTabCreate(0.0, units, offset_model, XmALIGNMENT_BEGINNING, ".");
+  if (tab == NULL) {
+    _XmProcessUnlock();
+    return ((XmTabList)NULL);
+  }
 
   tl = XmTabListInsertTabs(NULL, &tab, 1, 0);
-  
+  if (tl == NULL) {
+    XmTabFree(tab);
+    _XmProcessUnlock();
+    return ((XmTabList)NULL);
+  }
+
   XmTabFree(tab);
   
   for (i = 0; i < num_strings; i++)
