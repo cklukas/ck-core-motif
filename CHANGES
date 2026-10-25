@@ -1,4 +1,8 @@
 2026-10-25
+	* Guard compound-string wide-character conversion allocation before
+	  publishing the converted segment; see docs/string-wide-conversion-guards.md.
+
+2026-10-25
 	* Guard compound-string rendition copies and roll back partial rendition
 	  state on failure; see docs/string-rendition-guards.md.
 
