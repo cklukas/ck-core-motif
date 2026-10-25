@@ -9564,3 +9564,12 @@ SpinBox value-list SetValues rollback (2026-10-28)
 
 SpinBox value-list initialization rollback (2026-10-28)
 ==========================================================
+MultiList label initialization rollback (2026-10-28)
+=======================================================
+
+- Check initial title, titleString, and find-label copies and use safe
+  fallbacks before creating child widgets; see
+  `docs/multilist-label-init-rollback.md`.
+
+SpinBox value-list SetValues rollback (2026-10-28)
+=====================================================

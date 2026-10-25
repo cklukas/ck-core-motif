@@ -342,6 +342,7 @@ static void Initialize(Widget req, Widget set,
     ArgList f_args;
     Cardinal f_num_args;
     XmMultiListWidget elist = (XmMultiListWidget) set;
+    XmString replacement;
 
     /*
      * Pass filtered setvalues requests down to all children.
@@ -353,14 +354,26 @@ static void Initialize(Widget req, Widget set,
     XmMultiList_ilist(elist) = NULL;
 
     if (XmMultiList_title(elist) != NULL) 
-	XmMultiList_title(elist) = XmStringCopy(XmMultiList_title(elist));
+	{
+	    replacement = XmStringCopy(XmMultiList_title(elist));
+	    XmMultiList_title(elist) = replacement != NULL
+		? replacement : XmStringCreateLocalized("");
+	}
 
     if (XmMultiList_title_string(elist) != NULL) 
-	XmMultiList_title_string(elist) =
-	    XmStringCopy(XmMultiList_title_string(elist));
+	{
+	    replacement = XmStringCopy(XmMultiList_title_string(elist));
+	    XmMultiList_title_string(elist) = replacement != NULL
+		? replacement : XmStringCreateLocalized("");
+	}
 
     if (XmMultiList_find_label(elist) != NULL) 
-	XmMultiList_find_label(elist) = XmStringCopy(XmMultiList_find_label(elist));
+	{
+	    replacement = XmStringCopy(XmMultiList_find_label(elist));
+	    XmMultiList_find_label(elist) = replacement != NULL
+		? replacement : XmStringGenerate(FIND_STRING, NULL,
+						 XmCHARSET_TEXT, NULL);
+	}
 	else 
 	XmMultiList_find_label(elist) = 
 		XmStringGenerate(FIND_STRING, NULL, XmCHARSET_TEXT, NULL);
