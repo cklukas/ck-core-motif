@@ -8148,6 +8148,8 @@ XmListAddItem(Widget w,
 	      int pos)
 {
   XmListWidget lw = (XmListWidget) w;
+  if (w == NULL || item == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -8178,9 +8180,11 @@ APIAddItems(XmListWidget lw,
   int nsel = lw->list.selectedPositionCount;
   Dimension old_max_height;
 
-  if ((items == NULL) ||
-      (item_count == 0))
+  if (items == NULL || item_count <= 0)
     return;
+  for (i = 0; i < item_count; ++i)
+    if (items[i] == NULL)
+      return;
 
   if ((intern_pos < 0) || (intern_pos >= lw->list.itemCount))
     {
@@ -8290,6 +8294,8 @@ XmListAddItems(Widget w,
 	       int pos)
 {
   XmListWidget lw = (XmListWidget) w;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -8312,6 +8318,8 @@ XmListAddItemsUnselected(Widget w,
 			 int pos)
 {
   XmListWidget lw = (XmListWidget) w;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -8334,6 +8342,8 @@ XmListAddItemUnselected(Widget w,
 			int pos)
 {
   XmListWidget lw = (XmListWidget) w;
+  if (w == NULL || item == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);

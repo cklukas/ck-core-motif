@@ -1,3 +1,9 @@
+List add input validation (2026-10-25)
+=======================================
+
+- Reject invalid widgets, counts, and `XmString` elements before list
+  insertion; see `docs/list-add-inputs.md`.
+
 List deletion input validation (2026-10-25)
 ============================================
 
