@@ -85,7 +85,8 @@ static XmTimePickerValue from_seconds(int seconds) {
 static void notify(XmTimePickerWidget picker, XEvent *event, String name,
                    int reason) {
     XmTimePickerCallbackStruct callback;
-    XtCallbackList list = name == XmNtimePickerActivateCallback
+    XtCallbackList list = name &&
+        strcmp(name, XmNtimePickerActivateCallback) == 0
         ? picker->time_picker.activate_callback
         : picker->time_picker.value_changed_callback;
     if (!list) return;
@@ -159,7 +160,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     char text[32];
     int hour = picker->time_picker.value.hour;
     (void)event; (void)region;
-    if (!XtIsRealized(widget)) return;
+    if (!XtIsRealized(widget) || !picker->time_picker.gc) return;
     XClearWindow(XtDisplay(widget), XtWindow(widget));
     if (picker->time_picker.format_24_hour)
         snprintf(text, sizeof(text), "%02d:%02d:%02d", hour,
