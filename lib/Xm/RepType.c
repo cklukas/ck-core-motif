@@ -1676,14 +1676,26 @@ ConvertRepType(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {  
-    char *in_str = (char *) (from->addr) ;
-    XtPointer argvalue = *((XtPointer*)args[0].addr);
-    XmRepTypeId RepTypeID = (XmRepTypeId)(long)argvalue;
-    XmRepTypeEntry Record; 
+    char *in_str;
+    XtPointer argvalue;
+    XmRepTypeId RepTypeID;
+    XmRepTypeEntry Record;
     Cardinal Index = 0 ;
+
+    if (args == NULL || args[0].addr == NULL || from == NULL ||
+	from->addr == NULL || to == NULL)
+	return FALSE;
+
+    in_str = (char *) (from->addr) ;
+    argvalue = *((XtPointer*)args[0].addr);
+    RepTypeID = (XmRepTypeId)(long)argvalue;
     
     _XmProcessLock();
     Record = GetRepTypeRecord( RepTypeID);
+    if (Record == NULL) {
+	_XmProcessUnlock();
+	return FALSE;
+    }
     while(Index < Record->num_values) {   
 
 	if(XmeNamesAreEqual( in_str, Record->value_names[Index])) {   
@@ -1730,17 +1742,29 @@ ReverseConvertRepType(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {   
-    XtPointer argvalue = *(XtPointer *)args[0].addr;
-    XmRepTypeId RepTypeID = (XmRepTypeId)(long)argvalue;
-    XmRepTypeEntry Record; 
-    unsigned char in_value = *(unsigned char *) from->addr ;
+    XtPointer argvalue;
+    XmRepTypeId RepTypeID;
+    XmRepTypeEntry Record;
+    unsigned char in_value;
     unsigned short NumValues;
     char **OutValue = NULL ;
     String in_str ;
     String reverse_message = MESSAGE0 ;
 
+    if (args == NULL || args[0].addr == NULL || from == NULL ||
+	from->addr == NULL || to == NULL)
+	return FALSE;
+
+    argvalue = *(XtPointer *)args[0].addr;
+    RepTypeID = (XmRepTypeId)(long)argvalue;
+    in_value = *(unsigned char *) from->addr ;
+
     _XmProcessLock();
     Record = GetRepTypeRecord( RepTypeID);
+    if (Record == NULL) {
+	_XmProcessUnlock();
+	return FALSE;
+    }
     NumValues = Record->num_values;
 
     if(Record->values)  {   /* mapped type */
