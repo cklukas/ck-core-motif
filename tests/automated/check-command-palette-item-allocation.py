@@ -13,6 +13,8 @@ assert "if (!items)" in body
 assert "if (!palette->palette.items)" in body
 assert "XtWarning" in body
 assert "palette->palette.items[i].id" in body
+copy = text[text.index("static XmString copy_string"):text.index("static Boolean contains_folded", text.index("static XmString copy_string"))]
+assert "if (!text) return NULL;" in copy
 rebuild = text[text.index("static void rebuild"):start]
 assert "palette->palette.item_count && !palette->palette.visible" in rebuild
 assert "unable to allocate visible item index" in rebuild

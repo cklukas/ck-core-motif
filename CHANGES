@@ -13355,7 +13355,7 @@ Command-palette item allocation safety (2026-10-26)
 - Reject null item arrays and allocation failures before populating command
   palette entries, and guard visible-index allocation during filtering; see
   `docs/command-palette-item-allocation.md` (including per-item display and
-  size-overflow failures).
+  size-overflow failures and XmString-copy failures).
 
 SearchBox placeholder ownership (2026-10-26)
 =============================================
