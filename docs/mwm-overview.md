@@ -49,6 +49,7 @@ clients exchanging Motif window-management messages.
 - [X-error format allocation](mwm-error-format-allocation.md)
 - [Backdrop-request path allocation](mwm-backdrop-path-allocation.md)
 - [Property-array allocation](mwm-property-array-allocation.md)
+- [Command window-array width](mwm-command-window-array-width.md)
 - [Menu argument allocation](mwm-menu-args-allocation.md)
 - [Home-directory path bounds](mwm-home-path.md)
 - [Action-argument reallocation](mwm-action-arg-reallocation.md)

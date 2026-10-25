@@ -27,6 +27,8 @@
 
 
 #include <Xm/Xm.h>
+#include <limits.h>
+#include <stdint.h>
 #include <Xm/ScrollBarP.h>
 #include "./WmWsmLib/utm_send.h"
 #include "./WmWsmLib/wsm_proto.h"
@@ -389,12 +391,13 @@ IncludeCommand (
       PRINT("No windows supplied for IncludeCommand.\n");
       return;
     }
-  if ((size_t) count > ((size_t) -1) / sizeof(Window))
+  if ((size_t) count > SIZE_MAX / sizeof(Window) ||
+      (size_t) count > UINT_MAX / sizeof(Window))
     {
       PRINT("Window list is too large for IncludeCommand.\n");
       return;
     }
-  windowIDs = (Window *) XtMalloc(sizeof(Window) * (size_t) count);
+  windowIDs = (Window *) XtMalloc((Cardinal)(sizeof(Window) * (size_t) count));
   if (windowIDs == NULL)
     {
       PRINT("Unable to allocate window list for IncludeCommand.\n");
@@ -529,12 +532,13 @@ EnableCommand (
       PRINT("No windows supplied for EnableCommand.\n");
       return;
     }
-  if ((size_t) count > ((size_t) -1) / sizeof(Window))
+  if ((size_t) count > SIZE_MAX / sizeof(Window) ||
+      (size_t) count > UINT_MAX / sizeof(Window))
     {
       PRINT("Window list is too large for EnableCommand.\n");
       return;
     }
-  windowIDs = (Window *) XtMalloc(sizeof(Window) * (size_t) count);
+  windowIDs = (Window *) XtMalloc((Cardinal)(sizeof(Window) * (size_t) count));
   if (windowIDs == NULL)
     {
       PRINT("Unable to allocate window list for EnableCommand.\n");
@@ -666,12 +670,13 @@ DisableCommand (
       PRINT("No windows supplied for DisableCommand.\n");
       return;
     }
-  if ((size_t) count > ((size_t) -1) / sizeof(Window))
+  if ((size_t) count > SIZE_MAX / sizeof(Window) ||
+      (size_t) count > UINT_MAX / sizeof(Window))
     {
       PRINT("Window list is too large for DisableCommand.\n");
       return;
     }
-  windowIDs = (Window *) XtMalloc(sizeof(Window) * (size_t) count);
+  windowIDs = (Window *) XtMalloc((Cardinal)(sizeof(Window) * (size_t) count));
   if (windowIDs == NULL)
     {
       PRINT("Unable to allocate window list for DisableCommand.\n");
@@ -805,12 +810,13 @@ RenameCommand (
       PRINT("No windows supplied for RenameCommand.\n");
       return;
     }
-  if ((size_t) count > ((size_t) -1) / sizeof(Window))
+  if ((size_t) count > SIZE_MAX / sizeof(Window) ||
+      (size_t) count > UINT_MAX / sizeof(Window))
     {
       PRINT("Window list is too large for RenameCommand.\n");
       return;
     }
-  windowIDs = (Window *) XtMalloc(sizeof(Window) * (size_t) count);
+  windowIDs = (Window *) XtMalloc((Cardinal)(sizeof(Window) * (size_t) count));
   if (windowIDs == NULL)
     {
       PRINT("Unable to allocate window list for RenameCommand.\n");
@@ -942,12 +948,13 @@ RemoveCommand (
       PRINT("No windows supplied for RemoveCommand.\n");
       return;
     }
-  if ((size_t) count > ((size_t) -1) / sizeof(Window))
+  if ((size_t) count > SIZE_MAX / sizeof(Window) ||
+      (size_t) count > UINT_MAX / sizeof(Window))
     {
       PRINT("Window list is too large for RemoveCommand.\n");
       return;
     }
-  windowIDs = (Window *) XtMalloc(sizeof(Window) * (size_t) count);
+  windowIDs = (Window *) XtMalloc((Cardinal)(sizeof(Window) * (size_t) count));
   if (windowIDs == NULL)
     {
       PRINT("Unable to allocate window list for RemoveCommand.\n");

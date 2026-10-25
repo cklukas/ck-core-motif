@@ -11454,6 +11454,12 @@ MWM property-array allocation bounds (2026-10-25)
 - Check WM protocol and `_MWM_MESSAGES` item counts before array allocation;
   see `docs/mwm-property-array-allocation.md`.
 
+MWM command window-array widths (2026-10-25)
+=============================================
+
+- Check WSM command window counts against Xt's allocation width; see
+  `docs/mwm-command-window-array-width.md`.
+
 MWM per-screen display allocation width (2026-10-25)
 =====================================================
 
