@@ -3946,3 +3946,10 @@ Guard SpinBox textual trait callbacks (2026-10-25)
 
 - Validate SpinBox child widgets and specific access-textual callbacks before
   updates or validation; see `docs/motif-spinb-text-trait.md`.
+
+Guard TextOut navigator callbacks (2026-10-25)
+===============================================
+
+- Validate horizontal, vertical and drag navigator traits before callback
+  dispatch, preserving normal scrolling for complete traits; see
+  `docs/motif-textout-navigator-trait.md`.
