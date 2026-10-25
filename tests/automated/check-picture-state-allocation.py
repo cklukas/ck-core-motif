@@ -13,6 +13,12 @@ assert "if (picture->nodes == NULL)" in parse_region
 assert parse_region.index("if (picture->source == NULL)") < parse_region.index("picture->num_nodes")
 assert parse_region.index("if (picture->nodes == NULL)") < parse_region.index("_XmPictureParseNode")
 
+public_region = source[source.index("XmPictureProcessCharacter("):]
+assert "if (state == NULL || is_finished == NULL)" in public_region
+assert "if (p == NULL)" in public_region
+assert "if (s == NULL)" in public_region
+assert "if (state == NULL)" in public_region
+
 start = source.index("XmGetNewPictureState(XmPicture picture)")
 end = source.index("\n/*", start)
 region = source[start:end]

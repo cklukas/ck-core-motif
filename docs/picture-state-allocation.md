@@ -14,7 +14,9 @@ The state-vector size is computed in `size_t` before conversion to `int`, so a
 large or malformed picture cannot overflow the old `num_nodes * sizeof(char)`
 expression.  Existing callers that receive a valid state retain the same
 layout and behavior; callers must continue to handle the documented `NULL`
-result from allocation failure.
+result from allocation failure.  The public processing, deletion, query, and
+auto-fill helpers also reject null handles, making cleanup and optional
+processing paths safe without changing valid-handle behavior.
 
 The source-level regression check is
 `tests/automated/check-picture-state-allocation.py`.

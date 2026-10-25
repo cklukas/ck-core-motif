@@ -3,7 +3,8 @@ Picture parsing and state allocation (2026-10-25)
 
 - Validate picture inputs, parser bootstrap allocations, and state-vector size
   arithmetic, releasing partial state before returning `NULL` under allocation
-  pressure.
+  pressure.  Public picture processing, cleanup, query, and auto-fill helpers
+  now reject null handles instead of dereferencing them.
 
 FontSelector widget-list growth (2026-10-27)
 =============================================

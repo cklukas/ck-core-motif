@@ -159,6 +159,9 @@ XmPictureProcessCharacter(XmPictureState state, char in, Boolean *is_finished)
     unsigned char *temp;
     char *save_start;
 
+    if (state == NULL || is_finished == NULL)
+	return NULL;
+
     /*
      * Reset the current-processing info
      */
@@ -242,6 +245,9 @@ XmPictureDelete(XmPicture p)
     int i;
     XmPictureTransition *trans, *delete_me;
 
+    if (p == NULL)
+	return;
+
     /*
      * First walk all the nodes, deleting the transitions then the
      * nodes themselves
@@ -267,6 +273,9 @@ XmPictureDelete(XmPicture p)
 void
 XmPictureDeleteState(XmPictureState s)
 {
+    if (s == NULL)
+	return;
+
     XtFree(s->current_string);
     XtFree((char*)s->state);
     XtFree((char*)s->newstate);
@@ -277,6 +286,9 @@ XmPictureDeleteState(XmPictureState s)
 char*
 XmPictureGetCurrentString(XmPictureState s)
 {
+    if (s == NULL)
+	return NULL;
+
     return s->current_string;
 }
 
@@ -286,6 +298,9 @@ XmPictureDoAutoFill(XmPictureState state)
     XmAutoFill fill;
     int i;
     Boolean finished = False;
+
+    if (state == NULL)
+	return NULL;
 
     while(1) {
 
