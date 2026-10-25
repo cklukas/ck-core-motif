@@ -1,3 +1,9 @@
+Guard IconFile path scanning input (2026-10-27)
+===============================================
+
+- Reject a null path before multibyte slash scanning; see
+  `docs/icon-find-slash-input.md`.
+
 Guard XmRegion API NULL inputs (2026-10-26)
 ============================================
 
