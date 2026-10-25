@@ -99,6 +99,9 @@ int main(int argc, char **argv)
         CHECK(XmSegmentedControlSetItems(segmented, &segment, 1));
         CHECK(XmSegmentedControlGetItemCount(segmented) == 1);
         CHECK(XmSegmentedControlGetItemId(segmented, 0) != NULL);
+        CHECK(XmSegmentedControlSetItems(segmented, NULL, 0));
+        CHECK(XmSegmentedControlGetItemCount(segmented) == 0);
+        CHECK(XmSegmentedControlGetSelectedIndex(segmented) == -1);
     }
     files = XmCreateFileSelectionBox(shell, "files", NULL, 0);
     XtManageChild(files);
