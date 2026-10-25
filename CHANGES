@@ -5103,3 +5103,9 @@ ColorSelector layout geometry bounds (2026-10-25)
 - Clamp signed available width and height calculations and avoid wrapped
   color-area dimensions when a selector is smaller than its margins or child
   borders; see `docs/color-selector-layout-geometry.md`.
+ColorPicker highlight geometry bounds (2026-10-25)
+=================================================
+
+- Require enough width and height for the focus inset before drawing the
+  ColorPicker highlight, preventing wrapped rectangles on tiny widgets; see
+  `docs/colorpicker-highlight-geometry.md`.
