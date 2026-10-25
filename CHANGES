@@ -1,3 +1,11 @@
+Display-scale transaction reentrancy guard (2026-10-25)
+=========================================================
+
+- Reject nested `XmSetDisplayScaleOverride`/display-scale transactions from
+  a scale callback, preserving the outer override as authoritative. The
+  installed fixture verifies callback invocation, nested rejection and
+  cleanup; per-display transaction state is retired with the Motif display.
+
 XLibre transient-query fallback (2026-10-25)
 ==============================================
 

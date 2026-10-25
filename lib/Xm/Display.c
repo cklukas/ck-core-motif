@@ -132,6 +132,13 @@ typedef struct {
 
 typedef struct _XmScaleCallback XmScaleCallback;
 typedef struct _XmScaleWidgetState XmScaleWidgetState;
+typedef struct _XmScaleDisplayState XmScaleDisplayState;
+
+struct _XmScaleDisplayState {
+  Display *display;
+  Boolean transaction_active;
+  XmScaleDisplayState *next;
+};
 
 struct _XmScaleCallback {
   XmScaleWidgetState *state;
@@ -152,6 +159,67 @@ struct _XmScaleWidgetState {
 };
 
 static XmScaleWidgetState *scaleWidgetStates;
+static XmScaleDisplayState *scaleDisplayStates;
+
+static Boolean
+scale_transaction_begin(Display *display)
+{
+  XmScaleDisplayState *state;
+
+  _XmProcessLock();
+  for (state = scaleDisplayStates; state != NULL; state = state->next)
+    if (state->display == display)
+      break;
+  if (state == NULL) {
+    state = (XmScaleDisplayState *)XtCalloc(1, sizeof(*state));
+    if (state == NULL) {
+      _XmProcessUnlock();
+      return False;
+    }
+    state->display = display;
+    state->next = scaleDisplayStates;
+    scaleDisplayStates = state;
+  }
+  if (state->transaction_active) {
+    _XmProcessUnlock();
+    return False;
+  }
+  state->transaction_active = True;
+  _XmProcessUnlock();
+  return True;
+}
+
+static void
+scale_transaction_end(Display *display)
+{
+  XmScaleDisplayState *state;
+
+  _XmProcessLock();
+  for (state = scaleDisplayStates; state != NULL; state = state->next)
+    if (state->display == display)
+      break;
+  if (state != NULL)
+    state->transaction_active = False;
+  _XmProcessUnlock();
+}
+
+static void
+scale_display_destroyed(Display *display)
+{
+  XmScaleDisplayState **link;
+  XmScaleDisplayState *state;
+
+  _XmProcessLock();
+  link = &scaleDisplayStates;
+  while (*link != NULL && (*link)->display != display)
+    link = &(*link)->next;
+  if (*link != NULL) {
+    state = *link;
+    *link = state->next;
+    XtFree((char *)state);
+  }
+  _XmProcessUnlock();
+}
 
 static void
 scale_widget_destroyed(Widget widget, XtPointer client_data,
@@ -301,8 +369,13 @@ apply_scale_change(Display *display, Widget root,
   if (display == NULL || !isfinite(old_scale) || !isfinite(new_scale) ||
       old_scale <= 0.0 || new_scale <= 0.0)
     return False;
+  if (!scale_transaction_begin(display))
+    return False;
   if (fabs(old_scale - new_scale) < 0.000001)
-    return True;
+    {
+      scale_transaction_end(display);
+      return True;
+    }
 
   _XmProcessLock();
   for (state = scaleWidgetStates; state != NULL; state = state->next)
@@ -316,6 +389,7 @@ apply_scale_change(Display *display, Widget root,
     callbacks = (XmScaleCallback **)calloc(count, sizeof(*callbacks));
   if (count != 0 && callbacks == NULL) {
     _XmProcessUnlock();
+    scale_transaction_end(display);
     return False;
   }
   for (state = scaleWidgetStates; state != NULL; state = state->next)
@@ -356,6 +430,7 @@ apply_scale_change(Display *display, Widget root,
     _XmProcessUnlock();
   }
   free(callbacks);
+  scale_transaction_end(display);
   return success;
 }
 
@@ -1196,6 +1271,7 @@ DisplayDestroy(
     }
     _XmProcessUnlock();
 
+    scale_display_destroyed(XtDisplay(w));
     _XmDestroyAppearanceDisplay(XtDisplay(w));
 
     XDeleteContext( XtDisplay( w), None, context) ;
