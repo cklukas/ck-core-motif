@@ -2112,6 +2112,11 @@ output table on conversion failure. The source contract is recorded in
 preserving the zero-position fallback. The source contract is recorded in
 `tests/automated/check-tab-position-screen-guard.py` and
 `docs/tab-position-screen-guard.md`.
+VendorS secondary-object creation now reads the class size under one process
+lock and performs allocations after unlocking, avoiding recursive acquisition
+and mismatched release. The source contract is recorded in
+`tests/automated/check-vendors-lock-balance.py` and
+`docs/vendors-lock-balance.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the

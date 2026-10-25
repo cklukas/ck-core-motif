@@ -1619,14 +1619,11 @@ SecondaryObjectCreate(
 	_XmProcessLock();
 	pePtr = _XmGetBaseClassExtPtr(XtClass(new_w), XmQmotif);
 	vec = (*pePtr)->secondaryObjectClass;
-
-    _XmProcessLock();
 	size = vec->core_class.widget_size;
     _XmProcessUnlock();
 
 	newSec = XtMalloc(size);
 	reqSec = _XmExtObjAlloc(size);
-	_XmProcessUnlock();
 
 	extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
 	extData->widget = (Widget)newSec;

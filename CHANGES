@@ -164,6 +164,12 @@ Tab-list position screen validation (2026-10-26)
 - Return the zero-position fallback when tab conversion lacks a `Screen`; see
   `docs/tab-position-screen-guard.md`.
 
+VendorS secondary-object lock balance (2026-10-26)
+===================================================
+
+- Balance secondary-object class-size locking before allocation; see
+  `docs/vendors-lock-balance.md`.
+
 XmString extraction output validation (2026-10-26)
 ====================================================
 
