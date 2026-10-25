@@ -194,6 +194,12 @@ Tab creation argument validation (2026-10-26)
 - Reject nonzero tab argument counts with a null `ArgList`; see
   `docs/tab-arglist-guard.md`.
 
+Compound-text direction-stack bounds (2026-10-26)
+==================================================
+
+- Bound nested direction-stack growth against native and Xt allocation widths;
+  see `docs/direction-stack-bounds.md`.
+
 XmString extraction output validation (2026-10-26)
 ====================================================
 

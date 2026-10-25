@@ -2133,6 +2133,10 @@ recorded in `tests/automated/check-tab-null-guards.py` and
 `_XmCreateTab` now validates nonempty argument lists before iteration. The
 source contract is recorded in `tests/automated/check-tab-arglist-guard.py`
 and `docs/tab-arglist-guard.md`.
+Compound-text direction-stack growth now checks arithmetic and `Cardinal`
+representability before `XtRealloc`. The source contract is recorded in
+`tests/automated/check-direction-stack-bounds.py` and
+`docs/direction-stack-bounds.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the
