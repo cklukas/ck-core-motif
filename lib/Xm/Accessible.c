@@ -694,8 +694,14 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
   if (XmIsList(w)) (void)sync_native_list(a, _XmAccessibilityNode(a, id));
 }
 XmAccessibility *XmAccessibilityCreate(Widget root, const char *name) {
-  XmAccessibility *a = (XmAccessibility *)XtCalloc(1, sizeof(*a));
+  XmAccessibility *a;
   XmAccessibleNode *n;
+
+  if (!root)
+    return NULL;
+  a = (XmAccessibility *)XtCalloc(1, sizeof(*a));
+  if (!a)
+    return NULL;
   a->root = root;
   a->app = XtWidgetToApplicationContext(root);
   a->name = XtNewString(name ? name : XtName(root));

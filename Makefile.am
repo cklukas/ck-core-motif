@@ -766,3 +766,5 @@ EXTRA_DIST += tests/automated/check-xmlist-allocation-failure.py docs/xmlist-all
 EXTRA_DIST += tests/automated/check-xmlist-stack-allocation.py docs/xmlist-stack-allocation.md
 
 EXTRA_DIST += tests/automated/check-xmlist-lifecycle-inputs.py docs/xmlist-lifecycle-inputs.md
+
+EXTRA_DIST += tests/automated/check-accessibility-create-inputs.py docs/accessibility-create-inputs.md
