@@ -2449,8 +2449,11 @@ Cardinal * num_hrect)
     Widget w ;
     XmScrolledWindowWidget scw = (XmScrolledWindowWidget) sw ;
 
+    *num_hrect = 0 ;
+    *hrect = (XRectangle *) XtMalloc(sizeof(XRectangle) * 2) ;
+    if (*hrect == NULL)
+        return;
     *num_hrect = 2 ;
-    *hrect = (XRectangle *) XtMalloc(sizeof(XRectangle) * (*num_hrect)) ;
 
     /* The hor rectangles are the ones that horizontally auto scroll,
        they are defined by areas on the left and right of the
@@ -2504,8 +2507,11 @@ Cardinal * num_vrect)
     Widget w ;
     XmScrolledWindowWidget scw = (XmScrolledWindowWidget) sw ;
 
+    *num_vrect = 0 ;
+    *vrect = (XRectangle *) XtMalloc(sizeof(XRectangle) * 2) ;
+    if (*vrect == NULL)
+        return;
     *num_vrect = 2 ;
-    *vrect = (XRectangle *) XtMalloc(sizeof(XRectangle) * (*num_vrect)) ;
 
     /* The vertical rectangles are the ones that vertically auto scroll,
        they are defined by areas on the top and bottom of the
