@@ -10970,3 +10970,10 @@ MWM motif-bindings path sizing (2026-10-25)
 
 - Check the combined home-directory and `.motifbind` path length before
   allocating the generated filename; see `docs/mwm-bindings-path-size.md`.
+
+MWM action-argument size checks (2026-10-25)
+============================================
+
+- Bound action-string and argument-vector size arithmetic before Xt allocation
+  or growth, and release temporary parser strings on every path; see
+  `docs/mwm-action-arg-reallocation.md`.
