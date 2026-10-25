@@ -3372,9 +3372,7 @@ XmStringIsVoid(XmString string)
   unsigned int	len;
   XtPointer	val;
 
-  _XmProcessLock();
   if (!string) {
-     _XmProcessUnlock();
      return (TRUE);
   }
   
@@ -3392,7 +3390,6 @@ XmStringIsVoid(XmString string)
 	case XmSTRING_COMPONENT_WIDECHAR_TEXT:
 	case XmSTRING_COMPONENT_SEPARATOR:
 	  _XmStringContextFree(&stack_context);
-	  _XmProcessUnlock();
 	  return(FALSE);
 
 	default:
@@ -3401,7 +3398,6 @@ XmStringIsVoid(XmString string)
     }
 
   _XmStringContextFree(&stack_context);
-  _XmProcessUnlock();
   return(TRUE);
 }
 
@@ -7375,11 +7371,9 @@ XmCvtXmStringToByteStream(XmString string,
   unsigned char		*ext;
   XmStringComponentType	tag;
   
-  _XmProcessLock();
   if (!string) 
     {
       if (prop_return != NULL) *prop_return = NULL;
-      _XmProcessUnlock();
       return(0);
     }
 
@@ -7396,7 +7390,6 @@ XmCvtXmStringToByteStream(XmString string,
 	{
 	  _XmStringContextFree(&stack_context);
 	  if (prop_return != NULL) *prop_return = NULL;
-	  _XmProcessUnlock();
 	  return(0);
 	}
       len += component_size + length;
@@ -7408,7 +7401,6 @@ XmCvtXmStringToByteStream(XmString string,
 	{
 	  _XmStringContextFree(&stack_context);
 	  if (prop_return != NULL) *prop_return = NULL;
-	  _XmProcessUnlock();
 	  return(0);
 	}
   len += component_size;
@@ -7417,7 +7409,6 @@ XmCvtXmStringToByteStream(XmString string,
   
   /* We're just computing size. */
   if (prop_return == NULL) {
-	 _XmProcessUnlock();
 	 return(len);
   }
 
@@ -7426,7 +7417,6 @@ XmCvtXmStringToByteStream(XmString string,
   if (ext == NULL)
 	{
 	  *prop_return = NULL;
-	  _XmProcessUnlock();
 	  return(0);
 	}
   *prop_return = ext;
@@ -7443,7 +7433,6 @@ XmCvtXmStringToByteStream(XmString string,
   
   _XmStringContextFree(&stack_context);
 
-  _XmProcessUnlock();
   return(len);
 }
 

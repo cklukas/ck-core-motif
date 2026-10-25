@@ -1,3 +1,9 @@
+XmString enumeration locking (2026-10-26)
+==========================================
+
+- Avoid recursive process locking in `XmStringIsVoid` and
+  `XmCvtXmStringToByteStream`; see `docs/xmstring-enumeration-locking.md`.
+
 XmStringGetNextComponent locking (2026-10-26)
 ==============================================
 
