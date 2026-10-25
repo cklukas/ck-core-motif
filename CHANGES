@@ -6197,3 +6197,8 @@ XmString parse-mapping input validation (2026-10-25)
 - Reject missing argument lists and skip null argument names in
   `XmParseMappingSetValues`; see
   `docs/xmstring-parse-mapping-input-validation.md`.
+XmString byte-stream length validation (2026-10-25)
+====================================================
+
+- Reject null byte-stream inputs and guard header-size arithmetic in
+  `XmStringByteStreamLength`; see `docs/xmstring-byte-stream-length.md`.
