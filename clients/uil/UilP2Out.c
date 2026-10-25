@@ -56,6 +56,7 @@ static char rcsid[] = "$TOG: UilP2Out.c /main/15 1997/03/12 15:17:24 dbl $"
 #endif
 
 #include "UilDefI.h"
+#include <limits.h>
 #include "UilSymGen.h"
 
 /*
@@ -1316,6 +1317,20 @@ for (list_member=(sym_obj_entry_type *)list_entry->obj_header.az_next;
 **--
 **/
 
+void issue_urm_error(char *problem);
+
+static void
+out_add_value_size(int *value_size, size_t amount)
+{
+    if (*value_size < 0 || amount > (size_t) INT_MAX - (size_t) *value_size)
+    {
+	issue_urm_error("calculating resource size");
+	*value_size = INT_MAX;
+	return;
+    }
+    *value_size += (int) amount;
+}
+
 void	out_emit_value( value_entry )
 
 sym_value_entry_type	*value_entry;
@@ -1423,7 +1438,7 @@ sym_value_entry_type	*value_entry;
 		 value_segment != NULL;
 		 value_segment =  value_segment->az_next_table_value)
 		{
-		value_size += sizeof(long);
+		out_add_value_size(&value_size, sizeof(long));
 		value_count++;
 		}
 	    break;
@@ -1480,9 +1495,9 @@ sym_value_entry_type	*value_entry;
 		{
 		value_count++;
 
-		value_size += 
-		  XmCvtXmStringToByteStream(value_segment->value.xms_value, NULL) +
-		    sizeof( RGMTextEntry );
+		out_add_value_size(&value_size,
+		  XmCvtXmStringToByteStream(value_segment->value.xms_value, NULL));
+		out_add_value_size(&value_size, sizeof(RGMTextEntry));
 		}
 	    break;
 	    }
@@ -1509,8 +1524,8 @@ sym_value_entry_type	*value_entry;
 		 value_segment = value_segment->az_next_table_value)
 		{
 		value_count++;
-		value_size +=
-		    value_segment->w_length + sizeof(RGMTextEntry) + 1;
+		out_add_value_size(&value_size, value_segment->w_length);
+		out_add_value_size(&value_size, sizeof(RGMTextEntry) + 1);
 		}
 	    break;
 	    }
@@ -1536,7 +1551,7 @@ sym_value_entry_type	*value_entry;
 		 value_segment != NULL;  
 		 value_segment = value_segment->az_next_table_value)
 		{
-		value_size += sizeof(long);
+		out_add_value_size(&value_size, sizeof(long));
 		value_count++;
 		}
 	    break;
@@ -1569,10 +1584,14 @@ sym_value_entry_type	*value_entry;
 		 *                    font_value, rather than value_entry.
 		 */
 		value_count += 1;
-		value_size += sizeof(RGMFontItem)
-		    + strlen(sem_charset_name(font_value->b_charset,
-					      font_value->az_charset_value))
-		      + 1 + strlen(font_value->value.c_value) + 1;
+		out_add_value_size(&value_size, sizeof(RGMFontItem));
+		out_add_value_size(&value_size,
+		    strlen(sem_charset_name(font_value->b_charset,
+					      font_value->az_charset_value)));
+		out_add_value_size(&value_size, 1);
+		out_add_value_size(&value_size,
+		    strlen(font_value->value.c_value));
+		out_add_value_size(&value_size, 1);
 		}
 	    break;
 	    }
@@ -1590,7 +1609,8 @@ sym_value_entry_type	*value_entry;
 	    for (value_segment = value_entry->az_first_table_value;  
 		 value_segment != NULL;  
 		 value_segment = value_segment->az_next_table_value)
-		value_size += value_segment->w_length + 1;
+		out_add_value_size(&value_size, value_segment->w_length);
+		out_add_value_size(&value_size, 1);
 	    break;
 	    }
 	

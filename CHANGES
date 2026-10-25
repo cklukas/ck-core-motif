@@ -1,3 +1,10 @@
+UIL value-size bounds (2026-10-27)
+=================================
+
+- Check aggregate UIL table and font payload sizes before `int` accumulation,
+  preventing wrapped resource-context allocations; see
+  `docs/uil-value-size-bounds.md`.
+
 UIL source filename capacity (2026-10-27)
 =========================================
 
