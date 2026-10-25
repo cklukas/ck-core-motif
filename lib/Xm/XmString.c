@@ -9323,7 +9323,19 @@ XmeStringGetComponent(_XmStringContext context,
 	case XmWIDECHAR_TEXT:
 	  if (copy_data)
 	    {
-	      char* tmp = XtMalloc(char_count + sizeof(wchar_t));
+	      char *tmp;
+	      if ((size_t)char_count > SIZE_MAX - sizeof(wchar_t) ||
+	          (size_t)char_count + sizeof(wchar_t) > (size_t)((Cardinal)~0)) {
+	        if (update_context) _XmStrContError(context) = True;
+	        _XmProcessUnlock();
+	        return XmSTRING_COMPONENT_END;
+	      }
+	      tmp = XtMalloc((Cardinal)((size_t)char_count + sizeof(wchar_t)));
+	      if (!tmp) {
+	        if (update_context) _XmStrContError(context) = True;
+	        _XmProcessUnlock();
+	        return XmSTRING_COMPONENT_END;
+	      }
 	      if (char_count > 0)
 	        memcpy(tmp, seg_text, char_count);
 	      bzero(tmp + char_count, sizeof(wchar_t));

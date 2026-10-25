@@ -6075,3 +6075,10 @@ Harden XmString unparse allocations (2026-10-25)
   compound-string unparse paths; see `docs/xmstring-unparse-allocation.md` and
   its focused source check.
 
+Guard XmString component copies (2026-10-25)
+=============================================
+
+- Bound temporary wide-character component buffers and terminate iteration
+  cleanly on allocation failure; see
+  `docs/xmstring-component-copy-allocation.md` and its focused source check.
+
