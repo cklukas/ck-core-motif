@@ -1850,6 +1850,10 @@ XmRenderTableGetRendition(XmRenderTable table,
 			  XmStringTag tag)
 {
   XmRendition ret_val;
+
+  if (table == NULL)
+	return(NULL);
+
   _XmDisplayToAppContext(_XmRTDisplay(table));
 
   _XmAppLock(app);

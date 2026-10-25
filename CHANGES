@@ -6137,3 +6137,9 @@ Render-table tag result allocation (2026-10-25)
 
 - Validate `XmRenderTableGetTags` output and allocation inputs, and roll back
   partially copied tags on failure; see `docs/render-table-tag-array.md`.
+Render-table single-rendition null input (2026-10-25)
+=======================================================
+
+- Return cleanly from `XmRenderTableGetRendition` when its table argument is
+  `NULL`, avoiding a private display lookup through an invalid handle; see
+  `docs/render-table-single-rendition-null.md`.
