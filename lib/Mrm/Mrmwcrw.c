@@ -1889,8 +1889,19 @@ Urm__CW_CreateArglist (Widget			parent,
             args[*num_used].name = (char *) 
 	      (widgetrec+argptr->stg_or_relcode.tag_offs) ;
 	  else
-            Urm__UncompressCode
-	      (file_id, argptr->tag_code, &(args[*num_used].name)) ;
+	    {
+	      uncmp_res = Urm__UncompressCode
+		(file_id, argptr->tag_code, &(args[*num_used].name)) ;
+	      if (uncmp_res != MrmSUCCESS)
+		{
+		  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0062,
+				   argptr->tag_code) ;
+		  Urm__UT_Error ("Urm__CW_CreateArglist", err_msg,
+				 NULL, NULL, uncmp_res) ;
+		  XFreePixmap (display, pixmap) ;
+		  continue ;
+		}
+	    }
 	  *num_used += 1 ;
         }
     }

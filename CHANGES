@@ -106,6 +106,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  docs/mrm-icon-pixargs-bounds.md.
 
 2026-10-25
+	* Release deferred Mrm pixmaps when tag decompression fails before argument
+	  finalization; see docs/mrm-pixmap-tag-failure.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,
