@@ -6110,3 +6110,10 @@ Guard Xmos directory-entry list allocations (2026-10-25)
   see `docs/xmos-entry-list-allocation.md`.
 
 Guard Xmos cache reset allocation (2026-10-25)
+Guard virtual-key binding allocations (2026-10-25)
+===================================================
+
+- Make binding-file growth and final trimming transactional; see
+  `docs/virtkeys-binding-allocation.md`.
+
+Guard Xmos directory-entry list allocations (2026-10-25)
