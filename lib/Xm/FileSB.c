@@ -2081,7 +2081,21 @@ QualifySearchDataProc(
                                             &qualifiedDir, &qualifiedPattern) ;
         }
     qDirLen = strlen( qualifiedDir) ;
-    qualifiedMask = XtMalloc( 1 + qDirLen + strlen( qualifiedPattern)) ;
+    {
+        size_t qPatternLen = strlen( qualifiedPattern);
+        if (qPatternLen == SIZE_MAX ||
+            qDirLen > SIZE_MAX - qPatternLen - 1 ||
+            qDirLen + qPatternLen + 1 > UINT_MAX)
+        {
+            XtFree( qualifiedPattern) ;
+            XtFree( qualifiedDir) ;
+            XtFree( patternString) ;
+            XtFree( dirString) ;
+            XtFree( maskString) ;
+            return ;
+        }
+        qualifiedMask = XtMalloc((Cardinal)(qDirLen + qPatternLen + 1)) ;
+    }
     if(    qualifiedMask == NULL    )
     {   XtFree( qualifiedPattern) ;
         XtFree( qualifiedDir) ;

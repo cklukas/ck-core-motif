@@ -11610,6 +11610,12 @@ WSM string allocation width (2026-10-25)
 - Check decoded WSM string lengths before Xt allocation; see
   `docs/wsm-unpack-string-oom.md`.
 
+FileSB qualified-mask allocation width (2026-10-25)
+=====================================================
+
+- Check combined File Selection Box mask lengths before allocation; see
+  `docs/motif-filesb-qualified-mask.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 

@@ -214,6 +214,7 @@ EXTRA_DIST += tests/automated/check-uil-diagnostic-location-bounds.py docs/uil-d
 EXTRA_DIST += tests/automated/check-uil-output-bounds.py docs/uil-output-bounds.md
 EXTRA_DIST += tests/automated/check-mwm-image-path-bounds.py docs/mwm-image-path-bounds.md
 EXTRA_DIST += tests/automated/check-mwm-image-path-allocation.py docs/mwm-image-path-allocation.md
+EXTRA_DIST += tests/automated/check-filesb-qualified-mask-allocation.py docs/motif-filesb-qualified-mask.md
 EXTRA_DIST += tests/automated/check-mwm-exclusion-allocation.py docs/mwm-exclusion-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-menu-name-allocation.py docs/mwm-menu-name-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-menu-spec-allocation.py docs/mwm-menu-spec-allocation.md

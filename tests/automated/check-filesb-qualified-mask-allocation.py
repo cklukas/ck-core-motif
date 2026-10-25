@@ -3,8 +3,11 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "FileSB.c").read_text()
-allocation = "qualifiedMask = XtMalloc( 1 + qDirLen + strlen( qualifiedPattern)) ;"
+allocation = "qualifiedMask = XtMalloc((Cardinal)(qDirLen + qPatternLen + 1)) ;"
 guard = "if(    qualifiedMask == NULL    )"
+assert "qDirLen > SIZE_MAX - qPatternLen - 1" in source
+assert "qPatternLen == SIZE_MAX" in source
+assert "qDirLen + qPatternLen + 1 > UINT_MAX" in source
 assert allocation in source
 assert source.index(guard) > source.index(allocation)
 assert "qualifiedSearchData->value = NULL ;" in source

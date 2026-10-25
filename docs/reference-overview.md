@@ -38,6 +38,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [Selection-box compound text](motif-selectionbox-compound-text.md) — compound-string selection data.
 - [Drag-and-drop target allocation](dragbs-targets-allocation-guards.md) — allocation failure handling.
 - [Container tab conversion](container-tabs.md) — container data conversion and tab behavior.
+- [FileSB qualified-mask allocation](motif-filesb-qualified-mask.md) — bounded file-selection mask assembly.
 
 ## MWM and window-management protocol
 
