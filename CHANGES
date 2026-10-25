@@ -11302,3 +11302,9 @@ MWM WSM session-file path bounds (2026-10-25)
 
 - Use size-safe checks and bounded formatting for WSM session save and restore
   paths; see `docs/mwm-session-path.md`.
+
+MWM locale-copy allocation (2026-10-25)
+=======================================
+
+- Check locale-string lengths before converting them to Xt allocation sizes;
+  see `docs/mwm-locale-allocation.md`.

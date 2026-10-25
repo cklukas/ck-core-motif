@@ -2226,6 +2226,7 @@ FILE *FopenConfigFile (void)
 
     char    *LANG, *LANGp;
     FILE    *fileP;
+    size_t langLength;
 
 #ifndef MOTIF_ONE_DOT_ONE
     char *homeDir = XmeGetHomeDirName();
@@ -2254,7 +2255,9 @@ FILE *FopenConfigFile (void)
       }
     else
       {
-	 if ((LANG = (char *) XtMalloc(strlen(LANGp) +1)) == NULL)
+	 langLength = strlen(LANGp);
+	 if (langLength >= UINT_MAX ||
+	     (LANG = (char *) XtMalloc((Cardinal)(langLength + 1))) == NULL)
 	   {
 	      PWarning (((char *)GETMESSAGE(60, 41, "Insufficient memory to get LANG environment variable.")));
 	      return(NULL);
