@@ -602,10 +602,11 @@ GetFixedMatchPattern(String pattern)
   if (pattern == NULL)
     return NULL;
   pattern_len = strlen(pattern);
-  if (pattern_len > (SIZE_MAX / 2) - 4)
+  if (pattern_len > (SIZE_MAX / 2) - 4 ||
+      pattern_len > (size_t)UINT_MAX - 4)
     return NULL;
   
-  outputBuf = XtCalloc(2, pattern_len + 4);
+  outputBuf = XtCalloc(2, (Cardinal)(pattern_len + 4));
   if (outputBuf == NULL)
     return NULL;
   

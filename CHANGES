@@ -1,3 +1,9 @@
+Fixed-pattern allocation bounds (2026-10-26)
+=============================================
+
+- Reject pattern lengths that cannot fit Xt's `Cardinal` allocation size in
+  `GetFixedMatchPattern`; see `docs/fixed-pattern-bounds.md`.
+
 Cardinal item-list allocation bounds (2026-10-26)
 ==================================================
 
