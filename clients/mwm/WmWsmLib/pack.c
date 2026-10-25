@@ -501,6 +501,10 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 	request->connect.num_versions = UnpackListNum(&data);
 	request->connect.known_versions =
 	    (short *) XtMalloc(sizeof(short) * request->connect.num_versions);
+	if (request->connect.known_versions == NULL) {
+	    request->connect.num_versions = 0;
+	    return;
+	}
 	request->connect.allocated = True;
 	for (i = 0; i < request->connect.num_versions; i++) 
 	    request->connect.known_versions[i] = (short) UnpackCARD8(&data);

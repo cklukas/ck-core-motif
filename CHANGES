@@ -69,6 +69,13 @@ WSM extension unpack allocation guard (2026-10-25)
 - Fail closed when request or reply extension-list allocation fails, avoiding
   null-array writes and cleanup walks; see `docs/wsm-extension-unpack-oom.md`.
 
+WSM connect unpack allocation guard (2026-10-25)
+=================================================
+
+- Fail closed when the WSM connection-version array cannot be allocated,
+  preventing a null write during request unpacking; see
+  `docs/wsm-extension-unpack-oom.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 
