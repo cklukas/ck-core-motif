@@ -1,3 +1,9 @@
+Representation-type warning allocation guard (2026-10-25)
+==========================================================
+
+- Fail reverse representation-type conversion cleanly when its temporary
+  warning string cannot be allocated; see `docs/reptype-registration.md`.
+
 Representation-type copy rollback (2026-10-25)
 ===============================================
 
