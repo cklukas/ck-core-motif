@@ -901,7 +901,7 @@ XmGetIconFileName(
            String	dirName;
            String	filePtr;
            String 	suffixPtr;
-           int	dirNameLen;
+           size_t	dirNameLen;
 
            _XmOSFindPathParts(fileName, &filePtr, &suffixPtr);
 
@@ -909,10 +909,16 @@ XmGetIconFileName(
 	       dirNameLen = 0;
            else {
 	       /* take the slash into account */
-	       dirNameLen = filePtr - fileName - 1;
+	       dirNameLen = (size_t)(filePtr - fileName - 1);
            }
 
-           dirName = (String)XtMalloc(dirNameLen + 1);
+	   if (dirNameLen >= UINT_MAX) {
+	       XtFree(iNameEntry->key_name);
+	       XtFree((char *)iNameEntry);
+	       goto skip_icon_name_cache;
+	   }
+
+           dirName = (String)XtMalloc((Cardinal)dirNameLen + 1);
 	   if (dirName == NULL) {
 	       XtFree(iNameEntry->key_name);
 	       XtFree((char *)iNameEntry);

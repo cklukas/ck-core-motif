@@ -5539,6 +5539,13 @@ Protocol registration allocation (2026-10-25)
 - Roll back partially allocated protocol records when registration cannot
   allocate the next record; see `docs/protocol-allocation.md`.
 
+Icon cache directory-component width (2026-10-25)
+===================================================
+
+- Keep resolved icon-cache directory lengths in `size_t` and reject values
+  that cannot be represented by Xt's `Cardinal` allocation interface; see
+  `docs/icon-file-bounds.md`.
+
 Cached icon-path Xt width (2026-10-25)
 ======================================
 

@@ -444,7 +444,8 @@ EXTRA_DIST += tests/automated/check-cache-geometry-status.py docs/cache-geometry
 EXTRA_DIST += tests/automated/check-mask-name-allocation.py docs/mask-name-allocation.md
 EXTRA_DIST += tests/automated/check-embedded-mask-ownership.py docs/embedded-mask-ownership.md
 EXTRA_DIST += tests/automated/check-icon-mask-name-allocation.py docs/icon-mask-name-allocation.md \
-              tests/automated/check-icon-suffix-bounds.py docs/icon-file-bounds.md
+              tests/automated/check-icon-suffix-bounds.py docs/icon-file-bounds.md \
+              tests/automated/check-iconfile-dir-allocation.py
 EXTRA_DIST += tests/automated/check-scale-value-bounds.py docs/scale-value-bounds.md
 
 EXTRA_DIST += tests/automated/check-drop-site-warning-bounds.py docs/drop-site-warning-bounds.md
