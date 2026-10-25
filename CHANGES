@@ -6361,3 +6361,10 @@ Legacy resource-filter bounds (2026-10-25)
 - Remove the fixed 256-resource temporary index limit and guard result
   allocation in `_XmFilterResources`; see `docs/filter-resources-bounds.md`.
 
+Bound legacy resource-filter byte sizes (2026-10-25)
+=====================================================
+
+- Reject `_XmFilterResources` result sizes that cannot be represented by Xt's
+  `Cardinal` allocator before narrowing the byte count; see
+  `docs/filter-resources-bounds.md`.
+
