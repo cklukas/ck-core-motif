@@ -1738,6 +1738,12 @@ UpdateFamilies(XmFontSelectorWidget fsw)
 	    resolution_ok && has_sizes)
 	{
 	    strs[count++] = XmStringCreateLocalized(XrmQuarkToString(fam->nameq));
+	    if (strs[count - 1] == NULL) {
+		while (count != 0)
+		    XmStringFree(strs[--count]);
+		XtFree((XtPointer)strs);
+		return;
+	    }
 	    str_match |= (fam->nameq == cf->familyq);
 	}
     }
@@ -1828,6 +1834,10 @@ UpdateSizes(XmFontSelectorWidget fsw)
         strs[count++] = XmStringCreateLocalized(" ");
     else
         strs[count++] = XmStringCopy(ANY_STRING(fsw));
+    if (strs[count - 1] == NULL) {
+	XtFree((XtPointer)strs);
+	return;
+    }
 
     for (i = 0; i < XtNumber(GValidSizes); i++) {
 	char buf[32];
@@ -1837,7 +1847,14 @@ UpdateSizes(XmFontSelectorWidget fsw)
 	    continue;
 
 	snprintf(buf, sizeof(buf), "%d", GValidSizes[i]);
-	strs[count++] = XmStringCreateLocalized(buf);
+	strs[count] = XmStringCreateLocalized(buf);
+	if (strs[count] == NULL) {
+	    while (count != 0)
+		XmStringFree(strs[--count]);
+	    XtFree((XtPointer)strs);
+	    return;
+	}
+	count++;
 	
 	match |= (SizeMapping(cf->point_size) == flag);
     }
