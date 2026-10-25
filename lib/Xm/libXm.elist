@@ -574,6 +574,8 @@ public XmSegmentedControlClearSelection
 public XmCreateChip
 public XmChipInvoke
 public XmChipRemove
+public XmCreateBadge
+public XmBadgeGetDisplayedCount
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -862,6 +864,8 @@ public xmSegmentedControlClassRec
 public xmSegmentedControlWidgetClass
 public xmChipClassRec
 public xmChipWidgetClass
+public xmBadgeClassRec
+public xmBadgeWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec
