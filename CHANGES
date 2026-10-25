@@ -1,3 +1,10 @@
+MWM icon-box hierarchy creation (2026-10-26)
+============================================
+
+- Make shell, scrolled-window, bulletin-board, and realization failures stop
+  icon-box construction before partial widget state is linked; see
+  `docs/mwm-iconbox-hierarchy-creation.md`.
+
 XmString tab-list traversal failure handling (2026-10-26)
 ============================================================
 

@@ -261,24 +261,19 @@ Boolean MakeIconBox (WmWorkspaceData *pWS, ClientData *pCD)
         /*
          * Make  the top level shell for this icon box
          */
-        MakeShell (pWS, pIBD);
-
-        /*
-         * Make  the scrolled window for this icon box
-         */
-
-        MakeScrolledWindow (pWS, pIBD);
-
-        /*
-         * Make  the row column manager for this icon box
-         */
-        MakeBulletinBoard (pWS, pIBD);
-
-        /*
-         * Realize the widget tree and set client data fields
-         */
-
-        RealizeIconBox (pWS, pIBD, pCD);
+        if (!MakeShell (pWS, pIBD) ||
+            !MakeScrolledWindow (pWS, pIBD) ||
+            !MakeBulletinBoard (pWS, pIBD) ||
+            !RealizeIconBox (pWS, pIBD, pCD))
+        {
+            Warning ("Unable to create the icon box widget hierarchy");
+            if (pIBD->shellWidget != NULL)
+                XtDestroyWidget (pIBD->shellWidget);
+            XtFree ((char *) pIBD->IPD.placeList);
+            XtFree ((char *) pIBD);
+            XtFree ((char *) pCD);
+            return (FALSE);
+        }
 
 	/*
 	 * Link the new icon box to list of icon boxes
@@ -368,7 +363,7 @@ void DestroyIconBox (WmWorkspaceData *pWS)
  * 
  *************************************<->***********************************/
 
-void MakeShell (WmWorkspaceData *pWS, IconBoxData *pIBD)
+Boolean MakeShell (WmWorkspaceData *pWS, IconBoxData *pIBD)
 {
 
     Arg setArgs[20];
@@ -429,6 +424,11 @@ void MakeShell (WmWorkspaceData *pWS, IconBoxData *pIBD)
 				        (ArgList)setArgs, i);
 #endif /* WSM */
 
+    if (pIBD->shellWidget == NULL)
+        return (FALSE);
+
+    return (TRUE);
+
 } /* END OF FUNCTION MakeShell */
 
 
@@ -462,7 +462,7 @@ void MakeShell (WmWorkspaceData *pWS, IconBoxData *pIBD)
  * 
  *************************************<->***********************************/
 
-void MakeScrolledWindow (WmWorkspaceData *pWS, IconBoxData *pIBD)
+Boolean MakeScrolledWindow (WmWorkspaceData *pWS, IconBoxData *pIBD)
 {
 
     Arg setArgs[20]; 
@@ -495,6 +495,9 @@ void MakeScrolledWindow (WmWorkspaceData *pWS, IconBoxData *pIBD)
 					xmFrameWidgetClass, 
 					pIBD->shellWidget,
 					(ArgList)setArgs, i);
+
+    if (pIBD->frameWidget == NULL)
+        return (FALSE);
 
 #ifdef WSM
     XtAddCallback (pIBD->frameWidget, XmNhelpCallback,
@@ -539,6 +542,9 @@ void MakeScrolledWindow (WmWorkspaceData *pWS, IconBoxData *pIBD)
 					pIBD->frameWidget,
 					(ArgList)setArgs, i);
 
+    if (pIBD->scrolledWidget == NULL)
+        return (FALSE);
+
 #ifndef MOTIF_ONE_DOT_ONE
     XtAddCallback(pIBD->scrolledWidget, XmNtraverseObscuredCallback,
 		  (XtCallbackProc) IconScrollVisibleCallback, (caddr_t)NULL);
@@ -549,8 +555,7 @@ void MakeScrolledWindow (WmWorkspaceData *pWS, IconBoxData *pIBD)
 			False, 
 			(XtEventHandler)UpdateIncrements, 
 			(XtPointer) pIBD);
-
-
+    return (TRUE);
 
 } /* END OF FUNCTION MakeScrolledWindow */
 
@@ -586,7 +591,7 @@ void MakeScrolledWindow (WmWorkspaceData *pWS, IconBoxData *pIBD)
  * 
  *************************************<->***********************************/
 
-void MakeBulletinBoard (WmWorkspaceData *pWS, IconBoxData *pIBD)
+Boolean MakeBulletinBoard (WmWorkspaceData *pWS, IconBoxData *pIBD)
 {
 
     int i;
@@ -632,6 +637,8 @@ void MakeBulletinBoard (WmWorkspaceData *pWS, IconBoxData *pIBD)
 					pIBD->scrolledWidget,
 					(ArgList)setArgs, i);
 
+    return (pIBD->bBoardWidget != NULL);
+
 } /* END OF FUNCTION MakeBulletinBoard */
 
 
@@ -673,18 +680,24 @@ void MakeBulletinBoard (WmWorkspaceData *pWS, IconBoxData *pIBD)
  * 
  *************************************<->***********************************/
 
-void RealizeIconBox (WmWorkspaceData *pWS, IconBoxData *pIBD, ClientData *pCD)
+Boolean RealizeIconBox (WmWorkspaceData *pWS, IconBoxData *pIBD, ClientData *pCD)
 {
 
     int i;
     Arg getArgs[10]; 
     Arg setArgs[2]; 
-    Widget clipWidget;
+    Widget clipWidget = NULL;
     Pixmap  bgPixmap;
     Pixmap defaultImage;
     
 
+    if (pIBD->shellWidget == NULL || pIBD->scrolledWidget == NULL ||
+        pIBD->bBoardWidget == NULL || pCD == NULL)
+        return (FALSE);
+
     XtRealizeWidget (pIBD->shellWidget);
+    if (!XtIsRealized (pIBD->shellWidget))
+        return (FALSE);
 
     pCD->client = XtWindow (pIBD->shellWidget);
 
@@ -717,6 +730,9 @@ void RealizeIconBox (WmWorkspaceData *pWS, IconBoxData *pIBD, ClientData *pCD)
     i=0;
     XtSetArg (getArgs[i], XmNclipWindow, (XtArgVal) &clipWidget ); i++;
     XtGetValues (pIBD->scrolledWidget, getArgs, i);
+
+    if (clipWidget == NULL)
+        return (FALSE);
 
     /*
      * Set the background of the clip window for the scrolled 
@@ -751,8 +767,8 @@ void RealizeIconBox (WmWorkspaceData *pWS, IconBoxData *pIBD, ClientData *pCD)
                                                   None, iImage_width,
                                                   iImage_height, 1);
     }
-    
-    
+    return (TRUE);
+
 } /* END OF FUNCTION RealizeIconBox */
 
 
