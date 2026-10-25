@@ -1,3 +1,9 @@
+Mrm widget-tree child bounds (2026-10-25)
+===========================================
+
+- Bound child-list offsets and counts before widget-tree iteration; see
+  `docs/mrm-create-tree-children-bounds.md`.
+
 Mrm widget record offset bounds (2026-10-25)
 ===============================================
 
