@@ -1020,6 +1020,7 @@ register int height)
    int size2;
    int size3;
    int pos_top, pos_left, pos_bottom, pos_right;
+   XRectangle *new_rects;
 
    if (size <= 0) return;
    if (size == 1) 
@@ -1043,13 +1044,18 @@ register int height)
    
    if (rect_count == 0)
    {
-      rects = (XRectangle *) XtMalloc (sizeof (XRectangle) * size * 4);
+      new_rects = (XRectangle *) XtMalloc (sizeof (XRectangle) * size * 4);
+      if (new_rects == NULL) return;
+      rects = new_rects;
       rect_count = size;
    }
 
    if (rect_count < size)
    {
-      rects = (XRectangle *) XtRealloc((char *)rects, sizeof (XRectangle) * size * 4);
+      new_rects = (XRectangle *) XtRealloc((char *)rects,
+						 sizeof (XRectangle) * size * 4);
+      if (new_rects == NULL) return;
+      rects = new_rects;
       rect_count = size;
    }
 

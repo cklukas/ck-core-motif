@@ -10115,7 +10115,7 @@ Legacy charset canonicalization allocation guards (2026-10-25)
 Legacy shadow-buffer allocation guards (2026-10-25)
 ===================================================
 
-- Preserve the cached shadow rectangle buffer when initial allocation or
+- Preserve both cached shadow rectangle buffers when initial allocation or
   growth fails, avoiding null writes during legacy drawing; see
   `docs/draw-shadow-allocation.md`.
 
