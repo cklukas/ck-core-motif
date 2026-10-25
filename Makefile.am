@@ -125,6 +125,7 @@ EXTRA_DIST += tests/automated/check-mwm-multiscreen-selection.py docs/mwm-multis
 EXTRA_DIST += tests/automated/check-mwm-fscreen-default.py docs/mwm-fscreen-default.md
 EXTRA_DIST += tests/automated/check-mwm-icon-resource-bounds.py docs/mwm-icon-resource-bounds.md
 EXTRA_DIST += tests/automated/check-mwm-menutree-bounds.py docs/mwm-menutree-bounds.md
+EXTRA_DIST += tests/automated/check-screen-lookup-bounds.py docs/screen-lookup-bounds.md
 EXTRA_DIST += tests/automated/check-tablist-debug-bounds.py docs/tablist-debug-bounds.md
 EXTRA_DIST += tests/automated/check-charset-canonicalize-bounds.py docs/charset-canonicalization-bounds.md
 EXTRA_DIST += tests/automated/check-tabstack-atom-name.py docs/tabstack-atom-name.md
