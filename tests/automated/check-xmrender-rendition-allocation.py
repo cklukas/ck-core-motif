@@ -24,6 +24,11 @@ table_region = source[table_start:table_end]
 assert "if (table == NULL)" in table_region
 assert "if (newtable == NULL)" in table_region
 assert "XtFree((char *)table);" in table_region
+mrend_start = source.index("_XmCreateRendition(Widget parent")
+mrend_end = source.index("/* Free data structure", mrend_start)
+mrend_region = source[mrend_start:mrend_end]
+assert "if (rt == NULL || GetPtr(rt) == NULL)" in mrend_region
+assert "if (rend == NULL)" in mrend_region
 add_start = source.index("XmRenderTableAddRenditions(")
 add_end = source.index("/* Remove matching renditions. */", add_start)
 add_region = source[add_start:add_end]

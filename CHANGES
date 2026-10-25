@@ -207,6 +207,8 @@ Render-table locking (2026-10-26)
   `docs/render-table-rendition-create.md`.
 - Guard table body and handle allocation in `_XmCreateRenderTable`; see
   `docs/render-table-mrm-create.md`.
+- Make `_XmCreateRendition` validate its parent/table handle and failed
+  rendition allocation before lookup; see `docs/render-table-mrm-rendition.md`.
 - Roll back shared-table cloning in `_XmRenderTableRemoveRenditions` when a
   table body, handle, or rendition copy cannot be allocated; see
   `docs/render-table-removal.md`.

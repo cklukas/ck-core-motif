@@ -2610,11 +2610,16 @@ _XmCreateRendition(Widget parent,
   XmRenderTable		rt = (XmRenderTable)parent;
   _XmRenderTable	table;
   XmRendition		rend;
+
+  if (rt == NULL || GetPtr(rt) == NULL)
+    return((Widget)NULL);
   
   table = GetPtr(rt);
   
   rend = _XmRenditionCreate(_XmRTDisplay(rt), NULL, XmS, XmCRenderTable,
 			    name, arglist, argcount, NULL);
+  if (rend == NULL)
+    return((Widget)NULL);
   
   /* Ignore repeats */
   if (_XmRenderTableFindRendition(rt, _XmRendTag(rend),
