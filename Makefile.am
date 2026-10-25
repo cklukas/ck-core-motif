@@ -965,6 +965,7 @@ EXTRA_DIST += tests/automated/check-mwm-db-name-suffix.py docs/mwm-db-name-suffi
 EXTRA_DIST += tests/automated/check-mwm-home-path.py docs/mwm-home-path.md
 EXTRA_DIST += tests/automated/check-mwm-session-path.py docs/mwm-session-path.md
 EXTRA_DIST += tests/automated/check-mwm-locale-allocation.py docs/mwm-locale-allocation.md
+EXTRA_DIST += tests/automated/check-mwm-system-menu-allocation.py docs/mwm-system-menu-allocation.md
 
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 

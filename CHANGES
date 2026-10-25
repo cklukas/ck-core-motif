@@ -11308,3 +11308,9 @@ MWM locale-copy allocation (2026-10-25)
 
 - Check locale-string lengths before converting them to Xt allocation sizes;
   see `docs/mwm-locale-allocation.md`.
+
+MWM localized system-menu allocation (2026-10-25)
+==================================================
+
+- Check generated localized system-menu lengths before converting them to Xt
+  allocation sizes; see `docs/mwm-system-menu-allocation.md`.

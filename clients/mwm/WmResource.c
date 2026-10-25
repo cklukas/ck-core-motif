@@ -199,6 +199,7 @@ void InitBuiltinSystemMenu(void)
     char *CloString = NULL;
     char *dsm;
     int dsm_length;
+    size_t dsm_size;
     Boolean gotItAll;
     gotItAll = True;
     if(gotItAll)
@@ -445,8 +446,10 @@ void InitBuiltinSystemMenu(void)
                 defaultSystemMenuName, ResString, MovString, SizString,
                 MinString, MaxString, LowString, CloString);
 	
-	if ((builtinSystemMenu =
-	     (char *)XtMalloc ((unsigned int) (strlen(dsm) + 1))) == NULL)
+	dsm_size = strlen(dsm);
+	if (dsm_size >= UINT_MAX ||
+	    (builtinSystemMenu =
+	     (char *)XtMalloc ((Cardinal)(dsm_size + 1))) == NULL)
 	{
 	   Warning (((char *)GETMESSAGE(62, 21, "Insufficient memory for localized default system menu")));
 #ifdef WSM
