@@ -2577,6 +2577,7 @@ PreparePostFromList(
         XmRowColumnWidget rowcol )
 {
    Widget * tempPtr;
+   Widget * newList;
    Boolean forceParent = FALSE;
    int i;
    
@@ -2593,12 +2594,23 @@ PreparePostFromList(
 	  rowcol->row_column.postFromCount = 0;
    }
 
-   /* malloc enough space for 1 more addition to the list */
-   rowcol->row_column.postFromListSize = rowcol->row_column.postFromCount + 1;
+   /* Allocate enough space for one more addition without publishing a
+    * partially initialized list. */
+   if (rowcol->row_column.postFromCount > INT_MAX - 1 ||
+       (size_t)(rowcol->row_column.postFromCount + 1) >
+           SIZE_MAX / sizeof(Widget) ||
+       (size_t)(rowcol->row_column.postFromCount + 1) >
+           UINT_MAX / sizeof(Widget))
+      return;
 
    tempPtr = rowcol->row_column.postFromList;
-   rowcol->row_column.postFromList = (Widget *)
-       XtMalloc (rowcol->row_column.postFromListSize * sizeof(Widget));
+   newList = (Widget *)XtMalloc((Cardinal)(sizeof(Widget) *
+                                  (size_t)(rowcol->row_column.postFromCount + 1)));
+   if (newList == NULL)
+      return;
+   rowcol->row_column.postFromList = newList;
+   rowcol->row_column.postFromListSize =
+       rowcol->row_column.postFromCount + 1;
 
    if (tempPtr)
    {
@@ -2612,6 +2624,7 @@ PreparePostFromList(
       {
 	 _XmRC_AddToPostFromList ( rowcol, tempPtr[i]);
       }
+      XtFree((char *)tempPtr);
    }
    else if (forceParent)
    {

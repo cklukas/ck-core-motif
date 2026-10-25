@@ -5767,6 +5767,13 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+RowColumn post-from-list preparation (2026-10-25)
+==================================================
+
+- Make popup post-from-list preparation transactional, check Xt `Cardinal`
+  limits, and release the replaced list after copying; see
+  `docs/rcpopup-list-allocation.md`.
+
 Container selection snapshot allocation cast (2026-10-25)
 ==========================================================
 
