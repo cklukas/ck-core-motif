@@ -1328,11 +1328,12 @@ MergeEnds(_XmStringEntry a,
 
 	  total_count = (int)a_count + (int)b_count;
 	  if (total_count < 0 ||
-	      (size_t)total_count > SIZE_MAX / sizeof(XmStringTag))
+	      (size_t)total_count > SIZE_MAX / sizeof(XmStringTag) ||
+	      (size_t)total_count > UINT_MAX / sizeof(XmStringTag))
 	    return;
 	  new_ends = (XmStringTag *)XtRealloc(
 	      (char *)_XmUnoptSegRendEnds(a),
-	      sizeof(XmStringTag) * (size_t)total_count);
+	      (Cardinal)(sizeof(XmStringTag) * (size_t)total_count));
 	  if (new_ends == NULL)
 	    return;
 	  _XmUnoptSegRendEnds(a) = new_ends;
@@ -1372,11 +1373,12 @@ MergeBegins(_XmStringEntry a,
 
 	  total_count = (int)a_b_cnt + (int)b_b_cnt;
 	  if (total_count < 0 ||
-	      (size_t)total_count > SIZE_MAX / sizeof(XmStringTag))
+	      (size_t)total_count > SIZE_MAX / sizeof(XmStringTag) ||
+	      (size_t)total_count > UINT_MAX / sizeof(XmStringTag))
 	    return;
 	  new_begins = (XmStringTag *)XtRealloc(
 	      (char *)_XmUnoptSegRendBegins(a),
-	      sizeof(XmStringTag) * (size_t)total_count);
+	      (Cardinal)(sizeof(XmStringTag) * (size_t)total_count));
 	  if (new_begins == NULL)
 	    return;
 	  _XmUnoptSegRendBegins(a) = new_begins;

@@ -10667,6 +10667,12 @@ Legacy charset canonicalization allocation guards (2026-10-25)
   strings, returning `NULL` on failure; see
   `docs/charset-canonicalize-allocation.md`.
 
+Bound XmString rendition merge byte sizes (2026-10-26)
+=======================================================
+
+- Reject combined rendition tag arrays that exceed Xt's `Cardinal` allocation
+  width before growing them; see `docs/xmstring-rendition-merge.md`.
+
 Bound GeoUtils scratch-table byte sizes (2026-10-26)
 =====================================================
 
