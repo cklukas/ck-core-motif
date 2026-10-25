@@ -3805,6 +3805,13 @@ Guard compound-text iconv output allocation (2026-10-25)
   buffer on failure instead of continuing with invalid storage; see
   `docs/motif-resencod-iconv.md`.
 
+Guard compound-text custom charset prefixes (2026-10-25)
+==========================================================
+
+- Bound custom character-set prefix arithmetic against the output-length and
+  allocation contracts, and report allocation failure without replacing the
+  existing output; see `docs/motif-resencod-prefix.md`.
+
 Handle single text-property copy failure (2026-10-25)
 ======================================================
 
