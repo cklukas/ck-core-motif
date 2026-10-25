@@ -1219,8 +1219,13 @@ CloneRendition(XmRendition rend)
   if (rend == NULL) return(NULL);
   
   copy = (_XmRendition)XtMalloc(sizeof(_XmRenditionRec));
+  if (copy == NULL) return(NULL);
   bzero((char*)copy, sizeof(_XmRenditionRec));
   copy_handle = GetHandle(_XmRendition);
+  if (copy_handle == NULL) {
+    XtFree((char *)copy);
+    return(NULL);
+  }
   SetPtr(copy_handle, copy);
   
   _XmRendFontOnly(copy_handle) = FALSE;
@@ -1239,6 +1244,7 @@ RenewRendition(XmRendition rend)
   if (rend == NULL) return(NULL);
   
   copy = (_XmRendition)XtMalloc(sizeof(_XmRenditionRec));
+  if (copy == NULL) return(NULL);
   memcpy((char *)copy, (char *)GetPtr(rend), sizeof(_XmRenditionRec));
   SetPtr(rend, copy);
   
@@ -1274,6 +1280,10 @@ CopyRendition(XmRendition rend)
   else 
     {
       copy = GetHandle(_XmRendition);
+      if (copy == NULL) {
+        _XmRendRefcountDec(rend);
+        return(NULL);
+      }
       SetPtr(copy, GetPtr(rend));
       return(copy);
     }
@@ -1294,6 +1304,7 @@ _XmRenditionCopy(XmRendition rend,
 
   if (shared) toRend = CopyRendition(rend);
   else toRend = CloneRendition(rend);
+  if (toRend == NULL) return(NULL);
 
   /* If we had to clone, copy the 'scratch' info. */
   if (*toRend != *rend)
@@ -1319,7 +1330,7 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 			   Cardinal rendition_count,
 			   XmMergeMode merge_mode)
 {
-  int			i, next, copy_start;
+  int			i, j, next, copy_start;
   int			count = rendition_count;
   size_t		append_count;
   XmRendition		rend, match, copy;
@@ -1333,6 +1344,9 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
   if ((renditions == NULL) || (rendition_count == 0) ||
       (rendition_count > INT_MAX))
     return(oldtable);
+  for (i = 0; i < rendition_count; ++i)
+    if (renditions[i] == NULL)
+      return(oldtable);
 
 #ifdef XTHREADS
   if (_XmRendDisplay(renditions[0]))
@@ -1356,7 +1370,13 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 				(sizeof(XmRendition) *
 				 (rendition_count -
 				  RENDITIONS_IN_STRUCT)));
+      if (table == NULL)
+	goto unlock_return;
       oldtable = GetHandle(_XmRenderTable);
+      if (oldtable == NULL) {
+	XtFree((char *)table);
+	goto unlock_return;
+      }
       SetPtr(oldtable, table);
 
       _XmRTCount(oldtable) = rendition_count;
@@ -1367,6 +1387,8 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
       for (i = 0; i < rendition_count; i++)
 	{
 	  _XmRTRenditions(oldtable)[i] = CopyRendition(renditions[i]);
+	  if (_XmRTRenditions(oldtable)[i] == NULL)
+	goto initial_copy_failed;
 	  if (_XmRTDisplay(oldtable) == NULL)
 	    _XmRTDisplay(oldtable) = _XmRendDisplay(renditions[i]);
 	}
@@ -1377,6 +1399,8 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 	goto unlock_return;
       matches =
 	(Boolean *)ALLOCATE_LOCAL(rendition_count * sizeof(Boolean));
+      if (matches == NULL)
+	goto unlock_return;
       bzero(matches, rendition_count * sizeof(Boolean));
       
       /* May have to copy table if shared. */
@@ -1545,6 +1569,10 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 	{
 	  table = GetPtr(oldtable);
 	  newtable = GetHandle(_XmRenderTable);
+	  if (newtable == NULL) {
+	    DEALLOCATE_LOCAL((char *)matches);
+	    goto unlock_return;
+	  }
 	  SetPtr(newtable, table);
 	  FreeHandle(oldtable);
 	}
@@ -1564,6 +1592,16 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
   }
 #endif
   return(oldtable);
+
+initial_copy_failed:
+  for (j = 0; j < i; ++j) {
+    FreeRendition(_XmRTRenditions(oldtable)[j]);
+    FreeHandle(_XmRTRenditions(oldtable)[j]);
+  }
+  XtFree((char *)GetPtr(oldtable));
+  FreeHandle(oldtable);
+  oldtable = NULL;
+  goto unlock_return;
 
 append_copy_failed:
   while (next > copy_start) {

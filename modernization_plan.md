@@ -1957,11 +1957,13 @@ the installed Xft `font-lifetime` fixture cover count guards, unique and shared
 removal, ownership retention and empty-table behavior. The full libXm rebuild
 and gallery integration pass on `uconsole`. The unmatched-rendition append path
 also rolls back replacement bodies and copied handles before returning the
-source table on allocation or copy failure. Further peer render-table changes
-remain separate packages until their earlier-branch dependencies are reviewed;
-shared-table merge-copy rollback is now covered as the next slice.
+source table on allocation or copy failure. Shared-table merge-copy rollback is
+also covered in this slice. Further peer render-table changes remain separate
+packages until their earlier-branch dependencies are reviewed.
 Merge replacement and copy-on-write clone failures now preserve their
-existing rendition as well.
+existing rendition as well. Rendition helper and initial-table allocation
+failures are guarded and rollback-safe; the exact Xft `font-lifetime` fixture
+and the no-Xft gallery integration both pass on `uconsole`.
 
 ## Acceptance criteria for every increment
 

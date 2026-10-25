@@ -19,6 +19,8 @@ Bound render-table count arithmetic (2026-10-25)
   rendition entries cannot be allocated.
 - Preserve existing renditions when merge replacement or copy-on-write cloning
   cannot allocate a replacement entry.
+- Make render-table creation and shared-copy setup fail closed on null input or
+  body, handle, rendition, and match-array allocation failure.
 
 Make render-table removal transactional (2026-10-25)
 =====================================================

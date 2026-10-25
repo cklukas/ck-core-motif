@@ -3,6 +3,17 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmRenderT.c").read_text(encoding="utf-8")
+clone_start = source.index("CloneRendition(")
+clone_end = source.index("/* Set the old handle", clone_start)
+clone_region = source[clone_start:clone_end]
+assert "if (copy == NULL) return(NULL);" in clone_region
+assert "if (copy_handle == NULL)" in clone_region
+copy_start = source.index("CopyRendition(")
+copy_end = source.index("/* Make a copy of a rendition", copy_start)
+copy_region = source[copy_start:copy_end]
+assert "_XmRendRefcountDec(rend);" in copy_region
+print("PASS render-table rendition helper allocations are rollback-safe")
+
 start = source.index("XmRenderTableAddRenditions(")
 end = source.index("/* One body owns each entry handle", start)
 region = source[start:end]
@@ -22,6 +33,10 @@ assert "copy = CopyRendition(rend);" in region
 assert "copy = CloneRendition(previous);" in region
 assert "copy = CloneRendition(rend);" in region
 assert "if (copy == NULL)" in region
+assert "if (matches == NULL)" in region
+assert "initial_copy_failed:" in region
+assert "for (j = 0; j < i; ++j)" in region
+assert "if (renditions[i] == NULL)" in region
 assert "goto unlock_return;" in region
 print("PASS render-table count and allocation-size guards")
 

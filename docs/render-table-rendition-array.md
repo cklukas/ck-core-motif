@@ -28,6 +28,10 @@ Merge replacement and copy-on-write modes allocate their replacement before
 releasing the existing rendition. A failed clone therefore preserves the
 existing entry instead of publishing a null slot.
 
+Table creation validates rendition pointers and rolls back every copied entry
+if the table body, public handle, or an entry copy cannot be allocated. The
+shared-copy path also treats a failed temporary match array as a no-op.
+
 Removal uses a planning pass and publishes the compacted table only after its
 replacement storage and copied rendition handles are ready. Allocation failure
 therefore leaves the original table and its ownership unchanged; see
