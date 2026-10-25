@@ -2214,6 +2214,8 @@ Urm__CW_ConvertValue (Widget			parent,
     {
     case MrmRtypeChar8:
       {
+        if ( *val == 0 )
+          return MrmFAILURE ;
         switch ( cvttype )
 	  {
 	  case MrmRtypeCString:

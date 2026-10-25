@@ -1,3 +1,9 @@
+Mrm Char8 conversion null-source check (2026-10-25)
+====================================================
+
+- Reject null Char8 values before toolkit string and translation converters;
+  see `docs/mrm-convert-char8-null.md`.
+
 Mrm font conversion validation (2026-10-25)
 =============================================
 
