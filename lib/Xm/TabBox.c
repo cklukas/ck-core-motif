@@ -4618,7 +4618,8 @@ HorizontalBasicLayout(tab)
     XiTabRect  *actual = XmTabBox__actual(tab);
     XRectangle *wanted = XmTabBox__wanted(tab);
 
-    x = LayoutIsRtoLP(tab) ? (tab->core.width - wanted[0].width) : 0;
+    x = LayoutIsRtoLP(tab) ?
+	(int) tab->core.width - (int) wanted[0].width : 0;
     height = XtHeight(tab);
     for( i = 0; i < cnt; ++i )
     {

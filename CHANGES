@@ -7306,3 +7306,11 @@ ScrollBar arrow position bounds (2026-10-26)
 
 Input-method area geometry bounds (2026-10-26)
 ==============================================
+TabBox right-to-left placement bounds (2026-10-26)
+===================================================
+
+- Use signed arithmetic for the initial right-to-left tab origin, preventing
+  wrapped positions in narrow TabBoxes; see `docs/tabbox-rtl-placement.md`.
+
+ScrollBar arrow position bounds (2026-10-26)
+============================================
