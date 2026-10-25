@@ -100,9 +100,11 @@ def main():
             print(selection_log.read_text(errors="replace"), file=sys.stderr)
             return 1
     observer_log = output / "observer.log"
+    observer_run = [str(observer_binary)] if args.display else [
+        "xvfb-run", "-a", "-s", "-screen 0 1024x768x24", str(observer_binary)
+    ]
     with observer_log.open("w") as stream:
-        if subprocess.run(["xvfb-run", "-a", "-s", "-screen 0 1024x768x24",
-                           str(observer_binary)], env=env, stdout=stream,
+        if subprocess.run(observer_run, env=env, stdout=stream,
                           stderr=subprocess.STDOUT).returncode:
             print(observer_log.read_text(errors="replace"), file=sys.stderr)
             return 1
@@ -111,7 +113,8 @@ def main():
     observer_result = observer_log.read_text(errors="replace")
     if ("PASS XLibre RandR DPI contract and non-XLibre fallback" not in result or
             "PASS XLibre shell output selection policy" not in selection_result or
-            "PASS XLibre shell observer fallback" not in observer_result):
+            ("PASS XLibre shell observer fallback" not in observer_result and
+             "PASS XLibre shell observer registration" not in observer_result)):
         print(result, file=sys.stderr)
         print(selection_result, file=sys.stderr)
         print(observer_result, file=sys.stderr)

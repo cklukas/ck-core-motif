@@ -39,6 +39,10 @@ Native dependency-cohort qualification (2026-10-25)
   toolkit results. The native text/IME matrix documents the interrupted
   clipboard-transfer boundary.
 
+The XLibre contract runner now executes its shell observer on the supplied
+real display, checking registration and scale lookup there; its Xvfb path
+continues to require ordinary-server fallback.
+
 Source-contract verifier maintenance (2026-10-25)
 ==================================================
 

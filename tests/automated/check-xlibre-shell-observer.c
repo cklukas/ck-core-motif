@@ -1,4 +1,4 @@
-/* Verify that the optional shell observer is inert on ordinary X servers. */
+/* Verify optional shell-observer fallback and supported-server registration. */
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -13,18 +13,26 @@ main(int argc, char **argv)
 {
     XtAppContext app;
     Widget shell;
+    double scale;
+    Boolean installed;
 
     shell = XtVaAppInitialize(&app, (String)"XlibreObserver", NULL, 0,
                               &argc, argv, NULL, NULL);
     XtRealizeWidget(shell);
-    if (_XmXlibreDpiInstallShell(shell, NULL, NULL)) {
-        fprintf(stderr, "ordinary X server was treated as XLibre\n");
-        XtDestroyWidget(shell);
-        XtDestroyApplicationContext(app);
-        return EXIT_FAILURE;
+    installed = _XmXlibreDpiInstallShell(shell, NULL, NULL);
+    if (installed) {
+        if (!_XmXlibreDpiGetWidgetScale(shell, &scale) || scale <= 0.0 ||
+            !_XmXlibreDpiInstallShell(shell, NULL, NULL)) {
+            fprintf(stderr, "XLibre shell observer registration failed\n");
+            XtDestroyWidget(shell);
+            XtDestroyApplicationContext(app);
+            return EXIT_FAILURE;
+        }
+        puts("PASS XLibre shell observer registration");
+    } else {
+        puts("PASS XLibre shell observer fallback");
     }
     XtDestroyWidget(shell);
     XtDestroyApplicationContext(app);
-    puts("PASS XLibre shell observer fallback");
     return EXIT_SUCCESS;
 }
