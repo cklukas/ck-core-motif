@@ -89,3 +89,71 @@ _XmXlibreDpiGetOutputDpi(Display *display,
     XFree(data);
     return valid;
 }
+
+static long long
+_XmXlibreDpiDistance(long long center,
+                     long long begin,
+                     unsigned int size)
+{
+    long long end;
+    long long distance;
+
+    if (size == 0)
+        return -1;
+    end = begin + (long long)size - 1;
+    if (center < begin)
+        distance = begin - center;
+    else if (center > end)
+        distance = center - end;
+    else
+        distance = 0;
+    return distance;
+}
+
+RROutput
+_XmXlibreDpiSelectOutput(const _XmXlibreDpiOutput *outputs,
+                         size_t output_count,
+                         const _XmXlibreDpiRect *client_area)
+{
+    long long center_x;
+    long long center_y;
+    RROutput selected = None;
+    long long selected_distance = 0;
+    size_t i;
+
+    if (outputs == NULL || output_count == 0 || client_area == NULL ||
+        client_area->width == 0 || client_area->height == 0)
+        return None;
+
+    center_x = (long long)client_area->x + client_area->width / 2;
+    center_y = (long long)client_area->y + client_area->height / 2;
+    for (i = 0; i < output_count; ++i) {
+        const _XmXlibreDpiRect *geometry = &outputs[i].geometry;
+        long long left = geometry->x;
+        long long top = geometry->y;
+        long long right;
+        long long bottom;
+        long long dx;
+        long long dy;
+        long long distance;
+
+        if (geometry->width == 0 || geometry->height == 0 ||
+            outputs[i].output == None)
+            continue;
+        right = left + geometry->width;
+        bottom = top + geometry->height;
+        dx = _XmXlibreDpiDistance(center_x, left, geometry->width);
+        dy = _XmXlibreDpiDistance(center_y, top, geometry->height);
+        distance = dx + dy;
+        if (center_x >= left && center_x < right && center_y >= top &&
+            center_y < bottom)
+            distance = 0;
+
+        if (selected == None || distance < selected_distance ||
+            (distance == selected_distance && outputs[i].output < selected)) {
+            selected = outputs[i].output;
+            selected_distance = distance;
+        }
+    }
+    return selected;
+}

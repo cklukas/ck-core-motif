@@ -3638,3 +3638,10 @@ Mrm writer resource-reference validation (2026-10-25)
 - Propagate context and argument-binding failures from
   `UrmCWRSetArgResourceRef` before and after appending its resource descriptor;
   see `docs/mrm-writer-resource-ref-validation.md`.
+XLibre shell-output selection contract (2026-10-25)
+====================================================
+
+- Define and test deterministic internal XLibre shell-output selection: choose
+  the client-area center, then nearest output with lowest-ID tie-breaking,
+  while retaining the global-DPI fallback for invalid geometry; see
+  `docs/xlibre-dpi-contract.md`.

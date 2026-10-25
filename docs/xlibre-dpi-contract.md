@@ -18,10 +18,18 @@ not become a zero or guessed scale. The optional build is disabled by default;
 requesting it without the Xrandr development header and library fails during
 configuration rather than producing a partially working library.
 
-This package only validates and reads the property. It intentionally does not
-yet select an output for a shell, subscribe to RandR events or reflow realized
+The internal shell-boundary policy is now defined without changing the public
+Widget ABI. For a realized shell client area, the output containing its center
+is selected. If the center is in no output (for example while a window is in a
+gap), the nearest output rectangle is selected using the sum of horizontal and
+vertical distances; equal distances use the lowest RandR output id. Empty or
+invalid geometry returns `None`, allowing the caller to retain the existing
+global-DPI fallback. All descendants of a shell will therefore have one
+selected scale rather than mixing output scales.
+
+This package still does not subscribe to RandR events or reflow realized
 widgets. Those operations require a separate UI-thread transaction contract.
-The installed fixture checks the parser's valid and invalid cases and verifies
-that ordinary Xvfb falls back safely. Pass `--display` to the runner when a
-real XLibre display is available; in that mode every reported output must
-expose a valid `DPI` property.
+The installed fixture checks the parser, ordinary-Xvfb fallback and this
+selection policy. Pass `--display` to the runner when a real XLibre display is
+available; in that mode every reported output must expose a valid `DPI`
+property.

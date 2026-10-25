@@ -5,6 +5,7 @@
 #include <X11/Xlib.h>
 #include <X11/Intrinsic.h>
 #include <X11/extensions/Xrandr.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,6 +27,24 @@ Boolean _XmXlibreDpiServerSupported(Display *display);
 Boolean _XmXlibreDpiGetOutputDpi(Display *display,
                                  RROutput output,
                                  double *dpi_return);
+
+/* Internal shell-boundary geometry; coordinates are root-window pixels. */
+typedef struct {
+    int x;
+    int y;
+    unsigned int width;
+    unsigned int height;
+} _XmXlibreDpiRect;
+
+typedef struct {
+    RROutput output;
+    _XmXlibreDpiRect geometry;
+} _XmXlibreDpiOutput;
+
+/* Select the center-containing, or nearest, output with stable ID tie-break. */
+RROutput _XmXlibreDpiSelectOutput(const _XmXlibreDpiOutput *outputs,
+                                  size_t output_count,
+                                  const _XmXlibreDpiRect *client_area);
 
 #ifdef __cplusplus
 }
