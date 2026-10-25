@@ -739,7 +739,7 @@ XmGetIconFileName(
 	/*
 	 * optimization to check all expansions in cache
 	 */
-	if (!fileName) {
+	if (!fileName && iconNameCache != NULL) {
 	    DtIconNameEntry iNameEntry;
 	    DtIconNameEntryRec  iNameData ;
 
@@ -889,10 +889,17 @@ XmGetIconFileName(
 	   }
         }
 
-	_XmProcessLock();
-        _XmAddHashEntry(iconNameCache, (XmHashKey)iNameEntry, 
-			(XtPointer)iNameEntry);
-	_XmProcessUnlock();
+	if (iconNameCache != NULL) {
+	    _XmProcessLock();
+	    _XmAddHashEntry(iconNameCache, (XmHashKey)iNameEntry,
+			    (XtPointer)iNameEntry);
+	    _XmProcessUnlock();
+	} else {
+	    XtFree(iNameEntry->leafName);
+	    XtFree(iNameEntry->dirName);
+	    XtFree(iNameEntry->key_name);
+	    XtFree((char *)iNameEntry);
+	}
     }
 
 skip_icon_name_cache:

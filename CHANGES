@@ -1,3 +1,10 @@
+Handle icon-file cache-table allocation failure (2026-10-25)
+===============================================================
+
+- Treat the optional icon-name hash table as unavailable when allocation
+  fails, skipping lookup/insertion and releasing temporary entries; see
+  `docs/motif-iconfile-cache-table.md`.
+
 Guard cached icon path copies (2026-10-25)
 ===========================================
 
