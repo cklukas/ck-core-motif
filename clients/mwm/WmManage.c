@@ -1593,6 +1593,11 @@ void FreeIcon (ClientData *pCD)
     int i;
 #endif /* WSM */
 
+    if (pCD == NULL || pCD->pSD == NULL)
+    {
+        return;
+    }
+
     if (pCD->piconTopShadows) {
 	FreeRList (pCD->piconTopShadows);
 	pCD->piconTopShadows = NULL;
@@ -1607,7 +1612,8 @@ void FreeIcon (ClientData *pCD)
      */
 
 #ifdef WSM
-    if ((pCD->pSD->useIconBox) && pCD->pWsList[0].pIconBox)
+    if ((pCD->pSD->useIconBox) && pCD->numInhabited > 0 &&
+        pCD->pWsList != NULL && pCD->pWsList[0].pIconBox)
     {
 	/* 
 	 * We're using icon boxes and it's in at least one ...

@@ -4531,3 +4531,9 @@ Icon-place search guards (2026-10-25)
 
 Icon placement initialization guards (2026-10-25)
 ===================================================
+
+FreeIcon teardown guards (2026-10-25)
+=====================================
+
+- Validate client/screen state and workspace-list bounds before icon cleanup;
+  see `docs/free-icon-guards.md`.
