@@ -6,11 +6,20 @@ interaction test: a component must both remain interactive and produce a
 valid image through the X11 capture path.
 
 For every manifest entry, the runner starts the verified gallery binary with
-`--component ID --screenshot-mode`, locates the mapped `ckmotif-gallery`
+`--component ID --screenshot-mode --appearance PROFILE --scale SCALE`, locates the mapped `ckmotif-gallery`
 top-level window with `xwininfo`, captures that window with `xwd`, and converts
 the native capture to PNG with `xwdtopnm` and `pnmtopng`. It selects the
 largest mapped window with that exact title and ignores the 1x1 withdrawn
 placeholder that some window managers expose during shell startup.
+
+`PROFILE` is one of `classic`, `modern-light`, `high-contrast` or
+`modern-dark`. `SCALE` is a finite positive display-scale override no greater
+than 64. The gallery applies these through the public
+`XmApplyAppearanceProfile` and `XmSetDisplayScaleOverride` APIs after
+realization; a failed transaction terminates the scenario instead of
+producing an unlabeled image. The runner records both values in
+`receipt.json`, so captures at different settings cannot be confused with
+the default profile.
 
 The runner terminates each child and drains its diagnostic pipe before moving
 to the next entry. If a component exits before its window appears, the
@@ -31,7 +40,8 @@ On Linux, a qualification run can use a task-owned display and output path:
 ```sh
 DISPLAY=:121 python3 tests/automated/run-gallery-screenshots.py \
   --binary /absolute/path/to/ckmotif-gallery \
-  --out /tmp/ckmotif-gallery-screenshots
+  --out /tmp/ckmotif-gallery-screenshots \
+  --appearance modern-dark --scale 2.0
 ```
 
 On macOS, output must be below `/Volumes/S8T/tmp` or

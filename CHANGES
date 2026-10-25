@@ -17,6 +17,16 @@ Live appearance representative widget matrix (2026-10-25)
   toggle state, callbacks and explicit foreground precedence remain intact;
   see `docs/appearance-profiles.md`.
 
+Gallery screenshot profile and scale controls (2026-10-25)
+============================================================
+
+- Make `--screenshot-mode` qualification explicit: the gallery now accepts
+  strict `--appearance` and `--scale` arguments and applies them through the
+  public live appearance/display-scale transactions after realization. The
+  screenshot runner records those settings and fails on rejected values or
+  failed transactions, enabling an auditable profile/scale matrix; see
+  `docs/modern-gallery-screenshot-qualification.md`.
+
 ColorPicker redisplay font-resource contract (2026-10-25)
 ============================================================
 

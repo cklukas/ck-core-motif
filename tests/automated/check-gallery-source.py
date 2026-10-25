@@ -42,6 +42,12 @@ def main() -> int:
         if api not in source_contract:
             print(f"gallery shell is missing {api}", file=sys.stderr)
             return 1
+    for contract in ("parse_appearance", "parse_scale", "XmApplyAppearanceProfile",
+                     "XmSetDisplayScaleOverride", "XSync(XtDisplay(shell), False)"):
+        if contract not in gallery:
+            print(f"gallery screenshot configuration is missing {contract}",
+                  file=sys.stderr)
+            return 1
     for field in ("source_fragment", "interaction", "docs_anchor", "screenshot"):
         if f"entry->{field}" not in gallery:
             print(f"gallery does not consume {field} metadata", file=sys.stderr)
@@ -53,8 +59,13 @@ def main() -> int:
         print("native integration runner is not wired to the gallery", file=sys.stderr)
         return 1
     screenshot_runner = root / "tests/automated/run-gallery-screenshots.py"
-    if "--component" not in screenshot_runner.read_text():
+    screenshot_source = screenshot_runner.read_text()
+    if "--component" not in screenshot_source:
         print("screenshot runner cannot select manifest components", file=sys.stderr)
+        return 1
+    if '"--appearance", args.appearance' not in screenshot_source or \
+            '"--scale", str(args.scale)' not in screenshot_source:
+        print("screenshot runner cannot select profile and scale", file=sys.stderr)
         return 1
     if "--component" not in gallery:
         print("gallery does not expose deterministic component selection", file=sys.stderr)
