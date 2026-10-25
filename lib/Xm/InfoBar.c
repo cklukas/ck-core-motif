@@ -16,7 +16,46 @@ externaldef(xminfobarclassrec) XmInfoBarClassRec xmInfoBarClassRec={{(WidgetClas
 externaldef(xminfobarwidgetclass) WidgetClass xmInfoBarWidgetClass=(WidgetClass)&xmInfoBarClassRec;
 static void Initialize(Widget request,Widget widget,ArgList args,Cardinal*count){XmInfoBarWidget bar=(XmInfoBarWidget)widget;XGCValues values;(void)request;(void)args;(void)count;if(bar->info.severity>XmINFO_SEVERITY_ERROR)bar->info.severity=XmINFO_SEVERITY_INFO;if(!bar->core.width)bar->core.width=360;if(!bar->core.height)bar->core.height=34;values.foreground=bar->primitive.foreground;values.background=bar->core.background_pixel;bar->info.gc=XCreateGC(XtDisplay(widget),DefaultRootWindow(XtDisplay(widget)),GCForeground|GCBackground,&values);XtAddEventHandler(widget,KeyPressMask|ButtonPressMask,False,Events,NULL);}
 static void Destroy(Widget widget){XmInfoBarWidget bar=(XmInfoBarWidget)widget;XtRemoveEventHandler(widget,KeyPressMask|ButtonPressMask,False,Events,NULL);if(bar->info.gc)XFreeGC(XtDisplay(widget),bar->info.gc);}
-static void Redisplay(Widget widget,XEvent*event,Region region){XmInfoBarWidget bar=(XmInfoBarWidget)widget;Display*d=XtDisplay(widget);Window w=XtWindow(widget);char prefix[12];XFontStruct*font;int baseline;(void)event;(void)region;if(!w)return;XClearWindow(d,w);strcpy(prefix,bar->info.severity==XmINFO_SEVERITY_ERROR?"Error: ":bar->info.severity==XmINFO_SEVERITY_WARNING?"Warning: ":"Info: ");font=XQueryFont(d,XGContextFromGC(bar->info.gc));baseline=(int)((bar->core.height+font->ascent-font->descent)/2);XDrawString(d,w,bar->info.gc,8,baseline,prefix,(int)strlen(prefix));XDrawString(d,w,bar->info.gc,8+(int)strlen(prefix)*7,baseline,bar->info.message?bar->info.message:"",bar->info.message?(int)strlen(bar->info.message):0);if(bar->info.action_label)XDrawString(d,w,bar->info.gc,(int)bar->core.width-100,baseline,bar->info.action_label,(int)strlen(bar->info.action_label));if(bar->info.closable){XDrawLine(d,w,bar->info.gc,bar->core.width-18,8,bar->core.width-8,bar->core.height-8);XDrawLine(d,w,bar->info.gc,bar->core.width-8,8,bar->core.width-18,bar->core.height-8);}if(font)XFreeFont(d,font);}
+static void Redisplay(Widget widget, XEvent *event, Region region)
+{
+    XmInfoBarWidget bar = (XmInfoBarWidget)widget;
+    Display *display = XtDisplay(widget);
+    Window window = XtWindow(widget);
+    const char *prefix;
+    XFontStruct *font;
+    int baseline;
+
+    (void)event;
+    (void)region;
+    if (!window || !bar->info.gc)
+        return;
+
+    XClearWindow(display, window);
+    prefix = bar->info.severity == XmINFO_SEVERITY_ERROR ? "Error: " :
+             bar->info.severity == XmINFO_SEVERITY_WARNING ? "Warning: " :
+             "Info: ";
+    font = XQueryFont(display, XGContextFromGC(bar->info.gc));
+    if (!font)
+        return;
+
+    baseline = (int)((bar->core.height + font->ascent - font->descent) / 2);
+    XDrawString(display, window, bar->info.gc, 8, baseline, prefix,
+                (int)strlen(prefix));
+    XDrawString(display, window, bar->info.gc, 8 + (int)strlen(prefix) * 7,
+                baseline, bar->info.message ? bar->info.message : "",
+                bar->info.message ? (int)strlen(bar->info.message) : 0);
+    if (bar->info.action_label)
+        XDrawString(display, window, bar->info.gc,
+                    (int)bar->core.width - 100, baseline,
+                    bar->info.action_label, (int)strlen(bar->info.action_label));
+    if (bar->info.closable) {
+        XDrawLine(display, window, bar->info.gc, bar->core.width - 18, 8,
+                  bar->core.width - 8, bar->core.height - 8);
+        XDrawLine(display, window, bar->info.gc, bar->core.width - 8, 8,
+                  bar->core.width - 18, bar->core.height - 8);
+    }
+    XFreeFont(display, font);
+}
 static void Events(Widget widget,XtPointer data,XEvent*event,Boolean*dispatch){XmInfoBarWidget bar=(XmInfoBarWidget)widget;(void)data;(void)dispatch;if(event->type==ButtonPress){if(bar->info.closable&&event->xbutton.x>(int)bar->core.width-28){XmInfoBarDismiss(widget);return;}if(bar->info.action_label&&event->xbutton.x>(int)bar->core.width-120){XmInfoBarInvokeAction(widget);return;}}if(event->type==KeyPress){KeySym key;char input[2];XLookupString(&event->xkey,input,sizeof(input),&key,NULL);if(key==XK_Escape&&bar->info.closable)XmInfoBarDismiss(widget);}}
 static Boolean SetValues(Widget old_widget,Widget request,Widget widget,ArgList args,Cardinal*count){XmInfoBarWidget old=(XmInfoBarWidget)old_widget,bar=(XmInfoBarWidget)widget;Boolean redraw=False;(void)request;(void)args;(void)count;if(old->info.message!=bar->info.message||old->info.action_label!=bar->info.action_label||old->info.severity!=bar->info.severity||old->info.closable!=bar->info.closable)redraw=True;return redraw;}
 static XtGeometryResult QueryGeometry(Widget widget,XtWidgetGeometry*request,XtWidgetGeometry*reply){(void)widget;(void)request;reply->request_mode=CWWidth|CWHeight;reply->width=360;reply->height=34;return XtGeometryAlmost;}
