@@ -653,3 +653,5 @@ EXTRA_DIST += tests/automated/check-xm-gmutils-query-null.py docs/xm-gmutils-que
 EXTRA_DIST += tests/automated/check-xm-chcolor-null.py docs/xm-chcolor-null.md
 
 EXTRA_DIST += tests/automated/check-xm-paned-getpanes-null.py docs/xm-paned-getpanes-null.md
+
+EXTRA_DIST += tests/automated/check-xm-hierarchy-api-null.py docs/xm-hierarchy-api-null.md

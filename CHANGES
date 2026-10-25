@@ -1,3 +1,9 @@
+XmHierarchy API null-safety (2026-10-25)
+===========================================
+
+- Guard hierarchy ancestor and child-node APIs against null nodes; see
+  `docs/xm-hierarchy-api-null.md`.
+
 XmPanedGetPanes null-safety (2026-10-25)
 =========================================
 

@@ -1489,6 +1489,8 @@ XmHierarchyOpenAllAncestors(Widget nw)
 	{ XmNnodeState, (XtArgVal) XmOpen }
     };
 
+    if (nw == NULL)
+        return;
     _XmWidgetToAppContext(nw);
     _XmAppLock(app);
 
@@ -1522,6 +1524,8 @@ WidgetList XmHierarchyGetChildNodes(Widget nw)
     Cardinal child_count;
     int i;
 
+    if (nw == NULL)
+        return NULL;
     _XmWidgetToAppContext(nw);
     _XmAppLock(app);
 
