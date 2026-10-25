@@ -11,5 +11,9 @@ body = source[start:end]
 
 assert "if (tmp_info == NULL)" in body
 assert "assert(tmp_info != NULL)" not in body
+close_start = source.index("XmImCloseXIM(")
+close = source[close_start:source.index("/*********************", close_start)]
+assert "remove_ref(&xim_info->shell_refs, shell)" in close
+assert "assert((xim_info->shell_refs.refs == NULL)" not in close
 
 print("XmIm stale shell-reference guard: ok")

@@ -46,6 +46,13 @@ XmIm stale-XIM fallback guard (2026-10-26)
   belongs to a different XIM instance instead of asserting; see
   `docs/xmim-stale-xim-fallback.md`.
 
+XmIm close stale-reference cleanup (2026-10-26)
+================================================
+
+- Remove shell references whose extension data was already released while
+  closing an XIM instead of asserting and aborting shutdown; see
+  `docs/xmim-stale-shell-reference.md`.
+
 List single-selection normalization (2026-10-26)
 =================================================
 

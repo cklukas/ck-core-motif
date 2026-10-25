@@ -831,8 +831,12 @@ XmImCloseXIM(Widget w)
     {
       shell = xim_info->shell_refs.refs[0];
       _XmImFreeShellData(shell, get_im_info_ptr(shell, False));
-      assert((xim_info->shell_refs.refs == NULL) ||
-	     (xim_info->shell_refs.refs[0] != shell));
+      /* Extension data may already be gone during teardown.  In that case
+       * _XmImFreeShellData cannot remove the shell reference, so discard the
+       * stale entry here and keep closing the XIM. */
+      if (xim_info->shell_refs.refs != NULL &&
+	  xim_info->shell_refs.refs[0] == shell)
+	(void) remove_ref(&xim_info->shell_refs, shell);
     }
   
   shell = w;
