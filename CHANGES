@@ -1,3 +1,10 @@
+Clipboard format-length property request bound (2026-10-26)
+============================================================
+
+- Limit format-length property reads to the single 32-bit value consumed by
+  the helper, avoiding oversized requests for malformed properties; see
+  `docs/clipboard-format-length-request.md`.
+
 Clipboard item atom-name validation (2026-10-26)
 =================================================
 

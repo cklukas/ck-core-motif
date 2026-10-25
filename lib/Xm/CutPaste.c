@@ -1571,7 +1571,7 @@ ClipboardGetLenFromFormat(
 				    rootwindow, 
 				    format_atom,
 				    0, /*offset*/
-				    10000000, /*length*/
+				    1, /*length: one 32-bit format-length value*/
 				    False,
 				    AnyPropertyType,
 				    &type,
