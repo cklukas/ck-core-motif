@@ -5419,3 +5419,9 @@ Make Hierarchy list growth transactional (2026-10-25)
 
 - Preserve node tables and child lists when growth allocation fails, with
   checked size arithmetic; see `docs/hierarchy-allocation.md`.
+
+Harden ClipWindow translation-buffer growth (2026-10-25)
+===========================================================
+
+- Handle zero-capacity growth and preserve the live translation buffer when
+  allocation fails; see `docs/clip-window-translations.md`.
