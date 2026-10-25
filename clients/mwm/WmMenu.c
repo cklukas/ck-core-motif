@@ -3843,20 +3843,20 @@ Widget CreateMenuWidget (WmScreenData *pSD,
             else
             {
                 XtSetArg (args[i], XmNlabelType, (XtArgVal) XmSTRING); i++;
-                XtSetArg (args[i], XmNlabelString, (XtArgVal)
-			  (tmpstr = XmStringCreateLocalized(menuItem->label))); i++;
-		sPtr = (StrList *) XtMalloc(sizeof(StrList));
-		if (sPtr == NULL)
-		  {
-		     MWarning(((char *)GETMESSAGE(48, 2, "Insufficient memory for menu %s\n")), menuName);
-		     return (NULL);
-		  }
-		else
-		  {
-		     sPtr->string  = tmpstr;
-		     sPtr->next    = stringsToFree;
-		     stringsToFree = sPtr;
-		  }
+		tmpstr = XmStringCreateLocalized(menuItem->label);
+		if (tmpstr != NULL) {
+		    XtSetArg (args[i], XmNlabelString, (XtArgVal) tmpstr); i++;
+		    sPtr = (StrList *) XtMalloc(sizeof(StrList));
+		    if (sPtr == NULL)
+		    {
+		       XmStringFree(tmpstr);
+		       MWarning(((char *)GETMESSAGE(48, 2, "Insufficient memory for menu %s\n")), menuName);
+		       return (NULL);
+		    }
+		    sPtr->string  = tmpstr;
+		    sPtr->next    = stringsToFree;
+		    stringsToFree = sPtr;
+		}
             }
 
 	    if (menuItem->wmFunction == F_Title)
