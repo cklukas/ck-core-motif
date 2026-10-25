@@ -1,3 +1,9 @@
+Mrm indexed-resource input validation (2026-10-25)
+==================================================
+
+- Reject null index and context inputs before indexed-resource lookup; see
+  `docs/mrm-idb-indexed-inputs.md`.
+
 Mrm hierarchy resource output validation (2026-10-25)
 ======================================================
 

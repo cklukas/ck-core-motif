@@ -427,6 +427,8 @@ UrmIdbGetIndexedResource (IDBFile			file_id,
   MrmCode		type ;		/* data entry's type */
 
 
+  if ( index == NULL || context_id == NULL )
+    return MrmFAILURE ;
   if ( (result=Idb__FIL_Valid(file_id)) != MrmSUCCESS ) return result ;
 
   /*
