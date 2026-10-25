@@ -4634,3 +4634,9 @@ Virtual-key result allocation (2026-10-25)
 
 - Check `XmeVirtualToActualKeysyms` output arguments and result allocation;
   see `docs/virtkeys-actual-allocation.md`.
+
+Render-table tag result allocation (2026-10-25)
+================================================
+
+- Validate `XmRenderTableGetTags` output and allocation inputs, and roll back
+  partially copied tags on failure; see `docs/render-table-tag-array.md`.

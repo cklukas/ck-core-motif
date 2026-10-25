@@ -734,3 +734,5 @@ EXTRA_DIST += tests/automated/check-xmos-entry-list-allocation.py docs/xmos-entr
 EXTRA_DIST += tests/automated/check-virtkeys-binding-allocation.py docs/virtkeys-binding-allocation.md
 
 EXTRA_DIST += tests/automated/check-virtkeys-actual-allocation.py docs/virtkeys-actual-allocation.md
+
+EXTRA_DIST += tests/automated/check-render-table-tag-array.py docs/render-table-tag-array.md

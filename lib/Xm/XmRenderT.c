@@ -1797,25 +1797,49 @@ int
 XmRenderTableGetTags(XmRenderTable table, 
 		     XmStringTag **tag_list)
 {
-  int i, ret_val;
+	XmStringTag *tags = NULL;
+	Cardinal i, tag_count;
+	int ret_val = 0;
   XtAppContext          app = NULL;
 
-  if (table == NULL)
-    {
-      *tag_list = NULL;
-      return(0);
-    }
+	if (tag_list == NULL)
+	  return(0);
+
+	*tag_list = NULL;
+	if (table == NULL)
+	  return(0);
 
   app = XtDisplayToApplicationContext(_XmRTDisplay(table));
   _XmAppLock(app);
-  *tag_list = 
-    (XmStringTag *)XtMalloc(sizeof(XmStringTag) * _XmRTCount(table));
+	tag_count = _XmRTCount(table);
+	if ((size_t)tag_count > SIZE_MAX / sizeof(*tags) ||
+	    tag_count > INT_MAX)
+	  goto done;
 
-  for (i = 0; i < _XmRTCount(table); i++)
-      (*tag_list)[i] = 
-	XtNewString(_XmRendTag(_XmRTRenditions(table)[i]));
+	if (tag_count != 0)
+	  {
+	    tags = (XmStringTag *)XtMalloc((size_t)tag_count * sizeof(*tags));
+	    if (tags == NULL)
+	      goto done;
+
+	    for (i = 0; i < tag_count; i++)
+	      {
+		tags[i] = XtNewString(_XmRendTag(_XmRTRenditions(table)[i]));
+		if (tags[i] == NULL)
+		  {
+		    while (i != 0)
+		      XtFree(tags[--i]);
+		    XtFree((char *)tags);
+		    tags = NULL;
+		    goto done;
+		  }
+	      }
+	  }
       
-  ret_val = _XmRTCount(table);
+	*tag_list = tags;
+	ret_val = (int)tag_count;
+
+done:
   _XmAppUnlock(app);
   return ret_val;
 }
