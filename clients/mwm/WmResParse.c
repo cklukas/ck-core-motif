@@ -7093,7 +7093,7 @@ static void InitKeySubs (
     KeySub *pKSret;
     unsigned char *pch0;
     unsigned char *pch1;
-    int len;
+    size_t len;
 #ifndef NO_MULTIBYTE
     int		chlen;
 #endif 
@@ -8460,7 +8460,10 @@ GetNetworkFileName (char *pchFile)
     char **pchTok;
     String sReturn = NULL;
     char *homeDir;
-    int len;
+    size_t len;
+    size_t hostLength;
+    size_t homeLength;
+    size_t fileLength;
 
 
     pch = strchr (pchFile, ':');
@@ -8527,9 +8530,28 @@ GetNetworkFileName (char *pchFile)
 		 * Replace '~' with $HOME
 		 */
 		homeDir = XmeGetHomeDirName();
-		len = strlen (host_part) + 1 +
-		      strlen (homeDir) + strlen (file_part) + 1;
-		pch = (char *) XtMalloc (len);
+		if (homeDir == NULL)
+		    homeDir = "";
+		hostLength = strlen(host_part);
+		homeLength = strlen(homeDir);
+		fileLength = strlen(file_part);
+		if (hostLength > SIZE_MAX - 1 ||
+		    hostLength + 1 > SIZE_MAX - homeLength ||
+		    hostLength + 1 + homeLength > SIZE_MAX - fileLength - 1 ||
+		    hostLength + 1 + homeLength + fileLength + 1 > UINT_MAX)
+		{
+		    XtFree(sName);
+		    sName = NULL;
+		    goto fallback;
+		}
+		len = hostLength + 1 + homeLength + fileLength + 1;
+		pch = (char *) XtMalloc ((Cardinal)len);
+		if (pch == NULL)
+		{
+		    XtFree(sName);
+		    sName = NULL;
+		    goto fallback;
+		}
 		strcpy (pch, sName);
 		host_part = pch;
 		pch += strlen (pch) + 1;
@@ -8576,6 +8598,7 @@ GetNetworkFileName (char *pchFile)
 	}
     }
 
+fallback:
     if (sReturn == NULL)
     {
 	if (
@@ -8589,9 +8612,18 @@ GetNetworkFileName (char *pchFile)
 	    /*
 	     * Replace '~' with $HOME
 	     */
-	    homeDir = XmeGetHomeDirName();
-	    len = strlen (homeDir) + strlen (pchFile) + 1;
-	    sReturn = (char *) XtMalloc (len);
+		homeDir = XmeGetHomeDirName();
+		if (homeDir == NULL)
+		    homeDir = "";
+		homeLength = strlen(homeDir);
+		fileLength = strlen(pchFile);
+		if (homeLength > SIZE_MAX - fileLength - 1 ||
+		    homeLength + fileLength + 1 > UINT_MAX)
+		    return NULL;
+		len = homeLength + fileLength + 1;
+		sReturn = (char *) XtMalloc ((Cardinal)len);
+		if (sReturn == NULL)
+		    return NULL;
 	    strcpy (sReturn, homeDir);
 	    strcat (sReturn, pchFile+1);
 	}

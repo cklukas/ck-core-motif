@@ -10996,3 +10996,9 @@ MWM preprocessor command bounds (2026-10-25)
 - Measure configured preprocessor commands before writing the fixed command
   buffer and remove the temporary output on rejection; see
   `docs/mwm-preprocess-command-bounds.md`.
+
+MWM network-file path sizing (2026-10-25)
+=========================================
+
+- Check home-directory expansion sizes and allocation results for network and
+  local configuration paths; see `docs/mwm-network-path-size.md`.
