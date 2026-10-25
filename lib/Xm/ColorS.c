@@ -515,6 +515,8 @@ SetValues(Widget current, Widget request, Widget set,
 {
     XmColorSelectorWidget	csw = (XmColorSelectorWidget)set;
     XmColorSelectorWidget	curr = (XmColorSelectorWidget)current;
+    String rgb_file_copy;
+    Boolean rgb_file_changed;
 
     /*
      * Pass argument list through to all children.
@@ -541,14 +543,21 @@ SetValues(Widget current, Widget request, Widget set,
     ** in twice will trip this expensive function unless we compare the 
     ** values of the strings (when they exist)
     */
-    if (AreDiff(XmColorS_rgb_file(curr), XmColorS_rgb_file(csw)))
-    {
-	read_rgb_file(csw, NULL, 0, False);
-    }
     if (XmColorS_rgb_file(curr) != XmColorS_rgb_file(csw))
     {
-    	XtFree((char*) XmColorS_rgb_file(curr));
-        XmColorS_rgb_file(csw) = XtNewString(XmColorS_rgb_file(csw));
+	rgb_file_changed = AreDiff(XmColorS_rgb_file(curr),
+				   XmColorS_rgb_file(csw));
+	rgb_file_copy = XmColorS_rgb_file(csw) != NULL
+	    ? XtNewString(XmColorS_rgb_file(csw)) : NULL;
+	if (XmColorS_rgb_file(csw) == NULL || rgb_file_copy != NULL)
+	{
+	    XtFree((char*) XmColorS_rgb_file(curr));
+	    XmColorS_rgb_file(csw) = rgb_file_copy;
+	    if (rgb_file_changed)
+		read_rgb_file(csw, NULL, 0, False);
+	}
+	else
+	    XmColorS_rgb_file(csw) = XmColorS_rgb_file(curr);
     }
 
     if ((XmColorS_margin_height(curr) != XmColorS_margin_height(csw)) ||

@@ -9349,3 +9349,10 @@ ColorSelector color-name rollback (2026-10-29)
 
 - Reject failed color-name copies before updating the selector, preserving
   the previous color state; see `docs/color-selector-name-rollback.md`.
+
+ColorSelector RGB-file rollback (2026-10-29)
+=============================================
+
+- Copy changed RGB-file paths before releasing the current path, preserving
+  the existing color list if allocation fails; see
+  `docs/color-selector-rgb-file-rollback.md`.
