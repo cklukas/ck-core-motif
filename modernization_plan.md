@@ -1968,7 +1968,8 @@ and the no-Xft gallery integration both pass on `uconsole`.
 ToggleButton shadow, fill, and etched-menu paths now reject undersized geometry
 before unsigned `Dimension` subtraction and skip unavailable shadow GCs; the
 source contract and fresh library/gallery qualification pass on `uconsole`.
-`XmFontListCreate`, `XmFontListAdd`, `XmFontListEntryLoad`, and
+`XmFontListCreate`, `XmFontListAdd`, `XmFontListEntryCreate_r`,
+`XmFontListEntryLoad`, and
 `XmFontListAppendEntry`, `XmFontListEntryGetFont`, and
 `XmFontListEntryGetTag` no longer hold process/application locks while
 entering locking charset, rendition, and render-table helpers; the source
