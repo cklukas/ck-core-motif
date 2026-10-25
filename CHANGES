@@ -1,3 +1,9 @@
+Frame shadow redisplay guards (2026-10-25)
+===========================================
+
+- Skip frame shadow drawing until its manager GCs, cached dimensions, and
+  shadow thickness are valid; see `docs/frame-shadow-redisplay-guards.md`.
+
 ArrowButton redisplay guards (2026-10-25)
 ===========================================
 
