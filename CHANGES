@@ -3254,6 +3254,12 @@ Drag target-entry allocation handling (2026-10-25)
 
 - Roll back partially added target lists when an atom-array allocation fails;
   see `docs/dragbs-target-entry-allocation.md`.
+
+Default drag target-table allocation handling (2026-10-25)
+============================================================
+
+- Check and clean up all allocations while creating the default target
+  cache; see `docs/dragbs-default-targets-allocation.md`.
 2026-10-25
 	* Add an opt-in XmSegmentedControl composite with copied item ownership,
 	  bounded clipping, RTL keyboard traversal and accessibility selection state.
