@@ -1,3 +1,10 @@
+Clipboard header list-bound validation (2026-10-26)
+====================================================
+
+- Validate the serialized data-item list offset and count before accepting a
+  clipboard header, preventing later list walks from leaving the property
+  bounds; see `docs/clipboard-header-list-bounds.md`.
+
 Clipboard format enumeration bounds validation (2026-10-26)
 ============================================================
 

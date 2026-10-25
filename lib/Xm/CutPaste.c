@@ -1576,6 +1576,26 @@ ClipboardGetLenFromFormat(
 }
 
 /*---------------------------------------------*/
+static Boolean
+ClipboardHeaderRecordValid(
+        ClipboardHeader header,
+        unsigned long length )
+{
+    unsigned long list_offset;
+
+    if (header == NULL || length < sizeof(ClipboardHeaderRec) ||
+	header->dataItemList > ULONG_MAX / CONVERT_32_FACTOR)
+	return False;
+
+    list_offset = header->dataItemList * CONVERT_32_FACTOR;
+    if (list_offset > length ||
+	header->currItems > (length - list_offset) / sizeof(itemId))
+	return False;
+
+    return True;
+}
+
+/*---------------------------------------------*/
 static ClipboardHeader 
 ClipboardOpen(
         Display *display,
@@ -1603,8 +1623,7 @@ ClipboardOpen(
 				      0,
 				      0 );
 	if (ret_value == ClipboardSuccess &&
-	    (root_clipboard_header == NULL ||
-	     headerlength < sizeof(ClipboardHeaderRec)))
+	    !ClipboardHeaderRecordValid(root_clipboard_header, headerlength))
 	{
 	    XtFree( (char *)root_clipboard_header);
 	    root_clipboard_header = NULL;
@@ -1629,8 +1648,7 @@ ClipboardOpen(
 					  0,
 					  0 ); /* don't discard old data */
 	if (ret_value == ClipboardSuccess &&
-	    (root_clipboard_header == NULL ||
-	     headerlength < sizeof(ClipboardHeaderRec)))
+	    !ClipboardHeaderRecordValid(root_clipboard_header, headerlength))
 	{
 	    XtFree( (char *)root_clipboard_header);
 	    root_clipboard_header = NULL;
@@ -1650,6 +1668,14 @@ ClipboardOpen(
 
     if (root_clipboard_header == NULL)
 	return NULL;
+
+    if (ret_value == ClipboardSuccess &&
+	!ClipboardHeaderRecordValid(root_clipboard_header, headerlength))
+    {
+	XtFree((char *)root_clipboard_header);
+	CleanupHeader(display);
+	return NULL;
+    }
 
     /* means clipboard header had not been initialized */
     if ( ret_value != ClipboardSuccess ) 
