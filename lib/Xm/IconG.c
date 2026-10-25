@@ -30,6 +30,7 @@
 #endif
 
 
+#include <limits.h>
 #include <stdint.h>
 #include <Xm/AccColorT.h>
 #include <Xm/CareVisualT.h>
@@ -249,6 +250,8 @@ static  Boolean HandleRedraw (Widget kid,
 			      Mask visual_flag);
 static  void GetColors(Widget widget, 
 		       XmAccessColorData color_data);
+static XmStringTable CopyDetailTable(XmStringTable source,
+                                     Cardinal count);
 
 static  Boolean PointIn(Widget widget, 
 		        Position x, Position y);
@@ -1198,8 +1201,34 @@ SetValuesPosthook(
 
 /*----------------
 | RectObj methods |
-----------------*/
+-----------------*/
 
+static XmStringTable
+CopyDetailTable(XmStringTable source, Cardinal count)
+{
+    XmStringTable copy;
+    Cardinal i;
+
+    if (source == NULL || count == 0 ||
+        (size_t)count > SIZE_MAX / sizeof(*copy) ||
+        (size_t)count > UINT_MAX / sizeof(*copy))
+        return NULL;
+
+    copy = (XmStringTable)XtMalloc((Cardinal)((size_t)count * sizeof(*copy)));
+    if (copy == NULL)
+        return NULL;
+
+    for (i = 0; i < count; ++i) {
+        copy[i] = XmStringCopy(source[i]);
+        if (copy[i] == NULL) {
+            while (i != 0)
+                XmStringFree(copy[--i]);
+            XtFree((char *)copy);
+            return NULL;
+        }
+    }
+    return copy;
+}
 
 /************************************************************************
  * ClassInitialize
@@ -1306,11 +1335,11 @@ Initialize(
 
     /* XmNdetail */
     if (IG_Detail(nw) && IG_DetailCount(nw)) {
-	IG_Detail(nw) = (XmStringTable) 
-	    XtMalloc(IG_DetailCount(nw) * sizeof(XmString));
-
-	for (i=0; i<IG_DetailCount(nw); i++)
-	    IG_Detail(nw)[i] = XmStringCopy(IG_Detail(rw)[i]);
+	XmStringTable detail = CopyDetailTable(IG_Detail(nw),
+	                                      IG_DetailCount(nw));
+	IG_Detail(nw) = detail;
+	if (detail == NULL)
+	    IG_DetailCount(nw) = 0;
     }
 
 
@@ -2612,21 +2641,27 @@ SetValues(
 
     if (IG_Detail(nw) != IG_Detail(cw)) {
 	/* new XmNdetail copy in */
-	
-	/* first free the current detail table and strings if present */
-	if (IG_Detail(cw) && IG_DetailCount(cw)) {
-	    for (i=0; i<IG_DetailCount(cw); i++) 
-		XmStringFree(IG_Detail(cw)[i]);
-	    XtFree((char*)IG_Detail(cw));
+	XmStringTable detail;
+
+	/* Copy before releasing the current table. */
+	if (IG_Detail(nw) == NULL || IG_DetailCount(nw) == 0) {
+	    detail = NULL;
+	} else {
+	    detail = CopyDetailTable(IG_Detail(nw), IG_DetailCount(nw));
 	}
-	
-	/* now copy */
-	if (IG_Detail(nw) && IG_DetailCount(nw)) {
-	    IG_Detail(nw) = (XmStringTable) 
-		XtMalloc(IG_DetailCount(nw) * sizeof(XmString));
-	    
-	    for (i=0; i<IG_DetailCount(nw); i++)
-		IG_Detail(nw)[i] = XmStringCopy(IG_Detail(rw)[i]);
+	if (IG_Detail(nw) == NULL || IG_DetailCount(nw) == 0 || detail != NULL) {
+	    if (IG_Detail(cw) && IG_DetailCount(cw)) {
+		for (i=0; i<IG_DetailCount(cw); i++)
+		    XmStringFree(IG_Detail(cw)[i]);
+		XtFree((char*)IG_Detail(cw));
+	    }
+	    IG_Detail(nw) = detail;
+	    if (detail == NULL)
+		IG_DetailCount(nw) = 0;
+	} else {
+	    /* Keep the previous value if the requested copy failed. */
+	    IG_Detail(nw) = IG_Detail(cw);
+	    IG_DetailCount(nw) = IG_DetailCount(cw);
 	}
 	Relayout = Redraw = True;
     }

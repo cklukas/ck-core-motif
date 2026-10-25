@@ -9217,3 +9217,10 @@ XmList item mutation rollback (2026-10-29)
 - Make item insertion restore the original list when an `XmString` copy
   fails, and obtain replacement strings before releasing existing values; see
   `docs/list-item-mutation-rollback.md`.
+
+IconGadget detail-table rollback (2026-10-29)
+==============================================
+
+- Bound and transactionally copy `XmNdetail` tables during initialization and
+  updates, preserving the old table when a requested copy fails; see
+  `docs/icong-detail-table-rollback.md`.
