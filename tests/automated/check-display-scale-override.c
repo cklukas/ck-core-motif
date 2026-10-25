@@ -1,5 +1,6 @@
 /* Installed-consumer proof for the deterministic display-scale override. */
 #include <Xm/Display.h>
+#include <Xm/SpinB.h>
 #include <Xm/ToggleB.h>
 #include <X11/Intrinsic.h>
 #include <X11/Xlib.h>
@@ -21,6 +22,8 @@ main(int argc, char **argv)
     Widget baseline_toggle;
     Widget scaled_toggle;
     Widget explicit_toggle;
+    Widget baseline_spin;
+    Widget explicit_spin;
     Display *display;
     XrmDatabase database;
     double scale;
@@ -28,6 +31,9 @@ main(int argc, char **argv)
     Dimension live_indicator;
     Dimension scaled_indicator;
     Dimension explicit_indicator;
+    Dimension baseline_arrow;
+    Dimension live_arrow;
+    Dimension explicit_arrow;
     XmString empty_label;
     Arg empty_args[1];
     Arg explicit_args[2];
@@ -84,15 +90,42 @@ main(int argc, char **argv)
     explicit_toggle = XmCreateToggleButton(shell, "explicit", explicit_args, 2);
     XmStringFree(empty_label);
     XtManageChild(explicit_toggle);
+
+    baseline_spin = XmCreateSpinBox(shell, "baselineSpin", NULL, 0);
+    XtManageChild(baseline_spin);
     XtRealizeWidget(shell);
 
     XtVaGetValues(scaled_toggle, XmNindicatorSize, &scaled_indicator, NULL);
     XtVaGetValues(explicit_toggle, XmNindicatorSize, &explicit_indicator, NULL);
+    XtVaGetValues(baseline_spin, XmNarrowSize, &baseline_arrow, NULL);
     if (baseline_indicator == 0 || live_indicator <= baseline_indicator ||
         scaled_indicator <= baseline_indicator)
         return fail("scaled default metric did not increase");
     if (explicit_indicator != 7)
         return fail("explicit pixel metric was changed by scale override");
+    if (baseline_arrow == 0)
+        return fail("spin box default metric was not initialized");
+
+    if (!XmSetDisplayScaleOverride(display, 1.0))
+        return fail("one-times live override was not retained for spin box");
+    XSync(display, False);
+    XtVaGetValues(baseline_spin, XmNarrowSize, &live_arrow, NULL);
+    if (live_arrow >= baseline_arrow)
+        return fail("spin box default metric did not reflow down");
+
+    explicit_spin = XmCreateSpinBox(shell, "explicitSpin", NULL, 0);
+    XtVaSetValues(explicit_spin, XmNarrowSize, (Dimension)16, NULL);
+    XtManageChild(explicit_spin);
+    XtVaGetValues(explicit_spin, XmNarrowSize, &explicit_arrow, NULL);
+    if (explicit_arrow != 16)
+        return fail("spin box explicit pixel metric was not retained");
+
+    if (!XmSetDisplayScaleOverride(display, 2.0))
+        return fail("two-times live override was not retained for spin box");
+    XSync(display, False);
+    XtVaGetValues(explicit_spin, XmNarrowSize, &explicit_arrow, NULL);
+    if (explicit_arrow != 16)
+        return fail("spin box explicit pixel metric changed by scale override");
 
     if (!XmSetDisplayScaleOverride(display, 1.0))
         return fail("one-times live override was not retained");

@@ -55,8 +55,13 @@ The live-transaction fixture was then rebuilt against the updated library and
 passed in `fixture-r5/`, `-r6/` and `-r7/`, with a consumer-only strict
 ASan/UBSan run in `asan-r4/`; the installed library fingerprint for that run
 is `bdd7689d479646e4f7d03f297626c713194bd7128b2e27961959104922ef30a3`.
+The SpinBox live-default extension was subsequently rebuilt and passed in
+`fixture-spin-r3-4/`, `-5/` and `-6/`, with a consumer-only strict ASan/UBSan
+run in `fixture-spin-asan-r3/`. That installed `libXm.so.8.0.0` is
+`3dc9b995cb71894e66c40d013ec0bac242f6e9633d0d60e343ac4c2ff8b74b45`, and the
+fixture source is `2001413c96751c6bab59f6794ed54c0b9ea66a256880ef1b0b8d36e029c8fb66`.
 The C23 configure probe was separately run with GCC 14 and reported the C11
 atomic capability as available.  The expanded fixture evidence qualifies the
 same-thread transaction, default indicator reflow, explicit-size preservation,
-toggle-state preservation, and reversible cleanup; full historical-widget
-coverage and live appearance transactions remain open.
+toggle-state preservation, SpinBox default reflow, and reversible cleanup;
+full historical-widget coverage and live appearance transactions remain open.

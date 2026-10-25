@@ -90,6 +90,7 @@ externalref XmSpinBoxClassRec xmSpinBoxClassRec;
 typedef struct _XmSpinBoxPart
 {
       Dimension	     arrow_size;
+      Boolean          arrow_size_default;
       Dimension	     margin_width;
       Dimension	     margin_height;
       Dimension	     spacing;
