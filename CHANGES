@@ -19,6 +19,13 @@ Bound Column label-name allocation width (2026-10-25)
 - Bound the generated `<child>_label` resource-name allocation by both
   `size_t` and Xt's `Cardinal` byte range; see `docs/column-label-allocation.md`.
 
+Harden Column label lifecycle failures (2026-10-25)
+====================================================
+
+- Keep Column label initialization and replacement transactional when string,
+  generated-name, or implicit-child allocation fails; see
+  `docs/column-label-init-rollback.md` and `docs/column-label-rollback.md`.
+
 Enable gallery live appearance and DPI controls (2026-10-25)
 ==============================================================
 

@@ -11,4 +11,8 @@ assert "XtMalloc((Cardinal)((size_t)buf_length + 1))" in region
 assert "label = XtCreateWidget" in region
 assert "if (!label)" in region
 assert "label_widget = False;" in region
+assert "label_copy = XiC(new_w)->label_string != NULL" in source
+assert "XmStringCreateLocalized(\"\")" in source
+assert "replacement;" in source
+assert "sc->label_string = cc->label_string;" in source
 print("Column label allocation guards present")

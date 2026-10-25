@@ -1079,6 +1079,7 @@ ConstraintInitialize(Widget request, Widget new_w, ArgList arg_list,
     static         Boolean label_widget = False;	/* STATIC DATA */
     XmColumnWidget cw = (XmColumnWidget) XtParent(new_w);
     XmBulletinBoardPart *bbpart;
+    XmString label_copy;
 
 	/* CR03562 CR02961 When ChangeManaged is bypassed, request width and height
 	   are not set. The 2 line will prevent this assumption which sometimes
@@ -1103,7 +1104,11 @@ ConstraintInitialize(Widget request, Widget new_w, ArgList arg_list,
 	XiC(new_w)->request_height = 0;
 #endif
 
-    XiC(new_w)->label_string = XmStringCopy(XiC(new_w)->label_string);
+    label_copy = XiC(new_w)->label_string != NULL
+        ? XmStringCopy(XiC(new_w)->label_string) : NULL;
+    if (XiC(new_w)->label_string != NULL && label_copy == NULL)
+        label_copy = XmStringCreateLocalized("");
+    XiC(new_w)->label_string = label_copy;
     if( label_widget )
     {
 	XiC(new_w)->label_alignment = XmALIGNMENT_UNSPECIFIED;
@@ -1132,6 +1137,8 @@ ConstraintInitialize(Widget request, Widget new_w, ArgList arg_list,
 	    (size_t)buf_length + 1 > UINT_MAX)
 	    return;
 	buf = XtMalloc((Cardinal)((size_t)buf_length + 1));
+	if (!buf)
+	    return;
 	(void) snprintf(buf, (size_t)buf_length + 1, "%s_label",
 			XtName(new_w));
 
@@ -1166,6 +1173,10 @@ ConstraintInitialize(Widget request, Widget new_w, ArgList arg_list,
 	label = XtCreateWidget(buf, xmLabelWidgetClass, (Widget) cw,
 		       args, nargs);
 	XtFree(buf);
+	if (!label) {
+	    label_widget = False;
+	    return;
+	}
 	XiC(new_w)->label_widget = label;
 
 	XtAddCallback(label, XmNdestroyCallback,
@@ -1209,6 +1220,7 @@ ConstraintSetValues(Widget current, Widget request, Widget new_w,
     Boolean                relayout = False;
     Arg                    args[10];
     Cardinal               i = 0;
+    XmString               replacement;
 
     if( XiC(new_w)->label_widget == NULL ) return( False );
 
@@ -1239,9 +1251,14 @@ ConstraintSetValues(Widget current, Widget request, Widget new_w,
 
     if( cc->label_string != sc->label_string )
     {
-	XmStringFree(cc->label_string);
-	sc->label_string = XmStringCopy(sc->label_string);
-	XtSetArg(args[i], XmNlabelString, sc->label_string); ++i;
+	replacement = XmStringCopy(sc->label_string);
+	if (replacement != NULL) {
+	    XmStringFree(cc->label_string);
+	    sc->label_string = replacement;
+	    XtSetArg(args[i], XmNlabelString, sc->label_string); ++i;
+	} else {
+	    sc->label_string = cc->label_string;
+	}
     }
 
     if( cc->label_pixmap != sc->label_pixmap )
