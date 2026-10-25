@@ -1,3 +1,10 @@
+LabelG text geometry bounds (2026-10-26)
+==========================================
+
+- Compute the right text edge in signed arithmetic, preventing narrow labels
+  from wrapping alignment coordinates; see
+  `docs/labelg-text-geometry-bounds.md`.
+
 LabelG background-box bounds (2026-10-26)
 ===========================================
 

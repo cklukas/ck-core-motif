@@ -1574,9 +1574,11 @@ Resize(Widget wid)
         newlw->gadget.shadow_thickness + LabG_MarginWidth(newlw) +
         LabG_MarginLeft(newlw);
 
-    rightx = newlw->rectangle.width - newlw->gadget.highlight_thickness -
-        newlw->gadget.shadow_thickness - LabG_MarginWidth(newlw) -
-        LabG_MarginRight(newlw);
+    rightx = (int) newlw->rectangle.width -
+        (int) newlw->gadget.highlight_thickness -
+        (int) newlw->gadget.shadow_thickness -
+        (int) LabG_MarginWidth(newlw) -
+        (int) LabG_MarginRight(newlw);
 
     switch (LabG_Alignment(newlw))
     {
