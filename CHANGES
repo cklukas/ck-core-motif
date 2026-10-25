@@ -3892,3 +3892,10 @@ Harden ClipWindow translation-buffer growth (2026-10-25)
 - Handle empty initial capacity, publish translation-buffer growth only after
   successful reallocation, and abort cleanly on initial allocation failure;
   see `docs/clip-window-translations.md`.
+
+Make Hierarchy list growth transactional (2026-10-25)
+======================================================
+
+- Publish node-table and child-list growth only after checked allocation, with
+  overflow-safe size products and preserved old storage on failure; see
+  `docs/hierarchy-allocation.md`.
