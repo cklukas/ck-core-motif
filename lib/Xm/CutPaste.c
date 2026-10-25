@@ -3967,6 +3967,13 @@ XmClipboardUndoCopy(
     /* get the clipboard header */
     header = ClipboardOpen( display, 0 );
 
+    if (header == NULL)
+    {
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
+
     itemid = header->lastCopyItemId;
 
     undo_okay = 0;
@@ -3977,7 +3984,8 @@ XmClipboardUndoCopy(
 
     } else {
 	/* get the item */
-	ClipboardFindItem( display,
+	itemheader = NULL;
+	status = ClipboardFindItem( display,
 			       itemid,
 			       (XtPointer *) &itemheader,
 			       &itemlength,
@@ -3985,10 +3993,13 @@ XmClipboardUndoCopy(
 			       0,
     			       XM_DATA_ITEM_RECORD_TYPE );
 
-	if ( itemheader == 0 ) 
+	if (status != ClipboardSuccess || itemheader == NULL ||
+	    itemlength < sizeof(ClipboardDataItemRec))
 	{
-	   CleanupHeader (display);
-	   ClipboardError( CLIPBOARD_CORRUPT, CORRUPT_DATA_STRUCTURE );
+	   XtFree( (char *)itemheader);
+	   ClipboardClose( display, header );
+	   ClipboardUnlock( display, window, 0 );
+	   _XmAppUnlock(app);
 	   return ClipboardFail;
 	}
 

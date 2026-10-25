@@ -1,3 +1,9 @@
+Clipboard undo-copy validation (2026-10-26)
+============================================
+
+- Validate the undo header and last-copy data record before accessing them;
+  see `docs/clipboard-undo-copy-validation.md`.
+
 Clipboard copy-by-name validation (2026-10-26)
 ================================================
 
