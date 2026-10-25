@@ -1,3 +1,9 @@
+Null nested varargs lists (2026-10-28)
+=======================================
+
+- Make nested typed-argument counting and conversion tolerate null lists
+  instead of dereferencing them; see `docs/xm-va-nested-null.md`.
+
 Nested typed varargs bounds (2026-10-28)
 =========================================
 
