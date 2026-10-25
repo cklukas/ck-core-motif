@@ -1,3 +1,10 @@
+Guard Container region removal allocation (2026-10-25)
+=======================================================
+
+- Handle failed temporary and persistent region allocation during Container
+  removal without dereferencing null regions; see
+  `docs/container-region-allocation.md`.
+
 Preserve non-negative Container cell occupancy (2026-10-25)
 ============================================================
 
