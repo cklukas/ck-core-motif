@@ -9356,3 +9356,9 @@ ColorSelector RGB-file rollback (2026-10-29)
 - Copy changed RGB-file paths before releasing the current path, preserving
   the existing color list if allocation fails; see
   `docs/color-selector-rgb-file-rollback.md`.
+
+FontSelector encoding rollback (2026-10-29)
+===========================================
+
+- Preserve the current encoding until replacement copies succeed during
+  SetValues and user selection; see `docs/fontselector-encoding-rollback.md`.

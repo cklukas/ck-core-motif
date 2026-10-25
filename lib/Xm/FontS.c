@@ -3121,6 +3121,7 @@ ChangeEncoding(Widget w, XtPointer data, XtPointer junk)
     XmFontSelectorWidget fsw;
     FontData *cf;
     char buf[BUFSIZ];
+    String replacement;
 
     for ( ; !XtIsSubclass(w, xmFontSelectorWidgetClass); w = XtParent(w)) {}
     fsw = (XmFontSelectorWidget) w;
@@ -3128,14 +3129,17 @@ ChangeEncoding(Widget w, XtPointer data, XtPointer junk)
 
 	if ((int)(uintptr_t)data == 0)
 	{
-	XtFree(ENCODING_STRING(fsw));
-	ENCODING_STRING(fsw) = XtNewString(ANY_ENCODING);
+	replacement = XtNewString(ANY_ENCODING);
 	}
     else
 	{
-	XtFree(ENCODING_STRING(fsw));
-		ENCODING_STRING(fsw) = XtNewString(
+	replacement = XtNewString(
 		    ENCODING_LIST(fsw)[(int)(uintptr_t)data - 1]);
+	}
+	if (replacement != NULL)
+	{
+	    XtFree(ENCODING_STRING(fsw));
+	    ENCODING_STRING(fsw) = replacement;
 	}
 
     UpdateFamilies(fsw);
@@ -3870,11 +3874,19 @@ SetValues(Widget old, Widget request, Widget set,
 	int current, i;
 	String *encodings = ENCODING_LIST(set_fsw);
 	Widget button;
+	String encoding_copy;
 
 	if (!new_encoding_list)
 	{
-		XtFree(ENCODING_STRING(old_fsw));
-		ENCODING_STRING(set_fsw) = XtNewString(ENCODING_STRING(set_fsw));
+		encoding_copy = ENCODING_STRING(set_fsw) != NULL
+		    ? XtNewString(ENCODING_STRING(set_fsw)) : NULL;
+		if (ENCODING_STRING(set_fsw) == NULL || encoding_copy != NULL)
+		{
+		    XtFree(ENCODING_STRING(old_fsw));
+		    ENCODING_STRING(set_fsw) = encoding_copy;
+		}
+		else
+		    ENCODING_STRING(set_fsw) = ENCODING_STRING(old_fsw);
 	}
 
 	/* some of this code is probably a duplicate of CreateEncodingMenu */
