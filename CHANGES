@@ -6547,3 +6547,10 @@ Hierarchy initialization failure safety (2026-10-25)
   destruction tolerate allocation failure; see
   `docs/hierarchy-init-failure.md`.
 
+Bound render-table copy sizes (2026-10-25)
+===========================================
+
+- Reject unrepresentable `XmRenderTableCopy` body sizes before allocation,
+  preserving the existing table on the failure path; see
+  `docs/render-table-rendition-array.md`.
+

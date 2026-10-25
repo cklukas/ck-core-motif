@@ -11,3 +11,6 @@ reported as `NULL`, and a partially copied result is released before returning.
 Successful matching and rendition ownership remain unchanged; callers still
 release each non-`NULL` rendition with `XmRenditionFree` and the array with
 `XtFree`.
+
+`XmRenderTableCopy` applies the same body-size bound before allocating a copied
+table for a large tag selection or full-table copy.
