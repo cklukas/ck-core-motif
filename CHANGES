@@ -6202,3 +6202,10 @@ Guard XmString charset allocation (2026-10-25)
   fails, leaving initialization retryable; see
   `docs/xmstring-charset-allocation.md` and its focused source check.
 
+Guard XmString tag-cache entry allocation (2026-10-25)
+=======================================================
+
+- Check cached-tag string allocation before copying and release the process
+  lock on failure; see `docs/xmstring-tag-allocation.md` and its focused source
+  check.
+

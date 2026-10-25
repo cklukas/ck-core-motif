@@ -927,3 +927,4 @@ EXTRA_DIST += tests/automated/check-gallery-screenshot-assets.py tests/automated
 EXTRA_DIST += tests/automated/check-xmstring-entry-create-allocation.py docs/xmstring-entry-create-allocation.md
 EXTRA_DIST += tests/automated/check-xmstring-cache-allocation.py docs/xmstring-cache-allocation.md
 EXTRA_DIST += tests/automated/check-xmstring-charset-allocation.py docs/xmstring-charset-allocation.md
+EXTRA_DIST += tests/automated/check-xmstring-tag-allocation.py docs/xmstring-tag-allocation.md

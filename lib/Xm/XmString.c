@@ -1226,6 +1226,11 @@ _XmStringIndexCacheTag(XmStringTag tag,
   }
   
   a = XtMalloc (length + 1);
+  if (a == NULL)
+    {
+      _XmProcessUnlock();
+      return 0;
+    }
   memcpy(a, tag, length);
   a[length] = '\0';
   
