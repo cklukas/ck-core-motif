@@ -2619,8 +2619,9 @@ DrawHighlight(XmListWidget lw,
 
   ht = lw->list.HighlightThickness;
   x = lw->list.BaseX - ht;
-  width = (int)lw->core.width - 2 * ((int)lw->list.margin_width +
-				lw->primitive.shadow_thickness);
+  width = (int)lw->core.width -
+    2 * ((int)lw->list.margin_width +
+	 (int)lw->primitive.shadow_thickness);
 
   /****************
    *
@@ -2633,8 +2634,9 @@ DrawHighlight(XmListWidget lw,
       (position >= (lw->list.top_position + lw->list.visibleItemCount)))
     {
       y = lw->list.BaseY - ht;
-      height = (int)lw->core.height - 2 * ((int)lw->list.margin_height +
-				      lw->primitive.shadow_thickness);
+      height = (int)lw->core.height -
+	2 * ((int)lw->list.margin_height +
+	     (int)lw->primitive.shadow_thickness);
     }
   else
     {

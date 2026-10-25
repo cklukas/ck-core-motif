@@ -1,3 +1,9 @@
+List highlight geometry bounds (2026-10-25)
+==========================================
+
+- Keep all List highlight inset arithmetic signed, preventing wrapped drawing
+  spans in collapsed lists; see `docs/list-highlight-geometry.md`.
+
 List item geometry bounds (2026-10-25)
 =====================================
 
