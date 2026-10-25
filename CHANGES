@@ -1,3 +1,9 @@
+Mrm argument-list resource null check (2026-10-25)
+====================================================
+
+- Reject missing resource descriptors before argument-list resolution; see
+  `docs/mrm-createarg-resource-null.md`.
+
 Mrm color/font reader boundary checks (2026-10-25)
 ====================================================
 
