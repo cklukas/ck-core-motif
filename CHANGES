@@ -1,3 +1,10 @@
+Xm pixmap comparator null safety (2026-10-25)
+===============================================
+
+- Reject null pixmap records or color metadata before cache-key comparison,
+  avoiding malformed-entry dereferences; see
+  `docs/xm-pixmap-compare-null.md`.
+
 Xm scaled-pixmap table failure handling (2026-10-25)
 =======================================================
 
