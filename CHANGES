@@ -3927,3 +3927,9 @@ Guard navigator slider callbacks (2026-10-25)
 - Validate List and ScrolledW navigator traits before reading slider state,
   avoiding null callback dispatch while preserving complete navigator behavior;
   see `docs/motif-navigator-slider-callbacks.md`.
+
+Guard ComboBox textual trait callbacks (2026-10-25)
+====================================================
+
+- Check access-textual traits and their specific get/set callbacks before
+  ComboBox edit-box dispatch; see `docs/motif-combobox-text-trait.md`.

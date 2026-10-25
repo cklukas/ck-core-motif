@@ -3317,7 +3317,7 @@ GetEditBoxValue(Widget cb)
   textTrait = (XmAccessTextualTrait)
     XmeTraitGet((XtPointer) XtClass(edit_box), XmQTaccessTextual);
 
-  if (textTrait)
+  if (textTrait != NULL && textTrait->getValue != NULL)
     return (XmString) textTrait->getValue(edit_box, XmFORMAT_XmSTRING);
   else
     return NULL;
@@ -3338,7 +3338,8 @@ SetEditBoxValue(Widget   cb,
   textTrait = (XmAccessTextualTrait)
     XmeTraitGet((XtPointer) XtClass(edit_box), XmQTaccessTextual);
 
-  textTrait->setValue(edit_box, value, XmFORMAT_XmSTRING);
+  if (textTrait != NULL && textTrait->setValue != NULL)
+    textTrait->setValue(edit_box, value, XmFORMAT_XmSTRING);
 }
 
 /* ------------- CONVENIENCE FUNCTIONS ---------- */
