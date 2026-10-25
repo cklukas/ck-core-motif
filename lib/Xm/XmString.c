@@ -10423,7 +10423,14 @@ XmParseMappingSetValues(XmParseMapping mapping,
 	mapping->pattern_type = (XmTextType) arg_list[i].value;
       else if ((arg_name == XmNsubstitute) ||
 	       (strcmp(arg_name, XmNsubstitute) == 0))
-	mapping->substitute = XmStringCopy((XmString) arg_list[i].value);
+	{
+	  XmString requested = (XmString) arg_list[i].value;
+	  XmString replacement = requested ? XmStringCopy(requested) : NULL;
+	  if (requested != NULL && replacement == NULL)
+	    continue;
+	  XmStringFree(mapping->substitute);
+	  mapping->substitute = replacement;
+	}
       else if ((arg_name == XmNinvokeParseProc) ||
 	       (strcmp(arg_name, XmNinvokeParseProc) == 0))
 	mapping->parse_proc = (XmParseProc) arg_list[i].value;

@@ -5,6 +5,13 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+XmParseMapping substitute ownership (2026-10-26)
+==================================================
+
+- Free replaced parse-mapping substitutes transactionally and preserve the
+  existing value when copying a replacement fails; see
+  `docs/xmstring-mapping-substitute.md`.
+
 XmStringGenerate rendition cache validation (2026-10-26)
 ==========================================================
 
