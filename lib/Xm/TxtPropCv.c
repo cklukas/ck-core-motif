@@ -681,6 +681,12 @@ XmCvtXmStringTableToTextProperty(Display *display,
       }
       final_string =
 	(unsigned char *)XtMalloc(sizeof(char) * (total_size + 1));
+      if (final_string == NULL) {
+	for (i = 0; i < count; ++i) XtFree(useable_text[i]);
+	XtFree((char *)useable_text);
+	_XmAppUnlock(app);
+	return BadAlloc;
+      }
       final_string[0] = '\0';
       bufptr = final_string;
       for (i = 0; i < count; ++i)

@@ -1,3 +1,10 @@
+Guard final text-property conversion buffer (2026-10-25)
+==========================================================
+
+- Clean up usable-text items and return `BadAlloc` when the final
+  null-separated result buffer cannot be allocated; see
+  `docs/motif-txtpropcv-final.md`.
+
 Guard usable-text table allocation (2026-10-25)
 ===============================================
 
