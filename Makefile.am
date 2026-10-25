@@ -240,6 +240,7 @@ EXTRA_DIST += tests/automated/check-virtkeys-vendor-allocation.py docs/virtkeys-
 EXTRA_DIST += tests/automated/check-scale-convert-allocation.py docs/scale-convert-allocation.md
 EXTRA_DIST += tests/automated/check-float-units-outputs.py docs/float-units-outputs.md
 EXTRA_DIST += tests/automated/check-unit-overflow-nan.py docs/unit-overflow-nan.md
+EXTRA_DIST += tests/automated/check-table-destructor-pointers.py docs/table-destructor-pointers.md
 EXTRA_DIST += tests/automated/check-accessibility-name-allocation.py docs/accessibility-name-allocation.md
 EXTRA_DIST += tests/automated/check-font-selector-buffer-allocation.py docs/font-selector-buffer-allocation.md
 EXTRA_DIST += tests/automated/check-font-selector-current-font-allocation.py docs/font-selector-current-font-allocation.md

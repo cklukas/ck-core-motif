@@ -1503,6 +1503,8 @@ XmStringCvtDestroy(
    if (to == NULL || to->addr == NULL)
        return;
    XmString *table = *(XmString **)(to->addr);
+   if (table == NULL)
+       return;
    for (i = 0; table[i] != NULL; i++)
        XmStringFree(table[i]);       
    XtFree((char*)table);
@@ -1685,6 +1687,8 @@ StringCvtDestroy(
             if (to == NULL || to->addr == NULL)
                 return;
             String *table = * (String **) (to->addr) ;
+            if (table == NULL)
+                return;
 
     for(    i = 0 ; table[i] != NULL ; i++    )
     {   XtFree( (char *) table[i]) ;
