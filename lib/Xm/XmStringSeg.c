@@ -250,7 +250,11 @@ _XmStringGetSegment(_XmStringContext   context,
 	      else if (ctype == XmSTRING_COMPONENT_WIDECHAR_TEXT)
 		*type = XmWIDECHAR_TEXT;
 	      else
-		{ assert(FALSE); }
+		{
+		  result = FALSE;
+		  done = TRUE;
+		  break;
+		}
 	      
 	      /* Force a tag for backward compatibility with Motif 1.2 */
 	      if (! *tag)

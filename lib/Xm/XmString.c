@@ -6301,6 +6301,9 @@ _XmEntryPushGet(_XmStringEntry entry)
 unsigned int
 _XmEntryByteCountGet(_XmStringEntry entry)
 {
+  if (entry == NULL)
+    return 0;
+
   switch (_XmEntryType(entry))
     {	
     case XmSTRING_ENTRY_OPTIMIZED:
@@ -6311,7 +6314,6 @@ _XmEntryByteCountGet(_XmStringEntry entry)
       return _XmUnoptSegByteCount(entry);
 
     default:
-      assert(FALSE);
       return 0;
     }
 }

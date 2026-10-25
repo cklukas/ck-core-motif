@@ -66,6 +66,13 @@ ComboBox action fallback (2026-10-26)
   dispatch defaults; recognized navigation actions retain their behavior. See
   `docs/combobox-action-fallback.md`.
 
+XmString entry-type fallback (2026-10-26)
+==========================================
+
+- Make invalid or null string entries report zero byte length and stop segment
+  extraction safely instead of asserting; see
+  `docs/xmstring-entry-type-fallback.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 
