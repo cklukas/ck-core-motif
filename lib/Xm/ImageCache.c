@@ -2778,7 +2778,9 @@ CacheColorPixel( Display *display, Colormap colormap,
 	    return False;
         colorCacheList.maxEntries += 25;
 	if ((size_t)colorCacheList.maxEntries >
-	    SIZE_MAX / sizeof(*colorCacheList.cache))
+	    SIZE_MAX / sizeof(*colorCacheList.cache) ||
+	    (size_t)colorCacheList.maxEntries >
+	    UINT_MAX / sizeof(*colorCacheList.cache))
 	    return False;
 	new_cache = (CachedColor *)
 		    XtRealloc((char *)colorCacheList.cache,

@@ -642,6 +642,13 @@ XmString array-entry copy bounds (2026-10-27)
   allocation-limited strings no longer cause a wrapped allocation or partial
   array dereference.
 
+ImageCache color-cache Xt allocation-size bounds (2026-10-29)
+==============================================================
+
+- Reject color-cache growth whose byte count exceeds Xt's `Cardinal`
+  allocation range, preserving transactional cache updates; see
+  `docs/image-color-cache-growth.md`.
+
 Atom-list Xt allocation-size bounds (2026-10-29)
 =================================================
 

@@ -8,6 +8,7 @@ end = source.index("static int\nGetCacheColor", start)
 region = source[start:end]
 assert "CachedColor *new_cache" in region
 assert "SIZE_MAX / sizeof(*colorCacheList.cache)" in region
+assert "UINT_MAX / sizeof(*colorCacheList.cache)" in region
 assert "if (new_cache == NULL)" in region
 assert "return False;" in region
 assert "return True;" in region
