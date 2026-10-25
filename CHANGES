@@ -3989,3 +3989,8 @@ Guard Font selector size-list allocations (2026-10-25)
 - Check temporary XmString arrays used by size and alternate-family refreshes
   for overflow and allocation failure; see
   `docs/motif-fonts-size-list-allocation.md`.
+Preserve ComboBox child creation on filter allocation failure (2026-10-25)
+=============================================================================
+
+- Fall back to the original child arguments when the optional height-filter
+  array cannot be allocated; see `docs/motif-combobox-child-args.md`.
