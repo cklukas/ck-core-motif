@@ -10143,6 +10143,13 @@ Legacy arrow geometry allocation (2026-10-25)
 - Allocate top, center, and bottom arrow rectangle arrays transactionally,
   releasing partial state on failure; see `docs/arrow-geometry-allocation.md`.
 
+Legacy heap alignment bounds (2026-10-25)
+=========================================
+
+- Validate and round heap requests before segment-capacity checks, preventing
+  alignment wraparound and remaining-capacity underflow; see
+  `docs/heap-alloc-alignment.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

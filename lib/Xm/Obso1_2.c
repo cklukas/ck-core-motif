@@ -1697,6 +1697,15 @@ _XmHeapAlloc(
     if (heap == NULL) return XtMalloc(bytes);
     if (heap->segment_size <= (int)sizeof(char*))
 	return NULL;
+#ifdef WORD64
+    if (bytes > UINT_MAX - 7)
+	return NULL;
+    bytes = (bytes + 7) & (~7);
+#else
+    if (bytes > UINT_MAX - 3)
+	return NULL;
+    bytes = (bytes + 3) & (~3);
+#endif /* WORD64 */
     if (heap->bytes_remaining < bytes) {
 	if (bytes > UINT_MAX - sizeof(char*))
 	    return NULL;
@@ -1724,16 +1733,9 @@ _XmHeapAlloc(
 	heap->current = heap_loc + sizeof(char*);
 	heap->bytes_remaining = heap->segment_size - sizeof(char*);
     }
-#ifdef WORD64
-    /* round to nearest 8-byte boundary */
-    bytes = (bytes + 7) & (~7);
-#else
-    /* round to nearest 4-byte boundary */
-    bytes = (bytes + 3) & (~3);
-#endif /* WORD64 */
     heap_loc = heap->current;
     heap->current += bytes;
-    heap->bytes_remaining -= bytes; /* can be negative, if rounded */
+    heap->bytes_remaining -= bytes;
     return heap_loc;
 }
 
