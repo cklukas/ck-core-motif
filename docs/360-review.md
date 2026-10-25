@@ -47,15 +47,17 @@ These are real coverage gaps rather than claims of known source defects:
    workflows now pass for mixed-script and multi-megabyte payloads;
    drag-and-drop transfer cancellation, broader drag-and-drop ownership and
    unqualified system-library sanitizer ownership remain open.
-4. **Non-text Unicode matrix.** The installed Label/List/ComboBox fixture now
-   covers combining, non-BMP and Han values through public APIs. Menus, file
-   selection, mnemonics, search, compound strings, keyboard layouts and full
-   application navigation still need the broader mixed-script and
+4. **Non-text Unicode matrix.** The installed public-API fixture now covers
+   Label, List, ComboBox, Menu and FileSelection values for combining, non-BMP
+   and Han text. Mnemonics, search, compound strings, keyboard layouts and
+   full application navigation still need the broader mixed-script and
    supplementary-plane journey coverage of Text and TextField.
 5. **Accessibility user journeys.** AT-SPI protocol fixtures cover transport,
-   cache identity, actions, selection, text boundaries, and multiple shells.
-   Repeatable Orca journeys for menus, lists, editable text, dialogs, selection,
-   and error states remain unqualified.
+   cache identity, actions, selection, text boundaries, and multiple shells;
+   the bounded native Orca journey now covers menus, lists, editable text,
+   selection and disclosure/scrollbar state announcements. Complete desktop
+   screen-reader, dialog/error-state and application journeys remain
+   unqualified.
 6. **Input-method services.** Local composition and selected IBus/m17n cases
    pass, but provider differences, candidate panels, keyboard layouts, and
    restart/cancellation behavior need a repeatable matrix.
