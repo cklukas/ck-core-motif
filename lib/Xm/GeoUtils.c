@@ -2430,6 +2430,9 @@ _XmGeoLoadValues(
             XtWidgetGeometry * geoSource ;
 /****************/
 
+    if (wid == NULL || geoResult == NULL ||
+        (wid == instigator && request == NULL))
+        return;
     if(    wid == instigator    )
     {   /* If this widget is making the request, then use the request info.
         */

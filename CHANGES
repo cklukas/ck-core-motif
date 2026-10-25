@@ -10295,6 +10295,12 @@ GeoUtils clear-area input validation (2026-10-25)
 - Validate rectangle, old-geometry, and parent inputs before clearing expose
   areas; see `docs/geo-clear-areas-input.md`.
 
+GeoUtils value-loading input validation (2026-10-25)
+====================================================
+
+- Validate widget, request, and output records before loading geometry values;
+  see `docs/geo-load-values-input.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
