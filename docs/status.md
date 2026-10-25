@@ -22,11 +22,13 @@ high-contrast and classic transition fixture, preserving ordinary and explicit
 resource precedence, toggle state and callbacks.  The fixture also forces a
 nested `XmApplyAppearanceProfile` and `XmSetAppearanceProfile` from a
 `SetValues` hook; both nested calls are rejected while the outer transaction
-remains authoritative.  A consumer-only ASan/UBSan run with leak detection
-disabled reports no invalid access or undefined behavior; leak-enabled output
-is limited to 224 bytes in 10 libX11/Xt Xrm allocations at process exit and
-remains an external ownership boundary.  The live scope is registered core
-widgets; gadget coverage, allocation-failure injection and the complete
+remains authoritative.  A separate Linux fault-injection consumer forces
+staging allocation failure and verifies that the profile and realized widget
+resources remain unchanged.  A consumer-only ASan/UBSan run with leak
+detection disabled reports no invalid access or undefined behavior;
+leak-enabled output is limited to 224 bytes in 10 libX11/Xt Xrm allocations at
+process exit and remains an external ownership boundary.  The live scope is
+registered core widgets; non-core gadget coverage and the complete
 historical-widget matrix remain open.
 
 ## Native hard-line and geometry qualification

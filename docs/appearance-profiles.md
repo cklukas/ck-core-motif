@@ -43,6 +43,12 @@ The operation is a UI-thread transaction: callers must not destroy widgets or
 run concurrent Xt mutations while it is in progress. Allocation and resource
 conversion are preflighted before the first widget is changed; a failed
 preflight leaves both widget values and profile selection unchanged.
+All profile conversions are retained in a prepared per-widget plan and are
+then committed in one pass, so a conversion or staging allocation failure
+cannot leave an earlier widget partially updated. The rollback fixture
+`tests/automated/run-live-appearance-rollback.py` injects a staging allocation
+failure and verifies that the selected profile and realized resources remain
+unchanged before a subsequent successful transition.
 The transaction is also deliberately non-reentrant. Appearance updates invoke
 `XtSetValues`, so a widget class `SetValues` hook can run while the outer
 transaction is in progress. A nested `XmApplyAppearanceProfile` or
