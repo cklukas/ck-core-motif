@@ -526,6 +526,7 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
     {
 	Warning(((char *)GETMESSAGE(40, 1, "Could not open display.")));
 	ExitWM (WM_ERROR_EXIT_VALUE);
+	return;
     }
 
 #if defined(sun) && defined(ALLPLANES)

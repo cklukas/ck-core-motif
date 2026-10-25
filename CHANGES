@@ -1,3 +1,9 @@
+MWM display-open failure return (2026-10-26)
+==============================================
+
+- Stop startup immediately after the existing fatal error when `XtOpenDisplay`
+  returns null; see `docs/mwm-display-open-failure.md`.
+
 MWM application-context guard (2026-10-26)
 ===========================================
 
