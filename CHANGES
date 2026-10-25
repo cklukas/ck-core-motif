@@ -39,6 +39,13 @@ Container header-creation failure guard (2026-10-26)
   the update path now manages and relayouts it only when present; see
   `docs/container-empty-heading-guard.md`.
 
+XmIm stale-XIM fallback guard (2026-10-26)
+===========================================
+
+- Skip the unrecognized-resource recreation fallback when an existing XIC
+  belongs to a different XIM instance instead of asserting; see
+  `docs/xmim-stale-xim-fallback.md`.
+
 List single-selection normalization (2026-10-26)
 =================================================
 

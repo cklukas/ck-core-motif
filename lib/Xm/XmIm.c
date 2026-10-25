@@ -1697,7 +1697,8 @@ set_values(Widget w,
       unsigned long preedit_bg, preedit_fg;
       
       /* ??? This code assumes that the XIM hasn't changed. */
-      assert(XIMOfIC(icp->xic) == xim_info->xim);
+      if (XIMOfIC(icp->xic) != xim_info->xim)
+	return;
       
       /* We do this in case an input method does not support
        * change of some value, but does allow it to be set on
