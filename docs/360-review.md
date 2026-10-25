@@ -85,8 +85,9 @@ These are real coverage gaps rather than claims of known source defects:
    the bounded native Orca journey now covers menus, lists, editable text,
    selection and disclosure/scrollbar state announcements. Complete desktop
    screen-reader and application journeys remain unqualified. The native
-   dialog journey now verifies the dialog panel, localized message label, and
-   actionable OK button through the public accessibility API.
+   dialog journey now verifies the Error, Information, Question, Warning and
+   Working dialog panels, localized message labels, and actionable OK buttons
+   through the public accessibility API.
 6. **Input-method services.** Local composition and selected IBus/m17n cases
    pass, but provider differences, candidate panels, keyboard layouts, and
    restart/cancellation behavior need a repeatable matrix.

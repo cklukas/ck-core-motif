@@ -13,6 +13,20 @@
 
 static unsigned long checks;
 
+typedef Widget (*DialogConstructor)(Widget, char *, ArgList, Cardinal);
+
+static const struct {
+    const char *name;
+    const char *message;
+    DialogConstructor construct;
+} dialog_cases[] = {
+    {"errorDialog", "An error needs your attention.", XmCreateErrorDialog},
+    {"informationDialog", "Here is some information.", XmCreateInformationDialog},
+    {"questionDialog", "Would you like to continue?", XmCreateQuestionDialog},
+    {"warningDialog", "Please check this warning.", XmCreateWarningDialog},
+    {"workingDialog", "The operation is in progress.", XmCreateWorkingDialog}
+};
+
 int main(int argc, char **argv)
 {
     XtAppContext app;
@@ -20,37 +34,41 @@ int main(int argc, char **argv)
     XmAccessibility *accessibility;
     XmAccessibleInfo info = {0};
     XmAccessibleId dialog_id, message_id, ok_id;
-    XmString value = XmStringCreateLocalized((char *)"A dialog needs your attention.");
+    size_t i;
 
     shell = XtVaAppInitialize(&app, "AccessibilityDialogRegression", NULL, 0,
                               &argc, argv, NULL, NULL);
-    dialog = XmCreateErrorDialog(shell, "errorDialog", NULL, 0);
-    XtVaSetValues(dialog, XmNmessageString, value, NULL);
-    XmStringFree(value);
-    XtManageChild(dialog);
     XtRealizeWidget(shell);
 
     accessibility = XmAccessibilityCreate(shell, "AccessibilityDialogRegression");
     CHECK(accessibility != NULL);
     CHECK(XmAccessibilityAttachShell(accessibility, shell));
-    XmAccessibilityRefresh(accessibility);
-    dialog_id = XmAccessibilityWidget(accessibility, dialog);
-    message = XmMessageBoxGetChild(dialog, XmDIALOG_MESSAGE_LABEL);
-    ok = XmMessageBoxGetChild(dialog, XmDIALOG_OK_BUTTON);
-    message_id = XmAccessibilityWidget(accessibility, message);
-    ok_id = XmAccessibilityWidget(accessibility, ok);
-    CHECK(dialog_id != XmACCESSIBLE_NONE && message_id != XmACCESSIBLE_NONE &&
-          ok_id != XmACCESSIBLE_NONE);
-    CHECK(XmAccessibilityQuery(accessibility, dialog_id, &info));
-    CHECK(info.role == XmACCESSIBLE_PANEL);
-    XmAccessibleInfoClear(&info);
-    CHECK(XmAccessibilityQuery(accessibility, message_id, &info));
-    CHECK(info.role == XmACCESSIBLE_LABEL && info.name != NULL &&
-          strcmp(info.name, "A dialog needs your attention.") == 0);
-    XmAccessibleInfoClear(&info);
-    CHECK(XmAccessibilityQuery(accessibility, ok_id, &info));
-    CHECK(info.role == XmACCESSIBLE_BUTTON && info.action_count >= 1);
-    XmAccessibleInfoClear(&info);
+    for (i = 0; i < XtNumber(dialog_cases); ++i) {
+        XmString value = XmStringCreateLocalized((char *)dialog_cases[i].message);
+        dialog = dialog_cases[i].construct(shell, (char *)dialog_cases[i].name, NULL, 0);
+        XtVaSetValues(dialog, XmNmessageString, value, NULL);
+        XmStringFree(value);
+        XtManageChild(dialog);
+        XmAccessibilityRefresh(accessibility);
+        dialog_id = XmAccessibilityWidget(accessibility, dialog);
+        message = XmMessageBoxGetChild(dialog, XmDIALOG_MESSAGE_LABEL);
+        ok = XmMessageBoxGetChild(dialog, XmDIALOG_OK_BUTTON);
+        message_id = XmAccessibilityWidget(accessibility, message);
+        ok_id = XmAccessibilityWidget(accessibility, ok);
+        CHECK(dialog_id != XmACCESSIBLE_NONE && message_id != XmACCESSIBLE_NONE &&
+              ok_id != XmACCESSIBLE_NONE);
+        CHECK(XmAccessibilityQuery(accessibility, dialog_id, &info));
+        CHECK(info.role == XmACCESSIBLE_PANEL);
+        XmAccessibleInfoClear(&info);
+        CHECK(XmAccessibilityQuery(accessibility, message_id, &info));
+        CHECK(info.role == XmACCESSIBLE_LABEL && info.name != NULL &&
+              strcmp(info.name, dialog_cases[i].message) == 0);
+        XmAccessibleInfoClear(&info);
+        CHECK(XmAccessibilityQuery(accessibility, ok_id, &info));
+        CHECK(info.role == XmACCESSIBLE_BUTTON && info.action_count >= 1);
+        XmAccessibleInfoClear(&info);
+        XtDestroyWidget(dialog);
+    }
 
     XmAccessibilityDestroy(accessibility);
     XtDestroyWidget(shell);
