@@ -1,3 +1,9 @@
+Guard icon-file cache leaf allocation (2026-10-25)
+=================================================
+
+- Release all partial derived cache fields when the leaf-name copy fails and
+  skip optional caching; see `docs/motif-iconfile-cache-leaf.md`.
+
 Guard icon-file cache directory allocation (2026-10-25)
 ========================================================
 

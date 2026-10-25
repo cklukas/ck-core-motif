@@ -870,6 +870,12 @@ XmGetIconFileName(
 
 	   iNameEntry->dirName = dirName;
 	   iNameEntry->leafName = XtNewString(filePtr);
+	   if (iNameEntry->leafName == NULL) {
+	       XtFree(iNameEntry->dirName);
+	       XtFree(iNameEntry->key_name);
+	       XtFree((char *)iNameEntry);
+	       goto skip_icon_name_cache;
+	   }
         }
 
 	_XmProcessLock();
