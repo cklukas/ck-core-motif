@@ -1523,12 +1523,14 @@ BorderUnhighlight(
 	  Redisplay((Widget) pb, NULL, NULL);
       }
 
-      XmeClearBorder(XtDisplay (pb), XtWindow (pb),
-		     pb->rectangle.x + pb->gadget.highlight_thickness,
-		     pb->rectangle.y + pb->gadget.highlight_thickness,
-		     pb->rectangle.width - 2 * pb->gadget.highlight_thickness,
-		     pb->rectangle.height - 2 * pb->gadget.highlight_thickness,
-		     pb->gadget.shadow_thickness);
+      if (pb->rectangle.width > 2 * pb->gadget.highlight_thickness &&
+          pb->rectangle.height > 2 * pb->gadget.highlight_thickness)
+        XmeClearBorder(XtDisplay (pb), XtWindow (pb),
+		       pb->rectangle.x + pb->gadget.highlight_thickness,
+		       pb->rectangle.y + pb->gadget.highlight_thickness,
+		       pb->rectangle.width - 2 * pb->gadget.highlight_thickness,
+		       pb->rectangle.height - 2 * pb->gadget.highlight_thickness,
+		       pb->gadget.shadow_thickness);
       
       if (PBG_DisarmCallback(pb))
 	{
@@ -1560,6 +1562,10 @@ BorderUnhighlight(
 		     PBG_ShowAsDefault(pb) :
 		     PBG_DefaultButtonShadowThickness(pb));
 	    
+	      if (pb->rectangle.width <= 2 * delta ||
+	          pb->rectangle.height <= 2 * delta)
+	        break;
+
 	      x = pb->rectangle.x + delta;
 	      y = pb->rectangle.y + delta;
 	      width = pb->rectangle.width - 2 * delta;
