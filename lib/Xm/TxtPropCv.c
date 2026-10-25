@@ -119,7 +119,11 @@ TextPropertyToSingleTextItem(Display *display, XTextProperty *text_prop,
 	    length += item_length;
 	  }
 	/* Allocate a buffer and jam all the strings into it */
-	newstring = (char *)XtMalloc(length + 1);
+	if (length > (size_t)UINT_MAX - 1) {
+	    XFreeStringList(textlist);
+	    return(XNoMemory);
+	}
+	newstring = (char *)XtMalloc((Cardinal)(length + 1));
 	if (newstring == NULL)
 	  {
 	    XFreeStringList(textlist);
@@ -269,7 +273,13 @@ GetTextSegment(Display *display, /* unused */
 		return(_INVALID_SEGMENT);
 	    }
 	    newlength = buffer_length + prefix_length;
-	    newstring = (char *)XtMalloc(sizeof(char) * (newlength + 1));
+	    if (newlength > (size_t)UINT_MAX - 1)
+	      {
+		XtFree(*buffer);
+		*buffer = NULL;
+		return(_INVALID_SEGMENT);
+	      }
+	    newstring = (char *)XtMalloc((Cardinal)(newlength + 1));
 	    if (newstring == NULL)
 	      {
 		XtFree(*buffer);
@@ -411,7 +421,7 @@ GetUseableText(Display *display, XmString xmstring, char **buffer,
 	  }
 	/* then to a text property in TextStyle encoding ... */
 	txt_len = strlen(compound_text);
-	if (txt_len > SIZE_MAX - 2)
+	if (txt_len > SIZE_MAX - 2 || txt_len > (size_t)UINT_MAX - 2)
 	  {
 	    XtFree(compound_text);
 	    _XmStringContextFree(&stack_context);
