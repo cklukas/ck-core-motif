@@ -9783,6 +9783,13 @@ FontSelector label initialization rollback (2026-10-28)
 SpinBox value-list SetValues rollback (2026-10-28)
 =====================================================
 
+MWM default-menu allocation fallback (2026-10-25)
+=================================================
+
+- Fall back to the built-in system menu when localized temporary-menu
+  assembly cannot allocate its buffer, avoiding null formatting during MWM
+  startup; see `docs/mwm-default-menu-allocation.md`.
+
 MWM CCI argument allocation guard (2026-10-25)
 ===============================================
 

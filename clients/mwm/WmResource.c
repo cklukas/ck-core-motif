@@ -413,6 +413,20 @@ void InitBuiltinSystemMenu(void)
         if (dsm_length < 0)
             dsm_length = 0;
         dsm = XtMalloc((size_t)dsm_length + 1);
+        if (dsm == NULL)
+        {
+            Warning (((char *)GETMESSAGE(62, 21,
+                     "Insufficient memory for localized default system menu")));
+#ifdef WSM
+            builtinSystemMenu = (char *)XtNewString(
+                DtwmBehavior ? (String)DEFAULT_DTWM_SYSTEMMENU :
+                (String)BUILTINSYSTEMMENU);
+#else /* WSM */
+            builtinSystemMenu = (char *)XtNewString(
+                (String)BUILTINSYSTEMMENU);
+#endif /* WSM */
+            goto dsm_done;
+        }
 #ifdef WSM
         if (DtwmBehavior)
             (void) snprintf(dsm, (size_t)dsm_length + 1,
@@ -454,6 +468,7 @@ void InitBuiltinSystemMenu(void)
 	{
 	    strcpy(builtinSystemMenu, dsm);
 	}
+dsm_done:
 	XtFree(dsm);
     }
 
