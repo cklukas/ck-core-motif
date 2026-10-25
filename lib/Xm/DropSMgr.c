@@ -3295,12 +3295,15 @@ CreateInfo(
 		(fullInfoRec.animation_pixmap != XmUNSPECIFIED_PIXMAP) &&
 		(fullInfoRec.animation_pixmap_depth == 0))
 	{
+	    int pixmap_depth = 0;
+
 	    /*
 	     * They didn't tell us the depth of the pixmaps.  ask for it. */
 	    XmeGetPixmapData(XtScreen(widget), fullInfoRec.animation_pixmap,
-			     NULL,    
-			     (int*)&(fullInfoRec.animation_pixmap_depth),
+			     NULL,
+			     &pixmap_depth,
 			     NULL, NULL, NULL, NULL, NULL, NULL); 
+	    fullInfoRec.animation_pixmap_depth = (Cardinal) pixmap_depth;
 	}
 
 	if ((fullInfoRec.type == XmDROP_SITE_COMPOSITE) &&
@@ -3762,11 +3765,13 @@ UpdateInfo(
 		(full_info->animation_pixmap_depth == 0))
 	{
 	    Widget widget = GetDSWidget(info);
+	    int pixmap_depth = 0;
 
 	    XmeGetPixmapData(XtScreen(widget), full_info->animation_pixmap,
-			     NULL,    
-			     (int*)&(full_info->animation_pixmap_depth),
+			     NULL,
+			     &pixmap_depth,
 			     NULL, NULL, NULL, NULL, NULL, NULL); 
+	    full_info->animation_pixmap_depth = (Cardinal) pixmap_depth;
 	}
 
 	/*
