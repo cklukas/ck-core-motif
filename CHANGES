@@ -1,3 +1,9 @@
+XmString table conversion locking (2026-10-26)
+===============================================
+
+- Avoid recursive locking in `XmStringToXmStringTable` and clean its table
+  allocation failure path; see `docs/xmstring-table-locking.md`.
+
 XmString enumeration locking (2026-10-26)
 ==========================================
 
