@@ -11,6 +11,8 @@ assert "if (new_head == NULL)" in alloc
 assert alloc.count("UINT_MAX / sizeof(XmTraversalNodeRec)") >= 2
 assert "list->head = new_head" in alloc
 assert "return NULL;" in alloc
+assert "XtMalloc((Cardinal)(new_alloc * sizeof(XmTraversalNodeRec)))" in alloc
+assert "(Cardinal)(new_alloc * sizeof(XmTraversalNodeRec))" in alloc
 assert "if (list_entry == NULL)" in get_nodes
 assert "if (controls_graph == NULL)" in get_nodes
 print("PASS traversal-node growth handles allocation failure")

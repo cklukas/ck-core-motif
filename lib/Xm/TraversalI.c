@@ -1171,7 +1171,7 @@ AllocListEntry(
           new_alloc > UINT_MAX / sizeof(XmTraversalNodeRec))
         return NULL;
       new_head = (XmTraversalNode)
-        XtMalloc(new_alloc * sizeof(XmTraversalNodeRec));
+        XtMalloc((Cardinal)(new_alloc * sizeof(XmTraversalNodeRec)));
       if (new_head == NULL)
         return NULL;
       list->head = new_head;
@@ -1185,7 +1185,7 @@ AllocListEntry(
         return NULL;
       new_head = (XmTraversalNode)
         XtRealloc((char *)list->head,
-                  new_alloc * sizeof(XmTraversalNodeRec));
+                  (Cardinal)(new_alloc * sizeof(XmTraversalNodeRec)));
       if (new_head == NULL)
         return NULL;
       list->head = new_head;
@@ -1723,12 +1723,14 @@ Sort(XmTraversalNode *list,
           {
             XmTraversalRow *new_rows;
             size_t new_row_count = (size_t)num_rows + 1;
-            if (new_row_count > SIZE_MAX / sizeof(*new_rows)) {
+            if (new_row_count > SIZE_MAX / sizeof(*new_rows) ||
+                new_row_count > UINT_MAX / sizeof(*new_rows)) {
               XtFree((char *)new_data.items);
               goto allocation_failure;
             }
             new_rows = (XmTraversalRow *)XtRealloc(
-                (char *)rows, new_row_count * sizeof(*new_rows));
+                (char *)rows,
+                (Cardinal)(new_row_count * sizeof(*new_rows)));
             if (new_rows == NULL) {
               XtFree((char *)new_data.items);
               goto allocation_failure;

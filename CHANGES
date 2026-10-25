@@ -10667,6 +10667,13 @@ Legacy charset canonicalization allocation guards (2026-10-25)
   strings, returning `NULL` on failure; see
   `docs/charset-canonicalize-allocation.md`.
 
+Bound traversal row allocation widths (2026-10-26)
+==================================================
+
+- Add the missing Xt `Cardinal` check to traversal-row growth and pass explicit
+  Xt-sized byte counts through traversal node and row allocation paths; see
+  `docs/traversal-row-allocation.md` and `docs/traversal-node-allocation.md`.
+
 Make XmString table conversion widths explicit (2026-10-26)
 ============================================================
 
