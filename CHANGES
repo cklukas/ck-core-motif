@@ -8423,3 +8423,9 @@ IconButton pixel-cache allocation (2026-10-27)
 
 - Check pixel-cache entry, list, and element allocations, releasing partial
   state and a newly-created empty list when insertion cannot be completed.
+
+PanedWindow managed-child allocation (2026-10-27)
+===================================================
+
+- Check managed-child list initialization and bounded growth, preserving the
+  existing list and stopping safely when capacity allocation fails.

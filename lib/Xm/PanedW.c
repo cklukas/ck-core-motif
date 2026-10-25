@@ -32,6 +32,7 @@ static char rcsid[] = "$TOG: PanedW.c /main/24 1999/07/13 07:46:01 mgreess $"
 
 
 #include <ctype.h>
+#include <stdint.h>
 #include <X11/cursorfont.h>
 #include "XmI.h"
 #include <Xm/PanedWP.h>
@@ -519,7 +520,8 @@ Initialize(
   pw->paned_window.pane_count = 0;
   pw->paned_window.managed_children =
                           (WidgetList) XtMalloc(XmBLOCK*sizeof(Widget));
-  pw->paned_window.num_slots = XmBLOCK;
+  pw->paned_window.num_slots =
+      pw->paned_window.managed_children ? XmBLOCK : 0;
   pw->paned_window.num_managed_children = 0;
   PaneStartPos(pw) = 0;
   PaneFirst(pw) = NULL;
@@ -810,10 +812,19 @@ ReManageChildren(
 	    if ((pw->paned_window.num_managed_children+1) >
 				 pw->paned_window.num_slots)
             {
-	       pw->paned_window.num_slots += XmBLOCK;
-	       pw->paned_window.managed_children = (WidgetList)
-		  XtRealloc ((char *) pw->paned_window.managed_children,
-			     (pw->paned_window.num_slots * sizeof(Widget)));
+	       Cardinal new_slots;
+	       WidgetList new_children;
+	       if (pw->paned_window.num_slots >
+		   (Cardinal)(SIZE_MAX / sizeof(Widget) - XmBLOCK))
+		   return;
+	       new_slots = pw->paned_window.num_slots + XmBLOCK;
+	       new_children = (WidgetList) XtRealloc(
+		   (char *) pw->paned_window.managed_children,
+		   (size_t)new_slots * sizeof(Widget));
+	       if (new_children == NULL)
+		   return;
+	       pw->paned_window.managed_children = new_children;
+	       pw->paned_window.num_slots = new_slots;
             }
 	    pw->paned_window.managed_children
 	            [pw->paned_window.num_managed_children++] =
