@@ -876,6 +876,12 @@ XmeCreateClassDialog(
     */
     bb = XtCreateWidget(name, w_class, ds, bb_args, bb_n) ;
 
+    if (!bb)
+    {
+	XtDestroyWidget(ds);
+	return NULL;
+    }
+
     /*	Add callback to destroy DialogShell parent.
     */
     XtAddCallback(bb, XmNdestroyCallback, _XmDestroyParentCallback, 

@@ -1,3 +1,10 @@
+Xme class-dialog child rollback (2026-10-26)
+===============================================
+
+- Roll back the temporary dialog shell when `XmeCreateClassDialog` cannot
+  create its child, avoiding callback registration on a null widget; see
+  `docs/xme-class-dialog-creation.md`.
+
 UTM payload failure cleanup (2026-10-26)
 =========================================
 
