@@ -1713,14 +1713,22 @@ _XmStringSourceCreate(char *value,
   XmSourceData data;
   int num_chars;
   char newline = '\n';
-  wchar_t *wc_value;
-  char * tmp_value;
+  wchar_t *wc_value = NULL;
+  char * tmp_value = NULL;
   int char_size, max_char_size;
   int ret_value = 0;
 
   source = (XmTextSource) XtMalloc((unsigned) sizeof(XmTextSourceRec));
-  data = source->data = (XmSourceData)
-    XtMalloc((unsigned) sizeof(XmSourceDataRec));
+  if (source == NULL)
+    return NULL;
+  data = (XmSourceData) XtMalloc((unsigned) sizeof(XmSourceDataRec));
+  if (data == NULL)
+    {
+      XtFree((char *)source);
+      return NULL;
+    }
+  memset(data, 0, sizeof(*data));
+  source->data = data;
   source->AddWidget = AddWidget;
   source->CountLines = CountLines;
   source->RemoveWidget = RemoveWidget;
@@ -1745,10 +1753,13 @@ _XmStringSourceCreate(char *value,
   }
   
   if (is_wchar) {
-    for (num_chars = 0, wc_value = (wchar_t*)value; 
-	 wc_value[num_chars] != 0L;
-	 num_chars++)
-      /*EMPTY*/;
+    if (value == NULL)
+      num_chars = 0;
+    else
+      for (num_chars = 0, wc_value = (wchar_t*)value;
+	   wc_value[num_chars] != 0L;
+	   num_chars++)
+	/*EMPTY*/;
     
     data->maxlength = TEXT_INITIAL_INCREM;
     
@@ -1761,8 +1772,13 @@ _XmStringSourceCreate(char *value,
     
     data->old_length = 0;
     data->ptr = XtMalloc((unsigned)((data->maxlength) * char_size));
+    if (data->ptr == NULL)
+      goto allocation_failure;
     tmp_value = XtMalloc((unsigned)((num_chars + 1) * max_char_size));
-    ret_value = wcstombs(tmp_value, wc_value, (num_chars + 1) * max_char_size);
+    if (tmp_value == NULL)
+      goto allocation_failure;
+    ret_value = value == NULL ? 0 :
+      wcstombs(tmp_value, wc_value, (num_chars + 1) * max_char_size);
     data->value = NULL;  /* Scratch area for block->ptr conversions */
     /* Doesnt include NULL */
     if (ret_value < 0)
@@ -1787,6 +1803,8 @@ _XmStringSourceCreate(char *value,
     
     data->old_length = 0;
     data->ptr = XtMalloc((unsigned)((data->maxlength) * char_size));
+    if (data->ptr == NULL)
+      goto allocation_failure;
     
     data->value = NULL;  /* Scratch area for block->ptr conversions */
     data->length = _XmTextBytesToCharacters(data->ptr, value, num_chars,
@@ -1794,11 +1812,15 @@ _XmStringSourceCreate(char *value,
   }
   
   data->PSWC_NWLN = (char *) XtMalloc(char_size);
+  if (data->PSWC_NWLN == NULL)
+    goto allocation_failure;
   _XmTextBytesToCharacters(data->PSWC_NWLN, &newline, 1, False, 
 			   max_char_size);
   
   data->numwidgets = 0;
   data->widgets = (XmTextWidget *) XtMalloc((unsigned) sizeof(XmTextWidget));
+  if (data->widgets == NULL)
+    goto allocation_failure;
   data->hasselection = False;
   data->take_selection = True;
   data->left = data->right = 0;
@@ -1808,6 +1830,16 @@ _XmStringSourceCreate(char *value,
   data->gap_end = data->ptr + ((data->maxlength - 1) * char_size);
   data->prim_time = 0;
   return source;
+
+allocation_failure:
+  XtFree(tmp_value);
+  XtFree((char *)data->widgets);
+  XtFree((char *)data->PSWC_NWLN);
+  XtFree((char *)data->value);
+  XtFree((char *)data->ptr);
+  XtFree((char *)data);
+  XtFree((char *)source);
+  return NULL;
 }
 
 void 
