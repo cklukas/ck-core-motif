@@ -1,3 +1,10 @@
+CascadeButton legacy fill guard (2026-10-25)
+=============================================
+
+- Apply the armed/background GC and dimension checks to the legacy
+  non-`FIX_1509` etched-in fill branch as well; see
+  `docs/cascade-button-legacy-fill-guard.md`.
+
 CascadeButtonGadget pixmap draw guards (2026-10-25)
 ===================================================
 

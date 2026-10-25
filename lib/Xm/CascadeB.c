@@ -605,6 +605,7 @@ Redisplay(
 	XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(cb));
 	Boolean etched_in = dpy->display.enable_etched_in_menu;
 	GC tmpGC = NULL;
+	GC fillGC = NULL;
 	XtExposeProc expose;
 
 	if (etched_in) {
@@ -619,9 +620,10 @@ Redisplay(
 	        XClearArea(XtDisplay(cb), XtWindow(cb),
 				0, 0, cb->core.width, cb->core.height, False);
 #else
-	    XFillRectangle(XtDisplay(cb), XtWindow(cb),
-		           CB_IsArmed(cb) ? CB_ArmGC(cb) : CB_BackgroundGC(cb),
-			   0, 0, cb->core.width, cb->core.height);
+            fillGC = CB_IsArmed(cb) ? CB_ArmGC(cb) : CB_BackgroundGC(cb);
+            if (fillGC != NULL && cb->core.width != 0 && cb->core.height != 0)
+	      XFillRectangle(XtDisplay(cb), XtWindow(cb), fillGC,
+			     0, 0, cb->core.width, cb->core.height);
 #endif
 #ifdef USE_XFT
 	} else if (Lab_MenuType(cb) != XmWORK_AREA) { /* adeed with XFT support */
