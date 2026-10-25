@@ -1135,12 +1135,16 @@ XmeGetNullCursor(
 	foreground.pixel =  
 	  background.pixel = 0;
 	pixmap =
-	  XCreatePixmapFromBitmapData(XtDisplayOfObject(w), 
+	  XCreatePixmapFromBitmapData(XtDisplayOfObject(w),
 				      RootWindowOfScreen(XtScreenOfObject(w)),
 				      (char*)nullBits,
-				      4, 4,  
+				      4, 4,
 				      0, 0,
 				      1);
+	if (pixmap == XmUNSPECIFIED_PIXMAP) {
+	    _XmAppUnlock(app);
+	    return None;
+	}
 	cursor =
 	  XCreatePixmapCursor(XtDisplayOfObject(w),
 			      pixmap,
@@ -1148,6 +1152,10 @@ XmeGetNullCursor(
 			      &foreground, &background,
 			      0, 0);
 	XFreePixmap(XtDisplayOfObject(w), pixmap);
+	if (cursor == None) {
+	    _XmAppUnlock(app);
+	    return None;
+	}
 	xmScreen->screen.nullCursor = cursor;
     }
     cursor = xmScreen->screen.nullCursor;
