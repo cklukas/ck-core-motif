@@ -1,4 +1,9 @@
 2026-10-25
+	* Make per-display font-list cache growth transactional, returning `NULL`
+	  without changing capacity when allocation fails; see
+	  docs/default-font-cache-allocation.md.
+
+2026-10-25
 	* Guard atom-name list growth and atom-array allocation, releasing token and
 	  name-list storage on failure; see docs/atom-list-converter-allocation.md.
 
