@@ -7,6 +7,10 @@
 	* Add the opt-in XmToolbar composite with copied action presentation and
 	  priority-based overflow into a normal Motif menu; see docs/toolbar.md.
 
+2026-10-25
+	* Add the opt-in XmSidebar composite with explicit content hosting,
+	  bounded collapse/expansion and focus restoration; see docs/sidebar.md.
+
 2026-10-26
 	* Validate Mrm pointer-list state before freeing contents.
 

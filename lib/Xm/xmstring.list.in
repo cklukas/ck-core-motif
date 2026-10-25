@@ -1174,6 +1174,15 @@ NtoolbarOverflowLabel
 CToolbarActivateCallback
 NtoolbarActivateCallback
 
+CSidebarExpandedWidth
+NsidebarExpandedWidth
+CSidebarCollapsedWidth
+NsidebarCollapsedWidth
+CSidebarExpanded
+NsidebarExpanded
+CSidebarToggleCallback
+NsidebarToggleCallback
+
 #table _XmStrings20
 
 NtearOffTitle
