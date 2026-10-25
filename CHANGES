@@ -4289,3 +4289,11 @@ Icon-box virtual-space expansion bounds (2026-10-25)
 
 Icon-box initialization bounds (2026-10-25)
 ============================================
+Icon-box resize guards (2026-10-25)
+====================================
+
+- Validate icon-box state and dimension increments before processing resize
+  events; see `docs/icon-resize-guards.md`.
+
+Icon-box virtual-space expansion bounds (2026-10-25)
+=====================================================

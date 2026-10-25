@@ -2646,6 +2646,11 @@ void CheckIconBoxResize (ClientData *pCD, unsigned int changedValues, int newWid
     Dimension oldWidth;
     Dimension oldHeight;
 
+    if (pCD == NULL || pCD->thisIconBox == NULL ||
+        pCD->thisIconBox->bBoardWidget == NULL ||
+        pCD->widthInc <= 0 || pCD->heightInc <= 0)
+        return;
+
     pIPD = &pCD->thisIconBox->IPD;
     pIBD = pCD->thisIconBox;
 
