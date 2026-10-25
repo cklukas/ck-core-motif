@@ -113,6 +113,14 @@ void InitIconPlacement (WmWorkspaceData *pWS)
     size_t totalPlaces;
     size_t placeBytes;
 
+    if (pWS == NULL || pWS->pSD == NULL ||
+        pWS->pSD->iconWidth <= 0 || pWS->pSD->iconHeight <= 0)
+    {
+	Warning (((char *)GETMESSAGE(34, 1,
+	    "Invalid icon dimensions for icon placement")));
+	wmGD.iconAutoPlace = False;
+	return;
+    }
 
     xMargin = yMargin = extraPX = extraPY = 0;
 
