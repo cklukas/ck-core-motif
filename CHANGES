@@ -5,6 +5,12 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+XmString ASN.1 truncation overflow guard (2026-10-26)
+=======================================================
+
+- Reject component-size accumulation overflow before resizing truncated
+  compound strings; see `docs/xmstring-truncate-overflow.md`.
+
 XmStringByteCompare conversion failure handling (2026-10-26)
 ==============================================================
 

@@ -10435,6 +10435,10 @@ _XmStringTruncateASN1(unsigned char *str, int n)
       new_c = _read_component(ap, &d2, &d1, NULL);
 
       delta = length + header;
+      if (delta > (unsigned short)~0 - used) {
+	XtFree((char *)str);
+	return (NULL);
+      }
       used += delta;
       ap = new_c;
       length = _read_asn1_length(ap);
