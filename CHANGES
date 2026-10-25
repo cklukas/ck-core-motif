@@ -1,3 +1,10 @@
+PushButton label rectangle bounds (2026-10-25)
+===============================================
+
+- Clamp label rectangles when highlight and shadow decorations exceed a tiny
+  button, preventing unsigned XRectangle dimensions from wrapping; see
+  `docs/pushbutton-label-geometry.md`.
+
 PushButtonGadget label rectangle bounds (2026-10-25)
 =====================================================
 

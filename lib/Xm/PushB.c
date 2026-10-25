@@ -1563,8 +1563,12 @@ ComputePBLabelArea(
   box->x = dx;
   box->y = dx;
   adjust = (dx << 1);
-  box->width  = pb->core.width - adjust;
-  box->height = pb->core.height - adjust;
+  /* XRectangle dimensions are unsigned.  A heavily decorated small
+   * button must not wrap a negative content size into a giant rectangle. */
+  box->width = (pb->core.width > (Dimension)adjust) ?
+      (pb->core.width - (Dimension)adjust) : 0;
+  box->height = (pb->core.height > (Dimension)adjust) ?
+      (pb->core.height - (Dimension)adjust) : 0;
 }
 	
 /*
