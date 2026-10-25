@@ -1,3 +1,9 @@
+Mrm resource-descriptor bounds (2026-10-25)
+=============================================
+
+- Validate embedded resource descriptor sizes, RID extents, and indexed keys
+  before field access; see `docs/mrm-resource-record-bounds.md`.
+
 Mrm callback-value offset bounds (2026-10-25)
 ===============================================
 
