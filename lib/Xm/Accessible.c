@@ -31,6 +31,7 @@
 #include <Xm/Chip.h>
 #include <Xm/Badge.h>
 #include <Xm/Link.h>
+#include <Xm/SearchBox.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
 #include <Xm/PushBG.h>
@@ -636,6 +637,14 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     if (XmIsLink(w))
       XtAddCallback(w, XmNlinkActivateCallback, text_value_changed,
                     (XtPointer)a);
+    if (XmIsSearchBox(w)) {
+      XtAddCallback(w, XmNsearchQueryChangedCallback, text_value_changed,
+                    (XtPointer)a);
+      XtAddCallback(w, XmNsearchCommittedCallback, text_value_changed,
+                    (XtPointer)a);
+      XtAddCallback(w, XmNsearchClearedCallback, text_value_changed,
+                    (XtPointer)a);
+    }
     if (XmIsNumberBox(w))
       XtAddCallback(w, XmNnumberValueChangedCallback, text_value_changed,
                     (XtPointer)a);
@@ -782,6 +791,14 @@ static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
     if (XmIsLink(n->widget))
       XtRemoveCallback(n->widget, XmNlinkActivateCallback, text_value_changed,
                        (XtPointer)a);
+    if (XmIsSearchBox(n->widget)) {
+      XtRemoveCallback(n->widget, XmNsearchQueryChangedCallback,
+                       text_value_changed, (XtPointer)a);
+      XtRemoveCallback(n->widget, XmNsearchCommittedCallback,
+                       text_value_changed, (XtPointer)a);
+      XtRemoveCallback(n->widget, XmNsearchClearedCallback,
+                       text_value_changed, (XtPointer)a);
+    }
     if (XmIsNumberBox(n->widget))
       XtRemoveCallback(n->widget, XmNnumberValueChangedCallback,
                        text_value_changed, (XtPointer)a);
@@ -1272,6 +1289,15 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
       local = XmStringUnparse(label_string, NULL, XmCHARSET_TEXT,
                               XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
   }
+  if (XmIsSearchBox(w)) {
+    char *query = XmSearchBoxGetString(w);
+    i->role = XmACCESSIBLE_TEXT;
+    i->has_text = True;
+    i->text_length = query ? (int)strlen(query) : 0;
+    i->action_count = 1;
+    i->name = XtNewString("Search");
+    if (query) XtFree(query);
+  }
   if (XmIsNumberBox(w)) {
     int minimum, maximum;
     i->role = XmACCESSIBLE_PROGRESS_BAR;
@@ -1508,6 +1534,10 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
   }
   if (XmIsLink(n->widget)) {
     XmLinkActivate(n->widget, NULL);
+    return True;
+  }
+  if (XmIsSearchBox(n->widget)) {
+    XmSearchBoxCommit(n->widget, NULL);
     return True;
   }
   if (XmIsArrowButton(n->widget)) {

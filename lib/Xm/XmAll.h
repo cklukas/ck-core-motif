@@ -78,6 +78,7 @@
 #include <Xm/Chip.h>
 #include <Xm/Badge.h>
 #include <Xm/Link.h>
+#include <Xm/SearchBox.h>
 #include <Xm/NumberBox.h>
 #include <Xm/RatingControl.h>
 #include <Xm/MwmUtil.h>
