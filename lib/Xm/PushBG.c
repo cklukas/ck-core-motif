@@ -1343,8 +1343,10 @@ Leave(
 	     LabG_BackgroundGC(pb), 
 	     pb->rectangle.x + pb->gadget.highlight_thickness,
 	     pb->rectangle.y + pb->gadget.highlight_thickness,
-	     pb->rectangle.width - 2 * pb->gadget.highlight_thickness,
-	     pb->rectangle.height - 2 * pb->gadget.highlight_thickness,
+	     (int) pb->rectangle.width -
+	     2 * (int) pb->gadget.highlight_thickness,
+	     (int) pb->rectangle.height -
+	     2 * (int) pb->gadget.highlight_thickness,
 	     pb->gadget.shadow_thickness);
 	  
 	  if (PBG_DisarmCallback(pb))

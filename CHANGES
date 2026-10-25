@@ -1,3 +1,10 @@
+PushButton gadget highlight bounds (2026-10-26)
+=================================================
+
+- Pass menu-disarm highlight dimensions in signed arithmetic, preventing
+  collapsed PushButton gadgets from wrapping spans; see
+  `docs/pushbg-highlight-bounds.md`.
+
 CascadeButton gadget highlight bounds (2026-10-26)
 ====================================================
 
