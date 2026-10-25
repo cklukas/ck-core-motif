@@ -48,8 +48,8 @@ These are real coverage gaps rather than claims of known source defects:
    8/16/32-bit format assembly, merge bounds and repeated owner destruction
    against that dependency. DropSMgr auto-drag teardown now passes its own
    strict sanitizer fixture; direct Motif-to-Motif Text/TextField clipboard
-   workflows now pass for mixed-script and multi-megabyte payloads;
-   The new installed drop-site lifecycle probe covers registration,
+   workflows now pass for mixed-script and multi-megabyte payloads. The new
+   installed drop-site lifecycle probe covers registration,
    retrieval, update bracketing, explicit unregister/re-register and implicit
    registered-widget teardown. Drag-and-drop transfer cancellation, broader
    drag-and-drop ownership and unqualified system-library sanitizer ownership
