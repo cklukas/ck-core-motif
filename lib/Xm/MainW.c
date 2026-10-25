@@ -1076,7 +1076,7 @@ ChangeManaged(
 			(mw->composite.num_slots / 2) + 2;
 		    new_children = (WidgetList)XtRealloc(
 			(char *)mw->composite.children,
-			(size_t)new_slots * sizeof(Widget));
+		(Cardinal)((size_t)new_slots * sizeof(Widget)));
 		    if (new_children == NULL)
 			return;
 		    mw->composite.children = new_children;

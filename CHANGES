@@ -5767,6 +5767,12 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+MainW child-growth allocation cast (2026-10-25)
+================================================
+
+- Pass the already-bounded MainW composite child-list size explicitly as an
+  Xt `Cardinal` during growth; see `docs/mainw-child-growth.md`.
+
 PanedWindow managed-child Xt width (2026-10-25)
 ================================================
 
