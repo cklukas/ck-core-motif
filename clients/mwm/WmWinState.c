@@ -1384,6 +1384,13 @@ void ShowIconForMinimizedClient (WmWorkspaceData *pWS, ClientData *pCD)
 							 pCD->clientX,
 			               	                 pCD->clientY);
 	    }
+	    if (ICON_PLACE(pCD) < 0 ||
+		ICON_PLACE(pCD) >= pWS->IPData.totalPlaces)
+	    {
+		ICON_PLACE(pCD) = NO_ICON_PLACE;
+		return;
+	    }
+
 	    CvtIconPlaceToPosition (&pWS->IPData, ICON_PLACE(pCD), 
 				    &ICON_X(pCD), &ICON_Y(pCD));
 

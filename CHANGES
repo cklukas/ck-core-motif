@@ -1,3 +1,9 @@
+Minimized-icon placement validation (2026-10-25)
+=================================================
+
+- Reject invalid converted placement indices before updating the workspace
+  placement list; see `docs/show-icon-placement-sentinel.md`.
+
 Focus callback context validation (2026-10-25)
 ===============================================
 
