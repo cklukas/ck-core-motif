@@ -2575,6 +2575,12 @@ Boolean CheckIconBoxSize (IconBoxData *pIBD)
     int oldCol, oldRow;
     Boolean rval = True;
 
+    if (pIBD == NULL || pIBD->bBoardWidget == NULL ||
+	pIBD->pCD_iconBox == NULL ||
+	pIBD->pCD_iconBox->widthInc <= 0 ||
+	pIBD->pCD_iconBox->heightInc <= 0)
+	return (False);
+
     i=0;
     XtSetArg (getArgs[i], XmNwidth, (XtArgVal) &oldWidth ); i++;
     XtSetArg (getArgs[i], XmNheight, (XtArgVal) &oldHeight ); i++;

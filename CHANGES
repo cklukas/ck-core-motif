@@ -1,3 +1,9 @@
+Icon-box size validation (2026-10-25)
+=====================================
+
+- Validate icon-box widgets and increments before resize calculations; see
+  `docs/iconbox-size-guards.md`.
+
 Icon-box maximum-size reset validation (2026-10-25)
 ====================================================
 
