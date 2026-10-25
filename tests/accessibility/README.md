@@ -116,9 +116,11 @@ fixture, installed prefix, fresh absolute output directory and a short fresh
 runtime path with `--fixture`, `--prefix`, `--out` and `--runtime`. The observer
 records the actual process/library identities, utterances and generated PCM
 without an audio device or user preference changes. Covered native controls
-include buttons, toggles, editable/read-only Unicode text, selection, Disclosure
-and ScrollBar. This subset does not qualify native list/menu items, precise edit
-notifications, custom-provider layout, a complete application or human usability.
+include buttons, toggles, editable/read-only Unicode text, selection, native
+list/list-items, menu/menu-items, Disclosure and ScrollBar. The bounded journey
+asserts list/menu announcements but does not qualify complete list/menu
+semantics across desktop/application shells, precise edit notifications,
+custom-provider layout, a complete application or human usability.
 
 
 `text_events.c` and `observe_text_events.py` exercise native Text/TextField and
