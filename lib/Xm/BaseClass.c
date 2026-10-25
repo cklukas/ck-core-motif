@@ -38,6 +38,7 @@ static char rcsid[] = "$TOG: BaseClass.c /main/20 1997/03/31 13:14:31 dbl $"
 #include <Xm/Screen.h>
 #include <Xm/VendorSEP.h>
 #include <Xm/XmosP.h>		/* for bzero */
+#include <stdint.h>
 #include "BaseClassI.h"
 #include "CallbackI.h"
 #include "DropSMgrI.h"
@@ -1721,10 +1722,12 @@ static XtResourceList*
 CreateIndirectionTable(XtResourceList resources, 
 			 Cardinal num_resources)
 {
-  register int i;
+  register Cardinal i;
   XtResourceList* table;
-  
-  table = (XtResourceList*)XtMalloc(num_resources * sizeof(XtResourceList));
+
+  if ((size_t)num_resources > SIZE_MAX / sizeof(*table))
+    return NULL;
+  table = (XtResourceList*)XtMalloc((size_t)num_resources * sizeof(*table));
   if (!table)
     return NULL;
   for (i = 0; i < num_resources; i++)

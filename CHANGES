@@ -63,6 +63,8 @@ Xft compound-string line height (2026-10-27)
   hit-test child traversals.
 - Use a full-width `Cardinal` counter when IconButton scans its Xt argument
   list.
+- Harden BaseClass resource-indirection table creation against signed-counter
+  narrowing and `size_t` allocation overflow.
 - Use full-width `Cardinal` indices throughout Hierarchy child traversal and
   rewrite reverse insertion shifts without signed negative sentinels.
 - Use a full-width `Cardinal` index while scanning Manager composite children
