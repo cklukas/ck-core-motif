@@ -1,3 +1,9 @@
+Icon visibility validation (2026-10-25)
+=======================================
+
+- Validate client and icon-box widgets before visibility geometry queries; see
+  `docs/icon-visible-guards.md`.
+
 Icon root-coordinate validation (2026-10-25)
 =============================================
 

@@ -3782,9 +3782,23 @@ Boolean IconVisible (ClientData *pCD)
 
     Boolean rval = True;
 #ifdef WSM
-    WsClientData *pWsc = GetWsClientData (pCD->pSD->pActiveWS, pCD);
+    WsClientData *pWsc = NULL;
 #endif /* WSM */
 
+    if (pCD == NULL || pCD->pSD == NULL)
+	return (False);
+#ifdef WSM
+    pWsc = GetWsClientData (pCD->pSD->pActiveWS, pCD);
+    if (!pCD->pSD->useIconBox || pWsc == NULL || pWsc->pIconBox == NULL ||
+	pWsc->pIconBox->clipWidget == NULL ||
+	pWsc->pIconBox->scrolledWidget == NULL)
+	return (False);
+#else /* WSM */
+    if (!pCD->pSD->useIconBox || P_ICON_BOX(pCD) == NULL ||
+	P_ICON_BOX(pCD)->clipWidget == NULL ||
+	P_ICON_BOX(pCD)->scrolledWidget == NULL)
+	return (False);
+#endif /* WSM */
 
     
     int i;
