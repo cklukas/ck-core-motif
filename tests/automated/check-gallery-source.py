@@ -42,6 +42,11 @@ def main() -> int:
         if api not in source_contract:
             print(f"gallery shell is missing {api}", file=sys.stderr)
             return 1
+    if ("Theme/DPI: live public transactions" not in gallery or
+            "live controls are not enabled" not in gallery or
+            "theme/dpi live transaction PASS" not in gallery):
+        print("gallery integration does not assert enabled live controls", file=sys.stderr)
+        return 1
     for contract in ("parse_appearance", "parse_scale", "XmApplyAppearanceProfile",
                      "XmSetDisplayScaleOverride", "XSync(XtDisplay(shell), False)",
                      "--appearance requires a profile name",

@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Run the native gallery smoke test when a display is available.
-
-The test is intentionally opt-in until the live appearance/DPI transactions
-are implemented by the toolkit.  It still validates the installed native
-binary's public-widget shell when invoked with a display.
-"""
+"""Run the native gallery integration test when a display is available."""
 from __future__ import annotations
 
 import os
@@ -31,7 +26,7 @@ def main() -> int:
             "navigation tabs interaction state PASS" in result.stdout and
             "keyboard traversal and focus restoration PASS" in result.stdout and
             "acceptance metadata" in result.stdout and
-            "theme/dpi live transaction PENDING toolkit qualification" in result.stdout):
+            "theme/dpi live transaction PASS" in result.stdout):
         return 0
     return result.returncode or 1
 

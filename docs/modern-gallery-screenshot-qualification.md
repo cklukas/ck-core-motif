@@ -85,6 +85,15 @@ evidence, not publication imagery. The gallery binary fingerprint was
 installed `libXm.so.8.0.0` fingerprint was
 `3fe2f3d43371e8cb4639a50b04c5ead68aa6fb735d85d6f115958c6bb96ea5c9`.
 
+The same installed cohort's normal gallery build now enables the Theme and
+DPI controls. `run-gallery-integration.py` passed the 84-available/94-entry
+shell checks, keyboard and focus checks, and a live modern-light transition
+followed by the 1.5/2.0/3.0/clear DPI callback cycle. The verified gallery
+binary for that run was
+`62a9d7b87efe7bd3a297baf1a7805722ad6225eec986b73ab7b682906e1f3aca`, linked
+against `libXm.so.8.0.0`
+`e84df8544290de7ac4fd8918425680da59e211f0140f70257bd97234ca5305f5`.
+
 Published PNGs are projected into `docs/gallery-screenshots/manifest.json` by
 `tests/automated/generate-gallery-screenshot-manifest.py`. The companion
 `tests/automated/check-gallery-screenshot-assets.py` verifies the manifest
