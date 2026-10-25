@@ -5998,3 +5998,10 @@ Live appearance profile transaction (2026-10-25)
   `tests/automated/run-live-appearance.py`.
 
 LabelG background pixmap metadata guard (2026-10-25)
+Harden XmString tag-cache bounds and growth (2026-10-25)
+===========================================================
+
+- Reject negative and out-of-range cache indices and keep tag-cache
+  initialization/growth transactional when allocation fails; see
+  `docs/xmstring-tag-cache.md` and its focused source check.
+
