@@ -1,3 +1,10 @@
+Xm image-cache string null safety (2026-10-25)
+===============================================
+
+- Reject null image names before cache lookup and make shared string hash
+  helpers defensive against null keys; see
+  `docs/xm-image-cache-string-null.md`.
+
 Xm pixmap comparator null safety (2026-10-25)
 ===============================================
 
