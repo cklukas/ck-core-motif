@@ -245,6 +245,9 @@ _WSMGetMatchingWinData(WSMWinData *win_data_top, int num, XrmQuark nameq)
     register int i; 
     WSMWinData *local = win_data_top;
 
+    if (win_data_top == NULL || num <= 0)
+	return(NULL);
+
     for (i = 0; i < num; i++, local++) {
 	if (local->nameq == nameq)
 	    return(local);

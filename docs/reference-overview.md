@@ -61,6 +61,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [WSM target conversion allocation failure](wsm-target-conversion-null.md) — handle missing display metadata safely.
 - [WSM packer configuration failure](wsm-packer-config-null.md) — reject missing format metadata safely.
 - [WSM WM-target mapping](wsm-wm-target-mapping.md) — map WM-specific atoms in both directions.
+- [WSM window-data lookup](wsm-win-data-lookup-null.md) — reject null or empty data lists safely.
 - [WM state read guards](wmstate-read-guards.md) — safe handling of window-manager state properties.
 
 ## Accessibility and diagnostics

@@ -11164,3 +11164,9 @@ WSM WM-target mapping (2026-10-25)
 - Map WM-specific background, windows, focus, and pointer atoms through the
   target/type helpers, including diagnostic names; see
   `docs/wsm-wm-target-mapping.md`.
+
+WSM window-data lookup (2026-10-25)
+===================================
+
+- Return no match for null or empty window-data lists instead of traversing an
+  invalid pointer; see `docs/wsm-win-data-lookup-null.md`.
