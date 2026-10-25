@@ -3463,10 +3463,14 @@ RemoveItem(
 	cwid_rect.width = cwid->core.width;
 	cwid_rect.height = cwid->core.height;
 	cwid_region = XCreateRegion();
-	XUnionRectWithRegion(&cwid_rect,cwid_region,cwid_region);
-	XSubtractRegion(cw->container.cells_region,cwid_region,
-			cw->container.cells_region);
-	XDestroyRegion(cwid_region);
+	if (cwid_region != NULL)
+	    {
+	    XUnionRectWithRegion(&cwid_rect,cwid_region,cwid_region);
+	    if (cw->container.cells_region != NULL)
+		XSubtractRegion(cw->container.cells_region,cwid_region,
+				cw->container.cells_region);
+	    XDestroyRegion(cwid_region);
+	    }
     case XmGRID:
 	if (cw->container.cells != NULL &&
 	    c->cell_idx >= 0 && c->cell_idx < cw->container.cell_count &&
