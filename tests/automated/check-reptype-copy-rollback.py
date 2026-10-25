@@ -15,6 +15,8 @@ record_block = text[record_start:record_end]
 for needle in ("if (TmpStr == NULL)", "goto failure;", "XtFree((char *)TmpStr);"):
     if needle not in copy_block:
         raise SystemExit(f"string-array rollback is missing {needle}")
+if "length > (size_t)UINT_MAX - prefix_size - 1" not in copy_block:
+    raise SystemExit("string-array copy lacks Xt allocation-size guard")
 for needle in ("if (OutputEntry->value_names == NULL)",
                "FreeCopiedRecord(OutputEntry);",
                "return FALSE;"):

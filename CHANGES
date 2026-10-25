@@ -9170,3 +9170,12 @@ Text-property table Xt allocation-size bounds (2026-10-29)
 
 Compound text-property table Xt bounds (2026-10-29)
 ====================================================
+Representation-type string-copy Xt bounds (2026-10-29)
+========================================================
+
+- Reject representation-type names whose copied byte length exceeds Xt's
+  `Cardinal` allocation range, preserving partial-copy rollback; see
+  `docs/reptype-registration.md`.
+
+Text-property concatenation Xt size bounds (2026-10-29)
+========================================================
