@@ -1,3 +1,10 @@
+Validate tab-list copy offsets (2026-10-25)
+============================================
+
+- Reject out-of-range and `INT_MIN`-safe offsets before calculating an
+  implicit copy count, avoiding unsigned underflow and invalid traversal; see
+  `docs/tablist-copy-offset.md`.
+
 Transactional tab-list removal (2026-10-25)
 =============================================
 

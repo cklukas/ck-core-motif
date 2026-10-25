@@ -58,6 +58,8 @@ static XmTab GetNthTab(XmTabList tl,
 		       XmTab cur_tab,
 		       int cur_pos); 
 
+static unsigned int TabPositionMagnitude(int position);
+
 
 /********    End Static Function Declarations    ********/
 
@@ -71,13 +73,15 @@ GetNthTab(XmTabList tl, int pos, XmTab cur_tab, int cur_pos)
 {
   XmTab		prev_tab;
   unsigned int 	count;
+  unsigned int 	magnitude;
   int		i;
   
   if (pos == 0) return(_XmTabLStart(tl));
   
   count = _XmTabLCount(tl);
+  magnitude = TabPositionMagnitude(pos);
   
-  if (abs(pos) >= count)
+  if (magnitude >= count)
   {
     if (pos > 0) return(_XmTabPrev(_XmTabLStart(tl)));
     else return(_XmTabLStart(tl));
@@ -117,6 +121,14 @@ GetNthTab(XmTabList tl, int pos, XmTab cur_tab, int cur_pos)
     }
   
   return(prev_tab);
+}
+
+static unsigned int
+TabPositionMagnitude(int position)
+{
+  if (position < 0)
+    return (unsigned int)(-(position + 1)) + 1;
+  return (unsigned int)position;
 }
 
 /*
@@ -249,9 +261,16 @@ XmTabListCopy(XmTabList tablist,
   XmTabList	tl;
   XmTab		old_tab, tab, next_tab;
   unsigned int	i;
+  unsigned int	offset_magnitude;
   
   _XmProcessLock();
   if (tablist == NULL) {
+	_XmProcessUnlock();
+	return(NULL);
+  }
+
+  offset_magnitude = TabPositionMagnitude(offset);
+  if (offset_magnitude >= _XmTabLCount(tablist)) {
 	_XmProcessUnlock();
 	return(NULL);
   }
@@ -263,7 +282,7 @@ XmTabListCopy(XmTabList tablist,
   }
   
   /* Zero count implies copy from offset to end/beginning */
-  if (count == 0) count = (_XmTabLCount(tablist) - abs(offset));
+  if (count == 0) count = (_XmTabLCount(tablist) - offset_magnitude);
 
   if (count > _XmTabLCount(tablist)) count = _XmTabLCount(tablist);
   if (count == 0) {
@@ -371,7 +390,7 @@ XmTabListGetTab(XmTabList tablist,
 {
    XmTab ret_val;
   _XmProcessLock();
-  if (tablist == NULL || abs(position) >= _XmTabLCount(tablist)) {
+  if (tablist == NULL || position >= _XmTabLCount(tablist)) {
 	_XmProcessUnlock();
 	return((XmTab)NULL);
   }
