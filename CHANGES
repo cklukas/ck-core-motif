@@ -1,3 +1,9 @@
+Mrm safe-copy null-source checks (2026-10-25)
+===============================================
+
+- Reject missing pointer-backed callback values before string, vector, float,
+  or wide-character copies; see `docs/mrm-safe-copy-null-sources.md`.
+
 Mrm reader text-vector validation (2026-10-25)
 ===============================================
 

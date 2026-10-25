@@ -469,3 +469,4 @@ EXTRA_DIST += tests/automated/check-mrm-class-comment-validation.py docs/mrm-cla
 EXTRA_DIST += tests/automated/check-mrm-writer-char8-vector-rebind.py docs/mrm-writer-char8-vector-rebind.md
 EXTRA_DIST += tests/automated/check-mrm-widget-name-allocation.py docs/mrm-widget-name-allocation.md
 EXTRA_DIST += tests/automated/check-mrm-reader-text-vector-validation.py docs/mrm-reader-text-vector-validation.md
+EXTRA_DIST += tests/automated/check-mrm-safe-copy-null-sources.py docs/mrm-safe-copy-null-sources.md

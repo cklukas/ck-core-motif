@@ -2760,6 +2760,8 @@ Urm__CW_SafeCopyValue (long				*val,
     {
     case MrmRtypeIntegerVector:
       int_src = (int *) *val ;
+      if (vec_size > 0 && int_src == NULL)
+	return;
       int_dst = (int *) XtMalloc ((unsigned int)vec_size) ;
       if (int_dst == NULL)
 	return;
@@ -2774,6 +2776,8 @@ Urm__CW_SafeCopyValue (long				*val,
 
     case MrmRtypeCStringVector:
       cstr_table_src = (XmString *)*val;
+      if (vec_count > 0 && cstr_table_src == NULL)
+	return;
       cstr_table_dst =
 	(XmString *)XtMalloc(vec_count * sizeof(XmString)) ;
       if (cstr_table_dst == NULL)
@@ -2791,6 +2795,8 @@ Urm__CW_SafeCopyValue (long				*val,
 
     case MrmRtypeChar8Vector:
       char8_table_src = (String *)*val ;
+      if (vec_count > 0 && char8_table_src == NULL)
+	return;
       char8_table_dst = (String *) XtMalloc (vec_size) ;
       if (char8_table_dst == NULL && vec_size != 0)
 	return;
@@ -2832,6 +2838,8 @@ Urm__CW_SafeCopyValue (long				*val,
 
     case MrmRtypeChar8:
       char8_src = (String) *val ;
+      if (char8_src == NULL)
+	return;
       char8_dst = (String) XtMalloc (strlen(char8_src)+1) ;
       if (char8_dst == NULL)
 	return;
@@ -2846,6 +2854,8 @@ Urm__CW_SafeCopyValue (long				*val,
 
     case MrmRtypeSingleFloat:
       single_float_src = (float *) *val ;
+      if (single_float_src == NULL)
+	return;
       single_float_dst = (float *) XtMalloc (sizeof(float)) ;
       if (single_float_dst == NULL)
 	return;
@@ -2860,6 +2870,8 @@ Urm__CW_SafeCopyValue (long				*val,
 
     case MrmRtypeFloat:
       float_src = (double *) *val ;
+      if (float_src == NULL)
+	return;
       float_dst = (double *) XtMalloc (sizeof(double)) ;
       if (float_dst == NULL)
 	return;
@@ -2880,7 +2892,10 @@ Urm__CW_SafeCopyValue (long				*val,
       break ;
 
     case MrmRtypeCString:
-      cstr_src = XmStringCopy ((XmString)(*val)) ;
+      cstr_src = (XmString)(*val) ;
+      if (cstr_src == NULL)
+	return;
+      cstr_src = XmStringCopy (cstr_src) ;
       if (cstr_src == NULL)
 	return;
       *val = (long) cstr_src ;
@@ -2893,6 +2908,8 @@ Urm__CW_SafeCopyValue (long				*val,
 
     case MrmRtypeWideCharacter:
       wchar_src = (wchar_t *) *val ;
+      if (wchar_src == NULL)
+	return;
 
       for (cnt = 0; ; cnt++) if (wchar_src[cnt] == 0) break;
       if ((size_t)cnt > (SIZE_MAX / sizeof(wchar_t)) - 1)
