@@ -217,6 +217,7 @@ EXTRA_DIST += tests/automated/check-txtpropcv-useable-table.py docs/motif-txtpro
 EXTRA_DIST += tests/automated/check-txtpropcv-final-allocation.py docs/motif-txtpropcv-final.md
 EXTRA_DIST += tests/automated/check-txtpropcv-asn1-allocation.py docs/motif-txtpropcv-asn1.md
 EXTRA_DIST += tests/automated/check-txtpropcv-compound-table.py docs/motif-txtpropcv-compound-table.md
+EXTRA_DIST += tests/automated/check-txtpropcv-string-table-allocation.py docs/motif-txtpropcv-string-table.md
 EXTRA_DIST += tests/automated/check-txtpropcv-single-allocation.py docs/motif-txtpropcv-single.md
 EXTRA_DIST += tests/automated/check-mwm-session-db-path.py docs/mwm-session-db-path.md
 EXTRA_DIST += tests/automated/check-mwm-display-env-bounds.py docs/mwm-display-env-bounds.md
