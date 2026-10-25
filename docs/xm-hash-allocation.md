@@ -16,3 +16,7 @@ does not silently lose the registration or leak memory.
 Lookup, mapping, and removal now tolerate empty or null tables.  Removal saves
 the key before returning its bucket to the pool and clears iterator state,
 preventing use-after-free results and stale iterator pointers.
+
+Bucket indices normalize signed callback results through an unsigned domain,
+so pointer-derived hashes cannot produce negative array subscripts on 64-bit
+hosts.

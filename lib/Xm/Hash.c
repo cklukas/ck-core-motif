@@ -76,6 +76,15 @@ Hash(XmHashKey x)
   return((XmHashValue) (long) x);
 }
 
+/* Hash callbacks historically return a signed value.  Convert it to an
+ * unsigned bucket domain before taking the modulo so pointer-derived hashes
+ * cannot address a negative bucket on 64-bit hosts. */
+static Cardinal
+HashIndex(XmHashValue hash, Cardinal size)
+{
+  return (Cardinal)((unsigned int)hash % size);
+}
+
 /* Available table sizes,  should be prime numbers */
 
 static XmConst int size_table[] = 
@@ -187,7 +196,7 @@ _XmResizeHashTable(XmHashTable table, Cardinal new_size)
       /* If this bucket goes somewhere else,  remove 
 	 from this chain and reinstall */
       next = current -> next;
-      index = current -> hashed_key % table -> size;
+      index = HashIndex(current -> hashed_key, table -> size);
       if (index != i) {
 	if (last != NULL)
 	  last -> next = current -> next;
@@ -230,7 +239,7 @@ _XmGetHashEntryIterate(XmHashTable table, XmHashKey key, XtPointer *iterator)
     entry = entry -> next;
   } else { 
     /* Normal case */
-    index = (table -> hasher(key)) % table -> size;
+    index = HashIndex(table -> hasher(key), table -> size);
     entry = table -> buckets[index];
   }
 
@@ -256,7 +265,7 @@ _XmAddHashEntry(XmHashTable table, XmHashKey key, XtPointer value)
   if (table == NULL || table->buckets == NULL || table->size == 0)
     return False;
   hash = table -> hasher(key);
-  index = hash % table -> size;
+  index = HashIndex(hash, table -> size);
 
   entry = NewBucket();
   if (entry == NULL)
@@ -280,7 +289,7 @@ _XmRemoveHashEntry(XmHashTable table, XmHashKey key)
   if (table == NULL || table->buckets == NULL || table->size == 0)
     return NULL;
 
-  index = (table -> hasher(key)) % table -> size;
+  index = HashIndex(table -> hasher(key), table -> size);
 
   entry = table -> buckets[index];
   while(entry) {
@@ -318,7 +327,7 @@ _XmRemoveHashIterator(XmHashTable table, XtPointer *iterator)
 
   entry = (XmHashBucket) *iterator;
 
-  index = (table -> hasher(entry -> hash_key)) % table -> size;
+  index = HashIndex(table -> hasher(entry -> hash_key), table -> size);
 
   current = table -> buckets[index];
 
