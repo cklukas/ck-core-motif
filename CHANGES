@@ -9887,6 +9887,12 @@ Legacy XmHeap allocation guard (2026-10-25)
 - Check the compatibility heap record before initialization and return
   `NULL` cleanly when unavailable; see `docs/xmheap-allocation.md`.
 
+XIM info allocation guards (2026-10-25)
+=======================================
+
+- Make XIM context and preedit-buffer creation transactional, releasing
+  partial state on allocation failure; see `docs/xim-info-allocation.md`.
+
 MWM label-parse allocation guard (2026-10-25)
 ==============================================
 

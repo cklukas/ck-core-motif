@@ -1444,10 +1444,16 @@ create_xic_info(Widget		shell,
   
   /* Create the XIC info record. */
   xic_info = XtNew(XmImXICRec);
+  if (xic_info == NULL)
+	return NULL;
   bzero((char*) xic_info, sizeof(XmImXICRec));
   xic_info->input_style = style;
   xic_info->anonymous = True;
   xic_info->preedit_buffer = XtNew(PreeditBufferRec);
+  if (xic_info->preedit_buffer == NULL) {
+    XtFree((char *)xic_info);
+    return NULL;
+  }
   bzero((char *) xic_info->preedit_buffer, sizeof(PreeditBufferRec));
   
   xic_info->next = im_info->iclist;
