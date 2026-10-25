@@ -778,3 +778,5 @@ EXTRA_DIST += tests/automated/check-xmim-registration-lifecycle.py docs/xmim-reg
 EXTRA_DIST += tests/automated/check-container-zero-cell-guards.py docs/container-zero-cell-guards.md
 
 EXTRA_DIST += tests/automated/check-container-cell-growth.py docs/container-cell-growth.md
+
+EXTRA_DIST += tests/automated/check-screen-child-growth.py docs/screen-child-growth.md

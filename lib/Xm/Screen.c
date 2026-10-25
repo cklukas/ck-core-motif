@@ -32,6 +32,7 @@ static char rcsid[] = "$TOG: Screen.c /main/16 1997/06/18 17:41:50 samborn $"
 
 
 #include <stdio.h>
+#include <stdint.h>
 #include <X11/Xatom.h>
 #include <Xm/Xm.h>		/* To make cpp on Sun happy. CR 5943 */
 #include <Xm/AtomMgr.h>
@@ -689,6 +690,8 @@ InsertChild(
     register Cardinal        	i;
     register XmScreen 	cw;
     register WidgetList      	children;
+    Cardinal                  new_slots;
+    WidgetList                new_children;
     
     cw = (XmScreen) w->desktop.parent;
     children = cw->desktop.children;
@@ -696,11 +699,22 @@ InsertChild(
     position = cw->desktop.num_children;
     
     if (cw->desktop.num_children == cw->desktop.num_slots) {
-	/* Allocate more space */
-	cw->desktop.num_slots +=  (cw->desktop.num_slots / 2) + 2;
-	cw->desktop.children = children = 
-	  (WidgetList) XtRealloc((char *) children,
-		(unsigned) (cw->desktop.num_slots) * sizeof(Widget));
+	/* Allocate more space without discarding the old array on failure. */
+        if (cw->desktop.num_slots >
+            (Cardinal)(~(Cardinal)0 - 2) -
+            (cw->desktop.num_slots / 2))
+            return;
+        new_slots = cw->desktop.num_slots +
+                    (cw->desktop.num_slots / 2) + 2;
+        if ((size_t)new_slots > SIZE_MAX / sizeof(*new_children))
+            return;
+        new_children = (WidgetList)XtRealloc(
+            (char *)children, (size_t)new_slots * sizeof(*new_children));
+        if (new_children == NULL)
+            return;
+        children = new_children;
+        cw->desktop.children = children;
+        cw->desktop.num_slots = new_slots;
     }
     /* Ripple children up one space from "position" */
     for (i = cw->desktop.num_children; i > position; i--) {
