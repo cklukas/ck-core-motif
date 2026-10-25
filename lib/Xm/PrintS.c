@@ -787,7 +787,13 @@ static void ChildPrintToFile(String display_name,
   Display *display;
 
   file_desc = (FileDescRec *) XtMalloc(sizeof(FileDescRec));
+  if (file_desc == NULL)
+    _exit(1);
   file_desc->file_name = XtNewString(file_name);
+  if (file_desc->file_name == NULL) {
+    XtFree((char *)file_desc);
+    _exit(1);
+  }
   file_desc->file = file;
   file_desc->pipe = pipe;
 

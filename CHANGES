@@ -8312,3 +8312,9 @@ LabelG get-values allocation (2026-10-27)
 - Check temporary cache-object and extension-data allocations in the
   get-values prehook, release partial state, and make the matching posthook
   tolerate an absent extension record.
+
+PrintS child descriptor allocation (2026-10-27)
+===============================================
+
+- Check the child print descriptor and copied file name before display setup,
+  release partial state, and exit the child cleanly on allocation failure.
