@@ -256,7 +256,7 @@ typedef struct {
 /*
  * Validation macro, returns TRUE/FALSE
  */
-#define	UrmRCValid(context) ((context)->validation==URMResourceContextValid)
+#define	UrmRCValid(context) ((context) != NULL && (context)->validation==URMResourceContextValid)
 
 
 /*

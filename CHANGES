@@ -207,6 +207,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  validation macros null-safe; see docs/mrm-validation-macros.md.
 
 2026-10-25
+	* Make the shared Mrm resource-context validation macro null-safe; see
+	  docs/mrm-context-valid-macro.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,
