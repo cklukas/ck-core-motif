@@ -583,6 +583,15 @@ static void tree_selected(Widget widget, XtPointer client, XtPointer call)
     (void)widget;
     if (callback && callback->id) {
         const GalleryManifestEntry *entry = find_entry((const char *)callback->id);
+        if (!strcmp((const char *)callback->id, "gallery.welcome")) {
+            XtVaSetValues(state->notebook, XmNcurrentPageNumber, 1, NULL);
+            set_status(state, "Welcome - choose a component category to begin");
+            return;
+        }
+        if (!entry) {
+            set_status(state, "Category expanded; choose a component example");
+            return;
+        }
         if (!strcmp(entry->id, (const char *)callback->id))
             show_entry(state, entry);
         else
@@ -600,13 +609,27 @@ static void toggle_sidebar(Widget widget, XtPointer client, XtPointer call)
 
 static void add_tree_nodes(Widget tree)
 {
-    XmTreeViewNode nodes[128]; Cardinal i, offset = GALLERY_CATEGORY_COUNT;
-    if (GALLERY_MANIFEST_COUNT + GALLERY_CATEGORY_COUNT > XtNumber(nodes)) return;
+    static char labels[128][96];
+    XmTreeViewNode nodes[128]; Cardinal i, offset = GALLERY_CATEGORY_COUNT + 1;
+    if (GALLERY_MANIFEST_COUNT + GALLERY_CATEGORY_COUNT + 1 > XtNumber(nodes)) return;
+    nodes[0].id = (XtPointer)"gallery.welcome";
+    nodes[0].parent_id = NULL;
+    nodes[0].label = "Welcome";
+    nodes[0].has_children = False; nodes[0].expanded = False;
     for (i = 0; i < GALLERY_CATEGORY_COUNT; ++i) {
-        nodes[i].id = (XtPointer)gallery_categories[i];
-        nodes[i].parent_id = NULL;
-        nodes[i].label = gallery_categories[i];
-        nodes[i].has_children = True; nodes[i].expanded = True;
+        nodes[i + 1].id = (XtPointer)gallery_categories[i];
+        nodes[i + 1].parent_id = NULL;
+        const char *title = gallery_categories[i];
+        if (!strcmp(title, "buttons-selection")) title = "Buttons & Selection";
+        else if (!strcmp(title, "commands-navigation")) title = "Commands & Navigation";
+        else if (!strcmp(title, "text-input")) title = "Text & Input";
+        else if (!strcmp(title, "data-views")) title = "Data Views";
+        else if (!strcmp(title, "feedback-dialogs")) title = "Feedback & Dialogs";
+        else if (!strcmp(title, "layout")) title = "Layout";
+        else if (!strcmp(title, "media")) title = "Media";
+        snprintf(labels[i + 1], sizeof(labels[i + 1]), "%s", title);
+        nodes[i + 1].label = labels[i + 1];
+        nodes[i + 1].has_children = True; nodes[i + 1].expanded = True;
     }
     for (i = 0; i < GALLERY_MANIFEST_COUNT; ++i) {
         Cardinal category;
@@ -614,7 +637,25 @@ static void add_tree_nodes(Widget tree)
             if (!strcmp(gallery_manifest[i].category, gallery_categories[category])) break;
         nodes[offset + i].id = (XtPointer)gallery_manifest[i].id;
         nodes[offset + i].parent_id = (XtPointer)gallery_categories[category];
-        nodes[offset + i].label = gallery_manifest[i].id;
+        {
+            const char *symbol = gallery_manifest[i].class_symbol;
+            size_t out = 0, pos = 0;
+            if (!strncmp(symbol, "xm", 2)) pos = 2;
+            while (symbol[pos] && out + 1 < sizeof(labels[offset + i])) {
+                char c = symbol[pos++];
+                if (c == 'W' && !strncmp(symbol + pos - 1, "WidgetClass", 11)) break;
+                if (c == 'G' && !strncmp(symbol + pos - 1, "GadgetClass", 11)) break;
+                if (out && c >= 'A' && c <= 'Z' && labels[offset + i][out - 1] != ' ')
+                    labels[offset + i][out++] = ' ';
+                if (c >= 'A' && c <= 'Z' && (!out || labels[offset + i][out - 1] == ' '))
+                    labels[offset + i][out++] = c;
+                else if (c >= 'A' && c <= 'Z')
+                    labels[offset + i][out++] = (char)(c - 'A' + 'a');
+                else labels[offset + i][out++] = c;
+            }
+            labels[offset + i][out] = '\0';
+            nodes[offset + i].label = labels[offset + i];
+        }
         nodes[offset + i].has_children = False; nodes[offset + i].expanded = False;
     }
     XmTreeViewSetNodes(tree, nodes, offset + GALLERY_MANIFEST_COUNT);
@@ -820,7 +861,7 @@ int main(int argc, char **argv)
             fprintf(stderr, "unknown gallery component: %s\n", initial_id);
             return 2;
         }
-        XmTreeViewSetSelectedId(state.tree, (XtPointer)initial->id, False);
+        XmTreeViewSetSelectedId(state.tree, (XtPointer)(initial_id ? initial->id : "gallery.welcome"), False);
         if (initial_id)
             show_entry(&state, initial);
         else {
@@ -828,9 +869,6 @@ int main(int argc, char **argv)
             set_status(&state, "Welcome - choose a component category to begin");
         }
     }
-    XtVaCreateManagedWidget("welcomeTab", xmLabelWidgetClass, notebook,
-                            XmNnotebookChildType, XmMAJOR_TAB, XmNpageNumber, 1,
-                            XmNlabelString, text("Welcome"), NULL);
     XtVaCreateManagedWidget("exampleTab", xmLabelWidgetClass, notebook,
                             XmNnotebookChildType, XmMAJOR_TAB, XmNpageNumber, 2,
                             XmNlabelString, text("Example"), NULL);

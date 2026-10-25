@@ -2,7 +2,8 @@
 
 `ckmotif-gallery` is the maintained native reference application for the
 component inventory in [`modern-gallery-manifest.json`](modern-gallery-manifest.json).
-The complete manifest-backed component catalogue is in
+The complete manifest-backed component catalogue (105 public classes, including
+legacy public widgets) is in
 [`modern-gallery-components.md`](modern-gallery-components.md).
 The JSON manifest is the source of truth for navigation categories, example
 owners, source-fragment IDs, interaction tests, documentation anchors, and
@@ -20,7 +21,7 @@ The sidebar is the left pane of a horizontal split: categories and component
 entries stay visible on the left while the selected live control occupies the
 right pane.
 
-Startup opens the first notebook page as a dedicated welcome screen with
+Startup opens the first sidebar item as a dedicated welcome screen with
 “Hello world!” in English, German, Japanese, and Chinese.  The CJK lines are
 drawn through the toolkit's Xft-backed path using installed fallback fonts, so
 the gallery exercises real Unicode glyph rendering rather than displaying

@@ -90,14 +90,18 @@ def main() -> int:
     header += ["};", f"#define GALLERY_CATEGORY_COUNT {len(categories)}",
                "#define GALLERY_MANIFEST_COUNT \\",
                "    (sizeof(gallery_manifest) / sizeof(gallery_manifest[0]))", "",
-               "static void gallery_manifest_initialize(void)", "{"]
+              "static void gallery_manifest_initialize(void)"]
+    header.append("{")
+    header += ["#if defined(__GNUC__) || defined(__clang__)",
+               "#pragma GCC diagnostic push",
+               "#pragma GCC diagnostic ignored \"-Wdeprecated-declarations\""]
     for index, entry in enumerate(entries):
         if not entry["constructible"]:
             continue
         class_value = ("CKMOTIF_GALLERY_PRINT_CLASS" if
                        entry["header"] == "lib/Xm/Print.h" else entry["class_symbol"])
         header.append(f"    gallery_manifest[{index}].class = {class_value};")
-    header += ["}", "", "#endif"]
+    header += ["}", "#pragma GCC diagnostic pop", "#endif", "", "#endif"]
     (out_dir / "gallery_manifest.h").write_text("\n".join(header) + "\n", encoding="utf-8")
 
     sources = ["/* Generated; do not edit. */", "#ifndef CKMOTIF_GALLERY_SOURCES_H",

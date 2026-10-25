@@ -30,6 +30,7 @@
 #include <Xm/Appearance.h>
 #include <Xm/AtomMgr.h>
 #include <Xm/BulletinB.h>
+#include <Xm/ButtonBox.h>
 #include <Xm/CascadeB.h>
 #include <Xm/CascadeBG.h>
 #include <Xm/Column.h>
@@ -65,6 +66,16 @@
 #include <Xm/MenuShell.h>
 #include <Xm/MessageB.h>
 #include <Xm/ColorPicker.h>
+#include <Xm/ColorS.h>
+#include <Xm/ComboBox2.h>
+#include <Xm/Disclosure.h>
+#include <Xm/FontS.h>
+#include <Xm/Hierarchy.h>
+#include <Xm/Ext18List.h>
+#include <Xm/MultiList.h>
+#include <Xm/IconBox.h>
+#include <Xm/Outline.h>
+#include <Xm/Tree.h>
 #include <Xm/Flyout.h>
 #include <Xm/TeachingTip.h>
 #include <Xm/InfoBar.h>
