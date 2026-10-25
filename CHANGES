@@ -1,3 +1,9 @@
+Trait replacement ownership (2026-10-25)
+=========================================
+
+- Replace existing trait bindings transactionally instead of leaking duplicate
+  keys on repeated registration; see `docs/trait-replacement.md`.
+
 Trait hash portability (2026-10-25)
 ===================================
 
