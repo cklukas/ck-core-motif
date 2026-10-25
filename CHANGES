@@ -67,6 +67,12 @@ XmString helper locking (2026-10-26)
 - Avoid recursive process locking in substring scans and parse callback
   component creation; see `docs/xmstring-function-locking.md`.
 
+XmString table conversion locking (2026-10-26)
+===============================================
+
+- Avoid recursive locking in `XmStringToXmStringTable` and clean its table
+  allocation failure path; see `docs/xmstring-table-locking.md`.
+
 Gallery screenshot qualification receipts (2026-10-25)
 ========================================================
 

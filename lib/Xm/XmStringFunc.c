@@ -613,7 +613,6 @@ XmStringToXmStringTable(XmString string,
   XtPointer		val, b_val;
   size_t		i, count;
   
-  _XmProcessLock();
   /* Get triple for first component of break_component */
   if (break_component)
     {
@@ -629,12 +628,10 @@ XmStringToXmStringTable(XmString string,
 	{
 	  *table = (XmStringTable)XtMalloc(sizeof(XmString));
 	  if (*table == NULL) {
-	    _XmProcessUnlock();
 	    return(0);
 	  }
 	  (*table)[0] = XmStringCopy(string);
 	}
-      _XmProcessUnlock();
       return(1);
     }
 
@@ -642,7 +639,6 @@ XmStringToXmStringTable(XmString string,
   if (!string)
     {
       if (table != NULL) *table = NULL;
-      _XmProcessUnlock();
       return(0);
     }
   _XmStringContextReInit(&stack_context, string);
@@ -668,7 +664,6 @@ XmStringToXmStringTable(XmString string,
       if (table != NULL)
         *table = NULL;
       _XmStringContextFree(&stack_context);
-      _XmProcessUnlock();
       return(0);
     }
   if (table != NULL)
@@ -676,7 +671,7 @@ XmStringToXmStringTable(XmString string,
       *table = (XmStringTable)XtMalloc(
 	  (Cardinal)(count * sizeof(XmString)));
       if (*table == NULL) {
-	_XmProcessUnlock();
+	_XmStringContextFree(&stack_context);
 	return(0);
       }
       
@@ -702,7 +697,6 @@ XmStringToXmStringTable(XmString string,
     }
   _XmStringContextFree(&stack_context);
 
-  _XmProcessUnlock();
   return((Cardinal)count);
 }
 

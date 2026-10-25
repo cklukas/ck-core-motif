@@ -2033,6 +2033,11 @@ to their string and component helpers rather than holding the process lock
 across substring scans and parse callback creation; the source contract is
 recorded in `tests/automated/check-xmstring-function-locking.py` and
 `docs/xmstring-function-locking.md`.
+`XmStringToXmStringTable` now delegates synchronization to its context and
+string helpers, and frees its active context if table allocation fails; the
+source contract is recorded in
+`tests/automated/check-xmstring-table-locking.py` and
+`docs/xmstring-table-locking.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the

@@ -249,6 +249,7 @@ EXTRA_DIST += tests/automated/check-xmstring-table-split.py docs/motif-xmstring-
 EXTRA_DIST += tests/automated/check-xmstring-tablist-create.py docs/motif-xmstring-tablist.md
 EXTRA_DIST += tests/automated/check-xmstring-tablist-locking.py docs/xmstring-tablist-locking.md
 EXTRA_DIST += tests/automated/check-xmstring-function-locking.py docs/xmstring-function-locking.md
+EXTRA_DIST += tests/automated/check-xmstring-table-locking.py docs/xmstring-table-locking.md
 EXTRA_DIST += tests/automated/check-xmstring-tab-growth-allocation.py docs/motif-xmstring-tab-growth.md
 EXTRA_DIST += tests/automated/check-scrollframe-nav-growth.py docs/motif-scrollframe-nav-growth.md
 EXTRA_DIST += tests/automated/check-scrollframe-add-input.py docs/motif-scrollframe-add-input.md
