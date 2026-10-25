@@ -70,6 +70,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [WSM reply array state](wsm-reply-array-state.md) — validate state-list pointers before sizing.
 - [WSM extension array state](wsm-extension-array-state.md) — validate extension-list pointers.
 - [WSM request array state](wsm-request-array-state.md) — validate request arrays before packing.
+- [WSM nested array state](wsm-nested-array-state.md) — validate per-record lists before sizing.
 - [WM state read guards](wmstate-read-guards.md) — safe handling of window-manager state properties.
 
 ## Accessibility and diagnostics

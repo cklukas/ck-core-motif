@@ -11230,3 +11230,10 @@ WSM request array state (2026-10-25)
 - Validate `CONNECT`, `SET_STATE`, and `WM_WINDOWS` request arrays, including
   nested match attributes, before sizing or packing; see
   `docs/wsm-request-array-state.md`.
+
+WSM nested array state (2026-10-25)
+===================================
+
+- Validate per-record data, window, and property arrays before reply/request
+  sizing, rejecting inconsistent nested state; see
+  `docs/wsm-nested-array-state.md`.

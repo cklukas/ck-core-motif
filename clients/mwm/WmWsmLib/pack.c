@@ -213,6 +213,10 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 	if (request->set_state.num_win_info_list != 0 &&
 	    request->set_state.win_info_list == NULL)
 	    return(NULL);
+	for (i = 0; i < request->set_state.num_win_info_list; i++)
+	    if (request->set_state.win_info_list[i].num_data_list != 0 &&
+		request->set_state.win_info_list[i].data_list == NULL)
+		return(NULL);
 	size = COUNT_SIZE;	/* The count of window info. */
 	win_info = request->set_state.win_info_list;
 	for (i = 0; i < request->set_state.num_win_info_list; i++,win_info++)
@@ -425,6 +429,10 @@ _WSMPackReply(Display *dpy, int screen_num,
 	if (reply->get_state.num_win_info_list != 0 &&
 	    reply->get_state.win_info_list == NULL)
 	    return(NULL);
+	for (i = 0; i < reply->get_state.num_win_info_list; i++)
+	    if (reply->get_state.win_info_list[i].num_data_list != 0 &&
+		reply->get_state.win_info_list[i].data_list == NULL)
+		return(NULL);
 	size = COUNT_SIZE;	/* The count of window info. */
 	win_info = reply->get_state.win_info_list;
 	for (i = 0; i < reply->get_state.num_win_info_list; i++,win_info++)
@@ -452,6 +460,12 @@ _WSMPackReply(Display *dpy, int screen_num,
 	if (reply->wm_windows.num_win_entry_list != 0 &&
 	    reply->wm_windows.win_entry_list == NULL)
 	    return(NULL);
+	for (i = 0; i < reply->wm_windows.num_win_entry_list; i++)
+	    if ((reply->wm_windows.win_entry_list[i].num_windows != 0 &&
+		 reply->wm_windows.win_entry_list[i].windows == NULL) ||
+		(reply->wm_windows.win_entry_list[i].num_match_properties != 0 &&
+		 reply->wm_windows.win_entry_list[i].match_properties == NULL))
+		return(NULL);
 	size = COUNT_SIZE;	/* The count of window entries. */
 	win_entry = reply->wm_windows.win_entry_list;
 	for (i = 0; i < reply->wm_windows.num_win_entry_list; i++,win_entry++)
