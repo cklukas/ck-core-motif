@@ -1,3 +1,10 @@
+Fix scaled-image table cleanup (2026-10-26)
+=============================================
+
+- Release each `_XmPutScaledImage` coordinate table exactly once, avoiding a
+  duplicate free of the y table and the corresponding x-table leak; see
+  `docs/image-cache-table-cleanup.md`.
+
 Guard XIM registration failure paths (2026-10-26)
 =================================================
 
