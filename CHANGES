@@ -5025,3 +5025,9 @@ Guard TreeView redisplay inputs (2026-10-25)
 - Handle missing TreeView GCs and null labels, and clamp selected-row and
   focus geometry for narrow or short widgets; see
   `docs/tree-view-redisplay-guards.md`.
+
+Guard Calendar small-widget geometry (2026-10-25)
+==================================================
+
+- Handle missing Calendar GCs, clamp selected-day geometry, and avoid zero-width
+  cell division in pointer handling; see `docs/calendar-geometry-guards.md`.

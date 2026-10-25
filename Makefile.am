@@ -848,3 +848,4 @@ EXTRA_DIST += tests/automated/check-spinner-redisplay-guards.py docs/spinner-red
 EXTRA_DIST += tests/automated/check-data-grid-redisplay-guards.py docs/data-grid-redisplay-guards.md
 EXTRA_DIST += tests/automated/check-time-picker-redisplay-guard.py docs/time-picker-redisplay-guard.md
 EXTRA_DIST += tests/automated/check-tree-view-redisplay-guards.py docs/tree-view-redisplay-guards.md
+EXTRA_DIST += tests/automated/check-calendar-geometry-guards.py docs/calendar-geometry-guards.md
