@@ -3759,7 +3759,8 @@ String WmXmStringToString (XmString xmString)
     
     if (xmString)
     {
-	XmStringInitContext (&xmStrContext, xmString);
+	if (!XmStringInitContext (&xmStrContext, xmString))
+	    return (NULL);
     
 	XmStringGetNextSegment (xmStrContext, &asciiString, 
 				&ibTitleCharset, &ibTitleDirection, 

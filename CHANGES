@@ -4382,6 +4382,12 @@ XmString lazy parse-table allocation (2026-10-25)
 - Validate the output pointer and lazy parse-table allocation used by
   `XmStringGenerate` and `_XmStringUngenerate`; see
   `docs/xmstring-parse-table-allocation.md`.
+
+XmString conversion validation (2026-10-25)
+============================================
+
+- Check compound-string context initialization before segment extraction; see
+  `docs/xmstring-conversion-guards.md`.
 Mrm writer cstring-vector validation (2026-10-25)
 ====================================================
 

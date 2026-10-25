@@ -573,6 +573,8 @@ EXTRA_DIST += tests/automated/check-xmim-varargs-allocation.py docs/xmim-varargs
 EXTRA_DIST += tests/automated/check-xmstring-parse-mapping-allocation.py docs/xmstring-parse-mapping-allocation.md
 
 EXTRA_DIST += tests/automated/check-xmstring-parse-table-allocation.py docs/xmstring-parse-table-allocation.md
+
+EXTRA_DIST += tests/automated/check-xmstring-conversion-guards.py docs/xmstring-conversion-guards.md
 EXTRA_DIST += tests/automated/check-mrm-writer-resource-ref-validation.py docs/mrm-writer-resource-ref-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-char8-vector-validation.py docs/mrm-writer-char8-vector-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-cstring-vector-validation.py docs/mrm-writer-cstring-vector-validation.md
