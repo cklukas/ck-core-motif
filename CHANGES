@@ -193,6 +193,13 @@ ColorPicker text rendering fallback (2026-10-27)
   preventing the hexadecimal value from disappearing when the inherited GC
   font is unset.
 
+Link text rendering fallback (2026-10-27)
+==========================================
+
+- Install and release a valid fallback font for the Link label GC, preventing
+  link text and visited-state rules from disappearing when inherited GC font
+  state is unavailable.
+
 InfoBar close control and FontSelector bounds (2026-10-27)
 ============================================================
 

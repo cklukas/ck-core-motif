@@ -52,8 +52,11 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
     link->link.target = link->link.target ? XtNewString(link->link.target) : XtNewString("");
     values.foreground = link->primitive.foreground;
     values.background = link->core.background_pixel;
+    link->link.font = XLoadQueryFont(XtDisplay(widget), "fixed");
+    if (link->link.font) values.font = link->link.font->fid;
     link->link.gc = XCreateGC(XtDisplay(widget), DefaultRootWindow(XtDisplay(widget)),
-                              GCForeground | GCBackground, &values);
+                              GCForeground | GCBackground |
+                              (link->link.font ? GCFont : 0), &values);
     if (!link->core.width) link->core.width = 80;
     if (!link->core.height) link->core.height = 24;
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events, NULL);
@@ -62,6 +65,7 @@ static void Destroy(Widget widget) {
     XmLinkWidget link = (XmLinkWidget)widget;
     XtRemoveEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events, NULL);
     if (link->link.gc) XFreeGC(XtDisplay(widget), link->link.gc);
+    if (link->link.font) XFreeFont(XtDisplay(widget), link->link.font);
     if (link->link.target) XtFree(link->link.target);
     /* Xt releases XmNlinkLabel resource storage after Destroy. */
 }
