@@ -3676,3 +3676,10 @@ Guard Text/List allocation failures (2026-10-25)
   List internal-element insertion, and release failed primary-selection state
   data without crossing the Xt process lock; see the corresponding
   `docs/motif-textsel-primary-state.md` and `docs/motif-list-*.md` contracts.
+Guard XmString table allocations (2026-10-25)
+==============================================
+
+- Check parse and unparse result-table allocations while holding the Motif
+  process lock, releasing it before returning `NULL` on failure; see
+  `docs/motif-xmstring-table-parse.md` and
+  `docs/motif-xmstring-table-unparse.md`.
