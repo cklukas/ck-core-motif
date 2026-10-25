@@ -1328,7 +1328,8 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
   short			idx;
   XtAppContext		app=NULL;
 
-  if ((renditions == NULL) || (rendition_count == 0))
+  if ((renditions == NULL) || (rendition_count == 0) ||
+      (rendition_count > INT_MAX))
     return(oldtable);
 
 #ifdef XTHREADS
@@ -1343,6 +1344,10 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 #endif
   if (oldtable == NULL)
     {
+      if ((rendition_count > RENDITIONS_IN_STRUCT) &&
+          ((size_t)(rendition_count - RENDITIONS_IN_STRUCT) >
+           (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition)))
+	goto unlock_return;
       /* Malloc new table */
       table = 
 	(_XmRenderTable)XtMalloc(sizeof(_XmRenderTableRec) +
@@ -1366,6 +1371,8 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
     }
   else
     {
+      if ((size_t)rendition_count > SIZE_MAX / sizeof(Boolean))
+	goto unlock_return;
       matches =
 	(Boolean *)ALLOCATE_LOCAL(rendition_count * sizeof(Boolean));
       bzero(matches, rendition_count * sizeof(Boolean));
@@ -1503,6 +1510,17 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
     }
 
   if (tmptable != NULL) FreeHandle(tmptable);
+#ifdef XTHREADS
+  if (app) {
+      _XmAppUnlock(app);
+  }
+  else {
+      _XmProcessUnlock();
+  }
+#endif
+  return(oldtable);
+
+unlock_return:
 #ifdef XTHREADS
   if (app) {
       _XmAppUnlock(app);
