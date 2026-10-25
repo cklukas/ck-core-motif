@@ -638,6 +638,13 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 			      args,
 			      argnum);
 
+    if (wmGD.topLevelW == NULL)
+    {
+        Warning ("Cannot create the MWM application shell");
+        ExitWM (WM_ERROR_EXIT_VALUE);
+        return;
+    }
+
 #ifdef __osf__
     _XmColorObjCreate ( wmGD.topLevelW, NULL, NULL);
     _XmColorObjCreate ( wmGD.topLevelW, NULL, NULL);
@@ -842,6 +849,7 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 			ShowWaitState (FALSE);
 			Warning(((char *)GETMESSAGE(40, 4, "Could not open second display connection.")));
 			ExitWM (WM_ERROR_EXIT_VALUE);
+			    return;
 		    }
 
 		    _DtGetSmWindow(DISPLAY, 
@@ -878,6 +886,13 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 					  DISPLAY1,
 					  args,
 					  argnum);
+
+		    if (wmGD.topLevelW1 == NULL)
+		    {
+			Warning ("Cannot create the secondary MWM application shell");
+			ExitWM (WM_ERROR_EXIT_VALUE);
+			return;
+		    }
 
 #endif /* WSM */
 		    

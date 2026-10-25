@@ -1,3 +1,10 @@
+MWM application-shell creation checks (2026-10-26)
+===================================================
+
+- Guard primary and workspace-manager secondary application shells, including
+  the second display connection, before later initialization uses them; see
+  `docs/mwm-application-shells.md`.
+
 MWM display-open failure return (2026-10-26)
 ==============================================
 
