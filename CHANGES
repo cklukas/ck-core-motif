@@ -12184,3 +12184,9 @@ String-table conversion allocation widths (2026-10-26)
 
 - Pass the checked plain-string table sizes explicitly as Xt `Cardinal`
   values; see `docs/string-table-conversion.md`.
+
+Cardinal-list conversion allocation width (2026-10-26)
+=======================================================
+
+- Pass the checked growth byte count explicitly as an Xt `Cardinal`;
+  see `docs/cardinal-list-growth.md`.
