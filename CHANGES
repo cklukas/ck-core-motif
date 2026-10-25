@@ -1,3 +1,9 @@
+Icon insertion geometry validation (2026-10-25)
+================================================
+
+- Validate icon-box increments and widgets before inserting icon metadata; see
+  `docs/insert-icon-geometry-guards.md`.
+
 Icon insertion validation (2026-10-25)
 ======================================
 

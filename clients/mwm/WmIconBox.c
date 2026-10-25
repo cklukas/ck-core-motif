@@ -2165,7 +2165,10 @@ IconInfo *InsertIconInfo (pIBD, pCD, theWidget)
     WsClientData *pWsc;
 #endif /* WSM */
 
-    if (pIBD == NULL || pCD == NULL)
+    if (pIBD == NULL || pCD == NULL || pIBD->pCD_iconBox == NULL ||
+	pIBD->pCD_iconBox->widthInc <= 0 ||
+	pIBD->pCD_iconBox->heightInc <= 0 || pIBD->clipWidget == NULL ||
+	pIBD->bBoardWidget == NULL)
 	return (NULL);
 
     place = GetNextIconPlace (&pIBD->IPD);
