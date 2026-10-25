@@ -42,6 +42,12 @@ Rollback failed image-cache insertion (2026-10-26)
 - Check `_XmAddHashEntry` in `_XmInstallImage` and free the pending entry when
   bucket allocation fails; see `docs/image-install-failure.md`.
 
+Make built-in image-cache initialization transactional (2026-10-26)
+====================================================================
+
+- Abort and clean up when a built-in image entry cannot be inserted into the
+  hash table; see `docs/image-set-insertion-failure.md`.
+
 Guard XmRegion geometry query NULL inputs (2026-10-26)
 =======================================================
 
