@@ -718,6 +718,13 @@ AddProtocols(
       {
 	  
           newSec = XtMalloc(size);
+          if (newSec == NULL) {
+              while (i > p_mgr->num_protocols) {
+                  --i;
+                  XtFree((char *)p_mgr->protocols[i]);
+              }
+              return;
+          }
 
           ((XmProtocol) newSec)->protocol.atom = protocols[j];
 	  ((XmProtocol)newSec)->protocol.active = TRUE; /*default */
