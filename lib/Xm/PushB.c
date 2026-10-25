@@ -1473,13 +1473,18 @@ DrawPushButtonShadows(
       return;
     }
 
+  if (adjust < 0)
+    adjust = 0;
+
   /* Clear the area not occupied by label with parents background color. */
   /* Label will invoke BorderUnhighlight() on the highlight_thickness	 */
   /* area, which is redundant when XmEXTERNAL_HIGHLIGHT default button	 */
   /* shadow emphasis is used.						 */
 
   ComputePBLabelArea (pb, &box);
-  if (box.x > adjust)
+  if (box.x > adjust &&
+      (int)pb->core.width > 2 * adjust &&
+      (int)pb->core.height > 2 * adjust)
     {
       FillBorderWithParentColor(pb, 
 				box.x - adjust, 

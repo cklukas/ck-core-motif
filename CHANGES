@@ -1,3 +1,10 @@
+PushButton default-shadow geometry bounds (2026-10-25)
+=======================================================
+
+- Clamp the default-shadow erase inset and require usable widget dimensions,
+  preventing wrapped fill regions for collapsed buttons; see
+  `docs/pushbutton-default-shadow-geometry.md`.
+
 Label layout geometry bounds (2026-10-25)
 ========================================
 
