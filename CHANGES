@@ -1,3 +1,10 @@
+DropDown popup geometry bounds (2026-10-25)
+============================================
+
+- Compute popup width in signed arithmetic and clamp large offsets before
+  converting back to `Dimension`, preventing wrapped oversized popups; see
+  `docs/dropdown-popup-geometry.md`.
+
 DragUnder pixmap metadata guards (2026-10-25)
 =============================================
 

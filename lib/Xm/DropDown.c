@@ -2171,6 +2171,7 @@ PopupList(Widget w)
     Widget shell = XmDropDown_popup_shell(cbw);
     Position x, y, temp;
     Dimension width;
+    int available_width;
     int ret, scr_width, scr_height;
     Arg args[10];
     Cardinal num_args;
@@ -2192,8 +2193,14 @@ PopupList(Widget w)
     x += temp;
 
     if (!XmDropDown_customized_combo_box(cbw)) {
-	width = (cbw->core.width - temp -
-		 (shell)->core.border_width);
+	available_width = (int)cbw->core.width - (int)temp -
+	    (int)(shell)->core.border_width;
+	/* The popup can extend past the combo box after a large offset.
+	 * Keep the signed calculation from wrapping a Dimension to a huge
+	 * width, while preserving the normal requested width. */
+	if (available_width < 1)
+	    available_width = 1;
+	width = (Dimension)available_width;
 	XtSetArg(args[num_args], XmNwidth, width); num_args++;
     }
     else
