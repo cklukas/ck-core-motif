@@ -1,3 +1,10 @@
+Xm GC call-site rollback (2026-10-25)
+=========================================
+
+- Roll back provisional pixmap-cache entries and release image state when GC
+  creation fails, preventing a null GC from reaching `_XmPutScaledImage`; see
+  `docs/xm-gc-callsite-rollback.md`.
+
 Xm GC cache failure handling (2026-10-25)
 =============================================
 

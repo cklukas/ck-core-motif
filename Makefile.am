@@ -565,3 +565,5 @@ EXTRA_DIST += tests/automated/check-xm-get-pixmap-data-validation.py docs/xm-get
 EXTRA_DIST += tests/automated/check-xm-pixmap-set-initialization.py docs/xm-pixmap-set-initialization.md
 
 EXTRA_DIST += tests/automated/check-xm-gc-cache-failure.py docs/xm-gc-cache-failure.md
+
+EXTRA_DIST += tests/automated/check-xm-gc-callsite-rollback.py docs/xm-gc-callsite-rollback.md
