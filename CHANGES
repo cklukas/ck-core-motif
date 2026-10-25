@@ -3953,3 +3953,9 @@ Guard TextOut navigator callbacks (2026-10-25)
 - Validate horizontal, vertical and drag navigator traits before callback
   dispatch, preserving normal scrolling for complete traits; see
   `docs/motif-textout-navigator-trait.md`.
+
+Guard Text textual trait callbacks (2026-10-25)
+================================================
+
+- Validate access-textual callbacks in the public Text string helpers; see
+  `docs/motif-text-textual-trait.md`.
