@@ -654,12 +654,19 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
   if ( widgetrec->arglist_offs != 0)
     {
       if (widgetrec->arglist_offs < RGMWidgetRecordHdrSize ||
-          widgetrec->arglist_offs >= widgetrec->size)
+          widgetrec->arglist_offs >= widgetrec->size ||
+          widgetrec->size - widgetrec->arglist_offs <
+              sizeof(RGMArgListDesc) - sizeof(RGMArgument))
         return MrmFAILURE;
       argdesc = (RGMArgListDescPtr) 
 	((char *)widgetrec + widgetrec->arglist_offs) ;
-      if (argdesc->count > RGMListSizeMax ||
-          argdesc->extra > RGMListSizeMax)
+      if (argdesc->count < 0 || argdesc->extra < 0 ||
+          argdesc->count > RGMListSizeMax ||
+          argdesc->extra > RGMListSizeMax ||
+          (size_t)argdesc->count >
+              (widgetrec->size - widgetrec->arglist_offs -
+               (sizeof(RGMArgListDesc) - sizeof(RGMArgument))) /
+              sizeof(RGMArgument))
         return MrmFAILURE;
       if ((size_t)argdesc->count > SIZE_MAX - (size_t)num_listent ||
 	  (size_t)argdesc->extra >
@@ -994,12 +1001,19 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
   if ( widgetrec->arglist_offs != 0)
     {
       if (widgetrec->arglist_offs < RGMWidgetRecordHdrSize ||
-          widgetrec->arglist_offs >= widgetrec->size)
+          widgetrec->arglist_offs >= widgetrec->size ||
+          widgetrec->size - widgetrec->arglist_offs <
+              sizeof(RGMArgListDesc) - sizeof(RGMArgument))
         return MrmFAILURE;
       argdesc = (RGMArgListDescPtr) 
 	((char *)widgetrec + widgetrec->arglist_offs) ;
-      if (argdesc->count > RGMListSizeMax ||
-          argdesc->extra > RGMListSizeMax)
+      if (argdesc->count < 0 || argdesc->extra < 0 ||
+          argdesc->count > RGMListSizeMax ||
+          argdesc->extra > RGMListSizeMax ||
+          (size_t)argdesc->count >
+              (widgetrec->size - widgetrec->arglist_offs -
+               (sizeof(RGMArgListDesc) - sizeof(RGMArgument))) /
+              sizeof(RGMArgument))
         return MrmFAILURE;
       if ((size_t)argdesc->count > SIZE_MAX - (size_t)num_listent ||
 	  (size_t)argdesc->extra >

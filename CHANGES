@@ -1,3 +1,10 @@
+Mrm argument-list record bounds (2026-10-25)
+=============================================
+
+- Validate serialized argument-list headers, counts, and descriptor storage
+  in both widget-instance paths; see
+  `docs/mrm-arglist-record-bounds.md`.
+
 Mrm widget-tree child index bounds (2026-10-25)
 ==================================================
 
