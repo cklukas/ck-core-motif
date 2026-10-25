@@ -476,8 +476,9 @@ derived-metric callback boundary are documented. A real multi-output XLibre
 session is still required to qualify live property modification, output
 removal/addition, spanning windows and destruction during a queued update.
 The installed contract runner now uses a supplied real display for the shell
-observer and checks registration, positive scale lookup and idempotent
-re-registration; its no-display Xvfb run remains an ordinary-server fallback.
+observer and checks two-shell registration, positive descendant scale lookup,
+idempotent re-registration and retirement of one shell without invalidating
+the other; its no-display Xvfb run remains an ordinary-server fallback.
 
 ### WP-05: Optional SVG image loading
 

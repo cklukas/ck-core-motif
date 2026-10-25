@@ -113,8 +113,8 @@ def main():
     observer_result = observer_log.read_text(errors="replace")
     if ("PASS XLibre RandR DPI contract and non-XLibre fallback" not in result or
             "PASS XLibre shell output selection policy" not in selection_result or
-            ("PASS XLibre shell observer fallback" not in observer_result and
-             "PASS XLibre shell observer registration" not in observer_result)):
+            ("PASS XLibre multi-shell observer fallback" not in observer_result and
+             "PASS XLibre multi-shell observer registration and retirement" not in observer_result)):
         print(result, file=sys.stderr)
         print(selection_result, file=sys.stderr)
         print(observer_result, file=sys.stderr)

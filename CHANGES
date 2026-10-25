@@ -28,6 +28,10 @@ XLibre live RandR observer (2026-10-25)
   applied through one resize plus a documented derived-metric change hook;
   ordinary X11/Xorg builds remain unchanged. A real multi-output XLibre
   session is still required for the final live qualification gate.
+- Extend the installed observer regression to two realized shells sharing one
+  Xt display. It verifies descendant lookup, idempotent registration, and
+  retirement of one shell without invalidating the surviving shell; ordinary
+  Xvfb continues to exercise the explicit fallback path.
 
 Native dependency-cohort qualification (2026-10-25)
 ====================================================

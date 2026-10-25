@@ -22,8 +22,12 @@ main(int argc, char **argv)
     XtAppContext app;
     Widget shell;
     Widget child;
+    Widget second;
+    Widget second_child;
     double scale;
+    double second_scale;
     Boolean installed;
+    Boolean second_installed;
 
     shell = XtVaAppInitialize(&app, (String)"XlibreObserver", NULL, 0,
                               &argc, argv, NULL, NULL);
@@ -40,13 +44,40 @@ main(int argc, char **argv)
             XtDestroyApplicationContext(app);
             return EXIT_FAILURE;
         }
-        puts("PASS XLibre shell observer registration");
+        second = XtVaAppCreateShell("second", "XlibreObserver",
+                                    topLevelShellWidgetClass,
+                                    XtDisplay(shell), NULL);
+        second_child = XtVaCreateManagedWidget("second-child",
+                                               xmLabelWidgetClass, second,
+                                               NULL);
+        XtRealizeWidget(second);
+        second_installed = _XmXlibreDpiInstallShell(second, NULL, NULL);
+        CHECK(second_installed);
+        CHECK(_XmXlibreDpiGetWidgetScale(second, &second_scale));
+        CHECK(second_scale > 0.0);
+        XtDestroyWidget(shell);
+        CHECK(_XmXlibreDpiGetWidgetScale(second_child, &second_scale));
+        CHECK(second_scale > 0.0);
+        XtDestroyWidget(second);
+        puts("PASS XLibre multi-shell observer registration and retirement");
     } else {
         CHECK(!_XmXlibreDpiGetWidgetScale(shell, &scale));
         CHECK(!_XmXlibreDpiGetWidgetScale(child, &scale));
-        puts("PASS XLibre shell observer fallback");
+        second = XtVaAppCreateShell("second", "XlibreObserver",
+                                    topLevelShellWidgetClass,
+                                    XtDisplay(shell), NULL);
+        second_child = XtVaCreateManagedWidget("second-child",
+                                               xmLabelWidgetClass, second,
+                                               NULL);
+        XtRealizeWidget(second);
+        second_installed = _XmXlibreDpiInstallShell(second, NULL, NULL);
+        CHECK(!second_installed);
+        CHECK(!_XmXlibreDpiGetWidgetScale(second, &second_scale));
+        CHECK(!_XmXlibreDpiGetWidgetScale(second_child, &second_scale));
+        XtDestroyWidget(second);
+        XtDestroyWidget(shell);
+        puts("PASS XLibre multi-shell observer fallback");
     }
-    XtDestroyWidget(shell);
     XtDestroyApplicationContext(app);
     return EXIT_SUCCESS;
 }
