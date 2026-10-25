@@ -6,7 +6,9 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmString.c").read_text(enc
 start = source.index("_XmStringGetCurrentCharset")
 end = source.index(" /* This function compares", start)
 region = source[start:end]
-assert "locale.tag = (char *) XtMalloc(len + 1);" in region
+assert "len > INT_MAX || len >= UINT_MAX" in region
+assert "locale.tag = (char *) XtMalloc((Cardinal)len + 1);" in region
+assert "XtMalloc(len + 1)" not in region
 assert "if (locale.tag == NULL)" in region
 assert "ret_val = XmFALLBACK_CHARSET;" in region
 assert "_XmProcessUnlock();" in region

@@ -6237,3 +6237,9 @@ Bound XmString baseline allocation widths (2026-10-25)
   explicit byte sizes for both single- and multi-line arrays; see
   `docs/xmstring-baseline-allocation.md`.
 
+Bound XmString charset allocation widths (2026-10-25)
+======================================================
+
+- Promote locale-derived charset lengths before checking the cached `int` and
+  Xt `Cardinal` limits; see `docs/xmstring-charset-allocation.md`.
+
