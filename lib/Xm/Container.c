@@ -34,6 +34,7 @@
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
+#include <limits.h>
 #include <stdint.h>
 
 #include <Xm/AtomMgr.h>
@@ -6133,10 +6134,17 @@ LayoutOutlineDetail(
 	{
 	c = GetContainerConstraint(node->widget_ptr);
 	if (c->depth != 0)
-	n_outline_segs += 2;
+	{
+	    if (n_outline_segs > INT_MAX - 2)
+	    {
+		outline_ready = False;
+		break;
+	    }
+	    n_outline_segs += 2;
+	}
 	node = GetNextNode(node);
 	}
-    if (cw->container.outline_seg_count != n_outline_segs)
+    if (outline_ready && cw->container.outline_seg_count != n_outline_segs)
 	{
 	if (n_outline_segs != 0)
 	    new_outline_segs = (XSegment *)XtCalloc

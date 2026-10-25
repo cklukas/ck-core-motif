@@ -9376,3 +9376,10 @@ DataGrid begin-edit rollback (2026-10-29)
 - Allocate selected-cell edit text before releasing the current edit state,
   preserving it when begin-edit allocation fails; see
   `docs/datagrid-begin-edit-rollback.md`.
+
+Container outline count bounds (2026-10-29)
+===========================================
+
+- Reject outline-segment counts that would overflow the legacy integer count,
+  retaining the current outline instead of wrapping allocation sizes; see
+  `docs/container-outline-count-bounds.md`.
