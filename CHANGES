@@ -11399,3 +11399,9 @@ MWM configuration-warning allocation widths (2026-10-25)
 - Check include-stack and configuration-reopen warning lengths before Xt
   allocation; see `docs/mwm-config-allocation-warning.md` and
   `docs/mwm-config-reopen-warning.md`.
+
+MWM screen-conflict warning allocation width (2026-10-25)
+==========================================================
+
+- Check the localized startup-conflict warning length before Xt allocation;
+  see `docs/mwm-screen-conflict-warning.md`.

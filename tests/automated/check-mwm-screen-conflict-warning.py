@@ -9,6 +9,8 @@ region = source[start:end]
 assert 'char pch[80]' not in source
 assert 'sprintf(pch' not in region
 assert 'snprintf(NULL, 0, format, sNum)' in region
-assert 'XtMalloc((unsigned int)messageLength + 1)' in region
+assert '(unsigned int)messageLength < UINT_MAX' in region
+assert 'XtMalloc((Cardinal)messageLength + 1)' in region
+assert 'XtMalloc((unsigned int)messageLength + 1)' not in region
 assert 'XtFree(message);' in region
 print("mwm screen-conflict warning is dynamically bounded")

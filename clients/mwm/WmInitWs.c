@@ -725,8 +725,9 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
                 const char *format = (char *)GETMESSAGE(40, 3,
                     "Another window manager is running on screen %d");
                 int messageLength = snprintf(NULL, 0, format, sNum);
-                char *message = (messageLength >= 0) ?
-                    (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+                char *message = (messageLength >= 0 &&
+					 (unsigned int)messageLength < UINT_MAX) ?
+                    (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
                 if (message != NULL)
                 {
