@@ -30,6 +30,7 @@ static char rcsid[] = "$XConsortium: Region.c /main/10 1995/07/13 17:46:45 drk $
 #endif
 
 #include <limits.h>
+#include <stdint.h>
 
 
 /*
@@ -637,16 +638,23 @@ miRegionCopy(
     register XmRegion	dstrgn,
     register XmRegion	rgn )
 {
+    XmRegionBox *new_rects;
+
     if (dstrgn != rgn) /*  don't want to copy to itself */
     {  
         if (dstrgn->size < rgn->numRects)
         {
             if (dstrgn->rects)
             {
-                if (! (dstrgn->rects = (XmRegionBox *)
-		       XtRealloc((char *) dstrgn->rects,
-			 (Cardinal) rgn->numRects * (sizeof(XmRegionBox)))))
-		    return;
+                if ((size_t)rgn->numRects >
+                    SIZE_MAX / sizeof(XmRegionBox))
+                    return;
+                new_rects = (XmRegionBox *)XtRealloc(
+                    (char *)dstrgn->rects,
+                    (size_t)rgn->numRects * sizeof(XmRegionBox));
+                if (new_rects == NULL)
+                    return;
+                dstrgn->rects = new_rects;
             }
             dstrgn->size = rgn->numRects;
 	}

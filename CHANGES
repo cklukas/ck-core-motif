@@ -4829,3 +4829,9 @@ Guard hash-table record allocation (2026-10-25)
 
 - Check the opaque hash-table record allocation before callback and bucket
   initialization; see `docs/hash-table-allocation.md`.
+
+Make XmRegion copy growth transactional (2026-10-25)
+=====================================================
+
+- Preserve the destination rectangle array on failed or overflowing growth
+  during region copies; see `docs/region-copy-growth.md`.

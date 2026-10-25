@@ -796,3 +796,5 @@ EXTRA_DIST += tests/automated/check-tablist-simple-modify.py docs/tablist-simple
 EXTRA_DIST += tests/automated/check-tablist-attributes-free.py docs/tablist-attributes-free.md
 
 EXTRA_DIST += tests/automated/check-hash-table-allocation.py docs/hash-table-allocation.md
+
+EXTRA_DIST += tests/automated/check-region-copy-growth.py docs/region-copy-growth.md
