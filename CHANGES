@@ -85,6 +85,12 @@ XmStringGetNextComponent locking (2026-10-26)
 - Avoid recursive process locking around `XmeStringGetComponent`; see
   `docs/xmstring-getcomponent-locking.md`.
 
+XmString segment validation (2026-10-26)
+=========================================
+
+- Validate segment-extraction context and outputs before reading context state;
+  see `docs/xmstring-segment-validation.md`.
+
 Gallery screenshot qualification receipts (2026-10-25)
 ========================================================
 

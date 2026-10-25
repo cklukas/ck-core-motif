@@ -252,6 +252,7 @@ EXTRA_DIST += tests/automated/check-xmstring-function-locking.py docs/xmstring-f
 EXTRA_DIST += tests/automated/check-xmstring-table-locking.py docs/xmstring-table-locking.md
 EXTRA_DIST += tests/automated/check-xmstring-enumeration-locking.py docs/xmstring-enumeration-locking.md
 EXTRA_DIST += tests/automated/check-xmstring-getcomponent-locking.py docs/xmstring-getcomponent-locking.md
+EXTRA_DIST += tests/automated/check-xmstring-segment-validation.py docs/xmstring-segment-validation.md
 EXTRA_DIST += tests/automated/check-xmstring-tab-growth-allocation.py docs/motif-xmstring-tab-growth.md
 EXTRA_DIST += tests/automated/check-scrollframe-nav-growth.py docs/motif-scrollframe-nav-growth.md
 EXTRA_DIST += tests/automated/check-scrollframe-add-input.py docs/motif-scrollframe-add-input.md

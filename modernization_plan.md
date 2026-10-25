@@ -2048,6 +2048,10 @@ component reads; the source contract is recorded in
 extraction; the source contract is recorded in
 `tests/automated/check-xmstring-getcomponent-locking.py` and
 `docs/xmstring-getcomponent-locking.md`.
+`_XmStringGetSegment` now validates the context and required output pointers
+before initializing the compatibility direction value; the source contract is
+recorded in `tests/automated/check-xmstring-segment-validation.py` and
+`docs/xmstring-segment-validation.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the
