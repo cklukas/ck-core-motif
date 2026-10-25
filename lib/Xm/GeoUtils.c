@@ -940,6 +940,9 @@ _XmGeoMatrixGet(
             Widget          instigator ;
 /****************/
 
+    if (geoSpec == NULL)
+        return;
+
     request = &geoSpec->instig_request ;
     instigator = geoSpec->instigator ;
     rowPtr = geoSpec->boxes ;
@@ -988,6 +991,9 @@ _XmGeoMatrixSet(
     register XmGeoRowLayout  layoutPtr ;
             Boolean         fixUps = FALSE ;
 /****************/
+
+    if (geoSpec == NULL)
+        return;
 
 #ifdef DEBUG_GEOUTILS
     PrintMatrix( "(set) ", geoSpec) ; 
@@ -1066,6 +1072,9 @@ _XmGeoAdjustBoxes(
             Dimension       globalBorder ;
             Dimension       borderValue ;
 /****************/
+
+    if (geoSpec == NULL)
+        return;
 
     globalSetBorder = geoSpec->uniform_border ;
     globalBorder = geoSpec->border ;
@@ -1516,6 +1525,9 @@ _XmGeoArrangeBoxes(
             Dimension       actualH ;
             Dimension       initY ;
 /****************/
+
+    if (geoSpec == NULL || pW == NULL || pH == NULL)
+        return;
 
     if(    geoSpec->arrange_boxes
        &&  (geoSpec->arrange_boxes != _XmGeoArrangeBoxes)    )

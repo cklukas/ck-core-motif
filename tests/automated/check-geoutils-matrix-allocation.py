@@ -23,5 +23,18 @@ for source_name in ("SelectioB.c", "FileSB.c", "MessageB.c"):
     )
     assert widget_source.count("if (geoSpec == NULL)") >= 1
 assert source.count("if (geoSpec == NULL)") >= 3
+for signature in (
+    "_XmGeoMatrixGet(\n        XmGeoMatrix",
+    "_XmGeoMatrixSet(\n        XmGeoMatrix",
+    "_XmGeoAdjustBoxes(\n        XmGeoMatrix",
+):
+    operation_start = source.index(signature)
+    operation_end = source.index("/****************/", operation_start) + 120
+    assert "if (geoSpec == NULL)" in source[operation_start:operation_end + 20]
+arrange_start = source.index("_XmGeoArrangeBoxes(\n        XmGeoMatrix")
+arrange_end = source.index("/****************/", arrange_start)
+assert "geoSpec == NULL || pW == NULL || pH == NULL" in source[
+    arrange_start:arrange_end + 200
+]
 
 print("GeoUtils matrix allocation guards passed")

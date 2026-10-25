@@ -7,7 +7,7 @@ GeoUtils matrix allocation bounds (2026-10-28)
   NULL-safe; and propagate constructor failure in SelectionBox,
   FileSelectionBox, and MessageBox.  Shared geometry query, manager, and
   resize paths now also fail safely when a custom matrix creator returns NULL;
-  see
+  low-level matrix operations are NULL-safe as well; see
   `docs/geoutils-matrix-allocation.md`.
 
 Label baseline count bounds (2026-10-28)

@@ -11,6 +11,8 @@ The SelectionBox, FileSelectionBox, and MessageBox matrix constructors also
 propagate a failed allocation as `NULL` instead of dereferencing it.
 The shared query, geometry-manager, and size-update entry points now handle a
 NULL matrix from any custom matrix creator without entering layout code.
+The lower-level get, set, adjust, and arrange helpers also return safely for a
+NULL matrix (or missing output dimensions in the arrange helper).
 
 Normal matrix layout and the private API signature are unchanged.  The
 source-level regression is
