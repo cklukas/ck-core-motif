@@ -6,4 +6,5 @@ request.  Existing realized-widget and selection checks remain in place, and
 valid callers retain the same protocol behavior.  `WSMIsKnownTarget` and
 `WSMGetTargetList` apply the same validation before querying display state;
 `WSMGetTargetList` also preserves its zero-output contract for a null length
-pointer.
+pointer.  `WSMProcessProtoTarget` rejects missing response pointers and
+inconsistent input buffers before unpacking a request.

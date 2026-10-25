@@ -19,6 +19,8 @@ def main() -> None:
     assert "if (w == NULL || len_ret == NULL)" in RECV
     target_list = RECV.index("WSMGetTargetList")
     assert RECV.index("if (w == NULL || len_ret == NULL)", target_list) < RECV.index("_WSMGetDispInfo(XtDisplay(w))", target_list)
+    assert "output == NULL" in RECV
+    assert "(input == NULL && input_len != 0)" in RECV
 
 
 if __name__ == "__main__":

@@ -299,6 +299,11 @@ WSMProcessProtoTarget(Widget w, Atom target, XtPointer input,
     WSMScreenInfo *screen_info;
     WSMRequest request;
     WSMReply reply;    
+
+    if (w == NULL || return_type == NULL || output == NULL ||
+        output_len == NULL || output_fmt == NULL ||
+        (input == NULL && input_len != 0))
+	return(False);
     
     /*
      * Check the Target to make sure it is valid.
