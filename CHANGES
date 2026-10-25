@@ -1,3 +1,9 @@
+WSM cache allocation failures (2026-10-25)
+============================================
+
+- Check display and screen metadata allocations before linking or
+  dereferencing cache nodes; see `docs/wsm-cache-allocation.md`.
+
 WSM config-format debug destination (2026-10-25)
 =================================================
 
