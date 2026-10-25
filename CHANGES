@@ -1,3 +1,9 @@
+Toggle indicator bounds (2026-10-26)
+===================================
+
+- Guard checkmark and cross rendering against undersized unsigned geometry,
+  preserving safe indicator behavior; see `docs/drtog-indicator-bounds.md`.
+
 ToggleButton fill origin bounds (2026-10-26)
 ===============================================
 
