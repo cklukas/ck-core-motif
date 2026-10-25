@@ -24,6 +24,7 @@ static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
+static int bounded_text_length(const char *text){size_t length=text?strlen(text):0;return length>(size_t)INT_MAX?INT_MAX:(int)length;}
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
 
 #define Offset(field) XtOffsetOf(XmNumberBoxRec, field)
@@ -190,7 +191,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     baseline = (int)((number->core.height + font->ascent - font->descent) / 2);
     XDrawString(display, window, text_gc, (int)number->number_box.spacing,
                 baseline, number->number_box.text,
-                (int)strlen(number->number_box.text));
+                bounded_text_length(number->number_box.text));
     arrow_x = number->core.width > 24 ? number->core.width - 24 : 0;
     XDrawLine(display, window, number->number_box.arrow_gc, arrow_x, 0,
               arrow_x, number->core.height);

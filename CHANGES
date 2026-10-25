@@ -54,6 +54,12 @@ Breadcrumb text-length bounds (2026-10-26)
 - Bound breadcrumb label/separator lengths and final text positioning before
   Xlib drawing; see `docs/breadcrumb-text-bounds.md`.
 
+Number-box text-length bounds (2026-10-26)
+==========================================
+
+- Bound editable NumberBox text lengths before Xlib drawing; see
+  `docs/number-box-text-bounds.md`.
+
 Prompt text-length bounds (2026-10-26)
 ======================================
 
