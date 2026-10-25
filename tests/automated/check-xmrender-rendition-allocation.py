@@ -33,4 +33,11 @@ assert "source_table = oldtable;" in add_region
 assert "append_copy_failed:" in add_region
 assert "append_abort:" in add_region
 assert "while (next > _XmRTCount(source_table))" in add_region
+remove_start = source.index("_XmRenderTableRemoveRenditions(")
+remove_end = source.index("static void", remove_start)
+remove_region = source[remove_start:remove_end]
+assert "if (table == NULL)" in remove_region
+assert "if (newtable == NULL)" in remove_region
+assert "while (i > 0)" in remove_region
+assert "return(oldtable);" in remove_region
 print("PASS XmRenderT rendition allocations are guarded")

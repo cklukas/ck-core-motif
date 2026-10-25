@@ -1757,7 +1757,14 @@ _XmRenderTableRemoveRenditions(XmRenderTable oldtable,
 		  (_XmRTCount(oldtable) > RENDITIONS_IN_STRUCT
                 ? _XmRTCount(oldtable) - RENDITIONS_IN_STRUCT : 0)));
 
+      if (table == NULL)
+	return(oldtable);
+
       newtable = GetHandle(_XmRenderTable);
+      if (newtable == NULL) {
+	XtFree((char *)table);
+	return(oldtable);
+      }
       SetPtr(newtable, table);
 
       _XmRTDisplay(newtable) = _XmRTDisplay(oldtable);
@@ -1765,7 +1772,19 @@ _XmRenderTableRemoveRenditions(XmRenderTable oldtable,
 
       /* Detach entry handles as well as the shared table body. */
       for (i = 0; i < _XmRTCount(oldtable); i++)
-	_XmRTRenditions(newtable)[i] = CopyRendition(_XmRTRenditions(oldtable)[i]);
+	{
+	  _XmRTRenditions(newtable)[i] = CopyRendition(_XmRTRenditions(oldtable)[i]);
+	  if (_XmRTRenditions(newtable)[i] == NULL) {
+	    while (i > 0) {
+	      --i;
+	      FreeRendition(_XmRTRenditions(newtable)[i]);
+	      FreeHandle(_XmRTRenditions(newtable)[i]);
+	    }
+	    XtFree((char *)GetPtr(newtable));
+	    FreeHandle(newtable);
+	    return(oldtable);
+	  }
+	}
       _XmRTCount(newtable) = _XmRTCount(oldtable);
       
       if (_XmRTRefcountDec(oldtable) == 0)
