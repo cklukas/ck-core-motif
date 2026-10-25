@@ -1,3 +1,9 @@
+Mwm window-management request termination (2026-10-25)
+=========================================================
+
+- Safely terminate unterminated `_DT_WM_REQUEST` payloads without reading past
+  the X property; see `docs/wm-request-termination.md`.
+
 WM_COLORMAP_WINDOWS allocation bounds (2026-10-25)
 =====================================================
 

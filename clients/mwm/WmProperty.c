@@ -1804,7 +1804,7 @@ GetDtWmRequest (
      */
     if (property && iNext >= 0)
     {
-	int len = 0;
+	size_t requestLength;
 
 	for (i=iNext; i<nitems; i++)
 	{
@@ -1813,24 +1813,28 @@ GetDtWmRequest (
 		break;
 	    }
 	}
-	if (i>=nitems) i=nitems;
+	if (i >= nitems)
+	    i = nitems;
 
-	len = i - iNext + 1 + ((property[i] == '\0') ? 0 : 1);
-
-        chRequest = (char *) XtMalloc (len);
-	if (chRequest == NULL)
+	requestLength = (size_t)i - (size_t)iNext + 1;
+	if (requestLength > UINT_MAX)
 	{
-	    Warning (((char *)GETMESSAGE(54, 2, "Insufficient memory for window management data")));
+	    Warning (((char *)GETMESSAGE(54, 2, "Window management request is too long")));
 	}
 	else
 	{
-	    /* dequeue the request */
-	    strncpy (chRequest, &property[iNext], len);
-	    if (property[i] != '\0')
+	    chRequest = (char *) XtMalloc ((Cardinal)requestLength);
+	    if (chRequest == NULL)
 	    {
-		chRequest[len-1]='\0';
+		Warning (((char *)GETMESSAGE(54, 2, "Insufficient memory for window management data")));
 	    }
-	    iNext = i+1;
+	    else
+	    {
+		/* Dequeue the request without reading past the X property. */
+		memcpy(chRequest, &property[iNext], requestLength - 1);
+		chRequest[requestLength - 1] = '\0';
+		iNext = (i < nitems) ? i + 1 : (int)nitems;
+	    }
 	}
 	
 	if (iNext >= nitems)
