@@ -944,6 +944,12 @@ Accessibility menu snapshot allocation (2026-10-25)
 - Check the menu notification ID-snapshot allocation before filling it; see
   `docs/accessibility-menu-lifecycle.md`.
 
+Accessibility text snapshot allocation (2026-10-25)
+=====================================================
+
+- Check the bounded D-Bus accessibility text-snapshot allocation before
+  filling it; see `docs/accessibility-snapshot-bounds.md`.
+
 Accessibility UTF-8 allocation failures (2026-10-25)
 =====================================================
 
