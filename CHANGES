@@ -6124,3 +6124,11 @@ Guard virtual-key result allocation (2026-10-25)
   see `docs/virtkeys-actual-allocation.md`.
 
 Guard virtual-key binding allocations (2026-10-25)
+
+Render-table rendition result positions (2026-10-25)
+=====================================================
+
+- Preserve one result slot per requested tag in `XmRenderTableGetRenditions`,
+  guard the result allocation and clean up partially copied renditions. This
+  matches the documented positional API and keeps unmatched tags as `NULL`;
+  see `docs/render-table-rendition-array.md`.
