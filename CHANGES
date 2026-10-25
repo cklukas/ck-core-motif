@@ -5767,6 +5767,13 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+List result-array Xt widths (2026-10-25)
+=========================================
+
+- Bound XmList match and selected-position result arrays against Xt's
+  `Cardinal` allocation width, including match-result shrinking; see
+  `docs/list-result-allocation.md` and `docs/list-selection-bounds.md`.
+
 List selection-item Xt allocation cast (2026-10-25)
 ====================================================
 

@@ -9969,12 +9969,14 @@ XmListGetMatchPos(Widget w,
     return FALSE;
   }
 
-  if ((size_t)lw->list.itemCount > SIZE_MAX / sizeof(int)) {
+  if ((size_t)lw->list.itemCount > SIZE_MAX / sizeof(int) ||
+      (size_t)lw->list.itemCount > UINT_MAX / sizeof(int)) {
     _XmAppUnlock(app);
     return FALSE;
   }
 
-  pos = (int *)XtMalloc((sizeof(int) * lw->list.itemCount));
+  pos = (int *)XtMalloc((Cardinal)(sizeof(int) *
+					(size_t)lw->list.itemCount));
   if (pos == NULL)
     {
       _XmAppUnlock(app);
@@ -9994,7 +9996,8 @@ XmListGetMatchPos(Widget w,
       _XmAppUnlock(app);
       return (FALSE);
     }
-  new_pos = (int *)XtRealloc((char *)pos, sizeof(int) * (size_t)j);
+  new_pos = (int *)XtRealloc((char *)pos,
+				     (Cardinal)(sizeof(int) * (size_t)j));
   if (new_pos != NULL)
     pos = new_pos;
 
@@ -10080,12 +10083,15 @@ XmListGetSelectedPos(Widget w,
     return FALSE;
   }
 
-  if ((size_t)lw->list.selectedPositionCount > SIZE_MAX / sizeof(int)) {
+  if ((size_t)lw->list.selectedPositionCount > SIZE_MAX / sizeof(int) ||
+      (size_t)lw->list.selectedPositionCount > UINT_MAX / sizeof(int)) {
     _XmAppUnlock(app);
     return FALSE;
   }
 
-  posList = (int *) XtMalloc(sizeof(int) * lw->list.selectedPositionCount);
+  posList = (int *) XtMalloc(
+		  (Cardinal)(sizeof(int) *
+			      (size_t)lw->list.selectedPositionCount));
   if (posList == NULL)
     {
       _XmAppUnlock(app);
