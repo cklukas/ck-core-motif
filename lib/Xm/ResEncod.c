@@ -2910,10 +2910,21 @@ ctextConcat(
         const_OctetPtr str2,
         unsigned int str2len )
 {
-	str1 = (OctetPtr)XtRealloc((char *)str1, (str1len + str2len + 1));
-	memcpy( &str1[str1len], str2, str2len);
-	str1[str1len+str2len] = EOS;
-	return(str1);
+	size_t total_size;
+	OctetPtr new_str;
+
+	if ((str2 == NULL && str2len != 0) ||
+	    (size_t)str1len > SIZE_MAX - (size_t)str2len - 1 ||
+	    (size_t)str1len + (size_t)str2len + 1 > UINT_MAX)
+	    return str1;
+
+	total_size = (size_t)str1len + (size_t)str2len + 1;
+	new_str = (OctetPtr)XtRealloc((char *)str1, (Cardinal)total_size);
+	if (new_str == NULL)
+	    return str1;
+	memcpy(&new_str[str1len], str2, str2len);
+	new_str[str1len + str2len] = EOS;
+	return new_str;
 }
 
 #ifdef UTF8_SUPPORTED

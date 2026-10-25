@@ -1,3 +1,10 @@
+Compound-text concatenation failure handling (2026-10-28)
+============================================================
+
+- Bound compound-text buffer-size arithmetic and preserve the existing buffer
+  when `XtRealloc` cannot grow it, avoiding a null copy; see
+  `docs/resencod-ctext-concat.md`.
+
 Input-method registration cache growth (2026-10-28)
 =====================================================
 
