@@ -1180,7 +1180,7 @@ QueryGeometry(
 
 	if (!XtIsRealized((Widget)fw))
 	{
-		int i;
+		Cardinal i;
 		Widget child;
 		XmFormConstraint c;
 
@@ -1489,7 +1489,8 @@ ChangeManaged(
 {
     XmFormWidget fw = (XmFormWidget) wid ;
     XtWidgetGeometry g;
-    int i, j, k;
+    Cardinal i, k;
+    int j;
     register XmFormConstraint c;
     register Widget w, child;
     
@@ -2108,10 +2109,11 @@ static void
 SortChildren(
         register XmFormWidget fw )
 {
-	int i, j;
+	Cardinal i;
+	int j;
 	Widget child = NULL;
 	register XmFormConstraint c = NULL, c1 = NULL;
-	int sortedCount = 0;
+	Cardinal sortedCount = 0;
 	Widget last_child, att_widget;
 	Boolean sortable;
 
