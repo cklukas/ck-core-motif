@@ -881,14 +881,23 @@ SetMwmStuff(
 {
     Boolean		changed = FALSE;
     Widget		extParent = nve->ext.logicalParent;
+    char *		replacement;
 
     if (!ove || (ove->vendor.mwm_menu != nve->vendor.mwm_menu))
       {
 	  /* make mwm_menu local */
-	  if (ove && ove->vendor.mwm_menu) 
-	    XtFree(ove->vendor.mwm_menu);
-	  if (nve->vendor.mwm_menu)
-	    nve->vendor.mwm_menu = XtNewString(nve->vendor.mwm_menu);
+	  replacement = nve->vendor.mwm_menu
+	    ? XtNewString(nve->vendor.mwm_menu) : NULL;
+	  if (!nve->vendor.mwm_menu || replacement != NULL)
+	    {
+	      if (ove && ove->vendor.mwm_menu)
+		XtFree(ove->vendor.mwm_menu);
+	      nve->vendor.mwm_menu = replacement;
+	    }
+	  else if (ove)
+	    nve->vendor.mwm_menu = ove->vendor.mwm_menu;
+	  else
+	    nve->vendor.mwm_menu = NULL;
 	  if (XtIsRealized(extParent))
 	    SetMwmMenu(nve);
       }

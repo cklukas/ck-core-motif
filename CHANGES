@@ -1,3 +1,10 @@
+VendorShell MWM menu rollback (2026-10-28)
+============================================
+
+- Copy changed `mwm_menu` values before releasing the previous owned string,
+  retaining the old menu when allocation fails; see
+  `docs/vendorshell-mwm-menu-rollback.md`.
+
 Xmos basename conversion rollback (2026-10-28)
 ================================================
 
