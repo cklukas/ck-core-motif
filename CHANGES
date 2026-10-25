@@ -9555,3 +9555,12 @@ SpinBox value-list initialization rollback (2026-10-28)
 
 FontSelector label initialization rollback (2026-10-28)
 ==========================================================
+SpinBox value-list SetValues rollback (2026-10-28)
+=====================================================
+
+- Preserve the current string-child value list when replacement allocation or
+  copying fails during `SetValues`, rolling back partial copies safely; see
+  `docs/spinbox-value-setvalues-rollback.md`.
+
+SpinBox value-list initialization rollback (2026-10-28)
+==========================================================

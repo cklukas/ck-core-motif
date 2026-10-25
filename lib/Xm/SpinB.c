@@ -986,6 +986,7 @@ ConstraintSetValues(Widget   old,
   Boolean	       redisplayText = False;
   int		       nvi;
   int		       valLoop;
+  XmString	       copy;
   char		       *error = (char *) NULL;
 
   
@@ -1054,9 +1055,30 @@ ConstraintSetValues(Widget   old,
 	  newC->values = (reqC->num_values > 0) ?
 	   (XmString *)XtMalloc(reqC->num_values * sizeof(XmString)) : NULL;
 	  
-	  if (newC->values != NULL)
+	  if (reqC->num_values > 0 && newC->values == NULL)
+	    {
+	      newC->values = oldC->values;
+	      newC->num_values = oldC->num_values;
+	      reqC->values = oldC->values;
+	      reqC->num_values = oldC->num_values;
+	    }
+	  else if (newC->values != NULL)
 	    for (valLoop = 0; valLoop < reqC->num_values; valLoop++)
-	      newC->values[valLoop] = XmStringCopy(reqC->values[valLoop]);
+	      {
+		copy = XmStringCopy(reqC->values[valLoop]);
+		if (copy == NULL)
+		  {
+		    while (valLoop != 0)
+		      XmStringFree(newC->values[--valLoop]);
+		    XtFree((char *)newC->values);
+		    newC->values = oldC->values;
+		    newC->num_values = oldC->num_values;
+		    reqC->values = oldC->values;
+		    reqC->num_values = oldC->num_values;
+		    break;
+		  }
+		newC->values[valLoop] = copy;
+	      }
 	}
       
       error = ValidatePositionValue(newC, &newC->position);
