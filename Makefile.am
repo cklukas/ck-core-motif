@@ -183,6 +183,7 @@ EXTRA_DIST += tests/automated/check-menustate-allocation.py docs/menustate-alloc
 EXTRA_DIST += tests/automated/check-editres-event-allocation.py docs/editres-event-allocation.md
 EXTRA_DIST += tests/automated/check-editres-widget-array-allocation.py docs/editres-widget-array-allocation.md
 EXTRA_DIST += tests/automated/check-clipboard-lock-allocation.py docs/clipboard-lock-allocation.md
+EXTRA_DIST += tests/automated/check-drop-transfer-initialization.py docs/drop-transfer-initialization.md
 EXTRA_DIST += tests/automated/check-xim-info-allocation.py docs/xim-info-allocation.md
 EXTRA_DIST += tests/automated/check-xim-recreate-allocation.py docs/xim-recreate-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md

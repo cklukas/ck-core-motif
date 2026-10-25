@@ -10084,6 +10084,13 @@ Clipboard lock allocation guard (2026-10-25)
   the application lock before reporting failure; see
   `docs/clipboard-lock-allocation.md`.
 
+DropTransfer initialization transaction (2026-10-25)
+=====================================================
+
+- Handle transfer-list overflow, list allocation failure, and entry-copy
+  failure transactionally, leaving a safe empty transfer set; see
+  `docs/drop-transfer-initialization.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
