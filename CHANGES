@@ -1,3 +1,9 @@
+Make XmScreen child growth transactional (2026-10-26)
+====================================================
+
+- Preserve the desktop child array when `XtRealloc` fails and check slot-size
+  arithmetic; see `docs/screen-child-growth.md`.
+
 Make Container cell growth transactional (2026-10-26)
 ====================================================
 
