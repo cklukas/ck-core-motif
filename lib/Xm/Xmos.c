@@ -501,6 +501,8 @@ _XmOSQualifyFileSpec(String  dirSpec,
   
   /* Allocate extra for NULL character and for the appended '*' (as needed). */
   fSpec = XtMalloc(filterLen + 2);
+  if (fSpec == NULL)
+    return NULL;
   strcpy(fSpec, filterSpec);
   
   /* If fSpec ends with a '/' or is a null string, add '*' since this is
@@ -517,6 +519,10 @@ _XmOSQualifyFileSpec(String  dirSpec,
    */
   dirLen = strlen(dirSpec);
   dSpec = XtMalloc(filterLen + dirLen + 4);
+  if (dSpec == NULL) {
+    XtFree(fSpec);
+    return NULL;
+  }
   strcpy(dSpec, dirSpec);
   dPtr = dSpec + dirLen;
   

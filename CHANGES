@@ -9903,6 +9903,12 @@ Directory-cache reset bounds (2026-10-25)
   suffix budget, rejecting oversized paths without allocation wraparound; see
   `docs/dir-cache-reset-bounds.md`.
 
+Fixed-match filter allocation guards (2026-10-25)
+================================================
+
+- Check file-selector filter buffers and release the first buffer if the
+  second allocation fails; see `docs/fixed-match-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
