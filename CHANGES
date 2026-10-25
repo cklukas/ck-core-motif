@@ -1,3 +1,10 @@
+IconG pixmap metadata guards (2026-10-25)
+==========================================
+
+- Initialize IconG pixmap depth and size outputs before metadata queries and
+  ignore unresolved background pixmaps when building fill GCs; see
+  `docs/icong-pixmap-metadata.md`.
+
 List geometry bounds (2026-10-25)
 ================================
 
