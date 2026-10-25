@@ -3031,7 +3031,8 @@ VaSetArg(VaArgList list,
       Cardinal new_max;
       VaArg *new_args;
       if (list->max > (Cardinal)-1 - 10 ||
-          (size_t)(list->max + 10) > SIZE_MAX / sizeof(VaArg))
+          (size_t)(list->max + 10) > SIZE_MAX / sizeof(VaArg) ||
+          (list->max + 10) > UINT_MAX / sizeof(VaArg))
         return;
       new_max = list->max + 10;
       new_args = (VaArg *)XtRealloc(
