@@ -2600,6 +2600,8 @@ _XmSetKidGeo(
     int             i ;
 /****************/
 
+    if (kg == NULL)
+        return;
     for(    i=0 ; kg[i].kid != NULL ; i++    )  {   
         w = (Widget) kg[i].kid ;
         b = &(kg[i].box) ;
