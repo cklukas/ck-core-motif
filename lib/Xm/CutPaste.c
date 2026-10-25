@@ -3014,6 +3014,8 @@ XmClipboardStartCopy(
     int status;
     char *asn1string;
     int asn1strlen;
+    Time previousTimestamp;
+    unsigned long previousStartCopyCalled;
     _XmDisplayToAppContext(display);
 
     _XmAppLock(app);
@@ -3039,6 +3041,8 @@ XmClipboardStartCopy(
 	return ClipboardFail;
     }
 
+    previousTimestamp = header->selectionTimestamp;
+    previousStartCopyCalled = header->startCopyCalled;
     header->selectionTimestamp = timestamp;
     header->startCopyCalled = (unsigned long) True;
 
@@ -3075,21 +3079,56 @@ XmClipboardStartCopy(
       }
        
       if (! found) {
- 	int oldLimit = maxCbProcs;
- 	
- 	maxCbProcs += 20;
- 	
- 	/* Need to extend tables */
- 	cbProcTable = (XmCutPasteProc *) XtRealloc((char*) cbProcTable,
- 						   sizeof(XmCutPasteProc) *
- 						   maxCbProcs);
- 	cbIdTable = (long *) XtRealloc((char*) cbIdTable, 
- 				       sizeof(long) * maxCbProcs);
- 	for(i = oldLimit; i < maxCbProcs; i++) {
- 	  cbProcTable[i] = NULL;
- 	  cbIdTable[i] = 0;
- 	}
- 	i = oldLimit;
+	int oldLimit = maxCbProcs;
+	int newLimit = oldLimit + 20;
+	XmCutPasteProc *newCbProcTable;
+	long *newCbIdTable;
+
+	/* Allocate replacement tables before changing the live pair. */
+	newCbProcTable = (XmCutPasteProc *) XtMalloc(
+					   sizeof(XmCutPasteProc) * newLimit);
+	if (newCbProcTable == NULL)
+	{
+	  _XmProcessUnlock();
+	  XtFree( (char *)itemheader);
+	  header->selectionTimestamp = previousTimestamp;
+	  header->startCopyCalled = previousStartCopyCalled;
+	  ClipboardClose( display, header );
+	  ClipboardUnlock( display, window, 0 );
+	  _XmAppUnlock(app);
+	  return ClipboardFail;
+	}
+
+	newCbIdTable = (long *) XtMalloc(sizeof(long) * newLimit);
+	if (newCbIdTable == NULL)
+	{
+	  XtFree( (char *)newCbProcTable);
+	  _XmProcessUnlock();
+	  XtFree( (char *)itemheader);
+	  header->selectionTimestamp = previousTimestamp;
+	  header->startCopyCalled = previousStartCopyCalled;
+	  ClipboardClose( display, header );
+	  ClipboardUnlock( display, window, 0 );
+	  _XmAppUnlock(app);
+	  return ClipboardFail;
+	}
+
+	if (oldLimit != 0)
+	{
+	  memcpy(newCbProcTable, cbProcTable,
+		 sizeof(XmCutPasteProc) * oldLimit);
+	  memcpy(newCbIdTable, cbIdTable, sizeof(long) * oldLimit);
+	}
+	for(i = oldLimit; i < newLimit; i++) {
+	  newCbProcTable[i] = NULL;
+	  newCbIdTable[i] = 0;
+	}
+	XtFree( (char *)cbProcTable);
+	XtFree( (char *)cbIdTable);
+	cbProcTable = newCbProcTable;
+	cbIdTable = newCbIdTable;
+	maxCbProcs = newLimit;
+	i = oldLimit;
       }
        
       cbProcTable[i] = callback;

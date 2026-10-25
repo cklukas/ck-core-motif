@@ -1,3 +1,10 @@
+Clipboard callback table growth (2026-10-26)
+==============================================
+
+- Grow paired cut-by-name callback tables transactionally, preserving existing
+  registrations when allocation fails; see
+  `docs/clipboard-callback-table-growth.md`.
+
 Clipboard start-copy allocation checks (2026-10-26)
 =====================================================
 
