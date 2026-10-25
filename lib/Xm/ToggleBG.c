@@ -4217,10 +4217,10 @@ static void
 DrawToggleLabel(
         XmToggleButtonGadget tb )
 {
-  Dimension margin = 
-    tb->gadget.highlight_thickness + tb->gadget.shadow_thickness;
-  Position fx = tb->rectangle.x + margin;
-  Position fy = tb->rectangle.y + margin;
+  int margin = (int) tb->gadget.highlight_thickness +
+    (int) tb->gadget.shadow_thickness;
+  int fx = (int) tb->rectangle.x + margin;
+  int fy = (int) tb->rectangle.y + margin;
   int fw = tb->rectangle.width - 2 * margin;
   int fh = tb->rectangle.height - 2 * margin;
   Boolean restore_gc = False;
@@ -4299,10 +4299,10 @@ static void
 DrawEtchedInMenu(
         XmToggleButtonGadget tb )
 {
-  Dimension margin = 
-    tb->gadget.highlight_thickness + tb->gadget.shadow_thickness;
-  Position fx = tb->rectangle.x + margin;
-  Position fy = tb->rectangle.y + margin;
+  int margin = (int) tb->gadget.highlight_thickness +
+    (int) tb->gadget.shadow_thickness;
+  int fx = (int) tb->rectangle.x + margin;
+  int fy = (int) tb->rectangle.y + margin;
   int fw = tb->rectangle.width - 2 * margin;
   int fh = tb->rectangle.height - 2 * margin;
   Boolean restore_gc = False;

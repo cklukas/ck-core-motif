@@ -1,3 +1,9 @@
+ToggleButton fill origin bounds (2026-10-26)
+===============================================
+
+- Keep label and etched-menu fill margins and origins in signed arithmetic,
+  preserving off-edge positions; see `docs/togglebg-fill-origins.md`.
+
 ToggleButton shadow origin bounds (2026-10-26)
 ================================================
 
