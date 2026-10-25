@@ -11895,3 +11895,11 @@ MWM session database allocation widths (2026-10-25)
 - Check client database-name and home-directory fallback lengths against Xt's
   allocation width; see `docs/mwm-db-name-allocation.md` and
   `docs/mwm-db-home-allocation.md`.
+Command argument allocation cast (2026-10-25)
+==============================================
+
+- Pass the bounded XmCreateCommand temporary argument-array size explicitly
+  as an Xt `Cardinal`; see `docs/command-message-argument-allocation.md`.
+
+MainW child-growth allocation cast (2026-10-25)
+================================================

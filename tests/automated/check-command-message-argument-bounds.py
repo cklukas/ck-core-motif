@@ -8,6 +8,7 @@ assert "(size_t)ac >= SIZE_MAX / sizeof(Arg)" in command
 assert "ac >= (Cardinal)(UINT_MAX / sizeof(Arg))" in command
 assert "(ac != 0 && al == NULL)" in command
 assert "if (argsNew == NULL)" in command
+assert "XtMalloc ((Cardinal)(sizeof(Arg) *" in command
 assert "if (ac != 0)\n        memcpy(argsNew, al, sizeof(Arg) * (size_t)ac);" in command
 
 assert "(size_t)ac >= SIZE_MAX / sizeof(Arg)" in message

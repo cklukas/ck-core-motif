@@ -11,6 +11,8 @@ array is allocated through Xt's byte-counted allocator.  The constructors now
 reject counts that cannot represent both the extra element and the resulting
 byte size in either interface before doing the multiplication.  This avoids
 wraparound and undersized temporary arrays for hostile or malformed counts.
+The checked command-constructor byte count is passed explicitly as an Xt
+`Cardinal`.
 
 An empty argument list remains valid even when its pointer is null; non-empty
 lists still require a valid pointer.  This preserves normal Motif convenience
