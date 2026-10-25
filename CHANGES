@@ -1,3 +1,10 @@
+Xmos qualified-path allocation guards (2026-10-28)
+====================================================
+
+- Check every `GetQualifiedDir` path-buffer allocation before copying into it,
+  returning NULL cleanly when memory is unavailable; see
+  `docs/xmos-qualified-path-allocation.md`.
+
 Container conversion allocation guards (2026-10-28)
 ======================================================
 

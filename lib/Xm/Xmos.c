@@ -268,6 +268,8 @@ GetQualifiedDir(String dirSpec)
 	    {   
 	      userDirLen = strlen(userDir);
 	      outputBuf = XtMalloc(userDirLen + dirSpecLen + 2);
+	      if (outputBuf == NULL)
+		return NULL;
 	      strcpy(outputBuf, userDir);
 	      strcpy(&outputBuf[userDirLen], (dirSpec + 1));
 	    }
@@ -290,6 +292,8 @@ GetQualifiedDir(String dirSpec)
 	      userDirLen = strlen(pwd_value->pw_dir);
 	      dirSpecLen = strlen(srcPtr);
 	      outputBuf = XtMalloc(userDirLen + dirSpecLen + 2);
+	      if (outputBuf == NULL)
+		return NULL;
 	      strcpy(outputBuf, pwd_value->pw_dir);
 	      strcpy(&outputBuf[userDirLen], srcPtr);
 	    } 
@@ -298,6 +302,8 @@ GetQualifiedDir(String dirSpec)
 
     case '/':
       outputBuf = XtMalloc(dirSpecLen + 2);
+	      if (outputBuf == NULL)
+		return NULL;
       strcpy(outputBuf, dirSpec);
       break;
 
@@ -306,6 +312,8 @@ GetQualifiedDir(String dirSpec)
 	{
 	  userDirLen = strlen(destPtr);
 	  outputBuf = XtMalloc(userDirLen + dirSpecLen + 3);
+	  if (outputBuf == NULL)
+	    return NULL;
 	  strcpy(outputBuf, destPtr);
 	  outputBuf[userDirLen++] = '/';
 	  strcpy(&outputBuf[userDirLen], dirSpec);
@@ -316,6 +324,8 @@ GetQualifiedDir(String dirSpec)
   if (!outputBuf)
     { 
       outputBuf = XtMalloc(2);
+	      if (outputBuf == NULL)
+		return NULL;
       outputBuf[0] = '/';
       outputBuf[1] = '\0';
     } 
