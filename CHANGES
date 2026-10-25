@@ -1,3 +1,10 @@
+Form fallback offset geometry bounds (2026-10-25)
+================================================
+
+- Use signed Form dimensions when subtracting attachment offsets in fallback
+  layout, preventing wrapped child positions; see
+  `docs/form-offset-geometry.md`.
+
 Tree extra-space geometry bounds (2026-10-25)
 ==============================================
 
