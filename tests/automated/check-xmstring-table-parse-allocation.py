@@ -3,7 +3,7 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmStringFunc.c").read_text()
-allocation = "strs = (XmStringTable)XtMalloc(count * sizeof(XmString));"
+allocation = "strs = (XmStringTable)XtMalloc((size_t)count * sizeof(XmString));"
 start = source.index(allocation)
 guard = source.index("if (strs == NULL)", start)
 write = source.index("strs[i] = XmStringParseText", guard)

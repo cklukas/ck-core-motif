@@ -36,6 +36,8 @@ static char rcsid[] = "$TOG: XmStringFunc.c /main/9 1999/10/14 11:20:50 mgreess 
 #endif
 
 #include <Xm/XmosP.h>
+#include <limits.h>
+#include <stdint.h>
 
 #include "XmI.h"
 #include "XmStringI.h"
@@ -191,12 +193,14 @@ XmStringTableParseStringArray(XtPointer   *strings,
   XmStringTable strs;
 
   _XmProcessLock();
-  if ((strings == NULL) || (count == 0)) {
+  if ((strings == NULL) || (count == 0) ||
+      ((size_t)count > SIZE_MAX / sizeof(XmString)) ||
+      ((size_t)count > (size_t)UINT_MAX / sizeof(XmString))) {
     _XmProcessUnlock();
     return(NULL);
   }
   
-  strs = (XmStringTable)XtMalloc(count * sizeof(XmString));
+  strs = (XmStringTable)XtMalloc((size_t)count * sizeof(XmString));
   if (strs == NULL) {
     _XmProcessUnlock();
     return(NULL);
@@ -226,12 +230,14 @@ XmStringTableUnparse(XmStringTable     table,
   int		i;
   
   _XmProcessLock();
-  if ((table == NULL) || (count == 0)) {
+  if ((table == NULL) || (count == 0) ||
+      ((size_t)count > SIZE_MAX / sizeof(XtPointer)) ||
+      ((size_t)count > (size_t)UINT_MAX / sizeof(XtPointer))) {
     _XmProcessUnlock();
     return(NULL);
   }
   
-  strs = (XtPointer *)XtMalloc(count * sizeof(XtPointer));
+  strs = (XtPointer *)XtMalloc((size_t)count * sizeof(XtPointer));
   if (strs == NULL) {
     _XmProcessUnlock();
     return(NULL);
@@ -614,7 +620,7 @@ XmStringToXmStringTable(XmString string,
   XmStringComponentType	type, b_type;
   unsigned int		len, b_len;
   XtPointer		val, b_val;
-  int			i, count;
+  size_t		i, count;
   
   _XmProcessLock();
   /* Get triple for first component of break_component */
@@ -661,7 +667,19 @@ XmStringToXmStringTable(XmString string,
 	count++;
     }
 
-  /* Allocate table and insert new strings */
+  /* Allocate table and insert new strings.  XtMalloc takes a
+   * Cardinal-sized byte count, so reject a component count that cannot be
+   * represented without wrapping the allocation size or return value. */
+  if (count > SIZE_MAX / sizeof(XmString) ||
+      count > (size_t)UINT_MAX / sizeof(XmString) ||
+      count > (size_t)UINT_MAX)
+    {
+      if (table != NULL)
+        *table = NULL;
+      _XmStringContextFree(&stack_context);
+      _XmProcessUnlock();
+      return(0);
+    }
   if (table != NULL)
     {
       *table = (XmStringTable)XtMalloc(count * sizeof(XmString));
@@ -693,7 +711,7 @@ XmStringToXmStringTable(XmString string,
   _XmStringContextFree(&stack_context);
 
   _XmProcessUnlock();
-  return(count);
+  return((Cardinal)count);
 }
 
 
