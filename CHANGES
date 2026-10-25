@@ -1,3 +1,10 @@
+XmString optimized-entry copy bounds (2026-10-27)
+==================================================
+
+- Keep optimized-entry copy sizes in `size_t`, reject values that cannot be
+  passed to Xt allocation APIs, and handle failed entry/text allocations
+  without copying through null pointers.
+
 XmString unoptimized-entry copy bounds (2026-10-27)
 ====================================================
 
