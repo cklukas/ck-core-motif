@@ -3573,6 +3573,8 @@ _XmStringOptToNonOpt(_XmStringOpt string)
   _XmStringOptSegRec seg;  
 
   _XmStrCreate(str, XmSTRING_MULTIPLE_ENTRY, 0);
+  if (str == NULL)
+    return NULL;
   _XmEntryInit((_XmStringEntry)&seg, XmSTRING_ENTRY_OPTIMIZED);
 
   _XmEntryTagIndex(&seg) = _XmStrTagIndex((_XmString)string);
@@ -5487,6 +5489,8 @@ _XmStringOptCreate(
   unsigned short length;
   
   _XmStrCreate(string, XmSTRING_OPTIMIZED, textlen);
+  if (string == NULL)
+    return NULL;
   if (havetag)
     {   
       _XmStrTagIndex((_XmString)string) = tag_index ;
@@ -5613,6 +5617,8 @@ _XmStringNonOptCreate(
   XmStringDirection dir = XmSTRING_DIRECTION_UNSET;
   
   _XmStrCreate(string, XmSTRING_MULTIPLE_ENTRY, 0);
+  if (string == NULL)
+    return NULL;
   _XmEntryInit((_XmStringEntry)&seg, XmSTRING_ENTRY_UNOPTIMIZED);
   
   if (!havetag)

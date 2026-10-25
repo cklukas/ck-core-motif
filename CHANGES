@@ -1,3 +1,9 @@
+XmString conversion allocation failures (2026-10-26)
+=====================================================
+
+- Propagate failed representation allocations through segment and ASN.1
+  conversion constructors; see `docs/xmstring-conversion-failures.md`.
+
 Tab-list proposal widget validation (2026-10-26)
 =================================================
 
@@ -12430,3 +12436,10 @@ Cached XmString constructor safety (2026-10-26)
   see `docs/xmstring-cached-create.md`.
 
 XmString creation allocation failure (2026-10-26)
+XmString conversion allocation failures (2026-10-26)
+=====================================================
+
+- Propagate failed representation allocations through segment and ASN.1
+  conversion constructors; see `docs/xmstring-conversion-failures.md`.
+
+Cached XmString constructor safety (2026-10-26)
