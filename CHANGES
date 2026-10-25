@@ -4907,3 +4907,9 @@ Fix XPM symbolic color detection (2026-10-25)
 
 - Report matching symbolic colors as used so ImageCache can apply the correct
   color-sensitive cache policy; see `docs/symbolic-color-detection.md`.
+
+Guard XPM color helper inputs (2026-10-25)
+==========================================
+
+- Reject missing screen, color-record and output-array inputs before XPM color
+  processing dereferences them; see `docs/xpm-color-input-guards.md`.

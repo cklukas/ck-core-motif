@@ -532,6 +532,9 @@ CompleteUnspecColors(
     XmAccessColorDataRec loc_acc_color;
 
 
+	if (screen == NULL || override_colors == NULL)
+	    return;
+
     /* Ask the color obj */
     if (!(result = XmeGetColorObjData(screen, 
 				      &colorUse, pixelSets, XmCO_NUM_COLORS,
@@ -637,6 +640,9 @@ GetOverrideColors(
 		XpmColorSymbol *override_colors)
 {
     Cardinal i, n ;
+
+	if (screen == NULL || acc_color == NULL || override_colors == NULL)
+	    return 0;
 
     /* init the value fields */
     for (i=0; i<NUM_SYMBOLIC_COLORS; i++) override_colors[i].value = NULL ;

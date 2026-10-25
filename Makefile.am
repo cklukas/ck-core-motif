@@ -822,3 +822,5 @@ EXTRA_DIST += tests/automated/check-xm-gc-ownership.py docs/gc-ownership-fallbac
 EXTRA_DIST += tests/automated/check-xm-hash-resize-linking.py docs/hash-resize-linking.md
 
 EXTRA_DIST += tests/automated/check-symbolic-color-used.py docs/symbolic-color-detection.md
+
+EXTRA_DIST += tests/automated/check-xpm-color-input-guards.py docs/xpm-color-input-guards.md
