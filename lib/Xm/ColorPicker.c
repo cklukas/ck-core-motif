@@ -4,6 +4,7 @@
 #endif
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
 #include <Xm/ColorPickerP.h>
@@ -52,6 +53,23 @@ static void notify(XmColorPickerWidget picker, String resource, XEvent *event,
     XmColorPickerCallbackStruct callback = {XmCR_VALUE_CHANGED, event, value};
     XtCallCallbacks((Widget)picker, resource, &callback);
 }
+static int text_baseline(XmColorPickerWidget picker) {
+    XGCValues values;
+    XFontStruct *font;
+    long long baseline;
+    if (!picker->color_picker.gc ||
+        !XGetGCValues(XtDisplay((Widget)picker), picker->color_picker.gc,
+                      GCFont, &values))
+        return (int)picker->core.height / 2;
+    font = XQueryFont(XtDisplay((Widget)picker), values.font);
+    if (!font)
+        return (int)picker->core.height / 2;
+    baseline = ((long long)picker->core.height - font->ascent - font->descent) /
+               2 + font->ascent;
+    XFreeFontInfo(NULL, font, 1);
+    return baseline < INT_MIN ? INT_MIN :
+           baseline > INT_MAX ? INT_MAX : (int)baseline;
+}
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *count) {
     XmColorPickerWidget picker = (XmColorPickerWidget)widget;
     XGCValues values;
@@ -95,7 +113,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         XFreeGC(display, swatch);
     }
     snprintf(text, sizeof(text), "#%08lx", value & 0xffffffffUL);
-    baseline = (int)(picker->core.height / 2);
+    baseline = text_baseline(picker);
     XDrawString(display, window, picker->color_picker.gc, 38, baseline, text,
                 (int)strlen(text));
     if (picker->primitive.highlighted && picker->primitive.highlight_thickness &&

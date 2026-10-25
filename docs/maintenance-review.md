@@ -93,3 +93,11 @@ semantics remain unchanged.  The focused source check is:
 ```sh
 python3 tests/automated/check-skeleton-rendering.py
 ```
+
+ColorPicker's hexadecimal value label now uses the active font's measured
+baseline, keeping it vertically aligned beside the swatch at different font
+sizes.  The focused check is:
+
+```sh
+python3 tests/automated/check-colorpicker-text-metrics.py
+```

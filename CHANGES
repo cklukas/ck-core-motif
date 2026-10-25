@@ -141,6 +141,13 @@ Skeleton loading presentation (2026-10-27)
   foreground color, which previously appeared as an opaque black block in
   modern themes.
 
+ColorPicker font-aware text layout (2026-10-27)
+===============================================
+
+- Center the ColorPicker value text from the active X font metrics instead of
+  a half-height baseline, keeping the hexadecimal value aligned at different
+  application font sizes.
+
 InfoBar close control and FontSelector bounds (2026-10-27)
 ============================================================
 
