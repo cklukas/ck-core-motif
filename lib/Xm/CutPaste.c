@@ -1301,10 +1301,21 @@ ClipboardRetrieveItem(
     }
 
     /* get local memory for the item */
-    clipboard_pointer = (ClipboardPointer)XtMalloc( (size_t) *outlength );
+    if (*outlength == 0)
+	clipboard_pointer = NULL;
+    else
+	clipboard_pointer = (ClipboardPointer)XtMalloc( (size_t) *outlength );
+
+    if (*outlength != 0 && clipboard_pointer == NULL)
+    {
+	XtFree( (char *) pointer );
+	*outpointer = NULL;
+	*outlength = 0;
+	return ClipboardFail;
+    }
 
     /* Size arg. is truncated if sizeof( long) > sizeof( size_t) */
-    if (ret_value == ClipboardSuccess)
+    if (ret_value == ClipboardSuccess && loclength != 0)
     {
 	/* copy the item into the local memory */
 	memcpy(clipboard_pointer, pointer, (size_t) loclength );

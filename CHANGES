@@ -1,3 +1,10 @@
+Clipboard retrieval allocation checks (2026-10-26)
+===================================================
+
+- Check internal clipboard item-result allocations before copying retrieved
+  data, preserving safe zero-length results; see
+  `docs/clipboard-retrieve-allocation.md`.
+
 Clipboard copy allocation checks (2026-10-26)
 ==============================================
 
