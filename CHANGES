@@ -3716,3 +3716,10 @@ Guard resource-converter token buffers (2026-10-25)
 - Check terminated-token and normal token-buffer allocations before writing,
   returning `NULL` through the existing converter path on failure; see
   `docs/motif-resconvert-token.md`.
+Guard text-property XmString tables (2026-10-25)
+=================================================
+
+- Check empty and non-empty ASN.1/plain text-property table allocations,
+  validate size multiplication, and clean up already generated XmStrings when
+  later generation fails; see the corresponding `docs/motif-txtpropcv-*.md`
+  contracts.

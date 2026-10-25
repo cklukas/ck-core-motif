@@ -755,6 +755,10 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 
 	if (text_prop->nitems == 0) {
 	    *string_table_return = (XmStringTable)XtMalloc(sizeof(XmString));
+	    if (*string_table_return == NULL) {
+		_XmAppUnlock(app);
+		return BadAlloc;
+	    }
 	    *count_return = 0;
 	    _XmAppUnlock(app);
 	    return Success;
@@ -785,6 +789,10 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	/* Now allocate a string table to put them in */
 	string_table = (XmStringTable)XtMalloc(sizeof(XmString) *
 					(elements ? elements : 1));
+	if (string_table == NULL) {
+	    _XmAppUnlock(app);
+	    return BadAlloc;
+	}
 
 	/* Run through again, converting the strings. */
 	offset = 0;
@@ -855,7 +863,16 @@ XmCvtTextPropertyToXmStringTable(Display *display,
     }
     if (text_prop->nitems == 0) {
 	string_table = (XmStringTable)XtMalloc(sizeof(XmString));
+	if (string_table == NULL) {
+	    _XmAppUnlock(app);
+	    return BadAlloc;
+	}
 	string_table[0] = XmStringGenerate((XtPointer)"", tag, type, NULL);
+	if (string_table[0] == NULL) {
+	    XtFree((char *)string_table);
+	    _XmAppUnlock(app);
+	    return BadAlloc;
+	}
 	*string_table_return = string_table;
 	*count_return = 1;
 	_XmAppUnlock(app);
@@ -876,19 +893,42 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	if (text_prop->value[i] == '\0')
 	  ++elements;
     }
+    if ((size_t)elements > SIZE_MAX / sizeof(XmString)) {
+	_XmAppUnlock(app);
+	return BadAlloc;
+	}
     /* Create an appropriately sized array of xmstrings */
     string_table =
       (XmStringTable)XtMalloc(sizeof(XmString) * (elements));
+	if (string_table == NULL) {
+	_XmAppUnlock(app);
+	return BadAlloc;
+	}
     
     /* Create XmStrings from each string in the value field */
     string_table[0] = XmStringGenerate((XtPointer)text_prop->value, 
 				       tag, type, NULL);
+	if (string_table[0] == NULL) {
+	XtFree((char *)string_table);
+	_XmAppUnlock(app);
+	return BadAlloc;
+	}
     for (i = 0, elements = 1; i + 1 < (int)text_prop->nitems; ++i)
     {
 	if (text_prop->value[i] == '\0')
-	  string_table[elements++] =
-	    XmStringGenerate((XtPointer) &(text_prop->value[i + 1]), 
-			     tag, type, NULL);
+	  {
+	    XmString generated = XmStringGenerate(
+		(XtPointer) &(text_prop->value[i + 1]), tag, type, NULL);
+	    if (generated == NULL) {
+		int cleanup;
+		for (cleanup = 0; cleanup < elements; ++cleanup)
+		    XmStringFree(string_table[cleanup]);
+		XtFree((char *)string_table);
+		_XmAppUnlock(app);
+		return BadAlloc;
+	    }
+	    string_table[elements++] = generated;
+	  }
     }
     *string_table_return = string_table;
     *count_return = elements;
