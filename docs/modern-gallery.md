@@ -28,6 +28,10 @@ visible in the left navigation.
 Both strokes are centered in the same symmetric disclosure box so the two
 states keep identical alignment.
 
+The modern presentation also removes the Form page's nested manager shadow
+and uses a single Notebook boundary. This keeps the page edge from appearing
+as a second frame beside the binding or around the page spinner.
+
 When launched with `--component xm.infobarwidgetclass` (or any other
 constructible manifest ID), the gallery creates the Example page only after
 the notebook's Example, Source, and Built-in Icons tabs are registered.  This

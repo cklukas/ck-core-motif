@@ -8,6 +8,7 @@
 #include <Xm/Form.h>
 #include <Xm/Label.h>
 #include <Xm/List.h>
+#include <Xm/Notebook.h>
 #include <Xm/PushB.h>
 #include <Xm/ScrollBar.h>
 #include <Xm/TextF.h>
@@ -67,12 +68,12 @@ main(int argc, char **argv)
 {
     XtAppContext app;
     Display *display;
-    Widget shell, form, label, button, toggle, text, list, scrollbar;
+    Widget shell, form, label, button, toggle, text, list, scrollbar, notebook;
     XmString item;
     XmAppearanceProfile profile;
     Pixel explicit_background;
     Arg button_args[1];
-    Dimension highlight = 0, margin = 0, spacing = 0;
+    Dimension highlight = 0, margin = 0, spacing = 0, frame_shadow = 0;
     int status = EXIT_FAILURE;
 
     shell = XtVaAppInitialize(&app, "ModernLightTest", NULL, 0,
@@ -105,6 +106,7 @@ main(int argc, char **argv)
     text = XmCreateTextField(form, "text", NULL, 0);
     list = XmCreateList(form, "list", NULL, 0);
     scrollbar = XmCreateScrollBar(form, "scrollbar", NULL, 0);
+    notebook = XmCreateNotebook(form, "notebook", NULL, 0);
 
     XtVaSetValues(label,
                   XmNtopAttachment, XmATTACH_FORM,
@@ -142,8 +144,8 @@ main(int argc, char **argv)
     XmListAddItem(list, item, 0);
     XmStringFree(item);
 
-    XtManageChildren((Widget[]){label, button, toggle, text, list, scrollbar},
-                     6);
+    XtManageChildren((Widget[]){label, button, toggle, text, list, scrollbar,
+                                notebook}, 7);
     XtManageChild(form);
     XtRealizeWidget(shell);
     XSync(display, False);
@@ -167,7 +169,7 @@ main(int argc, char **argv)
 
     XtVaGetValues(button, XmNhighlightThickness, &highlight,
                   XmNmarginWidth, &margin, NULL);
-    if (highlight != 2 || margin != 10 ||
+    if (highlight != 1 || margin != 10 ||
         !widget_pixel_matches(button, "#ffffff") ||
         !widget_pixel_matches(toggle, "#fff4cc")) {
         fprintf(stderr, "button metrics or explicit color precedence failed\n");
@@ -176,8 +178,13 @@ main(int argc, char **argv)
     XtVaGetValues(text, XmNmarginWidth, &margin, NULL);
     XtVaGetValues(list, XmNlistSpacing, &spacing, NULL);
     XtVaGetValues(scrollbar, XmNhighlightThickness, &highlight, NULL);
-    if (margin != 8 || spacing != 2 || highlight != 2) {
+    if (margin != 8 || spacing != 2 || highlight != 1) {
         fprintf(stderr, "modern-light control metrics failed\n");
+        goto done;
+    }
+    XtVaGetValues(notebook, XmNframeShadowThickness, &frame_shadow, NULL);
+    if (frame_shadow != 0) {
+        fprintf(stderr, "modern-light notebook frame remained multi-edge\n");
         goto done;
     }
 

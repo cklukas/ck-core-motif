@@ -37,12 +37,12 @@ static const char modern_light_resources[] =
     "*topShadowColor: #ffffff\n"
     "*bottomShadowColor: #c4ccd6\n"
     "*highlightColor: #1a73e8\n"
-    "*highlightThickness: 2\n"
+    "*highlightThickness: 1\n"
     "*shadowThickness: 1\n"
     "*armColor: #dbeafe\n"
     "*selectColor: #dbeafe\n"
     "*XmLabel.traversalOn: True\n"
-    "*XmLabel.highlightThickness: 2\n"
+    "*XmLabel.highlightThickness: 1\n"
     "*XmPushButton.marginWidth: 10\n"
     "*XmPushButton.marginHeight: 6\n"
     "*XmPushButton.traversalOn: True\n"
@@ -55,7 +55,9 @@ static const char modern_light_resources[] =
     "*XmList.listMarginWidth: 8\n"
     "*XmList.listMarginHeight: 6\n"
     "*XmList.listSpacing: 2\n"
-    "*XmScrollBar.highlightThickness: 2\n";
+    "*XmScrollBar.highlightThickness: 1\n"
+    "*XmNotebook.frameShadowThickness: 0\n"
+    "*XmNotebook.borderWidth: 0\n";
 
 static const char high_contrast_resources[] =
     "*background: #000000\n"
@@ -81,7 +83,7 @@ static const char modern_dark_resources[] =
     "*topShadowColor: #5f6368\n"
     "*bottomShadowColor: #000000\n"
     "*highlightColor: #8ab4f8\n"
-    "*highlightThickness: 2\n"
+    "*highlightThickness: 1\n"
     "*shadowThickness: 1\n"
     "*armColor: #3c4043\n"
     "*selectColor: #3c4043\n"
@@ -97,7 +99,9 @@ static const char modern_dark_resources[] =
     "*XmTextField.marginWidth: 8\n"
     "*XmTextField.marginHeight: 5\n"
     "*XmTextField.traversalOn: True\n"
-    "*XmScrollBar.highlightThickness: 2\n";
+    "*XmScrollBar.highlightThickness: 1\n"
+    "*XmNotebook.frameShadowThickness: 0\n"
+    "*XmNotebook.borderWidth: 0\n";
 
 typedef enum {
     AP_BACKGROUND,

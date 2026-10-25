@@ -335,7 +335,9 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
                                           state->notebook, XmNnotebookChildType,
                                           XmPAGE, XmNpageNumber, 2,
                                           XmNmarginWidth, 16,
-                                          XmNmarginHeight, 12, NULL);
+                                          XmNmarginHeight, 12,
+                                          XmNshadowThickness, 0,
+                                          XmNborderWidth, 0, NULL);
         title = text(entry->id);
         state->title = XtVaCreateManagedWidget("componentTitle", xmLabelWidgetClass,
                                               state->example, XmNlabelString, title,
@@ -360,7 +362,9 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
                                          state->notebook, XmNnotebookChildType,
                                          XmPAGE, XmNpageNumber, 3,
                                          XmNmarginWidth, 16,
-                                         XmNmarginHeight, 12, NULL);
+                                         XmNmarginHeight, 12,
+                                         XmNshadowThickness, 0,
+                                         XmNborderWidth, 0, NULL);
         {
             Arg args[1];
             XtSetArg(args[0], XmNeditable, False);
@@ -721,7 +725,9 @@ static Widget create_icon_page(Widget notebook)
     };
     Widget page = XtVaCreateWidget("iconsPage", xmFormWidgetClass, notebook,
                                    XmNnotebookChildType, XmPAGE,
-                                   XmNpageNumber, 4, NULL);
+                                   XmNpageNumber, 4,
+                                   XmNshadowThickness, 0,
+                                   XmNborderWidth, 0, NULL);
     Widget grid = XtVaCreateManagedWidget("iconGrid", xmRowColumnWidgetClass, page,
                                          XmNnumColumns, 3,
                                          XmNorientation, XmHORIZONTAL,
@@ -935,12 +941,16 @@ int main(int argc, char **argv)
                                       (char *)"components", tree_args, 1);
     }
     XtManageChild(state.tree);
-    notebook = XmVaCreateManagedNotebook(body, "content", XmNtraversalOn, True, NULL);
+    notebook = XmVaCreateManagedNotebook(body, "content",
+                                         XmNtraversalOn, True,
+                                         XmNframeShadowThickness, 0,
+                                         XmNborderWidth, 0, NULL);
     state.notebook = notebook;
     state.welcome = XtVaCreateWidget(
         "welcomePage", xmFormWidgetClass, notebook,
         XmNnotebookChildType, XmPAGE, XmNpageNumber, 1,
-        XmNmarginWidth, 16, XmNmarginHeight, 12, NULL);
+        XmNmarginWidth, 16, XmNmarginHeight, 12,
+        XmNshadowThickness, 0, XmNborderWidth, 0, NULL);
     {
         Widget welcome_text = XtVaCreateManagedWidget("welcomeText", xmDrawingAreaWidgetClass,
                                 state.welcome,

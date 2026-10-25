@@ -114,7 +114,7 @@ main(int argc, char **argv)
     }
     XtVaGetValues(button, XmNhighlightThickness, &highlight,
                   XmNlabelPixmap, &returned_pixmap, NULL);
-    if (highlight != 2 || returned_pixmap != pixmap ||
+    if (highlight != 1 || returned_pixmap != pixmap ||
         XtWindow(form) == None) {
         fprintf(stderr, "modern-dark focus, pixmap or realization failed\n");
         failed = 1;

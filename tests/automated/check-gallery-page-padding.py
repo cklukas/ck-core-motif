@@ -7,4 +7,6 @@ source = (Path(__file__).parents[2] / "demos/programs/ckmotif-gallery/gallery.c"
 )
 assert source.count("XmNmarginWidth, 16") >= 3
 assert source.count("XmNmarginHeight, 12") >= 3
+assert "XmNshadowThickness, 0" in source
+assert "XmNframeShadowThickness, 0" in source
 print("PASS gallery notebook pages use consistent inner padding")

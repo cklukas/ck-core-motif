@@ -92,8 +92,8 @@ WP-02 adds the opt-in `modern-light` profile:
 XmSetAppearanceProfile(display, XmAPPEARANCE_MODERN_LIGHT);
 ```
 
-It supplies a restrained light palette, a visible two-pixel focus ring, one-
-pixel shadows, button/toggle padding, text-field/list spacing and traversal
+It supplies a restrained light palette, a crisp one-pixel focus ring, one-
+pixel shadows, a single-outline notebook frame, button/toggle padding, text-field/list spacing and traversal
 defaults through ordinary wildcard X resources. The palette is deliberately
 documented in the implementation (`#f6f8fb` background, `#202124` text,
 `#1a73e8` focus and `#dbeafe` arm/selection). These are defaults, not a color

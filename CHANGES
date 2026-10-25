@@ -14601,3 +14601,19 @@ TreeView disclosure geometry (2026-10-27)
 - Center the closed `+` and open `−` strokes on one shared pixel centre inside
   a symmetric ten-pixel disclosure box. The gallery's category indicators now
   render without the one-sided offset visible in the previous nine-pixel box.
+Modern profile frame metrics (2026-10-26)
+=========================================
+
+- Reduce modern-light and modern-dark button, label, and scrollbar focus
+  rings to one pixel while retaining one-pixel shadows for a restrained
+  elevated appearance.
+- Remove the nested Form-page shadow and legacy multi-edge Notebook frame from
+  the gallery's modern presentation. The live pages now have one clean outer
+  boundary, without the stray vertical line beside the binding.
+
+TreeView disclosure raster geometry (2026-10-26)
+================================================
+
+- Use a nine-pixel raster box with an integer centre for the category `+` and
+  `−` strokes. This avoids the half-pixel bias of the previous even-sized
+  geometry.
