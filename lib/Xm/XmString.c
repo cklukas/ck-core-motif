@@ -8451,6 +8451,11 @@ parse_pattern(XmString      *result,
       /* Non-parse_procs always advance the pointer and terminate matching. */
       *ptr += length;
       insertion = XmStringCopy(pat->substitute);
+      if (pat->substitute != NULL && insertion == NULL) {
+	XmStringFree(*result);
+	*result = NULL;
+	return False;
+      }
     }
 
   /* Insert the substitution. */
