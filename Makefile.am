@@ -557,6 +557,8 @@ EXTRA_DIST += tests/automated/check-region-operation-input-guards.py docs/region
 EXTRA_DIST += tests/automated/check-region-gc-input-guards.py docs/region-gc-input-guards.md
 
 EXTRA_DIST += tests/automated/check-region-query-null-guards.py docs/region-query-null-guards.md
+
+EXTRA_DIST += tests/automated/check-region-api-null-guards.py docs/region-api-null-guards.md
 EXTRA_DIST += tests/automated/check-mrm-writer-resource-ref-validation.py docs/mrm-writer-resource-ref-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-char8-vector-validation.py docs/mrm-writer-char8-vector-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-cstring-vector-validation.py docs/mrm-writer-cstring-vector-validation.md

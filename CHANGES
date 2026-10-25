@@ -4331,6 +4331,12 @@ Guard XmRegion geometry query NULL inputs (2026-10-25)
 
 - Make region clearing, comparison, point queries, offsets, extents and count
   queries safe for optional NULL state; see `docs/region-query-null-guards.md`.
+
+Guard XmRegion API NULL inputs (2026-10-25)
+============================================
+
+- Make region destruction and rectangle output collection safe for absent
+  regions or output pointers; see `docs/region-api-null-guards.md`.
 Mrm writer cstring-vector validation (2026-10-25)
 ====================================================
 
