@@ -1,3 +1,10 @@
+GeoUtils box-fitting allocation guards (2026-10-28)
+====================================================
+
+- Make `FitBoxesAveraging` handle empty input, checked pointer-table sizing,
+  and temporary allocation failure without dereferencing a null sort table;
+  see `docs/geoutils-fit-boxes-allocation.md`.
+
 ComboBox child-argument bounds (2026-10-28)
 ============================================
 

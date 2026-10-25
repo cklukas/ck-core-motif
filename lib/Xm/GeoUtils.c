@@ -34,6 +34,7 @@ static char rcsid[] = "$XConsortium: GeoUtils.c /main/13 1996/08/15 17:11:25 pas
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
+#include <stdint.h>
 #include "XmI.h"
 #include "GeoUtilsI.h"
 #include "GMUtilsI.h"
@@ -1620,8 +1621,12 @@ FitBoxesAveraging(
 
     /* Get memory to use for sorting the list of boxes.
     */
-    sortedBoxes = (XmKidGeometry *) XtMalloc( numBoxes 
-                                                    * sizeof( XmKidGeometry)) ;
+    if (numBoxes == 0 || (size_t)numBoxes > SIZE_MAX / sizeof(*sortedBoxes))
+        return;
+    sortedBoxes = (XmKidGeometry *) XtMalloc((size_t)numBoxes *
+                                             sizeof(*sortedBoxes));
+    if (sortedBoxes == NULL)
+        return;
     /* Enter the boxes into the array and sort.
     */
     Index = 0 ;
