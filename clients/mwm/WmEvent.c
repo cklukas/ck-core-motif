@@ -2069,6 +2069,7 @@ HandleDtWmRequest (WmScreenData *pSD, XEvent *pev)
 				XtFree ((char *)
 				    pAP->aap[--(pAP->numArgs)].u.file.name);
 			    }
+			    XtFree ((char *) pAP->aap);
 			    XtFree ((char *) pAP);
 			}
 		    }

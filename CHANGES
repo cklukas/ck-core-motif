@@ -10950,3 +10950,10 @@ MWM session database-name allocation (2026-10-25)
 - Check spare-suffix capacity before copying command-line or resource-provided
   session database names, preserving fallback behavior on unrepresentable
   lengths; see `docs/mwm-db-name-allocation.md`.
+
+MWM action-argument reallocation (2026-10-25)
+==============================================
+
+- Keep environment-expanded action strings and growing argument arrays
+  transactional on allocation failure, and release the outer argument array
+  during cleanup; see `docs/mwm-action-arg-reallocation.md`.

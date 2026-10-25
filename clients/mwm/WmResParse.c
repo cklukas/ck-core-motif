@@ -8130,7 +8130,9 @@ Boolean ParseWmFuncActionArg (unsigned char **linePP,
 #define WM_ACTION_ARG_PAD	256
     unsigned char *string;
     char *pch;
+    char *new_pch;
     WmActionArg *pAP;
+    DtActionArg *new_aap;
     int iArgSz;
 
     pAP = XtNew (WmActionArg);
@@ -8172,8 +8174,14 @@ Boolean ParseWmFuncActionArg (unsigned char **linePP,
 			    * Make sure there's room for the new
 			    * string.
 			    */
-			   pch = (char *) 
-			     XtRealloc (pch, (1+strlen((char *)string)));
+			   new_pch = (char *)
+			     XtRealloc (pch, (1 + strlen((char *)string)));
+			   if (new_pch == NULL)
+			   {
+			       pAP->aap[pAP->numArgs].u.file.name = NULL;
+			       break;
+			   }
+			   pch = new_pch;
 			   pAP->aap[pAP->numArgs].u.file.name = pch;
 		       }
 		   }
@@ -8187,13 +8195,14 @@ Boolean ParseWmFuncActionArg (unsigned char **linePP,
 		   {
 		       /* need to increase our array space */
 		       iArgSz += WM_ACTION_ARG_INCREMENT;
-		       pAP->aap = (DtActionArg *) 
+		       new_aap = (DtActionArg *)
 			   XtRealloc((char *)pAP->aap,
 			             (iArgSz * sizeof (DtActionArg)));
-		       if (!pAP->aap)
+		       if (new_aap == NULL)
 		       {
 			   break; /* out of memory */
 		       }
+		       pAP->aap = new_aap;
 		   }
 	       }
 	       else
