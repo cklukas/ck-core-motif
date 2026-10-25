@@ -1,3 +1,9 @@
+Mrm callback routine-string bounds (2026-10-25)
+================================================
+
+- Bound callback routine offsets and termination before hierarchy lookup; see
+  `docs/mrm-callback-routine-string-bounds.md`.
+
 Mrm auto-child class-string bounds (2026-10-25)
 ================================================
 
