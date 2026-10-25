@@ -428,12 +428,28 @@ GetResources(XmRendition rend,
     {
       quarks = (XrmQuark *)XtMalloc(_XmNumRenditionResources *
 				    sizeof(XrmQuark));
+      if (quarks == NULL)
+		{
+#ifdef XTHREADS
+		  _XmProcessUnlock();
+		  if (app) _XmAppUnlock(app);
+#endif
+		  return False;
+		}
       num_quarks = _XmNumRenditionResources;
     }
 
   /* Initialize found */
   if (found == NULL)
     found = (Boolean *)XtMalloc(_XmNumRenditionResources * sizeof(Boolean));
+  if (found == NULL)
+    {
+#ifdef XTHREADS
+      _XmProcessUnlock();
+      if (app) _XmAppUnlock(app);
+#endif
+      return False;
+    }
   bzero(found, _XmNumRenditionResources * sizeof(Boolean));
 
   /* Compile names and classes. */
@@ -457,8 +473,28 @@ GetResources(XmRendition rend,
   /* Cache arglist */
   if (num_quarks < argcount)
     {
-      quarks = (XrmQuark *)XtRealloc((char *)quarks,
-				     argcount * sizeof(XrmQuark));
+      XrmQuark *new_quarks;
+      if ((size_t)argcount > SIZE_MAX / sizeof(XrmQuark) ||
+		  (size_t)argcount > UINT_MAX / sizeof(XrmQuark))
+		{
+#ifdef XTHREADS
+		  _XmProcessUnlock();
+		  if (app) _XmAppUnlock(app);
+#endif
+		  return False;
+		}
+      new_quarks = (XrmQuark *)XtRealloc((char *)quarks,
+					  (Cardinal)((size_t)argcount *
+						     sizeof(XrmQuark)));
+      if (new_quarks == NULL)
+		{
+#ifdef XTHREADS
+		  _XmProcessUnlock();
+		  if (app) _XmAppUnlock(app);
+#endif
+		  return False;
+		}
+      quarks = new_quarks;
       num_quarks = argcount;
     }
   for (i = 0; i < argcount; i++)
