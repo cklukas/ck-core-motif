@@ -14771,6 +14771,13 @@ Gallery notebook page spacing (2026-10-27)
 - Give the Welcome, Example, and Source notebook pages consistent inner
   margins so headings, controls, and source views do not touch the page frame.
 
+Bound wide-text callback conversion (2026-10-27)
+=================================================
+
+- Check wide-character callback allocation and `wcstombs()` output sizes
+  before converting them to Motif's `int` text-block length, rejecting
+  unrepresentable or unterminated results instead of truncating them.
+
 TreeView row-relative disclosure placement (2026-10-27)
 =========================================================
 

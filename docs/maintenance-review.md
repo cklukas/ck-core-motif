@@ -179,3 +179,11 @@ height instead of relying on a fixed offset.  The focused check is:
 ```sh
 python3 tests/automated/check-treeview-text-metrics.py
 ```
+
+Wide-text modify-verify callbacks now bound their byte allocation and reject
+`wcstombs()` results that cannot fit Motif's text-block length.  The focused
+check is:
+
+```sh
+python3 tests/automated/check-text-wide-conversion.py
+```

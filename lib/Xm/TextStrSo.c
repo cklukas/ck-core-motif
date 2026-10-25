@@ -1055,17 +1055,35 @@ _XmTextModifyVerify(XmTextWidget initiator,
       }
       *freeBlock = False;
       if (wcs_tvcb.text->length) {
-	newblock->ptr = (char*) XtMalloc((unsigned)
-					 (1 + wcs_tvcb.text->length) *
-					 (int)initiator->text.char_size);
-	*freeBlock = True;
-	wcs_tvcb.text->wcsptr[wcs_tvcb.text->length] = (wchar_t) 0L;
-	/* NOTE: wcstombs returns a long which could be truncated */
-	newblock->length = (int) wcstombs(newblock->ptr, 
-					  wcs_tvcb.text->wcsptr,
-					  (wcs_tvcb.text->length + 1) *
-					  (int)initiator->text.char_size);
-	if (newblock->length < 0) newblock->length = 0;
+	size_t wide_length = (size_t)wcs_tvcb.text->length;
+	size_t capacity = 0;
+	{
+	    size_t unit_size = (size_t)(initiator->text.char_size < 3 ?
+		(int)initiator->text.char_size : sizeof(wchar_t));
+	    if (unit_size != 0 && wide_length <= (SIZE_MAX / unit_size) - 1)
+		capacity = (wide_length + 1) * unit_size;
+	}
+	if (capacity == 0 || capacity > (size_t)UINT_MAX) {
+	    newblock->ptr = NULL;
+	    newblock->length = -1;
+	} else {
+	    newblock->ptr = (char *)XtMalloc((Cardinal)capacity);
+	    if (newblock->ptr == NULL) {
+		newblock->length = -1;
+	    } else {
+		*freeBlock = True;
+		wcs_tvcb.text->wcsptr[wcs_tvcb.text->length] = (wchar_t)0L;
+		{
+		    size_t converted = wcstombs(newblock->ptr,
+				wcs_tvcb.text->wcsptr, capacity);
+		    if (converted == (size_t)-1 || converted >= capacity ||
+			converted > (size_t)INT_MAX)
+			newblock->length = -1;
+		    else
+			newblock->length = (int)converted;
+		}
+	    }
+	}
       } else {
 	newblock->ptr = NULL;
 	newblock->length = 0;
