@@ -113,6 +113,13 @@ WSM match-attribute allocation guard (2026-10-25)
 - Check the WSM `WM_WINDOWS` match-attribute pointer array before filling it;
   see `docs/wsm-match-attrs-oom.md`.
 
+WSM per-match allocation rollback (2026-10-25)
+===============================================
+
+- Check each `WM_WINDOWS` match-attribute block and release earlier blocks on
+  failure, preventing null writes and partial request state; see
+  `docs/wsm-attr-pair-oom.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 
