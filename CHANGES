@@ -6096,3 +6096,10 @@ Guard Xmos directory-cache allocations (2026-10-25)
   `docs/xmos-dir-cache-allocation.md`.
 
 Guard XmIm registration allocations (2026-10-25)
+Guard Xmos cache reset allocation (2026-10-25)
+===============================================
+
+- Fall back to uncached directory enumeration when the cache path buffer
+  cannot be allocated; see `docs/xmos-reset-cache.md`.
+
+Guard Xmos directory-cache allocations (2026-10-25)

@@ -131,7 +131,7 @@ static String GetCurrentDir(String buf);
 static String GetQualifiedDir(String dirSpec);
 static String GetFixedMatchPattern(String pattern);
 static void FreeDirCache(void);
-static void ResetCache(char *qDirName);
+static Boolean ResetCache(char *qDirName);
 static unsigned char AddEntryToCache(char *entryName, unsigned entryNameLen);
 static int Wcslen(wchar_t *wcs);
 
@@ -157,14 +157,21 @@ FreeDirCache(void)
     } 
 } 
 
-static void
+static Boolean
 ResetCache(char *qDirName)
 {   
   FreeDirCache();
 
+  if (qDirName == NULL)
+    return False;
   dirCacheNameLen = strlen(qDirName);
   dirCacheName = XtMalloc(dirCacheNameLen + MAX_USER_NAME_LEN + 1);
+  if (dirCacheName == NULL) {
+    dirCacheNameLen = 0;
+    return False;
+  }
   strcpy(dirCacheName, qDirName);
+  return True;
 } 
 
 static unsigned char
@@ -755,8 +762,8 @@ void
       unsigned loopCount = 0;
       _Xreaddirparams dirEntryBuf;
       
-      if (loadCache)
-	ResetCache(qualifiedDir);
+      if (loadCache && !ResetCache(qualifiedDir))
+	loadCache = FALSE;
       
       /* The POSIX specification for the "readdir" routine makes
        *  it OPTIONAL to return the "." and ".." entries in a
