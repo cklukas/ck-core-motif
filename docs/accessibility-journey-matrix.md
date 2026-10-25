@@ -5,7 +5,7 @@ technology behavior. A provider fixture is not a screen-reader pass by itself.
 
 | Surface | Native/provider evidence | Real-client status | Open boundary |
 | --- | --- | --- | --- |
-| MenuBar, PulldownMenu, PopupMenu | Roles, names, expansion and activation fixtures pass on AArch64 | Focused Orca journey recorded | Complete menu navigation across desktop WMs and application shells. |
+| MenuBar, PulldownMenu, PopupMenu | Roles, names, expansion and activation fixtures pass on AArch64 | Bounded Orca path includes F10/open/dismiss | Complete menu navigation and item announcements across desktop WMs and application shells. |
 | List and ListItem | Identity, names, selection, stale-target refusal, actions and reentrancy pass | Protocol client coverage | Keyboard/Orca selection journey and complete list semantics. |
 | Text and TextField | UTF-8 value, caret, selection, preedit and exact text-event fixtures pass | Focused native text observer | Actual screen-reader echo and complete editing notifications. |
 | Dialog and modality | Modal admission, focus/value/selection refusal, nested and destruction cases pass | Native input journey | Application-specific dialog announcements and WM behavior. |
