@@ -1500,6 +1500,13 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 					       args,
 					       argnum);
 
+    if (pSD->screenTopLevelW == NULL)
+    {
+        Warning ("Cannot create the screen resource shell");
+        ExitWM (WM_ERROR_EXIT_VALUE);
+        return;
+    }
+
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
     /* Create a DrawingArea as a child of the popupShell.  This will be used
      * to handle UTM traffic relating to cci.  We need this
@@ -1508,14 +1515,17 @@ InitWmScreen (WmScreenData *pSD, int sNum)
      */
     pSD->utmShell = XmCreateDrawingArea(pSD->screenTopLevelW, "UTM_Shell",
 					NULL, 0);
-    XtManageChild(pSD->utmShell);
+    if (pSD->utmShell != NULL)
+    {
+        XtManageChild(pSD->utmShell);
 
     /*
      * Setup the destinationCallback handler to handle conversion
      * requests made by Mwm against other clients.
      */
-    XtAddCallback(pSD->utmShell, XmNdestinationCallback, UTMDestinationProc,
-		  NULL);
+        XtAddCallback(pSD->utmShell, XmNdestinationCallback, UTMDestinationProc,
+		      NULL);
+    }
 
     /* Must realize to own WM_i if unmapped, causes mwm to
        freeze when menu is displayed. */
@@ -1544,6 +1554,12 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 					       wmGD.topLevelW1,
 					       args,
 					       argnum);
+    if (pSD->screenTopLevelW1 == NULL)
+    {
+        Warning ("Cannot create the secondary screen resource shell");
+        ExitWM (WM_ERROR_EXIT_VALUE);
+        return;
+    }
     XtRealizeWidget (pSD->screenTopLevelW1);
 #endif /* WSM */
     /*
@@ -1766,6 +1782,12 @@ void InitWmWorkspace (WmWorkspaceData *pWS, WmScreenData *pSD)
     						pSD->screenTopLevelW,
 					   	args,
 						argnum);
+
+    if (pWS->workspaceTopLevelW == NULL)
+    {
+        Warning ("Cannot create the workspace resource widget");
+        return;
+    }
 
 #ifdef WSM
     /* internalize the workspace name */

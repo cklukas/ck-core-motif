@@ -1,3 +1,10 @@
+MWM startup widget creation checks (2026-10-26)
+================================================
+
+- Guard required screen and workspace resource widgets and make optional UTM
+  setup tolerate drawing-area creation failure; see
+  `docs/mwm-startup-widget-creation.md`.
+
 MWM feedback dialog creation checks (2026-10-26)
 =================================================
 
