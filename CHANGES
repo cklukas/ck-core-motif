@@ -8279,3 +8279,12 @@ VendorShell extension-object allocation (2026-10-27)
 
 VendorShell warning-buffer allocation (2026-10-27)
 ===================================================
+VendorShell set-values extension data (2026-10-27)
+=================================================
+
+- Check extension-data allocation before copying the existing widget pointer
+  during VendorShell set-values processing.  Allocation pressure now returns
+  without a null dereference or partial extension record.
+
+VendorShell extension-object allocation (2026-10-27)
+=====================================================

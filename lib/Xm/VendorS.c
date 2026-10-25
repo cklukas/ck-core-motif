@@ -2399,6 +2399,8 @@ GetValuesPrehook(
 
     if ((oldExtData = _XmGetWidgetExtData(w, XmSHELL_EXTENSION)) != NULL) {
 	 newExtData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+	 if (newExtData == NULL)
+	     return;
 	 newExtData->widget = oldExtData->widget;
 	 _XmPushWidgetExtData(w, newExtData, XmSHELL_EXTENSION);
     }
