@@ -13,5 +13,9 @@ if "cache_detail_heading = NULL" not in block:
     raise SystemExit("detail-header cache is not cleared before replacement")
 if "cache_detail_heading == NULL" not in block:
     raise SystemExit("detail-header allocation failure is not guarded")
+if "UINT_MAX / sizeof(XmString)" not in block:
+    raise SystemExit("detail-header allocation lacks Xt Cardinal-width guard")
+if "XtMalloc((Cardinal)(sizeof(XmString) *" not in block:
+    raise SystemExit("detail-header allocation lacks explicit Xt width cast")
 
 print("Container detail-header cache allocation is guarded")

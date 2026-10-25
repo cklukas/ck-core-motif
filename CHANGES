@@ -5767,6 +5767,12 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+Container detail-header Xt width (2026-10-25)
+==============================================
+
+- Check the cached detail-header table against Xt's `Cardinal` allocation
+  width before adding the label entry; see `docs/container-detail-headers.md`.
+
 Container detail-order Xt width (2026-10-25)
 =============================================
 

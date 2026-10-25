@@ -1096,11 +1096,14 @@ GetDetailHeader(
  	    XtFree((char*)cw->container.cache_detail_heading) ;
 	 cw->container.cache_detail_heading = NULL;
 	  if ((size_t)icon_detail_header_count >
-	      (SIZE_MAX / sizeof(XmString)) - 1) {
+	      (SIZE_MAX / sizeof(XmString)) - 1 ||
+	      (size_t)icon_detail_header_count >
+	      (UINT_MAX / sizeof(XmString)) - 1) {
 	      return;
 	  }
  	cw->container.cache_detail_heading = (XmStringTable) 
-  	    XtMalloc(sizeof(XmString) * (icon_detail_header_count + 1)) ;
+	    XtMalloc((Cardinal)(sizeof(XmString) *
+					(size_t)(icon_detail_header_count + 1))) ;
 	 if (cw->container.cache_detail_heading == NULL)
 	     return;
   	for (i=0; i < icon_detail_header_count; i++)
