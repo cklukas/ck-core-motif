@@ -11496,6 +11496,12 @@ MWM push-button array allocation width (2026-10-25)
 - Check menu push-button growth against Xt's allocation width; see
   `docs/mwm-save-pbinfo-growth.md`.
 
+MWM menu-recreation array width (2026-10-25)
+=============================================
+
+- Check the menu-spec recreation array against Xt's allocation width; see
+  `docs/menu-recreate-allocation.md`.
+
 MWM per-screen display allocation width (2026-10-25)
 =====================================================
 

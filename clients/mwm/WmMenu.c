@@ -1876,14 +1876,16 @@ static void RecreateMenuWidgets (WmScreenData *pSD, ClientData *pCD,
     /* If there are no affected menuspecs, then just return. */
     if (count == 0) return;
 
-    if ((size_t)count > SIZE_MAX / sizeof(*to_change)) {
+    if ((size_t)count > SIZE_MAX / sizeof(*to_change) ||
+	(size_t)count > UINT_MAX / sizeof(*to_change)) {
 	Warning ("Too many menu widgets to recreate");
 	return;
     }
 
     /* Allocate an array of menuspec pointers that is the size of the
        number of menu specs we need to recreate widgets for */
-    to_change = (MenuSpec **)XtMalloc(sizeof(MenuSpec *) * count);
+    to_change = (MenuSpec **)XtMalloc(
+	(Cardinal)(sizeof(MenuSpec *) * (size_t)count));
     if (to_change == (MenuSpec **) NULL)
     {
 	Warning ("Insufficient memory to recreate menu widgets");
