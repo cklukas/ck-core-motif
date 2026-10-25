@@ -617,6 +617,10 @@ public XmCommandPaletteShow
 public XmCommandPaletteDismiss
 public XmCommandPaletteInvokeSelection
 public XmCommandPaletteIsShown
+public XmCreateSkeleton
+public XmSkeletonStart
+public XmSkeletonStop
+public XmSkeletonIsAnimating
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -923,6 +927,8 @@ public xmToastClassRec
 public xmToastWidgetClass
 public xmCommandPaletteClassRec
 public xmCommandPaletteWidgetClass
+public xmSkeletonClassRec
+public xmSkeletonWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec

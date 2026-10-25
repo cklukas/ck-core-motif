@@ -26,6 +26,7 @@ They separate immutable values and lifetime rules from application behavior.
 | Empty content views | `XmEmptyState` | Toolkit owns optional icon/message/action presentation; applications own the empty predicate and action behavior. |
 | Transient notifications | `XmToast` | Toolkit owns one bounded per-instance presentation and timer; applications own placement, queue policy and action behavior. |
 | Command discovery | `XmCommandPalette` | Toolkit owns copied labels, filtering and focus/lifecycle presentation; applications own command IDs, model policy and dispatch. |
+| Loading placeholders | `XmSkeleton` | Toolkit owns bounded placeholder drawing and optional timer; applications own loading state, geometry and replacement view. |
 | Numeric navigation | Native ScrollBar with accessible Value/actions | Application maps its model range to the native control; toolkit owns native interaction and semantics. |
 | Unicode fields and editors | Text/TextField plus bounded text contexts | Toolkit owns input, shaping and widget projection; application owns document operations and undo. |
 | Custom canvases | Accessibility provider API | Application supplies semantic objects; transport and native lifetime remain shared toolkit services. |

@@ -1594,6 +1594,12 @@ contrast behavior.  Reuse WP-17's timer rules and provide a static fallback.
 **Complete when:** each accepted feedback surface has a non-animated or
 keyboard equivalent and existing lists, menus and DnD behavior are unchanged.
 
+**Status (2026-10-25):** `XmSkeleton` is implemented as the first bounded
+loading surface.  It has an explicit static fallback, per-instance timer,
+reduced-motion switch, copied accessibility label and deterministic start/
+stop teardown; its installed fixture passes 7 checks.  Row actions and drag
+feedback remain separate work items.
+
 ### WP-40: Bounded application-chrome composites
 
 **Depends on:** WP-15, WP-19 and relevant layout-manager go decisions.
