@@ -252,6 +252,8 @@ Render-table locking (2026-10-26)
   it; see `docs/xmfontlist-null-tag.md`.
 - Make `XmFontListRemoveEntry` reject a null rendition tag before copying it;
   see `docs/xmfontlist-remove-null-tag.md`.
+- Propagate failed rendition creation from both font-list constructors before
+  adding entries to a render table; see `docs/xmfontlist-create-failure.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================

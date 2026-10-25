@@ -387,6 +387,9 @@ XmFontListCreate(
     XmRenditionCreate(NULL,
 		      _XmStringCacheTag(curcharset, XmSTRING_TAG_STRLEN),
 		      args, n);
+
+  if (rends[0] == NULL)
+	return (NULL);
   
   ret_val = XmRenderTableAddRenditions(NULL, rends, 1, XmDUPLICATE);
 
@@ -436,6 +439,9 @@ XmFontListCreate_r(
     XmRenditionCreate(wid,
                       _XmStringCacheTag(curcharset, XmSTRING_TAG_STRLEN),
                       args, n);
+
+  if (rends[0] == NULL)
+	return (NULL);
  
   ret_val = XmRenderTableAddRenditions(NULL, rends, 1, XmDUPLICATE);
  
