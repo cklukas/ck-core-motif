@@ -13,11 +13,13 @@ static void Destroy(Widget);
 static void Redisplay(Widget, XEvent *, Region);
 static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
-static int bounded_text_length(const char *text){size_t length=text?strlen(text):0;return length>(size_t)INT_MAX?INT_MAX:(int)length;}
+static void CheckSetRenderTable(Widget widget,int offset,XrmValue*value){XmPromptWidget prompt=(XmPromptWidget)widget;(void)offset;if(prompt->prompt.check_set_render_table)value->addr=NULL;else{prompt->prompt.check_set_render_table=True;value->addr=(char*)&prompt->prompt.font;}}
 #define Offset(field) XtOffsetOf(XmPromptRec, field)
 static XtResource resources[] = {
     {XmNpromptText, XmCPromptText, XmRXmString, sizeof(XmString), Offset(prompt.text), XmRImmediate, NULL},
     {XmNpromptVisible, XmCPromptVisible, XmRBoolean, sizeof(Boolean), Offset(prompt.visible), XmRImmediate, (XtPointer)True},
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmRenderTable), Offset(prompt.font), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmRenderTable), Offset(prompt.font), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean), Offset(primitive.traversal_on), XmRImmediate, (XtPointer)False}
 };
 externaldef(xmpromptclassrec) XmPromptClassRec xmPromptClassRec = {
@@ -39,15 +41,14 @@ static XmString copy_prompt(XmString source) {
     if (!text) return XmStringCreateLocalized("");
     result = XmStringCreateLocalized(text); XtFree(text); return result;
 }
-static char *prompt_text(XmPromptWidget prompt) {
-    char *text = XmStringUnparse(prompt->prompt.text, NULL, XmCHARSET_TEXT,
-                                 XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
-    return text ? text : XtNewString("");
-}
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *count) {
     XmPromptWidget prompt = (XmPromptWidget)widget; XGCValues values;
     (void)request; (void)args; (void)count;
     prompt->prompt.text = copy_prompt(prompt->prompt.text);
+    if (prompt->prompt.font == NULL)
+        prompt->prompt.font = XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+    else
+        prompt->prompt.font = XmFontListCopy(prompt->prompt.font);
     values.foreground = prompt->primitive.foreground;
     values.background = prompt->core.background_pixel;
     prompt->prompt.gc = XCreateGC(XtDisplay(widget), DefaultRootWindow(XtDisplay(widget)),
@@ -58,24 +59,34 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
 static void Destroy(Widget widget) {
     XmPromptWidget prompt = (XmPromptWidget)widget;
     if (prompt->prompt.gc) XFreeGC(XtDisplay(widget), prompt->prompt.gc);
+    if (prompt->prompt.font) XmRenderTableFree(prompt->prompt.font);
     /* Xt releases XmNpromptText resource storage after Destroy. */
 }
 static void Redisplay(Widget widget, XEvent *event, Region region) {
-    XmPromptWidget prompt = (XmPromptWidget)widget; char *text;
+    XmPromptWidget prompt = (XmPromptWidget)widget; Dimension width=0,height=0;
     (void)event; (void)region;
     if (!XtWindow(widget) || !prompt->prompt.gc) return;
     XClearWindow(XtDisplay(widget), XtWindow(widget));
     if (!prompt->prompt.visible) return;
-    text = prompt_text(prompt);
-    XDrawString(XtDisplay(widget), XtWindow(widget), prompt->prompt.gc, 4,
-                (int)prompt->core.height - 8, text, bounded_text_length(text));
-    XtFree(text);
+    if (prompt->prompt.font && prompt->prompt.text) {
+        XmStringExtent(prompt->prompt.font, prompt->prompt.text, &width, &height);
+        XmStringDraw(XtDisplay(widget), XtWindow(widget), prompt->prompt.font,
+                     prompt->prompt.text, prompt->prompt.gc, 4,
+                     ((int)prompt->core.height - (int)height) / 2, width,
+                     XmALIGNMENT_BEGINNING, XmPrim_layout_direction(prompt), NULL);
+    }
 }
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmPromptWidget old = (XmPromptWidget)old_widget, prompt = (XmPromptWidget)widget;
     XmString replacement;
     (void)request; (void)args; (void)count;
+    if (old->prompt.font != prompt->prompt.font) {
+        XmRenderTable new_font = prompt->prompt.font ? XmFontListCopy(prompt->prompt.font) :
+            XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+        if (old->prompt.font) XmRenderTableFree(old->prompt.font);
+        prompt->prompt.font = new_font;
+    }
     if (old->prompt.text != prompt->prompt.text) {
         replacement = copy_prompt(prompt->prompt.text);
         if (replacement) {
@@ -90,16 +101,15 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
 }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
-    XmPromptWidget prompt = (XmPromptWidget)widget; char *text;
-    size_t length;
-    (void)request; text = prompt_text(prompt);
+    XmPromptWidget prompt = (XmPromptWidget)widget;
+    (void)request;
     reply->request_mode = CWWidth | CWHeight;
-    length = strlen(text);
-    reply->width = length > ((unsigned long)(Dimension)-1 - 8UL) / 8UL
-                       ? (Dimension)-1
-                       : (Dimension)(length * 8UL + 8UL);
+    if (prompt->prompt.font && prompt->prompt.text) {
+        Dimension width = 0, height = 0;
+        XmStringExtent(prompt->prompt.font, prompt->prompt.text, &width, &height);
+        reply->width = width > (Dimension)-1 - 8 ? (Dimension)-1 : width + 8;
+    } else reply->width = 8;
     reply->height = 24;
-    XtFree(text);
     return (widget->core.width == reply->width && widget->core.height == reply->height)
                ? XtGeometryYes : XtGeometryAlmost;
 }

@@ -218,3 +218,10 @@ check is:
 ```sh
 python3 tests/automated/check-treeview-text-metrics.py
 ```
+Prompt text now uses an owned copy of `XmNrenderTable` for drawing and
+preferred-width measurement. The focused checks are:
+
+```sh
+python3 tests/automated/check-prompt-text-bounds.py
+python3 tests/automated/check-prompt-resource-safety.py
+```

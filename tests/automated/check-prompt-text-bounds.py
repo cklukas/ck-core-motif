@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""Check bounded XmPrompt text lengths."""
+"""Check XmPrompt uses render-table extents for text geometry."""
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "Prompt.c").read_text(encoding="utf-8")
-assert "static int bounded_text_length" in source
-assert "bounded_text_length(text)" in source
-print("PASS prompt text lengths are bounded")
+assert "XmNrenderTable" in source
+assert "XmStringExtent" in source
+assert "XmStringDraw" in source
+assert "XmFontListCopy" in source
+assert "XmRenderTableFree" in source
+print("PASS prompt text uses render-table extents")

@@ -4,7 +4,7 @@
 #include <Xm/PrimitiveP.h>
 typedef struct _XmPromptClassRec { CoreClassPart core_class;
     XmPrimitiveClassPart primitive_class; XtPointer extension; } XmPromptClassRec;
-typedef struct _XmPromptPart { XmString text; Boolean visible; GC gc; } XmPromptPart;
+typedef struct _XmPromptPart { XmString text; Boolean visible; GC gc; XmRenderTable font; Boolean check_set_render_table; } XmPromptPart;
 typedef struct _XmPromptRec { CorePart core; XmPrimitivePart primitive;
     XmPromptPart prompt; } XmPromptRec;
 extern XmPromptClassRec xmPromptClassRec;
