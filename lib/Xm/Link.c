@@ -79,6 +79,12 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     XDrawLine(XtDisplay(widget), XtWindow(widget), link->link.gc, 4,
               (int)link->core.height - 5, 4 + length * 8,
               (int)link->core.height - 5);
+    /* Visited state is visible without depending on colour: a second rule
+       distinguishes it in monochrome and high-contrast themes. */
+    if (link->link.visited)
+        XDrawLine(XtDisplay(widget), XtWindow(widget), link->link.gc, 4,
+                  (int)link->core.height - 2, 4 + length * 8,
+                  (int)link->core.height - 2);
     if (link->primitive.highlighted && link->primitive.highlight_thickness)
         XDrawRectangle(XtDisplay(widget), XtWindow(widget), link->link.gc,
                        1, 1, link->core.width - 3, link->core.height - 3);
