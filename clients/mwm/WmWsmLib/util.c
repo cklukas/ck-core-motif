@@ -75,6 +75,9 @@ _WSMTargetToReqType(Display *dpy, Atom target)
 {
     WSMDispInfo *disp_atoms = _WSMGetDispInfo(dpy);
 
+    if (disp_atoms == NULL)
+	return(WSM_UNKNOWN);
+
     if (target == disp_atoms->connect) 
 	return(WSM_CONNECT);
     if (target == disp_atoms->extensions) 
@@ -107,6 +110,9 @@ Atom
 _WSMReqTypeToTarget(Display *dpy, WSMRequestType req_type)
 {
     WSMDispInfo *disp_atoms = _WSMGetDispInfo(dpy);
+
+    if (disp_atoms == NULL)
+	return(None);
 
     switch (req_type) {
     case WSM_CONNECT:

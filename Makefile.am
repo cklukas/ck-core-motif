@@ -928,6 +928,8 @@ EXTRA_DIST += tests/automated/check-wsm-config-clear-pointers.py docs/wsm-config
 
 EXTRA_DIST += tests/automated/check-wsm-config-pointer-lifecycle.py docs/wsm-config-pointer-lifecycle.md
 
+EXTRA_DIST += tests/automated/check-wsm-target-conversion-null.py docs/wsm-target-conversion-null.md
+
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 
 EXTRA_DIST += tests/automated/check-latin-lower-bounds.py docs/latin-lower-bounds.md

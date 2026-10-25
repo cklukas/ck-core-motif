@@ -11143,3 +11143,10 @@ WSM configuration pointer lifetime (2026-10-25)
 - Initialize configuration pointers and release them independently of
   attribute counts, covering zero-attribute allocations; see
   `docs/wsm-config-pointer-lifecycle.md`.
+
+WSM target conversion allocation failure (2026-10-25)
+======================================================
+
+- Return safe unknown/none values when display metadata cannot be allocated,
+  avoiding null dereferences in target conversion; see
+  `docs/wsm-target-conversion-null.md`.
