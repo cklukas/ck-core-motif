@@ -1,3 +1,10 @@
+ToggleSwitch label initialization rollback (2026-10-28)
+==========================================================
+
+- Check the initial label copy and fall back to an empty compound string,
+  avoiding NULL label measurement and construction failures; see
+  `docs/toggleswitch-label-init-rollback.md`.
+
 IconButton label initialization rollback (2026-10-28)
 ========================================================
 

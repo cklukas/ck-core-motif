@@ -92,16 +92,23 @@ static void Initialize(Widget request, Widget new_widget, ArgList args,
     XGCValues values;
     unsigned long mask = GCForeground | GCBackground;
     XmFontList defaults;
+    XmString replacement;
     Dimension label_width = 0, label_height = 0;
     (void)request; (void)args; (void)num_args;
 
     if (!sw->toggle_switch.label)
         sw->toggle_switch.label = XmStringCreateLocalized("");
     else
-        sw->toggle_switch.label = XmStringCopy(sw->toggle_switch.label);
+    {
+        replacement = XmStringCopy(sw->toggle_switch.label);
+        if (replacement != NULL)
+            sw->toggle_switch.label = replacement;
+        else
+            sw->toggle_switch.label = XmStringCreateLocalized("");
+    }
     defaults = XmeGetDefaultRenderTable(new_widget, XmBUTTON_FONTLIST);
     sw->toggle_switch.font = defaults ? XmFontListCopy(defaults) : NULL;
-    if (sw->toggle_switch.font)
+    if (sw->toggle_switch.font && sw->toggle_switch.label)
         XmStringExtent(sw->toggle_switch.font, sw->toggle_switch.label,
                        &label_width, &label_height);
     if (!sw->core.width)
