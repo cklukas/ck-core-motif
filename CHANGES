@@ -1,3 +1,10 @@
+MainWindow child height geometry bounds (2026-10-26)
+====================================================
+
+- Bound parent-height and scrolled-offset calculations during child resizes,
+  preventing unsigned wraparound when a child shrinks; see
+  `docs/mainwindow-height-geometry.md`.
+
 ScrolledWindow scrollbar request bounds (2026-10-26)
 =====================================================
 

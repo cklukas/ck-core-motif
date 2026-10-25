@@ -864,6 +864,7 @@ GeometryManager(
     XmMainWindowWidget mw = (XmMainWindowWidget ) w->core.parent;
     XtGeometryResult res;
     Dimension	    newWidth,newHeight, OldHeight;
+    int             parent_height, height_change;
     Dimension	    bw;
     XtWidgetGeometry  parent_request ;
     XtWidgetGeometry  desired, preferred;
@@ -916,9 +917,11 @@ GeometryManager(
 		    if (request->request_mode & XtCWQueryOnly) 
 			parent_request.request_mode |= XtCWQueryOnly;
 		    parent_request.width = mw->core.width ;
-		    parent_request.height = newHeight = mw->core.height - 
-			(mb->core.height - (2 * mb->core.border_width)) +
-			    preferred.height + (2 *preferred.border_width);
+		    parent_height = (int) mw->core.height -
+			((int) mb->core.height - (2 * (int) mb->core.border_width)) +
+			    (int) preferred.height + (2 * (int) preferred.border_width);
+		    parent_request.height = newHeight = (Dimension)
+			((parent_height > 0) ? parent_height : 0);
                     if (XtMakeGeometryRequest((Widget) mw, 
 					      &parent_request, NULL)
                         == XtGeometryYes) {
@@ -962,10 +965,12 @@ GeometryManager(
  * Margins are already included in the old width & height
  *
  ****************/
-     if(request->request_mode & CWHeight)
-         newHeight = mw->core.height - 
-	             (w->core.height - (2 * w->core.border_width)) +
-	    	     request->height + 2 * bw;
+     if(request->request_mode & CWHeight) {
+         parent_height = (int) mw->core.height -
+	             ((int) w->core.height - (2 * (int) w->core.border_width)) +
+	             (int) request->height + 2 * (int) bw;
+         newHeight = (Dimension) ((parent_height > 0) ? parent_height : 0);
+     }
     else 
          newHeight = mw->core.height;
 
@@ -986,8 +991,9 @@ GeometryManager(
 	    if(request->request_mode & CWHeight)
 		w->core.height = request->height;
 
-	    mw->swindow.YOffset = mw->swindow.YOffset +
-		(newHeight - OldHeight);
+	    height_change = (int) newHeight - (int) OldHeight;
+	    mw->swindow.YOffset = (Position)
+		((int) mw->swindow.YOffset + height_change);
 
 	    _XmProcessLock();
 	    resize = XtCoreProc(mw, resize);
