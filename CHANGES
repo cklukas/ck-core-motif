@@ -8405,3 +8405,9 @@ Notebook scroll-frame allocation (2026-10-27)
 
 - Check private scroll-frame data allocation before initialization, returning
   cleanly when the trait record cannot be allocated.
+
+Accessibility D-Bus memo allocation (2026-10-27)
+=================================================
+
+- Check memo-table resize and record allocations, propagating failure to memo
+  callers instead of dereferencing null accessibility transport state.

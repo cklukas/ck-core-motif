@@ -163,10 +163,12 @@ static void states(DBusMessageIter *i, uint64_t bits) {
 static size_t memo_bucket(XmAccessibleId id, size_t capacity) {
   return ((size_t)id * (size_t)UINT32_C(2654435761)) & (capacity - 1);
 }
-static void memo_resize(Transport *t, size_t capacity) {
+static Boolean memo_resize(Transport *t, size_t capacity) {
   TransportState **table;
   size_t k;
   table = (TransportState **)XtCalloc((Cardinal)capacity, sizeof(*table));
+  if (!table)
+    return False;
   for (k = 0; k < t->memo_capacity; ++k) {
     TransportState *record = t->memo[k];
     while (record) {
@@ -176,23 +178,26 @@ static void memo_resize(Transport *t, size_t capacity) {
     }
   }
   XtFree((char *)t->memo); t->memo = table; t->memo_capacity = capacity;
+  return True;
 }
 static TransportState *memo_get(Transport *t, XmAccessibleId id, int create) {
   TransportState *record;
   size_t bucket;
   if (!t->memo_capacity) {
     if (!create) return NULL;
-    memo_resize(t, 64);
+    if (!memo_resize(t, 64)) return NULL;
   }
   bucket = memo_bucket(id, t->memo_capacity);
   for (record = t->memo[bucket]; record; record = record->next)
     if (record->id == id) return record;
   if (!create) return NULL;
   if (t->memo_count >= t->memo_capacity && t->memo_capacity <= UINT_MAX / (2 * sizeof(*t->memo))) {
-    memo_resize(t, t->memo_capacity * 2);
+    if (!memo_resize(t, t->memo_capacity * 2)) return NULL;
     bucket = memo_bucket(id, t->memo_capacity);
   }
   record = (TransportState *)XtCalloc(1, sizeof(*record));
+  if (!record)
+    return NULL;
   record->id = id; record->next = t->memo[bucket]; t->memo[bucket] = record;
   ++t->memo_count;
   return record;
