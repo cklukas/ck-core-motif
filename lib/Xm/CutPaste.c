@@ -1095,11 +1095,21 @@ ClipboardFindItem(
     ClipboardPointer ptr;
 
     if (format == NULL) format = &dummy;
+    if (outpointer == NULL || outlength == NULL)
+	return ClipboardFail;
+
+    *outpointer = NULL;
+    *outlength = 0;
+    if (outtype != NULL)
+	*outtype = None;
 
     rootwindow = RootWindow( display, 0 );
 
     /* convert the id into an atom */
     itematom = ClipboardGetAtomFromId( display, itemid );
+
+    if (itematom == None)
+	return ClipboardFail;
 
     ret_value = GetWindowProperty(display,
 				  rootwindow,
