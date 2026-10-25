@@ -1,3 +1,9 @@
+PushButton timeout shadow bounds (2026-10-25)
+==============================================
+
+- Guard menu arm-timeout shadow redraws against undersized widgets and missing
+  shadow GCs; see `docs/push-button-timeout-shadow.md`.
+
 PushButton menu shadow bounds (2026-10-25)
 ===========================================
 
