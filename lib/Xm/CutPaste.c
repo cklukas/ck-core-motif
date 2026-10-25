@@ -1481,6 +1481,10 @@ ClipboardGetAtomFromId(
 {
     char *item;
     char atomname[ 100 ];
+    int written;
+
+    if (itemid < 0)
+	return None;
 
     switch ( (int)itemid )
     {	
@@ -1489,7 +1493,10 @@ ClipboardGetAtomFromId(
 	case 1: item = XmS_MOTIF_CLIP_NEXT_ID;
 	    break;
 	default:
-    	    sprintf( atomname, "_MOTIF_CLIP_ITEM_%ld", itemid );
+	    written = snprintf(atomname, sizeof(atomname),
+			"_MOTIF_CLIP_ITEM_%ld", itemid);
+	    if (written < 0 || (size_t)written >= sizeof(atomname))
+		return None;
     	    item = atomname;
 	    break;	
     }

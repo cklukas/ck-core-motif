@@ -1,3 +1,10 @@
+Clipboard item atom-name validation (2026-10-26)
+=================================================
+
+- Reject negative or unrepresentable clipboard item IDs before constructing
+  atom names, replacing the fixed-buffer formatting risk with bounded output;
+  see `docs/clipboard-item-atom-name-validation.md`.
+
 Clipboard property replacement input validation (2026-10-26)
 ==============================================================
 
