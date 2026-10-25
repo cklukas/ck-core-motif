@@ -30,6 +30,8 @@
 #endif
 
 
+#include <stdint.h>
+
 #include "XmI.h"
 #include "HashI.h"
 
@@ -121,7 +123,10 @@ _XmFreeHashTable(XmHashTable table)
   int i;
   XmHashBucket bucket, next;
 
-  for(i = 0; i < table -> size; i++) {
+  if (table == NULL)
+    return;
+
+  for(i = 0; table -> buckets != NULL && i < table -> size; i++) {
     bucket = table -> buckets[i];
     while(bucket) {
       next = bucket -> next;
@@ -140,6 +145,8 @@ _XmResizeHashTable(XmHashTable table, Cardinal new_size)
   int i, index;
   int oldsize;
   XmHashBucket current, last, next, new_h;
+  XmHashBucket *new_buckets;
+  XmHashBucket *old_buckets;
 
   i = 0;
 
@@ -149,15 +156,25 @@ _XmResizeHashTable(XmHashTable table, Cardinal new_size)
 
   if (size_table[i] == 0) i--;
 
-  /* New size should be larger,  otherwise return */
+  if (table == NULL || table->buckets == NULL ||
+      (size_t)size_table[i] > SIZE_MAX / sizeof(*new_buckets))
+    return;
+
+  /* New size should be larger, otherwise return. */
   if (size_table[i] <= table -> size) return;
 
-  /* Realloc table */
+  /* Replace the bucket array only after the new allocation succeeds. */
   oldsize = table -> size;
+  old_buckets = table->buckets;
+  new_buckets = (XmHashBucket *)XtMalloc((size_t)size_table[i] *
+                                         sizeof(*new_buckets));
+  if (new_buckets == NULL)
+    return;
+  memcpy(new_buckets, old_buckets,
+         (size_t)oldsize * sizeof(*new_buckets));
+  XtFree((char *)old_buckets);
   table -> size = size_table[i];
-  table -> buckets = 
-    (XmHashBucket*) XtRealloc((char*) table -> buckets, 
-			      table -> size * sizeof(XmHashBucket));
+  table -> buckets = new_buckets;
   /* NULL new array entries */
   for(i = oldsize; i < table -> size; i++) table -> buckets[i] = NULL;
 
@@ -231,10 +248,14 @@ _XmAddHashEntry(XmHashTable table, XmHashKey key, XtPointer value)
   XmHashValue index;
   XmHashBucket entry;
 
+  if (table == NULL || table->buckets == NULL || table->size == 0)
+    return;
   hash = table -> hasher(key);
   index = hash % table -> size;
 
   entry = NewBucket();
+  if (entry == NULL)
+    return;
   entry -> hashed_key = hash;
   entry -> hash_key = key;
   entry -> value = value;
@@ -356,9 +377,12 @@ NewBucket(void)
   if (FreeBucketList == NULL) {
     /* Allocate alot of buckets at once to cut down on fragmentation */
     buckets = (XmHashBucket) XtMalloc(NUMBUCKETS * sizeof(XmHashBucketRec));
+    if (buckets == NULL)
+	return NULL;
 
     /* Chain them together */
-    for(i = 0; i < NUMBUCKETS; i++) buckets[i].next = &buckets[i+1];
+    for(i = 0; i < NUMBUCKETS - 1; i++)
+	buckets[i].next = &buckets[i+1];
 
     /* The last points to nothing */
     buckets[NUMBUCKETS - 1].next = (XmHashBucket) NULL;
