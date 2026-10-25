@@ -2371,6 +2371,7 @@ ImSetGeo(Widget  vw,
         } else if ((use_plist = (icp->input_style & XIMPreeditPosition)) != 0)
         {
           unsigned int  margin;
+          int available_width, available_height;
 #ifdef FIX_1129
         /*
          * im_info->current_widget can contains NULL,
@@ -2385,10 +2386,16 @@ ImSetGeo(Widget  vw,
               + ((XmPrimitiveWidget)im_info->current_widget)
                   ->primitive.highlight_thickness;
 
-            rect_preedit.width = MIN(icp->preedit_width,
-                  XtWidth(im_info->current_widget) - 2*margin);
-            rect_preedit.height = MIN(icp->sp_height,
-                  XtHeight(im_info->current_widget) - 2*margin);
+            available_width = (int) XtWidth(im_info->current_widget) -
+                2 * (int) margin;
+            available_height = (int) XtHeight(im_info->current_widget) -
+                2 * (int) margin;
+            if (available_width < 0)
+              available_width = 0;
+            if (available_height < 0)
+              available_height = 0;
+            rect_preedit.width = MIN(icp->preedit_width, available_width);
+            rect_preedit.height = MIN(icp->sp_height, available_height);
 	}
       
       if (use_slist && use_plist)

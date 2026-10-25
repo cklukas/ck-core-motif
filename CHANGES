@@ -7322,3 +7322,12 @@ Input-method preedit width bounds (2026-10-26)
 
 TabBox right-to-left placement bounds (2026-10-26)
 ===================================================
+Input-method preedit-position bounds (2026-10-26)
+==================================================
+
+- Bound focused-widget margin subtraction for XIM preedit-position rectangles,
+  preventing wrapped sizes in narrow controls; see
+  `docs/xmim-preedit-position.md`.
+
+Input-method preedit width bounds (2026-10-26)
+==============================================
