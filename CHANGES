@@ -114,6 +114,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  docs/mrm-related-count-type.md.
 
 2026-10-25
+	* Reject null Mrm compression inputs and invalid table entries before
+	  lookup; see docs/mrm-compression-inputs.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,
