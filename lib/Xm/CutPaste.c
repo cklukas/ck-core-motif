@@ -3883,6 +3883,10 @@ XmClipboardRetrieve(
 {
   Atom ignoretype;
   int  ret_val;
+
+  if (format == NULL || (buffer == NULL && length != 0))
+	return ClipboardBadFormat;
+
   _XmDisplayToAppContext(display);
 
   _XmAppLock(app);

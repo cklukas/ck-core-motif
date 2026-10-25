@@ -13719,3 +13719,10 @@ Clipboard format buffer validation (2026-10-26)
   `XmClipboardInquireFormat`; see `docs/clipboard-format-buffer-validation.md`.
 
 XmObjectAtPoint null-widget guard (2026-10-26)
+Clipboard retrieve buffer validation (2026-10-26)
+==================================================
+
+- Reject missing format names and null non-empty output buffers in
+  `XmClipboardRetrieve`; see `docs/clipboard-retrieve-buffer-validation.md`.
+
+Clipboard format buffer validation (2026-10-26)
