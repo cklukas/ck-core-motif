@@ -24,4 +24,6 @@ assert "new_table == NULL" in source
 assert "new_size > UINT_MAX - TABLE_INCREMENT" in source
 assert "num_lines <= 0" in source
 assert "new_table == NULL" in source
+assert "int new_size = table_size" in source
+assert "new_size < 0" in source
 print("PASS Text line-table reflow allocation guard")

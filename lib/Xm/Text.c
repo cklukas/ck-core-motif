@@ -1376,14 +1376,29 @@ _XmTextRealignLineTable(XmTextWidget tw,
 						 cur_start, XmSELECT_POSITION,
 						 XmsdRight, 1, TRUE);
     if (cur_index >= table_size) {
-      if (table_size < TABLE_INCREMENT)
-	table_size *= 2;
-      else
-	table_size += TABLE_INCREMENT;
-      
-      line_table = (XmTextLineTable) XtRealloc((char *)line_table,
-					       table_size *
-					       sizeof(XmTextLineTableRec));
+      int new_size = table_size;
+      XmTextLineTable new_table;
+      if (new_size < 0)
+	return;
+      if (new_size < TABLE_INCREMENT) {
+	if ((unsigned int)new_size > UINT_MAX / 2)
+	  return;
+	new_size *= 2;
+      } else {
+	if ((unsigned int)new_size > UINT_MAX - TABLE_INCREMENT)
+	  return;
+	new_size += TABLE_INCREMENT;
+      }
+      if ((size_t)new_size > SIZE_MAX / sizeof(XmTextLineTableRec) ||
+	  (size_t)new_size > UINT_MAX / sizeof(XmTextLineTableRec))
+	return;
+      new_table = (XmTextLineTable)XtRealloc(
+		(char *)line_table,
+		(Cardinal)((size_t)new_size * sizeof(XmTextLineTableRec)));
+      if (new_table == NULL)
+	return;
+      line_table = new_table;
+      table_size = new_size;
     }
     line_table[cur_index].start_pos = (unsigned int) next_start;
     if (line_end == next_start) {
