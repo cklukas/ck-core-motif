@@ -244,7 +244,9 @@ Boolean MakeIconBox (WmWorkspaceData *pWS, ClientData *pCD)
 	InitializeIconBoxData (pWS, pIBD);
 	InitializeClientData (pCD, pIBD);
 
-        if (!(pIBD->IPD.placeList = 
+        if (pIBD->IPD.totalPlaces <= 0 ||
+            (size_t)pIBD->IPD.totalPlaces > UINT_MAX / sizeof(IconInfo) ||
+            !(pIBD->IPD.placeList =
 	    (IconInfo *)XtMalloc (pIBD->IPD.totalPlaces * sizeof (IconInfo))))
 	{
 	    Warning (((char *)GETMESSAGE(36, 2, "Insufficient memory to create icon box data")));
@@ -963,10 +965,23 @@ void InitializeIconBoxData (WmWorkspaceData *pWS, IconBoxData *pIBD)
      * set initial size of placement space to size of screen 
      */
 
-    sW = DisplayWidth (DISPLAY, pWS->pSD->screen) / pWS->pSD->iconWidth;
-    sH = DisplayHeight (DISPLAY, pWS->pSD->screen) / pWS->pSD->iconHeight;
-
-    pIBD->IPD.totalPlaces = sW * sH;
+    if (pWS->pSD->iconWidth <= 0 || pWS->pSD->iconHeight <= 0)
+    {
+	Warning ("Invalid icon dimensions; using one placement slot");
+	pIBD->IPD.totalPlaces = 1;
+    }
+    else
+    {
+	sW = DisplayWidth (DISPLAY, pWS->pSD->screen) / pWS->pSD->iconWidth;
+	sH = DisplayHeight (DISPLAY, pWS->pSD->screen) / pWS->pSD->iconHeight;
+	if (sW <= 0 || sH <= 0 || sW > INT_MAX / sH)
+	{
+	    Warning ("Icon placement dimensions are too large; using one slot");
+	    pIBD->IPD.totalPlaces = 1;
+	}
+	else
+	    pIBD->IPD.totalPlaces = sW * sH;
+    }
 
     pIBD->IPD.onRootWindow = False;
 

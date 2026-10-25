@@ -4266,6 +4266,12 @@ Mrm writer arg-value rebinds (2026-10-25)
 - Propagate all type-specific argument-descriptor rebind failures from
   `UrmCWRSetArgValue` after record growth; see
   `docs/mrm-writer-arg-value-rebind.md`.
+Icon-box initialization bounds (2026-10-25)
+============================================
+
+- Validate icon dimensions and initial placement-count arithmetic before
+  allocating icon-box slots; see `docs/icon-init-bounds.md`.
+
 Icon-list growth bounds (2026-10-25)
 =====================================
 
