@@ -1,3 +1,10 @@
+Transactional tab-list insertion (2026-10-25)
+===============================================
+
+- Build inserted tabs off-list and splice them only after every copy succeeds,
+  releasing partial chains without disturbing the source list; see
+  `docs/tablist-insert-rollback.md`.
+
 Tab allocation and copy guards (2026-10-25)
 ============================================
 
