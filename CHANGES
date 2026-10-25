@@ -5400,3 +5400,9 @@ Report Xm hash insertion failures (2026-10-25)
 - Return failure from `_XmAddHashEntry` and make trait registration release
   temporary keys when the hash bucket cannot be allocated; see
   `docs/xm-hash-allocation.md`.
+
+Harden Xm hash lookup and removal lifecycle (2026-10-25)
+==========================================================
+
+- Guard empty-table operations, preserve keys before bucket release, and clear
+  removed iterators; see `docs/xm-hash-allocation.md`.
