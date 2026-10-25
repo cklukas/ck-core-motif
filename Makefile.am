@@ -627,3 +627,5 @@ EXTRA_DIST += tests/automated/check-xm-command-api-null.py docs/xm-command-api-n
 EXTRA_DIST += tests/automated/check-xm-combobox-api-null.py docs/xm-combobox-api-null.md
 
 EXTRA_DIST += tests/automated/check-xm-messagebox-child-null.py docs/xm-messagebox-child-null.md
+
+EXTRA_DIST += tests/automated/check-xm-selectionbox-child-null.py docs/xm-selectionbox-child-null.md

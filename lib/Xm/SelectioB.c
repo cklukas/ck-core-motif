@@ -2010,6 +2010,8 @@ XmSelectionBoxGetChild(
 {
 /****************/
 	Widget	child = NULL;
+        if (sb == NULL)
+                return NULL;
 	_XmWidgetToAppContext(sb);
 	_XmAppLock(app);
 
