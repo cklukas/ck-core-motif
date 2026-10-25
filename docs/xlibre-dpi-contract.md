@@ -47,8 +47,9 @@ derived/default metrics. Shell destruction removes the input and pending work
 procedure before releasing the state.
 
 The installed observer fixture runs on the requested `--display` when a real
-XLibre server is supplied. It checks shell registration, positive scale lookup
-idempotent re-registration and refusal before realization there; without
+XLibre server is supplied. It checks shell registration, positive shell and
+descendant scale lookup, idempotent re-registration and refusal before
+realization there; without
 `--display` it runs under Xvfb and requires the ordinary-server fallback. This
 keeps the fallback test from being mistaken for live XLibre qualification.
 

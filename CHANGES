@@ -44,6 +44,7 @@ real display, checking registration and scale lookup there; its Xvfb path
 continues to require ordinary-server fallback.
 The fixture also checks that unrealized shells are never registered and that
 ordinary-server scale lookup falls back cleanly.
+Descendant lookup is covered by the same shell-boundary fixture.
 
 Source-contract verifier maintenance (2026-10-25)
 ==================================================
