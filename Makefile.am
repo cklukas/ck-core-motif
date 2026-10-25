@@ -558,3 +558,4 @@ EXTRA_DIST += tests/automated/check-mrm-writer-children-validation.py docs/mrm-w
 EXTRA_DIST += tests/automated/check-mrm-writer-arg-value-rebind.py docs/mrm-writer-arg-value-rebind.md
 EXTRA_DIST += tests/automated/check-mrm-writer-cstring-vector-rebind.py docs/mrm-writer-cstring-vector-rebind.md
 EXTRA_DIST += tests/automated/check-mrm-callback-item-binding.py docs/mrm-callback-item-binding.md
+EXTRA_DIST += tests/automated/check-mrm-class-comment-validation.py docs/mrm-class-comment-validation.md

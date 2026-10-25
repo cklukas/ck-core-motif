@@ -4063,3 +4063,8 @@ Mrm callback item binding checks (2026-10-25)
 
 - Propagate callback descriptor validation and rebind failures after callback
   data appends; see `docs/mrm-callback-item-binding.md`.
+Mrm class/comment validation checks (2026-10-25)
+================================================
+
+- Propagate invalid-context failures before class and comment record access;
+  see `docs/mrm-class-comment-validation.md`.

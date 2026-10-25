@@ -256,7 +256,8 @@ UrmCWRSetClass (URMResourceContextPtr	context_id,
   /*
    * Validate record
    */
-  UrmCWR__ValidateContext (context_id, "UrmCWRSetClass") ;
+  result = UrmCWR__ValidateContext (context_id, "UrmCWRSetClass") ;
+  if ( result != MrmSUCCESS ) return result ;
 
   /*
    * Validate the class code. If unknown, must have a non-null class name.
@@ -1820,7 +1821,8 @@ Cardinal UrmCWRSetComment (URMResourceContextPtr	context_id ,
   /*
    * Validate record
    */
-  UrmCWR__ValidateContext (context_id, "UrmCWRSetComment") ;
+  result = UrmCWR__ValidateContext (context_id, "UrmCWRSetComment") ;
+  if ( result != MrmSUCCESS ) return result ;
 
   /*
    * Append the comment if it is non-empty
