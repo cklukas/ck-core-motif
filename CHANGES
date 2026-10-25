@@ -5,6 +5,13 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+XmStringGenerate rendition fallback failures (2026-10-26)
+===========================================================
+
+- Make fallback rendition begin/end decoration transactional and propagate
+  component or concat failure; see
+  `docs/xmstring-generate-rendition-fallback.md`.
+
 XmParseMapping substitute ownership (2026-10-26)
 ==================================================
 

@@ -10321,14 +10321,26 @@ XmStringGenerate(XtPointer   text,
     /* Prepend the rendition begin. */
     tmp_1 = XmStringComponentCreate(XmSTRING_COMPONENT_RENDITION_BEGIN,
 				    strlen(rendition), rendition);
+    if (tmp_1 == NULL) {
+	  XmStringFree(result);
+	  return NULL;
+    }
     tmp_2 = result;
     result = XmStringConcatAndFree(tmp_1, tmp_2);
+    if (result == NULL)
+	return NULL;
 
     /* Append the rendition end. */
     tmp_1 = result;
     tmp_2 = XmStringComponentCreate(XmSTRING_COMPONENT_RENDITION_END,
 				    strlen(rendition), rendition);
+    if (tmp_2 == NULL) {
+	  XmStringFree(tmp_1);
+	  return NULL;
+    }
     result = XmStringConcatAndFree(tmp_1, tmp_2);
+    if (result == NULL)
+	return NULL;
   }
   return result;
 }
