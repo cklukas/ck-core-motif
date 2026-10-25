@@ -1179,6 +1179,13 @@ NdropHighlightLabel
 CStatusBarSpacing
 NstatusBarSpacing
 
+CToolbarSpacing
+NtoolbarSpacing
+CToolbarOverflowLabel
+NtoolbarOverflowLabel
+CToolbarActivateCallback
+NtoolbarActivateCallback
+
 #table _XmStrings20
 
 NtearOffTitle

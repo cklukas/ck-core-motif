@@ -41,6 +41,7 @@
 #include <Xm/RowActions.h>
 #include <Xm/DropHighlight.h>
 #include <Xm/StatusBar.h>
+#include <Xm/Toolbar.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
 #include <Xm/PushBG.h>
@@ -1390,6 +1391,11 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
   if (XmIsStatusBar(w)) {
     i->role = XmACCESSIBLE_PANEL;
     local = XtNewString("Status bar");
+  }
+  if (XmIsToolbar(w)) {
+    i->role = XmACCESSIBLE_PANEL;
+    i->action_count = XmToolbarGetOverflowCount(w) ? 1 : 0;
+    local = XtNewString("Toolbar");
   }
   if (XmIsNumberBox(w)) {
     int minimum, maximum;

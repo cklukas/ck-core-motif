@@ -641,6 +641,14 @@ public XmStatusBarSetItems
 public XmStatusBarGetItemCount
 public XmStatusBarGetVisibleItemCount
 public XmStatusBarGetOverflowCount
+public XmCreateToolbar
+public XmVaCreateToolbar
+public XmVaCreateManagedToolbar
+public XmToolbarSetActions
+public XmToolbarGetActionCount
+public XmToolbarGetVisibleActionCount
+public XmToolbarGetOverflowCount
+public XmToolbarInvoke
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -955,6 +963,8 @@ public xmDropHighlightClassRec
 public xmDropHighlightWidgetClass
 public xmStatusBarClassRec
 public xmStatusBarWidgetClass
+public xmToolbarClassRec
+public xmToolbarWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec
