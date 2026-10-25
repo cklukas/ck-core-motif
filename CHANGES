@@ -6507,3 +6507,9 @@ RowColumn accelerator replacement transaction (2026-10-25)
 - Keep the prior accelerator list published until replacement allocation and
   copying succeed; see `docs/rowcolumn-resource-allocation.md`.
 
+RowColumn popup-shell name allocation width (2026-10-25)
+===========================================================
+
+- Bound generated popup-shell names by both host and Xt allocator widths;
+  see `docs/rowcolumn-popup-name-allocation.md`.
+
