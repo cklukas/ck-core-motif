@@ -770,6 +770,9 @@ _XmTabListGetPosition(
     unsigned char units; 
     XmOffsetModel offset; 
 
+    if (screen == NULL)
+	return 0;
+
     tab = XmTabListGetTab(tab_list, tab_position);
 
     if (tab) {

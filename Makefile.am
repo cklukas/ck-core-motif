@@ -265,6 +265,7 @@ EXTRA_DIST += tests/automated/check-xmstring-component-allocation.py docs/xmstri
 EXTRA_DIST += tests/automated/check-xmstring-cached-create.py docs/xmstring-cached-create.md
 EXTRA_DIST += tests/automated/check-xmstring-create-failure.py docs/xmstring-create-failure.md
 EXTRA_DIST += tests/automated/check-xmstring-table-transaction.py docs/xmstring-table-transaction.md
+EXTRA_DIST += tests/automated/check-tab-position-screen-guard.py docs/tab-position-screen-guard.md
 EXTRA_DIST += tests/automated/check-xmstring-tab-growth-allocation.py docs/motif-xmstring-tab-growth.md
 EXTRA_DIST += tests/automated/check-scrollframe-nav-growth.py docs/motif-scrollframe-nav-growth.md
 EXTRA_DIST += tests/automated/check-scrollframe-add-input.py docs/motif-scrollframe-add-input.md

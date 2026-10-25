@@ -2108,6 +2108,10 @@ XmString table parse and unparse now clean already-converted elements and the
 output table on conversion failure. The source contract is recorded in
 `tests/automated/check-xmstring-table-transaction.py` and
 `docs/xmstring-table-transaction.md`.
+`_XmTabListGetPosition` now rejects a missing `Screen` before unit conversion,
+preserving the zero-position fallback. The source contract is recorded in
+`tests/automated/check-tab-position-screen-guard.py` and
+`docs/tab-position-screen-guard.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the

@@ -158,6 +158,12 @@ XmString table conversion transactions (2026-10-26)
 - Release partial results when table parse or unparse conversion fails; see
   `docs/xmstring-table-transaction.md`.
 
+Tab-list position screen validation (2026-10-26)
+=================================================
+
+- Return the zero-position fallback when tab conversion lacks a `Screen`; see
+  `docs/tab-position-screen-guard.md`.
+
 XmString extraction output validation (2026-10-26)
 ====================================================
 
