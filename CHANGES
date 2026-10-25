@@ -12196,3 +12196,9 @@ Cardinal-list conversion allocation width (2026-10-26)
 
 - Pass the checked growth byte count explicitly as an Xt `Cardinal`;
   see `docs/cardinal-list-growth.md`.
+
+KeySym-table conversion allocation width (2026-10-26)
+======================================================
+
+- Pass the checked comma-derived table byte count explicitly as an Xt
+  `Cardinal`; see `docs/keysym-table-conversion.md`.
