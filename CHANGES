@@ -1,4 +1,8 @@
 2026-10-25
+	* Make tab-list replacement transactional, retaining the original list when
+	  a replacement tab cannot be allocated; see docs/tablist-replace-rollback.md.
+
+2026-10-25
 	* Make tab-list insertion transactional so failed tab copies leave the
 	  original list and marked-tab ownership unchanged; see
 	  docs/tablist-insert-rollback.md.

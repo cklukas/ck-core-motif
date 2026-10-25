@@ -405,9 +405,13 @@ XmTabListReplacePositions(XmTabList oldlist,
     return(oldlist);
   }
 
-  tl = (XmTabList)XtMalloc(sizeof(_XmTabListRec));
-  _XmTabLCount(tl) = _XmTabLCount(oldlist);
-  cur_tab = _XmTabLStart(tl) = _XmTabLStart(oldlist);
+  /* Work on a copy so allocation failures cannot partially modify oldlist. */
+  tl = XmTabListCopy(oldlist, 0, 0);
+  if (tl == NULL) {
+    _XmProcessUnlock();
+    return(oldlist);
+  }
+  cur_tab = _XmTabLStart(tl);
   cur_pos = 0;
 
   /* Make the replacement in the old list, then copy and free. */
@@ -422,6 +426,11 @@ XmTabListReplacePositions(XmTabList oldlist,
       
       /* replace tab copying */
       tab = _XmTabCopy(tabs[i]);
+      if (tab == NULL) {
+        XmTabListFree(tl);
+        _XmProcessUnlock();
+        return(oldlist);
+      }
       
       if (prev == cur_tab) { /* only one tab in list */
 	_XmTabPrev(tab) = _XmTabNext(tab) = tab;
