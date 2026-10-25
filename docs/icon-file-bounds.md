@@ -7,3 +7,6 @@ lookup miss. Existing valid icon names and cache behavior are unchanged.
 
 The source-level regression is
 `tests/automated/check-icon-suffix-bounds.py`.
+
+Cache-entry path joining applies the same checked `size_t` arithmetic and
+falls through to normal path lookup if the joined buffer cannot be allocated.
