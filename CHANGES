@@ -9783,6 +9783,12 @@ FontSelector label initialization rollback (2026-10-28)
 SpinBox value-list SetValues rollback (2026-10-28)
 =====================================================
 
+MWM database-home allocation guard (2026-10-25)
+===============================================
+
+- Check home-directory lookup and combined path sizing before deriving the
+  default session database filename; see `docs/mwm-db-home-allocation.md`.
+
 MWM client-list growth transaction (2026-10-25)
 ===============================================
 

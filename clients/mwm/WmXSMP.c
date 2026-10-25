@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <stdint.h>
 #include <sys/param.h>
 #include <X11/Intrinsic.h>
 #include <X11/Shell.h>
@@ -364,11 +365,17 @@ getClientDBName(void)
     if (wmGD.dbFileName == (char *)NULL)
     {
 	char *homeDir = XmeGetHomeDirName();
+	size_t homeLength;
+	size_t fileLength;
 
-	if ((wmGD.dbFileName =
-	     (char *)XtMalloc((strlen(homeDir) + strlen(dtwmFileName) + 2 +
-			       EXTRA_FN_CHARS) * sizeof(char)))
-	    != (char *)NULL)
+	if (homeDir == NULL)
+	    return;
+	homeLength = strlen(homeDir);
+	fileLength = strlen(dtwmFileName);
+	if (homeLength > SIZE_MAX - fileLength - 2 - EXTRA_FN_CHARS)
+	    return;
+	if ((wmGD.dbFileName = (char *)XtMalloc(
+		homeLength + fileLength + 2 + EXTRA_FN_CHARS)) != NULL)
 	    sprintf(wmGD.dbFileName, "%s/%s", homeDir, dtwmFileName);
     }
 }
