@@ -13,5 +13,8 @@ check = source[source.index("static void\nGetItemCheckInfo") : source.index("/*-
 assert "n < menuSpec->menuButtonCount && n < MAX_MENU_ITEMS" in icon
 assert "n < menuSpec->menuButtonCount && n < MAX_MENU_ITEMS" in window
 assert "i < menuSpec->menuButtonCount && i < MAX_MENU_ITEMS" in check
+assert window.count("if (menuItemCount > MAX_MENU_ITEMS)") == 1
+assert check.count("if (menuItemCount > MAX_MENU_ITEMS)") == 1
+assert icon.count("if (menuItemCount > MAX_MENU_ITEMS)") == 1
 
 print("MWM menu query loops respect fixed array bounds")

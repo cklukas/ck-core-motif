@@ -1754,6 +1754,8 @@ GetIconMenuItemSelectInfo(ClientData *pcd, XtPointer reply, Boolean use_icon_box
     return;
 
   menuItemCount = menuSpec->menuButtonCount;
+  if (menuItemCount > MAX_MENU_ITEMS)
+    menuItemCount = MAX_MENU_ITEMS;
 
   for (n = 0; n < menuItemCount && n < MAX_MENU_ITEMS; n++)
     {
@@ -1953,6 +1955,8 @@ GetWindowItemSelectInfo(ClientData *pcd, XtPointer reply)
     return;
 
   menuItemCount = menuSpec->menuButtonCount;
+  if (menuItemCount > MAX_MENU_ITEMS)
+    menuItemCount = MAX_MENU_ITEMS;
 
   for (n = 0; n < menuItemCount && n < MAX_MENU_ITEMS; n++)
     {
@@ -2024,6 +2028,8 @@ GetItemCheckInfo(ClientData *pcd, XtPointer reply)
     return;
 
   menuItemCount = menuSpec->menuButtonCount;
+  if (menuItemCount > MAX_MENU_ITEMS)
+    menuItemCount = MAX_MENU_ITEMS;
 
   for (i = 0; i < menuItemCount && i < MAX_MENU_ITEMS; i++)
       itemName[i][0] = '\0'; 

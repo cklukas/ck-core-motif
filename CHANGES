@@ -11026,5 +11026,6 @@ MWM builtin binding buffer size (2026-10-25)
 MWM menu query array bounds (2026-10-25)
 ========================================
 
-- Cap icon, window-item, and item-check menu traversals at `MAX_MENU_ITEMS` to
-  avoid overwriting fixed reply arrays; see `docs/mwm-menu-array-bounds.md`.
+- Cap icon, window-item, and item-check menu traversals and reported counts at
+  `MAX_MENU_ITEMS`, avoiding fixed-array overwrites and reply count mismatches;
+  see `docs/mwm-menu-array-bounds.md`.
