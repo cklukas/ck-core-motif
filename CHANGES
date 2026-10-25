@@ -11209,3 +11209,10 @@ WSM configuration reply arrays (2026-10-25)
 - Reject positive configuration attribute counts with null arrays before
   reply sizing, avoiding invalid traversal; see
   `docs/wsm-config-reply-arrays.md`.
+
+WSM reply array state (2026-10-25)
+==================================
+
+- Validate `GET_STATE`, `REG_WINDOW`, and WM-window reply arrays before size
+  calculation, rejecting inconsistent positive-count states; see
+  `docs/wsm-reply-array-state.md`.

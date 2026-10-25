@@ -946,6 +946,8 @@ EXTRA_DIST += tests/automated/check-wsm-extension-size-null.py docs/wsm-extensio
 
 EXTRA_DIST += tests/automated/check-wsm-config-reply-arrays.py docs/wsm-config-reply-arrays.md
 
+EXTRA_DIST += tests/automated/check-wsm-reply-array-state.py docs/wsm-reply-array-state.md
+
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 
 EXTRA_DIST += tests/automated/check-latin-lower-bounds.py docs/latin-lower-bounds.md

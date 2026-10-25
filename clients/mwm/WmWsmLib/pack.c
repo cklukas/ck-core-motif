@@ -399,6 +399,9 @@ _WSMPackReply(Display *dpy, int screen_num,
 	}
 	break;
     case WSM_GET_STATE:
+	if (reply->get_state.num_win_info_list != 0 &&
+	    reply->get_state.win_info_list == NULL)
+	    return(NULL);
 	size = COUNT_SIZE;	/* The count of window info. */
 	win_info = reply->get_state.win_info_list;
 	for (i = 0; i < reply->get_state.num_win_info_list; i++,win_info++)
@@ -408,6 +411,9 @@ _WSMPackReply(Display *dpy, int screen_num,
 	size = 0;
 	break;
     case WSM_REG_WINDOW:
+	if (reply->register_window.num_window_data != 0 &&
+	    reply->register_window.window_data == NULL)
+	    return(NULL);
 	size = WinDataSizePacked(dpy, screen_num, 
 				 reply->register_window.window_data,
 				 reply->register_window.num_window_data,
@@ -420,6 +426,9 @@ _WSMPackReply(Display *dpy, int screen_num,
 	size = sizeof(CARD32);
 	break;
     case WSM_WM_WINDOWS:
+	if (reply->wm_windows.num_win_entry_list != 0 &&
+	    reply->wm_windows.win_entry_list == NULL)
+	    return(NULL);
 	size = COUNT_SIZE;	/* The count of window entries. */
 	win_entry = reply->wm_windows.win_entry_list;
 	for (i = 0; i < reply->wm_windows.num_win_entry_list; i++,win_entry++)
