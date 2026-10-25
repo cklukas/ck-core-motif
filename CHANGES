@@ -1,3 +1,10 @@
+I18List drag snapshot rollback (2026-10-28)
+=============================================
+
+- Check I18List drag-context and row-string allocations, roll back partial
+  snapshots, copy column titles before cleanup, and clear stale drag context;
+  see `docs/i18list-drag-snapshot-rollback.md`.
+
 List callback item-copy failure (2026-10-28)
 ==============================================
 

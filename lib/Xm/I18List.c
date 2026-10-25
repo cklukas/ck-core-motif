@@ -162,6 +162,7 @@ static void ListConvert(Widget, XtPointer, XmConvertCallbackStruct*);
 static void ListPreDestProc(Widget, XtPointer, XmDestinationCallbackStruct*);
 static void CopyToClipboard(Widget, XEvent*, String*, Cardinal*);
 static void DragDropFinished(Widget, XtPointer, XtPointer);
+static void FreeDragSnapshot(XmI18ListWidget);
 static XmString GetConcatenatedRow(Widget, int);
 static void ProcessDrag(Widget, XEvent*, String*, Cardinal*);
 
@@ -3963,6 +3964,8 @@ ProcessDrag(Widget wid,
     
     lw->ilist.drag_conv = ListDragConv = (XmI18ListDragConvertStruct *)
 	    XtMalloc(sizeof(XmI18ListDragConvertStruct));
+    if (ListDragConv == NULL)
+	return;
 
     ListDragConv->w = wid;
     ListDragConv->strings = NULL;
@@ -3979,24 +3982,66 @@ ProcessDrag(Widget wid,
 	{
 	    int rowcount;
 	    int * rows = GetSelectedRows(lw, &rowcount);
+	    if (rowcount <= 0 || rows == NULL) {
+		XtFree((XtPointer)rows);
+		FreeDragSnapshot(lw);
+		return;
+	    }
+	    if ((size_t)rowcount > SIZE_MAX / sizeof(XmString) ||
+		rowcount > UINT_MAX / sizeof(XmString)) {
+		XtFree((XtPointer)rows);
+		FreeDragSnapshot(lw);
+		return;
+	    }
 	    ListDragConv->num_items = rowcount;
 	    ListDragConv->strings =	(XmString *)
 		    XtMalloc(sizeof(XmString) * ListDragConv->num_items);
+	    if (ListDragConv->strings == NULL) {
+		XtFree((XtPointer)rows);
+		FreeDragSnapshot(lw);
+		return;
+	    }
 	    for (i = 0; i < rowcount; i++)
+	    {
 		ListDragConv->strings[i] = GetConcatenatedRow(wid, rows[i]);
+		if (ListDragConv->strings[i] == NULL) {
+		    while (i != 0)
+			XmStringFree(ListDragConv->strings[--i]);
+		    XtFree((XtPointer)rows);
+		    FreeDragSnapshot(lw);
+		    return;
+		}
+	    }
 	    XtFree((XtPointer)rows);
 	}
 	else
 	{
 	    ListDragConv->strings = (XmString *) XtMalloc(sizeof(XmString));
+	    if (ListDragConv->strings == NULL) {
+		FreeDragSnapshot(lw);
+		return;
+	    }
 	    ListDragConv->num_items = 1;
 	    ListDragConv->strings[0] = GetConcatenatedRow(wid, row);
+	    if (ListDragConv->strings[0] == NULL) {
+		FreeDragSnapshot(lw);
+		return;
+	    }
 	}
     } else if (row == -2 && lw->ilist.column_titles) { /* drag column header */
 	ListDragConv->strings = (XmString *) XtMalloc(sizeof(XmString));
+	if (ListDragConv->strings == NULL) {
+	    FreeDragSnapshot(lw);
+	    return;
+	}
 	ListDragConv->num_items = 1;
-	ListDragConv->strings[0] = lw->ilist.column_titles[col];
+	ListDragConv->strings[0] = XmStringCopy(lw->ilist.column_titles[col]);
+	if (ListDragConv->strings[0] == NULL) {
+	    FreeDragSnapshot(lw);
+	    return;
+	}
     } else {
+	FreeDragSnapshot(lw);
 	return;
     }
 
@@ -4043,15 +4088,26 @@ DragDropFinished(Widget w,		/* unused */
 		 XtPointer closure,
 		 XtPointer call_data)	/* unused */
 {
-    int i;
     XmI18ListWidget lw = (XmI18ListWidget)closure;
+    FreeDragSnapshot(lw);
+}
+
+static void
+FreeDragSnapshot(XmI18ListWidget lw)
+{
+    int i;
     XmI18ListDragConvertStruct *ListDragConv = lw->ilist.drag_conv;
 
-    for (i = 0; i < ListDragConv->num_items; i++)
-	XmStringFree(ListDragConv->strings[i]);
-
-    XtFree((char *) ListDragConv->strings);
+    if (ListDragConv == NULL)
+	return;
+    if (ListDragConv->strings != NULL)
+	{
+	    for (i = 0; i < ListDragConv->num_items; i++)
+		XmStringFree(ListDragConv->strings[i]);
+	    XtFree((char *) ListDragConv->strings);
+	}
     XtFree((char *) ListDragConv);
+    lw->ilist.drag_conv = NULL;
 }
 
 /*  Function Name: XmI18ListSelectItems
