@@ -1,3 +1,9 @@
+Tab-list proposal widget validation (2026-10-26)
+=================================================
+
+- Reject null widgets before `XmStringTableProposeTablist` accesses Xt display
+  state; see `docs/tablist-widget-guard.md`.
+
 Hierarchy initialization failure safety (2026-10-26)
 ======================================================
 

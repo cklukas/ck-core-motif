@@ -783,7 +783,7 @@ XmStringTableProposeTablist(XmStringTable strings,
   NextTabResult		ret_val;
   
   _XmProcessLock();
-  if ((strings == NULL) || (num_strings == 0)) {
+  if ((strings == NULL) || (num_strings == 0) || (widget == NULL)) {
     _XmProcessUnlock();
     return ((XmTabList)NULL);
   }
