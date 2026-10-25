@@ -1,3 +1,10 @@
+IconG RTL render placement bounds (2026-10-26)
+===============================================
+
+- Compute clipped and unclipped large/small icon origins in signed arithmetic,
+  preventing narrow right-to-left gadgets from wrapping draw coordinates; see
+  `docs/icong-rtl-render.md`.
+
 ScrollBar resize span bounds (2026-10-26)
 =========================================
 

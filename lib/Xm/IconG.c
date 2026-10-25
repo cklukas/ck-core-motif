@@ -1999,6 +1999,7 @@ Redisplay(
     XRectangle 	clip_rect;
     Boolean		clip_set = False;
     int depth;
+    int icon_x;
     XmContainerDataRec container_data ;
     Position large_icon_x = 0, small_icon_y = 0, small_icon_x,
              label_x = 0, label_y = 0 ;
@@ -2069,13 +2070,18 @@ Redisplay(
 			   container_data.first_column_width - ht);
 	    pm_width -= MIN(pm_width, (Dimension)large_icon_x);
 
-	    if (LayoutIsRtoLG(wid)) 
-		large_icon_x = ig->rectangle.width -
-		    MIN(ig->rectangle.width - 2*ht,
-			container_data.first_column_width - ht) ;
+	    if (LayoutIsRtoLG(wid)) {
+		icon_x = (int) ig->rectangle.width -
+		    (int) MIN(ig->rectangle.width - 2*ht,
+			       container_data.first_column_width - ht);
+		large_icon_x = (Position) icon_x;
+	    }
 	} else {
-	    if (LayoutIsRtoLG(wid))
-		large_icon_x = ig->rectangle.width - large_icon_x - pm_width ;
+	    if (LayoutIsRtoLG(wid)) {
+		icon_x = (int) ig->rectangle.width - (int) large_icon_x -
+		    (int) pm_width;
+		large_icon_x = (Position) icon_x;
+	    }
 	}
 
 	pm_height = IG_LargeIconRectHeight(wid) ;
@@ -2134,13 +2140,18 @@ Redisplay(
 			   container_data.first_column_width) - 2*ht;
 	    pm_width -= MIN(pm_width, (Dimension)small_icon_x);
 
-	    if (LayoutIsRtoLG(wid)) 
-		small_icon_x = ig->rectangle.width + 2*ht -
-		    MIN(ig->rectangle.width,
-			container_data.first_column_width) ;
+	    if (LayoutIsRtoLG(wid)) {
+		icon_x = (int) ig->rectangle.width + 2 * (int) ht -
+		    (int) MIN(ig->rectangle.width,
+			       container_data.first_column_width);
+		small_icon_x = (Position) icon_x;
+	    }
 	} else {
-	    if (LayoutIsRtoLG(wid))
-		small_icon_x = ig->rectangle.width - small_icon_x - pm_width ;
+	    if (LayoutIsRtoLG(wid)) {
+		icon_x = (int) ig->rectangle.width - (int) small_icon_x -
+		    (int) pm_width;
+		small_icon_x = (Position) icon_x;
+	    }
 	}
 
 	pm_height = IG_SmallIconRectHeight(wid);
