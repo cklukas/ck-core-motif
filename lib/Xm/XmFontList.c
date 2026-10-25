@@ -397,9 +397,6 @@ XmFontListEntryLoad(
   Cardinal	n;
   Arg		args[4];
   XmFontListEntry ret_val;
-  _XmDisplayToAppContext(display);
-  
-  _XmAppLock(app);
   n = 0; 
   XtSetArg(args[n], XmNfontName, fontName); n++;
   XtSetArg(args[n], XmNfontType, type); n++;
@@ -408,7 +405,6 @@ XmFontListEntryLoad(
   ret_val = _XmRenditionCreate(display, NULL, XmS, XmCFontList,
 		    _XmStringCacheTag(tag, XmSTRING_TAG_STRLEN),
 			    args, n, NULL);
-  _XmAppUnlock(app);
   return ret_val;
 }
 
