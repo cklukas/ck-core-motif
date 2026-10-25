@@ -3798,6 +3798,13 @@ Guard compound-text string table (2026-10-25)
 - Check the table allocated for compound-text conversion before handling empty
   or non-empty properties; see `docs/motif-txtpropcv-string-table.md`.
 
+Guard compound-text iconv output allocation (2026-10-25)
+==========================================================
+
+- Check initial and growth allocations in `ConvertWithIconv`, releasing the
+  buffer on failure instead of continuing with invalid storage; see
+  `docs/motif-resencod-iconv.md`.
+
 Handle single text-property copy failure (2026-10-25)
 ======================================================
 
