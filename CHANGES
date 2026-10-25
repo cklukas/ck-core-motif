@@ -1,3 +1,10 @@
+List callback item-copy failure (2026-10-28)
+==============================================
+
+- Skip List selection/default-action callback dispatch when the required
+  private item copy fails, avoiding NULL callback items while preserving the
+  callback ownership contract; see `docs/list-callback-item-copy.md`.
+
 ComboBox default-action copy failure (2026-10-28)
 ====================================================
 

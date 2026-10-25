@@ -5921,6 +5921,11 @@ DefaultAction(XmListWidget lw,
   cb.item_length = lw->list.InternalList[item]->length;
   cb.item_position = item + 1;
   cb.item = XmStringCopy(lw->list.items[item]);
+  if (cb.item == NULL)
+    {
+      lw->list.DownCount = 0;
+      return;
+    }
   cb.selected_item_count = 0;
   cb.selected_items = NULL;
   cb.selected_item_positions = NULL;
@@ -6012,6 +6017,11 @@ ClickElement(XmListWidget lw,
   cb.item_length = lw->list.InternalList[item]->length;
   cb.item_position = item + 1;
   cb.item = XmStringCopy(lw->list.items[item]);
+  if (cb.item == NULL)
+    {
+      lw->list.DownCount = 0;
+      return;
+    }
 
   if (lw->list.AutoSelect != XmNO_AUTO_SELECT)
     {

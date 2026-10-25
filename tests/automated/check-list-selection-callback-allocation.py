@@ -13,6 +13,8 @@ assert "DEALLOCATE_LOCAL((char *)cb.selected_items);" in region
 assert "DEALLOCATE_LOCAL((char *)cb.selected_item_positions);" in region
 assert "CopyCallbackSelectedItems(lw, cb.selected_items, SLcount)" in region
 assert "SLcount = 0;" in region
+assert "if (cb.item == NULL)" in source
+assert source.count("lw->list.DownCount = 0;") >= 2
 
 click_start = source.index("cb.selected_items =", source.index("ClickElement"))
 click_end = source.index("/* BEGIN OSF Fix CR 4576 */", click_start)
