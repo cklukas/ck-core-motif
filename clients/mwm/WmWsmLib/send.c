@@ -198,6 +198,17 @@ UTMReplyReceived(Widget w, XtPointer clientData, XtPointer callData)
     return;
   }
 
+  /* Only SET_STATE has a reply with no encoded payload.  All other
+   * request types are unpacked from the selection value below. */
+  if (scs->value == NULL && scs->length == 0 &&
+      req_info->request_type != WSM_SET_STATE) {
+    if (req_info->reply_callback != NULL)
+      (*req_info->reply_callback)(w, req_info->reply_data, NULL,
+				  WSM_ERROR_INTERNAL);
+    XtFree((XtPointer) req_info);
+    return;
+  }
+
   ReplyReceived(w,
 		req_info, /* the request info pointer to fill in. */
 		&scs->selection,
