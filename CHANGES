@@ -1,4 +1,9 @@
 2026-10-25
+	* Guard UIL debug formatter allocation and skip diagnostic output cleanly
+	  when its temporary buffer cannot be allocated; see
+	  docs/uil-debug-allocation.md.
+
+2026-10-25
 	* Guard compound-string wide-character conversion allocation before
 	  publishing the converted segment; see docs/string-wide-conversion-guards.md.
 

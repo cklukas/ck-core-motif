@@ -1060,6 +1060,8 @@ void	lst_debug_output
 	    goto done;
 
 	formatted = (char *)_get_memory((size_t)formatted_length + 1);
+	if (formatted == NULL)
+	    goto done;
 	(void)vsnprintf(formatted, (size_t)formatted_length + 1, format, ap);
 	lst_debug_append(formatted);
 	_free_memory(formatted);
