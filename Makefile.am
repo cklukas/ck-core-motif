@@ -272,6 +272,7 @@ EXTRA_DIST += tests/automated/check-tab-position-bounds.py docs/tab-position-bou
 EXTRA_DIST += tests/automated/check-tab-null-guards.py docs/tab-null-guards.md
 EXTRA_DIST += tests/automated/check-tab-arglist-guard.py docs/tab-arglist-guard.md
 EXTRA_DIST += tests/automated/check-direction-stack-bounds.py docs/direction-stack-bounds.md
+EXTRA_DIST += tests/automated/check-xmstring-concat-allocation.py docs/xmstring-concat-allocation.md
 EXTRA_DIST += tests/automated/check-xmstring-tab-growth-allocation.py docs/motif-xmstring-tab-growth.md
 EXTRA_DIST += tests/automated/check-scrollframe-nav-growth.py docs/motif-scrollframe-nav-growth.md
 EXTRA_DIST += tests/automated/check-scrollframe-add-input.py docs/motif-scrollframe-add-input.md

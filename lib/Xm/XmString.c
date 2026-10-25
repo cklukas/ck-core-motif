@@ -1586,6 +1586,13 @@ XmStringConcatAndFree(XmString a,
 	  else
 	    _XmStrCreate(opt_str, XmSTRING_OPTIMIZED, a_len + b_len);
 
+	  if (opt_str == NULL) {
+	    _XmProcessUnlock();
+	    XmStringFree(a);
+	    XmStringFree(b);
+	    return NULL;
+	  }
+
 	  _XmStrByteCount((_XmString)opt_str) = a_len + b_len;
 	  _XmStrTextType((_XmString)opt_str) = 
 	    (a_type == XmNO_TEXT) ? b_type : a_type;
