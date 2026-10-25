@@ -1518,9 +1518,18 @@ ClipboardGetLenFromFormat(
     int format;
     unsigned long bytes_left;
 
+    if (format_length == NULL)
+	return ClipboardFail;
+
     outpointer = NULL;
 
     format_atom = ClipboardGetAtomFromFormat( display, format_name );
+
+    if (format_atom == None)
+    {
+	*format_length = 8;
+	return ClipboardFail;
+    }
 
     rootwindow = RootWindow( display, 0 );
 
@@ -1538,7 +1547,8 @@ ClipboardGetLenFromFormat(
 				    &bytes_left,
 				    &outpointer );
 
-    if ( outpointer == 0 || outlength == 0 || ret_value !=0 )
+    if ( outpointer == 0 || outlength == 0 || ret_value !=0 ||
+	 format != 32 || outlength < 1 )
     {
 	/* if not successful, return warning that format is not registered */
 	ret_value = ClipboardFail;

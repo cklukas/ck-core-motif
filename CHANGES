@@ -1,3 +1,9 @@
+Clipboard format-length validation (2026-10-26)
+================================================
+
+- Validate format atoms and X11 format-32 payloads before reading registered
+  clipboard lengths; see `docs/clipboard-format-length-validation.md`.
+
 Clipboard next-id validation (2026-10-26)
 ==========================================
 
