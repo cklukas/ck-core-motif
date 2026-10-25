@@ -2336,6 +2336,15 @@ DirSearchProc(
         {   qsort( (void *)dirList, numDirs, sizeof( char *), _XmOSFileCompare) ;
             } 
         XmStringDirList = (XmString *) XtMalloc( numDirs * sizeof( XmString)) ;
+        if(    XmStringDirList == NULL    )
+        {   Index = numDirs ;
+            while(    Index--    )
+            {   XtFree( dirList[Index]) ;
+                }
+            XtFree( (char *) dirList) ;
+            dirList = NULL ;
+            goto dir_search_done ;
+            }
 
 	Index = 0 ;
 	dirLen = strlen( qualifiedDir) ;
@@ -2385,6 +2394,7 @@ DirSearchProc(
         FS_ListUpdated( fs) = TRUE ;
         FS_PrevDirModTime( fs) = curDirModTime ;
         }
+dir_search_done:
     XtFree( (char *) qualifiedDir) ;
     
     FS_DirectoryValid( fs) = TRUE ;

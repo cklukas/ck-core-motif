@@ -1,3 +1,10 @@
+Guard FileSB directory navigation list allocation (2026-10-25)
+================================================================
+
+- Check the temporary `XmString` array used by directory navigation, release
+  the directory-name list on failure, and avoid updating the list with null
+  storage; see `docs/motif-filesb-directory-list-allocation.md`.
+
 Guard FileSB directory-list allocation (2026-10-25)
 ====================================================
 
