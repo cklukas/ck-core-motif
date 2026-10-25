@@ -31,6 +31,13 @@ XmString unparse context-end guard (2026-10-26)
   while skipping components instead of asserting; see
   `docs/xmstring-unparse-context-end.md`.
 
+Image-cache unsupported-format cleanup (2026-10-26)
+====================================================
+
+- Return `XmUNSPECIFIED_PIXMAP` and release temporary image state when an
+  unsupported XImage format is encountered instead of asserting; see
+  `docs/image-cache-unsupported-format.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 

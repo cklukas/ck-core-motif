@@ -1734,7 +1734,10 @@ _XmGetScaledPixmap(
 	  break;
 
 	default:
-	  assert(FALSE);
+	  DiscardScaledPixmapBuild(ret, image, old_image_data,
+				   old_image_format, image_lock_held,
+				   screen, pixels, npixels, NULL);
+	  return (XmUNSPECIFIED_PIXMAP);
 	}
     }
 
