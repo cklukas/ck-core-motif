@@ -945,7 +945,7 @@ SetNonStringData(FontData *current)
      * then this is a bold font.
      */
 
-    XmCopyISOLatin1Lowered(lower, XrmQuarkToString(current->weightq));
+    XmCopyISOLatin1LoweredN(lower, sizeof(lower), XrmQuarkToString(current->weightq));
     if ((strstr(lower, "bold") != NULL) || (strstr(lower, "demi") != NULL))
     	SetFlag(&(current->state), BOLD, True);
 
@@ -953,7 +953,7 @@ SetNonStringData(FontData *current)
      * If the spacing is "p" then proportional, otherwize monospaced.
      */
 
-    XmCopyISOLatin1Lowered(lower, current->spacing);
+    XmCopyISOLatin1LoweredN(lower, sizeof(lower), current->spacing);
     if (strstr(lower, PROPORTIONAL_SPACING) != NULL)
     	SetFlag(&(current->state), PROPORTIONAL, True);
 
@@ -961,7 +961,7 @@ SetNonStringData(FontData *current)
      * If the slant it "i" or "o" then this is an italic font.
      */
 
-    XmCopyISOLatin1Lowered(lower, current->slant);
+    XmCopyISOLatin1LoweredN(lower, sizeof(lower), current->slant);
     if ((strchr(lower, 'i') != NULL) || (strchr(lower, 'o') != NULL))
     	SetFlag(&(current->state), ITALIC, True);
 
@@ -1955,7 +1955,7 @@ SetDisplayedFont(XmFontSelectorWidget fsw, String new_font)
 
     SetResolution(fsw, cf);
     
-    XmCopyISOLatin1Lowered(buf, cf->spacing);
+    XmCopyISOLatin1LoweredN(buf, sizeof(buf), cf->spacing);
     if ( strstr(buf, STAR_STRING) != NULL )
     {
 	SetFlag(&(XmFontS_user_state(fsw)), USER_PROPORTIONAL | USER_FIXED, True);

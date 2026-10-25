@@ -683,7 +683,7 @@ CvtStringToFillOption(Display * dpy, XrmValuePtr args, Cardinal *num_args,
     static XmFillOption 	option;
     char 			lowerName[BUFSIZ];
 
-    XmCopyISOLatin1Lowered(lowerName, (char *)fromVal->addr);
+    XmCopyISOLatin1LoweredN(lowerName, sizeof(lowerName), (char *)fromVal->addr);
     
     if ( streq(lowerName, "none") || streq(lowerName,"fillnone") )
         option = XmFillNone;

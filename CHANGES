@@ -1,3 +1,9 @@
+Bounded Latin-1 resource conversion (2026-10-25)
+==================================================
+
+- Use bounded, terminating Latin-1 lowering in fixed-buffer resource and action
+  converters; see `docs/latin-lower-bounds.md`.
+
 Protocol list bounds (2026-10-25)
 ==================================
 

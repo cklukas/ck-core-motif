@@ -1210,7 +1210,7 @@ CvtStringToNodeState(Display * dpy, XrmValuePtr args, Cardinal *num_args,
 	haveQuarks = TRUE;
     }
     
-    XmCopyISOLatin1Lowered(lowerName, (char *) fromVal->addr);
+    XmCopyISOLatin1LoweredN(lowerName, sizeof(lowerName), (char *) fromVal->addr);
     q = XrmStringToQuark(lowerName);
     
     if (q == XtQEAlwaysOpen) 

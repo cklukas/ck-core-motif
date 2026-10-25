@@ -149,6 +149,7 @@ typedef Widget (*XmWidgetFunc)(Widget);
 	  
 
 void XmCopyISOLatin1Lowered(char *, char *);
+void XmCopyISOLatin1LoweredN(char *, unsigned int, const char *);
 
 int XmCompareISOLatin1(char*, char*);
 

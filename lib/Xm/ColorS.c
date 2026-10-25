@@ -690,7 +690,7 @@ CvtStringToColorMode(Display *dpy, XrmValuePtr args, Cardinal num_args,
     static XmColorMode	mode;
     char		lowerName[BUFSIZ];
 
-    XmCopyISOLatin1Lowered(lowerName, (char *)from->addr);
+    XmCopyISOLatin1LoweredN(lowerName, sizeof(lowerName), (char *)from->addr);
     
     if (streq(lowerName, "listmode"))
 	mode = XmListMode;

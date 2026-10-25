@@ -677,6 +677,35 @@ XmCopyISOLatin1Lowered(dst, src)
     *dest = '\0';
 }
 
+void
+XmCopyISOLatin1LoweredN(dst, capacity, src)
+    char *dst;
+    unsigned int capacity;
+    const char *src;
+{
+    unsigned int i;
+
+    if (!dst || capacity == 0)
+        return;
+    if (!src) {
+        dst[0] = '\0';
+        return;
+    }
+
+    for (i = 0; i + 1 < capacity && src[i] != '\0'; i++)
+    {
+        unsigned char value = (unsigned char)src[i];
+        if ((value >= XK_A) && (value <= XK_Z))
+            value += (XK_a - XK_A);
+        else if ((value >= XK_Agrave) && (value <= XK_Odiaeresis))
+            value += (XK_agrave - XK_Agrave);
+        else if ((value >= XK_Ooblique) && (value <= XK_Thorn))
+            value += (XK_oslash - XK_Ooblique);
+        dst[i] = (char)value;
+    }
+    dst[i] = '\0';
+}
+
 /*
  *	Creates a stippled pixmap of specified depth
  *	caches these so that multiple requests share the pixmap

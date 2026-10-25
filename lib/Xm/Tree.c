@@ -997,7 +997,7 @@ CvtStringToConnectStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args,
 	haveQuarks = TRUE;
     }
     
-    XmCopyISOLatin1Lowered(lowerName, (char *) fromVal->addr);
+    XmCopyISOLatin1LoweredN(lowerName, sizeof(lowerName), (char *) fromVal->addr);
     q = XrmStringToQuark(lowerName);
     
     if ( (q == XtQELadder) || streq(lowerName,"treeladder") )
@@ -1055,7 +1055,7 @@ CvtStringToCompressStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args,
         haveQuarks = TRUE;
     }
 
-    XmCopyISOLatin1Lowered(lowerName, (char *) fromVal->addr);
+    XmCopyISOLatin1LoweredN(lowerName, sizeof(lowerName), (char *) fromVal->addr);
     q = XrmStringToQuark(lowerName);
    
     if ((q == XtQECompressNone) || streq(lowerName,"none") || streq(lowerName,"treecompressnone") )
@@ -1094,7 +1094,7 @@ CvtStringToLineStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args,
     static int lineStyle = LineSolid;
     char lowerName[BUFSIZ];
     
-    XmCopyISOLatin1Lowered(lowerName, (char *) fromVal->addr);
+    XmCopyISOLatin1LoweredN(lowerName, sizeof(lowerName), (char *) fromVal->addr);
     
     if ( streq(lowerName, "linesolid") || streq(lowerName,"solid") )
 	lineStyle = LineSolid;
