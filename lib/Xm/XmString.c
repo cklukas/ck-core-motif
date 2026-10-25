@@ -9460,7 +9460,7 @@ XmeStringGetComponent(_XmStringContext context,
   if (value)	*value  = NULL;
 
   /* No NULL pointers allowed. */
-  if (! (length  && value)) {
+  if (context == NULL || ! (length  && value)) {
     _XmProcessUnlock();
     return XmSTRING_COMPONENT_END;
   }
