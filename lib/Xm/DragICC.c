@@ -871,8 +871,10 @@ _XmGetDragReceiverInfo(
 			    &lengthRtn,
 			    &bytesafter,
 			    (unsigned char **) &iccInfo) == Success)
-      {
-	if (lengthRtn >= sizeof(xmDragReceiverInfoStruct)) {
+	  {
+	if ((type == drag_hints_atom) && (format == 8) &&
+	    (bytesafter == 0) &&
+	    (lengthRtn >= sizeof(xmDragReceiverInfoStruct))) {
 	  if (iccInfo->protocol_version != _MOTIF_DRAG_PROTOCOL_VERSION)
 	    {
 	      XmeWarning ((Widget) XmGetXmDisplay (display), MESSAGE2);
@@ -881,6 +883,12 @@ _XmGetDragReceiverInfo(
 	    swap2bytes(iccInfo->num_drop_sites);
 	    swap4bytes(iccInfo->proxy_window);
 	    swap4bytes(iccInfo->heap_offset);
+	  }
+	  if (iccInfo->heap_offset < sizeof(xmDragReceiverInfoStruct) ||
+	      iccInfo->heap_offset > lengthRtn) {
+	    (receiverInfoRtn)->dragProtocolStyle = XmDRAG_NONE;
+	    XFree((void *)iccInfo);
+	    return False;
 	  }
 
 	  dd->display.proxyWindow = iccInfo->proxy_window;
