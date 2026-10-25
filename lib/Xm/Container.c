@@ -3044,6 +3044,7 @@ ConstraintInitialize(
 	XmContainerWidget	cw = (XmContainerWidget)XtParent(ncwid);
 	XmContainerConstraint	nc = GetContainerConstraint(ncwid);
 	XmContainerConstraint	pc;	/* parent's constraints */
+	CwidNode			node;
 		
 	nc->related_cwid = NULL;
 	nc->cwid_type = cw->container.create_cwid_type;
@@ -3075,7 +3076,10 @@ ConstraintInitialize(
 	/*
 	 * Create new node for child and insert into list.
 	 */
-	InsertNode(NewNode(ncwid));
+	node = NewNode(ncwid);
+	if (node == NULL)
+	    return;
+	InsertNode(node);
 
 	/*
 	 * Override XmNviewType
@@ -3137,7 +3141,7 @@ ConstraintDestroy(
 		cw->container.icon_header = NULL;
 #endif
 	{
-		CwidNode 	node = c->node_ptr->child_ptr;
+		CwidNode 	node = c->node_ptr ? c->node_ptr->child_ptr : NULL;
 		while (node)
 		{
 			Widget child = node->widget_ptr;
@@ -3146,7 +3150,7 @@ ConstraintDestroy(
 			** linked-list, we just pull the first child off the
 			** list, rather than move along it
 			*/
-			node = c->node_ptr->child_ptr;
+			node = c->node_ptr ? c->node_ptr->child_ptr : NULL;
 		}
 	}
 
@@ -3241,9 +3245,10 @@ ConstraintSetValues(
      * 	then there's no need to change the node's position in the
      *	linked list.
      */
-    if ((nc->entry_parent != cc->entry_parent) ||
+    if (nc->node_ptr &&
+        ((nc->entry_parent != cc->entry_parent) ||
         ((nc->position_index != cc->position_index) &&
-         ((nc->node_ptr->prev_ptr) || (nc->node_ptr->next_ptr))))
+         ((nc->node_ptr->prev_ptr) || (nc->node_ptr->next_ptr)))))
 	{
 	SeverNode(nc->node_ptr);
 	ContainerResequenceNodes(cw, cc->entry_parent);
@@ -4152,6 +4157,8 @@ HideCwid(
     if (c->outline_state != XmEXPANDED)
         return;
     node = c->node_ptr;
+    if (node == NULL)
+	return;
     child_node = node->child_ptr;
     while (child_node)
         {
@@ -7076,6 +7083,8 @@ NewNode(
          * Create the new CwidNode structure.
          */
         new_node = (CwidNode)XtCalloc(1,sizeof(XmCwidNodeRec));
+	if (new_node == NULL)
+	    return(NULL);
         new_node->widget_ptr = cwid;	/* node ----> widget link */
         c->node_ptr = new_node;         /* widget --> node link */
 	return(new_node);
@@ -7104,6 +7113,8 @@ InsertNode(
 				** XmNpositionIndex; XmNpositionIndex has no
 				** gaps
 				*/
+	if (node == NULL)
+	    return;
 
 	cwid = node->widget_ptr;
 	cw = (XmContainerWidget)XtParent(cwid);
@@ -7121,7 +7132,15 @@ InsertNode(
 	    {
 	    pc = GetContainerConstraint(c->entry_parent);
 	    parent_node = pc->node_ptr;
-	    prev_node = parent_node->child_ptr;
+	    if (parent_node == NULL) {
+		/* A parent whose node could not be allocated is not in the
+		 * private tree.  Keep this child reachable as a root item. */
+		c->entry_parent = NULL;
+		parent_node = NULL;
+		prev_node = cw->container.first_node;
+	    } else {
+		prev_node = parent_node->child_ptr;
+	    }
 	    }
 
 	if (prev_node == NULL)
@@ -7367,7 +7386,11 @@ GetNextUpLevelNode(
 static void ContainerResetDepths
 	(XmContainerConstraint	c)
 {
-	CwidNode 	node = c->node_ptr->child_ptr;
+	CwidNode 	node;
+
+	if (c == NULL || c->node_ptr == NULL)
+	    return;
+	node = c->node_ptr->child_ptr;
 
 	while (node)
 	{
@@ -7383,7 +7406,11 @@ static void ContainerResetDepths
 static void FindMaxDepths(XmContainerConstraint	c, Widget w)
 {
 	XmContainerWidget cw = (XmContainerWidget)w;
-	CwidNode node = c->node_ptr->child_ptr;
+	CwidNode node;
+
+	if (c == NULL || c->node_ptr == NULL)
+	    return;
+	node = c->node_ptr->child_ptr;
 	while (node) {
 		Widget child = node->widget_ptr;
 		XmContainerConstraint cc = GetContainerConstraint(child);
@@ -7421,7 +7448,7 @@ static void ContainerResequenceNodes
 	if (entryParent)
 	{
  		c = GetContainerConstraint(entryParent);
- 		node = c->node_ptr->child_ptr;
+		node = c->node_ptr ? c->node_ptr->child_ptr : NULL;
 	}
 	else
 	{
@@ -8825,6 +8852,8 @@ ExpandCwid(
 
     c->outline_state = XmEXPANDED;
     node = c->node_ptr;
+	if (node == NULL)
+	return;
     child_node = node->child_ptr;
     if (child_node == NULL)
 	return;
@@ -8867,6 +8896,8 @@ CollapseCwid(
 
     c->outline_state = XmCOLLAPSED;
     node = c->node_ptr;
+	if (node == NULL)
+	return;
     child_node = node->child_ptr;
     if (child_node == NULL)
 	return;
@@ -9853,7 +9884,7 @@ XmContainerGetItemChildren(
 		   }
 		c = GetContainerConstraint(item);
 		node = c->node_ptr;
-		if (node->child_ptr == NULL) 
+		if (node == NULL || node->child_ptr == NULL)
 		   {
 			_XmAppUnlock(app);
 			return(0);

@@ -1,3 +1,10 @@
+Container child-node allocation (2026-10-27)
+=============================================
+
+- Check private `XmContainer` child-node allocation before linking or
+  dereferencing the node, leaving a child safely unlinked when `XtCalloc`
+  fails during constraint initialization.
+
 Icon directory cache size arithmetic (2026-10-25)
 ==================================================
 
