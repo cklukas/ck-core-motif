@@ -62,6 +62,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  docs/mrm-callback-record-bounds.md.
 
 2026-10-25
+	* Apply record-bounded class-string validation to auto-child updates; see
+	  docs/mrm-set-widget-class-bounds.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,

@@ -991,7 +991,7 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
     return Urm__UT_Error ("UrmSetWidgetInstance", _MrmMMsg_0026,
 			  NULL, context_id, MrmBAD_WIDGET_REC) ;
   if ((widgetrec->class_offs != 0 &&
-       widgetrec->class_offs >= widgetrec->size) ||
+       !UrmWidgetStringValid(widgetrec, widgetrec->class_offs)) ||
       (widgetrec->creation_offs != 0 &&
        !UrmCallbackRecordValid(widgetrec, widgetrec->creation_offs,
                                strcmp(file_id->db_version, URM1_1version) <= 0)))
