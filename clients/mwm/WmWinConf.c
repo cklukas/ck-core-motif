@@ -1181,7 +1181,8 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 
 		if (place != ICON_PLACE(pcd))
 		{
-		    if (pIPD->placeList[place].pCD)
+		    if (place != NO_ICON_PLACE && pIPD->placeList != NULL &&
+			pIPD->placeList[place].pCD)
 		    {
 			/*
 			 * Primary place occupied, try to find an unoccupied
