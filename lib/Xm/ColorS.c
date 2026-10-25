@@ -799,6 +799,7 @@ static Boolean
 color_name_changed(XmColorSelectorWidget csw, char *name)
 {
     String old_val = XmColorS_color_name(csw);
+    String replacement;
 
     if ( name == NULL ) {
 	XmColorS_color_name(csw) = NULL;
@@ -806,7 +807,11 @@ color_name_changed(XmColorSelectorWidget csw, char *name)
 	return(True);
     }
 
-    XmColorS_color_name(csw) = XtNewString(name);
+    replacement = XtNewString(name);
+    if (replacement == NULL)
+	return(False);
+
+    XmColorS_color_name(csw) = replacement;
 
     if (!UpdateColorWindow(csw, True)) {
 	XtFree((XtPointer) XmColorS_color_name(csw));

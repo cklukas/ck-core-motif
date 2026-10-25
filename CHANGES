@@ -9343,3 +9343,9 @@ FontSelector string rollback (2026-10-29)
 - Preserve selector labels until replacement `XmString` copies succeed,
   avoiding partial label loss on allocation failure; see
   `docs/fontselector-string-rollback.md`.
+
+ColorSelector color-name rollback (2026-10-29)
+===============================================
+
+- Reject failed color-name copies before updating the selector, preserving
+  the previous color state; see `docs/color-selector-name-rollback.md`.
