@@ -794,3 +794,5 @@ EXTRA_DIST += tests/automated/check-tablist-query-guards.py docs/tablist-query-g
 EXTRA_DIST += tests/automated/check-tablist-simple-modify.py docs/tablist-simple-modify.md
 
 EXTRA_DIST += tests/automated/check-tablist-attributes-free.py docs/tablist-attributes-free.md
+
+EXTRA_DIST += tests/automated/check-hash-table-allocation.py docs/hash-table-allocation.md

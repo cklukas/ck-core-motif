@@ -98,6 +98,8 @@ _XmAllocHashTable(Cardinal size_hint, XmHashCompareProc cproc,
   int		i;
 
   table = (XmHashTable) XtMalloc(sizeof(XmHashTableRec));
+  if (table == NULL)
+    return (XmHashTable) NULL;
 
   if (hproc)
     table -> hasher = hproc;

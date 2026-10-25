@@ -4823,3 +4823,9 @@ Guard TabList attribute cleanup (2026-10-25)
 
 - Make `XmTabAttributesFree` tolerate a NULL record for optional cleanup
   paths; see `docs/tablist-attributes-free.md`.
+
+Guard hash-table record allocation (2026-10-25)
+===============================================
+
+- Check the opaque hash-table record allocation before callback and bucket
+  initialization; see `docs/hash-table-allocation.md`.
