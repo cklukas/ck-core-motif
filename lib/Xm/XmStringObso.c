@@ -198,8 +198,8 @@ XmStringByteCompare(
         XmString a1,
         XmString b1 )
 {
-    unsigned char  *a;
-    unsigned char  *b;
+    unsigned char  *a = NULL;
+    unsigned char  *b = NULL;
     unsigned short a_length, b_length;
     Boolean	   ret_val;
 
@@ -212,6 +212,12 @@ XmStringByteCompare(
 
     a_length = XmCvtXmStringToByteStream(a1, &a);
     b_length = XmCvtXmStringToByteStream(b1, &b);
+
+    if ((a_length == 0 && a == NULL) || (b_length == 0 && b == NULL)) {
+        XtFree((char *)a);
+        XtFree((char *)b);
+        return (FALSE);
+    }
 
     if ((a_length != b_length) || (memcmp(a, b, a_length) != 0))
       ret_val = FALSE;

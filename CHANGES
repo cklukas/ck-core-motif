@@ -5,6 +5,12 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+XmStringByteCompare conversion failure handling (2026-10-26)
+==============================================================
+
+- Reject failed ASN.1 conversions before comparing or freeing their buffers;
+  see `docs/xmstring-byte-compare-failure.md`.
+
 Legacy XmStringNConcat failure handling (2026-10-26)
 =====================================================
 
