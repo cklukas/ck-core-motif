@@ -181,6 +181,15 @@ EXTRA_DIST += tests/automated/check-text-property-concat-bounds.py docs/text-pro
 EXTRA_DIST += tests/automated/check-cascade-resource-bounds.py docs/cascade-resource-bounds.md
 EXTRA_DIST += tests/automated/check-obsolete-rectangle-bounds.py docs/obsolete-rectangle-bounds.md
 EXTRA_DIST += tests/automated/check-reptype-bounds.py docs/reptype-bounds.md
+EXTRA_DIST += tests/automated/check-reptype-register-allocation.py \
+              tests/automated/check-reptype-list-allocation.py \
+              tests/automated/check-reptype-record-allocation.py \
+              tests/automated/check-reptype-copy-rollback.py \
+              tests/automated/check-reptype-warning-allocation.py \
+              tests/automated/check-reptype-converter-inputs.py \
+              tests/automated/check-reptype-getid-null.py \
+              docs/reptype-registration.md docs/reptype-converter-inputs.md \
+              docs/reptype-getid-null.md
 EXTRA_DIST += tests/automated/check-picture-copy-bounds.py docs/picture-copy-bounds.md
 EXTRA_DIST += tests/automated/check-accessible-utf8-bounds.py docs/accessibility-utf8-bounds.md
 EXTRA_DIST += tests/automated/check-xmstring-rendition-bounds.py docs/xmstring-rendition-bounds.md

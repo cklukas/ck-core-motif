@@ -14,6 +14,15 @@ Harden typed varargs allocation (2026-10-25)
   capacities, and report Xt allocation failure as an empty result; see
   `docs/xm-va-typed-allocation.md`.
 
+Harden representation-type registration and copies (2026-10-25)
+=================================================================
+
+- Bound dynamic registration and exported-list allocation, make record and
+  string copies rollback-safe, reject null converter inputs, and bound reverse
+  conversion diagnostics. The installed source contracts cover registration,
+  copy, converter, warning, and null-name paths; see the `reptype-*` pages in
+  `docs/`.
+
 Harden simple-menu varargs processing (2026-10-25)
 ===================================================
 
