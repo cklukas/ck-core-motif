@@ -4223,11 +4223,14 @@ GetMenuAccelerator(
 /****************           ARGSUSED  ****************/
 {
   String        data ;
+  size_t        length;
   XmRowColumnWidget rc  = (XmRowColumnWidget) wid;
 /****************/
 
   if (rc->row_column.menu_accelerator != NULL) {
-     data = (String)XtMalloc(strlen(RC_MenuAccelerator(rc)) + 1);
+     length = strlen(RC_MenuAccelerator(rc));
+     data = (length >= UINT_MAX) ? NULL :
+       (String)XtMalloc((Cardinal)(length + 1));
      if (data != NULL)
        strcpy(data, RC_MenuAccelerator(rc));
      *value = (XtArgVal) data ;

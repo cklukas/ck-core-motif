@@ -6494,3 +6494,10 @@ RowColumn traversal child-list allocation width (2026-10-25)
   limit and pass the checked size explicitly to `XtMalloc`; see
   `docs/rowcolumn-traversal-children.md`.
 
+RowColumn accelerator getter allocation width (2026-10-25)
+============================================================
+
+- Bound the accelerator-list getter allocation by Xt's `Cardinal` byte
+  range and pass the checked width explicitly; see
+  `docs/rowcolumn-resource-allocation.md`.
+
