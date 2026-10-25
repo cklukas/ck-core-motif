@@ -1749,7 +1749,7 @@ static void
 	if( (int)clip.x < (int)H_SPACE(iw) ) clip.x = H_SPACE(iw);
 	if( (int)clip.y < (int)V_SPACE(iw) ) clip.y = V_SPACE(iw);
 
-	size = XtWidth(iw) - H_SPACE(iw);
+	size = (int)XtWidth(iw) - (int)H_SPACE(iw);
 	if( (int) (clip.x + clip.width) > size )
 	{
 	    tmp = size - (int)clip.x;
@@ -1757,7 +1757,7 @@ static void
 	    clip.width = tmp;
 	}
 
-	size = XtHeight(iw) - V_SPACE(iw);
+	size = (int)XtHeight(iw) - (int)V_SPACE(iw);
 	if( (int)(clip.y + clip.height) > size )
 	{
 	    tmp = size - (int)clip.y;

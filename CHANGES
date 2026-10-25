@@ -1,3 +1,9 @@
+IconButton text clipping bounds (2026-10-25)
+============================================
+
+- Compute text clipping limits with signed spacing arithmetic, preventing
+  wrapped bounds on narrow IconButtons; see `docs/iconbutton-clip-geometry.md`.
+
 Scale available trough geometry bounds (2026-10-25)
 =================================================
 
