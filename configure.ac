@@ -297,7 +297,8 @@ if test "x$enable_unicode_text" = "xyes"; then
   fi
   AC_MSG_CHECKING([for C11 atomic font-configuration notifications])
   AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <stdatomic.h>]], [[
-    atomic_ulong epoch = ATOMIC_VAR_INIT(0);
+    atomic_ulong epoch;
+    atomic_init(&epoch, 0);
     unsigned long previous = atomic_load_explicit(&epoch, memory_order_acquire);
     return !atomic_compare_exchange_strong_explicit(&epoch, &previous, previous + 1,
                                                     memory_order_acq_rel, memory_order_acquire);

@@ -226,7 +226,7 @@ evidence location is not completion.
 | --- | --- | --- |
 | WP-05.0 Baseline and manifest | Complete | [`modern-gallery-manifest.json`](modern-gallery-manifest.json) records 94 public class declarations (85 constructible, 9 explicit exclusions); `tests/automated/check-gallery-manifest.py` verifies exact coverage against `lib/Xm/XmAll.h`. Native gallery build and visual receipts remain later-package gates. |
 | WP-05.1 Live appearance | Planned | Current API is creation-time only. |
-| WP-05.2 Live DPI simulation | Planned | Current global Xft default logic is not live reflow. |
+| WP-05.2 Live DPI simulation | In progress | The additive `XmSetDisplayScaleOverride` API and installed consumer fixture now provide deterministic per-display scale input without mutating X resources; live realized-hierarchy reflow and the full 96/144/192/288 transition matrix remain open. |
 | WP-05.3 Real XLibre | Planned | Existing observer has no recorded real multi-output qualification. |
 | WP-05.4 Gallery shell | Planned | No unified maintained gallery target exists. |
 | WP-05.5 Examples/tests | Planned | Existing demos are separate historical programs. |
