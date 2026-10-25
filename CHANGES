@@ -6262,3 +6262,10 @@ Bound XmString segment-growth allocation widths (2026-10-25)
 - Enforce Xt's `Cardinal` byte limit for segment-array growth in the
   transactional insertion path; see `docs/xmstring-segment-allocation.md`.
 
+Bound XmString rendition-stack allocation widths (2026-10-25)
+===============================================================
+
+- Enforce Xt's `Cardinal` byte limit for temporary rendition stacks while
+  retaining valid storage when shrinking cannot complete; see
+  `docs/xmstring-rendition-stack.md`.
+
