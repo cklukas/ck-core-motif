@@ -14,7 +14,7 @@ for needle in (
     "maxnsFontLists > INT_MAX - 8",
     "UINT_MAX / sizeof(SystemFontList)",
     "return NULL;",
-    "maxnsFontLists += 8;",
+    "new_maxns_font_lists = maxnsFontLists + 8;",
 ):
     if needle not in region:
         raise SystemExit(f"default font-cache capacity guard missing: {needle}")
