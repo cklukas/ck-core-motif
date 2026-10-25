@@ -1,3 +1,9 @@
+Clipboard copy-by-name validation (2026-10-26)
+================================================
+
+- Validate copy-by-name headers, format records, and data buffers, including
+  zero-length operations; see `docs/clipboard-copy-by-name-validation.md`.
+
 Clipboard end-copy record validation (2026-10-26)
 ==================================================
 

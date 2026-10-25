@@ -3495,7 +3495,8 @@ XmClipboardCopy(
     if ( buffer != 0 )
     {
 	/* copy the format data over to acquired storage */
-	memcpy( to_ptr, buffer, (size_t) length );
+	if (length != 0)
+	    memcpy( to_ptr, buffer, (size_t) length );
     }
 
     formatptr->itemLength += length/((format_len==32)?CONVERT_32_FACTOR:1);
@@ -3787,13 +3788,22 @@ XmClipboardCopyByName(
 
     _XmAppLock(app);
     /* get the clipboard header */
-    ClipboardFindItem( display, 
+	root_clipboard_header = NULL;
+    status = ClipboardFindItem( display,
 			   XM_HEADER_ID,
 			   (XtPointer *) &root_clipboard_header,
 			   &headerlength,
 			   &headertype,
 			   0,
     			   0 );
+
+    if (status != ClipboardSuccess || root_clipboard_header == NULL ||
+	headerlength < sizeof(ClipboardHeaderRec))
+    {
+	XtFree( (char *)root_clipboard_header);
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
 
     locked = 0;
 
@@ -3823,17 +3833,21 @@ XmClipboardCopyByName(
     }
 
     /* get a pointer to the format */
-    if ( ClipboardFindItem(display, 
+	formatheader = NULL;
+    status = ClipboardFindItem(display,
 			   data,
 			   (XtPointer *) &formatheader,
 			   &formatlength,
 			   &formattype,
 			   0,
-			   XM_FORMAT_HEADER_TYPE ) == ClipboardSuccess )
+			   XM_FORMAT_HEADER_TYPE );
+    if ( status == ClipboardSuccess && formatheader != NULL &&
+	 formatlength >= sizeof(ClipboardFormatItemRec) )
     {
 	formatheader->itemPrivateId = private_id;
 
-    	ClipboardRetrieveItem(display, 
+	    formatdataptr = NULL;
+	    status = ClipboardRetrieveItem(display,
 			      formatheader->formatDataId,
 			      (int) length,/* BAD NEWS: truncation here.*/
 			      0,
@@ -3844,6 +3858,19 @@ XmClipboardCopyByName(
 			      0,
 			      formatheader->cutByNameFlag ); 
 
+	    if (status != ClipboardSuccess ||
+		(formatdataptr == NULL && formatdatalength != 0) ||
+		formatdatalength < length)
+	    {
+		XtFree( (char *)formatdataptr);
+		XtFree( (char *)formatheader);
+		XtFree( (char *)root_clipboard_header);
+		if (locked)
+		    ClipboardUnlock( display, window, 0 );
+		_XmAppUnlock(app);
+		return ClipboardFail;
+	    }
+
 	if (formatheader->cutByNameFlag)
 	    formatheader->itemLength = length/((format==32)?CONVERT_32_FACTOR:1);
 	else
@@ -3852,10 +3879,14 @@ XmClipboardCopyByName(
 	/* if cut by name, discard any old data */
     	formatheader->cutByNameFlag = 0;
     	
-        to_ptr = (char *) formatdataptr + (formatdatalength - length);
+	if (length == 0)
+	    to_ptr = formatdataptr;
+	else
+	    to_ptr = (char *) formatdataptr + (formatdatalength - length);
 
 	/* copy the format data over to acquired storage */
-	memcpy( to_ptr, buffer, (size_t) length );
+	if (length != 0)
+	    memcpy( to_ptr, buffer, (size_t) length );
 
 	/* If we've passed in a new type from UTM,  use it,  otherwise
 	   we'll use the type on the clipboard (for compatibility with 
@@ -3890,9 +3921,12 @@ XmClipboardCopyByName(
 			     XA_INTEGER);
     }
     else {
-	CleanupHeader (display);
-	ClipboardError( CLIPBOARD_CORRUPT, CORRUPT_DATA_STRUCTURE );
-    	return ClipboardFail;
+	XtFree( (char *)formatheader);
+	XtFree( (char *)root_clipboard_header);
+	if (locked)
+	    ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
     }
 
     if ( locked )
