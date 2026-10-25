@@ -12028,3 +12028,11 @@ Make TextIn selection-array copies failure-safe (2026-10-26)
   `docs/text-selection-array-bounds.md`.
 
 Bound XmString tag-cache allocation widths (2026-10-26)
+Bound simple-menu metadata allocation widths (2026-10-26)
+==========================================================
+
+- Check all parallel simple-menu metadata arrays against Xt's `Cardinal`
+  width and pass explicit byte sizes through the shared varargs processor; see
+  `docs/xm-va-process-allocation.md`.
+
+Make TextIn selection-array copies failure-safe (2026-10-26)
