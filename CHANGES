@@ -1,3 +1,9 @@
+Guard TabList constructor allocations (2026-10-26)
+================================================
+
+- Check create/copy allocations and reject malformed or oversized copies; see
+  `docs/tablist-constructors.md`.
+
 Make TabList growth transactional (2026-10-26)
 ===============================================
 
