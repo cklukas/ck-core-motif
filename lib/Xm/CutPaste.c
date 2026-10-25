@@ -5083,6 +5083,10 @@ XmClipboardInquirePendingItems(
     int loc_count, i;
     unsigned long maxname, loc_matchlength;
     int status;
+
+    if (format == NULL)
+	return ClipboardBadFormat;
+
     _XmDisplayToAppContext(display);
 
     _XmAppLock(app);

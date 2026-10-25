@@ -1,3 +1,10 @@
+Clipboard pending-items format guard (2026-10-26)
+==================================================
+
+- Reject null format names before pending-item enumeration reaches atom lookup,
+  returning `ClipboardBadFormat` without changing valid queries; see
+  `docs/clipboard-pending-items-format-guard.md`.
+
 Clipboard format-registration atom guard (2026-10-26)
 ======================================================
 
