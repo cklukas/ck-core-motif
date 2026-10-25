@@ -4536,6 +4536,8 @@ TabConvertProc(widget, selection, target, typeRtn, valueRtn, lengthRtn,
     if( *target != TabAtom(widget) ) return( False );
 
     passed_child = XtNew(Widget);
+    if (passed_child == NULL)
+	return(False);
     *passed_child = child;
 
     *typeRtn = WidgetAtom(widget);

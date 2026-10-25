@@ -8507,6 +8507,12 @@ ScrolledWindow scroll-frame allocation (2026-10-27)
 
 - Check private scroll-frame data allocation, clear the initialized flag on
   failure, and return before dereferencing missing trait state.
+TabStack conversion allocation (2026-10-25)
+============================================
+
+- Check the temporary child-pointer allocation in TabStack conversion and
+  refuse the request cleanly when memory is unavailable.
+
 Drag-over cursor allocation (2026-10-25)
 =========================================
 
