@@ -556,14 +556,17 @@ fixtures alone cannot establish.
 **Complete when:** the selected journeys and native semantic tests pass from an
 installed prefix and the documentation names their real scope and limitations.
 
-**Status (2026-10-24):** phase 1 is implemented and qualified on the native
-AArch64 installed cohort. Native/provider fixtures cover roles, names, states,
-actions, selection, text events, modality and destruction/reentrancy for the
-listed surfaces, with focused AT-SPI observers and a bounded Orca/eSpeak
-baseline. `docs/accessibility-journey-matrix.md` records the distinction
-between those protocol results and real-client usability. Complete x86_64,
-all desktop screen-readers, application journeys and clean sanitizer exit
-ownership remain explicit gates.
+**Status (2026-10-25):** the native AArch64 installed cohort now includes a
+fresh `--enable-atspi --enable-xft --enable-unicode-text` prefix and a passing
+bounded Orca/Speech Dispatcher/eSpeak journey.  The receipt verified the exact
+`libXm.so.8.0.0` mapping, 23 AT-SPI cache objects, Unicode text-boundary and
+selection calls, all required native-control utterances, synthesized PCM and
+clean exit of the owned services.  The observer identity check was corrected
+to the project's ABI 8 contract; it could no longer pass against an older
+`libXm.so.6` installation.  `docs/accessibility-journey-matrix.md` records
+the 37.12-second receipt and evidence boundary.  Complete x86_64, all
+desktop screen-readers, application journeys, List/Menu item usability and
+clean sanitizer exit ownership remain explicit gates.
 
 ### WP-08: Optional C++ support-library design
 

@@ -1,4 +1,10 @@
 2026-10-25
+	* Qualify the bounded native Orca/Speech Dispatcher/eSpeak journey from a
+	  fresh AT-SPI, Xft and Unicode-text installed prefix; align the observer's
+	  runtime identity check with the public libXm.so.8 ABI and record the
+	  evidence boundary in docs/accessibility-journey-matrix.md.
+
+2026-10-25
 	* Record the WP-39 context-menu entry no-go: existing public popup,
 	  PushButton icon, accelerator, shortcut-text and activation APIs already
 	  provide the required contract; see docs/context-menu-decision.md.

@@ -149,7 +149,10 @@ try:
  for line in (pathlib.Path('/proc')/str(fixture.pid)/'maps').read_text().splitlines():
   path=line.split()[-1]
   if '/libXm.so.' in path and path not in mapped:mapped.append(path)
- expected_library=(pathlib.Path(env['ORCA_TEST_PREFIX'])/'lib/libXm.so.6').resolve(strict=True)
+ # CK Core Motif's installed ABI is libXm.so.8.  Keep this identity check
+ # aligned with the public ABI contract; accepting an older SONAME here would
+ # allow the observer to report a pass against a different toolkit.
+ expected_library=(pathlib.Path(env['ORCA_TEST_PREFIX'])/'lib/libXm.so.8').resolve(strict=True)
  if len(mapped)!=1 or pathlib.Path(mapped[0]).resolve(strict=True)!=expected_library:raise RuntimeError('Unexpected toolkit mapping: '+repr(mapped))
  record['runtime_identity']={'executable':str(actual_executable),'executable_sha256':hashlib.sha256(actual_executable.read_bytes()).hexdigest(),'library':str(expected_library),'library_sha256':hashlib.sha256(expected_library.read_bytes()).hexdigest()}
  if shutil.which('dpkg-query'):

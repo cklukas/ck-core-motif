@@ -19,6 +19,25 @@ sanitizer exit ownership. The detailed provider and lifetime contracts remain
 in `docs/accessibility.md`; aggregate admission limits remain in
 `docs/status.md`.
 
+## 2026-10-25 native Orca/eSpeak receipt
+
+The bounded native-chrome journey was rerun from a fresh installed prefix on
+the AArch64 `uconsole` host with `--enable-atspi --enable-xft
+--enable-unicode-text`.  The observer compiled `native_controls.c` against
+that prefix and verified the fixture process mapped exactly its
+`libXm.so.8.0.0`.  The 37.12-second receipt reports 23 AT-SPI cache objects,
+nine direct text/selection protocol calls, all required native utterances for
+buttons, toggles, text fields, disclosure and the horizontal scrollbar, and
+2,484,000 bytes of synthesized eSpeak PCM.  Orca, Speech Dispatcher, the
+fixture and Openbox all exited cleanly, and the receipt contains the executable
+and library SHA-256 fingerprints.
+
+This qualifies the selected native-control journey and transport lifetime on
+that installed AArch64 configuration.  It does not promote List/Menu item
+semantics, precise edit-event echo, candidate panels, a complete application,
+human usability, x86_64, other screen readers/desktops or sanitizer ownership
+to supported scope.
+
 When extending this matrix, add a native regression for a toolkit defect first,
 then rerun the actual client journey. If a service or screen-reader is absent,
 record it as unavailable instead of substituting a direct provider call.
