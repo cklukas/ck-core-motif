@@ -7,6 +7,8 @@ Xft compound-string line height (2026-10-27)
   extent queries.
 - Fail closed when UTF-8 compound-string metric conversion cannot allocate its
   UCS-2 temporary buffer, and release successful conversions with XtFree.
+- Guard the matching UTF-8 compound-string image and normal drawing paths
+  against failed UCS-2 conversion buffers.
 
 Accessibility D-Bus memo allocation (2026-10-27)
 =================================================
