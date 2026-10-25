@@ -1595,6 +1595,13 @@ ClientData * FindTransientOnTop (ClientData *pcd)
 
 void StackWindow (WmWorkspaceData *pWS, ClientListEntry *pEntry, Boolean onTop, ClientListEntry *pStackEntry)
 {
+    if (pWS == NULL || pWS->pSD == NULL || pEntry == NULL ||
+        pEntry->pCD == NULL ||
+        (pStackEntry != NULL && pStackEntry->pCD == NULL))
+    {
+        return;
+    }
+
     Window stackWindow;
     Boolean stackTransientTreeWindows = False;
     Window activeIconWindow;
@@ -1657,6 +1664,11 @@ void StackWindow (WmWorkspaceData *pWS, ClientListEntry *pEntry, Boolean onTop, 
     else
     {
 	activeIconWindow = (Window)0;
+    }
+
+    if (!onTop && pSD->lastClient == NULL)
+    {
+        return;
     }
 
     if (onTop)

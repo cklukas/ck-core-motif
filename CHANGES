@@ -4586,3 +4586,9 @@ Transient list guards (2026-10-25)
 
 - Validate transient workspace and parent-tree state before linking or
   unlinking; see `docs/transient-list-guards.md`.
+
+StackWindow guards (2026-10-25)
+===============================
+
+- Validate workspace and list entries before X window restacking;
+  see `docs/stack-window-guards.md`.
