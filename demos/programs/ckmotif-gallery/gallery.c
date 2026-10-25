@@ -218,6 +218,12 @@ static const GalleryManifestEntry *find_entry(const char *id)
     return &gallery_manifest[0];
 }
 
+static void expand_entry_category(Widget tree, const GalleryManifestEntry *entry)
+{
+    if (entry && entry->category)
+        (void)XmTreeViewSetExpanded(tree, (XtPointer)entry->category, True, False);
+}
+
 static const char *source_for(const GalleryManifestEntry *entry)
 {
     Cardinal i;
@@ -662,7 +668,7 @@ static void add_tree_nodes(Widget tree)
         else if (!strcmp(title, "media")) title = "Media";
         snprintf(labels[i + 2], sizeof(labels[i + 2]), "%s", title);
         nodes[i + 2].label = labels[i + 2];
-        nodes[i + 2].has_children = True; nodes[i + 2].expanded = True;
+        nodes[i + 2].has_children = True; nodes[i + 2].expanded = False;
     }
     for (i = 0; i < GALLERY_MANIFEST_COUNT; ++i) {
         Cardinal category;
@@ -971,7 +977,9 @@ int main(int argc, char **argv)
                             XmNlabelString, text("Built-in Icons"), NULL);
     if (initial_id && strcmp(initial_id, "gallery.icons") != 0 &&
         strcmp(initial_id, "gallery.welcome") != 0) {
-        show_entry(&state, find_entry(initial_id));
+        const GalleryManifestEntry *initial = find_entry(initial_id);
+        expand_entry_category(state.tree, initial);
+        show_entry(&state, initial);
         XtVaSetValues(state.notebook, XmNcurrentPageNumber, 2, NULL);
     }
     XtManageChild(root);
