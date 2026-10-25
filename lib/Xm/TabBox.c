@@ -4694,7 +4694,7 @@ Layout(tab)
 	    return;
 	actual = (XiTabRect*)
 	    XtRealloc((XtPointer) XmTabBox__actual(tab),
-		      sizeof(*actual) * (size_t)count);
+		      (Cardinal)(sizeof(*actual) * (size_t)count));
 	if (actual == NULL)
 	    return;
 	XmTabBox__actual(tab) = actual;
@@ -5200,7 +5200,7 @@ CalcTabGeometry(tab)
 	    return;
 	wanted = (XRectangle*)
 	    XtRealloc((XtPointer)XmTabBox__wanted(tab),
-		      sizeof(*wanted) * (size_t)count);
+		      (Cardinal)(sizeof(*wanted) * (size_t)count));
 	if (wanted == NULL)
 	    return;
 	XmTabBox__wanted(tab) = wanted;

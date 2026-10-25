@@ -5767,6 +5767,13 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+TabBox geometry reallocation casts (2026-10-25)
+===============================================
+
+- Pass bounded actual and wanted geometry-array sizes explicitly as Xt
+  `Cardinal` values during TabBox growth; see
+  `docs/tabbox-geometry-allocation.md`.
+
 TabBox image-cache allocation cast (2026-10-25)
 ================================================
 
