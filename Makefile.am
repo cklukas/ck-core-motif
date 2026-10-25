@@ -121,6 +121,7 @@ EXTRA_DIST += tests/automated/check-mwm-exclusion-copy-allocation.py docs/mwm-ex
 EXTRA_DIST += tests/automated/check-mwm-menu-spec-copy-allocation.py docs/mwm-menu-spec-copy-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-menu-item-copy-allocation.py docs/mwm-menu-item-copy-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-menu-spec-copy-failure.py docs/mwm-menu-spec-copy-failure.md
+EXTRA_DIST += tests/automated/check-mwm-menu-item-allocation.py docs/mwm-menu-item-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md
 EXTRA_DIST += tests/automated/check-editres-error-bounds.py docs/editres-error-bounds.md
 EXTRA_DIST += tests/automated/check-spinbox-name-bounds.py docs/spinbox-name-bounds.md

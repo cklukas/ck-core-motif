@@ -9783,6 +9783,13 @@ FontSelector label initialization rollback (2026-10-28)
 SpinBox value-list SetValues rollback (2026-10-28)
 =====================================================
 
+MWM menu-item allocation guard (2026-10-25)
+===========================================
+
+- Build menu items transactionally, handling optional null strings and
+  releasing partial copies when label, accelerator, or argument allocation
+  fails; see `docs/mwm-menu-item-allocation.md`.
+
 MWM menu-spec copy allocation guard (2026-10-25)
 ================================================
 

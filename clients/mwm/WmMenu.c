@@ -821,7 +821,7 @@ MakeMenuItem (String label, WmFunction wmFunction, String funcArgs,
     unsigned char *copy_of_accelText;
 */
     
-    if ((menuItem = (MenuItem *) XtMalloc (sizeof (MenuItem))) == NULL)
+    if ((menuItem = (MenuItem *) XtCalloc (1, sizeof (MenuItem))) == NULL)
       /* Handle insufficent memory */
     {
 	MWarning(((char *)GETMESSAGE(48, 10,
@@ -830,7 +830,12 @@ MakeMenuItem (String label, WmFunction wmFunction, String funcArgs,
     }
     
     menuItem->labelType = XmSTRING;
-    menuItem->label = XtNewString(label);
+    menuItem->wmFunction = wmFunction;
+    if (label != NULL) {
+	menuItem->label = XtNewString(label);
+	if (menuItem->label == NULL)
+	    goto failure;
+    }
     menuItem->labelBitmapIndex = -1;
     menuItem->mnemonic = mnemonic;
     menuItem->clientCommandName = NULL;
@@ -843,14 +848,25 @@ MakeMenuItem (String label, WmFunction wmFunction, String funcArgs,
 
     menuItem->accelState = accelState;
     menuItem->accelKeyCode = accelKeyCode;
-    menuItem->accelText = XtNewString(accelText);
+    if (accelText != NULL) {
+	menuItem->accelText = XtNewString(accelText);
+	if (menuItem->accelText == NULL)
+	    goto failure;
+    }
 
-    menuItem->wmFunction = wmFunction;
-    menuItem->wmFuncArgs = XtNewString(funcArgs);
+    if (funcArgs != NULL) {
+	menuItem->wmFuncArgs = XtNewString(funcArgs);
+	if (menuItem->wmFuncArgs == NULL)
+	    goto failure;
+    }
     SetGreyedContextAndMgtMask(menuItem, wmFunction);
     menuItem->nextMenuItem = (MenuItem *) NULL;
     
     return(menuItem);
+
+failure:
+    FreeMenuItem(menuItem);
+    return (NULL);
 }
 
 
