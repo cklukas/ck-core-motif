@@ -222,9 +222,7 @@ _XmResizeHashTable(XmHashTable table, Cardinal new_size)
 	  table -> buckets[index] = current;
 	}
       }
-#ifdef FIX_1264
       else last = current;
-#endif
       current = next;
     }
   }
