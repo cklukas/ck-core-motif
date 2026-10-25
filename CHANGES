@@ -4,6 +4,12 @@ Guard IconFile path scanning input (2026-10-27)
 - Reject a null path before multibyte slash scanning; see
   `docs/icon-find-slash-input.md`.
 
+Guard IconFile cache directory input (2026-10-27)
+==================================================
+
+- Reject null and empty directory names before cache construction calls
+  `opendir`; see `docs/icon-cache-directory-input.md`.
+
 Guard XmRegion API NULL inputs (2026-10-26)
 ============================================
 

@@ -180,6 +180,9 @@ MakeCachedDirEntry(String dirName)
     DtCachedDir 	cachedDir = NULL;
     int			cachedDirType;
 
+    if (dirName == NULL || *dirName == '\0')
+	return NULL;
+
     if ((fileDesc = opendir (dirName)) == NULL)  {
 	/* invalid directory */
 	cachedDirType = DtINVALID_CACHED_DIR;
