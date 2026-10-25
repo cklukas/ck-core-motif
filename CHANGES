@@ -5298,3 +5298,11 @@ Label pixmap metadata guards (2026-10-25)
   successful metadata lookup; see `docs/label-pixmap-metadata.md`.
 
 LabelG pixmap metadata guards (2026-10-25)
+LabelG background pixmap metadata guard (2026-10-25)
+====================================================
+
+- Fall back to a solid background GC when parent background pixmap metadata
+  lookup fails, avoiding invalid tile/stipple setup; see
+  `docs/labelg-background-pixmap-metadata.md`.
+
+Label pixmap metadata guards (2026-10-25)
