@@ -363,6 +363,9 @@ void _XmGetArrowDrawRects (int highlight_thickness, int shadow_thickness, unsign
    short c = 0;
    int xOffset = 0;
    int yOffset = 0;
+   XRectangle *new_top;
+   XRectangle *new_cent;
+   XRectangle *new_bot;
 
 
    /*  Free the old lists  */
@@ -404,9 +407,21 @@ void _XmGetArrowDrawRects (int highlight_thickness, int shadow_thickness, unsign
       yOffset = temp;
    }
 
-   *top  = (XRectangle *) XtMalloc (sizeof (XRectangle) * (size / 2 + 6));
-   *cent = (XRectangle *) XtMalloc (sizeof (XRectangle) * (size  / 2 + 6));
-   *bot  = (XRectangle *) XtMalloc (sizeof (XRectangle) * (size / 2 + 6));
+   new_top = (XRectangle *) XtMalloc
+	(sizeof (XRectangle) * (size / 2 + 6));
+   new_cent = (XRectangle *) XtMalloc
+	(sizeof (XRectangle) * (size / 2 + 6));
+   new_bot = (XRectangle *) XtMalloc
+	(sizeof (XRectangle) * (size / 2 + 6));
+   if (new_top == NULL || new_cent == NULL || new_bot == NULL) {
+	XtFree((char *)new_top);
+	XtFree((char *)new_cent);
+	XtFree((char *)new_bot);
+	return;
+   }
+   *top = new_top;
+   *cent = new_cent;
+   *bot = new_bot;
 
    /*  Set up a loop to generate the segments.  */
 
