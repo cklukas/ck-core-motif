@@ -6,3 +6,8 @@ attempt and clears the widget pointer, leaving later drag attempts consistent.
 
 The source-level regression is
 `tests/automated/check-list-drag-allocation.py`.
+
+
+The selected-position string-array product is checked before multiplication,
+so a representationally impossible selection count cancels the drag without
+wrapping the allocation size.
