@@ -1,3 +1,10 @@
+Mrm interface-module null guards (2026-10-25)
+===============================================
+
+- Reject empty interface-module context buffers before validation-field access
+  in shared and direct module readers; see
+  `docs/mrm-interface-module-null.md`.
+
 Mrm widget-read null-record guards (2026-10-25)
 ================================================
 
