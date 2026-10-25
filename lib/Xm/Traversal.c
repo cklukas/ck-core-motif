@@ -83,6 +83,8 @@ void
 _XmDestroyFocusData(
         XmFocusData focusData )
 {
+  if (focusData == NULL)
+    return;
   _XmFreeTravGraph( &(focusData->trav_graph)) ;
   XtFree((char *) focusData->trav_graph.excl_tab_list) ;
   XtFree((char *) focusData) ;
@@ -93,6 +95,8 @@ _XmSetActiveTabGroup(
         XmFocusData focusData,
         Widget tabGroup )
 {
+    if (focusData == NULL)
+        return;
     focusData->active_tab_group = tabGroup;
 }
 
