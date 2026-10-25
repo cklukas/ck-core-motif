@@ -29,7 +29,7 @@
 #include <config.h>
 #endif
 
-
+#include <stdint.h>
 #include <X11/Xatom.h>
 #include <Xm/AtomMgr.h>
 #include <Xm/DragDrop.h>
@@ -579,6 +579,7 @@ XmeTransferAddDoneProc(XtPointer id,
   TransferContext tid = (TransferContext) id;
   XmSelectionFinishedProc *new_done_procs;
   int new_count;
+  size_t allocation_size;
 
   if (tid == NULL)
     return;
@@ -590,6 +591,13 @@ XmeTransferAddDoneProc(XtPointer id,
       return;
     }
   new_count = tid -> numDoneProcs + 1;
+  if ((size_t)new_count > SIZE_MAX / sizeof(*new_done_procs) ||
+      (size_t)new_count > UINT_MAX / sizeof(*new_done_procs))
+    {
+      _XmProcessUnlock();
+      return;
+    }
+  allocation_size = sizeof(*new_done_procs) * (size_t)new_count;
 
   if (new_count == 1)
     new_done_procs = (XmSelectionFinishedProc *)
@@ -597,7 +605,7 @@ XmeTransferAddDoneProc(XtPointer id,
   else
     new_done_procs = (XmSelectionFinishedProc *)
       XtRealloc((char*) tid -> doneProcs,
-		sizeof(*new_done_procs) * (size_t)new_count);
+		allocation_size);
 
   if (new_done_procs == NULL)
     {

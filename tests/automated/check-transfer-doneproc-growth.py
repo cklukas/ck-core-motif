@@ -10,6 +10,9 @@ region = source[start:end]
 assert "XmSelectionFinishedProc *new_done_procs;" in region
 assert "if (tid == NULL)" in region
 assert "if (tid -> numDoneProcs == INT_MAX)" in region
+assert "(size_t)new_count > SIZE_MAX / sizeof(*new_done_procs)" in region
+assert "(size_t)new_count > UINT_MAX / sizeof(*new_done_procs)" in region
+assert "allocation_size = sizeof(*new_done_procs) * (size_t)new_count" in region
 assert "new_done_procs = (XmSelectionFinishedProc *)" in region
 assert "if (new_done_procs == NULL)" in region
 assert "tid -> numDoneProcs = new_count;" in region
