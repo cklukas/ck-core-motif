@@ -752,7 +752,12 @@ CvtStringToChar(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
-   unsigned char in_char = *((unsigned char *) (from->addr)) ;
+   unsigned char in_char;
+
+   if (from == NULL || from->addr == NULL || from->size < sizeof(unsigned char) ||
+       to == NULL)
+      return False;
+   in_char = *((unsigned char *) (from->addr)) ;
 
    _XM_CONVERTER_DONE( to, unsigned char, in_char, ; )
    }
@@ -774,6 +779,8 @@ CvtStringToKeySym(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
+    if (from == NULL || from->addr == NULL || to == NULL)
+        return False;
     KeySym tmpKS = XStringToKeysym( (char *) (from->addr)) ;
 
     if(    tmpKS != NoSymbol    )

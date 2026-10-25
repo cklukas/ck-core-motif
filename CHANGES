@@ -1,3 +1,9 @@
+Primitive string-converter input validation (2026-10-25)
+=========================================================
+
+- Validate source buffers and destinations before character or keysym
+  conversion; see `docs/primitive-converter-inputs.md`.
+
 String-to-entity converter input validation (2026-10-25)
 =========================================================
 
