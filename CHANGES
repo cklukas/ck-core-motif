@@ -1,3 +1,9 @@
+Mwm automation menu-label sizing (2026-10-25)
+===============================================
+
+- Include the complete menu label and terminator when sizing automation check
+  replies; see `docs/automation-label-size.md`.
+
 WSM workspace-property allocation failures (2026-10-25)
 =========================================================
 

@@ -2257,7 +2257,7 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	  for (n=0; n < menuItemCount && n < MAX_MENU_ITEMS; n++)
 	      {
 		  menu_item = pcd->systemMenuSpec->menuButtons->menuItem;
-		  size += sizeof (CARD16) + (strlen(menu_item->label + 1) * sizeof(CARD8)); /*itemName */
+		  size += sizeof (CARD16) + ((strlen(menu_item->label) + 1) * sizeof(CARD8)); /*itemName */
 	      }
 	 *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
 	  GetItemCheckInfo(pcd, *output);
