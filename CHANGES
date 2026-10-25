@@ -1,3 +1,9 @@
+Traversal public-input validation (2026-10-25)
+===============================================
+
+- Guard traversal predicates, focus helpers, visibility, and tab-group queries
+  before widget/context access; see `docs/traversal-public-inputs.md`.
+
 Traversal geometry input validation (2026-10-25)
 =================================================
 

@@ -1244,7 +1244,11 @@ Boolean
 _XmIsNavigable( 
 	Widget wid)
 {
-  XmNavigability nav = _XmGetNavigability( wid) ;
+  XmNavigability nav;
+
+  if (wid == NULL)
+    return FALSE;
+  nav = _XmGetNavigability( wid) ;
   if(    (nav != XmTAB_NAVIGABLE)
      &&  (nav != XmCONTROL_NAVIGABLE)    )
     {
@@ -1266,6 +1270,9 @@ _XmWidgetFocusChange(
         XmFocusChange change)
 {   
   XmBaseClassExt *er ;
+
+  if (wid == NULL)
+    return;
   
   if(    XtIsRectObj( wid)
      && !wid->core.being_destroyed    )
@@ -1350,6 +1357,9 @@ _XmSetInitialOfTabGroup(
 {
   XmFocusData focus_data ;
 
+  if (tab_group == NULL)
+    return;
+
   if(    XmIsManager( tab_group)    )
     {
       ((XmManagerWidget) tab_group)->manager.initial_focus = init_focus ;
@@ -1409,6 +1419,9 @@ XmeFocusIsInShell(
   Widget shell_of_wid = _XmFindTopMostShell( wid) ;
   XmFocusData focus_data ;
   int revert ;
+
+  if (wid == NULL)
+    return FALSE;
   _XmWidgetToAppContext(wid);
 
   _XmAppLock(app);
@@ -1495,6 +1508,9 @@ XmIsTraversable(
         Widget wid)
 {   
   Boolean traversable;
+
+  if (wid == NULL)
+    return FALSE;
   _XmWidgetToAppContext(wid);
 
   _XmAppLock(app);
@@ -1512,6 +1528,9 @@ XmGetVisibility(
   unsigned int numchildren;
   int i;
   Window *windowptr;
+
+  if (wid == NULL)
+    return XmVISIBILITY_FULLY_OBSCURED;
   _XmWidgetToAppContext(wid);
   
   _XmAppLock(app);
@@ -1613,6 +1632,9 @@ XmGetTabGroup(
 {   
   XmFocusData focus_data ;
   Boolean exclusive ;
+
+  if (wid == NULL)
+    return NULL;
   _XmWidgetToAppContext(wid);
 
   _XmAppLock(app);
@@ -1648,10 +1670,14 @@ XmGetFocusWidget(
         Widget wid)
 {
   Widget focus_wid = NULL ;
-  XmFocusData focus_data = _XmGetFocusData( wid) ;
+  XmFocusData focus_data;
+
+  if (wid == NULL)
+    return NULL;
   _XmWidgetToAppContext(wid);
 
   _XmAppLock(app);
+  focus_data = _XmGetFocusData( wid) ;
   if(    focus_data != NULL    )
     {   
       if(    focus_data->focus_policy == XmEXPLICIT    )
