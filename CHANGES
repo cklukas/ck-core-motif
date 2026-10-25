@@ -5366,3 +5366,10 @@ Guard compound-string wide-text conversion (2026-10-25)
   the tag on allocation failure; see `docs/string-wide-conversion-guards.md`.
 
 Guard compound-string rendition copies (2026-10-25)
+Make ImageCache color-cache growth transactional (2026-10-25)
+===============================================================
+
+- Check cache growth allocation and release newly allocated colors when the
+  cache cannot grow; see `docs/image-color-cache-growth.md`.
+
+Use size-aware scaled-image row offsets (2026-10-25)
