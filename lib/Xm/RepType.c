@@ -1502,6 +1502,10 @@ XmRepTypeGetRecord(
       {   
 	  OutputRecord = (XmRepTypeEntry) 
 	      XtMalloc(sizeof( XmRepTypeEntryRec)) ;
+	  if (OutputRecord == NULL) {
+	      _XmProcessUnlock();
+	      return( NULL);
+	  }
 	  
 	  CopyRecord(OutputRecord,
 		     Record->rep_type_name, Record->value_names, 
