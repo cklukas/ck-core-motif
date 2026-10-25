@@ -1,3 +1,9 @@
+PushButton tear-off release shadow bounds (2026-10-25)
+======================================================
+
+- Guard `BtnUp` tear-off shadow redraws against undersized widgets and missing
+  shadow GCs; see `docs/push-button-btnup-shadow.md`.
+
 PushButton timeout shadow bounds (2026-10-25)
 ==============================================
 
