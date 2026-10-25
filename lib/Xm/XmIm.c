@@ -430,6 +430,9 @@ remember_values(XmImDisplayInfo info, Widget w, ArgList args, Cardinal n)
       ArgList new_args;
       if (r->count == (Cardinal)-1)
         continue;
+      if ((size_t)r->count > SIZE_MAX / sizeof(Arg) - 1 ||
+          (size_t)r->count > UINT_MAX / sizeof(Arg) - 1)
+        continue;
       new_args = (ArgList)XtRealloc((char *)r->args,
                                     ((size_t)r->count + 1) * sizeof(Arg));
       if (new_args == NULL) {
