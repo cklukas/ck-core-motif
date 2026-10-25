@@ -1,3 +1,10 @@
+Xm GC cache failure handling (2026-10-25)
+=============================================
+
+- Handle GC-table, cache-record, and server GC allocation failures without
+  dereferencing null records or publishing failed resources; see
+  `docs/xm-gc-cache-failure.md`.
+
 Xm pixmap-set initialization (2026-10-25)
 ===============================================
 

@@ -2103,9 +2103,18 @@ GetGCForPutImage(Screen *screen,
      * of XmGetPixmapByDepth (with no -depth) issued from XBM file.
      */
 
+    gcValues.foreground = foreground;
+    gcValues.background = background;
+
     _XmProcessLock();
-    if (gc_set == NULL) 
+    if (gc_set == NULL)
 	gc_set = _XmAllocHashTable (20, CompareGCDatas, HashGCData);
+    if (gc_set == NULL)
+      {
+        _XmProcessUnlock();
+        return XCreateGC (DisplayOfScreen(screen), pixmap,
+                          GCForeground | GCBackground, &gcValues);
+      }
     _XmProcessUnlock();
     
     /* set up an entry for search. We only care about the colors
@@ -2129,20 +2138,26 @@ GetGCForPutImage(Screen *screen,
 	
     /* create a new GC, cache it and return it */
     gc_entry = XtNew(GCData);
+    if (gc_entry == NULL)
+      return XCreateGC (DisplayOfScreen(screen), pixmap,
+                        GCForeground | GCBackground, &gcValues);
     gc_entry->screen = screen ;    
     gc_entry->print_shell = print_shell ;
     gc_entry->depth = depth ;    
     gc_entry->image_depth = image->depth ;    
     gc_entry->foreground = foreground ;
     gc_entry->background = background ;
+    gc_entry->gc = XCreateGC (DisplayOfScreen(screen), pixmap,
+			     GCForeground | GCBackground, &gcValues);
+    if (gc_entry->gc == NULL)
+      {
+        XtFree((char *)gc_entry);
+        return (GC) NULL;
+      }
+
     _XmProcessLock();
     _XmAddHashEntry(gc_set, (XmHashKey)gc_entry, (XtPointer)gc_entry);
     _XmProcessUnlock();
-
-    gcValues.foreground = foreground;
-    gcValues.background = background;
-    gc_entry->gc = XCreateGC (DisplayOfScreen(screen), pixmap,
-			     GCForeground | GCBackground, &gcValues);
 
     return gc_entry->gc ;
 }
