@@ -5109,3 +5109,9 @@ ColorPicker highlight geometry bounds (2026-10-25)
 - Require enough width and height for the focus inset before drawing the
   ColorPicker highlight, preventing wrapped rectangles on tiny widgets; see
   `docs/colorpicker-highlight-geometry.md`.
+ToggleButton pixmap centering bounds (2026-10-25)
+================================================
+
+- Compute pixmap centering differences with signed heights before clamping,
+  preventing wrapped vertical positions in small buttons; see
+  `docs/toggle-pixmap-center-geometry.md`.

@@ -694,7 +694,7 @@ redisplayPixmap(XmToggleButtonWidget tb,
   saveWidth = Lab_TextRect_width(tb);
   saveHeight = Lab_TextRect_height(tb);
 
-  h = (XtHeight(tb) - onH) / 2;
+  h = ((int)XtHeight(tb) - (int)onH) / 2;
   Lab_TextRect_y(tb) = MAX(h, 0);
   Lab_TextRect_height(tb) = onH;
   Lab_TextRect_width(tb) = onW;

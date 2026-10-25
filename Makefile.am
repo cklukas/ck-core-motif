@@ -862,3 +862,4 @@ EXTRA_DIST += tests/automated/check-cascade-button-gadget-shadow-redisplay-guard
 EXTRA_DIST += tests/automated/check-bulletin-board-shadow-redisplay-guards.py docs/bulletin-board-shadow-redisplay-guards.md
 EXTRA_DIST += tests/automated/check-color-selector-layout-bounds.py docs/color-selector-layout-geometry.md
 EXTRA_DIST += tests/automated/check-colorpicker-highlight-bounds.py docs/colorpicker-highlight-geometry.md
+EXTRA_DIST += tests/automated/check-toggle-pixmap-center-bounds.py docs/toggle-pixmap-center-geometry.md
