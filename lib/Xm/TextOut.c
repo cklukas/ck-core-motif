@@ -1895,7 +1895,7 @@ _XmRedisplayHBar(XmTextWidget tw)
   nav_data.valueMask = NavValue|NavSliderSize|NavMaximum;
   nav_trait = (XmNavigatorTrait)
     XmeTraitGet((XtPointer)XtClass(data->hbar), XmQTnavigator);
-  if (nav_trait) {
+  if (nav_trait != NULL && nav_trait->getValue != NULL) {
     nav_trait->getValue(data->hbar, &nav_data);
     maximum = nav_data.maximum.x;
     sliderSize = nav_data.slider_size.x;
@@ -1953,7 +1953,7 @@ _XmRedisplayVBar(XmTextWidget tw)
   nav_data.valueMask = NavValue|NavSliderSize|NavMaximum;
   nav_trait = (XmNavigatorTrait)
     XmeTraitGet((XtPointer)XtClass(data->vbar), XmQTnavigator);
-  if (nav_trait) {
+  if (nav_trait != NULL && nav_trait->getValue != NULL) {
     nav_trait->getValue(data->vbar, &nav_data);
     maximum = nav_data.maximum.y;
     sliderSize = nav_data.slider_size.y;
@@ -5887,6 +5887,7 @@ SliderMove(Widget w,
   
   XmTextWidget tw = (XmTextWidget) closure;
   XmNavigatorDataRec nav_data;
+  XmNavigatorTrait nav_trait;
   int offset, n;
   XPoint xmim_point;
   XRectangle xmim_area;
@@ -5899,8 +5900,11 @@ SliderMove(Widget w,
      cannot use a callback struct */
   
   nav_data.valueMask = NavValue;
-  ((XmNavigatorTrait)XmeTraitGet((XtPointer) XtClass(w), XmQTnavigator))
-    ->getValue(w, &nav_data);
+  nav_trait = (XmNavigatorTrait)
+    XmeTraitGet((XtPointer) XtClass(w), XmQTnavigator);
+  if (nav_trait == NULL || nav_trait->getValue == NULL)
+    return;
+  nav_trait->getValue(w, &nav_data);
   
   
   /* look at the kind of navigator and make the appropriate update */

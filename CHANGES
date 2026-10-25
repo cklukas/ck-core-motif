@@ -1,3 +1,9 @@
+Guard TextOut navigator callbacks (2026-10-25)
+===============================================
+
+- Validate navigator `getValue` callbacks before TextOut reads scrollbar and
+  slider state; see `docs/motif-textout-navigator-trait.md`.
+
 Guard SpinBox textual trait callbacks (2026-10-25)
 =================================================
 
