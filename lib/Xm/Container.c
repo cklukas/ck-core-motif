@@ -3714,8 +3714,10 @@ PlaceItemGridCells(
   if (CtrIncludeIsCLOSEST(cw))
     {
       closest_cell = GetCellFromCoord(wid,c->user_x,c->user_y);
+      if (closest_cell < 0)
+	return;
       trial_cell = closest_cell;
-      if (trial_cell >= cw->container.cell_count)
+	  if (trial_cell < 0 || trial_cell >= cw->container.cell_count)
 	{
 	  if (fit_type == EXACT_FIT)
 		return; /* exact fit or nothing! */
@@ -3731,10 +3733,12 @@ PlaceItemGridCells(
 			(CtrViewIsSMALL_ICON(cw) ?
 				cw->container.real_small_cellh :
 				cw->container.real_large_cellh) - 1)));
-	  if (trial_cell >= cw->container.cell_count)
+	  if (trial_cell < 0 || trial_cell >= cw->container.cell_count)
 		/* This shouldn't occur - but just in case */
 		trial_cell = cw->container.next_free_cell;
 	}
+      if (trial_cell < 0 || trial_cell >= cw->container.cell_count)
+	return;
     }
   start_cell = trial_cell;
   if (trial_cell < cw->container.cell_count)
@@ -3820,7 +3824,8 @@ GetCellFromCoord(
         cw->container.real_small_cellh : cw->container.real_large_cellh;
     if (cell_width <= 0 || cell_height <= 0 ||
 	cw->container.current_width_in_cells <= 0 ||
-	cw->container.current_height_in_cells <= 0)
+	cw->container.current_height_in_cells <= 0 ||
+	cw->container.cell_count <= 0)
 	return NO_CELL;
 
     /*
@@ -3860,7 +3865,9 @@ GetCoordFromCell(
         cw->container.real_small_cellh : cw->container.real_large_cellh;
     if (cell_width <= 0 || cell_height <= 0 ||
 	cw->container.current_width_in_cells <= 0 ||
-	cw->container.current_height_in_cells <= 0)
+	cw->container.current_height_in_cells <= 0 ||
+	cw->container.cell_count <= 0 ||
+	cell_idx < 0 || cell_idx >= cw->container.cell_count)
 	{
 	point->x = cw->container.margin_w;
 	point->y = cw->container.margin_h;
@@ -4020,7 +4027,16 @@ SnapCwid(
     int			cell_width = 0,cell_height = 0;
     int			width_in_cells = 0,height_in_cells = 0;
 
+    if (point == NULL)
+	return NULL;
+
     target_cell = GetCellFromCoord((Widget)cw,x,y);
+    if (target_cell < 0 || target_cell >= cw->container.cell_count)
+	{
+	point->x = cw->container.margin_w;
+	point->y = cw->container.margin_h;
+	return point;
+	}
     (void)GetCoordFromCell((Widget)cw,target_cell, &target_cell_coord);
     point->x = target_cell_coord.x;
     point->y = target_cell_coord.y;
