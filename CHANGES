@@ -82,6 +82,12 @@ WSM set-state unpack allocation guard (2026-10-25)
 - Check the WSM `SET_STATE` window-info allocation and mark the correct request
   ownership field only after success; see `docs/wsm-set-state-unpack-oom.md`.
 
+WSM get-state unpack allocation guard (2026-10-25)
+===================================================
+
+- Check the WSM `GET_STATE` reply window-info allocation before unpacking and
+  cleanup; see `docs/wsm-get-state-unpack-oom.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 
