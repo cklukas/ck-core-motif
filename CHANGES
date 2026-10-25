@@ -12208,3 +12208,10 @@ Charset-table combined allocation width (2026-10-26)
 
 - Reject combined table/name storage above Xt's `Cardinal` byte range and
   pass accepted sizes explicitly; see `docs/charset-table-bounds.md`.
+
+Button-type converter bounds (2026-10-26)
+=========================================
+
+- Widen input and comma counters, reject unrepresentable table/string sizes,
+  and pass accepted allocations explicitly as Xt `Cardinal` values; see
+  `docs/button-type-conversion.md`.

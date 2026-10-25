@@ -2174,9 +2174,9 @@ ConvertStringToButtonType(
         XtPointer *converter_data) /* unused */
 {
     String in_str;
-    unsigned int in_str_size = 0 ;
+    size_t in_str_size = 0 ;
     XmButtonTypeTable buttonTable ;
-    int i, comma_count ;
+    size_t i, comma_count ;
     String work_str, btype_str ;
     _Xstrtokparams strtok_buf;
 
@@ -2188,18 +2188,30 @@ ConvertStringToButtonType(
     
     comma_count = 0 ;
     while(    in_str[in_str_size]    )
-    {   if(    in_str[in_str_size++] == ','    )
-        {   ++comma_count ;
+    {   if (in_str_size == SIZE_MAX)
+            return(FALSE);
+        if(    in_str[in_str_size++] == ','    )
+        {   if (comma_count == SIZE_MAX)
+                return(FALSE);
+            ++comma_count ;
             } 
         } 
+    if (in_str_size == SIZE_MAX)
+        return(FALSE);
     ++in_str_size ;
 
+    if (comma_count > SIZE_MAX / sizeof(XmButtonType) - 2 ||
+        comma_count > (size_t)UINT_MAX / sizeof(XmButtonType) - 2 ||
+        in_str_size > (size_t)UINT_MAX)
+        return(FALSE);
+
     buttonTable = (XmButtonTypeTable) XtMalloc( 
-                                   sizeof( XmButtonType) * (comma_count + 2)) ;
+                                   (Cardinal)(sizeof(XmButtonType) *
+						      (comma_count + 2))) ;
     if (buttonTable == NULL)
         return(FALSE);
     buttonTable[comma_count+1] = (XmButtonType)0;
-    work_str = (String) XtMalloc( in_str_size) ;
+    work_str = (String) XtMalloc((Cardinal)in_str_size) ;
     if (work_str == NULL) {
         XtFree((char *) buttonTable);
         return(FALSE);

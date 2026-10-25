@@ -12,6 +12,10 @@ block = text[start:end]
 for needle in (
     "if (buttonTable == NULL)",
     "if (work_str == NULL)",
+    "comma_count > (size_t)UINT_MAX / sizeof(XmButtonType) - 2",
+    "in_str_size > (size_t)UINT_MAX",
+    "(Cardinal)(sizeof(XmButtonType) *",
+    "XtMalloc((Cardinal)in_str_size)",
     "XtFree((char *) buttonTable);",
 ):
     if needle not in block:
