@@ -1815,6 +1815,12 @@ _XmTransformSubResources(
    if (((int)comp_resources[0].resource_offset) >= 0) 
      {
        XtResourceList tmp_resources;
+
+       if ((size_t)num_comp_resources > SIZE_MAX / sizeof(XtResource)) {
+	 *resources = NULL;
+	 *num_resources = 0;
+	 return;
+       }
        
        tmp_resources = (XtResourceList)
 	 XtMalloc(sizeof(XtResource) * num_comp_resources);
