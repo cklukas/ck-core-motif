@@ -1093,9 +1093,13 @@ miRegionOp(
 	    int prev_size = newReg->size;
 	    XmRegionBox *new_rects;
 
-	    new_rects = (XmRegionBox *)XtRealloc(
-		(char *)prev_rects,
-		(Cardinal)(sizeof(XmRegionBox) * newReg->numRects));
+	    if ((size_t)newReg->numRects >
+		UINT_MAX / sizeof(XmRegionBox))
+		new_rects = NULL;
+	    else
+		new_rects = (XmRegionBox *)XtRealloc(
+		    (char *)prev_rects,
+		    (Cardinal)(sizeof(XmRegionBox) * newReg->numRects));
 	    if (new_rects != NULL) {
 		newReg->rects = new_rects;
 		newReg->size = newReg->numRects;

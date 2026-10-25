@@ -642,6 +642,13 @@ XmString array-entry copy bounds (2026-10-27)
   allocation-limited strings no longer cause a wrapped allocation or partial
   array dereference.
 
+XmRegion shrink allocation-size bounds (2026-10-29)
+====================================================
+
+- Check non-empty region-shrink byte counts before narrowing them to Xt's
+  `Cardinal` allocation size; unrepresentable shrinks now retain the existing
+  storage, see `docs/region-empty-shrink-allocation.md`.
+
 XmRegion copy allocation-size bounds (2026-10-29)
 ==================================================
 

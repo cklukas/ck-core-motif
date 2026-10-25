@@ -14,5 +14,6 @@ assert "if (new_rects != NULL)" in empty_region
 assert empty_region.index("if (new_rects != NULL)") < empty_region.index("XtFree((char *)newReg->rects)")
 assert empty_region.index("XtFree((char *)newReg->rects)") < empty_region.index("newReg->rects = new_rects")
 assert "newReg->rects = (XmRegionBox *) XtMalloc" not in empty_region
+assert "UINT_MAX / sizeof(XmRegionBox)" in region
 
 print("PASS empty-region shrink preserves storage on allocation failure")
