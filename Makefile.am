@@ -828,3 +828,5 @@ EXTRA_DIST += tests/automated/check-xpm-color-input-guards.py docs/xpm-color-inp
 EXTRA_DIST += tests/automated/check-xm-install-locking.py docs/install-image-locking.md
 
 EXTRA_DIST += tests/automated/check-icon-find-slash-input.py docs/icon-find-slash-input.md
+
+EXTRA_DIST += tests/automated/check-icon-cache-directory-input.py docs/icon-cache-directory-input.md
