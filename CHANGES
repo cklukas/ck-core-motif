@@ -1,3 +1,9 @@
+Window-configuration widget move validation (2026-10-25)
+=========================================================
+
+- Validate the current icon placement and widget before moving it through Xt;
+  see `docs/winconf-widget-move-guard.md`.
+
 Window-state placement cleanup validation (2026-10-25)
 =======================================================
 
