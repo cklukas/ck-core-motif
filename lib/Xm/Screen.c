@@ -457,8 +457,10 @@ Initialize(
 			NULL, &xmScreen->screen.v_unit);
 
     xmScreen->screen.screenInfo = (XtPointer) XtNew(XmScreenInfo);
+    if (xmScreen->screen.screenInfo == NULL)
+        return;
 
-    ((XmScreenInfo *)(xmScreen->screen.screenInfo))->menu_state = 
+    ((XmScreenInfo *)(xmScreen->screen.screenInfo))->menu_state =
 		(XtPointer)NULL;
     ((XmScreenInfo *)(xmScreen->screen.screenInfo))->destroyCallbackAdded = 
 		False;
@@ -663,9 +665,13 @@ Destroy(
 
     _XmProcessLock();
     tab = (XmHashTable) xmScreen->screen.scratchPixmaps;
-    _XmMapHashTable(tab, FreePixmap, xmScreen);
-    _XmFreeHashTable(tab);
-    _XmFreeHashTable((XmHashTable) xmScreen->screen.inUsePixmaps);
+    if (tab != NULL) {
+        _XmMapHashTable(tab, FreePixmap, xmScreen);
+        _XmFreeHashTable(tab);
+    }
+    tab = (XmHashTable) xmScreen->screen.inUsePixmaps;
+    if (tab != NULL)
+        _XmFreeHashTable(tab);
     _XmProcessUnlock();
 
     XtFree((char *) xmScreen->screen.screenInfo);

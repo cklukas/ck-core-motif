@@ -1,3 +1,10 @@
+Xm screen lifecycle failure handling (2026-10-25)
+===================================================
+
+- Guard screen-info allocation and skip absent hash tables during screen
+  destruction, allowing partial initialization to unwind safely; see
+  `docs/xm-screen-lifecycle-failure.md`.
+
 Xm pixmap-data optional outputs (2026-10-25)
 ===============================================
 
