@@ -11991,3 +11991,10 @@ Font selector size-array allocation cast (2026-10-25)
 
 Font selector family-array allocation cast (2026-10-25)
 =========================================================
+Bound XmString entry-copy array widths (2026-10-26)
+===================================================
+
+- Check Xt `Cardinal` byte limits before copying segment and rendition arrays
+  in `_XmStringEntryCopy`; see `docs/xmstring-unoptimized-copy.md`.
+
+Bound List item-array compaction widths (2026-10-26)

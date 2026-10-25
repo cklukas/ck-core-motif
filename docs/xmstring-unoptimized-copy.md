@@ -10,5 +10,6 @@ allocation result.  Failure could expose source ownership to cleanup or
 leave a null array for the subsequent copy loop.
 
 The new entry clears its owned array pointers before allocation, checks each
-count in `size_t`, and releases the partially built entry on failure.  Normal
-copy ownership and representation remain unchanged.
+count against both host `size_t` and Xt's `Cardinal` byte limits, and releases
+the partially built entry on failure. Normal copy ownership and representation
+remain unchanged.

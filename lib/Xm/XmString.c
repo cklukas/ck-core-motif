@@ -6018,12 +6018,13 @@ _XmStringEntryCopy(_XmStringEntry entry)
         return NULL;
       memcpy((char *)new_entry, (char *)entry, sizeof(_XmStringArraySegRec));
 	if (segment_count > 0) {
-	if (segment_count > SIZE_MAX / sizeof(_XmStringNREntry)) {
+	if (segment_count > SIZE_MAX / sizeof(_XmStringNREntry) ||
+	    segment_count > UINT_MAX / sizeof(_XmStringNREntry)) {
 	  XtFree((char *)new_entry);
 	  return NULL;
 	}
 	arr = (_XmStringNREntry *)XtMalloc(
-	    segment_count * sizeof(_XmStringNREntry));
+	    (Cardinal)(segment_count * sizeof(_XmStringNREntry)));
 	if (arr == NULL) {
 	  XtFree((char *)new_entry);
 	  return NULL;
@@ -6070,12 +6071,13 @@ _XmStringEntryCopy(_XmStringEntry entry)
 	_XmEntryTextSet(new_entry, NULL);
       if (_XmUnoptSegRendBegins(entry)) {
 	size_t count = (size_t)_XmUnoptSegRendBeginCount(entry);
-	if (count > SIZE_MAX / sizeof(XmStringTag)) {
+	if (count > SIZE_MAX / sizeof(XmStringTag) ||
+	    count > UINT_MAX / sizeof(XmStringTag)) {
 	  _XmStringEntryFree(new_entry);
 	  return NULL;
 	}
 	_XmUnoptSegRendBegins(new_entry) =
-	  (XmStringTag *)XtMalloc(count * sizeof(XmStringTag));
+	  (XmStringTag *)XtMalloc((Cardinal)(count * sizeof(XmStringTag)));
 	if (_XmUnoptSegRendBegins(new_entry) == NULL) {
 	  _XmStringEntryFree(new_entry);
 	  return NULL;
@@ -6087,12 +6089,13 @@ _XmStringEntryCopy(_XmStringEntry entry)
 	_XmUnoptSegRendBegins(new_entry) = NULL;
       if (_XmUnoptSegRendEnds(entry)) {
 	size_t count = (size_t)_XmUnoptSegRendEndCount(entry);
-	if (count > SIZE_MAX / sizeof(XmStringTag)) {
+	if (count > SIZE_MAX / sizeof(XmStringTag) ||
+	    count > UINT_MAX / sizeof(XmStringTag)) {
 	  _XmStringEntryFree(new_entry);
 	  return NULL;
 	}
 	_XmUnoptSegRendEnds(new_entry) =
-	  (XmStringTag *)XtMalloc(count * sizeof(XmStringTag));
+	  (XmStringTag *)XtMalloc((Cardinal)(count * sizeof(XmStringTag)));
 	if (_XmUnoptSegRendEnds(new_entry) == NULL) {
 	  _XmStringEntryFree(new_entry);
 	  return NULL;
