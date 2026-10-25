@@ -230,6 +230,9 @@ _WSMClearConfigScreenInfo(Display *dpy, int screen_number)
     WSMDispInfo * disp_info = _WSMGetDispInfo(dpy);
     WSMScreenInfo *screen_info;
 
+    if (disp_info == NULL)
+	return;
+
     if (disp_info->screen_info != NULL)
       {
 	screen_info = disp_info->screen_info;

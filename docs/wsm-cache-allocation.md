@@ -7,4 +7,8 @@ missing configuration.  The cache now checks every new node, leaves the list
 unchanged on failure, emits an Xt warning, and returns `NULL` through the
 existing lookup APIs.
 
+Configuration cleanup also returns immediately when the display record is
+unavailable, so teardown after a failed cache allocation cannot dereference a
+null display entry.
+
 `tests/automated/check-wsm-cache-allocation.py` protects these failure paths.

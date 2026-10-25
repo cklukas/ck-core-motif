@@ -57,6 +57,12 @@ UTM sink failure cleanup (2026-10-25)
 - Remove and release the rejected transfer package from the UTM queue by
   identity, preserving other pending requests; see `docs/utm-sink-failure.md`.
 
+WSM cache cleanup guard (2026-10-25)
+====================================
+
+- Make configuration cleanup tolerate a missing display record after WSM cache
+  allocation failure; see `docs/wsm-cache-allocation.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 
