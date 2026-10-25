@@ -824,3 +824,5 @@ EXTRA_DIST += tests/automated/check-xm-hash-resize-linking.py docs/hash-resize-l
 EXTRA_DIST += tests/automated/check-symbolic-color-used.py docs/symbolic-color-detection.md
 
 EXTRA_DIST += tests/automated/check-xpm-color-input-guards.py docs/xpm-color-input-guards.md
+
+EXTRA_DIST += tests/automated/check-xm-install-locking.py docs/install-image-locking.md

@@ -4913,3 +4913,10 @@ Guard XPM color helper inputs (2026-10-25)
 
 - Reject missing screen, color-record and output-array inputs before XPM color
   processing dereferences them; see `docs/xpm-color-input-guards.md`.
+
+Avoid nested XmInstallImage process locking (2026-10-25)
+=========================================================
+
+- Delegate public image installation directly to its synchronized helper so
+  the same Xt process lock is not acquired twice; see
+  `docs/install-image-locking.md`.

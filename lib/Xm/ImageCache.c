@@ -401,13 +401,7 @@ XmInstallImage(
         XImage *image,
         char *image_name )
 {
-    Boolean	ret_val;
-    
-    _XmProcessLock();
-    ret_val = _XmInstallImage(image, image_name, 0, 0);
-    _XmProcessUnlock();
-
-    return ret_val;
+    return _XmInstallImage(image, image_name, 0, 0);
 }
 /* A hash table map procedure to uninstall an image. */
 
