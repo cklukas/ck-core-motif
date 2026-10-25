@@ -75,6 +75,7 @@ static void text_value(XmBadgeWidget badge, char *buffer, size_t size) {
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmBadgeWidget badge = (XmBadgeWidget)widget; char text[64];
     (void)event; (void)region; text_value(badge, text, sizeof(text));
+    if (!XtWindow(widget) || !badge->badge.foreground_gc) return;
     XClearWindow(XtDisplay(widget), XtWindow(widget));
     XDrawRectangle(XtDisplay(widget), XtWindow(widget), badge->badge.foreground_gc,
                    0, 0, badge->core.width - 1, badge->core.height - 1);
@@ -84,9 +85,17 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmBadgeWidget old = (XmBadgeWidget)old_widget, badge = (XmBadgeWidget)widget;
+    XmString replacement;
     (void)request; (void)args; (void)count;
-    if (old->badge.label != badge->badge.label)
-        badge->badge.label = copy_label(badge->badge.label);
+    if (old->badge.label != badge->badge.label) {
+        replacement = copy_label(badge->badge.label);
+        if (replacement) {
+            XmStringFree(old->badge.label);
+            badge->badge.label = replacement;
+        } else {
+            badge->badge.label = old->badge.label;
+        }
+    }
     if (badge->badge.maximum < 0) badge->badge.maximum = 0;
     if (badge->badge.count < -1) badge->badge.count = -1;
     return old->badge.label != badge->badge.label || old->badge.count != badge->badge.count ||

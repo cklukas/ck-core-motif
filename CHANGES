@@ -13405,6 +13405,12 @@ Flyout popup safety (2026-10-26)
 - Guard Flyout popup and label creation, preserve labels on replacement
   failure, and clamp oversized popups; see `docs/flyout-popup-safety.md`.
 
+Badge resource and drawing safety (2026-10-26)
+===============================================
+
+- Guard Badge drawing and preserve the owned label when replacement copying
+  fails; see `docs/badge-resource-safety.md`.
+
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================
 
