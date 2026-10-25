@@ -31,7 +31,9 @@
 
 
 #include <ctype.h>
+#include <limits.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <X11/IntrinsicP.h>
 #include <X11/ShellP.h>
 #include <Xm/ManagerP.h>
@@ -251,16 +253,43 @@ GetDefaultColors(
   
 	if (default_set == NULL)
 	{
+		XmColorData *new_set;
+		if (SIZE_MAX / sizeof(XmColorData) < 10)
+		{
+		    _XmProcessUnlock();
+		    return NULL;
+		}
+		new_set = (XmColorData *)XtMalloc(
+		    sizeof(XmColorData) * 10);
+		if (new_set == NULL)
+		{
+		    _XmProcessUnlock();
+		    return NULL;
+		}
+		default_set = new_set;
 		default_set_size = 10;
-		default_set = (XmColorData *) XtRealloc((char *) default_set, 
-			(sizeof(XmColorData) * default_set_size));
-		
 	}
 	else if (default_set_count == default_set_size)
 	{
-		default_set_size += 10;
-		default_set = (XmColorData *) XtRealloc((char *) default_set, 
-			sizeof(XmColorData) * default_set_size);
+		XmColorData *new_set;
+		int new_size;
+		if (default_set_size > INT_MAX - 10 ||
+		    SIZE_MAX / sizeof(XmColorData) <
+		    (size_t)(default_set_size + 10))
+		{
+		    _XmProcessUnlock();
+		    return NULL;
+		}
+		new_size = default_set_size + 10;
+		new_set = (XmColorData *)XtRealloc(
+		    (char *)default_set, sizeof(XmColorData) * (size_t)new_size);
+		if (new_set == NULL)
+		{
+		    _XmProcessUnlock();
+		    return NULL;
+		}
+		default_set = new_set;
+		default_set_size = new_size;
 	}
 
 	/* Find the background based on the depth of the screen */
@@ -405,9 +434,25 @@ _XmAddToColorCache(
 	_XmProcessLock();
 	if (Set_Count == Set_Size)
 	{
-		Set_Size += 10;
-		Color_Set = (XmColorData *)XtRealloc((char *) Color_Set, 
-			sizeof(XmColorData) * Set_Size);
+		XmColorData *new_set;
+		int new_size;
+		if (Set_Size > INT_MAX - 10 ||
+		    SIZE_MAX / sizeof(XmColorData) <
+		    (size_t)(Set_Size + 10))
+		{
+		    _XmProcessUnlock();
+		    return NULL;
+		}
+		new_size = Set_Size + 10;
+		new_set = (XmColorData *)XtRealloc(
+		    (char *)Color_Set, sizeof(XmColorData) * (size_t)new_size);
+		if (new_set == NULL)
+		{
+		    _XmProcessUnlock();
+		    return NULL;
+		}
+		Color_Set = new_set;
+		Set_Size = new_size;
 	}
 
 	*(Color_Set + Set_Count) = *new_rec;

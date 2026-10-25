@@ -6327,3 +6327,10 @@ Xm color API null-safety (2026-10-25)
 - Guard color lookup and default-pixel conversion against null screens,
   widgets, and output values; see `docs/xm-color-api-null.md`.
 
+Color cache growth failures (2026-10-25)
+=========================================
+
+- Make default-color and shared-color cache growth transactional and check
+  count-to-byte conversion before allocation. Allocation failure leaves the
+  existing cache usable; see `docs/color-cache-growth.md`.
+
