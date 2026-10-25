@@ -620,6 +620,9 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
     {
       argdesc = (RGMArgListDescPtr) 
 	((char *)widgetrec + widgetrec->arglist_offs) ;
+	if (argdesc->count > RGMListSizeMax ||
+	    argdesc->extra > RGMListSizeMax)
+	  return MrmFAILURE;
       if ((size_t)argdesc->count > SIZE_MAX - (size_t)num_listent ||
 	  (size_t)argdesc->extra >
 	      SIZE_MAX - (size_t)num_listent - (size_t)argdesc->count)
@@ -949,6 +952,9 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
     {
       argdesc = (RGMArgListDescPtr) 
 	((char *)widgetrec + widgetrec->arglist_offs) ;
+	if (argdesc->count > RGMListSizeMax ||
+	    argdesc->extra > RGMListSizeMax)
+	  return MrmFAILURE;
       if ((size_t)argdesc->count > SIZE_MAX - (size_t)num_listent ||
 	  (size_t)argdesc->extra >
 	      SIZE_MAX - (size_t)num_listent - (size_t)argdesc->count)
