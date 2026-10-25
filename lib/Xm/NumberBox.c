@@ -157,14 +157,17 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     format_value(number);
     values.foreground = number->primitive.foreground;
     values.background = number->core.background_pixel;
+    number->number_box.font = XLoadQueryFont(display, "fixed");
+    if (number->number_box.font)
+        values.font = number->number_box.font->fid;
     number->number_box.text_gc = XCreateGC(display, DefaultRootWindow(display),
-                                           mask, &values);
+                                           mask | (number->number_box.font ? GCFont : 0), &values);
     values.foreground = number->primitive.foreground;
     number->number_box.arrow_gc = XCreateGC(display, DefaultRootWindow(display),
-                                            mask, &values);
+                                            mask | (number->number_box.font ? GCFont : 0), &values);
     values.foreground = number->primitive.bottom_shadow_color;
     number->number_box.invalid_gc = XCreateGC(display, DefaultRootWindow(display),
-                                              mask, &values);
+                                              mask | (number->number_box.font ? GCFont : 0), &values);
     if (!number->core.width) number->core.width = 140;
     if (!number->core.height) number->core.height = 32;
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events,
@@ -179,6 +182,7 @@ static void Destroy(Widget widget) {
     if (number->number_box.text_gc) XFreeGC(display, number->number_box.text_gc);
     if (number->number_box.arrow_gc) XFreeGC(display, number->number_box.arrow_gc);
     if (number->number_box.invalid_gc) XFreeGC(display, number->number_box.invalid_gc);
+    if (number->number_box.font) XFreeFont(display, number->number_box.font);
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {

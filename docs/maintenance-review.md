@@ -129,3 +129,11 @@ preferred geometry and drawing.  The focused check is:
 ```sh
 python3 tests/automated/check-chip-text-metrics.py
 ```
+
+NumberBox now installs a `fixed` fallback font on every text-related GC and
+releases it during destruction, preventing a blank value when a display's
+default GC font is unset.  The focused check is:
+
+```sh
+python3 tests/automated/check-numberbox-font-fallback.py
+```
