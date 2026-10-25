@@ -122,6 +122,7 @@ EXTRA_DIST += tests/automated/check-font-pattern-bounds.py docs/font-pattern-bou
 EXTRA_DIST += tests/automated/check-menu-stream-bounds.py docs/menu-stream-bounds.md
 EXTRA_DIST += tests/automated/check-mwm-protocol-oom.py docs/mwm-protocol-oom.md
 EXTRA_DIST += tests/automated/check-mwm-virtual-key-atom-allocation.py docs/mwm-virtual-key-atom-allocation.md
+EXTRA_DIST += tests/automated/check-mwm-invoke-message-allocation.py docs/mwm-invoke-message-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-multiscreen-selection.py docs/mwm-multiscreen-selection.md
 EXTRA_DIST += tests/automated/check-mwm-fscreen-default.py docs/mwm-fscreen-default.md
 EXTRA_DIST += tests/automated/check-mwm-icon-resource-bounds.py docs/mwm-icon-resource-bounds.md

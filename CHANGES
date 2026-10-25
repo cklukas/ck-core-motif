@@ -1,3 +1,10 @@
+MWM invoke-message allocation guard (2026-10-28)
+==================================================
+
+- Return cleanly when the workspace-management invoke-message buffer cannot
+  be allocated, avoiding writes through NULL while preserving the existing
+  message format; see `docs/mwm-invoke-message-allocation.md`.
+
 MWM virtual-key atom allocation guard (2026-10-28)
 ====================================================
 

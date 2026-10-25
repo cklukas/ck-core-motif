@@ -1078,6 +1078,8 @@ SendInvokeMessage (
 
   size = (unsigned long)(sizeof(CARD32) + sizeof(CARD32));
   msg = fulldata = (MessageData)XtMalloc(sizeof(CARD8) * size);
+  if (fulldata == NULL)
+	return;
   msg = PackCARD32(msg, commandID);
   msg = PackCARD32(msg, clientWindow);
 
