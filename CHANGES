@@ -8318,3 +8318,10 @@ PrintS child descriptor allocation (2026-10-27)
 
 - Check the child print descriptor and copied file name before display setup,
   release partial state, and exit the child cleanly on allocation failure.
+
+IconG hook allocation (2026-10-27)
+==================================
+
+- Check IconG secondary-object, set-values, and get-values hook allocations,
+  release partial objects, and make get-values cleanup tolerate missing
+  extension data.

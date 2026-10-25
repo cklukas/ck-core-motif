@@ -894,6 +894,14 @@ SecondaryObjectCreate(
   newSec = _XmExtObjAlloc(size);
   reqSec = _XmExtObjAlloc(size);
 
+  if (newSec == NULL || reqSec == NULL) {
+    if (newSec != NULL)
+      _XmExtObjFree(newSec);
+    if (reqSec != NULL)
+      _XmExtObjFree(reqSec);
+    return;
+  }
+
   
 /*
  *  Update pointers in instance records now so references to resources
@@ -914,6 +922,11 @@ SecondaryObjectCreate(
                     args, *num_args );
 
   extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+  if (extData == NULL) {
+    _XmExtObjFree(newSec);
+    _XmExtObjFree(reqSec);
+    return;
+  }
   extData->widget = (Widget)newSec;
   extData->reqWidget = (Widget)reqSec;
 
@@ -999,6 +1012,14 @@ SetValuesPrehook(
     reqSec = (XmIconGCacheObject)_XmExtObjAlloc(size);
     _XmProcessUnlock();
 
+    if (newSec == NULL || reqSec == NULL) {
+        if (newSec != NULL)
+            _XmExtObjFree((XtPointer)newSec);
+        if (reqSec != NULL)
+            _XmExtObjFree((XtPointer)reqSec);
+        return FALSE;
+    }
+
     newSec->object.self = (Widget)newSec;
     newSec->object.widget_class = ec;
     newSec->object.parent = XtParent(newParent);
@@ -1015,6 +1036,11 @@ SetValuesPrehook(
             sizeof(XmIconGCacheObjPart));
 
     extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+    if (extData == NULL) {
+        _XmExtObjFree((XtPointer)newSec);
+        _XmExtObjFree((XtPointer)reqSec);
+        return FALSE;
+    }
     extData->widget = (Widget)newSec;
     extData->reqWidget = (Widget)reqSec;
     _XmPushWidgetExtData(newParent, extData, XmCACHE_EXTENSION);
@@ -1062,6 +1088,9 @@ GetValuesPrehook(
     newSec = (XmIconGCacheObject)_XmExtObjAlloc(size);
     _XmProcessUnlock();
 
+    if (newSec == NULL)
+        return;
+
     newSec->object.self = (Widget)newSec;
     newSec->object.widget_class = ec;
     newSec->object.parent = XtParent(newParent);
@@ -1078,6 +1107,10 @@ GetValuesPrehook(
             sizeof(XmIconGCacheObjPart));
 
     extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+    if (extData == NULL) {
+        _XmExtObjFree((XtPointer)newSec);
+        return;
+    }
     extData->widget = (Widget)newSec;
     _XmPushWidgetExtData(newParent, extData, XmCACHE_EXTENSION);
 
@@ -1104,6 +1137,9 @@ GetValuesPosthook(
     XmWidgetExtData ext;
 
     _XmPopWidgetExtData(new_w, &ext, XmCACHE_EXTENSION);
+
+    if (ext == NULL)
+        return;
 
     _XmProcessLock();
     _XmExtObjFree((XtPointer) ext->widget);
