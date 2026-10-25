@@ -1,3 +1,10 @@
+ClipWindow RTL resize geometry bounds (2026-10-25)
+==================================================
+
+- Use signed arithmetic and clamp child positions during right-to-left
+  resize, preventing wrapped coordinates for clipped children; see
+  `docs/clipwindow-resize-geometry.md`.
+
 ColorSelector layout geometry bounds (2026-10-25)
 =================================================
 

@@ -474,10 +474,15 @@ Resize(
 	    if (XtIsManaged(child)) { 
 		/* we want the distance from the x of the child to the
 		   width of the clipwindow to remain constant */
-		Dimension d ;
-		d = cw->clip_window.old_width - child->core.x ;
+		int d, new_x ;
+		d = (int)cw->clip_window.old_width - (int)child->core.x ;
+		new_x = (int)cw->core.width - d ;
+		if (new_x < INT16_MIN)
+		    new_x = INT16_MIN;
+		else if (new_x > INT16_MAX)
+		    new_x = INT16_MAX;
 		XmeConfigureObject(child, 
-				   cw->core.width  - d,
+				   (Position)new_x,
 				   child->core.y,
 				   child->core.width, 
 				   child->core.height,
