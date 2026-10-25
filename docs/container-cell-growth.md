@@ -1,7 +1,8 @@
 # Container cell-array growth
 
 When a Container changes only its minor layout dimension, the cell array is
-grown in place. Growth now checks the cell-count arithmetic and uses a
+grown in place. Growth now checks the cell-count arithmetic against host
+`size_t` and Xt's `Cardinal` limits and uses a
 temporary pointer for `XtRealloc`; allocation failure leaves the existing cell
 array and count intact, so the next layout pass can retry safely.
 

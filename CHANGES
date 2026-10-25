@@ -6467,3 +6467,10 @@ TabBox geometry reallocation casts (2026-10-25)
   `Cardinal` values during TabBox growth; see
   `docs/tabbox-geometry-allocation.md`.
 
+Container cell-grid Xt allocation width (2026-10-25)
+======================================================
+
+- Bound Container cell-grid growth against Xt's `Cardinal` byte limit and
+  pass the checked size explicitly to `XtRealloc`; see
+  `docs/container-cell-growth.md`.
+
