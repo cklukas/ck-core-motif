@@ -1,4 +1,9 @@
 2026-10-25
+	* Extend the installed Orca journey assertions to cover native list/list-item
+	  and menu/menu-item announcements, while retaining the broader desktop and
+	  application-shell limits; see docs/accessibility-journey-matrix.md.
+
+2026-10-25
 	* Qualify the bounded native Orca/Speech Dispatcher/eSpeak journey from a
 	  fresh AT-SPI, Xft and Unicode-text installed prefix; align the observer's
 	  runtime identity check with the public libXm.so.8 ABI and record the

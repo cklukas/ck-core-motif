@@ -221,10 +221,10 @@ finally:
  record['utterances']=[line for line in debug.splitlines() if 'SPEECH OUTPUT:' in line or 'SPEECH DISPATCHER: Speaking' in line]
  record['errors']=[line for line in debug.splitlines() if any(x in line for x in ('Traceback','ERROR:','CRITICAL','Exception'))]
  outputs=[line.split('SPEECH OUTPUT:',1)[1] for line in record['utterances'] if 'SPEECH OUTPUT:' in line]
- expected=['Apply changes button','Show grid check box','checked','Document title text','Quarterly notes','Read only status read only text','Ready','Document editor text','Hello é 中 🙂','selected','expanded','collapsed','Zoom level horizontal scroll bar']
+ expected=['Apply changes button','Show grid check box','checked','Document title text','Quarterly notes','Read only status read only text','Ready','Document editor text','Hello é 中 🙂','selected','Document choices List with 3 items','Alpha.','Beta.','fileMenu menu','Open document.','expanded','collapsed','Zoom level horizontal scroll bar']
  record['required_utterances']={phrase:any(phrase in line for line in outputs) for phrase in expected}
  record['synthesis_connected']=any('SPEECH DISPATCHER: Speaking' in line for line in record['utterances'])
- record['unaccepted_scope']=['native list item semantics','native menu item semantics','precise TextChanged insertion/deletion echo','character geometry','human screen-reader usability','application integration']
+ record['unaccepted_scope']=['complete List/Menu semantics across desktop/application shells','precise TextChanged insertion/deletion echo','character geometry','human screen-reader usability','application integration']
 
  pcm=root/'speech.raw'
  record.update(ended_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),seconds=time.monotonic()-began,pcm_bytes=pcm.stat().st_size if pcm.exists() else 0,pcm_sha256=hashlib.sha256(pcm.read_bytes()).hexdigest() if pcm.exists() else None,process_exits=[{'pid':p.pid,'exit':p.poll()} for p in processes])

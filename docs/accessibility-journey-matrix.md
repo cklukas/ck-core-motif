@@ -5,8 +5,8 @@ technology behavior. A provider fixture is not a screen-reader pass by itself.
 
 | Surface | Native/provider evidence | Real-client status | Open boundary |
 | --- | --- | --- | --- |
-| MenuBar, PulldownMenu, PopupMenu | Roles, names, expansion and activation fixtures pass on AArch64 | Bounded Orca path includes F10/open/dismiss | Complete menu navigation and item announcements across desktop WMs and application shells. |
-| List and ListItem | Identity, names, selection, stale-target refusal, actions and reentrancy pass | Protocol client coverage | Keyboard/Orca selection journey and complete list semantics. |
+| MenuBar, PulldownMenu, PopupMenu | Roles, names, expansion and activation fixtures pass on AArch64 | Bounded Orca path announces menu and item during F10/open/dismiss | Complete menu navigation and item announcements across desktop WMs and application shells. |
+| List and ListItem | Identity, names, selection, stale-target refusal, actions and reentrancy pass | Bounded Orca journey announces the list and selected items | Complete list semantics across desktop WMs and application shells. |
 | Text and TextField | UTF-8 value, caret, selection, preedit and exact text-event fixtures pass | Focused native text observer | Actual screen-reader echo and complete editing notifications. |
 | Dialog and modality | Modal admission, focus/value/selection refusal, nested and destruction cases pass | Native input journey | Application-specific dialog announcements and WM behavior. |
 | Disclosure | Role, expanded state, action and destruction fixtures pass | Focused provider journey | Broad assistive-client interaction. |
@@ -25,18 +25,20 @@ The bounded native-chrome journey was rerun from a fresh installed prefix on
 the AArch64 `uconsole` host with `--enable-atspi --enable-xft
 --enable-unicode-text`.  The observer compiled `native_controls.c` against
 that prefix and verified the fixture process mapped exactly its
-`libXm.so.8.0.0`.  The 37.12-second receipt reports 23 AT-SPI cache objects,
-nine direct text/selection protocol calls, all required native utterances for
-buttons, toggles, text fields, disclosure and the horizontal scrollbar, and
-2,484,000 bytes of synthesized eSpeak PCM.  Orca, Speech Dispatcher, the
-fixture and Openbox all exited cleanly, and the receipt contains the executable
-and library SHA-256 fingerprints.
+`libXm.so.8.0.0`.  The 36.06-second receipt reports 23 AT-SPI cache objects,
+nine direct text/selection protocol calls, and all required native utterances
+for buttons, toggles, text fields, list/list-items, menu/menu-items,
+disclosure and the horizontal scrollbar.  It produced 2,414,994 bytes of
+synthesized eSpeak PCM.  Orca, Speech Dispatcher, the fixture and Openbox all
+exited cleanly, and the receipt contains the executable and library SHA-256
+fingerprints.
 
 This qualifies the selected native-control journey and transport lifetime on
-that installed AArch64 configuration.  It does not promote List/Menu item
-semantics, precise edit-event echo, candidate panels, a complete application,
-human usability, x86_64, other screen readers/desktops or sanitizer ownership
-to supported scope.
+that installed AArch64 configuration, including bounded list-item and menu-item
+announcements.  It does not promote complete List/Menu semantics across
+desktop/application shells, precise edit-event echo, candidate panels, a
+complete application, human usability, x86_64, other screen readers/desktops
+or sanitizer ownership to supported scope.
 
 When extending this matrix, add a native regression for a toolkit defect first,
 then rerun the actual client journey. If a service or screen-reader is absent,
