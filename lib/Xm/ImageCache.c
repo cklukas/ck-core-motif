@@ -893,7 +893,7 @@ GetImage(
 {
     static XImage  * built_in_image = NULL;
 
-    if (image == NULL)
+    if (screen == NULL || image == NULL)
         return FALSE;
     *image = NULL;
     register Display *display = DisplayOfScreen(screen);
