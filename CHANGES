@@ -244,6 +244,8 @@ Render-table locking (2026-10-26)
   `docs/render-rendition-font-name-update.md`.
 - Skip null-tag entries during render-table lookup and removal instead of
   passing them to `strcmp`; see `docs/render-table-null-entry-tag.md`.
+- Roll back shared-rendition copy-on-write state when `XmRenditionUpdate`
+  cannot allocate a private body; see `docs/render-rendition-update-renewal.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================

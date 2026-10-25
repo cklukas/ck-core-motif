@@ -2837,7 +2837,13 @@ XmRenditionUpdate(XmRendition rendition,
   if (_XmRendRefcount(rendition) > 1)
     {
       _XmRendRefcountDec(rendition);
-      RenewRendition(rendition);
+      if (RenewRendition(rendition) == NULL)
+	{
+	  /* Keep the shared body attached to this handle when copy-on-write
+	   * cannot allocate a private rendition. */
+	  _XmRendRefcountInc(rendition);
+	  goto update_done;
+	}
       can_free = FALSE;
     }
       
@@ -2935,6 +2941,7 @@ XmRenditionUpdate(XmRendition rendition,
   ValidateTag(rendition, oldtag);
   
   ValidateAndLoadFont(rendition, display);
+update_done:
 #ifdef XTHREADS
   if (app) {
      _XmAppUnlock(app);
