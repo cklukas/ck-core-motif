@@ -220,7 +220,9 @@ CompareStrings (XmHashKey key_1,
   char *data_1 = (char *) key_1;
   char *data_2 = (char *) key_2;
 
-  return ((data_1 == data_2) || (strcmp(data_1, data_2) == 0));
+  return ((data_1 == data_2) ||
+          (data_1 != NULL && data_2 != NULL &&
+           strcmp(data_1, data_2) == 0));
 }
 
 
@@ -229,8 +231,11 @@ static XmHashValue
 HashString (XmHashKey key)
 {
   char *data = (char *) key;
-  unsigned int len = strlen(data);
+  unsigned int len;
 
+  if (data == NULL)
+    return 0;
+  len = strlen(data);
   return (((len << 8) | data[0]) << 8) | data[len];
 }
 
@@ -1095,7 +1100,7 @@ _XmInImageCache(
 {
     XtPointer	ret_val;
 
-    if (!image_set) return False ;
+    if (image_name == NULL || !image_set) return False ;
     _XmProcessLock();
     ret_val = _XmGetHashEntry(image_set, image_name);
     _XmProcessUnlock();

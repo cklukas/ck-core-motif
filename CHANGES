@@ -311,6 +311,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  see docs/xm-pixmap-compare-null.md.
 
 2026-10-25
+	* Reject null Xm image names before cache lookup and make string hash helpers
+	  null-safe; see docs/xm-image-cache-string-null.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,

@@ -661,5 +661,7 @@ EXTRA_DIST += tests/automated/check-xm-clean-pixmap-cache-null.py docs/xm-clean-
 EXTRA_DIST += tests/automated/check-xm-scaled-pixmap-table-null.py docs/xm-scaled-pixmap-table-null.md
 
 EXTRA_DIST += tests/automated/check-xm-pixmap-compare-null.py docs/xm-pixmap-compare-null.md
+
+EXTRA_DIST += tests/automated/check-xm-image-cache-string-null.py docs/xm-image-cache-string-null.md
 EXTRA_DIST += tests/automated/check-mrm-hget-output-pointer.py docs/mrm-hget-output-pointer.md
 EXTRA_DIST += tests/automated/check-mrm-hierarchy-name-inputs.py docs/mrm-hierarchy-name-inputs.md
