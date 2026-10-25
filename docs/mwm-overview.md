@@ -28,6 +28,10 @@ clients exchanging Motif window-management messages.
 
 - [Graphics-list allocation](mwm-graphics-list-allocation.md)
 
+## Client workspace state
+
+- [Client workspace-list allocation](mwm-client-workspace-list-allocation.md)
+
 ## Workspace and persistence data
 
 - [Workspace-list serialization](mwm-workspace-list-serialization.md)

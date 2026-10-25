@@ -611,8 +611,14 @@ int i;
      * Allocate initial workspace ID list 
      * fill with NULL IDs
      */
+    if (pCD->pSD == NULL || pCD->pSD->numWorkspaces < 0 ||
+	(size_t)pCD->pSD->numWorkspaces > UINT_MAX / sizeof(WsClientData))
+    {
+	Warning (((char *)GETMESSAGE(70, 2, "Insufficient memory for client data")));
+	return (NULL);
+    }
     if ((pCD->pWsList = (WsClientData *) 
-	    XtMalloc(pCD->pSD->numWorkspaces * sizeof(WsClientData))) == NULL)
+	    XtMalloc((Cardinal)((size_t)pCD->pSD->numWorkspaces * sizeof(WsClientData)))) == NULL)
     {
 	Warning (((char *)GETMESSAGE(70, 2, "Insufficient memory for client data")));
 	return (NULL);

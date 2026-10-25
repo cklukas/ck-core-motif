@@ -11490,6 +11490,12 @@ MWM rectangle-list allocation bounds (2026-10-25)
 - Reject rectangle-list sizes that overflow the signed count fields or Xt
   allocation width; see `docs/mwm-graphics-list-allocation.md`.
 
+MWM client workspace-list allocation (2026-10-25)
+==================================================
+
+- Check per-client workspace-list counts before allocation; see
+  `docs/mwm-client-workspace-list-allocation.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 
