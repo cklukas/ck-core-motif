@@ -291,6 +291,8 @@ Render-table locking (2026-10-26)
 - Make unmatched-component failure abort `XmStringParseText` instead of
   retrying the same input indefinitely; see
   `docs/xmstring-parse-unmatched-failure.md`.
+- Validate `XmStringToXmStringTable` input and roll back partial output on
+  copy/slice failure; see `docs/xmstring-table-conversion.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================

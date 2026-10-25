@@ -690,6 +690,11 @@ XmStringToXmStringTable(XmString string,
   unsigned int		len, b_len;
   XtPointer		val, b_val;
   size_t		i, count;
+
+  if (table != NULL)
+    *table = NULL;
+  if (string == NULL)
+    return(0);
   
   /* Get triple for first component of break_component */
   if (break_component)
@@ -709,16 +714,16 @@ XmStringToXmStringTable(XmString string,
 	    return(0);
 	  }
 	  (*table)[0] = XmStringCopy(string);
+	  if ((*table)[0] == NULL) {
+	    XtFree((char *)*table);
+	    *table = NULL;
+	    return(0);
+	  }
 	}
       return(1);
     }
 
   /* Get context */
-  if (!string)
-    {
-      if (table != NULL) *table = NULL;
-      return(0);
-    }
   _XmStringContextReInit(&stack_context, string);
   
   /* Count number of entries for table */
@@ -767,6 +772,15 @@ XmStringToXmStringTable(XmString string,
 	    {
 	      /* make XmString from start to end */
 	      (*table)[i] = MakeStr(&stack_start, &stack_context);
+	      if ((*table)[i] == NULL) {
+		while (i > 0)
+		  XmStringFree((*table)[--i]);
+		XtFree((char *)*table);
+		*table = NULL;
+		_XmStringContextFree(&stack_context);
+		_XmStringContextFree(&stack_start);
+		return(0);
+	      }
 	      i++;
 	    }
 	} 
