@@ -1662,6 +1662,8 @@ _XmHeapAlloc(
 {
     register char* heap_loc;
     if (heap == NULL) return XtMalloc(bytes);
+    if (heap->segment_size <= (int)sizeof(char*))
+	return NULL;
     if (heap->bytes_remaining < bytes) {
 	if (bytes > UINT_MAX - sizeof(char*))
 	    return NULL;
