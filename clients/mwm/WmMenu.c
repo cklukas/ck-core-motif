@@ -2135,8 +2135,9 @@ static void SearchForOtherMatches (WmScreenData *pSD, ClientData *pCD,
 		    command_length = (command_string == NULL) ?
 			snprintf(NULL, 0, "<%s>", tree->name) :
 			snprintf(NULL, 0, "%s.<%s>", command_string, tree->name);
-		    new_command_str = (command_length >= 0) ?
-			(char *)XtMalloc((unsigned int)command_length + 1) : NULL;
+		    new_command_str = (command_length >= 0 &&
+				       (unsigned int)command_length < UINT_MAX) ?
+			(char *)XtMalloc((Cardinal)command_length + 1) : NULL;
 		    if (new_command_str == NULL)
 			continue;
 		    if (command_string == NULL)
@@ -2159,8 +2160,9 @@ static void SearchForOtherMatches (WmScreenData *pSD, ClientData *pCD,
 			                             pCD->client, selection);
 			inLine_function = F_InvokeCommand;
 		    }
-		    new_funcargs = (funcargs_length >= 0) ?
-			(char *)XtMalloc((unsigned int)funcargs_length + 1) : NULL;
+		    new_funcargs = (funcargs_length >= 0 &&
+				    (unsigned int)funcargs_length < UINT_MAX) ?
+			(char *)XtMalloc((Cardinal)funcargs_length + 1) : NULL;
 		    if (new_funcargs == NULL)
 		    {
 			XtFree(new_command_str);
