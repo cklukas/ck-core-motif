@@ -221,6 +221,9 @@ XmFontListEntryGetTag(
   n = 0;
   XtSetArg(args[n], XmNtag, &tag); n++;
   XmRenditionRetrieve(entry, args, n);
+
+  if (tag == NULL)
+	return (NULL);
   
   ret_val = XtNewString(tag);
 
@@ -701,6 +704,10 @@ XmFontListGetNextFont(
   XtSetArg(args[n], XmNtag, &tag); n++;
   XmRenditionRetrieve(retained, args, n);
 
+  if (tag == NULL) {
+    XmRenditionFree(retained);
+    return (FALSE);
+  }
   *charset = XtNewString(tag);
   if (*charset == NULL) {
     XmRenditionFree(retained);

@@ -248,6 +248,8 @@ Render-table locking (2026-10-26)
   cannot allocate a private body; see `docs/render-rendition-update-renewal.md`.
 - Validate all inputs to `XmRenderTableCvtToProp` before entering its
   serialization path; see `docs/render-table-export-inputs.md`.
+- Make font-list tag helpers handle a null rendition tag without dereferencing
+  it; see `docs/xmfontlist-null-tag.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================
