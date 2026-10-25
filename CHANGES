@@ -11015,3 +11015,10 @@ MWM executable identity basename (2026-10-25)
 
 - Copy the executable basename after the final slash when selecting MWM versus
   dtwm identity; see `docs/mwm-identity-basename.md`.
+
+MWM builtin binding buffer size (2026-10-25)
+============================================
+
+- Check root-menu substitution sizes for builtin key and button bindings before
+  Xt allocation, falling back safely when unrepresentable; see
+  `docs/mwm-binding-buffer-size.md`.

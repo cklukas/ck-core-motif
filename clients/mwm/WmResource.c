@@ -45,6 +45,7 @@ static char rcsid[] = "$TOG: WmResource.c /main/14 1997/04/15 10:30:02 dbl $"
 #include "WmIBitmap.h"
 
 #include <stdio.h>
+#include <stdint.h>
 
 #include <Xm/XmP.h>
 #include <Xm/RowColumn.h>
@@ -6366,10 +6367,22 @@ WmScreenData *pSD;
 
         char *buffer;
 	const char *root_menu;
+	size_t formatLength;
+	size_t rootLength;
+	size_t bufferLength;
 
 	root_menu = pSD->rootMenu ? pSD->rootMenu : "DefaultRootMenu";
-	buffer = (char *) XtMalloc(strlen(builtinKeyBindings) +
-				   strlen(root_menu) + 1);
+	formatLength = strlen(builtinKeyBindings);
+	rootLength = strlen(root_menu);
+	if (rootLength > SIZE_MAX - formatLength - 1 ||
+	    formatLength + rootLength + 1 > UINT_MAX)
+	{
+	    Warning("Root menu name is too long for builtin key bindings");
+	    root_menu = "DefaultRootMenu";
+	    rootLength = strlen(root_menu);
+	}
+	bufferLength = formatLength + rootLength + 1;
+	buffer = (char *) XtMalloc((Cardinal)bufferLength);
 	if (buffer == NULL)
 	{
 	    Warning("Insufficient memory for builtin key bindings");
@@ -6426,10 +6439,22 @@ WmScreenData *pSD;
 
         char *buffer;
 	const char *root_menu;
+	size_t formatLength;
+	size_t rootLength;
+	size_t bufferLength;
 
 	root_menu = pSD->rootMenu ? pSD->rootMenu : "DefaultRootMenu";
-	buffer = (char *) XtMalloc(strlen(builtinButtonBindings) +
-				   strlen(root_menu) + 1);
+	formatLength = strlen(builtinButtonBindings);
+	rootLength = strlen(root_menu);
+	if (rootLength > SIZE_MAX - formatLength - 1 ||
+	    formatLength + rootLength + 1 > UINT_MAX)
+	{
+	    Warning("Root menu name is too long for builtin button bindings");
+	    root_menu = "DefaultRootMenu";
+	    rootLength = strlen(root_menu);
+	}
+	bufferLength = formatLength + rootLength + 1;
+	buffer = (char *) XtMalloc((Cardinal)bufferLength);
 	if (buffer == NULL)
 	{
 	    Warning("Insufficient memory for builtin button bindings");
