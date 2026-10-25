@@ -5156,3 +5156,11 @@ Atom-list converter allocation guards (2026-10-25)
   name-list storage on failure; see `docs/atom-list-converter-allocation.md`.
 
 Cardinal-list converter allocation guards (2026-10-25)
+Default font-list cache allocation guard (2026-10-25)
+======================================================
+
+- Make per-display font-list cache growth transactional, returning `NULL`
+  without changing capacity when allocation fails; see
+  `docs/default-font-cache-allocation.md`.
+
+Atom-list converter allocation guards (2026-10-25)

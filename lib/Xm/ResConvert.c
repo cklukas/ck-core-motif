@@ -1881,25 +1881,34 @@ static XmFontList DefaultSystemFontList(Display *display, XmFontList fontlist)
 	if (nsFontLists >= maxnsFontLists)
 	{
 	    Cardinal nbytes;
+	    int new_maxns_font_lists;
+	    SystemFontList *new_font_lists;
 
 	    if (maxnsFontLists > INT_MAX - 8 ||
 		(size_t)(maxnsFontLists + 8) >
 		    UINT_MAX / sizeof(SystemFontList))
 		return NULL;
-	    maxnsFontLists += 8;
-	    nbytes = (Cardinal) sizeof(SystemFontList)*maxnsFontLists;
+	    new_maxns_font_lists = maxnsFontLists + 8;
+	    nbytes = (Cardinal) sizeof(SystemFontList)*new_maxns_font_lists;
 	    if (NULL == sFontLists)
 	    {
-	        sFontLists = (SystemFontList*) XtMalloc(nbytes);
-		memset((void*) sFontLists, 0, nbytes);
+	        new_font_lists = (SystemFontList*) XtMalloc(nbytes);
+		if (new_font_lists == NULL)
+		    return NULL;
+		memset((void*) new_font_lists, 0, nbytes);
 	    }
 	    else
 	    {
-	        sFontLists =
+	        new_font_lists =
 		  (SystemFontList*) XtRealloc((char*) sFontLists, nbytes);
-		memset((void*) &sFontLists[nsFontLists], 0,
-                       sizeof(SystemFontList) * (maxnsFontLists - nsFontLists));
+		if (new_font_lists == NULL)
+		    return NULL;
+		memset((void*) &new_font_lists[nsFontLists], 0,
+		       sizeof(SystemFontList) *
+		       (new_maxns_font_lists - nsFontLists));
 	    }
+	    sFontLists = new_font_lists;
+	    maxnsFontLists = new_maxns_font_lists;
 	}
         /* Capacity growth and insertion are independent: another display
          * normally arrives while this array still has spare capacity. */
