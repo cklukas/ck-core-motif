@@ -616,5 +616,6 @@ EXTRA_DIST += tests/automated/check-mrm-open-write-output.py docs/mrm-open-write
 EXTRA_DIST += tests/automated/check-mrm-writer-context-validation.py docs/mrm-writer-context-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-lookup-errors.py docs/mrm-writer-lookup-errors.md
 EXTRA_DIST += tests/automated/check-mrm-data-context-null.py docs/mrm-data-context-null.md
+EXTRA_DIST += tests/automated/check-mrm-validation-macros.py docs/mrm-validation-macros.md
 EXTRA_DIST += tests/automated/check-mrm-hget-output-pointer.py docs/mrm-hget-output-pointer.md
 EXTRA_DIST += tests/automated/check-mrm-hierarchy-name-inputs.py docs/mrm-hierarchy-name-inputs.md
