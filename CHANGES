@@ -5546,6 +5546,13 @@ Cached icon-path joining bounds (2026-10-25)
   size, and skip an unavailable cache entry safely; see
   `docs/icon-file-bounds.md`.
 
+Sized icon-name Xt width (2026-10-25)
+=====================================
+
+- Reject sized icon-name buffers that cannot be represented by Xt's
+  `Cardinal` allocation interface before calling `XtMalloc`; see
+  `docs/icon-file-bounds.md`.
+
 Sized icon-name construction bounds (2026-10-25)
 =================================================
 

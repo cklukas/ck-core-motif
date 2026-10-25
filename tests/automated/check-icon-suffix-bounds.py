@@ -9,6 +9,9 @@ end = text.index("\n       /*\n        * try to see if its already", start)
 region = text[start:end]
 assert "size_t basenameLen" in region
 assert "size_t sizeLen" in region
+assert "size_t extLen" in region
 assert "sizeLen > SIZE_MAX - basenameLen - 1" in region
+assert "extLen > UINT_MAX" in region
+assert "XtMalloc((Cardinal)extLen)" in region
 assert "if (ext_name == NULL)" in region
 print("sized icon-name construction bounds lengths and allocation")

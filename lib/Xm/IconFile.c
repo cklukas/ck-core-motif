@@ -738,13 +738,19 @@ XmGetIconFileName(
         if (size != XmUNSPECIFIED_ICON_SIZE) {
            size_t basenameLen = strlen(names[i]);
            size_t sizeLen = strlen(iconSubs[M_SUB].substitution);
+           size_t extLen;
            char *ext_name;
 
            if (sizeLen > SIZE_MAX - basenameLen - 1) {
                names_w_size[i] = NULL;
                continue;
            }
-           ext_name = XtMalloc(basenameLen + sizeLen + 1);
+           extLen = basenameLen + sizeLen + 1;
+           if (extLen > UINT_MAX) {
+               names_w_size[i] = NULL;
+               continue;
+           }
+           ext_name = XtMalloc((Cardinal)extLen);
            if (ext_name == NULL) {
                names_w_size[i] = NULL;
                continue;
