@@ -9,8 +9,10 @@ jobs:
     steps:
       - name: Build current gallery and refresh screenshots
         script: |
-          work="$TMPDIR/motif-gallery-build-$PPID"
+          run_id="$(git rev-parse HEAD)"
+          work="$TMPDIR/motif-gallery-build-$run_id"
           prefix="$work/prefix"
+          rm -rf "$work" "$TMPDIR/motif-gallery-capture-$run_id"
           mkdir -p "$work/build" "$prefix"
           source="$PWD"
           (cd "$work/build" && "$source/configure" --prefix="$prefix" \
@@ -18,7 +20,7 @@ jobs:
             > "$work/configure.log" 2>&1
           make -C "$work/build" -j2 > "$work/build.log" 2>&1
           make -C "$work/build" install > "$work/install.log" 2>&1
-          capture="$TMPDIR/motif-gallery-capture-$PPID"
+          capture="$TMPDIR/motif-gallery-capture-$run_id"
           xvfb-run -a -s "-screen 0 1600x1000x24" env \
             LD_LIBRARY_PATH="$prefix/lib" \
             python3 scripts/refresh-gallery-screenshots.py \
@@ -27,15 +29,16 @@ jobs:
         script: |
           test -n "$TMPDIR"
           test -n "$CKGIT_SISTER_CK_GIT_HOSTING"
-          rm -rf public
+          run_id="$(git rev-parse HEAD)"
+          rm -rf "$TMPDIR/motif-docs-$run_id" public
           python3 scripts/build-docs.py \
             --tool-source "$CKGIT_SISTER_CK_GIT_HOSTING" \
-            --work "$TMPDIR/motif-docs-$PPID" \
+            --work "$TMPDIR/motif-docs-$run_id" \
             --out "$PWD/public" \
             --site-url http://rpi4:8421/ck-core-motif/
           mkdir -p docs-evidence
-          cp "$TMPDIR/motif-docs-$PPID/receipt.json" docs-evidence/receipt.json
-          cp "$TMPDIR/motif-gallery-capture-$PPID/capture/receipt.json" \
+          cp "$TMPDIR/motif-docs-$run_id/receipt.json" docs-evidence/receipt.json
+          cp "$TMPDIR/motif-gallery-capture-$run_id/capture/receipt.json" \
             docs-evidence/gallery-screenshot-receipt.json
     artifacts:
       name: documentation-evidence
