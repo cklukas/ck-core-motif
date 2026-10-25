@@ -55,8 +55,17 @@ transaction is in progress. A nested `XmApplyAppearanceProfile` or
 `XmSetAppearanceProfile` call returns `False`; it cannot interleave a second
 resource-database snapshot with the first one. The caller can retry after the
 outer call returns. This guard is per display and does not add a global
-process-wide serialization requirement. Non-core gadget coverage remains an
-explicit later work-package gate, as does a complete historical-widget matrix.
+process-wide serialization requirement. Gadget coverage is part of the same
+transaction now: cache-backed gadgets defer their first value snapshot until
+their `GetValues` path is ready, and parent-manager membership prunes gadgets
+that have been destroyed without a normal widget destroy callback. A complete
+historical-widget matrix remains an explicit later work-package gate.
+
+The installed gadget regression is
+`tests/automated/run-live-appearance-gadget.py`. It transitions a
+`PushButtonGadget`, preserves an explicit foreground, destroys it, verifies
+that the next transition prunes its stale state, and creates a replacement
+gadget under the active profile.
 
 WP-02 adds the opt-in `modern-light` profile:
 
