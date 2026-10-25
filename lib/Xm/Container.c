@@ -4219,8 +4219,23 @@ ContainerStartTransfer(
 		{
 		cw->container.transfer_action = (ContainerXfrAction)
 			XtCalloc(1,sizeof(XmContainerXfrActionRec));
+		if (cw->container.transfer_action == NULL)
+		    return;
 		cw->container.transfer_action->event = (XEvent *)
 			XtCalloc(1,sizeof(XEvent));
+		if (cw->container.transfer_action->event == NULL)
+		    {
+		    XtFree((char *)cw->container.transfer_action);
+		    cw->container.transfer_action = NULL;
+		    return;
+		    }
+		}
+	else if (cw->container.transfer_action->event == NULL)
+		{
+		cw->container.transfer_action->event = (XEvent *)
+		    XtCalloc(1,sizeof(XEvent));
+		if (cw->container.transfer_action->event == NULL)
+		    return;
 		}
 	
 	cw->container.transfer_action->wid = (Widget)cw;
@@ -4315,6 +4330,8 @@ ContainerPrimaryCopy(
 	 * the data transfer operation.
 	 */
 	loc_data = (XPoint *) XtMalloc(sizeof(XPoint));
+	if (loc_data == NULL)
+	    return;
 	loc_data->x = event->xbutton.x;
 	loc_data->y = event->xbutton.y;
         XmePrimarySink(wid,XmCOPY,
@@ -4340,6 +4357,8 @@ ContainerPrimaryLink(
 	 * the data transfer operation.
 	 */
 	loc_data = (XPoint *) XtMalloc(sizeof(XPoint));
+	if (loc_data == NULL)
+	    return;
 	loc_data->x = event->xbutton.x;
 	loc_data->y = event->xbutton.y;
         XmePrimarySink(wid,XmLINK,
@@ -4365,6 +4384,8 @@ ContainerPrimaryMove(
 	 * the data transfer operation.
 	 */
 	loc_data = (XPoint *) XtMalloc(sizeof(XPoint));
+	if (loc_data == NULL)
+	    return;
 	loc_data->x = event->xbutton.x;
 	loc_data->y = event->xbutton.y;
         XmePrimarySink(wid,XmMOVE,
@@ -5549,6 +5570,8 @@ ContainerDestPrehookProc(
   if (cs->selection == XInternAtom(XtDisplay(wid),XmS_MOTIF_DROP,False))
     {
       loc_data = (XPoint *) XtMalloc(sizeof(XPoint));
+      if (loc_data == NULL)
+		return;
       dropproc_cs = (XmDropProcCallbackStruct *) cs->destination_data;
       loc_data -> x = dropproc_cs->x;
       loc_data -> y = dropproc_cs->y;

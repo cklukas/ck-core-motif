@@ -9797,6 +9797,13 @@ Container cell-layout allocation guard (2026-10-25)
   it, avoiding a null dereference under memory pressure; see
   `docs/container-cell-info-allocation.md`.
 
+Container transfer allocation guards (2026-10-25)
+=================================================
+
+- Check temporary transfer contexts and pointer coordinates before use,
+  abandoning only the current transfer on allocation failure; see
+  `docs/container-transfer-allocation.md`.
+
 MWM label-parse allocation guard (2026-10-25)
 ==============================================
 
