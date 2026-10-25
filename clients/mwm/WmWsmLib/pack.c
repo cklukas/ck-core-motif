@@ -582,6 +582,10 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 	  num = request->wm_windows.num_match_attributes = UnpackListNum(&data);
 	  request->wm_windows.match_attributes =
 	    (AttributePair **) XtMalloc(sizeof(AttributePair*) * num);
+	  if (request->wm_windows.match_attributes == NULL) {
+	    request->wm_windows.num_match_attributes = 0;
+	    return;
+	  }
 
 	  for (i=0; i<request->wm_windows.num_match_attributes; i++)
 	    {

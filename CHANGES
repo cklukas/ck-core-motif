@@ -107,6 +107,12 @@ WSM WM_WINDOWS property allocation guard (2026-10-25)
 - Check the WSM `WM_WINDOWS` window-property array before unpacking wire
   entries; see `docs/wsm-wm-windows-oom.md`.
 
+WSM match-attribute allocation guard (2026-10-25)
+==================================================
+
+- Check the WSM `WM_WINDOWS` match-attribute pointer array before filling it;
+  see `docs/wsm-match-attrs-oom.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 
