@@ -2342,11 +2342,12 @@ void _XmPutScaledImage (
 	    if (fast8) {
 		for (x = src_x; x < src_max_x; x++) {
 		    pixel = ((unsigned char *)src_image->data)
-			[y * src_image->bytes_per_line + x];
+			[(size_t)y * (size_t)src_image->bytes_per_line +
+			 (size_t)x];
 		    for (h = 0; h < table.height[y]; h++) {
 			memset(dest_image->data +
-			       (table.y[y] + h - min_y) *
-			       dest_image->bytes_per_line + table.x[x],
+		       (size_t)(table.y[y] - min_y + h) *
+		       (size_t)dest_image->bytes_per_line + (size_t)table.x[x],
 			       pixel, table.width[x]);
 		    }
 		}
