@@ -1889,9 +1889,12 @@ ClipboardDeleteFormat(
     unsigned long length ;
     unsigned long formatlength;
     Atom formattype, type;
+    int status;
 
     /* first get the format item out of the root */
-    ClipboardFindItem( display, 
+    formatitem = NULL;
+    formatlength = 0;
+    status = ClipboardFindItem( display,
     			   formatitemid,
     			   (XtPointer *) &formatitem,
     			   &formatlength,
@@ -1899,7 +1902,8 @@ ClipboardDeleteFormat(
 			   0,
     			   XM_FORMAT_HEADER_TYPE );
 
-    if ( formatitem == 0 )
+    if ( status != ClipboardSuccess || formatitem == NULL ||
+	 formatlength < sizeof(ClipboardFormatItemRec) )
     {
 	CleanupHeader (display);
 	ClipboardError( CLIPBOARD_CORRUPT, CORRUPT_DATA_STRUCTURE );
@@ -1917,7 +1921,9 @@ ClipboardDeleteFormat(
     dataitemid = formatitem->parentItemId;
 
     /* now get the data item out of the root */
-    ClipboardFindItem(display, 
+	dataitem = NULL;
+	length = 0;
+    status = ClipboardFindItem(display,
 		      dataitemid,
 		      (XtPointer *) &dataitem,
 		      &length,
@@ -1925,8 +1931,10 @@ ClipboardDeleteFormat(
 		      0,
 		      XM_DATA_ITEM_RECORD_TYPE );
 
-    if ( dataitem == 0 )
+    if ( status != ClipboardSuccess || dataitem == NULL ||
+	length < sizeof(ClipboardDataItemRec) )
     {
+	XtFree( (char *) formatitem );
 	CleanupHeader (display);
 	ClipboardError( CLIPBOARD_CORRUPT, CORRUPT_DATA_STRUCTURE );
 	return;

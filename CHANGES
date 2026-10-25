@@ -1,3 +1,10 @@
+Clipboard delete-format record validation (2026-10-26)
+=======================================================
+
+- Validate format and parent data records before cancelling a cut-by-name
+  format, and release the format record when the parent is invalid; see
+  `docs/clipboard-delete-format-validation.md`.
+
 Clipboard lock record validation (2026-10-26)
 =============================================
 
