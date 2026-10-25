@@ -11411,3 +11411,10 @@ MWM bitmap-cache path allocation (2026-10-25)
 
 - Check cached bitmap-path lengths before copying them into Xt-owned storage;
   see `docs/mwm-bitmap-cache-path-allocation.md`.
+
+MWM session database allocation widths (2026-10-25)
+====================================================
+
+- Check client database-name and home-directory fallback lengths against Xt's
+  allocation width; see `docs/mwm-db-name-allocation.md` and
+  `docs/mwm-db-home-allocation.md`.

@@ -332,9 +332,10 @@ copyClientDBName(const char *source)
     if (source == NULL)
 	return NULL;
     length = strlen(source);
-    if (length > SIZE_MAX - 1 - EXTRA_FN_CHARS)
+    if (length > SIZE_MAX - 1 - EXTRA_FN_CHARS ||
+	length > (size_t)UINT_MAX - 1 - EXTRA_FN_CHARS)
 	return NULL;
-    copy = (char *)XtMalloc(length + 1 + EXTRA_FN_CHARS);
+    copy = (char *)XtMalloc((Cardinal)(length + 1 + EXTRA_FN_CHARS));
     if (copy == NULL)
 	return NULL;
     memcpy(copy, source, length + 1);
@@ -389,10 +390,11 @@ getClientDBName(void)
 	    return;
 	homeLength = strlen(homeDir);
 	fileLength = strlen(dtwmFileName);
-	if (homeLength > SIZE_MAX - fileLength - 2 - EXTRA_FN_CHARS)
+	if (homeLength > SIZE_MAX - fileLength - 2 - EXTRA_FN_CHARS ||
+	    homeLength + fileLength + 2 + EXTRA_FN_CHARS > UINT_MAX)
 	    return;
 	if ((wmGD.dbFileName = (char *)XtMalloc(
-		homeLength + fileLength + 2 + EXTRA_FN_CHARS)) != NULL)
+		(Cardinal)(homeLength + fileLength + 2 + EXTRA_FN_CHARS))) != NULL)
 	    sprintf(wmGD.dbFileName, "%s/%s", homeDir, dtwmFileName);
     }
 }

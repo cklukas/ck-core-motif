@@ -9,6 +9,9 @@ source = (Path(__file__).parents[2] / "clients" / "mwm" / "WmXSMP.c").read_text(
 )
 helper = source[source.index("copyClientDBName") : source.index("/*\n", source.index("copyClientDBName"))]
 assert "length > SIZE_MAX - 1 - EXTRA_FN_CHARS" in helper
+assert "length > (size_t)UINT_MAX - 1 - EXTRA_FN_CHARS" in helper
+assert "XtMalloc((Cardinal)(length + 1 + EXTRA_FN_CHARS))" in helper
+assert "XtMalloc(length + 1 + EXTRA_FN_CHARS)" not in helper
 assert "memcpy(copy, source, length + 1)" in helper
 body = source[source.index("static void\ngetClientDBName") : source.index("/*\n *  See comments above", source.index("static void\ngetClientDBName"))]
 assert body.count("copyClientDBName(") == 2
