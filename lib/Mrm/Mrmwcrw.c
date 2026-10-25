@@ -2339,6 +2339,8 @@ Urm__CW_ConvertValue (Widget			parent,
     case MrmRtypeFont:
     case MrmRtypeFontSet:
       fontptr = (RGMFontItemPtr) (*val) ;
+      if ( fontptr == NULL || fontptr->font.font == NULL )
+	return MrmFAILURE ;
       fontstg = fontptr->font.font;
       dpyandfontstr = Urm__CW_DisplayToString ((char*)&display,
 					       fontstg, strlen(fontstg) + 1);
@@ -2421,10 +2423,15 @@ Urm__CW_ConvertValue (Widget			parent,
       break ;
     case MrmRtypeFontList:
       fontlist = (RGMFontListPtr) (*val) ;
+      if ( fontlist == NULL || fontlist->validation != URMFontListValid ||
+	   fontlist->count > RGMListSizeMax )
+	return MrmFAILURE ;
       dfontlist = NULL ;
       for ( ndx=0 ; ndx<fontlist->count ; ndx++ )
 	{
 	  fontstg = fontlist->item[ndx].font.font;
+	  if ( fontstg == NULL )
+	    return MrmFAILURE ;
 	  dpyandfontstr = Urm__CW_DisplayToString((char*)&display,
 						  fontstg, 
 						  strlen(fontstg) + 1);

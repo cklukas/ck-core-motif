@@ -471,3 +471,4 @@ EXTRA_DIST += tests/automated/check-mrm-widget-name-allocation.py docs/mrm-widge
 EXTRA_DIST += tests/automated/check-mrm-reader-text-vector-validation.py docs/mrm-reader-text-vector-validation.md
 EXTRA_DIST += tests/automated/check-mrm-safe-copy-null-sources.py docs/mrm-safe-copy-null-sources.md
 EXTRA_DIST += tests/automated/check-mrm-convert-vector-validation.py docs/mrm-convert-vector-validation.md
+EXTRA_DIST += tests/automated/check-mrm-convert-font-validation.py docs/mrm-convert-font-validation.md

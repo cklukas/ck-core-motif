@@ -1,3 +1,9 @@
+Mrm font conversion validation (2026-10-25)
+=============================================
+
+- Validate font records and strings before conversion accesses and X font
+  loading; see `docs/mrm-convert-font-validation.md`.
+
 Mrm conversion vector validation (2026-10-25)
 ===============================================
 
