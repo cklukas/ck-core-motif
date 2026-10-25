@@ -7,6 +7,7 @@
 #include <Xm/XmP.h>
 #include <string.h>
 #include <stdio.h>
+#include <limits.h>
 #include "PrimitiveI.h"
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
@@ -72,15 +73,38 @@ static void text_value(XmBadgeWidget badge, char *buffer, size_t size) {
         else buffer[0] = '\0';
     }
 }
+static int text_metrics(XmBadgeWidget badge, const char *text, int length,
+                        int *ascent, int *descent) {
+    XGCValues values;
+    XFontStruct *font;
+    int width = 0;
+    *ascent = *descent = 0;
+    if (!badge->badge.foreground_gc ||
+        !XGetGCValues(XtDisplay((Widget)badge), badge->badge.foreground_gc,
+                      GCFont, &values))
+        return 0;
+    font = XQueryFont(XtDisplay((Widget)badge), values.font);
+    if (!font)
+        return 0;
+    *ascent = font->ascent;
+    *descent = font->descent;
+    if (text && length > 0)
+        width = XTextWidth(font, text, length);
+    XFreeFontInfo(NULL, font, 1);
+    return width < 0 ? 0 : width;
+}
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmBadgeWidget badge = (XmBadgeWidget)widget; char text[64];
+    int ascent, descent;
     (void)event; (void)region; text_value(badge, text, sizeof(text));
     if (!XtWindow(widget) || !badge->badge.foreground_gc) return;
     XClearWindow(XtDisplay(widget), XtWindow(widget));
     XDrawRectangle(XtDisplay(widget), XtWindow(widget), badge->badge.foreground_gc,
                    0, 0, badge->core.width - 1, badge->core.height - 1);
+    text_metrics(badge, text, (int)strlen(text), &ascent, &descent);
     XDrawString(XtDisplay(widget), XtWindow(widget), badge->badge.foreground_gc,
-                6, (int)badge->core.height - 7, text, (int)strlen(text));
+                6, (int)(((long long)badge->core.height - ascent - descent) / 2 + ascent),
+                text, (int)strlen(text));
 }
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
@@ -108,9 +132,16 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     (void)request; text_value(badge, text, sizeof(text));
     reply->request_mode = CWWidth | CWHeight;
     length = strlen(text);
-    reply->width = length > ((unsigned long)(Dimension)-1 - 12UL) / 8UL
-                       ? (Dimension)-1
-                       : (Dimension)(length * 8UL + 12UL);
+    {
+        int ascent, descent;
+        int measured = text_metrics(badge, text,
+                                     length > (size_t)INT_MAX ? INT_MAX : (int)length,
+                                     &ascent, &descent);
+        unsigned long width = measured > 0 ? (unsigned long)measured :
+                               length > ULONG_MAX / 8UL ? ULONG_MAX : length * 8UL;
+        reply->width = width > (unsigned long)(Dimension)-1 - 12UL
+                           ? (Dimension)-1 : (Dimension)(width + 12UL);
+    }
     reply->height = 22;
     return (widget->core.width == reply->width && widget->core.height == reply->height)
                ? XtGeometryYes : XtGeometryAlmost;
