@@ -8261,3 +8261,12 @@ VendorShell tooltip-trait allocation (2026-10-27)
 
 VendorShell resource-list allocation (2026-10-27)
 =================================================
+VendorShell warning-buffer allocation (2026-10-27)
+===================================================
+
+- Check combined and indented warning-buffer sizes before Xt allocation, and
+  handle both allocation failures without writing through null buffers.
+  Oversized warning text now returns cleanly.
+
+VendorShell tooltip-trait allocation (2026-10-27)
+=================================================

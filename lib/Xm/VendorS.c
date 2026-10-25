@@ -1975,7 +1975,11 @@ MotifWarningHandler (String name,
    if (header_len > SIZE_MAX - message_len - 1)
      return;
    combined_len = header_len + message_len;
+   if (combined_len >= (size_t)UINT_MAX)
+     return;
    combined = XtMalloc((Cardinal)(combined_len + 1));
+   if (combined == NULL)
+     return;
    (void)snprintf(combined, combined_len + 1, header, name, s_class);
    if (num_params && *num_params > 1) {
      int i = *num_params-1;
@@ -1992,10 +1996,15 @@ MotifWarningHandler (String name,
    newline_count = 0;
    for (bp = combined; *bp; ++bp)
      if (*bp == '\n') ++newline_count;
-   if (newline_count > (SIZE_MAX - combined_len - 2) / 4)
+   if (combined_len > SIZE_MAX - 2 ||
+       newline_count > (SIZE_MAX - combined_len - 2) / 4)
      { XtFree(combined); return; }
    output_len = combined_len + newline_count * 4 + 1;
+   if (output_len >= (size_t)UINT_MAX)
+     { XtFree(combined); return; }
    output = XtMalloc((Cardinal)(output_len + 1));
+   if (output == NULL)
+     { XtFree(combined); return; }
    dst = output;
    for (bp = combined; *bp; ) {
      const char *newline = strchr(bp, '\n');
