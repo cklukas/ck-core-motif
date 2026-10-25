@@ -1712,7 +1712,8 @@ UrmCWRSetChild (URMResourceContextPtr	context_id,
   /*
    * Validate record
    */
-  UrmCWR__ValidateContext (context_id, "UrmCWRSetChild") ;
+  result = UrmCWR__ValidateContext (context_id, "UrmCWRSetChild") ;
+  if ( result != MrmSUCCESS ) return result ;
 
   widgetrec = (RGMWidgetRecordPtr) UrmRCBuffer(context_id) ;
   if ( widgetrec->children_offs == 0 )
