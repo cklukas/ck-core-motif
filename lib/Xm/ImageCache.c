@@ -968,8 +968,12 @@ GetImage(
 	    _XmProcessLock();
 	    if (!built_in_image) {
 		/* update that with new R6 init image stuff when out */
-		_XmCreateImage(built_in_image, display, NULL, 
+		_XmCreateImage(built_in_image, display, NULL,
 			       16, 16, MSBFirst);
+		if (!built_in_image) {
+		    _XmProcessUnlock();
+		    return FALSE;
+		}
 	    }
 	
 	    built_in_image->data = (char *) entry->builtin_data;
