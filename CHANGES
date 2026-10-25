@@ -1,3 +1,9 @@
+Mrm reader arg-list count bounds (2026-10-25)
+===============================================
+
+- Bound argument and extra-runtime counts before reader allocation and
+  iteration; see `docs/mrm-arglist-reader-counts.md`.
+
 Mrm font-list fixup validation (2026-10-25)
 =============================================
 
