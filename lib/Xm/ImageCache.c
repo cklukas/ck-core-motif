@@ -186,7 +186,8 @@ static GC GetGCForPutImage(Screen *screen,
 			   Pixmap pixmap, 
 			   int depth,
 			   Pixel foreground,
-			   Pixel background);
+			   Pixel background,
+			   Boolean *caller_owns_gc);
 static Boolean XmRoundScaled(double value, unsigned int *rounded);
 static Boolean XmScaledDimension(unsigned int source, double ratio,
 				 Dimension *dimension);
@@ -1518,6 +1519,7 @@ _XmGetScaledPixmap(
     int old_image_format;
     char *old_image_data = NULL;
     Boolean image_lock_held = False;
+    Boolean caller_owns_gc = False;
     Boolean cache_inserted;
     Dimension scaled_width, scaled_height;
 
@@ -1829,7 +1831,8 @@ _XmGetScaledPixmap(
     gc = GetGCForPutImage(screen, pix_entry->print_shell,
 			  image, pixmap, depth,
 			  acc_color->foreground,
-			  acc_color->background);
+			  acc_color->background,
+			  &caller_owns_gc);
     if (gc == NULL)
       {
         _XmProcessLock();
@@ -1847,6 +1850,8 @@ _XmGetScaledPixmap(
     _XmPutScaledImage (display, pixmap, gc, image, 
 		       0, 0, 0, 0, image->width, image->height,
 		       pix_entry->width, pix_entry->height);
+    if (caller_owns_gc)
+	XFreeGC(display, gc);
 
     /* Destroy non-cached XImage now that we've cached the pixmap. */
     if (ret == NOT_CACHED)
@@ -2156,10 +2161,14 @@ GetGCForPutImage(Screen *screen,
 		 Pixmap pixmap, 
 		 int depth,
 		 Pixel foreground,
-		 Pixel background)
+		 Pixel background,
+		 Boolean *caller_owns_gc)
 {
     XGCValues gcValues;
     GCData gc_data, *gc_entry ;
+
+    if (caller_owns_gc != NULL)
+	*caller_owns_gc = False;
 
     /* There is a problem here: we cannot simply use the xmScreen object
      * to store the GCs, for the pixmap conversion can be called
@@ -2190,8 +2199,10 @@ GetGCForPutImage(Screen *screen,
     if (gc_set == NULL)
       {
         _XmProcessUnlock();
-        return XCreateGC (DisplayOfScreen(screen), pixmap,
-                          GCForeground | GCBackground, &gcValues);
+        if (caller_owns_gc != NULL)
+	    *caller_owns_gc = True;
+        return XCreateGC(DisplayOfScreen(screen), pixmap,
+                         GCForeground | GCBackground, &gcValues);
       }
     _XmProcessUnlock();
     
@@ -2217,8 +2228,12 @@ GetGCForPutImage(Screen *screen,
     /* create a new GC, cache it and return it */
     gc_entry = XtNew(GCData);
     if (gc_entry == NULL)
-      return XCreateGC (DisplayOfScreen(screen), pixmap,
-                        GCForeground | GCBackground, &gcValues);
+      {
+        if (caller_owns_gc != NULL)
+	    *caller_owns_gc = True;
+        return XCreateGC(DisplayOfScreen(screen), pixmap,
+                         GCForeground | GCBackground, &gcValues);
+      }
     gc_entry->screen = screen ;    
     gc_entry->print_shell = print_shell ;
     gc_entry->depth = depth ;    
