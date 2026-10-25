@@ -33,6 +33,7 @@ static char rcsid[] = "$XConsortium: CallbackI.c /main/8 1995/07/14 10:13:10 drk
 
 #include "CallbackI.h"
 #include <limits.h>
+#include <stdint.h>
 
 
 /********************************************************************

@@ -14322,3 +14322,9 @@ Text-field drop location lifetime (2026-10-26)
 - Keep text-field drop coordinates in transfer-owned storage instead of a
   callback-local `XPoint`, releasing them after the transfer completes; see
   `docs/text-field-drop-location-lifetime.md`.
+Callback size-limit header (2026-10-26)
+=======================================
+
+- Include `<stdint.h>` wherever the callback-list allocation guard uses
+  `SIZE_MAX`, restoring portable compilation of the overflow check; see
+  `docs/callback-size-limit-header.md`.
