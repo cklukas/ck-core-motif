@@ -316,6 +316,8 @@ static XmConst Cardinal _XmNumRenditionResources =
 
 /* Searches up widget hierarchy, quarkifying ancestor names and */
 /* classes. */
+#define XM_RESOURCE_PATH_CAPACITY 100
+
 static Cardinal
 GetNamesAndClasses(Widget w, XrmNameList names, XrmClassList classes)
 {
@@ -326,7 +328,10 @@ GetNamesAndClasses(Widget w, XrmNameList names, XrmClassList classes)
   /* Return null-terminated quark arrays, with length the number of
      quarks (not including NULL) */
 
-  for (length = 0; w != NULL; w = (Widget)w->core.parent)
+  /* Reserve slots for the resource name, optional tag, and terminator. */
+  for (length = 0;
+       w != NULL && length < XM_RESOURCE_PATH_CAPACITY - 3;
+       w = (Widget)w->core.parent)
     {
       names[length] = w->core.xrm_name;
       wc = XtClass(w);
@@ -395,8 +400,8 @@ GetResources(XmRendition rend,
 	     ArgList arglist,
 	     Cardinal argcount)
 {
-  XrmName		names[100];
-  XrmClass		classes[100];
+  XrmName		names[XM_RESOURCE_PATH_CAPACITY];
+  XrmClass		classes[XM_RESOURCE_PATH_CAPACITY];
   Cardinal		length = 0;
   static XrmQuarkList	quarks = NULL;
   static Cardinal	num_quarks = 0;

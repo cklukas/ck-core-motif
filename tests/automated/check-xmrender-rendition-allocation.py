@@ -32,6 +32,9 @@ assert "if (rend == NULL)" in mrend_region
 assert "if (table == NULL)" in mrend_region
 assert "copy = CopyRendition(rend);" in mrend_region
 assert "if (copy == NULL)" in mrend_region
+assert "XM_RESOURCE_PATH_CAPACITY - 3" in source
+assert "names[XM_RESOURCE_PATH_CAPACITY]" in source
+assert "classes[XM_RESOURCE_PATH_CAPACITY]" in source
 add_start = source.index("XmRenderTableAddRenditions(")
 add_end = source.index("/* Remove matching renditions. */", add_start)
 add_region = source[add_start:add_end]
