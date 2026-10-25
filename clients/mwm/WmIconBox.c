@@ -3463,6 +3463,9 @@ void IconActivateCallback (Widget w, caddr_t client_data, XmAnyCallbackStruct *c
     ClientData    	*pCD;
     Window		theIcon;
 
+    if (w == NULL)
+	return;
+
     theIcon = XtWindow(w);
 
     /* 
@@ -3471,7 +3474,7 @@ void IconActivateCallback (Widget w, caddr_t client_data, XmAnyCallbackStruct *c
      */
 
     if (!(XFindContext (DISPLAY, theIcon,
-			wmGD.windowContextType, (caddr_t *)&pCD)))
+				wmGD.windowContextType, (caddr_t *)&pCD)) && pCD != NULL)
     {
 	F_Restore_And_Raise ((String)NULL, pCD, (XEvent *)NULL );
 /*	F_Normalize_And_Raise ((String)NULL, pCD, (XEvent *)NULL );

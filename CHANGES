@@ -1,3 +1,9 @@
+Icon activation callback validation (2026-10-25)
+=================================================
+
+- Validate activation widgets and context results before restoring a client;
+  see `docs/activate-callback-guards.md`.
+
 Icon-box keypress callback validation (2026-10-25)
 ==================================================
 
