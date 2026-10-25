@@ -2625,6 +2625,13 @@ Make Font selector raw-list growth transactional (2026-10-25)
 - Guard XLFD and alternate-font list growth and string copies; see
   `docs/motif-fonts-list-growth.md`.
 
+Guard Font selector alternate-family counts (2026-10-26)
+==========================================================
+
+- Reject negative or unrepresentable alternate-family counts before allocating
+  the temporary XmString array; see
+  `docs/motif-fonts-size-list-allocation.md`.
+
 Guard Font selector metadata allocations (2026-10-25)
 =========================================================
 

@@ -2318,7 +2318,12 @@ SetOtherList(XmFontSelectorWidget fsw, Boolean force)
 	XtSetArg(largs[num_largs], XmNvalue, " "); num_largs++;
     }
     
-    strs = (XmString *) XtMalloc(sizeof(XmString) * num);
+	if (num < 0 ||
+	    (size_t)num > SIZE_MAX / sizeof(*strs) ||
+	    (size_t)num > UINT_MAX / sizeof(*strs))
+	    return;
+	strs = (XmString *) XtMalloc((Cardinal)(sizeof(XmString) *
+					     (size_t)num));
     if (strs == NULL && num != 0)
 	return;
     for (i = count = 0; i < num; i++, others++) 
