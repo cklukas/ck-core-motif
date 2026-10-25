@@ -9783,6 +9783,13 @@ FontSelector label initialization rollback (2026-10-28)
 SpinBox value-list SetValues rollback (2026-10-28)
 =====================================================
 
+MWM separator-template allocation guard (2026-10-25)
+====================================================
+
+- Check separator-template and label allocations, and omit only optional
+  separators when construction fails; see
+  `docs/mwm-separator-template-allocation.md`.
+
 MWM label-parse allocation guard (2026-10-25)
 ==============================================
 

@@ -3058,9 +3058,11 @@ static MenuItem *ParseMenuItems (WmScreenData *pSD
 	if (use_separators)
 	{
 	    MenuItem *separator = MakeSeparatorTemplate(TOP_SEPARATOR);
-	    if (lastMenuItem != NULL) lastMenuItem->nextMenuItem = separator;
-	    else 		      firstMenuItem = separator;
-	    lastMenuItem = separator;
+	    if (separator != NULL) {
+		if (lastMenuItem != NULL) lastMenuItem->nextMenuItem = separator;
+		else 		      firstMenuItem = separator;
+		lastMenuItem = separator;
+	    }
 	}
 #endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
 
@@ -3085,9 +3087,11 @@ static MenuItem *ParseMenuItems (WmScreenData *pSD
 	if (use_separators)
 	{
 	    MenuItem *separator = MakeSeparatorTemplate(BOTTOM_SEPARATOR);
-	    if (lastMenuItem != NULL) lastMenuItem->nextMenuItem = separator;
-	    else 		      firstMenuItem = separator;
-	    lastMenuItem = separator;
+	    if (separator != NULL) {
+		if (lastMenuItem != NULL) lastMenuItem->nextMenuItem = separator;
+		else 		      firstMenuItem = separator;
+		lastMenuItem = separator;
+	    }
 	}
 
 	use_separators = FALSE;
@@ -8535,7 +8539,9 @@ MenuItem *MakeSeparatorTemplate (int position)
 {
     MenuItem *item;
 
-    item = (MenuItem *)XtMalloc(sizeof(MenuItem));
+    item = (MenuItem *)XtCalloc(1, sizeof(MenuItem));
+    if (item == NULL)
+	return (NULL);
 
     /* We use the labelType to determine where this separator is positioned
        relative to the client command(s) it is surrounding, i.e. TOP or
@@ -8543,6 +8549,10 @@ MenuItem *MakeSeparatorTemplate (int position)
     item->labelType = position;
     /* Make it look like a client command: */
     item->label = XtNewString("<label-template>");
+    if (item->label == NULL) {
+	XtFree((char *)item);
+	return (NULL);
+    }
     item->labelBitmapIndex = -1;
     item->mnemonic = (KeySym) 0;
     item->accelState = 0;
