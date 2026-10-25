@@ -2174,6 +2174,7 @@ FileSelectionBoxUpdate(
             String          maskString ;
             String          patternString ;
             int             len ;
+            XmString        resourceCopy ;
             XmFileSelectionBoxCallbackStruct qualifiedSearchData ;
 /****************/
 
@@ -2202,17 +2203,21 @@ FileSelectionBoxUpdate(
         /* Now update the Directory and Pattern resources.
         */
         if(    !XmStringCompare( qualifiedSearchData.dir, FS_Directory( fs))  )
-        {   if(    FS_Directory( fs)    )
+        {   resourceCopy = qualifiedSearchData.dir != NULL
+                              ? XmStringCopy( qualifiedSearchData.dir) : NULL ;
+            if(    qualifiedSearchData.dir == NULL || resourceCopy != NULL    )
             {   XmStringFree( FS_Directory( fs)) ;
-                } 
-            FS_Directory( fs) = XmStringCopy( qualifiedSearchData.dir) ;
+                FS_Directory( fs) = resourceCopy ;
+                }
             } 
 
         if(   !XmStringCompare( qualifiedSearchData.pattern, FS_Pattern( fs)) )
-        {   if(    FS_Pattern( fs)    )
+        {   resourceCopy = qualifiedSearchData.pattern != NULL
+                              ? XmStringCopy( qualifiedSearchData.pattern) : NULL ;
+            if(    qualifiedSearchData.pattern == NULL || resourceCopy != NULL    )
             {   XmStringFree( FS_Pattern( fs)) ;
-                } 
-            FS_Pattern( fs) = XmStringCopy( qualifiedSearchData.pattern) ;
+                FS_Pattern( fs) = resourceCopy ;
+                }
             } 
         /* Also update the filter text.
         */

@@ -1,3 +1,10 @@
+FileSelectionBox update-resource rollback (2026-10-28)
+=========================================================
+
+- Prepare Directory and Pattern `XmString` replacements before releasing the
+  current resources, preserving them when allocation fails; see
+  `docs/filesb-update-resource-rollback.md`.
+
 List selection-copy allocation bounds (2026-10-28)
 ===================================================
 
