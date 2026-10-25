@@ -3879,8 +3879,10 @@ Widget CreateMenuWidget (WmScreenData *pSD,
                 XtSetArg (args[i], XmNalignment, XmALIGNMENT_CENTER); i++; 
 	        children[n] = XmCreateLabelGadget (menuW, TITLE_NAME,
 					           (ArgList) args, i); n++;
+                if (children[n - 1] == NULL) return (NULL);
                 children[n] = XmCreateSeparatorGadget (menuW, SEPARATOR_NAME,
 					  sepArgs, 1); 
+                if (children[n] == NULL) return (NULL);
 
                 /*
 		 * A following title will have both separators.
@@ -3935,6 +3937,7 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 			    i++;
 	                children[n] = XmCreateCascadeButtonGadget (menuW,
 					  CASCADE_BTN_NAME, (ArgList) args, i);
+                        if (children[n] == NULL) return (NULL);
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
 			XtAddCallback(children[n], XmNcascadingCallback,
 				      (XtCallbackProc)AdjustTearOffControl,
@@ -3948,6 +3951,7 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 	            {
 	                children[n] = XmCreateCascadeButtonGadget (menuW,
 					  CASCADE_BTN_NAME, (ArgList) args, i);
+	                if (children[n] == NULL) return (NULL);
 	                XtSetSensitive (children[n], FALSE);
 	            }
 

@@ -13457,8 +13457,9 @@ MWM menu label conversion safety (2026-10-26)
 MWM menu widget creation safety (2026-10-26)
 =============================================
 
-- Check push-button gadget creation before sensitivity, bookkeeping, and
-  callback setup; see `docs/mwm-menu-widget-creation.md`.
+- Check label, separator, cascade, and push-button gadget creation before
+  sensitivity, bookkeeping, and callback setup; see
+  `docs/mwm-menu-widget-creation.md`.
 
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================
