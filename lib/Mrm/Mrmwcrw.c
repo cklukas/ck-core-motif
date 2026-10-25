@@ -1841,11 +1841,16 @@ Urm__CW_FixupValue (long			val,
     case MrmRtypeChar8Vector:
     case MrmRtypeCStringVector:
       vecptr = (RGMTextVectorPtr) val ;
+      if ( vecptr == NULL )
+	return MrmFAILURE ;
       if ( *swap_needed ) 
 	{
 	  swapbytes(vecptr->count);
 	  swapbytes(vecptr->validation);
 	}
+      if ( vecptr->validation != URMTextVectorValid ||
+	   vecptr->count > RGMListSizeMax )
+	return MrmFAILURE ;
       for ( fixndx=0 ; fixndx<vecptr->count ; fixndx++ ) 
 	{
 	  if ( *swap_needed ) 
