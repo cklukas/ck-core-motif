@@ -8346,3 +8346,10 @@ CascadeButtonGadget hook allocation (2026-10-27)
 - Check CascadeButtonGadget secondary-object, set-values, and get-values hook
   allocations, release partial objects, and make all matching cleanup paths
   tolerate missing extension data.
+
+SeparatorGadget hook allocation (2026-10-27)
+=============================================
+
+- Check SeparatorGadget secondary-object, set-values, and get-values hook
+  allocations, release partial objects, and make all matching cleanup paths
+  tolerate missing extension data.
