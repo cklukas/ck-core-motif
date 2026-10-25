@@ -8031,6 +8031,11 @@ _XmStringGetTextConcat(
 	  case XmSTRING_COMPONENT_TEXT:
 	  case XmSTRING_COMPONENT_LOCALE_TEXT:
 	  case XmSTRING_COMPONENT_WIDECHAR_TEXT:
+	    if (len != 0 && val == NULL) {
+	      _XmStringContextFree(&stack_context);
+	      XtFree(OutStr);
+	      return NULL;
+	    }
 	    if (OutLen >= SIZE_MAX ||
 		(size_t)len > SIZE_MAX - OutLen - 1 ||
 		OutLen + (size_t)len + 1 > (size_t)((Cardinal)~0)) {

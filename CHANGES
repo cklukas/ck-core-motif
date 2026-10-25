@@ -5,6 +5,13 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+XmString text concatenation null-value guard (2026-10-26)
+===========================================================
+
+- Reject malformed non-empty text components with null values before copying
+  them into the concatenated result; see
+  `docs/xmstring-text-concat-null-value.md`.
+
 XmString ASN.1 truncation overflow guard (2026-10-26)
 =======================================================
 
