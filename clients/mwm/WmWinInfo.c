@@ -835,9 +835,15 @@ int i;
 		      NULL, TRUE);
 	if (pCD->systemMenuSpec != (MenuSpec *) NULL)
 	{
+	    String menu_name;
+
 	    pCD->systemMenuSpec = DuplicateMenuSpec(pCD->systemMenuSpec);
-	    XtFree(pCD->systemMenuSpec->name);
-	    pCD->systemMenuSpec->name = XtNewString("IconBoxMenu");
+	    menu_name = XtNewString("IconBoxMenu");
+	    if (menu_name != NULL)
+	    {
+		XtFree(pCD->systemMenuSpec->name);
+		pCD->systemMenuSpec->name = menu_name;
+	    }
 	    iconBoxMenuItems = GetIconBoxMenuItems (PSD_FOR_CLIENT(pCD));
 	    
 	    /* Find the last menu item in the menu spec's list. */
@@ -2779,8 +2785,14 @@ MakeSystemMenu (ClientData *pCD)
       return;
 
     pCD->systemMenuSpec = DuplicateMenuSpec(pCD->systemMenuSpec);
-    XtFree(pCD->systemMenuSpec->name);
-    pCD->systemMenuSpec->name = XtNewString("ProtocolsMenu");
+    {
+      String menu_name = XtNewString("ProtocolsMenu");
+      if (menu_name != NULL)
+      {
+        XtFree(pCD->systemMenuSpec->name);
+        pCD->systemMenuSpec->name = menu_name;
+      }
+    }
 
     /* Find the last menu item in the menu spec's list. */
     for (lastItem = pCD->systemMenuSpec->menuItems;

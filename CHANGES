@@ -9428,3 +9428,10 @@ I18List column-width rollback (2026-10-29)
 - Allocate replacement column-width storage before releasing the current
   array, and return safely on initial allocation failure; see
   `docs/i18list-column-width-rollback.md`.
+
+MWM menu-name rollback (2026-10-29)
+====================================
+
+- Allocate duplicated system-menu names before releasing existing metadata,
+  preserving usable menu specifications on allocation failure; see
+  `docs/mwm-menu-name-rollback.md`.
