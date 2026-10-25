@@ -1,3 +1,9 @@
+RowColumn menu-post failure handling (2026-10-25)
+====================================================
+
+- Restrict passive-grab setup and old menu-post cleanup to successful menu-post
+  mappings; see `docs/rowcolumn-menupost.md`.
+
 Fast-subclass lookup sequencing (2026-10-25)
 ================================================
 
