@@ -1743,6 +1743,8 @@ void
 _XmHeapFree(
         XmHeap heap )
 {
+    if (heap == NULL)
+	return;
     char* segment = heap->start;
     while (segment != NULL) {
 	char* next_segment = *(char**)segment;

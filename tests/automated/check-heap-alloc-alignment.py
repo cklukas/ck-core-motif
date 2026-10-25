@@ -11,4 +11,8 @@ assert region.index("bytes > UINT_MAX - 7") < region.index("heap->bytes_remainin
 assert region.index("bytes > UINT_MAX - 3") < region.index("heap->bytes_remaining < bytes")
 assert region.count("bytes = (bytes +") == 2
 assert "bytes_remaining -= bytes" in region
+free_start = source.index("_XmHeapFree(")
+free_end = source.index("/****************************************************************", free_start)
+free_region = source[free_start:free_end]
+assert "if (heap == NULL)" in free_region
 print("PASS legacy heap alignment overflow is guarded")
