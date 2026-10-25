@@ -904,7 +904,7 @@ FindNextMenuBarCascade(
     * Determine which child is popped up.
     */
    shell = (ShellWidget) RC_PopupPosted(menubar);
-   if (shell != NULL)
+   if (shell != NULL && shell->composite.num_children > 0)
       active_child = mst->MU_CurrentMenuChild =
          RC_CascadeBtn(shell->composite.children[0]);
 

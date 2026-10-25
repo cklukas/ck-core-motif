@@ -1,3 +1,9 @@
+Menu cascade traversal guard (2026-10-27)
+=========================================
+
+- Guard keyboard cascade traversal when a popup shell is empty during
+  teardown; see `docs/menuutil-cascade-guard.md`.
+
 MenuShell empty-child guards (2026-10-27)
 =========================================
 
