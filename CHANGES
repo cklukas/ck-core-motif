@@ -4987,3 +4987,9 @@ Guard ToggleSwitch redisplay resources (2026-10-25)
 - Fall back or return safely when ToggleSwitch GCs are unavailable and avoid
   focus-rectangle underflow for tiny widgets; see
   `docs/toggle-switch-redisplay-guards.md`.
+
+Guard ProgressBar redisplay resources (2026-10-25)
+===================================================
+
+- Handle partial ProgressBar GC allocation and avoid focus-rectangle geometry
+  underflow on tiny widgets; see `docs/progress-bar-redisplay-guards.md`.

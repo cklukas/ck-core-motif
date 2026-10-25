@@ -78,12 +78,15 @@ static void Normalize(XmProgressBarWidget progress) {
 
 static void UpdateGCs(XmProgressBarWidget progress) {
     Display *display = XtDisplay((Widget)progress);
-    XSetForeground(display, progress->progress.track_gc,
-                   progress->primitive.bottom_shadow_color);
-    XSetForeground(display, progress->progress.fill_gc,
-                   progress->primitive.foreground);
-    XSetForeground(display, progress->progress.text_gc,
-                   progress->primitive.foreground);
+    if (progress->progress.track_gc)
+        XSetForeground(display, progress->progress.track_gc,
+                       progress->primitive.bottom_shadow_color);
+    if (progress->progress.fill_gc)
+        XSetForeground(display, progress->progress.fill_gc,
+                       progress->primitive.foreground);
+    if (progress->progress.text_gc)
+        XSetForeground(display, progress->progress.text_gc,
+                       progress->primitive.foreground);
 }
 
 static void Initialize(Widget request, Widget widget, ArgList args,
@@ -143,12 +146,15 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     (void)event; (void)region;
     if (!window) return;
     UpdateGCs(progress);
+    if (!progress->progress.track_gc || !progress->progress.fill_gc)
+        return;
     XClearWindow(display, window);
     if (progress->progress.font)
         XmStringExtent(progress->progress.font, progress->progress.label,
                        &label_width, &label_height);
     text_gc = XtIsSensitive(widget) ? progress->progress.text_gc
                                     : progress->progress.track_gc;
+    if (!text_gc) text_gc = progress->progress.track_gc;
     if (progress->progress.label && progress->progress.font)
         XmStringDraw(display, window, progress->progress.font,
                      progress->progress.label, text_gc,
@@ -202,7 +208,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         }
         XmStringFree(text_string);
     }
-    if (progress->primitive.highlighted && progress->primitive.highlight_thickness)
+    if (progress->primitive.highlighted && progress->primitive.highlight_thickness &&
+        progress->core.width > 2 * progress->primitive.highlight_thickness &&
+        progress->core.height > 2 * progress->primitive.highlight_thickness)
         XDrawRectangle(display, window, progress->progress.fill_gc,
                        progress->primitive.highlight_thickness - 1,
                        progress->primitive.highlight_thickness - 1,

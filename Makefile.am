@@ -842,3 +842,4 @@ EXTRA_DIST += tests/automated/check-stepper-redisplay-guard.py docs/stepper-redi
 EXTRA_DIST += tests/automated/check-color-picker-redisplay-guard.py docs/color-picker-redisplay-guard.md
 EXTRA_DIST += tests/automated/check-rating-control-geometry-guards.py docs/rating-control-geometry-guards.md
 EXTRA_DIST += tests/automated/check-toggle-switch-redisplay-guards.py docs/toggle-switch-redisplay-guards.md
+EXTRA_DIST += tests/automated/check-progress-bar-redisplay-guards.py docs/progress-bar-redisplay-guards.md
