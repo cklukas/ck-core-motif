@@ -1501,23 +1501,24 @@ Redisplay(
 	    {
 	      gc = lp->normal_GC;
 	      
-	      XmeGetPixmapData(XtScreen(lw), Pix(lw), NULL, &depth,
-			       NULL, NULL, NULL, NULL, NULL, NULL);   
-	      
-	      if (depth == lw->core.depth)
-		XCopyArea (XtDisplay(lw), Pix(lw), XtWindow(lw), gc, 0, 0, 
-			   lp->PixmapRect.width,
-			   lp->PixmapRect.height,
-			   lp->TextRect.x + lp->PixmapRect.x,
-			   lp->TextRect.y + lp->PixmapRect.y); 
-	      else if (depth == 1)
-		XCopyPlane (XtDisplay(lw), Pix(lw), XtWindow(lw), 
-			    gc, 0, 0, 
-			    lp->PixmapRect.width,
-			    lp->PixmapRect.height,
-			    lp->TextRect.x + lp->PixmapRect.x,
-			    lp->TextRect.y + lp->PixmapRect.y,
-			    1); 
+	      if (XmeGetPixmapData(XtScreen(lw), Pix(lw), NULL, &depth,
+			       NULL, NULL, NULL, NULL, NULL, NULL))
+	      {
+		if (depth == lw->core.depth)
+		  XCopyArea (XtDisplay(lw), Pix(lw), XtWindow(lw), gc, 0, 0,
+			     lp->PixmapRect.width,
+			     lp->PixmapRect.height,
+			     lp->TextRect.x + lp->PixmapRect.x,
+			     lp->TextRect.y + lp->PixmapRect.y);
+		else if (depth == 1)
+		  XCopyPlane (XtDisplay(lw), Pix(lw), XtWindow(lw),
+			      gc, 0, 0,
+			      lp->PixmapRect.width,
+			      lp->PixmapRect.height,
+			      lp->TextRect.x + lp->PixmapRect.x,
+			      lp->TextRect.y + lp->PixmapRect.y,
+			      1);
+	      }
 	    }
 	}
       else 
@@ -1534,9 +1535,9 @@ Redisplay(
 	    {
 	      gc = lp->insensitive_GC;
 	      
-	      XmeGetPixmapData(XtScreen(lw), pix_use, NULL, &depth,
-			       NULL, NULL, NULL, NULL, NULL, NULL);   
-	      
+	      if (XmeGetPixmapData(XtScreen(lw), pix_use, NULL, &depth,
+			       NULL, NULL, NULL, NULL, NULL, NULL))
+	      {
 	      if (depth == lw->core.depth)
 		XCopyArea (XtDisplay(lw), pix_use, XtWindow(lw), 
 			   gc, 0, 0, 
@@ -1581,6 +1582,7 @@ Redisplay(
 
 	      }
 #endif
+	      }
 	    }
 	}
     }
