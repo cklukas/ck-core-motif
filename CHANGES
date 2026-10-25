@@ -266,6 +266,8 @@ Render-table locking (2026-10-26)
   see `docs/xmstring-substring-null-tags.md`.
 - Handle optimized XmString concatenation resize failure transactionally
   before moving text; see `docs/xmstring-concat-realloc.md`.
+- Check mutable XmString entry-array resizing before initializing new slots;
+  see `docs/xmstring-concat-entry-resize.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================
