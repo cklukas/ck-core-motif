@@ -1491,6 +1491,24 @@ void ParseSessionGeometry (WmScreenData *pSD, int count,
  *  --------
  *
  *************************************<->***********************************/
+static String
+CopySessionString(unsigned char *string)
+{
+    size_t length;
+    String copy;
+
+    if (string == NULL)
+        return NULL;
+    length = strlen((char *)string);
+    if (length > UINT_MAX - 1)
+        return NULL;
+    copy = (String)XtMalloc((Cardinal)(length + 1));
+    if (copy == NULL)
+        return NULL;
+    memcpy(copy, string, length + 1);
+    return copy;
+}
+
 void ParseSessionWorkspaces (WmScreenData *pSD,  int count,
 			     unsigned char *string)
 
@@ -1501,15 +1519,13 @@ void ParseSessionWorkspaces (WmScreenData *pSD,  int count,
      */
 
     if ((pSD->pDtSessionItems[count].workspaces =
-         (String)XtMalloc ((unsigned int) (strlen((char *)string) + 1))) == NULL)
+         CopySessionString(string)) == NULL)
     {
         Warning (((char *)GETMESSAGE(60, 2, "Insufficient memory for workspaces list in sesssion item")));
         return;
 
     }
 
-    strcpy(pSD->pDtSessionItems[count].workspaces, (char *)string);
-    
 } /* END OF FUNCTION ParseSessionWorkspaces */
 
 
@@ -1683,16 +1699,13 @@ void ParseSessionHost (WmScreenData *pSD,  int count,
      */
 
     if ((pSD->pDtSessionItems[count].clientMachine =
-         (String)XtMalloc ((unsigned int) (strlen((char *)string) + 1))) == 
-	NULL)
+         CopySessionString(string)) == NULL)
     {
         Warning (((char *)GETMESSAGE(60, 38, 
 		"Insufficient memory for host name in sesssion item")));
         return;
     }
 
-    strcpy(pSD->pDtSessionItems[count].clientMachine, (char *)string);
-    
 } /* END OF FUNCTION ParseSessionHost */
 
 

@@ -10977,3 +10977,9 @@ MWM action-argument size checks (2026-10-25)
 - Bound action-string and argument-vector size arithmetic before Xt allocation
   or growth, release temporary parser strings on every path, and avoid
   publishing partial action records; see `docs/mwm-action-arg-reallocation.md`.
+
+MWM session string sizing (2026-10-25)
+======================================
+
+- Check workspace-list and client-host string sizes before Xt allocation and
+  copying; see `docs/mwm-session-string-size.md`.

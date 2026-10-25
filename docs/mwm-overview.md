@@ -34,6 +34,7 @@ clients exchanging Motif window-management messages.
 - [Action-argument reallocation](mwm-action-arg-reallocation.md)
 - [Session-command parsing rollback](mwm-session-command-rollback.md)
 - [Motif-bindings path sizing](mwm-bindings-path-size.md)
+- [Session workspace and host string sizing](mwm-session-string-size.md)
 
 These focused pages document compatibility-preserving guards; they do not
 change public MWM resource or message formats.
