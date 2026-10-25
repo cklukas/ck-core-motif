@@ -10209,6 +10209,12 @@ ScrollFrame navigator removal guard (2026-10-25)
 - Safely ignore inconsistent nonempty navigator state with no backing list
   during removal; see `docs/scrollframe-navigator-removal.md`.
 
+ScrollFrame callback removal guard (2026-10-25)
+===============================================
+
+- Check for the navigator trait's `changeMoveCB` hook before invoking it
+  during removal; see `docs/scrollframe-remove-callback.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

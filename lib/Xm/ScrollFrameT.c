@@ -132,7 +132,7 @@ _XmSFRemoveNavigator(
 	 XmeTraitGet((XtPointer) XtClass(nav), XmQTnavigator)) != NULL) {
 
 	/* remove the move callback */
-	if (scroll_frame_data->move_cb) 
+	if (scroll_frame_data->move_cb && nav_trait->changeMoveCB != NULL)
 	    nav_trait -> changeMoveCB(nav, scroll_frame_data->move_cb,
 				(XtPointer) scroll_frame_data->scrollable,
 				False) ;
