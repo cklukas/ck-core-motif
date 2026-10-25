@@ -59,6 +59,9 @@ static XmTab GetNthTab(XmTabList tl,
 		       int cur_pos); 
 
 static unsigned int TabPositionMagnitude(int position);
+static XmTabList TabListCopyUnlocked(XmTabList tablist, int offset,
+                                     Cardinal count);
+static void TabListFreeUnlocked(XmTabList tablist);
 
 
 /********    End Static Function Declarations    ********/
@@ -164,7 +167,7 @@ XmTabListInsertTabs(XmTabList oldlist,
     }
   else
     {
-      tl = XmTabListCopy(oldlist, 0, 0);
+      tl = TabListCopyUnlocked(oldlist, 0, 0);
       if (tl == NULL) {
 	_XmProcessUnlock();
 	return(NULL);
@@ -192,7 +195,7 @@ XmTabListInsertTabs(XmTabList oldlist,
 	  if (oldlist == NULL)
 	    XtFree((char *)tl);
 	  else
-	    XmTabListFree(tl);
+	    TabListFreeUnlocked(tl);
 	  _XmProcessUnlock();
 	  return(NULL);
 	}
@@ -222,7 +225,7 @@ XmTabListInsertTabs(XmTabList oldlist,
       if (position == 0)
 	_XmTabLStart(tl) = insert_start;
       _XmTabLCount(tl) += tab_count;
-      XmTabListFree(oldlist);
+      TabListFreeUnlocked(oldlist);
     }
 
   _XmProcessUnlock();
@@ -258,8 +261,8 @@ _XmCreateTabList(Widget parent,
  * This copying routine also works with the internal marking scheming used
  * by the insert and replace routines. 
  */
-XmTabList
-XmTabListCopy(XmTabList tablist,
+static XmTabList
+TabListCopyUnlocked(XmTabList tablist,
 	      int offset,
 	      Cardinal count)
 {
@@ -268,21 +271,17 @@ XmTabListCopy(XmTabList tablist,
   unsigned int	i;
   unsigned int	offset_magnitude;
   
-  _XmProcessLock();
   if (tablist == NULL) {
-	_XmProcessUnlock();
 	return(NULL);
   }
 
   offset_magnitude = TabPositionMagnitude(offset);
   if (offset_magnitude >= _XmTabLCount(tablist)) {
-	_XmProcessUnlock();
 	return(NULL);
   }
   
   tl = (XmTabList)XtMalloc(sizeof(_XmTabListRec));
   if (tl == NULL) {
-	_XmProcessUnlock();
 	return(NULL);
   }
   
@@ -292,7 +291,6 @@ XmTabListCopy(XmTabList tablist,
   if (count > _XmTabLCount(tablist)) count = _XmTabLCount(tablist);
   if (count == 0) {
 	XtFree((char *)tl);
-	_XmProcessUnlock();
 	return(NULL);
   }
   
@@ -302,7 +300,6 @@ XmTabListCopy(XmTabList tablist,
   tab = _XmTabMark(old_tab) ? old_tab : _XmTabCopy(old_tab);
   if (tab == NULL) {
 	XtFree((char *)tl);
-	_XmProcessUnlock();
 	return(NULL);
   }
   
@@ -320,8 +317,7 @@ XmTabListCopy(XmTabList tablist,
 	_XmTabNext(tab) = _XmTabLStart(tl);
 	_XmTabPrev(_XmTabLStart(tl)) = tab;
 	_XmTabLCount(tl) = i;
-	_XmProcessUnlock();
-	XmTabListFree(tl);
+	TabListFreeUnlocked(tl);
 	return(NULL);
       }
   
@@ -336,27 +332,36 @@ XmTabListCopy(XmTabList tablist,
   _XmTabNext(tab) = _XmTabLStart(tl);
   _XmTabPrev(_XmTabLStart(tl)) = tab;
 
-  _XmProcessUnlock();
   return(tl);
+}
+
+XmTabList
+XmTabListCopy(XmTabList tablist,
+              int offset,
+              Cardinal count)
+{
+  XmTabList result;
+
+  _XmProcessLock();
+  result = TabListCopyUnlocked(tablist, offset, count);
+  _XmProcessUnlock();
+  return result;
 }
 
 /* 
  * Marked tabs have mark cleared but aren't actually freed.
  */
-void
-XmTabListFree(XmTabList tablist)
+static void
+TabListFreeUnlocked(XmTabList tablist)
 {
   int	i;
   XmTab	tab, next;
 
-  _XmProcessLock();
   if (tablist == NULL) {
-	_XmProcessUnlock();
 	return;
   }
 
   if (_XmTabLCount(tablist) == 0 || _XmTabLStart(tablist) == NULL) {
-	_XmProcessUnlock();
 	XtFree((char *)tablist);
 	return;
   }
@@ -376,8 +381,15 @@ XmTabListFree(XmTabList tablist)
   if (_XmTabMark(tab)) _XmTabMark(tab) = FALSE;
   else XmTabFree(tab);
 
-  _XmProcessUnlock();
   XtFree((char *)tablist);
+}
+
+void
+XmTabListFree(XmTabList tablist)
+{
+  _XmProcessLock();
+  TabListFreeUnlocked(tablist);
+  _XmProcessUnlock();
 }
 
 Cardinal
@@ -436,7 +448,7 @@ XmTabListReplacePositions(XmTabList oldlist,
   }
 
   /* Work on a copy so allocation failures cannot partially modify oldlist. */
-  tl = XmTabListCopy(oldlist, 0, 0);
+  tl = TabListCopyUnlocked(oldlist, 0, 0);
   if (tl == NULL) {
     _XmProcessUnlock();
     return(oldlist);
@@ -457,7 +469,7 @@ XmTabListReplacePositions(XmTabList oldlist,
       /* replace tab copying */
       tab = _XmTabCopy(tabs[i]);
       if (tab == NULL) {
-        XmTabListFree(tl);
+        TabListFreeUnlocked(tl);
         _XmProcessUnlock();
         return(oldlist);
       }
@@ -477,7 +489,7 @@ XmTabListReplacePositions(XmTabList oldlist,
       cur_tab = tab;
     }
 
-  XtFree((char *)oldlist);
+  TabListFreeUnlocked(oldlist);
 
   _XmProcessUnlock();
   return(tl);
@@ -508,7 +520,7 @@ XmTabListRemoveTabs(XmTabList oldlist,
   }
   
   /* Work on a private copy so a failed allocation cannot consume oldlist. */
-  tl = XmTabListCopy(oldlist, 0, 0);
+  tl = TabListCopyUnlocked(oldlist, 0, 0);
   if (tl == NULL) {
     _XmProcessUnlock();
     return(oldlist);
@@ -554,8 +566,8 @@ XmTabListRemoveTabs(XmTabList oldlist,
 	{
 	  _XmTabLCount(tl) = 1;
 	  _XmTabMark(tab) = FALSE;
-	  XmTabListFree(tl);
-	  XmTabListFree(oldlist);
+	  TabListFreeUnlocked(tl);
+	  TabListFreeUnlocked(oldlist);
 	  _XmProcessUnlock();
 	  return((XmTabList)NULL);
 	}
@@ -572,7 +584,7 @@ XmTabListRemoveTabs(XmTabList oldlist,
       _XmTabLCount(tl) --;
     }
 
-  XmTabListFree(oldlist);
+  TabListFreeUnlocked(oldlist);
   
   _XmProcessUnlock();
   return(tl);
