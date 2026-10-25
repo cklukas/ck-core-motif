@@ -4,8 +4,9 @@ nav_exclude: true
 # List allocation failure handling
 
 List insertion now treats the internal item-array resize as a transaction. It
-checks integer and `size_t` bounds, keeps the old array when `XtRealloc` fails,
-and stops the insertion before internal rows or selection state are updated.
+checks integer, `size_t`, and Xt `Cardinal` bounds, keeps the old array when
+`XtRealloc` fails, and stops the insertion before internal rows or selection
+state are updated. Deletion shrinking applies the same Xt-width check.
 This keeps the widget coherent under memory pressure and preserves the public
 `XmListAdd*` API behavior.
 

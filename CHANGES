@@ -5767,6 +5767,13 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+List item-array Xt reallocation widths (2026-10-25)
+====================================================
+
+- Pass bounded List insertion and deletion-resize byte counts explicitly as
+  Xt `Cardinal` values, rejecting unrepresentable shrink sizes; see
+  `docs/list-growth-allocation.md`.
+
 List copy-helper Xt allocation casts (2026-10-25)
 ==================================================
 
