@@ -1,3 +1,10 @@
+Label accelerator allocation (2026-10-27)
+==========================================
+
+- Make menu accelerator replacement transactional under `XtNewString`
+  failure, retaining the active binding, and return a null value directly
+  when querying a label without an accelerator.
+
 TabBox geometry and cache allocation (2026-10-27)
 ==================================================
 

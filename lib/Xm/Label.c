@@ -2216,14 +2216,33 @@ SetValues(Widget cw,
     {
       if (newlp->accelerator != NULL)
 	{
-	  /* Copy the accelerator into local space */
-	  newlp->accelerator = XtNewString(newlp->accelerator);
-	}
+	  String accelerator;
 
-      XtFree(curlp->accelerator);
-      curlp->accelerator = NULL;
-      reqlp->accelerator = NULL;
-      ProcessFlag = TRUE;
+	  /* Copy the accelerator into local space */
+	  accelerator = XtNewString(newlp->accelerator);
+	  if (accelerator == NULL)
+	    {
+	      /* Keep the currently installed binding when replacement fails. */
+	      newlp->accelerator = curlp->accelerator;
+	      reqlp->accelerator = NULL;
+	    }
+	  else
+	    {
+	      newlp->accelerator = accelerator;
+
+	      XtFree(curlp->accelerator);
+	      curlp->accelerator = NULL;
+	      reqlp->accelerator = NULL;
+	      ProcessFlag = TRUE;
+	    }
+	}
+	else
+	  {
+	    XtFree(curlp->accelerator);
+	    curlp->accelerator = NULL;
+	    reqlp->accelerator = NULL;
+	    ProcessFlag = TRUE;
+	  }
     }
   else
     newlp->accelerator = curlp->accelerator;
@@ -2355,6 +2374,12 @@ GetAccelerator(Widget wid,
 {
   XmLabelWidget lw = (XmLabelWidget) wid;
   String string;
+
+  if (Lab_Accelerator(lw) == NULL)
+    {
+      *value = (XtArgVal) NULL;
+      return;
+    }
 
   string = XtNewString(Lab_Accelerator(lw));
 
