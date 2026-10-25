@@ -1,3 +1,10 @@
+ScrolledWindow auto-scroll rectangle bounds (2026-10-25)
+=========================================================
+
+- Compute automatic-scroll edge spans in signed arithmetic, preventing
+  wrapped rectangles when the work area exceeds a collapsed window; see
+  `docs/scrolledwindow-autoscroll-geometry.md`.
+
 ScrolledWindow constant-layout bounds (2026-10-25)
 ===================================================
 

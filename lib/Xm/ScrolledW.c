@@ -2475,7 +2475,10 @@ Cardinal * num_hrect)
     (*hrect)[1].x = w->core.x + w->core.width
         - scw->swindow.hScrollBar->core.x ;
     (*hrect)[1].y = (*hrect)[0].y ;
-    (*hrect)[1].width = sw->core.width - (*hrect)[1].x ;
+    {
+        int hwidth = (int)sw->core.width - (int)(*hrect)[1].x;
+        (*hrect)[1].width = hwidth > 2 ? (unsigned short)hwidth : 2;
+    }
     /* if width too small, set it to 2 *inside* the SW frame */
     if ((*hrect)[1].width <= 2)
     {
@@ -2528,7 +2531,10 @@ Cardinal * num_vrect)
     (*vrect)[1].y = w->core.y + w->core.height
         - scw->swindow.vScrollBar->core.y ;
     (*vrect)[1].width = (*vrect)[0].width ;
-    (*vrect)[1].height = sw->core.height - (*vrect)[1].y ;
+    {
+        int vheight = (int)sw->core.height - (int)(*vrect)[1].y;
+        (*vrect)[1].height = vheight > 2 ? (unsigned short)vheight : 2;
+    }
 
     /* if height too small, set it to 2 *inside* the SW frame */
     if ((*vrect)[1].height <= 2)
