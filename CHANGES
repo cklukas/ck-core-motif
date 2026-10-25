@@ -1,3 +1,10 @@
+Xm pixmap-data optional outputs (2026-10-25)
+===============================================
+
+- Preserve optional output pointers in `_XmGetPixmapData` while validating
+  screen and pixmap inputs, including metadata-only widget callers; see
+  `docs/xm-pixmap-data-optional-outputs.md`.
+
 Xm geometry comparison fixes (2026-10-25)
 ===========================================
 

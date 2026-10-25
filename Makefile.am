@@ -589,3 +589,5 @@ EXTRA_DIST += tests/automated/check-xm-stippled-pixmap-failure.py docs/xm-stippl
 EXTRA_DIST += tests/automated/check-xm-stippled-pixmap-race.py docs/xm-stippled-pixmap-race.md
 
 EXTRA_DIST += tests/automated/check-xm-geometry-compare.py docs/xm-geometry-compare.md
+
+EXTRA_DIST += tests/automated/check-xm-pixmap-data-optional-outputs.py docs/xm-pixmap-data-optional-outputs.md
