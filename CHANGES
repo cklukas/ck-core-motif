@@ -276,6 +276,8 @@ Render-table locking (2026-10-26)
   see `docs/xmstring-unparse-array-inputs.md`.
 - Reject null elements in `XmStringTableToXmString` instead of silently
   skipping them; see `docs/xmstring-table-inputs.md`.
+- Propagate intermediate concatenation failure from `XmStringTableToXmString`
+  before adding break components; see `docs/xmstring-table-concat-failure.md`.
 - Make `XmStringPutRendition` propagate component-allocation failure instead
   of returning an unadorned string; see `docs/xmstring-put-rendition-failure.md`.
 - Propagate source-copy failure in `XmStringPutRendition` before adding
