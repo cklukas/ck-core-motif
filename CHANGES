@@ -4664,3 +4664,9 @@ MWM hints read guards (2026-10-25)
 
 - Reject truncated or mis-typed `_MOTIF_WM_HINTS` properties;
   see `docs/mwm-hints-read-guards.md`.
+
+MWM info read guards (2026-10-25)
+=================================
+
+- Require the expected format and item count for `_MOTIF_WM_INFO`;
+  see `docs/mwm-info-read-guards.md`.

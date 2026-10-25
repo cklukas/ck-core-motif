@@ -762,7 +762,8 @@ PropMwmInfo *GetMwmInfo (Window rootWindowOfScreen)
                                      (unsigned char **)&property);
 
     if ((ret_val == Success) && (actual_type == wmGD.xa_MWM_INFO) &&
-        (nitems == PROP_MWM_INFO_ELEMENTS)) 
+        (actual_format == 32) &&
+        (nitems == PROP_MWM_INFO_ELEMENTS))
     {
 	return (property);			/* indicate success */
     }
