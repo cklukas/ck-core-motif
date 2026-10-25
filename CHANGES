@@ -4053,3 +4053,8 @@ Mrm writer arg-value rebinds (2026-10-25)
 - Propagate all type-specific argument-descriptor rebind failures from
   `UrmCWRSetArgValue` after record growth; see
   `docs/mrm-writer-arg-value-rebind.md`.
+Mrm writer CString-vector rebind checks (2026-10-25)
+======================================================
+
+- Propagate per-element argument rebinding failures after CString-vector
+  appends; see `docs/mrm-writer-cstring-vector-rebind.md`.
