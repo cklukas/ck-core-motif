@@ -301,6 +301,8 @@ Render-table locking (2026-10-26)
   see `docs/xmstring-make-str-failure.md`.
 - Propagate component and concatenation failure from XmString context slicing;
   see `docs/xmstring-make-str-concat.md`.
+- Propagate failed segment slices from XmString context conversion;
+  see `docs/xmstring-make-str-segment.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================

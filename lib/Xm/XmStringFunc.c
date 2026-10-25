@@ -660,7 +660,7 @@ MakeStr(XmStringContext start,
   XmStringComponentType	type;
   unsigned int		len;
   XtPointer		val;
-  XmString		str, component;
+  XmString		str, component, segment;
   
 
   /* Next component over start until at segment break */
@@ -688,7 +688,14 @@ MakeStr(XmStringContext start,
 	  (_XmStrContCurrSeg(start) < _XmStrContCurrSeg(end))) ||
 	 !LastSeg(start))
     {
-      str = XmStringConcatAndFree(str, MakeStrFromSeg(start));
+	  segment = MakeStrFromSeg(start);
+	  if (segment == NULL) {
+	    XmStringFree(str);
+	    return NULL;
+	  }
+	  str = XmStringConcatAndFree(str, segment);
+	  if (str == NULL)
+	    return NULL;
     }
 
   /* Next component over start until it matches context */
