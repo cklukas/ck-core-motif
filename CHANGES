@@ -1,3 +1,10 @@
+RowColumn menu-post rollback (2026-10-28)
+===========================================
+
+- Copy changed `XmNmenuPost` values before releasing the previous string,
+  retaining its parsed mapping and passive grabs when allocation fails; see
+  `docs/rowcolumn-menupost-rollback.md`.
+
 List selection-copy rollback (2026-10-28)
 ===========================================
 

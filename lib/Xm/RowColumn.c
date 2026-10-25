@@ -1978,6 +1978,7 @@ SetValues(
         XmRowColumnWidget req = (XmRowColumnWidget) rw ;
         XmRowColumnWidget new_w = (XmRowColumnWidget) nw ;
    XmString replacement;
+   String menu_post_replacement;
    int i;
    int need_expose = FALSE;
 
@@ -2063,10 +2064,21 @@ SetValues(
          }
          else
          {
-            if (RC_MenuPost(new_w))
-               RC_MenuPost(new_w) = XtNewString(RC_MenuPost(new_w));
-            set_values_passive_grab(old, new_w);
-            if (RC_MenuPost(old)) XtFree(RC_MenuPost(old));
+            menu_post_replacement = RC_MenuPost(new_w)
+              ? XtNewString(RC_MenuPost(new_w)) : NULL;
+            if (RC_MenuPost(new_w) && menu_post_replacement == NULL)
+            {
+               RC_MenuPost(new_w) = RC_MenuPost(old);
+               RC_PostEventType(new_w) = RC_PostEventType(old);
+               RC_PostButton(new_w) = RC_PostButton(old);
+               RC_PostModifiers(new_w) = RC_PostModifiers(old);
+            }
+            else
+            {
+               RC_MenuPost(new_w) = menu_post_replacement;
+               set_values_passive_grab(old, new_w);
+               if (RC_MenuPost(old)) XtFree(RC_MenuPost(old));
+            }
          }
       }
    }
