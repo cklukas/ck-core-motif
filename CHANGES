@@ -1,3 +1,9 @@
+Guard List drag target allocation (2026-10-25)
+==============================================
+
+- Refuse List drag target conversion cleanly when either target array cannot
+  be allocated; see `docs/motif-list-drag-targets.md`.
+
 Guard Text primary-selection state allocation (2026-10-25)
 ===========================================================
 

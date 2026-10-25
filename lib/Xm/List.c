@@ -7721,6 +7721,10 @@ ListConvert(Widget w, XtPointer client_data,
     {
       Atom *targs = XmeStandardTargets(w, 5, &target_count);
 
+      if (targs == NULL) {
+	cs->status = XmCONVERT_REFUSE;
+	return;
+      }
       value = (XtPointer) targs;
       targs[target_count++] = atoms[XmA_MOTIF_COMPOUND_STRING];
       targs[target_count++] = atoms[XmACOMPOUND_TEXT];
@@ -7739,6 +7743,10 @@ ListConvert(Widget w, XtPointer client_data,
       Atom *targs = (Atom *) XtMalloc(sizeof(Atom) * 5);
       int n = 0;
 
+      if (targs == NULL) {
+	cs->status = XmCONVERT_REFUSE;
+	return;
+      }
       value = (XtPointer) targs;
       targs[n++] = atoms[XmA_MOTIF_COMPOUND_STRING];
       targs[n++] = atoms[XmACOMPOUND_TEXT];
