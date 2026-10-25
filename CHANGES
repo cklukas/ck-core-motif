@@ -6040,3 +6040,10 @@ Bound locale text aggregation allocation (2026-10-25)
   `docs/text-locale-allocation.md`.
 
 Guard standard conversion scalar allocations (2026-10-25)
+Guard drag-source setup allocations (2026-10-25)
+================================================
+
+- Validate copied argument capacity, check allocation, and initialize export
+  target cleanup in `XmeDragSource`; see `docs/drag-source-allocation.md`.
+
+Bound locale text aggregation allocation (2026-10-25)

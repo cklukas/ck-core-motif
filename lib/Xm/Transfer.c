@@ -1039,15 +1039,27 @@ XmeDragSource(Widget w, XtPointer location_data, XEvent *event,
   ConvertContext cc;
   Atom atoms[XtNumber(atom_names)];
   _XmWidgetToAppContext(w);
+  targets = NULL;
 
   _XmAppLock(app);
+
+  if (in_arg_count > (Cardinal)(INT_MAX - 10) ||
+      (in_arg_count != 0 && in_args == NULL) ||
+      (size_t)(in_arg_count + 10) > (size_t)-1 / sizeof(*args)) {
+    _XmAppUnlock(app);
+    return(NULL);
+  }
 
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);
 
   /* merge and copy arg list */
   arg_count = in_arg_count + 10;
-  args = (Arg *) XtMalloc(sizeof(Arg) * arg_count);
+  args = (Arg *)XtMalloc(sizeof(*args) * (size_t)arg_count);
+  if (args == NULL) {
+    _XmAppUnlock(app);
+    return(NULL);
+  }
   for(arg_count = 0; arg_count < in_arg_count; arg_count++)
     args[arg_count] = in_args[arg_count];
 
