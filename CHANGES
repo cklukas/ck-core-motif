@@ -9414,3 +9414,10 @@ MultiList label rollback (2026-10-29)
 - Preserve find and title labels until replacement `XmString` copies succeed,
   avoiding label loss on allocation failure; see
   `docs/multilist-label-rollback.md`.
+
+BulletinBoard dialog-title rollback (2026-10-29)
+=================================================
+
+- Copy changed dialog titles before releasing the current value, preserving
+  the window-manager title when allocation fails; see
+  `docs/bulletin-dialog-title-rollback.md`.
