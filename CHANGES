@@ -12332,3 +12332,10 @@ XmString rendition-tag allocation width (2026-10-26)
 
 - Pass the checked copied rendition-tag array size explicitly as an Xt
   `Cardinal`; see `docs/xmstring-rendition-bounds.md`.
+Optimized XmString concatenation allocation (2026-10-26)
+==========================================================
+
+- Handle failed optimized-result allocation in `XmStringConcatAndFree` before
+  dereferencing the result; see `docs/xmstring-concat-allocation.md`.
+
+Tab-list proposal widget validation (2026-10-26)
