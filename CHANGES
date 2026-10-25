@@ -133,6 +133,13 @@ WSM window-data unpack guards (2026-10-25)
   bit-mask, or result-array allocation is unavailable; see
   `docs/wsm-windata-oom.md`.
 
+WSM attribute-list allocation guards (2026-10-25)
+=================================================
+
+- Check 8, 16, and 32-bit WSM attribute-list allocations before reading their
+  values, resetting failed non-empty records safely; see
+  `docs/wsm-single-data-oom.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 

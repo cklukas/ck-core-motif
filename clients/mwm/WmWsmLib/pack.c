@@ -1286,6 +1286,11 @@ UnpackSingleWinDataRec(MessageData *data_ptr,
 	    win_data->type = WSM_CHAR_LIST_DATA;
 	    local = win_data->data.char_ptr = 
 		(char *) XtMalloc(sizeof(char) * win_data->data_len);
+	    if (local == NULL && win_data->data_len != 0) {
+		win_data->type = WSM_NONE;
+		win_data->data_len = 0;
+		return;
+	    }
 	    for (i = 0; i < win_data->data_len; i++, local++) 
 		*local = UnpackCARD8(data_ptr);
 	}
@@ -1300,6 +1305,11 @@ UnpackSingleWinDataRec(MessageData *data_ptr,
 	    win_data->type = WSM_SHORT_LIST_DATA;
 	    local = win_data->data.short_ptr = 
 		(short *) XtMalloc(sizeof(short) * win_data->data_len);
+	    if (local == NULL && win_data->data_len != 0) {
+		win_data->type = WSM_NONE;
+		win_data->data_len = 0;
+		return;
+	    }
 	    for (i = 0; i < win_data->data_len; i++, local++) 
 		*local = UnpackCARD16(data_ptr);
 	}
@@ -1314,6 +1324,11 @@ UnpackSingleWinDataRec(MessageData *data_ptr,
 	    win_data->type = WSM_LONG_LIST_DATA;
 	    local = win_data->data.long_ptr = 
 		(long *) XtMalloc(sizeof(long) * win_data->data_len);
+	    if (local == NULL && win_data->data_len != 0) {
+		win_data->type = WSM_NONE;
+		win_data->data_len = 0;
+		return;
+	    }
 	    for (i = 0; i < win_data->data_len; i++, local++) 
 		*local = UnpackCARD32(data_ptr);
 	}
