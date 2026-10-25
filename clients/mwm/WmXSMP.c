@@ -314,6 +314,24 @@ buildDBFileName(char fileNameBuf[MAXPATHLEN], Boolean doingSave)
 
 #ifndef WSM
 
+static char *
+copyClientDBName(const char *source)
+{
+    size_t length;
+    char *copy;
+
+    if (source == NULL)
+	return NULL;
+    length = strlen(source);
+    if (length > SIZE_MAX - 1 - EXTRA_FN_CHARS)
+	return NULL;
+    copy = (char *)XtMalloc(length + 1 + EXTRA_FN_CHARS);
+    if (copy == NULL)
+	return NULL;
+    memcpy(copy, source, length + 1);
+    return copy;
+}
+
 /*
  *  See if dbFileArgStr specified on command line.  Save subsequent arg;
  *  if not, see if resource set; if not, put files in user's home directory.
@@ -336,12 +354,7 @@ getClientDBName(void)
 	    {
 		if (*(++argP) != (char *)NULL)
 		{
-		    if ((wmGD.dbFileName =
-			 (char *)XtMalloc((strlen(*argP) + 1 +
-					   EXTRA_FN_CHARS) *
-					  sizeof(char)))
-			!= (char *)NULL)
-			strcpy(wmGD.dbFileName, *argP);
+		    wmGD.dbFileName = copyClientDBName(*argP);
 		}
 		break;
 	    }
@@ -353,12 +366,7 @@ getClientDBName(void)
     {
 	if (wmGD.sessionClientDB != (String)NULL)
 	{
-	    if ((wmGD.dbFileName =
-		 (char *)XtMalloc((strlen(wmGD.sessionClientDB) + 1 +
-				   EXTRA_FN_CHARS) *
-				  sizeof(char)))
-		!= (char *)NULL)
-		strcpy(wmGD.dbFileName, wmGD.sessionClientDB);
+	    wmGD.dbFileName = copyClientDBName(wmGD.sessionClientDB);
 	}
     }
 

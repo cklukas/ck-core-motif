@@ -139,6 +139,8 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
 EXTRA_DIST += tests/automated/check-doc-overviews.py
 EXTRA_DIST += tests/automated/check-desktop-color-cells-allocation.py \
               docs/desktop-color-cells-allocation.md
+EXTRA_DIST += tests/automated/check-mwm-db-name-allocation.py \
+              docs/mwm-db-name-allocation.md
 
 # Keyboard activation lifetime regression.
 EXTRA_DIST += tests/automated/check-button-timers.c docs/button-timers.md

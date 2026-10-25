@@ -30,6 +30,7 @@ clients exchanging Motif window-management messages.
 - [Workspace-title initialization rollback](mwm-workspace-title-init-rollback.md)
 - [Push-button array growth](mwm-save-pbinfo-growth.md)
 - [Restart-command allocation](mwm-restart-command-allocation.md)
+- [Session database-name allocation](mwm-db-name-allocation.md)
 
 These focused pages document compatibility-preserving guards; they do not
 change public MWM resource or message formats.

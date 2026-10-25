@@ -10943,3 +10943,10 @@ Desktop color-cell allocation checks (2026-10-25)
 - Publish only successfully parsed and allocated icon colors from
   `XmeGetDesktopColorCells`, avoiding stale pixels when a colormap allocation
   fails; see `docs/desktop-color-cells-allocation.md`.
+
+MWM session database-name allocation (2026-10-25)
+==================================================
+
+- Check spare-suffix capacity before copying command-line or resource-provided
+  session database names, preserving fallback behavior on unrepresentable
+  lengths; see `docs/mwm-db-name-allocation.md`.
