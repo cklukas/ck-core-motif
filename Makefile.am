@@ -179,6 +179,7 @@ EXTRA_DIST += tests/automated/check-xmrender-rendition-allocation.py docs/xmrend
 EXTRA_DIST += tests/automated/check-xmrender-shared-handle-allocation.py docs/xmrender-shared-handle-allocation.md
 EXTRA_DIST += tests/automated/check-xmrender-copy-propagation.py docs/xmrender-copy-propagation.md
 EXTRA_DIST += tests/automated/check-xmrender-tag-copy-allocation.py docs/xmrender-tag-copy-allocation.md
+EXTRA_DIST += tests/automated/check-menustate-allocation.py docs/menustate-allocation.md
 EXTRA_DIST += tests/automated/check-xim-info-allocation.py docs/xim-info-allocation.md
 EXTRA_DIST += tests/automated/check-xim-recreate-allocation.py docs/xim-recreate-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md

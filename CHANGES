@@ -10058,6 +10058,12 @@ XmRenderT scratch-tag allocation guard (2026-10-25)
 - Release partial cloned renditions when scratch-tag copying cannot allocate
   its tag array; see `docs/xmrender-tag-copy-allocation.md`.
 
+MenuState allocation guard (2026-10-25)
+=======================================
+
+- Handle failed menu-state creation before publishing or using the state;
+  see `docs/menustate-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
