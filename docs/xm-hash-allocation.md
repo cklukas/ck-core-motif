@@ -12,3 +12,7 @@ attempts are also harmless.
 `_XmAddHashEntry` now reports insertion failure.  The trait registry uses that
 result to free its temporary key and return `False`, so an allocation failure
 does not silently lose the registration or leak memory.
+
+Lookup, mapping, and removal now tolerate empty or null tables.  Removal saves
+the key before returning its bucket to the pool and clears iterator state,
+preventing use-after-free results and stale iterator pointers.

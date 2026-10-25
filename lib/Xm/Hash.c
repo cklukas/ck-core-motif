@@ -219,6 +219,11 @@ _XmGetHashEntryIterate(XmHashTable table, XmHashKey key, XtPointer *iterator)
   XmHashValue index;
   XmHashBucket entry;
 
+  if (table == NULL || table->buckets == NULL || table->size == 0) {
+    if (iterator) *iterator = NULL;
+    return NULL;
+  }
+
   if (iterator && *iterator != NULL) {
     /* If iterating over a number of matching entries */
     entry = (XmHashBucket) *iterator;
@@ -270,6 +275,10 @@ _XmRemoveHashEntry(XmHashTable table, XmHashKey key)
 {
   XmHashValue index;
   XmHashBucket entry, last = NULL;
+  XtPointer key_return;
+
+  if (table == NULL || table->buckets == NULL || table->size == 0)
+    return NULL;
 
   index = (table -> hasher(key)) % table -> size;
 
@@ -283,9 +292,10 @@ _XmRemoveHashEntry(XmHashTable table, XmHashKey key)
 	last -> next = entry -> next;
       }
 
+      key_return = entry -> hash_key;
       table -> count--;
       FreeBucket(entry);
-      return(entry -> hash_key);
+      return key_return;
     }
     last = entry;
     entry = entry -> next;
@@ -298,8 +308,13 @@ _XmRemoveHashIterator(XmHashTable table, XtPointer *iterator)
 {
   XmHashValue index;
   XmHashBucket entry, current, last = NULL;
+  XtPointer key_return;
 
-  if (! iterator) return(NULL);
+  if (!iterator || *iterator == NULL || table == NULL ||
+      table->buckets == NULL || table->size == 0) {
+    if (iterator) *iterator = NULL;
+    return NULL;
+  }
 
   entry = (XmHashBucket) *iterator;
 
@@ -316,26 +331,29 @@ _XmRemoveHashIterator(XmHashTable table, XtPointer *iterator)
 	last -> next = current -> next;
       }
 
+      key_return = current -> hash_key;
       table -> count--;
       FreeBucket(current);
-      return(current -> hash_key);
+      *iterator = NULL;
+      return key_return;
     }
     last = current;
     current = current -> next;
   }
+  *iterator = NULL;
   return(NULL);
 }
 
 Cardinal
 _XmHashTableCount(XmHashTable table)
 {
-  return(table -> count);
+  return table ? table -> count : 0;
 }
 
 Cardinal
 _XmHashTableSize(XmHashTable table)
 {
-  return(table -> size);
+  return table ? table -> size : 0;
 }
 
 /****************************************************************/
@@ -349,6 +367,10 @@ _XmMapHashTable(XmHashTable table, XmHashMapProc proc, XtPointer client_data)
 {
   int i;
   XmHashBucket entry, next;
+
+  if (table == NULL || table->buckets == NULL || table->size == 0 ||
+      proc == NULL)
+    return;
 
   for(i = 0; i < table -> size; i++) {
     entry = table -> buckets[i];
