@@ -1,3 +1,9 @@
+Tab-group mutator input validation (2026-10-25)
+================================================
+
+- Guard `XmAddTabGroup` and `XmRemoveTabGroup` before forwarding missing
+  widgets to Xt; see `docs/tab-group-mutators.md`.
+
 Traversal public-input validation (2026-10-25)
 ===============================================
 

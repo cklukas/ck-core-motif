@@ -1742,6 +1742,9 @@ XmAddTabGroup(
 {
     Arg		arg;
 
+    if (tabGroup == NULL)
+        return;
+
     XtSetArg(arg, XmNnavigationType, XmEXCLUSIVE_TAB_GROUP);
     XtSetValues(tabGroup, &arg, 1);
 }
@@ -1751,6 +1754,9 @@ XmRemoveTabGroup(
         Widget w )
 {
   Arg		arg;
+
+  if (w == NULL)
+    return;
 
   XtSetArg(arg, XmNnavigationType, XmNONE);
   XtSetValues(w, &arg, 1);
