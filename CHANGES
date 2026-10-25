@@ -6425,6 +6425,13 @@ PanedWindow managed-child allocation (2026-10-25)
   existing list and stopping safely when capacity allocation fails; see
   `docs/paned-managed-children-allocation.md`.
 
+Bound PanedWindow managed-child growth width (2026-10-25)
+===========================================================
+
+- Bound managed-child growth against `Cardinal` slot-count and allocation
+  limits before `XtRealloc`; see
+  `docs/paned-managed-children-allocation.md`.
+
 Bound legacy resource-filter byte sizes (2026-10-25)
 =====================================================
 

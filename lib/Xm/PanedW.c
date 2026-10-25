@@ -32,6 +32,7 @@ static char rcsid[] = "$TOG: PanedW.c /main/24 1999/07/13 07:46:01 mgreess $"
 
 
 #include <ctype.h>
+#include <limits.h>
 #include <stdint.h>
 #include <X11/cursorfont.h>
 #include "XmI.h"
@@ -815,12 +816,18 @@ ReManageChildren(
 	       Cardinal new_slots;
 	       WidgetList new_children;
 	       if (pw->paned_window.num_slots >
-		   (Cardinal)(SIZE_MAX / sizeof(Widget) - XmBLOCK))
+		   (Cardinal)~0 - XmBLOCK ||
+		   SIZE_MAX / sizeof(Widget) < XmBLOCK ||
+		   (size_t)pw->paned_window.num_slots >
+		   SIZE_MAX / sizeof(Widget) - XmBLOCK ||
+		   UINT_MAX / sizeof(Widget) < XmBLOCK ||
+		   (size_t)(pw->paned_window.num_slots + XmBLOCK) >
+		   UINT_MAX / sizeof(Widget))
 		   return;
 	       new_slots = pw->paned_window.num_slots + XmBLOCK;
 	       new_children = (WidgetList) XtRealloc(
 		   (char *) pw->paned_window.managed_children,
-		   (size_t)new_slots * sizeof(Widget));
+		   (Cardinal)((size_t)new_slots * sizeof(Widget)));
 	       if (new_children == NULL)
 		   return;
 	       pw->paned_window.managed_children = new_children;
