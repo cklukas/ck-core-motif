@@ -3819,7 +3819,10 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 		      XmCreateSeparatorGadget (menuW, SEPARATOR_NAME,
 					       (ArgList)NULL, 0);
 		    if (children[n] == NULL)
+		    {
+			menuSpec->currentContext &= ~CR_MENU_MARK;
 			return (NULL);
+		    }
 		    n++;
 		    fUseTitleSep = FALSE;
 		}
@@ -3831,7 +3834,10 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 		  XmCreateSeparatorGadget (menuW, SEPARATOR_NAME,
 					   (ArgList)NULL, 0);
 		if (children[n] == NULL)
+		{
+		    menuSpec->currentContext &= ~CR_MENU_MARK;
 		    return (NULL);
+		}
 		fUseTitleSep = FALSE;
 	    }
 	} /* F_Separator */
@@ -3872,6 +3878,7 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 		    {
 		       XmStringFree(tmpstr);
 		       MWarning(((char *)GETMESSAGE(48, 2, "Insufficient memory for menu %s\n")), menuName);
+		       menuSpec->currentContext &= ~CR_MENU_MARK;
 		       return (NULL);
 		    }
 		    sPtr->string  = tmpstr;
@@ -3894,16 +3901,27 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 			XmCreateSeparatorGadget (menuW, SEPARATOR_NAME,
 					         sepArgs, 1); n++;
 		    if (children[n - 1] == NULL)
+		    {
+			menuSpec->currentContext &= ~CR_MENU_MARK;
 			return (NULL);
+		    }
 		}
 
                 XtSetArg (args[i], XmNalignment, XmALIGNMENT_CENTER); i++; 
 	        children[n] = XmCreateLabelGadget (menuW, TITLE_NAME,
 					           (ArgList) args, i); n++;
-                if (children[n - 1] == NULL) return (NULL);
+                if (children[n - 1] == NULL)
+                {
+                    menuSpec->currentContext &= ~CR_MENU_MARK;
+                    return (NULL);
+                }
                 children[n] = XmCreateSeparatorGadget (menuW, SEPARATOR_NAME,
 					  sepArgs, 1); 
-                if (children[n] == NULL) return (NULL);
+                if (children[n] == NULL)
+                {
+                    menuSpec->currentContext &= ~CR_MENU_MARK;
+                    return (NULL);
+                }
 
                 /*
 		 * A following title will have both separators.
@@ -3958,7 +3976,11 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 			    i++;
 	                children[n] = XmCreateCascadeButtonGadget (menuW,
 					  CASCADE_BTN_NAME, (ArgList) args, i);
-                        if (children[n] == NULL) return (NULL);
+                        if (children[n] == NULL)
+                        {
+                            menuSpec->currentContext &= ~CR_MENU_MARK;
+                            return (NULL);
+                        }
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
 			XtAddCallback(children[n], XmNcascadingCallback,
 				      (XtCallbackProc)AdjustTearOffControl,
@@ -3972,7 +3994,11 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 	            {
 	                children[n] = XmCreateCascadeButtonGadget (menuW,
 					  CASCADE_BTN_NAME, (ArgList) args, i);
-	                if (children[n] == NULL) return (NULL);
+	                if (children[n] == NULL)
+	                {
+	                    menuSpec->currentContext &= ~CR_MENU_MARK;
+	                    return (NULL);
+	                }
 	                XtSetSensitive (children[n], FALSE);
 	            }
 
@@ -4003,6 +4029,7 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 		            {
 		               XmStringFree(tmpstr);
 		               MWarning(((char *)GETMESSAGE(48, 2, "Insufficient memory for menu %s\n")), menuName);
+		               menuSpec->currentContext &= ~CR_MENU_MARK;
 		               return (NULL);
 		            }
 		            sPtr->string = tmpstr;

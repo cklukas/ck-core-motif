@@ -1,3 +1,10 @@
+MWM menu retry-state cleanup (2026-10-26)
+==========================================
+
+- Clear the temporary menu-recursion marker on child and label allocation
+  failures so a later menu construction can retry normally; see
+  `docs/mwm-menu-retry-state.md`.
+
 MWM application-shell creation checks (2026-10-26)
 ===================================================
 
