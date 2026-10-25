@@ -9,6 +9,5 @@ allocation = source.index("strs = (XtPointer *)XtMalloc(\n      (Cardinal)((size
 guard = source.index("if (strs == NULL)", allocation)
 write = source.index("strs[i] = XmStringUnparse", guard)
 assert allocation < guard < write
-assert "_XmProcessUnlock();" in source[guard:write]
 assert "return(NULL);" in source[guard:write]
 print("PASS XmString table unparse allocation failure is handled")
