@@ -1,4 +1,8 @@
 2026-10-25
+	* Guard character-set converter input-copy and combined-table allocations,
+	  preserving cleanup on failure; see docs/charset-converter-allocation.md.
+
+2026-10-25
 	* Guard button-type converter table and mutable-input allocations, releasing
 	  partial state on failure; see docs/buttontype-converter-allocation.md.
 
