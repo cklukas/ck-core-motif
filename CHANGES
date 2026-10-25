@@ -8399,3 +8399,9 @@ BreadcrumbBar segment allocation (2026-10-27)
 
 - Check segment-array and label allocations, release partial replacement data,
   and reset the current index when segment replacement cannot be completed.
+
+Notebook scroll-frame allocation (2026-10-27)
+==============================================
+
+- Check private scroll-frame data allocation before initialization, returning
+  cleanly when the trait record cannot be allocated.

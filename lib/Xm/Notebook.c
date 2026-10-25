@@ -6766,6 +6766,9 @@ ScrollFrameInit (
     nb->notebook.scroll_frame_data = (XmScrollFrameData)
         XtMalloc(sizeof(XmScrollFrameDataRec));
 
+    if (nb->notebook.scroll_frame_data == NULL)
+	return;
+
     nb->notebook.scroll_frame_data->num_nav_list = 0 ;
     nb->notebook.scroll_frame_data->nav_list = NULL ;
     nb->notebook.scroll_frame_data->num_nav_slots = 0 ;
