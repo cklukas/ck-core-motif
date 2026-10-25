@@ -2585,6 +2585,7 @@ DoLayout(Widget widg)
   Dimension	   ebW = 0, ebH = 0, thickW = 0, thickH = 0;
   Dimension	   listW = 0, listH = 0 ;
   Dimension	   diff, htLeft = 0;
+  int available_edit_width, available_edit_height;
   XtWidgetGeometry geom, replygeom;
   XtGeometryResult result;
 
@@ -2606,19 +2607,24 @@ DoLayout(Widget widg)
     }
 
   GetThickness(widg, &thickW, &thickH);
-  ebW = XtWidth(cb) - 2 * (thickW + XtBorderWidth(CB_EditBox(cb)));
+  available_edit_width = (int) XtWidth(cb) -
+      2 * ((int) thickW + (int) XtBorderWidth(CB_EditBox(cb)));
+  available_edit_height = (int) XtHeight(cb) -
+      2 * ((int) thickH + (int) XtBorderWidth(CB_EditBox(cb)));
+  ebW = (Dimension) ((available_edit_width > 0) ? available_edit_width : 1);
   if (CB_Type(cb) != XmCOMBO_BOX)
     {
       /* These are the drop down types */
       Arg args[1];
       Cardinal nargs;
 
-      ebH = XtHeight(cb) - 2 * (thickH + XtBorderWidth(CB_EditBox(cb)));
-
       if (CB_ArrowSize(cb) == XmINVALID_DIMENSION)
 	CB_ArrowSize(cb) = GetDefaultArrowSize((Widget)cb);
       SetHitArea((Widget)cb);
-      ebW -= (CB_ArrowSpacing(cb) + CB_ArrowSize(cb));
+	  available_edit_width -= (int) CB_ArrowSpacing(cb) +
+	      (int) CB_ArrowSize(cb);
+	  ebW = (Dimension) ((available_edit_width > 0) ? available_edit_width : 1);
+	  ebH = (Dimension) ((available_edit_height > 0) ? available_edit_height : 1);
 
       /* Realize the shell so these values will be maintained. */
       if (!XtIsRealized(CB_ListShell(cb)))
@@ -2632,6 +2638,7 @@ DoLayout(Widget widg)
       assert(nargs <= XtNumber(args));
       XtSetValues(CB_ListShell(cb), args, nargs);
     }
+
   else
     {
       Dimension new_width = XtWidth(CB_ScrolledW(cb));

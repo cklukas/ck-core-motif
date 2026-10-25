@@ -7416,3 +7416,12 @@ ComboBox collapsed geometry bounds (2026-10-26)
 
 Scale trailing tick bounds (2026-10-26)
 =======================================
+ComboBox edit-field geometry bounds (2026-10-26)
+=================================================
+
+- Bound edit-field width and height after ComboBox insets and arrow extents,
+  preventing unsigned wraparound in collapsed controls; see
+  `docs/combobox-edit-width.md`.
+
+ComboBox collapsed geometry bounds (2026-10-26)
+================================================
