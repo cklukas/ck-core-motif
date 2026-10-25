@@ -11338,3 +11338,9 @@ MWM inline-menu allocation widths (2026-10-25)
 
 - Check inline menu command and function-argument lengths before Xt
   allocation; see `docs/mwm-inline-menu-allocation.md`.
+
+MWM diagnostic allocation widths (2026-10-25)
+==============================================
+
+- Check X I/O and workspace warning lengths before Xt allocation; see
+  `docs/mwm-error-allocation-widths.md`.

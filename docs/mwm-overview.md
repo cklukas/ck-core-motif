@@ -38,6 +38,7 @@ clients exchanging Motif window-management messages.
 - [Catalog-string allocation](mwm-catalog-allocation.md)
 - [Feedback catalog allocation](mwm-feedback-allocation.md)
 - [Inline-menu allocation widths](mwm-inline-menu-allocation.md)
+- [Diagnostic allocation widths](mwm-error-allocation-widths.md)
 - [Menu argument allocation](mwm-menu-args-allocation.md)
 - [Home-directory path bounds](mwm-home-path.md)
 - [Action-argument reallocation](mwm-action-arg-reallocation.md)

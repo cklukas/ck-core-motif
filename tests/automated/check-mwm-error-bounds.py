@@ -12,8 +12,12 @@ warning_region = source[warning_start:warning_end]
 assert "char  err[100]" not in io_region
 assert "sprintf (err" not in io_region
 assert "snprintf(NULL, 0" in io_region
+assert "(unsigned int)messageLength < UINT_MAX" in io_region
+assert "XtMalloc((unsigned int)messageLength + 1)" not in io_region
 assert "char pch[MAXWMPATH+1]" not in warning_region
 assert "sprintf (pch" not in warning_region
 assert "snprintf(NULL, 0" in warning_region
+assert "(unsigned int)messageLength < UINT_MAX" in warning_region
+assert "XtMalloc((unsigned int)messageLength + 1)" not in warning_region
 assert "XtFree(formattedMessage);" in warning_region
 print("mwm error diagnostics are dynamically bounded")

@@ -49,6 +49,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM feedback catalog allocation](mwm-feedback-allocation.md) — safe confirmation prompts.
 - [MWM menu argument allocation](mwm-menu-args-allocation.md) — width-checked formatted arguments.
 - [MWM inline-menu allocation widths](mwm-inline-menu-allocation.md) — reject unrepresentable inline menu strings.
+- [MWM diagnostic allocation widths](mwm-error-allocation-widths.md) — guard formatted warning sizes.
 - [MWM home-directory path bounds](mwm-home-path.md) — bounded legacy home-path resolution.
 - [MWM session database suffix updates](mwm-db-name-suffix.md) — bounded session-name suffix handling.
 - [Workspace-management command messages](command-message-argument-allocation.md) — bounded command-message construction.
