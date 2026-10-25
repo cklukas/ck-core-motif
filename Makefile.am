@@ -635,3 +635,5 @@ EXTRA_DIST += tests/automated/check-xm-filesb-api-null.py docs/xm-filesb-api-nul
 EXTRA_DIST += tests/automated/check-xm-color-api-null.py docs/xm-color-api-null.md
 
 EXTRA_DIST += tests/automated/check-xm-mainw-api-null.py docs/xm-mainw-api-null.md
+
+EXTRA_DIST += tests/automated/check-xm-notebook-page-null.py docs/xm-notebook-page-null.md

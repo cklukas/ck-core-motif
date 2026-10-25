@@ -6996,6 +6996,9 @@ XmNotebookGetPageInfo (
     Widget page, status, major_tab, minor_tab;
     XmNotebookPageStatus result;
     int i;
+
+    if (notebook == NULL || page_info == NULL)
+        return XmPAGE_INVALID;
     _XmWidgetToAppContext(notebook);
 
     _XmAppLock(app);

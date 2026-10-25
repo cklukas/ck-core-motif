@@ -1,3 +1,9 @@
+XmNotebook page-info null-safety (2026-10-25)
+===============================================
+
+- Validate notebook and output pointers in `XmNotebookGetPageInfo`; see
+  `docs/xm-notebook-page-null.md`.
+
 XmMainWindow API null-safety (2026-10-25)
 ============================================
 
