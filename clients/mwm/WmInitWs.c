@@ -53,6 +53,7 @@ static char rcsid[] = "$TOG: WmInitWs.c /main/18 1999/09/20 15:18:22 mgreess $"
 #endif /* NO_OL_COMPAT */
 #include <X11/Xos.h>
 #include <limits.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <X11/cursorfont.h>
 #include <Xm/Xm.h>
@@ -2614,17 +2615,28 @@ FixupBindingsString(
       if(    (strpbrk( (ks_ptr - 1), " \t>") == (ks_ptr - 1))
           && (strpbrk( ks_ptr, " \t\n") == (ks_ptr + orig_len))    )
         {
-          unsigned new_len = strlen( repl_xref->new_name) ;
-          unsigned suffix_len = strlen( ks_ptr + orig_len) ;
+          size_t new_len = strlen( repl_xref->new_name) ;
+          size_t suffix_len = strlen( ks_ptr + orig_len) ;
 
           if(    new_len > orig_len    )
             {
-              unsigned new_ttl_len = strlen( fixed_str) + new_len - orig_len ;
-              unsigned prefix_len ;
+              size_t prefix_len = (size_t)(ks_ptr - fixed_str);
+              size_t old_len = prefix_len + orig_len + suffix_len;
+              size_t new_ttl_len;
+              String resized;
 
-              *ks_ptr = '\0' ;
-              prefix_len = strlen( fixed_str) ;
-              fixed_str = XtRealloc( fixed_str, (new_ttl_len + 1)) ;
+              if (prefix_len > SIZE_MAX - orig_len ||
+                  prefix_len + orig_len > SIZE_MAX - suffix_len ||
+                  old_len > SIZE_MAX - (new_len - orig_len) ||
+                  old_len + (new_len - orig_len) == SIZE_MAX)
+                return fixed_str;
+              new_ttl_len = old_len + (new_len - orig_len);
+              if (new_ttl_len + 1 > (size_t)UINT_MAX)
+                return fixed_str;
+              resized = XtRealloc(fixed_str, (Cardinal)(new_ttl_len + 1));
+              if (resized == NULL)
+                return fixed_str;
+              fixed_str = resized;
               ks_ptr = fixed_str + prefix_len ;
             }
           memmove( (ks_ptr + new_len), (ks_ptr + orig_len), (suffix_len + 1)) ;

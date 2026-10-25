@@ -8234,3 +8234,12 @@ RCMenu callback-closure snapshot allocation (2026-10-27)
 
 PushButtonGadget resource-list allocation (2026-10-27)
 =======================================================
+MWM binding-string growth (2026-10-27)
+======================================
+
+- Expand replacement bindings with checked size arithmetic and a temporary Xt
+  pointer, preserving the current string when growth cannot be represented or
+  allocated.  Binding updates no longer dereference a failed realloc result.
+
+RCMenu callback-closure snapshot allocation (2026-10-27)
+========================================================
