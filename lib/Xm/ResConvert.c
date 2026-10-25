@@ -3073,6 +3073,8 @@ cvtStringToXmRenderTable(Display *dpy,
   if (from->addr)
     {   
       s = XtNewString((char *)from->addr);
+      if (s == NULL)
+	return FALSE;
       rt = NULL;
       has_default = FALSE;
 

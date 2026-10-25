@@ -1,3 +1,10 @@
+Render-table input-copy allocation guard (2026-10-25)
+======================================================
+
+- Check the mutable render-table input copy before tokenization and fail the
+  conversion cleanly when it cannot be allocated; see
+  `docs/render-table-input-allocation.md`.
+
 Cardinal-list converter allocation guards (2026-10-25)
 =======================================================
 
