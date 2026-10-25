@@ -1,3 +1,10 @@
+Clipboard header validation (2026-10-26)
+=========================================
+
+- Reject short or null clipboard-header properties, remove malformed header
+  state, and rebuild a valid default header before field access; see
+  `docs/clipboard-header-validation.md`.
+
 Clipboard event record validation (2026-10-26)
 ================================================
 

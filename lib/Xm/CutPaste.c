@@ -1584,6 +1584,15 @@ ClipboardOpen(
 				      &headertype,
 				      0,
 				      0 );
+	if (ret_value == ClipboardSuccess &&
+	    (root_clipboard_header == NULL ||
+	     headerlength < sizeof(ClipboardHeaderRec)))
+	{
+	    XtFree( (char *)root_clipboard_header);
+	    root_clipboard_header = NULL;
+	    CleanupHeader( display );
+	    ret_value = ClipboardFail;
+	}
     }
 
     if ( add_length != 0 || ret_value != ClipboardSuccess )
@@ -1601,6 +1610,24 @@ ClipboardOpen(
 					  0,
 					  0,
 					  0 ); /* don't discard old data */
+	if (ret_value == ClipboardSuccess &&
+	    (root_clipboard_header == NULL ||
+	     headerlength < sizeof(ClipboardHeaderRec)))
+	{
+	    XtFree( (char *)root_clipboard_header);
+	    root_clipboard_header = NULL;
+	    CleanupHeader( display );
+	    ret_value = ClipboardRetrieveItem(display,
+					      XM_HEADER_ID,
+					      add_length,
+					      sizeof(ClipboardHeaderRec),
+					      (XtPointer *) &root_clipboard_header,
+					      &headerlength,
+					      NULL,
+					      0,
+					      0,
+					      0);
+	}
     }
 
     /* means clipboard header had not been initialized */
