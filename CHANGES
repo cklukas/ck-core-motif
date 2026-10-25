@@ -28,6 +28,12 @@ Guard ColorPicker redisplay resources (2026-10-25)
 - Handle missing ColorPicker drawing resources and clamp short-widget swatch
   height arithmetic; see `docs/color-picker-redisplay-guard.md`.
 
+Guard RatingControl small-widget geometry (2026-10-25)
+=======================================================
+
+- Avoid zero-width click division and unsigned segment/focus geometry
+  underflow; see `docs/rating-control-geometry-guards.md`.
+
 Guard IconFile cache directory input (2026-10-27)
 ==================================================
 
