@@ -3765,6 +3765,13 @@ Guard text-property concatenation allocation (2026-10-25)
   its result buffer and return `XNoMemory`; see
   `docs/motif-txtpropcv-concat.md`.
 
+Guard usable-text table allocation (2026-10-25)
+================================================
+
+- Check the temporary table used by locale, text, string and standard ICC
+  conversion styles before filling it; see
+  `docs/motif-txtpropcv-useable-table.md`.
+
 Handle single text-property copy failure (2026-10-25)
 ======================================================
 
