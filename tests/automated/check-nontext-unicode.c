@@ -6,6 +6,8 @@
 #include <Xm/List.h>
 #include <Xm/PushB.h>
 #include <Xm/RowColumn.h>
+#include <Xm/SegmentedControl.h>
+#include <Xm/ToggleSwitch.h>
 #include <Xm/Xm.h>
 #include <X11/keysym.h>
 #include <locale.h>
@@ -24,9 +26,9 @@ int main(int argc, char **argv)
 {
     XtAppContext app;
     Widget shell, row, menu, pulldown, cascade, menu_item;
-    Widget label, compound_label, list, combo, files;
+    Widget label, compound_label, list, combo, files, toggle, segmented;
     XmString items[3], selected = NULL, expected_label, expected_combo;
-    XmString expected_menu, expected_file, compound;
+    XmString expected_menu, expected_file, expected_toggle, compound;
     const char *values[] = {
         "e\314\201clair",       /* combining acute */
         "\360\237\230\200 cafe", /* non-BMP emoji */
@@ -54,6 +56,7 @@ int main(int argc, char **argv)
     expected_combo = XmStringCreateLocalized((char *)values[2]);
     expected_menu = XmStringCreateLocalized((char *)values[0]);
     expected_file = XmStringCreateLocalized((char *)values[2]);
+    expected_toggle = XmStringCreateLocalized((char *)values[0]);
     compound = XmStringConcatAndFree(
         XmStringSegmentCreate((char *)values[0], XmFONTLIST_DEFAULT_TAG,
                               XmSTRING_DIRECTION_L_TO_R, True),
@@ -86,6 +89,17 @@ int main(int argc, char **argv)
     combo = XmVaCreateManagedComboBox(shell, "combo",
                                       XmNitems, items, XmNitemCount, 3,
                                       NULL);
+    toggle = XtVaCreateManagedWidget("toggle", xmToggleSwitchWidgetClass,
+                                    shell, XmNlabelString, expected_toggle,
+                                    NULL);
+    segmented = XmVaCreateManagedSegmentedControl(shell, "segmented", NULL);
+    {
+        XmSegmentedControlItem segment = {"han", expected_file,
+                                          XmUNSPECIFIED_PIXMAP, True};
+        CHECK(XmSegmentedControlSetItems(segmented, &segment, 1));
+        CHECK(XmSegmentedControlGetItemCount(segmented) == 1);
+        CHECK(XmSegmentedControlGetItemId(segmented, 0) != NULL);
+    }
     files = XmCreateFileSelectionBox(shell, "files", NULL, 0);
     XtManageChild(files);
     for (unsigned int i = 0; i < XtNumber(items); ++i)
@@ -143,14 +157,18 @@ int main(int argc, char **argv)
     XtVaGetValues(files, XmNdirSpec, &selected, NULL);
     CHECK(selected != NULL && XmStringByteCompare(selected, expected_file));
 
+    XtVaGetValues(toggle, XmNlabelString, &selected, NULL);
+    CHECK(selected != NULL && XmStringByteCompare(selected, expected_toggle));
+
     XmStringFree(expected_label);
     XmStringFree(expected_combo);
     XmStringFree(expected_menu);
     XmStringFree(expected_file);
+    XmStringFree(expected_toggle);
     XmStringFree(compound);
 
     XtDestroyWidget(shell);
     XtDestroyApplicationContext(app);
-    printf("PASS non-text Unicode label/compound/list/ComboBox/menu/file-selection matrix: %lu checks\n", checks);
+    printf("PASS non-text Unicode label/compound/list/ComboBox/menu/file-selection/toggle/segmented matrix: %lu checks\n", checks);
     return 0;
 }

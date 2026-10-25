@@ -75,9 +75,9 @@ These are real coverage gaps rather than claims of known source defects:
    system-library sanitizer ownership remain open; see
    `docs/dropsite-lifecycle.md` and `docs/dnd-transfer-lifecycle.md`.
 4. **Non-text Unicode matrix.** The installed public-API fixture now covers
-   Label, List, ComboBox, Menu and FileSelection values for combining, non-BMP
-   and Han text, plus a bounded two-segment compound `XmString` and List item
-   search. Mnemonics, keyboard layouts and full application navigation still
+   Label, List, ComboBox, Menu, FileSelection, ToggleSwitch and
+   SegmentedControl values for combining, non-BMP and Han text, plus a bounded
+   two-segment compound `XmString` and List item search. Mnemonics, keyboard layouts and full application navigation still
    need the broader mixed-script and supplementary-plane journey coverage of
    Text and TextField.
 5. **Accessibility user journeys.** AT-SPI protocol fixtures cover transport,
