@@ -11460,6 +11460,12 @@ MWM command window-array widths (2026-10-25)
 - Check WSM command window counts against Xt's allocation width; see
   `docs/mwm-command-window-array-width.md`.
 
+MWM colormap-reference array width (2026-10-25)
+================================================
+
+- Check dynamic colormap-reference counts before pointer-array allocation; see
+  `docs/mwm-colormap-reference-width.md`.
+
 MWM per-screen display allocation width (2026-10-25)
 =====================================================
 

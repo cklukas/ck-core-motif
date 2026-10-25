@@ -982,6 +982,7 @@ EXTRA_DIST += tests/automated/check-mwm-error-format-allocation.py docs/mwm-erro
 EXTRA_DIST += tests/automated/check-mwm-backdrop-path-allocation.py docs/mwm-backdrop-path-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-property-array-allocation.py docs/mwm-property-array-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-command-window-array-width.py docs/mwm-command-window-array-width.md
+EXTRA_DIST += tests/automated/check-colormap-reference-oom.py docs/mwm-colormap-reference-width.md
 
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 

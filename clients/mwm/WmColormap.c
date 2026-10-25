@@ -39,6 +39,7 @@ static char rcsid[] = "$XConsortium: WmColormap.c /main/5 1996/10/30 11:14:44 dr
  */
 
 #include "WmGlobal.h"
+#include <limits.h>
 
 /*
  * include extern functions
@@ -433,8 +434,13 @@ void AddColormapWindowReference (ClientData *pCD, Window window)
                 return;
             }
         }
+        if ((size_t)i > UINT_MAX / sizeof(ClientData *) - 2)
+        {
+            Warning("Colormap window reference list is too large");
+            return;
+        }
         new_cmap_window_data = (ClientData **)
-                                XtMalloc((i + 2 ) * sizeof(ClientData *));
+                                XtMalloc((Cardinal)((i + 2) * sizeof(ClientData *)));
         if (new_cmap_window_data == NULL)
         {
             Warning("Insufficient memory for colormap window references");
@@ -499,8 +505,13 @@ void RemoveColormapWindowReference (ClientData *pCD, Window window)
         {
         int     j,idx;
 
+            if ((size_t)i > UINT_MAX / sizeof(ClientData *))
+            {
+                Warning("Colormap window reference list is too large");
+                return;
+            }
             new_cmap_window_data = (ClientData **)
-                                        XtMalloc(i * sizeof(ClientData *));
+                                        XtMalloc((Cardinal)(i * sizeof(ClientData *)));
             if (new_cmap_window_data == NULL)
             {
                 Warning("Insufficient memory for colormap window references");
