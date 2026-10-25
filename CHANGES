@@ -178,6 +178,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  successful buffers; see docs/mrm-decommit-all-failure.md.
 
 2026-10-25
+	* Clear Mrm record-buffer outputs before validation and reject invalid pool
+	  sizes before selection; see docs/mrm-buffer-output-init.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,
