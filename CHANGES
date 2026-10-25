@@ -6237,3 +6237,8 @@ Accessibility creation input validation (2026-10-25)
 
 - Reject null roots and failed accessibility-object allocation before Xt state
   is accessed; see `docs/accessibility-create-inputs.md`.
+Accessibility D-Bus property input validation (2026-10-25)
+============================================================
+
+- Return safely for unknown or incomplete property requests instead of
+  dereferencing a null signature; see `docs/accessibility-dbus-property-inputs.md`.
