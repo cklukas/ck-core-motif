@@ -1132,6 +1132,9 @@ _XmGeoGetDimensions(
             unsigned int    numBoxes ;
             Dimension       marginW ;
             Dimension       marginH ;
+            unsigned long   extent ;
+            unsigned long   fillWidth ;
+            unsigned long   maxDimension = (unsigned long)(Dimension)-1;
 /****************/
 
     if (geoSpec == NULL || geoSpec->boxes == NULL || geoSpec->layouts == NULL)
@@ -1161,8 +1164,19 @@ _XmGeoGetDimensions(
         numBoxes = 0 ;
         boxPtr = rowPtr ;
         while(    boxPtr->kid    )
-        {   rowW += boxPtr->box.width + (boxPtr->box.border_width << 1) ;
-            boxH = boxPtr->box.height + (boxPtr->box.border_width << 1) ;
+        {   extent = (unsigned long)boxPtr->box.width +
+                    ((unsigned long)boxPtr->box.border_width << 1);
+            if (extent > maxDimension)
+                extent = maxDimension;
+            if ((unsigned long)rowW > maxDimension - extent)
+                rowW = (Dimension)maxDimension;
+            else
+                rowW += (Dimension)extent;
+            extent = (unsigned long)boxPtr->box.height +
+                     ((unsigned long)boxPtr->box.border_width << 1);
+            if (extent > maxDimension)
+                extent = maxDimension;
+            boxH = (Dimension)extent;
             ASSIGN_MAX( rowH, boxH) ;   /* The tallest box is the row height.*/
             ++numBoxes ;
             ++boxPtr ;
@@ -1194,10 +1208,18 @@ _XmGeoGetDimensions(
         /* Fill width is the minimum spacing between (borders of) boxes plus
         *   any extra space required at ends.  Margins are not included.
         */
-        layoutPtr->fill_width = (endSpaceW << 1);
-        if (numBoxes > 1)
-            layoutPtr->fill_width +=
-                (numBoxes - 1) * layoutPtr->space_between;
+        fillWidth = (unsigned long)endSpaceW << 1;
+        if (fillWidth > maxDimension)
+            fillWidth = maxDimension;
+        if (numBoxes > 1 && layoutPtr->space_between != 0) {
+            unsigned long betweenCount = (unsigned long)(numBoxes - 1);
+            if (betweenCount >
+                (maxDimension - fillWidth) / layoutPtr->space_between)
+                fillWidth = maxDimension;
+            else
+                fillWidth += betweenCount * layoutPtr->space_between;
+        }
+        layoutPtr->fill_width = (Dimension)fillWidth;
         /* Maximum row width is the overall matrix width, less margins.  Add
         *   box width to fill width for total width this row.
         */
