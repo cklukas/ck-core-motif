@@ -172,3 +172,10 @@ check is:
 ```sh
 python3 tests/automated/check-avatar-font-fallback.py
 ```
+
+TreeView disclosure indicators now center themselves within the configured row
+height instead of relying on a fixed offset.  The focused check is:
+
+```sh
+python3 tests/automated/check-treeview-text-metrics.py
+```

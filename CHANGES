@@ -14771,6 +14771,13 @@ Gallery notebook page spacing (2026-10-27)
 - Give the Welcome, Example, and Source notebook pages consistent inner
   margins so headings, controls, and source views do not touch the page frame.
 
+TreeView row-relative disclosure placement (2026-10-27)
+=========================================================
+
+- Center the disclosure box within the configured TreeView row height rather
+  than using a fixed vertical offset, keeping `+` and `−` indicators aligned
+  for compact and expanded row metrics.
+
 TreeView disclosure geometry (2026-10-27)
 =========================================
 

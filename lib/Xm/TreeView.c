@@ -313,7 +313,13 @@ static void draw_disclosure(XmTreeViewWidget view, int x, int y, Boolean open) {
      * is an actual pixel.  A one-pixel stroke then lands on the same centre
      * pixel horizontally and vertically instead of straddling an even-sized
      * box and looking offset. */
-    const int top = y + 6;
+    /* The indicator is a nine-pixel raster box (an eight-pixel X11
+     * extent).  Center it in the actual row instead of assuming the
+     * historical 21-pixel row height; custom row heights must not make the
+     * disclosure control appear too high or too low. */
+    const int box_size = 9;
+    const int top = y + (view->tree_view.row_height >= box_size ?
+                         ((int)view->tree_view.row_height - box_size) / 2 : 0);
     const int center_x = x + 4;
     const int center_y = top + 4;
     XDrawRectangle(display, window, view->tree_view.gc, x, top, 8, 8);
