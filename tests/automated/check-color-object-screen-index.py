@@ -5,8 +5,8 @@ from pathlib import Path
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "ColorObj.c").read_text(
     encoding="utf-8"
 )
-start = source.index("static void\nFetchPixelData")
-end = source.index("static void", start + 1)
+start = source.index("static Boolean\nFetchPixelData")
+end = source.index("static Boolean", start + 1)
 region = source[start:end]
 assert "screen < 0" in region
 assert "screen >= tmpColorObj->color_obj.numScreens" in region
