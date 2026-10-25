@@ -10325,6 +10325,12 @@ GeoUtils child setup input guard (2026-10-25)
 - Return `False` when `_XmGeoSetupKid` has no destination geometry record;
   see `docs/geo-setup-kid-input.md`.
 
+Screen cursor-cache input validation (2026-10-25)
+=================================================
+
+- Validate drag-icon and screen inputs before removing cursor-cache entries;
+  see `docs/screen-cursor-cache-input.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

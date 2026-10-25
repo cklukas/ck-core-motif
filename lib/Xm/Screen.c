@@ -761,10 +761,18 @@ void
 _XmScreenRemoveFromCursorCache(
     XmDragIconObject	icon )
 {
-    XmScreen	       xmScreen = (XmScreen) XmGetXmScreen(XtScreen(icon));
-    XmDragCursorCache  ptr = xmScreen->screen.cursorCache;
-    XmDragCursorCache  previous = xmScreen->screen.cursorCache;
+    XmScreen	       xmScreen;
+    XmDragCursorCache  ptr;
+    XmDragCursorCache  previous;
     XmDragCursorCache  next;
+
+    if (icon == NULL)
+	return;
+    xmScreen = (XmScreen) XmGetXmScreen(XtScreen(icon));
+    if (xmScreen == NULL)
+	return;
+    ptr = xmScreen->screen.cursorCache;
+    previous = xmScreen->screen.cursorCache;
 
     while (ptr) {
 	next = ptr->next;
