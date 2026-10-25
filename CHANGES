@@ -1,3 +1,9 @@
+Representation-type converter input validation (2026-10-25)
+==============================================================
+
+- Validate Xt converter inputs and record resolution before forward or reverse
+  representation-type conversion; see `docs/reptype-converter-inputs.md`.
+
 Representation-type lookup null validation (2026-10-25)
 =========================================================
 
