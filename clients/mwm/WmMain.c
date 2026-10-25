@@ -258,6 +258,7 @@ int WmReturnIdentity ( int argc, char *argv[], char *environ[])
 {
 	char *tempString;
 	char *origPtr;
+	char *baseName;
 
 	/* assume it's dtwm until proven differently */
 
@@ -271,16 +272,12 @@ int WmReturnIdentity ( int argc, char *argv[], char *environ[])
 	}
 
 	origPtr = tempString;
-
-	if (strrchr(argv[0], '/'))
-	{
-		
-		strcpy(tempString, (strrchr(argv[0], '/')));
-
-		tempString++;
-	}
+	baseName = strrchr(argv[0], '/');
+	if (baseName != NULL)
+	    baseName++;
 	else
-		strcpy(tempString, argv[0]);
+	    baseName = argv[0];
+	strcpy(tempString, baseName);
 
 	if (!(strcmp(tempString, WM_RESOURCE_NAME)))
 	/*

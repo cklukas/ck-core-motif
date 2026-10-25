@@ -157,6 +157,8 @@ EXTRA_DIST += tests/automated/check-mwm-network-path-size.py \
               docs/mwm-network-path-size.md
 EXTRA_DIST += tests/automated/check-mwm-display-string-bounds.py \
               docs/mwm-display-string-bounds.md
+EXTRA_DIST += tests/automated/check-mwm-identity-basename.py \
+              docs/mwm-identity-basename.md
 
 # Keyboard activation lifetime regression.
 EXTRA_DIST += tests/automated/check-button-timers.c docs/button-timers.md

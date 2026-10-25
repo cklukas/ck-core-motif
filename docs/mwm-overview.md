@@ -39,6 +39,7 @@ clients exchanging Motif window-management messages.
 - [Preprocessor command bounds](mwm-preprocess-command-bounds.md)
 - [Network-file path sizing](mwm-network-path-size.md)
 - [Display-string bounds](mwm-display-string-bounds.md)
+- [Executable identity basename](mwm-identity-basename.md)
 
 These focused pages document compatibility-preserving guards; they do not
 change public MWM resource or message formats.

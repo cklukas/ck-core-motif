@@ -11009,3 +11009,9 @@ MWM display-string bounds (2026-10-25)
 
 - Bound per-screen display-string allocation and formatting, rejecting
   truncation before publishing the result; see `docs/mwm-display-string-bounds.md`.
+
+MWM executable identity basename (2026-10-25)
+==============================================
+
+- Copy the executable basename after the final slash when selecting MWM versus
+  dtwm identity; see `docs/mwm-identity-basename.md`.
