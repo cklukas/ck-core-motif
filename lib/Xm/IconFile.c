@@ -787,11 +787,15 @@ XmGetIconFileName(
 
 	    if (iNameEntry) {
 		size_t dirLen, leafLen;
+		size_t pathLen;
 
 		dirLen = strlen(iNameEntry->dirName);
 		leafLen = strlen(iNameEntry->leafName);
-		if (leafLen <= SIZE_MAX - dirLen - 2) {
-			fileName = XtMalloc(dirLen + leafLen + 2);
+		if (dirLen <= SIZE_MAX - 2 &&
+		    leafLen <= SIZE_MAX - dirLen - 2) {
+		    pathLen = dirLen + leafLen + 2;
+		    if (pathLen <= UINT_MAX) {
+			fileName = XtMalloc((Cardinal)pathLen);
 			if (fileName != NULL) {
 				memmove(&fileName[0],
 				       iNameEntry->dirName,
@@ -811,6 +815,7 @@ XmGetIconFileName(
 				}
 #endif
 			}
+		    }
 		}
 	    }
 	}

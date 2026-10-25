@@ -13,4 +13,6 @@ The source-level regression is
 `tests/automated/check-icon-suffix-bounds.py`.
 
 Cache-entry path joining applies the same checked `size_t` arithmetic and
-falls through to normal path lookup if the joined buffer cannot be allocated.
+checks the resulting size against Xt's `Cardinal` width. It skips an
+unrepresentable or unavailable cache entry and falls through to normal path
+lookup without changing valid cache behavior.

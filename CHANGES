@@ -5539,6 +5539,13 @@ Protocol registration allocation (2026-10-25)
 - Roll back partially allocated protocol records when registration cannot
   allocate the next record; see `docs/protocol-allocation.md`.
 
+Cached icon-path Xt width (2026-10-25)
+======================================
+
+- Reject cached icon paths that cannot be represented by Xt's `Cardinal`
+  allocation interface, while preserving normal path lookup fallback; see
+  `docs/icon-file-bounds.md`.
+
 Cached icon-path joining bounds (2026-10-25)
 ===============================================
 
