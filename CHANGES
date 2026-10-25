@@ -1,3 +1,9 @@
+Clipboard data-wait cleanup (2026-10-26)
+=========================================
+
+- Restore root event masks on cut-by-name wait failures and avoid null Xt
+  application-context timeouts; see `docs/clipboard-data-wait-cleanup.md`.
+
 Clipboard data-ready event validation (2026-10-26)
 ===================================================
 

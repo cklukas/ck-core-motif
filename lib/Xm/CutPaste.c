@@ -2710,6 +2710,9 @@ ClipboardRequestDataAndWait(
     if ( cutbynameinfo.window == 0 )
     {
         /* this means the cut by name window had been destroyed */
+        XSelectInput( display,
+                      rootwindow,
+                      rootattributes.your_event_mask );
         return 0;
     }
 
@@ -2719,7 +2722,10 @@ ClipboardRequestDataAndWait(
       app_context = XtWidgetToApplicationContext(wid);
       maxtime = XtAppGetSelectionTimeout(app_context);
     } else {
-      maxtime = 5000;
+	XSelectInput( display,
+	              rootwindow,
+	              rootattributes.your_event_mask );
+	return 0;
     }
     timer_expired = False;
     timerid = XtAppAddTimeOut(app_context, maxtime, 
@@ -2753,11 +2759,20 @@ ClipboardRequestDataAndWait(
     }
     if (! timer_expired) XtRemoveTimeOut(timerid);
 
-    if (! dataisready) return 0; /* Fail,  no response */
+    if (! dataisready) {
+	/* Fail, no response; restore the root event mask. */
+	XSelectInput( display,
+	              rootwindow,
+	              rootattributes.your_event_mask );
+	return 0;
+    }
 
     if ( cutbynameinfo.window == 0 )
     {
         /* this means the cut by name window had been destroyed */
+        XSelectInput( display,
+                      rootwindow,
+                      rootattributes.your_event_mask );
         return 0;
     }
 
