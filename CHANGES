@@ -22,6 +22,12 @@ Guard IconFile cache comparison (2026-10-27)
 - Validate icon-cache entries and key strings before comparison; see
   `docs/icon-cache-comparator.md`.
 
+Guard XmGetIconFileName screen input (2026-10-27)
+=================================================
+
+- Return safely before display access when the public icon-file lookup receives
+  a null screen; see `docs/icon-public-screen-input.md`.
+
 Guard XmRegion API NULL inputs (2026-10-26)
 ============================================
 
