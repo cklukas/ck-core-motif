@@ -1294,6 +1294,7 @@ XmRepTypeRegister(
 #endif /* NeedWidePrototypes */
 {     
     XmRepTypeEntry NewRecord ;
+    XmRepTypeList new_dynamic_types;
     XtConvertArgRec convertArg;
     XmRepTypeId reptype_id;
     
@@ -1310,9 +1311,14 @@ XmRepTypeRegister(
 	_XmProcessUnlock();
 	return( XmREP_TYPE_INVALID);
       }
-    DynamicRepTypes = (XmRepTypeList) 
-	XtRealloc( (char *) DynamicRepTypes, (sizeof(XmRepTypeEntryRec) 
-				* (DynamicRepTypeNumRecords + 1))) ;
+    new_dynamic_types = (XmRepTypeList)
+       XtRealloc((char *)DynamicRepTypes, sizeof(XmRepTypeEntryRec) *
+                 (DynamicRepTypeNumRecords + 1));
+    if (new_dynamic_types == NULL) {
+	_XmProcessUnlock();
+	return( XmREP_TYPE_INVALID);
+    }
+    DynamicRepTypes = new_dynamic_types;
 
    /** fill in the new record */
     NewRecord = &DynamicRepTypes[DynamicRepTypeNumRecords] ;
