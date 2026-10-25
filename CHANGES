@@ -1,3 +1,10 @@
+Xm argument-filter allocation guard (2026-10-28)
+==================================================
+
+- Reject argument-list sizes that cannot fit Xt's byte-count type and return
+  cleanly when filtered-list allocation fails, avoiding writes through NULL;
+  see `docs/xm-filter-args-allocation.md`.
+
 Xmos qualified-path allocation guards (2026-10-28)
 ====================================================
 

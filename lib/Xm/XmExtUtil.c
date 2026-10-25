@@ -275,10 +275,13 @@ _XmFilterArgs(ArgList args, Cardinal num_args, String *filter,
     *filtered_args = NULL;
     *num_filtered_args = 0;
     if (num_args == 0 || args == NULL ||
-        (size_t)num_args > SIZE_MAX / sizeof(Arg))
+        (size_t)num_args > SIZE_MAX / sizeof(Arg) ||
+        num_args > UINT_MAX / sizeof(Arg))
         return;
 
     fargs = (ArgList) XtMalloc(sizeof(Arg) * (size_t)num_args);
+    if (fargs == NULL)
+	return;
     *filtered_args = fargs;
     for (i = 0; i < num_args; i++) {
 	Boolean match = False;
