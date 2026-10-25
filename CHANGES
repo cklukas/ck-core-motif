@@ -9804,6 +9804,13 @@ Image-scaling table arithmetic guard (2026-10-25)
   sizes, preventing narrow-`size_t` wraparound while preserving normal image
   scaling; see `docs/image-scaling-allocations.md`.
 
+MWM menu-spec copy failure handling (2026-10-25)
+================================================
+
+- Abort custom-menu duplication and release partial fields when item or
+  exclusion copies fail, preventing incomplete menus under resource pressure;
+  see `docs/mwm-menu-spec-copy-failure.md`.
+
 - Preserve the current string-child value list when replacement allocation or
   copying fails during `SetValues`, rolling back partial copies safely; see
   `docs/spinbox-value-setvalues-rollback.md`.

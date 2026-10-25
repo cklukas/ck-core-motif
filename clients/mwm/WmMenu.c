@@ -737,6 +737,12 @@ DuplicateMenuSpec (MenuSpec *menuSpec)
     newMenuSpec->whichButton = menuSpec->whichButton;
     newMenuSpec->height = menuSpec->height;
     newMenuSpec->menuItems = DuplicateMenuItems(menuSpec->menuItems);
+    if (menuSpec->menuItems != (MenuItem *)NULL &&
+	newMenuSpec->menuItems == (MenuItem *)NULL) {
+	XtFree((char *)newMenuSpec->name);
+	XtFree((char *)newMenuSpec);
+	return (NULL);
+    }
     newMenuSpec->menuButtons = (MenuButton *) NULL;
     newMenuSpec->menuButtonSize = 0;
     newMenuSpec->menuButtonCount = 0;
@@ -744,6 +750,19 @@ DuplicateMenuSpec (MenuSpec *menuSpec)
     newMenuSpec->accelKeySpecs = (KeySpec *) NULL;
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
     newMenuSpec->exclusions = DuplicateMenuExclusions(menuSpec->exclusions);
+    if (menuSpec->exclusions != (MenuExclusion *)NULL &&
+	newMenuSpec->exclusions == (MenuExclusion *)NULL) {
+	MenuItem *item = newMenuSpec->menuItems;
+	MenuItem *next_item;
+	while (item != (MenuItem *)NULL) {
+	    next_item = item->nextMenuItem;
+	    FreeMenuItem(item);
+	    item = next_item;
+	}
+	XtFree((char *)newMenuSpec->name);
+	XtFree((char *)newMenuSpec);
+	return (NULL);
+    }
     newMenuSpec->clientLocal = TRUE;
     newMenuSpec->commandID = menuSpec->commandID;
 #endif
