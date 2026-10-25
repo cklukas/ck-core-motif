@@ -3683,3 +3683,10 @@ Guard XmString table allocations (2026-10-25)
   process lock, releasing it before returning `NULL` on failure; see
   `docs/motif-xmstring-table-parse.md` and
   `docs/motif-xmstring-table-unparse.md`.
+Guard icon-file cache allocations (2026-10-25)
+===============================================
+
+- Treat icon-name and IconButton stipple caches as optional: guard cache
+  records, key/path copies, hash-table lookup and stipple-record allocation,
+  releasing partial entries and continuing normal icon resolution on failure;
+  see the corresponding `docs/motif-icon*.md` contracts.

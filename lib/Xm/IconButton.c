@@ -1803,6 +1803,8 @@ GetGreyStipple(Widget w)
   }
   
   set = (StippleInfo *) XtMalloc(sizeof(StippleInfo));
+  if (set == NULL)
+    return (Pixmap)None;
   set->stipple = XCreateBitmapFromData(XtDisplay(w), 
 				       RootWindowOfScreen(XtScreen(w)), 
 				       gray_bits, gray_width, gray_height);

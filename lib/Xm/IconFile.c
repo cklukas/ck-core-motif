@@ -699,7 +699,7 @@ XmGetIconFileName(
 	/*
 	 * optimization to check all expansions in cache
 	 */
-	if (!fileName) {
+	if (!fileName && iconNameCache != NULL) {
 	    DtIconNameEntry iNameEntry;
 	    DtIconNameEntryRec  iNameData ;
 
@@ -788,13 +788,30 @@ XmGetIconFileName(
 
 	/** alloc a icon cache entry **/
 	iNameEntry = (DtIconNameEntry) XtMalloc(sizeof(DtIconNameEntryRec));
+	if (iNameEntry == NULL)
+	    goto skip_icon_name_cache;
 	iNameEntry->key_name = XtNewString(name_used);
+	if (iNameEntry->key_name == NULL) {
+	    XtFree((char *)iNameEntry);
+	    goto skip_icon_name_cache;
+	}
       
 #ifndef XTHREADS
         if (useIconFileCache)
         {
 	   iNameEntry->dirName = XtNewString(GdirName);
+	   if (iNameEntry->dirName == NULL) {
+	       XtFree(iNameEntry->key_name);
+	       XtFree((char *)iNameEntry);
+	       goto skip_icon_name_cache;
+	   }
 	   iNameEntry->leafName = XtNewString(GleafName);
+	   if (iNameEntry->leafName == NULL) {
+	       XtFree(iNameEntry->dirName);
+	       XtFree(iNameEntry->key_name);
+	       XtFree((char *)iNameEntry);
+	       goto skip_icon_name_cache;
+	   }
         }
         else
 #endif
@@ -814,19 +831,38 @@ XmGetIconFileName(
            }
 
            dirName = (String)XtMalloc(dirNameLen + 1);
+	   if (dirName == NULL) {
+	       XtFree(iNameEntry->key_name);
+	       XtFree((char *)iNameEntry);
+	       goto skip_icon_name_cache;
+	   }
 	   strncpy(dirName, fileName, dirNameLen);
 	   dirName[dirNameLen] = '\0';
 
 	   iNameEntry->dirName = dirName;
 	   iNameEntry->leafName = XtNewString(filePtr);
+	   if (iNameEntry->leafName == NULL) {
+	       XtFree(iNameEntry->dirName);
+	       XtFree(iNameEntry->key_name);
+	       XtFree((char *)iNameEntry);
+	       goto skip_icon_name_cache;
+	   }
         }
 
-	_XmProcessLock();
-        _XmAddHashEntry(iconNameCache, (XmHashKey)iNameEntry, 
+	if (iconNameCache != NULL) {
+	    _XmProcessLock();
+        _XmAddHashEntry(iconNameCache, (XmHashKey)iNameEntry,
 			(XtPointer)iNameEntry);
-	_XmProcessUnlock();
+	    _XmProcessUnlock();
+	} else {
+	    XtFree(iNameEntry->leafName);
+	    XtFree(iNameEntry->dirName);
+	    XtFree(iNameEntry->key_name);
+	    XtFree((char *)iNameEntry);
+	}
     }
 
+skip_icon_name_cache:
     /*
      * CDExc20823 (memory leak): free names_w_size[i] if not NULL.
      */
