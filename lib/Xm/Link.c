@@ -73,6 +73,7 @@ static void text_value(XmLinkWidget link, char *buffer, size_t size) {
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmLinkWidget link = (XmLinkWidget)widget; char text[256]; int length;
     (void)event; (void)region; text_value(link, text, sizeof(text)); length = (int)strlen(text);
+    if (!XtWindow(widget) || !link->link.gc) return;
     XClearWindow(XtDisplay(widget), XtWindow(widget));
     XDrawString(XtDisplay(widget), XtWindow(widget), link->link.gc, 4,
                 (int)link->core.height - 8, text, length);
@@ -93,13 +94,28 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmLinkWidget old = (XmLinkWidget)old_widget, link = (XmLinkWidget)widget;
     Boolean redraw = False;
+    XmString label_replacement;
+    char *target_replacement;
     (void)request; (void)args; (void)count;
-    if (old->link.label != link->link.label) { link->link.label = copy_label(link->link.label); redraw = True; }
-    if (old->link.target != link->link.target) {
-        if (link->link.target) link->link.target = XtNewString(link->link.target);
-        else link->link.target = XtNewString("");
-        if (old->link.target) XtFree(old->link.target);
+    if (old->link.label != link->link.label) {
+        label_replacement = copy_label(link->link.label);
+        if (label_replacement) {
+            XmStringFree(old->link.label);
+            link->link.label = label_replacement;
+        } else {
+            link->link.label = old->link.label;
+        }
         redraw = True;
+    }
+    if (old->link.target != link->link.target) {
+        target_replacement = XtNewString(link->link.target ? link->link.target : "");
+        if (target_replacement) {
+            if (old->link.target) XtFree(old->link.target);
+            link->link.target = target_replacement;
+            redraw = True;
+        } else {
+            link->link.target = old->link.target;
+        }
     }
     return redraw || old->link.visited != link->link.visited ||
            old->link.visit_on_activate != link->link.visit_on_activate ||
