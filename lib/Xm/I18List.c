@@ -28,6 +28,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
+#include <stdint.h>
 #include "XmI.h"
 #include <Xm/XmP.h>
 #include <Xm/DrawP.h>
@@ -3135,9 +3137,13 @@ XmI18ListGetSelectedRows(Widget w)
 	    i++;
     }
     
-    if (i != 0) {
+	if (i != 0) {
+	    size_t slots = (size_t)i + 1;
+	    if (slots > SIZE_MAX / sizeof(*ret_rows) ||
+		slots > UINT_MAX / sizeof(*ret_rows))
+		return NULL;
 	ptr = ret_rows = (XmMultiListRowInfo **) XtMalloc(
-                sizeof(XmMultiListRowInfo *) * (i + 1));
+		    (Cardinal)(slots * sizeof(*ret_rows)));
 	if (ret_rows == NULL)
 	    return NULL;
 	ret_rows[i] = NULL;
@@ -3491,6 +3497,8 @@ GetSelectedRows(XmI18ListWidget i18list, int *num_rows)
     int		*rows, i;
 
     rows = NULL;
+    if (i18list == NULL || num_rows == NULL)
+	return NULL;
 
     for (*num_rows = 0, i = 0; i < XmI18List_num_rows(i18list); i++)
 	if (row_info[i].selected)
@@ -3499,8 +3507,14 @@ GetSelectedRows(XmI18ListWidget i18list, int *num_rows)
     if (*num_rows > 0)
     {
 	int	j;
+	if ((size_t)*num_rows > SIZE_MAX / sizeof(*rows) ||
+	    (size_t)*num_rows > UINT_MAX / sizeof(*rows))
+	    return NULL;
+	size_t bytes = (size_t)*num_rows * sizeof(*rows);
 
-	rows = (int *) XtMalloc(*num_rows * sizeof(int));
+	rows = (int *) XtMalloc((Cardinal)bytes);
+	if (rows == NULL)
+	    return NULL;
 
 	for (i = 0, j = 0; i < XmI18List_num_rows(i18list); i++)
 	    if (row_info[i].selected)

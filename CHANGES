@@ -9188,3 +9188,12 @@ DropDown selection-table Xt bounds (2026-10-29)
 
 Representation-type string-copy Xt bounds (2026-10-29)
 ========================================================
+I18List selected-row Xt bounds (2026-10-29)
+============================================
+
+- Bound selected-row result and integer-row arrays against Xt's `Cardinal`
+  allocation range, and reject null helper inputs before dereferencing them;
+  see `docs/i18list-selected-rows-allocation.md`.
+
+DropDown selection-table Xt bounds (2026-10-29)
+================================================
