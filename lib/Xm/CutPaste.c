@@ -3162,6 +3162,10 @@ XmClipboardCopy(
     int status, count, format_len ;
     unsigned long maxname, formatlength, itemlength, formatdatalength;
     Atom type;
+
+    if (format == NULL || (buffer == NULL && length != 0))
+	return ClipboardBadFormat;
+
     _XmDisplayToAppContext(display);
 
     _XmAppLock(app);
@@ -3565,6 +3569,10 @@ XmClipboardCopyByName(
     ClipboardHeader root_clipboard_header;
     Atom headertype, formattype;
     Atom type;
+
+    if (buffer == NULL && length != 0)
+	return ClipboardBadFormat;
+
     _XmDisplayToAppContext(display);
 
     _XmAppLock(app);
