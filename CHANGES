@@ -1,3 +1,10 @@
+I18List pixmap conversion allocation guard (2026-10-28)
+==========================================================
+
+- Refuse I18List conversions with a missing drag context or unavailable
+  pixmap-result allocation instead of dereferencing NULL; see
+  `docs/i18list-pixmap-conversion-allocation.md`.
+
 I18List drag snapshot rollback (2026-10-28)
 =============================================
 

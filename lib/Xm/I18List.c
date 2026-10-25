@@ -3678,6 +3678,12 @@ ListConvert(Widget w, XtPointer client_data,
     XmI18ListWidget lw = (XmI18ListWidget) w;
     XmI18ListDragConvertStruct *ListDragConv = lw->ilist.drag_conv;
 
+    if (ListDragConv == NULL)
+	{
+	    cs->status = XmCONVERT_REFUSE;
+	    return;
+	}
+
     assert(XtNumber(atom_names) == NUM_ATOMS);
     XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);
 
@@ -3858,6 +3864,10 @@ ListConvert(Widget w, XtPointer client_data,
 	Pixmap *pix;
       
 	pix = (Pixmap *) XtMalloc(sizeof(Pixmap));
+	if (pix == NULL) {
+	    cs->status = XmCONVERT_REFUSE;
+	    return;
+	}
 	*pix = ListDragConv->pixmap;
 	/* value, type, size, and format must be set */
 	value = (XtPointer) pix;
