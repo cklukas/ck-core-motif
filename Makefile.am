@@ -764,3 +764,5 @@ EXTRA_DIST += tests/automated/check-traversal-redirect-cycle.py docs/traversal-r
 EXTRA_DIST += tests/automated/check-xmlist-allocation-failure.py docs/xmlist-allocation-failure.md
 
 EXTRA_DIST += tests/automated/check-xmlist-stack-allocation.py docs/xmlist-stack-allocation.md
+
+EXTRA_DIST += tests/automated/check-xmlist-lifecycle-inputs.py docs/xmlist-lifecycle-inputs.md
