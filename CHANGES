@@ -9790,6 +9790,13 @@ MWM CCI argument allocation guard (2026-10-25)
   allocations, preserving valid modifiers while cleaning up failed parses;
   see `docs/mwm-cci-argument-allocation.md`.
 
+MWM CCI label-prefix bounds (2026-10-25)
+========================================
+
+- Build legacy CCI modifier prefixes with checked sizing and transactional
+  replacement, preserving the old label on allocation failure; see
+  `docs/mwm-cci-label-prefix.md`.
+
 MWM client-command label allocation guard (2026-10-25)
 =======================================================
 

@@ -6313,9 +6313,29 @@ static Boolean GetCCIModifier (String modString, CCIEntryModifier *mod)
  *
  *************************************<->***********************************/
 
+static Boolean PrefixMenuItemLabel (MenuItem *menuItem, const char *prefix)
+{
+  size_t prefixLength = strlen(prefix);
+  size_t labelLength;
+  String replacement;
+
+  if (menuItem == NULL || menuItem->label == NULL)
+    return (FALSE);
+  labelLength = strlen(menuItem->label);
+  if (labelLength > SIZE_MAX - prefixLength - 1)
+    return (FALSE);
+  replacement = (String)XtMalloc(prefixLength + labelLength + 1);
+  if (replacement == NULL)
+    return (FALSE);
+  memcpy(replacement, prefix, prefixLength);
+  memcpy(replacement + prefixLength, menuItem->label, labelLength + 1);
+  XtFree(menuItem->label);
+  menuItem->label = replacement;
+  return (TRUE);
+}
+
 static void FixMenuItem (MenuSpec *menuSpec, MenuItem *menuItem)
 {
-  String      tmp;
   CCIFuncArg *cciArg;
   
 
@@ -6323,6 +6343,8 @@ static void FixMenuItem (MenuSpec *menuSpec, MenuItem *menuItem)
     return;
 
   cciArg = (CCIFuncArg *)menuItem->wmFuncArgs;
+  if (cciArg == NULL || cciArg->cciEntry == NULL)
+    return;
 
   menuItem->clientCommandName = menuItem->label;
   menuItem->label = cciArg->cciEntry;
@@ -6341,18 +6363,12 @@ static void FixMenuItem (MenuSpec *menuSpec, MenuItem *menuItem)
 
     case CASCADE:
       /* -> */
-      tmp = (String) XtMalloc(strlen(menuItem->label) + 3);
-      sprintf(tmp, "->%s", menuItem->label);
-      XtFree(menuItem->label);
-      menuItem->label = tmp;
+      (void)PrefixMenuItemLabel(menuItem, "->");
       break;
 
     case DELIMIT:
       /* = */
-      tmp = (String) XtMalloc(strlen(menuItem->label) + 2);
-      sprintf(tmp, "=%s", menuItem->label);
-      XtFree(menuItem->label);
-      menuItem->label = tmp;
+      (void)PrefixMenuItemLabel(menuItem, "=");
       break;
 
     case DELIMIT_INLINE:
@@ -6360,20 +6376,14 @@ static void FixMenuItem (MenuSpec *menuSpec, MenuItem *menuItem)
 
     case DELIMIT_CASCADE:
       /* => */
-      tmp = (String) XtMalloc(strlen(menuItem->label) + 3);
-      sprintf(tmp, "=>%s", menuItem->label);
-      XtFree(menuItem->label);
-      menuItem->label = tmp;
+      (void)PrefixMenuItemLabel(menuItem, "=>");
       break;
 
     case EXCLUDE:
       /* ~ */
       StoreExclusion(menuSpec, menuItem->label);
 
-      tmp = (String) XtMalloc(strlen(menuItem->label) + 2);
-      sprintf(tmp, "~%s", menuItem->label);
-      XtFree(menuItem->label);
-      menuItem->label = tmp;
+      (void)PrefixMenuItemLabel(menuItem, "~");
       break;
     }
 }
