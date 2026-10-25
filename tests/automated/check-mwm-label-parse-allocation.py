@@ -9,5 +9,7 @@ region = source[start:end]
 assert "size_t labelLength;" in region
 assert "if (menuItem == NULL || string == NULL)" in region
 assert "labelLength = strlen((char *)string);" in region
-assert "XtMalloc(labelLength + 1)" in region
+assert "labelLength >= UINT_MAX" in region
+assert "XtMalloc((Cardinal)labelLength + 1)" in region
+assert "XtMalloc(labelLength + 1)" not in region
 print("PASS MWM label parsing validates input and allocation")

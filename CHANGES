@@ -11478,6 +11478,12 @@ MWM session command-vector allocation widths (2026-10-25)
 - Check restore command-vector counts before Xt allocation and reallocation;
   see `docs/mwm-session-command-vector-width.md`.
 
+MWM label allocation width (2026-10-25)
+========================================
+
+- Check parsed menu-label lengths against Xt's allocation width; see
+  `docs/mwm-label-parse-allocation.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 
