@@ -4108,3 +4108,9 @@ Mrm conversion pointer null checks (2026-10-25)
 
 - Reject null CString, address-name, icon-image, and bitmap-file values before
   conversion helpers; see `docs/mrm-convert-pointer-null.md`.
+Mrm primitive conversion pointer checks (2026-10-25)
+=====================================================
+
+- Reject null color, wide-character, unit, translation, class-name, and keysym
+  values before conversion; see
+  `docs/mrm-convert-primitive-pointer-validation.md`.

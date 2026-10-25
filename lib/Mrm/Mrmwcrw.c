@@ -2549,6 +2549,8 @@ Urm__CW_ConvertValue (Widget			parent,
       break ;
     case MrmRtypeColor:
       colorptr = (RGMColorDescPtr) (*val) ;
+      if ( colorptr == NULL )
+	return MrmFAILURE ;
       switch (colorptr->desc_type)
 	{
 	case URMColorDescTypeName:
@@ -2591,11 +2593,15 @@ Urm__CW_ConvertValue (Widget			parent,
 	RGMWCharEntryPtr	wcharentry;
 	  
 	wcharentry = (RGMWCharEntryPtr)*val;
+	if ( wcharentry == NULL )
+	  return MrmFAILURE ;
 	*val = (long)wcharentry->pointer;
 	break;
       }
     /* END OSF Fix CR 4859 */
     case MrmRtypeTransTable:
+      if ( *val == 0 )
+	return MrmFAILURE ;
       /*
        * WARNING: memory leak created...
        */
@@ -2609,6 +2615,8 @@ Urm__CW_ConvertValue (Widget			parent,
       *val = (long) trans ;
       break ;
     case MrmRtypeClassRecName:
+      if ( *val == 0 )
+	return MrmFAILURE ;
       clrec = Urm__WCI_GetClRecOfName ((String)*val) ;
       if ( clrec == NULL )
 	{
@@ -2619,6 +2627,8 @@ Urm__CW_ConvertValue (Widget			parent,
       *val = (long) clrec ;
       break ;
     case MrmRtypeKeysym:
+      if ( *val == 0 )
+	return MrmFAILURE ;
       xkey = XStringToKeysym ((String)*val);
       if ( xkey == NoSymbol )
 	{
@@ -2639,6 +2649,8 @@ Urm__CW_ConvertValue (Widget			parent,
       /* get a screen that we can use */
       screen = DefaultScreenOfDisplay(display);
       unitsintvalue = (RGMUnitsIntegerPtr) *val;
+      if ( unitsintvalue == NULL )
+	return MrmFAILURE ;
       if (unitsintvalue->value != 0)
 	{
 	  *val = _XmConvertUnits(screen, orientation, unitsintvalue->units, 
@@ -2666,6 +2678,8 @@ Urm__CW_ConvertValue (Widget			parent,
 	/* get a screen that we can use */
 	screen = DefaultScreenOfDisplay(display);
 	unitsfloatvalue = (RGMUnitsFloatPtr) *val;
+	if ( unitsfloatvalue == NULL )
+	  return MrmFAILURE ;
 	float_units = unitsfloatvalue->units;
 	float_val = (float)(*((double *)(&unitsfloatvalue->value[0])));
 
