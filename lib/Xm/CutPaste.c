@@ -3606,7 +3606,8 @@ XmClipboardEndCopy(
     header->startCopyCalled = False;
 
     /* if there was a cut by name format, then set up event handling */
-    ClipboardFindItem(display,
+	itemheader = NULL;
+	status = ClipboardFindItem(display,
 		      itemid,
 		      (XtPointer *) &itemheader,
 		      &itemlength,
@@ -3614,8 +3615,10 @@ XmClipboardEndCopy(
 		      0,
 		      XM_DATA_ITEM_RECORD_TYPE );
 
-    if ( itemheader == 0 ) 
+	if (status != ClipboardSuccess || itemheader == NULL ||
+	    itemlength < sizeof(ClipboardDataItemRec))
     {
+	XtFree( (char *)itemheader);
 	CleanupHeader (display);
 	ClipboardError( CLIPBOARD_CORRUPT, CORRUPT_DATA_STRUCTURE );
     	return ClipboardFail;

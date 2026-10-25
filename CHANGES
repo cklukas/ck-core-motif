@@ -1,3 +1,9 @@
+Clipboard end-copy record validation (2026-10-26)
+==================================================
+
+- Validate finalized data-item records before reading cut-by-name fields;
+  see `docs/clipboard-end-copy-record-validation.md`.
+
 Clipboard end-copy header guard (2026-10-26)
 =============================================
 
