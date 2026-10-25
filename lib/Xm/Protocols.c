@@ -698,6 +698,8 @@ RemoveProtocolMgr(
     
     for (i = 0; i < p_mgr->num_protocols; i++)
       {
+          if (p_mgr->protocols[i] == NULL)
+            continue;
           _XmRemoveAllCallbacks(
 		(InternalCallbackList *)&(p_mgr->protocols[i]->protocol.callbacks) );
           XtFree((char *) p_mgr->protocols[i]);

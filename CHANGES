@@ -10229,6 +10229,12 @@ Protocol callback allocation guard (2026-10-25)
   preventing a null dereference; see
   `docs/protocol-callback-allocation.md`.
 
+Protocol null-slot teardown guard (2026-10-25)
+==============================================
+
+- Skip null protocol slots during manager teardown instead of dereferencing
+  partially initialized entries; see `docs/protocol-null-slots.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
