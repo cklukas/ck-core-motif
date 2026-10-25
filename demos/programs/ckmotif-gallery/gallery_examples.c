@@ -11,6 +11,7 @@
 #include <Xm/RowColumn.h>
 #include <Xm/SegmentedControl.h>
 #include <Xm/TabStack.h>
+#include <Xm/Toolbar.h>
 
 /* GALLERY-EXAMPLE-BEGIN: shared-public-construction */
 static void
@@ -252,6 +253,31 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         (void)page;
         XmStringFree(tab_labels[0]); XmStringFree(tab_labels[1]);
         XmStringFree(tab_labels[2]);
+    } else if (class == xmToolbarWidgetClass) {
+        XmToolbarAction actions[4];
+        XmString labels[4];
+        XmString shortcuts[4];
+        labels[0] = XmStringCreateLocalized((char *)"Open");
+        labels[1] = XmStringCreateLocalized((char *)"Save");
+        labels[2] = XmStringCreateLocalized((char *)"Print");
+        labels[3] = XmStringCreateLocalized((char *)"Undo");
+        shortcuts[0] = XmStringCreateLocalized((char *)"Ctrl+O");
+        shortcuts[1] = XmStringCreateLocalized((char *)"Ctrl+S");
+        shortcuts[2] = XmStringCreateLocalized((char *)"Ctrl+P");
+        shortcuts[3] = XmStringCreateLocalized((char *)"Ctrl+Z");
+        actions[0] = (XmToolbarAction){"open", labels[0], shortcuts[0], False, 0, NULL};
+        actions[1] = (XmToolbarAction){"save", labels[1], shortcuts[1], False, 0, NULL};
+        actions[2] = (XmToolbarAction){"print", labels[2], shortcuts[2], True, 5, NULL};
+        actions[3] = (XmToolbarAction){"undo", labels[3], shortcuts[3], True, 4, NULL};
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNwidth, 420, XmNheight, 48, NULL);
+        XmToolbarSetActions(example, actions, 4);
+        if (callback)
+            XtAddCallback(example, XmNtoolbarActivateCallback, callback, client_data);
+        XmStringFree(labels[0]); XmStringFree(labels[1]);
+        XmStringFree(labels[2]); XmStringFree(labels[3]);
+        XmStringFree(shortcuts[0]); XmStringFree(shortcuts[1]);
+        XmStringFree(shortcuts[2]); XmStringFree(shortcuts[3]);
     } else {
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNwidth, 360, XmNheight, 64, NULL);

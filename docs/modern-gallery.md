@@ -28,6 +28,9 @@ ensures the requested live control is displayed immediately rather than
 leaving the notebook on Welcome.  Manager examples are populated with their
 real child controls; for example, TabStack shows selectable Overview, Details,
 and Activity pages.
+The Toolbar entry likewise uses real `XmToolbarAction` records for Open, Save,
+Print, and Undo, with their keyboard shortcuts visible through the native
+overflow-aware toolbar.
 
 Startup opens the first sidebar item as a dedicated welcome screen with
 “Hello world!” in English, German, Japanese, and Chinese.  The CJK lines are

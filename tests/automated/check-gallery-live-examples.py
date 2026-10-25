@@ -12,4 +12,9 @@ for label in ("Overview", "Details", "Activity"):
     assert f'"{label}"' in tabstack
 assert 'XmNtabLabelString' in tabstack
 assert '"Live component content"' not in source
+toolbar = source[source.index('} else if (class == xmToolbarWidgetClass) {'):]
+toolbar = toolbar[:toolbar.index('} else {', 1)]
+for label in ("Open", "Save", "Print", "Undo"):
+    assert f'"{label}"' in toolbar
+assert "XmToolbarSetActions(example, actions, 4)" in toolbar
 print("PASS gallery manager examples render live controls")
