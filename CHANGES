@@ -25,6 +25,8 @@ Xft compound-string line height (2026-10-27)
   conversion and begin/end tag-array growth failures.
 - Guard XmString text concatenation length arithmetic and realloc growth,
   releasing partial output on failure.
+- Validate copied component results in XmString single-segment extraction,
+  returning `FALSE` instead of exposing null payloads after allocation failure.
 
 Accessibility D-Bus memo allocation (2026-10-27)
 =================================================

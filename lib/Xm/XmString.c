@@ -7812,7 +7812,11 @@ _XmStringSingleSegment(
 	    {
 	    case XmSTRING_COMPONENT_TAG:
 	    case XmSTRING_COMPONENT_LOCALE:
-	      XmeStringGetComponent(&stack_context, TRUE, TRUE, &len, &val);
+	      if (XmeStringGetComponent(&stack_context, TRUE, TRUE, &len, &val) ==
+		  XmSTRING_COMPONENT_END || val == NULL) {
+		retVal = FALSE;
+		break;
+	      }
 	      XtFree((char *)*pTagOut);
 	      *pTagOut = (XmStringTag)val;
 	      break;
@@ -7820,15 +7824,27 @@ _XmStringSingleSegment(
 	    case XmSTRING_COMPONENT_TEXT:
 	    case XmSTRING_COMPONENT_LOCALE_TEXT:
 	    case XmSTRING_COMPONENT_WIDECHAR_TEXT:
-	      XmeStringGetComponent(&stack_context, TRUE, TRUE, &len, &val);
+	      if (XmeStringGetComponent(&stack_context, TRUE, TRUE, &len, &val) ==
+		  XmSTRING_COMPONENT_END || val == NULL) {
+		retVal = FALSE;
+		break;
+	      }
 	      
 	      retVal = TRUE;
 	      *pTextOut = (char *)val;
 	      
 	      if (type == XmSTRING_COMPONENT_LOCALE_TEXT)
 		{
+		  XmStringTag new_tag =
+		      (XmStringTag)XtNewString(XmFONTLIST_DEFAULT_TAG);
+		  if (new_tag == NULL) {
+		    XtFree(*pTextOut);
+		    *pTextOut = NULL;
+		    retVal = FALSE;
+		    break;
+		  }
 		  XtFree((char *)*pTagOut);
-		  *pTagOut = (XmStringTag)XtNewString(XmFONTLIST_DEFAULT_TAG);
+		  *pTagOut = new_tag;
 		}
 		
 	      /* Make sure there are no more segments. */
