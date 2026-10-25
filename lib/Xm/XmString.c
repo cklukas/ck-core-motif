@@ -9498,7 +9498,14 @@ XmeStringGetComponent(_XmStringContext context,
 	{
 	  /* Process another rendition start. */
 	  if (copy_data)
-	    *value = (XtPointer) XtNewString(begin_rends[tmp_index]);
+	    {
+	      *value = (XtPointer) XtNewString(begin_rends[tmp_index]);
+	      if (*value == NULL) {
+		if (update_context) _XmStrContError(context) = True;
+		_XmProcessUnlock();
+		return XmSTRING_COMPONENT_END;
+	      }
+	    }
 	  else
 	    *value = (XtPointer) begin_rends[tmp_index];
 	  *length = strlen((char*) *value);
@@ -9548,7 +9555,14 @@ XmeStringGetComponent(_XmStringContext context,
 	    {
 	      /* Tag is changing. */
 	      if (copy_data)
-		*value = (XtPointer) XtNewString(tag);
+		    {
+		      *value = (XtPointer) XtNewString(tag);
+		      if (*value == NULL) {
+			if (update_context) _XmStrContError(context) = True;
+			_XmProcessUnlock();
+			return XmSTRING_COMPONENT_END;
+		      }
+		    }
 	      else
 		*value = (XtPointer) tag;
 	      *length = strlen(tag);
@@ -9717,7 +9731,14 @@ XmeStringGetComponent(_XmStringContext context,
 	{
 	  /* Process another rendition end. */
 	  if (copy_data)
-	    *value = (XtPointer) XtNewString(end_rends[tmp_index]);
+	    {
+	      *value = (XtPointer) XtNewString(end_rends[tmp_index]);
+	      if (*value == NULL) {
+		if (update_context) _XmStrContError(context) = True;
+		_XmProcessUnlock();
+		return XmSTRING_COMPONENT_END;
+	      }
+	    }
 	  else
 	    *value = (XtPointer) end_rends[tmp_index];
 	  *length = strlen((char*) *value);
