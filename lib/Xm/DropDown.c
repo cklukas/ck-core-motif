@@ -866,7 +866,8 @@ ChangeManaged(Widget w)
 static void
 ExposeMethod(Widget wid, XEvent *event, Region r)
 {
-    Dimension x, y, w, h;
+    Position x, y;
+    Dimension w, h;
     XmDropDownWidget cbw = (XmDropDownWidget)wid;
     Widget text  = XmDropDown_text(cbw);
     Widget arrow = XmDropDown_arrow(cbw);
@@ -875,14 +876,14 @@ ExposeMethod(Widget wid, XEvent *event, Region r)
 	return;
 
     if (LayoutIsRtoLM(cbw))
-	x = arrow->core.x - arrow->core.border_width -
-	    cbw->manager.shadow_thickness;
+	x = (Position)((int)arrow->core.x - (int)arrow->core.border_width -
+	    (int)cbw->manager.shadow_thickness);
     else
-	x = text->core.x - text->core.border_width -
-	    cbw->manager.shadow_thickness;
+	x = (Position)((int)text->core.x - (int)text->core.border_width -
+	    (int)cbw->manager.shadow_thickness);
 
-    y = text->core.y - text->core.border_width -
-	cbw->manager.shadow_thickness;
+    y = (Position)((int)text->core.y - (int)text->core.border_width -
+	(int)cbw->manager.shadow_thickness);
 
     w = text->core.width + arrow->core.width +
 	2*(text->core.border_width + arrow->core.border_width) +

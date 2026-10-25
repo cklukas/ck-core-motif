@@ -1,3 +1,10 @@
+DropDown expose geometry bounds (2026-10-25)
+============================================
+
+- Preserve signed child origins when positioning DropDown shadows, preventing
+  wrapped expose coordinates during transient layout; see
+  `docs/dropdown-expose-geometry.md`.
+
 Form measured-size geometry bounds (2026-10-25)
 ===============================================
 
