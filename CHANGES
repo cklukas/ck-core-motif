@@ -6334,3 +6334,10 @@ Color cache growth failures (2026-10-25)
   count-to-byte conversion before allocation. Allocation failure leaves the
   existing cache usable; see `docs/color-cache-growth.md`.
 
+Color-cache Xt byte bounds (2026-10-25)
+=======================================
+
+- Check Xt `Cardinal` byte limits while growing both process-wide Color.c
+  caches, preserving existing entries on an unrepresentable request; see
+  `docs/color-cache-growth.md`.
+
