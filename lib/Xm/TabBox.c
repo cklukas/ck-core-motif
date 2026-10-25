@@ -972,6 +972,10 @@ Redisplay(widget, event, region)
 	  gcMask |= GCFont;
       }
       XmTabBox__tab_GC(tab) = XmTabBox__text_GC(tab) = XtGetGC((Widget)tab, gcMask, &gcValues);
+      /* The old GC was released above; all drawing below must use the newly
+       * acquired resource.  Keeping the local handle here made appearance
+       * transitions issue X requests with a freed server-side GC. */
+      gc = XmTabBox__tab_GC(tab);
     } /* CR03218 end */
     if( XmTabBox__inited(tab) == False ) return;
 

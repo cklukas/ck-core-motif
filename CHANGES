@@ -36,6 +36,16 @@ Gallery screenshot profile/scale matrix runner (2026-10-25)
   being hidden by later captures; see
   `tests/automated/run-gallery-screenshot-matrix.py`.
 
+TabBox appearance redisplay GC lifetime (2026-10-25)
+======================================================
+
+- Repair `XmTabBox` live redisplay after an appearance transition. When its
+  background changes, the old canvas GC is released and a replacement is
+  acquired; drawing now uses the replacement handle rather than the released
+  X11 resource. The installed regression applies modern-light and modern-dark
+  profiles and fails on asynchronous `BadGC`; see
+  `docs/tab-box-redisplay-guard.md`.
+
 ColorPicker redisplay font-resource contract (2026-10-25)
 ============================================================
 

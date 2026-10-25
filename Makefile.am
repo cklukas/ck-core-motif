@@ -893,5 +893,9 @@ EXTRA_DIST += tests/automated/check-toggle-pixmap-center-bounds.py docs/toggle-p
 EXTRA_DIST += tests/automated/check-gallery-screenshot-runner.py \
               tests/automated/check-gallery-screenshot-matrix.py \
               tests/automated/run-gallery-screenshot-matrix.py \
-              docs/modern-gallery-screenshot-qualification.md
+              docs/modern-gallery-screenshot-qualification.md \
+              tests/automated/check-tab-box-redisplay-guard.py \
+              tests/automated/check-tab-box-redisplay.c \
+              tests/automated/run-tab-box-redisplay.py \
+              docs/tab-box-redisplay-guard.md
 EXTRA_DIST += tests/automated/check-gallery-screenshot-assets.py tests/automated/generate-gallery-screenshot-manifest.py docs/gallery-screenshots/manifest.json docs/gallery-screenshots/*.png
