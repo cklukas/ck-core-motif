@@ -135,7 +135,14 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
               docs/components.md docs/disclosure.md docs/documentation.md \
               docs/maintenance-overview.md docs/mwm-overview.md \
               docs/modern-gallery-work-plan.md docs/modern-gallery-manifest.md \
-              docs/modern-gallery-manifest.json \
+              docs/modern-gallery-manifest.json docs/modern-gallery.md \
+              docs/modern-gallery-components.md \
+              tests/automated/generate-gallery-catalogue.py \
+              tests/automated/check-gallery-manifest.py \
+              tests/automated/check-gallery-source.py \
+              tests/automated/check-gallery-provenance.py \
+              tests/automated/run-gallery-integration.py \
+              tests/automated/run-gallery-screenshots.py \
               docs/display-scale-override.md \
               .gitattributes .ckgit/build-commit .ckgit/ci.yml .github/workflows/pages.yml
 
@@ -1140,3 +1147,4 @@ EXTRA_DIST += tests/automated/check-color-selector-layout-bounds.py docs/color-s
 EXTRA_DIST += tests/automated/check-colorpicker-highlight-bounds.py docs/colorpicker-highlight-geometry.md
 EXTRA_DIST += tests/automated/check-toggle-pixmap-center-bounds.py docs/toggle-pixmap-center-geometry.md
 EXTRA_DIST += tests/automated/check-gallery-screenshot-runner.py docs/modern-gallery-screenshot-qualification.md
+EXTRA_DIST += tests/automated/check-gallery-screenshot-assets.py tests/automated/generate-gallery-screenshot-manifest.py docs/gallery-screenshots/manifest.json docs/gallery-screenshots/*.png

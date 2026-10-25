@@ -65,6 +65,11 @@ tests before presenting live switches as working features.
   disposition or if an example/documentation/source fragment points to a
   missing entry.  It must also reject a legacy/demo extension that is claimed
   as complete without its promotion/repair evidence.
+- Model compile-time capabilities in the manifest.  In particular, `PrintShell`
+  is present only when `PRINTING_SUPPORTED` selects `Print.h`; gallery build,
+  navigation, documentation, and manifest validation must be qualified in both
+  print-enabled and print-disabled configurations rather than promising an
+  unavailable example.
 - Establish an isolated, reproducible native build/installation prefix and a
   gallery test environment under the approved temporary volume.  Record source
   and asset hashes, build inputs, command, timing, output paths, and runtime
@@ -228,9 +233,9 @@ evidence location is not completion.
 | WP-05.1 Live appearance | In progress | The additive `XmApplyAppearanceProfile` transaction now covers registered core widgets and cache-backed gadgets, preserves explicit/application resources and widget state, rejects nested profile swaps, and fails atomically before commit. Commits `9de24980`, `b285de0c` and `20f5c906` are qualified by repeated live, rollback, gadget, profile and consumer ASan/UBSan fixtures. The complete historical-widget matrix remains open. |
 | WP-05.2 Live DPI simulation | In progress | The additive `XmSetDisplayScaleOverride` API drives a shared UI-thread transaction covering ToggleButton, SpinBox, ProgressRing and automatic ScrolledWindow defaults, with explicit-resource preservation, reversible rollback and the 96/144/192/288 matrix qualified by installed AArch64 fixtures. Commits `0d72d56d` and the earlier scale cohort provide the evidence; full historical-widget coverage and real XLibre output qualification remain open. |
 | WP-05.3 Real XLibre | Planned | Existing observer has no recorded real multi-output qualification. |
-| WP-05.4 Gallery shell | Planned | No unified maintained gallery target exists. |
-| WP-05.5 Examples/tests | Planned | Existing demos are separate historical programs. |
-| WP-05.6 ckdocs/screenshots | Planned | No gallery screenshot/provenance set exists. |
+| WP-05.4 Gallery shell | In progress | `demos/programs/ckmotif-gallery/` now provides the manifest-driven native shell, categorized `XmTreeView` navigation, `XmNotebook` Example/Source pages, status reporting, and build registration. Theme/DPI callbacks are wired to the public live APIs behind an explicit opt-in macro; default controls remain disabled pending the shared qualification matrix. A fresh rpi4 build and Xvfb launch now complete against the current toolkit tree; the remaining qualification is the shared live-transaction contract. |
+| WP-05.5 Examples/tests | In progress | Annotated public construction/callback/teardown extraction, public class registry, deterministic `gallery_provenance.json`, print-capability qualification, source-contract verification, and a display-backed matrix that selects all 84 available constructible entries, checks generated source fragments, and exercises their public callback routes are present. The native run also passes navigation, tabs, interaction, keyboard/focus, accessibility, and state-restoration checks; component-specific screenshot qualification remains open. |
+| WP-05.6 ckdocs/screenshots | In progress | `docs/modern-gallery.md` and the generated `docs/modern-gallery-components.md` document the shell and all 94 manifest anchors. The verified default-profile/server-DPI run captured all 94 PNG scenarios; `docs/gallery-screenshots/manifest.json` records the binary and manifest fingerprints, viewport, profile/DPI labels, dimensions and per-image hashes, and the asset verifier passes. The all-profile, simulated-DPI, real-XLibre capture matrix and final rendered documentation build remain open. |
 | WP-05.7 Qualification/publication | Planned | Starts only after all preceding packages pass. |
 
 ## Sequencing and change discipline

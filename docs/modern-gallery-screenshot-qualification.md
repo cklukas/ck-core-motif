@@ -42,3 +42,10 @@ build evidence.
 
 The source-level safety contract is checked by
 `tests/automated/check-gallery-screenshot-runner.py`.
+
+Published PNGs are projected into `docs/gallery-screenshots/manifest.json` by
+`tests/automated/generate-gallery-screenshot-manifest.py`. The companion
+`tests/automated/check-gallery-screenshot-assets.py` verifies the manifest
+hash, binary fingerprint, profile/DPI capture labels, PNG dimensions, file
+hashes, and catalogue links. This prevents a locally replaced image from
+silently becoming gallery evidence.
