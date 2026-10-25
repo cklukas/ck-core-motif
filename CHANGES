@@ -11418,6 +11418,12 @@ MWM menu-pane name allocation (2026-10-25)
 - Check parsed menu-pane name lengths before Xt allocation; see
   `docs/mwm-menu-pane-name-allocation.md`.
 
+MWM per-screen display allocation width (2026-10-25)
+=====================================================
+
+- Use the checked Xt allocation width for the final per-screen display-string
+  copy; see `docs/mwm-display-string-bounds.md`.
+
 MWM session database allocation widths (2026-10-25)
 ====================================================
 

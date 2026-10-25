@@ -1680,7 +1680,7 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 	 */
     
 	if ((pSD->displayString =
-	     (String)XtMalloc ((unsigned int) (strlen(buffer) + 1))) == NULL)
+	     (String)XtMalloc ((Cardinal)(strlen(buffer) + 1))) == NULL)
 	{
 	    Warning (((char *)GETMESSAGE(40, 9, 
 				    "Insufficient memory for displayString")));
