@@ -1544,12 +1544,16 @@ WidgetList XmHierarchyGetChildNodes(Widget nw)
 	return retval;
       }
 
-    if ((size_t)child_count > (SIZE_MAX / sizeof(Widget)) - 1) {
+    if (child_count == (Cardinal)~0) {
 	_XmAppUnlock(app);
 	return retval;
     }
 
-    retval = (WidgetList)XtMalloc((child_count + 1) * sizeof(Widget));
+    retval = (WidgetList)XtMalloc(((size_t)child_count + 1) * sizeof(Widget));
+    if (retval == NULL) {
+	_XmAppUnlock(app);
+	return NULL;
+    }
 
     for (i=0; i < child_count; i++)
 	retval[i] = XmHierarchyC_widget(XmHierarchyC_children(node)[i]);

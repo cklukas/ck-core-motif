@@ -2043,6 +2043,13 @@ XmPicture repeat node-map bounds (2026-10-25)
   picture graphs while leaving unrepresentable expansion unchanged; see
   `docs/picture-copy-bounds.md`.
 
+Hierarchy child-list bounds (2026-10-25)
+=========================================
+
+- Guard null-terminated hierarchy child-list count conversion and allocation,
+  preserving the public list contract for valid trees; see
+  `docs/hierarchy-child-lists.md`.
+
 Protocol registration growth bounds (2026-10-25)
 ==================================================
 
