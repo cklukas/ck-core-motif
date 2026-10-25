@@ -360,8 +360,14 @@ CompileResourceTable(XtResourceList resources,
   Cardinal		count;
   XrmResourceList	table, tPtr;
   XtResourceList	rPtr;
-  
-  tPtr = table = (XrmResourceList)XtMalloc(num_resources * sizeof(XrmResource));
+
+  if ((size_t)num_resources > SIZE_MAX / sizeof(XrmResource) ||
+      (size_t)num_resources > UINT_MAX / sizeof(XrmResource))
+    return NULL;
+  tPtr = table = (XrmResourceList)XtMalloc(
+      (Cardinal)((size_t)num_resources * sizeof(XrmResource)));
+  if (table == NULL)
+    return NULL;
   rPtr = resources;
   
   for (count = 0; count < num_resources; count++, tPtr++, rPtr++)
@@ -505,6 +511,14 @@ GetResources(XmRendition rend,
     {
       table = CompileResourceTable(_XmRenditionResources,
 				   _XmNumRenditionResources);
+      if (table == NULL)
+		{
+#ifdef XTHREADS
+		  _XmProcessUnlock();
+		  if (app) _XmAppUnlock(app);
+#endif
+		  return False;
+		}
       QString = XrmPermStringToQuark(XtCString);
       Qfont = XrmPermStringToQuark(XmNfont);
     }

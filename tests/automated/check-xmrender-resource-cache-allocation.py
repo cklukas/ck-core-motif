@@ -18,4 +18,7 @@ assert "SIZE_MAX /" in region
 assert "UINT_MAX /" in region
 assert "new_search_list == NULL" in region
 assert "goto resource_failure" in region
+assert "SIZE_MAX / sizeof(XrmResource)" in source
+assert "UINT_MAX / sizeof(XrmResource)" in source
+assert "if (table == NULL)" in region
 print("XmRenderTable resource-cache allocations are guarded")
