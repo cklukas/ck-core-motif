@@ -1663,9 +1663,13 @@ _XmHeapAlloc(
     register char* heap_loc;
     if (heap == NULL) return XtMalloc(bytes);
     if (heap->bytes_remaining < bytes) {
+	if (bytes > UINT_MAX - sizeof(char*))
+	    return NULL;
 	if ((bytes + sizeof(char*)) >= (heap->segment_size>>1)) {
 	    /* preserve current segment; insert this one in front */
 	    heap_loc = XtMalloc(bytes + sizeof(char*));
+	    if (heap_loc == NULL)
+		return NULL;
 	    if (heap->start) {
 		*(char**)heap_loc = *(char**)heap->start;
 		*(char**)heap->start = heap_loc;
@@ -1678,6 +1682,8 @@ _XmHeapAlloc(
 	}
 	/* else discard remainder of this segment */
 	heap_loc = XtMalloc((unsigned)heap->segment_size);
+	if (heap_loc == NULL)
+	    return NULL;
 	*(char**)heap_loc = heap->start;
 	heap->start = heap_loc;
 	heap->current = heap_loc + sizeof(char*);

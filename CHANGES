@@ -9884,8 +9884,9 @@ XmDisplay private-state allocation guard (2026-10-25)
 Legacy XmHeap allocation guard (2026-10-25)
 ===========================================
 
-- Check the compatibility heap record before initialization and return
-  `NULL` cleanly when unavailable; see `docs/xmheap-allocation.md`.
+- Check the compatibility heap record and segment allocations, including
+  size arithmetic, before initialization or link writes; see
+  `docs/xmheap-allocation.md`.
 
 XIM info allocation guards (2026-10-25)
 =======================================

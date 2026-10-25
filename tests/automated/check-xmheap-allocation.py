@@ -9,4 +9,6 @@ region = source[start:end]
 assert "heap = XtNew(XmHeapRec);" in region
 assert "if (heap == NULL)" in region
 assert "return NULL;" in region
+assert "bytes > UINT_MAX - sizeof(char*)" in source
+assert "if (heap_loc == NULL)" in source
 print("PASS XmHeap allocation is guarded")
