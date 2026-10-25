@@ -358,7 +358,7 @@ XmParseMappingGetValues(XmParseMapping mapping,
 
       /* ArgLists are application-supplied; ignore incomplete entries rather
          than passing NULL to strcmp or writing through a NULL value. */
-      if (arg_name == NULL || arg_list[i].value == NULL)
+      if (arg_name == NULL || arg_list[i].value == 0)
 	continue;
 
       if ((arg_name == XmNpattern) ||
@@ -708,9 +708,10 @@ MakeStr(XmStringContext start,
       return NULL;
     }
     str = XmStringConcatAndFree(str, component);
-    if (str == NULL)
+    if (str == NULL) {
       return NULL;
-      type = XmeStringGetComponent(start, TRUE, FALSE, &len, &val);
+    }
+    type = XmeStringGetComponent(start, TRUE, FALSE, &len, &val);
   }
     
   return(str);

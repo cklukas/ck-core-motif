@@ -24,6 +24,13 @@ Chip geometry bounds (2026-10-26)
 - Bound chip label, pixmap, removal affordance, and vertical padding arithmetic
   to the `Dimension` range; see `docs/chip-geometry-bounds.md`.
 
+XmStringFunc warning-backed guards (2026-10-26)
+================================================
+
+- Treat `XtArgVal` empty values as integer zero and brace the `MakeStr`
+  concatenation failure guard, removing misleading portability diagnostics;
+  see `docs/xmstring-func-warning-guards.md`.
+
 Hierarchy child insertion control flow (2026-10-26)
 ====================================================
 
