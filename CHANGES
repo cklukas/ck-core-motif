@@ -1,3 +1,9 @@
+Preserve non-negative Container cell occupancy (2026-10-25)
+============================================================
+
+- Avoid decrementing an already-empty occupancy counter during Container
+  removal; see `docs/container-cell-occupancy.md`.
+
 Guard Container cell placement against incomplete grids (2026-10-25)
 =====================================================================
 

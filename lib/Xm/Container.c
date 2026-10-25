@@ -3469,7 +3469,8 @@ RemoveItem(
 	XDestroyRegion(cwid_region);
     case XmGRID:
 	if (cw->container.cells != NULL &&
-	    c->cell_idx >= 0 && c->cell_idx < cw->container.cell_count)
+	    c->cell_idx >= 0 && c->cell_idx < cw->container.cell_count &&
+	    cw->container.cells[c->cell_idx] > 0)
 	    cw->container.cells[c->cell_idx]--;
     case XmNONE:
         c->cell_idx = NO_CELL;
