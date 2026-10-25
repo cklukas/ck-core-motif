@@ -995,12 +995,22 @@ ClipboardEventHandler(
 				       0,
     			   	       XM_FORMAT_HEADER_TYPE );
 
-    if ( ret_value != ClipboardSuccess ) 
+
+    if ( ret_value != ClipboardSuccess || formatitem == NULL ||
+	 formatlength < sizeof(ClipboardFormatItemRec) )
+	{
+	XtFree( (char *)formatitem );
     	return ;
+    }
 
-    if (cbProcTable == NULL) return;
+    if (cbProcTable == NULL)
+    {
+	XtFree( (char *)formatitem );
+	return;
+    }
 
-    if (formatitem->cutByNameCBIndex >= 0) {
+    if (formatitem->cutByNameCBIndex >= 0 &&
+	formatitem->cutByNameCBIndex < maxCbProcs) {
       _XmProcessLock();
       callbackroutine = cbProcTable[formatitem->cutByNameCBIndex];
       _XmProcessUnlock();
@@ -1033,8 +1043,16 @@ ClipboardEventHandler(
 	unsigned long hlength;
 	ClipboardHeader header;
 
-	ClipboardFindItem (display, XM_HEADER_ID, (XtPointer *)&header,
-				&hlength, &htype, 0, 0);
+	header = NULL;
+	ret_value = ClipboardFindItem (display, XM_HEADER_ID,
+				       (XtPointer *)&header,
+				       &hlength, &htype, 0, 0);
+	if (ret_value != ClipboardSuccess || header == NULL ||
+	    hlength < sizeof(ClipboardHeaderRec))
+	{
+	    XtFree( (char *)header);
+	    return;
+	}
 
 	header->recopyId = 0;
 

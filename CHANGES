@@ -1,3 +1,10 @@
+Clipboard event record validation (2026-10-26)
+================================================
+
+- Validate clipboard event format/header records and callback indices before
+  dereferencing them, releasing unusable records; see
+  `docs/clipboard-event-record-validation.md`.
+
 Clipboard next-item property guard (2026-10-26)
 ================================================
 
