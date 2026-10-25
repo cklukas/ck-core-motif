@@ -3494,6 +3494,9 @@ void IconActivateCallback (Widget w, caddr_t client_data, XmAnyCallbackStruct *c
 
 void UpdateIncrements (Widget sWidget, IconBoxData *pIBD, XConfigureEvent *event)
 {
+    if (pIBD == NULL || pIBD->pCD_iconBox == NULL)
+	return;
+
     ResetArrowButtonIncrements (pIBD->pCD_iconBox);    
   
 } /* END OF FUNCTION UpdateIncrements */
@@ -3509,6 +3512,12 @@ void ResetArrowButtonIncrements (ClientData *pCD)
 {
     int i;
     Arg setArgs[2]; 
+
+    if (pCD == NULL || pCD->thisIconBox == NULL ||
+	pCD->thisIconBox->vScrollBar == NULL ||
+	pCD->thisIconBox->hScrollBar == NULL || pCD->heightInc <= 0 ||
+	pCD->widthInc <= 0)
+	return;
         
     i=0;
     XtSetArg (setArgs[i], XmNincrement, (XtArgVal) pCD->heightInc); i++;    

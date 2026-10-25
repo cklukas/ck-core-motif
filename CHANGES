@@ -1,3 +1,9 @@
+Icon-box increment validation (2026-10-25)
+==========================================
+
+- Validate client, icon-box, scrollbar, and increment state before updating
+  arrow-button increments; see `docs/arrow-increment-guards.md`.
+
 Client icon-state validation (2026-10-25)
 =========================================
 
