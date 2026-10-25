@@ -8435,3 +8435,9 @@ Gadget cache allocation (2026-10-27)
 
 - Check cache-record size arithmetic and allocations before linking or copying
   gadget cache data, leaving the class cache unchanged on failure.
+
+ColorObj screen allocation (2026-10-27)
+========================================
+
+- Release and clear partially allocated per-screen color, atom, and usage
+  arrays when ColorObj initialization cannot allocate the complete bundle.

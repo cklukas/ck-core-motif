@@ -440,6 +440,12 @@ Initialize(
 	if ( !new_obj->color_obj.colors || !new_obj->color_obj.atoms || 
 	    !new_obj->color_obj.colorUse )
 	{
+	      XtFree((char *)new_obj->color_obj.colors);
+	      XtFree((char *)new_obj->color_obj.atoms);
+	      XtFree((char *)new_obj->color_obj.colorUse);
+	      new_obj->color_obj.colors = NULL;
+	      new_obj->color_obj.atoms = NULL;
+	      new_obj->color_obj.colorUse = NULL;
 	      XmeWarning(nw, WARNING1); 
 	      /* couldn't allocate memory */
 	      new_obj->color_obj.colorIsRunning = False;
