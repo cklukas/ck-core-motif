@@ -965,6 +965,10 @@ XmStringDirectionCreate(
   if (!opt_str && (index < XtNumber(dir_index)))
     {
       _XmStrCreate(opt_str, XmSTRING_OPTIMIZED, 0);
+      if (opt_str == NULL) {
+        _XmProcessUnlock();
+        return (XmString) NULL;
+      }
       _XmStrDirection(opt_str) = direction;
   
       cache_str[index] = opt_str;
@@ -974,11 +978,12 @@ XmStringDirectionCreate(
   if ((index < XtNumber(dir_index)) &&
       (_XmStrRefCountInc(opt_str) == 0))
     {
+      _XmString old_opt_str = opt_str;
       _XmStrRefCountDec(opt_str);	/* Undo previous increment. */
-      XmStringFree(opt_str);		/* Release our cached copy. */
       cache_str[index] = NULL;
-      opt_str = XmStringDirectionCreate(direction);
       _XmProcessUnlock();
+      XmStringFree(old_opt_str);		/* Release our cached copy. */
+      opt_str = XmStringDirectionCreate(direction);
       return (XmString) opt_str;
     }
 
@@ -1000,6 +1005,10 @@ XmStringSeparatorCreate( void )
       _XmStringEntry *entries;
       
       _XmStrCreate(str, XmSTRING_MULTIPLE_ENTRY, 0);
+      if (str == NULL) {
+	_XmProcessUnlock();
+	return NULL;
+      }
 
       _XmStrImplicitLine(str) = True;
       entries = (_XmStringEntry *)XtMalloc(2 * sizeof(*entries));
@@ -1029,11 +1038,12 @@ XmStringSeparatorCreate( void )
   /* If the reference count gets too big free the old string. */
   if (_XmStrRefCountInc(str) == 0)
     {
+      _XmString old_str = str;
       _XmStrRefCountDec(str);	/* Undo previous increment. */
-      XmStringFree(str);	/* Release our cached copy. */
       str = NULL;
-      ret_val = XmStringSeparatorCreate();
       _XmProcessUnlock();
+      XmStringFree(old_str);	/* Release our cached copy. */
+      ret_val = XmStringSeparatorCreate();
       return ret_val;
     }
 

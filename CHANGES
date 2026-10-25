@@ -140,6 +140,12 @@ XmString component allocation failures (2026-10-26)
 - Guard cached constructors, cloning, and component conversion against failed
   representation allocation; see `docs/xmstring-component-allocation.md`.
 
+Cached XmString constructor safety (2026-10-26)
+================================================
+
+- Check cached direction/separator allocations and release the process lock
+  before rollover cleanup and recursion; see `docs/xmstring-cached-create.md`.
+
 XmString extraction output validation (2026-10-26)
 ====================================================
 
