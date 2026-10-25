@@ -1,3 +1,9 @@
+Mrm color/font reader boundary checks (2026-10-25)
+====================================================
+
+- Reject missing color descriptors and font fixup records before dereference;
+  see `docs/mrm-createarg-color-fontfixup.md`.
+
 Mrm wide-character fixup null check (2026-10-25)
 =================================================
 

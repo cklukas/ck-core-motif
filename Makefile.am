@@ -478,3 +478,4 @@ EXTRA_DIST += tests/automated/check-mrm-convert-primitive-pointer-validation.py 
 EXTRA_DIST += tests/automated/check-mrm-callback-fixup-validation.py docs/mrm-callback-fixup-validation.md
 EXTRA_DIST += tests/automated/check-mrm-callback-routine-offset.py docs/mrm-callback-routine-offset.md
 EXTRA_DIST += tests/automated/check-mrm-fixup-widechar-null.py docs/mrm-fixup-widechar-null.md
+EXTRA_DIST += tests/automated/check-mrm-createarg-color-fontfixup.py docs/mrm-createarg-color-fontfixup.md
