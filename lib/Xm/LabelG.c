@@ -916,6 +916,13 @@ Cardinal *num_args)
     newSec = _XmExtObjAlloc(size);
     reqSec = _XmExtObjAlloc(size);
     _XmProcessUnlock();
+	if (newSec == NULL || reqSec == NULL) {
+	    if (newSec != NULL)
+		_XmExtObjFree(newSec);
+	    if (reqSec != NULL)
+		_XmExtObjFree(reqSec);
+	    return;
+	}
 
     /*
      * Update pointers in instance records now so references to resources
@@ -935,6 +942,11 @@ Cardinal *num_args)
         args, *num_args);
 
     extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+	if (extData == NULL) {
+	    _XmExtObjFree(newSec);
+	    _XmExtObjFree(reqSec);
+	    return;
+	}
     extData->widget = (Widget)newSec;
     extData->reqWidget = (Widget)reqSec;
 

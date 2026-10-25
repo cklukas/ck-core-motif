@@ -8288,3 +8288,12 @@ VendorShell set-values extension data (2026-10-27)
 
 VendorShell extension-object allocation (2026-10-27)
 =====================================================
+LabelG secondary-object allocation (2026-10-27)
+================================================
+
+- Check LabelG secondary and request extension-object allocations and clean up
+  partial objects before cache-pointer or extension-data initialization.
+  Allocation pressure now returns safely without dereferencing null objects.
+
+VendorShell set-values extension data (2026-10-27)
+=================================================
