@@ -4319,6 +4319,12 @@ Guard XmRegion operation inputs (2026-10-25)
 - Treat missing region sources as empty and reject missing destinations or
   rectangles before intersection, union, subtraction and shrink operations;
   see `docs/region-operation-input-guards.md`.
+
+Guard XmRegion GC handles (2026-10-25)
+======================================
+
+- Return safely from `_XmRegionSetGCRegion` when the display or GC is absent;
+  see `docs/region-gc-input-guards.md`.
 Mrm writer cstring-vector validation (2026-10-25)
 ====================================================
 

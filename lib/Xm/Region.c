@@ -512,6 +512,9 @@ _XmRegionSetGCRegion(
     XRectangle	*rects;
     long	nrects;
 
+    if (dpy == NULL || gc == NULL)
+	return;
+
     _XmRegionGetRectangles (r, &rects, &nrects);
 
     if (rects || !nrects) {	/* not if XtMalloc failed */
