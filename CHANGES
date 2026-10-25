@@ -4124,3 +4124,8 @@ Mrm callback routine-offset check (2026-10-25)
 
 - Reject zero callback routine-name offsets before hierarchy lookup; see
   `docs/mrm-callback-routine-offset.md`.
+Mrm wide-character fixup null check (2026-10-25)
+=================================================
+
+- Reject null serialized wide-character entries before fixup dereferences;
+  see `docs/mrm-fixup-widechar-null.md`.

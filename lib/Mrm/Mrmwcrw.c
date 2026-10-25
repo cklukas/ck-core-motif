@@ -1877,6 +1877,8 @@ Urm__CW_FixupValue (long			val,
       /* BEGIN OSF Fix CR 4859 */
     case MrmRtypeWideCharacter:
       wcharentry = (RGMWCharEntryPtr)val;
+      if ( wcharentry == NULL )
+	return MrmFAILURE ;
       if (*swap_needed)
 	swapbytes(wcharentry->wchar_item.count);
       if (wcharentry->wchar_item.count < 0)
