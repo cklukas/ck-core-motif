@@ -1,3 +1,9 @@
+Accessibility text allocation (2026-10-27)
+===========================================
+
+- Check the bounded temporary text buffer before passing it to Text or
+  TextField substring extraction, returning cleanly when allocation fails.
+
 RCPopup table and list allocation (2026-10-27)
 ================================================
 
