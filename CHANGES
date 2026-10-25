@@ -1,3 +1,9 @@
+Mrm in-memory record source validation (2026-10-25)
+====================================================
+
+- Reject null UID buffers before the header-record exception can reach the
+  in-memory copy path; see `docs/mrm-buffer-null-source.md`.
+
 Mrm open output initialization (2026-10-25)
 ============================================
 

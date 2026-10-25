@@ -450,8 +450,9 @@ Idb__BM_GetRecord (IDBFile                     file_id,
   if (file_id == NULL || buffer_return == NULL || record <= 0)
     return MrmFAILURE;
 
-  if (file_id->in_memory && record != IDBHeaderRecordNumber &&
-      (file_id->uid_buffer == NULL || record > file_id->last_record))
+  if (file_id->in_memory &&
+      (file_id->uid_buffer == NULL ||
+       (record != IDBHeaderRecordNumber && record > file_id->last_record)))
     return MrmFAILURE;
 
   /*
