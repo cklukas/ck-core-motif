@@ -1,3 +1,10 @@
+Guard Container trait callbacks (2026-10-25)
+===============================================
+
+- Check optional item and navigator trait callbacks before use, preserving
+  fallback behavior for partial trait implementations; see
+  `docs/motif-container-trait-callbacks.md`.
+
 Guard ScrollFrame navigator callbacks (2026-10-25)
 ========================================================
 
