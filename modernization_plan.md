@@ -253,13 +253,13 @@ their measurements are retained as a baseline rather than an invented
 performance target, and they fail when deliberately pointed at the wrong
 library prefix.
 
-**Status (2026-10-24):** implemented and qualified on the AArch64 `uconsole`
+**Status (2026-10-25):** implemented and qualified on the AArch64 `uconsole`
 Linux host with Xvfb.  Fresh installed-prefix runs passed at Xft.dpi 96 and
-144; each receipt records the fixture/library/result/image hashes.  The full
-source-tree build also exposed and allowed correction of a compile error in the
-preceding bounded text-selection change.  The WML generator remains outside
-this baseline, but its fresh out-of-tree build now passes after making lexer
-and parser generation explicit.
+144; each receipt records the fixture/library/result/image hashes.  A fresh
+full source-tree build and install now pass after correcting the bounded
+text-selection compile error, the WML build graph, and UIL literal-only module
+output; the focused WML and zero-topmost regressions remain recorded in the
+repository.
 
 **Does not include:** appearance changes, performance optimizations, internal
 instrumentation without a defined contract, or a claim that the baseline
