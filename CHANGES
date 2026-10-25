@@ -5767,6 +5767,12 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+Container reorder Xt width (2026-10-25)
+=======================================
+
+- Check the temporary Container reorder index array against Xt's `Cardinal`
+  allocation width before sorting; see `docs/container-reorder-allocation.md`.
+
 Container detail-header Xt width (2026-10-25)
 ==============================================
 

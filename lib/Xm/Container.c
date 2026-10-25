@@ -10058,12 +10058,14 @@ XmContainerReorder(
 
 	if (cwid_count <= 1 || cwid_list == NULL)
 		return;
-	if ((size_t)cwid_count > SIZE_MAX / sizeof(int))
+	if ((size_t)cwid_count > SIZE_MAX / sizeof(int) ||
+	    (size_t)cwid_count > UINT_MAX / sizeof(int))
 		return;
 	_XmAppLock(app);
 	c = GetContainerConstraint(cwid_list[0]);
 	pcwid = c->entry_parent;
-	pi_list = (int *)XtMalloc(cwid_count * sizeof(int));
+	pi_list = (int *)XtMalloc((Cardinal)(sizeof(int) *
+					(size_t)cwid_count));
 	if (pi_list == NULL) {
 		_XmAppUnlock(app);
 		return;

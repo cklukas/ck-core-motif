@@ -5,6 +5,8 @@ source = Path("lib/Xm/Container.c").read_text()
 start = source.index("XmContainerReorder(")
 region = source[start:]
 assert "cwid_count <= 1 || cwid_list == NULL" in region
+assert "(size_t)cwid_count > UINT_MAX / sizeof(int)" in region
+assert "XtMalloc((Cardinal)(sizeof(int) *" in region
 assert "pi_list = (int *)XtMalloc" in region
 assert "if (pi_list == NULL)" in region
 assert region.index("if (pi_list == NULL)") < region.index("pi_list[pi_count] =")
