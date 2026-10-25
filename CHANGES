@@ -6247,3 +6247,8 @@ XmIm varargs allocation failure handling (2026-10-25)
 
 - Stop safely when temporary input-method argument arrays cannot be allocated;
   see `docs/xmim-varargs-allocation.md`.
+XmIm preedit allocation failure handling (2026-10-25)
+=======================================================
+
+- Preserve active preedit state when replacement, feedback or callback-view
+  buffers cannot be allocated; see `docs/xmim-preedit-allocation.md`.

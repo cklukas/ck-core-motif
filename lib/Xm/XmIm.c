@@ -1874,6 +1874,11 @@ ImPreeditDrawCallback(XIC xic, XPointer client_data, XPointer call_data)
   result = pb->length - data->chg_length + inserted;
   replacement = (wchar_t *)XtCalloc(result + 1, sizeof(wchar_t));
   feedback = (XIMFeedback *)XtCalloc(result + 1, sizeof(XIMFeedback));
+  if (replacement == NULL || feedback == NULL) {
+    XtFree((char *)replacement);
+    XtFree((char *)feedback);
+    return;
+  }
   if (inserted) {
     if (text->encoding_is_wchar)
       memcpy(replacement + data->chg_first, text->string.wide_char,
@@ -1911,13 +1916,15 @@ ImPreeditDrawCallback(XIC xic, XPointer client_data, XPointer call_data)
     /* XIMText is counted.  Widgets receive an owned terminated slice, never
      * read past provider storage when converting a multibyte preedit. */
     dispatch_characters = (wchar_t *)XtCalloc(inserted + 1, sizeof(wchar_t));
-    memcpy(dispatch_characters, replacement + data->chg_first,
-           inserted * sizeof(wchar_t));
-    dispatch_text = *text;
-    dispatch_text.encoding_is_wchar = True;
-    dispatch_text.string.wide_char = dispatch_characters;
-    dispatch_text.feedback = feedback + data->chg_first;
-    dispatch.text = &dispatch_text;
+    if (dispatch_characters != NULL) {
+      memcpy(dispatch_characters, replacement + data->chg_first,
+             inserted * sizeof(wchar_t));
+      dispatch_text = *text;
+      dispatch_text.encoding_is_wchar = True;
+      dispatch_text.string.wide_char = dispatch_characters;
+      dispatch_text.feedback = feedback + data->chg_first;
+      dispatch.text = &dispatch_text;
+    }
   }
   if (proc) (*proc)(xic, callback_closure(w, real, PREEDIT_DRAW), (XPointer)&dispatch);
   XtFree((char *)dispatch_characters);
