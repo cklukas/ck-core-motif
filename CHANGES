@@ -11,6 +11,8 @@ XLibre live property fixture (2026-10-25)
   teardown ordering, callback cardinality and real-display/status-77 boundary.
 - Record live-fixture source and installed-`libXm` fingerprints, exact compile/
   run commands, elapsed time and the qualification result in `receipt.json`.
+- Classify the receipt result explicitly as `pass`, `skip` or `fail`, keeping a
+  successful ordinary-Xvfb rejection distinct from real-display qualification.
 
 XLibre contract receipt provenance (2026-10-25)
 ================================================

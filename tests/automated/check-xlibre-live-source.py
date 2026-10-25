@@ -42,5 +42,9 @@ assert '"source_hashes"' in runner
 assert '"installed_lib_sha256"' in runner
 assert '"receipt.json"' in runner
 assert '"ordinary-xvfb-fallback"' in runner
+assert '"result": "pending"' in runner
+assert 'receipt["result"] = "pass"' in runner
+assert 'else "skip"' in runner
+assert 'receipt["result"] = "fail"' in runner
 
 print("PASS XLibre live fixture source safety and qualification contract")
