@@ -6,6 +6,8 @@ against both host `size_t` and Xt's `Cardinal` limits and handles allocation
 failure before copying. If a count is invalid or storage cannot be allocated,
 the widget falls back to Motif's built-in scan-type table, preserving
 traversal behavior and the existing resource/API contract. Destruction leaves
-that static fallback untouched instead of passing it to `XtFree`.
+that static fallback untouched instead of passing it to `XtFree`. Input-state
+creation also stops cleanly if either state allocation fails, without
+dereferencing partial state.
 
 The warning-enabled TextIn source build verifies the guarded allocation path.
