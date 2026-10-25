@@ -3711,13 +3711,25 @@ void GetIconBoxIconRootXY (ClientData *pCD, int *pX, int *pY)
 
     Window child;
 #ifdef WSM
-    WsClientData *pWsc = GetWsClientData (pCD->pSD->pActiveWS, pCD);
+    WsClientData *pWsc = NULL;
+#endif /* WSM */
+
+    if (pX == NULL || pY == NULL)
+	return;
+    *pX = *pY = 0;
+    if (pCD == NULL || pCD->pSD == NULL)
+	return;
+
+#ifdef WSM
+    pWsc = GetWsClientData (pCD->pSD->pActiveWS, pCD);
 #endif /* WSM */
 
 #ifdef WSM
-    if (pCD->pSD->useIconBox && pWsc->pIconBox)
+    if (pCD->pSD->useIconBox && pWsc != NULL && pWsc->pIconBox != NULL &&
+	pWsc->pIconBox->bBoardWidget != NULL)
 #else /* WSM */
-    if (pCD->pSD->useIconBox && P_ICON_BOX(pCD))
+    if (pCD->pSD->useIconBox && P_ICON_BOX(pCD) != NULL &&
+	P_ICON_BOX(pCD)->bBoardWidget != NULL)
 #endif /* WSM */
     {
 #ifdef WSM
@@ -3736,10 +3748,6 @@ void GetIconBoxIconRootXY (ClientData *pCD, int *pX, int *pY)
                               pX, pY, &child);
 #endif /* WSM */
 
-    }
-    else
-    {
-        *pX = *pY = 0;
     }
 } /* END FUNCTION GetIconBoxIconRootXY */
 
