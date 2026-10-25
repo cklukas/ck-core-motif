@@ -1,3 +1,9 @@
+GrabShell layout guards (2026-10-27)
+====================================
+
+- Guard empty GrabShell layouts and compute the child offset in signed
+  arithmetic; see `docs/grabshell-layout-guards.md`.
+
 Shared shadow origins (2026-10-27)
 =================================
 
