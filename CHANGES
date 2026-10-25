@@ -11,6 +11,13 @@ XmString context utility null guards (2026-10-26)
 - Make context reinitialization, copying, and cleanup tolerate invalid pointer
   inputs without assertions; see `docs/xmstring-context-null-utils.md`.
 
+XmString generated parse-table publication (2026-10-26)
+=========================================================
+
+- Build lazy `XmStringGenerate` mappings privately and publish them only after
+  all entries are initialized, preventing concurrent callers from observing a
+  partial table; see `docs/xmstring-generated-table-publication.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 

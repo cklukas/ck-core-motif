@@ -10559,38 +10559,34 @@ _get_generate_parse_table (XmParseTable *gen_table)
   XmString tmp;
   int index = 0;
   static XmParseTable table = NULL;
+  XmParseTable candidate = NULL;
 
 
   if (gen_table == NULL)
 	return(0);
 
+  *gen_table = NULL;
+
   _XmProcessLock();
-  /* Allocate a parse table only if necessary. */
+  /* A fully initialized table is published once. */
   if (table)
     {
       *gen_table = table;
       _XmProcessUnlock();
       return table_size;
     }
-  else
-    {
-      table = (XmParseTable) XtCalloc (table_size, sizeof(XmParseMapping));
-      if (table == NULL)
-	{
-	  *gen_table = NULL;
-	  _XmProcessUnlock();
-	  return(0);
-	}
-      *gen_table = table;
-    }
   _XmProcessUnlock();
+
+  /* Build privately.  Publishing the pointer before the mappings are
+   ** complete lets another thread observe a partially initialized table. */
+  candidate = (XmParseTable) XtCalloc (table_size, sizeof(XmParseMapping));
+  if (candidate == NULL)
+    return(0);
 
   /* Parse tab characters. */
   tmp = XmStringComponentCreate(XmSTRING_COMPONENT_TAB, 0, NULL);
   if (tmp == NULL) {
-    XtFree((char *)table);
-    table = NULL;
-    *gen_table = NULL;
+	XtFree((char *)candidate);
     return 0;
   }
   nargs = 0;
@@ -10599,25 +10595,22 @@ _get_generate_parse_table (XmParseTable *gen_table)
   XtSetArg(args[nargs], XmNpattern, "\t"), 		 nargs++;
   assert(nargs < XtNumber(args));
   _XmProcessLock();
-  table[index++] = XmParseMappingCreate(args, nargs);
+	  candidate[index++] = XmParseMappingCreate(args, nargs);
   _XmProcessUnlock();
   XmStringFree(tmp);
 
-  if (table[0] == NULL || table[0]->substitute == NULL) {
-    XmParseMappingFree(table[0]);
-    XtFree((char *)table);
-    table = NULL;
-    *gen_table = NULL;
+
+  if (candidate[0] == NULL || candidate[0]->substitute == NULL) {
+	    XmParseMappingFree(candidate[0]);
+	    XtFree((char *)candidate);
     return 0;
   }
 
   /* Parse newline characters. */
   tmp = XmStringSeparatorCreate();
   if (tmp == NULL) {
-    XmParseMappingFree(table[0]);
-    XtFree((char *)table);
-    table = NULL;
-    *gen_table = NULL;
+	    XmParseMappingFree(candidate[0]);
+	    XtFree((char *)candidate);
     return 0;
   }
   nargs = 0;
@@ -10626,19 +10619,34 @@ _get_generate_parse_table (XmParseTable *gen_table)
   XtSetArg(args[nargs], XmNpattern, "\n"),		 nargs++;
   assert(nargs < XtNumber(args));
   _XmProcessLock();
-  table[index++] = XmParseMappingCreate(args, nargs);
+	  candidate[index++] = XmParseMappingCreate(args, nargs);
   _XmProcessUnlock();
   XmStringFree(tmp);
 
-  if (table[1] == NULL || table[1]->substitute == NULL) {
-    XmParseMappingFree(table[0]);
-    XtFree((char *)table);
-    table = NULL;
-    *gen_table = NULL;
+  if (candidate[1] == NULL || candidate[1]->substitute == NULL) {
+	    XmParseMappingFree(candidate[0]);
+	    XmParseMappingFree(candidate[1]);
+	    XtFree((char *)candidate);
     return 0;
   }
 
-  assert(index == table_size);
+  if (index != table_size) {
+    XmParseMappingFree(candidate[0]);
+    XmParseMappingFree(candidate[1]);
+    XtFree((char *)candidate);
+    return 0;
+  }
+
+  _XmProcessLock();
+  if (table == NULL)
+    table = candidate;
+  else {
+    XmParseMappingFree(candidate[0]);
+    XmParseMappingFree(candidate[1]);
+    XtFree((char *)candidate);
+  }
+  *gen_table = table;
+  _XmProcessUnlock();
 
   return (table_size);
 }

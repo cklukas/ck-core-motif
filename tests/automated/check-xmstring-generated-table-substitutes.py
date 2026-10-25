@@ -10,8 +10,8 @@ end = source.index("\n}\n", start)
 function = source[start:end]
 
 assert "if (tmp == NULL)" in function
-assert "table[0]->substitute == NULL" in function
-assert "table[1]->substitute == NULL" in function
-assert function.count("XmParseMappingFree(table[0]);") >= 2
+assert "candidate[0]->substitute == NULL" in function
+assert "candidate[1]->substitute == NULL" in function
+assert function.count("XmParseMappingFree(candidate[0]);") >= 2
 
 print("generated XmString parse-table substitutes are validated")
