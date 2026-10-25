@@ -7,6 +7,16 @@ Gallery screenshot qualification receipts (2026-10-25)
   `skip`, and `fail` outcomes and retain the active entry and failure reason;
   see `docs/modern-gallery-screenshot-qualification.md`.
 
+Live appearance representative widget matrix (2026-10-25)
+============================================================
+
+- Extend the installed live-appearance consumer to Label, List, ScrollBar,
+  menu content, MessageBox and Disclosure alongside the existing button and
+  text coverage. Each control must change its toolkit-owned background through
+  modern-light, modern-dark and high-contrast transitions while text values,
+  toggle state, callbacks and explicit foreground precedence remain intact;
+  see `docs/appearance-profiles.md`.
+
 ColorPicker redisplay font-resource contract (2026-10-25)
 ============================================================
 
