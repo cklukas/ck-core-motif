@@ -1,3 +1,9 @@
+Bound large Text source conversion cursors (2026-10-25)
+========================================================
+
+- Use size-aware cursors and allocation checks when converting large Text
+  source ranges; see `docs/text-source-cursor-bounds.md`.
+
 Guard Container cell conversion indices (2026-10-25)
 ====================================================
 
