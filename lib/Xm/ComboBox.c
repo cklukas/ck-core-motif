@@ -585,14 +585,19 @@ Initialize(Widget    request,	/* unused */
   /* Ignore XmNheight resource value for descedants */
   num_child_args = 0;
   child_args = (ArgList) XtMalloc(sizeof(Arg) * *num_args);
-  for (i = 0; i < *num_args; i++) 
+  if (child_args != NULL || *num_args == 0) {
+    for (i = 0; i < *num_args; i++)
 	  if (strcmp(args[i].name, "height")) {
 		  child_args[num_child_args] = args[i];
 	  	  num_child_args++;
 	  }
-  /* Create the widgets that make up a ComboBox. */
-  CreateChildren(new_w, child_args, &num_child_args);
-  XtFree((char *) child_args);
+    /* Create the widgets that make up a ComboBox. */
+    CreateChildren(new_w, child_args, &num_child_args);
+    XtFree((char *) child_args);
+  } else {
+    /* Preserve child creation if the optional filtering array cannot grow. */
+    CreateChildren(new_w, args, num_args);
+  }
 #else
   /* Create the widgets that make up a ComboBox. */
   CreateChildren(new_w, args, num_args);
