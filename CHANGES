@@ -3703,3 +3703,10 @@ Guard ScrollFrame navigator-list growth (2026-10-25)
 - Keep navigator-list capacity metadata unchanged until `XtRealloc` succeeds,
   returning safely on failure instead of writing through a null list; see
   `docs/motif-scrollframe-nav-growth.md`.
+Guard ScrollFrame navigator inputs and traits (2026-10-25)
+===========================================================
+
+- Validate navigator add/remove inputs and scroll-frame/navigator traits
+  before callback or value-update dispatch, skipping partially initialized
+  entries safely; see the corresponding `docs/motif-scrollframe-*.md`
+  contracts.
