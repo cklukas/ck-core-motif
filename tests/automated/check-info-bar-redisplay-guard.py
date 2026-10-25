@@ -8,12 +8,9 @@ end = source.index("static void Events(", start)
 function = source[start:end]
 
 assert "if (!window || !bar->info.gc)" in function
-assert "XGetGCValues" in function
-assert "GCFont" in function
+assert "XGetGCValues" not in function
 assert "XGContextFromGC(" not in function
-font_query = function.index("font = XQueryFont")
-font_guard = function.index("if (!font)")
-font_use = function.index("font->ascent")
-assert font_query < font_guard < font_use
-assert "XFreeFont(display, font);" in function
-print("PASS InfoBar redisplay failure guards")
+assert "XDrawRectangle(display, window, bar->info.gc" in function
+assert "button_x + 5" in function
+assert "button_x + 13" in function
+print("PASS InfoBar redisplay uses a framed close control")

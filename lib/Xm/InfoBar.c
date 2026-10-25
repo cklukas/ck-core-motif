@@ -58,12 +58,16 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
                     bar->info.action_label, bounded_text_length(bar->info.action_label));
     if (bar->info.closable && bar->core.width >= 18 &&
         bar->core.height >= 8) {
+        int button_x = (int)bar->core.width - 24;
+        int button_y = ((int)bar->core.height - 22) / 2;
+        XDrawRectangle(display, window, bar->info.gc,
+                       button_x, button_y, 18, 22);
         XDrawLine(display, window, bar->info.gc,
-                  (int)bar->core.width - 18, 8,
-                  (int)bar->core.width - 8, (int)bar->core.height - 8);
+                  button_x + 5, button_y + 6,
+                  button_x + 13, button_y + 16);
         XDrawLine(display, window, bar->info.gc,
-                  (int)bar->core.width - 8, 8,
-                  (int)bar->core.width - 18, (int)bar->core.height - 8);
+                  button_x + 13, button_y + 6,
+                  button_x + 5, button_y + 16);
     }
     XFreeFont(display, font);
 }
