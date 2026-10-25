@@ -3968,20 +3968,20 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 	             */
                     if (menuItem->accelText)
                     {
-		        XtSetArg (args[i], XmNacceleratorText, (XtArgVal)
-				  (tmpstr = XmStringCreateLocalized(menuItem->accelText))); i++;
-		        sPtr = (StrList *) XtMalloc(sizeof(StrList));
-			if (sPtr == NULL)
-			  {
-			     MWarning(((char *)GETMESSAGE(48, 2, "Insufficient memory for menu %s\n")), menuName);
-			     return (NULL);
-			  }
-			else
-			  {
-			     sPtr->string = tmpstr;
-			     sPtr->next   = stringsToFree;
-			     stringsToFree = sPtr;
-			  }
+		        tmpstr = XmStringCreateLocalized(menuItem->accelText);
+		        if (tmpstr != NULL) {
+		            XtSetArg (args[i], XmNacceleratorText, (XtArgVal) tmpstr); i++;
+		            sPtr = (StrList *) XtMalloc(sizeof(StrList));
+		            if (sPtr == NULL)
+		            {
+		               XmStringFree(tmpstr);
+		               MWarning(((char *)GETMESSAGE(48, 2, "Insufficient memory for menu %s\n")), menuName);
+		               return (NULL);
+		            }
+		            sPtr->string = tmpstr;
+		            sPtr->next   = stringsToFree;
+		            stringsToFree = sPtr;
+		        }
 
                         if ((accelKeySpec = (KeySpec *)
                                  XtMalloc (sizeof (KeySpec ))) == NULL)

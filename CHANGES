@@ -13450,8 +13450,8 @@ Segmented-control geometry bounds (2026-10-26)
 MWM menu label conversion safety (2026-10-26)
 ==============================================
 
-- Check localized menu-label conversion before passing the result to Motif
-  widgets; see `docs/mwm-menu-label-conversion.md`.
+- Check localized menu-label and accelerator-text conversion before passing
+  results to Motif widgets; see `docs/mwm-menu-label-conversion.md`.
 
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================

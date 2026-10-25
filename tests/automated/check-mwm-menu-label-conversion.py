@@ -12,4 +12,8 @@ body = text[start:text.index("            }", start) + len("            }")]
 assert "if (tmpstr != NULL)" in body
 assert "XmNlabelString" in body
 assert "XmStringFree(tmpstr);" in body
+accelerator = text[text.index("tmpstr = XmStringCreateLocalized(menuItem->accelText);"):]
+accelerator = accelerator[:accelerator.index("if ((accelKeySpec")]
+assert "if (tmpstr != NULL)" in accelerator
+assert "XmNacceleratorText" in accelerator
 print("MWM menu label conversion is guarded")
