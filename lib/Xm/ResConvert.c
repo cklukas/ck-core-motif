@@ -2070,8 +2070,14 @@ CvtStringToKeySymTable(
     return(FALSE);
 
   keySymTable = (XmKeySymTable) XtMalloc(sizeof(KeySym) * (comma_count + 2));
+  if (keySymTable == NULL)
+    return(FALSE);
   keySymTable[comma_count + 1] = (KeySym)NULL;
   work_str = XtNewString(in_str);
+  if (work_str == NULL) {
+    XtFree((char *) keySymTable);
+    return(FALSE);
+  }
 
   for (ks_str = work_str, i = 0; i < comma_count + 1; ++i)
     {

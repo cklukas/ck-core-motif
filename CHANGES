@@ -1,3 +1,10 @@
+KeySym converter allocation guards (2026-10-25)
+================================================
+
+- Check the KeySym table and mutable input-copy allocations, releasing the
+  table when the second allocation fails; see
+  `docs/keysym-converter-allocation.md`.
+
 UTF-8 to UCS-2 allocation guard (2026-10-25)
 ==============================================
 
