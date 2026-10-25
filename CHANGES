@@ -32,6 +32,13 @@ Container empty-heading guard (2026-10-26)
   empty instead of terminating on an assertion; see
   `docs/container-empty-heading-guard.md`.
 
+Container header-creation failure guard (2026-10-26)
+=====================================================
+
+- Avoid asserting or laying out a missing detail header after creation fails;
+  the update path now manages and relayouts it only when present; see
+  `docs/container-empty-heading-guard.md`.
+
 List single-selection normalization (2026-10-26)
 =================================================
 

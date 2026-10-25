@@ -2190,11 +2190,11 @@ SetValues(
 		}
 
 		if (CtrLayoutIsDETAIL(ncw)) {
-		    assert(ncw->container.icon_header);
-		    XtManageChild(ncw->container.icon_header);
+		    if (ncw->container.icon_header != NULL)
+		      XtManageChild(ncw->container.icon_header);
 
 		    /* may be redundant if this is a new state */
-		    detail_need_layout = True;		
+		    detail_need_layout = (ncw->container.icon_header != NULL);
 		}
 	    }
 	    else {

@@ -15,4 +15,8 @@ assert "detail_heading_count == 0" in body
 assert "detail_heading_count == INVALID_COUNT" in body
 assert "assert(cw->container.detail_heading_count > 0)" not in body
 
+update = source[source.index("BOTH_VALID == (BOTH_VALID & whichValid)"):]
+assert "if (ncw->container.icon_header != NULL)" in update
+assert "assert(ncw->container.icon_header)" not in update
+
 print("Container empty-heading guard: ok")
