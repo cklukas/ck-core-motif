@@ -708,7 +708,9 @@ XmCvtCTToXmString(
     Octet	    c;
     XmString	    xmsReturned;	/* returned Xm string */
 
-    ctx = (ct_context *) XtMalloc(sizeof(ct_context));
+    ctx = (ct_context *)XtMalloc(sizeof(*ctx));
+    if (ctx == NULL)
+        return NULL;
 
 /* initialize the context block */
     ctx->octet = (OctetPtr)text;
@@ -720,6 +722,10 @@ XmCvtCTToXmString(
     ctx->dirstacksize = 8;
     ctx->dirstack = (ct_Direction *)
             XtMalloc(ctx->dirstacksize*sizeof(ct_Direction));
+    if (ctx->dirstack == NULL) {
+        XtFree((char *)ctx);
+        return NULL;
+    }
 /*
  * Define XLIB_HANDLES_DIRECTION if vendor's X library knows how
  * to deal with direction control sequences in CT. Otherwise
@@ -1156,7 +1162,12 @@ cvtTextToXmString(
     Boolean	    ok = True;
     Octet	    c;
 
-    ctx = (ct_context *) XtMalloc(sizeof(ct_context));
+    ctx = (ct_context *)XtMalloc(sizeof(*ctx));
+    if (ctx == NULL) {
+        to->addr = NULL;
+        to->size = 0;
+        return False;
+    }
 
 /* initialize the context block */
     ctx->octet = (OctetPtr)from->addr;
@@ -1169,6 +1180,12 @@ cvtTextToXmString(
     ctx->dirstacksize = 8;
     ctx->dirstack = (ct_Direction *)
             XtMalloc(ctx->dirstacksize*sizeof(ct_Direction));
+    if (ctx->dirstack == NULL) {
+        XtFree((char *)ctx);
+        to->addr = NULL;
+        to->size = 0;
+        return False;
+    }
 /*
  * Define XLIB_HANDLES_DIRECTION if vendor's X library knows how
  * to deal with direction control sequences in CT. Otherwise

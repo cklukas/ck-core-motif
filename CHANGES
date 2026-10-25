@@ -3825,6 +3825,13 @@ Make segment-encoding registry updates transactional (2026-10-25)
   changes, and check registry export storage; see
   `docs/motif-resencod-registry.md`.
 
+Guard compound-text context allocation (2026-10-25)
+====================================================
+
+- Check public and resource-converter context and direction-stack allocations,
+  releasing partial state and returning conversion failure; see
+  `docs/resencod-direction-stack.md`.
+
 Handle single text-property copy failure (2026-10-25)
 ======================================================
 
