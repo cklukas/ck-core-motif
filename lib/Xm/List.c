@@ -9810,6 +9810,11 @@ XmListGetSelectedPos(Widget w,
   }
 
   posList = (int *) XtMalloc(sizeof(int) * lw->list.selectedPositionCount);
+  if (posList == NULL)
+    {
+      _XmAppUnlock(app);
+      return (FALSE);
+    }
   count = lw->list.selectedPositionCount;
 
   memcpy((char*) posList,

@@ -4655,3 +4655,10 @@ Render-table rendition result positions (2026-10-25)
   guard the result allocation and clean up partially copied renditions. This
   matches the documented positional API and keeps unmatched tags as `NULL`;
   see `docs/render-table-rendition-array.md`.
+
+List position result allocation failures (2026-10-25)
+======================================================
+
+- Check `XmListGetMatchPos` and `XmListGetSelectedPos` result allocations
+  before use, preserving initialized outputs when memory is unavailable; see
+  `docs/list-result-allocation.md`.
