@@ -5844,3 +5844,11 @@ Guard XmString tab-list growth (2026-10-25)
   see `docs/motif-xmstring-tab-growth.md`.
 
 Guard XmString tab-list construction (2026-10-25)
+Make ScrollFrame navigator-list growth transactional (2026-10-25)
+===================================================================
+
+- Preserve the existing navigator list when its growth allocation fails;
+  update capacity only after reallocation succeeds; see
+  `docs/motif-scrollframe-nav-growth.md`.
+
+Guard XmString tab-list growth (2026-10-25)
