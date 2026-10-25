@@ -2481,7 +2481,8 @@ LayoutHorizontalScale(
 	}
 	else
 	{
-		Dimension sb_min, avail, lp, tp;
+		Dimension sb_min, lp, tp;
+		int avail;
 		XmScrollBarWidget sb = (XmScrollBarWidget)
 			(sw->composite.children[1]);
 
@@ -2491,16 +2492,16 @@ LayoutHorizontalScale(
 		
 		lp = MajorLeadPad(sw);
 		tp = MajorTrailPad(sw);
-		avail = XtWidth(sw) - lp - tp;
+		avail = (int)XtWidth(sw) - (int)lp - (int)tp;
 
 		if (avail < sb_min)
 		{
 			scrollBox.width = sb_min;
-			scrollBox.x = (XtWidth(sw) - sb_min) / 2;
+			scrollBox.x = ((int)XtWidth(sw) - (int)sb_min) / 2;
 		}
 		else
 		{
-			scrollBox.width = avail;
+			scrollBox.width = (Dimension)avail;
 			scrollBox.x = lp;
 		}
 	}
@@ -2766,7 +2767,8 @@ LayoutVerticalScale(
 	}
 	else
 	{
-		Dimension sb_min, avail, lp, tp;
+		Dimension sb_min, lp, tp;
+		int avail;
 		XmScrollBarWidget sb = (XmScrollBarWidget)
 			(sw->composite.children[1]);
 
@@ -2776,16 +2778,16 @@ LayoutVerticalScale(
 		
 		lp = MajorLeadPad(sw);
 		tp = MajorTrailPad(sw);
-		avail = XtHeight(sw) - lp - tp;
+		avail = (int)XtHeight(sw) - (int)lp - (int)tp;
 
 		if (avail < sb_min)
 		{
 			scrollBox.height = sb_min;
-			scrollBox.y = (XtHeight(sw) - sb_min) / 2;
+			scrollBox.y = ((int)XtHeight(sw) - (int)sb_min) / 2;
 		}
 		else
 		{
-			scrollBox.height = avail;
+			scrollBox.height = (Dimension)avail;
 			scrollBox.y = lp;
 		}
 	}

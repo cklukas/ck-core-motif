@@ -1,3 +1,10 @@
+Scale available trough geometry bounds (2026-10-25)
+=================================================
+
+- Use signed intermediates when subtracting Scale padding from widget size,
+  preventing wrapped trough dimensions on small controls; see
+  `docs/scale-available-geometry.md`.
+
 Sash highlight geometry bounds (2026-10-25)
 =============================================
 
