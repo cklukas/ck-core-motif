@@ -8225,3 +8225,12 @@ PushButtonGadget resource-list allocation (2026-10-27)
 
 ColorObj atom-name allocation (2026-10-27)
 ==========================================
+RCMenu callback-closure snapshot allocation (2026-10-27)
+========================================================
+
+- Check the callback-closure snapshot allocation before copying callback data.
+  Entry activation now returns safely under allocation pressure instead of
+  dereferencing a null closure array.
+
+PushButtonGadget resource-list allocation (2026-10-27)
+=======================================================

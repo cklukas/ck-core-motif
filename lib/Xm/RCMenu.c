@@ -3470,6 +3470,8 @@ ChildsActivateCallback(
 	  	  
 	  callbackClosure =
 	      (XtPointer *) XtMalloc(sizeof(XtPointer) * count);
+	  if (callbackClosure == NULL)
+	      return;
 
 	  for (i=0; i < count; i++)
 	      callbackClosure[i] = callbacks[i].closure;
