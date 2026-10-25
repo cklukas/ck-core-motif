@@ -1,3 +1,9 @@
+Rendition tag-copy allocation bounds (2026-10-26)
+==================================================
+
+- Reject unrepresentable tag-array byte counts before `_XmRenditionCopy`
+  allocates; see `docs/rendition-copy-bounds.md`.
+
 XmString concatenation line-table bounds (2026-10-26)
 =======================================================
 
