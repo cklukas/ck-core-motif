@@ -2531,6 +2531,9 @@ void ResetIconBoxMaxSize (ClientData *pCD, Widget bBoardWidget)
     Dimension newWidth;
     Dimension newHeight;
 
+    if (pCD == NULL || bBoardWidget == NULL)
+	return;
+
     i=0;
     XtSetArg (getArgs[i], XmNwidth, (XtArgVal) &newWidth ); i++;
     XtSetArg (getArgs[i], XmNheight, (XtArgVal) &newHeight ); i++;

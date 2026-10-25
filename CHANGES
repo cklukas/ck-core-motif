@@ -1,3 +1,9 @@
+Icon-box maximum-size reset validation (2026-10-25)
+====================================================
+
+- Validate client and bulletin-board widget inputs before resetting icon-box
+  maximum geometry; see `docs/reset-icon-box-max-guards.md`.
+
 Icon-info deletion validation (2026-10-25)
 ===========================================
 
