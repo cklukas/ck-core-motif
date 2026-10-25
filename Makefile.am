@@ -67,6 +67,8 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
               docs/index.md docs/history.md docs/status.md docs/build.md \
               docs/abi.md docs/unicode.md docs/accessibility.md \
               docs/components.md docs/disclosure.md docs/documentation.md \
+              docs/modern-gallery-work-plan.md docs/modern-gallery-manifest.md \
+              docs/modern-gallery-manifest.json \
               .gitattributes .ckgit/build-commit .ckgit/ci.yml .github/workflows/pages.yml
 
 # Keyboard activation lifetime regression.

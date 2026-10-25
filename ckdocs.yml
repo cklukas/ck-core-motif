@@ -25,6 +25,10 @@ nav:
       - docs/build.md
       - docs/abi.md
       - docs/documentation.md
+  - title: Development
+    pages:
+      - docs/modern-gallery-work-plan.md
+      - docs/modern-gallery-manifest.md
   - title: APIs
     pages:
       - docs/unicode.md
