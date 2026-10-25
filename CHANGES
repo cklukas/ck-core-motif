@@ -1,3 +1,10 @@
+Clipboard lock-marker property bound (2026-10-26)
+=================================================
+
+- Limit lock-access marker reads to one property unit and reject X11 read
+  failures when checking a surviving lock window; see
+  `docs/clipboard-lock-marker-request.md`.
+
 Clipboard format-length property request bound (2026-10-26)
 ============================================================
 

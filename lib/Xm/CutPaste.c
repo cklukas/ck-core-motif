@@ -1175,7 +1175,7 @@ GetWindowProperty(
     while ( bytes_left > 0 )
     {
 	/* retrieve the item from the root */
-	ret_value = XGetWindowProperty( display, 
+	ret_value = XGetWindowProperty( display,
 					window, 
 					property_atom,
 					offset, /*offset*/
@@ -1549,6 +1549,7 @@ ClipboardGetLenFromFormat(
     unsigned char *outpointer;
     Atom type;
     int format;
+    int ret_value;
     unsigned long bytes_left;
 
     if (format_length == NULL)
@@ -3226,6 +3227,7 @@ ClipboardWindowExists(
     unsigned char *outpointer;
     Atom type;
     int format;
+    int ret_value;
     unsigned long bytes_left;
 
     outpointer = NULL;
@@ -3242,11 +3244,11 @@ ClipboardWindowExists(
 	   with the original locking window */
        itematom = XInternAtom(display, XmS_MOTIF_CLIP_LOCK_ACCESS_VALID, False);
 
-       XGetWindowProperty( display, 
+	ret_value = XGetWindowProperty( display,
 			window, 
 			itematom,
 			0, /*offset*/
-			10000000, /*length*/
+			1, /*length: lock-access marker is one property unit*/
 			False,
 			AnyPropertyType,
 			&type,
@@ -3255,7 +3257,7 @@ ClipboardWindowExists(
 			&bytes_left,
 			&outpointer );
 
-	if ( outpointer == 0 || outlength == 0 )
+	if ( ret_value != Success || outpointer == 0 || outlength == 0 )
     	{
     	    /* not the same window that locked the clipboard */
 	    exists = 0;
