@@ -32,6 +32,8 @@ Xft compound-string line height (2026-10-27)
   `(num_children + 1)` sizing and clean failure outputs.
 - Keep RowColumn managed-child search indices and copied child counts in
   full-width `Cardinal` variables.
+- Harden legacy PanedWindow managed-child growth with checked capacity sizing
+  and transactional `XtRealloc` publication.
 - Use `Cardinal` indices in the public XmString table parse, unparse, and
   concatenation loops so full-width caller counts cannot wrap signed counters.
 - Use the native Xft font height for compound-string geometry instead of

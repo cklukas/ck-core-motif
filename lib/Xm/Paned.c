@@ -27,6 +27,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
+#include <stdint.h>
 
 #include "XmI.h"
 #include <Xm/PanedP.h>
@@ -2524,7 +2525,7 @@ ConstraintDestroy(Widget w)
 static void 
 ReManageChildren(XmPanedWidget pw)
 {
-    int i;
+    Cardinal i;
 
     XmPaned_num_panes(pw) = 0;
     for (i = 0; i < pw->composite.num_children; i++) {
@@ -2535,10 +2536,21 @@ ReManageChildren(XmPanedWidget pw)
 
 	    /* expand our storage area if needed */
 	    if ((XmPaned_num_panes(pw) + 1) > XmPaned_num_slots(pw)) {
-		XmPaned_num_slots(pw) += BLOCK;
-		XmPaned_managed_children(pw) = (WidgetList)
-			XtRealloc ((XtPointer) XmPaned_managed_children(pw),
-				(XmPaned_num_slots(pw) * sizeof(Widget)));
+		Cardinal new_slots;
+		WidgetList new_children;
+		if (XmPaned_num_slots(pw) > (Cardinal)~0 - BLOCK)
+		    return;
+		new_slots = XmPaned_num_slots(pw) + BLOCK;
+		if ((size_t)new_slots > SIZE_MAX / sizeof(Widget) ||
+		    (size_t)new_slots > (size_t)((Cardinal)~0) / sizeof(Widget))
+		    return;
+		new_children = (WidgetList)XtRealloc(
+		    (XtPointer)XmPaned_managed_children(pw),
+		    (Cardinal)((size_t)new_slots * sizeof(Widget)));
+		if (new_children == NULL)
+		    return;
+		XmPaned_managed_children(pw) = new_children;
+		XmPaned_num_slots(pw) = new_slots;
 	    }
 	    
 #ifndef POSITION_IMPLEMENTED
