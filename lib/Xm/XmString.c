@@ -38,6 +38,7 @@ static char rcsid[] = "$TOG: XmString.c /main/34 1998/04/16 14:35:32 mgreess $"
 #endif
 #include <string.h>
 #include <ctype.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" { /* some 'locale.h' do not have prototypes (sun) */
@@ -1128,7 +1129,7 @@ _XmStringIndexGetTag(int index)
 {
   XmStringTag ret_val;
   _XmProcessLock();
-  if (index > _cache_count) {
+  if (_tag_cache == NULL || index < 0 || index >= _cache_count) {
     _XmProcessUnlock();
     return NULL;
   }
@@ -1150,7 +1151,13 @@ _XmStringIndexCacheTag(XmStringTag tag,
   _XmProcessLock();
   if (_cache_count == 0)
     {
-      _tag_cache = (char **)XtMalloc(sizeof(char **) * 3);
+      char **new_cache = (char **)XtMalloc(sizeof(char *) * 3);
+      if (new_cache == NULL)
+        {
+          _XmProcessUnlock();
+          return 0;
+        }
+      _tag_cache = new_cache;
       
       _tag_cache[_cache_count] = XmFONTLIST_DEFAULT_TAG;
       _cache_count++;
@@ -1178,8 +1185,23 @@ _XmStringIndexCacheTag(XmStringTag tag,
   /* Add this entry to the cache. */
   if (length == XmSTRING_TAG_STRLEN) length = strlen(tag);
 
-  _tag_cache = (char **) XtRealloc ((char *) _tag_cache, 
-				    sizeof (char **) * (_cache_count + 1));
+  if (_cache_count == INT_MAX ||
+      (size_t)(_cache_count + 1) > SIZE_MAX / sizeof(char *))
+    {
+      _XmProcessUnlock();
+      return 0;
+    }
+  {
+    char **new_cache = (char **)XtRealloc(
+        (char *)_tag_cache,
+        sizeof(char *) * (size_t)(_cache_count + 1));
+    if (new_cache == NULL)
+      {
+        _XmProcessUnlock();
+        return 0;
+      }
+    _tag_cache = new_cache;
+  }
   
   a = XtMalloc (length + 1);
   memcpy(a, tag, length);
@@ -1205,6 +1227,10 @@ _XmStringCacheTag(XmStringTag tag,
       return NULL;
   }
   tag_index = _XmStringIndexCacheTag( tag, length) ;
+  if (_tag_cache == NULL || tag_index < 0 || tag_index >= _cache_count) {
+      _XmProcessUnlock();
+      return NULL;
+  }
   ret_val = _tag_cache[tag_index] ;
   _XmProcessUnlock();
   return ret_val;

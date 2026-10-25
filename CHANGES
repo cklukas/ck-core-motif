@@ -1,3 +1,10 @@
+XmString tag-cache bounds and growth (2026-10-27)
+==================================================
+
+- Reject the cache-count sentinel in `_XmStringIndexGetTag` and make tag-cache
+  initialization and growth tolerate allocation failure without an out of
+  bounds read or a null-pointer write.
+
 Color cache growth failures (2026-10-27)
 ========================================
 
