@@ -4,6 +4,15 @@
 from pathlib import Path
 
 source = Path("lib/Xm/Picture.c").read_text()
+parse_start = source.index("XmParsePicture(char *input)")
+parse_end = source.index("\n/*", parse_start)
+parse_region = source[parse_start:parse_end]
+assert "if (picture == NULL)" in parse_region
+assert "if (picture->source == NULL)" in parse_region
+assert "if (picture->nodes == NULL)" in parse_region
+assert parse_region.index("if (picture->source == NULL)") < parse_region.index("picture->num_nodes")
+assert parse_region.index("if (picture->nodes == NULL)") < parse_region.index("_XmPictureParseNode")
+
 start = source.index("XmGetNewPictureState(XmPicture picture)")
 end = source.index("\n/*", start)
 region = source[start:end]

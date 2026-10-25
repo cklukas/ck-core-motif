@@ -1,6 +1,10 @@
 # Picture state allocation
 
-`XmGetNewPictureState` now treats state construction as a transaction.  It
+Picture parsing and state construction now treat allocation as a transaction.
+`XmParsePicture` checks its picture, source-copy, and initial node-table
+allocations before entering the parser, releasing earlier allocations on
+failure.  `XmGetNewPictureState` now treats state construction as a
+transaction.  It
 rejects a null picture and node counts that cannot be represented by the
 ABI-preserved `int statesize` field, and checks every allocation before the
 state is initialized or published.  If a later allocation fails, all earlier

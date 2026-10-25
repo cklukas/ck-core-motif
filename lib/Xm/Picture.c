@@ -55,12 +55,24 @@ XmParsePicture(char *input)
 	return NULL;
 
     picture = XtNew(XmPictureRec);
+    if (picture == NULL)
+	return NULL;
 
     picture->source = XtNewString(input);
+    if (picture->source == NULL) {
+	XtFree((char*)picture);
+	return NULL;
+    }
+
     picture->num_nodes = 0;
     picture->nodes_alloced = NODE_START_COUNT;
     picture->nodes = (XmPictureNode**)
 	             XtMalloc(NODE_START_COUNT * sizeof(XmPictureNode*));
+    if (picture->nodes == NULL) {
+	XtFree(picture->source);
+	XtFree((char*)picture);
+	return NULL;
+    }
 
     _XmPictureParseNode(picture, &input, &root_node, &end_node, False);
 

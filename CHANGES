@@ -1,9 +1,9 @@
-Picture state allocation (2026-10-25)
-=====================================
+Picture parsing and state allocation (2026-10-25)
+=================================================
 
-- Validate picture inputs and state-vector size arithmetic, and make state
-  construction transactional so partial state allocations are released before
-  returning `NULL` under allocation pressure.
+- Validate picture inputs, parser bootstrap allocations, and state-vector size
+  arithmetic, releasing partial state before returning `NULL` under allocation
+  pressure.
 
 FontSelector widget-list growth (2026-10-27)
 =============================================
