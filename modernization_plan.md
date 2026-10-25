@@ -1985,6 +1985,8 @@ the source contract and both installed-library build variants pass on
 Render-table property token allocations now terminate through the existing EOF
 parser path on allocation failure; the source contract and both installed
 library build variants pass on `uconsole`.
+Quoted and alphabetic token lengths are also checked against Xt's `Cardinal`
+width before allocation.
 
 ## Acceptance criteria for every increment
 
