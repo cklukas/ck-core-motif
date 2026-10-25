@@ -1,3 +1,9 @@
+Guard compound-text string-table allocation (2026-10-25)
+===========================================================
+
+- Check the result table before converting compound-text properties, including
+  the empty-property case; see `docs/motif-txtpropcv-string-table.md`.
+
 Guard final text-property conversion buffer (2026-10-25)
 ==========================================================
 
