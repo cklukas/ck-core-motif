@@ -8297,3 +8297,11 @@ LabelG secondary-object allocation (2026-10-27)
 
 VendorShell set-values extension data (2026-10-27)
 =================================================
+
+LabelG set-values allocation (2026-10-27)
+=========================================
+
+- Check replacement and request cache extension allocations and extension-data
+  allocation before dereferencing them in the set-values prehook.  Partial
+  allocations are released and the existing cache remains unchanged on
+  allocation failure.

@@ -1032,6 +1032,13 @@ Cardinal *num_args)
     newSec = (XmLabelGCacheObject)_XmExtObjAlloc(size);
     reqSec = (XmLabelGCacheObject)_XmExtObjAlloc(size);
     _XmProcessUnlock();
+	if (newSec == NULL || reqSec == NULL) {
+	    if (newSec != NULL)
+		_XmExtObjFree((XtPointer)newSec);
+	    if (reqSec != NULL)
+		_XmExtObjFree((XtPointer)reqSec);
+	    return FALSE;
+	}
 
     newSec->object.self = (Widget)newSec;
     newSec->object.widget_class = ec;
@@ -1049,6 +1056,11 @@ Cardinal *num_args)
         sizeof(XmLabelGCacheObjPart));
 
     extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+	if (extData == NULL) {
+	    _XmExtObjFree((XtPointer)newSec);
+	    _XmExtObjFree((XtPointer)reqSec);
+	    return FALSE;
+	}
     extData->widget = (Widget)newSec;
     extData->reqWidget = (Widget)reqSec;
     _XmPushWidgetExtData(newParent, extData, XmCACHE_EXTENSION);
