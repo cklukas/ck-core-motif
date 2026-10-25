@@ -2584,9 +2584,10 @@ DoLayout(Widget widg)
   XmComboBoxWidget cb = (XmComboBoxWidget)widg;
   Dimension	   ebW = 0, ebH = 0, thickW = 0, thickH = 0;
   Dimension	   listW = 0, listH = 0 ;
-  Dimension	   diff, htLeft = 0;
+  Dimension	   htLeft = 0;
   int available_edit_width, available_edit_height;
   int available_list_width, available_list_height;
+  int diff, adjusted_edit_height;
   XtWidgetGeometry geom, replygeom;
   XtGeometryResult result;
 
@@ -2677,10 +2678,12 @@ DoLayout(Widget widg)
 	    {
 	      /* see if EditBox will shrink. */
 	      listH = replygeom.height;
-	      diff = abs(geom.height - replygeom.height);
+	      diff = abs((int) geom.height - (int) replygeom.height);
 	      geom.request_mode = 0;
 	      geom.request_mode |= CWHeight;
-	      geom.height = ebH - diff;
+	      adjusted_edit_height = (int) ebH - diff;
+	      geom.height = (Dimension) ((adjusted_edit_height > 0) ?
+		  adjusted_edit_height : 1);
 	      result = XtQueryGeometry(CB_EditBox(cb), &geom, NULL);
 	      if (result == XtGeometryYes)
 		{

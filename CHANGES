@@ -7434,3 +7434,11 @@ ComboBox scrolled-list geometry bounds (2026-10-26)
 
 ComboBox edit-field geometry bounds (2026-10-26)
 =================================================
+ComboBox geometry negotiation bounds (2026-10-26)
+==================================================
+
+- Bound signed height deltas during `XtGeometryAlmost` negotiation, preventing
+  wrapped edit-box requests; see `docs/combobox-geometry-diff.md`.
+
+ComboBox scrolled-list geometry bounds (2026-10-26)
+====================================================
