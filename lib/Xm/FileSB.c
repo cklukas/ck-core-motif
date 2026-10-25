@@ -2578,8 +2578,16 @@ ListCallback(
 			 != NULL)
                           {
                             len = strlen( dirString) ;
-                            maskString = XtMalloc( len
-                                                 + strlen( patternString) + 1) ;
+                            {
+                                size_t patternLen = strlen( patternString) ;
+                                if (patternLen == SIZE_MAX ||
+                                    len > SIZE_MAX - patternLen - 1 ||
+                                    len + patternLen + 1 > UINT_MAX)
+                                    maskString = NULL;
+                                else
+                                    maskString = XtMalloc((Cardinal)
+                                        (len + patternLen + 1)) ;
+                            }
                             if(    maskString != NULL    )
                             {   strcpy( maskString, dirString) ;
                                 strcpy( &maskString[len], patternString) ;

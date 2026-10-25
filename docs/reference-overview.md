@@ -41,6 +41,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [FileSB qualified-mask allocation](motif-filesb-qualified-mask.md) — bounded file-selection mask assembly.
 - [FileSB full-path value allocation](motif-filesb-value-buffer.md) — bounded directory/filename assembly.
 - [FileSB filter-mask allocation](motif-filesb-filter-mask-update.md) — bounded full-path filter assembly.
+- [FileSB resource filter-mask allocation](motif-filesb-resource-filter-mask.md) — bounded navigation filter updates.
 
 ## MWM and window-management protocol
 

@@ -11628,6 +11628,12 @@ FileSB filter-mask allocation width (2026-10-25)
 - Check full-path filter lengths before mask-buffer allocation; see
   `docs/motif-filesb-filter-mask-update.md`.
 
+FileSB resource filter-mask allocation width (2026-10-25)
+==========================================================
+
+- Check resource-change filter lengths before mask-buffer allocation; see
+  `docs/motif-filesb-resource-filter-mask.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 
