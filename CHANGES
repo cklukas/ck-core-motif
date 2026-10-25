@@ -13336,6 +13336,12 @@ Workspace-info title conversion safety (2026-10-26)
 - Reject failed workspace-title conversion before passing a null entry to
   Xlib's text-property encoder; see `docs/workspace-info-title.md`.
 
+Icon-box title conversion safety (2026-10-26)
+==============================================
+
+- Omit icon-box title resources when `XmString` conversion fails so a shell
+  can use its normal defaults; see `docs/iconbox-title-conversion.md`.
+
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================
 

@@ -401,9 +401,11 @@ void MakeShell (WmWorkspaceData *pWS, IconBoxData *pIBD)
     if (pWS->pSD->iconBoxTitle)
     {
 	pchIBTitle = WmXmStringToString (pWS->pSD->iconBoxTitle);
-
-	XtSetArg (setArgs[i], XmNtitle, (XtArgVal)pchIBTitle); i++;
-	XtSetArg (setArgs[i], XmNiconName, (XtArgVal)pchIBTitle); i++;
+	if (pchIBTitle != NULL)
+	{
+	    XtSetArg (setArgs[i], XmNtitle, (XtArgVal)pchIBTitle); i++;
+	    XtSetArg (setArgs[i], XmNiconName, (XtArgVal)pchIBTitle); i++;
+	}
     }
 #endif /* WSM */
     XtSetArg (setArgs[i], XmNmappedWhenManaged, (XtArgVal)False); i++;
