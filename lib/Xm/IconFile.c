@@ -441,7 +441,11 @@ CheckDirCache(String	path)
                 cacheList.dirs = new_dirs;
                 cacheList.maxDirs = new_max_dirs;
 	    }
-            dirName = (String)XtMalloc((size_t)dirNameLen + 1);
+            if (dirNameLen == SIZE_MAX || dirNameLen >= UINT_MAX) {
+                _XmProcessUnlock();
+                return DtUNCACHED_DIR;
+            }
+            dirName = (String)XtMalloc((Cardinal)(dirNameLen + 1));
             if (dirName == NULL) {
                 _XmProcessUnlock();
                 return DtUNCACHED_DIR;

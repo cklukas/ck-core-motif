@@ -1,3 +1,9 @@
+Icon-directory allocation bounds (2026-10-26)
+==============================================
+
+- Bound the icon-directory cache path copy before allocating its NUL-terminated
+  storage; see `docs/icon-directory-bounds.md`.
+
 Fixed-pattern allocation bounds (2026-10-26)
 =============================================
 
