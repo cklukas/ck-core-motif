@@ -12185,6 +12185,12 @@ String-table conversion allocation widths (2026-10-26)
 - Pass the checked plain-string table sizes explicitly as Xt `Cardinal`
   values; see `docs/string-table-conversion.md`.
 
+String-table field length validation (2026-10-26)
+=================================================
+
+- Reject fields whose pointer span cannot be represented by the legacy `int`
+  copy length before allocation; see `docs/string-table-conversion.md`.
+
 Cardinal-list conversion allocation width (2026-10-26)
 =======================================================
 

@@ -1533,6 +1533,7 @@ CvtStringToStringTable(
     static String *tblptr ;
             int size = 50 ;
             int i, len ;
+            size_t span;
             int csize;
             Boolean after_comma = False;
 
@@ -1625,8 +1626,16 @@ CvtStringToStringTable(
             }
             table = new_table;
             }
-        len = p - top ;
-        table[i] = XtMalloc( len + 1) ;
+        span = (size_t)(p - top);
+        if (span > (size_t)INT_MAX - 1) {
+            int cleanup;
+            for (cleanup = 0; cleanup < i; ++cleanup)
+                XtFree((char *)table[cleanup]);
+            XtFree((char *)table);
+            return(False);
+        }
+        len = (int)span ;
+        table[i] = XtMalloc((Cardinal)(span + 1));
 	if (table[i] == NULL) {
             int cleanup;
             for (cleanup = 0; cleanup < i; ++cleanup)
