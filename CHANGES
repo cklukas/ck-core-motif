@@ -9224,3 +9224,10 @@ IconGadget detail-table rollback (2026-10-29)
 - Bound and transactionally copy `XmNdetail` tables during initialization and
   updates, preserving the old table when a requested copy fails; see
   `docs/icong-detail-table-rollback.md`.
+
+IconGadget visual-resource rollback (2026-10-29)
+=================================================
+
+- Copy render tables and label strings before releasing the current values,
+  preserving usable visual state when a resource copy cannot be completed; see
+  `docs/icong-visual-resource-rollback.md`.

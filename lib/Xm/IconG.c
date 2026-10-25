@@ -2500,6 +2500,8 @@ SetValues(
     Boolean			Redraw = False;
     unsigned int w, h ;
     Cardinal i ;
+    XmRenderTable render_table;
+    XmString label_string;
 
     
     if (IG_ViewType(nw) != IG_ViewType(cw)) {
@@ -2537,11 +2539,17 @@ SetValues(
     }
 
     if (IG_RenderTable(nw) != IG_RenderTable(cw)) {
-	XmRenderTableFree(IG_RenderTable(cw));
-	IG_RenderTable(nw) = XmRenderTableCopy(IG_RenderTable(nw), NULL, 0);
-	UpdateGCs(nw);
+	render_table = XmRenderTableCopy(IG_RenderTable(nw), NULL, 0);
+	if (render_table != NULL) {
+	    XmRenderTableFree(IG_RenderTable(cw));
+	    IG_RenderTable(nw) = render_table;
+	    UpdateGCs(nw);
+	} else {
+	    IG_RenderTable(nw) = IG_RenderTable(cw);
+	}
 
-	if (!XmStringEmpty(IG_LabelString(nw)))
+	if (IG_RenderTable(nw) != NULL && IG_LabelString(nw) != NULL &&
+	    !XmStringEmpty(IG_LabelString(nw)))
 	    XmStringExtent(IG_RenderTable(nw), IG_LabelString(nw),
 			    &(IG_LabelRectWidth(nw)),
 			    &(IG_LabelRectHeight(nw)));
@@ -2553,10 +2561,17 @@ SetValues(
     }
 
     if (IG_LabelString(nw) != IG_LabelString(cw)) {
-	XmStringFree(IG_LabelString(cw));
-	IG_LabelString(nw) = XmStringCopy(IG_LabelString(nw));
+	label_string = IG_LabelString(nw) != NULL
+	    ? XmStringCopy(IG_LabelString(nw)) : NULL;
+	if (label_string != NULL) {
+	    XmStringFree(IG_LabelString(cw));
+	    IG_LabelString(nw) = label_string;
+	} else {
+	    IG_LabelString(nw) = IG_LabelString(cw);
+	}
 	
-	if (!XmStringEmpty(IG_LabelString(nw)))
+	if (IG_LabelString(nw) != NULL &&
+	    !XmStringEmpty(IG_LabelString(nw)))
 	    XmStringExtent(IG_RenderTable(nw), IG_LabelString(nw),
 			    &(IG_LabelRectWidth(nw)),
 			    &(IG_LabelRectHeight(nw)));
