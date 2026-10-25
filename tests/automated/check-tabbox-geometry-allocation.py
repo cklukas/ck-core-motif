@@ -29,6 +29,7 @@ cache_end = source.index("\nstatic void", cache_start + 20)
 cache = source[cache_start:cache_end]
 assert "XiCache *cache;" in cache
 assert "UINT_MAX / sizeof(*cache)" in cache
+assert "XtMalloc((Cardinal)(sizeof(*cache) *" in cache
 assert "if (cache == NULL)" in cache
 assert "XmTabBox__cache(tab) = NULL;" in cache
 assert "XtFree((XtPointer)XmTabBox__cache(tab));" in cache

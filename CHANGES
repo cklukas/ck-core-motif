@@ -5767,6 +5767,13 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+TabBox image-cache allocation cast (2026-10-25)
+================================================
+
+- Pass the already-bounded TabBox image-cache byte count explicitly as an Xt
+  `Cardinal` before publishing the replacement cache; see
+  `docs/tabbox-geometry-allocation.md`.
+
 List item-array Xt reallocation widths (2026-10-25)
 ====================================================
 

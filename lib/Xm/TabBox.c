@@ -9373,7 +9373,8 @@ ResetImageCache(tab)
 	if (cnt < 0 || (size_t)cnt > SIZE_MAX / sizeof(*cache) ||
 	    (size_t)cnt > UINT_MAX / sizeof(*cache))
 	    return;
-	cache = (XiCache *)XtMalloc(sizeof(*cache) * (size_t)cnt);
+	cache = (XiCache *)XtMalloc((Cardinal)(sizeof(*cache) *
+					     (size_t)cnt));
 	if (cache == NULL) {
 	    XtFree((XtPointer)XmTabBox__cache(tab));
 	    XmTabBox__cache(tab) = NULL;
