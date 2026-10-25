@@ -1201,7 +1201,8 @@ XmAddToPostFromList(
 
       /* Add to list, we add the menu's shell parent. */
       if (list->num_popups == (Cardinal)-1 ||
-          (size_t)(list->num_popups + 1) > SIZE_MAX / sizeof(Widget))
+          (size_t)(list->num_popups + 1) > SIZE_MAX / sizeof(Widget) ||
+          (size_t)(list->num_popups + 1) > UINT_MAX / sizeof(Widget))
         {
           _XmAppUnlock(app);
           return;
@@ -1209,7 +1210,8 @@ XmAddToPostFromList(
       {
         WidgetList new_popups = (WidgetList)XtRealloc(
             (char *)list->popups,
-            sizeof(Widget) * (size_t)(list->num_popups + 1));
+            (Cardinal)(sizeof(Widget) *
+                       (size_t)(list->num_popups + 1)));
         if (new_popups == NULL)
           {
             _XmAppUnlock(app);
