@@ -17,6 +17,12 @@ Guard public pixmap wrapper inputs (2026-10-26)
 - Reject null widgets, screens and image names before public pixmap wrappers
   access Xt or X11 state; see `docs/pixmap-wrapper-input-guards.md`.
 
+Guard XmRegion GC handles (2026-10-26)
+======================================
+
+- Return safely from `_XmRegionSetGCRegion` when the display or GC is absent;
+  see `docs/region-gc-input-guards.md`.
+
 Guard XmRegion geometry query NULL inputs (2026-10-26)
 =======================================================
 
