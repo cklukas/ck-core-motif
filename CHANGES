@@ -3279,6 +3279,12 @@ Drag atom-table serialization guards (2026-10-25)
 - Reject incomplete atom tables and failed serialization allocations before
   writing the `_MOTIF_DRAG_ATOMS` property; see
   `docs/dragbs-atoms-write-guards.md`.
+
+Drag target-table serialization guards (2026-10-25)
+====================================================
+
+- Reject unrepresentable, incomplete, or size-overflowing target tables and
+  failed serialization allocations; see `docs/dragbs-targets-write-guards.md`.
 2026-10-25
 	* Add an opt-in XmSegmentedControl composite with copied item ownership,
 	  bounded clipping, RTL keyboard traversal and accessibility selection state.
