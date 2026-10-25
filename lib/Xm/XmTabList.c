@@ -506,7 +506,8 @@ XmTabListRemoveTabs(XmTabList oldlist,
 		    Cardinal position_count)
 {
   XmTab		cur_tab, tab, prev, next;
-  int		cur_pos, i;
+  int		cur_pos;
+  Cardinal	i;
   XmTabList	tl;
 
   _XmProcessLock();

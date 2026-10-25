@@ -15,5 +15,9 @@ if "return(oldlist);" not in block:
     raise SystemExit("removal does not preserve the source on copy failure")
 if "XmTabListFree(tl);" not in block:
     raise SystemExit("removal does not release the copied list")
+if "Cardinal\ti;" not in block:
+    raise SystemExit("removal position loop does not use a full-width index")
+if "int\t\tcur_pos, i;" in block:
+    raise SystemExit("removal position loop still uses a signed index")
 
 print("tab-list removal rolls back copy allocation failures")
