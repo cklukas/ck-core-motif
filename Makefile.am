@@ -756,3 +756,5 @@ EXTRA_DIST += tests/automated/check-xmstring-parse-mapping-inputs.py docs/xmstri
 EXTRA_DIST += tests/automated/check-xmstring-byte-stream-length.py docs/xmstring-byte-stream-length.md
 
 EXTRA_DIST += tests/automated/check-xmstring-next-segment-input.py docs/xmstring-next-segment-input.md
+
+EXTRA_DIST += tests/automated/check-container-tab-rebuild-failure.py docs/container-tab-rebuild-failure.md

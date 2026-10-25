@@ -5754,17 +5754,12 @@ SetDynamicTabList(
     XmContainerWidget   cw = (XmContainerWidget)wid;
     int tab_size;
     Cardinal		detail_order_count;
+    XmTabList old_tablist;
+    XmTabList new_tablist;
 
     if (!CtrIsDynamic(cw,TABLIST)) return(NULL);	/* Just in case */
 
-    /*
-     * Always free the previous XmTabList
-     */
-    if (CtrIsDynamic(cw,TABLIST) && (cw->container.detail_tablist))
-	{
-	XmTabListFree(cw->container.detail_tablist);
-	cw->container.detail_tablist = NULL;
-	}
+    old_tablist = cw->container.detail_tablist;
     /*
      * If the Container has a valid size, a default tablist of
      * size detail_order_count shall be returned in detail_tablist.
@@ -5777,22 +5772,49 @@ SetDynamicTabList(
      * is returned, so that the icon can concat all its details
      * and get a reasonable size.
      */
-    if (cw->core.width == 0) return(NULL);
+    if (cw->core.width == 0) {
+	if (old_tablist != NULL) {
+	    XmTabListFree(old_tablist);
+	    cw->container.detail_tablist = NULL;
+	}
+	return(NULL);
+	}
 
     tab_size = cw->core.width - (cw->container.margin_w * 2)
                                 - cw->container.real_first_col_width;
     detail_order_count = (cw->container.detail_order_count) ?
 	cw->container.detail_order_count : GetDefaultDetailCount(wid);
-    if (tab_size <= 0)
-        return(NULL);
-    if (detail_order_count == 0)
+	if (tab_size <= 0) {
+	if (old_tablist != NULL) {
+	    XmTabListFree(old_tablist);
+	    cw->container.detail_tablist = NULL;
+	}
 	return(NULL);
+	}
+    if (detail_order_count == 0) {
+	if (old_tablist != NULL) {
+	    XmTabListFree(old_tablist);
+	    cw->container.detail_tablist = NULL;
+	}
+	return(NULL);
+	}
     tab_size /= detail_order_count;
-    if (tab_size <= 0)
+	if (tab_size <= 0) {
+	if (old_tablist != NULL) {
+	    XmTabListFree(old_tablist);
+	    cw->container.detail_tablist = NULL;
+	}
 	return(NULL);
+	}
 
-    cw->container.detail_tablist = GetDumbTabList(tab_size,detail_order_count);
-    return(cw->container.detail_tablist);
+	new_tablist = GetDumbTabList(tab_size,detail_order_count);
+	if (new_tablist == NULL)
+	return(old_tablist);
+
+	if (old_tablist != NULL)
+	XmTabListFree(old_tablist);
+	cw->container.detail_tablist = new_tablist;
+	return(new_tablist);
 }
 
 /************************************************************************

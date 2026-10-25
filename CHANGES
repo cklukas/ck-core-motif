@@ -4708,3 +4708,9 @@ XmString next-segment input validation (2026-10-25)
 
 - Reject null contexts and output pointers in `XmStringGetNextSegment` before
   conversion can dereference them; see `docs/xmstring-next-segment-input.md`.
+
+Container dynamic tab-list rebuild rollback (2026-10-25)
+==========================================================
+
+- Keep the previous usable detail tab list when replacement tab allocation
+  fails; see `docs/container-tab-rebuild-failure.md`.
