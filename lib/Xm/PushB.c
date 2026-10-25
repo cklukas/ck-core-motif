@@ -1923,6 +1923,10 @@ BorderUnhighlight(
 		2 * (pb->pushbutton.compatible ?
 		     pb->pushbutton.show_as_default :
 		     pb->pushbutton.default_button_shadow_thickness);
+
+              if (pb->core.width <= 2 * delta ||
+                  pb->core.height <= 2 * delta)
+                break;
 	    
 	      x = y = delta;
 	      width = pb->core.width - 2 * delta;

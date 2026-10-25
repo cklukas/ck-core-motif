@@ -1,3 +1,9 @@
+PushButton unhighlight bounds (2026-10-25)
+===========================================
+
+- Skip internal default-button unhighlight clearing when its computed delta
+  consumes the widget; see `docs/push-button-unhighlight-bounds.md`.
+
 PushButton highlight bounds (2026-10-25)
 =========================================
 
