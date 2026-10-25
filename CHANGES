@@ -1,3 +1,9 @@
+Mrm memory-backed file cleanup (2026-10-25)
+============================================
+
+- Close in-memory UID descriptors without a filesystem handle and release them
+  from hierarchy cleanup; see `docs/mrm-memory-close.md`.
+
 Mrm file-open filename validation (2026-10-25)
 ===============================================
 

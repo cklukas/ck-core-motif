@@ -430,8 +430,7 @@ Urm__CloseHierarchy (MrmHierarchy	hierarchy_id)
 			  NULL, NULL, MrmBAD_HIERARCHY) ;
 
   for ( ndx=0 ; ndx<hierarchy_id->num_file ; ndx++ )
-    if (hierarchy_id->file_list[ndx]->in_memory == FALSE )
-      UrmIdbCloseFile (hierarchy_id->file_list[ndx], FALSE) ;
+    UrmIdbCloseFile (hierarchy_id->file_list[ndx], FALSE) ;
 
   /* Begin fixing DTS 7303 */
   if(hierarchy_id->name_registry){
