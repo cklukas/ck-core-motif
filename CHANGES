@@ -642,6 +642,13 @@ XmString array-entry copy bounds (2026-10-27)
   allocation-limited strings no longer cause a wrapped allocation or partial
   array dereference.
 
+Cardinal-list Xt allocation-size bounds (2026-10-29)
+=====================================================
+
+- Reject cardinal-list capacity growth whose byte count exceeds Xt's
+  `Cardinal` allocation range, routing oversized input through the existing
+  cleanup path; see `docs/cardinal-list-growth.md`.
+
 FontSelector family-table growth bounds (2026-10-29)
 =====================================================
 

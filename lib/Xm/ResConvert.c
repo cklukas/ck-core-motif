@@ -1708,7 +1708,8 @@ CvtStringToCardinalList(
 	if (crd_array_size == crd_array_count)
 	    {
 	    if (crd_array_size > INT_MAX / 2 ||
-		(size_t)(crd_array_size * 2) > SIZE_MAX / sizeof(Cardinal))
+		(size_t)(crd_array_size * 2) > SIZE_MAX / sizeof(Cardinal) ||
+		(size_t)(crd_array_size * 2) > UINT_MAX / sizeof(Cardinal))
 		goto invalid_cardinal;
 	    crd_array_size *= 2;
 	    {
