@@ -3966,3 +3966,9 @@ Fix SelectionBox compound-text updates (2026-10-25)
 - Pass converted compound text to the text child, handle conversion failure
   without leaking the transfer buffer, and validate the textual trait
   callback; see `docs/motif-selectionbox-compound-text.md`.
+Validate XmString rendition-tag tables (2026-10-25)
+====================================================
+
+- Reject null rendition-tag tables and entries before copying, while
+  preserving borrowed-pointer ownership; see
+  `docs/motif-xmstring-segment-tags.md`.

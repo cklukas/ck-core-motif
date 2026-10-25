@@ -55,6 +55,8 @@ CopyRenditionTags(XmStringTag *source,
   *result = NULL;
   if (count == 0)
     return True;
+  if (source == NULL)
+    return False;
   if ((size_t)count > SIZE_MAX / sizeof(*tags))
     return False;
 
@@ -62,6 +64,13 @@ CopyRenditionTags(XmStringTag *source,
   if (tags == NULL)
     return False;
   for (i = 0; i < count; i++) {
+    if (source[i] == NULL) {
+      if (copy_data)
+	while (i != 0)
+	  XtFree((char *)tags[--i]);
+      XtFree((char *)tags);
+      return False;
+    }
     tags[i] = copy_data ? XtNewString(source[i]) : source[i];
     if (copy_data && tags[i] == NULL) {
       while (i != 0)
