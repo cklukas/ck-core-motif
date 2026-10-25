@@ -7365,3 +7365,11 @@ Paned right-to-left origin bounds (2026-10-26)
 
 Paned child span bounds (2026-10-26)
 ====================================
+Paned separator position bounds (2026-10-26)
+=============================================
+
+- Compute separator x/y coordinates in signed arithmetic, preventing wrapped
+  positions in overfull panes; see `docs/paned-separator-positions.md`.
+
+Paned negative sash-indent bounds (2026-10-26)
+===============================================

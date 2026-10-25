@@ -1165,7 +1165,7 @@ CommitNewLocations(XmPanedWidget pw, Widget no_resize_child)
     register Widget *childP;
     XWindowChanges changes;
     XWindowChanges sep;
-    int	offset, sash_size, sash_pos;
+    int	offset, sash_size, sash_pos, separator_pos;
     
     if (!XmPaned_refiguremode(pw))
 	return;
@@ -1232,10 +1232,11 @@ CommitNewLocations(XmPanedWidget pw, Widget no_resize_child)
 		sep.width = pw->core.width;
 		sep.height = XmPaned_sash_shadow_thickness(pw);
 		sep.x = 0;
-		sep.y = ((*childP)->core.y + (*childP)->core.height -
-			 sep.height / 2 - separator->core.border_width +
-			 internal_space / 2 +
-			 2 * (*childP)->core.border_width);
+		separator_pos = (int) (*childP)->core.y +
+		    (int) (*childP)->core.height - (int) sep.height / 2 -
+		    (int) separator->core.border_width + internal_space / 2 +
+		    2 * (int) (*childP)->core.border_width;
+		sep.y = (Position) separator_pos;
 	    }
 
 	} else {
@@ -1281,14 +1282,15 @@ CommitNewLocations(XmPanedWidget pw, Widget no_resize_child)
 		sep.height = pw->core.height;
 		sep.y = 0;
 		if (LayoutIsRtoLM(pw))
-		    sep.x = ((*childP)->core.x -
-			 sep.width / 2 - separator->core.border_width -
-			 internal_space / 2);
+		    separator_pos = (int) (*childP)->core.x -
+			 (int) sep.width / 2 - (int) separator->core.border_width -
+			 internal_space / 2;
 		else
-		    sep.x = ((*childP)->core.x + (*childP)->core.width -
-			 sep.width / 2 - separator->core.border_width +
-			 internal_space / 2 +
-			 2 * (*childP)->core.border_width);
+		    separator_pos = (int) (*childP)->core.x +
+			 (int) (*childP)->core.width - (int) sep.width / 2 -
+			 (int) separator->core.border_width + internal_space / 2 +
+			 2 * (int) (*childP)->core.border_width;
+		sep.x = (Position) separator_pos;
 	    }
 	}
 	
