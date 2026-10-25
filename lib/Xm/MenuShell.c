@@ -941,13 +941,18 @@ ForceMenuPaneOnScreen(
       Position old_x = *x;
       if (bottomEdgeOfMenu >= (Position)dispHeight)
       {
-          *y = dispHeight - rowcol->core.height - RowColBorderWidth - 1;
+          *y = (Position) (dispHeight - (int) rowcol->core.height -
+                           (int) RowColBorderWidth - 1);
           if (LayoutIsRtoLM(rowcol))
-             *x = old_x - rowcol->core.width - (rowcol->core.border_width <<1);
+             *x = (Position) ((int) old_x - (int) rowcol->core.width -
+                              ((int) rowcol->core.border_width << 1));
           else
-	    *x = old_x + pulldown_button->core.width + CascadeBorderWidth;
-	  rightEdgeOfMenu = *x + RowColBorderWidth + rowcol->core.width;
-          bottomEdgeOfMenu = *y + RowColBorderWidth + rowcol->core.height;
+	    *x = (Position) ((int) old_x + (int) pulldown_button->core.width +
+                      (int) CascadeBorderWidth);
+	  rightEdgeOfMenu = (int) *x + (int) RowColBorderWidth +
+                     (int) rowcol->core.width;
+          bottomEdgeOfMenu = (int) *y + (int) RowColBorderWidth +
+                             (int) rowcol->core.height;
       }
 
       if (*y < 0)
@@ -958,26 +963,37 @@ ForceMenuPaneOnScreen(
 	   * column RowColumn
 	   */
           if (LayoutIsRtoLM(rowcol))
-             *x = old_x - rowcol->core.width - (rowcol->core.border_width <<1);
+             *x = (Position) ((int) old_x - (int) rowcol->core.width -
+                              ((int) rowcol->core.border_width << 1));
           else
-	    *x = old_x + pulldown_button->core.width + CascadeBorderWidth;
-	  rightEdgeOfMenu = *x + RowColBorderWidth + rowcol->core.width;
-          bottomEdgeOfMenu = *y + RowColBorderWidth + rowcol->core.height;
+	    *x = (Position) ((int) old_x + (int) pulldown_button->core.width +
+                      (int) CascadeBorderWidth);
+	  rightEdgeOfMenu = (int) *x + (int) RowColBorderWidth +
+                     (int) rowcol->core.width;
+          bottomEdgeOfMenu = (int) *y + (int) RowColBorderWidth +
+                             (int) rowcol->core.height;
       }
 
       if (rightEdgeOfMenu >= (Position)dispWidth)
       {
-	  *x = old_x - rowcol->core.width + RowColBorderWidth;
-	  rightEdgeOfMenu = *x + RowColBorderWidth + rowcol->core.width;
+	  *x = (Position) ((int) old_x - (int) rowcol->core.width +
+                    (int) RowColBorderWidth);
+	  rightEdgeOfMenu = (int) *x + (int) RowColBorderWidth +
+                     (int) rowcol->core.width;
       }
 
       if (*x < 0)
       {
           if (LayoutIsRtoLM(rowcol))
-             *x = old_x + pulldown_button->core.width + CascadeBorderWidth;
+             *x = (Position) ((int) old_x +
+                              (int) pulldown_button->core.width +
+                              (int) CascadeBorderWidth);
           else
-	    *x = old_x + pulldown_button->core.width + CascadeBorderWidth;
-	  rightEdgeOfMenu = *x + RowColBorderWidth + rowcol->core.width;
+	    *x = (Position) ((int) old_x +
+                      (int) pulldown_button->core.width +
+                      (int) CascadeBorderWidth);
+	  rightEdgeOfMenu = (int) *x + (int) RowColBorderWidth +
+                     (int) rowcol->core.width;
       }
    }
 
@@ -985,7 +1001,7 @@ ForceMenuPaneOnScreen(
     * If the submenu is offscreen force it completely on.
     */
    if (rightEdgeOfMenu >= (Position)dispWidth)
-       *x -= (rightEdgeOfMenu - dispWidth + 1);
+       *x = (Position) ((int) *x - (rightEdgeOfMenu - dispWidth + 1));
 
    if (bottomEdgeOfMenu >= (Position)dispHeight)
    {
@@ -998,16 +1014,16 @@ ForceMenuPaneOnScreen(
 	 /* it doesn't fit, so we have to place it above   */
 	 /* the bar -- if it will fit                      */
 
-	 y_temp -= (CascadeBorderWidth
-		    + pulldown_button->core.height
-		    + RowColBorderWidth
-		    + rowcol->core.height + 1);
+	 y_temp = (Position) ((int) y_temp - (int) CascadeBorderWidth
+		    - (int) pulldown_button->core.height
+		    - (int) RowColBorderWidth
+		    - (int) rowcol->core.height - 1);
 			
 	 if (y_temp > 0)
 	     *y = y_temp;
       }
       else
-	  *y -= (bottomEdgeOfMenu - dispHeight + 1);
+	  *y = (Position) ((int) *y - (bottomEdgeOfMenu - dispHeight + 1));
    }
 
    /* Make sure that the top left corner os on screen! */

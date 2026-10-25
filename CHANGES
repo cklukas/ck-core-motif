@@ -7382,3 +7382,12 @@ Paned regular sash position bounds (2026-10-26)
 
 Paned separator position bounds (2026-10-26)
 =============================================
+MenuShell popup placement bounds (2026-10-26)
+==============================================
+
+- Bound popup edge placement with signed coordinates, preventing wrapped menu
+  positions for oversized or collapsed menus; see
+  `docs/menushell-placement.md`.
+
+Paned regular sash position bounds (2026-10-26)
+================================================
