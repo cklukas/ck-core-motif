@@ -1290,6 +1290,7 @@ _XmCachePixmap(
         Dimension height)
 {
    PixmapData * pix_entry;
+   Boolean cache_inserted;
 
    Window root;
    int x,y;
@@ -1351,13 +1352,24 @@ _XmCachePixmap(
    pix_entry->npixels = 0;
 
    _XmProcessLock();
-   _XmAddHashEntry(pixmap_set, (XmHashKey)pix_entry, (XtPointer)pix_entry);
+   cache_inserted = _XmAddHashEntry(pixmap_set, (XmHashKey)pix_entry,
+					(XtPointer)pix_entry);
 
    /* Only add pixmaps not issued from XmeGetPixmapData to the "real" table */
-   if (0 != strcmp(image_name, DIRECT_PIXMAP_CACHED))
-       _XmAddHashEntry(pixmap_data_set, (XmHashKey)pix_entry, 
-		       (XtPointer)pix_entry);
+   if (cache_inserted && 0 != strcmp(image_name, DIRECT_PIXMAP_CACHED) &&
+	   !_XmAddHashEntry(pixmap_data_set, (XmHashKey)pix_entry,
+				(XtPointer)pix_entry)) {
+	_XmRemoveHashEntry(pixmap_set, pix_entry);
+	cache_inserted = False;
+   }
    _XmProcessUnlock();
+
+   if (!cache_inserted) {
+	XtFree((char *)pix_entry->image_name);
+	XtFree((char *)pix_entry->acc_color);
+	XtFree((char *)pix_entry);
+	return (False);
+   }
 
    return (True);
 }
