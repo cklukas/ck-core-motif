@@ -43,8 +43,14 @@ The operation is a UI-thread transaction: callers must not destroy widgets or
 run concurrent Xt mutations while it is in progress. Allocation and resource
 conversion are preflighted before the first widget is changed; a failed
 preflight leaves both widget values and profile selection unchanged.
-Callback-driven reentrancy and non-core gadget coverage remain explicit later
-work-package gates, as does a complete historical-widget matrix.
+The transaction is also deliberately non-reentrant. Appearance updates invoke
+`XtSetValues`, so a widget class `SetValues` hook can run while the outer
+transaction is in progress. A nested `XmApplyAppearanceProfile` or
+`XmSetAppearanceProfile` call returns `False`; it cannot interleave a second
+resource-database snapshot with the first one. The caller can retry after the
+outer call returns. This guard is per display and does not add a global
+process-wide serialization requirement. Non-core gadget coverage remains an
+explicit later work-package gate, as does a complete historical-widget matrix.
 
 WP-02 adds the opt-in `modern-light` profile:
 

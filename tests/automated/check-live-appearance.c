@@ -3,8 +3,34 @@
 #include <Xm/PushB.h>
 #include <Xm/ToggleB.h>
 #include <X11/Intrinsic.h>
+#include <X11/IntrinsicP.h>
 #include <X11/Xlib.h>
 #include <stdio.h>
+
+static XtSetValuesFunc original_push_button_set_values;
+static Display *reentrant_display;
+static Boolean reentrant_attempted;
+static Boolean reentrant_result;
+static Boolean reentrant_set_result;
+
+static Boolean
+reentrant_set_values(Widget old_widget, Widget request_widget,
+                     Widget new_widget, ArgList args, Cardinal *num_args)
+{
+    Boolean result = original_push_button_set_values(old_widget,
+                                                      request_widget,
+                                                      new_widget, args,
+                                                      num_args);
+
+    if (!reentrant_attempted && reentrant_display != NULL) {
+        reentrant_attempted = True;
+        reentrant_result = XmApplyAppearanceProfile(
+            reentrant_display, XmAPPEARANCE_HIGH_CONTRAST);
+        reentrant_set_result = XmSetAppearanceProfile(
+            reentrant_display, XmAPPEARANCE_MODERN_LIGHT);
+    }
+    return result;
+}
 
 static int
 fail(const char *message)
@@ -44,6 +70,7 @@ main(int argc, char **argv)
     Pixel ordinary_expected, red;
     int callback_count = 0;
     XmAppearanceProfile profile;
+    CoreClassPart *push_button_core;
 
     shell = XtVaAppInitialize(&app, "LiveAppearance", NULL, 0,
                               &argc, argv, NULL, NULL);
@@ -86,8 +113,27 @@ main(int argc, char **argv)
         callback_count != 1)
         return fail("light transition changed owned state or precedence");
 
-    if (!XmApplyAppearanceProfile(display, XmAPPEARANCE_MODERN_DARK))
-        return fail("modern-dark transition failed");
+    /* A SetValues hook is allowed to call toolkit APIs.  The live profile
+     * transaction must reject that nested swap and leave its own snapshot
+     * authoritative. */
+    push_button_core = &((CoreClassRec *)xmPushButtonWidgetClass)->core_class;
+    original_push_button_set_values = push_button_core->set_values;
+    push_button_core->set_values = reentrant_set_values;
+    reentrant_display = display;
+    reentrant_attempted = False;
+    reentrant_result = True;
+    reentrant_set_result = True;
+    if (!XmApplyAppearanceProfile(display, XmAPPEARANCE_MODERN_DARK) ||
+        !reentrant_attempted || reentrant_result || reentrant_set_result ||
+        !XmGetAppearanceProfile(display, &profile) ||
+        profile != XmAPPEARANCE_MODERN_DARK) {
+        push_button_core->set_values = original_push_button_set_values;
+        reentrant_display = NULL;
+        return fail("nested appearance transaction was not rejected");
+    }
+    push_button_core->set_values = original_push_button_set_values;
+    reentrant_display = NULL;
+
     XtVaGetValues(ordinary, XmNbackground, &dark_background, NULL);
     XtVaGetValues(ordinary, XmNforeground, &ordinary_foreground, NULL);
     XtVaGetValues(explicit, XmNforeground, &explicit_foreground, NULL);

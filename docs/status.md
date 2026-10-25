@@ -19,12 +19,15 @@ additive `XmApplyAppearanceProfile` API.  A fresh AArch64 `uconsole` build
 `8bcfbaaba9e27fe1fd526b43b8b817156d8c357c2b345bd5f603dac83401f412`.
 Three repeated installed Xvfb runs pass the modern-light, modern-dark,
 high-contrast and classic transition fixture, preserving ordinary and explicit
-resource precedence, toggle state and callbacks.  A consumer-only ASan/UBSan
-run with leak detection disabled reports no invalid access or undefined
-behavior; leak-enabled output is limited to 224 bytes in 10 libX11/Xt Xrm
-allocations at process exit and remains an external ownership boundary.  The
-live scope is registered core widgets; gadget coverage, callback reentrancy,
-failure injection and the complete historical-widget matrix remain open.
+resource precedence, toggle state and callbacks.  The fixture also forces a
+nested `XmApplyAppearanceProfile` and `XmSetAppearanceProfile` from a
+`SetValues` hook; both nested calls are rejected while the outer transaction
+remains authoritative.  A consumer-only ASan/UBSan run with leak detection
+disabled reports no invalid access or undefined behavior; leak-enabled output
+is limited to 224 bytes in 10 libX11/Xt Xrm allocations at process exit and
+remains an external ownership boundary.  The live scope is registered core
+widgets; gadget coverage, allocation-failure injection and the complete
+historical-widget matrix remain open.
 
 ## Native hard-line and geometry qualification
 

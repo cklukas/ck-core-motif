@@ -137,6 +137,7 @@ typedef struct _XmAppearanceDisplayState {
     XrmDatabase application_database;
     XrmDatabase active_database;
     Boolean owns_active_database;
+    Boolean transaction_active;
     struct _XmAppearanceDisplayState *next;
 } XmAppearanceDisplayState;
 
@@ -466,6 +467,50 @@ find_display_state(Display *display)
     return NULL;
 }
 
+/*
+ * Appearance changes call XtSetValues() on application objects.  A class
+ * SetValues hook may therefore call back into this API while the outer
+ * transaction is still applying.  Resource-database replacement is not
+ * composable in that situation: accepting the nested operation would let
+ * the two snapshots observe and publish different profiles.  Reject the
+ * nested operation explicitly; the caller remains responsible for deciding
+ * whether to retry it after the outer transaction completes.
+ */
+static Boolean
+appearance_transaction_begin(XmAppearanceDisplayState *state)
+{
+    Boolean available;
+
+    _XmProcessLock();
+    available = !state->transaction_active;
+    if (available)
+        state->transaction_active = True;
+    _XmProcessUnlock();
+    return available;
+}
+
+static void
+appearance_transaction_end(XmAppearanceDisplayState *state)
+{
+    _XmProcessLock();
+    state->transaction_active = False;
+    _XmProcessUnlock();
+}
+
+static Boolean
+appearance_transaction_is_active(Display *display)
+{
+    XmAppearanceDisplayState *state = find_display_state(display);
+    Boolean active = False;
+
+    if (state != NULL) {
+        _XmProcessLock();
+        active = state->transaction_active;
+        _XmProcessUnlock();
+    }
+    return active;
+}
+
 static XmAppearanceDisplayState *
 ensure_display_state(Display *display)
 {
@@ -780,6 +825,9 @@ XmSetAppearanceProfile(Display *display, XmAppearanceProfile profile)
     if (display == NULL)
         return False;
 
+    if (appearance_transaction_is_active(display))
+        return False;
+
     name = profile_name(profile);
     if (name == NULL)
         return False;
@@ -854,10 +902,15 @@ XmApplyAppearanceProfile(Display *display, XmAppearanceProfile profile)
             XrmDestroyDatabase(database);
         return False;
     }
+    if (!appearance_transaction_begin(state)) {
+        XrmDestroyDatabase(database);
+        return False;
+    }
     name = profile_name(profile);
     XrmPutStringResource(&database, APPEARANCE_RESOURCE, name);
     old_database = XrmGetDatabase(display);
     if (!_XmApplyAppearanceChange(display, current, profile)) {
+        appearance_transaction_end(state);
         XrmDestroyDatabase(database);
         return False;
     }
@@ -866,5 +919,6 @@ XmApplyAppearanceProfile(Display *display, XmAppearanceProfile profile)
         XrmDestroyDatabase(old_database);
     state->active_database = database;
     state->owns_active_database = True;
+    appearance_transaction_end(state);
     return True;
 }
