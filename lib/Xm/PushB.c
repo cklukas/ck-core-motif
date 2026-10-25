@@ -1793,7 +1793,7 @@ DrawBorderHighlight(
 {   
   XmPushButtonWidget pb = (XmPushButtonWidget) wid ;
   int x, y, width, height, delta;
-  Dimension highlight_width ;
+  int highlight_width ;
   XtEnum default_button_emphasis;
   
   if (!XtWidth (pb) || !XtHeight (pb))
@@ -1803,7 +1803,11 @@ DrawBorderHighlight(
   pb->primitive.highlight_drawn = True;
   
   if (pb->pushbutton.default_button_shadow_thickness)
-    highlight_width = pb->primitive.highlight_thickness - Xm3D_ENHANCE_PIXEL;
+    {
+      if (pb->primitive.highlight_thickness <= Xm3D_ENHANCE_PIXEL)
+        return;
+      highlight_width = pb->primitive.highlight_thickness - Xm3D_ENHANCE_PIXEL;
+    }
   else
     highlight_width = pb->primitive.highlight_thickness;
   
@@ -1833,6 +1837,11 @@ DrawBorderHighlight(
 	  assert(FALSE);
 	  return;
 	}
+
+      if (pb->primitive.highlight_GC == NULL ||
+          pb->core.width <= 2 * delta ||
+          pb->core.height <= 2 * delta)
+        return;
 
       x = y = delta;
       width = pb->core.width - 2 * delta;

@@ -1,3 +1,10 @@
+PushButton highlight bounds (2026-10-25)
+=========================================
+
+- Avoid highlight-thickness underflow and reject missing highlight GCs or
+  undersized internal focus rectangles; see
+  `docs/push-button-highlight-bounds.md`.
+
 PushButton default shadow bounds (2026-10-25)
 =============================================
 
