@@ -6375,8 +6375,11 @@ ComputeMetrics(XmRendition rend,
 		  size_t  str_len = 0;
 		  XChar2b *str = _XmUtf8ToUcs2(text, byte_count, &str_len);
 
+		  if (str == NULL)
+		    return;
 		  XTextExtents16(font_struct, str, str_len,
 			     &dir, &asc, &desc, &char_ret);
+		  XtFree((char *)str);
 		} else
 	      XTextExtents16(font_struct, 
 			     (XChar2b *)text, Half(byte_count),

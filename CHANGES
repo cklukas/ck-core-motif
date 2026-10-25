@@ -5,6 +5,8 @@ Xft compound-string line height (2026-10-27)
   dropping leading by reducing it to ascent plus descent.
 - Pass UTF-16 character counts, rather than byte lengths, to Xft underline
   extent queries.
+- Fail closed when UTF-8 compound-string metric conversion cannot allocate its
+  UCS-2 temporary buffer, and release successful conversions with XtFree.
 
 Accessibility D-Bus memo allocation (2026-10-27)
 =================================================
