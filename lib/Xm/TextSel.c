@@ -1538,8 +1538,7 @@ TextDestinationCallback(Widget w,
    ** has been allocated, register a done proc to be called when 
    ** the data transfer is complete to free the location_data
    */
-  if ((ds->selection == XA_PRIMARY ||
-       ds->selection == atoms[XmA_MOTIF_DROP]) && ds->location_data)
+  if (ds->selection == XA_PRIMARY && ds->location_data)
       XmeTransferAddDoneProc(ds->transfer_id, FreeLocationData);
 
   /* If we aren't sensitive,  don't allow transfer */
@@ -1568,6 +1567,7 @@ TextDestinationCallback(Widget w,
     drop_point->y = cb->y;
 
     ds->location_data = (XtPointer) drop_point;
+    XmeTransferAddDoneProc(ds->transfer_id, FreeLocationData);
     
     if (cb->dropAction != XmDROP_HELP) {
       HandleDrop(w, cb, ds);
