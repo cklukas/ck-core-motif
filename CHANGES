@@ -5767,6 +5767,12 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+PanedWindow managed-child Xt width (2026-10-25)
+================================================
+
+- Bound managed-child growth against `Cardinal` slot-count and allocation
+  limits before `XtRealloc`; see `docs/paned-managed-children-allocation.md`.
+
 PanedWindow separator Xt width (2026-10-25)
 ============================================
 
