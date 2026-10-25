@@ -1,9 +1,8 @@
 # Hierarchy child-list snapshots
 
-`XmHierarchyGetChildNodes` now checks the child count before adding its
-terminating `NULL` entry and allocating the returned widget list. An
-unrepresentable count returns `NULL` without wrapping the allocation size.
-
-
-Child-list export now rejects sentinel-count wraparound before adding the
-null terminator slot and returns cleanly if the list allocation is unavailable.
+`XmHierarchyGetChildNodes` checks both sentinel-count and
+`(child_count + 1) * sizeof(Widget)` overflow before adding its terminating
+`NULL` entry and allocating the returned widget list. It also iterates with a
+`Cardinal` index, matching the full child-count range. An unrepresentable
+count returns `NULL` without wrapping the allocation size, and allocation
+failure returns cleanly.

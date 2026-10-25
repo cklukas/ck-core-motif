@@ -1548,7 +1548,7 @@ WidgetList XmHierarchyGetChildNodes(Widget nw)
     HierarchyConstraints node;
     WidgetList retval = (WidgetList)NULL;
     Cardinal child_count;
-    int i;
+    Cardinal i;
 
     if (nw == NULL)
         return NULL;
@@ -1570,7 +1570,9 @@ WidgetList XmHierarchyGetChildNodes(Widget nw)
 	return retval;
       }
 
-    if (child_count == (Cardinal)~0) {
+    if (child_count == (Cardinal)~0 ||
+        (size_t)child_count >
+          (size_t)((Cardinal)~0) / sizeof(Widget) - 1) {
 	_XmAppUnlock(app);
 	return retval;
     }
