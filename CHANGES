@@ -4748,3 +4748,10 @@ Drag atom-table allocation handling (2026-10-25)
 
 - Check lazy atom-cache creation and entry-array growth before parsing
   entries; see `docs/dragbs-atoms-allocation-guards.md`.
+
+Drag atom-table serialization guards (2026-10-25)
+==================================================
+
+- Reject incomplete atom tables and failed serialization allocations before
+  writing the `_MOTIF_DRAG_ATOMS` property; see
+  `docs/dragbs-atoms-write-guards.md`.

@@ -673,6 +673,10 @@ WriteAtomsTable(
 	XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE4);
 	return;
     }
+	if (atomsTable->numEntries != 0 && atomsTable->entries == NULL) {
+	XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE4);
+	return;
+	}
 
     /* If the data is bigger than the default stack allocation, then 
      * allocate heap storage, else use automatic storage.
@@ -688,6 +692,10 @@ WriteAtomsTable(
 
     if ( dataSize > MAXSTACK ) {
 	propertyRecPtr = (struct _propertyRec *)XtMalloc( dataSize );
+	if (propertyRecPtr == NULL) {
+	    XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE4);
+	    return;
+	}
     } else {
 	propertyRecPtr = (struct _propertyRec *)stackData;
     }
