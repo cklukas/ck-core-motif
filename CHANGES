@@ -9128,6 +9128,13 @@ XmRenderTable resource-cache allocation guards (2026-10-29)
 
 ImageCache color-cache Xt allocation-size bounds (2026-10-29)
 ==============================================================
+IconFile directory-cache Xt allocation-size bounds (2026-10-29)
+=================================================================
+
+- Reject directory-cache growth whose byte count exceeds Xt's `Cardinal`
+  allocation range, preserving the existing cache on failure; see
+  `docs/icon-directory-cache.md`.
+
 XmString copied rendition-tag Xt bounds (2026-10-29)
 =====================================================
 

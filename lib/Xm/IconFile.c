@@ -426,7 +426,8 @@ CheckDirCache(String	path)
                     return DtUNCACHED_DIR;
                 }
                 new_max_dirs = cacheList.maxDirs + 16;
-                if ((size_t)new_max_dirs > SIZE_MAX / sizeof(*new_dirs)) {
+                if ((size_t)new_max_dirs > SIZE_MAX / sizeof(*new_dirs) ||
+                    (size_t)new_max_dirs > UINT_MAX / sizeof(*new_dirs)) {
                     _XmProcessUnlock();
                     return DtUNCACHED_DIR;
                 }

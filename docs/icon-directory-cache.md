@@ -1,7 +1,8 @@
 # Icon-directory cache allocation
 
 Icon-directory cache growth now publishes a replacement directory array only
-after `XtRealloc` succeeds, with checked count arithmetic.  Valid directory
+after `XtRealloc` succeeds, with checked count arithmetic against both host
+`size_t` and Xt's `Cardinal` byte range.  Valid directory
 entries accumulate the name heap in `size_t` and check the complete
 offset-array plus name-heap size before allocation.  Directory-name and
 cached-entry allocations are checked and return an uncached result cleanly
