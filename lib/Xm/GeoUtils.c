@@ -873,6 +873,8 @@ void
 _XmGeoMatrixFree(
 	XmGeoMatrix geo_spec)
 {
+  if (geo_spec == NULL)
+    return;
   if(    geo_spec->ext_destructor    )
     {
       (*(geo_spec->ext_destructor))( geo_spec->extension) ;

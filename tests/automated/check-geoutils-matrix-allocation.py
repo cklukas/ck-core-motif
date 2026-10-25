@@ -14,5 +14,8 @@ assert "SIZE_MAX / layoutRecSize" in body
 assert "SIZE_MAX / kidGeoRecSize" in body
 assert "totalSize > (size_t)UINT_MAX" in body
 assert "if (geoSpecPtr == NULL)" in body
+free_start = source.index("void\n_XmGeoMatrixFree", start)
+free_body = source[free_start:source.index("/****************************************************************", free_start)]
+assert "if (geo_spec == NULL)" in free_body
 
 print("GeoUtils matrix allocation guards passed")
