@@ -2931,11 +2931,25 @@ remove_ref(XmImRefInfo refs,
       if ((refs->num_refs * 3 < refs->max_refs) &&
 	  (refs->max_refs >= 20))
 	{
-	  refs->max_refs /= 2;
-	  refs->refs = (Widget*) XtRealloc((char *) refs->refs, 
-					   refs->max_refs * sizeof(Widget));
-          refs->callbacks = (XIMCallback **) XtRealloc((char *) refs->callbacks,
-                                   refs->max_refs * sizeof(XIMCallback *));
+	  Cardinal new_max = refs->max_refs / 2;
+	  Widget *new_refs = (Widget *)XtMalloc(
+	      (size_t)new_max * sizeof(Widget));
+	  XIMCallback **new_callbacks = (XIMCallback **)XtMalloc(
+	      (size_t)new_max * sizeof(XIMCallback *));
+	  if (new_refs != NULL && new_callbacks != NULL) {
+	    memcpy(new_refs, refs->refs,
+	           (size_t)refs->num_refs * sizeof(Widget));
+	    memcpy(new_callbacks, refs->callbacks,
+	           (size_t)refs->num_refs * sizeof(XIMCallback *));
+	    XtFree((char *)refs->refs);
+	    XtFree((char *)refs->callbacks);
+	    refs->refs = new_refs;
+	    refs->callbacks = new_callbacks;
+	    refs->max_refs = new_max;
+	  } else {
+	    XtFree((char *)new_refs);
+	    XtFree((char *)new_callbacks);
+	  }
 	}
     }
   else

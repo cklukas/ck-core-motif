@@ -8071,3 +8071,11 @@ XmString rendition-stack extents (2026-10-27)
 
 XmIm VaArg-list growth (2026-10-27)
 ===================================
+XmIm reference-list shrinking (2026-10-27)
+===========================================
+
+- Shrink shell-reference and callback arrays as one transaction, preserving
+  the existing capacity if either replacement allocation fails.
+
+XmString rendition-stack extents (2026-10-27)
+==============================================
