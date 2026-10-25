@@ -1,3 +1,10 @@
+Separator gadget geometry bounds (2026-10-26)
+===============================================
+
+- Clamp collapsed Separator gadget inset spans and skip zero-area draws,
+  preventing wrapped fill and separator rectangles; see
+  `docs/separatog-geometry-bounds.md`.
+
 ToggleButton gadget shadow bounds (2026-10-26)
 ===============================================
 
