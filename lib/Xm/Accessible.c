@@ -1327,12 +1327,16 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
   }
   if (XmIsEmptyState(w)) {
     XmString message = NULL;
+    Boolean action_mapped = False;
     i->role = XmACCESSIBLE_PANEL;
     XtVaGetValues(w, XmNemptyStateMessage, &message, NULL);
     if (message)
       local = XmStringUnparse(message, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
                               NULL, 0, XmOUTPUT_ALL);
-    if (XmEmptyStateGetAction(w) && XtIsManaged(XmEmptyStateGetAction(w)))
+    if (XmEmptyStateGetAction(w))
+      XtVaGetValues(XmEmptyStateGetAction(w), XmNmappedWhenManaged,
+                    &action_mapped, NULL);
+    if (action_mapped)
       i->action_count = 1;
   }
   if (XmIsToast(w)) {
@@ -1599,6 +1603,12 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
     return True;
   }
   if (XmIsEmptyState(n->widget) && action == 0) {
+    Boolean action_mapped = False;
+    if (XmEmptyStateGetAction(n->widget))
+      XtVaGetValues(XmEmptyStateGetAction(n->widget), XmNmappedWhenManaged,
+                    &action_mapped, NULL);
+    if (!action_mapped)
+      return False;
     XmEmptyStateInvokeAction(n->widget, NULL);
     return True;
   }
