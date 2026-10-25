@@ -3138,6 +3138,8 @@ XmI18ListGetSelectedRows(Widget w)
     if (i != 0) {
 	ptr = ret_rows = (XmMultiListRowInfo **) XtMalloc(
                 sizeof(XmMultiListRowInfo *) * (i + 1));
+	if (ret_rows == NULL)
+	    return NULL;
 	ret_rows[i] = NULL;
 	
 	row_data = XmI18List_row_data(ilist);
