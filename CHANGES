@@ -10667,6 +10667,13 @@ Legacy charset canonicalization allocation guards (2026-10-25)
   strings, returning `NULL` on failure; see
   `docs/charset-canonicalize-allocation.md`.
 
+Bound GeoUtils scratch-table byte sizes (2026-10-26)
+=====================================================
+
+- Reject `FitBoxesAveraging` pointer-table sizes that exceed Xt's `Cardinal`
+  allocator width before narrowing the byte count; see
+  `docs/geoutils-fit-boxes-allocation.md`.
+
 Bound legacy resource-filter byte sizes (2026-10-26)
 =====================================================
 

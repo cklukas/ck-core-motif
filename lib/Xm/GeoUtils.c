@@ -1723,10 +1723,12 @@ FitBoxesAveraging(
 
     /* Get memory to use for sorting the list of boxes.
     */
-    if (numBoxes == 0 || (size_t)numBoxes > SIZE_MAX / sizeof(*sortedBoxes))
+    if (numBoxes == 0 ||
+	(size_t)numBoxes > SIZE_MAX / sizeof(*sortedBoxes) ||
+	(size_t)numBoxes > UINT_MAX / sizeof(*sortedBoxes))
         return;
-    sortedBoxes = (XmKidGeometry *) XtMalloc((size_t)numBoxes *
-                                             sizeof(*sortedBoxes));
+    sortedBoxes = (XmKidGeometry *) XtMalloc((Cardinal)((size_t)numBoxes *
+							 sizeof(*sortedBoxes)));
     if (sortedBoxes == NULL)
         return;
     /* Enter the boxes into the array and sort.
