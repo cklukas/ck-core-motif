@@ -1759,15 +1759,17 @@ BorderHighlight(
 	     DrawPushButtonLabel (pb, event, NULL);	
 	 }
       
-       if ((pb->core.width > 2 * pb->primitive.highlight_thickness) &&
-	   (pb->core.height > 2 * pb->primitive.highlight_thickness))
+       if ((int)pb->core.width > 2 * (int)pb->primitive.highlight_thickness &&
+	  (int)pb->core.height > 2 * (int)pb->primitive.highlight_thickness &&
+	  pb->primitive.top_shadow_GC != NULL &&
+	  pb->primitive.bottom_shadow_GC != NULL)
 	   XmeDrawShadows(XtDisplay (pb), XtWindow (pb),
 		       pb->primitive.top_shadow_GC,
 		       pb->primitive.bottom_shadow_GC,
 		       pb->primitive.highlight_thickness,
 		       pb->primitive.highlight_thickness,
-		       pb->core.width - 2 * pb->primitive.highlight_thickness,
-		       pb->core.height - 2 * pb->primitive.highlight_thickness,
+		       (int)pb->core.width - 2 * (int)pb->primitive.highlight_thickness,
+		       (int)pb->core.height - 2 * (int)pb->primitive.highlight_thickness,
 		       pb->primitive.shadow_thickness, 
 		       etched_in ? XmSHADOW_IN : XmSHADOW_OUT);
       
@@ -2799,16 +2801,18 @@ Enter(
 	      DrawPushButtonLabel( pb, event, NULL );
 	  }
 
-	  if ((pb->core.width > 2 * pb->primitive.highlight_thickness) &&
-	      (pb->core.height > 2 * pb->primitive.highlight_thickness))
+	  if ((int)pb->core.width > 2 * (int)pb->primitive.highlight_thickness &&
+	  (int)pb->core.height > 2 * (int)pb->primitive.highlight_thickness &&
+	  pb->primitive.top_shadow_GC != NULL &&
+	  pb->primitive.bottom_shadow_GC != NULL)
 	    XmeDrawShadows
 	      (XtDisplay (pb), XtWindow (pb),
 	       pb->primitive.top_shadow_GC,
 	       pb->primitive.bottom_shadow_GC,
 	       pb->primitive.highlight_thickness,
 	       pb->primitive.highlight_thickness,
-	       pb->core.width - 2 * pb->primitive.highlight_thickness,
-	       pb->core.height - 2 * pb->primitive.highlight_thickness,
+	       (int)pb->core.width - 2 * (int)pb->primitive.highlight_thickness,
+	       (int)pb->core.height - 2 * (int)pb->primitive.highlight_thickness,
 	       pb->primitive.shadow_thickness, 
 	       etched_in ? XmSHADOW_IN : XmSHADOW_OUT);
 
