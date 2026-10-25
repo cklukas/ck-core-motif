@@ -6242,3 +6242,8 @@ Accessibility D-Bus property input validation (2026-10-25)
 
 - Return safely for unknown or incomplete property requests instead of
   dereferencing a null signature; see `docs/accessibility-dbus-property-inputs.md`.
+XmIm varargs allocation failure handling (2026-10-25)
+=======================================================
+
+- Stop safely when temporary input-method argument arrays cannot be allocated;
+  see `docs/xmim-varargs-allocation.md`.
