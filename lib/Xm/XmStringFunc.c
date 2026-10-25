@@ -684,7 +684,8 @@ XmStringToXmStringTable(XmString string,
     }
   if (table != NULL)
     {
-      *table = (XmStringTable)XtMalloc(count * sizeof(XmString));
+      *table = (XmStringTable)XtMalloc(
+	  (Cardinal)(count * sizeof(XmString)));
       if (*table == NULL) {
 	_XmProcessUnlock();
 	return(0);

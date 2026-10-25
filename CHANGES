@@ -6315,3 +6315,9 @@ Make XmString table conversion widths explicit (2026-10-25)
 - Pass validated parse and unparse table byte sizes explicitly as Xt
   `Cardinal` values; see the related XmString table conversion docs.
 
+Make XmString table-split allocation width explicit (2026-10-25)
+==================================================================
+
+- Pass the validated counted-table byte size explicitly as an Xt `Cardinal`;
+  see `docs/motif-xmstring-table-split.md`.
+
