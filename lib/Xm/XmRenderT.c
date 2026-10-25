@@ -1312,8 +1312,19 @@ _XmRenditionCopy(XmRendition rend,
       _XmRendGC(toRend) = _XmRendGC(rend);
       _XmRendTagCount(toRend) = _XmRendTagCount(rend);
       _XmRendHadEnds(toRend) = _XmRendHadEnds(rend);
+      if (_XmRendTagCount(rend) != 0 &&
+          ((size_t)_XmRendTagCount(rend) >
+               SIZE_MAX / sizeof(XmStringTag) ||
+           (size_t)_XmRendTagCount(rend) >
+               UINT_MAX / sizeof(XmStringTag))) {
+        FreeRendition(toRend);
+        FreeHandle(toRend);
+        return(NULL);
+      }
       _XmRendTags(toRend) = _XmRendTagCount(rend)
-          ? (XmStringTag *)XtMalloc(sizeof(XmStringTag) * _XmRendTagCount(rend))
+          ? (XmStringTag *)XtMalloc(
+                (Cardinal)(sizeof(XmStringTag) *
+                           (size_t)_XmRendTagCount(rend)))
           : NULL;
       for (i = 0; i < _XmRendTagCount(rend); i++)
 	_XmRendTags(toRend)[i] = _XmRendTags(rend)[i];

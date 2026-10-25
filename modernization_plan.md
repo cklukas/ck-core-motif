@@ -1978,6 +1978,10 @@ source contract and fresh library/gallery qualification pass on `uconsole`.
 process/application locks while
 entering locking charset, rendition, and render-table helpers; the source
 contract and both no-Xft/Xft installed-library fixtures pass on `uconsole`.
+`_XmRenditionCopy` now rejects tag-count multiplication that cannot be
+represented by `size_t` or Xt's `Cardinal` allocator width before copying;
+the source contract and both installed-library build variants pass on
+`uconsole`.
 
 ## Acceptance criteria for every increment
 
