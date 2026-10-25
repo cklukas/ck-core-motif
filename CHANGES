@@ -9231,3 +9231,10 @@ IconGadget visual-resource rollback (2026-10-29)
 - Copy render tables and label strings before releasing the current values,
   preserving usable visual state when a resource copy cannot be completed; see
   `docs/icong-visual-resource-rollback.md`.
+
+SimpleSpinBox value-list rollback (2026-10-29)
+===============================================
+
+- Make add/delete value-list operations validate Xt byte limits, copy all
+  strings before updating the child, and leave the list position unchanged on
+  copy failure; see `docs/spinbox-value-list-rollback.md`.
