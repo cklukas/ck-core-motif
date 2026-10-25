@@ -1,3 +1,9 @@
+List deletion input validation (2026-10-25)
+============================================
+
+- Reject invalid widget, item-array, and count inputs before reading list
+  state; see `docs/list-delete-inputs.md`.
+
 Scrolled-list argument merge failure (2026-10-25)
 ===================================================
 

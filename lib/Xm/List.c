@@ -8176,7 +8176,7 @@ APIAddItems(XmListWidget lw,
   Boolean selectable;
   register int i;
   int nsel = lw->list.selectedPositionCount;
-  Dimension old_max_height = lw->list.MaxItemHeight;
+  Dimension old_max_height;
 
   if ((items == NULL) ||
       (item_count == 0))
@@ -8427,15 +8427,16 @@ XmListDeleteItems(Widget w,
   Boolean reset_width = FALSE;
   Boolean reset_height = FALSE;
   Boolean rebuild_selection = FALSE;
-  Dimension old_max_height = lw->list.MaxItemHeight;
+  Dimension old_max_height;
   int item_pos;
   XmString *copy;
 
   register int i;
-  _XmWidgetToAppContext(w);
-
-  if ((items == NULL) || (item_count == 0))
+  if (w == NULL || items == NULL || item_count <= 0)
     return;
+
+  old_max_height = lw->list.MaxItemHeight;
+  _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
 
