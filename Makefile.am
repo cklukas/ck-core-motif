@@ -59,6 +59,7 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
               tests/Toolkit/Im/preedit_state.c \
               tests/Toolkit/Unicode/incremental_layout.c \
               tests/Toolkit/Unicode/text_unicode.c tests/Toolkit/Unicode/large_text.c \
+              tests/Toolkit/Unicode/font_lifetime.c \
               tests/disclosure/widget.c tests/disclosure/observe.py \
               WIDGET_REVIEW.md tests/headers/cxx20.cpp \
               tests/automated/check-dpi.c tests/automated/check-list-unicode.c \
