@@ -7811,3 +7811,9 @@ SegmentedControl layout bounds (2026-10-27)
 - Clamp trailing segment widths and cursor movement at the available edge,
   preventing unsigned layout underflow when segments do not fit; see
   `docs/segmented-layout-bounds.md`.
+
+BreadcrumbBar RTL hit testing (2026-10-27)
+==========================================
+
+- Match RTL hit-test traversal to RTL rendering, so clicks select the
+  breadcrumb segment under the pointer; see `docs/breadcrumb-rtl-hit-test.md`.

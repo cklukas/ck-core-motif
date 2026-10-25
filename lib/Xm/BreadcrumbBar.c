@@ -127,11 +127,20 @@ static int hit_test(XmBreadcrumbBarWidget bar, int x) {
             return -1;
         cursor += 28;
     }
-    for (i = start; i < bar->breadcrumb.count; ++i) {
-        int width = item_width(bar, i);
-        if (x >= cursor && x < cursor + width)
-            return (int)i;
-        cursor += width;
+    if (!bar->breadcrumb.rtl) {
+        for (i = start; i < bar->breadcrumb.count; ++i) {
+            int width = item_width(bar, i);
+            if (x >= cursor && x < cursor + width)
+                return (int)i;
+            cursor += width;
+        }
+    } else {
+        for (i = bar->breadcrumb.count; i-- > start; ) {
+            int width = item_width(bar, i);
+            if (x >= cursor && x < cursor + width)
+                return (int)i;
+            cursor += width;
+        }
     }
     return -1;
 }
