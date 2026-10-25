@@ -6022,7 +6022,8 @@ ClickElement(XmListWidget lw,
       lw->list.DragID = 0;
     }
 
-  assert(lw->list.itemCount && lw->list.InternalList);
+  if (lw->list.itemCount == 0 || lw->list.InternalList == NULL)
+    return;
   if (lw->list.InternalList[item]->length == UNKNOWN_LENGTH)
     lw->list.InternalList[item]->length = XmStringLength(lw->list.items[item]);
 

@@ -100,6 +100,13 @@ Image-cache format restoration (2026-10-26)
   `XYPixmap`, allowing unusual but recoverable image metadata to clean up
   safely; see `docs/image-cache-format-restoration.md`.
 
+List click-state guard (2026-10-26)
+===================================
+
+- Stop `ClickElement` safely when its internal item table is unavailable,
+  rather than asserting during teardown or callback-driven mutation; see
+  `docs/list-click-state.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 
