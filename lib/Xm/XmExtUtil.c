@@ -666,12 +666,18 @@ XiCreateStippledPixmap(Screen *screen,
         return (XmUNSPECIFIED_PIXMAP);
     display = DisplayOfScreen(screen);
 
-    /* see if we already have a pixmap suitable for this screen */
+    /* See if we already have a pixmap suitable for this screen. */
+    _XmProcessLock();
     for (cachePtr = pixmapCache; cachePtr; cachePtr = cachePtr->next) {
 	if (cachePtr->screen == screen && cachePtr->foreground == fore &&
-	    cachePtr->background == back && cachePtr->depth == depth)
-	    return( cachePtr->ref_count++, cachePtr->pixmap );
+	    cachePtr->background == back && cachePtr->depth == depth) {
+            cachePtr->ref_count++;
+            stippled_pixmap = cachePtr->pixmap;
+            _XmProcessUnlock();
+            return stippled_pixmap;
+        }
     }
+    _XmProcessUnlock();
 
     stippled_pixmap = XCreatePixmapFromBitmapData (display,
 			RootWindowOfScreen(screen), (char *)pixmap_bits, 
@@ -693,6 +699,23 @@ XiCreateStippledPixmap(Screen *screen,
     cachePtr->ref_count = 1;
 
     _XmProcessLock();
+    /* Recheck after creation so concurrent callers share one pixmap. */
+    {
+        CacheEntry *existing;
+        for (existing = pixmapCache; existing; existing = existing->next) {
+            if (existing->screen == screen &&
+                existing->foreground == fore &&
+                existing->background == back &&
+                existing->depth == depth) {
+                existing->ref_count++;
+                stippled_pixmap = existing->pixmap;
+                _XmProcessUnlock();
+                XFreePixmap(display, cachePtr->pixmap);
+                XtFree((char *)cachePtr);
+                return stippled_pixmap;
+            }
+        }
+    }
     cachePtr->next = pixmapCache;
     pixmapCache = cachePtr;
     _XmProcessUnlock();

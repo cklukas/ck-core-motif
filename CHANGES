@@ -1,3 +1,10 @@
+Xm stippled-pixmap cache serialization (2026-10-25)
+======================================================
+
+- Serialize stippled-pixmap cache lookup and recheck before publication,
+  sharing concurrent creations and freeing duplicates; see
+  `docs/xm-stippled-pixmap-race.md`.
+
 Xm stippled-pixmap failure handling (2026-10-25)
 ===================================================
 

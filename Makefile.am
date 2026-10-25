@@ -585,3 +585,5 @@ EXTRA_DIST += tests/automated/check-xm-image-cache-string-null.py docs/xm-image-
 EXTRA_DIST += tests/automated/check-xm-scratch-pixmap-failure.py docs/xm-scratch-pixmap-failure.md
 
 EXTRA_DIST += tests/automated/check-xm-stippled-pixmap-failure.py docs/xm-stippled-pixmap-failure.md
+
+EXTRA_DIST += tests/automated/check-xm-stippled-pixmap-race.py docs/xm-stippled-pixmap-race.md
