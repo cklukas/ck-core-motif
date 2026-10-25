@@ -1,3 +1,9 @@
+Pixel converter input validation (2026-10-25)
+===============================================
+
+- Guard rendition-pixel converters and integer parsing against missing
+  conversion inputs; see `docs/pixel-converter-inputs.md`.
+
 Unit converter input validation (2026-10-25)
 =============================================
 

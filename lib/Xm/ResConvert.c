@@ -2848,6 +2848,9 @@ isInteger(
     Boolean isPositive = False;
     int val = 0;
     char ch;
+
+    if (string == NULL || value == NULL)
+	return False;
     /* skip leading whitespace */
     while ((ch = *string) == ' ' || ch == '\t') string++;
     while ((ch = *string++) != '\0') {
@@ -2902,8 +2905,13 @@ CvtStringToRenditionPixel(Display *disp,
 			     XrmValue *to_val,
 			     XtPointer *converter_data )
 {
-  String 	str = (String)from_val->addr;
+  String 	str;
   Boolean	result = False;
+
+  if (disp == NULL || num_args == NULL || from_val == NULL ||
+      from_val->addr == NULL || to_val == NULL)
+    return False;
+  str = (String)from_val->addr;
 
   if (XmeNamesAreEqual(str, "unspecified_pixel"))
     {
@@ -2915,12 +2923,14 @@ CvtStringToRenditionPixel(Display *disp,
   
   if (result == False)
     {
-      *converter_data = False;
+      if (converter_data != NULL)
+        *converter_data = False;
       return False;
     }
   else
     {
-      *converter_data = (char *)True;
+      if (converter_data != NULL)
+        *converter_data = (char *)True;
       return True;
     }
 }
@@ -2942,11 +2952,18 @@ CvtPixelToRenditionPixel(Display *disp,
 			     XrmValue *to_val,
 			     XtPointer *converter_data ) /* unused */
 {
+    if (num_args == NULL || from_val == NULL || from_val->addr == NULL ||
+	to_val == NULL)
+	return False;
     if (*num_args != 0)
+	{
+	if (disp == NULL)
+	    return False;
 	XtAppWarningMsg(XtDisplayToApplicationContext(disp),
 		"wrongParameters","CvtPixelToRenditionPixel", "ToolkitError",
 		"Pixel to RenditionPixel conversion needs no extra arguments",
 			(String *) NULL, (Cardinal *)NULL);
+	}
     _XM_CONVERTER_DONE(to_val, Pixel, *(int*)from_val->addr, ;)
 }
 
