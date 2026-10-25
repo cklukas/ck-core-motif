@@ -2414,12 +2414,14 @@ CvtStringToCharSetTable(
       return(False);
     }
   tableSize = sizeof(XmStringCharSet) * ((size_t)numCharsets + 1);
-  if (strDataSize > SIZE_MAX - tableSize)
+  if (strDataSize > SIZE_MAX - tableSize ||
+      strDataSize > (size_t)UINT_MAX - tableSize)
     {
       XtFree(work_str);
       return(False);
     }
-  charsetTable = (XmStringCharSetTable) XtMalloc(tableSize + strDataSize);
+  charsetTable = (XmStringCharSetTable) XtMalloc(
+	(Cardinal)(tableSize + strDataSize));
   if (charsetTable == NULL) {
     XtFree(work_str);
     return(False);

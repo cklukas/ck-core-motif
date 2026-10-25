@@ -12202,3 +12202,9 @@ KeySym-table conversion allocation width (2026-10-26)
 
 - Pass the checked comma-derived table byte count explicitly as an Xt
   `Cardinal`; see `docs/keysym-table-conversion.md`.
+
+Charset-table combined allocation width (2026-10-26)
+=====================================================
+
+- Reject combined table/name storage above Xt's `Cardinal` byte range and
+  pass accepted sizes explicitly; see `docs/charset-table-bounds.md`.
