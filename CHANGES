@@ -1,3 +1,10 @@
+MWM menu root creation rollback (2026-10-26)
+==============================================
+
+- Stop menu construction when the shell or row-column pane cannot be created,
+  clearing recursion state and destroying a partial shell; see
+  `docs/mwm-menu-root-creation.md`.
+
 MWM icon-box hierarchy creation (2026-10-26)
 ============================================
 

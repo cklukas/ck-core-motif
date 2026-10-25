@@ -3719,6 +3719,12 @@ Widget CreateMenuWidget (WmScreenData *pSD,
     menuShellW = XtCreatePopupShell (SHELL_NAME, xmMenuShellWidgetClass,
                                      parent, (ArgList) args, i);
 
+    if (menuShellW == NULL)
+    {
+        menuSpec->currentContext &= ~CR_MENU_MARK;
+        return (NULL);
+    }
+
     /*
      * Create a RowColumn widget as a child of the shell for the menu pane.
      * If the menu pane is top-level, create a popup menu for it and attach 
@@ -3737,7 +3743,8 @@ Widget CreateMenuWidget (WmScreenData *pSD,
         XtSetArg (args[i], XmNpopupEnabled, (XtArgVal) TRUE); i++;
         menuW = XtCreateWidget (menuName, xmRowColumnWidgetClass, menuShellW,
 				(ArgList) args, i);
-	XtAddCallback (menuW, XmNunmapCallback, UnmapCallback, 
+	if (menuW != NULL)
+	    XtAddCallback (menuW, XmNunmapCallback, UnmapCallback,
 				(XtPointer) menuSpec);
     }
     else
@@ -3745,6 +3752,13 @@ Widget CreateMenuWidget (WmScreenData *pSD,
         XtSetArg (args[i], XmNrowColumnType, (XtArgVal) XmMENU_PULLDOWN); i++;
         menuW = XtCreateWidget (menuName, xmRowColumnWidgetClass, menuShellW,
 				(ArgList) args, i);
+    }
+
+    if (menuW == NULL)
+    {
+        XtDestroyWidget (menuShellW);
+        menuSpec->currentContext &= ~CR_MENU_MARK;
+        return (NULL);
     }
 
     /*
