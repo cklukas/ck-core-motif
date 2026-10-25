@@ -1146,5 +1146,8 @@ EXTRA_DIST += tests/automated/check-bulletin-board-shadow-redisplay-guards.py do
 EXTRA_DIST += tests/automated/check-color-selector-layout-bounds.py docs/color-selector-layout-geometry.md
 EXTRA_DIST += tests/automated/check-colorpicker-highlight-bounds.py docs/colorpicker-highlight-geometry.md
 EXTRA_DIST += tests/automated/check-toggle-pixmap-center-bounds.py docs/toggle-pixmap-center-geometry.md
-EXTRA_DIST += tests/automated/check-gallery-screenshot-runner.py docs/modern-gallery-screenshot-qualification.md
+EXTRA_DIST += tests/automated/check-gallery-screenshot-runner.py \
+              tests/automated/check-gallery-screenshot-matrix.py \
+              tests/automated/run-gallery-screenshot-matrix.py \
+              docs/modern-gallery-screenshot-qualification.md
 EXTRA_DIST += tests/automated/check-gallery-screenshot-assets.py tests/automated/generate-gallery-screenshot-manifest.py docs/gallery-screenshots/manifest.json docs/gallery-screenshots/*.png

@@ -27,6 +27,15 @@ Gallery screenshot profile and scale controls (2026-10-25)
   failed transactions, enabling an auditable profile/scale matrix; see
   `docs/modern-gallery-screenshot-qualification.md`.
 
+Gallery screenshot profile/scale matrix runner (2026-10-25)
+=============================================================
+
+- Add a reproducible matrix runner for all public appearance profiles crossed
+  with scales 1.0, 1.5, 2.0 and 3.0. Each cell retains its child receipt and
+  exact command, and a failed or skipped cell propagates its result instead of
+  being hidden by later captures; see
+  `tests/automated/run-gallery-screenshot-matrix.py`.
+
 ColorPicker redisplay font-resource contract (2026-10-25)
 ============================================================
 
