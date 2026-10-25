@@ -3054,6 +3054,10 @@ XmRenderTableCvtToProp(Widget widget, /* unused */
   char *buffer;
   char *str;
   XmRendition rendition;
+
+  if (widget == NULL || table == NULL || prop_return == NULL)
+    return 0;
+
   _XmWidgetToAppContext(widget);
 
   _XmAppLock(app);

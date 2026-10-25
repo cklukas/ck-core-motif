@@ -246,6 +246,8 @@ Render-table locking (2026-10-26)
   passing them to `strcmp`; see `docs/render-table-null-entry-tag.md`.
 - Roll back shared-rendition copy-on-write state when `XmRenditionUpdate`
   cannot allocate a private body; see `docs/render-rendition-update-renewal.md`.
+- Validate all inputs to `XmRenderTableCvtToProp` before entering its
+  serialization path; see `docs/render-table-export-inputs.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================
