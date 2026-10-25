@@ -35,6 +35,7 @@ static char rcsid[] = "$XConsortium: Desktop.c /main/12 1995/07/14 10:17:30 drk 
 #include <Xm/BaseClassP.h>
 #include <Xm/ScreenP.h>
 #include <Xm/DisplayP.h>
+#include <stdint.h>
 
 
 /********    Static Function Declarations    ********/
@@ -231,11 +232,26 @@ InsertChild(
     position = cw->desktop.num_children;
     
     if (cw->desktop.num_children == cw->desktop.num_slots) {
-	/* Allocate more space */
-	cw->desktop.num_slots +=  (cw->desktop.num_slots / 2) + 2;
-	cw->desktop.children = children = 
-	  (WidgetList) XtRealloc((char *) children,
-		(unsigned) (cw->desktop.num_slots) * sizeof(Widget));
+	/* Allocate more space without discarding the old array on failure. */
+	if (cw->desktop.num_slots >
+	    (Cardinal)(~(Cardinal)0 - 2) -
+	    (cw->desktop.num_slots / 2))
+	    return;
+	{
+	    Cardinal new_slots = cw->desktop.num_slots +
+		(cw->desktop.num_slots / 2) + 2;
+	    WidgetList new_children;
+
+	    if ((size_t)new_slots > SIZE_MAX / sizeof(*new_children))
+		return;
+	    new_children = (WidgetList) XtRealloc(
+		(char *) children, (size_t)new_slots * sizeof(*new_children));
+	    if (new_children == NULL)
+		return;
+	    children = new_children;
+	    cw->desktop.children = children;
+	    cw->desktop.num_slots = new_slots;
+	}
     }
     /* Ripple children up one space from "position" */
     for (i = cw->desktop.num_children; i > position; i--) {
