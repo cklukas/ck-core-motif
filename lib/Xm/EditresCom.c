@@ -2058,6 +2058,9 @@ char ** str;
 
     *str = XtMalloc(sizeof(char) * (len + 1));
 
+    if (*str == NULL)
+	return(FALSE);
+
     for (i = 0; i < len; i++) {
 	if (!_XEditResGet8(stream, (unsigned char *) *str + i)) {
 	    XtFree(*str);
@@ -2088,6 +2091,9 @@ WidgetInfo * info;
 	return(FALSE);
 
     info->ids = (unsigned long *) XtMalloc(sizeof(long) * (info->num_widgets));
+
+    if (info->ids == NULL && info->num_widgets != 0)
+	return(FALSE);
 
     for (i = 0; i < info->num_widgets; i++) {
 	if (!_XEditResGet32(stream, info->ids + i)) {

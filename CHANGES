@@ -10098,6 +10098,13 @@ Callback-list allocation failure guards (2026-10-25)
   allocation fails, avoiding null dereferences and dangling deferred-free
   state; see `docs/callback-allocation-failure.md`.
 
+Editres payload allocation guards (2026-10-25)
+==============================================
+
+- Check decoded string and widget-ID payload buffers before writing protocol
+  data, preserving the existing parse-failure cleanup path; see
+  `docs/editres-payload-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
