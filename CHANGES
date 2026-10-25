@@ -186,6 +186,13 @@ Stepper text rendering fallback (2026-10-27)
 - Install and release a valid fallback font for the Stepper value GC, avoiding
   blank values when a display does not provide an inherited GC font.
 
+ColorPicker text rendering fallback (2026-10-27)
+=================================================
+
+- Install and release a valid fallback font for the ColorPicker value GC,
+  preventing the hexadecimal value from disappearing when the inherited GC
+  font is unset.
+
 InfoBar close control and FontSelector bounds (2026-10-27)
 ============================================================
 

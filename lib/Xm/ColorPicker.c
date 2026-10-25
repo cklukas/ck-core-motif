@@ -77,8 +77,11 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
     picker->color_picker.preview = picker->color_picker.value;
     values.foreground = picker->primitive.foreground;
     values.background = picker->core.background_pixel;
+    picker->color_picker.font = XLoadQueryFont(XtDisplay(widget), "fixed");
+    if (picker->color_picker.font) values.font = picker->color_picker.font->fid;
     picker->color_picker.gc = XCreateGC(XtDisplay(widget),
-        DefaultRootWindow(XtDisplay(widget)), GCForeground | GCBackground, &values);
+        DefaultRootWindow(XtDisplay(widget)), GCForeground | GCBackground |
+        (picker->color_picker.font ? GCFont : 0), &values);
     if (!picker->core.width) picker->core.width = 180;
     if (!picker->core.height) picker->core.height = 34;
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events, NULL);
@@ -87,6 +90,7 @@ static void Destroy(Widget widget) {
     XmColorPickerWidget picker = (XmColorPickerWidget)widget;
     XtRemoveEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events, NULL);
     if (picker->color_picker.gc) XFreeGC(XtDisplay(widget), picker->color_picker.gc);
+    if (picker->color_picker.font) XFreeFont(XtDisplay(widget), picker->color_picker.font);
 }
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmColorPickerWidget picker = (XmColorPickerWidget)widget;

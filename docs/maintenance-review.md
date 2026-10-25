@@ -144,3 +144,10 @@ focused check is:
 ```sh
 python3 tests/automated/check-stepper-font-fallback.py
 ```
+
+ColorPicker now installs the same managed fallback font for its value text.
+The focused check is:
+
+```sh
+python3 tests/automated/check-colorpicker-font-fallback.py
+```

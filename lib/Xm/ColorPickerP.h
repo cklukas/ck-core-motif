@@ -12,6 +12,7 @@ typedef struct _XmColorPickerPart {
     unsigned long value, preview;
     XtCallbackList preview_callback, value_changed_callback;
     GC gc;
+    XFontStruct *font;
 } XmColorPickerPart;
 typedef struct _XmColorPickerRec {
     CorePart core;
