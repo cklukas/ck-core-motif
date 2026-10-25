@@ -135,6 +135,8 @@ static char rcsid[] = "$TOG: DragOverS.c /main/18 1999/08/11 15:53:11 mgreess $"
  ***********************************************************************/
 
 #include <stdio.h>
+#include <limits.h>
+#include <stdint.h>
 #include <X11/IntrinsicP.h>
 #include <X11/Shell.h>
 #include <X11/ShellP.h>
@@ -3247,8 +3249,21 @@ InstallColormap(XmDragOverShellWidget dw)
 	/* there was a property, add myself to the beginning */
 	else
 	{
-	    Window *windows = (Window *)XtMalloc((sizeof(Window))*(countReturn+1));
+	    size_t window_count;
+	    Window *windows;
 	    register int i;
+	    if (countReturn < 0 || countReturn >= INT_MAX ||
+		(size_t)(countReturn + 1) > SIZE_MAX / sizeof(Window) ||
+		(size_t)(countReturn + 1) > UINT_MAX / sizeof(Window)) {
+		XtFree((char *)windowsReturn);
+		return;
+	    }
+	    window_count = (size_t)countReturn + 1;
+	    windows = (Window *)XtMalloc((Cardinal)(window_count * sizeof(Window)));
+	    if (windows == NULL) {
+		XtFree((char *)windowsReturn);
+		return;
+	    }
 	    windows[0] = XtWindow(dw);
 	    for (i=0; i<countReturn; i++)
 		windows[i+1] = windowsReturn[i];

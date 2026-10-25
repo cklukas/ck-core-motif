@@ -27,6 +27,13 @@ Transfer completion-callback allocation bounds (2026-10-27)
   `Cardinal` limits before growing the transfer context.  This keeps callback
   registration safe on narrower platforms without changing normal growth.
 
+Drag-over colormap-window bounds (2026-10-27)
+=============================================
+
+- Validate Xlib's returned colormap-window count before adding the drag-over
+  shell and allocating the replacement array.  Invalid or unrepresentable
+  counts now leave the existing property untouched instead of wrapping.
+
 Gallery live-page startup and TabStack examples (2026-10-27)
 ===============================================================
 
