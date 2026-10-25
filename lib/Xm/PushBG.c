@@ -828,8 +828,8 @@ ArmAndActivate(
 	    XmeDrawShadows
 	      (XtDisplay (pb), XtWindow (pb),
 	       LabG_BottomShadowGC(pb), LabG_TopShadowGC(pb),
-	       pb->rectangle.x + pb->gadget.highlight_thickness,
-	       pb->rectangle.y + pb->gadget.highlight_thickness,
+	       (Position) ((int) pb->rectangle.x + (int) pb->gadget.highlight_thickness),
+	       (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness),
 	       pb->rectangle.width - 2 * pb->gadget.highlight_thickness,
 	       pb->rectangle.height - 2 * pb->gadget.highlight_thickness,
 	       pb->gadget.shadow_thickness, 
@@ -968,8 +968,8 @@ ArmTimeout(
 		  (XtDisplay (pb), XtWindow (pb),
 		   LabG_TopShadowGC(pb),
 		   LabG_BottomShadowGC(pb),
-		   pb->rectangle.x + pb->gadget.highlight_thickness,
-		   pb->rectangle.y + pb->gadget.highlight_thickness,
+		   (Position) ((int) pb->rectangle.x + (int) pb->gadget.highlight_thickness),
+		   (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness),
 		   pb->rectangle.width - 2 * pb->gadget.highlight_thickness,
 		   pb->rectangle.height - 2 * pb->gadget.highlight_thickness,
 		   pb->gadget.shadow_thickness, 
@@ -1081,8 +1081,8 @@ BtnDown(
 		    XtDisplay (pb), XtWindow (pb),
 		    LabG_TopShadowGC(pb),
 		    LabG_BottomShadowGC(pb),
-		    pb->rectangle.x + pb->gadget.highlight_thickness,
-		    pb->rectangle.y + pb->gadget.highlight_thickness,
+		    (Position) ((int) pb->rectangle.x + (int) pb->gadget.highlight_thickness),
+		    (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness),
 		    pb->rectangle.width - 2 * pb->gadget.highlight_thickness,
 		    pb->rectangle.height - 2 * pb->gadget.highlight_thickness,
 		    pb->gadget.shadow_thickness, XmSHADOW_OUT);
@@ -1189,8 +1189,8 @@ BtnUp(
 		  (XtDisplay (pb), XtWindow (pb),
 		   LabG_BottomShadowGC(pb),
 		   LabG_TopShadowGC(pb),
-		   pb->rectangle.x + pb->gadget.highlight_thickness,
-		   pb->rectangle.y + pb->gadget.highlight_thickness,
+		   (Position) ((int) pb->rectangle.x + (int) pb->gadget.highlight_thickness),
+		   (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness),
 		   pb->rectangle.width - 2 * pb->gadget.highlight_thickness,
 		   pb->rectangle.height - 2 * pb->gadget.highlight_thickness,
 		   pb->gadget.shadow_thickness, 
@@ -1279,8 +1279,8 @@ Enter(
 		    (XtDisplay (pb), XtWindow (pb),
 		     LabG_TopShadowGC(pb),
 		     LabG_BottomShadowGC(pb),
-		     pb->rectangle.x + pb->gadget.highlight_thickness,
-		     pb->rectangle.y + pb->gadget.highlight_thickness,
+		     (Position) ((int) pb->rectangle.x + (int) pb->gadget.highlight_thickness),
+		     (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness),
 		     pb->rectangle.width - 2 * pb->gadget.highlight_thickness,
 		     pb->rectangle.height - 2 * pb->gadget.highlight_thickness,
 		     pb->gadget.shadow_thickness, 
@@ -1341,8 +1341,8 @@ Leave(
 	  XmeDrawHighlight
 	    (XtDisplay(pb), XtWindow(pb), 
 	     LabG_BackgroundGC(pb), 
-	     pb->rectangle.x + pb->gadget.highlight_thickness,
-	     pb->rectangle.y + pb->gadget.highlight_thickness,
+	     (Position) ((int) pb->rectangle.x + (int) pb->gadget.highlight_thickness),
+	     (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness),
 	     (int) pb->rectangle.width -
 	     2 * (int) pb->gadget.highlight_thickness,
 	     (int) pb->rectangle.height -
@@ -1408,8 +1408,8 @@ BorderHighlight(
 	      XmeDrawShadows
 		  (XtDisplay (pb), XtWindow (pb),
 		   LabG_TopShadowGC(pb), LabG_BottomShadowGC(pb),
-		   pb->rectangle.x + pb->gadget.highlight_thickness,
-		   pb->rectangle.y + pb->gadget.highlight_thickness,
+		   (Position) ((int) pb->rectangle.x + (int) pb->gadget.highlight_thickness),
+		   (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness),
 		   pb->rectangle.width - 2 * pb->gadget.highlight_thickness,
 		   pb->rectangle.height - 2 * pb->gadget.highlight_thickness,
 		   pb->gadget.shadow_thickness, 
@@ -1528,8 +1528,8 @@ BorderUnhighlight(
       if (pb->rectangle.width > 2 * pb->gadget.highlight_thickness &&
           pb->rectangle.height > 2 * pb->gadget.highlight_thickness)
         XmeClearBorder(XtDisplay (pb), XtWindow (pb),
-		       pb->rectangle.x + pb->gadget.highlight_thickness,
-		       pb->rectangle.y + pb->gadget.highlight_thickness,
+		       (Position) ((int) pb->rectangle.x + (int) pb->gadget.highlight_thickness),
+		       (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness),
 		       pb->rectangle.width - 2 * pb->gadget.highlight_thickness,
 		       pb->rectangle.height - 2 * pb->gadget.highlight_thickness,
 		       pb->gadget.shadow_thickness);
@@ -2724,7 +2724,7 @@ DrawDefaultGlyphPixmap(
   
   /* We draw in the margin right area here. */
   dx = pb->rectangle.x + (int)pb->rectangle.width - right_offset;
-  dy = pb->rectangle.y + pb->gadget.highlight_thickness +
+  dy = (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness) +
     pb->gadget.shadow_thickness + LabG_MarginTop(pb) + LabG_MarginHeight(pb) + 
       (content_height - (int)def_pixmap_height)/2;
 
@@ -2759,7 +2759,7 @@ EraseDefaultGlyphPixmap(
   
   /* we clear the margin right area here */
   dx = pb->rectangle.x + (int)pb->rectangle.width - right_offset;
-  dy = pb->rectangle.y + pb->gadget.highlight_thickness +
+  dy = (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness) +
     pb->gadget.shadow_thickness + LabG_MarginTop(pb) + LabG_MarginHeight(pb);
 
   width = LabG_MarginRight(pb);

@@ -1,3 +1,9 @@
+PushButton gadget origin bounds (2026-10-26)
+===============================================
+
+- Compute shadow and highlight origins in signed arithmetic, preserving
+  negative/off-edge positions; see `docs/pushbg-origins.md`.
+
 ToggleButton gadget origin bounds (2026-10-26)
 ================================================
 
