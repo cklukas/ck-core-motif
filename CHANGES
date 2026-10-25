@@ -3913,3 +3913,10 @@ Guard Container trait callbacks (2026-10-25)
 - Validate Container item and navigator trait callbacks before every private
   callback dispatch, preserving fallback geometry/selection behavior; see
   `docs/motif-container-trait-callbacks.md`.
+
+Reject non-progressing Text source reads (2026-10-25)
+======================================================
+
+- Clear source blocks before each read and require strictly advancing byte
+  positions in both narrow and wide extraction paths; see
+  `docs/motif-text-source-progress.md`.
