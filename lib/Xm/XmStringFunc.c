@@ -660,7 +660,7 @@ MakeStr(XmStringContext start,
   XmStringComponentType	type;
   unsigned int		len;
   XtPointer		val;
-  XmString		str;
+  XmString		str, component;
   
 
   /* Next component over start until at segment break */
@@ -672,8 +672,14 @@ MakeStr(XmStringContext start,
 
       if (ContextsMatch(start, end)) return(str);
 
-      str = XmStringConcatAndFree(str,
-				  XmStringComponentCreate(type, len, val));
+      component = XmStringComponentCreate(type, len, val);
+      if (component == NULL) {
+	XmStringFree(str);
+	return NULL;
+      }
+      str = XmStringConcatAndFree(str, component);
+      if (str == NULL)
+	return NULL;
     }
        
   /* Next segment over start incrementing until one segment before context */
@@ -689,7 +695,14 @@ MakeStr(XmStringContext start,
   type = XmeStringGetComponent(start, TRUE, FALSE, &len, &val);
   while (!ContextsMatch(start, end))
     {
-      str = XmStringConcatAndFree(str, XmStringComponentCreate(type, len, val));
+    component = XmStringComponentCreate(type, len, val);
+    if (component == NULL) {
+      XmStringFree(str);
+      return NULL;
+    }
+    str = XmStringConcatAndFree(str, component);
+    if (str == NULL)
+      return NULL;
       type = XmeStringGetComponent(start, TRUE, FALSE, &len, &val);
   }
     
