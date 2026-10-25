@@ -145,7 +145,8 @@ each. The source-side probe now
 passes owner replacement during an active drag and post-drop incremental
 transfer cancellation in three repeated runs each. The same-process
 multiple-target probe also passes its two-target client-data/payload contract
-in three repeated runs. Incremental payload and broader application
+in three repeated runs. The cross-process fixture also passes 4 MiB
+incremental payload assembly in three repeated runs. Broader application
 drag-and-drop workflows, physical display/input qualification and other
 architectures remain separate admission gates. See
 `docs/dnd-transfer-lifecycle.md`.

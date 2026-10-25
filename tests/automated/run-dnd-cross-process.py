@@ -54,10 +54,12 @@ try:
     (args.results / "link.log").write_text(link_result.stdout)
     if link_result.returncode or str(args.prefix / "lib/libXm.so.") not in link_result.stdout:
         raise SystemExit("cross-process probe loaded the wrong libXm")
-    for mode in ("single-target", "multiple-target"):
+    for mode in ("single-target", "multiple-target", "incremental"):
         run_env = dict(env)
         if mode == "multiple-target":
             run_env["CK_DND_MULTIPLE"] = "1"
+        elif mode == "incremental":
+            run_env["CK_DND_INCREMENTAL"] = "1"
         run_result = subprocess.run(
             ["xvfb-run", "-a", "timeout", "10s", str(binary)], env=run_env,
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,

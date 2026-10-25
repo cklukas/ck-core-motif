@@ -33,6 +33,10 @@ static const char multi_cookies[2][24] = {
 static unsigned transfer_count;
 static Boolean transfer_seen[2];
 static Boolean multiple_mode;
+static Boolean incremental_mode;
+static unsigned long incremental_bytes;
+static unsigned incremental_callbacks;
+#define INCREMENTAL_PAYLOAD_SIZE (4UL * 1024UL * 1024UL)
 static unsigned checks;
 static Boolean finished;
 static int result = EXIT_SUCCESS;
@@ -92,6 +96,12 @@ convert(Widget widget, Atom *selection, Atom *target, Atom *type_return,
     if (multiple_mode) {
         *value_return = XtNewString(multi_payloads[index]);
         *length_return = strlen(multi_payloads[index]);
+    } else if (incremental_mode) {
+        unsigned char *value = (unsigned char *)XtMalloc(
+            INCREMENTAL_PAYLOAD_SIZE);
+        memset(value, 'i', INCREMENTAL_PAYLOAD_SIZE);
+        *value_return = (XtPointer)value;
+        *length_return = INCREMENTAL_PAYLOAD_SIZE;
     } else {
         *value_return = XtNewString(payload);
         *length_return = strlen(payload);
@@ -108,6 +118,29 @@ transfer(Widget widget, XtPointer client_data, Atom *selection, Atom *type,
 
     (void)widget;
     (void)selection;
+    if (incremental_mode) {
+        CHECK(type != NULL && *type == target_atoms[0]);
+        CHECK(format != NULL && *format == 8);
+        CHECK(length != NULL);
+        if (length != NULL && *length != 0) {
+            CHECK(value != NULL);
+            if (value != NULL) {
+                CHECK(*length >= 4);
+                if (*length >= 4)
+                    CHECK(memcmp(value, "iiii", 4) == 0);
+                incremental_bytes += *length;
+                ++incremental_callbacks;
+            }
+            return;
+        }
+        CHECK(length != NULL && *length == 0);
+        CHECK(incremental_callbacks > 0);
+        CHECK(incremental_bytes == INCREMENTAL_PAYLOAD_SIZE);
+        finished = True;
+        send_control('D');
+        XtAppSetExitFlag(app);
+        return;
+    }
     CHECK(type != NULL && value != NULL && length != NULL && format != NULL);
     if (type == NULL || value == NULL || length == NULL || format == NULL)
         return;
@@ -145,7 +178,7 @@ static void
 drop(Widget widget, XtPointer closure, XtPointer call_data)
 {
     XmDropProcCallback drop_data = (XmDropProcCallback)call_data;
-    Arg args[3];
+    Arg args[4];
     Cardinal count = 0;
 
     (void)widget;
@@ -170,6 +203,10 @@ drop(Widget widget, XtPointer closure, XtPointer call_data)
     ++count;
     XtSetArg(args[count], XmNtransferProc, transfer);
     ++count;
+    if (incremental_mode) {
+        XtSetArg(args[count], XmNincremental, True);
+        ++count;
+    }
     if (drop_data == NULL || drop_data->dragContext == NULL ||
         XmDropTransferStart(drop_data->dragContext, args, count) == NULL)
         result = EXIT_FAILURE;
@@ -377,6 +414,8 @@ main(int argc, char **argv)
     int parent_result;
 
     multiple_mode = getenv("CK_DND_MULTIPLE") != NULL;
+    incremental_mode = getenv("CK_DND_INCREMENTAL") != NULL;
+    CHECK(!(multiple_mode && incremental_mode));
 
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, sockets) != 0) {
         perror("socketpair");
@@ -401,6 +440,7 @@ main(int argc, char **argv)
         parent_result = EXIT_FAILURE;
     if (parent_result == EXIT_SUCCESS)
         printf("PASS cross-process Motif drag/drop transfer (%s): %u checks\n",
-               multiple_mode ? "multiple-target" : "single-target", checks);
+               multiple_mode ? "multiple-target" :
+               (incremental_mode ? "incremental" : "single-target"), checks);
     return parent_result;
 }

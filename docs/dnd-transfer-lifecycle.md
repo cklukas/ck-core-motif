@@ -53,16 +53,18 @@ python3 tests/automated/run-dnd-cross-process.py \
   /absolute/installed/prefix /absolute/fresh/results
 ```
 
-The AArch64 `uconsole` qualification on 2026-10-25 now runs both modes. The
-single-target mode passed 13 checks and the multiple-target mode passed 21
-checks in three fresh Xvfb runs each. All receipts used the installed
-`libXm.so.8.0.0` SHA-256
+The AArch64 `uconsole` qualification on 2026-10-25 now runs three modes. The
+single-target mode passed 14 checks, the multiple-target mode passed 22 checks,
+and the incremental mode passed 116 checks in three fresh Xvfb runs each. The
+incremental mode requests a 4 MiB payload and verifies every non-empty Xt
+chunk, its byte total and the terminating callback. All receipts used the
+installed `libXm.so.8.0.0` SHA-256
 (`1a38e360f82964e7a318bc61099f7300be6c05ec5a75c3e09814646f9adf545`) and the
 probe source SHA-256
-(`d90345a1f90e82dc04075f6aedc4d328f4fb17d8243eb8201e5fb3edbed574b2`).
-This qualifies one independent-client copy transfer and its two-target array
-contract; incremental payload assembly and a complete application DnD
-workflow remain separate gates.
+(`84f11e5c0660ef5bab9db67a4f4b9b2deab2daef8aa132887b0e6fa89690d9b4`).
+This qualifies one independent-client copy transfer, its two-target array
+contract and incremental payload assembly; a complete application DnD
+workflow remains a separate gate.
 
 `tests/automated/check-dnd-transfer-cancel.c` covers the receiver-side
 DropTransfer lifetime contract. Its immediate mode destroys the object before

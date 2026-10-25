@@ -33,9 +33,11 @@ Cross-process drag-and-drop transfer qualification (2026-10-25)
   source and destination Xt process, one copy transfer and the same selection
   ownership/conversion boundaries. Its opt-in multiple-target mode exercises
   two asynchronous transfer entries with independent payloads and client
-  data. Three fresh AArch64 Xvfb runs pass 13 checks in single-target mode and
-  21 checks in multiple-target mode; source-side cancellation, owner
-  replacement and broader application-DnD journeys remain separate gates.
+  data. Three fresh AArch64 Xvfb runs pass 14 checks in single-target mode,
+  22 checks in multiple-target mode and 116 checks in incremental mode; the
+  latter assembles a 4 MiB payload from Xt chunks. Source-side cancellation,
+  owner replacement and broader application-DnD journeys remain separate
+  gates.
   See `docs/dnd-transfer-lifecycle.md`.
 
 DropTransfer cancellation and lifetime safety (2026-10-25)
