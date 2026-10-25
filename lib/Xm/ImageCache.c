@@ -2484,7 +2484,8 @@ void _XmPutScaledImage (
     Bool fast8;
     int output_y;
 
-    if (src_image == NULL || src_image->data == NULL ||
+    if (display == NULL || d == None || gc == NULL ||
+	src_image == NULL || src_image->data == NULL ||
 	src_image->width <= 0 || src_image->height <= 0 ||
 	src_image->bytes_per_line <= 0 ||
 	(size_t)src_image->height >

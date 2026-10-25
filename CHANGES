@@ -1,3 +1,9 @@
+Scaled-image X11 input validation (2026-10-25)
+===============================================
+
+- Reject missing display, drawable, or GC handles before scaled-image Xlib
+  calls; see `docs/image-scaling-x11-inputs.md`.
+
 XmString-table destination-size cleanup (2026-10-25)
 ======================================================
 
