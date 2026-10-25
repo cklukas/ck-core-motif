@@ -2192,6 +2192,7 @@ void _XmPutScaledImage (
     unsigned int scaled_row_bytes;
     size_t image_bytes;
     Bool fast8;
+    int output_y;
 
     if (src_image == NULL || src_image->width <= 0 || src_image->height <= 0 ||
 	src_image->bytes_per_line <= 0 || src_width == 0 || src_height == 0 ||
@@ -2353,8 +2354,12 @@ void _XmPutScaledImage (
 		}
 	    }
 	}
+	if ((long long)dest_y + (long long)min_y > INT_MAX ||
+	    (long long)dest_y + (long long)min_y < INT_MIN)
+	    goto cleanup;
+	output_y = (int)((long long)dest_y + (long long)min_y);
 	XPutImage(display, d, gc, dest_image, dest_x, 0,
-		  dest_x, dest_y + min_y, dest_width, table.y[y] - min_y);
+		  dest_x, output_y, dest_width, table.y[y] - min_y);
 	if (y >= src_image->height)
 	    break;
     }
