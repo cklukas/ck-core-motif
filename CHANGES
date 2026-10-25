@@ -1,3 +1,10 @@
+LabelG background-box bounds (2026-10-26)
+===========================================
+
+- Compute LabelG background-box insets in signed arithmetic before clamping,
+  preventing collapsed labels from wrapping fill dimensions; see
+  `docs/labelg-background-bounds.md`.
+
 XmeDrawHighlight graphics-context guard (2026-10-26)
 ======================================================
 

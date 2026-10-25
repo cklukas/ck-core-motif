@@ -2252,10 +2252,12 @@ Region region)
     XmLabelGadget lw = (XmLabelGadget) wid;
     LRectangle background_box;
 
-    background_box.x = lw->rectangle.x + LabG_Highlight(lw);
-    background_box.y = lw->rectangle.y + LabG_Highlight(lw);
-    background_box.width = lw->rectangle.width - (2 * LabG_Highlight(lw));
-    background_box.height = lw->rectangle.height - (2 * LabG_Highlight(lw));
+    background_box.x = (int) lw->rectangle.x + (int) LabG_Highlight(lw);
+    background_box.y = (int) lw->rectangle.y + (int) LabG_Highlight(lw);
+    background_box.width = (int) lw->rectangle.width -
+        (2 * (int) LabG_Highlight(lw));
+    background_box.height = (int) lw->rectangle.height -
+        (2 * (int) LabG_Highlight(lw));
 
     _XmRedisplayLabG(wid, event, region, &background_box);
 }
