@@ -1,3 +1,9 @@
+Mrm primary tag lookup failure handling (2026-10-25)
+======================================================
+
+- Skip argument post-processing when compressed primary-tag lookup fails; see
+  `docs/mrm-related-tag-lookup-failure.md`.
+
 Mrm resource-tag lookup failure handling (2026-10-25)
 =======================================================
 

@@ -497,3 +497,4 @@ EXTRA_DIST += tests/automated/check-mrm-arg-tag-string-bounds.py docs/mrm-arg-ta
 EXTRA_DIST += tests/automated/check-mrm-callback-value-offset-bounds.py docs/mrm-callback-value-offset-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-resource-record-bounds.py docs/mrm-resource-record-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-resource-tag-lookup-failure.py docs/mrm-resource-tag-lookup-failure.md
+EXTRA_DIST += tests/automated/check-mrm-related-tag-lookup-failure.py docs/mrm-related-tag-lookup-failure.md
