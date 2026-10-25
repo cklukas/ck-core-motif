@@ -51,6 +51,7 @@ clients exchanging Motif window-management messages.
 - [Property-array allocation](mwm-property-array-allocation.md)
 - [Command window-array width](mwm-command-window-array-width.md)
 - [Colormap-reference array width](mwm-colormap-reference-width.md)
+- [Transient-list growth](transient-list-growth.md)
 - [Menu argument allocation](mwm-menu-args-allocation.md)
 - [Home-directory path bounds](mwm-home-path.md)
 - [Action-argument reallocation](mwm-action-arg-reallocation.md)

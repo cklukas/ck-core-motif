@@ -11466,6 +11466,12 @@ MWM colormap-reference array width (2026-10-25)
 - Check dynamic colormap-reference counts before pointer-array allocation; see
   `docs/mwm-colormap-reference-width.md`.
 
+MWM transient-list growth failure handling (2026-10-25)
+=========================================================
+
+- Propagate transient-window list growth failures and release partial lists;
+  see `docs/transient-list-growth.md`.
+
 MWM per-screen display allocation width (2026-10-25)
 =====================================================
 

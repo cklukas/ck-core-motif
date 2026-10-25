@@ -39,6 +39,8 @@ static char rcsid[] = "$TOG: WmManage.c /main/11 1998/01/12 16:45:48 cshi $"
  */
 
 #include "WmGlobal.h"
+#include <limits.h>
+#include <stdint.h>
 #include "WmICCC.h"
 /*
  * include extern functions
@@ -1891,7 +1893,7 @@ RegisterEmbeddedClients (
  *
  *************************************<->***********************************/
 
-static void
+static Boolean
 ListTransientSubtree (
 	ClientData *pCD,
 	Window **ppWins,
@@ -1903,9 +1905,13 @@ ListTransientSubtree (
      */
     if (*pCount == *pSize) 
     {
+	if (*pSize > (int)(UINT_MAX / sizeof(Window)) - LTT_INCREMENT)
+	    return (False);
 	*pSize += LTT_INCREMENT;
-	*ppWins = (Window *) 
-		XtRealloc ((char *) *ppWins, (*pSize * sizeof(Window)));
+	*ppWins = (Window *)XtRealloc(
+		(char *)*ppWins, (Cardinal)(*pSize * sizeof(Window)));
+	if (*ppWins == NULL)
+	    return (False);
     }
     /*
      * Add this window to the list
@@ -1917,15 +1923,17 @@ ListTransientSubtree (
      * Add siblings
      */
     if (pCD->transientSiblings)
-	ListTransientSubtree (pCD->transientSiblings, ppWins, pSize, pCount);
+	if (!ListTransientSubtree (pCD->transientSiblings, ppWins, pSize, pCount))
+	    return (False);
 
     /*
      * Add children
      */
     if (pCD->transientChildren)
-	ListTransientSubtree (pCD->transientChildren, ppWins, pSize, pCount);
+	if (!ListTransientSubtree (pCD->transientChildren, ppWins, pSize, pCount))
+	    return (False);
 
-    
+    return (True);
 } /* END OF FUNCTION ListTransientSubtree */
 
 
@@ -1967,22 +1975,35 @@ ListTransientTree (
      * Initial allocation
      */
     iSize = LTT_INCREMENT;
-    pWins = (Window *) XtMalloc (iSize * sizeof(Window));
+    pWins = (Window *)XtMalloc((Cardinal)(iSize * sizeof(Window)));
+    if (pWins == NULL)
+	return (NULL);
     count = 0;
 
     /*
      * Add this window to the list
      */
-    ListTransientSubtree (pCD, &pWins, &iSize, &count);
+    if (!ListTransientSubtree (pCD, &pWins, &iSize, &count))
+    {
+	XtFree((char *)pWins);
+	return (NULL);
+    }
 
     /*
      * Add terminator to end of window list
      */
     if (count == iSize) 
     {
+	if (iSize > (int)(UINT_MAX / sizeof(Window)) - LTT_INCREMENT)
+	{
+	    XtFree((char *)pWins);
+	    return (NULL);
+	}
 	iSize += LTT_INCREMENT;
-	pWins = (Window *) 
-		XtRealloc ((char *)pWins, (iSize * sizeof(Window)));
+	pWins = (Window *)XtRealloc(
+		(char *)pWins, (Cardinal)(iSize * sizeof(Window)));
+	if (pWins == NULL)
+	    return (NULL);
     }
     pWins[count++] = None;
 
