@@ -62,6 +62,10 @@ int main(int argc, char **argv) {
     XmAccessibleInfoClear(&info);
     CHECK(XmAccessibilityAction(accessibility, id, 0));
     CHECK(activated == 2);
+    XtSetSensitive(chip, False);
+    XmChipInvoke(chip, NULL);
+    CHECK(activated == 2);
+    XtSetSensitive(chip, True);
     XmAccessibilityDestroy(accessibility);
 
     doomed = XmVaCreateManagedChip(row, (char *)"doomed", XmNchipRemovable,
