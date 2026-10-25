@@ -806,9 +806,17 @@ AddToXlfdList(XmFontSelectorWidget fsw,
 {
     FontData *current;
     if (*num >= *alloc) {
-	*alloc += ALLOC_INC;
-	*list = (FontData *) XtRealloc((XtPointer) *list, 
-				       sizeof(FontData) * *alloc);
+	int new_alloc;
+	FontData *new_list;
+	if (*alloc > INT_MAX - ALLOC_INC)
+	    return;
+	new_alloc = *alloc + ALLOC_INC;
+	new_list = (FontData *) XtRealloc((XtPointer) *list,
+				  sizeof(*new_list) * (size_t)new_alloc);
+	if (new_list == NULL)
+	    return;
+	*list = new_list;
+	*alloc = new_alloc;
     }
 
     current = (*list) + *num;
@@ -833,13 +841,24 @@ AddToXlfdList(XmFontSelectorWidget fsw,
 static void
 AddToOtherList(char *name, String **list, int *num, int *alloc)
 {
+    String new_name;
     if (*num >= *alloc) {
-	*alloc += ALLOC_INC;
-	*list = (String *) XtRealloc((XtPointer) *list, 
-				     sizeof(String) * *alloc);
+	int new_alloc;
+	String *new_list;
+	if (*alloc > INT_MAX - ALLOC_INC)
+	    return;
+	new_alloc = *alloc + ALLOC_INC;
+	new_list = (String *) XtRealloc((XtPointer) *list,
+				       sizeof(*new_list) * (size_t)new_alloc);
+	if (new_list == NULL)
+	    return;
+	*list = new_list;
+	*alloc = new_alloc;
     }
 
-    (*list)[(*num)++] = XtNewString(name);
+    new_name = XtNewString(name);
+    if (new_name != NULL)
+	(*list)[(*num)++] = new_name;
 }
 
 /*	Function Name: FillData(fsw, current, name); 
