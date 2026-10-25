@@ -7349,3 +7349,12 @@ Paned child span bounds (2026-10-26)
 
 Notebook status geometry bounds (2026-10-26)
 ============================================
+Paned right-to-left origin bounds (2026-10-26)
+===============================================
+
+- Compute RTL horizontal pane origins in signed arithmetic, preventing
+  wrapped positions when pane extents exceed the container; see
+  `docs/paned-rtl-origin.md`.
+
+Paned child span bounds (2026-10-26)
+====================================

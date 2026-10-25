@@ -1126,7 +1126,8 @@ RefigureLocations(XmPanedWidget pw, int paneindex, Direction dir)
 	  childP++ ) {
 	if (LayoutIsRtoLM(pw) && !(IsVert(pw))) {
 	    loc += PaneInfo(*childP)->size + 2 * (*childP)->core.border_width;
-	    PaneInfo(*childP)->delta = pw->core.width - loc;
+	    PaneInfo(*childP)->delta = (Position)
+		((int) pw->core.width - (int) loc);
 	} else {
 	    PaneInfo(*childP)->delta = loc;
 	    loc += PaneInfo(*childP)->size + 2 * (*childP)->core.border_width;
