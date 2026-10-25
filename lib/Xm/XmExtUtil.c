@@ -310,7 +310,7 @@ _XmSetValuesOnChildren(Widget w, ArgList args, Cardinal num_args)
 {
     Widget *childP;
 
-    if (w == NULL)
+    if (w == NULL || (args == NULL && num_args != 0))
         return;
     if (!XtIsSubclass(w, compositeWidgetClass))
 	return;
