@@ -211,6 +211,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmSpinnerWidget old = (XmSpinnerWidget)old_widget;
     XmSpinnerWidget spinner = (XmSpinnerWidget)widget;
     Boolean redraw = False;
+    XmString replacement;
     (void)request; (void)args; (void)count;
     spinner->spinner.interval = bounded_interval(spinner->spinner.interval);
     if (old->spinner.interval != spinner->spinner.interval &&
@@ -219,9 +220,14 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         spinner->spinner.timer_pending = False;
     }
     if (old->spinner.label != spinner->spinner.label) {
-        if (spinner->spinner.label)
-            spinner->spinner.label = XmStringCopy(spinner->spinner.label);
-        if (old->spinner.label) XmStringFree(old->spinner.label);
+        replacement = spinner->spinner.label != NULL
+            ? XmStringCopy(spinner->spinner.label) : NULL;
+        if (spinner->spinner.label == NULL || replacement != NULL) {
+            if (old->spinner.label) XmStringFree(old->spinner.label);
+            spinner->spinner.label = replacement;
+        } else {
+            spinner->spinner.label = old->spinner.label;
+        }
         redraw = True;
     }
     if (old->spinner.active != spinner->spinner.active) {

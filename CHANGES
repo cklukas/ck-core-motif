@@ -9395,3 +9395,9 @@ ToggleSwitch label rollback (2026-10-29)
 
 - Copy changed labels before releasing the current value, preserving the
   switch label when allocation fails; see `docs/toggle-switch-label-rollback.md`.
+
+Spinner label rollback (2026-10-29)
+====================================
+
+- Copy changed labels before releasing the current value, preserving the
+  spinner label when allocation fails; see `docs/spinner-label-rollback.md`.
