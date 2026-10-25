@@ -1,3 +1,9 @@
+Guard scaled-image source stride arithmetic (2026-10-25)
+=========================================================
+
+- Reject null image data and overflowing source row strides before scaled
+  pixel access; see `docs/image-source-stride-bounds.md`.
+
 Bound large Text source conversion cursors (2026-10-25)
 ========================================================
 

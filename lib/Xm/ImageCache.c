@@ -2385,8 +2385,12 @@ void _XmPutScaledImage (
     Bool fast8;
     int output_y;
 
-    if (src_image == NULL || src_image->width <= 0 || src_image->height <= 0 ||
-	src_image->bytes_per_line <= 0 || src_width == 0 || src_height == 0 ||
+    if (src_image == NULL || src_image->data == NULL ||
+	src_image->width <= 0 || src_image->height <= 0 ||
+	src_image->bytes_per_line <= 0 ||
+	(size_t)src_image->height >
+	 SIZE_MAX / (size_t)src_image->bytes_per_line ||
+	src_width == 0 || src_height == 0 ||
 	dest_width == 0 || dest_height == 0 || dest_width > INT_MAX ||
 	dest_height > INT_MAX || src_x < 0 || src_y < 0 ||
 	src_x > src_image->width || src_y > src_image->height ||
