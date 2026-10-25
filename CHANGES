@@ -2043,6 +2043,12 @@ XmPicture repeat node-map bounds (2026-10-25)
   picture graphs while leaving unrepresentable expansion unchanged; see
   `docs/picture-copy-bounds.md`.
 
+Sized icon-name construction bounds (2026-10-25)
+=================================================
+
+- Bound icon-name suffix length arithmetic and handle suffix-buffer allocation
+  failure without dereferencing a null pointer; see `docs/icon-file-bounds.md`.
+
 Accessibility transport allocation (2026-10-25)
 ==================================================
 
