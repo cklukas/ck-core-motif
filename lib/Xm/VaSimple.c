@@ -34,6 +34,7 @@ static char rcsid[] = "$XConsortium: VaSimple.c /main/11 1995/10/25 20:26:43 cde
 #include <Xm/VaSimpleP.h>
 #include <X11/StringDefs.h>
 #include <X11/Shell.h>
+#include <limits.h>
 #include <stdint.h>
 #include "MessagesI.h"
 #include "VaSimpleI.h"
@@ -90,6 +91,10 @@ static Boolean _XmVaProcessEverything(
                         int button_count,
                         ArgList *args,
                         int num_args) ;
+static Boolean _XmVaAddCount(
+                        int base,
+                        int extra,
+                        int *result) ;
 /********  End Static Function Declarations  ********/
 
 
@@ -459,6 +464,18 @@ _XmVaToTypedArgList(
 }
 
 static Boolean
+_XmVaAddCount(
+        int base,
+        int extra,
+        int *result )
+{
+    if (result == NULL || base < 0 || extra < 0 || base > INT_MAX - extra)
+        return False;
+    *result = base + extra;
+    return True;
+}
+
+static Boolean
 _XmVaProcessEverything(
         Widget widget,
         va_list var,
@@ -610,7 +627,11 @@ XmVaCreateSimpleMenuBar(Widget parent, String name, ...)
 
     Va_start(var,name);
 
-    num_args = args_count + (XMCASCADE_ARGS_PER_LIST + MB_EXTRA_ARGS);
+    if (!_XmVaAddCount(args_count,
+                       XMCASCADE_ARGS_PER_LIST + MB_EXTRA_ARGS, &num_args)) {
+        _XmAppUnlock(app);
+        return NULL;
+    }
 
     if (!_XmVaProcessEverything(parent, var, &menuBarButtonTypes, &menuBarStrings,
 		&menuBarMnemonics, &menuBarAccelerators, &menuBarAcceleratorText,
@@ -681,7 +702,11 @@ XmVaCreateSimplePulldownMenu(Widget parent, String name, int post_from_button, X
 /* Convert into a normal ArgList */
     Va_start(var,callback);
 
-    num_args = args_count + (XMBUTTONS_ARGS_PER_LIST + PD_EXTRA_ARGS);
+    if (!_XmVaAddCount(args_count,
+                       XMBUTTONS_ARGS_PER_LIST + PD_EXTRA_ARGS, &num_args)) {
+        _XmAppUnlock(app);
+        return NULL;
+    }
 
     if (!_XmVaProcessEverything(parent, var, &pulldownMenuButtonTypes,
 		&pulldownMenuStrings, &pulldownMenuMnemonics,
@@ -760,7 +785,11 @@ XmVaCreateSimplePopupMenu(Widget parent, String name, XtCallbackProc callback, .
 /* Convert into a normal ArgList */
     Va_start(var,callback);
 
-    num_args = args_count + (XMBUTTONS_ARGS_PER_LIST + PU_EXTRA_ARGS);
+    if (!_XmVaAddCount(args_count,
+                       XMBUTTONS_ARGS_PER_LIST + PU_EXTRA_ARGS, &num_args)) {
+        _XmAppUnlock(app);
+        return NULL;
+    }
 
     if (!_XmVaProcessEverything(parent, var, &popupMenuButtonTypes,
 		&popupMenuStrings, &popupMenuMnemonics,
@@ -838,7 +867,11 @@ XmVaCreateSimpleOptionMenu(Widget parent, String name, XmString option_label, Ke
 /* Convert into a normal ArgList */
     Va_start(var,callback);
 
-    num_args = args_count + (XMBUTTONS_ARGS_PER_LIST + OM_EXTRA_ARGS);
+    if (!_XmVaAddCount(args_count,
+                       XMBUTTONS_ARGS_PER_LIST + OM_EXTRA_ARGS, &num_args)) {
+        _XmAppUnlock(app);
+        return NULL;
+    }
 
     if (!_XmVaProcessEverything(parent, var, &optionMenuButtonTypes,
 		&optionMenuStrings, &optionMenuMnemonics,
@@ -918,7 +951,11 @@ XmVaCreateSimpleRadioBox(Widget parent, String name, int button_set, XtCallbackP
 /* Convert into a normal ArgList */
     Va_start(var,callback);
 
-    num_args = args_count + (XMBUTTONS_ARGS_PER_LIST + RB_EXTRA_ARGS);
+    if (!_XmVaAddCount(args_count,
+                       XMBUTTONS_ARGS_PER_LIST + RB_EXTRA_ARGS, &num_args)) {
+        _XmAppUnlock(app);
+        return NULL;
+    }
 
     if (!_XmVaProcessEverything(parent, var, &radioBoxButtonTypes,
 		&radioBoxStrings, &radioBoxMnemonics,
@@ -996,7 +1033,11 @@ XmVaCreateSimpleCheckBox(Widget parent, String name, XtCallbackProc callback, ..
 /* Convert into a normal ArgList */
     Va_start(var,callback);
 
-    num_args = args_count + (XMBUTTONS_ARGS_PER_LIST + CB_EXTRA_ARGS);
+    if (!_XmVaAddCount(args_count,
+                       XMBUTTONS_ARGS_PER_LIST + CB_EXTRA_ARGS, &num_args)) {
+        _XmAppUnlock(app);
+        return NULL;
+    }
 
     if (!_XmVaProcessEverything(parent, var, &checkBoxButtonTypes,
 		&checkBoxStrings, &checkBoxMnemonics,
