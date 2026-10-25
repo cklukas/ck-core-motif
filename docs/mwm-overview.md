@@ -24,6 +24,10 @@ clients exchanging Motif window-management messages.
 - [Command-message argument allocation](command-message-argument-allocation.md)
 - [Client-command label allocation](mwm-client-command-label-allocation.md)
 
+## Frame graphics
+
+- [Graphics-list allocation](mwm-graphics-list-allocation.md)
+
 ## Workspace and persistence data
 
 - [Workspace-list serialization](mwm-workspace-list-serialization.md)

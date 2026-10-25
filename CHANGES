@@ -11484,6 +11484,12 @@ MWM label allocation width (2026-10-25)
 - Check parsed menu-label lengths against Xt's allocation width; see
   `docs/mwm-label-parse-allocation.md`.
 
+MWM rectangle-list allocation bounds (2026-10-25)
+==================================================
+
+- Reject rectangle-list sizes that overflow the signed count fields or Xt
+  allocation width; see `docs/mwm-graphics-list-allocation.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 

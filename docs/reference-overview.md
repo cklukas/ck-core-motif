@@ -42,6 +42,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 ## MWM and window-management protocol
 
 - [MWM protocol overview](mwm-protocol-oom.md) — protocol conversion and allocation-failure behavior.
+- [MWM graphics-list allocation](mwm-graphics-list-allocation.md) — bounded rectangle-list growth.
 - [MWM WSM session-file path bounds](mwm-session-path.md) — safe session path construction.
 - [MWM locale-copy allocation](mwm-locale-allocation.md) — width-checked locale copying.
 - [MWM localized system-menu allocation](mwm-system-menu-allocation.md) — safe generated-menu sizing.
