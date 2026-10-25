@@ -2859,7 +2859,8 @@ SetHitArea(Widget w)
   Dimension	   thickW = 0, thickH = 0, ebH;
   int available_height;
 
-  assert(CB_Type(cb) != XmCOMBO_BOX);
+  if (CB_Type(cb) == XmCOMBO_BOX)
+    return;
 
   GetThickness(w, &thickW, &thickH);
   available_height = (int) XtHeight(cb) -
@@ -2942,7 +2943,8 @@ DrawArrow(Widget widget,
   int newbox, size, max_height, excess;
   int x, y, w, h;
 
-  assert(CB_Type(cb) != XmCOMBO_BOX);
+  if (CB_Type(cb) == XmCOMBO_BOX)
+    return;
 
   if (CB_ArrowSize(cb) == XmINVALID_DIMENSION)
     CB_ArrowSize(cb) = GetDefaultArrowSize((Widget) cb);

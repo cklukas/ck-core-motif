@@ -121,6 +121,13 @@ ComboBox type fallback (2026-10-26)
   of asserting; shared accelerator setup continues normally. See
   `docs/combobox-type-fallback.md`.
 
+ComboBox arrow helper guard (2026-10-26)
+========================================
+
+- Make arrow hit-area and drawing helpers return safely for plain ComboBoxes,
+  which do not have arrows, instead of asserting; see
+  `docs/combobox-arrow-helper.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 
