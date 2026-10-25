@@ -13381,6 +13381,12 @@ Prompt resource and GC safety (2026-10-26)
 - Skip Prompt drawing when its GC creation fails and release replaced owned
   text copies safely; see `docs/prompt-resource-safety.md`.
 
+DatePicker popup creation safety (2026-10-26)
+==============================================
+
+- Check lazy popup-shell and calendar creation and clean partial shells before
+  using child widgets; see `docs/datepicker-popup-creation.md`.
+
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================
 

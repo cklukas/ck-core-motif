@@ -96,8 +96,15 @@ static void create_popup(XmDatePickerWidget picker) {
     XtSetArg(args[count], XmNtransientFor, XtWindow(parent_shell)); ++count;
     picker->date_picker.popup_shell = XtCreatePopupShell(
         "datePickerShell", overrideShellWidgetClass, parent_shell, args, count);
+    if (!picker->date_picker.popup_shell)
+        return;
     picker->date_picker.calendar = XmCreateCalendar(
         picker->date_picker.popup_shell, (char *)"calendar", NULL, 0);
+    if (!picker->date_picker.calendar) {
+        XtDestroyWidget(picker->date_picker.popup_shell);
+        picker->date_picker.popup_shell = NULL;
+        return;
+    }
     XtVaSetValues(picker->date_picker.calendar, XmNwidth, 224,
                   XmNheight, 192, NULL);
     XmCalendarSetRange(picker->date_picker.calendar,
