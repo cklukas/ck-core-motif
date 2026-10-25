@@ -1,3 +1,9 @@
+Validate XmString rendition inputs (2026-10-25)
+===============================================
+
+- Reject null strings and rendition tags before constructing rendition
+  components; see `docs/motif-xmstring-rendition.md`.
+
 Validate XmString table concatenation input (2026-10-25)
 =========================================================
 

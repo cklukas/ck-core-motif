@@ -276,6 +276,9 @@ XmString
 XmStringPutRendition(XmString string,
 		     XmStringTag rendition)
 {
+  if ((string == NULL) || (rendition == NULL))
+    return(NULL);
+
   /* Quick and dirty.  Fix for beta! */
   XmString	str, tmp1, tmp2;
   
