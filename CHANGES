@@ -7991,3 +7991,12 @@ IconG reordered-table bounds (2026-10-27)
 
 MapEvents parallel-array growth (2026-10-27)
 =============================================
+VendorS destroy-grab list growth (2026-10-27)
+==============================================
+
+- Check the 16-bit registry capacity before growth and commit a replacement
+  list only after `XtRealloc` succeeds.  Vendor-shell destruction tracking now
+  remains usable under allocation pressure.
+
+IconG reordered-table bounds (2026-10-27)
+=========================================

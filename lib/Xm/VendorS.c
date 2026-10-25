@@ -36,6 +36,7 @@ static char rcsid[] = "$TOG: VendorS.c /main/21 1999/08/09 10:49:41 mgreess $"
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <limits.h>
 #include <Xm/AccColorT.h>
 #include <Xm/AtomMgr.h>
 #include <Xm/DisplayP.h>
@@ -3007,9 +3008,26 @@ AddDLEntry(
     } 
   if(    destroy_list_cnt == destroy_list_size    )
     {
-      destroy_list_size += 2 ;
-      destroy_list = (XmDestroyGrabList) XtRealloc( (char *) destroy_list,
-				destroy_list_size * sizeof( XmDestroyGrabRec)) ;
+      unsigned short new_size;
+      XmDestroyGrabList new_list;
+      if (destroy_list_size > USHRT_MAX - 2 ||
+          (size_t)(destroy_list_size + 2) >
+          SIZE_MAX / sizeof(XmDestroyGrabRec))
+        {
+          _XmProcessUnlock();
+          return;
+        }
+      new_size = (unsigned short)(destroy_list_size + 2);
+      new_list = (XmDestroyGrabList)XtRealloc(
+          (char *)destroy_list,
+          (size_t)new_size * sizeof(XmDestroyGrabRec));
+      if (new_list == NULL)
+        {
+          _XmProcessUnlock();
+          return;
+        }
+      destroy_list = new_list;
+      destroy_list_size = new_size;
     } 
   destroy_list[i].shell = shell ;
   destroy_list[i].ve = ve ;
