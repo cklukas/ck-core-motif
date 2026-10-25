@@ -5,6 +5,13 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+XmString component insertion failure (2026-10-26)
+==================================================
+
+- Check the final segment insertion in non-optimized component creation and
+  release partial results on failure; see
+  `docs/xmstring-component-insertion.md`.
+
 XmString component tag-cache validation (2026-10-26)
 ======================================================
 

@@ -9403,6 +9403,12 @@ XmStringComponentCreate(XmStringComponentType c_type,
 	_XmStringSegmentNew(str, 0, opt_seg, False);
       else
 	_XmStringSegmentNew(str, 0, (_XmStringEntry)&seg, True);
+
+      if (_XmStrEntryCount(str) == 0) {
+	_XmStrFree(str);
+	_XmProcessUnlock();
+	return NULL;
+      }
     }
   
   _XmProcessUnlock();
