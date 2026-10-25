@@ -1,3 +1,10 @@
+MWM automation reply initialization (2026-10-26)
+=================================================
+
+- Initialize automation reply outputs and reject null output arguments before
+  processing window queries, so invalid requests cannot expose stale reply
+  data; see `docs/mwm-automation-reply-initialization.md`.
+
 Clipboard item lookup atom guard (2026-10-26)
 ==============================================
 

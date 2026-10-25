@@ -2187,6 +2187,15 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
   int i, n, menuItemCount = 0;
   MenuItem *menu_item;
 
+  if (outputType == NULL || output == NULL || outputLen == NULL ||
+      outputFmt == NULL)
+    return;
+
+  *outputType = None;
+  *output = NULL;
+  *outputLen = 0;
+  *outputFmt = 0;
+
 
 
 
