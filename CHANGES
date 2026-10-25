@@ -1,3 +1,10 @@
+XmList deletion allocation failures (2026-10-27)
+=================================================
+
+- Keep the existing item and internal-element arrays when a shrinking
+  `XtRealloc` fails, and check the resulting byte counts before resizing.
+  Deletion now leaves the remaining list usable under allocation pressure.
+
 XmList internal-list growth (2026-10-27)
 ========================================
 

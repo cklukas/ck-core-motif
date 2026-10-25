@@ -3441,9 +3441,14 @@ DeleteInternalElements(XmListWidget lw,
 
   if (lw->list.itemCount)
     {
-      lw->list.InternalList = (ElementPtr *)
-	XtRealloc((char *) lw->list.InternalList,
-		  (sizeof(Element *) * lw->list.itemCount));
+      if ((size_t)lw->list.itemCount <= SIZE_MAX / sizeof(ElementPtr))
+	{
+          ElementPtr *new_internal = (ElementPtr *)XtRealloc(
+              (char *)lw->list.InternalList,
+              sizeof(ElementPtr) * (size_t)lw->list.itemCount);
+          if (new_internal != NULL)
+            lw->list.InternalList = new_internal;
+	}
     }
   else
     {
@@ -3686,8 +3691,14 @@ DeleteItems(XmListWidget lw,
 
   if (TotalItems)
     {
-	lw->list.items = (XmString *) XtRealloc((char *) lw->list.items,
-					TotalItems * sizeof(XmString));
+	if ((size_t)TotalItems <= SIZE_MAX / sizeof(XmString))
+	  {
+	    XmString *new_items = (XmString *)XtRealloc(
+		(char *)lw->list.items,
+		(sizeof(XmString) * (size_t)TotalItems));
+	    if (new_items != NULL)
+	      lw->list.items = new_items;
+	  }
     }
   else
     {
@@ -3769,8 +3780,14 @@ DeleteItemPositions(XmListWidget  lw,
 
   if (TotalItems)
     {
-	lw->list.items = (XmString *) XtRealloc((char *) lw->list.items,
-					TotalItems * sizeof(XmString));
+	if ((size_t)TotalItems <= SIZE_MAX / sizeof(XmString))
+	  {
+	    XmString *new_items = (XmString *)XtRealloc(
+		(char *)lw->list.items,
+		(sizeof(XmString) * (size_t)TotalItems));
+	    if (new_items != NULL)
+	      lw->list.items = new_items;
+	  }
     }
   else
     {
