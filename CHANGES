@@ -11250,3 +11250,9 @@ WSM request counts (2026-10-25)
 
 - Reject negative request and nested match-attribute counts before packing,
   preventing invalid unsigned wire counts; see `docs/wsm-request-counts.md`.
+
+WSM reply counts (2026-10-25)
+==============================
+
+- Reject negative reply and nested list counts before packing, preventing
+  invalid unsigned wire counts; see `docs/wsm-reply-counts.md`.

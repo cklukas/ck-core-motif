@@ -381,6 +381,8 @@ _WSMPackReply(Display *dpy, int screen_num,
 	size = sizeof(CARD8);
 	break;
     case WSM_EXTENSIONS:
+        if (reply->extensions.num_extensions < 0)
+            return(NULL);
 	if (reply->extensions.num_extensions != 0 &&
 	    reply->extensions.extensions == NULL)
 	    return(NULL);
@@ -390,6 +392,10 @@ _WSMPackReply(Display *dpy, int screen_num,
 	}
 	break;
     case WSM_CONFIG_FMT:
+        if (reply->config_format.num_global_formats < 0 ||
+            reply->config_format.num_window_formats < 0 ||
+            reply->config_format.num_icon_formats < 0)
+            return(NULL);
 	if ((reply->config_format.num_global_formats != 0 &&
 	     reply->config_format.global_formats == NULL) ||
 	    (reply->config_format.num_window_formats != 0 &&
@@ -436,9 +442,14 @@ _WSMPackReply(Display *dpy, int screen_num,
 	}
 	break;
     case WSM_GET_STATE:
+        if (reply->get_state.num_win_info_list < 0)
+            return(NULL);
 	if (reply->get_state.num_win_info_list != 0 &&
 	    reply->get_state.win_info_list == NULL)
 	    return(NULL);
+	for (i = 0; i < reply->get_state.num_win_info_list; i++)
+	    if (reply->get_state.win_info_list[i].num_data_list < 0)
+		return(NULL);
 	for (i = 0; i < reply->get_state.num_win_info_list; i++)
 	    if (reply->get_state.win_info_list[i].num_data_list != 0 &&
 		reply->get_state.win_info_list[i].data_list == NULL)
@@ -452,6 +463,8 @@ _WSMPackReply(Display *dpy, int screen_num,
 	size = 0;
 	break;
     case WSM_REG_WINDOW:
+        if (reply->register_window.num_window_data < 0)
+            return(NULL);
 	if (reply->register_window.num_window_data != 0 &&
 	    reply->register_window.window_data == NULL)
 	    return(NULL);
@@ -467,9 +480,15 @@ _WSMPackReply(Display *dpy, int screen_num,
 	size = sizeof(CARD32);
 	break;
     case WSM_WM_WINDOWS:
+        if (reply->wm_windows.num_win_entry_list < 0)
+            return(NULL);
 	if (reply->wm_windows.num_win_entry_list != 0 &&
 	    reply->wm_windows.win_entry_list == NULL)
 	    return(NULL);
+	for (i = 0; i < reply->wm_windows.num_win_entry_list; i++)
+	    if (reply->wm_windows.win_entry_list[i].num_windows < 0 ||
+		reply->wm_windows.win_entry_list[i].num_match_properties < 0)
+		return(NULL);
 	for (i = 0; i < reply->wm_windows.num_win_entry_list; i++)
 	    if ((reply->wm_windows.win_entry_list[i].num_windows != 0 &&
 		 reply->wm_windows.win_entry_list[i].windows == NULL) ||
