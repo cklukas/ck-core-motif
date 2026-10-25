@@ -11176,3 +11176,10 @@ WSM atom initialization rollback (2026-10-25)
 
 - Roll back display metadata when `XInternAtoms` fails, avoiding partial
   records with invalid protocol atoms; see `docs/wsm-atom-init-rollback.md`.
+
+WSM configuration quark serialization (2026-10-25)
+==================================================
+
+- Serialize invalid configuration quarks as empty names consistently during
+  size calculation and packing, avoiding null-string crashes; see
+  `docs/wsm-quark-string-null.md`.

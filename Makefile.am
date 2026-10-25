@@ -938,6 +938,8 @@ EXTRA_DIST += tests/automated/check-wsm-win-data-lookup-null.py docs/wsm-win-dat
 
 EXTRA_DIST += tests/automated/check-wsm-atom-init-rollback.py docs/wsm-atom-init-rollback.md
 
+EXTRA_DIST += tests/automated/check-wsm-quark-string-null.py docs/wsm-quark-string-null.md
+
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 
 EXTRA_DIST += tests/automated/check-latin-lower-bounds.py docs/latin-lower-bounds.md

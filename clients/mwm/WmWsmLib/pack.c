@@ -66,6 +66,13 @@ static int WinEntrySizePacked(Display *, int, WSMWinEntry *);
 static int WinDataSizePacked(Display *, int,
 			     WSMWinData *, int, WSMConfigFormatType);
 
+static String
+WSMQuarkString(XrmQuark quark)
+{
+    String string = XrmQuarkToString(quark);
+    return(string != NULL ? string : "");
+}
+
 /*
  * Routines for packing protocol data stream.
  */
@@ -347,7 +354,7 @@ _WSMPackReply(Display *dpy, int screen_num,
 	    /*
 	     * Bytes in string
 	     */
-	    size += strlen(XrmQuarkToString(attr[i].nameq)) * sizeof(CARD8);
+	    size += strlen(WSMQuarkString(attr[i].nameq)) * sizeof(CARD8);
 	    /*
 	     * len of string + size + is_list.
 	     */
@@ -359,7 +366,7 @@ _WSMPackReply(Display *dpy, int screen_num,
 	    /*
 	     * Bytes in string
 	     */
-	    size += strlen(XrmQuarkToString(attr[i].nameq)) * sizeof(CARD8);
+	    size += strlen(WSMQuarkString(attr[i].nameq)) * sizeof(CARD8);
 	    /*
 	     * len of string + size + is_list.
 	     */
@@ -371,7 +378,7 @@ _WSMPackReply(Display *dpy, int screen_num,
 	    /*
 	     * Bytes in string
 	     */
-	    size += strlen(XrmQuarkToString(attr[i].nameq)) * sizeof(CARD8);
+	    size += strlen(WSMQuarkString(attr[i].nameq)) * sizeof(CARD8);
 	    /*
 	     * len of string + size + is_list.
 	     */
@@ -1004,7 +1011,7 @@ PackSingleAttribute(MessageData data, WSMAttribute *attr_list, int num)
 
     data = PackListNum(data, num);
     for (i = 0; i < num; i++, attr_list++) {
-	data = PackString(data, XrmQuarkToString(attr_list->nameq));
+	data = PackString(data, WSMQuarkString(attr_list->nameq));
 	data = PackCARD8(data, (CARD8) attr_list->size);
 	data = PackBoolean(data, attr_list->is_list);
     }
