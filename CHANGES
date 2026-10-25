@@ -9797,6 +9797,13 @@ MWM match-list insertion allocation guard (2026-10-25)
   safely, eliminating temporary-string leaks and null dereferences; see
   `docs/mwm-match-insertion-allocation.md`.
 
+MWM menu-recreation size guard (2026-10-25)
+===========================================
+
+- Reject unrepresentable match-list pointer-array sizes before allocation,
+  preserving existing widgets without wrapped byte counts; see
+  `docs/menu-recreate-allocation.md`.
+
 MWM menu-spec copy allocation guard (2026-10-25)
 ================================================
 
