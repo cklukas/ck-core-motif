@@ -126,6 +126,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  metadata; see docs/mrm-table-offset-bounds.md.
 
 2026-10-25
+	* Reject null Mrm platform open-parameter objects before hierarchy opening;
+	  see docs/mrm-openhierarchy-os-input.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,
