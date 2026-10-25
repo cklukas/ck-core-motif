@@ -11077,3 +11077,10 @@ WSM window-data alignment (2026-10-25)
 
 - Consume encoded attribute values when WSM data storage fails, preserving
   stream alignment for subsequent records; see `docs/wsm-windata-alignment.md`.
+
+WSM message packing allocation (2026-10-25)
+===========================================
+
+- Check request and reply output-buffer allocation before packing, returning
+  safely for non-empty messages when memory is unavailable; see
+  `docs/wsm-pack-oom.md`.

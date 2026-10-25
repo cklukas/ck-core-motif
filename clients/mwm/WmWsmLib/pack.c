@@ -224,6 +224,8 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
     }
 
     save = data = (MessageData) XtMalloc(size);
+    if (save == NULL && size != 0)
+	return(NULL);
 
     /*
      * Fill in the message.
@@ -413,6 +415,8 @@ _WSMPackReply(Display *dpy, int screen_num,
     }
 
     save = data = (MessageData) XtMalloc(size);
+    if (save == NULL && size != 0)
+	return(NULL);
 
     switch (reply->any.type) {
     case WSM_CONNECT:
