@@ -1811,6 +1811,13 @@ _XmTransformSubResources(
        /* extension            */  NULL
      }
    };
+
+   if (resources == NULL || num_resources == NULL)
+       return;
+   *resources = NULL;
+   *num_resources = 0;
+   if (comp_resources == NULL || num_comp_resources == 0)
+       return;
    
    if (((int)comp_resources[0].resource_offset) >= 0) 
      {

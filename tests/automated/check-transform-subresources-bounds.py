@@ -10,4 +10,5 @@ region = source[start:end]
 assert "SIZE_MAX / sizeof(XtResource)" in region
 assert "*resources = NULL;" in region
 assert "*num_resources = 0;" in region
+assert "if (comp_resources == NULL || num_comp_resources == 0)" in region
 print("PASS subresource transformation allocation size is guarded")
