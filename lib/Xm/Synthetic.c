@@ -30,6 +30,7 @@
 #endif
 
 
+#include <stdint.h>
 #include "XmI.h"
 #include <Xm/ManagerP.h>
 #include <Xm/PrimitiveP.h>
@@ -94,13 +95,22 @@ _XmBuildResources(XmSyntheticResource **wc_resources_ptr,
   XmSyntheticResource *new_resources;
   int                  new_num_resources;
   int i, j;
+  size_t              total_resources;
   Boolean override;
   
   
+  if (wc_resources_ptr == NULL || wc_num_resources_ptr == NULL)
+    return;
+
   wc_resources = (XmSyntheticResource *) *wc_resources_ptr;
   wc_num_resources = (int) *wc_num_resources_ptr;
   
   
+  if (wc_num_resources < 0 || sc_num_resources < 0 ||
+      (sc_num_resources && sc_resources == NULL) ||
+      (wc_num_resources && wc_resources == NULL))
+    return;
+
   /*  If there are no new resources, just use the super class data  */
   
   if (wc_num_resources == 0)
@@ -109,6 +119,12 @@ _XmBuildResources(XmSyntheticResource **wc_resources_ptr,
       *wc_num_resources_ptr = sc_num_resources;
       return;
     }
+
+  total_resources = (size_t)wc_num_resources + (size_t)sc_num_resources;
+  if (total_resources < (size_t)wc_num_resources ||
+      total_resources > SIZE_MAX / sizeof(XmSyntheticResource) ||
+      total_resources > (size_t)UINT_MAX / sizeof(XmSyntheticResource))
+    return;
   
   
   /*
@@ -120,7 +136,9 @@ _XmBuildResources(XmSyntheticResource **wc_resources_ptr,
   
   new_resources = (XmSyntheticResource *) 
     XtMalloc(sizeof (XmSyntheticResource) *
-	     (wc_num_resources + sc_num_resources));
+	     total_resources);
+  if (new_resources == NULL)
+    return;
   if (sc_num_resources)
     memcpy ((char *) new_resources, (char *) sc_resources,
 	    sc_num_resources * sizeof (XmSyntheticResource));

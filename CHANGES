@@ -8507,6 +8507,13 @@ ScrolledWindow scroll-frame allocation (2026-10-27)
 
 - Check private scroll-frame data allocation, clear the initialized flag on
   failure, and return before dereferencing missing trait state.
+Synthetic-resource allocation (2026-10-25)
+===========================================
+
+- Validate synthetic resource counts, source pointers, and byte-size
+  arithmetic before merging resource tables, preserving existing state when
+  allocation fails.
+
 CascadeButtonGadget resource-list allocation (2026-10-25)
 ===========================================================
 
