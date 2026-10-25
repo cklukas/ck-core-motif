@@ -7132,6 +7132,11 @@ CalcStackedGeometry(XmTabBoxWidget tab, XRectangle *rect)
                     tab_width, tab_height,
                     num_stacks = XmTabBox_num_stacks(tab);
     Dimension       d_width, d_height;
+
+	/* XmNnumStacks is an application-facing integer resource.  Keep an
+	 * invalid zero/negative value from reaching the divisions below. */
+	if (num_stacks < 1)
+	    num_stacks = 1;
     /*
      * Calculating the geometry we want for the stack layout turns
      * out to be straight forward.  What we do is find calculate the
