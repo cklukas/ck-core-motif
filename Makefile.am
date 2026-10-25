@@ -904,6 +904,8 @@ EXTRA_DIST += tests/automated/check-wsm-config-string-oom.py docs/wsm-config-str
 
 EXTRA_DIST += tests/automated/check-wsm-win-entry-oom.py docs/wsm-win-entry-oom.md
 
+EXTRA_DIST += tests/automated/check-wsm-windows-rollback.py docs/wsm-windows-rollback.md
+
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 
 EXTRA_DIST += tests/automated/check-latin-lower-bounds.py docs/latin-lower-bounds.md
