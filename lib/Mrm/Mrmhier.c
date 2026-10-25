@@ -519,6 +519,8 @@ UrmHGetIndexedResource (MrmHierarchy		hierarchy_id,
    * Validate hierarchy. Then loop through the files which define the resource,
    * searching for the desired resource.
    */
+  if ( file_id_return == NULL )
+    return MrmFAILURE ;
   if ( hierarchy_id == NULL )
     return Urm__UT_Error ("UrmHGetIndexedResource", _MrmMMsg_0023,
 			  NULL, NULL, MrmBAD_HIERARCHY) ;

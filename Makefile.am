@@ -603,3 +603,4 @@ EXTRA_DIST += tests/automated/check-mrm-openhierarchy-os-input.py docs/mrm-openh
 EXTRA_DIST += tests/automated/check-mrm-open-name-input.py docs/mrm-open-name-input.md
 EXTRA_DIST += tests/automated/check-mrm-find-indexed-output.py docs/mrm-find-indexed-output.md
 EXTRA_DIST += tests/automated/check-mrm-idb-indexed-inputs.py docs/mrm-idb-indexed-inputs.md
+EXTRA_DIST += tests/automated/check-mrm-hget-output-pointer.py docs/mrm-hget-output-pointer.md
