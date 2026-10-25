@@ -21,6 +21,14 @@ The sidebar is the left pane of a horizontal split: categories and component
 entries stay visible on the left while the selected live control occupies the
 right pane.
 
+When launched with `--component xm.infobarwidgetclass` (or any other
+constructible manifest ID), the gallery creates the Example page only after
+the notebook's Example, Source, and Built-in Icons tabs are registered.  This
+ensures the requested live control is displayed immediately rather than
+leaving the notebook on Welcome.  Manager examples are populated with their
+real child controls; for example, TabStack shows selectable Overview, Details,
+and Activity pages.
+
 Startup opens the first sidebar item as a dedicated welcome screen with
 “Hello world!” in English, German, Japanese, and Chinese.  The CJK lines are
 drawn through the toolkit's Xft-backed path using installed fallback fonts, so

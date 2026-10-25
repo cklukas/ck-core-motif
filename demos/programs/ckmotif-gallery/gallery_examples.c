@@ -10,6 +10,7 @@
 #include <Xm/PushB.h>
 #include <Xm/RowColumn.h>
 #include <Xm/SegmentedControl.h>
+#include <Xm/TabStack.h>
 
 /* GALLERY-EXAMPLE-BEGIN: shared-public-construction */
 static void
@@ -219,6 +220,38 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         (void)XmSegmentedControlSetItems(example, items, 3);
         XmSegmentedControlSetSelectedIndex(example, 0, False);
         XmStringFree(segments[0]); XmStringFree(segments[1]); XmStringFree(segments[2]);
+    } else if (class == xmTabStackWidgetClass) {
+        /* TabStack is a manager: an empty instance is only a frame.  Build
+         * three real tab pages so the gallery shows the widget's defining
+         * interaction rather than metadata or a placeholder label. */
+        XmString tab_labels[3];
+        XmString page_text;
+        Widget page;
+        tab_labels[0] = XmStringCreateLocalized((char *)"Overview");
+        tab_labels[1] = XmStringCreateLocalized((char *)"Details");
+        tab_labels[2] = XmStringCreateLocalized((char *)"Activity");
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNwidth, 420, XmNheight, 180, NULL);
+        page_text = XmStringCreateLocalized((char *)"Overview content");
+        page = XtVaCreateManagedWidget("overviewPage", xmLabelWidgetClass,
+                                      example, XmNtabLabelString, tab_labels[0],
+                                      XmNlabelString, page_text, NULL);
+        XmStringFree(page_text);
+        (void)page;
+        page_text = XmStringCreateLocalized((char *)"Details content");
+        page = XtVaCreateManagedWidget("detailsPage", xmLabelWidgetClass,
+                                      example, XmNtabLabelString, tab_labels[1],
+                                      XmNlabelString, page_text, NULL);
+        XmStringFree(page_text);
+        (void)page;
+        page_text = XmStringCreateLocalized((char *)"Activity content");
+        page = XtVaCreateManagedWidget("activityPage", xmLabelWidgetClass,
+                                      example, XmNtabLabelString, tab_labels[2],
+                                      XmNlabelString, page_text, NULL);
+        XmStringFree(page_text);
+        (void)page;
+        XmStringFree(tab_labels[0]); XmStringFree(tab_labels[1]);
+        XmStringFree(tab_labels[2]);
     } else {
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNwidth, 360, XmNheight, 64, NULL);
@@ -227,7 +260,7 @@ gallery_create_component_example(Widget parent, WidgetClass class,
          * visible child while preserving the selected class as the owner of
          * the example surface. */
         if (XtIsComposite(example)) {
-            XmString child_label = XmStringCreateLocalized((char *)"Live component content");
+            XmString child_label = XmStringCreateLocalized((char *)"Component preview");
             XtVaCreateManagedWidget("content", xmLabelWidgetClass, example,
                                     XmNlabelString, child_label, NULL);
             XmStringFree(child_label);

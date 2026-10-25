@@ -1,3 +1,12 @@
+Gallery live-page startup and TabStack examples (2026-10-27)
+===============================================================
+
+- Fix deterministic `--component` startup so the notebook's live Example page
+  is created after its tabs are registered; selected InfoBar, TabStack, and
+  other entries no longer remain on the Welcome page.
+- Populate the TabStack example with real Overview, Details, and Activity tab
+  pages instead of an empty manager frame.
+
 Gallery control rendering and MWM placement (2026-10-27)
 =========================================================
 

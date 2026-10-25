@@ -948,9 +948,12 @@ int main(int argc, char **argv)
             return 2;
         }
         XmTreeViewSetSelectedId(state.tree, (XtPointer)(initial_id ? initial_id : "gallery.welcome"), False);
-        if (initial_id && !special_page)
-            show_entry(&state, initial);
-        else if (initial_id && !strcmp(initial_id, "gallery.icons"))
+        if (initial_id && strcmp(initial_id, "gallery.icons") != 0 &&
+            strcmp(initial_id, "gallery.welcome") != 0) {
+            /* The live page is created after the notebook's page/tab range is
+             * complete below.  Selecting it here used to leave the notebook
+             * on Welcome for --component launches. */
+        } else if (initial_id && !strcmp(initial_id, "gallery.icons"))
             XtVaSetValues(state.notebook, XmNcurrentPageNumber, 4, NULL);
         else {
             XtVaSetValues(state.notebook, XmNcurrentPageNumber, 1, NULL);
@@ -966,8 +969,11 @@ int main(int argc, char **argv)
     XtVaCreateManagedWidget("iconsTab", xmLabelWidgetClass, notebook,
                             XmNnotebookChildType, XmMAJOR_TAB, XmNpageNumber, 4,
                             XmNlabelString, text("Built-in Icons"), NULL);
-    if (initial_id)
+    if (initial_id && strcmp(initial_id, "gallery.icons") != 0 &&
+        strcmp(initial_id, "gallery.welcome") != 0) {
+        show_entry(&state, find_entry(initial_id));
         XtVaSetValues(state.notebook, XmNcurrentPageNumber, 2, NULL);
+    }
     XtManageChild(root);
     XtRealizeWidget(shell);
     center_shell_frame(shell);
@@ -975,7 +981,8 @@ int main(int argc, char **argv)
         fprintf(stderr, "unknown gallery dialog: %s\n", dialog_kind);
         return 2;
     }
-    if (initial_id)
+    if (initial_id && strcmp(initial_id, "gallery.icons") != 0 &&
+        strcmp(initial_id, "gallery.welcome") != 0)
         XtVaSetValues(state.notebook, XmNcurrentPageNumber, 2, NULL);
     state.accessibility = XmAccessibilityCreate(root, "CkMotifGallery");
     if (state.accessibility) {
