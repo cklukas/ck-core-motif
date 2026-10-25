@@ -164,6 +164,10 @@ XmSetDisplayScaleOverride(Display *display, double scale)
   if (displayScaleOverrideContext == 0)
     displayScaleOverrideContext = XUniqueContext();
   context = displayScaleOverrideContext;
+  if (context == 0) {
+    _XmProcessUnlock();
+    return False;
+  }
   if (!XFindContext(display, None, context, (char **)&override)) {
     override->scale = scale;
     _XmProcessUnlock();
@@ -206,7 +210,10 @@ XmClearDisplayScaleOverride(Display *display)
     _XmProcessUnlock();
     return False;
   }
-  XDeleteContext(display, None, context);
+  if (XDeleteContext(display, None, context) != 0) {
+    _XmProcessUnlock();
+    return False;
+  }
   _XmProcessUnlock();
   XtFree((char *)override);
   return True;
@@ -861,8 +868,9 @@ DisplayDestroy(
         XmDisplayScaleOverride *override = NULL;
         if (!XFindContext(XtDisplay(w), None, displayScaleOverrideContext,
                           (char **)&override)) {
-            XDeleteContext(XtDisplay(w), None, displayScaleOverrideContext);
-            XtFree((char *)override);
+            if (XDeleteContext(XtDisplay(w), None,
+                               displayScaleOverrideContext) == 0)
+                XtFree((char *)override);
         }
     }
     _XmProcessUnlock();
