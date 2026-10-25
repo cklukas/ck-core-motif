@@ -10265,6 +10265,12 @@ Label margins input validation (2026-10-25)
 - Treat missing Label gadget margins inputs as a safe no-op; see
   `docs/label-margins-input-validation.md`.
 
+Label drag-icon input validation (2026-10-25)
+=============================================
+
+- Return no drag icon for a missing Label widget before querying screen or
+  pixmap state; see `docs/label-drag-icon-input-validation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

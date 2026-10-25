@@ -4026,7 +4026,10 @@ XmBaselineMargins *margins_rec)
 static Widget
 GetPixmapDragIcon(Widget w)
 {
-    XmLabelGadget lw = (XmLabelGadget) w;
+    XmLabelGadget lw;
+    if (w == NULL)
+        return NULL;
+    lw = (XmLabelGadget) w;
         Arg args[10];
         int n = 0;
         Widget drag_icon;
