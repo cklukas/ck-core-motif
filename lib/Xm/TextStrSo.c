@@ -817,19 +817,28 @@ ReadSource(XmTextSource source,
   
   if (block->length > 0) {
     size_t block_bytes;
+    char *new_value;
 
     if ((size_t)block->length >
 	(SIZE_MAX - 1) / (size_t)tw->text.char_size)
 	  return 0;
     block_bytes = (size_t)block->length * (size_t)tw->text.char_size + 1;
     if (data->old_length == 0) {
-      data->value = (char *) 
-	XtMalloc(block_bytes);
+      new_value = (char *)XtMalloc(block_bytes);
+      if (new_value == NULL)
+	return 0;
+      data->value = new_value;
       data->old_length = block->length;
     } else if (block->length > data->old_length) {
-      data->value = XtRealloc(data->value, block_bytes);
+      new_value = (char *)XtRealloc(data->value, block_bytes);
+      if (new_value == NULL)
+	return 0;
+      data->value = new_value;
       data->old_length = block->length;
     }
+
+    if (data->value == NULL)
+	return 0;
     
     if ((int)tw->text.char_size == 1) {
       return_pos = position + block->length;
