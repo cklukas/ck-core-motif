@@ -942,6 +942,10 @@ WriteTargetsTable(
 	}
 	dataSize += targetsTable->entries[i].numTargets * 4 + 2;
     }
+	if (dataSize > UINT32_MAX) {
+	XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE5);
+	return;
+	}
 
     /* If size needed is bigger than the pre-allocated space, allocate a
      * bigger buffer. 
