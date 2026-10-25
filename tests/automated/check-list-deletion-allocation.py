@@ -7,4 +7,5 @@ assert source.count("SIZE_MAX / sizeof(XmString)") >= 3
 assert source.count("ElementPtr *new_internal") >= 3
 assert source.count("XmString *new_items") >= 2
 assert source.count("if (new_items != NULL)") >= 2
+assert source.count("UINT_MAX / sizeof(XmString)") >= 2
 print("XmList deletion allocation guards present")

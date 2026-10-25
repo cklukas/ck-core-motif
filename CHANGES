@@ -10667,6 +10667,12 @@ Legacy charset canonicalization allocation guards (2026-10-25)
   strings, returning `NULL` on failure; see
   `docs/charset-canonicalize-allocation.md`.
 
+Bound List item-array compaction widths (2026-10-26)
+====================================================
+
+- Apply the missing Xt `Cardinal` check and explicit byte size to the second
+  List item-array shrink path; see `docs/list-internal-growth.md`.
+
 Bound List internal-array allocation widths (2026-10-26)
 =========================================================
 
