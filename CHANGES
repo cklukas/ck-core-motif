@@ -287,6 +287,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  creation fails; see docs/xm-gc-callsite-rollback.md.
 
 2026-10-25
+	* Return safely from Xm image installation when table, record, or image-name
+	  allocation fails; see docs/xm-install-image-failure.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,
