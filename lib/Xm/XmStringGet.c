@@ -109,18 +109,15 @@ XmStringGetLtoR(
   XmStringDirection d;
   Boolean s, is_local = FALSE, done = FALSE, is_default = FALSE;
   
-  if (text == NULL || !string) {
+  if (text == NULL)
 	return(FALSE);
-  }
-  if (!tag) {
+  *text = NULL;
+  if (!string || !tag)
 	return (FALSE);
-  }
   
   if ((tag == XmFONTLIST_DEFAULT_TAG) || 
       (strcmp(tag, XmFONTLIST_DEFAULT_TAG) == 0))
     is_local = TRUE; 
-  
-  *text = NULL;				  /* pre-condition result */
   
   if (!is_local)
     {
