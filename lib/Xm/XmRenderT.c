@@ -1903,8 +1903,14 @@ XmRenderTableGetTags(XmRenderTable table,
 	if (table == NULL)
 	  return(0);
 
-	app = XtDisplayToApplicationContext(_XmRTDisplay(table));
-	_XmAppLock(app);
+#ifdef XTHREADS
+	if (_XmRTDisplay(table)) {
+	  app = XtDisplayToApplicationContext(_XmRTDisplay(table));
+	  _XmAppLock(app);
+	} else {
+	  _XmProcessLock();
+	}
+#endif
 	tag_count = _XmRTCount(table);
 	if ((size_t)tag_count > SIZE_MAX / sizeof(*tags) ||
 	    tag_count > INT_MAX)
@@ -1934,7 +1940,12 @@ XmRenderTableGetTags(XmRenderTable table,
   ret_val = (int)tag_count;
 
 done:
-  _XmAppUnlock(app);
+#ifdef XTHREADS
+	if (app)
+	  _XmAppUnlock(app);
+	else
+	  _XmProcessUnlock();
+#endif
   return ret_val;
 }
 
@@ -1944,16 +1955,28 @@ XmRenderTableGetRendition(XmRenderTable table,
 			  XmStringTag tag)
 {
   XmRendition ret_val;
+  XtAppContext app = NULL;
 
   if (table == NULL)
 	return(NULL);
 
-  _XmDisplayToAppContext(_XmRTDisplay(table));
-
-  _XmAppLock(app);
+#ifdef XTHREADS
+  if (_XmRTDisplay(table)) {
+    app = XtDisplayToApplicationContext(_XmRTDisplay(table));
+    _XmAppLock(app);
+  }
+  else {
+    _XmProcessLock();
+  }
+#endif
   ret_val = CopyRendition(_XmRenderTableFindRendition(table, tag,
 			FALSE, FALSE, FALSE, NULL));
-  _XmAppUnlock(app);
+#ifdef XTHREADS
+  if (app)
+    _XmAppUnlock(app);
+  else
+    _XmProcessUnlock();
+#endif
   return ret_val;
 }
 

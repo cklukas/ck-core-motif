@@ -12,6 +12,14 @@ XmFontList constructor locking (2026-10-26)
   post-lock font retrieval, preventing a concurrent table update from
   invalidating the returned rendition.
 
+Render-table locking (2026-10-26)
+=================================
+
+- Handle display-less render tables in `XmRenderTableGetTags` and
+  `XmRenderTableGetRendition` without deriving an application context from a
+  null display; see `docs/render-table-tag-array.md` and
+  `docs/render-table-single-rendition-null.md`.
+
 Legacy XmString constructor locking (2026-10-26)
 ==================================================
 
