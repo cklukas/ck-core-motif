@@ -1518,6 +1518,13 @@ XmAccessibilityStatus _XmAccessibilityTransportConnect(XmAccessibility *a) {
     return a->status = XmACCESSIBILITY_UNAVAILABLE;
   }
   t = (Transport *)XtCalloc(1, sizeof(*t));
+  if (!t) {
+    dbus_message_unref(reply);
+    dbus_connection_close(session);
+    dbus_connection_unref(session);
+    dbus_error_free(&error);
+    return a->status = XmACCESSIBILITY_UNAVAILABLE;
+  }
   t->owner = a;
   t->connection = dbus_connection_open_private(address, &error);
   dbus_message_unref(reply);
