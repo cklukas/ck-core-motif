@@ -310,6 +310,7 @@ EXTRA_DIST += tests/automated/check-font-selector-encoding-list-allocation.py do
 EXTRA_DIST += tests/automated/check-font-selector-encoding-string-allocation.py docs/font-selector-encoding-string-allocation.md
 EXTRA_DIST += tests/automated/check-font-selector-encoding-update.py docs/font-selector-encoding-update.md
 EXTRA_DIST += tests/automated/check-rowcolumn-resource-allocation.py docs/rowcolumn-resource-allocation.md
+EXTRA_DIST += tests/automated/check-rowcolumn-accelerator-rollback.py
 EXTRA_DIST += tests/automated/check-rowcolumn-popup-name-allocation.py docs/rowcolumn-popup-name-allocation.md
 EXTRA_DIST += tests/automated/check-rowcolumn-postfrom-prepare.py docs/rcpopup-list-allocation.md
 EXTRA_DIST += tests/automated/check-xmrender-rendition-allocation.py docs/xmrender-rendition-allocation.md

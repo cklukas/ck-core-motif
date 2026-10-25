@@ -5767,6 +5767,13 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+RowColumn accelerator replacement rollback (2026-10-25)
+=========================================================
+
+- Replace unchecked menu-accelerator `strcpy(XtMalloc(...))` paths with a
+  bounded transactional copy, retaining the previous accelerator when a
+  replacement cannot be allocated; see `docs/rowcolumn-resource-allocation.md`.
+
 RowColumn accelerator getter width (2026-10-25)
 ===============================================
 

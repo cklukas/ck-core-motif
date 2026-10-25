@@ -1713,6 +1713,24 @@ DoSize(
 }
 
 
+static String
+CopyMenuAccelerator(String source)
+{
+    size_t length;
+    String copy;
+
+    if (source == NULL)
+        return NULL;
+    length = strlen(source);
+    if (length >= UINT_MAX)
+        return NULL;
+    copy = (String)XtMalloc((Cardinal)(length + 1));
+    if (copy == NULL)
+        return NULL;
+    memcpy(copy, source, length + 1);
+    return copy;
+}
+
 static Boolean 
 set_values_non_popup(
         XmRowColumnWidget old,
@@ -1773,11 +1791,15 @@ set_values_non_popup(
     {
         if (RC_MenuAccelerator(new_w))
         {
-            RC_MenuAccelerator(new_w) = (String)strcpy(XtMalloc( XmStrlen(
-                RC_MenuAccelerator(new_w)) + 1), RC_MenuAccelerator(new_w));
+            String replacement = CopyMenuAccelerator(RC_MenuAccelerator(new_w));
+            if (replacement == NULL)
+                RC_MenuAccelerator(new_w) = RC_MenuAccelerator(old);
+            else
+                RC_MenuAccelerator(new_w) = replacement;
         }
         _XmRC_DoProcessMenuTree((Widget) new_w, XmREPLACE);
-        if (RC_MenuAccelerator(old))
+          if (RC_MenuAccelerator(old) &&
+              RC_MenuAccelerator(new_w) != RC_MenuAccelerator(old))
            XtFree(RC_MenuAccelerator(old));
     }
 
@@ -1840,14 +1862,18 @@ set_values_popup(
        {
           if (RC_MenuAccelerator(new_w))
           {
-             RC_MenuAccelerator(new_w) = (String)strcpy(XtMalloc( XmStrlen(
-                 RC_MenuAccelerator(new_w)) + 1), RC_MenuAccelerator(new_w));
+             String replacement = CopyMenuAccelerator(RC_MenuAccelerator(new_w));
+             if (replacement == NULL)
+                 RC_MenuAccelerator(new_w) = RC_MenuAccelerator(old);
+             else
+                 RC_MenuAccelerator(new_w) = replacement;
           }
 
 	  if (RC_PopupEnabled(new_w))
 	     _XmRC_DoProcessMenuTree( (Widget) new_w, XmREPLACE);
 
-          if (RC_MenuAccelerator(old))
+          if (RC_MenuAccelerator(old) &&
+              RC_MenuAccelerator(new_w) != RC_MenuAccelerator(old))
              XtFree(RC_MenuAccelerator(old));
        }
     }
