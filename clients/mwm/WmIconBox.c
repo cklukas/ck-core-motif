@@ -3548,6 +3548,9 @@ void ChangeActiveIconboxIconText (Widget icon, caddr_t dummy, XFocusChangeEvent 
     ClientData    	*pCD;
     Window		theIcon;
 
+    if (icon == NULL || event == NULL)
+	return;
+
     /* 
      * find context to get pCD and then hide or show active icon text. 
      * Show/hide the active icon text only if the icon box is not 

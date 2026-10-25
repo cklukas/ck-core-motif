@@ -1,3 +1,9 @@
+Icon-box focus callback validation (2026-10-25)
+================================================
+
+- Validate icon widget and focus event inputs before updating active icon text;
+  see `docs/focus-callback-guards.md`.
+
 Icon-box increment validation (2026-10-25)
 ==========================================
 
