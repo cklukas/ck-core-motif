@@ -1,3 +1,9 @@
+XmString rendition resize failures (2026-10-26)
+================================================
+
+- Commit rendition begin/end array growth only after `XtRealloc` succeeds;
+  see `docs/xmstring-rendition-resize.md`.
+
 XmString entry allocation failures (2026-10-26)
 ================================================
 
