@@ -5,6 +5,13 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+XmIm oversized nested-list guard (2026-10-26)
+==============================================
+
+- Avoid aborting when an input-method resource update contains more than ten
+  nested arguments; the existing NULL/fallback path now handles this safely;
+  see `docs/xmim-oversized-nested-list.md`.
+
 XmString context utility null guards (2026-10-26)
 ===================================================
 

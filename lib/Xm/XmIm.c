@@ -3019,7 +3019,13 @@ VaCopy(VaArgList list)
 #define VA_NAME(index)	(index < count ? args[index].name : NULL)
 #define VA_VALUE(index)	(index < count ? args[index].value : NULL)
   
-  assert(count <= 10);
+  /* XVaCreateNestedList is spelled out below for portability across the
+   * historical Xlib implementations Motif supports.  Do not turn an
+   * unusually large, but valid, resource list into a process abort.  The
+   * callers treat a NULL copy as an allocation/construction failure and
+   * continue through their existing fallback path. */
+  if (count > 10)
+    return NULL;
   return XVaCreateNestedList(0, 
 			     VA_NAME(0), VA_VALUE(0),
 			     VA_NAME(1), VA_VALUE(1),
