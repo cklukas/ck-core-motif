@@ -8044,3 +8044,12 @@ XmRenderTable property-buffer growth (2026-10-27)
 
 AccessibleDBus break-array growth (2026-10-27)
 ==============================================
+XmRenderTable rendition-array growth (2026-10-27)
+==================================================
+
+- Check rendition-array capacity arithmetic and commit reallocations only
+  after success.  Property conversion now preserves its parsed prefix when
+  growth fails.
+
+XmRenderTable property-buffer growth (2026-10-27)
+===================================================

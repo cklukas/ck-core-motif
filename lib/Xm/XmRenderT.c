@@ -3351,6 +3351,10 @@ XmRenderTableCvtFromProp(Widget w,
   rarray_max = 10;
   rarray_count = 0;
   rarray = (XmRendition *) XtMalloc(sizeof(XmRendition) * rarray_max);
+  if (rarray == NULL) {
+    _XmAppUnlock(app);
+    return NULL;
+  }
   name = "";
 
   for(j = 0; j < 20; j++) items[j] = NULL;
@@ -3395,9 +3399,18 @@ XmRenderTableCvtFromProp(Widget w,
       /* Record rendition in array */
       if (rarray_count >= rarray_max) {
 	/* Extend array if necessary */
-	rarray_max += 10;
-	rarray = (XmRendition *) XtRealloc((char*) rarray, 
-					   sizeof(XmRendition) * rarray_max);
+	int new_max;
+	XmRendition *new_array;
+	if (rarray_max > INT_MAX - 10 ||
+	    (size_t)(rarray_max + 10) > SIZE_MAX / sizeof(XmRendition))
+	  goto error;
+	new_max = rarray_max + 10;
+	new_array = (XmRendition *)XtRealloc(
+	    (char *)rarray, sizeof(XmRendition) * (size_t)new_max);
+	if (new_array == NULL)
+	  goto error;
+	rarray = new_array;
+	rarray_max = new_max;
       }
       if (token -> type == T_EOF) goto finish;
       rarray[rarray_count] = rendition;
