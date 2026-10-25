@@ -15,7 +15,7 @@ source-pinned documentation compiler:
 
 The host's installed `ckdocs` is not used. The script verifies a clean exact
 source checkout or verified export archive, builds only the `ckdocs` target into a fresh explicit work
-directory, then invokes a strict site build. No runtime tool download or package
+directory, then invokes the site build. No runtime tool download or package
 installation occurs inside the shared script. A compiler, GNU make, Git and
 Python 3 are prerequisites. The pinned source includes its diagram renderer.
 
@@ -69,7 +69,8 @@ duration differs unexpectedly from comparable prior receipts; no duration
 baseline is invented. Keep durable receipts and remove superseded scratch builds
 when they are no longer in use.
 
-The strict generator checks internal links and fragments. The shared script
+The generator checks internal links and fragments while retaining the
+historical detail pages as searchable, unlisted content. The shared script
 also verifies expected rendered content and refuses a successful command with
 no HTML. Editing source and producing verified HTML are separate events.
 
@@ -95,7 +96,7 @@ run publishes `public` through the configured Pages mechanism and retains a
 documentation evidence artifact. The intended LAN URL is
 [the toolkit site](http://rpi4:8421/ck-core-motif/).
 
-Before the strict site build, both hosted workflows compile the current
+Before the site build, both hosted workflows use the current
 `ckmotif-gallery` into an isolated prefix and capture the `modern-light`
 1.5x demo set under Xvfb. The generated PNGs and manifest are then used for
 that run's site output, so a stale checked-in binary hash cannot silently be

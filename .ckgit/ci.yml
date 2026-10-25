@@ -12,7 +12,7 @@ jobs:
           python3 tests/automated/check-gallery-screenshot-assets.py
           mkdir -p docs-evidence
           cp docs/gallery-screenshots/manifest.json docs-evidence/gallery-screenshot-manifest.json
-      - name: strict-site
+      - name: documentation-site
         script: |
           test -n "$TMPDIR"
           test -n "$CKGIT_SISTER_CK_GIT_HOSTING"

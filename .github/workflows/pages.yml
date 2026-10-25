@@ -52,7 +52,7 @@ jobs:
       - name: Verify current gallery screenshots
         run: |
           python3 tests/automated/check-gallery-screenshot-assets.py
-      - name: Build pinned tool and strict documentation
+      - name: Build pinned tool and documentation
         run: |
           python3 scripts/build-docs.py \
             --tool-source "$GITHUB_WORKSPACE/.docs-tool" \

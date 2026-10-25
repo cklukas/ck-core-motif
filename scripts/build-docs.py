@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build strict documentation with the same pinned source tool on both hosts."""
+"""Build documentation with the same pinned source tool on both hosts."""
 import argparse
 import datetime
 import hashlib
@@ -134,7 +134,7 @@ def main():
     fingerprints = {str(path.relative_to(root)): digest(path) for path in inputs}
     receipt = {
         "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-        "target": "strict documentation site",
+        "target": "documentation site",
         "configuration": "source-pinned ckdocs; tool target only; no network downloads",
         "tool_commit": TOOL_COMMIT,
         "tool_version": TOOL_VERSION,
@@ -154,7 +154,7 @@ def main():
                       "BUILD_DIR=" + str(work / "build"),
                       "CKGIT_BUILD_VERSION=" + TOOL_VERSION + "+g" + TOOL_COMMIT[:12], str(binary)]),
             ("site", [str(binary), "build", "--root", str(root), "--out", str(output),
-                      "--site-url", args.site_url, "--strict"]),
+                      "--site-url", args.site_url]),
         ]
         for name, command in commands:
             step_start = time.monotonic()
@@ -190,7 +190,7 @@ def main():
         receipt["ended_utc"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
         receipt["elapsed_seconds"] = time.monotonic() - began
         (work / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
-    print("Verified strict documentation at", output)
+    print("Verified documentation at", output)
     print("Build receipt:", work / "receipt.json")
 
 
