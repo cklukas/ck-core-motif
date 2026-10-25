@@ -1774,11 +1774,20 @@ CvtStringToHorizontalPosition(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
-    Widget widget = *(Widget*) args[0].addr ;
-    Screen * screen = XtScreen(widget) ;
-    unsigned char defaultFromType = _XmGetUnitType(widget) ;
+    Widget widget;
+    Screen * screen;
+    unsigned char defaultFromType;
     Position tmpPix;
     Boolean parseError;
+
+    if (args == NULL || args[0].addr == NULL || from == NULL ||
+        from->addr == NULL || to == NULL)
+        return False;
+    widget = *(Widget*) args[0].addr ;
+    if (widget == NULL)
+        return False;
+    screen = XtScreen(widget) ;
+    defaultFromType = _XmGetUnitType(widget) ;
  
     tmpPix = (Position)
 	_XmConvertStringToUnits (screen, from->addr, (int) defaultFromType,
@@ -1802,11 +1811,20 @@ CvtStringToHorizontalDimension(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
-    Widget widget = *(Widget*) args[0].addr ;
-    Screen * screen = XtScreen(widget) ;
-    unsigned char defaultFromType = _XmGetUnitType(widget) ;
+    Widget widget;
+    Screen * screen;
+    unsigned char defaultFromType;
     Dimension tmpPix;
     Boolean parseError;
+
+    if (args == NULL || args[0].addr == NULL || from == NULL ||
+        from->addr == NULL || to == NULL)
+        return False;
+    widget = *(Widget*) args[0].addr ;
+    if (widget == NULL)
+        return False;
+    screen = XtScreen(widget) ;
+    defaultFromType = _XmGetUnitType(widget) ;
  
     tmpPix = (Dimension)
       _XmConvertStringToUnits (screen, from->addr, (int) defaultFromType,
@@ -1831,11 +1849,20 @@ CvtStringToVerticalPosition(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
-    Widget widget = *(Widget*) args[0].addr ;
-    Screen * screen = XtScreen(widget) ;
-    unsigned char defaultFromType = _XmGetUnitType(widget) ;
+    Widget widget;
+    Screen * screen;
+    unsigned char defaultFromType;
     Position tmpPix;
     Boolean parseError;
+
+    if (args == NULL || args[0].addr == NULL || from == NULL ||
+        from->addr == NULL || to == NULL)
+        return False;
+    widget = *(Widget*) args[0].addr ;
+    if (widget == NULL)
+        return False;
+    screen = XtScreen(widget) ;
+    defaultFromType = _XmGetUnitType(widget) ;
  
     tmpPix = (Position)
 	_XmConvertStringToUnits(screen, from->addr, (int) defaultFromType,
@@ -1860,11 +1887,20 @@ CvtStringToVerticalDimension(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
-        Widget widget = *(Widget*) args[0].addr ;
-        Screen * screen = XtScreen(widget) ;
-        unsigned char defaultFromType = _XmGetUnitType(widget) ;
+        Widget widget;
+        Screen * screen;
+        unsigned char defaultFromType;
 	Dimension tmpPix;
         Boolean parseError;
+
+        if (args == NULL || args[0].addr == NULL || from == NULL ||
+            from->addr == NULL || to == NULL)
+            return False;
+        widget = *(Widget*) args[0].addr ;
+        if (widget == NULL)
+            return False;
+        screen = XtScreen(widget) ;
+        defaultFromType = _XmGetUnitType(widget) ;
  
         tmpPix = (Dimension)
 	  _XmConvertStringToUnits(screen, from->addr, (int) defaultFromType,

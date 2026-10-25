@@ -1,3 +1,9 @@
+Unit converter input validation (2026-10-25)
+=============================================
+
+- Validate widget, source, and destination inputs before horizontal or
+  vertical unit conversion; see `docs/unit-converter-inputs.md`.
+
 Atom-list converter input validation (2026-10-25)
 ==================================================
 
