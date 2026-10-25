@@ -5904,12 +5904,21 @@ _XmStringEntryCopy(_XmStringEntry entry)
   case XmSTRING_ENTRY_UNOPTIMIZED:
     {
       new_entry = (_XmStringEntry)XtMalloc(sizeof(_XmStringUnoptSegRec));
+      if (new_entry == NULL)
+        return NULL;
       memcpy((char *)new_entry, (char *)entry,
 	     sizeof(_XmStringUnoptSegRec));
+      _XmUnoptSegRendBegins(new_entry) = NULL;
+      _XmUnoptSegRendEnds(new_entry) = NULL;
+      _XmEntryCacheSet(new_entry, NULL);
       if (_XmEntryPermGet(entry)) {
 	_XmEntryTextSet(new_entry, _XmEntryTextGet(entry));
       } else if (entry_len > 0) {
 	text = (XtPointer)XtMalloc(entry_len);
+	if (text == NULL) {
+	  XtFree((char *)new_entry);
+	  return NULL;
+	}
 	memcpy((char *)text,
 	       (char *)_XmEntryTextGet((_XmStringEntry)entry),
 	       entry_len);
@@ -5917,23 +5926,38 @@ _XmStringEntryCopy(_XmStringEntry entry)
       } else 
 	_XmEntryTextSet(new_entry, NULL);
       if (_XmUnoptSegRendBegins(entry)) {
-	_XmUnoptSegRendBegins(new_entry) = 
-	  (XmStringTag *)XtMalloc(_XmUnoptSegRendBeginCount(entry) *
-				  sizeof(XmStringTag));
+	size_t count = (size_t)_XmUnoptSegRendBeginCount(entry);
+	if (count > SIZE_MAX / sizeof(XmStringTag)) {
+	  _XmStringEntryFree(new_entry);
+	  return NULL;
+	}
+	_XmUnoptSegRendBegins(new_entry) =
+	  (XmStringTag *)XtMalloc(count * sizeof(XmStringTag));
+	if (_XmUnoptSegRendBegins(new_entry) == NULL) {
+	  _XmStringEntryFree(new_entry);
+	  return NULL;
+	}
 	for (i = 0; i < _XmUnoptSegRendBeginCount(entry); i++)
 	  _XmUnoptSegRendBegins(new_entry)[i] = 
 	    _XmUnoptSegRendBegins(entry)[i];
       } else 
 	_XmUnoptSegRendBegins(new_entry) = NULL;
       if (_XmUnoptSegRendEnds(entry)) {
-	_XmUnoptSegRendEnds(new_entry) = 
-	  (XmStringTag *)XtMalloc(_XmUnoptSegRendEndCount(entry) *
-				  sizeof(XmStringTag));
+	size_t count = (size_t)_XmUnoptSegRendEndCount(entry);
+	if (count > SIZE_MAX / sizeof(XmStringTag)) {
+	  _XmStringEntryFree(new_entry);
+	  return NULL;
+	}
+	_XmUnoptSegRendEnds(new_entry) =
+	  (XmStringTag *)XtMalloc(count * sizeof(XmStringTag));
+	if (_XmUnoptSegRendEnds(new_entry) == NULL) {
+	  _XmStringEntryFree(new_entry);
+	  return NULL;
+	}
 	for (i = 0; i < _XmUnoptSegRendEndCount(entry); i++)
 	  _XmUnoptSegRendEnds(new_entry)[i] = _XmUnoptSegRendEnds(entry)[i];
       } else
 	_XmUnoptSegRendEnds(new_entry) = NULL;
-      _XmEntryCacheSet(new_entry, NULL);
     }
     break;
   }

@@ -6019,3 +6019,10 @@ Harden XmString array-entry copies (2026-10-25)
   compound-string entry copy fails; see `docs/xmstring-array-copy.md` and its
   focused source check.
 
+Harden XmString unoptimized-entry copies (2026-10-25)
+=======================================================
+
+- Bound owned text and rendition-array copies, clear copied ownership pointers,
+  and unwind partial entries on allocation failure; see
+  `docs/xmstring-unoptimized-copy.md` and its focused source check.
+
