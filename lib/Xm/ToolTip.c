@@ -345,6 +345,7 @@ XmSetToolTipString (Widget w,
                     XmString s)
 {
     XmToolTipTrait ttp;
+    XmString replacement;
     ttp = (XmToolTipTrait)XmeTraitGet(w, XmQTtoolTip);
     if (!ttp) {
         ttp = (XmToolTipTrait)XtCalloc(1, sizeof(XmToolTipTraitRec));
@@ -352,7 +353,10 @@ XmSetToolTipString (Widget w,
             return;
         XmeTraitSet(w, XmQTtoolTip, ttp);
     }
+    replacement = s != NULL ? XmStringCopy(s) : NULL;
+    if (s != NULL && replacement == NULL)
+        return;
     if (ttp->tool_tip_string)
         XmStringFree(ttp->tool_tip_string);
-    ttp->tool_tip_string = XmStringCopy(s);
+    ttp->tool_tip_string = replacement;
 }

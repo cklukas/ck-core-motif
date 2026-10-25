@@ -9280,3 +9280,10 @@ ColorSelector string-resource rollback (2026-10-29)
 - Copy slider labels, mode labels, and error strings before releasing current
   values during `SetValues`, preserving usable selector controls on failure;
   see `docs/colors-selector-string-rollback.md`.
+
+ToolTip string rollback (2026-10-29)
+====================================
+
+- Preserve an existing tooltip when copying a non-NULL replacement fails,
+  while retaining NULL as the explicit clear operation; see
+  `docs/tooltip-string-rollback.md`.
