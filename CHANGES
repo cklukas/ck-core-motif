@@ -1,3 +1,10 @@
+Guard Container detail-order copies (2026-10-25)
+=================================================
+
+- Handle detail-order allocation failure during initialization and resource
+  updates without writing through a null array; see
+  `docs/container-detail-order-guards.md`.
+
 Guard Container detail-header cache allocation (2026-10-25)
 =============================================================
 
