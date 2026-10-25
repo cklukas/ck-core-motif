@@ -1977,6 +1977,8 @@ SetValues(
         XmRowColumnWidget old = (XmRowColumnWidget) cw ;
         XmRowColumnWidget req = (XmRowColumnWidget) rw ;
         XmRowColumnWidget new_w = (XmRowColumnWidget) nw ;
+   XmString replacement;
+   String menu_post_replacement;
    int i;
    int need_expose = FALSE;
 
@@ -2061,10 +2063,23 @@ SetValues(
             /* Do Nothing - No change to postButton/Modifiers/EventType */
          }
          else
-            if (RC_MenuPost(new_w))
-               RC_MenuPost(new_w) = XtNewString(RC_MenuPost(new_w));
-            set_values_passive_grab(old, new_w);
-            if (RC_MenuPost(old)) XtFree(RC_MenuPost(old));
+         {
+            menu_post_replacement = RC_MenuPost(new_w)
+              ? XtNewString(RC_MenuPost(new_w)) : NULL;
+            if (RC_MenuPost(new_w) && menu_post_replacement == NULL)
+            {
+               RC_MenuPost(new_w) = RC_MenuPost(old);
+               RC_PostEventType(new_w) = RC_PostEventType(old);
+               RC_PostButton(new_w) = RC_PostButton(old);
+               RC_PostModifiers(new_w) = RC_PostModifiers(old);
+            }
+            else
+            {
+               RC_MenuPost(new_w) = menu_post_replacement;
+               set_values_passive_grab(old, new_w);
+               if (RC_MenuPost(old)) XtFree(RC_MenuPost(old));
+            }
+         }
       }
    }
    else   /* For backwards compatibility... */
@@ -2137,8 +2152,17 @@ SetValues(
    /* Copy new value,  free old value,  
       update real title in set_values_popup */
    if ((RC_TearOffTitle(new_w) != RC_TearOffTitle(old))) {
-     XmStringFree(RC_TearOffTitle(old));
-     RC_TearOffTitle(new_w) = XmStringCopy(RC_TearOffTitle(new_w));
+     if (RC_TearOffTitle(new_w) == NULL) {
+        XmStringFree(RC_TearOffTitle(old));
+     } else {
+        replacement = XmStringCopy(RC_TearOffTitle(new_w));
+        if (replacement != NULL) {
+           XmStringFree(RC_TearOffTitle(old));
+           RC_TearOffTitle(new_w) = replacement;
+        } else {
+           RC_TearOffTitle(new_w) = RC_TearOffTitle(old);
+        }
+     }
    }
 
    if (IsBar (new_w) || IsWorkArea (new_w) || IsOption (new_w))
@@ -2891,6 +2915,7 @@ Initialize(
     XmRowColumnWidget req = (XmRowColumnWidget) rw ;
     XmRowColumnWidget m = (XmRowColumnWidget) nw ;
     Boolean CallNavigInitAgain = FALSE ;
+    XmString replacement;
 
     if (!XtWidth(req))
     {
@@ -3056,7 +3081,11 @@ Initialize(
 
     /* Copy tearofftitle if given */
     if (RC_TearOffTitle(m) != NULL)
-      RC_TearOffTitle(m) = XmStringCopy(RC_TearOffTitle(m));
+    {
+      replacement = XmStringCopy(RC_TearOffTitle(m));
+      RC_TearOffTitle(m) = replacement != NULL
+        ? replacement : XmStringCreateLocalized("");
+    }
 }
 
 /* ARGSUSED */
@@ -3283,6 +3312,8 @@ create(
 #endif
 
 	    b = XtMalloc(strlen(POPUP_PREFIX) + strlen(name) + 1);
+	    if (b == NULL)
+		return NULL;
             sprintf (b, POPUP_PREFIX, name);
 
             pop = (XmMenuShellWidget)XtCreatePopupShell(b, 
@@ -3659,24 +3690,41 @@ TraversalChildren (
         Cardinal * numChildren )
 {
     XmRowColumnWidget rc = (XmRowColumnWidget) wid;
-    int i;
+    Cardinal i;
+    Cardinal child_count;
+    size_t slot_count;
+    WidgetList new_children;
+
+    if (childList == NULL || numChildren == NULL)
+      return (False);
+    *childList = NULL;
+    *numChildren = 0;
 
     if (RC_TearOffControl(rc))
     {
      /*
       * add the TOC to the children list
       */
-     *childList = 
-       (WidgetList) XtMalloc(sizeof(Widget) * (rc->composite.num_children+1));
+     child_count = rc->composite.num_children;
+     if (child_count == (Cardinal)~0 ||
+         (size_t)child_count > SIZE_MAX / sizeof(Widget) - 1 ||
+         (size_t)child_count > (size_t)((Cardinal)~0) / sizeof(Widget) - 1)
+       return (False);
+     slot_count = (size_t)child_count + 1;
+     new_children = (WidgetList) XtMalloc(
+		 (Cardinal)(slot_count * sizeof(Widget)));
+     if (new_children == NULL)
+       return (False);
 
-     (*childList)[0] = RC_TearOffControl(rc);
+     new_children[0] = RC_TearOffControl(rc);
 
-     for (i=1; i <= rc->composite.num_children; i++)
+     for (i = 1; i <= child_count; i++)
      {
-       (*childList)[i] = rc->composite.children[i-1];
+       new_children[i] = rc->composite.children[i-1];
      }
 
-     *numChildren = rc->composite.num_children+1;
+     *childList = new_children;
+     *numChildren = child_count + 1;
 
      return (True);
  }
@@ -3769,8 +3817,8 @@ FindFirstManagedChild(
 #endif /* NeedWidePrototypes */
 {
     register Widget *kid;
-    register int i = 0;
-    register int n;
+    register Cardinal i = 0;
+    register Cardinal n;
 
     if (!m)
        return(NULL);
@@ -4180,7 +4228,8 @@ GetMenuAccelerator(
 
   if (rc->row_column.menu_accelerator != NULL) {
      data = (String)XtMalloc(strlen(RC_MenuAccelerator(rc)) + 1);
-     strcpy(data, RC_MenuAccelerator(rc));
+     if (data != NULL)
+       strcpy(data, RC_MenuAccelerator(rc));
      *value = (XtArgVal) data ;
    }
   else *value = (XtArgVal) NULL;
@@ -4204,7 +4253,8 @@ GetMenuPost(
 
    if (rc->row_column.menuPost != NULL) 
    {
-      *value = (XtArgVal) XtNewString(RC_MenuPost(rc)) ;
+      String copy = XtNewString(RC_MenuPost(rc));
+      *value = (XtArgVal) copy ;
    }
    else *value = (XtArgVal) NULL;
 

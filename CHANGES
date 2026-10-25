@@ -6487,3 +6487,10 @@ RowColumn post-from-list preparation transaction (2026-10-25)
 - Keep the existing popup list published until a bounded replacement is
   allocated and copied successfully; see `docs/rcpopup-list-allocation.md`.
 
+RowColumn traversal child-list allocation width (2026-10-25)
+===============================================================
+
+- Bound the temporary traversal child list against Xt's `Cardinal` byte
+  limit and pass the checked size explicitly to `XtMalloc`; see
+  `docs/rowcolumn-traversal-children.md`.
+
