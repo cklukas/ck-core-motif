@@ -11,5 +11,9 @@ registry.
 `XmRepTypeGetRecord` also checks its individual record allocation and returns
 `NULL` without leaving the process lock held when memory is unavailable.
 
+The shared copy helper now checks every string and value allocation. Partial
+records are released before a failure is returned, and list/record queries
+clean up entries copied before the failed one.
+
 This keeps the public registration API and successful registration behavior
 unchanged while preventing a null-table dereference under memory pressure.

@@ -1,3 +1,11 @@
+Representation-type copy rollback (2026-10-25)
+===============================================
+
+- Check string and value allocations while copying representation-type records,
+  release partial records and copied lists on failure, and fail registration or
+  queries cleanly instead of dereferencing null pointers; see
+  `docs/reptype-registration.md`.
+
 Representation-type record allocation guard (2026-10-25)
 =========================================================
 
