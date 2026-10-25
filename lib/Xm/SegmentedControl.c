@@ -45,7 +45,7 @@ static XtResource resources[] = {
 static void layout(XmSegmentedControlWidget control) {
     Dimension available, height, x, spacing;
     Cardinal i;
-    int pref_total = 0;
+    unsigned long long pref_total = 0;
     if (!control->segmented.item_count) return;
     available = control->core.width > 2 * control->core.border_width
                     ? control->core.width - 2 * control->core.border_width : 1;
@@ -54,16 +54,17 @@ static void layout(XmSegmentedControlWidget control) {
     for (i = 0; i < control->segmented.item_count; ++i) {
         Dimension width = 1;
         XtVaGetValues(control->segmented.items[i].button, XmNwidth, &width, NULL);
-        pref_total += (int)width;
+        pref_total += (unsigned long long)width;
     }
     if (control->segmented.item_count > 1)
-        pref_total += (int)spacing * (int)(control->segmented.item_count - 1);
-    if (pref_total > (int)available)
+        pref_total += (unsigned long long)spacing *
+                      (unsigned long long)(control->segmented.item_count - 1);
+    if (pref_total > (unsigned long long)available)
         spacing = 0;
     if (control->segmented.rtl) {
         x = available;
         for (i = 0; i < control->segmented.item_count; ++i) {
-            Dimension width = pref_total <= (int)available
+            Dimension width = pref_total <= (unsigned long long)available
                                   ? (Dimension)0 : available / control->segmented.item_count;
             if (!width) {
                 Dimension natural = 1;
@@ -71,7 +72,7 @@ static void layout(XmSegmentedControlWidget control) {
                               &natural, NULL);
                 width = natural;
             }
-            if (pref_total <= (int)available) {
+            if (pref_total <= (unsigned long long)available) {
                 XtVaGetValues(control->segmented.items[i].button, XmNwidth,
                               &width, NULL);
             }
@@ -84,7 +85,7 @@ static void layout(XmSegmentedControlWidget control) {
     } else {
         x = 0;
         for (i = 0; i < control->segmented.item_count; ++i) {
-            Dimension width = pref_total <= (int)available
+            Dimension width = pref_total <= (unsigned long long)available
                                   ? (Dimension)0 : available / control->segmented.item_count;
             if (!width) {
                 Dimension natural = 1;
@@ -92,7 +93,7 @@ static void layout(XmSegmentedControlWidget control) {
                               &natural, NULL);
                 width = natural;
             }
-            if (pref_total <= (int)available)
+            if (pref_total <= (unsigned long long)available)
                 XtVaGetValues(control->segmented.items[i].button, XmNwidth,
                               &width, NULL);
 	    if (x >= available)
