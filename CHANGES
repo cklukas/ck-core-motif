@@ -102,6 +102,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  arguments; see docs/mrm-related-tag-diagnostic.md.
 
 2026-10-25
+	* Bound deferred Mrm icon-image storage before appending work items; see
+	  docs/mrm-icon-pixargs-bounds.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,

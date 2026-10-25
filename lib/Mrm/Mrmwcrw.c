@@ -1717,6 +1717,12 @@ Urm__CW_CreateArglist (Widget			parent,
 	    }
 	  break ;
         case MrmRtypeIconImage:
+	  if (pixargs_cnt >= sizeof(pixargs) / sizeof(pixargs[0]))
+	    {
+	      Urm__UT_Error ("Urm__CW_CreateArglist", _MrmMMsg_0048,
+			     NULL, NULL, MrmFAILURE) ;
+	      continue;
+	    }
 	  icon = (RGMIconImagePtr) val ;
 	  result = Urm__CW_LoadIconImage (icon, (XtPointer)widgetrec,
 					  hierarchy_id, file_id, ctxlist) ;
