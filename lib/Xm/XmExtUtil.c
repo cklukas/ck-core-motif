@@ -263,18 +263,29 @@ void
 _XmFilterArgs(ArgList args, Cardinal num_args, String *filter,
 	      ArgList *filtered_args, Cardinal *num_filtered_args)
 {
-    ArgList fargs = (ArgList) XtMalloc(sizeof(Arg) * num_args);
+    ArgList fargs;
     register int i;
     String *ptr;
 
-    *filtered_args = fargs;
+    if (filtered_args == NULL || num_filtered_args == NULL)
+        return;
+
+    *filtered_args = NULL;
     *num_filtered_args = 0;
+    if (num_args == 0 || args == NULL ||
+        (size_t)num_args > SIZE_MAX / sizeof(Arg))
+        return;
+
+    fargs = (ArgList) XtMalloc(sizeof(Arg) * (size_t)num_args);
+    *filtered_args = fargs;
     for (i = 0; i < num_args; i++) {
 	Boolean match = False;
-	for (ptr = filter; *ptr != NULL; ptr++) {
-	    if (streq(*ptr, args[i].name)) {
-		match = True;
-		break;
+	if (filter != NULL) {
+	    for (ptr = filter; *ptr != NULL; ptr++) {
+		if (streq(*ptr, args[i].name)) {
+		    match = True;
+		    break;
+		}
 	    }
 	}
 	if (!match) {
