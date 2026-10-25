@@ -1977,6 +1977,7 @@ SetValues(
         XmRowColumnWidget old = (XmRowColumnWidget) cw ;
         XmRowColumnWidget req = (XmRowColumnWidget) rw ;
         XmRowColumnWidget new_w = (XmRowColumnWidget) nw ;
+   XmString replacement;
    int i;
    int need_expose = FALSE;
 
@@ -2139,8 +2140,17 @@ SetValues(
    /* Copy new value,  free old value,  
       update real title in set_values_popup */
    if ((RC_TearOffTitle(new_w) != RC_TearOffTitle(old))) {
-     XmStringFree(RC_TearOffTitle(old));
-     RC_TearOffTitle(new_w) = XmStringCopy(RC_TearOffTitle(new_w));
+     if (RC_TearOffTitle(new_w) == NULL) {
+        XmStringFree(RC_TearOffTitle(old));
+     } else {
+        replacement = XmStringCopy(RC_TearOffTitle(new_w));
+        if (replacement != NULL) {
+           XmStringFree(RC_TearOffTitle(old));
+           RC_TearOffTitle(new_w) = replacement;
+        } else {
+           RC_TearOffTitle(new_w) = RC_TearOffTitle(old);
+        }
+     }
    }
 
    if (IsBar (new_w) || IsWorkArea (new_w) || IsOption (new_w))

@@ -9294,3 +9294,10 @@ Column label rollback (2026-10-29)
 - Copy constraint label strings before releasing the current value, preserving
   the existing column label if the replacement cannot be allocated; see
   `docs/column-label-rollback.md`.
+
+RowColumn tear-off title rollback (2026-10-29)
+===============================================
+
+- Preserve existing tear-off titles until replacement `XmString` copies
+  succeed, while retaining NULL as the explicit clear operation; see
+  `docs/rowcolumn-tearoff-title-rollback.md`.
