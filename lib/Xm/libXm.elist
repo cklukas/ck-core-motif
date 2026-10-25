@@ -621,6 +621,14 @@ public XmCreateSkeleton
 public XmSkeletonStart
 public XmSkeletonStop
 public XmSkeletonIsAnimating
+public XmCreateRowActions
+public XmVaCreateRowActions
+public XmVaCreateManagedRowActions
+public XmRowActionsSetItems
+public XmRowActionsGetItemCount
+public XmRowActionsReveal
+public XmRowActionsIsRevealed
+public XmRowActionsInvoke
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -929,6 +937,8 @@ public xmCommandPaletteClassRec
 public xmCommandPaletteWidgetClass
 public xmSkeletonClassRec
 public xmSkeletonWidgetClass
+public xmRowActionsClassRec
+public xmRowActionsWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec
