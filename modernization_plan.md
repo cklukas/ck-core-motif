@@ -712,6 +712,15 @@ An isolated AArch64 `uconsole` rebuild of commit `1c2e4379` independently passes
 the installed `abi`, `layout` and `large-text` fixtures; its host lacks the
 Xrandr headers required for the optional XLibre-DPI adapter, so that focused
 check intentionally excludes only that adapter.
+The missing development dependency was subsequently installed on `uconsole`
+(`libxrandr-dev`). A fresh adapter-enabled AArch64 build now passes the
+installed XLibre parser, output-selection and ordinary-server observer
+fixtures, plus the live-fixture fallback (which correctly returns `skip` on
+Xvfb); the installed `libXm.so.8.0.0` SHA-256 is
+`be55a4d7802d41dd75ee8de622f7cb315cd15d3d802aeb1359b11cab076444fd`.
+This closes the missing-header build gate only; a real multi-output XLibre
+session is still required for live property mutation, hotplug, spanning-window
+reflow and queued-destruction qualification.
 
 The x86_64 cohort also now passes the bounded large UTF-8 clipboard round trip,
 the installed transfer-storage clipboard/merge/bounds/lifetime modes and the

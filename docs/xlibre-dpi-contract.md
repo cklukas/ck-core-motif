@@ -163,3 +163,13 @@ This is an implementation step toward the live contract, not a claim that a
 generic Xorg server provides per-output DPI. The remaining qualification must
 exercise property changes, output removal/addition, a spanning window and
 destruction during a queued update on a real multi-output XLibre session.
+
+On 2026-10-25, after installing Debian arm64 `libxrandr-dev` on `uconsole`, a
+fresh `--enable-xlibre-dpi` build completed from 17:16:20 through 17:21:04 UTC
+under `/home/klukas/tmp/ckmotif-xlibre-bounds-20261025/`. The installed
+`libXm.so.8.0.0` SHA-256 was
+`be55a4d7802d41dd75ee8de622f7cb315cd15d3d802aeb1359b11cab076444fd`.
+The installed parser, deterministic output-selection and ordinary-Xvfb
+observer fixtures passed; the live-property fixture compiled and returned its
+required `skip` result for non-XLibre Xvfb. This qualifies the optional adapter
+build and fallback path, not the real multi-output XLibre session listed above.
