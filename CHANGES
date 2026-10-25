@@ -1,4 +1,8 @@
 2026-10-25
+	* Guard compound-string rendition copies and roll back partial rendition
+	  state on failure; see docs/string-rendition-guards.md.
+
+2026-10-25
 	* Guard compound-string segment copies and preserve partial cleanup when a
 	  segment allocation fails; see docs/string-segment-copy-guards.md.
 
