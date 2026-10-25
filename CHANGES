@@ -4702,3 +4702,9 @@ XmString byte-stream length validation (2026-10-25)
 
 - Reject null streams and guard header-size arithmetic in
   `XmStringByteStreamLength`; see `docs/xmstring-byte-stream-length.md`.
+
+XmString next-segment input validation (2026-10-25)
+====================================================
+
+- Reject null contexts and output pointers in `XmStringGetNextSegment` before
+  conversion can dereference them; see `docs/xmstring-next-segment-input.md`.

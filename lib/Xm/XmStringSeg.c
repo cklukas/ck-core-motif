@@ -419,6 +419,10 @@ XmStringGetNextSegment(XmStringContext context,
 {
   short char_count;
   Boolean ret_val;
+
+  if (context == NULL || text == NULL || tag == NULL ||
+      direction == NULL || separator == NULL)
+	return(False);
   
   _XmProcessLock();
   ret_val = _XmStringGetNextSegment((_XmStringContext)context, 
