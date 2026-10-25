@@ -11550,6 +11550,12 @@ WSM extension-list allocation width (2026-10-25)
 - Check request and reply extension counts before pointer-array allocation;
   see `docs/wsm-extension-unpack-oom.md`.
 
+WSM connection-version allocation width (2026-10-25)
+======================================================
+
+- Check decoded connection-version counts before allocation; see
+  `docs/wsm-extension-unpack-oom.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 

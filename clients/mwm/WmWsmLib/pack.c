@@ -620,7 +620,10 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
     case WSM_CONNECT:
 	request->connect.num_versions = UnpackListNum(&data);
 	request->connect.known_versions =
-	    (short *) XtMalloc(sizeof(short) * request->connect.num_versions);
+	    (request->connect.num_versions >= 0 &&
+	     (size_t)request->connect.num_versions <= UINT_MAX / sizeof(short)) ?
+	    (short *) XtMalloc((Cardinal)((size_t)request->connect.num_versions * sizeof(short))) :
+	    NULL;
 	if (request->connect.known_versions == NULL) {
 	    request->connect.num_versions = 0;
 	    return;

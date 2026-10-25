@@ -11,6 +11,10 @@ connect_end = text.index("\n\tbreak;", connect_start)
 connect_region = text[connect_start:connect_end]
 assert "if (request->connect.known_versions == NULL)" in connect_region
 assert "request->connect.num_versions = 0;" in connect_region
+assert "num_versions >= 0" in connect_region
+assert "UINT_MAX / sizeof(short)" in connect_region
+assert "XtMalloc((Cardinal)((size_t)request->connect.num_versions * sizeof(short)))" in connect_region
+assert "XtMalloc(sizeof(short) * request->connect.num_versions)" not in connect_region
 assert "return;" in connect_region
 
 request_start = text.index("case WSM_EXTENSIONS:", text.index("_WSMUnpackRequest"))
