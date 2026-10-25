@@ -771,7 +771,13 @@ _XmRegisterAppearanceChange(Widget widget, ArgList args, Cardinal num_args)
                                                                  property);
     if (!state->gadget && !XtIsShell(widget)) {
         (void)XmGetAppearanceProfile(state->display, &profile);
-        initialize_appearance_state(state, profile);
+        /* Text and TextField create their output/input backends from the
+         * initialize hook, which runs after the core initialize wrapper.  A
+         * GetValuesHook before that point dereferences a null output object.
+         * Keep the registration, but defer the first value snapshot until a
+         * live appearance transaction observes the fully initialized widget. */
+        if (!class_contains(widget, "Text"))
+            initialize_appearance_state(state, profile);
     }
     _XmProcessLock();
     for (existing = appearance_widgets; existing != NULL;
