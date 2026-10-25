@@ -1611,9 +1611,10 @@ UnpackWinEntry(MessageData *data, Display *dpy,
 
     win_entry->num_windows = UnpackListNum(data);
     win_entry->windows = NULL;
-    if (win_entry->num_windows != 0)
-      win_entry->windows = (Window *) XtMalloc(sizeof(Window) *
-						       win_entry->num_windows);
+    if (win_entry->num_windows != 0 &&
+	(size_t)win_entry->num_windows <= UINT_MAX / sizeof(Window))
+      win_entry->windows = (Window *) XtMalloc((Cardinal)
+	((size_t)win_entry->num_windows * sizeof(Window)));
 
     if (win_entry->windows != NULL)
       for (i=0; i<win_entry->num_windows; i++)
@@ -1626,10 +1627,11 @@ UnpackWinEntry(MessageData *data, Display *dpy,
 
     win_entry->num_match_properties = UnpackListNum(data);
     win_entry->match_properties = NULL;
-    if (win_entry->num_match_properties != 0)
+    if (win_entry->num_match_properties != 0 &&
+	(size_t)win_entry->num_match_properties <= UINT_MAX / sizeof(WindowProperty))
       win_entry->match_properties =
-	  (WindowProperty *) XtMalloc(sizeof(WindowProperty) *
-				      win_entry->num_match_properties);
+	  (WindowProperty *) XtMalloc((Cardinal)
+	      ((size_t)win_entry->num_match_properties * sizeof(WindowProperty)));
 
     if (win_entry->match_properties != NULL)
       for (i=0; i<win_entry->num_match_properties; i++)

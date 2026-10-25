@@ -11520,6 +11520,12 @@ WSM window-data allocation width (2026-10-25)
 - Check decoded `WSMWinData` counts before array allocation; see
   `docs/wsm-win-data-allocation-width.md`.
 
+WSM window-entry allocation width (2026-10-25)
+===============================================
+
+- Bound decoded window-entry arrays before multiplication; see
+  `docs/wsm-win-entry-oom.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 
