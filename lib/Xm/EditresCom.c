@@ -302,6 +302,8 @@ unsigned long length;
 	return(NULL);		
 
     event = (EditresEvent *) XtCalloc(sizeof(EditresEvent), 1);
+    if (event == NULL)
+	return(NULL);
 
     (void) _XEditResGet8(stream, &temp);
     event->any_event.type = (EditresCommand) temp;
@@ -335,6 +337,8 @@ unsigned long length;
 
 	    sv_event->value = XtMalloc(sizeof(char) * 
 				       (sv_event->value_len + 1));
+	    if (sv_event->value == NULL)
+		goto done;
 
 	    for (i = 0; i < sv_event->value_len; i++) {
 		if (!_XEditResGet8(stream, 

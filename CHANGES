@@ -10064,6 +10064,12 @@ MenuState allocation guard (2026-10-25)
 - Handle failed menu-state creation before publishing or using the state;
   see `docs/menustate-allocation.md`.
 
+Editres event allocation guards (2026-10-25)
+=============================================
+
+- Check editres event and SetValues payload buffers before parsing into them;
+  see `docs/editres-event-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
