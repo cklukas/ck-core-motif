@@ -1110,6 +1110,21 @@ NformSectionMarginWidth
 NformSectionMarginHeight
 NformSectionSpacing
 
+CEmptyStateIcon
+CEmptyStateMessage
+CEmptyStateActionLabel
+CEmptyStateActionCallback
+CEmptyStateMarginWidth
+CEmptyStateMarginHeight
+CEmptyStateSpacing
+NemptyStateIcon
+NemptyStateMessage
+NemptyStateActionLabel
+NemptyStateActionCallback
+NemptyStateMarginWidth
+NemptyStateMarginHeight
+NemptyStateSpacing
+
 #table _XmStrings20
 
 NtearOffTitle

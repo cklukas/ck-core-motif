@@ -34,6 +34,7 @@
 #include <Xm/SearchBox.h>
 #include <Xm/Prompt.h>
 #include <Xm/FormSection.h>
+#include <Xm/EmptyState.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
 #include <Xm/PushBG.h>
@@ -1323,6 +1324,16 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
       local = XmStringUnparse(header, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
                               NULL, 0, XmOUTPUT_ALL);
   }
+  if (XmIsEmptyState(w)) {
+    XmString message = NULL;
+    i->role = XmACCESSIBLE_PANEL;
+    XtVaGetValues(w, XmNemptyStateMessage, &message, NULL);
+    if (message)
+      local = XmStringUnparse(message, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
+                              NULL, 0, XmOUTPUT_ALL);
+    if (XmEmptyStateGetAction(w) && XtIsManaged(XmEmptyStateGetAction(w)))
+      i->action_count = 1;
+  }
   if (XmIsNumberBox(w)) {
     int minimum, maximum;
     i->role = XmACCESSIBLE_PROGRESS_BAR;
@@ -1567,6 +1578,10 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
   }
   if (XmIsSearchBox(n->widget)) {
     XmSearchBoxCommit(n->widget, NULL);
+    return True;
+  }
+  if (XmIsEmptyState(n->widget) && action == 0) {
+    XmEmptyStateInvokeAction(n->widget, NULL);
     return True;
   }
   if (XmIsArrowButton(n->widget)) {

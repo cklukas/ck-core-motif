@@ -1531,7 +1531,11 @@ meets the disclosure portion of this package and is documented in
 presentation manager with owned header/footer children, an application-owned
 content host, copied `XmString` resources, bounded narrow-layout negotiation
 and a panel accessibility projection; its installed fixture passes 11 checks.
-`EmptyState` remains a separate work item and is not claimed complete here.
+`XmEmptyState` is now implemented as the matching additive presentation
+manager with optional borrowed icon, copied message/action labels, explicit
+action dispatch and bounded geometry; its installed fixture passes 11 checks.
+The three WP-37 composites are independently usable and no existing
+Frame/RowColumn/List/Container behavior is changed.
 
 ### WP-38: CommandPalette and Toast notification
 
