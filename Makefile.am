@@ -193,6 +193,7 @@ EXTRA_DIST += tests/automated/check-transform-subresources-bounds.py docs/transf
 EXTRA_DIST += tests/automated/check-default-colors-allocation.py docs/default-colors-allocation.md
 EXTRA_DIST += tests/automated/check-arrow-geometry-allocation.py docs/arrow-geometry-allocation.md
 EXTRA_DIST += tests/automated/check-heap-alloc-alignment.py docs/heap-alloc-alignment.md
+EXTRA_DIST += tests/automated/check-xmstring-segment-allocation.py docs/xmstring-segment-allocation.md
 EXTRA_DIST += tests/automated/check-xim-info-allocation.py docs/xim-info-allocation.md
 EXTRA_DIST += tests/automated/check-xim-recreate-allocation.py docs/xim-recreate-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md

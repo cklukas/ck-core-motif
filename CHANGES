@@ -10150,6 +10150,12 @@ Legacy heap alignment bounds (2026-10-25)
   alignment wraparound and remaining-capacity underflow; see
   `docs/heap-alloc-alignment.md`.
 
+XmString segment allocation guards (2026-10-25)
+===============================================
+
+- Guard XmString entry and segment array growth before publishing mutations;
+  see `docs/xmstring-segment-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

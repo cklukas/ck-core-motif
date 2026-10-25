@@ -5343,20 +5343,33 @@ _XmStringSegmentNew(
 {
     _XmStringEntry line; 
     _XmStringEntry seg;
+    _XmStringEntry new_value;
+    _XmStringEntry *new_entries;
+    _XmStringNREntry *new_segments;
     int sc; 
     int lc = _XmStrEntryCount(string);
     
     if (lc == 0 || lc-1 < line_index) {
-      _XmStrEntry(string) = (_XmStringEntry *) 
-	XtRealloc((char *) _XmStrEntry(string), 
-		  sizeof(_XmStringEntry) * (lc + 1));
-      _XmStrEntryCount(string)++;
+      if (lc < 0 || lc == INT_MAX ||
+	  (size_t)(lc + 1) > SIZE_MAX / sizeof(_XmStringEntry))
+	return;
       if (line_index > lc) line_index = lc;
       if (copy)
 	line = _XmStringEntryCopy(value);
       else {
 	line = value;
       }
+      if (copy && line == NULL)
+	return;
+      new_entries = (_XmStringEntry *)XtRealloc(
+	  (char *)_XmStrEntry(string), sizeof(_XmStringEntry) * (lc + 1));
+      if (new_entries == NULL) {
+	if (copy)
+	    _XmStringEntryFree(line);
+	return;
+      }
+      _XmStrEntry(string) = new_entries;
+      _XmStrEntryCount(string)++;
       _XmStrEntry(string)[line_index] = line;
     } else {
       line  = _XmStrEntry(string)[line_index];
@@ -5364,23 +5377,47 @@ _XmStringSegmentNew(
 	/* have to create an array entry */
 	sc = 1;
 	seg = line;
+	if (copy)
+	    new_value = _XmStringEntryCopy(value);
+	else
+	    new_value = value;
+	if (copy && new_value == NULL)
+	    return;
+	new_segments = (_XmStringNREntry *)XtMalloc(
+	    sizeof(_XmStringEntry) * 2);
+	if (new_segments == NULL) {
+	    if (copy)
+		_XmStringEntryFree(new_value);
+	    return;
+	}
 	_XmEntryCreate(line, XmSTRING_ENTRY_ARRAY);
 	_XmEntrySegmentCount(line) = sc;
 	_XmEntrySoftNewlineSet(line, _XmEntrySoftNewlineGet(seg));
-	_XmEntrySegment(line) = (_XmStringNREntry *)
-	  XtMalloc(sizeof(_XmStringEntry) * 2);
+	_XmEntrySegment(line) = new_segments;
 	_XmEntrySegment(line)[0] = (_XmStringNREntry)seg;
+	_XmEntrySegment(line)[sc] = (_XmStringNREntry)new_value;
+	_XmEntrySegmentCount(line)++;
 	_XmStrEntry(string)[line_index] = line;
 	_XmStrImplicitLine(string) = True;
+	return;
       } else {
 	sc  = _XmEntrySegmentCount(line);
-	_XmEntrySegment(line) = (_XmStringNREntry *)
-	  XtRealloc((char *) _XmEntrySegment(line), 
-		    sizeof(_XmStringEntry) * (sc+1));
+	if (sc < 0 || sc == INT_MAX ||
+	    (size_t)(sc + 1) > SIZE_MAX / sizeof(_XmStringEntry))
+	    return;
+	new_segments = (_XmStringNREntry *)XtRealloc(
+	  (char *)_XmEntrySegment(line), sizeof(_XmStringEntry) * (sc+1));
+	if (new_segments == NULL)
+	    return;
+	_XmEntrySegment(line) = new_segments;
+	seg = (copy ? _XmStringEntryCopy(value) : value);
+	if (copy && seg == NULL)
+	    return;
+	_XmEntrySegment(line)[sc] = (_XmStringNREntry)seg;
+	_XmEntrySegmentCount(line)++;
+	return;
       }
-      seg = (copy ? _XmStringEntryCopy(value) : value);
-      _XmEntrySegment(line)[sc] = (_XmStringNREntry)seg;
-      _XmEntrySegmentCount(line)++;
+      return;
     }
 }
 
