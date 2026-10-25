@@ -74,6 +74,11 @@ DISPLAY=:121 python3 tests/automated/run-gallery-screenshot-matrix.py \
   --out /tmp/ckmotif-gallery-screenshot-matrix
 ```
 
+The checked-in publication set uses the current `modern-light` profile at
+1.5x scale. This is an explicit startup profile, not a legacy `classic`
+capture; the binary hash in the publication manifest must match the gallery
+binary used to generate it.
+
 Published PNGs are projected into `docs/gallery-screenshots/manifest.json` by
 `tests/automated/generate-gallery-screenshot-manifest.py`. The companion
 `tests/automated/check-gallery-screenshot-assets.py` verifies the manifest

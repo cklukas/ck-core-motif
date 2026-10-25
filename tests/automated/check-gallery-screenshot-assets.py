@@ -17,7 +17,7 @@ publication = json.loads(publication_path.read_text(encoding="utf-8"))
 expected_hash = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
 assert publication["manifest_sha256"] == expected_hash
 assert publication["capture"]["result"] == "pass"
-assert publication["capture"]["appearance_profile"] == "classic"
+assert publication["capture"]["appearance_profile"] == "modern-light"
 assert publication["capture"]["dpi_input"]
 expected_ids = [entry["id"] for entry in manifest["entries"]]
 actual_ids = [entry["id"] for entry in publication["entries"]]

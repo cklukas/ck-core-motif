@@ -575,7 +575,23 @@ int main(int argc, char **argv)
     shell = XtVaAppInitialize(&app, "CkMotifGallery", NULL, 0, &argc, argv,
                               NULL, XmNallowShellResize, True, NULL);
     state.shell = shell;
-    state.profile = XmAPPEARANCE_CLASSIC;
+    state.profile = requested_profile ? requested_profile_value
+                                      : XmAPPEARANCE_CLASSIC;
+    /* Select the requested profile before creating any child widgets.  The
+     * live transaction API is intentionally for an already-created
+     * application hierarchy; using it here made some legacy widgets rebuild
+     * their graphics contexts while realized and could issue BadGC requests
+     * during screenshot capture. */
+    if (requested_profile &&
+        !XmSetAppearanceProfile(XtDisplay(shell), requested_profile_value)) {
+        fprintf(stderr, "gallery: requested appearance profile failed\n");
+        return 3;
+    }
+    if (requested_scale &&
+        !XmSetDisplayScaleOverride(XtDisplay(shell), requested_scale_value)) {
+        fprintf(stderr, "gallery: requested display scale failed\n");
+        return 3;
+    }
     root = XmVaCreateManagedForm(shell, "root", NULL);
     header = XmVaCreateManagedRowColumn(root, "header", XmNorientation, XmHORIZONTAL,
                                         XmNtopAttachment, XmATTACH_FORM,
@@ -650,24 +666,8 @@ int main(int argc, char **argv)
         XmAccessibilityAttachShell(state.accessibility, shell);
         XmAccessibilityRefresh(state.accessibility);
     }
-    if (requested_profile &&
-        !XmApplyAppearanceProfile(XtDisplay(shell), requested_profile_value)) {
-        fprintf(stderr, "gallery: requested appearance profile failed\n");
-        if (state.accessibility) XmAccessibilityDestroy(state.accessibility);
-        return 3;
-    }
-    if (requested_profile)
-        state.profile = requested_profile_value;
-    if (requested_scale &&
-        !XmSetDisplayScaleOverride(XtDisplay(shell), requested_scale_value)) {
-        fprintf(stderr, "gallery: requested display scale failed\n");
-        if (state.accessibility) XmAccessibilityDestroy(state.accessibility);
-        return 3;
-    }
     if (requested_profile || requested_scale)
         XSync(XtDisplay(shell), False);
-    if (state.accessibility && (requested_profile || requested_scale))
-        XmAccessibilityRefresh(state.accessibility);
     if (integration_mode == 1) {
         int result = run_integration_test(&state);
         if (state.accessibility) XmAccessibilityDestroy(state.accessibility);

@@ -48,7 +48,28 @@ jobs:
       - name: Install compiler prerequisites
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends build-essential git python3
+          sudo apt-get install -y --no-install-recommends \
+            autoconf automake bison build-essential flex git libfontconfig1-dev \
+            libfreetype6-dev libjpeg-dev libpng-dev libx11-dev libxext-dev \
+            libxfixes-dev libxft-dev libxmu-dev libxpm-dev libxrender-dev \
+            libxt-dev libxtst-dev libxau-dev libxdmcp-dev libxcb1-dev \
+            libicu-dev libdbus-1-dev libharfbuzz-dev libtool pkg-config \
+            python3 xvfb x11-utils netpbm
+      - name: Build current gallery and refresh screenshots
+        run: |
+          gallery_work="$RUNNER_TEMP/motif-gallery-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          prefix="$gallery_work/prefix"
+          mkdir -p "$gallery_work/build" "$prefix"
+          (cd "$gallery_work/build" && "$GITHUB_WORKSPACE/configure" --prefix="$prefix" \
+            --enable-xft --enable-unicode-text --enable-atspi) \
+            > "$gallery_work/configure.log" 2>&1
+          make -C "$gallery_work/build" -j2 > "$gallery_work/build.log" 2>&1
+          make -C "$gallery_work/build" install > "$gallery_work/install.log" 2>&1
+          capture="$RUNNER_TEMP/motif-gallery-capture-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          xvfb-run -a -s "-screen 0 1600x1000x24" env \
+            LD_LIBRARY_PATH="$prefix/lib" \
+            python3 scripts/refresh-gallery-screenshots.py \
+            --binary "$prefix/bin/ckmotif-gallery" --work "$capture"
       - name: Build pinned tool and strict documentation
         run: |
           python3 scripts/build-docs.py \

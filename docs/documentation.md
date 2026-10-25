@@ -95,6 +95,13 @@ run publishes `public` through the configured Pages mechanism and retains a
 documentation evidence artifact. The intended LAN URL is
 [the toolkit site](http://rpi4:8421/ck-core-motif/).
 
+Before the strict site build, both hosted workflows compile the current
+`ckmotif-gallery` into an isolated prefix and capture the `modern-light`
+1.5x demo set under Xvfb. The generated PNGs and manifest are then used for
+that run's site output, so a stale checked-in binary hash cannot silently be
+published. The gallery startup profile check keeps legacy widgets from being
+re-themed after realization, which previously caused rpi4 `BadGC` failures.
+
 The GitHub workflow separately checks out the same tool commit and invokes the
 same script. Pull requests perform strict validation without uploading or
 deploying Pages. Only a successful `master` run can deploy. Repository settings

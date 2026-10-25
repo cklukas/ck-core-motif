@@ -126,7 +126,8 @@ def main():
         source_origin = source_provenance(root, env)
     except ValueError as error:
         parser.error(str(error))
-    inputs = [root / "ckdocs.yml", root / "scripts/build-docs.py"]
+    inputs = [root / "ckdocs.yml", root / "scripts/build-docs.py",
+              root / "scripts/refresh-gallery-screenshots.py"]
     inputs.extend(sorted(path for path in (root / "docs").rglob("*") if path.is_file()))
     inputs.extend([root / ".ckgit/ci.yml", root / ".github/workflows/pages.yml",
                    root / ".gitattributes", root / ".ckgit/build-commit"])

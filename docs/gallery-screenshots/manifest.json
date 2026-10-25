@@ -1,13 +1,13 @@
 {
   "schema": 1,
   "manifest_sha256": "3464be585011b31b215ed5a16ba8e4a4f96e7cbb49adbd9f7195d7a2aa19dc32",
-  "binary_sha256": "79204edf61c825e7b39bd9d43be1fa6a6a9ccb4aa6eb240a3aed8d80c2804452",
+  "binary_sha256": "4d10541d20135c3f4d323e61bc07165074ce9cd5ac652ae63cd2ec032395140b",
   "capture": {
     "result": "pass",
-    "display": ":122",
+    "display": ":101",
     "window_name": "ckmotif-gallery",
     "viewport": "1600x1000x24",
-    "appearance_profile": "classic",
+    "appearance_profile": "modern-light",
     "dpi_input": "server-default",
     "runner": "tests/automated/run-gallery-screenshots.py"
   },
@@ -15,660 +15,660 @@
     {
       "id": "xm.arrowbuttonwidgetclass",
       "png": "xm-arrowbuttonwidgetclass.png",
-      "sha256": "7aa051a14833f231a719a523e5cad082f992e6afa1cb72cba7ffe64d8ec6dc9e",
-      "width": 1228,
-      "height": 415
+      "sha256": "27790597bb83de801dd253c3286732a024b704c3824855daabf62898b30ce24e",
+      "width": 1240,
+      "height": 458
     },
     {
       "id": "xm.arrowbuttongadgetclass",
       "png": "xm-arrowbuttongadgetclass.png",
-      "sha256": "f95918fa4dd6c05837ee9e70ac3e39ee0e292bc9736927131d08eef8839d20da",
-      "width": 1228,
-      "height": 415
+      "sha256": "4fc50491ddd26bb9eae646bfc5a16fb01b6cdc041ad6bca61f867287718ea6e5",
+      "width": 1240,
+      "height": 458
     },
     {
       "id": "xm.bulletinboardwidgetclass",
       "png": "xm-bulletinboardwidgetclass.png",
-      "sha256": "5658c55f45744804b9021a3b8e704f82aef52c248a708446cbc0a6ce585ec582",
-      "width": 1276,
-      "height": 402
+      "sha256": "5b14c547ab8b89d9a0c03d98477e5adf2f231239818288eedcff3640d3fcf618",
+      "width": 1288,
+      "height": 448
     },
     {
       "id": "xm.cascadebuttonwidgetclass",
       "png": "xm-cascadebuttonwidgetclass.png",
-      "sha256": "2c255c59bc749ce80992966c8d2c36650ce99c3e2cd59393eeafc944ac998579",
-      "width": 1276,
-      "height": 417
+      "sha256": "b1b9240dec3de3c4cd0e3282ff585e14a0735a44dd39293f51215a686ff4769f",
+      "width": 1288,
+      "height": 460
     },
     {
       "id": "xm.cascadebuttongadgetclass",
       "png": "xm-cascadebuttongadgetclass.png",
-      "sha256": "27f014a63bd685639e08cb7aa11552789fe387abd16d9022699c17741da40322",
-      "width": 1276,
-      "height": 417
+      "sha256": "075faa7214c60553da5a47e6089aa54756ea04e7e0384132e05f5834d3d623a5",
+      "width": 1288,
+      "height": 458
     },
     {
       "id": "xm.columnwidgetclass",
       "png": "xm-columnwidgetclass.png",
-      "sha256": "b1988186f8e70e2f562e0fb4da0d498edec1db753a6fe0e1242381f4a7cc486b",
-      "width": 1108,
-      "height": 412
+      "sha256": "cf298afebb5595a5d7603379842a07105bf68a45b07802b419fc53b3b9eb6f1b",
+      "width": 1120,
+      "height": 459
     },
     {
       "id": "xm.comboboxwidgetclass",
       "png": "xm-comboboxwidgetclass.png",
-      "sha256": "5b490f8898897123c18ba1d40f9302b116c90edd31d8b2bfd4159b742474d020",
-      "width": 1156,
-      "height": 561
+      "sha256": "d44b6157e1b7990a23774eb4ab7964db645c7d65cdbe51ee40026539e1300a33",
+      "width": 1168,
+      "height": 632
     },
     {
       "id": "xm.commandwidgetclass",
       "png": "xm-commandwidgetclass.png",
-      "sha256": "508b3bc8ebf7654e614cc33e80bca5cfd206482bc50e43b78615aa5a29124fd8",
-      "width": 1132,
-      "height": 605
+      "sha256": "7de4ecf1f92c2ccb37b8c57db4db1cea6c13868b15ba94a4d8bdf245a2c064f4",
+      "width": 1144,
+      "height": 676
     },
     {
       "id": "xm.containerwidgetclass",
       "png": "xm-containerwidgetclass.png",
-      "sha256": "1d7e94a0cfb6cfea01bb3a94b254d4d2255f1f34c6f786e28d16107e836d1f12",
-      "width": 1180,
-      "height": 402
+      "sha256": "d948dadb61f791ac6c4760b6c40af0752db59234e1872a95774c4e5e10a637dc",
+      "width": 1192,
+      "height": 447
     },
     {
       "id": "xm.datafieldwidgetclass",
       "png": "xm-datafieldwidgetclass.png",
-      "sha256": "1d14efea7d902cea99d02789e97e86cac82575f66cc828e44925fb9460f13d9a",
-      "width": 1180,
-      "height": 423
+      "sha256": "8b034c5081dad4e7a70bf713f3911422bd406883815cae358861036d7d8edf17",
+      "width": 1192,
+      "height": 466
     },
     {
       "id": "xm.dialogshellwidgetclass",
       "png": "xm-dialogshellwidgetclass.png",
-      "sha256": "9f768d45c40dfd9e4f77d48d497719f9c58d82369f578b0965f576a6cd27fdfb",
-      "width": 1228,
-      "height": 386
+      "sha256": "7e78c98aab12183b2b2737c5c36897da4f8a0ecc963c53a2e38eee234479f77f",
+      "width": 1240,
+      "height": 431
     },
     {
       "id": "xm.displayclass",
       "png": "xm-displayclass.png",
-      "sha256": "22646d8106a50750e32a2da2c2ead8a1e956346563aa2736705e5f378c06a98a",
-      "width": 988,
-      "height": 386
+      "sha256": "3250d9f5c669e061d33ea7102f5da8b807fef6315e5c1ad02425d224a699af0b",
+      "width": 1000,
+      "height": 431
     },
     {
       "id": "xm.dragcontextclass",
       "png": "xm-dragcontextclass.png",
-      "sha256": "11e38497208e1769271fbca46f81114fb425b19ee1aa782bb8d38d46ff2cdd6a",
-      "width": 1084,
-      "height": 386
+      "sha256": "e0857980ac4cac0acac3e41d036646dc2d2be2184ecb91fb0565801e4545dbe9",
+      "width": 1096,
+      "height": 431
     },
     {
       "id": "xm.dragiconobjectclass",
       "png": "xm-dragiconobjectclass.png",
-      "sha256": "f265393a0896b17c8a9ff7cb3d9ac778295ac69958a2d671312cfa5ff145052f",
-      "width": 1156,
-      "height": 386
+      "sha256": "e3c454eb3de4bda36997650d64f616b75e20655488398b7fa7f766af2491ed8b",
+      "width": 1168,
+      "height": 431
     },
     {
       "id": "xm.dragovershellwidgetclass",
       "png": "xm-dragovershellwidgetclass.png",
-      "sha256": "9337097fd8a516b91e83d05de886576c81c41ef74fdeaae32463b7d9ea4036c5",
-      "width": 1276,
-      "height": 456
+      "sha256": "ce4089ae3d169ec736dec9370f5e5b8ea54caaed7eb62f28597c74e1aefba968",
+      "width": 1288,
+      "height": 501
     },
     {
       "id": "xm.drawingareawidgetclass",
       "png": "xm-drawingareawidgetclass.png",
-      "sha256": "4b731fe66f142dc2fa5eda23e20626fc0fe96f7b86f9f67b444c137fdb46d064",
-      "width": 1228,
-      "height": 402
+      "sha256": "06bc26d77a94228852e7b1cd1f2aa18d978e6a03171994163af736e33c5811fd",
+      "width": 1240,
+      "height": 448
     },
     {
       "id": "xm.drawnbuttonwidgetclass",
       "png": "xm-drawnbuttonwidgetclass.png",
-      "sha256": "a6d45f181d3168a9cc3b51ca64cb40b7fd1add4e040a7e16b756f53477ee1855",
-      "width": 1228,
-      "height": 404
+      "sha256": "1d997bc2289121d14f4556902a44408cc9b1abca96cccb171cdae330e02a98a1",
+      "width": 1240,
+      "height": 447
     },
     {
       "id": "xm.dropsitemanagerobjectclass",
       "png": "xm-dropsitemanagerobjectclass.png",
-      "sha256": "799f5ebf852be8c08d3989161c136a0d9df8b4195f73f24ea1dfb8f1c8f86b29",
-      "width": 1324,
-      "height": 386
+      "sha256": "d883e8462e3c341cebc1e7498299a5d5956058c353a88ffc87942e110a089930",
+      "width": 1336,
+      "height": 431
     },
     {
       "id": "xm.droptransferobjectclass",
       "png": "xm-droptransferobjectclass.png",
-      "sha256": "3ffa6e86ef583d5ba8d7d9fd292c120e83e20027c1638b41c94634a5e991f01b",
-      "width": 1252,
-      "height": 386
+      "sha256": "463704f81ac7f8ab3b71cd091c62a1fcd7bd216ac5eb1f5351cacf0e1fc3ae51",
+      "width": 1264,
+      "height": 431
     },
     {
       "id": "xm.fileselectionboxwidgetclass",
       "png": "xm-fileselectionboxwidgetclass.png",
-      "sha256": "424b3d9cbbd12709318f656c52c97c4c1aa11f64bc3316af177b959b880c542c",
-      "width": 1348,
-      "height": 762
+      "sha256": "7a3215816427758206fa9ac03fe62010df1e245c372ad9c19dd543a26481be22",
+      "width": 1360,
+      "height": 828
     },
     {
       "id": "xm.formwidgetclass",
       "png": "xm-formwidgetclass.png",
-      "sha256": "4ed8b2fca081c2b65ecccae2a1c74e5fe8fa0c1001e2607468b4dc4c9f2c7346",
-      "width": 1060,
-      "height": 402
+      "sha256": "933fd04a9ecc5ad166dbf7d3311b5fda51376d5b242e2bb3342f69a706145424",
+      "width": 1072,
+      "height": 447
     },
     {
       "id": "xm.framewidgetclass",
       "png": "xm-framewidgetclass.png",
-      "sha256": "f99cfec20d65b973c3aab3cf219db6bfefab78c67047835b3fe99e5a3deb442c",
-      "width": 1084,
-      "height": 402
+      "sha256": "147ae7fae12fbd9d1cc52b97fd140ca7b718457989d0ad3bd8e402a2ec849b33",
+      "width": 1096,
+      "height": 447
     },
     {
       "id": "xm.gadgetclass",
       "png": "xm-gadgetclass.png",
-      "sha256": "46ba84a20dc003bc94e68721f14fac9813ea05d610b42a8530e2bdb0d824fffc",
-      "width": 964,
-      "height": 386
+      "sha256": "d9b87fa54446267167213c9a08239e2728ba65da3787394873552258ff0d4ff3",
+      "width": 976,
+      "height": 431
     },
     {
       "id": "xm.grabshellwidgetclass",
       "png": "xm-grabshellwidgetclass.png",
-      "sha256": "c1bb41e27e5f295bf039931b2e3241c1440df18f4c5049077385a8064dba8e63",
-      "width": 1180,
-      "height": 386
+      "sha256": "5e991962d5b46b936b0af027247cbb6e19c809fe994c45e8e48ed716994ee76d",
+      "width": 1192,
+      "height": 431
     },
     {
       "id": "xm.icongadgetclass",
       "png": "xm-icongadgetclass.png",
-      "sha256": "9481b8e14cbab71d4079e311cb85de98b066825175d4e3b81681cdf0789dba65",
-      "width": 1060,
-      "height": 421
+      "sha256": "c625bac36bb57a5add2702b382e648bd2e963534098dc28a0a60a0e6b4437f9d",
+      "width": 1072,
+      "height": 464
     },
     {
       "id": "xm.iconheaderclass",
       "png": "xm-iconheaderclass.png",
-      "sha256": "c1690feb3708d947007793ed80b260d10eb0ba2fc2a43ba2701f7f02bcbf6c6f",
-      "width": 1060,
-      "height": 421
+      "sha256": "019d0d8a34a2d066046e3121d42f19813e3c98fde59c1fe0920474884bcdd576",
+      "width": 1072,
+      "height": 464
     },
     {
       "id": "xm.iconbuttonwidgetclass",
       "png": "xm-iconbuttonwidgetclass.png",
-      "sha256": "1be78912c4fc3da91d9a9e620d4a03c97d15757e3f661d6fe2d793749bd51b63",
-      "width": 1204,
-      "height": 417
+      "sha256": "3ce528725e0ce69ee48759a2e695aa5658c24e9b0cae78bd4c2216893aa039d4",
+      "width": 1216,
+      "height": 460
     },
     {
       "id": "xm.labelwidgetclass",
       "png": "xm-labelwidgetclass.png",
-      "sha256": "d1689d4b1db035c3f9bd924afb9a1c71417b9dfd25dc4414a124df57a4b72592",
-      "width": 1084,
-      "height": 409
+      "sha256": "6e9393ea0df8554c1acad6ae423639d0c8c483e66bf35dadcfd7bd45302172f4",
+      "width": 1096,
+      "height": 460
     },
     {
       "id": "xm.labelgadgetclass",
       "png": "xm-labelgadgetclass.png",
-      "sha256": "d8f5c93a8878c379ff42f16ac8d71b792cba3441bb79f5db44354f403fffe451",
-      "width": 1084,
-      "height": 409
+      "sha256": "106999705c59a3e05ed1391f7f7e81fd411eeeb9e00deb21109411441869fb72",
+      "width": 1096,
+      "height": 460
     },
     {
       "id": "xm.listwidgetclass",
       "png": "xm-listwidgetclass.png",
-      "sha256": "836adb504d8bb6d8016ea6fc806f0deb5b798b864cedc5b309c3b355fff66226",
-      "width": 1060,
-      "height": 415
+      "sha256": "e55062bb7f990cf54f260d9d2a8e6dc8a949128ef87381df8e0870bd6c04bf6c",
+      "width": 1072,
+      "height": 470
     },
     {
       "id": "xm.mainwindowwidgetclass",
       "png": "xm-mainwindowwidgetclass.png",
-      "sha256": "cf3b4215ffd915c725fda1f45fda84dec2f500fba717292e299dab30bad3aec6",
-      "width": 1204,
-      "height": 442
+      "sha256": "67638045f0902ce7b374054987a7212fdd25b1f058d2b2caf0cb5ab1a875cf82",
+      "width": 1216,
+      "height": 487
     },
     {
       "id": "xm.managerwidgetclass",
       "png": "xm-managerwidgetclass.png",
-      "sha256": "51cc8ff3358111dc60e9e1c6d1e7a66f7feb8ea12b45a582cd8e3e9aaf051a7c",
-      "width": 1132,
-      "height": 386
+      "sha256": "71201b9c4f8cfcae8889584ef16d1b6e77a3340349beedb989cd38ada8f03ea0",
+      "width": 1144,
+      "height": 431
     },
     {
       "id": "xm.menushellwidgetclass",
       "png": "xm-menushellwidgetclass.png",
-      "sha256": "508ff3053b5e56dc88d8faa9e7aef7340da636bc037e6cf8d7db855c412c36c7",
-      "width": 1180,
-      "height": 386
+      "sha256": "4b34ffef3c369d3f5cc40bb8895636ed9c2f754e71fbb52d44dd63d5b3c95377",
+      "width": 1192,
+      "height": 431
     },
     {
       "id": "xm.messageboxwidgetclass",
       "png": "xm-messageboxwidgetclass.png",
-      "sha256": "080e7c302bc5ba26bbf98eb09de4da95ffa77d5548020b1e700e6c8936d0a3e8",
-      "width": 1204,
-      "height": 479
+      "sha256": "745892acbfe82b40426660540d4e7b7cf0d4ef9bac8071d1e02b79c94b6df5d7",
+      "width": 1216,
+      "height": 527
     },
     {
       "id": "xm.colorpickerwidgetclass",
       "png": "xm-colorpickerwidgetclass.png",
-      "sha256": "383b9fdff2fc5d3b733b348e706b2850eda357f0cf624ca2cadbbdca48ced914",
-      "width": 1228,
-      "height": 426
+      "sha256": "8558d4756df01b9e301a1bf91f7761cea82b722387cc9abb45eaf6441239a6a2",
+      "width": 1240,
+      "height": 471
     },
     {
       "id": "xm.flyoutwidgetclass",
       "png": "xm-flyoutwidgetclass.png",
-      "sha256": "beb38645713c824205e1745e2e88cd943b1c406d2658e0dcbca6956be4034be6",
-      "width": 1108,
-      "height": 402
+      "sha256": "3ebffaba49f20d956fad782285d552bcb48710650f3f2bf6c1538aaafcb7696e",
+      "width": 1120,
+      "height": 447
     },
     {
       "id": "xm.teachingtipwidgetclass",
       "png": "xm-teachingtipwidgetclass.png",
-      "sha256": "11e5f3f3aa4d8bf31d95012269df4c6b161d0aba07f8c62d59f70b459058a5e9",
-      "width": 1228,
-      "height": 402
+      "sha256": "87aa611cc8b43bfff2f3752b50e23e37110e165237161f6e6fde8d4efcbe084e",
+      "width": 1240,
+      "height": 447
     },
     {
       "id": "xm.infobarwidgetclass",
       "png": "xm-infobarwidgetclass.png",
-      "sha256": "0a7fce74a4cf48127828013ae43a8d9d3b287936f19e82994be720d974c14fbc",
-      "width": 1132,
-      "height": 426
+      "sha256": "714c8204fbcb4d5976fc933de467d25db0b25438cec85b29b1675a0fd0621ac5",
+      "width": 1144,
+      "height": 471
     },
     {
       "id": "xm.breadcrumbbarwidgetclass",
       "png": "xm-breadcrumbbarwidgetclass.png",
-      "sha256": "70dc84ff843321abd333ab97d68db7ac62f444d1ad4a265709a89d97824a49c8",
-      "width": 1276,
-      "height": 420
+      "sha256": "9f4c2007d74bd852ed9d25b3e3346f0bdf610e61c22d7952990d75ace6a36cc1",
+      "width": 1288,
+      "height": 465
     },
     {
       "id": "xm.treeviewwidgetclass",
       "png": "xm-treeviewwidgetclass.png",
-      "sha256": "354de374c635bff7f9172e3084f25f7cbb3c5ad8ccb24ad64b70fa1a51c2984e",
-      "width": 1156,
-      "height": 568
+      "sha256": "17d33c98f9a63f26cd18faeb4af585d49c6daa7a3dbb2eb01cb77fc09af0a9d8",
+      "width": 1168,
+      "height": 613
     },
     {
       "id": "xm.calendarwidgetclass",
       "png": "xm-calendarwidgetclass.png",
-      "sha256": "656643072b23faa957df20dd6bd7b63b790e75740aa08fcdb126be28098af7ef",
-      "width": 1156,
-      "height": 584
+      "sha256": "217e09593994101cb7f0443d2e63b9083e740660fb2d7e5618731f99789b4f66",
+      "width": 1168,
+      "height": 629
     },
     {
       "id": "xm.datepickerwidgetclass",
       "png": "xm-datepickerwidgetclass.png",
-      "sha256": "4a0210427b777de85cf5a6b7849633dfdd89343cbaa60ffb97a9d85f8bcee7dc",
-      "width": 1204,
-      "height": 420
+      "sha256": "ddc853f231ab2a93fb748d274911046b428d1df7591ab26049e3617a5567c6f0",
+      "width": 1216,
+      "height": 465
     },
     {
       "id": "xm.timepickerwidgetclass",
       "png": "xm-timepickerwidgetclass.png",
-      "sha256": "fbcf4ddd3f71c98eee95b1a806b1c98f626a21023df7fd484e4a66c26872edb2",
-      "width": 1204,
-      "height": 420
+      "sha256": "b1027e1ee35b0bd9c76400eb84237cad405124f6fcba14f7f1233878af01a85b",
+      "width": 1216,
+      "height": 465
     },
     {
       "id": "xm.datagridwidgetclass",
       "png": "xm-datagridwidgetclass.png",
-      "sha256": "61b1dee34ed64f5e9cb6d658cea96c5107781e7f145df268f00f374df5175480",
-      "width": 1156,
-      "height": 632
+      "sha256": "c73cb0546c286cd8f83b12a5e0b14a88d6e0e1097dea05d68f564448845b2de3",
+      "width": 1168,
+      "height": 677
     },
     {
       "id": "xm.segmentedcontrolwidgetclass",
       "png": "xm-segmentedcontrolwidgetclass.png",
-      "sha256": "a49871a88422ce94e70de20dfc99fe4e07a3bc00815db9d0c55710ad3938e533",
-      "width": 1348,
-      "height": 416
+      "sha256": "c8786d2fc21354f9b0fa97838d2b984dcdf9a45ebcbd9969c9d3ebbf534ec173",
+      "width": 1360,
+      "height": 461
     },
     {
       "id": "xm.chipwidgetclass",
       "png": "xm-chipwidgetclass.png",
-      "sha256": "d8c8dda5b71774249dcc8f84dd84b482676c9bf35a2ac7a2a322e6b33548cc0b",
-      "width": 1060,
-      "height": 418
+      "sha256": "c5bc398189f9bb8498091a126ddea726454429cce91fd8163a20bf3c66c6a21a",
+      "width": 1072,
+      "height": 463
     },
     {
       "id": "xm.badgewidgetclass",
       "png": "xm-badgewidgetclass.png",
-      "sha256": "d3d8cab95ecc33f0119e5fb4cd1be38dfd1ff0cdbdbcbb63d6efe1cf9c27c8d4",
-      "width": 1084,
-      "height": 414
+      "sha256": "2f8a797566e0ec64796460274cf11bf23c86d4679e25df6153c2c5ad2744da77",
+      "width": 1096,
+      "height": 459
     },
     {
       "id": "xm.iconlabelwidgetclass",
       "png": "xm-iconlabelwidgetclass.png",
-      "sha256": "9f88fe7585016869bc35fb10bb44293d685e4fa9a1820d97e6c2a7d56a698f75",
-      "width": 1180,
-      "height": 420
+      "sha256": "7ff6198e47b06fddfbe37da7318ef22723b2411dcb6ae2902fbffb1103111c5b",
+      "width": 1192,
+      "height": 465
     },
     {
       "id": "xm.dividerwidgetclass",
       "png": "xm-dividerwidgetclass.png",
-      "sha256": "d978504faadd6a1a834bf38ba84d49104957cd0c511cc4465f5d67120d5e34a6",
-      "width": 1132,
-      "height": 405
+      "sha256": "9e4292bb76037accc1913c9b22c735b80827ab1602105cd86a9fd100e53bbdfb",
+      "width": 1144,
+      "height": 450
     },
     {
       "id": "xm.avatarwidgetclass",
       "png": "xm-avatarwidgetclass.png",
-      "sha256": "5f8b03c53be14b31e7d75f2f20467e2bcf777f6a21e7297791d0b0077c4709a4",
-      "width": 1108,
-      "height": 424
+      "sha256": "b63f2e13c77a7a32b9e6e94e3ff5de3991f1c2d8480eca142e0e56850a3d9e61",
+      "width": 1120,
+      "height": 469
     },
     {
       "id": "xm.linkwidgetclass",
       "png": "xm-linkwidgetclass.png",
-      "sha256": "a39e13de97523796592dbcc79e94f777173efdf9c96abb0c8d5a33acfaa559a3",
-      "width": 1060,
-      "height": 416
+      "sha256": "9d5a5ca081b55d64095ec1542de51ea25711b0b548bfd245bc0293b9b4ab1535",
+      "width": 1072,
+      "height": 461
     },
     {
       "id": "xm.searchboxwidgetclass",
       "png": "xm-searchboxwidgetclass.png",
-      "sha256": "ec1a16ca05c62331819314c38edf14fbf94123db8f59ffd8741ef0e626970f31",
-      "width": 1180,
-      "height": 423
+      "sha256": "f6a712a6c7f45e6f947edbbba45f292f74811b765a66b757f71d7e99a61b0561",
+      "width": 1192,
+      "height": 466
     },
     {
       "id": "xm.promptwidgetclass",
       "png": "xm-promptwidgetclass.png",
-      "sha256": "7b2c0d798856b2569a0a710c29d581b2746c8342efba8f7fb487d6eafbca958d",
-      "width": 1108,
-      "height": 416
+      "sha256": "012efee8bb7a7c0888b56fb96d06d3102ef7fe66965b990ab9aa62ca9d7a674e",
+      "width": 1120,
+      "height": 461
     },
     {
       "id": "xm.formsectionwidgetclass",
       "png": "xm-formsectionwidgetclass.png",
-      "sha256": "1ab2aadb94f70ba3bf2030f1388b35cb5d978819ed6042fb9d0d0f49d1ccaab4",
-      "width": 1228,
-      "height": 432
+      "sha256": "4f4503a16a45914e7230ce8043c00e9f1d1ef27fa1538eb1d35e22891a1de33f",
+      "width": 1240,
+      "height": 489
     },
     {
       "id": "xm.emptystatewidgetclass",
       "png": "xm-emptystatewidgetclass.png",
-      "sha256": "0b9494aafa18c7c08082d70fe2726a22c13fd1335e6be0be5a634d6a66334ebf",
-      "width": 1204,
-      "height": 412
+      "sha256": "e3b227487843c119c6c034c16233ab6cc6ae1784749cbb404033be7f646798ec",
+      "width": 1216,
+      "height": 463
     },
     {
       "id": "xm.toastwidgetclass",
       "png": "xm-toastwidgetclass.png",
-      "sha256": "bc50d13c2124592725521a17c7562148164b0bb9fc201f28c82f06da4a1e35eb",
-      "width": 1084,
-      "height": 412
+      "sha256": "f867a2faf2e355e290b0ebb5021dc7cd599c15dbeec851644fe1044b9ece354a",
+      "width": 1096,
+      "height": 463
     },
     {
       "id": "xm.commandpalettewidgetclass",
       "png": "xm-commandpalettewidgetclass.png",
-      "sha256": "604adb69f1dc0c1f5589d1ac7018ade16277ed7674191ed951aeb0d244324883",
-      "width": 1300,
-      "height": 446
+      "sha256": "8dfe3d0fd15ddc2bab5cd4691b5b37e48668ff16a49e518e50c8339b10115405",
+      "width": 1312,
+      "height": 499
     },
     {
       "id": "xm.skeletonwidgetclass",
       "png": "xm-skeletonwidgetclass.png",
-      "sha256": "b41617c862f4c35b7d0fb6faa01bb2017f17646bc2bf5b5721e3a7a3e4e5e37e",
-      "width": 1156,
-      "height": 402
+      "sha256": "68d32a186729b383f29bfcb9dcac741ebee7ae743b70caa3a3cfdb3a7a17bd9c",
+      "width": 1168,
+      "height": 447
     },
     {
       "id": "xm.rowactionswidgetclass",
       "png": "xm-rowactionswidgetclass.png",
-      "sha256": "55ce129aab4cd9873397891efac2f5742beb78fa348920e7d1a8008281b0be4c",
-      "width": 1204,
-      "height": 402
+      "sha256": "c2880506901830b8da13630a25749fbab8435a62c09abd8dd7c80ebb87277b38",
+      "width": 1216,
+      "height": 447
     },
     {
       "id": "xm.drophighlightwidgetclass",
       "png": "xm-drophighlightwidgetclass.png",
-      "sha256": "d85d48bd5de0468da339a95dc1662d84a0c4001edd69eb924c6ed03d435eb212",
-      "width": 1276,
-      "height": 402
+      "sha256": "1c4f844341069e135d1a5bab84f46a75d349663a9669d7a16593ceb7fb2af71a",
+      "width": 1288,
+      "height": 447
     },
     {
       "id": "xm.statusbarwidgetclass",
       "png": "xm-statusbarwidgetclass.png",
-      "sha256": "548ca01d613853b12990b3d9a495f710c193a759ae09820d6c3717e3c44908ae",
-      "width": 1180,
-      "height": 402
+      "sha256": "9d46a072cec3146e6d4835d5f70bb774bf4f31a9cfee5024de5e07f4f4b1f7d2",
+      "width": 1192,
+      "height": 447
     },
     {
       "id": "xm.toolbarwidgetclass",
       "png": "xm-toolbarwidgetclass.png",
-      "sha256": "f8753944a13ff7814861536aea6edfb5de688b335eb040dda2b048bb999d6eb7",
-      "width": 1132,
-      "height": 402
+      "sha256": "02b3231bd03ea25fa531cf859112a8bfa88368799dbbb51fd1be3c51fae42c3f",
+      "width": 1144,
+      "height": 447
     },
     {
       "id": "xm.sidebarwidgetclass",
       "png": "xm-sidebarwidgetclass.png",
-      "sha256": "da69d30e8550e7a8825edd4a774a2d524b715b9b724d53f4936660f69501349e",
-      "width": 1132,
-      "height": 433
+      "sha256": "46d8d8b98f30fd25af51f8c7e52c504b5be203e6a438df8ed68e6f2760ec61c6",
+      "width": 1144,
+      "height": 484
     },
     {
       "id": "xm.autosuggestboxwidgetclass",
       "png": "xm-autosuggestboxwidgetclass.png",
-      "sha256": "af844bf3ce54d72a5e45cad79457b8486c274490632511b064482522c27e0354",
-      "width": 1300,
-      "height": 402
+      "sha256": "9ee6cfbab2443fc1397c34d1ef45097a58766f885a11b3ee1f6b272d31034647",
+      "width": 1312,
+      "height": 447
     },
     {
       "id": "xm.numberboxwidgetclass",
       "png": "xm-numberboxwidgetclass.png",
-      "sha256": "1091a9e2481cf9fef4c1a2034bbaf1138774401efba47e989fdfc7c7d3fbb8f8",
-      "width": 1180,
-      "height": 424
+      "sha256": "347113904144b56421534bcd4ce0b23878799ffc7b3000326b255e3d5b975c38",
+      "width": 1192,
+      "height": 469
     },
     {
       "id": "xm.ratingcontrolwidgetclass",
       "png": "xm-ratingcontrolwidgetclass.png",
-      "sha256": "4146a3a982f732b95080c0d6ae3320760444daaa2d345176a30233a0bd9e51d6",
-      "width": 1276,
-      "height": 424
+      "sha256": "ff139470d49da27bcd23f2507d8b02f57874c8e93f828342f2837ecae6f3bd8f",
+      "width": 1288,
+      "height": 469
     },
     {
       "id": "xm.notebookwidgetclass",
       "png": "xm-notebookwidgetclass.png",
-      "sha256": "d7b4d047f64b184b568a6cb44225fded3cfd27c3504ded85ea3c7d71d3fc5b3a",
-      "width": 1156,
-      "height": 450
+      "sha256": "da59a510d61b142aabe534d934045c87ffdfd7a1a7651439bee482ba6b92d60a",
+      "width": 1168,
+      "height": 504
     },
     {
       "id": "xm.panedwindowwidgetclass",
       "png": "xm-panedwindowwidgetclass.png",
-      "sha256": "efd0bf3802a58a3da704eb4037465f11f89d3e62ad8ecf9c29d2a5f6e1c12af7",
-      "width": 1228,
-      "height": 402
+      "sha256": "28192678688a1bab95327ee07471ac9d7cd8345258443444a42eb7021cc18482",
+      "width": 1240,
+      "height": 447
     },
     {
       "id": "xm.panedwidgetclass",
       "png": "xm-panedwidgetclass.png",
-      "sha256": "a731f82fee2ebe9a21202b7d2bd2eb11ed2d1d0b7678dff218fb8b35379d45e3",
-      "width": 1084,
-      "height": 404
+      "sha256": "443426d63ccba9185f82c3abd3231f23e1c067153f90fe30faad189e075b4bc9",
+      "width": 1096,
+      "height": 449
     },
     {
       "id": "xm.primitivewidgetclass",
       "png": "xm-primitivewidgetclass.png",
-      "sha256": "1258e42716d3f9f134c26de8cd8ab145478c818d5a5675a2bf0bea77c3fd6df3",
-      "width": 1180,
-      "height": 386
+      "sha256": "a7b0a7f4e4da7b50d3cb0c968d9b35df9b9812e1e8d4cce00f5830a44a9eb083",
+      "width": 1192,
+      "height": 431
     },
     {
       "id": "xm.printshellwidgetclass",
       "png": "xm-printshellwidgetclass.png",
-      "sha256": "2228d6cd5b2ef7645239f4667fbe5ffc49b69eb80f6de742bbcd39645c5be7ca",
-      "width": 1204,
-      "height": 386
+      "sha256": "45d2c7729eb2079b653d878fa12d544a436ce95dc8efe6b9b254656cec8df01f",
+      "width": 1216,
+      "height": 431
     },
     {
       "id": "xm.pushbuttonwidgetclass",
       "png": "xm-pushbuttonwidgetclass.png",
-      "sha256": "cf8e57cb5ef325f09914355c6015634115d9865f0cb4ee15be9cbd5921c62a60",
-      "width": 1204,
-      "height": 417
+      "sha256": "49bae20bdba293b2d9071da8766bc963efc034092020cd89961987bd29ac1965",
+      "width": 1216,
+      "height": 468
     },
     {
       "id": "xm.progressbarwidgetclass",
       "png": "xm-progressbarwidgetclass.png",
-      "sha256": "f865fa4b7affdf4210b777c5824c4453a832697f1ec06de450f78ca590a0e18d",
-      "width": 1228,
-      "height": 442
+      "sha256": "703d57bad484be04193bef5ca22b06e60463e682aa15b3fd75bfa155ec329287",
+      "width": 1240,
+      "height": 487
     },
     {
       "id": "xm.progressringwidgetclass",
       "png": "xm-progressringwidgetclass.png",
-      "sha256": "d3602d1081b558e5e161f1fac2e0b31dd2fdfd24607a4c72c4fefa159f995963",
-      "width": 1252,
-      "height": 472
+      "sha256": "17c0ddd02319f93d9c4a43c56dfcd44e1b524de33de209d7937f28f1e237046f",
+      "width": 1264,
+      "height": 549
     },
     {
       "id": "xm.pushbuttongadgetclass",
       "png": "xm-pushbuttongadgetclass.png",
-      "sha256": "bc994e563cd1a96d3c976d0022c4c7c5178688b14be04dedd16235bcd05b3084",
-      "width": 1204,
-      "height": 417
+      "sha256": "4900babd5d88c09ee0ed7bab46e0ce0543624776b3134b86be88461420f6078c",
+      "width": 1216,
+      "height": 460
     },
     {
       "id": "xm.rowcolumnwidgetclass",
       "png": "xm-rowcolumnwidgetclass.png",
-      "sha256": "31f8a8e59234b6579bcb41f9cf968d0ea192181a4ef0092713bf7c2a02898007",
-      "width": 1180,
-      "height": 408
+      "sha256": "8805006c8a4d83f0c6a9779a7830491d6ea520707d18a40b2ee0b459707ad95c",
+      "width": 1192,
+      "height": 453
     },
     {
       "id": "xm.simplespinboxwidgetclass",
       "png": "xm-simplespinboxwidgetclass.png",
-      "sha256": "530fc48e25edabb2c7bde663378e7a652e964257cec5fc3e3ee37881d4a2990a",
-      "width": 1276,
-      "height": 434
+      "sha256": "1761f93f1e66d231e49540ba386965f20470ebc642cfe5744fb7b2839077c9a4",
+      "width": 1288,
+      "height": 495
     },
     {
       "id": "xm.scalewidgetclass",
       "png": "xm-scalewidgetclass.png",
-      "sha256": "b77144132780613615788ca2f8e235d493c0b50a7ad74af2d24e64c1495e7152",
-      "width": 1084,
-      "height": 496
+      "sha256": "c3717ddda35ca79e51ef2f3aeb2b00e3946481cdb29ca8da5ccf5b54bff69104",
+      "width": 1096,
+      "height": 541
     },
     {
       "id": "xm.spinnerwidgetclass",
       "png": "xm-spinnerwidgetclass.png",
-      "sha256": "b3d5a8301b12fae57142e84c0f8f57eee430df4c2b63c09141d03c3fd0db795f",
-      "width": 1132,
-      "height": 436
+      "sha256": "037e591c4e29f1c08a86397f037fb398dca505238fdda2e2e0b049131aa9700d",
+      "width": 1144,
+      "height": 481
     },
     {
       "id": "xm.stepperwidgetclass",
       "png": "xm-stepperwidgetclass.png",
-      "sha256": "f18bfab3815034a9381e0e5ffcf11f569cc8491c1c61af1546a12a55dc93cd71",
-      "width": 1132,
-      "height": 424
+      "sha256": "6570ae732ad3964271fef80c76dc16ad51b06ba6da8507084dc8fce2f69ffe65",
+      "width": 1144,
+      "height": 469
     },
     {
       "id": "xm.screenclass",
       "png": "xm-screenclass.png",
-      "sha256": "dfafb667889b7df26c0d4952a462b6cd8e8c40f075eb3c4291971cacdbe716de",
-      "width": 964,
-      "height": 386
+      "sha256": "84fb1d1e5a1ccb822688c65f22aef613e56eb08adffa9bc6b74bd79006cc664d",
+      "width": 976,
+      "height": 431
     },
     {
       "id": "xm.scrollbarwidgetclass",
       "png": "xm-scrollbarwidgetclass.png",
-      "sha256": "cc920373885791a4fef8b0bddd6f330fa2884730c2e910145760f3d5ebabca1f",
-      "width": 1180,
-      "height": 496
+      "sha256": "679a571deeaa821bedeb44a135ae91693ff500781f0a7ea1f8d98a0c615c3b49",
+      "width": 1192,
+      "height": 543
     },
     {
       "id": "xm.scrolledwindowwidgetclass",
       "png": "xm-scrolledwindowwidgetclass.png",
-      "sha256": "4cafa7c095337985ad6f076f05fb6f0f8ea782d86fca07364783c89d46889266",
-      "width": 1300,
-      "height": 402
+      "sha256": "5c9aacbca31dbda56978648a8af7f95faf2c5636a57ea8b11def9224a0c1d572",
+      "width": 1312,
+      "height": 447
     },
     {
       "id": "xm.selectionboxwidgetclass",
       "png": "xm-selectionboxwidgetclass.png",
-      "sha256": "8cc5b9c3c54fc42930e76100f3ff1d46de5bb22bf09682946d431da8c965b772",
-      "width": 1252,
-      "height": 685
+      "sha256": "578283d25e4c79ee9855c8d157a0b5bf7bb38c2f849d56f00f36c891cb3225ce",
+      "width": 1264,
+      "height": 753
     },
     {
       "id": "xm.separatorgadgetclass",
       "png": "xm-separatorgadgetclass.png",
-      "sha256": "7c82db9229173900c5576131e7b4633fedc39ac3ca9f37a63aef4aeb7a7920d3",
-      "width": 1180,
-      "height": 402
+      "sha256": "57483cac10fcdb941fa5d10c6e9ce1d58a6bc7b3c9b95569a70397f902229b57",
+      "width": 1192,
+      "height": 447
     },
     {
       "id": "xm.separatorwidgetclass",
       "png": "xm-separatorwidgetclass.png",
-      "sha256": "9bf1ce286c194c9f3c4943017a8026c0a4c67eac03fed1ad828ffbd2dab06f94",
-      "width": 1180,
-      "height": 402
+      "sha256": "f175c8d632d2b5ff4fc46debb7480b88ab478db2fccb399c5f23b2b7f0ae917b",
+      "width": 1192,
+      "height": 447
     },
     {
       "id": "xm.spinboxwidgetclass",
       "png": "xm-spinboxwidgetclass.png",
-      "sha256": "9e34c914cfe5ecd3788a28b551de1f8fe962e61e969719a7b8e1ce943151500e",
-      "width": 1132,
-      "height": 428
+      "sha256": "17773670f8bb5d09e9025323deadb81d918e13d7f88a4f431b22b73b5a206c9f",
+      "width": 1144,
+      "height": 495
     },
     {
       "id": "xm.tabboxwidgetclass",
       "png": "xm-tabboxwidgetclass.png",
-      "sha256": "31559038b007911010e77d81a3317c1a799ca7c9688aba73ff191a513a7c3dc5",
-      "width": 1108,
-      "height": 402
+      "sha256": "dc93a554b4be60260a0500a619d0cc06eb7a6c01529bb0b1685ee1969826f887",
+      "width": 1120,
+      "height": 447
     },
     {
       "id": "xm.tabstackwidgetclass",
       "png": "xm-tabstackwidgetclass.png",
-      "sha256": "291d23f95998f732e2db6deced10bfd5334e8bc523beb1efe1db3eecb2627c63",
-      "width": 1156,
-      "height": 416
+      "sha256": "e3f8eec19158fc5ef097459cf1c979ff3ce8a67f50da035ca66b494ccce3652c",
+      "width": 1168,
+      "height": 459
     },
     {
       "id": "xm.textwidgetclass",
       "png": "xm-textwidgetclass.png",
-      "sha256": "978cc26769e0a23b2b895e6667648b16baf54dd4516a846d90d7a6c2006866b9",
-      "width": 1060,
-      "height": 423
+      "sha256": "066c86497d5887f4305d0e09534bbaf99fafaad5eb90df9d1387aab1532f87cc",
+      "width": 1072,
+      "height": 466
     },
     {
       "id": "xm.textfieldwidgetclass",
       "png": "xm-textfieldwidgetclass.png",
-      "sha256": "ef0d6a64110377631b78a0fe502921ed9144e3f9cdf375c7abea8195f79fcd30",
-      "width": 1180,
-      "height": 423
+      "sha256": "8d22fc38a99dd08b3564244aa1d32e1f6dbc55e348122d7b4f6716bbaeb57875",
+      "width": 1192,
+      "height": 466
     },
     {
       "id": "xm.togglebuttonwidgetclass",
       "png": "xm-togglebuttonwidgetclass.png",
-      "sha256": "ea7c19ab5975f1dfc3bcb2a11b29bc9da80029a835bca683512947ff3cfb25ef",
-      "width": 1252,
-      "height": 417
+      "sha256": "2df569bbaddf6014ad0051e6054712766bbdc75c7d0188efd6fe3fc3d12149d7",
+      "width": 1264,
+      "height": 472
     },
     {
       "id": "xm.toggleswitchwidgetclass",
       "png": "xm-toggleswitchwidgetclass.png",
-      "sha256": "a41758057a4ac5aadce161c5ba3f69b47b6f71c50e773898788f764a075a7892",
-      "width": 1252,
-      "height": 418
+      "sha256": "c7b8a516ed650c8e8944b32e06efc7bfcb61b49607b5a78e47558568e5b630d9",
+      "width": 1264,
+      "height": 463
     },
     {
       "id": "xm.togglebuttongadgetclass",
       "png": "xm-togglebuttongadgetclass.png",
-      "sha256": "9810f991cea5ffb4b4ea4495d7cb8d68273888f2fa1abff042f09d00a8e41e38",
-      "width": 1252,
-      "height": 417
+      "sha256": "b55615514350511074a2ab1ddfda3ba83dfcac7dbbae56315701b8dd82fa2e6f",
+      "width": 1264,
+      "height": 464
     }
   ]
 }
