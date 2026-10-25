@@ -967,13 +967,14 @@ DrawCascade(
 	      LabG_NormalGC(cb) == NULL)
 	      return;
 
-	  XmeGetPixmapData(XtScreen(cb),
-			   pixmap,
-			   NULL,    
-			   &depth,
-			   NULL, NULL,
-			   NULL, NULL,
-			   NULL, NULL); 
+	  if (!XmeGetPixmapData(XtScreen(cb),
+				 pixmap,
+				 NULL,
+				 &depth,
+				 NULL, NULL,
+				 NULL, NULL,
+				 NULL, NULL))
+	      return;
 
 	  if (depth == XtParent(cb)->core.depth)
 	      XCopyArea (XtDisplay(cb), pixmap, 

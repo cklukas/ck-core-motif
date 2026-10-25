@@ -1,3 +1,10 @@
+CascadeButtonGadget pixmap metadata guard (2026-10-25)
+=======================================================
+
+- Skip cascade gadget glyph copies when `XmeGetPixmapData` cannot resolve
+  pixmap metadata, avoiding an uninitialized depth branch; see
+  `docs/cascade-gadget-pixmap-metadata.md`.
+
 Notebook pixmap metadata guard (2026-10-25)
 =============================================
 
