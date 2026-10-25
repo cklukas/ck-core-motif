@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm file seek checks
 
 Mrm block reads and writes now check the `lseek` result before issuing the

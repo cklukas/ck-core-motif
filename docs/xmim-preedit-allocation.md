@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Input-method preedit allocation failures
 
 Preedit replacement and feedback buffers are now checked as a pair before

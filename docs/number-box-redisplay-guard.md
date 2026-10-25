@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # NumberBox redisplay guards
 
 `XmNumberBox` now returns safely when one of its drawing GCs or its queried X11

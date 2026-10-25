@@ -14,6 +14,8 @@ for needle in (
     "String *new_table",
     "if (new_table == NULL)",
     "if (table[i] == NULL)",
+    "span > (size_t)INT_MAX - 1",
+    "table[i] = XtMalloc((Cardinal)(span + 1));",
     "XtFree((char *)table[cleanup]);",
     "XtFree((char *)table[i]);",
 ):

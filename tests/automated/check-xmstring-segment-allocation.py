@@ -12,6 +12,6 @@ assert "if (new_segments == NULL)" in region
 assert region.count("if (copy &&") >= 2
 assert "SIZE_MAX / sizeof(_XmStringEntry)" in region
 assert "UINT_MAX / sizeof(_XmStringEntry)" in region
-assert "(Cardinal)(sizeof(_XmStringNREntry) * (sc + 1))" in region
+assert "(Cardinal)(sizeof(_XmStringEntry) * (size_t)(sc + 1))" in region
 assert "sc == INT_MAX" in region
 print("PASS XmString segment allocation failures are guarded")

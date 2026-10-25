@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text selection-array bounds
 
 Text input widgets copy the configurable selection scan-type array into

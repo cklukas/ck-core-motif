@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # SpinBox child-name bounds
 
 `XmSimpleSpinBox` creates its text-field child by appending `_TF` to the

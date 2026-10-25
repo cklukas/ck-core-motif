@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Check that XmRenderT scratch-tag copying fails atomically."""
-
 from pathlib import Path
-
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmRenderT.c").read_text(encoding="utf-8")
 start = source.index("_XmRenditionCopy(XmRendition rend")

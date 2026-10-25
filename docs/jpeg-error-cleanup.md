@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # JPEG decoder error cleanup
 
 The libjpeg error callback uses `longjmp`, including for failures after output

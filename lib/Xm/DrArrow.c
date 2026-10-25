@@ -31,6 +31,8 @@
 #endif
 
 
+#include <stdint.h>
+#include <string.h>
 #include "XmI.h"
 #include <Xm/DrawP.h>
 
@@ -62,7 +64,8 @@ void XmeDrawArrow(Display *display, Drawable d,
    short t = 0 , b = 0 , c = 0 ;
    XtAppContext app;
 
-   if (!d) return ;
+   if (!d || width < 3 || height < 3 ||
+       (shadow_thick && (!top_gc || !bot_gc))) return ;
 
    app = XtDisplayToApplicationContext(display);
    _XmAppLock(app);
@@ -78,13 +81,37 @@ void XmeDrawArrow(Display *display, Drawable d,
    }
    if (size < 1) { _XmAppUnlock(app); return; }
    if (allocated < size) {
+      unsigned int new_capacity = (unsigned int)(size / 2 + 6);
+      size_t new_bytes = (size_t)new_capacity * sizeof(XRectangle);
+      XRectangle *new_top, *new_cent, *new_bot;
+
+      if (new_capacity == 0 || new_bytes > SIZE_MAX)
+        { _XmAppUnlock(app); return; }
       _XmProcessLock();
-      top  = (XRectangle *) XtRealloc ((char*)top, 
-                                       sizeof (XRectangle) * (size/2+6));
-      cent = (XRectangle *) XtRealloc ((char*)cent, 
-                                       sizeof (XRectangle) * (size/2+6));
-      bot  = (XRectangle *) XtRealloc ((char*)bot, 
-                                       sizeof (XRectangle) * (size/2+6));
+      new_top = (XRectangle *)XtMalloc(new_bytes);
+      new_cent = (XRectangle *)XtMalloc(new_bytes);
+      new_bot = (XRectangle *)XtMalloc(new_bytes);
+      if (new_top == NULL || new_cent == NULL || new_bot == NULL) {
+        XtFree((char *)new_top);
+        XtFree((char *)new_cent);
+        XtFree((char *)new_bot);
+        _XmProcessUnlock();
+        _XmAppUnlock(app);
+        return;
+      }
+      if (allocated != 0) {
+        size_t old_count = (size_t)(allocated / 2 + 6);
+        size_t old_bytes = old_count * sizeof(XRectangle);
+        memcpy(new_top, top, old_bytes);
+        memcpy(new_cent, cent, old_bytes);
+        memcpy(new_bot, bot, old_bytes);
+      }
+      XtFree((char *)top);
+      XtFree((char *)cent);
+      XtFree((char *)bot);
+      top = new_top;
+      cent = new_cent;
+      bot = new_bot;
       allocated = size;
       _XmProcessUnlock();
    }

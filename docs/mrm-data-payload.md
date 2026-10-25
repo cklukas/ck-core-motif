@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm data-payload validation
 
 Mrm data records store either a simple payload or a chain of fixed-size

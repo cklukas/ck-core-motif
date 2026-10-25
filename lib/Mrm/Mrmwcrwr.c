@@ -1311,6 +1311,7 @@ UrmCWRSetCallbackItem (URMResourceContextPtr	context_id,
 
   result = UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItem",
 			    cb_offs, item_ndx, &cbdesc, &itmptr) ;
+
   if ( result != MrmSUCCESS ) return result ;
   itmptr->cb_item.routine = offset ;
 
@@ -1490,6 +1491,7 @@ UrmCWRSetCallbackItemRes (URMResourceContextPtr		context_id,
 
   result = UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItemRes",
 			    cb_offs, item_ndx, &cbdesc, &itmptr) ;
+
   if ( result != MrmSUCCESS ) return result ;
   itmptr->cb_item.routine = offset ;
 
@@ -1502,6 +1504,7 @@ UrmCWRSetCallbackItemRes (URMResourceContextPtr		context_id,
 
   result = UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItemRes",
 			    cb_offs, item_ndx, &cbdesc, &itmptr) ;
+
   if ( result != MrmSUCCESS ) return result ;
   itmptr->cb_item.rep_type = MrmRtypeResource ;
   itmptr->cb_item.datum.offset = offset ;

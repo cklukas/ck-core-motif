@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm pixmap-set initialization
 
 `InitializePixmapSets` now checks the published cache pointers while holding

@@ -3,6 +3,7 @@
 #endif
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 #include <Xm/DataGridP.h>
@@ -309,10 +310,13 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
 }
 
 static void draw_text(XmDataGridWidget grid, int x, int y, const char *text) {
+    size_t length;
     if (!grid->data_grid.gc) return;
     if (!text) text = "";
+    length = strlen(text);
     XDrawString(XtDisplay((Widget)grid), XtWindow((Widget)grid),
-                grid->data_grid.gc, x, y, text, (int)strlen(text));
+                grid->data_grid.gc, x, y, text,
+                length > (size_t)INT_MAX ? INT_MAX : (int)length);
 }
 
 static int column_width(XmDataGridWidget grid) {
@@ -498,7 +502,10 @@ Boolean XmDataGridGetSelectedCell(Widget widget, XtPointer *row_id_return,
     if (!widget || !XmIsDataGrid(widget) || !row_id_return ||
         !column_id_return) return False;
     grid = (XmDataGridWidget)widget;
-    if (grid->data_grid.selected_row < 0 || grid->data_grid.selected_column < 0)
+    if (grid->data_grid.selected_row < 0 ||
+        grid->data_grid.selected_column < 0 ||
+        (Cardinal)grid->data_grid.selected_row >= grid->data_grid.row_count ||
+        (Cardinal)grid->data_grid.selected_column >= grid->data_grid.column_count)
         return False;
     *row_id_return = grid->data_grid.rows[grid->data_grid.selected_row].id;
     *column_id_return = grid->data_grid.columns[grid->data_grid.selected_column].id;
@@ -523,18 +530,22 @@ Cardinal XmDataGridGetTopRow(Widget widget) {
 Boolean XmDataGridBeginEdit(Widget widget) {
     XmDataGridWidget grid;
     const char *value;
+    char *copy;
     if (!widget || !XmIsDataGrid(widget)) return False;
     grid = (XmDataGridWidget)widget;
     if (grid->data_grid.selected_row < 0 || grid->data_grid.selected_column < 0 ||
+        (Cardinal)grid->data_grid.selected_row >= grid->data_grid.row_count ||
+        (Cardinal)grid->data_grid.selected_column >= grid->data_grid.column_count ||
         !grid->data_grid.columns[grid->data_grid.selected_column].editable)
         return False;
     value = grid->data_grid.rows[grid->data_grid.selected_row]
         .values[grid->data_grid.selected_column];
+    copy = XtNewString(value ? value : "");
+    if (!copy) return False;
     XtFree(grid->data_grid.edit_text);
     XtFree(grid->data_grid.edit_error);
-    grid->data_grid.edit_text = XtNewString(value ? value : "");
+    grid->data_grid.edit_text = copy;
     grid->data_grid.edit_error = NULL;
-    if (!grid->data_grid.edit_text) return False;
     grid->data_grid.edit_row = grid->data_grid.selected_row;
     grid->data_grid.edit_column = grid->data_grid.selected_column;
     grid->data_grid.editing = True;

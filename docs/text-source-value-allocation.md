@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text source value conversion
 
 `_XmStringSourceGetValue` now uses the checked range-size helper for both byte

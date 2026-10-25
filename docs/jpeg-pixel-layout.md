@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # JPEG XImage pixel layout
 
 JPEG conversion used fixed two-byte and four-byte writes based only on root

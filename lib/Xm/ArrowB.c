@@ -905,6 +905,12 @@ DrawArrow(XmArrowButtonWidget aw,
   if (width == 0 || height == 0 || top_gc == NULL || bottom_gc == NULL)
     return;
   
+  /* A partially initialized widget can reach redisplay after a failed
+     resource allocation.  Do not pass missing GCs or empty geometry into
+     the X drawing helpers. */
+  if (width == 0 || height == 0 || top_gc == NULL || bottom_gc == NULL)
+    return;
+
   /* The way we currently handle 1 shadowThickness in XmeDrawArrow 
      is by drawing the center a little bit bigger, so the center_gc has
      to be present. Kinda hacky... */

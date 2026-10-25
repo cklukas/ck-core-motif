@@ -3,6 +3,7 @@
 
 from pathlib import Path
 
+
 source = Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrwr.c"
 text = source.read_text(encoding="utf-8")
 start = text.index("UrmCWRSetArgValue (URMResourceContextPtr")
@@ -12,6 +13,7 @@ needle = "      result = UrmCWR__BindArgPtrs"
 count = region.count(needle)
 if count != 6:
     raise SystemExit(f"expected six post-growth arg-value binds, found {count}")
+checks = region.count("      if ( result != MrmSUCCESS ) return result ;")
 lines = region.splitlines()
 bind_checks = 0
 for index, line in enumerate(lines):
@@ -21,6 +23,6 @@ for index, line in enumerate(lines):
             raise SystemExit("an arg-value rebind lacks an immediate failure check")
         bind_checks += 1
 if bind_checks != 6:
-    raise SystemExit(f"expected six post-growth bind checks, found {bind_checks}")
+    raise SystemExit(f"expected six post-growth arg-value bind checks, found {bind_checks}")
 
-print("PASS Mrm arg-value post-growth rebind failures propagate")
+print("Mrm arg-value post-growth rebind failures propagate")

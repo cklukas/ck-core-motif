@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm writer class input
 
 `UrmCWRSetClass` now rejects a null user-defined class name before measuring or

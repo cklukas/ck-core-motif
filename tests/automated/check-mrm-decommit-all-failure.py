@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Check that Mrm decommit-all preserves failed dirty buffers."""
 
+import os
 from pathlib import Path
 
-source = Path(__file__).parents[2] / "lib" / "Mrm" / "MrmIbuffer.c"
+source = Path(os.environ.get("MOTIF_SOURCE", Path(__file__).parents[2] / "lib" / "Mrm" / "MrmIbuffer.c"))
 text = source.read_text(encoding="utf-8")
 start = text.rindex("Idb__BM_DecommitAll (")
 end = text.index("\n}", start)
@@ -18,4 +19,4 @@ if "curbuf->activity = 0" in failure_block or "curbuf->modified = FALSE" in fail
     raise SystemExit("decommit-all failure still clears dirty state")
 if "curbuf->cur_file = NULL" not in body[next_success:]:
     raise SystemExit("successful decommit does not detach the buffer")
-print("PASS Mrm decommit-all preserves failed dirty buffers")
+print("Mrm decommit-all preserves failed dirty buffers")

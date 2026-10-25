@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm header RID handle validation
 
 Resource-ID entries in the header store a record number and an entry offset.

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # UIL file-summary bounds
 
 The listing file summary prints every expanded source path into a 132-byte

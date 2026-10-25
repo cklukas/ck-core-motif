@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Check Mrm callback routine offsets before string lookup."""
+import os
 from pathlib import Path
-
-source = Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrw.c"
+source = Path(os.environ.get("MOTIF_SOURCE", Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrw.c"))
 text = source.read_text(encoding="utf-8")
 start = text.index("\nUrm__CW_FixupCallback (")
 end = text.find("\n\n\f", start)
@@ -14,4 +14,4 @@ for needle in (
 ):
     if needle not in region:
         raise SystemExit(f"missing callback routine bound: {needle}")
-print("PASS Mrm callback routine names are record-bounded")
+print("Mrm callback routine names are record-bounded")

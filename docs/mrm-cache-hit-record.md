@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm buffer cache-hit validation
 
 `Idb__BM_GetRecord` scans the buffer pool before loading a record from disk. A

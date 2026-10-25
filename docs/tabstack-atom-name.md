@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TabStack atom-name portability
 
 TabStack derives its private X atom name from the process ID.  The old code

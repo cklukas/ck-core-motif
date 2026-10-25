@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm header filter buffer lifetime
 
 `Idb__HDR_MatchFilter` now keeps the header buffer live while validating and

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TabList constructors
 
 `XmTabbedStackListCreate` and `XmTabbedStackListCopy` now check their Xt

@@ -8,7 +8,7 @@ start = text.index("_XmRedisplayLabG(Widget wid,")
 end = text.find("\f", start)
 body = text[start:] if end < 0 else text[start:end]
 required = [
-    "if (XmeGetPixmapData(XtScreen(lw), Pix(lw), NULL, &depth",
+    "if (XmeGetPixmapData(XtScreen(lw), Pix(lw), &depth".replace(", &depth", ", NULL, &depth"),
     "if (XmeGetPixmapData(XtScreen(lw), pix_use, NULL, &depth",
     "if (depth == XtParent(lw)->core.depth)",
     "XSetFillStyle(XtDisplay(lw), gc, FillStippled)",

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List copy allocation bounds
 
 List copy-on-write helpers now validate count products and allocation results

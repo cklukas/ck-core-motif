@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TextField inline preedit recovery
 
 When overstrike preedit recovery converts the saved wide-character tail back

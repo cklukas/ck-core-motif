@@ -880,9 +880,9 @@ XmCreateCommand(
     ArgList  argsNew;
 
     if (ac == (Cardinal)~(Cardinal)0 ||
-	(size_t)ac >= SIZE_MAX / sizeof(Arg) ||
-	ac >= (Cardinal)(UINT_MAX / sizeof(Arg)) ||
-	(ac != 0 && al == NULL))
+        (size_t)ac >= SIZE_MAX / sizeof(Arg) ||
+        ac >= (Cardinal)(UINT_MAX / sizeof(Arg)) ||
+        (ac != 0 && al == NULL))
 	return NULL;
 
     /* add dialogType to arglist and force to XmDIALOG_COMMAND... */
@@ -891,11 +891,11 @@ XmCreateCommand(
 
     /*  allocate arglist, copy args, add dialog type arg */
     argsNew = (ArgList) XtMalloc ((Cardinal)(sizeof(Arg) *
-					 ((size_t)ac + 1)));
+					  ((size_t)ac + 1)));
     if (argsNew == NULL)
 	return NULL;
     if (ac != 0)
-	memcpy(argsNew, al, sizeof(Arg) * (size_t)ac);
+        memcpy(argsNew, al, sizeof(Arg) * (size_t)ac);
     XtSetArg (argsNew[ac], XmNdialogType, XmDIALOG_COMMAND);  ac++;
 
     /*  create Command, free argsNew, return */
@@ -963,6 +963,8 @@ XmCommandGetChild(
 {
     XmCommandWidget   w = (XmCommandWidget)widget;
     Widget ret_widget = NULL;
+    if (widget == NULL)
+        return NULL;
     _XmWidgetToAppContext(widget);
 /****************/
     _XmAppLock(app);
@@ -1000,6 +1002,8 @@ XmCommandSetValue(
 {
     XmCommandWidget   w = (XmCommandWidget)widget;
     char *str;
+    if (widget == NULL || value == NULL)
+        return;
     _XmWidgetToAppContext(widget);
 /****************/
 
@@ -1026,10 +1030,10 @@ XmCommandAppendValue(
     XmCommandWidget   w = (XmCommandWidget)widget;
     char            *strNew;
     XmTextPosition   endPosition;
+    if (widget == NULL || value == NULL)
+        return;
     _XmWidgetToAppContext(widget);
 /****************/
-
-    if (value == NULL) return;
 
     _XmAppLock(app);
     /* return if invalid string from "value" passed in */
@@ -1068,10 +1072,10 @@ XmCommandError(
     XmCommandWidget   w = (XmCommandWidget)widget;
     XmString  blankXmString;
 
+    if (widget == NULL || error == NULL)
+        return;
     _XmWidgetToAppContext(widget);
 /****************/
-
-    if (error == NULL) return;
 
     _XmAppLock(app);
 

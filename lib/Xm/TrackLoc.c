@@ -69,7 +69,7 @@ _XmInputInWidget(
         Position y)
 #endif /* NeedWidePrototypes */
 {
-   int i;
+   Cardinal i;
    Widget child;
    CompositeWidget cw = (CompositeWidget) w;
    

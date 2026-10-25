@@ -46,7 +46,7 @@ static char rcsid[] = "$TOG: XmStringFunc.c /main/9 1999/10/14 11:20:50 mgreess 
 
 /********    Static Function Declarations    ********/
 
-static void new_line(_XmString string) ;
+static Boolean new_line(_XmString string) ;
 
 /********    End Static Function Declarations    ********/
 
@@ -181,38 +181,39 @@ XmStringTableParseStringArray(XtPointer   *strings,
 			      Cardinal     parse_count,
 			      XtPointer    call_data)
 {
-  int	i;
+  Cardinal i;
   XmStringTable strs;
 
-  _XmProcessLock();
   if ((strings == NULL) || (count == 0) ||
       ((size_t)count > SIZE_MAX / sizeof(XmString)) ||
       ((size_t)count > (size_t)UINT_MAX / sizeof(XmString))) {
-    _XmProcessUnlock();
     return(NULL);
   }
   
   strs = (XmStringTable)XtMalloc(
       (Cardinal)((size_t)count * sizeof(XmString)));
   if (strs == NULL) {
-    _XmProcessUnlock();
     return(NULL);
   }
   
   for (i = 0; i < count; i++)
     {
+      if (strings[i] == NULL) {
+        while (i > 0)
+          XmStringFree(strs[--i]);
+        XtFree((char *)strs);
+        return(NULL);
+      }
       strs[i] = XmStringParseText(strings[i], NULL, tag, type, 
 				  parse, parse_count, call_data);
       if (strs[i] == NULL) {
-	while (i > 0)
-	  XmStringFree(strs[--i]);
-	XtFree((char *)strs);
-	_XmProcessUnlock();
-	return(NULL);
+        while (i > 0)
+          XmStringFree(strs[--i]);
+        XtFree((char *)strs);
+        return(NULL);
       }
     }
 
-  _XmProcessUnlock();
   return(strs);
 }
 
@@ -227,36 +228,36 @@ XmStringTableUnparse(XmStringTable     table,
 		     XmParseModel      parse_model)
 {
   XtPointer	*strs;
-  int		i;
+  Cardinal	i;
   
-  _XmProcessLock();
   if ((table == NULL) || (count == 0) ||
       ((size_t)count > SIZE_MAX / sizeof(XtPointer)) ||
       ((size_t)count > (size_t)UINT_MAX / sizeof(XtPointer))) {
-    _XmProcessUnlock();
     return(NULL);
   }
   
   strs = (XtPointer *)XtMalloc(
       (Cardinal)((size_t)count * sizeof(XtPointer)));
   if (strs == NULL) {
-    _XmProcessUnlock();
     return(NULL);
   }
   
-  for (i = 0; i < count; i++)
-    {
-      strs[i] = XmStringUnparse(table[i], tag, tag_type, output_type,
-				parse, parse_count, parse_model);
-      if (strs[i] == NULL) {
-	while (i > 0)
-	  XtFree((char *)strs[--i]);
-	XtFree((char *)strs);
-	_XmProcessUnlock();
-	return(NULL);
-      }
+  for (i = 0; i < count; i++) {
+    if (table[i] == NULL) {
+      while (i > 0)
+        XtFree((char *)strs[--i]);
+      XtFree((char *)strs);
+      return(NULL);
     }
-  _XmProcessUnlock();
+    strs[i] = XmStringUnparse(table[i], tag, tag_type, output_type,
+			      parse, parse_count, parse_model);
+    if (strs[i] == NULL) {
+      while (i > 0)
+        XtFree((char *)strs[--i]);
+      XtFree((char *)strs);
+      return(NULL);
+    }
+  }
   return(strs);
 }
 
@@ -266,25 +267,40 @@ XmStringTableToXmString(XmStringTable  table,
 			XmString       break_comp)
 {
   /* Note: this is a very expensive way to do this.  Fix for Beta */
-  int		i;
-  XmString	str = NULL, tmp1, tmp2;
+  Cardinal	i;
+  XmString	str = NULL, tmp1, tmp2, copied, copied_break;
 
-  _XmProcessLock();
   if ((table == NULL) || (count == 0)) {
-    _XmProcessUnlock();
     return(NULL);
   }
   tmp1 = NULL;
 
   for (i = 0; i < count; i++)
     {
-      tmp2 = XmStringConcatAndFree(tmp1, XmStringCopy(table[i]));
-      str = XmStringConcatAndFree(tmp2, XmStringCopy(break_comp));
+      if (table[i] == NULL) {
+        XmStringFree(tmp1);
+        return(NULL);
+      }
+      copied = XmStringCopy(table[i]);
+      if (copied == NULL) {
+        XmStringFree(tmp1);
+        return(NULL);
+      }
+      tmp2 = XmStringConcatAndFree(tmp1, copied);
+      if (tmp2 == NULL)
+        return(NULL);
+      copied_break = break_comp ? XmStringCopy(break_comp) : NULL;
+      if (break_comp != NULL && copied_break == NULL) {
+        XmStringFree(tmp2);
+        return(NULL);
+      }
+      str = XmStringConcatAndFree(tmp2, copied_break);
+      if (str == NULL)
+        return(NULL);
 
       tmp1 = str;
     }
   
-  _XmProcessUnlock();
   return(str);
 }
 
@@ -296,14 +312,27 @@ XmStringPutRendition(XmString string,
     return(NULL);
 
   /* Quick and dirty.  Fix for beta! */
-  XmString	str, tmp1, tmp2;
+  XmString	str, tmp1, tmp2, copied;
   
   tmp1 = XmStringComponentCreate(XmSTRING_COMPONENT_RENDITION_BEGIN,
 				 strlen(rendition), (XtPointer)rendition);
-  tmp2 = XmStringConcatAndFree(tmp1, XmStringCopy(string));
+  if (tmp1 == NULL)
+    return(NULL);
+  copied = XmStringCopy(string);
+  if (copied == NULL) {
+    XmStringFree(tmp1);
+    return(NULL);
+  }
+  tmp2 = XmStringConcatAndFree(tmp1, copied);
+  if (tmp2 == NULL)
+    return(NULL);
 
   tmp1 = XmStringComponentCreate(XmSTRING_COMPONENT_RENDITION_END,
 				 strlen(rendition), (XtPointer)rendition);
+  if (tmp1 == NULL) {
+    XmStringFree(tmp2);
+    return(NULL);
+  }
   str = XmStringConcatAndFree(tmp2, tmp1);
   
   return(str);
@@ -317,10 +346,8 @@ XmParseMappingGetValues(XmParseMapping mapping,
   register Cardinal i;
   register String arg_name;
 
-  _XmProcessLock();
   /* Do a little error checking. */
-  if (mapping == NULL) {
-    _XmProcessUnlock();
+  if (mapping == NULL || (arg_count != 0 && arg_list == NULL)) {
     return;
   }
 
@@ -328,6 +355,11 @@ XmParseMappingGetValues(XmParseMapping mapping,
   for (i = 0; i < arg_count; i++)
     {
       arg_name = arg_list[i].name;
+
+      /* ArgLists are application-supplied; ignore incomplete entries rather
+         than passing NULL to strcmp or writing through a NULL value. */
+      if (arg_name == NULL || arg_list[i].value == NULL)
+	continue;
 
       if ((arg_name == XmNpattern) ||
 	  (strcmp(arg_name, XmNpattern) == 0))
@@ -348,22 +380,21 @@ XmParseMappingGetValues(XmParseMapping mapping,
 	       (strcmp(arg_name, XmNincludeStatus) == 0))
 	*((XmIncludeStatus*)arg_list[i].value) = mapping->include_status;
     }
-  _XmProcessUnlock();
 }
 
 void 
 XmParseMappingFree(XmParseMapping mapping)
 {
-  _XmProcessLock();
   if (mapping != NULL)
     {
       /* Free copied data. */
-      XmStringFree(mapping->substitute);
+      XmString substitute = mapping->substitute;
+      mapping->substitute = NULL;
 
       /* Free the record. */
       XtFree((char*) mapping);
+      XmStringFree(substitute);
     }
-  _XmProcessUnlock();
 }
 
 void 
@@ -373,13 +404,14 @@ XmParseTableFree(XmParseTable parse_table,
   /* Free each entry in the table. */
   Cardinal i;
 
-  _XmProcessLock();
+  if (parse_table == NULL) {
+    return;
+  }
   for (i = 0; i < parse_count; i++)
     XmParseMappingFree(parse_table[i]);
 
   /* Free the table itself. */
   XtFree((char*) parse_table);
-  _XmProcessUnlock();
 }
 
 /*
@@ -397,10 +429,14 @@ XmeGetNextCharacter(XtPointer     *in_out,
 		    XmString      *str_include,
 		    XtPointer      call_data) /* unused */
 {
-  char* ptr = (char*) *in_out;
+  char* ptr;
   int len = 0;
   XmStringComponentType comp_type;
-  assert(in_out != NULL);
+
+  if (in_out == NULL || *in_out == NULL || str_include == NULL ||
+      pattern_length < 0)
+    return XmINSERT;
+  ptr = (char *)*in_out;
 
   /* Initialize the out parameters */
   *str_include = NULL;
@@ -461,26 +497,47 @@ XmeGetNextCharacter(XtPointer     *in_out,
   return XmINSERT;
 }
 
-static void 
+static Boolean
 new_line(
         _XmString string )
 {
     int lc = _XmStrEntryCount(string);
     _XmStringEntry line;
+    _XmStringEntry *entries;
+    size_t count;
+
+    if (lc < 0)
+      return False;
+    count = (size_t)lc + 1;
+    if (count > SIZE_MAX / sizeof(*entries) ||
+        count > (size_t)UINT_MAX / sizeof(*entries))
+      return False;
+
+    /* _XmEntryCreate predates allocation-failure handling and dereferences
+       its result immediately, so create this array entry transactionally. */
+    line = (_XmStringEntry)XtMalloc(sizeof(_XmStringArraySegRec));
+    if (line == NULL)
+      return False;
+    bzero((char *)line, sizeof(_XmStringArraySegRec));
+    _XmEntryType(line) = XmSTRING_ENTRY_ARRAY;
+    _XmEntryTextTypeSet(line, XmNO_TEXT);
+
+    entries = (_XmStringEntry *)XtRealloc((char *)_XmStrEntry(string),
+                                           count * sizeof(*entries));
+    if (entries == NULL) {
+      XtFree((char *)line);
+      return False;
+    }
     
     _XmStrImplicitLine(string) = TRUE;
-
-    _XmStrEntry(string) = (_XmStringEntry *) 
-      XtRealloc((char *) _XmStrEntry(string), 
-		sizeof(_XmStringEntry) * (lc + 1));
-    
-    _XmEntryCreate(line, XmSTRING_ENTRY_ARRAY);
-    _XmStrEntry(string)[lc] = line;
+    _XmStrEntry(string) = entries;
+    entries[lc] = line;
 
     _XmEntrySegmentCount(line) = 0;
     _XmEntrySegment(line) = NULL;
 
     _XmStrEntryCount(string)++;
+    return True;
 }
 
 static XmString
@@ -507,12 +564,21 @@ MakeStrFromSeg(XmStringContext start)
     if (_XmEntryMultiple(line[_XmStrContCurrLine(start)])) {
       segs = (_XmStringEntry*)_XmEntrySegment(line[_XmStrContCurrLine(start)]);
       
-      new_line(str);
+      if (!new_line(str)) {
+	_XmStrContError(start) = TRUE;
+	_XmStrFree(str);
+	return NULL;
+      }
     
       if (_XmStrContCurrSeg(start) < _XmEntrySegmentCount(line)) {
 	seg = segs[_XmStrContCurrSeg(start)];
 	
 	_XmStringSegmentNew(str, 0, seg, True);
+	if (_XmEntrySegmentCount(_XmStrEntry(str)[0]) == 0) {
+	  _XmStrContError(start) = TRUE;
+	  _XmStrFree(str);
+	  return NULL;
+	}
 	
 	_XmStrContCurrSeg(start)++;
 	
@@ -520,13 +586,22 @@ MakeStrFromSeg(XmStringContext start)
 	_XmStrContTag(start)     = _XmEntryTag(seg);
 	_XmStrContTagType(start) = (XmTextType) _XmEntryTextTypeGet(seg);
       } else {
-	new_line(str);
+	if (!new_line(str)) {
+	  _XmStrContError(start) = TRUE;
+	  _XmStrFree(str);
+	  return NULL;
+	}
 	_XmStrContCurrSeg(start) = 0;
 	_XmStrContCurrLine(start)++;
       }
     } else {
       seg = line[_XmStrContCurrLine(start)];
       _XmStringSegmentNew(str, 0, seg, True);
+	if (_XmStrEntryCount(str) == 0) {
+	  _XmStrContError(start) = TRUE;
+	  _XmStrFree(str);
+	  return NULL;
+	}
       
       _XmStrContCurrSeg(start) = 0;
       _XmStrContCurrLine(start)++;
@@ -585,7 +660,7 @@ MakeStr(XmStringContext start,
   XmStringComponentType	type;
   unsigned int		len;
   XtPointer		val;
-  XmString		str;
+  XmString		str, component, segment;
   
 
   /* Next component over start until at segment break */
@@ -597,8 +672,14 @@ MakeStr(XmStringContext start,
 
       if (ContextsMatch(start, end)) return(str);
 
-      str = XmStringConcatAndFree(str,
-				  XmStringComponentCreate(type, len, val));
+      component = XmStringComponentCreate(type, len, val);
+      if (component == NULL) {
+	XmStringFree(str);
+	return NULL;
+      }
+      str = XmStringConcatAndFree(str, component);
+      if (str == NULL)
+	return NULL;
     }
        
   /* Next segment over start incrementing until one segment before context */
@@ -607,14 +688,28 @@ MakeStr(XmStringContext start,
 	  (_XmStrContCurrSeg(start) < _XmStrContCurrSeg(end))) ||
 	 !LastSeg(start))
     {
-      str = XmStringConcatAndFree(str, MakeStrFromSeg(start));
+	  segment = MakeStrFromSeg(start);
+	  if (segment == NULL) {
+	    XmStringFree(str);
+	    return NULL;
+	  }
+	  str = XmStringConcatAndFree(str, segment);
+	  if (str == NULL)
+	    return NULL;
     }
 
   /* Next component over start until it matches context */
   type = XmeStringGetComponent(start, TRUE, FALSE, &len, &val);
   while (!ContextsMatch(start, end))
     {
-      str = XmStringConcatAndFree(str, XmStringComponentCreate(type, len, val));
+    component = XmStringComponentCreate(type, len, val);
+    if (component == NULL) {
+      XmStringFree(str);
+      return NULL;
+    }
+    str = XmStringConcatAndFree(str, component);
+    if (str == NULL)
+      return NULL;
       type = XmeStringGetComponent(start, TRUE, FALSE, &len, &val);
   }
     
@@ -632,6 +727,11 @@ XmStringToXmStringTable(XmString string,
   unsigned int		len, b_len;
   XtPointer		val, b_val;
   size_t		i, count;
+
+  if (table != NULL)
+    *table = NULL;
+  if (string == NULL)
+    return(0);
   
   /* Get triple for first component of break_component */
   if (break_component)
@@ -651,16 +751,16 @@ XmStringToXmStringTable(XmString string,
 	    return(0);
 	  }
 	  (*table)[0] = XmStringCopy(string);
+	  if ((*table)[0] == NULL) {
+	    XtFree((char *)*table);
+	    *table = NULL;
+	    return(0);
+	  }
 	}
       return(1);
     }
 
   /* Get context */
-  if (!string)
-    {
-      if (table != NULL) *table = NULL;
-      return(0);
-    }
   _XmStringContextReInit(&stack_context, string);
   
   /* Count number of entries for table */
@@ -709,6 +809,15 @@ XmStringToXmStringTable(XmString string,
 	    {
 	      /* make XmString from start to end */
 	      (*table)[i] = MakeStr(&stack_start, &stack_context);
+	      if ((*table)[i] == NULL) {
+		while (i > 0)
+		  XmStringFree((*table)[--i]);
+		XtFree((char *)*table);
+		*table = NULL;
+		_XmStringContextFree(&stack_context);
+		_XmStringContextFree(&stack_start);
+		return(0);
+	      }
 	      i++;
 	    }
 	} 
@@ -743,7 +852,7 @@ XmStringTableProposeTablist(XmStringTable strings,
   XmRenderTable		rt;
   NextTabResult		ret_val;
   
-  if ((strings == NULL) || (num_strings == 0)) {
+  if ((strings == NULL) || (num_strings == 0) || (widget == NULL)) {
     return ((XmTabList)NULL);
   }
   
@@ -774,7 +883,7 @@ XmStringTableProposeTablist(XmStringTable strings,
     XmTabFree(tab);
     return ((XmTabList)NULL);
   }
-  
+
   XmTabFree(tab);
   
   for (i = 0; i < num_strings; i++)
@@ -833,6 +942,13 @@ XmStringTableProposeTablist(XmStringTable strings,
 	  if (val > _XmTabValue(tab)) XmTabSetValue(tab, val);
 	  else val = _XmTabValue(tab);
 	  j++;
+	}
+
+      if (_XmStrContError(&stack_ctx))
+	{
+	  _XmStringContextFree(&stack_ctx);
+	  XmTabListFree(tl);
+	  return ((XmTabList)NULL);
 	}
       
       _XmStringContextFree(&stack_ctx);

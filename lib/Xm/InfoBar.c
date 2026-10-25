@@ -2,6 +2,7 @@
 #include <config.h>
 #endif
 #include <stdio.h>
+#include <limits.h>
 #include <string.h>
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
@@ -10,6 +11,7 @@
 #include "PrimitiveI.h"
 #include "XmI.h"
 static void Initialize(Widget,Widget,ArgList,Cardinal*); static void Redisplay(Widget,XEvent*,Region); static Boolean SetValues(Widget,Widget,Widget,ArgList,Cardinal*); static void Destroy(Widget); static XtGeometryResult QueryGeometry(Widget,XtWidgetGeometry*,XtWidgetGeometry*); static void Events(Widget,XtPointer,XEvent*,Boolean*);
+static int bounded_text_length(const char *text){size_t length=text?strlen(text):0;return length>(size_t)INT_MAX?INT_MAX:(int)length;}
 #define Offset(field) XtOffsetOf(XmInfoBarRec,field)
 static XtResource resources[]={{XmNinfoMessage,XmCInfoMessage,XmRString,sizeof(String),Offset(info.message),XmRImmediate,(XtPointer)""},{XmNinfoSeverity,XmCInfoSeverity,XmRUnsignedChar,sizeof(unsigned char),Offset(info.severity),XmRImmediate,(XtPointer)XmINFO_SEVERITY_INFO},{XmNinfoClosable,XmCInfoClosable,XmRBoolean,sizeof(Boolean),Offset(info.closable),XmRImmediate,(XtPointer)True},{XmNinfoActionLabel,XmCInfoActionLabel,XmRString,sizeof(String),Offset(info.action_label),XmRImmediate,(XtPointer)NULL},{XmNinfoDismissCallback,XmCInfoDismissCallback,XmRCallback,sizeof(XtCallbackList),Offset(info.dismiss_callback),XmRPointer,(XtPointer)NULL},{XmNinfoActionCallback,XmCInfoActionCallback,XmRCallback,sizeof(XtCallbackList),Offset(info.action_callback),XmRPointer,(XtPointer)NULL},{XmNtraversalOn,XmCTraversalOn,XmRBoolean,sizeof(Boolean),Offset(primitive.traversal_on),XmRImmediate,(XtPointer)True},{XmNhighlightThickness,XmCHighlightThickness,XmRHorizontalDimension,sizeof(Dimension),Offset(primitive.highlight_thickness),XmRCallProc,(XtPointer)_XmSetThickness}};
 externaldef(xminfobarclassrec) XmInfoBarClassRec xmInfoBarClassRec={{(WidgetClass)&xmPrimitiveClassRec,"XmInfoBar",sizeof(XmInfoBarRec),NULL,NULL,False,Initialize,NULL,XtInheritRealize,NULL,0,resources,XtNumber(resources),NULLQUARK,True,XtExposeCompressMaximal,True,False,Destroy,NULL,Redisplay,SetValues,NULL,XtInheritSetValuesAlmost,NULL,NULL,XtVersion,NULL,XtInheritTranslations,QueryGeometry,NULL,NULL},{XmInheritBorderHighlight,XmInheritBorderUnhighlight,XtInheritTranslations,NULL,NULL,0,NULL},{NULL}};
@@ -44,14 +46,20 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
 
     baseline = (int)((bar->core.height + font->ascent - font->descent) / 2);
     XDrawString(display, window, bar->info.gc, 8, baseline, prefix,
-                (int)strlen(prefix));
-    XDrawString(display, window, bar->info.gc, 8 + (int)strlen(prefix) * 7,
+                bounded_text_length(prefix));
+    {
+        size_t prefix_length = strlen(prefix);
+        long long message_x = 8 + (long long)prefix_length * 7;
+        int bounded_x = message_x > INT_MAX ? INT_MAX :
+                        (message_x < INT_MIN ? INT_MIN : (int)message_x);
+    XDrawString(display, window, bar->info.gc, bounded_x,
                 baseline, bar->info.message ? bar->info.message : "",
-                bar->info.message ? (int)strlen(bar->info.message) : 0);
+                bounded_text_length(bar->info.message));
+    }
     if (bar->info.action_label)
         XDrawString(display, window, bar->info.gc,
                     (int)bar->core.width - 100, baseline,
-                    bar->info.action_label, (int)strlen(bar->info.action_label));
+                    bar->info.action_label, bounded_text_length(bar->info.action_label));
     if (bar->info.closable && bar->core.width >= 18 &&
         bar->core.height >= 8) {
         XDrawLine(display, window, bar->info.gc,
@@ -63,7 +71,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
     }
     XFreeFont(display, font);
 }
-static void Events(Widget widget,XtPointer data,XEvent*event,Boolean*dispatch){XmInfoBarWidget bar=(XmInfoBarWidget)widget;(void)data;(void)dispatch;if(event->type==ButtonPress){if(bar->info.closable&&event->xbutton.x>(int)bar->core.width-28){XmInfoBarDismiss(widget);return;}if(bar->info.action_label&&event->xbutton.x>(int)bar->core.width-120){XmInfoBarInvokeAction(widget);return;}}if(event->type==KeyPress){KeySym key;char input[2];XLookupString(&event->xkey,input,sizeof(input),&key,NULL);if(key==XK_Escape&&bar->info.closable)XmInfoBarDismiss(widget);}}
+static void Events(Widget widget,XtPointer data,XEvent*event,Boolean*dispatch){XmInfoBarWidget bar=(XmInfoBarWidget)widget;(void)data;(void)dispatch;if(event->type==ButtonPress){int close_x=(int)bar->core.width>28?(int)bar->core.width-28:0;int action_x=(int)bar->core.width>120?(int)bar->core.width-120:0;if(bar->info.closable&&event->xbutton.x>=close_x){XmInfoBarDismiss(widget);return;}if(bar->info.action_label&&event->xbutton.x>=action_x){XmInfoBarInvokeAction(widget);return;}}if(event->type==KeyPress){KeySym key;char input[2];XLookupString(&event->xkey,input,sizeof(input),&key,NULL);if(key==XK_Escape&&bar->info.closable)XmInfoBarDismiss(widget);}}
 static Boolean SetValues(Widget old_widget,Widget request,Widget widget,ArgList args,Cardinal*count){XmInfoBarWidget old=(XmInfoBarWidget)old_widget,bar=(XmInfoBarWidget)widget;Boolean redraw=False;(void)request;(void)args;(void)count;if(old->info.message!=bar->info.message||old->info.action_label!=bar->info.action_label||old->info.severity!=bar->info.severity||old->info.closable!=bar->info.closable)redraw=True;return redraw;}
 static XtGeometryResult QueryGeometry(Widget widget,XtWidgetGeometry*request,XtWidgetGeometry*reply){(void)widget;(void)request;reply->request_mode=CWWidth|CWHeight;reply->width=360;reply->height=34;return XtGeometryAlmost;}
 void XmInfoBarDismiss(Widget widget){XmInfoBarWidget bar;XmInfoBarCallbackStruct c={XmCR_UNMAP,NULL,0};if(!XmIsInfoBar(widget))return;bar=(XmInfoBarWidget)widget;c.severity=bar->info.severity;XtCallCallbacks(widget,XmNinfoDismissCallback,&c);}

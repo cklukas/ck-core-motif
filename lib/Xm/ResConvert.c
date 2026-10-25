@@ -608,6 +608,9 @@ XmeNamesAreEqual(
 {
         register char i ;
 
+    if (in_str == NULL || test_str == NULL)
+        return False;
+
     if(    ((in_str[0] == 'X') || (in_str[0] == 'x'))
         && ((in_str[1] == 'M') || (in_str[1] == 'm'))    )
     {   
@@ -653,15 +656,17 @@ StringToEntity(
         XtPointer *converter_data) /* unused */
 {
     Widget child;
-    Widget widget = *(Widget*) args[0].addr ;
+    Widget widget;
     static Widget  itsChild;
     Boolean        success;
 
-    if (*n_args != 1) 
-      XtAppWarningMsg (
-            XtDisplayToApplicationContext(disp),
-            "wrongParameters", "cvtStringToWidget", "XtToolkitError",
-            MSG12, (String*)NULL, (Cardinal*)NULL );
+    if (args == NULL || args[0].addr == NULL || n_args == NULL ||
+	*n_args != 1 || from == NULL || from->addr == NULL || to == NULL)
+      return False;
+
+    widget = *(Widget*) args[0].addr ;
+    if (widget == NULL)
+      return False;
 
     /* handle the XmSELF case */
     if (XmeNamesAreEqual ((String) from->addr, "self"))
@@ -747,7 +752,12 @@ CvtStringToChar(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
-   unsigned char in_char = *((unsigned char *) (from->addr)) ;
+   unsigned char in_char;
+
+   if (from == NULL || from->addr == NULL || from->size < sizeof(unsigned char) ||
+       to == NULL)
+      return False;
+   in_char = *((unsigned char *) (from->addr)) ;
 
    _XM_CONVERTER_DONE( to, unsigned char, in_char, ; )
    }
@@ -769,6 +779,8 @@ CvtStringToKeySym(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
+    if (from == NULL || from->addr == NULL || to == NULL)
+        return False;
     KeySym tmpKS = XStringToKeysym( (char *) (from->addr)) ;
 
     if(    tmpKS != NoSymbol    )
@@ -789,6 +801,8 @@ CvtStringToXmStringDestroy(
         XrmValue *args,		/* unused */
         Cardinal *num_args)	/* unused */
 {   
+    if (to == NULL || to->addr == NULL)
+        return;
     XmStringFree( *((XmString *) to->addr)) ;
     return ;
     } 
@@ -810,6 +824,9 @@ CvtStringToXmString(
         XtPointer *converter_data) /* unused */
 {
         XmString tmpStr ;
+
+    if (from == NULL || from->addr == NULL || to == NULL)
+        return False;
 
     if(    from->addr    )
     {   
@@ -836,6 +853,8 @@ CvtStringToXmFontListDestroy(
         XrmValue *args,		/* unused */
         Cardinal *num_args)	/* unused */
 {   
+    if (to == NULL || to->addr == NULL)
+        return;
     XmFontListFree( *((XmFontList *) to->addr)) ;
 
     return ;
@@ -886,6 +905,9 @@ CvtStringToXmFontList(
   char delim;
   XmFontListEntry fontListEntry;
   XmFontList      fontList = NULL;
+
+  if (from == NULL || from->addr == NULL || to == NULL)
+    return FALSE;
   
   if (from->addr)
     {   
@@ -1250,6 +1272,7 @@ GetNextXmString(
         Boolean *after_delimiter )
 {
    char *tmp;
+   size_t input_length;
    int csize;
 
    *cs = NULL;
@@ -1287,7 +1310,10 @@ GetNextXmString(
    /* Found something. Allocate some space (ugh!) and start copying  */
    /* the next string                                                */
 
-   *cs = XtMalloc(strlen(*s) + 1);
+   input_length = strlen(*s);
+   if (input_length > (size_t)UINT_MAX - 1)
+	 return(TRUE);
+   *cs = XtMalloc((Cardinal)(input_length + 1));
    if (*cs == NULL)
 	 return(TRUE);
    tmp = *cs;
@@ -1362,12 +1388,13 @@ CvtStringToXmStringTable(
   int	  str_no, table_size;
   Boolean after_delimiter = False;
 
-  if (from_val->addr == NULL)
+  if (from_val == NULL || from_val->addr == NULL || to_val == NULL)
     return FALSE;
 
   s = (char *) from_val->addr;
   table_size = 100;
-  table = (XmString *) XtMalloc(sizeof(XmString) * table_size);
+  table = (XmString *) XtMalloc(
+	(Cardinal)(sizeof(XmString) * (size_t)table_size));
   if (table == NULL)
     return FALSE;
   for (str_no = 0;;)
@@ -1398,7 +1425,8 @@ CvtStringToXmStringTable(
 	    }
 	  table_size *= 2;
 	  new_table = (XmString *)XtRealloc((char *)table,
-					      sizeof(XmString) * table_size);
+					      (Cardinal)(sizeof(XmString) *
+							 (size_t)table_size));
 	  if (new_table == NULL) {
 	      for (cleanup = 0; cleanup < str_no; ++cleanup)
 		XmStringFree(table[cleanup]);
@@ -1433,7 +1461,8 @@ CvtStringToXmStringTable(
   table_size = str_no + 1;
   {
     XmString *new_table = (XmString *)XtRealloc((char *) table,
-						 sizeof(XmString) * table_size);
+						 (Cardinal)(sizeof(XmString) *
+							    (size_t)table_size));
     if (new_table == NULL) {
       int cleanup;
       for (cleanup = 0; cleanup < str_no; ++cleanup)
@@ -1449,7 +1478,11 @@ CvtStringToXmStringTable(
     {
       if (to_val->size < sizeof(XtPointer)) 
 	{
+	  int cleanup;
 	  to_val->size = sizeof(XtPointer);	
+	  for (cleanup = 0; cleanup < str_no; ++cleanup)
+	    XmStringFree(table[cleanup]);
+	  XtFree((char *)table);
 	  return False;
 	}		
       *(XmString **)(to_val->addr) = table;
@@ -1478,7 +1511,11 @@ XmStringCvtDestroy(
         Cardinal *num_args )	/* unused */
 {
    int i;
+   if (to == NULL || to->addr == NULL)
+       return;
    XmString *table = *(XmString **)(to->addr);
+   if (table == NULL)
+       return;
    for (i = 0; table[i] != NULL; i++)
        XmStringFree(table[i]);       
    XtFree((char*)table);
@@ -1500,13 +1537,16 @@ CvtStringToStringTable(
     static String *tblptr ;
             int size = 50 ;
             int i, len ;
+            size_t span;
             int csize;
             Boolean after_comma = False;
 
-    if(    (p = from_val->addr) == NULL    )
+    if (from_val == NULL || to_val == NULL ||
+        (p = from_val->addr) == NULL)
     {   return( False) ;
         } 
-    table = (String *) XtMalloc( sizeof( String) * size) ;
+    table = (String *) XtMalloc(
+	(Cardinal)(sizeof(String) * (size_t)size));
     if (table == NULL)
 	return(False);
 
@@ -1532,7 +1572,8 @@ CvtStringToStringTable(
                 }
                 size++ ;
                 new_table = (String *)XtRealloc((char *)table,
-						 sizeof(String) * size);
+							 (Cardinal)(sizeof(String) *
+								    (size_t)size));
                 if (new_table == NULL) {
                     for (cleanup = 0; cleanup < i; ++cleanup)
 				XtFree((char *)table[cleanup]);
@@ -1579,7 +1620,8 @@ CvtStringToStringTable(
             }
             size *= 2 ;
             new_table = (String *)XtRealloc((char *)table,
-						 sizeof(String) * size);
+							 (Cardinal)(sizeof(String) *
+								    (size_t)size));
             if (new_table == NULL) {
                 for (cleanup = 0; cleanup < i; ++cleanup)
 			    XtFree((char *)table[cleanup]);
@@ -1588,8 +1630,16 @@ CvtStringToStringTable(
             }
             table = new_table;
             }
-        len = p - top ;
-        table[i] = XtMalloc( len + 1) ;
+        span = (size_t)(p - top);
+        if (span > (size_t)INT_MAX - 1) {
+            int cleanup;
+            for (cleanup = 0; cleanup < i; ++cleanup)
+                XtFree((char *)table[cleanup]);
+            XtFree((char *)table);
+            return(False);
+        }
+        len = (int)span ;
+        table[i] = XtMalloc((Cardinal)(span + 1));
 	if (table[i] == NULL) {
             int cleanup;
             for (cleanup = 0; cleanup < i; ++cleanup)
@@ -1615,7 +1665,8 @@ CvtStringToStringTable(
     }
     {
         String *new_table = (String *)XtRealloc((char *)table,
-						 sizeof(String) * (i + 1));
+						 (Cardinal)(sizeof(String) *
+							    (size_t)(i + 1)));
         if (new_table == NULL) {
             int cleanup;
             for (cleanup = 0; cleanup < i; ++cleanup)
@@ -1657,7 +1708,11 @@ StringCvtDestroy(
         Cardinal *num_args)	/* unused */
 {   
             int i ;
+            if (to == NULL || to->addr == NULL)
+                return;
             String *table = * (String **) (to->addr) ;
+            if (table == NULL)
+                return;
 
     for(    i = 0 ; table[i] != NULL ; i++    )
     {   XtFree( (char *) table[i]) ;
@@ -1684,7 +1739,8 @@ CvtStringToCardinalList(
     int			crd_array_count = 0;
     unsigned long	new_element;
 
-    if ((p = from_val->addr) == NULL)
+    if (from_val == NULL || to_val == NULL ||
+        (p = from_val->addr) == NULL)
         return(False);
 
     crd_array = (Cardinal *)XtCalloc
@@ -1708,12 +1764,14 @@ CvtStringToCardinalList(
 	if (crd_array_size == crd_array_count)
 	    {
 	    if (crd_array_size > INT_MAX / 2 ||
-		(size_t)(crd_array_size * 2) > SIZE_MAX / sizeof(Cardinal))
+		(size_t)(crd_array_size * 2) > SIZE_MAX / sizeof(Cardinal) ||
+		(size_t)(crd_array_size * 2) > UINT_MAX / sizeof(Cardinal))
 		goto invalid_cardinal;
 	    crd_array_size *= 2;
 	    {
 	    Cardinal *new_array = (Cardinal *)XtRealloc((char *)crd_array,
-						 sizeof(Cardinal) * crd_array_size);
+							 (Cardinal)(sizeof(Cardinal) *
+								    (size_t)crd_array_size));
 	    if (new_array == NULL)
 		goto invalid_cardinal;
 	    crd_array = new_array;
@@ -1740,6 +1798,8 @@ CardinalListCvtDestroy(
         XrmValue *args,		/* unused */
         Cardinal *num_args)	/* unused */
 {
+        if (to == NULL || to->addr == NULL)
+            return;
         XtFree((XPointer)to->addr);
 }
 
@@ -1753,11 +1813,20 @@ CvtStringToHorizontalPosition(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
-    Widget widget = *(Widget*) args[0].addr ;
-    Screen * screen = XtScreen(widget) ;
-    unsigned char defaultFromType = _XmGetUnitType(widget) ;
+    Widget widget;
+    Screen * screen;
+    unsigned char defaultFromType;
     Position tmpPix;
     Boolean parseError;
+
+    if (args == NULL || args[0].addr == NULL || from == NULL ||
+        from->addr == NULL || to == NULL)
+        return False;
+    widget = *(Widget*) args[0].addr ;
+    if (widget == NULL)
+        return False;
+    screen = XtScreen(widget) ;
+    defaultFromType = _XmGetUnitType(widget) ;
  
     tmpPix = (Position)
 	_XmConvertStringToUnits (screen, from->addr, (int) defaultFromType,
@@ -1781,11 +1850,20 @@ CvtStringToHorizontalDimension(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
-    Widget widget = *(Widget*) args[0].addr ;
-    Screen * screen = XtScreen(widget) ;
-    unsigned char defaultFromType = _XmGetUnitType(widget) ;
+    Widget widget;
+    Screen * screen;
+    unsigned char defaultFromType;
     Dimension tmpPix;
     Boolean parseError;
+
+    if (args == NULL || args[0].addr == NULL || from == NULL ||
+        from->addr == NULL || to == NULL)
+        return False;
+    widget = *(Widget*) args[0].addr ;
+    if (widget == NULL)
+        return False;
+    screen = XtScreen(widget) ;
+    defaultFromType = _XmGetUnitType(widget) ;
  
     tmpPix = (Dimension)
       _XmConvertStringToUnits (screen, from->addr, (int) defaultFromType,
@@ -1810,11 +1888,20 @@ CvtStringToVerticalPosition(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
-    Widget widget = *(Widget*) args[0].addr ;
-    Screen * screen = XtScreen(widget) ;
-    unsigned char defaultFromType = _XmGetUnitType(widget) ;
+    Widget widget;
+    Screen * screen;
+    unsigned char defaultFromType;
     Position tmpPix;
     Boolean parseError;
+
+    if (args == NULL || args[0].addr == NULL || from == NULL ||
+        from->addr == NULL || to == NULL)
+        return False;
+    widget = *(Widget*) args[0].addr ;
+    if (widget == NULL)
+        return False;
+    screen = XtScreen(widget) ;
+    defaultFromType = _XmGetUnitType(widget) ;
  
     tmpPix = (Position)
 	_XmConvertStringToUnits(screen, from->addr, (int) defaultFromType,
@@ -1839,11 +1926,20 @@ CvtStringToVerticalDimension(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
-        Widget widget = *(Widget*) args[0].addr ;
-        Screen * screen = XtScreen(widget) ;
-        unsigned char defaultFromType = _XmGetUnitType(widget) ;
+        Widget widget;
+        Screen * screen;
+        unsigned char defaultFromType;
 	Dimension tmpPix;
         Boolean parseError;
+
+        if (args == NULL || args[0].addr == NULL || from == NULL ||
+            from->addr == NULL || to == NULL)
+            return False;
+        widget = *(Widget*) args[0].addr ;
+        if (widget == NULL)
+            return False;
+        screen = XtScreen(widget) ;
+        defaultFromType = _XmGetUnitType(widget) ;
  
         tmpPix = (Dimension)
 	  _XmConvertStringToUnits(screen, from->addr, (int) defaultFromType,
@@ -1988,6 +2084,9 @@ XmeGetDefaultRenderTable(
     XmFontType fontType;
     char delim;
     XmSpecRenderTrait trait ;
+
+    if (w == NULL)
+        return NULL;
     _XmWidgetToAppContext(w);
 
     if (fontListType) {
@@ -2041,7 +2140,7 @@ XmeGetDefaultRenderTable(
 						     fontName, XmRFontList);
 	    }
 	}
-	while ((delim == ',') && *++sPtr && !fontlist &&
+	while ((delim == ',') && *++sPtr &&
 	       GetNextFontListEntry (&sPtr, &fontName, &fontTag,
 				     &fontType, &delim));
 	XtFree (newString);
@@ -2061,6 +2160,8 @@ ConvertStringToButtonTypeDestroy(
         XrmValue *args,		/* unused */
         Cardinal *num_args)	/* unused */
 {   
+    if (to == NULL || to->addr == NULL)
+        return;
     XtFree( *((char **) to->addr)) ;
 
     return ;
@@ -2076,30 +2177,45 @@ ConvertStringToButtonType(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
-    String in_str = (String) from->addr ;
-    unsigned int in_str_size = 0 ;
+    String in_str;
+    size_t in_str_size = 0 ;
     XmButtonTypeTable buttonTable ;
-    int i, comma_count ;
+    size_t i, comma_count ;
     String work_str, btype_str ;
     _Xstrtokparams strtok_buf;
 
+    if (display == NULL || from == NULL || from->addr == NULL || to == NULL)
+        return FALSE;
+    in_str = (String) from->addr ;
     if (in_str == NULL)
         return(FALSE);
     
     comma_count = 0 ;
     while(    in_str[in_str_size]    )
-    {   if(    in_str[in_str_size++] == ','    )
-        {   ++comma_count ;
+    {   if (in_str_size == SIZE_MAX)
+            return(FALSE);
+        if(    in_str[in_str_size++] == ','    )
+        {   if (comma_count == SIZE_MAX)
+                return(FALSE);
+            ++comma_count ;
             } 
         } 
+    if (in_str_size == SIZE_MAX)
+        return(FALSE);
     ++in_str_size ;
 
+    if (comma_count > SIZE_MAX / sizeof(XmButtonType) - 2 ||
+        comma_count > (size_t)UINT_MAX / sizeof(XmButtonType) - 2 ||
+        in_str_size > (size_t)UINT_MAX)
+        return(FALSE);
+
     buttonTable = (XmButtonTypeTable) XtMalloc( 
-                                   sizeof( XmButtonType) * (comma_count + 2)) ;
+                                   (Cardinal)(sizeof(XmButtonType) *
+						      (comma_count + 2))) ;
     if (buttonTable == NULL)
         return(FALSE);
     buttonTable[comma_count+1] = (XmButtonType)0;
-    work_str = (String) XtMalloc( in_str_size) ;
+    work_str = (String) XtMalloc((Cardinal)in_str_size) ;
     if (work_str == NULL) {
         XtFree((char *) buttonTable);
         return(FALSE);
@@ -2155,6 +2271,8 @@ CvtStringToKeySymTableDestroy(
         XrmValue *args,		/* unused */
         Cardinal *num_args)	/* unused */
 {   
+    if (to == NULL || to->addr == NULL)
+        return;
     XtFree( *((char **) to->addr)) ;
 
     return ;
@@ -2170,13 +2288,16 @@ CvtStringToKeySymTable(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
-  String in_str = (String) from->addr;
+  String in_str;
   size_t in_str_size = 0;
   XmKeySymTable keySymTable;
   size_t i, comma_count;
   String work_str, ks_str, separator;
   KeySym ks;
 
+  if (display == NULL || from == NULL || from->addr == NULL || to == NULL)
+    return FALSE;
+  in_str = (String) from->addr;
   if (in_str == NULL)
     return(FALSE);
 
@@ -2188,10 +2309,12 @@ CvtStringToKeySymTable(
       if (in_str[in_str_size++] == ',')
 	++comma_count;
     } 
-  if (comma_count > (SIZE_MAX / sizeof(KeySym)) - 2)
+  if (comma_count > (SIZE_MAX / sizeof(KeySym)) - 2 ||
+      comma_count > ((size_t)UINT_MAX / sizeof(KeySym)) - 2)
     return(FALSE);
 
-  keySymTable = (XmKeySymTable) XtMalloc(sizeof(KeySym) * (comma_count + 2));
+  keySymTable = (XmKeySymTable) XtMalloc(
+	(Cardinal)(sizeof(KeySym) * (comma_count + 2)));
   if (keySymTable == NULL)
     return(FALSE);
   keySymTable[comma_count + 1] = (KeySym)NULL;
@@ -2239,6 +2362,8 @@ CvtStringToCharSetTableDestroy(
         XrmValue *args,		/* unused */
         Cardinal *num_args)	/* unused */
 {   
+    if (to == NULL || to->addr == NULL)
+        return;
     XtFree( *((char **) to->addr)) ;
 
     return ;
@@ -2254,7 +2379,7 @@ CvtStringToCharSetTable(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
-  String in_str = (String) from->addr;
+  String in_str;
   XmStringCharSetTable charsetTable;
   unsigned int numCharsets = 0;
   size_t strDataSize = 0;
@@ -2263,6 +2388,9 @@ CvtStringToCharSetTable(
   int i;
   String work_str, cs_str, separator;
 
+  if (from == NULL || from->addr == NULL || to == NULL)
+    return FALSE;
+  in_str = (String) from->addr;
   if (in_str == NULL)
     return(False);
 
@@ -2302,12 +2430,14 @@ CvtStringToCharSetTable(
       return(False);
     }
   tableSize = sizeof(XmStringCharSet) * ((size_t)numCharsets + 1);
-  if (strDataSize > SIZE_MAX - tableSize)
+  if (strDataSize > SIZE_MAX - tableSize ||
+      strDataSize > (size_t)UINT_MAX - tableSize)
     {
       XtFree(work_str);
       return(False);
     }
-  charsetTable = (XmStringCharSetTable) XtMalloc(tableSize + strDataSize);
+  charsetTable = (XmStringCharSetTable) XtMalloc(
+	(Cardinal)(tableSize + strDataSize));
   if (charsetTable == NULL) {
     XtFree(work_str);
     return(False);
@@ -2356,9 +2486,13 @@ CvtStringToBooleanDimension(
         XrmValue *to,
         XtPointer *converter_data) /* unused */
 {
-        char *in_str = (char *) from->addr ;
+        char *in_str;
         Dimension outVal ;
         int intermediate;
+
+        if (from == NULL || from->addr == NULL || to == NULL)
+            return FALSE;
+        in_str = (char *) from->addr ;
 
     if (isInteger(from->addr, &intermediate))
     {   
@@ -2366,9 +2500,17 @@ CvtStringToBooleanDimension(
         *   to preserve 1.0 compatibility (the resource actually behaves like
         *   a boolean in version 1.1).
         */
-        Widget widget = *(Widget*) args[0].addr ;
-        Screen * screen = XtScreen(widget) ;
-        unsigned char unitType = _XmGetUnitType(widget) ;
+        Widget widget;
+        Screen *screen;
+        unsigned char unitType;
+
+        if (args == NULL || args[0].addr == NULL)
+            return FALSE;
+        widget = *(Widget*) args[0].addr ;
+        if (widget == NULL)
+            return FALSE;
+        screen = XtScreen(widget) ;
+        unitType = _XmGetUnitType(widget) ;
 	
         if(    intermediate < 0    )
         {   XtDisplayStringConversionWarning(display, (char *)from->addr,
@@ -2426,7 +2568,7 @@ CvtStringToAtomList(
   Atom *atom_list;
   char *context_string;
 
-  if (from->addr == NULL)
+  if (dpy == NULL || from == NULL || from->addr == NULL || to == NULL)
     return(False);
 	
   atom_count = 0;
@@ -2437,7 +2579,8 @@ CvtStringToAtomList(
       if (atom_count == max_atoms)
 	{
 	  if (max_atoms > INT_MAX / 2 ||
-	      (size_t)max_atoms > SIZE_MAX / (2 * sizeof(char *)))
+	      (size_t)max_atoms > SIZE_MAX / (2 * sizeof(char *)) ||
+	      (size_t)max_atoms > UINT_MAX / (2 * sizeof(char *)))
 	    {
 	      int cleanup;
 	      XtFree(atom_name);
@@ -2451,7 +2594,8 @@ CvtStringToAtomList(
 
 	  if (name_list == stack_names)
 	    {
-	      char **new_names = (char **) XtMalloc(sizeof(char *) * max_atoms);
+	      char **new_names = (char **) XtMalloc(
+		(Cardinal)(sizeof(char *) * (size_t)max_atoms));
 	      if (new_names == NULL) {
 		int cleanup;
 		XtFree(atom_name);
@@ -2466,7 +2610,8 @@ CvtStringToAtomList(
 	  else
 	    {
 	      char **new_names = (char **) XtRealloc((char *)name_list,
-						     sizeof(char *) * max_atoms);
+						     (Cardinal)(sizeof(char *) *
+								 (size_t)max_atoms));
 	      if (new_names == NULL) {
 		int cleanup;
 		XtFree(atom_name);
@@ -2482,7 +2627,8 @@ CvtStringToAtomList(
       name_list[atom_count++] = atom_name;
     }
 
-  if ((size_t)atom_count > SIZE_MAX / sizeof(Atom))
+  if ((size_t)atom_count > SIZE_MAX / sizeof(Atom) ||
+      (size_t)atom_count > UINT_MAX / sizeof(Atom))
     {
       int cleanup;
       for (cleanup = 0; cleanup < atom_count; ++cleanup)
@@ -2491,7 +2637,8 @@ CvtStringToAtomList(
 	XtFree((char *)name_list);
       return(False);
     }
-  atom_list = (Atom *) XtMalloc(sizeof(Atom) * atom_count);
+  atom_list = (Atom *) XtMalloc(
+	(Cardinal)(sizeof(Atom) * (size_t)atom_count));
   if (atom_list == NULL) {
     int cleanup;
     for (cleanup = 0; cleanup < atom_count; ++cleanup)
@@ -2539,7 +2686,10 @@ SimpleDestructor(
         XrmValue *args,		/* unused */
         Cardinal *num_args )	/* unused */
 {
-   char *simple_struct = *(char **)(to->addr);
+   char *simple_struct;
+   if (to == NULL || to->addr == NULL)
+       return;
+   simple_struct = *(char **)(to->addr);
 
    XtFree(simple_struct);
 }
@@ -2605,7 +2755,7 @@ GetNextToken(
 	char *s, *e, *p;
 	char *next_context;
 	char *buf = NULL;
-	int len;
+	size_t token_size;
 
 	if (src != NULL)
 		*context = src;
@@ -2664,9 +2814,11 @@ GetNextToken(
 	 * delimiter characters or spaces.  It would be great if we had
 	 * time to implement full C style backslash processing...
 	 */
-	len = (e - s) + 1;
+	token_size = (size_t)(e - s) + 1;
+	if (token_size > (size_t)UINT_MAX - 1)
+		return(NULL);
 
-	p = buf = XtMalloc(len + 1);
+	p = buf = XtMalloc((Cardinal)(token_size + 1));
 	if (buf == NULL)
 		return(NULL);
 	while (s != e)
@@ -2697,6 +2849,8 @@ CvtStringToCardinal(
 {
     Cardinal value;
     int intermediate;
+    if (from == NULL || from->addr == NULL || to == NULL)
+        return False;
     if (!isInteger(from->addr,&intermediate) || intermediate < 0)
 	{
 	XtDisplayStringConversionWarning(display, (char *)from->addr,
@@ -2721,6 +2875,8 @@ CvtStringToTextPosition(
 {
     XmTextPosition value;
     int intermediate;
+    if (from == NULL || from->addr == NULL || to == NULL)
+        return False;
     if (!isInteger(from->addr,&intermediate) || intermediate < 0)
         {
         XtDisplayStringConversionWarning(display, (char *)from->addr, 
@@ -2745,6 +2901,8 @@ CvtStringToTopItemPosition(
 {
     int value;
     int intermediate;
+    if (from == NULL || from->addr == NULL || to == NULL)
+        return False;
     if (!isInteger(from->addr,&intermediate) || intermediate < 0)
         {
         XtDisplayStringConversionWarning(display, (char *)from->addr,
@@ -2765,14 +2923,23 @@ isInteger(
     Boolean foundDigit = False;
     Boolean isNegative = False;
     Boolean isPositive = False;
-    int val = 0;
+    unsigned long val = 0;
+    unsigned long limit;
+    unsigned int digit;
     char ch;
+
+    if (string == NULL || value == NULL)
+	return False;
     /* skip leading whitespace */
     while ((ch = *string) == ' ' || ch == '\t') string++;
     while ((ch = *string++) != '\0') {
 	if (ch >= '0' && ch <= '9') {
-	    val *= 10;
-	    val += ch - '0';
+	    digit = (unsigned int)(ch - '0');
+	    limit = isNegative ? (unsigned long)INT_MAX + 1UL :
+		(unsigned long)INT_MAX;
+	    if (val > (limit - digit) / 10UL)
+		return False;
+	    val = val * 10UL + digit;
 	    foundDigit = True;
 	    continue;
 	}
@@ -2797,9 +2964,10 @@ isInteger(
     }
     if (ch == '\0') {
 	if (isNegative)
-	    *value = -val;
+	    *value = (val == (unsigned long)INT_MAX + 1UL) ? INT_MIN :
+		-(int)val;
 	else
-	    *value = val;
+	    *value = (int)val;
 	return True;
     }
     return False;
@@ -2821,8 +2989,13 @@ CvtStringToRenditionPixel(Display *disp,
 			     XrmValue *to_val,
 			     XtPointer *converter_data )
 {
-  String 	str = (String)from_val->addr;
+  String 	str;
   Boolean	result = False;
+
+  if (disp == NULL || num_args == NULL || from_val == NULL ||
+      from_val->addr == NULL || to_val == NULL)
+    return False;
+  str = (String)from_val->addr;
 
   if (XmeNamesAreEqual(str, "unspecified_pixel"))
     {
@@ -2834,12 +3007,14 @@ CvtStringToRenditionPixel(Display *disp,
   
   if (result == False)
     {
-      *converter_data = False;
+      if (converter_data != NULL)
+        *converter_data = False;
       return False;
     }
   else
     {
-      *converter_data = (char *)True;
+      if (converter_data != NULL)
+        *converter_data = (char *)True;
       return True;
     }
 }
@@ -2861,11 +3036,18 @@ CvtPixelToRenditionPixel(Display *disp,
 			     XrmValue *to_val,
 			     XtPointer *converter_data ) /* unused */
 {
+    if (num_args == NULL || from_val == NULL || from_val->addr == NULL ||
+	to_val == NULL)
+	return False;
     if (*num_args != 0)
+	{
+	if (disp == NULL)
+	    return False;
 	XtAppWarningMsg(XtDisplayToApplicationContext(disp),
 		"wrongParameters","CvtPixelToRenditionPixel", "ToolkitError",
 		"Pixel to RenditionPixel conversion needs no extra arguments",
 			(String *) NULL, (Cardinal *)NULL);
+	}
     _XM_CONVERTER_DONE(to_val, Pixel, *(int*)from_val->addr, ;)
 }
 
@@ -2886,8 +3068,14 @@ CvtStringToSelectColor(Display *disp,
 			  XrmValue *to_val,
 			  XtPointer *converter_data )
 {
-  String 	str = (String)from_val->addr;
+  String 	str;
   Boolean	result = False;
+
+  if (disp == NULL || num_args == NULL || from_val == NULL ||
+      from_val->addr == NULL || to_val == NULL ||
+      (*num_args != 0 && args == NULL))
+    return False;
+  str = (String)from_val->addr;
 
   /* in those 3 cases, just return the constant and the widget
      will have to do teh onversion itself. It's ok, since the widget
@@ -2909,12 +3097,14 @@ CvtStringToSelectColor(Display *disp,
   
   if (result == False)
     {
-      *converter_data = False;
+      if (converter_data != NULL)
+        *converter_data = False;
       return False;
     }
   else
     {
-      *converter_data = (char *)True;
+      if (converter_data != NULL)
+        *converter_data = (char *)True;
       return True;
     }
 }
@@ -2934,6 +3124,10 @@ GetNextTab(char **s,
   int	ret_val;
   char 	sign[2];
   char	*tmp;
+
+  if (s == NULL || *s == NULL || value == NULL || unitType == NULL ||
+      offsetModel == NULL)
+    return FALSE;
 
   bzero(sign, sizeof(sign));
   unitType[0] = '\0';
@@ -2980,6 +3174,8 @@ CvtStringToXmTabListDestroy(XtAppContext app, /* unused */
 			       XrmValue *args, /* unused */
 			       Cardinal *num_args) /* unused */
 {   
+  if (to == NULL || to->addr == NULL)
+    return;
   XmTabListFree(*((XmTabList *)to->addr));
 
   return;
@@ -3018,6 +3214,10 @@ CvtStringToXmTabList(Display *dpy,
   XmParseResult	result;
   XmTab		tab;
   XmTabList	tl = NULL;
+  XmTabList	new_tl;
+
+  if (dpy == NULL || from == NULL || from->addr == NULL || to == NULL)
+    return FALSE;
   
   if (from->addr)
     {   
@@ -3046,7 +3246,13 @@ CvtStringToXmTabList(Display *dpy,
 	    return FALSE;
 	  }
 	  
-	  tl = XmTabListInsertTabs(tl, &tab, 1, -1);
+  new_tl = XmTabListInsertTabs(tl, &tab, 1, -1);
+  if (new_tl == NULL) {
+    XmTabFree(tab);
+    XmTabListFree(tl);
+    return FALSE;
+  }
+  tl = new_tl;
 	  
 	  XmTabFree(tab);
 	}
@@ -3074,6 +3280,10 @@ cvtStringToXmRenderTable(Display *dpy,
   char		*tag;
   Boolean	has_default = FALSE, in_db = FALSE;
   _Xstrtokparams strtok_buf;
+
+  if (dpy == NULL || widget == NULL || from == NULL || from->addr == NULL ||
+      to == NULL)
+    return FALSE;
   
   if (from->addr)
     {   
@@ -3152,8 +3362,14 @@ CvtStringToRenderTable(Display *dpy,
 			  XtPointer *converter_data) /* unused */
 {
   Widget wid;
+
+  if (dpy == NULL || args == NULL || args[0].addr == NULL ||
+      from == NULL || to == NULL)
+    return FALSE;
   
   wid = *(Widget *)args[0].addr;
+  if (wid == NULL)
+    return FALSE;
 
   return(cvtStringToXmRenderTable(dpy, wid,
 				  XmNrenderTable, XmCRenderTable,
@@ -3170,8 +3386,14 @@ CvtStringToButtonRenderTable(Display *dpy,
 				XtPointer *converter_data) /* unused */
 {
   Widget wid;
+
+  if (dpy == NULL || args == NULL || args[0].addr == NULL ||
+      from == NULL || to == NULL)
+    return FALSE;
   
   wid = *(Widget *)args[0].addr;
+  if (wid == NULL)
+    return FALSE;
 
   return(cvtStringToXmRenderTable(dpy, wid,
 				  XmNbuttonRenderTable, XmCButtonRenderTable,
@@ -3188,8 +3410,14 @@ CvtStringToLabelRenderTable(Display *dpy,
 			       XtPointer *converter_data) /* unused */
 {
   Widget wid;
+
+  if (dpy == NULL || args == NULL || args[0].addr == NULL ||
+      from == NULL || to == NULL)
+    return FALSE;
   
   wid = *(Widget *)args[0].addr;
+  if (wid == NULL)
+    return FALSE;
 
   return(cvtStringToXmRenderTable(dpy, wid,
 				  XmNlabelRenderTable, XmCLabelRenderTable,
@@ -3206,8 +3434,14 @@ CvtStringToTextRenderTable(Display *dpy,
 			      XtPointer *converter_data) /* unused */
 {
   Widget wid;
+
+  if (dpy == NULL || args == NULL || args[0].addr == NULL ||
+      from == NULL || to == NULL)
+    return FALSE;
   
   wid = *(Widget *)args[0].addr;
+  if (wid == NULL)
+    return FALSE;
 
   return(cvtStringToXmRenderTable(dpy, wid,
 				  XmNtextRenderTable, XmCTextRenderTable,
@@ -3222,5 +3456,7 @@ CvtStringToXmRenderTableDestroy(XtAppContext app, /* unused */
 				 XrmValue *args, /* unused */
 				 Cardinal *num_args) /* unused */
 {   
+  if (to == NULL || to->addr == NULL)
+    return;
   XmRenderTableFree(*((XmRenderTable *)to->addr));
 }

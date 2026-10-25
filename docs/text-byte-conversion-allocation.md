@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text byte-conversion allocation
 
 The two-byte Text source conversion path uses a small temporary byte buffer

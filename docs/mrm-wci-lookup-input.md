@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm widget-class lookup validation
 
 Mrm widget-class lookup now rejects null class names and null output pointers

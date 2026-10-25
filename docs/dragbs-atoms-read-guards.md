@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drag atom-table property validation
 
 `ReadAtomsTable` reads the `_MOTIF_DRAG_ATOMS` cache property as an 8-bit

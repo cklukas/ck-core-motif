@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm wide-string append bounds
 
 Mrm wide-string record appends now count characters and compute byte lengths in

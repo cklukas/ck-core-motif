@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm pixmap-table initialization
 
 `InitializePixmapSets` now allocates both pixmap hash tables before publishing

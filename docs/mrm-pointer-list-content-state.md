@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm pointer-list content cleanup state
 
 `UrmPlistFreeContents` now rejects a missing vector or inconsistent active and

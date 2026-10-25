@@ -4,9 +4,9 @@
 from pathlib import Path
 
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "VendorS.c").read_text()
+source = Path("lib/Xm/VendorS.c").read_text()
 start = source.index("pePtr = _XmGetBaseClassExtPtr")
-end = source.index("extData =", start)
+end = source.index("if (newSec == NULL || reqSec == NULL)", start)
 window = source[start:end]
 
 assert window.count("_XmProcessLock();") == 0

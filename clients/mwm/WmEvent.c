@@ -39,6 +39,7 @@ static char rcsid[] = "$XConsortium: WmEvent.c /main/7 1996/11/20 15:27:47 rswis
  */
 
 #include "WmGlobal.h"
+#include <limits.h>
 /*
  * include extern functions
  */
@@ -2069,6 +2070,7 @@ HandleDtWmRequest (WmScreenData *pSD, XEvent *pev)
 				XtFree ((char *)
 				    pAP->aap[--(pAP->numArgs)].u.file.name);
 			    }
+			    XtFree ((char *) pAP->aap);
 			    XtFree ((char *) pAP);
 			}
 		    }
@@ -2089,7 +2091,9 @@ HandleDtWmRequest (WmScreenData *pSD, XEvent *pev)
 		pch = strtok (NULL, " ");
 		if (pch)
 		{
-		    pchFile = (char *) XtMalloc (1+strlen(pch));
+		    size_t pathLength = strlen(pch);
+		    if (pathLength < UINT_MAX)
+			pchFile = (char *)XtMalloc((Cardinal)pathLength + 1);
 		}
 		else
 		{

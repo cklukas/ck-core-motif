@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm property-warning bounds
 
 When a client title or icon title cannot be converted, `mwm` reports the X11

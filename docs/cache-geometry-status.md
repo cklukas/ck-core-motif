@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Pixmap-cache geometry status
 
 When dimensions were omitted, `_XmCachePixmap` ignored the status returned by

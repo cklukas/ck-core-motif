@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container detail-header cache guard
 
 When an icon header changes, Container now clears its old cached detail-header

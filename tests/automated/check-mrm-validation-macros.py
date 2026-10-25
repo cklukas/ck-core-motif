@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Check that Mrm structure-validation macros reject null pointers."""
 
+import os
 from pathlib import Path
 
-source = Path(__file__).parents[2] / "lib" / "Mrm" / "Mrm.h"
+source = Path(os.environ.get("MOTIF_MRM_HEADER", Path(__file__).parents[2] / "lib" / "Mrm" / "Mrm.h"))
 text = source.read_text(encoding="utf-8")
 macros = ("UrmWCIClassDescValid", "MrmHierarchyValid", "UrmWRValid", "UrmInterfaceModuleValid")
 for macro in macros:
@@ -13,4 +14,4 @@ for macro in macros:
     definition = text[definition_start:end]
     if "NULL" not in definition or "&&" not in definition:
         raise SystemExit(f"{macro} is not null-safe")
-print("PASS Mrm validation macros are null-safe")
+print("Mrm validation macros are null-safe")

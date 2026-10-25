@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm pointer-list string bounds
 
 Pointer-list string appends now keep the source length in `size_t`, reject an

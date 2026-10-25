@@ -76,7 +76,10 @@ _XmSetInDragMode(
         Boolean mode )
 #endif
 {
-  (_XmGetMenuState(widget))->MU_InDragMode = mode;
+  XmMenuState menu_state = _XmGetMenuState(widget);
+  if (menu_state == NULL)
+    return;
+  menu_state->MU_InDragMode = mode;
 }
 
 
@@ -100,6 +103,8 @@ _XmGetMenuState(
      if ((XmMenuState)NULL == menu_state)
      {
       menu_state = (XmMenuState)XtMalloc(sizeof(XmMenuStateRec));
+      if (menu_state == NULL)
+	return (XmMenuState)NULL;
       ((XmScreenInfo *)(scrn->screen.screenInfo))->menu_state = 
 		(XtPointer)menu_state;
       XtAddCallback((Widget)scrn, XtNdestroyCallback, 

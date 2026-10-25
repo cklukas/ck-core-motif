@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm menu function-argument bounds
 
 Menu insertion derives cascade names and invoke-command arguments from

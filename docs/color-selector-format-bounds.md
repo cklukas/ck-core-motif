@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ColorSelector RGB formatting bounds
 
 ColorSelector derives hexadecimal RGB names into its fixed color-name buffer.

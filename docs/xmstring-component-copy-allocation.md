@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString component-copy allocation
 
 `XmStringGetNextComponent` now checks the temporary buffer used when copying

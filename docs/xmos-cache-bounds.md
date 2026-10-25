@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xmos directory-cache entry bounds
 
 `AddEntryToCache` stores each directory name in the flexible trailing

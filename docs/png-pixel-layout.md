@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PNG XImage pixel layout
 
 PNG conversion previously wrote four bytes for every 24/32-bit destination

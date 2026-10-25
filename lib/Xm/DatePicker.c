@@ -96,8 +96,15 @@ static void create_popup(XmDatePickerWidget picker) {
     XtSetArg(args[count], XmNtransientFor, XtWindow(parent_shell)); ++count;
     picker->date_picker.popup_shell = XtCreatePopupShell(
         "datePickerShell", overrideShellWidgetClass, parent_shell, args, count);
+    if (!picker->date_picker.popup_shell)
+        return;
     picker->date_picker.calendar = XmCreateCalendar(
         picker->date_picker.popup_shell, (char *)"calendar", NULL, 0);
+    if (!picker->date_picker.calendar) {
+        XtDestroyWidget(picker->date_picker.popup_shell);
+        picker->date_picker.popup_shell = NULL;
+        return;
+    }
     XtVaSetValues(picker->date_picker.calendar, XmNwidth, 224,
                   XmNheight, 192, NULL);
     XmCalendarSetRange(picker->date_picker.calendar,
@@ -128,9 +135,13 @@ static void position_popup(XmDatePickerWidget picker) {
     screen = XtScreen(picker->date_picker.popup_shell);
     if (x < 0) x = 0;
     if (y < 0) y = 0;
-    if ((int)x + (int)popup_width > WidthOfScreen(screen))
+    if (popup_width >= (Dimension)WidthOfScreen(screen))
+        x = 0;
+    else if ((int)x + (int)popup_width > WidthOfScreen(screen))
         x = (Position)(WidthOfScreen(screen) - popup_width);
-    if ((int)y + (int)popup_height > HeightOfScreen(screen))
+    if (popup_height >= (Dimension)HeightOfScreen(screen))
+        y = 0;
+    else if ((int)y + (int)popup_height > HeightOfScreen(screen))
         y = (Position)(HeightOfScreen(screen) - popup_height);
     XtVaSetValues(picker->date_picker.popup_shell, XtNx, x, XtNy, y, NULL);
 }

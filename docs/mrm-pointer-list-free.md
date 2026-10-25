@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm pointer-list cleanup
 
 `UrmPlistFree` and `UrmPlistFreeContents` now reject null list handles safely.

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm write-open output initialization
 
 `UrmIdbOpenFileWrite` now clears `file_id_return` before opening the low-level

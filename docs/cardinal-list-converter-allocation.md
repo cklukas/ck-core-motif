@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Cardinal-list resource conversion allocation
 
 The Cardinal-list resource converter now checks its initial array and every

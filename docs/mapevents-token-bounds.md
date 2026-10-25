@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MapEvents token bounds
 
 Translation-table parsing accepts key symbols, modifier names, and event types

@@ -35,6 +35,8 @@ static char rcsid[] = "$TOG: LabelG.c /main/24 1999/01/26 15:31:18 mgreess $"
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <stdint.h>
+#include <limits.h>
 #include <X11/IntrinsicP.h>
 #include <X11/ShellP.h>
 #include <X11/Xatom.h>
@@ -916,6 +918,13 @@ Cardinal *num_args)
     newSec = _XmExtObjAlloc(size);
     reqSec = _XmExtObjAlloc(size);
     _XmProcessUnlock();
+	if (newSec == NULL || reqSec == NULL) {
+	    if (newSec != NULL)
+		_XmExtObjFree(newSec);
+	    if (reqSec != NULL)
+		_XmExtObjFree(reqSec);
+	    return;
+	}
 
     /*
      * Update pointers in instance records now so references to resources
@@ -935,6 +944,11 @@ Cardinal *num_args)
         args, *num_args);
 
     extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+	if (extData == NULL) {
+	    _XmExtObjFree(newSec);
+	    _XmExtObjFree(reqSec);
+	    return;
+	}
     extData->widget = (Widget)newSec;
     extData->reqWidget = (Widget)reqSec;
 
@@ -1020,6 +1034,13 @@ Cardinal *num_args)
     newSec = (XmLabelGCacheObject)_XmExtObjAlloc(size);
     reqSec = (XmLabelGCacheObject)_XmExtObjAlloc(size);
     _XmProcessUnlock();
+	if (newSec == NULL || reqSec == NULL) {
+	    if (newSec != NULL)
+		_XmExtObjFree((XtPointer)newSec);
+	    if (reqSec != NULL)
+		_XmExtObjFree((XtPointer)reqSec);
+	    return FALSE;
+	}
 
     newSec->object.self = (Widget)newSec;
     newSec->object.widget_class = ec;
@@ -1037,6 +1058,11 @@ Cardinal *num_args)
         sizeof(XmLabelGCacheObjPart));
 
     extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+	if (extData == NULL) {
+	    _XmExtObjFree((XtPointer)newSec);
+	    _XmExtObjFree((XtPointer)reqSec);
+	    return FALSE;
+	}
     extData->widget = (Widget)newSec;
     extData->reqWidget = (Widget)reqSec;
     _XmPushWidgetExtData(newParent, extData, XmCACHE_EXTENSION);
@@ -1082,6 +1108,8 @@ Cardinal *num_args)
 
     newSec = (XmLabelGCacheObject)_XmExtObjAlloc(size);
     _XmProcessUnlock();
+	if (newSec == NULL)
+	    return;
 
     newSec->object.self = (Widget)newSec;
     newSec->object.widget_class = ec;
@@ -1099,6 +1127,10 @@ Cardinal *num_args)
         sizeof(XmLabelGCacheObjPart));
 
     extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+	if (extData == NULL) {
+	    _XmExtObjFree((XtPointer)newSec);
+	    return;
+	}
     extData->widget = (Widget)newSec;
     _XmPushWidgetExtData(newParent, extData, XmCACHE_EXTENSION);
 
@@ -1126,6 +1158,8 @@ Cardinal *num_args)
     XmWidgetExtData ext;
 
     _XmPopWidgetExtData(new_w, &ext, XmCACHE_EXTENSION);
+	if (ext == NULL)
+	    return;
 
     _XmProcessLock();
     _XmExtObjFree((XtPointer)ext->widget);
@@ -1574,9 +1608,11 @@ Resize(Widget wid)
         newlw->gadget.shadow_thickness + LabG_MarginWidth(newlw) +
         LabG_MarginLeft(newlw);
 
-    rightx = newlw->rectangle.width - newlw->gadget.highlight_thickness -
-        newlw->gadget.shadow_thickness - LabG_MarginWidth(newlw) -
-        LabG_MarginRight(newlw);
+    rightx = (int) newlw->rectangle.width -
+        (int) newlw->gadget.highlight_thickness -
+        (int) newlw->gadget.shadow_thickness -
+        (int) LabG_MarginWidth(newlw) -
+        (int) LabG_MarginRight(newlw);
 
     switch (LabG_Alignment(newlw))
     {
@@ -1615,12 +1651,12 @@ Resize(Widget wid)
         (short) (newlw->gadget.highlight_thickness
         + newlw->gadget.shadow_thickness
         + LabG_MarginHeight(newlw) + LabG_MarginTop(newlw) +
-        ((int) (newlw->rectangle.height - LabG_MarginTop(newlw)
-        - LabG_MarginBottom(newlw)
-        - (2 * (LabG_MarginHeight(newlw)
-        + newlw->gadget.highlight_thickness
-        + newlw->gadget.shadow_thickness))
-        - LabG_TextRect(newlw).height) / 2));
+        (((int)newlw->rectangle.height - (int)LabG_MarginTop(newlw)
+        - (int)LabG_MarginBottom(newlw)
+        - (2 * ((int)LabG_MarginHeight(newlw)
+        + (int)newlw->gadget.highlight_thickness
+        + (int)newlw->gadget.shadow_thickness))
+        - (int)LabG_TextRect(newlw).height) / 2));
 
     if (LabG__acceleratorText(newlw) != NULL)
     {
@@ -1632,22 +1668,22 @@ Resize(Widget wid)
                 newlw->gadget.shadow_thickness +
                 LabG_MarginWidth(newlw));
         else
-            LabG_AccTextRect(newlw).x = (newlw->rectangle.width -
-                newlw->gadget.highlight_thickness -
-                newlw->gadget.shadow_thickness -
-                LabG_MarginWidth(newlw) -
-                LabG_MarginRight(newlw) +
+            LabG_AccTextRect(newlw).x = (short)((int)newlw->rectangle.width -
+                (int)newlw->gadget.highlight_thickness -
+                (int)newlw->gadget.shadow_thickness -
+                (int)LabG_MarginWidth(newlw) -
+                (int)LabG_MarginRight(newlw) +
                 LABELG_ACC_PAD);
 
         LabG_AccTextRect(newlw).y = newlw->gadget.highlight_thickness
             + newlw->gadget.shadow_thickness
             + LabG_MarginHeight(newlw) + LabG_MarginTop(newlw) +
-            ((int) (newlw->rectangle.height - LabG_MarginTop(newlw)
-            - LabG_MarginBottom(newlw)
-            - (2 * (LabG_MarginHeight(newlw)
-            + newlw->gadget.highlight_thickness
-            + newlw->gadget.shadow_thickness))
-            - LabG_AccTextRect(newlw).height) / 2);
+            (((int)newlw->rectangle.height - (int)LabG_MarginTop(newlw)
+            - (int)LabG_MarginBottom(newlw)
+            - (2 * ((int)LabG_MarginHeight(newlw)
+            + (int)newlw->gadget.highlight_thickness
+            + (int)newlw->gadget.shadow_thickness))
+            - (int)LabG_AccTextRect(newlw).height) / 2);
 
         /* make sure the label and accelerator text line up */
         /* when the fonts are different */
@@ -1698,6 +1734,7 @@ ArgList args,
 Cardinal *num_args)
 {
     XmMenuSystemTrait menuSTrait;
+    XmString replacement;
 
     XmLabelGadget lw = (XmLabelGadget) new_w;
     XmLabelGadget rw = (XmLabelGadget) req;
@@ -1829,7 +1866,16 @@ Cardinal *num_args)
     }
     else if (XmeStringIsValid((XmString) LabG__label(new_w)))
     {
-        LabG__label(new_w) = XmStringCopy((XmString) LabG__label(new_w));
+        replacement = XmStringCopy((XmString) LabG__label(new_w));
+        if (replacement != NULL)
+            LabG__label(new_w) = replacement;
+        else
+        {
+            replacement = XmStringCreateLocalized(
+                XrmQuarkToString(lw->object.xrm_name));
+            if (replacement != NULL)
+                LabG__label(new_w) = replacement;
+        }
     }
     else
     {
@@ -1859,8 +1905,12 @@ Cardinal *num_args)
             if (XmIsCascadeButtonGadget(new_w))
                 LabG__acceleratorText(new_w) = NULL;
             else
-                LabG__acceleratorText(new_w)=
-                    XmStringCopy((XmString) LabG__acceleratorText(new_w));
+            {
+                replacement = XmStringCopy(
+                    (XmString) LabG__acceleratorText(new_w));
+                if (replacement != NULL)
+                    LabG__acceleratorText(new_w) = replacement;
+            }
         }
         else
         {
@@ -2252,10 +2302,12 @@ Region region)
     XmLabelGadget lw = (XmLabelGadget) wid;
     LRectangle background_box;
 
-    background_box.x = lw->rectangle.x + LabG_Highlight(lw);
-    background_box.y = lw->rectangle.y + LabG_Highlight(lw);
-    background_box.width = lw->rectangle.width - (2 * LabG_Highlight(lw));
-    background_box.height = lw->rectangle.height - (2 * LabG_Highlight(lw));
+    background_box.x = (int) lw->rectangle.x + (int) LabG_Highlight(lw);
+    background_box.y = (int) lw->rectangle.y + (int) LabG_Highlight(lw);
+    background_box.width = (int) lw->rectangle.width -
+        (2 * (int) LabG_Highlight(lw));
+    background_box.height = (int) lw->rectangle.height -
+        (2 * (int) LabG_Highlight(lw));
 
     _XmRedisplayLabG(wid, event, region, &background_box);
 }
@@ -2306,10 +2358,12 @@ LRectangle *background_box)
     if (availH < (marginal_height + max_text_height) ||
         availW < (marginal_width + LabG_TextRect(lw).width))
     {
-        clip_rect.x = lw->rectangle.x + lw->gadget.highlight_thickness +
-            lw->gadget.shadow_thickness + LabG_MarginLeft(lw);
-        clip_rect.y = lw->rectangle.y + lw->gadget.highlight_thickness +
-            lw->gadget.shadow_thickness + LabG_MarginTop(lw);
+        clip_rect.x = (short) ((int) lw->rectangle.x +
+            (int) lw->gadget.highlight_thickness +
+            (int) lw->gadget.shadow_thickness + (int) LabG_MarginLeft(lw));
+        clip_rect.y = (short) ((int) lw->rectangle.y +
+            (int) lw->gadget.highlight_thickness +
+            (int) lw->gadget.shadow_thickness + (int) LabG_MarginTop(lw));
 
         /* Don't allow negative dimensions */
         if (availW > marginal_width)
@@ -2687,6 +2741,7 @@ Cardinal *num_args)                               /* unused */
     Boolean ProcessFlag = FALSE;
     Boolean CleanupFontFlag = FALSE;
     Boolean Call_Resize = False;
+    XmString replacement;
     XmMenuSystemTrait menuSTrait;
 
     /* Invalidate the basline cache if necessary. */
@@ -2715,7 +2770,13 @@ Cardinal *num_args)                               /* unused */
         {
             if (XmeStringIsValid((XmString) LabG__label(new_w)))
             {
-                LabG__label(new_w) = XmStringCopy((XmString) LabG__label(new_w));
+                replacement = XmStringCopy((XmString) LabG__label(new_w));
+                if (replacement != NULL)
+                {
+                    LabG__label(new_w) = replacement;
+                }
+                else
+                    LabG__label(new_w) = LabG__label(current);
             }
             else
             {
@@ -2725,8 +2786,11 @@ Cardinal *num_args)                               /* unused */
             }
         }
 
-        XmStringFree(LabG__label(current));
-        LabG__label(current)= NULL;
+        if (LabG__label(new_w) != LabG__label(current))
+        {
+            XmStringFree(LabG__label(current));
+            LabG__label(current)= NULL;
+        }
         LabG__label(req)= NULL;
     }
 
@@ -2749,10 +2813,22 @@ Cardinal *num_args)                               /* unused */
                     (LabG__acceleratorText(new_w) != NULL))
                     LabG__acceleratorText(new_w) = NULL;
                 else
-                    LabG__acceleratorText(new_w) =
-                        XmStringCopy(LabG__acceleratorText(new_w));
-                XmStringFree(LabG__acceleratorText(current));
-                LabG__acceleratorText(current)= NULL;
+                {
+                    replacement = XmStringCopy(LabG__acceleratorText(new_w));
+                    if (replacement != NULL)
+                    {
+                        LabG__acceleratorText(new_w) = replacement;
+                    }
+                    else
+                        LabG__acceleratorText(new_w) =
+                            LabG__acceleratorText(current);
+                }
+                if (LabG__acceleratorText(new_w) !=
+                    LabG__acceleratorText(current))
+                {
+                    XmStringFree(LabG__acceleratorText(current));
+                    LabG__acceleratorText(current)= NULL;
+                }
                 LabG__acceleratorText(req)= NULL;
             }
             else
@@ -3029,16 +3105,37 @@ Cardinal *num_args)                               /* unused */
     {
         if (LabG_Accelerator(new_w) != NULL)
         {
+            String accelerator;
+
             /* Copy the accelerator into local space */
-            LabG_Accelerator(new_w) = XtNewString(LabG_Accelerator(new_w));
+            accelerator = XtNewString(LabG_Accelerator(new_w));
+            if (accelerator == NULL)
+            {
+                /* Keep the currently installed binding when replacement fails. */
+                LabG_Accelerator(new_w) = LabG_Accelerator(current);
+                LabG_Accelerator(req) = NULL;
+            }
+            else
+            {
+                LabG_Accelerator(new_w) = accelerator;
+
+                if (LabG_Accelerator(current) != NULL)
+                    XtFree(LabG_Accelerator(current));
+
+                LabG_Accelerator(current) = NULL;
+                LabG_Accelerator(req) = NULL;
+                ProcessFlag = TRUE;
+            }
         }
+        else
+        {
+            if (LabG_Accelerator(current) != NULL)
+                XtFree(LabG_Accelerator(current));
 
-        if (LabG_Accelerator(current) != NULL)
-            XtFree(LabG_Accelerator(current));
-
-        LabG_Accelerator(current) = NULL;
-        LabG_Accelerator(req) = NULL;
-        ProcessFlag = TRUE;
+            LabG_Accelerator(current) = NULL;
+            LabG_Accelerator(req) = NULL;
+            ProcessFlag = TRUE;
+        }
     }
     else
         LabG_Accelerator(new_w) = LabG_Accelerator(current);
@@ -3326,6 +3423,12 @@ XtArgVal *value)
 {
     XmLabelGadget lw = (XmLabelGadget) wid;
     String string;
+
+    if (LabG_Accelerator(lw) == NULL)
+    {
+        *value = (XtArgVal) NULL;
+        return;
+    }
 
     string = XtNewString(LabG_Accelerator(lw));
 
@@ -3792,19 +3895,36 @@ int *line_count)
         Cardinal count;
         int delta;
 
+        if (wid == NULL || baselines == NULL || line_count == NULL)
+        return False;
+
         if (LabG_IsPixmap(wid))
         return False;
 
     /* Compute raw baselines if unavailable. */
         if (lw->label.baselines == NULL)
     {
+        Dimension *new_baselines;
+
         _XmStringGetBaselines(LabG_Font(lw), LabG__label(lw),
             &(lw->label.baselines), &count);
-            assert(lw->label.baselines != NULL);
+        if (lw->label.baselines == NULL || count == (Cardinal)-1 ||
+            count > (Cardinal)INT_MAX ||
+            (size_t)count >= SIZE_MAX / sizeof(*new_baselines)) {
+            lw->label.baselines = NULL;
+            return False;
+        }
 
         /* Store the current offset in an extra location. */
-            lw->label.baselines = (Dimension*)
-            XtRealloc((char*) lw->label.baselines, (count+1) * sizeof(Dimension));
+        new_baselines = (Dimension *)XtRealloc(
+            (char *)lw->label.baselines,
+            ((size_t)count + 1) * sizeof(*new_baselines));
+        if (new_baselines == NULL) {
+            XtFree((char *)lw->label.baselines);
+            lw->label.baselines = NULL;
+            return False;
+        }
+        lw->label.baselines = new_baselines;
             lw->label.baselines[count] = 0;
     }
     else
@@ -3816,15 +3936,22 @@ int *line_count)
     delta = LabG_TextRect_y(lw) - lw->label.baselines[count];
         if (delta)
     {
-        int tmp;
+        Cardinal tmp;
             for (tmp = 0; tmp <= count; tmp++)
             lw->label.baselines[tmp] += delta;
     }
 
     /* Copy the cached data. */
     *line_count = count;
-        *baselines = (Dimension*) XtMalloc(*line_count * sizeof(Dimension));
-        memcpy((char*) *baselines, (char*) lw->label.baselines,
+    if (count == 0) {
+        *baselines = NULL;
+        return True;
+    }
+    *baselines = (Dimension*) XtMalloc((size_t)*line_count *
+                                       sizeof(Dimension));
+    if (*baselines == NULL)
+        return False;
+    memcpy((char*) *baselines, (char*) lw->label.baselines,
         *line_count * sizeof(Dimension));
 
         return True;
@@ -3849,6 +3976,9 @@ XRectangle *displayrect)
 {
     XmLabelGadget wid = (XmLabelGadget) w;
 
+    if (w == NULL || displayrect == NULL)
+        return False;
+
         displayrect->x = wid->label.TextRect.x;
         displayrect->y = wid->label.TextRect.y;
         displayrect->width = wid->label.TextRect.width;
@@ -3870,6 +4000,9 @@ XmLabelGadgetMarginsProc(Widget w,
 XmBaselineMargins *margins_rec)
 {
     XmLabelGCacheObjPart localCache;
+
+    if (w == NULL || margins_rec == NULL)
+        return;
 
         if (margins_rec->get_or_set == XmBASELINE_SET)
     {
@@ -3893,7 +4026,10 @@ XmBaselineMargins *margins_rec)
 static Widget
 GetPixmapDragIcon(Widget w)
 {
-    XmLabelGadget lw = (XmLabelGadget) w;
+    XmLabelGadget lw;
+    if (w == NULL)
+        return NULL;
+    lw = (XmLabelGadget) w;
         Arg args[10];
         int n = 0;
         Widget drag_icon;
@@ -3901,8 +4037,8 @@ GetPixmapDragIcon(Widget w)
         unsigned int wid, hei;
         int d;
 
-        wid = hei = 0;
-        d = 0;
+    wid = hei = 0;
+    d = 0;
 
     /* it's a labelPixmap, use directly the pixmap */
 

@@ -37,6 +37,7 @@ static char rcsid[] = "$XConsortium: DropTrans.c /main/15 1996/05/02 13:50:19 pa
 #include "DragCI.h"
 #include "DragICCI.h"
 #include <Xm/AtomMgr.h>
+#include <stdint.h>
 #include <stdio.h>
 
 /* Deactivated the fix, since it causes crash.
@@ -215,14 +216,23 @@ Initialize(
 
 	if (dtp->num_drop_transfers != 0)
 	{
+		if ((size_t)dtp->num_drop_transfers >
+		    SIZE_MAX / sizeof(XmDropTransferEntryRec))
+		    goto no_drop_transfers;
 		dtp->num_drop_transfer_lists = 1;
 		dtp->drop_transfer_lists = (XmDropTransferList)
 			XtMalloc(sizeof(XmDropTransferListRec) *
 				dtp->num_drop_transfer_lists);
+		if (dtp->drop_transfer_lists == NULL)
+		    goto no_drop_transfers;
 		dtp->drop_transfer_lists[0].transfer_list =
 		        (XmDropTransferEntry)_XmAllocAndCopy(
 			dtp->drop_transfers, sizeof(XmDropTransferEntryRec)
 				* dtp->num_drop_transfers);
+		if (dtp->drop_transfer_lists[0].transfer_list == NULL) {
+		    XtFree((char *)dtp->drop_transfer_lists);
+		    goto no_drop_transfers;
+		}
 		dtp->drop_transfer_lists[0].num_transfers =
 			dtp->num_drop_transfers;
 		
@@ -235,6 +245,16 @@ Initialize(
 		dtp->drop_transfer_lists = NULL;
 		dtp->num_drop_transfer_lists = 0;
 	}
+
+	goto drop_transfers_initialized;
+
+no_drop_transfers:
+	dtp->drop_transfer_lists = NULL;
+	dtp->num_drop_transfer_lists = 0;
+	dtp->drop_transfers = NULL;
+	dtp->num_drop_transfers = 0;
+
+drop_transfers_initialized:
 
 	dtp->motif_drop_atom = XInternAtom(
 		XtDisplayOfObject(nw), XmS_MOTIF_DROP, False);

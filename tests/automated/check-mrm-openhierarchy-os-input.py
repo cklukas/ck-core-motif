@@ -1,13 +1,11 @@
-#!/usr/bin/env python3
-"""Check Mrm hierarchy open rejects null OS extension objects."""
 from pathlib import Path
+import os
 
-source = Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmhier.c"
-text = source.read_text(encoding="utf-8")
+source = Path(os.environ["MOTIF_SOURCE"])
+text = source.read_text()
 start = text.index("Urm__OpenHierarchy (MrmCount")
 end = text.index("#ifndef NO_MESSAGE_CATALOG", start)
 block = text[start:end]
-needle = "os_ext_list != NULL && *os_ext_list == NULL"
-if needle not in block or block.index(needle) > block.index("return MrmFAILURE"):
-    raise SystemExit("Mrm hierarchy open lacks OS extension input guard")
-print("PASS Mrm hierarchy open rejects null OS extension objects")
+assert "os_ext_list != NULL && *os_ext_list == NULL" in block
+assert block.index("os_ext_list != NULL && *os_ext_list == NULL") < block.index("return MrmFAILURE")
+print("Mrm hierarchy open rejects null OS extension objects")

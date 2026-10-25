@@ -4,7 +4,7 @@
 from pathlib import Path
 
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmString.c").read_text()
+source = Path("lib/Xm/XmString.c").read_text()
 direction = source[source.index("XmStringDirectionCreate("):source.index(
     "XmStringSeparatorCreate(", source.index("XmStringDirectionCreate("))]
 separator = source[source.index("XmStringSeparatorCreate("):source.index(

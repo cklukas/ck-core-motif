@@ -551,12 +551,17 @@ static void
 DoLayout(Widget wid)
 {
   XmGrabShellWidget gs = (XmGrabShellWidget)wid;
-  
-  if (XtIsManaged(gs->composite.children[0])) 
+  int offset;
+
+  if (gs->composite.num_children == 0)
+    return;
+
+  offset = (int) gs->grab_shell.shadow_thickness +
+    (int) gs->composite.children[0]->core.border_width;
+
+  if (XtIsManaged(gs->composite.children[0]))
     {
       Widget childwid = gs->composite.children[0];
-      Position offset = (gs->grab_shell.shadow_thickness + 
-			 childwid->core.border_width);
       int cw = ((int) gs->core.width) - 2 * offset;
       int ch = ((int) gs->core.height) - 2 * offset;
       Dimension childW = MAX(1, cw);
@@ -612,7 +617,7 @@ ChangeManaged(Widget wid)
   XmGrabShellWidget gs = (XmGrabShellWidget)wid;
   ShellWidget       shell = (ShellWidget)wid;
   Dimension         bw = 0;
-  XtWidgetGeometry  pref, mygeom, replygeom;
+  XtWidgetGeometry  pref, mygeom = { 0 }, replygeom;
   XtGeometryResult  result;
   Widget	    child;
   
@@ -684,7 +689,7 @@ Resize(Widget w)
 static void 
 _XmFastExpose(Widget widg)
 {
-  register int i;
+  register Cardinal i;
   register Widget child;
   XmGrabShellWidget gs = (XmGrabShellWidget)widg;
 

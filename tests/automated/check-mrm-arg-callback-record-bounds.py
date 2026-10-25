@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
-"""Check callback-valued Mrm arguments before descriptor translation."""
+"""Check callback-valued Mrm arguments before legacy/current translation."""
+import os
 from pathlib import Path
-
-source = Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrw.c"
+source = Path(os.environ.get("MOTIF_SOURCE", Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrw.c"))
 text = source.read_text(encoding="utf-8")
 start = text.index("\nUrm__CW_CreateArglist (")
 end = text.find("\n\n\f", start)
 region = text[start:end]
-required = (
+for needle in (
     "case MrmRtypeCallback:",
-    "Boolean old_callbacks =",
     "UrmCallbackRecordValid(widgetrec,",
-    "argptr->arg_val.datum.offset",
-    "if (old_callbacks)",
-)
-for needle in required:
+    "argptr->arg_val.datum.offset,",
+    "Boolean old_callbacks",
+):
     if needle not in region:
-        raise SystemExit(f"missing callback argument bound: {needle}")
-print("PASS Mrm callback-valued arguments are record-bounded")
+        raise SystemExit(f"missing callback-argument bound: {needle}")
+print("Mrm callback-valued arguments are record-bounded")

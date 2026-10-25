@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm index traversal inputs
 
 Mrm index search and B-tree traversal helpers now reject missing file handles,

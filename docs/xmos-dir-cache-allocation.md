@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xmos directory-cache allocation
 
 The file-selection directory cache grows in fixed blocks and stores a copy of

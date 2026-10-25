@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # UTF-8 conversion bounds
 
 `_XmUtf8ToUcs2` is used by text and compound-string rendering paths.  Its

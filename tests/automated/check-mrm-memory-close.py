@@ -1,21 +1,17 @@
-#!/usr/bin/env python3
-"""Check memory-backed Mrm files close without filesystem handles."""
 from pathlib import Path
+import os
 
-itop = (Path(__file__).parents[2] / "lib" / "Mrm" / "MrmItop.c").read_text(
-    encoding="utf-8")
-hier = (Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmhier.c").read_text(
-    encoding="utf-8")
+itop = Path(os.environ["MOTIF_ITOP_SOURCE"]).read_text()
+hier = Path(os.environ["MOTIF_HIER_SOURCE"]).read_text()
 start = itop.index("UrmIdbCloseFile (IDBFile")
 end = itop.index("UrmIdbGetIndexedResource (IDBFile", start)
 close = itop[start:end]
-if "if ( !file_id->in_memory )" not in close:
-    raise SystemExit("error cleanup still closes a null in-memory handle")
-if "if ( file_id->in_memory )" not in close or "result = MrmSUCCESS" not in close:
-    raise SystemExit("memory-backed close lacks success path")
+assert "if ( !file_id->in_memory )" in close, "error cleanup must not close a null low-level handle"
+assert "if ( file_id->in_memory )" in close, "memory-backed files need a successful close path"
+assert "result = MrmSUCCESS" in close
 hstart = hier.index("Urm__CloseHierarchy (MrmHierarchy")
 hend = hier.index("UrmHGetIndexedResource (MrmHierarchy", hstart)
 hclose = hier[hstart:hend]
-if "in_memory == FALSE" in hclose or "UrmIdbCloseFile (hierarchy_id->file_list[ndx], FALSE)" not in hclose:
-    raise SystemExit("hierarchy cleanup does not close memory-backed files")
-print("PASS Mrm memory-backed files close successfully and hierarchies release them")
+assert "if (hierarchy_id->file_list[ndx]->in_memory == FALSE )" not in hclose
+assert "UrmIdbCloseFile (hierarchy_id->file_list[ndx], FALSE)" in hclose
+print("Mrm memory-backed files close successfully and hierarchies release them")

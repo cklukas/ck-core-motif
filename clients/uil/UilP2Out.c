@@ -56,6 +56,7 @@ static char rcsid[] = "$TOG: UilP2Out.c /main/15 1997/03/12 15:17:24 dbl $"
 #endif
 
 #include "UilDefI.h"
+#include <limits.h>
 #include "UilSymGen.h"
 
 /*
@@ -1316,6 +1317,32 @@ for (list_member=(sym_obj_entry_type *)list_entry->obj_header.az_next;
 **--
 **/
 
+void issue_urm_error(char *problem);
+
+static void
+out_add_value_size(int *value_size, size_t amount)
+{
+    if (*value_size < 0 || amount > (size_t) INT_MAX - (size_t) *value_size)
+    {
+	issue_urm_error("calculating resource size");
+	*value_size = INT_MAX;
+	return;
+    }
+    *value_size += (int) amount;
+}
+
+static void
+out_set_value_size(int *value_size, size_t amount)
+{
+    if (amount > (size_t) INT_MAX)
+    {
+	issue_urm_error("calculating resource size");
+	*value_size = INT_MAX;
+	return;
+    }
+    *value_size = (int) amount;
+}
+
 void	out_emit_value( value_entry )
 
 sym_value_entry_type	*value_entry;
@@ -1389,9 +1416,9 @@ sym_value_entry_type	*value_entry;
 
 	case sym_k_compound_string_value:
 	    tmp_str = value_entry->value.xms_value;
-	    value_size = 
-	      XmCvtXmStringToByteStream(tmp_str, 
-				(unsigned char **)&(value_entry->value.c_value));
+	    out_set_value_size(&value_size,
+	      XmCvtXmStringToByteStream(tmp_str,
+				(unsigned char **)&(value_entry->value.c_value)));
 	    XmStringFree(tmp_str);
 	    break;
 
@@ -1402,10 +1429,13 @@ sym_value_entry_type	*value_entry;
 	     * Size is FontItem plus size of charset name string and
 	     * size of font name string.
 	     */
-	     value_size = sizeof(RGMFontItem)
-	       + strlen(sem_charset_name(value_entry->b_charset,
-					 value_entry->az_charset_value)) 
-		 + 1 + strlen(value_entry->value.c_value) + 1;
+	     value_size = sizeof(RGMFontItem);
+	     out_add_value_size(&value_size,
+	       strlen(sem_charset_name(value_entry->b_charset,
+					 value_entry->az_charset_value)));
+	     out_add_value_size(&value_size, 1);
+	     out_add_value_size(&value_size, strlen(value_entry->value.c_value));
+	     out_add_value_size(&value_size, 1);
 	    break;
 	    }
 	case sym_k_color_value:
@@ -1423,7 +1453,7 @@ sym_value_entry_type	*value_entry;
 		 value_segment != NULL;
 		 value_segment =  value_segment->az_next_table_value)
 		{
-		value_size += sizeof(long);
+		out_add_value_size(&value_size, sizeof(long));
 		value_count++;
 		}
 	    break;
@@ -1480,9 +1510,9 @@ sym_value_entry_type	*value_entry;
 		{
 		value_count++;
 
-		value_size += 
-		  XmCvtXmStringToByteStream(value_segment->value.xms_value, NULL) +
-		    sizeof( RGMTextEntry );
+		out_add_value_size(&value_size,
+		  XmCvtXmStringToByteStream(value_segment->value.xms_value, NULL));
+		out_add_value_size(&value_size, sizeof(RGMTextEntry));
 		}
 	    break;
 	    }
@@ -1509,8 +1539,8 @@ sym_value_entry_type	*value_entry;
 		 value_segment = value_segment->az_next_table_value)
 		{
 		value_count++;
-		value_size +=
-		    value_segment->w_length + sizeof(RGMTextEntry) + 1;
+		out_add_value_size(&value_size, value_segment->w_length);
+		out_add_value_size(&value_size, sizeof(RGMTextEntry) + 1);
 		}
 	    break;
 	    }
@@ -1536,7 +1566,7 @@ sym_value_entry_type	*value_entry;
 		 value_segment != NULL;  
 		 value_segment = value_segment->az_next_table_value)
 		{
-		value_size += sizeof(long);
+		out_add_value_size(&value_size, sizeof(long));
 		value_count++;
 		}
 	    break;
@@ -1569,10 +1599,14 @@ sym_value_entry_type	*value_entry;
 		 *                    font_value, rather than value_entry.
 		 */
 		value_count += 1;
-		value_size += sizeof(RGMFontItem)
-		    + strlen(sem_charset_name(font_value->b_charset,
-					      font_value->az_charset_value))
-		      + 1 + strlen(font_value->value.c_value) + 1;
+		out_add_value_size(&value_size, sizeof(RGMFontItem));
+		out_add_value_size(&value_size,
+		    strlen(sem_charset_name(font_value->b_charset,
+					      font_value->az_charset_value)));
+		out_add_value_size(&value_size, 1);
+		out_add_value_size(&value_size,
+		    strlen(font_value->value.c_value));
+		out_add_value_size(&value_size, 1);
 		}
 	    break;
 	    }
@@ -1590,7 +1624,8 @@ sym_value_entry_type	*value_entry;
 	    for (value_segment = value_entry->az_first_table_value;  
 		 value_segment != NULL;  
 		 value_segment = value_segment->az_next_table_value)
-		value_size += value_segment->w_length + 1;
+		out_add_value_size(&value_size, value_segment->w_length);
+		out_add_value_size(&value_size, 1);
 	    break;
 	    }
 	
@@ -3114,12 +3149,13 @@ sym_value_entry_type	*table_entry;
 			       & arg_index, & arg_id, & arg_group ) )
 	    {
 	    case URMrRID:
-		size += sizeof (RGMResourceDesc);
+		out_add_value_size(&size, sizeof(RGMResourceDesc));
 		size = _FULLWORD (size);
 		break;
 	    case URMrIndex:
-		size += sizeof(RGMResourceDesc) - sizeof(MrmResource_id) +
-			strlen(arg_index)+1;
+		out_add_value_size(&size,
+		    sizeof(RGMResourceDesc) - sizeof(MrmResource_id));
+		out_add_value_size(&size, strlen(arg_index) + 1);
 		size = _FULLWORD (size);
 		break;
 	    default:
@@ -3316,11 +3352,12 @@ sym_value_entry_type	*icon_entry;
 		       & arg_index, & arg_id, & arg_group ) )
     {
     case URMrRID:
-	size += sizeof( RGMResourceDesc );
+	out_add_value_size(&size, sizeof(RGMResourceDesc));
 	break;
     case URMrIndex:
-	size += sizeof( RGMResourceDesc ) - sizeof( MrmResource_id ) +
-		strlen( arg_index ) + 1;
+	out_add_value_size(&size,
+	    sizeof(RGMResourceDesc) - sizeof(MrmResource_id));
+	out_add_value_size(&size, strlen(arg_index) + 1);
 	break;
     default:
 	_assert( FALSE, "immediate color table values not supported" );
@@ -3360,8 +3397,13 @@ sym_value_entry_type	*icon_entry;
     **	Size is width * height - each row must be an even number of bytes
     */
 
-    size += ((int)((icon_entry->value.z_icon->w_width << pixel_type) + 7) / 8)
-	     * icon_entry->value.z_icon->w_height;
+    {
+	size_t row_bytes = (((size_t) icon_entry->value.z_icon->w_width <<
+				     pixel_type) + 7) / 8;
+	size_t pixel_bytes = row_bytes *
+	    (size_t) icon_entry->value.z_icon->w_height;
+	out_add_value_size(&size, pixel_bytes);
+    }
 
     icon_entry->w_length = size;
 
@@ -3786,7 +3828,8 @@ status	urm_status;
 		_assert (FALSE, "unknown argument")
 		}
 	    else
-	        arg_value_size += strlen(uil_argument_toolkit_names[i]) + 1;
+	        out_add_value_size(&arg_value_size,
+	            strlen(uil_argument_toolkit_names[i]) + 1);
 	    }
 	}
 
@@ -3807,7 +3850,8 @@ status	urm_status;
 		_assert (FALSE, "unknown argument")
 		}
 	    else
-	        arg_value_size += strlen(uil_reason_toolkit_names[i]) + 1;
+	        out_add_value_size(&arg_value_size,
+	            strlen(uil_reason_toolkit_names[i]) + 1);
 	    }
 	}
 
@@ -3821,7 +3865,8 @@ status	urm_status;
 	  {
 	    arg_value_count++;
 	    next_code++;
-	    arg_value_size += strlen(uil_child_names[i]) + 1;
+	    out_add_value_size(&arg_value_size,
+	        strlen(uil_child_names[i]) + 1);
 	  }
       }
 
@@ -3830,7 +3875,8 @@ status	urm_status;
     ** one more space than we need, but as a zero-based code has the
     ** correct number in it).
     */
-    arg_value_size += sizeof(UidCTableEntry) * next_code;
+    out_add_value_size(&arg_value_size,
+	sizeof(UidCTableEntry) * (size_t) next_code);
 
 
     /*
@@ -3960,14 +4006,16 @@ status	urm_status;
 		_assert (FALSE, "unknown class")
 		}
 	    else
-	        class_value_size += strlen(uil_widget_funcs[i]) + 1;
+	        out_add_value_size(&class_value_size,
+	            strlen(uil_widget_funcs[i]) + 1);
 	    }
 
     /*
     ** Again, compute the additional size for the vector.
     */
 
-    class_value_size += sizeof(UidCTableEntry) * next_code;
+    out_add_value_size(&class_value_size,
+	sizeof(UidCTableEntry) * (size_t) next_code);
 
     /*
     ** Check that the resource context is large enough to hold the value

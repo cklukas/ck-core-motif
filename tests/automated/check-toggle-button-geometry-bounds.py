@@ -5,12 +5,10 @@ from pathlib import Path
 source = Path(__file__).resolve().parents[2] / "lib" / "Xm" / "ToggleB.c"
 text = source.read_text(encoding="utf-8")
 
-
 def function_body(name, next_name):
     start = text.index("static void \n" + name)
     end = text.index("static void \n" + next_name, start)
     return text[start:end]
-
 
 shadow = function_body("DrawToggleShadow", "DrawToggleLabel")
 label = function_body("DrawToggleLabel", "DrawEtchedInMenu")
@@ -27,13 +25,10 @@ required = [
 ]
 missing = [fragment for body, fragment in required if fragment not in body]
 if missing:
-    raise SystemExit("missing ToggleButton geometry guard: " + ", ".join(missing))
+    raise SystemExit("ToggleButton geometry guard missing: " + ", ".join(missing))
 
-for name, body in (
-    ("DrawToggleLabel", label),
-    ("DrawEtchedInMenu", etched),
-):
+for name, body in (("DrawToggleShadow", shadow), ("DrawToggleLabel", label), ("DrawEtchedInMenu", etched)):
     if "tb->core.width - 2 * margin" in body or "tb->core.height - 2 * margin" in body:
-        raise SystemExit(f"{name} still performs unsigned geometry subtraction")
+        raise SystemExit(f"{name} still subtracts unsigned dimensions")
 
-print("ToggleButton drawing paths guard undersized geometry and missing shadow GCs")
+print("ToggleButton shadow and fill geometry guards are present")

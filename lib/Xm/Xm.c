@@ -370,6 +370,10 @@ _XmIsISO10646(Display *dpy, XFontStruct *font)
     Atom registry;
     XFontProp *xfp;
 
+    if (dpy == NULL || font == NULL ||
+        (font->n_properties != 0 && font->properties == NULL))
+	return False;
+
     ok = False;
     registry = XInternAtom(dpy, "CHARSET_REGISTRY", False);
 
@@ -377,10 +381,12 @@ _XmIsISO10646(Display *dpy, XFontStruct *font)
 	 ok == False && i < font->n_properties; xfp++, i++) {
 	if (xfp->name == registry) {
 	    regname = XGetAtomName(dpy, (Atom) xfp->card32);
-	    if (strcmp(regname, "ISO10646") == 0 ||
-		strcmp(regname, "iso10646") == 0)
+	    if (regname != NULL &&
+		(strcmp(regname, "ISO10646") == 0 ||
+		 strcmp(regname, "iso10646") == 0))
 	      ok = True;
-	    XFree(regname);
+	    if (regname != NULL)
+	      XFree(regname);
 	}
     }
     return ok;
@@ -393,6 +399,12 @@ _XmUtf8ToUcs2(char *draw_text, size_t seg_len, size_t *ret_str_len)
     unsigned short codepoint;
     XChar2b *ptr;
     XChar2b *buf2b;
+
+    if (ret_str_len == NULL)
+	return NULL;
+    *ret_str_len = 0;
+    if (draw_text == NULL && seg_len != 0)
+	return NULL;
 
     /*
      * Convert to UCS2 string on the fly.
@@ -489,6 +501,9 @@ XmObjectAtPoint(
         Position x,
         Position y )
 {
+    if (wid == NULL)
+	return NULL;
+
     XmManagerWidgetClass mw = (XmManagerWidgetClass) XtClass(wid);
     XmManagerClassExt *mext ;
     Widget return_wid = NULL;

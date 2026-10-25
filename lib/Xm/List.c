@@ -33,7 +33,6 @@ static char rcsid[] = "$TOG: List.c /main/47 1999/10/12 16:58:17 mgreess $"
 
 #include <string.h>
 #include <stdio.h>
-#include <limits.h>
 #include <stdint.h>
 #include <wchar.h>
 #include <X11/Xatom.h>
@@ -200,6 +199,9 @@ static int ItemExists(XmListWidget lw, XmString item);
 static Boolean OnSelectedList(XmListWidget lw, XmString item, int pos);
 static void CopyItems(XmListWidget lw);
 static void CopySelectedItems(XmListWidget lw);
+static Boolean CopyCallbackSelectedItems(XmListWidget lw,
+                                         XmString *items,
+                                         int count);
 static void CopySelectedPositions(XmListWidget lw);
 static void ClearItemList(XmListWidget lw);
 static void ClearSelectedList(XmListWidget lw);
@@ -2620,8 +2622,9 @@ DrawHighlight(XmListWidget lw,
 
   ht = lw->list.HighlightThickness;
   x = lw->list.BaseX - ht;
-  width = (int)lw->core.width - 2 * ((int)lw->list.margin_width +
-				lw->primitive.shadow_thickness);
+  width = (int)lw->core.width -
+    2 * ((int)lw->list.margin_width +
+	 (int)lw->primitive.shadow_thickness);
 
   /****************
    *
@@ -2634,8 +2637,9 @@ DrawHighlight(XmListWidget lw,
       (position >= (lw->list.top_position + lw->list.visibleItemCount)))
     {
       y = lw->list.BaseY - ht;
-      height = (int)lw->core.height - 2 * ((int)lw->list.margin_height +
-				      lw->primitive.shadow_thickness);
+      height = (int)lw->core.height -
+	2 * ((int)lw->list.margin_height +
+	     (int)lw->primitive.shadow_thickness);
     }
   else
     {
@@ -2651,10 +2655,12 @@ DrawHighlight(XmListWidget lw,
 
   {
     /* Set highlight clip */
+    int clip_height;
     rect.x = x;
     rect.y = lw->list.BaseY - ht;
     rect.width = width;
-    rect.height = lw->core.height - 2 * rect.y;
+    clip_height = (int)lw->core.height - 2 * (int)rect.y;
+    rect.height = clip_height > 0 ? (Dimension)clip_height : 0;
     XSetClipRectangles(XtDisplay(lw), lw->list.HighlightGC, 0, 0,
 		       &rect, 1, Unsorted);
   }
@@ -3314,6 +3320,9 @@ AddInternalElements(XmListWidget lw,
   old_max_width = lw->list.MaxWidth;
   old_max_height = lw->list.MaxItemHeight;
 
+  /* Keep the old allocation intact when growth fails.  XtRealloc returns
+   * NULL without freeing its input, so assigning it directly would lose the
+   * list and the following insertion move would dereference NULL. */
   if (lw->list.itemCount < 0 ||
       (size_t)lw->list.itemCount > SIZE_MAX / sizeof(ElementPtr) ||
       (size_t)lw->list.itemCount > UINT_MAX / sizeof(ElementPtr))
@@ -3550,12 +3559,12 @@ DeleteInternalElementPositions(XmListWidget  lw,
       if ((size_t)lw->list.itemCount <= SIZE_MAX / sizeof(ElementPtr) &&
           (size_t)lw->list.itemCount <= UINT_MAX / sizeof(ElementPtr))
 	{
-          ElementPtr *new_internal = (ElementPtr *)XtRealloc(
-              (char *)lw->list.InternalList,
+	  ElementPtr *new_internal = (ElementPtr *)XtRealloc(
+	      (char *)lw->list.InternalList,
               (Cardinal)(sizeof(ElementPtr) *
                          (size_t)lw->list.itemCount));
-          if (new_internal != NULL)
-            lw->list.InternalList = new_internal;
+	  if (new_internal != NULL)
+	    lw->list.InternalList = new_internal;
 	}
     }
   else
@@ -3656,7 +3665,18 @@ AddItems(XmListWidget lw,
 
   /* Insert the new items into the array. */
   for (i = 0; i < nitems; i++)
-    lw->list.items[pos + i] = XmStringCopy(items[i]);
+    {
+      lw->list.items[pos + i] = XmStringCopy(items[i]);
+      if (lw->list.items[pos + i] == NULL)
+	{
+	  while (i != 0)
+	    XmStringFree(lw->list.items[pos + --i]);
+	  memmove((char *) (lw->list.items + pos),
+		  (char *) (lw->list.items + pos + nitems),
+		  (lw->list.itemCount - pos) * sizeof(XmString));
+	  return False;
+	}
+    }
 
   lw->list.itemCount = TotalItems;
   return True;
@@ -3818,10 +3838,15 @@ ReplaceItem(XmListWidget lw,
 	    int pos)
 {
   int i;
+  XmString replacement;
+  XmString selected_replacement;
   pos--;
 
+  replacement = XmStringCopy(item);
+  if (replacement == NULL)
+    return;
   XmStringFree(lw->list.items[pos]);
-  lw->list.items[pos] = XmStringCopy(item);
+  lw->list.items[pos] = replacement;
   /*Selected items should be replaced also*/
 #ifdef FIX_1390
   UpdateSelectedPositions(lw, lw->list.selectedItemCount);
@@ -3829,8 +3854,11 @@ ReplaceItem(XmListWidget lw,
   for(i=0; i<lw->list.selectedItemCount; i++)
   {
       if(lw->list.selectedPositions[i]==pos+1) {
-         XmStringFree(lw->list.selectedItems[i]);
-	 lw->list.selectedItems[i]=XmStringCopy(item);
+	 selected_replacement = XmStringCopy(item);
+	 if (selected_replacement != NULL) {
+	   XmStringFree(lw->list.selectedItems[i]);
+	   lw->list.selectedItems[i] = selected_replacement;
+	 }
       }
   }
 }
@@ -3924,13 +3952,26 @@ CopyItems(XmListWidget lw)
 
   if (lw->list.items && lw->list.itemCount)
     {
-      if ((size_t)lw->list.itemCount > SIZE_MAX / sizeof(XmString))
+      if ((size_t)lw->list.itemCount > SIZE_MAX / sizeof(XmString) ||
+          (size_t)lw->list.itemCount > UINT_MAX / sizeof(XmString))
         return;
-      il = (XmString *)XtMalloc(sizeof(XmString) * (lw->list.itemCount));
+      il = (XmString *)XtMalloc((Cardinal)(sizeof(XmString) *
+					   (size_t)lw->list.itemCount));
       if (il == NULL)
         return;
       for (i = 0; i < lw->list.itemCount; i++)
-	il[i] = XmStringCopy(lw->list.items[i]);
+	{
+	  il[i] = XmStringCopy(lw->list.items[i]);
+	  if (il[i] == NULL)
+	    {
+	      while (i != 0)
+		XmStringFree(il[--i]);
+	      XtFree((char *)il);
+	      lw->list.items = NULL;
+	      lw->list.itemCount = 0;
+	      return;
+	    }
+	}
 
       lw->list.items = il;
     }
@@ -3951,17 +3992,48 @@ CopySelectedItems(XmListWidget lw)
 
   if (lw->list.selectedItems && lw->list.selectedItemCount)
     {
-      if ((size_t)lw->list.selectedItemCount > SIZE_MAX / sizeof(XmString))
+      if ((size_t)lw->list.selectedItemCount > SIZE_MAX / sizeof(XmString) ||
+          (size_t)lw->list.selectedItemCount > UINT_MAX / sizeof(XmString))
         return;
-      sl = (XmString *) XtMalloc(sizeof(XmString) *
-				 (lw->list.selectedItemCount));
+      sl = (XmString *) XtMalloc((Cardinal)(sizeof(XmString) *
+						 (size_t)lw->list.selectedItemCount));
       if (sl == NULL)
         return;
       for (i = 0; i < lw->list.selectedItemCount; i++)
-	sl[i] = XmStringCopy(lw->list.selectedItems[i]);
+	{
+	  sl[i] = XmStringCopy(lw->list.selectedItems[i]);
+	  if (sl[i] == NULL)
+	    {
+	      while (i != 0)
+		XmStringFree(sl[--i]);
+	      XtFree((char *)sl);
+	      lw->list.selectedItems = NULL;
+	      lw->list.selectedItemCount = 0;
+	      return;
+	    }
+	}
 
       lw->list.selectedItems = sl;
     }
+}
+
+/* Copy a temporary callback snapshot transactionally. */
+static Boolean
+CopyCallbackSelectedItems(XmListWidget lw, XmString *items, int count)
+{
+  int i;
+
+  for (i = 0; i < count; i++)
+    {
+      items[i] = XmStringCopy(lw->list.selectedItems[i]);
+      if (items[i] == NULL)
+	{
+	  while (i != 0)
+	    XmStringFree(items[--i]);
+	  return False;
+	}
+    }
+  return True;
 }
 
 /************************************************************************
@@ -3975,13 +4047,14 @@ CopySelectedPositions(XmListWidget lw)
 {
   if (lw->list.selectedPositions && lw->list.selectedPositionCount)
     {
-      int size;
+      size_t size;
       int *sl;
 
-      if ((size_t)lw->list.selectedPositionCount > SIZE_MAX / sizeof(int))
+      if ((size_t)lw->list.selectedPositionCount > SIZE_MAX / sizeof(int) ||
+          (size_t)lw->list.selectedPositionCount > UINT_MAX / sizeof(int))
         return;
-      size = sizeof(int) * lw->list.selectedPositionCount;
-      sl = (int *) XtMalloc(size);
+      size = sizeof(int) * (size_t)lw->list.selectedPositionCount;
+      sl = (int *) XtMalloc((Cardinal)size);
       if (sl == NULL)
         return;
 
@@ -4102,12 +4175,14 @@ BuildSelectedList(XmListWidget lw,
   lw->list.selectedItems = NULL;
   if (j == 0)
     return;
-  if ((size_t)j > SIZE_MAX / sizeof(XmString))
+  if ((size_t)j > SIZE_MAX / sizeof(XmString) ||
+      (size_t)j > UINT_MAX / sizeof(XmString))
     {
       lw->list.selectedItemCount = 0;
       return;
     }
-  lw->list.selectedItems = (XmString *)XtMalloc(sizeof(XmString) * j);
+  lw->list.selectedItems = (XmString *)XtMalloc(
+		  (Cardinal)(sizeof(XmString) * (size_t)j));
   if (lw->list.selectedItems == NULL)
     {
       lw->list.selectedItemCount = 0;
@@ -4119,6 +4194,15 @@ BuildSelectedList(XmListWidget lw,
       if (lw->list.InternalList[i]->selected)
 	{
 	  lw->list.selectedItems[j] = XmStringCopy(lw->list.items[i]);
+	  if (lw->list.selectedItems[j] == NULL)
+	    {
+	      while (j != 0)
+		XmStringFree(lw->list.selectedItems[--j]);
+	      XtFree((char *)lw->list.selectedItems);
+	      lw->list.selectedItems = NULL;
+	      lw->list.selectedItemCount = 0;
+	      return;
+	    }
 	  j++;
         }
     }
@@ -4150,14 +4234,17 @@ BuildSelectedPositions(XmListWidget lw,
     }
 
   lw->list.selectedPositionCount = nsel;
-  if (nsel <= 0 || (size_t)nsel > SIZE_MAX / sizeof(int))
+  if (nsel <= 0 ||
+      (size_t)nsel > SIZE_MAX / sizeof(int) ||
+      (size_t)nsel > UINT_MAX / sizeof(int))
     {
       lw->list.selectedPositionCount = 0;
       lw->list.selectedPositions = NULL;
     }
   else
     {
-      lw->list.selectedPositions = (int *) XtMalloc(sizeof(int) * nsel);
+      lw->list.selectedPositions = (int *) XtMalloc(
+		  (Cardinal)(sizeof(int) * (size_t)nsel));
       if (lw->list.selectedPositions == NULL)
 	{
 	  lw->list.selectedPositionCount = 0;
@@ -4323,7 +4410,7 @@ WhichItem(XmListWidget w,
 	  lw->list.itemCount)
 	return (lw->list.itemCount - 1);
     }
-  if (y >= (Position)(lw->core.height - lw->list.BaseY))
+  if (y >= (Position)((int)lw->core.height - (int)lw->list.BaseY))
     return (lw->list.itemCount + 1);
 
   if ((int) (lw->list.MaxItemHeight + lw->list.spacing) == 0)
@@ -5847,6 +5934,11 @@ DefaultAction(XmListWidget lw,
   cb.item_length = lw->list.InternalList[item]->length;
   cb.item_position = item + 1;
   cb.item = XmStringCopy(lw->list.items[item]);
+  if (cb.item == NULL)
+    {
+      lw->list.DownCount = 0;
+      return;
+    }
   cb.selected_item_count = 0;
   cb.selected_items = NULL;
   cb.selected_item_positions = NULL;
@@ -5861,19 +5953,25 @@ DefaultAction(XmListWidget lw,
 	(XmString *)ALLOCATE_LOCAL(sizeof(XmString) * SLcount);
       cb.selected_item_positions =
 	(int *)ALLOCATE_LOCAL(sizeof(int) * SLcount);
-	if (cb.selected_items == NULL || cb.selected_item_positions == NULL)
+      if (cb.selected_items == NULL || cb.selected_item_positions == NULL)
 	{
 	  DEALLOCATE_LOCAL((char *)cb.selected_items);
 	  DEALLOCATE_LOCAL((char *)cb.selected_item_positions);
 	  cb.selected_items = NULL;
 	  cb.selected_item_positions = NULL;
 	}
+      else
+	if (!CopyCallbackSelectedItems(lw, cb.selected_items, SLcount))
+	  {
+	    DEALLOCATE_LOCAL((char *)cb.selected_items);
+	    DEALLOCATE_LOCAL((char *)cb.selected_item_positions);
+	    cb.selected_items = NULL;
+	    cb.selected_item_positions = NULL;
+	    SLcount = 0;
+	  }
 	else
 	  for (i = 0; i < SLcount; i++)
-	    {
-	      cb.selected_items[i] = XmStringCopy(lw->list.selectedItems[i]);
-	      cb.selected_item_positions[i] = lw->list.selectedPositions[i];
-	    }
+	    cb.selected_item_positions[i] = lw->list.selectedPositions[i];
     }
   cb.selected_item_count = SLcount;
   cb.auto_selection_type = lw->list.AutoSelectionType;
@@ -5882,7 +5980,7 @@ DefaultAction(XmListWidget lw,
 
   lw->list.AutoSelectionType = XmAUTO_UNSET;
   if (cb.selected_items)
-	for (i = 0; i < SLcount; i++)
+    for (i = 0; i < SLcount; i++)
 	  if (cb.selected_items[i]) XmStringFree(cb.selected_items[i]);
   DEALLOCATE_LOCAL((char*)cb.selected_items);
   DEALLOCATE_LOCAL((char*)cb.selected_item_positions);
@@ -5924,7 +6022,8 @@ ClickElement(XmListWidget lw,
       lw->list.DragID = 0;
     }
 
-  assert(lw->list.itemCount && lw->list.InternalList);
+  if (lw->list.itemCount == 0 || lw->list.InternalList == NULL)
+    return;
   if (lw->list.InternalList[item]->length == UNKNOWN_LENGTH)
     lw->list.InternalList[item]->length = XmStringLength(lw->list.items[item]);
 
@@ -5932,6 +6031,11 @@ ClickElement(XmListWidget lw,
   cb.item_length = lw->list.InternalList[item]->length;
   cb.item_position = item + 1;
   cb.item = XmStringCopy(lw->list.items[item]);
+  if (cb.item == NULL)
+    {
+      lw->list.DownCount = 0;
+      return;
+    }
 
   if (lw->list.AutoSelect != XmNO_AUTO_SELECT)
     {
@@ -5964,11 +6068,17 @@ ClickElement(XmListWidget lw,
 	      cb.selected_item_positions = NULL;
 	    }
 	  else
-	    for (i = 0; i < SLcount; i++)
+	    if (!CopyCallbackSelectedItems(lw, cb.selected_items, SLcount))
 	      {
-		cb.selected_items[i] = XmStringCopy(lw->list.selectedItems[i]);
-		cb.selected_item_positions[i] = lw->list.selectedPositions[i];
+		DEALLOCATE_LOCAL((char *)cb.selected_items);
+		DEALLOCATE_LOCAL((char *)cb.selected_item_positions);
+		cb.selected_items = NULL;
+		cb.selected_item_positions = NULL;
+		SLcount = 0;
 	      }
+	    else
+	      for (i = 0; i < SLcount; i++)
+		cb.selected_item_positions[i] = lw->list.selectedPositions[i];
 	}
     }
   /* BEGIN OSF Fix CR 4576 */
@@ -6930,14 +7040,14 @@ KbdLeftPage(Widget wid,
     return;
 
   if (LayoutIsRtoLP(lw)) {
-    pos = lw->list.hOrigin + (lw->core.width - CHAR_WIDTH_GUESS -
+    pos = lw->list.hOrigin + ((int)lw->core.width - CHAR_WIDTH_GUESS -
 			      2 * (int)(lw->list.margin_width +
 					lw->list.HighlightThickness +
 					lw->primitive.shadow_thickness));
     if ((lw->list.hExtent + pos) > lw->list.hmax)
       pos = lw->list.hmax - lw->list.hExtent;
   } else {
-    pos = lw->list.hOrigin - (lw->core.width - CHAR_WIDTH_GUESS -
+    pos = lw->list.hOrigin - ((int)lw->core.width - CHAR_WIDTH_GUESS -
 			      2 * (int)(lw->list.margin_width +
 					lw->list.HighlightThickness +
 					lw->primitive.shadow_thickness));
@@ -7016,12 +7126,12 @@ KbdRightPage(Widget wid,
     return;
 
   if (LayoutIsRtoLP(lw)) {
-    pos = lw->list.hOrigin - (lw->core.width - CHAR_WIDTH_GUESS -
+    pos = lw->list.hOrigin - ((int)lw->core.width - CHAR_WIDTH_GUESS -
 			      2 * (int)(lw->list.margin_width +
 					lw->list.HighlightThickness +
 					lw->primitive.shadow_thickness));
   } else {
-    pos = lw->list.hOrigin + (lw->core.width - CHAR_WIDTH_GUESS -
+    pos = lw->list.hOrigin + ((int)lw->core.width - CHAR_WIDTH_GUESS -
 			      2 * (int)(lw->list.margin_width +
 					lw->list.HighlightThickness +
 					lw->primitive.shadow_thickness));
@@ -7334,11 +7444,15 @@ DragDropFinished(Widget w,		/* unused */
   XmListWidget lw = (XmListWidget)closure;
   XmListDragConvertStruct *ListDragConv = lw->list.drag_conv;
 
+  if (ListDragConv == NULL)
+    return;
+
   for (i = 0; i < ListDragConv->num_strings; i++)
     XmStringFree(ListDragConv->strings[i]);
 
   XtFree((char *) ListDragConv->strings);
   XtFree((char *) ListDragConv);
+  lw->list.drag_conv = NULL;
 }
 
 /***************************************************************************
@@ -7412,6 +7526,14 @@ ListProcessDrag(Widget wid,
       for (i = 0; i < lw->list.selectedPositionCount; i++) {
 	ListDragConv->strings[i] =
 	  XmStringCopy(lw->list.items[lw->list.selectedPositions[i] - 1]);
+	if (ListDragConv->strings[i] == NULL) {
+	  while (i != 0)
+	    XmStringFree(ListDragConv->strings[--i]);
+	  XtFree((char *)ListDragConv->strings);
+	  XtFree((char *)ListDragConv);
+	  lw->list.drag_conv = NULL;
+	  return;
+	}
       }
     }
   else
@@ -7424,6 +7546,12 @@ ListProcessDrag(Widget wid,
       }
       ListDragConv->num_strings = 1;
       ListDragConv->strings[0] = XmStringCopy(lw->list.items[item]);
+      if (ListDragConv->strings[0] == NULL) {
+	  XtFree((char *)ListDragConv->strings);
+	  XtFree((char *)ListDragConv);
+	  lw->list.drag_conv = NULL;
+	  return;
+      }
       location_data = item;
     }
 
@@ -7582,7 +7710,6 @@ ListProcessBtn1(Widget wid,
       break;
 
     default:
-      assert(FALSE);
       break;
     }
 }
@@ -7634,7 +7761,6 @@ ListProcessBtn2(Widget wid,
       break;
 
     default:
-      assert(FALSE);
       break;
     }
 }
@@ -8034,6 +8160,8 @@ XmListAddItem(Widget w,
 	      int pos)
 {
   XmListWidget lw = (XmListWidget) w;
+  if (w == NULL || item == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -8064,9 +8192,11 @@ APIAddItems(XmListWidget lw,
   int nsel = lw->list.selectedPositionCount;
   Dimension old_max_height = lw->list.MaxItemHeight;
 
-  if ((items == NULL) ||
-      (item_count == 0))
+  if (items == NULL || item_count <= 0)
     return;
+  for (i = 0; i < item_count; ++i)
+    if (items[i] == NULL)
+      return;
 
   if ((intern_pos < 0) || (intern_pos >= lw->list.itemCount))
     {
@@ -8075,16 +8205,17 @@ APIAddItems(XmListWidget lw,
       bot = TRUE;
     }
 
+  if ((lw->list.Traversing) &&
+      (intern_pos <= lw->list.CurrentKbdItem) &&
+      !bot)
+    DrawHighlight(lw, lw->list.CurrentKbdItem, FALSE);
+
   selectable = (select &&
 		(lw->list.SelectionPolicy != XmSINGLE_SELECT) &&
 		(lw->list.SelectionPolicy != XmBROWSE_SELECT));
 
   if (!AddItems(lw, items, item_count, intern_pos))
     return;
-  if ((lw->list.Traversing) &&
-      (intern_pos <= lw->list.CurrentKbdItem) &&
-      !bot)
-    DrawHighlight(lw, lw->list.CurrentKbdItem, FALSE);
   nsel += AddInternalElements(lw, lw->list.items + intern_pos, item_count,
 			      pos, selectable);
 
@@ -8108,8 +8239,29 @@ APIAddItems(XmListWidget lw,
   /* CR 5833: Enforce single/browse selection_policy. */
   if (select && !selectable)
     {
+      /* A policy change from multiple selection can leave more than one
+       * position selected until the next list update.  Keep the first
+       * selection and clear the stale extras before applying the single-item
+       * insertion rule. */
+      if (lw->list.selectedPositionCount > 1 &&
+          lw->list.selectedPositions != NULL)
+	{
+	  for (i = 1; i < lw->list.selectedPositionCount; i++)
+	    {
+	      int old_sel = lw->list.selectedPositions[i];
+	      if (old_sel >= pos)
+		old_sel += item_count;
+	      if (old_sel > 0 && old_sel <= lw->list.itemCount)
+		{
+		  lw->list.InternalList[old_sel - 1]->selected = FALSE;
+		  lw->list.InternalList[old_sel - 1]->last_selected = FALSE;
+		}
+	      nsel--;
+	    }
+	  UpdateSelectedList(lw, TRUE);
+	}
+
       /* Find the last matching item. */
-      assert(lw->list.selectedPositionCount <= 1);
       i = item_count;
       while (i-- > 0)
 	{
@@ -8175,6 +8327,8 @@ XmListAddItems(Widget w,
 	       int pos)
 {
   XmListWidget lw = (XmListWidget) w;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -8197,6 +8351,8 @@ XmListAddItemsUnselected(Widget w,
 			 int pos)
 {
   XmListWidget lw = (XmListWidget) w;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -8219,6 +8375,8 @@ XmListAddItemUnselected(Widget w,
 			int pos)
 {
   XmListWidget lw = (XmListWidget) w;
+  if (w == NULL || item == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -8239,6 +8397,8 @@ XmListDeleteItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int item_pos;
+  if (w == NULL || item == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -8276,19 +8436,22 @@ CleanUpList(XmListWidget lw,
 	    Boolean always)
 {
   Dimension VertMargin, HorzMargin;
+  int clear_width, clear_height;
 
   /* Special case for deleting the last item */
   if (always || !lw->list.itemCount)
     {
       HorzMargin = lw->list.margin_width + lw->primitive.shadow_thickness;
       VertMargin = lw->list.margin_height + lw->primitive.shadow_thickness;
+      clear_width = (int)lw->core.width - 2 * (int)HorzMargin;
+      clear_height = (int)lw->core.height - 2 * (int)VertMargin;
 
-      if (XtIsRealized((Widget)lw))
+	  if (XtIsRealized((Widget)lw) && clear_width > 0 && clear_height > 0)
 	XClearArea(XtDisplay (lw), XtWindow (lw),
 		   HorzMargin,
 		   VertMargin,
-		   lw->core.width - (2 * HorzMargin),
-		   lw->core.height - (2 * VertMargin),
+		   (Dimension)clear_width,
+		   (Dimension)clear_height,
 		   False);
     }
 }
@@ -8309,15 +8472,16 @@ XmListDeleteItems(Widget w,
   Boolean reset_width = FALSE;
   Boolean reset_height = FALSE;
   Boolean rebuild_selection = FALSE;
-  Dimension old_max_height = lw->list.MaxItemHeight;
+  Dimension old_max_height;
   int item_pos;
   XmString *copy;
 
   register int i;
-  _XmWidgetToAppContext(w);
-
-  if ((items == NULL) || (item_count == 0))
+  if (w == NULL || items == NULL || item_count <= 0)
     return;
+
+  old_max_height = lw->list.MaxItemHeight;
+  _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
 
@@ -8328,8 +8492,19 @@ XmListDeleteItems(Widget w,
       return;
     }
 
+  if ((size_t)item_count > SIZE_MAX / sizeof(XmString))
+    {
+      _XmAppUnlock(app);
+      return;
+    }
+
   /* Make a copy of items in case of XmNitems from w */
   copy = (XmString *)ALLOCATE_LOCAL(item_count * sizeof(XmString));
+  if (copy == NULL)
+    {
+      _XmAppUnlock(app);
+      return;
+    }
   for (i = 0; i < item_count; i++)
     copy[i] = XmStringCopy(items[i]);
 
@@ -8430,7 +8605,7 @@ APIDeletePositions(XmListWidget lw,
 
   register int i;
 
-  if ((positions == NULL) || (count == 0)) return;
+  if (positions == NULL || count <= 0) return;
 
   /* CR 5760:  Generate warnings for empty lists too. */
   if (lw->list.itemCount < 1)
@@ -8519,6 +8694,8 @@ XmListDeletePositions(Widget    w,
 		      int       position_count)
 {
   XmListWidget lw = (XmListWidget) w;
+  if (w == NULL || position_list == NULL || position_count <= 0)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -8541,6 +8718,8 @@ XmListDeletePos(Widget w,
   XmListWidget lw = (XmListWidget) w;
   int position;
 
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
   /* CR 9444: Allow 0 even though XmListDeletePositions doesn't. */
@@ -8570,6 +8749,8 @@ XmListDeleteItemsPos(Widget w,
   Boolean rebuild_selection = FALSE;
   Dimension old_max_height;
   register int i;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -8707,6 +8888,8 @@ XmListDeleteAllItems(Widget w)
 {
   XmListWidget lw = (XmListWidget) w;
   int j;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -8761,11 +8944,12 @@ APIReplaceItems(Widget w,
   Boolean      replaced_first = FALSE;
   int	       nsel = lw->list.selectedPositionCount;
 
-  if ((old_items == NULL)     ||
-      (new_items == NULL)     ||
-      (lw->list.items == NULL)||
-      (item_count == 0))
+  if (old_items == NULL || new_items == NULL ||
+      lw->list.items == NULL || item_count <= 0)
     return;
+  for (i = 0; i < item_count; ++i)
+    if (old_items[i] == NULL || new_items[i] == NULL)
+      return;
 
   for (i = 0; i < item_count; i++)
     {
@@ -8823,6 +9007,8 @@ XmListReplaceItems(Widget w,
 		   int item_count,
 		   XmString *new_items)
 {
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
   APIReplaceItems(w, old_items, item_count, new_items, TRUE);
@@ -8842,6 +9028,8 @@ XmListReplaceItemsUnselected(Widget w,
 			     int item_count,
 			     XmString *new_items)
 {
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
   APIReplaceItems(w, old_items, item_count, new_items, FALSE);
@@ -8874,8 +9062,11 @@ APIReplaceItemsPos(Widget w,
   if ((position < 1)          ||
       (new_items == NULL)     ||
       (lw->list.items == NULL)||
-      (item_count == 0))
+      (item_count <= 0))
     return;
+  for (i = 0; i < item_count; ++i)
+    if (new_items[i] == NULL)
+      return;
 
   intern_pos = position - 1;
 
@@ -8934,6 +9125,8 @@ XmListReplaceItemsPos(Widget w,
 		      int item_count,
 		      int position)
 {
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
   APIReplaceItemsPos( w, new_items, item_count, position, TRUE);
@@ -8954,6 +9147,8 @@ XmListReplaceItemsPosUnselected(Widget w,
 				int item_count,
 				int position)
 {
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
   APIReplaceItemsPos( w, new_items, item_count, position, FALSE);
@@ -8984,6 +9179,12 @@ XmListReplacePositions(Widget    w,
   Boolean reset_height = FALSE;
   Boolean replaced_first = FALSE;
   int nsel;
+  if (w == NULL || position_list == NULL || item_list == NULL ||
+      item_count <= 0)
+    return;
+  for (i = 0; i < item_count; ++i)
+    if (item_list[i] == NULL)
+      return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9002,10 +9203,7 @@ XmListReplacePositions(Widget    w,
       return;
     }
 
-  if ((position_list  == NULL)  ||
-      (item_list      == NULL)  ||
-      (lw->list.items == NULL)  ||
-      (item_count     == 0)) {
+  if (lw->list.items == NULL) {
     _XmAppUnlock(app);
     return;
   }
@@ -9200,6 +9398,8 @@ XmListSelectItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int		   item_pos;
+  if (w == NULL || item == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9233,6 +9433,8 @@ XmListSelectPos(Widget w,
 #endif /* NeedWidePrototypes */
 {
   XmListWidget  lw = (XmListWidget) w;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9264,6 +9466,8 @@ XmListDeselectItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int	i;
+  if (w == NULL || item == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9300,6 +9504,8 @@ XmListDeselectPos(Widget w,
 		  int pos)
 {
   XmListWidget  lw = (XmListWidget) w;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9339,6 +9545,8 @@ XmListDeselectAllItems(Widget w)
 {
   XmListWidget  lw = (XmListWidget) w;
   int  i;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9378,6 +9586,8 @@ XmListSetPos(Widget w,
 	     int pos)
 {
   XmListWidget  lw = (XmListWidget) w;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9416,6 +9626,8 @@ XmListSetBottomPos(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int top;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9459,6 +9671,8 @@ XmListSetItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int	i;
+  if (w == NULL || item == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9498,6 +9712,8 @@ XmListSetBottomItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int i, top;
+  if (w == NULL || item == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9540,6 +9756,8 @@ XmListSetAddMode(Widget w,
 #endif /* NeedWidePrototypes */
 {
   XmListWidget  lw = (XmListWidget) w;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9622,6 +9840,9 @@ XmListItemExists(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   Boolean exists;
+
+  if (w == NULL || item == NULL)
+    return FALSE;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9649,6 +9870,9 @@ XmListItemPos(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int pos;
+
+  if (w == NULL || item == NULL)
+    return 0;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9675,6 +9899,9 @@ XmListGetKbdItemPos(Widget w)
 {
   XmListWidget  lw = (XmListWidget) w;
   int pos;
+
+  if (w == NULL)
+    return 0;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9701,6 +9928,8 @@ XmListSetKbdItemPos(Widget w,
 		    int    pos)
 {
   XmListWidget  lw = (XmListWidget) w;
+  if (w == NULL)
+    return False;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9749,13 +9978,17 @@ XmListGetMatchPos(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   register int  i, *pos;
-  int           *new_pos;
+  int *new_pos;
   int           j;
-  _XmWidgetToAppContext(w);
 
   /* CR 7648: Be friendly and initialize the out parameters. */
+  if (pos_list == NULL || pos_count == NULL)
+    return FALSE;
   *pos_list = NULL;
   *pos_count = 0;
+  if (w == NULL || item == NULL)
+    return FALSE;
+  _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
 
@@ -9765,16 +9998,19 @@ XmListGetMatchPos(Widget w,
     return FALSE;
   }
 
-  if ((size_t)lw->list.itemCount > SIZE_MAX / sizeof(int)) {
+  if ((size_t)lw->list.itemCount > SIZE_MAX / sizeof(int) ||
+      (size_t)lw->list.itemCount > UINT_MAX / sizeof(int)) {
     _XmAppUnlock(app);
     return FALSE;
   }
 
-  pos = (int *)XtMalloc((sizeof(int) * lw->list.itemCount));
-  if (pos == NULL) {
-    _XmAppUnlock(app);
-    return FALSE;
-  }
+  pos = (int *)XtMalloc((Cardinal)(sizeof(int) *
+					(size_t)lw->list.itemCount));
+  if (pos == NULL)
+    {
+      _XmAppUnlock(app);
+      return (FALSE);
+    }
   j = 0;
 
   for (i = 0; i < lw->list.itemCount; i++)
@@ -9789,7 +10025,8 @@ XmListGetMatchPos(Widget w,
       _XmAppUnlock(app);
       return (FALSE);
     }
-  new_pos = (int *)XtRealloc((char *)pos, sizeof(int) * (size_t)j);
+  new_pos = (int *)XtRealloc((char *)pos,
+				     (Cardinal)(sizeof(int) * (size_t)j));
   if (new_pos != NULL)
     pos = new_pos;
 
@@ -9855,11 +10092,15 @@ XmListGetSelectedPos(Widget w,
   XmListWidget  lw = (XmListWidget) w;
   register int *posList;
   int count;
-  _XmWidgetToAppContext(w);
 
   /* CR 7648: Be friendly and initialize the out parameters. */
+  if (pos_list == NULL || pos_count == NULL)
+    return FALSE;
   *pos_list = NULL;
   *pos_count = 0;
+  if (w == NULL)
+    return FALSE;
+  _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
 
@@ -9871,12 +10112,15 @@ XmListGetSelectedPos(Widget w,
     return FALSE;
   }
 
-  if ((size_t)lw->list.selectedPositionCount > SIZE_MAX / sizeof(int)) {
+  if ((size_t)lw->list.selectedPositionCount > SIZE_MAX / sizeof(int) ||
+      (size_t)lw->list.selectedPositionCount > UINT_MAX / sizeof(int)) {
     _XmAppUnlock(app);
     return FALSE;
   }
 
-  posList = (int *) XtMalloc(sizeof(int) * lw->list.selectedPositionCount);
+  posList = (int *) XtMalloc(
+		  (Cardinal)(sizeof(int) *
+			      (size_t)lw->list.selectedPositionCount));
   if (posList == NULL)
     {
       _XmAppUnlock(app);
@@ -9906,6 +10150,8 @@ XmListSetHorizPos(Widget w,
 		  int position)
 {
   XmListWidget  lw = (XmListWidget) w;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9955,11 +10201,15 @@ XmListYToPos(Widget w,
   /* BEGIN OSF Fix CR 5081 */
   XmListWidget lw = (XmListWidget)w;
   int pos;
+
+  if (w == NULL)
+    return 0;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
   /* BEGIN OSF Fix CR 5662 */
-  if ((y < (Position)0) || (y >= (Position)(lw->core.height - lw->list.BaseY))) {
+  if ((y < (Position)0) ||
+      (y >= (Position)((int)lw->core.height - (int)lw->list.BaseY))) {
     /* END OSF Fix CR 5662 */
     _XmAppUnlock(app);
     return (0);
@@ -9993,6 +10243,9 @@ XmListPosToBounds(Widget      w,
   Position   iy;          /* ...of time...             */
   Dimension  iwidth;      /* ...for debugging...       */
   Dimension  iheight;     /* ...purposes               */
+
+  if (w == NULL)
+    return False;
   _XmWidgetToAppContext(w);
 
   if (!XtIsRealized(w))
@@ -10020,8 +10273,12 @@ XmListPosToBounds(Widget      w,
   ht = MAX((int)lw->list.HighlightThickness, 0);
 
   ix = lw->list.BaseX - ht;
-  iwidth = lw->core.width - 2 * ((int)lw->list.margin_width +
-				 lw->primitive.shadow_thickness);
+  {
+    int available_width = (int)lw->core.width -
+      2 * ((int)lw->list.margin_width +
+	   (int)lw->primitive.shadow_thickness);
+    iwidth = available_width > 0 ? (Dimension)available_width : 0;
+  }
 
   iy = LINEHEIGHTS(lw, position - lw->list.top_position) + lw->list.BaseY - ht;
   iheight = lw->list.MaxItemHeight + (2 * ht);
@@ -10046,6 +10303,8 @@ void
 XmListUpdateSelectedList(Widget w)
 {
   XmListWidget  lw = (XmListWidget) w;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -10068,11 +10327,15 @@ XmListPosSelected(Widget w,
   int		int_pos;
   XmListWidget	lw = (XmListWidget) w;
   Boolean	selected;
+  if (w == NULL)
+    return False;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
 
-  if ((lw->list.items == NULL) || (pos < 0) || (pos > lw->list.itemCount)) {
+  if ((lw->list.items == NULL) || (lw->list.itemCount <= 0) ||
+      (pos < 0) || (pos > lw->list.itemCount) ||
+      (pos == 0 && lw->list.LastItem <= 0)) {
     _XmAppUnlock(app);
     return False;
   }
@@ -10164,6 +10427,7 @@ XmCreateScrolledList(Widget parent,
 {
   Widget sw, lw;
   char *s;
+  size_t name_size;
   ArgList Args;
   Arg my_args[4];
   Cardinal nargs;
@@ -10171,7 +10435,12 @@ XmCreateScrolledList(Widget parent,
   if (argCount > (Cardinal)(~(Cardinal)0 - 4))
     return NULL;
 
-  s = (char*) ALLOCATE_LOCAL(XmStrlen(name) + 3); /* Name+"SW"+NULL */
+  if (XmStrlen(name) > SIZE_MAX - 3)
+    return NULL;
+  name_size = XmStrlen(name) + 3;
+  s = (char*) ALLOCATE_LOCAL(name_size); /* Name+"SW"+NULL */
+  if (s == NULL)
+    return NULL;
   if (name)
     {
       strcpy(s, name);
@@ -10189,6 +10458,11 @@ XmCreateScrolledList(Widget parent,
   XtSetArg(my_args[nargs], XmNshadowThickness, 0), nargs++;
   assert(nargs <= XtNumber(my_args));
   Args = XtMergeArgLists(args, argCount, my_args, nargs);
+  if (Args == NULL)
+    {
+      DEALLOCATE_LOCAL(s);
+      return NULL;
+    }
   sw = XtCreateManagedWidget(s , xmScrolledWindowWidgetClass, parent,
 			     Args, argCount + nargs);
   DEALLOCATE_LOCAL(s);

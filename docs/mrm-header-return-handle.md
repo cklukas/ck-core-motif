@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm header RID return validation
 
 `Idb__HDR_ReturnItem` now validates the stored record number and applies the

@@ -237,7 +237,6 @@ extern void _XmWarningMsg(Widget w,
 extern Display *_XmGetDefaultDisplay(void);
 extern Boolean _XmGetDpiScale(Display *display, double *scale);
 extern Boolean _XmGetGlobalDpiScale(Display *display, double *scale);
-extern Boolean _XmGetWidgetDpiScale(Widget widget, double *scale);
 extern Dimension _XmDpiDefaultDimension(Widget widget, Dimension baseline);
 extern Dimension _XmDpiScaleDimension(double scale, Dimension baseline);
 

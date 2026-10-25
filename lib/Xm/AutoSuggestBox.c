@@ -77,7 +77,10 @@ static char *text_copy(XmString value)
 static XmString string_copy(XmString value)
 {
     char *text = text_copy(value);
-    XmString result = XmStringCreateLocalized(text);
+    XmString result;
+    if (!text)
+	return NULL;
+    result = XmStringCreateLocalized(text);
     XtFree(text);
     return result;
 }

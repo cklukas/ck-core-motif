@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ScrollFrame navigator addition input validation
 
 `_XmSFAddNavigator` now rejects a null frame, navigator, or scroll-frame state

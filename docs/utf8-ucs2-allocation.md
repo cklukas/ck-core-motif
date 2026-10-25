@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # UTF-8 to UCS-2 allocation
 
 `_XmUtf8ToUcs2` validates the requested buffer size before allocating the

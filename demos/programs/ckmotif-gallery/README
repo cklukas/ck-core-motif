@@ -14,8 +14,9 @@ alongside the gallery provenance.
 
 The gallery shell uses only public Xm interfaces.  Theme and DPI controls are
 wired to `XmApplyAppearanceProfile` and the public display-scale transaction
-APIs and are enabled in the normal build.  The native integration test
-exercises a profile transition and a complete scale/clear cycle.  PrintShell
+APIs, but remain disabled by default until the toolkit qualification matrix is
+complete.  Define `CKMOTIF_GALLERY_ENABLE_LIVE_TRANSACTIONS` only for a
+qualified build.  PrintShell
 is conditional on PRINTING_SUPPORTED and remains visible as an unavailable
 optional capability in a print-disabled build.
 

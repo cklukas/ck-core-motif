@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
 #include <Xm/NumberBoxP.h>
@@ -23,6 +24,7 @@ static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
+static int bounded_text_length(const char *text){size_t length=text?strlen(text):0;return length>(size_t)INT_MAX?INT_MAX:(int)length;}
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
 
 #define Offset(field) XtOffsetOf(XmNumberBoxRec, field)
@@ -189,7 +191,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     baseline = (int)((number->core.height + font->ascent - font->descent) / 2);
     XDrawString(display, window, text_gc, (int)number->number_box.spacing,
                 baseline, number->number_box.text,
-                (int)strlen(number->number_box.text));
+                bounded_text_length(number->number_box.text));
     arrow_x = number->core.width > 24 ? number->core.width - 24 : 0;
     XDrawLine(display, window, number->number_box.arrow_gc, arrow_x, 0,
               arrow_x, number->core.height);
@@ -231,8 +233,10 @@ static void commit_text(XmNumberBoxWidget number, XEvent *event) {
 
 static void step_value(XmNumberBoxWidget number, int direction, Boolean page,
                        Boolean notify, XEvent *event) {
-    long delta = (long)(page ? number->number_box.page_step : number->number_box.step);
-    long next = (long)number->number_box.value + (direction < 0 ? -delta : delta);
+    int64_t delta = (int64_t)(page ? number->number_box.page_step :
+                              number->number_box.step);
+    int64_t next = (int64_t)number->number_box.value +
+                   (direction < 0 ? -delta : delta);
     if (next < number->number_box.minimum || next > number->number_box.maximum) {
         if (!number->number_box.wrap) {
             next = next < number->number_box.minimum ? number->number_box.minimum

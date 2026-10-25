@@ -8,6 +8,11 @@ end = source.index("\n\n\n/*** COLOR CACHE NOW ***/", start)
 region = source[start:end]
 assert "Table table = { NULL, NULL, NULL, NULL };" in region
 assert "if (dest_image->data == NULL)" in region
+assert "SIZE_MAX / sizeof(*table.x) - 1" in region
+assert "SIZE_MAX / sizeof(*table.y) - 1" in region
+assert "SIZE_MAX / sizeof(*table.width)" in region
+assert "SIZE_MAX / sizeof(*table.height)" in region
 assert "if (table.x == NULL || table.y == NULL" in region
 assert "goto cleanup;" in region
+assert "dest_y > INT_MAX - (int)dest_height" in region
 print("image scaling checks destination and lookup-table allocations")

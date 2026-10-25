@@ -30,6 +30,8 @@ static char rcsid[] = "$TOG: CascadeB.c /main/27 1999/08/11 14:26:35 mgreess $"
 #include <config.h>
 #endif
 
+#include <stdint.h>
+
 
 #include "XmI.h"		/* ShellP.h doesn't define externalref. */
 #include <X11/ShellP.h>
@@ -548,7 +550,8 @@ static void
 DrawCascade(
         register XmCascadeButtonWidget cb )
 {
-   if ((CB_HasCascade(cb)) && (CB_Cascade_width(cb) != 0))
+   if ((CB_HasCascade(cb)) && (CB_Cascade_width(cb) != 0) &&
+       (CB_Cascade_height(cb) != 0) && XtIsRealized((Widget)cb))
    {
       Pixmap pixmap ;
       int depth = 0;
@@ -557,13 +560,20 @@ DrawCascade(
 	  (CB_ArmedPixmap(cb) != XmUNSPECIFIED_PIXMAP) ? 
 	      CB_ArmedPixmap(cb) : CB_CascadePixmap(cb) ;
 
-      XmeGetPixmapData(XtScreen(cb),
-		       pixmap,
-		       NULL,    
-		       &depth,
-		       NULL, NULL,
-		       NULL, NULL,
-		       NULL, NULL); 
+      if (pixmap == XmUNSPECIFIED_PIXMAP || cb->label.normal_GC == NULL)
+          return;
+
+      if (!XmeGetPixmapData(XtScreen(cb),
+			 pixmap,
+			 NULL,
+			 &depth,
+			 NULL, NULL,
+			 NULL, NULL,
+			 NULL, NULL))
+		return;
+
+      if (depth <= 0)
+	  return;
 
       if (depth <= 0)
 	  return;
@@ -604,20 +614,25 @@ Redisplay(
 	XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(cb));
 	Boolean etched_in = dpy->display.enable_etched_in_menu;
 	GC tmpGC = NULL;
+	GC fillGC = NULL;
 	XtExposeProc expose;
 
 	if (etched_in) {
 #ifdef FIX_1509
-		if (CB_IsArmed(cb))
-		    XFillRectangle(XtDisplay(cb), XtWindow(cb), CB_ArmGC(cb),
-				   0, 0, cb->core.width, cb->core.height);
+		if (CB_IsArmed(cb)) {
+                    if (CB_ArmGC(cb) != NULL &&
+                        cb->core.width != 0 && cb->core.height != 0)
+		        XFillRectangle(XtDisplay(cb), XtWindow(cb), CB_ArmGC(cb),
+				       0, 0, cb->core.width, cb->core.height);
+                }
 		else
 	        XClearArea(XtDisplay(cb), XtWindow(cb),
 				0, 0, cb->core.width, cb->core.height, False);
 #else
-	    XFillRectangle(XtDisplay(cb), XtWindow(cb),
-		           CB_IsArmed(cb) ? CB_ArmGC(cb) : CB_BackgroundGC(cb),
-			   0, 0, cb->core.width, cb->core.height);
+            fillGC = CB_IsArmed(cb) ? CB_ArmGC(cb) : CB_BackgroundGC(cb);
+            if (fillGC != NULL && cb->core.width != 0 && cb->core.height != 0)
+	      XFillRectangle(XtDisplay(cb), XtWindow(cb), fillGC,
+			     0, 0, cb->core.width, cb->core.height);
 #endif
 #ifdef USE_XFT
 	} else if (Lab_MenuType(cb) != XmWORK_AREA) { /* adeed with XFT support */
@@ -915,15 +930,16 @@ Disarm(
 
 	     if (etched_in) 
 		 Redisplay((Widget) cb, NULL, NULL);
-	     else
-		 XmeClearBorder (XtDisplay (cb), XtWindow (cb),
-				 cb->primitive.highlight_thickness,
-				 cb->primitive.highlight_thickness,
-				 cb->core.width - 2 * 
-				 cb->primitive.highlight_thickness,
-				 cb->core.height - 2 * 
-				 cb->primitive.highlight_thickness,
-				 cb->primitive.shadow_thickness);
+	 else if ((int)cb->core.width > 2 * (int)cb->primitive.highlight_thickness &&
+		  (int)cb->core.height > 2 * (int)cb->primitive.highlight_thickness)
+	     XmeClearBorder (XtDisplay (cb), XtWindow (cb),
+			 cb->primitive.highlight_thickness,
+			 cb->primitive.highlight_thickness,
+			 (int)cb->core.width -
+			 2 * (int)cb->primitive.highlight_thickness,
+			 (int)cb->core.height -
+			 2 * (int)cb->primitive.highlight_thickness,
+			 cb->primitive.shadow_thickness);
 	 }
       }
       DrawCascade(cb);
@@ -1600,10 +1616,14 @@ _XmCascadingPopup(
    XmExcludedParentPaneRec *excPP =
 		&(((XmDisplayInfo *)(dd->display.displayInfo))->excParentPane);
 
-   if (!excPP->pane)
+   if (excPP->pane == NULL || excPP->pane_list_size < 1)
    {
+      Widget *new_pane = (Widget *)XtRealloc(
+	  (char *)excPP->pane, (Cardinal)(4 * sizeof(Widget)));
+      if (new_pane == NULL)
+	 return;
+      excPP->pane = new_pane;
       excPP->pane_list_size = 4;
-      excPP->pane = (Widget *)XtMalloc(sizeof(Widget) * excPP->pane_list_size);
    }
 
    if (XmIsCascadeButtonGadget(cb))

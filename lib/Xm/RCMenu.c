@@ -1109,7 +1109,7 @@ _XmRCArmAndActivate(
         Cardinal *num_parms )
 {
    XmRowColumnWidget m = (XmRowColumnWidget) w ;
-   int i;
+   Cardinal i;
    XmCascadeButtonWidget child = NULL;
    XmMenuState mst = _XmGetMenuState((Widget)w);
    Time _time;
@@ -1436,7 +1436,7 @@ ProcessMenuTree(
         XmRowColumnWidget w,
         int mode )
 {
-   int i;
+   Cardinal i;
    Widget child;
 
    if (w == NULL)
@@ -1733,11 +1733,24 @@ AddKeycodeToKeyboardList(
    /* Add to the list of keyboard entries */
    if (MGR_NumKeyboardEntries(rowcol) >= MGR_SizeKeyboardList(rowcol))
    {
-      /* Grow list */
-      MGR_SizeKeyboardList(rowcol) += 10;
-      MGR_KeyboardList(rowcol) = 
-	     (XmKeyboardData *)XtRealloc( (char *) MGR_KeyboardList(rowcol), 
-		  (MGR_SizeKeyboardList(rowcol) * sizeof(XmKeyboardData)));
+      short old_size = MGR_SizeKeyboardList(rowcol);
+      short new_size;
+      XmKeyboardData *new_list;
+
+      /* Grow the list only after the new allocation has succeeded. */
+      if (old_size < 0 || old_size > SHRT_MAX - 10)
+	 return;
+      new_size = (short)(old_size + 10);
+      if ((size_t)new_size > SIZE_MAX / sizeof(XmKeyboardData) ||
+	  (size_t)new_size > (size_t)UINT_MAX / sizeof(XmKeyboardData))
+	 return;
+      new_list = (XmKeyboardData *)XtRealloc(
+	  (char *)MGR_KeyboardList(rowcol),
+	  (Cardinal)((size_t)new_size * sizeof(XmKeyboardData)));
+      if (new_list == NULL)
+	 return;
+      MGR_KeyboardList(rowcol) = new_list;
+      MGR_SizeKeyboardList(rowcol) = new_size;
    }
 
    list = MGR_KeyboardList(rowcol);
@@ -2049,17 +2062,29 @@ _XmRC_AddToPostFromList(
         Widget widget )
 {
    
-   if (m->row_column.postFromListSize == m->row_column.postFromCount)
+   if (m->row_column.postFromCount < 0 ||
+       m->row_column.postFromListSize < 0 ||
+       m->row_column.postFromCount >= m->row_column.postFromListSize)
    {
-      /* increase the size to fit the new one and one more */
-	  if (m->row_column.postFromListSize > INT_MAX - 2 ||
-	      (size_t)(m->row_column.postFromListSize + 2) >
-		  SIZE_MAX / sizeof(Widget))
+	  int old_size = m->row_column.postFromListSize;
+	  int new_size = old_size;
+	  Widget *new_list;
+
+	  /* Increase the size to fit the new entry and one more. */
+	  if (new_size < m->row_column.postFromCount)
+	      new_size = m->row_column.postFromCount;
+	  if (new_size > INT_MAX - 2 ||
+	      (size_t)(new_size + 2) > SIZE_MAX / sizeof(Widget) ||
+	      (size_t)(new_size + 2) > (size_t)UINT_MAX / sizeof(Widget))
 	    return;
-      m->row_column.postFromListSize += 2;
-      m->row_column.postFromList = (Widget *)
-	  XtRealloc ( (char *) m->row_column.postFromList,
-		     m->row_column.postFromListSize * sizeof(Widget));
+	  new_size += 2;
+	  new_list = (Widget *)XtRealloc(
+	      (char *)m->row_column.postFromList,
+	      (Cardinal)((size_t)new_size * sizeof(Widget)));
+	  if (new_list == NULL)
+	    return;
+	  m->row_column.postFromList = new_list;
+	  m->row_column.postFromListSize = new_size;
    }
 
    m->row_column.postFromList[m->row_column.postFromCount++] = widget;
@@ -2943,7 +2968,7 @@ ButtonMenuPopDown(
 {
    XmRowColumnWidget rc = FindMenu(w);
    XmRowColumnWidget pane = (XmRowColumnWidget) NULL;
-   short depth;
+   int depth;
    Boolean posted;
    XmDisplay dd = (XmDisplay)XmGetXmDisplay(XtDisplay(w));
    XmExcludedParentPaneRec *excPP =
@@ -2959,16 +2984,27 @@ ButtonMenuPopDown(
 	 XmIsMenuShell(XtParent(pane)));
 	depth++)
    {
-       if ((depth+1) > excPP->pane_list_size)
+       if (depth < 0 || depth >= SHRT_MAX ||
+	   depth >= excPP->pane_list_size)
        {
-	  if (excPP->pane_list_size > SHRT_MAX - 4 ||
-	      (size_t)(excPP->pane_list_size + 4) >
-		  SIZE_MAX / sizeof(Widget))
+	  int old_size = excPP->pane_list_size;
+	  int new_size = old_size;
+	  Widget *new_pane;
+
+	  if (new_size < depth)
+	      new_size = depth;
+	  if (new_size > SHRT_MAX - 4 ||
+	      (size_t)(new_size + 4) > SIZE_MAX / sizeof(Widget) ||
+	      (size_t)(new_size + 4) > (size_t)UINT_MAX / sizeof(Widget))
 	    break;
-	  excPP->pane_list_size += 4;
-	  excPP->pane = (Widget *) 
-			XtRealloc((char *)excPP->pane, 
-				  sizeof(Widget) * excPP->pane_list_size);
+	  new_size += 4;
+	  new_pane = (Widget *)XtRealloc(
+	      (char *)excPP->pane,
+	      (Cardinal)((size_t)new_size * sizeof(Widget)));
+	  if (new_pane == NULL)
+	    break;
+	  excPP->pane = new_pane;
+	  excPP->pane_list_size = (short)new_size;
        }
        (excPP->pane)[depth] = (Widget)pane;
  
@@ -2986,7 +3022,7 @@ ButtonMenuPopDown(
 	   ! XmIsRowColumn(pane)) break;
    }
 
-   excPP->num_panes = depth;
+   excPP->num_panes = (short)depth;
 
    _XmMenuPopDown((Widget)rc, event, &posted);
 
@@ -3035,7 +3071,7 @@ SearchMenu(
 #endif /* NeedWidePrototypes */
 {
     register Widget *q;
-    register int i;
+    register Cardinal i;
 
     if ( ! InMenu (search_m, parent_m, child, w))
     {
@@ -3128,7 +3164,7 @@ IsInWidgetList(
         RectObj w )
 {
     register Widget *q;
-    register int i;
+    register Cardinal i;
 
     if ((m == NULL) || (w == NULL)) return (FALSE);
 
@@ -3429,11 +3465,15 @@ ChildsActivateCallback(
 	  count = 0;
 	  while (callbacks[count].callback != NULL)
 	    count++;
-	  if ((size_t)count > SIZE_MAX / sizeof(XtPointer))
+	  if ((size_t)count > SIZE_MAX / sizeof(XtPointer) ||
+	      (size_t)count > UINT_MAX / sizeof(XtPointer))
 	    return;
 	  	  
 	  callbackClosure =
-	      (XtPointer *) XtMalloc(sizeof(XtPointer) * count);
+	      (XtPointer *) XtMalloc((Cardinal)(sizeof(XtPointer) *
+					   (size_t)count));
+	  if (callbackClosure == NULL)
+	      return;
 
 	  for (i=0; i < count; i++)
 	      callbackClosure[i] = callbacks[i].closure;
@@ -3720,6 +3760,8 @@ XmGetPostedFromWidget(
 {
    XmRowColumnWidget toplevel;
    Widget wid = NULL;
+   if (menu == NULL)
+      return NULL;
    _XmWidgetToAppContext(menu);
 
    _XmAppLock(app);
@@ -3745,6 +3787,8 @@ XmGetTearOffControl(
         Widget menu )
 {
    Widget wid = NULL;
+   if (menu == NULL)
+      return NULL;
    _XmWidgetToAppContext(menu);
 
    _XmAppLock(app);
@@ -3760,6 +3804,8 @@ XmMenuPosition(
         Widget p,
         XButtonPressedEvent *event )
 {
+   if (p == NULL || event == NULL)
+      return;
    _XmWidgetToAppContext(p);
    _XmAppLock(app);
    PositionMenu ((XmRowColumnWidget) p, event);

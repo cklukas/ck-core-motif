@@ -4,7 +4,7 @@
 from pathlib import Path
 
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmString.c").read_text()
+source = Path("lib/Xm/XmString.c").read_text()
 start = source.index("XmStringGenerate(XtPointer")
 end = source.index("\n}\n", start)
 function = source[start:end]
@@ -15,4 +15,4 @@ assert "XmStringParseText" in function
 assert "XmStringComponentCreate" in function
 assert "XmStringConcatAndFree" in function
 
-print("PASS XmStringGenerate avoids recursive process locking")
+print("XmStringGenerate avoids recursive process locking")

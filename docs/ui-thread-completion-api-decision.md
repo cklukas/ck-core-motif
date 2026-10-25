@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WP-14 UI-thread completion API decision
 
 WP-13 tested the smallest existing-Xt pattern that provides the required

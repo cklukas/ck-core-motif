@@ -1,8 +1,12 @@
-# XmString proposed tab-list growth failure
+---
+nav_exclude: true
+---
+# XmString tab-list growth allocation failure
 
-When proposed tab-list measurement needs another tab, the new tab allocation
-is checked before linking it into the list.  Failure frees the active string
-context and tab list, releases the process lock, and returns `NULL`.
+While scanning strings, `XmStringTableProposeTablist` may create additional
+tabs.  Each new tab is now checked before it is linked into the list.  On
+failure, the string context and partial tab list are released, the process
+lock is balanced, and `NULL` is returned.
 
 The regression check is
 `tests/automated/check-xmstring-tab-growth-allocation.py`.

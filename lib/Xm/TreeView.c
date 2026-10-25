@@ -5,6 +5,8 @@
 #include <X11/keysym.h>
 #include <Xm/TreeViewP.h>
 #include <Xm/XmP.h>
+#include <limits.h>
+#include <stdint.h>
 #include "PrimitiveI.h"
 #include "XmI.h"
 
@@ -236,6 +238,8 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     view->tree_view.items = NULL;
     view->tree_view.count = 0;
     view->tree_view.selected_id = NULL;
+    if (!view->tree_view.row_height)
+        view->tree_view.row_height = 1;
     if (!view->tree_view.visible_rows)
         view->tree_view.visible_rows = 1;
     values.foreground = view->primitive.foreground;
@@ -299,11 +303,16 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                            view->core.width > 3 ? view->core.width - 3 : 1,
                            view->tree_view.row_height > 3 ?
                            view->tree_view.row_height - 3 : 1);
-        if (!view->tree_view.rtl)
-            x = 4 + depth_of(view, (Cardinal)index) * view->tree_view.indent;
-        else
-            x = (int)view->core.width - 14 -
-                depth_of(view, (Cardinal)index) * view->tree_view.indent;
+        {
+            long long depth_offset = (long long)depth_of(view, (Cardinal)index) *
+                                     view->tree_view.indent;
+            long long origin = view->tree_view.rtl ?
+                               (long long)view->core.width - 14 : 4;
+            long long item_x = view->tree_view.rtl ? origin - depth_offset :
+                               origin + depth_offset;
+            x = item_x < INT_MIN ? INT_MIN :
+                (item_x > INT_MAX ? INT_MAX : (int)item_x);
+        }
         if (view->tree_view.items[index].has_children) {
             if (!view->tree_view.rtl)
                 draw_disclosure(view, x, y, view->tree_view.items[index].expanded);
@@ -313,13 +322,23 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         }
         label = view->tree_view.items[index].label ?
                 view->tree_view.items[index].label : "";
+        {
+            size_t label_length = strlen(label);
+            int draw_length = label_length > (size_t)INT_MAX ? INT_MAX :
+                              (int)label_length;
+            int label_width = label_length > (size_t)(INT_MAX - 4) / 8 ?
+                              INT_MAX - 4 : (int)(label_length * 8);
         if (!view->tree_view.rtl)
             x += 14;
-        else
-            x -= (int)strlen(label) * 8 + 4;
+        else {
+            long long rtl_x = (long long)x - label_width - 4;
+            x = rtl_x < INT_MIN ? INT_MIN :
+                (rtl_x > INT_MAX ? INT_MAX : (int)rtl_x);
+        }
         XDrawString(display, window, view->tree_view.gc, x,
                     y + (int)view->tree_view.row_height - 6,
-                    label, (int)strlen(label));
+                    label, draw_length);
+        }
     }
     if (view->primitive.highlighted && view->primitive.highlight_thickness &&
         view->core.width > 2 * view->primitive.highlight_thickness &&
@@ -441,6 +460,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmTreeViewWidget old = (XmTreeViewWidget)old_widget;
     XmTreeViewWidget view = (XmTreeViewWidget)widget;
     (void)request; (void)args; (void)count;
+    if (!view->tree_view.row_height)
+        view->tree_view.row_height = 1;
     if (view->tree_view.visible_rows == 0)
         view->tree_view.visible_rows = 1;
     return old->tree_view.indent != view->tree_view.indent ||
@@ -453,10 +474,14 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
     XmTreeViewWidget view = (XmTreeViewWidget)widget;
+    unsigned long height;
     (void)request;
     reply->request_mode = CWWidth | CWHeight;
     reply->width = 280;
-    reply->height = view->tree_view.row_height * view->tree_view.visible_rows;
+    height = (unsigned long)view->tree_view.row_height *
+             (unsigned long)view->tree_view.visible_rows;
+    reply->height = height > (unsigned long)(Dimension)-1
+                        ? (Dimension)-1 : (Dimension)height;
     return XtGeometryAlmost;
 }
 
@@ -477,11 +502,19 @@ void XmTreeViewSetNodes(Widget widget, const XmTreeViewNode *nodes,
     view = (XmTreeViewWidget)widget;
     selected = view->tree_view.selected_id;
     items = count ? (XmTreeViewItem *)XtCalloc(count, sizeof(*items)) : NULL;
+    if (count != 0 && items == NULL)
+        return;
     for (i = 0; i < count; ++i) {
         items[i].id = nodes ? nodes[i].id : NULL;
         items[i].parent_id = nodes ? nodes[i].parent_id : NULL;
         items[i].label = XtNewString(nodes && nodes[i].label ?
                                      nodes[i].label : "");
+        if (items[i].label == NULL) {
+            while (i != 0)
+                XtFree(items[--i].label);
+            XtFree((char *)items);
+            return;
+        }
         items[i].has_children = nodes ? nodes[i].has_children : False;
         items[i].expanded = nodes ? nodes[i].expanded : False;
     }

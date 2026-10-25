@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xme pixmap-data screen validation
 
 `XmeGetPixmapData` obtains an application context through

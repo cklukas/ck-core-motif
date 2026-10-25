@@ -76,6 +76,11 @@ static void Normalize(XmProgressBarWidget progress) {
         progress->progress.value = progress->progress.maximum;
 }
 
+static Dimension bounded_dimension(size_t value) {
+    const size_t maximum = (size_t)(Dimension)~(Dimension)0;
+    return (Dimension)(value > maximum ? maximum : value);
+}
+
 static void UpdateGCs(XmProgressBarWidget progress) {
     Display *display = XtDisplay((Widget)progress);
     if (progress->progress.track_gc)
@@ -95,22 +100,30 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     Display *display = XtDisplay(widget);
     XGCValues values;
     XmFontList defaults;
+    XmString replacement;
     Dimension label_width = 0, label_height = 0;
     unsigned long mask = GCForeground | GCBackground;
     (void)request; (void)args; (void)count;
     Normalize(progress);
-    progress->progress.label = progress->progress.label
-        ? XmStringCopy(progress->progress.label)
-        : XmStringCreateLocalized("");
+    if (progress->progress.label)
+    {
+        replacement = XmStringCopy(progress->progress.label);
+        progress->progress.label = replacement != NULL
+            ? replacement : XmStringCreateLocalized("");
+    }
+    else
+        progress->progress.label = XmStringCreateLocalized("");
     defaults = XmeGetDefaultRenderTable(widget, XmTEXT_FONTLIST);
     progress->progress.font = defaults ? XmFontListCopy(defaults) : NULL;
-    if (progress->progress.font)
+    if (progress->progress.font && progress->progress.label)
         XmStringExtent(progress->progress.font, progress->progress.label,
                        &label_width, &label_height);
     if (!progress->core.width)
-        progress->core.width = label_width + 180 + 2 * progress->progress.spacing;
+        progress->core.width = bounded_dimension((size_t)label_width + 180 +
+                                                 2 * (size_t)progress->progress.spacing);
     if (!progress->core.height)
-        progress->core.height = label_height + 34 + 2 * progress->progress.spacing;
+        progress->core.height = bounded_dimension((size_t)label_height + 34 +
+                                                  2 * (size_t)progress->progress.spacing);
     values.foreground = progress->primitive.bottom_shadow_color;
     values.background = progress->core.background_pixel;
     progress->progress.track_gc = XCreateGC(display, DefaultRootWindow(display),
@@ -196,7 +209,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                      ((long long)progress->progress.maximum -
                       (long long)progress->progress.minimum)));
         text_string = XmStringCreateLocalized(text);
-        if (progress->progress.font) {
+        if (text_string && progress->progress.font) {
             Dimension text_width = 0, text_height = 0;
             XmStringExtent(progress->progress.font, text_string, &text_width,
                            &text_height);
@@ -206,7 +219,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                          XmALIGNMENT_BEGINNING,
                          XmPrim_layout_direction(progress), NULL);
         }
-        XmStringFree(text_string);
+        if (text_string)
+            XmStringFree(text_string);
     }
     if (progress->primitive.highlighted && progress->primitive.highlight_thickness &&
         progress->core.width > 2 * progress->primitive.highlight_thickness &&
@@ -223,12 +237,18 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmProgressBarWidget old = (XmProgressBarWidget)old_widget;
     XmProgressBarWidget progress = (XmProgressBarWidget)widget;
     Boolean redraw = False;
+    XmString replacement;
     (void)request; (void)args; (void)count;
     Normalize(progress);
     if (old->progress.label != progress->progress.label) {
-        if (progress->progress.label)
-            progress->progress.label = XmStringCopy(progress->progress.label);
-        if (old->progress.label) XmStringFree(old->progress.label);
+        replacement = progress->progress.label != NULL
+            ? XmStringCopy(progress->progress.label) : NULL;
+        if (progress->progress.label == NULL || replacement != NULL) {
+            if (old->progress.label) XmStringFree(old->progress.label);
+            progress->progress.label = replacement;
+        } else {
+            progress->progress.label = old->progress.label;
+        }
         redraw = True;
     }
     if (old->progress.minimum != progress->progress.minimum ||
@@ -252,8 +272,10 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
         XmStringExtent(progress->progress.font, progress->progress.label,
                        &label_width, &label_height);
     reply->request_mode = CWWidth | CWHeight;
-    reply->width = label_width + 180 + 2 * progress->progress.spacing;
-    reply->height = label_height + 34 + 2 * progress->progress.spacing;
+    reply->width = bounded_dimension((size_t)label_width + 180 +
+                                     2 * (size_t)progress->progress.spacing);
+    reply->height = bounded_dimension((size_t)label_height + 34 +
+                                      2 * (size_t)progress->progress.spacing);
     return (widget->core.width == reply->width && widget->core.height == reply->height)
                ? XtGeometryYes : XtGeometryAlmost;
 }

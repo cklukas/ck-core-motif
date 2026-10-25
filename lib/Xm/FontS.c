@@ -42,6 +42,7 @@
 #include <Xm/DropDown.h>
 #include <Xm/ButtonBox.h>
 #include <Xm/ExtP.h>
+#include <Xm/Ext.h>
 #include "Xm/XmI.h"
 
 #define NUM_XLFD_DASHES 14
@@ -607,6 +608,19 @@ ProcessXlfdFontData(XmFontSelectorWidget fsw,
 	
 	if (cur_family == NULL) {
 	    if ( num >= alloc ) {
+		if (alloc > INT_MAX - FAMILY_INC) {
+		    XtFree((char *)fam);
+		    XtFree((char *)top);
+		    return;
+		}
+		if ((size_t)(alloc + FAMILY_INC) >
+		    SIZE_MAX / sizeof(*fam) ||
+		    (size_t)(alloc + FAMILY_INC) >
+		    UINT_MAX / sizeof(*fam)) {
+		    XtFree((char *)fam);
+		    XtFree((char *)top);
+		    return;
+		}
 		alloc += FAMILY_INC;
 		{
 		    FamilyInfo *new_fam = (FamilyInfo *) XtRealloc(
@@ -810,6 +824,9 @@ AddToXlfdList(XmFontSelectorWidget fsw,
 	if (*alloc > INT_MAX - ALLOC_INC)
 	    return;
 	new_alloc = *alloc + ALLOC_INC;
+	if ((size_t)new_alloc > SIZE_MAX / sizeof(*new_list) ||
+	    (size_t)new_alloc > UINT_MAX / sizeof(*new_list))
+	    return;
 	new_list = (FontData *) XtRealloc((XtPointer) *list,
 				  sizeof(*new_list) * (size_t)new_alloc);
 	if (new_list == NULL)
@@ -847,6 +864,9 @@ AddToOtherList(char *name, String **list, int *num, int *alloc)
 	if (*alloc > INT_MAX - ALLOC_INC)
 	    return;
 	new_alloc = *alloc + ALLOC_INC;
+	if ((size_t)new_alloc > SIZE_MAX / sizeof(*new_list) ||
+	    (size_t)new_alloc > UINT_MAX / sizeof(*new_list))
+	    return;
 	new_list = (String *) XtRealloc((XtPointer) *list,
 				       sizeof(*new_list) * (size_t)new_alloc);
 	if (new_list == NULL)
@@ -912,7 +932,10 @@ FillData(XmFontSelectorWidget fsw, FontData *current, char *name)
 
     if (streq(temp, STAR_STRING)) { 
 	String str = _XmGetMBStringFromXmString(ANY_STRING(fsw));
-	strcpy(temp, str);
+	if (str != NULL) {
+	    strncpy(temp, str, BUFSIZ - 1);
+	    temp[BUFSIZ - 1] = '\0';
+	}
 	XtFree((XtPointer) str);
     }
 
@@ -983,7 +1006,7 @@ SetNonStringData(FontData *current)
      * then this is a bold font.
      */
 
-    XmCopyISOLatin1Lowered(lower, XrmQuarkToString(current->weightq));
+    XmCopyISOLatin1LoweredN(lower, sizeof(lower), XrmQuarkToString(current->weightq));
     if ((strstr(lower, "bold") != NULL) || (strstr(lower, "demi") != NULL))
     	SetFlag(&(current->state), BOLD, True);
 
@@ -991,7 +1014,7 @@ SetNonStringData(FontData *current)
      * If the spacing is "p" then proportional, otherwize monospaced.
      */
 
-    XmCopyISOLatin1Lowered(lower, current->spacing);
+    XmCopyISOLatin1LoweredN(lower, sizeof(lower), current->spacing);
     if (strstr(lower, PROPORTIONAL_SPACING) != NULL)
     	SetFlag(&(current->state), PROPORTIONAL, True);
 
@@ -999,7 +1022,7 @@ SetNonStringData(FontData *current)
      * If the slant it "i" or "o" then this is an italic font.
      */
 
-    XmCopyISOLatin1Lowered(lower, current->slant);
+    XmCopyISOLatin1LoweredN(lower, sizeof(lower), current->slant);
     if ((strchr(lower, 'i') != NULL) || (strchr(lower, 'o') != NULL))
     	SetFlag(&(current->state), ITALIC, True);
 
@@ -1179,10 +1202,22 @@ UpdateExistingFamily(FamilyInfo *fam, FontData *font)
     {
 	if (i == fam->encoding_alloc)
 	{
-	    fam->encoding_alloc += NUM_BUTTONS;
-	    fam->encodings = 
-		(XrmQuark *) XtRealloc((char *) fam->encodings, 
-				       sizeof(XrmQuark) * fam->encoding_alloc);
+	    int new_alloc;
+	    XrmQuark *new_encodings;
+	    if (fam->encoding_alloc < 0 ||
+		fam->encoding_alloc > INT_MAX - NUM_BUTTONS)
+		return;
+	    new_alloc = fam->encoding_alloc + NUM_BUTTONS;
+	    if ((size_t)new_alloc > SIZE_MAX / sizeof(XrmQuark) ||
+		(size_t)new_alloc > (size_t)UINT_MAX / sizeof(XrmQuark))
+		return;
+	    new_encodings = (XrmQuark *)XtRealloc(
+		(char *)fam->encodings,
+		(Cardinal)((size_t)new_alloc * sizeof(XrmQuark)));
+	    if (new_encodings == NULL)
+		return;
+	    fam->encodings = new_encodings;
+	    fam->encoding_alloc = new_alloc;
 	    memset((char *) (fam->encodings + i), 0, 
 		   sizeof(XrmQuark) * NUM_BUTTONS);
 	}
@@ -1246,6 +1281,10 @@ FillNewFamily(FamilyInfo *fam, FontData *font)
     fam->encoding_alloc = NUM_BUTTONS;
     fam->encodings = (XrmQuark *) XtCalloc(fam->encoding_alloc,
 					   sizeof(XrmQuark));
+    if (fam->encodings == NULL) {
+	fam->encoding_alloc = 0;
+	return;
+    }
     fam->encodings[0] = fam->encoding_alloc;
 }
 
@@ -1333,19 +1372,39 @@ DisplayCurrentFont(XmFontSelectorWidget fsw, String font)
 	    if (ptr == NULL) {
 		fontdata = NULL;
 	    } else {
-		left_buf = (char *)XtMalloc((Cardinal)i + 1);
-		memcpy(left_buf, font, (size_t)i);
-		left_buf[i] = '\0';
-		right_buf = XtNewString(ptr);
-		fbuf = (char *)XtMalloc((Cardinal)(strlen(left_buf) +
-							 strlen(right_buf) + 6));
-		(void)snprintf(fbuf, strlen(left_buf) + strlen(right_buf) + 6,
-				       "%s-140%s", left_buf, right_buf);
+	    size_t left_len, right_len, fbuf_size;
 
-		fontdata = XLoadQueryFont(XtDisplay((Widget) fsw), fbuf);
-		XtFree(fbuf);
+		left_buf = (char *)XtMalloc((Cardinal)i + 1);
+		if (left_buf == NULL) {
+		    fontdata = NULL;
+		} else {
+		    memcpy(left_buf, font, (size_t)i);
+		    left_buf[i] = '\0';
+		    right_buf = XtNewString(ptr);
+		    if (right_buf == NULL) {
+			XtFree(left_buf);
+			fontdata = NULL;
+		    } else {
+	    left_len = strlen(left_buf);
+	    right_len = strlen(right_buf);
+	    if (right_len > SIZE_MAX - 6 ||
+		left_len > SIZE_MAX - right_len - 6 ||
+		(fbuf_size = left_len + right_len + 6) > UINT_MAX) {
+		fontdata = NULL;
+	    } else {
+		fbuf = (char *)XtMalloc((Cardinal)fbuf_size);
+		if (fbuf == NULL) {
+		    fontdata = NULL;
+		} else {
+		    (void)snprintf(fbuf, fbuf_size, "%s-140%s", left_buf, right_buf);
+		    fontdata = XLoadQueryFont(XtDisplay((Widget) fsw), fbuf);
+		    XtFree(fbuf);
+		}
+	    }
 		XtFree(right_buf);
 		XtFree(left_buf);
+		    }
+		}
 	    }
 
 	    if (fontdata == NULL)
@@ -1680,6 +1739,12 @@ UpdateFamilies(XmFontSelectorWidget fsw)
 	    resolution_ok && has_sizes)
 	{
 	    strs[count++] = XmStringCreateLocalized(XrmQuarkToString(fam->nameq));
+	    if (strs[count - 1] == NULL) {
+		while (count != 0)
+		    XmStringFree(strs[--count]);
+		XtFree((XtPointer)strs);
+		return;
+	    }
 	    str_match |= (fam->nameq == cf->familyq);
 	}
     }
@@ -1759,9 +1824,6 @@ UpdateSizes(XmFontSelectorWidget fsw)
 	size_flag |= family->sizes_100;
 
     size = sizeof(LongFlag) * 8; /* There are 8 bits in a BYTE */
-    if ((size_t)(size + 1) > SIZE_MAX / sizeof(*strs) ||
-	(size_t)(size + 1) > UINT_MAX / sizeof(*strs))
-	return;
     strs = (XmString *) XtMalloc((Cardinal)(sizeof(XmString) *
 					 (size_t)(size + 1)));
     if (strs == NULL)
@@ -1774,6 +1836,10 @@ UpdateSizes(XmFontSelectorWidget fsw)
         strs[count++] = XmStringCreateLocalized(" ");
     else
         strs[count++] = XmStringCopy(ANY_STRING(fsw));
+    if (strs[count - 1] == NULL) {
+	XtFree((XtPointer)strs);
+	return;
+    }
 
     for (i = 0; i < XtNumber(GValidSizes); i++) {
 	char buf[32];
@@ -1783,7 +1849,14 @@ UpdateSizes(XmFontSelectorWidget fsw)
 	    continue;
 
 	snprintf(buf, sizeof(buf), "%d", GValidSizes[i]);
-	strs[count++] = XmStringCreateLocalized(buf);
+	strs[count] = XmStringCreateLocalized(buf);
+	if (strs[count] == NULL) {
+	    while (count != 0)
+		XmStringFree(strs[--count]);
+	    XtFree((XtPointer)strs);
+	    return;
+	}
+	count++;
 	
 	match |= (SizeMapping(cf->point_size) == flag);
     }
@@ -1954,10 +2027,10 @@ SetDisplayedFont(XmFontSelectorWidget fsw, String new_font)
     FontData 	*cf = XmFontS_font_info(fsw)->current_font;
     char 	buf[BUFSIZ];
 
-    sprintf(buf, "--%s-%s-%s----0-%d-%d-*--%s",
-	    STAR_STRING, DEFAULT_WEIGHT, DEFAULT_SLANT, 
-	    XmFontS_font_info(fsw)->resolution,
-	    XmFontS_font_info(fsw)->resolution, ENCODING_STRING(fsw));
+	(void) snprintf(buf, sizeof(buf), "--%s-%s-%s----0-%d-%d-*--%s",
+		STAR_STRING, DEFAULT_WEIGHT, DEFAULT_SLANT,
+		XmFontS_font_info(fsw)->resolution,
+		XmFontS_font_info(fsw)->resolution, ENCODING_STRING(fsw));
 	
     FillData(fsw, cf, buf);		/* Put in default data. */
 
@@ -2005,7 +2078,7 @@ SetDisplayedFont(XmFontSelectorWidget fsw, String new_font)
 
     SetResolution(fsw, cf);
     
-    XmCopyISOLatin1Lowered(buf, cf->spacing);
+    XmCopyISOLatin1LoweredN(buf, sizeof(buf), cf->spacing);
     if ( strstr(buf, STAR_STRING) != NULL )
     {
 	SetFlag(&(XmFontS_user_state(fsw)), USER_PROPORTIONAL | USER_FIXED, True);
@@ -2053,13 +2126,25 @@ AddToXlfdOnlyList(XmFontSelectorWidget fsw, Widget w)
     int num = (int) XmFontS_num_xlfd_only(fsw);
     int alloc = (int) XmFontS_alloc_xlfd_only(fsw);
 
-    if (num >= alloc) {
+    if (num < 0 || alloc < 0 || num >= alloc) {
+	WidgetList new_list;
+	if (alloc > SCHAR_MAX - WIDGET_LIST_INC)
+	    return;
 	alloc += WIDGET_LIST_INC;
-	XmFontS_xlfd_only(fsw) = (WidgetList) XtRealloc((XtPointer) 
-						   XmFontS_xlfd_only(fsw),
-						   sizeof(Widget) * alloc);
-	XmFontS_alloc_xlfd_only(fsw) = alloc;
+	if ((size_t)alloc > SIZE_MAX / sizeof(Widget) ||
+	    (size_t)alloc > (size_t)UINT_MAX / sizeof(Widget))
+	    return;
+	new_list = (WidgetList)XtRealloc(
+	    (XtPointer)XmFontS_xlfd_only(fsw),
+	    (Cardinal)((size_t)alloc * sizeof(Widget)));
+	if (new_list == NULL)
+	    return;
+	XmFontS_xlfd_only(fsw) = new_list;
+	XmFontS_alloc_xlfd_only(fsw) = (char)alloc;
     }
+
+    if (num >= SCHAR_MAX)
+	return;
 
     XmFontS_xlfd_only(fsw)[num] = w;
     (XmFontS_num_xlfd_only(fsw))++;
@@ -2078,13 +2163,25 @@ AddToXlfdSensitiveList(XmFontSelectorWidget fsw, Widget w)
     int num = (int) XmFontS_num_xlfd_sensitive(fsw);
     int alloc = (int) XmFontS_alloc_xlfd_sensitive(fsw);
 
-    if (num >= alloc) {
+    if (num < 0 || alloc < 0 || num >= alloc) {
+	WidgetList new_list;
+	if (alloc > SCHAR_MAX - WIDGET_LIST_INC)
+	    return;
 	alloc += WIDGET_LIST_INC;
-	XmFontS_xlfd_sensitive(fsw) = (WidgetList) XtRealloc((XtPointer) 
-							XmFontS_xlfd_sensitive(fsw),
-							sizeof(Widget)* alloc);
-	XmFontS_alloc_xlfd_sensitive(fsw) = alloc;
+	if ((size_t)alloc > SIZE_MAX / sizeof(Widget) ||
+	    (size_t)alloc > (size_t)UINT_MAX / sizeof(Widget))
+	    return;
+	new_list = (WidgetList)XtRealloc(
+	    (XtPointer)XmFontS_xlfd_sensitive(fsw),
+	    (Cardinal)((size_t)alloc * sizeof(Widget)));
+	if (new_list == NULL)
+	    return;
+	XmFontS_xlfd_sensitive(fsw) = new_list;
+	XmFontS_alloc_xlfd_sensitive(fsw) = (char)alloc;
     }
+
+    if (num >= SCHAR_MAX)
+	return;
     
     XmFontS_xlfd_sensitive(fsw)[num] = w;
     (XmFontS_num_xlfd_sensitive(fsw))++;
@@ -2221,14 +2318,12 @@ SetOtherList(XmFontSelectorWidget fsw, Boolean force)
 	XtSetArg(largs[num_largs], XmNvalue, " "); num_largs++;
     }
     
-    if ((size_t)num > SIZE_MAX / sizeof(*strs))
-	return;
-    if (num < 0 ||
-	(size_t)num > SIZE_MAX / sizeof(*strs) ||
-	(size_t)num > UINT_MAX / sizeof(*strs))
-	return;
-    strs = (XmString *) XtMalloc((Cardinal)(sizeof(XmString) *
-					 (size_t)num));
+	if (num < 0 ||
+	    (size_t)num > SIZE_MAX / sizeof(*strs) ||
+	    (size_t)num > UINT_MAX / sizeof(*strs))
+	    return;
+	strs = (XmString *) XtMalloc((Cardinal)(sizeof(XmString) *
+					     (size_t)num));
     if (strs == NULL && num != 0)
 	return;
     for (i = count = 0; i < num; i++, others++) 
@@ -2894,11 +2989,17 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
 
     XtManageChild(omenu);
 
-    XtFree(ENCODING_STRING(fsw));
-    if (current == 0)
-	ENCODING_STRING(fsw) = XtNewString(ANY_ENCODING);
-    else
-	ENCODING_STRING(fsw) = XtNewString(ENCODING_LIST(fsw)[current - 1]);
+    {
+	String new_encoding;
+	if (current == 0)
+	    new_encoding = XtNewString(ANY_ENCODING);
+	else
+	    new_encoding = XtNewString(ENCODING_LIST(fsw)[current - 1]);
+	if (new_encoding != NULL) {
+	    XtFree(ENCODING_STRING(fsw));
+	    ENCODING_STRING(fsw) = new_encoding;
+	}
+    }
 
     return(omenu);
 }
@@ -3033,6 +3134,7 @@ ChangeEncoding(Widget w, XtPointer data, XtPointer junk)
     XmFontSelectorWidget fsw;
     FontData *cf;
     char buf[BUFSIZ];
+    String replacement;
 
     for ( ; !XtIsSubclass(w, xmFontSelectorWidgetClass); w = XtParent(w)) {}
     fsw = (XmFontSelectorWidget) w;
@@ -3040,14 +3142,17 @@ ChangeEncoding(Widget w, XtPointer data, XtPointer junk)
 
 	if ((int)(uintptr_t)data == 0)
 	{
-	XtFree(ENCODING_STRING(fsw));
-	ENCODING_STRING(fsw) = XtNewString(ANY_ENCODING);
+	replacement = XtNewString(ANY_ENCODING);
 	}
     else
 	{
-	XtFree(ENCODING_STRING(fsw));
-		ENCODING_STRING(fsw) = XtNewString(
+	replacement = XtNewString(
 		    ENCODING_LIST(fsw)[(int)(uintptr_t)data - 1]);
+	}
+	if (replacement != NULL)
+	{
+	    XtFree(ENCODING_STRING(fsw));
+	    ENCODING_STRING(fsw) = replacement;
 	}
 
     UpdateFamilies(fsw);
@@ -3558,6 +3663,17 @@ ClassPartInitialize(WidgetClass w_class)
  */
 
 /* ARGSUSED */
+static XmString
+CopyFontSelectorString(XmString source)
+{
+    XmString copy;
+
+    if (source == NULL)
+        return NULL;
+    copy = XmStringCopy(source);
+    return copy != NULL ? copy : XmStringCreateLocalized("");
+}
+
 static void 
 Initialize(Widget request, Widget set, ArgList args, Cardinal * num_args)
 {
@@ -3580,28 +3696,32 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal * num_args)
     XmFontS_num_xlfd_sensitive(fsw) = XmFontS_alloc_xlfd_sensitive(fsw) = 0;
 
     XmFontS_get_font(fsw) = (String) XtMalloc(sizeof(char) * GET_FONT_SIZE);
+    if (XmFontS_get_font(fsw) == NULL)
+	return;
 
     /* duplicate strings so that user can query them later */
-    ANY_STRING(fsw)		= XmStringCopy(ANY_STRING(fsw)); 
-    BOLD_STRING(fsw)		= XmStringCopy(BOLD_STRING(fsw)); 
-    BOTH_STRING(fsw)		= XmStringCopy(BOTH_STRING(fsw)); 
-    DPI100_STRING(fsw)		= XmStringCopy(DPI100_STRING(fsw)); 
-    DPI75_STRING(fsw)		= XmStringCopy(DPI75_STRING(fsw)); 
-    ENCODING_ONLY_STRING(fsw)	= XmStringCopy(ENCODING_ONLY_STRING(fsw)); 
-    FAMILY_STRING(fsw)		= XmStringCopy(FAMILY_STRING(fsw)); 
-    ITALIC_STRING(fsw)		= XmStringCopy(ITALIC_STRING(fsw)); 
-    LOWER_ANY_STRING(fsw)	= XmStringCopy(LOWER_ANY_STRING(fsw)); 
-    MONO_SPACE_STRING(fsw)	= XmStringCopy(MONO_SPACE_STRING(fsw)); 
-    OPTION_STRING(fsw)		= XmStringCopy(OPTION_STRING(fsw)); 
-    OTHER_FONT_STRING(fsw)	= XmStringCopy(OTHER_FONT_STRING(fsw)); 
-    PROPORTIONAL_STRING(fsw)	= XmStringCopy(PROPORTIONAL_STRING(fsw)); 
-    SAMPLE_TEXT(fsw)		= XmStringCopy(SAMPLE_TEXT(fsw)); 
-    SCALING_STRING(fsw)		= XmStringCopy(SCALING_STRING(fsw)); 
-    SHOW_NAME_STRING(fsw)	= XmStringCopy(SHOW_NAME_STRING(fsw)); 
-    SIZE_STRING(fsw)		= XmStringCopy(SIZE_STRING(fsw)); 
-    XLFD_STRING(fsw)		= XmStringCopy(XLFD_STRING(fsw)); 
+    ANY_STRING(fsw)		= CopyFontSelectorString(ANY_STRING(fsw));
+    BOLD_STRING(fsw)		= CopyFontSelectorString(BOLD_STRING(fsw));
+    BOTH_STRING(fsw)		= CopyFontSelectorString(BOTH_STRING(fsw));
+    DPI100_STRING(fsw)		= CopyFontSelectorString(DPI100_STRING(fsw));
+    DPI75_STRING(fsw)		= CopyFontSelectorString(DPI75_STRING(fsw));
+    ENCODING_ONLY_STRING(fsw)	= CopyFontSelectorString(ENCODING_ONLY_STRING(fsw));
+    FAMILY_STRING(fsw)		= CopyFontSelectorString(FAMILY_STRING(fsw));
+    ITALIC_STRING(fsw)		= CopyFontSelectorString(ITALIC_STRING(fsw));
+    LOWER_ANY_STRING(fsw)	= CopyFontSelectorString(LOWER_ANY_STRING(fsw));
+    MONO_SPACE_STRING(fsw)	= CopyFontSelectorString(MONO_SPACE_STRING(fsw));
+    OPTION_STRING(fsw)		= CopyFontSelectorString(OPTION_STRING(fsw));
+    OTHER_FONT_STRING(fsw)	= CopyFontSelectorString(OTHER_FONT_STRING(fsw));
+    PROPORTIONAL_STRING(fsw)	= CopyFontSelectorString(PROPORTIONAL_STRING(fsw));
+    SAMPLE_TEXT(fsw)		= CopyFontSelectorString(SAMPLE_TEXT(fsw));
+    SCALING_STRING(fsw)		= CopyFontSelectorString(SCALING_STRING(fsw));
+    SHOW_NAME_STRING(fsw)	= CopyFontSelectorString(SHOW_NAME_STRING(fsw));
+    SIZE_STRING(fsw)		= CopyFontSelectorString(SIZE_STRING(fsw));
+    XLFD_STRING(fsw)		= CopyFontSelectorString(XLFD_STRING(fsw));
 
     ENCODING_STRING(fsw)	= XtNewString(ENCODING_STRING(fsw)); 
+    if (ENCODING_STRING(fsw) == NULL)
+	return;
     /* XmFontS_current_font(fsw) handled internally */
 
     {
@@ -3612,8 +3732,18 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal * num_args)
 		i++;
 	i++;
 	newList = (String*)XtMalloc(sizeof(String) * i);
+	if (newList == NULL)
+	    return;
 	for (i=0, encodings = ENCODING_LIST(fsw); *encodings != NULL; i++, encodings++) 
-		newList[i] = XtNewString(*encodings);
+	{
+	    newList[i] = XtNewString(*encodings);
+	    if (newList[i] == NULL) {
+		while (i > 0)
+		    XtFree(newList[--i]);
+		XtFree((char *)newList);
+		return;
+	    }
+	}
 	newList[i] = NULL;
 	ENCODING_LIST(fsw) = newList;
     }
@@ -3634,6 +3764,8 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal * num_args)
      */
 
     XmFontS_font_info(fsw)->current_font = (FontData *) XtMalloc(sizeof(FontData));
+    if (XmFontS_font_info(fsw)->current_font == NULL)
+	return;
     SetDisplayedFont(fsw, XmFontS_current_font(fsw));
 
 }
@@ -3782,11 +3914,19 @@ SetValues(Widget old, Widget request, Widget set,
 	int current, i;
 	String *encodings = ENCODING_LIST(set_fsw);
 	Widget button;
+	String encoding_copy;
 
 	if (!new_encoding_list)
 	{
-		XtFree(ENCODING_STRING(old_fsw));
-		ENCODING_STRING(set_fsw) = XtNewString(ENCODING_STRING(set_fsw));
+		encoding_copy = ENCODING_STRING(set_fsw) != NULL
+		    ? XtNewString(ENCODING_STRING(set_fsw)) : NULL;
+		if (ENCODING_STRING(set_fsw) == NULL || encoding_copy != NULL)
+		{
+		    XtFree(ENCODING_STRING(old_fsw));
+		    ENCODING_STRING(set_fsw) = encoding_copy;
+		}
+		else
+		    ENCODING_STRING(set_fsw) = ENCODING_STRING(old_fsw);
 	}
 
 	/* some of this code is probably a duplicate of CreateEncodingMenu */
@@ -3824,7 +3964,14 @@ SetValues(Widget old, Widget request, Widget set,
 
 	{
 	Boolean reset = False;
-#define DoCheck(old_one,new_one)	{ reset = False; if (old_one != new_one) { XmStringFree(old_one); new_one = XmStringCopy(new_one); reset = True; } }
+#define DoCheck(old_one,new_one) \
+	{ XmString replacement; reset = False; \
+	  if (old_one != new_one) { \
+	    replacement = (new_one != NULL) ? XmStringCopy(new_one) : NULL; \
+	    if (new_one == NULL || replacement != NULL) { \
+	      XmStringFree(old_one); new_one = replacement; reset = True; \
+	    } else { new_one = old_one; } \
+	  } }
 
 	DoCheck( ANY_STRING(old_fsw), ANY_STRING(set_fsw)); /* PUNT! or else we need to check if on-screen right now */
 	DoCheck( BOLD_STRING(old_fsw), BOLD_STRING(set_fsw)); if (reset) XtVaSetValues( XmFontS_bold_toggle(set_fsw), XmNlabelString, BOLD_STRING(set_fsw), NULL);

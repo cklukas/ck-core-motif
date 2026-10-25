@@ -10,6 +10,7 @@ assert "new_children = (WidgetList)XtRealloc" in region
 assert "if (new_children == NULL)" in region
 assert region.index("if (new_children == NULL)") < region.index("cw->desktop.children = children")
 assert "(size_t)new_slots > SIZE_MAX / sizeof(*new_children)" in region
+assert "(size_t)new_slots > UINT_MAX / sizeof(*new_children)" in region
 assert "cw->desktop.num_slots +=" not in region
 assert "cw->desktop.children = children =" not in region
 print("PASS XmScreen child-growth transaction")

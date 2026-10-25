@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm pointer-list string search
 
 `UrmPlistFindString` now skips null pointer slots before calling `strcmp`.

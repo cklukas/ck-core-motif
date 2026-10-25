@@ -4,7 +4,13 @@
 from pathlib import Path
 
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmFontList.c").read_text()
+source = Path("lib/Xm/XmFontList.c").read_text()
+
+start = source.index("XmFontListInitFontContext(")
+end = source.index("\nBoolean \nXmFontListGetNextFont", start)
+init_context = source[start:end]
+assert "if (p == NULL)" in init_context
+assert "return (FALSE);" in init_context
 
 start = source.index("XmFontListCreate(")
 end = source.index("\n}\n", start)
@@ -47,6 +53,7 @@ assert "_XmAppUnlock" not in get_font
 assert "_XmProcessLock" not in get_font
 assert "_XmProcessUnlock" not in get_font
 assert "XmRenditionRetrieve" in get_font
+assert "typeReturn == NULL" in get_font
 
 start = source.index("XmFontListEntryGetTag(")
 end = source.index("\n}\n", start)
@@ -66,6 +73,15 @@ assert "_XmAppUnlock" not in create_r
 assert "_XmStringCacheTag" in create_r
 assert "XmRenditionCreate" in create_r
 
+start = source.index("XmFontListCreate_r(")
+end = source.index("\n}\n", start)
+create_r_font = source[start:end]
+assert "_XmWidgetToAppContext" not in create_r_font
+assert "_XmAppLock" not in create_r_font
+assert "_XmAppUnlock" not in create_r_font
+assert "_XmStringCacheTag" in create_r_font
+assert "XmRenditionCreate" in create_r_font
+
 start = source.index("XmeRenderTableGetDefaultFont(")
 end = source.index("\n}\n", start)
 default_font = source[start:end]
@@ -83,6 +99,7 @@ assert next_font_body.index("FLContextIndex(context)++") < next_font_body.index(
 assert next_font_body.index("_XmRenditionCopy(rend, True)") < next_font_body.index("_XmProcessUnlock();")
 assert next_font_body.index("_XmProcessUnlock();") < next_font_body.index("_XmGetFirstFont(retained)")
 assert next_font_body.index("XmRenditionFree(retained)") > next_font_body.index("XmRenditionRetrieve(retained, args, n)")
+assert "if (*charset == NULL)" in next_font_body
 
 start = source.index("XmFontListRemoveEntry(")
 end = source.index("\nXmFontListEntry\nXmFontListEntryLoad", start)
@@ -93,15 +110,6 @@ assert retrieve < lock
 assert remove.index("tags[0] = XtNewString(tags[0]);") < lock
 assert "if (tags[0] == NULL)" in remove
 assert "XtFree(tags[0]);" in remove
-
-start = source.index("XmFontListCreate_r(")
-end = source.index("\n}\n", start)
-create_r_font = source[start:end]
-assert "_XmWidgetToAppContext" not in create_r_font
-assert "_XmAppLock" not in create_r_font
-assert "_XmAppUnlock" not in create_r_font
-assert "_XmStringCacheTag" in create_r_font
-assert "XmRenditionCreate" in create_r_font
 
 start = source.index("XmFontListEntryCreate(")
 end = source.index("\n}\n", start)

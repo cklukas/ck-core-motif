@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm literal context retention
 
 After reading a literal, Mrm records the resource context in the caller-owned

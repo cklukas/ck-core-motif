@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString tag-cache bounds and growth
 
 The internal tag cache uses a zero-based index and `_cache_count` as its

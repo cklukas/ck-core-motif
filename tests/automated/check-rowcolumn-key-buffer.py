@@ -18,4 +18,5 @@ key_region = source[start:end]
 assert "buf = (String)XtMalloc(capacity);" in key_region
 assert "if (buf == NULL)" in key_region
 assert key_region.count("buf = (String)XtMalloc(capacity);") == 1
+
 print("PASS RowColumn accelerator text checks allocation failures")

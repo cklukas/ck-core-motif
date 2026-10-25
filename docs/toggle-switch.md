@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleSwitch
 
 `XmToggleSwitch` is an additive binary control for applications that want a

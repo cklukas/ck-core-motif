@@ -396,6 +396,9 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
 		XtRealloc((XtPointer) XmHierarchy_top_node(tw),
 			  sizeof(TreeConstraintRec)));
 
+    if (top_node == NULL)
+	return;
+
     XmHierarchy_top_node(tw) = (HierarchyConstraints) top_node;
 
     XmTree_ul_point(tw).x = XmTree_ul_point(tw).y = 0;
@@ -406,6 +409,8 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
     XmTreeC_placed(top_node) = False;
 
     XmTree_child_op_list(tw) = _XmListInit();
+    if (XmTree_child_op_list(tw) == NULL)
+	return;
 
     /* 
      * Set the initial values for XmTreeC_max_width(tw) and XmTreeC_max_height(tw).
@@ -853,7 +858,7 @@ ConstraintSetValues(Widget current, Widget request, Widget set,
     TreeConstraints old_node = GetNodeInfo(current);
     Boolean redisplay = False;
     Boolean insert_change = False;
-    int i;
+    Cardinal i;
 
     for (i = 0; i < *num_args; i++) 
 	if (streq(args[i].name, XmNinsertBefore)) {
@@ -997,7 +1002,7 @@ CvtStringToConnectStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args,
 	haveQuarks = TRUE;
     }
     
-    XmCopyISOLatin1Lowered(lowerName, (char *) fromVal->addr);
+    XmCopyISOLatin1LoweredN(lowerName, sizeof(lowerName), (char *) fromVal->addr);
     q = XrmStringToQuark(lowerName);
     
     if ( (q == XtQELadder) || streq(lowerName,"treeladder") )
@@ -1055,7 +1060,7 @@ CvtStringToCompressStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args,
         haveQuarks = TRUE;
     }
 
-    XmCopyISOLatin1Lowered(lowerName, (char *) fromVal->addr);
+    XmCopyISOLatin1LoweredN(lowerName, sizeof(lowerName), (char *) fromVal->addr);
     q = XrmStringToQuark(lowerName);
    
     if ((q == XtQECompressNone) || streq(lowerName,"none") || streq(lowerName,"treecompressnone") )
@@ -1094,7 +1099,7 @@ CvtStringToLineStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args,
     static int lineStyle = LineSolid;
     char lowerName[BUFSIZ];
     
-    XmCopyISOLatin1Lowered(lowerName, (char *) fromVal->addr);
+    XmCopyISOLatin1LoweredN(lowerName, sizeof(lowerName), (char *) fromVal->addr);
     
     if ( streq(lowerName, "linesolid") || streq(lowerName,"solid") )
 	lineStyle = LineSolid;
@@ -1538,7 +1543,7 @@ CalcLocations(Widget w, Boolean resize_it)
     XmTreeWidget      tw = (XmTreeWidget) w;
     TreeConstraints   node;
     XmTreeWidgetClass tc = (XmTreeWidgetClass) XtClass(w);
-    register int      i;
+    register Cardinal i;
 
     /*
      * Reset each node to be hidden;

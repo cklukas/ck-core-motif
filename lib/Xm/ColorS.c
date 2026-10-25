@@ -434,12 +434,25 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal *num_args)
 
     {
     int i;
+    XmString replacement;
     for( i = 0; i < 3; i++ )
-    	XmColorS_strings(csw).slider_labels[i] = XmStringCopy(XmColorS_strings(csw).slider_labels[i]);
+	{
+	replacement = XmStringCopy(XmColorS_strings(csw).slider_labels[i]);
+	if (replacement != NULL)
+	    XmColorS_strings(csw).slider_labels[i] = replacement;
+	}
     for (i = 0; i< XmColorSelector_NUM_TOGGLES; i++) 
-	XmColorS_strings(csw).tog_labels[i] = XmStringCopy(XmColorS_strings(csw).tog_labels[i]);
-    XmColorS_strings(csw).file_read_error = XmStringCopy(XmColorS_strings(csw).file_read_error);
-    XmColorS_strings(csw).no_cell_error = XmStringCopy(XmColorS_strings(csw).no_cell_error); 
+	{
+	replacement = XmStringCopy(XmColorS_strings(csw).tog_labels[i]);
+	if (replacement != NULL)
+	    XmColorS_strings(csw).tog_labels[i] = replacement;
+	}
+    replacement = XmStringCopy(XmColorS_strings(csw).file_read_error);
+    if (replacement != NULL)
+	XmColorS_strings(csw).file_read_error = replacement;
+    replacement = XmStringCopy(XmColorS_strings(csw).no_cell_error);
+    if (replacement != NULL)
+	XmColorS_strings(csw).no_cell_error = replacement;
     }
 
 }
@@ -515,6 +528,9 @@ SetValues(Widget current, Widget request, Widget set,
 {
     XmColorSelectorWidget	csw = (XmColorSelectorWidget)set;
     XmColorSelectorWidget	curr = (XmColorSelectorWidget)current;
+    String rgb_file_copy;
+    String color_name_copy;
+    Boolean rgb_file_changed;
 
     /*
      * Pass argument list through to all children.
@@ -541,14 +557,21 @@ SetValues(Widget current, Widget request, Widget set,
     ** in twice will trip this expensive function unless we compare the 
     ** values of the strings (when they exist)
     */
-    if (AreDiff(XmColorS_rgb_file(curr), XmColorS_rgb_file(csw)))
-    {
-	read_rgb_file(csw, NULL, 0, False);
-    }
     if (XmColorS_rgb_file(curr) != XmColorS_rgb_file(csw))
     {
-    	XtFree((char*) XmColorS_rgb_file(curr));
-        XmColorS_rgb_file(csw) = XtNewString(XmColorS_rgb_file(csw));
+	rgb_file_changed = AreDiff(XmColorS_rgb_file(curr),
+				   XmColorS_rgb_file(csw));
+	rgb_file_copy = XmColorS_rgb_file(csw) != NULL
+	    ? XtNewString(XmColorS_rgb_file(csw)) : NULL;
+	if (XmColorS_rgb_file(csw) == NULL || rgb_file_copy != NULL)
+	{
+	    XtFree((char*) XmColorS_rgb_file(curr));
+	    XmColorS_rgb_file(csw) = rgb_file_copy;
+	    if (rgb_file_changed)
+		read_rgb_file(csw, NULL, 0, False);
+	}
+	else
+	    XmColorS_rgb_file(csw) = XmColorS_rgb_file(curr);
     }
 
     if ((XmColorS_margin_height(curr) != XmColorS_margin_height(csw)) ||
@@ -582,41 +605,74 @@ SetValues(Widget current, Widget request, Widget set,
 	    }
 	}
 	else {
-	    XtFree(oldValue);
-	    XmColorS_color_name(csw) = XtNewString(newValue);
+	    color_name_copy = newValue != NULL ? XtNewString(newValue) : NULL;
+	    if (newValue == NULL || color_name_copy != NULL)
+	    {
+		XtFree(oldValue);
+		XmColorS_color_name(csw) = color_name_copy;
+	    }
+	    else
+		XmColorS_color_name(csw) = oldValue;
 	}
     }
 
     {
     int i;
+    XmString replacement;
     for( i = 0; i < 3; i++ )
 	{
     	if (XmColorS_strings(curr).slider_labels[i] != XmColorS_strings(csw).slider_labels[i])
 		{
-		XmStringFree(XmColorS_strings(curr).slider_labels[i]);
-    		XmColorS_strings(csw).slider_labels[i] = XmStringCopy(XmColorS_strings(csw).slider_labels[i]);
-		XtVaSetValues(XmColorS_sliders(csw)[i], XmNtitleString, XmColorS_strings(csw).slider_labels[i], NULL); 
+		replacement = XmStringCopy(XmColorS_strings(csw).slider_labels[i]);
+		if (replacement != NULL) {
+		    XmStringFree(XmColorS_strings(curr).slider_labels[i]);
+		    XmColorS_strings(csw).slider_labels[i] = replacement;
+		    XtVaSetValues(XmColorS_sliders(csw)[i], XmNtitleString,
+			XmColorS_strings(csw).slider_labels[i], NULL);
+		} else {
+		    XmColorS_strings(csw).slider_labels[i] =
+			XmColorS_strings(curr).slider_labels[i];
+		}
 		}
 	}
     for (i = 0; i< XmColorSelector_NUM_TOGGLES; i++) 
 	{
 	if (XmColorS_strings(curr).tog_labels[i] != XmColorS_strings(csw).tog_labels[i])
 		{
-		XmStringFree(XmColorS_strings(curr).tog_labels[i]);
-		XmColorS_strings(csw).tog_labels[i] = XmStringCopy(XmColorS_strings(csw).tog_labels[i]);
-		XtVaSetValues(XmColorS_chose_mode(csw)[i], XmNlabelString, XmColorS_strings(csw).tog_labels[i], NULL);
+		replacement = XmStringCopy(XmColorS_strings(csw).tog_labels[i]);
+		if (replacement != NULL) {
+		    XmStringFree(XmColorS_strings(curr).tog_labels[i]);
+		    XmColorS_strings(csw).tog_labels[i] = replacement;
+		    XtVaSetValues(XmColorS_chose_mode(csw)[i], XmNlabelString,
+			XmColorS_strings(csw).tog_labels[i], NULL);
+		} else {
+		    XmColorS_strings(csw).tog_labels[i] =
+			XmColorS_strings(curr).tog_labels[i];
+		}
 		}
 	}
 
 	if (XmColorS_strings(curr).file_read_error != XmColorS_strings(csw).file_read_error)
 	{
-		XmStringFree(XmColorS_strings(curr).file_read_error);
-		XmColorS_strings(csw).file_read_error = XmStringCopy(XmColorS_strings(csw).file_read_error);
+		replacement = XmStringCopy(XmColorS_strings(csw).file_read_error);
+		if (replacement != NULL) {
+		    XmStringFree(XmColorS_strings(curr).file_read_error);
+		    XmColorS_strings(csw).file_read_error = replacement;
+		} else {
+		    XmColorS_strings(csw).file_read_error =
+			XmColorS_strings(curr).file_read_error;
+		}
 	}
 	if (XmColorS_strings(curr).no_cell_error != XmColorS_strings(csw).no_cell_error)
 	{
-		XmStringFree(XmColorS_strings(curr).no_cell_error);
-		XmColorS_strings(csw).no_cell_error = XmStringCopy(XmColorS_strings(csw).no_cell_error);
+		replacement = XmStringCopy(XmColorS_strings(csw).no_cell_error);
+		if (replacement != NULL) {
+		    XmStringFree(XmColorS_strings(curr).no_cell_error);
+		    XmColorS_strings(csw).no_cell_error = replacement;
+		} else {
+		    XmColorS_strings(csw).no_cell_error =
+			XmColorS_strings(curr).no_cell_error;
+		}
 	}
     }
 
@@ -692,7 +748,7 @@ CvtStringToColorMode(Display *dpy, XrmValuePtr args, Cardinal num_args,
     static XmColorMode	mode;
     char		lowerName[BUFSIZ];
 
-    XmCopyISOLatin1Lowered(lowerName, (char *)from->addr);
+    XmCopyISOLatin1LoweredN(lowerName, sizeof(lowerName), (char *)from->addr);
     
     if (streq(lowerName, "listmode"))
 	mode = XmListMode;
@@ -772,6 +828,7 @@ static Boolean
 color_name_changed(XmColorSelectorWidget csw, char *name)
 {
     String old_val = XmColorS_color_name(csw);
+    String replacement;
 
     if ( name == NULL ) {
 	XmColorS_color_name(csw) = NULL;
@@ -779,7 +836,11 @@ color_name_changed(XmColorSelectorWidget csw, char *name)
 	return(True);
     }
 
-    XmColorS_color_name(csw) = XtNewString(name);
+    replacement = XtNewString(name);
+    if (replacement == NULL)
+	return(False);
+
+    XmColorS_color_name(csw) = replacement;
 
     if (!UpdateColorWindow(csw, True)) {
 	XtFree((XtPointer) XmColorS_color_name(csw));
@@ -969,6 +1030,7 @@ UpdateColorWindow(XmColorSelectorWidget csw, Boolean use_name)
     if (!use_name) /* Update color names */
     {	
 	char	*freeMe;
+	char	*new_name;
 	
 	freeMe = XmColorS_color_name(csw);
 	(void) snprintf(buf, sizeof(buf), "#%02x%02x%02x", XmColorS_slider_red(csw),
@@ -976,13 +1038,19 @@ UpdateColorWindow(XmColorSelectorWidget csw, Boolean use_name)
 
 	if (FindColor(csw, &index)) 
 	{
-	    XmColorS_color_name(csw) = XtNewString(XmColorS_colors(csw)[index].name);
+	    new_name = XtNewString(XmColorS_colors(csw)[index].name);
+	    if (new_name == NULL)
+		return(False);
+	    XmColorS_color_name(csw) = new_name;
 	    snprintf(new_label, sizeof(new_label), "%s (%s)",
 		     XmColorS_color_name(csw), buf);
 	}	
 	else 	
 	{	
-	    XmColorS_color_name(csw) = XtNewString(buf);
+	    new_name = XtNewString(buf);
+	    if (new_name == NULL)
+		return(False);
+	    XmColorS_color_name(csw) = new_name;
 	    snprintf(new_label, sizeof(new_label), "%s", buf);
 	}
 
@@ -1010,8 +1078,11 @@ UpdateColorWindow(XmColorSelectorWidget csw, Boolean use_name)
 
 	if ((XmColorS_color_name(csw)[0] == '#') && FindColor(csw, &index)) 
 	{
+	    new_name = XtNewString(XmColorS_colors(csw)[index].name);
+	    if (new_name == NULL)
+		return(False);
 	    XtFree(XmColorS_color_name(csw));
-	    XmColorS_color_name(csw) = XtNewString(XmColorS_colors(csw)[index].name);
+	    XmColorS_color_name(csw) = new_name;
 	}
 	(void) snprintf(buf, sizeof(buf), "#%02x%02x%02x",
 			color.red/256, color.green/256, color.blue/256);
@@ -1245,6 +1316,8 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 	XtSetArg(args[i], XmNlistSizePolicy, XmCONSTANT); i++;
 	XtSetArg(args[i], XmNvisibleItemCount, 15); i++;
 	margs = XtMergeArgLists(args, i, cargs, cnum_args);
+	if (margs == NULL)
+	    return;
 	XmColorS_list(csw) = XmCreateScrolledList((Widget) csw, "list", 
 					    margs, i + cnum_args);
 
@@ -1416,7 +1489,8 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 
 	{
 		XmString *strs;
-		if ((size_t)count > SIZE_MAX / sizeof(*strs)) {
+		if ((size_t)count > SIZE_MAX / sizeof(*strs) ||
+		    (size_t)count > UINT_MAX / sizeof(*strs)) {
 		    XtFree((char *)color_info);
 		    return;
 		}
@@ -1537,6 +1611,8 @@ CreateColorSliders(XmColorSelectorWidget csw,
     XtSetArg(args[num_args], XmNorientation, XmVERTICAL); num_args++;
     XtSetArg(args[num_args], XmNfillOption, XmFillMinor); num_args++;
     margs = XtMergeArgLists(args, num_args, cargs, cnum_args);
+    if (margs == NULL)
+	return;
     XmColorS_bb(csw) = XtCreateManagedWidget("buttonBox", xmButtonBoxWidgetClass, 
 				       (Widget) csw,
 				       margs, cnum_args + num_args);
@@ -1551,6 +1627,9 @@ CreateColorSliders(XmColorSelectorWidget csw,
     XtSetArg(args[num_args], XmNtitleString, NULL); title = num_args++;
 
     margs = XtMergeArgLists(args, num_args, cargs, cnum_args);
+
+    if (margs == NULL)
+	return;
 
     for( i = 0; i < 3; i++ ) {
 	margs[title].value = (XtArgVal) XmColorS_strings(csw).slider_labels[i];
@@ -1592,6 +1671,8 @@ CreateSelectorRadio(XmColorSelectorWidget csw,
     XtSetArg(args[i], XmNpacking, XmPACK_COLUMN); i++;
     XtSetArg(args[i], XmNnumColumns, 2); i++;
     margs = XtMergeArgLists(args, i, cargs, cnum_args);
+    if (margs == NULL)
+	return;
     w = XtCreateManagedWidget("radioBox", xmRowColumnWidgetClass,
 			      (Widget) csw, margs, i + cnum_args);
     XmColorS_chose_radio(csw) = w;
@@ -1600,6 +1681,9 @@ CreateSelectorRadio(XmColorSelectorWidget csw,
     i = 0;
     XtSetArg(args[i], XmNlabelString, NULL); label = i++;
     margs = XtMergeArgLists(args, i, cargs, cnum_args);
+
+    if (margs == NULL)
+	return;
 
     for (count = 0; count < XmColorSelector_NUM_TOGGLES; count++) {
 	margs[label].value = (XtArgVal) XmColorS_strings(csw).tog_labels[count];
@@ -1637,6 +1721,8 @@ CreateColorWindow(XmColorSelectorWidget csw,ArgList cargs, Cardinal cnum_args)
     n = 0;
     XtSetArg(args[n], XmNrecomputeSize, False); n++;
     margs = XtMergeArgLists(args, n, cargs, cnum_args);
+    if (margs == NULL)
+	return;
     XmColorS_color_window(csw) = XtCreateManagedWidget("colorWindow", 
 						       xmLabelWidgetClass, 
 						       fr, margs, n + cnum_args);

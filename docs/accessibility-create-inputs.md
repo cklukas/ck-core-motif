@@ -1,5 +1,12 @@
-# Accessibility object creation inputs
+---
+nav_exclude: true
+---
 
-`XmAccessibilityCreate` now rejects a null root and checks its own allocation
-before using the new accessibility object. Invalid or allocation-failed setup
-returns `NULL` without touching Xt state.
+# Accessibility creation input guards
+
+`XmAccessibilityCreate` now rejects a NULL root before asking Xt for an
+application context, and returns cleanly when allocating the accessibility
+state fails.
+
+Valid roots and the public ABI are unchanged.  The static regression check is
+`tests/automated/check-accessibility-create-inputs.py`.

@@ -177,7 +177,7 @@ XmFontListEntryGetFont(
   Arg		args[3];
   Cardinal	n;
 
-  if (entry == NULL) 
+  if ((entry == NULL) || (typeReturn == NULL))
       return (NULL);
 
   n = 0;
@@ -197,9 +197,13 @@ XmFontListEntryGetFont(
       *typeReturn = XmFONT_IS_FONT;
 
   if (ret_val == (char *)XmAS_IS)
-    return(NULL);
+    {
+      return(NULL);
+    }
   else
-    return(ret_val);
+    {
+      return(ret_val);
+    }
 }
 
 char *
@@ -217,6 +221,9 @@ XmFontListEntryGetTag(
   n = 0;
   XtSetArg(args[n], XmNtag, &tag); n++;
   XmRenditionRetrieve(entry, args, n);
+
+  if (tag == NULL)
+	return (NULL);
   
   ret_val = XtNewString(tag);
 
@@ -291,6 +298,8 @@ XmFontListRemoveEntry(
   XmRenditionRetrieve(entry, args, n);
 
   /* The rendition owns its tag; keep a stable copy while the table lock is held. */
+  if (tags[0] == NULL)
+      return (old);
   tags[0] = XtNewString(tags[0]);
   if (tags[0] == NULL)
       return (old);
@@ -378,6 +387,9 @@ XmFontListCreate(
     XmRenditionCreate(NULL,
 		      _XmStringCacheTag(curcharset, XmSTRING_TAG_STRLEN),
 		      args, n);
+
+  if (rends[0] == NULL)
+	return (NULL);
   
   ret_val = XmRenderTableAddRenditions(NULL, rends, 1, XmDUPLICATE);
 
@@ -427,6 +439,9 @@ XmFontListCreate_r(
     XmRenditionCreate(wid,
                       _XmStringCacheTag(curcharset, XmSTRING_TAG_STRLEN),
                       args, n);
+
+  if (rends[0] == NULL)
+	return (NULL);
  
   ret_val = XmRenderTableAddRenditions(NULL, rends, 1, XmDUPLICATE);
  
@@ -642,6 +657,10 @@ XmFontListInitFontContext(
   }
 
   p = (XmFontContext) XtMalloc (sizeof (XmFontListContextRec));
+  if (p == NULL) {
+    _XmProcessUnlock();
+    return (FALSE);
+  }
 
   FLContextIndex(p) = 0;
   FLContextTable(p) = fontlist;
@@ -693,7 +712,15 @@ XmFontListGetNextFont(
   XtSetArg(args[n], XmNtag, &tag); n++;
   XmRenditionRetrieve(retained, args, n);
 
+  if (tag == NULL) {
+    XmRenditionFree(retained);
+    return (FALSE);
+  }
   *charset = XtNewString(tag);
+  if (*charset == NULL) {
+    XmRenditionFree(retained);
+    return (FALSE);
+  }
   XmRenditionFree(retained);
   return (TRUE);
 }

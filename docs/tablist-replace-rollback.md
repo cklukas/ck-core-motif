@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Transactional tab-list replacement
 
 `XmTabListReplacePositions` now copies the source list before applying

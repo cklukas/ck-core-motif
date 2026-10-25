@@ -302,6 +302,8 @@ unsigned long length;
 	return(NULL);		
 
     event = (EditresEvent *) XtCalloc(sizeof(EditresEvent), 1);
+    if (event == NULL)
+	return(NULL);
 
     (void) _XEditResGet8(stream, &temp);
     event->any_event.type = (EditresCommand) temp;
@@ -335,6 +337,8 @@ unsigned long length;
 
 	    sv_event->value = XtMalloc(sizeof(char) * 
 				       (sv_event->value_len + 1));
+	    if (sv_event->value == NULL)
+		goto done;
 
 	    for (i = 0; i < sv_event->value_len; i++) {
 		if (!_XEditResGet8(stream, 
@@ -350,6 +354,8 @@ unsigned long length;
 
 	    sv_event->widgets = (WidgetInfo *)
 		XtCalloc(sizeof(WidgetInfo), sv_event->num_entries);
+	    if (sv_event->widgets == NULL && sv_event->num_entries != 0)
+		goto done;
 	    
 	    for (i = 0; i < sv_event->num_entries; i++) {
 		if (!_XEditResGetWidgetInfo(stream, sv_event->widgets + i))
@@ -363,6 +369,8 @@ unsigned long length;
 	    
 	    find_event->widgets = (WidgetInfo *) 
 		                  XtCalloc(sizeof(WidgetInfo), 1);
+	    if (find_event->widgets == NULL)
+		goto done;
 
 	    if (!(_XEditResGetWidgetInfo(stream, find_event->widgets) &&
 		  _XEditResGetSigned16(stream, &(find_event->x)) &&
@@ -383,6 +391,8 @@ unsigned long length;
 		
 	    get_event->widgets = (WidgetInfo *)
 		XtCalloc(sizeof(WidgetInfo), get_event->num_entries);
+	    if (get_event->widgets == NULL && get_event->num_entries != 0)
+		goto done;
 	    for (i = 0; i < get_event->num_entries; i++) {
 		if (!_XEditResGetWidgetInfo(stream, get_event->widgets + i)) 
 		    goto done;
@@ -393,11 +403,16 @@ unsigned long length;
     case GetValues: 
         {
             GetValuesEvent * gv_event = (GetValuesEvent *) event;
-            _XEditResGetString8(stream, &(gv_event->name));
-            _XEditResGet16(stream, &(gv_event->num_entries));
+	    if (!_XEditResGetString8(stream, &(gv_event->name)) ||
+		!_XEditResGet16(stream, &(gv_event->num_entries)) ||
+		gv_event->num_entries == 0)
+		goto done;
 	    gv_event->widgets = (WidgetInfo *)
 		XtCalloc(sizeof(WidgetInfo), gv_event->num_entries);
-            _XEditResGetWidgetInfo(stream, gv_event->widgets);
+	    if (gv_event->widgets == NULL)
+		goto done;
+	    if (!_XEditResGetWidgetInfo(stream, gv_event->widgets))
+		goto done;
         }
         break;	
 
@@ -725,18 +740,32 @@ Boolean normal, popup;
     
     num_children = 0;
 
-    if (XtIsWidget(parent) && popup)
+    if (XtIsWidget(parent) && popup) {
+	if (parent->core.num_popups > INT_MAX - num_children)
+	    return(0);
 	num_children += parent->core.num_popups;
+	}
 	
-    if (XtIsComposite(parent) && normal) 
+    if (XtIsComposite(parent) && normal) {
+	if (cw->composite.num_children > INT_MAX - num_children)
+	    return(0);
 	num_children += cw->composite.num_children; 
+	}
 
     if (num_children == 0) {	
 	*children = NULL; 
 	return(0);
     }
 
-    *children =(Widget*) XtMalloc((Cardinal) sizeof(Widget) * num_children);
+    if ((size_t)num_children > SIZE_MAX / sizeof(Widget) ||
+	(size_t)num_children > UINT_MAX / sizeof(Widget)) {
+	*children = NULL;
+	return(0);
+    }
+    *children =(Widget*) XtMalloc((Cardinal)(sizeof(Widget) *
+	(size_t)num_children));
+    if (*children == NULL)
+	return(0);
 
     if (XtIsComposite(parent) && normal)
 	for (i = 0; i < cw->composite.num_children; i++,current++) 
@@ -2043,6 +2072,9 @@ char ** str;
 
     *str = XtMalloc(sizeof(char) * (len + 1));
 
+    if (*str == NULL)
+	return(FALSE);
+
     for (i = 0; i < len; i++) {
 	if (!_XEditResGet8(stream, (unsigned char *) *str + i)) {
 	    XtFree(*str);
@@ -2073,6 +2105,9 @@ WidgetInfo * info;
 	return(FALSE);
 
     info->ids = (unsigned long *) XtMalloc(sizeof(long) * (info->num_widgets));
+
+    if (info->ids == NULL && info->num_widgets != 0)
+	return(FALSE);
 
     for (i = 0; i < info->num_widgets; i++) {
 	if (!_XEditResGet32(stream, info->ids + i)) {

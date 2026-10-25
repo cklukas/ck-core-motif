@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm hash-table initialization inputs
 
 Hash-table initialization now returns immediately for a null table or

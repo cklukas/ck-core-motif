@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm legacy font-list allocation
 
 Legacy font-list conversion now checks the variable-size `XtMalloc` result

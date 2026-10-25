@@ -47,6 +47,8 @@ static char rcsid[] = "$XConsortium: WmMenu.c /main/15 1996/11/20 15:20:17 rswis
 #endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
 #include <stdio.h>
 #include <ctype.h>
+#include <limits.h>
+#include <stdint.h>
 
 #include <X11/Shell.h>
 
@@ -102,14 +104,14 @@ static Boolean FindClientCommandMatch (MenuSpec *menuSpec,
 static String
 MakeMenuFunctionArgs(CmdTree *tree, ClientData *pCD, Atom selection)
 {
-    int length;
+    size_t length;
     String args;
 
     if (tree->subTrees != (CmdTree *)NULL)
     {
         length = snprintf(NULL, 0, "<%s>", tree->name);
-        args = (length >= 0) ?
-            (String)XtMalloc((unsigned int)length + 1) : (String)NULL;
+        args = (length >= 0 && length < UINT_MAX) ?
+            (String)XtMalloc((Cardinal)length + 1) : (String)NULL;
         if (args != (String)NULL)
             (void)snprintf(args, (size_t)length + 1, "<%s>", tree->name);
     }
@@ -117,8 +119,8 @@ MakeMenuFunctionArgs(CmdTree *tree, ClientData *pCD, Atom selection)
     {
         length = snprintf(NULL, 0, "%d %ld %ld", (int)tree->commandID,
                           (pCD == NULL ? None : pCD->client), selection);
-        args = (length >= 0) ?
-            (String)XtMalloc((unsigned int)length + 1) : (String)NULL;
+        args = (length >= 0 && length < UINT_MAX) ?
+            (String)XtMalloc((Cardinal)length + 1) : (String)NULL;
         if (args != (String)NULL)
             (void)snprintf(args, (size_t)length + 1, "%d %ld %ld",
                            (int)tree->commandID,
@@ -320,6 +322,13 @@ MenuSpec *MakeMenu (WmScreenData *pSD,
     }
     if (n)
     {
+        if ((size_t)n > SIZE_MAX / sizeof(*menuSpec->menuButtons))
+        {
+            MWarning(((char *)GETMESSAGE(48, 3,
+                      "Menu button array is too large for menu %s\n")),
+                     menuName);
+            return (NULL);
+        }
         if ((menuSpec->menuButtons =
 	       (MenuButton *) XtMalloc (n * sizeof(MenuButton))) == NULL)
         /* insufficent memory */
@@ -449,6 +458,9 @@ static MenuSpec *
 MakeMenuSpec (String menuName, CARD32 commandID)
 {
     MenuSpec *menuSpec;
+
+    if (menuName == NULL)
+	return (NULL);
     
     if ((menuSpec = (MenuSpec *) XtMalloc (sizeof (MenuSpec))) == NULL)
       /* Handle insufficent memory */
@@ -459,6 +471,10 @@ MakeMenuSpec (String menuName, CARD32 commandID)
     }
     
     menuSpec->name = XtNewString(menuName);
+    if (menuSpec->name == NULL) {
+	XtFree((char *)menuSpec);
+	return (NULL);
+    }
     menuSpec->currentContext = F_CONTEXT_ALL;
     menuSpec->menuWidget = (Widget) NULL;
     menuSpec->whichButton = SELECT_BUTTON;
@@ -507,37 +523,33 @@ MakeMenuSpec (String menuName, CARD32 commandID)
 static MenuItem *
 DuplicateMenuItems (MenuItem *menuItems)
 {
-    MenuItem *newMenuItem = (MenuItem *) NULL, *returnMenuItem = NULL, *curMenuItem;
+    MenuItem *returnMenuItem = NULL, *lastMenuItem = NULL, *curMenuItem;
+    MenuItem *newMenuItem = NULL;
     
     for (curMenuItem = menuItems;
 	 curMenuItem != (MenuItem *) NULL;
 	 curMenuItem = curMenuItem->nextMenuItem)
     {
-	/* If its the first one ... */
-	if (newMenuItem == (MenuItem *) NULL)
-	{
-	    newMenuItem = (MenuItem *)XtMalloc(sizeof(MenuItem));
-	    returnMenuItem = newMenuItem;
-	}
-	else /* ... otherwise, get the next menuItem. */
-	{
-	    newMenuItem->nextMenuItem =
-	      (MenuItem *)XtMalloc(sizeof(MenuItem));
-	    newMenuItem = newMenuItem->nextMenuItem;
-	}
+	newMenuItem = (MenuItem *)XtCalloc(1, sizeof(MenuItem));
+	if (newMenuItem == (MenuItem *)NULL)
+	    goto failure;
 	
 	newMenuItem->labelType = curMenuItem->labelType;
-	if (curMenuItem->label != (String) NULL)
+	if (curMenuItem->label != (String) NULL) {
 	  newMenuItem->label = XtNewString(curMenuItem->label);
-	else
+	  if (newMenuItem->label == (String)NULL)
+	      goto failure;
+	} else
 	  newMenuItem->label = NULL;
 	newMenuItem->labelBitmapIndex = curMenuItem->labelBitmapIndex;
 	newMenuItem->mnemonic = curMenuItem->mnemonic;
 	newMenuItem->accelState = curMenuItem->accelState;
 	newMenuItem->accelKeyCode = curMenuItem->accelKeyCode;
-	if (curMenuItem->accelText != (String) NULL)
+	if (curMenuItem->accelText != (String) NULL) {
 	  newMenuItem->accelText = XtNewString(curMenuItem->accelText);
-	else
+	  if (newMenuItem->accelText == (String)NULL)
+	      goto failure;
+	} else
 	  newMenuItem->accelText = NULL;
 	newMenuItem->wmFunction = curMenuItem->wmFunction;
 
@@ -561,22 +573,42 @@ DuplicateMenuItems (MenuItem *menuItems)
 #endif /* WSM */
 	    )
 	  newMenuItem->wmFuncArgs = curMenuItem->wmFuncArgs;
-	else if (curMenuItem->wmFuncArgs != (String) NULL)
+	else if (curMenuItem->wmFuncArgs != (String) NULL) {
 	  newMenuItem->wmFuncArgs = XtNewString(curMenuItem->wmFuncArgs);
-	else
+	  if (newMenuItem->wmFuncArgs == (String)NULL)
+	      goto failure;
+	} else
 	  newMenuItem->wmFuncArgs = NULL;
 
 	newMenuItem->greyedContext = curMenuItem->greyedContext;
 	newMenuItem->mgtMask = curMenuItem->mgtMask;
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
-	newMenuItem->clientCommandName = 
-	  XtNewString(curMenuItem->clientCommandName);
+	if (curMenuItem->clientCommandName != (String)NULL) {
+	    newMenuItem->clientCommandName =
+	      XtNewString(curMenuItem->clientCommandName);
+	    if (newMenuItem->clientCommandName == (String)NULL)
+		goto failure;
+	}
 	newMenuItem->clientCommandID = curMenuItem->clientCommandID;
 #endif
-	newMenuItem->nextMenuItem = (MenuItem *) NULL;
+	if (lastMenuItem != (MenuItem *)NULL)
+	    lastMenuItem->nextMenuItem = newMenuItem;
+	else
+	    returnMenuItem = newMenuItem;
+	lastMenuItem = newMenuItem;
+	newMenuItem = NULL;
     }
-    
     return(returnMenuItem);
+
+failure:
+    if (newMenuItem != (MenuItem *)NULL)
+	FreeMenuItem(newMenuItem);
+    while (returnMenuItem != (MenuItem *)NULL) {
+	newMenuItem = returnMenuItem->nextMenuItem;
+	FreeMenuItem(returnMenuItem);
+	returnMenuItem = newMenuItem;
+    }
+    return (NULL);
 }
 
 
@@ -610,37 +642,45 @@ DuplicateMenuItems (MenuItem *menuItems)
 static MenuExclusion *
 DuplicateMenuExclusions (MenuExclusion *exclusions)
 {
-    MenuExclusion *newMenuExclusion = (MenuExclusion *) NULL;
     MenuExclusion *returnMenuExclusion = (MenuExclusion *) NULL;
-    MenuExclusion *curMenuExclusion = (MenuExclusion *) NULL;
+    MenuExclusion *lastMenuExclusion = (MenuExclusion *) NULL;
+    MenuExclusion *curMenuExclusion;
+    MenuExclusion *newMenuExclusion;
     
     for (curMenuExclusion = exclusions;
 	 curMenuExclusion != (MenuExclusion *) NULL;
 	 curMenuExclusion = curMenuExclusion->nextExclusion)
     {
-	/* If its the first one ... */
+	newMenuExclusion = (MenuExclusion *)XtMalloc(sizeof(MenuExclusion));
 	if (newMenuExclusion == (MenuExclusion *) NULL)
-	{
-	    newMenuExclusion =
-	      (MenuExclusion *)XtMalloc(sizeof(MenuExclusion));
+	    goto failure;
+	newMenuExclusion->nextExclusion = (MenuExclusion *) NULL;
+	if (curMenuExclusion->command_string != NULL) {
+	    newMenuExclusion->command_string =
+	      XtNewString(curMenuExclusion->command_string);
+	    if (newMenuExclusion->command_string == NULL) {
+		XtFree((char *)newMenuExclusion);
+		goto failure;
+	    }
+	} else {
+	    newMenuExclusion->command_string = NULL;
+	}
+	if (lastMenuExclusion != (MenuExclusion *) NULL)
+	    lastMenuExclusion->nextExclusion = newMenuExclusion;
+	else
 	    returnMenuExclusion = newMenuExclusion;
-	}
-	else /* ... otherwise, get the next menuExclusion. */
-	{
-	    newMenuExclusion->nextExclusion =
-	      (MenuExclusion *)XtMalloc(sizeof(MenuExclusion));
-	    newMenuExclusion = newMenuExclusion->nextExclusion;
-	}
-
-	newMenuExclusion->command_string =
-	  XtNewString(curMenuExclusion->command_string);
+	lastMenuExclusion = newMenuExclusion;
     }
-
-    /* Make sure we properly NULL terminate the list. */
-    if (newMenuExclusion != (MenuExclusion *) NULL)
-      newMenuExclusion->nextExclusion = (MenuExclusion *) NULL;
-    
     return(returnMenuExclusion);
+
+failure:
+    while (returnMenuExclusion != (MenuExclusion *) NULL) {
+	newMenuExclusion = returnMenuExclusion->nextExclusion;
+	XtFree((char *)returnMenuExclusion->command_string);
+	XtFree((char *)returnMenuExclusion);
+	returnMenuExclusion = newMenuExclusion;
+    }
+    return (NULL);
 }
 #endif
 
@@ -688,12 +728,28 @@ DuplicateMenuSpec (MenuSpec *menuSpec)
 		 "Insufficient memory for menu specification\n"));
 	return (NULL);
     }
-    newMenuSpec->name = XtNewString(menuSpec->name);
+    if (menuSpec == NULL)
+	{
+	    XtFree((char *)newMenuSpec);
+	    return (NULL);
+	}
+    newMenuSpec->name = (menuSpec->name != NULL) ?
+	    XtNewString(menuSpec->name) : NULL;
+    if (menuSpec->name != NULL && newMenuSpec->name == NULL) {
+	XtFree((char *)newMenuSpec);
+	return (NULL);
+    }
     newMenuSpec->currentContext = menuSpec->currentContext;
     newMenuSpec->menuWidget = (Widget) NULL;
     newMenuSpec->whichButton = menuSpec->whichButton;
     newMenuSpec->height = menuSpec->height;
     newMenuSpec->menuItems = DuplicateMenuItems(menuSpec->menuItems);
+    if (menuSpec->menuItems != (MenuItem *)NULL &&
+	newMenuSpec->menuItems == (MenuItem *)NULL) {
+	XtFree((char *)newMenuSpec->name);
+	XtFree((char *)newMenuSpec);
+	return (NULL);
+    }
     newMenuSpec->menuButtons = (MenuButton *) NULL;
     newMenuSpec->menuButtonSize = 0;
     newMenuSpec->menuButtonCount = 0;
@@ -701,6 +757,19 @@ DuplicateMenuSpec (MenuSpec *menuSpec)
     newMenuSpec->accelKeySpecs = (KeySpec *) NULL;
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
     newMenuSpec->exclusions = DuplicateMenuExclusions(menuSpec->exclusions);
+    if (menuSpec->exclusions != (MenuExclusion *)NULL &&
+	newMenuSpec->exclusions == (MenuExclusion *)NULL) {
+	MenuItem *item = newMenuSpec->menuItems;
+	MenuItem *next_item;
+	while (item != (MenuItem *)NULL) {
+	    next_item = item->nextMenuItem;
+	    FreeMenuItem(item);
+	    item = next_item;
+	}
+	XtFree((char *)newMenuSpec->name);
+	XtFree((char *)newMenuSpec);
+	return (NULL);
+    }
     newMenuSpec->clientLocal = TRUE;
     newMenuSpec->commandID = menuSpec->commandID;
 #endif
@@ -759,7 +828,7 @@ MakeMenuItem (String label, WmFunction wmFunction, String funcArgs,
     unsigned char *copy_of_accelText;
 */
     
-    if ((menuItem = (MenuItem *) XtMalloc (sizeof (MenuItem))) == NULL)
+    if ((menuItem = (MenuItem *) XtCalloc (1, sizeof (MenuItem))) == NULL)
       /* Handle insufficent memory */
     {
 	MWarning(((char *)GETMESSAGE(48, 10,
@@ -768,7 +837,12 @@ MakeMenuItem (String label, WmFunction wmFunction, String funcArgs,
     }
     
     menuItem->labelType = XmSTRING;
-    menuItem->label = XtNewString(label);
+    menuItem->wmFunction = wmFunction;
+    if (label != NULL) {
+	menuItem->label = XtNewString(label);
+	if (menuItem->label == NULL)
+	    goto failure;
+    }
     menuItem->labelBitmapIndex = -1;
     menuItem->mnemonic = mnemonic;
     menuItem->clientCommandName = NULL;
@@ -781,14 +855,25 @@ MakeMenuItem (String label, WmFunction wmFunction, String funcArgs,
 
     menuItem->accelState = accelState;
     menuItem->accelKeyCode = accelKeyCode;
-    menuItem->accelText = XtNewString(accelText);
+    if (accelText != NULL) {
+	menuItem->accelText = XtNewString(accelText);
+	if (menuItem->accelText == NULL)
+	    goto failure;
+    }
 
-    menuItem->wmFunction = wmFunction;
-    menuItem->wmFuncArgs = XtNewString(funcArgs);
+    if (funcArgs != NULL) {
+	menuItem->wmFuncArgs = XtNewString(funcArgs);
+	if (menuItem->wmFuncArgs == NULL)
+	    goto failure;
+    }
     SetGreyedContextAndMgtMask(menuItem, wmFunction);
     menuItem->nextMenuItem = (MenuItem *) NULL;
     
     return(menuItem);
+
+failure:
+    FreeMenuItem(menuItem);
+    return (NULL);
 }
 
 
@@ -1389,6 +1474,8 @@ static void PerformInsertionsOnMatchList (MatchList **matchlist)
 	    MakeMenuItemFromTemplate(curmatch->menuitem,
 				     curmatch->treenode->defaultName,
 				     curmatch->funcargs);
+	  if (newMenuItem == (MenuItem *)NULL)
+	    continue;
 	  newMenuItem->wmFunction = curmatch->function;
 	  newMenuItem->greyedContext = curmatch->greyed_context;
 	  newMenuItem->nextMenuItem = curitem->nextMenuItem;
@@ -1419,8 +1506,9 @@ static void PerformInsertionsOnMatchList (MatchList **matchlist)
 	  /* Create a new client command menu item */
 	  newMenuItem =
 	    MakeClientCommandMenuItem
-	      (XtNewString(curmatch->treenode->defaultName),
-	       XtNewString(curmatch->funcargs));
+	      (curmatch->treenode->defaultName, curmatch->funcargs);
+	  if (newMenuItem == (MenuItem *)NULL)
+	    continue;
 	  newMenuItem->wmFunction = curmatch->function;
 	  newMenuItem->greyedContext = curmatch->greyed_context;
 	  newMenuItem->clientCommandID = curmatch->treenode->commandID;
@@ -1788,9 +1876,21 @@ static void RecreateMenuWidgets (WmScreenData *pSD, ClientData *pCD,
     /* If there are no affected menuspecs, then just return. */
     if (count == 0) return;
 
+    if ((size_t)count > SIZE_MAX / sizeof(*to_change) ||
+	(size_t)count > UINT_MAX / sizeof(*to_change)) {
+	Warning ("Too many menu widgets to recreate");
+	return;
+    }
+
     /* Allocate an array of menuspec pointers that is the size of the
        number of menu specs we need to recreate widgets for */
-    to_change = (MenuSpec **)XtMalloc(sizeof(MenuSpec *) * count);
+    to_change = (MenuSpec **)XtMalloc(
+	(Cardinal)(sizeof(MenuSpec *) * (size_t)count));
+    if (to_change == (MenuSpec **) NULL)
+    {
+	Warning ("Insufficient memory to recreate menu widgets");
+	return;
+    }
     for (i = 0; i < count; ++i)
       to_change[i] = (MenuSpec *) NULL;
 
@@ -1933,12 +2033,33 @@ static void StoreMatchedCommand (MatchList **matchlist, MenuSpec *menuSpec,
     
     /* Well, we didn't find a match, so store the entry */
     new = (MatchList *)XtMalloc(sizeof(MatchList));
+    if (new == (MatchList *) NULL)
+    {
+	Warning ("Insufficient memory for menu command matching");
+	return;
+    }
     new->menuspec = menuSpec;
     new->menuitem = menuItem;
-    new->command_string = XtNewString(command_string);
+    new->command_string = (command_string != (String) NULL) ?
+	XtNewString(command_string) : (String) NULL;
+    if (command_string != (String) NULL &&
+	new->command_string == (String) NULL)
+    {
+	XtFree ((char *) new);
+	Warning ("Insufficient memory for menu command matching");
+	return;
+    }
     new->treenode = treenode;
     new->function = function;
-    new->funcargs = XtNewString(funcargs);
+    new->funcargs = (funcargs != (String) NULL) ?
+	XtNewString(funcargs) : (String) NULL;
+    if (funcargs != (String) NULL && new->funcargs == (String) NULL)
+    {
+	XtFree ((char *) new->command_string);
+	XtFree ((char *) new);
+	Warning ("Insufficient memory for menu command matching");
+	return;
+    }
     new->greyed_context = greyed_context;
     new->next = (MatchList *) NULL;
     
@@ -2016,8 +2137,9 @@ static void SearchForOtherMatches (WmScreenData *pSD, ClientData *pCD,
 		    command_length = (command_string == NULL) ?
 			snprintf(NULL, 0, "<%s>", tree->name) :
 			snprintf(NULL, 0, "%s.<%s>", command_string, tree->name);
-		    new_command_str = (command_length >= 0) ?
-			(char *)XtMalloc((unsigned int)command_length + 1) : NULL;
+		    new_command_str = (command_length >= 0 &&
+				       (unsigned int)command_length < UINT_MAX) ?
+			(char *)XtMalloc((Cardinal)command_length + 1) : NULL;
 		    if (new_command_str == NULL)
 			continue;
 		    if (command_string == NULL)
@@ -2040,8 +2162,9 @@ static void SearchForOtherMatches (WmScreenData *pSD, ClientData *pCD,
 			                             pCD->client, selection);
 			inLine_function = F_InvokeCommand;
 		    }
-		    new_funcargs = (funcargs_length >= 0) ?
-			(char *)XtMalloc((unsigned int)funcargs_length + 1) : NULL;
+		    new_funcargs = (funcargs_length >= 0 &&
+				    (unsigned int)funcargs_length < UINT_MAX) ?
+			(char *)XtMalloc((Cardinal)funcargs_length + 1) : NULL;
 		    if (new_funcargs == NULL)
 		    {
 			XtFree(new_command_str);
@@ -2155,16 +2278,26 @@ static void InsertTreeOnClient (WmScreenData *pSD, ClientData *pCD,
     while (tree != (CmdTree *) NULL)
     {
         String funcarg_buf;
+	const char *tree_name = (tree->name != NULL) ? tree->name : "";
+	size_t command_length = (command_so_far != NULL) ?
+	    strlen(command_so_far) : 0;
+	size_t name_length = strlen(tree_name);
 	/* The "4" below is to allow for brackets to surround the
 	   tree->name, the period to separate it from the command
 	   so far and a NULL. */
-	length = (command_so_far != NULL ? strlen(command_so_far) : 0) + 
-	         (tree->name != NULL ? strlen(tree->name) : 0) + 4;
-	new_command_str = XtMalloc(sizeof(unsigned char) * length);
+	if (command_length > SIZE_MAX - name_length ||
+	    command_length + name_length > SIZE_MAX - 4 ||
+	    command_length + name_length + 4 > UINT_MAX)
+	    return;
+	length = command_length + name_length + 4;
+	new_command_str = XtMalloc((Cardinal) length);
+	if (new_command_str == (String)NULL)
+	    return;
 	if (command_so_far != (String) NULL)
-	  sprintf(new_command_str, "%s.<%s>", command_so_far, tree->name);
+	  (void) snprintf(new_command_str, length, "%s.<%s>",
+			   command_so_far, tree_name);
 	else
-	  sprintf(new_command_str, "<%s>", tree->name);
+	  (void) snprintf(new_command_str, length, "<%s>", tree_name);
 
 	/* If there is an exclusion preventing this command from being 
 	   inserted, then just continue the loop. @RGC: This is wrong.
@@ -2653,11 +2786,15 @@ static Boolean ModifyClientCommandForMenuSpec (MenuSpec *menuSpec,
 		   * will disappear when it is destroyed. CR 9719
 		   */
 		  XmString labelString;
+		  String replacement;
 
 		  /* Change the label of the menu item */
+		  replacement = XtNewString(newname);
+		  if (replacement == NULL)
+		    break;
 		  XtFree(curMenuItem->label);
 		  /* Give the menu item the new name */
-		  curMenuItem->label = XtNewString(newname);
+		  curMenuItem->label = replacement;
 		  was_changed = False;  /*  all taken care of here. */
 		  
 		  /* This is needed when changing the label since
@@ -2670,10 +2807,12 @@ static Boolean ModifyClientCommandForMenuSpec (MenuSpec *menuSpec,
 		  labelString = XmStringGenerate(curMenuItem->label,
 						 XmFONTLIST_DEFAULT_TAG, 
 						 XmCHARSET_TEXT, NULL);
-		  XtVaSetValues(menuSpec->menuButtons[i].buttonWidget,
-				XmNlabelString, labelString,
-				NULL);
-		  XmStringFree(labelString);
+		  if (labelString != NULL) {
+		      XtVaSetValues(menuSpec->menuButtons[i].buttonWidget,
+				    XmNlabelString, labelString,
+				    NULL);
+		      XmStringFree(labelString);
+		  }
 		}
 		break;
 	      case REMOVE:
@@ -3179,6 +3318,8 @@ static Boolean SavePBInfo (MenuSpec *topMenuSpec, MenuItem *menuItem,
 			     Widget itemW)
 {
     MenuButton *menuButton;
+    MenuButton *newButtons;
+    unsigned int newSize;
 
 
     /* check for bad input value - shouldn't happen. */
@@ -3187,25 +3328,33 @@ static Boolean SavePBInfo (MenuSpec *topMenuSpec, MenuItem *menuItem,
     if (topMenuSpec->menuButtonSize == 0)
     /* need to create array */
     {
-        topMenuSpec->menuButtonSize = MENU_BUTTON_INC;
-        topMenuSpec->menuButtons =
-	    (MenuButton *) XtMalloc (MENU_BUTTON_INC * sizeof(MenuButton));
+        newSize = MENU_BUTTON_INC;
+        if ((size_t)newSize > SIZE_MAX / sizeof(*newButtons) ||
+	    newSize > UINT_MAX / sizeof(*newButtons))
+	    return (FALSE);
+	newButtons = (MenuButton *)XtMalloc(
+	    (Cardinal)(newSize * sizeof(*newButtons)));
+        if (newButtons == NULL)
+	    return (FALSE);
+        topMenuSpec->menuButtons = newButtons;
+        topMenuSpec->menuButtonSize = newSize;
     }
     else if (topMenuSpec->menuButtonCount == topMenuSpec->menuButtonSize)
     /* need larger array */
     {
-        topMenuSpec->menuButtonSize += MENU_BUTTON_INC;
-        topMenuSpec->menuButtons = (MenuButton *) 
-	    XtRealloc ((char*)topMenuSpec->menuButtons,
-		     topMenuSpec->menuButtonSize * sizeof(MenuButton));
-    }
-
-    if (topMenuSpec->menuButtons == NULL)
-    /* insufficent memory */
-    {
-	topMenuSpec->menuButtonSize = 0;
-	topMenuSpec->menuButtonCount = 0;
-	return (FALSE);
+        if (topMenuSpec->menuButtonSize > UINT_MAX - MENU_BUTTON_INC)
+	    return (FALSE);
+        newSize = topMenuSpec->menuButtonSize + MENU_BUTTON_INC;
+        if ((size_t)newSize > SIZE_MAX / sizeof(*newButtons) ||
+	    newSize > UINT_MAX / sizeof(*newButtons))
+	    return (FALSE);
+        newButtons = (MenuButton *)XtRealloc(
+	    (char *)topMenuSpec->menuButtons,
+	    (Cardinal)(newSize * sizeof(*newButtons)));
+        if (newButtons == NULL)
+	    return (FALSE);
+        topMenuSpec->menuButtons = newButtons;
+        topMenuSpec->menuButtonSize = newSize;
     }
 
     menuButton = &(topMenuSpec->menuButtons[topMenuSpec->menuButtonCount]);
@@ -3570,6 +3719,12 @@ Widget CreateMenuWidget (WmScreenData *pSD,
     menuShellW = XtCreatePopupShell (SHELL_NAME, xmMenuShellWidgetClass,
                                      parent, (ArgList) args, i);
 
+    if (menuShellW == NULL)
+    {
+        menuSpec->currentContext &= ~CR_MENU_MARK;
+        return (NULL);
+    }
+
     /*
      * Create a RowColumn widget as a child of the shell for the menu pane.
      * If the menu pane is top-level, create a popup menu for it and attach 
@@ -3588,7 +3743,8 @@ Widget CreateMenuWidget (WmScreenData *pSD,
         XtSetArg (args[i], XmNpopupEnabled, (XtArgVal) TRUE); i++;
         menuW = XtCreateWidget (menuName, xmRowColumnWidgetClass, menuShellW,
 				(ArgList) args, i);
-	XtAddCallback (menuW, XmNunmapCallback, UnmapCallback, 
+	if (menuW != NULL)
+	    XtAddCallback (menuW, XmNunmapCallback, UnmapCallback,
 				(XtPointer) menuSpec);
     }
     else
@@ -3596,6 +3752,13 @@ Widget CreateMenuWidget (WmScreenData *pSD,
         XtSetArg (args[i], XmNrowColumnType, (XtArgVal) XmMENU_PULLDOWN); i++;
         menuW = XtCreateWidget (menuName, xmRowColumnWidgetClass, menuShellW,
 				(ArgList) args, i);
+    }
+
+    if (menuW == NULL)
+    {
+        XtDestroyWidget (menuShellW);
+        menuSpec->currentContext &= ~CR_MENU_MARK;
+        return (NULL);
     }
 
     /*
@@ -3652,9 +3815,15 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 		    /* Increment the counter here because we only increment
 		       at the end of the loop if the item is not a client
 		       command item (i.e. labelIsClientCommand == FALSE) */
-		    children[n++] =
-		      XmCreateSeparatorGadget (menuW, SEPARATOR_NAME, 
+		    children[n] =
+		      XmCreateSeparatorGadget (menuW, SEPARATOR_NAME,
 					       (ArgList)NULL, 0);
+		    if (children[n] == NULL)
+		    {
+			menuSpec->currentContext &= ~CR_MENU_MARK;
+			return (NULL);
+		    }
+		    n++;
 		    fUseTitleSep = FALSE;
 		}
 	    }
@@ -3662,8 +3831,13 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 #endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
 	    {
 		children[n] =
-		  XmCreateSeparatorGadget (menuW, SEPARATOR_NAME, 
+		  XmCreateSeparatorGadget (menuW, SEPARATOR_NAME,
 					   (ArgList)NULL, 0);
+		if (children[n] == NULL)
+		{
+		    menuSpec->currentContext &= ~CR_MENU_MARK;
+		    return (NULL);
+		}
 		fUseTitleSep = FALSE;
 	    }
 	} /* F_Separator */
@@ -3696,20 +3870,21 @@ Widget CreateMenuWidget (WmScreenData *pSD,
             else
             {
                 XtSetArg (args[i], XmNlabelType, (XtArgVal) XmSTRING); i++;
-                XtSetArg (args[i], XmNlabelString, (XtArgVal)
-			  (tmpstr = XmStringCreateLocalized(menuItem->label))); i++;
-		sPtr = (StrList *) XtMalloc(sizeof(StrList));
-		if (sPtr == NULL)
-		  {
-		     MWarning(((char *)GETMESSAGE(48, 2, "Insufficient memory for menu %s\n")), menuName);
-		     return (NULL);
-		  }
-		else
-		  {
-		     sPtr->string  = tmpstr;
-		     sPtr->next    = stringsToFree;
-		     stringsToFree = sPtr;
-		  }
+		tmpstr = XmStringCreateLocalized(menuItem->label);
+		if (tmpstr != NULL) {
+		    XtSetArg (args[i], XmNlabelString, (XtArgVal) tmpstr); i++;
+		    sPtr = (StrList *) XtMalloc(sizeof(StrList));
+		    if (sPtr == NULL)
+		    {
+		       XmStringFree(tmpstr);
+		       MWarning(((char *)GETMESSAGE(48, 2, "Insufficient memory for menu %s\n")), menuName);
+		       menuSpec->currentContext &= ~CR_MENU_MARK;
+		       return (NULL);
+		    }
+		    sPtr->string  = tmpstr;
+		    sPtr->next    = stringsToFree;
+		    stringsToFree = sPtr;
+		}
             }
 
 	    if (menuItem->wmFunction == F_Title)
@@ -3725,13 +3900,28 @@ Widget CreateMenuWidget (WmScreenData *pSD,
                     children[n] =
 			XmCreateSeparatorGadget (menuW, SEPARATOR_NAME,
 					         sepArgs, 1); n++;
+		    if (children[n - 1] == NULL)
+		    {
+			menuSpec->currentContext &= ~CR_MENU_MARK;
+			return (NULL);
+		    }
 		}
 
                 XtSetArg (args[i], XmNalignment, XmALIGNMENT_CENTER); i++; 
 	        children[n] = XmCreateLabelGadget (menuW, TITLE_NAME,
 					           (ArgList) args, i); n++;
+                if (children[n - 1] == NULL)
+                {
+                    menuSpec->currentContext &= ~CR_MENU_MARK;
+                    return (NULL);
+                }
                 children[n] = XmCreateSeparatorGadget (menuW, SEPARATOR_NAME,
 					  sepArgs, 1); 
+                if (children[n] == NULL)
+                {
+                    menuSpec->currentContext &= ~CR_MENU_MARK;
+                    return (NULL);
+                }
 
                 /*
 		 * A following title will have both separators.
@@ -3786,6 +3976,11 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 			    i++;
 	                children[n] = XmCreateCascadeButtonGadget (menuW,
 					  CASCADE_BTN_NAME, (ArgList) args, i);
+                        if (children[n] == NULL)
+                        {
+                            menuSpec->currentContext &= ~CR_MENU_MARK;
+                            return (NULL);
+                        }
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
 			XtAddCallback(children[n], XmNcascadingCallback,
 				      (XtCallbackProc)AdjustTearOffControl,
@@ -3799,6 +3994,11 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 	            {
 	                children[n] = XmCreateCascadeButtonGadget (menuW,
 					  CASCADE_BTN_NAME, (ArgList) args, i);
+	                if (children[n] == NULL)
+	                {
+	                    menuSpec->currentContext &= ~CR_MENU_MARK;
+	                    return (NULL);
+	                }
 	                XtSetSensitive (children[n], FALSE);
 	            }
 
@@ -3821,20 +4021,21 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 	             */
                     if (menuItem->accelText)
                     {
-		        XtSetArg (args[i], XmNacceleratorText, (XtArgVal)
-				  (tmpstr = XmStringCreateLocalized(menuItem->accelText))); i++;
-		        sPtr = (StrList *) XtMalloc(sizeof(StrList));
-			if (sPtr == NULL)
-			  {
-			     MWarning(((char *)GETMESSAGE(48, 2, "Insufficient memory for menu %s\n")), menuName);
-			     return (NULL);
-			  }
-			else
-			  {
-			     sPtr->string = tmpstr;
-			     sPtr->next   = stringsToFree;
-			     stringsToFree = sPtr;
-			  }
+		        tmpstr = XmStringCreateLocalized(menuItem->accelText);
+		        if (tmpstr != NULL) {
+		            XtSetArg (args[i], XmNacceleratorText, (XtArgVal) tmpstr); i++;
+		            sPtr = (StrList *) XtMalloc(sizeof(StrList));
+		            if (sPtr == NULL)
+		            {
+		               XmStringFree(tmpstr);
+		               MWarning(((char *)GETMESSAGE(48, 2, "Insufficient memory for menu %s\n")), menuName);
+		               menuSpec->currentContext &= ~CR_MENU_MARK;
+		               return (NULL);
+		            }
+		            sPtr->string = tmpstr;
+		            sPtr->next   = stringsToFree;
+		            stringsToFree = sPtr;
+		        }
 
                         if ((accelKeySpec = (KeySpec *)
                                  XtMalloc (sizeof (KeySpec ))) == NULL)
@@ -3858,6 +4059,12 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 
 	            children[n] = XmCreatePushButtonGadget (menuW, 
 				      PUSH_BTN_NAME, (ArgList) args, i);
+	            if (children[n] == NULL) {
+		        MWarning(((char *)GETMESSAGE(48, 7, "Insufficient memory for menu %s\n")),
+				   menuName);
+		        menuSpec->currentContext &= ~CR_MENU_MARK;
+		        return (NULL);
+	            }
 
 	            /* 
 		     * Set sensitivity.  Initially we only consider the context
@@ -4353,14 +4560,11 @@ static void UnmapCallback (Widget w, XtPointer client_data,
 
 void MWarning (char *format, char *message)
 {
+    char pch[MAXWMPATH + 1];
 
-    if (strlen(format) + strlen(message)  <  (size_t) MAXWMPATH)
-      {
-	 char pch[MAXWMPATH+1];
-
-	 sprintf (pch, format, message);
-	 Warning (pch);
-      }
+    /* Keep diagnostics visible even when a resource-defined name is long. */
+    (void)snprintf(pch, sizeof pch, format, message);
+    Warning(pch);
 
 } /* END OF FUNCTION MWarning */
 

@@ -218,13 +218,19 @@ XmAppendTranslationText(char **buffer, size_t *used, size_t *capacity,
     return False;
   while (*capacity < required) {
     size_t new_capacity = *capacity;
+    char *new_buffer;
+    if (new_capacity == 0)
+      new_capacity = 1;
     if (new_capacity > SIZE_MAX / 2)
       new_capacity = required;
     else
       new_capacity *= 2;
     if (new_capacity < required || new_capacity > (size_t)UINT_MAX)
       return False;
-    *buffer = XtRealloc(*buffer, (Cardinal)new_capacity);
+    new_buffer = (char *)XtRealloc(*buffer, (Cardinal)new_capacity);
+    if (new_buffer == NULL)
+      return False;
+    *buffer = new_buffer;
     *capacity = new_capacity;
   }
   memcpy(*buffer + *used, text, length + 1);
@@ -248,6 +254,8 @@ _XmGetRealXlations(
   Modifiers mods;
   
   result = XtMalloc((Cardinal)capacity);
+  if (result == NULL)
+    return (NULL);
   result[0] = '\0';
   for (i = 0; i < num_keys; i++)
     {
@@ -1034,6 +1042,8 @@ _XmGetDefaultColors(
         XrmValue args[2];
         Cardinal num_args;
 	String default_string = XtDefaultBackground;
+	XmColorData **new_default_set;
+	int new_default_set_size;
 
 	/*  Look through  a set of screen / background pairs to see  */
 	/*  if the default is already in the table.                  */
@@ -1049,16 +1059,29 @@ _XmGetDefaultColors(
   
 	if (default_set == NULL)
 	{
-		default_set_size = 10;
-		default_set = (XmColorData **) XtRealloc((char *) default_set, 
-			(sizeof(XmColorData *) * default_set_size));
+		new_default_set_size = 10;
 		
 	}
 	else if (default_set_count == default_set_size)
 	{
-		default_set_size += 10;
-		default_set = (XmColorData **) XtRealloc((char *) default_set, 
-			sizeof(XmColorData *) * default_set_size);
+		if (default_set_size > INT_MAX - 10)
+			return NULL;
+		new_default_set_size = default_set_size + 10;
+	}
+	else
+		new_default_set_size = 0;
+
+	if (new_default_set_size != 0) {
+		if ((size_t)new_default_set_size >
+		    SIZE_MAX / sizeof(XmColorData *))
+			return NULL;
+		new_default_set = (XmColorData **) XtRealloc(
+			(char *) default_set,
+			sizeof(XmColorData *) * (size_t)new_default_set_size);
+		if (new_default_set == NULL)
+			return NULL;
+		default_set = new_default_set;
+		default_set_size = new_default_set_size;
 	}
 
 	/* Find the background based on the depth of the screen */
@@ -1498,17 +1521,15 @@ _XmFilterResources(
       }
 
     if ((size_t)j > SIZE_MAX / sizeof(XtResource) ||
-	(size_t)j > UINT_MAX / sizeof(XtResource))
-	{
-	    return 0;
-	}
+	(size_t)j > UINT_MAX / sizeof(XtResource)) {
+	return 0;
+    }
     filteredResources = (XtResource *) XtMalloc((Cardinal)(j *
 						      sizeof(XtResource)));
 
-    if (filteredResources == NULL && j != 0)
-	{
-	    return 0;
-	}
+    if (filteredResources == NULL && j != 0) {
+	return 0;
+    }
 
 	for (i = 0, j = 0; i < numResources; i++)
       {
@@ -1625,7 +1646,7 @@ _XmVendorExtRealize(
   Stuff from Desktop.c
 **********************/
 
-static XContext	actualClassContext = (XContext) NULL;
+static XContext	actualClassContext = 0;
 
 
 /*ARGSUSED*/
@@ -1652,7 +1673,7 @@ _XmGetActualClass(
 {
 	  WidgetClass		actualClass;
 
-	  if (actualClassContext == (XContext) NULL)
+	  if (actualClassContext == 0)
 	    actualClassContext = XUniqueContext();
 	  
 	  /*
@@ -1686,7 +1707,7 @@ _XmSetActualClass(
     WidgetClass previous;
     WidgetClass oldActualClass;
 
-    if (actualClassContext == (XContext) NULL)
+    if (actualClassContext == 0)
       actualClassContext = XUniqueContext();
     
     /*
@@ -1733,7 +1754,7 @@ _XmGetWorldObject(
         Cardinal *num_args )
 {
     XmDesktopObject	worldObject;
-    static XContext	worldObjectContext = (XContext) NULL;
+    static XContext	worldObjectContext = 0;
     XmWidgetExtData     ext;
     Display		*display;
     
@@ -1742,7 +1763,7 @@ _XmGetWorldObject(
     ** the display is closed, so that we don't get bad data if a second 
     ** display with the same id is opened.
     */
-    if (worldObjectContext == (XContext) NULL)
+    if (worldObjectContext == 0)
       worldObjectContext = XUniqueContext();
 
     display = XtDisplayOfObject(shell);

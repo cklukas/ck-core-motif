@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xmos mask-name construction
 
 `_XmOSGenerateMaskName` derives a pixmap mask name by copying the measured

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm class-registration allocation bounds
 
 Class registration stores the creator name immediately after its descriptor.

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Optional C++ support-library proposal (WP-08)
 
 This is a design boundary, not a replacement object model and not a required

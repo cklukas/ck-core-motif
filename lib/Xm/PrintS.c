@@ -787,7 +787,13 @@ static void ChildPrintToFile(String display_name,
   Display *display;
 
   file_desc = (FileDescRec *) XtMalloc(sizeof(FileDescRec));
+  if (file_desc == NULL)
+    _exit(1);
   file_desc->file_name = XtNewString(file_name);
+  if (file_desc->file_name == NULL) {
+    XtFree((char *)file_desc);
+    _exit(1);
+  }
   file_desc->file = file;
   file_desc->pipe = pipe;
 
@@ -847,6 +853,8 @@ XtEnum XmPrintToFile(Display *pdpy,
     }
     else if (pid < 0) {
       fclose(file);
+      close(filedes[0]);
+      close(filedes[1]);
       return False;
     }
 
@@ -857,6 +865,10 @@ XtEnum XmPrintToFile(Display *pdpy,
 
     /* allocate the space for a callback */
     callback = (FileCallbackRec *) XtMalloc(sizeof(FileCallbackRec));
+    if (callback == NULL) {
+      close(filedes[0]);
+      return False;
+    }
     callback->display = pdpy;
     callback->pipe = filedes[0];
     callback->finish_proc = finish_proc;
@@ -1037,6 +1049,8 @@ XmPrintPopupPDM(Widget print_shell,
     XFree(value);
 
     pdm_select_data = (PDMSelectData *) XtMalloc(sizeof(PDMSelectData));
+    if (pdm_select_data == NULL)
+	return XmPDM_NOTIFY_FAIL;
     pdm_select_data->pdm_selection = pdm_selection ;
     pdm_select_data->transient_for_video_shell = transient_for_video_shell ;
     pdm_select_data->print_shell = (XmPrintShellWidget) print_shell ; 

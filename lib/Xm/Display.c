@@ -1114,6 +1114,8 @@ DisplayInitialize(
     xmDisplay->display.xmim_info = NULL;
 
     xmDisplay->display.displayInfo = (XtPointer) XtNew(XmDisplayInfo);
+    if (xmDisplay->display.displayInfo == NULL)
+	return;
     ((XmDisplayInfo *)(xmDisplay->display.displayInfo))->SashCursor = 0L;
     ((XmDisplayInfo *)(xmDisplay->display.displayInfo))->TearOffCursor = 0L;
     ((XmDisplayInfo *)(xmDisplay->display.displayInfo))->UniqueStamp = 0L;
@@ -1340,6 +1342,8 @@ XmGetDragContext(
 	XmDragContext	matchedDC = NULL, dc = NULL;
 	Cardinal		i;
 
+        if (w == NULL)
+                return NULL;
 	_XmWidgetToAppContext(w);
 	_XmAppLock(app);
 
@@ -1367,6 +1371,8 @@ _XmGetDragContextFromHandle(
 	XmDragContext	dc;
 	Cardinal		i;
 
+        if (w == NULL)
+                return NULL;
 	xmDisplay = (XmDisplay)XmGetXmDisplay(XtDisplay(w));
 
 	for(i = 0; i < xmDisplay->composite.num_children; i++)
@@ -1707,6 +1713,9 @@ XmGetXmDisplay(
 {
 	XmDisplayClass dC;
 	Widget w;
+
+        if (display == NULL)
+                return NULL;
 	_XmDisplayToAppContext(display);
 
 	/*

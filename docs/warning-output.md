@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Warning output safety
 
 Motif warning handlers receive text from the error database and substitution

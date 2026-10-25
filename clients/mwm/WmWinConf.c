@@ -1173,10 +1173,16 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 		centerX = moveX + ICON_WIDTH(pcd) / 2;
 		centerY = moveY + ICON_HEIGHT(pcd) / 2;
 		place = CvtIconPositionToPlace (pIPD, centerX, centerY);
+		if (place < 0 || place >= pIPD->totalPlaces ||
+		    pIPD->placeList == NULL)
+		{
+		    place = NO_ICON_PLACE;
+		}
 
 		if (place != ICON_PLACE(pcd))
 		{
-		    if (pIPD->placeList[place].pCD)
+		    if (place != NO_ICON_PLACE && pIPD->placeList != NULL &&
+			pIPD->placeList[place].pCD)
 		    {
 			/*
 			 * Primary place occupied, try to find an unoccupied
@@ -1230,9 +1236,15 @@ void CompleteFrameConfig (ClientData *pcd, XEvent *pev)
 						&ICON_X(pcd), &ICON_Y(pcd));
 
 
-				XtMoveWidget (
-				    pIPD->placeList[ICON_PLACE(pcd)].theWidget,
-				    ICON_X(pcd), ICON_Y(pcd));
+				if (pIPD->placeList != NULL &&
+				    ICON_PLACE(pcd) >= 0 &&
+				    ICON_PLACE(pcd) < pIPD->totalPlaces &&
+				    pIPD->placeList[ICON_PLACE(pcd)].theWidget != NULL)
+				{
+				    XtMoveWidget (
+					pIPD->placeList[ICON_PLACE(pcd)].theWidget,
+					ICON_X(pcd), ICON_Y(pcd));
+				}
 
 				SetNewBounds (P_ICON_BOX(pcd));
 				if (ICON_DECORATION(pcd) &

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm data-entry context null guard
 
 `Idb__DB_GetDataEntry` now checks for a null resource context before invoking

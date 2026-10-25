@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Built-in image-cache insertion failure
 
 `InitializeImageSet` now treats a failed hash-bucket insertion as initialization

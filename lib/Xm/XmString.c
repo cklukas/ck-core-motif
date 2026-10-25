@@ -504,7 +504,7 @@ static Boolean match_pattern(XtPointer      text,
 			     XmParseMapping pattern,
 			     int            char_len,
 			     Boolean        dir_change);
-static void parse_unmatched(XmString  *result,
+static Boolean parse_unmatched(XmString  *result,
 			    char     **ptr,
 			    XmTextType text_type,
 			    int        length);
@@ -892,6 +892,10 @@ _XmStringNCreate(char *text,
 
   tag_index = _XmStringIndexCacheTag(curtag, XmSTRING_TAG_STRLEN);
 
+  if (_XmStringIndexGetTag(tag_index) == NULL ||
+      strcmp(_XmStringIndexGetTag(tag_index), curtag) != 0)
+    return((XmString) NULL);
+
   if ((tag_index < TAG_INDEX_UNSET) &&
       (t_length < (1 << BYTE_COUNT_BITS)))
     /* Create optimized string. */
@@ -915,12 +919,20 @@ _XmStringNCreate(char *text,
       _XmEntryInit((_XmStringEntry)&seg, XmSTRING_ENTRY_UNOPTIMIZED);
       
       _XmUnoptSegTag(&seg) = _XmStringCacheTag(curtag, XmSTRING_TAG_STRLEN);
+      if (_XmUnoptSegTag(&seg) == NULL) {
+	_XmStrFree(str);
+	return((XmString) NULL);
+      }
 
       _XmEntryTextTypeSet(&seg, type);
       _XmEntryTextSet((_XmStringEntry)&seg, text);
       _XmUnoptSegByteCount(&seg) = t_length;
       
       _XmStringSegmentNew(str, 0, (_XmStringEntry)&seg, True);	
+      if (_XmStrEntryCount(str) == 0) {
+	_XmStrFree(str);
+	return((XmString) NULL);
+      }
       return(str);
     }
 }
@@ -1184,6 +1196,9 @@ _XmStringIndexCacheTag(XmStringTag tag,
 {   
   char *a;
   register int i;
+
+  if (tag == NULL || length < 0)
+    return 0;
   
   /* Initialize cache with XmFONTLIST_DEFAULT_TAG, _MOTIF_DEFAULT_LOCALE, and
      locale.tag if necessary, to keep indices low. */
@@ -1463,11 +1478,10 @@ Unoptimize(_XmStringEntry entry, int free)
 	return NULL;
       _XmEntryInit(new_entry, XmSTRING_ENTRY_ARRAY);
       if (segment_count > SIZE_MAX / sizeof(*segments) ||
-	  segment_count * sizeof(*segments) > (size_t)((Cardinal)~0))
-	{
-	  _XmStringEntryFree(new_entry);
-	  return NULL;
-	}
+	  segment_count * sizeof(*segments) > (size_t)((Cardinal)~0)) {
+	_XmStringEntryFree(new_entry);
+	return NULL;
+	      }
       _XmEntrySegmentCount(new_entry) = _XmEntrySegmentCount(entry);
       _XmEntrySoftNewlineSet(new_entry, _XmEntrySoftNewlineGet(entry));
       segments = (_XmStringNREntry *)XtMalloc(
@@ -1532,6 +1546,18 @@ XmStringConcatAndFree(XmString a,
   Boolean		modify_a, modify_b, free_b;
   Boolean               a_needs_unopt=False, b_needs_unopt=False;
   _XmStringArraySegRec	array_seg;
+
+  /* Self-concatenation must not let the in-place conversion paths modify the
+   ** same object through both operands. Preserve the usual ownership rule by
+   ** giving the second operand its own reference. */
+  if (a != NULL && a == b) {
+    XmString duplicate = XmStringCopy(b);
+    if (duplicate == NULL) {
+      XmStringFree(a);
+      return NULL;
+    }
+    b = duplicate;
+  }
   
   _XmProcessLock();
   if (a == NULL) 
@@ -1632,41 +1658,89 @@ XmStringConcatAndFree(XmString a,
   b_lc = _XmStrEntryCountGet(b);
 
   if (_XmStrAddNewline(a)) {
-    if (_XmStrAddNewline(b) && b_lc > 0)
+    if (_XmStrAddNewline(b) && b_lc > 0) {
+      if (a_lc > UINT_MAX - b_lc + 1) {
+        _XmProcessUnlock();
+        XmStringFree(a);
+        XmStringFree(b);
+        return NULL;
+      }
       lc = a_lc + b_lc - 1;
-    else 
+    } else
       lc = a_lc;
   } else {
     if (_XmStrAddNewline(b))
       lc = b_lc ? b_lc : 1;
-    else 
+    else {
+      if (a_lc > UINT_MAX - b_lc) {
+        _XmProcessUnlock();
+        XmStringFree(a);
+        XmStringFree(b);
+        return NULL;
+      }
       lc = a_lc + b_lc;
+    }
+  }
+
+  if ((size_t)lc > SIZE_MAX / sizeof(_XmStringEntry) ||
+      (size_t)lc > UINT_MAX / sizeof(_XmStringEntry)) {
+    _XmProcessUnlock();
+    XmStringFree(a);
+    XmStringFree(b);
+    return NULL;
   }
   
   modify_a = !_XmStrOptimized(a) && (_XmStrRefCountGet(a) == 1);
   if (modify_a)
     {
+	_XmStringEntry *new_entries;
       a_str = a;
       if (a_lc > 1 && !_XmStrAddNewline(a) && _XmStrAddNewline(b)) {
 	segs = _XmStrEntry(a_str);
 	_XmStrEntry(a_str) = NULL;
       } 
-      _XmStrEntry(a_str) = (_XmStringEntry *)
-	XtRealloc((char*) _XmStrEntry(a_str),
-		  sizeof(_XmStringEntry) * lc);
+	  new_entries = (_XmStringEntry *)XtRealloc(
+	      (char*) _XmStrEntry(a_str),
+	      (Cardinal)(sizeof(_XmStringEntry) * (size_t)lc));
+	  if (new_entries == NULL) {
+	    if (segs)
+	      _XmStrEntry(a_str) = segs;
+	    _XmProcessUnlock();
+	    XmStringFree(a);
+	    XmStringFree(b);
+	    return NULL;
+	  }
+	  _XmStrEntry(a_str) = new_entries;
       for (i = (segs ? 0 : a_lc); i < lc; i++)
 	_XmStrEntry(a_str)[i] = NULL;
     }
   else if (_XmStrOptimized(a))
     {
+	_XmStringEntry *new_entries;
       a_str = _XmStringOptToNonOpt((_XmStringOpt)a);
+      if (a_str == NULL) {
+	_XmProcessUnlock();
+	XmStringFree(a);
+	XmStringFree(b);
+	return NULL;
+      }
       if (a_lc > 1 && !_XmStrAddNewline(a) && _XmStrAddNewline(b)) {
 	segs = _XmStrEntry(a_str);
 	_XmStrEntry(a_str) = NULL;
       }
-      _XmStrEntry(a_str) = (_XmStringEntry *)
-	XtRealloc((char*) _XmStrEntry(a_str),
-		  sizeof(_XmStringEntry) * lc);
+      new_entries = (_XmStringEntry *)XtRealloc(
+	  (char*) _XmStrEntry(a_str),
+	  (Cardinal)(sizeof(_XmStringEntry) * (size_t)lc));
+      if (new_entries == NULL) {
+	if (segs)
+	  _XmStrEntry(a_str) = segs;
+	_XmProcessUnlock();
+	XmStringFree(a_str);
+	XmStringFree(a);
+	XmStringFree(b);
+	return NULL;
+      }
+      _XmStrEntry(a_str) = new_entries;
       for (i = (segs ? 0 : a_lc); i < lc; i++)
 	_XmStrEntry(a_str)[i] = NULL;
     }
@@ -1732,9 +1806,18 @@ XmStringConcatAndFree(XmString a,
 	 * string does not have this padding. 
 	 */
 	unsigned int size = sizeof(_XmStringOptSegRec);
+	XmString resized_b;
 	if (_XmStrByteCount(b) > sizeof(XtPointer))
 	  size += _XmStrByteCount(b) - sizeof(XtPointer);
-	b = (XmString)XtRealloc((char *)b, size);
+	resized_b = (XmString)XtRealloc((char *)b, size);
+	if (resized_b == NULL) {
+	  _XmStrRefCountSet(b, 1);
+	  _XmProcessUnlock();
+	  XmStringFree(a);
+	  XmStringFree(b);
+	  return NULL;
+	}
+	b = resized_b;
 	memmove(_XmEntryTextGet((_XmStringEntry)b),
 		_XmStrText(b),
 		_XmStrByteCount(b));
@@ -2358,6 +2441,9 @@ TabVal(Display *d,
   int	intValue;
   float	multiplier, convertValue;
 
+  if (d == NULL || pscreen == NULL || (*pscreen == NULL && w == 0))
+    return 0;
+
   fromType = _XmConvertFactor(_XmTabUnits(tab), &multiplier);
   
   convertValue = multiplier * _XmTabValue(tab);
@@ -2374,7 +2460,6 @@ TabVal(Display *d,
    * several round trips to the server to draw a single string???
    */ 
   /* All we really want is the screen, but we may only have a drawable. */
-  assert(w || *pscreen);
   if (*pscreen == NULL)
     {
       Widget widget = XtWindowToWidget(d, w);
@@ -3225,9 +3310,14 @@ XmStringExtent(
   Display *d;
   XtAppContext app = NULL;
   
-  *width = 0, *height = 0;
+  if (width != NULL)
+    *width = 0;
+  if (height != NULL)
+    *height = 0;
 
-  if ((rendertable == NULL) || (string == NULL)) return;
+  if (width == NULL || height == NULL ||
+      rendertable == NULL || string == NULL)
+    return;
 
 #ifdef XTHREADS
   if (_XmRTDisplay(rendertable))
@@ -3606,6 +3696,7 @@ SubStringPosition(
   char *a = (char*) _XmEntryTextGet(seg); 
   char *b = (char*) _XmEntryTextGet(under_seg);
   char *seg_tag = _XmEntryTag(seg);
+  char *under_tag = _XmEntryTag(under_seg);
   int i, j, k, begin, max, width;
   unsigned int seg_len, under_seg_len;
   Boolean fail;
@@ -3616,11 +3707,13 @@ SubStringPosition(
   
   if (seg_tag == NULL)
     seg_tag = XmFONTLIST_DEFAULT_TAG;
+  if (under_tag == NULL)
+    under_tag = XmFONTLIST_DEFAULT_TAG;
   
-  if (!((seg_tag == _XmEntryTag(under_seg)) ||
+  if (!((seg_tag == under_tag) ||
 	((strcmp(seg_tag, XmFONTLIST_DEFAULT_TAG) == 0) &&
-	 _XmStringIsCurrentCharset(_XmEntryTag(under_seg))) ||
-	((strcmp(_XmEntryTag(under_seg), XmFONTLIST_DEFAULT_TAG) == 0) &&
+	 _XmStringIsCurrentCharset(under_tag)) ||
+	((strcmp(under_tag, XmFONTLIST_DEFAULT_TAG) == 0) &&
 	 _XmStringIsCurrentCharset(seg_tag))))
     return;
   
@@ -5211,6 +5304,7 @@ _render(Display *d,
   Dimension line_width, line_height, ascender = 0, descender = 0;
   _XmStringEntry line;
   int i;
+  int j;
   int restore_clip = FALSE;
   _XmRenditionRec	scratch1, scratch2;
   _XmRendition		tmp1, tmp2;
@@ -5383,8 +5477,7 @@ _XmStringSegmentNew(
     
     if (lc == 0 || lc-1 < line_index) {
       if (lc < 0 || lc == INT_MAX ||
-	  (size_t)(lc + 1) > SIZE_MAX / sizeof(_XmStringEntry) ||
-	  (size_t)(lc + 1) > UINT_MAX / sizeof(_XmStringEntry))
+	  (size_t)(lc + 1) > SIZE_MAX / sizeof(_XmStringEntry))
 	return;
       if (line_index > lc) line_index = lc;
       if (copy)
@@ -5395,8 +5488,7 @@ _XmStringSegmentNew(
       if (copy && line == NULL)
 	return;
       new_entries = (_XmStringEntry *)XtRealloc(
-	  (char *)_XmStrEntry(string),
-	  (Cardinal)(sizeof(_XmStringEntry) * (lc + 1)));
+	  (char *)_XmStrEntry(string), sizeof(_XmStringEntry) * (lc + 1));
       if (new_entries == NULL) {
 	if (copy)
 	    _XmStringEntryFree(line);
@@ -5418,7 +5510,7 @@ _XmStringSegmentNew(
 	if (copy && new_value == NULL)
 	    return;
 	new_segments = (_XmStringNREntry *)XtMalloc(
-	    (Cardinal)(sizeof(*new_segments) * 2));
+	    sizeof(_XmStringEntry) * 2);
 	if (new_segments == NULL) {
 	    if (copy)
 		_XmStringEntryFree(new_value);
@@ -5449,7 +5541,7 @@ _XmStringSegmentNew(
 	    return;
 	new_segments = (_XmStringNREntry *)XtRealloc(
 	  (char *)_XmEntrySegment(line),
-	  (Cardinal)(sizeof(_XmStringNREntry) * (sc + 1)));
+	  (Cardinal)(sizeof(_XmStringEntry) * (size_t)(sc + 1)));
 	if (new_segments == NULL)
 	    return;
 	_XmEntrySegment(line) = new_segments;
@@ -5867,6 +5959,7 @@ XmCvtByteStreamToXmString(unsigned char *property)
   Boolean     	      havetag;
   Boolean	      begin_seen, end_seen;
   Boolean	      txt_seen;
+  Boolean              malformed = FALSE;
   unsigned int 	      tag_index = TAG_INDEX_MAX;
   unsigned int 	      begin_index = REND_INDEX_MAX;
   unsigned int 	      end_index = REND_INDEX_MAX;
@@ -5904,7 +5997,24 @@ XmCvtByteStreamToXmString(unsigned char *property)
   
   while (continue_flag)
     {
+      size_t remaining;
+
+      if (c_opt >= end) {
+	malformed = TRUE;
+	break;
+      }
+      remaining = (size_t)(end - c_opt);
+      if (remaining < (size_t)(ASNTAG + CSSHORTLEN) ||
+	  (_is_asn1_long(c_opt) &&
+	   remaining < (size_t)(ASNTAG + CSLONGLEN))) {
+	malformed = TRUE;
+	break;
+      }
       length = _read_asn1_length (c_opt);
+	  if ((size_t)length > remaining - (size_t)_asn1_size(length)) {
+	malformed = TRUE;
+	break;
+	  }
 
       switch (*c_opt)
         {
@@ -6009,6 +6119,9 @@ XmCvtByteStreamToXmString(unsigned char *property)
 	continue_flag = FALSE;
     }
 
+  if (malformed)
+    return NULL;
+
   if (optimized) string = (_XmString)
     _XmStringOptCreate(c, end, txtlength, havetag, tag_index);
   else string = _XmStringNonOptCreate(c, end, havetag);   
@@ -6035,21 +6148,17 @@ _XmStringEntryCopy(_XmStringEntry entry)
   switch (_XmEntryType(entry)) {
   case XmSTRING_ENTRY_OPTIMIZED:
     if (_XmEntryImm(entry)) {
-      if (entry_len > sizeof(XtPointer)) {
-	size_t inline_base = sizeof(_XmStringOptSegRec) - sizeof(XtPointer);
-	if ((size_t)entry_len > SIZE_MAX - inline_base)
-	  return NULL;
-	allocation_size = inline_base + (size_t)entry_len;
-      } else
+      if (entry_len > sizeof(XtPointer))
+	allocation_size = sizeof(_XmStringOptSegRec) +
+	    (size_t)entry_len - sizeof(XtPointer);
+      else
 	allocation_size = sizeof(_XmStringOptSegRec);
-      if (allocation_size > UINT_MAX) {
+      if (allocation_size > UINT_MAX)
 	return NULL;
-      }
-      new_entry = (_XmStringEntry)XtMalloc((Cardinal)allocation_size);
-      if (new_entry == NULL) {
+	new_entry = (_XmStringEntry)XtMalloc((Cardinal)allocation_size);
+	if (new_entry == NULL)
 	return NULL;
-      }
-      size = allocation_size;
+	size = allocation_size;
       memcpy((char *)new_entry, (char *)entry, size);
     } else {
       new_entry = (_XmStringEntry)XtMalloc(sizeof(_XmStringOptSegRec));
@@ -6227,6 +6336,9 @@ _XmEntryPushGet(_XmStringEntry entry)
 unsigned int
 _XmEntryByteCountGet(_XmStringEntry entry)
 {
+  if (entry == NULL)
+    return 0;
+
   switch (_XmEntryType(entry))
     {	
     case XmSTRING_ENTRY_OPTIMIZED:
@@ -6237,7 +6349,6 @@ _XmEntryByteCountGet(_XmStringEntry entry)
       return _XmUnoptSegByteCount(entry);
 
     default:
-      assert(FALSE);
       return 0;
     }
 }
@@ -6820,7 +6931,8 @@ SpecifiedSegmentExtents(_XmStringEntry entry,
 	      new_tag_count > UINT_MAX / sizeof(XmStringTag))
 	    return False;
 	  new_tags = (XmStringTag *)XtRealloc(
-	      (char *)tags, (Cardinal)(sizeof(XmStringTag) * new_tag_count));
+	      (char *)tags,
+	      (Cardinal)(sizeof(XmStringTag) * new_tag_count));
 	  if (new_tags == NULL)
 	    return False;
 	  tags = new_tags;
@@ -7050,7 +7162,7 @@ SpecifiedSegmentExtents(_XmStringEntry entry,
 		j++;
 	      }
 
-	  if(tags != NULL && tag_count - hits) {
+	  if(tags != NULL && tag_count - hits)
 	    new_tag_count = (size_t)(tag_count - hits);
 	    if (new_tag_count <= SIZE_MAX / sizeof(XmStringTag) &&
 		new_tag_count <= UINT_MAX / sizeof(XmStringTag)) {
@@ -7060,7 +7172,6 @@ SpecifiedSegmentExtents(_XmStringEntry entry,
 	      if (new_tags != NULL)
 		tags = new_tags;
 	    }
-	  }
 	  tag_count -= hits;
 	  _XmRendHadEnds(*rend_in_out) = TRUE;
 	}
@@ -7319,6 +7430,8 @@ XmStringByteStreamLength(unsigned char *string)
 
     if (string == NULL)
 	return(0);
+    if (!_is_asn1(string))
+	return(0);
 
     _XmProcessLock();
     len = _read_string_length( string );
@@ -7365,17 +7478,17 @@ XmCvtXmStringToByteStream(XmString string,
   len = 0;
   while (XmeStringGetComponent(&stack_context, TRUE, FALSE, &length, &value) !=
 	 XmSTRING_COMPONENT_END)
+    {
+      component_size = _asn1_size(length);
+      if (component_size > UINT_MAX - length ||
+	  component_size + length > UINT_MAX - len)
 	{
-	  component_size = _asn1_size(length);
-	  if (component_size > UINT_MAX - length ||
-	      component_size + length > UINT_MAX - len)
-	    {
-	      _XmStringContextFree(&stack_context);
-	      if (prop_return != NULL) *prop_return = NULL;
-	      return(0);
-	    }
-	  len += component_size + length;
+	  _XmStringContextFree(&stack_context);
+	  if (prop_return != NULL) *prop_return = NULL;
+	  return(0);
 	}
+      len += component_size + length;
+    }
       
   str_len = len;
   component_size = _calc_header_size(len);
@@ -7977,6 +8090,11 @@ _XmStringGetTextConcat(
 	  case XmSTRING_COMPONENT_TEXT:
 	  case XmSTRING_COMPONENT_LOCALE_TEXT:
 	  case XmSTRING_COMPONENT_WIDECHAR_TEXT:
+	    if (len != 0 && val == NULL) {
+	      _XmStringContextFree(&stack_context);
+	      XtFree(OutStr);
+	      return NULL;
+	    }
 	    if (OutLen >= SIZE_MAX ||
 		(size_t)len > SIZE_MAX - OutLen - 1 ||
 		OutLen + (size_t)len + 1 > (size_t)((Cardinal)~0)) {
@@ -7995,7 +8113,8 @@ _XmStringGetTextConcat(
 	      }
 	      OutStr = new_out;
 	    }
-	    memcpy( &OutStr[OldLen], (char *)val, len) ;
+    if (len != 0)
+      memcpy( &OutStr[OldLen], (char *)val, len) ;
 	    OutStr[OutLen] = '\0';
 	    break ;
 	  default:
@@ -8257,6 +8376,10 @@ match_pattern(XtPointer      text,
     {
       return dir_change;
     }
+  else if (pattern->pattern == NULL)
+    {
+      return False;
+    }
   else if ((pattern->pattern_type == XmWIDECHAR_TEXT) &&
 	   (type == XmWIDECHAR_TEXT))
     {
@@ -8292,7 +8415,7 @@ match_pattern(XtPointer      text,
  * parse_unmatched: A Helper routine for XmStringParseText.  Produce
  *	a component for characters that weren't matched by any pattern.
  */
-static void
+static Boolean
 parse_unmatched(XmString  *result,
 		char     **ptr,
 		XmTextType text_type,
@@ -8304,7 +8427,7 @@ parse_unmatched(XmString  *result,
 
   /* Do nothing if there are no unmatched bytes. */
   if (length <= 0)
-    return;
+    return True;
 
   /* Choose a component type. */
   switch (text_type)
@@ -8320,17 +8443,20 @@ parse_unmatched(XmString  *result,
       break;
 
     default:
-      return;
+      return False;
     }
 
   /* Can't concat without copying both strings? */
   tmp_1 = *result;
   tmp_2 = XmStringComponentCreate(ctype, length, (XtPointer) *ptr);
   if (tmp_2 == NULL)
-    return;
+    return False;
 
   *result = XmStringConcatAndFree(tmp_1, tmp_2);
+  if (*result == NULL)
+    return False;
   *ptr += length;
+  return True;
 }
 
 /*
@@ -8374,6 +8500,11 @@ parse_pattern(XmString      *result,
       /* Non-parse_procs always advance the pointer and terminate matching. */
       *ptr += length;
       insertion = XmStringCopy(pat->substitute);
+      if (pat->substitute != NULL && insertion == NULL) {
+	XmStringFree(*result);
+	*result = NULL;
+	return False;
+      }
     }
 
   /* Insert the substitution. */
@@ -8385,6 +8516,8 @@ parse_pattern(XmString      *result,
     case XmINSERT:
       if (insertion != NULL)
 	*result = XmStringConcatAndFree(*result, insertion);
+      if (*result == NULL)
+	return False;
       break;
 
     default:
@@ -8472,11 +8605,16 @@ XmStringParseText(XtPointer    text,
 
   /* Create an empty segment with the right tag. */
   result = XmStringComponentCreate(tag_type, strlen(tag), (XtPointer) tag);
+  if (result == NULL) {
+    _XmProcessUnlock();
+    return NULL;
+  }
 
   /* Did the user provide an XmDIRECTION_CHANGE pattern? */
   has_dir_pattern = False;
   for (index = 0; (index < parse_count) && !has_dir_pattern; index++)
-    has_dir_pattern = (parse_table[index]->pattern == XmDIRECTION_CHANGE);
+    has_dir_pattern = (parse_table[index] != NULL &&
+		       parse_table[index]->pattern == XmDIRECTION_CHANGE);
   if (!has_dir_pattern && !default_dir_pattern)
     {
       /* Create a default direction pattern. */
@@ -8488,6 +8626,11 @@ XmStringParseText(XtPointer    text,
       XtSetArg(args[nargs], XmNpattern, XmDIRECTION_CHANGE),	  nargs++;
       assert(nargs < XtNumber(args));
       default_dir_pattern = XmParseMappingCreate(args, nargs);
+      if (default_dir_pattern == NULL) {
+	XmStringFree(result);
+	_XmProcessUnlock();
+	return NULL;
+      }
     }
 
   /* Process characters until text has been consumed. */
@@ -8521,10 +8664,18 @@ XmStringParseText(XtPointer    text,
       /* Match against an implicit XmDIRECTION_CHANGE pattern. */
       if (!has_dir_pattern && (ptr == dir_ptr))
 	{
-	  parse_unmatched(&result, &prev_ptr, type, ptr - prev_ptr);
+	  if (!parse_unmatched(&result, &prev_ptr, type, ptr - prev_ptr)) {
+	    XmStringFree(result);
+	    _XmProcessUnlock();
+	    return NULL;
+	  }
 	  advanced = 
 	    parse_pattern(&result, &ptr, end_ptr, tag, type,
 			  default_dir_pattern, len, call_data, &halt);
+	  if (result == NULL) {
+	    _XmProcessUnlock();
+	    return NULL;
+	  }
 	}
 
       /* Try to match this character against the patterns. */
@@ -8533,9 +8684,18 @@ XmStringParseText(XtPointer    text,
 	  XmParseMapping pat = parse_table[index];
 	  if (match_pattern(ptr, tag, type, pat, len, (ptr == dir_ptr)))
 	    {
-	      parse_unmatched(&result, &prev_ptr, type, ptr - prev_ptr);
+	      if (!parse_unmatched(&result, &prev_ptr, type, ptr - prev_ptr)) {
+		XmStringFree(result);
+		_XmProcessUnlock();
+		return NULL;
+	      }
 	      advanced = parse_pattern(&result, &ptr, end_ptr, tag,
 				       type, pat, len, call_data, &halt);
+	      if (result == NULL) {
+		XmStringFree(result);
+		_XmProcessUnlock();
+		return NULL;
+	      }
 #ifdef FIX_1398	      
 	      /* Insert the charset component after pattern insertion */
 	      result = XmStringConcatAndFree(result, XmStringComponentCreate(tag_type, strlen(tag), (XtPointer) tag));
@@ -8560,7 +8720,11 @@ XmStringParseText(XtPointer    text,
     }
 
   /* Output and trailing unmatched characters. */
-  parse_unmatched(&result, &prev_ptr, type, ptr - prev_ptr);
+  if (!parse_unmatched(&result, &prev_ptr, type, ptr - prev_ptr)) {
+    XmStringFree(result);
+    _XmProcessUnlock();
+    return NULL;
+  }
 
   /* Return the true end of parsing if possible. */
   if (text_end)
@@ -8668,6 +8832,9 @@ unparse_text(char                **result,
 	     unsigned int	   c_length,
 	     XtPointer	           c_value)
 {
+  if (c_length != 0 && c_value == NULL)
+    return;
+
   /* If we have an invalid character, treat it as a single byte. */
   if ((int)c_length < 0) 
     c_length = 1;
@@ -8833,6 +9000,8 @@ unparse_components(char          **result,
   for (n_pat = 0; !match && (n_pat < parse_count); n_pat++)
     {
       pat = parse_table[n_pat];
+      if (pat == NULL)
+	continue;
       if (unparse_is_plausible(pat))
 	{
 	  _XmStringContextRec   m_context, p_context;
@@ -8870,6 +9039,7 @@ unparse_components(char          **result,
 	      /* Bit-compare components. */
 	      else if ((m_ctype != p_ctype) ||
 		       (m_length != p_length) ||
+		       (m_length != 0 && (m_value == NULL || p_value == NULL)) ||
 		       ((m_value != p_value) &&
 			memcmp(m_value, p_value, m_length)))
 		match = False;
@@ -8898,7 +9068,8 @@ unparse_components(char          **result,
 		{
 		  m_ctype = XmeStringGetComponent(context, True, False,
 					  &m_length, &m_value);
-		  assert(m_ctype != XmSTRING_COMPONENT_END);
+		  if (m_ctype == XmSTRING_COMPONENT_END)
+		    break;
 		}
 	    }
 	  
@@ -8930,7 +9101,17 @@ XmStringUnparse(XmString          string,
   unsigned int	        c_length;
   XtPointer	        c_value;
 
+  if (output_type != XmCHARSET_TEXT &&
+      output_type != XmMULTIBYTE_TEXT &&
+      output_type != XmWIDECHAR_TEXT &&
+      output_type != XmNO_TEXT)
+    return NULL;
+
   _XmProcessLock();
+  if (parse_count != 0 && parse_table == NULL) {
+    _XmProcessUnlock();
+    return NULL;
+  }
   /* Convert special tags to real values. */
   if ((tag_type == XmCHARSET_TEXT) && tag &&
       ((tag == XmSTRING_DEFAULT_CHARSET) ||
@@ -9056,6 +9237,11 @@ XmStringComponentCreate(XmStringComponentType c_type,
       }
 
       tag_index = _XmStringIndexCacheTag((char*) value, length);
+      if (_XmStringIndexGetTag(tag_index) == NULL ||
+	  strcmp(_XmStringIndexGetTag(tag_index), (char *)value) != 0) {
+	_XmProcessUnlock();
+	return NULL;
+      }
       optimized = (tag_index < TAG_INDEX_MAX);
       if (optimized) {
 	_XmStrTextType((_XmString)&opt) = XmCHARSET_TEXT;
@@ -9101,6 +9287,12 @@ XmStringComponentCreate(XmStringComponentType c_type,
 				(char*) XmFONTLIST_DEFAULT_TAG,
 				XmSTRING_TAG_STRLEN);
 
+      if (_XmStringIndexGetTag(tag_index) == NULL ||
+	  strcmp(_XmStringIndexGetTag(tag_index), XmFONTLIST_DEFAULT_TAG) != 0) {
+	_XmProcessUnlock();
+	return NULL;
+      }
+
       if (length < (1 << BYTE_COUNT_BITS))
 	optimized = (tag_index < TAG_INDEX_MAX);
 
@@ -9129,6 +9321,11 @@ XmStringComponentCreate(XmStringComponentType c_type,
       }
 
       tag_index = _XmStringIndexCacheTag((char*) value, length);
+      if (_XmStringIndexGetTag(tag_index) == NULL ||
+	  strcmp(_XmStringIndexGetTag(tag_index), (char *)value) != 0) {
+	_XmProcessUnlock();
+	return NULL;
+      }
       optimized = (tag_index < TAG_INDEX_MAX);
       if (optimized) {
 	_XmStrTextType((_XmString)&opt) = XmMULTIBYTE_TEXT;
@@ -9183,6 +9380,11 @@ XmStringComponentCreate(XmStringComponentType c_type,
       }
 
       tag_index = _XmStringIndexCacheTag((char *)value, length);
+      if (_XmStringIndexGetTag(tag_index) == NULL ||
+	  strcmp(_XmStringIndexGetTag(tag_index), (char *)value) != 0) {
+	_XmProcessUnlock();
+	return NULL;
+      }
       optimized = (tag_index < REND_INDEX_MAX);
       if (optimized)
 	{
@@ -9204,6 +9406,11 @@ XmStringComponentCreate(XmStringComponentType c_type,
       }
 
       tag_index = _XmStringIndexCacheTag((char *)value, length);
+      if (_XmStringIndexGetTag(tag_index) == NULL ||
+	  strcmp(_XmStringIndexGetTag(tag_index), (char *)value) != 0) {
+	_XmProcessUnlock();
+	return NULL;
+      }
       optimized = (tag_index < REND_INDEX_MAX);
       if (optimized)
 	{
@@ -9284,6 +9491,12 @@ XmStringComponentCreate(XmStringComponentType c_type,
 	_XmStringSegmentNew(str, 0, opt_seg, False);
       else
 	_XmStringSegmentNew(str, 0, (_XmStringEntry)&seg, True);
+
+      if (_XmStrEntryCount(str) == 0) {
+	_XmStrFree(str);
+	_XmProcessUnlock();
+	return NULL;
+      }
     }
   
   _XmProcessUnlock();
@@ -9335,7 +9548,7 @@ XmeStringGetComponent(_XmStringContext context,
   if (value)	*value  = NULL;
 
   /* No NULL pointers allowed. */
-  if (! (length  && value)) {
+  if (context == NULL || ! (length  && value)) {
     _XmProcessUnlock();
     return XmSTRING_COMPONENT_END;
   }
@@ -9363,10 +9576,21 @@ XmeStringGetComponent(_XmStringContext context,
     char_count  = _XmStrByteCount(opt);
     text_type   = (XmTextType) _XmStrTextType(opt);
     seg_text    = _XmStrText(opt);
+    if (char_count != 0 && seg_text == NULL) {
+	_XmStrContError(context) = True;
+	_XmProcessUnlock();
+	return XmSTRING_COMPONENT_END;
+    }
     begin_count = _XmStrRendBegin(opt);
     end_count   = _XmStrRendEnd(opt);
     if (begin_count || end_count) {
-      assert(_XmStrRendIndex(opt) != REND_INDEX_UNSET);
+      if (_XmStrRendIndex(opt) == REND_INDEX_UNSET ||
+	  _tag_cache == NULL || _XmStrRendIndex(opt) >= _cache_count ||
+	  _tag_cache[_XmStrRendIndex(opt)] == NULL) {
+	_XmStrContError(context) = True;
+	_XmProcessUnlock();
+	return XmSTRING_COMPONENT_END;
+      }
       rend_tag = _tag_cache + _XmStrRendIndex(opt);
     }
     begin_rends = (begin_count ? rend_tag : NULL);
@@ -9375,6 +9599,12 @@ XmeStringGetComponent(_XmStringContext context,
   } else {
     _XmString str = _XmStrContString(context);
     _XmStringEntry line;
+
+    if (str == NULL) {
+	_XmStrContError(context) = True;
+	_XmProcessUnlock();
+	return XmSTRING_COMPONENT_END;
+    }
     
     /* If we've run off the end we're done. */
     if (_XmStrContCurrLine(context) >= _XmStrLineCountGet(str)) {
@@ -9386,15 +9616,31 @@ XmeStringGetComponent(_XmStringContext context,
     
     if (_XmStrImplicitLine(str))
       {
+	if (_XmStrEntry(str) == NULL) {
+	  _XmStrContError(context) = True;
+	  _XmProcessUnlock();
+	  return XmSTRING_COMPONENT_END;
+	}
 	line = _XmStrEntry(str)[_XmStrContCurrLine(context)];
       }
     else
       {
+	if (_XmStrEntry(str) == NULL) {
+	  _XmStrContError(context) = True;
+	  _XmProcessUnlock();
+	  return XmSTRING_COMPONENT_END;
+	}
 	_XmEntryType(&array_seg) = XmSTRING_ENTRY_ARRAY;
 	_XmEntrySegmentCount(&array_seg) = _XmStrEntryCount(str);
 	_XmEntrySegment(&array_seg) = (_XmStringNREntry *)_XmStrEntry(str);
 	line = (_XmStringEntry)&array_seg;
       }
+
+    if (line == NULL) {
+	_XmStrContError(context) = True;
+	_XmProcessUnlock();
+	return XmSTRING_COMPONENT_END;
+    }
 
     last_line = (_XmStrContCurrLine(context) + 1 >= _XmStrLineCountGet(str));
     if (_XmEntryMultiple(line))
@@ -9414,6 +9660,12 @@ XmeStringGetComponent(_XmStringContext context,
 	  (_XmStringEntry)_XmEntrySegment(line)[_XmStrContCurrSeg(context)];
       else 
 	seg = line;
+
+      if (seg == NULL) {
+	_XmStrContError(context) = True;
+	_XmProcessUnlock();
+	return XmSTRING_COMPONENT_END;
+      }
       
       /* Only lookup pop_dir when we need it. */
       /* Only lookup push_dir when we need it. */
@@ -9422,10 +9674,21 @@ XmeStringGetComponent(_XmStringContext context,
       char_count  = _XmEntryByteCountGet(seg);
       text_type   = (XmTextType) _XmEntryTextTypeGet(seg);
       seg_text    = (char*) _XmEntryTextGet(seg);
+      if (char_count != 0 && seg_text == NULL) {
+	_XmStrContError(context) = True;
+	_XmProcessUnlock();
+	return XmSTRING_COMPONENT_END;
+      }
       begin_count = _XmEntryRendBeginCountGet(seg);
       begin_rends = _XmEntryRendCountedBegins(seg, begin_count);
       end_count   = _XmEntryRendEndCountGet(seg);
       end_rends   = _XmEntryRendCountedEnds(seg, end_count);
+      if ((begin_count != 0 && begin_rends == NULL) ||
+	  (end_count != 0 && end_rends == NULL)) {
+	_XmStrContError(context) = True;
+	_XmProcessUnlock();
+	return XmSTRING_COMPONENT_END;
+      }
       /* Only lookup tabs when we need it. */
     }
   }
@@ -9471,6 +9734,11 @@ XmeStringGetComponent(_XmStringContext context,
       if (tmp_index < begin_count)
 	{
 	  /* Process another rendition start. */
+	  if (begin_rends[tmp_index] == NULL) {
+	    _XmStrContError(context) = True;
+	    _XmProcessUnlock();
+	    return XmSTRING_COMPONENT_END;
+	  }
 	  if (copy_data)
 	    {
 	      *value = (XtPointer) XtNewString(begin_rends[tmp_index]);
@@ -9529,14 +9797,14 @@ XmeStringGetComponent(_XmStringContext context,
 	    {
 	      /* Tag is changing. */
 	      if (copy_data)
-		{
-		  *value = (XtPointer) XtNewString(tag);
-		  if (*value == NULL) {
-		    if (update_context) _XmStrContError(context) = True;
-		    _XmProcessUnlock();
-		    return XmSTRING_COMPONENT_END;
-		  }
-		}
+		    {
+		      *value = (XtPointer) XtNewString(tag);
+		      if (*value == NULL) {
+			if (update_context) _XmStrContError(context) = True;
+			_XmProcessUnlock();
+			return XmSTRING_COMPONENT_END;
+		      }
+		    }
 	      else
 		*value = (XtPointer) tag;
 	      *length = strlen(tag);
@@ -9682,7 +9950,10 @@ XmeStringGetComponent(_XmStringContext context,
 	      _XmProcessUnlock();
 	      return XmSTRING_COMPONENT_WIDECHAR_TEXT;
 	    case XmNO_TEXT:
-	      assert(FALSE);
+	      if (update_context)
+		_XmStrContError(context) = True;
+	      _XmProcessUnlock();
+	      return XmSTRING_COMPONENT_END;
 	    }
 	  
 	case XmNO_TEXT:
@@ -9690,7 +9961,6 @@ XmeStringGetComponent(_XmStringContext context,
 	  
 	default:
 	  /* Something is wrong! */
-	  assert(False);
 	  if (update_context)
 	    _XmStrContError(context) = True;
 	  _XmProcessUnlock();
@@ -9704,6 +9974,11 @@ XmeStringGetComponent(_XmStringContext context,
       if (tmp_index < end_count)
 	{
 	  /* Process another rendition end. */
+	  if (end_rends[tmp_index] == NULL) {
+	    _XmStrContError(context) = True;
+	    _XmProcessUnlock();
+	    return XmSTRING_COMPONENT_END;
+	  }
 	  if (copy_data)
 	    {
 	      *value = (XtPointer) XtNewString(end_rends[tmp_index]);
@@ -9791,11 +10066,13 @@ XmeStringGetComponent(_XmStringContext context,
 	  return answer;
 	}
       /*NOTREACHED*/
-      assert(False);
+      if (update_context)
+	_XmStrContError(context) = True;
+      _XmProcessUnlock();
+      return XmSTRING_COMPONENT_END;
 
     default:
       /* An unknown _XmStrContState? */
-      assert(False);
       if (update_context)
 	_XmStrContError(context) = True;
       _XmProcessUnlock();
@@ -9810,11 +10087,12 @@ void
 _XmStringContextReInit(_XmStringContext context,
 		       _XmString	string)
 {
-  assert(context != NULL);
+  if (context == NULL)
+    return;
   bzero((char*) context, sizeof(_XmStringContextRec));
 
   _XmStrContString(context) = string;
-  _XmStrContOpt(context)    = _XmStrOptimized(string);
+  _XmStrContOpt(context)    = (string != NULL) && _XmStrOptimized(string);
   _XmStrContDir(context)    = XmSTRING_DIRECTION_UNSET;
 }
 
@@ -9830,22 +10108,28 @@ _XmStringContextCopy(_XmStringContext target,
 {
   size_t size;
   size_t count;
-  assert(source && target && (source != target));
+  if (source == NULL || target == NULL || source == target)
+    return;
 
   /* Copy the normal fields. */
   memcpy(target, source, sizeof(_XmStringContextRec));
 
   /* Copy the active renditions list so we can modify it. */
   if (_XmStrContRendCount(target) > 0) {
-     count = (size_t)_XmStrContRendCount(target);
-     _XmStrContRendTags(target) = NULL;
-     if (count > SIZE_MAX / sizeof(XmStringTag) ||
-         count > UINT_MAX / sizeof(XmStringTag)) {
-        _XmStrContRendCount(target) = 0;
-        return;
+     count = (size_t) _XmStrContRendCount(target);
+     if (_XmStrContRendTags(target) == NULL) {
+	_XmStrContRendCount(target) = 0;
+	return;
      }
-     size = sizeof(XmStringTag) * count;
-     _XmStrContRendTags(target) = (XmStringTag*) XtMalloc((Cardinal)size);
+     if (count > SIZE_MAX / sizeof(XmStringTag) ||
+	 count * sizeof(XmStringTag) > (size_t)((Cardinal)~0)) {
+	_XmStrContRendCount(target) = 0;
+	_XmStrContRendTags(target) = NULL;
+	return;
+     }
+     size = count * sizeof(XmStringTag);
+     _XmStrContRendTags(target) =
+	 (XmStringTag*) XtMalloc((Cardinal)size);
      if (_XmStrContRendTags(target) == NULL) {
         _XmStrContRendCount(target) = 0;
         return;
@@ -9860,7 +10144,8 @@ _XmStringContextCopy(_XmStringContext target,
 void
 _XmStringContextFree(_XmStringContext context)
 {
-  assert(context);
+  if (context == NULL)
+    return;
 
   /* Free the active rendition list. */
   if (_XmStrContRendTags(context)) {
@@ -9884,6 +10169,8 @@ begin_context_rends(_XmStringContext context,
 
   if (count <= 0)
     return;
+  if (rends == NULL)
+    goto failed;
   old_count = (size_t)_XmStrContRendCount(context);
   add_count = (size_t)count;
   if (old_count > SIZE_MAX - add_count)
@@ -9927,6 +10214,12 @@ end_context_rends(_XmStringContext context,
   /* Check some simple error conditions. */
   if (!update_context || (count <= 0))
     return;
+  if (rends == NULL ||
+      (_XmStrContRendCount(context) > 0 &&
+       _XmStrContRendTags(context) == NULL)) {
+    _XmStrContError(context) = True;
+    return;
+  }
 
   /* Remove the last matching instance of each rendition. */
   for (n_rend = 0; n_rend < count; n_rend++)
@@ -9966,6 +10259,9 @@ XmStringGenerate(XtPointer   text,
   result = XmStringParseText
     (text, NULL, tag, type, gen_table, table_size, NULL);
 
+  if (result == NULL)
+    return NULL;
+
   /* If no rendition was supplied return the parsetext result. */
   if (rendition == NULL) {
     return result;
@@ -9979,6 +10275,11 @@ XmStringGenerate(XtPointer   text,
 
       rend_index = _XmStringIndexCacheTag((char *)rendition, 
 					  XmSTRING_TAG_STRLEN);
+      if (_XmStringIndexGetTag(rend_index) == NULL ||
+	  strcmp(_XmStringIndexGetTag(rend_index), rendition) != 0) {
+	XmStringFree(result);
+	return NULL;
+      }
       if (rend_index < REND_INDEX_MAX)
 	{
 	  _XmStrRendIndex(result) = rend_index;
@@ -9996,6 +10297,11 @@ XmStringGenerate(XtPointer   text,
       int n_line;
       _XmStringEntry line;
       _XmStringEntry seg;
+
+      if (cached_rend == NULL) {
+	XmStringFree(result);
+	return NULL;
+      }
 
       /* Locate the first segment. */
       for (n_line = 0; n_line < _XmStrEntryCount(result); n_line++)
@@ -10016,6 +10322,11 @@ XmStringGenerate(XtPointer   text,
 		
 		rend_index = _XmStringIndexCacheTag((char *)rendition, 
 						    XmSTRING_TAG_STRLEN);
+		if (_XmStringIndexGetTag(rend_index) == NULL ||
+		    strcmp(_XmStringIndexGetTag(rend_index), rendition) != 0) {
+		  XmStringFree(result);
+		  return NULL;
+		}
 		if (rend_index < REND_INDEX_MAX) {
 		  _XmEntryRendIndex(seg) = rend_index;
 		  _XmEntryRendBeginCountSet(seg, 1);
@@ -10076,6 +10387,11 @@ XmStringGenerate(XtPointer   text,
 		  unsigned int rend_index;
 		  rend_index = _XmStringIndexCacheTag((char *)rendition, 
 						      XmSTRING_TAG_STRLEN);
+		if (_XmStringIndexGetTag(rend_index) == NULL ||
+		    strcmp(_XmStringIndexGetTag(rend_index), rendition) != 0) {
+		  XmStringFree(result);
+		  return NULL;
+		}
 		  
 		  assert ((_XmEntryRendBeginCountGet(seg) <= 1) && 
 			  (_XmEntryRendEndCountGet(seg) == 0));	
@@ -10136,14 +10452,26 @@ XmStringGenerate(XtPointer   text,
     /* Prepend the rendition begin. */
     tmp_1 = XmStringComponentCreate(XmSTRING_COMPONENT_RENDITION_BEGIN,
 				    strlen(rendition), rendition);
+    if (tmp_1 == NULL) {
+	  XmStringFree(result);
+	  return NULL;
+    }
     tmp_2 = result;
     result = XmStringConcatAndFree(tmp_1, tmp_2);
+    if (result == NULL)
+	return NULL;
 
     /* Append the rendition end. */
     tmp_1 = result;
     tmp_2 = XmStringComponentCreate(XmSTRING_COMPONENT_RENDITION_END,
 				    strlen(rendition), rendition);
+    if (tmp_2 == NULL) {
+	  XmStringFree(tmp_1);
+	  return NULL;
+    }
     result = XmStringConcatAndFree(tmp_1, tmp_2);
+    if (result == NULL)
+	return NULL;
   }
   return result;
 }
@@ -10215,10 +10543,8 @@ XmParseMappingSetValues(XmParseMapping mapping,
   register String arg_name;
   Cardinal unknown = 0;
 
-  _XmProcessLock();
   /* Do a little error checking. */
   if (mapping == NULL || (arg_count != 0 && arg_list == NULL)) {
-    _XmProcessUnlock();
     return;
   }
 
@@ -10240,7 +10566,14 @@ XmParseMappingSetValues(XmParseMapping mapping,
 	mapping->pattern_type = (XmTextType) arg_list[i].value;
       else if ((arg_name == XmNsubstitute) ||
 	       (strcmp(arg_name, XmNsubstitute) == 0))
-	mapping->substitute = XmStringCopy((XmString) arg_list[i].value);
+	{
+	  XmString requested = (XmString) arg_list[i].value;
+	  XmString replacement = requested ? XmStringCopy(requested) : NULL;
+	  if (requested != NULL && replacement == NULL)
+	    continue;
+	  XmStringFree(mapping->substitute);
+	  mapping->substitute = replacement;
+	}
       else if ((arg_name == XmNinvokeParseProc) ||
 	       (strcmp(arg_name, XmNinvokeParseProc) == 0))
 	mapping->parse_proc = (XmParseProc) arg_list[i].value;
@@ -10257,7 +10590,6 @@ XmParseMappingSetValues(XmParseMapping mapping,
   /* If there were any known values reset internal_flags. */
   if (unknown < arg_count)
     mapping->internal_flags = XmSTRING_UNPARSE_UNKNOWN;
-  _XmProcessUnlock();
 }
 
 
@@ -10278,56 +10610,94 @@ _get_generate_parse_table (XmParseTable *gen_table)
   XmString tmp;
   int index = 0;
   static XmParseTable table = NULL;
+  XmParseTable candidate = NULL;
 
 
   if (gen_table == NULL)
 	return(0);
 
+  *gen_table = NULL;
+
   _XmProcessLock();
-  /* Allocate a parse table only if necessary. */
+  /* A fully initialized table is published once. */
   if (table)
     {
       *gen_table = table;
       _XmProcessUnlock();
       return table_size;
     }
-  else
-    {
-      table = (XmParseTable) XtCalloc (table_size, sizeof(XmParseMapping));
-      if (table == NULL)
-	{
-	  *gen_table = NULL;
-	  _XmProcessUnlock();
-	  return(0);
-	}
-      *gen_table = table;
-    }
   _XmProcessUnlock();
+
+  /* Build privately.  Publishing the pointer before the mappings are
+   ** complete lets another thread observe a partially initialized table. */
+  candidate = (XmParseTable) XtCalloc (table_size, sizeof(XmParseMapping));
+  if (candidate == NULL)
+    return(0);
 
   /* Parse tab characters. */
   tmp = XmStringComponentCreate(XmSTRING_COMPONENT_TAB, 0, NULL);
+  if (tmp == NULL) {
+	XtFree((char *)candidate);
+    return 0;
+  }
   nargs = 0;
   XtSetArg(args[nargs], XmNincludeStatus, XmINSERT), nargs++;
   XtSetArg(args[nargs], XmNsubstitute, tmp), 	 nargs++;
   XtSetArg(args[nargs], XmNpattern, "\t"), 		 nargs++;
   assert(nargs < XtNumber(args));
   _XmProcessLock();
-  table[index++] = XmParseMappingCreate(args, nargs);
+	  candidate[index++] = XmParseMappingCreate(args, nargs);
   _XmProcessUnlock();
   XmStringFree(tmp);
 
+
+  if (candidate[0] == NULL || candidate[0]->substitute == NULL) {
+	    XmParseMappingFree(candidate[0]);
+	    XtFree((char *)candidate);
+    return 0;
+  }
+
   /* Parse newline characters. */
   tmp = XmStringSeparatorCreate();
+  if (tmp == NULL) {
+	    XmParseMappingFree(candidate[0]);
+	    XtFree((char *)candidate);
+    return 0;
+  }
   nargs = 0;
   XtSetArg(args[nargs], XmNincludeStatus, XmINSERT), nargs++;
   XtSetArg(args[nargs], XmNsubstitute, tmp),	 nargs++;
   XtSetArg(args[nargs], XmNpattern, "\n"),		 nargs++;
   assert(nargs < XtNumber(args));
   _XmProcessLock();
-  table[index++] = XmParseMappingCreate(args, nargs);
+	  candidate[index++] = XmParseMappingCreate(args, nargs);
   _XmProcessUnlock();
+  XmStringFree(tmp);
 
-  assert(index == table_size);
+  if (candidate[1] == NULL || candidate[1]->substitute == NULL) {
+	    XmParseMappingFree(candidate[0]);
+	    XmParseMappingFree(candidate[1]);
+	    XtFree((char *)candidate);
+    return 0;
+  }
+
+  if (index != table_size) {
+    XmParseMappingFree(candidate[0]);
+    XmParseMappingFree(candidate[1]);
+    XtFree((char *)candidate);
+    return 0;
+  }
+
+  _XmProcessLock();
+  if (table == NULL)
+    table = candidate;
+  else {
+    XmParseMappingFree(candidate[0]);
+    XmParseMappingFree(candidate[1]);
+    XtFree((char *)candidate);
+  }
+  *gen_table = table;
+  _XmProcessUnlock();
 
   return (table_size);
 }
@@ -10364,6 +10734,10 @@ _XmStringTruncateASN1(unsigned char *str, int n)
       new_c = _read_component(ap, &d2, &d1, NULL);
 
       delta = length + header;
+      if (delta > (unsigned short)~0 - used) {
+	XtFree((char *)str);
+	return (NULL);
+      }
       used += delta;
       ap = new_c;
       length = _read_asn1_length(ap);

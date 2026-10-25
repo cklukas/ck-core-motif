@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm IDB open output handles
 
 The IDB file and in-memory-buffer open helpers now reject missing output

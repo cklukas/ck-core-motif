@@ -55,12 +55,24 @@ XmParsePicture(char *input)
 	return NULL;
 
     picture = XtNew(XmPictureRec);
+    if (picture == NULL)
+	return NULL;
 
     picture->source = XtNewString(input);
+    if (picture->source == NULL) {
+	XtFree((char*)picture);
+	return NULL;
+    }
+
     picture->num_nodes = 0;
     picture->nodes_alloced = NODE_START_COUNT;
     picture->nodes = (XmPictureNode**)
 	             XtMalloc(NODE_START_COUNT * sizeof(XmPictureNode*));
+    if (picture->nodes == NULL) {
+	XtFree(picture->source);
+	XtFree((char*)picture);
+	return NULL;
+    }
 
     _XmPictureParseNode(picture, &input, &root_node, &end_node, False);
 
@@ -78,16 +90,48 @@ XmPictureState
 XmGetNewPictureState(XmPicture picture)
 {
     int i;
+    size_t state_bytes;
     XmPictureStateRec *state;
 
-    state = XtNew(XmPictureStateRec);
+    if (picture == NULL || picture->num_nodes < 0)
+	return NULL;
 
-    state->statesize = 1 + (picture->num_nodes * sizeof(char) / 8);
+    /* statesize is part of the public private-structure ABI and remains an
+     * int, so reject a picture whose state vector cannot be represented. */
+    state_bytes = 1U + ((size_t)picture->num_nodes / 8U);
+    if (state_bytes > (size_t)INT_MAX)
+	return NULL;
+
+    state = XtNew(XmPictureStateRec);
+    if (state == NULL)
+	return NULL;
+
+    state->statesize = (int)state_bytes;
 
     state->picture = picture;
 
     state->state = (unsigned char*) XtMalloc(state->statesize);
+    if (state->state == NULL) {
+	XtFree((char*)state);
+	return NULL;
+    }
+
     state->newstate = (unsigned char*) XtMalloc(state->statesize);
+    if (state->newstate == NULL) {
+	XtFree((char*)state->state);
+	XtFree((char*)state);
+	return NULL;
+    }
+
+    state->current_capacity = 1024;
+    state->current_string = XtMalloc(state->current_capacity);
+    if (state->current_string == NULL) {
+	XtFree((char*)state->newstate);
+	XtFree((char*)state->state);
+	XtFree((char*)state);
+	return NULL;
+    }
+
     for(i=0; i<state->statesize; i++) {
 	state->state[i] = 0;
 	state->newstate[i] = 0;
@@ -95,8 +139,6 @@ XmGetNewPictureState(XmPicture picture)
 
     _XmPictureSetState(state->state, picture->start_node);
 
-    state->current_capacity = 1024;
-    state->current_string = XtMalloc(state->current_capacity);
     state->current_string[0] = '\0';
     state->append = state->current_string;
 
@@ -116,6 +158,9 @@ XmPictureProcessCharacter(XmPictureState state, char in, Boolean *is_finished)
     char status;
     unsigned char *temp;
     char *save_start;
+
+    if (state == NULL || is_finished == NULL)
+	return NULL;
 
     /*
      * Reset the current-processing info
@@ -149,12 +194,22 @@ XmPictureProcessCharacter(XmPictureState state, char in, Boolean *is_finished)
     if(state->current) {
         size_t length = (size_t)(state->append - state->current_string);
         if (length + 1 >= state->current_capacity) {
-            size_t new_capacity = state->current_capacity * 2;
-            if (new_capacity <= state->current_capacity ||
-                new_capacity > SIZE_MAX / 2)
+            if (length > SIZE_MAX - 2)
                 return NULL;
-            state->current_string = XtRealloc(state->current_string,
-                                              new_capacity);
+            size_t required = length + 2;
+            size_t new_capacity = state->current_capacity;
+            char *new_string;
+            while (new_capacity < required) {
+                if (new_capacity > SIZE_MAX / 2)
+                    new_capacity = required;
+                else
+                    new_capacity *= 2;
+            }
+            new_string = (char *)XtRealloc(state->current_string,
+                                           new_capacity);
+            if (new_string == NULL)
+                return NULL;
+            state->current_string = new_string;
             state->current_capacity = new_capacity;
             state->append = state->current_string + length;
         }
@@ -190,6 +245,9 @@ XmPictureDelete(XmPicture p)
     int i;
     XmPictureTransition *trans, *delete_me;
 
+    if (p == NULL)
+	return;
+
     /*
      * First walk all the nodes, deleting the transitions then the
      * nodes themselves
@@ -215,6 +273,9 @@ XmPictureDelete(XmPicture p)
 void
 XmPictureDeleteState(XmPictureState s)
 {
+    if (s == NULL)
+	return;
+
     XtFree(s->current_string);
     XtFree((char*)s->state);
     XtFree((char*)s->newstate);
@@ -225,6 +286,9 @@ XmPictureDeleteState(XmPictureState s)
 char*
 XmPictureGetCurrentString(XmPictureState s)
 {
+    if (s == NULL)
+	return NULL;
+
     return s->current_string;
 }
 
@@ -234,6 +298,10 @@ XmPictureDoAutoFill(XmPictureState state)
     XmAutoFill fill;
     int i;
     Boolean finished = False;
+    char *processed;
+
+    if (state == NULL)
+	return NULL;
 
     while(1) {
 
@@ -264,7 +332,9 @@ XmPictureDoAutoFill(XmPictureState state)
 
 	if(fill.reject) return state->current_string;
 
-	XmPictureProcessCharacter(state, fill.c, &finished);
+	processed = XmPictureProcessCharacter(state, fill.c, &finished);
+	if (processed == NULL && !finished)
+	    return state->current_string;
 
 	if(finished) return state->current_string;
     }
@@ -703,10 +773,13 @@ _XmPictureCopySubGraph(XmPictureRec *picture, int n,
      */
     tablesize = picture->num_nodes;
     if (tablesize <= 0 ||
-	(size_t)tablesize > SIZE_MAX / sizeof(XmPictureNode *))
+	(size_t)tablesize > SIZE_MAX / sizeof(XmPictureNode *) ||
+	(size_t)tablesize > UINT_MAX / sizeof(XmPictureNode *))
 	return end;
     table = (XmPictureNode**)
 	    XtMalloc(tablesize * sizeof(XmPictureNode*));
+    if (table == NULL)
+	return end;
     for(i=0; i<picture->num_nodes; i++)
 	table[i] = NULL;
     

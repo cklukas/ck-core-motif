@@ -1,9 +1,10 @@
+---
+nav_exclude: true
+---
 # Mrm compression-table offset bounds
 
-Compression-table fixup now checks the table-entry allocation size before
-walking entries and rejects string offsets that point into the table header or
-entry array. Valid offsets continue to resolve to in-table strings through the
-existing byte-swap and lookup path.
-
-The source-level regression check is
-`tests/automated/check-mrm-table-offset-bounds.py`.
+Compression-table entries contain offsets into the table's trailing string
+storage. Fixup now computes the minimum byte offset after the complete entry
+array and rejects entries that point back into the header or entry metadata.
+This prevents malformed UID data from treating table metadata as a string while
+leaving valid string offsets unchanged.

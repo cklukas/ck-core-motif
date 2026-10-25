@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm pointer-list resize limits
 
 `UrmPlistResize` now rejects a requested slot count below the number of active

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm GC cache failure handling
 
 `GetGCForPutImage` now handles lazy GC-table and `GCData` allocation failure

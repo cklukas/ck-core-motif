@@ -470,6 +470,7 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
 {
     XmIconButtonWidget iw = (XmIconButtonWidget) set;
     Boolean resetPixmapValues = True;
+    XmString label_string_copy;
 
     XmIconButton_unset_timer(iw) = NO_TIMER;
     XmIconButton_time(iw) = 0L;
@@ -497,8 +498,16 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
 	}
     }
     else {
-	XmIconButton_label_string(iw) =
-	  XmStringCopy(XmIconButton_label_string(iw));
+	label_string_copy = XmStringCopy(XmIconButton_label_string(iw));
+	if (label_string_copy != NULL)
+	    XmIconButton_label_string(iw) = label_string_copy;
+	else if (XmIconButton_label(iw) != NULL)
+	    XmIconButton_label_string(iw) =
+		CreateXmString(set, XmIconButton_label(iw));
+	else
+	    XmIconButton_label_string(iw) = CreateXmString(set, XtName(set));
+	if (XmIconButton_label_string(iw) == NULL)
+	    XmIconButton_label_from_name(iw) = True;
     }
     if (XmIconButton_label(iw))
 	    XmIconButton_label(iw) = XtNewString(XmIconButton_label(iw));
@@ -605,8 +614,20 @@ Redisplay(Widget w, XEvent * event, Region region)
     dx = iw->primitive.highlight_thickness;
     dy = dx;
 
-    width = iw->core.width - (2 * dx);
-    height = iw->core.height - (2 * dy);
+    /*
+     * Widget dimensions are unsigned.  Check before subtracting the
+     * highlight frame so a very small icon button cannot wrap to a huge
+     * region when converted to int.
+     */
+    if ((int)iw->core.width > (2 * dx))
+        width = (int)iw->core.width - (2 * dx);
+    else
+        width = 0;
+
+    if ((int)iw->core.height > (2 * dy))
+        height = (int)iw->core.height - (2 * dy);
+    else
+        height = 0;
 
     if (XmIconButton_set(iw)) {
 	Dimension fill_width, fill_height;
@@ -655,9 +676,10 @@ Redisplay(Widget w, XEvent * event, Region region)
 
     DrawTextAndImage(w, text_gc, icon_gc, icon_stippled_gc);
 
-    XmeDrawShadows(XtDisplay(w), XtWindow(w), topgc, bottomgc,
-		   dx, dy, width, height, iw->primitive.shadow_thickness, 
-		   XmSHADOW_OUT);
+    if (width > 0 && height > 0 && topgc != NULL && bottomgc != NULL)
+        XmeDrawShadows(XtDisplay(w), XtWindow(w), topgc, bottomgc,
+                       dx, dy, width, height,
+                       iw->primitive.shadow_thickness, XmSHADOW_OUT);
 
     if (iw->primitive.highlighted)
 	_XmExtHighlightBorder(w);
@@ -702,11 +724,13 @@ SetValues(Widget current, Widget request, Widget set,
     Boolean resetGCs, recalc, redisplay, reinit_l, reinit_ls;
     XmIconButtonWidget old_iw = (XmIconButtonWidget) current;
     XmIconButtonWidget set_iw = (XmIconButtonWidget) set;
-    register int i;
+    register Cardinal i;
 
     Boolean pixmapChanged = False;
     Boolean pixmapGeoChanged = False;
     Boolean resetPixmapValues = False;
+    XmString label_string_copy;
+    String label_copy;
     
     reinit_l = reinit_ls = resetGCs = recalc = redisplay = False;
 
@@ -857,14 +881,26 @@ SetValues(Widget current, Widget request, Widget set,
 	*/
 	/* Boolean	was_from_name; */
 	if (reinit_ls) {
-		XmStringFree(XmIconButton_label_string(old_iw));
-		if (XmIconButton_label_string(set_iw))
-			XmIconButton_label_string(set_iw) = XmStringCopy(XmIconButton_label_string(set_iw));
+		label_string_copy = XmIconButton_label_string(set_iw) != NULL
+		    ? XmStringCopy(XmIconButton_label_string(set_iw)) : NULL;
+		if (XmIconButton_label_string(set_iw) == NULL ||
+		    label_string_copy != NULL) {
+		    XmStringFree(XmIconButton_label_string(old_iw));
+		    XmIconButton_label_string(set_iw) = label_string_copy;
+		} else {
+		    XmIconButton_label_string(set_iw) =
+			XmIconButton_label_string(old_iw);
+		}
 	    }
 	    if (reinit_l) {
-		XtFree(XmIconButton_label(old_iw));
-		if (XmIconButton_label(set_iw))
-			XmIconButton_label(set_iw) = XtNewString(XmIconButton_label(set_iw));
+		label_copy = XmIconButton_label(set_iw) != NULL
+		    ? XtNewString(XmIconButton_label(set_iw)) : NULL;
+		if (XmIconButton_label(set_iw) == NULL || label_copy != NULL) {
+		    XtFree(XmIconButton_label(old_iw));
+		    XmIconButton_label(set_iw) = label_copy;
+		} else {
+		    XmIconButton_label(set_iw) = XmIconButton_label(old_iw);
+		}
 	    }
 	    /* was_from_name = XmIconButton_label_from_name(set_iw); */
 	    XmIconButton_label_from_name(set_iw) = False;
@@ -1030,7 +1066,7 @@ CvtStringToIconPlacement(Display * dpy, XrmValuePtr args, Cardinal *num_args,
 	haveQuarks = TRUE;
     }
     
-    XmCopyISOLatin1Lowered(lowerName, (char *) fromVal->addr);
+    XmCopyISOLatin1LoweredN(lowerName, sizeof(lowerName), (char *) fromVal->addr);
     q = XrmStringToQuark(lowerName);
     
     if ( (q == XtQETop) || streq(lowerName, "icontop") )
@@ -1289,16 +1325,32 @@ AddPixCache(Display *disp, Pixmap pixmap,
 {
     XmListElem * elem = GetCacheElem(disp, pixmap);
     PixCacheEntry * entry;
+    Boolean created_list = False;
 
     if (elem == NULL) 
     {
 	entry = (PixCacheEntry *) XtCalloc(sizeof(PixCacheEntry), 1);
+	if (entry == NULL)
+	    return;
 	entry->display = disp;
 	entry->pixmap = pixmap;
 
-	if (pix_cache_list == NULL)
+	if (pix_cache_list == NULL) {
 	    pix_cache_list = _XmListInit();
-	_XmListAddBefore(pix_cache_list, NULL, (XtPointer) entry);
+	    if (pix_cache_list == NULL) {
+		XtFree((char *)entry);
+		return;
+	    }
+	    created_list = True;
+	}
+	if (_XmListAddBefore(pix_cache_list, NULL, (XtPointer) entry) == NULL) {
+	XtFree((char *)entry);
+	if (created_list) {
+	    _XmListFree(pix_cache_list);
+	    pix_cache_list = NULL;
+	}
+	return;
+	}
     }
     else
 	entry = (PixCacheEntry *) XmListElemData(elem);

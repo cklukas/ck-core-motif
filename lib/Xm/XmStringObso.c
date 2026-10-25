@@ -51,8 +51,9 @@ XmStringLtoRCreate(
   Boolean done;
   XmString string;
 
-  if (!text)
+  if (!text) {
 	return (NULL);
+  }
 
   start = text;
   done = FALSE;
@@ -75,10 +76,15 @@ XmStringLtoRCreate(
         string = XmStringConcatAndFree (string, 
 					_XmStringNCreate(start, tag, 
 							 end - start));
+
+      if (string == NULL)
+	return (NULL);
       
       /* Make a separator if this isn't the last segment. */
       if (!done) {
         string = XmStringConcatAndFree(string, XmStringSeparatorCreate());
+	if (string == NULL)
+	  return (NULL);
 	start = ++end;		/* start at next char */
       }
     }
@@ -115,6 +121,9 @@ XmStringSegmentCreate(
   result = XmStringConcatAndFree (XmStringDirectionCreate (direction),
 				  XmStringCreate (text, tag));
 
+  if (result == NULL)
+    return (NULL);
+
   if (separator)
     result = XmStringConcatAndFree (result, XmStringSeparatorCreate ());
 
@@ -141,14 +150,14 @@ XmStringNConcat(XmString first,
 {
   XmString	tmp, ret_val;
   
-  _XmProcessLock();
   tmp = XmStringConcat(first, second);
-  
+  if (tmp == NULL)
+    return (NULL);
+
   ret_val = XmStringNCopy(tmp, XmStringLength(first) + n);
   
   XmStringFree(tmp);
   
-  _XmProcessUnlock();
   return(ret_val);
 }
 
@@ -166,7 +175,9 @@ XmStringNCopy(
   unsigned int	len;
   XmString	ret_val;
   
-  _XmProcessLock();
+  if (str == NULL || n < 0)
+    return (NULL);
+
   len = XmCvtXmStringToByteStream(str, &tmp);
   
   if (n >= len) /* No need to truncate */
@@ -181,7 +192,6 @@ XmStringNCopy(
   
   XtFree((char *)tmp);
   
-  _XmProcessUnlock();
   return(ret_val);
 }
 
@@ -191,23 +201,26 @@ XmStringByteCompare(
         XmString a1,
         XmString b1 )
 {
-    unsigned char  *a;
-    unsigned char  *b;
+    unsigned char  *a = NULL;
+    unsigned char  *b = NULL;
     unsigned short a_length, b_length;
     Boolean	   ret_val;
 
-    _XmProcessLock();
     if ((a1 == NULL) && (b1 == NULL)) {
-	_XmProcessUnlock();
 	return (TRUE);
     }
     if ((a1 == NULL) || (b1 == NULL)) {
-	_XmProcessUnlock();
 	return (FALSE);
     }
 
     a_length = XmCvtXmStringToByteStream(a1, &a);
     b_length = XmCvtXmStringToByteStream(b1, &b);
+
+    if ((a_length == 0 && a == NULL) || (b_length == 0 && b == NULL)) {
+        XtFree((char *)a);
+        XtFree((char *)b);
+        return (FALSE);
+    }
 
     if ((a_length != b_length) || (memcmp(a, b, a_length) != 0))
       ret_val = FALSE;
@@ -216,7 +229,6 @@ XmStringByteCompare(
     XtFree((char *)a);
     XtFree((char *)b);
 
-    _XmProcessUnlock();
     return(ret_val);
 }
 

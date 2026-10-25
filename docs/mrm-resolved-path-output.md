@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm resolved path output
 
 Hierarchy loading resolves UID paths through Xt and can produce names longer

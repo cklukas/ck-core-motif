@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Pixmap creation failure
 
 A failed `XCreatePixmap` returned the unspecified handle but the old path still

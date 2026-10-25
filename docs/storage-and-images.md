@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Clipboard storage and image input
 
 ## Native selection storage

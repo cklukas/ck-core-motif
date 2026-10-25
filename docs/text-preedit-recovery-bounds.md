@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text inline preedit recovery bounds
 
 Text widget overstrike preedit recovery now validates every multibyte step

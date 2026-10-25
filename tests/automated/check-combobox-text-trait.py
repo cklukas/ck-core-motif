@@ -8,4 +8,3 @@ end = source.index("/* ------------- CONVENIENCE FUNCTIONS", start)
 body = source[start:end]
 assert "textTrait != NULL && textTrait->getValue != NULL" in body
 assert "textTrait != NULL && textTrait->setValue != NULL" in body
-print("PASS ComboBox textual trait callbacks are guarded")

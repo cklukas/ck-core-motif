@@ -1,7 +1,11 @@
+---
+nav_exclude: true
+---
 # Icon-file cache entry allocation
 
 Icon path resolution treats name caching as optional.  If the cache entry
-allocation fails, the resolved icon filename is returned through the normal
-path without dereferencing null cache storage.
+allocation fails, the resolved icon filename is now returned through the
+normal path without dereferencing null cache storage.
 
-The regression check is `tests/automated/check-iconfile-entry-allocation.py`.
+The regression check is
+`tests/automated/check-iconfile-entry-allocation.py`.

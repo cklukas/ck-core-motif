@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List drag target allocation failure
 
 List drag conversion builds target arrays for TARGETS and export-target

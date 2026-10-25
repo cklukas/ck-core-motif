@@ -32,6 +32,8 @@ static char rcsid[] = "$XConsortium: CallbackI.c /main/8 1995/07/14 10:13:10 drk
 
 
 #include "CallbackI.h"
+#include <limits.h>
+#include <stdint.h>
 
 
 /********************************************************************
@@ -54,22 +56,39 @@ _XmAddCallback(InternalCallbackList* callbacks,
 {
   register XtCallbackList cl;
   register InternalCallbackList icl = *callbacks;
+  register InternalCallbackList new_icl;
   register int count = icl ? icl->count : 0;
+
+  if (count == USHRT_MAX ||
+      (size_t)count >
+          (SIZE_MAX - sizeof(InternalCallbackRec)) /
+              sizeof(XtCallbackRec) ||
+      sizeof(InternalCallbackRec) + sizeof(XtCallbackRec) *
+          (size_t)count > UINT_MAX)
+    return;
   
   if (icl && icl->call_state) 
     {
       icl->call_state |= _XtCBFreeAfterCalling;
-      icl = (InternalCallbackList)
+	  new_icl = (InternalCallbackList)
 	XtMalloc(sizeof(InternalCallbackRec) + sizeof(XtCallbackRec) * count);
+	  if (new_icl == NULL) {
+	    icl->call_state &= ~_XtCBFreeAfterCalling;
+	    return;
+	  }
+	  icl = new_icl;
       
       memcpy((char *)ToList(icl), (char *)ToList(*callbacks),
 	     sizeof(XtCallbackRec) * count);
     } 
   else 
     {
-      icl = (InternalCallbackList)
+	  new_icl = (InternalCallbackList)
 	XtRealloc((char *) icl, sizeof(InternalCallbackRec) +
 		  sizeof(XtCallbackRec) * count);
+	  if (new_icl == NULL)
+	    return;
+	  icl = new_icl;
     }
 
   *callbacks = icl;
@@ -89,6 +108,7 @@ void
   register int i, j;
   register XtCallbackList cl, ncl, ocl;
   register InternalCallbackList icl = *callbacks;
+  register InternalCallbackList new_icl;
 
   if (!icl) 
     return;
@@ -109,9 +129,14 @@ void
 		{
 		  j = icl->count - i - 1;
 		  ocl = ToList(icl);
-		  icl = (InternalCallbackList)
+		  new_icl = (InternalCallbackList)
 		    XtMalloc(sizeof(InternalCallbackRec) +
 			     sizeof(XtCallbackRec) * (i + j - 1));
+		  if (new_icl == NULL) {
+		    icl->call_state &= ~_XtCBFreeAfterCalling;
+		    return;
+		  }
+		  icl = new_icl;
 		  icl->count = i + j;
 		  icl->is_padded = 0;
 		  icl->call_state = 0;
@@ -130,9 +155,14 @@ void
 		  ncl = cl + 1;
 		  while (--i >= 0)
 		    *cl++ = *ncl++;
-		  icl = (InternalCallbackList)
+		  new_icl = (InternalCallbackList)
 		    XtRealloc((char *) icl, sizeof(InternalCallbackRec)
 			      + sizeof(XtCallbackRec) * (icl->count - 1));
+		  if (new_icl == NULL) {
+		    *callbacks = icl;
+		    return;
+		  }
+		  icl = new_icl;
 		  icl->is_padded = 0;
 		  *callbacks = icl;
 		} else {

@@ -651,7 +651,7 @@ ChangeManaged(
      * CHILD BEING UNMANAGED
      */
     else {
-        int i, j;
+        Cardinal i, j;
 	/*
 	 * Fix for CR5043, CR5758 and CR8825 -
 	 * For nested Dialog Shells, it is necessary to unmanage
@@ -838,19 +838,30 @@ XmeCreateClassDialog(
 
     if (bb_n == (Cardinal)~(Cardinal)0)
 	return NULL;
+    if (bb_n && !bb_args)
+	return NULL;
+    if ((size_t)bb_n >= SIZE_MAX / sizeof(Arg) ||
+        bb_n >= (Cardinal)(UINT_MAX / sizeof(Arg)))
+	return NULL;
 
     if (!name) name = "";
 
     /*	Create DialogShell parent.
     */
     ds_name_length = snprintf(NULL, 0, "%s%s", name, XmDIALOG_SUFFIX);
-    if (ds_name_length < 0)
+    if (ds_name_length < 0 || (size_t)ds_name_length >= UINT_MAX)
 	return NULL;
-    ds_name = XtMalloc( (size_t)ds_name_length + 1) ;
+    ds_name = XtMalloc((Cardinal)ds_name_length + 1) ;
+    if (!ds_name)
+	return NULL;
     (void) snprintf(ds_name, (size_t)ds_name_length + 1,
 		    "%s%s", name, XmDIALOG_SUFFIX);
 
-    ds_args = (ArgList) XtMalloc( sizeof( Arg) * (bb_n + 1)) ;
+    ds_args = (ArgList) XtMalloc((Cardinal)(((size_t)bb_n + 1) * sizeof(Arg)));
+    if (!ds_args) {
+	XtFree(ds_name);
+	return NULL;
+    }
     memcpy( ds_args, bb_args, (sizeof( Arg) * bb_n)) ;
     XtSetArg( ds_args[bb_n], XmNallowShellResize, True) ; 
     ds = XmCreateDialogShell( ds_p, ds_name, ds_args, bb_n + 1) ;
@@ -858,9 +869,18 @@ XmeCreateClassDialog(
     XtFree( (char *) ds_args);
     XtFree( ds_name) ;
 
+    if (!ds)
+	return NULL;
+
     /*	Create the widget.
     */
     bb = XtCreateWidget(name, w_class, ds, bb_args, bb_n) ;
+
+    if (!bb)
+    {
+	XtDestroyWidget(ds);
+	return NULL;
+    }
 
     /*	Add callback to destroy DialogShell parent.
     */

@@ -4,7 +4,7 @@
 from pathlib import Path
 
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmString.c").read_text()
+source = Path("lib/Xm/XmString.c").read_text()
 
 assert "new_entry = (_XmStringEntry)XtMalloc(sizeof(_XmStringArraySegRec));\n      if (new_entry == NULL)" in source
 assert "line = (_XmStringEntry)XtMalloc(sizeof(_XmStringArraySegRec));\n\tif (line == NULL)" in source

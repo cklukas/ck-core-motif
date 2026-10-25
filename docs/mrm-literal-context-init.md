@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm literal context initialization
 
 Mrm literal loading now checks the result of `UrmGetResourceContext` before

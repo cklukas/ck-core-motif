@@ -24,8 +24,7 @@ for signature, needles in checks.items():
     start = source.index(signature)
     end = source.find("\nMrmFetch", start + 1)
     body = source[start:] if end < 0 else source[start:end]
-    lock = body.index("_MrmDisplayToAppContext")
     for needle in needles:
-        if needle not in body or body.index(needle) > lock:
-            raise SystemExit(f"{signature} does not initialize {needle}")
-print("PASS Mrm literal convenience APIs validate and initialize their outputs")
+        assert needle in body, (signature, needle)
+        assert body.index(needle) < body.index("_MrmDisplayToAppContext")
+print("Mrm literal convenience APIs validate and initialize their outputs")

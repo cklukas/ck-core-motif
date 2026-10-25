@@ -11,4 +11,3 @@ assert "nav_trait->setValue == NULL" in function
 assert "nav_trait->changeMoveCB == NULL" in function
 assert function.index("XmeWarning(sf, SWMessage3)") < function.index("changeMoveCB(nav")
 assert function.index("XmeWarning(sf, SWMessage3)") < function.index("setValue(nav")
-print("PASS ScrollFrame navigator callbacks are validated")

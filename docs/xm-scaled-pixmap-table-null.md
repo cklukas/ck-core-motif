@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm scaled-pixmap table initialization failure
 
 `_XmGetScaledPixmap` now stops with `XmUNSPECIFIED_PIXMAP` when lazy pixmap

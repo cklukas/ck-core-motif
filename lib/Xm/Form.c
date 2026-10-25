@@ -1180,7 +1180,7 @@ QueryGeometry(
 
 	if (!XtIsRealized((Widget)fw))
 	{
-		int i;
+		Cardinal i;
 		Widget child;
 		XmFormConstraint c;
 
@@ -1254,7 +1254,7 @@ Resize(
 
     PlaceChildren (fw, NULL, NULL) ;
 
-	if (draw_shadow && CanDrawShadow(fw))
+    if (draw_shadow && CanDrawShadow(fw))
 	XmeDrawShadows  (XtDisplay (fw), XtWindow (fw),
 			 fw->manager.top_shadow_GC,
 			 fw->manager.bottom_shadow_GC,
@@ -1274,7 +1274,6 @@ CanDrawShadow(
             fw->manager.shadow_thickness != 0 &&
             fw->core.width != 0 && fw->core.height != 0);
 }
-
 
 static void 
 Redisplay(
@@ -1490,7 +1489,8 @@ ChangeManaged(
 {
     XmFormWidget fw = (XmFormWidget) wid ;
     XtWidgetGeometry g;
-    int i, j, k;
+    Cardinal i, k;
+    int j;
     register XmFormConstraint c;
     register Widget w, child;
     
@@ -2109,10 +2109,11 @@ static void
 SortChildren(
         register XmFormWidget fw )
 {
-	int i, j;
+	Cardinal i;
+	int j;
 	Widget child = NULL;
 	register XmFormConstraint c = NULL, c1 = NULL;
-	int sortedCount = 0;
+	Cardinal sortedCount = 0;
 	Widget last_child, att_widget;
 	Boolean sortable;
 
@@ -2761,7 +2762,7 @@ CalcEdgeValue(
 	  case LEFT:
 	    if (fwidth != NULL) {
 	      if ((att + RIGHT)->type == XmATTACH_NONE) {
-		temp1 = *fwidth - (GetFormOffset(fw, which, att));
+		temp1 = (int)*fwidth - GetFormOffset(fw, which, att);
 		temp2 = temp1 - size;
 		if (temp2 < 0) {
 		  *fwidth += abs(temp2);
@@ -2769,12 +2770,13 @@ CalcEdgeValue(
 		} else
 		  AssignValue(a, temp1);
 	      } else {
-		temp1 = *fwidth - (GetFormOffset(fw, which, att));
+		temp1 = (int)*fwidth - GetFormOffset(fw, which, att);
 		temp2 = Value(att + RIGHT);
 		temp3 = temp1 - temp2 - size;
 		if (temp3 < 0) {
 		  *fwidth += abs(temp3);
-		  AssignValue(a, (*fwidth - size - GetFormOffset(fw, which, att)));
+		  AssignValue(a, ((int)*fwidth - (int)size -
+				   GetFormOffset(fw, which, att)));
 		} else
 		  AssignValue(a, temp1);
 	      }
@@ -2784,7 +2786,7 @@ CalcEdgeValue(
 	  case BOTTOM:
 	    if (fheight != NULL) {
 	      if ((att + TOP)->type == XmATTACH_NONE) {
-		temp1 = *fheight - GetFormOffset(fw, which, att);
+		temp1 = (int)*fheight - GetFormOffset(fw, which, att);
 		temp2 = temp1 - size;
 		if (temp2 < 0) {
 		  *fheight += abs(temp2);
@@ -2792,12 +2794,13 @@ CalcEdgeValue(
 		} else
 		  AssignValue(a, temp1);
 	      } else {
-		temp1 = *fheight - GetFormOffset(fw, which, att);
+		temp1 = (int)*fheight - GetFormOffset(fw, which, att);
 		temp2 = Value(att + TOP);
 		temp3 = temp1 - temp2 - size;
 		if (temp3 < 0) {
 		  *fheight += abs(temp3);
-		  AssignValue(a, (*fheight - size - GetFormOffset(fw, which, att)));
+		  AssignValue(a, ((int)*fheight - (int)size -
+				   GetFormOffset(fw, which, att)));
 		} else
 		  AssignValue(a, temp1);
 	      }
@@ -3011,7 +3014,7 @@ CalcEdgeValue(
 	  case RIGHT:
 	    if (fwidth != NULL) {
 	      if ((att + LEFT)->type == XmATTACH_NONE) {
-		temp1 = *fwidth - (GetFormOffset(fw, which, att));
+		temp1 = (int)*fwidth - GetFormOffset(fw, which, att);
 		temp2 = temp1 - size;
 		if (temp2 < 0) {
 		  *fwidth += abs(temp2);
@@ -3019,12 +3022,13 @@ CalcEdgeValue(
 		} else
 		  AssignValue(a, temp1);
 	      } else {
-		temp1 = *fwidth - (GetFormOffset(fw, which, att));
+		temp1 = (int)*fwidth - GetFormOffset(fw, which, att);
 		temp2 = Value(att + LEFT);
 		temp3 = temp1 - temp2 - size;
 		if (temp3 < 0) {
 		  *fwidth += abs(temp3);
-		  AssignValue(a, (*fwidth - size - GetFormOffset(fw, which, att)));
+		  AssignValue(a, ((int)*fwidth - (int)size -
+				   GetFormOffset(fw, which, att)));
 		} else
 		  AssignValue(a, temp1);
 	      }
@@ -3034,7 +3038,7 @@ CalcEdgeValue(
 	  case BOTTOM:
 	    if (fheight != NULL) {
 	      if ((att + TOP)->type == XmATTACH_NONE) {
-		temp1 = *fheight - GetFormOffset(fw, which, att);
+		temp1 = (int)*fheight - GetFormOffset(fw, which, att);
 		temp2 = temp1 - size;
 		if (temp2 < 0) {
 		  *fheight += abs(temp2);
@@ -3042,12 +3046,13 @@ CalcEdgeValue(
 		} else
 		  AssignValue(a, temp1);
 	      } else {
-		temp1 = *fheight - GetFormOffset(fw, which, att);
+		temp1 = (int)*fheight - GetFormOffset(fw, which, att);
 		temp2 = Value(att + TOP);
 		temp3 = temp1 - temp2 - size;
 		if (temp3 < 0) {
 		  *fheight += abs(temp3);
-		  AssignValue(a, (*fheight - size - GetFormOffset(fw, which, att)));
+		  AssignValue(a, ((int)*fheight - (int)size -
+				   GetFormOffset(fw, which, att)));
 		} else
 		  AssignValue(a, temp1);
 	      }

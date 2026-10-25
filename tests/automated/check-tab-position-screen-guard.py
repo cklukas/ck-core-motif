@@ -4,7 +4,7 @@
 from pathlib import Path
 
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmTabList.c").read_text()
+source = Path("lib/Xm/XmTabList.c").read_text()
 start = source.index("_XmTabListGetPosition(")
 end = source.index("#ifdef _XmDEBUG_XMTABLIST", start)
 window = source[start:end]

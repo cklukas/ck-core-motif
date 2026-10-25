@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RepType conversion warning bounds
 
 When a representation-type conversion receives an unknown value, Motif builds

@@ -12,7 +12,6 @@ count against `size_t`.
 
 The growth path now checks the count against both host `size_t` and Xt's
 `Cardinal` byte limits before multiplication, and commits the new pointer only
-after `XtRealloc` succeeds. The same width checks protect both internal
-deletion-shrink paths and the position-based external item-array shrink.
-Existing Motif callers and resource interfaces are unchanged; an allocation
-failure returns without corrupting the existing arrays.
+after `XtRealloc` succeeds. The same width checks protect deletion shrink
+paths. Existing Motif callers and resource interfaces are unchanged; an
+allocation failure returns without corrupting the existing internal array.

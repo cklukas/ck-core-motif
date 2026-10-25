@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WP-00 modernization baseline
 
 The WP-00 fixture is an installed-library consumer, not a source-tree unit

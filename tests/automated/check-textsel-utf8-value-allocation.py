@@ -3,7 +3,8 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "TextSel.c").read_text()
-start_block = source.index("} else if (*target == atoms[XmAUTF8_STRING])")
+marker = "} else if (*target == atoms[XmAUTF8_STRING])"
+start_block = source.index(marker)
 allocation = source.index("*value = (XtPointer) XtMalloc(tmp_prop.nitems ?", start_block)
 guard = source.index("if (*value == NULL)", allocation)
 cleanup = source.index("if (tmp_prop.value != NULL) XFree((char*)tmp_prop.value);", guard)

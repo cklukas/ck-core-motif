@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm widget-instance allocation handling
 
 Widget creation and set-values instance builders now check font-list, argument

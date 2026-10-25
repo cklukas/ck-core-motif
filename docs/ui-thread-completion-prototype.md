@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WP-13 UI-thread completion prototype
 
 `tests/automated/check-ui-completion-prototype.c` is a consumer-side

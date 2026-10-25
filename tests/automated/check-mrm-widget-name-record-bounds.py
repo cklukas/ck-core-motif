@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Check Mrm widget names and class strings stay inside serialized records."""
+import os
 from pathlib import Path
 
-source = Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrw.c"
+source = Path(os.environ.get("MOTIF_SOURCE", Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrw.c"))
 text = source.read_text(encoding="utf-8")
 required = (
     "static Boolean\nUrmWidgetStringValid",
@@ -14,4 +15,4 @@ required = (
 for needle in required:
     if needle not in text:
         raise SystemExit(f"missing widget-string validation: {needle}")
-print("PASS Mrm widget names and class strings are record-bounded")
+print("Mrm widget names and class strings are record-bounded")

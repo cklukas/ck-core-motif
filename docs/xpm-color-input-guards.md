@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XPM color helper input guards
 
 The private XPM color helpers now return safely when their screen, color

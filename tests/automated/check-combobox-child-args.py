@@ -7,4 +7,7 @@ start = source.index("/* Ignore XmNheight resource value")
 body = source[start:source.index("#else", start)]
 assert "child_args != NULL || *num_args == 0" in body
 assert "CreateChildren(new_w, args, num_args);" in source
-print("PASS ComboBox child creation has an allocation fallback")
+assert "Cardinal i;" in source
+assert "SIZE_MAX / sizeof(Arg)" in body
+assert "UINT_MAX / sizeof(Arg)" in body
+assert "sizeof(Arg) * (size_t)*num_args" in body

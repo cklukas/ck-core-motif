@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm empty IDB decommit
 
 Closing an IDB file before any record buffer has been allocated now treats the

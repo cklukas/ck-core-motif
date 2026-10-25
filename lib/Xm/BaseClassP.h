@@ -56,29 +56,6 @@ extern "C" {
 	    (field[ (bit >> 3) ] |= (1 << (bit & 0x07)))
 
 
-#ifndef XTHREADS
-#define _XmFastSubclassInit(wc, bit_field) { \
-	if((_Xm_fastPtr = _XmGetBaseClassExtPtr( wc, XmQmotif)) && \
-	   (*_Xm_fastPtr)) \
-		_XmSetFlagsBit((*_Xm_fastPtr)->flags, bit_field) ; \
-   }
-
-/* _XmGetBaseClassExtPtr can return NULL or a pointer to a NULL extension,
- * for non Motif classes in particular, so we check that up front.
- * We use the global _Xm_fastPtr for that purpose, this variable exists
- * already in BaseClass.c for apparently no other use.
- */
-
-#define _XmIsFastSubclass(wc, bit) \
-	((_Xm_fastPtr = _XmGetBaseClassExtPtr((wc),XmQmotif)) && \
-         (*_Xm_fastPtr)) ? \
-	     (_XmGetFlagsBit(((*_Xm_fastPtr)->flags), bit) ? TRUE : FALSE) \
-		 : FALSE
-
-#else
-extern void _XmFastSubclassInit(WidgetClass, unsigned int);
-extern Boolean _XmIsFastSubclass(WidgetClass, unsigned int);
-#endif  /* XTHREADS */
 
 #define XmBaseClassExtVersion 2L
 #define XmBaseClassExtVersion 2L
@@ -151,6 +128,7 @@ typedef struct _XmBaseClassExtRec{
 } XmBaseClassExtRec, *XmBaseClassExt;
 
 
+
 typedef struct _XmWidgetExtDataRec{
     Widget		widget;
     Widget		reqWidget;
@@ -169,6 +147,40 @@ extern XmGenericClassExt * _XmGetClassExtensionPtr(
                         XrmQuark owner) ;
 extern Boolean _XmIsSubclassOf(WidgetClass wc, WidgetClass sc);
 
+
+#ifndef XTHREADS
+/* Keep the fast-subclass lookup local to each call.  The historical macros
+ * reused the process-global _Xm_fastPtr while also dereferencing it in the
+ * same expression, which leaves evaluation order undefined and triggers
+ * sequence-point diagnostics on modern compilers. */
+static inline void
+_XmFastSubclassInitLocal(WidgetClass wc, unsigned int bit_field)
+{
+    XmBaseClassExt *fastPtr = _XmGetBaseClassExtPtr(wc, XmQmotif);
+
+    if (fastPtr && *fastPtr)
+        _XmSetFlagsBit((*fastPtr)->flags, bit_field);
+}
+
+static inline Boolean
+_XmIsFastSubclassLocal(WidgetClass wc, unsigned int bit)
+{
+    XmBaseClassExt *fastPtr = _XmGetBaseClassExtPtr(wc, XmQmotif);
+
+    if (!fastPtr || !*fastPtr)
+        return FALSE;
+    return _XmGetFlagsBit((*fastPtr)->flags, bit) ? TRUE : FALSE;
+}
+
+#define _XmFastSubclassInit(wc, bit_field) \
+    _XmFastSubclassInitLocal((wc), (bit_field))
+#define _XmIsFastSubclass(wc, bit) \
+    _XmIsFastSubclassLocal((wc), (bit))
+
+#else
+extern void _XmFastSubclassInit(WidgetClass, unsigned int);
+extern Boolean _XmIsFastSubclass(WidgetClass, unsigned int);
+#endif  /* XTHREADS */
 
 /********    End Private Function Declarations    ********/
 

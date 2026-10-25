@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xft UTF-8 compound-string drawing allocation
 
 When a two-byte core font draws a UTF-8 compound-string segment, Motif first

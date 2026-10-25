@@ -993,6 +993,8 @@ _XmMessageBoxGeoMatrixCreate(
 	nrows += 1;
 
     geoSpec = _XmGeoMatrixAlloc( nrows, nchildren, 0) ;
+    if (geoSpec == NULL)
+        return NULL;
     geoSpec->composite = (Widget) mb ;
     geoSpec->instigator = (Widget) instigator ;
     if (desired)
@@ -1276,20 +1278,20 @@ CreateDialog(
 /****************/
 
      if (ac < 0 || ac == INT_MAX ||
-	 (size_t)ac >= SIZE_MAX / sizeof(Arg) ||
-	 (unsigned int)ac >= UINT_MAX / sizeof(Arg) ||
-	 (ac != 0 && al == NULL))
+         (size_t)ac >= SIZE_MAX / sizeof(Arg) ||
+         (unsigned int)ac >= UINT_MAX / sizeof(Arg) ||
+         (ac != 0 && al == NULL))
 	 return NULL;
 
      /* add dialogType to arglist and force to type passed in... */
 
     /*  allocate arglist, copy args, add dialog type arg */
     argsNew = (ArgList) XtMalloc ((Cardinal)(sizeof(Arg) *
-					 ((size_t)ac + 1)));
+					   ((size_t)ac + 1)));
     if (argsNew == NULL)
 	return NULL;
     if (ac != 0)
-	memcpy(argsNew, al, sizeof(Arg) * (size_t)ac);
+        memcpy(argsNew, al, sizeof(Arg) * (size_t)ac);
     XtSetArg (argsNew[ac], XmNdialogType, type);  ac++;
 
     /*  create MessageBoxDialog free argsNew, return */
@@ -1441,6 +1443,8 @@ XmMessageBoxGetChild(
 {
     XmMessageBoxWidget  w = (XmMessageBoxWidget)widget;
     Widget child_widget = NULL;
+    if (widget == NULL)
+        return NULL;
     _XmWidgetToAppContext(widget);
 /****************/
 

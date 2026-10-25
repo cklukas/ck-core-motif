@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # InfoBar
 
 `XmInfoBar` is an additive inline information, warning or error banner. Its

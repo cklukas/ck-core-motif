@@ -97,8 +97,8 @@ static void UpdateXrm(
                         int screen,
                         XmColorObj tmpColorObj);
 
-static void FetchPixelData(Widget w, char * value, unsigned long value_length,
-                           int screen);
+static Boolean FetchPixelData(Widget w, char * value,
+                              unsigned long value_length, int screen);
 
 static Boolean ColorCachePropertyExists(
 			Display *dpy,
@@ -440,6 +440,21 @@ Initialize(
 	if ( !new_obj->color_obj.colors || !new_obj->color_obj.atoms || 
 	    !new_obj->color_obj.colorUse )
 	{
+	      XtFree((char *)new_obj->color_obj.colors);
+	      XtFree((char *)new_obj->color_obj.atoms);
+	      XtFree((char *)new_obj->color_obj.colorUse);
+	      new_obj->color_obj.colors = NULL;
+	      new_obj->color_obj.atoms = NULL;
+	      new_obj->color_obj.colorUse = NULL;
+	      _XmProcessLock();
+	      XDeleteContext(new_obj->color_obj.display, None, colorObjContext);
+	      {
+		XmColorObj *link = &_XmDefaultColorObj;
+		while (*link && *link != new_obj)
+		    link = &(*link)->color_obj.next;
+		if (*link) *link = new_obj->color_obj.next;
+	      }
+	      _XmProcessUnlock();
 	      XmeWarning(nw, WARNING1); 
 	      /* couldn't allocate memory */
 	      new_obj->color_obj.colorIsRunning = False;
@@ -507,23 +522,36 @@ Initialize(
 	    char buf[MAX_SCREENS * MAX_ATOM_LENGTH];
 	    char *name_buf[MAX_SCREENS];
 	    char **names;
+	    int names_allocated = 0;
+	    Boolean names_ok = True;
 
-	    names = (char**) XmStackAlloc(nscreens * sizeof(char *), name_buf);
-	    for (i = 0; i < nscreens; i++) {
-	      names[i] = ((nscreens <= MAX_SCREENS) ?
-			  &buf[i * MAX_ATOM_LENGTH] : 
-			  XtMalloc(MAX_ATOM_LENGTH));
-	      (void)snprintf(names[i], MAX_ATOM_LENGTH, "%s%d",
-			      XmSCUSTOMIZE_DATA, i);
+	    names = ((size_t)nscreens <= SIZE_MAX / sizeof(char *)) ?
+		(char**) XmStackAlloc((size_t)nscreens * sizeof(char *), name_buf) :
+		NULL;
+	    if (names != NULL) {
+	      for (i = 0; i < nscreens; i++) {
+		if (nscreens <= MAX_SCREENS)
+		  names[i] = &buf[i * MAX_ATOM_LENGTH];
+		else {
+		  names[i] = XtMalloc(MAX_ATOM_LENGTH);
+		  if (names[i] == NULL) {
+		    names_ok = False;
+		    break;
+		  }
+		  names_allocated++;
+		}
+		(void)snprintf(names[i], MAX_ATOM_LENGTH, "%s%d",
+			       XmSCUSTOMIZE_DATA, i);
+	      }
+
+	      if (names_ok)
+		XInternAtoms(new_obj->color_obj.display, names,
+			     nscreens, FALSE, new_obj->color_obj.atoms);
+
+	      while (names_allocated > 0)
+		XtFree(names[--names_allocated]);
+	      XmStackFree((char *)names, name_buf);
 	    }
-
-	    XInternAtoms(new_obj->color_obj.display, names,
-			 nscreens, FALSE, new_obj->color_obj.atoms);
-
-	    if (nscreens > MAX_SCREENS)
-	      for (i = 0; i < nscreens; i++)
-		XtFree(names[i]);
-	    XmStackFree((char*) names, name_buf);
 #undef MAX_SCREENS
 #undef MAX_ATOM_LENGTH
 	  }
@@ -624,7 +652,7 @@ Initialize(
     }
 }
 
-static void
+static Boolean
 FetchPixelData(Widget w, char * value, unsigned long value_length, int screen)
 {    
     int      i, count, colorUse;
@@ -633,13 +661,21 @@ FetchPixelData(Widget w, char * value, unsigned long value_length, int screen)
     XmColorObj tmpColorObj = (XmColorObj)w;
     Colors   colors;
 
-    if (value == NULL || value_length == 0 || value_length > UINT_MAX - 1)
+    if (w == NULL || value == NULL || value_length == 0 ||
+	value_length > UINT_MAX - 1 ||
+	screen < 0 || screen >= tmpColorObj->color_obj.numScreens ||
+	tmpColorObj->color_obj.colorUse == NULL ||
+	tmpColorObj->color_obj.colors == NULL)
     {
         if (value != NULL)
             XFree(value);
-        return;
+        return False;
     }
     bounded_value = (char *)XtMalloc((Cardinal)value_length + 1);
+    if (bounded_value == NULL) {
+        XFree(value);
+        return False;
+    }
     memcpy(bounded_value, value, (size_t)value_length);
     bounded_value[value_length] = '\0';
     XFree(value);
@@ -649,7 +685,7 @@ FetchPixelData(Widget w, char * value, unsigned long value_length, int screen)
     if (sscanf (bounded_value, "%x_%n", &colorUse, &consumed) != 1)
     {
         XtFree(bounded_value);
-        return;
+        return False;
     }
     count = consumed;
     tmpColorObj->color_obj.colorUse[screen] = colorUse;
@@ -661,13 +697,14 @@ FetchPixelData(Widget w, char * value, unsigned long value_length, int screen)
 		    &(colors[i].bs), &(colors[i].sc), &consumed) != 5)
 	{
 	    XtFree(bounded_value);
-	    return;
+	    return False;
 	}
 	count += consumed;
     }
     UpdateXrm (colors, screen, tmpColorObj);
     tmpColorObj->color_obj.colorIsRunning = True;
     XtFree(bounded_value);
+    return True;
 }
 
 static Boolean
@@ -683,8 +720,10 @@ ColorCachePropertyExists(
     int format = 0 ;
     Atom target; 
     int result = False ;
+    XmColorObj color_obj = (XmColorObj)w;
 
-    if (!SelOwner)
+    if (dpy == NULL || w == NULL || !SelOwner || screen < 0 ||
+	screen >= color_obj->color_obj.numScreens)
 	return False ; 
 
     /* try to get the property if it exist only */
@@ -697,7 +736,11 @@ ColorCachePropertyExists(
 		    &length, &bytesafter, (unsigned char **) &value);
 
    if ((result != Success) || (format == 0) || (target == None))
+   {
+	if (value != NULL)
+	    XFree(value);
 	return False ;
+   }
 
     if (value != NULL && length > 0)  {
         if (value[length - 1] != XmPIXEL_SET_PROP_VERSION) {
@@ -706,12 +749,12 @@ ColorCachePropertyExists(
 	}
 	value[length - 1] = 0 ; /* extract version info */
 
-        FetchPixelData(w, value, length - 1, screen);
+        result = FetchPixelData(w, value, length - 1, screen);
     }
 	else if (value != NULL)
 	    XFree(value);
  
-    return True ; 
+    return result;
 }
 
 /**********************************************************************/
@@ -736,6 +779,11 @@ GetSelection(
     char * value = (char*) val ;
     int  i, screen;
 
+    if (w == NULL || selection == NULL ||
+	tmpColorObj->color_obj.atoms == NULL ||
+	tmpColorObj->color_obj.numScreens <= 0)
+	return;
+
     tmpColorObj->color_obj.done = TRUE;
 
     /** get screen number **/
@@ -754,7 +802,7 @@ GetSelection(
         return;
     }
 
-    if (value != NULL)  {
+    if (value != NULL && length != NULL)  {
 	FetchPixelData(w, value, *length, screen);
     }
 }
@@ -1241,6 +1289,10 @@ XmeGetIconControlInfo(
 {
     XmColorObj tmpColorObj;
 
+    if (useMaskRtn == NULL || useMultiColorIconsRtn == NULL ||
+	useIconFileCacheRtn == NULL)
+	return False;
+
     _XmProcessLock();
     tmpColorObj = screen ? _XmColorObjForDisplay(DisplayOfScreen(screen)) : NULL;
     /* return False if color srv is not running, or color obj not used */
@@ -1297,7 +1349,9 @@ XmeGetColorObjData(Screen * screen,
     /* return False if color srv is not running, or color obj not used */
     if (!tmpColorObj ||
 	!tmpColorObj->color_obj.useColorObj || 
-	!tmpColorObj->color_obj.colorIsRunning) {
+	!tmpColorObj->color_obj.colorIsRunning ||
+	tmpColorObj->color_obj.colorUse == NULL ||
+	tmpColorObj->color_obj.colors == NULL) {
       _XmProcessUnlock();
       return False;
     }
@@ -1414,10 +1468,11 @@ XmeGetDesktopColorCells (Screen * screen,
     int colorUse ;
     XmPixelSet pixelSet[XmCO_NUM_COLORS] ; 
     int i, k, num_icon_colors ;
+    XColor icon_color;
     short primary, secondary, text, active, inactive;
     int reorder[XmCO_NUM_COLORS] ;
 
-    if (!colors || !n_colors) return False ;
+    if (!colors || n_colors <= 0) return False ;
 
     /* get the pixel out of the color obj for this screen */
     if (!(XmeGetColorObjData(screen,
@@ -1493,13 +1548,13 @@ XmeGetDesktopColorCells (Screen * screen,
 	   and then the pixel in the default colormap. 
 	   The query color below will get the rgb again for nothing,
 	   no big deal */
-	XParseColor(DisplayOfScreen(screen),
-		    DefaultColormapOfScreen(screen), 
-		    IconColorNames[k],
-		    &(colors[i])); 
-	XAllocColor(DisplayOfScreen(screen),
-		    DefaultColormapOfScreen(screen),
-		    &(colors[i++])); 
+	if (!XParseColor(DisplayOfScreen(screen),
+			 DefaultColormapOfScreen(screen),
+			 IconColorNames[k], &icon_color) ||
+	    !XAllocColor(DisplayOfScreen(screen),
+			 DefaultColormapOfScreen(screen), &icon_color))
+	    continue;
+	colors[i++] = icon_color;
     }
    
     /* now the shadows */

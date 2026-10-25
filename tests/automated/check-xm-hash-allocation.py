@@ -8,6 +8,7 @@ assert "if (table == NULL)" in source[source.index("_XmFreeHashTable"):source.in
 resize = source[source.index("_XmResizeHashTable"):source.index("XtPointer\n_XmGetHashEntryIterate")]
 assert "XmHashBucket *new_buckets" in resize
 assert "XmHashBucket *old_buckets" in resize
+assert "XtMalloc((Cardinal)((size_t)size_table[i] *" in resize
 assert "if (new_buckets == NULL)" in resize
 assert "memcpy(new_buckets" in resize
 assert "XtFree((char *)old_buckets);" in resize

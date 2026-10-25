@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm icon color-table validation
 
 Icon conversion requires a serialized color table. `UrmCreatePixmap` now
@@ -6,4 +9,5 @@ mapping, returning `MrmNOT_VALID` while preserving a cleared output. The
 shared `Urm__RealizeColorTable` helper also rejects a null table so direct
 internal callers cannot reach its first table-entry write with invalid data.
 
-Valid icon conversion and color allocation are unchanged.
+Valid icon conversion and color allocation are unchanged. The source-level
+regression is `tests/automated/check-mrm-icon-colortable-validation.py`.

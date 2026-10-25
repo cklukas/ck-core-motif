@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm hierarchy filename suffix validation
 
 The hierarchy loader checks whether a UID filename already ends in `.uid`

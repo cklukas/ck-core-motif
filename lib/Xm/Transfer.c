@@ -547,6 +547,11 @@ XmeConvertMerge(XtPointer data, Atom type, int format,
       offset = cs->length * unit;
       user_bytes = size * unit;
       merged = XtMalloc((Cardinal)(offset + user_bytes));
+      if (merged == NULL) {
+        TransferWarning(NULL, MERGE, ARG, BAD_MATCHED_CONVERT);
+        _XmProcessUnlock();
+        return;
+      }
       if (offset != 0)
         memcpy(merged, cs->value, (size_t)offset);
       memcpy(merged + offset, data, (size_t)user_bytes);
@@ -572,19 +577,37 @@ XmeTransferAddDoneProc(XtPointer id,
 		       XmSelectionFinishedProc done_proc)
 {
   TransferContext tid = (TransferContext) id;
+  XmSelectionFinishedProc *new_done_procs;
+  int new_count;
+
+  if (tid == NULL)
+    return;
 
   _XmProcessLock();
-  tid -> numDoneProcs++;
+  if (tid -> numDoneProcs == INT_MAX)
+    {
+      _XmProcessUnlock();
+      return;
+    }
+  new_count = tid -> numDoneProcs + 1;
 
-  if (tid -> numDoneProcs == 1)
-    tid -> doneProcs = (XmSelectionFinishedProc *) 
-      XtMalloc(sizeof(XmSelectionFinishedProc*));
+  if (new_count == 1)
+    new_done_procs = (XmSelectionFinishedProc *)
+      XtMalloc(sizeof(*new_done_procs));
   else
-    tid -> doneProcs = (XmSelectionFinishedProc *) 
+    new_done_procs = (XmSelectionFinishedProc *)
       XtRealloc((char*) tid -> doneProcs,
-		sizeof(XmSelectionFinishedProc*) * tid -> numDoneProcs);
+		sizeof(*new_done_procs) * (size_t)new_count);
 
-  tid -> doneProcs[tid -> numDoneProcs - 1] = done_proc;
+  if (new_done_procs == NULL)
+    {
+      _XmProcessUnlock();
+      return;
+    }
+
+  tid -> doneProcs = new_done_procs;
+  tid -> numDoneProcs = new_count;
+  tid -> doneProcs[new_count - 1] = done_proc;
   _XmProcessUnlock();
 }
 
@@ -1016,15 +1039,27 @@ XmeDragSource(Widget w, XtPointer location_data, XEvent *event,
   ConvertContext cc;
   Atom atoms[XtNumber(atom_names)];
   _XmWidgetToAppContext(w);
+  targets = NULL;
 
   _XmAppLock(app);
+
+  if (in_arg_count > (Cardinal)(INT_MAX - 10) ||
+      (in_arg_count != 0 && in_args == NULL) ||
+      (size_t)(in_arg_count + 10) > (size_t)-1 / sizeof(*args)) {
+    _XmAppUnlock(app);
+    return(NULL);
+  }
 
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);
 
   /* merge and copy arg list */
   arg_count = in_arg_count + 10;
-  args = (Arg *) XtMalloc(sizeof(Arg) * arg_count);
+  args = (Arg *)XtMalloc(sizeof(*args) * (size_t)arg_count);
+  if (args == NULL) {
+    _XmAppUnlock(app);
+    return(NULL);
+  }
   for(arg_count = 0; arg_count < in_arg_count; arg_count++)
     args[arg_count] = in_args[arg_count];
 
@@ -1088,8 +1123,10 @@ _XmDestinationHandler(Widget wid, Atom selection, XtEnum op,
   XmTransferTrait ttrait;
   Atom MOTIF_DROP = XInternAtom(XtDisplay(wid), XmS_MOTIF_DROP, False);
 
-  cbstruct = (XmDestinationCallbackStruct *) 
+  cbstruct = (XmDestinationCallbackStruct *)
     XtMalloc(sizeof(XmDestinationCallbackStruct));
+  if (cbstruct == NULL)
+    return(False);
 
   cbstruct -> reason = XmCR_OK;
   cbstruct -> event = (XEvent *) event;
@@ -1102,6 +1139,10 @@ _XmDestinationHandler(Widget wid, Atom selection, XtEnum op,
 
   /* Setup transfer */
   cbstruct -> transfer_id = (XtPointer) GetTransferID();
+  if (cbstruct -> transfer_id == NULL) {
+    XtFree((char *)cbstruct);
+    return(False);
+  }
   tc = (TransferContext) cbstruct -> transfer_id;
   tc -> widget = wid;
   tc -> numDoneProcs = 0;
@@ -1130,7 +1171,17 @@ _XmDestinationHandler(Widget wid, Atom selection, XtEnum op,
     int i;
     Arg args[1];
 
+    if (ds == NULL) {
+      XtFree((char *)cbstruct);
+      FreeTransferID((XtPointer)tc);
+      return(False);
+    }
     malloc_ds = XtMalloc(sizeof(XmDropProcCallbackStruct));
+    if (malloc_ds == NULL) {
+      XtFree((char *)cbstruct);
+      FreeTransferID((XtPointer)tc);
+      return(False);
+    }
     memcpy(malloc_ds, ds, sizeof(XmDropProcCallbackStruct));
     location_data = malloc_ds;
     XmeTransferAddDoneProc((XtPointer) tc, DeleteDropCBStruct);
@@ -1397,9 +1448,19 @@ XmeDropSink(Widget w, ArgList in_args, Cardinal in_arg_count)
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
+  if (in_arg_count > (Cardinal)(INT_MAX - 2) ||
+      (in_arg_count != 0 && in_args == NULL) ||
+      (size_t)(in_arg_count + 2) > (size_t)-1 / sizeof(*args)) {
+    _XmAppUnlock(app);
+    return;
+  }
   /* merge and copy arg list */
   arg_count = in_arg_count + 2;
-  args = (Arg *) XtMalloc(sizeof(Arg) * arg_count);
+  args = (Arg *)XtMalloc(sizeof(*args) * (size_t)arg_count);
+  if (args == NULL) {
+    _XmAppUnlock(app);
+    return;
+  }
   for(arg_count = 0; arg_count < in_arg_count; arg_count++)
     args[arg_count] = in_args[arg_count];
 
@@ -1564,6 +1625,10 @@ XmTransferValue(XtPointer transfer_id,
     time = XtLastTimestampProcessed(XtDisplay(tc -> widget));  
 
   tb = AddTransferBlock(tc);
+  if (tb == NULL) {
+    _XmAppUnlock(app);
+    return;
+  }
 
   tb -> client_data = client_data;
   tb -> selection_proc = proc;
@@ -1918,6 +1983,11 @@ GetTransferID(void)
   else
     rval = (TransferContext) XtMalloc(sizeof(TransferContextRec));
 
+  if (rval == NULL) {
+    _XmProcessUnlock();
+    return(NULL);
+  }
+
   /* Put it on the chain */
 
   rval -> next = (XtPointer) global_tc;
@@ -1990,6 +2060,8 @@ AddTransferBlock(TransferContext tc)
   TransferBlock tb;
 
   tb = (TransferBlock) XtMalloc(sizeof(TransferBlockRec));
+  if (tb == NULL)
+    return(NULL);
   tb -> next = NULL;
   /* we append blocks to the end of the list */
   if (tc -> requests == NULL) 
@@ -2035,8 +2107,6 @@ TransferWarning(Widget w, char* name, char* type, char* message)
  * integer
  */
 
-#define MAXBUILTIN 12
-
 Atom*
 XmeStandardTargets(Widget w, int count, int *tcount)
 {
@@ -2052,16 +2122,24 @@ XmeStandardTargets(Widget w, int count, int *tcount)
   Atom atoms[XtNumber(atom_names)];
   Atom *targets;
   const size_t builtin_count = XtNumber(atom_names) + 1; /* XA_COLORMAP */
+  size_t target_count;
 
   if (!w || !tcount || count < 0 ||
       (size_t)count > (size_t)UINT_MAX / sizeof(Atom) - builtin_count) {
     if (tcount) *tcount = 0;
     return NULL;
   }
+  target_count = (size_t)count + builtin_count;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
-  targets = (Atom *) XtMalloc(sizeof(Atom) * MAXBUILTIN);
+  targets = (Atom *)XtMalloc(sizeof(*targets) * target_count);
+  if (targets == NULL)
+    {
+      *tcount = 0;
+      _XmAppUnlock(app);
+      return NULL;
+    }
 
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);
@@ -2076,9 +2154,6 @@ XmeStandardTargets(Widget w, int count, int *tcount)
   targets[i] = atoms[XmACLIENT_WINDOW]; i++;
   targets[i] = atoms[XmA_MOTIF_RENDER_TABLE]; i++;
   targets[i] = atoms[XmA_MOTIF_ENCODING_REGISTRY]; i++;
-
-  /* Realloc the full size now */
-  targets = (Atom *) XtRealloc((char*) targets, sizeof(Atom) * (count + i));
 
   *tcount = i; /* Return the builtin target count */
   _XmAppUnlock(app);
@@ -2124,6 +2199,14 @@ XmeStandardConvert(Widget w,
     if (XmIsGadget(w)) w = XtParent(w);
 
     fg = (Pixel *) XtMalloc(sizeof(Pixel));
+    if (fg == NULL) {
+      cs -> value = NULL;
+      cs -> format = 32;
+      cs -> length = 0;
+      cs -> type = atoms[XmAPIXEL];
+      _XmAppUnlock(app);
+      return;
+    }
     XtSetArg(arg[0], XtNforeground, fg);
     XtGetValues(w, arg, 1);
 
@@ -2137,6 +2220,14 @@ XmeStandardConvert(Widget w,
     if (XmIsGadget(w)) w = XtParent(w);
 
     bg = (Pixel *) XtMalloc(sizeof(Pixel));
+    if (bg == NULL) {
+      cs -> value = NULL;
+      cs -> format = 32;
+      cs -> length = 0;
+      cs -> type = atoms[XmAPIXEL];
+      _XmAppUnlock(app);
+      return;
+    }
     XtSetArg(arg[0], XtNbackground, bg);
     XtGetValues(w, arg, 1);
 
@@ -2150,6 +2241,14 @@ XmeStandardConvert(Widget w,
     if (XmIsGadget(w)) w = XtParent(w);
 
     cmap = (Colormap *) XtMalloc(sizeof(Colormap));
+    if (cmap == NULL) {
+      cs -> value = NULL;
+      cs -> format = 32;
+      cs -> length = 0;
+      cs -> type = XA_COLORMAP;
+      _XmAppUnlock(app);
+      return;
+    }
     XtSetArg(arg[0], XtNcolormap, cmap);
     XtGetValues(w, arg, 1);
 
@@ -2306,7 +2405,7 @@ _XmTextToLocaleText(Widget w,
   char ** values;
   int num_values = 0;
   char *total_value = NULL;
-  int malloc_size = 0;
+  size_t malloc_size = 0;
   int i;
 
   if (type == XA_STRING || type == COMPOUND_TEXT
@@ -2330,10 +2429,35 @@ _XmTextToLocaleText(Widget w,
     }
 
     if (num_values) { 
-      for (i = 0; i < num_values ; i++)
-	malloc_size += strlen(values[i]);
+      for (i = 0; i < num_values ; i++) {
+	size_t value_size;
 
-      total_value = XtMalloc ((unsigned) malloc_size + 1);
+	if (values[i] == NULL) {
+	  XFreeStringList(values);
+	  if (success != NULL) *success = False;
+	  return NULL;
+	}
+	value_size = strlen(values[i]);
+	if (value_size > (size_t)-1 - malloc_size) {
+	  XFreeStringList(values);
+	  if (success != NULL) *success = False;
+	  return NULL;
+	}
+	malloc_size += value_size;
+	}
+
+	if (malloc_size == (size_t)-1) {
+	  XFreeStringList(values);
+	  if (success != NULL) *success = False;
+	  return NULL;
+	}
+
+      total_value = XtMalloc (malloc_size + 1);
+      if (total_value == NULL) {
+	XFreeStringList(values);
+	if (success != NULL) *success = False;
+	return NULL;
+      }
       total_value[0] = '\0';
       for (i = 0; i < num_values ; i++)
 	strcat(total_value, values[i]);

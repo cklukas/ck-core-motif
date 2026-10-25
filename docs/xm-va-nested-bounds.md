@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 Nested typed varargs bounds
 ===========================
 

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm wide-character allocation handling
 
 Wide-character literal fixup now checks the initial conversion buffer and the

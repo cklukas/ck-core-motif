@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Legacy background color override
 
 The private `_XmSetDefaultBackgroundColorSpec` entry point is used by legacy

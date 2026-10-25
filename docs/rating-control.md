@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RatingControl
 
 `XmRatingControl` is an additive integer rating from zero through

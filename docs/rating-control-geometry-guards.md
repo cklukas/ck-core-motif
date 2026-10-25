@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RatingControl geometry guards
 
 `XmRatingControl` now handles zero-width and very small widgets without

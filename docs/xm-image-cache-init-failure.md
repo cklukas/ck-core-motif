@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm image-cache initialization failure handling
 
 `GetImage` lazily creates the image hash table. It now checks the result of

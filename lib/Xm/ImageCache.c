@@ -318,6 +318,7 @@ allocation_failure:
       XtFree((char *)entries[i]);
   _XmFreeHashTable(new_image_set);
 }
+
 
 /************************************************************************
  *
@@ -525,9 +526,9 @@ CompleteUnspecColors(
     Cardinal i, j ;
     XmAccessColorDataRec loc_acc_color;
 
+    if (screen == NULL || override_colors == NULL)
+	return;
 
-	if (screen == NULL || override_colors == NULL)
-	    return;
 
     /* Ask the color obj */
     if (!(result = XmeGetColorObjData(screen, 
@@ -635,8 +636,8 @@ GetOverrideColors(
 {
     Cardinal i, n ;
 
-	if (screen == NULL || acc_color == NULL || override_colors == NULL)
-	    return 0;
+    if (screen == NULL || acc_color == NULL || override_colors == NULL)
+	return 0;
 
     /* init the value fields */
     for (i=0; i<NUM_SYMBOLIC_COLORS; i++) override_colors[i].value = NULL ;
@@ -832,7 +833,7 @@ GetXpmImage(
 	    String mask_name = NULL;
 
 	    if (XmMaskNameSize(image_name, &mask_name_size))
-		mask_name = XtMalloc(mask_name_size);
+		mask_name = XtMalloc((Cardinal)mask_name_size);
 
 	    if (mask_name != NULL) {
 		Boolean installed;
@@ -1276,6 +1277,7 @@ InitializePixmapSets( void )
     else if (new_pixmap_data_set != NULL && new_pixmap_set == NULL)
         _XmFreeHashTable(new_pixmap_data_set);
 }
+
 
 /************************************************************************
  *
@@ -1329,7 +1331,7 @@ _XmCachePixmap(
    pix_entry = XtNew (PixmapData);
    if (pix_entry == NULL)
        return (False);
-   
+
    pix_entry->screen = screen;
    pix_entry->acc_color = XtNew(XmAccessColorDataRec);
    if (pix_entry->acc_color == NULL) {
@@ -1448,8 +1450,6 @@ _XmGetPixmapData(
     _XmProcessUnlock();
     return False;
 }
-
-
 
 /*******************************************************************/
 /* Release temporary state when scaled-pixmap construction cannot
@@ -1695,7 +1695,7 @@ _XmGetScaledPixmap(
 	      /* Flip the bits so fg == 1 in the image. */
 	      size_t nbytes;
 	      char *new_image_data;
-	      register int byte;
+	      size_t byte;
 
 	      if (image->height <= 0 || image->bytes_per_line <= 0 ||
 		  (size_t)image->height >
@@ -1734,7 +1734,10 @@ _XmGetScaledPixmap(
 	  break;
 
 	default:
-	  assert(FALSE);
+	  DiscardScaledPixmapBuild(ret, image, old_image_data,
+				   old_image_format, image_lock_held,
+				   screen, pixels, npixels, NULL);
+	  return (XmUNSPECIFIED_PIXMAP);
 	}
     }
 
@@ -1865,9 +1868,8 @@ _XmGetScaledPixmap(
       }
     else if (image->format != old_image_format)
       {
-	/* Undo the XYPixmap to XYBitmap conversion done earlier. */
+	/* Restore the original image format after temporary conversion. */
 	image->format = old_image_format;
-	assert(old_image_format == XYPixmap);
 
 	if (old_image_data)
 	  {
@@ -2042,7 +2044,7 @@ XmeGetMask(
 
     app = XtDisplayToApplicationContext(DisplayOfScreen(screen));
 
-    mask_name = XtMalloc(mask_name_size);
+    mask_name = XtMalloc((Cardinal)mask_name_size);
     if (mask_name == NULL)
 	return XmUNSPECIFIED_PIXMAP;
 
@@ -2451,6 +2453,8 @@ XmMaskNameSize(String image_name, size_t *size)
     if (length > SIZE_MAX - 3)
 	return False;
     *size = length + 3;
+	if (*size > UINT_MAX)
+	return False;
     return True;
 }
 
@@ -2484,7 +2488,8 @@ void _XmPutScaledImage (
     Bool fast8;
     int output_y;
 
-    if (src_image == NULL || src_image->data == NULL ||
+    if (display == NULL || d == None || gc == NULL ||
+	src_image == NULL || src_image->data == NULL ||
 	src_image->width <= 0 || src_image->height <= 0 ||
 	src_image->bytes_per_line <= 0 ||
 	(size_t)src_image->height >
@@ -2594,6 +2599,13 @@ void _XmPutScaledImage (
     fast8 = (src_image->depth == 8 && src_image->bits_per_pixel == 8 &&
 	     dest_image->bits_per_pixel == 8 && src_image->format == ZPixmap);
 
+	if ((size_t)src_image->width >
+	    SIZE_MAX / sizeof(*table.x) - 1 ||
+	    (size_t)src_image->height >
+	    SIZE_MAX / sizeof(*table.y) - 1 ||
+	    (size_t)src_image->width > SIZE_MAX / sizeof(*table.width) ||
+	    (size_t)src_image->height > SIZE_MAX / sizeof(*table.height))
+	    goto cleanup;
     table.x = (unsigned int *) XtMalloc(sizeof(*table.x) *
 					((size_t)src_image->width + 1));
     table.y = (unsigned int *) XtMalloc(sizeof(*table.y) *
@@ -2778,7 +2790,9 @@ CacheColorPixel( Display *display, Colormap colormap,
 	    return False;
         colorCacheList.maxEntries += 25;
 	if ((size_t)colorCacheList.maxEntries >
-	    SIZE_MAX / sizeof(*colorCacheList.cache))
+	    SIZE_MAX / sizeof(*colorCacheList.cache) ||
+	    (size_t)colorCacheList.maxEntries >
+	    UINT_MAX / sizeof(*colorCacheList.cache))
 	    return False;
 	new_cache = (CachedColor *)
 		    XtRealloc((char *)colorCacheList.cache,

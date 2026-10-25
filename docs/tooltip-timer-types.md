@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Tooltip timer initialization
 
 The VendorS tooltip trait stores timeout handles as `XtIntervalId`.  Its

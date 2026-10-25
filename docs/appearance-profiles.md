@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Appearance-profile contract
 
 The appearance API has two deliberately separate operations. Selection is

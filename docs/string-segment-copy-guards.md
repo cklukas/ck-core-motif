@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Compound-string segment copy guards
 
 `_XmStringGetSegment` now checks allocations made when copying a segment’s tag

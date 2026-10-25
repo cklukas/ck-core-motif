@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm compound-string stream cleanup
 
 `UrmCWR__AppendCString` now releases the temporary byte stream returned by

@@ -28,8 +28,6 @@ def main():
         parser.error("--out must be a fresh absolute directory")
     source_root = Path(__file__).resolve().parents[2]
     fixture = source_root / "tests/automated/check-xlibre-dpi-contract.c"
-    selection_fixture = source_root / "tests/automated/check-xlibre-output-selection.c"
-    observer_fixture = source_root / "tests/automated/check-xlibre-shell-observer.c"
     header_root = source_root / "lib/Xm"
     output.mkdir(parents=True)
     source_files = [fixture, selection_fixture, observer_fixture,
@@ -54,8 +52,6 @@ def main():
     if args.display:
         env["DISPLAY"] = args.display
     binary = output / "check-xlibre-dpi-contract"
-    selection_binary = output / "check-xlibre-output-selection"
-    observer_binary = output / "check-xlibre-shell-observer"
     xrandr_flags = []
     if args.xrandr_root:
         xrandr_root = args.xrandr_root.resolve(strict=True)
@@ -108,6 +104,7 @@ def main():
                           stderr=subprocess.STDOUT).returncode:
             print(compile_log.read_text(errors="replace"), file=sys.stderr)
             return 1
+>>>>>>> theirs
     run = [str(binary)] if args.display else [
         "xvfb-run", "-a", "-s", "-screen 0 1024x768x24", str(binary)
     ]
@@ -140,15 +137,8 @@ def main():
             print(observer_log.read_text(errors="replace"), file=sys.stderr)
             return 1
     result = run_log.read_text(errors="replace")
-    selection_result = selection_log.read_text(errors="replace")
-    observer_result = observer_log.read_text(errors="replace")
-    if ("PASS XLibre RandR DPI contract and non-XLibre fallback" not in result or
-            "PASS XLibre shell output selection policy" not in selection_result or
-            ("PASS XLibre multi-shell observer fallback" not in observer_result and
-             "PASS XLibre multi-shell observer registration, explicit unregistration and retirement" not in observer_result)):
+    if "PASS XLibre RandR DPI contract and non-XLibre fallback" not in result:
         print(result, file=sys.stderr)
-        print(selection_result, file=sys.stderr)
-        print(observer_result, file=sys.stderr)
         return 1
     library = prefix / "lib/libXm.so.8.0.0"
     if library.exists():

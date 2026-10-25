@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # External selection-owner lifecycle
 
 Motif transfer helpers can replace a selection owned by an unrelated X11

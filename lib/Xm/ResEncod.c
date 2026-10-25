@@ -722,12 +722,16 @@ XmCvtCTToXmString(
     Octet	    c;
     XmString	    xmsReturned;	/* returned Xm string */
 
+    if (text == NULL)
+	return NULL;
+
     ctx = (ct_context *)XtMalloc(sizeof(*ctx));
     if (ctx == NULL)
         return NULL;
 
 /* initialize the context block */
     ctx->octet = (OctetPtr)text;
+    ctx->lastoctet = ctx->octet + strlen(text);
     ctx->flags.dircs = False;
     ctx->flags.gchar = False;
     ctx->flags.ignext = False;
@@ -776,7 +780,9 @@ XmCvtCTToXmString(
 **		ESC 02/03 V 03/01   ignoring extensions is not OK
 **  where V is in the range 02/00 thru 02/15 and represents versions 1 thru 16
 */
-    if (    (ctx->octet[0] == ESC)
+
+    if (    ((ctx->lastoctet - ctx->octet) >= 4)
+	&&  (ctx->octet[0] == ESC)
 	&&  (ctx->octet[1] == 0x23)
 	&&  (_IsInColumn2(ctx->octet[2])
 	&&  ((ctx->octet[3] == 0x30) || ctx->octet[3] == 0x31))
@@ -985,6 +991,9 @@ processESCHack(
 {
     Boolean	    ok;
 
+    if (ctx->itemlen < 2)
+	return False;
+
     switch (ctx->item[1]) {
     case 0x24:			/* 02/04 - invoke 94(n) charset into GL or GR */
 	ok = process94n(ctx, final);
@@ -1043,6 +1052,8 @@ processExtendedSegmentsHack(
 	&&	(_IsInColumn3(final))
        ) 
       {
+	if ((ctx->lastoctet - ctx->octet) < 2)
+	  return False;
 	if (    (ctx->octet[0] < 0x80)
 	    ||  (ctx->octet[1] < 0x80)
 	   )	
@@ -1078,15 +1089,15 @@ processExtendedSegmentsHack(
 	case 0x32:				/* 2 octets per char */
 	    /* scan for STX separator between charset and text */
 	    len = 0;
-	    while (esptr[len] != STX)
+	    while (len < seglen && esptr[len] != STX)
 		len++;
-	    if (len > ctx->itemlen) {		/* if we ran off the end, error */
+	    if (len >= seglen) {		/* separator is missing */
 		ok = False;
 		break;
 	    }
 	    charset_copy = XtMalloc(len + 1);
-	    if (charset_copy == NULL)
-		return False;
+            if (charset_copy == NULL)
+                return False;
 	    strncpy(charset_copy, (char *) esptr, len);
 	    charset_copy[len] = EOS;
 	    esptr += len + 1;			/* point to text part */
@@ -1100,10 +1111,10 @@ processExtendedSegmentsHack(
             }
 	    
 	    text_copy = (unsigned char *) XtMalloc(len + 1);
-	    if (text_copy == NULL) {
-		XtFree(charset_copy);
-		return False;
-	    }
+            if (text_copy == NULL) {
+                XtFree(charset_copy);
+                return False;
+            }
 	    memcpy( text_copy, esptr, len);
 	    text_copy[len] = EOS;
 	    tempxm1 = XmStringConcatAndFree(
@@ -1456,10 +1467,10 @@ cvtCTsegment(ct_context *ctx,
   
   if (ctx->encoding) {
     if (ctx->encoding + ctx->encodinglen != item) {
-      octets = 
+      octets =
 	(OctetPtr)XtMalloc((size_t)total_length * sizeof(Octet));
       if (octets == NULL)
-	return NULL;
+        return NULL;
       memcpy((char *)octets, (char *)ctx->encoding, ctx->encodinglen);
       memcpy((char *)(octets + ctx->encodinglen), (char *)item, length);
       free_octets = True;
@@ -1588,6 +1599,23 @@ outputXmString(
       unsigned int	start = 0;
       Octet		c;
       Boolean		curseg_is_gl;
+
+      /* Empty segments are legal while decoding compound text.  Do not
+       * inspect item[0] until a byte is known to be present; retain the
+       * separator semantics of the normal final-segment path. */
+      if (ctx->itemlen == 0)
+	{
+	  ctx->xmstring = concatStringToXmString
+	    (ctx->xmstring, (char *)ctx->item, 0,
+	     (char *)ctx->gl_charset,
+	     (XmStringDirection) ((_CurDir(ctx) == ct_Dir_LeftToRight) ?
+				  XmSTRING_DIRECTION_L_TO_R :
+				  ((_CurDir(ctx) == ct_Dir_RightToLeft) ?
+				   XmSTRING_DIRECTION_R_TO_L :
+				   XmSTRING_DIRECTION_UNSET)),
+	     separator);
+	  return;
+	}
       
       curseg_is_gl = isascii((unsigned char)ctx->item[0]);
       
@@ -1711,6 +1739,9 @@ processESC(
 {
     Boolean	    ok;
 
+    if (ctx->itemlen < 2)
+	return False;
+
     switch (ctx->item[1]) {
     case 0x24:			/* 02/04 - invoke 94(n) charset into GL or GR */
 	ok = process94n(ctx, final);
@@ -1759,6 +1790,9 @@ processCSI(
 {
     Boolean	    ok = True;
 
+    if (ctx->itemlen < 2)
+	return False;
+
     switch (final) {
     case 0x5d:				/* end of direction sequence */
 	switch (ctx->item[1]) {
@@ -1766,16 +1800,16 @@ processCSI(
 	    if (ctx->flags.gchar && ctx->dirsp == 0) {
 		ok = False;
 	    } else {
-		if (!_PushDir(ctx, ct_Dir_LeftToRight))
-		    ok = False;
+                if (!_PushDir(ctx, ct_Dir_LeftToRight))
+                    ok = False;
 	    }
 	    break;
 	case 0x32:			/* start right to left */
 	    if (ctx->flags.gchar && ctx->dirsp == 0) {
 		ok = False;
 	    } else {
-		if (!_PushDir(ctx, ct_Dir_RightToLeft))
-		    ok = False;
+                if (!_PushDir(ctx, ct_Dir_RightToLeft))
+                    ok = False;
 	    }
 	    break;
 	case 0x5d:			/* Just CSI EOS - revert */
@@ -1863,17 +1897,17 @@ processExtendedSegments(
 		break;
 	    }
 	    charset_copy = XtMalloc(len + 1);
-	    if (charset_copy == NULL)
-		return False;
+            if (charset_copy == NULL)
+                return False;
 	    strncpy(charset_copy, (char *) esptr, len);
 	    charset_copy[len] = EOS;
 	    esptr += len + 1;			/* point to text part */
 	    len = seglen - len - 1;		/* calc length of text part */
 	    text_copy = (unsigned char *) XtMalloc(len + 1);
-	    if (text_copy == NULL) {
-		XtFree(charset_copy);
-		return False;
-	    }
+            if (text_copy == NULL) {
+                XtFree(charset_copy);
+                return False;
+            }
 	    memcpy( text_copy, esptr, len);
 	    text_copy[len] = EOS;
 	    tempxm1 = XmStringConcatAndFree(
@@ -2912,10 +2946,21 @@ ctextConcat(
         const_OctetPtr str2,
         unsigned int str2len )
 {
-	str1 = (OctetPtr)XtRealloc((char *)str1, (str1len + str2len + 1));
-	memcpy( &str1[str1len], str2, str2len);
-	str1[str1len+str2len] = EOS;
-	return(str1);
+	size_t total_size;
+	OctetPtr new_str;
+
+	if ((str2 == NULL && str2len != 0) ||
+	    (size_t)str1len > SIZE_MAX - (size_t)str2len - 1 ||
+	    (size_t)str1len + (size_t)str2len + 1 > UINT_MAX)
+	    return str1;
+
+	total_size = (size_t)str1len + (size_t)str2len + 1;
+	new_str = (OctetPtr)XtRealloc((char *)str1, (Cardinal)total_size);
+	if (new_str == NULL)
+	    return str1;
+	memcpy(&new_str[str1len], str2, str2len);
+	new_str[str1len + str2len] = EOS;
+	return new_str;
 }
 
 #ifdef UTF8_SUPPORTED
@@ -2999,12 +3044,12 @@ again:
                     return NULL;
                 }
                 outbuf_size *= 2;
-		        new_dest = XtRealloc(dest, outbuf_size);
-		        if (new_dest == NULL) {
-		            XtFree(dest);
-		            return NULL;
-		        }
-		        dest = new_dest;
+                new_dest = XtRealloc(dest, outbuf_size);
+                if (new_dest == NULL) {
+                    XtFree(dest);
+                    return NULL;
+                }
+                dest = new_dest;
 		
                 outp = dest + used;
                 outbytes_remaining = outbuf_size - used - 1; /* -1 for nul */

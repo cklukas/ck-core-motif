@@ -23,6 +23,8 @@
  */
 
 #include "xmlist.h"
+#include <limits.h>
+#include <stdint.h>
 
 /************************************************************
  *
@@ -80,14 +82,25 @@ _XmStackPush(XmStack stack, XtPointer elem)
 	if (stack == NULL)
 	return;
 
+	if (stack->top < 0 || stack->alloc < 0 || stack->top == INT_MAX)
+	    return;
+
     if ((stack->top + 1) >= stack->alloc) {
+	int new_alloc;
+	if (stack->alloc > INT_MAX - STACK_INC ||
+	    (size_t)(stack->alloc + STACK_INC) >
+	    SIZE_MAX / sizeof(XtPointer) ||
+	    (size_t)(stack->alloc + STACK_INC) >
+	    UINT_MAX / sizeof(XtPointer))
+	    return;
+	new_alloc = stack->alloc + STACK_INC;
 	new_elems = (XtPointer *) XtRealloc((XtPointer) stack->elems,
-					 sizeof(XtPointer) *
-					 (stack->alloc + STACK_INC));
+					 (Cardinal)(sizeof(XtPointer) *
+					     (size_t)new_alloc));
 	if (new_elems == NULL)
 	    return;
 	stack->elems = new_elems;
-	stack->alloc += STACK_INC;
+	stack->alloc = new_alloc;
     }
 
     stack->elems[++stack->top] = elem;
@@ -229,11 +242,9 @@ QueuePush(XmQueue queue, XtPointer data_in)
 XtPointer
 _XmQueuePop(XmQueue queue)
 {
-    _XmQElem *first;
-
     if (queue == NULL)
 	return(NULL);
-    first = _Xm_RemQueue(&queue->first);
+    _XmQElem *first = _Xm_RemQueue(&queue->first);
 
     if (queue->first == NULL)
 	queue->last = NULL;

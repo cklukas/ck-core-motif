@@ -1,15 +1,13 @@
-#!/usr/bin/env python3
-"""Check Mrm related argument codes are restricted to vector values."""
 from pathlib import Path
+import os
 
-source = Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrw.c"
-text = source.read_text(encoding="utf-8")
-start = text.index("\nUrm__CW_CreateArglist (")
-end = text.find("\n\n\f", start)
-region = text[start:end]
-marker = "case MrmRtypeIntegerVector:"
-pos = region.index(marker)
-block = region[pos:region.find("\n\t      }", pos)]
-if "default:" not in block or "A related code is a vector-count resource by definition." not in block:
-    raise SystemExit("related-code type guard is missing")
-print("PASS Mrm related codes are restricted to vector values")
+source = Path(os.environ["MOTIF_SOURCE"])
+text = source.read_text()
+start = text.index("Create an additional arglist entry")
+end = text.index("Now set any pixmap arguments", start)
+block = text[start:end]
+assert "case MrmRtypeIntegerVector:" in block
+assert "default:" in block, "related-code handling must reject non-vector values"
+assert block.index("default:") < block.index("Urm__UncompressCode"), "invalid related values must not be decompressed"
+assert "continue;" in block or "continue ;" in block
+print("Mrm related codes only append vector-count arguments")

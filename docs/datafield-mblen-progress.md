@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DataField multibyte counting progress
 
 DataField counts characters by repeatedly calling `mblen`.  A zero return

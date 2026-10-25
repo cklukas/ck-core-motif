@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Image mask-name size checks
 
 Image mask names reserve three extra bytes for the generated prefix and

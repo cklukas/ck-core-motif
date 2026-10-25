@@ -11,6 +11,7 @@ assert "new_elems = (XtPointer *) XtRealloc" in region
 assert "if (new_elems == NULL)" in region
 assert region.index("if (new_elems == NULL)") < region.index("stack->elems = new_elems")
 assert "stack->elems[++stack->top] = elem;" in region
+assert "(Cardinal)(sizeof(XtPointer) *" in region
 
 start = source.index("\n_XmStackPop(") + 1
 end = source.index("\n}\n", start) + 3

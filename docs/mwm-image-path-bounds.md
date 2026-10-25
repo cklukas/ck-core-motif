@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm bitmap path bounds
 
 The window manager combines the configured bitmap directory with a relative

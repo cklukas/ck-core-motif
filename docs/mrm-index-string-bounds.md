@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm index string bounds
 
 Index entries store offsets into a fixed record string area. Search and resource

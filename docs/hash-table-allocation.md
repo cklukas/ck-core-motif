@@ -1,8 +1,11 @@
-# Hash-table record allocation
+---
+nav_exclude: true
+---
+# Hash-table allocation
 
-`_XmAllocHashTable` now checks the opaque table-record allocation before
-initializing its callbacks or bucket array. Allocation failure returns `NULL`
-without dereferencing an incomplete table. The existing bucket-allocation
-rollback remains in force for failures after the record has been created.
+The shared `_XmAllocHashTable` constructor now checks its table-record
+allocation before initializing callbacks or bucket storage.  Allocation failure
+returns `NULL` cleanly, allowing screen, image, and other caches to remain
+uninitialized rather than dereferencing a missing table.
 
 The focused regression is `tests/automated/check-hash-table-allocation.py`.

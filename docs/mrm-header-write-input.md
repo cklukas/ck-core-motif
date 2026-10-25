@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm header-writer input validation
 
 `Idb__HDR_InitHeader` now rejects a null file handle or null creator/module

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm literal output validation
 
 `MrmFetchLiteral` returns both a literal value and its `MrmCode` through caller

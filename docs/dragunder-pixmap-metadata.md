@@ -1,7 +1,10 @@
+---
+nav_exclude: true
+---
 # DragUnder pixmap metadata guards
 
 DragUnder now initializes metadata depth before configuring highlight, top
-shadow, and bottom shadow GCs. Tile or stipple state is added only for a
+shadow, and bottom shadow GCs.  Tile or stipple state is added only for a
 positive resolved depth; an unresolved pixmap leaves the solid color GC
 configuration intact.
 

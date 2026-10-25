@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TreeView contract and decision record
 
 `XmTreeView` is an additive model/view widget.  It does not subclass or

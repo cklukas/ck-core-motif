@@ -1,8 +1,17 @@
+---
+nav_exclude: true
+---
 # Color cache growth failures
 
 Motif keeps small process-wide caches for default colors and calculated color
-sets. Initial allocation and growth now check count-to-byte conversion against
-both host `size_t` and Xt's `Cardinal` limits, and pass explicit Xt-sized byte
-counts to the allocator. A failed allocation leaves the existing cache and its
-capacity unchanged instead of publishing a null pointer and continuing to
-write through it.
+sets.  Their growth paths previously assigned `XtRealloc`'s result directly
+to the cache pointer, then continued writing entries.  A failed allocation
+could therefore discard the old cache and dereference a null pointer.
+
+Initial allocation and growth now pass explicit Xt `Cardinal` byte sizes after
+checking the count-to-byte conversion against both host `size_t` and Xt
+`Cardinal` limits. The code calculates the new capacity without signed
+overflow, and updates the cache pointer and capacity only after the allocation
+succeeds.
+Existing cache entries remain available when the toolkit cannot grow the
+cache.

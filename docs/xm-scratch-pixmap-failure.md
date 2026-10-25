@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm scratch-pixmap allocation failure handling
 
 `_XmAllocScratchPixmap` now rejects missing cache tables, handles scratch-key

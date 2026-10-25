@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm cursor-size query validation
 
 `XmeQueryBestCursorSize` now rejects null widgets or output pointers and

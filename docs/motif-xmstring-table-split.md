@@ -1,8 +1,13 @@
-# XmString table split allocation failure
+---
+nav_exclude: true
+---
+# XmString table splitting allocation and indexing
 
-`XmStringToXmStringTable` now checks both result-table allocations and passes
-the bounded counted-table size explicitly as an Xt `Cardinal` before writing
-entries. On failure it releases the Motif process lock and returns zero,
-leaving the caller with no partially initialized output table.
+`XmStringToXmStringTable` now checks both output-table allocations and passes
+the bounded counted-table size explicitly as an Xt `Cardinal`, while balancing
+the process lock when allocation fails.  The no-break-component path also
+writes the copied string through `(*table)[0]`, fixing the old precedence error
+that wrote through an uninitialized pointer.
 
-The regression check is `tests/automated/check-xmstring-table-split.py`.
+The regression check is
+`tests/automated/check-xmstring-table-split.py`.

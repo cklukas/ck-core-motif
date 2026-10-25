@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # UTF-8 resource conversion length accounting
 
 `XmString` resource conversion may expand a source string when converting it

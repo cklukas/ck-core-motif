@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm buffer postconditions
 
 `Idb__BM_GetRecord` and `Idb__BM_InitRecord` now verify that successful buffer

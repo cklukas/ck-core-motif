@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm index buffer validation
 
 Index insertion and child-repair helpers now reject missing record storage and

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WP-29 modern-layout requirements corpus
 
 WP-29 asks whether an additive layout family is justified by installed-client

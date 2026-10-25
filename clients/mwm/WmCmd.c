@@ -27,6 +27,8 @@
 
 
 #include <Xm/Xm.h>
+#include <limits.h>
+#include <stdint.h>
 #include <Xm/ScrollBarP.h>
 #include "./WmWsmLib/utm_send.h"
 #include "./WmWsmLib/wsm_proto.h"
@@ -384,7 +386,23 @@ IncludeCommand (
   selection = UnpackCARD32(&data);
   count     = UnpackCARD32(&data);
 
-  if (count > 0) windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if (count == 0)
+    {
+      PRINT("No windows supplied for IncludeCommand.\n");
+      return;
+    }
+  if ((size_t) count > SIZE_MAX / sizeof(Window) ||
+      (size_t) count > UINT_MAX / sizeof(Window))
+    {
+      PRINT("Window list is too large for IncludeCommand.\n");
+      return;
+    }
+  windowIDs = (Window *) XtMalloc((Cardinal)(sizeof(Window) * (size_t) count));
+  if (windowIDs == NULL)
+    {
+      PRINT("Unable to allocate window list for IncludeCommand.\n");
+      return;
+    }
   for (win=0; win<count; win++)
   {
       windowIDs[win] = UnpackCARD32(&data);
@@ -509,7 +527,23 @@ EnableCommand (
   commandID = UnpackCARD32(&data);
   count     = UnpackCARD32(&data);
 
-  if (count > 0) windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if (count == 0)
+    {
+      PRINT("No windows supplied for EnableCommand.\n");
+      return;
+    }
+  if ((size_t) count > SIZE_MAX / sizeof(Window) ||
+      (size_t) count > UINT_MAX / sizeof(Window))
+    {
+      PRINT("Window list is too large for EnableCommand.\n");
+      return;
+    }
+  windowIDs = (Window *) XtMalloc((Cardinal)(sizeof(Window) * (size_t) count));
+  if (windowIDs == NULL)
+    {
+      PRINT("Unable to allocate window list for EnableCommand.\n");
+      return;
+    }
   for (win=0; win<count; win++)
     {
       windowIDs[win] = UnpackCARD32(&data);
@@ -631,7 +665,23 @@ DisableCommand (
   commandID = UnpackCARD32(&data);
   count     = UnpackCARD32(&data);
 
-  if (count > 0) windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if (count == 0)
+    {
+      PRINT("No windows supplied for DisableCommand.\n");
+      return;
+    }
+  if ((size_t) count > SIZE_MAX / sizeof(Window) ||
+      (size_t) count > UINT_MAX / sizeof(Window))
+    {
+      PRINT("Window list is too large for DisableCommand.\n");
+      return;
+    }
+  windowIDs = (Window *) XtMalloc((Cardinal)(sizeof(Window) * (size_t) count));
+  if (windowIDs == NULL)
+    {
+      PRINT("Unable to allocate window list for DisableCommand.\n");
+      return;
+    }
   for (win=0; win<count; win++)
     {
       windowIDs[win] = UnpackCARD32(&data);
@@ -755,7 +805,23 @@ RenameCommand (
   newname   = UnpackString(&data);
   count     = UnpackCARD32(&data);
 
-  if (count > 0) windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if (count == 0)
+    {
+      PRINT("No windows supplied for RenameCommand.\n");
+      return;
+    }
+  if ((size_t) count > SIZE_MAX / sizeof(Window) ||
+      (size_t) count > UINT_MAX / sizeof(Window))
+    {
+      PRINT("Window list is too large for RenameCommand.\n");
+      return;
+    }
+  windowIDs = (Window *) XtMalloc((Cardinal)(sizeof(Window) * (size_t) count));
+  if (windowIDs == NULL)
+    {
+      PRINT("Unable to allocate window list for RenameCommand.\n");
+      return;
+    }
   for (win=0; win<count; win++)
     {
       windowIDs[win] = UnpackCARD32(&data);
@@ -877,7 +943,23 @@ RemoveCommand (
   commandID = UnpackCARD32(&data);
   count     = UnpackCARD32(&data);
 
-  if (count > 0) windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if (count == 0)
+    {
+      PRINT("No windows supplied for RemoveCommand.\n");
+      return;
+    }
+  if ((size_t) count > SIZE_MAX / sizeof(Window) ||
+      (size_t) count > UINT_MAX / sizeof(Window))
+    {
+      PRINT("Window list is too large for RemoveCommand.\n");
+      return;
+    }
+  windowIDs = (Window *) XtMalloc((Cardinal)(sizeof(Window) * (size_t) count));
+  if (windowIDs == NULL)
+    {
+      PRINT("Unable to allocate window list for RemoveCommand.\n");
+      return;
+    }
   for (win=0; win<count; win++)
     {
       windowIDs[win] = UnpackCARD32(&data);
@@ -1078,6 +1160,15 @@ SendInvokeMessage (
 
   size = (unsigned long)(sizeof(CARD32) + sizeof(CARD32));
   msg = fulldata = (MessageData)XtMalloc(sizeof(CARD8) * size);
+  if (fulldata == NULL)
+	return;
+
+  if (ACTIVE_PSD == NULL || ACTIVE_PSD->utmShell == NULL)
+  {
+    XtFree ((char *) fulldata);
+    return;
+  }
+
   msg = PackCARD32(msg, commandID);
   msg = PackCARD32(msg, clientWindow);
 
@@ -1702,6 +1793,8 @@ GetIconMenuItemSelectInfo(ClientData *pcd, XtPointer reply, Boolean use_icon_box
     return;
 
   menuItemCount = menuSpec->menuButtonCount;
+  if (menuItemCount > MAX_MENU_ITEMS)
+    menuItemCount = MAX_MENU_ITEMS;
 
   for (n = 0; n < menuItemCount && n < MAX_MENU_ITEMS; n++)
     {
@@ -1716,7 +1809,7 @@ GetIconMenuItemSelectInfo(ClientData *pcd, XtPointer reply, Boolean use_icon_box
       sensitiveCount = 0;
 
       for (n = 0, NewMenuButton = menuSpec->menuButtons;
-	   n < menuSpec->menuButtonCount;
+	   n < menuSpec->menuButtonCount && n < MAX_MENU_ITEMS;
 	   n++, NewMenuButton++)
 	{
 	  if (NewMenuButton->managed == FALSE)
@@ -1726,7 +1819,8 @@ GetIconMenuItemSelectInfo(ClientData *pcd, XtPointer reply, Boolean use_icon_box
 	  sensitive[n] = NewMenuButton->buttonWidget->core.sensitive;
 	  itemY[n] = NewMenuButton->buttonWidget->core.y +
                             (NewMenuButton->buttonWidget->core.height / 2);
-	  strcpy(itemName[n], NewMenuItem->label);
+	  (void) snprintf(itemName[n], sizeof(itemName[n]), "%s",
+			  NewMenuItem->label ? NewMenuItem->label : "");
 
 	  if (sensitive[n] == TRUE)
             sensitiveCount++;
@@ -1900,6 +1994,8 @@ GetWindowItemSelectInfo(ClientData *pcd, XtPointer reply)
     return;
 
   menuItemCount = menuSpec->menuButtonCount;
+  if (menuItemCount > MAX_MENU_ITEMS)
+    menuItemCount = MAX_MENU_ITEMS;
 
   for (n = 0; n < menuItemCount && n < MAX_MENU_ITEMS; n++)
     {
@@ -1913,7 +2009,7 @@ GetWindowItemSelectInfo(ClientData *pcd, XtPointer reply)
    sensitiveCount = 0;
 
       for (n = 0, NewMenuButton = menuSpec->menuButtons;
-	   n < menuSpec->menuButtonCount;
+	   n < menuSpec->menuButtonCount && n < MAX_MENU_ITEMS;
 	   n++, NewMenuButton++)
 	{
 	  if (NewMenuButton->managed == FALSE)
@@ -1923,7 +2019,8 @@ GetWindowItemSelectInfo(ClientData *pcd, XtPointer reply)
 	  sensitive[n] = NewMenuButton->buttonWidget->core.sensitive;
 	  itemY[n] = NewMenuButton->buttonWidget->core.y +
                             (NewMenuButton->buttonWidget->core.height / 2);
-	  strcpy(itemName[n], NewMenuItem->label);
+	  (void) snprintf(itemName[n], sizeof(itemName[n]), "%s",
+			  NewMenuItem->label ? NewMenuItem->label : "");
 
 	  if (sensitive[n] == TRUE)
             sensitiveCount++;
@@ -1970,6 +2067,8 @@ GetItemCheckInfo(ClientData *pcd, XtPointer reply)
     return;
 
   menuItemCount = menuSpec->menuButtonCount;
+  if (menuItemCount > MAX_MENU_ITEMS)
+    menuItemCount = MAX_MENU_ITEMS;
 
   for (i = 0; i < menuItemCount && i < MAX_MENU_ITEMS; i++)
       itemName[i][0] = '\0'; 
@@ -1977,14 +2076,15 @@ GetItemCheckInfo(ClientData *pcd, XtPointer reply)
   menuWin = XtWindow (menuSpec->menuWidget);
 
       for (i = 0, NewMenuButton = menuSpec->menuButtons;
-	   i < menuSpec->menuButtonCount;
+	   i < menuSpec->menuButtonCount && i < MAX_MENU_ITEMS;
 	   i++, NewMenuButton++)
 	{
 	  if (NewMenuButton->managed == FALSE)
             continue;
 
 	  NewMenuItem = NewMenuButton->menuItem;
-	  strcpy (itemName[i],NewMenuItem->label);
+	  (void) snprintf(itemName[i], sizeof(itemName[i]), "%s",
+			  NewMenuItem->label ? NewMenuItem->label : "");
 
 	}
 
@@ -2082,10 +2182,30 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
   
   Window winId;  
   XtPointer reply;
-  int size;
+  size_t size;
 
   int i, n, menuItemCount = 0;
   MenuItem *menu_item;
+
+  if (outputType == NULL || output == NULL || outputLen == NULL ||
+      outputFmt == NULL)
+    return;
+
+  *outputType = None;
+  *output = NULL;
+  *outputLen = 0;
+  *outputFmt = 0;
+
+  if (input == NULL)
+    return;
+
+#define ALLOC_AUTOMATION_REPLY() do { \
+    if (size > (size_t)-1 / sizeof(CARD8)) \
+      goto automation_alloc_failed; \
+    *output = (XtPointer)XtMalloc(sizeof(CARD8) * size); \
+    if (*output == NULL) \
+      goto automation_alloc_failed; \
+  } while (0)
 
 
 
@@ -2114,61 +2234,61 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
       {
 	case WINDOW_MINIMIZE_INFO:
 	  size += sizeof(CARD32) * 7;
-	  *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	  ALLOC_AUTOMATION_REPLY();
 	  GetMinimizeInfo (pcd,*output);
           break;
 
 	case WINDOW_MAXIMIZE_INFO:
 	  size += sizeof (CARD32) * 7;
-	  *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	  ALLOC_AUTOMATION_REPLY();
 	  GetMaximizeInfo(pcd,*output);
           break;
 
         case WINDOW_RAISE_INFO:
 	  size += sizeof (CARD32);
-	  *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	  ALLOC_AUTOMATION_REPLY();
 	  GetRaiseInfo(pcd, *output);
 	  break;
 
         case WINDOW_MOVE_INFO:
 	   SetGrabServer();    /* tell mwm not to grab server */
 	   size += sizeof (CARD32) * 16;
-	    *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	    ALLOC_AUTOMATION_REPLY();
 	   GetMoveInfo(pcd,*output);
 	   break;
 
 	case WINDOW_RESIZE_NORTH_INFO:
 	  SetGrabServer();    /* tell mwm not to grab server */
 	  size += sizeof (CARD32) * 17;
-	  *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	  ALLOC_AUTOMATION_REPLY();
 	  GetResizeInfo(pcd,*output,WM_NORTH);
 	  break;
 
 	case WINDOW_RESIZE_SOUTH_INFO:
 	  SetGrabServer();    /* tell mwm not to grab server */
 	  size += sizeof (CARD32) * 17;
-	  *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	  ALLOC_AUTOMATION_REPLY();
 	  GetResizeInfo(pcd,*output,WM_SOUTH);
 	  break;
 
 	case WINDOW_RESIZE_EAST_INFO:
 	  SetGrabServer();    /* tell mwm not to grab server */
 	  size += sizeof (CARD32) * 17;
-	  *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	  ALLOC_AUTOMATION_REPLY();
 	  GetResizeInfo(pcd,*output,WM_EAST);
 	  break;
 
 	case WINDOW_RESIZE_WEST_INFO:
 	  SetGrabServer();    /* tell mwm not to grab server */
 	  size += sizeof (CARD32) * 17;
-	  *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	  ALLOC_AUTOMATION_REPLY();
 	  GetResizeInfo(pcd,*output,WM_WEST);
 	  break;
 
 	case WINDOW_RESIZE_NORTHEAST_INFO:
 	  SetGrabServer();    /* tell mwm not to grab server */
 	  size += sizeof (CARD32) * 17;
-	  *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	  ALLOC_AUTOMATION_REPLY();
 	  GetResizeInfo(pcd,*output,WM_NORTHEAST);
 	  break;
 
@@ -2176,7 +2296,7 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	case WINDOW_RESIZE_NORTHWEST_INFO:
 	  SetGrabServer();    /* tell mwm not to grab server */
 	  size += sizeof (CARD32) * 17;
-	  *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	  ALLOC_AUTOMATION_REPLY();
 	  GetResizeInfo(pcd,*output,WM_NORTHWEST);
 	  break;
 
@@ -2184,7 +2304,7 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	case WINDOW_RESIZE_SOUTHEAST_INFO:
 	  SetGrabServer();    /* tell mwm not to grab server */
 	  size += sizeof (CARD32) * 17;
-	  *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	  ALLOC_AUTOMATION_REPLY();
 	  GetResizeInfo(pcd,*output,WM_SOUTHEAST);
 	  break;
 
@@ -2192,7 +2312,7 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	case WINDOW_RESIZE_SOUTHWEST_INFO:
 	  SetGrabServer();    /* tell mwm not to grab server */
 	  size += sizeof (CARD32) * 17;
-	  *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	  ALLOC_AUTOMATION_REPLY();
 	  GetResizeInfo(pcd,*output,WM_SOUTHWEST);
 	  break;
 
@@ -2203,12 +2323,14 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	  size += sizeof(CARD32) * 4;
 	  for (n=0; n < menuItemCount && n < MAX_MENU_ITEMS; n++)
 	      {
-		  menu_item = pcd->systemMenuSpec->menuButtons->menuItem;
+		  menu_item = pcd->systemMenuSpec->menuButtons[n].menuItem;
 		  size += sizeof (CARD32);    /* sensitive */
 		  size += sizeof (CARD32);    /* itemY */
-		  size += sizeof (CARD16) + ((strlen(menu_item->label) + 1) * sizeof(CARD8)); /*itemName */
+		  size += sizeof (CARD16) +
+		      ((menu_item && menu_item->label ?
+			strlen(menu_item->label) : 0) + 1) * sizeof(CARD8); /*itemName */
 	      }
-	 *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	 ALLOC_AUTOMATION_REPLY();
 	  GetWindowItemSelectInfo(pcd,*output);
 	  break;
       
@@ -2216,13 +2338,13 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	  if (pcd->pSD->useIconBox == True)
 	      {
 		  size += sizeof (CARD32) * 37;
-		  *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+		  ALLOC_AUTOMATION_REPLY();
 		  GetIconInfo(pcd,*output,True);
 	      }
 	  else
 	      {
 		  size += sizeof (CARD32) * 6;
-		  *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+		  ALLOC_AUTOMATION_REPLY();
 		  GetIconInfo(pcd,*output,False);
 	      }
 	  break;
@@ -2230,20 +2352,20 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 
 	case WINDOW_MENU_POST_INFO:
 	   size += sizeof (CARD32) * 12;
-	   *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	   ALLOC_AUTOMATION_REPLY();
 	   GetWindowMenuPostInfo(pcd,*output);
 	   break;
 
 	case WINDOW_FOCUS_INFO:
 	   size += sizeof (CARD32) * 7;
-	   *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	   ALLOC_AUTOMATION_REPLY();
 	   GetFocusInfo(pcd,*output);
 	   break;
 
 
 	case WINDOW_MENU_UNPOST_INFO:
 	   size += sizeof (CARD32) * 3;
-	   *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	   ALLOC_AUTOMATION_REPLY();
 	   GetWindowMenuUnpostInfo(pcd,*output);
 	   break;
 
@@ -2253,10 +2375,12 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	  size += sizeof(CARD32) * 11;
 	  for (n=0; n < menuItemCount && n < MAX_MENU_ITEMS; n++)
 	      {
-		  menu_item = pcd->systemMenuSpec->menuButtons->menuItem;
-		  size += sizeof (CARD16) + (strlen(menu_item->label + 1) * sizeof(CARD8)); /*itemName */
+		  menu_item = pcd->systemMenuSpec->menuButtons[n].menuItem;
+		  size += sizeof (CARD16) +
+		      ((menu_item && menu_item->label ?
+			strlen(menu_item->label) : 0) + 1) * sizeof(CARD8); /*itemName */
 	      }
-	 *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	 ALLOC_AUTOMATION_REPLY();
 	  GetItemCheckInfo(pcd, *output);
 	  break;
 
@@ -2264,7 +2388,7 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	  {
 	      SetGrabServer();    /* tell mwm not to grab server */
 	      size += sizeof (CARD32) * 6;
-	      *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	      ALLOC_AUTOMATION_REPLY();
 	      GetIconInfo(pcd,*output,False);
 	      break;
 	  }
@@ -2273,13 +2397,13 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	  if (pcd->pSD->useIconBox == True)
 	      {
 		  size += sizeof (CARD32) * 37;
-		  *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+		  ALLOC_AUTOMATION_REPLY();
 		  GetIconInfo(pcd,*output,True);
 	      }
 	  else
 	      {
 		  size += sizeof (CARD32) * 6;
-		  *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+		  ALLOC_AUTOMATION_REPLY();
 		  GetIconInfo(pcd,*output,False);
 	      }
 	  break;
@@ -2288,14 +2412,14 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	  if (pcd->pSD->useIconBox == True)
 	      {
 		  size += sizeof (CARD32) * 37;
-		  *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+		  ALLOC_AUTOMATION_REPLY();
 		  GetIconInfo(pcd,*output,True);
 
 	      }
 	  else
 	      {
 		  size += sizeof (CARD32) * 6;
-		  *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+		  ALLOC_AUTOMATION_REPLY();
 		  GetIconInfo(pcd,*output,False);
 	      }
 	  break;
@@ -2308,14 +2432,16 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	      {
 		  size += sizeof (CARD32);    /* sensitive */
 		  size += sizeof (CARD32);    /* itemY */
-		  menu_item = pcd->systemMenuSpec->menuButtons->menuItem;
-		  size += sizeof (CARD16) + ((strlen(menu_item->label) + 1) * sizeof(CARD8)); /*itemName */
+		  menu_item = pcd->systemMenuSpec->menuButtons[n].menuItem;
+		  size += sizeof (CARD16) +
+		      ((menu_item && menu_item->label ?
+			strlen(menu_item->label) : 0) + 1) * sizeof(CARD8); /*itemName */
 	      }
 	  if (pcd->pSD->useIconBox == True)
 		  size += sizeof (CARD32) * 37;
 	  else
 	  	  size += sizeof (CARD32) * 6;
-	  *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
+	  ALLOC_AUTOMATION_REPLY();
 	  GetIconMenuItemSelectInfo (pcd,*output,pcd->pSD->useIconBox);
 	  break;
 
@@ -2325,8 +2451,18 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	  break;
       }
 
-	*outputLen = (unsigned long)size;
+  *outputLen = (unsigned long)size;
+	*outputType = wmGD._MOTIF_WM_AUTOMATION;
 	*outputFmt = WSM_PROTO_FMT;
-	
+	#undef ALLOC_AUTOMATION_REPLY
+	return;
+
+automation_alloc_failed:
+  *outputType = None;
+  *output = NULL;
+  *outputLen = 0;
+  *outputFmt = 0;
+  #undef ALLOC_AUTOMATION_REPLY
+	return;
 }
 

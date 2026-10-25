@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm decommit-all failure retention
 
 `Idb__BM_DecommitAll` now keeps a buffer attached to its `IDBFile` when

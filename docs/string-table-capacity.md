@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # String-table conversion capacity
 
 The resource converter grows a `String *` table while parsing comma-separated

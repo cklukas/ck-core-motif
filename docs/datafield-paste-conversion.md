@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DataField paste conversion cleanup
 
 DataField paste conversion now releases the temporary text list in both

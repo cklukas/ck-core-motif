@@ -1,10 +1,13 @@
-# Mrm callback argument-record bounds
+---
+nav_exclude: true
+---
+# Mrm callback-valued argument bounds
 
-Callback-valued widget arguments now validate their complete legacy or current
-serialized callback descriptor before translation and fixup. This applies the
-same record-size and item-count contract used by creation callbacks, preventing
-truncated callback values from reaching conversion while preserving valid
-callback argument behavior.
+Callback-valued argument descriptors now pass through the same legacy/current
+record-size validation as creation callbacks before translation and fixup.  A
+malformed callback offset is skipped through the existing argument conversion
+failure path; valid callback arguments retain their registration and deferred
+widget-reference behavior.
 
-The source-level regression check is
+The source-level regression is
 `tests/automated/check-mrm-arg-callback-record-bounds.py`.

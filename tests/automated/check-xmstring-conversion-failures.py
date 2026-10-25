@@ -4,8 +4,8 @@
 from pathlib import Path
 
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmString.c").read_text()
-func = (Path(__file__).parents[2] / "lib" / "Xm" / "XmStringFunc.c").read_text()
+source = Path("lib/Xm/XmString.c").read_text()
+func = Path("lib/Xm/XmStringFunc.c").read_text()
 
 assert "_XmStrCreate(str, XmSTRING_MULTIPLE_ENTRY, 0);\n    if (str == NULL) {\n      _XmStrContError(start) = TRUE;\n      return NULL;\n    }" in func
 assert "_XmStrCreate(string, XmSTRING_OPTIMIZED, textlen);\n  if (string == NULL)" in source

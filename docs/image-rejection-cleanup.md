@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Rejected image cleanup
 
 When a decoded image has invalid dimensions, an unusable scaling ratio, or a

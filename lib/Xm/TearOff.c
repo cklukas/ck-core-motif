@@ -577,7 +577,7 @@ _XmAddTearOffEventHandlers(
 {
     XmRowColumnWidget rc = (XmRowColumnWidget) wid;
     Widget child;
-    int i;
+    Cardinal i;
     Cursor cursor = XmGetMenuCursor(XtDisplay(wid));
     XmMenuSavvyTrait	mtrait;
 
@@ -624,7 +624,7 @@ RemoveTearOffEventHandlers(
 {
     XmRowColumnWidget rc = (XmRowColumnWidget) wid;
     Widget child;
-    int i;
+    Cardinal i;
 
     for (i=0; i < rc->composite.num_children; i++)
     {
@@ -1303,7 +1303,7 @@ _XmRestoreTearOffToMenuShell(
       ShellWidget shell;
       GC gc;
       XGCValues values;
-      int i;
+      Cardinal i;
       Widget child;
 
       /* If the pane was previously obscured, it may require redrawing

@@ -30,6 +30,7 @@
 #include <config.h>
 #endif
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <Xm/XmP.h>
 #include <Xm/XmosP.h>		/* for bzero et al */
@@ -504,7 +505,7 @@ Initialize(Widget    request,	/* unused */
 {
   XmComboBoxWidget newcb = (XmComboBoxWidget)new_w;
   Widget	   ancestor;
-  int i; 
+  Cardinal i;
 #ifdef FIX_1473
   Cardinal num_child_args;
   ArgList child_args;
@@ -584,7 +585,12 @@ Initialize(Widget    request,	/* unused */
 #ifdef FIX_1473
   /* Ignore XmNheight resource value for descedants */
   num_child_args = 0;
-  child_args = (ArgList) XtMalloc(sizeof(Arg) * *num_args);
+  if (*num_args != 0 &&
+      ((size_t)*num_args > SIZE_MAX / sizeof(Arg) ||
+       (size_t)*num_args > UINT_MAX / sizeof(Arg)))
+    child_args = NULL;
+  else
+    child_args = (ArgList) XtMalloc(sizeof(Arg) * (size_t)*num_args);
   if (child_args != NULL || *num_args == 0) {
     for (i = 0; i < *num_args; i++)
 	  if (strcmp(args[i].name, "height")) {
@@ -1451,19 +1457,25 @@ ComboBoxParentProcess(Widget		  wid,
 	      if (pos)
 		{
 		  call_data.item		    = XmStringCopy(item);
-		  call_data.item_length             = XmStringLength(item);
-		  call_data.item_position	    = pos;
-		  call_data.selected_item_count     = 1;
-		  call_data.selected_item_positions = &pos;
-		  call_data.selected_items	    = &item;
+		  if (call_data.item != NULL)
+		    {
+		      call_data.item_length         = XmStringLength(item);
+		      call_data.item_position	    = pos;
+		      call_data.selected_item_count = 1;
+		      call_data.selected_item_positions = &pos;
+		      call_data.selected_items	    = &item;
+		    }
 		}
-	      call_data.reason = XmCR_DEFAULT_ACTION;
-	      call_data.event = event->input_action.event;
+	      if (call_data.item != NULL)
+		{
+		  call_data.reason = XmCR_DEFAULT_ACTION;
+		  call_data.event = event->input_action.event;
 
-	      XtCallCallbacks(CB_List(cb), XmNdefaultActionCallback,
-			      (XtPointer)&call_data);
+		  XtCallCallbacks(CB_List(cb), XmNdefaultActionCallback,
+				  (XtPointer)&call_data);
 
-	      XmStringFree(call_data.item);
+		  XmStringFree(call_data.item);
+		}
 	    }
 
 	  XmStringFree(item);
@@ -1814,7 +1826,8 @@ CBDropDownList(Widget    widget,
 	  shell_y = MAX(0, tmp);
 
 	  /* CR 8446: The shell width may have changed unexpectedly. */
-	  shell_width = XtWidth(cb) - 2 * CB_HighlightThickness(cb);
+	  shell_width = (XtWidth(cb) > 2 * CB_HighlightThickness(cb)) ?
+	      XtWidth(cb) - 2 * CB_HighlightThickness(cb) : 1;
 
 	  n = 0;
 	  XtSetArg(args[n], XmNx, shell_x), n++;
@@ -2052,7 +2065,7 @@ CBListAction(Widget    widget,
 		break;
 	
 	      default:
-		assert(FALSE);
+		break;
 	      }
 	  }
 	else if (num_items)
@@ -2083,7 +2096,7 @@ CBListAction(Widget    widget,
       break;
 
     default:
-      assert(FALSE);
+      break;
     }
 }
 
@@ -2583,7 +2596,10 @@ DoLayout(Widget widg)
   XmComboBoxWidget cb = (XmComboBoxWidget)widg;
   Dimension	   ebW = 0, ebH = 0, thickW = 0, thickH = 0;
   Dimension	   listW = 0, listH = 0 ;
-  Dimension	   diff, htLeft = 0;
+  Dimension	   htLeft = 0;
+  int available_edit_width, available_edit_height;
+  int available_list_width, available_list_height;
+  int diff, adjusted_edit_height;
   XtWidgetGeometry geom, replygeom;
   XtGeometryResult result;
 
@@ -2605,19 +2621,24 @@ DoLayout(Widget widg)
     }
 
   GetThickness(widg, &thickW, &thickH);
-  ebW = XtWidth(cb) - 2 * (thickW + XtBorderWidth(CB_EditBox(cb)));
+  available_edit_width = (int) XtWidth(cb) -
+      2 * ((int) thickW + (int) XtBorderWidth(CB_EditBox(cb)));
+  available_edit_height = (int) XtHeight(cb) -
+      2 * ((int) thickH + (int) XtBorderWidth(CB_EditBox(cb)));
+  ebW = (Dimension) ((available_edit_width > 0) ? available_edit_width : 1);
   if (CB_Type(cb) != XmCOMBO_BOX)
     {
       /* These are the drop down types */
       Arg args[1];
       Cardinal nargs;
 
-      ebH = XtHeight(cb) - 2 * (thickH + XtBorderWidth(CB_EditBox(cb)));
-
       if (CB_ArrowSize(cb) == XmINVALID_DIMENSION)
 	CB_ArrowSize(cb) = GetDefaultArrowSize((Widget)cb);
       SetHitArea((Widget)cb);
-      ebW -= (CB_ArrowSpacing(cb) + CB_ArrowSize(cb));
+	  available_edit_width -= (int) CB_ArrowSpacing(cb) +
+	      (int) CB_ArrowSize(cb);
+	  ebW = (Dimension) ((available_edit_width > 0) ? available_edit_width : 1);
+	  ebH = (Dimension) ((available_edit_height > 0) ? available_edit_height : 1);
 
       /* Realize the shell so these values will be maintained. */
       if (!XtIsRealized(CB_ListShell(cb)))
@@ -2631,22 +2652,30 @@ DoLayout(Widget widg)
       assert(nargs <= XtNumber(args));
       XtSetValues(CB_ListShell(cb), args, nargs);
     }
+
   else
     {
       Dimension new_width = XtWidth(CB_ScrolledW(cb));
       Dimension new_height = XtHeight(CB_ScrolledW(cb));
 
-      htLeft = XtHeight(cb) -
-	2 * (XtBorderWidth(CB_EditBox(cb)) + XtBorderWidth(CB_ScrolledW(cb)) +
-	     CB_HighlightThickness(cb) + MGR_ShadowThickness(cb) +
-	     CB_MarginHeight(cb));
+      available_list_height = (int) XtHeight(cb) -
+	2 * ((int) XtBorderWidth(CB_EditBox(cb)) +
+	     (int) XtBorderWidth(CB_ScrolledW(cb)) +
+	     (int) CB_HighlightThickness(cb) + (int) MGR_ShadowThickness(cb) +
+	     (int) CB_MarginHeight(cb));
+      htLeft = (Dimension) ((available_list_height > 0) ?
+	  available_list_height : 1);
       if (!cb->combo_box.ideal_ebheight)
 	GetIdealTextSize((Widget)cb, NULL, &cb->combo_box.ideal_ebheight);
 
       /* If ideal edit box height fits, use it. */
-      ebH = MIN(htLeft - MINLIST, cb->combo_box.ideal_ebheight);
-      listW = XtWidth(cb) - 2 * (thickW + XtBorderWidth(CB_ScrolledW(cb)));
-      listH = htLeft - ebH;
+      ebH = (htLeft > MINLIST) ?
+	  MIN(htLeft - MINLIST, cb->combo_box.ideal_ebheight) : 1;
+      available_list_width = (int) XtWidth(cb) -
+	  2 * ((int) thickW + (int) XtBorderWidth(CB_ScrolledW(cb)));
+      listW = (Dimension) ((available_list_width > 0) ?
+	  available_list_width : 1);
+      listH = (htLeft > ebH) ? htLeft - ebH : 1;
 
       /* Ask ScrolledW if this size is okay */
       geom.request_mode = 0;
@@ -2661,10 +2690,12 @@ DoLayout(Widget widg)
 	    {
 	      /* see if EditBox will shrink. */
 	      listH = replygeom.height;
-	      diff = abs(geom.height - replygeom.height);
+	      diff = abs((int) geom.height - (int) replygeom.height);
 	      geom.request_mode = 0;
 	      geom.request_mode |= CWHeight;
-	      geom.height = ebH - diff;
+	      adjusted_edit_height = (int) ebH - diff;
+	      geom.height = (Dimension) ((adjusted_edit_height > 0) ?
+		  adjusted_edit_height : 1);
 	      result = XtQueryGeometry(CB_EditBox(cb), &geom, NULL);
 	      if (result == XtGeometryYes)
 		{
@@ -2826,11 +2857,15 @@ SetHitArea(Widget w)
 {
   XmComboBoxWidget cb = (XmComboBoxWidget)w;
   Dimension	   thickW = 0, thickH = 0, ebH;
+  int available_height;
 
-  assert(CB_Type(cb) != XmCOMBO_BOX);
+  if (CB_Type(cb) == XmCOMBO_BOX)
+    return;
 
   GetThickness(w, &thickW, &thickH);
-  ebH = XtHeight(cb) - 2 * (thickH + XtBorderWidth(CB_EditBox(cb)));
+  available_height = (int) XtHeight(cb) -
+      2 * ((int) thickH + (int) XtBorderWidth(CB_EditBox(cb)));
+  ebH = (Dimension) ((available_height > 0) ? available_height : 1);
 
   if (CB_ArrowSize(cb) == XmINVALID_DIMENSION)
     CB_ArrowSize(cb) = GetDefaultArrowSize((Widget)cb);
@@ -2844,7 +2879,8 @@ SetHitArea(Widget w)
     }
   else
     {
-      CB_HitRect(cb).x = XtWidth(cb) - thickW - CB_ArrowSize(cb);
+      CB_HitRect(cb).x = (Position) ((int) XtWidth(cb) -
+	  (int) thickW - (int) CB_ArrowSize(cb));
       CB_HitRect(cb).y = thickH;
     }
 }
@@ -2907,15 +2943,19 @@ DrawArrow(Widget widget,
   int newbox, size, max_height, excess;
   int x, y, w, h;
 
-  assert(CB_Type(cb) != XmCOMBO_BOX);
+  if (CB_Type(cb) == XmCOMBO_BOX)
+    return;
 
   if (CB_ArrowSize(cb) == XmINVALID_DIMENSION)
     CB_ArrowSize(cb) = GetDefaultArrowSize((Widget) cb);
 
   /* CR 6912: Reduce size to fit the actual space available. */
-  max_height = XtHeight(cb) - 
-    2 * (CB_MarginHeight(cb) + CB_HighlightThickness(cb) +
-	 cb->manager.shadow_thickness  + XtBorderWidth(CB_EditBox(cb)));
+  max_height = (int) XtHeight(cb) -
+    2 * ((int) CB_MarginHeight(cb) + (int) CB_HighlightThickness(cb) +
+	 (int) cb->manager.shadow_thickness +
+	 (int) XtBorderWidth(CB_EditBox(cb)));
+  if (max_height < 1)
+    max_height = 1;
   if (CB_ArrowSize(cb) > max_height)
     {
       excess = CB_ArrowSize(cb) - max_height;
@@ -2959,13 +2999,17 @@ DrawShadows(Widget widget)
 {
   XmComboBoxWidget cb = (XmComboBoxWidget)widget;
   int offset = CB_HighlightThickness(cb);
+  Dimension shadow_width = (XtWidth(widget) > 2 * offset) ?
+      XtWidth(widget) - 2 * offset : 1;
+  Dimension shadow_height = (XtHeight(widget) > 2 * offset) ?
+      XtHeight(widget) - 2 * offset : 1;
 
   XmeDrawShadows(XtDisplay(widget), XtWindow(widget),
 		 cb->manager.top_shadow_GC,
 		 cb->manager.bottom_shadow_GC,
 		 offset, offset,
-		 XtWidth(widget) - 2 * offset,
-		 XtHeight(widget) - 2 * offset,
+		 shadow_width,
+		 shadow_height,
 		 MGR_ShadowThickness(cb),
 		 XmSHADOW_OUT);
 }
@@ -3048,7 +3092,7 @@ CreateChildren(Widget    widget,
       break;
 
     default:
-      assert(False);
+      break;
     }
 
   /* Install the standard ComboBox accelerators everywhere. */
@@ -3139,6 +3183,8 @@ CreateEditBox(Widget    parent,
 
   /* Create the edit box. */
   merged_args = XtMergeArgLists(arglist, *num_args, loc_args, nloc);
+  if (merged_args == NULL)
+    return NULL;
   text_widget = XmCreateTextField(parent, name, merged_args, *num_args + nloc);
   XtFree((char *)merged_args);
   if (item)
@@ -3176,6 +3222,8 @@ CreatePulldown(Widget    parent,
   XtSetArg(args[n], XmNgrabStyle, GrabModeSync), n++;
   assert(n <= XtNumber(args));
   merged_args = XtMergeArgLists(arglist, *num_args, args, n);
+  if (merged_args == NULL)
+    return NULL;
   shell = XtCreatePopupShell(name, xmGrabShellWidgetClass, parent,
 			     merged_args, n + *num_args);
   XtFree((char*)merged_args);
@@ -3254,6 +3302,9 @@ CreateScrolledList(Widget    parent,
   XtSetArg(loc_args[n], XmNvisualPolicy, XmVARIABLE), n++;
   assert(n <= XtNumber(loc_args));
   merged_args = XtMergeArgLists(arglist, *num_args, loc_args, n);
+
+  if (merged_args == NULL)
+    return NULL;
 
   list = XmCreateScrolledList(parent, name, merged_args, n + *num_args);
   XtManageChild(list);
@@ -3375,6 +3426,8 @@ XmCreateDropDownComboBox(Widget   parent,
   assert(n <= XtNumber(loc_args));
 
   merged_args = XtMergeArgLists(args, num_args, loc_args, n);
+  if (merged_args == NULL)
+    return NULL;
   result = XtCreateWidget(name, xmComboBoxWidgetClass, parent,
 			  merged_args, n + num_args);
   XtFree((char *)merged_args);
@@ -3398,6 +3451,8 @@ XmCreateDropDownList(Widget   parent,
   assert(n <= XtNumber(loc_args));
 
   merged_args = XtMergeArgLists(args, num_args, loc_args, n);
+  if (merged_args == NULL)
+    return NULL;
   result = XtCreateWidget(name, xmComboBoxWidgetClass, parent,
 			  merged_args, n + num_args);
   XtFree((char *)merged_args);
@@ -3466,6 +3521,8 @@ XmComboBoxAddItem(Widget   widget,
 {
   XmComboBoxWidget cb = (XmComboBoxWidget)widget;
 
+  if (widget == NULL)
+    return;
   _XmWidgetToAppContext(widget);
   _XmAppLock(app);
 
@@ -3506,6 +3563,8 @@ XmComboBoxDeletePos(Widget widget,
   int selpos;
   int nitems;
 
+  if (widget == NULL)
+    return;
   _XmWidgetToAppContext(widget);
   _XmAppLock(app);
 
@@ -3585,6 +3644,8 @@ XmComboBoxSelectItem(Widget   widget,
   XmComboBoxWidget cb = (XmComboBoxWidget)widget;
   int pos;
 
+  if (widget == NULL)
+    return;
   _XmWidgetToAppContext(widget);
   _XmAppLock(app);
 
@@ -3671,6 +3732,8 @@ XmComboBoxSetItem(Widget   widget,
 XmString
 XmCombinationBoxGetValue(Widget widget)
 {
+    if (widget == NULL)
+        return NULL;
     return (GetEditBoxValue(widget));
 }
 
@@ -3691,6 +3754,8 @@ XmComboBoxUpdate(Widget widget)
   int *pos;
   int pcount;
 
+  if (widget == NULL)
+    return;
   _XmWidgetToAppContext(widget);
   _XmAppLock(app);
 

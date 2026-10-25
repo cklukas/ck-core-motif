@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm session database path bounds
 
 The session-management database is loaded and saved through a fixed

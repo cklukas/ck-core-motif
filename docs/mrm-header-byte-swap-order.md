@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm header byte-swap validation order
 
 Header data-entry fields are stored in the file byte order. The header readers

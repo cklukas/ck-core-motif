@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text selection import bounds
 
 Incoming selection lengths are Xlib `unsigned long` values, while Motif’s text

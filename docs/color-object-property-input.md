@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Color object property input bounds
 
 Color objects receive serialized pixel sets from another X11 owner. The old

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm write-open recovery
 
 When creating a write-mode database, Mrm first creates and closes the file,

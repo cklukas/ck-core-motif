@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm data-entry writer inputs and sizes
 
 `Idb__DB_PutDataEntry` now rejects a missing file handle or output data handle

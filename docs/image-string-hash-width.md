@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Image-cache string hash width
 
 The ImageCache string hash now retains the full `strlen` width and folds any

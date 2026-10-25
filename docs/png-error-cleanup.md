@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PNG decoder error cleanup
 
 libpng reports malformed input and allocation failures through `longjmp`.

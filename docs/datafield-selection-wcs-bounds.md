@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DataField wide selection export bounds
 
 `XmDataFieldGetSelectionWcs` now checks the selection length before multiplying

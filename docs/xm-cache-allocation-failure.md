@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm pixmap-cache allocation failure handling
 
 `_XmCachePixmap` now checks cache-table initialization and every heap

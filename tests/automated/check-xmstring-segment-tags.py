@@ -8,4 +8,3 @@ body = source[start:source.index("/*", start + 20)]
 assert "if (source == NULL)" in body
 assert "if (source[i] == NULL)" in body
 assert "if (copy_data)" in body
-print("PASS XmString rendition-tag tables are validated")

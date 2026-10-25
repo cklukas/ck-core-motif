@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WML build reliability
 
 The WML support tools are part of the Motif build and are required when the

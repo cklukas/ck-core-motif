@@ -43,11 +43,11 @@ rejects stale hashes, missing IDs, duplicate records, or drift in any of the
 source/test/docs/screenshot references.
 
 The toolkit now exposes public `XmApplyAppearanceProfile` and display-scale
-transaction APIs. The gallery wires its Theme and DPI callbacks directly to
-those public APIs, and the normal build enables both controls. The native
-integration test exercises a profile transition and a complete simulated
-scale/clear cycle before reporting success. Screenshot scenarios use the same
-transactions with explicit profile and scale arguments.
+transaction APIs. The gallery wires its Theme and DPI callbacks to those APIs
+behind `CKMOTIF_GALLERY_ENABLE_LIVE_TRANSACTIONS`, but the default build keeps
+the controls disabled while the WP-05 qualification matrix is incomplete. In
+the default build the status output says that qualification is pending; the
+gallery never simulates a transition or claims that it works early.
 
 `PrintShell` is emitted behind `PRINTING_SUPPORTED`; a print-disabled build
 keeps the inventory and navigation entry but reports the capability as

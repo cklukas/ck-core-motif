@@ -8,6 +8,7 @@
 #include <Xm/ChipP.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
+#include <limits.h>
 #include <string.h>
 #include "PrimitiveI.h"
 #include "XmI.h"
@@ -118,7 +119,9 @@ static void label_metrics(XmChipWidget chip, Dimension *width,
         text = XmStringUnparse(chip->chip.label, NULL, XmCHARSET_TEXT,
                                XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
         if (text) {
-            label_width = (Dimension)(strlen(text) * 8);
+            size_t text_length = strlen(text);
+            label_width = text_length > (size_t)USHRT_MAX / 8 ? USHRT_MAX :
+                          (Dimension)(text_length * 8);
             XtFree(text);
         }
     }
@@ -133,10 +136,16 @@ static void label_metrics(XmChipWidget chip, Dimension *width,
         ih = (Dimension)pixmap_height;
     }
     *icon_width = iw;
-    *width = label_width + (iw ? iw + 6 : 0) + (chip->chip.removable ? 18 : 0) + 20;
+    {
+        unsigned long total_width = label_width + 20UL;
+        if (iw) total_width += (unsigned long)iw + 6;
+        if (chip->chip.removable) total_width += 18;
+        *width = (Dimension)(total_width > USHRT_MAX ? USHRT_MAX :
+                             total_width);
+    }
     *height = label_height > ih ? label_height : ih;
     if (*height < 16) *height = 16;
-    *height += 10;
+    *height = *height > USHRT_MAX - 10 ? USHRT_MAX : *height + 10;
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm screen-warp warning bounds
 
 The `f.screen` command reports an attempt to warp to an unmanaged screen.  Its

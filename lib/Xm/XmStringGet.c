@@ -48,7 +48,7 @@ XmStringGetNextComponent(
   unsigned int  	len;
   XtPointer		val;
   
-  if (text == NULL || str_tag == NULL || direction == NULL ||
+  if (context == NULL || text == NULL || str_tag == NULL || direction == NULL ||
       unknown_tag == NULL || unknown_length == NULL || unknown_value == NULL) {
     return XmSTRING_COMPONENT_END;
   }
@@ -87,6 +87,9 @@ XmStringPeekNextComponent(XmStringContext context)
   unsigned int len;
   XtPointer    val;
 
+  if (context == NULL)
+    return XmSTRING_COMPONENT_END;
+
   return XmeStringGetComponent((_XmStringContext) context, False, False, &len, &val);
 }
 
@@ -106,18 +109,15 @@ XmStringGetLtoR(
   XmStringDirection d;
   Boolean s, is_local = FALSE, done = FALSE, is_default = FALSE;
   
-  if (text == NULL || !string) {
+  if (text == NULL)
 	return(FALSE);
-  }
-  if (!tag) {
+  *text = NULL;
+  if (!string || !tag)
 	return (FALSE);
-  }
   
   if ((tag == XmFONTLIST_DEFAULT_TAG) || 
       (strcmp(tag, XmFONTLIST_DEFAULT_TAG) == 0))
     is_local = TRUE; 
-  
-  *text = NULL;				  /* pre-condition result */
   
   if (!is_local)
     {

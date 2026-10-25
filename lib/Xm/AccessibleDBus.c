@@ -59,6 +59,14 @@ typedef struct {
   size_t memo_capacity, memo_count;
 } Transport;
 static const char *text(const char *s) { return s ? s : ""; }
+static Boolean memo_replace(char **slot, const char *value) {
+  char *replacement = value ? XtNewString(value) : NULL;
+  if (value && !replacement)
+    return False;
+  XtFree(*slot);
+  *slot = replacement;
+  return True;
+}
 static void path_for(XmAccessibleId id, char *buffer, size_t length) {
   if (id == 1)
     snprintf(buffer, length, "%s", ROOT);
@@ -163,10 +171,12 @@ static void states(DBusMessageIter *i, uint64_t bits) {
 static size_t memo_bucket(XmAccessibleId id, size_t capacity) {
   return ((size_t)id * (size_t)UINT32_C(2654435761)) & (capacity - 1);
 }
-static void memo_resize(Transport *t, size_t capacity) {
+static Boolean memo_resize(Transport *t, size_t capacity) {
   TransportState **table;
   size_t k;
   table = (TransportState **)XtCalloc((Cardinal)capacity, sizeof(*table));
+  if (!table)
+    return False;
   for (k = 0; k < t->memo_capacity; ++k) {
     TransportState *record = t->memo[k];
     while (record) {
@@ -176,23 +186,26 @@ static void memo_resize(Transport *t, size_t capacity) {
     }
   }
   XtFree((char *)t->memo); t->memo = table; t->memo_capacity = capacity;
+  return True;
 }
 static TransportState *memo_get(Transport *t, XmAccessibleId id, int create) {
   TransportState *record;
   size_t bucket;
   if (!t->memo_capacity) {
     if (!create) return NULL;
-    memo_resize(t, 64);
+    if (!memo_resize(t, 64)) return NULL;
   }
   bucket = memo_bucket(id, t->memo_capacity);
   for (record = t->memo[bucket]; record; record = record->next)
     if (record->id == id) return record;
   if (!create) return NULL;
   if (t->memo_count >= t->memo_capacity && t->memo_capacity <= UINT_MAX / (2 * sizeof(*t->memo))) {
-    memo_resize(t, t->memo_capacity * 2);
+    if (!memo_resize(t, t->memo_capacity * 2)) return NULL;
     bucket = memo_bucket(id, t->memo_capacity);
   }
   record = (TransportState *)XtCalloc(1, sizeof(*record));
+  if (!record)
+    return NULL;
   record->id = id; record->next = t->memo[bucket]; t->memo[bucket] = record;
   ++t->memo_count;
   return record;
@@ -225,6 +238,13 @@ static int cache_item(DBusMessageIter *out, Transport *t,
     XmAccessibleInfoClear(&info);
     return 0;
   }
+  {
+    TransportState *record = memo_get(t, id, 1);
+    if (!record) {
+      XmAccessibleInfoClear(&info);
+      return 0;
+    }
+  }
   index = index_in_parent(t->owner, node);
   count = child_count(t->owner, id);
   role = info.role;
@@ -241,9 +261,11 @@ static int cache_item(DBusMessageIter *out, Transport *t,
   states(&item, info.states);
   dbus_message_iter_close_container(out, &item);
   {
-    TransportState *record = memo_get(t, id, 1);
-    record->known = 1;
-    XtFree(record->name); record->name = XtNewString(text(info.name));
+    TransportState *record = memo_get(t, id, 0);
+    if (record) {
+      record->known = 1;
+      memo_replace(&record->name, text(info.name));
+    }
   }
   XmAccessibleInfoClear(&info);
   return 1;
@@ -533,10 +555,14 @@ static int text_range(XmAccessibility *a, XmAccessibleId id, int length,
       if (!count || breaks[count - 1] != candidate) { \
         if (count == capacity) { \
           int next; \
+          int *new_breaks; \
           if (capacity > INT_MAX / 2) goto range_failed; \
           next = capacity ? capacity * 2 : 32; \
           if ((size_t)next > UINT_MAX / sizeof(*breaks)) goto range_failed; \
-          breaks = (int *)XtRealloc((char *)breaks, (Cardinal)((size_t)next * sizeof(*breaks))); \
+          new_breaks = (int *)XtRealloc( \
+              (char *)breaks, (Cardinal)((size_t)next * sizeof(*breaks))); \
+          if (!new_breaks) goto range_failed; \
+          breaks = new_breaks; \
           capacity = next; \
         } \
         breaks[count++] = candidate; \
@@ -653,6 +679,8 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
         "<signal name='AddAccessible'><arg type='" CACHE_ITEM "'/></signal>"
         "<signal name='RemoveAccessible'><arg type='(so)'/></signal></interface></node>";
       reply = dbus_message_new_method_return(call);
+      if (!reply)
+        return DBUS_HANDLER_RESULT_HANDLED;
       dbus_message_iter_init_append(reply, &out);
       string_value(&out, xml);
       send_reply(t, reply);
@@ -670,14 +698,19 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       error_reply(t, call, DBUS_ERROR_LIMITS_EXCEEDED, "Accessible tree is too large");
       return DBUS_HANDLER_RESULT_HANDLED;
     }
-    ids = (XmAccessibleId *)XtMalloc((Cardinal)(count * sizeof(*ids)));
-    if (!ids) {
+    ids = count ? (XmAccessibleId *)XtMalloc((Cardinal)(count * sizeof(*ids)))
+                : NULL;
+    if (count != 0 && !ids) {
       error_reply(t, call, "org.freedesktop.DBus.Error.NoMemory",
                   "Unable to snapshot the accessibility tree");
       return DBUS_HANDLER_RESULT_HANDLED;
     }
     for (node = a->nodes, k = 0; node; node = node->next) ids[k++] = node->id;
     reply = dbus_message_new_method_return(call);
+    if (!reply) {
+      XtFree((char *)ids);
+      return DBUS_HANDLER_RESULT_HANDLED;
+    }
     dbus_message_iter_init_append(reply, &out);
     dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, CACHE_ITEM, &array);
     for (k = 0; k < count; ++k) cache_item(&array, t, ids[k]);
@@ -708,6 +741,10 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
     return DBUS_HANDLER_RESULT_HANDLED;
   }
   reply = dbus_message_new_method_return(call);
+  if (!reply) {
+    XmAccessibleInfoClear(&info);
+    return DBUS_HANDLER_RESULT_HANDLED;
+  }
   dbus_message_iter_init_append(reply, &out);
   if (!strcmp(iface, "org.freedesktop.DBus.Introspectable") &&
       !strcmp(method, "Introspect")) {
@@ -1366,6 +1403,10 @@ static void sync_text(Transport *t, XmAccessibleId id,
   node->text_snapshot_busy = False;
   if (node->change_serial != serial) { XtFree(current); current = NULL; }
   record = memo_get(t, id, 1);
+  if (!record) {
+    XtFree(current);
+    return;
+  }
   previous = record->text_content;
   known = record->text_known;
   old_length = record->text_length; old_caret = record->caret;
@@ -1439,12 +1480,16 @@ static void seed_connected_tree(Transport *t) {
       XmAccessibleInfoClear(&info); continue;
     }
     record = memo_get(t, ids[k], 1);
+    if (!record) {
+      XmAccessibleInfoClear(&info);
+      continue;
+    }
     record->known = 1; record->states = info.states; record->role = info.role;
-    XtFree(record->name); record->name = XtNewString(text(info.name));
+    memo_replace(&record->name, text(info.name));
     record->has_value = info.has_value;
     record->minimum = info.minimum_value; record->maximum = info.maximum_value;
     record->current = info.current_value; record->increment = info.minimum_increment;
-    XtFree(record->value_text); record->value_text = XtNewString(text(info.value_text));
+    memo_replace(&record->value_text, text(info.value_text));
     sync_text(t, ids[k], &info, 0);
     XmAccessibleInfoClear(&info);
   }
@@ -1510,6 +1555,12 @@ XmAccessibilityStatus _XmAccessibilityTransportConnect(XmAccessibility *a) {
   dbus_connection_set_exit_on_disconnect(session, FALSE);
   call = dbus_message_new_method_call("org.a11y.Bus", "/org/a11y/bus",
                                       "org.a11y.Bus", "GetAddress");
+  if (!call) {
+    dbus_connection_close(session);
+    dbus_connection_unref(session);
+    dbus_error_free(&error);
+    return a->status = XmACCESSIBILITY_UNAVAILABLE;
+  }
   reply =
       dbus_connection_send_with_reply_and_block(session, call, 1000, &error);
   dbus_message_unref(call);
@@ -1563,6 +1614,11 @@ XmAccessibilityStatus _XmAccessibilityTransportConnect(XmAccessibility *a) {
                              timer_ready, (XtPointer)t);
   call = dbus_message_new_method_call("org.a11y.atspi.Registry", ROOT,
                                       "org.a11y.atspi.Socket", "Embed");
+  if (!call) {
+    a->status = XmACCESSIBILITY_UNAVAILABLE;
+    _XmAccessibilityTransportDestroy(a);
+    return a->status;
+  }
   dbus_message_iter_init_append(call, &out);
   reference(&out, t, 1);
   if (!dbus_connection_send_with_reply(t->connection, call, &t->embed, 2000) ||
@@ -1614,6 +1670,8 @@ static void state_event(Transport *t, const char *path, const char *name,
       "org.a11y.atspi.Event.Object", "StateChanged");
   DBusMessageIter out, variant, array;
   dbus_int32_t value = enabled, zero = 0;
+  if (!message)
+    return;
   dbus_message_iter_init_append(message, &out);
   string_value(&out, name);
   dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &value);
@@ -1633,6 +1691,8 @@ static void window_event(Transport *t, XmAccessibleId id, const char *name, int 
   path_for(id, path, sizeof(path));
   message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Window",
                                     active ? "Activate" : "Deactivate");
+  if (!message)
+    return;
   dbus_message_iter_init_append(message, &out);
   string_value(&out, "");
   dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &zero);
@@ -1655,6 +1715,8 @@ void _XmAccessibilityTransportRemoved(XmAccessibility *a, XmAccessibleId id,
   if (a->status != XmACCESSIBILITY_CONNECTED)
     return;
   message = dbus_message_new_signal(CACHEPATH, CACHE, "RemoveAccessible");
+  if (!message)
+    return;
   dbus_message_iter_init_append(message, &out);
   reference(&out, t, id);
   send_reply(t, message);
@@ -1664,6 +1726,8 @@ void _XmAccessibilityTransportRemoved(XmAccessibility *a, XmAccessibleId id,
     dbus_int32_t position = index, zero = 0;
     path_for(parent, path, sizeof(path));
     message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object", "ChildrenChanged");
+    if (!message)
+      return;
     dbus_message_iter_init_append(message, &out);
     string_value(&out, "remove");
     dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &position);
@@ -1697,6 +1761,10 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
   }
   path_for(id, path, sizeof(path));
   record = memo_get(t, id, 1);
+  if (!record) {
+    XmAccessibleInfoClear(&info);
+    return;
+  }
   old_states = record->states;
   name_changed = record->known && strcmp(text(record->name), text(info.name));
   value_changed = info.has_value && (!record->has_value ||
@@ -1708,6 +1776,10 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
     int active = (info.states & XmACCESSIBLE_STATE(1)) != 0;
     if (!record->known) {
       message = dbus_message_new_signal(CACHEPATH, CACHE, "AddAccessible");
+      if (!message) {
+        XmAccessibleInfoClear(&info);
+        return;
+      }
       dbus_message_iter_init_append(message, &out);
       if (cache_item(&out, t, id)) {
         XmAccessibleNode *node = _XmAccessibilityNode(a, id);
@@ -1717,16 +1789,18 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
           dbus_int32_t position = _XmAccessibilityIndexInParent(a, id);
           path_for(node->parent, parent_path, sizeof(parent_path));
           message = dbus_message_new_signal(parent_path, "org.a11y.atspi.Event.Object", "ChildrenChanged");
-          dbus_message_iter_init_append(message, &out);
-          string_value(&out, "add");
-          dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &position);
-          dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &second);
-          dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "(so)", &variant);
-          reference(&variant, t, id);
-          dbus_message_iter_close_container(&out, &variant);
-          dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
-          dbus_message_iter_close_container(&out, &array);
-          send_reply(t, message);
+          if (message) {
+            dbus_message_iter_init_append(message, &out);
+            string_value(&out, "add");
+            dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &position);
+            dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &second);
+            dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "(so)", &variant);
+            reference(&variant, t, id);
+            dbus_message_iter_close_container(&out, &variant);
+            dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
+            dbus_message_iter_close_container(&out, &array);
+            send_reply(t, message);
+          }
         }
       } else dbus_message_unref(message);
     }
@@ -1735,13 +1809,17 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
       return;
     }
     record = memo_get(t, id, 1);
+    if (!record) {
+      XmAccessibleInfoClear(&info);
+      return;
+    }
     record->known = 1;
     record->states = info.states; record->role = info.role;
     record->has_value = info.has_value;
     record->minimum = info.minimum_value; record->maximum = info.maximum_value;
     record->current = info.current_value; record->increment = info.minimum_increment;
-    XtFree(record->value_text); record->value_text = XtNewString(text(info.value_text));
-    XtFree(record->name); record->name = XtNewString(text(info.name));
+    memo_replace(&record->value_text, text(info.value_text));
+    memo_replace(&record->name, text(info.name));
     if (was_active != active) {
       state_event(t, path, "active", active);
       if (info.role == XmACCESSIBLE_FRAME)
@@ -1751,6 +1829,8 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
   if (name_changed) {
     message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object",
                                       "PropertyChange");
+    if (!message)
+      goto value_change;
     dbus_message_iter_init_append(message, &out);
     string_value(&out, detail);
     dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &first);
@@ -1762,9 +1842,12 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
     dbus_message_iter_close_container(&out, &array);
     send_reply(t, message);
   }
+value_change:
   if (value_changed) {
     message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object",
                                       "PropertyChange");
+    if (!message)
+      goto changed_done;
     dbus_message_iter_init_append(message, &out);
     string_value(&out, "accessible-value");
     dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &first);
@@ -1783,6 +1866,8 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
       size_t k;
       message = dbus_message_new_signal(path, DBUS_INTERFACE_PROPERTIES,
                                         "PropertiesChanged");
+      if (!message)
+        goto changed_done;
       dbus_message_iter_init_append(message, &out);
       string_value(&out, VALUE);
       dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
@@ -1820,6 +1905,7 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
         state_event(t, path, names[k], (info.states & XmACCESSIBLE_STATE(k)) != 0);
   }
   sync_text(t, id, &info, 1);
+changed_done:
   XmAccessibleInfoClear(&info);
 }
 

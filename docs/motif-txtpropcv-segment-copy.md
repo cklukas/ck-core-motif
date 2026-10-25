@@ -1,7 +1,10 @@
+---
+nav_exclude: true
+---
 # Bounded compound-text segment copies
 
 `XmCvtTextPropertyToXmStringTable` copies each bounded compound-text segment
-into a temporary NUL-terminated buffer. A failed segment allocation now frees
+into a temporary NUL-terminated buffer.  A failed segment allocation now frees
 already converted `XmString` entries, releases the table, balances the
 application lock, and returns `BadAlloc`.
 

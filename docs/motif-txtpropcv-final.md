@@ -1,9 +1,12 @@
+---
+nav_exclude: true
+---
 # Final text-property conversion buffer
 
-The locale, text, string and standard ICC conversion styles now check the
-final null-separated result buffer. Allocation failure releases every
-usable-text item and the temporary table, balances the application lock, and
-returns `BadAlloc`.
+After converting each item to usable text, the locale, text, string, and
+standard ICC styles allocate one null-separated result buffer.  The allocation
+is now checked; failure frees every per-item string, releases the pointer
+table, balances the application lock, and returns `BadAlloc`.
 
 The regression check is
 `tests/automated/check-txtpropcv-final-allocation.py`.

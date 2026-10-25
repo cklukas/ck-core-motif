@@ -5,7 +5,9 @@
 
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
+#include <limits.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <Xm/SegmentedControlP.h>
 #include <Xm/ToggleB.h>
 #include <Xm/VaSimpleP.h>
@@ -93,10 +95,19 @@ static void layout(XmSegmentedControlWidget control) {
             if (pref_total <= (int)available)
                 XtVaGetValues(control->segmented.items[i].button, XmNwidth,
                               &width, NULL);
-            if (x + width > available) width = available - x;
+	    if (x >= available)
+		width = 0;
+	    else if (width > available - x)
+		width = available - x;
             XtConfigureWidget(control->segmented.items[i].button, x, 0, width,
                               height, 0);
-            x += width + spacing;
+	    if (x < available && width < available - x) {
+		 x += width;
+		 if (spacing < available - x) x += spacing;
+		 else x = available;
+	    } else {
+		 x = available;
+	    }
         }
     }
 }
@@ -142,22 +153,26 @@ static XtGeometryResult GeometryManager(Widget child, XtWidgetGeometry *request,
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
     XmSegmentedControlWidget control = (XmSegmentedControlWidget)widget;
-    Dimension width = 0, height = 1;
+    unsigned long width = 0;
+    Dimension height = 1;
     Cardinal i;
     (void)request;
     for (i = 0; i < control->segmented.item_count; ++i) {
         Dimension child_width = 1, child_height = 1;
         XtVaGetValues(control->segmented.items[i].button, XmNwidth, &child_width,
                       XmNheight, &child_height, NULL);
-        width += child_width;
+        width += (unsigned long)child_width;
         if (child_height > height) height = child_height;
     }
     if (control->segmented.item_count > 1)
-        width += control->segmented.spacing * (control->segmented.item_count - 1);
+        width += (unsigned long)control->segmented.spacing *
+                 (unsigned long)(control->segmented.item_count - 1);
     if (!width) width = 120;
+    if (width > (unsigned long)(Dimension)-1)
+        width = (unsigned long)(Dimension)-1;
     if (height < 24) height = 24;
     reply->request_mode = CWWidth | CWHeight;
-    reply->width = width; reply->height = height;
+    reply->width = (Dimension)width; reply->height = height;
     return (widget->core.width == width && widget->core.height == height)
                ? XtGeometryYes : XtGeometryAlmost;
 }
@@ -261,11 +276,25 @@ Boolean XmSegmentedControlSetItems(Widget widget,
     if (!XmIsSegmentedControl(widget) || (count && !items)) return False;
     control = (XmSegmentedControlWidget)widget;
     if (count) {
-        copy = (XmSegmentedControlItemRec *)XtCalloc(count, sizeof(*copy));
+        if ((size_t)count > SIZE_MAX / sizeof(*copy) ||
+            (size_t)count > UINT_MAX / sizeof(*copy))
+            return False;
+        copy = (XmSegmentedControlItemRec *)XtCalloc(
+            (Cardinal)count, sizeof(*copy));
+        if (!copy) return False;
         for (i = 0; i < count; ++i) {
             copy[i].id = XtNewString(items[i].id ? items[i].id : "");
             copy[i].label = items[i].label ? XmStringCopy(items[i].label)
                                            : XmStringCreateLocalized("");
+            if (!copy[i].id || !copy[i].label) {
+                Cardinal j;
+                for (j = 0; j <= i; ++j) {
+                    XtFree(copy[j].id);
+                    XmStringFree(copy[j].label);
+                }
+                XtFree((char *)copy);
+                return False;
+            }
             copy[i].pixmap = items[i].pixmap;
             copy[i].enabled = items[i].enabled;
         }
@@ -296,6 +325,21 @@ Boolean XmSegmentedControlSetItems(Widget widget,
             XtSetArg(args[n], XmNlabelPixmap, copy[i].pixmap); ++n;
         }
         copy[i].button = XmCreateToggleButton(widget, name, args, n);
+        if (!copy[i].button) {
+            Cardinal j;
+            XtWarning("XmSegmentedControlSetItems: unable to create segment button");
+            for (j = 0; j <= i; ++j) {
+                if (copy[j].button) XtDestroyWidget(copy[j].button);
+                XtFree(copy[j].id);
+                XmStringFree(copy[j].label);
+            }
+            XtFree((char *)copy);
+            control->segmented.items = NULL;
+            control->segmented.item_count = 0;
+            control->segmented.selected = -1;
+            control->segmented.rebuilding = False;
+            return False;
+        }
         XtAddCallback(copy[i].button, XmNvalueChangedCallback, child_changed,
                       (XtPointer)control);
         XtAddEventHandler(copy[i].button, KeyPressMask, False, child_key,

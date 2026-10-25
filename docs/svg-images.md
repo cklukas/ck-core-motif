@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Optional SVG image loading
 
 SVG support is enabled with `--enable-svg` and requires `librsvg-2.0 >= 2.52`

@@ -8,6 +8,7 @@ end = source.index("/* Wrapper for calling XtWarning functions. */", start)
 region = source[start:end]
 
 assert "SIZE_MAX / sizeof(*rends)" in region
+assert "UINT_MAX / sizeof(*rends)" in region
 assert "XtMalloc((size_t)tag_count * sizeof(*rends))" in region
 assert "memset(rends, 0, (size_t)tag_count * sizeof(*rends));" in region
 assert "rends[i] = CopyRendition(rend);" in region

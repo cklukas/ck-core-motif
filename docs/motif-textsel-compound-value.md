@@ -1,8 +1,12 @@
+---
+nav_exclude: true
+---
 # Text compound-text value allocation failure
 
-Compound-text selection conversion now checks its returned-value allocation,
-releases the Xlib property buffer on failure, and rejects the conversion with
-zero length.
+Text selection conversion copies Xlib compound-text property bytes into an
+Xt-owned buffer.  The destination allocation is now checked before copying.
+If it fails, the Xlib property is released, the conversion reports zero
+length, and the request is refused safely.
 
 The regression check is
 `tests/automated/check-textsel-compound-value-allocation.py`.

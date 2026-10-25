@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drag receiver state allocation handling
 
 After validating receiver-info data, `_XmGetDragReceiverInfo` allocates the

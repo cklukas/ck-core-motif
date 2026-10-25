@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm index collapse copy bounds
 
 The leaf and node index collapse helpers now compute a bounded source length

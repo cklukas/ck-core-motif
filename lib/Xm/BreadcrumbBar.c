@@ -3,6 +3,8 @@
 #endif
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
+#include <limits.h>
+#include <stdint.h>
 #include <Xm/BreadcrumbBarP.h>
 #include <Xm/XmP.h>
 #include "PrimitiveI.h"
@@ -106,10 +108,32 @@ static int item_width(XmBreadcrumbBarWidget bar, Cardinal index) {
                         bar->breadcrumb.items[index].label : "";
     const char *separator = bar->breadcrumb.separator ?
                             bar->breadcrumb.separator : "";
-    int width = (int)strlen(label) * 8 + 10;
-    if (index)
-        width += (int)strlen(separator) * 8 + 8;
+    size_t label_len = strlen(label), separator_len = strlen(separator);
+    int width;
+    if (label_len > (size_t)(INT_MAX - 10) / 8)
+        width = INT_MAX;
+    else
+        width = (int)(label_len * 8) + 10;
+    if (index) {
+        if (separator_len > (size_t)(INT_MAX - 8) / 8 ||
+            width > INT_MAX - (int)(separator_len * 8) - 8)
+            width = INT_MAX;
+        else
+            width += (int)(separator_len * 8) + 8;
+    }
     return width;
+}
+
+static void advance_cursor(int *cursor, int width) {
+    if (*cursor >= INT_MAX - width)
+        *cursor = INT_MAX;
+    else
+        *cursor += width;
+}
+
+static int bounded_text_length(const char *text) {
+    size_t length = text ? strlen(text) : 0;
+    return length > (size_t)INT_MAX ? INT_MAX : (int)length;
 }
 
 static Cardinal visible_start(XmBreadcrumbBarWidget bar) {
@@ -127,11 +151,20 @@ static int hit_test(XmBreadcrumbBarWidget bar, int x) {
             return -1;
         cursor += 28;
     }
-    for (i = start; i < bar->breadcrumb.count; ++i) {
-        int width = item_width(bar, i);
-        if (x >= cursor && x < cursor + width)
-            return (int)i;
-        cursor += width;
+    if (!bar->breadcrumb.rtl) {
+        for (i = start; i < bar->breadcrumb.count; ++i) {
+            int width = item_width(bar, i);
+            if (x >= cursor && (width == INT_MAX || x - cursor < width))
+                return (int)i;
+            advance_cursor(&cursor, width);
+        }
+    } else {
+        for (i = bar->breadcrumb.count; i-- > start; ) {
+            int width = item_width(bar, i);
+            if (x >= cursor && (width == INT_MAX || x - cursor < width))
+                return (int)i;
+            advance_cursor(&cursor, width);
+        }
     }
     return -1;
 }
@@ -175,16 +208,16 @@ static void draw_item(XmBreadcrumbBarWidget bar, Cardinal index, int *cursor,
     const char *separator = bar->breadcrumb.separator ?
                             bar->breadcrumb.separator : "";
     int width = item_width(bar, index);
-    int text_x = *cursor + (first ? 0 : 4);
+    int text_x = (first || *cursor > INT_MAX - 4) ? *cursor : *cursor + 4;
     if (!first)
         XDrawString(display, window, bar->breadcrumb.gc, *cursor, 18,
-                    separator, (int)strlen(separator));
+                    separator, bounded_text_length(separator));
     if ((int)index == bar->breadcrumb.current)
         XFillRectangle(display, window, bar->breadcrumb.gc, text_x - 2, 5,
                        (unsigned)(width > 4 ? width - 4 : 1), 19);
     XDrawString(display, window, bar->breadcrumb.gc, text_x, 18,
-                label, (int)strlen(label));
-    *cursor += width;
+                label, bounded_text_length(label));
+    advance_cursor(cursor, width);
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {
@@ -267,8 +300,14 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     Cardinal i;
     int width = 8;
     (void)request;
-    for (i = 0; i < bar->breadcrumb.count; ++i)
-        width += item_width(bar, i);
+    for (i = 0; i < bar->breadcrumb.count; ++i) {
+        int item = item_width(bar, i);
+        if (width >= INT_MAX - item) {
+            width = INT_MAX;
+            break;
+        }
+        width += item;
+    }
     reply->request_mode = CWWidth | CWHeight;
     reply->width = (Dimension)(width > 240 ? 240 : width);
     reply->height = 28;
@@ -290,11 +329,31 @@ void XmBreadcrumbBarSetSegments(Widget widget,
     bar = (XmBreadcrumbBarWidget)widget;
     free_items(bar);
     if (count) {
-        bar->breadcrumb.items = (XmBreadcrumbBarItem *)XtCalloc(count,
-                                                                  sizeof(*bar->breadcrumb.items));
+        if ((size_t)count > SIZE_MAX / sizeof(*bar->breadcrumb.items) ||
+            (size_t)count > UINT_MAX / sizeof(*bar->breadcrumb.items))
+        {
+            bar->breadcrumb.current = -1;
+            return;
+        }
+        bar->breadcrumb.items = (XmBreadcrumbBarItem *)XtCalloc(
+            (Cardinal)count, sizeof(*bar->breadcrumb.items));
+        if (!bar->breadcrumb.items) {
+            bar->breadcrumb.current = -1;
+            return;
+        }
         for (i = 0; i < count; ++i) {
             bar->breadcrumb.items[i].label = XtNewString(
                 segments && segments[i].label ? segments[i].label : "");
+            if (!bar->breadcrumb.items[i].label) {
+                while (i != 0) {
+                    --i;
+                    XtFree(bar->breadcrumb.items[i].label);
+                }
+                XtFree((char *)bar->breadcrumb.items);
+                bar->breadcrumb.items = NULL;
+                bar->breadcrumb.current = -1;
+                return;
+            }
             bar->breadcrumb.items[i].id = segments ? segments[i].id : NULL;
         }
         bar->breadcrumb.count = count;

@@ -12,7 +12,6 @@
 #endif
 
 #include <ctype.h>
-#include <stdint.h>
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
@@ -164,11 +163,6 @@ _XmXlibreDpiResolve(_XmXlibreDpiShellState *state,
     resources = XRRGetScreenResourcesCurrent(state->display, state->root);
     if (resources == NULL)
         return True;
-    if (resources->noutput <= 0 ||
-        (size_t)resources->noutput > SIZE_MAX / sizeof(*outputs)) {
-        XRRFreeScreenResources(resources);
-        return True;
-    }
     outputs = ( _XmXlibreDpiOutput *)calloc(resources->noutput,
                                              sizeof(*outputs));
     if (outputs == NULL) {

@@ -360,6 +360,7 @@ remember_widget(XmImDisplayInfo info, Widget w)
   for (r = info->registrations; r; r = r->next)
     if (r->widget == w) return r;
   r = (XmImRegistration)XtCalloc(1, sizeof(*r));
+  if (r == NULL) return NULL;
   r->widget = w;
   r->next = info->registrations;
   info->registrations = r;
@@ -399,6 +400,7 @@ remember_values(XmImDisplayInfo info, Widget w, ArgList args, Cardinal n)
   Cardinal i, j, k;
   if (!info || info->restoring || !n) return;
   r = remember_widget(info, w);
+  if (r == NULL) return;
   for (i = 0; i < n; ++i) {
     XtArgVal value = args[i].value;
     size_t bytes = 0;
@@ -407,12 +409,16 @@ remember_values(XmImDisplayInfo info, Widget w, ArgList args, Cardinal n)
     if (k == XtNumber(XmImResList)) continue;
     if (!strcmp(args[i].name, XmNfontList) || !strcmp(args[i].name, XmNrenderTable))
       value = (XtArgVal)XmFontListCopy((XmFontList)value);
+    if (value == (XtArgVal)NULL && args[i].value != (XtArgVal)NULL)
+      continue;
     else {
       if (!strcmp(args[i].name, XmNspotLocation)) bytes = sizeof(XPoint);
       else if (!strcmp(args[i].name, XmNarea)) bytes = sizeof(XRectangle);
       else if (strstr(args[i].name, "Callback")) bytes = sizeof(XIMCallback);
       if (bytes && value) {
         char *copy = XtMalloc(bytes);
+        if (copy == NULL)
+          continue;
         memcpy(copy, (void *)value, bytes);
         value = (XtArgVal)copy;
       }
@@ -421,8 +427,21 @@ remember_values(XmImDisplayInfo info, Widget w, ArgList args, Cardinal n)
       if (!strcmp(r->args[j].name, args[i].name)) break;
     if (j < r->count) free_saved_arg(&r->args[j]);
     else {
+      ArgList new_args;
+      if (r->count == (Cardinal)-1)
+        continue;
+      if ((size_t)r->count > SIZE_MAX / sizeof(Arg) - 1 ||
+          (size_t)r->count > UINT_MAX / sizeof(Arg) - 1)
+        continue;
+      new_args = (ArgList)XtRealloc((char *)r->args,
+                                    ((size_t)r->count + 1) * sizeof(Arg));
+      if (new_args == NULL) {
+        if (bytes && value)
+          XtFree((char *)value);
+        continue;
+      }
+      r->args = new_args;
       ++r->count;
-      r->args = (ArgList)XtRealloc((char *)r->args, r->count * sizeof(Arg));
     }
     r->args[j].name = XmImResList[k].xmstring;
     r->args[j].value = value;
@@ -595,7 +614,7 @@ XmImRegister(Widget w,
       break;
 
     default:
-      assert(False);
+      break;
     }
   _XmAppUnlock(app);
 }
@@ -812,8 +831,12 @@ XmImCloseXIM(Widget w)
     {
       shell = xim_info->shell_refs.refs[0];
       _XmImFreeShellData(shell, get_im_info_ptr(shell, False));
-      assert((xim_info->shell_refs.refs == NULL) ||
-	     (xim_info->shell_refs.refs[0] != shell));
+      /* Extension data may already be gone during teardown.  In that case
+       * _XmImFreeShellData cannot remove the shell reference, so discard the
+       * stale entry here and keep closing the XIM. */
+      if (xim_info->shell_refs.refs != NULL &&
+	  xim_info->shell_refs.refs[0] == shell)
+	(void) remove_ref(&xim_info->shell_refs, shell);
     }
   
   shell = w;
@@ -829,14 +852,16 @@ XmImCloseXIM(Widget w)
       XtSetArg(args[0], XtNbaseHeight, &base_height);
       XtGetValues(shell, args, 1);
       if (base_height > 0){
-	base_height -= height;
+	base_height = (base_height > height) ? base_height - height : 0;
 	XtSetArg(args[0], XtNbaseHeight, base_height);
 	XtSetValues(shell, args, 1);
       }
       if(!(XtIsRealized(shell)))
-	shell->core.height -= height;
+	shell->core.height = (shell->core.height > height) ?
+	    shell->core.height - height : 0;
       else {
-	my_request.height = shell->core.height - height;
+	my_request.height = (shell->core.height > height) ?
+	    shell->core.height - height : 0;
 	my_request.request_mode = CWHeight;
 	XtMakeGeometryRequest(shell, &my_request, NULL);
       }
@@ -969,7 +994,7 @@ XmImGetXIC(Widget 	 w,
       break;
       
     default:
-      assert(False);
+      break;
     }
   
   /* Register an XIC with the desired input policy. */
@@ -1149,7 +1174,10 @@ _XmImFreeShellData(Widget     widget,
       assert((xic_info != im_info->iclist) ||
 	     (reference != xic_info->widget_refs.refs[0]));
     }
-  assert(im_info->shell_xic == NULL);
+  /* A stale sharing pointer may survive an unusual teardown ordering even
+   * after the XIC list is empty.  The shell is being released, so discard it
+   * rather than aborting destruction. */
+  im_info->shell_xic = NULL;
   
   /* Delete the dummy widget. */
 #ifdef FIX_1534
@@ -1313,7 +1341,11 @@ recreate_xic_info(XIC		  xic,
       {
 	XmImShellInfo tmp_info = 
 	  get_im_info(xim_info->shell_refs.refs[index], False);
-	assert(tmp_info != NULL);
+	/* Shell references can briefly outlive their extension data during
+	 * teardown.  Ignore such a stale entry rather than aborting while trying
+	 * to reconstruct an application-created XIC. */
+	if (tmp_info == NULL)
+	  continue;
 	
 	for (xic_info = tmp_info->iclist;
 	     xic_info != NULL;
@@ -1326,6 +1358,8 @@ recreate_xic_info(XIC		  xic,
   
   /* This XIC must have been created by the application directly. */
   xic_info = XtNew(XmImXICRec);
+  if (xic_info == NULL)
+	return NULL;
   bzero((char*) xic_info, sizeof(XmImXICRec));
   (void) XGetICValues(xic, XNInputStyle, &xic_info->input_style, NULL);
   xic_info->next = im_info->iclist;
@@ -1362,6 +1396,11 @@ create_xic_info(Widget		shell,
   char *cpend = NULL;
   register XIMStyles *styles;
   XmImXICInfo xic_info;
+
+  if (input_policy != XmPER_SHELL &&
+      input_policy != XmPER_WIDGET &&
+      input_policy != XmINHERIT_POLICY)
+    return NULL;
   
   /* Determine the input style to be used for this XIC. */
   styles = xim_info->styles;
@@ -1423,10 +1462,16 @@ create_xic_info(Widget		shell,
   
   /* Create the XIC info record. */
   xic_info = XtNew(XmImXICRec);
+  if (xic_info == NULL)
+	return NULL;
   bzero((char*) xic_info, sizeof(XmImXICRec));
   xic_info->input_style = style;
   xic_info->anonymous = True;
   xic_info->preedit_buffer = XtNew(PreeditBufferRec);
+  if (xic_info->preedit_buffer == NULL) {
+    XtFree((char *)xic_info);
+    return NULL;
+  }
   bzero((char *) xic_info->preedit_buffer, sizeof(PreeditBufferRec));
   
   xic_info->next = im_info->iclist;
@@ -1448,7 +1493,7 @@ create_xic_info(Widget		shell,
       break;
  
     default:
-      assert(False);
+      break;
     }
   
   return xic_info;
@@ -1501,7 +1546,8 @@ set_values(Widget w,
     return;
   
   im_info = get_im_info(p, False);
-  assert(im_info != NULL);
+  if (im_info == NULL)
+    return;
   
   if (!XtIsRealized(p)) {
     /* If vendor widget not realized, then the current info
@@ -1628,7 +1674,7 @@ set_values(Widget w,
       case XmPER_WIDGET:
 	break;
       default:
-	assert(False);
+	break;
       }
   } else {
     /* Try to modify the existing XIC. */
@@ -1658,7 +1704,8 @@ set_values(Widget w,
       unsigned long preedit_bg, preedit_fg;
       
       /* ??? This code assumes that the XIM hasn't changed. */
-      assert(XIMOfIC(icp->xic) == xim_info->xim);
+      if (XIMOfIC(icp->xic) != xim_info->xim)
+	return;
       
       /* We do this in case an input method does not support
        * change of some value, but does allow it to be set on
@@ -1778,7 +1825,7 @@ ImPreeditStartCallback(XIC xic,
   Widget real = NULL;
 
   if (!client_data){
-    assert(False);
+    return 0;
   }
 
   {
@@ -1804,7 +1851,7 @@ ImPreeditDoneCallback(XIC xic,
   Widget real = NULL;
 
   if (!client_data){
-    assert(False);
+    return;
   }
  
   if ((icp = callback_xic(w)) == NULL) return;
@@ -2018,6 +2065,9 @@ regist_real_callback(Widget w,
   XmImRefRec refs;
   int i, target = 0;
 
+  if (call == NULL || swc < 0 || swc >= 4)
+    return;
+
   p = w;
   while (!XtIsShell(p))
   {
@@ -2219,6 +2269,7 @@ ImGetGeo(Widget  vw,
   XmVendorShellExtObject ve;
   XmWidgetExtData extData;
   int height = 0;
+  int available_width;
   XRectangle rect;
   XRectangle *rp;
   XmImShellInfo im_info;
@@ -2268,8 +2319,10 @@ ImGetGeo(Widget  vw,
 	if ((int) rp->height > height)
 	  height = rp->height;
 	
-	icp->preedit_width = MIN((int) rp->width,
-				 (int) (vw->core.width - icp->status_width));
+	available_width = (int) vw->core.width - icp->status_width;
+	if (available_width < 0)
+	  available_width = 0;
+	icp->preedit_width = MIN((int) rp->width, available_width);
 	if (icp->sp_height < (int) rp->height)
 	  icp->sp_height = rp->height;
 	XFree(rp);
@@ -2307,6 +2360,7 @@ ImSetGeo(Widget  vw,
   XmImShellInfo im_info;
   XVaNestedList va_slist, va_plist;
   unsigned long use_slist, use_plist;
+  int area_y;
   
   im_info = get_im_info(vw, False);
   if ((im_info == NULL) || (im_info->iclist == NULL))
@@ -2318,6 +2372,10 @@ ImSetGeo(Widget  vw,
   
   if (ve->vendor.im_height == 0)
     return;
+
+  area_y = (int) vw->core.height - (int) ve->vendor.im_height;
+  if (area_y < 0)
+    area_y = 0;
   
   va_slist = XVaCreateNestedList(0, XNArea, &rect_status, NULL);
   va_plist = XVaCreateNestedList(0, XNArea, &rect_preedit, NULL);
@@ -2329,7 +2387,8 @@ ImSetGeo(Widget  vw,
       if ((use_slist = (icp->input_style & XIMStatusArea)) != 0)
 	{
 	  rect_status.x = 0;
-	  rect_status.y = vw->core.height - icp->sp_height;
+	  rect_status.y = (area_y > (int) icp->sp_height) ?
+	      area_y : 0;
 	  rect_status.width = icp->status_width;
 	  rect_status.height = icp->sp_height;
 	}
@@ -2337,12 +2396,14 @@ ImSetGeo(Widget  vw,
       if ((use_plist = (icp->input_style & XIMPreeditArea)) != 0)
 	{
 	  rect_preedit.x = icp->status_width;
-	  rect_preedit.y = vw->core.height - icp->sp_height;
+	  rect_preedit.y = (area_y > (int) icp->sp_height) ?
+	      area_y : 0;
 	  rect_preedit.width = icp->preedit_width;
 	  rect_preedit.height = icp->sp_height;
         } else if ((use_plist = (icp->input_style & XIMPreeditPosition)) != 0)
         {
           unsigned int  margin;
+          int available_width, available_height;
 #ifdef FIX_1129
         /*
          * im_info->current_widget can contains NULL,
@@ -2357,10 +2418,16 @@ ImSetGeo(Widget  vw,
               + ((XmPrimitiveWidget)im_info->current_widget)
                   ->primitive.highlight_thickness;
 
-            rect_preedit.width = MIN(icp->preedit_width,
-                  XtWidth(im_info->current_widget) - 2*margin);
-            rect_preedit.height = MIN(icp->sp_height,
-                  XtHeight(im_info->current_widget) - 2*margin);
+            available_width = (int) XtWidth(im_info->current_widget) -
+                2 * (int) margin;
+            available_height = (int) XtHeight(im_info->current_widget) -
+                2 * (int) margin;
+            if (available_width < 0)
+              available_width = 0;
+            if (available_height < 0)
+              available_height = 0;
+            rect_preedit.width = MIN(icp->preedit_width, available_width);
+            rect_preedit.height = MIN(icp->sp_height, available_height);
 	}
       
       if (use_slist && use_plist)
@@ -2714,9 +2781,11 @@ ImCreateArgList(va_list var,
   ArgList args;
   register int i;
 
-  if (total_count <= 0)
+  if (total_count <= 0 ||
+      (size_t)total_count > SIZE_MAX / sizeof(Arg) ||
+      (size_t)total_count > UINT_MAX / sizeof(Arg))
     return NULL;
-  args = (ArgList)XtCalloc(total_count, sizeof(Arg));
+  args = (ArgList)XtCalloc((Cardinal)total_count, sizeof(Arg));
   if (args == NULL)
     return NULL;
   for (i = 0; i < total_count; i++)
@@ -2831,11 +2900,23 @@ add_ref(XmImRefInfo refs,
       if (refs->max_refs == 0)
 	new_max = 10;
       else
-	new_max = refs->max_refs + (refs->max_refs / 2);
+        {
+          Cardinal increment = refs->max_refs / 2;
+          if (increment == 0)
+            increment = 1;
+          if (refs->max_refs > (Cardinal)-1 - increment)
+            return 0;
+          new_max = refs->max_refs + increment;
+        }
+
+      if ((size_t)new_max > SIZE_MAX / sizeof(*new_refs) ||
+          new_max > UINT_MAX / sizeof(*new_refs) ||
+          new_max > UINT_MAX / sizeof(*new_callbacks))
+        return 0;
 
       new_refs = (Widget *)XtMalloc((size_t)new_max * sizeof(*new_refs));
       new_callbacks = (XIMCallback **)XtCalloc(
-	  new_max, sizeof(*new_callbacks));
+          new_max, sizeof(*new_callbacks));
       if (new_refs == NULL || new_callbacks == NULL) {
 	XtFree((char *)new_refs);
 	XtFree((char *)new_callbacks);
@@ -2896,11 +2977,31 @@ remove_ref(XmImRefInfo refs,
       if ((refs->num_refs * 3 < refs->max_refs) &&
 	  (refs->max_refs >= 20))
 	{
-	  refs->max_refs /= 2;
-	  refs->refs = (Widget*) XtRealloc((char *) refs->refs, 
-					   refs->max_refs * sizeof(Widget));
-          refs->callbacks = (XIMCallback **) XtRealloc((char *) refs->callbacks,
-                                   refs->max_refs * sizeof(XIMCallback *));
+	  Cardinal new_max = refs->max_refs / 2;
+	  Widget *new_refs;
+	  XIMCallback **new_callbacks;
+	  if ((size_t)new_max > SIZE_MAX / sizeof(Widget) ||
+	      new_max > UINT_MAX / sizeof(Widget) ||
+	      new_max > UINT_MAX / sizeof(XIMCallback *))
+	    return refs->num_refs;
+	  new_refs = (Widget *)XtMalloc(
+	      (size_t)new_max * sizeof(Widget));
+	  new_callbacks = (XIMCallback **)XtMalloc(
+	      (size_t)new_max * sizeof(XIMCallback *));
+	  if (new_refs != NULL && new_callbacks != NULL) {
+	    memcpy(new_refs, refs->refs,
+	           (size_t)refs->num_refs * sizeof(Widget));
+	    memcpy(new_callbacks, refs->callbacks,
+	           (size_t)refs->num_refs * sizeof(XIMCallback *));
+	    XtFree((char *)refs->refs);
+	    XtFree((char *)refs->callbacks);
+	    refs->refs = new_refs;
+	    refs->callbacks = new_callbacks;
+	    refs->max_refs = new_max;
+	  } else {
+	    XtFree((char *)new_refs);
+	    XtFree((char *)new_callbacks);
+	  }
 	}
     }
   else
@@ -2931,7 +3032,13 @@ VaCopy(VaArgList list)
 #define VA_NAME(index)	(index < count ? args[index].name : NULL)
 #define VA_VALUE(index)	(index < count ? args[index].value : NULL)
   
-  assert(count <= 10);
+  /* XVaCreateNestedList is spelled out below for portability across the
+   * historical Xlib implementations Motif supports.  Do not turn an
+   * unusually large, but valid, resource list into a process abort.  The
+   * callers treat a NULL copy as an allocation/construction failure and
+   * continue through their existing fallback path. */
+  if (count > 10)
+    return NULL;
   return XVaCreateNestedList(0, 
 			     VA_NAME(0), VA_VALUE(0),
 			     VA_NAME(1), VA_VALUE(1),
@@ -2956,9 +3063,19 @@ VaSetArg(VaArgList list,
 {
   if (list->max <= list->count)
     {
-      list->max += 10;
-      list->args = (VaArg*) XtRealloc((char*) list->args, 
-				      list->max * sizeof(VaArg));
+      Cardinal new_max;
+      VaArg *new_args;
+      if (list->max > (Cardinal)-1 - 10 ||
+          (size_t)(list->max + 10) > SIZE_MAX / sizeof(VaArg) ||
+          (list->max + 10) > UINT_MAX / sizeof(VaArg))
+        return;
+      new_max = list->max + 10;
+      new_args = (VaArg *)XtRealloc(
+          (char *)list->args, (size_t)new_max * sizeof(VaArg));
+      if (new_args == NULL)
+        return;
+      list->args = new_args;
+      list->max = new_max;
     }
   
   list->args[list->count].name = name;

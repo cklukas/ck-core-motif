@@ -8,4 +8,4 @@ assert "ColorInfo *new_info" in source
 assert "if (new_info == NULL)" in source
 assert "if (allocation_failed)" in source
 assert "if (strs == NULL && count != 0)" in source
-print("PASS Color selector loader allocations are guarded")
+assert "UINT_MAX / sizeof(*strs)" in source

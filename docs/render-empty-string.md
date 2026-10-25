@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Empty render-table string tokens
 
 The render-table lexer now emits an allocated empty string for `""` and

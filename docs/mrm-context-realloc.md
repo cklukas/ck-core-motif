@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm resource-context resizing
 
 `UrmResizeResourceContext` now keeps the old buffer owned by the context until

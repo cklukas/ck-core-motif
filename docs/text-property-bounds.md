@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text property conversion bounds
 
 `XmCvtXmStringTableToTextProperty` now rejects negative counts and non-empty
@@ -13,12 +16,14 @@ aggregate sizing contract is covered by
 `tests/automated/check-text-property-size.py`.
 
 The compound-string (ASN.1) branch applies the same checked aggregate sizing,
-allocates space for its final terminator, and verifies each conversion result
-before copying it. The branch contract is covered by
+rejects totals outside Xt's `Cardinal` byte range, passes an explicit
+Xt-sized allocation, allocates space for its final terminator, and verifies
+each conversion result before copying it. The branch contract is covered by
 `tests/automated/check-compound-string-bounds.py`.
 
 Locale, text, and string conversion applies the same pointer-array and signed
-aggregate checks, including cleanup of all temporary converted strings when the
+aggregate checks, passes explicit Xt `Cardinal` byte sizes for its pointer and
+final buffers, and includes cleanup of all temporary converted strings when the
 total cannot be represented. The branch contract is covered by
 `tests/automated/check-locale-text-property-size.py`.
 
@@ -28,10 +33,11 @@ rejects `int` counter overflow and pointer-table allocation overflow. The input
 contract is covered by `tests/automated/check-text-property-inputs.py`.
 
 Compound-text import now finds segment boundaries with `memchr` limited to the
-declared property length, copies each segment into a terminated temporary string,
-and retains the historical trailing empty element. Missing terminators therefore
-cannot make the converter read beyond Xlib’s payload. The parser contract is
-covered by `tests/automated/check-compound-text-import.py`.
+declared property length, checks Xt-sized table and segment allocations, copies
+each segment into a terminated temporary string, and retains the historical
+trailing empty element. Missing terminators therefore cannot make the converter
+read beyond Xlib’s payload. The parser contract is covered by
+`tests/automated/check-compound-text-import.py`.
 
 Motif compound-string (ASN.1) import now verifies every encoded element length
 against the property’s remaining bytes before advancing or converting it. Zero

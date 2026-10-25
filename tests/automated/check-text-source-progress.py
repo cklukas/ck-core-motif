@@ -8,4 +8,3 @@ body = source[start:source.index("_XmTextValidate(", start)]
 assert body.count("block.length = 0;") >= 2
 assert body.count("<= start_pos || block.length == 0") == 2
 assert "start_pos = pos;" in body
-print("PASS Text source extraction requires forward progress")

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm resource-context output pointer
 
 `UrmGetResourceContext` now rejects a missing context output pointer before

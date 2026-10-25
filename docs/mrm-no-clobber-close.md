@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm no-clobber close handling
 
 The no-clobber write-open path now checks the close result for the existing

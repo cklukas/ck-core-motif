@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XLibre per-output DPI contract
 
 The optional `--enable-xlibre-dpi` build enables a narrow probe for the XLibre
@@ -19,11 +22,13 @@ not become a zero or guessed scale. The optional build is disabled by default;
 requesting it without the Xrandr development header and library fails during
 configuration rather than producing a partially working library.
 
-The resolver also treats a non-positive or unrepresentable RandR output count
-as a transient query failure before allocating its output table. It releases
-the RandR resource list and uses the existing global-DPI fallback; server
-metadata cannot drive an unbounded `calloc`.
-
+This package only validates and reads the property. It intentionally does not
+yet select an output for a shell, subscribe to RandR events or reflow realized
+widgets. Those operations require a separate UI-thread transaction contract.
+The installed fixture checks the parser's valid and invalid cases and verifies
+that ordinary Xvfb falls back safely. Pass `--display` to the runner when a
+real XLibre display is available; in that mode every reported output must
+expose a valid `DPI` property.
 If a realized shell's client-area or RandR resource query is temporarily
 unavailable, the observer returns the existing global display scale and output
 `None`. It does not retain a stale per-output scale across a transient query
@@ -163,13 +168,3 @@ This is an implementation step toward the live contract, not a claim that a
 generic Xorg server provides per-output DPI. The remaining qualification must
 exercise property changes, output removal/addition, a spanning window and
 destruction during a queued update on a real multi-output XLibre session.
-
-On 2026-10-25, after installing Debian arm64 `libxrandr-dev` on `uconsole`, a
-fresh `--enable-xlibre-dpi` build completed from 17:16:20 through 17:21:04 UTC
-under `/home/klukas/tmp/ckmotif-xlibre-bounds-20261025/`. The installed
-`libXm.so.8.0.0` SHA-256 was
-`be55a4d7802d41dd75ee8de622f7cb315cd15d3d802aeb1359b11cab076444fd`.
-The installed parser, deterministic output-selection and ordinary-Xvfb
-observer fixtures passed; the live-property fixture compiled and returned its
-required `skip` result for non-XLibre Xvfb. This qualifies the optional adapter
-build and fallback path, not the real multi-output XLibre session listed above.

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm widget-record output pointers
 
 The widget-record string append helpers now reject a missing context or output

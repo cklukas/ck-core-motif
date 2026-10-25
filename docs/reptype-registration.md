@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Representation-type registration allocation
 
 `XmRepTypeRegister` grows the process-wide dynamic representation-type table

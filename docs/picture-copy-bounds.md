@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmPicture repeat node-map bounds
 
 Picture repeat expansion checks the current node count before allocating its

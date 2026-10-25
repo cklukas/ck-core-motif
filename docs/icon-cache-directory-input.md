@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconFile cache directory input guard
 
 `MakeCachedDirEntry` now rejects null and empty directory names before calling

@@ -4,7 +4,7 @@
 from pathlib import Path
 
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmString.c").read_text()
+source = Path("lib/Xm/XmString.c").read_text()
 
 assert source.count("_XmStrCreate(opt_str, XmSTRING_OPTIMIZED, 0);") == 3
 assert source.count("_XmStrCreate(n_string, XmSTRING_MULTIPLE_ENTRY, 0);") == 1

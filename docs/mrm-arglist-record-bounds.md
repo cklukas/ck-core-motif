@@ -1,12 +1,13 @@
-# Mrm serialized argument-list bounds
+---
+nav_exclude: true
+---
+# Mrm argument-list record bounds
 
 `UrmCreateWidgetInstance` and `UrmSetWidgetInstance` now validate the complete
-serialized argument-list descriptor before iterating its argument records. The
-descriptor header must fit in the widget record, counts must be non-negative
-and within the existing list limit, and the serialized argument vector must fit
-in the remaining record bytes. Malformed UID records therefore fail before a
-truncated descriptor can drive an out-of-bounds read, while valid records keep
-the existing argument conversion behavior.
+serialized argument-list descriptor before reading its fields.  They reject
+negative or oversized counts and ensure every serialized argument descriptor
+fits inside the widget record before the existing conversion and callback
+logic runs.  Valid UID files retain the same argument and override behavior.
 
-The source-level regression check is
+The source-level regression is
 `tests/automated/check-mrm-arglist-record-bounds.py`.

@@ -45,6 +45,8 @@ static char rcsid[] = "$TOG: WmResource.c /main/14 1997/04/15 10:30:02 dbl $"
 #include "WmIBitmap.h"
 
 #include <stdio.h>
+#include <limits.h>
+#include <stdint.h>
 
 #include <Xm/XmP.h>
 #include <Xm/RowColumn.h>
@@ -181,6 +183,23 @@ char *builtinSystemMenu = BUILTINSYSTEMMENU;
 }"
 #endif /* WSM */
 
+static char *
+CopyCatalogString(const char *text)
+{
+    size_t length;
+    char *copy;
+
+    if (text == NULL)
+	return(NULL);
+    length = strlen(text);
+    if (length >= UINT_MAX)
+	return(NULL);
+    copy = (char *)XtMalloc((Cardinal)(length + 1));
+    if (copy != NULL)
+	memcpy(copy, text, length + 1);
+    return(copy);
+}
+
 void InitBuiltinSystemMenu(void)
 {
     char * tmpString;
@@ -198,6 +217,7 @@ void InitBuiltinSystemMenu(void)
     char *CloString = NULL;
     char *dsm;
     int dsm_length;
+    size_t dsm_size;
     Boolean gotItAll;
     gotItAll = True;
     if(gotItAll)
@@ -208,7 +228,7 @@ void InitBuiltinSystemMenu(void)
         tmpString = ((char *)GETMESSAGE(62, 49, "Restore _R  f.restore"));
 #endif
         if ((ResString =
-             (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+             CopyCatalogString(tmpString)) == NULL)
         {
             Warning (((char *)GETMESSAGE(62, 2, "Insufficient memory for local default menu.")));
             gotItAll = False;
@@ -226,7 +246,7 @@ void InitBuiltinSystemMenu(void)
         tmpString = ((char *)GETMESSAGE(62, 50, "Move _M  f.move"));
 #endif
         if ((MovString =
-             (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+             CopyCatalogString(tmpString)) == NULL)
         {
             Warning (((char *)GETMESSAGE(62, 4, "Insufficient memory for local default menu.")));
             gotItAll = False;
@@ -244,7 +264,7 @@ void InitBuiltinSystemMenu(void)
         tmpString = ((char *)GETMESSAGE(62, 51, "Size _S  f.resize"));
 #endif
         if ((SizString =
-             (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+             CopyCatalogString(tmpString)) == NULL)
         {
             Warning (((char *)GETMESSAGE(62, 6, "Insufficient memory for local default menu.")));
             gotItAll = False;
@@ -262,7 +282,7 @@ void InitBuiltinSystemMenu(void)
         tmpString = ((char *)GETMESSAGE(62, 52, "Minimize _n  f.minimize"));
 #endif
         if ((MinString =
-             (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+             CopyCatalogString(tmpString)) == NULL)
         {
             Warning (((char *)GETMESSAGE(62, 8, "Insufficient memory for local default menu.")));
             gotItAll = False;
@@ -280,7 +300,7 @@ void InitBuiltinSystemMenu(void)
 	tmpString = ((char *)GETMESSAGE(62, 53, "Maximize _x  f.maximize"));
 #endif
 	if ((MaxString =
-             (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+             CopyCatalogString(tmpString)) == NULL)
         {
             Warning (((char *)GETMESSAGE(62, 10, "Insufficient memory for local default menu.")));
             gotItAll = False;
@@ -298,7 +318,7 @@ void InitBuiltinSystemMenu(void)
         tmpString = ((char *)GETMESSAGE(62, 54, "Lower _L  f.lower"));
 #endif
         if ((LowString =
-             (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+             CopyCatalogString(tmpString)) == NULL)
         {
             Warning (((char *)GETMESSAGE(62, 12, "Insufficient memory for local default menu.")));
             gotItAll = False;
@@ -315,8 +335,7 @@ void InitBuiltinSystemMenu(void)
 	{
 	    tmpString = ((char *)GETMESSAGE(62, 55, "Occupy\\ Workspace\\.\\.\\. _O  f.workspace_presence"));
 	    if ((OcpString =
-		 (char *)XtMalloc ((unsigned int) 
-				 (strlen(tmpString) + 1))) == NULL)
+		 CopyCatalogString(tmpString)) == NULL)
 	    {
 		Warning (((char *)GETMESSAGE(62, 14, "Insufficient memory for local default menu.")));
 		gotItAll = False;
@@ -330,8 +349,7 @@ void InitBuiltinSystemMenu(void)
 	{
 	    tmpString = ((char *)GETMESSAGE(62, 56, "Occupy\\ All\\ Workspaces _A  f.occupy_all"));
 	    if ((OcaString =
-		 (char *)XtMalloc ((unsigned int) 
-				 (strlen(tmpString) + 1))) == NULL)
+		 CopyCatalogString(tmpString)) == NULL)
 	    {
 		Warning (((char *)GETMESSAGE(62, 16, "Insufficient memory for local default menu.")));
 		gotItAll = False;
@@ -345,8 +363,7 @@ void InitBuiltinSystemMenu(void)
 	{
 	    tmpString = ((char *)GETMESSAGE(62, 57, "Unoccupy\\ Workspace _U  f.remove"));
 	    if ((RemString =
-		 (char *)XtMalloc ((unsigned int) 
-				 (strlen(tmpString) + 1))) == NULL)
+		 CopyCatalogString(tmpString)) == NULL)
 	    {
 		Warning (((char *)GETMESSAGE(62, 18, "Insufficient memory for local default menu.")));
 		gotItAll = False;
@@ -362,7 +379,7 @@ void InitBuiltinSystemMenu(void)
     {
         tmpString = ((char *)GETMESSAGE(62, 48, "Close _C Alt<Key>F4 f.kill"));
         if ((CloString =
-             (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+             CopyCatalogString(tmpString)) == NULL)
         {
             Warning (((char *)GETMESSAGE(62, 20, "Insufficient memory for local default menu.")));
             gotItAll = False;
@@ -410,9 +427,24 @@ void InitBuiltinSystemMenu(void)
                 " no-label  f.separator\n%s\n}",
                 defaultSystemMenuName, ResString, MovString, SizString,
                 MinString, MaxString, LowString, CloString);
-        if (dsm_length < 0)
-            dsm_length = 0;
-        dsm = XtMalloc((size_t)dsm_length + 1);
+        if (dsm_length < 0 || (size_t)dsm_length >= UINT_MAX)
+            dsm = NULL;
+        else
+            dsm = XtMalloc((Cardinal)dsm_length + 1);
+        if (dsm == NULL)
+        {
+            Warning (((char *)GETMESSAGE(62, 21,
+                     "Insufficient memory for localized default system menu")));
+#ifdef WSM
+            builtinSystemMenu = (char *)XtNewString(
+                DtwmBehavior ? (String)DEFAULT_DTWM_SYSTEMMENU :
+                (String)BUILTINSYSTEMMENU);
+#else /* WSM */
+            builtinSystemMenu = (char *)XtNewString(
+                (String)BUILTINSYSTEMMENU);
+#endif /* WSM */
+            goto dsm_done;
+        }
 #ifdef WSM
         if (DtwmBehavior)
             (void) snprintf(dsm, (size_t)dsm_length + 1,
@@ -430,8 +462,10 @@ void InitBuiltinSystemMenu(void)
                 defaultSystemMenuName, ResString, MovString, SizString,
                 MinString, MaxString, LowString, CloString);
 	
-	if ((builtinSystemMenu =
-	     (char *)XtMalloc ((unsigned int) (strlen(dsm) + 1))) == NULL)
+	dsm_size = strlen(dsm);
+	if (dsm_size >= UINT_MAX ||
+	    (builtinSystemMenu =
+	     (char *)XtMalloc ((Cardinal)(dsm_size + 1))) == NULL)
 	{
 	   Warning (((char *)GETMESSAGE(62, 21, "Insufficient memory for localized default system menu")));
 #ifdef WSM
@@ -454,6 +488,7 @@ void InitBuiltinSystemMenu(void)
 	{
 	    strcpy(builtinSystemMenu, dsm);
 	}
+dsm_done:
 	XtFree(dsm);
     }
 
@@ -4313,6 +4348,13 @@ ProcessAppearanceResources (WmScreenData *pSD)
     clientW = XtCreateWidget (WmNclient, xmRowColumnWidgetClass, 
 			pSD->screenTopLevelW, (ArgList) args, i);
 
+    if (clientW == NULL)
+    {
+        Warning ("Cannot create the client appearance resource widget");
+        ExitWM (WM_ERROR_EXIT_VALUE);
+        return;
+    }
+
 
 	/* fetch "client.title" subpart appearance resources */
 
@@ -4445,8 +4487,9 @@ MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean make
         const char *fontList = (pAData->fontList != NULL) ?
             (const char *)pAData->fontList : "";
         int messageLength = snprintf(NULL, 0, format, fontList);
-        char *message = (messageLength >= 0) ?
-            (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+        char *message = (messageLength >= 0 &&
+                         (unsigned int)messageLength < UINT_MAX) ?
+            (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
         if (message != NULL)
         {
@@ -5127,6 +5170,12 @@ ProcessWorkspaceList (WmScreenData *pSD)
 	 */
 	wsNamesAlloced = WS_ALLOC_AMOUNT;
 	ppchWsNames = (char **) XtMalloc (wsNamesAlloced * sizeof (char *));
+	if (ppchWsNames == NULL)
+	{
+	    Warning (((char *)GETMESSAGE(62, 26,
+		"Insufficient memory for workspace names")));
+	    ExitWM (WM_ERROR_EXIT_VALUE);
+	}
 	if (pSD->workspaceList)
 	{
 	    lineP = (unsigned char *) pSD->workspaceList;
@@ -5137,7 +5186,8 @@ ProcessWorkspaceList (WmScreenData *pSD)
 	}
 	wsNameCount = 0;
 
-	while (((string = GetString(&lineP)) != NULL))
+	while (wsNameCount < MAX_WORKSPACE_COUNT &&
+	       ((string = GetString(&lineP)) != NULL))
 	{
 	    ppchWsNames[wsNameCount] = (char *) string;
 
@@ -5196,7 +5246,7 @@ ProcessWorkspaceList (WmScreenData *pSD)
 	{
 	    string = GenerateWorkspaceName (pSD, i);
 	}
-	if (!(pwsI->name = (String) XtMalloc (1+strlen((char *)string))))
+	if (!(pwsI->name = CopyCatalogString((char *)string)))
 	{
 	    Warning (((char *)GETMESSAGE(62, 27, "Insufficient memory for workspace data")));
 	    ExitWM(WM_ERROR_EXIT_VALUE);
@@ -5246,6 +5296,9 @@ ProcessWorkspaceList (WmScreenData *pSD)
 void 
 ProcessWorkspaceResources (WmWorkspaceData *pWS)
 {
+#ifdef WSM
+    XmString replacement;
+#endif
 
     /*
      * Retrieve workspace specific resources.
@@ -5275,14 +5328,6 @@ ProcessWorkspaceResources (WmWorkspaceData *pWS)
 	    pWS->name, pWS->name, wmWorkspaceResources, 
 	    XtNumber (wmWorkspaceResources), NULL, 0);
 
-#ifdef WSM
-        /*  Dup iconbox geometry, it may be free'd later on.  */
-
-        if (pWS->iconBoxGeometry)
-        {
-            pWS->iconBoxGeometry = XtNewString (pWS->iconBoxGeometry);
-        }
-#endif /* WSM */
     }
 
 #ifdef WSM
@@ -5300,7 +5345,9 @@ ProcessWorkspaceResources (WmWorkspaceData *pWS)
 	* Duplicates point to the same data, freeing on 
 	* rename can cause a crash.
 	*/
-	pWS->title = XmStringCopy(pWS->title);
+	replacement = XmStringCopy(pWS->title);
+	if (replacement != NULL)
+	    pWS->title = replacement;
 
     }
 
@@ -5379,7 +5426,7 @@ ProcessPresenceResources (WmScreenData *pSD)
 
 	tmpString = ((char *)GETMESSAGE(62, 59, "Occupy Workspace"));
 	if ((default_ws_pres_title =
-	     (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+	     CopyCatalogString(tmpString)) == NULL)
 	{
 	    Warning (((char *)GETMESSAGE(62, 31, "Insufficient memory for local message string")));
 	    default_ws_pres_title = "Occupy Workspace";
@@ -5405,11 +5452,8 @@ ProcessPresenceResources (WmScreenData *pSD)
 	    pch1 = (unsigned char *) 
 		    WmXmStringToString (pSD->presence.title);
 
-	    if (pch1 && (pch2 = (unsigned char *) 
-				XtMalloc (1+strlen((char *)pch1))))
-	    {
-		strcpy ((char *)pch2, (char *)pch1);
-	    }
+	    if (pch1)
+		pch2 = (unsigned char *)CopyCatalogString((char *)pch1);
 	}
 
 	if (!pch2)
@@ -5976,7 +6020,17 @@ _WmGetDynamicDefault (Widget widget, unsigned char type, String defaultColor, Pi
  *                   a static pointer is not acceptable.  Change it
  *                   to a static structure to maintain the data
  */
-	colorData = *_WmGetDefaultColors (newScreen, newColormap, defaultColor);
+	{
+	    XmColorData *defaultColors =
+		_WmGetDefaultColors (newScreen, newColormap, defaultColor);
+	    if (defaultColors == NULL)
+	    {
+		Warning ("Insufficient memory for default window-manager colors");
+		newValue = newBackground;
+		return;
+	    }
+	    colorData = *defaultColors;
+	}
     }
     else
     {
@@ -6099,10 +6153,14 @@ XmColorData * _WmGetDefaultColors (screen, colormap, defaultColor)
 
     if (count == size)
     {
-	size = (defaultSize[setId] += 10);
-	set = defaultSet[setId] =
-		(XmColorData *)WmRealloc ((char *) defaultSet[setId],
-			            sizeof (XmColorData) * size);
+	int new_size = size + 10;
+	XmColorData *new_set =
+	    (XmColorData *)WmRealloc ((char *) defaultSet[setId],
+		                       sizeof (XmColorData) * new_size);
+	if (new_set == NULL)
+	    return (NULL);
+	size = defaultSize[setId] = new_size;
+	set = defaultSet[setId] = new_set;
     }
 
     /*
@@ -6332,15 +6390,28 @@ WmScreenData *pSD;
 	 */
 
         char *buffer;
+	const char *root_menu;
+	int messageLength;
+	size_t bufferLength;
 
-	buffer = (char *) XtMalloc(strlen(builtinKeyBindings) +
-				   strlen(pSD->rootMenu) + 1);
+	root_menu = pSD->rootMenu ? pSD->rootMenu : "DefaultRootMenu";
+	messageLength = snprintf(NULL, 0, builtinKeyBindings, root_menu);
+	if (messageLength < 0 || (size_t)messageLength >= UINT_MAX)
+	{
+	    Warning("Root menu name is too long for builtin key bindings");
+	    root_menu = "DefaultRootMenu";
+	    messageLength = snprintf(NULL, 0, builtinKeyBindings, root_menu);
+	}
+	if (messageLength < 0 || (size_t)messageLength >= UINT_MAX)
+	    return;
+	bufferLength = (size_t)messageLength + 1;
+	buffer = (char *) XtMalloc((Cardinal)bufferLength);
 	if (buffer == NULL)
 	{
 	    Warning("Insufficient memory for builtin key bindings");
 	    ExitWM(WM_ERROR_EXIT_VALUE);
 	}
-	sprintf(buffer, builtinKeyBindings, pSD->rootMenu);
+	(void)snprintf(buffer, bufferLength, builtinKeyBindings, root_menu);
 
 	ParseKeyStr (pSD, (unsigned char *)buffer);
 	XtFree(buffer);
@@ -6390,15 +6461,28 @@ WmScreenData *pSD;
 	 */
 
         char *buffer;
+	const char *root_menu;
+	int messageLength;
+	size_t bufferLength;
 
-	buffer = (char *) XtMalloc(strlen(builtinButtonBindings) +
-				   strlen(pSD->rootMenu) + 1);
+	root_menu = pSD->rootMenu ? pSD->rootMenu : "DefaultRootMenu";
+	messageLength = snprintf(NULL, 0, builtinButtonBindings, root_menu);
+	if (messageLength < 0 || (size_t)messageLength >= UINT_MAX)
+	{
+	    Warning("Root menu name is too long for builtin button bindings");
+	    root_menu = "DefaultRootMenu";
+	    messageLength = snprintf(NULL, 0, builtinButtonBindings, root_menu);
+	}
+	if (messageLength < 0 || (size_t)messageLength >= UINT_MAX)
+	    return;
+	bufferLength = (size_t)messageLength + 1;
+	buffer = (char *) XtMalloc((Cardinal)bufferLength);
 	if (buffer == NULL)
 	{
 	    Warning("Insufficient memory for builtin button bindings");
 	    ExitWM(WM_ERROR_EXIT_VALUE);
 	}
-	sprintf(buffer, builtinButtonBindings, pSD->rootMenu);
+	(void)snprintf(buffer, bufferLength, builtinButtonBindings, root_menu);
 
 	ParseButtonStr (pSD, (unsigned char *)buffer);
 	XtFree(buffer);

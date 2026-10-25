@@ -6,7 +6,9 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmIm.c").read_text()
 start = source.rindex("ImCreateArgList(va_list")
 end = source.index("\n}\n", start) + 3
 allocator = source[start:end]
-assert "if (total_count <= 0)" in allocator
+assert "if (total_count <= 0 ||" in allocator
+assert "(size_t)total_count > SIZE_MAX / sizeof(Arg)" in allocator
+assert "(size_t)total_count > UINT_MAX / sizeof(Arg)" in allocator
 assert "if (args == NULL)" in allocator
 assert allocator.index("if (args == NULL)") < allocator.index("args[i].name")
 for marker in ("XmImVaSetFocusValues", "XmImVaSetValues"):

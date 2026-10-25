@@ -11,9 +11,17 @@ assert "if (cb.selected_items == NULL || cb.selected_item_positions == NULL)" in
 assert region.index("if (cb.selected_items == NULL") < region.index("cb.selected_items[i]")
 assert "DEALLOCATE_LOCAL((char *)cb.selected_items);" in region
 assert "DEALLOCATE_LOCAL((char *)cb.selected_item_positions);" in region
+assert "CopyCallbackSelectedItems(lw, cb.selected_items, SLcount)" in region
+assert "SLcount = 0;" in region
+assert "if (cb.item == NULL)" in source
+assert source.count("lw->list.DownCount = 0;") >= 2
 
 click_start = source.index("cb.selected_items =", source.index("ClickElement"))
 click_end = source.index("/* BEGIN OSF Fix CR 4576 */", click_start)
 click_region = source[click_start:click_end]
 assert "if (cb.selected_items == NULL || cb.selected_item_positions == NULL)" in click_region
+assert "CopyCallbackSelectedItems(lw, cb.selected_items, SLcount)" in click_region
+assert "SLcount = 0;" in click_region
+helper_start = source.index("CopyCallbackSelectedItems(")
+assert "while (i != 0)" in source[helper_start:]
 print("PASS List selection callbacks handle temporary allocation failure")

@@ -4,7 +4,7 @@
 from pathlib import Path
 
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmStringGet.c").read_text()
+source = Path("lib/Xm/XmStringGet.c").read_text()
 start = source.index("XmStringGetLtoR(")
 end = source.index("  XmStringFreeContext (context);", start)
 function = source[start:end]

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # JPEG and PNG image allocation bounds
 
 The JPEG and PNG loaders validate decoded dimensions and row sizes before

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString table parse allocation failure
 
 `XmStringTableParseStringArray` allocates the result table before parsing each

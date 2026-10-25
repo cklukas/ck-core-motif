@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString unparse allocation safety
 
 `unparse_text` now checks temporary conversion buffers, result growth, and

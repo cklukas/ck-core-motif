@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Input-method varargs allocation failures
 
 `XmImVaSetFocusValues` and `XmImVaSetValues` now stop safely when their

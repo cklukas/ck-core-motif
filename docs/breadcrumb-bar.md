@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # BreadcrumbBar
 
 `XmBreadcrumbBar` is an additive, resource-driven path presentation.  The

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm widget-instance input validation
 
 `UrmCreateOrSetWidgetInstance` now rejects a nonzero override count with a

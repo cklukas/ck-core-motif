@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm resource reload bounds
 
 `Idb__INX_FindResources` now revalidates the current node entry’s string after

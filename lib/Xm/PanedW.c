@@ -32,7 +32,6 @@ static char rcsid[] = "$TOG: PanedW.c /main/24 1999/07/13 07:46:01 mgreess $"
 
 
 #include <ctype.h>
-#include <limits.h>
 #include <stdint.h>
 #include <X11/cursorfont.h>
 #include "XmI.h"
@@ -694,7 +693,7 @@ ConstraintDestroy(
  	XmPanedWindowWidget pw = (XmPanedWindowWidget)w->core.parent;
 	if (!(pw->core.being_destroyed))
  	  { 	
-	      int i;
+	      Cardinal i;
 	      for (i = 0; 
 		   (i < pw->composite.num_children) 
 		       && IsPane(pw->composite.children[i]); 
@@ -723,7 +722,7 @@ AdjustGC(
         XmPanedWindowWidget pw )
 {
     XRectangle clip_rect;
-    register int i;
+    register Cardinal i;
     Region sash_region, clip_region;
     if (pw->composite.num_children > 0) {
     	sash_region = XCreateRegion();
@@ -802,7 +801,7 @@ static void
 ReManageChildren(
         XmPanedWindowWidget pw )
 {
-   int i;
+   Cardinal i;
 
    pw->paned_window.num_managed_children = 0;
 

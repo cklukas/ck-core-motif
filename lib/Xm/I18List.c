@@ -28,6 +28,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
+#include <stdint.h>
 #include "XmI.h"
 #include <Xm/XmP.h>
 #include <Xm/DrawP.h>
@@ -149,7 +151,7 @@ static Boolean Search(XmI18ListWidget ilist, XmString xms,
        int start_row, int start_column, int *found_row, int *found_column);
 static int FirstSelectedRow(Widget w);
 static void MakeCellVisible(Widget w, int row, int col);
-static void CopyColumnTitles(XmI18ListWidget);
+static Boolean CopyColumnTitles(XmI18ListWidget);
 static void FreeColumnTitles(XmI18ListWidget);
 
 static void SelectRow(XmI18ListWidget, int, Boolean, Boolean);
@@ -160,6 +162,7 @@ static void ListConvert(Widget, XtPointer, XmConvertCallbackStruct*);
 static void ListPreDestProc(Widget, XtPointer, XmDestinationCallbackStruct*);
 static void CopyToClipboard(Widget, XEvent*, String*, Cardinal*);
 static void DragDropFinished(Widget, XtPointer, XtPointer);
+static void FreeDragSnapshot(XmI18ListWidget);
 static XmString GetConcatenatedRow(Widget, int);
 static void ProcessDrag(Widget, XEvent*, String*, Cardinal*);
 
@@ -2315,6 +2318,7 @@ CalcColumnInfo(Widget w, Boolean force)
     int max_width = 0, max_title_height = 0, max_height = 0;
     Dimension width, height;
     XmString ptr;
+    short *new_column_widths;
 
     register int num_cols = XmI18List_num_columns(ilist);
     register int num_rows = XmI18List_num_rows(ilist);
@@ -2324,10 +2328,12 @@ CalcColumnInfo(Widget w, Boolean force)
 
     if (((XmI18List_column_widths(ilist) == NULL) || force) && (num_cols != 0))
     {
+	new_column_widths = (short *) XtMalloc(sizeof(short) * num_cols);
+	if (new_column_widths == NULL)
+	    return;
 	if (force)
 	    XtFree((XtPointer) XmI18List_column_widths(ilist));
-	XmI18List_column_widths(ilist) = (short *) XtMalloc(sizeof(short) *
-							num_cols);
+	XmI18List_column_widths(ilist) = new_column_widths;
     }
 
     for (i = 0 ; i < num_cols; i++) {
@@ -3135,9 +3141,15 @@ XmI18ListGetSelectedRows(Widget w)
 	    i++;
     }
     
-    if (i != 0) {
+	if (i != 0) {
+	    size_t slots = (size_t)i + 1;
+	    if (slots > SIZE_MAX / sizeof(*ret_rows) ||
+		slots > UINT_MAX / sizeof(*ret_rows))
+		return NULL;
 	ptr = ret_rows = (XmMultiListRowInfo **) XtMalloc(
-                sizeof(XmMultiListRowInfo *) * (i + 1));
+		    (Cardinal)(slots * sizeof(*ret_rows)));
+	if (ret_rows == NULL)
+	    return NULL;
 	ret_rows[i] = NULL;
 	
 	row_data = XmI18List_row_data(ilist);
@@ -3420,30 +3432,51 @@ XmI18ListToggleRow(Widget w, short row)
  * Input:
  *	ilist : XmI18ListWidget - the widget to copy titles
  * Output:
- *	None.
+ *	True when the copied title table is complete, False when allocation or
+ *	XmString copying fails and the widget-owned table is cleared.
  */
-static void
+static Boolean
 CopyColumnTitles(XmI18ListWidget ilist)
 {
     int           i;
     XmStringTable copy;
+    size_t        count;
 
     if( XmI18List_num_columns(ilist) == 0 ||
         XmI18List_column_titles(ilist) == NULL )
     {
-	copy = (XmStringTable) NULL;
+	XmI18List_column_titles(ilist) = (XmStringTable) NULL;
+	return True;
     }
     else
     {
+	count = (size_t)XmI18List_num_columns(ilist);
+	if (count > SIZE_MAX / sizeof(*copy) ||
+	    count > UINT_MAX / sizeof(*copy)) {
+	    XmI18List_column_titles(ilist) = (XmStringTable) NULL;
+	    return False;
+	}
 	copy = (XmStringTable)
-	    XtMalloc(sizeof(XmString) * XmI18List_num_columns(ilist));
+	    XtMalloc((Cardinal)(count * sizeof(*copy)));
+	if (copy == NULL) {
+	    XmI18List_column_titles(ilist) = (XmStringTable) NULL;
+	    return False;
+	}
 
 	for( i = 0; i < XmI18List_num_columns(ilist); ++i )
 	{
 	    copy[i] = XmStringCopy(XmI18List_column_titles(ilist)[i]);
+	    if (copy[i] == NULL) {
+		while (i != 0)
+		    XmStringFree(copy[--i]);
+		XtFree((XtPointer)copy);
+		XmI18List_column_titles(ilist) = (XmStringTable) NULL;
+		return False;
+	    }
 	}
     }
     XmI18List_column_titles(ilist) = copy;
+    return True;
 }
 
 /*
@@ -3489,6 +3522,8 @@ GetSelectedRows(XmI18ListWidget i18list, int *num_rows)
     int		*rows, i;
 
     rows = NULL;
+    if (i18list == NULL || num_rows == NULL)
+	return NULL;
 
     for (*num_rows = 0, i = 0; i < XmI18List_num_rows(i18list); i++)
 	if (row_info[i].selected)
@@ -3497,8 +3532,14 @@ GetSelectedRows(XmI18ListWidget i18list, int *num_rows)
     if (*num_rows > 0)
     {
 	int	j;
+	if ((size_t)*num_rows > SIZE_MAX / sizeof(*rows) ||
+	    (size_t)*num_rows > UINT_MAX / sizeof(*rows))
+	    return NULL;
+	size_t bytes = (size_t)*num_rows * sizeof(*rows);
 
-	rows = (int *) XtMalloc(*num_rows * sizeof(int));
+	rows = (int *) XtMalloc((Cardinal)bytes);
+	if (rows == NULL)
+	    return NULL;
 
 	for (i = 0, j = 0; i < XmI18List_num_rows(i18list); i++)
 	    if (row_info[i].selected)
@@ -3637,6 +3678,12 @@ ListConvert(Widget w, XtPointer client_data,
     XmI18ListWidget lw = (XmI18ListWidget) w;
     XmI18ListDragConvertStruct *ListDragConv = lw->ilist.drag_conv;
 
+    if (ListDragConv == NULL)
+	{
+	    cs->status = XmCONVERT_REFUSE;
+	    return;
+	}
+
     assert(XtNumber(atom_names) == NUM_ATOMS);
     XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);
 
@@ -3644,6 +3691,11 @@ ListConvert(Widget w, XtPointer client_data,
     {
 	Atom *targs = XmeStandardTargets(w, 5, &target_count);
 
+	if (targs == NULL)
+	{
+	    cs->status = XmCONVERT_REFUSE;
+	    return;
+	}
 	value = (XtPointer) targs;
 	targs[target_count++] = atoms[XmA_MOTIF_COMPOUND_STRING];
 	targs[target_count++] = atoms[XmACOMPOUND_TEXT];
@@ -3661,7 +3713,7 @@ ListConvert(Widget w, XtPointer client_data,
     else if ((cs->target == atoms[XmA_MOTIF_EXPORT_TARGETS]) ||
 	     (cs->target == atoms[XmA_MOTIF_CLIPBOARD_TARGETS]))
     {
-	Atom *targs = (Atom *) XtMalloc(sizeof(Atom) * 5);
+	Atom *targs = (Atom *) XtMalloc(sizeof(Atom) * 6);
 	int n = 0;
 
 	value = (XtPointer) targs;
@@ -3817,6 +3869,10 @@ ListConvert(Widget w, XtPointer client_data,
 	Pixmap *pix;
       
 	pix = (Pixmap *) XtMalloc(sizeof(Pixmap));
+	if (pix == NULL) {
+	    cs->status = XmCONVERT_REFUSE;
+	    return;
+	}
 	*pix = ListDragConv->pixmap;
 	/* value, type, size, and format must be set */
 	value = (XtPointer) pix;
@@ -3923,6 +3979,8 @@ ProcessDrag(Widget wid,
     
     lw->ilist.drag_conv = ListDragConv = (XmI18ListDragConvertStruct *)
 	    XtMalloc(sizeof(XmI18ListDragConvertStruct));
+    if (ListDragConv == NULL)
+	return;
 
     ListDragConv->w = wid;
     ListDragConv->strings = NULL;
@@ -3939,24 +3997,66 @@ ProcessDrag(Widget wid,
 	{
 	    int rowcount;
 	    int * rows = GetSelectedRows(lw, &rowcount);
+	    if (rowcount <= 0 || rows == NULL) {
+		XtFree((XtPointer)rows);
+		FreeDragSnapshot(lw);
+		return;
+	    }
+	    if ((size_t)rowcount > SIZE_MAX / sizeof(XmString) ||
+		rowcount > UINT_MAX / sizeof(XmString)) {
+		XtFree((XtPointer)rows);
+		FreeDragSnapshot(lw);
+		return;
+	    }
 	    ListDragConv->num_items = rowcount;
 	    ListDragConv->strings =	(XmString *)
 		    XtMalloc(sizeof(XmString) * ListDragConv->num_items);
+	    if (ListDragConv->strings == NULL) {
+		XtFree((XtPointer)rows);
+		FreeDragSnapshot(lw);
+		return;
+	    }
 	    for (i = 0; i < rowcount; i++)
+	    {
 		ListDragConv->strings[i] = GetConcatenatedRow(wid, rows[i]);
+		if (ListDragConv->strings[i] == NULL) {
+		    while (i != 0)
+			XmStringFree(ListDragConv->strings[--i]);
+		    XtFree((XtPointer)rows);
+		    FreeDragSnapshot(lw);
+		    return;
+		}
+	    }
 	    XtFree((XtPointer)rows);
 	}
 	else
 	{
 	    ListDragConv->strings = (XmString *) XtMalloc(sizeof(XmString));
+	    if (ListDragConv->strings == NULL) {
+		FreeDragSnapshot(lw);
+		return;
+	    }
 	    ListDragConv->num_items = 1;
 	    ListDragConv->strings[0] = GetConcatenatedRow(wid, row);
+	    if (ListDragConv->strings[0] == NULL) {
+		FreeDragSnapshot(lw);
+		return;
+	    }
 	}
     } else if (row == -2 && lw->ilist.column_titles) { /* drag column header */
 	ListDragConv->strings = (XmString *) XtMalloc(sizeof(XmString));
+	if (ListDragConv->strings == NULL) {
+	    FreeDragSnapshot(lw);
+	    return;
+	}
 	ListDragConv->num_items = 1;
-	ListDragConv->strings[0] = lw->ilist.column_titles[col];
+	ListDragConv->strings[0] = XmStringCopy(lw->ilist.column_titles[col]);
+	if (ListDragConv->strings[0] == NULL) {
+	    FreeDragSnapshot(lw);
+	    return;
+	}
     } else {
+	FreeDragSnapshot(lw);
 	return;
     }
 
@@ -4003,15 +4103,26 @@ DragDropFinished(Widget w,		/* unused */
 		 XtPointer closure,
 		 XtPointer call_data)	/* unused */
 {
-    int i;
     XmI18ListWidget lw = (XmI18ListWidget)closure;
+    FreeDragSnapshot(lw);
+}
+
+static void
+FreeDragSnapshot(XmI18ListWidget lw)
+{
+    int i;
     XmI18ListDragConvertStruct *ListDragConv = lw->ilist.drag_conv;
 
-    for (i = 0; i < ListDragConv->num_items; i++)
-	XmStringFree(ListDragConv->strings[i]);
-
-    XtFree((char *) ListDragConv->strings);
+    if (ListDragConv == NULL)
+	return;
+    if (ListDragConv->strings != NULL)
+	{
+	    for (i = 0; i < ListDragConv->num_items; i++)
+		XmStringFree(ListDragConv->strings[i]);
+	    XtFree((char *) ListDragConv->strings);
+	}
     XtFree((char *) ListDragConv);
+    lw->ilist.drag_conv = NULL;
 }
 
 /*  Function Name: XmI18ListSelectItems

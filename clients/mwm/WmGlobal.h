@@ -1352,8 +1352,8 @@ typedef struct _WmScreenData
     unsigned long fbStyle;
     unsigned int fbWinWidth;
     unsigned int fbWinHeight;
-    char fbLocation[20];
-    char fbSize[20];
+    char fbLocation[32];
+    char fbSize[32];
     int fbLocX;
     int fbLocY;
     int fbSizeX;

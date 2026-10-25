@@ -30,6 +30,7 @@ static char rcsid[] = "$TOG: PushBG.c /main/29 1999/05/27 14:18:33 mgreess $"
 #endif
 
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <X11/IntrinsicP.h>
 #include <X11/ShellP.h>
@@ -828,8 +829,8 @@ ArmAndActivate(
 	    XmeDrawShadows
 	      (XtDisplay (pb), XtWindow (pb),
 	       LabG_BottomShadowGC(pb), LabG_TopShadowGC(pb),
-	       pb->rectangle.x + pb->gadget.highlight_thickness,
-	       pb->rectangle.y + pb->gadget.highlight_thickness,
+	       (Position) ((int) pb->rectangle.x + (int) pb->gadget.highlight_thickness),
+	       (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness),
 	       pb->rectangle.width - 2 * pb->gadget.highlight_thickness,
 	       pb->rectangle.height - 2 * pb->gadget.highlight_thickness,
 	       pb->gadget.shadow_thickness, 
@@ -968,8 +969,8 @@ ArmTimeout(
 		  (XtDisplay (pb), XtWindow (pb),
 		   LabG_TopShadowGC(pb),
 		   LabG_BottomShadowGC(pb),
-		   pb->rectangle.x + pb->gadget.highlight_thickness,
-		   pb->rectangle.y + pb->gadget.highlight_thickness,
+		   (Position) ((int) pb->rectangle.x + (int) pb->gadget.highlight_thickness),
+		   (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness),
 		   pb->rectangle.width - 2 * pb->gadget.highlight_thickness,
 		   pb->rectangle.height - 2 * pb->gadget.highlight_thickness,
 		   pb->gadget.shadow_thickness, 
@@ -1081,8 +1082,8 @@ BtnDown(
 		    XtDisplay (pb), XtWindow (pb),
 		    LabG_TopShadowGC(pb),
 		    LabG_BottomShadowGC(pb),
-		    pb->rectangle.x + pb->gadget.highlight_thickness,
-		    pb->rectangle.y + pb->gadget.highlight_thickness,
+		    (Position) ((int) pb->rectangle.x + (int) pb->gadget.highlight_thickness),
+		    (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness),
 		    pb->rectangle.width - 2 * pb->gadget.highlight_thickness,
 		    pb->rectangle.height - 2 * pb->gadget.highlight_thickness,
 		    pb->gadget.shadow_thickness, XmSHADOW_OUT);
@@ -1189,8 +1190,8 @@ BtnUp(
 		  (XtDisplay (pb), XtWindow (pb),
 		   LabG_BottomShadowGC(pb),
 		   LabG_TopShadowGC(pb),
-		   pb->rectangle.x + pb->gadget.highlight_thickness,
-		   pb->rectangle.y + pb->gadget.highlight_thickness,
+		   (Position) ((int) pb->rectangle.x + (int) pb->gadget.highlight_thickness),
+		   (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness),
 		   pb->rectangle.width - 2 * pb->gadget.highlight_thickness,
 		   pb->rectangle.height - 2 * pb->gadget.highlight_thickness,
 		   pb->gadget.shadow_thickness, 
@@ -1279,8 +1280,8 @@ Enter(
 		    (XtDisplay (pb), XtWindow (pb),
 		     LabG_TopShadowGC(pb),
 		     LabG_BottomShadowGC(pb),
-		     pb->rectangle.x + pb->gadget.highlight_thickness,
-		     pb->rectangle.y + pb->gadget.highlight_thickness,
+		     (Position) ((int) pb->rectangle.x + (int) pb->gadget.highlight_thickness),
+		     (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness),
 		     pb->rectangle.width - 2 * pb->gadget.highlight_thickness,
 		     pb->rectangle.height - 2 * pb->gadget.highlight_thickness,
 		     pb->gadget.shadow_thickness, 
@@ -1341,10 +1342,12 @@ Leave(
 	  XmeDrawHighlight
 	    (XtDisplay(pb), XtWindow(pb), 
 	     LabG_BackgroundGC(pb), 
-	     pb->rectangle.x + pb->gadget.highlight_thickness,
-	     pb->rectangle.y + pb->gadget.highlight_thickness,
-	     pb->rectangle.width - 2 * pb->gadget.highlight_thickness,
-	     pb->rectangle.height - 2 * pb->gadget.highlight_thickness,
+	     (Position) ((int) pb->rectangle.x + (int) pb->gadget.highlight_thickness),
+	     (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness),
+	     (int) pb->rectangle.width -
+	     2 * (int) pb->gadget.highlight_thickness,
+	     (int) pb->rectangle.height -
+	     2 * (int) pb->gadget.highlight_thickness,
 	     pb->gadget.shadow_thickness);
 	  
 	  if (PBG_DisarmCallback(pb))
@@ -1406,8 +1409,8 @@ BorderHighlight(
 	      XmeDrawShadows
 		  (XtDisplay (pb), XtWindow (pb),
 		   LabG_TopShadowGC(pb), LabG_BottomShadowGC(pb),
-		   pb->rectangle.x + pb->gadget.highlight_thickness,
-		   pb->rectangle.y + pb->gadget.highlight_thickness,
+		   (Position) ((int) pb->rectangle.x + (int) pb->gadget.highlight_thickness),
+		   (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness),
 		   pb->rectangle.width - 2 * pb->gadget.highlight_thickness,
 		   pb->rectangle.height - 2 * pb->gadget.highlight_thickness,
 		   pb->gadget.shadow_thickness, 
@@ -1477,13 +1480,12 @@ DrawBorderHighlight(
 	  break;
 
 	default:
-	  assert(FALSE);
 	  return;
 	}
 
       if (pb->rectangle.width <= 2 * delta ||
           pb->rectangle.height <= 2 * delta)
-	return;
+        return;
 
       x = pb->rectangle.x + delta;
       y = pb->rectangle.y + delta;
@@ -1526,8 +1528,8 @@ BorderUnhighlight(
       if (pb->rectangle.width > 2 * pb->gadget.highlight_thickness &&
           pb->rectangle.height > 2 * pb->gadget.highlight_thickness)
         XmeClearBorder(XtDisplay (pb), XtWindow (pb),
-		       pb->rectangle.x + pb->gadget.highlight_thickness,
-		       pb->rectangle.y + pb->gadget.highlight_thickness,
+		       (Position) ((int) pb->rectangle.x + (int) pb->gadget.highlight_thickness),
+		       (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness),
 		       pb->rectangle.width - 2 * pb->gadget.highlight_thickness,
 		       pb->rectangle.height - 2 * pb->gadget.highlight_thickness,
 		       pb->gadget.shadow_thickness);
@@ -1561,10 +1563,11 @@ BorderUnhighlight(
 		2 * (PBG_Compatible(pb) ? 
 		     PBG_ShowAsDefault(pb) :
 		     PBG_DefaultButtonShadowThickness(pb));
+	    
 	      if (pb->rectangle.width <= 2 * delta ||
 	          pb->rectangle.height <= 2 * delta)
 	        break;
-	    
+
 	      x = pb->rectangle.x + delta;
 	      y = pb->rectangle.y + delta;
 	      width = pb->rectangle.width - 2 * delta;
@@ -1581,7 +1584,6 @@ BorderUnhighlight(
 	  break;
 
 	default:
-	  assert(FALSE);
 	  return;
 	}
     } 
@@ -1656,6 +1658,7 @@ ClassInitialize( void )
   int		 i, j;
   XtResourceList uncompiled;
   Cardinal	 num;
+  size_t	 merged_count;
   
   /*
    * Label's and Pushbutton's resource lists are being merged into one
@@ -1671,9 +1674,17 @@ ClassInitialize( void )
   
   wc_num_res = xmPushButtonGCacheObjClassRec.object_class.num_resources;
   sc_num_res = xmLabelGCacheObjClassRec.object_class.num_resources;
-  
-  merged_list = (XtResource *)
-    XtMalloc((sizeof(XtResource) * (wc_num_res + sc_num_res)));
+
+  if ((size_t)wc_num_res > SIZE_MAX / sizeof(XtResource) -
+	      (size_t)sc_num_res)
+    return;
+  merged_count = (size_t)wc_num_res + (size_t)sc_num_res;
+  if (merged_count > (size_t)UINT_MAX / sizeof(XtResource))
+    return;
+  merged_list = (XtResource *)XtMalloc(
+    (Cardinal)(merged_count * sizeof(XtResource)));
+  if (merged_list == NULL)
+    return;
   
   _XmTransformSubResources(xmLabelGCacheObjClassRec.object_class.resources,
                            sc_num_res, &uncompiled, &num);
@@ -1743,6 +1754,14 @@ SecondaryObjectCreate(
   newSec = _XmExtObjAlloc(size);
   reqSec = _XmExtObjAlloc(size);  
   _XmProcessUnlock();
+
+  if (newSec == NULL || reqSec == NULL) {
+    if (newSec != NULL)
+      _XmExtObjFree(newSec);
+    if (reqSec != NULL)
+      _XmExtObjFree(reqSec);
+    return;
+  }
   
   /*
    *  Update pointers in instance records now so references to resources
@@ -1769,6 +1788,11 @@ SecondaryObjectCreate(
   
   
   extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+  if (extData == NULL) {
+    _XmExtObjFree(newSec);
+    _XmExtObjFree(reqSec);
+    return;
+  }
   extData->widget = (Widget)newSec;
   extData->reqWidget = (Widget)reqSec;
   
@@ -2071,6 +2095,14 @@ SetValuesPrehook(
   newSec = (XmPushButtonGCacheObject)_XmExtObjAlloc(size);
   reqSec = (XmPushButtonGCacheObject)_XmExtObjAlloc(size);
   _XmProcessUnlock();
+
+  if (newSec == NULL || reqSec == NULL) {
+    if (newSec != NULL)
+      _XmExtObjFree((XtPointer)newSec);
+    if (reqSec != NULL)
+      _XmExtObjFree((XtPointer)reqSec);
+    return FALSE;
+  }
   
   newSec->object.self = (Widget)newSec;
   newSec->object.widget_class = ec;
@@ -2092,6 +2124,11 @@ SetValuesPrehook(
 	 sizeof(XmPushButtonGCacheObjPart));
   
   extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+  if (extData == NULL) {
+    _XmExtObjFree((XtPointer)newSec);
+    _XmExtObjFree((XtPointer)reqSec);
+    return FALSE;
+  }
   extData->widget = (Widget)newSec;
   extData->reqWidget = (Widget)reqSec;    
   _XmPushWidgetExtData(newParent, extData, XmCACHE_EXTENSION);
@@ -2155,6 +2192,9 @@ GetValuesPrehook(
   
   newSec = (XmPushButtonGCacheObject)_XmExtObjAlloc(size);
   _XmProcessUnlock();
+
+  if (newSec == NULL)
+    return;
   
   newSec->object.self = (Widget)newSec;
   newSec->object.widget_class = ec;
@@ -2176,6 +2216,10 @@ GetValuesPrehook(
 	 sizeof(XmPushButtonGCacheObjPart));
   
   extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+  if (extData == NULL) {
+    _XmExtObjFree((XtPointer)newSec);
+    return;
+  }
   extData->widget = (Widget)newSec;
   _XmPushWidgetExtData(newParent, extData, XmCACHE_EXTENSION);
   
@@ -2220,6 +2264,9 @@ GetValuesPosthook(
   XmWidgetExtData ext;
   
   _XmPopWidgetExtData(new_w, &ext, XmCACHE_EXTENSION);
+
+  if (ext == NULL)
+    return;
   
   _XmProcessLock();
   _XmExtObjFree((XtPointer)ext->widget);
@@ -2713,19 +2760,19 @@ DrawDefaultGlyphPixmap(
   content_height = MAX((int)LabG_TextRect(pb).height,
 			       (int)LabG_AccTextRect(pb).height);
   right_offset = (int)(LabG_MarginRight(pb) + LabG_MarginWidth(pb)) +
-			        (int)pb->gadget.highlight_thickness +
-			        (int)pb->gadget.shadow_thickness;
+	                (int)pb->gadget.highlight_thickness +
+	                (int)pb->gadget.shadow_thickness;
   if ((int)pb->rectangle.width <= right_offset || content_height <= 0 ||
       def_pixmap_width == 0 || def_pixmap_height == 0)
     return;
   
   /* We draw in the margin right area here. */
   dx = pb->rectangle.x + (int)pb->rectangle.width - right_offset;
-  dy = pb->rectangle.y + pb->gadget.highlight_thickness +
+  dy = (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness) +
     pb->gadget.shadow_thickness + LabG_MarginTop(pb) + LabG_MarginHeight(pb) + 
       (content_height - (int)def_pixmap_height)/2;
 
-  width = MIN((int)def_pixmap_width, LabG_MarginRight(pb));
+  width = MIN(def_pixmap_width, LabG_MarginRight(pb));
   height = MIN((int)def_pixmap_height, content_height);
   if (width <= 0 || height <= 0)
     return;
@@ -2756,7 +2803,7 @@ EraseDefaultGlyphPixmap(
   
   /* we clear the margin right area here */
   dx = pb->rectangle.x + (int)pb->rectangle.width - right_offset;
-  dy = pb->rectangle.y + pb->gadget.highlight_thickness +
+  dy = (Position) ((int) pb->rectangle.y + (int) pb->gadget.highlight_thickness) +
     pb->gadget.shadow_thickness + LabG_MarginTop(pb) + LabG_MarginHeight(pb);
 
   width = LabG_MarginRight(pb);
@@ -2818,11 +2865,14 @@ EraseDefaultButtonShadow(
 	  break;
 
 	default:
-	  assert(FALSE);
 	  return;
 	}
 
       size += Xm3D_ENHANCE_PIXEL;
+      if ((int)pb->rectangle.width <= 2 * delta ||
+	  (int)pb->rectangle.height <= 2 * delta)
+	return;
+
       x = pb->rectangle.x + delta;
       y = pb->rectangle.y + delta;
       width = pb->rectangle.width - (2 * delta);
@@ -3181,9 +3231,12 @@ EraseDefaultButtonShadows(
 	  break;
 
 	default:
-	  assert(FALSE);
 	  return;
 	}
+
+      if ((int)pb->rectangle.width <= 2 * delta ||
+	  (int)pb->rectangle.height <= 2 * delta)
+	return;
 
       x = pb->rectangle.x + delta;
       y = pb->rectangle.y + delta;
@@ -3241,10 +3294,8 @@ DrawDefaultButtonShadows(
   /*
    * Compute location of bounding box to contain the defaultButtonShadow.
    */
-  if ((default_button_shadow_thickness > 0) &&
-      (pb->rectangle.width > 2 * pb->gadget.highlight_thickness) &&
-      (pb->rectangle.height > 2 * pb->gadget.highlight_thickness))	
-    { 
+  if (default_button_shadow_thickness > 0)
+    {
       int x, y, width, height, delta;
       XmDisplay xm_dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(pb));
       XtEnum default_button_emphasis = xm_dpy->display.default_button_emphasis;
@@ -3260,9 +3311,12 @@ DrawDefaultButtonShadows(
 	  break;
 
 	default:
-	  assert(FALSE);
 	  return;
 	}
+
+      if (pb->rectangle.width <= 2 * delta ||
+          pb->rectangle.height <= 2 * delta)
+        return;
 
       x = pb->rectangle.x + delta;
       y = pb->rectangle.y + delta;
@@ -3328,10 +3382,11 @@ ComputePBLabelArea(
       box->x = dx + pb->rectangle.x;
       box->y = dx + pb->rectangle.y;
       adjust = (dx << 1);
-      box->width = pb->rectangle.width > (Dimension)adjust ?
-        (int)(pb->rectangle.width - (Dimension)adjust) : 0;
-      box->height = pb->rectangle.height > (Dimension)adjust ?
-        (int)(pb->rectangle.height - (Dimension)adjust) : 0;
+      /* Keep a tiny gadget's label rectangle non-negative. */
+      box->width = (pb->rectangle.width > (Dimension)adjust) ?
+          (int)(pb->rectangle.width - (Dimension)adjust) : 0;
+      box->height = (pb->rectangle.height > (Dimension)adjust) ?
+          (int)(pb->rectangle.height - (Dimension)adjust) : 0;
     }
 
   return (result);

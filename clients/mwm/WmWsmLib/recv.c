@@ -69,10 +69,22 @@ WSMDefaultOwnSelection(Widget w, WSMClientType client_type,
 		       XtPointer request_data)
 {
     Time time;
-    Display *dpy = XtDisplay(w);
-    Atom own_selection =
-	_WSMGetSelectionAtom(dpy, 
+    Display *dpy;
+    Atom own_selection;
+
+    if (w == NULL)
+    {
+        fprintf(stderr, "WSMDefaultOwnSelection: widget is required.\n");
+        return(False);
+    }
+
+    dpy = XtDisplay(w);
+    own_selection =
+	_WSMGetSelectionAtom(dpy,
 			     XScreenNumberOfScreen(XtScreen(w)), client_type);
+
+    if (own_selection == None)
+	return(False);
     
     if (XGetSelectionOwner(dpy, own_selection) != None) {
 	/*
@@ -129,6 +141,8 @@ WSMRegisterRequestCallback(Display *disp, int scr_num,
     WSMScreenInfo *scr_info;
 
     scr_info = _WSMGetScreenInfo(disp, scr_num);
+    if (scr_info == NULL)
+	return;
 
     /*
      * Since only one client can own a particular selection, we can hang
@@ -158,7 +172,15 @@ WSMRegisterRequestCallback(Display *disp, int scr_num,
 Boolean
 WSMIsKnownTarget(Widget w, Atom target)
 {
-    WSMDispInfo * disp_info = _WSMGetDispInfo(XtDisplay(w));
+    WSMDispInfo * disp_info;
+
+    if (w == NULL)
+	return(False);
+
+    disp_info = _WSMGetDispInfo(XtDisplay(w));
+
+    if (disp_info == NULL)
+	return(False);
 
     /*
      * Can't switch on dynamic data, sigh...
@@ -206,15 +228,29 @@ WSMIsKnownTarget(Widget w, Atom target)
 Atom *
 WSMGetTargetList(Widget w, Boolean include_defaults, unsigned long *len_ret)
 {
-    WSMDispInfo *disp_info = _WSMGetDispInfo(XtDisplay(w));
+    WSMDispInfo *disp_info;
     register int i;
     Atom *list;
+
+    if (w == NULL || len_ret == NULL)
+	return(NULL);
+
+    disp_info = _WSMGetDispInfo(XtDisplay(w));
+
+    if (disp_info == NULL) {
+	*len_ret = 0;
+	return(NULL);
+    }
 
     *len_ret = NUM_WSM_TARGETS;
     if (include_defaults)
 	*len_ret += NUM_EXTRA_TARGETS;
 
     list = (Atom *) XtMalloc(sizeof(Atom) * (*len_ret));
+    if (list == NULL) {
+	*len_ret = 0;
+	return(NULL);
+    }
 
     i = 0;
     list[i++] = disp_info->connect;
@@ -260,9 +296,20 @@ WSMProcessProtoTarget(Widget w, Atom target, XtPointer input,
 {
     Display *dpy;
     int scr_num;
+    WSMRequestType request_type;
     WSMScreenInfo *screen_info;
     WSMRequest request;
     WSMReply reply;    
+
+    if (w == NULL || return_type == NULL || output == NULL ||
+        output_len == NULL || output_fmt == NULL ||
+        (input == NULL && input_len != 0))
+	return(False);
+
+    *return_type = None;
+    *output = NULL;
+    *output_len = 0;
+    *output_fmt = WSM_PROTO_FMT;
     
     /*
      * Check the Target to make sure it is valid.
@@ -279,19 +326,29 @@ WSMProcessProtoTarget(Widget w, Atom target, XtPointer input,
 
     dpy = XtDisplay(w);
     scr_num = XScreenNumberOfScreen(XtScreen(w));
+    request_type = _WSMTargetToReqType(dpy, target);
+
+    /* CONFIG_FMT is the only request with no encoded payload.  The other
+     * decoders read at least one field and must not receive a null value. */
+    if (input == NULL && input_len == 0 && request_type != WSM_CONFIG_FMT)
+	return(False);
 
     /*
      * Unpack up the request from the wire.
      */
     
     _WSMUnpackRequest(dpy, scr_num, (MessageData) input, input_len, 
-		      _WSMTargetToReqType(dpy, target), &request);
+		      request_type, &request);
 
     /*
      * Call the app's callback function to process the request.
      */
 
     screen_info = _WSMGetScreenInfo(dpy, scr_num);
+    if (screen_info == NULL || screen_info->request_callback == NULL) {
+	FreeRequest(&request);
+	return(False);
+    }
     reply.any.type = request.any.type;
     reply.any.allocated = False;
     (*screen_info->request_callback)(w, screen_info->request_data,
@@ -301,6 +358,11 @@ WSMProcessProtoTarget(Widget w, Atom target, XtPointer input,
      */
 
     *output = (XtPointer) _WSMPackReply(dpy, scr_num, &reply, output_len);
+    if (*output == NULL && *output_len != 0) {
+	FreeReply(&reply);
+	FreeRequest(&request);
+	return(False);
+    }
     *output_fmt = WSM_PROTO_FMT;
     *return_type = target;	/* Is this the right return type? */
 

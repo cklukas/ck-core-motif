@@ -1,13 +1,11 @@
-#!/usr/bin/env python3
-"""Check Mrm hierarchy resource lookup validates its output pointer."""
 from pathlib import Path
+import os
 
-source = Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmhier.c"
-text = source.read_text(encoding="utf-8")
+source = Path(os.environ["MOTIF_SOURCE"])
+text = source.read_text()
 start = text.index("UrmHGetIndexedResource (MrmHierarchy")
 end = text.index("Urm__RegisterNamesInHierarchy (MrmHierarchy", start)
 body = text[start:end]
-needle = "if ( file_id_return == NULL )"
-if needle not in body or body.index(needle) > body.index("*file_id_return ="):
-    raise SystemExit("Mrm hierarchy resource lookup lacks output guard")
-print("PASS Mrm hierarchy resource lookup validates its output pointer")
+assert "if ( file_id_return == NULL )" in body
+assert body.index("if ( file_id_return == NULL )") < body.index("*file_id_return =")
+print("Mrm hierarchy resource lookup validates its output pointer")

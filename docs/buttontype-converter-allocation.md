@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Button-type resource conversion allocation
 
 The string-to-button-type converter allocates a result table and a mutable

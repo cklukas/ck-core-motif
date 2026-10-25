@@ -1,10 +1,16 @@
-# Region copy growth
+---
+nav_exclude: true
+---
+# XmRegion copy growth
 
-`miRegionCopy` now grows the destination rectangle array transactionally. It
-rejects a rectangle-count multiplication that cannot fit in `size_t`, keeps
-the original destination pointer when `XtRealloc` fails, and updates the
-destination only after the new storage is available. A destination with no
-existing rectangle storage is handled by the same allocation path, and the
-copy length is expressed as `size_t` rather than a narrowing `int`.
+`miRegionCopy` now grows a destination rectangle array through a temporary
+pointer and checks the element-count multiplication against both `size_t` and
+Xt's `Cardinal` byte-size range.  If `XtRealloc` fails,
+the destination keeps its existing storage and the copy returns without
+corrupting the region.
+
+The copy path also allocates storage when a destination region starts with a
+NULL rectangle pointer, so empty or partially initialized regions cannot reach
+a NULL `memmove`.
 
 The focused regression is `tests/automated/check-region-copy-growth.py`.

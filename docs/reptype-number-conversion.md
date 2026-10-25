@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Numeric representation action parameters
 
 Motif actions that accept a representation type may retain the historical

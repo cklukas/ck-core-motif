@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Region operation capacity growth
 
 Region union, intersection, and subtraction operations initially reserve twice

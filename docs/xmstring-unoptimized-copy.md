@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString unoptimized-entry copy bounds
 
 Unoptimized XmString entries own optional text and rendition begin/end tag

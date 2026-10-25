@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm hierarchy construction cleanup
 
 `Urm__OpenHierarchy` now initializes every owned list before allocation and

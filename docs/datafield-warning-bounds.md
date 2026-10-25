@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DataField warning formatting
 
 `XmDataField` reports characters that cannot be represented by the active font.

@@ -4,7 +4,7 @@
 from pathlib import Path
 
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmStringFunc.c").read_text()
+source = Path("lib/Xm/XmStringFunc.c").read_text()
 
 parse_start = source.index("XmStringTableParseStringArray(")
 parse_end = source.index("XmStringTableUnparse(", parse_start)

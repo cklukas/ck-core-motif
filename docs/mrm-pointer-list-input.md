@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm pointer-list input validation
 
 Mrm pointer-list initialization, resizing, append, and string-search helpers

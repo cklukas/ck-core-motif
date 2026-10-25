@@ -1,8 +1,12 @@
-# Single text-property copy failure
+---
+nav_exclude: true
+---
+# Single text-property result allocation
 
-When Xlib returns one text item, `TextPropertyToSingleTextItem` now checks the
-`XtNewString` copy. Failure releases the Xlib text list and returns
-`XNoMemory` instead of exposing a null result.
+When an X text property produces exactly one string,
+`TextPropertyToSingleTextItem` copies that item with `XtNewString`.  A failed
+copy now releases the Xlib string list and returns `XNoMemory` instead of
+reporting a successful conversion with a null result.
 
 The regression check is
 `tests/automated/check-txtpropcv-single-allocation.py`.

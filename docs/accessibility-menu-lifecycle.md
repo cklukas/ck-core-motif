@@ -1,9 +1,13 @@
+---
+nav_exclude: true
+---
 # Accessibility menu snapshots
 
 Accessibility menu notifications snapshot child IDs before invoking providers
 or transport callbacks. The snapshot allocation now checks the `Cardinal`
 child count against `size_t` before multiplying by the ID size, preventing a
-wrapped allocation on platforms where those widths differ.
+wrapped allocation on platforms where those widths differ. The accepted byte
+count is passed explicitly as an Xt `Cardinal`.
 
 
 The snapshot allocation is also checked for failure before callback dispatch,

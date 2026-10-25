@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FontSelector numeric fields
 
 `XmFontSelector` reads the numeric fields in an XLFD name into signed

@@ -12233,6 +12233,15 @@ XmDataFieldCopy(
 	}
 
 	atom_name = XGetAtomName(display, tmp_prop.encoding);
+	if (atom_name == NULL)
+	{
+	    XmClipboardCancelCopy(display, window, item_id);
+	    XtFree(selected_string);
+	    XtFree((char *)tmp_prop.value);
+	    XmStringFree(clip_label);
+	    _XmAppUnlock(app);
+	    return False;
+	}
 
 	/* move the data to the clipboard */
 	status = XmClipboardCopy(display, window, item_id, atom_name,

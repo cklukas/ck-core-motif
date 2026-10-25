@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm scaled-pixmap cache-entry allocation
 
 `_XmGetScaledPixmap` now checks allocation of the cache record, its color

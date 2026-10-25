@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm icon record bounds
 
 Mrm icon argument values now validate the serialized icon size before passing it

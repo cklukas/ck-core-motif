@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Check embedded Mrm resource descriptors before field access."""
+import os
 from pathlib import Path
-
-source = Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrw.c"
+source = Path(os.environ.get("MOTIF_SOURCE", Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrw.c"))
 text = source.read_text(encoding="utf-8")
 for needle in (
     "static Boolean\nUrmResourceRecordValid",
@@ -15,4 +15,4 @@ for needle in (
         raise SystemExit(f"missing resource-record bound: {needle}")
 if text.count("UrmResourceRecordValid(") < 3:
     raise SystemExit("resource descriptor validator is not used by both paths")
-print("PASS Mrm embedded resource descriptors are size- and string-bounded")
+print("Mrm embedded resource descriptors are size- and string-bounded")

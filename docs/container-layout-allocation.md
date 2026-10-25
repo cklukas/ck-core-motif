@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container outline-layout allocation
 
 Container detail layout builds temporary outline segments and depth points.

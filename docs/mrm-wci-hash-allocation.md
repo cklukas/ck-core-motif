@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm widget-class hash allocation
 
 Widget-class hash insertion now rejects null table/name inputs, checks the

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WP-09 optional C++ support-library release decision
 
 WP-08's consumer-side header and lifecycle fixture now qualify the installed

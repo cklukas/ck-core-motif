@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm hierarchy name registration
 
 Hierarchy-local name registration now validates non-empty name/value arrays,

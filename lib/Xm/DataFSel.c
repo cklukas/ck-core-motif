@@ -397,6 +397,7 @@ ConvertInsertSelection(
    Atom TARGETS = XmInternAtom(XtDisplay(w), "TARGETS", False);
    Atom MOTIF_DESTINATION = XmInternAtom(XtDisplay(w), "MOTIF_DESTINATION",
 					 False);
+   Atom ATOM_PAIR = XmInternAtom(XtDisplay(w), "ATOM_PAIR", False);
    Atom actual_type;
    int actual_format;
    unsigned long nitems;
@@ -428,7 +429,19 @@ ConvertInsertSelection(
                       req_event->property, 0L, 10000000, False,
                       AnyPropertyType, &actual_type, &actual_format,
                       &nitems, &bytes, &prop) != Success)
+   {
+      if (prop != NULL)
+	 XFree(prop);
       return FALSE;
+   }
+
+   if ((actual_type != ATOM_PAIR) || (actual_format != 32) ||
+       (nitems < 2) || (prop == NULL))
+   {
+      if (prop != NULL)
+	 XFree(prop);
+      return FALSE;
+   }
 
    pair = (_XmTextInsertPair *)prop;
 

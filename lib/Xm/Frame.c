@@ -411,6 +411,7 @@ ConfigureChildren(
     Widget child;
     XmFrameConstraint fc;
     Position childX = 0;
+    int child_x;
     Position childY;
     Dimension childWidth;
     Dimension childHeight;
@@ -451,23 +452,25 @@ ConfigureChildren(
 	switch (fc->child_h_alignment) {
 	    case(XmALIGNMENT_BEGINNING):
 		if (LayoutIsRtoLM(fw))
-		    childX = fw->core.width - spacing -
-				childWidth - 2 * childBW;
+		    child_x = (int) fw->core.width - (int) spacing -
+				 (int) childWidth - 2 * (int) childBW;
 		else
-		    childX = spacing;
+		    child_x = (int) spacing;
 		break;
 	    case(XmALIGNMENT_CENTER):
-		childX = fw->core.width/2 - childWidth/2 - childBW;
+		child_x = (int) fw->core.width / 2 - (int) childWidth / 2 -
+		    (int) childBW;
 	        break;
 	    case(XmALIGNMENT_END):
 	    default:
 		if (LayoutIsRtoLM(fw))
-		    childX = spacing;
+		    child_x = (int) spacing;
 		else
-		    childX = fw->core.width - spacing -
-				childWidth - 2 * childBW;
+		    child_x = (int) fw->core.width - (int) spacing -
+				 (int) childWidth - 2 * (int) childBW;
 		break;
 	}
+	childX = (Position) child_x;
 	CalcTitleExtent (fw, childHeight, childBW,
 				&titleExtent, &childY, &shadowHeight, &shadowY);
 

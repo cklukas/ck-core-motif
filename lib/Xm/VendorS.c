@@ -36,6 +36,7 @@ static char rcsid[] = "$TOG: VendorS.c /main/21 1999/08/09 10:49:41 mgreess $"
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <limits.h>
 #include <Xm/AccColorT.h>
 #include <Xm/AtomMgr.h>
 #include <Xm/DisplayP.h>
@@ -650,6 +651,7 @@ ClassInitialize( void )
   int                         i, j;
   XtResourceList              uncompiled;
   Cardinal                    num;
+  size_t                      merged_count;
 
 /**************************************************************************
    ShellExt's and VendorShellExt's resource lists are being merged into one
@@ -668,8 +670,20 @@ ClassInitialize( void )
 
   sc_num_res = xmShellExtClassRec.object_class.num_resources;
 
-  merged_list = (XtResource *)XtMalloc((sizeof(XtResource) * (wc_num_res +
-                                                                 sc_num_res)));
+  if ((size_t)wc_num_res > SIZE_MAX / sizeof(XtResource) -
+      (size_t)sc_num_res ||
+      (size_t)wc_num_res + (size_t)sc_num_res >
+      (size_t)UINT_MAX / sizeof(XtResource)) {
+    _XmProcessUnlock();
+    return;
+  }
+  merged_count = (size_t)wc_num_res + (size_t)sc_num_res;
+  merged_list = (XtResource *)XtMalloc(
+      (Cardinal)(merged_count * sizeof(XtResource)));
+  if (merged_list == NULL) {
+    _XmProcessUnlock();
+    return;
+  }
 
   _XmTransformSubResources(xmShellExtClassRec.object_class.resources,
                            sc_num_res, &uncompiled, &num);
@@ -810,6 +824,8 @@ ClassPartInitialize(
 
     compExtPtr = (CompositeClassExtensionRec **)
 	_XmGetClassExtensionPtr( (XmGenericClassExt *) compExtPtr, NULLQUARK);
+	if (compExtPtr == NULL)
+	    return;
 
     if (*compExtPtr == NULL) {
 	CompositeClassExtensionRec 	**superExtPtr;
@@ -822,8 +838,12 @@ ClassPartInitialize(
                   _XmGetClassExtensionPtr(
                       (XmGenericClassExt *) superExtPtr,
                       NULLQUARK);
+	if (superExtPtr == NULL || *superExtPtr == NULL)
+	    return;
 
 	*compExtPtr = XtNew(CompositeClassExtensionRec);
+	if (*compExtPtr == NULL)
+	    return;
 	memcpy((char*)*compExtPtr, (char*)*superExtPtr, 
 	       sizeof(CompositeClassExtensionRec));
     }
@@ -861,14 +881,23 @@ SetMwmStuff(
 {
     Boolean		changed = FALSE;
     Widget		extParent = nve->ext.logicalParent;
+    char *		replacement;
 
     if (!ove || (ove->vendor.mwm_menu != nve->vendor.mwm_menu))
       {
 	  /* make mwm_menu local */
-	  if (ove && ove->vendor.mwm_menu) 
-	    XtFree(ove->vendor.mwm_menu);
-	  if (nve->vendor.mwm_menu)
-	    nve->vendor.mwm_menu = XtNewString(nve->vendor.mwm_menu);
+	  replacement = nve->vendor.mwm_menu
+	    ? XtNewString(nve->vendor.mwm_menu) : NULL;
+	  if (!nve->vendor.mwm_menu || replacement != NULL)
+	    {
+	      if (ove && ove->vendor.mwm_menu)
+		XtFree(ove->vendor.mwm_menu);
+	      nve->vendor.mwm_menu = replacement;
+	    }
+	  else if (ove)
+	    nve->vendor.mwm_menu = ove->vendor.mwm_menu;
+	  else
+	    nve->vendor.mwm_menu = NULL;
 	  if (XtIsRealized(extParent))
 	    SetMwmMenu(nve);
       }
@@ -1624,8 +1653,19 @@ SecondaryObjectCreate(
 
 	newSec = XtMalloc(size);
 	reqSec = _XmExtObjAlloc(size);
+	if (newSec == NULL || reqSec == NULL) {
+	    XtFree((char *)newSec);
+	    if (reqSec != NULL)
+		_XmExtObjFree(reqSec);
+	    return;
+	}
 
 	extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+	if (extData == NULL) {
+	    XtFree((char *)newSec);
+	    _XmExtObjFree(reqSec);
+	    return;
+	}
 	extData->widget = (Widget)newSec;
 	extData->reqWidget = (Widget)reqSec;
 
@@ -1693,6 +1733,8 @@ InitializePrehook(
     if (ttp == NULL)
     {
         ttp = (XmToolTipConfigTrait) XtMalloc (sizeof (XmToolTipConfigTraitRec));
+	if (ttp == NULL)
+	    return;
 
         ttp->post_delay = 5000;
         ttp->post_duration = 5000;
@@ -1956,7 +1998,11 @@ MotifWarningHandler (String name,
    if (header_len > SIZE_MAX - message_len - 1)
      return;
    combined_len = header_len + message_len;
+   if (combined_len >= (size_t)UINT_MAX)
+     return;
    combined = XtMalloc((Cardinal)(combined_len + 1));
+   if (combined == NULL)
+     return;
    (void)snprintf(combined, combined_len + 1, header, name, s_class);
    if (num_params && *num_params > 1) {
      int i = *num_params-1;
@@ -1973,10 +2019,15 @@ MotifWarningHandler (String name,
    newline_count = 0;
    for (bp = combined; *bp; ++bp)
      if (*bp == '\n') ++newline_count;
-   if (newline_count > (SIZE_MAX - combined_len - 2) / 4)
+   if (combined_len > SIZE_MAX - 2 ||
+       newline_count > (SIZE_MAX - combined_len - 2) / 4)
      { XtFree(combined); return; }
    output_len = combined_len + newline_count * 4 + 1;
+   if (output_len >= (size_t)UINT_MAX)
+     { XtFree(combined); return; }
    output = XtMalloc((Cardinal)(output_len + 1));
+   if (output == NULL)
+     { XtFree(combined); return; }
    dst = output;
    for (bp = combined; *bp; ) {
      const char *newline = strchr(bp, '\n');
@@ -2100,26 +2151,33 @@ SetValuesPrehook(
     newExtData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
 
     if (oldExtData && newExtData) {
-	 _XmPushWidgetExtData(new_w, newExtData, XmSHELL_EXTENSION);
+        newExtData->widget = oldExtData->widget;
 
-    newExtData->widget = oldExtData->widget;
+        _XmProcessLock();
+        newExtData->oldWidget = (Widget) _XmExtObjAlloc(extSize);
+        newExtData->reqWidget = (Widget) _XmExtObjAlloc(extSize);
+        _XmProcessUnlock();
+        if (newExtData->oldWidget == NULL || newExtData->reqWidget == NULL)
+          {
+            _XmExtObjFree((XtPointer)newExtData->oldWidget);
+            _XmExtObjFree((XtPointer)newExtData->reqWidget);
+            XtFree((char *)newExtData);
+            return FALSE;
+          }
 
-    _XmProcessLock();
-    newExtData->oldWidget = (Widget) _XmExtObjAlloc(extSize);
-    memcpy((char *)newExtData->oldWidget, (char *)oldExtData->widget, extSize);
-    _XmProcessUnlock();
+        memcpy((char *)newExtData->oldWidget,
+               (char *)oldExtData->widget, extSize);
 
-    _XmProcessLock();
-    XtSetSubvalues(oldExtData->widget,
-		    ec->core_class.resources,
-		    ec->core_class.num_resources,
-		    args, *num_args);
-    _XmProcessUnlock();
+        _XmProcessLock();
+        XtSetSubvalues(oldExtData->widget,
+                        ec->core_class.resources,
+                        ec->core_class.num_resources,
+                        args, *num_args);
+        _XmProcessUnlock();
 
-    _XmProcessLock();
-    newExtData->reqWidget = (Widget) _XmExtObjAlloc(extSize);
-    memcpy((char *)newExtData->reqWidget, (char *)oldExtData->widget, extSize);
-    _XmProcessUnlock();
+        memcpy((char *)newExtData->reqWidget,
+               (char *)oldExtData->widget, extSize);
+        _XmPushWidgetExtData(new_w, newExtData, XmSHELL_EXTENSION);
 
     /*  Convert the necessary fields from unit values to pixel values  */
      _XmProcessLock();
@@ -2128,6 +2186,8 @@ SetValuesPrehook(
     _XmExtImportArgs(oldExtData->widget, args, num_args);
 
     }
+    else if (newExtData != NULL)
+        XtFree((char *)newExtData);
     return FALSE;
 }
 
@@ -2149,6 +2209,7 @@ VendorExtSetValues(
   XmVendorShellExtObject  ov = (XmVendorShellExtObject) old;
   XmVendorShellExtObject  nv = (XmVendorShellExtObject) new_w;
   XmFontList		  defaultFont;
+  char                    *replacement;
   
   ove = (XmVendorShellExtPartPtr) &(ov->vendor);
   nve = (XmVendorShellExtPartPtr) &(nv->vendor);
@@ -2180,14 +2241,28 @@ VendorExtSetValues(
   
   if (nve->input_method_string != ove->input_method_string)
     {
-      XtFree(ove->input_method_string);
-      nve->input_method_string = XtNewString(nve->input_method_string);
+      replacement = nve->input_method_string != NULL
+        ? XtNewString(nve->input_method_string) : NULL;
+      if (nve->input_method_string == NULL || replacement != NULL)
+        {
+          XtFree(ove->input_method_string);
+          nve->input_method_string = replacement;
+        }
+      else
+        nve->input_method_string = ove->input_method_string;
     }
   
   if (nve->preedit_type_string != ove->preedit_type_string)
     {
-      XtFree(ove->preedit_type_string);
-      nve->preedit_type_string = XtNewString(nve->preedit_type_string);
+      replacement = nve->preedit_type_string != NULL
+        ? XtNewString(nve->preedit_type_string) : NULL;
+      if (nve->preedit_type_string == NULL || replacement != NULL)
+        {
+          XtFree(ove->preedit_type_string);
+          nve->preedit_type_string = replacement;
+        }
+      else
+        nve->preedit_type_string = ove->preedit_type_string;
     }
   
   if (nve->button_font_list != ove->button_font_list)
@@ -2271,7 +2346,7 @@ SetValues(
     VendorShellWidget		vw = (VendorShellWidget)new_w;
     XmWidgetExtData		extData;
     XmVendorShellExtObject	vse;
-    int i;
+    Cardinal i;
     XmToolTipConfigTrait ttp;
 
     ttp = (XmToolTipConfigTrait) XmeTraitGet (new_w, XmQTtoolTipConfig);
@@ -2360,6 +2435,8 @@ GetValuesPrehook(
 
     if ((oldExtData = _XmGetWidgetExtData(w, XmSHELL_EXTENSION)) != NULL) {
 	 newExtData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+	 if (newExtData == NULL)
+	     return;
 	 newExtData->widget = oldExtData->widget;
 	 _XmPushWidgetExtData(w, newExtData, XmSHELL_EXTENSION);
     }
@@ -2374,7 +2451,7 @@ GetValuesHook(
     XmWidgetExtData	ext;
     XmBaseClassExt      *cePtr;
     WidgetClass         ec;
-    int i;
+    Cardinal i;
     int *ip;
     Boolean *bp;
     XmToolTipConfigTrait ttp;
@@ -2514,7 +2591,7 @@ Resize(
 {
     register ShellWidget sw = (ShellWidget)w;    
     Widget childwid;
-    int i;
+    Cardinal i;
     int y;
     XmVendorShellExtObject vendorExt;
     XmWidgetExtData	extData;
@@ -2525,11 +2602,16 @@ if(extData == NULL)
 #ifdef DEBUG
         XmeWarning(NULL, "_XmGetWidgetExtData() returned NULL pointer.");
 #endif
+        return;
 }
     vendorExt = (XmVendorShellExtObject) extData->widget;
+    if (vendorExt == NULL)
+	return;
 
     _XmImResize((Widget)sw);
-    y = sw->core.height - vendorExt->vendor.im_height;
+    y = (int)sw->core.height - (int)vendorExt->vendor.im_height;
+    if (y < 0)
+	y = 0;
     for(i = 0; i < sw->composite.num_children; i++) {
 	 if(XtIsManaged(sw->composite.children[i])) {
 	     childwid = sw->composite.children[i];
@@ -2999,9 +3081,26 @@ AddDLEntry(
     } 
   if(    destroy_list_cnt == destroy_list_size    )
     {
-      destroy_list_size += 2 ;
-      destroy_list = (XmDestroyGrabList) XtRealloc( (char *) destroy_list,
-				destroy_list_size * sizeof( XmDestroyGrabRec)) ;
+      unsigned short new_size;
+      XmDestroyGrabList new_list;
+      if (destroy_list_size > USHRT_MAX - 2 ||
+          (size_t)(destroy_list_size + 2) >
+          SIZE_MAX / sizeof(XmDestroyGrabRec))
+        {
+          _XmProcessUnlock();
+          return;
+        }
+      new_size = (unsigned short)(destroy_list_size + 2);
+      new_list = (XmDestroyGrabList)XtRealloc(
+          (char *)destroy_list,
+          (size_t)new_size * sizeof(XmDestroyGrabRec));
+      if (new_list == NULL)
+        {
+          _XmProcessUnlock();
+          return;
+        }
+      destroy_list = new_list;
+      destroy_list_size = new_size;
     } 
   destroy_list[i].shell = shell ;
   destroy_list[i].ve = ve ;

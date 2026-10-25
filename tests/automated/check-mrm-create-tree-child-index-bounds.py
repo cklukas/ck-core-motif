@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Check serialized widget-tree child storage and index strings are bounded."""
+import os
 from pathlib import Path
 
-source = Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrw.c"
+source = Path(os.environ.get("MOTIF_SOURCE", Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrw.c"))
 text = source.read_text(encoding="utf-8")
 start = text.index("\nUrmCreateWidgetTree (")
 end = text.find("\n\n\f", start)
@@ -19,4 +20,4 @@ required = (
 for needle in required:
     if needle not in region:
         raise SystemExit(f"missing widget-tree bound: {needle}")
-print("PASS Mrm widget-tree child descriptors and index strings are bounded")
+print("Mrm widget-tree child descriptors and index strings are bounded")

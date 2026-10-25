@@ -74,35 +74,6 @@ DISPLAY=:121 python3 tests/automated/run-gallery-screenshot-matrix.py \
   --out /tmp/ckmotif-gallery-screenshot-matrix
 ```
 
-On 2026-10-25, the repaired installed AArch64 `uconsole` prefix passed the
-default 16-cell matrix (four profiles crossed with 1.0, 1.5, 2.0 and 3.0)
-across all 94 manifest entries: 1,504 captures, 471.628 seconds, and no
-failed or skipped child receipts. The matrix used `--discard-captures`, so
-only hashes and receipts were retained at
-`/tmp/ckmotif-gallery-screenshot-matrix-20261025-r2/`; this is qualification
-evidence, not publication imagery. The gallery binary fingerprint was
-`bcd9940a094352c0862887397300e675c059eae77138ac9fe2f5a94c30a63602` and the
-installed `libXm.so.8.0.0` fingerprint was
-`3fe2f3d43371e8cb4639a50b04c5ead68aa6fb735d85d6f115958c6bb96ea5c9`.
-
-The same installed cohort's normal gallery build now enables the Theme and
-DPI controls. `run-gallery-integration.py` passed the 84-available/94-entry
-shell checks, keyboard and focus checks, and a live modern-light transition
-followed by the 1.5/2.0/3.0/clear DPI callback cycle. The verified gallery
-binary for that run was
-`62a9d7b87efe7bd3a297baf1a7805722ad6225eec986b73ab7b682906e1f3aca`, linked
-against `libXm.so.8.0.0`
-`e84df8544290de7ac4fd8918425680da59e211f0140f70257bd97234ca5305f5`.
-
-Subsequent peer-aligned allocation hardening in `RCPopup`, `Column`,
-`VaSimple`, `RepType`, and `TextIn` was rebuilt into the same installed
-cohort. Its current `libXm.so.8.0.0` fingerprint is
-`f63991cbeac85c3100ed3debd346e846b5a5407e6dbb17198324a2cb576466da`; the
-gallery integration, dropdown, standard-targets, text-source, and large-UTF-8
-clipboard smoke receipts all pass against it. The 16-cell screenshot receipt
-above remains tied to its explicitly recorded earlier binary/library hashes;
-it is not relabeled as evidence for this later library revision.
-
 Published PNGs are projected into `docs/gallery-screenshots/manifest.json` by
 `tests/automated/generate-gallery-screenshot-manifest.py`. The companion
 `tests/automated/check-gallery-screenshot-assets.py` verifies the manifest

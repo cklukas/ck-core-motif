@@ -13,6 +13,7 @@ region = text[start:end]
 required = (
     "UINT_MAX / (2 * sizeof(XmString))",
     "UINT_MAX / sizeof(XmString)",
+    "(Cardinal)(sizeof(XmString) * (size_t)table_size)",
     "for (cleanup = 0; cleanup < str_no; ++cleanup)",
     "table_size = str_no + 1",
 )

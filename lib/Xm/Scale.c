@@ -132,12 +132,14 @@ static Region null_region = NULL;
 		     + (Dimension) (((float) SLIDER_SIZE(sca) / 2.0) + 0.5))
 #define LeadYTic(sb, sca) (sb->scrollBar.slider_area_y \
 		     + (Dimension) (((float) SLIDER_SIZE(sca) / 2.0) + 0.5))
-#define TrailXTic(sb, sca) (sb->core.width - (sb->scrollBar.slider_area_x \
-		     + sb->scrollBar.slider_area_width\
-		      - (Dimension) (((float) SLIDER_SIZE(sca) / 2.0) + 0.5)))
-#define TrailYTic(sb, sca) (sb->core.height - (sb->scrollBar.slider_area_y \
-		     + sb->scrollBar.slider_area_height\
-		      - (Dimension) (((float) SLIDER_SIZE(sca) / 2.0) + 0.5)))
+#define TrailXTic(sb, sca) ((int)(sb)->core.width - \
+		     ((int)(sb)->scrollBar.slider_area_x + \
+		      (int)(sb)->scrollBar.slider_area_width - \
+		      (int)(((float) SLIDER_SIZE(sca) / 2.0) + 0.5)))
+#define TrailYTic(sb, sca) ((int)(sb)->core.height - \
+		     ((int)(sb)->scrollBar.slider_area_y + \
+		      (int)(sb)->scrollBar.slider_area_height - \
+		      (int)(((float) SLIDER_SIZE(sca) / 2.0) + 0.5)))
 		
 
 /********    Static Function Declarations    ********/
@@ -1744,7 +1746,7 @@ static Dimension
 MaxLabelWidth(
         XmScaleWidget sw )
 {
-    register int i;
+    register Cardinal i;
     register Widget c;
     Dimension max = 0;
 
@@ -1764,7 +1766,7 @@ static Dimension
 MaxLabelHeight(
         XmScaleWidget sw )
 {
-    register int i;
+    register Cardinal i;
     register Widget c;
     Dimension max = 0;
 
@@ -2318,7 +2320,7 @@ LayoutHorizontalLabels(
 	XmScrollBarWidget sb = (XmScrollBarWidget)
 		(sw->composite.children[1]);
 	Widget w, first_tic;
-	int i;
+	Cardinal i;
 	Position x, y, y1;
 	Cardinal num_managed ;
 
@@ -2555,7 +2557,7 @@ LayoutVerticalLabels(
 	XmScrollBarWidget sb = (XmScrollBarWidget)
 		(sw->composite.children[1]);
 	Widget w, first_tic;
-	int i;
+	Cardinal i;
 	float tmp, tic_interval;
 	Position x, x1, y;
 	Cardinal num_managed ;
@@ -3318,6 +3320,11 @@ DragConvertCallback (Widget w,
      else
        targs = (Atom *) XtMalloc(sizeof(Atom) * 3);
 
+     if (targs == NULL) {
+       cs->status = XmCONVERT_REFUSE;
+       return;
+     }
+
      value = (XtPointer) targs;
      targs[count] = XA_STRING; count++;
      targs[count] = atoms[XmACOMPOUND_TEXT]; count++;
@@ -3332,6 +3339,10 @@ DragConvertCallback (Widget w,
      /* handle plain STRING and UTF8_STRING first */
      type = cs -> target;
      value = (XtPointer) XtNewString(tmpstring);
+     if (value == NULL) {
+       cs->status = XmCONVERT_REFUSE;
+       return;
+     }
      size = strlen((char*) value);
      format = 8;
    }
@@ -3342,8 +3353,16 @@ DragConvertCallback (Widget w,
      tp.value = NULL;
      XmbTextListToTextProperty(XtDisplay(w), &strlist, 1, 
 			       XCompoundTextStyle, &tp);
+     if (tp.value == NULL) {
+       cs->status = XmCONVERT_REFUSE;
+       return;
+     }
      passtext = XtNewString((char*)tp.value);
      XtFree((char*)tp.value);
+     if (passtext == NULL) {
+       cs->status = XmCONVERT_REFUSE;
+       return;
+     }
      /* End fixing the bug OSF 4846 */
 
      /* format the value for transfer.  convert the value from
@@ -3404,8 +3423,11 @@ XmScaleSetValue(
         int value )
 {
     XmScaleWidget sw = (XmScaleWidget) w;
-    XtAppContext app = XtWidgetToApplicationContext(w);
+    XtAppContext app;
 
+    if (w == NULL)
+        return;
+    app = XtWidgetToApplicationContext(w);
     _XmAppLock(app);
 
     if (value < sw->scale.minimum) {
@@ -3441,8 +3463,11 @@ XmScaleGetValue(
         int *value )
 {
    XmScaleWidget sw = (XmScaleWidget) w;
-   XtAppContext app = XtWidgetToApplicationContext(w);
+   XtAppContext app;
 
+   if (w == NULL || value == NULL)
+      return;
+   app = XtWidgetToApplicationContext(w);
    _XmAppLock(app);
    *value = sw->scale.value;
    _XmAppUnlock(app);

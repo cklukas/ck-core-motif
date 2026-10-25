@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm widget-name lookup bounds
 
 Widget-instance lookup prepends `*` to an uncompressed class name for

@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
-"""Check serialized Mrm argument-list descriptors are fully bounded."""
+"""Check both Mrm widget-instance paths bound serialized argument records."""
+import os
 from pathlib import Path
 
-source = Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrw.c"
+source = Path(os.environ.get("MOTIF_SOURCE", Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrw.c"))
 text = source.read_text(encoding="utf-8")
 required = (
+    "widgetrec->size - widgetrec->arglist_offs <",
     "sizeof(RGMArgListDesc) - sizeof(RGMArgument)",
     "argdesc->count < 0 || argdesc->extra < 0",
-    "argdesc->count > RGMListSizeMax ||",
-    "argdesc->extra > RGMListSizeMax ||",
+    "(size_t)argdesc->count >",
     "sizeof(RGMArgument))",
 )
-for needle in required:
-    if text.count(needle) < 2:
-        raise SystemExit(f"missing argument-list bound in both instance paths: {needle}")
-print("PASS Mrm serialized argument-list descriptors are bounded")
+for routine in ("UrmCreateWidgetInstance (", "UrmSetWidgetInstance ("):
+    start = text.index("\n" + routine)
+    end = text.find("\n\n\f", start)
+    region = text[start:end]
+    for needle in required:
+        if needle not in region:
+            raise SystemExit(f"{routine}: missing argument-record bound: {needle}")
+print("Mrm create and set paths bound serialized argument records")

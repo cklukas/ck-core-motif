@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Color-name character classification
 
 Color database names are normalized by filtering spaces and changing case.

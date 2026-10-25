@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm indexed-resource keys
 
 Mrm indexed-resource construction now rejects a null index with the existing

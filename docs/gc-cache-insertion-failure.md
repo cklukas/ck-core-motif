@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # GC cache insertion failure
 
 `GetGCForPutImage` now checks insertion of a newly created GC into the GC

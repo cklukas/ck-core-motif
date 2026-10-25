@@ -1,13 +1,11 @@
-#!/usr/bin/env python3
-"""Check Mrm file-open read rejects a null filename."""
 from pathlib import Path
+import os
 
-source = Path(__file__).parents[2] / "lib" / "Mrm" / "MrmItop.c"
-text = source.read_text(encoding="utf-8")
+source = Path(os.environ["MOTIF_SOURCE"])
+text = source.read_text()
 start = text.index("UrmIdbOpenFileRead (String")
 end = text.index("UrmIdbOpenBuffer (unsigned char", start)
 body = text[start:end]
-needle = "name == NULL || file_id_return == NULL"
-if needle not in body or body.index(needle) > body.index("Idb__FU_OpenFile"):
-    raise SystemExit("Mrm file-open read lacks filename guard")
-print("PASS Mrm file-open read rejects a null filename")
+assert "name == NULL || file_id_return == NULL" in body
+assert body.index("name == NULL || file_id_return == NULL") < body.index("Idb__FU_OpenFile")
+print("Mrm file-open read rejects a null filename")

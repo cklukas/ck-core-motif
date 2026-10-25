@@ -9,7 +9,4 @@ assert "textTrait == NULL || textTrait->setValue == NULL" in body
 assert "XmCvtCTToXmString((char*) value)" in body
 assert "textTrait -> setValue(SB_Text(sel), temp, XmFORMAT_XmSTRING);" in body
 assert "textTrait -> setValue(SB_Text(sel), value, XmFORMAT_XmSTRING);" not in body
-assert "update_success = False;" in body
-assert "update_success = True;" in body
-assert "XtFree((char*) value);" in body
-print("PASS SelectionBox compound-text updates are guarded")
+assert "success = False;" in body

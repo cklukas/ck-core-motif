@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm icon diagnostic bounds
 
 Icon loading and color realization report filenames, color names, and decoded

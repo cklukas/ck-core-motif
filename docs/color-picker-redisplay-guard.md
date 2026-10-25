@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ColorPicker redisplay guards
 
 `XmColorPicker` now handles missing drawing GCs, failed swatch-GC allocation,

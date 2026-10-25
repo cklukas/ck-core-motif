@@ -9,5 +9,4 @@ arithmetic is bounded against host `size_t`, the `Cardinal` slot count, and
 Xt's allocation width. A failed growth leaves the existing list intact and
 stops rebuilding safely instead of indexing null or partially resized storage.
 
-The regression check is
-`tests/automated/check-paned-managed-children-allocation.py`.
+The regression check is `tests/automated/check-paned-managed-children-allocation.py`.

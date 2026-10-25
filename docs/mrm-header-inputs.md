@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm header helper inputs
 
 Header loading, updating, RID access, and initialization now reject missing

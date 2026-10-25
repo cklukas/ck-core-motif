@@ -84,9 +84,17 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmSearchBoxWidget old = (XmSearchBoxWidget)old_widget, box = (XmSearchBoxWidget)widget;
+    XmString replacement;
     (void)request; (void)args; (void)count;
-    if (old->search.placeholder != box->search.placeholder)
-        box->search.placeholder = copy_label(box->search.placeholder);
+    if (old->search.placeholder != box->search.placeholder) {
+        replacement = copy_label(box->search.placeholder);
+        if (replacement) {
+            XmStringFree(old->search.placeholder);
+            box->search.placeholder = replacement;
+        } else {
+            box->search.placeholder = old->search.placeholder;
+        }
+    }
     return old->search.placeholder != box->search.placeholder ||
            old->search.clear_button != box->search.clear_button;
 }

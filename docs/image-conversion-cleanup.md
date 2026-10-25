@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Depth-1 conversion cleanup
 
 Depth-1 XYPixmap images may temporarily replace their data with a converted

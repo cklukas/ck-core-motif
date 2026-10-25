@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm widget-reference allocation handling
 
 Set-values widget-reference and callback-reference builders now check pointer

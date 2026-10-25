@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Input-method callback registration guards
 
 Real XIM callbacks are now installed only for an existing widget reference and

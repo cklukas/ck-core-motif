@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm hash-table caller failure handling
 
 Widget-class and resource-name registration now handle hash-entry allocation

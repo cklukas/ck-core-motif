@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Default drag target-table allocation handling
 
 `CreateDefaultTargetsTable` builds the initial process-local target cache.

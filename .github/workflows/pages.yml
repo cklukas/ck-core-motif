@@ -3,8 +3,24 @@ name: Documentation
 on:
   push:
     branches: [master]
+    paths:
+      - 'docs/**'
+      - 'ckdocs.yml'
+      - 'scripts/build-docs.py'
+      - '.ckgit/ci.yml'
+      - '.ckgit/build-commit'
+      - '.gitattributes'
+      - '.github/workflows/pages.yml'
   pull_request:
     branches: [master]
+    paths:
+      - 'docs/**'
+      - 'ckdocs.yml'
+      - 'scripts/build-docs.py'
+      - '.ckgit/ci.yml'
+      - '.ckgit/build-commit'
+      - '.gitattributes'
+      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 permissions:

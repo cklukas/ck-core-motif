@@ -34,6 +34,7 @@
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
+#include <limits.h>
 #include <stdint.h>
 
 #include <Xm/AtomMgr.h>
@@ -1095,11 +1096,14 @@ GetDetailHeader(
  	    XtFree((char*)cw->container.cache_detail_heading) ;
 	 cw->container.cache_detail_heading = NULL;
 	  if ((size_t)icon_detail_header_count >
-	      (SIZE_MAX / sizeof(XmString)) - 1) {
+	      (SIZE_MAX / sizeof(XmString)) - 1 ||
+	      (size_t)icon_detail_header_count >
+	      (UINT_MAX / sizeof(XmString)) - 1) {
 	      return;
 	  }
  	cw->container.cache_detail_heading = (XmStringTable) 
-  	    XtMalloc(sizeof(XmString) * (icon_detail_header_count + 1)) ;
+	    XtMalloc((Cardinal)(sizeof(XmString) *
+					(size_t)(icon_detail_header_count + 1))) ;
 	 if (cw->container.cache_detail_heading == NULL)
 	     return;
   	for (i=0; i < icon_detail_header_count; i++)
@@ -1273,12 +1277,15 @@ Initialize(
      */
     if (ncw->container.detail_order_count && ncw->container.detail_order) {
 	if ((size_t)ncw->container.detail_order_count >
-	    SIZE_MAX / sizeof(Cardinal)) {
+		SIZE_MAX / sizeof(Cardinal) ||
+	    (size_t)ncw->container.detail_order_count >
+		UINT_MAX / sizeof(Cardinal)) {
 	    ncw->container.detail_order = NULL;
 	    ncw->container.detail_order_count = 0;
 	} else {
 	ncw->container.detail_order = (Cardinal *)
-	    XtMalloc(sizeof(Cardinal) * ncw->container.detail_order_count);
+	    XtMalloc((Cardinal)(sizeof(Cardinal) *
+				 (size_t)ncw->container.detail_order_count));
 	if (ncw->container.detail_order == NULL) {
 	    ncw->container.detail_order_count = 0;
 	} else {
@@ -1984,12 +1991,15 @@ SetValues(
 	    ncw->container.detail_order) {
 	    Cardinal * detail_order ;
 	    if ((size_t)ncw->container.detail_order_count >
-		SIZE_MAX / sizeof(Cardinal)) {
+		SIZE_MAX / sizeof(Cardinal) ||
+		(size_t)ncw->container.detail_order_count >
+		UINT_MAX / sizeof(Cardinal)) {
 		ncw->container.detail_order = NULL;
 		ncw->container.detail_order_count = 0;
 	    } else {
 		detail_order = (Cardinal *)
-		    XtMalloc(sizeof(Cardinal) * ncw->container.detail_order_count);
+		    XtMalloc((Cardinal)(sizeof(Cardinal) *
+					 (size_t)ncw->container.detail_order_count));
 		if (detail_order == NULL) {
 		    ncw->container.detail_order = NULL;
 		    ncw->container.detail_order_count = 0;
@@ -2180,11 +2190,11 @@ SetValues(
 		}
 
 		if (CtrLayoutIsDETAIL(ncw)) {
-		    assert(ncw->container.icon_header);
-		    XtManageChild(ncw->container.icon_header);
+		    if (ncw->container.icon_header != NULL)
+		      XtManageChild(ncw->container.icon_header);
 
 		    /* may be redundant if this is a new state */
-		    detail_need_layout = True;		
+		    detail_need_layout = (ncw->container.icon_header != NULL);
 		}
 	    }
 	    else {
@@ -3044,6 +3054,7 @@ ConstraintInitialize(
 	XmContainerWidget	cw = (XmContainerWidget)XtParent(ncwid);
 	XmContainerConstraint	nc = GetContainerConstraint(ncwid);
 	XmContainerConstraint	pc;	/* parent's constraints */
+	CwidNode			node;
 		
 	nc->related_cwid = NULL;
 	nc->cwid_type = cw->container.create_cwid_type;
@@ -3075,7 +3086,10 @@ ConstraintInitialize(
 	/*
 	 * Create new node for child and insert into list.
 	 */
-	InsertNode(NewNode(ncwid));
+	node = NewNode(ncwid);
+	if (node == NULL)
+	    return;
+	InsertNode(node);
 
 	/*
 	 * Override XmNviewType
@@ -3137,7 +3151,7 @@ ConstraintDestroy(
 		cw->container.icon_header = NULL;
 #endif
 	{
-		CwidNode 	node = c->node_ptr->child_ptr;
+		CwidNode 	node = c->node_ptr ? c->node_ptr->child_ptr : NULL;
 		while (node)
 		{
 			Widget child = node->widget_ptr;
@@ -3146,7 +3160,7 @@ ConstraintDestroy(
 			** linked-list, we just pull the first child off the
 			** list, rather than move along it
 			*/
-			node = c->node_ptr->child_ptr;
+			node = c->node_ptr ? c->node_ptr->child_ptr : NULL;
 		}
 	}
 
@@ -3241,9 +3255,10 @@ ConstraintSetValues(
      * 	then there's no need to change the node's position in the
      *	linked list.
      */
-    if ((nc->entry_parent != cc->entry_parent) ||
+    if (nc->node_ptr &&
+        ((nc->entry_parent != cc->entry_parent) ||
         ((nc->position_index != cc->position_index) &&
-         ((nc->node_ptr->prev_ptr) || (nc->node_ptr->next_ptr))))
+         ((nc->node_ptr->prev_ptr) || (nc->node_ptr->next_ptr)))))
 	{
 	SeverNode(nc->node_ptr);
 	ContainerResequenceNodes(cw, cc->entry_parent);
@@ -3531,9 +3546,16 @@ GetSpatialSize (
      * of Container to be sure.
      */
     if (CtrSpatialStyleIsCELLS(cw))
+	{
+	if ((size_t)cw->composite.num_children >
+	    SIZE_MAX / sizeof(XmContainerCwidCellInfoRec))
+	    return;
 	cwid_info = (ContainerCwidCellInfo)
 		XtCalloc(cw->composite.num_children,
-				sizeof(XmContainerCwidCellInfoRec));
+			sizeof(XmContainerCwidCellInfoRec));
+	if (cw->composite.num_children != 0 && cwid_info == NULL)
+	    return;
+	}
     else
 	cwid_info = NULL;
     cwid_info_count = 0;
@@ -4152,6 +4174,8 @@ HideCwid(
     if (c->outline_state != XmEXPANDED)
         return;
     node = c->node_ptr;
+    if (node == NULL)
+	return;
     child_node = node->child_ptr;
     while (child_node)
         {
@@ -4204,8 +4228,23 @@ ContainerStartTransfer(
 		{
 		cw->container.transfer_action = (ContainerXfrAction)
 			XtCalloc(1,sizeof(XmContainerXfrActionRec));
+		if (cw->container.transfer_action == NULL)
+		    return;
 		cw->container.transfer_action->event = (XEvent *)
 			XtCalloc(1,sizeof(XEvent));
+		if (cw->container.transfer_action->event == NULL)
+		    {
+		    XtFree((char *)cw->container.transfer_action);
+		    cw->container.transfer_action = NULL;
+		    return;
+		    }
+		}
+	else if (cw->container.transfer_action->event == NULL)
+		{
+		cw->container.transfer_action->event = (XEvent *)
+		    XtCalloc(1,sizeof(XEvent));
+		if (cw->container.transfer_action->event == NULL)
+		    return;
 		}
 	
 	cw->container.transfer_action->wid = (Widget)cw;
@@ -4300,6 +4339,8 @@ ContainerPrimaryCopy(
 	 * the data transfer operation.
 	 */
 	loc_data = (XPoint *) XtMalloc(sizeof(XPoint));
+	if (loc_data == NULL)
+	    return;
 	loc_data->x = event->xbutton.x;
 	loc_data->y = event->xbutton.y;
         XmePrimarySink(wid,XmCOPY,
@@ -4325,6 +4366,8 @@ ContainerPrimaryLink(
 	 * the data transfer operation.
 	 */
 	loc_data = (XPoint *) XtMalloc(sizeof(XPoint));
+	if (loc_data == NULL)
+	    return;
 	loc_data->x = event->xbutton.x;
 	loc_data->y = event->xbutton.y;
         XmePrimarySink(wid,XmLINK,
@@ -4350,6 +4393,8 @@ ContainerPrimaryMove(
 	 * the data transfer operation.
 	 */
 	loc_data = (XPoint *) XtMalloc(sizeof(XPoint));
+	if (loc_data == NULL)
+	    return;
 	loc_data->x = event->xbutton.x;
 	loc_data->y = event->xbutton.y;
         XmePrimarySink(wid,XmMOVE,
@@ -5307,6 +5352,11 @@ ContainerConvertProc(
 	targargs = XmeStandardTargets(wid,6,&n);      
       else
 	targargs  = (Atom*) XtMalloc(sizeof(Atom) * 6);
+      if (targargs == NULL)
+	{
+	  ConvertRefuse(wid, closure, cs);
+	  return;
+	}
       targargs[n++] = XA_PIXMAP;
       targargs[n++] = atoms[XmAUTF8_STRING];
       targargs[n++] = atoms[XmA_COMPOUND_TEXT];
@@ -5321,6 +5371,11 @@ ContainerConvertProc(
       {
 	short	*offset_args = (short *)XtCalloc(2,sizeof(short));
 	int	n = 0;
+	if (offset_args == NULL)
+	{
+	  ConvertRefuse(wid, closure, cs);
+	  return;
+	}
 	
 	value = (XtPointer)offset_args;
 	offset_args[n++] = cw->container.drag_offset_x;
@@ -5336,14 +5391,27 @@ ContainerConvertProc(
 	  if ((cs->selection == atoms[XmA_MOTIF_DROP]) && (cs->location_data))
             {
 	      items = (WidgetList)XtMalloc(sizeof(Widget));
+	      if (items == NULL)
+		{
+		  ConvertRefuse(wid, closure, cs);
+		  return;
+		}
 	      items[0] = (Widget)cs->location_data;
 	      item_count = 1;
             }
 	  else
             {
 	      if ((item_count = cw->container.selected_item_count) == 0)
-		ConvertRefuse(wid,closure,cs);
+		{
+		  ConvertRefuse(wid,closure,cs);
+		  return;
+		}
 	      items = GetSelectedCwids(wid);
+	      if (items == NULL)
+		{
+		  ConvertRefuse(wid, closure, cs);
+		  return;
+		}
             }
 	}
   if (cs->target == XA_PIXMAP)
@@ -5354,6 +5422,12 @@ ContainerConvertProc(
       Pixmap *        return_pm = (Pixmap *)
 	XtCalloc(item_count,sizeof(Pixmap));
       int	      return_pm_count = 0;
+	  if (return_pm == NULL)
+	    {
+	      XtFree((char *)items);
+	      ConvertRefuse(wid, closure, cs);
+	      return;
+	    }
 
       for (i = 0; i < item_count; i++)
 	{
@@ -5505,6 +5579,8 @@ ContainerDestPrehookProc(
   if (cs->selection == XInternAtom(XtDisplay(wid),XmS_MOTIF_DROP,False))
     {
       loc_data = (XPoint *) XtMalloc(sizeof(XPoint));
+      if (loc_data == NULL)
+		return;
       dropproc_cs = (XmDropProcCallbackStruct *) cs->destination_data;
       loc_data -> x = dropproc_cs->x;
       loc_data -> y = dropproc_cs->y;
@@ -5648,8 +5724,8 @@ GetViewType(
     XmContainerItemTrait        cItemTrait;
 
     if ((cItemTrait = (XmContainerItemTrait)
-        XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL ||
-        cItemTrait->getValues == NULL)
+	XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL ||
+	cItemTrait->getValues == NULL)
         return(XmLARGE_ICON);
     cItemData.valueMask = ContItemViewType;
     cItemTrait->getValues(cwid,(XmContainerItemData)&cItemData);
@@ -5669,8 +5745,8 @@ SetViewType(
     XmContainerItemTrait        cItemTrait;
 
     if ((cItemTrait = (XmContainerItemTrait)
-        XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL ||
-        cItemTrait->setValues == NULL)
+	XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL ||
+	cItemTrait->setValues == NULL)
         return;
     cItemData.valueMask = ContItemViewType;
     cItemData.view_type = viewtype;
@@ -5690,8 +5766,8 @@ GetIconWidth(
     XmContainerItemTrait        cItemTrait;
 
     if ((cItemTrait = (XmContainerItemTrait)
-        XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL ||
-        cItemTrait->getValues == NULL)
+	XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL ||
+	cItemTrait->getValues == NULL)
         return(cwid->core.width);
     cItemData.valueMask = ContItemIconWidth;
     cItemTrait->getValues(cwid,(XmContainerItemData)&cItemData);
@@ -5734,7 +5810,7 @@ GetDefaultDetailCount(
 	{ 
 	cwid = node->widget_ptr;
 	if ((cItemTrait = (XmContainerItemTrait)
-            XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) != NULL &&
+	            XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) != NULL &&
 	    cItemTrait->getValues != NULL)
 	    {
 	    cItemData.valueMask = ContItemDetailCount;
@@ -5783,11 +5859,12 @@ SetDynamicTabList(
 	return(NULL);
 	}
 
-    tab_size = cw->core.width - (cw->container.margin_w * 2)
-                                - cw->container.real_first_col_width;
+    tab_size = (int)cw->core.width -
+               (2 * (int)cw->container.margin_w) -
+               (int)cw->container.real_first_col_width;
     detail_order_count = (cw->container.detail_order_count) ?
 	cw->container.detail_order_count : GetDefaultDetailCount(wid);
-	if (tab_size <= 0) {
+    if (tab_size <= 0) {
 	if (old_tablist != NULL) {
 	    XmTabListFree(old_tablist);
 	    cw->container.detail_tablist = NULL;
@@ -5802,7 +5879,7 @@ SetDynamicTabList(
 	return(NULL);
 	}
     tab_size /= detail_order_count;
-	if (tab_size <= 0) {
+    if (tab_size <= 0) {
 	if (old_tablist != NULL) {
 	    XmTabListFree(old_tablist);
 	    cw->container.detail_tablist = NULL;
@@ -5810,14 +5887,14 @@ SetDynamicTabList(
 	return(NULL);
 	}
 
-	new_tablist = GetDumbTabList(tab_size,detail_order_count);
-	if (new_tablist == NULL)
+    new_tablist = GetDumbTabList(tab_size,detail_order_count);
+    if (new_tablist == NULL)
 	return(old_tablist);
 
-	if (old_tablist != NULL)
+    if (old_tablist != NULL)
 	XmTabListFree(old_tablist);
-	cw->container.detail_tablist = new_tablist;
-	return(new_tablist);
+    cw->container.detail_tablist = new_tablist;
+    return(new_tablist);
 }
 
 /************************************************************************
@@ -5833,19 +5910,22 @@ GetDumbTabList(
     Cardinal i;
 
     if (asked_num_tab == 0 ||
-        (size_t)asked_num_tab > SIZE_MAX / sizeof(*tab_pool))
+        (size_t)asked_num_tab > SIZE_MAX / sizeof(*tab_pool) ||
+        (size_t)asked_num_tab > UINT_MAX / sizeof(*tab_pool))
         return NULL;
-    tab_pool = (XmTab *)XtMalloc((size_t)asked_num_tab * sizeof(*tab_pool));
+    tab_pool = (XmTab *)XtMalloc((Cardinal)((size_t)asked_num_tab *
+						 sizeof(*tab_pool)));
     if (tab_pool == NULL)
         return NULL;
 
     for (i = 0; i < asked_num_tab; i++) {
         tab_pool[i] = XmTabCreate(0.0, XmPIXELS, XmABSOLUTE,
-                                  XmALIGNMENT_BEGINNING, XmS);
+                                   XmALIGNMENT_BEGINNING, XmS);
         if (tab_pool[i] == NULL) {
-            Cardinal j;
-            for (j = 0; j < i; j++)
-                XmTabFree(tab_pool[j]);
+            while (i != 0) {
+                --i;
+                XmTabFree(tab_pool[i]);
+            }
             XtFree((char *)tab_pool);
             return NULL;
         }
@@ -5903,9 +5983,9 @@ GetDynFirstColWidth(
     while (node)
         {
         cwid = node->widget_ptr;
-        if ((cItemTrait = (XmContainerItemTrait)
-            XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) != NULL &&
-            cItemTrait->getValues != NULL)
+	if ((cItemTrait = (XmContainerItemTrait)
+	            XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) != NULL &&
+	    cItemTrait->getValues != NULL)
             {
 	    cItemData.valueMask = ContItemIconWidth;
             cItemTrait->getValues(cwid,(XmContainerItemData)&cItemData);
@@ -6095,6 +6175,7 @@ LayoutOutlineDetail(
     Widget		cwid;
     int                 n_outline_segs,seg_idx;
     XPoint *            point_at_depth = NULL;
+    XSegment *          new_outline_segs = NULL;
     int                 i;
     Boolean             outline_ready = True;
 
@@ -6123,21 +6204,30 @@ LayoutOutlineDetail(
 	{
 	c = GetContainerConstraint(node->widget_ptr);
 	if (c->depth != 0)
-	n_outline_segs += 2;
+	{
+	    if (n_outline_segs > INT_MAX - 2)
+	    {
+		outline_ready = False;
+		break;
+	    }
+	    n_outline_segs += 2;
+	}
 	node = GetNextNode(node);
 	}
-    if (cw->container.outline_seg_count != n_outline_segs)
+    if (outline_ready && cw->container.outline_seg_count != n_outline_segs)
 	{
-	if (cw->container.outline_segs)
-	    XtFree((char*)cw->container.outline_segs);
-	cw->container.outline_segs = (XSegment *)XtCalloc
+	if (n_outline_segs != 0)
+	    new_outline_segs = (XSegment *)XtCalloc
 				(n_outline_segs,sizeof(XSegment));
-	cw->container.outline_seg_count = n_outline_segs;
-	if (n_outline_segs != 0 && cw->container.outline_segs == NULL)
+	if (n_outline_segs == 0 || new_outline_segs != NULL)
 	    {
-	    cw->container.outline_seg_count = 0;
-	    outline_ready = False;
+	    if (cw->container.outline_segs)
+		XtFree((char*)cw->container.outline_segs);
+	    cw->container.outline_segs = new_outline_segs;
+	    cw->container.outline_seg_count = n_outline_segs;
 	    }
+	else
+	    outline_ready = False;
 	}
     if ((size_t)cw->container.max_depth >
 	SIZE_MAX / sizeof(*point_at_depth) - 1)
@@ -6386,10 +6476,12 @@ LayoutSpatial(
 	    cw->container.real_small_cellh : cw->container.real_large_cellh;
         if (cell_width <= 0 || cell_height <= 0)
             return;
-      	width_in_cells = (cw->core.width - 2 * cw->container.margin_w) 
-					/ cell_width;
-        height_in_cells = (cw->core.height - 2 * cw->container.margin_h)
-					/ cell_height;
+      width_in_cells = ((int)cw->core.width -
+                        (2 * (int)cw->container.margin_w)) / cell_width;
+        height_in_cells = ((int)cw->core.height -
+                           (2 * (int)cw->container.margin_h)) / cell_height;
+        if (width_in_cells <= 0 || height_in_cells <= 0)
+            return;
       	if (((width_in_cells != cw->container.current_width_in_cells) &&
 	     (CtrIsHORIZONTAL(wid)))  ||
 	    ((height_in_cells != cw->container.current_height_in_cells) &&
@@ -6402,42 +6494,42 @@ LayoutSpatial(
 	     * has changed.
 	     */
 	    {
-	    if (width_in_cells <= 0 || height_in_cells <= 0 ||
-		width_in_cells > INT_MAX / height_in_cells)
-		return;
-	    new_cell_count = width_in_cells * height_in_cells;
-	    if (CtrIsHORIZONTAL(wid)) /* For "clipped" items */
-	      {
-		if (new_cell_count > INT_MAX - height_in_cells)
-		    return;
-		new_cell_count += height_in_cells;
-	      }
-	    else
-	      {
-		if (new_cell_count > INT_MAX - width_in_cells)
-		    return;
-		new_cell_count += width_in_cells;
-	      }
-	    if (new_cell_count > cw->container.cell_count)
-	      {
-		old_cell_count = cw->container.cell_count;
-		if ((size_t)new_cell_count > SIZE_MAX / sizeof(*new_cells) ||
-		    (size_t)new_cell_count > UINT_MAX / sizeof(*new_cells))
-		    return;
-		new_cells = (int *)XtRealloc((char *)cw->container.cells,
-					     (Cardinal)((size_t)new_cell_count *
-							 sizeof(*new_cells)));
-		if (new_cells == NULL)
-		    return;
-		for (i = old_cell_count; i < new_cell_count; i++)
-		    new_cells[i] = 0;
-		cw->container.cells = new_cells;
-		cw->container.cell_count = new_cell_count;
-	      }
-	    cw->container.current_width_in_cells = width_in_cells;
-	    cw->container.current_height_in_cells = height_in_cells;
-	    }
-        }
+        if (width_in_cells <= 0 || height_in_cells <= 0 ||
+            width_in_cells > INT_MAX / height_in_cells)
+            return;
+        new_cell_count = width_in_cells * height_in_cells;
+        if (CtrIsHORIZONTAL(wid)) /* For "clipped" items */
+          {
+            if (new_cell_count > INT_MAX - height_in_cells)
+                return;
+            new_cell_count += height_in_cells;
+          }
+        else
+          {
+            if (new_cell_count > INT_MAX - width_in_cells)
+                return;
+            new_cell_count += width_in_cells;
+          }
+        if (new_cell_count > cw->container.cell_count)
+          {
+            old_cell_count = cw->container.cell_count;
+            if ((size_t)new_cell_count > SIZE_MAX / sizeof(*new_cells) ||
+                (size_t)new_cell_count > UINT_MAX / sizeof(*new_cells))
+                return;
+            new_cells = (int *)XtRealloc((char *)cw->container.cells,
+                                         (Cardinal)((size_t)new_cell_count *
+                                                    sizeof(*new_cells)));
+            if (new_cells == NULL)
+                return;
+            for (i = old_cell_count; i < new_cell_count; i++)
+                new_cells[i] = 0;
+            cw->container.cells = new_cells;
+            cw->container.cell_count = new_cell_count;
+          }
+        cw->container.current_width_in_cells = width_in_cells;
+        cw->container.current_height_in_cells = height_in_cells;
+    }
+    }
   
     node = GetFirstNode(cw);
     while (node)
@@ -6919,7 +7011,14 @@ CreateIconHeader(
     XtSetArg(sargs[n],XmNlargeIconPixmap, XmUNSPECIFIED_PIXMAP); n++;
     XtSetArg(sargs[n],XmNsmallIconPixmap, XmUNSPECIFIED_PIXMAP); n++;
 
-    assert(cw->container.detail_heading_count > 0) ;
+    /* A heading list can be temporarily absent while resources are being
+     * rebuilt, or an application can explicitly provide an empty list.  A
+     * container without an icon header is still usable; do not abort while
+     * handling that state. */
+    if (cw->container.detail_heading == NULL ||
+        cw->container.detail_heading_count == 0 ||
+        cw->container.detail_heading_count == INVALID_COUNT)
+      return;
 
     XtSetArg(sargs[n],XmNlabelString, 
 	     cw->container.detail_heading[0]); n++;
@@ -7073,6 +7172,8 @@ NewNode(
          * Create the new CwidNode structure.
          */
         new_node = (CwidNode)XtCalloc(1,sizeof(XmCwidNodeRec));
+	if (new_node == NULL)
+	    return(NULL);
         new_node->widget_ptr = cwid;	/* node ----> widget link */
         c->node_ptr = new_node;         /* widget --> node link */
 	return(new_node);
@@ -7101,6 +7202,8 @@ InsertNode(
 				** XmNpositionIndex; XmNpositionIndex has no
 				** gaps
 				*/
+	if (node == NULL)
+	    return;
 
 	cwid = node->widget_ptr;
 	cw = (XmContainerWidget)XtParent(cwid);
@@ -7118,7 +7221,15 @@ InsertNode(
 	    {
 	    pc = GetContainerConstraint(c->entry_parent);
 	    parent_node = pc->node_ptr;
-	    prev_node = parent_node->child_ptr;
+	    if (parent_node == NULL) {
+		/* A parent whose node could not be allocated is not in the
+		 * private tree.  Keep this child reachable as a root item. */
+		c->entry_parent = NULL;
+		parent_node = NULL;
+		prev_node = cw->container.first_node;
+	    } else {
+		prev_node = parent_node->child_ptr;
+	    }
 	    }
 
 	if (prev_node == NULL)
@@ -7364,7 +7475,11 @@ GetNextUpLevelNode(
 static void ContainerResetDepths
 	(XmContainerConstraint	c)
 {
-	CwidNode 	node = c->node_ptr->child_ptr;
+	CwidNode 	node;
+
+	if (c == NULL || c->node_ptr == NULL)
+	    return;
+	node = c->node_ptr->child_ptr;
 
 	while (node)
 	{
@@ -7380,7 +7495,11 @@ static void ContainerResetDepths
 static void FindMaxDepths(XmContainerConstraint	c, Widget w)
 {
 	XmContainerWidget cw = (XmContainerWidget)w;
-	CwidNode node = c->node_ptr->child_ptr;
+	CwidNode node;
+
+	if (c == NULL || c->node_ptr == NULL)
+	    return;
+	node = c->node_ptr->child_ptr;
 	while (node) {
 		Widget child = node->widget_ptr;
 		XmContainerConstraint cc = GetContainerConstraint(child);
@@ -7418,7 +7537,7 @@ static void ContainerResequenceNodes
 	if (entryParent)
 	{
  		c = GetContainerConstraint(entryParent);
- 		node = c->node_ptr->child_ptr;
+		node = c->node_ptr ? c->node_ptr->child_ptr : NULL;
 	}
 	else
 	{
@@ -8822,6 +8941,8 @@ ExpandCwid(
 
     c->outline_state = XmEXPANDED;
     node = c->node_ptr;
+	if (node == NULL)
+	return;
     child_node = node->child_ptr;
     if (child_node == NULL)
 	return;
@@ -8864,6 +8985,8 @@ CollapseCwid(
 
     c->outline_state = XmCOLLAPSED;
     node = c->node_ptr;
+	if (node == NULL)
+	return;
     child_node = node->child_ptr;
     if (child_node == NULL)
 	return;
@@ -8997,7 +9120,9 @@ GetSelectedCwids(
 	if (cw->container.selected_item_count == 0)
 		return(NULL);
 	if ((size_t)cw->container.selected_item_count >
-	    SIZE_MAX / sizeof(Widget))
+	    SIZE_MAX / sizeof(Widget) ||
+	    (size_t)cw->container.selected_item_count >
+	    UINT_MAX / sizeof(Widget))
 		return(NULL);
 
 	selected_items = (WidgetList)XtMalloc
@@ -9236,6 +9361,8 @@ DragStart(
       int n, midpoint = DRAG_STATE_SIZE / 2, farpoint = DRAG_STATE_SIZE;
 
       dragIconInfo = (DragIconInfo) XtMalloc(sizeof(DragIconInfoRec));
+      if (dragIconInfo == NULL)
+	  return;
       XSaveContext(XtDisplay(cw), None, dragIconInfoContext, 
 		   (char*) dragIconInfo);
       dragIconInfo -> source = (Widget) NULL;
@@ -9277,8 +9404,8 @@ DragStart(
     n = 0;
     if (pixmap != XmUNSPECIFIED_PIXMAP)
 	{
-	  unsigned int rh, rw;
-	  int rd;
+	  unsigned int rh = 0, rw = 0;
+	  int rd = 0;
 	  int ix, iy;
 
 	  _XmIconGadgetIconPos((Widget) g, &ix, &iy);
@@ -9849,7 +9976,7 @@ XmContainerGetItemChildren(
 		   }
 		c = GetContainerConstraint(item);
 		node = c->node_ptr;
-		if (node->child_ptr == NULL) 
+		if (node == NULL || node->child_ptr == NULL)
 		   {
 			_XmAppUnlock(app);
 			return(0);
@@ -9863,11 +9990,17 @@ XmContainerGetItemChildren(
 		clist_count++;
 		node = node->next_ptr;
 		}
-	if ((size_t)clist_count > SIZE_MAX / sizeof(Widget)) {
+	if ((size_t)clist_count > SIZE_MAX / sizeof(Widget) ||
+	    (size_t)clist_count > UINT_MAX / sizeof(Widget)) {
 		_XmAppUnlock(app);
 		return (0);
 	}
-	clist = (WidgetList)XtMalloc(clist_count * sizeof(Widget));
+	clist = (WidgetList)XtMalloc((Cardinal)(sizeof(Widget) *
+					(size_t)clist_count));
+	if (clist == NULL) {
+		_XmAppUnlock(app);
+		return (0);
+	}
 	node = first_child_node;
 	for (i = 0; i < clist_count; i++)
 		{
@@ -9935,14 +10068,20 @@ XmContainerReorder(
 
 	_XmWidgetToAppContext(wid);
 
-	if (cwid_count <= 1)
+	if (cwid_count <= 1 || cwid_list == NULL)
 		return;
-	if ((size_t)cwid_count > SIZE_MAX / sizeof(int))
+	if ((size_t)cwid_count > SIZE_MAX / sizeof(int) ||
+	    (size_t)cwid_count > UINT_MAX / sizeof(int))
 		return;
 	_XmAppLock(app);
 	c = GetContainerConstraint(cwid_list[0]);
 	pcwid = c->entry_parent;
-	pi_list = (int *)XtMalloc(cwid_count * sizeof(int));
+	pi_list = (int *)XtMalloc((Cardinal)(sizeof(int) *
+					(size_t)cwid_count));
+	if (pi_list == NULL) {
+		_XmAppUnlock(app);
+		return;
+	}
 	pi_count = 0;
 	for (i=0; i < cwid_count; i++)
 		{

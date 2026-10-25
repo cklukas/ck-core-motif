@@ -5,6 +5,7 @@
 #include <Xm/PromptP.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
+#include <limits.h>
 #include <string.h>
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
@@ -12,6 +13,7 @@ static void Destroy(Widget);
 static void Redisplay(Widget, XEvent *, Region);
 static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
+static int bounded_text_length(const char *text){size_t length=text?strlen(text):0;return length>(size_t)INT_MAX?INT_MAX:(int)length;}
 #define Offset(field) XtOffsetOf(XmPromptRec, field)
 static XtResource resources[] = {
     {XmNpromptText, XmCPromptText, XmRXmString, sizeof(XmString), Offset(prompt.text), XmRImmediate, NULL},
@@ -61,29 +63,42 @@ static void Destroy(Widget widget) {
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmPromptWidget prompt = (XmPromptWidget)widget; char *text;
     (void)event; (void)region;
-    if (!XtWindow(widget)) return;
+    if (!XtWindow(widget) || !prompt->prompt.gc) return;
     XClearWindow(XtDisplay(widget), XtWindow(widget));
     if (!prompt->prompt.visible) return;
     text = prompt_text(prompt);
     XDrawString(XtDisplay(widget), XtWindow(widget), prompt->prompt.gc, 4,
-                (int)prompt->core.height - 8, text, (int)strlen(text));
+                (int)prompt->core.height - 8, text, bounded_text_length(text));
     XtFree(text);
 }
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmPromptWidget old = (XmPromptWidget)old_widget, prompt = (XmPromptWidget)widget;
+    XmString replacement;
     (void)request; (void)args; (void)count;
-    if (old->prompt.text != prompt->prompt.text)
-        prompt->prompt.text = copy_prompt(prompt->prompt.text);
+    if (old->prompt.text != prompt->prompt.text) {
+        replacement = copy_prompt(prompt->prompt.text);
+        if (replacement) {
+            XmStringFree(old->prompt.text);
+            prompt->prompt.text = replacement;
+        } else {
+            prompt->prompt.text = old->prompt.text;
+        }
+    }
     return old->prompt.text != prompt->prompt.text ||
            old->prompt.visible != prompt->prompt.visible;
 }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
     XmPromptWidget prompt = (XmPromptWidget)widget; char *text;
+    size_t length;
     (void)request; text = prompt_text(prompt);
     reply->request_mode = CWWidth | CWHeight;
-    reply->width = (Dimension)(strlen(text) * 8 + 8); reply->height = 24;
+    length = strlen(text);
+    reply->width = length > ((unsigned long)(Dimension)-1 - 8UL) / 8UL
+                       ? (Dimension)-1
+                       : (Dimension)(length * 8UL + 8UL);
+    reply->height = 24;
     XtFree(text);
     return (widget->core.width == reply->width && widget->core.height == reply->height)
                ? XtGeometryYes : XtGeometryAlmost;

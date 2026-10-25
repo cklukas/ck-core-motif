@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Render-table property-name bounds
 
 Render-table property conversion uses a fixed table for the supported property

@@ -316,6 +316,8 @@ static XmConst Cardinal _XmNumRenditionResources =
 
 /* Searches up widget hierarchy, quarkifying ancestor names and */
 /* classes. */
+#define XM_RESOURCE_PATH_CAPACITY 100
+
 static Cardinal
 GetNamesAndClasses(Widget w, XrmNameList names, XrmClassList classes)
 {
@@ -326,7 +328,10 @@ GetNamesAndClasses(Widget w, XrmNameList names, XrmClassList classes)
   /* Return null-terminated quark arrays, with length the number of
      quarks (not including NULL) */
 
-  for (length = 0; w != NULL; w = (Widget)w->core.parent)
+  /* Reserve slots for the resource name, optional tag, and terminator. */
+  for (length = 0;
+       w != NULL && length < XM_RESOURCE_PATH_CAPACITY - 3;
+       w = (Widget)w->core.parent)
     {
       names[length] = w->core.xrm_name;
       wc = XtClass(w);
@@ -360,8 +365,14 @@ CompileResourceTable(XtResourceList resources,
   Cardinal		count;
   XrmResourceList	table, tPtr;
   XtResourceList	rPtr;
-  
-  tPtr = table = (XrmResourceList)XtMalloc(num_resources * sizeof(XrmResource));
+
+  if ((size_t)num_resources > SIZE_MAX / sizeof(XrmResource) ||
+      (size_t)num_resources > UINT_MAX / sizeof(XrmResource))
+    return NULL;
+  tPtr = table = (XrmResourceList)XtMalloc(
+      (Cardinal)((size_t)num_resources * sizeof(XrmResource)));
+  if (table == NULL)
+    return NULL;
   rPtr = resources;
   
   for (count = 0; count < num_resources; count++, tPtr++, rPtr++)
@@ -389,8 +400,8 @@ GetResources(XmRendition rend,
 	     ArgList arglist,
 	     Cardinal argcount)
 {
-  XrmName		names[100];
-  XrmClass		classes[100];
+  XrmName		names[XM_RESOURCE_PATH_CAPACITY];
+  XrmClass		classes[XM_RESOURCE_PATH_CAPACITY];
   Cardinal		length = 0;
   static XrmQuarkList	quarks = NULL;
   static Cardinal	num_quarks = 0;
@@ -428,12 +439,28 @@ GetResources(XmRendition rend,
     {
       quarks = (XrmQuark *)XtMalloc(_XmNumRenditionResources *
 				    sizeof(XrmQuark));
+      if (quarks == NULL)
+		{
+#ifdef XTHREADS
+		  _XmProcessUnlock();
+		  if (app) _XmAppUnlock(app);
+#endif
+		  return False;
+		}
       num_quarks = _XmNumRenditionResources;
     }
 
   /* Initialize found */
   if (found == NULL)
     found = (Boolean *)XtMalloc(_XmNumRenditionResources * sizeof(Boolean));
+  if (found == NULL)
+    {
+#ifdef XTHREADS
+      _XmProcessUnlock();
+      if (app) _XmAppUnlock(app);
+#endif
+      return False;
+    }
   bzero(found, _XmNumRenditionResources * sizeof(Boolean));
 
   /* Compile names and classes. */
@@ -457,8 +484,28 @@ GetResources(XmRendition rend,
   /* Cache arglist */
   if (num_quarks < argcount)
     {
-      quarks = (XrmQuark *)XtRealloc((char *)quarks,
-				     argcount * sizeof(XrmQuark));
+      XrmQuark *new_quarks;
+      if ((size_t)argcount > SIZE_MAX / sizeof(XrmQuark) ||
+		  (size_t)argcount > UINT_MAX / sizeof(XrmQuark))
+		{
+#ifdef XTHREADS
+		  _XmProcessUnlock();
+		  if (app) _XmAppUnlock(app);
+#endif
+		  return False;
+		}
+      new_quarks = (XrmQuark *)XtRealloc((char *)quarks,
+					  (Cardinal)((size_t)argcount *
+						     sizeof(XrmQuark)));
+      if (new_quarks == NULL)
+		{
+#ifdef XTHREADS
+		  _XmProcessUnlock();
+		  if (app) _XmAppUnlock(app);
+#endif
+		  return False;
+		}
+      quarks = new_quarks;
       num_quarks = argcount;
     }
   for (i = 0; i < argcount; i++)
@@ -469,6 +516,14 @@ GetResources(XmRendition rend,
     {
       table = CompileResourceTable(_XmRenditionResources,
 				   _XmNumRenditionResources);
+      if (table == NULL)
+		{
+#ifdef XTHREADS
+		  _XmProcessUnlock();
+		  if (app) _XmAppUnlock(app);
+#endif
+		  return False;
+		}
       QString = XrmPermStringToQuark(XtCString);
       Qfont = XrmPermStringToQuark(XmNfont);
     }
@@ -503,11 +558,24 @@ GetResources(XmRendition rend,
       while (!XrmQGetSearchList(db, names, classes,
 				searchList, searchListSize))
 	{
+	  unsigned int next_size;
+	  XrmHashTable *new_search_list;
+	  if (searchListSize > UINT_MAX / 2 ||
+	      (size_t)searchListSize > SIZE_MAX /
+		(2 * sizeof(XrmHashTable)) ||
+	      (size_t)searchListSize > UINT_MAX /
+		(2 * sizeof(XrmHashTable)))
+	    goto resource_failure;
+	  next_size = searchListSize * 2;
 	  if (searchList == stackSearchList)
 	    searchList = NULL;
-	  searchList = (XrmHashTable *)XtRealloc((char*)searchList,
-						 sizeof(XrmHashTable) *
-						 (searchListSize *= 2));
+	  new_search_list = (XrmHashTable *)XtRealloc((char*)searchList,
+						 (Cardinal)((size_t)next_size *
+							    sizeof(XrmHashTable)));
+	  if (new_search_list == NULL)
+	    goto resource_failure;
+	  searchList = new_search_list;
+	  searchListSize = next_size;
 	}
     }
   
@@ -592,6 +660,7 @@ GetResources(XmRendition rend,
 	      
 	}
     }
+resource_failure:
   if (searchList != stackSearchList) XtFree((char *)searchList);
 
 #ifdef XTHREADS
@@ -700,9 +769,10 @@ _XmRenderTableFindRendition(XmRenderTable table,
 	{
 	  rend = _XmRTRenditions(table)[i];
       
-	  if ((cached_tag) ?
-	      (_XmRendTag(rend) == tag) :
-	      (strcmp(_XmRendTag(rend), tag) == 0))
+	  if (_XmRendTag(rend) != NULL &&
+	      ((cached_tag) ?
+	       (_XmRendTag(rend) == tag) :
+	       (strcmp(_XmRendTag(rend), tag) == 0)))
 	    {
 	      hit = TRUE;
 	  
@@ -1205,7 +1275,7 @@ MergeInto(XmRendition toRend,
 #endif
   if (_XmRendUnderlineType(toRend) == XmAS_IS)
     _XmRendUnderlineType(toRend) = _XmRendUnderlineType(fromRend);
-  if (_XmRendUnderlineType(toRend) == XmAS_IS)
+  if (_XmRendStrikethruType(toRend) == XmAS_IS)
     _XmRendStrikethruType(toRend) = _XmRendStrikethruType(fromRend);
 }
 
@@ -1219,7 +1289,8 @@ CloneRendition(XmRendition rend)
   if (rend == NULL) return(NULL);
   
   copy = (_XmRendition)XtMalloc(sizeof(_XmRenditionRec));
-  if (copy == NULL) return(NULL);
+  if (copy == NULL)
+    return(NULL);
   bzero((char*)copy, sizeof(_XmRenditionRec));
   copy_handle = GetHandle(_XmRendition);
   if (copy_handle == NULL) {
@@ -1244,7 +1315,8 @@ RenewRendition(XmRendition rend)
   if (rend == NULL) return(NULL);
   
   copy = (_XmRendition)XtMalloc(sizeof(_XmRenditionRec));
-  if (copy == NULL) return(NULL);
+  if (copy == NULL)
+    return(NULL);
   memcpy((char *)copy, (char *)GetPtr(rend), sizeof(_XmRenditionRec));
   SetPtr(rend, copy);
   
@@ -1281,8 +1353,8 @@ CopyRendition(XmRendition rend)
     {
       copy = GetHandle(_XmRendition);
       if (copy == NULL) {
-        _XmRendRefcountDec(rend);
-        return(NULL);
+	_XmRendRefcountDec(rend);
+	return(NULL);
       }
       SetPtr(copy, GetPtr(rend));
       return(copy);
@@ -1304,7 +1376,8 @@ _XmRenditionCopy(XmRendition rend,
 
   if (shared) toRend = CopyRendition(rend);
   else toRend = CloneRendition(rend);
-  if (toRend == NULL) return(NULL);
+  if (toRend == NULL)
+    return(NULL);
 
   /* If we had to clone, copy the 'scratch' info. */
   if (*toRend != *rend)
@@ -1346,9 +1419,8 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 			   Cardinal rendition_count,
 			   XmMergeMode merge_mode)
 {
-  int			i, j, next, copy_start;
+  int			i, j, next;
   int			count = rendition_count;
-  size_t		append_count;
   XmRendition		rend, match, copy;
   _XmRenderTable	table;
   XmRenderTable		newtable, tmptable = NULL;
@@ -1360,7 +1432,8 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
   if ((renditions == NULL) || (rendition_count == 0) ||
       (rendition_count > INT_MAX))
     return(oldtable);
-  for (i = 0; i < rendition_count; ++i)
+
+  for (i = 0; i < rendition_count; i++)
     if (renditions[i] == NULL)
       return(oldtable);
 
@@ -1386,13 +1459,13 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 				(sizeof(XmRendition) *
 				 (rendition_count -
 				  RENDITIONS_IN_STRUCT)));
-      if (table == NULL)
-	goto unlock_return;
+	  if (table == NULL)
+	    goto unlock_return;
       oldtable = GetHandle(_XmRenderTable);
-      if (oldtable == NULL) {
-	XtFree((char *)table);
-	goto unlock_return;
-      }
+	  if (oldtable == NULL) {
+	    XtFree((char *)table);
+	    goto unlock_return;
+	  }
       SetPtr(oldtable, table);
 
       _XmRTCount(oldtable) = rendition_count;
@@ -1404,7 +1477,7 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 	{
 	  _XmRTRenditions(oldtable)[i] = CopyRendition(renditions[i]);
 	  if (_XmRTRenditions(oldtable)[i] == NULL)
-	goto initial_copy_failed;
+	    goto initial_copy_failed;
 	  if (_XmRTDisplay(oldtable) == NULL)
 	    _XmRTDisplay(oldtable) = _XmRendDisplay(renditions[i]);
 	}
@@ -1446,15 +1519,14 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 	    {
 	      _XmRTRenditions(newtable)[i] = CopyRendition(_XmRTRenditions(oldtable)[i]);
 	      if (_XmRTRenditions(newtable)[i] == NULL) {
-	        while (i > 0) {
-	          --i;
-	          FreeRendition(_XmRTRenditions(newtable)[i]);
-	          FreeHandle(_XmRTRenditions(newtable)[i]);
-	        }
-	        XtFree((char *)GetPtr(newtable));
-	        FreeHandle(newtable);
-	        newtable = NULL;
-	        goto merge_abort;
+		while (i > 0) {
+		  --i;
+		  FreeRendition(_XmRTRenditions(newtable)[i]);
+		  FreeHandle(_XmRTRenditions(newtable)[i]);
+		}
+		XtFree((char *)GetPtr(newtable));
+		FreeHandle(newtable);
+		goto merge_abort;
 	      }
 	    }
 
@@ -1529,18 +1601,10 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
       if (count > 0)				  /* Allocate new table */
 	{
 	  source_table = oldtable;
-	  copy_start = (tmptable != NULL) ? 0 : _XmRTCount(source_table);
-	  append_count = (size_t)_XmRTCount(oldtable) + (size_t)count;
-	  if (append_count > UINT16_MAX ||
-	      (append_count > RENDITIONS_IN_STRUCT &&
-	       append_count - RENDITIONS_IN_STRUCT >
-	       (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition)))
-	    goto append_abort;
 	  table = (_XmRenderTable)
 	    XtMalloc(sizeof(_XmRenderTableRec) +
 		     (sizeof(XmRendition) *
-		      (append_count > RENDITIONS_IN_STRUCT
-		       ? append_count - RENDITIONS_IN_STRUCT : 0)));
+		      (_XmRTCount(oldtable) + count - RENDITIONS_IN_STRUCT)));
 	  if (table == NULL)
 	    goto append_abort;
 	  newtable = GetHandle(_XmRenderTable);
@@ -1585,10 +1649,6 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 	{
 	  table = GetPtr(oldtable);
 	  newtable = GetHandle(_XmRenderTable);
-	  if (newtable == NULL) {
-	    DEALLOCATE_LOCAL((char *)matches);
-	    goto unlock_return;
-	  }
 	  SetPtr(newtable, table);
 	  FreeHandle(oldtable);
 	}
@@ -1599,54 +1659,24 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
     }
 
   if (tmptable != NULL) FreeHandle(tmptable);
-#ifdef XTHREADS
-  if (app) {
-      _XmAppUnlock(app);
-  }
-  else {
-      _XmProcessUnlock();
-  }
-#endif
-  return(oldtable);
-
-initial_copy_failed:
-  for (j = 0; j < i; ++j) {
-    FreeRendition(_XmRTRenditions(oldtable)[j]);
-    FreeHandle(_XmRTRenditions(oldtable)[j]);
-  }
-  XtFree((char *)GetPtr(oldtable));
-  FreeHandle(oldtable);
-  oldtable = NULL;
   goto unlock_return;
 
 append_copy_failed:
-  while (next > copy_start) {
+  while (next > _XmRTCount(source_table)) {
     --next;
     FreeRendition(_XmRTRenditions(newtable)[next]);
     FreeHandle(_XmRTRenditions(newtable)[next]);
   }
   XtFree((char *)GetPtr(newtable));
   FreeHandle(newtable);
-  newtable = NULL;
+
+append_abort:
   if (tmptable != NULL) {
     oldtable = tmptable;
     tmptable = NULL;
   }
-  DEALLOCATE_LOCAL((char *)matches);
-  goto unlock_return;
-
-append_abort:
-  if (tmptable != NULL) {
-    for (i = 0; i < _XmRTCount(oldtable); ++i) {
-      if (_XmRTRenditions(oldtable)[i] != NULL) {
-        FreeRendition(_XmRTRenditions(oldtable)[i]);
-        FreeHandle(_XmRTRenditions(oldtable)[i]);
-      }
-    }
-    XtFree((char *)GetPtr(oldtable));
-    FreeHandle(oldtable);
-    oldtable = tmptable;
-    tmptable = NULL;
+  else {
+    oldtable = source_table;
   }
   DEALLOCATE_LOCAL((char *)matches);
   goto unlock_return;
@@ -1655,6 +1685,16 @@ merge_abort:
   DEALLOCATE_LOCAL((char *)matches);
   goto unlock_return;
 
+initial_copy_failed:
+  for (j = 0; j <= i; ++j) {
+    if (_XmRTRenditions(oldtable)[j] != NULL) {
+      FreeRendition(_XmRTRenditions(oldtable)[j]);
+      FreeHandle(_XmRTRenditions(oldtable)[j]);
+    }
+  }
+  XtFree((char *)GetPtr(oldtable));
+  FreeHandle(oldtable);
+  oldtable = NULL;
 unlock_return:
 #ifdef XTHREADS
   if (app) {
@@ -1675,6 +1715,15 @@ XmRenderTableRemoveRenditions(XmRenderTable oldtable,
 			      int tag_count)
 {
   XmRenderTable ret_val;
+  int i;
+
+  if (oldtable == NULL || tags == NULL || tag_count <= 0)
+	return oldtable;
+
+  for (i = 0; i < tag_count; i++)
+	if (tags[i] == NULL)
+	  return oldtable;
+
 #ifdef XTHREADS
   XtAppContext  app=NULL;
 
@@ -1715,128 +1764,130 @@ _XmRenderTableRemoveRenditions(XmRenderTable oldtable,
 			       XmFontType type,
 			       XtPointer font)
 {
-  int i, j;
-  int count = 0;
-  unsigned short total;
-  XmRendition *kept;
-  Boolean *removed;
-  _XmRenderTable table;
-  XmRenderTable newtable = NULL;
+  int			i, j;
+  int			count;
+  _XmRenderTable	table;
+  XmRenderTable		newtable = NULL;
 
-  if ((oldtable == NULL) || (tags == NULL) || (tag_count == 0))
+  if ((oldtable == NULL) || (tags == NULL) || (tag_count <= 0))
     return(oldtable);
 
-  total = _XmRTCount(oldtable);
-  if (total == 0 || (size_t)total > SIZE_MAX / sizeof(*kept))
-    return(oldtable);
+  for (j = 0; j < tag_count; j++)
+    if (tags[j] == NULL)
+      return(oldtable);
+  
+  count = 0;
+  
+  if (_XmRTRefcount(oldtable) > 1)
+    {
+      /* Allocate new table */
+      table = (_XmRenderTable)
+	XtMalloc(sizeof(_XmRenderTableRec) +
+		 (sizeof(XmRendition) *
+		  (_XmRTCount(oldtable) > RENDITIONS_IN_STRUCT
+                ? _XmRTCount(oldtable) - RENDITIONS_IN_STRUCT : 0)));
 
-  /* Plan the removal without changing the live table. */
-  kept = (XmRendition *)XtMalloc((size_t)total * sizeof(*kept));
-  if (kept == NULL)
-    return(oldtable);
-  removed = (Boolean *)XtMalloc((size_t)total * sizeof(*removed));
-  if (removed == NULL) {
-    XtFree((char *)kept);
-    return(oldtable);
-  }
+      if (table == NULL)
+	return(oldtable);
 
-  for (i = 0; i < total; i++) {
-    XmRendition entry = _XmRTRenditions(oldtable)[i];
-    removed[i] = False;
-    for (j = 0; j < tag_count; j++) {
-      if ((strcmp(_XmRendTag(entry), tags[j]) == 0) &&
-          (!chk_font ||
-           ((font == _XmRendFont(entry)) &&
-            (type == _XmRendFontType(entry))))) {
-        removed[i] = True;
-        break;
+      newtable = GetHandle(_XmRenderTable);
+      if (newtable == NULL) {
+	XtFree((char *)table);
+	return(oldtable);
       }
-    }
-    if (!removed[i])
-      kept[count++] = entry;
-  }
+      SetPtr(newtable, table);
 
-  if (count == total) {
-    XtFree((char *)removed);
-    XtFree((char *)kept);
-    return(oldtable);
-  }
-  if (count == 0) {
-    XtFree((char *)removed);
-    XtFree((char *)kept);
-    XmRenderTableFree(oldtable);
-    return(NULL);
-  }
+      _XmRTDisplay(newtable) = _XmRTDisplay(oldtable);
+      _XmRTRefcount(newtable) = 1;
 
-  if (_XmRTRefcount(oldtable) > 1) {
-    size_t body_size;
-    if ((count > RENDITIONS_IN_STRUCT) &&
-        ((size_t)(count - RENDITIONS_IN_STRUCT) >
-         (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition)))
-      goto remove_abort;
-    body_size = sizeof(_XmRenderTableRec) +
-      sizeof(XmRendition) * (count > RENDITIONS_IN_STRUCT
-          ? count - RENDITIONS_IN_STRUCT : 0);
-    table = (_XmRenderTable)XtMalloc(body_size);
-    if (table == NULL)
-      goto remove_abort;
-    newtable = GetHandle(_XmRenderTable);
-    if (newtable == NULL) {
-      XtFree((char *)table);
-      goto remove_abort;
+      /* Detach entry handles as well as the shared table body. */
+      for (i = 0; i < _XmRTCount(oldtable); i++)
+	{
+	  _XmRTRenditions(newtable)[i] = CopyRendition(_XmRTRenditions(oldtable)[i]);
+	  if (_XmRTRenditions(newtable)[i] == NULL) {
+	    while (i > 0) {
+	      --i;
+	      FreeRendition(_XmRTRenditions(newtable)[i]);
+	      FreeHandle(_XmRTRenditions(newtable)[i]);
+	    }
+	    XtFree((char *)GetPtr(newtable));
+	    FreeHandle(newtable);
+	    return(oldtable);
+	  }
+	}
+      _XmRTCount(newtable) = _XmRTCount(oldtable);
+      
+      if (_XmRTRefcountDec(oldtable) == 0)
+	XtFree((char *)GetPtr(oldtable));
+      FreeHandle(oldtable);
+      
+      oldtable = newtable;
     }
-    SetPtr(newtable, table);
-    _XmRTDisplay(newtable) = _XmRTDisplay(oldtable);
-    _XmRTRefcount(newtable) = 1;
-    for (i = 0; i < count; i++) {
-      _XmRTRenditions(newtable)[i] = CopyRendition(kept[i]);
-      if (_XmRTRenditions(newtable)[i] == NULL) {
-        while (i > 0) {
-          --i;
-          FreeRendition(_XmRTRenditions(newtable)[i]);
-          FreeHandle(_XmRTRenditions(newtable)[i]);
-        }
-        XtFree((char *)GetPtr(newtable));
-        FreeHandle(newtable);
-        newtable = NULL;
-        goto remove_abort;
+  /* Iterate over renditions */
+  for (i = 0; i < _XmRTCount(oldtable); i++)
+    {
+      /* Match against tags */
+      for (j = 0; j < tag_count; j++)
+	{
+	  if ((_XmRendTag(_XmRTRenditions(oldtable)[i]) != NULL) &&
+	      (strcmp(_XmRendTag(_XmRTRenditions(oldtable)[i]),
+		      tags[j]) == 0) &&
+	      (!chk_font ||
+	       ((font == _XmRendFont(_XmRTRenditions(oldtable)[i])) &&
+		(type == _XmRendFontType(_XmRTRenditions(oldtable)[i])))))
+	    {
+              FreeRendition(_XmRTRenditions(oldtable)[i]);
+              FreeHandle(_XmRTRenditions(oldtable)[i]);
+	      _XmRTRenditions(oldtable)[i] = NULL;
+	      break;
+	    }
+	}
+      if (_XmRTRenditions(oldtable)[i] != NULL) 
+	{
+	  if (count != i)
+	    _XmRTRenditions(oldtable)[count] = _XmRTRenditions(oldtable)[i];
+
+	  count++;
+	}
+    }
+  if (count == 0)
+    /* No renditions left. Return NULL. */
+    {
+      XmRenderTableFree(oldtable);
+      return(NULL);
+    }
+  else if (count < _XmRTCount(oldtable))
+    {
+      /* Realloc table */
+      if (newtable == NULL) {
+	newtable = GetHandle(_XmRenderTable);
+	if (newtable == NULL)
+	  return(oldtable);
+	table = (_XmRenderTable)XtRealloc((char *)*oldtable,
+					  sizeof(_XmRenderTableRec) +
+					  (sizeof(XmRendition) *
+					   (count - RENDITIONS_IN_STRUCT)));
+	if (table == NULL) {
+	  FreeHandle(newtable);
+	  newtable = NULL;
+	  return(oldtable);
+	}
+	FreeHandle(oldtable);
       }
-    }
-    _XmRTCount(newtable) = (unsigned short)count;
-    XtFree((char *)removed);
-    XtFree((char *)kept);
-    XmRenderTableFree(oldtable);
-    return(newtable);
-  }
+      else {
+	table = (_XmRenderTable)XtRealloc((char *)*oldtable,
+					  sizeof(_XmRenderTableRec) +
+					  (sizeof(XmRendition) *
+					   (count - RENDITIONS_IN_STRUCT)));
+	if (table == NULL)
+	  return(oldtable);
+      }
+      SetPtr(newtable, table);
 
-  /* A unique table keeps its public handle; resize only after planning. */
-  if ((count > RENDITIONS_IN_STRUCT) &&
-      ((size_t)(count - RENDITIONS_IN_STRUCT) >
-       (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition)))
-    goto remove_abort;
-  table = (_XmRenderTable)XtRealloc((char *)GetPtr(oldtable),
-      sizeof(_XmRenderTableRec) +
-      sizeof(XmRendition) * (count > RENDITIONS_IN_STRUCT
-          ? count - RENDITIONS_IN_STRUCT : 0));
-  if (table == NULL)
-    goto remove_abort;
-  for (i = 0; i < total; i++) {
-    if (removed[i]) {
-      FreeRendition(table->renditions[i]);
-      FreeHandle(table->renditions[i]);
+      _XmRTCount(newtable) = count;
+  
+      return(newtable);
     }
-  }
-  for (i = 0; i < count; i++)
-    table->renditions[i] = kept[i];
-  SetPtr(oldtable, table);
-  _XmRTCount(oldtable) = (unsigned short)count;
-  XtFree((char *)removed);
-  XtFree((char *)kept);
-  return(oldtable);
-
-remove_abort:
-  XtFree((char *)removed);
-  XtFree((char *)kept);
   return(oldtable);
 }
 
@@ -1910,13 +1961,10 @@ CopyToArg(char *src, XtArgVal *dst, unsigned int size)
 XmRenderTable
 XmRenderTableCopy(XmRenderTable table, XmStringTag *tags, int tag_count)
 {
-  XmRenderTable result;
+  XmRenderTable result = NULL;
   _XmRenderTable body;
   int index, count, capacity;
-  XmRendition match, copy;
   XtAppContext app = NULL;
-  result = NULL;
-  body = NULL;
   if (!table) return NULL;
 #ifdef XTHREADS
   if (_XmRTDisplay(table)) app = XtDisplayToApplicationContext(_XmRTDisplay(table));
@@ -1929,7 +1977,7 @@ XmRenderTableCopy(XmRenderTable table, XmStringTag *tags, int tag_count)
     result = GetHandle(_XmRenderTable);
     if (result == NULL) {
       _XmRTRefcountDec(table);
-      goto copy_unlock_return;
+      goto unlock_return;
     }
     SetPtr(result, GetPtr(table));
   } else {
@@ -1938,20 +1986,16 @@ XmRenderTableCopy(XmRenderTable table, XmStringTag *tags, int tag_count)
     if ((capacity > RENDITIONS_IN_STRUCT) &&
         ((size_t)(capacity - RENDITIONS_IN_STRUCT) >
          (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition)))
-      {
-        result = NULL;
-        goto copy_unlock_return;
-      }
+      goto unlock_return;
     body = (_XmRenderTable)XtMalloc(sizeof(_XmRenderTableRec) +
         sizeof(XmRendition) * (capacity > RENDITIONS_IN_STRUCT
             ? capacity - RENDITIONS_IN_STRUCT : 0));
     if (body == NULL)
-      goto copy_unlock_return;
+      goto unlock_return;
     result = GetHandle(_XmRenderTable);
     if (result == NULL) {
       XtFree((char *)body);
-      body = NULL;
-      goto copy_unlock_return;
+      goto unlock_return;
     }
     SetPtr(result, body);
     _XmRTRefcount(result) = 1;
@@ -1959,30 +2003,27 @@ XmRenderTableCopy(XmRenderTable table, XmStringTag *tags, int tag_count)
     count = 0;
     if (tags) {
       for (index = 0; index < tag_count; ++index) {
-        match = _XmRenderTableFindRendition(table, tags[index],
-                                            FALSE, FALSE, FALSE, NULL);
+        XmRendition match = _XmRenderTableFindRendition(table, tags[index],
+                                                         FALSE, FALSE, FALSE,
+                                                         NULL);
         if (match) {
-          copy = CopyRendition(match);
-          if (copy == NULL)
+          match = CopyRendition(match);
+          if (match == NULL)
             goto copy_failed;
-          _XmRTRenditions(result)[count++] = copy;
+          _XmRTRenditions(result)[count++] = match;
         }
       }
     } else {
       for (index = 0; index < _XmRTCount(table); ++index) {
-        copy = CopyRendition(_XmRTRenditions(table)[index]);
-        if (copy == NULL)
+        XmRendition match = CopyRendition(_XmRTRenditions(table)[index]);
+        if (match == NULL)
           goto copy_failed;
-        _XmRTRenditions(result)[count++] = copy;
+        _XmRTRenditions(result)[count++] = match;
       }
     }
     _XmRTCount(result) = count;
   }
-#ifdef XTHREADS
-  if (app) _XmAppUnlock(app);
-  else _XmProcessUnlock();
-#endif
-  return result;
+  goto unlock_return;
 
 copy_failed:
   while (count > 0) {
@@ -1993,10 +2034,8 @@ copy_failed:
   XtFree((char *)GetPtr(result));
   FreeHandle(result);
   result = NULL;
-  body = NULL;
-  goto copy_unlock_return;
 
-copy_unlock_return:
+unlock_return:
 #ifdef XTHREADS
   if (app) _XmAppUnlock(app);
   else _XmProcessUnlock();
@@ -2062,27 +2101,36 @@ XmRenderTableGetTags(XmRenderTable table,
 	  goto done;
 
 	if (tag_count != 0)
-	  {
-	    tags = (XmStringTag *)XtMalloc((size_t)tag_count * sizeof(*tags));
-	    if (tags == NULL)
-	      goto done;
+    {
+	  tags = (XmStringTag *)XtMalloc((size_t)tag_count * sizeof(*tags));
+	  if (tags == NULL)
+	    goto done;
 
-	    for (i = 0; i < tag_count; i++)
-	      {
-		tags[i] = XtNewString(_XmRendTag(_XmRTRenditions(table)[i]));
-		if (tags[i] == NULL)
-		  {
-		    while (i != 0)
-		      XtFree(tags[--i]);
-		    XtFree((char *)tags);
-		    tags = NULL;
-		    goto done;
-		  }
-	      }
-	  }
-      
-	*tag_list = tags;
-	ret_val = (int)tag_count;
+	  for (i = 0; i < tag_count; i++)
+	    {
+	      if (_XmRTRenditions(table)[i] == NULL ||
+		  _XmRendTag(_XmRTRenditions(table)[i]) == NULL)
+		{
+		  while (i != 0)
+		    XtFree(tags[--i]);
+		  XtFree((char *)tags);
+		  tags = NULL;
+		  goto done;
+		}
+	      tags[i] = XtNewString(_XmRendTag(_XmRTRenditions(table)[i]));
+	      if (tags[i] == NULL)
+		{
+		  while (i != 0)
+		    XtFree(tags[--i]);
+		  XtFree((char *)tags);
+		  tags = NULL;
+		  goto done;
+		}
+	    }
+    }
+
+  *tag_list = tags;
+  ret_val = (int)tag_count;
 
 done:
 #ifdef XTHREADS
@@ -2132,7 +2180,7 @@ XmRenderTableGetRenditions(XmRenderTable table,
 			   Cardinal tag_count)
 {
   XmRendition	rend, *rends;
-  Cardinal		i, count;
+  Cardinal	i, count;
   Boolean	copy_failed = False;
   XtAppContext  app = NULL;
 
@@ -2152,13 +2200,14 @@ XmRenderTableGetRenditions(XmRenderTable table,
      _XmProcessLock();
   }
 #endif
-  if ((size_t)tag_count > SIZE_MAX / sizeof(*rends))
-    goto unlock_return;
+	if ((size_t)tag_count > SIZE_MAX / sizeof(*rends) ||
+	    tag_count > UINT_MAX / sizeof(*rends))
+	    goto unlock_return;
 
-  rends = (XmRendition *)XtMalloc((size_t)tag_count * sizeof(*rends));
-  if (rends == NULL)
-    goto unlock_return;
-  memset(rends, 0, (size_t)tag_count * sizeof(*rends));
+	rends = (XmRendition *)XtMalloc((size_t)tag_count * sizeof(*rends));
+	if (rends == NULL)
+	    goto unlock_return;
+	memset(rends, 0, (size_t)tag_count * sizeof(*rends));
   
   count = 0;
   for (i = 0; i < tag_count; i++)
@@ -2176,24 +2225,23 @@ XmRenderTableGetRenditions(XmRenderTable table,
 	  count++;
 	}
     }
-  
-  if (count == 0 || copy_failed)
-    {
-      if (copy_failed)
+
+	if (count == 0 || copy_failed)
 	{
-	  for (i = 0; i < tag_count; i++)
-	    if (rends[i] != NULL)
-	      {
-	        FreeRendition(rends[i]);
-	        FreeHandle(rends[i]);
-	      }
+	    if (copy_failed)
+	    {
+		for (i = 0; i < tag_count; i++)
+		    if (rends[i] != NULL)
+			{
+			    FreeRendition(rends[i]);
+			    FreeHandle(rends[i]);
+			}
+	    }
+	    XtFree((char *)rends);
+	    rends = NULL;
 	}
-      XtFree((char *)rends);
-      rends = NULL;
-    }
 
 unlock_return:
-  
 #ifdef XTHREADS
   if (app) {
      _XmAppUnlock(app);
@@ -2250,7 +2298,8 @@ CleanupResources(XmRendition rend,
   }
 #endif
 
-  if (((unsigned int)(unsigned long)_XmRendFontName(rend) == XmAS_IS) ||
+  if ((_XmRendFontName(rend) == NULL) ||
+      ((unsigned int)(unsigned long)_XmRendFontName(rend) == XmAS_IS) ||
       (strcmp(_XmRendFontName(rend), XmSXmAS_IS) == 0))
     _XmRendFontName(rend) = NULL;
   else if (copy)
@@ -2510,8 +2559,14 @@ _XmRenditionCreate(Display *display,
 
   /* Allocate rendition. */
   rend_int = (_XmRendition)XtMalloc(sizeof(_XmRenditionRec));
+  if (rend_int == NULL)
+    return(NULL);
   bzero((char*)rend_int, sizeof(_XmRenditionRec));
   rend = GetHandle(_XmRendition);
+  if (rend == NULL) {
+    XtFree((char *)rend_int);
+    return(NULL);
+  }
   SetPtr(rend, rend_int);
   
   _XmRendRefcount(rend) = 1;
@@ -2561,10 +2616,19 @@ _XmCreateRenderTable(Widget parent,
 {
   XmRenderTable 	newtable;
   _XmRenderTable	table;
+
+  if (parent == NULL)
+    return((Widget)NULL);
   
   /* Malloc new table */
   table = (_XmRenderTable)XtMalloc(sizeof(_XmRenderTableRec));
+  if (table == NULL)
+    return((Widget)NULL);
   newtable = GetHandle(_XmRenderTable);
+  if (newtable == NULL) {
+    XtFree((char *)table);
+    return((Widget)NULL);
+  }
   SetPtr(newtable, table);
   _XmRTCount(newtable) = 0;
   _XmRTRefcount(newtable) = 1;
@@ -2582,12 +2646,27 @@ _XmCreateRendition(Widget parent,
 {
   XmRenderTable		rt = (XmRenderTable)parent;
   _XmRenderTable	table;
-  XmRendition		rend;
+  XmRendition		rend, copy;
+  size_t		required_count;
+
+  if (rt == NULL || GetPtr(rt) == NULL)
+    return((Widget)NULL);
   
   table = GetPtr(rt);
   
   rend = _XmRenditionCreate(_XmRTDisplay(rt), NULL, XmS, XmCRenderTable,
 			    name, arglist, argcount, NULL);
+  if (rend == NULL)
+    return((Widget)NULL);
+
+  required_count = (size_t)_XmRTCount(rt) + 1;
+  if ((required_count > RENDITIONS_IN_STRUCT) &&
+      (required_count - RENDITIONS_IN_STRUCT >
+       (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition))) {
+    FreeRendition(rend);
+    FreeHandle(rend);
+    return((Widget)NULL);
+  }
   
   /* Ignore repeats */
   if (_XmRenderTableFindRendition(rt, _XmRendTag(rend),
@@ -2604,10 +2683,21 @@ _XmCreateRendition(Widget parent,
 	      sizeof(_XmRenderTableRec) +
 	      (sizeof(XmRendition) *
 	       ((_XmRTCount(rt) + 1) - RENDITIONS_IN_STRUCT)));
+  if (table == NULL) {
+    FreeRendition(rend);
+    FreeHandle(rend);
+    return((Widget)NULL);
+  }
   SetPtr(rt, table);
 
   /* Copy new rendition. */
-  _XmRTRenditions(rt)[_XmRTCount(rt)] = CopyRendition(rend);
+  copy = CopyRendition(rend);
+  if (copy == NULL) {
+    FreeRendition(rend);
+    FreeHandle(rend);
+    return((Widget)NULL);
+  }
+  _XmRTRenditions(rt)[_XmRTCount(rt)] = copy;
   _XmRTCount(rt)++;
 
   return((Widget)rend);
@@ -2773,7 +2863,13 @@ XmRenditionUpdate(XmRendition rendition,
   if (_XmRendRefcount(rendition) > 1)
     {
       _XmRendRefcountDec(rendition);
-      RenewRendition(rendition);
+      if (RenewRendition(rendition) == NULL)
+	{
+	  /* Keep the shared body attached to this handle when copy-on-write
+	   * cannot allocate a private rendition. */
+	  _XmRendRefcountInc(rendition);
+	  goto update_done;
+	}
       can_free = FALSE;
     }
       
@@ -2859,7 +2955,7 @@ XmRenditionUpdate(XmRendition rendition,
    ** had a real fontName specified */
   else if ((oldname == NULL) && NameIsString(_XmRendFontName(rendition)))
     {
-      if (oldfont == _XmRendFontName(rendition))
+      if (oldfont != NULL)
 	_XmRendFont(rendition) = NULL;
     }
 
@@ -2871,6 +2967,7 @@ XmRenditionUpdate(XmRendition rendition,
   ValidateTag(rendition, oldtag);
   
   ValidateAndLoadFont(rendition, display);
+update_done:
 #ifdef XTHREADS
   if (app) {
      _XmAppUnlock(app);
@@ -2938,6 +3035,7 @@ XmRenderFormat(char *buffer, size_t buffer_size, const char *format, ...)
 #define CVTaddString(dest, src, srcsize) do {\
    size_t required = (size_t)chars_used + (size_t)(srcsize) + 1;\
    size_t new_size = (size_t)allocated_size;\
+   char *new_buffer;\
    if (required < (size_t)chars_used) {\
      XtFree(buffer);\
      _XmAppUnlock(app);\
@@ -2951,8 +3049,19 @@ XmRenderFormat(char *buffer, size_t buffer_size, const char *format, ...)
      }\
      new_size *= 2;\
    }\
+   if (new_size > UINT_MAX) {\
+     XtFree(buffer);\
+     _XmAppUnlock(app);\
+     return 0;\
+   }\
    if (new_size != (size_t)allocated_size) {\
-     buffer = XtRealloc(buffer, new_size);\
+     new_buffer = (char *)XtRealloc(buffer, (Cardinal)new_size);\
+     if (new_buffer == NULL) {\
+       XtFree(buffer);\
+       _XmAppUnlock(app);\
+       return 0;\
+     }\
+     buffer = new_buffer;\
      allocated_size = new_size;\
    }\
    memcpy(buffer + chars_used, src, (size_t)(srcsize) + 1);\
@@ -2971,6 +3080,11 @@ XmRenderTableCvtToProp(Widget widget, /* unused */
   char *buffer;
   char *str;
   XmRendition rendition;
+
+  if (widget == NULL || table == NULL || prop_return == NULL)
+    return 0;
+  *prop_return = NULL;
+
   _XmWidgetToAppContext(widget);
 
   _XmAppLock(app);
@@ -2997,6 +3111,12 @@ XmRenderTableCvtToProp(Widget widget, /* unused */
     char temp[2048];
 
     rendition = _XmRTRenditions(table)[i];
+    if (rendition == NULL || _XmRendTag(rendition) == NULL)
+      {
+        XtFree(buffer);
+        _XmAppUnlock(app);
+        return 0;
+      }
     if (!XmRenderFormat(temp, sizeof(temp), "\"%s\", ",
                         _XmRendTag(rendition))) {
       XtFree(buffer);
@@ -3009,6 +3129,11 @@ XmRenderTableCvtToProp(Widget widget, /* unused */
     if (_XmRendFontType(rendition) == XmAS_IS)
       str = "-1, ";
     else {
+      if (_XmRendFontName(rendition) == NULL) {
+        XtFree(buffer);
+        _XmAppUnlock(app);
+        return 0;
+      }
       if (!XmRenderFormat(temp, sizeof(temp), "%d \"%s\" %d,",
                           _XmRendFontType(rendition),
                           _XmRendFontName(rendition),
@@ -3644,6 +3769,10 @@ XmRenderTableCvtFromProp(Widget w,
   rarray_max = 10;
   rarray_count = 0;
   rarray = (XmRendition *) XtMalloc(sizeof(XmRendition) * rarray_max);
+  if (rarray == NULL) {
+    _XmAppUnlock(app);
+    return NULL;
+  }
   name = "";
 
   for(j = 0; j < 20; j++) items[j] = NULL;
@@ -3678,6 +3807,8 @@ XmRenderTableCvtFromProp(Widget w,
         token = ReadToken(prop, &scanpointer, &reusetoken);
       /* Store rendition */
       rendition = XmRenditionCreate(w, name, args, count);
+      if (rendition == NULL)
+	goto error;
       name = "";
       count = 0;
       /* Reset index into namelist */
@@ -3688,9 +3819,18 @@ XmRenderTableCvtFromProp(Widget w,
       /* Record rendition in array */
       if (rarray_count >= rarray_max) {
 	/* Extend array if necessary */
-	rarray_max += 10;
-	rarray = (XmRendition *) XtRealloc((char*) rarray, 
-					   sizeof(XmRendition) * rarray_max);
+	int new_max;
+	XmRendition *new_array;
+	if (rarray_max > INT_MAX - 10 ||
+	    (size_t)(rarray_max + 10) > SIZE_MAX / sizeof(XmRendition))
+	  goto error;
+	new_max = rarray_max + 10;
+	new_array = (XmRendition *)XtRealloc(
+	    (char *)rarray, sizeof(XmRendition) * (size_t)new_max);
+	if (new_array == NULL)
+	  goto error;
+	rarray = new_array;
+	rarray_max = new_max;
       }
       if (token -> type == T_EOF) goto finish;
       rarray[rarray_count] = rendition;
@@ -3808,6 +3948,7 @@ XmRenderTableCvtFromProp(Widget w,
  finish:
   new_rt = XmRenderTableAddRenditions(new_rt, rarray, rarray_count, XmMERGE_REPLACE);
   for (i = 0; i < rarray_count; i++) XmRenditionFree(rarray[i]);
+  XtFree((char *)rarray);
   _XmAppUnlock(app);
   return(new_rt);
 
@@ -3830,11 +3971,12 @@ XmRenderTableGetDefaultFontExtents(XmRenderTable rendertable,
     short           indx;
     int             h,a,d;
 
-    if (height) *height = 0;
-    if (ascent) *ascent = 0;
-    if (descent) *descent = 0;
-    if (rendertable == NULL)
-      return;
+    if (rendertable == NULL) {
+        if (height) *height = 0;
+        if (ascent) *ascent = 0;
+        if (descent) *descent = 0;
+        return;
+    }
   
 #ifdef XTHREADS
   XtAppContext	       app=NULL;

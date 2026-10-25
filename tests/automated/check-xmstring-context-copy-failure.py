@@ -4,7 +4,7 @@
 from pathlib import Path
 
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmString.c").read_text()
+source = Path("lib/Xm/XmString.c").read_text()
 
 assert source.count("*value = (XtPointer) XtNewString(begin_rends[tmp_index]);") == 1
 assert source.count("*value = (XtPointer) XtNewString(tag);") == 1
@@ -12,4 +12,4 @@ assert source.count("*value = (XtPointer) XtNewString(end_rends[tmp_index]);") =
 assert source.count("if (*value == NULL) {") >= 3
 assert source.count("return XmSTRING_COMPONENT_END;") >= 3
 
-print("PASS XmString context copied components propagate allocation failure")
+print("XmString context copied components propagate allocation failure")

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm image-cache screen validation
 
 `GetImage` needs a valid screen before it can obtain a display. It now rejects

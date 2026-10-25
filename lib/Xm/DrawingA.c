@@ -360,11 +360,11 @@ ObjectAtPoint(
         Position  y )
 {
     CompositeWidget cw = (CompositeWidget) wid ;
-    register int i;
+    register Cardinal i;
     register Widget widget;
 
-    i = cw->composite.num_children ;
-    while( i-- ) {
+    for (i = cw->composite.num_children; i > 0; ) {
+	--i;
 	widget = cw->composite.children[i];
 
 	/* do not care for gadget only for the DA input */

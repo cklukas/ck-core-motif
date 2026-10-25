@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm string append bounds
 
 Mrm ordinary string appends now keep `strlen` results in `size_t` and reject

@@ -13,6 +13,8 @@ for needle in (
     "if (numCharsets == UINT_MAX)",
     "tableSize = sizeof(XmStringCharSet) * ((size_t)numCharsets + 1);",
     "strDataSize > SIZE_MAX - tableSize",
+    "strDataSize > (size_t)UINT_MAX - tableSize",
+    "XtMalloc(\n\t(Cardinal)(tableSize + strDataSize))",
 ):
     if needle not in text:
         raise SystemExit(f"charset-table guard missing: {needle}")

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Render-table rendition arrays
 
 `XmRenderTableGetRenditions` now follows its documented result layout: the
@@ -6,40 +9,40 @@ leaves its corresponding slot as `NULL`. The previous implementation compacted
 matches and resized the allocation, which made the public positional contract
 unreliable for callers that requested more than one tag.
 
-The allocation size is checked before multiplication, allocation failure is
-reported as `NULL`, and a partially copied result is released before returning.
+The allocation size is checked against both host `size_t` and Xt `Cardinal`
+byte limits before multiplication. Allocation failure is reported as `NULL`,
+and a partially copied result is released before returning.
 Successful matching and rendition ownership remain unchanged; callers still
 release each non-`NULL` rendition with `XmRenditionFree` and the array with
 `XtFree`.
 
+Display-less tables are protected by the process lock. Allocation-failure
+cleanup releases copied renditions through the internal lock-held helpers, so
+it does not recursively acquire the process lock.
+
+`XmRenderTableAddRenditions` checks the new-table body, handle, and initial
+rendition copies before publishing the table. If any allocation fails, already
+copied renditions are released and the call returns `NULL`.
+
+Merge modes also retain the existing rendition when a replacement or clone
+cannot be allocated; no merge mode publishes a null rendition slot.
+
+When copying a shared table for a merge, body/handle/rendition failures now
+roll back the temporary table and leave the original shared table unchanged.
+
+Appending unmatched renditions follows the same transactional rule: failed
+body, handle, or entry copies are released without publishing a partial table.
+
+Count narrowing and allocation-size arithmetic are checked before creating the
+temporary match array or a new table body.
+
 `XmRenderTableCopy` applies the same body-size bound before allocating a copied
-table for a large tag selection or full-table copy. It now checks the body and
-public-handle allocations, rolls back copied rendition handles on failure, and
-uses the internal lookup while its table lock is held.
+table for a large tag selection or full-table copy.
 
-`XmRenderTableAddRenditions` rejects counts that cannot be represented by its
-integer counters and checks the new-table and match-array sizes before
-allocation. The append path now publishes its replacement table only after
-the table handle and every copied rendition are available; failed allocation
-or copying leaves the pre-append table available to the caller.
+`XmRenderTableCopy` uses the internal rendition lookup while its table lock is
+held, and rolls back copied handles if an allocation fails. Tagged copies
+therefore avoid recursive locking and never return a partially initialized
+table.
 
-Shared-table merges similarly roll back the temporary body, handle and copied
-renditions if any part of the detached copy cannot be allocated.
-
-Display-less tables use the process lock, while display-backed tables use their
-application-context lock. Allocation-failure cleanup releases copied
-renditions through the internal lock-held helpers, avoiding recursive locking
-while preserving the public ownership contract.
-
-Merge replacement and copy-on-write modes allocate their replacement before
-releasing the existing rendition. A failed clone therefore preserves the
-existing entry instead of publishing a null slot.
-
-Table creation validates rendition pointers and rolls back every copied entry
-if the table body, public handle, or an entry copy cannot be allocated. The
-shared-copy path also treats a failed temporary match array as a no-op.
-
-Removal uses a planning pass and publishes the compacted table only after its
-replacement storage and copied rendition handles are ready. Allocation failure
-therefore leaves the original table and its ownership unchanged; see
-`docs/render-table-resize.md`.
+`XmRenderTableAddRenditions` also checks its temporary merge-match array
+before clearing it, returning the original table if that allocation fails.

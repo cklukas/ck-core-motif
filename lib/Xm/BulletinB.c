@@ -524,6 +524,7 @@ Initialize(
             XmWidgetExtData extData ;
             XmBulletinBoardWidgetClass bbClass ;
             XmVendorShellExtObject vendorExt;
+            XmString replacement;
 /****************/
 
     new_w->bulletin_board.in_set_values = False ;
@@ -575,10 +576,13 @@ Initialize(
 
     if(    request->bulletin_board.dialog_title    )
     {   
-        new_w->bulletin_board.dialog_title = XmStringCopy( 
-                                        request->bulletin_board.dialog_title) ;
-        XmeSetWMShellTitle(new_w->bulletin_board.dialog_title,
-			   XtParent(new_w)) ;
+        replacement = XmStringCopy(request->bulletin_board.dialog_title);
+        if (replacement != NULL)
+        {
+            new_w->bulletin_board.dialog_title = replacement;
+            XmeSetWMShellTitle(new_w->bulletin_board.dialog_title,
+			       XtParent(new_w)) ;
+        }
         }
     /*	Set parent attributes.
     */
@@ -818,6 +822,7 @@ SetValues(
     unsigned int    childIndex ;
     Widget *        childList ;
     Boolean flag = False ;
+    XmString replacement;
 
 /****************/
 
@@ -867,11 +872,18 @@ SetValues(
                                       current->bulletin_board.dialog_title    )
     {   /* Update window manager title.
         */
-        XmStringFree( current->bulletin_board.dialog_title) ;
-        new_w->bulletin_board.dialog_title = XmStringCopy(
-                                        request->bulletin_board.dialog_title) ;
-        XmeSetWMShellTitle(new_w->bulletin_board.dialog_title,
-				    XtParent(new_w)) ;
+        replacement = request->bulletin_board.dialog_title != NULL
+            ? XmStringCopy(request->bulletin_board.dialog_title) : NULL;
+        if (request->bulletin_board.dialog_title == NULL || replacement != NULL)
+        {
+            XmStringFree(current->bulletin_board.dialog_title);
+            new_w->bulletin_board.dialog_title = replacement;
+            XmeSetWMShellTitle(new_w->bulletin_board.dialog_title,
+				    XtParent(new_w));
+        }
+        else
+            new_w->bulletin_board.dialog_title =
+                current->bulletin_board.dialog_title;
         }
 
 /*

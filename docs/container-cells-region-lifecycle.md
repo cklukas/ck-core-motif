@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container CELLS region lifecycle
 
 `XmCELLS` placement tracks occupied rectangles in a persistent X11 region.

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Check deterministic resource-id output on Mrm failure paths."""
 
+import os
 from pathlib import Path
 
-source = Path(__file__).parents[2] / "lib" / "Mrm" / "MrmItop.c"
+source = Path(os.environ.get("MOTIF_ITOP_SOURCE", Path(__file__).parents[2] / "lib" / "Mrm" / "MrmItop.c"))
 text = source.read_text(encoding="utf-8")
 start = text.index("UrmIdbGetResourceId (IDBFile")
 end = text.index("\n}", start)
@@ -16,4 +17,4 @@ if local > null_guard or clear > validity:
     raise SystemExit("resource-id output is initialized after a failure path")
 if "*resource_id_return = resource_id;" not in body:
     raise SystemExit("successful resource-id result is not returned")
-print("PASS Mrm resource-id output is deterministic on failure")
+print("Mrm resource-id output is deterministic on failure")

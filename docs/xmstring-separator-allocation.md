@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString separator allocation
 
 `XmStringSeparatorCreate` now checks its cached entry table and each of the

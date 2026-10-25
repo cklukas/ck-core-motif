@@ -63,7 +63,7 @@ _XmGMCalcSize(XmManagerWidget manager,
             Dimension *replyWidth,
             Dimension *replyHeight )
 {
-    register int i ;
+    register Cardinal i ;
     register Widget child ;   
     int right, bottom ;
 
@@ -220,7 +220,7 @@ _XmGMEnforceMargin(XmManagerWidget manager,
 #endif /* NeedWidePrototypes */
 )
 {
-    int i ;
+    Cardinal i ;
     register Widget child ;
     register Boolean do_move ;
     Position newx, newy ;
@@ -324,6 +324,8 @@ XmeReplyToQueryGeometry(Widget widget,
 			XtWidgetGeometry * intended,
 			XtWidgetGeometry * desired)
 {
+    if (widget == NULL || desired == NULL)
+        return XtGeometryNo;
     _XmWidgetToAppContext(widget);
     /* the caller should have set desired width and height*/
     desired->request_mode = (CWWidth | CWHeight) ;
@@ -335,7 +337,7 @@ XmeReplyToQueryGeometry(Widget widget,
        width and height that differ from the desired size, return No
        if the desired is the current and Almost if the desired size
        is different from the current size */
-    if ((IsWidth(intended)) &&
+    if (intended != NULL && (IsWidth(intended)) &&
       (intended->width == desired->width) &&
       (IsHeight(intended)) &&
       (intended->height == desired->height)) {
@@ -361,7 +363,7 @@ Boolean
 _XmGMOverlap(XmManagerWidget manager,
            Widget w)
 {   
-    register int      i ;
+    register Cardinal i ;
     Position  left1 = XtX(w) ;
     Position  top1 = XtY(w) ;
     Dimension right1 = XtX(w) + 2*XtBorderWidth(w) + XtWidth(w) ;

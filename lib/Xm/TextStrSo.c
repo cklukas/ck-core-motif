@@ -319,8 +319,8 @@ _XmStringSourceGetString(XmTextWidget tw,
     if (buf == NULL)
 	return NULL;
     for (pos = from; pos < to; ) {
-      start_pos = pos;
-      block.length = 0;
+	start_pos = pos;
+	block.length = 0;
       pos = ReadSource(tw->text.source, pos, to, &block);
 	if (pos <= start_pos || block.length == 0)
 	break;
@@ -339,8 +339,8 @@ _XmStringSourceGetString(XmTextWidget tw,
 	return NULL;
     wc_buf = (wchar_t *)buf;
     for (pos = from; pos < to; ) {
-      start_pos = pos;
-      block.length = 0;
+	start_pos = pos;
+	block.length = 0;
       ret_pos = ReadSource(tw->text.source, pos, to, &block);
 	if (ret_pos <= start_pos || block.length == 0)
 	break;
@@ -1474,7 +1474,7 @@ Scan(XmTextSource source,
 	/* DELTA: Look now returns a pointer */
 	if ((int)tw->text.char_size == 1) {
 	  c = Look(data, position, dir);
-	  if ((c == '\0') || (*c == *data->PSWC_NWLN))
+	  if ((c == NULL) || (*c == *data->PSWC_NWLN))
 	    break;
 	}
 	else if ((int)tw->text.char_size == 2) {

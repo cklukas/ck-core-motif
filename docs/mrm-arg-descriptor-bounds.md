@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm argument-list descriptor bounds
 
 Mrm argument-list initialization now keeps descriptor sizes in `size_t` and

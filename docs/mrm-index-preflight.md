@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm index insertion preflight
 
 `Idb__INX_EnterNodeIndex` now checks the neighboring child links before

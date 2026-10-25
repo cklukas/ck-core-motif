@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Spinner redisplay guards
 
 `XmSpinner` now handles partial ring/text GC allocation and skips rendering

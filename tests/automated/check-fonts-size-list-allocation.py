@@ -3,12 +3,14 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "FontS.c").read_text()
-assert "(size_t)(size + 1) > SIZE_MAX / sizeof(*strs)" in source
-assert "(size_t)(size + 1) > UINT_MAX / sizeof(*strs)" in source
-assert source.count("if (strs == NULL)") >= 1
-assert "(size_t)num > SIZE_MAX / sizeof(*strs)" in source
-assert "num < 0" in source
-assert source.count("UINT_MAX / sizeof(*strs)") >= 2
+assert "strs == NULL)\n\treturn;" in source
 assert "strs == NULL && num != 0" in source
-assert source.count("XtMalloc((Cardinal)(sizeof(XmString) *") >= 2
-print("PASS Font selector size-list allocations are guarded")
+assert "UINT_MAX / sizeof(*strs)" in source
+assert "XtMalloc((Cardinal)(sizeof(XmString) *" in source
+
+start = source.index("SetOtherList(XmFontSelectorWidget fsw, Boolean force)")
+body = source[start:source.index("/************************************************************", start)]
+assert "num < 0" in body
+assert "SIZE_MAX / sizeof(*strs)" in body
+assert "UINT_MAX / sizeof(*strs)" in body
+assert "XtMalloc((Cardinal)(sizeof(XmString) *" in body

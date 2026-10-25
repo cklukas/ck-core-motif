@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm legacy font-list bounds
 
 Legacy Mrm 1.1 font-list conversion checks the item count before evaluating

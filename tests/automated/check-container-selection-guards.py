@@ -10,6 +10,8 @@ end = text.index("/*ARGSUSED*/\nstatic\tvoid\nGetSelectedItems", start)
 block = text[start:end]
 if "SIZE_MAX / sizeof(Widget)" not in block:
     raise SystemExit("selected-item size overflow is not guarded")
+if "UINT_MAX / sizeof(Widget)" not in block:
+    raise SystemExit("selected-item Xt byte limit is not guarded")
 if "if (selected_items == NULL)" not in block:
     raise SystemExit("selected-item allocation is not guarded")
 if "(Cardinal)(sizeof(Widget) *" not in block:

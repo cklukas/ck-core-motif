@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmInstallImage locking
 
 `XmInstallImage` now delegates directly to `_XmInstallImage`, which owns the

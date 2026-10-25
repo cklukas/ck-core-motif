@@ -518,13 +518,13 @@ Redisplay(
   iwidth = (int) aw->rectangle.width - 2 * aw->gadget.highlight_thickness;
   iheight = (int) aw->rectangle.height - 2 * aw->gadget.highlight_thickness;
   
-  background_x_offset = (aw->rectangle.x +
-			 aw->gadget.highlight_thickness +
-			 aw->gadget.shadow_thickness);
+  background_x_offset = ((int) aw->rectangle.x +
+				 (int) aw->gadget.highlight_thickness +
+				 (int) aw->gadget.shadow_thickness);
   
-  background_y_offset = (aw->rectangle.y +
-			 aw->gadget.highlight_thickness +
-			 aw->gadget.shadow_thickness);
+  background_y_offset = ((int) aw->rectangle.y +
+				 (int) aw->gadget.highlight_thickness +
+				 (int) aw->gadget.shadow_thickness);
   
   background_height = iheight - 2 * aw->gadget.shadow_thickness;
   background_width = iwidth - 2 * aw->gadget.shadow_thickness;
@@ -549,8 +549,10 @@ Redisplay(
 	XmeDrawShadows (XtDisplay (aw), XtWindow (aw),
 			aw->arrowbutton.top_shadow_GC,
 			aw->arrowbutton.bottom_shadow_GC,
-			aw->rectangle.x + aw->gadget.highlight_thickness,
-			aw->rectangle.y + aw->gadget.highlight_thickness,
+			(Position) ((int) aw->rectangle.x +
+			            (int) aw->gadget.highlight_thickness),
+			(Position) ((int) aw->rectangle.y +
+			            (int) aw->gadget.highlight_thickness),
 			aw->rectangle.width - 2 *
 			aw->gadget.highlight_thickness,
 			aw->rectangle.height-2 *
@@ -1455,6 +1457,7 @@ DrawArrowG(XmArrowButtonGadget ag,
       center_gc = ag->arrowbutton.arrow_GC ;
   if (!center_gc && ag->arrowbutton.detail_shadow_thickness == 1)
     return;
+
   if (center_gc)
     XSetClipMask(XtDisplay((Widget) ag), center_gc, None);
 

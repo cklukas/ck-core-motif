@@ -3,6 +3,7 @@
 
 from pathlib import Path
 
+
 source = Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrwr.c"
 text = source.read_text(encoding="utf-8")
 start = text.index("UrmCWRSetChild (URMResourceContextPtr")
@@ -18,4 +19,4 @@ record = region.find("widgetrec = (RGMWidgetRecordPtr) UrmRCBuffer", guard)
 if record < 0 or record < guard:
     raise SystemExit("child setter does not access the record after validation")
 
-print("PASS Mrm child context validation failures propagate")
+print("Mrm child context validation failures propagate")

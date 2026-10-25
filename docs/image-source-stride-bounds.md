@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Scaled image source bounds
 
 Scaled image conversion reads source pixels directly for the fast 8-bit path

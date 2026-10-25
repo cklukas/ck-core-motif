@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Null render-table lookup
 
 `XmRenderTableGetRendition` now returns `NULL` when passed a null table. This

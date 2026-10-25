@@ -7,10 +7,8 @@ source = (Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmlread.c").read_text(en
 start = source.index("MrmFetchLiteral (MrmHierarchy")
 end = source.index("MrmFetchIconLiteral (MrmHierarchy", start)
 body = source[start:end]
-guard = body.index("if ( value_return == NULL || type_return == NULL )")
-lock = body.index("_MrmDisplayToAppContext", guard)
-if body.index("*value_return = NULL;", guard) > lock:
-    raise SystemExit("value output is initialized after lock setup")
-if body.index("*type_return = 0;", guard) > lock:
-    raise SystemExit("type output is initialized after lock setup")
-print("PASS MrmFetchLiteral validates and initializes its output pointers")
+assert "if ( value_return == NULL || type_return == NULL )" in body
+assert body.index("if ( value_return == NULL || type_return == NULL )") < body.index("_MrmDisplayToAppContext")
+assert body.index("*value_return = NULL;") < body.index("_MrmDisplayToAppContext")
+assert body.index("*type_return = 0;") < body.index("_MrmDisplayToAppContext")
+print("MrmFetchLiteral validates and initializes its output pointers")

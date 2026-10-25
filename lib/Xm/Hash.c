@@ -78,11 +78,12 @@ Hash(XmHashKey x)
 
 /* Hash callbacks historically return a signed value.  Convert it to an
  * unsigned bucket domain before taking the modulo so pointer-derived hashes
- * cannot address a negative bucket on 64-bit hosts. */
+ * cannot address a negative bucket on 64-bit hosts.  Keep the full native
+ * width: narrowing to unsigned int discards upper pointer/hash bits. */
 static Cardinal
 HashIndex(XmHashValue hash, Cardinal size)
 {
-  return (Cardinal)((unsigned int)hash % size);
+  return (Cardinal)((unsigned long)hash % size);
 }
 
 /* Available table sizes,  should be prime numbers */
@@ -183,8 +184,8 @@ _XmResizeHashTable(XmHashTable table, Cardinal new_size)
   /* Replace the bucket array only after the new allocation succeeds. */
   oldsize = table -> size;
   old_buckets = table->buckets;
-  new_buckets = (XmHashBucket *)XtMalloc((size_t)size_table[i] *
-                                         sizeof(*new_buckets));
+  new_buckets = (XmHashBucket *)XtMalloc((Cardinal)((size_t)size_table[i] *
+                                         sizeof(*new_buckets)));
   if (new_buckets == NULL)
     return;
   memcpy(new_buckets, old_buckets,

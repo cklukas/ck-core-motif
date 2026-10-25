@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm pointer-list initialization cleanup
 
 If the pointer-vector allocation fails, `UrmPlistInit` now frees the list

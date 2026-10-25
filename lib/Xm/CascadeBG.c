@@ -530,6 +530,8 @@ ClassInitialize( void )
 
   merged_list = (XtResource *)XtMalloc((sizeof(XtResource) * (wc_num_res +
                                                                  sc_num_res)));
+  if (merged_list == NULL)
+    return;
 
   _XmTransformSubResources(xmLabelGCacheObjClassRec.object_class.resources,
                            sc_num_res, &uncompiled, &num);
@@ -599,6 +601,14 @@ SecondaryObjectCreate(
 
   _XmProcessUnlock();
 
+  if (newSec == NULL || reqSec == NULL) {
+    if (newSec != NULL)
+      _XmExtObjFree(newSec);
+    if (reqSec != NULL)
+      _XmExtObjFree(reqSec);
+    return;
+  }
+
     /*
      * Since the resource lists for label and cascadebutton were merged at
      * ClassInitialize time we need to make only one call to
@@ -626,6 +636,11 @@ SecondaryObjectCreate(
                     args, *num_args );
 
   extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+  if (extData == NULL) {
+    _XmExtObjFree(newSec);
+    _XmExtObjFree(reqSec);
+    return;
+  }
   extData->widget = (Widget)newSec;
   extData->reqWidget = (Widget)reqSec;
 
@@ -700,6 +715,10 @@ InitializePosthook(
     * free the req subobject used for comparisons
     */
     _XmPopWidgetExtData((Widget) cbw, &ext, XmCACHE_EXTENSION);
+    if (ext == NULL) {
+      _XmProcessUnlock();
+      return;
+    }
     _XmExtObjFree((XtPointer) ext->widget);
     _XmExtObjFree((XtPointer) ext->reqWidget);
     XtFree( (char *) ext);
@@ -854,8 +873,10 @@ DrawShadow(
 	 XmeDrawShadows (XtDisplay (cb), XtWindow (XtParent(cb)),
 			LabG_TopShadowGC(cb),
 			LabG_BottomShadowGC(cb),
-			cb->gadget.highlight_thickness + cb->rectangle.x,
-			cb->gadget.highlight_thickness + cb->rectangle.y,
+			(Position) ((int) cb->rectangle.x +
+			    (int) cb->gadget.highlight_thickness),
+			(Position) ((int) cb->rectangle.y +
+			    (int) cb->gadget.highlight_thickness),
 			 cb->rectangle.width - 2 * 
 			cb->gadget.highlight_thickness,
 			 cb->rectangle.height - 2 * 
@@ -875,11 +896,12 @@ DrawCascade(
       if ((LabG_MenuType(cb) == XmMENU_OPTION) &&
 	  (CBG_CascadePixmap(cb) == XmUNSPECIFIED_PIXMAP))
       {
-	 Dimension height, width;
-	 Dimension offset_y;
+	 Dimension height, offset_y;
          Dimension offset_x;
+         int width;
 
-	 switch(CBG_Cascade_height(cb) - 2*G_ShadowThickness(cb)) {
+	 switch((int)CBG_Cascade_height(cb) -
+	        2 * (int)G_ShadowThickness(cb)) {
 	    case 5:
 	    case 6:
 	       height = 1;
@@ -903,8 +925,15 @@ DrawCascade(
 	       width =  CBG_Cascade_width(cb) - 6;
 	       break;
 	 }
-	 width -= 2*G_ShadowThickness(cb);
-	 offset_y =  (CBG_Cascade_height(cb)- height)/2;
+	 width -= 2 * (int)G_ShadowThickness(cb);
+         if (width <= 0 || CBG_Cascade_height(cb) < height ||
+             !XtIsRealized(XtParent(cb)) ||
+             LabG_BackgroundGC(cb) == NULL ||
+             LabG_TopShadowGC(cb) == NULL ||
+             LabG_BottomShadowGC(cb) == NULL ||
+             G_ShadowThickness(cb) == 0)
+             return;
+	 offset_y = (CBG_Cascade_height(cb) - height) / 2;
 
 	 if (LayoutIsRtoLG(cb))
 	   {
@@ -953,13 +982,20 @@ DrawCascade(
 	      (CBG_ArmedPixmap(cb) != XmUNSPECIFIED_PIXMAP) ?
 		  CBG_ArmedPixmap(cb) : CBG_CascadePixmap(cb) ;
 
-	  XmeGetPixmapData(XtScreen(cb),
-			   pixmap,
-			   NULL,    
-			   &depth,
-			   NULL, NULL,
-			   NULL, NULL,
-			   NULL, NULL);
+	  if (!XtIsRealized(XtParent(cb)) ||
+	      CBG_Cascade_height(cb) == 0 ||
+	      pixmap == XmUNSPECIFIED_PIXMAP ||
+	      LabG_NormalGC(cb) == NULL)
+	      return;
+
+	  if (!XmeGetPixmapData(XtScreen(cb),
+				 pixmap,
+				 NULL,
+				 &depth,
+				 NULL, NULL,
+				 NULL, NULL,
+				 NULL, NULL))
+	      return;
 
 	  if (depth <= 0)
 	      return;
@@ -991,28 +1027,39 @@ static void
 position_cascade(
         XmCascadeButtonGadget cascadebtn )
 {
-   Dimension buffer;
+   int x, y, buffer, available_height;
 
    if (CBG_HasCascade(cascadebtn))
    { 
       if (LayoutIsRtoLG(cascadebtn))
-         CBG_Cascade_x(cascadebtn) = cascadebtn->gadget.highlight_thickness +
-                                     cascadebtn->gadget.shadow_thickness +
-                                     LabG_MarginWidth(cascadebtn);
+         x = (int)cascadebtn->gadget.highlight_thickness +
+             (int)cascadebtn->gadget.shadow_thickness +
+             (int)LabG_MarginWidth(cascadebtn);
       else
-	CBG_Cascade_x(cascadebtn) = cascadebtn->rectangle.width -
-	                            cascadebtn->gadget.highlight_thickness -
-	                            cascadebtn->gadget.shadow_thickness -
-	                            LabG_MarginWidth(cascadebtn) -
-		                    CBG_Cascade_width(cascadebtn);
+	x = (int)cascadebtn->rectangle.width -
+	    (int)cascadebtn->gadget.highlight_thickness -
+	    (int)cascadebtn->gadget.shadow_thickness -
+	    (int)LabG_MarginWidth(cascadebtn) -
+	    (int)CBG_Cascade_width(cascadebtn);
 
-      buffer = cascadebtn->gadget.highlight_thickness +
-             cascadebtn->gadget.shadow_thickness +
-             LabG_MarginHeight(cascadebtn);
+      if (x < INT16_MIN)
+	x = INT16_MIN;
+      else if (x > INT16_MAX)
+	x = INT16_MAX;
+      CBG_Cascade_x(cascadebtn) = (Position)x;
 
-      CBG_Cascade_y(cascadebtn) = buffer +
-                               ((cascadebtn->rectangle.height -  2*buffer) -
-                                CBG_Cascade_height(cascadebtn)) / 2;
+      buffer = (int)cascadebtn->gadget.highlight_thickness +
+             (int)cascadebtn->gadget.shadow_thickness +
+             (int)LabG_MarginHeight(cascadebtn);
+      available_height = (int)cascadebtn->rectangle.height -
+                         (2 * buffer) -
+                         (int)CBG_Cascade_height(cascadebtn);
+      y = buffer + (available_height > 0 ? available_height / 2 : 0);
+      if (y < INT16_MIN)
+	y = INT16_MIN;
+      else if (y > INT16_MAX)
+	y = INT16_MAX;
+      CBG_Cascade_y(cascadebtn) = (Position)y;
    }
    else
    {
@@ -1500,12 +1547,14 @@ Disarm(
 		 XmeDrawHighlight(XtDisplay(cb),
 				  XtWindow(cb), 
 				  LabG_BackgroundGC(cb), 
-			    cb->gadget.highlight_thickness + cb->rectangle.x,
-			    cb->gadget.highlight_thickness + cb->rectangle.y,
-				  cb->rectangle.width - 2 * 
-				  cb->gadget.highlight_thickness,
-				  cb->rectangle.height - 2 * 
-				  cb->gadget.highlight_thickness,
+			    (Position) ((int) cb->rectangle.x +
+				(int) cb->gadget.highlight_thickness),
+			    (Position) ((int) cb->rectangle.y +
+				(int) cb->gadget.highlight_thickness),
+				  (int) cb->rectangle.width -
+				  2 * (int) cb->gadget.highlight_thickness,
+				  (int) cb->rectangle.height -
+				  2 * (int) cb->gadget.highlight_thickness,
 				  cb->gadget.shadow_thickness);
 	 }
       }
@@ -2371,6 +2420,14 @@ SetValuesPrehook(
 
     _XmProcessUnlock();
 
+    if (newSec == NULL || reqSec == NULL) {
+        if (newSec != NULL)
+            _XmExtObjFree((XtPointer)newSec);
+        if (reqSec != NULL)
+            _XmExtObjFree((XtPointer)reqSec);
+        return FALSE;
+    }
+
     newSec->object.self = (Widget)newSec;
     newSec->object.widget_class = ec;
     newSec->object.parent = XtParent(newParent);
@@ -2391,6 +2448,11 @@ SetValuesPrehook(
             sizeof(XmCascadeButtonGCacheObjPart));
 
     extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+    if (extData == NULL) {
+        _XmExtObjFree((XtPointer)newSec);
+        _XmExtObjFree((XtPointer)reqSec);
+        return FALSE;
+    }
     extData->widget = (Widget)newSec;
     extData->reqWidget = (Widget)reqSec;
     _XmPushWidgetExtData(newParent, extData, XmCACHE_EXTENSION);
@@ -2455,6 +2517,9 @@ GetValuesPrehook(
     newSec = (XmCascadeButtonGCacheObject)_XmExtObjAlloc(size);
     _XmProcessUnlock();
 
+    if (newSec == NULL)
+        return;
+
     newSec->object.self = (Widget)newSec;
     newSec->object.widget_class = ec;
     newSec->object.parent = XtParent(newParent);
@@ -2475,6 +2540,10 @@ GetValuesPrehook(
             sizeof(XmCascadeButtonGCacheObjPart));
 
     extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+    if (extData == NULL) {
+        _XmExtObjFree((XtPointer)newSec);
+        return;
+    }
     extData->widget = (Widget)newSec;
     _XmPushWidgetExtData(newParent, extData, XmCACHE_EXTENSION);
 
@@ -2517,6 +2586,9 @@ GetValuesPosthook(
     XmWidgetExtData             ext;
 
     _XmPopWidgetExtData(new_w, &ext, XmCACHE_EXTENSION);
+
+    if (ext == NULL)
+        return;
 
     _XmProcessLock();
     _XmExtObjFree((XtPointer) ext->widget);
@@ -2574,6 +2646,11 @@ SetValuesPosthook(
       CBG_Cache(new_w) = CBG_Cache(current);
 
   _XmPopWidgetExtData(new_w, &ext, XmCACHE_EXTENSION);
+
+  if (ext == NULL) {
+    _XmProcessUnlock();
+    return FALSE;
+  }
 
   _XmExtObjFree((XtPointer) ext->widget);
   _XmExtObjFree((XtPointer) ext->reqWidget);

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xmos default resource path bounds
 
 `_XmOSInitPath` expands the default and `XAPPLRES` resource search templates

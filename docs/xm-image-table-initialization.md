@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm image-table initialization
 
 `InitializeImageSet` now constructs the built-in image hash table privately and

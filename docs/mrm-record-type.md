@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm record-type validation
 
 `Idb__BM_InitRecord` updates the per-file record-type counters after creating a

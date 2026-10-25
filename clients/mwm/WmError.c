@@ -40,6 +40,7 @@ static char rcsid[] = "$XConsortium: WmError.c /main/6 1996/10/07 14:27:34 drk $
 
 #include "WmGlobal.h"
 #include <stdio.h>
+#include <limits.h>
 #ifdef WSM
 #include <Dt/UserMsg.h>
 #endif /* WSM */
@@ -116,7 +117,8 @@ WmInitErrorHandler (Display *display)
 			       pchErrorFormatNames[i], 
 			       pchDefaultErrorFormat[i], buffer, BUFSIZ);
 
-	if ((pchErrorFormat[i] = (char *) XtMalloc (1+strlen(buffer))) == NULL)
+	if (strlen(buffer) >= UINT_MAX ||
+	    (pchErrorFormat[i] = (char *)XtMalloc((Cardinal)(strlen(buffer) + 1))) == NULL)
 	{
 	    Warning ("Insufficient memory for error message initialization.");
 	    ExitWM (1);
@@ -245,8 +247,9 @@ WmXIOErrorHandler (Display *display)
       displayName = "";
   messageLength = snprintf(NULL, 0, "%s: %s\n",
                            "I/O error on display:", displayName);
-  message = (messageLength >= 0) ?
-      (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+  message = (messageLength >= 0 &&
+	     (unsigned int)messageLength < UINT_MAX) ?
+	  (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
   if (message != NULL)
   {
       (void)snprintf(message, (size_t)messageLength + 1,
@@ -348,8 +351,9 @@ Warning (char *message)
     if (message == NULL)
         message = "";
     messageLength = snprintf(NULL, 0, "%s: %s\n", managerName, message);
-    formattedMessage = (messageLength >= 0) ?
-        (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+    formattedMessage = (messageLength >= 0 &&
+			(unsigned int)messageLength < UINT_MAX) ?
+        (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
     if (formattedMessage == NULL)
     {
         _DtSimpleError(wmGD.mwmName, DtIgnore, NULL,

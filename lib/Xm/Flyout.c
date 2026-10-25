@@ -80,8 +80,10 @@ static void position_popup(XmFlyoutWidget flyout) {
     max_y = HeightOfScreen(screen) - (int)popup_height;
     if (x < 0) x = 0;
     if (y < 0) y = 0;
-    if (max_x >= 0 && x > max_x) x = (Position)max_x;
-    if (max_y >= 0 && y > max_y) y = (Position)max_y;
+    if (max_x < 0) x = 0;
+    else if (x > max_x) x = (Position)max_x;
+    if (max_y < 0) y = 0;
+    else if (y > max_y) y = (Position)max_y;
     XtVaSetValues(shell, XtNx, x, XtNy, y, NULL);
 }
 
@@ -99,10 +101,22 @@ static void create_popup(XmFlyoutWidget flyout) {
     XtSetArg(args[count], XmNtransientFor, XtWindow(parent_shell)); ++count;
     flyout->flyout.popup_shell = XtCreatePopupShell(
         "flyoutShell", overrideShellWidgetClass, parent_shell, args, count);
+    if (!flyout->flyout.popup_shell) return;
     label_string = XmStringCreateLocalized(flyout->flyout.text ?
                                            flyout->flyout.text : "");
+    if (!label_string) {
+        XtDestroyWidget(flyout->flyout.popup_shell);
+        flyout->flyout.popup_shell = NULL;
+        return;
+    }
     flyout->flyout.label = XmCreateLabel(flyout->flyout.popup_shell,
                                          (char *)"flyoutLabel", NULL, 0);
+    if (!flyout->flyout.label) {
+        XmStringFree(label_string);
+        XtDestroyWidget(flyout->flyout.popup_shell);
+        flyout->flyout.popup_shell = NULL;
+        return;
+    }
     XtVaSetValues(flyout->flyout.label, XmNlabelString, label_string, NULL);
     XmStringFree(label_string);
     XtManageChild(flyout->flyout.label);
@@ -186,6 +200,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     if (flyout->flyout.label && old->flyout.text != flyout->flyout.text) {
         label_string = XmStringCreateLocalized(flyout->flyout.text ?
                                                flyout->flyout.text : "");
+        if (!label_string) return False;
         XtVaSetValues(flyout->flyout.label, XmNlabelString, label_string, NULL);
         XmStringFree(label_string);
     }

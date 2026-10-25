@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm file-open input validation
 
 The low-level Mrm file opener now rejects null filename, output-name, and file

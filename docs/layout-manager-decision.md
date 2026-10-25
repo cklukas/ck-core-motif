@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WP-12 layout-manager decision
 
 WP-12 is an opt-in escape hatch, not a reason to replace `XmForm`.  The

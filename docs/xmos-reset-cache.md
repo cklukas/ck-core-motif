@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xmos cache reset allocation
 
 Resetting the file-selection directory cache now checks the path-buffer

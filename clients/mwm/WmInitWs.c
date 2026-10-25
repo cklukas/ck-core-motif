@@ -52,6 +52,9 @@ static char rcsid[] = "$TOG: WmInitWs.c /main/18 1999/09/20 15:18:22 mgreess $"
 #include "WmOL.h"
 #endif /* NO_OL_COMPAT */
 #include <X11/Xos.h>
+#include <limits.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <X11/cursorfont.h>
 #include <Xm/Xm.h>
 #include <X11/Shell.h>
@@ -503,6 +506,12 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
     XtToolkitInitialize();
 
     wmGD.mwmAppContext = XtCreateApplicationContext();
+    if (wmGD.mwmAppContext == NULL)
+    {
+        Warning ("Cannot create the MWM application context");
+        ExitWM (WM_ERROR_EXIT_VALUE);
+        return;
+    }
     AddWmResourceConverters ();
     wmGD.display = XtOpenDisplay (wmGD.mwmAppContext,
 				  NULL,
@@ -517,6 +526,7 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
     {
 	Warning(((char *)GETMESSAGE(40, 1, "Could not open display.")));
 	ExitWM (WM_ERROR_EXIT_VALUE);
+	return;
     }
 
 #if defined(sun) && defined(ALLPLANES)
@@ -628,6 +638,13 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 			      args,
 			      argnum);
 
+    if (wmGD.topLevelW == NULL)
+    {
+        Warning ("Cannot create the MWM application shell");
+        ExitWM (WM_ERROR_EXIT_VALUE);
+        return;
+    }
+
 #ifdef __osf__
     _XmColorObjCreate ( wmGD.topLevelW, NULL, NULL);
     _XmColorObjCreate ( wmGD.topLevelW, NULL, NULL);
@@ -722,8 +739,9 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
                 const char *format = (char *)GETMESSAGE(40, 3,
                     "Another window manager is running on screen %d");
                 int messageLength = snprintf(NULL, 0, format, sNum);
-                char *message = (messageLength >= 0) ?
-                    (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+                char *message = (messageLength >= 0 &&
+					 (unsigned int)messageLength < UINT_MAX) ?
+                    (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
                 if (message != NULL)
                 {
@@ -831,6 +849,7 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 			ShowWaitState (FALSE);
 			Warning(((char *)GETMESSAGE(40, 4, "Could not open second display connection.")));
 			ExitWM (WM_ERROR_EXIT_VALUE);
+			    return;
 		    }
 
 		    _DtGetSmWindow(DISPLAY, 
@@ -867,6 +886,13 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 					  DISPLAY1,
 					  args,
 					  argnum);
+
+		    if (wmGD.topLevelW1 == NULL)
+		    {
+			Warning ("Cannot create the secondary MWM application shell");
+			ExitWM (WM_ERROR_EXIT_VALUE);
+			return;
+		    }
 
 #endif /* WSM */
 		    
@@ -1344,6 +1370,8 @@ InitWmScreen (WmScreenData *pSD, int sNum)
     char *displayName;
     char *token1, *token2;
     size_t displayNameLength;
+    size_t bufferLength;
+    int renderedLength;
 
 
    /*
@@ -1494,6 +1522,13 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 					       args,
 					       argnum);
 
+    if (pSD->screenTopLevelW == NULL)
+    {
+        Warning ("Cannot create the screen resource shell");
+        ExitWM (WM_ERROR_EXIT_VALUE);
+        return;
+    }
+
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
     /* Create a DrawingArea as a child of the popupShell.  This will be used
      * to handle UTM traffic relating to cci.  We need this
@@ -1502,14 +1537,17 @@ InitWmScreen (WmScreenData *pSD, int sNum)
      */
     pSD->utmShell = XmCreateDrawingArea(pSD->screenTopLevelW, "UTM_Shell",
 					NULL, 0);
-    XtManageChild(pSD->utmShell);
+    if (pSD->utmShell != NULL)
+    {
+        XtManageChild(pSD->utmShell);
 
     /*
      * Setup the destinationCallback handler to handle conversion
      * requests made by Mwm against other clients.
      */
-    XtAddCallback(pSD->utmShell, XmNdestinationCallback, UTMDestinationProc,
-		  NULL);
+        XtAddCallback(pSD->utmShell, XmNdestinationCallback, UTMDestinationProc,
+		      NULL);
+    }
 
     /* Must realize to own WM_i if unmapped, causes mwm to
        freeze when menu is displayed. */
@@ -1538,6 +1576,12 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 					       wmGD.topLevelW1,
 					       args,
 					       argnum);
+    if (pSD->screenTopLevelW1 == NULL)
+    {
+        Warning ("Cannot create the secondary screen resource shell");
+        ExitWM (WM_ERROR_EXIT_VALUE);
+        return;
+    }
     XtRealizeWidget (pSD->screenTopLevelW1);
 #endif /* WSM */
     /*
@@ -1622,8 +1666,16 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 
     pDisplayName = DisplayString (DISPLAY);
     displayNameLength = strlen(pDisplayName) + 1;
-    displayName = (char *)XtMalloc((unsigned int)displayNameLength);
-    buffer = (char *)XtMalloc((unsigned int)(displayNameLength + 64));
+    if (displayNameLength > SIZE_MAX - 64 ||
+        displayNameLength + 64 > UINT_MAX)
+    {
+        Warning (((char *)GETMESSAGE(40, 9,
+                                "Display string is too long")));
+        return;
+    }
+    bufferLength = displayNameLength + 64;
+    displayName = (char *)XtMalloc((Cardinal)displayNameLength);
+    buffer = (char *)XtMalloc((Cardinal)bufferLength);
     if (displayName == NULL || buffer == NULL)
     {
         if (displayName != NULL)
@@ -1644,14 +1696,21 @@ InitWmScreen (WmScreenData *pSD, int sNum)
        (token2 = (char*)strtok(NULL, "")) ||
        (displayName[0] == ':'))
     {
+	renderedLength = 0;
 	if (displayName[0] == ':')		/* local dpy (special case) */
 	{
 	    if ((token2 = (char*)strtok(token1, ".")) != NULL)	/* parse dpy# */
-		sprintf(buffer, "DISPLAY=:%s.%d",
+		renderedLength = snprintf(buffer, bufferLength, "DISPLAY=:%s.%d",
 			token2,	sNum);
 	} else {				/* otherwise process normally */
-	    sprintf(buffer, "DISPLAY=%s:%s.%d",
+	    renderedLength = snprintf(buffer, bufferLength, "DISPLAY=%s:%s.%d",
 		    token1, token2, sNum);
+	}
+	if (renderedLength < 0 || (size_t)renderedLength >= bufferLength)
+	{
+	    Warning (((char *)GETMESSAGE(40, 9,
+	                            "Display string is too long")));
+	    goto display_string_cleanup;
 	}
 
 	/*		
@@ -1659,7 +1718,7 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 	 */
     
 	if ((pSD->displayString =
-	     (String)XtMalloc ((unsigned int) (strlen(buffer) + 1))) == NULL)
+	     (String)XtMalloc ((Cardinal)(strlen(buffer) + 1))) == NULL)
 	{
 	    Warning (((char *)GETMESSAGE(40, 9, 
 				    "Insufficient memory for displayString")));
@@ -1671,8 +1730,9 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 
     }
 
-    XtFree(buffer);
-    XtFree(displayName);
+display_string_cleanup:
+	XtFree(buffer);
+	XtFree(displayName);
 
 } /* END OF FUNCTION  InitWmScreen */
 
@@ -1745,6 +1805,12 @@ void InitWmWorkspace (WmWorkspaceData *pWS, WmScreenData *pSD)
 					   	args,
 						argnum);
 
+    if (pWS->workspaceTopLevelW == NULL)
+    {
+        Warning ("Cannot create the workspace resource widget");
+        return;
+    }
+
 #ifdef WSM
     /* internalize the workspace name */
     pWS->id = XInternAtom (DISPLAY, pWS->name, False);
@@ -1798,29 +1864,29 @@ void InitWmWorkspace (WmWorkspaceData *pWS, WmScreenData *pSD)
 static void
 InsureDefaultBackdropDir(char **ppchBackdropDirs)
 {
-  int len;
   Boolean bFound = False;
   char *pch, *pchEnd, *pch2, *tmpptr;
-  char *pchD = DEFAULT_BACKDROP_DIR;
+  const char *pchD = DEFAULT_BACKDROP_DIR;
   unsigned int chlen;
-  char * homeDir;
+  size_t pchDLength;
+  char *homeDir;
 
   /*
    * Set up initial stuff
    */
   pch = *ppchBackdropDirs;
-  len = strlen (pchD);
+  pchDLength = strlen (pchD);
   pchEnd = pch + strlen(pch);
   
   while (!bFound && (pch != NULL) && (*pch != NULL))
     {
-      if (strncmp (pch, pchD, len) == 0)
+      if (strncmp (pch, pchD, pchDLength) == 0)
 	{
 	  /* found partial match, confirm complete match ...
 	   * complete match if char off end of partial match
 	   * is a NULL or a colon 
 	   */
-	  pch2 = pch + len;	
+	  pch2 = pch + pchDLength;
 	  if ((pch2 <= pchEnd) &&
 	      ((*pch2 == NULL) ||
 	       (((mblen (pch2, MB_CUR_MAX) == 1) &&
@@ -1844,48 +1910,55 @@ InsureDefaultBackdropDir(char **ppchBackdropDirs)
   
 
   /*
-   * Always add the user's home directory to the beginning of the string
+   * Always add the user's home directory to the beginning of the string.
+   * Compute the result first so long resource values cannot wrap an int or
+   * make the later copies overrun the allocation.
    */
-  homeDir = (char *) XmeGetHomeDirName();  
-    
-  /*
-   * If found add the user's home directory ($HOME/.dt/backdrops) and the 
-   * admin directory /etc/dt/backdrops to the beginning of the string
-   */
-  
-  if (bFound)  
-    {
-      len = strlen (homeDir) + strlen("/.dt/backdrops") + 
-	    strlen (*ppchBackdropDirs) + strlen("/etc/dt/backdrops") + 3;
-      tmpptr = XtMalloc (len * sizeof (char *));
-      strcpy (tmpptr, homeDir);
-      strcat (tmpptr, "/.dt/backdrops");
-      strcat (tmpptr, ":");
-      strcat (tmpptr, "/etc/dt/backdrops");
-      strcat (tmpptr, ":");
-      strcat (tmpptr, *ppchBackdropDirs);
+  homeDir = (char *) XmeGetHomeDirName();
+  {
+      const char *existing = (*ppchBackdropDirs != NULL) ?
+          *ppchBackdropDirs : "";
+      const char *format = bFound ?
+          "%s/.dt/backdrops:/etc/dt/backdrops:%s" :
+          "%s/.dt/backdrops:%s:/etc/dt/backdrops:%s";
+      int formattedLength;
+
+      if (bFound)
+      {
+          formattedLength = snprintf(NULL, 0, format, homeDir, existing);
+      }
+      else
+      {
+          formattedLength = snprintf(NULL, 0, format, homeDir, existing,
+                                      pchD);
+      }
+      if (formattedLength < 0 || (size_t)formattedLength >= UINT_MAX)
+      {
+          Warning("Backdrop search path is too long");
+          return;
+      }
+
+      tmpptr = (char *)XtMalloc((Cardinal)formattedLength + 1);
+      if (tmpptr == NULL)
+      {
+          Warning("Insufficient memory for backdrop search path");
+          return;
+      }
+      if (bFound)
+      {
+          (void)snprintf(tmpptr, (size_t)formattedLength + 1, format,
+                         homeDir, existing);
+      }
+      else
+      {
+          (void)snprintf(tmpptr, (size_t)formattedLength + 1, format,
+                         homeDir, existing, pchD);
+      }
+      if (*ppchBackdropDirs != NULL)
+          XtFree(*ppchBackdropDirs);
       *ppchBackdropDirs = tmpptr;
-    }
-  else
-    /*
-     * If string not found, then add home directory to the beginning of 
-     * string and the admin directory and system directory to the end.
-     */
-    {
-      len = strlen (homeDir) + strlen("/.dt/backdrops") + 
-	    strlen (*ppchBackdropDirs) + strlen(pchD) + 
-	    strlen("/etc/dt/backdrops") + 4;
-      tmpptr = XtMalloc (len * sizeof (char *));
-      strcpy (tmpptr, homeDir);
-      strcat (tmpptr, "/.dt/backdrops");
-      strcat (tmpptr, ":");
-      strcat (tmpptr, *ppchBackdropDirs); 
-      strcat (tmpptr, ":");
-      strcat (tmpptr, "/etc/dt/backdrops"); 
-      strcat (tmpptr, ":");
-      strcat (tmpptr, pchD);
-      *ppchBackdropDirs = tmpptr;
-    }
+  }
+
   
 } /* END OF FUNCTION InsureDefaultBackdropDirs */
 #endif /* WSM */
@@ -2250,7 +2323,8 @@ void CopyArgv (int argc, char *argv [])
     int i;
 
 
-    if ((wmGD.argv = (char **)XtMalloc ((argc + 1) * sizeof (char *))) == NULL)
+	if (argc < 0 || (size_t)argc + 1 > UINT_MAX / sizeof(char *) ||
+	    (wmGD.argv = (char **)XtMalloc ((Cardinal)(((size_t)argc + 1) * sizeof(char *)))) == NULL)
     {
 	Warning (((char *)GETMESSAGE(40, 10, "Insufficient memory for window manager data")));
 	wmGD.argv = argv;
@@ -2266,7 +2340,8 @@ void CopyArgv (int argc, char *argv [])
 	}
 	wmGD.argv[i] = NULL;
 #ifdef WSM
-	if ((dpy2Argv = (char **)XtMalloc((argc + 1) * sizeof(char *))) == NULL)
+	if (argc < 0 || (size_t)argc + 1 > UINT_MAX / sizeof(char *) ||
+	    (dpy2Argv = (char **)XtMalloc((Cardinal)(((size_t)argc + 1) * sizeof(char *)))) == NULL)
 	{
 	    Warning (((char *)GETMESSAGE(40, 11, "Insufficient memory for window manager data")));
 	    dpy2Argv = argv;
@@ -2339,6 +2414,19 @@ void InitScreenNames (void)
 }
 #ifndef NO_MESSAGE_CATALOG
 
+static char *
+AllocateNlsString(const char *value)
+{
+    size_t length;
+
+    if (value == NULL)
+        return NULL;
+    length = strlen(value);
+    if (length >= UINT_MAX)
+        return NULL;
+    return (char *)XtMalloc((Cardinal)length + 1);
+}
+
 
 void InitNlsStrings (void)
 {
@@ -2360,7 +2448,7 @@ void InitNlsStrings (void)
 
     tmpString = ((char *)GETMESSAGE(40, 14, "Icons"));
     if ((wmNLS.default_icon_box_title =
-	 (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+	 AllocateNlsString(tmpString)) == NULL)
     {
 	Warning (((char *)GETMESSAGE(40, 15, "Insufficient memory for local message string")));
 	wmNLS.default_icon_box_title = "Icons";
@@ -2373,7 +2461,7 @@ void InitNlsStrings (void)
 #ifdef WSM
     tmpString = ((char *)GETMESSAGE(40, 20, "%s: %s on line %d of configuration file %s\n"));
     if ((pWarningStringFile =
-	 (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+	 AllocateNlsString(tmpString)) == NULL)
     {
 	Warning (((char *)GETMESSAGE(40, 17, "Insufficient memory for local message string")));
 	pWarningStringFile = "%s: %s on line %d of configuration file %s\n";
@@ -2385,7 +2473,7 @@ void InitNlsStrings (void)
 
     tmpString = ((char *)GETMESSAGE(40, 21, "%s: %s on line %d of specification string\n"));
     if ((pWarningStringLine =
-	 (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+	 AllocateNlsString(tmpString)) == NULL)
     {
 	Warning (((char *)GETMESSAGE(40, 19, "Insufficient memory for local message string")));
 	pWarningStringLine = "%s: %s on line %d of specification string\n";
@@ -2398,7 +2486,7 @@ void InitNlsStrings (void)
 
     tmpString = ((char *)GETMESSAGE(40, 22, "About Workspace Manager"));
     if ((wmNLS.defaultVersionTitle =
-	 (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+	 AllocateNlsString(tmpString)) == NULL)
     {
 	Warning (((char *)GETMESSAGE(40, 15, "Insufficient memory for local message string")));
 	wmNLS.defaultVersionTitle = "About Workspace Manager";
@@ -2410,7 +2498,7 @@ void InitNlsStrings (void)
 
     tmpString = ((char *)GETMESSAGE(40, 23, "Workspace Manager - Help"));
     if ((wmNLS.defaultDtwmHelpTitle =
-	 (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+	 AllocateNlsString(tmpString)) == NULL)
     {
 	Warning (((char *)GETMESSAGE(40, 15, "Insufficient memory for local message string")));
 	wmNLS.defaultDtwmHelpTitle = "Workspace Manager - Help";
@@ -2422,7 +2510,7 @@ void InitNlsStrings (void)
 
     tmpString = ((char *)GETMESSAGE(40, 24, "Workspace Manager - Help"));
     if ((wmNLS.defaultHelpTitle =
-	 (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+	 AllocateNlsString(tmpString)) == NULL)
     {
 	Warning (((char *)GETMESSAGE(40, 15, "Insufficient memory for local message string")));
 	wmNLS.defaultHelpTitle = "Workspace Manager - Help";
@@ -2459,12 +2547,26 @@ InitWmDisplayEnv (void)
 {
     const char *pDisplayName;
     size_t displayLength;
+    size_t displayNameLength;
 
     pDisplayName = DisplayString (DISPLAY);
-    displayLength = strlen(pDisplayName) + strlen("DISPLAY=") + 1;
+    displayNameLength = strlen(pDisplayName);
+    if (displayNameLength > SIZE_MAX - strlen("DISPLAY=") - 1)
+    {
+	Warning (((char *)GETMESSAGE(40, 9,
+				     "Display string is too long")));
+	return;
+    }
+    displayLength = displayNameLength + strlen("DISPLAY=") + 1;
+    if (displayLength > UINT_MAX)
+    {
+	Warning (((char *)GETMESSAGE(40, 9,
+				     "Display string is too long")));
+	return;
+    }
 
     /* Allocate the persistent environment value at its exact size. */
-    if ((wmGD.displayString = (String)XtMalloc((unsigned int)displayLength)) == NULL)
+    if ((wmGD.displayString = (String)XtMalloc((Cardinal)displayLength)) == NULL)
     {
 	wmGD.displayString = NULL;
         Warning (((char *)GETMESSAGE(40, 9,
@@ -2495,14 +2597,23 @@ GetReplacementList(
   KeySym *key_map ; 
   unsigned i ;
   str_xref xref_rtn = NULL ;
+  str_xref resized ;
   unsigned num_xref = 0 ;
 
-  XDisplayKeycodes( dsp, &min_kc, &max_kc) ;
-  kc_count = max_kc + 1 - min_kc ;
+  if (!XDisplayKeycodes(dsp, &min_kc, &max_kc) ||
+      max_kc < min_kc ||
+      (long)max_kc - (long)min_kc + 1 > INT_MAX)
+    return NULL;
+  kc_count = (int)((long)max_kc - (long)min_kc + 1);
   key_map = XGetKeyboardMapping( dsp, min_kc, kc_count, &ks_per_kc) ;
   if(    key_map == NULL    )
     {
       return NULL ;
+    }
+  if (ks_per_kc <= 0 || kc_count > INT_MAX / ks_per_kc)
+    {
+      XFree((char *)key_map);
+      return NULL;
     }
   kc_count *= ks_per_kc ;
 
@@ -2529,8 +2640,22 @@ GetReplacementList(
            *   returned list which will later cause replacement in
            *   virtkeys table.
            */
-          xref_rtn = (str_xref) XtRealloc( (char *) xref_rtn,
-                                      sizeof( str_xref_rec) * (num_xref + 2)) ;
+          if ((size_t)num_xref > UINT_MAX / sizeof(str_xref_rec) - 2)
+            {
+              XtFree((char *)xref_rtn);
+              XFree((char *)key_map);
+              return NULL;
+            }
+          resized = (str_xref) XtRealloc((char *)xref_rtn,
+                              (Cardinal)(sizeof(str_xref_rec) *
+                                          ((size_t)num_xref + 2)));
+          if (resized == NULL)
+            {
+              XtFree((char *)xref_rtn);
+              XFree((char *)key_map);
+              return NULL;
+            }
+          xref_rtn = resized;
           xref_rtn[num_xref++] = std_xref[i] ;
           xref_rtn[num_xref].default_name = NULL ;
         }
@@ -2605,17 +2730,28 @@ FixupBindingsString(
       if(    (strpbrk( (ks_ptr - 1), " \t>") == (ks_ptr - 1))
           && (strpbrk( ks_ptr, " \t\n") == (ks_ptr + orig_len))    )
         {
-          unsigned new_len = strlen( repl_xref->new_name) ;
-          unsigned suffix_len = strlen( ks_ptr + orig_len) ;
+          size_t new_len = strlen( repl_xref->new_name) ;
+          size_t suffix_len = strlen( ks_ptr + orig_len) ;
 
           if(    new_len > orig_len    )
             {
-              unsigned new_ttl_len = strlen( fixed_str) + new_len - orig_len ;
-              unsigned prefix_len ;
+              size_t prefix_len = (size_t)(ks_ptr - fixed_str);
+              size_t old_len = prefix_len + orig_len + suffix_len;
+              size_t new_ttl_len;
+              String resized;
 
-              *ks_ptr = '\0' ;
-              prefix_len = strlen( fixed_str) ;
-              fixed_str = XtRealloc( fixed_str, (new_ttl_len + 1)) ;
+              if (prefix_len > SIZE_MAX - orig_len ||
+                  prefix_len + orig_len > SIZE_MAX - suffix_len ||
+                  old_len > SIZE_MAX - (new_len - orig_len) ||
+                  old_len + (new_len - orig_len) == SIZE_MAX)
+                return fixed_str;
+              new_ttl_len = old_len + (new_len - orig_len);
+              if (new_ttl_len + 1 > (size_t)UINT_MAX)
+                return fixed_str;
+              resized = XtRealloc(fixed_str, (Cardinal)(new_ttl_len + 1));
+              if (resized == NULL)
+                return fixed_str;
+              fixed_str = resized;
               ks_ptr = fixed_str + prefix_len ;
             }
           memmove( (ks_ptr + new_len), (ks_ptr + orig_len), (suffix_len + 1)) ;
@@ -2664,6 +2800,11 @@ VirtKeys4DIN(
     }
 
   prop_atoms = (Atom *) XtMalloc( sizeof( Atom) * num_props) ;
+  if (prop_atoms == NULL)
+    {
+      XtFree( (char *) vkeysym_xref) ;
+      return PropChanged4DIN ;
+    }
   XInternAtoms(dsp, prop_names, num_props, FALSE, prop_atoms);
 
   prop_existed = FALSE ;

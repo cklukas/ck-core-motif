@@ -1,10 +1,12 @@
-# Mrm resource-tag lookup failures
+---
+nav_exclude: true
+---
+# Mrm resource-tag lookup failure handling
 
-When an argument tag uses a compressed resource code, a failed
-`Urm__UncompressCode` lookup now stops processing that argument immediately
-after reporting the error. The invalid lookup result is no longer passed to
-string comparison or later resource conversion, while valid tags retain their
-existing behavior.
+When compressed resource-tag lookup fails, `Urm__CW_CreateArglist` now skips
+the malformed argument immediately after reporting the lookup error.  It no
+longer falls through to `strcmp` with an unset resource-name pointer.  Valid
+compressed and unknown tags retain their existing conversion behavior.
 
-The source-level regression check is
+The source-level regression is
 `tests/automated/check-mrm-resource-tag-lookup-failure.py`.

@@ -1,8 +1,9 @@
+---
+nav_exclude: true
+---
 # IconGadget container-trait validation
 
-IconGadget now validates the resolved container and its `getValues` callback
-before trait dispatch. Missing parents or partial traits retain safe defaults
-instead of dereferencing null callback pointers.
-
-The regression check is
-`tests/automated/check-icong-container-trait.py`.
+IconGadget now checks that its container-parent hook returns a widget and that
+the container trait provides `getValues` before using it. Color lookup keeps
+its existing fallback colors when the optional trait is absent or partial.
+This protects custom container implementations without changing the trait ABI.

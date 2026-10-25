@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Render-table numeric token parsing
 
 The render-table lexer now handles two malformed numeric cases safely.  An

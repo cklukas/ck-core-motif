@@ -94,10 +94,18 @@ DrawCheckMark(Display *display,
   XGCValues old_values, new_values;
   XtGCMask mask;
   XPoint check[XtNumber(check_template)];
-  float scale_x = (width - 2 * margin - 1) / (float)CHECK_TEMPLATE_WIDTH;
-  float scale_y = (height - 2 * margin - 1) / (float)CHECK_TEMPLATE_HEIGHT;
+  int inner_width = (int) width - 2 * (int) margin - 1;
+  int inner_height = (int) height - 2 * (int) margin - 1;
+  float scale_x;
+  float scale_y;
   int npoints = XtNumber(check_template);
   int i;
+
+  if (inner_width < 1 || inner_height < 1)
+    return;
+
+  scale_x = inner_width / (float)CHECK_TEMPLATE_WIDTH;
+  scale_y = inner_height / (float)CHECK_TEMPLATE_HEIGHT;
 
   /* Scale and translate the glyph to the desired area. */
   for (i = 0; i < npoints; i++)
@@ -129,13 +137,17 @@ DrawCross(Display *display,
 	  Dimension height,
 	  Dimension margin)
 {
-  Position left   = x + margin;
-  Position right  = x + width - margin - 1;
-  Position top    = y + margin;
-  Position bottom = y + height - margin - 1;
+  int left   = (int) x + (int) margin;
+  int right  = (int) x + (int) width - (int) margin - 1;
+  int top    = (int) y + (int) margin;
+  int bottom = (int) y + (int) height - (int) margin - 1;
 
   XSegment segs[6];
   Cardinal nsegs = 0;
+
+  if ((int) width <= 2 * (int) margin ||
+      (int) height <= 2 * (int) margin)
+    return;
     
   segs[nsegs].x1 = left;
   segs[nsegs].y1 = top + 1;
@@ -203,7 +215,7 @@ void XmeDrawDiamond(Display *display, Drawable d,
    int delta;
    _XmDisplayToAppContext(display);
 
-   if (!d || !width) return ;
+   if (!d || !width || !top_gc) return ;
 
    _XmAppLock(app);
    if (width % 2 == 0) width--;
@@ -225,6 +237,10 @@ void XmeDrawDiamond(Display *display, Drawable d,
        _XmAppUnlock(app);
        return ;
    } else   {        /* NORMAL SIZED ToggleButtonS : initial width >= 5 */
+       if (!bottom_gc) {
+           _XmAppUnlock(app);
+           return;
+       }
        midX = x + (width + 1) / 2;
        midY = y + (width + 1) / 2;
        /*  The top shadow segments  */
@@ -335,6 +351,9 @@ XmeDrawIndicator(Display *display,
 {
   _XmDisplayToAppContext(display);
 
+  if (!d || !gc || width <= 0 || height <= 0)
+    return;
+
   _XmAppLock(app);
   switch(type & 0xf0)
     {
@@ -374,7 +393,8 @@ XmeDrawCircle(Display *display,
   int line_width = MIN(shadow_thick, MIN(width, height) / 2);
   _XmDisplayToAppContext(display);
 
-  if ((width <= 0) || (height <= 0))
+  if ((width <= 0) || (height <= 0) ||
+      (shadow_thick > 0 && (top_gc == NULL || bottom_gc == NULL)))
     return;
 
   _XmAppLock(app);

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Motif 360 review
 
 This review covers the current `ck-core-motif` tree, its installed native ARM64

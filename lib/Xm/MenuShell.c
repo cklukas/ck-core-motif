@@ -380,7 +380,7 @@ static void
 _XmFastExpose(
         register XmManagerWidget rowcol )
 {
-   register int i;
+   register Cardinal i;
    register Widget child;
 
    /* Process the menupane */
@@ -417,6 +417,11 @@ static void
 _XmFastPopdown(
         XmMenuShellWidget shell )
 {
+   if (shell->composite.num_children == 0) {
+       XtUnmapWidget(shell);
+       return;
+   }
+
    if (RC_PopupPosted(shell->composite.children[0]))
        _XmFastPopdown((XmMenuShellWidget) RC_PopupPosted(shell->composite.children[0]));
    
@@ -912,8 +917,8 @@ ForceMenuPaneOnScreen(
         register Position *x,
         register Position *y )
 {
-   Position rightEdgeOfMenu, bottomEdgeOfMenu;
-   Dimension dispWidth, dispHeight;
+   int rightEdgeOfMenu, bottomEdgeOfMenu;
+   int dispWidth, dispHeight;
    Widget pulldown_button = RC_CascadeBtn(rowcol);
    Dimension RowColBorderWidth = rowcol->core.border_width << 1;
    Dimension CascadeBorderWidth = 0;
@@ -923,8 +928,10 @@ ForceMenuPaneOnScreen(
 
    /* Force the rowcol to be completely visible */
 
-   rightEdgeOfMenu = *x + RowColBorderWidth + rowcol->core.width;
-   bottomEdgeOfMenu = *y + RowColBorderWidth + rowcol->core.height;
+   rightEdgeOfMenu = (int)*x + (int)RowColBorderWidth +
+                     (int)rowcol->core.width;
+   bottomEdgeOfMenu = (int)*y + (int)RowColBorderWidth +
+                      (int)rowcol->core.height;
    dispWidth = WidthOfScreen (XtScreen(rowcol));
    dispHeight = HeightOfScreen (XtScreen(rowcol));
 
@@ -939,13 +946,18 @@ ForceMenuPaneOnScreen(
       Position old_x = *x;
       if (bottomEdgeOfMenu >= (Position)dispHeight)
       {
-          *y = dispHeight - rowcol->core.height - RowColBorderWidth - 1;
+          *y = (Position) (dispHeight - (int) rowcol->core.height -
+                           (int) RowColBorderWidth - 1);
           if (LayoutIsRtoLM(rowcol))
-             *x = old_x - rowcol->core.width - (rowcol->core.border_width <<1);
+             *x = (Position) ((int) old_x - (int) rowcol->core.width -
+                              ((int) rowcol->core.border_width << 1));
           else
-	    *x = old_x + pulldown_button->core.width + CascadeBorderWidth;
-	  rightEdgeOfMenu = *x + RowColBorderWidth + rowcol->core.width;
-          bottomEdgeOfMenu = *y + RowColBorderWidth + rowcol->core.height;
+	    *x = (Position) ((int) old_x + (int) pulldown_button->core.width +
+                      (int) CascadeBorderWidth);
+	  rightEdgeOfMenu = (int) *x + (int) RowColBorderWidth +
+                     (int) rowcol->core.width;
+          bottomEdgeOfMenu = (int) *y + (int) RowColBorderWidth +
+                             (int) rowcol->core.height;
       }
 
       if (*y < 0)
@@ -956,26 +968,37 @@ ForceMenuPaneOnScreen(
 	   * column RowColumn
 	   */
           if (LayoutIsRtoLM(rowcol))
-             *x = old_x - rowcol->core.width - (rowcol->core.border_width <<1);
+             *x = (Position) ((int) old_x - (int) rowcol->core.width -
+                              ((int) rowcol->core.border_width << 1));
           else
-	    *x = old_x + pulldown_button->core.width + CascadeBorderWidth;
-	  rightEdgeOfMenu = *x + RowColBorderWidth + rowcol->core.width;
-          bottomEdgeOfMenu = *y + RowColBorderWidth + rowcol->core.height;
+	    *x = (Position) ((int) old_x + (int) pulldown_button->core.width +
+                      (int) CascadeBorderWidth);
+	  rightEdgeOfMenu = (int) *x + (int) RowColBorderWidth +
+                     (int) rowcol->core.width;
+          bottomEdgeOfMenu = (int) *y + (int) RowColBorderWidth +
+                             (int) rowcol->core.height;
       }
 
       if (rightEdgeOfMenu >= (Position)dispWidth)
       {
-	  *x = old_x - rowcol->core.width + RowColBorderWidth;
-	  rightEdgeOfMenu = *x + RowColBorderWidth + rowcol->core.width;
+	  *x = (Position) ((int) old_x - (int) rowcol->core.width +
+                    (int) RowColBorderWidth);
+	  rightEdgeOfMenu = (int) *x + (int) RowColBorderWidth +
+                     (int) rowcol->core.width;
       }
 
       if (*x < 0)
       {
           if (LayoutIsRtoLM(rowcol))
-             *x = old_x + pulldown_button->core.width + CascadeBorderWidth;
+             *x = (Position) ((int) old_x +
+                              (int) pulldown_button->core.width +
+                              (int) CascadeBorderWidth);
           else
-	    *x = old_x + pulldown_button->core.width + CascadeBorderWidth;
-	  rightEdgeOfMenu = *x + RowColBorderWidth + rowcol->core.width;
+	    *x = (Position) ((int) old_x +
+                      (int) pulldown_button->core.width +
+                      (int) CascadeBorderWidth);
+	  rightEdgeOfMenu = (int) *x + (int) RowColBorderWidth +
+                     (int) rowcol->core.width;
       }
    }
 
@@ -983,7 +1006,7 @@ ForceMenuPaneOnScreen(
     * If the submenu is offscreen force it completely on.
     */
    if (rightEdgeOfMenu >= (Position)dispWidth)
-       *x -= (rightEdgeOfMenu - dispWidth + 1);
+       *x = (Position) ((int) *x - (rightEdgeOfMenu - dispWidth + 1));
 
    if (bottomEdgeOfMenu >= (Position)dispHeight)
    {
@@ -996,16 +1019,16 @@ ForceMenuPaneOnScreen(
 	 /* it doesn't fit, so we have to place it above   */
 	 /* the bar -- if it will fit                      */
 
-	 y_temp -= (CascadeBorderWidth
-		    + pulldown_button->core.height
-		    + RowColBorderWidth
-		    + rowcol->core.height + 1);
+	 y_temp = (Position) ((int) y_temp - (int) CascadeBorderWidth
+		    - (int) pulldown_button->core.height
+		    - (int) RowColBorderWidth
+		    - (int) rowcol->core.height - 1);
 			
 	 if (y_temp > 0)
 	     *y = y_temp;
       }
       else
-	  *y -= (bottomEdgeOfMenu - dispHeight + 1);
+	  *y = (Position) ((int) *y - (bottomEdgeOfMenu - dispHeight + 1));
    }
 
    /* Make sure that the top left corner os on screen! */
@@ -1032,7 +1055,7 @@ PopupSharedMenuShell(
    Position x, y;
    Dimension height, width;
    int _index = 0;
-   register int i;
+   register Cardinal i;
    Boolean popped_up = popup->shell.popped_up;
    XmRowColumnWidget old_rowcol = NULL;
    XmCascadeButtonWidget old_cascadebtn = NULL;
@@ -1366,7 +1389,7 @@ ChangeManaged(
    register Widget child;
    register XmRowColumnWidget rowcol = 
        (XmRowColumnWidget)popup->composite.children[0];
-   int i;
+   Cardinal i;
    XmMenuState mst = _XmGetMenuState((Widget)w);
    XmMenuSystemTrait menuSTrait;
    Time _time = XtLastTimestampProcessed(XtDisplay(w));
@@ -1670,6 +1693,12 @@ Popdown(
         XmMenuShellWidget menushell,
         XEvent *event )
 {
+    if (menushell->composite.num_children == 0) {
+        if (menushell->shell.popped_up)
+            _XmPopdown((Widget) menushell);
+        return;
+    }
+
     XmRowColumnWidget  rowcol = (XmRowColumnWidget) 
                                  menushell->composite.children[0];
     XmMenuSystemTrait menuSTrait;
@@ -1720,9 +1749,15 @@ PopdownKids(
 {
    ShellWidget subShell;
 
+   if (menushell->composite.num_children == 0)
+      return;
+
    if ((subShell = (ShellWidget)
 	RC_PopupPosted(menushell->composite.children[0])) != NULL)
    {
+      if (subShell->composite.num_children == 0)
+	 return;
+
       Widget rowcol = subShell->composite.children[0];
 
       /* mark this row colum as popping down */

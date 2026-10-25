@@ -99,6 +99,9 @@ static char rcsid[] = "$XConsortium: Mrmmodule.c /main/12 1996/11/13 14:03:12 dr
     return Urm__UT_Error (routine, _MrmMMsg_0043,		\
 			  NULL, ctx_ptr, MrmBAD_CONTEXT) ;	\
   recptr = (RGMModuleDescPtr) UrmRCBuffer (ctx_ptr) ;		\
+  if ( recptr == NULL )			\
+    return Urm__UT_Error (routine, _MrmMMsg_0025,\
+				  NULL, ctx_ptr, MrmBAD_IF_MODULE) ;\
  }
 
 
@@ -463,7 +466,8 @@ UrmIFMGetModule (IDBFile		file_id ,
    * validate the interface module
    */
   ifmodptr = (RGMModuleDescPtr) UrmRCBuffer(context_id) ;
-  if ( ifmodptr->validation != URMInterfaceModuleValid )
+  if ( ifmodptr == NULL ||
+       ifmodptr->validation != URMInterfaceModuleValid )
     return Urm__UT_Error ("UrmIFMPutModule", _MrmMMsg_0025,
 			  NULL, context_id, MrmBAD_IF_MODULE) ;
 

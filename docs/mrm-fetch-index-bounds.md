@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm fetch-set-values index bounds
 
 `UrmFetchSetValues` builds a reusable resource descriptor from the longest

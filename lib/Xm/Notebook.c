@@ -422,7 +422,7 @@ static void SortChildren(
 			XmNotebookWidget nb) ;
 static int GetNextAvailPageNum(
 			XmNotebookWidget nb,
-			int last) ;
+			Cardinal last) ;
 static Widget GetChildWidget(
 			XmNotebookWidget nb,
 			int page_number,
@@ -1107,7 +1107,7 @@ Redisplay (
     XmNotebookWidget nb = (XmNotebookWidget)w;
     XExposeEvent *event = (XExposeEvent *)e;
     Widget child;			/* fix for CR8959, hack for CR9805 */
-    int i;				/* fix for CR8959, hack for CR9805 */
+    Cardinal i;				/* fix for CR8959, hack for CR9805 */
     int total_major_tabs,total_minor_tabs;
     XmNotebookConstraint nc;
     total_major_tabs = 0;
@@ -1335,7 +1335,7 @@ SetValues (
     if (relayout)
 	{
 	Dimension save_width, save_height;
-	XtWidgetGeometry preferred_geo;
+	XtWidgetGeometry preferred_geo = { 0 };
 
 	/* Store new w/h, restore old w/h, and adjust geometry to the old */
 	save_width = XtWidth(new_w);
@@ -2294,7 +2294,7 @@ UpdateJoinSideChildren (
 {
     Widget cw;				/* child widget */
     unsigned char ct;			/* child constraint type */
-    int i;
+    Cardinal i;
 
     for (i=0; i < nb->composite.num_children; i++)
 	{
@@ -4513,8 +4513,11 @@ DrawPixmapBinding (
 	return;
 
     /* get Pixmap depth */
-    XmeGetPixmapData(XtScreen(nb), pixmap,
-			NULL, &depth, NULL, NULL, NULL, NULL, NULL, NULL);
+	XmeGetPixmapData(XtScreen(nb), pixmap,
+			 NULL, &depth, NULL, NULL, NULL, NULL, NULL, NULL);
+
+    if (depth <= 0)
+	return;
 
     if (depth <= 0)
 	return;
@@ -5416,6 +5419,12 @@ NewPreferredGeometry (
 	   4. back pages and frame are clipped
 
 -----------------------------------------------------------------------------*/
+static Dimension
+NotebookRemaining(Dimension value, Dimension consumed)
+{
+    return value > consumed ? value - consumed : 0;
+}
+
 static void
 AdjustGeometry (
     XmNotebookWidget nb,
@@ -5423,6 +5432,7 @@ AdjustGeometry (
     XtWidgetGeometry *desired)
 {
     Dimension ideal_width,ideal_height;
+    int available_width;
 
     /* the value min is the minimum width/height that the Notebook can be
        after a component is reduced to its minimum */
@@ -5451,14 +5461,14 @@ AdjustGeometry (
 	    if (nb->notebook.orientation == XmHORIZONTAL)
 	    {
 		/* minimize the binding area */
-		min -= nb->notebook.real_binding_width;
+		min = NotebookRemaining(min, nb->notebook.real_binding_width);
 		if (nb->core.width >= min)
 		    nb->notebook.real_binding_width = nb->core.width - min;
 		else
 		{
 		    /* minimize major tabs */
 		    nb->notebook.real_binding_width = 0;
-		    min -= nb->notebook.major_width;
+		    min = NotebookRemaining(min, nb->notebook.major_width);
 		    if (nb->core.width > min)
 			nb->notebook.major_width = nb->core.width - min;
 		    else
@@ -5468,7 +5478,7 @@ AdjustGeometry (
 	    else
 	    {
 		/* minimize minor tabs */
-		min -= nb->notebook.minor_width;
+		min = NotebookRemaining(min, nb->notebook.minor_width);
 		if (nb->core.width > min)
 		    nb->notebook.minor_width = nb->core.width - min;
 		else
@@ -5493,7 +5503,7 @@ AdjustGeometry (
 	{
 	    /* minimize the page scroller area */
 	    nb->notebook.page_height = 0;
-	    min -= nb->notebook.scroller_height;
+	    min = NotebookRemaining(min, nb->notebook.scroller_height);
 	    if (nb->core.height >= min)
 		nb->notebook.scroller_height = nb->notebook.status_height =
 			nb->core.height - min;
@@ -5503,14 +5513,14 @@ AdjustGeometry (
 		if (nb->notebook.orientation == XmVERTICAL)
 		{
 		    /* minimize the binding area */
-		    min -= nb->notebook.real_binding_width;
+		    min = NotebookRemaining(min, nb->notebook.real_binding_width);
 		    if (nb->core.height >= min)
 			nb->notebook.real_binding_width = nb->core.height - min;
 		    else
 		    {
 			/* minimize major tabs */
 			nb->notebook.real_binding_width = 0;
-			min -= nb->notebook.major_height;
+			min = NotebookRemaining(min, nb->notebook.major_height);
 			if (nb->core.height > min)
 			    nb->notebook.major_height = nb->core.height - min;
 			else
@@ -5520,7 +5530,7 @@ AdjustGeometry (
 		else
 		{
 		    /* minimize minor tabs */
-		    min -= nb->notebook.minor_height;
+		    min = NotebookRemaining(min, nb->notebook.minor_height);
 		    if (nb->core.height > min)
 			nb->notebook.minor_height = nb->core.height - min;
 		    else
@@ -5531,8 +5541,9 @@ AdjustGeometry (
     }
 
     /* Calculate status w/h based on page,margin,& scroller w/h */
-    nb->notebook.status_width = MAX(0,(int)(nb->notebook.page_width -
-	nb->notebook.margin_width - nb->notebook.scroller_width));
+    available_width = (int) nb->notebook.page_width -
+	nb->notebook.margin_width - nb->notebook.scroller_width;
+    nb->notebook.status_width = (available_width > 0) ? available_width : 0;
     nb->notebook.status_height = nb->notebook.scroller_height =
 	MAX(nb->notebook.status_height, nb->notebook.scroller_height);
 
@@ -5613,7 +5624,8 @@ AssignDefaultPageNumber (
 {
     XmNotebookConstraint nc;
     Widget child;
-    int i, last_page_number;
+    Cardinal i;
+    int last_page_number;
 
     /* initialize */
     last_page_number = nb->notebook.first_page_number;
@@ -5695,7 +5707,7 @@ SetActiveChildren (
     XmNotebookConstraint last = NULL;		/* initial previous child */
     unsigned char type = XmNONE;		/* initial previous type */
     int num  = XmUNSPECIFIED_PAGE_NUMBER;	/* initial previous page */
-    int i;
+    Cardinal i;
 
     for (i = 0; i < nb->composite.num_children; i++)
 	{
@@ -5865,11 +5877,12 @@ RepositionChild (
 static int
 GetNextAvailPageNum(
     XmNotebookWidget nb,
-    int last)
+    Cardinal last)
 {
     XmNotebookConstraint nc;
     Widget child;
-    int i, avail;
+    Cardinal i;
+    int avail;
 
     avail = nb->notebook.last_alloc_num;
     for (i = 0; i < last; i++)
@@ -5897,7 +5910,7 @@ GetChildWidget(
 {
     XmNotebookConstraint nc;
     Widget child, this_w;
-    int i;
+    Cardinal i;
 
     this_w = NULL;
     for (i = 0; i < nb->composite.num_children; i++)
@@ -6758,6 +6771,9 @@ ScrollFrameInit (
     nb->notebook.scroll_frame_data = (XmScrollFrameData)
         XtMalloc(sizeof(XmScrollFrameDataRec));
 
+    if (nb->notebook.scroll_frame_data == NULL)
+	return;
+
     nb->notebook.scroll_frame_data->num_nav_list = 0 ;
     nb->notebook.scroll_frame_data->nav_list = NULL ;
     nb->notebook.scroll_frame_data->num_nav_slots = 0 ;
@@ -6999,6 +7015,9 @@ XmNotebookGetPageInfo (
     Widget page, status, major_tab, minor_tab;
     XmNotebookPageStatus result;
     int i;
+
+    if (notebook == NULL || page_info == NULL)
+        return XmPAGE_INVALID;
     _XmWidgetToAppContext(notebook);
 
     _XmAppLock(app);

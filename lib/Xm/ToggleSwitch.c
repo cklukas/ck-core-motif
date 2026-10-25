@@ -95,16 +95,23 @@ static void Initialize(Widget request, Widget new_widget, ArgList args,
     XGCValues values;
     unsigned long mask = GCForeground | GCBackground;
     XmFontList defaults;
+    XmString replacement;
     Dimension label_width = 0, label_height = 0;
     (void)request; (void)args; (void)num_args;
 
     if (!sw->toggle_switch.label)
         sw->toggle_switch.label = XmStringCreateLocalized("");
     else
-        sw->toggle_switch.label = XmStringCopy(sw->toggle_switch.label);
+    {
+        replacement = XmStringCopy(sw->toggle_switch.label);
+        if (replacement != NULL)
+            sw->toggle_switch.label = replacement;
+        else
+            sw->toggle_switch.label = XmStringCreateLocalized("");
+    }
     defaults = XmeGetDefaultRenderTable(new_widget, XmBUTTON_FONTLIST);
     sw->toggle_switch.font = defaults ? XmFontListCopy(defaults) : NULL;
-    if (sw->toggle_switch.font)
+    if (sw->toggle_switch.font && sw->toggle_switch.label)
         XmStringExtent(sw->toggle_switch.font, sw->toggle_switch.label,
                        &label_width, &label_height);
     if (!sw->core.width)
@@ -188,18 +195,24 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                        sw->core.height - 2 * sw->primitive.highlight_thickness);
     }
 }
-
 static Boolean SetValues(Widget current, Widget request, Widget new_widget,
                          ArgList args, Cardinal *num_args) {
     XmToggleSwitchWidget old_sw = (XmToggleSwitchWidget)current;
     XmToggleSwitchWidget new_sw = (XmToggleSwitchWidget)new_widget;
     Boolean redraw = False;
+    XmString replacement;
     (void)request; (void)args; (void)num_args;
     if (old_sw->toggle_switch.set != new_sw->toggle_switch.set) redraw = True;
     if (old_sw->toggle_switch.label != new_sw->toggle_switch.label) {
-        if (new_sw->toggle_switch.label)
-            new_sw->toggle_switch.label = XmStringCopy(new_sw->toggle_switch.label);
-        if (old_sw->toggle_switch.label) XmStringFree(old_sw->toggle_switch.label);
+        replacement = new_sw->toggle_switch.label != NULL
+            ? XmStringCopy(new_sw->toggle_switch.label) : NULL;
+        if (new_sw->toggle_switch.label == NULL || replacement != NULL) {
+            if (old_sw->toggle_switch.label)
+                XmStringFree(old_sw->toggle_switch.label);
+            new_sw->toggle_switch.label = replacement;
+        } else {
+            new_sw->toggle_switch.label = old_sw->toggle_switch.label;
+        }
         redraw = True;
     }
     if (old_sw->primitive.foreground != new_sw->primitive.foreground ||

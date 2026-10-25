@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container region allocation
 
 Removing a child from a `XmCELLS` Container temporarily allocates an X11

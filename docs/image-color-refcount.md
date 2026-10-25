@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ImageCache color reference counts
 
 Cached colors are released by reference count.  A duplicate release or stale

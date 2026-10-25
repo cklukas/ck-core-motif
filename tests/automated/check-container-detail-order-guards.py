@@ -9,6 +9,10 @@ if text.count("if (detail_order == NULL)") < 1:
     raise SystemExit("resource-update detail-order allocation is not guarded")
 if "if (ncw->container.detail_order == NULL)" not in text:
     raise SystemExit("initial detail-order allocation is not guarded")
+if text.count("UINT_MAX / sizeof(Cardinal)") < 2:
+    raise SystemExit("detail-order allocations lack Xt Cardinal-width guards")
+if text.count("XtMalloc((Cardinal)(sizeof(Cardinal) *") < 2:
+    raise SystemExit("detail-order allocations lack explicit Xt width casts")
 if text.count("detail_order_count = 0") < 4:
     raise SystemExit("detail-order failure paths do not clear the count")
 

@@ -11,4 +11,3 @@ for marker in ("AddToXlfdList(XmFontSelectorWidget fsw", "AddToOtherList(char *n
     assert "if (new_list == NULL)" in body
 assert "new_name = XtNewString(name);" in source
 assert "if (new_name != NULL)" in source
-print("PASS Font selector raw-list growth is transactional")

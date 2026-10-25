@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drag atom-table allocation handling
 
 `ReadAtomsTable` lazily creates and grows the process-local atom cache.  The

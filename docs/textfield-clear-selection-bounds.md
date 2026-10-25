@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TextField clear-selection bounds
 
 `clear-selection` now validates the selected span before converting it to the

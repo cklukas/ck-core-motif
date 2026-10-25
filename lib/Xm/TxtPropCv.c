@@ -119,7 +119,11 @@ TextPropertyToSingleTextItem(Display *display, XTextProperty *text_prop,
 	    length += item_length;
 	  }
 	/* Allocate a buffer and jam all the strings into it */
-	newstring = (char *)XtMalloc(length + 1);
+	if (length > (size_t)UINT_MAX - 1) {
+	    XFreeStringList(textlist);
+	    return(XNoMemory);
+	}
+	newstring = (char *)XtMalloc((Cardinal)(length + 1));
 	if (newstring == NULL)
 	  {
 	    XFreeStringList(textlist);
@@ -192,6 +196,12 @@ GetTextSegment(Display *display, /* unused */
 			    &separator, &tabs, &char_count,
 			    &push_before, &pop_after))
     {
+	/* The legacy segment API reports its length through a signed short.
+	 * Reject an unrepresentable component before it can become a huge
+	 * unsigned allocation size below. */
+	if (char_count < 0)
+	    return(_INVALID_SEGMENT);
+
 	switch (type)
 	{
 	  case XmMULTIBYTE_TEXT:
@@ -199,7 +209,8 @@ GetTextSegment(Display *display, /* unused */
 	    if (texttype == _LOCALE_TEXT)
 	    {
 	      /* The text should be already be valid locale text */
-	      char *tmp = XtMalloc(char_count + sizeof(wchar_t));
+	      char *tmp = XtMalloc((Cardinal)((size_t)char_count +
+					 sizeof(wchar_t)));
 	      if (tmp == NULL)
 		return(_INVALID_SEGMENT);
 	      memcpy(tmp, text, char_count);
@@ -225,7 +236,8 @@ GetTextSegment(Display *display, /* unused */
 		{
 		  /* Given the above charset encodings, the text should
 		     already be valid locale text. */
-		  char *tmp = XtMalloc(char_count + sizeof(wchar_t));
+		  char *tmp = XtMalloc((Cardinal)((size_t)char_count +
+					   sizeof(wchar_t)));
 		  if (tmp == NULL)
 		    return(_INVALID_SEGMENT);
 		  memcpy(tmp, text, char_count);
@@ -237,7 +249,8 @@ GetTextSegment(Display *display, /* unused */
 			 (strcmp(encoding, "ISO8859-1") == 0))
 		{
 		  /* The text is valid STRING text */
-		  char *tmp = XtMalloc(char_count + sizeof(wchar_t));
+		  char *tmp = XtMalloc((Cardinal)((size_t)char_count +
+					   sizeof(wchar_t)));
 		  if (tmp == NULL)
 		    return(_INVALID_SEGMENT);
 		  memcpy(tmp, text, char_count);
@@ -269,7 +282,13 @@ GetTextSegment(Display *display, /* unused */
 		return(_INVALID_SEGMENT);
 	    }
 	    newlength = buffer_length + prefix_length;
-	    newstring = (char *)XtMalloc(sizeof(char) * (newlength + 1));
+	    if (newlength > (size_t)UINT_MAX - 1)
+	      {
+		XtFree(*buffer);
+		*buffer = NULL;
+		return(_INVALID_SEGMENT);
+	      }
+	    newstring = (char *)XtMalloc((Cardinal)(newlength + 1));
 	    if (newstring == NULL)
 	      {
 		XtFree(*buffer);
@@ -411,13 +430,13 @@ GetUseableText(Display *display, XmString xmstring, char **buffer,
 	  }
 	/* then to a text property in TextStyle encoding ... */
 	txt_len = strlen(compound_text);
-	if (txt_len > SIZE_MAX - 2)
+	if (txt_len > SIZE_MAX - 2 || txt_len > (size_t)UINT_MAX - 2)
 	  {
 	    XtFree(compound_text);
 	    _XmStringContextFree(&stack_context);
 	    return XNoMemory;
 	  }
-	txt_value = XtMalloc((txt_len + 2) * sizeof(char));
+	txt_value = XtMalloc((Cardinal)(sizeof(char) * (txt_len + 2)));
 	if (txt_value == NULL)
 	  {
 	    XtFree(compound_text);
@@ -480,11 +499,13 @@ XmCvtXmStringTableToTextProperty(Display *display,
   switch (style)
     {
     case XmSTYLE_COMPOUND_TEXT:
-      if ((size_t)count > SIZE_MAX / sizeof(char *)) {
+      if ((size_t)count > SIZE_MAX / sizeof(char *) ||
+	  (size_t)count > UINT_MAX / sizeof(char *)) {
 	_XmAppUnlock(app);
 	return BadAlloc;
       }
-      compound_text = (char **)XtMalloc(sizeof(char *) * count);
+      compound_text = (char **)XtMalloc(
+	  (Cardinal)(sizeof(char *) * (size_t)count));
       if (compound_text == NULL) {
 	_XmAppUnlock(app);
 	return BadAlloc;
@@ -509,7 +530,15 @@ XmCvtXmStringTableToTextProperty(Display *display,
 	 null-separated compound text elements. A final terminating 
 	 null is stored at the end of the value field of text_prop_return 
 	 but is not included in the nitems member. */
-      xm_compound_text = (char *) XtMalloc(sizeof(char) * (total_size + 1));
+      if ((size_t)total_size + 1 > UINT_MAX) {
+	for (i = 0; i < count; ++i)
+	    XtFree(compound_text[i]);
+	XtFree((char *)compound_text);
+	_XmAppUnlock(app);
+	return BadAlloc;
+      }
+      xm_compound_text = (char *) XtMalloc(
+	  (Cardinal)(sizeof(char) * ((size_t)total_size + 1)));
       if (xm_compound_text == NULL) {
 	int cleanup;
 	for (cleanup = 0; cleanup < count; ++cleanup)
@@ -555,8 +584,13 @@ XmCvtXmStringTableToTextProperty(Display *display,
       }
       /* Allocate that amount of space and convert the compound strings
 	 to ASN1 strings, putting them directly into the buffer. */
+	      if ((size_t)total_size + 1 > UINT_MAX) {
+		_XmAppUnlock(app);
+		return BadAlloc;
+	      }
       text_prop_return->value = ubufptr =
-	(unsigned char *) XtMalloc(sizeof(unsigned char) * ((size_t)total_size + 1));
+	(unsigned char *) XtMalloc(
+		(Cardinal)(sizeof(unsigned char) * ((size_t)total_size + 1)));
       if (text_prop_return->value == NULL) {
 	_XmAppUnlock(app);
 	return BadAlloc;
@@ -617,11 +651,13 @@ XmCvtXmStringTableToTextProperty(Display *display,
 	  break;
 	}
       /* Get useable text for each compound string */
-      if ((size_t)count > SIZE_MAX / sizeof(char *)) {
+	    if ((size_t)count > SIZE_MAX / sizeof(char *) ||
+		(size_t)count > UINT_MAX / sizeof(char *)) {
 	_XmAppUnlock(app);
 	return BadAlloc;
       }
-      useable_text = (char **)XtMalloc(sizeof(char *) * count);
+      useable_text = (char **)XtMalloc(
+	  (Cardinal)(sizeof(char *) * (size_t)count));
       if (count > 0 && useable_text == NULL) {
 	_XmAppUnlock(app);
 	return BadAlloc;
@@ -679,8 +715,15 @@ XmCvtXmStringTableToTextProperty(Display *display,
 	}
 	total_size += (int)item_size;
       }
-      final_string =
-	(unsigned char *)XtMalloc(sizeof(char) * (total_size + 1));
+	  if ((size_t)total_size + 1 > UINT_MAX) {
+	    for (i = 0; i < count; ++i) XtFree(useable_text[i]);
+	    XtFree((char *)useable_text);
+	    _XmAppUnlock(app);
+	    return BadAlloc;
+	  }
+	  final_string =
+	(unsigned char *)XtMalloc(
+	    (Cardinal)(sizeof(char) * ((size_t)total_size + 1)));
       if (final_string == NULL) {
 	for (i = 0; i < count; ++i) XtFree(useable_text[i]);
 	XtFree((char *)useable_text);
@@ -778,12 +821,14 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 		(*count_return)++;
 	    }
 	}
-	if ((size_t)*count_return > SIZE_MAX / sizeof(XmString)) {
+	if ((size_t)*count_return > SIZE_MAX / sizeof(XmString) ||
+	    (size_t)*count_return > UINT_MAX / sizeof(XmString)) {
 	    _XmAppUnlock(app);
 	    return BadAlloc;
 	}
 	string_table =
-	    (XmStringTable)XtMalloc(sizeof(XmString) * (*count_return));
+	    (XmStringTable)XtMalloc(
+		(Cardinal)(sizeof(XmString) * (size_t)*count_return));
 	if (string_table == NULL) {
 	    _XmAppUnlock(app);
 	    return BadAlloc;
@@ -804,7 +849,15 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 					 remaining);
 	    segment_length = nul ? (size_t)(nul - (text_prop->value + offset))
 				  : remaining;
-	    segment = (char *)XtMalloc(segment_length + 1);
+	    if (segment_length + 1 > UINT_MAX) {
+		int cleanup;
+		for (cleanup = 0; cleanup < i; ++cleanup)
+		    XmStringFree(string_table[cleanup]);
+		XtFree((char *)string_table);
+		_XmAppUnlock(app);
+		return BadAlloc;
+	    }
+	    segment = (char *)XtMalloc((Cardinal)(segment_length + 1));
 	    if (segment == NULL) {
 		int cleanup;
 		for (cleanup = 0; cleanup < i; ++cleanup)
@@ -866,8 +919,13 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	}
 
 	/* Now allocate a string table to put them in */
-	string_table = (XmStringTable)XtMalloc(sizeof(XmString) *
-					(elements ? elements : 1));
+	if ((size_t)elements > SIZE_MAX / sizeof(XmString) ||
+	    (size_t)elements > UINT_MAX / sizeof(XmString)) {
+	    _XmAppUnlock(app);
+	    return BadAlloc;
+	}
+	string_table = (XmStringTable)XtMalloc((Cardinal)(sizeof(XmString) *
+					(size_t)(elements ? elements : 1)));
 	if (string_table == NULL) {
 	    _XmAppUnlock(app);
 	    return BadAlloc;
@@ -947,11 +1005,6 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	    return BadAlloc;
 	}
 	string_table[0] = XmStringGenerate((XtPointer)"", tag, type, NULL);
-	if (string_table[0] == NULL) {
-	    XtFree((char *)string_table);
-	    _XmAppUnlock(app);
-	    return BadAlloc;
-	}
 	*string_table_return = string_table;
 	*count_return = 1;
 	_XmAppUnlock(app);
@@ -972,26 +1025,28 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	if (text_prop->value[i] == '\0')
 	  ++elements;
     }
-    if ((size_t)elements > SIZE_MAX / sizeof(XmString)) {
+	if ((size_t)elements > SIZE_MAX / sizeof(XmString) ||
+	    (size_t)elements > UINT_MAX / sizeof(XmString)) {
 	_XmAppUnlock(app);
 	return BadAlloc;
-	}
+    }
     /* Create an appropriately sized array of xmstrings */
     string_table =
-      (XmStringTable)XtMalloc(sizeof(XmString) * (elements));
-	if (string_table == NULL) {
+      (XmStringTable)XtMalloc((Cardinal)(sizeof(XmString) *
+					(size_t)elements));
+    if (string_table == NULL) {
 	_XmAppUnlock(app);
 	return BadAlloc;
-	}
+    }
     
     /* Create XmStrings from each string in the value field */
     string_table[0] = XmStringGenerate((XtPointer)text_prop->value, 
 				       tag, type, NULL);
-	if (string_table[0] == NULL) {
+    if (string_table[0] == NULL) {
 	XtFree((char *)string_table);
 	_XmAppUnlock(app);
 	return BadAlloc;
-	}
+    }
     for (i = 0, elements = 1; i + 1 < (int)text_prop->nitems; ++i)
     {
 	if (text_prop->value[i] == '\0')

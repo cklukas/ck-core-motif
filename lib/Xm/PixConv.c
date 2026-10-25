@@ -506,7 +506,7 @@ _XmGetPixmapBasedGC(
    if ((pixmap != None) && (pixmap != XmUNSPECIFIED_PIXMAP)) {
        int depth ;
 
-       if (XmeGetPixmapData(XtScreen(w), pixmap,
+	if (XmeGetPixmapData(XtScreen(w), pixmap,
 			NULL,
 			&depth,
 			NULL, NULL, NULL, NULL, NULL, NULL)) {

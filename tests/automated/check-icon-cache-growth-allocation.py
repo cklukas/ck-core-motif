@@ -7,10 +7,11 @@ cache = source[source.index("CheckDirCache"):source.index("static Boolean\nTestI
 entry = source[source.index("MakeCachedDirEntry"):source.index("DtCachedDirListStruct cacheList")]
 assert "DtCachedDir *new_dirs" in cache
 assert "new_dirs = (DtCachedDir *)XtRealloc" in cache
+assert "UINT_MAX / sizeof(*new_dirs)" in cache
 assert "if (new_dirs == NULL)" in cache
 assert "cacheList.dirs = new_dirs" in cache
 assert "if (dirName == NULL)" in cache
-assert "if (new_dir == NULL)" in cache
+assert "if (currDir == NULL)" in cache
 assert "if (validDir == NULL)" in entry
 assert "if (cachedDir == NULL)" in entry
 assert "#include <limits.h>" in source

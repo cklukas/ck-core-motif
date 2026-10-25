@@ -33,6 +33,7 @@ static char rcsid[] = "$TOG: Xmos.c /main/33 1998/01/21 11:07:25 csn $"
 
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 
 #ifdef __cplusplus
 extern "C" { /* some 'locale.h' do not have prototypes (sun) */
@@ -160,11 +161,17 @@ FreeDirCache(void)
 static Boolean
 ResetCache(char *qDirName)
 {   
+  size_t name_len;
+
   FreeDirCache();
 
   if (qDirName == NULL)
     return False;
-  dirCacheNameLen = strlen(qDirName);
+  name_len = strlen(qDirName);
+  if (name_len > SIZE_MAX - MAX_USER_NAME_LEN - 1 ||
+      name_len > UINT_MAX - MAX_USER_NAME_LEN - 1)
+    return False;
+  dirCacheNameLen = (unsigned)name_len;
   dirCacheName = XtMalloc(dirCacheNameLen + MAX_USER_NAME_LEN + 1);
   if (dirCacheName == NULL) {
     dirCacheNameLen = 0;
@@ -182,7 +189,7 @@ AddEntryToCache(char *entryName,
   unsigned char result = 0;
   XmDirCache new_cache;
 
-  if (entryName == NULL || entryNameLen > (size_t)-1 -
+  if (entryName == NULL || dirCacheName == NULL || entryNameLen > (size_t)-1 -
       sizeof(XmDirCacheRec) - 1)
     return 0;
 
@@ -268,6 +275,8 @@ GetQualifiedDir(String dirSpec)
 	    {   
 	      userDirLen = strlen(userDir);
 	      outputBuf = XtMalloc(userDirLen + dirSpecLen + 2);
+	      if (outputBuf == NULL)
+		return NULL;
 	      strcpy(outputBuf, userDir);
 	      strcpy(&outputBuf[userDirLen], (dirSpec + 1));
 	    }
@@ -290,6 +299,8 @@ GetQualifiedDir(String dirSpec)
 	      userDirLen = strlen(pwd_value->pw_dir);
 	      dirSpecLen = strlen(srcPtr);
 	      outputBuf = XtMalloc(userDirLen + dirSpecLen + 2);
+	      if (outputBuf == NULL)
+		return NULL;
 	      strcpy(outputBuf, pwd_value->pw_dir);
 	      strcpy(&outputBuf[userDirLen], srcPtr);
 	    } 
@@ -298,6 +309,8 @@ GetQualifiedDir(String dirSpec)
 
     case '/':
       outputBuf = XtMalloc(dirSpecLen + 2);
+	      if (outputBuf == NULL)
+		return NULL;
       strcpy(outputBuf, dirSpec);
       break;
 
@@ -306,6 +319,8 @@ GetQualifiedDir(String dirSpec)
 	{
 	  userDirLen = strlen(destPtr);
 	  outputBuf = XtMalloc(userDirLen + dirSpecLen + 3);
+	  if (outputBuf == NULL)
+	    return NULL;
 	  strcpy(outputBuf, destPtr);
 	  outputBuf[userDirLen++] = '/';
 	  strcpy(&outputBuf[userDirLen], dirSpec);
@@ -316,6 +331,8 @@ GetQualifiedDir(String dirSpec)
   if (!outputBuf)
     { 
       outputBuf = XtMalloc(2);
+	      if (outputBuf == NULL)
+		return NULL;
       outputBuf[0] = '/';
       outputBuf[1] = '\0';
     } 
@@ -474,6 +491,9 @@ _XmOSQualifyFileSpec(String  dirSpec,
   char *maskPtr;
   char *dSpec;
   char *dPtr;
+
+  *pQualifiedDir = NULL;
+  *pQualifiedPattern = NULL;
   
   if (!dirSpec) 
     dirSpec = "";
@@ -484,6 +504,8 @@ _XmOSQualifyFileSpec(String  dirSpec,
   
   /* Allocate extra for NULL character and for the appended '*' (as needed). */
   fSpec = XtMalloc(filterLen + 2);
+  if (fSpec == NULL)
+    return;
   strcpy(fSpec, filterSpec);
   
   /* If fSpec ends with a '/' or is a null string, add '*' since this is
@@ -500,6 +522,10 @@ _XmOSQualifyFileSpec(String  dirSpec,
    */
   dirLen = strlen(dirSpec);
   dSpec = XtMalloc(filterLen + dirLen + 4);
+  if (dSpec == NULL) {
+    XtFree(fSpec);
+    return;
+  }
   strcpy(dSpec, dirSpec);
   dPtr = dSpec + dirLen;
   
@@ -579,10 +605,13 @@ GetFixedMatchPattern(String pattern)
   if (pattern == NULL)
     return NULL;
   pattern_len = strlen(pattern);
-  if (pattern_len > (SIZE_MAX / 2) - 4)
+  if (pattern_len > (SIZE_MAX / 2) - 4 ||
+      pattern_len > (size_t)UINT_MAX - 4)
     return NULL;
   
-  outputBuf = XtCalloc(2, pattern_len + 4);
+  outputBuf = XtCalloc(2, (Cardinal)(pattern_len + 4));
+  if (outputBuf == NULL)
+    return NULL;
   
   bufPtr = outputBuf;
   *bufPtr++ = '^';
@@ -681,6 +710,7 @@ void
 {
   char *          fixedMatchPattern;
   String          entryPtr;
+  String          replacement;
   DIR *           dirStream = NULL;
   struct stat     statBuf;
   Boolean         entryTypeOK;
@@ -704,6 +734,11 @@ void
       *pNumEntries = 0;
       *pNumAlloc = FILE_LIST_BLOCK;
       *pEntries = (String *) XtMalloc(FILE_LIST_BLOCK * sizeof(char *));
+      if (*pEntries == NULL) {
+	*pNumAlloc = 0;
+	_XmProcessUnlock();
+	return;
+      }
     } 
   fixedMatchPattern = GetFixedMatchPattern(matchPattern);
   
@@ -917,11 +952,15 @@ void
 		  /* This is ONLY for BC in a (apparently unused) API, (w/o
 		   *  full path) so don't worry too much about efficiency.
 		   */
+		  replacement = XtMalloc(dirNameLen + 1);
+		  if (replacement == NULL)
+		    {
+		      XtFree(entryPtr);
+		      break;
+		    }
+		  strcpy(replacement, dirName);
 		  XtFree(entryPtr);
-		  entryPtr = XtMalloc(dirNameLen + 1);
-		  if (entryPtr == NULL)
-		    break;
-		  strcpy(entryPtr, dirName);
+		  entryPtr = replacement;
 		  (*pEntries)[(*pNumEntries)++] = entryPtr;
 		} 
 	    } 
@@ -1065,7 +1104,10 @@ XmeGetHomeDirName(void)
       if (ptr != NULL) 
 	{
 	  homeDir = XtMalloc (strlen(ptr) + 1);
-	  strcpy (homeDir, ptr);
+	  if (homeDir != NULL)
+	    strcpy (homeDir, ptr);
+	  else
+	    homeDir = &empty;
 	}
       else 
 	{
@@ -1288,6 +1330,8 @@ _XmOSInitPath(String   file_name,
   
   if (file_name && _XmOSAbsolutePathName(file_name, &file_name, homedir)) {
       path = XtNewString(ABSOLUTE_PATH);
+      if (path == NULL)
+	return NULL;
   } 
   else
     {
@@ -1306,6 +1350,8 @@ _XmOSInitPath(String   file_name,
 	      if (path_length < 0)
 		  return NULL;
 	      path = XtMalloc((size_t)path_length + 1);
+	      if (path == NULL)
+		return NULL;
 	      (void) snprintf(path, (size_t)path_length + 1, PATH_DEFAULT,
 		      homedir, homedir, homedir,
 		      homedir, homedir, homedir, homedir, homedir, homedir,
@@ -1322,6 +1368,8 @@ _XmOSInitPath(String   file_name,
 	      if (path_length < 0)
 		  return NULL;
 	      path = XtMalloc((size_t)path_length + 1);
+	      if (path == NULL)
+		return NULL;
 	      (void) snprintf(path, (size_t)path_length + 1, XAPPLRES_DEFAULT,
 		      old_path, old_path, old_path, old_path, old_path,
 		      old_path, old_path, old_path, homedir, homedir,
@@ -1332,6 +1380,8 @@ _XmOSInitPath(String   file_name,
       else
 	{
 	  path = XtMalloc(strlen(local_path) + 1);
+	  if (path == NULL)
+	    return NULL;
 	  strcpy (path, local_path);
 	  *user_path = True;
 	}
@@ -1396,11 +1446,15 @@ _XmOSBuildFileName(String path,
   if (file[0] == '/') 
     {
       fileName = XtMalloc (strlen (file) + 1);
+      if (fileName == NULL)
+	return NULL;
       strcpy (fileName, file);
     }
   else 
     {
       fileName = XtMalloc (strlen(path) + strlen (file) + 2);
+      if (fileName == NULL)
+	return NULL;
       strcpy (fileName, path);
       strcat (fileName, "/");
       strcat (fileName, file);

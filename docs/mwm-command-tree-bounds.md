@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm command-tree bounds
 
 Inline menu-command matching derives command paths and function arguments from

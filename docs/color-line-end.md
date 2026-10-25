@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Color database final lines
 
 Color database files may end without a newline.  The name scanner now treats

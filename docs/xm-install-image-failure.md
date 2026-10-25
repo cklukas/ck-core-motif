@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm image-install failure handling
 
 `_XmInstallImage` now returns `False` when lazy image-table initialization,

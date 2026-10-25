@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm image-file open cleanup
 
 When JPEG/PNG support is enabled and the resolved image path cannot be

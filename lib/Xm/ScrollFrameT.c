@@ -60,18 +60,17 @@ _XmSFAddNavigator(
     XmNavigatorTrait nav_trait ;
     XmNavigatorDataRec nav_data ;
 
-    if ((sf == NULL) || (nav == NULL) || (scroll_frame_data == NULL)) {
+    if ((sf == NULL) || (nav == NULL) || (scroll_frame_data == NULL))
 	return;
-    }
 
-	if ((nav_trait = (XmNavigatorTrait)
+    if ((nav_trait = (XmNavigatorTrait) 
 	 XmeTraitGet((XtPointer) XtClass(nav), XmQTnavigator)) == NULL ||
 	 nav_trait->setValue == NULL ||
 	 (scroll_frame_data->move_cb != NULL &&
 	  nav_trait->changeMoveCB == NULL)) {
 	XmeWarning(sf, SWMessage3);
 	return;
-	}
+    }
 
 	if (scroll_frame_data->move_cb)
 	    nav_trait -> changeMoveCB(nav, scroll_frame_data->move_cb,
@@ -84,8 +83,15 @@ _XmSFAddNavigator(
 
 	if (scroll_frame_data->num_nav_list == 
 	    scroll_frame_data->num_nav_slots) {
+	    Cardinal new_slots;
 	    /* Allocate more space */
-	    Cardinal new_slots = scroll_frame_data->num_nav_slots + 2;
+	    if (scroll_frame_data->num_nav_slots > (Cardinal)-1 - 2 ||
+		(size_t)(scroll_frame_data->num_nav_slots + 2) >
+		  SIZE_MAX / sizeof(Widget) ||
+		(size_t)(scroll_frame_data->num_nav_slots + 2) >
+		  (size_t)(Cardinal)-1 / sizeof(Widget))
+		return;
+	    new_slots = scroll_frame_data->num_nav_slots + 2;
 	    WidgetList new_list =
 		(WidgetList) XtRealloc((char*)scroll_frame_data->nav_list,
 			new_slots * sizeof(Widget));
@@ -97,6 +103,7 @@ _XmSFAddNavigator(
 
 	scroll_frame_data->nav_list[scroll_frame_data->num_nav_list] = nav;
 	scroll_frame_data->num_nav_list++;
+
 }
 
 
@@ -125,7 +132,7 @@ _XmSFRemoveNavigator(
 	 XmeTraitGet((XtPointer) XtClass(nav), XmQTnavigator)) != NULL) {
 
 	/* remove the move callback */
-	if (scroll_frame_data->move_cb) 
+	if (scroll_frame_data->move_cb && nav_trait->changeMoveCB != NULL)
 	    nav_trait -> changeMoveCB(nav, scroll_frame_data->move_cb,
 				(XtPointer) scroll_frame_data->scrollable,
 				False) ;
@@ -133,6 +140,10 @@ _XmSFRemoveNavigator(
 	XmeWarning(sf, SWMessage4);
 	return ;
     }
+
+    if (scroll_frame_data->num_nav_list != 0 &&
+	    scroll_frame_data->nav_list == NULL)
+	return;
 
     for (position = 0; position<scroll_frame_data->num_nav_list; position++) {
         if (scroll_frame_data->nav_list[position] == nav) {
@@ -197,11 +208,6 @@ _XmSFUpdateNavigatorsValue(
 	nav_setValue = nav_trait->setValue;
 
 	nav_setValue(nav, nav_data, notify);
-	/* A navigator callback may destroy the scroll frame.  The navigation
-	   list is borrowed from the frame, so continuing the loop after that
-	   callback would dereference the frame's retired list or child widgets. */
-	if (((WidgetRec *)sf)->core.being_destroyed)
-	    break;
     }
 }
 

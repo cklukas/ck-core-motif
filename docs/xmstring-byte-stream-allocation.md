@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString byte-stream allocation failures
 
 `XmCvtXmStringToByteStream` now checks component-size arithmetic and the output

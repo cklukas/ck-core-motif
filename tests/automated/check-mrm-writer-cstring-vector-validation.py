@@ -3,6 +3,7 @@
 
 from pathlib import Path
 
+
 source = Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrwr.c"
 text = source.read_text(encoding="utf-8")
 start = text.index("UrmCWRSetArgCStringVec (")
@@ -22,4 +23,4 @@ second_guard = region.find("if ( result != MrmSUCCESS ) return result ;", second
 if second_guard < 0 or second_guard - second_bind > 180:
     raise SystemExit("cstring-vector setter ignores post-growth binding failure")
 
-print("PASS Mrm cstring-vector validation failures propagate")
+print("Mrm cstring-vector validation failures propagate")

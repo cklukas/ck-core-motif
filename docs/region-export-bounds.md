@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Region rectangle export bounds
 
 The region-to-`XRectangle` export path feeds both an Xt allocation-size

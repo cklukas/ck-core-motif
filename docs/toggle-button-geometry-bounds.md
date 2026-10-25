@@ -1,20 +1,15 @@
+---
+nav_exclude: true
+---
 # ToggleButton geometry bounds
 
-ToggleButton drawing uses dimensions supplied by the Xt geometry contract.
-Those dimensions are unsigned, so subtracting highlight and shadow margins
-before checking the result can wrap a very small widget into a large fill or
-shadow rectangle.  The shadow path also must not ask Xlib to draw with missing
-shadow graphics contexts.
+The ToggleButton shadow and fill paths now check the widget dimensions before
+subtracting highlight and shadow margins.  Core dimensions are unsigned
+`Dimension` values, so subtracting margins first could wrap a tiny widget into
+a large positive rectangle after conversion to `int`.  Undersized widgets now
+skip that draw operation, and the shadow path also skips calls with missing
+shadow GCs.
 
-`DrawToggleShadow`, `DrawToggleLabel`, and `DrawEtchedInMenu` now validate the
-available width and height before subtracting their margins.  They return
-without issuing a drawing request when the interior is empty or when the
-shadow GCs are unavailable.  Ordinary widgets with a positive interior keep
-the existing geometry and visual behavior.
-
-The source contract is covered by
-`tests/automated/check-toggle-button-geometry-bounds.py`; the installed
-library fixture `tests/automated/run-toggle-button-geometry.py` realizes
-1×1 widgets through the public API under Xvfb and rejects any X protocol
-error.  The full installed library build and gallery integration remain the
-broader runtime qualification for the changed `libXm` object.
+Normal-sized toggles keep their existing margins, colors, and shadow ordering.
+The focused regression is
+`tests/automated/check-toggle-button-geometry-bounds.py`.

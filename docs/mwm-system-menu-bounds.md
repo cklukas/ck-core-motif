@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm localized system-menu bounds
 
 The window manager assembles its built-in system menu from localized command

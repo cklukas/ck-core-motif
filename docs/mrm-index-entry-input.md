@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm index-entry input validation
 
 The high-level Mrm index entry routine and both root-record initializers now

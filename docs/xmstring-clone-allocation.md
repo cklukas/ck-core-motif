@@ -1,12 +1,12 @@
 ---
 nav_exclude: true
 ---
-# XmString clone allocation
 
-Both optimized and non-optimized `XmStringCopy` clones validate allocation
-sizes and results before copying. The non-optimized path releases every entry
-copied so far when a child copy fails; the optimized path rejects wrapped
-payload sizes and failed allocation. Neither path publishes a partial clone.
+# XmString optimized clone allocation
+
+Optimized `XmStringCopy` clones now validate the computed payload size and
+handle allocation failure before copying. This prevents arithmetic wraparound
+and null-pointer dereferences for malformed or allocation-starved strings.
 
 The focused regression check is
 `tests/automated/check-xmstring-clone-allocation.py`.

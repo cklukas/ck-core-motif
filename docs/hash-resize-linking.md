@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Hash-table resize chain linking
 
 Hash-table resize now always records the current bucket predecessor when an

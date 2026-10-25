@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PNG signature validation
 
 The PNG loader now checks that the complete eight-byte signature was read

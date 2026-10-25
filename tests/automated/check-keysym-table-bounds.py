@@ -15,6 +15,8 @@ for needle in (
     "size_t i, comma_count;",
     "if (in_str_size == SIZE_MAX)",
     "comma_count > (SIZE_MAX / sizeof(KeySym)) - 2",
+    "comma_count > ((size_t)UINT_MAX / sizeof(KeySym)) - 2",
+    "(Cardinal)(sizeof(KeySym) * (comma_count + 2))",
 ):
     if needle not in region:
         raise SystemExit(f"KeySym-table capacity guard missing: {needle}")

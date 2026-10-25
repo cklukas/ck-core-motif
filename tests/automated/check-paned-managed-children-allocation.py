@@ -6,7 +6,8 @@ start = source.rindex("Initialize(\n")
 end = source.index("/*************************************<->*************************************", start)
 init = source[start:end]
 assert "managed_children ? XmBLOCK : 0" in init
-start = source.index("ReManageChildren(\n        XmPanedWindowWidget")
+start = source.index(" *  ReManageChildren")
+start = source.index("ReManageChildren(", start)
 end = source.index("/*************************************<->*************************************", start)
 region = source[start:end]
 assert "SIZE_MAX / sizeof(Widget)" in region

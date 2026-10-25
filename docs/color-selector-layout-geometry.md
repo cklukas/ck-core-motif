@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ColorSelector layout geometry
 
 `XmColorSelector` derives child widths and heights by subtracting margins,
@@ -11,6 +14,3 @@ arithmetic.
 
 This preserves the normal layout for usable sizes while making very small or
 temporarily collapsed selectors deterministic during resize and realization.
-
-The focused source contract is checked by
-`tests/automated/check-color-selector-layout-bounds.py`.

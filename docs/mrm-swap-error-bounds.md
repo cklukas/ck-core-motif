@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm byte-swap diagnostic bounds
 
 Mrm byte-swapping reports malformed record, callback, and widget-resource

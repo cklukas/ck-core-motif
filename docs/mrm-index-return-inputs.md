@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm index item lookup inputs
 
 `Idb__INX_ReturnItem` now rejects missing file handles, index strings, and

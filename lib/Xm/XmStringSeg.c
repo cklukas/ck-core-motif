@@ -57,10 +57,12 @@ CopyRenditionTags(XmStringTag *source,
     return True;
   if (source == NULL)
     return False;
-  if ((size_t)count > SIZE_MAX / sizeof(*tags))
+  if ((size_t)count > SIZE_MAX / sizeof(*tags) ||
+      (size_t)count > UINT_MAX / sizeof(*tags))
     return False;
 
-  tags = (XmStringTag *)XtMalloc(sizeof(*tags) * count);
+  tags = (XmStringTag *)XtMalloc(
+	(Cardinal)(sizeof(*tags) * (size_t)count));
   if (tags == NULL)
     return False;
   for (i = 0; i < count; i++) {
@@ -134,6 +136,12 @@ _XmStringGetSegment(_XmStringContext   context,
   if (push_before)    *push_before    = 0;
   if (pop_after)      *pop_after      = False;
   
+  /* No NULL pointers allowed. */
+  if (! (context && text && tag && type && rendition_tags && tag_count
+	 && direction && separator && tabs && char_count && push_before
+	 && pop_after))
+    return False;
+
   if (_XmStrContError(context))
     return False;
 
@@ -218,6 +226,12 @@ _XmStringGetSegment(_XmStringContext   context,
 	case XmSTRING_COMPONENT_WIDECHAR_TEXT:
 	  if (*text)
 	    done = TRUE;
+	  else if (len > (unsigned int)SHRT_MAX)
+	    {
+	      /* The legacy API exposes the component length as a short. */
+	      result = FALSE;
+	      done = TRUE;
+	    }
 	  else if (*tabs && new_renditions)
 	    {
 	      /* Tabs had a different set of renditions than the text, */
@@ -236,7 +250,11 @@ _XmStringGetSegment(_XmStringContext   context,
 	      else if (ctype == XmSTRING_COMPONENT_WIDECHAR_TEXT)
 		*type = XmWIDECHAR_TEXT;
 	      else
-		{ assert(FALSE); }
+		{
+		  result = FALSE;
+		  done = TRUE;
+		  break;
+		}
 	      
 	      /* Force a tag for backward compatibility with Motif 1.2 */
 	      if (! *tag)
@@ -377,13 +395,14 @@ _XmStringGetNextSegment(
       size_t converted;
       wchar_t *wtext = (wchar_t *)(*text);
 
-      if ((size_t)*char_count > (SIZE_MAX - 1) / MB_CUR_MAX) {
+	if ((size_t)*char_count > (SIZE_MAX - 1) / MB_CUR_MAX ||
+	    (size_t)*char_count * MB_CUR_MAX + 1 > UINT_MAX) {
 	result = False;
 	*text = NULL;
 	XtFree((char *)*tag); *tag = NULL;
       } else {
 	len = (size_t)*char_count * MB_CUR_MAX;
-	*text = (char *)XtMalloc(len + 1);
+	*text = (char *)XtMalloc((Cardinal)(len + 1));
 	if (*text == NULL) {
 	  result = False;
 	  XtFree((char *)*tag); *tag = NULL;

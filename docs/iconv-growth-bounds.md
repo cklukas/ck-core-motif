@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Iconv output growth bounds
 
 The UTF-8 resource converter grows its output buffer when `iconv` reports

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm fetched font-list bounds
 
 `UrmFetchSetValues` translates the variable-sized font-list record used by

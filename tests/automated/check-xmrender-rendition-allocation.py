@@ -1,60 +1,74 @@
 #!/usr/bin/env python3
-"""Check render-table count and allocation-size guards."""
+"""Check that XmRenderT rendition cloning handles allocation failure."""
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmRenderT.c").read_text(encoding="utf-8")
-clone_start = source.index("CloneRendition(")
-clone_end = source.index("/* Set the old handle", clone_start)
-clone_region = source[clone_start:clone_end]
-assert "if (copy == NULL) return(NULL);" in clone_region
+clone = source.index("CloneRendition(XmRendition rend)\n{")
+renew = source.index("RenewRendition(XmRendition rend)\n{", clone)
+clone_region = source[clone:renew]
+renew_end = source.index("/* Allocate a new handle", renew)
+renew_region = source[renew:renew_end]
+assert "if (copy == NULL)" in clone_region
 assert "if (copy_handle == NULL)" in clone_region
-copy_start = source.index("CopyRendition(")
-copy_end = source.index("/* Make a copy of a rendition", copy_start)
-copy_region = source[copy_start:copy_end]
-assert "_XmRendRefcountDec(rend);" in copy_region
-print("PASS render-table rendition helper allocations are rollback-safe")
-
-start = source.index("XmRenderTableAddRenditions(")
-end = source.index("/* One body owns each entry handle", start)
-region = source[start:end]
-
-assert "rendition_count > INT_MAX" in region
-assert "SIZE_MAX / sizeof(Boolean)" in region
-assert "SIZE_MAX - sizeof(_XmRenderTableRec)" in region
-assert "append_count > UINT16_MAX" in region
-assert "append_copy_failed:" in region
-assert "append_abort:" in region
-assert "copy_start = (tmptable != NULL) ? 0 : _XmRTCount(source_table);" in region
-assert "while (next > copy_start)" in region
-assert "if (newtable == NULL)" in region
-assert "merge_abort:" in region
-assert "while (i > 0)" in region
-assert "copy = CopyRendition(rend);" in region
-assert "copy = CloneRendition(previous);" in region
-assert "copy = CloneRendition(rend);" in region
-assert "if (copy == NULL)" in region
-assert "if (matches == NULL)" in region
-assert "initial_copy_failed:" in region
-assert "for (j = 0; j < i; ++j)" in region
-assert "if (renditions[i] == NULL)" in region
-assert "goto unlock_return;" in region
-print("PASS render-table count and allocation-size guards")
-
+assert "XtFree((char *)copy);" in clone_region
+assert "if (copy == NULL)" in renew_region
+create_start = source.index("_XmRenditionCreate(Display *display")
+create_end = source.index("/* Mrm create function", create_start)
+create_region = source[create_start:create_end]
+assert "if (rend_int == NULL)" in create_region
+assert "if (rend == NULL)" in create_region
+assert "XtFree((char *)rend_int);" in create_region
+table_start = source.index("_XmCreateRenderTable(Widget parent")
+table_end = source.index("/* Mrm create function for renditions. */", table_start)
+table_region = source[table_start:table_end]
+assert "if (table == NULL)" in table_region
+assert "if (newtable == NULL)" in table_region
+assert "XtFree((char *)table);" in table_region
+assert "if (parent == NULL)" in table_region
+mrend_start = source.index("_XmCreateRendition(Widget parent")
+mrend_end = source.index("/* Free data structure", mrend_start)
+mrend_region = source[mrend_start:mrend_end]
+assert "if (rt == NULL || GetPtr(rt) == NULL)" in mrend_region
+assert "if (rend == NULL)" in mrend_region
+assert "if (table == NULL)" in mrend_region
+assert "copy = CopyRendition(rend);" in mrend_region
+assert "if (copy == NULL)" in mrend_region
+assert "required_count = (size_t)_XmRTCount(rt) + 1" in mrend_region
+assert "SIZE_MAX - sizeof(_XmRenderTableRec)" in mrend_region
+assert "XM_RESOURCE_PATH_CAPACITY - 3" in source
+assert "names[XM_RESOURCE_PATH_CAPACITY]" in source
+assert "classes[XM_RESOURCE_PATH_CAPACITY]" in source
+add_start = source.index("XmRenderTableAddRenditions(")
+add_end = source.index("/* Remove matching renditions. */", add_start)
+add_region = source[add_start:add_end]
+assert "matches =" in add_region
+assert "if (matches == NULL)" in add_region
+assert "goto unlock_return;" in add_region
+assert "if (table == NULL)" in add_region
+assert "if (oldtable == NULL)" in add_region
+assert "initial_copy_failed:" in add_region
+assert "FreeRendition(_XmRTRenditions(oldtable)[j]);" in add_region
+assert "copy = CopyRendition(rend);" in add_region
+assert "copy = CloneRendition(previous);" in add_region
+assert "copy = CloneRendition(rend);" in add_region
+assert "if (copy == NULL)" in add_region
+assert "if (newtable == NULL)" in add_region
+assert "goto merge_abort;" in add_region
+assert "while (i > 0)" in add_region
+assert "source_table = oldtable;" in add_region
+assert "append_copy_failed:" in add_region
+assert "append_abort:" in add_region
+assert "while (next > _XmRTCount(source_table))" in add_region
+assert "rendition_count > INT_MAX" in add_region
+assert "SIZE_MAX / sizeof(Boolean)" in add_region
+assert "SIZE_MAX - sizeof(_XmRenderTableRec)" in add_region
 remove_start = source.index("_XmRenderTableRemoveRenditions(")
-remove_end = source.index("static void\nCopyFromArg", remove_start)
+remove_end = source.index("static void", remove_start)
 remove_region = source[remove_start:remove_end]
-assert "Plan the removal without changing the live table" in remove_region
-assert "removed = (Boolean *)XtMalloc" in remove_region
 assert "if (table == NULL)" in remove_region
 assert "if (newtable == NULL)" in remove_region
-assert "remove_abort:" in remove_region
-print("PASS render-table removal publishes only after allocation success")
-
-extents_start = source.index("XmRenderTableGetDefaultFontExtents(")
-extents_end = source.index("\n}", extents_start)
-extents_region = source[extents_start:extents_end]
-assert "if (height) *height = 0;" in extents_region
-assert "if (ascent) *ascent = 0;" in extents_region
-assert "if (descent) *descent = 0;" in extents_region
-assert "if (rendertable == NULL)" in extents_region
-print("PASS null render-table extents initialize outputs")
+assert "while (i > 0)" in remove_region
+assert "return(oldtable);" in remove_region
+assert "if (table == NULL)" in remove_region
+assert "if (newtable == NULL)" in remove_region
+print("PASS XmRenderT rendition allocations are guarded")

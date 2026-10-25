@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Native text and external-IME qualification matrix
 
 This matrix records which native text boundaries are evidence-backed. A

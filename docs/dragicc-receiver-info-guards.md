@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drag receiver-info property validation
 
 `_XmGetDragReceiverInfo` reads the byte-serialized

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon path bounds
 
 Icon lookup no longer copies the arbitrary-length home directory into its fixed

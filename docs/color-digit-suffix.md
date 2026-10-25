@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Color-name digit suffix detection
 
 Color matching checks whether a name ends in a digit.  Empty and missing names

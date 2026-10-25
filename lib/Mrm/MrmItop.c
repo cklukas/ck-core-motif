@@ -324,7 +324,7 @@ UrmIdbCloseFile (IDBFile		file_id,
 #define	_error_close()					\
   {							\
 	    if ( !file_id->in_memory )	\
-	      Idb__FU_CloseFile(file_id->lowlevel_id,\
+	      Idb__FU_CloseFile(file_id->lowlevel_id,	\
 				      file_id->access == URMWriteAccess) ;\
     file_id->validation = 0 ;				\
     XtFree((char*)file_id) ;				\
@@ -339,9 +339,15 @@ UrmIdbCloseFile (IDBFile		file_id,
    */
 
   if (file_id->class_ctable != NULL)
-    XtFree ((char*)file_id->class_ctable);
+    {
+      XtFree ((char*)file_id->class_ctable);
+      file_id->class_ctable = NULL;
+    }
   if (file_id->resource_ctable != NULL)
-    XtFree ((char*)file_id->resource_ctable);
+    {
+      XtFree ((char*)file_id->resource_ctable);
+      file_id->resource_ctable = NULL;
+    }
 
   /*
    * If the file was opened for write, update its header
@@ -356,7 +362,11 @@ UrmIdbCloseFile (IDBFile		file_id,
    * Decommit the file's buffers
    */
   result = Idb__BM_DecommitAll (file_id) ;
-  if ( result != MrmSUCCESS ) _error_close () ;
+  if ( result != MrmSUCCESS )
+    {
+      /* Keep the descriptor alive so failed writes can be retried. */
+      return result;
+    }
 
   /*
    * Close the file and deallocate the file descriptor

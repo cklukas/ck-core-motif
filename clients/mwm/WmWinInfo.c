@@ -48,6 +48,8 @@ static char rcsid[] = "$TOG: WmWinInfo.c /main/18 1999/02/04 15:17:25 mgreess $"
 
 #include <Xm/Xm.h>
 #include <X11/Xlocale.h>
+#include <limits.h>
+#include <string.h>
 #ifdef PANELIST
 #include "WmPanelP.h"
 #endif /* PANELIST */
@@ -97,10 +99,10 @@ WmWarningWithString(const char *format, const char *value)
     char *message;
 
     messageLength = snprintf(NULL, 0, format, value);
-    if (messageLength < 0)
+    if (messageLength < 0 || (unsigned int)messageLength >= UINT_MAX)
         return;
 
-    message = (char *)XtMalloc((unsigned int)messageLength + 1);
+    message = (char *)XtMalloc((Cardinal)messageLength + 1);
     if (message == NULL)
     {
         Warning("insufficient memory to format window property warning");
@@ -609,8 +611,14 @@ int i;
      * Allocate initial workspace ID list 
      * fill with NULL IDs
      */
+    if (pCD->pSD == NULL || pCD->pSD->numWorkspaces < 0 ||
+	(size_t)pCD->pSD->numWorkspaces > UINT_MAX / sizeof(WsClientData))
+    {
+	Warning (((char *)GETMESSAGE(70, 2, "Insufficient memory for client data")));
+	return (NULL);
+    }
     if ((pCD->pWsList = (WsClientData *) 
-	    XtMalloc(pCD->pSD->numWorkspaces * sizeof(WsClientData))) == NULL)
+	    XtMalloc((Cardinal)((size_t)pCD->pSD->numWorkspaces * sizeof(WsClientData)))) == NULL)
     {
 	Warning (((char *)GETMESSAGE(70, 2, "Insufficient memory for client data")));
 	return (NULL);
@@ -833,9 +841,15 @@ int i;
 		      NULL, TRUE);
 	if (pCD->systemMenuSpec != (MenuSpec *) NULL)
 	{
+	    String menu_name;
+
 	    pCD->systemMenuSpec = DuplicateMenuSpec(pCD->systemMenuSpec);
-	    XtFree(pCD->systemMenuSpec->name);
-	    pCD->systemMenuSpec->name = XtNewString("IconBoxMenu");
+	    menu_name = XtNewString("IconBoxMenu");
+	    if (menu_name != NULL)
+	    {
+		XtFree(pCD->systemMenuSpec->name);
+		pCD->systemMenuSpec->name = menu_name;
+	    }
 	    iconBoxMenuItems = GetIconBoxMenuItems (PSD_FOR_CLIENT(pCD));
 	    
 	    /* Find the last menu item in the menu spec's list. */
@@ -969,11 +983,11 @@ ProcessSmClientID (ClientData *pCD)
     Atom actualType;
     int actualFormat;
     unsigned long nitems, leftover;
-    char *clientID;
+    char *clientID = NULL;
 
     if (pCD->smClientID != (String)NULL)
     {
-	XFree(pCD->smClientID);
+	XtFree(pCD->smClientID);
 	pCD->smClientID = (String)NULL;
     }
 
@@ -982,11 +996,20 @@ ProcessSmClientID (ClientData *pCD)
 			    &actualType, &actualFormat, &nitems,
 			    &leftover, (unsigned char **)&clientID)
 	 == Success) &&
-	(actualType != None) && (actualFormat == 8))
+	(actualType != None) && (actualFormat == 8) && (nitems > 0) &&
+	(nitems < (unsigned long)UINT_MAX))
     {
-	/* the SM_CLIENT_ID property exists for the client window */
-	pCD->smClientID = clientID;
+	/* Copy the property into a terminated Xt-owned string. */
+	pCD->smClientID = (String)XtMalloc((Cardinal)nitems + 1);
+	if (pCD->smClientID != (String)NULL)
+	{
+	    memcpy(pCD->smClientID, clientID, (size_t)nitems);
+	    pCD->smClientID[nitems] = '\0';
+	}
     }
+
+    if (clientID != NULL)
+	XFree(clientID);
 
 } /* END OF FUNCTION ProcessSmClientID */
 
@@ -1029,7 +1052,7 @@ ProcessWmSaveHint (ClientData *pCD)
 			    &actualType, &actualFormat, &nitems,
 			    &leftover, (unsigned char **)&saveHintFlags)
 	 == Success) &&
-	(actualType != None) && (actualFormat == 32))
+	(actualType != None) && (actualFormat == 32) && (nitems > 0))
     {
 	/* the WMSAVE_HINT property exists for the client window */
 	pCD->wmSaveHintFlags = (int)*saveHintFlags;
@@ -1367,14 +1390,26 @@ ProcessWmHints (ClientData *pCD, Boolean firstTime)
 		      pCD->iconX : pXWMHints->icon_x;
 		    tmpIconY = (pCD->clientFlags & SM_ICON_Y) ?
 		      pCD->iconY : pXWMHints->icon_y;
-		    pCD->iconPlace = 
-			FindIconPlace (pCD, &(pCD->pSD->pActiveWS->IPData),
-				       tmpIconX, tmpIconY);
-		    if (pCD->iconPlace != NO_ICON_PLACE)
-		    {
-		        CvtIconPlaceToPosition (&(pCD->pSD->pActiveWS->IPData),
-			    pCD->iconPlace, &pCD->iconX, &pCD->iconY);
-		    }
+            if (pCD->pSD->pActiveWS != NULL)
+            {
+                pCD->iconPlace =
+                    FindIconPlace (pCD,
+                        &(pCD->pSD->pActiveWS->IPData),
+                        tmpIconX, tmpIconY);
+                if (pCD->iconPlace != NO_ICON_PLACE)
+                {
+                    CvtIconPlaceToPosition (
+                        &(pCD->pSD->pActiveWS->IPData),
+                        pCD->iconPlace,
+                        &pCD->iconX, &pCD->iconY);
+                }
+            }
+            else
+            {
+                pCD->iconPlace = NO_ICON_PLACE;
+                pCD->iconX = tmpIconX;
+                pCD->iconY = tmpIconY;
+            }
 	        }
 	        else
 	        {
@@ -2390,6 +2425,8 @@ ProcessWmWindowTitle (ClientData *pCD, Boolean firstTime)
 	if (pCD->clientName)
         {
 	    pCD->clientTitle = XmStringCreateLocalized(pCD->clientName);
+	    if (!pCD->clientTitle)
+		pCD->clientTitle = wmGD.clientDefaultTitle;
         }
         else
         {
@@ -2756,8 +2793,14 @@ MakeSystemMenu (ClientData *pCD)
       return;
 
     pCD->systemMenuSpec = DuplicateMenuSpec(pCD->systemMenuSpec);
-    XtFree(pCD->systemMenuSpec->name);
-    pCD->systemMenuSpec->name = XtNewString("ProtocolsMenu");
+    {
+      String menu_name = XtNewString("ProtocolsMenu");
+      if (menu_name != NULL)
+      {
+        XtFree(pCD->systemMenuSpec->name);
+        pCD->systemMenuSpec->name = menu_name;
+      }
+    }
 
     /* Find the last menu item in the menu spec's list. */
     for (lastItem = pCD->systemMenuSpec->menuItems;

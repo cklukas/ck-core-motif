@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Check Mrm widget readers guard null records before byte swapping."""
 
+import os
 from pathlib import Path
 
-source = Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwread.c"
+source = Path(os.environ.get("MOTIF_MRMWREAD_SOURCE", Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwread.c"))
 text = source.read_text(encoding="utf-8")
 for name in ("UrmHGetWidget", "UrmGetIndexedWidget", "UrmGetRIDWidget"):
     start = text.index(name + " (")
@@ -14,4 +15,4 @@ for name in ("UrmHGetWidget", "UrmGetIndexedWidget", "UrmGetRIDWidget"):
     deref = body.index("widgetrec->validation", assignment)
     if guard > deref:
         raise SystemExit(f"{name} dereferences a null widget record")
-print("PASS Mrm widget readers guard null records")
+print("Mrm widget readers guard null records")

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleSwitch redisplay guards
 
 `XmToggleSwitch` now tolerates failed track, knob, or insensitive GC creation.

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm index mutation inputs
 
 Index split, node-space, and parent-link helpers now reject missing record

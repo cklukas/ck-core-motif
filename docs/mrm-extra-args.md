@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm extra-argument counts
 
 Mrm extra-argument metadata now rejects counts above the signed record limit

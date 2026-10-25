@@ -8,9 +8,8 @@ for signature in ("UrmCreatePixmap (RGMIconImagePtr", "UrmCreateBitmap (RGMIconI
     start = source.index(signature)
     end = source.find("\nCardinal ", start + 1)
     body = source[start:] if end < 0 else source[start:end]
-    guard = body.index("if ( icon == NULL || pixmap == NULL )")
-    if "return MrmFAILURE;" not in body[guard:guard + 80] or "*pixmap = 0;" not in body[guard:guard + 100]:
-        raise SystemExit(f"{signature} does not initialize failure-safe outputs")
-    if guard > body.index("icon->"):
-        raise SystemExit(f"{signature} dereferences icon before validation")
-print("PASS Mrm icon converters validate and initialize their inputs")
+    assert "if ( icon == NULL || pixmap == NULL )" in body
+    assert "return MrmFAILURE;" in body
+    assert "*pixmap = 0;" in body
+    assert body.index("if ( icon == NULL || pixmap == NULL )") < body.index("icon->")
+print("Mrm icon converters validate and initialize their inputs")

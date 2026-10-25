@@ -6,6 +6,7 @@
 #include <string.h>
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
+#include <stdint.h>
 #include <Xm/StepperP.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
@@ -94,7 +95,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                        s->core.height - 2 * s->primitive.highlight_thickness);
 }
 static void step(XmStepperWidget s, int direction, Boolean notify_change, XEvent *event) {
-    long next = (long)s->stepper.value + (direction < 0 ? -s->stepper.step : s->stepper.step);
+    int64_t next = (int64_t)s->stepper.value +
+                   (direction < 0 ? -(int64_t)s->stepper.step :
+                                    (int64_t)s->stepper.step);
     if (next < s->stepper.minimum || next > s->stepper.maximum) {
         if (s->stepper.wrap) next = next < s->stepper.minimum ? s->stepper.maximum : s->stepper.minimum;
         else next = next < s->stepper.minimum ? s->stepper.minimum : s->stepper.maximum;

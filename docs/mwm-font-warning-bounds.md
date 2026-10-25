@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm font-load warning bounds
 
 When a configured render table cannot provide a default font, `mwm` reports the

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drag target-list count validation
 
 Each `_MOTIF_DRAG_TARGETS` list stores its atom count in a 16-bit wire field.

@@ -60,6 +60,7 @@ extern pid_t vfork();
 #include <signal.h>
 #endif
 #include <stdio.h>
+#include <limits.h>
 #include <X11/Xos.h>
 #include "WmICCC.h"
 #ifdef WSM
@@ -4548,7 +4549,9 @@ Boolean F_Screen (String args, ClientData *pCD, XEvent *event)
 
     if (PreviousScreen == -1)
     {
-	PreviousScreen = DefaultScreen(DISPLAY);
+	/* Screens[] is ordinal when only one screen is managed, even if
+	 * the X display's default screen number is nonzero. */
+	PreviousScreen = (wmGD.numScreens == 1) ? 0 : DefaultScreen(DISPLAY);
     }
 
     if (strcmp (args, "next") == 0)
@@ -4588,8 +4591,9 @@ Boolean F_Screen (String args, ClientData *pCD, XEvent *event)
             {
                 const char *format = "Unable to warp to unmanaged screen %d\n";
                 int messageLength = snprintf(NULL, 0, format, scr);
-                char *message = (messageLength >= 0) ?
-                    (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+                char *message = (messageLength >= 0 &&
+                                 (unsigned int)messageLength < UINT_MAX) ?
+                    (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
                 if (message != NULL)
                 {

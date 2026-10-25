@@ -342,6 +342,7 @@ static void Initialize(Widget req, Widget set,
     ArgList f_args;
     Cardinal f_num_args;
     XmMultiListWidget elist = (XmMultiListWidget) set;
+    XmString replacement;
 
     /*
      * Pass filtered setvalues requests down to all children.
@@ -353,14 +354,26 @@ static void Initialize(Widget req, Widget set,
     XmMultiList_ilist(elist) = NULL;
 
     if (XmMultiList_title(elist) != NULL) 
-	XmMultiList_title(elist) = XmStringCopy(XmMultiList_title(elist));
+	{
+	    replacement = XmStringCopy(XmMultiList_title(elist));
+	    XmMultiList_title(elist) = replacement != NULL
+		? replacement : XmStringCreateLocalized("");
+	}
 
     if (XmMultiList_title_string(elist) != NULL) 
-	XmMultiList_title_string(elist) =
-	    XmStringCopy(XmMultiList_title_string(elist));
+	{
+	    replacement = XmStringCopy(XmMultiList_title_string(elist));
+	    XmMultiList_title_string(elist) = replacement != NULL
+		? replacement : XmStringCreateLocalized("");
+	}
 
     if (XmMultiList_find_label(elist) != NULL) 
-	XmMultiList_find_label(elist) = XmStringCopy(XmMultiList_find_label(elist));
+	{
+	    replacement = XmStringCopy(XmMultiList_find_label(elist));
+	    XmMultiList_find_label(elist) = replacement != NULL
+		? replacement : XmStringGenerate(FIND_STRING, NULL,
+						 XmCHARSET_TEXT, NULL);
+	}
 	else 
 	XmMultiList_find_label(elist) = 
 		XmStringGenerate(FIND_STRING, NULL, XmCHARSET_TEXT, NULL);
@@ -555,6 +568,7 @@ SetValues(Widget current, Widget request, Widget set,
     ArgList f_args;
     Cardinal f_num_args;
     Boolean redisplay = False;
+    XmString replacement;
 
     /*
      * Pass the SetValues request through to all children.
@@ -591,14 +605,17 @@ SetValues(Widget current, Widget request, Widget set,
 	Arg args[1];
 
 	redisplay = True;
-	XmStringFree(XmMultiList_find_label(e_old));
-
-	if (XmMultiList_find_label(e_set) != NULL) 
-	    XmMultiList_find_label(e_set) = 
-		XmStringCopy(XmMultiList_find_label(e_set));
-	else 
-	    XmMultiList_find_label(e_set) = 
-		XmStringCreateLocalized(FIND_STRING);
+	if (XmMultiList_find_label(e_set) != NULL)
+	    replacement = XmStringCopy(XmMultiList_find_label(e_set));
+	else
+	    replacement = XmStringCreateLocalized(FIND_STRING);
+	if (replacement != NULL)
+	{
+	    XmStringFree(XmMultiList_find_label(e_old));
+	    XmMultiList_find_label(e_set) = replacement;
+	}
+	else
+	    XmMultiList_find_label(e_set) = XmMultiList_find_label(e_old);
 
 	XtSetArg(args[0], XmNlabelString, XmMultiList_find_label(e_set));
 	XtSetValues(XmMultiList_find(e_set), args, 1);
@@ -635,14 +652,20 @@ SetValues(Widget current, Widget request, Widget set,
 	{
 	    Arg		zargs[2];
 	    Cardinal	znum_args = 0;
-	    
-	    *title = XmStringCopy(*title);
 
-	    XtSetArg(zargs[znum_args], XmNlabelString, *title); znum_args++;
-	    XtSetValues(XmMultiList_title_wid(e_set), zargs, znum_args);
+	    replacement = XmStringCopy(*title);
+	    if (replacement != NULL)
+	    {
+		*title = replacement;
+		XtSetArg(zargs[znum_args], XmNlabelString, *title); znum_args++;
+		XtSetValues(XmMultiList_title_wid(e_set), zargs, znum_args);
+	    }
+	    else
+		*title = old_title;
 	}
 
-	XmStringFree(old_title);
+	if (*title != old_title)
+	    XmStringFree(old_title);
     }
 
     return(redisplay);   
@@ -696,15 +719,17 @@ GeometryManager(Widget w, XtWidgetGeometry * request,
 
 	if (request->request_mode & CWWidth)
 	{
-	    ext_request.width = elist->core.width -
-		(w->core.width - request->width);
+	    int width = (int)elist->core.width -
+		((int)w->core.width - (int)request->width);
+	    ext_request.width = (Dimension)(width > 0 ? width : 1);
 	    ext_request.request_mode |= CWWidth;
 	}
 
 	if (request->request_mode & CWHeight)
 	{
-	    ext_request.height = elist->core.height -
-		(w->core.height - request->height);
+	    int height = (int)elist->core.height -
+		((int)w->core.height - (int)request->height);
+	    ext_request.height = (Dimension)(height > 0 ? height : 1);
 	    ext_request.request_mode |= CWHeight;
 	}
 
@@ -779,6 +804,12 @@ ActivateTextSearch(Widget w, XtPointer elist_ptr, XtPointer client)
 
     ptr = XmTextFieldGetString(XmMultiList_find_text(elist));
     wc_string = XmTextFieldGetStringWcs(XmMultiList_find_text(elist));
+
+    if (ptr == NULL)
+    {
+	XtFree((XtPointer)wc_string);
+	return;
+    }
 
     if (XmMultiList_last_search(elist))
       reset = !streq(ptr, XmMultiList_last_search(elist));

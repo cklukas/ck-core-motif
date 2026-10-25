@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm writer vector inputs
 
 The UID writer now rejects a null string-vector pointer when its element count

@@ -32,6 +32,7 @@ static char rcsid[] = "$TOG: ToggleBG.c /main/46 1999/12/06 18:10:15 samborn $"
 #endif
 
 #include <stdio.h>
+#include <stdint.h>
 #include "XmI.h"
 #include <X11/ShellP.h>
 #include <Xm/CareVisualT.h>
@@ -224,6 +225,8 @@ static void DrawEtchedInMenu(
                         XmToggleButtonGadget tb) ;
 static void DrawToggleShadow( 
                         XmToggleButtonGadget tb) ;
+static Boolean ToggleShadowBoxFits(
+			XmToggleButtonGadget tb) ;
 static void SetToggleSize( 
                         XmToggleButtonGadget newtbg) ;
 static void NextState(unsigned char *state);
@@ -662,6 +665,7 @@ ClassInitialize( void )
   int                         i, j;
   XtResourceList              uncompiled;
   Cardinal                    num;
+  size_t                      merged_count;
   
   /*
    * Label's and Togglebutton's resource lists are being merged into one
@@ -679,8 +683,16 @@ ClassInitialize( void )
   
   sc_num_res = xmLabelGCacheObjClassRec.object_class.num_resources;
   
-  merged_list = (XtResource *)
-    XtMalloc((sizeof(XtResource) * (wc_num_res + sc_num_res)));
+  if ((size_t)wc_num_res > SIZE_MAX / sizeof(XtResource) -
+	      (size_t)sc_num_res)
+    return;
+  merged_count = (size_t)wc_num_res + (size_t)sc_num_res;
+  if (merged_count > (size_t)UINT_MAX / sizeof(XtResource))
+    return;
+  merged_list = (XtResource *)XtMalloc(
+    (Cardinal)(merged_count * sizeof(XtResource)));
+  if (merged_list == NULL)
+    return;
   
   _XmTransformSubResources(xmLabelGCacheObjClassRec.object_class.resources,
                            sc_num_res, &uncompiled, &num);
@@ -796,6 +808,14 @@ SecondaryObjectCreate(
   newSec = _XmExtObjAlloc(size);
   reqSec = _XmExtObjAlloc(size);
   _XmProcessUnlock();
+
+  if (newSec == NULL || reqSec == NULL) {
+    if (newSec != NULL)
+      _XmExtObjFree(newSec);
+    if (reqSec != NULL)
+      _XmExtObjFree(reqSec);
+    return;
+  }
   
   
   /*
@@ -824,6 +844,11 @@ SecondaryObjectCreate(
   
   
   extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+  if (extData == NULL) {
+    _XmExtObjFree(newSec);
+    _XmExtObjFree(reqSec);
+    return;
+  }
   extData->widget = (Widget)newSec;
   extData->reqWidget = (Widget)reqSec;
   
@@ -897,6 +922,10 @@ InitializePosthook(
    * free the req subobject used for comparisons
    */
   _XmPopWidgetExtData((Widget) tbw, &ext, XmCACHE_EXTENSION);
+  if (ext == NULL) {
+    _XmProcessUnlock();
+    return;
+  }
   _XmExtObjFree((XtPointer) ext->widget);
   _XmExtObjFree((XtPointer) ext->reqWidget);
   _XmProcessUnlock();
@@ -1123,7 +1152,7 @@ redisplayPixmap(XmToggleButtonGadget tb, XEvent *event, Region region)
 		     NULL, NULL, NULL, NULL, NULL, NULL,
 		     &onW, &onH);
   
-  h = (tb->rectangle.height - onH) / 2 ;
+  h = ((int)tb->rectangle.height - (int)onH) / 2;
   LabG_TextRect_y(tb) = MAX(h, 0);
   LabG_TextRect_height(tb) = onH;
   LabG_TextRect_width(tb) = onW;
@@ -1358,12 +1387,13 @@ Leave(
 	  XmeDrawHighlight(XtDisplay(w),
 			   XtWindow(w), 
 			   LabG_BackgroundGC(w), 
-			   w->rectangle.x + w->gadget.highlight_thickness,
-			   w->rectangle .y + w->gadget.highlight_thickness,
-			   w->rectangle.width - 2 *
-			   w->gadget.highlight_thickness,
-			   w->rectangle.height - 2 *
-			   w->gadget.highlight_thickness,
+			   (Position) ((int) w->rectangle.x + (int) w->gadget.highlight_thickness),
+			   (Position) ((int) w->rectangle.y +
+			       (int) w->gadget.highlight_thickness),
+			   (int) w->rectangle.width -
+			   2 * (int) w->gadget.highlight_thickness,
+			   (int) w->rectangle.height -
+			   2 * (int) w->gadget.highlight_thickness,
 			   w->gadget.shadow_thickness);
 	  
 	  
@@ -1427,11 +1457,12 @@ Enter(
 		   DrawToggle(w);
 	   }
 
-	  XmeDrawShadows (XtDisplay (w), XtWindow (w),
+	  if (ToggleShadowBoxFits(w))
+	    XmeDrawShadows (XtDisplay (w), XtWindow (w),
 			  LabG_TopShadowGC(w),
 			  LabG_BottomShadowGC(w),
-			  w->rectangle.x + w->gadget.highlight_thickness,
-			  w->rectangle.y + w->gadget.highlight_thickness,
+			  (Position) ((int) w->rectangle.x + (int) w->gadget.highlight_thickness),
+			  (Position) ((int) w->rectangle.y + (int) w->gadget.highlight_thickness),
 			  w->rectangle.width -
 			  2 * w->gadget.highlight_thickness,
 			  w->rectangle.height -
@@ -1844,11 +1875,12 @@ BtnDown(
 	     DrawToggle(tb);
      }
 					   
-  XmeDrawShadows (XtDisplay (tb), XtWindow (tb),
+  if (ToggleShadowBoxFits(tb))
+    XmeDrawShadows (XtDisplay (tb), XtWindow (tb),
 		  LabG_TopShadowGC(tb),
 		  LabG_BottomShadowGC(tb),
-		  tb->rectangle.x + tb->gadget.highlight_thickness,
-		  tb->rectangle.y + tb->gadget.highlight_thickness,
+		  (Position) ((int) tb->rectangle.x + (int) tb->gadget.highlight_thickness),
+		  (Position) ((int) tb->rectangle.y + (int) tb->gadget.highlight_thickness),
 		  tb->rectangle.width - 2 * tb->gadget.highlight_thickness,
 		  tb->rectangle.height - 2 * tb->gadget.highlight_thickness,
 		  tb->gadget.shadow_thickness, 
@@ -2378,11 +2410,11 @@ Initialize(
       }
 	else
         {
-	  LabG_AccTextRect(new_w).x = new_w->rectangle.width -
-	    new_w->gadget.highlight_thickness -
-	      new_w->gadget.shadow_thickness -
-		LabG_MarginHeight(new_w) -
-		  LabG_MarginRight(new_w) + LABELG_ACC_PAD;
+	  LabG_AccTextRect(new_w).x = (short)((int)new_w->rectangle.width -
+	    (int)new_w->gadget.highlight_thickness -
+	      (int)new_w->gadget.shadow_thickness -
+		(int)LabG_MarginHeight(new_w) -
+		  (int)LabG_MarginRight(new_w) + LABELG_ACC_PAD);
       }
       }
     }
@@ -2398,12 +2430,12 @@ Initialize(
   LabG_TextRect(new_w).y = new_w->gadget.highlight_thickness
     + new_w->gadget.shadow_thickness
       + LabG_MarginHeight(new_w) + LabG_MarginTop(new_w) +
-	((new_w->rectangle.height - LabG_MarginTop(new_w)
-	  - LabG_MarginBottom(new_w)
-	  - (2 * (LabG_MarginHeight(new_w)
-		  + new_w->gadget.highlight_thickness
-		  + new_w->gadget.shadow_thickness))
-	  - LabG_TextRect(new_w).height) / 2);
+	(((int)new_w->rectangle.height - (int)LabG_MarginTop(new_w)
+	  - (int)LabG_MarginBottom(new_w)
+	  - (2 * ((int)LabG_MarginHeight(new_w)
+		  + (int)new_w->gadget.highlight_thickness
+		  + (int)new_w->gadget.shadow_thickness))
+	  - (int)LabG_TextRect(new_w).height) / 2);
   
   if (new_w->rectangle.height == 0)
     new_w->rectangle.height = 1;
@@ -2494,6 +2526,9 @@ DrawBox(XmToggleButtonGadget w,
 	Dimension margin)
 {
   int shadow = w->toggle.detail_shadow_thickness;
+
+  if (edge <= 0 || top_gc == NULL || bot_gc == NULL)
+    return;
 
   XmeDrawShadows(XtDisplay ((Widget) w),
 		 XtWindow ((Widget) w),
@@ -2643,7 +2678,6 @@ DrawToggle(
 	  break;
 
 	default:
-	  assert(False);
 	  return;
 	}
 
@@ -2775,7 +2809,7 @@ DrawToggle(
 
 	case XmONE_OF_MANY:
 	  /* This value should have been normalized away! */
-	  assert(FALSE);
+	  break;
 
 	case XmONE_OF_MANY_DIAMOND:
 	  XmeDrawDiamond(dpy, drawable, top_gc, bot_gc, fill_gc, x, y,
@@ -2845,11 +2879,12 @@ BorderHighlight(
 		DrawToggle(tb);
 	}
 
-      XmeDrawShadows (XtDisplay (tb), XtWindow (tb),
+      if (ToggleShadowBoxFits(tb))
+	XmeDrawShadows (XtDisplay (tb), XtWindow (tb),
 		      LabG_TopShadowGC(tb),
 		      LabG_BottomShadowGC(tb),
-		      tb->rectangle.x + tb->gadget.highlight_thickness,
-		      tb->rectangle.y + tb->gadget.highlight_thickness,
+		      (Position) ((int) tb->rectangle.x + (int) tb->gadget.highlight_thickness),
+		      (Position) ((int) tb->rectangle.y + (int) tb->gadget.highlight_thickness),
 		      tb->rectangle.width -
 		      2 * tb->gadget.highlight_thickness,
 		      tb->rectangle.height -
@@ -2903,8 +2938,8 @@ BorderUnhighlight(
 	}
 
       XmeClearBorder (XtDisplay (tb), XtWindow (tb),
-		      tb->rectangle.x + tb->gadget.highlight_thickness,
-		      tb->rectangle.y + tb->gadget.highlight_thickness,
+		      (Position) ((int) tb->rectangle.x + (int) tb->gadget.highlight_thickness),
+		      (Position) ((int) tb->rectangle.y + (int) tb->gadget.highlight_thickness),
 		      tb->rectangle.width -
 		      2 * tb->gadget.highlight_thickness,
 		      tb->rectangle.height -
@@ -3015,12 +3050,12 @@ ComputeSpace(
 	tb->gadget.highlight_thickness +
 	  LabG_MarginHeight(tb) +
 	    LabG_MarginTop(tb) +
-	      ((tb->rectangle.height - LabG_MarginTop(tb)
-		- LabG_MarginBottom(tb)
-		- (2 * (LabG_MarginHeight(tb)
-			+ tb->gadget.highlight_thickness
-			+ tb->gadget.shadow_thickness))
-		- LabG_TextRect(tb).height) / 2);
+	      (((int)tb->rectangle.height - (int)LabG_MarginTop(tb)
+		- (int)LabG_MarginBottom(tb)
+		- (2 * ((int)LabG_MarginHeight(tb)
+			+ (int)tb->gadget.highlight_thickness
+			+ (int)tb->gadget.shadow_thickness))
+		- (int)LabG_TextRect(tb).height) / 2);
   
   if (LayoutIsRtoLG(tb))
     {
@@ -3115,12 +3150,12 @@ Redisplay(
       XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(w));
       Boolean etched_in = dpy -> display.enable_etched_in_menu;
 
-      if (TBG_Armed(tb))
+	  if (TBG_Armed(tb) && ToggleShadowBoxFits(tb))
 	XmeDrawShadows(XtDisplay (tb), XtWindow (tb),
 		       LabG_TopShadowGC(tb),
 		       LabG_BottomShadowGC(tb),
-		       tb->rectangle.x + tb->gadget.highlight_thickness,
-		       tb->rectangle.y + tb->gadget.highlight_thickness,
+		       (Position) ((int) tb->rectangle.x + (int) tb->gadget.highlight_thickness),
+		       (Position) ((int) tb->rectangle.y + (int) tb->gadget.highlight_thickness),
 		       tb->rectangle.width - 2*tb->gadget.highlight_thickness,
 		       tb->rectangle.height - 2*tb->gadget.highlight_thickness,
 		       tb->gadget.shadow_thickness,
@@ -3180,6 +3215,14 @@ SetValuesPrehook(
   newSec = (XmToggleButtonGCacheObject)_XmExtObjAlloc(size);
   reqSec = (XmToggleButtonGCacheObject)_XmExtObjAlloc(size);
   _XmProcessUnlock();
+
+  if (newSec == NULL || reqSec == NULL) {
+    if (newSec != NULL)
+      _XmExtObjFree((XtPointer)newSec);
+    if (reqSec != NULL)
+      _XmExtObjFree((XtPointer)reqSec);
+    return FALSE;
+  }
   
   newSec->object.self = (Widget)newSec;
   newSec->object.widget_class = ec;
@@ -3201,6 +3244,11 @@ SetValuesPrehook(
 	 sizeof(XmToggleButtonGCacheObjPart));
   
   extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+  if (extData == NULL) {
+    _XmExtObjFree((XtPointer)newSec);
+    _XmExtObjFree((XtPointer)reqSec);
+    return FALSE;
+  }
   extData->widget = (Widget)newSec;
   extData->reqWidget = (Widget)reqSec;
   _XmPushWidgetExtData(newParent, extData, XmCACHE_EXTENSION);
@@ -3263,6 +3311,9 @@ GetValuesPrehook(
   
   newSec = (XmToggleButtonGCacheObject)_XmExtObjAlloc(size);
   _XmProcessUnlock();
+
+  if (newSec == NULL)
+    return;
   
   newSec->object.self = (Widget)newSec;
   newSec->object.widget_class = ec;
@@ -3284,6 +3335,10 @@ GetValuesPrehook(
 	  sizeof(XmToggleButtonGCacheObjPart));
   
   extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+  if (extData == NULL) {
+    _XmExtObjFree((XtPointer)newSec);
+    return;
+  }
   extData->widget = (Widget)newSec;
   _XmPushWidgetExtData(newParent, extData, XmCACHE_EXTENSION);
   
@@ -3329,6 +3384,9 @@ GetValuesPosthook(
   XmWidgetExtData             ext;
 
   _XmPopWidgetExtData(new_w, &ext, XmCACHE_EXTENSION);
+
+  if (ext == NULL)
+    return;
 
   _XmProcessLock();
   _XmExtObjFree((XtPointer) ext->widget);
@@ -3387,6 +3445,11 @@ SetValuesPosthook(
     TBG_Cache(new_w) = TBG_Cache(current);
   
   _XmPopWidgetExtData(new_w, &ext, XmCACHE_EXTENSION);
+
+  if (ext == NULL) {
+    _XmProcessUnlock();
+    return FALSE;
+  }
   
   _XmExtObjFree((XtPointer) ext->widget);
   _XmExtObjFree((XtPointer) ext->reqWidget);
@@ -4211,10 +4274,10 @@ static void
 DrawToggleLabel(
         XmToggleButtonGadget tb )
 {
-  Dimension margin = 
-    tb->gadget.highlight_thickness + tb->gadget.shadow_thickness;
-  Position fx = tb->rectangle.x + margin;
-  Position fy = tb->rectangle.y + margin;
+  int margin = (int) tb->gadget.highlight_thickness +
+    (int) tb->gadget.shadow_thickness;
+  int fx = (int) tb->rectangle.x + margin;
+  int fy = (int) tb->rectangle.y + margin;
   int fw = tb->rectangle.width - 2 * margin;
   int fh = tb->rectangle.height - 2 * margin;
   Boolean restore_gc = False;
@@ -4253,7 +4316,6 @@ DrawToggleLabel(
 	break;
       }
     default:
-      assert(False);
       return;
     }
 
@@ -4293,10 +4355,10 @@ static void
 DrawEtchedInMenu(
         XmToggleButtonGadget tb )
 {
-  Dimension margin = 
-    tb->gadget.highlight_thickness + tb->gadget.shadow_thickness;
-  Position fx = tb->rectangle.x + margin;
-  Position fy = tb->rectangle.y + margin;
+  int margin = (int) tb->gadget.highlight_thickness +
+    (int) tb->gadget.shadow_thickness;
+  int fx = (int) tb->rectangle.x + margin;
+  int fy = (int) tb->rectangle.y + margin;
   int fw = tb->rectangle.width - 2 * margin;
   int fh = tb->rectangle.height - 2 * margin;
   Boolean restore_gc = False;
@@ -4383,6 +4445,16 @@ DrawEtchedInMenu(
 #endif
 }
 
+static Boolean
+ToggleShadowBoxFits(
+	XmToggleButtonGadget tb)
+{
+    int highlight = (int) tb->gadget.highlight_thickness;
+
+    return (int) tb->rectangle.width > 2 * highlight &&
+	   (int) tb->rectangle.height > 2 * highlight;
+}
+
 /*
  * DrawToggleShadow (tb)
  *   - Should be called only if ToggleShadow are to be drawn ;
@@ -4415,10 +4487,15 @@ DrawToggleShadow(
     }
   
   hilite_thickness = tb->gadget.highlight_thickness;
-  dx = (int)(tb->rectangle.x + hilite_thickness);
-  dy = (int)(tb->rectangle.y + hilite_thickness);
-  width = (int) ( tb->rectangle.width - (hilite_thickness << 1));
-  height = (int) ( tb->rectangle.height - (hilite_thickness << 1));
+  if ((int)tb->rectangle.width <= (hilite_thickness << 1) ||
+      (int)tb->rectangle.height <= (hilite_thickness << 1) ||
+      top_gc == NULL || bot_gc == NULL)
+    return;
+
+  dx = (int) tb->rectangle.x + (int) hilite_thickness;
+  dy = (int) tb->rectangle.y + (int) hilite_thickness;
+  width = (int)tb->rectangle.width - (hilite_thickness << 1);
+  height = (int)tb->rectangle.height - (hilite_thickness << 1);
   
   XmeDrawShadows (XtDisplay (tb), XtWindow (tb),
 		  top_gc, bot_gc, dx, dy, width, height,
@@ -4448,6 +4525,7 @@ SetToggleSize(
     {
       if (!IsNull(PixmapOn(newtbg)))
 	{
+	  tmpW = tmpH = 0;
 	  XmeGetPixmapData(XtScreen(newtbg), PixmapOn(newtbg),
 			   NULL, NULL, NULL, NULL, NULL, NULL,
 			   &tmpW, &tmpH); 
@@ -4457,6 +4535,7 @@ SetToggleSize(
       
       if (!IsNull(PixmapOff(newtbg)))
 	{
+	  tmpW = tmpH = 0;
 	  XmeGetPixmapData(XtScreen(newtbg), PixmapOff(newtbg),
 			   NULL, NULL, NULL, NULL, NULL, NULL,
 			   &tmpW, &tmpH); 
@@ -4466,6 +4545,7 @@ SetToggleSize(
 
       if (!IsNull(PixmapInd(newtbg)))
 	{
+	  tmpW = tmpH = 0;
 	  XmeGetPixmapData(XtScreen(newtbg), PixmapInd(newtbg),
 			   NULL, NULL, NULL, NULL, NULL, NULL,
 			   &tmpW, &tmpH); 
@@ -4477,6 +4557,7 @@ SetToggleSize(
     {
       if (!IsNull(PixmapInsenOn(newtbg)))
 	{
+	  tmpW = tmpH = 0;
 	  XmeGetPixmapData(XtScreen(newtbg), PixmapInsenOn(newtbg),
 			   NULL, NULL, NULL, NULL, NULL, NULL,
 			   &tmpW, &tmpH); 
@@ -4486,6 +4567,7 @@ SetToggleSize(
       
       if (!IsNull(PixmapInsenOff(newtbg)))
 	{
+	  tmpW = tmpH = 0;
 	  XmeGetPixmapData(XtScreen(newtbg), PixmapInsenOff(newtbg),
 			   NULL, NULL, NULL, NULL, NULL, NULL,
 			   &tmpW, &tmpH); 
@@ -4495,6 +4577,7 @@ SetToggleSize(
       
       if (!IsNull(PixmapInsenInd(newtbg)))
 	{
+	  tmpW = tmpH = 0;
 	  XmeGetPixmapData(XtScreen(newtbg), PixmapInsenInd(newtbg),
 			   NULL, NULL, NULL, NULL, NULL, NULL,
 			   &tmpW, &tmpH); 

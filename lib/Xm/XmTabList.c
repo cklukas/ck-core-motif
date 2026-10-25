@@ -154,6 +154,12 @@ XmTabListInsertTabs(XmTabList oldlist,
 	return(oldlist);
   }
 
+  if (oldlist != NULL &&
+      tab_count > (Cardinal)~0 - _XmTabLCount(oldlist)) {
+	_XmProcessUnlock();
+	return(NULL);
+  }
+
   if (oldlist == NULL)
     {
       tl = (XmTabList)XtMalloc(sizeof(_XmTabListRec));
@@ -174,7 +180,11 @@ XmTabListInsertTabs(XmTabList oldlist,
       }
       
 	  prev_tab = GetNthTab(tl, position, NULL, 0);
-	  next_tab = _XmTabNext(prev_tab);
+	  if (prev_tab == NULL || (next_tab = _XmTabNext(prev_tab)) == NULL) {
+	    _XmProcessUnlock();
+	    TabListFreeUnlocked(tl);
+	    return(NULL);
+	  }
 	  insert_start = NULL;
 	  insert_end = NULL;
     }
@@ -194,9 +204,9 @@ XmTabListInsertTabs(XmTabList oldlist,
 	    }
 	  if (oldlist == NULL)
 	    XtFree((char *)tl);
-	  else
-	    TabListFreeUnlocked(tl);
 	  _XmProcessUnlock();
+	  if (oldlist != NULL)
+	    TabListFreeUnlocked(tl);
 	  return(NULL);
 	}
 
@@ -225,10 +235,11 @@ XmTabListInsertTabs(XmTabList oldlist,
       if (position == 0)
 	_XmTabLStart(tl) = insert_start;
       _XmTabLCount(tl) += tab_count;
-      TabListFreeUnlocked(oldlist);
     }
 
   _XmProcessUnlock();
+  if (oldlist != NULL)
+    TabListFreeUnlocked(oldlist);
   return(tl);
 }
 
@@ -336,12 +347,9 @@ TabListCopyUnlocked(XmTabList tablist,
 }
 
 XmTabList
-XmTabListCopy(XmTabList tablist,
-              int offset,
-              Cardinal count)
+XmTabListCopy(XmTabList tablist, int offset, Cardinal count)
 {
   XmTabList result;
-
   _XmProcessLock();
   result = TabListCopyUnlocked(tablist, offset, count);
   _XmProcessUnlock();
@@ -354,7 +362,7 @@ XmTabListCopy(XmTabList tablist,
 static void
 TabListFreeUnlocked(XmTabList tablist)
 {
-  int	i;
+	Cardinal i;
   XmTab	tab, next;
 
   if (tablist == NULL) {
@@ -513,7 +521,8 @@ XmTabListRemoveTabs(XmTabList oldlist,
 		    Cardinal position_count)
 {
   XmTab		cur_tab, tab, prev, next;
-  int		cur_pos, i;
+  int		cur_pos;
+  Cardinal	i;
   XmTabList	tl;
 
   _XmProcessLock();
@@ -657,7 +666,7 @@ _XmCreateTab(Widget parent,
   unsigned char	alignment = XmALIGNMENT_BEGINNING;
   char 		*decimal = ".";
   XmTab		tab, start;
-  int		i;
+  Cardinal	i;
 
   if (tl == NULL || (argcount != 0 && arglist == NULL))
     return((Widget)NULL);
@@ -801,7 +810,7 @@ _XmTabListGetPosition(
     XmOffsetModel offset; 
 
     if (screen == NULL)
-	return 0;
+        return 0;
 
     tab = XmTabListGetTab(tab_list, tab_position);
 

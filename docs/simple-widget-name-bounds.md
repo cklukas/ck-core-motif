@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Simple widget name formatting
 
 The Simple menu, radio-box, and check-box helpers generate child names such

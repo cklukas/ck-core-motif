@@ -1654,6 +1654,7 @@ Position * vsbX, Position * vsbY)
     Dimension shad = sw->manager.shadow_thickness,
         pad = sw->swindow.pad,
         vsb_width, hsb_height;
+    int vsb_pos, hsb_pos;
 
     vsb_width = (HasVSB) ? (sw->swindow.vScrollBar->core.width) : 0;
 
@@ -1669,10 +1670,14 @@ Position * vsbX, Position * vsbY)
     *newy = sw->swindow.YOffset + shad + VSBht;
     *hsbX = sw->swindow.XOffset;
     *vsbY = sw->swindow.YOffset;
-    *vsbX = (HasVSB) ? (sw->core.width -  sw->swindow.WidthPad -
-        vsb_width) : sw->core.width;
-    *hsbY = (HasHSB) ? (sw->core.height - sw->swindow.HeightPad -
-        hsb_height): sw->core.height;
+    vsb_pos = (int) sw->core.width - (int) sw->swindow.WidthPad -
+        (int) vsb_width;
+    hsb_pos = (int) sw->core.height - (int) sw->swindow.HeightPad -
+        (int) hsb_height;
+    *vsbX = (HasVSB) ? (Position) ((vsb_pos > 0) ? vsb_pos : 0) :
+        (Position) sw->core.width;
+    *hsbY = (HasHSB) ? (Position) ((hsb_pos > 0) ? hsb_pos : 0) :
+        (Position) sw->core.height;
     /****************
      *
      * Check out the scrollbar placement policy and hack the locations
@@ -1963,8 +1968,10 @@ XmScrolledWindowWidget sw )
     /* Compute the available size after a subclass, like mainwindow,
        has taken its share of layout. */
 
-    MyWidth = sw->core.width - sw->swindow.XOffset  - sw->swindow.WidthPad;
-    MyHeight = sw->core.height - sw->swindow.YOffset  - sw->swindow.HeightPad;
+    MyWidth = (int)sw->core.width - (int)sw->swindow.XOffset -
+              (int)sw->swindow.WidthPad;
+    MyHeight = (int)sw->core.height - (int)sw->swindow.YOffset -
+               (int)sw->swindow.HeightPad;
 
     HSBExists = ExistManaged((Widget) sw->swindow.hScrollBar);
     VSBExists = ExistManaged((Widget) sw->swindow.vScrollBar);
@@ -2002,10 +2009,12 @@ XmScrolledWindowWidget sw )
         }
 
         /* looks bogus, but who care of this extreme case */
-        sw->swindow.AreaWidth = sw->core.width  -
-            sw->swindow.WidthPad - ((shad * 2) );
-        sw->swindow.AreaHeight = sw->core.height -
-            sw->swindow.HeightPad - ((shad * 2) );
+        sw->swindow.AreaWidth = (sw->core.width >
+            sw->swindow.WidthPad + (shad * 2)) ?
+            sw->core.width - sw->swindow.WidthPad - (shad * 2) : 0;
+        sw->swindow.AreaHeight = (sw->core.height >
+            sw->swindow.HeightPad + (shad * 2)) ?
+            sw->core.height - sw->swindow.HeightPad - (shad * 2) : 0;
 
         XmeConfigureObject((Widget) clip,
             shad + sw->swindow.XOffset,
@@ -2500,6 +2509,11 @@ XtPointer    call_data)
         {
             sw->swindow.auto_drag_closure = auto_clos =
                 (AutoDragClosure *) XtMalloc(sizeof(AutoDragClosure)) ;
+            if (auto_clos == NULL) {
+                sw->swindow.auto_drag_closure = NULL;
+                XmDropSiteEndUpdate(w);
+                return;
+            }
             auto_clos->widget = w ;
             auto_clos->owner = (Widget)sw;
             auto_clos->active = False;
@@ -2637,8 +2651,11 @@ Cardinal * num_hrect)
     Widget w ;
     XmScrolledWindowWidget scw = (XmScrolledWindowWidget) sw ;
 
+    *num_hrect = 0 ;
+    *hrect = (XRectangle *) XtMalloc(sizeof(XRectangle) * 2) ;
+    if (*hrect == NULL)
+        return;
     *num_hrect = 2 ;
-    *hrect = (XRectangle *) XtMalloc(sizeof(XRectangle) * (*num_hrect)) ;
 
     /* The hor rectangles are the ones that horizontally auto scroll,
        they are defined by areas on the left and right of the
@@ -2668,7 +2685,10 @@ Cardinal * num_hrect)
     (*hrect)[1].x = w->core.x + w->core.width
         - scw->swindow.hScrollBar->core.x ;
     (*hrect)[1].y = (*hrect)[0].y ;
-    (*hrect)[1].width = sw->core.width - (*hrect)[1].x ;
+    {
+        int hwidth = (int)sw->core.width - (int)(*hrect)[1].x;
+        (*hrect)[1].width = hwidth > 2 ? (unsigned short)hwidth : 2;
+    }
     /* if width too small, set it to 2 *inside* the SW frame */
     if ((*hrect)[1].width <= 2)
     {
@@ -2689,8 +2709,11 @@ Cardinal * num_vrect)
     Widget w ;
     XmScrolledWindowWidget scw = (XmScrolledWindowWidget) sw ;
 
+    *num_vrect = 0 ;
+    *vrect = (XRectangle *) XtMalloc(sizeof(XRectangle) * 2) ;
+    if (*vrect == NULL)
+        return;
     *num_vrect = 2 ;
-    *vrect = (XRectangle *) XtMalloc(sizeof(XRectangle) * (*num_vrect)) ;
 
     /* The vertical rectangles are the ones that vertically auto scroll,
        they are defined by areas on the top and bottom of the
@@ -2721,7 +2744,10 @@ Cardinal * num_vrect)
     (*vrect)[1].y = w->core.y + w->core.height
         - scw->swindow.vScrollBar->core.y ;
     (*vrect)[1].width = (*vrect)[0].width ;
-    (*vrect)[1].height = sw->core.height - (*vrect)[1].y ;
+    {
+        int vheight = (int)sw->core.height - (int)(*vrect)[1].y;
+        (*vrect)[1].height = vheight > 2 ? (unsigned short)vheight : 2;
+    }
 
     /* if height too small, set it to 2 *inside* the SW frame */
     if ((*vrect)[1].height <= 2)
@@ -2969,6 +2995,7 @@ XtWidgetGeometry *reply )
     XmScrollBarWidget hsb, vsb;
     XtGeometryResult  retval = XtGeometryNo;
     Dimension       newWidth,newHeight;
+    int             parentWidth, parentHeight;
     Dimension       hsheight,vswidth;
     Dimension       hsbht, vsbht, bw, ht;
     XtWidgetGeometry  parent_request ;
@@ -3066,15 +3093,15 @@ XtWidgetGeometry *reply )
         /* Visible scrollbar request */
 
         /* we already eliminated the bad case */
+        parentWidth = (int) sw->core.width;
         if(request->request_mode & CWWidth)
-            newWidth = sw->core.width - w->core.width + request->width;
-        else
-            newWidth = sw->core.width ;
-
+            parentWidth += (int) request->width - (int) w->core.width;
+        parentHeight = (int) sw->core.height;
         if(request->request_mode & CWHeight)
-            newHeight = sw->core.height - w->core.height + request->height;
-        else
-            newHeight = sw->core.height ;
+            parentHeight += (int) request->height - (int) w->core.height;
+
+        newWidth = (Dimension) ((parentWidth > 0) ? parentWidth : 0);
+        newHeight = (Dimension) ((parentHeight > 0) ? parentHeight : 0);
 
         parent_request.request_mode = CWWidth | CWHeight;
         parent_request.width = newWidth ;
@@ -3760,6 +3787,11 @@ Widget scrollable)
 
     sw->swindow.scroll_frame_data = (XmScrollFrameData)
         XtMalloc(sizeof(XmScrollFrameDataRec));
+
+    if (sw->swindow.scroll_frame_data == NULL) {
+	sw->swindow.scroll_frame_inited = False;
+	return;
+    }
 
     sw->swindow.scroll_frame_data->num_nav_list = 0 ;
     sw->swindow.scroll_frame_data->nav_list = NULL ;

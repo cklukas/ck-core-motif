@@ -30,6 +30,8 @@
 #endif
 
 
+#include <limits.h>
+#include <stdint.h>
 #include <Xm/AccColorT.h>
 #include <Xm/CareVisualT.h>
 #include <Xm/ContItemT.h>
@@ -248,6 +250,8 @@ static  Boolean HandleRedraw (Widget kid,
 			      Mask visual_flag);
 static  void GetColors(Widget widget, 
 		       XmAccessColorData color_data);
+static XmStringTable CopyDetailTable(XmStringTable source,
+                                     Cardinal count);
 
 static  Boolean PointIn(Widget widget, 
 		        Position x, Position y);
@@ -267,8 +271,8 @@ static  Boolean PointIn(Widget widget,
 
 /* those are created in ClassInitialize and filled by the
    IconConverter. */
-static XContext 	largeIconContext = (XContext) NULL;
-static XContext		smallIconContext = (XContext) NULL;
+static XContext 	largeIconContext = 0;
+static XContext		smallIconContext = 0;
 
 static XPointer dummy;
 #define OwnLargeMask(widget) \
@@ -893,6 +897,14 @@ SecondaryObjectCreate(
   newSec = _XmExtObjAlloc(size);
   reqSec = _XmExtObjAlloc(size);
 
+  if (newSec == NULL || reqSec == NULL) {
+    if (newSec != NULL)
+      _XmExtObjFree(newSec);
+    if (reqSec != NULL)
+      _XmExtObjFree(reqSec);
+    return;
+  }
+
   
 /*
  *  Update pointers in instance records now so references to resources
@@ -913,6 +925,11 @@ SecondaryObjectCreate(
                     args, *num_args );
 
   extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+  if (extData == NULL) {
+    _XmExtObjFree(newSec);
+    _XmExtObjFree(reqSec);
+    return;
+  }
   extData->widget = (Widget)newSec;
   extData->reqWidget = (Widget)reqSec;
 
@@ -998,6 +1015,14 @@ SetValuesPrehook(
     reqSec = (XmIconGCacheObject)_XmExtObjAlloc(size);
     _XmProcessUnlock();
 
+    if (newSec == NULL || reqSec == NULL) {
+        if (newSec != NULL)
+            _XmExtObjFree((XtPointer)newSec);
+        if (reqSec != NULL)
+            _XmExtObjFree((XtPointer)reqSec);
+        return FALSE;
+    }
+
     newSec->object.self = (Widget)newSec;
     newSec->object.widget_class = ec;
     newSec->object.parent = XtParent(newParent);
@@ -1014,6 +1039,11 @@ SetValuesPrehook(
             sizeof(XmIconGCacheObjPart));
 
     extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+    if (extData == NULL) {
+        _XmExtObjFree((XtPointer)newSec);
+        _XmExtObjFree((XtPointer)reqSec);
+        return FALSE;
+    }
     extData->widget = (Widget)newSec;
     extData->reqWidget = (Widget)reqSec;
     _XmPushWidgetExtData(newParent, extData, XmCACHE_EXTENSION);
@@ -1061,6 +1091,9 @@ GetValuesPrehook(
     newSec = (XmIconGCacheObject)_XmExtObjAlloc(size);
     _XmProcessUnlock();
 
+    if (newSec == NULL)
+        return;
+
     newSec->object.self = (Widget)newSec;
     newSec->object.widget_class = ec;
     newSec->object.parent = XtParent(newParent);
@@ -1077,6 +1110,10 @@ GetValuesPrehook(
             sizeof(XmIconGCacheObjPart));
 
     extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+    if (extData == NULL) {
+        _XmExtObjFree((XtPointer)newSec);
+        return;
+    }
     extData->widget = (Widget)newSec;
     _XmPushWidgetExtData(newParent, extData, XmCACHE_EXTENSION);
 
@@ -1103,6 +1140,9 @@ GetValuesPosthook(
     XmWidgetExtData ext;
 
     _XmPopWidgetExtData(new_w, &ext, XmCACHE_EXTENSION);
+
+    if (ext == NULL)
+        return;
 
     _XmProcessLock();
     _XmExtObjFree((XtPointer) ext->widget);
@@ -1161,8 +1201,34 @@ SetValuesPosthook(
 
 /*----------------
 | RectObj methods |
-----------------*/
+-----------------*/
 
+static XmStringTable
+CopyDetailTable(XmStringTable source, Cardinal count)
+{
+    XmStringTable copy;
+    Cardinal i;
+
+    if (source == NULL || count == 0 ||
+        (size_t)count > SIZE_MAX / sizeof(*copy) ||
+        (size_t)count > UINT_MAX / sizeof(*copy))
+        return NULL;
+
+    copy = (XmStringTable)XtMalloc((Cardinal)((size_t)count * sizeof(*copy)));
+    if (copy == NULL)
+        return NULL;
+
+    for (i = 0; i < count; ++i) {
+        copy[i] = XmStringCopy(source[i]);
+        if (copy[i] == NULL) {
+            while (i != 0)
+                XmStringFree(copy[--i]);
+            XtFree((char *)copy);
+            return NULL;
+        }
+    }
+    return copy;
+}
 
 /************************************************************************
  * ClassInitialize
@@ -1227,6 +1293,7 @@ Initialize(
     XmIconGadget	new_ig = (XmIconGadget)nw;
     unsigned int w = 0, h = 0;
     Cardinal i ;
+    XmString label_copy;
 
     /* XmNviewType */
     if (!XmRepTypeValidValue(XmRID_VIEW_TYPE,IG_ViewType(nw),nw))
@@ -1263,22 +1330,30 @@ Initialize(
 				(char *) NULL, nw, XmNlabelString,
 				XrmQuarkToString(new_ig->object.xrm_name));
     } else 
-	IG_LabelString(nw) = XmStringCopy(IG_LabelString(nw));
+	{
+	label_copy = XmStringCopy(IG_LabelString(nw));
+	if (label_copy != NULL)
+	    IG_LabelString(nw) = label_copy;
+	else
+	    IG_LabelString(nw) = XmeGetLocalizedString(
+			(char *) NULL, nw, XmNlabelString,
+			XrmQuarkToString(new_ig->object.xrm_name));
+	}
 
 	
 
     /* XmNdetail */
     if (IG_Detail(nw) && IG_DetailCount(nw)) {
-	IG_Detail(nw) = (XmStringTable) 
-	    XtMalloc(IG_DetailCount(nw) * sizeof(XmString));
-
-	for (i=0; i<IG_DetailCount(nw); i++)
-	    IG_Detail(nw)[i] = XmStringCopy(IG_Detail(rw)[i]);
+	XmStringTable detail = CopyDetailTable(IG_Detail(nw),
+	                                      IG_DetailCount(nw));
+	IG_Detail(nw) = detail;
+	if (detail == NULL)
+	    IG_DetailCount(nw) = 0;
     }
 
 
     /* get the label size */
-    if (!XmStringEmpty(IG_LabelString(nw)))
+    if (IG_LabelString(nw) != NULL && !XmStringEmpty(IG_LabelString(nw)))
 	XmStringExtent(IG_RenderTable(nw), IG_LabelString(nw),
 		       &(IG_LabelRectWidth(nw)),
 		       &(IG_LabelRectHeight(nw)));
@@ -1526,8 +1601,8 @@ GetLabelXY(
     label_x += IG_MarginWidth(wid);
     /* test LayoutIsRtoLG(wid) here */
     if (LayoutIsRtoLG(wid)) {
-	label_x = XtWidth(wid) - label_x - IG_LabelRectWidth(wid) 
-	    - IG_HLThickness(wid);
+	label_x = (Position) ((int) XtWidth(wid) - (int) label_x -
+	    (int) IG_LabelRectWidth(wid) - (int) IG_HLThickness(wid));
     } else {
 	label_x += IG_HLThickness(wid) ;
     }
@@ -1999,6 +2074,10 @@ Redisplay(
     XRectangle 	clip_rect;
     Boolean		clip_set = False;
     int depth;
+    int icon_x;
+    int available_height;
+    int available_width;
+    int clip_x;
     XmContainerDataRec container_data ;
     Position large_icon_x = 0, small_icon_y = 0, small_icon_x,
              label_x = 0, label_y = 0 ;
@@ -2069,18 +2148,27 @@ Redisplay(
 			   container_data.first_column_width - ht);
 	    pm_width -= MIN(pm_width, (Dimension)large_icon_x);
 
-	    if (LayoutIsRtoLG(wid)) 
-		large_icon_x = ig->rectangle.width -
-		    MIN(ig->rectangle.width - 2*ht,
-			container_data.first_column_width - ht) ;
+	    if (LayoutIsRtoLG(wid)) {
+		icon_x = (int) ig->rectangle.width -
+		    (int) MIN(ig->rectangle.width - 2*ht,
+			       container_data.first_column_width - ht);
+		large_icon_x = (Position) icon_x;
+	    }
 	} else {
-	    if (LayoutIsRtoLG(wid))
-		large_icon_x = ig->rectangle.width - large_icon_x - pm_width ;
+	    if (LayoutIsRtoLG(wid)) {
+		icon_x = (int) ig->rectangle.width - (int) large_icon_x -
+		    (int) pm_width;
+		large_icon_x = (Position) icon_x;
+	    }
 	}
 
 	pm_height = IG_LargeIconRectHeight(wid) ;
-	if (ht + ist + pm_height > ig->rectangle.height - 2*ht)
-	    pm_height = ig->rectangle.height - ist - ht;
+	available_height = (int) ig->rectangle.height - 2 * (int) ht;
+	if ((int) ht + (int) ist + (int) pm_height > available_height) {
+	    available_height = (int) ig->rectangle.height - (int) ist -
+		(int) ht;
+	    pm_height = (Dimension) (available_height > 0 ? available_height : 0);
+	}
 
 	/* clip with the mask if any */
 	if (PIXMAP_VALID(IG_LargeIconMask(wid))) {
@@ -2090,7 +2178,7 @@ Redisplay(
 
 	    XSetClipOrigin(XtDisplay(wid), IG_NormalGC(wid),
 			   ig->rectangle.x + large_icon_x,
-			   ig->rectangle.y + ht + mh);
+			   (short) ((int) ig->rectangle.y + (int) ht + (int) mh));
 	} else {
 	    XSetClipMask(XtDisplay(wid), IG_NormalGC(wid),None);
 	}
@@ -2134,18 +2222,26 @@ Redisplay(
 			   container_data.first_column_width) - 2*ht;
 	    pm_width -= MIN(pm_width, (Dimension)small_icon_x);
 
-	    if (LayoutIsRtoLG(wid)) 
-		small_icon_x = ig->rectangle.width + 2*ht -
-		    MIN(ig->rectangle.width,
-			container_data.first_column_width) ;
+	    if (LayoutIsRtoLG(wid)) {
+		icon_x = (int) ig->rectangle.width + 2 * (int) ht -
+		    (int) MIN(ig->rectangle.width,
+			       container_data.first_column_width);
+		small_icon_x = (Position) icon_x;
+	    }
 	} else {
-	    if (LayoutIsRtoLG(wid))
-		small_icon_x = ig->rectangle.width - small_icon_x - pm_width ;
+	    if (LayoutIsRtoLG(wid)) {
+		icon_x = (int) ig->rectangle.width - (int) small_icon_x -
+		    (int) pm_width;
+		small_icon_x = (Position) icon_x;
+	    }
 	}
 
 	pm_height = IG_SmallIconRectHeight(wid);
-	if (small_icon_y + pm_height > ig->rectangle.height - 2*ht)
-	    pm_height = ig->rectangle.height - small_icon_y;
+	available_height = (int) ig->rectangle.height - 2 * (int) ht;
+	if ((int) small_icon_y + (int) pm_height > available_height) {
+	    available_height = (int) ig->rectangle.height - (int) small_icon_y;
+	    pm_height = (Dimension) (available_height > 0 ? available_height : 0);
+	}
 
 	/* clip with the mask if any */
 	if (PIXMAP_VALID(IG_SmallIconMask(wid))) {
@@ -2173,16 +2269,26 @@ Redisplay(
 			   ig->rectangle.y + small_icon_y, 1);
     }
 
-    clip_rect.y = ig->rectangle.y + ht + mh;
-    clip_rect.width = MIN(ig->rectangle.width - 2*ht - 2*mw,
-			  container_data.first_column_width - ht - mw);
-    clip_rect.height = ig->rectangle.height - 2*ht - 2*mh;
+    clip_rect.y = (short) ((int) ig->rectangle.y + (int) ht + (int) mh);
+    available_width = (int) ig->rectangle.width - 2 * (int) ht -
+	2 * (int) mw;
+    if ((int) container_data.first_column_width - (int) ht - (int) mw <
+	available_width)
+	available_width = (int) container_data.first_column_width -
+	    (int) ht - (int) mw;
+    if (available_width < 0)
+	available_width = 0;
+    clip_rect.width = (Dimension) available_width;
+    available_height = (int) ig->rectangle.height - 2 * (int) ht -
+	2 * (int) mh;
+    clip_rect.height = (Dimension) (available_height > 0 ? available_height : 0);
 
     if (LayoutIsRtoLG(wid)) {
-	clip_rect.x = ig->rectangle.x + ig->rectangle.width -
-	    ht - clip_rect.width - mw;
+	clip_x = (int) ig->rectangle.x + (int) ig->rectangle.width -
+	    (int) ht - available_width - (int) mw;
+	clip_rect.x = (short) clip_x;
     } else {
-	clip_rect.x = ig->rectangle.x + ht + mw;
+	clip_rect.x = (short) ((int) ig->rectangle.x + (int) ht + (int) mw);
     }
 
     XSetClipRectangles(XtDisplay(wid),gc,0,0,&clip_rect,1,Unsorted);
@@ -2308,25 +2414,39 @@ Redisplay(
 		/* if we have a tab, use it, don't bother to call an
 		   expensive string extent. */
 		if (i < tab_count) {
-		    clip_rect.width = MIN (next_tab_x - detail_x,
-					   ig->rectangle.width - 2*ht - 2*mw -
-					   detail_x);
-		    clip_rect.x = ig->rectangle.x + detail_x;
-		    if (LayoutIsRtoLG(wid)) 
-			clip_rect.x = ig->rectangle.x + ig->rectangle.width
-			    - detail_x - clip_rect.width;
+		    available_width = (int) next_tab_x - (int) detail_x;
+		    clip_x = (int) ig->rectangle.width - 2 * (int) ht -
+			2 * (int) mw - (int) detail_x;
+		    if (clip_x < available_width)
+			available_width = clip_x;
+		    if (available_width < 0)
+			available_width = 0;
+		    clip_rect.width = (Dimension) available_width;
+		    clip_rect.x = (short) ((int) ig->rectangle.x + (int) detail_x);
+		    if (LayoutIsRtoLG(wid)) {
+			clip_x = (int) ig->rectangle.x + (int) ig->rectangle.width -
+			    (int) detail_x - available_width;
+			clip_rect.x = (short) clip_x;
+		    }
 			
-		    clip_rect.y = ig->rectangle.y + ht + mh;
-		    clip_rect.height = ig->rectangle.height - 2*ht - 2*mh;
+		    clip_rect.y = (short) ((int) ig->rectangle.y + (int) ht + (int) mh);
+		    available_height = (int) ig->rectangle.height - 2 * (int) ht -
+			2 * (int) mh;
+		    clip_rect.height = (Dimension) (available_height > 0 ? available_height : 0);
 		    XSetClipRectangles(XtDisplay(wid),gc,0,0,&clip_rect,1,
 				       Unsorted);
 		} else {
 		    XmStringExtent(IG_RenderTable(wid), new_detail[i], &w, &h);
 		    if (!clip_set) {
-			clip_rect.x = ig->rectangle.x + ht + mw;
-			clip_rect.y = ig->rectangle.y + ht + mh;
-			clip_rect.width = ig->rectangle.width - 2*ht - 2*mw;
-			clip_rect.height = ig->rectangle.height - 2*ht - 2*mh;
+			clip_rect.x = (short) ((int) ig->rectangle.x + (int) ht + (int) mw);
+			clip_rect.y = (short) ((int) ig->rectangle.y + (int) ht + (int) mh);
+			available_width = (int) ig->rectangle.width - 2 * (int) ht -
+			    2 * (int) mw;
+			clip_rect.width = (Dimension) (available_width > 0 ?
+			    available_width : 0);
+		    available_height = (int) ig->rectangle.height - 2 * (int) ht -
+			2 * (int) mh;
+		    clip_rect.height = (Dimension) (available_height > 0 ? available_height : 0);
 			XSetClipRectangles(XtDisplay(wid),gc,0,0,&clip_rect,1,
 					   Unsorted);
 			/* only set this clip once */
@@ -2389,6 +2509,8 @@ SetValues(
     Boolean			Redraw = False;
     unsigned int w, h ;
     Cardinal i ;
+    XmRenderTable render_table;
+    XmString label_string;
 
     
     if (IG_ViewType(nw) != IG_ViewType(cw)) {
@@ -2426,11 +2548,17 @@ SetValues(
     }
 
     if (IG_RenderTable(nw) != IG_RenderTable(cw)) {
-	XmRenderTableFree(IG_RenderTable(cw));
-	IG_RenderTable(nw) = XmRenderTableCopy(IG_RenderTable(nw), NULL, 0);
-	UpdateGCs(nw);
+	render_table = XmRenderTableCopy(IG_RenderTable(nw), NULL, 0);
+	if (render_table != NULL) {
+	    XmRenderTableFree(IG_RenderTable(cw));
+	    IG_RenderTable(nw) = render_table;
+	    UpdateGCs(nw);
+	} else {
+	    IG_RenderTable(nw) = IG_RenderTable(cw);
+	}
 
-	if (!XmStringEmpty(IG_LabelString(nw)))
+	if (IG_RenderTable(nw) != NULL && IG_LabelString(nw) != NULL &&
+	    !XmStringEmpty(IG_LabelString(nw)))
 	    XmStringExtent(IG_RenderTable(nw), IG_LabelString(nw),
 			    &(IG_LabelRectWidth(nw)),
 			    &(IG_LabelRectHeight(nw)));
@@ -2442,10 +2570,17 @@ SetValues(
     }
 
     if (IG_LabelString(nw) != IG_LabelString(cw)) {
-	XmStringFree(IG_LabelString(cw));
-	IG_LabelString(nw) = XmStringCopy(IG_LabelString(nw));
+	label_string = IG_LabelString(nw) != NULL
+	    ? XmStringCopy(IG_LabelString(nw)) : NULL;
+	if (label_string != NULL) {
+	    XmStringFree(IG_LabelString(cw));
+	    IG_LabelString(nw) = label_string;
+	} else {
+	    IG_LabelString(nw) = IG_LabelString(cw);
+	}
 	
-	if (!XmStringEmpty(IG_LabelString(nw)))
+	if (IG_LabelString(nw) != NULL &&
+	    !XmStringEmpty(IG_LabelString(nw)))
 	    XmStringExtent(IG_RenderTable(nw), IG_LabelString(nw),
 			    &(IG_LabelRectWidth(nw)),
 			    &(IG_LabelRectHeight(nw)));
@@ -2530,21 +2665,27 @@ SetValues(
 
     if (IG_Detail(nw) != IG_Detail(cw)) {
 	/* new XmNdetail copy in */
-	
-	/* first free the current detail table and strings if present */
-	if (IG_Detail(cw) && IG_DetailCount(cw)) {
-	    for (i=0; i<IG_DetailCount(cw); i++) 
-		XmStringFree(IG_Detail(cw)[i]);
-	    XtFree((char*)IG_Detail(cw));
+	XmStringTable detail;
+
+	/* Copy before releasing the current table. */
+	if (IG_Detail(nw) == NULL || IG_DetailCount(nw) == 0) {
+	    detail = NULL;
+	} else {
+	    detail = CopyDetailTable(IG_Detail(nw), IG_DetailCount(nw));
 	}
-	
-	/* now copy */
-	if (IG_Detail(nw) && IG_DetailCount(nw)) {
-	    IG_Detail(nw) = (XmStringTable) 
-		XtMalloc(IG_DetailCount(nw) * sizeof(XmString));
-	    
-	    for (i=0; i<IG_DetailCount(nw); i++)
-		IG_Detail(nw)[i] = XmStringCopy(IG_Detail(rw)[i]);
+	if (IG_Detail(nw) == NULL || IG_DetailCount(nw) == 0 || detail != NULL) {
+	    if (IG_Detail(cw) && IG_DetailCount(cw)) {
+		for (i=0; i<IG_DetailCount(cw); i++)
+		    XmStringFree(IG_Detail(cw)[i]);
+		XtFree((char*)IG_Detail(cw));
+	    }
+	    IG_Detail(nw) = detail;
+	    if (detail == NULL)
+		IG_DetailCount(nw) = 0;
+	} else {
+	    /* Keep the previous value if the requested copy failed. */
+	    IG_Detail(nw) = IG_Detail(cw);
+	    IG_DetailCount(nw) = IG_DetailCount(cw);
 	}
 	Relayout = Redraw = True;
     }
@@ -3237,14 +3378,22 @@ GetStringTableReOrdered(
     count = MIN(order_count, st_count);
 
     if (count > Max_st_count) {
-	Max_st_count = MAX(count, 33);
-	Default_st = (XmStringTable) XtRealloc((char*) Default_st,
-					Max_st_count * sizeof(XmString));
+	Cardinal new_max = MAX(count, 33);
+	XmStringTable new_table;
+	if ((size_t)new_max > SIZE_MAX / sizeof(XmString) ||
+	    new_max > UINT_MAX / sizeof(XmString))
+	    return NULL;
+	new_table = (XmStringTable)XtRealloc(
+	    (char *)Default_st, (size_t)new_max * sizeof(XmString));
+	if (new_table == NULL)
+	    return NULL;
+	Default_st = new_table;
+	Max_st_count = new_max;
     }
 
     for (i = 0; i < count; i++) {
 	if (order) {
-	    if (order[i] <= st_count) 
+	    if (order[i] > 0 && order[i] <= st_count)
 		Default_st[i] = st[order[i] - 1];
 	    else 
 		Default_st[i] = NULL ;
@@ -3656,13 +3805,15 @@ _XmIconGadgetIconPos(Widget wid, int *x, int *y)
   if (ig -> icong.viewtype == XmSMALL_ICON) {
     icon_x = GetSmallIconX(wid);
     if (LayoutIsRtoLG(wid))
-	icon_x = XtWidth(wid) - icon_x - IG_SmallIconRectWidth(wid);
+	icon_x = (Position) ((int) XtWidth(wid) - (int) icon_x -
+	    (int) IG_SmallIconRectWidth(wid));
     *x = icon_x;
     *y = GetSmallIconY(wid);
   } else {
     icon_x = GetLargeIconX(wid);
     if (LayoutIsRtoLG(wid))
-	icon_x = XtWidth(wid) - icon_x - IG_LargeIconRectWidth(wid);
+	icon_x = (Position) ((int) XtWidth(wid) - (int) icon_x -
+	    (int) IG_LargeIconRectWidth(wid));
     *x = icon_x;
     *y = GetLargeIconY(wid);
   }

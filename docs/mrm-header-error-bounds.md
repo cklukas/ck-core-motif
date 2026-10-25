@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm header diagnostic bounds
 
 UID header-version mismatch and parse diagnostics use a fixed 300-byte buffer.

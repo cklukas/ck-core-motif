@@ -103,7 +103,7 @@ static Boolean CvtStringToNodeState(Display *, XrmValuePtr, Cardinal *,
  * Internal Routines.
  *********************/
 
-static void BumpChildren(HierarchyConstraints *, int, int);
+static void BumpChildren(HierarchyConstraints *, Cardinal, Cardinal);
 static void RemoveNodeFromParent(HierarchyConstraints);
 static void AddChild(HierarchyConstraints, HierarchyConstraints);
 static void AddChildToList(HierarchyConstraints **, Cardinal *, Cardinal *,
@@ -427,6 +427,8 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
 
     top_node = ((HierarchyConstraints) 
 		XtMalloc(sizeof(HierarchyConstraintRec)));
+	if (top_node == NULL)
+	    return;
 
     XmHierarchy_top_node(hw) = top_node;
 
@@ -744,7 +746,7 @@ ConstraintSetValues(Widget current, Widget request, Widget set,
     HierarchyConstraints new_node = GetNodeInfo(set);
     HierarchyConstraints old_node = GetNodeInfo(current);
     Boolean insert_change = False;
-    int i;
+    Cardinal i;
 
     for (i = 0; i < *num_args; i++) 
 	if (streq(args[i].name, XmNinsertBefore)) {
@@ -827,7 +829,7 @@ ConstraintSetValues(Widget current, Widget request, Widget set,
 static void
 ChangeNodeState(HierarchyConstraints node)
 {
-    register int i, num;
+    register Cardinal i, num;
     HierarchyConstraints * childp;
     XmHierarchyWidget hw = (XmHierarchyWidget)
 	                   XtParent(XmHierarchyC_widget(node));
@@ -896,9 +898,9 @@ AncestorClosed(HierarchyConstraints node)
 static void
 UnmapAllExtraNodes(Widget w, HierarchyConstraints node)
 {
-    register int i;
+    register Cardinal i;
     XmHierarchyWidgetClass hc = (XmHierarchyWidgetClass) (XtClass(w));
-    register int num;
+    register Cardinal num;
     register HierarchyConstraints * ptr;
 
     void (*unmap_extra)(Widget, HierarchyConstraints);
@@ -972,7 +974,7 @@ static void
 _BuildNodeTable(Widget w, HierarchyConstraints node, Cardinal * current_index)
 {
     XmHierarchyWidget hw = (XmHierarchyWidget) w;
-    register int i;
+    register Cardinal i;
     
     if ((node == NULL) || ((XmHierarchyC_widget(node) != NULL) && 
 			   !XtIsManaged(XmHierarchyC_widget(node))))
@@ -1010,22 +1012,23 @@ BuildNodeTable(Widget w, HierarchyConstraints node, Cardinal * current_index)
     if ((XmHierarchy_node_table(hw) == NULL) || 
 	(XmHierarchy_alloc_nodes(hw) < hw->composite.num_children))
     {
-	HierarchyConstraints *new_table;
-	size_t node_count = (size_t)hw->composite.num_children;
-	size_t node_bytes;
+        HierarchyConstraints *new_table;
 
 	/*
 	 * This will allocate more space than we need, but shouldn't be too
-	 * terrible. Keep the existing table until the replacement succeeds.
+	 * terrible.  Keep the existing table until the replacement succeeds.
 	 */
-	if (node_count != 0 && SIZE_MAX / node_count < sizeof(*new_table))
-	    return;
-	node_bytes = node_count * sizeof(*new_table);
-	new_table = (HierarchyConstraints *)XtRealloc(
-	    (XtPointer)XmHierarchy_node_table(hw), node_bytes);
-	if (new_table == NULL)
-	    return;
-	XmHierarchy_node_table(hw) = new_table;
+        size_t node_count = (size_t)hw->composite.num_children;
+        size_t node_bytes;
+
+        if (node_count != 0 && SIZE_MAX / node_count < sizeof(*new_table))
+            return;
+        node_bytes = node_count * sizeof(*new_table);
+        new_table = (HierarchyConstraints *)XtRealloc(
+            (XtPointer)XmHierarchy_node_table(hw), node_bytes);
+        if (new_table == NULL)
+            return;
+        XmHierarchy_node_table(hw) = new_table;
 	XmHierarchy_alloc_nodes(hw) = hw->composite.num_children;
     }
 
@@ -1220,7 +1223,7 @@ CvtStringToNodeState(Display * dpy, XrmValuePtr args, Cardinal *num_args,
 	haveQuarks = TRUE;
     }
     
-    XmCopyISOLatin1Lowered(lowerName, (char *) fromVal->addr);
+    XmCopyISOLatin1LoweredN(lowerName, sizeof(lowerName), (char *) fromVal->addr);
     q = XrmStringToQuark(lowerName);
     
     if (q == XtQEAlwaysOpen) 
@@ -1324,7 +1327,7 @@ DestroyFolderImages(Widget w)
 static void
 RemoveChildren(HierarchyConstraints * list, Cardinal num)
 {
-    register int i;
+    register Cardinal i;
 
     for (i = 0 ; i < num ; i++, list++ ) {
 	/*
@@ -1368,34 +1371,33 @@ static void
 AddChildToList(HierarchyConstraints ** list, Cardinal * num, Cardinal * alloc,
 	       HierarchyConstraints child)
 {
-    register int i, j;
+    register Cardinal i, j;
     HierarchyConstraints *l_child;
     SuccessType success = DONT_CARE;
     Widget insert_before = XmHierarchyC_insert_before(child);
     
     if (*alloc <= *num) {
-	Cardinal new_alloc;
-	HierarchyConstraints *new_list;
-	size_t list_count;
-	size_t list_bytes;
+        Cardinal new_alloc;
+        HierarchyConstraints *new_list;
+        size_t list_count;
+        size_t list_bytes;
 
-	if (*alloc > (Cardinal)-1 - ALLOC_INC)
-	    return;
-	new_alloc = *alloc + ALLOC_INC;
-	list_count = (size_t)new_alloc;
-	if (list_count != 0 && SIZE_MAX / list_count < sizeof(*new_list))
-	    return;
-	list_bytes = list_count * sizeof(*new_list);
-	new_list = (HierarchyConstraints *)XtRealloc(
-	    (XtPointer)*list, list_bytes);
-	if (new_list == NULL)
-	    return;
-	*list = new_list;
-	*alloc = new_alloc;
+        if (*alloc > (Cardinal)-1 - ALLOC_INC)
+            return;
+        new_alloc = *alloc + ALLOC_INC;
+        list_count = (size_t)new_alloc;
+        if (list_count != 0 && SIZE_MAX / list_count < sizeof(*new_list))
+            return;
+        list_bytes = list_count * sizeof(*new_list);
+        new_list = (HierarchyConstraints *)XtRealloc(
+            (XtPointer)*list, list_bytes);
+        if (new_list == NULL)
+            return;
+        *list = new_list;
+        *alloc = new_alloc;
     }
-
     if (*num == (Cardinal)-1)
-	return;
+        return;
     
     if (insert_before != NULL) {
 	success = NO;
@@ -1404,13 +1406,17 @@ AddChildToList(HierarchyConstraints ** list, Cardinal * num, Cardinal * alloc,
 	 * Hunt for the sibling that matches the insert_before widget.
 	 */
 	
-	for (l_child = (*list) + (i = (*num - 1)); i >= 0; i--, l_child--)
+	for (i = *num; i > 0; ) {
+	    --i;
+	    l_child = (*list) + i;
 	    if (XmHierarchyC_widget(*l_child) == insert_before) {
 		/*
 		 * Bump each child down and then insert the new child.
 		 */
-		for (j = (*num - 1); j >= i; j--) 
+		for (j = *num; j > i; ) {
+		    --j;
 		    (*list)[j + 1] = (*list)[j];
+		}
 		(*list)[i] = child;
 
 		success = YES;
@@ -1454,7 +1460,7 @@ GetNodeInfo(Widget w)
 static void
 RemoveNodeFromParent(HierarchyConstraints node)
 {
-    register int i;
+    register Cardinal i;
     HierarchyConstraints pnode;
 
     if (XmHierarchyC_status(node) & PARENT_GONE)
@@ -1471,8 +1477,8 @@ RemoveNodeFromParent(HierarchyConstraints node)
 
     for (i = 0; i < XmHierarchyC_num_children(pnode); i++) {
 	if (XmHierarchyC_children(pnode)[i] == node) {
-	    BumpChildren(XmHierarchyC_children(pnode), i,
-			 (int) XmHierarchyC_num_children(pnode));
+		    BumpChildren(XmHierarchyC_children(pnode), i,
+				 XmHierarchyC_num_children(pnode));
 	    XmHierarchyC_num_children(pnode)--;
 	    return;
 	}
@@ -1488,9 +1494,9 @@ RemoveNodeFromParent(HierarchyConstraints node)
  */
 
 static void
-BumpChildren(HierarchyConstraints * nlist, int i, int num)
+BumpChildren(HierarchyConstraints * nlist, Cardinal i, Cardinal num)
 {
-    for (i++ ; i < num ; i++ )
+    for (++i; i < num; ++i)
 	nlist[i - 1] = nlist[i];
 }
 
@@ -1515,6 +1521,8 @@ XmHierarchyOpenAllAncestors(Widget nw)
 	{ XmNnodeState, (XtArgVal) XmOpen }
     };
 
+    if (nw == NULL)
+        return;
     _XmWidgetToAppContext(nw);
     _XmAppLock(app);
 
@@ -1546,8 +1554,10 @@ WidgetList XmHierarchyGetChildNodes(Widget nw)
     HierarchyConstraints node;
     WidgetList retval = (WidgetList)NULL;
     Cardinal child_count;
-    int i;
+    Cardinal i;
 
+    if (nw == NULL)
+        return NULL;
     _XmWidgetToAppContext(nw);
     _XmAppLock(app);
 
@@ -1566,7 +1576,9 @@ WidgetList XmHierarchyGetChildNodes(Widget nw)
 	return retval;
       }
 
-    if (child_count == (Cardinal)~0) {
+    if (child_count == (Cardinal)~0 ||
+        (size_t)child_count >
+          (size_t)((Cardinal)~0) / sizeof(Widget) - 1) {
 	_XmAppUnlock(app);
 	return retval;
     }

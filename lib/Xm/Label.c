@@ -72,6 +72,8 @@ static char rcsid[] = "$TOG: Label.c /main/26 1997/06/18 17:40:00 samborn $"
 #ifdef FIX_1381
 #include <Xm/ColorI.h>
 #endif
+#include <stdint.h>
+#include <limits.h>
 #ifdef FIX_1521
 #ifdef USE_XFT
 #include "XmRenderTI.h"
@@ -1009,12 +1011,12 @@ Resize(Widget wid)
   lp->TextRect.y =  (short) (newlw->primitive.highlight_thickness
 			     + newlw->primitive.shadow_thickness
 			     + lp->margin_height + lp->margin_top +
-			     ((int) (newlw->core.height - lp->margin_top
-			       - lp->margin_bottom
-			       - (2 * (lp->margin_height
-				       + newlw->primitive.highlight_thickness
-				       + newlw->primitive.shadow_thickness))
-			       - lp->TextRect.height) / 2));
+			     (((int)newlw->core.height - (int)lp->margin_top
+			       - (int)lp->margin_bottom
+			       - (2 * ((int)lp->margin_height
+				       + (int)newlw->primitive.highlight_thickness
+				       + (int)newlw->primitive.shadow_thickness))
+			       - (int)lp->TextRect.height) / 2));
   
   if (lp->_acc_text != NULL)
     {
@@ -1025,22 +1027,22 @@ Resize(Widget wid)
 	  newlw->primitive.shadow_thickness +
 	    newlw->label.margin_width;
       else
-	lp->acc_TextRect.x = (short) newlw->core.width - 
-	  newlw->primitive.highlight_thickness -
-	    newlw->primitive.shadow_thickness -
-	      newlw->label.margin_width -
-		newlw->label.margin_right + LABEL_ACC_PAD;
+	lp->acc_TextRect.x = (short)((int)newlw->core.width -
+	  (int)newlw->primitive.highlight_thickness -
+	    (int)newlw->primitive.shadow_thickness -
+	      (int)newlw->label.margin_width -
+		(int)newlw->label.margin_right + LABEL_ACC_PAD);
       
       lp->acc_TextRect.y =
 	(short) (newlw->primitive.highlight_thickness
 		 + newlw->primitive.shadow_thickness
 		 + lp->margin_height + lp->margin_top +
-		 ((int) (newlw->core.height - lp->margin_top
-		   - lp->margin_bottom
-		   - (2 * (lp->margin_height
-			   + newlw->primitive.highlight_thickness
-			   + newlw->primitive.shadow_thickness))
-				       - lp->acc_TextRect.height) / 2));
+		 (((int)newlw->core.height - (int)lp->margin_top
+			       - (int)lp->margin_bottom
+			       - (2 * ((int)lp->margin_height
+				       + (int)newlw->primitive.highlight_thickness
+				       + (int)newlw->primitive.shadow_thickness))
+			       - (int)lp->acc_TextRect.height) / 2));
       
       /* make sure the label and accelerator text line up */
       /* when the fonts are different */
@@ -1086,6 +1088,8 @@ Initialize(
 {
   XmLabelWidget lw = (XmLabelWidget) new_w;
   XmMenuSystemTrait menuSTrait;
+  XmString accelerator_copy;
+  XmString label_copy;
   XtTranslations	trans;
   
   lw->label.baselines = NULL;
@@ -1200,7 +1204,11 @@ Initialize(
     }
   else if (XmeStringIsValid(lw->label._label))
     {
-      lw->label._label= XmStringCopy(lw->label._label);
+      label_copy = XmStringCopy(lw->label._label);
+      if (label_copy != NULL)
+	lw->label._label = label_copy;
+      else
+	lw->label._label = XmStringCreateLocalized(lw->core.name);
     }
   else
     {
@@ -1230,8 +1238,11 @@ Initialize(
 	  if (XmIsCascadeButton(lw))
 	    lw->label._acc_text = NULL;
 	  else
-	    lw->label._acc_text =
-	      XmStringCopy((XmString) lw->label._acc_text);
+	    {
+	      accelerator_copy = XmStringCopy((XmString) lw->label._acc_text);
+	      if (accelerator_copy != NULL)
+		lw->label._acc_text = accelerator_copy;
+	    }
         }
       else
         {
@@ -1503,20 +1514,20 @@ Redisplay(
 	      if (XmeGetPixmapData(XtScreen(lw), Pix(lw), NULL, &depth,
 			       NULL, NULL, NULL, NULL, NULL, NULL))
 	      {
-	      if (depth == lw->core.depth)
-		XCopyArea (XtDisplay(lw), Pix(lw), XtWindow(lw), gc, 0, 0, 
-			   lp->PixmapRect.width,
-			   lp->PixmapRect.height,
-			   lp->TextRect.x + lp->PixmapRect.x,
-			   lp->TextRect.y + lp->PixmapRect.y); 
-	      else if (depth == 1)
-		XCopyPlane (XtDisplay(lw), Pix(lw), XtWindow(lw), 
-			    gc, 0, 0, 
-			    lp->PixmapRect.width,
-			    lp->PixmapRect.height,
-			    lp->TextRect.x + lp->PixmapRect.x,
-			    lp->TextRect.y + lp->PixmapRect.y,
-		    1);
+		if (depth == lw->core.depth)
+		  XCopyArea (XtDisplay(lw), Pix(lw), XtWindow(lw), gc, 0, 0,
+			     lp->PixmapRect.width,
+			     lp->PixmapRect.height,
+			     lp->TextRect.x + lp->PixmapRect.x,
+			     lp->TextRect.y + lp->PixmapRect.y);
+		else if (depth == 1)
+		  XCopyPlane (XtDisplay(lw), Pix(lw), XtWindow(lw),
+			      gc, 0, 0,
+			      lp->PixmapRect.width,
+			      lp->PixmapRect.height,
+			      lp->TextRect.x + lp->PixmapRect.x,
+			      lp->TextRect.y + lp->PixmapRect.y,
+			      1);
 	      }
 	    }
 	}
@@ -1843,6 +1854,8 @@ SetValues(Widget cw,
   Boolean ProcessFlag = FALSE;
   Boolean CleanupFontFlag = FALSE;
   Boolean Call_Resize = False;
+  XmString label_copy;
+  XmString accelerator_copy;
   XmMenuSystemTrait menuSTrait;
   
   /* Get pointers to the label parts  */
@@ -1867,25 +1880,30 @@ SetValues(Widget cw,
   
   if (newlp->_label != curlp->_label)
     {   
-      newstring = TRUE;
       if (newlp->_label == NULL)
 	{ 
-          newlp->_label = XmStringCreateLocalized(new_w->core.name);
+	  label_copy = XmStringCreateLocalized(new_w->core.name);
 	}
       else
 	{ 
 	  if (XmeStringIsValid((XmString) newlp->_label))
-	    newlp->_label = XmStringCopy((XmString) newlp->_label);     
+	    label_copy = XmStringCopy((XmString) newlp->_label);
 	  else
 	    {
 	      XmeWarning((Widget) new_w, CS_STRING_MESSAGE);
-	      
-	      newlp->_label = XmStringCreateLocalized(new_w->core.name);
+	      label_copy = XmStringCreateLocalized(new_w->core.name);
 	    }
 	}
-      
-      XmStringFree(curlp->_label);
-      curlp->_label= NULL;
+
+      if (label_copy != NULL) {
+	newstring = TRUE;
+	XmStringFree(curlp->_label);
+	newlp->_label = label_copy;
+	curlp->_label = NULL;
+      } else {
+	/* Keep the current label if the replacement cannot be copied. */
+	newlp->_label = curlp->_label;
+      }
       reqlp->_label= NULL;
     }
   
@@ -1906,12 +1924,18 @@ SetValues(Widget cw,
 	  if (XmeStringIsValid((XmString) newlp->_acc_text))
 	    {
 	      if ((XmIsCascadeButton (new_w)) && (newlp->_acc_text != NULL))
-		newlp->_acc_text = NULL;
+		accelerator_copy = NULL;
 	      else
-		newlp->_acc_text = XmStringCopy((XmString) newlp->_acc_text);
+		accelerator_copy = XmStringCopy((XmString) newlp->_acc_text);
 
-	      XmStringFree(curlp->_acc_text);
-	      curlp->_acc_text= NULL;
+	      if (accelerator_copy != NULL || XmIsCascadeButton (new_w)) {
+		XmStringFree(curlp->_acc_text);
+		newlp->_acc_text = accelerator_copy;
+		curlp->_acc_text = NULL;
+	      } else {
+		/* Keep the current accelerator if copying the replacement fails. */
+		newlp->_acc_text = curlp->_acc_text;
+	      }
 	      reqlp->_acc_text= NULL;
 	    }
 	  else
@@ -2215,14 +2239,33 @@ SetValues(Widget cw,
     {
       if (newlp->accelerator != NULL)
 	{
-	  /* Copy the accelerator into local space */
-	  newlp->accelerator = XtNewString(newlp->accelerator);
-	}
+	  String accelerator;
 
-      XtFree(curlp->accelerator);
-      curlp->accelerator = NULL;
-      reqlp->accelerator = NULL;
-      ProcessFlag = TRUE;
+	  /* Copy the accelerator into local space */
+	  accelerator = XtNewString(newlp->accelerator);
+	  if (accelerator == NULL)
+	    {
+	      /* Keep the currently installed binding when replacement fails. */
+	      newlp->accelerator = curlp->accelerator;
+	      reqlp->accelerator = NULL;
+	    }
+	  else
+	    {
+	      newlp->accelerator = accelerator;
+
+	      XtFree(curlp->accelerator);
+	      curlp->accelerator = NULL;
+	      reqlp->accelerator = NULL;
+	      ProcessFlag = TRUE;
+	    }
+	}
+	else
+	  {
+	    XtFree(curlp->accelerator);
+	    curlp->accelerator = NULL;
+	    reqlp->accelerator = NULL;
+	    ProcessFlag = TRUE;
+	  }
     }
   else
     newlp->accelerator = curlp->accelerator;
@@ -2354,6 +2397,12 @@ GetAccelerator(Widget wid,
 {
   XmLabelWidget lw = (XmLabelWidget) wid;
   String string;
+
+  if (Lab_Accelerator(lw) == NULL)
+    {
+      *value = (XtArgVal) NULL;
+      return;
+    }
 
   string = XtNewString(Lab_Accelerator(lw));
 
@@ -2553,13 +2602,27 @@ XmLabelGetBaselines(Widget wid,
   /* Compute raw baselines if unavailable. */
   if (lw->label.baselines == NULL)
     {
+      Dimension *new_baselines;
+
       _XmStringGetBaselines(lw->label.font, lw->label._label,
 			    &(lw->label.baselines), &count);
-      assert(lw->label.baselines != NULL);
+      if (lw->label.baselines == NULL || count == (Cardinal)-1 ||
+          count > (Cardinal)INT_MAX ||
+	  (size_t)count >= SIZE_MAX / sizeof(*new_baselines)) {
+	  lw->label.baselines = NULL;
+	  return False;
+      }
 
       /* Store the current offset in an extra location. */
-      lw->label.baselines = (Dimension*)
-	XtRealloc((char*) lw->label.baselines, (count+1) * sizeof(Dimension));
+      new_baselines = (Dimension *)XtRealloc(
+	  (char *)lw->label.baselines,
+	  ((size_t)count + 1) * sizeof(*new_baselines));
+      if (new_baselines == NULL) {
+	XtFree((char *)lw->label.baselines);
+	lw->label.baselines = NULL;
+	return False;
+      }
+      lw->label.baselines = new_baselines;
       lw->label.baselines[count] = 0;
     }
   else
@@ -2571,14 +2634,21 @@ XmLabelGetBaselines(Widget wid,
   delta = Lab_TextRect_y(lw) - lw->label.baselines[count];
   if (delta)
     {
-      int tmp;
+      Cardinal tmp;
       for (tmp = 0; tmp <= count; tmp++)
 	lw->label.baselines[tmp] += delta;
     }
 
   /* Copy the cached data. */
   *line_count = count;
-  *baselines = (Dimension*) XtMalloc(*line_count * sizeof(Dimension));
+  if (count == 0) {
+    *baselines = NULL;
+    return True;
+  }
+  *baselines = (Dimension*) XtMalloc((size_t)*line_count *
+				     sizeof(Dimension));
+  if (*baselines == NULL)
+    return False;
   memcpy((char*) *baselines, (char*) lw->label.baselines,
 	 *line_count * sizeof(Dimension));
 
@@ -2777,6 +2847,10 @@ _XmLabelConvert(Widget w,
 	target_count = 0;
 	targs = (Atom *) XtMalloc(sizeof(Atom) * 7);
       }
+	if (targs == NULL) {
+	  cs->status = XmCONVERT_REFUSE;
+	  return;
+	}
       
       value = (XtPointer) targs;
       
@@ -2911,6 +2985,10 @@ _XmLabelConvert(Widget w,
       Pixmap *pix;
       
       pix = (Pixmap *) XtMalloc(sizeof(Pixmap));
+	if (pix == NULL) {
+	  cs->status = XmCONVERT_REFUSE;
+	  return;
+	}
       *pix = label_pixmap;
       /* value, type, size, and format must be set */
       value = (XtPointer) pix;
@@ -2925,6 +3003,10 @@ _XmLabelConvert(Widget w,
       Pixel *background;
       
       background = (Pixel *) XtMalloc(sizeof(Pixel));
+	if (background == NULL) {
+	  cs->status = XmCONVERT_REFUSE;
+	  return;
+	}
       if (XtIsWidget(w))
 	*background = ((XmLabelWidget) w)->core.background_pixel;
       else
@@ -2942,6 +3024,10 @@ _XmLabelConvert(Widget w,
       Pixel *foreground;
       
       foreground = (Pixel *) XtMalloc(sizeof(Pixel));
+	if (foreground == NULL) {
+	  cs->status = XmCONVERT_REFUSE;
+	  return;
+	}
       if (XtIsWidget(w))
 	*foreground = ((XmLabelWidget) w)->primitive.foreground;
       else
@@ -2959,6 +3045,10 @@ _XmLabelConvert(Widget w,
       Colormap *colormap;
       
       colormap = (Colormap *) XtMalloc(sizeof(Colormap));
+      if (colormap == NULL) {
+	cs->status = XmCONVERT_REFUSE;
+	return;
+      }
       if (XtIsWidget(w))
 	*colormap = w->core.colormap;
       else
@@ -3172,6 +3262,7 @@ LabelSetValue(Widget w, XtPointer value, int type)
       if (type == XmFORMAT_WCS) 
 	{
 	  int length;
+	  size_t byte_length;
 	  char *str;
 	  wchar_t *str2;
 	  str2 = (wchar_t *) value;
@@ -3180,8 +3271,24 @@ LabelSetValue(Widget w, XtPointer value, int type)
 	  length = 0;
 	  while (str2[length] != 0)
 	    length++;
-	  str = (char*) XtMalloc(MB_CUR_MAX * length);
-	  wcstombs(str, str2, length * MB_CUR_MAX);
+	  if ((size_t) length > (SIZE_MAX - 1) / (size_t) MB_CUR_MAX)
+	    {
+	      XtFree((char *) value);
+	      return;
+	    }
+	  byte_length = (size_t) MB_CUR_MAX * (size_t) length + 1;
+	  str = (char*) XtMalloc(byte_length);
+	  if (str == NULL)
+	    {
+	      XtFree((char*) value);
+	      return;
+	    }
+	  if (wcstombs(str, str2, byte_length) == (size_t)-1)
+	    {
+	      XtFree(str);
+	      XtFree((char*) value);
+	      return;
+	    }
 	  XtFree((char*) value);
 	  value = str;
 	}

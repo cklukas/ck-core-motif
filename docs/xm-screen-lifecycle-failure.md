@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm screen lifecycle failure handling
 
 Screen initialization now checks `XmScreenInfo` allocation before field

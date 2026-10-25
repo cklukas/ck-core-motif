@@ -28,7 +28,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <limits.h>
 #include <ctype.h>
+#include <stdint.h>
 #include <sys/param.h>
 #include <X11/Intrinsic.h>
 #include <X11/Shell.h>
@@ -116,6 +119,7 @@ static Boolean smClientDBCheckpointed = False;
 /* Session mgmt callbacks. */
 static void smSaveYourselfCallback(Widget, XtPointer, XtPointer);
 static void smDieCallback(Widget, XtPointer, XtPointer);
+static void freeNewRestartCmd(char **);
 
 /* Build client database file name. */
 static void buildDBFileName(char [MAXPATHLEN], Boolean);
@@ -268,13 +272,20 @@ buildDBFileName(char fileNameBuf[MAXPATHLEN], Boolean doingSave)
 
 	if (DtSessionSavePath(wmGD.topLevelW, &savePath, &saveFile))
 	{
+	    size_t pathLength;
+	    size_t fileLength;
+
 	    XtFree(saveFile);
 
 	    if ((ptr = strrchr(savePath, '/')) != (char *)NULL)
 		*ptr = '\0';
 
-	    if (strlen(savePath) + strlen(dtwmFileName) + 2 < MAXPATHLEN)
-		sprintf(fileNameBuf, "%s/%s", savePath, dtwmFileName);
+	    pathLength = strlen(savePath);
+	    fileLength = strlen(dtwmFileName);
+	    if (pathLength <= SIZE_MAX - fileLength - 2 &&
+		pathLength + fileLength + 2 < MAXPATHLEN)
+		(void)snprintf(fileNameBuf, MAXPATHLEN, "%s/%s",
+		               savePath, dtwmFileName);
 
 	    XtFree(savePath);
 	}
@@ -283,8 +294,8 @@ buildDBFileName(char fileNameBuf[MAXPATHLEN], Boolean doingSave)
     {
 	if (DtSessionRestorePath(wmGD.topLevelW, &savePath, dtwmFileName))
 	{
-	    if ((int)strlen(savePath) < MAXPATHLEN)
-		strcpy(fileNameBuf, savePath);
+	    if (strlen(savePath) < MAXPATHLEN)
+		(void)snprintf(fileNameBuf, MAXPATHLEN, "%s", savePath);
 
 	    XtFree(savePath);
 	}
@@ -312,6 +323,25 @@ buildDBFileName(char fileNameBuf[MAXPATHLEN], Boolean doingSave)
 
 #ifndef WSM
 
+static char *
+copyClientDBName(const char *source)
+{
+    size_t length;
+    char *copy;
+
+    if (source == NULL)
+	return NULL;
+    length = strlen(source);
+    if (length > SIZE_MAX - 1 - EXTRA_FN_CHARS ||
+	length > (size_t)UINT_MAX - 1 - EXTRA_FN_CHARS)
+	return NULL;
+    copy = (char *)XtMalloc((Cardinal)(length + 1 + EXTRA_FN_CHARS));
+    if (copy == NULL)
+	return NULL;
+    memcpy(copy, source, length + 1);
+    return copy;
+}
+
 /*
  *  See if dbFileArgStr specified on command line.  Save subsequent arg;
  *  if not, see if resource set; if not, put files in user's home directory.
@@ -334,12 +364,7 @@ getClientDBName(void)
 	    {
 		if (*(++argP) != (char *)NULL)
 		{
-		    if ((wmGD.dbFileName =
-			 (char *)XtMalloc((strlen(*argP) + 1 +
-					   EXTRA_FN_CHARS) *
-					  sizeof(char)))
-			!= (char *)NULL)
-			strcpy(wmGD.dbFileName, *argP);
+		    wmGD.dbFileName = copyClientDBName(*argP);
 		}
 		break;
 	    }
@@ -351,23 +376,25 @@ getClientDBName(void)
     {
 	if (wmGD.sessionClientDB != (String)NULL)
 	{
-	    if ((wmGD.dbFileName =
-		 (char *)XtMalloc((strlen(wmGD.sessionClientDB) + 1 +
-				   EXTRA_FN_CHARS) *
-				  sizeof(char)))
-		!= (char *)NULL)
-		strcpy(wmGD.dbFileName, wmGD.sessionClientDB);
+	    wmGD.dbFileName = copyClientDBName(wmGD.sessionClientDB);
 	}
     }
 
     if (wmGD.dbFileName == (char *)NULL)
     {
 	char *homeDir = XmeGetHomeDirName();
+	size_t homeLength;
+	size_t fileLength;
 
-	if ((wmGD.dbFileName =
-	     (char *)XtMalloc((strlen(homeDir) + strlen(dtwmFileName) + 2 +
-			       EXTRA_FN_CHARS) * sizeof(char)))
-	    != (char *)NULL)
+	if (homeDir == NULL)
+	    return;
+	homeLength = strlen(homeDir);
+	fileLength = strlen(dtwmFileName);
+	if (homeLength > SIZE_MAX - fileLength - 2 - EXTRA_FN_CHARS ||
+	    homeLength + fileLength + 2 + EXTRA_FN_CHARS > UINT_MAX)
+	    return;
+	if ((wmGD.dbFileName = (char *)XtMalloc(
+		(Cardinal)(homeLength + fileLength + 2 + EXTRA_FN_CHARS))) != NULL)
 	    sprintf(wmGD.dbFileName, "%s/%s", homeDir, dtwmFileName);
     }
 }
@@ -396,18 +423,35 @@ setClientDBName(void)
 
 	if (*p1 == '\0')
 	{
-	    int numSuffix;
+	    char *endptr;
+	    unsigned long numSuffix;
+	    size_t suffixLength = strlen(ptr);
 
-	    numSuffix = atoi(ptr) + 1;
-	    sprintf(ptr, "%d", numSuffix);
+	    errno = 0;
+	    numSuffix = strtoul(ptr, &endptr, 10);
+	    if (errno != ERANGE && endptr != ptr && *endptr == '\0' &&
+		numSuffix != ULONG_MAX &&
+		suffixLength <= SIZE_MAX - EXTRA_FN_CHARS - 1)
+	    {
+		(void)snprintf(ptr, suffixLength + EXTRA_FN_CHARS + 1,
+		               "%lu", numSuffix + 1);
+	    }
 
 	    /* Success!  We're all done here. */
 	    return;
 	}
     }
 
-    /* Otherwise, append ".0" to filename. */
-    strcat(wmGD.dbFileName, ".0");
+    /* Otherwise, append ".0" to filename within the reserved capacity. */
+    {
+	size_t length = strlen(wmGD.dbFileName);
+	if (length <= SIZE_MAX - EXTRA_FN_CHARS - 3)
+	    {
+		wmGD.dbFileName[length] = '.';
+		wmGD.dbFileName[length + 1] = '0';
+		wmGD.dbFileName[length + 2] = '\0';
+	    }
+    }
 }
 
 static char **
@@ -445,7 +489,10 @@ getNewRestartCmd(void)
 	argc += 2;
     }
 
-    if ((newRestartCmd = (char **)XtMalloc((argc + 1) * sizeof(char *)))
+    if (argc < 0 || (size_t)argc > (SIZE_MAX / sizeof(char *)) - 1)
+	return (char **)NULL;
+    if ((newRestartCmd = (char **)XtCalloc((size_t)argc + 1,
+					   sizeof(char *)))
 	== (char **)NULL)
 	return (char **)NULL;
 
@@ -454,16 +501,26 @@ getNewRestartCmd(void)
 	if (i != fileArgIndex)
 	{
 	    newRestartCmd[i] = XtNewString(restartCmd[i]);
+	    if (newRestartCmd[i] == (char *)NULL)
+		goto failure;
 	}
 	else
 	{
 	    newRestartCmd[i++] = XtNewString(dbFileArgStr);
+	    if (newRestartCmd[i - 1] == (char *)NULL)
+		goto failure;
 	    newRestartCmd[i] = XtNewString(wmGD.dbFileName);
+	    if (newRestartCmd[i] == (char *)NULL)
+		goto failure;
 	}
     }
     newRestartCmd[i] = (char *)NULL;
 
     return newRestartCmd;
+
+failure:
+    freeNewRestartCmd(newRestartCmd);
+    return (char **)NULL;
 }
 
 static void
@@ -502,8 +559,9 @@ getClientWorkspaces(ClientData *pCD)
     /* Easy but slow way to do this would be to use XGetAtomName(). */
     /* To avoid XServer round trips (and to weed out invalid WS names) */
     /* we look through workspaces attached to this screen for ID matches. */
-    char *cwsP, *tmpP, *wsNameP;
-    int pLen = 0;
+    char *cwsP = NULL, *tmpP, *wsNameP;
+    size_t pLen = 0;
+    size_t nameLength;
     int i;
 
     for (i = 0; i < pCD->numInhabited; i++)
@@ -512,10 +570,15 @@ getClientWorkspaces(ClientData *pCD)
 	    != (WmWorkspaceData *)NULL)
 	{
 	    wsNameP = pWS->name;
+	    if (wsNameP == NULL)
+		continue;
+	    nameLength = strlen(wsNameP);
 	    if (pLen == 0)
 	    {
-		pLen = strlen(wsNameP) + 1;  /* 1 for null termination */
-		if ((cwsP = (char *)XtMalloc(pLen * sizeof(char)))
+		if (nameLength == SIZE_MAX || nameLength >= UINT_MAX)
+		    return (char *)NULL;
+		pLen = nameLength + 1;  /* 1 for null termination */
+		if ((cwsP = (char *)XtMalloc(pLen))
 		    == (char *)NULL)
 		    return (char *)NULL;
 
@@ -523,8 +586,18 @@ getClientWorkspaces(ClientData *pCD)
 	    }
 	    else
 	    {
-		pLen += strlen(wsNameP) + 1;  /* 1 for space */
-		if ((tmpP = (char *)XtRealloc(cwsP, pLen * sizeof(char)))
+		if (nameLength > SIZE_MAX - pLen - 1)
+		{
+		    XtFree((char *)cwsP);
+		    return (char *)NULL;
+		}
+		pLen += nameLength + 1;  /* 1 for space */
+		if (pLen > UINT_MAX)
+		{
+		    XtFree((char *)cwsP);
+		    return (char *)NULL;
+		}
+		if ((tmpP = (char *)XtRealloc(cwsP, pLen))
 		    == (char *)NULL)
 		{
 		    XtFree((char *)cwsP);
@@ -545,15 +618,22 @@ getClientWorkspaces(ClientData *pCD)
 static Boolean
 addClientToList(ClientData ***cdList, int *nClients, ClientData *pCD)
 {
+    size_t newCount;
     ClientData **newPtr = (ClientData **)
-	XtRealloc((char *)*cdList, (*nClients + 1) * sizeof(ClientData *));
+	NULL;
+
+    if (cdList == NULL || nClients == NULL || *nClients < 0 ||
+	*nClients == INT_MAX)
+	return False;
+    newCount = (size_t)*nClients + 1;
+    if (newCount > SIZE_MAX / sizeof(*newPtr) ||
+	newCount > UINT_MAX / sizeof(*newPtr))
+	return False;
+    newPtr = (ClientData **)XtRealloc((char *)*cdList,
+					  (Cardinal)(newCount * sizeof(*newPtr)));
 
     if (newPtr == (ClientData **)NULL)
-    {
-	if (*cdList != (ClientData **)NULL)
-	    XtFree((char *)*cdList);
 	return False;
-    }
 
     *cdList = newPtr;
     newPtr[*nClients] = pCD;
@@ -604,7 +684,9 @@ getClientResource(char *clientID, char *fmtStr)
     resourceLength = snprintf(NULL, 0, fmtStr, clientID);
     if (resourceLength < 0)
         return (char *)NULL;
-    resourceBuf = (char *)XtMalloc((unsigned int)resourceLength + 1);
+    if ((unsigned int)resourceLength >= UINT_MAX)
+        return (char *)NULL;
+    resourceBuf = (char *)XtMalloc((Cardinal)resourceLength + 1);
     if (resourceBuf == (char *)NULL)
         return (char *)NULL;
     (void)snprintf(resourceBuf, (size_t)resourceLength + 1,
@@ -710,7 +792,9 @@ findXSMPClientDBMatch(ClientData *pCD, char **workSpaceNamesP)
 						workspacesStr))
 		 != (char *)NULL))
 	    {
-		*workSpaceNamesP = XtNewString(resourcePtr);
+		char *workspaceNames = XtNewString(resourcePtr);
+		if (workspaceNames != NULL)
+		    *workSpaceNamesP = workspaceNames;
 	    }
 #endif
 	}
@@ -919,7 +1003,9 @@ findProxyClientDBMatch(ClientData *pCD, char **workSpaceNamesP)
 		  getClientResource(proxyClientID, workspacesStr))
 		 != (char *)NULL))
 	    {
-		*workSpaceNamesP = XtNewString(resourcePtr);
+		char *workspaceNames = XtNewString(resourcePtr);
+		if (workspaceNames != NULL)
+		    *workSpaceNamesP = workspaceNames;
 	    }
 #endif
 
@@ -1173,7 +1259,9 @@ dbRemoveProxyClientEntry(char *proxyClientID)
     resourceLength = snprintf(NULL, 0, wmCommandStr, proxyClientID);
     if (resourceLength < 0)
         return;
-    resourceBuf = (char *)XtMalloc((unsigned int)resourceLength + 2);
+    if ((unsigned int)resourceLength >= UINT_MAX - 1)
+        return;
+    resourceBuf = (char *)XtMalloc((Cardinal)resourceLength + 2);
     if (resourceBuf == (char *)NULL)
         return;
     (void)snprintf(resourceBuf, (size_t)resourceLength + 1,
@@ -1357,6 +1445,14 @@ SortClientListByWorkspace(ClientData **clients, int nClients)
 }
 
 #ifdef WSM
+static Boolean
+BuildIconResource(char *buffer, size_t buffer_size, const char *format,
+                  const char *workspace)
+{
+    int length = snprintf(buffer, buffer_size, format, "%s", workspace);
+    return length >= 0 && (size_t) length < buffer_size;
+}
+
 /* This needs to be called if WSM defined; if WSM not defined, icon */
 /* positions are read at the same time as other resources. */
 void
@@ -1378,7 +1474,9 @@ LoadClientIconPositions(ClientData *pCD)
 	    if ((pWS = GetWorkspaceData(pSD, pCD->pWsList[i].wsID))
 		!= (WmWorkspaceData *)NULL)
 	    {
-		sprintf(resourceBuf, iconXPosStr, "%s", pWS->name);
+		if (!BuildIconResource(resourceBuf, sizeof(resourceBuf),
+				       iconXPosStr, pWS->name))
+		    continue;
 		if ((resourcePtr =
 		     getXSMPResource(pCD, WMSAVE_ICON_X, resourceBuf))
 		    != (char *)NULL)
@@ -1387,7 +1485,9 @@ LoadClientIconPositions(ClientData *pCD)
 		    pCD->clientFlags |= SM_ICON_X;
 		}
 
-		sprintf(resourceBuf, iconYPosStr, "%s", pWS->name);
+		if (!BuildIconResource(resourceBuf, sizeof(resourceBuf),
+				       iconYPosStr, pWS->name))
+		    continue;
 		if ((resourcePtr =
 		     getXSMPResource(pCD, WMSAVE_ICON_Y, resourceBuf))
 		    != (char *)NULL)
@@ -1412,7 +1512,9 @@ LoadClientIconPositions(ClientData *pCD)
 		if ((pWS = GetWorkspaceData(pSD, pCD->pWsList[i].wsID))
 		    != (WmWorkspaceData *)NULL)
 		{
-		    sprintf(resourceBuf, iconXPosStr, "%s", pWS->name);
+		    if (!BuildIconResource(resourceBuf, sizeof(resourceBuf),
+					   iconXPosStr, pWS->name))
+			    continue;
 		    if ((resourcePtr =
 			 getClientResource(proxyClientID, resourceBuf))
 			!= (char *)NULL)
@@ -1421,7 +1523,9 @@ LoadClientIconPositions(ClientData *pCD)
 			pCD->clientFlags |= SM_ICON_X;
 		    }
 
-		    sprintf(resourceBuf, iconYPosStr, "%s", pWS->name);
+		    if (!BuildIconResource(resourceBuf, sizeof(resourceBuf),
+					   iconYPosStr, pWS->name))
+			    continue;
 		    if ((resourcePtr =
 			 getClientResource(proxyClientID, resourceBuf))
 			!= (char *)NULL)

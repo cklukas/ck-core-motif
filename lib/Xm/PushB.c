@@ -902,8 +902,8 @@ DrawDefaultGlyphPixmap(
   content_height = MAX((int)Lab_TextRect_height(pb),
 			       (int)pb->label.acc_TextRect.height);
   right_offset = (int)(Lab_MarginRight(pb) + Lab_MarginWidth(pb)) +
-			        (int)pb->primitive.highlight_thickness +
-			        (int)pb->primitive.shadow_thickness;
+	                (int)pb->primitive.highlight_thickness +
+	                (int)pb->primitive.shadow_thickness;
   if ((int)pb->core.width <= right_offset || content_height <= 0 ||
       def_pixmap_width == 0 || def_pixmap_height == 0)
     return;
@@ -913,7 +913,7 @@ DrawDefaultGlyphPixmap(
   dy = pb->primitive.highlight_thickness +
     pb->primitive.shadow_thickness + Lab_MarginTop(pb) + Lab_MarginHeight(pb) + 
       (content_height - (int)def_pixmap_height)/2;
-  width = MIN((int)def_pixmap_width, Lab_MarginRight(pb));
+  width = MIN(def_pixmap_width, Lab_MarginRight(pb));
   height = MIN((int)def_pixmap_height, content_height);
   if (width <= 0 || height <= 0)
     return;
@@ -996,7 +996,6 @@ EraseDefaultButtonShadow(
 	  break;
 
 	default:
-	  assert(FALSE);
 	  return;
 	}
 
@@ -1468,10 +1467,12 @@ DrawPushButtonShadows(
       adjust = 0;
       break;
 
-    default:
-      assert(FALSE);
-      return;
+	default:
+	  return;
     }
+
+  if (adjust < 0)
+    adjust = 0;
 
   /* Clear the area not occupied by label with parents background color. */
   /* Label will invoke BorderUnhighlight() on the highlight_thickness	 */
@@ -1479,7 +1480,9 @@ DrawPushButtonShadows(
   /* shadow emphasis is used.						 */
 
   ComputePBLabelArea (pb, &box);
-  if (box.x > adjust)
+  if (box.x > adjust &&
+      (int)pb->core.width > 2 * adjust &&
+      (int)pb->core.height > 2 * adjust)
     {
       FillBorderWithParentColor(pb, 
 				box.x - adjust, 
@@ -1734,10 +1737,12 @@ DrawDefaultButtonShadows(
       delta = Xm3D_ENHANCE_PIXEL;
       break;
 
-    default:
-      assert(FALSE);
-      return;
+	default:
+	  return;
     }
+
+  if (pb->core.width <= 2 * delta || pb->core.height <= 2 * delta)
+    return;
 
   x = y = delta;
   width = pb->core.width - 2 * delta;
@@ -1780,15 +1785,17 @@ BorderHighlight(
 	     DrawPushButtonLabel (pb, event, NULL);	
 	 }
       
-       if ((pb->core.width > 2 * pb->primitive.highlight_thickness) &&
-	   (pb->core.height > 2 * pb->primitive.highlight_thickness))
+       if ((int)pb->core.width > 2 * (int)pb->primitive.highlight_thickness &&
+	  (int)pb->core.height > 2 * (int)pb->primitive.highlight_thickness &&
+	  pb->primitive.top_shadow_GC != NULL &&
+	  pb->primitive.bottom_shadow_GC != NULL)
 	   XmeDrawShadows(XtDisplay (pb), XtWindow (pb),
 		       pb->primitive.top_shadow_GC,
 		       pb->primitive.bottom_shadow_GC,
 		       pb->primitive.highlight_thickness,
 		       pb->primitive.highlight_thickness,
-		       pb->core.width - 2 * pb->primitive.highlight_thickness,
-		       pb->core.height - 2 * pb->primitive.highlight_thickness,
+		       (int)pb->core.width - 2 * (int)pb->primitive.highlight_thickness,
+		       (int)pb->core.height - 2 * (int)pb->primitive.highlight_thickness,
 		       pb->primitive.shadow_thickness, 
 		       etched_in ? XmSHADOW_IN : XmSHADOW_OUT);
       
@@ -1814,7 +1821,7 @@ DrawBorderHighlight(
 {   
   XmPushButtonWidget pb = (XmPushButtonWidget) wid ;
   int x, y, width, height, delta;
-  Dimension highlight_width ;
+  int highlight_width ;
   XtEnum default_button_emphasis;
   
   if (!XtWidth (pb) || !XtHeight (pb))
@@ -1824,7 +1831,11 @@ DrawBorderHighlight(
   pb->primitive.highlight_drawn = True;
   
   if (pb->pushbutton.default_button_shadow_thickness)
-    highlight_width = pb->primitive.highlight_thickness - Xm3D_ENHANCE_PIXEL;
+    {
+      if (pb->primitive.highlight_thickness <= Xm3D_ENHANCE_PIXEL)
+        return;
+      highlight_width = pb->primitive.highlight_thickness - Xm3D_ENHANCE_PIXEL;
+    }
   else
     highlight_width = pb->primitive.highlight_thickness;
   
@@ -1851,9 +1862,13 @@ DrawBorderHighlight(
 	  break;
 
 	default:
-	  assert(FALSE);
 	  return;
 	}
+
+      if (pb->primitive.highlight_GC == NULL ||
+          pb->core.width <= 2 * delta ||
+          pb->core.height <= 2 * delta)
+        return;
 
       x = y = delta;
       width = pb->core.width - 2 * delta;
@@ -1887,19 +1902,23 @@ BorderUnhighlight(
      pb->pushbutton.armed = FALSE;
 
      if (etched_in && !XmIsTearOffButton(pb) ) {
-	  XFillRectangle (XtDisplay(pb), XtWindow(pb),
-			  pb->pushbutton.background_gc,
-			  0, 0, pb->core.width, pb->core.height);
+	  if (pb->pushbutton.background_gc != NULL &&
+	      pb->core.width != 0 && pb->core.height != 0)
+	    XFillRectangle (XtDisplay(pb), XtWindow(pb),
+			    pb->pushbutton.background_gc,
+			    0, 0, pb->core.width, pb->core.height);
 	  DrawPushButtonLabel (pb, event, NULL);
      }
       else
-	  XmeClearBorder (
-		  XtDisplay (pb), XtWindow (pb),
-		  pb->primitive.highlight_thickness,
-		  pb->primitive.highlight_thickness,
-		  pb->core.width - 2 * pb->primitive.highlight_thickness,
-		  pb->core.height - 2 * pb->primitive.highlight_thickness,
-		  pb->primitive.shadow_thickness);
+	  if (pb->core.width > 2 * pb->primitive.highlight_thickness &&
+	      pb->core.height > 2 * pb->primitive.highlight_thickness)
+	    XmeClearBorder (
+		    XtDisplay (pb), XtWindow (pb),
+		    pb->primitive.highlight_thickness,
+		    pb->primitive.highlight_thickness,
+		    pb->core.width - 2 * pb->primitive.highlight_thickness,
+		    pb->core.height - 2 * pb->primitive.highlight_thickness,
+		    pb->primitive.shadow_thickness);
       
       
       if (already_armed && pb->pushbutton.disarm_callback)
@@ -1935,6 +1954,10 @@ BorderUnhighlight(
 		2 * (pb->pushbutton.compatible ?
 		     pb->pushbutton.show_as_default :
 		     pb->pushbutton.default_button_shadow_thickness);
+
+              if (pb->core.width <= 2 * delta ||
+                  pb->core.height <= 2 * delta)
+                break;
 	    
 	      x = y = delta;
 	      width = pb->core.width - 2 * delta;
@@ -1950,7 +1973,6 @@ BorderUnhighlight(
 	  break;
 
 	default:
-	  assert(FALSE);
 	  return;
 	}
     }
@@ -2454,16 +2476,18 @@ ArmTimeout(
 	      Boolean etched_in = dpy->display.enable_etched_in_menu;
 
 	      /* in a torn off menu, redraw shadows */
-	      if ((pb->core.width > 2 * pb->primitive.highlight_thickness) &&
-		  (pb->core.height > 2 * pb->primitive.highlight_thickness))
+	      if ((int)pb->core.width > 2 * (int)pb->primitive.highlight_thickness &&
+		    (int)pb->core.height > 2 * (int)pb->primitive.highlight_thickness &&
+		    pb->primitive.top_shadow_GC != NULL &&
+		    pb->primitive.bottom_shadow_GC != NULL)
 		XmeDrawShadows
 		  (XtDisplay (pb), XtWindow (pb),
 		   pb->primitive.top_shadow_GC,
 		   pb->primitive.bottom_shadow_GC,
 		   pb->primitive.highlight_thickness,
 		   pb->primitive.highlight_thickness,
-		   pb->core.width - 2 * pb->primitive.highlight_thickness,
-		   pb->core.height - 2 * pb->primitive.highlight_thickness,
+		   (int)pb->core.width - 2 * (int)pb->primitive.highlight_thickness,
+		   (int)pb->core.height - 2 * (int)pb->primitive.highlight_thickness,
 		   pb->primitive.shadow_thickness, 
 		   etched_in ? XmSHADOW_IN : XmSHADOW_OUT);
 	    }
@@ -2707,16 +2731,18 @@ BtnUp(
 	      XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(pb));
 	      Boolean etched_in = dpy->display.enable_etched_in_menu;
 	      
-	      if ((pb->core.width > 2 * pb->primitive.highlight_thickness) &&
-		  (pb->core.height > 2 * pb->primitive.highlight_thickness))
+	      if ((int)pb->core.width > 2 * (int)pb->primitive.highlight_thickness &&
+	      (int)pb->core.height > 2 * (int)pb->primitive.highlight_thickness &&
+	      pb->primitive.top_shadow_GC != NULL &&
+	      pb->primitive.bottom_shadow_GC != NULL)
 		XmeDrawShadows
 		  (XtDisplay (pb), XtWindow (pb),
 		   pb->primitive.bottom_shadow_GC,
 		   pb->primitive.top_shadow_GC,
 		   pb->primitive.highlight_thickness,
 		   pb->primitive.highlight_thickness,
-		   pb->core.width - 2 * pb->primitive.highlight_thickness,
-		   pb->core.height - 2 * pb->primitive.highlight_thickness,
+		   (int)pb->core.width - 2 * (int)pb->primitive.highlight_thickness,
+		   (int)pb->core.height - 2 * (int)pb->primitive.highlight_thickness,
 		   pb->primitive.shadow_thickness, 
 		   etched_in ? XmSHADOW_IN : XmSHADOW_OUT);
 	      
@@ -2803,16 +2829,18 @@ Enter(
 	      DrawPushButtonLabel( pb, event, NULL );
 	  }
 
-	  if ((pb->core.width > 2 * pb->primitive.highlight_thickness) &&
-	      (pb->core.height > 2 * pb->primitive.highlight_thickness))
+	  if ((int)pb->core.width > 2 * (int)pb->primitive.highlight_thickness &&
+	  (int)pb->core.height > 2 * (int)pb->primitive.highlight_thickness &&
+	  pb->primitive.top_shadow_GC != NULL &&
+	  pb->primitive.bottom_shadow_GC != NULL)
 	    XmeDrawShadows
 	      (XtDisplay (pb), XtWindow (pb),
 	       pb->primitive.top_shadow_GC,
 	       pb->primitive.bottom_shadow_GC,
 	       pb->primitive.highlight_thickness,
 	       pb->primitive.highlight_thickness,
-	       pb->core.width - 2 * pb->primitive.highlight_thickness,
-	       pb->core.height - 2 * pb->primitive.highlight_thickness,
+	       (int)pb->core.width - 2 * (int)pb->primitive.highlight_thickness,
+	       (int)pb->core.height - 2 * (int)pb->primitive.highlight_thickness,
 	       pb->primitive.shadow_thickness, 
 	       etched_in ? XmSHADOW_IN : XmSHADOW_OUT);
 
@@ -2875,13 +2903,16 @@ Leave(
 			      0, 0, pb->core.width, pb->core.height);
 	      DrawPushButtonLabel (pb, event, NULL);
 	  }
-	  else 
+	  else if ((int)pb->core.width > 2 * (int)pb->primitive.highlight_thickness &&
+		   (int)pb->core.height > 2 * (int)pb->primitive.highlight_thickness)
 	     XmeClearBorder
 		 (XtDisplay (pb), XtWindow (pb),
 		  pb->primitive.highlight_thickness,
 		  pb->primitive.highlight_thickness,
-		  pb->core.width - 2 * pb->primitive.highlight_thickness,
-		  pb->core.height - 2 * pb->primitive.highlight_thickness,
+		  (int)pb->core.width -
+		  2 * (int)pb->primitive.highlight_thickness,
+		  (int)pb->core.height -
+		  2 * (int)pb->primitive.highlight_thickness,
 		  pb->primitive.shadow_thickness);
 
 	  if (pb->pushbutton.disarm_callback)

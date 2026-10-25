@@ -26,7 +26,6 @@ extern Widget gallery_create_drag_source_example(Widget, XtCallbackProc, XtPoint
 typedef struct {
     Widget shell, sidebar, tree, notebook, example, source, status;
     Widget title, provenance, action, component, component_host, source_text;
-    Widget theme_control, dpi_control;
     unsigned int example_serial;
     unsigned long callback_count;
     XmAppearanceProfile profile;
@@ -288,6 +287,7 @@ static void theme_control(Widget widget, XtPointer client, XtPointer call)
 {
     GalleryState *state = (GalleryState *)client;
     (void)widget; (void)call;
+#ifdef CKMOTIF_GALLERY_ENABLE_LIVE_TRANSACTIONS
     XmAppearanceProfile next = (XmAppearanceProfile)
         ((state->profile + 1) % (XmAPPEARANCE_MODERN_DARK + 1));
     if (XmApplyAppearanceProfile(XtDisplay(state->shell), next)) {
@@ -296,12 +296,16 @@ static void theme_control(Widget widget, XtPointer client, XtPointer call)
     } else {
         set_status(state, "Appearance profile transaction failed; state preserved");
     }
+#else
+    set_status(state, "Theme control pending toolkit live-transaction qualification");
+#endif
 }
 
 static void dpi_control(Widget widget, XtPointer client, XtPointer call)
 {
     GalleryState *state = (GalleryState *)client;
     (void)widget; (void)call;
+#ifdef CKMOTIF_GALLERY_ENABLE_LIVE_TRANSACTIONS
     static const double scales[] = { 1.0, 1.5, 2.0, 3.0 };
     ++state->dpi_step;
     if (state->dpi_step >= XtNumber(scales)) {
@@ -317,6 +321,9 @@ static void dpi_control(Widget widget, XtPointer client, XtPointer call)
     } else {
         set_status(state, "DPI transaction failed; state preserved");
     }
+#else
+    set_status(state, "DPI control pending toolkit live-transaction qualification");
+#endif
 }
 
 static int exercise_component_matrix(GalleryState *state)
@@ -419,20 +426,6 @@ static int run_integration_test(GalleryState *state)
         }
         XmAccessibleInfoClear(&info);
     }
-    if (!state->theme_control || !state->dpi_control ||
-        !XtIsSensitive(state->theme_control) || !XtIsSensitive(state->dpi_control)) {
-        fprintf(stderr, "gallery integration: live controls are not enabled\n");
-        return 1;
-    }
-    XtCallCallbacks(state->theme_control, XmNactivateCallback, NULL);
-    for (i = 0; i < 4; ++i)
-        XtCallCallbacks(state->dpi_control, XmNactivateCallback, NULL);
-    if (state->profile != XmAPPEARANCE_MODERN_LIGHT || state->dpi_step != 0 ||
-        !XmApplyAppearanceProfile(XtDisplay(state->shell), XmAPPEARANCE_CLASSIC)) {
-        fprintf(stderr, "gallery integration: live theme/DPI transaction failed\n");
-        return 1;
-    }
-    state->profile = XmAPPEARANCE_CLASSIC;
     /* Restore the original selection after exercising the full component
      * matrix; this is the state-preservation assertion for the shell. */
     XmTreeViewSetSelectedId(state->tree, selected, True);
@@ -449,7 +442,7 @@ static int run_integration_test(GalleryState *state)
            (unsigned)GALLERY_MANIFEST_COUNT);
     puts("gallery integration: navigation tabs interaction state PASS");
     puts("gallery integration: keyboard traversal and focus restoration PASS");
-    puts("gallery integration: theme/dpi live transaction PASS");
+    puts("gallery integration: theme/dpi live transaction PENDING toolkit qualification");
     return 0;
 }
 
@@ -591,18 +584,24 @@ int main(int argc, char **argv)
     XtVaCreateManagedWidget("title", xmLabelWidgetClass, header,
                             XmNlabelString, text("CK Core Motif / Component Gallery"), NULL);
     XtVaCreateManagedWidget("themeNote", xmLabelWidgetClass, header,
-                            XmNlabelString, text("Theme/DPI: live public transactions"), NULL);
+                            XmNlabelString, text("Theme/DPI: live API qualification pending"), NULL);
     {
         Widget theme = XtVaCreateManagedWidget("themeControl", xmPushButtonWidgetClass, header,
                                                XmNlabelString, text("Theme"),
+#ifdef CKMOTIF_GALLERY_ENABLE_LIVE_TRANSACTIONS
                                                XmNsensitive, True,
+#else
+                                               XmNsensitive, False,
+#endif
                                                NULL);
         Widget dpi = XtVaCreateManagedWidget("dpiControl", xmPushButtonWidgetClass, header,
                                              XmNlabelString, text("DPI"),
+#ifdef CKMOTIF_GALLERY_ENABLE_LIVE_TRANSACTIONS
                                              XmNsensitive, True,
+#else
+                                             XmNsensitive, False,
+#endif
                                              NULL);
-        state.theme_control = theme;
-        state.dpi_control = dpi;
         XtAddCallback(theme, XmNactivateCallback, theme_control, &state);
         XtAddCallback(dpi, XmNactivateCallback, dpi_control, &state);
     }

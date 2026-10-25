@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm feedback-message fallback
 
 Localized confirmation messages are allocated during feedback-dialog setup.  If

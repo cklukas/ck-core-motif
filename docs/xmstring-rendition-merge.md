@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString rendition merge allocation failures
 
 Concatenating XmStrings can merge rendition begin and end tag arrays.  The

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Virtual-key binding-file allocation
 
 `_XmVirtKeysLoadFileBindings` builds a NUL-terminated binding string from

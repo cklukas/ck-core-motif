@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Uncached image GC ownership
 
 When the image GC cache cannot be initialized or a cache entry cannot be

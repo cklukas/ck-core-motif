@@ -1,8 +1,12 @@
+---
+nav_exclude: true
+---
 # XmString table concatenation input validation
 
-`XmStringTableToXmString` now rejects a null table or an empty table while the
-Motif process lock is held.  The lock is released before returning `NULL`, so
-invalid input cannot enter the concatenation loop.
+`XmStringTableToXmString` now rejects a null table and empty table before
+entering its concatenation loop.  The Motif process lock is released on this
+path, and the function returns `NULL` instead of dereferencing a missing
+table.
 
 The regression check is
 `tests/automated/check-xmstring-table-concat-input.py`.

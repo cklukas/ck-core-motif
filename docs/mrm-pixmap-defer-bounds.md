@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm deferred pixmap bounds
 
 `Urm__CW_CreateArglist` now checks the ten-entry deferred pixmap array before

@@ -4,7 +4,7 @@
 from pathlib import Path
 
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmString.c").read_text()
+source = Path("lib/Xm/XmString.c").read_text()
 start = source.index("_XmStringNCreate(")
 end = source.index("XmStringCreateLocalized(", start)
 window = source[start:end]

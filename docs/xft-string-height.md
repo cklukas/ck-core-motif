@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xft compound-string line height
 
 Xft-backed compound-string geometry now uses `XftFont.height` for the line

@@ -55,7 +55,8 @@ static char rcsid[] = "$XConsortium: ResInd.c /main/17 1996/06/07 11:40:05 danie
             ((float_value) * -1.0))
  
 #define OVERFLOW(float_value) \
-            (FLOATABS(float_value) > (float) INT_MAX) ? 1 : 0
+            ((float_value) != (float_value) || \
+             FLOATABS(float_value) > (float) INT_MAX) ? 1 : 0
 
 /********    Static Function Declarations    ********/
 
@@ -98,6 +99,8 @@ XmConvertStringToUnits(
         XtEnum *parse_error) /* RETURN */
 {
   int value;
+  if (screen == NULL)
+    return 0;
   _XmDisplayToAppContext(DisplayOfScreen(screen));
 
   _XmAppLock(app);
@@ -125,6 +128,9 @@ _XmConvertFloatUnitsToIntUnits(int unitType, float unitValue,
 			       int default_from_type)
 {
     float multiplier;
+
+    if (intUnitType == NULL || intUnitValue == NULL)
+	return(False);
 
     switch (unitType) 
     {
@@ -484,6 +490,8 @@ XmConvertUnits(
 {
   int value;
   Screen *screen;
+  if (widget == NULL)
+    return 0;
   _XmWidgetToAppContext(widget);
     
   _XmAppLock(app);
@@ -509,6 +517,8 @@ XmCvtToHorizontalPixels(
         register int from_type )
 {
   int value;
+  if (screen == NULL)
+    return 0;
   _XmDisplayToAppContext(DisplayOfScreen(screen));
 
   _XmAppLock(app);
@@ -565,6 +575,8 @@ XmeToHorizontalPixels(
         XtArgVal *value )
 {
    XmImportOperator ret_value;
+   if (widget == NULL || value == NULL)
+     return XmSYNTHETIC_LOAD;
    _XmWidgetToAppContext(widget);
 
    _XmAppLock(app);
@@ -587,6 +599,8 @@ XmCvtToVerticalPixels(
         register int from_type )
 {
   int value;
+  if (screen == NULL)
+    return 0;
   _XmDisplayToAppContext(DisplayOfScreen(screen));
 
   _XmAppLock(app);
@@ -636,6 +650,8 @@ XmCvtFromHorizontalPixels(
         register int to_type )
 {
   int value;
+  if (screen == NULL)
+    return 0;
   _XmDisplayToAppContext(DisplayOfScreen(screen));
 
   _XmAppLock(app);
@@ -691,6 +707,8 @@ XmeFromHorizontalPixels(
         int offset,
         XtArgVal *value )
 {
+  if (widget == NULL || value == NULL)
+    return;
   _XmWidgetToAppContext(widget);
   _XmAppLock(app);
   FromPixels(widget, offset, value, XmHORIZONTAL);
@@ -713,6 +731,8 @@ XmCvtFromVerticalPixels(
         register int to_type )
 {
   int value;
+  if (screen == NULL)
+    return 0;
   _XmDisplayToAppContext(DisplayOfScreen(screen));
 
   _XmAppLock(app);
@@ -737,6 +757,8 @@ XmeFromVerticalPixels(
         int offset,
         XtArgVal *value )
 {
+  if (widget == NULL || value == NULL)
+    return;
   _XmWidgetToAppContext(widget);
   _XmAppLock(app);
   FromPixels(widget, offset, value, XmVERTICAL);

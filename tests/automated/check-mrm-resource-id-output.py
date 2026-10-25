@@ -1,13 +1,11 @@
-#!/usr/bin/env python3
-"""Check Mrm resource-id allocation validates its output pointer."""
 from pathlib import Path
+import os
 
-source = Path(__file__).parents[2] / "lib" / "Mrm" / "MrmItop.c"
-text = source.read_text(encoding="utf-8")
+source = Path(os.environ["MOTIF_SOURCE"])
+text = source.read_text()
 start = text.index("UrmIdbGetResourceId (IDBFile")
 end = text.index("Idb__FIL_Valid (IDBFile", start)
 body = text[start:end]
-needle = "if ( resource_id_return == NULL )"
-if needle not in body or body.index(needle) > body.index("*resource_id_return ="):
-    raise SystemExit("Mrm resource-id allocation lacks output guard")
-print("PASS Mrm resource-id allocation validates its output pointer")
+assert "if ( resource_id_return == NULL )" in body
+assert body.index("if ( resource_id_return == NULL )") < body.index("*resource_id_return =")
+print("Mrm resource-id allocation validates its output pointer")

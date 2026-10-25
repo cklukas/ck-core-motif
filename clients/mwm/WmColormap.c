@@ -39,12 +39,14 @@ static char rcsid[] = "$XConsortium: WmColormap.c /main/5 1996/10/30 11:14:44 dr
  */
 
 #include "WmGlobal.h"
+#include <limits.h>
 
 /*
  * include extern functions
  */
 
 #include "WmColormap.h"
+#include "WmError.h"
 #include "WmKeyFocus.h"
 
 static Bool ProcessEvents(Display *dpy, XEvent *Event, char *c_pCD);
@@ -432,8 +434,18 @@ void AddColormapWindowReference (ClientData *pCD, Window window)
                 return;
             }
         }
+        if ((size_t)i > UINT_MAX / sizeof(ClientData *) - 2)
+        {
+            Warning("Colormap window reference list is too large");
+            return;
+        }
         new_cmap_window_data = (ClientData **)
-                                XtMalloc((i + 2 ) * sizeof(ClientData *));
+                                XtMalloc((Cardinal)((i + 2) * sizeof(ClientData *)));
+        if (new_cmap_window_data == NULL)
+        {
+            Warning("Insufficient memory for colormap window references");
+            return;
+        }
         memcpy((void *)new_cmap_window_data,(void *)cmap_window_data,
                         (i + 1) * sizeof(ClientData *));
         XtFree((char *) cmap_window_data);
@@ -444,6 +456,11 @@ void AddColormapWindowReference (ClientData *pCD, Window window)
         i = 0;
         new_cmap_window_data = (ClientData **)
                                 XtMalloc(2 * sizeof(ClientData *));
+    }
+    if (new_cmap_window_data == NULL)
+    {
+        Warning("Insufficient memory for colormap window references");
+        return;
     }
     new_cmap_window_data[i] = pCD;
     new_cmap_window_data[i + 1] = NULL;
@@ -488,8 +505,18 @@ void RemoveColormapWindowReference (ClientData *pCD, Window window)
         {
         int     j,idx;
 
+            if ((size_t)i > UINT_MAX / sizeof(ClientData *))
+            {
+                Warning("Colormap window reference list is too large");
+                return;
+            }
             new_cmap_window_data = (ClientData **)
-                                        XtMalloc(i * sizeof(ClientData *));
+                                        XtMalloc((Cardinal)(i * sizeof(ClientData *)));
+            if (new_cmap_window_data == NULL)
+            {
+                Warning("Insufficient memory for colormap window references");
+                return;
+            }
             idx = 0;
             for (j = 0; cmap_window_data[j] != NULL; j++)
             {

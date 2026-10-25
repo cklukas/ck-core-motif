@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Stepper
 
 `XmStepper` is the compact sibling of `XmNumberBox`. It uses the same bounded

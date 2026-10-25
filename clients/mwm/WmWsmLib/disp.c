@@ -55,10 +55,16 @@ _WSMGetDispInfo(Display *dpy)
 	   "MULTIPLE", "TIMESTAMP" };
 
     WSMDispInfo * disp_info;
+    WSMDispInfo *new_disp_info;
+    WSMDispInfo *parent_disp_info = NULL;
     Atom atoms[XtNumber(atom_names)];
 
     if (GDispInfo == NULL) {
 	disp_info = GDispInfo = (WSMDispInfo *) XtMalloc(sizeof(WSMDispInfo));
+	if (disp_info == NULL) {
+	    XtWarning("Unable to allocate WSM display information");
+	    return(NULL);
+	}
     }
     else {
 	disp_info = GDispInfo;
@@ -77,8 +83,14 @@ _WSMGetDispInfo(Display *dpy)
 	 * This display is not on the global list, add it.
 	 */
 
-	disp_info->next = (WSMDispInfo *) XtMalloc(sizeof(WSMDispInfo));
-	disp_info = disp_info->next;
+	new_disp_info = (WSMDispInfo *) XtMalloc(sizeof(WSMDispInfo));
+	if (new_disp_info == NULL) {
+	    XtWarning("Unable to allocate WSM display information");
+	    return(NULL);
+	}
+	parent_disp_info = disp_info;
+	disp_info->next = new_disp_info;
+	disp_info = new_disp_info;
     }
 
     disp_info->disp = dpy;
@@ -89,7 +101,14 @@ _WSMGetDispInfo(Display *dpy)
      * ||| Should use XtConvertAndStore().
      */
 
-    XInternAtoms(dpy, atom_names, XtNumber(atom_names), False, atoms);
+    if (!XInternAtoms(dpy, atom_names, XtNumber(atom_names), False, atoms)) {
+	if (parent_disp_info != NULL)
+	    parent_disp_info->next = NULL;
+	else
+	    GDispInfo = NULL;
+	XtFree((XtPointer) disp_info);
+	return(NULL);
+    }
 
     disp_info->connect = atoms[XA_WSM_NAME_CONNECT];
     disp_info->extensions = atoms[XA_WSM_NAME_EXTENSIONS];
@@ -132,7 +151,11 @@ _WSMGetScreenInfo(Display *dpy, int screen_number)
 {
     WSMDispInfo * disp_info = _WSMGetDispInfo(dpy);
     WSMScreenInfo *screen_info;
+    WSMScreenInfo *new_screen_info;
     char temp[BUFSIZ];
+
+    if (disp_info == NULL)
+	return(NULL);
 
     if (disp_info->screen_info == NULL) {
 	/*
@@ -141,6 +164,10 @@ _WSMGetScreenInfo(Display *dpy, int screen_number)
 	 */
 
 	screen_info = (WSMScreenInfo *) XtMalloc(sizeof(WSMScreenInfo));
+	if (screen_info == NULL) {
+	    XtWarning("Unable to allocate WSM screen information");
+	    return(NULL);
+	}
 	disp_info->screen_info = screen_info;
     }
     else {
@@ -167,8 +194,13 @@ _WSMGetScreenInfo(Display *dpy, int screen_number)
 	 * This screen is not on the display's screen list, add it.
 	 */
 
-	screen_info->next = (WSMScreenInfo *) XtMalloc(sizeof(WSMScreenInfo));
-	screen_info = screen_info->next;
+	new_screen_info = (WSMScreenInfo *) XtMalloc(sizeof(WSMScreenInfo));
+	if (new_screen_info == NULL) {
+	    XtWarning("Unable to allocate WSM screen information");
+	    return(NULL);
+	}
+	screen_info->next = new_screen_info;
+	screen_info = new_screen_info;
     }
 
     screen_info->screen_num = screen_number;
@@ -181,8 +213,11 @@ _WSMGetScreenInfo(Display *dpy, int screen_number)
 
     screen_info->next = NULL;
     screen_info->global.num_attrs = 0;
+    screen_info->global.attr_list = NULL;
     screen_info->window.num_attrs = 0;
+    screen_info->window.attr_list = NULL;
     screen_info->icon.num_attrs = 0;
+    screen_info->icon.attr_list = NULL;
     screen_info->request_callback = NULL;
     screen_info->request_data = NULL;
 
@@ -207,6 +242,9 @@ _WSMClearConfigScreenInfo(Display *dpy, int screen_number)
     WSMDispInfo * disp_info = _WSMGetDispInfo(dpy);
     WSMScreenInfo *screen_info;
 
+    if (disp_info == NULL)
+	return;
+
     if (disp_info->screen_info != NULL)
       {
 	screen_info = disp_info->screen_info;
@@ -226,20 +264,23 @@ _WSMClearConfigScreenInfo(Display *dpy, int screen_number)
 	  screen_info = screen_info->next;
 	}
 
-	if (screen_info->global.num_attrs != 0){
+	if (screen_info->global.attr_list != NULL){
 	  XtFree((XtPointer)screen_info->global.attr_list);
-	  screen_info->global.num_attrs = 0;
+	  screen_info->global.attr_list = NULL;
 	}
+	screen_info->global.num_attrs = 0;
 	
-	if (screen_info->window.num_attrs != 0){
+	if (screen_info->window.attr_list != NULL){
 	  XtFree((XtPointer)screen_info->window.attr_list);
-	  screen_info->window.num_attrs = 0;
+	  screen_info->window.attr_list = NULL;
 	}
+	screen_info->window.num_attrs = 0;
 	
-	if (screen_info->icon.num_attrs != 0){
+	if (screen_info->icon.attr_list != NULL){
 	  XtFree((XtPointer)screen_info->icon.attr_list);
-	  screen_info->icon.num_attrs = 0;
+	  screen_info->icon.attr_list = NULL;
 	}
+	screen_info->icon.num_attrs = 0;
       }
 
 }

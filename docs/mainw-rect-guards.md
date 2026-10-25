@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MainWindow auto-scroll rectangle guard
 
 `GetVertRects` now initializes its output arguments to an empty set and checks

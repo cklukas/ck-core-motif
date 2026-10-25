@@ -900,6 +900,7 @@ ConstraintInitialize(Widget req,
   XmSpinBoxConstraint	reqC = SB_GetConstraintRec(req);
   XmSpinBoxWidget	spinW;
   int			valLoop;
+  XmString		copy;
   char			*error = (char *) NULL;
   
   spinW = (XmSpinBoxWidget)XtParent(new_w);
@@ -930,11 +931,27 @@ ConstraintInitialize(Widget req,
     if (reqC->values != NULL)
       {
   /* buffer the values XmStringTable */
-      newC->values = (XmString *)XtMalloc(reqC->num_values * sizeof(XmString));
+      if ((size_t)reqC->num_values > SIZE_MAX / sizeof(XmString) ||
+          reqC->num_values > UINT_MAX / sizeof(XmString))
+	newC->values = NULL;
+      else
+	newC->values = (XmString *)XtMalloc(reqC->num_values * sizeof(XmString));
       
       if (newC->values != NULL)
 	for (valLoop = 0; valLoop < reqC->num_values; valLoop++)
-	  newC->values[valLoop] = XmStringCopy(reqC->values[valLoop]);
+	  {
+	    copy = XmStringCopy(reqC->values[valLoop]);
+	    if (copy == NULL)
+	      {
+		while (valLoop != 0)
+		  XmStringFree(newC->values[--valLoop]);
+		XtFree((char *)newC->values);
+		newC->values = NULL;
+		newC->num_values = 0;
+		break;
+	      }
+	    newC->values[valLoop] = copy;
+	  }
       }
 
 #if 0
@@ -1002,6 +1019,7 @@ ConstraintSetValues(Widget   old,
   Boolean	       redisplayText = False;
   int		       nvi;
   int		       valLoop;
+  XmString	       copy;
   char		       *error = (char *) NULL;
 
   
@@ -1067,12 +1085,38 @@ ConstraintSetValues(Widget   old,
 	reqC->values = oldC->values;
       else if (reqC->values != oldC->values)
 	{
-	  newC->values = (reqC->num_values > 0) ?
-	   (XmString *)XtMalloc(reqC->num_values * sizeof(XmString)) : NULL;
+	  if (reqC->num_values > 0 &&
+	      ((size_t)reqC->num_values > SIZE_MAX / sizeof(XmString) ||
+	       reqC->num_values > UINT_MAX / sizeof(XmString)))
+	    newC->values = NULL;
+	  else
+	    newC->values = (reqC->num_values > 0) ?
+	     (XmString *)XtMalloc(reqC->num_values * sizeof(XmString)) : NULL;
 	  
-	  if (newC->values != NULL)
+	  if (reqC->num_values > 0 && newC->values == NULL)
+	    {
+	      newC->values = oldC->values;
+	      newC->num_values = oldC->num_values;
+	      reqC->values = oldC->values;
+	      reqC->num_values = oldC->num_values;
+	    }
+	  else if (newC->values != NULL)
 	    for (valLoop = 0; valLoop < reqC->num_values; valLoop++)
-	      newC->values[valLoop] = XmStringCopy(reqC->values[valLoop]);
+	      {
+		copy = XmStringCopy(reqC->values[valLoop]);
+		if (copy == NULL)
+		  {
+		    while (valLoop != 0)
+		      XmStringFree(newC->values[--valLoop]);
+		    XtFree((char *)newC->values);
+		    newC->values = oldC->values;
+		    newC->num_values = oldC->num_values;
+		    reqC->values = oldC->values;
+		    reqC->num_values = oldC->num_values;
+		    break;
+		  }
+		newC->values[valLoop] = copy;
+	      }
 	}
       
       error = ValidatePositionValue(newC, &newC->position);

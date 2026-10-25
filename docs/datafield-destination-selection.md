@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DataField destination ownership
 
 When a DataField is asked to relinquish its destination, Motif now calls

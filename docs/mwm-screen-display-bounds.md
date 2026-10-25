@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm screen display bounds
 
 Per-screen startup derives the display environment string from Xlib's display

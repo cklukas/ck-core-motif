@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Virtual-key binding file growth
 
 `_XmVirtKeysLoadFileBindings` reads a binding file in 255-byte chunks and

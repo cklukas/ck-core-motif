@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Check proposed XmString tab-list growth rolls back safely."""
+"""Check XmString tab-list growth handles tab allocation failure."""
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmStringFunc.c").read_text()
-start = source.index("if (j >= _XmTabLCount(tl))")
-tab = source.index("tab = XmTabCreate", start)
-guard = source.index("if (tab == NULL)", tab)
-cleanup = source.index("XmTabListFree(tl);", guard)
-assert tab < guard < cleanup
-assert "_XmStringContextFree(&stack_ctx);" in source[guard:cleanup]
-assert "_XmProcessUnlock();" in source[cleanup:source.index("return ((XmTabList)NULL);", cleanup)]
-print("PASS proposed XmString tab-list growth is transactional")
+marker = "/* Need to add a tab */"
+start = source.index(marker)
+allocation = source.index("tab = XmTabCreate(0.0, units, offset_model", start)
+guard = source.index("if (tab == NULL)", allocation)
+link = source.index("_XmTabNext(prev) = tab;", guard)
+assert allocation < guard < link
+assert "XmTabListFree(tl);" in source[guard:link]
+assert "return ((XmTabList)NULL);" in source[guard:link]
+print("PASS XmString tab-list growth allocation failure is handled")

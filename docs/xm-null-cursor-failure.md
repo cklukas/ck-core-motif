@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm null-cursor failure handling
 
 `XmeGetNullCursor` now checks both the temporary pixmap and cursor creation

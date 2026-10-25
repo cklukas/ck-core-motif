@@ -9,6 +9,7 @@
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
 #include <limits.h>
+#include <stdint.h>
 #include <string.h>
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
@@ -63,7 +64,10 @@ static char *text_copy(XmString value)
 static XmString string_copy(XmString value)
 {
     char *text = text_copy(value);
-    XmString result = XmStringCreateLocalized(text);
+    XmString result;
+    if (!text)
+	return NULL;
+    result = XmStringCreateLocalized(text);
     XtFree(text);
     return result;
 }
@@ -72,9 +76,44 @@ static XmString action_label(const XmToolbarAction *action)
 {
     char *label = text_copy(action->label);
     char *shortcut = text_copy(action->shortcut);
-    size_t size = strlen(label) + (shortcut[0] ? strlen(shortcut) + 2 : 0) + 1;
-    char *text = XtMalloc(size);
+    size_t label_length, shortcut_length, size;
+    char *text;
     XmString result;
+
+    if (!label || !shortcut) {
+	XtFree(label);
+	XtFree(shortcut);
+	return NULL;
+    }
+    label_length = strlen(label);
+    shortcut_length = strlen(shortcut);
+    if (shortcut[0]) {
+	if (label_length > SIZE_MAX - 3 ||
+	    shortcut_length > SIZE_MAX - 3 - label_length) {
+	    XtFree(label);
+	    XtFree(shortcut);
+	    return NULL;
+	}
+	size = label_length + shortcut_length + 3;
+    } else {
+	if (label_length == SIZE_MAX) {
+	    XtFree(label);
+	    XtFree(shortcut);
+	    return NULL;
+	}
+	size = label_length + 1;
+    }
+    if (size > UINT_MAX) {
+	XtFree(label);
+	XtFree(shortcut);
+	return NULL;
+    }
+    text = XtMalloc((Cardinal)size);
+    if (!text) {
+	XtFree(label);
+	XtFree(shortcut);
+	return NULL;
+    }
 
     strcpy(text, label);
     if (shortcut[0]) {

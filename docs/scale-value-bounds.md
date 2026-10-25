@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmScale value formatting bounds
 
 `XmScale` formats its displayed value and clipboard text using a resource

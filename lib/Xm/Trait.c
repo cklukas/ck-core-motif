@@ -30,6 +30,7 @@
 #include <config.h>
 #endif
 
+#include <stdint.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -186,6 +187,8 @@ Boolean
 XmeTraitSet(XtPointer object, XrmQuark name, XtPointer data)
 {
   XmTraitEntry entry;
+  XtPointer old_key = NULL;
+  XtPointer old_data = NULL;
 
   /* Create key,  this will be freed if the record is removed */
   entry = (XmTraitEntry) XtMalloc(sizeof(XmTraitEntryRec));
@@ -196,11 +199,17 @@ XmeTraitSet(XtPointer object, XrmQuark name, XtPointer data)
 
   _XmProcessLock();
   if (data != NULL) {
+    old_data = _XmGetHashEntry(TraitTable, entry);
+    old_key = _XmRemoveHashEntry(TraitTable, entry);
     if (!_XmAddHashEntry(TraitTable, entry, data)) {
+      if (old_key != NULL &&
+          !_XmAddHashEntry(TraitTable, old_key, old_data))
+        XtFree((char *)old_key);
       XtFree((char *)entry);
       _XmProcessUnlock();
       return False;
     }
+    XtFree((char *)old_key);
   }
   else { /* if data == NULL then remove the context */
     XtPointer key;
@@ -229,6 +238,8 @@ static XmHashValue
 TraitHash(XmHashKey key)
 {
   XmTraitEntry entry = (XmTraitEntry) key;
+  uintptr_t object = (uintptr_t) entry -> obj;
+  uintptr_t name = (uintptr_t) entry -> name;
 
-  return(((long) entry -> obj) + ((long) entry -> name));
+  return (XmHashValue)(object ^ (object >> 16) ^ name ^ (name >> 16));
 }

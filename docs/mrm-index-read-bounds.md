@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm read-side index bounds
 
 Read-side index search and resource enumeration now use `MrmCount` for entry

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Internal list allocation failures
 
 The internal `XmList` node allocator now checks its `XtCalloc` result before

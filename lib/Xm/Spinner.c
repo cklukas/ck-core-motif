@@ -63,6 +63,11 @@ static int bounded_interval(int interval) {
     return interval;
 }
 
+static Dimension bounded_dimension(size_t value) {
+    const size_t maximum = (size_t)(Dimension)~(Dimension)0;
+    return (Dimension)(value > maximum ? maximum : value);
+}
+
 static Boolean eligible(XmSpinnerWidget spinner) {
     XWindowAttributes attributes;
     Widget widget = (Widget)spinner;
@@ -97,23 +102,31 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     Display *display = XtDisplay(widget);
     XGCValues values;
     XmFontList defaults;
+    XmString replacement;
     Dimension label_width = 0, label_height = 0;
     unsigned long mask = GCForeground | GCBackground;
     (void)request; (void)args; (void)count;
     spinner->spinner.interval = bounded_interval(spinner->spinner.interval);
-    spinner->spinner.label = spinner->spinner.label
-        ? XmStringCopy(spinner->spinner.label)
-        : XmStringCreateLocalized("");
+    if (spinner->spinner.label)
+    {
+        replacement = XmStringCopy(spinner->spinner.label);
+        spinner->spinner.label = replacement != NULL
+            ? replacement : XmStringCreateLocalized("");
+    }
+    else
+        spinner->spinner.label = XmStringCreateLocalized("");
     defaults = XmeGetDefaultRenderTable(widget, XmTEXT_FONTLIST);
     spinner->spinner.font = defaults ? XmFontListCopy(defaults) : NULL;
-    if (spinner->spinner.font)
+    if (spinner->spinner.font && spinner->spinner.label)
         XmStringExtent(spinner->spinner.font, spinner->spinner.label,
                        &label_width, &label_height);
     if (!spinner->core.width)
-        spinner->core.width = label_width + 40 + 2 * spinner->spinner.spacing;
+        spinner->core.width = bounded_dimension((size_t)label_width + 40 +
+                                                2 * (size_t)spinner->spinner.spacing);
     if (!spinner->core.height)
-        spinner->core.height = (label_height > 28 ? label_height : 28) +
-                               2 * spinner->spinner.spacing;
+        spinner->core.height = bounded_dimension((size_t)(label_height > 28 ?
+                                                label_height : 28) +
+                                                 2 * (size_t)spinner->spinner.spacing);
     values.foreground = spinner->primitive.foreground;
     values.background = spinner->core.background_pixel;
     spinner->spinner.ring_gc = XCreateGC(display, DefaultRootWindow(display),
@@ -204,18 +217,31 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmSpinnerWidget old = (XmSpinnerWidget)old_widget;
     XmSpinnerWidget spinner = (XmSpinnerWidget)widget;
     Boolean redraw = False;
+    XmString replacement;
     (void)request; (void)args; (void)count;
     spinner->spinner.interval = bounded_interval(spinner->spinner.interval);
+    if (old->spinner.interval != spinner->spinner.interval &&
+        spinner->spinner.timer_pending) {
+        XtRemoveTimeOut(spinner->spinner.timer);
+        spinner->spinner.timer_pending = False;
+    }
     if (old->spinner.label != spinner->spinner.label) {
-        if (spinner->spinner.label)
-            spinner->spinner.label = XmStringCopy(spinner->spinner.label);
-        if (old->spinner.label) XmStringFree(old->spinner.label);
+        replacement = spinner->spinner.label != NULL
+            ? XmStringCopy(spinner->spinner.label) : NULL;
+        if (spinner->spinner.label == NULL || replacement != NULL) {
+            if (old->spinner.label) XmStringFree(old->spinner.label);
+            spinner->spinner.label = replacement;
+        } else {
+            spinner->spinner.label = old->spinner.label;
+        }
         redraw = True;
     }
     if (old->spinner.active != spinner->spinner.active) {
         redraw = True;
         SyncTimer(spinner);
     }
+    else if (old->spinner.interval != spinner->spinner.interval)
+        SyncTimer(spinner);
     if (old->spinner.interval != spinner->spinner.interval ||
         old->primitive.foreground != spinner->primitive.foreground ||
         old->core.background_pixel != spinner->core.background_pixel ||
@@ -233,8 +259,10 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
         XmStringExtent(spinner->spinner.font, spinner->spinner.label,
                        &width, &height);
     reply->request_mode = CWWidth | CWHeight;
-    reply->width = width + 40 + 2 * spinner->spinner.spacing;
-    reply->height = (height > 28 ? height : 28) + 2 * spinner->spinner.spacing;
+    reply->width = bounded_dimension((size_t)width + 40 +
+                                     2 * (size_t)spinner->spinner.spacing);
+    reply->height = bounded_dimension((size_t)(height > 28 ? height : 28) +
+                                      2 * (size_t)spinner->spinner.spacing);
     return (widget->core.width == reply->width && widget->core.height == reply->height)
                ? XtGeometryYes : XtGeometryAlmost;
 }

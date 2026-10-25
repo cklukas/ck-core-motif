@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm error formatting bounds
 
 Mrm error reporting uses fixed 300-byte buffers for the latest diagnostic and

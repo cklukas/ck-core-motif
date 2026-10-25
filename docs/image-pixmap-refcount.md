@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ImageCache pixmap reference counts
 
 `XmDestroyPixmap` releases a cached pixmap by decrementing its reference

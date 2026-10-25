@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Input-method locale modifier bounds
 
 `get_xim_info` applies the optional `XmNinputMethod` resource by prepending

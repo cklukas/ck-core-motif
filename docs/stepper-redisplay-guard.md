@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Stepper redisplay guards
 
 `XmStepper` now returns safely when its drawing GC or queried X11 font is

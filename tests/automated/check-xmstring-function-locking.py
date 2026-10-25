@@ -4,7 +4,7 @@
 from pathlib import Path
 
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmStringFunc.c").read_text()
+source = Path("lib/Xm/XmStringFunc.c").read_text()
 
 start = source.index("XmStringHasSubstring(")
 end = source.index("\n}\n", start)
@@ -21,4 +21,4 @@ assert "_XmProcessLock();" not in next_character
 assert "_XmProcessUnlock();" not in next_character
 assert "XmStringComponentCreate" in next_character
 
-print("PASS XmStringFunc helpers avoid recursive process locking")
+print("XmStringFunc helpers avoid recursive process locking")

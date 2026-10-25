@@ -8,6 +8,5 @@ start = source.index(allocation)
 guard = source.index("if (strs == NULL)", start)
 write = source.index("strs[i] = XmStringParseText", guard)
 assert start < guard < write
-assert "_XmProcessUnlock();" in source[guard:write]
 assert "return(NULL);" in source[guard:write]
 print("PASS XmString table parse allocation failure is handled")

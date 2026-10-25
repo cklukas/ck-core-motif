@@ -15,5 +15,7 @@ if "if (tmp == NULL)" not in block:
     raise SystemExit("segment text copy is not guarded")
 if "XtFree((char *)*tag);" not in block:
     raise SystemExit("partial segment copy is not released")
+if "len > (unsigned int)SHRT_MAX" not in block:
+    raise SystemExit("segment length is narrowed without a representability check")
 
 print("compound-string segment copies guard allocation failures")

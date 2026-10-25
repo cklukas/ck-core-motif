@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Cached pixmap insertion failure
 
 `_XmCachePixmap` now publishes an entry transactionally across its pixmap and

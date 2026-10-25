@@ -1,10 +1,12 @@
-# ScrollFrame navigator-list growth failure
+---
+nav_exclude: true
+---
+# ScrollFrame navigator-list growth
 
-`_XmSFAddNavigator` now computes the next slot count before extending its
-navigator list and keeps the existing allocation intact if `XtRealloc` fails.
-The slot count is published only after the new list is available, so a failed
-registration cannot write through null storage or leave inconsistent capacity
-metadata.
+ScrollFrame navigator registration grows its widget list in two-slot steps.
+The reallocation is now transactional: the slot count and pointer are updated
+only after `XtRealloc` succeeds.  If growth fails, registration returns while
+the existing navigator list remains valid.
 
 The regression check is
 `tests/automated/check-scrollframe-nav-growth.py`.

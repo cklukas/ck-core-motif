@@ -1,9 +1,9 @@
+---
+nav_exclude: true
+---
 # TextOut navigator callback validation
 
-TextOut now validates horizontal, vertical and drag navigator traits before
-callback dispatch. Complete navigator traits retain normal scrolling, while
-partial traits are ignored safely instead of causing null function-pointer
-calls.
-
-The regression check is
-`tests/automated/check-textout-navigator-trait.py`.
+TextOut now checks the navigator trait’s `getValue` callback before reading
+horizontal, vertical, or slider positions. A partial navigator trait is
+ignored safely, while complete navigator implementations keep the existing
+scroll and slider behavior.

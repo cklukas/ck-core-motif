@@ -866,7 +866,8 @@ ChangeManaged(Widget w)
 static void
 ExposeMethod(Widget wid, XEvent *event, Region r)
 {
-    Dimension x, y, w, h;
+    Position x, y;
+    Dimension w, h;
     XmDropDownWidget cbw = (XmDropDownWidget)wid;
     Widget text  = XmDropDown_text(cbw);
     Widget arrow = XmDropDown_arrow(cbw);
@@ -875,14 +876,14 @@ ExposeMethod(Widget wid, XEvent *event, Region r)
 	return;
 
     if (LayoutIsRtoLM(cbw))
-	x = arrow->core.x - arrow->core.border_width -
-	    cbw->manager.shadow_thickness;
+	x = (Position)((int)arrow->core.x - (int)arrow->core.border_width -
+	    (int)cbw->manager.shadow_thickness);
     else
-	x = text->core.x - text->core.border_width -
-	    cbw->manager.shadow_thickness;
+	x = (Position)((int)text->core.x - (int)text->core.border_width -
+	    (int)cbw->manager.shadow_thickness);
 
-    y = text->core.y - text->core.border_width -
-	cbw->manager.shadow_thickness;
+    y = (Position)((int)text->core.y - (int)text->core.border_width -
+	(int)cbw->manager.shadow_thickness);
 
     w = text->core.width + arrow->core.width +
 	2*(text->core.border_width + arrow->core.border_width) +
@@ -1560,14 +1561,22 @@ RegisterShellHandler(Widget w)
  *	Returns:       none
  */
  
+static Dimension
+DropDownChildSpan(int available, Dimension border)
+{
+    int span = available - (2 * (int)border);
+    return span > 0 ? (Dimension)span : 0;
+}
+
 static void
 PlaceChildren(Widget w, Boolean allow_resize, Widget child)
 {
     XmDropDownWidget cbw = (XmDropDownWidget) w;
-    Dimension width, height, rwidth, rheight, child_height;
+    Dimension width, height, rwidth, rheight;
+    int child_height;
     Dimension text_width, label_width, label_bw;
     Dimension shadow;
-    Position label_x, arrow_x, text_x;
+    int label_x, arrow_x, text_x;
     XtWidgetGeometry arrow_geom, label_geom, text_geom;
     Widget label = NULL;
     Widget text = XmDropDown_text(cbw);
@@ -1608,18 +1617,24 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
 			     &text_width, &label_width);
     }
 
-    child_height = rheight - 2 * XmDropDown_v_space(cbw);
+    child_height = (int)rheight -
+	2 * (int)XmDropDown_v_space(cbw);
+    if (child_height < 0)
+	child_height = 0;
     if (LayoutIsRtoLM(cbw)) {
-	arrow_x = XmDropDown_h_space(cbw);
-	label_x = (rwidth - (label_width + 2 * label_geom.border_width) \
-	       - XmDropDown_h_space(cbw));
-	text_x = label_x - text_width - 2*text_geom.border_width;
+	arrow_x = (int)XmDropDown_h_space(cbw);
+	label_x = (int)rwidth - (int)label_width -
+	    2 * (int)label_geom.border_width -
+	    (int)XmDropDown_h_space(cbw);
+	text_x = label_x - (int)text_width -
+	    2 * (int)text_geom.border_width;
     } else {
-	label_x = XmDropDown_h_space(cbw);
-	arrow_x = (rwidth - (arrow_geom.width + 2 * arrow_geom.border_width) \
-	       - XmDropDown_h_space(cbw));
-	text_x = label_width + 2*label_geom.border_width + \
-	       XmDropDown_h_space(cbw);
+	label_x = (int)XmDropDown_h_space(cbw);
+	arrow_x = (int)rwidth - (int)arrow_geom.width -
+	    2 * (int)arrow_geom.border_width -
+	    (int)XmDropDown_h_space(cbw);
+	text_x = (int)label_width + 2 * (int)label_geom.border_width +
+	    (int)XmDropDown_h_space(cbw);
     }
     
     if (XmDropDown_show_label(cbw)) 
@@ -1638,7 +1653,9 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
     if ( XmDropDown_new_visual_style(cbw) ) 
     {
 	shadow        = cbw->manager.shadow_thickness;
-	child_height -= 2 * shadow;
+	child_height -= 2 * (int)shadow;
+	if (child_height < 0)
+	    child_height = 0;
 	if (LayoutIsRtoLM(cbw))
 	{
 	    arrow_x      += shadow;
@@ -1663,19 +1680,19 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
 	_XmConfigureWidget(label, label_x, /* XmDropDown_h_space(cbw), */
 			   XmDropDown_v_space(cbw), 
 			   label_width, 
-			   child_height - 2 * label_geom.border_width,
+			   DropDownChildSpan(child_height, label_geom.border_width),
 			   label_geom.border_width);
     }	
 
     _XmConfigureWidget(text, text_x,
 		       XmDropDown_v_space(cbw) + shadow, 
-		       text_width, child_height - 2 * text_geom.border_width, 
+		       text_width, DropDownChildSpan(child_height, text_geom.border_width),
 		       text_geom.border_width);
 
     _XmConfigureWidget(arrow, arrow_x,
 		       XmDropDown_v_space(cbw) + shadow,
 		       arrow_geom.width, 
-		       child_height - 2 * arrow_geom.border_width,
+		       DropDownChildSpan(child_height, arrow_geom.border_width),
 		       arrow_geom.border_width);
 
 }
@@ -2378,12 +2395,14 @@ SetListFromText(Widget w, Boolean no_action)
 	 */
 	if (table != NULL)  {
 	    for(tptr = table, count = 0; *tptr != NULL ; tptr++) count++; 
-	    if ((size_t)count > SIZE_MAX / sizeof(XmString)) {
+	    if ((size_t)count > SIZE_MAX / sizeof(XmString) ||
+		(size_t)count > UINT_MAX / sizeof(XmString)) {
 		sel_table = NULL;
 		error = TRUE;
 		count = 0;
 	    } else {
-	    sel_table = (XmStringTable) XtMalloc(sizeof(XmString) * count);
+	    sel_table = (XmStringTable) XtMalloc(
+		(Cardinal)(sizeof(XmString) * (size_t)count));
 	    if (sel_table == NULL) {
 		error = TRUE;
 		count = 0;
@@ -2551,6 +2570,8 @@ XmDropDownGetValue(Widget w)
     XmDropDownWidget cbw = (XmDropDownWidget) w;
     String ptr;
 
+    if (w == NULL)
+        return NULL;
     _XmWidgetToAppContext(w);
     _XmAppLock(app);
 
@@ -2631,7 +2652,7 @@ XmVaCreateManagedDropDown(
 
 Widget XmDropDownGetLabel(Widget w)
 {
-    if(!XtIsSubclass(w, xmDropDownWidgetClass))
+    if(w == NULL || !XtIsSubclass(w, xmDropDownWidgetClass))
 	return NULL;
     return XmDropDown_label(w);
 }
@@ -2645,7 +2666,7 @@ Widget XmDropDownGetLabel(Widget w)
 
 Widget XmDropDownGetArrow(Widget w)
 {
-    if(!XtIsSubclass(w, xmDropDownWidgetClass))
+    if(w == NULL || !XtIsSubclass(w, xmDropDownWidgetClass))
 	return NULL;
     return XmDropDown_arrow(w);
 }
@@ -2659,7 +2680,7 @@ Widget XmDropDownGetArrow(Widget w)
 
 Widget XmDropDownGetText(Widget w)
 {
-    if(!XtIsSubclass(w, xmDropDownWidgetClass))
+    if(w == NULL || !XtIsSubclass(w, xmDropDownWidgetClass))
 	return NULL;
     return XmDropDown_text(w);
 }
@@ -2673,7 +2694,7 @@ Widget XmDropDownGetText(Widget w)
 
 Widget XmDropDownGetList(Widget w)
 {
-    if(!XtIsSubclass(w, xmDropDownWidgetClass))
+    if(w == NULL || !XtIsSubclass(w, xmDropDownWidgetClass))
 	return NULL;
     return XtNameToWidget(w, "*list");
 }
@@ -2690,6 +2711,8 @@ Widget XmDropDownGetChild(Widget w, int num)
     XmDropDownWidget cbw = (XmDropDownWidget) w;
     Widget child;
 
+    if (w == NULL)
+        return NULL;
     _XmWidgetToAppContext(w);    
     _XmAppLock(app);
 

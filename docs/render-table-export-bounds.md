@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Render-table property export bounds
 
 `XmRenderTableCvtToProp` serializes tags, font names, tab lists, and rendition

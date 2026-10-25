@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drag target-table allocation handling
 
 `ReadTargetsTable` grows the process-local cache after validating the X

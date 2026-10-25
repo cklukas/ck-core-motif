@@ -1,8 +1,12 @@
+---
+nav_exclude: true
+---
 # Text UTF-8 value allocation failure
 
-UTF-8 selection conversion now checks its returned-value allocation, releases
-the Xlib property buffer on failure, and rejects the conversion with zero
-length.
+Text selection conversion copies Xlib UTF-8 property bytes into an Xt-owned
+buffer.  The destination allocation is now checked before copying.  If it
+fails, the Xlib property is released, the conversion reports zero length, and
+the request is refused safely.
 
 The regression check is
 `tests/automated/check-textsel-utf8-value-allocation.py`.

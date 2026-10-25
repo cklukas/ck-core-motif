@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm pixmap hotspot output initialization
 
 `_XmGetPixmapData` returns cached pixmap geometry and optional image hotspot
@@ -6,5 +9,6 @@ metadata. When the cache had no matching `ImageData` entry, it returned
 `XmGetPixmapData` to observe indeterminate coordinates.
 
 The cache lookup now initializes both hotspot outputs to zero before checking
-optional image metadata. Existing metadata still replaces those defaults,
-while cache hits without metadata have deterministic coordinates.
+optional image metadata. Existing metadata still replaces those defaults, while
+cache hits without metadata have deterministic coordinates. The source-level
+regression is `tests/automated/check-xm-pixmap-hotspot-output.py`.

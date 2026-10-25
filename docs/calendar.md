@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmCalendar
 
 `XmCalendar` is an additive, date-only calendar widget.  Its value is an

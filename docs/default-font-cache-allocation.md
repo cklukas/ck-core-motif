@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Default font-list cache allocation
 
 The per-display default font-list cache now grows transactionally. Capacity is

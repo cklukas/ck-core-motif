@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm resource-ID helper inputs
 
 Resource-ID map helpers now reject missing file handles, output handles, and

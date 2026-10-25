@@ -99,6 +99,8 @@ XmeConfigureObject(
         Dimension border_width )
 #endif /* NeedWidePrototypes */
 {
+    if (wid == NULL)
+        return;
     _XmWidgetToAppContext(wid);
     XmDropSiteStartUpdate(wid);
 
@@ -136,10 +138,12 @@ XmeRedisplayGadgets(
         Region region )
 {
    CompositeWidget mw = (CompositeWidget) w ;
-   register int i;
+   register Cardinal i;
    register Widget child;
    XtExposeProc expose;
-  
+
+   if (w == NULL || (region == NULL && event == NULL))
+      return;
    _XmWidgetToAppContext(w);
 
    _XmAppLock(app);

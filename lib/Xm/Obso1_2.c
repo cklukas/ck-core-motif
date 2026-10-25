@@ -248,6 +248,7 @@ void _XmDrawShadow (Display *display, Drawable d,
    register int i;
    register int size2;
    register int size3;
+   XRectangle *new_rects;
 
    if (size <= 0) return;
    if (size > width / 2) size = width / 2;
@@ -258,13 +259,18 @@ void _XmDrawShadow (Display *display, Drawable d,
 
    if (rect_count == 0)
    {
-      rects = (XRectangle *) XtMalloc (sizeof (XRectangle) * size * 4);
+      new_rects = (XRectangle *) XtMalloc (sizeof (XRectangle) * size * 4);
+      if (new_rects == NULL) return;
+      rects = new_rects;
       rect_count = size;
    }
 
    if (rect_count < size)
    {
-      rects = (XRectangle *) XtRealloc((char *)rects, sizeof (XRectangle) * size * 4);
+      new_rects = (XRectangle *) XtRealloc((char *)rects,
+						 sizeof (XRectangle) * size * 4);
+      if (new_rects == NULL) return;
+      rects = new_rects;
       rect_count = size;
    }
 
@@ -357,19 +363,26 @@ void _XmGetArrowDrawRects (int highlight_thickness, int shadow_thickness, unsign
    short c = 0;
    int xOffset = 0;
    int yOffset = 0;
+   XRectangle *new_top;
+   XRectangle *new_cent;
+   XRectangle *new_bot;
 
+
+   if (top_count == NULL || cent_count == NULL || bot_count == NULL ||
+       top == NULL || cent == NULL || bot == NULL)
+       return;
 
    /*  Free the old lists  */
 
    if (*top != NULL)
-   {
       XtFree ((char *) *top);   *top  = NULL;
+   if (*cent != NULL)
       XtFree ((char *) *cent);  *cent = NULL;
+   if (*bot != NULL)
       XtFree ((char *) *bot);   *bot  = NULL;
-      *top_count = 0;
-      *cent_count = 0;
-      *bot_count = 0;
-   }
+   *top_count = 0;
+   *cent_count = 0;
+   *bot_count = 0;
 
 
    /*  Get the size and allocate the rectangle lists  */
@@ -398,9 +411,21 @@ void _XmGetArrowDrawRects (int highlight_thickness, int shadow_thickness, unsign
       yOffset = temp;
    }
 
-   *top  = (XRectangle *) XtMalloc (sizeof (XRectangle) * (size / 2 + 6));
-   *cent = (XRectangle *) XtMalloc (sizeof (XRectangle) * (size  / 2 + 6));
-   *bot  = (XRectangle *) XtMalloc (sizeof (XRectangle) * (size / 2 + 6));
+   new_top = (XRectangle *) XtMalloc
+	(sizeof (XRectangle) * (size / 2 + 6));
+   new_cent = (XRectangle *) XtMalloc
+	(sizeof (XRectangle) * (size / 2 + 6));
+   new_bot = (XRectangle *) XtMalloc
+	(sizeof (XRectangle) * (size / 2 + 6));
+   if (new_top == NULL || new_cent == NULL || new_bot == NULL) {
+	XtFree((char *)new_top);
+	XtFree((char *)new_cent);
+	XtFree((char *)new_bot);
+	return;
+   }
+   *top = new_top;
+   *cent = new_cent;
+   *bot = new_bot;
 
    /*  Set up a loop to generate the segments.  */
 
@@ -1014,6 +1039,7 @@ register int height)
    int size2;
    int size3;
    int pos_top, pos_left, pos_bottom, pos_right;
+   XRectangle *new_rects;
 
    if (size <= 0) return;
    if (size == 1) 
@@ -1037,13 +1063,18 @@ register int height)
    
    if (rect_count == 0)
    {
-      rects = (XRectangle *) XtMalloc (sizeof (XRectangle) * size * 4);
+      new_rects = (XRectangle *) XtMalloc (sizeof (XRectangle) * size * 4);
+      if (new_rects == NULL) return;
+      rects = new_rects;
       rect_count = size;
    }
 
    if (rect_count < size)
    {
-      rects = (XRectangle *) XtRealloc((char *)rects, sizeof (XRectangle) * size * 4);
+      new_rects = (XRectangle *) XtRealloc((char *)rects,
+						 sizeof (XRectangle) * size * 4);
+      if (new_rects == NULL) return;
+      rects = new_rects;
       rect_count = size;
    }
 
@@ -1226,6 +1257,7 @@ _XmFileSelectionBoxCreateFilterText(
             Arg             arglist[10] ;
             int             argCount ;
             char *          stext_value ;
+            Boolean         free_stext_value = True;
             XtAccelerators  temp_accelerators ;
 /****************/
 
@@ -1237,7 +1269,12 @@ _XmFileSelectionBoxCreateFilterText(
     */
     if(    !(stext_value = _XmStringGetTextConcat( FS_Pattern( fs)))    )
     {   stext_value = (char *) XtMalloc( 1) ;
-        stext_value[0] = '\0' ;
+        if (stext_value == NULL) {
+            stext_value = "";
+            free_stext_value = False;
+        } else {
+            stext_value[0] = '\0' ;
+        }
         }
     argCount = 0 ;
     XtSetArg( arglist[argCount], XmNcolumns, 
@@ -1256,7 +1293,8 @@ _XmFileSelectionBoxCreateFilterText(
     XtInstallAccelerators( FS_FilterText( fs), (Widget) fs) ;
     fs->core.accelerators = temp_accelerators ;
 
-    XtFree( stext_value) ;
+    if (free_stext_value)
+        XtFree( stext_value) ;
     return ;
 }
 
@@ -1586,12 +1624,14 @@ _XmFileSelectionBoxRestore(
             {   
                 maskLen = strlen( mask) ;
                 itemString = XtMalloc( dirLen + maskLen + 1) ;
-                strcpy( itemString, dir) ;
-                strcpy( &itemString[dirLen], mask) ;
-                XmTextFieldSetString( FS_FilterText( fsb), itemString) ;
-                XmTextFieldSetCursorPosition( FS_FilterText( fsb),
-			    XmTextFieldGetLastPosition( FS_FilterText( fsb))) ;
-                XtFree( itemString) ;
+                if (itemString != NULL) {
+                    strcpy( itemString, dir) ;
+                    strcpy( &itemString[dirLen], mask) ;
+                    XmTextFieldSetString( FS_FilterText( fsb), itemString) ;
+                    XmTextFieldSetCursorPosition( FS_FilterText( fsb),
+				    XmTextFieldGetLastPosition( FS_FilterText( fsb))) ;
+                    XtFree( itemString) ;
+                }
                 XtFree( mask) ;
                 } 
             XtFree( dir) ;
@@ -1640,6 +1680,8 @@ _XmHeapCreate(
     XmHeap	heap;
 
     heap = XtNew(XmHeapRec);
+    if (heap == NULL)
+	return NULL;
     heap->start = NULL;
     heap->segment_size = segment_size;
     heap->bytes_remaining = 0;
@@ -1653,10 +1695,25 @@ _XmHeapAlloc(
 {
     register char* heap_loc;
     if (heap == NULL) return XtMalloc(bytes);
+    if (heap->segment_size <= (int)sizeof(char*))
+	return NULL;
+#ifdef WORD64
+    if (bytes > UINT_MAX - 7)
+	return NULL;
+    bytes = (bytes + 7) & (~7);
+#else
+    if (bytes > UINT_MAX - 3)
+	return NULL;
+    bytes = (bytes + 3) & (~3);
+#endif /* WORD64 */
     if (heap->bytes_remaining < bytes) {
+	if (bytes > UINT_MAX - sizeof(char*))
+	    return NULL;
 	if ((bytes + sizeof(char*)) >= (heap->segment_size>>1)) {
 	    /* preserve current segment; insert this one in front */
 	    heap_loc = XtMalloc(bytes + sizeof(char*));
+	    if (heap_loc == NULL)
+		return NULL;
 	    if (heap->start) {
 		*(char**)heap_loc = *(char**)heap->start;
 		*(char**)heap->start = heap_loc;
@@ -1669,21 +1726,16 @@ _XmHeapAlloc(
 	}
 	/* else discard remainder of this segment */
 	heap_loc = XtMalloc((unsigned)heap->segment_size);
+	if (heap_loc == NULL)
+	    return NULL;
 	*(char**)heap_loc = heap->start;
 	heap->start = heap_loc;
 	heap->current = heap_loc + sizeof(char*);
 	heap->bytes_remaining = heap->segment_size - sizeof(char*);
     }
-#ifdef WORD64
-    /* round to nearest 8-byte boundary */
-    bytes = (bytes + 7) & (~7);
-#else
-    /* round to nearest 4-byte boundary */
-    bytes = (bytes + 3) & (~3);
-#endif /* WORD64 */
     heap_loc = heap->current;
     heap->current += bytes;
-    heap->bytes_remaining -= bytes; /* can be negative, if rounded */
+    heap->bytes_remaining -= bytes;
     return heap_loc;
 }
 
@@ -1691,6 +1743,8 @@ void
 _XmHeapFree(
         XmHeap heap )
 {
+    if (heap == NULL)
+	return;
     char* segment = heap->start;
     while (segment != NULL) {
 	char* next_segment = *(char**)segment;
@@ -1857,6 +1911,7 @@ _XmCharsetCanonicalize(
       len = strlen(XmSTRING_ISO8859_1);
       
       new_s = XtMalloc(len + 1);
+      if (new_s == NULL) return (NULL);
       memcpy(new_s, XmSTRING_ISO8859_1, len);
       new_s[len] = '\0';
     }
@@ -1864,6 +1919,7 @@ _XmCharsetCanonicalize(
     {
       /* "ISO####-#" */
       new_s = XtMalloc(3 + 4 + 1 + 1 + 1);
+      if (new_s == NULL) return (NULL);
       (void) snprintf(new_s, 10, "ISO%s", charset);
       new_s[7] = '-';
       new_s[8] = charset[4];
@@ -1875,6 +1931,7 @@ _XmCharsetCanonicalize(
       len = strlen(charset);
       
       new_s = XtMalloc(len + 1);
+      if (new_s == NULL) return (NULL);
       memcpy(new_s, charset, len);
       new_s[len] = '\0';
     }
@@ -2012,7 +2069,8 @@ _XmRC_GetMenuAccelerator(
 
   if (rc->row_column.menu_accelerator != NULL) {
      data = (String)XtMalloc(strlen(RC_MenuAccelerator(rc)) + 1);
-     strcpy(data, RC_MenuAccelerator(rc));
+     if (data != NULL)
+       strcpy(data, RC_MenuAccelerator(rc));
      *value = (XtArgVal) data ;
    }
   else *value = (XtArgVal) NULL;

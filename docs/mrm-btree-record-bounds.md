@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm B-tree child lookup bounds
 
 `Idb__INX_GetBtreeRecord` now requires a node record, validates its count and

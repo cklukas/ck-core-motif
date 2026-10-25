@@ -262,6 +262,7 @@ MrmFetchLiteral (MrmHierarchy		hierarchy_id,
     return MrmFAILURE;
   *value_return = NULL;
   *type_return = 0;
+
   _MrmDisplayToAppContext(display);
 
   _MrmAppLock(app);
@@ -437,6 +438,7 @@ MrmFetchIconLiteral (MrmHierarchy                hierarchy_id,
   if ( pixmap_return == NULL )
     return MrmFAILURE;
   *pixmap_return = 0;
+
   _MrmDisplayToAppContext(display);
 
   _MrmAppLock(app);
@@ -548,6 +550,7 @@ MrmFetchBitmapLiteral (MrmHierarchy                hierarchy_id,
   *pixmap_return = 0;
   *width = 0;
   *height = 0;
+
   _MrmDisplayToAppContext(display);
 
   _MrmAppLock(app);
@@ -661,6 +664,7 @@ MrmFetchColorLiteral (MrmHierarchy                hierarchy_id,
   if ( pixel_return == NULL )
     return MrmFAILURE;
   *pixel_return = 0;
+
   _MrmDisplayToAppContext(display);
 
   _MrmAppLock(app);

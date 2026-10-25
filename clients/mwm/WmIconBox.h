@@ -61,18 +61,18 @@ extern void InitIconBox (WmScreenData *pSD);
 extern void InitializeClientData (ClientData *pCD, IconBoxData *pIBD);
 extern void InitializeIconBoxData (WmWorkspaceData *pWS, IconBoxData *pIBD);
 extern Cardinal InsertPosition (Widget w);
-extern void MakeBulletinBoard (WmWorkspaceData *pWS, IconBoxData *pIBD);
+extern Boolean MakeBulletinBoard (WmWorkspaceData *pWS, IconBoxData *pIBD);
 extern void MakeFadeIconGC (WmScreenData *pSD);
 extern Boolean MakeIconBox (WmWorkspaceData *pWS, ClientData *pCD);
-extern void MakeScrolledWindow (WmWorkspaceData *pWS, IconBoxData *pIBD);
-extern void MakeShell (WmWorkspaceData *pWS, IconBoxData *pIBD);
+extern Boolean MakeScrolledWindow (WmWorkspaceData *pWS, IconBoxData *pIBD);
+extern Boolean MakeShell (WmWorkspaceData *pWS, IconBoxData *pIBD);
 extern void MakeShrinkWrapIconsGC (WmScreenData *pSD, Pixmap bgPixmap);
 extern void MapIconBoxes (WmWorkspaceData *pWS);
 extern void PackIconBox (IconBoxData *pIBD, Boolean packVert, 
 			 Boolean packHorz, int passedInWidth, 
 			 int passedInHeight);
 extern void RealignIconList (IconBoxData *pIBD, int newCols, int newRows);
-extern void RealizeIconBox (WmWorkspaceData *pWS, IconBoxData *pIBD, 
+extern Boolean RealizeIconBox (WmWorkspaceData *pWS, IconBoxData *pIBD,
 			    ClientData *pCD);
 extern void ReorderIconBoxIcons (ClientData *pCD, IconBoxData *pIBD, 
 				 Widget theIcon, int newX, int newY);

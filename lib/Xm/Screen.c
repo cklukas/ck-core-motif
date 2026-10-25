@@ -692,9 +692,14 @@ InsertChild(
     register WidgetList      	children;
     Cardinal                  new_slots;
     WidgetList                new_children;
-    
+    if (wid == NULL)
+        return;
     cw = (XmScreen) w->desktop.parent;
+    if (cw == NULL || cw->desktop.num_children > cw->desktop.num_slots)
+        return;
     children = cw->desktop.children;
+    if (children == NULL && cw->desktop.num_slots != 0)
+        return;
     
     position = cw->desktop.num_children;
     
@@ -706,7 +711,8 @@ InsertChild(
             return;
         new_slots = cw->desktop.num_slots +
                     (cw->desktop.num_slots / 2) + 2;
-        if ((size_t)new_slots > SIZE_MAX / sizeof(*new_children))
+        if ((size_t)new_slots > SIZE_MAX / sizeof(*new_children) ||
+            (size_t)new_slots > UINT_MAX / sizeof(*new_children))
             return;
         new_children = (WidgetList)XtRealloc(
             (char *)children, (size_t)new_slots * sizeof(*new_children));
@@ -732,8 +738,13 @@ DeleteChild(
     register Cardinal	     	position;
     register Cardinal	     	i;
     register XmScreen 	cw;
-    
+
+    if (wid == NULL)
+        return;
     cw = (XmScreen) w->desktop.parent;
+    if (cw == NULL ||
+        (cw->desktop.num_children != 0 && cw->desktop.children == NULL))
+        return;
     
     for (position = 0; position < cw->desktop.num_children; position++) {
         if (cw->desktop.children[position] == (Widget)w) {
@@ -760,10 +771,18 @@ void
 _XmScreenRemoveFromCursorCache(
     XmDragIconObject	icon )
 {
-    XmScreen	       xmScreen = (XmScreen) XmGetXmScreen(XtScreen(icon));
-    XmDragCursorCache  ptr = xmScreen->screen.cursorCache;
-    XmDragCursorCache  previous = xmScreen->screen.cursorCache;
+    XmScreen	       xmScreen;
+    XmDragCursorCache  ptr;
+    XmDragCursorCache  previous;
     XmDragCursorCache  next;
+
+    if (icon == NULL)
+	return;
+    xmScreen = (XmScreen) XmGetXmScreen(XtScreen(icon));
+    if (xmScreen == NULL)
+	return;
+    ptr = xmScreen->screen.cursorCache;
+    previous = xmScreen->screen.cursorCache;
 
     while (ptr) {
 	next = ptr->next;
@@ -822,10 +841,16 @@ _XmScreenGetOperationIcon(
         unsigned char operation )
 #endif /* NeedWidePrototypes */
 {
-    XmScreen		xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(w));
+    XmScreen		xmScreen;
     XrmQuark		nameQuark = NULLQUARK;
     XmDragIconObject	*ptr = NULL;
     XmDragIconObject	*pt2 = NULL;
+
+    if (w == NULL)
+	return NULL;
+    xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(w));
+    if (xmScreen == NULL)
+	return NULL;
 
     switch ((int) operation) {
 	case XmDROP_MOVE:
@@ -881,9 +906,15 @@ _XmScreenGetStateIcon(
         unsigned char state )
 #endif /* NeedWidePrototypes */
 {
-    XmScreen		xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(w));
+    XmScreen		xmScreen;
     XrmQuark		nameQuark = NULLQUARK;
     XmDragIconObject	icon = NULL;
+
+    if (w == NULL)
+	return NULL;
+    xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(w));
+    if (xmScreen == NULL)
+	return NULL;
 
     switch(state) {
 	default:
@@ -943,7 +974,13 @@ XmDragIconObject
 _XmScreenGetSourceIcon(
         Widget w )
 {
-    XmScreen	xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(w));
+    XmScreen	xmScreen;
+
+    if (w == NULL)
+	return NULL;
+    xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(w));
+    if (xmScreen == NULL)
+	return NULL;
 
     if (xmScreen->screen.defaultSourceCursorIcon == NULL) {
 
@@ -1068,9 +1105,16 @@ _XmFreeScratchPixmap(
         XmScreen xmScreen,
         Pixmap pixmap )
 {
-    XmHashTable scratchTable = (XmHashTable) xmScreen->screen.scratchPixmaps;
-    XmHashTable inUseTable   = (XmHashTable) xmScreen->screen.inUsePixmaps;
+    XmHashTable scratchTable;
+    XmHashTable inUseTable;
     XmScratchPixmapKey returned_key;
+
+    if (xmScreen == NULL || pixmap == None)
+        return;
+    scratchTable = (XmHashTable) xmScreen->screen.scratchPixmaps;
+    inUseTable = (XmHashTable) xmScreen->screen.inUsePixmaps;
+    if (scratchTable == NULL || inUseTable == NULL)
+        return;
 
     _XmProcessLock();
     returned_key = (XmScratchPixmapKey) 
@@ -1103,6 +1147,8 @@ XmDragCursorCache *
 _XmGetDragCursorCachePtr(
         XmScreen xmScreen )
 {
+    if (xmScreen == NULL)
+        return NULL;
     return &xmScreen->screen.cursorCache;
 }
 
@@ -1159,10 +1205,16 @@ XmeGetNullCursor(
     Cursor		cursor;
     XColor		foreground;
     XColor		background;
+    if (w == NULL)
+        return None;
     _XmWidgetToAppContext(w);
 
     _XmAppLock(app);
     xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(w));
+    if (xmScreen == NULL) {
+        _XmAppUnlock(app);
+        return None;
+    }
     if (xmScreen->screen.nullCursor == None) {
 	foreground.pixel =  
 	  background.pixel = 0;
@@ -1211,6 +1263,8 @@ XmSetMenuCursor(
     XmScreen          xmScreen;
     Screen            *scr;
     int i ;
+    if (display == NULL)
+        return;
     _XmDisplayToAppContext(display);
 
     /* This function has no screen parameter, so we have to set the
@@ -1221,11 +1275,12 @@ XmSetMenuCursor(
        what will happen if we were only setting the default display here) */
 
     _XmAppLock(app);
-    for (i=0, scr = ScreenOfDisplay(display, i); i < ScreenCount(display);
-       i++, scr = ScreenOfDisplay(display, i)) {
+    for (i = 0; i < ScreenCount(display); i++) {
+      scr = ScreenOfDisplay(display, i);
 
       xmScreen = (XmScreen) XmGetXmScreen(scr);
-      xmScreen->screen.menuCursor = cursorId ;
+      if (xmScreen != NULL)
+        xmScreen->screen.menuCursor = cursorId ;
     }
     _XmAppUnlock(app);
 }
@@ -1237,12 +1292,18 @@ XmGetMenuCursor(
 {
    XmScreen           xmScreen;
    Cursor	      cursor;
+   if (display == NULL)
+     return None;
    _XmDisplayToAppContext(display);
 
    /* get the default screen menuCursor since there is no
       other information available to this function */
    _XmAppLock(app);
    xmScreen = (XmScreen) XmGetXmScreen(DefaultScreenOfDisplay(display));
+   if (xmScreen == NULL) {
+     _XmAppUnlock(app);
+     return None;
+   }
    cursor = xmScreen->screen.menuCursor;
    _XmAppUnlock(app);
    return cursor;
@@ -1255,7 +1316,11 @@ _XmGetMenuCursorByScreen(
 {
    XmScreen           xmScreen;
 
+   if (screen == NULL)
+     return None;
    xmScreen = (XmScreen) XmGetXmScreen(screen);
+   if (xmScreen == NULL)
+     return None;
    return(xmScreen->screen.menuCursor);
 }
 
@@ -1265,7 +1330,11 @@ _XmGetMoveOpaqueByScreen(
 {
    XmScreen           xmScreen;
 
+   if (screen == NULL)
+     return False;
    xmScreen = (XmScreen) XmGetXmScreen(screen);
+   if (xmScreen == NULL)
+     return False;
    return(xmScreen->screen.moveOpaque);
 }
 
@@ -1274,7 +1343,13 @@ unsigned char
 _XmGetUnpostBehavior(
         Widget wid )
 {
-   XmScreen	xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(wid));
+   XmScreen	xmScreen;
+
+   if (wid == NULL)
+     return XmUNPOST_AND_REPLAY;
+   xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(wid));
+   if (xmScreen == NULL)
+     return XmUNPOST_AND_REPLAY;
 
    return(xmScreen->screen.unpostBehavior);
 }
@@ -1304,6 +1379,8 @@ XmSetFontUnits(
     XmScreen          xmScreen;
     Screen            *scr;
     int i ;
+    if (display == NULL)
+        return;
     _XmDisplayToAppContext(display);
 
     /* This function has no screen parameter, so we have to set the
@@ -1314,10 +1391,12 @@ XmSetFontUnits(
        what will happen if we were only setting the default display here) */
 
     _XmAppLock(app);
-    for (i=0, scr = ScreenOfDisplay(display, i); i < ScreenCount(display);
-       i++, scr = ScreenOfDisplay(display, i)) {
+    for (i = 0; i < ScreenCount(display); i++) {
+      scr = ScreenOfDisplay(display, i);
 
       xmScreen = (XmScreen) XmGetXmScreen(scr);
+      if (xmScreen == NULL)
+        continue;
       xmScreen->screen.h_unit =  h_value ;
       xmScreen->screen.v_unit =  v_value ;
     }
@@ -1347,7 +1426,11 @@ _XmGetFontUnit(
 {
     XmScreen          xmScreen;
 
+    if (screen == NULL)
+      return 0;
     xmScreen = (XmScreen) XmGetXmScreen(screen);
+    if (xmScreen == NULL)
+      return 0;
     if (dimension == XmHORIZONTAL)
       return(xmScreen->screen.h_unit);
     else
@@ -1369,7 +1452,11 @@ _XmGetColorCalculationProc(
 {
     XmScreen          xmScreen;
 
+    if (screen == NULL)
+        return NULL;
     xmScreen = (XmScreen) XmGetXmScreen(screen);
+    if (xmScreen == NULL)
+        return NULL;
     return(xmScreen->screen.color_calc_proc);
 }
 
@@ -1384,7 +1471,11 @@ _XmGetColorAllocationProc(
 {
     XmScreen          xmScreen;
 
+    if (screen == NULL)
+        return NULL;
     xmScreen = (XmScreen) XmGetXmScreen(screen);
+    if (xmScreen == NULL)
+        return NULL;
     return(xmScreen->screen.color_alloc_proc);
 }
 
@@ -1400,7 +1491,11 @@ _XmGetBitmapConversionModel(
 {
     XmScreen          xmScreen;
 
+    if (screen == NULL)
+        return XmMATCH_DEPTH;
     xmScreen = (XmScreen) XmGetXmScreen(screen);
+    if (xmScreen == NULL)
+        return XmMATCH_DEPTH;
     return(xmScreen->screen.bitmap_conversion_model);
 }
 
@@ -1417,7 +1512,13 @@ _XmGetBitmapConversionModel(
 Pixmap
 _XmGetInsensitiveStippleBitmap (Widget w)
 {
-    XmScreen    xmScreen = (XmScreen) XmGetXmScreen(XtScreen(w));
+    XmScreen    xmScreen;
+
+    if (w == NULL)
+        return None;
+    xmScreen = (XmScreen) XmGetXmScreen(XtScreen(w));
+    if (xmScreen == NULL)
+        return None;
 
     return(xmScreen->screen.insensitive_stipple_bitmap);
 }
@@ -1437,7 +1538,17 @@ _XmGetDefaultGlyphPixmap(
 {
     XmScreen          xmScreen;
 
+    if (screen == NULL) {
+        if (width) *width = 0;
+        if (height) *height = 0;
+        return None;
+    }
     xmScreen = (XmScreen) XmGetXmScreen(screen);
+    if (xmScreen == NULL) {
+        if (width) *width = 0;
+        if (height) *height = 0;
+        return None;
+    }
 
     if (width) *width = xmScreen->screen.default_glyph_pixmap_width ;
     if (height) *height = xmScreen->screen.default_glyph_pixmap_height ;
@@ -1462,11 +1573,15 @@ XmGetXmScreen(
     XmDisplay	xmDisplay;
     WidgetList	children;
     Widget 	widget;
-    int	num_children;
+    Cardinal num_children;
     Arg args[5];
-    int i;
+    Cardinal i;
     Screen *scr;
     char name[25];
+
+    if (screen == NULL)
+	return(NULL);
+
     _XmDisplayToAppContext(DisplayOfScreen(screen));
 
     _XmAppLock(app);
@@ -1480,6 +1595,11 @@ XmGetXmScreen(
 
 	children = xmDisplay->composite.children;
 	num_children = xmDisplay->composite.num_children;
+    if (num_children != 0 && children == NULL)
+	{
+	    _XmAppUnlock(app);
+	    return(NULL);
+	}
 
 	for (i=0; i < num_children; i++)
 	{
@@ -1500,6 +1620,11 @@ XmGetXmScreen(
 		scr = ScreenOfDisplay(XtDisplay(xmDisplay), i);
 		if (scr == screen)
 			break;
+	}
+	if (i == ScreenCount(XtDisplay(xmDisplay)))
+	{
+	    _XmAppUnlock(app);
+	    return(NULL);
 	}
 
 	(void)snprintf(name, sizeof(name), "screen%d", i);

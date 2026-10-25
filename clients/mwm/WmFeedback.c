@@ -69,12 +69,30 @@ static char rcsid[] = "$XConsortium: WmFeedback.c /main/6 1996/10/23 17:20:55 rs
 #include "WmManage.h"
 #include "WmColormap.h"
 #include "stdio.h"
+#include <stdint.h>
 
 
 /*
  * Global Variables:
  */
 static Cursor  waitCursor = (Cursor)0L;
+
+static char *
+CopyFeedbackString(const char *text)
+{
+    size_t length;
+    char *copy;
+
+    if (text == NULL)
+	return(NULL);
+    length = strlen(text);
+    if (length >= UINT_MAX)
+	return(NULL);
+    copy = (char *)XtMalloc((Cardinal)(length + 1));
+    if (copy != NULL)
+	memcpy(copy, text, length + 1);
+    return(copy);
+}
 
 /* see WmGlobal.h for index defines: */
 
@@ -98,7 +116,7 @@ initMesg()
 
     tmpString = ((char *)GETMESSAGE(22, 12, "Switch to Default Behavior?"));
     if ((confirm_mesg[0] =
-         (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+         CopyFeedbackString(tmpString)) == NULL)
     {
         Warning (((char *)GETMESSAGE(22, 2, "Insufficient memory for local message string")));
 	confirm_mesg[0] = "Switch to Default Behavior?";
@@ -110,7 +128,7 @@ initMesg()
 
     tmpString = ((char *)GETMESSAGE(22, 13, "Switch to Custom Behavior?"));
     if ((confirm_mesg[1] =
-         (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+         CopyFeedbackString(tmpString)) == NULL)
     {
         Warning (((char *)GETMESSAGE(22, 2, "Insufficient memory for local message string")));
 	confirm_mesg[1] = "Switch to Custom Behavior?";
@@ -129,7 +147,7 @@ initMesg()
 	tmpString = ((char *)GETMESSAGE(22, 10, "Restart Workspace Manager?"));
     }
     if ((confirm_mesg[2] =
-         (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+         CopyFeedbackString(tmpString)) == NULL)
     {
         Warning (((char *)GETMESSAGE(22, 5, "Insufficient memory for local message string")));
 	if (MwmBehavior)
@@ -169,7 +187,7 @@ initMesg()
     }
     
     if ((confirm_mesg[3] =
-         (char *)XtMalloc ((unsigned int) (strlen(tmpString) + 1))) == NULL)
+         CopyFeedbackString(tmpString)) == NULL)
     {
         Warning (((char *)GETMESSAGE(22, 8, "Insufficient memory for local message string")));
 	if (MwmBehavior)
@@ -611,7 +629,8 @@ void UpdateFeedbackText (WmScreenData *pSD, int x, int y, unsigned int width, un
 
     if (pSD->fbStyle & FB_POSITION) 
     {
-	sprintf (pSD->fbLocation, "(%4d,%-4d)", x, y);
+	(void)snprintf (pSD->fbLocation, sizeof pSD->fbLocation,
+		       "(%4d,%-4d)", x, y);
 	XTextExtents(pSD->feedbackAppearance.font, pSD->fbLocation,
 		 strlen(pSD->fbLocation), &direction, &ascent, 
 		 &descent, &xcs);
@@ -620,7 +639,8 @@ void UpdateFeedbackText (WmScreenData *pSD, int x, int y, unsigned int width, un
 
     if (pSD->fbStyle & FB_SIZE) 
     {
-	sprintf (pSD->fbSize,     "%4dx%-4d", width, height);
+	(void)snprintf (pSD->fbSize, sizeof pSD->fbSize,
+		       "%4ux%-4u", width, height);
 	XTextExtents(pSD->feedbackAppearance.font, pSD->fbSize,
 		 strlen(pSD->fbSize), &direction, &ascent, 
 		 &descent, &xcs);
@@ -750,6 +770,9 @@ void ConfirmAction (WmScreenData *pSD, int nbr)
     int           x, y;
     Dimension     width, height;
     Widget        dialogShellW = NULL;
+    Widget        okButtonW = NULL;
+    Widget        cancelButtonW = NULL;
+    Widget        helpButtonW = NULL;
     XmString	  messageString;
     static XmString	  defaultMessageString = NULL;
 
@@ -797,6 +820,9 @@ void ConfirmAction (WmScreenData *pSD, int nbr)
 				    transientShellWidgetClass,
 		                    pSD->screenTopLevelW, args, n);
 
+        if (dialogShellW == NULL)
+            return;
+
         /* 
          * Create a QuestionBox as a child of the popup shell.
 	 * Set traversalOn and add callbacks for the OK and CANCEL buttons.
@@ -820,6 +846,25 @@ void ConfirmAction (WmScreenData *pSD, int nbr)
 	    XtCreateManagedWidget (confirm_widget[nbr], xmMessageBoxWidgetClass,
                                    dialogShellW, args, n);
 
+        if (pSD->confirmboxW[nbr] == NULL)
+        {
+            XtDestroyWidget (dialogShellW);
+            return;
+        }
+
+        okButtonW = XmMessageBoxGetChild (pSD->confirmboxW[nbr],
+                                          XmDIALOG_OK_BUTTON);
+        cancelButtonW = XmMessageBoxGetChild (pSD->confirmboxW[nbr],
+                                              XmDIALOG_CANCEL_BUTTON);
+        helpButtonW = XmMessageBoxGetChild (pSD->confirmboxW[nbr],
+                                            XmDIALOG_HELP_BUTTON);
+        if (okButtonW == NULL || cancelButtonW == NULL || helpButtonW == NULL)
+        {
+            XtDestroyWidget (dialogShellW);
+            pSD->confirmboxW[nbr] = NULL;
+            return;
+        }
+
         n = 0;
         XtSetArg(args[n], XmNmessageString, &messageString); n++;
         XtGetValues(pSD->confirmboxW[nbr], (ArgList) args, n);
@@ -836,7 +881,8 @@ void ConfirmAction (WmScreenData *pSD, int nbr)
 	 * 'reasonable' in instead.
 	 */
 
-	if (XmStringCompare( messageString, defaultMessageString ))
+	if (messageString != NULL && defaultMessageString != NULL &&
+	    XmStringCompare (messageString, defaultMessageString))
 	{
             messageString = XmStringCreateLocalized(confirm_mesg[nbr]);
 	    XtSetArg(args[n], XmNmessageString, (XtArgVal) messageString); n++;
@@ -851,22 +897,18 @@ void ConfirmAction (WmScreenData *pSD, int nbr)
 #ifndef NO_MESSAGE_CATALOG
 	XtSetArg(args[n], XmNlabelString, wmGD.okLabel); n++;
 #endif
-        XtSetValues ( XmMessageBoxGetChild (pSD->confirmboxW[nbr], 
-			    XmDIALOG_OK_BUTTON), args, n);
+        XtSetValues (okButtonW, args, n);
 #ifndef NO_MESSAGE_CATALOG
 	n--;
 	XtSetArg(args[n], XmNlabelString, wmGD.cancelLabel); n++;
 #endif
-        XtSetValues ( XmMessageBoxGetChild (pSD->confirmboxW[nbr], 
-			    XmDIALOG_CANCEL_BUTTON), args, n);
+        XtSetValues (cancelButtonW, args, n);
         XtAddCallback (pSD->confirmboxW[nbr], XmNokCallback, 
 	    (XtCallbackProc)OkCB, (XtPointer)pSD); 
         XtAddCallback (pSD->confirmboxW[nbr], XmNcancelCallback, 
 	    (XtCallbackProc)CancelCB, (XtPointer)NULL); 
 
-        XtUnmanageChild
-	    (XmMessageBoxGetChild (pSD->confirmboxW[nbr], 
-		XmDIALOG_HELP_BUTTON));
+        XtUnmanageChild (helpButtonW);
 
         XtRealizeWidget (dialogShellW);
 

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm low-level file I/O validation
 
 Mrm close, read-block, and write-block helpers now reject null descriptors or

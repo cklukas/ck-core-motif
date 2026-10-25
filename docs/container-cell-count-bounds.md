@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container cell-count bounds
 
 Container preferred-size calculation accumulates the number of cells needed

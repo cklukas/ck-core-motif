@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DatePicker redisplay guard
 
 `XmDatePicker` now skips redisplay safely when its drawing GC could not be

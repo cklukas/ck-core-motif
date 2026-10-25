@@ -557,6 +557,14 @@ SecondaryObjectCreate(
   reqSec = _XmExtObjAlloc(size);
   _XmProcessUnlock();
 
+  if (newSec == NULL || reqSec == NULL) {
+    if (newSec != NULL)
+      _XmExtObjFree(newSec);
+    if (reqSec != NULL)
+      _XmExtObjFree(reqSec);
+    return;
+  }
+
   
 /*
  *  Update pointers in instance records now so references to resources
@@ -577,6 +585,11 @@ SecondaryObjectCreate(
                     args, *num_args );
 
   extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+  if (extData == NULL) {
+    _XmExtObjFree(newSec);
+    _XmExtObjFree(reqSec);
+    return;
+  }
   extData->widget = (Widget)newSec;
   extData->reqWidget = (Widget)reqSec;
 
@@ -627,6 +640,10 @@ InitializePosthook(
      * free the req subobject used for comparisons
      */
     _XmPopWidgetExtData((Widget) sw, &ext, XmCACHE_EXTENSION);
+    if (ext == NULL) {
+        _XmProcessUnlock();
+        return;
+    }
     _XmExtObjFree((XtPointer) ext->widget);
     _XmExtObjFree((XtPointer) ext->reqWidget);
     _XmProcessUnlock();
@@ -663,6 +680,14 @@ SetValuesPrehook(
     reqSec = (XmSeparatorGCacheObject)_XmExtObjAlloc(size);
     _XmProcessUnlock();
 
+    if (newSec == NULL || reqSec == NULL) {
+        if (newSec != NULL)
+            _XmExtObjFree((XtPointer)newSec);
+        if (reqSec != NULL)
+            _XmExtObjFree((XtPointer)reqSec);
+        return FALSE;
+    }
+
     newSec->object.self = (Widget)newSec;
     newSec->object.widget_class = ec;
     newSec->object.parent = XtParent(newParent);
@@ -679,6 +704,11 @@ SetValuesPrehook(
             sizeof(XmSeparatorGCacheObjPart));
 
     extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+    if (extData == NULL) {
+        _XmExtObjFree((XtPointer)newSec);
+        _XmExtObjFree((XtPointer)reqSec);
+        return FALSE;
+    }
     extData->widget = (Widget)newSec;
     extData->reqWidget = (Widget)reqSec;
     _XmPushWidgetExtData(newParent, extData, XmCACHE_EXTENSION);
@@ -726,6 +756,9 @@ GetValuesPrehook(
     newSec = (XmSeparatorGCacheObject)_XmExtObjAlloc(size);
     _XmProcessUnlock();
 
+    if (newSec == NULL)
+        return;
+
     newSec->object.self = (Widget)newSec;
     newSec->object.widget_class = ec;
     newSec->object.parent = XtParent(newParent);
@@ -742,6 +775,10 @@ GetValuesPrehook(
             sizeof(XmSeparatorGCacheObjPart));
 
     extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
+    if (extData == NULL) {
+        _XmExtObjFree((XtPointer)newSec);
+        return;
+    }
     extData->widget = (Widget)newSec;
     _XmPushWidgetExtData(newParent, extData, XmCACHE_EXTENSION);
 
@@ -768,6 +805,9 @@ GetValuesPosthook(
     XmWidgetExtData ext;
 
     _XmPopWidgetExtData(new_w, &ext, XmCACHE_EXTENSION);
+
+    if (ext == NULL)
+        return;
 
     _XmProcessLock();
     _XmExtObjFree((XtPointer) ext->widget);
@@ -812,6 +852,11 @@ SetValuesPosthook(
            SEPG_Cache(new_w) = SEPG_Cache(current);
 
     _XmPopWidgetExtData(new_w, &ext, XmCACHE_EXTENSION);
+
+  if (ext == NULL) {
+    _XmProcessUnlock();
+    return FALSE;
+  }
 
     _XmExtObjFree((XtPointer) ext->widget);
     _XmExtObjFree((XtPointer) ext->reqWidget);
@@ -1199,18 +1244,25 @@ Redisplay(
      }
    
     background_height = (int) sg->rectangle.height - 2 *
-	sg->gadget.highlight_thickness;
-						  
-    background_width = (int) sg->rectangle.width - 2 *
-	sg->gadget.highlight_thickness;
+	(int) sg->gadget.highlight_thickness;
+    if (background_height < 0)
+	background_height = 0;
 
-    background_x_offset = sg->rectangle.x + sg->gadget.highlight_thickness;
+    background_width = (int) sg->rectangle.width - 2 *
+	(int) sg->gadget.highlight_thickness;
+    if (background_width < 0)
+	background_width = 0;
+
+    background_x_offset = (int) sg->rectangle.x +
+	(int) sg->gadget.highlight_thickness;
     
-    background_y_offset = sg->rectangle.y + sg->gadget.highlight_thickness;
+    background_y_offset = (int) sg->rectangle.y +
+	(int) sg->gadget.highlight_thickness;
    
 
     if (sg->separator.fill_bg_box)  {
-      XFillRectangle(XtDisplay(sg),
+	  if (background_width > 0 && background_height > 0)
+	  XFillRectangle(XtDisplay(sg),
 		     XtWindow((Widget) sg),
 		     SEPG_BackgroundGC(sg),
 		     background_x_offset,
@@ -1219,14 +1271,15 @@ Redisplay(
 		     background_height);
     }
 
+    if (background_width > 0 && background_height > 0)
     XmeDrawSeparator(XtDisplay((Widget) sg), XtWindow((Widget) sg),
                   SEPG_TopShadowGC(sg),
                   SEPG_BottomShadowGC(sg),
                   SEPG_SeparatorGC(sg),
-                  sg->rectangle.x + sg->gadget.highlight_thickness,
-                  sg->rectangle.y + sg->gadget.highlight_thickness ,
-                  sg->rectangle.width - 2*sg->gadget.highlight_thickness,
-                  sg->rectangle.height - 2*sg->gadget.highlight_thickness,
+                  (Position) background_x_offset,
+                  (Position) background_y_offset,
+                  (Dimension) background_width,
+                  (Dimension) background_height,
                   sg->gadget.shadow_thickness,
                   SEPG_Margin(sg),
                   SEPG_Orientation(sg),

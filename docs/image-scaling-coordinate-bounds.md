@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Image scaling destination coordinates
 
 The private scaled-image path accepts signed X11 destination coordinates so an

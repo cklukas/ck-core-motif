@@ -102,6 +102,11 @@ extern void SetMwmClientList(Window propWindow, Window *wmWindowList, unsigned i
 
 void AddClientToList (WmWorkspaceData *pWS, ClientData *pCD, Boolean onTop)
 {
+    if (pWS == NULL || pCD == NULL)
+    {
+        return;
+    }
+
     Boolean belowSystemModal = False;
     XWindowChanges windowChanges;
     WmScreenData *pSD = pWS->pSD;
@@ -172,7 +177,7 @@ void AddClientToList (WmWorkspaceData *pWS, ClientData *pCD, Boolean onTop)
 
 
 #ifdef WSM
-	if (!pWsc->pIconBox && pWsc->iconFrameWin)
+	if (pWsc != NULL && !pWsc->pIconBox && pWsc->iconFrameWin)
 #else /* WSM */
 	if (!pCD->pIconBox && pCD->iconFrameWin)
 #endif /* WSM */
@@ -258,7 +263,14 @@ void AddClientToList (WmWorkspaceData *pWS, ClientData *pCD, Boolean onTop)
 
 void AddEntryToList (WmWorkspaceData *pWS, ClientListEntry *pEntry, Boolean onTop, ClientListEntry *pStackEntry)
 {
-    WmScreenData *pSD = pWS->pSD;
+    WmScreenData *pSD;
+
+    if (pWS == NULL || pEntry == NULL || pWS->pSD == NULL)
+    {
+        return;
+    }
+
+    pSD = pWS->pSD;
 
     if (onTop)
     {
@@ -404,7 +416,11 @@ void MoveEntryInList (WmWorkspaceData *pWS, ClientListEntry *pEntry, Boolean onT
 
 void DeleteEntryFromList (WmWorkspaceData *pWS, ClientListEntry *pListEntry)
 {
-    
+    if (pWS == NULL || pListEntry == NULL || pWS->pSD == NULL)
+    {
+        return;
+    }
+
     if (pListEntry->prevSibling)
     {
 	pListEntry->prevSibling->nextSibling = pListEntry->nextSibling;
@@ -452,9 +468,19 @@ void DeleteEntryFromList (WmWorkspaceData *pWS, ClientListEntry *pListEntry)
 void DeleteClientFromList (WmWorkspaceData *pWS, ClientData *pCD)
 {
 #ifdef WSM
-    WsClientData *pWsc = GetWsClientData (pWS, pCD);
+    WsClientData *pWsc;
 #endif /* WSM */
-    WmScreenData *pSD = pWS->pSD;
+    WmScreenData *pSD;
+
+    if (pWS == NULL || pCD == NULL || pWS->pSD == NULL)
+    {
+        return;
+    }
+
+    pSD = pWS->pSD;
+#ifdef WSM
+    pWsc = GetWsClientData (pWS, pCD);
+#endif /* WSM */
 
     if (pCD->transientLeader)
     {
@@ -477,7 +503,7 @@ void DeleteClientFromList (WmWorkspaceData *pWS, ClientData *pCD)
 	 */
 
 #ifdef WSM
-	if (!pWsc->pIconBox && pWsc->iconFrameWin)
+	if (pWsc != NULL && !pWsc->pIconBox && pWsc->iconFrameWin)
 #else /* WSM */
 	if (!pCD->pIconBox && pCD->iconFrameWin)
 #endif /* WSM */
@@ -558,11 +584,24 @@ void DeleteClientFromList (WmWorkspaceData *pWS, ClientData *pCD)
 
 void AddTransient (WmWorkspaceData *pWS, ClientData *pCD)
 {
-    ClientData *pcdLeader = pCD->transientLeader;
-    ClientData *pcdTop = FindTransientTreeLeader (pCD);
+    ClientData *pcdLeader;
+    ClientData *pcdTop;
     Boolean restackTransients;
-    WmScreenData *pSD = pWS->pSD;
+    WmScreenData *pSD;
 
+    if (pWS == NULL || pWS->pSD == NULL || pCD == NULL ||
+        pCD->transientLeader == NULL)
+    {
+        return;
+    }
+
+    pcdLeader = pCD->transientLeader;
+    pcdTop = FindTransientTreeLeader (pCD);
+    if (pcdTop == NULL)
+    {
+        return;
+    }
+    pSD = pWS->pSD;
 
     pCD->transientSiblings = pcdLeader->transientChildren;
     pcdLeader->transientChildren = pCD;
@@ -671,6 +710,11 @@ void AddTransient (WmWorkspaceData *pWS, ClientData *pCD)
 
 void MarkModalSubtree (ClientData *pcdTree, ClientData *pcdAvoid)
 {
+    if (pcdTree == NULL)
+    {
+        return;
+    }
+
     /* Mark children, if any */
 
     if (pcdTree->transientChildren)
@@ -711,6 +755,11 @@ void MarkModalSubtree (ClientData *pcdTree, ClientData *pcdAvoid)
 
 void MarkModalTransient (ClientData *pcdLeader, ClientData *pCD)
 {
+    if (pcdLeader == NULL || pCD == NULL)
+    {
+        return;
+    }
+
     if (!IS_APP_MODALIZED(pcdLeader))
     {
 	/*
@@ -756,9 +805,13 @@ void MarkModalTransient (ClientData *pcdLeader, ClientData *pCD)
 void DeleteTransient (ClientData *pCD)
 {
     ClientData *pcdLeader;
-    ClientData *pcdPrev; 
+    ClientData *pcdPrev;
     int modalCount;
 
+    if (pCD == NULL || pCD->transientLeader == NULL)
+    {
+        return;
+    }
 
     /*
      * Handle primary application modality.
@@ -855,6 +908,10 @@ void DeleteTransient (ClientData *pCD)
 
 void DeleteFullAppModalChildren (ClientData *pcdLeader, ClientData *pCD)
 {
+    if (pcdLeader == NULL || pCD == NULL)
+    {
+        return;
+    }
 
     /* recursively do children first */
     if (pCD->transientChildren)
@@ -898,6 +955,10 @@ void
 FixupFullAppModalCounts (ClientData *pcdLeader, ClientData *pcdDelete)
 
 {
+    if (pcdLeader == NULL || pcdDelete == NULL)
+    {
+        return;
+    }
 
     /* fixup children */
     if (pcdLeader->transientChildren) 
@@ -946,6 +1007,11 @@ FixupFullAppModalCounts (ClientData *pcdLeader, ClientData *pcdDelete)
 
 void UnMarkModalTransient (ClientData *pcdModee, int modalCount, ClientData *pcdModal)
 {
+    if (pcdModee == NULL || pcdModal == NULL || modalCount <= 0)
+    {
+        return;
+    }
+
     /* decrement application modal count */
     if (pcdModal->inputMode == MWM_INPUT_FULL_APPLICATION_MODAL)
 	pcdModee->fullModalCount -= modalCount;
@@ -1004,6 +1070,10 @@ Boolean PutTransientOnTop (ClientData *pcd)
     ClientData *pcdPrev;
     Boolean restack = False;
 
+    if (pcd == NULL)
+    {
+        return (False);
+    }
 
     pcdLeader = pcd->transientLeader;
     if (pcdLeader != NULL)
@@ -1011,11 +1081,16 @@ Boolean PutTransientOnTop (ClientData *pcd)
 	pcdPrev = pcdLeader->transientChildren;
 	if (pcdPrev != pcd)
 	{
-	    while (pcdPrev->transientSiblings != pcd)
-	    {
-		pcdPrev = pcdPrev->transientSiblings;
-	    }
-	    pcdPrev->transientSiblings = pcd->transientSiblings;
+            while (pcdPrev != NULL &&
+                   pcdPrev->transientSiblings != pcd)
+            {
+                pcdPrev = pcdPrev->transientSiblings;
+            }
+            if (pcdPrev == NULL)
+            {
+                return (restack);
+            }
+            pcdPrev->transientSiblings = pcd->transientSiblings;
 	    pcd->transientSiblings = pcdLeader->transientChildren;
 	    pcdLeader->transientChildren = pcd;
 	    restack = True;
@@ -1069,6 +1144,10 @@ Boolean PutTransientBelowSiblings (ClientData *pcd)
     ClientData *pcdNext;
     Boolean restack = False;
 
+    if (pcd == NULL)
+    {
+        return (False);
+    }
 
     pcdLeader = pcd->transientLeader;
     if (pcdLeader)
@@ -1081,8 +1160,13 @@ Boolean PutTransientBelowSiblings (ClientData *pcd)
 	        pcdLeader->transientChildren = pcd->transientSiblings;
 	    }
 
-	    pcdNext = pcdLeader->transientChildren;
-	    while (pcdNext->transientSiblings)
+            pcdNext = pcdLeader->transientChildren;
+            if (pcdNext == NULL)
+            {
+                pcd->transientSiblings = NULL;
+                return (restack);
+            }
+            while (pcdNext->transientSiblings)
 	    {
 		if (pcdNext->transientSiblings == pcd)
 		{
@@ -1266,6 +1350,10 @@ void RestackTransientsAtWindow (ClientData *pcd)
 ClientData * FindTransientTreeLeader (ClientData *pcd)
 
 {
+    if (pcd == NULL)
+    {
+        return (NULL);
+    }
 
     /*
      * Find the head of the transient window tree.
@@ -1310,6 +1398,10 @@ CountTransientChildren (ClientData *pcd)
     ClientData *pcdNext;
     int count = 1;
 
+    if (pcd == NULL)
+    {
+        return (0);
+    }
 
     pcdNext = pcd->transientChildren;
     while (pcdNext)
@@ -1360,6 +1452,10 @@ Window * MakeTransientWindowList (Window *windows, ClientData *pcd)
 {
     ClientData *pcdNext;
 
+    if (windows == NULL || pcd == NULL)
+    {
+        return (windows);
+    }
 
     pcdNext = pcd->transientChildren;
     while (pcdNext)
@@ -1408,6 +1504,11 @@ ClientData * FindTransientFocus (ClientData *pcd)
 {
 
     ClientData *pcdFocus;
+
+    if (pcd == NULL)
+    {
+        return (wmGD.keyboardFocus);
+    }
 
     /*
      * Find a window that does not have an application modal subordinate.
@@ -1484,6 +1585,10 @@ ClientData * FindTransientOnTop (ClientData *pcd)
      */
 
     pcd = FindTransientTreeLeader (pcd);
+    if (pcd == NULL)
+    {
+        return (NULL);
+    }
 #ifdef WSM
     if (!(pcd->secondariesOnTop) &&
 	(LeaderOnTop (pcd)))
@@ -1552,6 +1657,13 @@ ClientData * FindTransientOnTop (ClientData *pcd)
 
 void StackWindow (WmWorkspaceData *pWS, ClientListEntry *pEntry, Boolean onTop, ClientListEntry *pStackEntry)
 {
+    if (pWS == NULL || pWS->pSD == NULL || pEntry == NULL ||
+        pEntry->pCD == NULL ||
+        (pStackEntry != NULL && pStackEntry->pCD == NULL))
+    {
+        return;
+    }
+
     Window stackWindow;
     Boolean stackTransientTreeWindows = False;
     Window activeIconWindow;
@@ -1614,6 +1726,11 @@ void StackWindow (WmWorkspaceData *pWS, ClientListEntry *pEntry, Boolean onTop, 
     else
     {
 	activeIconWindow = (Window)0;
+    }
+
+    if (!onTop && pSD->lastClient == NULL)
+    {
+        return;
     }
 
     if (onTop)
@@ -1755,6 +1872,10 @@ void StackTransientWindow (ClientData *pcd)
     XWindowChanges changes;
     ClientData *pcdPrev;
 
+    if (pcd == NULL || pcd->transientLeader == NULL)
+    {
+        return;
+    }
 
     if (pcd->transientLeader->transientChildren == pcd)
     {
@@ -1771,11 +1892,16 @@ void StackTransientWindow (ClientData *pcd)
     else
     {
 	pcdPrev = pcd->transientLeader;
-	while (pcdPrev->transientSiblings != pcd)
-	{
-	    pcdPrev = pcdPrev->transientSiblings;
-	}
-	changes.sibling = pcdPrev->clientFrameWin;
+        while (pcdPrev != NULL &&
+               pcdPrev->transientSiblings != pcd)
+        {
+            pcdPrev = pcdPrev->transientSiblings;
+        }
+        if (pcdPrev == NULL)
+        {
+            return;
+        }
+        changes.sibling = pcdPrev->clientFrameWin;
 	changes.stack_mode = Below;
     }
 
@@ -2512,6 +2638,11 @@ Boolean BumpPrimaryToBottom (ClientData *pcdLeader)
 {
     Boolean rval;
 
+    if (pcdLeader == NULL)
+    {
+        return (False);
+    }
+
     if (pcdLeader->primaryStackPosition != 0)
     {
 	pcdLeader->primaryStackPosition = 0;
@@ -2621,6 +2752,11 @@ FindSubLeaderToTop (
     ClientData *pcdRet = NULL;
     ClientData *pcdNext;
 
+    if (pcd == NULL)
+    {
+        return (NULL);
+    }
+
     pcdNext = pcd->transientChildren;
     while (pcdNext && (!pcdRet))
     {
@@ -2678,7 +2814,14 @@ MakeTransientFamilyStackingList (
 {
     ClientData *pcdNext, *pcdSub;
     Window *nextWindow, wSave, wTemp, wTop;
-    int count = CountTransientChildren (pcdLeader);
+    int count;
+
+    if (windows == NULL || pcdLeader == NULL)
+    {
+        return;
+    }
+
+    count = CountTransientChildren (pcdLeader);
     register int i, j;
 
     /*
@@ -2686,6 +2829,10 @@ MakeTransientFamilyStackingList (
      * normal Motif rules.
      */
     nextWindow = MakeTransientWindowList (windows, pcdLeader);
+    if (nextWindow == NULL)
+    {
+        return;
+    }
 
     if (!(pcdLeader->secondariesOnTop))
     {
@@ -2778,6 +2925,11 @@ NormalizeTransientTreeStacking (
     ClientData *pcdNext;
     Boolean bChanged = False;
 
+    if (pcdLeader == NULL)
+    {
+        return (False);
+    }
+
     pcdNext = pcdLeader->transientChildren;
     bChanged = BumpPrimaryToBottom (pcdLeader);
     while (pcdNext)
@@ -2823,8 +2975,14 @@ LeaderOnTop (
 
 {
     Boolean bOnTop = False;
-    int count = CountTransientChildren (pcdLeader);
+    int count;
 
+    if (pcdLeader == NULL)
+    {
+        return (False);
+    }
+
+    count = CountTransientChildren (pcdLeader);
     if ((pcdLeader->primaryStackPosition > 0) &&
 	(pcdLeader->primaryStackPosition < count))
     {
@@ -2861,21 +3019,31 @@ LeaderOnTop (
 void UpdateScreenClientList (
     WmScreenData *pSD)
 {
-    Window *windows;
+    Window *windows = NULL;
+    Window *resized;
     int count = 0;
     ClientListEntry *pEntry;
 
-    windows = malloc (sizeof (Window));
-    pEntry = pSD->clientList;
+    if (pSD == NULL)
+    {
+        return;
+    }
 
+    pEntry = pSD->clientList;
     while (pEntry)
     {
         /*
-         * Filter out entries for icons
+         * Filter out entries for icons and detached clients.
          */
-        if (pEntry->type != MINIMIZED_STATE)
+        if (pEntry->type != MINIMIZED_STATE && pEntry->pCD != NULL)
         {
-            windows = realloc (windows, (count + 1) * sizeof (Window));
+            resized = realloc (windows, (count + 1) * sizeof (Window));
+            if (resized == NULL)
+            {
+                free (windows);
+                return;
+            }
+            windows = resized;
             windows[count] = (XID) pEntry->pCD->client;
             count++;
         }

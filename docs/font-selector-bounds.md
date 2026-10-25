@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Font selector XLFD fallback bounds
 
 The font selector has a compatibility fallback for scaled XLFD fonts whose

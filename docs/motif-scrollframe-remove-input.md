@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ScrollFrame navigator removal input validation
 
 `_XmSFRemoveNavigator` now rejects a null navigator or scroll-frame state

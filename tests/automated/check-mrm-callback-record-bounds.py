@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Check Mrm creation callback records before callback fixup and iteration."""
+import os
 from pathlib import Path
 
-source = Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrw.c"
+source = Path(os.environ.get("MOTIF_SOURCE", Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrw.c"))
 text = source.read_text(encoding="utf-8")
 required = (
     "static Boolean\nUrmCallbackRecordValid",
@@ -16,4 +17,4 @@ for needle in required:
         raise SystemExit(f"missing callback-record bound: {needle}")
 if text.count("UrmCallbackRecordValid(widgetrec, widgetrec->creation_offs") != 2:
     raise SystemExit("callback record is not checked in both widget-instance paths")
-print("PASS Mrm old and current creation callback records are bounded")
+print("Mrm old and current creation callback records are bounded")

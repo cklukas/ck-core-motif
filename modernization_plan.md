@@ -253,15 +253,13 @@ their measurements are retained as a baseline rather than an invented
 performance target, and they fail when deliberately pointed at the wrong
 library prefix.
 
-**Status (2026-10-25):** implemented and qualified on the AArch64 `uconsole`
+**Status (2026-10-24):** implemented and qualified on the AArch64 `uconsole`
 Linux host with Xvfb.  Fresh installed-prefix runs passed at Xft.dpi 96 and
-144; each receipt records the fixture/library/result/image hashes.  A fresh
-full source-tree build and install now pass after correcting the bounded
-text-selection compile error, the WML build graph, and UIL literal-only module
-output; the focused WML and zero-topmost regressions remain recorded in the
-repository. A fresh x86_64 out-of-tree source-tree build also passes after
-removing the Exm demonstration library's case-insensitive `String.h` collision
-with the C `<string.h>` header; legacy demo warnings remain explicit.
+144; each receipt records the fixture/library/result/image hashes.  The full
+source-tree build also exposed and allowed correction of a compile error in the
+preceding bounded text-selection change.  The WML generator remains outside
+this baseline, but its fresh out-of-tree build now passes after making lexer
+and parser generation explicit.
 
 **Does not include:** appearance changes, performance optimizations, internal
 instrumentation without a defined contract, or a claim that the baseline
@@ -412,17 +410,6 @@ preserved.  The observed constant-versus-scaled values are documented as an
 audit classification; no additional source correction is claimed.  See
 `docs/dpi-control-metrics.md`.
 
-The additive live display-scale transaction now also rejects nested scale
-changes from a callback, preserving the outer transaction's override and
-retiring its per-display guard with the Motif display. The installed
-`run-display-scale-reentrant.py` fixture is the focused regression. The
-manifest-driven gallery then qualifies the realized historical-widget cohort
-through the public transaction at 1.0, 1.5, 2.0 and 3.0 scales: all 94
-manifest scenarios pass in the 16-cell matrix (1,504 captures, with hashes
-and receipts retained). This closes the simulated historical-widget matrix;
-real XLibre output changes and the separately listed metric-audit limits
-remain open under WP-04A.
-
 ### WP-04A: XLibre per-output scaling integration
 
 **Depends on:** WP-04.
@@ -475,61 +462,6 @@ Xvfb fallback on `uconsole`.  It also supports running against a real XLibre
 display, where every reported output must provide a valid property.  Shell
 output selection, RandR event subscription, live reflow and explicit-resource
 transactions remain phase 2 and are not advertised by this increment.
-
-**Phase-2 progress (2026-10-25):** the internal shell-boundary selector and
-the opt-in live observer are now implemented and installed-fixture qualified.
-The observer subscribes to RandR screen/output/property notifications, drains
-them on the owning Xt application context, coalesces a burst into one work
-procedure, re-resolves the shell output and invokes one normal Xt resize before
-the change hook. It chooses the output containing the shell client-area center,
-falls back to the nearest output with a lowest-RandR-ID tie-break (using the
-sum of horizontal and vertical distances), and retains global-DPI behavior for
-invalid or unavailable properties. Explicit-resource preservation and the
-derived-metric callback boundary are documented. A real multi-output XLibre
-session is still required to qualify live property modification, output
-removal/addition, spanning windows and destruction during a queued update.
-The installed contract runner now uses a supplied real display for the shell
-observer and checks two-shell registration, positive descendant scale lookup,
-idempotent re-registration and retirement of one shell without invalidating
-the other; its no-display Xvfb run remains an ordinary-server fallback.
-
-The observer teardown contract now also removes its destroy callback before
-freeing state on explicit unregistration. The installed observer regression
-exercises unregistration followed by shell destruction, preventing a stale
-callback closure from becoming a use-after-free path.
-
-The queued work procedure now retains its observer state across the Xt resize
-transaction. If reentrant application code destroys the shell, retirement
-unlinks and cancels the observer while reclamation waits for the active work
-reference; the optional change hook is not called after retirement. The
-source-contract regression covers the retain/release ordering. A real
-multi-output XLibre run is still required for live property changes and
-destruction during queued reflow.
-
-The RandR property boundary is now hardened as well: the decoder validates
-type, format, item count and trailing data before reading Xlib's format-32
-buffer, avoiding an out-of-bounds read for malformed format-8/16 replies. The
-installed contract fixture covers the malformed-metadata ordering under the
-sanitizer configuration. This closes a toolkit safety defect but does not
-replace the required real multi-output qualification.
-The AArch64 receipt and installed-library fingerprint are recorded in
-`docs/xlibre-dpi-contract.md`.
-The supported-server predicate also requires an exact `XLibre` vendor token;
-the installed fixture covers versioned names and spoofed substrings.
-Transient client-area, resource-query and allocation failures now return the
-global-DPI fallback rather than preserving stale per-output state; the source
-contract regression covers those early-return paths.
-The installed runner now emits a `receipt.json` recording source/library
-fingerprints, exact commands, display mode and elapsed time, keeping ordinary
-Xvfb fallback evidence distinct from future real-XLibre qualification.
-The opt-in `run-xlibre-live.py` fixture now exercises writable output-property
-mutation and cleanup when a real display is supplied, while its Xvfb mode
-returns an explicit skip rather than counting fallback as live evidence.
-The companion source-contract regression locks in property restoration before
-observer teardown, one-callback verification and the status-77 ordinary-Xvfb
-boundary. Its runner also records source/library fingerprints and exact
-commands in a receipt with an explicit pass/skip/fail result; this does not
-substitute for a real multi-output XLibre run.
 
 ### WP-05: Optional SVG image loading
 
@@ -589,145 +521,15 @@ highest-risk remaining boundaries into explicit tested contracts.
 new native failures have regressions or explicit limits, and the status page
 does not overstate external-IME or sanitizer acceptance.
 
-**Status (2026-10-25):** phase 1 is implemented and documented for the
+**Status (2026-10-24):** phase 1 is implemented and documented for the
 qualified AArch64 Linux cohort. The installed native fixtures cover scalar and
 grapheme movement, the maintained mixed-script/fallback corpus, local Compose,
-real IBus XIM commit/cancellation and focused provider restart/loss behavior.
-The large UTF-8 clipboard and interrupted INCR-transfer fixtures also pass
-when Motif and its consumer use the pinned corrected Xt dependency. Direct
-Motif-to-Motif Text/TextField owner/import round trips now pass for mixed-script
-and multi-megabyte payloads, with an independent Xlib re-export check. The
-system-Xt failure and exact dependency receipt remain recorded. The
-`docs/native-text-ime-matrix.md` table records this bounded result and keeps
-x86_64, broader provider/engine interoperability, candidate panels, drag-and-
-drop workflows and sanitizer exit ownership as explicit open gates. A fresh
-x86_64 installed cohort now passes the baseline, WML token, non-text Unicode,
-accessibility-menu, XLibre DPI-contract, independent-client DnD and C++
-fixtures (including the C++ ASan/UBSan run); this is recorded admission
-evidence, not complete x86_64 text/IME or accessibility acceptance. The full
-optional `demos/lib/Exm` tree now also compiles in that cohort after removing
-its case-insensitive `String.h`/`<string.h>` collision; its historical warnings
-remain outside the toolkit warning gate. The matrix does not treat unavailable
-services or interposed callbacks as provider passes.
-
-The native feature runner now accepts repeated `--runtime-library-dir`
-arguments and records them in the receipt. This keeps the Xt dependency
-boundary explicit: the interrupted clipboard-transfer and real IBus/m17n
-service fixtures pass against the pinned corrected Xt cohort on `uconsole`,
-while the same cancellation fixture exposes the known system-Xt owner-exit
-failure. The external failure is retained as a dependency limitation rather
-than hidden or counted as a toolkit pass.
-
-The same runtime-directory contract is propagated into the local Compose
-observer. Its normal installed-prefix fixture passes with the pinned Xt loaded
-from the recorded dependency directory; strict execution reaches the fixture
-body but remains bounded by the external Fontconfig ownership report.
-
-That strict local-Compose run also exposed and now covers a malformed-keycode
-path in `XmTranslateKey`: the virtual-key lookup validates the cached server
-keycode range before indexing Xt's keysym table. A fresh installed AArch64
-prefix passes the invalid-boundary consumer and the strict local-Compose
-fixture; this is a toolkit safety correction, distinct from the remaining
-external Fontconfig ownership gate.
-
-The layout and line-context consumers now also call `FcFini()` only after
-closing their Xft fonts and displays. Their strict results therefore do not
-attribute Fontconfig's process-global configuration to the fixture or hide it
-with a sanitizer suppression.
-
-The DataField destroy path now frees the private render-table copy made during
-initialization regardless of whether the source `XmNfontList` was supplied by
-the application or obtained from the default table. This removes the toolkit's
-Xft-rendition leak from the strict Unicode fixture. The remaining strict
-Unicode result is a single 104-byte allocation rooted in the system Xt
-selection-owner implementation; it is recorded as an external dependency
-boundary rather than suppressed or misreported as a toolkit pass.
-
-A strict installed FontSelector consumer was also qualified during this phase.
-All observed Motif label destroy paths release their normal and insensitive
-GCs, but the process still reports one 160-byte shared Xt/Xlib GC-cache
-allocation rooted at `XtAllocateGC`/`XCreateGC`. This remains an explicit
-dependency-ownership failure rather than a toolkit pass; see
-`docs/fontselector-sanitizer-boundary.md`. A matching instrumented Xt/Xlib
-qualification or a source-backed `libXm` reproducer is required before the
-matrix-wide sanitizer gate can close.
-
-The installed native cohort also includes the bounded `nontext-unicode`
-public-API fixture for combining, non-BMP and Han values through Label, List,
-ComboBox, Menu and FileSelection resources. The fresh 25-check run now also
-iterates and validates both payloads and the explicit separator in a
-two-segment compound `XmString`, exercises List existence, position and match
-search with the non-BMP item, and round-trips a non-ASCII `XmNmnemonic`
-resource. Physical-keyboard and application-level Unicode coverage remain
-separate gates.
-
-A strict consumer ASan/UBSan run of the interrupted-clipboard fixture also
-passed against that cohort. The updated pinned Xt patch now covers both the
-interrupted INCR value lifetime and the destroyed-widget selection-context
-lifetime; the official helper-built cohort passes ABI, incremental-layout and
-clipboard-lifetime with leak detection enabled. This is bounded dependency
-evidence, not closure of the matrix-wide Fontconfig, application-DnD or
-cross-architecture sanitizer gates.
-
-The installed `check-dropsite-lifecycle` consumer now also covers the public
-drop-site registration contract: operation and import-target retrieval,
-callback identity, update bracketing, explicit unregister/re-register, and
-implicit teardown of a registered widget. Three repeated Xvfb runs pass all
-seven checks on `uconsole`; this is a bounded lifecycle result and does not
-close cancellation, owner-replacement or application-DnD gates. The new
-installed `check-dnd-transfer` consumer adds a real
-same-process Motif drag gesture and passes conversion, valid-drop admission,
-transfer-entry client-data propagation and selection-value ownership checks in
-three repeated Xvfb runs. The installed `check-dnd-cross-process` consumer
-now also passes one independent-client copy transfer in three fresh Xvfb
-runs, qualifying the basic X11 client boundary without claiming owner
-replacement or transfer cancellation. Multiple targets and application-DnD
-journeys remain separate gates. The companion installed `check-dnd-cancel`
-probe also passes the initiator-side `XmDragCancel` and finish-notification
-contract in three repeated runs. The receiver-side `check-dnd-transfer-cancel`
-consumer also passes delayed-start, active-incremental and requestor-shell
-destruction cancellation in three fresh runs each. The source-side
-`check-dnd-source-cancel` consumer
-also passes owner replacement during an active drag and post-drop incremental
-transfer cancellation in three fresh runs each; application-DnD journeys
-remain open. The installed `check-dnd-multiple-targets` consumer also
-passes a same-process two-target transfer, preserving each target's client
-data and payload in three fresh runs; the cross-process mode now covers the
-same two-target contract and a 4 MiB incremental transfer, while full
-application journeys remain open. See
-`docs/dropsite-lifecycle.md` and `docs/dnd-transfer-lifecycle.md`.
-
-The x86_64 cohort now also passes the bounded installed text subset
-(`incremental-map`, `preedit`, `layout`, `line-context`, `unicode-widgets`,
-`font-resize` and `large-text`) using an explicit, fingerprinted fontconfig
-corpus. The runner records `--fontconfig-file` and its hash in the receipt.
-The text-layout implementation now groups separate HarfBuzz clusters that
-belong to one extended grapheme and batches Xft glyph requests so color-glyph
-captures remain within the X11 Render request limit. The 1 MiB large-text
-fixture passes with the color-emoji corpus; it records 1,073,152 bytes,
-761,856 scalars and 696,320 graphemes per widget with no X error or paragraph
-layout warning. This closes that bounded x86_64 text gate without claiming
-physical-display, external-IME or complete architecture acceptance.
-An isolated AArch64 `uconsole` rebuild of commit `1c2e4379` independently passes
-the installed `abi`, `layout` and `large-text` fixtures; its host lacks the
-Xrandr headers required for the optional XLibre-DPI adapter, so that focused
-check intentionally excludes only that adapter.
-The missing development dependency was subsequently installed on `uconsole`
-(`libxrandr-dev`). A fresh adapter-enabled AArch64 build now passes the
-installed XLibre parser, output-selection and ordinary-server observer
-fixtures, plus the live-fixture fallback (which correctly returns `skip` on
-Xvfb); the installed `libXm.so.8.0.0` SHA-256 is
-`be55a4d7802d41dd75ee8de622f7cb315cd15d3d802aeb1359b11cab076444fd`.
-This closes the missing-header build gate only; a real multi-output XLibre
-session is still required for live property mutation, hotplug, spanning-window
-reflow and queued-destruction qualification.
-
-The x86_64 cohort also now passes the bounded large UTF-8 clipboard round trip,
-the installed transfer-storage clipboard/merge/bounds/lifetime modes and the
-cancelled-transfer observer when the pinned corrected libXt 1.3.1 prefix is
-used. The unpinned system-Xt sanitizer allocations remain recorded as an
-external dependency boundary; this does not close application clipboard/DnD,
-other providers or matrix-wide sanitizer acceptance.
+real IBus XIM commit/cancellation and focused provider restart/loss behavior,
+plus UTF-8 clipboard round trips. `docs/native-text-ime-matrix.md` records
+the exact evidence boundary and keeps x86_64, broader provider/engine
+interoperability, candidate panels and sanitizer exit ownership as explicit
+open gates. The matrix does not treat unavailable services or interposed
+callbacks as provider passes.
 
 ### WP-07: Screen-reader usability and semantic completion
 
@@ -754,26 +556,14 @@ fixtures alone cannot establish.
 **Complete when:** the selected journeys and native semantic tests pass from an
 installed prefix and the documentation names their real scope and limitations.
 
-**Status (2026-10-25):** the native AArch64 installed cohort now includes a
-fresh `--enable-atspi --enable-xft --enable-unicode-text` prefix and a passing
-bounded Orca/Speech Dispatcher/eSpeak journey.  The receipt verified the exact
-`libXm.so.8.0.0` mapping, 23 AT-SPI cache objects, Unicode text-boundary and
-selection calls, all required native-control utterances including bounded
-list/menu announcements, synthesized PCM and clean exit of the owned
-services.  The observer identity check was corrected
-to the project's ABI 8 contract; it could no longer pass against an older
-`libXm.so.6` installation.  `docs/accessibility-journey-matrix.md` records
-the 37.02-second receipt with 113 utterances and the evidence boundary.
-Complete x86_64 text/IME and accessibility journeys, all desktop
-screen-readers, application journeys, complete List/Menu semantics and clean
-sanitizer exit ownership remain explicit gates. The bounded x86_64
-accessibility-menu fixture is recorded separately and does not imply a real
-AT-SPI or screen-reader journey.
-
-The focused installed semantic rerun on 2026-10-25 passed the strict
-accessibility, text-event, List and Menu fixtures in 19.79 seconds using the
-pinned Xt dependency cohort. It adds regression evidence without promoting
-those bounded provider checks to complete desktop/application semantics.
+**Status (2026-10-24):** phase 1 is implemented and qualified on the native
+AArch64 installed cohort. Native/provider fixtures cover roles, names, states,
+actions, selection, text events, modality and destruction/reentrancy for the
+listed surfaces, with focused AT-SPI observers and a bounded Orca/eSpeak
+baseline. `docs/accessibility-journey-matrix.md` records the distinction
+between those protocol results and real-client usability. Complete x86_64,
+all desktop screen-readers, application journeys and clean sanitizer exit
+ownership remain explicit gates.
 
 ### WP-08: Optional C++ support-library design
 
@@ -801,14 +591,11 @@ results are reviewed, and there is an explicit go/no-go decision for WP-09.
 **Does not include:** integrating the prototype into `libXm` or claiming a new
 OO object model.
 
-**Status (2026-10-25):** the public design proposal is backed by the installed
-`ckmotif++` header and C++17 lifecycle fixture. The fixture exercises
-copied/moved `XmString` ownership, one-shot argument storage, non-owning
-raw-widget interoperation, callback exception capture and
-destruction-before-connection-release without private Xm records or a global
-registry. Fresh GCC and Clang runs, including AddressSanitizer/UBSan with leak
-detection, pass on the qualified AArch64 install; see
-`docs/cpp-support-library-prototype.md` and `docs/cpp-support-library.md`.
+**Status (2026-10-24):** the public design proposal and explicit decision are
+recorded in `docs/cpp-support-library-proposal.md`. The consumer-only prototype
+has a GO decision; an installed WP-09 release remains NO-GO until its callback
+exception barrier, widget-destruction ordering and mixed C/C++ ownership
+fixture pass against a fresh prefix.
 
 ### WP-09: Optional C++ support-library release
 
@@ -830,14 +617,12 @@ optional SDK component.
 passes installed-prefix tests, and the library never requires ownership of an
 arbitrary raw `Widget` to be useful.
 
-**Status (2026-10-25):** implemented and qualified on a fresh AArch64
-installed prefix. The optional header-only `ckmotif++` package installs
-`ckmotif++/motif_support.hpp` and `ckmotif++-8.pc` without adding a C++
-requirement to `libXm`. GCC, Clang, and both sanitizer variants pass the
-callback exception-barrier, destruction-order and mixed C/C++ ownership
-fixture. The package remains subject to the separate toolkit-wide x86_64
-qualification gate; see `docs/cpp-support-library.md` and
-`docs/cpp-support-library-release-decision.md`.
+**Status (2026-10-24):** no-go.  WP-08 has a reviewed consumer-only design,
+but its callback exception-barrier, destruction-order and mixed ownership
+fixture has not yet passed against a fresh installed prefix.  No partial C++
+SDK is installed or required by `libXm`; see
+`docs/cpp-support-library-release-decision.md` for the release gate and reopen
+criteria.
 
 ### WP-10: Form and hierarchy diagnostic corpus
 
@@ -875,19 +660,6 @@ same-value margin update is a negative control and produced zero additional
 geometry requests or Configure events on the qualification run.  No generic
 Form correction is claimed yet; a measured hotspot and source-backed decision
 are still required before WP-11 changes source behavior.
-
-The callback-triggered scroll-container extension is now separately qualified:
-auto-drag timers and payloads retire across leave, disable, scrollbar removal,
-parent destruction and value-callback mutation, while navigator callback lists
-remain safe when application code destroys the active frame.  This is a
-lifecycle correction, not a change to Form attachment negotiation.  The
-synthesized DropSMgr clipper records are also retired during owner teardown;
-three repeated native runs and a strict consumer ASan/UBSan run pass all eight
-scenarios and 81 checks.  The pinned Xt dependency patch now also retires the
-selection context after widget-destroy/disown ordering; strict ABI,
-incremental-layout and clipboard-lifetime consumers pass against the fresh
-helper-built cohort.  Broader system-library ownership, application DnD and
-other architectures remain explicit gates; see `docs/scroll-autodrag-lifetime.md`.
 
 See `docs/form-layout-corpus.md` for the fixture schema, limits and current
 qualification scope.
@@ -1216,10 +988,8 @@ flyout destruction.  Escape/Return and pointer activation dismiss it through a
 typed callback without installing a global event loop or changing menu/dialog
 admission.  The installed Xvfb fixture passed 5 checks across repeated runs,
 including show/hide, dismissal delivery, edge-owner geometry and owner-unmap
-cleanup.  `XmTeachingTip` now supplies the delayed, copied title/body layer
-over this primitive with cancellation, edge clamping, non-modal dismissal and
-panel accessibility semantics; its installed fixture passes 10 checks.
-Existing Motif tooltip behavior remains unchanged.
+cleanup.  Delayed tooltips and teaching-tip presentation remain a later layer
+over this primitive; existing Motif tooltip behavior is unchanged.
 
 ### WP-20: ColorPicker standardization
 
@@ -1868,11 +1638,7 @@ selection remains unchanged.  `XmDropHighlight` is now implemented as a
 static, opt-in valid/invalid outline with a keyboard- and animation-free
 state API and an accessible label; it never registers a drop site or changes
 transfer ownership.  Its installed fixture passes 14 checks.  Context-menu
-entries are closed as a documented **no-go**: existing public
-`XmCreatePopupMenu`, `XmPushButton`, `XmNlabelPixmap`, `XmNaccelerator`,
-`XmNacceleratorText` and `XmNactivateCallback` APIs already cover icon and
-shortcut entries without a parallel abstraction.  The installed contract
-fixture passes 9 checks; see `docs/context-menu-decision.md`.
+entries remain a separate work item.
 
 ### WP-40: Bounded application-chrome composites
 
@@ -1927,225 +1693,6 @@ Appearance and scalable assets are intentionally the first delivery track: they
 produce user-visible improvement while preserving the established programming
 model.  The additive-widget track may progress independently where its stated
 dependency lines allow it.
-
-### WP-41: Cross-cutting allocation and ownership hardening
-
-**Depends on:** the affected public API's existing regression coverage.
-
-**Objective:** remove concrete arithmetic, allocation-failure and ownership
-hazards exposed by maintenance review and the peer bug-fix stream without
-changing the Motif/Xt programming model or hiding failures behind fallbacks.
-
-**Steps:**
-
-1. Select one bounded defect at a time and identify the existing ownership,
-   locking and ABI contract before editing it.
-2. Make the operation transactional where failure could otherwise publish a
-   partial object, array, table or widget state. Preserve public handle and
-   resource identity when the existing contract requires it.
-3. Add a source-contract regression for arithmetic and cleanup paths, plus an
-   installed native fixture whenever the state can be exercised through the
-   public API.
-4. Record the supported configuration, failure result, dependency boundary and
-   exact validation evidence in `CHANGES` and the relevant documentation.
-5. Integrate peer fixes only after checking their dependencies against this
-   fork; do not copy a later-branch label, test assumption or ownership model
-   that is not present here.
-
-**Complete when:** each selected defect has a reviewed implementation, focused
-and installed-library verification, and documented ownership behavior. A peer
-backlog item that depends on a broader refactor remains explicitly deferred
-rather than being represented as complete.
-
-**Status (2026-10-25):** the first render-table slice is implemented and
-qualified. `XmRenderTableCopy` now checks replacement allocations and rolls
-back copied entries; `XmRenderTableAddRenditions` rejects unrepresentable
-allocation sizes; `XmRenderTableRemoveRenditions` plans
-retained entries and publishes unique-table compaction or shared-table
-detachment only after allocation and rendition-copy success. Source checks and
-the installed Xft `font-lifetime` fixture cover count guards, unique and shared
-removal, ownership retention and empty-table behavior. The full libXm rebuild
-and gallery integration pass on `uconsole`. The unmatched-rendition append path
-also rolls back replacement bodies and copied handles before returning the
-source table on allocation or copy failure. Shared-table merge-copy rollback is
-also covered in this slice. The reviewed peer render-table sequence through
-copy-size, count, compaction, null-extents, removal-copy, append, merge,
-creation, copy-locking, rendition-lookup-locking, and display-less-locking
-guards is now integrated as separate commits; no peer patch was copied without
-checking its ownership and locking dependencies in this fork.
-Merge replacement and copy-on-write clone failures now preserve their
-existing rendition as well. Rendition helper and initial-table allocation
-failures are guarded and rollback-safe; the exact Xft `font-lifetime` fixture
-and the no-Xft gallery integration both pass on `uconsole`.
-ToggleButton shadow, fill, and etched-menu paths now reject undersized geometry
-before unsigned `Dimension` subtraction and skip unavailable shadow GCs; the
-source contract and fresh library/gallery qualification pass on `uconsole`.
-`XmFontListCreate`, `XmFontListCreate_r`, `XmFontListAdd`,
-`XmFontListEntryCreate`,
-`XmFontListEntryCreate_r`,
-`XmFontListEntryLoad`, and
-`XmFontListAppendEntry`, `XmFontListEntryGetFont`,
-`XmFontListEntryGetTag`, `XmeRenderTableGetDefaultFont`,
-`XmFontListGetNextFont`, and `XmFontListRemoveEntry` no longer hold
-process/application locks while
-entering locking charset, rendition, and render-table helpers; the source
-contract and both no-Xft/Xft installed-library fixtures pass on `uconsole`.
-`_XmRenditionCopy` now rejects tag-count multiplication that cannot be
-represented by `size_t` or Xt's `Cardinal` allocator width before copying;
-the source contract and both installed-library build variants pass on
-`uconsole`.
-Render-table property token allocations now terminate through the existing EOF
-parser path on allocation failure; the source contract and both installed
-library build variants pass on `uconsole`.
-Quoted and alphabetic token lengths are also checked against Xt's `Cardinal`
-width before allocation.
-Cloned rendition scratch-tag copies now release the partial rendition and
-handle when their tag array cannot be allocated.
-Display-less `XmRenderTableGetTags` and `XmRenderTableGetRendition` calls now
-use the process lock instead of deriving an application context from a null
-display.
-`XmRenderTableGetRenditions` follows the same display-less process-lock
-contract. Its allocation-failure cleanup uses the internal rendition and
-handle release helpers while the lock is held, avoiding recursive public
-locking without changing the returned-array ownership contract. The installed
-source test is `tests/automated/check-render-table-rendition-array.py`.
-`XmStringLtoRCreate` likewise no longer holds the process lock while entering
-direction, concatenation and separator constructors; its compatibility
-ownership contract is protected by
-`tests/automated/check-xmstring-obsolete-locking.py` and
-`docs/xmstring-obsolete-locking.md`.
-`XmStringGenerate` now follows the same lock delegation rule across its parse,
-cache, component and concatenation helpers; the source contract is recorded in
-`tests/automated/check-xmstring-generate-locking.py` and
-`docs/xmstring-generate-locking.md`.
-`XmCvtByteStreamToXmString` now delegates synchronization to its cache and
-representation helpers rather than holding the process lock across ASN.1
-conversion; the source contract is recorded in
-`tests/automated/check-xmstring-byte-conversion-locking.py` and
-`docs/xmstring-byte-conversion-locking.md`.
-`XmStringTableProposeTablist` now delegates synchronization to tab-list,
-conversion, and rendering helpers rather than holding the process lock across
-them; the source contract is recorded in
-`tests/automated/check-xmstring-tablist-locking.py` and
-`docs/xmstring-tablist-locking.md`.
-`XmStringHasSubstring` and `XmeGetNextCharacter` now delegate synchronization
-to their string and component helpers rather than holding the process lock
-across substring scans and parse callback creation; the source contract is
-recorded in `tests/automated/check-xmstring-function-locking.py` and
-`docs/xmstring-function-locking.md`.
-`XmStringToXmStringTable` now delegates synchronization to its context and
-string helpers, and frees its active context if table allocation fails; the
-source contract is recorded in
-`tests/automated/check-xmstring-table-locking.py` and
-`docs/xmstring-table-locking.md`.
-`XmStringIsVoid` and `XmCvtXmStringToByteStream` now delegate synchronization
-to `XmeStringGetComponent` rather than holding the process lock across repeated
-component reads; the source contract is recorded in
-`tests/automated/check-xmstring-enumeration-locking.py` and
-`docs/xmstring-enumeration-locking.md`.
-`XmStringGetNextComponent` now delegates synchronization to
-`XmeStringGetComponent` rather than holding the process lock across component
-extraction; the source contract is recorded in
-`tests/automated/check-xmstring-getcomponent-locking.py` and
-`docs/xmstring-getcomponent-locking.md`.
-`_XmStringGetSegment` now validates the context and required output pointers
-before initializing the compatibility direction value; the source contract is
-recorded in `tests/automated/check-xmstring-segment-validation.py` and
-`docs/xmstring-segment-validation.md`.
-Context enumeration now checks copied rendition and tag strings before taking
-their length, returning end-of-context and updating the error flag on failure;
-the source contract is recorded in
-`tests/automated/check-xmstring-context-copy-failure.py` and
-`docs/xmstring-context-copy-failure.md`.
-`_XmStringSingleSegment` now validates both output pointers before clearing or
-writing them; the source contract is recorded in
-`tests/automated/check-xmstring-single-segment-outputs.py` and
-`docs/xmstring-single-segment-outputs.md`.
-`XmStringGetNextComponent` and `XmStringGetLtoR` now reject missing required
-output pointers before advancing or initializing extraction state; the source
-contract is recorded in `tests/automated/check-xmstring-get-outputs.py` and
-`docs/xmstring-get-output-validation.md`.
-`XmStringGetLtoR` now delegates locking to its context helpers and checks
-context initialization before enumeration, with the source contract recorded
-in `tests/automated/check-xmstring-getltoR-locking.py` and
-`docs/xmstring-getltr-locking.md`.
-Non-optimized ASN.1 conversion now commits rendition counts only after growth
-succeeds, checks separator line allocations, and cleans partial state on
-failure. The source contract is recorded in
-`tests/automated/check-xmstring-asn1-failure-cleanup.py` and
-`docs/xmstring-asn1-failure-cleanup.md`.
-Rendition begin/end setters now commit resized tag arrays and counts only after
-`XtRealloc` succeeds, preserving prior formatting state on allocation failure.
-The source contract is recorded in
-`tests/automated/check-xmstring-rendition-resize.py` and
-`docs/xmstring-rendition-resize.md`.
-Internal unoptimization and segment insertion now check array-entry
-allocations before initialization, preserving source and copied ownership on
-failure. The source contract is recorded in
-`tests/automated/check-xmstring-entry-allocation.py` and
-`docs/xmstring-entry-allocation.md`.
-Internal XmString conversion constructors now check representation allocations
-before initialization, and segment extraction reports failed construction
-through its context error state. The source contract is recorded in
-`tests/automated/check-xmstring-conversion-failures.py` and
-`docs/xmstring-conversion-failures.md`.
-Cached tab/empty constructors, cloning, and component conversion now check
-representation allocation before use and return failure without copying into
-missing storage. The source contract is recorded in
-`tests/automated/check-xmstring-component-allocation.py` and
-`docs/xmstring-component-allocation.md`.
-Cached direction/separator constructors now validate representation allocation
-and release the process lock before rollover cleanup and recursive recreation.
-The source contract is recorded in
-`tests/automated/check-xmstring-cached-create.py` and
-`docs/xmstring-cached-create.md`.
-`_XmStringNCreate` now checks optimized and non-optimized representation
-allocations before initialization and returns `NULL` cleanly on failure. The
-source contract is recorded in
-`tests/automated/check-xmstring-create-failure.py` and
-`docs/xmstring-create-failure.md`.
-XmString table parse and unparse now clean already-converted elements and the
-output table on conversion failure. The source contract is recorded in
-`tests/automated/check-xmstring-table-transaction.py` and
-`docs/xmstring-table-transaction.md`.
-`_XmTabListGetPosition` now rejects a missing `Screen` before unit conversion,
-preserving the zero-position fallback. The source contract is recorded in
-`tests/automated/check-tab-position-screen-guard.py` and
-`docs/tab-position-screen-guard.md`.
-VendorS secondary-object creation now reads the class size under one process
-lock and performs allocations after unlocking, avoiding recursive acquisition
-and mismatched release. The source contract is recorded in
-`tests/automated/check-vendors-lock-balance.py` and
-`docs/vendors-lock-balance.md`.
-XmTabList now uses explicit unlocked copy/free helpers internally, with public
-copy/free APIs retaining the process-lock boundary. The source contract is
-recorded in `tests/automated/check-tablist-lock-boundaries.py` and
-`docs/tablist-lock-boundaries.md`.
-Tab-list replacement and removal now validate every supplied position against
-the copied list and discard invalid private state without mutating the caller's
-list. The source contract is recorded in
-`tests/automated/check-tab-position-bounds.py` and
-`docs/tab-position-bounds.md`.
-`XmTabGetValues` and `XmTabSetValue` now reject null handles before field
-access, preserving safe zero-read/no-op-write behavior. The source contract is
-recorded in `tests/automated/check-tab-null-guards.py` and
-`docs/tab-null-guards.md`.
-`_XmCreateTab` now validates nonempty argument lists before iteration. The
-source contract is recorded in `tests/automated/check-tab-arglist-guard.py`
-and `docs/tab-arglist-guard.md`.
-Compound-text direction-stack growth now checks arithmetic and `Cardinal`
-representability before `XtRealloc`. The source contract is recorded in
-`tests/automated/check-direction-stack-bounds.py` and
-`docs/direction-stack-bounds.md`.
-Optimized `XmStringConcatAndFree` now validates the combined representation
-allocation before writing it and releases both owned inputs on failure. The
-source contract is recorded in
-`tests/automated/check-xmstring-concat-allocation.py` and
-`docs/xmstring-concat-allocation.md`.
-The optional XLibre resolver also rejects non-positive or unrepresentable
-RandR output counts before allocating its output table, preserving the global
-DPI fallback for malformed server metadata. The guard is covered by the
-installed source contract in `tests/automated/check-xlibre-lifetime.py`.
 
 ## Acceptance criteria for every increment
 

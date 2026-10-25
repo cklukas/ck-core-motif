@@ -118,7 +118,6 @@ Urm__FixupCompressionTable (UidCompressionTablePtr	ctable,
   Cardinal		result = MrmSUCCESS;
   WCIClassDescPtr	cldesc;		/* for class descriptor */
   Cardinal		clres;		/* lookup result */
-  size_t		table_bytes;
   /*
    * Swap bytes if necessary and fix up the table offsets to be pointers
    */
@@ -135,8 +134,8 @@ Urm__FixupCompressionTable (UidCompressionTablePtr	ctable,
       (SIZE_MAX - (sizeof(UidCompressionTable) - sizeof(UidCTableEntry))) /
       sizeof(UidCTableEntry))
     return MrmFAILURE ;
-  table_bytes = (sizeof(UidCompressionTable) - sizeof(UidCTableEntry)) +
-                ((size_t)ctable->num_entries * sizeof(UidCTableEntry));
+  size_t table_bytes = (sizeof(UidCompressionTable) - sizeof(UidCTableEntry)) +
+                       ((size_t)ctable->num_entries * sizeof(UidCTableEntry));
   for ( fixndx=UilMrmMinValidCode ; fixndx<ctable->num_entries ; fixndx++ )
     {
       if ( byte_swapped ) swapbytes(ctable->entry[fixndx].stoffset);

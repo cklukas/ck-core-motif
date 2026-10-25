@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm hash lookup and deletion inputs
 
 Hash lookup and deletion now reject null tables or names before indexing or

@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
-"""Check ScrollFrame navigator-list growth is transactional."""
+"""Check that ScrollFrame navigator-list growth cannot wrap."""
+
 from pathlib import Path
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "ScrollFrameT.c").read_text()
-start = source.index("if (scroll_frame_data->num_nav_list ==")
-new_slots = source.index("Cardinal new_slots =", start)
-realloc = source.index("WidgetList new_list =", new_slots)
-guard = source.index("if (new_list == NULL)", realloc)
-publish = source.index("scroll_frame_data->num_nav_slots = new_slots;", guard)
-assert start < new_slots < realloc < guard < publish
-assert "scroll_frame_data->nav_list = new_list;" in source[publish:source.index("}", publish) + 1]
-print("PASS ScrollFrame navigator growth is transactional")
+
+source = Path(__file__).parents[2] / "lib" / "Xm" / "ScrollFrameT.c"
+text = source.read_text(encoding="utf-8")
+for needle in (
+    "num_nav_slots > (Cardinal)-1 - 2",
+    "SIZE_MAX / sizeof(Widget)",
+    "(size_t)(Cardinal)-1 / sizeof(Widget)",
+):
+    if needle not in text:
+        raise SystemExit(f"navigator-list growth guard is missing: {needle}")
+
+print("ScrollFrame navigator-list growth guards present")

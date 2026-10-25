@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Additive widget contract
 
 New controls are ordinary opt-in Motif widget classes. They use the existing

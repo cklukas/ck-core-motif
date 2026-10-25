@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm pixmap comparator null safety
 
 `ComparePixmapDatas` now rejects null records or missing color metadata before

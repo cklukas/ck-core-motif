@@ -4,7 +4,7 @@
 from pathlib import Path
 
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "ResEncod.c").read_text()
+source = Path("lib/Xm/ResEncod.c").read_text()
 
 assert "(size_t)new_size > SIZE_MAX / sizeof(*new_stack)" in source
 assert "(size_t)new_size > UINT_MAX / sizeof(*new_stack)" in source

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # GeoUtils debug-label bounds
 
 The optional geometry diagnostics prepend caller-supplied headers to list and

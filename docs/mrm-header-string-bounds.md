@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm UID header string bounds
 
 UID header fields have fixed-width on-disk storage. Header loading now requires

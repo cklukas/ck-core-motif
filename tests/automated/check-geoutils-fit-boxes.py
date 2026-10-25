@@ -12,6 +12,6 @@ assert "numBoxes == 0" in body
 assert "SIZE_MAX / sizeof(*sortedBoxes)" in body
 assert "UINT_MAX / sizeof(*sortedBoxes)" in body
 assert "if (sortedBoxes == NULL)" in body
-assert "XtMalloc(\n        (Cardinal)((size_t)numBoxes *" in body
+assert "XtMalloc((Cardinal)((size_t)numBoxes *" in body
 
 print("GeoUtils box-sorting allocation guards passed")

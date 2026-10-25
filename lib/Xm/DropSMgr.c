@@ -3302,7 +3302,7 @@ CreateInfo(
 	    XmeGetPixmapData(XtScreen(widget), fullInfoRec.animation_pixmap,
 			     NULL,
 			     &pixmap_depth,
-			     NULL, NULL, NULL, NULL, NULL, NULL);
+			     NULL, NULL, NULL, NULL, NULL, NULL); 
 	    fullInfoRec.animation_pixmap_depth = (Cardinal) pixmap_depth;
 	}
 
@@ -3770,7 +3770,7 @@ UpdateInfo(
 	    XmeGetPixmapData(XtScreen(widget), full_info->animation_pixmap,
 			     NULL,
 			     &pixmap_depth,
-			     NULL, NULL, NULL, NULL, NULL, NULL);
+			     NULL, NULL, NULL, NULL, NULL, NULL); 
 	    full_info->animation_pixmap_depth = (Cardinal) pixmap_depth;
 	}
 
@@ -3997,15 +3997,6 @@ DestroyInfo(
 	if (info == NULL)
 		return;
 
-	/*
-	 * Clipper records are synthesized during tree synchronization.  They
-	 * are not represented by a widget destroy callback, so a final owner
-	 * teardown must retire them explicitly before the owner's child array is
-	 * released.  Ordinary drop-site records remain in the tree and are
-	 * removed by their own destroy callbacks as Xt unwinds the hierarchy.
-	 */
-	RemoveAllClippers(dsm, info);
-
 	DSMStartUpdate(dsm, widget);
 
 	if (info == (XmDSInfo) (dsm->dropManager.curInfo))
@@ -4209,7 +4200,7 @@ HasDropSiteDescendant(
 	Widget widget )
 {
 	CompositeWidget cw;
-	int i;
+	Cardinal i;
 	Widget child;
 
 	if (!XtIsComposite(widget))

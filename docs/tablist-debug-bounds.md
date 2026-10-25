@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmTabList debug formatting bounds
 
 The optional XmTabList debug dump renders unknown unit, offset-model, and

@@ -3,6 +3,6 @@ nav_exclude: true
 ---
 # Default render-table extents
 
-`XmRenderTableGetDefaultFontExtents` accepts a null render table and initializes
-any supplied height, ascent and descent outputs to zero. This preserves the
-existing no-font result while avoiding a dereference during display-lock setup.
+`XmRenderTableGetDefaultFontExtents` now handles a null render table without
+dereferencing it. Any supplied height, ascent, and descent outputs are set to
+zero, matching the function's existing no-font result behavior.

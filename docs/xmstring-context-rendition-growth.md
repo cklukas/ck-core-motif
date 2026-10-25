@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString context rendition growth
 
 Active-rendition growth is now transactional.  The context checks count and

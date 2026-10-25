@@ -3,6 +3,7 @@
 
 from pathlib import Path
 
+
 source = Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrwr.c"
 text = source.read_text(encoding="utf-8")
 start = text.index("UrmCWRInitChildren (URMResourceContextPtr")
@@ -18,4 +19,4 @@ allocate = region.find("result = UrmCWR__GuaranteeSpace", guard)
 if allocate < 0 or allocate < guard:
     raise SystemExit("children allocation is not reached after validation")
 
-print("PASS Mrm children context validation failures propagate")
+print("Mrm children context validation failures propagate")

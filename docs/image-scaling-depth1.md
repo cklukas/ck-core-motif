@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Depth-1 image-copy bounds
 
 The depth-1 XYPixmap conversion copied `height * bytes_per_line` through an

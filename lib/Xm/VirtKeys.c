@@ -974,7 +974,11 @@ LoadVendorBindings(Display *display,
   char *start;
   
   vendor = ServerVendor(display);
+  if (vendor == NULL)
+    return;
   vendorV = XtMalloc (strlen(vendor) + 20); /* assume rel.# is < 19 digits */
+  if (vendorV == NULL)
+    return;
   sprintf (vendorV, "%s %d", vendor, VendorRelease(display));
   
   while (fgets (buffer, MAXLINE, fp) != NULL) 
@@ -1049,7 +1053,7 @@ _XmVirtKeysLoadFallbackBindings(Display	*display,
   if (*binding == NULL) 
     {
       fileName = _XmOSBuildFileName (homeDir, XMBINDFILE);
-      if ((fp = fopen (fileName, "r")) != NULL) 
+      if (fileName != NULL && (fp = fopen (fileName, "r")) != NULL)
 	{
 	  LoadVendorBindings (display, homeDir, fp, binding);
 	  fclose (fp);
@@ -1073,7 +1077,7 @@ _XmVirtKeysLoadFallbackBindings(Display	*display,
       if ((bindDir = getenv(XMBINDDIR)) == NULL)
 	bindDir = (char*) xmbinddir_fallback;
       fileName = _XmOSBuildFileName (bindDir, XMBINDFILE);
-      if ((fp = fopen (fileName, "r")) != NULL) 
+      if (fileName != NULL && (fp = fopen (fileName, "r")) != NULL)
 	{
 	  LoadVendorBindings (display, bindDir, fp, binding);
 	  fclose (fp);
@@ -1091,7 +1095,8 @@ _XmVirtKeysLoadFallbackBindings(Display	*display,
 	  if (strcmp(currDefault->vendorName, ServerVendor(display)) == 0) 
 	    {
 	      *binding = XtMalloc (strlen (currDefault->defaults) + 1);
-	      strcpy (*binding, currDefault->defaults);
+	      if (*binding != NULL)
+		strcpy (*binding, currDefault->defaults);
 	      break;
 	    }
 	}
@@ -1101,8 +1106,12 @@ _XmVirtKeysLoadFallbackBindings(Display	*display,
   if (*binding == NULL) 
     {
       *binding = XtMalloc (strlen (defaultFallbackBindings) + 1);
-      strcpy (*binding, defaultFallbackBindings);
+	  if (*binding != NULL)
+	    strcpy (*binding, defaultFallbackBindings);
     }
+
+  if (*binding == NULL)
+	return 0;
   
   /* Set the fallback property for future Xm applications */
   XChangeProperty (display, RootWindow(display, 0),

@@ -244,8 +244,6 @@ _XmGadgetWarning(Widget w)
 void
 _XmGetFocus(Widget w, XEvent * event, String * params, Cardinal * num_params)
 {
-    if (w == NULL)
-        return;
 #ifdef VMS
     if (XtIsRealized(w))
 #endif
@@ -277,10 +275,13 @@ _XmFilterArgs(ArgList args, Cardinal num_args, String *filter,
     *filtered_args = NULL;
     *num_filtered_args = 0;
     if (num_args == 0 || args == NULL ||
-        (size_t)num_args > SIZE_MAX / sizeof(Arg))
+        (size_t)num_args > SIZE_MAX / sizeof(Arg) ||
+        num_args > UINT_MAX / sizeof(Arg))
         return;
 
     fargs = (ArgList) XtMalloc(sizeof(Arg) * (size_t)num_args);
+    if (fargs == NULL)
+	return;
     *filtered_args = fargs;
     for (i = 0; i < num_args; i++) {
 	Boolean match = False;
@@ -312,7 +313,7 @@ _XmSetValuesOnChildren(Widget w, ArgList args, Cardinal num_args)
 {
     Widget *childP;
 
-    if (w == NULL)
+    if (w == NULL || (args == NULL && num_args != 0))
         return;
     if (!XtIsSubclass(w, compositeWidgetClass))
 	return;
@@ -460,6 +461,12 @@ _XmGetMBStringFromXmString(XmString xmstr)
 	}
 
 	text = XtMalloc( length + 1 );
+	if (text == NULL) {
+	    XtFree(newText);
+	    XtFree(charset);
+	    XmStringFreeContext(context);
+	    return NULL;
+	}
 	used = 0;
 	if (newText != NULL) {
 	  memcpy(text + used, newText, length > 0 ? length - (separator == True) : 0);
@@ -483,6 +490,8 @@ _XmGetMBStringFromXmString(XmString xmstr)
     
     XmStringFreeContext( context );
     text = XtMalloc( length + 1 );
+	if (text == NULL)
+	    return NULL;
     used = 0;
 
     /*
@@ -582,8 +591,6 @@ void
 _XmConfigureWidget(Widget w, Position x, Position y,
 		   Dimension width, Dimension height, Dimension bw)
 {
-    if (w == NULL)
-        return;
     /* 0x0 will sometimes result in a BadValue Error for X_ConfigureWindow */
     if (height < 1) height = 1;
     if (width < 1) width = 1;
@@ -679,6 +686,35 @@ XmCopyISOLatin1Lowered(dst, src)
 	    *dest = *source;
     }
     *dest = '\0';
+}
+
+void
+XmCopyISOLatin1LoweredN(dst, capacity, src)
+    char *dst;
+    unsigned int capacity;
+    const char *src;
+{
+    unsigned int i;
+
+    if (!dst || capacity == 0)
+        return;
+    if (!src) {
+        dst[0] = '\0';
+        return;
+    }
+
+    for (i = 0; i + 1 < capacity && src[i] != '\0'; i++)
+    {
+        unsigned char value = (unsigned char)src[i];
+        if ((value >= XK_A) && (value <= XK_Z))
+            value += (XK_a - XK_A);
+        else if ((value >= XK_Agrave) && (value <= XK_Odiaeresis))
+            value += (XK_agrave - XK_Agrave);
+        else if ((value >= XK_Ooblique) && (value <= XK_Thorn))
+            value += (XK_oslash - XK_Ooblique);
+        dst[i] = (char)value;
+    }
+    dst[i] = '\0';
 }
 
 /*
@@ -921,12 +957,20 @@ _XiResolveAllPartOffsets(
         XmOffsetPtr *constraint_offset,
 	Boolean     align64)
 {
-    WidgetClass c, super = w_class->core_class.superclass;
+    WidgetClass c, super;
     ConstraintWidgetClass cc = NULL, scc = NULL;
     int i, classcount = 0;
     XmPartResource *pr;
     
     Boolean do_align = False;
+
+    if (w_class == NULL || offset == NULL)
+	return;
+    *offset = NULL;
+    if (constraint_offset != NULL)
+	*constraint_offset = NULL;
+
+    super = w_class->core_class.superclass;
     
     _XmProcessLock();
     if (sizeof(int) != sizeof(void*))
@@ -993,13 +1037,34 @@ _XiResolveAllPartOffsets(
      *  Count the number of superclasses and allocate the offset record(s)
      */
     for (c = w_class; c != NULL; c = c->core_class.superclass) classcount++;
-    
-    *offset = (XmOffsetPtr) XtMalloc(classcount * sizeof(XmOffset));
+
+    if (classcount <= 0 || (size_t)classcount > SIZE_MAX / sizeof(XmOffset) ||
+	classcount > UINT_MAX / sizeof(XmOffset)) {
+	_XmProcessUnlock();
+	return;
+    }
+    *offset = (XmOffsetPtr) XtMalloc((size_t)classcount * sizeof(XmOffset));
+    if (*offset == NULL) {
+	_XmProcessUnlock();
+	return;
+    }
     if (cc)
-	*constraint_offset = (XmOffsetPtr) XtMalloc(classcount 
-						    * sizeof(XmOffset));
-    else 
-	if(constraint_offset != NULL) *constraint_offset = NULL;
+	{
+	if (constraint_offset == NULL) {
+	    XtFree((char *)*offset);
+	    *offset = NULL;
+	    _XmProcessUnlock();
+	    return;
+	}
+	*constraint_offset = (XmOffsetPtr) XtMalloc((size_t)classcount *
+						    sizeof(XmOffset));
+	if (*constraint_offset == NULL) {
+	    XtFree((char *)*offset);
+	    *offset = NULL;
+	    _XmProcessUnlock();
+	    return;
+	}
+	}
     
     /*
      *  Fill in the offset table(s) with the offset of all parts

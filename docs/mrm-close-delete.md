@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm close-failure deletion
 
 `Idb__FU_CloseFile` now attempts to unlink the file even when the descriptor

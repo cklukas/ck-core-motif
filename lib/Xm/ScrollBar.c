@@ -1550,6 +1550,14 @@ Redisplay(
         Region region )
 {
     XmScrollBarWidget sbw = (XmScrollBarWidget) wid ;
+    Dimension shadow_width, shadow_height;
+
+    shadow_width = (sbw->core.width >
+		    2 * sbw->primitive.highlight_thickness) ?
+		 sbw->core.width - 2 * sbw->primitive.highlight_thickness : 1;
+    shadow_height = (sbw->core.height >
+		     2 * sbw->primitive.highlight_thickness) ?
+		  sbw->core.height - 2 * sbw->primitive.highlight_thickness : 1;
 
 
     if (sbw->primitive.shadow_thickness > 0)
@@ -1558,10 +1566,8 @@ Redisplay(
 		      sbw->primitive.top_shadow_GC,
 		      sbw->primitive.highlight_thickness,
 		      sbw->primitive.highlight_thickness,
-		      sbw->core.width-2 * 
-		        sbw->primitive.highlight_thickness,
-		      sbw->core.height-2 * 
-		        sbw->primitive.highlight_thickness,
+		      shadow_width,
+		      shadow_height,
 		      sbw->primitive.shadow_thickness,
 		      XmSHADOW_OUT);
 
@@ -1661,8 +1667,13 @@ Resize(
     XmScrollBarWidget sbw = (XmScrollBarWidget) wid ;
     register int ht = sbw->primitive.highlight_thickness;
     register int st = sbw->primitive.shadow_thickness;
+    int arrow_pos;
 
 #define CHECK(x) if (x <= 0) x = 1 
+
+#define BOUNDED_SPAN(total, inset) \
+    (((int)(total) > (int)(inset)) ? \
+     (Dimension)((int)(total) - (int)(inset)) : (Dimension)1)
 
 #define BOTH_ARROWS_NEAR_SIDE(sbw) \
 	    (((sbw->scrollBar.show_arrows == XmMIN_SIDE) &&\
@@ -1697,22 +1708,27 @@ Resize(
 
 	    sbw->scrollBar.arrow1_y = ht + st;
 
-	    sbw->scrollBar.arrow_width = 
-		sbw->scrollBar.arrow_height = sbw->core.height
-		    - 2 * (ht + st);
+	    sbw->scrollBar.arrow_width =
+		sbw->scrollBar.arrow_height = BOUNDED_SPAN(
+		    sbw->core.height, 2 * (ht + st));
 
 	    if (ARROW1_NEAR_SIDE (sbw)) {
 		 sbw->scrollBar.arrow1_x = ht + st;
 	     } else {
-		 sbw->scrollBar.arrow1_x = sbw->core.width -ht -st 
-		     - 2 * sbw->scrollBar.arrow_width;
+		 arrow_pos = (int) sbw->core.width - ht - st -
+		     2 * (int) sbw->scrollBar.arrow_width;
+		 sbw->scrollBar.arrow1_x = (Position) arrow_pos;
 	     }
 	
 	    if (sbw->core.width < 
 		2 * (sbw->scrollBar.arrow_width + ht + st)
 		+ MIN_SLIDER_LENGTH + 2)
-		sbw->scrollBar.arrow_width = (sbw->core.width 
-			 - (MIN_SLIDER_LENGTH + 2 + 2 * (ht + st))) / 2;
+		 {
+		     int arrow_space = (int) sbw->core.width -
+			 (MIN_SLIDER_LENGTH + 2 + 2 * (ht + st));
+		     sbw->scrollBar.arrow_width =
+			 (Dimension) ((arrow_space > 1) ? arrow_space / 2 : 1);
+		 }
 
 	    /*  slide area position and size  */
 
@@ -1727,17 +1743,17 @@ Resize(
 		sbw->scrollBar.slider_area_x = ht + st ;
 	    }
 
-	    sbw->scrollBar.slider_area_width =
-		sbw->core.width 
-		    - 2 * (ht + st + sbw->scrollBar.arrow_width + 1);
+	    sbw->scrollBar.slider_area_width = BOUNDED_SPAN(
+		sbw->core.width,
+		2 * (ht + st + sbw->scrollBar.arrow_width + 1));
 
 	    if ((2*(ht+st)) > XtHeight(sbw))
 		sbw->scrollBar.slider_area_y = XtHeight(sbw) / 2;
 	    else
 		sbw->scrollBar.slider_area_y = ht + st;
 
-	    sbw->scrollBar.slider_area_height =
-		sbw->core.height - 2 * (ht + st);
+	    sbw->scrollBar.slider_area_height = BOUNDED_SPAN(
+		sbw->core.height, 2 * (ht + st));
 
 
 	    /*  right arrow position  */
@@ -1763,20 +1779,25 @@ Resize(
 	    sbw->scrollBar.arrow1_x = ht + st;
 
 	    sbw->scrollBar.arrow_width = sbw->scrollBar.arrow_height =
-		sbw->core.width - 2 * (ht + st);
+		BOUNDED_SPAN(sbw->core.width, 2 * (ht + st));
 
 	    if (ARROW1_NEAR_SIDE(sbw)) {
 		sbw->scrollBar.arrow1_y = ht + st;
 	    } else {
-		sbw->scrollBar.arrow1_y = sbw->core.height -ht -st 
-		    - 2 * sbw->scrollBar.arrow_height;
+		arrow_pos = (int) sbw->core.height - ht - st -
+		    2 * (int) sbw->scrollBar.arrow_height;
+		sbw->scrollBar.arrow1_y = (Position) arrow_pos;
 	    }
 
 	    if (sbw->core.height < 
 		2 * (sbw->scrollBar.arrow_height + ht + st)
 		+ MIN_SLIDER_LENGTH +2)
-		sbw->scrollBar.arrow_height = (sbw->core.height
-			- (MIN_SLIDER_LENGTH + 2 + 2 * (ht + st))) / 2;
+		 {
+		     int arrow_space = (int) sbw->core.height -
+			 (MIN_SLIDER_LENGTH + 2 + 2 * (ht + st));
+		     sbw->scrollBar.arrow_height =
+			 (Dimension) ((arrow_space > 1) ? arrow_space / 2 : 1);
+		 }
 
 	    /*  slide area position and size  */
 
@@ -1791,16 +1812,17 @@ Resize(
 		sbw->scrollBar.slider_area_y = ht + st ;
 	    }
 
-	    sbw->scrollBar.slider_area_height = sbw->core.height
-		- 2 * (ht + st + sbw->scrollBar.arrow_height +1);
+	    sbw->scrollBar.slider_area_height = BOUNDED_SPAN(
+		sbw->core.height,
+		2 * (ht + st + sbw->scrollBar.arrow_height + 1));
 
 	    if ((2*(st+ht)) > XtWidth(sbw))
 		sbw->scrollBar.slider_area_x = XtWidth(sbw) / 2;
 	    else
 		sbw->scrollBar.slider_area_x = ht + st;
 
-	    sbw->scrollBar.slider_area_width = sbw->core.width
-		- 2 * (ht + st);
+	    sbw->scrollBar.slider_area_width = BOUNDED_SPAN(
+		sbw->core.width, 2 * (ht + st));
 
 
 	    /*  down arrow position  */
@@ -1826,28 +1848,28 @@ Resize(
 	    /*  slide area position and size  */
 
 	    sbw->scrollBar.slider_area_x = ht + st;
-	    sbw->scrollBar.slider_area_width = sbw->core.width
-		- 2 * (ht + st);
+	    sbw->scrollBar.slider_area_width = BOUNDED_SPAN(
+		sbw->core.width, 2 * (ht + st));
 
 	    if ((2*(ht+st)) > XtHeight(sbw))
 		sbw->scrollBar.slider_area_y = XtHeight(sbw) / 2;
 	    else
 		sbw->scrollBar.slider_area_y = ht + st;
-	    sbw->scrollBar.slider_area_height = sbw->core.height
-		- 2 * (ht + st);
+	    sbw->scrollBar.slider_area_height = BOUNDED_SPAN(
+		sbw->core.height, 2 * (ht + st));
 	} else {
 	    /*  slide area position and size  */
 
 	    sbw->scrollBar.slider_area_y = ht + st;
-	    sbw->scrollBar.slider_area_height = sbw->core.height
-		- 2 * (ht + st);
+	    sbw->scrollBar.slider_area_height = BOUNDED_SPAN(
+		sbw->core.height, 2 * (ht + st));
 
 	    if ((2*(st+ht)) > XtWidth(sbw))
 		sbw->scrollBar.slider_area_x = XtWidth(sbw) / 2;
 	    else
 		sbw->scrollBar.slider_area_x = ht + st;
-	    sbw->scrollBar.slider_area_width = sbw->core.width
-		- 2 * (ht + st);
+	    sbw->scrollBar.slider_area_width = BOUNDED_SPAN(
+		sbw->core.width, 2 * (ht + st));
 	}
     }
 
@@ -1863,6 +1885,8 @@ Resize(
 		   &(sbw->scrollBar.slider_height));
 	
     DrawSliderPixmap (sbw); 
+
+#undef BOUNDED_SPAN
 }
 
 
@@ -4550,8 +4574,11 @@ XmScrollBarGetValues(
         int *page_increment )
 {
    XmScrollBarWidget sbw = (XmScrollBarWidget) w;
-   XtAppContext app = XtWidgetToApplicationContext(w);
-    
+   XtAppContext app;
+
+   if (w == NULL)
+      return;
+   app = XtWidgetToApplicationContext(w);
    _XmAppLock(app);
 
    if (PROCESS_DIR_INVERSED(sbw)) {
@@ -4591,8 +4618,11 @@ XmScrollBarSetValues(
    int save_value;
    Arg arglist[4];
    Cardinal n;
-   XtAppContext app = XtWidgetToApplicationContext(w);
-    
+   XtAppContext app;
+
+   if (w == NULL)
+      return;
+   app = XtWidgetToApplicationContext(w);
    _XmAppLock(app);
 
 

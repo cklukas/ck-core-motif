@@ -6,4 +6,3 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "SpinB.c").read_text()
 assert "if (textW == NULL)" in source
 assert "textT == NULL || textT->setValue == NULL" in source
 assert "textT == NULL || textT->getValue == NULL" in source
-print("PASS SpinBox textual trait callbacks are guarded")

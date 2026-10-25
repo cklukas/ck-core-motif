@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Check deterministic Mrm record-buffer outputs on failure."""
 
+import os
 from pathlib import Path
 
-source = Path(__file__).parents[2] / "lib" / "Mrm" / "MrmIbuffer.c"
+source = Path(os.environ.get("MOTIF_IBUFFER_SOURCE", Path(__file__).parents[2] / "lib" / "Mrm" / "MrmIbuffer.c"))
 text = source.read_text(encoding="utf-8")
 functions = ("Idb__BM_GetBuffer", "Idb__BM_GetRecord", "Idb__BM_InitRecord", "Idb__BM_InitDataRecord")
 for name in functions:
@@ -22,4 +23,4 @@ pool_guard = get_body.index("if (idb__buffer_pool_size <= 0)")
 pool_use = get_body.index("idb__buffer_pool_vec", pool_guard)
 if pool_guard > pool_use:
     raise SystemExit("GetBuffer checks pool size after using the pool")
-print("PASS Mrm record-buffer outputs are initialized before failure paths")
+print("Mrm record-buffer outputs are initialized before failure paths")

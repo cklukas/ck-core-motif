@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm header data-entry bounds
 
 Header data-entry reads and writes now validate file/context/output handles,

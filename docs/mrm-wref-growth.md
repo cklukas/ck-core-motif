@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm widget-reference growth
 
 Widget-reference contexts now account for an empty reference vector without

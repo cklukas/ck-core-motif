@@ -4,7 +4,7 @@
 from pathlib import Path
 
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmString.c").read_text()
+source = Path("lib/Xm/XmString.c").read_text()
 
 assert "goto conversion_failed;" in source
 assert "conversion_failed:\n  XtFree((char *)_XmUnoptSegRendBegins(&seg));" in source

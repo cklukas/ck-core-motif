@@ -39,6 +39,8 @@ static char rcsid[] = "$TOG: WmManage.c /main/11 1998/01/12 16:45:48 cshi $"
  */
 
 #include "WmGlobal.h"
+#include <limits.h>
+#include <stdint.h>
 #include "WmICCC.h"
 /*
  * include extern functions
@@ -1034,21 +1036,23 @@ void WithdrawWindow (ClientData *pCD)
 		for (j = 0; j< pCD->numInhabited; j++)
 		{
 		    pWsc = &(pCD->pWsList[j]);
+		    pWsTmp = GetWorkspaceData (pCD->pSD, pWsc->wsID);
 
-		    if (pWsc->iconPlace != NO_ICON_PLACE)
+		    if (pWsc->iconPlace >= 0 && pWsTmp != NULL &&
+			pWsTmp->IPData.placeList != NULL &&
+			pWsc->iconPlace < pWsTmp->IPData.totalPlaces)
 		    {
-			if (pWsTmp=GetWorkspaceData(pCD->pSD, pWsc->wsID))
-			{
-			  pWsTmp->IPData.placeList[pWsc->iconPlace].pCD 
-			      = NULL;
-			}
+			pWsTmp->IPData.placeList[pWsc->iconPlace].pCD = NULL;
 		    }
 		}
 	    }
 #else /* WSM */
 	    if (wmGD.iconAutoPlace && (!(P_ICON_BOX(pCD))))
 	    {
-		if (ICON_PLACE(pCD) != NO_ICON_PLACE)
+		if (pCD->pSD->pActiveWS != NULL &&
+		    pCD->pSD->pActiveWS->IPData.placeList != NULL &&
+		    ICON_PLACE(pCD) >= 0 &&
+		    ICON_PLACE(pCD) < pCD->pSD->pActiveWS->IPData.totalPlaces)
 		{
 		pCD->pSD->pActiveWS->IPData.placeList[ICON_PLACE(pCD)].pCD 
 		    = NULL;
@@ -1244,11 +1248,18 @@ void WithdrawWindow (ClientData *pCD)
      * Count backward for efficiency  --  
      *     removes from end of list.
      */
-    for (i = pCD->numInhabited - 1; i >= 0; i--)
+    if (pCD->pSD != NULL && pCD->pWsList != NULL)
     {
-	TakeClientOutOfWorkspace (
-	    GetWorkspaceData(pCD->pSD, pCD->pWsList[i].wsID),
-	    pCD);
+        for (i = pCD->numInhabited - 1; i >= 0; i--)
+        {
+            WmWorkspaceData *pWS =
+                GetWorkspaceData (pCD->pSD, pCD->pWsList[i].wsID);
+
+            if (pWS != NULL)
+            {
+                TakeClientOutOfWorkspace (pWS, pCD);
+            }
+        }
     }
 #endif /* WSM */
 
@@ -1591,6 +1602,11 @@ void FreeIcon (ClientData *pCD)
     int i;
 #endif /* WSM */
 
+    if (pCD == NULL || pCD->pSD == NULL)
+    {
+        return;
+    }
+
     if (pCD->piconTopShadows) {
 	FreeRList (pCD->piconTopShadows);
 	pCD->piconTopShadows = NULL;
@@ -1605,7 +1621,8 @@ void FreeIcon (ClientData *pCD)
      */
 
 #ifdef WSM
-    if ((pCD->pSD->useIconBox) && pCD->pWsList[0].pIconBox)
+    if ((pCD->pSD->useIconBox) && pCD->numInhabited > 0 &&
+        pCD->pWsList != NULL && pCD->pWsList[0].pIconBox)
     {
 	/* 
 	 * We're using icon boxes and it's in at least one ...
@@ -1690,11 +1707,18 @@ void WithdrawDialog (Widget dialogboxW)
      * Count backward for efficiency  --  
      *     removes from end of list.
      */
-    for (i = pCD->numInhabited - 1; i >= 0; i--)
+    if (pCD->pSD != NULL && pCD->pWsList != NULL)
     {
-	TakeClientOutOfWorkspace (
-	    GetWorkspaceData(pCD->pSD, pCD->pWsList[i].wsID),
-	    pCD);
+        for (i = pCD->numInhabited - 1; i >= 0; i--)
+        {
+            WmWorkspaceData *pWS =
+                GetWorkspaceData (pCD->pSD, pCD->pWsList[i].wsID);
+
+            if (pWS != NULL)
+            {
+                TakeClientOutOfWorkspace (pWS, pCD);
+            }
+        }
     }
 #endif /* WSM */
     ResetWithdrawnFocii (pCD);
@@ -1869,7 +1893,7 @@ RegisterEmbeddedClients (
  *
  *************************************<->***********************************/
 
-static void
+static Boolean
 ListTransientSubtree (
 	ClientData *pCD,
 	Window **ppWins,
@@ -1881,9 +1905,13 @@ ListTransientSubtree (
      */
     if (*pCount == *pSize) 
     {
+	if (*pSize > (int)(UINT_MAX / sizeof(Window)) - LTT_INCREMENT)
+	    return (False);
 	*pSize += LTT_INCREMENT;
-	*ppWins = (Window *) 
-		XtRealloc ((char *) *ppWins, (*pSize * sizeof(Window)));
+	*ppWins = (Window *)XtRealloc(
+		(char *)*ppWins, (Cardinal)(*pSize * sizeof(Window)));
+	if (*ppWins == NULL)
+	    return (False);
     }
     /*
      * Add this window to the list
@@ -1895,15 +1923,17 @@ ListTransientSubtree (
      * Add siblings
      */
     if (pCD->transientSiblings)
-	ListTransientSubtree (pCD->transientSiblings, ppWins, pSize, pCount);
+	if (!ListTransientSubtree (pCD->transientSiblings, ppWins, pSize, pCount))
+	    return (False);
 
     /*
      * Add children
      */
     if (pCD->transientChildren)
-	ListTransientSubtree (pCD->transientChildren, ppWins, pSize, pCount);
+	if (!ListTransientSubtree (pCD->transientChildren, ppWins, pSize, pCount))
+	    return (False);
 
-    
+    return (True);
 } /* END OF FUNCTION ListTransientSubtree */
 
 
@@ -1945,22 +1975,35 @@ ListTransientTree (
      * Initial allocation
      */
     iSize = LTT_INCREMENT;
-    pWins = (Window *) XtMalloc (iSize * sizeof(Window));
+    pWins = (Window *)XtMalloc((Cardinal)(iSize * sizeof(Window)));
+    if (pWins == NULL)
+	return (NULL);
     count = 0;
 
     /*
      * Add this window to the list
      */
-    ListTransientSubtree (pCD, &pWins, &iSize, &count);
+    if (!ListTransientSubtree (pCD, &pWins, &iSize, &count))
+    {
+	XtFree((char *)pWins);
+	return (NULL);
+    }
 
     /*
      * Add terminator to end of window list
      */
     if (count == iSize) 
     {
+	if (iSize > (int)(UINT_MAX / sizeof(Window)) - LTT_INCREMENT)
+	{
+	    XtFree((char *)pWins);
+	    return (NULL);
+	}
 	iSize += LTT_INCREMENT;
-	pWins = (Window *) 
-		XtRealloc ((char *)pWins, (iSize * sizeof(Window)));
+	pWins = (Window *)XtRealloc(
+		(char *)pWins, (Cardinal)(iSize * sizeof(Window)));
+	if (pWins == NULL)
+	    return (NULL);
     }
     pWins[count++] = None;
 

@@ -5,8 +5,10 @@
 tables instead of leaving keysyms uninitialized when a resource contains
 leading, repeated, or trailing commas.
 
-The converter also checks the comma count before allocating the table, so an
-unrepresentable resource length cannot wrap `sizeof(KeySym) * (count + 2)`.
+The converter also checks the comma count against both host `size_t` and Xt
+`Cardinal` byte limits before allocating the table, so an unrepresentable
+resource length cannot wrap `sizeof(KeySym) * (count + 2)`. The accepted byte
+count is passed explicitly at the Xt allocation boundary.
 The capacity regression is
 `tests/automated/check-keysym-table-bounds.py`.
 

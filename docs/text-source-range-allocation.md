@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text source range allocation
 
 `_XmStringSourceGetString` converts a requested text range into either native

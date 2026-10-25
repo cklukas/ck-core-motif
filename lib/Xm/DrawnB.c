@@ -927,16 +927,18 @@ BtnUp(
 	      XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(db));
 	      Boolean etched_in = dpy->display.enable_etched_in_menu;
 	      
-	      if ((db->core.width > 2 * db->primitive.highlight_thickness) &&
-		  (db->core.height > 2 * db->primitive.highlight_thickness))
+	      if ((int)db->core.width > 2 * (int)db->primitive.highlight_thickness &&
+		  (int)db->core.height > 2 * (int)db->primitive.highlight_thickness &&
+		  db->primitive.top_shadow_GC != NULL &&
+		  db->primitive.bottom_shadow_GC != NULL)
 		XmeDrawShadows
 		  (XtDisplay (db), XtWindow (db),
 		   db->primitive.bottom_shadow_GC,
 		   db->primitive.top_shadow_GC,
 		   db->primitive.highlight_thickness,
 		   db->primitive.highlight_thickness,
-		   db->core.width - 2 * db->primitive.highlight_thickness,
-		   db->core.height - 2 * db->primitive.highlight_thickness,
+		   (int)db->core.width - 2 * (int)db->primitive.highlight_thickness,
+		   (int)db->core.height - 2 * (int)db->primitive.highlight_thickness,
 		   db->primitive.shadow_thickness, 
 		   etched_in ? XmSHADOW_IN : XmSHADOW_OUT);
 	      
@@ -1059,13 +1061,15 @@ Leave(
   
 	((XmManagerWidget) XtParent(wid))->manager.active_child = NULL;
 
-	if (db->drawnbutton.pushbutton_enabled) {
+	if (db->drawnbutton.pushbutton_enabled &&
+	    (int)db->core.width > 2 * (int)db->primitive.highlight_thickness &&
+	    (int)db->core.height > 2 * (int)db->primitive.highlight_thickness) {
 	  XmeClearBorder
 	    (XtDisplay (db), XtWindow (db),
 	     db->primitive.highlight_thickness,
 	     db->primitive.highlight_thickness,
-	     db->core.width - 2 * db->primitive.highlight_thickness,
-	     db->core.height - 2 * db->primitive.highlight_thickness,
+	     (int)db->core.width - 2 * (int)db->primitive.highlight_thickness,
+	     (int)db->core.height - 2 * (int)db->primitive.highlight_thickness,
 	     db->primitive.shadow_thickness);
 	}
 
@@ -1154,13 +1158,15 @@ BorderUnhighlight(
 
       db->drawnbutton.armed = FALSE;
 
-      if (db->drawnbutton.pushbutton_enabled) {
+      if (db->drawnbutton.pushbutton_enabled &&
+	  (int)db->core.width > 2 * (int)db->primitive.highlight_thickness &&
+	  (int)db->core.height > 2 * (int)db->primitive.highlight_thickness) {
 	XmeClearBorder
 	  (XtDisplay (db), XtWindow (db),
 	   db->primitive.highlight_thickness,
 	   db->primitive.highlight_thickness,
-	   db->core.width - 2 * db->primitive.highlight_thickness,
-	   db->core.height - 2 * db->primitive.highlight_thickness,
+	   (int)db->core.width - 2 * (int)db->primitive.highlight_thickness,
+	   (int)db->core.height - 2 * (int)db->primitive.highlight_thickness,
 	   db->primitive.shadow_thickness);
       }
 
@@ -1387,7 +1393,7 @@ Redisplay(
  	if (db->drawnbutton.pushbutton_enabled)
  	    DrawPushButton(db, db->drawnbutton.armed);
   
- else if (CanDrawShadow(db))
+	else if (CanDrawShadow(db))
  	    XmeDrawShadows(XtDisplay((Widget) db),
  			    XtWindow((Widget) db),
  			    db -> primitive.top_shadow_GC,
@@ -1426,7 +1432,6 @@ CanDrawShadow(
           db->core.width > 2 * db->primitive.highlight_thickness &&
           db->core.height > 2 * db->primitive.highlight_thickness);
 }
-
 
 static void 
 DrawPushButton(

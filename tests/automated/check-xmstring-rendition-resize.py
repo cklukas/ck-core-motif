@@ -4,7 +4,7 @@
 from pathlib import Path
 
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmString.c").read_text()
+source = Path("lib/Xm/XmString.c").read_text()
 
 assert source.count("int new_count = _XmUnoptSegRendEndCount(entry) + 1;") == 1
 assert source.count("int new_count = _XmUnoptSegRendBeginCount(entry) + 1;") == 1

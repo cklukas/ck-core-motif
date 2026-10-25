@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Font selector size-label formatting
 
 The font selector builds the list of available size labels from the global

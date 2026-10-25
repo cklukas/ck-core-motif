@@ -39,6 +39,8 @@ static char rcsid[] = "$XConsortium: WmIPlace.c /main/4 1995/11/01 11:41:20 rswi
  */
 
 #include "WmGlobal.h"
+#include <limits.h>
+#include <stdint.h>
 
 /*
  * include extern functions
@@ -104,7 +106,21 @@ void InitIconPlacement (WmWorkspaceData *pWS)
     int extraPX;
     int extraPY;
     int i;
+    size_t rowCount;
+    size_t colCount;
+    size_t rowBytes;
+    size_t colBytes;
+    size_t totalPlaces;
+    size_t placeBytes;
 
+    if (pWS == NULL || pWS->pSD == NULL ||
+        pWS->pSD->iconWidth <= 0 || pWS->pSD->iconHeight <= 0)
+    {
+	Warning (((char *)GETMESSAGE(34, 1,
+	    "Invalid icon dimensions for icon placement")));
+	wmGD.iconAutoPlace = False;
+	return;
+    }
 
     xMargin = yMargin = extraPX = extraPY = 0;
 
@@ -126,6 +142,12 @@ void InitIconPlacement (WmWorkspaceData *pWS)
 	pWS->IPData.placementRows = sH / pWS->pSD->iconHeight;
     }
 
+    /* A small display still needs one valid placement slot. */
+    if (pWS->IPData.placementCols < 1)
+	pWS->IPData.placementCols = 1;
+    if (pWS->IPData.placementRows < 1)
+	pWS->IPData.placementRows = 1;
+
     if (pWS->IPData.iconPlacement & ICON_PLACE_TIGHT)
     {
 	iSpaceX = 0;
@@ -135,6 +157,8 @@ void InitIconPlacement (WmWorkspaceData *pWS)
     }
     else
     {
+	if (pWS->IPData.placementCols > 1)
+	{
 	do
 	{
 	    if (useMargin)
@@ -155,8 +179,16 @@ void InitIconPlacement (WmWorkspaceData *pWS)
 	        pWS->IPData.placementCols--;
 	    }
 	}
-	while (iSpaceX < MINIMUM_ICON_SPACING);
+	while (pWS->IPData.placementCols > 1 &&
+	       iSpaceX < MINIMUM_ICON_SPACING);
+	if (iSpaceX < MINIMUM_ICON_SPACING)
+	    iSpaceX = 0;
+	}
+	else
+	    iSpaceX = 0;
 
+	if (pWS->IPData.placementRows > 1)
+	{
 	do
 	{
 	    if (useMargin)
@@ -176,7 +208,13 @@ void InitIconPlacement (WmWorkspaceData *pWS)
 	        pWS->IPData.placementRows--;
 	    }
 	}
-	while (iSpaceY < MINIMUM_ICON_SPACING);
+	while (pWS->IPData.placementRows > 1 &&
+	       iSpaceY < MINIMUM_ICON_SPACING);
+	if (iSpaceY < MINIMUM_ICON_SPACING)
+	    iSpaceY = 0;
+	}
+	else
+	    iSpaceY = 0;
     }
 
     pWS->IPData.iPlaceW = pWS->pSD->iconWidth + iSpaceX;
@@ -255,11 +293,30 @@ void InitIconPlacement (WmWorkspaceData *pWS)
     }
 
     /*
-     * Setup array of grid row positions and grid column positions:
+     * Setup array of grid row positions and grid column positions. Keep the
+     * arithmetic in size_t before passing it to XtMalloc's Cardinal API.
      */
 
+    rowCount = (size_t)pWS->IPData.placementRows + 2;
+    colCount = (size_t)pWS->IPData.placementCols + 2;
+    if (rowCount > SIZE_MAX / sizeof(int) ||
+        colCount > SIZE_MAX / sizeof(int))
+    {
+	Warning (((char *)GETMESSAGE(34, 1, "Icon placement dimensions are too large")));
+	wmGD.iconAutoPlace = False;
+	return;
+    }
+    rowBytes = rowCount * sizeof(int);
+    colBytes = colCount * sizeof(int);
+    if (rowBytes > UINT_MAX || colBytes > UINT_MAX)
+    {
+	Warning (((char *)GETMESSAGE(34, 1, "Icon placement dimensions are too large")));
+	wmGD.iconAutoPlace = False;
+	return;
+    }
+
     if ((pWS->IPData.placementRowY =
-	    (int *)XtMalloc ((pWS->IPData.placementRows+2) * sizeof (int)))
+	    (int *)XtMalloc ((Cardinal)rowBytes))
 	== NULL)
     {
 	Warning (((char *)GETMESSAGE(34, 1, "Insufficient memory for icon placement")));
@@ -267,7 +324,7 @@ void InitIconPlacement (WmWorkspaceData *pWS)
 	return;
     }
     else if ((pWS->IPData.placementColX =
-		(int *)XtMalloc ((pWS->IPData.placementCols+2) * sizeof (int)))
+		(int *)XtMalloc ((Cardinal)colBytes))
 	     == NULL)
     {
 	XtFree ((char *)pWS->IPData.placementRowY);
@@ -305,11 +362,30 @@ void InitIconPlacement (WmWorkspaceData *pWS)
      * Setup an array of icon places.
      */
 
-    pWS->IPData.totalPlaces = 
-	pWS->IPData.placementRows * pWS->IPData.placementCols;
+    totalPlaces = (size_t)pWS->IPData.placementRows *
+	(size_t)pWS->IPData.placementCols;
+    if (totalPlaces > (size_t)INT_MAX ||
+	totalPlaces > SIZE_MAX / sizeof(IconInfo))
+    {
+	Warning (((char *)GETMESSAGE(34, 3, "Icon placement dimensions are too large")));
+	XtFree ((char *)pWS->IPData.placementRowY);
+	XtFree ((char *)pWS->IPData.placementColX);
+	wmGD.iconAutoPlace = False;
+	return;
+    }
+    pWS->IPData.totalPlaces = (int)totalPlaces;
+    placeBytes = totalPlaces * sizeof(IconInfo);
+    if (placeBytes > UINT_MAX)
+    {
+	Warning (((char *)GETMESSAGE(34, 3, "Icon placement dimensions are too large")));
+	XtFree ((char *)pWS->IPData.placementRowY);
+	XtFree ((char *)pWS->IPData.placementColX);
+	wmGD.iconAutoPlace = False;
+	return;
+    }
 
     if ((pWS->IPData.placeList =
-	  (IconInfo *)XtMalloc (pWS->IPData.totalPlaces * sizeof (IconInfo)))
+	  (IconInfo *)XtMalloc ((Cardinal)placeBytes))
 	== NULL)
     {
 	Warning (((char *)GETMESSAGE(34, 3, "Insufficient memory for icon placement")));
@@ -319,8 +395,7 @@ void InitIconPlacement (WmWorkspaceData *pWS)
 	return;
     }
 
-    memset ((char *)pWS->IPData.placeList, 0, 
-	pWS->IPData.totalPlaces * sizeof (IconInfo));
+    memset ((char *)pWS->IPData.placeList, 0, placeBytes);
 
     pWS->IPData.onRootWindow = True;
 
@@ -349,6 +424,8 @@ int GetNextIconPlace (IconPlacementData *pIPD)
 {
     int i;
 
+    if (pIPD == NULL || pIPD->placeList == NULL || pIPD->totalPlaces <= 0)
+	return (NO_ICON_PLACE);
 
     for (i = 0; i < pIPD->totalPlaces; i++)
     {
@@ -400,6 +477,16 @@ void CvtIconPlaceToPosition (IconPlacementData *pIPD, int place, int *pX, int *p
     int row;
     int col;
 
+    if (pX == NULL || pY == NULL)
+	return;
+    *pX = 0;
+    *pY = 0;
+    if (pIPD == NULL || place < 0 || place >= pIPD->totalPlaces ||
+	pIPD->placementCols <= 0 ||
+	pIPD->placementRows <= 0 || pIPD->iPlaceW <= 0 ||
+	pIPD->iPlaceH <= 0)
+	return;
+
 
     if (pIPD->iconPlacement &
 	(ICON_PLACE_LEFT_PRIMARY | ICON_PLACE_RIGHT_PRIMARY))
@@ -426,6 +513,12 @@ void CvtIconPlaceToPosition (IconPlacementData *pIPD, int place, int *pX, int *p
 
     if (pIPD->onRootWindow)
     {
+	if (pIPD->placementColX == NULL || pIPD->placementRowY == NULL)
+	{
+	    *pX = 0;
+	    *pY = 0;
+	    return;
+	}
 	*pX = pIPD->placementColX[col] + pIPD->placeIconX;
 	*pY = pIPD->placementRowY[row] + pIPD->placeIconY;
     }
@@ -484,6 +577,11 @@ int FindIconPlace (ClientData *pCD, IconPlacementData *pIPD, int x, int y)
     int altX;
     int altY;
     int amt;
+
+    if (pCD == NULL || pIPD == NULL || pIPD->placeList == NULL ||
+	pIPD->totalPlaces <= 0 || pIPD->iPlaceW <= 0 ||
+	pIPD->iPlaceH <= 0)
+	return (NO_ICON_PLACE);
 
 
     place = CvtIconPositionToPlace (pIPD, x, y);
@@ -669,7 +767,8 @@ int FindIconPlace (ClientData *pCD, IconPlacementData *pIPD, int x, int y)
 	    }
 
 	    place = CvtIconPositionToPlace (pIPD, altX, altY);
-	    if ((pIPD->placeList[place].pCD) == NULL)
+	if (place >= 0 && place < pIPD->totalPlaces &&
+	    pIPD->placeList[place].pCD == NULL)
 	    {
 		return (place);
 	    }
@@ -717,9 +816,15 @@ int CvtIconPositionToPlace (IconPlacementData *pIPD, int x, int y)
     int row;
     int col;
 
+    if (pIPD == NULL || pIPD->placementCols <= 0 ||
+	pIPD->placementRows <= 0 || x < 0 || y < 0)
+	return (NO_ICON_PLACE);
+
 
     if (pIPD->onRootWindow)
     {
+	if (pIPD->placementColX == NULL || pIPD->placementRowY == NULL)
+	    return (NO_ICON_PLACE);
 	/*
 	 * Scan through the root window row/column arrays and find the 
 	 * placement position.
@@ -760,6 +865,8 @@ int CvtIconPositionToPlace (IconPlacementData *pIPD, int x, int y)
 	/* 
 	 * convert icon box coords
 	 */
+	if (pIPD->iPlaceW <= 0 || pIPD->iPlaceH <= 0)
+	    return (NO_ICON_PLACE);
 	col = x / pIPD->iPlaceW;
 	row = y / pIPD->iPlaceH;
     }
@@ -919,6 +1026,12 @@ void MoveIconInfo (IconPlacementData *pIPD, int p1, int p2)
     WsClientData *pWsc;
 #endif /* WSM */
 
+    if (pIPD == NULL || pIPD->placeList == NULL ||
+	pIPD->totalPlaces <= 0 || p1 < 0 || p2 < 0 ||
+	p1 >= pIPD->totalPlaces || p2 >= pIPD->totalPlaces || p1 == p2 ||
+	pIPD->placeList[p1].pCD == NULL)
+	return;
+
     /* only move if destination is empty */
     if (pIPD->placeList[p2].pCD == NULL)
     {
@@ -928,7 +1041,8 @@ void MoveIconInfo (IconPlacementData *pIPD, int p1, int p2)
 
 	pWsc = GetWsClientData (pIPD->placeList[p2].pCD->pSD->pActiveWS,
 				pIPD->placeList[p2].pCD);
-	pWsc->iconPlace = p2;
+	if (pWsc != NULL)
+	    pWsc->iconPlace = p2;
 #else /* WSM */
 	pIPD->placeList[p2].pCD->iconPlace = p2;
 #endif /* WSM */

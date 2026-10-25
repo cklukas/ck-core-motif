@@ -5,4 +5,3 @@ from pathlib import Path
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "Text.c").read_text()
 assert source.count("textT != NULL && textT->getValue != NULL") >= 2
 assert source.count("textT != NULL && textT->setValue != NULL") >= 2
-print("PASS Text textual trait callbacks are guarded")

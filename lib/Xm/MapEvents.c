@@ -35,6 +35,8 @@ static char rcsid[] = "$XConsortium: MapEvents.c /main/12 1995/09/19 23:05:22 cd
 #include <X11/IntrinsicP.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
+#include <string.h>
+#include <stdint.h>
 #include <Xm/XmP.h>
 #include "XmI.h"
 #include "MapEventsI.h"
@@ -815,6 +817,10 @@ _XmMapKeyEvents(String      str,
       int       	tmp_type;
       unsigned long	tmp_sym;
       Modifiers 	tmp_mods;
+      int *new_event_types;
+      KeySym *new_keysyms;
+      Modifiers *new_modifiers;
+      size_t item_count;
 
       /* Parse a single event. */
       ptr = _MapEvent(ptr, keyEvents, &tmp_type, &tmp_sym, &tmp_mods, &status);
@@ -822,15 +828,56 @@ _XmMapKeyEvents(String      str,
 	break;
 
       /* Save this event. */
-      *eventTypes = (int *)
-	XtRealloc((char*) *eventTypes, (count + 1) * sizeof(int));
-      (*eventTypes)[count] = tmp_type;
-      *keysyms = (KeySym *)
-	XtRealloc((char*) *keysyms, (count + 1) * sizeof(KeySym));
-      (*keysyms)[count] = (KeySym)tmp_sym;
-      *modifiers = (Modifiers *)
-	XtRealloc((char*) *modifiers, (count + 1) * sizeof(Modifiers));
-      (*modifiers)[count] = tmp_mods;
+      if (count == INT_MAX)
+	{
+	  status = FALSE;
+	  break;
+	}
+      item_count = (size_t)count + 1;
+      if (item_count > SIZE_MAX / sizeof(**eventTypes) ||
+	  item_count > SIZE_MAX / sizeof(**keysyms) ||
+	  item_count > SIZE_MAX / sizeof(**modifiers) ||
+	  item_count > UINT_MAX / sizeof(**eventTypes) ||
+	  item_count > UINT_MAX / sizeof(**keysyms) ||
+	  item_count > UINT_MAX / sizeof(**modifiers))
+	{
+	  status = FALSE;
+	  break;
+	}
+
+      new_event_types = (int *)XtMalloc(
+	  item_count * sizeof(**eventTypes));
+      new_keysyms = (KeySym *)XtMalloc(
+	  item_count * sizeof(**keysyms));
+      new_modifiers = (Modifiers *)XtMalloc(
+	  item_count * sizeof(**modifiers));
+      if (new_event_types == NULL || new_keysyms == NULL ||
+	  new_modifiers == NULL)
+	{
+	  XtFree((char *)new_event_types);
+	  XtFree((char *)new_keysyms);
+	  XtFree((char *)new_modifiers);
+	  status = FALSE;
+	  break;
+	}
+      if (count != 0)
+	{
+	  memcpy(new_event_types, *eventTypes,
+		 (size_t)count * sizeof(**eventTypes));
+	  memcpy(new_keysyms, *keysyms,
+		 (size_t)count * sizeof(**keysyms));
+	  memcpy(new_modifiers, *modifiers,
+		 (size_t)count * sizeof(**modifiers));
+	}
+      new_event_types[count] = tmp_type;
+      new_keysyms[count] = (KeySym)tmp_sym;
+      new_modifiers[count] = tmp_mods;
+      XtFree((char *)*eventTypes);
+      XtFree((char *)*keysyms);
+      XtFree((char *)*modifiers);
+      *eventTypes = new_event_types;
+      *keysyms = new_keysyms;
+      *modifiers = new_modifiers;
       count++;
 
       /* Skip the separator. */

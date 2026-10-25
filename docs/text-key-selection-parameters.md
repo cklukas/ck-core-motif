@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text key-selection parameters
 
 The `key-select` action now initializes its cursor and selection endpoints to

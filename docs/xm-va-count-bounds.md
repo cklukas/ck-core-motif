@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 Simple-menu varargs counter bounds
 ==================================
 

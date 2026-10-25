@@ -1,13 +1,12 @@
 ---
 nav_exclude: true
 ---
-# Column label initialization fallback
+# Column constraint-label initialization rollback
 
-During `XmColumn` constraint initialization, a failed copy of a supplied
-label string is replaced with an empty localized string. A null source remains
-valid and produces no unnecessary copy. If generated-name allocation or the
-implicit label child creation fails, initialization returns without marking a
-label child as owned, so a later layout pass cannot dereference partial state.
+Column now checks the private copy of a child constraint’s label string.  If
+the copy fails, it installs an empty compound string (or NULL if that fallback
+also fails), so the constraint never retains a borrowed resource pointer that
+its destroy path could later free.
 
-The source contract is checked by
-`tests/automated/check-column-label-allocation.py`.
+The focused regression is
+`tests/automated/check-column-label-init-rollback.py`.

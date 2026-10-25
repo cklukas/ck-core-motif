@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmDataGrid
 
 `XmDataGrid` is the released bounded table control from WP-27.  It copies a

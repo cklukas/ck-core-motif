@@ -698,13 +698,24 @@ InitializePrehook(
 			    args, *num_args);
 
 	  extData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
-	  _XmPushWidgetExtData(parent, extData, ne->ext.extensionType);
-	  
+	  if (extData == NULL)
+	    {
+	      _XmProcessUnlock();
+	      return;
+	    }
+
 	  extData->widget = new_w;
 	  extData->reqWidget = (Widget)
 	    XtMalloc(XtClass(new_w)->core_class.widget_size);
+	  if (extData->reqWidget == NULL)
+	    {
+	      XtFree((char *)extData);
+	      _XmProcessUnlock();
+	      return;
+	    }
 	  memcpy( extData->reqWidget, req,
 		XtClass(new_w)->core_class.widget_size);
+	  _XmPushWidgetExtData(parent, extData, ne->ext.extensionType);
 	  
 	  /*  Convert the fields from unit values to pixel values  */
 

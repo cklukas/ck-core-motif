@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm widget-read null-record guards
 
 The hierarchy, indexed-widget, and RID-widget readers now reject a null

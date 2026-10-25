@@ -192,7 +192,7 @@ MakeCachedDirEntry(String dirName)
 	char	stackBuf[MAX_CACHE_DIR_SIZE];
 	char    *p;
 	int	numFiles = 0;
-	int	nameHeapSize = 0;
+	size_t	nameHeapSize = 0;
 	_Xreaddirparams dirEntryBuf;
 
         /* 
@@ -231,24 +231,38 @@ MakeCachedDirEntry(String dirName)
              */
             for (p = stackBuf ; p - stackBuf < oldBufLen;
 		 p = p + strlen(p) + 1) {
+		size_t name_len = strlen(p);
 
 		numFiles++;
-		nameHeapSize += strlen(p);
+		if (nameHeapSize > SIZE_MAX - name_len) {
+		    XtFree(dirName);
+		    closedir(fileDesc);
+		    return NULL;
+		}
+		nameHeapSize += name_len;
 	    }
 	    /*
 	     * we allocate an extra nameOffset to track the length of
 	     * the last name
 	     */
-	    validDir = (DtValidCachedDir) 
-	      XtMalloc((sizeof(DtValidCachedDirStruct)) +
-		       (sizeof(validDir->nameOffsets[0]) * numFiles) +
-		       (nameHeapSize));
-	    if (validDir == NULL) {
+	    if (nameHeapSize > SIZE_MAX - sizeof(DtValidCachedDirStruct) ||
+		(size_t)numFiles >
+		(SIZE_MAX - sizeof(DtValidCachedDirStruct) - nameHeapSize) /
+		 sizeof(validDir->nameOffsets[0])) {
 		XtFree(dirName);
-		if (fileDesc != NULL)
-		    closedir(fileDesc);
+		closedir(fileDesc);
 		return NULL;
 	    }
+            validDir = (DtValidCachedDir)
+              XtMalloc(sizeof(DtValidCachedDirStruct) +
+		       (sizeof(validDir->nameOffsets[0]) * (size_t)numFiles) +
+		       nameHeapSize);
+            if (validDir == NULL) {
+                XtFree(dirName);
+                if (fileDesc != NULL)
+                    closedir(fileDesc);
+                return NULL;
+            }
 
 	    validDir->dirNameLen = strlen(dirName);
 	    validDir->dirName = dirName;
@@ -276,12 +290,12 @@ MakeCachedDirEntry(String dirName)
       case DtUNCACHED_DIR:
 	cachedDir = (DtCachedDir)
 	  XtMalloc(sizeof(DtCommonCachedDirStruct));
-	if (cachedDir == NULL) {
-	    XtFree(dirName);
-	    if (fileDesc != NULL)
-		closedir(fileDesc);
-	    return NULL;
-	}
+        if (cachedDir == NULL) {
+            XtFree(dirName);
+            if (fileDesc != NULL)
+                closedir(fileDesc);
+            return NULL;
+        }
 	cachedDir->common.cachedDirType =
 	  cachedDirType;
 	cachedDir->common.dirNameLen = strlen(dirName);
@@ -397,7 +411,6 @@ CheckDirCache(String	path)
 	int			currNameLen;
 	String			nameHeap;
 	DtValidCachedDir	currDir;
-	DtCachedDir		new_dir;
 	
 	if (i == cacheList.numDirs) {
 
@@ -405,42 +418,47 @@ CheckDirCache(String	path)
 	     * we didn't get a hit on the directory list so create a new one
 	     */
 	    if (cacheList.numDirs == cacheList.maxDirs) {
-		DtCachedDir *new_dirs;
-		int new_max_dirs;
+                DtCachedDir *new_dirs;
+                int new_max_dirs;
 
-		if (cacheList.maxDirs > INT_MAX - 16) {
-		    _XmProcessUnlock();
-		    return DtUNCACHED_DIR;
-		}
-		new_max_dirs = cacheList.maxDirs + 16;
-		if ((size_t)new_max_dirs > SIZE_MAX / sizeof(*new_dirs)) {
-		    _XmProcessUnlock();
-		    return DtUNCACHED_DIR;
-		}
-		new_dirs = (DtCachedDir *)XtRealloc(
-		    (char *)cacheList.dirs,
-		    (size_t)new_max_dirs * sizeof(*new_dirs));
-		if (new_dirs == NULL) {
-		    _XmProcessUnlock();
-		    return DtUNCACHED_DIR;
-		}
-		cacheList.dirs = new_dirs;
-		cacheList.maxDirs = new_max_dirs;
+                if (cacheList.maxDirs > INT_MAX - 16) {
+                    _XmProcessUnlock();
+                    return DtUNCACHED_DIR;
+                }
+                new_max_dirs = cacheList.maxDirs + 16;
+                if ((size_t)new_max_dirs > SIZE_MAX / sizeof(*new_dirs) ||
+                    (size_t)new_max_dirs > UINT_MAX / sizeof(*new_dirs)) {
+                    _XmProcessUnlock();
+                    return DtUNCACHED_DIR;
+                }
+                new_dirs = (DtCachedDir *)XtRealloc(
+                    (char *)cacheList.dirs,
+                    (size_t)new_max_dirs * sizeof(*new_dirs));
+                if (new_dirs == NULL) {
+                    _XmProcessUnlock();
+                    return DtUNCACHED_DIR;
+                }
+                cacheList.dirs = new_dirs;
+                cacheList.maxDirs = new_max_dirs;
 	    }
-	dirName = (String)XtMalloc((size_t)dirNameLen + 1);
-	    if (dirName == NULL) {
-		_XmProcessUnlock();
-		return DtUNCACHED_DIR;
-	    }
-	    memcpy(dirName, path, (size_t)dirNameLen);
-	    dirName[dirNameLen] = '\0';
-	new_dir = MakeCachedDirEntry(dirName);
-	    if (new_dir == NULL) {
-		_XmProcessUnlock();
-		return DtUNCACHED_DIR;
-	    }
-	cacheList.dirs[cacheList.numDirs++] = new_dir;
-	}
+            if (dirNameLen == SIZE_MAX || dirNameLen >= UINT_MAX) {
+                _XmProcessUnlock();
+                return DtUNCACHED_DIR;
+            }
+            dirName = (String)XtMalloc((Cardinal)(dirNameLen + 1));
+            if (dirName == NULL) {
+                _XmProcessUnlock();
+                return DtUNCACHED_DIR;
+            }
+            memcpy(dirName, path, (size_t)dirNameLen);
+            dirName[dirNameLen] = '\0';
+            currDir = MakeCachedDirEntry(dirName);
+            if (currDir == NULL) {
+                _XmProcessUnlock();
+                return DtUNCACHED_DIR;
+            }
+            cacheList.dirs[cacheList.numDirs++] = currDir;
+        }
 	currDir = (DtValidCachedDir)cacheList.dirs[i];
 
 	/*
@@ -724,13 +742,19 @@ XmGetIconFileName(
         if (size != XmUNSPECIFIED_ICON_SIZE) {
            size_t basenameLen = strlen(names[i]);
            size_t sizeLen = strlen(iconSubs[M_SUB].substitution);
+           size_t extLen;
            char *ext_name;
 
            if (sizeLen > SIZE_MAX - basenameLen - 1) {
                names_w_size[i] = NULL;
                continue;
            }
-           ext_name = XtMalloc(basenameLen + sizeLen + 1);
+           extLen = basenameLen + sizeLen + 1;
+           if (extLen > UINT_MAX) {
+               names_w_size[i] = NULL;
+               continue;
+           }
+           ext_name = XtMalloc((Cardinal)extLen);
            if (ext_name == NULL) {
                names_w_size[i] = NULL;
                continue;
@@ -767,11 +791,15 @@ XmGetIconFileName(
 
 	    if (iNameEntry) {
 		size_t dirLen, leafLen;
+		size_t pathLen;
 
 		dirLen = strlen(iNameEntry->dirName);
 		leafLen = strlen(iNameEntry->leafName);
-		if (leafLen <= SIZE_MAX - dirLen - 2) {
-			fileName = XtMalloc(dirLen + leafLen + 2);
+		if (dirLen <= SIZE_MAX - 2 &&
+		    leafLen <= SIZE_MAX - dirLen - 2) {
+		    pathLen = dirLen + leafLen + 2;
+		    if (pathLen <= UINT_MAX) {
+			fileName = XtMalloc((Cardinal)pathLen);
 			if (fileName != NULL) {
 				memmove(&fileName[0],
 				       iNameEntry->dirName,
@@ -791,6 +819,7 @@ XmGetIconFileName(
 				}
 #endif
 			}
+		    }
 		}
 	    }
 	}
@@ -876,7 +905,7 @@ XmGetIconFileName(
            String	dirName;
            String	filePtr;
            String 	suffixPtr;
-           int	dirNameLen;
+           size_t	dirNameLen;
 
            _XmOSFindPathParts(fileName, &filePtr, &suffixPtr);
 
@@ -884,10 +913,16 @@ XmGetIconFileName(
 	       dirNameLen = 0;
            else {
 	       /* take the slash into account */
-	       dirNameLen = filePtr - fileName - 1;
+	       dirNameLen = (size_t)(filePtr - fileName - 1);
            }
 
-           dirName = (String)XtMalloc(dirNameLen + 1);
+	   if (dirNameLen >= UINT_MAX) {
+	       XtFree(iNameEntry->key_name);
+	       XtFree((char *)iNameEntry);
+	       goto skip_icon_name_cache;
+	   }
+
+           dirName = (String)XtMalloc((Cardinal)dirNameLen + 1);
 	   if (dirName == NULL) {
 	       XtFree(iNameEntry->key_name);
 	       XtFree((char *)iNameEntry);

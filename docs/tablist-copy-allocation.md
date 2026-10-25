@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Tab-list copy allocation
 
 `XmTabListCopy` now checks its result-list allocation, rejects an empty source

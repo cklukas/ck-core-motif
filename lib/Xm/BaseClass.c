@@ -38,6 +38,7 @@ static char rcsid[] = "$TOG: BaseClass.c /main/20 1997/03/31 13:14:31 dbl $"
 #include <Xm/Screen.h>
 #include <Xm/VendorSEP.h>
 #include <Xm/XmosP.h>		/* for bzero */
+#include <stdint.h>
 #include "BaseClassI.h"
 #include "CallbackI.h"
 #include "DropSMgrI.h"
@@ -532,6 +533,8 @@ GetWrapperData(
   if (!*wcePtr)
     {
       *wcePtr = (XmBaseClassExt) XtCalloc(1, sizeof(XmBaseClassExtRec));
+      if (!*wcePtr)
+	return NULL;
       (*wcePtr)->next_extension = NULL;
       (*wcePtr)->record_type 	= XmQmotif;
       (*wcePtr)->version	= XmBaseClassExtVersion;
@@ -561,7 +564,7 @@ ExtTypeToContext(
   static ExtToContextRec extToContextMap[16];
   Cardinal		 i;
   ExtToContext		 curr;
-  XContext		 context = (XContext) NULL;
+  XContext		 context = 0;
   
   _XmProcessLock();
   for (i = 0, curr = &extToContextMap[0];
@@ -606,6 +609,8 @@ _XmPushWidgetExtData(
   XContext     widgetExtContext = ExtTypeToContext(extType);
   
   newData = (XmAssocData) XtCalloc(1, sizeof(XmAssocDataRec));
+  if (!newData)
+    return;
   
   newData->data = (XtPointer)data;
   
@@ -1387,6 +1392,8 @@ BaseClassPartInitialize(
 	{
 	  inited = False;
 	  *wcePtr = (XmBaseClassExt) XtCalloc(1, sizeof(XmBaseClassExtRec));
+	  if (!*wcePtr)
+	    return NULL;
 	  (*wcePtr)->classPartInitPrehook  = XmInheritClassPartInitPrehook;
 	  (*wcePtr)->classPartInitPosthook = XmInheritClassPartInitPosthook;
 	  (*wcePtr)->initializePrehook     = XmInheritInitializePrehook;
@@ -1685,6 +1692,8 @@ _XmSecondaryResourceData(
       if (secObjClass)
 	{
 	  secResData = XtNew(XmSecondaryResourceDataRec);
+	  if (!secResData)
+	    return 0;
 	  
 	  _XmTransformSubResources(secObjClass->core_class.resources,
 				   secObjClass->core_class.num_resources,
@@ -1696,6 +1705,11 @@ _XmSecondaryResourceData(
 	  secResData->client_data = client_data;
 	  secResData->base_proc = basefunctionpointer;
 	  sd = XtNew(XmSecondaryResourceData); 
+	  if (!sd) {
+	    XtFree((char *)secResData->resources);
+	    XtFree((char *)secResData);
+	    return 0;
+	  }
 	  *sd = secResData;
 	  *secResDataRtn = sd;
 	  count++;
@@ -1716,10 +1730,15 @@ static XtResourceList*
 CreateIndirectionTable(XtResourceList resources, 
 			 Cardinal num_resources)
 {
-  register int i;
+  register Cardinal i;
   XtResourceList* table;
-  
-  table = (XtResourceList*)XtMalloc(num_resources * sizeof(XtResourceList));
+
+  if ((size_t)num_resources > SIZE_MAX / sizeof(*table) ||
+      num_resources > UINT_MAX / sizeof(*table))
+    return NULL;
+  table = (XtResourceList*)XtMalloc((size_t)num_resources * sizeof(*table));
+  if (!table)
+    return NULL;
   for (i = 0; i < num_resources; i++)
     table[i] = (XtResourceList)(&(resources[i]));
 
@@ -1800,13 +1819,31 @@ _XmTransformSubResources(
        /* extension            */  NULL
      }
    };
+
+   if (resources == NULL || num_resources == NULL)
+       return;
+   *resources = NULL;
+   *num_resources = 0;
+   if (comp_resources == NULL || num_comp_resources == 0)
+       return;
    
    if (((int)comp_resources[0].resource_offset) >= 0) 
      {
        XtResourceList tmp_resources;
+
+       if ((size_t)num_comp_resources > SIZE_MAX / sizeof(XtResource)) {
+	 *resources = NULL;
+	 *num_resources = 0;
+	 return;
+       }
        
        tmp_resources = (XtResourceList)
 	 XtMalloc(sizeof(XtResource) * num_comp_resources);
+	  if (!tmp_resources) {
+	    *resources = NULL;
+	    *num_resources = 0;
+	    return;
+	  }
        
        memcpy(tmp_resources, comp_resources,
 	      sizeof(XtResource) * num_comp_resources);
@@ -1822,6 +1859,11 @@ _XmTransformSubResources(
        /* This next statement is marked for change */
        shadowObjectClassRec.constraint_class.resources = (XtResourceList)
 	 CreateIndirectionTable(comp_resources, num_comp_resources);
+	if (!shadowObjectClassRec.constraint_class.resources) {
+	  *resources = NULL;
+	  *num_resources = 0;
+	  return;
+	}
        
        shadowObjectClassRec.constraint_class.num_resources = num_comp_resources;
        

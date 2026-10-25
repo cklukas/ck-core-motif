@@ -1,10 +1,11 @@
-# Mrm related-count type validation
+---
+nav_exclude: true
+---
+# Related Mrm argument types
 
-Related argument codes are count resources for vector-valued arguments only.
-The Mrm argument builder now skips a related code for other representation
-types instead of fabricating a count argument from unrelated data. Valid
-character, compound-string, and integer vector counts retain their existing
-behavior.
-
-The source-level regression check is
-`tests/automated/check-mrm-related-count-type.py`.
+A serialized related code supplies the count resource for a text, string, or
+integer vector. A malformed record could attach a related code to another
+representation type; the old path then appended an argument whose value had
+never been initialized. The reader now leaves the already validated primary
+argument in place and skips that invalid related entry, preserving compatibility
+for valid vector resources while avoiding undefined argument data.

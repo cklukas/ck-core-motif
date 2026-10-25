@@ -357,8 +357,8 @@ UrmCreateWidgetTree (URMResourceContextPtr	context_id,
 	   widgetrec->size - widgetrec->children_offs <
 	     sizeof(RGMChildrenDesc) - sizeof(RGMChildDesc) )
 	{
-	  UrmFreeResourceContext (child_ctx) ;
-	  return MrmFAILURE ;
+	UrmFreeResourceContext (child_ctx) ;
+	return MrmFAILURE ;
 	}
       childrendesc =
 	(RGMChildrenDescPtr)((char *)widgetrec+widgetrec->children_offs);
@@ -368,8 +368,8 @@ UrmCreateWidgetTree (URMResourceContextPtr	context_id,
 	      (sizeof(RGMChildrenDesc) - sizeof(RGMChildDesc))) /
 	     sizeof(RGMChildDesc) )
 	{
-	  UrmFreeResourceContext (child_ctx) ;
-	  return MrmFAILURE ;
+	UrmFreeResourceContext (child_ctx) ;
+	return MrmFAILURE ;
 	}
 
       for ( ndx=0 ; ndx<childrendesc->count ; ndx++ )
@@ -386,16 +386,16 @@ UrmCreateWidgetTree (URMResourceContextPtr	context_id,
 	    {
 	    case URMrIndex:
 	      if ( childptr->key.index_offs < RGMWidgetRecordHdrSize ||
-	   childptr->key.index_offs >= widgetrec->size ||
-	   memchr ((char *)widgetrec + childptr->key.index_offs, '\0',
-		  widgetrec->size - childptr->key.index_offs) == NULL )
-	{
-	  result = MrmFAILURE ;
-	  (void)snprintf (err_msg, sizeof(err_msg),
-			 "invalid child index offset %d",
-			 childptr->key.index_offs) ;
-	  break ;
-	}
+		   childptr->key.index_offs >= widgetrec->size ||
+		   memchr ((char *)widgetrec + childptr->key.index_offs, '\0',
+			  widgetrec->size - childptr->key.index_offs) == NULL )
+		{
+		result = MrmFAILURE ;
+		(void)snprintf (err_msg, sizeof(err_msg),
+			       "invalid child index offset %d",
+			       childptr->key.index_offs) ;
+		break ;
+		}
 	      child_idx = (char *) widgetrec+childptr->key.index_offs ;
 	      if ( childptr->access == URMaPublic )
 		result = UrmHGetWidget (hierarchy_id, child_idx,
@@ -697,7 +697,7 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
        !UrmWidgetStringValid(widgetrec, widgetrec->class_offs)) ||
       (widgetrec->creation_offs != 0 &&
        (!UrmCallbackRecordValid(widgetrec, widgetrec->creation_offs,
-                                 strcmp(file_id->db_version, URM1_1version) <= 0))) ||
+                                strcmp(file_id->db_version, URM1_1version) <= 0))) ||
       (ov_name == NULL &&
        !UrmWidgetStringValid(widgetrec, widgetrec->name_offs)))
     return MrmFAILURE ;
@@ -718,20 +718,20 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
   if ( widgetrec->arglist_offs != 0)
     {
       if (widgetrec->arglist_offs < RGMWidgetRecordHdrSize ||
-	  widgetrec->arglist_offs >= widgetrec->size ||
-	  widgetrec->size - widgetrec->arglist_offs <
-	      sizeof(RGMArgListDesc) - sizeof(RGMArgument))
-	return MrmFAILURE;
+          widgetrec->arglist_offs >= widgetrec->size ||
+          widgetrec->size - widgetrec->arglist_offs <
+              sizeof(RGMArgListDesc) - sizeof(RGMArgument))
+        return MrmFAILURE;
       argdesc = (RGMArgListDescPtr) 
 	((char *)widgetrec + widgetrec->arglist_offs) ;
-	if (argdesc->count < 0 || argdesc->extra < 0 ||
-	    argdesc->count > RGMListSizeMax ||
-	    argdesc->extra > RGMListSizeMax ||
-	    (size_t)argdesc->count >
-		(widgetrec->size - widgetrec->arglist_offs -
-		 (sizeof(RGMArgListDesc) - sizeof(RGMArgument))) /
-		sizeof(RGMArgument))
-	  return MrmFAILURE;
+      if (argdesc->count < 0 || argdesc->extra < 0 ||
+          argdesc->count > RGMListSizeMax ||
+          argdesc->extra > RGMListSizeMax ||
+          (size_t)argdesc->count >
+              (widgetrec->size - widgetrec->arglist_offs -
+               (sizeof(RGMArgListDesc) - sizeof(RGMArgument))) /
+              sizeof(RGMArgument))
+        return MrmFAILURE;
       if ((size_t)argdesc->count > SIZE_MAX - (size_t)num_listent ||
 	  (size_t)argdesc->extra >
 	      SIZE_MAX - (size_t)num_listent - (size_t)argdesc->count)
@@ -742,7 +742,8 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
     }
   if ( num_listent > 0 )
     {
-      if ((size_t)num_listent > SIZE_MAX / sizeof(Arg))
+      if ((size_t)num_listent > SIZE_MAX / sizeof(Arg) ||
+          num_listent > UINT_MAX / sizeof(Arg))
 	return MrmFAILURE;
       args = (Arg *) XtMalloc ((size_t)num_listent*sizeof(Arg)) ;
       if (args == NULL)
@@ -1067,20 +1068,20 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
   if ( widgetrec->arglist_offs != 0)
     {
       if (widgetrec->arglist_offs < RGMWidgetRecordHdrSize ||
-	  widgetrec->arglist_offs >= widgetrec->size ||
-	  widgetrec->size - widgetrec->arglist_offs <
-	      sizeof(RGMArgListDesc) - sizeof(RGMArgument))
-	return MrmFAILURE;
+          widgetrec->arglist_offs >= widgetrec->size ||
+          widgetrec->size - widgetrec->arglist_offs <
+              sizeof(RGMArgListDesc) - sizeof(RGMArgument))
+        return MrmFAILURE;
       argdesc = (RGMArgListDescPtr) 
 	((char *)widgetrec + widgetrec->arglist_offs) ;
-	if (argdesc->count < 0 || argdesc->extra < 0 ||
-	    argdesc->count > RGMListSizeMax ||
-	    argdesc->extra > RGMListSizeMax ||
-	    (size_t)argdesc->count >
-		(widgetrec->size - widgetrec->arglist_offs -
-		 (sizeof(RGMArgListDesc) - sizeof(RGMArgument))) /
-		sizeof(RGMArgument))
-	  return MrmFAILURE;
+      if (argdesc->count < 0 || argdesc->extra < 0 ||
+          argdesc->count > RGMListSizeMax ||
+          argdesc->extra > RGMListSizeMax ||
+          (size_t)argdesc->count >
+              (widgetrec->size - widgetrec->arglist_offs -
+               (sizeof(RGMArgListDesc) - sizeof(RGMArgument))) /
+              sizeof(RGMArgument))
+        return MrmFAILURE;
       if ((size_t)argdesc->count > SIZE_MAX - (size_t)num_listent ||
 	  (size_t)argdesc->extra >
 	      SIZE_MAX - (size_t)num_listent - (size_t)argdesc->count)
@@ -1091,7 +1092,8 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
     }
   if ( num_listent > 0 )
     {
-      if ((size_t)num_listent > SIZE_MAX / sizeof(Arg))
+      if ((size_t)num_listent > SIZE_MAX / sizeof(Arg) ||
+          num_listent > UINT_MAX / sizeof(Arg))
 	return MrmFAILURE;
       args = (Arg *) XtMalloc ((size_t)num_listent*sizeof(Arg)) ;
       if (args == NULL)
@@ -1405,15 +1407,15 @@ Urm__CW_CreateArglist (Widget			parent,
 	    Boolean old_callbacks =
 	      strcmp(file_id->db_version, URM1_1version) <= 0;
 	    if (!UrmCallbackRecordValid(widgetrec,
-				 argptr->arg_val.datum.offset,
-				 old_callbacks))
+				argptr->arg_val.datum.offset,
+				old_callbacks))
 	      return;
 	    if (old_callbacks)
 	      cbptr = Urm__CW_TranslateOldCallback((OldRGMCallbackDescPtr)val);
 	    else
 	      cbptr = (RGMCallbackDescPtr)val;
-	    if (cbptr == NULL)
-	      return;
+	  if (cbptr == NULL)
+	    return;
 
 	  result = Urm__CW_FixupCallback(parent, (XtPointer)widgetrec, cbptr,
 					 ctxlist, cblist, hierarchy_id, 
@@ -1444,9 +1446,9 @@ Urm__CW_CreateArglist (Widget			parent,
 	    default:
 	      continue;
 	    }
-	    if (old_callbacks)
-	      XtFree((char *)cbptr);
-	    break ;
+	  if (old_callbacks)
+	    XtFree((char *)cbptr);
+	  break ;
 	  }
         case MrmRtypeResource:
 	  if (!UrmResourceRecordValid(widgetrec,
@@ -2497,7 +2499,7 @@ Urm__CW_ConvertValue (Widget			parent,
 	RGMIntegerVectorPtr	vecptr ;	/* val as integer vector */
 
         vecptr = (RGMIntegerVectorPtr) (*val) ;
-	        if ( vecptr == NULL || vecptr->validation != URMIntegerVectorValid ||
+        if ( vecptr == NULL || vecptr->validation != URMIntegerVectorValid ||
              vecptr->count > RGMListSizeMax )
           return MrmFAILURE ;
         *val = (long) vecptr->item ;

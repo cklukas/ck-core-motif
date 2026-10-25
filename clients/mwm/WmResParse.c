@@ -60,7 +60,9 @@ static char rcsid[] = "$XConsortium: WmResParse.c /main/9 1996/11/01 10:17:34 dr
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
 #include <ctype.h>
+#include <limits.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #include <X11/Xlocale.h>
 
@@ -133,6 +135,49 @@ extern int errno;
  * Global Variables And Tables:
  */
 static char cfileName[MAXWMPATH+1];
+static Boolean configPathValid = TRUE;
+
+static Boolean
+SetConfigPath(const char *value)
+{
+    int length = snprintf(cfileName, sizeof(cfileName), "%s",
+                          value != NULL ? value : "");
+    if (length < 0 || (size_t)length >= sizeof(cfileName))
+    {
+        cfileName[0] = '\0';
+        configPathValid = FALSE;
+        return (FALSE);
+    }
+    configPathValid = TRUE;
+    return (TRUE);
+}
+
+static Boolean
+AppendConfigPath(const char *value)
+{
+    size_t used;
+    int length;
+
+    if (!configPathValid)
+        return (FALSE);
+    used = strlen(cfileName);
+    if (used >= sizeof(cfileName))
+    {
+        cfileName[0] = '\0';
+        configPathValid = FALSE;
+        return (FALSE);
+    }
+    length = snprintf(cfileName + used, sizeof(cfileName) - used, "%s",
+                      value != NULL ? value : "");
+    if (length < 0 || (size_t)length >= sizeof(cfileName) - used)
+    {
+        cfileName[0] = '\0';
+        configPathValid = FALSE;
+        return (FALSE);
+    }
+    return (TRUE);
+}
+
 #ifdef WSM
 #ifndef NO_MESSAGE_CATALOG
 char * pWarningStringFile;
@@ -1446,6 +1491,24 @@ void ParseSessionGeometry (WmScreenData *pSD, int count,
  *  --------
  *
  *************************************<->***********************************/
+static String
+CopySessionString(unsigned char *string)
+{
+    size_t length;
+    String copy;
+
+    if (string == NULL)
+        return NULL;
+    length = strlen((char *)string);
+    if (length > UINT_MAX - 1)
+        return NULL;
+    copy = (String)XtMalloc((Cardinal)(length + 1));
+    if (copy == NULL)
+        return NULL;
+    memcpy(copy, string, length + 1);
+    return copy;
+}
+
 void ParseSessionWorkspaces (WmScreenData *pSD,  int count,
 			     unsigned char *string)
 
@@ -1456,15 +1519,13 @@ void ParseSessionWorkspaces (WmScreenData *pSD,  int count,
      */
 
     if ((pSD->pDtSessionItems[count].workspaces =
-         (String)XtMalloc ((unsigned int) (strlen((char *)string) + 1))) == NULL)
+         CopySessionString(string)) == NULL)
     {
         Warning (((char *)GETMESSAGE(60, 2, "Insufficient memory for workspaces list in sesssion item")));
         return;
 
     }
 
-    strcpy(pSD->pDtSessionItems[count].workspaces, (char *)string);
-    
 } /* END OF FUNCTION ParseSessionWorkspaces */
 
 
@@ -1492,6 +1553,8 @@ void ParseSessionCommand (WmScreenData *pSD,  int count,
     unsigned char **argv;
     int  argc = 0;
     int  iSizeArgv;
+    int  cleanup_index;
+    size_t string_length;
     
     unsigned char *string;
     
@@ -1511,13 +1574,38 @@ void ParseSessionCommand (WmScreenData *pSD,  int count,
         {
             unsigned char **newArgv;
 
+            if (iSizeArgv > INT_MAX - ARG_AMT)
+            {
+                Warning (((char *)GETMESSAGE(60, 3,
+                    "Insufficient memory for commandArgv array")));
+                for (cleanup_index = 0; cleanup_index < argc;
+                     cleanup_index++)
+                    XtFree((char *)argv[cleanup_index]);
+                XtFree((char *)argv);
+                return;
+            }
             iSizeArgv += ARG_AMT;
+            if ((size_t)iSizeArgv > SIZE_MAX / sizeof(char *) ||
+                (size_t)iSizeArgv > UINT_MAX / sizeof(char *))
+            {
+                Warning (((char *)GETMESSAGE(60, 3,
+                    "Insufficient memory for commandArgv array")));
+                for (cleanup_index = 0; cleanup_index < argc;
+                     cleanup_index++)
+                    XtFree((char *)argv[cleanup_index]);
+                XtFree((char *)argv);
+                return;
+            }
             newArgv = (unsigned char **)XtRealloc(
-                (char *)argv, iSizeArgv * sizeof(char *));
+                (char *)argv,
+                (Cardinal)(iSizeArgv * sizeof(char *)));
             if (newArgv == NULL)
             {
                 Warning (((char *)GETMESSAGE(60, 3,
                     "Insufficient memory for commandArgv array")));
+                for (cleanup_index = 0; cleanup_index < argc;
+                     cleanup_index++)
+                    XtFree((char *)argv[cleanup_index]);
                 XtFree((char *)argv);
                 return;
             }
@@ -1526,28 +1614,52 @@ void ParseSessionCommand (WmScreenData *pSD,  int count,
 
         argv[argc++] = string;
     }
-    if ((pSD->pDtSessionItems[count].commandArgv =
-         (char **)XtMalloc ((argc) * sizeof(char * ))) == NULL)
+    pSD->pDtSessionItems[count].commandArgv = NULL;
+    pSD->pDtSessionItems[count].commandArgc = 0;
+    if (argc == 0)
+    {
+        XtFree ((char *) argv);
+        return;
+    }
+    if ((size_t)argc > SIZE_MAX / sizeof(char *) ||
+        (size_t)argc > UINT_MAX / sizeof(char *) ||
+        (pSD->pDtSessionItems[count].commandArgv =
+         (char **)XtMalloc((Cardinal)((size_t)argc * sizeof(char *)))) == NULL)
     {
         /*
          * Allocate space for saved argv
          */
 	
         Warning (((char *)GETMESSAGE(60, 3, "Insufficient memory for commandArgv array")));
+        for (cleanup_index = 0; cleanup_index < argc; cleanup_index++)
+            XtFree((char *)argv[cleanup_index]);
     }
     else
     {
         pSD->pDtSessionItems[count].commandArgc = argc;
         for (xindex = 0; xindex < argc ; xindex++)
         {
-            if ((pSD->pDtSessionItems[count].commandArgv[xindex] =
-                 (String) XtMalloc
-                 ((unsigned int) (strlen((char *)argv[xindex]) + 1))) == NULL)
+            string_length = strlen((char *)argv[xindex]);
+            if (string_length > UINT_MAX - 1 ||
+                (pSD->pDtSessionItems[count].commandArgv[xindex] =
+                 (String) XtMalloc((Cardinal)(string_length + 1))) == NULL)
             {
                 /*
                  * Allocate space for the next command segment.
                  */
                 Warning (((char *)GETMESSAGE(60, 4, "Insufficient memory for commandArgv item")));
+                for (cleanup_index = 0; cleanup_index < xindex;
+                     cleanup_index++)
+                    XtFree(pSD->pDtSessionItems[count].commandArgv[
+                        cleanup_index]);
+                XtFree((char *)pSD->pDtSessionItems[count].commandArgv);
+                pSD->pDtSessionItems[count].commandArgv = NULL;
+                for (cleanup_index = 0; cleanup_index < argc;
+                     cleanup_index++)
+                    XtFree((char *)argv[cleanup_index]);
+                pSD->pDtSessionItems[count].commandArgc = 0;
+                XtFree((char *)argv);
+                return;
             }
             else
             {
@@ -1557,6 +1669,8 @@ void ParseSessionCommand (WmScreenData *pSD,  int count,
         }
     }
 
+    for (cleanup_index = 0; cleanup_index < argc; cleanup_index++)
+        XtFree((char *)argv[cleanup_index]);
     XtFree ((char *) argv);
     
 } /* END OF FUNCTION ParseSessionCommand */
@@ -1588,16 +1702,13 @@ void ParseSessionHost (WmScreenData *pSD,  int count,
      */
 
     if ((pSD->pDtSessionItems[count].clientMachine =
-         (String)XtMalloc ((unsigned int) (strlen((char *)string) + 1))) == 
-	NULL)
+         CopySessionString(string)) == NULL)
     {
         Warning (((char *)GETMESSAGE(60, 38, 
 		"Insufficient memory for host name in sesssion item")));
         return;
     }
 
-    strcpy(pSD->pDtSessionItems[count].clientMachine, (char *)string);
-    
 } /* END OF FUNCTION ParseSessionHost */
 
 
@@ -1761,6 +1872,7 @@ unsigned int PeekAhead(unsigned char *currentChar,
 void GetHomeDirName(String  fileName)
 {
         int uid;
+        int length;
         struct passwd *pw;
         char *ptr = NULL;
 
@@ -1785,7 +1897,9 @@ void GetHomeDirName(String  fileName)
                 ptr = "";
 	    }
         }
-        strcpy(fileName, ptr);
+        length = snprintf(fileName, MAXWMPATH + 1, "%s", ptr);
+        if (length < 0 || length > MAXWMPATH)
+            fileName[0] = '\0';
 }
 #endif
 
@@ -2115,6 +2229,7 @@ FILE *FopenConfigFile (void)
 
     char    *LANG, *LANGp;
     FILE    *fileP;
+    size_t langLength;
 
 #ifndef MOTIF_ONE_DOT_ONE
     char *homeDir = XmeGetHomeDirName();
@@ -2122,6 +2237,8 @@ FILE *FopenConfigFile (void)
 #ifdef PANELIST
     Boolean stackPushed;
 #endif /* PANELIST */
+
+    configPathValid = TRUE;
 
     /*
      * Get the LANG environment variable
@@ -2141,7 +2258,9 @@ FILE *FopenConfigFile (void)
       }
     else
       {
-	 if ((LANG = (char *) XtMalloc(strlen(LANGp) +1)) == NULL)
+	 langLength = strlen(LANGp);
+	 if (langLength >= UINT_MAX ||
+	     (LANG = (char *) XtMalloc((Cardinal)(langLength + 1))) == NULL)
 	   {
 	      PWarning (((char *)GETMESSAGE(60, 41, "Insufficient memory to get LANG environment variable.")));
 	      return(NULL);
@@ -2176,14 +2295,14 @@ FILE *FopenConfigFile (void)
 #ifdef MOTIF_ONE_DOT_ONE
 	    GetHomeDirName(cfileName);
 #else
-	    strcpy (cfileName, homeDir);
+	    (void)SetConfigPath(homeDir);
 #endif
 	    if (LANG != NULL)
 	    {
-		strncat(cfileName, "/", MAXWMPATH-strlen(cfileName));
-		strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
+		(void)AppendConfigPath("/");
+		(void)AppendConfigPath(LANG);
 	    }
-	    strncat(cfileName, &(wmGD.configFile[1]), MAXWMPATH-strlen(cfileName));
+	    (void)AppendConfigPath(&(wmGD.configFile[1]));
 	    if ((fileP = fopen (cfileName, "r")) != NULL)
 	    {
 		if (LANG != NULL) { 
@@ -2202,10 +2321,9 @@ FILE *FopenConfigFile (void)
 #ifdef MOTIF_ONE_DOT_ONE
 		GetHomeDirName(cfileName);
 #else
-		strcpy (cfileName, homeDir);
+		(void)SetConfigPath(homeDir);
 #endif
-		strncat(cfileName, &(wmGD.configFile[1]), 
-			MAXWMPATH-strlen(cfileName));
+		(void)AppendConfigPath(&(wmGD.configFile[1]));
 		if ((fileP = fopen (cfileName, "r")) != NULL)
 		{
 		  if (LANG != NULL) {
@@ -2230,7 +2348,7 @@ FILE *FopenConfigFile (void)
 
 	    if ((fileP = fopen (pch, "r")) != NULL)
 	    {
-	        strncpy (cfileName, pch, MAXWMPATH);
+	        (void)SetConfigPath(pch);
 	    }
 	    XtFree (pch);
   
@@ -2249,7 +2367,7 @@ FILE *FopenConfigFile (void)
 	  }
 	  else if ((fileP == NULL) && stackPushed)
 	  {
-		strcpy (cfileName, wmGD.configFile);
+		(void)SetConfigPath(wmGD.configFile);
 	  }
 #endif /* PANELIST */
 	}
@@ -2270,7 +2388,7 @@ FILE *FopenConfigFile (void)
 #ifdef MOTIF_ONE_DOT_ONE
     GetHomeDirName(cfileName);
 #else
-    strcpy (cfileName, homeDir);
+    (void)SetConfigPath(homeDir);
 #endif
 
 #ifdef WSM
@@ -2285,10 +2403,10 @@ FILE *FopenConfigFile (void)
 	 */
 	if (LANG != NULL)
 	{
-	    strncat(cfileName, "/", MAXWMPATH-strlen(cfileName));
-	    strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
+	    (void)AppendConfigPath("/");
+	    (void)AppendConfigPath(LANG);
 	}
-	strncat(cfileName, HOME_MWMRC, MAXWMPATH - strlen(cfileName));
+	(void)AppendConfigPath(HOME_MWMRC);
     }
     else
     {
@@ -2301,21 +2419,21 @@ FILE *FopenConfigFile (void)
 	 *  Looking for $HOME/.dt/dtwmrc
 	 *
 	 */
-	strncat(cfileName, "/.dt/", MAXWMPATH-strlen(cfileName));
+	(void)AppendConfigPath("/.dt/");
 
 	if (LANG != NULL)
 	{
-	    strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
+	    (void)AppendConfigPath(LANG);
 	}
-	strncat(cfileName, LANG_DT_WMRC, MAXWMPATH - strlen(cfileName));
+	(void)AppendConfigPath(LANG_DT_WMRC);
     }
 #else /* WSM */
     if (LANG != NULL)
     {
-	strncat(cfileName, "/", MAXWMPATH-strlen(cfileName));
-	strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
+	(void)AppendConfigPath("/");
+	(void)AppendConfigPath(LANG);
     }
-    strncat(cfileName, HOME_MWMRC, MAXWMPATH - strlen(cfileName));
+    (void)AppendConfigPath(HOME_MWMRC);
 #endif /* WSM */
     if ((fileP = fopen (cfileName, "r")) != NULL)
     {
@@ -2335,7 +2453,7 @@ FILE *FopenConfigFile (void)
 #ifdef MOTIF_ONE_DOT_ONE
 	GetHomeDirName(cfileName);
 #else
-    strcpy (cfileName, homeDir);
+    (void)SetConfigPath(homeDir);
 #endif
 #ifdef WSM
 	if (MwmBehavior)
@@ -2343,17 +2461,17 @@ FILE *FopenConfigFile (void)
 	    /* 
 	     * Just try $HOME/.mwmrc
 	     */
-	    strncat(cfileName, HOME_MWMRC, MAXWMPATH - strlen(cfileName));
+	    (void)AppendConfigPath(HOME_MWMRC);
 	}
 	else
 	{
 	    /* 
 	     * Just try $HOME/.dt/dtwmrc
 	     */
-	    strncat(cfileName, HOME_DT_WMRC, MAXWMPATH - strlen(cfileName));
+	    (void)AppendConfigPath(HOME_DT_WMRC);
 	}
 #else /* WSM */
-        strncat(cfileName, HOME_MWMRC, MAXWMPATH - strlen(cfileName));
+        (void)AppendConfigPath(HOME_MWMRC);
 #endif /* WSM */
 	if ((fileP = fopen (cfileName, "r")) != NULL)
 	{
@@ -2378,17 +2496,17 @@ FILE *FopenConfigFile (void)
     /* 
      * No home-based config file. Try the admin directory.
      */
-    strcpy(cfileName, DTADMINDIR);
-    strncat(cfileName, RC_CONFIG_SUBDIR, MAXWMPATH-strlen(cfileName));
-    strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
-    strncat(cfileName, SLASH_DT_WMRC, MAXWMPATH - strlen(cfileName));
+    (void)SetConfigPath(DTADMINDIR);
+    (void)AppendConfigPath(RC_CONFIG_SUBDIR);
+    (void)AppendConfigPath(LANG);
+    (void)AppendConfigPath(SLASH_DT_WMRC);
 
     if (((fileP = fopen (cfileName, "r")) == NULL) && LANG && *LANG)
     {
 	/* Try it with no LANG */
-	strcpy(cfileName, DTADMINDIR);
-	strncat(cfileName, RC_CONFIG_SUBDIR, MAXWMPATH-strlen(cfileName));
-	strncat(cfileName, SLASH_DT_WMRC, MAXWMPATH - strlen(cfileName));
+	(void)SetConfigPath(DTADMINDIR);
+	(void)AppendConfigPath(RC_CONFIG_SUBDIR);
+	(void)AppendConfigPath(SLASH_DT_WMRC);
     }
 
     if ((fileP = fopen (cfileName, "r")) != NULL)
@@ -2410,26 +2528,26 @@ FILE *FopenConfigFile (void)
 #ifdef WSM
 	if (MwmBehavior)
 	{
-	    strcpy(cfileName, MWMRCDIR);
-	    strncat(cfileName, "/", MAXWMPATH-strlen(cfileName));
-	    strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
-	    strncat(cfileName, SLASH_MWMRC, MAXWMPATH - strlen(cfileName));
+	    (void)SetConfigPath(MWMRCDIR);
+	    (void)AppendConfigPath("/");
+	    (void)AppendConfigPath(LANG);
+	    (void)AppendConfigPath(SLASH_MWMRC);
 	}
 	else
 	{
-	    strcpy(cfileName, DTLIBDIR);
-	    strncat(cfileName, RC_CONFIG_SUBDIR, MAXWMPATH-strlen(cfileName));
-	    strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
-	    strncat(cfileName, SLASH_DT_WMRC, MAXWMPATH - strlen(cfileName));
+	    (void)SetConfigPath(DTLIBDIR);
+	    (void)AppendConfigPath(RC_CONFIG_SUBDIR);
+	    (void)AppendConfigPath(LANG);
+	    (void)AppendConfigPath(SLASH_DT_WMRC);
 	}
 #else /* WSM */
        /*
 	* Try /$LANG/system.mwmrc within the install tree
 	*/
-	strcpy(cfileName, MWMRCDIR);
-	strncat(cfileName, "/", MAXWMPATH-strlen(cfileName));
-	strncat(cfileName, LANG, MAXWMPATH-strlen(cfileName));
-	strncat(cfileName, SLASH_MWMRC, MAXWMPATH - strlen(cfileName));
+	(void)SetConfigPath(MWMRCDIR);
+	(void)AppendConfigPath("/");
+	(void)AppendConfigPath(LANG);
+	(void)AppendConfigPath(SLASH_MWMRC);
 #endif /* WSM */
 	if ((fileP = fopen (cfileName, "r")) != NULL)
 	{
@@ -2448,8 +2566,8 @@ FILE *FopenConfigFile (void)
 #ifdef WSM
     if (MwmBehavior)
     {
-	strcpy(cfileName, MWMRCDIR);
-	strncat(cfileName, SLASH_MWMRC, MAXWMPATH - strlen(cfileName));
+	(void)SetConfigPath(MWMRCDIR);
+	(void)AppendConfigPath(SLASH_MWMRC);
 #ifdef PANELIST
 	fileP = fopen (cfileName, "r");
 #else /* PANELIST */
@@ -2458,10 +2576,9 @@ FILE *FopenConfigFile (void)
     }
     else
     {
-	strcpy(cfileName, DTLIBDIR);
-	strncat(cfileName, RC_DEFAULT_CONFIG_SUBDIR, 
-					MAXWMPATH - strlen(cfileName));
-	strncat(cfileName, SLASH_DT_WMRC, MAXWMPATH - strlen(cfileName));
+	(void)SetConfigPath(DTLIBDIR);
+	(void)AppendConfigPath(RC_DEFAULT_CONFIG_SUBDIR);
+	(void)AppendConfigPath(SLASH_DT_WMRC);
 #ifdef PANELIST
 	fileP = fopen (cfileName, "r");
 #else /* PANELIST */
@@ -2472,8 +2589,8 @@ FILE *FopenConfigFile (void)
     /*
      * Try /system.mwmrc within the install tree
      */
-    strcpy(cfileName, MWMRCDIR);
-    strncat(cfileName, SLASH_MWMRC, MAXWMPATH - strlen(cfileName));
+    (void)SetConfigPath(MWMRCDIR);
+    (void)AppendConfigPath(SLASH_MWMRC);
 
     if (LANG != NULL) 
     {
@@ -2481,7 +2598,6 @@ FILE *FopenConfigFile (void)
        LANG = NULL;
     }
 #ifdef PANELIST
-    strcpy(cfileName, cfileName);
     fileP = fopen (cfileName, "r");
 #else /* PANELIST */
     return (fopen (cfileName, "r"));
@@ -2501,7 +2617,7 @@ FILE *FopenConfigFile (void)
 	pch = (char *) GetNetworkFileName (cfileName);
 	if ((fileP = fopen (cfileName, "r")) != NULL)
 	{
-	    strncpy (cfileName, pch, MAXWMPATH);
+	    (void)SetConfigPath(pch);
 	    XtFree (pch);
 	}
 
@@ -2647,6 +2763,7 @@ static void ParseMenuSet (WmScreenData *pSD, unsigned char *lineP)
 {
     unsigned char     *string;
     MenuSpec *menuSpec;
+    size_t menuNameLength;
     
     /*
      * If menu name is NULL then skip this pane specification.
@@ -2683,9 +2800,9 @@ static void ParseMenuSet (WmScreenData *pSD, unsigned char *lineP)
      * Allocate and fill space for the menu name.
      */
 
-    if ((menuSpec->name = 
-	 (String)XtMalloc ((unsigned int) (strlen ((char *)string) + 1))) 
-	 == NULL)
+    menuNameLength = strlen((char *)string);
+    if (menuNameLength >= UINT_MAX ||
+	(menuSpec->name = (String)XtMalloc((Cardinal)menuNameLength + 1)) == NULL)
     {
         PWarning (((char *)GETMESSAGE(60, 10, "Insufficient memory for menu")));
 	XtFree ((char *)menuSpec);
@@ -3014,9 +3131,11 @@ static MenuItem *ParseMenuItems (WmScreenData *pSD
 	if (use_separators)
 	{
 	    MenuItem *separator = MakeSeparatorTemplate(TOP_SEPARATOR);
-	    if (lastMenuItem != NULL) lastMenuItem->nextMenuItem = separator;
-	    else 		      firstMenuItem = separator;
-	    lastMenuItem = separator;
+	    if (separator != NULL) {
+		if (lastMenuItem != NULL) lastMenuItem->nextMenuItem = separator;
+		else 		      firstMenuItem = separator;
+		lastMenuItem = separator;
+	    }
 	}
 #endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
 
@@ -3041,9 +3160,11 @@ static MenuItem *ParseMenuItems (WmScreenData *pSD
 	if (use_separators)
 	{
 	    MenuItem *separator = MakeSeparatorTemplate(BOTTOM_SEPARATOR);
-	    if (lastMenuItem != NULL) lastMenuItem->nextMenuItem = separator;
-	    else 		      firstMenuItem = separator;
-	    lastMenuItem = separator;
+	    if (separator != NULL) {
+		if (lastMenuItem != NULL) lastMenuItem->nextMenuItem = separator;
+		else 		      firstMenuItem = separator;
+		lastMenuItem = separator;
+	    }
 	}
 
 	use_separators = FALSE;
@@ -3087,8 +3208,18 @@ static void StoreExclusion (MenuSpec *menuSpec, String string)
 {
     MenuExclusion *exclusion;
 
+    if (menuSpec == NULL || string == NULL)
+	return;
+
     exclusion = (MenuExclusion *)XtMalloc(sizeof(MenuExclusion));
+    if (exclusion == NULL)
+	return;
+
     exclusion->command_string = XtNewString(string);
+    if (exclusion->command_string == NULL) {
+	XtFree((char *)exclusion);
+	return;
+    }
 
     /* We don't care what order the exclusions are in so stick it
        at the head of the list because it is easier. */
@@ -3229,7 +3360,10 @@ static Boolean ParseClientCommand (unsigned char **linePP, MenuSpec *menuSpec,
 				   MenuItem *menuItem, unsigned char *string,
 				   Boolean *use_separators)
 {
-    int token, linelen, i;
+    int token, i;
+    size_t stream_length;
+    size_t prefix_length;
+    size_t suffix_length;
     int state = PRS_BEGIN;
     String stream, unchanged_stream, exclusion_text;
     Boolean return_val = FALSE;
@@ -3239,9 +3373,19 @@ static Boolean ParseClientCommand (unsigned char **linePP, MenuSpec *menuSpec,
 
     /* Construct one input stream out of the string and the linePP that
        we were given. */
-    linelen = strlen((char *)string) + strlen((char *)*linePP) + 1;
+    prefix_length = strlen((char *)string);
+    suffix_length = strlen((char *)*linePP);
+    if (prefix_length > SIZE_MAX - suffix_length ||
+        prefix_length + suffix_length > SIZE_MAX - 2 ||
+        prefix_length + suffix_length + 2 > UINT_MAX)
+    {
+	PWarning (((char *)GETMESSAGE(60, 42,
+		    "Menu item label is too long")));
+	return (FALSE);
+    }
+    stream_length = prefix_length + suffix_length + 2;
     if ((unchanged_stream = stream = (String)
-	 XtMalloc((unsigned int)(sizeof(unsigned char) * linelen))) == NULL)
+	 XtMalloc((Cardinal)stream_length)) == NULL)
     {
 	PWarning (((char *)GETMESSAGE(60, 42,
 		    "Insufficient memory for menu item label")));
@@ -3464,6 +3608,11 @@ static Boolean ParseClientCommand (unsigned char **linePP, MenuSpec *menuSpec,
 	else
 	{
 	    menuItem->label = XtNewString(unchanged_stream);
+	    if (menuItem->label == NULL) {
+		XtFree((char *)unchanged_stream);
+		return_val = FALSE;
+		return (return_val);
+	    }
 	    menuItem->labelType = XmSTRING;
 	}
     }
@@ -3514,13 +3663,17 @@ static Boolean ParseClientCommand (unsigned char **linePP, MenuSpec *menuSpec,
 static Boolean ParseWmLabel (WmScreenData *pSD, MenuItem *menuItem, 
 			     unsigned char *string)
 {
+    size_t labelLength;
 
     /*
      * Allocate the label field and copy string.
      */
 
-    if ((menuItem->label = (String)
-        XtMalloc ((unsigned int)(strlen ((char *)string) + 1))) == NULL)
+    if (menuItem == NULL || string == NULL)
+	return (FALSE);
+    labelLength = strlen((char *)string);
+    if (labelLength == SIZE_MAX || labelLength >= UINT_MAX ||
+	(menuItem->label = (String)XtMalloc((Cardinal)labelLength + 1)) == NULL)
     {
         PWarning (((char *)GETMESSAGE(60, 13, "Insufficient memory for menu item")));
         return (FALSE);
@@ -3770,6 +3923,7 @@ static Boolean ParseWmAccelerator (unsigned char **linePP, MenuItem *menuItem)
 static void ParseMenuItemName (unsigned char **linePP, MenuItem *menuItem)
 {
     unsigned char *lineP, *endquote;
+    size_t nameLength;
 #ifndef NO_MULTIBYTE
     int chlen = 0;
 #endif
@@ -3811,13 +3965,14 @@ static void ParseMenuItemName (unsigned char **linePP, MenuItem *menuItem)
 
 	/* Well, we have a valid menu item name. Store it in the 
 	   client command name field. Don't include the double quotes. */
-	menuItem->clientCommandName =
-	  XtMalloc(sizeof(char) * (endquote - lineP) + 1);
-	{
-	    size_t nameLength = (size_t)(endquote - lineP);
-	    memcpy(menuItem->clientCommandName, lineP, nameLength);
-	    menuItem->clientCommandName[nameLength] = '\0';
-	}
+	nameLength = (size_t)(endquote - lineP);
+	if (nameLength == SIZE_MAX || nameLength >= UINT_MAX)
+	    return;
+	menuItem->clientCommandName = XtMalloc((Cardinal)nameLength + 1);
+	if (menuItem->clientCommandName == NULL)
+	    return;
+	memcpy(menuItem->clientCommandName, lineP, nameLength);
+	menuItem->clientCommandName[nameLength] = '\0';
     }
     else
     {
@@ -4470,11 +4625,15 @@ static Boolean ParseWmFuncCCIArgs (unsigned char **linePP,
 
 
   cciArg = XtNew(CCIFuncArg);
+  if (cciArg == NULL)
+    return (FALSE);
+  cciArg->cciEntry = NULL;
 
   if ((string = GetString(linePP)) == NULL)
     {
       /* Error - no data for f.cci command. cci_entry_list is required. */
       fprintf(stderr, "Incorrect format for f.cci command.\n");
+      XtFree((char *)cciArg);
       return (FALSE);
     }
   else
@@ -4484,6 +4643,11 @@ static Boolean ParseWmFuncCCIArgs (unsigned char **linePP,
 	{
 	  cciArg->mod      = NONE;
 	  cciArg->cciEntry = XtNewString((char*)string);
+	  if (cciArg->cciEntry == NULL)
+	    {
+	      XtFree((char *)cciArg);
+	      return (FALSE);
+	    }
 	}
       else
 	{
@@ -4491,6 +4655,11 @@ static Boolean ParseWmFuncCCIArgs (unsigned char **linePP,
 	    {
 	      cciArg->mod      = NONE;
 	      cciArg->cciEntry = XtNewString("");
+	      if (cciArg->cciEntry == NULL)
+		{
+		  XtFree((char *)cciArg);
+		  return (FALSE);
+		}
 	    }
 	  else
 	    {
@@ -4500,11 +4669,17 @@ static Boolean ParseWmFuncCCIArgs (unsigned char **linePP,
 		{
 		  /* Found a modifier, but there's no cci_entry_list. */
 		  fprintf(stderr, "Incorrect format for f.cci command.\n");
+		  XtFree((char *)cciArg);
 		  return(FALSE);
 		}
 	      else
 		{
 		  cciArg->cciEntry = XtNewString((char*)string);
+		  if (cciArg->cciEntry == NULL)
+		    {
+		      XtFree((char *)cciArg);
+		      return (FALSE);
+		    }
 		}
 	    }
 	}
@@ -6219,9 +6394,30 @@ static Boolean GetCCIModifier (String modString, CCIEntryModifier *mod)
  *
  *************************************<->***********************************/
 
+static Boolean PrefixMenuItemLabel (MenuItem *menuItem, const char *prefix)
+{
+  size_t prefixLength = strlen(prefix);
+  size_t labelLength;
+  String replacement;
+
+  if (menuItem == NULL || menuItem->label == NULL)
+    return (FALSE);
+  labelLength = strlen(menuItem->label);
+  if (prefixLength > SIZE_MAX - labelLength - 1 ||
+      prefixLength + labelLength + 1 > UINT_MAX)
+    return (FALSE);
+  replacement = (String)XtMalloc((Cardinal)(prefixLength + labelLength + 1));
+  if (replacement == NULL)
+    return (FALSE);
+  memcpy(replacement, prefix, prefixLength);
+  memcpy(replacement + prefixLength, menuItem->label, labelLength + 1);
+  XtFree(menuItem->label);
+  menuItem->label = replacement;
+  return (TRUE);
+}
+
 static void FixMenuItem (MenuSpec *menuSpec, MenuItem *menuItem)
 {
-  String      tmp;
   CCIFuncArg *cciArg;
   
 
@@ -6229,6 +6425,8 @@ static void FixMenuItem (MenuSpec *menuSpec, MenuItem *menuItem)
     return;
 
   cciArg = (CCIFuncArg *)menuItem->wmFuncArgs;
+  if (cciArg == NULL || cciArg->cciEntry == NULL)
+    return;
 
   menuItem->clientCommandName = menuItem->label;
   menuItem->label = cciArg->cciEntry;
@@ -6247,18 +6445,12 @@ static void FixMenuItem (MenuSpec *menuSpec, MenuItem *menuItem)
 
     case CASCADE:
       /* -> */
-      tmp = (String) XtMalloc(strlen(menuItem->label) + 3);
-      sprintf(tmp, "->%s", menuItem->label);
-      XtFree(menuItem->label);
-      menuItem->label = tmp;
+      (void)PrefixMenuItemLabel(menuItem, "->");
       break;
 
     case DELIMIT:
       /* = */
-      tmp = (String) XtMalloc(strlen(menuItem->label) + 2);
-      sprintf(tmp, "=%s", menuItem->label);
-      XtFree(menuItem->label);
-      menuItem->label = tmp;
+      (void)PrefixMenuItemLabel(menuItem, "=");
       break;
 
     case DELIMIT_INLINE:
@@ -6266,20 +6458,14 @@ static void FixMenuItem (MenuSpec *menuSpec, MenuItem *menuItem)
 
     case DELIMIT_CASCADE:
       /* => */
-      tmp = (String) XtMalloc(strlen(menuItem->label) + 3);
-      sprintf(tmp, "=>%s", menuItem->label);
-      XtFree(menuItem->label);
-      menuItem->label = tmp;
+      (void)PrefixMenuItemLabel(menuItem, "=>");
       break;
 
     case EXCLUDE:
       /* ~ */
       StoreExclusion(menuSpec, menuItem->label);
 
-      tmp = (String) XtMalloc(strlen(menuItem->label) + 2);
-      sprintf(tmp, "~%s", menuItem->label);
-      XtFree(menuItem->label);
-      menuItem->label = tmp;
+      (void)PrefixMenuItemLabel(menuItem, "~");
       break;
     }
 }
@@ -6830,8 +7016,9 @@ PWarning (char *message)
         messageLength = snprintf(NULL, 0, pWarningStringLine,
                                  managerName, messageText, linec);
     }
-    formattedMessage = (messageLength >= 0) ?
-        (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+    formattedMessage = (messageLength >= 0 &&
+			(unsigned int)messageLength < UINT_MAX) ?
+        (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
     if (formattedMessage != NULL)
     {
         if (cfileP != NULL)
@@ -6918,7 +7105,7 @@ static void InitKeySubs (
     KeySub *pKSret;
     unsigned char *pch0;
     unsigned char *pch1;
-    int len;
+    size_t len;
 #ifndef NO_MULTIBYTE
     int		chlen;
 #endif 
@@ -7346,6 +7533,8 @@ void ProcessMotifBindings (void)
     char           *fileName;
     char           *homeDir = XmeGetHomeDirName();
     size_t          fileNameLength;
+    size_t          homeLength;
+    size_t          bindingLength;
 #else
     char           fileName[MAXWMPATH+1];
     FILE          *fileP;
@@ -7363,8 +7552,13 @@ void ProcessMotifBindings (void)
 #else
     if (homeDir == NULL)
         homeDir = "";
-    fileNameLength = strlen(homeDir) + strlen(MOTIF_BINDINGS_FILE) + 2;
-    fileName = (char *)XtMalloc((unsigned int)fileNameLength);
+    homeLength = strlen(homeDir);
+    bindingLength = strlen(MOTIF_BINDINGS_FILE);
+    if (homeLength > SIZE_MAX - bindingLength - 2 ||
+        homeLength + bindingLength + 2 > UINT_MAX)
+        return;
+    fileNameLength = homeLength + bindingLength + 2;
+    fileName = (char *)XtMalloc((Cardinal)fileNameLength);
     if (fileName == NULL)
         return;
     (void)snprintf(fileName, fileNameLength, "%s/%s", homeDir,
@@ -7774,8 +7968,9 @@ WarnConfigAllocation(const char *fileName)
         "Insufficient memory to process included file: %s");
     const char *path = (fileName != NULL) ? fileName : "";
     int messageLength = snprintf(NULL, 0, format, path);
-    char *message = (messageLength >= 0) ?
-        (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+    char *message = (messageLength >= 0 &&
+			(unsigned int)messageLength < UINT_MAX) ?
+        (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
     if (message != NULL)
     {
@@ -7960,8 +8155,9 @@ static void ConfigStackPop (void)
             const char *fileName = (pPrev->fileName != NULL) ?
                 pPrev->fileName : "";
             int messageLength = snprintf(NULL, 0, format, fileName);
-            char *message = (messageLength >= 0) ?
-                (char *)XtMalloc((unsigned int)messageLength + 1) : NULL;
+            char *message = (messageLength >= 0 &&
+				     (unsigned int)messageLength < UINT_MAX) ?
+                (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
             if (message != NULL)
             {
@@ -8017,27 +8213,62 @@ Boolean ParseWmFuncActionArg (unsigned char **linePP,
 #define WM_ACTION_ARG_INCREMENT 5
 #define WM_ACTION_ARG_PAD	256
     unsigned char *string;
+    unsigned char *allocated_string;
     char *pch;
+    char *new_pch;
     WmActionArg *pAP;
+    DtActionArg *new_aap;
+    size_t argument_length;
+    int new_arg_size;
     int iArgSz;
 
     pAP = XtNew (WmActionArg);
-    if (pAP && (string = GetString (linePP)) != NULL)
+    if (pAP == NULL)
     {
-	/* Got action name */
-	pAP->actionName = XtNewString ((char *) string);
+	*pArgs = NULL;
+	return FALSE;
+    }
+    pAP->actionName = NULL;
+    pAP->aap = NULL;
+    pAP->numArgs = 0;
+    pAP->szExecParms = NULL;
 
-	/* Get action arguments, if any */
-	if (pAP->aap = (DtActionArg *) 
-		XtMalloc (WM_ACTION_ARG_INCREMENT * sizeof (DtActionArg)))
+    string = GetString (linePP);
+    if (string == NULL)
+    {
+	XtFree((char *)pAP);
+	*pArgs = NULL;
+	return TRUE;
+    }
+
+    /* Got action name. */
+    pAP->actionName = XtNewString ((char *) string);
+    XtFree((char *)string);
+    if (pAP->actionName == NULL)
+    {
+	XtFree((char *)pAP);
+	*pArgs = NULL;
+	return FALSE;
+    }
+
+    /* Get action arguments, if any. */
+    pAP->aap = (DtActionArg *)
+	XtMalloc (WM_ACTION_ARG_INCREMENT * sizeof (DtActionArg));
+	if (pAP->aap != NULL)
 	{
 	    iArgSz = WM_ACTION_ARG_INCREMENT;
-	    pAP->numArgs = 0;
 
-	    while ((string = GetString (linePP)) != NULL)
+	    while ((allocated_string = GetString (linePP)) != NULL)
 	    {
+	       string = allocated_string;
+	       argument_length = strlen((char *)string);
+	       if (argument_length > UINT_MAX - 1)
+	       {
+		   XtFree((char *)allocated_string);
+		   break;
+	       }
 	       if (pAP->aap[pAP->numArgs].u.file.name = (char *)
-		       XtMalloc(1 + strlen((char *)string)))
+		       XtMalloc((Cardinal)(argument_length + 1)))
 	       {
 		   pAP->aap[pAP->numArgs].argClass = DtACTION_FILE;
 
@@ -8052,6 +8283,9 @@ Boolean ParseWmFuncActionArg (unsigned char **linePP,
 		       string = (unsigned char *) getenv ((char *)&string[1]);
 		       if (!string)
 		       {
+			   XtFree(pch);
+			   pAP->aap[pAP->numArgs].u.file.name = NULL;
+			   XtFree((char *)allocated_string);
 			   break;
 		       }
 		       else
@@ -8060,8 +8294,24 @@ Boolean ParseWmFuncActionArg (unsigned char **linePP,
 			    * Make sure there's room for the new
 			    * string.
 			    */
-			   pch = (char *) 
-			     XtRealloc (pch, (1+strlen((char *)string)));
+			   argument_length = strlen((char *)string);
+			   if (argument_length > UINT_MAX - 1)
+			   {
+			       XtFree(pch);
+			       pAP->aap[pAP->numArgs].u.file.name = NULL;
+			       XtFree((char *)allocated_string);
+			       break;
+			   }
+			   new_pch = (char *)
+			     XtRealloc (pch, (Cardinal)(argument_length + 1));
+			   if (new_pch == NULL)
+			   {
+			       XtFree(pch);
+			       pAP->aap[pAP->numArgs].u.file.name = NULL;
+			       XtFree((char *)allocated_string);
+			       break;
+			   }
+			   pch = new_pch;
 			   pAP->aap[pAP->numArgs].u.file.name = pch;
 		       }
 		   }
@@ -8069,19 +8319,26 @@ Boolean ParseWmFuncActionArg (unsigned char **linePP,
 		   /* !!! No host name processing is done!!! */
 
 		   strcpy (pch, (char *)string);
+		   XtFree((char *)allocated_string);
 
 		   pAP->numArgs++;
 		   if (pAP->numArgs == iArgSz)
 		   {
 		       /* need to increase our array space */
-		       iArgSz += WM_ACTION_ARG_INCREMENT;
-		       pAP->aap = (DtActionArg *) 
+		       if (iArgSz > INT_MAX - WM_ACTION_ARG_INCREMENT)
+			   break;
+		       new_arg_size = iArgSz + WM_ACTION_ARG_INCREMENT;
+		       if ((size_t)new_arg_size > SIZE_MAX / sizeof(DtActionArg))
+			   break;
+		       new_aap = (DtActionArg *)
 			   XtRealloc((char *)pAP->aap,
-			             (iArgSz * sizeof (DtActionArg)));
-		       if (!pAP->aap)
+			             (size_t)new_arg_size * sizeof (DtActionArg));
+		       if (new_aap == NULL)
 		       {
 			   break; /* out of memory */
 		       }
+		       pAP->aap = new_aap;
+		       iArgSz = new_arg_size;
 		   }
 	       }
 	       else
@@ -8091,14 +8348,14 @@ Boolean ParseWmFuncActionArg (unsigned char **linePP,
 	    }
 
 	}
-	pAP->szExecParms = NULL;
-        *pArgs = (String) pAP;
-    }
-    else
-    /* NULL string argument */
-    {
-        *pArgs = NULL;
-    }
+	else
+	{
+	    XtFree((char *)pAP->actionName);
+	    XtFree((char *)pAP);
+	    *pArgs = NULL;
+	    return FALSE;
+	}
+	*pArgs = (String) pAP;
 
     return (TRUE);
 
@@ -8137,6 +8394,7 @@ PreprocessConfigFile (void)
 {
 #define CPP_NAME_SIZE	((L_tmpnam)+1)
     char pchCmd[MAXWMPATH+1];
+    int commandLength;
 
     if (wmGD.cppCommand && *wmGD.cppCommand)
     {
@@ -8151,11 +8409,20 @@ PreprocessConfigFile (void)
 	    /*
 	     * Build up the command line.
 	     */
-	    strcpy (pchCmd, wmGD.cppCommand);
-	    strcat (pchCmd, " ");
-	    strcat (pchCmd, pConfigStackTop->fileName);
-	    strcat (pchCmd, " ");
-	    strcat (pchCmd, pConfigStackTop->cppName);
+	    commandLength = snprintf(NULL, 0, "%s %s %s", wmGD.cppCommand,
+				      pConfigStackTop->fileName,
+				      pConfigStackTop->cppName);
+	    if (commandLength < 0 || commandLength >= (int)sizeof(pchCmd))
+	    {
+		Warning("Preprocessor command is too long");
+		(void)unlink(pConfigStackTop->cppName);
+		XtFree(pConfigStackTop->cppName);
+		pConfigStackTop->cppName = NULL;
+		return;
+	    }
+	    (void)snprintf(pchCmd, sizeof(pchCmd), "%s %s %s",
+			    wmGD.cppCommand, pConfigStackTop->fileName,
+			    pConfigStackTop->cppName);
 
 	    /*
 	     * Run the config file through the converter program
@@ -8207,7 +8474,10 @@ GetNetworkFileName (char *pchFile)
     char **pchTok;
     String sReturn = NULL;
     char *homeDir;
-    int len;
+    size_t len;
+    size_t hostLength;
+    size_t homeLength;
+    size_t fileLength;
 
 
     pch = strchr (pchFile, ':');
@@ -8243,8 +8513,17 @@ GetNetworkFileName (char *pchFile)
 		 * copy the string so we don't munge data
 		 * inside shellscan 
 		 */
-		host_part = sName = XtNewString ((String) host_part);
+		sName = XtNewString ((String) host_part);
+		if (sName == NULL)
+		    goto fallback;
+		host_part = sName;
 		pch = strchr (sName, ':');
+		if (pch == NULL)
+		{
+		    XtFree(sName);
+		    sName = NULL;
+		    goto fallback;
+		}
 
 		/*
 		 * separate the host and file parts of the
@@ -8274,9 +8553,28 @@ GetNetworkFileName (char *pchFile)
 		 * Replace '~' with $HOME
 		 */
 		homeDir = XmeGetHomeDirName();
-		len = strlen (host_part) + 1 +
-		      strlen (homeDir) + strlen (file_part) + 1;
-		pch = (char *) XtMalloc (len);
+		if (homeDir == NULL)
+		    homeDir = "";
+		hostLength = strlen(host_part);
+		homeLength = strlen(homeDir);
+		fileLength = strlen(file_part);
+		if (hostLength > SIZE_MAX - 1 ||
+		    hostLength + 1 > SIZE_MAX - homeLength ||
+		    hostLength + 1 + homeLength > SIZE_MAX - fileLength - 1 ||
+		    hostLength + 1 + homeLength + fileLength + 1 > UINT_MAX)
+		{
+		    XtFree(sName);
+		    sName = NULL;
+		    goto fallback;
+		}
+		len = hostLength + 1 + homeLength + fileLength + 1;
+		pch = (char *) XtMalloc ((Cardinal)len);
+		if (pch == NULL)
+		{
+		    XtFree(sName);
+		    sName = NULL;
+		    goto fallback;
+		}
 		strcpy (pch, sName);
 		host_part = pch;
 		pch += strlen (pch) + 1;
@@ -8294,8 +8592,17 @@ GetNetworkFileName (char *pchFile)
 	     * just operate on the name as-is.
 	     * temporarily replace ':' with a NULL 
 	     */
-	    host_part = sName = XtNewString ((String) pchFile);
+	    sName = XtNewString ((String) pchFile);
+	    if (sName == NULL)
+		goto fallback;
+	    host_part = sName;
 	    pch = strchr (sName, ':');
+	    if (pch == NULL)
+	    {
+		XtFree(sName);
+		sName = NULL;
+		goto fallback;
+	    }
 	    *pch = '\0';
 	    host_part = pchFile;
 	    file_part = pch+1;
@@ -8323,6 +8630,7 @@ GetNetworkFileName (char *pchFile)
 	}
     }
 
+fallback:
     if (sReturn == NULL)
     {
 	if (
@@ -8336,9 +8644,18 @@ GetNetworkFileName (char *pchFile)
 	    /*
 	     * Replace '~' with $HOME
 	     */
-	    homeDir = XmeGetHomeDirName();
-	    len = strlen (homeDir) + strlen (pchFile) + 1;
-	    sReturn = (char *) XtMalloc (len);
+		homeDir = XmeGetHomeDirName();
+		if (homeDir == NULL)
+		    homeDir = "";
+		homeLength = strlen(homeDir);
+		fileLength = strlen(pchFile);
+		if (homeLength > SIZE_MAX - fileLength - 1 ||
+		    homeLength + fileLength + 1 > UINT_MAX)
+		    return NULL;
+		len = homeLength + fileLength + 1;
+		sReturn = (char *) XtMalloc ((Cardinal)len);
+		if (sReturn == NULL)
+		    return NULL;
 	    strcpy (sReturn, homeDir);
 	    strcat (sReturn, pchFile+1);
 	}
@@ -8427,7 +8744,9 @@ MenuItem *MakeSeparatorTemplate (int position)
 {
     MenuItem *item;
 
-    item = (MenuItem *)XtMalloc(sizeof(MenuItem));
+    item = (MenuItem *)XtCalloc(1, sizeof(MenuItem));
+    if (item == NULL)
+	return (NULL);
 
     /* We use the labelType to determine where this separator is positioned
        relative to the client command(s) it is surrounding, i.e. TOP or
@@ -8435,6 +8754,10 @@ MenuItem *MakeSeparatorTemplate (int position)
     item->labelType = position;
     /* Make it look like a client command: */
     item->label = XtNewString("<label-template>");
+    if (item->label == NULL) {
+	XtFree((char *)item);
+	return (NULL);
+    }
     item->labelBitmapIndex = -1;
     item->mnemonic = (KeySym) 0;
     item->accelState = 0;

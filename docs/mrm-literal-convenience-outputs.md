@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm literal convenience output validation
 
 The public `MrmFetchIconLiteral`, `MrmFetchBitmapLiteral`, and
@@ -12,3 +15,6 @@ icon and color outputs could reach lower-level conversion helpers and crash.
 Missing outputs now return `MrmFAILURE` without acquiring locks or allocating a
 resource context. Existing successful calls retain their lookup and conversion
 behavior.
+
+The source-level regression is
+`tests/automated/check-mrm-literal-convenience-outputs.py`.

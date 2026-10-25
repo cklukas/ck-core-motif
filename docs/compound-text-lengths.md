@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Compound-text segment lengths
 
 Compound-text decoding now checks the combined encoding-prefix and segment

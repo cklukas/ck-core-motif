@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm error-diagnostic bounds
 
 The window manager's WSM warning wrapper and X I/O error handler receive

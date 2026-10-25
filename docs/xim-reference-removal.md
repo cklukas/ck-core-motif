@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XIM reference removal
 
 XIM display data tracks widgets that share input contexts. The old removal

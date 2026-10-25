@@ -537,6 +537,9 @@ SecondaryObjectCreate(
     else
        mergedArgs = myArgs;
 
+    if (mergedArgs == NULL)
+       return;
+
 
     cePtr = _XmGetBaseClassExtPtr(XtClass(new_w), XmQmotif);
     (void) XtCreateWidget(XtName(new_w),

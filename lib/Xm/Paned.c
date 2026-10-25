@@ -27,6 +27,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
+#include <stdint.h>
 
 #include "XmI.h"
 #include <Xm/PanedP.h>
@@ -1126,7 +1127,8 @@ RefigureLocations(XmPanedWidget pw, int paneindex, Direction dir)
 	  childP++ ) {
 	if (LayoutIsRtoLM(pw) && !(IsVert(pw))) {
 	    loc += PaneInfo(*childP)->size + 2 * (*childP)->core.border_width;
-	    PaneInfo(*childP)->delta = pw->core.width - loc;
+	    PaneInfo(*childP)->delta = (Position)
+		((int) pw->core.width - (int) loc);
 	} else {
 	    PaneInfo(*childP)->delta = loc;
 	    loc += PaneInfo(*childP)->size + 2 * (*childP)->core.border_width;
@@ -1151,13 +1153,20 @@ RefigureLocations(XmPanedWidget pw, int paneindex, Direction dir)
  *                 XtGeometryYes policy as Motif1.2 dictates.
  */
 
+static Dimension
+PanedAvailableSpan(Dimension total, int offset, Dimension border)
+{
+    int available = (int) total - 2 * (offset + (int) border);
+    return (Dimension) ((available > 0) ? available : 1);
+}
+
 static void 
 CommitNewLocations(XmPanedWidget pw, Widget no_resize_child)
 {
     register Widget *childP;
     XWindowChanges changes;
     XWindowChanges sep;
-    int	offset, sash_size;
+    int	offset, sash_size, sash_pos, separator_pos;
     
     if (!XmPaned_refiguremode(pw))
 	return;
@@ -1188,15 +1197,14 @@ CommitNewLocations(XmPanedWidget pw, Widget no_resize_child)
 	    if (*childP == no_resize_child) {
 		(*childP)->core.x = offset;
 		(*childP)->core.y = pane->delta;
-		(*childP)->core.width = (pw->core.width -
-					 2 * (offset + 
-					      (*childP)->core.border_width));
+		(*childP)->core.width = PanedAvailableSpan(
+		    pw->core.width, offset, (*childP)->core.border_width);
 		(*childP)->core.height = pane->size;
 	    }
 	    else {
 		_XmConfigureWidget(*childP, (Position) offset, pane->delta,
-				   pw->core.width -
-				   2*(offset + (*childP)->core.border_width),
+				   PanedAvailableSpan(pw->core.width, offset,
+					       (*childP)->core.border_width),
 				   (Dimension) pane->size,
 				   (Dimension) (*childP)->core.border_width);
 	    }
@@ -1208,26 +1216,30 @@ CommitNewLocations(XmPanedWidget pw, Widget no_resize_child)
 		 */
 
 	        if(XmPaned_sash_indent(pw) < 0) {
-	            changes.x = (pw->core.width + XmPaned_sash_indent(pw) -
-				 sash->core.width -
-				 sash->core.border_width * 2);
+	            sash_pos = (int) pw->core.width +
+			    XmPaned_sash_indent(pw) - (int) sash->core.width -
+			    (int) sash->core.border_width * 2;
+	            changes.x = (Position) sash_pos;
 		} else {
 	            changes.x = XmPaned_sash_indent(pw);
 		}
-		changes.y = ((*childP)->core.y + (*childP)->core.height +
-			     2 * (*childP)->core.border_width +
-			     internal_space/2 - sash->core.height/2 -
-			     sash->core.border_width); 
+		sash_pos = (int) (*childP)->core.y +
+		    (int) (*childP)->core.height +
+		    2 * (int) (*childP)->core.border_width +
+		    internal_space / 2 - (int) sash->core.height / 2 -
+		    (int) sash->core.border_width;
+		changes.y = (Position) sash_pos;
 	    }
 
 	    if (separator != NULL) {
 		sep.width = pw->core.width;
 		sep.height = XmPaned_sash_shadow_thickness(pw);
 		sep.x = 0;
-		sep.y = ((*childP)->core.y + (*childP)->core.height -
-			 sep.height / 2 - separator->core.border_width +
-			 internal_space / 2 +
-			 2 * (*childP)->core.border_width);
+		separator_pos = (int) (*childP)->core.y +
+		    (int) (*childP)->core.height - (int) sep.height / 2 -
+		    (int) separator->core.border_width + internal_space / 2 +
+		    2 * (int) (*childP)->core.border_width;
+		sep.y = (Position) separator_pos;
 	    }
 
 	} else {
@@ -1235,32 +1247,35 @@ CommitNewLocations(XmPanedWidget pw, Widget no_resize_child)
 		(*childP)->core.x = pane->delta;
 		(*childP)->core.y = offset;
 		(*childP)->core.width = pane->size;
-		(*childP)->core.height = (pw->core.height -
-					  2 * (offset +
-					       (*childP)->core.border_width));
+		(*childP)->core.height = PanedAvailableSpan(
+		    pw->core.height, offset, (*childP)->core.border_width);
 	    }
 	    else {
 		_XmConfigureWidget(*childP, pane->delta, (Position) offset,
 				   (Dimension) pane->size,
-				   pw->core.height -
-				   2*(offset + (*childP)->core.border_width),
+				   PanedAvailableSpan(pw->core.height, offset,
+					       (*childP)->core.border_width),
 				   (Dimension) (*childP)->core.border_width);
 	    }
 	    	    
 	    if (sash != NULL) {	    /* Move and Display the Sash */
 		if (LayoutIsRtoLM(pw))
-		    changes.x = ((*childP)->core.x -
-			     internal_space / 2 - sash->core.width/2 -
-			     sash->core.border_width); 
+		    sash_pos = (int) (*childP)->core.x -
+			     internal_space / 2 - (int) sash->core.width / 2 -
+			     (int) sash->core.border_width;
 		else
-		    changes.x = ((*childP)->core.x + (*childP)->core.width +
-			     2 * (*childP)->core.border_width +
-			     internal_space / 2 - sash->core.width/2 -
-			     sash->core.border_width); 
+		    sash_pos = (int) (*childP)->core.x +
+			     (int) (*childP)->core.width +
+			     2 * (int) (*childP)->core.border_width +
+			     internal_space / 2 - (int) sash->core.width / 2 -
+			     (int) sash->core.border_width;
+		changes.x = (Position) sash_pos;
 		/* Motif style does - indent from right edge, pos from left */
 	        if(XmPaned_sash_indent(pw) < 0) {
-		    changes.y = pw->core.height + XmPaned_sash_indent(pw) -
-			sash->core.height - sash->core.border_width*2;
+		    sash_pos = (int) pw->core.height +
+			    XmPaned_sash_indent(pw) - (int) sash->core.height -
+			    (int) sash->core.border_width * 2;
+		    changes.y = (Position) sash_pos;
 		} 
 		else {
 		    changes.y = XmPaned_sash_indent(pw);
@@ -1272,14 +1287,15 @@ CommitNewLocations(XmPanedWidget pw, Widget no_resize_child)
 		sep.height = pw->core.height;
 		sep.y = 0;
 		if (LayoutIsRtoLM(pw))
-		    sep.x = ((*childP)->core.x -
-			 sep.width / 2 - separator->core.border_width -
-			 internal_space / 2);
+		    separator_pos = (int) (*childP)->core.x -
+			 (int) sep.width / 2 - (int) separator->core.border_width -
+			 internal_space / 2;
 		else
-		    sep.x = ((*childP)->core.x + (*childP)->core.width -
-			 sep.width / 2 - separator->core.border_width +
-			 internal_space / 2 +
-			 2 * (*childP)->core.border_width);
+		    separator_pos = (int) (*childP)->core.x +
+			 (int) (*childP)->core.width - (int) sep.width / 2 -
+			 (int) separator->core.border_width + internal_space / 2 +
+			 2 * (int) (*childP)->core.border_width;
+		sep.x = (Position) separator_pos;
 	    }
 	}
 	
@@ -1676,7 +1692,7 @@ HandleSash(Widget sash, XtPointer junk, XtPointer callData)
 	default:
 	    return;
 	case  'U':		/* Up */
-	    XmCopyISOLatin1Lowered(restptr, call_data->params[2] + 2);
+	    XmCopyISOLatin1LoweredN(restptr, sizeof(restptr), call_data->params[2] + 2);
 
 	    if (!IsVert(pw))
 		increment = 0;
@@ -1684,19 +1700,19 @@ HandleSash(Widget sash, XtPointer junk, XtPointer callData)
 		increment = -increment;
 	    break;
 	case 'L':		/* Left */
-	    XmCopyISOLatin1Lowered(restptr, call_data->params[2] + 4);
+	    XmCopyISOLatin1LoweredN(restptr, sizeof(restptr), call_data->params[2] + 4);
 	    if (IsVert(pw))
 		increment = 0;
 	    else
 		increment = -increment;
 	    break;
 	case  'D':		/* Down */
-	    XmCopyISOLatin1Lowered(restptr, call_data->params[2] + 4);
+	    XmCopyISOLatin1LoweredN(restptr, sizeof(restptr), call_data->params[2] + 4);
 	    if (!IsVert(pw))
 		increment = 0;
 	    break;
 	case  'R':		/* Right */
-	    XmCopyISOLatin1Lowered(restptr, call_data->params[2] + 5);
+	    XmCopyISOLatin1LoweredN(restptr, sizeof(restptr), call_data->params[2] + 5);
 	    if (IsVert(pw))
 		increment = 0;
 	    break;
@@ -1770,11 +1786,27 @@ ManageAndUnmanageSashs(XmPanedWidget pw)
    Cardinal alloc_size;
    Boolean last_child_has_sash = False;
 
-   alloc_size = (Cardinal) sizeof(Widget) * pw->composite.num_children / 2;
-   managedP = managed_sashs = (WidgetList) XtMalloc(alloc_size);
-   unmanagedP = unmanaged_sashs = (WidgetList) XtMalloc(alloc_size);
-   managedS = managed_seps = (WidgetList) XtMalloc(alloc_size);
-   unmanagedS = unmanaged_seps = (WidgetList) XtMalloc(alloc_size);
+   if (pw->composite.num_children > UINT_MAX / sizeof(Widget))
+       return;
+   alloc_size = (Cardinal) sizeof(Widget) * pw->composite.num_children;
+   if (alloc_size == 0)
+       return;
+   managed_sashs = (WidgetList) XtMalloc(alloc_size);
+   unmanaged_sashs = (WidgetList) XtMalloc(alloc_size);
+   managed_seps = (WidgetList) XtMalloc(alloc_size);
+   unmanaged_seps = (WidgetList) XtMalloc(alloc_size);
+   if (managed_sashs == NULL || unmanaged_sashs == NULL ||
+       managed_seps == NULL || unmanaged_seps == NULL) {
+       XtFree((char *)managed_sashs);
+       XtFree((char *)unmanaged_sashs);
+       XtFree((char *)managed_seps);
+       XtFree((char *)unmanaged_seps);
+       return;
+   }
+   managedP = managed_sashs;
+   unmanagedP = unmanaged_sashs;
+   managedS = managed_seps;
+   unmanagedS = unmanaged_seps;
 
    ForAllChildren(pw, childP) {
        if (!IsPane(*childP))
@@ -2059,6 +2091,9 @@ static void
 PushPaneStack(XmPanedWidget pw, Pane pane)
 {
     PaneStack * stack = (PaneStack *) XtMalloc(sizeof(PaneStack));
+
+    if (stack == NULL)
+	return;
     
     stack->next = XmPaned_stack(pw);
     stack->pane = pane;
@@ -2506,7 +2541,7 @@ ConstraintDestroy(Widget w)
 static void 
 ReManageChildren(XmPanedWidget pw)
 {
-    int i;
+    Cardinal i;
 
     XmPaned_num_panes(pw) = 0;
     for (i = 0; i < pw->composite.num_children; i++) {
@@ -2517,10 +2552,21 @@ ReManageChildren(XmPanedWidget pw)
 
 	    /* expand our storage area if needed */
 	    if ((XmPaned_num_panes(pw) + 1) > XmPaned_num_slots(pw)) {
-		XmPaned_num_slots(pw) += BLOCK;
-		XmPaned_managed_children(pw) = (WidgetList)
-			XtRealloc ((XtPointer) XmPaned_managed_children(pw),
-				(XmPaned_num_slots(pw) * sizeof(Widget)));
+		Cardinal new_slots;
+		WidgetList new_children;
+		if (XmPaned_num_slots(pw) > (Cardinal)~0 - BLOCK)
+		    return;
+		new_slots = XmPaned_num_slots(pw) + BLOCK;
+		if ((size_t)new_slots > SIZE_MAX / sizeof(Widget) ||
+		    (size_t)new_slots > (size_t)((Cardinal)~0) / sizeof(Widget))
+		    return;
+		new_children = (WidgetList)XtRealloc(
+		    (XtPointer)XmPaned_managed_children(pw),
+		    (Cardinal)((size_t)new_slots * sizeof(Widget)));
+		if (new_children == NULL)
+		    return;
+		XmPaned_managed_children(pw) = new_children;
+		XmPaned_num_slots(pw) = new_slots;
 	    }
 	    
 #ifndef POSITION_IMPLEMENTED
@@ -2921,6 +2967,8 @@ XmPanedGetPanes(Widget w, WidgetList *panes, int *num)
 {
     XmPanedWidget pw = (XmPanedWidget) w;
 
+    if (w == NULL || panes == NULL || num == NULL)
+        return 0;
     _XmWidgetToAppContext(w);
     _XmAppLock(app);
 

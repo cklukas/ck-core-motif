@@ -33,7 +33,6 @@
 #include <Xm/IconLabel.h>
 #include <Xm/Divider.h>
 #include <Xm/Avatar.h>
-#include <Xm/TeachingTip.h>
 #include <Xm/Link.h>
 #include <Xm/SearchBox.h>
 #include <Xm/Prompt.h>
@@ -75,6 +74,10 @@ static void deferred_destroy(XtPointer, XtIntervalId *);
 static Boolean sync_native_list(XmAccessibility *, XmAccessibleNode *);
 static void list_changed(Widget, XtPointer, XtPointer);
 static XmAccessibleId focused_identity(XmAccessibility *);
+static int bounded_text_length(const char *text) {
+  size_t length = text ? strlen(text) : 0;
+  return length > (size_t)INT_MAX ? INT_MAX : (int)length;
+}
 
 /* Live-object indexes never allocate in proportion to historical IDs. */
 static size_t id_hash(XmAccessibleId id, size_t capacity) {
@@ -225,10 +228,12 @@ static void menu_changed(XmAccessibility *a, Widget w) {
   } else if (XmIsMenuShell(w)) {
     XtVaGetValues(w, XtNchildren, &children, XtNnumChildren, &count, NULL);
     /* Snapshot IDs: notification can run client/provider code and retire nodes. */
-    if ((size_t)count > SIZE_MAX / sizeof(XmAccessibleId))
+    if ((size_t)count > SIZE_MAX / sizeof(XmAccessibleId) ||
+        count > UINT_MAX / sizeof(XmAccessibleId))
       return;
-    XmAccessibleId *ids = (XmAccessibleId *)XtMalloc(count * sizeof(*ids));
-    if (!ids)
+    XmAccessibleId *ids = (XmAccessibleId *)XtMalloc(
+	(Cardinal)(count * sizeof(*ids)));
+    if (count != 0 && !ids)
       return;
     for (k = 0; k < count; ++k)
       ids[k] = menu_pane(children[k])
@@ -700,7 +705,6 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
 XmAccessibility *XmAccessibilityCreate(Widget root, const char *name) {
   XmAccessibility *a;
   XmAccessibleNode *n;
-
   if (!root)
     return NULL;
   a = (XmAccessibility *)XtCalloc(1, sizeof(*a));
@@ -709,6 +713,10 @@ XmAccessibility *XmAccessibilityCreate(Widget root, const char *name) {
   a->root = root;
   a->app = XtWidgetToApplicationContext(root);
   a->name = XtNewString(name ? name : XtName(root));
+  if (!a->name) {
+    XmAccessibilityDestroy(a);
+    return NULL;
+  }
   a->status = XmACCESSIBILITY_NOT_BUILT;
   n = add_node(a, 0);
   if (!n) { XmAccessibilityDestroy(a); return NULL; }
@@ -951,9 +959,12 @@ static char *locale_utf8(const char *s) {
   count = mbsrtowcs(NULL, &p, 0, &state);
   if (count == (size_t)-1 ||
       count > SIZE_MAX / sizeof(*wide) - 1 ||
-      count > (SIZE_MAX - 1) / 4)
+      count > ((size_t)((Cardinal)~0) / sizeof(*wide)) - 1 ||
+      count > (SIZE_MAX - 1) / 4 ||
+      count > ((size_t)((Cardinal)~0) - 1) / 4)
     return NULL;
-  wide = (wchar_t *)XtMalloc((count + 1) * sizeof(*wide));
+  wide = (wchar_t *)XtMalloc(
+	(Cardinal)((count + 1) * sizeof(*wide)));
   if (!wide)
     return NULL;
   p = s;
@@ -962,7 +973,7 @@ static char *locale_utf8(const char *s) {
     XtFree((char *)wide);
     return NULL;
   }
-  result = (char *)XtMalloc(count * 4 + 1);
+  result = (char *)XtMalloc((Cardinal)(count * 4 + 1));
   if (!result) {
     XtFree((char *)wide);
     return NULL;
@@ -1234,7 +1245,7 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     i->role = XmACCESSIBLE_PANEL;
     i->has_text = True;
     XtVaGetValues(w, XmNinfoMessage, &message, NULL);
-    i->text_length = message ? (int)strlen(message) : 0;
+    i->text_length = bounded_text_length(message);
     i->value_text = XtNewString(message ? message : "");
   }
   if (XmIsBreadcrumbBar(w)) {
@@ -1367,29 +1378,6 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
       local = XtNewString("Avatar");
     }
   }
-  if (XmIsTeachingTip(w)) {
-    XmString title = NULL;
-    XmString text = NULL;
-    i->role = XmACCESSIBLE_PANEL;
-    i->has_text = True;
-    XtVaGetValues(w, XmNteachingTipTitle, &title,
-                  XmNteachingTipText, &text, NULL);
-    if (title)
-      local = XmStringUnparse(title, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
-                              NULL, 0, XmOUTPUT_ALL);
-    if (!local || !*local) {
-      if (local)
-        XtFree(local);
-      local = text ? XmStringUnparse(text, NULL, XmCHARSET_TEXT,
-                                     XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL)
-                   : NULL;
-    }
-    if (!local || !*local) {
-      if (local)
-        XtFree(local);
-      local = XtNewString("Teaching tip");
-    }
-  }
   if (XmIsLink(w)) {
     XmString label_string = NULL;
     i->role = XmACCESSIBLE_BUTTON;
@@ -1403,7 +1391,7 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     char *query = XmSearchBoxGetString(w);
     i->role = XmACCESSIBLE_TEXT;
     i->has_text = True;
-    i->text_length = query ? (int)strlen(query) : 0;
+    i->text_length = bounded_text_length(query);
     i->action_count = 1;
     i->name = XtNewString("Search");
     if (query) XtFree(query);
@@ -1420,7 +1408,7 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     if (text) {
       i->name = text;
       i->has_text = True;
-      i->text_length = (int)strlen(text);
+      i->text_length = bounded_text_length(text);
     }
   }
   if (XmIsFormSection(w)) {
@@ -1656,7 +1644,11 @@ static char *text_impl(XmAccessibility *a, XmAccessibleId id, int start,
   if ((size_t)(end - start) > (INT_MAX - 1) / MB_CUR_MAX)
     return NULL;
   capacity = (size_t)(end - start) * MB_CUR_MAX + 1;
+  if (capacity > (size_t)((Cardinal)~0))
+    return NULL;
   local = XtMalloc((Cardinal)capacity);
+  if (local == NULL)
+    return NULL;
   status = XmIsText(n->widget)
                ? XmTextGetSubstring(n->widget, start, end - start,
                                     (int)capacity, local)

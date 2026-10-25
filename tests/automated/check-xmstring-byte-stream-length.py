@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-"""Check XmString byte-stream length validates input and arithmetic."""
+"""Check XmStringByteStreamLength validates ASN.1 input."""
+
 from pathlib import Path
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmString.c").read_text()
-start = source.index("XmStringByteStreamLength(")
-end = source.index("/*\n * build the ASN.1 format", start)
+
+source = Path("lib/Xm/XmString.c").read_text()
+start = source.index("XmStringByteStreamLength(unsigned char *string)")
+end = source.index("\n}\n", start)
 region = source[start:end]
-assert "if (string == NULL)" in region
-assert "unsigned int len, header_size;" in region
-assert "header_size > UINT_MAX - len" in region
-assert region.index("if (string == NULL)") < region.index("_XmProcessLock")
-print("PASS XmString byte-stream length validation is guarded")
+
+assert "if (!_is_asn1(string))" in region
+assert "return(0);" in region
+assert region.index("_is_asn1") < region.index("_read_string_length")
+
+print("XmStringByteStreamLength validates ASN.1 input")

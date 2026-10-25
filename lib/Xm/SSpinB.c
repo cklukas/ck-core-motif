@@ -863,6 +863,7 @@ XmSimpleSpinBoxAddItem(	Widget		ssb_w,
     XmSpinBoxConstraint	textf_c;
     XmStringTable	values;
     int			new_nvalues;
+    int			new_position;
     int			i;
     _XmWidgetToAppContext(ssb_w);
 
@@ -915,33 +916,44 @@ XmSimpleSpinBoxAddItem(	Widget		ssb_w,
 
     if (ssb_p->num_values == INT_MAX ||
         (size_t)ssb_p->num_values >
-          (SIZE_MAX - sizeof(XmString)) / sizeof(XmString)) {
+          (SIZE_MAX - sizeof(XmString)) / sizeof(XmString) ||
+        (size_t)ssb_p->num_values >
+          (UINT_MAX - sizeof(XmString)) / sizeof(XmString)) {
       _XmAppUnlock(app);
       return;
     }
     new_nvalues = ssb_p->num_values + 1;
+    new_position = ssb_p->position;
 
     /*
      * Keep the position up to date.
      */
     if (ssb_p->num_values > 0 && ssb_p->position >= pos)
-      ssb_p->position++;
+      new_position++;
 
     /*
      * Copy the current array of values adding in the new item.
      */
     values = (XmStringTable)
-	     XtRealloc((char *) NULL, sizeof(XmString) * new_nvalues);
+	     XtMalloc((Cardinal)(sizeof(XmString) * (size_t)new_nvalues));
     if (values == (XmStringTable) NULL) {
       _XmAppUnlock(app);
       return;
     }
 
-    for (i=0; i<pos; i++)
+    for (i=0; i<pos; i++) {
       values[i] = XmStringCopy(ssb_p->values[i]);
+      if (values[i] == NULL)
+	 goto add_copy_failure;
+    }
     values[pos] =  XmStringCopy(item);
-    for (i=pos+1; i<new_nvalues; i++)
+    if (values[pos] == NULL)
+	 goto add_copy_failure;
+    for (i=pos+1; i<new_nvalues; i++) {
       values[i] = XmStringCopy(ssb_p->values[i-1]);
+      if (values[i] == NULL)
+	 goto add_copy_failure;
+    }
 
     /*
      * Set the values array in the parent and save the XmStringTable.
@@ -949,7 +961,7 @@ XmSimpleSpinBoxAddItem(	Widget		ssb_w,
     XtVaSetValues(ssb_p->text_field,
     		  XmNvalues, values,
     		  XmNnumValues, new_nvalues,
-    		  XmNposition, ssb_p->position,
+		  XmNposition, new_position,
 		  NULL);
     textf_c = SB_GetConstraintRec(ssb_p->text_field);
     ssb_p->values = textf_c->values;
@@ -965,6 +977,13 @@ XmSimpleSpinBoxAddItem(	Widget		ssb_w,
 
     XtFree((char *) values);
     _XmAppUnlock(app);
+    return;
+
+add_copy_failure:
+    while (i != 0)
+	XmStringFree(values[--i]);
+    XtFree((char *) values);
+    _XmAppUnlock(app);
 }
 
 /************************************************************************
@@ -978,8 +997,9 @@ XmSimpleSpinBoxDeletePos(
 {
     XmSimpleSpinBoxPart	*ssb_p = SSB_SIMPLE_SPIN_BOX_PART(ssb_w);
     XmSpinBoxConstraint	textf_c;
-    int			i, skipped;
+    int			i, copied;
     int			new_nvalues;
+    int			new_position;
     XmStringTable	values;
     _XmWidgetToAppContext(ssb_w);
 
@@ -1026,30 +1046,39 @@ XmSimpleSpinBoxDeletePos(
       pos--;
 
     new_nvalues = ssb_p->num_values - 1;
+    new_position = ssb_p->position;
 
     /*
      * Keep the position up to date.
      */
     if (ssb_p->position > pos)
-      ssb_p->position--;
-    if (ssb_p->position >= new_nvalues)
-      ssb_p->position = (new_nvalues > 0) ? new_nvalues - 1 : 0;
+      new_position--;
+    if (new_position >= new_nvalues)
+      new_position = (new_nvalues > 0) ? new_nvalues - 1 : 0;
 
     /*
      * Copy the current array of values skipping the item in position 'pos'.
      */
+    if ((size_t)new_nvalues > SIZE_MAX / sizeof(XmString) ||
+	(size_t)new_nvalues > UINT_MAX / sizeof(XmString)) {
+      _XmAppUnlock(app);
+      return;
+    }
     values = (new_nvalues > 0) ? (XmStringTable)
-	     XtMalloc(sizeof(XmString) * new_nvalues) : NULL;
+	     XtMalloc((Cardinal)(sizeof(XmString) * (size_t)new_nvalues)) : NULL;
     if (new_nvalues > 0 && values == (XmStringTable) NULL) {
       _XmAppUnlock(app);
       return;
     }
 
-    for (i=0, skipped=0; new_nvalues > 0 && i<ssb_p->num_values; i++)
-      if (i != pos)
-        values[i-skipped] = XmStringCopy(ssb_p->values[i]);
-      else
-	skipped++;
+    for (i=0, copied=0;
+         new_nvalues > 0 && i<ssb_p->num_values; i++)
+      if (i != pos) {
+        values[copied] = XmStringCopy(ssb_p->values[i]);
+        if (values[copied] == NULL)
+	  goto delete_copy_failure;
+	copied++;
+      }
 
     /*
      * Set the values array in the parent and save the XmStringTable.
@@ -1057,7 +1086,7 @@ XmSimpleSpinBoxDeletePos(
     XtVaSetValues(ssb_p->text_field, 
     		  XmNvalues, values,
     		  XmNnumValues, new_nvalues,
-    		  XmNposition, ssb_p->position,
+		  XmNposition, new_position,
 		  NULL);
     textf_c = SB_GetConstraintRec(ssb_p->text_field);
     ssb_p->values = textf_c->values;
@@ -1071,6 +1100,13 @@ XmSimpleSpinBoxDeletePos(
       if (values[i] != (XmString) NULL)
         XmStringFree(values[i]);
 
+    XtFree((char *) values);
+    _XmAppUnlock(app);
+    return;
+
+delete_copy_failure:
+    while (copied != 0)
+	XmStringFree(values[--copied]);
     XtFree((char *) values);
     _XmAppUnlock(app);
 }

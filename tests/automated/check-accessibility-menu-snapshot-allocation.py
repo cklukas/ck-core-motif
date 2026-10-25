@@ -8,6 +8,8 @@ start = text.index("static void menu_changed(")
 end = text.index("\nstatic void node_destroyed", start)
 region = text[start:end]
 assert "XmAccessibleId *ids = (XmAccessibleId *)XtMalloc" in region
-assert "if (!ids)" in region
+assert "count > UINT_MAX / sizeof(XmAccessibleId)" in region
+assert "(Cardinal)(count * sizeof(*ids))" in region
+assert "if (count != 0 && !ids)" in region
 assert "return;" in region
 print("accessibility menu snapshots guard allocation")

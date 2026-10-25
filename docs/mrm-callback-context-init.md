@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm callback context-list initialization
 
 Widget-instance creation and automatic-child setup now propagate failure when

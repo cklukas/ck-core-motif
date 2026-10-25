@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # UIL debug listing allocation failure
 
 The debug listing formatter first measures a variadic message and then allocates

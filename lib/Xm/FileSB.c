@@ -38,6 +38,8 @@ static char rcsid[] = "$TOG: FileSB.c /main/21 1997/09/26 13:38:52 bill $"
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
+#include <limits.h>
+#include <stdint.h>
 
 #include "RepTypeI.h"
 #include <Xm/FileSBP.h>
@@ -674,6 +676,7 @@ Initialize(
     int             numArgs ;
     XmFileSelectionBoxCallbackStruct searchData ;
     XmString local_xmstring ;
+    XmString replacement ;
 /****************/
 
     FS_StateFlags( new_w) = 0 ;
@@ -792,7 +795,9 @@ Initialize(
 	   XmStringCreate(" [    ] ", XmFONTLIST_DEFAULT_TAG));
     }
     else {   
-	FS_NoMatchString( new_w) = XmStringCopy( FS_NoMatchString( new_w)) ;
+	replacement = XmStringCopy( FS_NoMatchString( new_w));
+	if (replacement != NULL)
+	    FS_NoMatchString( new_w) = replacement;
     } 
 
     searchData.reason = XmCR_NONE ;
@@ -815,11 +820,14 @@ Initialize(
     if(FS_DirMask( new_w) != (XmString) XmUNSPECIFIED    )
     {   
         searchData.mask = XmStringCopy(FS_DirMask( new_w)) ;
+        if (searchData.mask == NULL)
+	    searchData.mask = XmStringCreate("*", XmFONTLIST_DEFAULT_TAG);
     } else {
 	searchData.mask = XmStringCreate("*", XmFONTLIST_DEFAULT_TAG);
     }
 
-    searchData.mask_length = XmStringLength( searchData.mask) ;
+    if (searchData.mask != NULL)
+	searchData.mask_length = XmStringLength( searchData.mask) ;
 
         /* The DirMask field will be set after subsequent call to
         *   the DirSearchProc.  Set field to NULL to prevent freeing of
@@ -830,24 +838,30 @@ Initialize(
     if(    FS_Directory( new_w)    )
     {
         searchData.dir = XmStringCopy( FS_Directory( new_w)) ;
-        searchData.dir_length = XmStringLength( searchData.dir) ;
+        if (searchData.dir != NULL)
+	{
+	    searchData.dir_length = XmStringLength( searchData.dir) ;
 
         /* The Directory field will be set after subsequent call to
         *   the DirSearchProc.  Set field to NULL to prevent freeing of
         *   memory owned by request.
         */
-        FS_Directory( new_w) = NULL ;
+	    FS_Directory( new_w) = NULL ;
+	}
         }
     if(    FS_Pattern( new_w)    )
     {
         searchData.pattern = XmStringCopy( FS_Pattern( new_w)) ;
-        searchData.pattern_length = XmStringLength( searchData.pattern) ;
+        if (searchData.pattern != NULL)
+	{
+	    searchData.pattern_length = XmStringLength( searchData.pattern) ;
 
         /* The Pattern field will be set after subsequent call to
         *   the DirSearchProc.  Set field to NULL to prevent freeing of
         *   memory owned by request.
         */
-        FS_Pattern( new_w) = NULL ;
+	    FS_Pattern( new_w) = NULL ;
+	}
         }
 
     if(    !FS_QualifySearchDataProc( new_w)    )
@@ -1200,7 +1214,7 @@ FileSBGeoMatrixCreate(
     Boolean         selLabelBox ;
     Boolean         filterLabelBox ;
     Dimension       vspace = BB_MarginHeight(fsb);
-    int             i;
+    Cardinal        i;
 
 /*
  * Layout FileSelectionBox XmGeoMatrix.
@@ -1211,6 +1225,8 @@ FileSBGeoMatrixCreate(
     geoSpec = _XmGeoMatrixAlloc( XmFSB_MAX_WIDGETS_VERT,
                               fsb->composite.num_children,
                               sizeof( FS_GeoExtensionRec)) ;
+    if (geoSpec == NULL)
+        return NULL;
     geoSpec->composite = (Widget) fsb ;
     geoSpec->instigator = (Widget) instigator ;
     if(    desired    )
@@ -1862,16 +1878,13 @@ FileSearchProc(
 	    qsort( (void *)fileList, numFiles, sizeof( char *), 
 		  _XmOSFileCompare) ;
 	
-        XmStringFileList = (XmString *) XtMalloc(numFiles * sizeof( XmString)) ;
+        if ((size_t)numFiles > SIZE_MAX / sizeof(XmString) ||
+            (size_t)numFiles > UINT_MAX / sizeof(XmString))
+            goto file_search_cleanup;
+        XmStringFileList = (XmString *) XtMalloc(
+            (Cardinal)((size_t)numFiles * sizeof(XmString))) ;
         if(    XmStringFileList == NULL    )
-        {   Index = numFiles ;
-            while(    Index--    )
-            {   XtFree( fileList[Index]) ;
-                }
-            XtFree( (char *) fileList) ;
-            fileList = NULL ;
-            goto file_search_done ;
-            }
+            goto file_search_cleanup;
         
         Index = 0 ;
 	dirLen = strlen( dir) ;
@@ -1880,15 +1893,18 @@ FileSearchProc(
 	    if(    showDotFiles
 	       || ((fileList[Index])[dirLen] != '.')    ) {   
                   if(    FS_PathMode( fs) ==  XmPATH_MODE_FULL    )
-		      XmStringFileList[numItems++] = 
+		      XmStringFileList[numItems] =
 			XmStringGenerate(fileList[Index],
 					 XmFONTLIST_DEFAULT_TAG,
 					 XmCHARSET_TEXT, NULL);
 		  else 
-		      XmStringFileList[numItems++] = 
+		      XmStringFileList[numItems] =
 			XmStringGenerate(&(fileList[Index])[dirLen],
 					 XmFONTLIST_DEFAULT_TAG,
 					 XmCHARSET_TEXT, NULL) ;
+		  if (XmStringFileList[numItems] == NULL)
+		      goto file_string_cleanup;
+		  numItems++;
 	      } 
 	    ++Index ;
 	} 
@@ -1904,6 +1920,8 @@ FileSearchProc(
         while(    Index--    )
         {   XtFree( fileList[Index]) ;
             } 
+        XtFree( (char *) fileList) ;
+        fileList = NULL ;
         while(    numItems--    )
         {   XmStringFree( XmStringFileList[numItems]) ;
             }
@@ -1920,6 +1938,20 @@ file_search_done:
     XtFree( pattern) ;
     XtFree( dir) ;
     return ;
+
+file_string_cleanup:
+    while (numItems != 0)
+        XmStringFree(XmStringFileList[--numItems]);
+    XtFree((char *)XmStringFileList);
+file_search_cleanup:
+    Index = numFiles;
+    while (Index--)
+        XtFree(fileList[Index]);
+    XtFree((char *)fileList);
+    XtFree(pattern);
+    XtFree(dir);
+    FS_ListUpdated(fs) = FALSE;
+    return;
     }
 
 
@@ -2049,7 +2081,21 @@ QualifySearchDataProc(
                                             &qualifiedDir, &qualifiedPattern) ;
         }
     qDirLen = strlen( qualifiedDir) ;
-    qualifiedMask = XtMalloc( 1 + qDirLen + strlen( qualifiedPattern)) ;
+    {
+        size_t qPatternLen = strlen( qualifiedPattern);
+        if (qPatternLen == SIZE_MAX ||
+            qDirLen > SIZE_MAX - qPatternLen - 1 ||
+            qDirLen + qPatternLen + 1 > UINT_MAX)
+        {
+            XtFree( qualifiedPattern) ;
+            XtFree( qualifiedDir) ;
+            XtFree( patternString) ;
+            XtFree( dirString) ;
+            XtFree( maskString) ;
+            return ;
+        }
+        qualifiedMask = XtMalloc((Cardinal)(qDirLen + qPatternLen + 1)) ;
+    }
     if(    qualifiedMask == NULL    )
     {   XtFree( qualifiedPattern) ;
         XtFree( qualifiedDir) ;
@@ -2091,9 +2137,15 @@ QualifySearchDataProc(
                   {   valueString = fileStr ;
                       }
                 else
-                  {   unsigned dirLen = strlen( dirStr) ;
+                  {   size_t dirLen = strlen( dirStr) ;
+                      size_t fileLen = strlen( fileStr) ;
 
-                      valueString = XtMalloc( dirLen + strlen( fileStr) + 1) ;
+                      if (fileLen == SIZE_MAX ||
+                          dirLen > SIZE_MAX - fileLen - 1 ||
+                          dirLen + fileLen + 1 > UINT_MAX)
+                        valueString = NULL;
+                      else
+                        valueString = XtMalloc((Cardinal)(dirLen + fileLen + 1)) ;
                       if(    valueString != NULL    )
                         {   strcpy( valueString, dirStr) ;
                             strcpy( &valueString[dirLen], fileStr) ;
@@ -2154,6 +2206,7 @@ FileSelectionBoxUpdate(
             String          maskString ;
             String          patternString ;
             int             len ;
+            XmString        resourceCopy ;
             XmFileSelectionBoxCallbackStruct qualifiedSearchData ;
 /****************/
 
@@ -2182,17 +2235,21 @@ FileSelectionBoxUpdate(
         /* Now update the Directory and Pattern resources.
         */
         if(    !XmStringCompare( qualifiedSearchData.dir, FS_Directory( fs))  )
-        {   if(    FS_Directory( fs)    )
+        {   resourceCopy = qualifiedSearchData.dir != NULL
+                              ? XmStringCopy( qualifiedSearchData.dir) : NULL ;
+            if(    qualifiedSearchData.dir == NULL || resourceCopy != NULL    )
             {   XmStringFree( FS_Directory( fs)) ;
-                } 
-            FS_Directory( fs) = XmStringCopy( qualifiedSearchData.dir) ;
+                FS_Directory( fs) = resourceCopy ;
+                }
             } 
 
         if(   !XmStringCompare( qualifiedSearchData.pattern, FS_Pattern( fs)) )
-        {   if(    FS_Pattern( fs)    )
+        {   resourceCopy = qualifiedSearchData.pattern != NULL
+                              ? XmStringCopy( qualifiedSearchData.pattern) : NULL ;
+            if(    qualifiedSearchData.pattern == NULL || resourceCopy != NULL    )
             {   XmStringFree( FS_Pattern( fs)) ;
-                } 
-            FS_Pattern( fs) = XmStringCopy( qualifiedSearchData.pattern) ;
+                FS_Pattern( fs) = resourceCopy ;
+                }
             } 
         /* Also update the filter text.
         */
@@ -2203,7 +2260,15 @@ FileSelectionBoxUpdate(
                 if((patternString=_XmStringGetTextConcat(FS_Pattern(fs)))!=NULL)
                   {   
                     len = strlen( dirString) ;
-                    maskString = XtMalloc( len + strlen( patternString) + 1) ;
+                    {
+                        size_t patternLen = strlen( patternString) ;
+                        if (patternLen == SIZE_MAX ||
+                            len > SIZE_MAX - patternLen - 1 ||
+                            len + patternLen + 1 > UINT_MAX)
+                            maskString = NULL;
+                        else
+                            maskString = XtMalloc((Cardinal)(len + patternLen + 1)) ;
+                    }
                     if(    maskString != NULL    )
                     {   strcpy( maskString, dirString) ;
                         strcpy( &maskString[len], patternString) ;
@@ -2303,7 +2368,7 @@ DirSearchProc(
             String *        dirList ;
             unsigned int    numDirs ;
             unsigned int    numAlloc ;
-            XmString *      XmStringDirList ;
+            XmString *      XmStringDirList = NULL ;
             struct stat     curDirStats ;
             time_t          curDirModTime = 0 ;
 	    unsigned        numItems = 0 ;
@@ -2364,16 +2429,13 @@ DirSearchProc(
         if(    numDirs > 1    )
         {   qsort( (void *)dirList, numDirs, sizeof( char *), _XmOSFileCompare) ;
             } 
-        XmStringDirList = (XmString *) XtMalloc( numDirs * sizeof( XmString)) ;
+        if ((size_t)numDirs > SIZE_MAX / sizeof(XmString) ||
+            (size_t)numDirs > UINT_MAX / sizeof(XmString))
+            goto dir_string_cleanup;
+        XmStringDirList = (XmString *) XtMalloc(
+            (Cardinal)((size_t)numDirs * sizeof(XmString))) ;
         if(    XmStringDirList == NULL    )
-        {   Index = numDirs ;
-            while(    Index--    )
-            {   XtFree( dirList[Index]) ;
-                }
-            XtFree( (char *) dirList) ;
-            dirList = NULL ;
-            goto dir_search_done ;
-            }
+            goto dir_string_cleanup;
 
 	Index = 0 ;
 	dirLen = strlen( qualifiedDir) ;
@@ -2386,15 +2448,18 @@ DirSearchProc(
 	       || ((dirList[Index])[dirLen] != '.')) {   
 
 		if(    FS_PathMode( fs)  ==  XmPATH_MODE_FULL   )
-		    XmStringDirList[numItems++] = 
+		    XmStringDirList[numItems] =
 			XmStringGenerate(dirList[Index], 
 					 XmFONTLIST_DEFAULT_TAG,
 					 XmCHARSET_TEXT, NULL) ;
 		else 
-		    XmStringDirList[numItems++] = 
-			XmStringGenerate(&(dirList[Index])[dirLen],
+		    XmStringDirList[numItems] =
+				XmStringGenerate(&(dirList[Index])[dirLen],
 					 XmFONTLIST_DEFAULT_TAG,
 					 XmCHARSET_TEXT, NULL) ;
+		if (XmStringDirList[numItems] == NULL)
+		    goto dir_string_cleanup;
+		numItems++;
 	    } 
 	    ++Index ;
 	} 
@@ -2428,6 +2493,18 @@ dir_search_done:
     
     FS_DirectoryValid( fs) = TRUE ;
     return ;
+
+dir_string_cleanup:
+    while (numItems != 0)
+        XmStringFree(XmStringDirList[--numItems]);
+    XtFree((char *)XmStringDirList);
+    Index = numDirs;
+    while (Index--)
+        XtFree(dirList[Index]);
+    XtFree((char *)dirList);
+    XtFree((char *)qualifiedDir);
+    FS_DirectoryValid(fs) = FALSE;
+    return;
     }
    
 /****************************************************************
@@ -2501,8 +2578,16 @@ ListCallback(
 			 != NULL)
                           {
                             len = strlen( dirString) ;
-                            maskString = XtMalloc( len
-                                                 + strlen( patternString) + 1) ;
+                            {
+                                size_t patternLen = strlen( patternString) ;
+                                if (patternLen == SIZE_MAX ||
+                                    len > SIZE_MAX - patternLen - 1 ||
+                                    len + patternLen + 1 > UINT_MAX)
+                                    maskString = NULL;
+                                else
+                                    maskString = XtMalloc((Cardinal)
+                                        (len + patternLen + 1)) ;
+                            }
                             if(    maskString != NULL    )
                             {   strcpy( maskString, dirString) ;
                                 strcpy( &maskString[len], patternString) ;
@@ -2617,6 +2702,8 @@ SetValues(
             Arg             args[10] ;
             int             n ;
             String          newString ;
+            XmString        noMatchCopy ;
+            XmString        resourceCopy ;
             Boolean         doSearch = FALSE ;
             XmFileSelectionBoxCallbackStruct searchData ;
 /****************/
@@ -2668,8 +2755,13 @@ SetValues(
         XtSetValues( FS_FilterText( new_w), args, n) ;
         }
     if(    FS_NoMatchString( new_w) != FS_NoMatchString( current)    )
-    {   XmStringFree( FS_NoMatchString( current)) ;
-        FS_NoMatchString( new_w) = XmStringCopy( FS_NoMatchString( new_w)) ;
+    {   noMatchCopy = XmStringCopy( FS_NoMatchString( new_w)) ;
+        if (noMatchCopy != NULL) {
+            XmStringFree( FS_NoMatchString( current)) ;
+            FS_NoMatchString( new_w) = noMatchCopy ;
+        } else {
+            FS_NoMatchString( new_w) = FS_NoMatchString( current) ;
+        }
         } 
     if(    !FS_QualifySearchDataProc( new_w)    )
     {   FS_QualifySearchDataProc( new_w) = QualifySearchDataProc ;
@@ -2715,46 +2807,62 @@ SetValues(
                 }
             } 
         else
-        {   doSearch = TRUE ;
-            searchData.mask = XmStringCopy( FS_DirMask( request)) ;
-            searchData.mask_length = XmStringLength( searchData.mask) ;
+        {   searchData.mask = XmStringCopy( FS_DirMask( request)) ;
+            if (searchData.mask != NULL) {
+                doSearch = TRUE ;
+                searchData.mask_length = XmStringLength( searchData.mask) ;
+            } else {
+                FS_DirMask( new_w) = FS_DirMask( current) ;
+            }
             } 
-        FS_DirMask( new_w) = (XmString) XmUNSPECIFIED ;
+        if (searchData.mask != NULL ||
+            (FS_StateFlags( new_w) & XmFS_IN_FILE_SEARCH))
+            FS_DirMask( new_w) = (XmString) XmUNSPECIFIED ;
         } 
     if(    FS_Directory( current) != FS_Directory( new_w)    )
     {   
         if(    FS_StateFlags( new_w) & XmFS_IN_FILE_SEARCH    )
-        {   
-            FS_Directory( new_w) = XmStringCopy( FS_Directory( request)) ;
-            XmStringFree( FS_Directory( current)) ;
+        {
+            resourceCopy = XmStringCopy( FS_Directory( request)) ;
+            if (resourceCopy != NULL) {
+                FS_Directory( new_w) = resourceCopy ;
+                XmStringFree( FS_Directory( current)) ;
+            } else {
+                FS_Directory( new_w) = FS_Directory( current) ;
+            }
             } 
         else
-        {   doSearch = TRUE ;
-            searchData.dir = XmStringCopy( FS_Directory( request)) ;
-            searchData.dir_length = XmStringLength( searchData.dir) ;
-
-            /* The resource will be set to the new value after the Search
-            *   routines have been called for validation.
-            */
-            FS_Directory( new_w) = FS_Directory( current) ;
+        {   searchData.dir = XmStringCopy( FS_Directory( request)) ;
+            if (searchData.dir == NULL) {
+                FS_Directory( new_w) = FS_Directory( current) ;
+            } else {
+                doSearch = TRUE ;
+                searchData.dir_length = XmStringLength( searchData.dir) ;
+                FS_Directory( new_w) = FS_Directory( current) ;
+            }
             }
         }
     if(    FS_Pattern( current) != FS_Pattern( new_w)    )
     {   
         if(    FS_StateFlags( new_w) & XmFS_IN_FILE_SEARCH    )
-        {   
-            FS_Pattern( new_w) = XmStringCopy( FS_Pattern( request)) ;
-            XmStringFree( FS_Pattern( current)) ;
+        {
+            resourceCopy = XmStringCopy( FS_Pattern( request)) ;
+            if (resourceCopy != NULL) {
+                FS_Pattern( new_w) = resourceCopy ;
+                XmStringFree( FS_Pattern( current)) ;
+            } else {
+                FS_Pattern( new_w) = FS_Pattern( current) ;
+            }
             } 
         else
-        {   doSearch = TRUE ;
-            searchData.pattern = XmStringCopy( FS_Pattern( request)) ;
-            searchData.pattern_length = XmStringLength( searchData.pattern) ;
-
-            /* The resource will be set to the new value after the Search
-            *   routines have been called for validation.
-            */
-            FS_Pattern( new_w) = FS_Pattern( current) ;
+        {   searchData.pattern = XmStringCopy( FS_Pattern( request)) ;
+            if (searchData.pattern == NULL) {
+                FS_Pattern( new_w) = FS_Pattern( current) ;
+            } else {
+                doSearch = TRUE ;
+                searchData.pattern_length = XmStringLength( searchData.pattern) ;
+                FS_Pattern( new_w) = FS_Pattern( current) ;
+            }
             }
         }
     if(    FS_FileTypeMask( new_w) != FS_FileTypeMask( current)    )
@@ -3186,8 +3294,8 @@ FileSelectionBoxRestore(
             String          itemString ;
             String          dir ;
             String          mask ;
-            int             dirLen ;
-            int             maskLen ;
+            size_t          dirLen ;
+            size_t          maskLen ;
             Widget          activeChild ;
 /****************/
 
@@ -3208,7 +3316,12 @@ FileSelectionBoxRestore(
                 if ((mask = _XmStringGetTextConcat( FS_Pattern( fsb))) != NULL)
                   {   
                     maskLen = strlen( mask) ;
-                    itemString = XtMalloc( dirLen + maskLen + 1) ;
+                    if (maskLen == SIZE_MAX ||
+                        dirLen > SIZE_MAX - maskLen - 1 ||
+                        dirLen + maskLen + 1 > UINT_MAX)
+                        itemString = NULL;
+                    else
+                        itemString = XtMalloc((Cardinal)(dirLen + maskLen + 1)) ;
                     if(    itemString != NULL    )
                     {   strcpy( itemString, dir) ;
                         strcpy( &itemString[dirLen], mask) ;
@@ -3476,9 +3589,11 @@ XmFileSelectionBoxGetChild(
         unsigned char which )
 #endif /* NeedWidePrototypes */
 {   
-            Widget          child ;
+            Widget          child = NULL;
 /****************/
 
+    if (fs == NULL)
+        return NULL;
     _XmWidgetToAppContext(fs);
     _XmAppLock(app);
 
@@ -3519,6 +3634,8 @@ XmFileSelectionDoSearch(
             String          textString ;
 /****************/
 
+    if (fs == NULL)
+        return;
     _XmWidgetToAppContext(fs);
     _XmAppLock(app);
 

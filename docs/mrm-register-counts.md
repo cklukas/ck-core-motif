@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm name-registration counts
 
 The public Mrm name-registration APIs now reject negative or unrepresentable

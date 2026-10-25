@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # UIL diagnostic location bounds
 
 UIL diagnostics include the source file name in a fixed 132-byte location

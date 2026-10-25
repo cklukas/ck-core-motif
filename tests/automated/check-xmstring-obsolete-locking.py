@@ -4,7 +4,7 @@
 from pathlib import Path
 
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmStringObso.c").read_text()
+source = Path("lib/Xm/XmStringObso.c").read_text()
 start = source.index("XmStringLtoRCreate(")
 end = source.index("\n}\n", start)
 function = source[start:end]
@@ -15,4 +15,4 @@ assert "XmStringDirectionCreate" in function
 assert "XmStringConcatAndFree" in function
 assert "XmStringSeparatorCreate" in function
 
-print("PASS legacy XmString L-to-R creation avoids recursive process locking")
+print("legacy XmString L-to-R creation avoids recursive process locking")

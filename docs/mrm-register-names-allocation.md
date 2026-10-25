@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm name-registration allocation handling
 
 Global and hierarchy-scoped name registration now reject a nonzero count with a

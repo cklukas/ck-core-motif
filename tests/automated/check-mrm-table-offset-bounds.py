@@ -1,19 +1,13 @@
-#!/usr/bin/env python3
-"""Check Mrm compression-table offsets stay beyond table metadata."""
 from pathlib import Path
+import os
 
-source = Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmtable.c"
-text = source.read_text(encoding="utf-8")
+source = Path(os.environ["MOTIF_SOURCE"])
+text = source.read_text()
 start = text.index("Urm__FixupCompressionTable (UidCompressionTablePtr")
 end = text.index("Urm__FindClassDescriptor (IDBFile", start)
 block = text[start:end]
-for needle in (
-    "SIZE_MAX - (sizeof(UidCompressionTable) - sizeof(UidCTableEntry))",
-    "table_bytes =",
-    "ctable->entry[fixndx].stoffset",
-):
-    if needle not in block:
-        raise SystemExit(f"missing compression-table offset guard: {needle}")
-if "< table_bytes" not in block:
-    raise SystemExit("compression-table offsets are not checked against metadata")
-print("PASS Mrm compression-table offsets stay beyond table metadata")
+assert "size_t table_bytes" in block
+assert "SIZE_MAX" in block
+assert "ctable->entry[fixndx].stoffset < table_bytes" in block
+assert block.index("ctable->entry[fixndx].stoffset < table_bytes") < block.index("ctable->entry[fixndx].cstring")
+print("Mrm compression-table offsets stay beyond the table header")

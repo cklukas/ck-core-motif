@@ -40,6 +40,8 @@ static char rcsid[] = "$TOG: WmProtocol.c /main/8 1997/06/18 17:31:34 samborn $"
 
 #include "WmGlobal.h"
 #include "WmICCC.h"
+#include <limits.h>
+#include <stdint.h>
 
 /*
  * include extern functions
@@ -241,19 +243,22 @@ void SetupWmICCC (void)
 	Warning (((char *)GETMESSAGE(56, 2, "Insufficient memory to XInternAtom _MOTIF_WM_QUERY_nn")));
     }
 
-    for (scr = 0; scr < wmGD.numScreens; scr++)
+    if (xa_WM_QUERY != NULL)
     {
-	if (wmGD.Screens[scr].managed)
+	for (scr = 0; scr < wmGD.numScreens; scr++)
 	{
-	  char wm_query_scr[32];
+	    if (wmGD.Screens[scr].managed)
+	    {
+	      char wm_query_scr[32];
 
-          sprintf(wm_query_scr, "_MOTIF_WM_QUERY_%d",
+	      sprintf(wm_query_scr, "_MOTIF_WM_QUERY_%d",
                                         wmGD.Screens[scr].screen);
-          xa_WM_QUERY[scr] = XInternAtom(DISPLAY, wm_query_scr, False);
-        }
-        else
-        {
-          xa_WM_QUERY[scr] = 0;
+	      xa_WM_QUERY[scr] = XInternAtom(DISPLAY, wm_query_scr, False);
+	    }
+	    else
+	    {
+	      xa_WM_QUERY[scr] = 0;
+	    }
 	}
     }
     xa_WM_CLIENT_WINDOW  = atoms[XA_MOTIF_WM_CLIENT_WINDOW];
@@ -1123,18 +1128,31 @@ static void
 wmq_bump_xids ( void )
 {
     XID *px;
+    size_t newCount;
 
     if (pXids)
     {
+	if (numXids < 0 || numXids > INT_MAX - 32)
+	{
+	    Warning (((char *)GETMESSAGE(56, 5, "Insufficient memory to convert _MOTIF_WM_QUERY_nn selection")));
+	    return;
+	}
+	newCount = (size_t)numXids + 32;
+	if (newCount > SIZE_MAX / sizeof(XID) ||
+	    newCount > UINT_MAX / sizeof(XID))
+	{
+	    Warning (((char *)GETMESSAGE(56, 5, "Insufficient memory to convert _MOTIF_WM_QUERY_nn selection")));
+	    return;
+	}
 	if (!(px = (XID *) 
-	  XtRealloc ((char *) pXids, (numXids + 32) * (sizeof (XID)))))
+	  XtRealloc ((char *)pXids, (Cardinal)(newCount * sizeof(XID)))))
 	{
 	  Warning (((char *)GETMESSAGE(56, 5, "Insufficient memory to convert _MOTIF_WM_QUERY_nn selection")));
 	}
 	else
 	{
 	    pXids = px;
-	    numXids += 32;
+	    numXids = (int)newCount;
 	}
     }
     else
@@ -1187,14 +1205,21 @@ OwnWMSelections ( Time timestamp )
   
   
   wmGD.xa_WM = (Atom *) XtMalloc (wmGD.numScreens * (sizeof (Atom)));
+  if (wmGD.xa_WM == NULL)
+    {
+      Warning (((char *)GETMESSAGE(56, 7,
+				   "Insufficient memory to own WM_nn selections")));
+      return;
+    }
   
   for (scr = 0; scr < wmGD.numScreens; scr++)
     {
       if (wmGD.Screens[scr].managed)
 	{
-	  char wm_scr[8];
+	  char wm_scr[32];
 	  
- 	  sprintf(wm_scr, "WM_S%d", DefaultScreen(DISPLAY));
+	  (void) snprintf(wm_scr, sizeof(wm_scr), "WM_S%d",
+			   wmGD.Screens[scr].screen);
 	  wmGD.xa_WM[scr] = XInternAtom (DISPLAY, wm_scr, False);
 	  
 #ifdef MWM_WSM
@@ -1216,6 +1241,12 @@ OwnWMSelections ( Time timestamp )
 	   * The convert function is specified in the drawing area's
 	   * XmNconvertCallback resource.
 	   */
+
+	  if (wmGD.Screens[scr].utmShell == NULL)
+	    {
+	      Warning ("Cannot register WM selection without the UTM widget");
+	      continue;
+	    }
 
 	  XtAddCallback(wmGD.Screens[scr].utmShell, XmNconvertCallback,
 			WMiConvertCB, NULL);
@@ -1265,8 +1296,12 @@ WMiConvert (
   int      scr;
   Boolean  found = False;
 
-  
+  if (w == NULL || outputType == NULL || output == NULL ||
+      outputLen == NULL || outputFmt == NULL)
+    return False;
+
   /* set up some defaults. selection code doesn't like garbage! */
+  *outputType = None;
   *outputLen = 0;
   *output    = NULL;
   *outputFmt = 8;
@@ -1283,6 +1318,12 @@ WMiConvert (
     if (target == wmGD.xa_TARGETS) {
       Atom *targs       = (Atom *)XtMalloc((unsigned) (28 * sizeof(Atom)));
       int   targetCount = 0;
+
+      if (targs == NULL)
+	{
+	  found = False;
+	  return found;
+	}
       
       *output = (XtPointer) targs;
       
@@ -1336,6 +1377,12 @@ WMiConvert (
 	int     dx, dy;
 	Boolean config;
 
+	if (input == NULL || inputFmt != WSM_PROTO_FMT || inputLen < 9)
+	  {
+	    found = False;
+	  }
+	else
+	  {
 	dx     = (int) UnpackCARD32(&input);
 	dy     = (int) UnpackCARD32(&input);
 	config = (Boolean) UnpackCARD8(&input);
@@ -1349,17 +1396,25 @@ WMiConvert (
 	SetPanPosition (ACTIVE_PSD->panDx, ACTIVE_PSD->panDy);
 	
 	found = True;
+	  }
       }
     else if (target == wmGD._MOTIF_WM_GOTO)
       {
 	int  x, y;
 
+	if (input == NULL || inputFmt != WSM_PROTO_FMT || inputLen < 8)
+	  {
+	    found = False;
+	  }
+	else
+	  {
 	x = (int) UnpackCARD32(&input);
 	y = (int) UnpackCARD32(&input);
 
 	PanRoot(x - ACTIVE_PSD->panDx, y - ACTIVE_PSD->panDy, 1);
 
 	found = True;
+	  }
       }
     
     /*

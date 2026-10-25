@@ -34,6 +34,7 @@ static char rcsid[] = "$XConsortium: GeoUtils.c /main/13 1996/08/15 17:11:25 pas
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
+#include <limits.h>
 #include <stdint.h>
 #include "XmI.h"
 #include "GeoUtilsI.h"
@@ -222,6 +223,11 @@ _XmHandleQueryGeometry(
 	if (GMode( intended) & CWHeight) height = intended->height;
 
 	geoSpec = (*createMatrix)( widget, NULL, NULL) ;
+	if (geoSpec == NULL) {
+	    desired->width = XtWidth(widget);
+	    desired->height = XtHeight(widget);
+	    return XmeReplyToQueryGeometry(widget, intended, desired);
+	}
 	_XmGeoMatrixGet( geoSpec, XmGET_PREFERRED_SIZE) ;
 	_XmGeoArrangeBoxes( geoSpec, (Position) 0, (Position) 0, 
 			   &width, &height) ;
@@ -321,6 +327,9 @@ _XmHandleGeometryManager(
     /*	Get box list and arrange boxes according to policy.
     */
     geoSpec = (*createMatrix)( wid, instigator, desired) ;
+
+    if (geoSpec == NULL)
+	return( XtGeometryNo) ;
 
     if(    geoSpec->no_geo_request
         && (*geoSpec->no_geo_request)( geoSpec)    )
@@ -711,6 +720,9 @@ _XmHandleSizeUpdate(
 
     geoSpec = (*createMatrix)( wid, NULL, NULL) ;
 
+    if (geoSpec == NULL)
+	return;
+
     _XmGeoMatrixGet( geoSpec, XmGET_PREFERRED_SIZE) ;
 
     switch(    policy    )
@@ -806,12 +818,12 @@ _XmGeoMatrixAlloc(
         unsigned int extSize )      /* Extension record size (bytes).*/
 {
             XmGeoMatrix     geoSpecPtr ;
-            unsigned int    matrixRecSize ;
-            unsigned int    layoutRecSize ;
-            unsigned int    kidGeoRecSize ;
-            unsigned int    layoutSize ;
-            unsigned int    boxesSize ;
-            unsigned int    totalSize ;
+            size_t          matrixRecSize ;
+            size_t          layoutRecSize ;
+            size_t          kidGeoRecSize ;
+            size_t          layoutSize ;
+            size_t          boxesSize ;
+            size_t          totalSize ;
 /****************/
 
     /* Get sizes of the various components of the GeoMatrix.  Round up to
@@ -819,23 +831,42 @@ _XmGeoMatrixAlloc(
     */
     matrixRecSize = sizeof( XmGeoMatrixRec) ;
     if(    matrixRecSize & 0x03    )
-    {   matrixRecSize = (matrixRecSize + 4) & ~((unsigned int) 0x03) ;
+    {   if (matrixRecSize > SIZE_MAX - 4)
+            return NULL;
+        matrixRecSize = (matrixRecSize + 4) & ~(size_t) 0x03 ;
         } 
     layoutRecSize = sizeof( XmGeoRowLayoutRec) ;
     if(    layoutRecSize & 0x03    )
-    {   layoutRecSize = (layoutRecSize + 4) & ~((unsigned int) 0x03) ;
+    {   if (layoutRecSize > SIZE_MAX - 4)
+            return NULL;
+        layoutRecSize = (layoutRecSize + 4) & ~(size_t) 0x03 ;
         } 
     kidGeoRecSize = sizeof( XmKidGeometryRec) ;
     if(    kidGeoRecSize & 0x03    )
-    {   kidGeoRecSize = (kidGeoRecSize + 4) & ~((unsigned int) 0x03) ;
+    {   if (kidGeoRecSize > SIZE_MAX - 4)
+            return NULL;
+        kidGeoRecSize = (kidGeoRecSize + 4) & ~(size_t) 0x03 ;
         } 
-    layoutSize = (numRows + 1) * layoutRecSize ;
+    if ((size_t)numRows > SIZE_MAX / layoutRecSize - 1)
+        return NULL;
+    layoutSize = ((size_t)numRows + 1) * layoutRecSize ;
     /* Extra boxes are used to mark the end of each row.
     */
-    boxesSize = (numBoxes + numRows) * kidGeoRecSize ; 
-    totalSize = matrixRecSize + layoutSize + boxesSize + extSize ;
+    if ((size_t)numRows > SIZE_MAX - (size_t)numBoxes ||
+        (size_t)numBoxes + (size_t)numRows > SIZE_MAX / kidGeoRecSize)
+        return NULL;
+    boxesSize = ((size_t)numBoxes + (size_t)numRows) * kidGeoRecSize ;
+    if (matrixRecSize > SIZE_MAX - layoutSize ||
+        matrixRecSize + layoutSize > SIZE_MAX - boxesSize ||
+        matrixRecSize + layoutSize + boxesSize > SIZE_MAX - (size_t)extSize)
+        return NULL;
+    totalSize = matrixRecSize + layoutSize + boxesSize + (size_t)extSize ;
+    if (totalSize > (size_t)UINT_MAX)
+        return NULL;
 
-    geoSpecPtr = (XmGeoMatrix) XtCalloc( 1, totalSize) ;   /* Must be zeroed.*/
+    geoSpecPtr = (XmGeoMatrix) XtCalloc( 1, (Cardinal)totalSize) ;   /* Must be zeroed.*/
+    if (geoSpecPtr == NULL)
+        return NULL;
 
     /* Set locations of arrays of row layout, box, and extension records.
     */
@@ -853,6 +884,8 @@ void
 _XmGeoMatrixFree(
 	XmGeoMatrix geo_spec)
 {
+  if (geo_spec == NULL)
+    return;
   if(    geo_spec->ext_destructor    )
     {
       (*(geo_spec->ext_destructor))( geo_spec->extension) ;
@@ -872,6 +905,8 @@ _XmGeoSetupKid(
         Widget kidWid )
 {
 /****************/
+    if (geo == NULL)
+        return FALSE;
     if(    !kidWid  ||  !XtIsManaged( kidWid)    )
     {   return( FALSE) ;
         } 
@@ -906,6 +941,9 @@ _XmGeoMatrixGet(
             XtWidgetGeometry * request ;
             Widget          instigator ;
 /****************/
+
+    if (geoSpec == NULL)
+        return;
 
     request = &geoSpec->instig_request ;
     instigator = geoSpec->instigator ;
@@ -955,6 +993,9 @@ _XmGeoMatrixSet(
     register XmGeoRowLayout  layoutPtr ;
             Boolean         fixUps = FALSE ;
 /****************/
+
+    if (geoSpec == NULL)
+        return;
 
 #ifdef DEBUG_GEOUTILS
     PrintMatrix( "(set) ", geoSpec) ; 
@@ -1034,6 +1075,9 @@ _XmGeoAdjustBoxes(
             Dimension       borderValue ;
 /****************/
 
+    if (geoSpec == NULL)
+        return;
+
     globalSetBorder = geoSpec->uniform_border ;
     globalBorder = geoSpec->border ;
 
@@ -1090,7 +1134,13 @@ _XmGeoGetDimensions(
             unsigned int    numBoxes ;
             Dimension       marginW ;
             Dimension       marginH ;
+            unsigned long   extent ;
+            unsigned long   fillWidth ;
+            unsigned long   maxDimension = (unsigned long)(Dimension)-1;
 /****************/
+
+    if (geoSpec == NULL || geoSpec->boxes == NULL || geoSpec->layouts == NULL)
+        return;
 
     marginH = geoSpec->margin_h ;
     marginW = geoSpec->margin_w ;
@@ -1116,8 +1166,19 @@ _XmGeoGetDimensions(
         numBoxes = 0 ;
         boxPtr = rowPtr ;
         while(    boxPtr->kid    )
-        {   rowW += boxPtr->box.width + (boxPtr->box.border_width << 1) ;
-            boxH = boxPtr->box.height + (boxPtr->box.border_width << 1) ;
+        {   extent = (unsigned long)boxPtr->box.width +
+                    ((unsigned long)boxPtr->box.border_width << 1);
+            if (extent > maxDimension)
+                extent = maxDimension;
+            if ((unsigned long)rowW > maxDimension - extent)
+                rowW = (Dimension)maxDimension;
+            else
+                rowW += (Dimension)extent;
+            extent = (unsigned long)boxPtr->box.height +
+                     ((unsigned long)boxPtr->box.border_width << 1);
+            if (extent > maxDimension)
+                extent = maxDimension;
+            boxH = (Dimension)extent;
             ASSIGN_MAX( rowH, boxH) ;   /* The tallest box is the row height.*/
             ++numBoxes ;
             ++boxPtr ;
@@ -1149,29 +1210,55 @@ _XmGeoGetDimensions(
         /* Fill width is the minimum spacing between (borders of) boxes plus
         *   any extra space required at ends.  Margins are not included.
         */
-        layoutPtr->fill_width = (endSpaceW << 1) 
-                                + ((numBoxes - 1) * layoutPtr->space_between) ;
+        fillWidth = (unsigned long)endSpaceW << 1;
+        if (fillWidth > maxDimension)
+            fillWidth = maxDimension;
+        if (numBoxes > 1 && layoutPtr->space_between != 0) {
+            unsigned long betweenCount = (unsigned long)(numBoxes - 1);
+            if (betweenCount >
+                (maxDimension - fillWidth) / layoutPtr->space_between)
+                fillWidth = maxDimension;
+            else
+                fillWidth += betweenCount * layoutPtr->space_between;
+        }
+        layoutPtr->fill_width = (Dimension)fillWidth;
         /* Maximum row width is the overall matrix width, less margins.  Add
         *   box width to fill width for total width this row.
         */
-        rowW += layoutPtr->fill_width ;
+        if ((unsigned long)rowW > maxDimension - layoutPtr->fill_width)
+            rowW = (Dimension)maxDimension;
+        else
+            rowW += layoutPtr->fill_width;
         ASSIGN_MAX( matrixW, rowW) ;
         rowPtr = boxPtr + 1 ;   /* Skip over NULL box marking the end of row.*/
         ++layoutPtr ;           /* Go to next row layout record.*/
         /* Accumulate heights of each row.
         */
-        matrixFillH += layoutPtr->space_above ;
-        matrixBoxesH += rowH ;
+        if ((unsigned long)matrixFillH >
+            maxDimension - layoutPtr->space_above)
+            matrixFillH = (Dimension)maxDimension;
+        else
+            matrixFillH += layoutPtr->space_above;
+        if ((unsigned long)matrixBoxesH > maxDimension - rowH)
+            matrixBoxesH = (Dimension)maxDimension;
+        else
+            matrixBoxesH += rowH;
         } 
     /* The matrixFillH variable already has fill space included from the final
     *   row layout record.  This must be reduced by the amount of the margin,
     *   or a smaller amount if the amount specified was less than the margin.
     */
     if(    layoutPtr->space_above < marginH    )
-    {   matrixFillH -= layoutPtr->space_above ;
+    {   if (matrixFillH >= layoutPtr->space_above)
+            matrixFillH -= layoutPtr->space_above;
+        else
+            matrixFillH = 0;
         } 
     else
-    {   matrixFillH -= marginH ;
+    {   if (matrixFillH >= marginH)
+            matrixFillH -= marginH;
+        else
+            matrixFillH = 0;
         } 
     geoSpec->max_major = matrixW ;         /* Widest row, excluding margins. */
     geoSpec->boxes_minor = matrixBoxesH ;  /* Sum of tallest box in each row.*/
@@ -1416,8 +1503,15 @@ _XmGeoCalcFill(
         Dimension *pEndSpace,       /* Receives end spacing.*/
         Dimension *pBetweenSpace )  /* Receives between spacing.*/
 {   
-            Dimension       totalSpecSpace ;/* Sum of specified spacing.*/
+            unsigned long   totalSpecSpace ;/* Sum of specified spacing.*/
 /****************/
+
+    if (pEndSpace == NULL || pBetweenSpace == NULL)
+        return;
+    *pEndSpace = 0;
+    *pBetweenSpace = 0;
+    if (numBoxes == 0)
+        return;
 
     if(    !endSpec    )
     {   if(    numBoxes == 1    )
@@ -1429,12 +1523,16 @@ _XmGeoCalcFill(
                 } 
             }
         } 
-    totalSpecSpace = (betweenSpec * (numBoxes - 1)) + (endSpec << 1) ;
-    *pEndSpace = (endSpec * fillSpace) / totalSpecSpace ;
+    totalSpecSpace = ((unsigned long)betweenSpec * (numBoxes - 1)) +
+                     ((unsigned long)endSpec << 1);
+    if (totalSpecSpace == 0)
+        return;
+    *pEndSpace = (Dimension)(((unsigned long)endSpec * (unsigned long)fillSpace) /
+                             totalSpecSpace);
 
     if(    *pEndSpace < margin    )
     {   
-        if(    (endSpec << 1) < totalSpecSpace    )
+        if(    ((unsigned long)endSpec << 1) < totalSpecSpace    )
         {   totalSpecSpace -= endSpec << 1 ;
             } 
         else
@@ -1448,7 +1546,8 @@ _XmGeoCalcFill(
             } 
         *pEndSpace = margin ;
         } 
-    *pBetweenSpace = (betweenSpec * fillSpace) / totalSpecSpace ;
+    *pBetweenSpace = (Dimension)(((unsigned long)betweenSpec *
+                                  (unsigned long)fillSpace) / totalSpecSpace);
     return ;
     }
 
@@ -1483,6 +1582,9 @@ _XmGeoArrangeBoxes(
             Dimension       actualH ;
             Dimension       initY ;
 /****************/
+
+    if (geoSpec == NULL || pW == NULL || pH == NULL)
+        return;
 
     if(    geoSpec->arrange_boxes
        &&  (geoSpec->arrange_boxes != _XmGeoArrangeBoxes)    )
@@ -1625,8 +1727,8 @@ FitBoxesAveraging(
 	(size_t)numBoxes > SIZE_MAX / sizeof(*sortedBoxes) ||
 	(size_t)numBoxes > UINT_MAX / sizeof(*sortedBoxes))
         return;
-    sortedBoxes = (XmKidGeometry *) XtMalloc(
-        (Cardinal)((size_t)numBoxes * sizeof(*sortedBoxes)));
+    sortedBoxes = (XmKidGeometry *) XtMalloc((Cardinal)((size_t)numBoxes *
+							 sizeof(*sortedBoxes)));
     if (sortedBoxes == NULL)
         return;
     /* Enter the boxes into the array and sort.
@@ -2332,6 +2434,9 @@ _XmGeoLoadValues(
             XtWidgetGeometry * geoSource ;
 /****************/
 
+    if (wid == NULL || geoResult == NULL ||
+        (wid == instigator && request == NULL))
+        return;
     if(    wid == instigator    )
     {   /* If this widget is making the request, then use the request info.
         */
@@ -2375,9 +2480,14 @@ _XmGeoCount_kids(
     register int i, n = 0 ;
 /****************/
 
+    if (c == NULL ||
+        (c->composite.num_children != 0 &&
+         c->composite.children == NULL))
+        return 0;
     for(    i = 0 ; i < c->composite.num_children ; i++    )
     {   
-        if(    c->composite.children[i]->core.managed    ) 
+        if(    c->composite.children[i] != NULL &&
+               c->composite.children[i]->core.managed    )
         {   n++ ;
             } 
         }
@@ -2413,10 +2523,23 @@ _XmGetKidGeo(
             int             i ;
             int             j = 0 ;
             Boolean         helpFound = FALSE ;
+            int             kid_count ;
+            size_t          geo_count ;
 /****************/
 
-    geo = (XmKidGeometry) XtMalloc( 
-                            (_XmGeoCount_kids (c) + 1) * sizeof (XmKidGeometryRec)) ;
+    if (wid == NULL)
+        return NULL;
+    kid_count = _XmGeoCount_kids(c);
+    if (kid_count < 0 || (size_t)kid_count >= SIZE_MAX / sizeof(XmKidGeometryRec))
+        return NULL;
+    geo_count = (size_t)kid_count + 1;
+    if (geo_count > SIZE_MAX / sizeof(XmKidGeometryRec) ||
+        geo_count > (size_t)(Cardinal)-1 / sizeof(XmKidGeometryRec))
+        return NULL;
+    geo = (XmKidGeometry) XtMalloc(
+	(Cardinal)(geo_count * sizeof(XmKidGeometryRec)));
+    if (geo == NULL)
+        return NULL;
     /* load all managed kids */
     for(    i = 0 ; i < c->composite.num_children ; i++    )
     {   
@@ -2460,10 +2583,15 @@ _XmGeoClearRectObjAreas(
         RectObj r,
         XWindowChanges *old )
 {
-            Widget          parent = XtParent( r) ;
+            Widget          parent;
             int             bw2 ;
 /****************/
 
+    if (r == NULL || old == NULL)
+        return;
+    parent = XtParent(r);
+    if (parent == NULL)
+        return;
     bw2 = old->border_width << 1;
     XClearArea( XtDisplay( parent), XtWindow( parent), old->x, old->y,
                                    old->width + bw2, old->height + bw2, TRUE) ;
@@ -2490,6 +2618,8 @@ _XmSetKidGeo(
     int             i ;
 /****************/
 
+    if (kg == NULL)
+        return;
     for(    i=0 ; kg[i].kid != NULL ; i++    )  {   
         w = (Widget) kg[i].kid ;
         b = &(kg[i].box) ;
@@ -2520,7 +2650,7 @@ _XmGeometryEqual(
         XtWidgetGeometry *geoB )
 {
 /****************/
-    if(!geoA){ /* For fixing OSF CR 5956 */
+    if(wid == NULL || !geoA || !geoB){ /* For fixing OSF CR 5956 */
          return(False);
     }
 
@@ -2650,7 +2780,7 @@ _XmGeoReplyYes(
         XtWidgetGeometry *response )
 {
 /****************/
-    if(!response){ /* For fixing OSF CR 5956 */
+    if(!desired || !response){ /* For fixing OSF CR 5956 */
          return(False); 
     }
     if(    IsWidth( desired)    )
@@ -2708,6 +2838,8 @@ _XmMakeGeometryRequest(
   XtGeometryResult answer ;
 /****************/
 
+  if (w == NULL || geom == NULL)
+    return XtGeometryNo;
   answer = XtMakeGeometryRequest( w, geom, &allowed) ;
 
   /* On an almost, accept the returned value and make 

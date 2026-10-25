@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm widget-resource context initialization
 
 The resource loader now checks the context allocation used to fetch a widget

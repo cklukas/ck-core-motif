@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Color-name length bounds
 
 Color database names are copied into fixed-size selector records.  Names at or

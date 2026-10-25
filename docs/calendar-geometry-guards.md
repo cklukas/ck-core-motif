@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Calendar geometry and callback guards
 
 `XmCalendar` now handles missing drawing GCs, clamps selected-day geometry, and

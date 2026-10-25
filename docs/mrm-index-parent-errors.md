@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm index parent-update errors
 
 `Idb__INX_EnterNodeIndex` updates the parent record number of both child

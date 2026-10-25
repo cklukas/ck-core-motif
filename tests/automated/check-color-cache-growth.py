@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from pathlib import Path
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "Color.c").read_text()
+source = Path("lib/Xm/Color.c").read_text()
 assert "#include <stdint.h>" in source
 assert "SIZE_MAX / sizeof(XmColorData)" in source
 assert "UINT_MAX / sizeof(XmColorData)" in source

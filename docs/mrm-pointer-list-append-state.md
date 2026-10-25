@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm pointer-list append state
 
 `UrmPlistAppendPointer` now rejects a null vector, non-positive slot count,

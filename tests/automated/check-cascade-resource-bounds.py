@@ -12,6 +12,7 @@ region = text[start:end]
 for needle in (
     "SIZE_MAX - (size_t)sc_num_res",
     "SIZE_MAX / sizeof(XtResource)",
+    "if (merged_list == NULL)",
     "return;",
 ):
     if needle not in region:

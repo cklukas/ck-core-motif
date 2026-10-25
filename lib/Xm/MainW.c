@@ -865,6 +865,7 @@ GeometryManager(
     XmMainWindowWidget mw = (XmMainWindowWidget ) w->core.parent;
     XtGeometryResult res;
     Dimension	    newWidth,newHeight, OldHeight;
+    int             parent_height, height_change, desired_width;
     Dimension	    bw;
     XtWidgetGeometry  parent_request ;
     XtWidgetGeometry  desired, preferred;
@@ -907,8 +908,10 @@ GeometryManager(
                 desired.x = mb->core.x;	
 	        desired.y = mb->core.y;
 	        desired.border_width = mb->core.border_width;
-                desired.width = mw->core.width - 
-                                (2 * mw->mwindow.margin_width);
+                desired_width = (int) mw->core.width -
+                                (2 * (int) mw->mwindow.margin_width);
+                desired.width = (Dimension)
+                                ((desired_width > 0) ? desired_width : 0);
                 desired.height = mb->core.height;
                 desired.request_mode = (CWWidth);
                 XtQueryGeometry(mw->mwindow.MenuBar, &desired, &preferred);
@@ -917,9 +920,11 @@ GeometryManager(
 		    if (request->request_mode & XtCWQueryOnly) 
 			parent_request.request_mode |= XtCWQueryOnly;
 		    parent_request.width = mw->core.width ;
-		    parent_request.height = newHeight = mw->core.height - 
-			(mb->core.height - (2 * mb->core.border_width)) +
-			    preferred.height + (2 *preferred.border_width);
+		    parent_height = (int) mw->core.height -
+			((int) mb->core.height - (2 * (int) mb->core.border_width)) +
+			    (int) preferred.height + (2 * (int) preferred.border_width);
+		    parent_request.height = newHeight = (Dimension)
+			((parent_height > 0) ? parent_height : 0);
                     if (XtMakeGeometryRequest((Widget) mw, 
 					      &parent_request, NULL)
                         == XtGeometryYes) {
@@ -963,10 +968,12 @@ GeometryManager(
  * Margins are already included in the old width & height
  *
  ****************/
-     if(request->request_mode & CWHeight)
-         newHeight = mw->core.height - 
-	             (w->core.height - (2 * w->core.border_width)) +
-	    	     request->height + 2 * bw;
+     if(request->request_mode & CWHeight) {
+         parent_height = (int) mw->core.height -
+	             ((int) w->core.height - (2 * (int) w->core.border_width)) +
+	             (int) request->height + 2 * (int) bw;
+         newHeight = (Dimension) ((parent_height > 0) ? parent_height : 0);
+     }
     else 
          newHeight = mw->core.height;
 
@@ -987,8 +994,9 @@ GeometryManager(
 	    if(request->request_mode & CWHeight)
 		w->core.height = request->height;
 
-	    mw->swindow.YOffset = mw->swindow.YOffset +
-		(newHeight - OldHeight);
+	    height_change = (int) newHeight - (int) OldHeight;
+	    mw->swindow.YOffset = (Position)
+		((int) mw->swindow.YOffset + height_change);
 
 	    _XmProcessLock();
 	    resize = XtCoreProc(mw, resize);
@@ -1016,7 +1024,7 @@ ChangeManaged(
     XtWidgetGeometry desired ;
     CompositeWidget cw = (CompositeWidget) mw->swindow.ClipWindow;
     Widget   w;
-    register int i;
+    Cardinal i;
     XtWidgetProc resize;
 
     if (mw->mwindow.ManagingSep || mw->swindow.FromResize) return;
@@ -1034,9 +1042,9 @@ ChangeManaged(
 	(mw->swindow.WorkWindow != NULL)) {
 
 	/* loop over the clip window child list and treat the bogus */
-	for (i = 0; i < cw->composite.num_children; i++) {
+	for (i = 0; i < cw->composite.num_children; ) {
 	    XmScrolledWindowConstraint swc ;
-	    int j ;
+	    Cardinal j ;
 
 	    w = cw->composite.children[i];
 	    swc = GetSWConstraint(w);
@@ -1059,16 +1067,16 @@ ChangeManaged(
 			(mw->composite.num_slots / 2) ||
 			(size_t)(mw->composite.num_slots +
 			         (mw->composite.num_slots / 2) + 2) >
-			SIZE_MAX / sizeof(Widget) ||
-			(size_t)(mw->composite.num_slots +
-			         (mw->composite.num_slots / 2) + 2) >
-			UINT_MAX / sizeof(Widget))
+			    SIZE_MAX / sizeof(Widget) ||
+			    (size_t)(mw->composite.num_slots +
+			             (mw->composite.num_slots / 2) + 2) >
+			    UINT_MAX / sizeof(Widget))
 			return;
 		    new_slots = mw->composite.num_slots +
 			(mw->composite.num_slots / 2) + 2;
 		    new_children = (WidgetList)XtRealloc(
 			(char *)mw->composite.children,
-			(Cardinal)((size_t)new_slots * sizeof(Widget)));
+		(Cardinal)((size_t)new_slots * sizeof(Widget)));
 		    if (new_children == NULL)
 			return;
 		    mw->composite.children = new_children;
@@ -1081,10 +1089,12 @@ ChangeManaged(
 		   moving all the siblings that comes after it
 		   one slot down */
 		for (j = i+1; j < cw->composite.num_children; j++) {
-		    cw->composite.children[i-1] = cw->composite.children[i] ;
+		    cw->composite.children[j-1] = cw->composite.children[j] ;
 		}
 		cw->composite.num_children -- ;
+		continue;
 	    }
+	    ++i;
 	}		
    }
 
@@ -1345,6 +1355,8 @@ XmMainWindowSetAreas(
      Arg args[5] ;
      Cardinal    n;
 
+     if (w == NULL)
+         return;
      n = 0;
      if (menu) {
 	 XtSetArg (args[n], XmNmenuBar, menu); n++;
@@ -1379,6 +1391,8 @@ XmMainWindowSep1(
 {
     XmMainWindowWidget   mw = (XmMainWindowWidget) w;
     Widget separator;
+    if (w == NULL)
+        return NULL;
     _XmWidgetToAppContext(w);
 
     _XmAppLock(app);
@@ -1394,6 +1408,8 @@ XmMainWindowSep2(
 {
     XmMainWindowWidget   mw = (XmMainWindowWidget) w;
     Widget separator;
+    if (w == NULL)
+        return NULL;
     _XmWidgetToAppContext(w);
 
     _XmAppLock(app);
@@ -1410,6 +1426,8 @@ XmMainWindowSep3(
 {
     XmMainWindowWidget   mw = (XmMainWindowWidget) w;
     Widget separator;
+    if (w == NULL)
+        return NULL;
     _XmWidgetToAppContext(w);
 
     _XmAppLock(app);

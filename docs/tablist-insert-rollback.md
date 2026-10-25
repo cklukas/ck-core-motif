@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Transactional tab-list insertion
 
 `XmTabListInsertTabs` now builds copied tabs as a detached chain. The existing

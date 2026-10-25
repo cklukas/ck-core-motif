@@ -41,6 +41,8 @@ static char rcsid[] = "$TOG: WmProperty.c /main/7 1997/12/02 10:00:00 bill $"
 #include "WmGlobal.h"
 #include "WmICCC.h"
 #include <stdio.h>
+#include <stdint.h>
+#include <limits.h>
 #ifdef WSM
 #include <Dt/WsmP.h>
 #include <X11/Xatom.h>
@@ -293,7 +295,10 @@ void ProcessWmProtocols (ClientData *pCD)
     }
     else
     {
-        if (!(pCD->clientProtocols = (Atom *)XtMalloc (nitems * sizeof (Atom))))
+	if (nitems > SIZE_MAX / sizeof(Atom) ||
+	    nitems > UINT_MAX / sizeof(Atom) ||
+	    !(pCD->clientProtocols = (Atom *)XtMalloc(
+		(Cardinal)(nitems * sizeof(Atom)))))
         {
 	    /* unable to allocate space */
 	    Warning (((char *)GETMESSAGE(54, 1, "Insufficient memory for window management data")));
@@ -408,7 +413,10 @@ void ProcessMwmMessages (ClientData *pCD)
     }
     else
     {
-        if (!(pCD->mwmMessages = (long *)XtMalloc (nitems * sizeof (long))))
+	if (nitems > SIZE_MAX / sizeof(long) ||
+	    nitems > UINT_MAX / sizeof(long) ||
+	    !(pCD->mwmMessages = (long *)XtMalloc(
+		(Cardinal)(nitems * sizeof(long)))))
         {
 	    /* unable to allocate space */
 	    Warning (((char *)GETMESSAGE(54, 2, "Insufficient memory for window management data")));
@@ -569,6 +577,7 @@ GetWMState(
 		  &nitems, &leftover, (unsigned char **)&property);
 
     if (!((ret_val == Success) && (actual_type == wmGD.xa_WM_STATE) &&
+         (actual_format == 32) &&
          (nitems == PROP_WM_STATE_ELEMENTS)))
     {
         /*
@@ -696,7 +705,9 @@ GetMwmHints(
      *    since Mwm 1.1.n won't try to access the extra elements.
      */
 
-    if ((ret_val == Success) && (actual_type == wmGD.xa_MWM_HINTS))
+    if ((ret_val == Success) && (actual_type == wmGD.xa_MWM_HINTS) &&
+        (actual_format == 32) &&
+        (nitems >= PROP_MWM_HINTS_ELEMENTS))
     {
 	return (property);			/* indicate success */
     }
@@ -758,7 +769,8 @@ PropMwmInfo *GetMwmInfo (Window rootWindowOfScreen)
                                      (unsigned char **)&property);
 
     if ((ret_val == Success) && (actual_type == wmGD.xa_MWM_INFO) &&
-        (nitems == PROP_MWM_INFO_ELEMENTS)) 
+        (actual_format == 32) &&
+        (nitems == PROP_MWM_INFO_ELEMENTS))
     {
 	return (property);			/* indicate success */
     }
@@ -814,6 +826,7 @@ void ProcessWmColormapWindows (ClientData *pCD)
     Window *pWindows;
     Colormap *pColormaps;
     int colormapCount;
+    size_t windowCount;
     XWindowAttributes wAttributes;
     ClientData *pcd;
     XSetWindowAttributes sAttributes;
@@ -845,20 +858,33 @@ void ProcessWmColormapWindows (ClientData *pCD)
 	 * WM_COLORMAP_WINDOWS exists and is a valid type.
 	 */
 
-        if (!(pWindows = (Window *)XtMalloc ((nitems * sizeof (Window)) + 1)) ||
-            !(pColormaps = (Colormap *)XtMalloc ((nitems*sizeof(Colormap)) + 1)))
+        if ((size_t)nitems == SIZE_MAX)
+            windowCount = 0;
+        else
+            windowCount = (size_t)nitems + 1;
+
+        pWindows = NULL;
+        pColormaps = NULL;
+        if (windowCount == 0 ||
+            windowCount > SIZE_MAX / sizeof(Window) ||
+            windowCount > SIZE_MAX / sizeof(Colormap) ||
+            windowCount > UINT_MAX / sizeof(Window) ||
+            windowCount > UINT_MAX / sizeof(Colormap) ||
+            !(pWindows = (Window *)XtMalloc
+              ((Cardinal)(windowCount * sizeof(Window)))) ||
+            !(pColormaps = (Colormap *)XtMalloc
+              ((Cardinal)(windowCount * sizeof(Colormap)))))
         {
-	    /* unable to allocate space */
-	    Warning (((char *)GETMESSAGE(54, 3, "Insufficient memory for window management data")));
-	    if (pWindows)
-	    {
-		XtFree ((char *)pWindows);
-	    }
+            /* unable to allocate space */
+            Warning (((char *)GETMESSAGE(54, 3, "Insufficient memory for window management data")));
+            if (pWindows)
+                XtFree ((char *)pWindows);
+            if (pColormaps)
+                XtFree ((char *)pColormaps);
         }
+
 #ifndef OLD_COLORMAP /* colormap */
-	/* Is the above OSF code a bug -- allocates one extra byte, rather */
-	/* than one extra element, for the top window if needed? */
-	else if ( ! (pCmapFlags = (int *)XtCalloc(nitems+1,sizeof(int)))) {
+	else if ( ! (pCmapFlags = (int *)XtCalloc((Cardinal)windowCount, sizeof(int)))) {
 			/* unable to allocate space */
 			Warning (((char *)GETMESSAGE(54, 4, "Insufficient memory for window manager flags")));
 			XtFree ((char *)pWindows); XtFree ((char *)pColormaps);
@@ -1158,24 +1184,31 @@ Status GetWorkspaceHints (Display *display, Window window,
     DtWorkspaceHints *pWsHints;
     Atom *paWs;
 
+    *ppWsAtoms = NULL;
+    *pCount = 0;
+    *pbAll = False;
     rcode = _DtWsmGetWorkspaceHints(display, window, &pWsHints);
     if (rcode == Success)
     {
 	if (pWsHints->flags & DT_WORKSPACE_HINTS_WORKSPACES)
 	{
-	    paWs = (Atom *) 
-		XtMalloc (pWsHints->numWorkspaces * sizeof(Atom));
-	    memcpy (paWs, 
-		    pWsHints->pWorkspaces, 
-		    (pWsHints->numWorkspaces * sizeof(Atom)));
+	    if (pWsHints->numWorkspaces > UINT_MAX / sizeof(Atom))
+	    {
+		_DtWsmFreeWorkspaceHints (pWsHints);
+		return (BadAlloc);
+	    }
+	    paWs = (Atom *)XtMalloc
+		((Cardinal)(pWsHints->numWorkspaces * sizeof(Atom)));
+	    if (paWs == NULL)
+	    {
+		_DtWsmFreeWorkspaceHints (pWsHints);
+		return (BadAlloc);
+	    }
+	    memcpy (paWs, pWsHints->pWorkspaces,
+		    pWsHints->numWorkspaces * sizeof(Atom));
 
 	    *pCount = pWsHints->numWorkspaces;
 	    *ppWsAtoms = paWs;
-	}
-	else
-	{
-	    *pCount = 0;
-	    *ppWsAtoms = NULL;
 	}
 
 	if ((pWsHints->flags & DT_WORKSPACE_HINTS_WSFLAGS) &&
@@ -1216,9 +1249,14 @@ Status GetWorkspaceHints (Display *display, Window window,
  *
  *************************************<->***********************************/
 
-void SetEmbeddedClientsProperty (Window propWindow, 
+void SetEmbeddedClientsProperty (Window propWindow,
     Window *pEmbeddedClients, unsigned long cEmbeddedClients)
 {
+    if (cEmbeddedClients > 0 && pEmbeddedClients == NULL)
+    {
+        return;
+    }
+
     XChangeProperty (DISPLAY, propWindow, wmGD.xa_DT_EMBEDDED_CLIENTS, 
 	wmGD.xa_DT_EMBEDDED_CLIENTS,
 	32, PropModeReplace, (unsigned char *)pEmbeddedClients,
@@ -1249,10 +1287,22 @@ void SetEmbeddedClientsProperty (Window propWindow,
 
 void SetWorkspaceInfo (Window propWindow, WorkspaceInfo *pWsInfo, unsigned long cInfo)
 {
-    XChangeProperty (DISPLAY, propWindow, wmGD.xa_DT_WORKSPACE_INFO, 
+    size_t bytes;
+
+    if (cInfo > 0 && pWsInfo == NULL)
+    {
+        return;
+    }
+    if (cInfo > (size_t)-1 / sizeof(WorkspaceInfo))
+    {
+        return;
+    }
+
+    bytes = (size_t)cInfo * sizeof(WorkspaceInfo);
+    XChangeProperty (DISPLAY, propWindow, wmGD.xa_DT_WORKSPACE_INFO,
 	wmGD.xa_DT_WORKSPACE_INFO,
 	32, PropModeReplace, (unsigned char *)pWsInfo,
-	(cInfo * sizeof(WorkspaceInfo))/sizeof(long));
+	bytes / sizeof(long));
 
 } /* END OF FUNCTION SetWorkspaceInfo */
 #endif /* HP_VUE */
@@ -1279,17 +1329,32 @@ void
 SetWorkspaceListProperty (WmScreenData *pSD)
 {
     WmWorkspaceData *pws;
-    Atom *pWsList;
+    Atom *pWsList = NULL;
     int count;
 
-    pWsList = (Atom *) 
-	XtMalloc (pSD->numWorkspaces * sizeof(Atom));
-
-    pws = pSD->pWS;
-    for (count = 0; count < pSD->numWorkspaces; count++)
+    if (pSD == NULL || pSD->numWorkspaces < 0 ||
+        (pSD->numWorkspaces > 0 && pSD->pWS == NULL) ||
+        (size_t)pSD->numWorkspaces > UINT_MAX / sizeof(Atom))
     {
-	pWsList[count] = pws->id;
-	pws++;
+	Warning ("Workspace list is too large");
+	return;
+    }
+    if (pSD->numWorkspaces > 0)
+    {
+        pWsList = (Atom *)XtMalloc
+            ((Cardinal)((size_t)pSD->numWorkspaces * sizeof(Atom)));
+        if (pWsList == NULL)
+        {
+            Warning ("Insufficient memory for workspace list");
+            return;
+        }
+
+        pws = pSD->pWS;
+        for (count = 0; count < pSD->numWorkspaces; count++)
+        {
+            pWsList[count] = pws->id;
+            pws++;
+        }
     }
 
     XChangeProperty (DISPLAY, pSD->wmWorkspaceWin, 
@@ -1324,6 +1389,11 @@ void
 SetCurrentWorkspaceProperty (WmScreenData *pSD)
 {
     Atom aCurrent;
+
+    if (pSD == NULL || pSD->pActiveWS == NULL)
+    {
+        return;
+    }
 
     aCurrent = pSD->pActiveWS->id;
 
@@ -1368,12 +1438,17 @@ SetWorkspaceInfoProperty (WmWorkspaceData *pWS)
     int i, ix;
     Status status;
     XTextProperty tp;
-#define WIP_NUMBER_SIZE		16
+#define WIP_NUMBER_SIZE		(2 + (2 * sizeof(unsigned long)) + 1)
 
     /*
      * Construct our property name
      */
     pch = WorkspacePropertyName (pWS);
+    if (pch == NULL)
+    {
+        Warning("Workspace property name is too long");
+        return;
+    }
 
     aProperty = XmInternAtom (DISPLAY, pch, FALSE);
 
@@ -1397,31 +1472,48 @@ SetWorkspaceInfoProperty (WmWorkspaceData *pWS)
     /* allocate string vector */
     ppchList = (char **) XtMalloc (iNumStrings * sizeof (char *));
     pch = (char *) XtMalloc (iNumStrings * WIP_NUMBER_SIZE * sizeof(char));
+
+    if (ppchList == NULL || pch == NULL)
+    {
+	Warning ("Insufficient memory for workspace information property");
+	if (ppchList != NULL)
+	    XtFree ((char *) ppchList);
+	if (pch != NULL)
+	    XtFree (pch);
+	return;
+    }
     
     i = 0;
 
     /* Convert workspace title to ascii */
     sTitle = (String) WmXmStringToString (pWS->title);
+    if (sTitle == NULL)
+    {
+	Warning ("Unable to convert workspace title for workspace information property");
+	XtFree ((char *) ppchList);
+	XtFree (pch);
+	return;
+    }
     ppchList[i++] = (char *) sTitle;
 
     /*  Pixel set id */
     ix = (i * WIP_NUMBER_SIZE);
-    sprintf (&pch[ix], "%d", pWS->backdrop.colorSet);
+    (void)snprintf (&pch[ix], WIP_NUMBER_SIZE, "%d", pWS->backdrop.colorSet);
     ppchList[i++] = &pch[ix];
 
     /* backdrop background */
     ix = (i * WIP_NUMBER_SIZE);
-    sprintf (&pch[ix], "0x%lx", pWS->backdrop.background);
+    (void)snprintf (&pch[ix], WIP_NUMBER_SIZE, "0x%lx", pWS->backdrop.background);
     ppchList[i++] = &pch[ix];
 
     /* backdrop foreground */
     ix = (i * WIP_NUMBER_SIZE);
-    sprintf (&pch[ix], "0x%lx", pWS->backdrop.foreground);
+    (void)snprintf (&pch[ix], WIP_NUMBER_SIZE, "0x%lx", pWS->backdrop.foreground);
     ppchList[i++] = &pch[ix];
 
     /* backdrop name */
     ix = (i * WIP_NUMBER_SIZE);
-    sprintf (&pch[ix], "0x%lx", pWS->backdrop.nameAtom);
+    (void)snprintf (&pch[ix], WIP_NUMBER_SIZE, "0x%lx", pWS->backdrop.nameAtom);
     ppchList[i++] = &pch[ix];
 
     /* number of backdrop windows */
@@ -1432,7 +1524,7 @@ SetWorkspaceInfoProperty (WmWorkspaceData *pWS)
     }
     else
     {
-	sprintf (&pch[ix], "%d", count);
+	(void)snprintf (&pch[ix], WIP_NUMBER_SIZE, "%d", count);
     }
     ppchList[i++] = &pch[ix];
 
@@ -1442,7 +1534,7 @@ SetWorkspaceInfoProperty (WmWorkspaceData *pWS)
      * (NULL written if zero)
      */
     ix = (i * WIP_NUMBER_SIZE);
-    sprintf (&pch[ix], "0x%lx", pWS->backdrop.window);
+    (void)snprintf (&pch[ix], WIP_NUMBER_SIZE, "0x%lx", pWS->backdrop.window);
     ppchList[i++] = &pch[ix];
 
     /*
@@ -1494,6 +1586,11 @@ DeleteWorkspaceInfoProperty (WmWorkspaceData *pWS)
      * Get the atom for the workspace property.
      */
     pch = WorkspacePropertyName (pWS);
+    if (pch == NULL)
+    {
+        Warning("Workspace property name is too long");
+        return;
+    }
 
     aProperty = XmInternAtom (DISPLAY, pch, FALSE);
 
@@ -1536,19 +1633,32 @@ WorkspacePropertyName (WmWorkspaceData *pWS)
 {
     char *pch;
     char *pchName;
-    int len;
-    Atom aProperty;
+    size_t prefixLength;
+    size_t nameLength;
+    size_t totalLength;
 
     /*
-     * Construct our property name
+     * Construct our property name.  XtMalloc takes a Cardinal, so reject
+     * lengths that cannot be represented before converting the size.
      */
     pchName = pWS->name;
-    len = strlen(pchName) + strlen (_XA_DT_WORKSPACE_INFO) + 4;
+    prefixLength = strlen(_XA_DT_WORKSPACE_INFO);
+    nameLength = strlen(pchName);
+    if (prefixLength > SIZE_MAX - nameLength ||
+        prefixLength + nameLength > SIZE_MAX - 2 ||
+        prefixLength + nameLength + 2 > UINT_MAX)
+    {
+        return (NULL);
+    }
+    totalLength = prefixLength + nameLength + 2;
 
-    pch = (char *) XtMalloc (len);
-    strcpy (pch, _XA_DT_WORKSPACE_INFO);
-    strcat (pch, "_");
-    strcat (pch, pchName);
+    pch = (char *) XtMalloc ((Cardinal) totalLength);
+    if (pch == NULL)
+    {
+        return (NULL);
+    }
+    (void)snprintf(pch, totalLength, "%s_%s", _XA_DT_WORKSPACE_INFO,
+                   pchName);
 
     return (pch);
 
@@ -1577,6 +1687,11 @@ WorkspacePropertyName (WmWorkspaceData *pWS)
 
 void SetWorkspacePresence (Window propWindow, Atom *pWsPresence, unsigned long cPresence)
 {
+    if (cPresence > 0 && pWsPresence == NULL)
+    {
+        return;
+    }
+
     XChangeProperty (DISPLAY, propWindow, wmGD.xa_DT_WORKSPACE_PRESENCE, 
 	wmGD.xa_DT_WORKSPACE_PRESENCE, 32, PropModeReplace, 
 	(unsigned char *)pWsPresence, cPresence);
@@ -1747,6 +1862,10 @@ GetDtWmRequest (
 	    (actualFormat != 8))
 	{
 	    /* The property does not exist or it is an invalid type. */
+	    if (property != NULL)
+	    {
+		XFree ((char *)property);
+	    }
 	    property = NULL;
 	    iNext = -1;
 	    nitems = 0;
@@ -1765,7 +1884,7 @@ GetDtWmRequest (
      */
     if (property && iNext >= 0)
     {
-	int len = 0;
+	size_t requestLength;
 
 	for (i=iNext; i<nitems; i++)
 	{
@@ -1774,24 +1893,28 @@ GetDtWmRequest (
 		break;
 	    }
 	}
-	if (i>=nitems) i=nitems;
+	if (i >= nitems)
+	    i = nitems;
 
-	len = i - iNext + 1 + ((property[i] == '\0') ? 0 : 1);
-
-        chRequest = (char *) XtMalloc (len);
-	if (chRequest == NULL)
+	requestLength = (size_t)i - (size_t)iNext + 1;
+	if (requestLength > UINT_MAX)
 	{
-	    Warning (((char *)GETMESSAGE(54, 2, "Insufficient memory for window management data")));
+	    Warning (((char *)GETMESSAGE(54, 2, "Window management request is too long")));
 	}
 	else
 	{
-	    /* dequeue the request */
-	    strncpy (chRequest, &property[iNext], len);
-	    if (property[i] != '\0')
+	    chRequest = (char *) XtMalloc ((Cardinal)requestLength);
+	    if (chRequest == NULL)
 	    {
-		chRequest[len-1]='\0';
+		Warning (((char *)GETMESSAGE(54, 2, "Insufficient memory for window management data")));
 	    }
-	    iNext = i+1;
+	    else
+	    {
+		/* Dequeue the request without reading past the X property. */
+		memcpy(chRequest, &property[iNext], requestLength - 1);
+		chRequest[requestLength - 1] = '\0';
+		iNext = (i < nitems) ? i + 1 : (int)nitems;
+	    }
 	}
 	
 	if (iNext >= nitems)

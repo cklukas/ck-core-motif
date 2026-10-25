@@ -912,13 +912,16 @@ Leave(
 		if (w->toggle.ind_on)
 		    DrawToggle(w);
 	    }
-			
-	  XmeClearBorder(XtDisplay (w), XtWindow (w),
-			 w->primitive.highlight_thickness,
-			 w->primitive.highlight_thickness,
-			 w->core.width - 2 * w->primitive.highlight_thickness,
-			 w->core.height - 2 * w->primitive.highlight_thickness,
-			 w->primitive.shadow_thickness);
+	  if ((int)w->core.width > 2 * (int)w->primitive.highlight_thickness &&
+	      (int)w->core.height > 2 * (int)w->primitive.highlight_thickness)
+	    XmeClearBorder(XtDisplay (w), XtWindow (w),
+			   w->primitive.highlight_thickness,
+			   w->primitive.highlight_thickness,
+			   (int)w->core.width -
+			   2 * (int)w->primitive.highlight_thickness,
+			   (int)w->core.height -
+			   2 * (int)w->primitive.highlight_thickness,
+			   w->primitive.shadow_thickness);
 	  
 	  if (w->toggle.disarm_CB)
 	    {
@@ -980,15 +983,21 @@ Enter(
 		   DrawToggle(w);
 	   }
 
-	 XmeDrawShadows (XtDisplay (w), XtWindow (w),
-		w->primitive.top_shadow_GC,
-		w->primitive.bottom_shadow_GC,
-		w->primitive.highlight_thickness,
-		w->primitive.highlight_thickness,
-		w->core.width - 2 * w->primitive.highlight_thickness,
-		w->core.height - 2 * w->primitive.highlight_thickness,
-		w->primitive.shadow_thickness,
-		etched_in ? XmSHADOW_IN : XmSHADOW_OUT);
+	 if ((int)w->core.width > 2 * (int)w->primitive.highlight_thickness &&
+	     (int)w->core.height > 2 * (int)w->primitive.highlight_thickness &&
+	     w->primitive.top_shadow_GC != NULL &&
+	     w->primitive.bottom_shadow_GC != NULL)
+	   XmeDrawShadows (XtDisplay (w), XtWindow (w),
+			w->primitive.top_shadow_GC,
+			w->primitive.bottom_shadow_GC,
+			w->primitive.highlight_thickness,
+			w->primitive.highlight_thickness,
+			(int)w->core.width -
+			2 * (int)w->primitive.highlight_thickness,
+			(int)w->core.height -
+			2 * (int)w->primitive.highlight_thickness,
+			w->primitive.shadow_thickness,
+			etched_in ? XmSHADOW_IN : XmSHADOW_OUT);
 
 	 if (w->toggle.arm_CB)
 	 {
@@ -1973,10 +1982,10 @@ Initialize(
       }
 	else
         {
-	  new_w->label.acc_TextRect.x = new_w->core.width -
-	    new_w->primitive.highlight_thickness -
-	      new_w->primitive.shadow_thickness - new_w->label.margin_width -
-		  new_w->label.margin_right + LABEL_ACC_PAD;
+	  new_w->label.acc_TextRect.x = (short)((int)new_w->core.width -
+	    (int)new_w->primitive.highlight_thickness -
+	      (int)new_w->primitive.shadow_thickness - (int)new_w->label.margin_width -
+		  (int)new_w->label.margin_right + LABEL_ACC_PAD);
       }
     }
     }
@@ -1992,12 +2001,12 @@ Initialize(
   new_w->label.TextRect.y =  (short) new_w->primitive.highlight_thickness
     + new_w->primitive.shadow_thickness + new_w->label.margin_height +
       new_w->label.margin_top + 
-	((new_w->core.height - new_w->label.margin_top
-	  - new_w->label.margin_bottom
-	  - (2 * (new_w->label.margin_height
-		  + new_w->primitive.highlight_thickness
-		  + new_w->primitive.shadow_thickness))
-	  - new_w->label.TextRect.height) / 2);
+	(((int)new_w->core.height - (int)new_w->label.margin_top
+	  - (int)new_w->label.margin_bottom
+	  - (2 * ((int)new_w->label.margin_height
+		  + (int)new_w->primitive.highlight_thickness
+		  + (int)new_w->primitive.shadow_thickness))
+	  - (int)new_w->label.TextRect.height) / 2);
   
   if (new_w->core.height == 0)
     new_w->core.height = 1;
@@ -2034,8 +2043,10 @@ Initialize(
 			    XtOffsetOf(XmToggleButtonRec, 
 				       toggle.select_color),
 			    &value);
-      assert(value.size == sizeof(Pixel));
-      new_w->toggle.select_color = *((Pixel*) value.addr);
+      if (value.addr != NULL && value.size == sizeof(Pixel))
+	new_w->toggle.select_color = *((Pixel*) value.addr);
+      else
+	new_w->toggle.select_color = new_w->primitive.foreground;
     }
   else if (new_w->toggle.select_color == XmREVERSED_GROUND_COLORS)
     {
@@ -2145,15 +2156,15 @@ DrawToggle
     margin = 1;
   
   if (LayoutIsRtoLP(w))
-    x = (int)w->core.width - w->primitive.highlight_thickness -
-      w->primitive.shadow_thickness - w->label.margin_width -
-	w->toggle.indicator_dim;
+    x = (int)w->core.width - (int)w->primitive.highlight_thickness -
+      (int)w->primitive.shadow_thickness - (int)w->label.margin_width -
+	(int)w->toggle.indicator_dim;
   else
     x = w->primitive.highlight_thickness + w->primitive.shadow_thickness +
       w->label.margin_width;
   
   if (Lab_IsPixmap(w)  || XmStringEmpty(w->label._label))
-    y = (int)((w->core.height - w->toggle.indicator_dim))/2;
+    y = ((int)w->core.height - (int)w->toggle.indicator_dim) / 2;
   else
     {
       /* Center indicator vertically next to the first line of text. */
@@ -2230,7 +2241,6 @@ DrawToggle
 	  break;
 
 	default:
-	  assert(False);
 	  return;
 	}
 
@@ -2347,7 +2357,7 @@ DrawToggle
 
 	case XmONE_OF_MANY:
 	  /* This value should have been normalized away! */
-	  assert(FALSE);
+	  break;
 
 	case XmONE_OF_MANY_DIAMOND:
 	  XmeDrawDiamond(dpy, drawable, top_gc, bot_gc, fill_gc, x, y,
@@ -2410,14 +2420,20 @@ BorderHighlight(
 		DrawToggle(tb);
         }
 
-      XmeDrawShadows (XtDisplay (tb), XtWindow (tb),
+      if ((int)tb->core.width > 2 * (int)tb->primitive.highlight_thickness &&
+	  (int)tb->core.height > 2 * (int)tb->primitive.highlight_thickness &&
+	  tb->primitive.top_shadow_GC != NULL &&
+	  tb->primitive.bottom_shadow_GC != NULL)
+	XmeDrawShadows (XtDisplay (tb), XtWindow (tb),
 		      tb->primitive.top_shadow_GC,
 		      tb->primitive.bottom_shadow_GC,
 		      tb->primitive.highlight_thickness,
 		      tb->primitive.highlight_thickness,
-		      tb->core.width - 2 * tb->primitive.highlight_thickness,
-		      tb->core.height - 2 * tb->primitive.highlight_thickness,
-		      tb->primitive.shadow_thickness, 
+		      (int)tb->core.width -
+		      2 * (int)tb->primitive.highlight_thickness,
+		      (int)tb->core.height -
+		      2 * (int)tb->primitive.highlight_thickness,
+		      tb->primitive.shadow_thickness,
 		      etched_in ? XmSHADOW_IN : XmSHADOW_OUT);
       
       if (!already_armed &&  tb->toggle.arm_CB)
@@ -2460,12 +2476,15 @@ BorderUnhighlight(
 	  if (tb->toggle.ind_on)
 	      DrawToggle(tb);
 	}
-
-      XmeClearBorder (XtDisplay (tb), XtWindow (tb),
+      if ((int)tb->core.width > 2 * (int)tb->primitive.highlight_thickness &&
+	  (int)tb->core.height > 2 * (int)tb->primitive.highlight_thickness)
+	XmeClearBorder (XtDisplay (tb), XtWindow (tb),
 		      tb->primitive.highlight_thickness,
 		      tb->primitive.highlight_thickness,
-		      tb->core.width - 2 * tb->primitive.highlight_thickness,
-		      tb->core.height - 2 * tb->primitive.highlight_thickness,
+		      (int)tb->core.width -
+		      2 * (int)tb->primitive.highlight_thickness,
+		      (int)tb->core.height -
+		      2 * (int)tb->primitive.highlight_thickness,
 		      tb->primitive.shadow_thickness);
       
       if (tb->toggle.Armed && tb->toggle.disarm_CB)
@@ -2583,12 +2602,12 @@ ComputeSpace(
 	tb->primitive.highlight_thickness +
 	  tb->label.margin_height +
 	    tb->label.margin_top +
-	      ((tb->core.height - tb->label.margin_top
-		- tb->label.margin_bottom
-		- (2 * (tb->label.margin_height
-			+ tb->primitive.highlight_thickness
-			+ tb->primitive.shadow_thickness))
-		- tb->label.TextRect.height) / 2);
+	      (((int)tb->core.height - (int)tb->label.margin_top
+		- (int)tb->label.margin_bottom
+		- (2 * ((int)tb->label.margin_height
+			+ (int)tb->primitive.highlight_thickness
+			+ (int)tb->primitive.shadow_thickness))
+		- (int)tb->label.TextRect.height) / 2);
   
   if (LayoutIsRtoLP(tb))
     {
@@ -2601,12 +2620,12 @@ ComputeSpace(
 	  (needed_width == tb->core.width))
 	{
 	  if (tb->toggle.ind_on)
-	    tb->label.TextRect.x = tb->core.width -
-	      (tb->primitive.shadow_thickness +
-	       tb->primitive.highlight_thickness +
-	       tb->label.margin_width +
-	       tb->label.margin_right +
-	       tb->label.TextRect.width);
+	    tb->label.TextRect.x = (short)((int)tb->core.width -
+	      ((int)tb->primitive.shadow_thickness +
+	       (int)tb->primitive.highlight_thickness +
+	       (int)tb->label.margin_width +
+	       (int)tb->label.margin_right +
+	       (int)tb->label.TextRect.width));
 	}
     }
   else
@@ -2673,15 +2692,21 @@ Redisplay(
       XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(w));
       Boolean etched_in = dpy -> display.enable_etched_in_menu;
 
-      if ((tb->toggle.Armed) && 
-	  (tb->primitive.shadow_thickness > 0))
+	  if ((tb->toggle.Armed) &&
+	      (tb->primitive.shadow_thickness > 0) &&
+	      (int)tb->core.width > 2 * (int)tb->primitive.highlight_thickness &&
+	      (int)tb->core.height > 2 * (int)tb->primitive.highlight_thickness &&
+	      tb->primitive.top_shadow_GC != NULL &&
+	      tb->primitive.bottom_shadow_GC != NULL)
 	XmeDrawShadows (XtDisplay (tb), XtWindow (tb),
 			tb->primitive.top_shadow_GC,
 			tb->primitive.bottom_shadow_GC,
 			tb ->primitive.highlight_thickness,
 			tb ->primitive.highlight_thickness,
-			(int)tb->core.width-2*tb->primitive.highlight_thickness,
-			(int)tb->core.height-2*tb->primitive.highlight_thickness,
+			(int)tb->core.width -
+			2 * (int)tb->primitive.highlight_thickness,
+			(int)tb->core.height -
+			2 * (int)tb->primitive.highlight_thickness,
 			tb->primitive.shadow_thickness, 
 			etched_in ? XmSHADOW_IN : XmSHADOW_OUT);
     }
@@ -3131,8 +3156,10 @@ if (newcbox->toggle.indicator_dim != curcbox->toggle.indicator_dim)
 	  DefaultSelectColor((Widget)newcbox,
 			     XtOffsetOf(XmToggleButtonRec,toggle.select_color),
 			     &value);
-	  assert(value.size == sizeof(Pixel));
-	  newcbox->toggle.select_color = *((Pixel*) value.addr);
+	  if (value.addr != NULL && value.size == sizeof(Pixel))
+	    newcbox->toggle.select_color = *((Pixel*) value.addr);
+	  else
+	    newcbox->toggle.select_color = newcbox->primitive.foreground;
 	}
       else if (newcbox->toggle.select_color == XmREVERSED_GROUND_COLORS)
 	{
@@ -3238,8 +3265,11 @@ XmToggleButtonGetState(
 {
   XmToggleButtonWidget tw = (XmToggleButtonWidget) w;
   Boolean ret_val;
-  XtAppContext app = XtWidgetToApplicationContext(w);
+  XtAppContext app;
 
+  if (w == NULL)
+    return False;
+  app = XtWidgetToApplicationContext(w);
   if (XmIsGadget(w))
     return XmToggleButtonGadgetGetState(w);
     
@@ -3269,9 +3299,12 @@ XmToggleButtonSetState(
 {
   XmToggleButtonWidget tw = (XmToggleButtonWidget) w;
   XmMenuSystemTrait menuSTrait;
-  XtAppContext app = XtWidgetToApplicationContext(w);
+  XtAppContext app;
   XmToggleButtonState newstate;
-  
+
+  if (w == NULL)
+    return;
+  app = XtWidgetToApplicationContext(w);
   if (XmIsGadget(w)) {
     XmToggleButtonGadgetSetState(w, bnewstate, notify);
     return;
@@ -3352,8 +3385,11 @@ XmToggleButtonSetValue(
 #endif /* NeedWidePrototypes */
 {
   XmToggleButtonWidget tw = (XmToggleButtonWidget) w;
-  XtAppContext app = XtWidgetToApplicationContext(w);
-  
+  XtAppContext app;
+
+  if (w == NULL)
+    return False;
+  app = XtWidgetToApplicationContext(w);
   if (XmIsGadget(w))
     return XmToggleButtonGadgetSetValue(w, newstate, notify);
   
@@ -3542,7 +3578,6 @@ DrawToggleLabel(
   if ((int)tb->core.width <= 2 * (int)margin ||
       (int)tb->core.height <= 2 * (int)margin)
     return;
-
   fw = (int)tb->core.width - 2 * (int)margin;
   fh = (int)tb->core.height - 2 * (int)margin;
   
@@ -3580,7 +3615,6 @@ DrawToggleLabel(
 	break;
       }
     default:
-      assert(False);
       return;
     }
 
@@ -3642,16 +3676,15 @@ DrawEtchedInMenu(
   int fw, fh;
   Boolean restore_gc = False;
   GC tmp_gc = None;
-  XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(tb));
-  Boolean etched_in = dpy->display.enable_etched_in_menu;
-  Pixel select_pix, tmpc;
 
   if ((int)tb->core.width <= 2 * (int)margin ||
       (int)tb->core.height <= 2 * (int)margin)
     return;
-
   fw = (int)tb->core.width - 2 * (int)margin;
   fh = (int)tb->core.height - 2 * (int)margin;
+  XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(tb));
+  Boolean etched_in = dpy->display.enable_etched_in_menu;
+  Pixel select_pix, tmpc;
   
   if (tb->primitive.top_shadow_color == tb->toggle.select_color ||
       tb->primitive.bottom_shadow_color == tb->toggle.select_color)

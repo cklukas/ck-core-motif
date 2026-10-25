@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # String-table resource conversion allocation
 
 The string-table resource converter now checks its initial table, growth and

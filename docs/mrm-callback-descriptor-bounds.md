@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm callback descriptor bounds
 
 Mrm argument and creation callback constructors now keep descriptor sizes in
