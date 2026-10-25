@@ -11368,3 +11368,9 @@ MWM session resource allocation widths (2026-10-25)
 
 - Check session resource-name lengths, including proxy-entry delimiter space,
   before Xt allocation; see `docs/mwm-session-resource-bounds.md`.
+
+MWM DISPLAY environment allocation widths (2026-10-25)
+=======================================================
+
+- Reject overflow and unrepresentable `DISPLAY=` lengths before Xt allocation;
+  see `docs/mwm-display-env-bounds.md`.

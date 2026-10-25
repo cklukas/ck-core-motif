@@ -2487,12 +2487,26 @@ InitWmDisplayEnv (void)
 {
     const char *pDisplayName;
     size_t displayLength;
+    size_t displayNameLength;
 
     pDisplayName = DisplayString (DISPLAY);
-    displayLength = strlen(pDisplayName) + strlen("DISPLAY=") + 1;
+    displayNameLength = strlen(pDisplayName);
+    if (displayNameLength > SIZE_MAX - strlen("DISPLAY=") - 1)
+    {
+	Warning (((char *)GETMESSAGE(40, 9,
+				     "Display string is too long")));
+	return;
+    }
+    displayLength = displayNameLength + strlen("DISPLAY=") + 1;
+    if (displayLength > UINT_MAX)
+    {
+	Warning (((char *)GETMESSAGE(40, 9,
+				     "Display string is too long")));
+	return;
+    }
 
     /* Allocate the persistent environment value at its exact size. */
-    if ((wmGD.displayString = (String)XtMalloc((unsigned int)displayLength)) == NULL)
+    if ((wmGD.displayString = (String)XtMalloc((Cardinal)displayLength)) == NULL)
     {
 	wmGD.displayString = NULL;
         Warning (((char *)GETMESSAGE(40, 9,
