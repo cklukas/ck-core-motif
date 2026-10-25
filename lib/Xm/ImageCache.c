@@ -2555,7 +2555,7 @@ FreeCacheColor( Display *display, Colormap colormap, Pixel pixel)
     return False;
 }
 
-static void
+static Boolean
 CacheColorPixel( Display *display, Colormap colormap,
                  char *colorname, XColor *xcolor)
 {
@@ -2563,11 +2563,20 @@ CacheColorPixel( Display *display, Colormap colormap,
 
     if (numEntries == colorCacheList.maxEntries)
     {
+        CachedColor *new_cache;
+        if (colorCacheList.maxEntries > INT_MAX - 25)
+	    return False;
         colorCacheList.maxEntries += 25;
-	colorCacheList.cache = (CachedColor *)
-				  XtRealloc((char *)colorCacheList.cache,
-					    colorCacheList.maxEntries *
-				            sizeof(CachedColor));
+	if ((size_t)colorCacheList.maxEntries >
+	    SIZE_MAX / sizeof(*colorCacheList.cache))
+	    return False;
+	new_cache = (CachedColor *)
+		    XtRealloc((char *)colorCacheList.cache,
+			       (size_t)colorCacheList.maxEntries *
+			       sizeof(*colorCacheList.cache));
+	if (new_cache == NULL)
+	    return False;
+	colorCacheList.cache = new_cache;
     }
 
     colorCacheList.cache[numEntries].display = display;
@@ -2582,6 +2591,7 @@ CacheColorPixel( Display *display, Colormap colormap,
     colorCacheList.cache[numEntries].num_cached = 1;
                                                       
     colorCacheList.numEntries++;
+    return True;
 }
 
 
@@ -2598,8 +2608,11 @@ GetCacheColor(Display *display, Colormap colormap,
 		return -1;
 	    if (!GetCacheColorByRGB(display, colormap, xcolor)) {
 		status = XAllocColor(display, colormap, xcolor);
-		if (status)	/* if allocation succeeded, store color */
-		    CacheColorPixel(display, colormap, colorname, xcolor);
+		if (status &&
+		    !CacheColorPixel(display, colormap, colorname, xcolor)) {
+		    XFreeColors(display, colormap, &xcolor->pixel, 1, 0);
+		    status = 0;
+		}
 	    } else
 		status = 1;
 	} else
@@ -2607,8 +2620,11 @@ GetCacheColor(Display *display, Colormap colormap,
     } else {
 	if (!GetCacheColorByRGB(display, colormap, xcolor)) {
 	    status = XAllocColor(display, colormap, xcolor);
-	    if (status)		/* if allocation succeeded, store color */
-		CacheColorPixel(display, colormap, colorname, xcolor);
+	    if (status &&
+		!CacheColorPixel(display, colormap, colorname, xcolor)) {
+		XFreeColors(display, colormap, &xcolor->pixel, 1, 0);
+		status = 0;
+	    }
 	} else
 	    status = 1;
     }
