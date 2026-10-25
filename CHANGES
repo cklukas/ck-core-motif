@@ -13,6 +13,8 @@ Bound render-table count arithmetic (2026-10-25)
 - Reject unrepresentable rendition counts and guard render-table and match-array
   size arithmetic before allocation; see
   `docs/render-table-rendition-array.md`.
+- Keep unmatched-rendition append allocation and copy failures from publishing
+  a partial render table.
 
 Make render-table removal transactional (2026-10-25)
 =====================================================

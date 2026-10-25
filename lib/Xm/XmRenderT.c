@@ -1319,11 +1319,13 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 			   Cardinal rendition_count,
 			   XmMergeMode merge_mode)
 {
-  int			i, next;
+  int			i, next, copy_start;
   int			count = rendition_count;
+  size_t		append_count;
   XmRendition		rend, match;
   _XmRenderTable	table;
   XmRenderTable		newtable, tmptable = NULL;
+  XmRenderTable		source_table;
   Boolean		*matches;
   short			idx;
   XtAppContext		app=NULL;
@@ -1460,11 +1462,26 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
       
       if (count > 0)				  /* Allocate new table */
 	{
+	  source_table = oldtable;
+	  copy_start = (tmptable != NULL) ? 0 : _XmRTCount(source_table);
+	  append_count = (size_t)_XmRTCount(oldtable) + (size_t)count;
+	  if (append_count > UINT16_MAX ||
+	      (append_count > RENDITIONS_IN_STRUCT &&
+	       append_count - RENDITIONS_IN_STRUCT >
+	       (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition)))
+	    goto append_abort;
 	  table = (_XmRenderTable)
 	    XtMalloc(sizeof(_XmRenderTableRec) +
 		     (sizeof(XmRendition) *
-		      (_XmRTCount(oldtable) + count - RENDITIONS_IN_STRUCT)));
+		      (append_count > RENDITIONS_IN_STRUCT
+		       ? append_count - RENDITIONS_IN_STRUCT : 0)));
+	  if (table == NULL)
+	    goto append_abort;
 	  newtable = GetHandle(_XmRenderTable);
+	  if (newtable == NULL) {
+	    XtFree((char *)table);
+	    goto append_abort;
+	  }
 	  SetPtr(newtable, table);
 
 	  _XmRTDisplay(newtable) = _XmRTDisplay(oldtable);
@@ -1483,6 +1500,8 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 		{
 		  _XmRTRenditions(newtable)[next] =
 		    CopyRendition(renditions[i]);
+		  if (_XmRTRenditions(newtable)[next] == NULL)
+		    goto append_copy_failed;
 		  if (_XmRTDisplay(newtable) == NULL)
 		    _XmRTDisplay(newtable) = _XmRTDisplay(oldtable);
 		  ++next;
@@ -1519,6 +1538,38 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
   }
 #endif
   return(oldtable);
+
+append_copy_failed:
+  while (next > copy_start) {
+    --next;
+    FreeRendition(_XmRTRenditions(newtable)[next]);
+    FreeHandle(_XmRTRenditions(newtable)[next]);
+  }
+  XtFree((char *)GetPtr(newtable));
+  FreeHandle(newtable);
+  newtable = NULL;
+  if (tmptable != NULL) {
+    oldtable = tmptable;
+    tmptable = NULL;
+  }
+  DEALLOCATE_LOCAL((char *)matches);
+  goto unlock_return;
+
+append_abort:
+  if (tmptable != NULL) {
+    for (i = 0; i < _XmRTCount(oldtable); ++i) {
+      if (_XmRTRenditions(oldtable)[i] != NULL) {
+        FreeRendition(_XmRTRenditions(oldtable)[i]);
+        FreeHandle(_XmRTRenditions(oldtable)[i]);
+      }
+    }
+    XtFree((char *)GetPtr(oldtable));
+    FreeHandle(oldtable);
+    oldtable = tmptable;
+    tmptable = NULL;
+  }
+  DEALLOCATE_LOCAL((char *)matches);
+  goto unlock_return;
 
 unlock_return:
 #ifdef XTHREADS

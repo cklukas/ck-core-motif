@@ -17,7 +17,9 @@ table for a large tag selection or full-table copy.
 
 `XmRenderTableAddRenditions` rejects counts that cannot be represented by its
 integer counters and checks the new-table and match-array sizes before
-allocation.
+allocation. The append path now publishes its replacement table only after
+the table handle and every copied rendition are available; failed allocation
+or copying leaves the pre-append table available to the caller.
 
 Removal uses a planning pass and publishes the compacted table only after its
 replacement storage and copied rendition handles are ready. Allocation failure

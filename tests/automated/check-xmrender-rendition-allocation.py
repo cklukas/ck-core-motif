@@ -10,6 +10,12 @@ region = source[start:end]
 assert "rendition_count > INT_MAX" in region
 assert "SIZE_MAX / sizeof(Boolean)" in region
 assert "SIZE_MAX - sizeof(_XmRenderTableRec)" in region
+assert "append_count > UINT16_MAX" in region
+assert "append_copy_failed:" in region
+assert "append_abort:" in region
+assert "copy_start = (tmptable != NULL) ? 0 : _XmRTCount(source_table);" in region
+assert "while (next > copy_start)" in region
+assert "if (newtable == NULL)" in region
 assert "goto unlock_return;" in region
 print("PASS render-table count and allocation-size guards")
 

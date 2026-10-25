@@ -1955,7 +1955,9 @@ retained entries and publishes unique-table compaction or shared-table
 detachment only after allocation and rendition-copy success. Source checks and
 the installed Xft `font-lifetime` fixture cover count guards, unique and shared
 removal, ownership retention and empty-table behavior. The full libXm rebuild
-and gallery integration pass on `uconsole`. Further peer render-table changes
+and gallery integration pass on `uconsole`. The unmatched-rendition append path
+also rolls back replacement bodies and copied handles before returning the
+source table on allocation or copy failure. Further peer render-table changes
 remain separate packages until their earlier-branch dependencies are reviewed.
 
 ## Acceptance criteria for every increment
