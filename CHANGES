@@ -8000,3 +8000,12 @@ VendorS destroy-grab list growth (2026-10-27)
 
 IconG reordered-table bounds (2026-10-27)
 =========================================
+Picture accepted-text buffer growth (2026-10-27)
+=================================================
+
+- Size picture output buffers against the required terminator space and
+  commit reallocations only after success.  A failed growth now leaves the
+  parser state and append pointer valid.
+
+VendorS destroy-grab list growth (2026-10-27)
+==============================================

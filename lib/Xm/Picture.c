@@ -149,12 +149,22 @@ XmPictureProcessCharacter(XmPictureState state, char in, Boolean *is_finished)
     if(state->current) {
         size_t length = (size_t)(state->append - state->current_string);
         if (length + 1 >= state->current_capacity) {
-            size_t new_capacity = state->current_capacity * 2;
-            if (new_capacity <= state->current_capacity ||
-                new_capacity > SIZE_MAX / 2)
+            if (length > SIZE_MAX - 2)
                 return NULL;
-            state->current_string = XtRealloc(state->current_string,
-                                              new_capacity);
+            size_t required = length + 2;
+            size_t new_capacity = state->current_capacity;
+            char *new_string;
+            while (new_capacity < required) {
+                if (new_capacity > SIZE_MAX / 2)
+                    new_capacity = required;
+                else
+                    new_capacity *= 2;
+            }
+            new_string = (char *)XtRealloc(state->current_string,
+                                           new_capacity);
+            if (new_string == NULL)
+                return NULL;
+            state->current_string = new_string;
             state->current_capacity = new_capacity;
             state->append = state->current_string + length;
         }
