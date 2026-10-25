@@ -40,6 +40,8 @@ static char rcsid[] = "$TOG: WmProtocol.c /main/8 1997/06/18 17:31:34 samborn $"
 
 #include "WmGlobal.h"
 #include "WmICCC.h"
+#include <limits.h>
+#include <stdint.h>
 
 /*
  * include extern functions
@@ -1126,18 +1128,31 @@ static void
 wmq_bump_xids ( void )
 {
     XID *px;
+    size_t newCount;
 
     if (pXids)
     {
+	if (numXids < 0 || numXids > INT_MAX - 32)
+	{
+	    Warning (((char *)GETMESSAGE(56, 5, "Insufficient memory to convert _MOTIF_WM_QUERY_nn selection")));
+	    return;
+	}
+	newCount = (size_t)numXids + 32;
+	if (newCount > SIZE_MAX / sizeof(XID) ||
+	    newCount > UINT_MAX / sizeof(XID))
+	{
+	    Warning (((char *)GETMESSAGE(56, 5, "Insufficient memory to convert _MOTIF_WM_QUERY_nn selection")));
+	    return;
+	}
 	if (!(px = (XID *) 
-	  XtRealloc ((char *) pXids, (numXids + 32) * (sizeof (XID)))))
+	  XtRealloc ((char *)pXids, (Cardinal)(newCount * sizeof(XID)))))
 	{
 	  Warning (((char *)GETMESSAGE(56, 5, "Insufficient memory to convert _MOTIF_WM_QUERY_nn selection")));
 	}
 	else
 	{
 	    pXids = px;
-	    numXids += 32;
+	    numXids = (int)newCount;
 	}
     }
     else
