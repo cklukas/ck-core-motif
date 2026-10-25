@@ -1487,9 +1487,10 @@ and existing `XmLabel`, `XmSeparator` and pixmap behavior are unchanged.
 **Status (2026-10-25):** the package is decomposed into independently
 releasable contracts in `docs/compact-controls-contract.md`.  The additive
 `XmChip` and `XmBadge` implementations and installed fixtures are complete and
-documented in `docs/chip.md` and `docs/badge.md`; icon-label/Divider and Avatar
-remain separate work items with explicit ownership, accessibility and teardown
-gates.
+documented in `docs/chip.md` and `docs/badge.md`.  The additive `XmIconLabel`
+and `XmDivider` implementations and installed fixture are complete and
+documented in `docs/icon-label-divider.md`; Avatar remains a separate work
+item with explicit ownership, accessibility and teardown gates.
 
 ### WP-36: Search, prompt text and Link controls
 

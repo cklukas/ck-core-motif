@@ -33,6 +33,7 @@ They separate immutable values and lifetime rules from application behavior.
 | Toolbar actions | `XmToolbar` | Toolkit owns copied action presentation and an ordinary overflow menu; applications own action meaning, shortcuts, dispatch and navigation policy. |
 | Collapsible sidebars | `XmSidebar` | Toolkit owns the bounded toggle/content presentation and focus restoration; applications own content, navigation and selection policy. |
 | Anchored suggestions | `XmAutoSuggestBox` | Toolkit owns copied suggestion presentation and generation checks; applications own providers, I/O, IDs, commit meaning and UI-thread scheduling. |
+| Compact icon/text presentation | `XmIconLabel`, `XmDivider` | Toolkit owns copied labels, bounded geometry and direction-aware drawing; applications own pixmap lifetime, placement and visibility. |
 | Numeric navigation | Native ScrollBar with accessible Value/actions | Application maps its model range to the native control; toolkit owns native interaction and semantics. |
 | Unicode fields and editors | Text/TextField plus bounded text contexts | Toolkit owns input, shaping and widget projection; application owns document operations and undo. |
 | Custom canvases | Accessibility provider API | Application supplies semantic objects; transport and native lifetime remain shared toolkit services. |

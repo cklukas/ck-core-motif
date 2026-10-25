@@ -576,6 +576,12 @@ public XmChipInvoke
 public XmChipRemove
 public XmCreateBadge
 public XmBadgeGetDisplayedCount
+public XmCreateIconLabel
+public XmVaCreateIconLabel
+public XmVaCreateManagedIconLabel
+public XmCreateDivider
+public XmVaCreateDivider
+public XmVaCreateManagedDivider
 public XmCreateLink
 public XmLinkActivate
 public XmCreateSearchBox
