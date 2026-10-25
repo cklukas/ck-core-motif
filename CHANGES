@@ -1,3 +1,9 @@
+XmString extraction output validation (2026-10-26)
+====================================================
+
+- Validate required output pointers in `XmStringGetNextComponent` and
+  `XmStringGetLtoR`; see `docs/xmstring-get-output-validation.md`.
+
 XmString single-segment output validation (2026-10-26)
 ========================================================
 
