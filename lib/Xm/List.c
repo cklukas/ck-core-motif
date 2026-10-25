@@ -8855,6 +8855,8 @@ XmListDeleteAllItems(Widget w)
 {
   XmListWidget lw = (XmListWidget) w;
   int j;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);

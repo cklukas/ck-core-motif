@@ -1,3 +1,9 @@
+List delete-all input validation (2026-10-25)
+==============================================
+
+- Reject a null widget before clearing list state; see
+  `docs/list-delete-all-input.md`.
+
 Position-based list replacement input validation (2026-10-25)
 ===============================================================
 
