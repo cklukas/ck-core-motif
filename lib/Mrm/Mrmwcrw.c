@@ -918,6 +918,9 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
 	return Urm__UT_Error("UrmSetWidgetInstance", _MrmMMsg_0040,
 			     NULL, context_id, MrmFAILURE);
       c_name_tmp = (String)ALLOCATE_LOCAL((c_name_len + 2) * sizeof(char));
+      if (c_name_tmp == NULL)
+        return Urm__UT_Error("UrmSetWidgetInstance", _MrmMMsg_0040,
+                             NULL, context_id, MrmFAILURE);
       c_name_tmp[0] = '*';
       memcpy(c_name_tmp + 1, c_name, c_name_len + 1);
       *w_return = XtNameToWidget(parent, c_name_tmp);

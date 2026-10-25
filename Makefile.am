@@ -467,3 +467,4 @@ EXTRA_DIST += tests/automated/check-mrm-writer-cstring-vector-rebind.py docs/mrm
 EXTRA_DIST += tests/automated/check-mrm-callback-item-binding.py docs/mrm-callback-item-binding.md
 EXTRA_DIST += tests/automated/check-mrm-class-comment-validation.py docs/mrm-class-comment-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-char8-vector-rebind.py docs/mrm-writer-char8-vector-rebind.md
+EXTRA_DIST += tests/automated/check-mrm-widget-name-allocation.py docs/mrm-widget-name-allocation.md
