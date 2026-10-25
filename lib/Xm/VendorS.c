@@ -2528,11 +2528,16 @@ if(extData == NULL)
 #ifdef DEBUG
         XmeWarning(NULL, "_XmGetWidgetExtData() returned NULL pointer.");
 #endif
+        return;
 }
     vendorExt = (XmVendorShellExtObject) extData->widget;
+    if (vendorExt == NULL)
+	return;
 
     _XmImResize((Widget)sw);
-    y = sw->core.height - vendorExt->vendor.im_height;
+    y = (int)sw->core.height - (int)vendorExt->vendor.im_height;
+    if (y < 0)
+	y = 0;
     for(i = 0; i < sw->composite.num_children; i++) {
 	 if(XtIsManaged(sw->composite.children[i])) {
 	     childwid = sw->composite.children[i];

@@ -6961,3 +6961,10 @@ PushButton default-glyph bounds (2026-10-25)
   and unsigned height subtraction; see `docs/pushb-glyph-bounds.md`.
 
 PushButton erase-shadow bounds (2026-10-25)
+VendorShell resize bounds (2026-10-25)
+======================================
+
+- Return safely for missing shell extension data and clamp signed child-height
+  calculations during resize; see `docs/vendorshell-resize-bounds.md`.
+
+PushButton default-glyph bounds (2026-10-25)
