@@ -2609,7 +2609,7 @@ _XmCreateRendition(Widget parent,
 {
   XmRenderTable		rt = (XmRenderTable)parent;
   _XmRenderTable	table;
-  XmRendition		rend;
+  XmRendition		rend, copy;
 
   if (rt == NULL || GetPtr(rt) == NULL)
     return((Widget)NULL);
@@ -2636,10 +2636,21 @@ _XmCreateRendition(Widget parent,
 	      sizeof(_XmRenderTableRec) +
 	      (sizeof(XmRendition) *
 	       ((_XmRTCount(rt) + 1) - RENDITIONS_IN_STRUCT)));
+  if (table == NULL) {
+    FreeRendition(rend);
+    FreeHandle(rend);
+    return((Widget)NULL);
+  }
   SetPtr(rt, table);
 
   /* Copy new rendition. */
-  _XmRTRenditions(rt)[_XmRTCount(rt)] = CopyRendition(rend);
+  copy = CopyRendition(rend);
+  if (copy == NULL) {
+    FreeRendition(rend);
+    FreeHandle(rend);
+    return((Widget)NULL);
+  }
+  _XmRTRenditions(rt)[_XmRTCount(rt)] = copy;
   _XmRTCount(rt)++;
 
   return((Widget)rend);
