@@ -5,6 +5,12 @@ Auto-suggest string-copy allocation guards (2026-10-26)
   buffer while copying an item string; see
   `docs/auto-suggest-string-copy-guards.md`.
 
+Icon-label geometry bounds (2026-10-26)
+======================================
+
+- Clamp long-label text measurements and combined icon-label widths to the
+  `Dimension` range; see `docs/icon-label-geometry-bounds.md`.
+
 WSM reply payload validation (2026-10-26)
 =========================================
 

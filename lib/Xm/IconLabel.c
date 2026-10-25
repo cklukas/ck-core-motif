@@ -7,6 +7,7 @@
 #include <Xm/IconLabelP.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
+#include <limits.h>
 #include <string.h>
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
@@ -57,7 +58,9 @@ static Dimension text_width(XmIconLabelWidget label) {
     char *text = XmStringUnparse(label->icon_label.label, NULL,
                                  XmCHARSET_TEXT, XmCHARSET_TEXT, NULL, 0,
                                  XmOUTPUT_ALL);
-    Dimension width = text ? (Dimension)(strlen(text) * 8) : 0;
+    size_t length = text ? strlen(text) : 0;
+    Dimension width = length > (USHRT_MAX / 8) ? USHRT_MAX :
+                      (Dimension)(length * 8);
     XtFree(text);
     return width;
 }
@@ -79,8 +82,11 @@ static void dimensions(XmIconLabelWidget label, Dimension *width,
     unsigned int icon_width = 0, icon_height = 0;
     Dimension text = text_width(label);
     Boolean have_icon = pixmap_size(label, &icon_width, &icon_height);
-    *width = text + 12 + (have_icon ? (Dimension)icon_width +
-                           label->icon_label.spacing : 0);
+    unsigned long total_width = (unsigned long)text + 12;
+    if (have_icon)
+        total_width += (unsigned long)icon_width +
+                       label->icon_label.spacing;
+    *width = (Dimension)(total_width > USHRT_MAX ? USHRT_MAX : total_width);
     *height = (Dimension)(icon_height > 16 ? icon_height : 16) + 12;
 }
 
