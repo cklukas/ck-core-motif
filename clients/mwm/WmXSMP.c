@@ -575,7 +575,7 @@ getClientWorkspaces(ClientData *pCD)
 	    nameLength = strlen(wsNameP);
 	    if (pLen == 0)
 	    {
-		if (nameLength == SIZE_MAX)
+		if (nameLength == SIZE_MAX || nameLength >= UINT_MAX)
 		    return (char *)NULL;
 		pLen = nameLength + 1;  /* 1 for null termination */
 		if ((cwsP = (char *)XtMalloc(pLen))
@@ -592,6 +592,11 @@ getClientWorkspaces(ClientData *pCD)
 		    return (char *)NULL;
 		}
 		pLen += nameLength + 1;  /* 1 for space */
+		if (pLen > UINT_MAX)
+		{
+		    XtFree((char *)cwsP);
+		    return (char *)NULL;
+		}
 		if ((tmpP = (char *)XtRealloc(cwsP, pLen))
 		    == (char *)NULL)
 		{

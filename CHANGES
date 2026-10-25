@@ -11478,6 +11478,12 @@ MWM query-XID growth bounds (2026-10-25)
 - Check `_MOTIF_WM_QUERY_nn` XID-buffer growth before Xt reallocation; see
   `docs/mwm-query-xid-growth.md`.
 
+MWM session workspace-string growth bounds (2026-10-25)
+========================================================
+
+- Check joined session workspace names before Xt allocation and reallocation;
+  see `docs/mwm-session-workspace-growth.md`.
+
 MWM per-screen display allocation width (2026-10-25)
 =====================================================
 

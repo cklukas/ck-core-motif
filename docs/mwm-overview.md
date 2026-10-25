@@ -53,6 +53,7 @@ clients exchanging Motif window-management messages.
 - [Colormap-reference array width](mwm-colormap-reference-width.md)
 - [Transient-list growth](transient-list-growth.md)
 - [Query-XID buffer growth](mwm-query-xid-growth.md)
+- [Session workspace-string growth](mwm-session-workspace-growth.md)
 - [Menu argument allocation](mwm-menu-args-allocation.md)
 - [Home-directory path bounds](mwm-home-path.md)
 - [Action-argument reallocation](mwm-action-arg-reallocation.md)
