@@ -254,16 +254,19 @@ _WSMClearConfigScreenInfo(Display *dpy, int screen_number)
 
 	if (screen_info->global.num_attrs != 0){
 	  XtFree((XtPointer)screen_info->global.attr_list);
+	  screen_info->global.attr_list = NULL;
 	  screen_info->global.num_attrs = 0;
 	}
 	
 	if (screen_info->window.num_attrs != 0){
 	  XtFree((XtPointer)screen_info->window.attr_list);
+	  screen_info->window.attr_list = NULL;
 	  screen_info->window.num_attrs = 0;
 	}
 	
 	if (screen_info->icon.num_attrs != 0){
 	  XtFree((XtPointer)screen_info->icon.attr_list);
+	  screen_info->icon.attr_list = NULL;
 	  screen_info->icon.num_attrs = 0;
 	}
       }
