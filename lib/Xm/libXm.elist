@@ -571,6 +571,9 @@ public XmSegmentedControlGetSelectedIndex
 public XmSegmentedControlGetItemId
 public XmSegmentedControlSetSelectedIndex
 public XmSegmentedControlClearSelection
+public XmCreateChip
+public XmChipInvoke
+public XmChipRemove
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -857,6 +860,8 @@ public xmDataGridClassRec
 public xmDataGridWidgetClass
 public xmSegmentedControlClassRec
 public xmSegmentedControlWidgetClass
+public xmChipClassRec
+public xmChipWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec

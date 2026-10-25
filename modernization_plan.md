@@ -1461,9 +1461,10 @@ high-contrast/high-DPI output, accessibility and teardown.
 and existing `XmLabel`, `XmSeparator` and pixmap behavior are unchanged.
 
 **Status (2026-10-25):** the package is decomposed into independently
-releasable contracts in `docs/compact-controls-contract.md`.  `XmChip` is the
-first implementation target; Badge, icon-label/Divider and Avatar remain
-separate work items with explicit ownership, accessibility and teardown gates.
+releasable contracts in `docs/compact-controls-contract.md`.  The additive
+`XmChip` implementation and installed fixture are complete and documented in
+`docs/chip.md`; Badge, icon-label/Divider and Avatar remain separate work
+items with explicit ownership, accessibility and teardown gates.
 
 ### WP-36: Search, prompt text and Link controls
 

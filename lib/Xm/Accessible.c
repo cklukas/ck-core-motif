@@ -28,6 +28,7 @@
 #include <Xm/DataGrid.h>
 #include <Xm/SegmentedControl.h>
 #include <Xm/ColorPicker.h>
+#include <Xm/Chip.h>
 #include <Xm/NumberBox.h>
 #include <Xm/PushB.h>
 #include <Xm/PushBG.h>
@@ -624,6 +625,12 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     if (XmIsSegmentedControl(w))
       XtAddCallback(w, XmNSegmentedSelectionCallback, text_value_changed,
                     (XtPointer)a);
+    if (XmIsChip(w)) {
+      XtAddCallback(w, XmNchipActivateCallback, text_value_changed,
+                    (XtPointer)a);
+      XtAddCallback(w, XmNchipRemoveCallback, text_value_changed,
+                    (XtPointer)a);
+    }
     if (XmIsNumberBox(w))
       XtAddCallback(w, XmNnumberValueChangedCallback, text_value_changed,
                     (XtPointer)a);
@@ -761,6 +768,12 @@ static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
     if (XmIsSegmentedControl(n->widget))
       XtRemoveCallback(n->widget, XmNSegmentedSelectionCallback,
                        text_value_changed, (XtPointer)a);
+    if (XmIsChip(n->widget)) {
+      XtRemoveCallback(n->widget, XmNchipActivateCallback, text_value_changed,
+                       (XtPointer)a);
+      XtRemoveCallback(n->widget, XmNchipRemoveCallback, text_value_changed,
+                       (XtPointer)a);
+    }
     if (XmIsNumberBox(n->widget))
       XtRemoveCallback(n->widget, XmNnumberValueChangedCallback,
                        text_value_changed, (XtPointer)a);
@@ -1214,6 +1227,15 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     i->current_value = selected;
     i->minimum_increment = 1;
   }
+  if (XmIsChip(w)) {
+    XmString label_string = NULL;
+    i->role = XmACCESSIBLE_BUTTON;
+    i->action_count = 1;
+    XtVaGetValues(w, XmNchipLabel, &label_string, NULL);
+    if (label_string)
+      local = XmStringUnparse(label_string, NULL, XmCHARSET_TEXT,
+                              XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+  }
   if (XmIsNumberBox(w)) {
     int minimum, maximum;
     i->role = XmACCESSIBLE_PROGRESS_BAR;
@@ -1442,6 +1464,10 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
   if (XmIsDisclosure(n->widget)) {
     XmDisclosureSetExpanded(n->widget, !XmDisclosureGetExpanded(n->widget),
                             True);
+    return True;
+  }
+  if (XmIsChip(n->widget)) {
+    XmChipInvoke(n->widget, NULL);
     return True;
   }
   if (XmIsArrowButton(n->widget)) {

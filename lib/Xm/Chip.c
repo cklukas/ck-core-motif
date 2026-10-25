@@ -1,0 +1,298 @@
+/* Additive compact chip with explicit activation/removal callbacks. */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include <X11/IntrinsicP.h>
+#include <X11/keysym.h>
+#include <Xm/ChipP.h>
+#include <Xm/VaSimpleP.h>
+#include <Xm/XmP.h>
+#include <string.h>
+#include "PrimitiveI.h"
+#include "XmI.h"
+
+static void Initialize(Widget, Widget, ArgList, Cardinal *);
+static void Destroy(Widget);
+static void Redisplay(Widget, XEvent *, Region);
+static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
+                                      XtWidgetGeometry *);
+static void Events(Widget, XtPointer, XEvent *, Boolean *);
+
+#define Offset(field) XtOffsetOf(XmChipRec, field)
+static XtResource resources[] = {
+    {XmNchipLabel, XmCChipLabel, XmRXmString, sizeof(XmString),
+     Offset(chip.label), XmRImmediate, (XtPointer)NULL},
+    {XmNchipPixmap, XmCChipPixmap, XmRDynamicPixmap, sizeof(Pixmap),
+     Offset(chip.pixmap), XmRImmediate, (XtPointer)XmUNSPECIFIED_PIXMAP},
+    {XmNchipRemovable, XmCChipRemovable, XmRBoolean, sizeof(Boolean),
+     Offset(chip.removable), XmRImmediate, (XtPointer)False},
+    {XmNchipActivateCallback, XmCChipActivateCallback, XmRCallback,
+     sizeof(XtCallbackList), Offset(chip.activate_callback), XmRPointer,
+     (XtPointer)NULL},
+    {XmNchipRemoveCallback, XmCChipRemoveCallback, XmRCallback,
+     sizeof(XtCallbackList), Offset(chip.remove_callback), XmRPointer,
+     (XtPointer)NULL},
+    {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean),
+     Offset(primitive.traversal_on), XmRImmediate, (XtPointer)True},
+    {XmNhighlightThickness, XmCHighlightThickness, XmRHorizontalDimension,
+     sizeof(Dimension), Offset(primitive.highlight_thickness), XmRCallProc,
+     (XtPointer)_XmSetThickness}
+};
+
+externaldef(xmchipclassrec) XmChipClassRec xmChipClassRec = {
+    {(WidgetClass)&xmPrimitiveClassRec, "XmChip", sizeof(XmChipRec), NULL,
+     NULL, False, Initialize, NULL, XtInheritRealize, NULL, 0, resources,
+     XtNumber(resources), NULLQUARK, True, XtExposeCompressMaximal, True,
+     False, Destroy, NULL, Redisplay, SetValues, NULL,
+     XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
+     XtInheritTranslations, QueryGeometry, NULL, NULL},
+    {XmInheritBorderHighlight, XmInheritBorderUnhighlight,
+     XtInheritTranslations, NULL, NULL, 0, NULL},
+    {NULL}};
+
+externaldef(xmchipwidgetclass) WidgetClass xmChipWidgetClass =
+    (WidgetClass)&xmChipClassRec;
+
+static void create_gcs(XmChipWidget chip) {
+    XGCValues values;
+    Display *display = XtDisplay((Widget)chip);
+    values.foreground = chip->primitive.foreground;
+    values.background = chip->core.background_pixel;
+    chip->chip.foreground_gc = XCreateGC(display, DefaultRootWindow(display),
+                                         GCForeground | GCBackground, &values);
+    values.foreground = chip->core.background_pixel;
+    chip->chip.background_gc = XCreateGC(display, DefaultRootWindow(display),
+                                         GCForeground | GCBackground, &values);
+}
+
+/* XmStringCopy in older Motif builds can retain a shared optimized payload.
+   Chips own their label, so materialize a private localized string instead of
+   allowing a caller's XmStringFree to invalidate a live widget. */
+static XmString copy_label(XmString source) {
+    char *text;
+    XmString result;
+    if (!source) return XmStringCreateLocalized("");
+    text = XmStringUnparse(source, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
+                           NULL, 0, XmOUTPUT_ALL);
+    if (!text) return XmStringCreateLocalized("");
+    result = XmStringCreateLocalized(text);
+    XtFree(text);
+    return result;
+}
+
+static void Initialize(Widget request, Widget widget, ArgList args,
+                       Cardinal *count) {
+    XmChipWidget chip = (XmChipWidget)widget;
+    (void)request; (void)args; (void)count;
+    chip->chip.label = copy_label(chip->chip.label);
+    /* Font-list ownership varies across historical Motif implementations.
+       Keep geometry independent of that optional render table; Redisplay
+       uses the server's default GC font for the plain compact label. */
+    chip->chip.font = NULL;
+    if (!chip->core.width) chip->core.width = 96;
+    if (!chip->core.height) chip->core.height = 28;
+    create_gcs(chip);
+    XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events,
+                      NULL);
+}
+
+static void Destroy(Widget widget) {
+    XmChipWidget chip = (XmChipWidget)widget;
+    Display *display = XtDisplay(widget);
+    XtRemoveEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events,
+                         NULL);
+    if (chip->chip.foreground_gc) XFreeGC(display, chip->chip.foreground_gc);
+    if (chip->chip.background_gc) XFreeGC(display, chip->chip.background_gc);
+    /* Xt owns XmNchipLabel resource storage and releases it after Destroy. */
+    /* chip->font is borrowed from the parent/display default render table. */
+}
+
+static void label_metrics(XmChipWidget chip, Dimension *width,
+                          Dimension *height, Dimension *icon_width) {
+    Dimension label_width = 0, label_height = 16;
+    char *text = NULL;
+    Dimension iw = 0, ih = 0;
+    if (chip->chip.label) {
+        text = XmStringUnparse(chip->chip.label, NULL, XmCHARSET_TEXT,
+                               XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+        if (text) {
+            label_width = (Dimension)(strlen(text) * 8);
+            XtFree(text);
+        }
+    }
+    if (chip->chip.pixmap != XmUNSPECIFIED_PIXMAP &&
+        chip->chip.pixmap != None) {
+        Window root;
+        int px, py;
+        unsigned int pixmap_width, pixmap_height, border, depth;
+        XGetGeometry(XtDisplay((Widget)chip), chip->chip.pixmap, &root, &px,
+                     &py, &pixmap_width, &pixmap_height, &border, &depth);
+        iw = (Dimension)pixmap_width;
+        ih = (Dimension)pixmap_height;
+    }
+    *icon_width = iw;
+    *width = label_width + (iw ? iw + 6 : 0) + (chip->chip.removable ? 18 : 0) + 20;
+    *height = label_height > ih ? label_height : ih;
+    if (*height < 16) *height = 16;
+    *height += 10;
+}
+
+static void Redisplay(Widget widget, XEvent *event, Region region) {
+    XmChipWidget chip = (XmChipWidget)widget;
+    Display *display = XtDisplay(widget);
+    Window window = XtWindow(widget);
+    Dimension width, height, icon_width;
+    Dimension label_width = 0, label_height = 0;
+    int x, y, radius;
+    (void)event; (void)region;
+    if (!window) return;
+    label_metrics(chip, &width, &height, &icon_width);
+    XClearWindow(display, window);
+    radius = (int)chip->core.height / 2;
+    XDrawArc(display, window, chip->chip.foreground_gc, 0, 0,
+             chip->core.height - 1, chip->core.height - 1, 90 * 64, 180 * 64);
+    XDrawArc(display, window, chip->chip.foreground_gc,
+             (int)chip->core.width - (int)chip->core.height, 0,
+             chip->core.height - 1, chip->core.height - 1, 270 * 64, 180 * 64);
+    XDrawLine(display, window, chip->chip.foreground_gc, radius, 0,
+              (int)chip->core.width - radius, 0);
+    XDrawLine(display, window, chip->chip.foreground_gc, radius,
+              chip->core.height - 1, (int)chip->core.width - radius,
+              chip->core.height - 1);
+    x = 10;
+    if (icon_width) {
+        Window root;
+        int px, py;
+        unsigned int pw, ph, border, depth;
+        if (XGetGeometry(display, chip->chip.pixmap, &root, &px, &py, &pw,
+                         &ph, &border, &depth))
+            XCopyArea(display, chip->chip.pixmap, window,
+                      chip->chip.foreground_gc, 0, 0, pw, ph, x,
+                      ((int)chip->core.height - (int)ph) / 2);
+        x += (int)icon_width + 6;
+    }
+    y = ((int)chip->core.height - (int)label_height) / 2;
+    if (chip->chip.label) {
+        char *text = XmStringUnparse(chip->chip.label, NULL, XmCHARSET_TEXT,
+                                     XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+        if (text) {
+            XDrawString(display, window, chip->chip.foreground_gc, x, y + 12,
+                        text, (int)strlen(text));
+            XtFree(text);
+        }
+    }
+    if (chip->chip.removable) {
+        int cx = (int)chip->core.width - 12;
+        XDrawLine(display, window, chip->chip.foreground_gc, cx - 4, 9,
+                  cx + 4, (int)chip->core.height - 9);
+        XDrawLine(display, window, chip->chip.foreground_gc, cx + 4, 9,
+                  cx - 4, (int)chip->core.height - 9);
+    }
+    if (chip->primitive.highlighted && chip->primitive.highlight_thickness)
+        XDrawRectangle(display, window, chip->chip.foreground_gc,
+                       chip->primitive.highlight_thickness - 1,
+                       chip->primitive.highlight_thickness - 1,
+                       chip->core.width - 2 * chip->primitive.highlight_thickness,
+                       chip->core.height - 2 * chip->primitive.highlight_thickness);
+}
+
+static void emit(XmChipWidget chip, String resource, int reason, XEvent *event) {
+    XmChipCallbackStruct callback;
+    callback.reason = reason;
+    callback.event = event;
+    XtCallCallbacks((Widget)chip, resource, &callback);
+}
+
+void XmChipInvoke(Widget widget, XEvent *event) {
+    if (XmIsChip(widget) && !widget->core.being_destroyed)
+        emit((XmChipWidget)widget, XmNchipActivateCallback, XmCR_ACTIVATE,
+             event);
+}
+
+void XmChipRemove(Widget widget, XEvent *event) {
+    if (XmIsChip(widget) && !widget->core.being_destroyed)
+        emit((XmChipWidget)widget, XmNchipRemoveCallback,
+             XmCHIP_REASON_REMOVE, event);
+}
+
+static void Events(Widget widget, XtPointer data, XEvent *event,
+                   Boolean *dispatch) {
+    XmChipWidget chip = (XmChipWidget)widget;
+    KeySym key;
+    char input[8];
+    (void)data; (void)dispatch;
+    if (event->type == ButtonPress) {
+        if (chip->chip.removable && event->xbutton.x >= (int)chip->core.width - 28)
+            XmChipRemove(widget, event);
+        else
+            XmChipInvoke(widget, event);
+        return;
+    }
+    if (event->type != KeyPress) return;
+    XLookupString(&event->xkey, input, sizeof(input), &key, NULL);
+    if (key == XK_space || key == XK_Return || key == XK_KP_Enter)
+        XmChipInvoke(widget, event);
+    else if (chip->chip.removable && (key == XK_Delete || key == XK_BackSpace))
+        XmChipRemove(widget, event);
+}
+
+static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
+                         ArgList args, Cardinal *count) {
+    XmChipWidget old = (XmChipWidget)old_widget;
+    XmChipWidget chip = (XmChipWidget)widget;
+    Boolean redraw = False;
+    (void)request; (void)args; (void)count;
+    if (old->chip.label != chip->chip.label) {
+        XmString replacement = copy_label(chip->chip.label);
+        chip->chip.label = replacement;
+        redraw = True;
+    }
+    if (old->chip.pixmap != chip->chip.pixmap ||
+        old->chip.removable != chip->chip.removable ||
+        old->primitive.highlighted != chip->primitive.highlighted)
+        redraw = True;
+    return redraw;
+}
+
+static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
+                                      XtWidgetGeometry *reply) {
+    XmChipWidget chip = (XmChipWidget)widget;
+    Dimension width, height, icon_width;
+    (void)request;
+    label_metrics(chip, &width, &height, &icon_width);
+    reply->request_mode = CWWidth | CWHeight;
+    reply->width = width;
+    reply->height = height;
+    return (widget->core.width == width && widget->core.height == height)
+               ? XtGeometryYes : XtGeometryAlmost;
+}
+
+Widget XmCreateChip(Widget parent, char *name, ArgList args, Cardinal count) {
+    return XtCreateWidget(name, xmChipWidgetClass, parent, args, count);
+}
+
+Widget XmVaCreateChip(Widget parent, char *name, ...) {
+    Widget widget;
+    va_list var;
+    int count;
+    Va_start(var, name); count = XmeCountVaListSimple(var); va_end(var);
+    Va_start(var, name);
+    widget = XmeVLCreateWidget(name, xmChipWidgetClass, parent, False, var,
+                               count);
+    va_end(var);
+    return widget;
+}
+
+Widget XmVaCreateManagedChip(Widget parent, char *name, ...) {
+    Widget widget;
+    va_list var;
+    int count;
+    Va_start(var, name); count = XmeCountVaListSimple(var); va_end(var);
+    Va_start(var, name);
+    widget = XmeVLCreateWidget(name, xmChipWidgetClass, parent, True, var,
+                               count);
+    va_end(var);
+    return widget;
+}
