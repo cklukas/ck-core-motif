@@ -4793,3 +4793,9 @@ Guard TabList constructor allocations (2026-10-25)
 
 - Check create/copy allocations and reject malformed or oversized copies; see
   `docs/tablist-constructors.md`.
+
+Guard TabList masked NULL arguments (2026-10-25)
+================================================
+
+- Reject NULL attribute pointers before masked insert/modify operations can
+  dereference them; see `docs/tablist-argument-guards.md`.
