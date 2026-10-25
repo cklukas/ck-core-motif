@@ -17,5 +17,7 @@ if "return( XmREP_TYPE_INVALID);" not in block:
     raise SystemExit("representation-type allocation failure does not return invalid")
 if "DynamicRepTypes = new_dynamic_types;" not in block:
     raise SystemExit("successful representation-type growth is not installed")
+if "(Cardinal)(sizeof(XmRepTypeEntryRec) *" not in block:
+    raise SystemExit("representation-type growth lacks explicit Xt sizing")
 
 print("representation-type registration handles table allocation failure")
