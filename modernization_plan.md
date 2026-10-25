@@ -1919,6 +1919,45 @@ produce user-visible improvement while preserving the established programming
 model.  The additive-widget track may progress independently where its stated
 dependency lines allow it.
 
+### WP-41: Cross-cutting allocation and ownership hardening
+
+**Depends on:** the affected public API's existing regression coverage.
+
+**Objective:** remove concrete arithmetic, allocation-failure and ownership
+hazards exposed by maintenance review and the peer bug-fix stream without
+changing the Motif/Xt programming model or hiding failures behind fallbacks.
+
+**Steps:**
+
+1. Select one bounded defect at a time and identify the existing ownership,
+   locking and ABI contract before editing it.
+2. Make the operation transactional where failure could otherwise publish a
+   partial object, array, table or widget state. Preserve public handle and
+   resource identity when the existing contract requires it.
+3. Add a source-contract regression for arithmetic and cleanup paths, plus an
+   installed native fixture whenever the state can be exercised through the
+   public API.
+4. Record the supported configuration, failure result, dependency boundary and
+   exact validation evidence in `CHANGES` and the relevant documentation.
+5. Integrate peer fixes only after checking their dependencies against this
+   fork; do not copy a later-branch label, test assumption or ownership model
+   that is not present here.
+
+**Complete when:** each selected defect has a reviewed implementation, focused
+and installed-library verification, and documented ownership behavior. A peer
+backlog item that depends on a broader refactor remains explicitly deferred
+rather than being represented as complete.
+
+**Status (2026-10-25):** the first render-table slice is implemented and
+qualified. `XmRenderTableCopy` and `XmRenderTableAddRenditions` now reject
+unrepresentable allocation sizes; `XmRenderTableRemoveRenditions` plans
+retained entries and publishes unique-table compaction or shared-table
+detachment only after allocation and rendition-copy success. Source checks and
+the installed Xft `font-lifetime` fixture cover count guards, unique and shared
+removal, ownership retention and empty-table behavior. The full libXm rebuild
+and gallery integration pass on `uconsole`. Further peer render-table changes
+remain separate packages until their earlier-branch dependencies are reviewed.
+
 ## Acceptance criteria for every increment
 
 Before a modernization increment is accepted:
