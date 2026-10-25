@@ -4792,3 +4792,9 @@ Drag receiver-info property validation (2026-10-25)
 - Validate `_MOTIF_DRAG_RECEIVER_INFO` type, format, completeness, and heap
   bounds before exposing it to drop-site parsing; see
   `docs/dragicc-receiver-info-guards.md`.
+
+Drag initiator-info property validation (2026-10-25)
+======================================================
+
+- Validate `_MOTIF_DRAG_INITIATOR_INFO` type, format, completeness, and
+  header length before parsing; see `docs/dragicc-initiator-info-guards.md`.

@@ -809,7 +809,9 @@ _XmReadInitiatorInfo(
 			     &bytesafter,
 			     (unsigned char **) &info) == Success)
       {
-	if(lengthRtn >= sizeof(xmDragInitiatorInfoStruct))
+	if ((type == initiatorAtom) && (format == 8) &&
+	    (bytesafter == 0) &&
+	    (lengthRtn >= sizeof(xmDragInitiatorInfoStruct)))
 	  {
 	    if (info->byte_order != _XmByteOrderChar) {
 	      swap2bytes(info->targets_index);
