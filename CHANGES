@@ -926,6 +926,12 @@ Accessibility display-hook allocation (2026-10-25)
 - Check per-display accessibility hook bookkeeping allocation before callback
   registration; see `docs/accessibility.md`.
 
+Accessibility tree-seed snapshot allocation (2026-10-25)
+============================================================
+
+- Abort initial AT-SPI tree seeding cleanly when its ID snapshot cannot be
+  allocated; see `docs/accessibility-menu-lifecycle.md`.
+
 Accessibility UTF-8 allocation failures (2026-10-25)
 =====================================================
 
