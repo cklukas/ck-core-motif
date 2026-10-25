@@ -3365,6 +3365,9 @@ TestFitItem(
     if (CtrSpatialStyleIsGRID(cw) || CtrSpatialStyleIsCELLS(cw))
 	{
 	  trial_cell = GetCellFromCoord(wid,x,y);
+	  if (trial_cell < 0 || trial_cell >= cw->container.cell_count ||
+	      cw->container.cells == NULL)
+	    return(False);
 	  /* First,  we can always put a widget back where it
 	     started,  but not if something else is there */
 	  if (cw->container.cells[trial_cell] != 0) {
@@ -3465,7 +3468,9 @@ RemoveItem(
 			cw->container.cells_region);
 	XDestroyRegion(cwid_region);
     case XmGRID:
-	cw->container.cells[c->cell_idx]--;
+	if (cw->container.cells != NULL &&
+	    c->cell_idx >= 0 && c->cell_idx < cw->container.cell_count)
+	    cw->container.cells[c->cell_idx]--;
     case XmNONE:
         c->cell_idx = NO_CELL;
     }
@@ -3689,6 +3694,10 @@ PlaceItemGridCells(
   XPoint 	cell_coord;
   XPoint 	place_point;
   XRectangle	cwidrect;
+
+  /* A failed or incomplete reset leaves no usable occupancy grid. */
+  if (cw->container.cells == NULL || cw->container.cell_count <= 0)
+	return;
   
   if (CtrIncludeIsAPPEND(cw))
     trial_cell = cw->container.next_free_cell;

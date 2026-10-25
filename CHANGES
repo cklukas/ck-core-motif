@@ -1,3 +1,10 @@
+Guard Container cell placement against incomplete grids (2026-10-25)
+=====================================================================
+
+- Validate occupancy-grid allocation and cell indices before Container
+  placement, hit testing, and removal; see
+  `docs/container-cell-placement-guards.md`.
+
 2026-10-25
 	* Handle allocation failure in the UIL debug-listing formatter before
 	  passing its buffer to `vsnprintf`; see docs/uil-debug-allocation.md.
