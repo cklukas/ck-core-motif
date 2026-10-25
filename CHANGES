@@ -5291,3 +5291,10 @@ LabelG pixmap metadata guards (2026-10-25)
   successful metadata lookup; see `docs/labelg-pixmap-metadata.md`.
 
 Label drag-icon pixmap metadata (2026-10-25)
+Label pixmap metadata guards (2026-10-25)
+=========================================
+
+- Guard sensitive and insensitive Label pixmap copies and stipple fallback on
+  successful metadata lookup; see `docs/label-pixmap-metadata.md`.
+
+LabelG pixmap metadata guards (2026-10-25)
