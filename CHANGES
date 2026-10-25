@@ -283,6 +283,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  publishing invalid resources; see docs/xm-gc-cache-failure.md.
 
 2026-10-25
+	* Roll back provisional Xm pixmap-cache entries and image state when GC
+	  creation fails; see docs/xm-gc-callsite-rollback.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,
