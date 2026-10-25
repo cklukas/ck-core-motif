@@ -1,3 +1,9 @@
+List selection/navigation input validation (2026-10-25)
+=========================================================
+
+- Reject null widgets before list deselection or position navigation; see
+  `docs/list-navigation-inputs.md`.
+
 List selection input validation (2026-10-25)
 =============================================
 
