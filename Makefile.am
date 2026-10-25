@@ -623,3 +623,5 @@ EXTRA_DIST += tests/automated/check-xm-scale-api-null.py docs/xm-scale-api-null.
 EXTRA_DIST += tests/automated/check-xm-toggle-api-null.py docs/xm-toggle-api-null.md
 
 EXTRA_DIST += tests/automated/check-xm-command-api-null.py docs/xm-command-api-null.md
+
+EXTRA_DIST += tests/automated/check-xm-combobox-api-null.py docs/xm-combobox-api-null.md

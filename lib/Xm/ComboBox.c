@@ -3460,6 +3460,8 @@ XmComboBoxAddItem(Widget   widget,
 {
   XmComboBoxWidget cb = (XmComboBoxWidget)widget;
 
+  if (widget == NULL)
+    return;
   _XmWidgetToAppContext(widget);
   _XmAppLock(app);
 
@@ -3500,6 +3502,8 @@ XmComboBoxDeletePos(Widget widget,
   int selpos;
   int nitems;
 
+  if (widget == NULL)
+    return;
   _XmWidgetToAppContext(widget);
   _XmAppLock(app);
 
@@ -3579,6 +3583,8 @@ XmComboBoxSelectItem(Widget   widget,
   XmComboBoxWidget cb = (XmComboBoxWidget)widget;
   int pos;
 
+  if (widget == NULL)
+    return;
   _XmWidgetToAppContext(widget);
   _XmAppLock(app);
 
@@ -3665,6 +3671,8 @@ XmComboBoxSetItem(Widget   widget,
 XmString
 XmCombinationBoxGetValue(Widget widget)
 {
+    if (widget == NULL)
+        return NULL;
     return (GetEditBoxValue(widget));
 }
 
@@ -3685,6 +3693,8 @@ XmComboBoxUpdate(Widget widget)
   int *pos;
   int pcount;
 
+  if (widget == NULL)
+    return;
   _XmWidgetToAppContext(widget);
   _XmAppLock(app);
 

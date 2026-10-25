@@ -1,3 +1,9 @@
+XmComboBox API null-safety (2026-10-25)
+==========================================
+
+- Guard ComboBox compatibility helpers and value lookup against null widgets;
+  see `docs/xm-combobox-api-null.md`.
+
 XmCommand API null-safety (2026-10-25)
 ========================================
 
