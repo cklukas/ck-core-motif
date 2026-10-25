@@ -6125,3 +6125,10 @@ Guard XmString text concatenation growth (2026-10-25)
   copying text components, releasing partial state on failure; see
   `docs/xmstring-text-concat-allocation.md` and its focused source check.
 
+Validate XmString single-segment copies (2026-10-25)
+====================================================
+
+- Validate copied component and default-tag allocations before publishing a
+  single-segment result; see
+  `docs/xmstring-single-segment-allocation.md` and its focused source check.
+
