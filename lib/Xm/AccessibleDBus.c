@@ -690,8 +690,9 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       error_reply(t, call, DBUS_ERROR_LIMITS_EXCEEDED, "Accessible tree is too large");
       return DBUS_HANDLER_RESULT_HANDLED;
     }
-    ids = (XmAccessibleId *)XtMalloc((Cardinal)(count * sizeof(*ids)));
-    if (!ids) {
+    ids = count ? (XmAccessibleId *)XtMalloc((Cardinal)(count * sizeof(*ids)))
+                : NULL;
+    if (count != 0 && !ids) {
       error_reply(t, call, "org.freedesktop.DBus.Error.NoMemory",
                   "Unable to snapshot the accessibility tree");
       return DBUS_HANDLER_RESULT_HANDLED;
