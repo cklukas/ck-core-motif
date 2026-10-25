@@ -44,6 +44,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <limits.h>
 #include <X11/Xlocale.h>
 
 #define X_INCLUDE_DIRENT_H
@@ -239,6 +240,12 @@ MakeCachedDirEntry(String dirName)
 	      XtMalloc((sizeof(DtValidCachedDirStruct)) +
 		       (sizeof(validDir->nameOffsets[0]) * numFiles) +
 		       (nameHeapSize));
+            if (validDir == NULL) {
+                XtFree(dirName);
+                if (fileDesc != NULL)
+                    closedir(fileDesc);
+                return NULL;
+            }
 
 	    validDir->dirNameLen = strlen(dirName);
 	    validDir->dirName = dirName;
@@ -266,6 +273,12 @@ MakeCachedDirEntry(String dirName)
       case DtUNCACHED_DIR:
 	cachedDir = (DtCachedDir)
 	  XtMalloc(sizeof(DtCommonCachedDirStruct));
+        if (cachedDir == NULL) {
+            XtFree(dirName);
+            if (fileDesc != NULL)
+                closedir(fileDesc);
+            return NULL;
+        }
 	cachedDir->common.cachedDirType =
 	  cachedDirType;
 	cachedDir->common.dirNameLen = strlen(dirName);
@@ -388,15 +401,42 @@ CheckDirCache(String	path)
 	     * we didn't get a hit on the directory list so create a new one
 	     */
 	    if (cacheList.numDirs == cacheList.maxDirs) {
-		cacheList.maxDirs += 16;
-		cacheList.dirs = (DtCachedDir *)
-		  XtRealloc((char *)cacheList.dirs,
-			    cacheList.maxDirs * sizeof (DtCachedDir));
+                DtCachedDir *new_dirs;
+                int new_max_dirs;
+
+                if (cacheList.maxDirs > INT_MAX - 16) {
+                    _XmProcessUnlock();
+                    return DtUNCACHED_DIR;
+                }
+                new_max_dirs = cacheList.maxDirs + 16;
+                if ((size_t)new_max_dirs > SIZE_MAX / sizeof(*new_dirs)) {
+                    _XmProcessUnlock();
+                    return DtUNCACHED_DIR;
+                }
+                new_dirs = (DtCachedDir *)XtRealloc(
+                    (char *)cacheList.dirs,
+                    (size_t)new_max_dirs * sizeof(*new_dirs));
+                if (new_dirs == NULL) {
+                    _XmProcessUnlock();
+                    return DtUNCACHED_DIR;
+                }
+                cacheList.dirs = new_dirs;
+                cacheList.maxDirs = new_max_dirs;
 	    }
-	    dirName = strncpy(XtMalloc(dirNameLen+1), path, dirNameLen);
-	    dirName[dirNameLen] = '\0';
-	    cacheList.dirs[cacheList.numDirs++] = MakeCachedDirEntry(dirName);
-	}
+            dirName = (String)XtMalloc((size_t)dirNameLen + 1);
+            if (dirName == NULL) {
+                _XmProcessUnlock();
+                return DtUNCACHED_DIR;
+            }
+            memcpy(dirName, path, (size_t)dirNameLen);
+            dirName[dirNameLen] = '\0';
+            currDir = MakeCachedDirEntry(dirName);
+            if (currDir == NULL) {
+                _XmProcessUnlock();
+                return DtUNCACHED_DIR;
+            }
+            cacheList.dirs[cacheList.numDirs++] = currDir;
+        }
 	currDir = (DtValidCachedDir)cacheList.dirs[i];
 
 	/*

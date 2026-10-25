@@ -5425,3 +5425,9 @@ Harden ClipWindow translation-buffer growth (2026-10-25)
 
 - Handle zero-capacity growth and preserve the live translation buffer when
   allocation fails; see `docs/clip-window-translations.md`.
+
+Harden icon-directory cache growth (2026-10-25)
+=================================================
+
+- Preserve the directory cache on growth failure and release partial entries
+  when icon-directory allocations fail; see `docs/icon-directory-cache.md`.
