@@ -9941,7 +9941,7 @@ XmContainerReorder(
 
 	_XmWidgetToAppContext(wid);
 
-	if (cwid_count <= 1)
+	if (cwid_count <= 1 || cwid_list == NULL)
 		return;
 	if ((size_t)cwid_count > SIZE_MAX / sizeof(int))
 		return;
@@ -9949,6 +9949,10 @@ XmContainerReorder(
 	c = GetContainerConstraint(cwid_list[0]);
 	pcwid = c->entry_parent;
 	pi_list = (int *)XtMalloc(cwid_count * sizeof(int));
+	if (pi_list == NULL) {
+		_XmAppUnlock(app);
+		return;
+	}
 	pi_count = 0;
 	for (i=0; i < cwid_count; i++)
 		{
