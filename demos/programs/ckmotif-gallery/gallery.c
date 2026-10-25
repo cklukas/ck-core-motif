@@ -71,8 +71,9 @@ static Widget open_gallery_dialog(Widget parent, const char *kind)
 static void welcome_expose(Widget widget, XtPointer client_data, XtPointer call_data) {
     static const char *lines[] = {
         "Hello world!", "Hallo Welt!", "こんにちは世界！", "你好，世界！",
-        "", "Choose a component category on the left to explore live examples."
+        ""
     };
+    const char *prompt = "Choose a component category on the left to explore live examples.";
     Display *display = XtDisplay(widget);
     Window window = XtWindow(widget);
     XftDraw *draw;
@@ -107,11 +108,69 @@ static void welcome_expose(Widget widget, XtPointer client_data, XtPointer call_
                           (int)(height / 2 - 70 + i * (font->height + 4)),
                           (const FcChar8 *)lines[i], strlen(lines[i]));
     }
+    {
+        char remaining[256];
+        char line[256] = "";
+        char *word;
+        int baseline = (int)(height / 2 + 50);
+        int max_width = width > 48 ? (int)width - 48 : (int)width;
+        strncpy(remaining, prompt, sizeof(remaining) - 1);
+        remaining[sizeof(remaining) - 1] = '\0';
+        word = strtok(remaining, " ");
+        while (word != NULL) {
+            char candidate[256];
+            XGlyphInfo candidate_extents;
+            if (line[0] != '\0')
+                snprintf(candidate, sizeof(candidate), "%s %s", line, word);
+            else
+                snprintf(candidate, sizeof(candidate), "%s", word);
+            XftTextExtentsUtf8(display, font, (const FcChar8 *)candidate,
+                               strlen(candidate), &candidate_extents);
+            if (line[0] != '\0' && (int)candidate_extents.width > max_width) {
+                XGlyphInfo line_extents;
+                XftTextExtentsUtf8(display, font, (const FcChar8 *)line,
+                                   strlen(line), &line_extents);
+                XftDrawStringUtf8(draw, &color, font,
+                                  (int)((width - line_extents.width) / 2),
+                                  baseline, (const FcChar8 *)line, strlen(line));
+                baseline += font->height + 4;
+                strncpy(line, word, sizeof(line) - 1);
+                line[sizeof(line) - 1] = '\0';
+            } else {
+                strncpy(line, candidate, sizeof(line) - 1);
+                line[sizeof(line) - 1] = '\0';
+            }
+            word = strtok(NULL, " ");
+        }
+        if (line[0] != '\0') {
+            XGlyphInfo line_extents;
+            XftTextExtentsUtf8(display, font, (const FcChar8 *)line,
+                               strlen(line), &line_extents);
+            XftDrawStringUtf8(draw, &color, font,
+                              (int)((width - line_extents.width) / 2), baseline,
+                              (const FcChar8 *)line, strlen(line));
+        }
+    }
     XftColorFree(display, DefaultVisual(display, DefaultScreen(display)),
                  DefaultColormap(display, DefaultScreen(display)), &color);
     XftFontClose(display, font);
     XftFontClose(display, cjk_font);
     XftDrawDestroy(draw);
+}
+
+static Widget create_gallery_tab(Widget notebook, const char *name,
+                                 int page_number, const char *label)
+{
+    Widget frame = XtVaCreateManagedWidget(
+        name, xmFrameWidgetClass, notebook,
+        XmNnotebookChildType, XmMAJOR_TAB,
+        XmNpageNumber, page_number,
+        XmNshadowThickness, 1,
+        XmNmarginWidth, 8,
+        XmNmarginHeight, 3, NULL);
+    XtVaCreateManagedWidget("tabLabel", xmLabelWidgetClass, frame,
+                            XmNlabelString, text(label), NULL);
+    return frame;
 }
 
 static void provenance_expose(Widget widget, XtPointer client_data, XtPointer call_data) {
@@ -958,7 +1017,7 @@ int main(int argc, char **argv)
                                 XmNbottomAttachment, XmATTACH_FORM,
                                 XmNleftAttachment, XmATTACH_FORM,
                                 XmNrightAttachment, XmATTACH_FORM,
-                                XmNwidth, 520, XmNheight, 220, NULL);
+                                XmNheight, 260, NULL);
         XtAddCallback(welcome_text, XmNexposeCallback, welcome_expose, NULL);
     }
     XtManageChild(state.welcome);
@@ -988,15 +1047,9 @@ int main(int argc, char **argv)
             set_status(&state, "Welcome - choose a component category to begin");
         }
     }
-    XtVaCreateManagedWidget("exampleTab", xmLabelWidgetClass, notebook,
-                            XmNnotebookChildType, XmMAJOR_TAB, XmNpageNumber, 2,
-                            XmNlabelString, text("Example"), NULL);
-    XtVaCreateManagedWidget("sourceTab", xmLabelWidgetClass, notebook,
-                            XmNnotebookChildType, XmMAJOR_TAB, XmNpageNumber, 3,
-                            XmNlabelString, text("Source"), NULL);
-    XtVaCreateManagedWidget("iconsTab", xmLabelWidgetClass, notebook,
-                            XmNnotebookChildType, XmMAJOR_TAB, XmNpageNumber, 4,
-                            XmNlabelString, text("Built-in Icons"), NULL);
+    (void)create_gallery_tab(notebook, "exampleTab", 2, "Example");
+    (void)create_gallery_tab(notebook, "sourceTab", 3, "Source");
+    (void)create_gallery_tab(notebook, "iconsTab", 4, "Built-in Icons");
     if (initial_id && strcmp(initial_id, "gallery.icons") != 0 &&
         strcmp(initial_id, "gallery.welcome") != 0) {
         const GalleryManifestEntry *initial = find_entry(initial_id);
