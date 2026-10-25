@@ -159,8 +159,13 @@ UTMReplyReceived(Widget w, XtPointer clientData, XtPointer callData)
     fprintf(stderr, "ERROR: Bad flags value received in UTMReplyReceived.\n");
     errorFound = True;
   }
-  if (errorFound)
+  if (errorFound) {
+    if (req_info->reply_callback != NULL)
+      (*req_info->reply_callback)(w, req_info->reply_data, NULL,
+				  WSM_ERROR_INTERNAL);
+    XtFree((XtPointer) req_info);
     return;
+  }
 
   ReplyReceived(w,
 		req_info, /* the request info pointer to fill in. */
@@ -240,7 +245,8 @@ ReplyReceived(Widget w, XtPointer req_info_ptr,
 	 * Failure, call callback with NULL reply.
 	 */
 
-	(*req_info->reply_callback)(w, req_info->reply_data, NULL, fail_code);
+    if (req_info->reply_callback != NULL)
+      (*req_info->reply_callback)(w, req_info->reply_data, NULL, fail_code);
     }
     else {
 	screen_num = XScreenNumberOfScreen(XtScreen(w));
@@ -248,7 +254,8 @@ ReplyReceived(Widget w, XtPointer req_info_ptr,
 	_WSMUnpackReply(dpy, screen_num, value, *length,
 			  req_info->request_type, &reply);
 	
-	(*req_info->reply_callback)(w, req_info->reply_data, &reply,fail_code);
+	if (req_info->reply_callback != NULL)
+	    (*req_info->reply_callback)(w, req_info->reply_data, &reply,fail_code);
 	
 	FreeReply(&reply);
     }

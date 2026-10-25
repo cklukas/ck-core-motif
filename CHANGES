@@ -11110,3 +11110,10 @@ WSM cleanup idempotence (2026-10-25)
 
 - Clear request and reply ownership flags after cleanup so repeated release
   calls are safe; see `docs/wsm-free-idempotent.md`.
+
+WSM reply callback lifecycle (2026-10-25)
+=========================================
+
+- Guard optional reply callbacks and release pending request state when a
+  transfer callback reports malformed status; see
+  `docs/wsm-reply-callback-lifecycle.md`.

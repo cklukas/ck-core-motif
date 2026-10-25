@@ -53,6 +53,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [WSM window-request ownership](wsm-windows-owned.md) — track decoded array ownership correctly.
 - [WSM nested window-array ownership](wsm-windows-nested-ownership.md) — initialize and release nested property arrays.
 - [WSM cleanup idempotence](wsm-free-idempotent.md) — prevent repeated cleanup from double-freeing.
+- [WSM reply callback lifecycle](wsm-reply-callback-lifecycle.md) — guard optional callbacks and failure cleanup.
 - [WM state read guards](wmstate-read-guards.md) — safe handling of window-manager state properties.
 
 ## Accessibility and diagnostics

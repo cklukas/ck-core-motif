@@ -918,6 +918,8 @@ EXTRA_DIST += tests/automated/check-wsm-windows-nested-ownership.py docs/wsm-win
 
 EXTRA_DIST += tests/automated/check-wsm-free-idempotent.py docs/wsm-free-idempotent.md
 
+EXTRA_DIST += tests/automated/check-wsm-reply-callback-lifecycle.py docs/wsm-reply-callback-lifecycle.md
+
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 
 EXTRA_DIST += tests/automated/check-latin-lower-bounds.py docs/latin-lower-bounds.md
