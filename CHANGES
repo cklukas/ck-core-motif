@@ -1,3 +1,9 @@
+Mrm icon color-table validation (2026-10-25)
+================================================
+
+- Reject null serialized color tables before icon mapping and color realization;
+  see `docs/mrm-icon-colortable-validation.md`.
+
 Mrm icon converter input validation (2026-10-25)
 ===================================================
 

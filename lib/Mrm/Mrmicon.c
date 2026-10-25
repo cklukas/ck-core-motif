@@ -106,6 +106,8 @@ UrmCreatePixmap (RGMIconImagePtr	icon,
   if ( icon == NULL || pixmap == NULL )
     return MrmFAILURE;
   *pixmap = 0;
+  if ( icon->color_table.ctptr == NULL )
+    return MrmNOT_VALID;
 
   /*
    *  Local variables
@@ -1105,6 +1107,9 @@ Urm__RealizeColorTable (Screen			*screen,
 			RGMColorTablePtr	ctable,
 			Widget			parent)
 {
+
+  if ( ctable == NULL )
+    return MrmNOT_VALID;
 
   /*
    *  Local variables
