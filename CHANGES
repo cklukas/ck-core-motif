@@ -1,3 +1,10 @@
+Harden FileSB empty text fallbacks (2026-10-25)
+===============================================
+
+- Keep filter and directory text creation usable when an empty fallback buffer
+  cannot be allocated, and free only owned storage; see
+  `docs/motif-filesb-empty-text.md`.
+
 Guard FileSB conversion target allocation (2026-10-25)
 ========================================================
 

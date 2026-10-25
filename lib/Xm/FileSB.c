@@ -1059,6 +1059,8 @@ FSBCreateFilterText(
             Arg             arglist[10] ;
             int             argCount ;
             char *          stext_value ;
+            Boolean         stext_owned = True;
+            static char     empty_value[] = "";
             XtAccelerators  temp_accelerators ;
 /****************/
 
@@ -1070,7 +1072,12 @@ FSBCreateFilterText(
     */
     if(    !(stext_value = _XmStringGetTextConcat( FS_Pattern( fs)))    )
     {   stext_value = (char *) XtMalloc( 1) ;
-        stext_value[0] = '\0' ;
+        if (stext_value != NULL)
+            stext_value[0] = '\0' ;
+        else {
+            stext_value = empty_value;
+            stext_owned = False;
+        }
         }
     argCount = 0 ;
     XtSetArg( arglist[argCount], XmNcolumns, 
@@ -1088,7 +1095,8 @@ FSBCreateFilterText(
     XtInstallAccelerators( FS_FilterText( fs), (Widget) fs) ;
     fs->core.accelerators = temp_accelerators ;
 
-    XtFree( stext_value) ;
+    if (stext_owned)
+        XtFree( stext_value) ;
     return ;
     }
 
@@ -1100,6 +1108,8 @@ FSBCreateDirText(
             Arg             arglist[10] ;
             int             argCount ;
             char *          stext_value ;
+            Boolean         stext_owned = True;
+            static char     empty_value[] = "";
             XtAccelerators  temp_accelerators ;
 /****************/
 
@@ -1111,7 +1121,12 @@ FSBCreateDirText(
     */
     if(    !(stext_value = _XmStringGetTextConcat( FS_Directory( fs)))    )
     {   stext_value = (char *) XtMalloc( 1) ;
-        stext_value[0] = '\0' ;
+        if (stext_value != NULL)
+            stext_value[0] = '\0' ;
+        else {
+            stext_value = empty_value;
+            stext_owned = False;
+        }
         }
     argCount = 0 ;
     XtSetArg( arglist[argCount], XmNcolumns, 
@@ -1129,7 +1144,8 @@ FSBCreateDirText(
     XtInstallAccelerators(FS_DirText( fs), (Widget) fs) ;
     fs->core.accelerators = temp_accelerators ;
 
-    XtFree( stext_value) ;
+    if (stext_owned)
+        XtFree( stext_value) ;
     return ;
     }
 
