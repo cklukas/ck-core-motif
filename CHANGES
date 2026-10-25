@@ -5,6 +5,12 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+XmString unparse comparison null-value guard (2026-10-26)
+===========================================================
+
+- Reject malformed non-empty component values before unparse pattern
+  comparison; see `docs/xmstring-unparse-compare.md`.
+
 XmStringGenerate rendition fallback failures (2026-10-26)
 ===========================================================
 

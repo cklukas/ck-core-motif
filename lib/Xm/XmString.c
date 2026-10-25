@@ -8995,6 +8995,7 @@ unparse_components(char          **result,
 	      /* Bit-compare components. */
 	      else if ((m_ctype != p_ctype) ||
 		       (m_length != p_length) ||
+		       (m_length != 0 && (m_value == NULL || p_value == NULL)) ||
 		       ((m_value != p_value) &&
 			memcmp(m_value, p_value, m_length)))
 		match = False;
