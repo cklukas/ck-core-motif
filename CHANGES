@@ -9965,6 +9965,12 @@ XmOS filename allocation guards (2026-10-25)
   preserving safe empty/`NULL` failure results; see
   `docs/xmos-filename-allocation.md`.
 
+Virtual-key fallback allocation guards (2026-10-25)
+===================================================
+
+- Skip failed fallback filename construction and binding copies before
+  `fopen` or `strlen`; see `docs/virtkeys-fallback-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
