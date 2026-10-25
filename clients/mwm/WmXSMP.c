@@ -626,10 +626,11 @@ addClientToList(ClientData ***cdList, int *nClients, ClientData *pCD)
 	*nClients == INT_MAX)
 	return False;
     newCount = (size_t)*nClients + 1;
-    if (newCount > SIZE_MAX / sizeof(*newPtr))
+    if (newCount > SIZE_MAX / sizeof(*newPtr) ||
+	newCount > UINT_MAX / sizeof(*newPtr))
 	return False;
     newPtr = (ClientData **)XtRealloc((char *)*cdList,
-					  newCount * sizeof(*newPtr));
+					  (Cardinal)(newCount * sizeof(*newPtr)));
 
     if (newPtr == (ClientData **)NULL)
 	return False;

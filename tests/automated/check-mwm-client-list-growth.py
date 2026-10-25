@@ -8,7 +8,9 @@ end = source.index("\n}\n", start) + 2
 region = source[start:end]
 assert "if (cdList == NULL || nClients == NULL" in region
 assert "SIZE_MAX / sizeof(*newPtr)" in region
+assert "UINT_MAX / sizeof(*newPtr)" in region
 assert "XtRealloc((char *)*cdList" in region
+assert "(Cardinal)(newCount * sizeof(*newPtr))" in region
 assert "if (*cdList != (ClientData **)NULL)" not in region
 assert "(*nClients)++;" in region
 print("PASS MWM client-list growth is transactional")
