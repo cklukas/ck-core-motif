@@ -53,6 +53,27 @@ build evidence.
 The source-level safety contract is checked by
 `tests/automated/check-gallery-screenshot-runner.py`.
 
+The complete profile/scale capture is orchestrated by
+`tests/automated/run-gallery-screenshot-matrix.py`. Its default matrix is the
+four public appearance profiles crossed with scales 1.0, 1.5, 2.0 and 3.0;
+`--appearances` and `--scales` accept explicit comma-separated subsets. Each
+cell is a separate child receipt and the matrix fails or skips as soon as a
+child does, while retaining the completed cells and their exact commands.
+By default the XWD/PNG captures are retained. On constrained qualification
+hosts, `--discard-captures` removes only those generated image files after
+their hashes are recorded in the child receipt; the matrix receipt records
+that the run was hash-only rather than presenting it as publication imagery.
+The source-level matrix contract is checked by
+`tests/automated/check-gallery-screenshot-matrix.py`.
+
+For example, a full Linux qualification uses a fresh output directory:
+
+```sh
+DISPLAY=:121 python3 tests/automated/run-gallery-screenshot-matrix.py \
+  --binary /absolute/path/to/ckmotif-gallery \
+  --out /tmp/ckmotif-gallery-screenshot-matrix
+```
+
 Published PNGs are projected into `docs/gallery-screenshots/manifest.json` by
 `tests/automated/generate-gallery-screenshot-manifest.py`. The companion
 `tests/automated/check-gallery-screenshot-assets.py` verifies the manifest
