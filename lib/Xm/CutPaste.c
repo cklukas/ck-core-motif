@@ -4716,6 +4716,10 @@ XmClipboardInquireLength(
     int ignoreformat;
     int status;
     int format_len;
+
+    if (format == NULL)
+	return ClipboardBadFormat;
+
     _XmDisplayToAppContext(display);
 
     _XmAppLock(app);
@@ -4727,6 +4731,13 @@ XmClipboardInquireLength(
 
     /* get the clipboard header */
     header = ClipboardOpen( display, 0 );
+
+    if (header == NULL)
+    {
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
 
     /* check to see if we need to reclaim the selection */
     InitializeSelection( display, header, window, 

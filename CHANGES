@@ -1,3 +1,10 @@
+Clipboard length inquiry guards (2026-10-26)
+=============================================
+
+- Reject null format names and validate the clipboard header before length
+  inquiries access retrieval state; see
+  `docs/clipboard-inquire-length-guards.md`.
+
 Clipboard format inquiry guards (2026-10-26)
 =============================================
 
