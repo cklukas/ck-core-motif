@@ -1205,10 +1205,16 @@ XmeGetNullCursor(
     Cursor		cursor;
     XColor		foreground;
     XColor		background;
+    if (w == NULL)
+        return None;
     _XmWidgetToAppContext(w);
 
     _XmAppLock(app);
     xmScreen = (XmScreen) XmGetXmScreen(XtScreenOfObject(w));
+    if (xmScreen == NULL) {
+        _XmAppUnlock(app);
+        return None;
+    }
     if (xmScreen->screen.nullCursor == None) {
 	foreground.pixel =  
 	  background.pixel = 0;

@@ -10355,6 +10355,12 @@ Screen pixmap/cache input validation (2026-10-25)
 - Validate screen, pixmap, and cache-table state before scratch-pixmap release
   and cursor-cache lookup; see `docs/screen-pixmap-cache-input.md`.
 
+Screen null-cursor input validation (2026-10-25)
+=================================================
+
+- Return `None` for missing widget or screen inputs in `XmeGetNullCursor`;
+  see `docs/screen-null-cursor-input.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
