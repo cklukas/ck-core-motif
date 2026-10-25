@@ -11,5 +11,9 @@ region = text[start:end]
 
 assert "if (reply->wm_windows.win_entry_list == NULL)" in region
 assert "reply->wm_windows.num_win_entry_list = 0;" in region
+assert "num >= 0" in region
+assert "UINT_MAX / sizeof(WSMWinEntry)" in region
+assert "XtMalloc((Cardinal)((size_t)num * sizeof(WSMWinEntry)))" in region
+assert "XtMalloc(sizeof(WSMWinEntry) * num)" not in region
 assert region.index("if (reply->wm_windows.win_entry_list == NULL)") < region.index("reply->wm_windows.allocated = True;")
 print("WSM WM_WINDOWS reply unpacking handles allocation failure")

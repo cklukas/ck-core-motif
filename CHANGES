@@ -11574,6 +11574,12 @@ WSM get-state allocation width (2026-10-25)
 - Check decoded `GET_STATE` counts before window-info allocation; see
   `docs/wsm-get-state-unpack-oom.md`.
 
+WSM WM_WINDOWS reply allocation width (2026-10-25)
+===================================================
+
+- Check reply window-entry counts before allocation; see
+  `docs/wsm-win-reply-oom.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 
