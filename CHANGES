@@ -1,3 +1,9 @@
+XmString-table destination-size cleanup (2026-10-25)
+======================================================
+
+- Free generated entries when the destination pointer buffer is too small;
+  see `docs/xmstring-table-size-failure.md`.
+
 Table converter destructor payload validation (2026-10-25)
 ============================================================
 

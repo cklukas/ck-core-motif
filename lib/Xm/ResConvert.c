@@ -1471,7 +1471,11 @@ CvtStringToXmStringTable(
     {
       if (to_val->size < sizeof(XtPointer)) 
 	{
+	  int cleanup;
 	  to_val->size = sizeof(XtPointer);	
+	  for (cleanup = 0; cleanup < str_no; ++cleanup)
+	    XmStringFree(table[cleanup]);
+	  XtFree((char *)table);
 	  return False;
 	}		
       *(XmString **)(to_val->addr) = table;
