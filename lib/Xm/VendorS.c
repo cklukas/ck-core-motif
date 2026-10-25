@@ -2145,26 +2145,33 @@ SetValuesPrehook(
     newExtData = (XmWidgetExtData) XtCalloc(1, sizeof(XmWidgetExtDataRec));
 
     if (oldExtData && newExtData) {
-	 _XmPushWidgetExtData(new_w, newExtData, XmSHELL_EXTENSION);
+        newExtData->widget = oldExtData->widget;
 
-    newExtData->widget = oldExtData->widget;
+        _XmProcessLock();
+        newExtData->oldWidget = (Widget) _XmExtObjAlloc(extSize);
+        newExtData->reqWidget = (Widget) _XmExtObjAlloc(extSize);
+        _XmProcessUnlock();
+        if (newExtData->oldWidget == NULL || newExtData->reqWidget == NULL)
+          {
+            _XmExtObjFree((XtPointer)newExtData->oldWidget);
+            _XmExtObjFree((XtPointer)newExtData->reqWidget);
+            XtFree((char *)newExtData);
+            return FALSE;
+          }
 
-    _XmProcessLock();
-    newExtData->oldWidget = (Widget) _XmExtObjAlloc(extSize);
-    memcpy((char *)newExtData->oldWidget, (char *)oldExtData->widget, extSize);
-    _XmProcessUnlock();
+        memcpy((char *)newExtData->oldWidget,
+               (char *)oldExtData->widget, extSize);
 
-    _XmProcessLock();
-    XtSetSubvalues(oldExtData->widget,
-		    ec->core_class.resources,
-		    ec->core_class.num_resources,
-		    args, *num_args);
-    _XmProcessUnlock();
+        _XmProcessLock();
+        XtSetSubvalues(oldExtData->widget,
+                        ec->core_class.resources,
+                        ec->core_class.num_resources,
+                        args, *num_args);
+        _XmProcessUnlock();
 
-    _XmProcessLock();
-    newExtData->reqWidget = (Widget) _XmExtObjAlloc(extSize);
-    memcpy((char *)newExtData->reqWidget, (char *)oldExtData->widget, extSize);
-    _XmProcessUnlock();
+        memcpy((char *)newExtData->reqWidget,
+               (char *)oldExtData->widget, extSize);
+        _XmPushWidgetExtData(new_w, newExtData, XmSHELL_EXTENSION);
 
     /*  Convert the necessary fields from unit values to pixel values  */
      _XmProcessLock();
@@ -2173,6 +2180,8 @@ SetValuesPrehook(
     _XmExtImportArgs(oldExtData->widget, args, num_args);
 
     }
+    else if (newExtData != NULL)
+        XtFree((char *)newExtData);
     return FALSE;
 }
 

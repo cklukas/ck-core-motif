@@ -1,3 +1,10 @@
+VendorShell SetValues allocation (2026-10-27)
+==============================================
+
+- Allocate both VendorShell secondary-object snapshots before publishing
+  SetValues extension state, releasing partial snapshots when allocation
+  fails instead of copying through null targets.
+
 VendorShell extension-data allocation (2026-10-27)
 ====================================================
 
