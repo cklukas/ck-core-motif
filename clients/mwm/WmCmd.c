@@ -1726,7 +1726,8 @@ GetIconMenuItemSelectInfo(ClientData *pcd, XtPointer reply, Boolean use_icon_box
 	  sensitive[n] = NewMenuButton->buttonWidget->core.sensitive;
 	  itemY[n] = NewMenuButton->buttonWidget->core.y +
                             (NewMenuButton->buttonWidget->core.height / 2);
-	  strcpy(itemName[n], NewMenuItem->label);
+	  (void) snprintf(itemName[n], sizeof(itemName[n]), "%s",
+			  NewMenuItem->label ? NewMenuItem->label : "");
 
 	  if (sensitive[n] == TRUE)
             sensitiveCount++;
@@ -1923,7 +1924,8 @@ GetWindowItemSelectInfo(ClientData *pcd, XtPointer reply)
 	  sensitive[n] = NewMenuButton->buttonWidget->core.sensitive;
 	  itemY[n] = NewMenuButton->buttonWidget->core.y +
                             (NewMenuButton->buttonWidget->core.height / 2);
-	  strcpy(itemName[n], NewMenuItem->label);
+	  (void) snprintf(itemName[n], sizeof(itemName[n]), "%s",
+			  NewMenuItem->label ? NewMenuItem->label : "");
 
 	  if (sensitive[n] == TRUE)
             sensitiveCount++;
@@ -1984,7 +1986,8 @@ GetItemCheckInfo(ClientData *pcd, XtPointer reply)
             continue;
 
 	  NewMenuItem = NewMenuButton->menuItem;
-	  strcpy (itemName[i],NewMenuItem->label);
+	  (void) snprintf(itemName[i], sizeof(itemName[i]), "%s",
+			  NewMenuItem->label ? NewMenuItem->label : "");
 
 	}
 

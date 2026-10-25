@@ -64,6 +64,12 @@ XmScreen lookup bounds (2026-10-25)
 - Check the display screen bound before each `ScreenOfDisplay` lookup; see
   `docs/screen-lookup-bounds.md`.
 
+Mwm menu-info label bounds (2026-10-25)
+========================================
+
+- Bound menu labels copied into fixed Mwm protocol buffers; see
+  `docs/wmcmd-label-bounds.md`.
+
 Bounded Latin-1 resource conversion (2026-10-25)
 ==================================================
 
