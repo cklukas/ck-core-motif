@@ -15,7 +15,8 @@ registry.
 `NULL` without leaving the process lock held when memory is unavailable.
 
 The shared copy helper now checks every string and value allocation, including
-Xt's `Cardinal` byte-size range for long names. Partial
+the pointer-table multiplication and Xt's `Cardinal` byte-size range for long
+names, and passes explicit Xt-sized byte counts. Partial
 records are released before a failure is returned, and list/record queries
 clean up entries copied before the failed one.
 

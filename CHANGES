@@ -12050,3 +12050,10 @@ Bound Column label-name allocation width (2026-10-26)
   explicit Xt-sized allocation; see `docs/column-label-allocation.md`.
 
 Make XmeVLCreateWidget allocation width explicit (2026-10-26)
+Make RepType string-array allocation widths explicit (2026-10-26)
+==================================================================
+
+- Bound and explicitly size the representation-type name pointer table and
+  copied strings before Xt allocation; see `docs/reptype-registration.md`.
+
+Bound Column label-name allocation width (2026-10-26)
