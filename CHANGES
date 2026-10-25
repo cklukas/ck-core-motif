@@ -6153,3 +6153,10 @@ Guard XmString entry creation allocation (2026-10-25)
   separator and other constructors to unwind cleanly; see
   `docs/xmstring-entry-create-allocation.md` and its focused source check.
 
+Harden XmString separator creation (2026-10-25)
+=================================================
+
+- Check cached entry-table and optimized-entry allocations, unwinding partial
+  separators before returning `NULL`; see
+  `docs/xmstring-separator-allocation.md` and its focused source check.
+

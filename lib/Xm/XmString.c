@@ -996,15 +996,33 @@ XmStringSeparatorCreate( void )
   _XmProcessLock();
   if (!str)
     {
-      int i; 
+      int i;
+      _XmStringEntry *entries;
       
       _XmStrCreate(str, XmSTRING_MULTIPLE_ENTRY, 0);
 
       _XmStrImplicitLine(str) = True;
-      _XmStrEntry(str) = (_XmStringEntry *)XtMalloc(2*sizeof(_XmStringEntry));
+      entries = (_XmStringEntry *)XtMalloc(2 * sizeof(*entries));
+      if (!entries) {
+	_XmStrFree(str);
+	str = NULL;
+	_XmProcessUnlock();
+	return NULL;
+      }
+      _XmStrEntry(str) = entries;
       _XmStrEntryCount(str) = 2;
       for (i = 0; i < 2; i++) {
-	_XmEntryCreate(_XmStrEntry(str)[i], XmSTRING_ENTRY_OPTIMIZED);
+	_XmEntryCreate(entries[i], XmSTRING_ENTRY_OPTIMIZED);
+	if (!entries[i]) {
+	  int j;
+	  for (j = 0; j < i; j++)
+	    _XmStringEntryFree(entries[j]);
+	  XtFree((char *)entries);
+	  _XmStrFree(str);
+	  str = NULL;
+	  _XmProcessUnlock();
+	  return NULL;
+	}
       }
     }
 
