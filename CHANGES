@@ -4604,3 +4604,9 @@ Transient sibling guards (2026-10-25)
 
 - Validate sibling chains before transient reordering;
   see `docs/transient-sibling-guards.md`.
+
+Transient focus and stacking guards (2026-10-25)
+================================================
+
+- Handle detached clients safely during focus repair and tree normalization;
+  see `docs/transient-focus-stack-guards.md`.

@@ -1478,6 +1478,11 @@ ClientData * FindTransientFocus (ClientData *pcd)
 
     ClientData *pcdFocus;
 
+    if (pcd == NULL)
+    {
+        return (wmGD.keyboardFocus);
+    }
+
     /*
      * Find a window that does not have an application modal subordinate.
      * First, search descendents
@@ -2597,6 +2602,11 @@ Boolean BumpPrimaryToBottom (ClientData *pcdLeader)
 {
     Boolean rval;
 
+    if (pcdLeader == NULL)
+    {
+        return (False);
+    }
+
     if (pcdLeader->primaryStackPosition != 0)
     {
 	pcdLeader->primaryStackPosition = 0;
@@ -2862,6 +2872,11 @@ NormalizeTransientTreeStacking (
 {
     ClientData *pcdNext;
     Boolean bChanged = False;
+
+    if (pcdLeader == NULL)
+    {
+        return (False);
+    }
 
     pcdNext = pcdLeader->transientChildren;
     bChanged = BumpPrimaryToBottom (pcdLeader);
