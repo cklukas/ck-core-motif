@@ -4592,3 +4592,9 @@ StackWindow guards (2026-10-25)
 
 - Validate workspace and list entries before X window restacking;
   see `docs/stack-window-guards.md`.
+
+Transient traversal guards (2026-10-25)
+=======================================
+
+- Handle detached clients safely in transient leader, top, and count helpers;
+  see `docs/transient-traversal-guards.md`.

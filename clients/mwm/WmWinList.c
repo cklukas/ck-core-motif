@@ -1309,6 +1309,10 @@ void RestackTransientsAtWindow (ClientData *pcd)
 ClientData * FindTransientTreeLeader (ClientData *pcd)
 
 {
+    if (pcd == NULL)
+    {
+        return (NULL);
+    }
 
     /*
      * Find the head of the transient window tree.
@@ -1353,6 +1357,10 @@ CountTransientChildren (ClientData *pcd)
     ClientData *pcdNext;
     int count = 1;
 
+    if (pcd == NULL)
+    {
+        return (0);
+    }
 
     pcdNext = pcd->transientChildren;
     while (pcdNext)
@@ -1527,6 +1535,10 @@ ClientData * FindTransientOnTop (ClientData *pcd)
      */
 
     pcd = FindTransientTreeLeader (pcd);
+    if (pcd == NULL)
+    {
+        return (NULL);
+    }
 #ifdef WSM
     if (!(pcd->secondariesOnTop) &&
 	(LeaderOnTop (pcd)))
