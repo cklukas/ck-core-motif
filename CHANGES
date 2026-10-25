@@ -6143,3 +6143,9 @@ Render-table single-rendition null input (2026-10-25)
 - Return cleanly from `XmRenderTableGetRendition` when its table argument is
   `NULL`, avoiding a private display lookup through an invalid handle; see
   `docs/render-table-single-rendition-null.md`.
+List position result allocation failures (2026-10-25)
+======================================================
+
+- Check `XmListGetMatchPos` and `XmListGetSelectedPos` result allocations
+  before use, preserving initialized outputs when memory is unavailable; see
+  `docs/list-result-allocation.md`.

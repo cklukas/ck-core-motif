@@ -9723,6 +9723,11 @@ XmListGetMatchPos(Widget w,
   }
 
   pos = (int *)XtMalloc((sizeof(int) * lw->list.itemCount));
+  if (pos == NULL)
+    {
+      _XmAppUnlock(app);
+      return (FALSE);
+    }
   j = 0;
 
   for (i = 0; i < lw->list.itemCount; i++)
@@ -9829,6 +9834,11 @@ XmListGetSelectedPos(Widget w,
   }
 
   posList = (int *) XtMalloc(sizeof(int) * lw->list.selectedPositionCount);
+  if (posList == NULL)
+    {
+      _XmAppUnlock(app);
+      return (FALSE);
+    }
   count = lw->list.selectedPositionCount;
 
   memcpy((char*) posList,
