@@ -3799,6 +3799,10 @@ GetCellFromCoord(
         cw->container.real_small_cellw : cw->container.real_large_cellw;
     cell_height = (CtrViewIsSMALL_ICON(cw)) ?
         cw->container.real_small_cellh : cw->container.real_large_cellh;
+    if (cell_width <= 0 || cell_height <= 0 ||
+	cw->container.current_width_in_cells <= 0 ||
+	cw->container.current_height_in_cells <= 0)
+	return NO_CELL;
 
     /*
      * Note: x & y parameters include Container margins.
@@ -3829,6 +3833,21 @@ GetCoordFromCell(
     int	cell_width,cell_height;
     int	row,col;
 
+    if (point == NULL)
+	return NULL;
+    cell_width = (CtrViewIsSMALL_ICON(cw)) ?
+        cw->container.real_small_cellw : cw->container.real_large_cellw;
+    cell_height = (CtrViewIsSMALL_ICON(cw)) ?
+        cw->container.real_small_cellh : cw->container.real_large_cellh;
+    if (cell_width <= 0 || cell_height <= 0 ||
+	cw->container.current_width_in_cells <= 0 ||
+	cw->container.current_height_in_cells <= 0)
+	{
+	point->x = cw->container.margin_w;
+	point->y = cw->container.margin_h;
+	return point;
+	}
+
     if (CtrIsHORIZONTAL(cw))
 	{
 	row = cell_idx / cw->container.current_width_in_cells;
@@ -3841,10 +3860,6 @@ GetCoordFromCell(
 	}
     if (LayoutIsRtoLM(cw))
 	col = cw->container.current_width_in_cells - col - 1;
-    cell_width = (CtrViewIsSMALL_ICON(cw)) ?
-        cw->container.real_small_cellw : cw->container.real_large_cellw;
-    cell_height = (CtrViewIsSMALL_ICON(cw)) ?
-        cw->container.real_small_cellh : cw->container.real_large_cellh;
     /*
      * Note: returned point must include Container Margins
      */
