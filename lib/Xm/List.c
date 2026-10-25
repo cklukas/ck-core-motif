@@ -4172,7 +4172,8 @@ BuildSelectedList(XmListWidget lw,
       lw->list.selectedItemCount = 0;
       return;
     }
-  lw->list.selectedItems = (XmString *)XtMalloc(sizeof(XmString) * j);
+  lw->list.selectedItems = (XmString *)XtMalloc(
+		  (Cardinal)(sizeof(XmString) * (size_t)j));
   if (lw->list.selectedItems == NULL)
     {
       lw->list.selectedItemCount = 0;

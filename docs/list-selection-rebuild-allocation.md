@@ -9,3 +9,6 @@ limits. If either allocation fails or is unrepresentable, the corresponding
 selection count is reset to zero and the widget keeps an empty, consistent
 selection state instead of writing through a null pointer. Successful rebuilds
 retain their existing ordering and selection behavior.
+
+The bounded byte counts are passed explicitly as Xt `Cardinal` values at both
+selection-array allocation sites.
