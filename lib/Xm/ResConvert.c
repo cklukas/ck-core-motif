@@ -1503,6 +1503,8 @@ CvtStringToStringTable(
     {   return( False) ;
         } 
     table = (String *) XtMalloc( sizeof( String) * size) ;
+    if (table == NULL)
+	return(False);
 
     for(    i = 0 ; *p || after_comma ; i++    )
     {   
@@ -1515,6 +1517,7 @@ CvtStringToStringTable(
             if(    i == size    )
             {   
                 int cleanup;
+                String *new_table;
                 if (size >= INT_MAX ||
                     (unsigned int)size > UINT_MAX / sizeof(String))
                 {
@@ -1524,10 +1527,24 @@ CvtStringToStringTable(
                     return(False);
                 }
                 size++ ;
-                table = (String *)XtRealloc( (char *) table,
-                                                      sizeof( String) * size) ;
+                new_table = (String *)XtRealloc((char *)table,
+						 sizeof(String) * size);
+                if (new_table == NULL) {
+                    for (cleanup = 0; cleanup < i; ++cleanup)
+				XtFree((char *)table[cleanup]);
+                    XtFree((char *)table);
+                    return(False);
+                }
+                table = new_table;
                 }
             table[i] = XtMalloc( sizeof( char)) ;
+            if (table[i] == NULL) {
+                int cleanup;
+                for (cleanup = 0; cleanup < i; ++cleanup)
+		    XtFree((char *)table[cleanup]);
+                XtFree((char *)table);
+                return(False);
+            }
             *(table[i]) = '\0' ;
             ++i;
             break ;
@@ -1547,6 +1564,7 @@ CvtStringToStringTable(
         if(    i == size    )
         {   
             int cleanup;
+            String *new_table;
             if (size > INT_MAX / 2 ||
                 (unsigned int)size > UINT_MAX / (2 * sizeof(String)))
             {
@@ -1556,11 +1574,25 @@ CvtStringToStringTable(
                 return(False);
             }
             size *= 2 ;
-            table = (String *)XtRealloc( (char *) table,
-                                                      sizeof( String) * size) ;
+            new_table = (String *)XtRealloc((char *)table,
+						 sizeof(String) * size);
+            if (new_table == NULL) {
+                for (cleanup = 0; cleanup < i; ++cleanup)
+			    XtFree((char *)table[cleanup]);
+                XtFree((char *)table);
+                return(False);
+            }
+            table = new_table;
             }
         len = p - top ;
         table[i] = XtMalloc( len + 1) ;
+	if (table[i] == NULL) {
+            int cleanup;
+            for (cleanup = 0; cleanup < i; ++cleanup)
+		XtFree((char *)table[cleanup]);
+            XtFree((char *)table);
+            return(False);
+	}
         strncpy( table[i], top, len) ;
 	(table[i])[len] = '\0' ;
         if (*p != '\0')
@@ -1577,7 +1609,18 @@ CvtStringToStringTable(
         XtFree((char *)table);
         return(False);
     }
-    table = (String *)XtRealloc( (char *) table, sizeof( String) * (i + 1)) ;
+    {
+        String *new_table = (String *)XtRealloc((char *)table,
+						 sizeof(String) * (i + 1));
+        if (new_table == NULL) {
+            int cleanup;
+            for (cleanup = 0; cleanup < i; ++cleanup)
+		XtFree((char *)table[cleanup]);
+            XtFree((char *)table);
+            return(False);
+        }
+        table = new_table;
+    }
     table[i] = NULL ;
 
     if(    to_val->addr != NULL    )
@@ -1585,6 +1628,9 @@ CvtStringToStringTable(
         if(    to_val->size < sizeof( XPointer)    )
         {   
             to_val->size = sizeof( XPointer) ;
+            for (i = 0; table[i] != NULL; ++i)
+		XtFree((char *)table[i]);
+            XtFree((char *)table);
             return( False) ;
             }
         *(String **)(to_val->addr) = table ;

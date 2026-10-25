@@ -1,3 +1,10 @@
+String-table converter allocation rollback (2026-10-25)
+========================================================
+
+- Check string-table buffers and item allocations, and release partial results
+  on growth, conversion, or output-size failure; see
+  `docs/string-table-converter-allocation.md`.
+
 XmString-table converter allocation rollback (2026-10-25)
 ==========================================================
 
