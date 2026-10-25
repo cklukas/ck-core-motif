@@ -506,6 +506,12 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
     XtToolkitInitialize();
 
     wmGD.mwmAppContext = XtCreateApplicationContext();
+    if (wmGD.mwmAppContext == NULL)
+    {
+        Warning ("Cannot create the MWM application context");
+        ExitWM (WM_ERROR_EXIT_VALUE);
+        return;
+    }
     AddWmResourceConverters ();
     wmGD.display = XtOpenDisplay (wmGD.mwmAppContext,
 				  NULL,

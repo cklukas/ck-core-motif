@@ -1,3 +1,10 @@
+MWM application-context guard (2026-10-26)
+===========================================
+
+- Stop startup cleanly when the Xt application context cannot be allocated,
+  before registering converters or opening the display; see
+  `docs/mwm-application-context.md`.
+
 MWM appearance resource widget guard (2026-10-26)
 ==================================================
 
