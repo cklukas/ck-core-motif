@@ -2325,7 +2325,7 @@ SetValues(
     VendorShellWidget		vw = (VendorShellWidget)new_w;
     XmWidgetExtData		extData;
     XmVendorShellExtObject	vse;
-    int i;
+    Cardinal i;
     XmToolTipConfigTrait ttp;
 
     ttp = (XmToolTipConfigTrait) XmeTraitGet (new_w, XmQTtoolTipConfig);
@@ -2430,7 +2430,7 @@ GetValuesHook(
     XmWidgetExtData	ext;
     XmBaseClassExt      *cePtr;
     WidgetClass         ec;
-    int i;
+    Cardinal i;
     int *ip;
     Boolean *bp;
     XmToolTipConfigTrait ttp;
@@ -2570,7 +2570,7 @@ Resize(
 {
     register ShellWidget sw = (ShellWidget)w;    
     Widget childwid;
-    int i;
+    Cardinal i;
     int y;
     XmVendorShellExtObject vendorExt;
     XmWidgetExtData	extData;
