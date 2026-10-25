@@ -59,6 +59,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM workspace-string allocation](mwm-workspace-string-allocation.md) — reuse checked workspace copies.
 - [MWM X-error format allocation](mwm-error-format-allocation.md) — guard DEBUG error-format copies.
 - [MWM backdrop-request path allocation](mwm-backdrop-path-allocation.md) — guard WSM request paths.
+- [MWM property-array allocation](mwm-property-array-allocation.md) — guard X11 property counts.
 - [MWM home-directory path bounds](mwm-home-path.md) — bounded legacy home-path resolution.
 - [MWM session database suffix updates](mwm-db-name-suffix.md) — bounded session-name suffix handling.
 - [Workspace-management command messages](command-message-argument-allocation.md) — bounded command-message construction.

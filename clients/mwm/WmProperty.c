@@ -295,7 +295,10 @@ void ProcessWmProtocols (ClientData *pCD)
     }
     else
     {
-        if (!(pCD->clientProtocols = (Atom *)XtMalloc (nitems * sizeof (Atom))))
+	if (nitems > SIZE_MAX / sizeof(Atom) ||
+	    nitems > UINT_MAX / sizeof(Atom) ||
+	    !(pCD->clientProtocols = (Atom *)XtMalloc(
+		(Cardinal)(nitems * sizeof(Atom)))))
         {
 	    /* unable to allocate space */
 	    Warning (((char *)GETMESSAGE(54, 1, "Insufficient memory for window management data")));
@@ -410,7 +413,10 @@ void ProcessMwmMessages (ClientData *pCD)
     }
     else
     {
-        if (!(pCD->mwmMessages = (long *)XtMalloc (nitems * sizeof (long))))
+	if (nitems > SIZE_MAX / sizeof(long) ||
+	    nitems > UINT_MAX / sizeof(long) ||
+	    !(pCD->mwmMessages = (long *)XtMalloc(
+		(Cardinal)(nitems * sizeof(long)))))
         {
 	    /* unable to allocate space */
 	    Warning (((char *)GETMESSAGE(54, 2, "Insufficient memory for window management data")));
