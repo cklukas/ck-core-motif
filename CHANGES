@@ -1,3 +1,10 @@
+Validate XmString rendition-tag tables (2026-10-25)
+====================================================
+
+- Reject null rendition-tag tables and entries before copying, while
+  preserving borrowed-pointer ownership; see
+  `docs/motif-xmstring-segment-tags.md`.
+
 Fix SelectionBox compound-text updates (2026-10-25)
 =====================================================
 
