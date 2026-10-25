@@ -6089,3 +6089,10 @@ Harden XmString context rendition copies (2026-10-25)
   before allocation, and preserve a safe empty context on failure; see
   `docs/xmstring-context-copy-allocation.md` and its focused source check.
 
+Make XmString clone allocation transactional (2026-10-25)
+===========================================================
+
+- Bound non-optimized entry-array sizing and unwind every partially copied
+  entry before returning a failed clone; see
+  `docs/xmstring-clone-allocation.md` and its focused source check.
+
