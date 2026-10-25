@@ -2688,15 +2688,21 @@ Redisplay(
       XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(w));
       Boolean etched_in = dpy -> display.enable_etched_in_menu;
 
-      if ((tb->toggle.Armed) && 
-	  (tb->primitive.shadow_thickness > 0))
+	  if ((tb->toggle.Armed) &&
+	      (tb->primitive.shadow_thickness > 0) &&
+	      (int)tb->core.width > 2 * (int)tb->primitive.highlight_thickness &&
+	      (int)tb->core.height > 2 * (int)tb->primitive.highlight_thickness &&
+	      tb->primitive.top_shadow_GC != NULL &&
+	      tb->primitive.bottom_shadow_GC != NULL)
 	XmeDrawShadows (XtDisplay (tb), XtWindow (tb),
 			tb->primitive.top_shadow_GC,
 			tb->primitive.bottom_shadow_GC,
 			tb ->primitive.highlight_thickness,
 			tb ->primitive.highlight_thickness,
-			(int)tb->core.width-2*tb->primitive.highlight_thickness,
-			(int)tb->core.height-2*tb->primitive.highlight_thickness,
+			(int)tb->core.width -
+			2 * (int)tb->primitive.highlight_thickness,
+			(int)tb->core.height -
+			2 * (int)tb->primitive.highlight_thickness,
 			tb->primitive.shadow_thickness, 
 			etched_in ? XmSHADOW_IN : XmSHADOW_OUT);
     }

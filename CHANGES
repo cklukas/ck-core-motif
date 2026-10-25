@@ -1,3 +1,9 @@
+ToggleButton shadow redisplay bounds (2026-10-26)
+================================================
+
+- Guard the remaining menu redisplay shadow against collapsed dimensions and
+  missing shadow GCs; see `docs/toggle-shadow-bounds.md`.
+
 Separator gadget geometry bounds (2026-10-26)
 ===============================================
 
