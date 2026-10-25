@@ -7,6 +7,12 @@ Gallery control rendering and MWM placement (2026-10-27)
   source-built MWM frame geometry and draw live provenance text through Xft
   UTF-8 rendering. See `docs/modern-gallery.md`.
 
+RowActions layout bounds (2026-10-27)
+====================================
+
+- Keep action placement arithmetic wider than X11 `Position` and clamp
+  unrepresentable coordinates instead of allowing signed wraparound.
+
 Gallery inventory and human-readable navigation (2026-10-27)
 ==============================================================
 

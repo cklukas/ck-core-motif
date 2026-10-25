@@ -90,7 +90,7 @@ static void preferred(Widget child, Dimension *width, Dimension *height) {
     *height = wanted.request_mode & CWHeight ? wanted.height : child->core.height;
 }
 static void layout(XmRowActionsWidget actions) {
-    Cardinal i; Position x = 0; Dimension width, height;
+    Cardinal i; long x = 0; Dimension width, height;
     if (actions->actions.initializing || actions->actions.laying_out) return;
     actions->actions.laying_out = True;
     for (i = 0; i < actions->actions.item_count; ++i) {
@@ -98,7 +98,8 @@ static void layout(XmRowActionsWidget actions) {
         XtSetMappedWhenManaged(actions->actions.items[i].button,
                                actions->actions.revealed);
         if (actions->actions.revealed) {
-            XmeConfigureObject(actions->actions.items[i].button, x, 0, width,
+            Position placement = x > SHRT_MAX ? SHRT_MAX : (Position)x;
+            XmeConfigureObject(actions->actions.items[i].button, placement, 0, width,
                                height, 0); x += width;
         }
     }
