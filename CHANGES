@@ -1,3 +1,11 @@
+CascadeButton excluded-pane initialization (2026-10-27)
+=========================================================
+
+- Check excluded-parent-pane storage initialization before dereferencing it,
+  and publish the four-entry replacement only after Xt allocation succeeds.
+  Cascading a menu now exits safely under allocation pressure or malformed
+  zero-capacity state.
+
 RCMenu excluded-parent-pane growth (2026-10-27)
 ================================================
 

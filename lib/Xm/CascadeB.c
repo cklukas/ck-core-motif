@@ -30,6 +30,8 @@ static char rcsid[] = "$TOG: CascadeB.c /main/27 1999/08/11 14:26:35 mgreess $"
 #include <config.h>
 #endif
 
+#include <stdint.h>
+
 
 #include "XmI.h"		/* ShellP.h doesn't define externalref. */
 #include <X11/ShellP.h>
@@ -1610,10 +1612,14 @@ _XmCascadingPopup(
    XmExcludedParentPaneRec *excPP =
 		&(((XmDisplayInfo *)(dd->display.displayInfo))->excParentPane);
 
-   if (!excPP->pane)
+   if (excPP->pane == NULL || excPP->pane_list_size < 1)
    {
+      Widget *new_pane = (Widget *)XtRealloc(
+	  (char *)excPP->pane, (Cardinal)(4 * sizeof(Widget)));
+      if (new_pane == NULL)
+	 return;
+      excPP->pane = new_pane;
       excPP->pane_list_size = 4;
-      excPP->pane = (Widget *)XtMalloc(sizeof(Widget) * excPP->pane_list_size);
    }
 
    if (XmIsCascadeButtonGadget(cb))
