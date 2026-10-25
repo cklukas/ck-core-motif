@@ -1,3 +1,9 @@
+Make Container cell growth transactional (2026-10-26)
+====================================================
+
+- Check cell-count arithmetic and preserve the existing cell array when
+  `XtRealloc` fails; see `docs/container-cell-growth.md`.
+
 Guard Container zero-sized cell metrics (2026-10-26)
 ====================================================
 
