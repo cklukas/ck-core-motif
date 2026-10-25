@@ -572,8 +572,10 @@ CompareIconNames (XmHashKey key_1,
   DtIconNameEntry data_1 = (DtIconNameEntry) key_1;
   DtIconNameEntry data_2 = (DtIconNameEntry) key_2;
 
-  return ((data_1->key_name == data_2->key_name) || 
-	  (strcmp(data_1->key_name, data_2->key_name) == 0));
+  return (data_1 != NULL && data_2 != NULL &&
+	  data_1->key_name != NULL && data_2->key_name != NULL &&
+	  ((data_1->key_name == data_2->key_name) ||
+	   (strcmp(data_1->key_name, data_2->key_name) == 0)));
 }
 
 

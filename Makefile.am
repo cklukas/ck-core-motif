@@ -832,3 +832,5 @@ EXTRA_DIST += tests/automated/check-icon-find-slash-input.py docs/icon-find-slas
 EXTRA_DIST += tests/automated/check-icon-cache-directory-input.py docs/icon-cache-directory-input.md
 
 EXTRA_DIST += tests/automated/check-icon-cache-hash-failure.py docs/icon-cache-hash-failure.md
+
+EXTRA_DIST += tests/automated/check-icon-cache-comparator.py docs/icon-cache-comparator.md

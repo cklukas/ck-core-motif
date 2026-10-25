@@ -4938,3 +4938,9 @@ Harden IconFile cache hashing and insertion (2026-10-25)
 
 - Preserve long icon-name hash lengths and free constructed entries when hash
   insertion fails; see `docs/icon-cache-hash-failure.md`.
+
+Guard IconFile cache comparison (2026-10-25)
+============================================
+
+- Validate icon-cache entries and key strings before comparison; see
+  `docs/icon-cache-comparator.md`.
