@@ -10337,6 +10337,12 @@ Screen child deletion input validation (2026-10-25)
 - Validate Screen child, parent, and backing-list state before deletion;
   see `docs/screen-delete-child-input.md`.
 
+Screen child insertion input validation (2026-10-25)
+=====================================================
+
+- Validate Screen child, parent capacity, and backing-list state before
+  insertion; see `docs/screen-insert-child-input.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

@@ -692,9 +692,14 @@ InsertChild(
     register WidgetList      	children;
     Cardinal                  new_slots;
     WidgetList                new_children;
-    
+    if (wid == NULL)
+        return;
     cw = (XmScreen) w->desktop.parent;
+    if (cw == NULL || cw->desktop.num_children > cw->desktop.num_slots)
+        return;
     children = cw->desktop.children;
+    if (children == NULL && cw->desktop.num_slots != 0)
+        return;
     
     position = cw->desktop.num_children;
     
