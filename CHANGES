@@ -2043,6 +2043,12 @@ XmPicture repeat node-map bounds (2026-10-25)
   picture graphs while leaving unrepresentable expansion unchanged; see
   `docs/picture-copy-bounds.md`.
 
+Protocol registration allocation (2026-10-25)
+===============================================
+
+- Roll back partially allocated protocol records when registration cannot
+  allocate the next record; see `docs/protocol-allocation.md`.
+
 Cached icon-path joining bounds (2026-10-25)
 ===============================================
 
