@@ -605,8 +605,20 @@ Redisplay(Widget w, XEvent * event, Region region)
     dx = iw->primitive.highlight_thickness;
     dy = dx;
 
-    width = iw->core.width - (2 * dx);
-    height = iw->core.height - (2 * dy);
+    /*
+     * Widget dimensions are unsigned.  Check before subtracting the
+     * highlight frame so a very small icon button cannot wrap to a huge
+     * region when converted to int.
+     */
+    if ((int)iw->core.width > (2 * dx))
+        width = (int)iw->core.width - (2 * dx);
+    else
+        width = 0;
+
+    if ((int)iw->core.height > (2 * dy))
+        height = (int)iw->core.height - (2 * dy);
+    else
+        height = 0;
 
     if (XmIconButton_set(iw)) {
 	Dimension fill_width, fill_height;
@@ -655,9 +667,10 @@ Redisplay(Widget w, XEvent * event, Region region)
 
     DrawTextAndImage(w, text_gc, icon_gc, icon_stippled_gc);
 
-    XmeDrawShadows(XtDisplay(w), XtWindow(w), topgc, bottomgc,
-		   dx, dy, width, height, iw->primitive.shadow_thickness, 
-		   XmSHADOW_OUT);
+    if (width > 0 && height > 0 && topgc != NULL && bottomgc != NULL)
+        XmeDrawShadows(XtDisplay(w), XtWindow(w), topgc, bottomgc,
+                       dx, dy, width, height,
+                       iw->primitive.shadow_thickness, XmSHADOW_OUT);
 
     if (iw->primitive.highlighted)
 	_XmExtHighlightBorder(w);

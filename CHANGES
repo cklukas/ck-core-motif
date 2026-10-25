@@ -1,3 +1,10 @@
+IconButton redisplay bounds (2026-10-25)
+========================================
+
+- Prevent unsigned width/height wraparound for tiny IconButton widgets and
+  skip shadow drawing when the computed region or shadow GCs are unavailable;
+  see `docs/icon-button-redisplay-bounds.md`.
+
 CascadeButton legacy fill guard (2026-10-25)
 =============================================
 
