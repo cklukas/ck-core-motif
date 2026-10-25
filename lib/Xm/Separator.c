@@ -374,6 +374,14 @@ Redisplay(
 {
      XmSeparatorWidget mw = (XmSeparatorWidget) wid ;
 
+    if (!XtIsRealized(wid) || mw->separator.separator_GC == NULL ||
+        mw->core.width <= 2 * mw->primitive.highlight_thickness ||
+        mw->core.height <= 2 * mw->primitive.highlight_thickness ||
+        (mw->primitive.shadow_thickness != 0 &&
+         (mw->primitive.top_shadow_GC == NULL ||
+          mw->primitive.bottom_shadow_GC == NULL)))
+        return;
+
     XmeDrawSeparator(XtDisplay(wid), XtWindow(wid),
                   mw->primitive.top_shadow_GC,
                   mw->primitive.bottom_shadow_GC,
