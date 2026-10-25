@@ -619,18 +619,15 @@ miRegionCopy(
     {  
         if (dstrgn->size < rgn->numRects)
         {
-            if (dstrgn->rects)
-            {
-                if ((size_t)rgn->numRects >
-                    SIZE_MAX / sizeof(XmRegionBox))
-                    return;
-                new_rects = (XmRegionBox *)XtRealloc(
-                    (char *)dstrgn->rects,
-                    (size_t)rgn->numRects * sizeof(XmRegionBox));
-                if (new_rects == NULL)
-                    return;
-                dstrgn->rects = new_rects;
-            }
+            if ((size_t)rgn->numRects >
+                SIZE_MAX / sizeof(XmRegionBox))
+                return;
+            new_rects = (XmRegionBox *)XtRealloc(
+                (char *)dstrgn->rects,
+                (size_t)rgn->numRects * sizeof(XmRegionBox));
+            if (new_rects == NULL)
+                return;
+            dstrgn->rects = new_rects;
             dstrgn->size = rgn->numRects;
 	}
         dstrgn->numRects = rgn->numRects;
@@ -640,7 +637,7 @@ miRegionCopy(
         dstrgn->extents.y2 = rgn->extents.y2;
 
 	memmove((char *) dstrgn->rects, (char *) rgn->rects,
-	      (int) (rgn->numRects * sizeof(XmRegionBox)));
+	      (size_t) rgn->numRects * sizeof(XmRegionBox));
     }
 }
 

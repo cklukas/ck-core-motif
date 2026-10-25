@@ -5,4 +5,8 @@ pointer and checks the element-count multiplication.  If `XtRealloc` fails,
 the destination keeps its existing storage and the copy returns without
 corrupting the region.
 
+The copy path also allocates storage when a destination region starts with a
+NULL rectangle pointer, so empty or partially initialized regions cannot reach
+a NULL `memmove`.
+
 The focused regression is `tests/automated/check-region-copy-growth.py`.

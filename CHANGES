@@ -1,3 +1,9 @@
+Handle NULL XmRegion destination storage (2026-10-26)
+====================================================
+
+- Allocate destination rectangles even when a region starts without storage,
+  avoiding a NULL `memmove` during copy; see `docs/region-copy-growth.md`.
+
 Make XmRegion copy growth transactional (2026-10-26)
 ====================================================
 
