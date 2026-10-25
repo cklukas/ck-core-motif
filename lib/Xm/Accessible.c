@@ -883,6 +883,8 @@ static char *locale_utf8(const char *s) {
       count > (SIZE_MAX - 1) / 4)
     return NULL;
   wide = (wchar_t *)XtMalloc((count + 1) * sizeof(*wide));
+  if (!wide)
+    return NULL;
   p = s;
   memset(&state, 0, sizeof(state));
   if (mbsrtowcs(wide, &p, count + 1, &state) == (size_t)-1) {
@@ -890,6 +892,10 @@ static char *locale_utf8(const char *s) {
     return NULL;
   }
   result = (char *)XtMalloc(count * 4 + 1);
+  if (!result) {
+    XtFree((char *)wide);
+    return NULL;
+  }
   out = result;
   for (i = 0; i < count; i++) {
     uint32_t c = (uint32_t)wide[i];

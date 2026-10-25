@@ -2043,6 +2043,13 @@ XmPicture repeat node-map bounds (2026-10-25)
   picture graphs while leaving unrepresentable expansion unchanged; see
   `docs/picture-copy-bounds.md`.
 
+Accessibility UTF-8 allocation failures (2026-10-25)
+=====================================================
+
+- Check both accessibility UTF-8 conversion allocations before use and release
+  the wide-character scratch buffer on result-allocation failure; see
+  `docs/accessibility-utf8-bounds.md`.
+
 Accessibility UTF-8 scratch bounds (2026-10-25)
 ===============================================
 
