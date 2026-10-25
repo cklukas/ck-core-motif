@@ -586,6 +586,10 @@ public XmSearchBoxCommit
 public XmCreatePrompt
 public XmPromptSetVisible
 public XmPromptGetVisible
+public XmCreateFormSection
+public XmFormSectionGetContent
+public XmFormSectionGetHeader
+public XmFormSectionGetFooter
 public XmNumberBoxGetRange
 public XmNumberBoxGetValue
 public XmNumberBoxSetRange
@@ -882,6 +886,8 @@ public xmSearchBoxClassRec
 public xmSearchBoxWidgetClass
 public xmPromptClassRec
 public xmPromptWidgetClass
+public xmFormSectionClassRec
+public xmFormSectionWidgetClass
 public xmNumberBoxClassRec
 public xmNumberBoxWidgetClass
 public xmSpinnerClassRec

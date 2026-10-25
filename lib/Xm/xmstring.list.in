@@ -1099,6 +1099,17 @@ CPromptVisible
 NpromptText
 NpromptVisible
 
+CFormSectionHeader
+CFormSectionFooter
+CFormSectionMarginWidth
+CFormSectionMarginHeight
+CFormSectionSpacing
+NformSectionHeader
+NformSectionFooter
+NformSectionMarginWidth
+NformSectionMarginHeight
+NformSectionSpacing
+
 #table _XmStrings20
 
 NtearOffTitle
