@@ -39,6 +39,7 @@ AC_CONFIG_FILES([ckmotif++-8.pc])
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CPP
+AC_PATH_PROG([PYTHON], [python3])
 AM_PROG_LIBTOOL
 
 AC_EXEEXT
@@ -443,6 +444,7 @@ demos/programs/Ext18List/pixmaps/Makefile \
 demos/programs/IconB/Makefile \
 demos/programs/Outline/Makefile \
 demos/programs/Paned/Makefile \
+demos/programs/ckmotif-gallery/Makefile \
 demos/programs/TabStack/Makefile \
 demos/programs/Tree/Makefile \
 demos/programs/pixmaps/Makefile \

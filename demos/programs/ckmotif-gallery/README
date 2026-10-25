@@ -1,0 +1,31 @@
+ckmotif-gallery
+================
+
+This is the manifest-driven native component gallery.  The JSON inventory in
+../../../docs/modern-gallery-manifest.json is the source of truth.  The build
+generates gallery_manifest.h and gallery_sources.h from that inventory and the
+annotated gallery_examples.c source blocks; those generated files are never
+edited by hand.  The source fragments include public construction, callback,
+and teardown code.  `gallery_provenance.json` records the source and manifest
+hashes and is verified by `make check`.
+The manifest-backed documentation catalogue is generated at
+`docs/modern-gallery-components.md`; its anchors and manifest hash are checked
+alongside the gallery provenance.
+
+The gallery shell uses only public Xm interfaces.  Theme and DPI controls are
+wired to `XmApplyAppearanceProfile` and the public display-scale transaction
+APIs, but remain disabled by default until the toolkit qualification matrix is
+complete.  Define `CKMOTIF_GALLERY_ENABLE_LIVE_TRANSACTIONS` only for a
+qualified build.  PrintShell
+is conditional on PRINTING_SUPPORTED and remains visible as an unavailable
+optional capability in a print-disabled build.
+
+For a display-backed native smoke test:
+
+  python3 tests/automated/run-gallery-integration.py
+
+For manifest screenshot scenarios, pass a fresh output directory under the
+approved temporary volume:
+
+  python3 tests/automated/run-gallery-screenshots.py --binary ABSOLUTE_BINARY \
+    --out /Volumes/S8T/tmp/ckmotif-gallery-screenshots

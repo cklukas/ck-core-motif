@@ -1,0 +1,674 @@
+{
+  "schema": 1,
+  "manifest_sha256": "3464be585011b31b215ed5a16ba8e4a4f96e7cbb49adbd9f7195d7a2aa19dc32",
+  "binary_sha256": "79204edf61c825e7b39bd9d43be1fa6a6a9ccb4aa6eb240a3aed8d80c2804452",
+  "capture": {
+    "result": "pass",
+    "display": ":122",
+    "window_name": "ckmotif-gallery",
+    "viewport": "1600x1000x24",
+    "appearance_profile": "classic",
+    "dpi_input": "server-default",
+    "runner": "tests/automated/run-gallery-screenshots.py"
+  },
+  "entries": [
+    {
+      "id": "xm.arrowbuttonwidgetclass",
+      "png": "xm-arrowbuttonwidgetclass.png",
+      "sha256": "7aa051a14833f231a719a523e5cad082f992e6afa1cb72cba7ffe64d8ec6dc9e",
+      "width": 1228,
+      "height": 415
+    },
+    {
+      "id": "xm.arrowbuttongadgetclass",
+      "png": "xm-arrowbuttongadgetclass.png",
+      "sha256": "f95918fa4dd6c05837ee9e70ac3e39ee0e292bc9736927131d08eef8839d20da",
+      "width": 1228,
+      "height": 415
+    },
+    {
+      "id": "xm.bulletinboardwidgetclass",
+      "png": "xm-bulletinboardwidgetclass.png",
+      "sha256": "5658c55f45744804b9021a3b8e704f82aef52c248a708446cbc0a6ce585ec582",
+      "width": 1276,
+      "height": 402
+    },
+    {
+      "id": "xm.cascadebuttonwidgetclass",
+      "png": "xm-cascadebuttonwidgetclass.png",
+      "sha256": "2c255c59bc749ce80992966c8d2c36650ce99c3e2cd59393eeafc944ac998579",
+      "width": 1276,
+      "height": 417
+    },
+    {
+      "id": "xm.cascadebuttongadgetclass",
+      "png": "xm-cascadebuttongadgetclass.png",
+      "sha256": "27f014a63bd685639e08cb7aa11552789fe387abd16d9022699c17741da40322",
+      "width": 1276,
+      "height": 417
+    },
+    {
+      "id": "xm.columnwidgetclass",
+      "png": "xm-columnwidgetclass.png",
+      "sha256": "b1988186f8e70e2f562e0fb4da0d498edec1db753a6fe0e1242381f4a7cc486b",
+      "width": 1108,
+      "height": 412
+    },
+    {
+      "id": "xm.comboboxwidgetclass",
+      "png": "xm-comboboxwidgetclass.png",
+      "sha256": "5b490f8898897123c18ba1d40f9302b116c90edd31d8b2bfd4159b742474d020",
+      "width": 1156,
+      "height": 561
+    },
+    {
+      "id": "xm.commandwidgetclass",
+      "png": "xm-commandwidgetclass.png",
+      "sha256": "508b3bc8ebf7654e614cc33e80bca5cfd206482bc50e43b78615aa5a29124fd8",
+      "width": 1132,
+      "height": 605
+    },
+    {
+      "id": "xm.containerwidgetclass",
+      "png": "xm-containerwidgetclass.png",
+      "sha256": "1d7e94a0cfb6cfea01bb3a94b254d4d2255f1f34c6f786e28d16107e836d1f12",
+      "width": 1180,
+      "height": 402
+    },
+    {
+      "id": "xm.datafieldwidgetclass",
+      "png": "xm-datafieldwidgetclass.png",
+      "sha256": "1d14efea7d902cea99d02789e97e86cac82575f66cc828e44925fb9460f13d9a",
+      "width": 1180,
+      "height": 423
+    },
+    {
+      "id": "xm.dialogshellwidgetclass",
+      "png": "xm-dialogshellwidgetclass.png",
+      "sha256": "9f768d45c40dfd9e4f77d48d497719f9c58d82369f578b0965f576a6cd27fdfb",
+      "width": 1228,
+      "height": 386
+    },
+    {
+      "id": "xm.displayclass",
+      "png": "xm-displayclass.png",
+      "sha256": "22646d8106a50750e32a2da2c2ead8a1e956346563aa2736705e5f378c06a98a",
+      "width": 988,
+      "height": 386
+    },
+    {
+      "id": "xm.dragcontextclass",
+      "png": "xm-dragcontextclass.png",
+      "sha256": "11e38497208e1769271fbca46f81114fb425b19ee1aa782bb8d38d46ff2cdd6a",
+      "width": 1084,
+      "height": 386
+    },
+    {
+      "id": "xm.dragiconobjectclass",
+      "png": "xm-dragiconobjectclass.png",
+      "sha256": "f265393a0896b17c8a9ff7cb3d9ac778295ac69958a2d671312cfa5ff145052f",
+      "width": 1156,
+      "height": 386
+    },
+    {
+      "id": "xm.dragovershellwidgetclass",
+      "png": "xm-dragovershellwidgetclass.png",
+      "sha256": "9337097fd8a516b91e83d05de886576c81c41ef74fdeaae32463b7d9ea4036c5",
+      "width": 1276,
+      "height": 456
+    },
+    {
+      "id": "xm.drawingareawidgetclass",
+      "png": "xm-drawingareawidgetclass.png",
+      "sha256": "4b731fe66f142dc2fa5eda23e20626fc0fe96f7b86f9f67b444c137fdb46d064",
+      "width": 1228,
+      "height": 402
+    },
+    {
+      "id": "xm.drawnbuttonwidgetclass",
+      "png": "xm-drawnbuttonwidgetclass.png",
+      "sha256": "a6d45f181d3168a9cc3b51ca64cb40b7fd1add4e040a7e16b756f53477ee1855",
+      "width": 1228,
+      "height": 404
+    },
+    {
+      "id": "xm.dropsitemanagerobjectclass",
+      "png": "xm-dropsitemanagerobjectclass.png",
+      "sha256": "799f5ebf852be8c08d3989161c136a0d9df8b4195f73f24ea1dfb8f1c8f86b29",
+      "width": 1324,
+      "height": 386
+    },
+    {
+      "id": "xm.droptransferobjectclass",
+      "png": "xm-droptransferobjectclass.png",
+      "sha256": "3ffa6e86ef583d5ba8d7d9fd292c120e83e20027c1638b41c94634a5e991f01b",
+      "width": 1252,
+      "height": 386
+    },
+    {
+      "id": "xm.fileselectionboxwidgetclass",
+      "png": "xm-fileselectionboxwidgetclass.png",
+      "sha256": "424b3d9cbbd12709318f656c52c97c4c1aa11f64bc3316af177b959b880c542c",
+      "width": 1348,
+      "height": 762
+    },
+    {
+      "id": "xm.formwidgetclass",
+      "png": "xm-formwidgetclass.png",
+      "sha256": "4ed8b2fca081c2b65ecccae2a1c74e5fe8fa0c1001e2607468b4dc4c9f2c7346",
+      "width": 1060,
+      "height": 402
+    },
+    {
+      "id": "xm.framewidgetclass",
+      "png": "xm-framewidgetclass.png",
+      "sha256": "f99cfec20d65b973c3aab3cf219db6bfefab78c67047835b3fe99e5a3deb442c",
+      "width": 1084,
+      "height": 402
+    },
+    {
+      "id": "xm.gadgetclass",
+      "png": "xm-gadgetclass.png",
+      "sha256": "46ba84a20dc003bc94e68721f14fac9813ea05d610b42a8530e2bdb0d824fffc",
+      "width": 964,
+      "height": 386
+    },
+    {
+      "id": "xm.grabshellwidgetclass",
+      "png": "xm-grabshellwidgetclass.png",
+      "sha256": "c1bb41e27e5f295bf039931b2e3241c1440df18f4c5049077385a8064dba8e63",
+      "width": 1180,
+      "height": 386
+    },
+    {
+      "id": "xm.icongadgetclass",
+      "png": "xm-icongadgetclass.png",
+      "sha256": "9481b8e14cbab71d4079e311cb85de98b066825175d4e3b81681cdf0789dba65",
+      "width": 1060,
+      "height": 421
+    },
+    {
+      "id": "xm.iconheaderclass",
+      "png": "xm-iconheaderclass.png",
+      "sha256": "c1690feb3708d947007793ed80b260d10eb0ba2fc2a43ba2701f7f02bcbf6c6f",
+      "width": 1060,
+      "height": 421
+    },
+    {
+      "id": "xm.iconbuttonwidgetclass",
+      "png": "xm-iconbuttonwidgetclass.png",
+      "sha256": "1be78912c4fc3da91d9a9e620d4a03c97d15757e3f661d6fe2d793749bd51b63",
+      "width": 1204,
+      "height": 417
+    },
+    {
+      "id": "xm.labelwidgetclass",
+      "png": "xm-labelwidgetclass.png",
+      "sha256": "d1689d4b1db035c3f9bd924afb9a1c71417b9dfd25dc4414a124df57a4b72592",
+      "width": 1084,
+      "height": 409
+    },
+    {
+      "id": "xm.labelgadgetclass",
+      "png": "xm-labelgadgetclass.png",
+      "sha256": "d8f5c93a8878c379ff42f16ac8d71b792cba3441bb79f5db44354f403fffe451",
+      "width": 1084,
+      "height": 409
+    },
+    {
+      "id": "xm.listwidgetclass",
+      "png": "xm-listwidgetclass.png",
+      "sha256": "836adb504d8bb6d8016ea6fc806f0deb5b798b864cedc5b309c3b355fff66226",
+      "width": 1060,
+      "height": 415
+    },
+    {
+      "id": "xm.mainwindowwidgetclass",
+      "png": "xm-mainwindowwidgetclass.png",
+      "sha256": "cf3b4215ffd915c725fda1f45fda84dec2f500fba717292e299dab30bad3aec6",
+      "width": 1204,
+      "height": 442
+    },
+    {
+      "id": "xm.managerwidgetclass",
+      "png": "xm-managerwidgetclass.png",
+      "sha256": "51cc8ff3358111dc60e9e1c6d1e7a66f7feb8ea12b45a582cd8e3e9aaf051a7c",
+      "width": 1132,
+      "height": 386
+    },
+    {
+      "id": "xm.menushellwidgetclass",
+      "png": "xm-menushellwidgetclass.png",
+      "sha256": "508ff3053b5e56dc88d8faa9e7aef7340da636bc037e6cf8d7db855c412c36c7",
+      "width": 1180,
+      "height": 386
+    },
+    {
+      "id": "xm.messageboxwidgetclass",
+      "png": "xm-messageboxwidgetclass.png",
+      "sha256": "080e7c302bc5ba26bbf98eb09de4da95ffa77d5548020b1e700e6c8936d0a3e8",
+      "width": 1204,
+      "height": 479
+    },
+    {
+      "id": "xm.colorpickerwidgetclass",
+      "png": "xm-colorpickerwidgetclass.png",
+      "sha256": "383b9fdff2fc5d3b733b348e706b2850eda357f0cf624ca2cadbbdca48ced914",
+      "width": 1228,
+      "height": 426
+    },
+    {
+      "id": "xm.flyoutwidgetclass",
+      "png": "xm-flyoutwidgetclass.png",
+      "sha256": "beb38645713c824205e1745e2e88cd943b1c406d2658e0dcbca6956be4034be6",
+      "width": 1108,
+      "height": 402
+    },
+    {
+      "id": "xm.teachingtipwidgetclass",
+      "png": "xm-teachingtipwidgetclass.png",
+      "sha256": "11e5f3f3aa4d8bf31d95012269df4c6b161d0aba07f8c62d59f70b459058a5e9",
+      "width": 1228,
+      "height": 402
+    },
+    {
+      "id": "xm.infobarwidgetclass",
+      "png": "xm-infobarwidgetclass.png",
+      "sha256": "0a7fce74a4cf48127828013ae43a8d9d3b287936f19e82994be720d974c14fbc",
+      "width": 1132,
+      "height": 426
+    },
+    {
+      "id": "xm.breadcrumbbarwidgetclass",
+      "png": "xm-breadcrumbbarwidgetclass.png",
+      "sha256": "70dc84ff843321abd333ab97d68db7ac62f444d1ad4a265709a89d97824a49c8",
+      "width": 1276,
+      "height": 420
+    },
+    {
+      "id": "xm.treeviewwidgetclass",
+      "png": "xm-treeviewwidgetclass.png",
+      "sha256": "354de374c635bff7f9172e3084f25f7cbb3c5ad8ccb24ad64b70fa1a51c2984e",
+      "width": 1156,
+      "height": 568
+    },
+    {
+      "id": "xm.calendarwidgetclass",
+      "png": "xm-calendarwidgetclass.png",
+      "sha256": "656643072b23faa957df20dd6bd7b63b790e75740aa08fcdb126be28098af7ef",
+      "width": 1156,
+      "height": 584
+    },
+    {
+      "id": "xm.datepickerwidgetclass",
+      "png": "xm-datepickerwidgetclass.png",
+      "sha256": "4a0210427b777de85cf5a6b7849633dfdd89343cbaa60ffb97a9d85f8bcee7dc",
+      "width": 1204,
+      "height": 420
+    },
+    {
+      "id": "xm.timepickerwidgetclass",
+      "png": "xm-timepickerwidgetclass.png",
+      "sha256": "fbcf4ddd3f71c98eee95b1a806b1c98f626a21023df7fd484e4a66c26872edb2",
+      "width": 1204,
+      "height": 420
+    },
+    {
+      "id": "xm.datagridwidgetclass",
+      "png": "xm-datagridwidgetclass.png",
+      "sha256": "61b1dee34ed64f5e9cb6d658cea96c5107781e7f145df268f00f374df5175480",
+      "width": 1156,
+      "height": 632
+    },
+    {
+      "id": "xm.segmentedcontrolwidgetclass",
+      "png": "xm-segmentedcontrolwidgetclass.png",
+      "sha256": "a49871a88422ce94e70de20dfc99fe4e07a3bc00815db9d0c55710ad3938e533",
+      "width": 1348,
+      "height": 416
+    },
+    {
+      "id": "xm.chipwidgetclass",
+      "png": "xm-chipwidgetclass.png",
+      "sha256": "d8c8dda5b71774249dcc8f84dd84b482676c9bf35a2ac7a2a322e6b33548cc0b",
+      "width": 1060,
+      "height": 418
+    },
+    {
+      "id": "xm.badgewidgetclass",
+      "png": "xm-badgewidgetclass.png",
+      "sha256": "d3d8cab95ecc33f0119e5fb4cd1be38dfd1ff0cdbdbcbb63d6efe1cf9c27c8d4",
+      "width": 1084,
+      "height": 414
+    },
+    {
+      "id": "xm.iconlabelwidgetclass",
+      "png": "xm-iconlabelwidgetclass.png",
+      "sha256": "9f88fe7585016869bc35fb10bb44293d685e4fa9a1820d97e6c2a7d56a698f75",
+      "width": 1180,
+      "height": 420
+    },
+    {
+      "id": "xm.dividerwidgetclass",
+      "png": "xm-dividerwidgetclass.png",
+      "sha256": "d978504faadd6a1a834bf38ba84d49104957cd0c511cc4465f5d67120d5e34a6",
+      "width": 1132,
+      "height": 405
+    },
+    {
+      "id": "xm.avatarwidgetclass",
+      "png": "xm-avatarwidgetclass.png",
+      "sha256": "5f8b03c53be14b31e7d75f2f20467e2bcf777f6a21e7297791d0b0077c4709a4",
+      "width": 1108,
+      "height": 424
+    },
+    {
+      "id": "xm.linkwidgetclass",
+      "png": "xm-linkwidgetclass.png",
+      "sha256": "a39e13de97523796592dbcc79e94f777173efdf9c96abb0c8d5a33acfaa559a3",
+      "width": 1060,
+      "height": 416
+    },
+    {
+      "id": "xm.searchboxwidgetclass",
+      "png": "xm-searchboxwidgetclass.png",
+      "sha256": "ec1a16ca05c62331819314c38edf14fbf94123db8f59ffd8741ef0e626970f31",
+      "width": 1180,
+      "height": 423
+    },
+    {
+      "id": "xm.promptwidgetclass",
+      "png": "xm-promptwidgetclass.png",
+      "sha256": "7b2c0d798856b2569a0a710c29d581b2746c8342efba8f7fb487d6eafbca958d",
+      "width": 1108,
+      "height": 416
+    },
+    {
+      "id": "xm.formsectionwidgetclass",
+      "png": "xm-formsectionwidgetclass.png",
+      "sha256": "1ab2aadb94f70ba3bf2030f1388b35cb5d978819ed6042fb9d0d0f49d1ccaab4",
+      "width": 1228,
+      "height": 432
+    },
+    {
+      "id": "xm.emptystatewidgetclass",
+      "png": "xm-emptystatewidgetclass.png",
+      "sha256": "0b9494aafa18c7c08082d70fe2726a22c13fd1335e6be0be5a634d6a66334ebf",
+      "width": 1204,
+      "height": 412
+    },
+    {
+      "id": "xm.toastwidgetclass",
+      "png": "xm-toastwidgetclass.png",
+      "sha256": "bc50d13c2124592725521a17c7562148164b0bb9fc201f28c82f06da4a1e35eb",
+      "width": 1084,
+      "height": 412
+    },
+    {
+      "id": "xm.commandpalettewidgetclass",
+      "png": "xm-commandpalettewidgetclass.png",
+      "sha256": "604adb69f1dc0c1f5589d1ac7018ade16277ed7674191ed951aeb0d244324883",
+      "width": 1300,
+      "height": 446
+    },
+    {
+      "id": "xm.skeletonwidgetclass",
+      "png": "xm-skeletonwidgetclass.png",
+      "sha256": "b41617c862f4c35b7d0fb6faa01bb2017f17646bc2bf5b5721e3a7a3e4e5e37e",
+      "width": 1156,
+      "height": 402
+    },
+    {
+      "id": "xm.rowactionswidgetclass",
+      "png": "xm-rowactionswidgetclass.png",
+      "sha256": "55ce129aab4cd9873397891efac2f5742beb78fa348920e7d1a8008281b0be4c",
+      "width": 1204,
+      "height": 402
+    },
+    {
+      "id": "xm.drophighlightwidgetclass",
+      "png": "xm-drophighlightwidgetclass.png",
+      "sha256": "d85d48bd5de0468da339a95dc1662d84a0c4001edd69eb924c6ed03d435eb212",
+      "width": 1276,
+      "height": 402
+    },
+    {
+      "id": "xm.statusbarwidgetclass",
+      "png": "xm-statusbarwidgetclass.png",
+      "sha256": "548ca01d613853b12990b3d9a495f710c193a759ae09820d6c3717e3c44908ae",
+      "width": 1180,
+      "height": 402
+    },
+    {
+      "id": "xm.toolbarwidgetclass",
+      "png": "xm-toolbarwidgetclass.png",
+      "sha256": "f8753944a13ff7814861536aea6edfb5de688b335eb040dda2b048bb999d6eb7",
+      "width": 1132,
+      "height": 402
+    },
+    {
+      "id": "xm.sidebarwidgetclass",
+      "png": "xm-sidebarwidgetclass.png",
+      "sha256": "da69d30e8550e7a8825edd4a774a2d524b715b9b724d53f4936660f69501349e",
+      "width": 1132,
+      "height": 433
+    },
+    {
+      "id": "xm.autosuggestboxwidgetclass",
+      "png": "xm-autosuggestboxwidgetclass.png",
+      "sha256": "af844bf3ce54d72a5e45cad79457b8486c274490632511b064482522c27e0354",
+      "width": 1300,
+      "height": 402
+    },
+    {
+      "id": "xm.numberboxwidgetclass",
+      "png": "xm-numberboxwidgetclass.png",
+      "sha256": "1091a9e2481cf9fef4c1a2034bbaf1138774401efba47e989fdfc7c7d3fbb8f8",
+      "width": 1180,
+      "height": 424
+    },
+    {
+      "id": "xm.ratingcontrolwidgetclass",
+      "png": "xm-ratingcontrolwidgetclass.png",
+      "sha256": "4146a3a982f732b95080c0d6ae3320760444daaa2d345176a30233a0bd9e51d6",
+      "width": 1276,
+      "height": 424
+    },
+    {
+      "id": "xm.notebookwidgetclass",
+      "png": "xm-notebookwidgetclass.png",
+      "sha256": "d7b4d047f64b184b568a6cb44225fded3cfd27c3504ded85ea3c7d71d3fc5b3a",
+      "width": 1156,
+      "height": 450
+    },
+    {
+      "id": "xm.panedwindowwidgetclass",
+      "png": "xm-panedwindowwidgetclass.png",
+      "sha256": "efd0bf3802a58a3da704eb4037465f11f89d3e62ad8ecf9c29d2a5f6e1c12af7",
+      "width": 1228,
+      "height": 402
+    },
+    {
+      "id": "xm.panedwidgetclass",
+      "png": "xm-panedwidgetclass.png",
+      "sha256": "a731f82fee2ebe9a21202b7d2bd2eb11ed2d1d0b7678dff218fb8b35379d45e3",
+      "width": 1084,
+      "height": 404
+    },
+    {
+      "id": "xm.primitivewidgetclass",
+      "png": "xm-primitivewidgetclass.png",
+      "sha256": "1258e42716d3f9f134c26de8cd8ab145478c818d5a5675a2bf0bea77c3fd6df3",
+      "width": 1180,
+      "height": 386
+    },
+    {
+      "id": "xm.printshellwidgetclass",
+      "png": "xm-printshellwidgetclass.png",
+      "sha256": "2228d6cd5b2ef7645239f4667fbe5ffc49b69eb80f6de742bbcd39645c5be7ca",
+      "width": 1204,
+      "height": 386
+    },
+    {
+      "id": "xm.pushbuttonwidgetclass",
+      "png": "xm-pushbuttonwidgetclass.png",
+      "sha256": "cf8e57cb5ef325f09914355c6015634115d9865f0cb4ee15be9cbd5921c62a60",
+      "width": 1204,
+      "height": 417
+    },
+    {
+      "id": "xm.progressbarwidgetclass",
+      "png": "xm-progressbarwidgetclass.png",
+      "sha256": "f865fa4b7affdf4210b777c5824c4453a832697f1ec06de450f78ca590a0e18d",
+      "width": 1228,
+      "height": 442
+    },
+    {
+      "id": "xm.progressringwidgetclass",
+      "png": "xm-progressringwidgetclass.png",
+      "sha256": "d3602d1081b558e5e161f1fac2e0b31dd2fdfd24607a4c72c4fefa159f995963",
+      "width": 1252,
+      "height": 472
+    },
+    {
+      "id": "xm.pushbuttongadgetclass",
+      "png": "xm-pushbuttongadgetclass.png",
+      "sha256": "bc994e563cd1a96d3c976d0022c4c7c5178688b14be04dedd16235bcd05b3084",
+      "width": 1204,
+      "height": 417
+    },
+    {
+      "id": "xm.rowcolumnwidgetclass",
+      "png": "xm-rowcolumnwidgetclass.png",
+      "sha256": "31f8a8e59234b6579bcb41f9cf968d0ea192181a4ef0092713bf7c2a02898007",
+      "width": 1180,
+      "height": 408
+    },
+    {
+      "id": "xm.simplespinboxwidgetclass",
+      "png": "xm-simplespinboxwidgetclass.png",
+      "sha256": "530fc48e25edabb2c7bde663378e7a652e964257cec5fc3e3ee37881d4a2990a",
+      "width": 1276,
+      "height": 434
+    },
+    {
+      "id": "xm.scalewidgetclass",
+      "png": "xm-scalewidgetclass.png",
+      "sha256": "b77144132780613615788ca2f8e235d493c0b50a7ad74af2d24e64c1495e7152",
+      "width": 1084,
+      "height": 496
+    },
+    {
+      "id": "xm.spinnerwidgetclass",
+      "png": "xm-spinnerwidgetclass.png",
+      "sha256": "b3d5a8301b12fae57142e84c0f8f57eee430df4c2b63c09141d03c3fd0db795f",
+      "width": 1132,
+      "height": 436
+    },
+    {
+      "id": "xm.stepperwidgetclass",
+      "png": "xm-stepperwidgetclass.png",
+      "sha256": "f18bfab3815034a9381e0e5ffcf11f569cc8491c1c61af1546a12a55dc93cd71",
+      "width": 1132,
+      "height": 424
+    },
+    {
+      "id": "xm.screenclass",
+      "png": "xm-screenclass.png",
+      "sha256": "dfafb667889b7df26c0d4952a462b6cd8e8c40f075eb3c4291971cacdbe716de",
+      "width": 964,
+      "height": 386
+    },
+    {
+      "id": "xm.scrollbarwidgetclass",
+      "png": "xm-scrollbarwidgetclass.png",
+      "sha256": "cc920373885791a4fef8b0bddd6f330fa2884730c2e910145760f3d5ebabca1f",
+      "width": 1180,
+      "height": 496
+    },
+    {
+      "id": "xm.scrolledwindowwidgetclass",
+      "png": "xm-scrolledwindowwidgetclass.png",
+      "sha256": "4cafa7c095337985ad6f076f05fb6f0f8ea782d86fca07364783c89d46889266",
+      "width": 1300,
+      "height": 402
+    },
+    {
+      "id": "xm.selectionboxwidgetclass",
+      "png": "xm-selectionboxwidgetclass.png",
+      "sha256": "8cc5b9c3c54fc42930e76100f3ff1d46de5bb22bf09682946d431da8c965b772",
+      "width": 1252,
+      "height": 685
+    },
+    {
+      "id": "xm.separatorgadgetclass",
+      "png": "xm-separatorgadgetclass.png",
+      "sha256": "7c82db9229173900c5576131e7b4633fedc39ac3ca9f37a63aef4aeb7a7920d3",
+      "width": 1180,
+      "height": 402
+    },
+    {
+      "id": "xm.separatorwidgetclass",
+      "png": "xm-separatorwidgetclass.png",
+      "sha256": "9bf1ce286c194c9f3c4943017a8026c0a4c67eac03fed1ad828ffbd2dab06f94",
+      "width": 1180,
+      "height": 402
+    },
+    {
+      "id": "xm.spinboxwidgetclass",
+      "png": "xm-spinboxwidgetclass.png",
+      "sha256": "9e34c914cfe5ecd3788a28b551de1f8fe962e61e969719a7b8e1ce943151500e",
+      "width": 1132,
+      "height": 428
+    },
+    {
+      "id": "xm.tabboxwidgetclass",
+      "png": "xm-tabboxwidgetclass.png",
+      "sha256": "31559038b007911010e77d81a3317c1a799ca7c9688aba73ff191a513a7c3dc5",
+      "width": 1108,
+      "height": 402
+    },
+    {
+      "id": "xm.tabstackwidgetclass",
+      "png": "xm-tabstackwidgetclass.png",
+      "sha256": "291d23f95998f732e2db6deced10bfd5334e8bc523beb1efe1db3eecb2627c63",
+      "width": 1156,
+      "height": 416
+    },
+    {
+      "id": "xm.textwidgetclass",
+      "png": "xm-textwidgetclass.png",
+      "sha256": "978cc26769e0a23b2b895e6667648b16baf54dd4516a846d90d7a6c2006866b9",
+      "width": 1060,
+      "height": 423
+    },
+    {
+      "id": "xm.textfieldwidgetclass",
+      "png": "xm-textfieldwidgetclass.png",
+      "sha256": "ef0d6a64110377631b78a0fe502921ed9144e3f9cdf375c7abea8195f79fcd30",
+      "width": 1180,
+      "height": 423
+    },
+    {
+      "id": "xm.togglebuttonwidgetclass",
+      "png": "xm-togglebuttonwidgetclass.png",
+      "sha256": "ea7c19ab5975f1dfc3bcb2a11b29bc9da80029a835bca683512947ff3cfb25ef",
+      "width": 1252,
+      "height": 417
+    },
+    {
+      "id": "xm.toggleswitchwidgetclass",
+      "png": "xm-toggleswitchwidgetclass.png",
+      "sha256": "a41758057a4ac5aadce161c5ba3f69b47b6f71c50e773898788f764a075a7892",
+      "width": 1252,
+      "height": 418
+    },
+    {
+      "id": "xm.togglebuttongadgetclass",
+      "png": "xm-togglebuttongadgetclass.png",
+      "sha256": "9810f991cea5ffb4b4ea4495d7cb8d68273888f2fa1abff042f09d00a8e41e38",
+      "width": 1252,
+      "height": 417
+    }
+  ]
+}

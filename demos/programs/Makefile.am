@@ -32,6 +32,7 @@ SUBDIRS = airport \
          Ext18List \
          IconB \
          Paned \
+         ckmotif-gallery \
          pixmaps
 
 EXTRA_DIST =
