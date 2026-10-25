@@ -4932,3 +4932,9 @@ Guard IconFile cache directory input (2026-10-25)
 
 - Reject null and empty directory names before cache construction calls
   `opendir`; see `docs/icon-cache-directory-input.md`.
+
+Harden IconFile cache hashing and insertion (2026-10-25)
+=========================================================
+
+- Preserve long icon-name hash lengths and free constructed entries when hash
+  insertion fails; see `docs/icon-cache-hash-failure.md`.

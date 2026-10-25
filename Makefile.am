@@ -830,3 +830,5 @@ EXTRA_DIST += tests/automated/check-xm-install-locking.py docs/install-image-loc
 EXTRA_DIST += tests/automated/check-icon-find-slash-input.py docs/icon-find-slash-input.md
 
 EXTRA_DIST += tests/automated/check-icon-cache-directory-input.py docs/icon-cache-directory-input.md
+
+EXTRA_DIST += tests/automated/check-icon-cache-hash-failure.py docs/icon-cache-hash-failure.md
