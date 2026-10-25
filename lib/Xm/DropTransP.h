@@ -86,6 +86,10 @@ typedef struct _XmDropTransferPart
     Cardinal			cur_xfer;
     Atom *			cur_targets;
     XtPointer *			cur_client_data;
+    XtIntervalId            start_timer;
+    Boolean                  start_timer_pending;
+    Widget                   selection_requestor;
+    Boolean                  selection_request_pending;
 } XmDropTransferPart;
 
 /*  Full instance record declaration  */

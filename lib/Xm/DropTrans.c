@@ -99,6 +99,18 @@ static void DragContextDestroyCB(
 			Widget widget,
 			XtPointer client,
 			XtPointer call) ;
+static void SelectionRequestorDestroyCB(
+			Widget widget,
+			XtPointer client,
+			XtPointer call) ;
+static void SetSelectionRequest(
+			XmDropTransferObject dt,
+			Widget requestor,
+			Atom selection) ;
+static void ClearSelectionRequest(
+			XmDropTransferObject dt) ;
+static void ForgetSelectionRequest(
+			XmDropTransferObject dt) ;
 
 /********    End Static Function Declarations    ********/
 
@@ -231,6 +243,10 @@ Initialize(
 	dtp->cur_xfer = (Cardinal) -1;
 	dtp->cur_targets = (Atom *) NULL;
 	dtp->cur_client_data = (XtPointer *) NULL;
+	dtp->start_timer = (XtIntervalId) 0;
+	dtp->start_timer_pending = False;
+	dtp->selection_requestor = (Widget) NULL;
+	dtp->selection_request_pending = False;
 }
 
 /*ARGSUSED*/
@@ -252,8 +268,22 @@ Destroy(
         Widget w )
 {
     XmDropTransferObject new_w = (XmDropTransferObject) w;
+    XmDropTransferPart *dtp = &(new_w->dropTransfer);
     Cardinal 		 i;
     XmDragContext	 dc;
+
+    if (dtp->start_timer_pending) {
+	XtRemoveTimeOut(dtp->start_timer);
+	dtp->start_timer_pending = False;
+    }
+
+    if (dtp->dragContext != NULL) {
+	XtRemoveCallback(dtp->dragContext, XmNdestroyCallback,
+			 DragContextDestroyCB, (XtPointer)new_w);
+	dtp->dragContext = (Widget) NULL;
+    }
+
+    ClearSelectionRequest(new_w);
 
     /*
      * clean up the hanging dragContext 
@@ -271,6 +301,10 @@ Destroy(
 	  XtFree((char *)currEntry->transfer_list);
       }
     XtFree((char *)new_w->dropTransfer.drop_transfer_lists);
+    XtFree((char *)dtp->cur_targets);
+    XtFree((char *)dtp->cur_client_data);
+    dtp->cur_targets = (Atom *) NULL;
+    dtp->cur_client_data = (XtPointer *) NULL;
 }
 
 /*ARGSUSED*/
@@ -286,10 +320,74 @@ SourceNotifiedCB(
 {
     XmDropTransferObject	dt = (XmDropTransferObject)client_data;
 
+    ForgetSelectionRequest(dt);
     if (value != NULL)
       XtFree((char *) value);
     /* self-immolution aaaaaaiii */
     XtDestroyWidget((Widget)dt);
+}
+
+static void
+SetSelectionRequest(
+	XmDropTransferObject dt,
+	Widget requestor,
+	Atom selection)
+{
+	XmDropTransferPart *dtp = &(dt->dropTransfer);
+
+	if (dtp->selection_requestor != requestor) {
+	    if (dtp->selection_requestor != NULL)
+	      XtRemoveCallback(dtp->selection_requestor,
+			       XmNdestroyCallback, SelectionRequestorDestroyCB,
+			       (XtPointer)dt);
+	    dtp->selection_requestor = requestor;
+	    if (requestor != NULL)
+	      XtAddCallback(requestor, XmNdestroyCallback,
+			     SelectionRequestorDestroyCB, (XtPointer)dt);
+	}
+	dtp->selection = selection;
+	dtp->selection_request_pending = True;
+}
+
+static void
+ClearSelectionRequest(
+	XmDropTransferObject dt)
+{
+	XmDropTransferPart *dtp = &(dt->dropTransfer);
+
+	if (dtp->selection_request_pending &&
+	    dtp->selection_requestor != NULL)
+	  XtCancelSelectionRequest(dtp->selection_requestor, dtp->selection);
+	ForgetSelectionRequest(dt);
+}
+
+static void
+ForgetSelectionRequest(
+	XmDropTransferObject dt)
+{
+	XmDropTransferPart *dtp = &(dt->dropTransfer);
+
+	if (dtp->selection_requestor != NULL)
+	  XtRemoveCallback(dtp->selection_requestor, XmNdestroyCallback,
+			   SelectionRequestorDestroyCB, (XtPointer)dt);
+	dtp->selection_requestor = (Widget) NULL;
+	dtp->selection = None;
+	dtp->selection_request_pending = False;
+}
+
+static void
+SelectionRequestorDestroyCB(
+	Widget widget,
+	XtPointer client,
+	XtPointer call)
+{
+	XmDropTransferObject dt = (XmDropTransferObject)client;
+
+	(void)widget;
+	(void)call;
+	dt->dropTransfer.selection_requestor = (Widget) NULL;
+	dt->dropTransfer.selection = None;
+	dt->dropTransfer.selection_request_pending = False;
 }
 
 static void 
@@ -301,6 +399,14 @@ TerminateTransfer(
 	XmDropTransferPart *dtp =
 		(XmDropTransferPart *) &(dt->dropTransfer);
 	XmDragContext	dc = (XmDragContext) dtp->dragContext;
+	Widget requestor;
+
+	if (dc == NULL || dc->drag.currReceiverInfo == NULL ||
+	    dc->drag.currReceiverInfo->shell == NULL) {
+	    XtDestroyWidget((Widget)dt);
+	    return;
+	}
+	requestor = dc->drag.currReceiverInfo->shell;
 
 	if (dtp->transfer_status == XmTRANSFER_SUCCESS)
 		status = XInternAtom(XtDisplayOfObject((Widget)dt),
@@ -314,7 +420,8 @@ TerminateTransfer(
 	 * visible to the initiator.
 	 */
 
-	XtGetSelectionValue(dc->drag.currReceiverInfo->shell,
+	SetSelectionRequest(dt, requestor, *selection);
+	XtGetSelectionValue(requestor,
 				*selection, status,
 				SourceNotifiedCB, (XtPointer)dt,
 				dtp->timestamp);
@@ -332,6 +439,7 @@ ProcessTransferEntry(
 	Cardinal i;
 	Arg args[1];
 	Atom real_selection_atom;
+	Widget requestor;
 
 	dtp->cur_drop_transfer_list = which;
 	dtp->cur_targets = (Atom *)
@@ -342,6 +450,8 @@ ProcessTransferEntry(
 	i = 0;
 	XtSetArg(args[i], XmNiccHandle, &real_selection_atom); i++;
 	XtGetValues(dtp->dragContext, args, i);
+	requestor = dc->drag.currReceiverInfo->shell;
+	SetSelectionRequest(dt, requestor, real_selection_atom);
 
 	for (i=0; i < tl->num_transfers; i++)
 	{
@@ -378,7 +488,7 @@ ProcessTransferEntry(
 	{
            if (tl->num_transfers == 1) {
                XtGetSelectionValueIncremental(
-                       dc->drag.currReceiverInfo->shell,
+				       requestor,
                        real_selection_atom, dtp->cur_targets[0],
                        DropTransferSelectionCB,
                        (XtPointer)dtp->cur_client_data[0],
@@ -386,7 +496,7 @@ ProcessTransferEntry(
            } else {
 
 		XtGetSelectionValuesIncremental(
-			dc->drag.currReceiverInfo->shell,
+			requestor,
 			real_selection_atom, dtp->cur_targets,
 			tl->num_transfers, DropTransferSelectionCB,
 			(XtPointer *)dtp->cur_client_data, 
@@ -395,14 +505,14 @@ ProcessTransferEntry(
 	}
 	else
 	{
-           if (tl->num_transfers == 1) {
-               XtGetSelectionValue(dc->drag.currReceiverInfo->shell,
+		   if (tl->num_transfers == 1) {
+			       XtGetSelectionValue(requestor,
                        real_selection_atom, dtp->cur_targets[0],
                        DropTransferSelectionCB,
                        (XtPointer)dtp->cur_client_data[0],
                        dtp->timestamp);
            } else {
-		XtGetSelectionValues(dc->drag.currReceiverInfo->shell,
+		XtGetSelectionValues(requestor,
 			real_selection_atom, dtp->cur_targets,
 			tl->num_transfers, DropTransferSelectionCB,
 			(XtPointer *)dtp->cur_client_data, 
@@ -432,6 +542,9 @@ DropTransferSelectionCB(
 		(XmDropTransferPart *) &(dt->dropTransfer);
 	XmDropTransferList	tl =
 		&(dtp->drop_transfer_lists[dtp->cur_drop_transfer_list]);
+	Boolean transfer_complete =
+		!(dtp->incremental) ||
+		((value != NULL) && (length != NULL) && (*length == 0));
 
 
 	(*(dtp->transfer_callback)) 
@@ -442,10 +555,13 @@ DropTransferSelectionCB(
 	* an XmDropTransferAdd() was called in the callback.
         */
 	tl = &(dtp->drop_transfer_lists[dtp->cur_drop_transfer_list]);
+	if (transfer_complete)
+	  ForgetSelectionRequest(dt);
 
 	if ( !(dtp->incremental)
 		||
-		((dtp->incremental) && (value != NULL) && (*length == 0)))
+		((dtp->incremental) && (value != NULL) && (length != NULL) &&
+		 (*length == 0)))
 	{
 		dtp->cur_xfer++;
 
@@ -453,6 +569,8 @@ DropTransferSelectionCB(
 		{
 			XtFree((char *)dtp->cur_targets);
 			XtFree((char *)dtp->cur_client_data);
+			dtp->cur_targets = (Atom *) NULL;
+			dtp->cur_client_data = (XtPointer *) NULL;
 
 			if (++(dtp->cur_drop_transfer_list) <
 				dtp->num_drop_transfer_lists)
@@ -485,6 +603,7 @@ StartDropTimer(
 
 	
 	dtp = (XmDropTransferPart *) &(dt->dropTransfer);
+	dtp->start_timer_pending = False;
 
 	if (dtp->num_drop_transfer_lists)
 	{
@@ -507,11 +626,20 @@ DragContextDestroyCB(
         XtPointer client,
         XtPointer call)
 {
-        XtIntervalId timer = (XtIntervalId) client;
+        XmDropTransferObject dt = (XmDropTransferObject) client;
+        XmDropTransferPart *dtp = &(dt->dropTransfer);
+
+        (void)widget;
+        (void)call;
 #ifdef CR1146
         if (!isValidStartDropTimerId) return;
 #endif
-        XtRemoveTimeOut(timer);
+        if (dtp->start_timer_pending) {
+          XtRemoveTimeOut(dtp->start_timer);
+          dtp->start_timer_pending = False;
+        }
+        ClearSelectionRequest(dt);
+        dtp->dragContext = (Widget) NULL;
 }
 
 static Widget 
@@ -553,14 +681,16 @@ StartDropTransfer(
 
 	timer = XtAppAddTimeOut(XtWidgetToApplicationContext( (Widget)dt),
 				0, StartDropTimer, (XtPointer)dt);
+	dt->dropTransfer.start_timer = timer;
+	dt->dropTransfer.start_timer_pending = True;
 #ifdef CR1146
     if (isValidStartDropTimerId) {
         printf("Motif Error in file %s at line %d: A DropTimer is already active,\n", __FILE__, __LINE__);
     }
     isValidStartDropTimerId = 1;
 #endif
-	XtAddCallback(refWidget, XmNdestroyCallback, DragContextDestroyCB, 
-		      (XtPointer)timer);
+	XtAddCallback(refWidget, XmNdestroyCallback, DragContextDestroyCB,
+		      (XtPointer)dt);
 
 	return((Widget) dt);
 }

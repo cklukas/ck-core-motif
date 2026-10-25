@@ -59,8 +59,35 @@ fresh Xvfb runs. All three receipts used the same `libXm.so.8.0.0` SHA-256
 the same probe source SHA-256
 (`93ca01fad2a8280d2bbd6b7dd36ca0952d92530fd874f97a74876ce20aa1946e`).
 This qualifies one cross-process copy transfer; it does not qualify
-selection-transfer cancellation, owner replacement, incremental payload
+source-side cancellation after a drop, owner replacement, incremental payload
 assembly, multiple targets or a complete application DnD workflow.
+
+`tests/automated/check-dnd-transfer-cancel.c` covers the receiver-side
+DropTransfer lifetime contract. Its immediate mode destroys the object before
+the delayed start timer runs; its active mode requests a 2 MiB incremental
+selection and destroys the object from the first transfer callback. The
+toolkit now retains and removes the delayed timer, unregisters the drag-context
+callback, cancels an outstanding Xt selection request when destruction really
+interrupts it, and only forgets a request that has already completed. Completed
+transfer arrays are nulled after release so the later source-notification
+destruction cannot free them twice.
+
+Run it with:
+
+```sh
+python3 tests/automated/run-dnd-transfer-cancel.py \
+  /absolute/installed/prefix /absolute/fresh/results
+```
+
+The AArch64 `uconsole` qualification on 2026-10-25 passed the immediate
+7-check and active 8-check modes in three fresh Xvfb runs each. All receipts
+used the rebuilt `libXm.so.8.0.0` SHA-256
+(`84fa1a406a31da1e09d64d8a42b77f340689dea49a911d0aa0d5ac0e672ee706`) and
+the probe source SHA-256
+(`57f3ad7f8bbdbe5914755f25482d2a66bd6312b659e7a38e26f3d5c6e2ae89ec`).
+This closes the bounded receiver-object/timer/request cancellation contract;
+source-side drag cancellation after a drop, owner replacement, multiple
+targets and complete application workflows remain separate gates.
 
 `tests/automated/check-dnd-cancel.c` covers the related initiator-side
 cancellation contract. It starts a Motif drag, calls the public
@@ -70,5 +97,6 @@ cancellation contract. It starts a Motif drag, calls the public
 `libXm.so.8.0.0` hash shown above; the cancellation runner records the same
 receipt and loaded-library evidence.
 
-This does not promote selection-transfer cancellation, owner replacement,
-incremental transfer cancellation or application-level journeys to complete.
+This does not promote source-side cancellation after a drop, owner
+replacement, multiple-target transfer or application-level journeys to
+complete.

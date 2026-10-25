@@ -137,10 +137,13 @@ recorded native toolkit/dependency/consumer scope. Installed same-process and
 independent-client Motif drag gestures now pass conversion, valid-drop
 admission, transfer-entry client-data propagation and Xt-owned selection-value
 checks in three repeated Xvfb runs each. The companion initiator-side
-`XmDragCancel` probe also passes its finish notification contract;
-selection-transfer cancellation, owner replacement, broader drag-and-drop
-workflows, physical display/input qualification and other architectures remain
-separate admission gates. See `docs/dnd-transfer-lifecycle.md`.
+`XmDragCancel` probe also passes its finish notification contract. The
+receiver-side `XmDropTransfer` lifetime probe now passes both delayed-start and
+active-incremental request cancellation, including destruction from the first
+transfer callback, in three repeated runs each. Source-side post-drop
+cancellation, owner replacement, broader drag-and-drop workflows, physical
+display/input qualification and other architectures remain separate admission
+gates. See `docs/dnd-transfer-lifecycle.md`.
 
 The newer ABI 6 candidate, its consumers and documentation deployment remain
 distinct gates. Final x86_64 validation of this candidate remains pending.

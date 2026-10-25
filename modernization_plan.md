@@ -631,8 +631,10 @@ runs, qualifying the basic X11 client boundary without claiming owner
 replacement or transfer cancellation. Multiple targets and application-DnD
 journeys remain separate gates. The companion installed `check-dnd-cancel`
 probe also passes the initiator-side `XmDragCancel` and finish-notification
-contract in three repeated runs; selection-transfer cancellation remains open.
-See
+contract in three repeated runs. The receiver-side `check-dnd-transfer-cancel`
+consumer also passes delayed-start and active-incremental request cancellation
+in three fresh runs each; source-side post-drop cancellation, owner replacement
+and multiple-target/application-DnD journeys remain open. See
 `docs/dropsite-lifecycle.md` and `docs/dnd-transfer-lifecycle.md`.
 
 ### WP-07: Screen-reader usability and semantic completion

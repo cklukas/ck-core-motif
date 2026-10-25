@@ -32,9 +32,22 @@ Cross-process drag-and-drop transfer qualification (2026-10-25)
 - Add an installed two-client XTEST regression that exercises an independent
   source and destination Xt process, one copy transfer and the same selection
   ownership/conversion boundaries. Three fresh AArch64 Xvfb runs pass 12 checks
-  against the recorded prefix; selection-transfer cancellation, owner
+  against the recorded prefix; source-side post-drop cancellation, owner
   replacement and broader application-DnD journeys remain open. See
   `docs/dnd-transfer-lifecycle.md`.
+
+DropTransfer cancellation and lifetime safety (2026-10-25)
+===========================================================
+
+- Retain and cancel the delayed `XmDropTransfer` start timer when a consumer
+  destroys the transfer object, unregister its drag-context and requestor
+  callbacks, cancel a genuinely outstanding Xt selection request, and clear
+  completed transfer arrays after release. This fixes the stale-timer crash
+  and completed-transfer double free without changing the public C API.
+- Add immediate and active-incremental installed regressions. Three fresh
+  AArch64 Xvfb runs pass 7 checks in immediate mode and 8 in active mode;
+  source-side post-drop cancellation, owner replacement and broader workflows
+  remain separate. See `docs/dnd-transfer-lifecycle.md`.
 
 Drag-initiator cancellation qualification (2026-10-25)
 =======================================================
@@ -42,7 +55,7 @@ Drag-initiator cancellation qualification (2026-10-25)
 - Add an installed public-API cancellation regression that calls
   `XmDragCancel` during an active XTEST drag and verifies the
   `XmNdragDropFinishCallback` notification. Three fresh AArch64 Xvfb runs pass
-  three checks; selection-transfer cancellation and cross-process ownership
+  three checks; source-side post-drop cancellation and owner replacement
   remain separate gates. See `docs/dnd-transfer-lifecycle.md`.
 
 FontSelector sanitizer ownership boundary (2026-10-25)
