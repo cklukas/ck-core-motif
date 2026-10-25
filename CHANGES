@@ -4662,3 +4662,10 @@ List position result allocation failures (2026-10-25)
 - Check `XmListGetMatchPos` and `XmListGetSelectedPos` result allocations
   before use, preserving initialized outputs when memory is unavailable; see
   `docs/list-result-allocation.md`.
+
+List selection rebuild allocation failures (2026-10-25)
+========================================================
+
+- Check selected-item and selected-position rebuild allocations and reset the
+  affected selection state on failure; see
+  `docs/list-selection-rebuild-allocation.md`.
