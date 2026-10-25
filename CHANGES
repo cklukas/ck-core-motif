@@ -8,6 +8,10 @@ Optional ckmotif++ support package and WML build graph (2026-10-25)
 - Regenerated build metadata now includes the additive widget sources in
   `libXm`, allowing the WML tools to link from a fresh checkout; this is
   independent of the UIL literal-only module fix below.
+- A fresh isolated AArch64 bootstrap (`autoreconf -fi`, generated string
+  prerequisites, `libXm.la`, and `tools/wml`) now records successful
+  out-of-tree `wmllex.c` generation and `wml`/`wmluiltok`/`wmldbcreate` build;
+  see `docs/wml-build.md`.
 
 Same-process drag-and-drop transfer qualification (2026-10-25)
 ===============================================================

@@ -40,6 +40,25 @@ The WML specification lexer (`wmllex.c`) is generated explicitly from
 does not require a checked-in generated lexer; the selected `LEX` implementation
 must be available when building the WML tools.
 
+On 2026-10-25, an isolated AArch64 `uconsole` bootstrap copied the source to a
+fresh temporary tree, ran `autoreconf -fi`, configured with the optional text,
+Xft, AT-SPI and XLibre features disabled, generated the normal `makestrs` and
+XmString prerequisites, built `libXm.la`, and then ran `make -j2 -C
+tools/wml all`. The build generated `wmllex.c` from `wmllex.l`, generated the
+UIL parser and compatibility links, built `wml`, `wmluiltok` and `wmldbcreate`,
+and created `motif.wmd`. The recorded hashes were:
+
+| Input/output | SHA-256 |
+| --- | --- |
+| `tools/wml/wmllex.l` | `1b09024869b107af3b4c4e5d3fe8500d1ab9e26b0eec7b5116d6a67fb0762fb3` |
+| generated `tools/wml/wmllex.c` | `5b6335ab2f31e9ec3110fee255c08c54e7ad114eb6ffed72c536925ac8b38476` |
+
+This confirms that the absent source-tree `wmllex.c` is intentional and that
+the out-of-tree rule supplies it. The bootstrap still emits pre-existing
+`-Wall` format/legacy-cast warnings in unrelated Motif/WML sources; no
+missing-lexer or generated-parser error occurred, and the warnings are not
+described as a warning-free build.
+
 UIL modules that export only literals or icons have no top-level widget
 descriptors. `UrmIFMInitModule` now writes the valid empty descriptor table for
 that case, so the `demos/programs/animate/dog.uil` full-tree target succeeds;
