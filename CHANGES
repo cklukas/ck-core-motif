@@ -11123,3 +11123,9 @@ WSM null transfer data (2026-10-25)
 
 - Reject null selection callback data with a safe internal-error cleanup path;
   see `docs/wsm-reply-null-data.md`.
+
+WSM null request context (2026-10-25)
+=====================================
+
+- Guard asynchronous receive callbacks when no pending request context is
+  supplied, avoiding a null dereference; see `docs/wsm-reply-null-context.md`.

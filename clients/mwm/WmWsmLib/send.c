@@ -144,7 +144,11 @@ UTMReplyReceived(Widget w, XtPointer clientData, XtPointer callData)
   XmSelectionCallbackStruct *scs = (XmSelectionCallbackStruct *) callData;
   RequestInfo *req_info = (RequestInfo *) clientData;
   Boolean errorFound = False;
-  Atom type = _WSMReqTypeToTarget(XtDisplay(w), req_info->request_type);
+  Atom type;
+
+  if (req_info == NULL)
+    return;
+  type = _WSMReqTypeToTarget(XtDisplay(w), req_info->request_type);
 
   if (scs == NULL) {
     if (req_info->reply_callback != NULL)
@@ -206,6 +210,9 @@ ReplyReceived(Widget w, XtPointer req_info_ptr,
     Display *dpy = XtDisplay(w);
     int screen_num;
     WSMErrorCode fail_code = WSM_SUCCESS;
+
+    if (req_info == NULL)
+	return;
 
     /*
      * First a few checks to make sure everything is as we expect.

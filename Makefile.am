@@ -922,6 +922,8 @@ EXTRA_DIST += tests/automated/check-wsm-reply-callback-lifecycle.py docs/wsm-rep
 
 EXTRA_DIST += tests/automated/check-wsm-reply-null-data.py docs/wsm-reply-null-data.md
 
+EXTRA_DIST += tests/automated/check-wsm-reply-null-context.py docs/wsm-reply-null-context.md
+
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 
 EXTRA_DIST += tests/automated/check-latin-lower-bounds.py docs/latin-lower-bounds.md
