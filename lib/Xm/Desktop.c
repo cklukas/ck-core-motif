@@ -35,6 +35,7 @@ static char rcsid[] = "$XConsortium: Desktop.c /main/12 1995/07/14 10:17:30 drk 
 #include <Xm/BaseClassP.h>
 #include <Xm/ScreenP.h>
 #include <Xm/DisplayP.h>
+#include <limits.h>
 #include <stdint.h>
 
 
