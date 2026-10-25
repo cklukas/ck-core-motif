@@ -147,6 +147,7 @@ EXTRA_DIST += tests/automated/check-scrolled-window-drag-allocation.py docs/scro
 EXTRA_DIST += tests/automated/check-real-xlations-allocation.py docs/real-xlations-allocation.md
 EXTRA_DIST += tests/automated/check-print-allocation.py docs/print-allocation.md
 EXTRA_DIST += tests/automated/check-filesb-filter-allocation.py docs/filesb-filter-allocation.md
+EXTRA_DIST += tests/automated/check-picture-subgraph-allocation.py docs/picture-subgraph-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md
 EXTRA_DIST += tests/automated/check-editres-error-bounds.py docs/editres-error-bounds.md
 EXTRA_DIST += tests/automated/check-spinbox-name-bounds.py docs/spinbox-name-bounds.md

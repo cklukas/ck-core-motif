@@ -9853,6 +9853,13 @@ FileSelectionBox filter allocation fallback (2026-10-25)
   legacy filter allocation fails, avoiding invalid writes and frees; see
   `docs/filesb-filter-allocation.md`.
 
+Picture subgraph allocation guard (2026-10-25)
+==============================================
+
+- Check temporary `XmPicture` subgraph-table allocation and leave the current
+  graph end unchanged when unavailable; see
+  `docs/picture-subgraph-allocation.md`.
+
 MWM label-parse allocation guard (2026-10-25)
 ==============================================
 

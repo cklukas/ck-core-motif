@@ -777,6 +777,8 @@ _XmPictureCopySubGraph(XmPictureRec *picture, int n,
 	return end;
     table = (XmPictureNode**)
 	    XtMalloc(tablesize * sizeof(XmPictureNode*));
+    if (table == NULL)
+	return end;
     for(i=0; i<picture->num_nodes; i++)
 	table[i] = NULL;
     
