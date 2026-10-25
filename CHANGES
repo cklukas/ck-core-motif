@@ -5193,3 +5193,10 @@ Tab-list insertion allocation guards (2026-10-25)
   `docs/tablist-insert-allocation.md`.
 
 Tab-list converter allocation guard (2026-10-25)
+Tab-list copy allocation guards (2026-10-25)
+=============================================
+
+- Guard tab-list result and first-tab allocations, and reject empty copy
+  ranges safely; see `docs/tablist-copy-allocation.md`.
+
+Tab-list insertion allocation guards (2026-10-25)
