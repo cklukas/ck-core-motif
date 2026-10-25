@@ -4724,3 +4724,9 @@ Drag target-table allocation handling (2026-10-25)
 
 - Check target-cache table allocation and growth before dereferencing the
   resulting pointers; see `docs/dragbs-targets-allocation-guards.md`.
+
+Drag target-entry allocation handling (2026-10-25)
+===================================================
+
+- Roll back partially added target lists when an atom-array allocation fails;
+  see `docs/dragbs-target-entry-allocation.md`.

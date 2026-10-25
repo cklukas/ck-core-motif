@@ -988,6 +988,7 @@ ReadTargetsTable(
     int				i, j;
     Atom		        *targets;
     xmTargetsTableEntry	new_entries;
+    Cardinal		old_num_entries;
     Boolean			ret;
     Window			motifWindow;
     CARD16Item			shortItem;
@@ -1082,6 +1083,7 @@ ReadTargetsTable(
 	    else
 	    {
 		targetsTable->entries = new_entries;
+		old_num_entries = targetsTable->numEntries;
 
 	    /*
 	     *  read the new entries
@@ -1113,6 +1115,19 @@ ReadTargetsTable(
 		  targets = NULL;
                 else
 	          targets = (Atom *) XtMalloc(sizeof(Atom) * num_targets);
+		if (num_targets != 0 && targets == NULL)
+		{
+		    while (targetsTable->numEntries > old_num_entries)
+		    {
+			--targetsTable->numEntries;
+			XtFree((char *)targetsTable->entries[
+			    targetsTable->numEntries].targets);
+			targetsTable->entries[
+			    targetsTable->numEntries].targets = NULL;
+		    }
+		    ret = False;
+		    break;
+		}
 		/*
 	 	 *  Read each Atom in one at a time.
 	 	 */
@@ -1128,6 +1143,17 @@ ReadTargetsTable(
                 targetsTable->numEntries++;
                 targetsTable->entries[i].numTargets = num_targets;
                 targetsTable->entries[i].targets = targets;
+	    }
+	    if (!ret)
+	    {
+		while (targetsTable->numEntries > old_num_entries)
+		{
+		    --targetsTable->numEntries;
+		    XtFree((char *)targetsTable->entries[
+			targetsTable->numEntries].targets);
+		    targetsTable->entries[
+			targetsTable->numEntries].targets = NULL;
+		}
 	    }
 	    }
 	}
