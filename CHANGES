@@ -1,3 +1,9 @@
+Make key-event mapping growth transactional (2026-10-25)
+===========================================================
+
+- Check all three parallel `_XmMapKeyEvents` arrays before writing parsed
+  events; see `docs/mapevents-array-allocation.md`.
+
 Guard RowColumn accelerator text buffers (2026-10-25)
 =======================================================
 

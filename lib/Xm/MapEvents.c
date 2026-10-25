@@ -35,6 +35,7 @@ static char rcsid[] = "$XConsortium: MapEvents.c /main/12 1995/09/19 23:05:22 cd
 #include <X11/IntrinsicP.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
+#include <stdint.h>
 #include <Xm/XmP.h>
 #include "XmI.h"
 #include "MapEventsI.h"
@@ -815,6 +816,10 @@ _XmMapKeyEvents(String      str,
       int       	tmp_type;
       unsigned long	tmp_sym;
       Modifiers 	tmp_mods;
+      int *new_event_types;
+      KeySym *new_keysyms;
+      Modifiers *new_modifiers;
+      size_t item_count;
 
       /* Parse a single event. */
       ptr = _MapEvent(ptr, keyEvents, &tmp_type, &tmp_sym, &tmp_mods, &status);
@@ -822,14 +827,45 @@ _XmMapKeyEvents(String      str,
 	break;
 
       /* Save this event. */
-      *eventTypes = (int *)
-	XtRealloc((char*) *eventTypes, (count + 1) * sizeof(int));
+      if (count == INT_MAX)
+	{
+	  status = FALSE;
+	  break;
+	}
+      item_count = (size_t)count + 1;
+      if (item_count > SIZE_MAX / sizeof(**eventTypes) ||
+	  item_count > SIZE_MAX / sizeof(**keysyms) ||
+	  item_count > SIZE_MAX / sizeof(**modifiers))
+	{
+	  status = FALSE;
+	  break;
+	}
+      new_event_types = (int *)XtRealloc((char *)*eventTypes,
+					 item_count * sizeof(**eventTypes));
+      if (new_event_types == NULL)
+	{
+	  status = FALSE;
+	  break;
+	}
+      *eventTypes = new_event_types;
       (*eventTypes)[count] = tmp_type;
-      *keysyms = (KeySym *)
-	XtRealloc((char*) *keysyms, (count + 1) * sizeof(KeySym));
+      new_keysyms = (KeySym *)XtRealloc((char *)*keysyms,
+					 item_count * sizeof(**keysyms));
+      if (new_keysyms == NULL)
+	{
+	  status = FALSE;
+	  break;
+	}
+      *keysyms = new_keysyms;
       (*keysyms)[count] = (KeySym)tmp_sym;
-      *modifiers = (Modifiers *)
-	XtRealloc((char*) *modifiers, (count + 1) * sizeof(Modifiers));
+      new_modifiers = (Modifiers *)XtRealloc((char *)*modifiers,
+					 item_count * sizeof(**modifiers));
+      if (new_modifiers == NULL)
+	{
+	  status = FALSE;
+	  break;
+	}
+      *modifiers = new_modifiers;
       (*modifiers)[count] = tmp_mods;
       count++;
 
