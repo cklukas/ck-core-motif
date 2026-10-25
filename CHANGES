@@ -6481,3 +6481,9 @@ Container selection snapshot allocation width (2026-10-25)
   pass the checked size explicitly to `XtMalloc`; see
   `docs/container-selection-guards.md`.
 
+RowColumn post-from-list preparation transaction (2026-10-25)
+===============================================================
+
+- Keep the existing popup list published until a bounded replacement is
+  allocated and copied successfully; see `docs/rcpopup-list-allocation.md`.
+
