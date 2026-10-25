@@ -802,3 +802,5 @@ EXTRA_DIST += tests/automated/check-region-copy-growth.py docs/region-copy-growt
 EXTRA_DIST += tests/automated/check-xm-scaled-pixmap-color-input.py docs/scaled-pixmap-color-input.md
 
 EXTRA_DIST += tests/automated/check-xm-pixmap-wrapper-inputs.py docs/pixmap-wrapper-input-guards.md
+
+EXTRA_DIST += tests/automated/check-mask-name-size.py docs/mask-name-size-checks.md

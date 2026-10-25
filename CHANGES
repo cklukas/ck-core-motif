@@ -4847,3 +4847,9 @@ Guard public pixmap wrapper inputs (2026-10-25)
 
 - Reject null widgets, screens and image names before public pixmap wrappers
   access Xt or X11 state; see `docs/pixmap-wrapper-input-guards.md`.
+
+Check image mask-name allocation sizes (2026-10-25)
+===================================================
+
+- Check prefix and terminator arithmetic before allocating generated mask
+  names; see `docs/mask-name-size-checks.md`.

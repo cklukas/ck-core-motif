@@ -191,6 +191,7 @@ static Boolean XmRoundScaled(double value, unsigned int *rounded);
 static Boolean XmScaledDimension(unsigned int source, double ratio,
 				 Dimension *dimension);
 static Boolean XmImageArrayFits(size_t count, size_t element_size);
+static Boolean XmMaskNameSize(String image_name, size_t *size);
 
 #ifdef SVG_SUPPORTED
 static Boolean IsSvgFile(const char *file_name);
@@ -812,7 +813,11 @@ GetXpmImage(
 	   install it using our mask name scheme if the color object
 	   tell us to do so */
 	if (mask_image && useMask) {
-	    String mask_name = XtMalloc(strlen(image_name) + 3);
+	    size_t mask_name_size;
+	    String mask_name = NULL;
+
+	    if (XmMaskNameSize(image_name, &mask_name_size))
+		mask_name = XtMalloc(mask_name_size);
 
 	    if (mask_name != NULL) {
 		Boolean installed;
@@ -1982,13 +1987,16 @@ XmeGetMask(
     String 		mask_name;
     Pixmap		ret_val;
     XtAppContext app;
+    size_t mask_name_size;
 
     if (screen == NULL || image_name == NULL)
+	return XmUNSPECIFIED_PIXMAP;
+    if (!XmMaskNameSize(image_name, &mask_name_size))
 	return XmUNSPECIFIED_PIXMAP;
 
     app = XtDisplayToApplicationContext(DisplayOfScreen(screen));
 
-    mask_name = XtMalloc(strlen(image_name) + 3);
+    mask_name = XtMalloc(mask_name_size);
     if (mask_name == NULL)
 	return XmUNSPECIFIED_PIXMAP;
 
@@ -2368,6 +2376,20 @@ static Boolean
 XmImageArrayFits(size_t count, size_t element_size)
 {
     return count <= SIZE_MAX / element_size;
+}
+
+static Boolean
+XmMaskNameSize(String image_name, size_t *size)
+{
+    size_t length;
+
+    if (image_name == NULL || size == NULL)
+	return False;
+    length = strlen(image_name);
+    if (length > SIZE_MAX - 3)
+	return False;
+    *size = length + 3;
+    return True;
 }
 
 typedef struct {

@@ -8,7 +8,8 @@ end = source.index("\n\n\n/*****************************************************
 region = source[start:end]
 assert "String \t\tmask_name;" in region
 assert "if (screen == NULL || image_name == NULL)" in region
-assert "mask_name = XtMalloc(strlen(image_name) + 3);" in region
+assert "XmMaskNameSize(image_name, &mask_name_size)" in region
+assert "mask_name = XtMalloc(mask_name_size);" in region
 assert "XtFree(mask_name);" in region
 assert "char \t\tmask_name[256];" not in region
 print("XmeGetMask handles long names and null inputs safely")
