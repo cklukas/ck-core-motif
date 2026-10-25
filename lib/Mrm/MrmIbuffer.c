@@ -781,8 +781,8 @@ Idb__BM_Decommit (IDBRecordBufferPtr		buffer)
  *  PROCEDURE DESCRIPTION:
  *
  *	Idb__BM_DecommitAll decommits all the buffers currently allocated
- *	for a file. It returns an error immediately if there is any
- *	problem decommitting any buffer.
+ *	for a file. It records the first error while attempting every buffer, so one
+ *	failed write does not prevent other buffers from being released.
  *
  *	Since this routine removes all buffers for a file in prepration
  *	for closing it, it also wipes out the file pointer in each buffer.
@@ -834,8 +834,8 @@ Idb__BM_DecommitAll (IDBFile		file_id)
 	    {
 	    if (first_error == MrmSUCCESS)
 	      first_error = result;
-	    curbuf->activity = 0;
-	    curbuf->modified = FALSE;
+	    /* Keep failed buffers attached and dirty so the write can be retried. */
+	    continue;
 	    }
 	  curbuf->cur_file = NULL ;
         }
