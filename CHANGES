@@ -1,3 +1,9 @@
+XmMessageBox child lookup null-safety (2026-10-25)
+==================================================
+
+- Guard `XmMessageBoxGetChild` against null widgets before app-context access;
+  see `docs/xm-messagebox-child-null.md`.
+
 XmComboBox API null-safety (2026-10-25)
 ==========================================
 

@@ -1433,6 +1433,8 @@ XmMessageBoxGetChild(
 {
     XmMessageBoxWidget  w = (XmMessageBoxWidget)widget;
     Widget child_widget = NULL;
+    if (widget == NULL)
+        return NULL;
     _XmWidgetToAppContext(widget);
 /****************/
 
