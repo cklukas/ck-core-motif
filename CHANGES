@@ -7,6 +7,12 @@ Gallery screenshot qualification receipts (2026-10-25)
   `skip`, and `fail` outcomes and retain the active entry and failure reason;
   see `docs/modern-gallery-screenshot-qualification.md`.
 
+Bound RCPopup list allocation width (2026-10-26)
+================================================
+
+- Add the missing Xt `Cardinal` byte bound and explicit allocation size to
+  popup-list growth; see `docs/rcpopup-list-growth.md`.
+
 Live appearance representative widget matrix (2026-10-25)
 ============================================================
 

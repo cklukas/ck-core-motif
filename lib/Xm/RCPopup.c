@@ -39,6 +39,7 @@ static char *rcsid = "$XConsortium: RCPopup.c /main/7 1996/03/28 15:15:24 daniel
 
 #include <stdio.h>
 #include <ctype.h>
+#include <stdint.h>
 #include "XmI.h"
 #include <X11/IntrinsicP.h>
 #include <X11/CoreP.h>
@@ -1170,6 +1171,11 @@ XmAddToPostFromList(
       if (! popup_table) {
 	popup_table = _XmAllocHashTable(100, NULL, NULL);
       }
+      if (!popup_table) {
+	_XmProcessUnlock();
+	_XmAppUnlock(app);
+	return;
+      }
 
       /* See if we have an associated table.  If not,  create
 	 one. */
@@ -1181,6 +1187,11 @@ XmAddToPostFromList(
 	  _XmResizeHashTable(popup_table, 2 * _XmHashTableSize(popup_table));
     
 	list = (PopupList) XtMalloc(sizeof(PopupListRec));
+	if (list == NULL) {
+	  _XmProcessUnlock();
+	  _XmAppUnlock(app);
+	  return;
+	}
 	list -> popups = (WidgetList) NULL;
 	list -> num_popups = 0;
 	_XmAddHashEntry(popup_table, (XmHashKey) widget, (XtPointer) list);
@@ -1188,10 +1199,26 @@ XmAddToPostFromList(
       }
       _XmProcessUnlock();
 
-      /* Add to list,  we add the menu's shell parent */
-      list -> popups = (WidgetList) XtRealloc((char*) list -> popups,
-					      sizeof(Widget) * 
-					      (list -> num_popups + 1));
+      /* Add to list, we add the menu's shell parent. */
+      if (list->num_popups == (Cardinal)-1 ||
+          (size_t)(list->num_popups + 1) > SIZE_MAX / sizeof(Widget) ||
+          (size_t)(list->num_popups + 1) > UINT_MAX / sizeof(Widget))
+        {
+          _XmAppUnlock(app);
+          return;
+        }
+      {
+        WidgetList new_popups = (WidgetList)XtRealloc(
+            (char *)list->popups,
+            (Cardinal)(sizeof(Widget) *
+                       (size_t)(list->num_popups + 1)));
+        if (new_popups == NULL)
+          {
+            _XmAppUnlock(app);
+            return;
+          }
+        list->popups = new_popups;
+      }
       list -> popups[list -> num_popups] = XtParent(m);
       list -> num_popups++;
 
