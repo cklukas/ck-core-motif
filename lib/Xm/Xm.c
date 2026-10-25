@@ -403,6 +403,10 @@ _XmUtf8ToUcs2(char *draw_text, size_t seg_len, size_t *ret_str_len)
 	return NULL;
      }
      buf2b = (XChar2b *)XtMalloc(seg_len * sizeof(XChar2b));
+     if (buf2b == NULL) {
+	*ret_str_len = 0;
+	return NULL;
+     }
 
      remaining = seg_len;
      for (ptr = buf2b; remaining > 0; ptr++) {

@@ -1,3 +1,10 @@
+UTF-8 to UCS-2 allocation guard (2026-10-25)
+==============================================
+
+- Return cleanly when `_XmUtf8ToUcs2` cannot allocate its conversion buffer,
+  preserving the zero-length failure contract; see
+  `docs/utf8-ucs2-allocation.md`.
+
 Representation-type warning allocation guard (2026-10-25)
 ==========================================================
 
