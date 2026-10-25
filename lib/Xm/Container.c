@@ -5315,6 +5315,11 @@ ContainerConvertProc(
 	targargs = XmeStandardTargets(wid,6,&n);      
       else
 	targargs  = (Atom*) XtMalloc(sizeof(Atom) * 6);
+      if (targargs == NULL)
+	{
+	  ConvertRefuse(wid, closure, cs);
+	  return;
+	}
       targargs[n++] = XA_PIXMAP;
       targargs[n++] = atoms[XmAUTF8_STRING];
       targargs[n++] = atoms[XmA_COMPOUND_TEXT];
@@ -5329,6 +5334,11 @@ ContainerConvertProc(
       {
 	short	*offset_args = (short *)XtCalloc(2,sizeof(short));
 	int	n = 0;
+	if (offset_args == NULL)
+	{
+	  ConvertRefuse(wid, closure, cs);
+	  return;
+	}
 	
 	value = (XtPointer)offset_args;
 	offset_args[n++] = cw->container.drag_offset_x;
@@ -5344,14 +5354,27 @@ ContainerConvertProc(
 	  if ((cs->selection == atoms[XmA_MOTIF_DROP]) && (cs->location_data))
             {
 	      items = (WidgetList)XtMalloc(sizeof(Widget));
+	      if (items == NULL)
+		{
+		  ConvertRefuse(wid, closure, cs);
+		  return;
+		}
 	      items[0] = (Widget)cs->location_data;
 	      item_count = 1;
             }
 	  else
             {
 	      if ((item_count = cw->container.selected_item_count) == 0)
-		ConvertRefuse(wid,closure,cs);
+		{
+		  ConvertRefuse(wid,closure,cs);
+		  return;
+		}
 	      items = GetSelectedCwids(wid);
+	      if (items == NULL)
+		{
+		  ConvertRefuse(wid, closure, cs);
+		  return;
+		}
             }
 	}
   if (cs->target == XA_PIXMAP)
@@ -5362,6 +5385,12 @@ ContainerConvertProc(
       Pixmap *        return_pm = (Pixmap *)
 	XtCalloc(item_count,sizeof(Pixmap));
       int	      return_pm_count = 0;
+	  if (return_pm == NULL)
+	    {
+	      XtFree((char *)items);
+	      ConvertRefuse(wid, closure, cs);
+	      return;
+	    }
 
       for (i = 0; i < item_count; i++)
 	{

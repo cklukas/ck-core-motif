@@ -1,3 +1,10 @@
+Container conversion allocation guards (2026-10-28)
+======================================================
+
+- Refuse Container conversions when target, drag-offset, selected-widget, or
+  pixmap-result allocations fail, and stop after empty selections; see
+  `docs/container-conversion-allocation.md`.
+
 Label conversion allocation guards (2026-10-28)
 ==================================================
 
