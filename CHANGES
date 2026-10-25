@@ -1,3 +1,10 @@
+Clipboard conversion header failure handling (2026-10-26)
+==========================================================
+
+- Stop clipboard conversion and next-item ID updates when header allocation
+  fails, avoiding null header dereferences while preserving normal transfers;
+  see `docs/clipboard-convert-header-failure.md`.
+
 Clipboard delete-format record validation (2026-10-26)
 =======================================================
 

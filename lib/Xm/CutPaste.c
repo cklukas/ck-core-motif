@@ -518,6 +518,8 @@ ClipboardSetNextItemId(
     itemId last_item;
 
     header = ClipboardOpen( display, 0 );
+    if (header == NULL)
+	return;
     current_item = header->nextPasteItemId;
     last_item = header->oldNextPasteItemId;
     ClipboardClose( display, header );
@@ -686,6 +688,11 @@ ClipboardConvertProc(Widget wid,
 
   /* get the clipboard header */
   header = ClipboardOpen( display, 0 );
+  if (header == NULL)
+    {
+      rval = False;
+      goto done;
+    }
       
   if ( !WeOwnSelection( display, header ) ) 
     {
