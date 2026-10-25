@@ -806,3 +806,5 @@ EXTRA_DIST += tests/automated/check-xm-pixmap-wrapper-inputs.py docs/pixmap-wrap
 EXTRA_DIST += tests/automated/check-mask-name-size.py docs/mask-name-size-checks.md
 
 EXTRA_DIST += tests/automated/check-image-install-failure.py docs/image-install-failure.md
+
+EXTRA_DIST += tests/automated/check-image-set-insertion-failure.py docs/image-set-insertion-failure.md

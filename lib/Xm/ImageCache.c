@@ -298,7 +298,8 @@ InitializeImageSet( void )
       entries[i]->image_name = (char*) bitmap_name_set[i];
       entries[i]->builtin_data = (unsigned char *) bitmaps[i];
 
-      _XmAddHashEntry(new_image_set, entries[i]->image_name, entries[i]);
+      if (!_XmAddHashEntry(new_image_set, entries[i]->image_name, entries[i]))
+	goto allocation_failure;
     }
 
   image_set = new_image_set;
