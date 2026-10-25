@@ -5443,3 +5443,9 @@ Harden traversal row allocation (2026-10-25)
 
 - Make traversal row growth transactional and clean up partial row state on
   allocation failure; see `docs/traversal-row-allocation.md`.
+
+Make traversal pool shrinking transactional (2026-10-25)
+===========================================================
+
+- Preserve traversal storage when opportunistic pool trimming cannot allocate;
+  see `docs/traversal-node-allocation.md`.
