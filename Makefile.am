@@ -615,3 +615,5 @@ EXTRA_DIST += tests/automated/check-xm-list-posbounds-null.py docs/xm-list-posbo
 EXTRA_DIST += tests/automated/check-xm-list-selection-null.py docs/xm-list-selection-null.md
 
 EXTRA_DIST += tests/automated/check-xm-list-mutator-null.py docs/xm-list-mutator-null.md
+
+EXTRA_DIST += tests/automated/check-xm-scrollbar-api-null.py docs/xm-scrollbar-api-null.md

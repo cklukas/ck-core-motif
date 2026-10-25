@@ -4516,8 +4516,11 @@ XmScrollBarGetValues(
         int *page_increment )
 {
    XmScrollBarWidget sbw = (XmScrollBarWidget) w;
-   XtAppContext app = XtWidgetToApplicationContext(w);
-    
+   XtAppContext app;
+
+   if (w == NULL)
+      return;
+   app = XtWidgetToApplicationContext(w);
    _XmAppLock(app);
 
    if (PROCESS_DIR_INVERSED(sbw)) {
@@ -4557,8 +4560,11 @@ XmScrollBarSetValues(
    int save_value;
    Arg arglist[4];
    Cardinal n;
-   XtAppContext app = XtWidgetToApplicationContext(w);
-    
+   XtAppContext app;
+
+   if (w == NULL)
+      return;
+   app = XtWidgetToApplicationContext(w);
    _XmAppLock(app);
 
 

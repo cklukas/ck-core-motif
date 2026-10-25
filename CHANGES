@@ -1,3 +1,9 @@
+XmScrollBar API null-safety (2026-10-25)
+=========================================
+
+- Guard scrollbar get/set APIs against null widgets before Xt context access;
+  see `docs/xm-scrollbar-api-null.md`.
+
 XmList mutator null-safety (2026-10-25)
 =======================================
 
