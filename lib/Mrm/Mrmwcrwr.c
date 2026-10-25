@@ -1288,9 +1288,11 @@ UrmCWRSetCallbackItem (URMResourceContextPtr	context_id,
   /*
    * Validate context and bind pointers to callback descriptor and item
    */
-  UrmCWR__ValidateContext (context_id, "UrmCWRSetCallbackItem") ;
-  UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItem",
+  result = UrmCWR__ValidateContext (context_id, "UrmCWRSetCallbackItem") ;
+  if ( result != MrmSUCCESS ) return result ;
+  result = UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItem",
 			    cb_offs, item_ndx, &cbdesc, &itmptr) ;
+  if ( result != MrmSUCCESS ) return result ;
 
   /*
    * Validate the routine (must be non-empty)
@@ -1305,8 +1307,10 @@ UrmCWRSetCallbackItem (URMResourceContextPtr	context_id,
   result = UrmCWR__AppendString (context_id, routine, &offset) ;
   if ( result != MrmSUCCESS ) return result ;
 
-  UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItem",
+  result = UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItem",
 			    cb_offs, item_ndx, &cbdesc, &itmptr) ;
+
+  if ( result != MrmSUCCESS ) return result ;
   itmptr->cb_item.routine = offset ;
 
   /*
@@ -1334,8 +1338,9 @@ UrmCWRSetCallbackItem (URMResourceContextPtr	context_id,
       result = UrmCWR__AppendString
 	(context_id, (char *)itm_val, &offset) ;
       if ( result != MrmSUCCESS ) return result ;
-      UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItem",
+      result = UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItem",
 				cb_offs, item_ndx, &cbdesc, &itmptr) ;
+      if ( result != MrmSUCCESS ) return result ;
       itmptr->cb_item.datum.offset = offset ;
       return MrmSUCCESS ;
 
@@ -1347,8 +1352,9 @@ UrmCWRSetCallbackItem (URMResourceContextPtr	context_id,
       result = UrmCWR__AppendCString
 	(context_id, (XmString)itm_val, &offset) ;
       if ( result != MrmSUCCESS ) return result ;
-      UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItem",
+      result = UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItem",
 				cb_offs, item_ndx, &cbdesc, &itmptr) ;
+      if ( result != MrmSUCCESS ) return result ;
       itmptr->cb_item.datum.offset = offset ;
       return MrmSUCCESS ;
 
@@ -1356,8 +1362,9 @@ UrmCWRSetCallbackItem (URMResourceContextPtr	context_id,
       result = UrmCWR__AppendWcharString
 	(context_id, (wchar_t *)itm_val, &offset) ;
       if ( result != MrmSUCCESS ) return result ;
-      UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItem",
+      result = UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItem",
 				cb_offs, item_ndx, &cbdesc, &itmptr) ;
+      if ( result != MrmSUCCESS ) return result ;
       itmptr->cb_item.datum.offset = offset ;
       return MrmSUCCESS ;
 
@@ -1373,8 +1380,9 @@ UrmCWRSetCallbackItem (URMResourceContextPtr	context_id,
       if ( result != MrmSUCCESS ) return result ;
       *dblptr = *((double *) itm_val) ;
       _MrmOSHostDoubleToIEEE(dblptr);
-      UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItem",
+      result = UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItem",
 				cb_offs, item_ndx, &cbdesc, &itmptr) ;
+      if ( result != MrmSUCCESS ) return result ;
       itmptr->cb_item.datum.offset = offset ;
       return MrmSUCCESS ;
 
@@ -1460,9 +1468,11 @@ UrmCWRSetCallbackItemRes (URMResourceContextPtr		context_id,
   /*
    * Validate context and bind pointers to callback descriptor and item
    */
-  UrmCWR__ValidateContext (context_id, "UrmCWRSetCallbackItemRes") ;
-  UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItemRes",
+  result = UrmCWR__ValidateContext (context_id, "UrmCWRSetCallbackItemRes") ;
+  if ( result != MrmSUCCESS ) return result ;
+  result = UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItemRes",
 			    cb_offs, item_ndx, &cbdesc, &itmptr) ;
+  if ( result != MrmSUCCESS ) return result ;
 
   /*
    * Validate the routine (must be non-empty)
@@ -1477,8 +1487,10 @@ UrmCWRSetCallbackItemRes (URMResourceContextPtr		context_id,
   result = UrmCWR__AppendString (context_id, routine, &offset) ;
   if ( result != MrmSUCCESS ) return result ;
 
-  UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItemRes",
+  result = UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItemRes",
 			    cb_offs, item_ndx, &cbdesc, &itmptr) ;
+
+  if ( result != MrmSUCCESS ) return result ;
   itmptr->cb_item.routine = offset ;
 
   /*
@@ -1488,8 +1500,10 @@ UrmCWRSetCallbackItemRes (URMResourceContextPtr		context_id,
     (context_id, access, group, type, key_type, index, resource_id, &offset) ;
   if ( result != MrmSUCCESS ) return result ;
 
-  UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItemRes",
+  result = UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItemRes",
 			    cb_offs, item_ndx, &cbdesc, &itmptr) ;
+
+  if ( result != MrmSUCCESS ) return result ;
   itmptr->cb_item.rep_type = MrmRtypeResource ;
   itmptr->cb_item.datum.offset = offset ;
 
