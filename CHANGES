@@ -1,3 +1,9 @@
+Icon-place sentinel handling (2026-10-25)
+==========================================
+
+- Reject invalid coordinate sentinels before indexing or extending the icon
+  placement list; see `docs/find-place-sentinel.md`.
+
 Icon-info move validation (2026-10-25)
 =======================================
 
