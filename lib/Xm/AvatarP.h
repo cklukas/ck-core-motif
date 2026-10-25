@@ -16,6 +16,7 @@ typedef struct _XmAvatarPart {
     Pixmap pixmap;
     Dimension size;
     GC foreground_gc;
+    XFontStruct *fallback_font;
 } XmAvatarPart;
 
 typedef struct _XmAvatarRec {

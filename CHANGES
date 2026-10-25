@@ -207,6 +207,13 @@ Chip text rendering fallback (2026-10-27)
   label and removable-state drawing from disappearing when inherited GC font
   state is unavailable.
 
+Avatar text rendering fallback (2026-10-27)
+============================================
+
+- Install and release a valid fallback font for Avatar initials, preventing
+  the initials fallback from disappearing when inherited GC font state is
+  unavailable.
+
 InfoBar close control and FontSelector bounds (2026-10-27)
 ============================================================
 

@@ -75,9 +75,13 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     if (avatar->avatar.size == 0) avatar->avatar.size = 1;
     values.foreground = avatar->primitive.foreground;
     values.background = avatar->core.background_pixel;
+    avatar->avatar.fallback_font = XLoadQueryFont(XtDisplay(widget), "fixed");
+    if (avatar->avatar.fallback_font)
+        values.font = avatar->avatar.fallback_font->fid;
     avatar->avatar.foreground_gc = XCreateGC(
         XtDisplay(widget), DefaultRootWindow(XtDisplay(widget)),
-        GCForeground | GCBackground, &values);
+        GCForeground | GCBackground |
+        (avatar->avatar.fallback_font ? GCFont : 0), &values);
     if (!avatar->core.width) avatar->core.width = avatar->avatar.size;
     if (!avatar->core.height) avatar->core.height = avatar->avatar.size;
 }
@@ -86,6 +90,8 @@ static void Destroy(Widget widget) {
     XmAvatarWidget avatar = (XmAvatarWidget)widget;
     if (avatar->avatar.foreground_gc)
         XFreeGC(XtDisplay(widget), avatar->avatar.foreground_gc);
+    if (avatar->avatar.fallback_font)
+        XFreeFont(XtDisplay(widget), avatar->avatar.fallback_font);
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {

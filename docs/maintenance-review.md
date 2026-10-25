@@ -165,3 +165,10 @@ The focused check is:
 ```sh
 python3 tests/automated/check-chip-font-fallback.py
 ```
+
+Avatar now installs a managed fallback font for its initials GC.  The focused
+check is:
+
+```sh
+python3 tests/automated/check-avatar-font-fallback.py
+```
