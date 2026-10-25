@@ -2079,8 +2079,14 @@ ConvertStringToButtonType(
 
     buttonTable = (XmButtonTypeTable) XtMalloc( 
                                    sizeof( XmButtonType) * (comma_count + 2)) ;
+    if (buttonTable == NULL)
+        return(FALSE);
     buttonTable[comma_count+1] = (XmButtonType)0;
     work_str = (String) XtMalloc( in_str_size) ;
+    if (work_str == NULL) {
+        XtFree((char *) buttonTable);
+        return(FALSE);
+    }
     strcpy( work_str, in_str) ;
 
     for(    i = 0, btype_str = _XStrtok(work_str, ",", strtok_buf) ;

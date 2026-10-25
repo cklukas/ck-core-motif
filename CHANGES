@@ -1,4 +1,8 @@
 2026-10-25
+	* Guard button-type converter table and mutable-input allocations, releasing
+	  partial state on failure; see docs/buttontype-converter-allocation.md.
+
+2026-10-25
 	* Roll back partial XmString-table conversion results when item/table
 	  allocation or conversion fails; see
 	  docs/xmstring-table-converter-allocation.md.
