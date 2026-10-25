@@ -1,3 +1,9 @@
+Make XmRegion copy growth transactional (2026-10-26)
+====================================================
+
+- Preserve destination rectangle storage when region-copy growth fails and
+  check the byte-size multiplication; see `docs/region-copy-growth.md`.
+
 Guard hash-table record allocation (2026-10-26)
 ===============================================
 
