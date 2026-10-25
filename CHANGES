@@ -9301,3 +9301,10 @@ RowColumn tear-off title rollback (2026-10-29)
 - Preserve existing tear-off titles until replacement `XmString` copies
   succeed, while retaining NULL as the explicit clear operation; see
   `docs/rowcolumn-tearoff-title-rollback.md`.
+
+Tab-list modification rollback (2026-10-29)
+============================================
+
+- Copy replacement tab labels before releasing copied values, and leave
+  shared-to-copy mode changes unchanged when allocation fails; see
+  `docs/tablist-modify-rollback.md`.

@@ -489,6 +489,9 @@ XmTabbedStackListModify(tab_list, position, mask, attributes)
 #endif
 {
     XmTabAttributes tab;
+    XmString replacement = NULL;
+    Boolean copy_label = False;
+    Boolean switch_to_copy = False;
 
     /*
      * First lets see if they gave us anything valid to work with and
@@ -502,27 +505,39 @@ XmTabbedStackListModify(tab_list, position, mask, attributes)
 
     tab = &(tab_list->tabs[position]);
 
+    switch_to_copy = ((mask & XmTAB_VALUE_MODE) &&
+                      tab->value_mode != attributes->value_mode &&
+                      attributes->value_mode == XmTAB_VALUE_COPY);
+    copy_label = (switch_to_copy || (mask & XmTAB_LABEL_STRING &&
+                                     tab->value_mode == XmTAB_VALUE_COPY));
+    if (copy_label) {
+        replacement = XiXmStringCopy(attributes->label_string);
+        if (attributes->label_string != NULL && replacement == NULL)
+            return;
+    }
+
     /*
      * Now lets check the various flags and see what we need to 
      * change.
      */
-    if( mask & XmTAB_VALUE_MODE && tab->value_mode != attributes->value_mode &&
-        attributes->value_mode == XmTAB_VALUE_COPY )
+    if (switch_to_copy)
     {
 	/*
 	 * Can only change this mode from share to copy, NOT from copy
 	 * to share.
 	 */
 	tab->value_mode = attributes->value_mode;
-	tab->label_string = XiXmStringCopy(attributes->label_string);
+	tab->label_string = replacement;
+	replacement = NULL;
     }
     
-    if( mask & XmTAB_LABEL_STRING )
+    if( (mask & XmTAB_LABEL_STRING) && !switch_to_copy )
     {
 	if( tab->value_mode == XmTAB_VALUE_COPY )
 	{
 	    XiXmStringFree(tab->label_string);
-	    tab->label_string = XiXmStringCopy(attributes->label_string);
+	    tab->label_string = replacement;
+	replacement = NULL;
 	}
 	else
 	{
