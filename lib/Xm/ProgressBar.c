@@ -100,16 +100,22 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     Display *display = XtDisplay(widget);
     XGCValues values;
     XmFontList defaults;
+    XmString replacement;
     Dimension label_width = 0, label_height = 0;
     unsigned long mask = GCForeground | GCBackground;
     (void)request; (void)args; (void)count;
     Normalize(progress);
-    progress->progress.label = progress->progress.label
-        ? XmStringCopy(progress->progress.label)
-        : XmStringCreateLocalized("");
+    if (progress->progress.label)
+    {
+        replacement = XmStringCopy(progress->progress.label);
+        progress->progress.label = replacement != NULL
+            ? replacement : XmStringCreateLocalized("");
+    }
+    else
+        progress->progress.label = XmStringCreateLocalized("");
     defaults = XmeGetDefaultRenderTable(widget, XmTEXT_FONTLIST);
     progress->progress.font = defaults ? XmFontListCopy(defaults) : NULL;
-    if (progress->progress.font)
+    if (progress->progress.font && progress->progress.label)
         XmStringExtent(progress->progress.font, progress->progress.label,
                        &label_width, &label_height);
     if (!progress->core.width)
