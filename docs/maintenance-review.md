@@ -62,3 +62,11 @@ existing keyboard path.  The focused source check is:
 ```sh
 python3 tests/automated/check-treeview-text-metrics.py
 ```
+
+DataGrid headers and cells use the same font-metric approach for their
+baselines; fixed sixteen-pixel baselines previously clipped text in short rows
+and left larger fonts visually off-centre.  The focused check is:
+
+```sh
+python3 tests/automated/check-datagrid-text-metrics.py
+```

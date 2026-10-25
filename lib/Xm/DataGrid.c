@@ -213,6 +213,24 @@ static void redraw(XmDataGridWidget grid) {
                    True);
 }
 
+static int text_baseline(XmDataGridWidget grid, int top, Dimension height) {
+    XGCValues values;
+    XFontStruct *font;
+    long long baseline;
+    if (!grid->data_grid.gc || !XGetGCValues(XtDisplay((Widget)grid),
+                                             grid->data_grid.gc, GCFont,
+                                             &values))
+        return top + (int)height / 2;
+    font = XQueryFont(XtDisplay((Widget)grid), values.font);
+    if (!font)
+        return top + (int)height / 2;
+    baseline = (long long)top +
+        ((long long)height - font->ascent - font->descent) / 2 + font->ascent;
+    XFreeFontInfo(NULL, font, 1);
+    return baseline < INT_MIN ? INT_MIN :
+           baseline > INT_MAX ? INT_MAX : (int)baseline;
+}
+
 static void notify_selection(XmDataGridWidget grid, XEvent *event) {
     XmDataGridSelectionCallbackStruct callback;
     if (!grid->data_grid.selection_callback ||
@@ -309,13 +327,14 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
     return redraw_needed;
 }
 
-static void draw_text(XmDataGridWidget grid, int x, int y, const char *text) {
+static void draw_text(XmDataGridWidget grid, int x, int top, Dimension height,
+                      const char *text) {
     size_t length;
     if (!grid->data_grid.gc) return;
     if (!text) text = "";
     length = strlen(text);
     XDrawString(XtDisplay((Widget)grid), XtWindow((Widget)grid),
-                grid->data_grid.gc, x, y, text,
+                grid->data_grid.gc, x, text_baseline(grid, top, height), text,
                 length > (size_t)INT_MAX ? INT_MAX : (int)length);
 }
 
@@ -338,7 +357,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     for (column = 0; column < grid->data_grid.column_count; ++column) {
         Cardinal visual = grid->data_grid.rtl ?
             grid->data_grid.column_count - column - 1 : column;
-        draw_text(grid, (int)visual * cell_width + 4, 16,
+        draw_text(grid, (int)visual * cell_width + 4, 0,
+                  grid->data_grid.header_height,
                   grid->data_grid.columns[column].title);
     }
     for (row = 0; row < grid->data_grid.visible_rows &&
@@ -348,17 +368,17 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             Cardinal visual = grid->data_grid.rtl ?
                 grid->data_grid.column_count - column - 1 : column;
             int x = (int)visual * cell_width + 4;
-            int y = (int)grid->data_grid.header_height +
-                    (int)row * grid->data_grid.row_height + 16;
+            int top = (int)grid->data_grid.header_height +
+                      (int)row * grid->data_grid.row_height;
             if ((int)model_row == grid->data_grid.selected_row &&
                 (int)column == grid->data_grid.selected_column)
                 XDrawRectangle(XtDisplay(widget), XtWindow(widget),
                                grid->data_grid.gc, x - 2,
-                               y - (int)grid->data_grid.row_height + 2,
+                               top + 2,
                                (unsigned)(cell_width > 5 ? cell_width - 5 : 1),
                                (unsigned)(grid->data_grid.row_height > 3 ?
                                           grid->data_grid.row_height - 3 : 1));
-            draw_text(grid, x, y,
+            draw_text(grid, x, top, grid->data_grid.row_height,
                       grid->data_grid.rows[model_row].values[column]);
         }
     }

@@ -112,6 +112,13 @@ Gallery data-view fixtures (2026-10-27)
 - Populate TreeView, DataGrid, and Calendar entries through their public model
   APIs, with selected sample data visible in the live Example page.
 
+DataGrid font-aware text layout (2026-10-27)
+============================================
+
+- Center DataGrid headers and cells using the active X font ascent/descent
+  instead of fixed sixteen-pixel baselines, so larger and smaller application
+  fonts remain vertically aligned within their row geometry.
+
 InfoBar close control and FontSelector bounds (2026-10-27)
 ============================================================
 
