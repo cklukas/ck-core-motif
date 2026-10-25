@@ -9197,3 +9197,9 @@ I18List selected-row Xt bounds (2026-10-29)
 
 DropDown selection-table Xt bounds (2026-10-29)
 ================================================
+I18List column-title copy allocation (2026-10-29)
+===================================================
+
+- Make column-title copying transactional, check Xt allocation-size bounds,
+  and release partial `XmString` copies on failure; see
+  `docs/i18list-column-title-allocation.md`.

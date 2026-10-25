@@ -151,7 +151,7 @@ static Boolean Search(XmI18ListWidget ilist, XmString xms,
        int start_row, int start_column, int *found_row, int *found_column);
 static int FirstSelectedRow(Widget w);
 static void MakeCellVisible(Widget w, int row, int col);
-static void CopyColumnTitles(XmI18ListWidget);
+static Boolean CopyColumnTitles(XmI18ListWidget);
 static void FreeColumnTitles(XmI18ListWidget);
 
 static void SelectRow(XmI18ListWidget, int, Boolean, Boolean);
@@ -3428,30 +3428,51 @@ XmI18ListToggleRow(Widget w, short row)
  * Input:
  *	ilist : XmI18ListWidget - the widget to copy titles
  * Output:
- *	None.
+ *	True when the copied title table is complete, False when allocation or
+ *	XmString copying fails and the widget-owned table is cleared.
  */
-static void
+static Boolean
 CopyColumnTitles(XmI18ListWidget ilist)
 {
     int           i;
     XmStringTable copy;
+    size_t        count;
 
     if( XmI18List_num_columns(ilist) == 0 ||
         XmI18List_column_titles(ilist) == NULL )
     {
-	copy = (XmStringTable) NULL;
+	XmI18List_column_titles(ilist) = (XmStringTable) NULL;
+	return True;
     }
     else
     {
+	count = (size_t)XmI18List_num_columns(ilist);
+	if (count > SIZE_MAX / sizeof(*copy) ||
+	    count > UINT_MAX / sizeof(*copy)) {
+	    XmI18List_column_titles(ilist) = (XmStringTable) NULL;
+	    return False;
+	}
 	copy = (XmStringTable)
-	    XtMalloc(sizeof(XmString) * XmI18List_num_columns(ilist));
+	    XtMalloc((Cardinal)(count * sizeof(*copy)));
+	if (copy == NULL) {
+	    XmI18List_column_titles(ilist) = (XmStringTable) NULL;
+	    return False;
+	}
 
 	for( i = 0; i < XmI18List_num_columns(ilist); ++i )
 	{
 	    copy[i] = XmStringCopy(XmI18List_column_titles(ilist)[i]);
+	    if (copy[i] == NULL) {
+		while (i != 0)
+		    XmStringFree(copy[--i]);
+		XtFree((XtPointer)copy);
+		XmI18List_column_titles(ilist) = (XmStringTable) NULL;
+		return False;
+	    }
 	}
     }
     XmI18List_column_titles(ilist) = copy;
+    return True;
 }
 
 /*
