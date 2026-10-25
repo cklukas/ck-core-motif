@@ -134,6 +134,12 @@ XmString conversion allocation failures (2026-10-26)
   propagate failed segment extraction cleanly; see
   `docs/xmstring-conversion-failures.md`.
 
+XmString component allocation failures (2026-10-26)
+=====================================================
+
+- Guard cached constructors, cloning, and component conversion against failed
+  representation allocation; see `docs/xmstring-component-allocation.md`.
+
 XmString extraction output validation (2026-10-26)
 ====================================================
 

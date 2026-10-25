@@ -2089,6 +2089,11 @@ before initialization, and segment extraction reports failed construction
 through its context error state. The source contract is recorded in
 `tests/automated/check-xmstring-conversion-failures.py` and
 `docs/xmstring-conversion-failures.md`.
+Cached tab/empty constructors, cloning, and component conversion now check
+representation allocation before use and return failure without copying into
+missing storage. The source contract is recorded in
+`tests/automated/check-xmstring-component-allocation.py` and
+`docs/xmstring-component-allocation.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the

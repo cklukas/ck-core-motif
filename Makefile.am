@@ -261,6 +261,7 @@ EXTRA_DIST += tests/automated/check-xmstring-asn1-failure-cleanup.py docs/xmstri
 EXTRA_DIST += tests/automated/check-xmstring-rendition-resize.py docs/xmstring-rendition-resize.md
 EXTRA_DIST += tests/automated/check-xmstring-entry-allocation.py docs/xmstring-entry-allocation.md
 EXTRA_DIST += tests/automated/check-xmstring-conversion-failures.py docs/xmstring-conversion-failures.md
+EXTRA_DIST += tests/automated/check-xmstring-component-allocation.py docs/xmstring-component-allocation.md
 EXTRA_DIST += tests/automated/check-xmstring-tab-growth-allocation.py docs/motif-xmstring-tab-growth.md
 EXTRA_DIST += tests/automated/check-scrollframe-nav-growth.py docs/motif-scrollframe-nav-growth.md
 EXTRA_DIST += tests/automated/check-scrollframe-add-input.py docs/motif-scrollframe-add-input.md
