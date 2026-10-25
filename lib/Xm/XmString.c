@@ -1065,6 +1065,8 @@ StringTabCreate( void )
   if (!opt_str)
     {
       _XmStrCreate(opt_str, XmSTRING_OPTIMIZED, 0);
+      if (opt_str == NULL)
+	return NULL;
       _XmStrTabs(opt_str) = 1;
     }
 
@@ -1089,6 +1091,8 @@ StringEmptyCreate( void )
   if (!opt_str)
     {
       _XmStrCreate(opt_str, XmSTRING_OPTIMIZED, 0);
+      if (opt_str == NULL)
+	return NULL;
     }
 
   /* If the reference count gets too big free the old string. */
@@ -7249,6 +7253,8 @@ Clone(XmString string,
       _XmStringEntry *entries;
 
       _XmStrCreate(n_string, XmSTRING_MULTIPLE_ENTRY, 0);
+      if (n_string == NULL)
+	return NULL;
 
       if (lines < 0 || (size_t)lines > SIZE_MAX / sizeof(*entries) ||
 	  (size_t)lines * sizeof(*entries) > (size_t)((Cardinal)~0)) {
@@ -9245,7 +9251,12 @@ XmStringComponentCreate(XmStringComponentType c_type,
 				       TEXT_BYTES_IN_STRUCT) :
 				      0)); 
 
-      memcpy(str, &opt, sizeof(_XmStringOptRec) - TEXT_BYTES_IN_STRUCT);
+	if (str == NULL) {
+	  _XmProcessUnlock();
+	  return NULL;
+	}
+
+	memcpy(str, &opt, sizeof(_XmStringOptRec) - TEXT_BYTES_IN_STRUCT);
       if (_XmStrByteCount((_XmString)&opt) > 0)
         memcpy(_XmStrText(str), value, _XmStrByteCount((_XmString)&opt));
   
@@ -9255,6 +9266,10 @@ XmStringComponentCreate(XmStringComponentType c_type,
     {
       /* Convert seg into a non-optimized XmString. */
       _XmStrCreate(str, XmSTRING_MULTIPLE_ENTRY, 0);
+      if (str == NULL) {
+	_XmProcessUnlock();
+	return NULL;
+      }
       
       if ((opt_seg = EntryCvtToOpt((_XmStringEntry)&seg)) != NULL)
 	_XmStringSegmentNew(str, 0, opt_seg, False);

@@ -1,3 +1,9 @@
+XmString component allocation failures (2026-10-26)
+====================================================
+
+- Check cached, clone, and component-conversion representations before use;
+  see `docs/xmstring-component-allocation.md`.
+
 XmString conversion allocation failures (2026-10-26)
 =====================================================
 
