@@ -3234,7 +3234,17 @@ LabelSetValue(Widget w, XtPointer value, int type)
 	    }
 	  byte_length = (size_t) MB_CUR_MAX * (size_t) length + 1;
 	  str = (char*) XtMalloc(byte_length);
-	  wcstombs(str, str2, byte_length);
+	  if (str == NULL)
+	    {
+	      XtFree((char*) value);
+	      return;
+	    }
+	  if (wcstombs(str, str2, byte_length) == (size_t)-1)
+	    {
+	      XtFree(str);
+	      XtFree((char*) value);
+	      return;
+	    }
 	  XtFree((char*) value);
 	  value = str;
 	}
