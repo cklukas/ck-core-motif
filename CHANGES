@@ -1,3 +1,10 @@
+Color cache growth failures (2026-10-27)
+========================================
+
+- Make default-color and shared-color cache growth transactional and check
+  count-to-byte conversion before allocation.  Allocation failure now leaves
+  the existing cache usable instead of replacing it with a null pointer.
+
 XmList deletion allocation failures (2026-10-27)
 =================================================
 
