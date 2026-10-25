@@ -1,3 +1,9 @@
+Guard XmString table parse allocation (2026-10-25)
+===================================================
+
+- Return `NULL` safely when the XmString table parser cannot allocate its
+  result table; see `docs/motif-xmstring-table-parse.md`.
+
 Rollback List internal element allocation (2026-10-25)
 =======================================================
 

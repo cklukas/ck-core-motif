@@ -197,6 +197,10 @@ XmStringTableParseStringArray(XtPointer   *strings,
   }
   
   strs = (XmStringTable)XtMalloc(count * sizeof(XmString));
+  if (strs == NULL) {
+    _XmProcessUnlock();
+    return(NULL);
+  }
   
   for (i = 0; i < count; i++)
     {
