@@ -1,3 +1,10 @@
+Clipboard lock record validation (2026-10-26)
+=============================================
+
+- Reject short or invalid clipboard lock records before lock/unlock state is
+  read, while preserving the missing-property allocation path; see
+  `docs/clipboard-lock-record-validation.md`.
+
 Clipboard delete-state validation (2026-10-26)
 ===============================================
 

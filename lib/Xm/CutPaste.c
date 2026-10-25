@@ -2875,6 +2875,7 @@ ClipboardLock(
     Boolean take_lock = False;
     Atom ignoretype;
     Atom atoms[XtNumber(atom_names)];
+    int status;
     _XmDisplayToAppContext(display);
 
     assert(XtNumber(atom_names) == NUM_ATOMS);
@@ -2889,10 +2890,19 @@ ClipboardLock(
 	return (ClipboardLocked);
     }
     
-    ClipboardFindItem (display, XM_LOCK_ID, (XtPointer *)&lockptr,
-                          &length, &ignoretype, 0, 0);
+    lockptr = NULL;
+    length = 0;
+    status = ClipboardFindItem (display, XM_LOCK_ID, (XtPointer *)&lockptr,
+                                &length, &ignoretype, 0, 0);
 
-    if (length == 0)	/* create new lock property */
+    if (status != ClipboardSuccess && length != 0)
+    {
+	XtFree ((char *)lockptr);
+	_XmAppUnlock(app);
+	return (ClipboardFail);
+    }
+
+    if (status != ClipboardSuccess || length == 0)	/* create new lock property */
     {
 	lockptr = (ClipboardLockPtr)XtMalloc(sizeof(ClipboardLockRec));
 	if (lockptr == NULL) {
@@ -2900,6 +2910,12 @@ ClipboardLock(
 	    return (ClipboardFail);
 	}
 	lockptr->lockLevel = 0;
+    }
+    else if (length < sizeof(ClipboardLockRec) || lockptr == NULL)
+    {
+	XtFree ((char *)lockptr);
+	_XmAppUnlock(app);
+	return (ClipboardFail);
     }
 
     if (lockptr->lockLevel == 0) /* new or invalid V1.0 lock. Take the lock */
@@ -2991,6 +3007,7 @@ ClipboardUnlock(
 {
     unsigned long length;
     ClipboardLockPtr lockptr;
+    int status;
     Atom _MOTIF_CLIP_LOCK = XInternAtom (display, XmS_MOTIF_CLIP_LOCK, False);
     Window lock_owner = XGetSelectionOwner (display, _MOTIF_CLIP_LOCK);
     Boolean release_lock = False;
@@ -2999,12 +3016,22 @@ ClipboardUnlock(
     if (lock_owner != window && lock_owner != None)
 	return (ClipboardFail);
 
-    ClipboardFindItem (display, XM_LOCK_ID, (XtPointer *)&lockptr,
+    lockptr = NULL;
+    length = 0;
+    status = ClipboardFindItem (display, XM_LOCK_ID, (XtPointer *)&lockptr,
 		       &length, &ignoretype, 0, 0);
 
-    if (length == 0) /* There is no lock property */
+    if (status != ClipboardSuccess || length == 0) /* There is no lock property */
     {
+	XtFree ((char *)lockptr);
     	return (ClipboardFail);
+    }
+
+    if (length < sizeof(ClipboardLockRec) || lockptr == NULL ||
+	lockptr->lockLevel <= 0)
+    {
+	XtFree ((char *)lockptr);
+	return (ClipboardFail);
     }
 
     if ( lockptr->windowId != window ) /* Someone else has the lock */
