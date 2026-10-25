@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
 """Run the opt-in live XLibre output-property fixture."""
 import argparse
+import datetime
+import hashlib
+import json
 import os
 from pathlib import Path
 import platform
 import subprocess
 import sys
+import time
+
+
+def sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def main() -> int:
@@ -23,6 +31,30 @@ def main() -> int:
         parser.error("--out must be a fresh absolute directory")
     source_root = Path(__file__).resolve().parents[2]
     output.mkdir(parents=True)
+    fixture = source_root / "tests/automated/check-xlibre-live.c"
+    header = source_root / "lib/Xm/XlibreDpiI.h"
+    installed_lib = prefix / "lib/libXm.so.8.0.0"
+    if not installed_lib.is_file():
+        parser.error(f"installed libXm not found: {installed_lib}")
+    started = time.monotonic()
+    receipt = {
+        "schema": 1,
+        "source_hashes": {
+            str(fixture): sha256(fixture),
+            str(header): sha256(header),
+            str(Path(__file__).resolve()): sha256(Path(__file__).resolve()),
+        },
+        "prefix": str(prefix),
+        "installed_lib": str(installed_lib),
+        "installed_lib_sha256": sha256(installed_lib),
+        "output": str(output),
+        "display": args.display,
+        "xrandr_root": str(args.xrandr_root.resolve(strict=True))
+        if args.xrandr_root else None,
+        "mode": "real-display" if args.display else "ordinary-xvfb-fallback",
+        "steps": [],
+        "success": False,
+    }
     env = dict(os.environ, LC_ALL="C.UTF-8", TMPDIR=str(output),
                LD_LIBRARY_PATH=str(prefix / "lib"))
     for name in ("DISPLAY", "LD_PRELOAD", "LD_AUDIT"):
@@ -41,27 +73,56 @@ def main() -> int:
     command = ["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-O2", "-g",
                "-I" + str(prefix / "include"), "-I" + str(source_root / "lib/Xm"),
                "-L" + str(prefix / "lib"), "-Wl,-rpath," + str(prefix / "lib"),
-               *xrandr_flags, str(source_root / "tests/automated/check-xlibre-live.c"),
+               *xrandr_flags, str(fixture),
                "-lXm", "-lXt", "-lXrandr", "-lX11", "-o", str(binary)]
-    with (output / "compile.log").open("w") as stream:
-        subprocess.run(command, env=env, check=True, stdout=stream,
-                       stderr=subprocess.STDOUT)
-    run = [str(binary)] if args.display else [
-        "xvfb-run", "-a", "-s", "-screen 0 1024x768x24", str(binary)]
-    result = subprocess.run(run, env=env, capture_output=True, text=True)
-    (output / "run.log").write_text(result.stdout + result.stderr)
-    if args.display:
-        if result.returncode != 0 or "PASS XLibre live output-property transaction" not in result.stdout:
+    try:
+        compile_started = time.monotonic()
+        with (output / "compile.log").open("w") as stream:
+            compile_result = subprocess.run(command, env=env,
+                                             stdout=stream,
+                                             stderr=subprocess.STDOUT)
+        receipt["steps"].append({
+            "name": "compile",
+            "command": command,
+            "exit": compile_result.returncode,
+            "seconds": round(time.monotonic() - compile_started, 3),
+            "log": str(output / "compile.log"),
+        })
+        if compile_result.returncode:
+            raise RuntimeError(f"compile failed with exit {compile_result.returncode}")
+        run = [str(binary)] if args.display else [
+            "xvfb-run", "-a", "-s", "-screen 0 1024x768x24", str(binary)]
+        run_started = time.monotonic()
+        result = subprocess.run(run, env=env, capture_output=True, text=True)
+        (output / "run.log").write_text(result.stdout + result.stderr)
+        receipt["steps"].append({
+            "name": "run",
+            "command": run,
+            "exit": result.returncode,
+            "seconds": round(time.monotonic() - run_started, 3),
+            "log": str(output / "run.log"),
+        })
+        if args.display:
+            expected = (result.returncode == 0 and
+                        "PASS XLibre live output-property transaction" in
+                        result.stdout)
+        else:
+            expected = (result.returncode == 77 and
+                        "SKIP XLibre live observer" in result.stdout)
+        if not expected:
             print(result.stdout, end="", file=sys.stderr)
             print(result.stderr, end="", file=sys.stderr)
             return result.returncode or 1
-    else:
-        if result.returncode != 77 or "SKIP XLibre live observer" not in result.stdout:
-            print(result.stdout, end="", file=sys.stderr)
-            print(result.stderr, end="", file=sys.stderr)
-            return result.returncode or 1
-    print(result.stdout, end="")
-    return 0
+        receipt["success"] = True
+        print(result.stdout, end="")
+        return 0
+    except (OSError, RuntimeError) as error:
+        print(f"XLibre live fixture: {error}", file=sys.stderr)
+        return 1
+    finally:
+        receipt["ended_utc"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        receipt["seconds"] = round(time.monotonic() - started, 3)
+        (output / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
 
 
 if __name__ == "__main__":

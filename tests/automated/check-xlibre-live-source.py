@@ -35,8 +35,12 @@ assert "if (observer_installed)" in cleanup
 # caller-provided display must require the fixture's real pass marker.
 assert "return 77;" in fixture
 assert '"--display"' in runner
-assert "result.returncode != 77" in runner
+assert "result.returncode == 77" in runner
 assert '"PASS XLibre live output-property transaction"' in runner
 assert '"SKIP XLibre live observer"' in runner
+assert '"source_hashes"' in runner
+assert '"installed_lib_sha256"' in runner
+assert '"receipt.json"' in runner
+assert '"ordinary-xvfb-fallback"' in runner
 
 print("PASS XLibre live fixture source safety and qualification contract")
