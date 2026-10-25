@@ -14,3 +14,7 @@ return-value behavior.
 The source contract is covered by
 `tests/automated/check-xmfontlist-locking.py`; the installed library build and
 the existing Xft font-lifetime fixture qualify the changed call path.
+
+`XmFontListGetNextFont` advances its context index while the process lock is
+held, then retrieves the font and tag after unlocking so rendition accessors do
+not recurse into that lock.

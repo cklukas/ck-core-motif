@@ -674,17 +674,15 @@ XmFontListGetNextFont(
     }
 
   rend = _XmRTRenditions(table)[FLContextIndex(context)];
-  
-  *font = _XmGetFirstFont(rend);
-  
+  FLContextIndex(context)++;
   _XmProcessUnlock();
+
+  *font = _XmGetFirstFont(rend);
   n = 0; 
   XtSetArg(args[n], XmNtag, &tag); n++;
   XmRenditionRetrieve(rend, args, n);
 
   *charset = XtNewString(tag);
-  
-  FLContextIndex(context)++;
   return (TRUE);
 }
 
