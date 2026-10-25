@@ -3212,10 +3212,8 @@ DrawDefaultButtonShadows(
   /*
    * Compute location of bounding box to contain the defaultButtonShadow.
    */
-  if ((default_button_shadow_thickness > 0) &&
-      (pb->rectangle.width > 2 * pb->gadget.highlight_thickness) &&
-      (pb->rectangle.height > 2 * pb->gadget.highlight_thickness))	
-    { 
+  if (default_button_shadow_thickness > 0)
+    {
       int x, y, width, height, delta;
       XmDisplay xm_dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(pb));
       XtEnum default_button_emphasis = xm_dpy->display.default_button_emphasis;
@@ -3234,6 +3232,10 @@ DrawDefaultButtonShadows(
 	  assert(FALSE);
 	  return;
 	}
+
+      if (pb->rectangle.width <= 2 * delta ||
+          pb->rectangle.height <= 2 * delta)
+        return;
 
       x = pb->rectangle.x + delta;
       y = pb->rectangle.y + delta;
