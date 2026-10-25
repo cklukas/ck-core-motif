@@ -6167,3 +6167,9 @@ XmString baseline allocation failures (2026-10-25)
 - Validate `_XmStringGetBaselines` output pointers and baseline-array
   allocations, returning an empty result on failure; see
   `docs/xmstring-baseline-allocation.md`.
+XmString byte-stream allocation bounds (2026-10-25)
+====================================================
+
+- Check byte-stream component arithmetic and output allocation before writing
+  encoded data, clearing the output pointer on failure; see
+  `docs/xmstring-byte-stream-allocation.md`.
