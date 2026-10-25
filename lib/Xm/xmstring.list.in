@@ -1079,10 +1079,24 @@ CBadgeLabel
 CBadgeCount
 CBadgeMaximum
 CBadgeSeverity
+CIconLabelLabel
+CIconLabelPixmap
+CIconLabelSpacing
+CDividerLabel
+CDividerOrientation
+CDividerThickness
+CDividerSpacing
 NbadgeLabel
 NbadgeCount
 NbadgeMaximum
 NbadgeSeverity
+NiconLabelLabel
+NiconLabelPixmap
+NiconLabelSpacing
+NdividerLabel
+NdividerOrientation
+NdividerThickness
+NdividerSpacing
 
 CLinkLabel
 CLinkTarget

@@ -77,6 +77,8 @@
 #include <Xm/SegmentedControl.h>
 #include <Xm/Chip.h>
 #include <Xm/Badge.h>
+#include <Xm/IconLabel.h>
+#include <Xm/Divider.h>
 #include <Xm/Link.h>
 #include <Xm/SearchBox.h>
 #include <Xm/Prompt.h>

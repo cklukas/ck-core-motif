@@ -5129,6 +5129,11 @@ Mrm writer CString-vector rebind checks (2026-10-25)
 	  anchored keyboard/pointer selection and explicit application callbacks;
 	  see docs/auto-suggest-box.md.
 
+2026-10-25
+	* Add additive XmIconLabel and XmDivider presentation controls with copied
+	  labels, explicit pixmap/placement ownership, RTL-aware icon placement and
+	  accessibility projections; see docs/icon-label-divider.md.
+
 2026-10-26
 	* Validate Mrm pointer-list state before freeing contents.
 

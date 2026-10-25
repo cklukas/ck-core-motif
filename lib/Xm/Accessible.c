@@ -30,6 +30,8 @@
 #include <Xm/ColorPicker.h>
 #include <Xm/Chip.h>
 #include <Xm/Badge.h>
+#include <Xm/IconLabel.h>
+#include <Xm/Divider.h>
 #include <Xm/Link.h>
 #include <Xm/SearchBox.h>
 #include <Xm/Prompt.h>
@@ -1291,6 +1293,24 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
       i->value_text = XmStringUnparse(label_string, NULL, XmCHARSET_TEXT,
                                       XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
     }
+  }
+  if (XmIsIconLabel(w)) {
+    XmString label_string = NULL;
+    i->role = XmACCESSIBLE_LABEL;
+    XtVaGetValues(w, XmNiconLabelLabel, &label_string, NULL);
+    if (label_string)
+      local = XmStringUnparse(label_string, NULL, XmCHARSET_TEXT,
+                              XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+  }
+  if (XmIsDivider(w)) {
+    XmString label_string = NULL;
+    i->role = XmACCESSIBLE_LABEL;
+    XtVaGetValues(w, XmNdividerLabel, &label_string, NULL);
+    if (label_string)
+      local = XmStringUnparse(label_string, NULL, XmCHARSET_TEXT,
+                              XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+    else
+      local = XtNewString("Divider");
   }
   if (XmIsLink(w)) {
     XmString label_string = NULL;
