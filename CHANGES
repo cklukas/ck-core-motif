@@ -13411,6 +13411,12 @@ Badge resource and drawing safety (2026-10-26)
 - Guard Badge drawing and preserve the owned label when replacement copying
   fails; see `docs/badge-resource-safety.md`.
 
+Divider resource and drawing safety (2026-10-26)
+=================================================
+
+- Guard Divider drawing and preserve the owned label when replacement copying
+  fails; see `docs/divider-resource-safety.md`.
+
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================
 

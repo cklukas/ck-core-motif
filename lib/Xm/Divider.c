@@ -98,7 +98,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     int y, x;
     Dimension label = label_width(divider);
     (void)event; (void)region;
-    if (!window) return;
+    if (!window || !divider->divider.foreground_gc) return;
     XClearWindow(display, window);
     text = XmStringUnparse(divider->divider.label, NULL, XmCHARSET_TEXT,
                            XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
@@ -130,9 +130,17 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmDividerWidget old = (XmDividerWidget)old_widget;
     XmDividerWidget divider = (XmDividerWidget)widget;
+    XmString replacement;
     (void)request; (void)args; (void)count;
-    if (old->divider.label != divider->divider.label)
-        divider->divider.label = copy_label(divider->divider.label);
+    if (old->divider.label != divider->divider.label) {
+        replacement = copy_label(divider->divider.label);
+        if (replacement) {
+            XmStringFree(old->divider.label);
+            divider->divider.label = replacement;
+        } else {
+            divider->divider.label = old->divider.label;
+        }
+    }
     if (!divider->divider.thickness) divider->divider.thickness = 1;
     return old->divider.label != divider->divider.label ||
            old->divider.orientation != divider->divider.orientation ||
