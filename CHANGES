@@ -4019,3 +4019,9 @@ Guard RowColumn accelerator text buffers (2026-10-25)
 
 - Check initial and growable accelerator text allocations; see
   `docs/rowcolumn-key-buffer-allocation.md`.
+Mrm writer char8-vector validation (2026-10-25)
+==================================================
+
+- Propagate context and argument-binding failures from `UrmCWRSetArgChar8Vec`
+  before vector construction and after record growth; see
+  `docs/mrm-writer-char8-vector-validation.md`.
