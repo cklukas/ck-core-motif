@@ -1,3 +1,10 @@
+TreeView model allocation (2026-10-27)
+=======================================
+
+- Build TreeView node replacements transactionally, checking the item array
+  and each copied label before publishing the new model and preserving the
+  existing tree when allocation fails.
+
 PanedWindow separator allocation (2026-10-27)
 ==============================================
 

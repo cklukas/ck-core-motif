@@ -481,11 +481,19 @@ void XmTreeViewSetNodes(Widget widget, const XmTreeViewNode *nodes,
     view = (XmTreeViewWidget)widget;
     selected = view->tree_view.selected_id;
     items = count ? (XmTreeViewItem *)XtCalloc(count, sizeof(*items)) : NULL;
+    if (count != 0 && items == NULL)
+        return;
     for (i = 0; i < count; ++i) {
         items[i].id = nodes ? nodes[i].id : NULL;
         items[i].parent_id = nodes ? nodes[i].parent_id : NULL;
         items[i].label = XtNewString(nodes && nodes[i].label ?
                                      nodes[i].label : "");
+        if (items[i].label == NULL) {
+            while (i != 0)
+                XtFree(items[--i].label);
+            XtFree((char *)items);
+            return;
+        }
         items[i].has_children = nodes ? nodes[i].has_children : False;
         items[i].expanded = nodes ? nodes[i].expanded : False;
     }
