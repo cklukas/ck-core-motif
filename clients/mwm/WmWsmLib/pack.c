@@ -90,6 +90,7 @@ static int WinDataSizePacked(Display *, int,
 static void UnpackWinData(MessageData *, Display *, 
 			  int, WSMConfigFormatType, WSMWinData **, int *);
 static void UnpackSingleWinDataRec(MessageData *, WSMAttribute *,WSMWinData *);
+static void SkipWinDataRec(MessageData *, WSMAttribute *);
 static void UnpackWinInfo(MessageData *, Display *, int, WSMWinInfo *);
 static void UnpackWinEntry(MessageData *, Display *, int, WSMWinEntry *);
 
@@ -1228,6 +1229,18 @@ UnpackWinData(MessageData *data_ptr, Display *dpy, int screen_num,
 
     ptr = *win_data = (WSMWinData *) XtMalloc(*num * sizeof(WSMWinData));
     if (ptr == NULL) {
+	current_mask = bit_mask;
+	check_mask = START_CHECK_MASK;
+	attr = conf_fmt->attr_list;
+	for (i = 0; i < conf_fmt->num_attrs; i++, attr++) {
+	    if (*current_mask & check_mask)
+		SkipWinDataRec(data_ptr, attr);
+	    check_mask >>= 1;
+	    if ((i % 8) == 7) {
+		current_mask++;
+		check_mask = START_CHECK_MASK;
+	    }
+	}
 	XtFree((XtPointer) bit_mask);
 	*num = 0;
 	return;
@@ -1298,6 +1311,8 @@ UnpackSingleWinDataRec(MessageData *data_ptr,
 	    local = win_data->data.char_ptr = 
 		(char *) XtMalloc(sizeof(char) * win_data->data_len);
 	    if (local == NULL && win_data->data_len != 0) {
+		for (i = 0; i < win_data->data_len; i++)
+		    (void) UnpackCARD8(data_ptr);
 		win_data->type = WSM_NONE;
 		win_data->data_len = 0;
 		return;
@@ -1317,6 +1332,8 @@ UnpackSingleWinDataRec(MessageData *data_ptr,
 	    local = win_data->data.short_ptr = 
 		(short *) XtMalloc(sizeof(short) * win_data->data_len);
 	    if (local == NULL && win_data->data_len != 0) {
+		for (i = 0; i < win_data->data_len; i++)
+		    (void) UnpackCARD16(data_ptr);
 		win_data->type = WSM_NONE;
 		win_data->data_len = 0;
 		return;
@@ -1336,6 +1353,8 @@ UnpackSingleWinDataRec(MessageData *data_ptr,
 	    local = win_data->data.long_ptr = 
 		(long *) XtMalloc(sizeof(long) * win_data->data_len);
 	    if (local == NULL && win_data->data_len != 0) {
+		for (i = 0; i < win_data->data_len; i++)
+		    (void) UnpackCARD32(data_ptr);
 		win_data->type = WSM_NONE;
 		win_data->data_len = 0;
 		return;
@@ -1351,6 +1370,31 @@ UnpackSingleWinDataRec(MessageData *data_ptr,
 	win_data->type = WSM_NONE;
 	win_data->data_len = 0;
 	break;
+    }
+}
+
+static void
+SkipWinDataRec(MessageData *data_ptr, WSMAttribute *attr)
+{
+    int i;
+    int data_len = attr->is_list ? UnpackListNum(data_ptr) : 1;
+
+    for (i = 0; i < data_len; i++) {
+	if (attr->is_list == False && i != 0)
+	    break;
+	switch (attr->size) {
+	case 8:
+	    (void) UnpackCARD8(data_ptr);
+	    break;
+	case 16:
+	    (void) UnpackCARD16(data_ptr);
+	    break;
+	case 32:
+	    (void) UnpackCARD32(data_ptr);
+	    break;
+	default:
+	    return;
+	}
     }
 }
 

@@ -11071,3 +11071,9 @@ WSM window-list rollback (2026-10-25)
 - Release previously allocated window-property data when match-attribute
   decoding cannot complete, preventing partial-request leaks; see
   `docs/wsm-windows-rollback.md`.
+
+WSM window-data alignment (2026-10-25)
+=====================================
+
+- Consume encoded attribute values when WSM data storage fails, preserving
+  stream alignment for subsequent records; see `docs/wsm-windata-alignment.md`.

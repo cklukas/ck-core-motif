@@ -47,6 +47,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [WSM configuration-string failure](wsm-config-string-oom.md) — rollback of partial format updates.
 - [WSM window-entry allocation](wsm-win-entry-oom.md) — safe decoding of variable-length entry arrays.
 - [WSM window-list rollback](wsm-windows-rollback.md) — cleanup of partial request decoding.
+- [WSM window-data alignment](wsm-windata-alignment.md) — preserve stream offsets on data OOM.
 - [WM state read guards](wmstate-read-guards.md) — safe handling of window-manager state properties.
 
 ## Accessibility and diagnostics

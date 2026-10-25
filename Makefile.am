@@ -906,6 +906,8 @@ EXTRA_DIST += tests/automated/check-wsm-win-entry-oom.py docs/wsm-win-entry-oom.
 
 EXTRA_DIST += tests/automated/check-wsm-windows-rollback.py docs/wsm-windows-rollback.md
 
+EXTRA_DIST += tests/automated/check-wsm-windata-alignment.py docs/wsm-windata-alignment.md
+
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 
 EXTRA_DIST += tests/automated/check-latin-lower-bounds.py docs/latin-lower-bounds.md
