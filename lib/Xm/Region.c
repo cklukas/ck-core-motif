@@ -272,6 +272,8 @@ void
 _XmRegionDestroy(
     XmRegion	r )
 {
+    if (r == NULL)
+        return;
     XtFree( (char *) r->rects );
     XtFree( (char *) r );
 }
@@ -467,12 +469,22 @@ _XmRegionGetRectangles(
     XRectangle	**rects,
     long	*nrects )
 {
-    register XmRegionBox	*pBox = r->rects;
+    register XmRegionBox	*pBox;
     register XRectangle		*pRect;
-    register long		count = r->numRects;
+    register long		count;
 
-    if (!(*nrects = count)) {
-	*rects = NULL;
+    if (rects == NULL || nrects == NULL)
+        return;
+    *rects = NULL;
+    if (r == NULL) {
+        *nrects = 0;
+        return;
+    }
+    pBox = r->rects;
+    count = r->numRects;
+    *nrects = count;
+
+    if (!count) {
 	return;
     }
 
