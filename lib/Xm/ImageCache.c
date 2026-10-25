@@ -1502,6 +1502,7 @@ _XmGetScaledPixmap(
     int old_image_format;
     char *old_image_data = NULL;
     Boolean image_lock_held = False;
+    Boolean cache_inserted;
     Dimension scaled_width, scaled_height;
 
     /*  Error checking  */    
@@ -1787,10 +1788,24 @@ _XmGetScaledPixmap(
     /* put the new entry in both tables: the table used for
        this routine and the table used in XmeGetPixmapData */
     _XmProcessLock();
-    _XmAddHashEntry(pixmap_set, (XmHashKey)pix_entry, (XtPointer)pix_entry);
-    _XmAddHashEntry(pixmap_data_set, (XmHashKey)pix_entry, 
-		    (XtPointer)pix_entry);
+    cache_inserted = _XmAddHashEntry(pixmap_set, (XmHashKey)pix_entry,
+				     (XtPointer)pix_entry);
+    if (cache_inserted &&
+	!_XmAddHashEntry(pixmap_data_set, (XmHashKey)pix_entry,
+				 (XtPointer)pix_entry)) {
+	_XmRemoveHashEntry(pixmap_set, pix_entry);
+	cache_inserted = False;
+    }
     _XmProcessUnlock();
+
+    if (!cache_inserted)
+      {
+	XFreePixmap(display, pixmap);
+	DiscardScaledPixmapBuild(ret, image, old_image_data,
+				 old_image_format, image_lock_held,
+				 screen, pixels, npixels, pix_entry);
+	return (XmUNSPECIFIED_PIXMAP);
+      }
 
     /*  Set up a gc for the image to pixmap copy, store the image  */
     /*  into the pixmap and return the pixmap.                     */

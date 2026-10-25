@@ -4865,3 +4865,9 @@ Make built-in image-cache initialization transactional (2026-10-25)
 
 - Abort and clean up when a built-in image entry cannot be inserted into the
   hash table; see `docs/image-set-insertion-failure.md`.
+
+Make scaled-pixmap cache publication transactional (2026-10-25)
+=================================================================
+
+- Roll back the first hash-table insertion and release the pixmap when the
+  second cache insertion fails; see `docs/pixmap-dual-table-insertion.md`.
