@@ -6368,3 +6368,9 @@ Bound legacy resource-filter byte sizes (2026-10-25)
   `Cardinal` allocator before narrowing the byte count; see
   `docs/filter-resources-bounds.md`.
 
+Clarify legacy resource-filter failure branches (2026-10-25)
+==============================================================
+
+- Keep the resource-filter allocation failures visibly separate from the
+  second-pass copy, avoiding misleading control-flow indentation.
+

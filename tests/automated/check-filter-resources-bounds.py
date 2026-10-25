@@ -14,6 +14,7 @@ assert "SIZE_MAX / sizeof(XtResource)" in region
 assert "UINT_MAX / sizeof(XtResource)" in region
 assert "XtMalloc((Cardinal)(j *" in region
 assert "filteredResources == NULL && j != 0" in region
+assert "if (filteredResources == NULL && j != 0)\n\t{" in region
 assert region.count("resource_offset >= filterOffset") == 2
 assert "if (filteredResourcesRtn == NULL)" in region
 assert "if (resources == NULL || filterClass == NULL)" in region

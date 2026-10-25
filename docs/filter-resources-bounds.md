@@ -12,5 +12,8 @@ allocation failure with an empty result instead of writing through `NULL`.
 Null resource, class, or output pointers return an empty result before the
 filter is inspected.
 
+The failure checks use explicit branches so later filtering passes cannot run
+after an unrepresentable or failed allocation.
+
 The focused regression check is
 `tests/automated/check-filter-resources-bounds.py`.
