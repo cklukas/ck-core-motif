@@ -4,9 +4,11 @@ Deterministic display-scale override (2026-10-25)
 - Add the `XmSetDisplayScaleOverride`, `XmGetDisplayScaleOverride` and
   `XmClearDisplayScaleOverride` API for deterministic per-display DPI
   simulation.  The installed consumer verifies invalid-input rejection,
-  resource-database identity, default metric scaling and reversible cleanup.
-  The override feeds the existing bounded Xft/XLibre default path without
-  claiming live hierarchy reflow; see `docs/display-scale-override.md`.
+  resource-database identity, live default-indicator reflow, toggle-state and
+  explicit-resource preservation, and reversible cleanup.  The override now
+  feeds the shared UI-thread transaction boundary used by the Xft/XLibre
+  default path; complete historical-widget coverage remains open.  See
+  `docs/display-scale-override.md`.
 - Update the `--enable-unicode-text` configure probe to use `atomic_init`,
   which remains available when current GCC and Clang drivers select C23 mode.
 

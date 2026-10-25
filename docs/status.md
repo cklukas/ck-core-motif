@@ -1,12 +1,12 @@
 # Implementation and validation status
 
-The first WP-05.2 gallery/tooling increment now provides a deterministic
-per-display scale override through `<Xm/Display.h>`.  The installed AArch64
-uconsole consumer passes three fresh Xvfb runs and a consumer-only
-ASan/UBSan run while preserving Xrm identity and scaling an unlabelled
-ToggleButton default.  This is input/creation-time qualification only; live
-realized-hierarchy appearance/DPI transactions and real multi-output XLibre
-reflow remain open.
+The current WP-05.2 increment provides a deterministic per-display scale
+override and shared UI-thread scale transaction through `<Xm/Display.h>`.  The
+installed AArch64 `uconsole` consumer passes three fresh live Xvfb runs and a
+consumer-only ASan/UBSan run while preserving Xrm identity, toggle state and
+explicit indicator resources and reflowing an unlabelled realized
+`ToggleButton`.  Complete historical-widget coverage, live appearance
+transactions and real multi-output XLibre reflow remain open.
 
 ## Native hard-line and geometry qualification
 

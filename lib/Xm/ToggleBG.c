@@ -151,6 +151,8 @@ static void ArmAndActivate(
                         XEvent *event,
                         String *params,
                         Cardinal *num_params) ;
+static void ScaleChanged(Widget widget, double old_scale,
+                         double new_scale, XtPointer closure);
 static void BtnDown( 
                         XmToggleButtonGadget tb,
                         XEvent *event) ;
@@ -2482,6 +2484,7 @@ Initialize(
   
   GetGC (new_w);
   GetUnselectGC(new_w);
+  (void)_XmRegisterScaleChange((Widget)new_w, ScaleChanged, NULL);
 }
 
 /************************************************************************
@@ -4645,6 +4648,29 @@ static Dimension
 ScaledDefaultIndicatorDim(Widget w)
 {
   return _XmDpiDefaultDimension(w, XmDEFAULT_INDICATOR_DIM);
+}
+
+static void
+ScaleChanged(Widget widget, double old_scale, double new_scale,
+             XtPointer closure)
+{
+  XmToggleButtonGadget toggle = (XmToggleButtonGadget)widget;
+  Dimension old_dimension, new_dimension;
+  (void)closure;
+
+  if (TBG_IndicatorSet(toggle) || !TBG_IndOn(toggle) ||
+      LabG_IsMenupane(toggle) || LabG_IsPixmap(toggle) ||
+      LabG_IsPixmapAndText(toggle) ||
+      !XmStringEmpty(LabG__label(toggle)))
+    return;
+  old_dimension = _XmDpiScaleDimension(old_scale, XmDEFAULT_INDICATOR_DIM);
+  if (TBG_IndicatorDim(toggle) != old_dimension)
+    return;
+  new_dimension = _XmDpiScaleDimension(new_scale, XmDEFAULT_INDICATOR_DIM);
+  if (new_dimension == old_dimension)
+    return;
+  XtVaSetValues(widget, XmNindicatorSize, new_dimension, NULL);
+  TBG_IndicatorSet(toggle) = FALSE;
 }
 
 /*

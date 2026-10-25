@@ -67,9 +67,11 @@ extern Widget XmGetXmDisplay(
  * Set or clear a process-local scale override for this display.  The
  * override is intended for deterministic test tools and developer controls;
  * it is not written to the X resource database.  A finite positive value is
- * accepted.  Toolkit defaults that use the DPI contract saturate at their
- * documented Dimension limit, while explicit application pixel resources are
- * unaffected.
+ * accepted.  If the value changes, realized Motif objects receive one
+ * same-thread scale transaction before the normal resize/repaint pass.
+ * Toolkit-owned defaults that participate in that transaction saturate at
+ * their documented Dimension limit, while explicit application pixel
+ * resources are unaffected.
  */
 extern Boolean XmSetDisplayScaleOverride(
                         Display *display,

@@ -1955,6 +1955,11 @@ InitializeRootWrapper(
 
 	   if (objectClassWrapper.initialize)
 		(*objectClassWrapper.initialize)(req, new_w,args, num_args);
+
+           /* Every Motif object participates in the display-scale
+            * transaction.  Class-specific handlers register alongside this
+            * baseline relayout hook after the leaf initializer has completed. */
+           (void)_XmRegisterScaleChange(new_w, _XmScaleRelayoutWidget, NULL);
 	}
 }
 

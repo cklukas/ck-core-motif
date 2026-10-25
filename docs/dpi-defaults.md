@@ -17,13 +17,17 @@ instead of wrapping during conversion.
 Native test tools may use `XmSetDisplayScaleOverride` from `<Xm/Display.h>` to
 exercise the same default conversion deterministically.  The override is
 per-display and process-local, does not mutate `Xft.dpi` or the X resource
-database, and is cleared with `XmClearDisplayScaleOverride`.  It is an input
-override for widget creation and metric tests; it does not by itself promise
-live reflow of an already-realized hierarchy.
+database, and is cleared with `XmClearDisplayScaleOverride`.  Changing the
+value runs the shared UI-thread scale transaction: registered scale-aware
+widgets update toolkit-owned defaults, then the normal same-size resize pass
+reflows realized geometry.  Widget identity, callbacks, toggle state, and
+explicit pixel resources are preserved.
 
 The current qualified scope is deliberately global-per-display. It covers
 unlabelled ToggleButton and ToggleButtonGadget indicators and SpinBox arrow
-defaults. It does not claim live reflow, per-monitor output selection,
+defaults for creation-time conversion; the live transaction currently
+qualifies the toggle indicator path and common resize boundary. It does not
+claim complete historical-widget reflow, per-monitor output selection,
 automatic pixmap scaling, compositor scaling or physical-monitor-DPI
 inference. Those require the separate XLibre-specific contract in WP-04A.
 
