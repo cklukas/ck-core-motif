@@ -2126,6 +2126,10 @@ the copied list and discard invalid private state without mutating the caller's
 list. The source contract is recorded in
 `tests/automated/check-tab-position-bounds.py` and
 `docs/tab-position-bounds.md`.
+`XmTabGetValues` and `XmTabSetValue` now reject null handles before field
+access, preserving safe zero-read/no-op-write behavior. The source contract is
+recorded in `tests/automated/check-tab-null-guards.py` and
+`docs/tab-null-guards.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the

@@ -182,6 +182,12 @@ Tab-list mutation position bounds (2026-10-26)
 - Reject out-of-range replacement/removal positions before traversing the
   private copy; see `docs/tab-position-bounds.md`.
 
+Tab value API null guards (2026-10-26)
+======================================
+
+- Make null tab reads return `0.0` and null writes no-ops; see
+  `docs/tab-null-guards.md`.
+
 XmString extraction output validation (2026-10-26)
 ====================================================
 
