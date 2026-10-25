@@ -602,8 +602,13 @@ SetValues(
        font has changed but not the unit values, report the change,
        otherwise, use the unit value - i.e do nothing */
 
-    if (newScr->screen.font_struct->fid != 
-	oldScr->screen.font_struct->fid) {
+	/* The font resource converter can legitimately yield NULL when the
+	 * requested server font is unavailable.  Keep unit updates working in
+	 * that case (GetUnitFromFont supplies the documented fallback units)
+	 * instead of dereferencing either missing font. */
+    if (newScr->screen.font_struct != oldScr->screen.font_struct &&
+	    (!newScr->screen.font_struct || !oldScr->screen.font_struct ||
+	     newScr->screen.font_struct->fid != oldScr->screen.font_struct->fid)) {
 	
 	if (newScr->screen.h_unit == oldScr->screen.h_unit) {
 	    GetUnitFromFont(display, newScr->screen.font_struct, 

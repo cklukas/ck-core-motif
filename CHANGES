@@ -1,3 +1,10 @@
+XmScreen unavailable-font SetValues guard (2026-10-27)
+=======================================================
+
+- Keep screen unit recalculation safe when an application changes the font
+  resource to a font the X server cannot load.  The existing fallback unit
+  values are used instead of dereferencing a null `XFontStruct`.
+
 XmList match-position bounds (2026-10-27)
 ========================================
 

@@ -7,6 +7,16 @@ The first widget review was a bounded starting point. The age of the inherited
 code is a reason to continue targeted maintenance; neither a short patch list
 nor a large test count establishes that the toolkit is finished.
 
+## Screen font resource safety
+
+`XmScreen` accepts an `XmNfont` resource, but Xlib font conversion can return
+`NULL` when the requested server font is unavailable. `SetValues` now compares
+the pointers before reading `fid` and delegates null cases to
+`GetUnitFromFont`, which supplies the existing default unit values. This keeps
+font changes compatible while preventing a null dereference during resource
+updates. The focused structural regression is
+`tests/automated/check-screen-font-null-guard.py`.
+
 ## Concrete storage and image corrections
 
 The next source review identified the following independently useful fixes.
