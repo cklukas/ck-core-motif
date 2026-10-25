@@ -1,4 +1,9 @@
 2026-10-25
+	* Roll back partial XmString-table conversion results when item/table
+	  allocation or conversion fails; see
+	  docs/xmstring-table-converter-allocation.md.
+
+2026-10-25
 	* Guard string-table resource conversion buffers and item growth, rolling
 	  back partial results on conversion or output-size failure; see
 	  docs/string-table-converter-allocation.md.
