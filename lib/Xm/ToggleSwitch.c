@@ -11,6 +11,7 @@
 
 #include <X11/IntrinsicP.h>
 #include <X11/StringDefs.h>
+#include <stdlib.h>
 #include <Xm/ToggleSwitchP.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
@@ -35,6 +36,10 @@ static XtActionsRec actions[] = {
     {"ToggleSwitch", Toggle},
     {"ButtonTakeFocus", _XmButtonTakeFocus}
 };
+
+#define TOGGLE_SWITCH_TRACK_WIDTH 44
+#define TOGGLE_SWITCH_TRACK_HEIGHT 24
+#define TOGGLE_SWITCH_KNOB_DIAMETER 18
 
 #define Offset(field) XtOffsetOf(XmToggleSwitchRec, field)
 static XtResource resources[] = {
@@ -77,15 +82,46 @@ externaldef(xmtoggleswitchwidgetclass) WidgetClass xmToggleSwitchWidgetClass =
 
 static void update_gcs(XmToggleSwitchWidget sw) {
     Display *display = XtDisplay((Widget)sw);
+    sw->toggle_switch.track_color = sw->primitive.foreground;
+    sw->toggle_switch.knob_color = sw->toggle_switch.set
+        ? sw->primitive.highlight_color : sw->primitive.foreground;
     if (sw->toggle_switch.track_gc)
         XSetForeground(display, sw->toggle_switch.track_gc,
                        sw->toggle_switch.track_color);
     if (sw->toggle_switch.knob_gc)
         XSetForeground(display, sw->toggle_switch.knob_gc,
                        sw->toggle_switch.knob_color);
+    if (sw->toggle_switch.label_gc)
+        XSetForeground(display, sw->toggle_switch.label_gc,
+                       sw->primitive.foreground);
     if (sw->toggle_switch.insensitive_gc)
         XSetForeground(display, sw->toggle_switch.insensitive_gc,
                        sw->primitive.bottom_shadow_color);
+}
+
+static void fill_round_rect(Display *display, Window window, GC gc,
+                            int x, int y, unsigned int width,
+                            unsigned int height) {
+    int radius = (int)height / 2;
+    int radius2 = (int)height - 1;
+    unsigned int row;
+    if (!gc || width == 0 || height == 0) return;
+    for (row = 0; row < height; ++row) {
+        int doubled_y = abs(2 * (int)row - (int)height + 1);
+        int dx2 = 0;
+        int span;
+        int left;
+        int right;
+        while ((dx2 + 1) * (dx2 + 1) + doubled_y * doubled_y <=
+               radius2 * radius2)
+            ++dx2;
+        span = (dx2 + 1) / 2;
+        left = x + radius - span;
+        right = x + (int)width - radius + span;
+        if (right <= left) right = left + 1;
+        XFillRectangle(display, window, gc, left, y + (int)row,
+                       (unsigned int)(right - left), 1);
+    }
 }
 
 static void Initialize(Widget request, Widget new_widget, ArgList args,
@@ -119,7 +155,7 @@ static void Initialize(Widget request, Widget new_widget, ArgList args,
     if (!sw->core.height)
         sw->core.height = (label_height > 18 ? label_height : 18) + 8;
 
-    sw->toggle_switch.track_color = sw->primitive.bottom_shadow_color;
+    sw->toggle_switch.track_color = sw->primitive.foreground;
     sw->toggle_switch.knob_color = sw->primitive.foreground;
     values.foreground = sw->toggle_switch.track_color;
     values.background = sw->core.background_pixel;
@@ -128,6 +164,9 @@ static void Initialize(Widget request, Widget new_widget, ArgList args,
     values.foreground = sw->toggle_switch.knob_color;
     sw->toggle_switch.knob_gc = XCreateGC(display, DefaultRootWindow(display),
                                            mask, &values);
+    values.foreground = sw->primitive.foreground;
+    sw->toggle_switch.label_gc = XCreateGC(display, DefaultRootWindow(display),
+                                            mask, &values);
     values.foreground = sw->primitive.bottom_shadow_color;
     sw->toggle_switch.insensitive_gc = XCreateGC(
         display, DefaultRootWindow(display), mask, &values);
@@ -138,6 +177,7 @@ static void Destroy(Widget widget) {
     Display *display = XtDisplay(widget);
     if (sw->toggle_switch.track_gc) XFreeGC(display, sw->toggle_switch.track_gc);
     if (sw->toggle_switch.knob_gc) XFreeGC(display, sw->toggle_switch.knob_gc);
+    if (sw->toggle_switch.label_gc) XFreeGC(display, sw->toggle_switch.label_gc);
     if (sw->toggle_switch.insensitive_gc)
         XFreeGC(display, sw->toggle_switch.insensitive_gc);
     if (sw->toggle_switch.label) XmStringFree(sw->toggle_switch.label);
@@ -148,11 +188,15 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmToggleSwitchWidget sw = (XmToggleSwitchWidget)widget;
     Display *display = XtDisplay(widget);
     Window window = XtWindow(widget);
-    Dimension track_width = 28, track_height = 16;
+    Dimension track_width = TOGGLE_SWITCH_TRACK_WIDTH;
+    Dimension track_height = TOGGLE_SWITCH_TRACK_HEIGHT;
     int track_x = (int)sw->toggle_switch.spacing;
     int track_y = ((int)sw->core.height - (int)track_height) / 2;
-    int knob_x = sw->toggle_switch.set ? track_x + 14 : track_x + 2;
-    int knob_y = track_y + 2;
+    int knob_inset = ((int)track_height - TOGGLE_SWITCH_KNOB_DIAMETER) / 2;
+    int knob_x = sw->toggle_switch.set
+        ? track_x + (int)track_width - (int)track_height + knob_inset
+        : track_x + knob_inset;
+    int knob_y = track_y + 4;
     GC knob_gc;
     GC label_gc;
     Dimension label_width = 0, label_height = 0;
@@ -162,19 +206,20 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     update_gcs(sw);
     knob_gc = sw->toggle_switch.knob_gc ? sw->toggle_switch.knob_gc
                                         : sw->toggle_switch.track_gc;
-    label_gc = XtIsSensitive(widget) ? knob_gc
+    label_gc = XtIsSensitive(widget) ? sw->toggle_switch.label_gc
                                      : (sw->toggle_switch.insensitive_gc ?
                                         sw->toggle_switch.insensitive_gc : knob_gc);
     if (!sw->toggle_switch.track_gc || !knob_gc || !label_gc) return;
     XClearWindow(display, window);
-    XFillRectangle(display, window, sw->toggle_switch.track_gc,
-                   track_x + 8, track_y, track_width - 16, track_height);
-    XFillArc(display, window, sw->toggle_switch.track_gc,
-             track_x, track_y, 16, track_height, 90 * 64, 180 * 64);
-    XFillArc(display, window, sw->toggle_switch.track_gc,
-             track_x + track_width - 16, track_y, 16, track_height,
-             270 * 64, 180 * 64);
-    XFillArc(display, window, label_gc, knob_x, knob_y, 12, 12, 0, 360 * 64);
+    fill_round_rect(display, window, sw->toggle_switch.track_gc,
+                    track_x, track_y, track_width, track_height);
+    XSetForeground(display, sw->toggle_switch.track_gc, sw->core.background_pixel);
+    fill_round_rect(display, window, sw->toggle_switch.track_gc,
+                    track_x + 3, track_y + 3, track_width - 6, track_height - 6);
+    XSetForeground(display, sw->toggle_switch.track_gc,
+                   sw->toggle_switch.track_color);
+    fill_round_rect(display, window, knob_gc, knob_x, knob_y,
+                    TOGGLE_SWITCH_KNOB_DIAMETER, TOGGLE_SWITCH_KNOB_DIAMETER);
     if (sw->toggle_switch.font)
         XmStringExtent(sw->toggle_switch.font, sw->toggle_switch.label,
                        &label_width, &label_height);
@@ -225,15 +270,15 @@ static Boolean SetValues(Widget current, Widget request, Widget new_widget,
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
     XmToggleSwitchWidget sw = (XmToggleSwitchWidget)widget;
-    Dimension width = 36 + sw->toggle_switch.spacing;
-    Dimension height = 26;
+    Dimension width = TOGGLE_SWITCH_TRACK_WIDTH + sw->toggle_switch.spacing + 8;
+    Dimension height = TOGGLE_SWITCH_TRACK_HEIGHT + 8;
     Dimension label_width = 0, label_height = 0;
     (void)request;
     if (sw->toggle_switch.font)
         XmStringExtent(sw->toggle_switch.font, sw->toggle_switch.label,
                        &label_width, &label_height);
     width += label_width;
-    if (label_height + 8 > height) height = label_height + 8;
+    if (label_height + 12 > height) height = label_height + 12;
     reply->request_mode = CWWidth | CWHeight;
     reply->width = width; reply->height = height;
     return (widget->core.width == width && widget->core.height == height)

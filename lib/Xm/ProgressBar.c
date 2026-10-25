@@ -88,7 +88,7 @@ static void UpdateGCs(XmProgressBarWidget progress) {
                        progress->primitive.bottom_shadow_color);
     if (progress->progress.fill_gc)
         XSetForeground(display, progress->progress.fill_gc,
-                       progress->primitive.foreground);
+                       progress->primitive.highlight_color);
     if (progress->progress.text_gc)
         XSetForeground(display, progress->progress.text_gc,
                        progress->primitive.foreground);
@@ -128,7 +128,7 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     values.background = progress->core.background_pixel;
     progress->progress.track_gc = XCreateGC(display, DefaultRootWindow(display),
                                             mask, &values);
-    values.foreground = progress->primitive.foreground;
+    values.foreground = progress->primitive.highlight_color;
     progress->progress.fill_gc = XCreateGC(display, DefaultRootWindow(display),
                                            mask, &values);
     progress->progress.text_gc = XCreateGC(display, DefaultRootWindow(display),

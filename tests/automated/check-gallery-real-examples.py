@@ -22,6 +22,9 @@ for fragment in (
     "XmBreadcrumbBarSetSegments(example, segments, 3)",
     "XmAutoSuggestBoxSetSuggestions(example, suggestions, 3, 1)",
     "XmToastShow(example)",
+    'XmNindicatorOn, False',
+    '"Kitchen lights"',
+    'XmNset, False',
 ):
     assert fragment in examples, fragment
 assert "gallery_create_segmented_control_example" in gallery
@@ -29,6 +32,12 @@ assert 'entry->class_symbol, "xmSegmentedControlWidgetClass"' in gallery
 assert 'blocks["segmented-control-construction"]' in generator
 assert 'XmNorientation, XmHORIZONTAL' in gallery
 assert 'XmNsidebarExpandedWidth, 280' in gallery
+assert 'center_shell_frame(shell)' in gallery
+assert 'XQueryTree(display, XtWindow(shell)' in gallery
+assert 'XMoveWindow(display, parent' in gallery
+assert 'provenance_expose' in gallery
+assert 'XftDrawStringUtf8' in gallery
+assert 'XmNcurrentPageNumber, 2' in gallery
 assert "Interactive %s example — use the control below" in gallery
 for welcome in ("Hello world!", "Hallo Welt!", "こんにちは世界！", "你好，世界！"):
     assert welcome in gallery, welcome

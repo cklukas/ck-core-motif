@@ -24,6 +24,7 @@ typedef struct _XmToggleSwitchPart {
     Dimension spacing;
     GC track_gc;
     GC knob_gc;
+    GC label_gc;
     GC insensitive_gc;
 } XmToggleSwitchPart;
 

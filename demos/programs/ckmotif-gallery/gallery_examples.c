@@ -73,10 +73,29 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         label = XmStringCreateLocalized((char *)"Nothing selected yet");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNemptyStateMessage, label, NULL);
+    } else if (class == xmToggleSwitchWidgetClass) {
+        XmString switch_label = XmStringCreateLocalized((char *)"Off");
+        XmString title_label = XmStringCreateLocalized((char *)"Kitchen lights");
+        XtVaCreateManagedWidget("switchTitle", xmLabelWidgetClass, parent,
+                                XmNlabelString, title_label, NULL);
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNlabelString, switch_label,
+                                          XmNset, False,
+                                          XmNwidth, 150, XmNheight, 44, NULL);
+        XmStringFree(title_label);
+        XmStringFree(switch_label);
+    } else if (class == xmToggleButtonWidgetClass ||
+               class == xmToggleButtonGadgetClass) {
+        /* Show the toggle as a button, not as a check-box indicator.  The
+         * resource still preserves toggle semantics; only its presentation
+         * matches the gallery's component example. */
+        label = XmStringCreateLocalized((char *)"Toggle example");
+        example = XtVaCreateManagedWidget((char *)name, class, parent,
+                                          XmNlabelString, label,
+                                          XmNindicatorOn, False,
+                                          XmNwidth, 220, XmNheight, 44, NULL);
     } else if (class == xmPushButtonWidgetClass ||
                class == xmPushButtonGadgetClass ||
-               class == xmToggleButtonWidgetClass ||
-               class == xmToggleButtonGadgetClass ||
                class == xmCascadeButtonWidgetClass ||
                class == xmCascadeButtonGadgetClass ||
                class == xmLabelWidgetClass ||
@@ -126,7 +145,7 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         XmNumberBoxSetValue(example, 42, False);
     } else if (class == xmRatingControlWidgetClass) {
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 260, XmNheight, 48, NULL);
+                                          XmNwidth, 320, XmNheight, 64, NULL);
         XmRatingControlSetValue(example, 4, False);
     } else if (class == xmProgressBarWidgetClass) {
         example = XtVaCreateManagedWidget((char *)name, class, parent,

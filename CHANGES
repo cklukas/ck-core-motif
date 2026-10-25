@@ -1,3 +1,12 @@
+Gallery control rendering and MWM placement (2026-10-27)
+=========================================================
+
+- Render the toggle switch with deterministic symmetric scanlines, a fitted
+  circular knob, and explicit On/Off text; use profile highlight colors for
+  progress and rating controls. Center the decorated gallery window using the
+  source-built MWM frame geometry and draw live provenance text through Xft
+  UTF-8 rendering. See `docs/modern-gallery.md`.
+
 Live gallery controls and Unicode welcome page (2026-10-27)
 ============================================================
 

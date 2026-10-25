@@ -33,6 +33,7 @@ typedef struct {
     Widget title, provenance, action, component, component_host, source_text;
     unsigned int example_serial;
     unsigned long callback_count;
+    char provenance_text[768];
     XmAppearanceProfile profile;
     unsigned int dpi_step;
     Boolean component_is_popup, component_is_drag_source;
@@ -42,13 +43,6 @@ typedef struct {
 } GalleryState;
 
 static XmString text(const char *value) { return XmStringCreateLocalized((char *)value); }
-static XmString utf8_text(const char *value) {
-    /* Motif's default font-list tag resolves through the active locale and
-     * keeps the string in its native multibyte form.  Passing a literal
-     * UTF-8 tag is rejected by older charset registries, which leaves labels
-     * showing their widget name instead of the requested text. */
-    return XmStringCreateLtoR((char *)value, XmFONTLIST_DEFAULT_TAG);
-}
 
 static void welcome_expose(Widget widget, XtPointer client_data, XtPointer call_data) {
     static const char *lines[] = {
@@ -94,6 +88,72 @@ static void welcome_expose(Widget widget, XtPointer client_data, XtPointer call_
     XftFontClose(display, font);
     XftFontClose(display, cjk_font);
     XftDrawDestroy(draw);
+}
+
+static void provenance_expose(Widget widget, XtPointer client_data, XtPointer call_data) {
+    GalleryState *state = (GalleryState *)client_data;
+    Display *display = XtDisplay(widget);
+    Window window = XtWindow(widget);
+    XftDraw *draw;
+    XftFont *font;
+    XftColor color;
+    Dimension height;
+    XGlyphInfo extents;
+    int baseline;
+    (void)call_data;
+    if (!window || !state) return;
+    XtVaGetValues(widget, XmNheight, &height, NULL);
+    draw = XftDrawCreate(display, window, DefaultVisual(display, DefaultScreen(display)),
+                         DefaultColormap(display, DefaultScreen(display)));
+    font = XftFontOpenName(display, DefaultScreen(display), "Noto Sans-14");
+    if (!font) font = XftFontOpenName(display, DefaultScreen(display), "DejaVu Sans-14");
+    if (!draw || !font) {
+        if (font) XftFontClose(display, font);
+        if (draw) XftDrawDestroy(draw);
+        return;
+    }
+    XftColorAllocName(display, DefaultVisual(display, DefaultScreen(display)),
+                      DefaultColormap(display, DefaultScreen(display)), "#202020", &color);
+    XftTextExtentsUtf8(display, font, (const FcChar8 *)state->provenance_text,
+                       strlen(state->provenance_text), &extents);
+    baseline = (int)((height + font->ascent - font->descent) / 2);
+    XftDrawStringUtf8(draw, &color, font, 4, baseline,
+                      (const FcChar8 *)state->provenance_text,
+                      strlen(state->provenance_text));
+    (void)extents;
+    XftColorFree(display, DefaultVisual(display, DefaultScreen(display)),
+                 DefaultColormap(display, DefaultScreen(display)), &color);
+    XftFontClose(display, font);
+    XftDrawDestroy(draw);
+}
+
+static void center_shell_frame(Widget shell) {
+    Display *display = XtDisplay(shell);
+    Window root, parent, *children = NULL;
+    unsigned int child_count = 0;
+    int frame_x, frame_y;
+    unsigned int frame_width, frame_height, border, depth;
+    int screen_width, screen_height;
+    if (!XtIsRealized(shell) || !XQueryTree(display, XtWindow(shell), &root, &parent,
+                                            &children, &child_count))
+        return;
+    if (children) XFree(children);
+    if (!XGetGeometry(display, parent, &root, &frame_x, &frame_y,
+                      &frame_width, &frame_height, &border, &depth))
+        return;
+    screen_width = DisplayWidth(display, DefaultScreen(display));
+    screen_height = DisplayHeight(display, DefaultScreen(display));
+    {
+        XWindowChanges changes;
+        changes.x = (screen_width > (int)frame_width)
+            ? (screen_width - (int)frame_width) / 2 : 0;
+        changes.y = (screen_height > (int)frame_height)
+            ? (screen_height - (int)frame_height) / 2 : 0;
+        XMoveWindow(display, parent, changes.x, changes.y);
+        (void)XReconfigureWMWindow(display, parent, DefaultScreen(display),
+                                   CWX | CWY, &changes);
+    }
+    XSync(display, False);
 }
 
 static Boolean parse_appearance(const char *value,
@@ -225,11 +285,13 @@ static Boolean invoke_component_callback(Widget component, GalleryState *state)
 static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
 {
     Widget anchor;
-    XmString title, details_string;
+    XmString title;
     char details[768];
     state->selected = entry;
     snprintf(details, sizeof(details), "Interactive %s example — use the control below",
              entry->kind);
+    strncpy(state->provenance_text, details, sizeof(state->provenance_text) - 1);
+    state->provenance_text[sizeof(state->provenance_text) - 1] = '\0';
     XtVaSetValues(state->notebook, XmNcurrentPageNumber, 2, NULL);
     if (!state->example) {
         state->example = XtVaCreateWidget("examplePage", xmFormWidgetClass,
@@ -241,12 +303,12 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
                                               XmNtopAttachment, XmATTACH_FORM,
                                               XmNleftAttachment, XmATTACH_FORM, NULL);
         XmStringFree(title);
-        details_string = utf8_text(details);
         state->provenance = XtVaCreateManagedWidget(
-            "provenance", xmLabelWidgetClass, state->example,
-            XmNlabelString, details_string, XmNtopAttachment, XmATTACH_WIDGET,
-            XmNtopWidget, state->title, XmNleftAttachment, XmATTACH_FORM, NULL);
-        XmStringFree(details_string);
+            "provenance", xmDrawingAreaWidgetClass, state->example,
+            XmNtopAttachment, XmATTACH_WIDGET, XmNtopWidget, state->title,
+            XmNleftAttachment, XmATTACH_FORM, XmNrightAttachment, XmATTACH_FORM,
+            XmNheight, 28, NULL);
+        XtAddCallback(state->provenance, XmNexposeCallback, provenance_expose, state);
         state->action = XtVaCreateManagedWidget(
             "activateExample", xmPushButtonWidgetClass, state->example,
             XmNlabelString, text("Activate example"), XmNtopAttachment,
@@ -275,9 +337,9 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
     title = text(entry->id);
     XtVaSetValues(state->title, XmNlabelString, title, NULL);
     XmStringFree(title);
-    details_string = utf8_text(details);
-    XtVaSetValues(state->provenance, XmNlabelString, details_string, NULL);
-    XmStringFree(details_string);
+    if (XtIsRealized(state->provenance))
+        XClearArea(XtDisplay(state->provenance), XtWindow(state->provenance),
+                   0, 0, 0, 0, True);
     if (state->drag_context) {
         XmDragCancel(state->drag_context);
         state->drag_context = NULL;
@@ -341,6 +403,10 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
     }
     XtVaSetValues(state->action, XmNtopWidget, anchor, NULL);
     XmTextSetString(state->source_text, (char *)source_for(entry));
+    /* The initial component can be selected before the notebook pages are
+     * realized.  Select Example again after both pages exist so --component
+     * starts on the live control rather than leaving the Welcome page active. */
+    XtVaSetValues(state->notebook, XmNcurrentPageNumber, 2, NULL);
     if (entry->constructible && !entry->class)
         set_status(state, "Selected component; optional example unavailable in this build");
     else
@@ -650,6 +716,18 @@ int main(int argc, char **argv)
                               NULL, XmNallowShellResize, True,
                               XmNwidth, 1100, XmNheight, 700, NULL);
     state.shell = shell;
+    {
+        /* The source-built MWM frame adds 14 horizontal and 31 vertical
+         * pixels around this 1100x700 client.  Include those decorations in
+         * the initial geometry; MWM owns the frame position after mapping. */
+        const int frame_width = 1114;
+        const int frame_height = 731;
+        int screen_width = DisplayWidth(XtDisplay(shell), DefaultScreen(XtDisplay(shell)));
+        int screen_height = DisplayHeight(XtDisplay(shell), DefaultScreen(XtDisplay(shell)));
+        Position x = screen_width > frame_width ? (Position)((screen_width - frame_width) / 2) : 0;
+        Position y = screen_height > frame_height ? (Position)((screen_height - frame_height) / 2) : 0;
+        XtVaSetValues(shell, XmNx, x, XmNy, y, NULL);
+    }
     state.profile = requested_profile ? requested_profile_value
                                       : XmAPPEARANCE_CLASSIC;
     /* Select the requested profile before creating any child widgets.  The
@@ -759,8 +837,13 @@ int main(int argc, char **argv)
     XtVaCreateManagedWidget("sourceTab", xmLabelWidgetClass, notebook,
                             XmNnotebookChildType, XmMAJOR_TAB, XmNpageNumber, 3,
                             XmNlabelString, text("Source"), NULL);
+    if (initial_id)
+        XtVaSetValues(state.notebook, XmNcurrentPageNumber, 2, NULL);
     XtManageChild(root);
     XtRealizeWidget(shell);
+    center_shell_frame(shell);
+    if (initial_id)
+        XtVaSetValues(state.notebook, XmNcurrentPageNumber, 2, NULL);
     state.accessibility = XmAccessibilityCreate(root, "CkMotifGallery");
     if (state.accessibility) {
         XmAccessibilityAttachShell(state.accessibility, shell);

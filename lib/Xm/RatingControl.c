@@ -9,6 +9,7 @@
 #include "PrimitiveI.h"
 #include "XmI.h"
 static void Initialize(Widget, Widget, ArgList, Cardinal *); static void Redisplay(Widget, XEvent *, Region); static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *); static void Destroy(Widget); static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *); static void Events(Widget, XtPointer, XEvent *, Boolean *);
+#define RATING_STAR_POINTS 10
 #define Offset(field) XtOffsetOf(XmRatingControlRec, field)
 static XtResource resources[] = {
  {XmNratingCount, XmCRatingCount, XmRInt, sizeof(int), Offset(rating.count), XmRImmediate, (XtPointer)5},
@@ -22,6 +23,25 @@ static XtResource resources[] = {
 externaldef(xmratingcontrolclassrec) XmRatingControlClassRec xmRatingControlClassRec = {{(WidgetClass)&xmPrimitiveClassRec,"XmRatingControl",sizeof(XmRatingControlRec),NULL,NULL,False,Initialize,NULL,XtInheritRealize,NULL,0,resources,XtNumber(resources),NULLQUARK,True,XtExposeCompressMaximal,True,False,Destroy,NULL,Redisplay,SetValues,NULL,XtInheritSetValuesAlmost,NULL,NULL,XtVersion,NULL,XtInheritTranslations,QueryGeometry,NULL,NULL},{XmInheritBorderHighlight,XmInheritBorderUnhighlight,XtInheritTranslations,NULL,NULL,0,NULL},{NULL}};
 externaldef(xmratingcontrolwidgetclass) WidgetClass xmRatingControlWidgetClass=(WidgetClass)&xmRatingControlClassRec;
 static void normalize(XmRatingControlWidget rating) { if (rating->rating.count < 1) rating->rating.count=1; if (rating->rating.value<0) rating->rating.value=0; if (rating->rating.value>rating->rating.count) rating->rating.value=rating->rating.count; }
+static void draw_star(Display *display, Window window, GC gc, int center_x,
+                      int center_y, int radius, Boolean filled) {
+    static const int x_shape[RATING_STAR_POINTS] = {0, 3, 10, 5, 6, 0, -6, -5, -10, -3};
+    static const int y_shape[RATING_STAR_POINTS] = {-10, -3, -3, 2, 8, 5, 8, 2, -3, -3};
+    XPoint points[RATING_STAR_POINTS];
+    int i;
+    for (i = 0; i < RATING_STAR_POINTS; ++i) {
+        points[i].x = (short)(center_x + x_shape[i] * radius / 10);
+        points[i].y = (short)(center_y + y_shape[i] * radius / 10);
+    }
+    if (filled)
+        XFillPolygon(display, window, gc, points, RATING_STAR_POINTS,
+                     Convex, CoordModeOrigin);
+    else
+        XDrawLines(display, window, gc, points, RATING_STAR_POINTS,
+                   CoordModeOrigin);
+    XDrawLine(display, window, gc, points[RATING_STAR_POINTS - 1].x,
+              points[RATING_STAR_POINTS - 1].y, points[0].x, points[0].y);
+}
 static void notify(XmRatingControlWidget rating, XEvent *event) { XmRatingControlCallbackStruct c={XmCR_VALUE_CHANGED,event,rating->rating.count,rating->rating.value}; XtCallCallbacks((Widget)rating,XmNratingValueChangedCallback,&c); }
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *count) { XmRatingControlWidget rating=(XmRatingControlWidget)widget; XGCValues values; (void)request;(void)args;(void)count; normalize(rating); if(!rating->core.width)rating->core.width=180; if(!rating->core.height)rating->core.height=32; values.foreground=rating->primitive.foreground; values.background=rating->core.background_pixel; rating->rating.gc=XCreateGC(XtDisplay(widget),DefaultRootWindow(XtDisplay(widget)),GCForeground|GCBackground,&values); XtAddEventHandler(widget,KeyPressMask|ButtonPressMask,False,Events,NULL); }
 static void Destroy(Widget widget) { XmRatingControlWidget rating=(XmRatingControlWidget)widget; XtRemoveEventHandler(widget,KeyPressMask|ButtonPressMask,False,Events,NULL); if(rating->rating.gc)XFreeGC(XtDisplay(widget),rating->rating.gc); }
@@ -30,7 +50,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
     XmRatingControlWidget rating = (XmRatingControlWidget)widget;
     Display *display = XtDisplay(widget);
     Window window = XtWindow(widget);
-    const Dimension gap = 3;
+    const Dimension gap = 4;
     Dimension segment, segment_width, segment_height;
     int i;
 
@@ -47,14 +67,17 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
                      rating->core.height;
     for (i = 0; i < rating->rating.count; i++) {
         int x = (int)(i * segment + (segment > 2 * gap ? gap : 0));
-        if (rating->rating.value > i)
-            XFillRectangle(display, window, rating->rating.gc, x,
-                           segment_height == rating->core.height ? 0 : 6,
-                           segment_width, segment_height);
-        else
-            XDrawRectangle(display, window, rating->rating.gc, x,
-                           segment_height == rating->core.height ? 0 : 6,
-                           segment_width, segment_height);
+        int center_x = x + (int)segment_width / 2;
+        int center_y = segment_height == rating->core.height ?
+                       (int)segment_height / 2 : 6 + (int)segment_height / 2;
+        int radius = ((int)segment_width < (int)segment_height ?
+                      (int)segment_width : (int)segment_height) / 2 - 1;
+        if (radius < 5) radius = 5;
+        XSetForeground(display, rating->rating.gc,
+                       rating->rating.value > i ? rating->primitive.highlight_color :
+                                                   rating->primitive.foreground);
+        draw_star(display, window, rating->rating.gc, center_x, center_y,
+                  radius, rating->rating.value > i);
     }
     if (rating->primitive.highlighted && rating->primitive.highlight_thickness &&
         rating->core.width > 2 * rating->primitive.highlight_thickness &&

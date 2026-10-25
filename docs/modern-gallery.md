@@ -61,6 +61,13 @@ constructible manifest entry therefore renders a control or a live child
 surface in the Example tab; entries that are intentionally non-constructible
 remain explicitly marked as such.
 
+The toggle-switch entry uses a symmetric, scanline-rendered rounded track and
+knob rather than X11 arc pairs (which can produce one-pixel asymmetry). Its
+Motif presentation is a compact outlined pill with an explicit `Off` label;
+the selected state uses the profile highlight color. The gallery shell also
+accounts for the source-built MWM frame when centering its initial 1100x700
+window, so the decorated window has equal virtual-screen margins.
+
 Each gallery build also emits `gallery_provenance.json`, including the manifest
 and annotated-source hashes plus one record for every component. `make check`
 rejects stale hashes, missing IDs, duplicate records, or drift in any of the
