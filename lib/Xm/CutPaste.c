@@ -4850,6 +4850,13 @@ XmClipboardInquirePendingItems(
     /* get the clipboard header */
     header = ClipboardOpen( display, 0 );
 
+    if (header == NULL)
+    {
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
+
     id_ptr = (itemId*)((char *) header +
 		       header->dataItemList * CONVERT_32_FACTOR);
 

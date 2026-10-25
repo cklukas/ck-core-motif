@@ -1,3 +1,9 @@
+Clipboard pending-items header guard (2026-10-26)
+==================================================
+
+- Check the clipboard header before pending-item list traversal and release
+  locks cleanly on failure; see `docs/clipboard-pending-header-guard.md`.
+
 Clipboard length inquiry guards (2026-10-26)
 =============================================
 
