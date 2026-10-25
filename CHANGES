@@ -1,3 +1,10 @@
+Xm image-install failure handling (2026-10-25)
+=================================================
+
+- Return failure safely when image-table, record, or image-name allocation
+  fails during `_XmInstallImage`, freeing partial records; see
+  `docs/xm-install-image-failure.md`.
+
 Xm GC call-site rollback (2026-10-25)
 =========================================
 

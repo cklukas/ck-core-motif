@@ -333,6 +333,8 @@ _XmInstallImage(
    /*  Check for the initial allocation of the image set array  */
 
    if (image_set == NULL) InitializeImageSet();
+   if (image_set == NULL)
+     return (False);
 
 
    /*  Verify that the image_name is not already in the image set.  */
@@ -347,10 +349,21 @@ _XmInstallImage(
    /*  Initialize the image element for the new image and return True.  */
 
    entry = XtNew(ImageData);
+   if (entry == NULL)
+     {
+       _XmProcessUnlock();
+       return (False);
+     }
    entry->hot_x = hot_x;
    entry->hot_y = hot_y;
    entry->image = image;
    entry->image_name = XtNewString(image_name);
+   if (entry->image_name == NULL)
+     {
+       XtFree((char *)entry);
+       _XmProcessUnlock();
+       return (False);
+     }
    entry->builtin_data = NULL;
 
    _XmAddHashEntry(image_set, entry->image_name, entry);
