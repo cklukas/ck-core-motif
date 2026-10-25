@@ -3211,6 +3211,12 @@ Mrm writer uncompressed-tag validation (2026-10-25)
 - Propagate context and argument-binding failures from
   `UrmCWRSetUncompressedArgTag` before and after appending the tag string; see
   `docs/mrm-writer-uncompressed-tag-validation.md`.
+
+Drag receiver state allocation handling (2026-10-25)
+======================================================
+
+- Check drop-site receiver-state allocation and release the property buffer
+  when it fails; see `docs/dragicc-receiver-allocation.md`.
 2026-10-25
 	* Add an opt-in XmSegmentedControl composite with copied item ownership,
 	  bounded clipping, RTL keyboard traversal and accessibility selection state.

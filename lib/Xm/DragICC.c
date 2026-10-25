@@ -888,6 +888,11 @@ _XmGetDragReceiverInfo(
 	  (receiverInfoRtn)->dragProtocolStyle = iccInfo->drag_protocol_style;
 	
 	  dsmInfo = XtNew(XmReceiverDSTreeStruct);
+	  if (dsmInfo == NULL) {
+	    (receiverInfoRtn)->dragProtocolStyle = XmDRAG_NONE;
+	    XFree((void *)iccInfo);
+	    return False;
+	  }
 	  dsmInfo->byteOrder = iccInfo->byte_order;
 	  dsmInfo->numDropSites = iccInfo->num_drop_sites;
 	  dsmInfo->currDropSite = 0;
