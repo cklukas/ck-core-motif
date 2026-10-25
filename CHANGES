@@ -1,4 +1,8 @@
 2026-10-25
+	* Guard atom-name list growth and atom-array allocation, releasing token and
+	  name-list storage on failure; see docs/atom-list-converter-allocation.md.
+
+2026-10-25
 	* Guard UTF-8-to-UCS-2 conversion allocation before writing the result;
 	  see docs/utf8-ucs2-allocation.md.
 
