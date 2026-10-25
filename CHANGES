@@ -3899,3 +3899,10 @@ Make Hierarchy list growth transactional (2026-10-25)
 - Publish node-table and child-list growth only after checked allocation, with
   overflow-safe size products and preserved old storage on failure; see
   `docs/hierarchy-allocation.md`.
+
+Guard ScrollFrame navigator callbacks (2026-10-25)
+===================================================
+
+- Validate navigator `setValue` and conditional `changeMoveCB` callbacks
+  before registration, preserving the existing warning and list state; see
+  `docs/motif-scrollframe-callbacks.md`.

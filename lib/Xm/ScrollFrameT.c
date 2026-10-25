@@ -60,13 +60,19 @@ _XmSFAddNavigator(
     XmNavigatorTrait nav_trait ;
     XmNavigatorDataRec nav_data ;
 
-    if ((sf == NULL) || (nav == NULL) || (scroll_frame_data == NULL))
+    if ((sf == NULL) || (nav == NULL) || (scroll_frame_data == NULL)) {
 	return;
+    }
 
-    if ((nav_trait = (XmNavigatorTrait) 
-	 XmeTraitGet((XtPointer) XtClass(nav), XmQTnavigator)) != NULL) {
-	
-	/* check for NULL move_cb */
+	if ((nav_trait = (XmNavigatorTrait)
+	 XmeTraitGet((XtPointer) XtClass(nav), XmQTnavigator)) == NULL ||
+	 nav_trait->setValue == NULL ||
+	 (scroll_frame_data->move_cb != NULL &&
+	  nav_trait->changeMoveCB == NULL)) {
+	XmeWarning(sf, SWMessage3);
+	return;
+	}
+
 	if (scroll_frame_data->move_cb)
 	    nav_trait -> changeMoveCB(nav, scroll_frame_data->move_cb,
 				      (XtPointer) scroll_frame_data->scrollable,
@@ -91,11 +97,6 @@ _XmSFAddNavigator(
 
 	scroll_frame_data->nav_list[scroll_frame_data->num_nav_list] = nav;
 	scroll_frame_data->num_nav_list++;
-
-    } else {
-	XmeWarning(sf, SWMessage3);
-    }
-
 }
 
 
