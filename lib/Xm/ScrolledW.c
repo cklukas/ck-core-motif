@@ -1570,6 +1570,7 @@ Position * vsbX, Position * vsbY)
     Dimension shad = sw->manager.shadow_thickness,
         pad = sw->swindow.pad,
         vsb_width, hsb_height;
+    int vsb_pos, hsb_pos;
 
     vsb_width = (HasVSB) ? (sw->swindow.vScrollBar->core.width) : 0;
 
@@ -1585,10 +1586,14 @@ Position * vsbX, Position * vsbY)
     *newy = sw->swindow.YOffset + shad + VSBht;
     *hsbX = sw->swindow.XOffset;
     *vsbY = sw->swindow.YOffset;
-    *vsbX = (HasVSB) ? (sw->core.width -  sw->swindow.WidthPad -
-        vsb_width) : sw->core.width;
-    *hsbY = (HasHSB) ? (sw->core.height - sw->swindow.HeightPad -
-        hsb_height): sw->core.height;
+    vsb_pos = (int) sw->core.width - (int) sw->swindow.WidthPad -
+        (int) vsb_width;
+    hsb_pos = (int) sw->core.height - (int) sw->swindow.HeightPad -
+        (int) hsb_height;
+    *vsbX = (HasVSB) ? (Position) ((vsb_pos > 0) ? vsb_pos : 0) :
+        (Position) sw->core.width;
+    *hsbY = (HasHSB) ? (Position) ((hsb_pos > 0) ? hsb_pos : 0) :
+        (Position) sw->core.height;
     /****************
      *
      * Check out the scrollbar placement policy and hack the locations

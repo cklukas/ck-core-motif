@@ -1,3 +1,10 @@
+ScrolledWindow scrollbar placement bounds (2026-10-26)
+=======================================================
+
+- Bound bottom/right scrollbar coordinates in signed arithmetic, preventing
+  wrapped positions when a ScrolledWindow is narrower or shorter than its
+  scrollbar; see `docs/scrolledwindow-scrollbar-placement.md`.
+
 ScrolledWindow auto-scroll rectangle bounds (2026-10-25)
 =========================================================
 
