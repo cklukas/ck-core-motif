@@ -1948,11 +1948,18 @@ _XmStringSourceSetValue(XmTextWidget tw,
   XmTextBlockRec block, newblock;
   XmTextPosition fromPos = 0; 
   XmTextPosition toPos = data->length;
+  size_t value_length;
+
+  if (value == NULL)
+    value = "";
+  value_length = strlen(value);
+  if (value_length > (size_t)INT_MAX)
+    return;
   
   (*source->SetSelection)(source, 1, 0,
 			  XtLastTimestampProcessed(XtDisplay(tw)));
   block.format = XmFMT_8_BIT;
-  block.length = strlen(value);
+  block.length = (int)value_length;
   block.ptr = value;
   editable = data->editable;
   maxallowed = data->maxallowed;
