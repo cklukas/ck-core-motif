@@ -10349,6 +10349,12 @@ Screen icon helper input validation (2026-10-25)
 - Validate widget and screen inputs in operation, state, and source drag-icon
   helpers; see `docs/screen-icon-inputs.md`.
 
+Screen pixmap/cache input validation (2026-10-25)
+==================================================
+
+- Validate screen, pixmap, and cache-table state before scratch-pixmap release
+  and cursor-cache lookup; see `docs/screen-pixmap-cache-input.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

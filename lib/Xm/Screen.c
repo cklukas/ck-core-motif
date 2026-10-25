@@ -1105,9 +1105,16 @@ _XmFreeScratchPixmap(
         XmScreen xmScreen,
         Pixmap pixmap )
 {
-    XmHashTable scratchTable = (XmHashTable) xmScreen->screen.scratchPixmaps;
-    XmHashTable inUseTable   = (XmHashTable) xmScreen->screen.inUsePixmaps;
+    XmHashTable scratchTable;
+    XmHashTable inUseTable;
     XmScratchPixmapKey returned_key;
+
+    if (xmScreen == NULL || pixmap == None)
+        return;
+    scratchTable = (XmHashTable) xmScreen->screen.scratchPixmaps;
+    inUseTable = (XmHashTable) xmScreen->screen.inUsePixmaps;
+    if (scratchTable == NULL || inUseTable == NULL)
+        return;
 
     _XmProcessLock();
     returned_key = (XmScratchPixmapKey) 
@@ -1140,6 +1147,8 @@ XmDragCursorCache *
 _XmGetDragCursorCachePtr(
         XmScreen xmScreen )
 {
+    if (xmScreen == NULL)
+        return NULL;
     return &xmScreen->screen.cursorCache;
 }
 
