@@ -12,6 +12,12 @@ Icon-label geometry bounds (2026-10-26)
   `Dimension` range, including tall pixmaps; see
   `docs/icon-label-geometry-bounds.md`.
 
+Avatar initials geometry bounds (2026-10-26)
+============================================
+
+- Bound long-initials text-width arithmetic before centering avatar fallback
+  text; see `docs/avatar-initials-geometry-bounds.md`.
+
 WSM reply payload validation (2026-10-26)
 =========================================
 

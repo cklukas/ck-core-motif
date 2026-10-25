@@ -7,6 +7,7 @@
 #include <Xm/AvatarP.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
+#include <limits.h>
 #include <string.h>
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
@@ -117,7 +118,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         text = XmStringUnparse(avatar->avatar.initials, NULL, XmCHARSET_TEXT,
                                XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
         if (text && *text) {
-            int width = (int)strlen(text) * 8;
+            size_t text_length = strlen(text);
+            int width = text_length > (size_t)INT_MAX / 8 ? INT_MAX :
+                        (int)(text_length * 8);
             x = ((int)avatar->core.width - width) / 2;
             y = ((int)avatar->core.height + 16) / 2;
             XDrawString(display, window, avatar->avatar.foreground_gc, x, y,
