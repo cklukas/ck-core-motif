@@ -1,3 +1,10 @@
+Guard Container selection callback arrays (2026-10-25)
+=======================================================
+
+- Check single-selection and selected-item array allocations, including size
+  overflow and incomplete traversal cleanup; see
+  `docs/container-selection-guards.md`.
+
 Guard Container detail-order copies (2026-10-25)
 =================================================
 
