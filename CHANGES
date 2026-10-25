@@ -13712,3 +13712,10 @@ XmObjectAtPoint null-widget guard (2026-10-26)
   see `docs/xm-object-at-point-input.md`.
 
 Clipboard format enumeration guard (2026-10-26)
+Clipboard format buffer validation (2026-10-26)
+================================================
+
+- Reject null output buffers with nonzero lengths in
+  `XmClipboardInquireFormat`; see `docs/clipboard-format-buffer-validation.md`.
+
+XmObjectAtPoint null-widget guard (2026-10-26)

@@ -4262,6 +4262,10 @@ XmClipboardInquireFormat(
     int status;
     Atom ignoretype;
     int ignoreformat;
+
+    if (buffer == NULL && bufferlength != 0)
+	return ClipboardBadFormat;
+
     _XmDisplayToAppContext(display);
 
     _XmAppLock(app);
