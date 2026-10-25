@@ -351,6 +351,9 @@ XmeDrawIndicator(Display *display,
 {
   _XmDisplayToAppContext(display);
 
+  if (!d || !gc)
+    return;
+
   _XmAppLock(app);
   switch(type & 0xf0)
     {
