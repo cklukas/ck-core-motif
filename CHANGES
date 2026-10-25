@@ -9811,6 +9811,13 @@ XmString cache allocation guards (2026-10-25)
   initialization, preserving uncached behavior under memory pressure; see
   `docs/xmstring-cache-allocation.md`.
 
+Unique-event state allocation guard (2026-10-25)
+================================================
+
+- Check per-display unique-event stamp creation and skip duplicate-event
+  processing safely if state allocation fails; see
+  `docs/unique-event-allocation.md`.
+
 MWM label-parse allocation guard (2026-10-25)
 ==============================================
 

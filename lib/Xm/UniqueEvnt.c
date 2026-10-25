@@ -120,6 +120,8 @@ GetUniqueStamp(
     if ((XmUniqueStamp)NULL == uniqueStamp)
     {
       uniqueStamp = (XmUniqueStamp) XtMalloc(sizeof(XmUniqueStampRec));
+      if ((XmUniqueStamp)NULL == uniqueStamp)
+	return (XmUniqueStamp)NULL;
 
       ((XmDisplayInfo *)(xmDisplay->display.displayInfo))->UniqueStamp = 
 	(XtPointer)uniqueStamp;
@@ -164,6 +166,9 @@ ManipulateEvent(
         int action )
 {
    XmUniqueStamp uniqueStamp = GetUniqueStamp(event);
+
+   if ((XmUniqueStamp)NULL == uniqueStamp)
+     return (False);
 
    switch (action)
    {
