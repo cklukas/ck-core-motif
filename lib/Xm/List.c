@@ -8190,7 +8190,7 @@ APIAddItems(XmListWidget lw,
   Boolean selectable;
   register int i;
   int nsel = lw->list.selectedPositionCount;
-  Dimension old_max_height;
+  Dimension old_max_height = lw->list.MaxItemHeight;
 
   if (items == NULL || item_count <= 0)
     return;

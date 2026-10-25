@@ -14352,3 +14352,4 @@ CommandPalette size-limit header (2026-10-26)
 - Include `<stdint.h>` for the CommandPalette text-size guard's `SIZE_MAX`
   check, restoring portable compilation of the overflow protection; see
   `docs/command-palette-size-limit-header.md`.
+* Fix an uninitialized maximum-height snapshot in XmList item insertion.
