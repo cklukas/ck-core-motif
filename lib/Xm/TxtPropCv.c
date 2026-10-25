@@ -120,6 +120,11 @@ TextPropertyToSingleTextItem(Display *display, XTextProperty *text_prop,
 	  }
 	/* Allocate a buffer and jam all the strings into it */
 	newstring = (char *)XtMalloc(length + 1);
+	if (newstring == NULL)
+	  {
+	    XFreeStringList(textlist);
+	    return(XNoMemory);
+	  }
 	newstring[0] = '\0';
 	for (i = 0; i < count; ++i)
 	  strcat(newstring, textlist[i]);

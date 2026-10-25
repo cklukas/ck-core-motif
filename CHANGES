@@ -3757,6 +3757,14 @@ Guard fallback text-property value allocation (2026-10-25)
   its source and string context on failure; see
   `docs/motif-txtpropcv-value.md`.
 
+
+Guard text-property concatenation allocation (2026-10-25)
+===========================================================
+
+- Release the Xlib text list when concatenating multiple items cannot allocate
+  its result buffer and return `XNoMemory`; see
+  `docs/motif-txtpropcv-concat.md`.
+
 Handle single text-property copy failure (2026-10-25)
 ======================================================
 
