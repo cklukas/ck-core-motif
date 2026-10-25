@@ -321,6 +321,21 @@ Boolean XmSegmentedControlSetItems(Widget widget,
             XtSetArg(args[n], XmNlabelPixmap, copy[i].pixmap); ++n;
         }
         copy[i].button = XmCreateToggleButton(widget, name, args, n);
+        if (!copy[i].button) {
+            Cardinal j;
+            XtWarning("XmSegmentedControlSetItems: unable to create segment button");
+            for (j = 0; j <= i; ++j) {
+                if (copy[j].button) XtDestroyWidget(copy[j].button);
+                XtFree(copy[j].id);
+                XmStringFree(copy[j].label);
+            }
+            XtFree((char *)copy);
+            control->segmented.items = NULL;
+            control->segmented.item_count = 0;
+            control->segmented.selected = -1;
+            control->segmented.rebuilding = False;
+            return False;
+        }
         XtAddCallback(copy[i].button, XmNvalueChangedCallback, child_changed,
                       (XtPointer)control);
         XtAddEventHandler(copy[i].button, KeyPressMask, False, child_key,
