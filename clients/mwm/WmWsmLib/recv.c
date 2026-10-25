@@ -172,7 +172,12 @@ WSMRegisterRequestCallback(Display *disp, int scr_num,
 Boolean
 WSMIsKnownTarget(Widget w, Atom target)
 {
-    WSMDispInfo * disp_info = _WSMGetDispInfo(XtDisplay(w));
+    WSMDispInfo * disp_info;
+
+    if (w == NULL)
+	return(False);
+
+    disp_info = _WSMGetDispInfo(XtDisplay(w));
 
     if (disp_info == NULL)
 	return(False);
@@ -223,12 +228,14 @@ WSMIsKnownTarget(Widget w, Atom target)
 Atom *
 WSMGetTargetList(Widget w, Boolean include_defaults, unsigned long *len_ret)
 {
-    WSMDispInfo *disp_info = _WSMGetDispInfo(XtDisplay(w));
+    WSMDispInfo *disp_info;
     register int i;
     Atom *list;
 
-    if (len_ret == NULL)
+    if (w == NULL || len_ret == NULL)
 	return(NULL);
+
+    disp_info = _WSMGetDispInfo(XtDisplay(w));
 
     if (disp_info == NULL) {
 	*len_ret = 0;

@@ -2,7 +2,8 @@ WSM widget input validation (2026-10-26)
 ========================================
 
 - Reject null widgets (and null send requests) before Xt display/screen access
-  in the public WSM helpers; see `docs/wsm-widget-input-validation.md`.
+  in the public WSM helpers, including target-query APIs; see
+  `docs/wsm-widget-input-validation.md`.
 
 UTM send widget guard (2026-10-26)
 ==================================

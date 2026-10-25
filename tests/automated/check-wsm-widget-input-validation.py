@@ -15,6 +15,10 @@ def main() -> None:
     assert "widget is required" in RECV
     assert SEND.index("if (w == NULL || request == NULL)") < SEND.index("XtScreen(w)")
     assert RECV.index("if (w == NULL)") < RECV.index("XtDisplay(w)")
+    assert "if (w == NULL)" in RECV
+    assert "if (w == NULL || len_ret == NULL)" in RECV
+    target_list = RECV.index("WSMGetTargetList")
+    assert RECV.index("if (w == NULL || len_ret == NULL)", target_list) < RECV.index("_WSMGetDispInfo(XtDisplay(w))", target_list)
 
 
 if __name__ == "__main__":
