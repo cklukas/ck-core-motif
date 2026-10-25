@@ -44,6 +44,30 @@ typedef struct {
 
 static XmString text(const char *value) { return XmStringCreateLocalized((char *)value); }
 
+static Widget open_gallery_dialog(Widget parent, const char *kind)
+{
+    XmString message = text("This is a live Motif dialog from the gallery.");
+    Widget dialog = NULL;
+    if (!strcmp(kind, "error"))
+        dialog = XmCreateErrorDialog(parent, "errorDialog", NULL, 0);
+    else if (!strcmp(kind, "information"))
+        dialog = XmCreateInformationDialog(parent, "informationDialog", NULL, 0);
+    else if (!strcmp(kind, "question"))
+        dialog = XmCreateQuestionDialog(parent, "questionDialog", NULL, 0);
+    else if (!strcmp(kind, "warning"))
+        dialog = XmCreateWarningDialog(parent, "warningDialog", NULL, 0);
+    else if (!strcmp(kind, "working"))
+        dialog = XmCreateWorkingDialog(parent, "workingDialog", NULL, 0);
+    if (dialog) {
+        XtVaSetValues(dialog, XmNmessageString, message, NULL);
+        XtUnmanageChild(XmMessageBoxGetChild(dialog, XmDIALOG_CANCEL_BUTTON));
+        XtUnmanageChild(XmMessageBoxGetChild(dialog, XmDIALOG_HELP_BUTTON));
+        XtManageChild(dialog);
+    }
+    XmStringFree(message);
+    return dialog;
+}
+
 static void welcome_expose(Widget widget, XtPointer client_data, XtPointer call_data) {
     static const char *lines[] = {
         "Hello world!", "Hallo Welt!", "こんにちは世界！", "你好，世界！",
@@ -721,6 +745,7 @@ int main(int argc, char **argv)
     int integration_mode = 0;
     int screenshot_mode = 0;
     const char *initial_id = NULL;
+    const char *dialog_kind = NULL;
     Boolean requested_profile = False;
     XmAppearanceProfile requested_profile_value = XmAPPEARANCE_CLASSIC;
     Boolean requested_scale = False;
@@ -784,6 +809,12 @@ int main(int argc, char **argv)
             remove_count = 2;
         } else if (!strncmp(argv[argument], "--component=", 12)) {
             initial_id = argv[argument] + 12;
+            remove_count = 1;
+        } else if (!strcmp(argv[argument], "--dialog") && argument + 1 < argc) {
+            dialog_kind = argv[argument + 1];
+            remove_count = 2;
+        } else if (!strncmp(argv[argument], "--dialog=", 9)) {
+            dialog_kind = argv[argument] + 9;
             remove_count = 1;
         } else {
             ++argument;
@@ -940,6 +971,10 @@ int main(int argc, char **argv)
     XtManageChild(root);
     XtRealizeWidget(shell);
     center_shell_frame(shell);
+    if (dialog_kind && !open_gallery_dialog(shell, dialog_kind)) {
+        fprintf(stderr, "unknown gallery dialog: %s\n", dialog_kind);
+        return 2;
+    }
     if (initial_id)
         XtVaSetValues(state.notebook, XmNcurrentPageNumber, 2, NULL);
     state.accessibility = XmAccessibilityCreate(root, "CkMotifGallery");

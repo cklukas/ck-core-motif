@@ -59,6 +59,32 @@ The corresponding constructors for the other standard dialog types are
 and `XmCreateWorkingDialog`. Their dialog-type bitmaps are shown together on
 the Built-in Icons page so applications can compare the actual Motif assets.
 
+## Dialog screenshots and constructors
+
+These screenshots are captured from the current gallery binary under the
+source-built MWM. Each uses the same public construction pattern; replace the
+constructor name and dialog identifier as shown:
+
+| Dialog | Constructor | Current screenshot |
+| --- | --- | --- |
+| Error | `XmCreateErrorDialog(parent, "errorDialog", args, count)` | ![Error dialog](gallery-screenshots/error.png) |
+| Information | `XmCreateInformationDialog(parent, "informationDialog", args, count)` | ![Information dialog](gallery-screenshots/information.png) |
+| Question | `XmCreateQuestionDialog(parent, "questionDialog", args, count)` | ![Question dialog](gallery-screenshots/question.png) |
+| Warning | `XmCreateWarningDialog(parent, "warningDialog", args, count)` | ![Warning dialog](gallery-screenshots/warning.png) |
+| Working | `XmCreateWorkingDialog(parent, "workingDialog", args, count)` | ![Working dialog](gallery-screenshots/working.png) |
+
+For example:
+
+```c
+Arg args[2];
+Cardinal count = 0;
+XmString message = XmStringCreateLocalized("The operation needs attention.");
+XtSetArg(args[count], XmNmessageString, message); ++count;
+Widget dialog = XmCreateWarningDialog(parent, "warningDialog", args, count);
+XmStringFree(message);
+XtManageChild(dialog);
+```
+
 When the public accessibility bridge is available, the gallery attaches it to
 the realized shell and verifies the navigation tree's semantic role during
 the native integration run. The optional AT-SPI transport remains optional;
