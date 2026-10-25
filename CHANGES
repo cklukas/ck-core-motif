@@ -1,3 +1,9 @@
+Mrm widget record offset bounds (2026-10-25)
+===============================================
+
+- Bound nonzero class and creation-callback offsets before widget-instance
+  access; see `docs/mrm-widget-offset-bounds.md`.
+
 Mrm reader arg-list offset bounds (2026-10-25)
 ===============================================
 

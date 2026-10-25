@@ -602,6 +602,11 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
   if ( ! UrmWRValid(widgetrec) )
     return Urm__UT_Error ("UrmCreateWidgetInstance", _MrmMMsg_0026,
 			  NULL, context_id, MrmBAD_WIDGET_REC) ;
+  if ((widgetrec->class_offs != 0 &&
+       widgetrec->class_offs >= widgetrec->size) ||
+      (widgetrec->creation_offs != 0 &&
+       widgetrec->creation_offs >= widgetrec->size))
+    return MrmFAILURE ;
 
   result = Urm__FindClassDescriptor (file_id,
 				     widgetrec->type,
@@ -907,6 +912,11 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
   if ( ! UrmWRValid(widgetrec) )
     return Urm__UT_Error ("UrmSetWidgetInstance", _MrmMMsg_0026,
 			  NULL, context_id, MrmBAD_WIDGET_REC) ;
+  if ((widgetrec->class_offs != 0 &&
+       widgetrec->class_offs >= widgetrec->size) ||
+      (widgetrec->creation_offs != 0 &&
+       widgetrec->creation_offs >= widgetrec->size))
+    return MrmFAILURE ;
 
   result = Urm__UncompressCode (file_id, widgetrec->type, &c_name) ;
   if ( result != MrmSUCCESS )
