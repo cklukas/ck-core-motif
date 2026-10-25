@@ -10983,3 +10983,9 @@ MWM session string sizing (2026-10-25)
 
 - Check workspace-list and client-host string sizes before Xt allocation and
   copying; see `docs/mwm-session-string-size.md`.
+
+MWM icon-box geometry ownership (2026-10-25)
+=============================================
+
+- Remove a redundant second `iconBoxGeometry` duplication that leaked the
+  first owned copy; see `docs/mwm-iconbox-geometry-ownership.md`.

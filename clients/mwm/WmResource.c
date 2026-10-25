@@ -5300,14 +5300,6 @@ ProcessWorkspaceResources (WmWorkspaceData *pWS)
 	    pWS->name, pWS->name, wmWorkspaceResources, 
 	    XtNumber (wmWorkspaceResources), NULL, 0);
 
-#ifdef WSM
-        /*  Dup iconbox geometry, it may be free'd later on.  */
-
-        if (pWS->iconBoxGeometry)
-        {
-            pWS->iconBoxGeometry = XtNewString (pWS->iconBoxGeometry);
-        }
-#endif /* WSM */
     }
 
 #ifdef WSM
