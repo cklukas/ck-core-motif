@@ -1,3 +1,9 @@
+Separator drawing guards (2026-10-27)
+=====================================
+
+- Bound simple separator spans and guard required separator/shadow graphics
+  contexts; see `docs/draw-separator-guards.md`.
+
 Arrow drawing size guards (2026-10-26)
 =====================================
 

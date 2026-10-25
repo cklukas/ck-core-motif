@@ -281,13 +281,21 @@ void XmeDrawSeparator(Display *display, Drawable d,
    Position center;
    XSegment segs[2];
    GC   tmp_gc;
-   int i, ndash, shadow_dash_size, separator_span;
+   int i, ndash, shadow_dash_size, separator_span, line_span;
    XtAppContext app;
 
    if (!d || (separator_type == XmNO_LINE)) return ;
 
    app = XtDisplayToApplicationContext(display);
    _XmAppLock(app);
+
+   line_span = (orientation == XmHORIZONTAL ? (int) width :
+                                               (int) height) -
+               (int) margin;
+   if (line_span <= 0) {
+       _XmAppUnlock(app);
+       return;
+   }
 
    if (orientation == XmHORIZONTAL) {
        center = y + height / 2;
@@ -297,14 +305,17 @@ void XmeDrawSeparator(Display *display, Drawable d,
            
    if (separator_type == XmSINGLE_LINE ||
        separator_type == XmSINGLE_DASHED_LINE) {
+       if (!separator_gc) { _XmAppUnlock(app); return; }
        if (orientation == XmHORIZONTAL) {
-           segs[0].x1 = x + margin;
+           segs[0].x1 = (short) ((int) x + (int) margin);
            segs[0].y1 = segs[0].y2 = center;
-           segs[0].x2 = x + width - margin - 1;
+           segs[0].x2 = (short) ((int) x + (int) width -
+                                 (int) margin - 1);
        } else {
-           segs[0].y1 = y + margin;
+           segs[0].y1 = (short) ((int) y + (int) margin);
            segs[0].x1 = segs[0].x2 = center;
-           segs[0].y2 = y + height - margin - 1;
+           segs[0].y2 = (short) ((int) y + (int) height -
+                                 (int) margin - 1);
        }
        XDrawSegments (display, d, separator_gc, segs, 1);
        _XmAppUnlock(app);
@@ -313,14 +324,19 @@ void XmeDrawSeparator(Display *display, Drawable d,
 
    if (separator_type == XmDOUBLE_LINE ||
        separator_type == XmDOUBLE_DASHED_LINE) {
+       if (!separator_gc) { _XmAppUnlock(app); return; }
        if (orientation == XmHORIZONTAL) {
-           segs[0].x1 = segs[1].x1 = x + margin;
-           segs[0].x2 = segs[1].x2 = x + width - margin - 1;
+           segs[0].x1 = segs[1].x1 =
+               (short) ((int) x + (int) margin);
+           segs[0].x2 = segs[1].x2 =
+               (short) ((int) x + (int) width - (int) margin - 1);
            segs[0].y1 = segs[0].y2 = center - 1;
            segs[1].y1 = segs[1].y2 = center + 1;
        } else {
-           segs[0].y1 = segs[1].y1 = y + margin;
-           segs[0].y2 = segs[1].y2 = y + height - margin - 1;
+           segs[0].y1 = segs[1].y1 =
+               (short) ((int) y + (int) margin);
+           segs[0].y2 = segs[1].y2 =
+               (short) ((int) y + (int) height - (int) margin - 1);
            segs[0].x1 = segs[0].x2 = center - 1;
            segs[1].x1 = segs[1].x2 = center + 1;
        }
@@ -332,6 +348,8 @@ void XmeDrawSeparator(Display *display, Drawable d,
    /* only shadowed stuff in the following, so shadowThickness has to be
       something real */
    if (!shadow_thick) { _XmAppUnlock(app); return ; }
+
+   if (!top_gc || !bottom_gc) { _XmAppUnlock(app); return; }
 
    separator_span = (orientation == XmHORIZONTAL ? (int) width :
 							(int) height) - 2 * (int) margin;
