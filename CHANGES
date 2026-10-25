@@ -28,6 +28,12 @@ Guard XmGetIconFileName screen input (2026-10-27)
 - Return safely before display access when the public icon-file lookup receives
   a null screen; see `docs/icon-public-screen-input.md`.
 
+Harden XPM image-data sizing (2026-10-27)
+==========================================
+
+- Check row-stride multiplication in `size_t` before allocating decoded image
+  data; see `docs/xpm-create-image-size.md`.
+
 Guard XmRegion API NULL inputs (2026-10-26)
 ============================================
 
