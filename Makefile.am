@@ -679,5 +679,7 @@ EXTRA_DIST += tests/automated/check-xm-screen-lifecycle-failure.py docs/xm-scree
 EXTRA_DIST += tests/automated/check-xm-null-cursor-failure.py docs/xm-null-cursor-failure.md
 
 EXTRA_DIST += tests/automated/check-xm-query-cursor-size-null.py docs/xm-query-cursor-size-null.md
+
+EXTRA_DIST += tests/automated/check-xm-extutil-null.py docs/xm-extutil-null.md
 EXTRA_DIST += tests/automated/check-mrm-hget-output-pointer.py docs/mrm-hget-output-pointer.md
 EXTRA_DIST += tests/automated/check-mrm-hierarchy-name-inputs.py docs/mrm-hierarchy-name-inputs.md
