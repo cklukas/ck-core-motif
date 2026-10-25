@@ -1,3 +1,9 @@
+Window-state placement cleanup validation (2026-10-25)
+=======================================================
+
+- Bounds-check stored icon placements before clearing state entries; see
+  `docs/winstate-removal-place-guards.md`.
+
 Minimized-icon state placement validation (2026-10-25)
 =======================================================
 

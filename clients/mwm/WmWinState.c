@@ -517,13 +517,19 @@ static void SetupWindowStateWithEventMask (ClientData *pCD, int newState,
 			{
 			    pWS_i = GetWorkspaceData (pCD->pSD,
 						pCD->pWsList[wsI].wsID);
-			    pWS_i->IPData.placeList[iplace].pCD = 
-				    NULL;
+			    if (pWS_i != NULL && pWS_i->IPData.placeList != NULL &&
+				iplace >= 0 && iplace < pWS_i->IPData.totalPlaces)
+			    {
+				pWS_i->IPData.placeList[iplace].pCD = NULL;
+			    }
 			}
 		    }
 	        }
 #else /* WSM */
-	        if ((wmGD.iconAutoPlace) && (ICON_PLACE(pCD) != NO_ICON_PLACE))
+	        if ((wmGD.iconAutoPlace) && pWS != NULL &&
+		    pWS->IPData.placeList != NULL &&
+		    ICON_PLACE(pCD) >= 0 &&
+		    ICON_PLACE(pCD) < pWS->IPData.totalPlaces)
 	        {
 		    pWS->IPData.placeList[ICON_PLACE(pCD)].pCD = 
 			NULL;
