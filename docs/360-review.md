@@ -43,8 +43,9 @@ These are real coverage gaps rather than claims of known source defects:
    installed transfer-storage cohort additionally passes target replacement,
    8/16/32-bit format assembly, merge bounds and repeated owner destruction
    against that dependency. DropSMgr auto-drag teardown now passes its own
-   strict sanitizer fixture; drag-and-drop transfer cancellation,
-   application-level clipboard workflows, broader drag-and-drop ownership and
+   strict sanitizer fixture; direct Motif-to-Motif Text/TextField clipboard
+   workflows now pass for mixed-script and multi-megabyte payloads;
+   drag-and-drop transfer cancellation, broader drag-and-drop ownership and
    unqualified system-library sanitizer ownership remain open.
 4. **Non-text Unicode matrix.** The installed Label/List/ComboBox fixture now
    covers combining, non-BMP and Han values through public APIs. Menus, file

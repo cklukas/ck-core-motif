@@ -13,7 +13,7 @@ separate toolkit-contract test.
 | Local Compose/dead key | Pass with private `@im=none` Xvfb | Pending | XTest fixture proves local XIM/XIC registration and exact commits; it is not a physical-keyboard test. |
 | IBus XIM composition, commit and cancellation | Focused pass | Pending | Real IBus/m17n fixture; standalone combining-mark commit and candidate panels remain gaps. |
 | Provider restart and transport loss | Focused pass | Pending | Same-process service loss/reconnect fixture; broader engines/providers remain unqualified. |
-| Clipboard UTF-8 round trip and interrupted INCR lifetime | Pass for the bounded AArch64 cohort with pinned corrected Xt | Pending | Multi-megabyte UTF-8 bytes, cancellation, a fresh transfer from the surviving owner, and the installed 8/16/32-bit transfer-storage/owner-replacement cohort pass; system-Xt failure, application workflows, broader DnD, and x86_64 remain separate. |
+| Clipboard UTF-8 round trip and interrupted INCR lifetime | Pass for the bounded AArch64 cohort with pinned corrected Xt | Pending | Multi-megabyte UTF-8 bytes, direct Motif-to-Motif Text/TextField round trips, cancellation, a fresh transfer from the surviving owner, and the installed 8/16/32-bit transfer-storage/owner-replacement cohort pass; system-Xt failure, broader DnD, and x86_64 remain separate. |
 | Strict ASan/UBSan | Bounded pass with pinned Xt; matrix-wide gate pending | Pending | A fresh helper-built Xt cohort passes ABI, incremental-layout and clipboard-lifetime with leak detection enabled; Fontconfig and broader ownership paths remain separate gates. |
 
 Run the focused installed service fixture with:
@@ -58,6 +58,12 @@ prefix, and the consumer `--sanitize` run passed ABI, `incremental-layout` and
 `clipboard-lifetime` with leak detection enabled. This closes the bounded Xt
 selection-context and interrupted-INCR ownership regressions; it does not close
 the matrix-wide leak gate for Fontconfig or other unqualified ownership paths.
+
+The clipboard observer now additionally runs direct Motif-to-Motif Text and
+TextField owner/import workflows for both the mixed-script and large payloads.
+The destination re-exports the received value to an independent Xlib
+requestor, so the application path is checked without trusting only the paste
+return value; large transfers must still use multiple INCR chunks.
 
 The transfer-storage fixture also passes its clipboard, merge, bounds and
 lifetime modes against the pinned corrected Xt cohort. It exercises 8-, 16-

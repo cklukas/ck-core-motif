@@ -93,6 +93,26 @@ try:
                             "outgoing": outgoing})
             stop(native)
             stop(owner)
+
+            # Exercise the application workflow directly: a Motif owner serves
+            # a second Motif client, which then replaces the owner and exports
+            # the received bytes to an independent requestor for verification.
+            owner = launch("native-owner", kind, source)
+            assert message(owner)["ready"]
+            destination = launch("native-import", kind, source)
+            imported = message(destination)
+            assert imported["native_import"] and imported["bytes"] == len(payload)
+            received = output / (name + "-" + kind + "-native-to-native.utf8")
+            outgoing = request_payload(received)
+            assert received.read_bytes() == payload, "Motif-to-Motif clipboard changed UTF-8 bytes"
+            if name == "large":
+                assert outgoing["incr"] and outgoing["chunks"] > 1, "native-to-native export did not exercise INCR"
+            records.append({"case": name, "widget": kind,
+                            "direction": "native-to-native",
+                            "payload_sha256": fingerprint,
+                            "incoming": imported, "outgoing": outgoing})
+            stop(destination)
+            stop(owner)
     passed = True
 finally:
     for process in children:

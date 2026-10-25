@@ -17,6 +17,13 @@ Non-text Unicode resource coverage (2026-10-25)
   application-journey limits; see `docs/nontext-unicode.md` and
   `docs/native-text-ime-matrix.md`.
 
+Direct Motif clipboard workflows (2026-10-25)
+==============================================
+
+- Extend the Unicode clipboard observer with direct Motif-to-Motif Text and
+  TextField owner/import round trips for mixed-script and multi-megabyte
+  payloads, retaining independent Xlib verification and explicit DnD limits.
+
 DropSMgr clipper teardown (2026-10-25)
 ======================================
 
