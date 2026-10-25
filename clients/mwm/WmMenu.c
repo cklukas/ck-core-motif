@@ -705,7 +705,17 @@ DuplicateMenuSpec (MenuSpec *menuSpec)
 		 "Insufficient memory for menu specification\n"));
 	return (NULL);
     }
-    newMenuSpec->name = XtNewString(menuSpec->name);
+    if (menuSpec == NULL)
+	{
+	    XtFree((char *)newMenuSpec);
+	    return (NULL);
+	}
+    newMenuSpec->name = (menuSpec->name != NULL) ?
+	    XtNewString(menuSpec->name) : NULL;
+    if (menuSpec->name != NULL && newMenuSpec->name == NULL) {
+	XtFree((char *)newMenuSpec);
+	return (NULL);
+    }
     newMenuSpec->currentContext = menuSpec->currentContext;
     newMenuSpec->menuWidget = (Widget) NULL;
     newMenuSpec->whichButton = menuSpec->whichButton;

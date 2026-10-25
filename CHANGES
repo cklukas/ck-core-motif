@@ -9783,6 +9783,13 @@ FontSelector label initialization rollback (2026-10-28)
 SpinBox value-list SetValues rollback (2026-10-28)
 =====================================================
 
+MWM menu-spec copy allocation guard (2026-10-25)
+================================================
+
+- Guard custom-menu specification name copying and reject an invalid source
+  record before exposing partial state; see
+  `docs/mwm-menu-spec-copy-allocation.md`.
+
 - Preserve the current string-child value list when replacement allocation or
   copying fails during `SetValues`, rolling back partial copies safely; see
   `docs/spinbox-value-setvalues-rollback.md`.
