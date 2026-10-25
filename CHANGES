@@ -3983,3 +3983,9 @@ Guard Font selector family-list allocation (2026-10-25)
 - Validate the temporary family XmString array before filling it, preserving
   the current list on allocation failure; see
   `docs/motif-fonts-family-allocation.md`.
+Guard Font selector size-list allocations (2026-10-25)
+========================================================
+
+- Check temporary XmString arrays used by size and alternate-family refreshes
+  for overflow and allocation failure; see
+  `docs/motif-fonts-size-list-allocation.md`.

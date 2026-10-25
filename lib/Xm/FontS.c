@@ -1719,7 +1719,11 @@ UpdateSizes(XmFontSelectorWidget fsw)
 	size_flag |= family->sizes_100;
 
     size = sizeof(LongFlag) * 8; /* There are 8 bits in a BYTE */
+    if ((size_t)(size + 1) > SIZE_MAX / sizeof(*strs))
+	return;
     strs = (XmString *) XtMalloc(sizeof(XmString) * (size + 1));
+    if (strs == NULL)
+	return;
     /*
      * DMS - fix to work around apparent Motif 1.2.4 bug concerning
      *       XmStrings containing as the empty string
@@ -2175,7 +2179,11 @@ SetOtherList(XmFontSelectorWidget fsw, Boolean force)
 	XtSetArg(largs[num_largs], XmNvalue, " "); num_largs++;
     }
     
-    strs = (XmString *) XtMalloc(sizeof(XmString) * num);
+    if ((size_t)num > SIZE_MAX / sizeof(*strs))
+	return;
+    strs = (XmString *) XtMalloc(sizeof(*strs) * (size_t)num);
+    if (strs == NULL && num != 0)
+	return;
     for (i = count = 0; i < num; i++, others++) 
 	strs[count++] = XmStringCreateLocalized(*others);
 
