@@ -22,6 +22,8 @@ Render-table locking (2026-10-26)
   `docs/render-table-tag-array.md`,
   `docs/render-table-single-rendition-null.md`, and
   `docs/render-table-rendition-array.md`.
+- Make `XmRenderTableCopy` use lock-held internal lookup and transactional
+  cleanup instead of recursively calling the public rendition accessor.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================
