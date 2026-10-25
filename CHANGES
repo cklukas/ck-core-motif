@@ -1,3 +1,10 @@
+Hierarchy initialization failure safety (2026-10-26)
+======================================================
+
+- Initialize Hierarchy ownership fields before root-node allocation and make
+  destruction tolerate allocation failure; see
+  `docs/hierarchy-init-failure.md`.
+
 Icon-directory allocation bounds (2026-10-26)
 ==============================================
 

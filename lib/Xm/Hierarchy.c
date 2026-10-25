@@ -420,14 +420,15 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
     HierarchyConstraints top_node;
     Window root = RootWindowOfScreen(XtScreen(set));
 
+    XmHierarchy_work_proc_id(hw) = (XtWorkProcId) NULL;
+    XmHierarchy_node_table(hw) = NULL;
+    XmHierarchy_top_node(hw) = NULL;
+    XmHierarchy_num_nodes(hw) = XmHierarchy_alloc_nodes(hw) = 0;
+
     top_node = ((HierarchyConstraints) 
 		XtMalloc(sizeof(HierarchyConstraintRec)));
 	if (top_node == NULL)
 	    return;
-
-    XmHierarchy_work_proc_id(hw) = (XtWorkProcId) NULL;
-    XmHierarchy_node_table(hw) = NULL;
-    XmHierarchy_num_nodes(hw) = XmHierarchy_alloc_nodes(hw) = 0;
 
     XmHierarchy_top_node(hw) = top_node;
 
@@ -487,7 +488,8 @@ Destroy(Widget w)
     DestroyFolderImages(w);
 
     XtFree((char *) XmHierarchy_node_table(hw));
-    XtFree((char *) XmHierarchyC_children(XmHierarchy_top_node(hw)));
+    if (XmHierarchy_top_node(hw) != NULL)
+        XtFree((char *) XmHierarchyC_children(XmHierarchy_top_node(hw)));
     XtFree((char *) XmHierarchy_top_node(hw));
 
     XtRemoveAllCallbacks(w, XmNnodeStateBegEndCallback);
