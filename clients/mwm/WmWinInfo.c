@@ -1029,7 +1029,7 @@ ProcessWmSaveHint (ClientData *pCD)
 			    &actualType, &actualFormat, &nitems,
 			    &leftover, (unsigned char **)&saveHintFlags)
 	 == Success) &&
-	(actualType != None) && (actualFormat == 32))
+	(actualType != None) && (actualFormat == 32) && (nitems > 0))
     {
 	/* the WMSAVE_HINT property exists for the client window */
 	pCD->wmSaveHintFlags = (int)*saveHintFlags;

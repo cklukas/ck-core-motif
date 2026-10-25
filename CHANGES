@@ -4676,3 +4676,9 @@ WM_STATE read guards (2026-10-25)
 
 - Require the expected format and item count when reading WM_STATE;
   see `docs/wmstate-read-guards.md`.
+
+WM save-hint property validation (2026-10-25)
+===============================================
+
+- Require a non-empty 32-bit save-hint property before dereferencing it;
+  see `docs/wmsave-hint-read-guards.md`.
