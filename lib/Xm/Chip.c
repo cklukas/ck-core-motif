@@ -20,6 +20,17 @@ static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
+static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
+{
+    XmChipWidget chip = (XmChipWidget)widget;
+    (void)offset;
+    if (chip->chip.check_set_render_table)
+        value->addr = NULL;
+    else {
+        chip->chip.check_set_render_table = True;
+        value->addr = (char *)&chip->chip.font;
+    }
+}
 
 #define Offset(field) XtOffsetOf(XmChipRec, field)
 static XtResource resources[] = {
@@ -35,6 +46,10 @@ static XtResource resources[] = {
     {XmNchipRemoveCallback, XmCChipRemoveCallback, XmRCallback,
      sizeof(XtCallbackList), Offset(chip.remove_callback), XmRPointer,
      (XtPointer)NULL},
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmFontList),
+     Offset(chip.font), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmRenderTable),
+     Offset(chip.font), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean),
      Offset(primitive.traversal_on), XmRImmediate, (XtPointer)True},
     {XmNhighlightThickness, XmCHighlightThickness, XmRHorizontalDimension,
@@ -61,15 +76,16 @@ static void create_gcs(XmChipWidget chip) {
     Display *display = XtDisplay((Widget)chip);
     values.foreground = chip->primitive.foreground;
     values.background = chip->core.background_pixel;
-    chip->chip.fallback_font = XLoadQueryFont(display, "fixed");
-    if (chip->chip.fallback_font) values.font = chip->chip.fallback_font->fid;
+    if (chip->chip.font == NULL)
+        chip->chip.font = XmFontListCopy(
+            XmeGetDefaultRenderTable((Widget)chip, XmLABEL_FONTLIST));
+    else
+        chip->chip.font = XmFontListCopy(chip->chip.font);
     chip->chip.foreground_gc = XCreateGC(display, DefaultRootWindow(display),
-                                         GCForeground | GCBackground |
-                                         (chip->chip.fallback_font ? GCFont : 0), &values);
+                                         GCForeground | GCBackground, &values);
     values.foreground = chip->core.background_pixel;
     chip->chip.background_gc = XCreateGC(display, DefaultRootWindow(display),
-                                         GCForeground | GCBackground |
-                                         (chip->chip.fallback_font ? GCFont : 0), &values);
+                                         GCForeground | GCBackground, &values);
 }
 
 /* XmStringCopy in older Motif builds can retain a shared optimized payload.
@@ -92,10 +108,6 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     XmChipWidget chip = (XmChipWidget)widget;
     (void)request; (void)args; (void)count;
     chip->chip.label = copy_label(chip->chip.label);
-    /* Font-list ownership varies across historical Motif implementations.
-       Keep geometry independent of that optional render table; Redisplay
-       uses the server's default GC font for the plain compact label. */
-    chip->chip.font = NULL;
     if (!chip->core.width) chip->core.width = 96;
     if (!chip->core.height) chip->core.height = 28;
     create_gcs(chip);
@@ -110,54 +122,18 @@ static void Destroy(Widget widget) {
                          NULL);
     if (chip->chip.foreground_gc) XFreeGC(display, chip->chip.foreground_gc);
     if (chip->chip.background_gc) XFreeGC(display, chip->chip.background_gc);
-    if (chip->chip.fallback_font) XFreeFont(display, chip->chip.fallback_font);
+    if (chip->chip.font) XmRenderTableFree(chip->chip.font);
     /* Xt owns XmNchipLabel resource storage and releases it after Destroy. */
     /* chip->font is borrowed from the parent/display default render table. */
-}
-
-static int label_text_metrics(XmChipWidget chip, const char *text, int length,
-                              int *ascent, int *descent) {
-    XGCValues values;
-    XFontStruct *font;
-    int width = 0;
-    *ascent = *descent = 0;
-    if (!chip->chip.foreground_gc ||
-        !XGetGCValues(XtDisplay((Widget)chip), chip->chip.foreground_gc,
-                      GCFont, &values))
-        return 0;
-    font = XQueryFont(XtDisplay((Widget)chip), values.font);
-    if (!font)
-        return 0;
-    *ascent = font->ascent;
-    *descent = font->descent;
-    if (text && length > 0)
-        width = XTextWidth(font, text, length);
-    XFreeFontInfo(NULL, font, 1);
-    return width < 0 ? 0 : width;
 }
 
 static void label_metrics(XmChipWidget chip, Dimension *width,
                           Dimension *height, Dimension *icon_width) {
     Dimension label_width = 0, label_height = 16;
-    int ascent, descent;
-    char *text = NULL;
     Dimension iw = 0, ih = 0;
     if (chip->chip.label) {
-        text = XmStringUnparse(chip->chip.label, NULL, XmCHARSET_TEXT,
-                               XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
-        if (text) {
-            size_t text_length = strlen(text);
-            int measured = label_text_metrics(chip, text,
-                text_length > (size_t)INT_MAX ? INT_MAX : (int)text_length,
-                &ascent, &descent);
-            label_width = measured > (int)USHRT_MAX ? USHRT_MAX :
-                          (Dimension)(measured > 0 ? measured :
-                                      (text_length > (size_t)USHRT_MAX / 8 ?
-                                       USHRT_MAX : text_length * 8));
-            if (ascent + descent > (int)label_height)
-                label_height = (Dimension)(ascent + descent);
-            XtFree(text);
-        }
+        XmStringExtent(chip->chip.font, chip->chip.label,
+                       &label_width, &label_height);
     }
     if (chip->chip.pixmap != XmUNSPECIFIED_PIXMAP &&
         chip->chip.pixmap != None) {
@@ -218,18 +194,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     }
     y = ((int)chip->core.height - (int)label_height) / 2;
     if (chip->chip.label) {
-        char *text = XmStringUnparse(chip->chip.label, NULL, XmCHARSET_TEXT,
-                                     XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
-        if (text) {
-            int ascent, descent;
-            label_text_metrics(chip, text,
-                               strlen(text) > (size_t)INT_MAX ? INT_MAX :
-                               (int)strlen(text), &ascent, &descent);
-            XDrawString(display, window, chip->chip.foreground_gc, x,
-                        y + ((int)label_height - ascent - descent) / 2 + ascent,
-                        text, (int)strlen(text));
-            XtFree(text);
-        }
+        if (chip->chip.font)
+            XmStringDraw(display, window, chip->chip.font, chip->chip.label,
+                         chip->chip.foreground_gc, x, y, label_width,
+                         XmALIGNMENT_BEGINNING, XmPrim_layout_direction(chip),
+                         NULL);
     }
     if (chip->chip.removable) {
         int cx = (int)chip->core.width - 12;
@@ -294,6 +263,13 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmChipWidget chip = (XmChipWidget)widget;
     Boolean redraw = False;
     (void)request; (void)args; (void)count;
+    if (old->chip.font != chip->chip.font) {
+        XmFontList new_font = chip->chip.font ? XmFontListCopy(chip->chip.font) :
+            XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+        if (old->chip.font) XmRenderTableFree(old->chip.font);
+        chip->chip.font = new_font;
+        redraw = True;
+    }
     if (old->chip.label != chip->chip.label) {
         XmString replacement = copy_label(chip->chip.label);
         chip->chip.label = replacement;
