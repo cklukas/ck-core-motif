@@ -175,6 +175,9 @@ XmStringNCopy(
   unsigned int	len;
   XmString	ret_val;
   
+  if (str == NULL || n < 0)
+    return (NULL);
+
   len = XmCvtXmStringToByteStream(str, &tmp);
   
   if (n >= len) /* No need to truncate */
