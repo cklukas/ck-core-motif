@@ -1,3 +1,9 @@
+Menu recreation allocation (2026-10-25)
+========================================
+
+- Check the temporary menu-spec array before populating it during dynamic menu
+  recreation; see `docs/menu-recreate-allocation.md`.
+
 Workspace information property allocation (2026-10-25)
 ========================================================
 

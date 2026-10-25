@@ -1793,6 +1793,11 @@ static void RecreateMenuWidgets (WmScreenData *pSD, ClientData *pCD,
     /* Allocate an array of menuspec pointers that is the size of the
        number of menu specs we need to recreate widgets for */
     to_change = (MenuSpec **)XtMalloc(sizeof(MenuSpec *) * count);
+    if (to_change == (MenuSpec **) NULL)
+    {
+	Warning ("Insufficient memory to recreate menu widgets");
+	return;
+    }
     for (i = 0; i < count; ++i)
       to_change[i] = (MenuSpec *) NULL;
 
