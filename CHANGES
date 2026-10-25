@@ -4312,6 +4312,13 @@ Guard XmGetIconFileName screen input (2026-10-25)
 
 - Return safely before display access when the public icon-file lookup receives
   a null screen; see `docs/icon-public-screen-input.md`.
+
+Guard XmRegion operation inputs (2026-10-25)
+=============================================
+
+- Treat missing region sources as empty and reject missing destinations or
+  rectangles before intersection, union, subtraction and shrink operations;
+  see `docs/region-operation-input-guards.md`.
 Mrm writer cstring-vector validation (2026-10-25)
 ====================================================
 

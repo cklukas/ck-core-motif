@@ -551,6 +551,8 @@ EXTRA_DIST += tests/automated/check-mrm-writer-compressed-tag-validation.py docs
 EXTRA_DIST += tests/automated/check-mrm-writer-uncompressed-tag-validation.py docs/mrm-writer-uncompressed-tag-validation.md
 
 EXTRA_DIST += tests/automated/check-icon-public-screen-input.py docs/icon-public-screen-input.md
+
+EXTRA_DIST += tests/automated/check-region-operation-input-guards.py docs/region-operation-input-guards.md
 EXTRA_DIST += tests/automated/check-mrm-writer-resource-ref-validation.py docs/mrm-writer-resource-ref-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-char8-vector-validation.py docs/mrm-writer-char8-vector-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-cstring-vector-validation.py docs/mrm-writer-cstring-vector-validation.md

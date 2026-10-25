@@ -1177,6 +1177,13 @@ _XmRegionIntersect(
     XmRegion	  	reg2,
     XmRegion 		newReg )
 {
+    if (newReg == NULL)
+	return;
+    if (reg1 == NULL || reg2 == NULL) {
+	_XmRegionClear(newReg);
+	return;
+    }
+
    /*
     *  Check for trivial reject.
     */
@@ -1214,6 +1221,13 @@ _XmRegionIntersectRectWithRegion(
     XmRegion		dest )
 {
     XmRegionRec	region;
+
+    if (rect == NULL || dest == NULL)
+	return;
+    if (source == NULL) {
+	_XmRegionClear(dest);
+	return;
+    }
 
     region.rects = &region.extents;
     region.numRects = 1;
@@ -1381,6 +1395,20 @@ _XmRegionUnion(
     XmRegion	  reg2,
     XmRegion 	  newReg )
 {
+    if (newReg == NULL)
+	return;
+    if (reg1 == NULL) {
+	if (reg2 == NULL)
+	    _XmRegionClear(newReg);
+	else
+	    miRegionCopy(newReg, reg2);
+	return;
+    }
+    if (reg2 == NULL) {
+	miRegionCopy(newReg, reg1);
+	return;
+    }
+
     /*  checks all the simple cases */
 
     /*
@@ -1452,6 +1480,9 @@ _XmRegionUnionRectWithRegion(
 {
     XmRegionRec	region;
     XmRegionBox box[1];
+
+    if (rect == NULL || dest == NULL)
+	return;
 
 /*
     region.rects = &region.extents;
@@ -1689,6 +1720,17 @@ _XmRegionSubtract(
     XmRegion	  	regS,          
     XmRegion		regD )
 {
+    if (regD == NULL)
+	return;
+    if (regM == NULL) {
+	_XmRegionClear(regD);
+	return;
+    }
+    if (regS == NULL) {
+	miRegionCopy(regD, regM);
+	return;
+    }
+
    /* check for trivial reject */
     if ( ISEMPTY(regM) || ISEMPTY(regS) ||
 	(!EXTENTCHECK(&regM->extents, &regS->extents)) )
@@ -1830,7 +1872,7 @@ _XmRegionShrink(
 {
     XmRegion	s, t;
 
-    if (!dx && !dy) {
+    if (r == NULL || (!dx && !dy)) {
         return;
     }
     if (!(s = _XmRegionCreate())) {
