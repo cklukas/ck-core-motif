@@ -1,3 +1,9 @@
+XContext null-state portability (2026-10-25)
+===============================================
+
+- Use integer zero for uninitialized non-DnD Xlib contexts, avoiding
+  pointer-to-integer casts on 64-bit builds; see `docs/xcontext-null.md`.
+
 RowColumn menu-post failure handling (2026-10-25)
 ====================================================
 

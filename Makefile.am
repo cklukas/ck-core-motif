@@ -665,3 +665,5 @@ EXTRA_DIST += tests/automated/check-notebook-geometry-init.py docs/notebook-geom
 EXTRA_DIST += tests/automated/check-fast-subclass-sequencing.py docs/fast-subclass.md
 
 EXTRA_DIST += tests/automated/check-rowcolumn-menupost.py docs/rowcolumn-menupost.md
+
+EXTRA_DIST += tests/automated/check-xcontext-zero.py docs/xcontext-null.md
