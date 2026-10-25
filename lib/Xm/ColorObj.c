@@ -1339,7 +1339,9 @@ XmeGetColorObjData(Screen * screen,
     /* return False if color srv is not running, or color obj not used */
     if (!tmpColorObj ||
 	!tmpColorObj->color_obj.useColorObj || 
-	!tmpColorObj->color_obj.colorIsRunning) {
+	!tmpColorObj->color_obj.colorIsRunning ||
+	tmpColorObj->color_obj.colorUse == NULL ||
+	tmpColorObj->color_obj.colors == NULL) {
       _XmProcessUnlock();
       return False;
     }

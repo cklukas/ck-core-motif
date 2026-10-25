@@ -1,3 +1,9 @@
+ColorObj read-side storage validation (2026-10-25)
+===================================================
+
+- Require initialized per-screen color storage before `_XmGetColor` reads;
+  see `docs/color-read-storage.md`.
+
 XmGetXmScreen state validation (2026-10-25)
 =============================================
 
