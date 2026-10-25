@@ -1,3 +1,10 @@
+Xm scaled-pixmap cache-entry allocation (2026-10-25)
+=========================================================
+
+- Guard cache-record, color-metadata, and image-name allocations in
+  `_XmGetScaledPixmap`, restoring temporary image state and releasing pixels
+  on failure; see `docs/xm-scaled-pixmap-entry-allocation.md`.
+
 Xm image-table initialization (2026-10-25)
 ==============================================
 
