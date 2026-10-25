@@ -921,6 +921,10 @@ _XmStringNCreate(char *text,
       _XmUnoptSegByteCount(&seg) = t_length;
       
       _XmStringSegmentNew(str, 0, (_XmStringEntry)&seg, True);	
+      if (_XmStrEntryCount(str) == 0) {
+	_XmStrFree(str);
+	return((XmString) NULL);
+      }
       return(str);
     }
 }
