@@ -3291,6 +3291,12 @@ Drag target-list count validation (2026-10-25)
 
 - Reject per-list target counts that exceed the serialized 16-bit field; see
   `docs/dragbs-target-count-guards.md`.
+
+Drag target-table offset validation (2026-10-25)
+=================================================
+
+- Reject serialized target-table sizes that exceed the 32-bit `heap_offset`
+  field; see `docs/dragbs-target-offset-guards.md`.
 2026-10-25
 	* Add an opt-in XmSegmentedControl composite with copied item ownership,
 	  bounded clipping, RTL keyboard traversal and accessibility selection state.
