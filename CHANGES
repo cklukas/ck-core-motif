@@ -5767,6 +5767,13 @@ Embedded XPM mask ownership (2026-10-24)
   rejected, allocation fails, or mask use is disabled; see
   `docs/embedded-mask-ownership.md`.
 
+RowColumn accelerator getter width (2026-10-25)
+===============================================
+
+- Reject menu-accelerator copies that exceed Xt's `Cardinal` allocation width
+  before the resource getter calls `XtMalloc`; see
+  `docs/rowcolumn-resource-allocation.md`.
+
 RowColumn traversal allocation cast (2026-10-25)
 ================================================
 

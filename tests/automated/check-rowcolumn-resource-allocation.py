@@ -7,6 +7,8 @@ accelerator = source.index("GetMenuAccelerator(")
 accelerator_end = source.index("/*\n * Copy the String in XmNmenuPost", accelerator)
 accelerator_region = source[accelerator:accelerator_end]
 assert "if (data != NULL)" in accelerator_region
+assert "length >= UINT_MAX" in accelerator_region
+assert "XtMalloc((Cardinal)(length + 1))" in accelerator_region
 assert "*value = (XtArgVal) data" in accelerator_region
 post = source.index("GetMenuPost(")
 post_end = source.index("/*\n * Copy the XmString", post)
