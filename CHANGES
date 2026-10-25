@@ -1,6 +1,9 @@
 Xft compound-string line height (2026-10-27)
 ===============================================
 
+- Make XmString context-copy rendition sizing use checked `size_t` arithmetic
+  and reject counts that cannot be represented by the `Cardinal` allocator
+  interface before multiplication or allocation.
 - Use the native Xft font height for compound-string geometry instead of
   dropping leading by reducing it to ascent plus descent.
 - Pass UTF-16 character counts, rather than byte lengths, to Xft underline

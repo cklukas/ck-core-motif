@@ -9639,7 +9639,8 @@ void
 _XmStringContextCopy(_XmStringContext target,
 		     _XmStringContext source)
 {
-  int size;
+  size_t size;
+  size_t count;
   assert(source && target && (source != target));
 
   /* Copy the normal fields. */
@@ -9647,7 +9648,14 @@ _XmStringContextCopy(_XmStringContext target,
 
   /* Copy the active renditions list so we can modify it. */
   if (_XmStrContRendCount(target) > 0) {
-     size = sizeof(XmStringTag) * _XmStrContRendCount(target);
+     count = (size_t) _XmStrContRendCount(target);
+     if (count > SIZE_MAX / sizeof(XmStringTag) ||
+	 count * sizeof(XmStringTag) > (size_t)((Cardinal)~0)) {
+	_XmStrContRendCount(target) = 0;
+	_XmStrContRendTags(target) = NULL;
+	return;
+     }
+     size = count * sizeof(XmStringTag);
      _XmStrContRendTags(target) = (XmStringTag*) XtMalloc(size);
      if (_XmStrContRendTags(target) == NULL) {
         _XmStrContRendCount(target) = 0;
