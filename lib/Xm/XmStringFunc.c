@@ -192,18 +192,15 @@ XmStringTableParseStringArray(XtPointer   *strings,
   Cardinal i;
   XmStringTable strs;
 
-  _XmProcessLock();
   if ((strings == NULL) || (count == 0) ||
       ((size_t)count > SIZE_MAX / sizeof(XmString)) ||
       ((size_t)count > (size_t)UINT_MAX / sizeof(XmString))) {
-    _XmProcessUnlock();
     return(NULL);
   }
   
   strs = (XmStringTable)XtMalloc(
       (Cardinal)((size_t)count * sizeof(XmString)));
   if (strs == NULL) {
-    _XmProcessUnlock();
     return(NULL);
   }
   
@@ -213,7 +210,6 @@ XmStringTableParseStringArray(XtPointer   *strings,
 				  parse, parse_count, call_data);
     }
 
-  _XmProcessUnlock();
   return(strs);
 }
 
@@ -230,25 +226,21 @@ XmStringTableUnparse(XmStringTable     table,
   XtPointer	*strs;
   Cardinal	i;
   
-  _XmProcessLock();
   if ((table == NULL) || (count == 0) ||
       ((size_t)count > SIZE_MAX / sizeof(XtPointer)) ||
       ((size_t)count > (size_t)UINT_MAX / sizeof(XtPointer))) {
-    _XmProcessUnlock();
     return(NULL);
   }
   
   strs = (XtPointer *)XtMalloc(
       (Cardinal)((size_t)count * sizeof(XtPointer)));
   if (strs == NULL) {
-    _XmProcessUnlock();
     return(NULL);
   }
   
   for (i = 0; i < count; i++)
     strs[i] = XmStringUnparse(table[i], tag, tag_type, output_type,
 			      parse, parse_count, parse_model);
-  _XmProcessUnlock();
   return(strs);
 }
 
