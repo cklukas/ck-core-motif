@@ -957,12 +957,20 @@ _XiResolveAllPartOffsets(
         XmOffsetPtr *constraint_offset,
 	Boolean     align64)
 {
-    WidgetClass c, super = w_class->core_class.superclass;
+    WidgetClass c, super;
     ConstraintWidgetClass cc = NULL, scc = NULL;
     int i, classcount = 0;
     XmPartResource *pr;
     
     Boolean do_align = False;
+
+    if (w_class == NULL || offset == NULL)
+	return;
+    *offset = NULL;
+    if (constraint_offset != NULL)
+	*constraint_offset = NULL;
+
+    super = w_class->core_class.superclass;
     
     _XmProcessLock();
     if (sizeof(int) != sizeof(void*))
@@ -1029,13 +1037,34 @@ _XiResolveAllPartOffsets(
      *  Count the number of superclasses and allocate the offset record(s)
      */
     for (c = w_class; c != NULL; c = c->core_class.superclass) classcount++;
-    
-    *offset = (XmOffsetPtr) XtMalloc(classcount * sizeof(XmOffset));
+
+    if (classcount <= 0 || (size_t)classcount > SIZE_MAX / sizeof(XmOffset) ||
+	classcount > UINT_MAX / sizeof(XmOffset)) {
+	_XmProcessUnlock();
+	return;
+    }
+    *offset = (XmOffsetPtr) XtMalloc((size_t)classcount * sizeof(XmOffset));
+    if (*offset == NULL) {
+	_XmProcessUnlock();
+	return;
+    }
     if (cc)
-	*constraint_offset = (XmOffsetPtr) XtMalloc(classcount 
-						    * sizeof(XmOffset));
-    else 
-	if(constraint_offset != NULL) *constraint_offset = NULL;
+	{
+	if (constraint_offset == NULL) {
+	    XtFree((char *)*offset);
+	    *offset = NULL;
+	    _XmProcessUnlock();
+	    return;
+	}
+	*constraint_offset = (XmOffsetPtr) XtMalloc((size_t)classcount *
+						    sizeof(XmOffset));
+	if (*constraint_offset == NULL) {
+	    XtFree((char *)*offset);
+	    *offset = NULL;
+	    _XmProcessUnlock();
+	    return;
+	}
+	}
     
     /*
      *  Fill in the offset table(s) with the offset of all parts

@@ -158,6 +158,7 @@ EXTRA_DIST += tests/automated/check-fixed-match-allocation.py docs/fixed-match-a
 EXTRA_DIST += tests/automated/check-mwm-command-window-allocation.py docs/mwm-command-window-allocation.md
 EXTRA_DIST += tests/automated/check-xmstring-mb-allocation.py docs/xmstring-mb-allocation.md
 EXTRA_DIST += tests/automated/check-paned-sash-list-allocation.py docs/paned-sash-list-allocation.md
+EXTRA_DIST += tests/automated/check-part-offset-allocation.py docs/part-offset-allocation.md
 EXTRA_DIST += tests/automated/check-xim-info-allocation.py docs/xim-info-allocation.md
 EXTRA_DIST += tests/automated/check-xim-recreate-allocation.py docs/xim-recreate-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md

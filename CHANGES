@@ -9928,6 +9928,12 @@ Paned sash and separator list allocation guards (2026-10-25)
   partial allocations before Paned layout-state updates continue; see
   `docs/paned-sash-list-allocation.md`.
 
+Widget part-offset allocation guards (2026-10-25)
+=================================================
+
+- Validate offset-table sizing and release partial tables without leaving the
+  Motif process lock held; see `docs/part-offset-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
