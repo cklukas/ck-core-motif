@@ -715,7 +715,7 @@ SetValues(Widget current, Widget request, Widget set,
     Boolean resetGCs, recalc, redisplay, reinit_l, reinit_ls;
     XmIconButtonWidget old_iw = (XmIconButtonWidget) current;
     XmIconButtonWidget set_iw = (XmIconButtonWidget) set;
-    register int i;
+    register Cardinal i;
 
     Boolean pixmapChanged = False;
     Boolean pixmapGeoChanged = False;
