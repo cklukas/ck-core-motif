@@ -109,6 +109,12 @@ XmStringGetLtoR locking and initialization (2026-10-26)
 - Avoid recursive process locking across context helpers and handle context
   initialization failure; see `docs/xmstring-getltr-locking.md`.
 
+XmString ASN.1 conversion failure cleanup (2026-10-26)
+=======================================================
+
+- Release partial rendition and string state when non-optimized ASN.1
+  conversion allocations fail; see `docs/xmstring-asn1-failure-cleanup.md`.
+
 XmString extraction output validation (2026-10-26)
 ====================================================
 

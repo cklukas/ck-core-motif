@@ -2069,6 +2069,11 @@ contract is recorded in `tests/automated/check-xmstring-get-outputs.py` and
 context initialization before enumeration, with the source contract recorded
 in `tests/automated/check-xmstring-getltoR-locking.py` and
 `docs/xmstring-getltr-locking.md`.
+Non-optimized ASN.1 conversion now commits rendition counts only after growth
+succeeds, checks separator line allocations, and cleans partial state on
+failure. The source contract is recorded in
+`tests/automated/check-xmstring-asn1-failure-cleanup.py` and
+`docs/xmstring-asn1-failure-cleanup.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the
