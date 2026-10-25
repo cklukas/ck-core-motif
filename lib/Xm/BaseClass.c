@@ -1383,6 +1383,8 @@ BaseClassPartInitialize(
 	{
 	  inited = False;
 	  *wcePtr = (XmBaseClassExt) XtCalloc(1, sizeof(XmBaseClassExtRec));
+	  if (!*wcePtr)
+	    return NULL;
 	  (*wcePtr)->classPartInitPrehook  = XmInheritClassPartInitPrehook;
 	  (*wcePtr)->classPartInitPosthook = XmInheritClassPartInitPosthook;
 	  (*wcePtr)->initializePrehook     = XmInheritInitializePrehook;
@@ -1681,6 +1683,8 @@ _XmSecondaryResourceData(
       if (secObjClass)
 	{
 	  secResData = XtNew(XmSecondaryResourceDataRec);
+	  if (!secResData)
+	    return 0;
 	  
 	  _XmTransformSubResources(secObjClass->core_class.resources,
 				   secObjClass->core_class.num_resources,
@@ -1692,6 +1696,11 @@ _XmSecondaryResourceData(
 	  secResData->client_data = client_data;
 	  secResData->base_proc = basefunctionpointer;
 	  sd = XtNew(XmSecondaryResourceData); 
+	  if (!sd) {
+	    XtFree((char *)secResData->resources);
+	    XtFree((char *)secResData);
+	    return 0;
+	  }
 	  *sd = secResData;
 	  *secResDataRtn = sd;
 	  count++;
@@ -1716,6 +1725,8 @@ CreateIndirectionTable(XtResourceList resources,
   XtResourceList* table;
   
   table = (XtResourceList*)XtMalloc(num_resources * sizeof(XtResourceList));
+  if (!table)
+    return NULL;
   for (i = 0; i < num_resources; i++)
     table[i] = (XtResourceList)(&(resources[i]));
 
@@ -1803,6 +1814,11 @@ _XmTransformSubResources(
        
        tmp_resources = (XtResourceList)
 	 XtMalloc(sizeof(XtResource) * num_comp_resources);
+	  if (!tmp_resources) {
+	    *resources = NULL;
+	    *num_resources = 0;
+	    return;
+	  }
        
        memcpy(tmp_resources, comp_resources,
 	      sizeof(XtResource) * num_comp_resources);
@@ -1818,6 +1834,11 @@ _XmTransformSubResources(
        /* This next statement is marked for change */
        shadowObjectClassRec.constraint_class.resources = (XtResourceList)
 	 CreateIndirectionTable(comp_resources, num_comp_resources);
+	if (!shadowObjectClassRec.constraint_class.resources) {
+	  *resources = NULL;
+	  *num_resources = 0;
+	  return;
+	}
        
        shadowObjectClassRec.constraint_class.num_resources = num_comp_resources;
        

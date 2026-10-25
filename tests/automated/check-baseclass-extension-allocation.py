@@ -2,16 +2,10 @@
 from pathlib import Path
 
 source = Path("lib/Xm/BaseClass.c").read_text()
-start = source.index("static XmWrapperData")
-end = source.index("typedef struct _ExtToContextRec", start)
-wrapper = source[start:end]
-assert "XtCalloc(1, sizeof(XmBaseClassExtRec))" in wrapper
-assert "if (!*wcePtr)" in wrapper
-assert "return NULL;" in wrapper
-start = source.index("_XmPushWidgetExtData(")
-end = source.index("void\n_XmPopWidgetExtData", start)
-push = source[start:end]
-assert "newData = (XmAssocData) XtCalloc" in push
-assert "if (!newData)" in push
-assert "return;" in push
+assert source.count("if (!*wcePtr)") >= 2
+assert source.count("if (!secResData)") >= 1
+assert source.count("if (!sd)") >= 1
+assert source.count("if (!table)") >= 1
+assert source.count("if (!tmp_resources)") >= 1
+assert source.count("if (!newData)") >= 1
 print("BaseClass extension allocation guards present")

@@ -8378,6 +8378,6 @@ ComboBox argument merging (2026-10-27)
 BaseClass extension allocation (2026-10-27)
 ============================================
 
-- Check lazy class-extension allocation before initializing it and make
-  _XmPushWidgetExtData return safely when its association node cannot be
-  allocated.
+- Check lazy class-extension, secondary-resource, indirection-table, and
+  widget-extension association allocations, releasing partial state and
+  returning empty transformation results on allocation failure.
