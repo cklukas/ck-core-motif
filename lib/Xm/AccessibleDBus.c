@@ -1423,6 +1423,7 @@ static void seed_connected_tree(Transport *t) {
   for (node = a->nodes; node; node = node->next) ++count;
   if (count > UINT_MAX / sizeof(*ids)) goto done;
   ids = (XmAccessibleId *)XtMalloc((Cardinal)(count * sizeof(*ids)));
+  if (!ids) goto done;
   for (node = a->nodes, k = 0; node; node = node->next) ids[k++] = node->id;
   for (k = 0; k < count && !a->destroy_requested; ++k) {
     XmAccessibleInfo info;

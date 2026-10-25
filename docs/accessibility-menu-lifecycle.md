@@ -16,3 +16,9 @@ The AT-SPI cache `GetItems` snapshot also reports a D-Bus `NoMemory` error
 when its ID array cannot be allocated, rather than dereferencing a null
 buffer. The source regression is
 `tests/automated/check-accessibility-cache-snapshot-allocation.py`.
+
+
+Initial AT-SPI tree seeding now abandons the seeding pass if its ID snapshot
+allocation fails, leaving the transport alive for later retries instead of
+writing through a null buffer. The source regression is
+`tests/automated/check-accessibility-seed-allocation.py`.
