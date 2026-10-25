@@ -7,6 +7,13 @@ Gallery screenshot qualification receipts (2026-10-25)
   `skip`, and `fail` outcomes and retain the active entry and failure reason;
   see `docs/modern-gallery-screenshot-qualification.md`.
 
+Harden typed varargs allocation (2026-10-25)
+============================================
+
+- Make typed-varargs conversion initialize outputs, reject invalid byte-size
+  capacities, and report Xt allocation failure as an empty result; see
+  `docs/xm-va-typed-allocation.md`.
+
 Harden XmeVLCreateWidget argument allocation (2026-10-25)
 ==========================================================
 
