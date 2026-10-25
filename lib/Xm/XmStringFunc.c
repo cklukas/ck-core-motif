@@ -254,6 +254,10 @@ XmStringTableToXmString(XmStringTable  table,
   XmString	str = NULL, tmp1, tmp2;
 
   _XmProcessLock();
+  if ((table == NULL) || (count == 0)) {
+    _XmProcessUnlock();
+    return(NULL);
+  }
   tmp1 = NULL;
 
   for (i = 0; i < count; i++)
@@ -272,6 +276,9 @@ XmString
 XmStringPutRendition(XmString string,
 		     XmStringTag rendition)
 {
+  if ((string == NULL) || (rendition == NULL))
+    return(NULL);
+
   /* Quick and dirty.  Fix for beta! */
   XmString	str, tmp1, tmp2;
   
@@ -624,7 +631,11 @@ XmStringToXmStringTable(XmString string,
       if (table != NULL)
 	{
 	  *table = (XmStringTable)XtMalloc(sizeof(XmString));
-	  *table[0] = XmStringCopy(string);
+	  if (*table == NULL) {
+	    _XmProcessUnlock();
+	    return(0);
+	  }
+	  (*table)[0] = XmStringCopy(string);
 	}
       _XmProcessUnlock();
       return(1);
@@ -654,6 +665,10 @@ XmStringToXmStringTable(XmString string,
   if (table != NULL)
     {
       *table = (XmStringTable)XtMalloc(count * sizeof(XmString));
+      if (*table == NULL) {
+	_XmProcessUnlock();
+	return(0);
+      }
       
       _XmStringContextReInit(&stack_context, string);
       _XmStringContextReInit(&stack_start, string);
@@ -728,8 +743,17 @@ XmStringTableProposeTablist(XmStringTable strings,
   if (rt == NULL) rt = XmeGetDefaultRenderTable(widget, XmTEXT_FONTLIST);
 
   tab = XmTabCreate(0.0, units, offset_model, XmALIGNMENT_BEGINNING, ".");
+  if (tab == NULL) {
+    _XmProcessUnlock();
+    return ((XmTabList)NULL);
+  }
 
   tl = XmTabListInsertTabs(NULL, &tab, 1, 0);
+  if (tl == NULL) {
+    XmTabFree(tab);
+    _XmProcessUnlock();
+    return ((XmTabList)NULL);
+  }
   
   XmTabFree(tab);
   
@@ -768,6 +792,12 @@ XmStringTableProposeTablist(XmStringTable strings,
 	    {
 	      tab = XmTabCreate(0.0, units, offset_model,
 				XmALIGNMENT_BEGINNING, ".");
+	      if (tab == NULL) {
+		_XmStringContextFree(&stack_ctx);
+		XmTabListFree(tl);
+		_XmProcessUnlock();
+		return ((XmTabList)NULL);
+	      }
 	      start = _XmTabLStart(tl);
 	      prev = _XmTabPrev(start);
 	      

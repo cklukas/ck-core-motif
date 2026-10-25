@@ -3690,3 +3690,10 @@ Guard icon-file cache allocations (2026-10-25)
   records, key/path copies, hash-table lookup and stipple-record allocation,
   releasing partial entries and continuing normal icon resolution on failure;
   see the corresponding `docs/motif-icon*.md` contracts.
+Guard XmString input and tab-list allocations (2026-10-25)
+============================================================
+
+- Reject invalid XmString table/rendition inputs, guard split-table and
+  proposed tab-list allocations, and roll back tab-list growth before
+  returning `NULL`; see the corresponding `docs/motif-xmstring-*.md`
+  contracts.
