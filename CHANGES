@@ -5473,3 +5473,9 @@ Make segment-encoding registry updates transactional (2026-10-25)
 
 - Preserve registered encodings and guard registry export buffers across
   allocation failures; see `docs/motif-resencod-registry.md`.
+
+Guard extended compound-text segment buffers (2026-10-25)
+============================================================
+
+- Check mirrored charset/text temporary allocations and release partial
+  buffers on failure; see `docs/motif-resencod-segments.md`.
