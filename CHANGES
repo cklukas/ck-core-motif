@@ -13435,6 +13435,12 @@ Divider label width bounds (2026-10-26)
 - Bound long-label pixel multiplication before converting to `Dimension`; see
   `docs/divider-label-width.md`.
 
+Text-control geometry bounds (2026-10-26)
+==========================================
+
+- Bound Prompt, Link, and Badge preferred-width calculations before converting
+  to `Dimension`; see `docs/text-control-geometry-bounds.md`.
+
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================
 

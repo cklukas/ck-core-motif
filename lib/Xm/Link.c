@@ -124,9 +124,14 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
     XmLinkWidget link = (XmLinkWidget)widget; char text[256];
+    size_t length;
     (void)request; text_value(link, text, sizeof(text));
     reply->request_mode = CWWidth | CWHeight;
-    reply->width = (Dimension)(strlen(text) * 8 + 8); reply->height = 24;
+    length = strlen(text);
+    reply->width = length > ((unsigned long)(Dimension)-1 - 8UL) / 8UL
+                       ? (Dimension)-1
+                       : (Dimension)(length * 8UL + 8UL);
+    reply->height = 24;
     return (widget->core.width == reply->width && widget->core.height == reply->height)
                ? XtGeometryYes : XtGeometryAlmost;
 }
