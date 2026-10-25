@@ -3999,3 +3999,8 @@ Guard Font selector metadata allocations (2026-10-25)
 
 - Check FontInfo and family-table allocation failures during initialization;
   see `docs/motif-fonts-metadata-allocation.md`.
+Make Font selector raw-list growth transactional (2026-10-25)
+===============================================================
+
+- Guard XLFD and alternate-font list growth and string copies; see
+  `docs/motif-fonts-list-growth.md`.
