@@ -1546,6 +1546,14 @@ Redisplay(
         Region region )
 {
     XmScrollBarWidget sbw = (XmScrollBarWidget) wid ;
+    Dimension shadow_width, shadow_height;
+
+    shadow_width = (sbw->core.width >
+		    2 * sbw->primitive.highlight_thickness) ?
+		 sbw->core.width - 2 * sbw->primitive.highlight_thickness : 1;
+    shadow_height = (sbw->core.height >
+		     2 * sbw->primitive.highlight_thickness) ?
+		  sbw->core.height - 2 * sbw->primitive.highlight_thickness : 1;
 
 
     if (sbw->primitive.shadow_thickness > 0)
@@ -1554,10 +1562,8 @@ Redisplay(
 		      sbw->primitive.top_shadow_GC,
 		      sbw->primitive.highlight_thickness,
 		      sbw->primitive.highlight_thickness,
-		      sbw->core.width-2 * 
-		        sbw->primitive.highlight_thickness,
-		      sbw->core.height-2 * 
-		        sbw->primitive.highlight_thickness,
+		      shadow_width,
+		      shadow_height,
 		      sbw->primitive.shadow_thickness,
 		      XmSHADOW_OUT);
 

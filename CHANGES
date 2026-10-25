@@ -7391,3 +7391,11 @@ MenuShell popup placement bounds (2026-10-26)
 
 Paned regular sash position bounds (2026-10-26)
 ================================================
+ScrollBar redisplay shadow bounds (2026-10-26)
+===============================================
+
+- Bound shadow drawing spans during ScrollBar redisplay, preventing wrapped
+  dimensions in collapsed controls; see `docs/scrollbar-redisplay-bounds.md`.
+
+MenuShell popup placement bounds (2026-10-26)
+==============================================
