@@ -2982,11 +2982,17 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
 
     XtManageChild(omenu);
 
-    XtFree(ENCODING_STRING(fsw));
-    if (current == 0)
-	ENCODING_STRING(fsw) = XtNewString(ANY_ENCODING);
-    else
-	ENCODING_STRING(fsw) = XtNewString(ENCODING_LIST(fsw)[current - 1]);
+    {
+	String new_encoding;
+	if (current == 0)
+	    new_encoding = XtNewString(ANY_ENCODING);
+	else
+	    new_encoding = XtNewString(ENCODING_LIST(fsw)[current - 1]);
+	if (new_encoding != NULL) {
+	    XtFree(ENCODING_STRING(fsw));
+	    ENCODING_STRING(fsw) = new_encoding;
+	}
+    }
 
     return(omenu);
 }

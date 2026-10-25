@@ -10015,6 +10015,13 @@ FontSelector encoding-label allocation guard (2026-10-25)
 - Stop initialization before selector updates if the duplicated encoding label
   cannot be allocated; see `docs/font-selector-encoding-string-allocation.md`.
 
+FontSelector encoding update guard (2026-10-25)
+===============================================
+
+- Allocate replacement encoding labels before releasing the current label,
+  preserving valid selector state on failure; see
+  `docs/font-selector-encoding-update.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
