@@ -1,3 +1,9 @@
+Guard Container cell conversion indices (2026-10-25)
+====================================================
+
+- Reject invalid closest-placement and cell-coordinate indices before
+  Container occupancy access; see `docs/container-cell-index-bounds.md`.
+
 Guard Container CELLS region lifecycle (2026-10-25)
 ===================================================
 
