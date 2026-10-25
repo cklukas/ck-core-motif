@@ -4993,3 +4993,9 @@ Guard ProgressBar redisplay resources (2026-10-25)
 
 - Handle partial ProgressBar GC allocation and avoid focus-rectangle geometry
   underflow on tiny widgets; see `docs/progress-bar-redisplay-guards.md`.
+
+Guard DatePicker redisplay GC (2026-10-25)
+===========================================
+
+- Skip drawing safely when DatePicker's X11 drawing GC is unavailable; see
+  `docs/date-picker-redisplay-guard.md`.
