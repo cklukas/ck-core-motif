@@ -1690,10 +1690,7 @@ RedirectTraversal(Widget	       old_focus,
 
   /* Try not to get into an infinite loop. */
   if (pass >= 255)
-    {
-      assert(FALSE);
-      return NULL;
-    }
+    return new_focus;
 
   /* Check ancestors of the old focus. */
   for (parent = old_focus; parent != NULL; parent = XtParent(parent))

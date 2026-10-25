@@ -758,3 +758,5 @@ EXTRA_DIST += tests/automated/check-xmstring-byte-stream-length.py docs/xmstring
 EXTRA_DIST += tests/automated/check-xmstring-next-segment-input.py docs/xmstring-next-segment-input.md
 
 EXTRA_DIST += tests/automated/check-container-tab-rebuild-failure.py docs/container-tab-rebuild-failure.md
+
+EXTRA_DIST += tests/automated/check-traversal-redirect-cycle.py docs/traversal-redirect-cycle.md
