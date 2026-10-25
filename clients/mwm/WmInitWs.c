@@ -1347,6 +1347,8 @@ InitWmScreen (WmScreenData *pSD, int sNum)
     char *displayName;
     char *token1, *token2;
     size_t displayNameLength;
+    size_t bufferLength;
+    int renderedLength;
 
 
    /*
@@ -1625,8 +1627,16 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 
     pDisplayName = DisplayString (DISPLAY);
     displayNameLength = strlen(pDisplayName) + 1;
+    if (displayNameLength > SIZE_MAX - 64 ||
+        displayNameLength + 64 > UINT_MAX)
+    {
+        Warning (((char *)GETMESSAGE(40, 9,
+                                "Display string is too long")));
+        return;
+    }
+    bufferLength = displayNameLength + 64;
     displayName = (char *)XtMalloc((unsigned int)displayNameLength);
-    buffer = (char *)XtMalloc((unsigned int)(displayNameLength + 64));
+    buffer = (char *)XtMalloc((Cardinal)bufferLength);
     if (displayName == NULL || buffer == NULL)
     {
         if (displayName != NULL)
@@ -1647,14 +1657,21 @@ InitWmScreen (WmScreenData *pSD, int sNum)
        (token2 = (char*)strtok(NULL, "")) ||
        (displayName[0] == ':'))
     {
+	renderedLength = 0;
 	if (displayName[0] == ':')		/* local dpy (special case) */
 	{
 	    if ((token2 = (char*)strtok(token1, ".")) != NULL)	/* parse dpy# */
-		sprintf(buffer, "DISPLAY=:%s.%d",
+		renderedLength = snprintf(buffer, bufferLength, "DISPLAY=:%s.%d",
 			token2,	sNum);
 	} else {				/* otherwise process normally */
-	    sprintf(buffer, "DISPLAY=%s:%s.%d",
+	    renderedLength = snprintf(buffer, bufferLength, "DISPLAY=%s:%s.%d",
 		    token1, token2, sNum);
+	}
+	if (renderedLength < 0 || (size_t)renderedLength >= bufferLength)
+	{
+	    Warning (((char *)GETMESSAGE(40, 9,
+	                            "Display string is too long")));
+	    goto display_string_cleanup;
 	}
 
 	/*		
@@ -1674,8 +1691,9 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 
     }
 
-    XtFree(buffer);
-    XtFree(displayName);
+display_string_cleanup:
+	XtFree(buffer);
+	XtFree(displayName);
 
 } /* END OF FUNCTION  InitWmScreen */
 

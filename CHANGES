@@ -11003,3 +11003,9 @@ MWM network-file path sizing (2026-10-25)
 - Check home-directory expansion sizes and allocation results for network and
   local configuration paths, and handle failed temporary-name copies safely;
   see `docs/mwm-network-path-size.md`.
+
+MWM display-string bounds (2026-10-25)
+======================================
+
+- Bound per-screen display-string allocation and formatting, rejecting
+  truncation before publishing the result; see `docs/mwm-display-string-bounds.md`.
