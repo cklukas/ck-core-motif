@@ -1,3 +1,10 @@
+IconG horizontal clip bounds (2026-10-26)
+============================================
+
+- Clamp icon and detail clip widths after signed inset calculations and derive
+  right-to-left origins from the bounded width; see
+  `docs/icong-clip-bounds.md`.
+
 IconG vertical render bounds (2026-10-26)
 ===========================================
 

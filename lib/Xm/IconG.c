@@ -2001,6 +2001,8 @@ Redisplay(
     int depth;
     int icon_x;
     int available_height;
+    int available_width;
+    int clip_x;
     XmContainerDataRec container_data ;
     Position large_icon_x = 0, small_icon_y = 0, small_icon_x,
              label_x = 0, label_y = 0 ;
@@ -2193,17 +2195,25 @@ Redisplay(
     }
 
     clip_rect.y = ig->rectangle.y + ht + mh;
-    clip_rect.width = MIN(ig->rectangle.width - 2*ht - 2*mw,
-			  container_data.first_column_width - ht - mw);
+    available_width = (int) ig->rectangle.width - 2 * (int) ht -
+	2 * (int) mw;
+    if ((int) container_data.first_column_width - (int) ht - (int) mw <
+	available_width)
+	available_width = (int) container_data.first_column_width -
+	    (int) ht - (int) mw;
+    if (available_width < 0)
+	available_width = 0;
+    clip_rect.width = (Dimension) available_width;
     available_height = (int) ig->rectangle.height - 2 * (int) ht -
 	2 * (int) mh;
     clip_rect.height = (Dimension) (available_height > 0 ? available_height : 0);
 
     if (LayoutIsRtoLG(wid)) {
-	clip_rect.x = ig->rectangle.x + ig->rectangle.width -
-	    ht - clip_rect.width - mw;
+	clip_x = (int) ig->rectangle.x + (int) ig->rectangle.width -
+	    (int) ht - available_width - (int) mw;
+	clip_rect.x = (short) clip_x;
     } else {
-	clip_rect.x = ig->rectangle.x + ht + mw;
+	clip_rect.x = (short) ((int) ig->rectangle.x + (int) ht + (int) mw);
     }
 
     XSetClipRectangles(XtDisplay(wid),gc,0,0,&clip_rect,1,Unsorted);
@@ -2329,13 +2339,20 @@ Redisplay(
 		/* if we have a tab, use it, don't bother to call an
 		   expensive string extent. */
 		if (i < tab_count) {
-		    clip_rect.width = MIN (next_tab_x - detail_x,
-					   ig->rectangle.width - 2*ht - 2*mw -
-					   detail_x);
-		    clip_rect.x = ig->rectangle.x + detail_x;
-		    if (LayoutIsRtoLG(wid)) 
-			clip_rect.x = ig->rectangle.x + ig->rectangle.width
-			    - detail_x - clip_rect.width;
+		    available_width = (int) next_tab_x - (int) detail_x;
+		    clip_x = (int) ig->rectangle.width - 2 * (int) ht -
+			2 * (int) mw - (int) detail_x;
+		    if (clip_x < available_width)
+			available_width = clip_x;
+		    if (available_width < 0)
+			available_width = 0;
+		    clip_rect.width = (Dimension) available_width;
+		    clip_rect.x = (short) ((int) ig->rectangle.x + (int) detail_x);
+		    if (LayoutIsRtoLG(wid)) {
+			clip_x = (int) ig->rectangle.x + (int) ig->rectangle.width -
+			    (int) detail_x - available_width;
+			clip_rect.x = (short) clip_x;
+		    }
 			
 		    clip_rect.y = ig->rectangle.y + ht + mh;
 		    available_height = (int) ig->rectangle.height - 2 * (int) ht -
@@ -2346,9 +2363,12 @@ Redisplay(
 		} else {
 		    XmStringExtent(IG_RenderTable(wid), new_detail[i], &w, &h);
 		    if (!clip_set) {
-			clip_rect.x = ig->rectangle.x + ht + mw;
+			clip_rect.x = (short) ((int) ig->rectangle.x + (int) ht + (int) mw);
 			clip_rect.y = ig->rectangle.y + ht + mh;
-			clip_rect.width = ig->rectangle.width - 2*ht - 2*mw;
+			available_width = (int) ig->rectangle.width - 2 * (int) ht -
+			    2 * (int) mw;
+			clip_rect.width = (Dimension) (available_width > 0 ?
+			    available_width : 0);
 		    available_height = (int) ig->rectangle.height - 2 * (int) ht -
 			2 * (int) mh;
 		    clip_rect.height = (Dimension) (available_height > 0 ? available_height : 0);
