@@ -752,3 +752,5 @@ EXTRA_DIST += tests/automated/check-xmstring-byte-stream-allocation.py docs/xmst
 EXTRA_DIST += tests/automated/check-xmstring-truncation-allocation.py docs/xmstring-truncation-allocation.md
 
 EXTRA_DIST += tests/automated/check-xmstring-parse-mapping-inputs.py docs/xmstring-parse-mapping-inputs.md
+
+EXTRA_DIST += tests/automated/check-xmstring-byte-stream-length.py docs/xmstring-byte-stream-length.md

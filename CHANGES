@@ -4696,3 +4696,9 @@ XmString parse-mapping inputs (2026-10-25)
 
 - Reject null argument arrays for nonzero counts and skip null resource names
   while setting parse mappings; see `docs/xmstring-parse-mapping-inputs.md`.
+
+XmString byte-stream length validation (2026-10-25)
+====================================================
+
+- Reject null streams and guard header-size arithmetic in
+  `XmStringByteStreamLength`; see `docs/xmstring-byte-stream-length.md`.

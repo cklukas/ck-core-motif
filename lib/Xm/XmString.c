@@ -6945,11 +6945,20 @@ Clone(XmString string,
 unsigned int
 XmStringByteStreamLength(unsigned char *string)
 {
-    unsigned int len;
+    unsigned int len, header_size;
+
+    if (string == NULL)
+	return(0);
 
     _XmProcessLock();
     len = _read_string_length( string );
-    len += _calc_header_size(len);
+    header_size = _calc_header_size(len);
+    if (header_size > UINT_MAX - len)
+	{
+	  _XmProcessUnlock();
+	  return(0);
+	}
+    len += header_size;
     _XmProcessUnlock();
     return (len);
 }
