@@ -5437,3 +5437,9 @@ Harden traversal-node pool growth (2026-10-25)
 
 - Preserve traversal graph storage on allocation failure and stop node
   construction safely; see `docs/traversal-node-allocation.md`.
+
+Harden traversal row allocation (2026-10-25)
+==============================================
+
+- Make traversal row growth transactional and clean up partial row state on
+  allocation failure; see `docs/traversal-row-allocation.md`.
