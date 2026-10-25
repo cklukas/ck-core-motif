@@ -2442,8 +2442,11 @@ ClipboardDataIsReady(
      ClipboardFormatItem formatitem;
      unsigned long formatlength;
      Atom formattype;
-     int okay;
+     int okay, status;
  
+     if (event == NULL || private_info == NULL)
+	return 0;
+
      cutbynameinfo = ( ClipboardCutByNameInfo )private_info;
 
      if ( (event->type & 127) == DestroyNotify )
@@ -2462,18 +2465,19 @@ ClipboardDataIsReady(
 
 
      /* get the format item */
-     ClipboardFindItem( display,
+     formatitem = NULL;
+     status = ClipboardFindItem( display,
  			   cutbynameinfo->formatitemid,
  			   (XtPointer *) &formatitem,
  			   &formatlength,
 			   &formattype,
 			   0,
     			   XM_FORMAT_HEADER_TYPE );
- 
-     if ( formatitem == 0 ) 
+
+     if (status != ClipboardSuccess || formatitem == NULL ||
+	 formatlength < sizeof(ClipboardFormatItemRec))
      {
-	CleanupHeader (display);
-	ClipboardError( CLIPBOARD_CORRUPT, CORRUPT_DATA_STRUCTURE );
+	XtFree( (char *)formatitem);
 	return 0;
      }
 

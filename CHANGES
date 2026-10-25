@@ -1,3 +1,9 @@
+Clipboard data-ready event validation (2026-10-26)
+===================================================
+
+- Validate event/private state and cut-by-name format records before reading
+  readiness flags; see `docs/clipboard-data-ready-validation.md`.
+
 Clipboard send-message guards (2026-10-26)
 ===========================================
 
