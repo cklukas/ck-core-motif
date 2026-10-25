@@ -66,7 +66,8 @@ static int compare_dates(const XmDatePickerDate *a,
 static void notify(XmDatePickerWidget picker, XEvent *event, int reason,
                    String name) {
     XmDatePickerCallbackStruct callback;
-    XtCallbackList list = name == XmNdatePickerOpenChangedCallback
+    XtCallbackList list = name &&
+        strcmp(name, XmNdatePickerOpenChangedCallback) == 0
         ? picker->date_picker.open_changed_callback
         : picker->date_picker.date_changed_callback;
     if (!list)
@@ -197,7 +198,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmDatePickerWidget picker = (XmDatePickerWidget)widget;
     char text[32];
     (void)event; (void)region;
-    if (!XtIsRealized(widget)) return;
+    if (!XtIsRealized(widget) || !picker->date_picker.gc) return;
     XClearWindow(XtDisplay(widget), XtWindow(widget));
     snprintf(text, sizeof(text), "%04d-%02d-%02d",
              picker->date_picker.date.year, picker->date_picker.date.month,
