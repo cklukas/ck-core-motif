@@ -13454,6 +13454,12 @@ MWM menu label conversion safety (2026-10-26)
   results to Motif widgets, and guard rename-time label generation; see
   `docs/mwm-menu-label-conversion.md`.
 
+MWM menu widget creation safety (2026-10-26)
+=============================================
+
+- Check push-button gadget creation before sensitivity, bookkeeping, and
+  callback setup; see `docs/mwm-menu-widget-creation.md`.
+
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================
 

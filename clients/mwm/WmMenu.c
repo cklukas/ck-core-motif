@@ -4007,6 +4007,12 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 
 	            children[n] = XmCreatePushButtonGadget (menuW, 
 				      PUSH_BTN_NAME, (ArgList) args, i);
+	            if (children[n] == NULL) {
+		        MWarning(((char *)GETMESSAGE(48, 7, "Insufficient memory for menu %s\n")),
+				   menuName);
+		        menuSpec->currentContext &= ~CR_MENU_MARK;
+		        return (NULL);
+	            }
 
 	            /* 
 		     * Set sensitivity.  Initially we only consider the context
