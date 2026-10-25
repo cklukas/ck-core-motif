@@ -1,3 +1,9 @@
+Guard resource converter token allocations (2026-10-25)
+=========================================================
+
+- Check empty and normal token buffers in `GetNextToken` before initialization;
+  see `docs/motif-resconvert-token.md`.
+
 Handle plain text-property XmString generation failures (2026-10-25)
 =========================================================================
 
