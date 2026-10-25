@@ -10022,6 +10022,12 @@ FontSelector encoding update guard (2026-10-25)
   preserving valid selector state on failure; see
   `docs/font-selector-encoding-update.md`.
 
+RowColumn menu resource allocation guards (2026-10-25)
+=======================================================
+
+- Guard returned menu-accelerator and menu-post copies against allocation
+  failure; see `docs/rowcolumn-resource-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

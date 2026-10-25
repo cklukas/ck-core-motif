@@ -4212,7 +4212,8 @@ GetMenuAccelerator(
 
   if (rc->row_column.menu_accelerator != NULL) {
      data = (String)XtMalloc(strlen(RC_MenuAccelerator(rc)) + 1);
-     strcpy(data, RC_MenuAccelerator(rc));
+     if (data != NULL)
+       strcpy(data, RC_MenuAccelerator(rc));
      *value = (XtArgVal) data ;
    }
   else *value = (XtArgVal) NULL;
@@ -4236,7 +4237,8 @@ GetMenuPost(
 
    if (rc->row_column.menuPost != NULL) 
    {
-      *value = (XtArgVal) XtNewString(RC_MenuPost(rc)) ;
+      String copy = XtNewString(RC_MenuPost(rc));
+      *value = (XtArgVal) copy ;
    }
    else *value = (XtArgVal) NULL;
 
