@@ -416,6 +416,8 @@ int GetNextIconPlace (IconPlacementData *pIPD)
 {
     int i;
 
+    if (pIPD == NULL || pIPD->placeList == NULL || pIPD->totalPlaces <= 0)
+	return (NO_ICON_PLACE);
 
     for (i = 0; i < pIPD->totalPlaces; i++)
     {
@@ -471,7 +473,8 @@ void CvtIconPlaceToPosition (IconPlacementData *pIPD, int place, int *pX, int *p
 	return;
     *pX = 0;
     *pY = 0;
-    if (pIPD == NULL || place < 0 || pIPD->placementCols <= 0 ||
+    if (pIPD == NULL || place < 0 || place >= pIPD->totalPlaces ||
+	pIPD->placementCols <= 0 ||
 	pIPD->placementRows <= 0 || pIPD->iPlaceW <= 0 ||
 	pIPD->iPlaceH <= 0)
 	return;

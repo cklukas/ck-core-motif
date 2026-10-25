@@ -4321,3 +4321,11 @@ Icon placement conversion guards (2026-10-25)
 
 Icon-box bounds recalculation guards (2026-10-25)
 ==================================================
+Icon-place lookup guards (2026-10-25)
+======================================
+
+- Validate placement storage and indices in icon-place lookup and conversion;
+  see `docs/next-place-guards.md`.
+
+Icon placement conversion guards (2026-10-25)
+==============================================
