@@ -467,6 +467,11 @@ XmTabListReplacePositions(XmTabList oldlist,
   /* Make the replacement in the old list, then copy and free. */
   for (i = 0; i < tab_count; i++)
     {
+      if (position_list[i] >= _XmTabLCount(tl)) {
+        TabListFreeUnlocked(tl);
+        _XmProcessUnlock();
+        return(oldlist);
+      }
       cur_tab = GetNthTab(tl, position_list[i],
 			  cur_tab, cur_pos);
       cur_pos = position_list[i];
@@ -541,6 +546,11 @@ XmTabListRemoveTabs(XmTabList oldlist,
   /* Get position, set mark */
   for (i = 0; i < position_count; i++)
     {
+      if (position_list[i] >= _XmTabLCount(tl)) {
+        TabListFreeUnlocked(tl);
+        _XmProcessUnlock();
+        return(oldlist);
+      }
       cur_tab = GetNthTab(tl, position_list[i],
 			  cur_tab, cur_pos);
       cur_pos = position_list[i];
