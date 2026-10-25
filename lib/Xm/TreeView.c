@@ -236,6 +236,8 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     view->tree_view.items = NULL;
     view->tree_view.count = 0;
     view->tree_view.selected_id = NULL;
+    if (!view->tree_view.row_height)
+        view->tree_view.row_height = 1;
     if (!view->tree_view.visible_rows)
         view->tree_view.visible_rows = 1;
     values.foreground = view->primitive.foreground;
@@ -441,6 +443,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmTreeViewWidget old = (XmTreeViewWidget)old_widget;
     XmTreeViewWidget view = (XmTreeViewWidget)widget;
     (void)request; (void)args; (void)count;
+    if (!view->tree_view.row_height)
+        view->tree_view.row_height = 1;
     if (view->tree_view.visible_rows == 0)
         view->tree_view.visible_rows = 1;
     return old->tree_view.indent != view->tree_view.indent ||

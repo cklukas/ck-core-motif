@@ -7785,3 +7785,9 @@ RatingControl input arithmetic (2026-10-27)
 - Widen pointer-to-rating multiplication before division so large valid
   rating counts do not select the wrong value after signed overflow; see
   `docs/rating-input-arithmetic.md`.
+
+TreeView row-height bounds (2026-10-27)
+=======================================
+
+- Clamp zero `XmNtreeViewRowHeight` values during initialization and updates,
+  keeping rows usable; see `docs/tree-view-row-height-bounds.md`.
