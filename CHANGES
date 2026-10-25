@@ -3297,6 +3297,12 @@ Drag target-table offset validation (2026-10-25)
 
 - Reject serialized target-table sizes that exceed the 32-bit `heap_offset`
   field; see `docs/dragbs-target-offset-guards.md`.
+
+Drag atom-table offset validation (2026-10-25)
+===============================================
+
+- Reject serialized atom-table sizes that exceed the 32-bit `heap_offset`
+  field; see `docs/dragbs-atoms-offset-guards.md`.
 2026-10-25
 	* Add an opt-in XmSegmentedControl composite with copied item ownership,
 	  bounded clipping, RTL keyboard traversal and accessibility selection state.
