@@ -40,6 +40,7 @@ static char rcsid[] = "$XConsortium: WmImage.c /main/7 1996/11/14 13:50:30 rswis
 
 #include "WmGlobal.h"
 #include <stdio.h>
+#include <stdint.h>
 
 #define MWM_NEED_IIMAGE
 #include "WmIBitmap.h"
@@ -188,9 +189,11 @@ Pixmap GetNamedPixmap (Screen *scr, String iconName,
 	
 	pathLength = snprintf(NULL, 0, "%s/%s", wmGD.bitmapDirectory,
 				     iconName);
-	if (pathLength < 0)
+	if (pathLength < 0 || (size_t)pathLength == SIZE_MAX)
 	    return pixmap;
 	fullPathName = (char*) XtMalloc((size_t)pathLength + 1);
+	if (fullPathName == NULL)
+	    return pixmap;
 	(void) snprintf(fullPathName, (size_t)pathLength + 1,
 			"%s/%s", wmGD.bitmapDirectory, iconName);
 	

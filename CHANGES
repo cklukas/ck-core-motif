@@ -19,6 +19,14 @@ Topical reference overview (2026-10-25)
   selection, MWM, accessibility, and diagnostics notes; validate every link
   so the overview remains useful as individual notes evolve.
 
+MWM bitmap path allocation guard (2026-10-25)
+=============================================
+
+- Return the normal unspecified-pixmap result when the measured bitmap path
+  cannot be represented or its buffer cannot be allocated, avoiding a null
+  write while preserving lookup behavior; see
+  `docs/mwm-image-path-allocation.md`.
+
 MWM invoke-message allocation guard (2026-10-28)
 ==================================================
 
