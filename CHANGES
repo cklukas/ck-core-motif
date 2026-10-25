@@ -1,3 +1,10 @@
+Guard List and ScrolledW navigator slider callbacks (2026-10-25)
+===================================================================
+
+- Validate navigator traits before slider callbacks read their position,
+  preserving safe behavior for partial navigator implementations; see
+  `docs/motif-navigator-slider-callbacks.md`.
+
 Reject non-progressing Text source reads (2026-10-25)
 ========================================================
 
