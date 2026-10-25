@@ -991,6 +991,11 @@ XmAddProtocolCallback(
 	  protocol = GetProtocol(p_mgr, proto_atom);
       }
 
+    if (protocol == NULL) {
+	_XmAppUnlock(app);
+	return;
+    }
+
     _XmAddCallback((InternalCallbackList *) &(protocol->protocol.callbacks),
                     callback,
                     closure) ;

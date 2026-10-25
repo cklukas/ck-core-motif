@@ -10222,6 +10222,13 @@ Protocol-manager teardown fix (2026-10-25)
   managers without iterating freed entries; see
   `docs/protocol-manager-removal.md`.
 
+Protocol callback allocation guard (2026-10-25)
+===============================================
+
+- Handle failure to create a protocol entry before registering its callback,
+  preventing a null dereference; see
+  `docs/protocol-callback-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
