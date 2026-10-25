@@ -12,6 +12,7 @@ body = text[start:end]
 for needle in (
     "register Cardinal i;",
     "SIZE_MAX / sizeof(*table)",
+    "UINT_MAX / sizeof(*table)",
     "(size_t)num_resources * sizeof(*table)",
 ):
     if needle not in body:

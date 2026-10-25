@@ -1725,7 +1725,8 @@ CreateIndirectionTable(XtResourceList resources,
   register Cardinal i;
   XtResourceList* table;
 
-  if ((size_t)num_resources > SIZE_MAX / sizeof(*table))
+  if ((size_t)num_resources > SIZE_MAX / sizeof(*table) ||
+      num_resources > UINT_MAX / sizeof(*table))
     return NULL;
   table = (XtResourceList*)XtMalloc((size_t)num_resources * sizeof(*table));
   if (!table)
