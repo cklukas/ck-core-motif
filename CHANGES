@@ -9252,3 +9252,10 @@ FileSelectionBox search-list cleanup (2026-10-29)
 - Bound file and directory result tables, roll back partial `XmString`
   generation, and remove a duplicate file-list free on the normal search path;
   see `docs/filesb-search-list-cleanup.md`.
+
+FileSelectionBox no-match string rollback (2026-10-29)
+=======================================================
+
+- Copy `XmNnoMatchString` before releasing its current value during
+  `SetValues`, preserving the existing message if the replacement copy fails;
+  see `docs/filesb-no-match-string-rollback.md`.

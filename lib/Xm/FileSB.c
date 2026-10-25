@@ -2649,6 +2649,7 @@ SetValues(
             Arg             args[10] ;
             int             n ;
             String          newString ;
+            XmString        noMatchCopy ;
             Boolean         doSearch = FALSE ;
             XmFileSelectionBoxCallbackStruct searchData ;
 /****************/
@@ -2700,8 +2701,13 @@ SetValues(
         XtSetValues( FS_FilterText( new_w), args, n) ;
         }
     if(    FS_NoMatchString( new_w) != FS_NoMatchString( current)    )
-    {   XmStringFree( FS_NoMatchString( current)) ;
-        FS_NoMatchString( new_w) = XmStringCopy( FS_NoMatchString( new_w)) ;
+    {   noMatchCopy = XmStringCopy( FS_NoMatchString( new_w)) ;
+        if (noMatchCopy != NULL) {
+            XmStringFree( FS_NoMatchString( current)) ;
+            FS_NoMatchString( new_w) = noMatchCopy ;
+        } else {
+            FS_NoMatchString( new_w) = FS_NoMatchString( current) ;
+        }
         } 
     if(    !FS_QualifySearchDataProc( new_w)    )
     {   FS_QualifySearchDataProc( new_w) = QualifySearchDataProc ;
