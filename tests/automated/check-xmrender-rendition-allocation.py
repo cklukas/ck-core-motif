@@ -26,4 +26,7 @@ assert "copy = CopyRendition(rend);" in add_region
 assert "copy = CloneRendition(previous);" in add_region
 assert "copy = CloneRendition(rend);" in add_region
 assert "if (copy == NULL)" in add_region
+assert "if (newtable == NULL)" in add_region
+assert "goto merge_abort;" in add_region
+assert "while (i > 0)" in add_region
 print("PASS XmRenderT rendition allocations are guarded")
