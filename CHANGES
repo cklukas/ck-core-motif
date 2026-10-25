@@ -12423,3 +12423,10 @@ XmString creation allocation failure (2026-10-26)
   `_XmStringNCreate`; see `docs/xmstring-create-failure.md`.
 
 XmString table conversion transactions (2026-10-26)
+Cached XmString constructor safety (2026-10-26)
+================================================
+
+- Guard direction/separator cache allocation and unlock before rollover frees;
+  see `docs/xmstring-cached-create.md`.
+
+XmString creation allocation failure (2026-10-26)
