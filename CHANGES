@@ -11998,3 +11998,10 @@ Bound XmString entry-copy array widths (2026-10-26)
   in `_XmStringEntryCopy`; see `docs/xmstring-unoptimized-copy.md`.
 
 Bound List item-array compaction widths (2026-10-26)
+Bound XmString segment-growth byte sizes (2026-10-26)
+=====================================================
+
+- Add the missing Xt `Cardinal` check to `_XmStringSegmentNew` growth and pass
+  an explicit Xt-sized byte count; see `docs/xmstring-segment-allocation.md`.
+
+Bound XmString entry-copy array widths (2026-10-26)

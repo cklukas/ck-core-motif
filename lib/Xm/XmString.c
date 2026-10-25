@@ -5405,10 +5405,12 @@ _XmStringSegmentNew(
       } else {
 	sc  = _XmEntrySegmentCount(line);
 	if (sc < 0 || sc == INT_MAX ||
-	    (size_t)(sc + 1) > SIZE_MAX / sizeof(_XmStringEntry))
+	    (size_t)(sc + 1) > SIZE_MAX / sizeof(_XmStringEntry) ||
+	    (size_t)(sc + 1) > UINT_MAX / sizeof(_XmStringEntry))
 	    return;
 	new_segments = (_XmStringNREntry *)XtRealloc(
-	  (char *)_XmEntrySegment(line), sizeof(_XmStringEntry) * (sc+1));
+	  (char *)_XmEntrySegment(line),
+	  (Cardinal)(sizeof(_XmStringEntry) * (size_t)(sc + 1)));
 	if (new_segments == NULL)
 	    return;
 	_XmEntrySegment(line) = new_segments;
