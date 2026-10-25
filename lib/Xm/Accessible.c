@@ -901,7 +901,8 @@ static char *locale_utf8(const char *s) {
       count > (SIZE_MAX - 1) / 4 ||
       count > ((size_t)((Cardinal)~0) - 1) / 4)
     return NULL;
-  wide = (wchar_t *)XtMalloc((count + 1) * sizeof(*wide));
+  wide = (wchar_t *)XtMalloc(
+	(Cardinal)((count + 1) * sizeof(*wide)));
   if (!wide)
     return NULL;
   p = s;
@@ -910,7 +911,7 @@ static char *locale_utf8(const char *s) {
     XtFree((char *)wide);
     return NULL;
   }
-  result = (char *)XtMalloc(count * 4 + 1);
+  result = (char *)XtMalloc((Cardinal)(count * 4 + 1));
   if (!result) {
     XtFree((char *)wide);
     return NULL;

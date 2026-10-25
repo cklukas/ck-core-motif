@@ -6,8 +6,9 @@ nav_exclude: true
 The locale-to-UTF-8 accessibility conversion checks both the wide-character
 scratch allocation and the four-byte UTF-8 result bound before allocating.
 The checks cover both `size_t` arithmetic and Xt's `Cardinal` allocation
-interface, so a representable host size cannot be truncated by the allocator
-cast. Malformed or unrepresentable input sizes therefore fail cleanly without
+interface, and both accepted sizes are passed explicitly at the allocator
+boundary, so a representable host size cannot be truncated. Malformed or
+unrepresentable input sizes therefore fail cleanly without
 wrapping `(count + 1) * sizeof(wchar_t)`. Allocation failures for either
 scratch buffer also return cleanly without dereferencing a null pointer.
 

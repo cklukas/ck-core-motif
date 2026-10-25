@@ -15,9 +15,9 @@ for needle in (
     "count > ((size_t)((Cardinal)~0) / sizeof(*wide)) - 1",
     "count > (SIZE_MAX - 1) / 4",
     "count > ((size_t)((Cardinal)~0) - 1) / 4",
-    "wide = (wchar_t *)XtMalloc((count + 1) * sizeof(*wide));",
+    "wide = (wchar_t *)XtMalloc(\n\t(Cardinal)((count + 1) * sizeof(*wide)));",
     "if (!wide)",
-    "result = (char *)XtMalloc(count * 4 + 1);",
+    "result = (char *)XtMalloc((Cardinal)(count * 4 + 1));",
     "if (!result)",
     "XtFree((char *)wide);",
 ):

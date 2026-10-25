@@ -12252,3 +12252,9 @@ Accessibility menu snapshot allocation width (2026-10-26)
 
 - Pass the checked menu ID snapshot byte count explicitly as an Xt `Cardinal`;
   see `docs/accessibility-menu-lifecycle.md`.
+
+Accessibility UTF-8 allocation widths (2026-10-26)
+===================================================
+
+- Pass checked wide-character and UTF-8 result sizes explicitly as Xt
+  `Cardinal` values; see `docs/accessibility-utf8-bounds.md`.
