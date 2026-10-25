@@ -1,3 +1,9 @@
+Item-based list navigation input validation (2026-10-25)
+==========================================================
+
+- Reject null widgets and item strings before list navigation lookup; see
+  `docs/list-item-navigation-inputs.md`.
+
 List selection/navigation input validation (2026-10-25)
 =========================================================
 

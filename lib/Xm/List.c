@@ -9638,6 +9638,8 @@ XmListSetItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int	i;
+  if (w == NULL || item == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9677,6 +9679,8 @@ XmListSetBottomItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int i, top;
+  if (w == NULL || item == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
