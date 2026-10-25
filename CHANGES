@@ -250,6 +250,8 @@ Render-table locking (2026-10-26)
   serialization path; see `docs/render-table-export-inputs.md`.
 - Make font-list tag helpers handle a null rendition tag without dereferencing
   it; see `docs/xmfontlist-null-tag.md`.
+- Make `XmFontListRemoveEntry` reject a null rendition tag before copying it;
+  see `docs/xmfontlist-remove-null-tag.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================

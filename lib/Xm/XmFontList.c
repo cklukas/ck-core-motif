@@ -298,6 +298,8 @@ XmFontListRemoveEntry(
   XmRenditionRetrieve(entry, args, n);
 
   /* The rendition owns its tag; keep a stable copy while the table lock is held. */
+  if (tags[0] == NULL)
+      return (old);
   tags[0] = XtNewString(tags[0]);
   if (tags[0] == NULL)
       return (old);
