@@ -22,6 +22,10 @@ reply_region = text[reply_start:reply_end]
 
 for region, pointer in ((request_region, "request->extensions"),
                         (reply_region, "reply->extensions")):
+    assert "num >= 0" in region
+    assert "UINT_MAX / sizeof(String)" in region
+    assert "XtMalloc((Cardinal)((size_t)num * sizeof(String)))" in region
+    assert "XtMalloc(sizeof(String) * num)" not in region
     assert "if (ptr == NULL)" in region
     assert f"{pointer}.num_extensions = 0;" in region
     assert f"{pointer}." in region and "= NULL;" in region

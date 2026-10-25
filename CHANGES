@@ -11544,6 +11544,12 @@ WSM set-state allocation width (2026-10-25)
 - Check decoded `SET_STATE` counts before window-info allocation; see
   `docs/wsm-set-state-unpack-oom.md`.
 
+WSM extension-list allocation width (2026-10-25)
+=================================================
+
+- Check request and reply extension counts before pointer-array allocation;
+  see `docs/wsm-extension-unpack-oom.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 

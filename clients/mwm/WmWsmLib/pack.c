@@ -635,7 +635,8 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 	    register String *ptr;
 
 	    num = request->extensions.num_extensions = UnpackListNum(&data);
-	    ptr = (String *) XtMalloc(sizeof(String) * num);
+	    ptr = (num >= 0 && (size_t)num <= UINT_MAX / sizeof(String)) ?
+		(String *) XtMalloc((Cardinal)((size_t)num * sizeof(String))) : NULL;
 	    if (ptr == NULL) {
 		request->extensions.num_extensions = 0;
 		request->extensions.extension_suggestions = NULL;
@@ -826,7 +827,8 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 	    register String *ptr;
 
 	    num = reply->extensions.num_extensions = UnpackListNum(&data);
-	    ptr = (String *) XtMalloc(sizeof(String) * num);
+	    ptr = (num >= 0 && (size_t)num <= UINT_MAX / sizeof(String)) ?
+		(String *) XtMalloc((Cardinal)((size_t)num * sizeof(String))) : NULL;
 	    if (ptr == NULL) {
 		reply->extensions.num_extensions = 0;
 		reply->extensions.extensions = NULL;
