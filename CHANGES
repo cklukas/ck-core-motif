@@ -1,3 +1,10 @@
+ScrollBar resize span bounds (2026-10-26)
+=========================================
+
+- Bound arrow and slider span calculations for collapsed ScrollBars, avoiding
+  wrapped rectangles after inset subtraction; see
+  `docs/scrollbar-resize-spans.md`.
+
 MainWindow width query bounds (2026-10-26)
 ==========================================
 
