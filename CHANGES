@@ -8325,3 +8325,10 @@ IconG hook allocation (2026-10-27)
 - Check IconG secondary-object, set-values, and get-values hook allocations,
   release partial objects, and make get-values cleanup tolerate missing
   extension data.
+
+PushButtonGadget hook allocation (2026-10-27)
+==============================================
+
+- Check PushButtonGadget secondary-object, set-values, and get-values hook
+  allocations, release partial objects, and make get-values cleanup tolerate
+  missing extension data.
