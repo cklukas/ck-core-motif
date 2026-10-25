@@ -1,3 +1,10 @@
+Form shadow redisplay guards (2026-10-25)
+=========================================
+
+- Share validated realization, GC, thickness, and geometry checks between
+  Form resize and expose shadow drawing; see
+  `docs/form-shadow-redisplay-guards.md`.
+
 Scale value redisplay guards (2026-10-25)
 ===========================================
 

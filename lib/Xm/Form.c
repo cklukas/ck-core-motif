@@ -149,6 +149,8 @@ static void Redisplay(
                         Widget fw,
                         XEvent *event,
                         Region region) ;
+static Boolean CanDrawShadow(
+                        XmFormWidget fw) ;
 #ifdef FIX_1299
 static void UpdateAttachments(
                         XmFormWidget fw,
@@ -1252,7 +1254,7 @@ Resize(
 
     PlaceChildren (fw, NULL, NULL) ;
 
-    if ((draw_shadow) && (XtIsRealized((Widget)fw)))
+    if (draw_shadow && CanDrawShadow(fw))
 	XmeDrawShadows  (XtDisplay (fw), XtWindow (fw),
 			 fw->manager.top_shadow_GC,
 			 fw->manager.bottom_shadow_GC,
@@ -1262,6 +1264,17 @@ Resize(
 }
 
 
+static Boolean
+CanDrawShadow(
+        XmFormWidget fw)
+{
+    return (XtIsRealized((Widget)fw) &&
+            fw->manager.top_shadow_GC != NULL &&
+            fw->manager.bottom_shadow_GC != NULL &&
+            fw->manager.shadow_thickness != 0 &&
+            fw->core.width != 0 && fw->core.height != 0);
+}
+
 static void 
 Redisplay(
         Widget fw,
@@ -1269,6 +1282,9 @@ Redisplay(
         Region region )
 {
     XmeRedisplayGadgets( fw, event, region);
+
+    if (!CanDrawShadow((XmFormWidget) fw))
+        return;
 
     XmeDrawShadows (XtDisplay((Widget)fw), 
 		    XtWindow((Widget)fw), 
