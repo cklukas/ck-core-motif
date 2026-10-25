@@ -3293,6 +3293,19 @@ void SetNewBounds (IconBoxData *pIBD)
     CompositeWidget cw;
     WidgetList      children;
 
+    if (pIBD == NULL || pIBD->bBoardWidget == NULL ||
+        pIBD->pCD_iconBox == NULL ||
+        pIBD->pCD_iconBox->widthInc <= 0 ||
+        pIBD->pCD_iconBox->heightInc <= 0)
+    {
+        if (pIBD != NULL)
+        {
+            pIBD->lastCol = 0;
+            pIBD->lastRow = 0;
+        }
+        return;
+    }
+
     cw = (CompositeWidget) pIBD->bBoardWidget;
     children = cw->composite.children;
 

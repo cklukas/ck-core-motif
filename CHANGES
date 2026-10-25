@@ -4305,3 +4305,11 @@ Icon-box policy fallback (2026-10-25)
 
 Icon-box resize guards (2026-10-25)
 ====================================
+Icon-box bounds recalculation guards (2026-10-25)
+==================================================
+
+- Validate icon-box state and increments before recalculating placement
+  bounds; see `docs/set-bounds-guards.md`.
+
+Icon-box policy fallback (2026-10-25)
+======================================
