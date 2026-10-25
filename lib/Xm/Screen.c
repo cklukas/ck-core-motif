@@ -733,8 +733,13 @@ DeleteChild(
     register Cardinal	     	position;
     register Cardinal	     	i;
     register XmScreen 	cw;
-    
+
+    if (wid == NULL)
+        return;
     cw = (XmScreen) w->desktop.parent;
+    if (cw == NULL ||
+        (cw->desktop.num_children != 0 && cw->desktop.children == NULL))
+        return;
     
     for (position = 0; position < cw->desktop.num_children; position++) {
         if (cw->desktop.children[position] == (Widget)w) {

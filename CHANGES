@@ -10331,6 +10331,12 @@ Screen cursor-cache input validation (2026-10-25)
 - Validate drag-icon and screen inputs before removing cursor-cache entries;
   see `docs/screen-cursor-cache-input.md`.
 
+Screen child deletion input validation (2026-10-25)
+====================================================
+
+- Validate Screen child, parent, and backing-list state before deletion;
+  see `docs/screen-delete-child-input.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
