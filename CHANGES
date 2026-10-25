@@ -1,3 +1,9 @@
+Guard cached icon path copies (2026-10-25)
+===========================================
+
+- Make directory and leaf-name copies transactional when the icon-file cache is
+  enabled; see `docs/motif-iconfile-cache-copies.md`.
+
 Guard icon-file cache leaf allocation (2026-10-25)
 =================================================
 

@@ -840,7 +840,18 @@ XmGetIconFileName(
         if (useIconFileCache)
         {
 	   iNameEntry->dirName = XtNewString(GdirName);
+	   if (iNameEntry->dirName == NULL) {
+	       XtFree(iNameEntry->key_name);
+	       XtFree((char *)iNameEntry);
+	       goto skip_icon_name_cache;
+	   }
 	   iNameEntry->leafName = XtNewString(GleafName);
+	   if (iNameEntry->leafName == NULL) {
+	       XtFree(iNameEntry->dirName);
+	       XtFree(iNameEntry->key_name);
+	       XtFree((char *)iNameEntry);
+	       goto skip_icon_name_cache;
+	   }
         }
         else
 #endif
