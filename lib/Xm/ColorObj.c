@@ -1446,7 +1446,7 @@ XmeGetDesktopColorCells (Screen * screen,
     short primary, secondary, text, active, inactive;
     int reorder[XmCO_NUM_COLORS] ;
 
-    if (!colors || !n_colors) return False ;
+    if (!colors || n_colors <= 0) return False ;
 
     /* get the pixel out of the color obj for this screen */
     if (!(XmeGetColorObjData(screen,

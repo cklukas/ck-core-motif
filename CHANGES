@@ -1,3 +1,9 @@
+Desktop color-cell capacity validation (2026-10-25)
+====================================================
+
+- Reject non-positive color-cell capacities before desktop color allocation;
+  see `docs/desktop-color-cells-capacity.md`.
+
 Icon-control query output validation (2026-10-25)
 =================================================
 
