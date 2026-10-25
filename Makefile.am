@@ -840,3 +840,4 @@ EXTRA_DIST += tests/automated/check-info-bar-redisplay-guard.py docs/info-bar-re
 EXTRA_DIST += tests/automated/check-number-box-redisplay-guard.py docs/number-box-redisplay-guard.md
 EXTRA_DIST += tests/automated/check-stepper-redisplay-guard.py docs/stepper-redisplay-guard.md
 EXTRA_DIST += tests/automated/check-color-picker-redisplay-guard.py docs/color-picker-redisplay-guard.md
+EXTRA_DIST += tests/automated/check-rating-control-geometry-guards.py docs/rating-control-geometry-guards.md
