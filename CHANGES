@@ -12109,3 +12109,9 @@ Bound compound-text import allocation widths (2026-10-26)
   `docs/text-property-bounds.md`.
 
 Bound locale text-property allocation widths (2026-10-26)
+TxtPropCv ASN.1 import allocation width (2026-10-26)
+=====================================================
+
+- Pass the checked compound-string table byte count explicitly as an Xt
+  `Cardinal`, avoiding an implicit narrowing conversion at the allocator
+  boundary; see `docs/motif-txtpropcv-asn1-table.md`.
