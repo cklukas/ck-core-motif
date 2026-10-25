@@ -6250,3 +6250,9 @@ Bound XmString rendition merge allocation widths (2026-10-25)
   the original arrays on an unrepresentable request; see
   `docs/xmstring-rendition-merge.md`.
 
+Bound XmString entry-copy allocation widths (2026-10-25)
+==========================================================
+
+- Enforce both host and Xt allocator byte limits for copied segment and
+  rendition arrays; see `docs/xmstring-unoptimized-copy.md`.
+
