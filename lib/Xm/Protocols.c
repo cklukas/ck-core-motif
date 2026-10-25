@@ -693,6 +693,9 @@ AddProtocols(
         Cardinal num_protocols )
 {	
     Cardinal		new_num_protocols, i, j;
+    Cardinal            max_cardinal = (Cardinal)~0;
+    Cardinal            new_max, add_size;
+    XmProtocolList      resized;
     XtPointer           newSec;
     WidgetClass         wc;
     Cardinal            size;
@@ -700,22 +703,31 @@ AddProtocols(
     wc = XtClass(shell);
     size = wc->core_class.widget_size;
     
+    if (num_protocols > max_cardinal - p_mgr->num_protocols)
+      return;
     new_num_protocols = p_mgr->num_protocols + num_protocols;
     
     if (new_num_protocols >= p_mgr->max_protocols) 
       {
-	  /* Allocate more space */
-	  Cardinal	add_size;
-	  
-	  if (num_protocols >= PROTOCOL_BLOCK_SIZE)
+	  /* Allocate more space without publishing an unallocated capacity. */
+	  if (num_protocols >= PROTOCOL_BLOCK_SIZE) {
+	    if (num_protocols > max_cardinal - PROTOCOL_BLOCK_SIZE)
+	      return;
 	    add_size = num_protocols + PROTOCOL_BLOCK_SIZE;
-	  else
+	  } else
 	    add_size = PROTOCOL_BLOCK_SIZE;
-	  
-	  p_mgr->max_protocols +=  add_size;
-	  p_mgr->protocols = (XmProtocolList) 
-	    XtRealloc((char *) p_mgr->protocols ,
-		      (unsigned) (p_mgr->max_protocols) * sizeof(XmProtocol));
+	  if (add_size > max_cardinal - p_mgr->max_protocols)
+	    return;
+	  new_max = p_mgr->max_protocols + add_size;
+	  if (new_max > max_cardinal / sizeof(XmProtocol))
+	    return;
+	  resized = (XmProtocolList)
+	    XtRealloc((char *)p_mgr->protocols,
+		      (unsigned)new_max * sizeof(XmProtocol));
+	  if (resized == NULL)
+	    return;
+	  p_mgr->protocols = resized;
+	  p_mgr->max_protocols = new_max;
       }
     
     for (i = p_mgr->num_protocols, j = 0;

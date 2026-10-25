@@ -2043,6 +2043,12 @@ XmPicture repeat node-map bounds (2026-10-25)
   picture graphs while leaving unrepresentable expansion unchanged; see
   `docs/picture-copy-bounds.md`.
 
+Protocol registration growth bounds (2026-10-25)
+==================================================
+
+- Reject protocol-count and array-size overflow and publish expanded protocol
+  capacity only after reallocation succeeds; see `docs/protocol-allocation.md`.
+
 Protocol registration allocation (2026-10-25)
 ===============================================
 

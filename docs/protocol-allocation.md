@@ -8,3 +8,7 @@ entry.
 
 The source-level regression is
 `tests/automated/check-protocol-allocation.py`.
+
+
+Batch growth now rejects `Cardinal` count and byte-size overflow and publishes
+the expanded capacity only after `XtRealloc` succeeds.
