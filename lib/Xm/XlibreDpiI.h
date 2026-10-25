@@ -46,6 +46,24 @@ RROutput _XmXlibreDpiSelectOutput(const _XmXlibreDpiOutput *outputs,
                                   size_t output_count,
                                   const _XmXlibreDpiRect *client_area);
 
+/*
+ * A shell-boundary transaction is always delivered on the owning Xt
+ * application thread.  The callback runs after one coalesced reflow request;
+ * it must update only derived/default metrics and must not retain the shell.
+ */
+typedef void (*_XmXlibreDpiChangeProc)(Widget shell,
+                                       double old_scale,
+                                       double new_scale,
+                                       RROutput old_output,
+                                       RROutput new_output,
+                                       XtPointer closure);
+
+Boolean _XmXlibreDpiInstallShell(Widget shell,
+                                 _XmXlibreDpiChangeProc change_proc,
+                                 XtPointer closure);
+void _XmXlibreDpiUninstallShell(Widget shell);
+Boolean _XmXlibreDpiGetWidgetScale(Widget widget, double *scale_return);
+
 #ifdef __cplusplus
 }
 #endif

@@ -44,6 +44,9 @@ static char rcsid[] = "$TOG: BaseClass.c /main/20 1997/03/31 13:14:31 dbl $"
 #include "MessagesI.h"
 #include "TraversalI.h"
 #include "XmI.h"
+#ifdef HAVE_XLIBRE_DPI
+#include "XlibreDpiI.h"
+#endif
 
 
 #define FIX_1392
@@ -924,6 +927,11 @@ RealizeWrapper(
       else
 	XmeWarning(NULL, "we only support realize callbacks on shells");
 #endif /* DEBUG */
+#ifdef HAVE_XLIBRE_DPI
+      /* Install the optional RandR observer only after the shell window is
+       * realized.  Ordinary X11/Xorg builds do not compile this path. */
+      (void)_XmXlibreDpiInstallShell(w, NULL, NULL);
+#endif
     }
 }
 

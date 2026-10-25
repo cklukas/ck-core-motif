@@ -56,6 +56,9 @@ static char rcsid[] = "$TOG: Display.c /main/23 1997/06/18 17:36:59 samborn $"
 #include "VirtKeysI.h"
 #include "ColorObjI.h"
 #include "ResConverI.h"
+#ifdef HAVE_XLIBRE_DPI
+#include "XlibreDpiI.h"
+#endif
   
 #define MESSAGE1 _XmMMsgDisplay_0001
 #define MESSAGE2 _XmMMsgDisplay_0002
@@ -126,7 +129,7 @@ static XContext	displayContext = 0;
 static WidgetClass curDisplayClass = NULL;
 
 Boolean
-_XmGetDpiScale(Display *display, double *scale)
+_XmGetGlobalDpiScale(Display *display, double *scale)
 {
   XrmDatabase db;
   XrmValue value;
@@ -177,13 +180,30 @@ _XmGetDpiScale(Display *display, double *scale)
   return True;
 }
 
+Boolean
+_XmGetDpiScale(Display *display, double *scale)
+{
+  return _XmGetGlobalDpiScale(display, scale);
+}
+
+Boolean
+_XmGetWidgetDpiScale(Widget widget, double *scale)
+{
+#ifdef HAVE_XLIBRE_DPI
+  if (widget != NULL && _XmXlibreDpiGetWidgetScale(widget, scale))
+    return True;
+#endif
+  return widget != NULL &&
+         _XmGetGlobalDpiScale(XtDisplayOfObject(widget), scale);
+}
+
 /* Explicit application dimensions bypass this bounded default conversion. */
 Dimension
 _XmDpiDefaultDimension(Widget widget, Dimension baseline)
 {
   double scale, size;
   Dimension maximum = (Dimension)~(Dimension)0;
-  if (!_XmGetDpiScale(XtDisplayOfObject(widget), &scale) || scale <= 1.0)
+  if (!_XmGetWidgetDpiScale(widget, &scale) || scale <= 1.0)
     return baseline;
   size = baseline * scale + 0.5;
   if (size >= maximum) return maximum;

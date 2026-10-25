@@ -463,15 +463,18 @@ display, where every reported output must provide a valid property.  Shell
 output selection, RandR event subscription, live reflow and explicit-resource
 transactions remain phase 2 and are not advertised by this increment.
 
-**Phase-2 progress (2026-10-25):** the internal shell-boundary selector is now
-implemented and installed-fixture qualified. It chooses the output containing
-the shell client-area center, falls back to the nearest output with a
-lowest-RandR-ID tie-break (using the sum of horizontal and vertical distances),
-and returns `None` for invalid geometry so callers
-retain the global-DPI behavior. This completes the deterministic selection
-contract only; event subscription, UI-thread coalescing, live reflow and
-scale-change transactions remain open until a real multi-output XLibre session
-qualifies them.
+**Phase-2 progress (2026-10-25):** the internal shell-boundary selector and
+the opt-in live observer are now implemented and installed-fixture qualified.
+The observer subscribes to RandR screen/output/property notifications, drains
+them on the owning Xt application context, coalesces a burst into one work
+procedure, re-resolves the shell output and invokes one normal Xt resize before
+the change hook. It chooses the output containing the shell client-area center,
+falls back to the nearest output with a lowest-RandR-ID tie-break (using the
+sum of horizontal and vertical distances), and retains global-DPI behavior for
+invalid or unavailable properties. Explicit-resource preservation and the
+derived-metric callback boundary are documented. A real multi-output XLibre
+session is still required to qualify live property modification, output
+removal/addition, spanning windows and destruction during a queued update.
 
 ### WP-05: Optional SVG image loading
 

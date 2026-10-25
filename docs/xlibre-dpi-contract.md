@@ -27,9 +27,26 @@ invalid geometry returns `None`, allowing the caller to retain the existing
 global-DPI fallback. All descendants of a shell will therefore have one
 selected scale rather than mixing output scales.
 
-This package still does not subscribe to RandR events or reflow realized
-widgets. Those operations require a separate UI-thread transaction contract.
 The installed fixture checks the parser, ordinary-Xvfb fallback and this
 selection policy. Pass `--display` to the runner when a real XLibre display is
 available; in that mode every reported output must expose a valid `DPI`
-property.
+property. The live shell integration below is separately gated because it
+requires a real multi-output XLibre session.
+
+## Live shell integration (opt-in build)
+
+When `--enable-xlibre-dpi` is enabled, a realized VendorShell is registered
+with the owning Xt application context. The toolkit selects the RandR
+notifications on the screen root, drains only those notifications from the
+Xlib queue on the UI thread, and schedules one Xt work procedure for a burst
+of changes. The work procedure resolves the shell's current output and scale,
+invokes the normal Xt resize wrapper once, and then calls the internal change
+hook after the resize is stable. Explicit pixel resources are never rewritten;
+the hook is the transaction boundary for controls that have documented
+derived/default metrics. Shell destruction removes the input and pending work
+procedure before releasing the state.
+
+This is an implementation step toward the live contract, not a claim that a
+generic Xorg server provides per-output DPI. The remaining qualification must
+exercise property changes, output removal/addition, a spanning window and
+destruction during a queued update on a real multi-output XLibre session.

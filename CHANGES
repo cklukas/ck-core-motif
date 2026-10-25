@@ -19,6 +19,16 @@ UIL literal-only module output (2026-10-25)
   has no index root, and cover the complete regression with
   `tests/automated/run-uil-zero-topmost.py`.
 
+XLibre live RandR observer (2026-10-25)
+========================================
+
+- Extend the opt-in XLibre DPI support from parsing and output selection to a
+  shell-boundary observer. RandR screen/output/property notifications are
+  drained on the owning Xt thread, coalesced into one work procedure, and
+  applied through one resize plus a documented derived-metric change hook;
+  ordinary X11/Xorg builds remain unchanged. A real multi-output XLibre
+  session is still required for the final live qualification gate.
+
 Source-contract verifier maintenance (2026-10-25)
 ==================================================
 

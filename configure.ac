@@ -331,6 +331,8 @@ if test "x$enable_xlibre_dpi" = "xyes"; then
     [XLIBRE_DPI_LIBS="-lXrandr"],
     [AC_MSG_ERROR([--enable-xlibre-dpi requires libXrandr])],
     [$X_LIBS -lX11])
+  AC_DEFINE([HAVE_XLIBRE_DPI], [1],
+    [Build the optional XLibre RandR output-DPI integration])
 else
   XLIBRE_DPI_LIBS=
 fi
