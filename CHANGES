@@ -6501,3 +6501,9 @@ RowColumn accelerator getter allocation width (2026-10-25)
   range and pass the checked width explicitly; see
   `docs/rowcolumn-resource-allocation.md`.
 
+RowColumn accelerator replacement transaction (2026-10-25)
+=============================================================
+
+- Keep the prior accelerator list published until replacement allocation and
+  copying succeed; see `docs/rowcolumn-resource-allocation.md`.
+
