@@ -7965,3 +7965,12 @@ Draw shadow segment-buffer growth (2026-10-27)
 
 DrawUtils bevel-buffer growth (2026-10-27)
 ==========================================
+MainW child-list growth failures (2026-10-27)
+==============================================
+
+- Check composite child-slot arithmetic and commit the resized child array
+  only after `XtRealloc` succeeds.  Main-window child migration now leaves
+  the existing list intact when growth fails.
+
+Draw shadow segment-buffer growth (2026-10-27)
+==============================================
