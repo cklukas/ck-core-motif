@@ -101,7 +101,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     XDrawString(display, window, picker->color_picker.gc, 38, baseline, text,
                 (int)strlen(text));
     if (font) XFreeFont(display, font);
-    if (picker->primitive.highlighted && picker->primitive.highlight_thickness)
+    if (picker->primitive.highlighted && picker->primitive.highlight_thickness &&
+        picker->core.width > 2 * picker->primitive.highlight_thickness &&
+        picker->core.height > 2 * picker->primitive.highlight_thickness)
         XDrawRectangle(display, window, picker->color_picker.gc,
                        picker->primitive.highlight_thickness - 1,
                        picker->primitive.highlight_thickness - 1,
