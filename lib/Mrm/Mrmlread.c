@@ -258,6 +258,10 @@ MrmFetchLiteral (MrmHierarchy		hierarchy_id,
   Cardinal		ndx;		/* loop index */
   int			vec_size = 0;
   int			vec_count = 0;
+  if ( value_return == NULL || type_return == NULL )
+    return MrmFAILURE;
+  *value_return = NULL;
+  *type_return = 0;
   _MrmDisplayToAppContext(display);
 
   _MrmAppLock(app);
