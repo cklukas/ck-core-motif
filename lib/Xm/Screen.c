@@ -1379,6 +1379,8 @@ XmSetFontUnits(
     XmScreen          xmScreen;
     Screen            *scr;
     int i ;
+    if (display == NULL)
+        return;
     _XmDisplayToAppContext(display);
 
     /* This function has no screen parameter, so we have to set the
@@ -1393,6 +1395,8 @@ XmSetFontUnits(
       scr = ScreenOfDisplay(display, i);
 
       xmScreen = (XmScreen) XmGetXmScreen(scr);
+      if (xmScreen == NULL)
+        continue;
       xmScreen->screen.h_unit =  h_value ;
       xmScreen->screen.v_unit =  v_value ;
     }
@@ -1422,7 +1426,11 @@ _XmGetFontUnit(
 {
     XmScreen          xmScreen;
 
+    if (screen == NULL)
+      return 0;
     xmScreen = (XmScreen) XmGetXmScreen(screen);
+    if (xmScreen == NULL)
+      return 0;
     if (dimension == XmHORIZONTAL)
       return(xmScreen->screen.h_unit);
     else

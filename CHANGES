@@ -10373,6 +10373,12 @@ Screen unpost-behavior input validation (2026-10-25)
 - Return `XmUNPOST_AND_REPLAY` for missing widget or screen inputs when
   querying unpost behavior; see `docs/screen-unpost-behavior-input.md`.
 
+Screen font-unit input validation (2026-10-25)
+===============================================
+
+- Validate display and screen state in font-unit setters/getters; see
+  `docs/screen-font-unit-input.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
