@@ -1540,7 +1540,8 @@ XmStringConcatAndFree(XmString a,
 	   ((_XmStrDirection(a) == XmSTRING_DIRECTION_UNSET) &&
 	    (a_len == 0))) &&
 	  (a_type == b_type || a_type == XmNO_TEXT || b_type == XmNO_TEXT) &&
-	  ((a_len + b_len) < (1 << BYTE_COUNT_BITS)) &&
+	  (a_len < (1U << BYTE_COUNT_BITS) &&
+	   b_len < (1U << BYTE_COUNT_BITS) - a_len) &&
 	  ((_XmStrText(a) && b_tabs==0) || 
 	   (!_XmStrText(a) && a_tabs+b_tabs <= 3)))
 	{

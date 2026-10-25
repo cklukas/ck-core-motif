@@ -31,6 +31,8 @@ Xft compound-string line height (2026-10-27)
   counts by `sizeof(XmStringTag)` and checking growth failures.
 - Check XmString context-record allocation before initialization, preserving
   the public `FALSE` failure result.
+- Check optimized XmString concatenation lengths without unsigned addition
+  wraparound before applying the compact-string byte limit.
 - Guard XmString separator cache and entry allocations, releasing partial
   state before returning `NULL` on failure.
 - Make non-destructive XmString unoptimization transactional across segment
