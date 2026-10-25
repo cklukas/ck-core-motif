@@ -1,3 +1,9 @@
+Icon-box bounds child validation (2026-10-25)
+=============================================
+
+- Handle missing or null composite children during bounds recalculation; see
+  `docs/set-new-bounds-children.md`.
+
 Icon-box packing validation (2026-10-25)
 ========================================
 

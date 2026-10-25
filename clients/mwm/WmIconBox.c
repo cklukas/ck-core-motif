@@ -3334,8 +3334,18 @@ void SetNewBounds (IconBoxData *pIBD)
     cw = (CompositeWidget) pIBD->bBoardWidget;
     children = cw->composite.children;
 
+    if (children == NULL)
+    {
+	pIBD->lastCol = 0;
+	pIBD->lastRow = 0;
+	return;
+    }
+
     for (i = 0; i < cw->composite.num_children; i++)
     {
+	if (children[i] == NULL)
+	    continue;
+
         if (children[i]->core.x > X)
         {
 	    X = children[i]->core.x;
