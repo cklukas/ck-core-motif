@@ -160,15 +160,20 @@ _XmSFUpdateNavigatorsValue(
     Cardinal i, num_nav_list ;
     Widget * nav_list ;
     Boolean inited ;
+    XmScrollFrameTrait sf_trait ;
 
     /* there is a possibility that the SW was not inited for
        navigation business: APP_DEFINED where no scrollbar have
        been added yet */
-    inited =  ((XmScrollFrameTrait) 
-	       XmeTraitGet((XtPointer) XtClass(sf), XmQTscrollFrame))
-	->getInfo(sf, NULL, &nav_list, &num_nav_list);
+    if (sf == NULL)
+	return;
+    sf_trait = (XmScrollFrameTrait)
+	       XmeTraitGet((XtPointer) XtClass(sf), XmQTscrollFrame);
+    if ((sf_trait == NULL) || (sf_trait->getInfo == NULL))
+	return;
+    inited = sf_trait->getInfo(sf, NULL, &nav_list, &num_nav_list);
 
-    if (!inited) return ;
+    if (!inited || (nav_list == NULL)) return ;
 
     /* loop over the associated navigator list and call the change value
        method for each navigator */
@@ -177,9 +182,15 @@ _XmSFUpdateNavigatorsValue(
 
     for (i=0; i < num_nav_list; i++) {
 	Widget nav = nav_list[i] ;
-	XmNavigatorSetValueProc	nav_setValue =
-	    ((XmNavigatorTrait) 
-	     XmeTraitGet((XtPointer) XtClass(nav), XmQTnavigator))->setValue;
+	XmNavigatorTrait nav_trait;
+	XmNavigatorSetValueProc nav_setValue;
+	if (nav == NULL)
+	    continue;
+	nav_trait = (XmNavigatorTrait)
+	     XmeTraitGet((XtPointer) XtClass(nav), XmQTnavigator);
+	if ((nav_trait == NULL) || (nav_trait->setValue == NULL))
+	    continue;
+	nav_setValue = nav_trait->setValue;
 
 	nav_setValue(nav, nav_data, notify);
     }

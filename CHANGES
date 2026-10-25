@@ -5859,3 +5859,10 @@ Validate ScrollFrame navigator removal inputs (2026-10-25)
   during navigator removal; see `docs/motif-scrollframe-remove-input.md`.
 
 Make ScrollFrame navigator-list growth transactional (2026-10-25)
+Guard ScrollFrame navigator updates (2026-10-25)
+================================================
+
+- Validate scroll-frame and navigator traits and list entries before updating
+  navigator values; see `docs/motif-scrollframe-update-guards.md`.
+
+Validate ScrollFrame navigator removal inputs (2026-10-25)
