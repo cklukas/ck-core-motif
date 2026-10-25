@@ -30,7 +30,8 @@ separate work packages with stronger geometry and XLibre evidence requirements.
 The installed consumer fixture is
 `tests/automated/run-display-scale-override.py`.  It checks invalid values,
 per-display retention, resource-database identity, default indicator scaling,
-and reversible cleanup against the selected installed `libXm`.
+explicit pixel-resource preservation, and reversible cleanup against the
+selected installed `libXm`.
 
 ## Qualification evidence
 
@@ -45,6 +46,8 @@ Three independent Xvfb runs passed in
 A consumer-only ASan/UBSan run with leak detection enabled also passed; its
 output is retained in
 `/tmp/ckmotif-scale-20261025/results/scale-override-asan-r2/`.
+The expanded precedence fixture was rerun in `scale-override-r9/`, `-r10/`
+and `-r11/`, with a separate strict run in `scale-override-asan-r3/`.
 The C23 configure probe was separately run with GCC 14 and reported the C11
 atomic capability as available.  This evidence qualifies deterministic input
 and default-widget creation, not live appearance/DPI transactions.
