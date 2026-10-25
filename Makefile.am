@@ -161,6 +161,7 @@ EXTRA_DIST += tests/automated/check-paned-sash-list-allocation.py docs/paned-sas
 EXTRA_DIST += tests/automated/check-part-offset-allocation.py docs/part-offset-allocation.md
 EXTRA_DIST += tests/automated/check-dir-entries-initial-allocation.py docs/dir-entries-initial-allocation.md
 EXTRA_DIST += tests/automated/check-xmos-init-path-allocation.py docs/xmos-init-path-allocation.md
+EXTRA_DIST += tests/automated/check-obsolete-resource-allocation.py docs/obsolete-resource-allocation.md
 EXTRA_DIST += tests/automated/check-xim-info-allocation.py docs/xim-info-allocation.md
 EXTRA_DIST += tests/automated/check-xim-recreate-allocation.py docs/xim-recreate-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md

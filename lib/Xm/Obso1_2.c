@@ -1593,12 +1593,14 @@ _XmFileSelectionBoxRestore(
             {   
                 maskLen = strlen( mask) ;
                 itemString = XtMalloc( dirLen + maskLen + 1) ;
-                strcpy( itemString, dir) ;
-                strcpy( &itemString[dirLen], mask) ;
-                XmTextFieldSetString( FS_FilterText( fsb), itemString) ;
-                XmTextFieldSetCursorPosition( FS_FilterText( fsb),
-			    XmTextFieldGetLastPosition( FS_FilterText( fsb))) ;
-                XtFree( itemString) ;
+                if (itemString != NULL) {
+                    strcpy( itemString, dir) ;
+                    strcpy( &itemString[dirLen], mask) ;
+                    XmTextFieldSetString( FS_FilterText( fsb), itemString) ;
+                    XmTextFieldSetCursorPosition( FS_FilterText( fsb),
+				    XmTextFieldGetLastPosition( FS_FilterText( fsb))) ;
+                    XtFree( itemString) ;
+                }
                 XtFree( mask) ;
                 } 
             XtFree( dir) ;
@@ -2029,7 +2031,8 @@ _XmRC_GetMenuAccelerator(
 
   if (rc->row_column.menu_accelerator != NULL) {
      data = (String)XtMalloc(strlen(RC_MenuAccelerator(rc)) + 1);
-     strcpy(data, RC_MenuAccelerator(rc));
+     if (data != NULL)
+       strcpy(data, RC_MenuAccelerator(rc));
      *value = (XtArgVal) data ;
    }
   else *value = (XtArgVal) NULL;

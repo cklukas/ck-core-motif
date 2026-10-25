@@ -9946,6 +9946,12 @@ XmOS initialization path allocation guards (2026-10-25)
 - Check absolute, generated, and environment-provided resource-path buffers
   before formatting or copying; see `docs/xmos-init-path-allocation.md`.
 
+Legacy resource-string allocation guards (2026-10-25)
+======================================================
+
+- Guard compatibility file-selection and menu-accelerator string copies
+  against allocation failure; see `docs/obsolete-resource-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
