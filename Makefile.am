@@ -667,3 +667,5 @@ EXTRA_DIST += tests/automated/check-fast-subclass-sequencing.py docs/fast-subcla
 EXTRA_DIST += tests/automated/check-rowcolumn-menupost.py docs/rowcolumn-menupost.md
 
 EXTRA_DIST += tests/automated/check-xcontext-zero.py docs/xcontext-null.md
+
+EXTRA_DIST += tests/automated/check-mwm-bitmap-path-bounds.py docs/mwm-bitmap-path-bounds.md

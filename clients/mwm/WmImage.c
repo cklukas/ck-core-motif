@@ -919,6 +919,35 @@ int GetBitmapIndex (WmScreenData *pSD, char *name)
  * 
  *************************************<->***********************************/
 
+static Boolean
+WmCopyBitmapPath(char *destination, size_t capacity, const char *source)
+{
+    size_t length;
+
+    if (!destination || !source || capacity == 0)
+        return False;
+    length = strlen(source);
+    if (length >= capacity)
+        return False;
+    memcpy(destination, source, length + 1);
+    return True;
+}
+
+static Boolean
+WmAppendBitmapPath(char *destination, size_t capacity, const char *source)
+{
+    size_t used, length;
+
+    if (!destination || !source || capacity == 0)
+        return False;
+    used = strlen(destination);
+    length = strlen(source);
+    if (used >= capacity || length > capacity - used - 1)
+        return False;
+    memcpy(destination + used, source, length + 1);
+    return True;
+}
+
 char *BitmapPathName (string)
     char *string;
 
@@ -931,9 +960,7 @@ char *BitmapPathName (string)
 #endif
 
     if (!string || !*string)
-    {
-	return (NULL);
-    }
+        return (NULL);
 
     /*
      * Interpret "~/.." as relative to the user's home directory.
@@ -944,78 +971,78 @@ char *BitmapPathName (string)
      */
 
     if ((string[0] == '~') && (string[1] == '/'))
-    /* 
-     * Handle "~/.." 
-     */
     {
 #ifdef MOTIF_ONE_DOT_ONE
-	GetHomeDirName(fileName);
+        GetHomeDirName(fileName);
 #else
-	strcpy (fileName, homeDir);
+        if (!WmCopyBitmapPath(fileName, sizeof(fileName), homeDir))
+            return (NULL);
 #endif
-        strncat (fileName, &(string[1]), MAXWMPATH - strlen (fileName));
-	return (fileName);
+        if (!WmAppendBitmapPath(fileName, sizeof(fileName), &(string[1])))
+            return (NULL);
+        return (fileName);
     }
 
     if (string[0] == '/')
-    {
-      return(string);
-    }
+        return (string);
 
     if (wmGD.bitmapDirectory && *wmGD.bitmapDirectory)
-    /*
-     * Relative to nonNULL bitmapDirectory (which may have relative to HOME)
-     */
     {
-	if ((wmGD.bitmapDirectory[0] == '~') &&
-	    (wmGD.bitmapDirectory[1] == '/'))
-	{
+        if ((wmGD.bitmapDirectory[0] == '~') &&
+            (wmGD.bitmapDirectory[1] == '/'))
+        {
 #ifdef MOTIF_ONE_DOT_ONE
-	    GetHomeDirName(fileName);
+            GetHomeDirName(fileName);
 #else
-	    strcpy (fileName, homeDir);
+            if (!WmCopyBitmapPath(fileName, sizeof(fileName), homeDir))
+                return (NULL);
 #endif
-            strncat (fileName, &wmGD.bitmapDirectory[1],
-		     MAXWMPATH - strlen (fileName));
-	} else {
-	    strcpy (fileName, wmGD.bitmapDirectory);
-	}
-        strncat (fileName, "/", MAXWMPATH - strlen (fileName));
-        strncat (fileName, string, MAXWMPATH - strlen (fileName));
+            if (!WmAppendBitmapPath(fileName, sizeof(fileName),
+                                    &wmGD.bitmapDirectory[1]))
+                return (NULL);
+        }
+        else if (!WmCopyBitmapPath(fileName, sizeof(fileName),
+                                   wmGD.bitmapDirectory))
+            return (NULL);
 
-/* Test file for existence. */
+        if (!WmAppendBitmapPath(fileName, sizeof(fileName), "/") ||
+            !WmAppendBitmapPath(fileName, sizeof(fileName), string))
+            return (NULL);
 
-	subs[0].substitution = "";
-	if ((retname = XtFindFile(fileName, subs, 0,
-				  (XtFilePredicate) NULL)) != NULL) {
-	  XtFree(retname);
-	  return (fileName);
-	}
+        /* Test file for existence. */
+        subs[0].substitution = "";
+        if ((retname = XtFindFile(fileName, subs, 0,
+                                  (XtFilePredicate) NULL)) != NULL) {
+            XtFree(retname);
+            return (fileName);
+        }
     }
 
-    /* Fall back on a path search */
-
+    /* Fall back on a path search. */
 #ifdef MOTIF_ONE_DOT_ONE
     return (NULL);
 #else
     {
-	char *search_path;
-	Boolean user_path;
+        char *search_path;
+        Boolean user_path;
 
-	search_path = _XmOSInitPath(string, MATCH_PATH, &user_path);
-	subs[0].match = user_path ? MATCH_XBM : MATCH_CHAR;
-	subs[0].substitution = string;
-	retname = XtResolvePathname(DISPLAY, "bitmaps", NULL, NULL,
-				    search_path, subs, XtNumber(subs), 
-					(XtFilePredicate)NULL);
-	XtFree(search_path);
+        search_path = _XmOSInitPath(string, MATCH_PATH, &user_path);
+        subs[0].match = user_path ? MATCH_XBM : MATCH_CHAR;
+        subs[0].substitution = string;
+        retname = XtResolvePathname(DISPLAY, "bitmaps", NULL, NULL,
+                                    search_path, subs, XtNumber(subs),
+                                    (XtFilePredicate)NULL);
+        XtFree(search_path);
 
-	if (!retname)
-	  return (string);
+        if (!retname)
+            return (string);
 
-	strncpy(fileName, retname, MAXWMPATH);
-	XtFree(retname);
-	return (fileName);
+        if (!WmCopyBitmapPath(fileName, sizeof(fileName), retname)) {
+            XtFree(retname);
+            return (string);
+        }
+        XtFree(retname);
+        return (fileName);
     }
 #endif
 

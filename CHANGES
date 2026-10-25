@@ -1,3 +1,9 @@
+Mwm bitmap path assembly bounds (2026-10-25)
+===============================================
+
+- Check home, configured and resolved bitmap paths before copying into the
+  fixed window-manager buffer; see `docs/mwm-bitmap-path-bounds.md`.
+
 XContext null-state portability (2026-10-25)
 ===============================================
 
