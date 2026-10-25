@@ -76,7 +76,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     char text[16]; XFontStruct *font; int baseline;
     unsigned long value = picker->color_picker.preview;
     XGCValues values; GC swatch; XColor color;
-    (void)event; (void)region; if (!window) return;
+    (void)event; (void)region;
+    if (!window || !picker->color_picker.gc) return;
     XClearWindow(display, window);
     color.red = (unsigned short)(((value >> 24) & 0xff) * 257);
     color.green = (unsigned short)(((value >> 16) & 0xff) * 257);
@@ -86,10 +87,16 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         color.pixel = picker->primitive.foreground;
     values.foreground = color.pixel;
     swatch = XCreateGC(display, window, GCForeground, &values);
-    XFillRectangle(display, window, swatch, 5, 5, 24, picker->core.height - 10);
-    XFreeGC(display, swatch);
+    if (swatch) {
+        Dimension swatch_height = picker->core.height > 10 ?
+                                  picker->core.height - 10 : 0;
+        if (swatch_height)
+            XFillRectangle(display, window, swatch, 5, 5, 24, swatch_height);
+        XFreeGC(display, swatch);
+    }
     snprintf(text, sizeof(text), "#%08lx", value & 0xffffffffUL);
     font = XQueryFont(display, XGContextFromGC(picker->color_picker.gc));
+    if (!font) return;
     baseline = (int)((picker->core.height + font->ascent - font->descent) / 2);
     XDrawString(display, window, picker->color_picker.gc, 38, baseline, text,
                 (int)strlen(text));
