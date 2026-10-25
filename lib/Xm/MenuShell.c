@@ -380,7 +380,7 @@ static void
 _XmFastExpose(
         register XmManagerWidget rowcol )
 {
-   register int i;
+   register Cardinal i;
    register Widget child;
 
    /* Process the menupane */
@@ -1055,7 +1055,7 @@ PopupSharedMenuShell(
    Position x, y;
    Dimension height, width;
    int _index = 0;
-   register int i;
+   register Cardinal i;
    Boolean popped_up = popup->shell.popped_up;
    XmRowColumnWidget old_rowcol = NULL;
    XmCascadeButtonWidget old_cascadebtn = NULL;
@@ -1389,7 +1389,7 @@ ChangeManaged(
    register Widget child;
    register XmRowColumnWidget rowcol = 
        (XmRowColumnWidget)popup->composite.children[0];
-   int i;
+   Cardinal i;
    XmMenuState mst = _XmGetMenuState((Widget)w);
    XmMenuSystemTrait menuSTrait;
    Time _time = XtLastTimestampProcessed(XtDisplay(w));
