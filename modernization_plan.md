@@ -2052,6 +2052,11 @@ extraction; the source contract is recorded in
 before initializing the compatibility direction value; the source contract is
 recorded in `tests/automated/check-xmstring-segment-validation.py` and
 `docs/xmstring-segment-validation.md`.
+Context enumeration now checks copied rendition and tag strings before taking
+their length, returning end-of-context and updating the error flag on failure;
+the source contract is recorded in
+`tests/automated/check-xmstring-context-copy-failure.py` and
+`docs/xmstring-context-copy-failure.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the
