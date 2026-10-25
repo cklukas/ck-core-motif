@@ -8305,3 +8305,10 @@ LabelG set-values allocation (2026-10-27)
   allocation before dereferencing them in the set-values prehook.  Partial
   allocations are released and the existing cache remains unchanged on
   allocation failure.
+
+LabelG get-values allocation (2026-10-27)
+=========================================
+
+- Check temporary cache-object and extension-data allocations in the
+  get-values prehook, release partial state, and make the matching posthook
+  tolerate an absent extension record.
