@@ -4853,3 +4853,9 @@ Check image mask-name allocation sizes (2026-10-25)
 
 - Check prefix and terminator arithmetic before allocating generated mask
   names; see `docs/mask-name-size-checks.md`.
+
+Rollback failed image-cache insertion (2026-10-25)
+==================================================
+
+- Check `_XmAddHashEntry` in `_XmInstallImage` and free the pending entry when
+  bucket allocation fails; see `docs/image-install-failure.md`.
