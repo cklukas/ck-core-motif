@@ -573,3 +573,4 @@ EXTRA_DIST += tests/automated/check-mrm-callback-routine-offset.py docs/mrm-call
 EXTRA_DIST += tests/automated/check-mrm-fixup-widechar-null.py docs/mrm-fixup-widechar-null.md
 EXTRA_DIST += tests/automated/check-mrm-createarg-color-fontfixup.py docs/mrm-createarg-color-fontfixup.md
 EXTRA_DIST += tests/automated/check-mrm-createarg-resource-null.py docs/mrm-createarg-resource-null.md
+EXTRA_DIST += tests/automated/check-mrm-fixup-fontlist-validation.py docs/mrm-fixup-fontlist-validation.md
