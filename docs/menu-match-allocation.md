@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Menu command-match allocation
 
 Menu command matching now treats its temporary `MatchList` allocation and

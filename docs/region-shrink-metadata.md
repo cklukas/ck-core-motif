@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Region rectangle-shrink metadata
 
 Region operations periodically shrink their rectangle array.  The previous

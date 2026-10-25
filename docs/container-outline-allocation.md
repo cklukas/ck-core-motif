@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container outline allocation rollback
 
 Container detail layout now allocates a replacement outline segment array

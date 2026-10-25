@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xmos basename conversion rollback
 
 The compatibility path in `_XmOSGetDirEntries` now allocates the basename

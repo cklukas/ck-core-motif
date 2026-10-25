@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List keyboard page geometry
 
 List horizontal page navigation derives its movement from the viewport width,

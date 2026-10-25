@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm resource-context validation macro
 
 `UrmRCValid` now checks for `NULL` before reading the context validation

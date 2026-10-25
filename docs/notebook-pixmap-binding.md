@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Notebook pixmap binding metadata
 
 Notebook pixmap bindings now distinguish a valid uncached metadata fetch from

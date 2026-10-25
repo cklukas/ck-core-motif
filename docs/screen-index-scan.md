@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Screen widget index scan
 
 `XmGetXmScreen` first checks the existing child widgets of the Motif display.

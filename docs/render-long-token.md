@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Long render-table tokens
 
 Alphabetic render-table tokens are now allocated to their actual length.  Long

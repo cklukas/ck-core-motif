@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Shared shadow origins
 
 `DrawSimpleShadow` builds the segment geometry used by `XmeDrawShadows` and

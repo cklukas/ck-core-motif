@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmDatePicker
 
 `XmDatePicker` is a compact date-only editor whose popup is an `XmCalendar`.

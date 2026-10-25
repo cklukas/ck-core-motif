@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Label wide-string value conversion
 
 `LabelSetValue` now checks the temporary byte-buffer allocation and the

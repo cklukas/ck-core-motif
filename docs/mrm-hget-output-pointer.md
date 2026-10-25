@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm hierarchy resource output validation
 
 `UrmHGetIndexedResource` writes the file that supplied a resource through

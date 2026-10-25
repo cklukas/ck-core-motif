@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM config-format debug output
 
 The WSM diagnostic formatter now passes its caller-provided buffer to the

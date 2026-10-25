@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PanedWindow managed-child allocation handling
 
 PanedWindow now treats its managed-child list allocation as optional during

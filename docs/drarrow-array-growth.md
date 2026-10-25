@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DrArrow geometry-array growth
 
 `XmeDrawArrow` keeps three rectangle arrays for the arrow’s top, center, and

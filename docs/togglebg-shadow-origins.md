@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleButton shadow origin bounds
 
 `DrawToggleShadow` already rejects gadgets whose highlight consumes the

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Traversal-node pool allocation
 
 Traversal graph node-pool creation and growth now allocate into temporary

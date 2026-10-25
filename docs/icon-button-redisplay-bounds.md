@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconButton redisplay bounds
 
 `XmIconButton` stores its core width and height as unsigned `Dimension`

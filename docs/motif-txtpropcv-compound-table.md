@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Compound-text table conversion buffers
 
 `XmCvtXmStringTableToTextProperty` now checks both the per-item pointer table

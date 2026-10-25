@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xmos qualified-path allocation guards
 
 `GetQualifiedDir` now checks each path-buffer allocation before writing the

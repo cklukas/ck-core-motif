@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm image-construction failure handling
 
 The shared `_XmCreateImage` macro now checks the `XCreateImage` result before

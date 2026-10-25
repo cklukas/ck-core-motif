@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Color-cache property cleanup
 
 `ColorCachePropertyExists` reads the private pixel-set property from the

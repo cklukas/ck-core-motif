@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Font selector size-list allocation
 
 Font selector size and alternate-family list refreshes now check their

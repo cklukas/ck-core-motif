@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm resource-id output initialization
 
 `UrmIdbGetResourceId` now initializes its output to zero before validating the

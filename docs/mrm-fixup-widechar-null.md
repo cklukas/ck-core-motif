@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm wide-character fixup null entries
 
 `Urm__CW_FixupValue` now rejects a null serialized wide-character entry before

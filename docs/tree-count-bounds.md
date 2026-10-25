@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Tree child and argument count bounds
 
 Tree constraint updates and layout traversal use `Cardinal` indices for Xt

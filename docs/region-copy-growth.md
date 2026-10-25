@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmRegion copy growth
 
 `miRegionCopy` now grows a destination rectangle array through a temporary

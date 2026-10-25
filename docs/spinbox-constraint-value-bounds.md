@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # SpinBox constraint value-table bounds
 
 SpinBox string-child constraints now validate the requested value count before

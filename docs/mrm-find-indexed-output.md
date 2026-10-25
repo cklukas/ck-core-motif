@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm indexed-resource enumeration output validation
 
 `UrmIdbFindIndexedResource` appends matching index strings to a caller-owned

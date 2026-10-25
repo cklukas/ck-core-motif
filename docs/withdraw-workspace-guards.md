@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Withdrawal workspace guards
 
 WSM client withdrawal can race workspace membership teardown.  The withdrawal

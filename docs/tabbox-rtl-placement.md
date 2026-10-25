@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TabBox right-to-left placement
 
 Horizontal right-to-left TabBox layout now computes the initial tab origin in

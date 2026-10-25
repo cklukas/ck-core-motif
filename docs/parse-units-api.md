@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmeParseUnits input validation
 
 `XmeParseUnits` now rejects a null unit specification or output pointer with

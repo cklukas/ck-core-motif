@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Fallback text-property value allocation
 
 The fallback path in `XmCvtXmStringToText` converts a compound string to a

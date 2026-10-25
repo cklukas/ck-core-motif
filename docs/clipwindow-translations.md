@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ClipWindow translation construction
 
 `XmClipWindow` expands virtual key bindings into a real Xt translation table

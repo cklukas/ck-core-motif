@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DrawnButton shadow redisplay guards
 
 `XmDrawnButton` has two shadow-rendering paths: the ordinary drawn-button path

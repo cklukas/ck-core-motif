@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm geometry wrapper null-safety
 
 The private `_XmMoveWidget`, `_XmResizeWidget`, and `_XmConfigureWidget`

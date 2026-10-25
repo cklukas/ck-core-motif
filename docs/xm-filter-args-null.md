@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm argument filtering validation
 
 `_XmFilterArgs` now initializes its returned list and count before processing,

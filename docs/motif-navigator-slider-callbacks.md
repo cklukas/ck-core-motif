@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Navigator slider callback validation
 
 List and ScrolledW slider callbacks now validate the navigator trait and its

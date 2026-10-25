@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmList selection helper null-safety
 
 `XmListUpdateSelectedList` and `XmListPosSelected` now reject null widgets

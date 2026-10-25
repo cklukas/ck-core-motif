@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm indexed-resource input checks
 
 `UrmIdbGetIndexedResource` requires an index string and a resource context for

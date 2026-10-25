@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drop-site setup allocation
 
 `XmeDropSink` copies caller arguments before registering the drop site. It now

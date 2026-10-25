@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Accessibility object creation inputs
 
 `XmAccessibilityCreate` now rejects a null root and checks its own allocation

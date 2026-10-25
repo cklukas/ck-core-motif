@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Unterminated render-table strings
 
 The render-table lexer now distinguishes a closing quote from the terminating

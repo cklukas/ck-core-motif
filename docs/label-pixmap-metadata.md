@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Label pixmap metadata
 
 Label redisplay now copies sensitive and insensitive pixmaps only after

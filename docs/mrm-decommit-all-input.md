@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm decommit-all input
 
 `Idb__BM_DecommitAll` now rejects a null file handle before scanning the shared

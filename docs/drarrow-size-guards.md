@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Arrow drawing size guards
 
 `XmeDrawArrow` derives its internal raster size by subtracting two from the

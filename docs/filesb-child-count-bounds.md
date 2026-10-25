@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FileSelectionBox child-count bounds
 
 FileSelectionBox geometry setup now traverses its composite child array with

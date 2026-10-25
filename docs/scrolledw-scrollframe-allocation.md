@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ScrolledWindow scroll-frame allocation handling
 
 ScrolledWindow’s scroll-frame trait initializer now checks its private data

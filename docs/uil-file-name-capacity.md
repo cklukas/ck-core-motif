@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # UIL source filename capacity
 
 UIL symbol records preserve both the source spelling and the expanded path.

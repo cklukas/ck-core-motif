@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text segment temporary buffers
 
 `GetTextSegment` creates temporary buffers for locale and ISO-8859-1 segment

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Extended compound-text segment buffers
 
 Both compound-text extended-segment decoders now check temporary charset and

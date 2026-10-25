@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Dialog shell name bounds
 
 Motif convenience dialogs create a companion shell by appending

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # BreadcrumbBar size bounds
 
 Breadcrumb labels and separators contribute fixed pixel estimates to hit

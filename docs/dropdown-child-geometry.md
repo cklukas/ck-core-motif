@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DropDown child geometry
 
 DropDown child placement subtracts vertical spacing, shadow, borders, and

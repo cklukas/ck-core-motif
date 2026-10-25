@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TabList attribute cleanup
 
 `XmTabAttributesFree` now accepts a `NULL` attribute record and returns without

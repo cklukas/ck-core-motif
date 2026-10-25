@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm timestamp output validation
 
 The internal timestamp helper now returns immediately when given a null output

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XPM image-data allocation size
 
 `CreateXImage` now checks the XImage row stride against `SIZE_MAX` and performs

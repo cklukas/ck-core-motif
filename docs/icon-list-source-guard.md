@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-list source guard
 
 `ExtendIconList` now rejects an inconsistent icon-box state where existing

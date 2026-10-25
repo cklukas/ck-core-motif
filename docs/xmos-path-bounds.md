@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xmos path construction bounds
 
 The path helpers use caller-provided `MAX_DIR_PATH_LEN` storage. The previous

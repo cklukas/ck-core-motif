@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # GeoUtils box-fitting allocation
 
 `FitBoxesAveraging` temporarily sorts child geometry pointers while reducing a

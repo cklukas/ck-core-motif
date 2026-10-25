@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm module descriptor size bounds
 
 Interface-module construction now keeps descriptor sizing in `size_t`, checks

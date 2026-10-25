@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # UIL listing title bounds
 
 The listing title stores the module name and optional version in a fixed

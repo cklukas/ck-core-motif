@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container cell-array growth
 
 When a Container changes only its minor layout dimension, the cell array is

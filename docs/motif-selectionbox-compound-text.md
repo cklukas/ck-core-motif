@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # SelectionBox compound-text conversion
 
 SelectionBox list selections received as COMPOUND_TEXT are converted to an

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Scale value redisplay guards
 
 `XmScale` renders its optional value label from a derived value region,

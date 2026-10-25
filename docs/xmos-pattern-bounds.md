@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xmos pattern conversion bounds
 
 The file-selection path converts a match pattern into a regular expression.

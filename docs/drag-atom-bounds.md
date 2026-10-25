@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drag atom table bounds
 
 Motif drag-and-drop state is shared through properties on the per-display Motif

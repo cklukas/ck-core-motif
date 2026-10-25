@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm hierarchy file-list bounds
 
 Mrm hierarchy opening now rejects negative file counts and checks the file-list

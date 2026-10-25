@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconG hook allocation handling
 
 IconG's secondary-object, set-values, and get-values hooks now check every

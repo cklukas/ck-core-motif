@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Traversal row allocation
 
 Traversal row construction now publishes replacement item and row arrays only

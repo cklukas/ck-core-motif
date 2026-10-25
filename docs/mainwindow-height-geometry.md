@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MainWindow child height geometry
 
 MainWindow now derives parent heights from signed intermediates when a child

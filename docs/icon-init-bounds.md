@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-box initialization bounds
 
 Icon-box initialization now handles zero or negative icon dimensions and

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-box keypress callback guards
 
 `HandleIconBoxIconKeyPress` now returns when its icon widget or key event is

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List drag conversion allocation
 
 List drag initiation now checks the conversion record and temporary string-array

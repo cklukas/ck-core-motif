@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Font selector family fallback bounds
 
 When an XLFD family is wildcarded, `XmFontSelector` obtains a replacement

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RCMenu callback-closure snapshot allocation
 
 Entry activation snapshots callback closures before invoking application

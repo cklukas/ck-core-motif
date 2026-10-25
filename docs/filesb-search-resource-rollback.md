@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FileSelectionBox search-resource rollback
 
 `XmFileSelectionBox::SetValues` now checks copies of the directory, pattern,

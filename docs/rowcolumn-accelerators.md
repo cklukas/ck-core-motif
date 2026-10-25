@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RowColumn accelerator expansion
 
 RowColumn expands virtual menu-bar and menu key bindings into real Xt

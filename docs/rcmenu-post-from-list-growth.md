@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RCMenu post-from-list growth
 
 Shared popup menus keep their attach widgets in a dynamically allocated

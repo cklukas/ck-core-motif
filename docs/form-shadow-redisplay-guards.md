@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Form shadow redisplay guards
 
 `XmForm` draws its manager shadow from both the resize path (when a shrink may

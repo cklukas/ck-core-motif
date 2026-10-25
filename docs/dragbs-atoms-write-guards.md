@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drag atom-table serialization guards
 
 `WriteAtomsTable` now rejects a non-empty cache with no entry array and checks

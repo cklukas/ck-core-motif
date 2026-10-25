@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # InfoBar redisplay guards
 
 `XmInfoBar` now treats a missing drawing GC or an unavailable X11 font as a

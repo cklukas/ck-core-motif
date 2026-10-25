@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Empty text segment separators
 
 `GetTextSegment` can receive an `XmNO_TEXT` segment with tabs or a separator

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # SpinBox value-list initialization rollback
 
 SpinBox now rolls back a partially copied string-child value list when an

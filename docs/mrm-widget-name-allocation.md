@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm widget-name allocation failure
 
 `UrmSetWidgetInstance` now checks the temporary name buffer returned by

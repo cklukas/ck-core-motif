@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Accessibility text allocation
 
 The accessibility text provider already rejects unrepresentable substring

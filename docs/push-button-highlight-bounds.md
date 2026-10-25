@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButton highlight bounds
 
 `XmPushButton` reduces its highlight thickness for default-button shadows and

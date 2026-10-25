@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MultiList label initialization rollback
 
 MultiList now checks its initial title, titleString, and find-label copies.

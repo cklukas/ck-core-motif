@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-file cache entry allocation
 
 Icon path resolution treats name caching as optional.  If the cache entry

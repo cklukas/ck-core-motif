@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmeDrawShadows graphics-context guards
 
 `XmeDrawShadows` now returns when either shadow graphics context is missing.

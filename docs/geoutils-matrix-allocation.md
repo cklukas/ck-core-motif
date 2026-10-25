@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # GeoUtils matrix allocation bounds
 
 `_XmGeoMatrixAlloc` builds one contiguous allocation for row layouts, child

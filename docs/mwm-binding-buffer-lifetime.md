@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm builtin binding buffer lifetime
 
 When default key or button bindings are expanded with the configured root-menu

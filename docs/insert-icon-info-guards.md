@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon insertion guards
 
 `InsertIconInfo` now rejects missing icon-box or client state and verifies that

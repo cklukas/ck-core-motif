@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM per-attribute list allocation failure
 
 WSM 8, 16, and 32-bit list attributes now check their data-array allocations

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TabStack conversion allocation
 
 `TabConvertProc` now checks the temporary child-pointer allocation before

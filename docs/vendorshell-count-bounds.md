@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # VendorShell count bounds
 
 VendorShell `SetValues` and `GetValuesHook` now iterate Xt argument counts

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ArrowButtonGadget redisplay guards
 
 `XmArrowButtonGadget` can be exposed while its manager resources are being

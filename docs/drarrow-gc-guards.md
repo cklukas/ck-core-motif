@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Arrow drawing GC guards
 
 `XmeDrawArrow` treats the center GC as optional for flat arrows, but shadowed

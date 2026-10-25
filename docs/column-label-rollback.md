@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Column label rollback
 
 `XmColumn` constraint updates now copy a replacement label before releasing

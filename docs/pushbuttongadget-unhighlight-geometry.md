@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButtonGadget unhighlight geometry
 
 When a PushButtonGadget loses focus, its menu and internal highlight paths

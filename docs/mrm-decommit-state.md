@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm buffer decommit state
 
 `Idb__BM_Decommit` now rejects modified write buffers that have lost their file

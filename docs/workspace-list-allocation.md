@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Workspace-list allocation
 
 Workspace-list parsing now checks its initial array of parsed-name pointers

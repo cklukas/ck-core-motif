@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Key-event mapping array allocation
 
 `_XmMapKeyEvents` returns three parallel arrays while parsing a virtual-key

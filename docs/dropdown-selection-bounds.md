@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DropDown selected-item tables
 
 DropDown now checks the converted selected-item count against host `size_t`

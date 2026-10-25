@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # I18List target-list conversion allocation
 
 I18List now checks `XmeStandardTargets` before writing the target list.  Its

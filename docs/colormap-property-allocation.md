@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WM_COLORMAP_WINDOWS allocation bounds
 
 Mwm adds one slot for the client window while processing the

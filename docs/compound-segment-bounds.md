@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Compound-string segment size bounds
 
 When a compound-string segment is returned with indentation or a separator,

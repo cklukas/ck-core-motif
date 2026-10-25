@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List selection result buffers
 
 `XmListGetMatchPos` and `XmListGetSelectedPos` now check the number of result

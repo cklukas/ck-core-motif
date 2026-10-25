@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString table growth bounds
 
 The string-to-`XmString` resource converter grows its pointer table as it

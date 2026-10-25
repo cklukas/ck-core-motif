@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm writer comment input
 
 `UrmCWRSetComment` now rejects a null comment pointer before measuring or

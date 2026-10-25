@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WP-11 Form/hierarchy correction decision
 
 WP-11 requires a source-backed layout defect or redundant-work hotspot before

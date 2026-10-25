@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon root-coordinate guards
 
 `GetIconBoxIconRootXY` now initializes valid output pointers to `(0, 0)` and

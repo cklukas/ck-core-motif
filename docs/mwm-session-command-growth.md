@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm session-command growth
 
 WSM session restoration tokenizes a saved command into an array of argument

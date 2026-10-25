@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Font selector family-list allocation
 
 Font selector family refresh now checks the temporary `XmString` array size

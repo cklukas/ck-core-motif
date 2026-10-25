@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # LabelG clip origins
 
 LabelG narrow-layout clip origins now add highlight, shadow, and margin

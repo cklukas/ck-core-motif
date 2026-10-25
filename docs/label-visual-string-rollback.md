@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Label visual-string rollback
 
 `XmLabel` now copies replacement label and accelerator strings before freeing

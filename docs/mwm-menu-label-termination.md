@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm menu-label termination
 
 Client-command menu labels are parsed from quoted resource text.  The legacy

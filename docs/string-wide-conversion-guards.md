@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Compound-string wide-text conversion guard
 
 `XmStringGetNextSegment` now checks its multibyte conversion buffer before

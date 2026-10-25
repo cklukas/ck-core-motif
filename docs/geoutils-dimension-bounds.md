@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # GeoUtils empty-row dimensions
 
 `_XmGeoGetDimensions` now treats a row with zero child boxes as having no

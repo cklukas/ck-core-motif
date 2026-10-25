@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconButton grey-stipple cache allocation
 
 `GetGreyStipple` now handles failure to allocate its cache record by returning

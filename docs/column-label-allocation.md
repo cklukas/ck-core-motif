@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Column label allocation handling
 
 When a Column creates its implicit label child, it first builds a generated

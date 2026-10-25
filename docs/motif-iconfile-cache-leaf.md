@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-file cache leaf allocation
 
 Derived icon cache entries now release their directory, key, and record if the

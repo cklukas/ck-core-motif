@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm widget-reference input validation
 
 `Urm__CW_AddWRef` now validates its resource context and widget-name pointer

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Protocol list bounds
 
 `XmAddProtocols` can receive more than the historical 32-protocol fast-path

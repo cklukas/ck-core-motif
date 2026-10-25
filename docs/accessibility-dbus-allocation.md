@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Accessibility D-Bus state allocation
 
 The AT-SPI D-Bus transport keeps per-node memo records for cache entries,

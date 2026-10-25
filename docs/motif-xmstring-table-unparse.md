@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString table unparse allocation failure
 
 `XmStringTableUnparse` allocates an output pointer table before converting each

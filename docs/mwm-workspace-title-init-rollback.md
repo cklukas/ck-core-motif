@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MWM workspace-title initialization rollback
 
 When MWM initializes workspace resources, it now publishes the copied title

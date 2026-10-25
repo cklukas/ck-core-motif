@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Deferred pixmap tag failures
 
 When `Urm__CW_CreateArglist` finishes a deferred icon or bitmap argument, it

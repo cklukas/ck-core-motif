@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Screen client-list update guards
 
 The `_MWM_CLIENT_LIST` notification path now handles a missing screen, detached

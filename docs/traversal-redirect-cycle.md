@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Traversal redirect-cycle fallback
 
 Traversal-control traits can redirect focus repeatedly. Once the bounded

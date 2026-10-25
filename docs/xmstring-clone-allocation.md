@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString clone allocation
 
 Non-optimized `XmStringCopy` clones now check the entry-array size and every

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm pixmap-cache cleanup with uninitialized tables
 
 `_XmCleanPixmapCache` now skips absent GC and pixmap hash tables. Cleanup is

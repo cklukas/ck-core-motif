@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Standard conversion scalar allocation
 
 The standard transfer converter allocates one scalar for foreground,

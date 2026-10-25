@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString rendition input validation
 
 `XmStringPutRendition` now rejects a null XmString or rendition tag before

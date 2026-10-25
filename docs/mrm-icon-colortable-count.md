@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm icon color-table count validation
 
 A color table always reserves entries zero and one for background and

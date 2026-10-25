@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MWM info read guards
 
 `GetMwmInfo` now accepts the root `_MOTIF_WM_INFO` property only when its

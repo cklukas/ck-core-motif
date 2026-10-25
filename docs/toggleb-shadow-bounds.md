@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleButton shadow bounds
 
 The ToggleButton menu redisplay path now checks the widget's inner width and

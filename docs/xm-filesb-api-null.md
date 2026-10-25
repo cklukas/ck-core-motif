@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmFileSelectionBox API null-safety
 
 `XmFileSelectionBoxGetChild` now returns `NULL` for a null widget, and

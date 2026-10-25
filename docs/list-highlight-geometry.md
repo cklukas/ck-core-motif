@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List highlight geometry
 
 List traversal highlighting derives its width and height by subtracting margin

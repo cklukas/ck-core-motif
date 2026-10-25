@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmList item mutation rollback
 
 List insertion now checks every `XmStringCopy`.  If a copy fails, already

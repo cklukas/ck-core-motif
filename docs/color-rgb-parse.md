@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Color database RGB parsing
 
 The color selector now checks the result of each RGB channel scan.  Lines that

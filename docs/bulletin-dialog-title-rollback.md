@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # BulletinBoard dialog-title rollback
 
 `XmBulletinBoard` now copies a changed dialog title before releasing the

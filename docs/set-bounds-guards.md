@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-box bounds recalculation guards
 
 `SetNewBounds` now handles partially initialized icon boxes and invalid icon

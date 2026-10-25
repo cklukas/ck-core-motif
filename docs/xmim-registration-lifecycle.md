@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XIM registration lifecycle
 
 XIM widget registration is optional state backed by Xt allocations.  If a

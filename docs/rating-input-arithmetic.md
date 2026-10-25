@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RatingControl input arithmetic
 
 RatingControl maps a button X coordinate to the configured rating count.  The

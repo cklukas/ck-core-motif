@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Empty tab-list cleanup
 
 `XmTabListFree` now releases zero-count lists, including lists returned by the

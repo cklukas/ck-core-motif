@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm primitive conversion pointer validation
 
 `Urm__CW_ConvertValue` now rejects missing color descriptors, wide-character

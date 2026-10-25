@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # VendorShell composite-extension allocation
 
 VendorShell class initialization now checks the inherited composite-extension

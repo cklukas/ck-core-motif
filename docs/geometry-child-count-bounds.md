@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Geometry and tracking child-count bounds
 
 The shared `GMUtils` geometry helpers and `TrackLoc` input hit-test helper now

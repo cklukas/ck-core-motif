@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container reorder allocation
 
 `XmContainerReorder` snapshots position indexes into a temporary integer array

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Spinner interval rescheduling
 
 When an active Spinner's `XmNspinnerInterval` changed, the old timeout stayed

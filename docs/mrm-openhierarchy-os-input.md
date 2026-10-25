@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm hierarchy open input validation
 
 `Urm__OpenHierarchy` accepts an optional pointer to platform-specific open

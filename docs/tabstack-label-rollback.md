@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TabStack label rollback
 
 `XmTabStack` now copies changed tab and tear-off labels before releasing the

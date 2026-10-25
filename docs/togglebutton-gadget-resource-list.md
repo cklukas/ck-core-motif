@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleButtonGadget resource-list allocation
 
 ToggleButtonGadget class initialization merges the LabelGadget and

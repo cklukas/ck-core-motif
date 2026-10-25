@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString table splitting allocation and indexing
 
 `XmStringToXmStringTable` now checks both output-table allocations and

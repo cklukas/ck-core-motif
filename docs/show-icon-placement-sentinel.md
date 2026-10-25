@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Minimized-icon placement sentinel guard
 
 `ShowIconForMinimizedClient` now rejects a negative or oversized placement

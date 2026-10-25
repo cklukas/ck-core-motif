@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm config-file path bounds
 
 Mwm searches several resource, locale, and system configuration paths in a

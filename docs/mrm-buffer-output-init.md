@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm record-buffer output initialization
 
 The record-buffer acquisition and initialization entry points now set their

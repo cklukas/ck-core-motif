@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text UTF-8 value allocation failure
 
 Text selection conversion copies Xlib UTF-8 property bytes into an Xt-owned

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Indicator drawing GC guard
 
 `XmeDrawIndicator` dispatches checkmark and cross rendering through a shared

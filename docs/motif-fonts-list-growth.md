@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Font selector raw-list growth
 
 Font selector XLFD and alternate-font collection now grows its arrays

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm IDB close keep/discard behavior
 
 `UrmIdbCloseFile` now honors its `keep_new_file` argument. Write-access files

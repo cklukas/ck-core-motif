@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmRegion operation input guards
 
 Private region operations now handle optional geometry state consistently:

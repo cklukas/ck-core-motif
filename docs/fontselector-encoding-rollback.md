@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FontSelector encoding rollback
 
 FontSelector now preserves the current encoding when a replacement string

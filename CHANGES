@@ -5,6 +5,13 @@ Documentation workflow trigger scope (2026-10-25)
   while retaining an explicit `workflow_dispatch` trigger; see
   `docs/build.md`.
 
+Documentation navigation completeness (2026-10-25)
+====================================================
+
+- Mark the detailed reference pages as built-but-unlisted so strict hosted
+  builds retain them in the site index without overflowing the pinned config
+  parser; see `tests/automated/check-docs-nav-complete.py`.
+
 MWM invoke-message allocation guard (2026-10-28)
 ==================================================
 

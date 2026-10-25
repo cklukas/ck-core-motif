@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButton label geometry
 
 PushButton computes the label rectangle after accounting for highlight and

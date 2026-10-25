@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List callback item-copy failure
 
 List selection and default-action callbacks now require a successful private

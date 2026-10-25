@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm writer Char8-vector rebind failures
 
 `UrmCWRSetArgChar8Vec` now checks the argument descriptor rebind immediately

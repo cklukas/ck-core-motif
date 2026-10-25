@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Frame shadow redisplay guards
 
 `XmFrame` caches the previous shadow rectangle so it can repaint a frame

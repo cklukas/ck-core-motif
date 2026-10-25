@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Shared etched shadow span bounds
 
 `XmeDrawShadows` now computes the inner etched-shadow rectangle in signed

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString parser rendition-array sizing
 
 The non-optimized compound-string parser now allocates rendition-begin and

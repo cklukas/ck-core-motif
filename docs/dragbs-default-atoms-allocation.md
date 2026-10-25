@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Default drag atom-table allocation handling
 
 `CreateDefaultAtomsTable` creates the initial process-local atom cache.  It

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Color selector label bounds
 
 The color selector displays the selected color name together with its RGB

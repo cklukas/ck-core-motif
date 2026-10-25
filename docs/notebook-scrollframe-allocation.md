@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Notebook scroll-frame allocation handling
 
 Notebook’s scroll-frame trait initializer now checks its private

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Manager class-extension allocation
 
 Manager class initialization now checks the inherited composite extension and

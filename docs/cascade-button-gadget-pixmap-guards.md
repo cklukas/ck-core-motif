@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # CascadeButtonGadget pixmap guards
 
 `XmCascadeButtonGadget` copies its cascade pixmap into the parent manager

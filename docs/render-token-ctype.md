@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Render-table token classification
 
 The render-table lexer skips whitespace and recognizes alphabetic tokens with

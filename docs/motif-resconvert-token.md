@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Resource converter token allocation
 
 `GetNextToken` now checks both its empty-token and normal-token allocations

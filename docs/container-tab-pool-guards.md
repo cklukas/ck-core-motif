@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container dynamic tab-pool allocation
 
 Dynamic detail-tab generation now checks both the temporary tab-array

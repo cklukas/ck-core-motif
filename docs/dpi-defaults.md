@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Global DPI defaults
 
 ck-core-motif reads the optional `Xft.dpi` X resource when a widget needs a

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Transfer request-block allocation
 
 `XmTransferValue` adds each requested target to a linked transfer-block list.

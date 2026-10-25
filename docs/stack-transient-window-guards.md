@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # StackTransientWindow guards
 
 Transient restacking can run after a parent or sibling has been removed.

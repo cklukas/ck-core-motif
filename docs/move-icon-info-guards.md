@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-info move guards
 
 `MoveIconInfo` now treats missing placement storage, invalid source or

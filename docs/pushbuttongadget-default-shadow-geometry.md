@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButtonGadget default-shadow geometry
 
 The gadget default-shadow erase paths subtracted twice the emphasis inset from

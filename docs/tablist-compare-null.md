@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TabList comparison with absent lists
 
 `XmTabbedStackListCompare` now treats two `NULL` lists as equal and a single

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ArrowButton redisplay guards
 
 `XmArrowButton` can receive an expose event while its resources are being

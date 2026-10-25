@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm reader text-vector validation
 
 `Urm__CW_FixupValue` now rejects null, invalid, or over-sized text vectors

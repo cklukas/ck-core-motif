@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ScrollFrame navigator callback validation
 
 `_XmSFAddNavigator` now validates the navigator trait callbacks before it

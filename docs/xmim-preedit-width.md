@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Input-method preedit width bounds
 
 The input-method setup path now computes preedit width from a signed available

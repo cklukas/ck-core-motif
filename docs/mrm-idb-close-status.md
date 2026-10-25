@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm IDB close status and cleanup
 
 Low-level IDB close now frees its state when the operating-system close fails,

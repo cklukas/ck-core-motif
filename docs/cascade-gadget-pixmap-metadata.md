@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # CascadeButtonGadget pixmap metadata
 
 CascadeButtonGadget glyph rendering now checks the result of

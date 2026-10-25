@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # CareVisual child-count bounds
 
 `_XmNotifyChildrenVisual` traverses a composite widget's child array. The

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # VendorShell set-values extension data
 
 VendorShell set-values processing clones extension metadata when an existing

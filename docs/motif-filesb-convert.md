@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FileSB conversion target allocation
 
 When a File Selection Box advertises file and file-name conversion targets,

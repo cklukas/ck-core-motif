@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm data-entry insertion capacity
 
 Before adding a simple entry to an existing data record, Mrm now validates the

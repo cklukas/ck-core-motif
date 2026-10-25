@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm create-close handling
 
 The write-open path now checks the `close` result for the descriptor returned by

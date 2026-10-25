@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # StackWindow guards
 
 Window restacking can race client withdrawal and workspace list teardown.

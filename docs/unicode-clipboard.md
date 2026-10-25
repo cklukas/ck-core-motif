@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Large UTF-8 clipboard round trips
 
 The Motif clipboard stores format-8 data as bytes, so a Unicode round trip must

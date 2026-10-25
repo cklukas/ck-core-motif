@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ProgressBar redisplay guards
 
 `XmProgressBar` now tolerates partial GC allocation. It updates only existing

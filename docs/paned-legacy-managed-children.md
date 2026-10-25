@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Legacy PanedWindow managed-child growth
 
 The legacy `XmPanedWidget` managed-child rebuild now grows its array through a

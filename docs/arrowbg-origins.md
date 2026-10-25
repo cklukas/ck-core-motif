@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ArrowButton gadget origin bounds
 
 ArrowButton gadget redisplay computes its fill and shadow origins from X11

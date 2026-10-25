@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Font family encoding allocation handling
 
 Font selector family creation now checks the initial encoding-table allocation.

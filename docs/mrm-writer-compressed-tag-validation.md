@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm writer compressed-tag validation
 
 `UrmCWRSetCompressedArgTag` now propagates invalid-context and argument-binding

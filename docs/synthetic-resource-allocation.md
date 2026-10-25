@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Synthetic-resource allocation
 
 `_XmBuildResources` now validates signed superclass/subclass counts, source

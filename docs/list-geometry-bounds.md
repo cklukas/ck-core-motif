@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List geometry bounds
 
 List traversal highlights and horizontal scrollbar sizing now calculate widths

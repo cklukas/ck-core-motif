@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Usable-text table allocation
 
 The locale, text, string, and standard ICC conversion styles now check the

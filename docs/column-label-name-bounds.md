@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Column label names
 
 Column creates an internal label child by appending `_label` to each child

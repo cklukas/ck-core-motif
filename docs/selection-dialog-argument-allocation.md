@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 Selection and prompt dialog argument allocation bounds
 ========================================================
 

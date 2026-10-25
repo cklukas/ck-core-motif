@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MultiList label rollback
 
 MultiList now copies changed find and title labels before releasing their

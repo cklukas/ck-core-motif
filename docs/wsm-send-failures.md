@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM send failure paths
 
 `WSMSendMessage` now checks widget realization before packing a request, so an

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm legacy callback bounds
 
 Legacy Mrm callback descriptor translation now rejects null descriptors,

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM workspace-property allocation failures
 
 WSM workspace hints and workspace-list properties now check their atom-array

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm pixmap-data optional outputs
 
 `_XmGetPixmapData` now validates the screen and pixmap, clears only supplied

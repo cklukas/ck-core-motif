@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM WM_WINDOWS property allocation failure
 
 WSM `WM_WINDOWS` request unpacking now checks its window-property array before

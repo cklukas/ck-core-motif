@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Paned right-to-left pane origins
 
 Right-to-left horizontal Paned layout now computes each pane origin from

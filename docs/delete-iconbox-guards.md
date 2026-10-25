@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-box deletion guards
 
 `DeleteIconFromBox` now rejects incomplete icon-box/client geometry before Xt

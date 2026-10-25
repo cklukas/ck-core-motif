@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm data-entry offset validation
 
 Data handles carry a record number and an offset to an entry inside the fixed

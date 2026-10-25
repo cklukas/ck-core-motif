@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ComboBox collapsed geometry
 
 ComboBox now clamps the dropdown shell width to one pixel when the control is

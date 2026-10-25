@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Atom-list resource conversion allocation
 
 The atom-list converter now checks dynamic token-array growth and the final

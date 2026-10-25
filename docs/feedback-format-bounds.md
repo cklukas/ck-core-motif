@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm feedback text bounds
 
 The move/resize feedback overlay formats coordinates and dimensions into

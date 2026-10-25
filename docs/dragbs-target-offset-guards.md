@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drag target-table offset validation
 
 The serialized target-table header stores `heap_offset` in a 32-bit field.

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Non-empty ASN.1 string-table allocation
 
 The non-empty Motif compound-string branch now checks its second-pass

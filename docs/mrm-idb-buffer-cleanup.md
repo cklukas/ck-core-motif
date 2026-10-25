@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm in-memory IDB cleanup
 
 When an in-memory UID buffer fails header validation, `UrmIdbOpenBuffer` now

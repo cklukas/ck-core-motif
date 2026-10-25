@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DropDown expose geometry
 
 The DropDown visual-style expose handler positions its shadow from a child

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm writer scalar inputs
 
 `UrmCWRSetArgValue` now rejects null pointers for floating-point and color-table

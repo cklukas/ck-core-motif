@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FileSelectionBox update-resource rollback
 
 `FileSelectionBoxUpdate` now prepares replacement copies of the Directory and

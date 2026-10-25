@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString context-copy allocation
 
 `_XmStringContextCopy` now checks both the size calculation and allocation of

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FontSelector family-encoding growth
 
 Each discovered font family keeps a dynamically grown table of encoding

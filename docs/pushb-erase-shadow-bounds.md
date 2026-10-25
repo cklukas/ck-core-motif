@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButton default-shadow erase bounds
 
 `EraseDefaultButtonShadow` now skips border clearing for buttons no larger than

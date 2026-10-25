@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xft UTF-8 compound-string metrics allocation
 
 The ISO-10646 core-font path used for UTF-8 compound strings converts the

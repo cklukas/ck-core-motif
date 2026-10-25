@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MenuShell child-count bounds
 
 MenuShell expose, popup-child lookup, and managed-child focus traversal now

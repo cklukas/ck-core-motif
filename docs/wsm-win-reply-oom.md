@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM WM_WINDOWS reply allocation failure
 
 WSM `WM_WINDOWS` reply unpacking now checks its window-entry array before

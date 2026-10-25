@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Input-method area geometry bounds
 
 The input-method integration now clamps shell-height removal and status or

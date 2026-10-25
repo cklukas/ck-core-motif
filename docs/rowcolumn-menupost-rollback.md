@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RowColumn menu-post rollback
 
 RowColumn now allocates a private copy of a changed `XmNmenuPost` string

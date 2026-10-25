@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Font selector metadata allocation
 
 Font selector initialization now checks its `FontInfo` and family-table

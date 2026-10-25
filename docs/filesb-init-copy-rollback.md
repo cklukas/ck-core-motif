@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FileSelectionBox initialization-copy rollback
 
 `XmFileSelectionBox` now checks its initial copies of the no-match, directory,

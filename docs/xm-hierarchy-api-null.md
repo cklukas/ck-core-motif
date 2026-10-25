@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmHierarchy API null-safety
 
 `XmHierarchyOpenAllAncestors` now returns for a null node, and

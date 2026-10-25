@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM target cache guards
 
 Target validation and target-list construction now handle an unavailable WSM

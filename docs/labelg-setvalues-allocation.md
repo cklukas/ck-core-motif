@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # LabelG set-values allocation handling
 
 `SetValuesPrehook` prepares replacement and request-side cache extension objects

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon placement initialization guards
 
 `InitIconPlacement` now rejects missing workspace data and non-positive icon

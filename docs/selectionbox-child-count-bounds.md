@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # SelectionBox child-count bounds
 
 SelectionBox geometry setup now traverses its composite child array with an

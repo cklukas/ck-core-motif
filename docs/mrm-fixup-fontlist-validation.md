@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm font-list fixup validation
 
 `Urm__CW_FixupValue` now rejects missing font-list buffers and counts above the

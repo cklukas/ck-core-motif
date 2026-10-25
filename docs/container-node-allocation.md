@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container node allocation
 
 `XmContainer` records each icon child in a private `CwidNode` linked list.

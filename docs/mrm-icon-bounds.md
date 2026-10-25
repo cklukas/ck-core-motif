@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm icon allocation bounds
 
 UID icon mapping validates dimensions, source strides, destination byte counts,

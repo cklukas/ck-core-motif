@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Charset canonicalization bounds
 
 The private charset canonicalizer accepts application-derived strings.  Its

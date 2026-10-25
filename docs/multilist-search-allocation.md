@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MultiList search allocation failure
 
 `XmMultiList` now abandons a search safely when the text-field string cannot

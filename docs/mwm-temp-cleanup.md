@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm temporary configuration cleanup
 
 WSM preprocessing creates temporary configuration files.  The legacy cleanup

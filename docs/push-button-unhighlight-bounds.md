@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButton unhighlight bounds
 
 When an unarmed `XmPushButton` uses internal default-button emphasis, its

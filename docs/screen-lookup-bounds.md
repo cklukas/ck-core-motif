@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmScreen lookup bounds
 
 Motif’s screen-wide cursor and font-unit setters, as well as

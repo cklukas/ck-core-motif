@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ScrollBar resize spans
 
 ScrollBar arrow and slider spans now use signed, bounded arithmetic.  A

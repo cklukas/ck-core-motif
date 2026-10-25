@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Image installation failure rollback
 
 `_XmInstallImage` now checks the hash-table insertion result. If bucket

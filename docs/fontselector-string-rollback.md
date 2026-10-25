@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FontSelector string rollback
 
 FontSelector now copies each changed label string before releasing its current

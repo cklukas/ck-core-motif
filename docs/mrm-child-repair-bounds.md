@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm child-repair bounds
 
 `Idb__INX_FixNodeChildren` now rejects impossible node counts, heap offsets, and

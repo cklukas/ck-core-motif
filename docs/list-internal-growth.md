@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmList internal-list growth
 
 `XmList` keeps an internal `ElementPtr` array alongside its public item

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text drop transfer-record allocation failure
 
 Text drop handling stores asynchronous transfer state in a temporary record.

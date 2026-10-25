@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Transient window-list guards
 
 Restacking builds a temporary window list from the transient tree.  The list

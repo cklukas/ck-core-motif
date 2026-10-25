@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ScrolledWindow scrollbar placement bounds
 
 Bottom/right scrollbar placement now computes the available coordinate in

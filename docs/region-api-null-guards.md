@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmRegion API null guards
 
 `_XmRegionDestroy` now accepts a `NULL` region.  `_XmRegionGetRectangles`

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text source set-value bounds
 
 `_XmStringSourceSetValue` accepts a C string and stores its length in the

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TabBox geometry allocation
 
 `XmTabBox` keeps private arrays for actual tab rectangles, wanted tab

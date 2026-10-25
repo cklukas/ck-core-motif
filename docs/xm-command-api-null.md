@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmCommand API null-safety
 
 `XmCommandGetChild`, `XmCommandSetValue`, `XmCommandAppendValue`, and

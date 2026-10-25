@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Spinner label initialization rollback
 
 Spinner now checks the private copy of its initial label.  If `XmStringCopy`

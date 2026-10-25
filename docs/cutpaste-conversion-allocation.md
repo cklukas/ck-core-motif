@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # CutPaste conversion allocation guards
 
 The legacy CutPaste converter now validates clipboard target counts before

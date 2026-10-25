@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm color and font reader boundaries
 
 The special color handling in `Urm__CW_CreateArglist` now skips a missing color

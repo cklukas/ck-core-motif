@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # `modern-dark` appearance profile
 
 `XmAPPEARANCE_MODERN_DARK` is an opt-in resource-backed profile selected before

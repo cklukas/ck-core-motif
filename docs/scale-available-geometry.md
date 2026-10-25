@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Scale available trough geometry
 
 Scale computes the trough area after subtracting leading and trailing

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm index pivot scan bounds
 
 Leaf and node index splits now bound pivot-name scans by both the maximum index

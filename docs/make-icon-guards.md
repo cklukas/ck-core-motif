@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MakeIcon argument guards
 
 Icon creation can be requested while workspace membership is being removed.

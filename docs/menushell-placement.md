@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MenuShell popup placement bounds
 
 MenuShell popup edge placement now computes screen clamping in signed

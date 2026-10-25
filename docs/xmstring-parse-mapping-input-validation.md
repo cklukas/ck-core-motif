@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString parse-mapping input validation
 
 `XmParseMappingSetValues` now ignores invalid calls with a nonzero argument

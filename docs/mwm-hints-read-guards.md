@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MWM hints read guards
 
 `GetMwmHints` now accepts a property only when it has the expected 32-bit

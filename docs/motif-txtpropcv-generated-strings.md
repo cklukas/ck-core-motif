@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Plain text-property XmString generation failures
 
 When converting locale, ISO-8859-1, or UTF-8 text properties,

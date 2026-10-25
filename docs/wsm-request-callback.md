@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM request callback guard
 
 `WSMProcessProtoTarget` now checks both the screen metadata and its registered

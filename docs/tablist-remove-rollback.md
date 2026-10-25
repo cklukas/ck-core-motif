@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Transactional tab-list removal
 
 `XmTabListRemoveTabs` now performs its mark-and-sweep operation on a copied

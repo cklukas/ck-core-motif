@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ColorSelector equal-name copy rollback
 
 When a ColorSelector receives a distinct string containing the same color

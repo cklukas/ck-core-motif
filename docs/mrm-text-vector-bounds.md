@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm text-vector bounds
 
 Mrm Char8 and CString vector setters now reject negative counts and counts

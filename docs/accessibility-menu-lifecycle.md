@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Accessibility menu snapshots
 
 Accessibility menu notifications snapshot child IDs before invoking providers

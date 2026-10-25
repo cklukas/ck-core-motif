@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drag target-entry allocation handling
 
 `ReadTargetsTable` allocates an atom array for each newly discovered target

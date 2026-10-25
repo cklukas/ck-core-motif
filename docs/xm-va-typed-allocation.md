@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 Typed varargs argument-list allocation
 =======================================
 

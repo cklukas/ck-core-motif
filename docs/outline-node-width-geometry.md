@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Outline child-width geometry
 
 Outline negotiates child widths from the parent width minus each child’s

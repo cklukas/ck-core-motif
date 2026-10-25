@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Font fallback name size bounds
 
 The scaled-font fallback in `lib/Xm/FontS.c` constructs an XLFD by joining

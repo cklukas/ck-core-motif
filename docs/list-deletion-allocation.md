@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmList deletion allocation failures
 
 The list deletion helpers compact their arrays and then ask Xt to shrink the

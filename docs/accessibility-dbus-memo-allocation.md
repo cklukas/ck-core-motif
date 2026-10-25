@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Accessibility D-Bus memo allocation handling
 
 The accessibility D-Bus transport memo table now reports allocation failure

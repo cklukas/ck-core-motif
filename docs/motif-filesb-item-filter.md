@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FileSB item filter allocation failure
 
 When a File Selection Box restores its full-path filter field, it combines the

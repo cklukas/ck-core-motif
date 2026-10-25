@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm creation callback record bounds
 
 Mrm widget creation now validates both legacy and current serialized callback

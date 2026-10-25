@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ScrollBar redisplay shadow bounds
 
 ScrollBar redisplay now clamps the shadow drawing width and height to one pixel

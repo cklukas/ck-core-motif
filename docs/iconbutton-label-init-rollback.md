@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconButton label initialization rollback
 
 IconButton initialization now checks the private copy of an explicitly

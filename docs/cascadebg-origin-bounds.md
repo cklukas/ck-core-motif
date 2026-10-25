@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # CascadeButton gadget shadow origins
 
 CascadeButton gadget shadow and highlight origins now add highlight thickness

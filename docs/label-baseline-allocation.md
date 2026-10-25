@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Label baseline allocation
 
 `XmLabelGetBaselines` caches an extra baseline offset and returns a

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DeleteEntryFromList guards
 
 Window-list removal can occur after workspace teardown has begun.  The

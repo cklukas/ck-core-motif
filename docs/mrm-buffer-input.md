@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm record-buffer input validation
 
 Mrm buffer acquisition, record lookup, and record initialization now reject null

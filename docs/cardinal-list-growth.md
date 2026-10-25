@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Cardinal-list resource conversion bounds
 
 The cardinal-list resource converter grows its output array while parsing

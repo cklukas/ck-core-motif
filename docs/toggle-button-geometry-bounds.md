@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleButton geometry bounds
 
 The ToggleButton shadow and fill paths now check the widget dimensions before

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PanedWindow separator allocation
 
 When `XmPanedWindow` toggles `XmNseparatorOn`, it collects the separator

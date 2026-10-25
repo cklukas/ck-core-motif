@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Draw shadow segment-buffer growth
 
 The Motif shadow drawing helper keeps a shared `XSegment` array sized for the

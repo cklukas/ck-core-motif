@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container child-list allocation
 
 `XmContainerGetItemChildren` snapshots the linked children of a container into

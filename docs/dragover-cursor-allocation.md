@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drag-over cursor allocation
 
 Drag-over cursor creation now rejects an X cursor-creation failure and returns

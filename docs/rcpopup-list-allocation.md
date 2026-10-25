@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RowColumn popup-list allocation
 
 `XmAddToPostFromList` keeps a private hash table and per-widget popup list for

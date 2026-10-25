@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DT window-management request cleanup
 
 `GetDtWmRequest` keeps the X property buffer between calls while it extracts

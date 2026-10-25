@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Scaled-pixmap screen fallback
 
 `_XmGetScaledPixmap` accepts either a `Screen` or a widget from which to

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconFile cache comparator input guards
 
 The icon-name cache comparator now validates both entry pointers and their key

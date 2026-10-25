@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Window-configuration widget move guard
 
 The icon-box move path now validates placement storage, the current index, and

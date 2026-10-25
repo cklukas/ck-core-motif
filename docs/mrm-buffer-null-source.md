@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm in-memory record source validation
 
 In-memory record reads allow the header record to bypass the record-number upper

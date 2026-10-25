@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm resource-descriptor bounds
 
 Embedded `RGMResourceDesc` values now validate their declared size before field

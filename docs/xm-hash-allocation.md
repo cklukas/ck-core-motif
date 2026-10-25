@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm hash-table allocation
 
 Motif's private hash tables are used by image, pixmap, GC, and widget caches.

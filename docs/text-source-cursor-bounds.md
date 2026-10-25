@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text source conversion cursor bounds
 
 `_XmStringSourceGetString` converts source blocks into either a byte string or

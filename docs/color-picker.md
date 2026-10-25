@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ColorPicker
 
 `XmColorPicker` is an additive packed-RGBA control.  Its committed value is an

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm writer compound-string-vector validation
 
 `UrmCWRSetArgCStringVec` now propagates context and argument-binding failures

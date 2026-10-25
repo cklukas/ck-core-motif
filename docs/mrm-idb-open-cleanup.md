@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm low-level IDB open cleanup
 
 Low-level IDB opens now close the operating-system file descriptor when

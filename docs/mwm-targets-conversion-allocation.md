@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MWM TARGETS conversion allocation guard
 
 MWM’s selection conversion now checks its fixed TARGETS atom-array allocation

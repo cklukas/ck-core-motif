@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm index collapse bounds
 
 Leaf and node index-collapse helpers now reject missing records, reversed or

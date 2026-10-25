@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # CascadeButton armed fill guard
 
 The etched-in `XmCascadeButton` redisplay path fills the realized window when

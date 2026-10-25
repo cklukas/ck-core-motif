@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm zero-count descriptor inputs
 
 Mrm module and widget-record argument-list builders reject zero-count inputs

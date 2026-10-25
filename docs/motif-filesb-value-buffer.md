@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FileSB full-path value allocation failure
 
 File Selection Box search qualification combines the current directory and

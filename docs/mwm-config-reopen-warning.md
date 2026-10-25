@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm configuration-reopen warning bounds
 
 When an included resource file is popped from the configuration stack,

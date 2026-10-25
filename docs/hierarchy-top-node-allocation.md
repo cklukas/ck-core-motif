@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Hierarchy top-node allocation
 
 Hierarchy widgets create a top constraint node during initialization and then

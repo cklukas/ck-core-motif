@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleButton menu shadow bounds
 
 The ToggleButton menu enter and border-highlight callbacks now draw shadows

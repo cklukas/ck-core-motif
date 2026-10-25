@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString rendition-stack extents
 
 Segment extent calculation maintains a temporary stack of rendition tags.

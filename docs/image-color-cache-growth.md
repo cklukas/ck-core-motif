@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ImageCache color-cache growth
 
 The color cache grows in fixed-size batches.  Growth now validates the count

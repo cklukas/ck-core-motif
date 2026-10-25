@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm argument-filter allocation guard
 
 `_XmFilterArgs` now checks both `size_t` and Xt `Cardinal` byte limits before

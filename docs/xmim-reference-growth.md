@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Input-method reference-table growth
 
 XIM widget references now grow their widget and callback arrays as one

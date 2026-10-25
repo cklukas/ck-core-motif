@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm index-writer input validation
 
 The low-level leaf and node index insertion routines now reject null file,

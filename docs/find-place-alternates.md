@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Alternate icon-place bounds
 
 The alternate-position search in `FindIconPlace` now validates each converted

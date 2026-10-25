@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # LabelGadget baseline allocation
 
 `XmLabelGadgetGetBaselines` caches one extra baseline offset and returns a

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Tab-list copy rollback
 
 When a later tab cannot be copied, `XmTabListCopy` now closes the partial ring,

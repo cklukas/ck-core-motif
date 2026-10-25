@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # UIL expanded filename capacity
 
 UIL source control blocks accept paths up to 255 bytes plus a terminating NUL.

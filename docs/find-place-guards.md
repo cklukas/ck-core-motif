@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-place search guards
 
 `FindIconPlace` now rejects missing clients, placement storage, and invalid

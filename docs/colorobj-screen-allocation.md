@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ColorObj screen allocation cleanup
 
 ColorObj allocates three per-screen arrays for colors, atoms, and usage.  If

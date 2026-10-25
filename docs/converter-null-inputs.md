@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Resource converter null inputs
 
 Button-type, keysym-table, and charset-table resource converters now reject a

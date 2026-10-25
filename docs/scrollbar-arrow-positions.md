@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ScrollBar far-side arrow positions
 
 Far-side arrow coordinates now use signed intermediates before conversion to

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmMainWindow API null-safety
 
 `XmMainWindowSetAreas` now returns for a null main-window widget, and

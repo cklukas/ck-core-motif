@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # LabelG secondary-object allocation
 
 LabelG creates secondary and request extension objects before fetching cache

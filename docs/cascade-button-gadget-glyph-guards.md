@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # CascadeButtonGadget cascade glyph guards
 
 The option-menu cascade glyph subtracts shadow margins from its configured

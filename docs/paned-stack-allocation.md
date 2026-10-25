@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PanedWindow pane-stack allocation handling
 
 PanedWindow’s private pane stack now checks its node allocation before linking

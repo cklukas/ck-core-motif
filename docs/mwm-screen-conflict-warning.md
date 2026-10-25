@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm screen-conflict warning bounds
 
 During startup, `mwm` reports when another window manager already owns a

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmIm registration allocation
 
 XmIm keeps per-widget resource snapshots across input-method transport

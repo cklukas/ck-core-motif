@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Region shadow segment growth
 
 The region shadow renderer keeps two segment arrays while it walks the

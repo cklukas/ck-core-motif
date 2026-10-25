@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Generated real translation bounds
 
 The legacy `_XmGetRealXlations` helper expands virtual key bindings into real

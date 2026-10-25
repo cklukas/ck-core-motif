@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PrintS child descriptor allocation
 
 The child side of `XmPrintToFile` creates a descriptor before opening its

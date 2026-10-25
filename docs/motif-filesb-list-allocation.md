@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FileSB directory-list allocation failure
 
 File Selection Box directory searches convert each matching filename into an

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Obso2 translation-buffer growth
 
 The compatibility `_XmGetRealXlations` helper appends virtual-key text to a

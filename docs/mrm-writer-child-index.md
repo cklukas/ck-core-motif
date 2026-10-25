@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm writer child index input
 
 `UrmCWRSetChild` now rejects a null index for indexed children before measuring

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MWM duplicated menu-name rollback
 
 MWM now allocates duplicated system-menu names before releasing the existing

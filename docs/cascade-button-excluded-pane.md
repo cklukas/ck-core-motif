@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # CascadeButton excluded-pane initialization
 
 Cascade buttons record the submenu being posted in shared excluded-parent-pane

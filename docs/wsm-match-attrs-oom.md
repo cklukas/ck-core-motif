@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM match-attribute allocation failure
 
 WSM `WM_WINDOWS` request unpacking now checks the match-attribute pointer

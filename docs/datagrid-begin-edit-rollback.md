@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DataGrid begin-edit rollback
 
 `XmDataGridBeginEdit` now allocates the selected cell's edit text before

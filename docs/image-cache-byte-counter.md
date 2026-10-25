@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Image-cache byte counter
 
 The image conversion path that copies inverted image data can allocate a byte

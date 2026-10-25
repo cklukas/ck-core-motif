@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmList query output validation
 
 `XmListGetMatchPos` and `XmListGetSelectedPos` now validate their output

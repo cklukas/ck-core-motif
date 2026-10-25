@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmScale API null-safety
 
 `XmScaleSetValue` now returns for a null widget, and `XmScaleGetValue` returns

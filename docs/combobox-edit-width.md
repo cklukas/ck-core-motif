@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ComboBox edit-field width bounds
 
 ComboBox edit-field width and height now use signed available-space arithmetic

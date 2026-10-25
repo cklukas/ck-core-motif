@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon visibility guards
 
 `IconVisible` now returns `False` when client, screen, icon-box, clip-widget,

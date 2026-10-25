@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text selection timestamp allocation failure
 
 Text selection conversion returns the selection timestamp through a temporary

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Accessibility UTF-8 conversion bounds
 
 The locale-to-UTF-8 accessibility conversion checks both the wide-character

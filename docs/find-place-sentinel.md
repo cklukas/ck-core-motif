@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-place sentinel handling
 
 `FindIconPlace` now rejects the `NO_ICON_PLACE` sentinel returned by coordinate

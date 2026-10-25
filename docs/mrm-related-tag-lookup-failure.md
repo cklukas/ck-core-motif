@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm primary tag lookup failure handling
 
 A failed compressed primary-tag lookup now skips the rest of that argument.

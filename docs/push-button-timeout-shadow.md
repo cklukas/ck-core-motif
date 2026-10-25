@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButton timeout shadow bounds
 
 The PushButton menu arm timeout can redraw after a menu entry has been resized

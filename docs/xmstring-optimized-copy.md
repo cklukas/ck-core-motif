@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString optimized-entry copy bounds
 
 Optimized XmString entries can carry inline text whose byte count is stored

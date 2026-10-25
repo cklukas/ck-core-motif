@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Menu button border-clear bounds
 
 Menu leave and disarm callbacks can run while a button has less space than its

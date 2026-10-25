@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm geometry comparison fixes
 
 `XmCompareXtWidgetGeometryToWidget` now compares requested width with the

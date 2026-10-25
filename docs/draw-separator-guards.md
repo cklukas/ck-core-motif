@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Separator drawing guards
 
 `XmeDrawSeparator` is shared by menus, lists, scrollbars, and other widgets.

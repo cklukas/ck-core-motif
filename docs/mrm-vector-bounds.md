@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm vector-copy bounds
 
 Mrm vector value copying rejects negative counts and byte sizes before creating

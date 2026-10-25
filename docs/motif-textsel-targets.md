@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text TARGETS allocation failure
 
 Text selection conversion obtains a base target array before appending the

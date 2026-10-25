@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Single text-property result allocation
 
 When an X text property produces exactly one string,

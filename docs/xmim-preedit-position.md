@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Input-method preedit-position bounds
 
 The XIM preedit-position path now computes focused-widget space in signed

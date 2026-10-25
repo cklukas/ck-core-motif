@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # BaseClass indirection-table bounds
 
 `CreateIndirectionTable` now uses a `Cardinal` resource index and checks the

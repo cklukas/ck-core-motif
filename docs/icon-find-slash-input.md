@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconFile path scanner input guard
 
 `find_slash` now returns immediately for a null path before entering either

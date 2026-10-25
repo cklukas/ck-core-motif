@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleButtonGadget box bounds
 
 `DrawBox` now skips shadow and fill drawing when its computed edge is

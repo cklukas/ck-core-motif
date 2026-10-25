@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm binding-path bounds
 
 The Linux `mwm` startup path loads `.motifbind` from the user's home directory.

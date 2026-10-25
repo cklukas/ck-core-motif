@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmScreen child-array growth
 
 `XmScreen` keeps its desktop children in a growable array. Insertion now

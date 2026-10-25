@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # I18List column-width allocation rollback
 
 I18List now allocates replacement column-width storage before releasing the

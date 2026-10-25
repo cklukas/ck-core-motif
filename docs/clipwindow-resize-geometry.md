@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ClipWindow RTL resize geometry
 
 When a right-to-left `XmClipWindow` is resized, each managed child keeps its

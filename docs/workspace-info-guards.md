@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Workspace-info serialization guards
 
 `SetWorkspaceInfo` now rejects a missing data buffer for nonzero record counts

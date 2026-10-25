@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm header version allocation
 
 `Idb__HDR_GetHeader` copies the compiled-in database version into writable

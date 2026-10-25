@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MenuShell placement geometry
 
 Menu placement computes the right and bottom edges by adding a signed screen

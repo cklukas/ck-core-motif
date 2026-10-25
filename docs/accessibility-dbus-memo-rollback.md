@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Accessibility D-Bus memo rollback
 
 The AT-SPI D-Bus transport now allocates replacement copies of cached

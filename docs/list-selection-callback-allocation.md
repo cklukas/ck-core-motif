@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List selection callback allocation failures
 
 Multiple and extended List selection callbacks receive temporary copies of

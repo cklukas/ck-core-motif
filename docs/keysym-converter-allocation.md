@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # KeySym resource conversion allocation
 
 The string-to-KeySym-table resource converter allocates a table and a mutable

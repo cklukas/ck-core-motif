@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Pixmap-cache input validation
 
 `_XmCachePixmap` queries geometry immediately when dimensions are omitted.

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm multi-screen selection naming
 
 Mwm owns one `WM_S<number>` selection for each managed screen. The selection

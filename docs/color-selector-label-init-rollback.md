@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ColorSelector label initialization rollback
 
 `XmColorSelector` now retains each existing label when an initialization

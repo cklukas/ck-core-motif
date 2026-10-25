@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm callback routine-string bounds
 
 `Urm__CW_FixupCallback` now validates each serialized callback routine offset

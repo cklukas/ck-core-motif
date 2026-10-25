@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # UIL diagnostic message bounds
 
 UIL diagnostic text is copied into a fixed 132-byte listing line.  The

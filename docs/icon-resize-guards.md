@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-box resize guards
 
 `CheckIconBoxResize` now ignores events received before the icon-box state is

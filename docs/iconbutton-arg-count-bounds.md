@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconButton argument-count bounds
 
 `XmIconButton::SetValues` now scans its Xt argument list with a `Cardinal`

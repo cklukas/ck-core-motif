@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleButton ComputeSpace geometry
 
 `XmToggleButton` recomputes label positions when the widget is smaller than

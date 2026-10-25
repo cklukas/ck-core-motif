@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Spinner label rollback
 
 `XmSpinner` now copies a changed label before releasing the current

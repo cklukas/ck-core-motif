@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm widget-tree child bounds
 
 `UrmCreateWidgetTree` now checks that a nonzero child-list offset remains inside

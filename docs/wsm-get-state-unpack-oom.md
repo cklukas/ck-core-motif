@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM get-state unpack allocation failure
 
 WSM `GET_STATE` reply unpacking now checks its window-info array before

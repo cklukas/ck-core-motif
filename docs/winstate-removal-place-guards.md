@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Window-state placement cleanup guards
 
 State cleanup now validates workspace records, placement storage, and stored

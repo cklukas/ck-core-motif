@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm icon placement on small displays
 
 Icon placement derives its grid from display size, icon size, and the optional

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # SpinBox value-list SetValues rollback
 
 SpinBox now keeps the current string-child value list when a replacement array

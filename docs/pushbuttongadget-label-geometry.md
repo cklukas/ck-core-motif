@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButtonGadget label geometry
 
 PushButtonGadget stores its label rectangle in the shared integer

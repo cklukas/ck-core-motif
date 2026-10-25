@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Atom-list resource conversion
 
 `XmRAtomList` conversion now checks temporary name-array growth and the final

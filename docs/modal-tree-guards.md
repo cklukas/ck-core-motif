@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Modal-tree guards
 
 Modal bookkeeping can run while a transient subtree is being removed.  The

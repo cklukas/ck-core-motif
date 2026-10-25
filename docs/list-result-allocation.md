@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List result allocation failures
 
 `XmListGetMatchPos` and `XmListGetSelectedPos` now check their caller-owned

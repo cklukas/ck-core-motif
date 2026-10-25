@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # VendorShell extension-object allocation
 
 VendorShell initialization creates a secondary extension object, a request

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Locale text aggregation allocation
 
 `_XmTextToLocaleText` joins the strings returned by Xlib's text-property

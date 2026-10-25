@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Toggle indicator bounds
 
 The shared `XmeDrawIndicator` implementation draws checkmarks and crosses

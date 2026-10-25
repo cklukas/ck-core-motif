@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # I18List drag snapshot rollback
 
 I18List drag initiation now checks its context, row-array, and `XmString`

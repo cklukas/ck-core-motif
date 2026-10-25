@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RCMenu dynamic-array bounds
 
 Menu callback snapshots, exception-pane ancestry, and post-from widget lists

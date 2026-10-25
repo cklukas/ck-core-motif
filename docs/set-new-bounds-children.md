@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-box bounds child guards
 
 `SetNewBounds` now handles a missing composite child list and skips null child

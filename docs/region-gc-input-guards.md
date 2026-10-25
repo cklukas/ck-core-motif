@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmRegion GC input guards
 
 `_XmRegionSetGCRegion` now returns when its display or graphics-context handle

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Protocol registration allocation
 
 Adding shell protocols allocates one per-protocol record before publishing the

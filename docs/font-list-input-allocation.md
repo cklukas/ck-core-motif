@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Font-list input-copy allocation
 
 Font-list conversion parses a mutable copy of the resource string. The normal

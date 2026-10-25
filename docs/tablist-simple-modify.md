@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TabList simple modify
 
 `XmTabbedStackListSimpleModify` now initializes the attribute record from its

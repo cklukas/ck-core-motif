@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Unit-string parser inputs
 
 The internal unit parser now validates its specification and output pointers

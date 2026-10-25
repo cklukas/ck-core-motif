@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text primary-selection state allocation failure
 
 Primary-selection handling allocates a small state record before requesting

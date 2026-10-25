@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TabBox stack-count bounds
 
 `XmNnumStacks` is an integer resource and applications can set it to zero or

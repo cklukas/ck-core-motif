@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString optimized concatenation length bound
 
 Optimized compound-string concatenation now checks the byte-count limit using

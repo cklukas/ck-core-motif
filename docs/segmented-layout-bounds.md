@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # SegmentedControl layout bounds
 
 When left-to-right segments exceeded the available width, the old layout

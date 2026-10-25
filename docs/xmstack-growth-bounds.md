@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmStack growth bounds
 
 The internal XmStack grows by a fixed increment.  Its old push path formed

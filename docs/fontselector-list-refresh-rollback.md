@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FontSelector list-refresh rollback
 
 `XmFontSelector` now checks every temporary family and size string generated

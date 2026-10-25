@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MainWindow layout bounds
 
 MainWindow layout now performs width and height subtraction with signed

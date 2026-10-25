@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Color object property serialization
 
 Color-object properties encode numeric color fields as hexadecimal text before

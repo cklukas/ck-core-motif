@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmSelectionBox child lookup null-safety
 
 `XmSelectionBoxGetChild` now returns `NULL` for a null selection-box widget

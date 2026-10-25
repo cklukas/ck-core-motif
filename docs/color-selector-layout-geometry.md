@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ColorSelector layout geometry
 
 `XmColorSelector` derives child widths and heights by subtracting margins,

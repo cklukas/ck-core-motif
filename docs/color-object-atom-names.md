@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ColorObj atom-name allocation
 
 ColorObj initialization builds one customization-property name per screen and

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ColorSelector color-name rollback
 
 `color_name_changed` now checks the replacement allocation before updating the

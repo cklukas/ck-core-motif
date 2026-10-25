@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XLibre per-output DPI contract
 
 The optional `--enable-xlibre-dpi` build enables a narrow probe for the XLibre

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text source constructor allocation
 
 `_XmStringSourceCreate` now treats source construction as a transaction.  A

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container cell-grid reset
 
 `PlaceItemReset` now validates cell metrics before dividing, rejects an

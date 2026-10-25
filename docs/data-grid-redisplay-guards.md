@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DataGrid redisplay guards
 
 `XmDataGrid` now skips drawing safely when its GC is unavailable, treats null

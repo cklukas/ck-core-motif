@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DataField selection conversion bounds
 
 DataField selection imports can contain several text fragments.  The

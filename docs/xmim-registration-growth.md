@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 Input-method registration cache growth
 =======================================
 

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List item geometry
 
 `XmList` item geometry queries derive the returned item width by subtracting

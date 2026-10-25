@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DeleteClientFromList guards
 
 Client withdrawal can reach list cleanup after workspace state has been

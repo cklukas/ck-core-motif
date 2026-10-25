@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm writer creation-callback validation
 
 `UrmCWRSetCreationCallback` now rejects a null descriptor-offset output pointer

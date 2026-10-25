@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString parse-table allocation failures
 
 The lazy parse table shared by `XmStringGenerate` and `_XmStringUngenerate`

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DataField insert-string action bounds
 
 The `insert-string` action now checks the complete action parameter before

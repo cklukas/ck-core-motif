@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm icon color-table validation
 
 Icon conversion requires a serialized color table. `UrmCreatePixmap` now

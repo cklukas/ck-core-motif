@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm hierarchy name API input checks
 
 The hierarchy name-registration and lookup helpers now validate the hierarchy

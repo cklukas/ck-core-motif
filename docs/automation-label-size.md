@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm automation menu-label sizing
 
 Mwm’s automation replies include menu labels in variable-length buffers. The

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm pointer-list bounds
 
 Mrm pointer lists now reject non-positive capacities and capacity products that

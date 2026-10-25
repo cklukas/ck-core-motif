@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM backdrop search-path bounds
 
 The WSM backdrop-path setup prepends the user and administrative directories

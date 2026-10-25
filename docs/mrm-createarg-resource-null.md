@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm argument-list resource descriptors
 
 `Urm__CW_CreateArglist` now skips a missing resource descriptor before reading

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm wide-character bounds
 
 Mrm wide-character value fixup now rejects negative serialized byte counts

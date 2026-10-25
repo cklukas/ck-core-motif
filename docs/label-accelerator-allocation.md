@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Label accelerator allocation
 
 Menu labels own a private copy of their accelerator string.  `SetValues` now

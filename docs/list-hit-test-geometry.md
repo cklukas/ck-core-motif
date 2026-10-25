@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List hit-test geometry
 
 List hit testing compares event Y coordinates with the bottom of the content

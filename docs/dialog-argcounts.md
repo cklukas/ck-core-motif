@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Dialog argument counts
 
 Command and MessageBox convenience constructors add one internal argument to

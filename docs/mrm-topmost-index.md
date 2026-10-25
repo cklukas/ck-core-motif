@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm interface-module topmost indices
 
 `UrmIFMSetTopmost` now rejects null or overlong indices before touching the

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Color object atom-name bounds
 
 Color objects create one per-screen atom name from the fixed Motif resource

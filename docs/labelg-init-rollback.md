@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # LabelGadget label initialization rollback
 
 `XmLabelGadget` now checks its initial copies of valid label and menu

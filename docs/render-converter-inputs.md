@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Render-table converter inputs
 
 `XmRenderTableCvtFromProp` now rejects a missing widget or property string

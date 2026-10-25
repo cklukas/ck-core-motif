@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FontSelector label initialization rollback
 
 FontSelector now uses a checked copy helper for its built-in compound-string

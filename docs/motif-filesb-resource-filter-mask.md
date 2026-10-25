@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FileSB resource-change filter-mask allocation failure
 
 When directory navigation updates the File Selection Box resources, the full

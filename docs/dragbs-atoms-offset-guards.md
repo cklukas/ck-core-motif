@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drag atom-table offset validation
 
 The serialized atom-table header stores `heap_offset` in a 32-bit field.

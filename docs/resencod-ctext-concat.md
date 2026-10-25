@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 Compound-text concatenation failure handling
 =============================================
 

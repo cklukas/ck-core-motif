@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ComboBox geometry negotiation bounds
 
 When the scrolled list replies with `XtGeometryAlmost`, ComboBox now computes

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmScreen generated name bounds
 
 When `XmGetScreen` implicitly creates a screen widget, it derives a name from

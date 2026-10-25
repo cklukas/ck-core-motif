@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DropSite descendant traversal
 
 DropSite descendant discovery now uses a `Cardinal` index for composite child

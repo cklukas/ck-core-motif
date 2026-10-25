@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm safe value-copy allocation
 
 `Urm__CW_SafeCopyValue` creates owned copies for callback and resource values.

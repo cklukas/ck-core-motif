@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ScrolledWindow auto-drag allocation
 
 The horizontal and vertical auto-drag rectangle helpers now initialize their

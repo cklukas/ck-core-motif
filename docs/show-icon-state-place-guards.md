@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Minimized-icon state placement guards
 
 `ShowIconForMinimizedClient` now rejects missing client/workspace state and

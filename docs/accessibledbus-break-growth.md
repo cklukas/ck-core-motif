@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # AccessibleDBus break-array growth
 
 Unicode text boundary calculation accumulates break positions in a dynamic

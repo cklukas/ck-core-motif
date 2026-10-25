@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm resource-tag lookup failure handling
 
 When compressed resource-tag lookup fails, `Urm__CW_CreateArglist` now skips

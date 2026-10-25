@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Tree initialization allocation handling
 
 Tree initialization now checks the resized top-node constraint record and the

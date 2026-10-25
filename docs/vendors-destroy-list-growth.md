@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # VendorS destroy-grab list growth
 
 Vendor shell extensions keep a small registry of shells that need destroy

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString array-entry copy bounds
 
 Copying an array entry allocates a pointer table for all child segments and

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Notebook geometry reply safety
 
 `XmNotebook` recomputes a preferred size when a realized notebook changes its

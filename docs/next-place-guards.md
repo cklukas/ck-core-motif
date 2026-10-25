@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-place lookup guards
 
 `GetNextIconPlace` now returns `NO_ICON_PLACE` when placement storage is

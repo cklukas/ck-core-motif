@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Legacy rectangle helper bounds
 
 The compatibility drawing helpers check rectangle-count arithmetic before

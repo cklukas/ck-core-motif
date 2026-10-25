@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text-property list concatenation allocation
 
 When an X text property yields multiple strings,

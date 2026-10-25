@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Compound-text custom charset prefix allocation
 
 `processCharsetAndText` constructs an escape prefix for non-standard compound

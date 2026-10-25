@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Input-method display initialization allocations
 
 Display input-method state and locale-modifier scratch storage are now checked

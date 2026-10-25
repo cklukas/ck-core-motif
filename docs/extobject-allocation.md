@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ExtObject allocation
 
 `XmExtObject` initialization now checks the `XmWidgetExtData` allocation

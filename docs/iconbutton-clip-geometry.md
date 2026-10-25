@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconButton text clipping geometry
 
 IconButton clips label text against the available width and height after its

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconG vertical render bounds
 
 IconG now computes pixmap copy heights and detail clip heights in signed

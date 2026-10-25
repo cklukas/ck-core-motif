@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm window-management request termination
 
 Mwm reads `_DT_WM_REQUEST` as a sequence of NUL-separated byte strings. The

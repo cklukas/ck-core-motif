@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Window-configuration placement sentinel guard
 
 The icon move path in `WmWinConf.c` now converts negative, oversized, or

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Stepper arithmetic bounds
 
 Stepper range and value resources are `int`, but the old step operation used

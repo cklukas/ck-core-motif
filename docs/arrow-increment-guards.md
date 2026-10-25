@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-box increment guards
 
 `UpdateIncrements` and `ResetArrowButtonIncrements` now return when their

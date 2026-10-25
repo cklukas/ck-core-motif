@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Property buffer guards
 
 Counted property serializers now reject a missing data buffer when the count

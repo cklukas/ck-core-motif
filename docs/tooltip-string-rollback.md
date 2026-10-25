@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToolTip string rollback
 
 `XmSetToolTipString` now copies a non-NULL replacement before releasing the

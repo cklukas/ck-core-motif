@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM per-match attribute allocation failure
 
 During `WM_WINDOWS` request unpacking, each match's combined allowed and

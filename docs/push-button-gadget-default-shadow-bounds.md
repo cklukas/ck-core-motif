@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButtonGadget default shadow bounds
 
 `XmPushButtonGadget` uses either the external highlight thickness or the

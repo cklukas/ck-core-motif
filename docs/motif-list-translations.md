@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List translation allocation failure
 
 List class initialization combines its built-in translation strings in a

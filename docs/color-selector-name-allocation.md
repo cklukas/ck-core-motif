@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ColorSelector color-name allocation
 
 `XmColorSelector` now allocates a replacement color name before swapping it

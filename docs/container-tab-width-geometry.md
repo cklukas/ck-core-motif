@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container dynamic tab width geometry
 
 Dynamic detail tabs derive their available width by subtracting twice the

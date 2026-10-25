@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Render-table conversion array bounds
 
 Render-table property conversion stores generated arguments and temporary

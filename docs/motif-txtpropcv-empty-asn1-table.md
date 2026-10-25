@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Empty ASN.1 string-table allocation
 
 When a Motif compound-string text property contains no items,

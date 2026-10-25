@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text selection export bounds
 
 XA_STRING, COMPOUND_TEXT, and UTF-8 selection exports now check that the Xlib

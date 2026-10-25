@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm image-cache output validation
 
 `GetImage` is the shared image-cache reader behind `_XmGetImage` and pixmap

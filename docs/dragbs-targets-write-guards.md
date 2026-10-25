@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drag target-table serialization guards
 
 `WriteTargetsTable` now rejects tables that cannot be represented by the

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # UIL machine-list formatting bounds
 
 The UIL machine-code listing uses 132-byte temporary lines while rendering

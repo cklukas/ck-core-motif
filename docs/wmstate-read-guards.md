@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WM_STATE read guards
 
 `GetWMState` now requires the expected 32-bit format and exact item count

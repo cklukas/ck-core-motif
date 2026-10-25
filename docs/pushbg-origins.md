@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButton gadget draw origins
 
 PushButton gadget shadow and highlight calls now add highlight thickness to

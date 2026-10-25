@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FontS list-size bounds
 
 The font selector grows its XLFD and miscellaneous font arrays in fixed

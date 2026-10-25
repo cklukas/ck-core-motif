@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmComboBox API null-safety
 
 The ComboBox compatibility helpers now reject null widgets before app-context

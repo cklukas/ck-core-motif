@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleButton pixmap sizing dimensions
 
 `SetToggleSize` now clears its temporary width and height outputs before each

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmRenderTable resource-cache allocation
 
 `XmRenderTable` caches quarkized resource names and the per-call `found`

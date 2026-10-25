@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RowColumn menu child-count traversal
 
 RowColumn menu activation, recursive menu processing, menu search, and widget

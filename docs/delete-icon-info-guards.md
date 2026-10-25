@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-info deletion guards
 
 `DeleteIconInfo` now ignores missing clients, icon-box state, or empty

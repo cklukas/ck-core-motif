@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm index insertion bounds
 
 Leaf and node insertion now validate record counts, heap offsets, free-space

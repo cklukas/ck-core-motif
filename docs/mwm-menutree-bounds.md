@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm command-tree bounds
 
 Nested menu command names are assembled from resource-controlled fragments.

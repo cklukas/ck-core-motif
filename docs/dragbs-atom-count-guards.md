@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drag atom-table count validation
 
 The `_MOTIF_DRAG_ATOMS` header stores `num_atoms` in a 16-bit field.

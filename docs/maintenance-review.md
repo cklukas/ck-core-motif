@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Maintenance review and suggested work
 
 The first widget review was a bounded starting point. The age of the inherited

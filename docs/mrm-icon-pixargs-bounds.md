@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Deferred icon argument bounds
 
 `Urm__CW_CreateArglist` defers icon-image arguments until a widget has been

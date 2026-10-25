@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RowColumn traversal child-list bounds
 
 `TraversalChildren` now initializes its output parameters, checks the

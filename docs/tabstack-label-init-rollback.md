@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TabStack tear-off label initialization rollback
 
 When tear-off tabs are enabled, `XmTabStack` now checks the initial

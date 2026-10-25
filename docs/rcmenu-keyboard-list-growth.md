@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RCMenu keyboard-list growth
 
 Row-column menus keep keyboard accelerator and mnemonic entries in a compact

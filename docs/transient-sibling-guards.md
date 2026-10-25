@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Transient sibling guards
 
 Transient sibling ordering can run while a parent or sibling is being

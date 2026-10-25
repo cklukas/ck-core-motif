@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Transient traversal guards
 
 Transient-tree traversal can be requested after a client has been detached.

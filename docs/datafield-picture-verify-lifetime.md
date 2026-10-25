@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DataField picture verification lifetime
 
 Picture verification now releases the temporary current-value string on both

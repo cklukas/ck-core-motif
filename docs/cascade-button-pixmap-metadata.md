@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # CascadeButton pixmap metadata
 
 `DrawCascade` now checks the result of `XmeGetPixmapData` before using the

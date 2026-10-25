@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconG pixmap metadata guards
 
 IconG now initializes pixmap depth before redisplay queries, so an unresolved

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Picture parser null input
 
 `XmParsePicture` now returns `NULL` when given no specification, before it

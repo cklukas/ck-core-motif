@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Picture matcher character classification
 
 Picture matching classifies and uppercases input bytes with the C ctype

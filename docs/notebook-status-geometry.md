@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Notebook status-area geometry
 
 Notebook status width now subtracts margins and scrollers in signed arithmetic

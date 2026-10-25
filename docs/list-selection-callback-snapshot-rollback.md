@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List selection-callback snapshot rollback
 
 List selection callbacks now copy their selected-item snapshots

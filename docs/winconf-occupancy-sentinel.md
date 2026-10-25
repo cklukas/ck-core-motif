@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Window-configuration occupancy sentinel
 
 The icon move occupancy check now skips `NO_ICON_PLACE` before indexing the

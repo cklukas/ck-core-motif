@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # SM client ID property handling
 
 `ProcessSmClientID` receives the `SM_CLIENT_ID` value as an X property.  X

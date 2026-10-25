@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ComboBox default-action copy failure
 
 The ComboBox keyboard default-action bridge now dispatches its List callback

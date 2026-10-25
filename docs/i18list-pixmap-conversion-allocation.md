@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # I18List pixmap conversion allocation guard
 
 I18List drag conversion now validates the active drag context and the

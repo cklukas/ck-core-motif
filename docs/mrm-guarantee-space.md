@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm record-growth bounds
 
 `UrmCWR__GuaranteeSpace` now keeps the aligned delta in `size_t` until it has

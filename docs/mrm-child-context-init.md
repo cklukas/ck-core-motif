@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm child-tree context initialization
 
 Widget-tree creation now checks the resource-context allocation used to load

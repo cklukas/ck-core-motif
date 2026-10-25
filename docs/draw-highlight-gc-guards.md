@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmeDrawHighlight graphics-context guard
 
 `XmeDrawHighlight` now returns when its graphics context is missing.  Widgets

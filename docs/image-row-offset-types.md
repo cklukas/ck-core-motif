@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Scaled image row offset types
 
 The fast 8-bit scaling path forms source and destination row addresses for

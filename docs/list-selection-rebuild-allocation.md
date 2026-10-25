@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List selection rebuild allocation failures
 
 The List widget now checks the allocations used while rebuilding selected item

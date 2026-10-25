@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Hierarchy child-count loops
 
 Hierarchy child-list traversal, insertion, removal, state propagation, and

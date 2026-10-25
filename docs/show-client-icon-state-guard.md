@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Client icon-state guard
 
 `ShowClientIconState` now returns for a missing client record before reading

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container selection callback allocation guards
 
 Container selection callbacks now tolerate allocation failure. Single-item

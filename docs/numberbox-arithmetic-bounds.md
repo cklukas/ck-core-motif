@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # NumberBox arithmetic bounds
 
 NumberBox range and step resources are `int`, while the old step operation

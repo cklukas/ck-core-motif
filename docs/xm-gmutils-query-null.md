@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Geometry reply null-safety
 
 `XmeReplyToQueryGeometry` now returns `XtGeometryNo` for a null widget or

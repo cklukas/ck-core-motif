@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm related-tag diagnostic handling
 
 Related resource-tag lookup failures now report the related compressed code,

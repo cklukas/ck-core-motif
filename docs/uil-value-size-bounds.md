@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # UIL value-size arithmetic
 
 UIL resource emission accumulates string-table, font-table, integer-table, and

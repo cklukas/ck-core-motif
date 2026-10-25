@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Related Mrm argument types
 
 A serialized related code supplies the count resource for a text, string, or

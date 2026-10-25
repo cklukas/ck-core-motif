@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmRenderTable rendition-array growth
 
 Property conversion accumulates created renditions in a dynamic array.  The

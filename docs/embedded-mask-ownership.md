@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Embedded XPM mask ownership
 
 The XPM loader generated embedded mask names in a fixed 255-byte buffer and

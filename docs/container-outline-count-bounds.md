@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container outline count bounds
 
 Container detail layout now rejects outline-segment counts that cannot fit in

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Fast-subclass lookup sequencing
 
 The non-threaded fast-subclass macros now keep the base-class extension pointer

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-box policy fallback
 
 Icon-box initialization now handles a missing or invalid scrollbar display

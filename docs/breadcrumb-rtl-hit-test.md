@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # BreadcrumbBar RTL hit testing
 
 BreadcrumbBar renders segments in reverse order when `XmNbreadcrumbRtl` is

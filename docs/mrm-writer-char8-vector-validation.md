@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm writer char8-vector validation
 
 `UrmCWRSetArgChar8Vec` now propagates context and argument-binding failures

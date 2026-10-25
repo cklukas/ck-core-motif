@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm RID-map handle bounds
 
 RID-map entries store pointers to data or header records. `Idb__RID_EnterItem`

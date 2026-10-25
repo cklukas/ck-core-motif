@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Label gadget accelerator allocation
 
 Menu label gadgets now replace their private accelerator copy only after

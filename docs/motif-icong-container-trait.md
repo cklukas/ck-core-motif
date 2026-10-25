@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconGadget container-trait validation
 
 IconGadget now checks that its container-parent hook returns a widget and that

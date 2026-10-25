@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmScreen scratch-pixmap cache failures
 
 Scratch-pixmap checkout and return now check `_XmAddHashEntry`.  If the in-use

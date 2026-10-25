@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MultiList geometry request bounds
 
 MultiList now computes parent resize requests with signed width and height

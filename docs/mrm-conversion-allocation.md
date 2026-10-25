@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm conversion allocation failures
 
 Legacy callback and font-list conversion now checks every variable-size

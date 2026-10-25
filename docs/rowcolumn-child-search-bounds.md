@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RowColumn managed-child search bounds
 
 `FindFirstManagedChild` now keeps both its scan index and copied composite

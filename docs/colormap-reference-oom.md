@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm colormap-reference allocation failures
 
 Mwm keeps per-window arrays of client references for colormap management. The

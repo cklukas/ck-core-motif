@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmList copy-helper rollback
 
 The `XmList` initialization and resource-update paths copy caller-provided

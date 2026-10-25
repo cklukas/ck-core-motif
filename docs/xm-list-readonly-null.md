@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmList read-only query null-safety
 
 The read-only list queries `XmListItemExists`, `XmListItemPos`,

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconGadget visual-resource rollback
 
 `XmIconGadget` now obtains replacement render tables and label strings before

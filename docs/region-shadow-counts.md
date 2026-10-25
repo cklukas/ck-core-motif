@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Region shadow segment counts
 
 Region shadow drawing allocates segment arrays proportional to the rectangle

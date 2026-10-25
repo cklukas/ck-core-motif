@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ComboBox scrolled-list geometry
 
 ComboBox scrolled-list layout now computes available width and height in

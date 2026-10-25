@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Scaled pixmap dual-table insertion
 
 Scaled pixmap entries are published in both the pixmap and pixmap-data hash

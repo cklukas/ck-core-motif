@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString tab-list growth allocation failure
 
 While scanning strings, `XmStringTableProposeTablist` may create additional

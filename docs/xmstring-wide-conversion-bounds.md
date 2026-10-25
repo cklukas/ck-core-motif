@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Wide XmString segment conversion bounds
 
 `XmStringGetNextSegment` converts wide-character segments to the current

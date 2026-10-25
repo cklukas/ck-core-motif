@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Label conversion allocation guards
 
 Label and LabelGadget drag conversion now checks target-list, pixmap,

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mask-name allocation
 
 `XmeGetMask` previously generated the companion mask name in a fixed 256-byte

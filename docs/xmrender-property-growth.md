@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmRenderTable property-buffer growth
 
 Render-table serialization appends formatted properties to a dynamically

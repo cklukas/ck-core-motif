@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Tab-list modification rollback
 
 `XmTabbedStackListModify` now copies a replacement label before releasing a

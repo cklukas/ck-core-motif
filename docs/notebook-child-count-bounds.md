@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Notebook child-count traversal
 
 Notebook redisplay, join-side updates, page-number assignment, active-child

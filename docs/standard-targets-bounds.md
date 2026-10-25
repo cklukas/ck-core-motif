@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Standard transfer-target bounds
 
 `XmeStandardTargets` combines Motif's built-in selection targets with a

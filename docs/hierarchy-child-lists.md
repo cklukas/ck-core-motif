@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Hierarchy child-list snapshots
 
 `XmHierarchyGetChildNodes` checks both sentinel-count and

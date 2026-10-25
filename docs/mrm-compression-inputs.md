@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm compression-table input checks
 
 The compression helpers are internal boundaries shared by widget creation and

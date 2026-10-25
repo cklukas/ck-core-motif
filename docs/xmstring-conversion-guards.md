@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString conversion guard
 
 `WmXmStringToString` now checks `XmStringInitContext` before reading segments

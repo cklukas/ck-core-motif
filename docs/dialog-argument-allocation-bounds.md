@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Dialog argument allocation bounds
 
 `XmeCreateClassDialog` appends one internal shell argument to the caller's

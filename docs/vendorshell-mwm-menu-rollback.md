@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # VendorShell MWM menu rollback
 
 VendorShell now copies a changed `mwm_menu` resource before releasing the

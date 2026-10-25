@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Representation-type table bounds
 
 Dynamic representation-type registration and enumeration check record-count

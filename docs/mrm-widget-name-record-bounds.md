@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm widget-name record bounds
 
 Mrm widget creation now validates serialized class and widget-name strings

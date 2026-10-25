@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm buffer-pool size validation
 
 The Mrm buffer pool has an externally visible size setting so embedders can

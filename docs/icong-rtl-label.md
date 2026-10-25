@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconG right-to-left label placement
 
 IconG now computes the right-to-left label origin in signed arithmetic before

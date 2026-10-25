@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # CascadeButtonGadget hook allocation handling
 
 CascadeButtonGadget's secondary-object, set-values, and get-values hooks now

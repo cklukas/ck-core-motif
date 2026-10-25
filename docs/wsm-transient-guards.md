@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM transient helper guards
 
 WSM transient stacking can run while workspace membership is being detached.

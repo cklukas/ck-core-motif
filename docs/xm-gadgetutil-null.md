@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Gadget utility null-safety
 
 `XmeConfigureObject` now returns for a null widget.

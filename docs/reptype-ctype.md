@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Representation-type name case conversion
 
 When representation type names are formatted with the `Xm` prefix, Motif

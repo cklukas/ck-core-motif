@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Label layout geometry
 
 Label and LabelG center label and accelerator text by subtracting margins,

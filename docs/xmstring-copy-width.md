@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Copied wide XmString segment width
 
 The internal segment reader can copy component data for callers that request

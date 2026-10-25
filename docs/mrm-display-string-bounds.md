@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm display-string conversion bounds
 
 Font and font-set conversion prefixes a display pointer to a font name before

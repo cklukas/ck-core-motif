@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-file cache directory allocation
 
 Derived icon cache entries now release their copied key and record when the

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text source read-buffer allocation
 
 `ReadSource` keeps a reusable conversion buffer for source blocks. A failed

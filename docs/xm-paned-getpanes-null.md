@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmPanedGetPanes null-safety
 
 `XmPanedGetPanes` now returns zero for a null paned widget or missing output

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drag target-table property validation
 
 `ReadTargetsTable` reads `_MOTIF_DRAG_TARGETS` as a byte-serialized sequence

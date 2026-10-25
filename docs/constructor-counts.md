@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Convenience-constructor argument counts
 
 Scrolled Text and List constructors add internal arguments to the caller's

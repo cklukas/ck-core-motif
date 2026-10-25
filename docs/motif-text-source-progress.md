@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text source forward-progress validation
 
 Text source reads can fail by returning the current position without a block.

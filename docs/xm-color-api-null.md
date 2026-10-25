@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm color API null-safety
 
 `XmGetColors` now returns for a null screen before display/app-context lookup.

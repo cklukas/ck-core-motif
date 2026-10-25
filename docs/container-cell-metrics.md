@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container cell metrics
 
 The cell-style preferred-size calculation divides child dimensions by the

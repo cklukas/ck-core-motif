@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmeClearBorder bounds
 
 `XmeClearBorder` now clamps the requested border thickness to the available

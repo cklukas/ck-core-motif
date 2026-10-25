@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Label initialization rollback
 
 `XmLabel` now also checks the initial copy of a valid menu accelerator string.

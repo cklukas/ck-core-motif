@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Non-empty plain text-property table allocation
 
 After counting NUL-separated locale, ISO-8859-1, or UTF-8 items,

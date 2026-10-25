@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButtonGadget hook allocation handling
 
 PushButtonGadget's secondary-object, set-values, and get-values hooks now

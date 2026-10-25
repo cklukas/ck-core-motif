@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text-property concatenation bounds
 
 When an X text property contains several items, Motif joins them into one

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Final text-property conversion buffer
 
 After converting each item to usable text, the locale, text, string, and

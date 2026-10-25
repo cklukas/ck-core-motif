@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM window-data unpack allocation failure
 
 The shared WSM window-data unpacker now initializes its output pointers,

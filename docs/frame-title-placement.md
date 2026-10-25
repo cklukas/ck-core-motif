@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Frame title placement bounds
 
 Frame title placement now computes beginning, center, and end horizontal

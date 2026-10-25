@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XContext null initialization
 
 `XContext` is an integer Xlib identifier. The non-DnD context owners now use

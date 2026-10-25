@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # CascadeButton pixmap binding metadata
 
 CascadeButton and CascadeButtonGadget now distinguish a valid uncached pixmap

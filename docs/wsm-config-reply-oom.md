@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM config-format reply allocation failure
 
 WSM configuration-format reply unpacking now returns cleanly when its screen

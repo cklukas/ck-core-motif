@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-file cache-table allocation fallback
 
 Icon path resolution no longer assumes the optional icon-name hash table was

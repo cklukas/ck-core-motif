@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ScrollFrame navigator update guards
 
 `_XmSFUpdateNavigatorsValue` now checks its scroll-frame and navigator traits,

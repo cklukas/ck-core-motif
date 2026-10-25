@@ -42,6 +42,7 @@ ACLOCAL_AMFLAGS = -I .
 EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
               scripts/build-xt-dependency.py patches/libXt-incr-lifetime.patch \
               tests/automated/check-docs-workflow-scope.py \
+              tests/automated/check-docs-nav-complete.py \
               tests/automated/check-docs-provenance.py tests/automated/check-makestrs-comments.py \
               tests/automated/check-native-features.py \
               tests/Toolkit/ABI/cohort.c tests/Toolkit/Im/preedit_ranges.c \

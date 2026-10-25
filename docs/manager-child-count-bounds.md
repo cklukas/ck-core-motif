@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Manager child-count traversal
 
 `CheckRemoveMotionHandlers` now uses a `Cardinal` index while scanning the

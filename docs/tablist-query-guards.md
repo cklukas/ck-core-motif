@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TabList query guards
 
 `XmTabbedStackListQuery` now ignores a `NULL` output structure and malformed

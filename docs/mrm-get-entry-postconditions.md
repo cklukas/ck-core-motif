@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm data-entry buffer postconditions
 
 `Idb__DB_GetDataEntry` reads the buffer returned by the Mrm buffer manager for

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm geometry helper null-safety
 
 The private geometry helpers in `XmExtUtil.c` are used by composite widgets while

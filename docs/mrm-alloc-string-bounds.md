@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm shared string allocation bounds
 
 The shared Mrm string helper now keeps the source length in `size_t`, checks

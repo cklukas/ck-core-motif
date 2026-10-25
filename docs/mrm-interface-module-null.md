@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm interface-module null guards
 
 Interface-module readers now reject a valid resource context whose data buffer

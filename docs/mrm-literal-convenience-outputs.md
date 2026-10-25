@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm literal convenience output validation
 
 The public `MrmFetchIconLiteral`, `MrmFetchBitmapLiteral`, and

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm class and comment validation failures
 
 `UrmCWRSetClass` and `UrmCWRSetComment` now return the result of context

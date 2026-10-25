@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ScrolledWindow scrollbar resize requests
 
 When a scrollbar changes size, ScrolledWindow derives the parent request by

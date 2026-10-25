@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TreeView row-height bounds
 
 `XmNtreeViewRowHeight` is a public `Dimension` resource.  A zero value left

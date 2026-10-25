@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ProgressBar label initialization rollback
 
 ProgressBar now checks the private copy of its initial label.  If

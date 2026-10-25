@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drag initiator-info property validation
 
 `_XmReadInitiatorInfo` reads the byte-serialized

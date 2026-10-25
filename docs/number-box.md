@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # NumberBox
 
 `XmNumberBox` is an additive bounded integer entry and spin control. Its

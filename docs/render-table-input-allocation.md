@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Render-table input-copy allocation
 
 Render-table resource conversion tokenizes a mutable copy of the input

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container zero-sized cell guards
 
 Container dynamic sizing can temporarily report a zero cell width or height

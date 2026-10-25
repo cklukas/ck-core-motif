@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Gadget and DrawingArea child-count bounds
 
 Gadget redisplay and DrawingArea hit testing now use Xt `Cardinal` indices for

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconGadget label initialization rollback
 
 IconGadget now checks the private copy of an initial `XmNlabelString`.  If the

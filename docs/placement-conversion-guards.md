@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon placement conversion guards
 
 Icon placement conversion now validates placement dimensions, cell sizes, and

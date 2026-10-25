@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm pixmap-data validation
 
 `_XmGetPixmapData` now rejects a null screen, unspecified pixmap, missing

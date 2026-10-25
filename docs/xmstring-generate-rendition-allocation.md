@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString rendition wrapping allocation
 
 `XmStringGenerate` now checks conversion and growth while wrapping rendition

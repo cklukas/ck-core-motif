@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DataField printable-text progress
 
 DataField printable-text validation now rejects zero-length multibyte

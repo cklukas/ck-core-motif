@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TimePicker redisplay and callback guards
 
 `XmTimePicker` now skips drawing safely when its X11 GC is unavailable. Callback

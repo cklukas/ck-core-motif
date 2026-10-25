@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmToggleButton state API null-safety
 
 `XmToggleButtonGetState`, `XmToggleButtonSetState`, and

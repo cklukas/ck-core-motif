@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MapEvents parallel-array growth
 
 Event translation parsing returns three parallel arrays: event types,

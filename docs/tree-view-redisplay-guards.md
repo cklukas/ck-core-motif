@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TreeView redisplay guards
 
 `XmTreeView` now skips redisplay when its drawing GC is unavailable, treats null

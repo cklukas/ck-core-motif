@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm callback routine offsets
 
 `Urm__CW_FixupCallback` now rejects callback items with a zero routine-name

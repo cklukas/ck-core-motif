@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # CascadeButton legacy fill guard
 
 The legacy etched-in `XmCascadeButton` build branch selected either the armed

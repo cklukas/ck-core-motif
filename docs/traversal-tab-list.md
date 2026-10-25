@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Traversal exclusive tab-list allocation
 
 Exclusive tab-list creation, growth, and opportunistic shrinking now publish

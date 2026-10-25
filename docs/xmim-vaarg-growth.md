@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmIm VaArg-list growth
 
 VaArg-list expansion now checks both host `size_t` and Xt `Cardinal` byte

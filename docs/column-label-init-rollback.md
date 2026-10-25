@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Column constraint-label initialization rollback
 
 Column now checks the private copy of a child constraint’s label string.  If

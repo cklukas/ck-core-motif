@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FileSB qualified-mask allocation failure
 
 File Selection Box search qualification builds a combined directory and

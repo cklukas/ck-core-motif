@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Accessibility journey and semantic coverage matrix
 
 This matrix separates protocol-level evidence from user-observable assistive

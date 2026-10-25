@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleButton layout geometry
 
 ToggleButton centers its label and indicator by subtracting margins, insets,

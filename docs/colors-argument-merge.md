@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ColorSelector argument merging
 
 ColorSelector builds child widgets by merging caller arguments with internal

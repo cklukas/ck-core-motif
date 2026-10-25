@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Label drag-icon pixmap metadata
 
 Label and LabelG drag-icon creation now initializes pixmap width, height, and

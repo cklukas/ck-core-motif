@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm open output initialization
 
 `UrmIdbOpenFileRead` and `UrmIdbOpenBuffer` now clear the caller's output handle

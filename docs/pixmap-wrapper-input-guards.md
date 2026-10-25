@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Pixmap wrapper input guards
 
 The public `XmGetScaledPixmap`, `XmGetPixmapByDepth`, and `XmGetPixmap`

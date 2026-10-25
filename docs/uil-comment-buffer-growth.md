@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # UIL comment-buffer growth
 
 The UIL lexer preserves adjacent source comments in a dynamically grown

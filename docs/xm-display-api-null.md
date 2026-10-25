@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm display and drag lookup null-safety
 
 `XmGetDragContext` and `_XmGetDragContextFromHandle` now return `NULL` for a

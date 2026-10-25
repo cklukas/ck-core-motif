@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Paned negative sash indents
 
 Paned sash placement now computes negative-indent coordinates in signed

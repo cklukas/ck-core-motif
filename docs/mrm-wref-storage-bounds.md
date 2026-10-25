@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm widget-reference storage bounds
 
 Widget references store names in a 16-bit resource-context layout. The

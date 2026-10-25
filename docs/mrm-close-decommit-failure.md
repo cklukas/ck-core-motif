@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm close retry after decommit failure
 
 `UrmIdbCloseFile` now returns the decommit error while retaining the valid

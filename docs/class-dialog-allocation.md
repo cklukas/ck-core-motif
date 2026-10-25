@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Class dialog allocation handling
 
 `XmeCreateClassDialog` constructs a dialog-shell name and a temporary

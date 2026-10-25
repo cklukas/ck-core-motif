@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Render-table tag arrays
 
 `XmRenderTableGetTags` now validates its output pointer and handles every

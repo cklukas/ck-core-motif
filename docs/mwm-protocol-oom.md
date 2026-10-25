@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm protocol allocation failure handling
 
 Mwm creates per-screen atom arrays for the WM query and WM selection

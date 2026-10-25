@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # LabelG pixmap metadata
 
 LabelG redisplay now copies sensitive and insensitive pixmaps only after

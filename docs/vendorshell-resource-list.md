@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # VendorShell resource-list allocation
 
 VendorShell class initialization merges ShellExt and VendorShellExt resource

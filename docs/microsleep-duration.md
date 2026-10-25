@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmeMicroSleep duration handling
 
 `XmeMicroSleep` converts a microsecond duration to a `timeval` for `select`.

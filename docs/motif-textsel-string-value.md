@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text XA_STRING value allocation failure
 
 Text selection conversion copies the Xlib text-property bytes into an Xt-owned

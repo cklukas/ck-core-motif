@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString text concatenation allocation
 
 `_XmStringGetTextConcat` now checks output-length arithmetic and the temporary

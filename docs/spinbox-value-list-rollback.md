@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # SimpleSpinBox value-list rollback
 
 `XmSimpleSpinBoxAddItem` and `XmSimpleSpinBoxDeletePos` now build temporary

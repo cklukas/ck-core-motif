@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Spinner preferred-size bounds
 
 Spinner's preferred width and height include label metrics and twice the

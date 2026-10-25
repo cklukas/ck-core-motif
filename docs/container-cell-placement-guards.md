@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container cell placement guards
 
 Container placement and hit testing can run while a geometry reset is

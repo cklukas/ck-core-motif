@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm buffer-validity predicate
 
 The shared `Idb__BM_Valid` predicate now checks for a null buffer before

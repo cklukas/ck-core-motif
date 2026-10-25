@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Usable text concatenation bounds
 
 Converting a compound string to locale or string text joins each valid segment

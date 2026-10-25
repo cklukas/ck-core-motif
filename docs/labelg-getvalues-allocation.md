@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # LabelG get-values allocation handling
 
 `GetValuesPrehook` creates a temporary cache extension object and pushes an

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ComboBox textual trait validation
 
 ComboBox edit-box helpers now check both the access-textual trait and the

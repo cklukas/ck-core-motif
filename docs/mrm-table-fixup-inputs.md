@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm compression-table fixup bounds
 
 `Urm__FixupCompressionTable` converts file offsets into in-memory pointers before

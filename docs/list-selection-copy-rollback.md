@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List selection-copy rollback
 
 List selection snapshots now treat each selected-item `XmStringCopy` as part of

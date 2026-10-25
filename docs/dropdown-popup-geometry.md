@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DropDown popup width geometry
 
 `XmDropDown` computes the popup width when the list is opened.  The combo-box

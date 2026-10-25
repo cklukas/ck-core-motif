@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DialogShell resource merge guard
 
 DialogShell class initialization now checks the merged resource-table size and

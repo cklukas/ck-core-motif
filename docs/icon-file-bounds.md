@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Sized icon-name construction bounds
 
 Icon lookup appends the requested size suffix to an image name before probing

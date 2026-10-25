@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Scale value-label formatting
 
 Scale computes the trough, ascent, descent, and label dimensions by formatting

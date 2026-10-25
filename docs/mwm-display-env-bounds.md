@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm display environment bounds
 
 The window manager exports the active X display as `DISPLAY=...` for launched

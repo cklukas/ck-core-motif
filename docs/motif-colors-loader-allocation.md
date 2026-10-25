@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Color selector allocation handling
 
 The RGB color loader now keeps `ColorInfo` growth transactional and aborts

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container dynamic tab-list rebuild failures
 
 `XmContainer` now builds a replacement dynamic detail tab list before releasing

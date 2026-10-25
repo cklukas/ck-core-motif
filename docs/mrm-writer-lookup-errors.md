@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm writer lookup error propagation
 
 Writer APIs now continue only when their pre-insert lookup reports the

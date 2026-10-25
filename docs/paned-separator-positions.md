@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Paned separator positions
 
 Paned separator x and y coordinates now use signed intermediates before

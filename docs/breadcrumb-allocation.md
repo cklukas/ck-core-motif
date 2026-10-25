@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # BreadcrumbBar segment allocation handling
 
 `XmBreadcrumbBarSetSegments` now checks the segment-array size and every item

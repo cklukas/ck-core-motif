@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DragICC write-buffer growth
 
 Drag-and-drop ICC serialization appends data to either a stack-backed or

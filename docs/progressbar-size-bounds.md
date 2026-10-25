@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ProgressBar preferred-size bounds
 
 ProgressBar's preferred width and height include label metrics and twice the

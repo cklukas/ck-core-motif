@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-list realignment guards
 
 `RealignIconList` now rejects missing placement storage, non-positive old or

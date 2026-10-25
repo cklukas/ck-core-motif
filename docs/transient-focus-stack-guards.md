@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Transient focus and stacking guards
 
 Focus repair and transient-tree normalization can run after a client has been

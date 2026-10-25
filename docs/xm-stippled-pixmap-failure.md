@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm stippled-pixmap failure handling
 
 `XiCreateStippledPixmap` now rejects a null screen, returns failure when the

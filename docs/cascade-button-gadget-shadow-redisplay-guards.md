@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # CascadeButtonGadget shadow redisplay guards
 
 `XmCascadeButtonGadget` draws its shadow into the realized manager window.

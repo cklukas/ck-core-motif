@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconG right-to-left icon placement
 
 The exported IconG icon-position helper now computes right-to-left small and

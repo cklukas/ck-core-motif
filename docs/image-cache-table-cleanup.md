@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Scaled image table cleanup
 
 Scaled image rendering builds four coordinate tables for source pixels.  The

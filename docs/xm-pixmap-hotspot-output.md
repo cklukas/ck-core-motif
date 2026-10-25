@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm pixmap hotspot output initialization
 
 `_XmGetPixmapData` returns cached pixmap geometry and optional image hotspot

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Image-cache pixmap creation failure
 
 Scaled image construction temporarily locks shared image state when it needs

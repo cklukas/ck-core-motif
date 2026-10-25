@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconG right-to-left render placement
 
 IconG's `Redisplay` routine now computes right-to-left large and small icon

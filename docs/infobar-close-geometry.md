@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # InfoBar close-icon geometry
 
 InfoBar draws its close icon with fixed offsets from the right and bottom

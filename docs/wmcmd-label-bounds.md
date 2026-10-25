@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm menu-info label bounds
 
 Mwm’s menu-info replies keep labels in fixed protocol buffers. The previous

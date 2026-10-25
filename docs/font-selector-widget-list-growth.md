@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FontSelector widget-list growth
 
 FontSelector keeps the widgets that are visible or sensitive in XLFD mode in

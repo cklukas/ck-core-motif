@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Transfer merge allocation
 
 `XmeConvertMerge` builds a new buffer before replacing the existing conversion

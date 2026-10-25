@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RowColumn tear-off title initialization rollback
 
 `XmRowColumn` now checks the initial `XmStringCopy` of its tear-off title.

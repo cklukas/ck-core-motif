@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmScrollBar API null-safety
 
 `XmScrollBarGetValues` and `XmScrollBarSetValues` now return immediately for a

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FontSelector family-table growth
 
 `XmFontSelector` grows its internal family table while processing the server's

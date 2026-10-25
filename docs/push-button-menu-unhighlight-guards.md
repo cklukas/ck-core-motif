@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButton menu unhighlight guards
 
 Menu `XmPushButton` unhighlighting either fills the whole widget for etched-in

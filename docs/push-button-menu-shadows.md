@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButton menu shadow bounds
 
 The PushButton menu border-highlight and enter callbacks now draw shadows only

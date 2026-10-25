@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm resource parent rebinding
 
 `Idb__INX_FindResources` now reloads and validates the parent node at the start

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString table count bounds
 
 The public XmString table conversion helpers allocate arrays from caller or

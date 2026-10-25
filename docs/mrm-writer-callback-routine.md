@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm writer callback routine input
 
 `UrmCWRSetCallbackItem` now rejects a null routine name before measuring or

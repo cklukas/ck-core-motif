@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Notebook shrinking geometry
 
 Notebook layout reduces its remaining width or height as page, scroller,

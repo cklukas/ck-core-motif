@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm root-record allocation checks
 
 Root leaf and node initialization now verifies that a successful buffer

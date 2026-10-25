@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Toggle drawing GC guards
 
 The shared diamond and circle drawing helpers can be reached while a widget is

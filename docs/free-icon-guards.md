@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FreeIcon teardown guards
 
 `FreeIcon` can run while a client is being withdrawn or while workspace

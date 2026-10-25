@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xft UTF-16 underline lengths
 
 The compound-string underline matcher stores wide-character segment lengths

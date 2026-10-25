@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Cached icon path copies
 
 When the icon-file cache is enabled, directory and leaf names are copied into

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # CascadeButton gadget highlight bounds
 
 CascadeButton gadget menu-leave highlighting now passes signed inset

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ComboBox hit and drawing bounds
 
 ComboBox hit-area, arrow, and shadow rendering now clamp available dimensions

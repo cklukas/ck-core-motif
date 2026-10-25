@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmList mutator null-safety
 
 `XmListSetKbdItemPos`, `XmListSetHorizPos`, and `XmListSetAddMode` now return

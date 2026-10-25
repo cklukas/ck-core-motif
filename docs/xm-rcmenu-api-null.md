@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmRowColumn menu API null-safety
 
 `XmGetPostedFromWidget` and `XmGetTearOffControl` now return `NULL` for null

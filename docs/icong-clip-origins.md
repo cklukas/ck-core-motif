@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconG clip Y origins
 
 IconG applies highlight and margin dimensions to the gadget's Y position when

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # BulletinBoard shadow redisplay guards
 
 `XmBulletinBoard` redraws its manager shadow after redisplaying child gadgets.

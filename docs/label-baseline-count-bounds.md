@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Label baseline count bounds
 
 Label and LabelGadget cache one extra baseline offset after the baselines

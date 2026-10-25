@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm workspace property-name bounds
 
 Mwm derives `_DT_WORKSPACE_INFO_*` atom names from the workspace resource

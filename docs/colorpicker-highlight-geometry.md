@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ColorPicker highlight geometry
 
 ColorPicker draws a focus rectangle inset by its highlight thickness.  The

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Segment-encoding registry allocation
 
 Segment-encoding registration now allocates replacement strings before changing

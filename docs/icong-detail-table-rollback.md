@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconGadget detail-table rollback
 
 `XmIconGadget` now copies `XmNdetail` tables through one checked helper.  The

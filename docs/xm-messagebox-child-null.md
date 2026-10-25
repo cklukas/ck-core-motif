@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmMessageBox child lookup null-safety
 
 `XmMessageBoxGetChild` now returns `NULL` for a null widget before Xt

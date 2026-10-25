@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container drag-icon pixmap metadata
 
 Container drag-icon creation now initializes the width, height, and depth

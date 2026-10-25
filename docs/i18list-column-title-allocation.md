@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # I18List column-title allocation
 
 I18List now copies column titles transactionally.  The title-pointer array is

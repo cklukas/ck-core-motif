@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 Convenience-constructor allocation failures
 ============================================
 

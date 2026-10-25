@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Menu cascade traversal guard
 
 Keyboard menu traversal can observe a popup shell while it is being torn down.

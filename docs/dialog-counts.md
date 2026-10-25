@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Dialog constructor argument counts
 
 `XmeCreateClassDialog` adds one shell argument to the caller's argument list.

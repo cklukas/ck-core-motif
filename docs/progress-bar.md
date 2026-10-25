@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ProgressBar
 
 `XmProgressBar` is an additive, resource-driven progress control. It keeps the

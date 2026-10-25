@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text compound-text value allocation failure
 
 Text selection conversion copies Xlib compound-text property bytes into an

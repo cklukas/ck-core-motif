@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drop-site warning formatting
 
 `_XmDSIGetChildPosition` reports inconsistent drop-site parentage using the

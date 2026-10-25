@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WP-10 Form and hierarchy diagnostic corpus
 
 The WP-10 fixture is an installed-library consumer, not a test of private

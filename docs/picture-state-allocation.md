@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Picture state allocation
 
 Picture parsing and state construction now treat allocation as a transaction.

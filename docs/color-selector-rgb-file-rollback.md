@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ColorSelector RGB-file rollback
 
 ColorSelector now copies a changed RGB-file path before releasing the current

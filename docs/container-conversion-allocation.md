@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container conversion allocation guards
 
 Container selection/drag conversion now checks target arrays, drag offsets,

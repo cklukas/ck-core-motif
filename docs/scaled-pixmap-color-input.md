@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Scaled pixmap color input validation
 
 `_XmGetScaledPixmap` now rejects a missing `XmAccessColorData` record before

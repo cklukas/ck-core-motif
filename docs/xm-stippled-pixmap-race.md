@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm stippled-pixmap cache serialization
 
 `XiCreateStippledPixmap` now locks cache lookup and rechecks the cache before

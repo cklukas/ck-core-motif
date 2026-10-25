@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm pointer-list append cleanup
 
 `UrmPlistAppendString` allocates a copy before growing the pointer list. If the

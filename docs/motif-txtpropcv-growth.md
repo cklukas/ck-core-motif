@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text-property conversion result growth
 
 `GetUseableText` accumulates converted segments in `final_string`.  Growth is

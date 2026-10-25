@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RowColumn tear-off title rollback
 
 `XmRowColumn` now copies a non-NULL tear-off title before releasing the

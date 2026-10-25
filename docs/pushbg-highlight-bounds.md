@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButton gadget highlight bounds
 
 PushButton gadget menu-disarm highlighting now passes signed inset dimensions

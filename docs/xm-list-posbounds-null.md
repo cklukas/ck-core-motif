@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmList position-bounds null-safety
 
 `XmListPosToBounds` now rejects a null widget before entering Xt realization and

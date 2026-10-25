@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Indicator drawing size guard
 
 On wide-prototype builds, `XmeDrawIndicator` receives signed integer width and

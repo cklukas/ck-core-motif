@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List drag snapshot rollback
 
 List drag initiation now checks every selected-item `XmStringCopy`.  A failed

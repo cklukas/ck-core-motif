@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Data-field insert-selection property validation
 
 `ConvertInsertSelection` receives an `ATOM_PAIR` property containing the

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DataField cursor pixmap names
 
 DataField caches its I-beam and add-mode cursors under names containing the

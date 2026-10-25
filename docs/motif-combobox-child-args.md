@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ComboBox child-argument allocation
 
 The optional `FIX_1473` child-argument filter now falls back to the original

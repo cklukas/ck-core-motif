@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FileSB empty text fallbacks
 
 File Selection Box filter and directory text creation now use a static empty

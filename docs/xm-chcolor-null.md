@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmChangeColor null-safety
 
 `XmChangeColor` now returns for a null widget before app-context lookup, class

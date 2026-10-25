@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container detail-header allocation
 
 Container copies icon detail headers into an internal table with a leading

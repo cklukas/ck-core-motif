@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # UTM sink failure cleanup
 
 When `XmeNamedSink` rejects a request, its package is now removed by identity

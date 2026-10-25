@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm icon loader input validation
 
 `Urm__CW_LoadIconImage` fixes up an icon record, relocates its color table,

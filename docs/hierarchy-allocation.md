@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Hierarchy list allocation
 
 Hierarchy node-table and child-list growth now allocates into temporary

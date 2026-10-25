@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-box packing guards
 
 `PackIconBox` now returns when its widgets, icon increments, or placement list

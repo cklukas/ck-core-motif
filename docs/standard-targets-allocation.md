@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Standard transfer target allocation
 
 `XmeStandardTargets` returns the built-in target atoms with capacity reserved

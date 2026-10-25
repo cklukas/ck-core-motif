@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TabList growth
 
 `XmTabbedStackListInsert` now grows its attribute array through a temporary

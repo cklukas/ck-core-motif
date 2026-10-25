@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Compound-text encoding buffer allocation
 
 When a compound-text segment combines a registered encoding prefix with the

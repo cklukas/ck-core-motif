@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButton default shadow bounds
 
 `XmPushButton` chooses either the external highlight thickness or the internal

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButton default-shadow geometry
 
 When erasing the default-button shadow, `XmPushButton` derives the fill area

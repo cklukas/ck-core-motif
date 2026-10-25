@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # BreadcrumbBar redisplay guards
 
 `XmBreadcrumbBar` now handles a missing drawing GC, null separator or segment

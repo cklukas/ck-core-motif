@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text textual trait validation
 
 The public Text string helpers now check the access-textual trait callback

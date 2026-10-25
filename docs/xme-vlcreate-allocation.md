@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 XmeVLCreateWidget argument-list allocation
 ===========================================
 

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # LabelG text geometry bounds
 
 LabelG now computes the right text edge in signed arithmetic before applying

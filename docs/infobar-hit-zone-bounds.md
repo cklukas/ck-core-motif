@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # InfoBar hit-zone bounds
 
 InfoBar reserves fixed-width close and action zones.  On a narrow widget, the

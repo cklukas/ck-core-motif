@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container cell occupancy counts
 
 Container removal decrements the occupancy count for the child cell.  A

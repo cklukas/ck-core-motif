@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WM save-hint property validation
 
 `ProcessWmSaveHint` reads the first 32-bit value from `_MOTIF_WM_HINTS`'s

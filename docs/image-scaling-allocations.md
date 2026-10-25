@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Image scaling allocation failures
 
 Scaled image rendering creates a temporary destination image and four

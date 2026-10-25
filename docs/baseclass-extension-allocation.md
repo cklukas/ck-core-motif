@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # BaseClass extension allocation handling
 
 BaseClass lazily allocates class-extension records, secondary-resource data,

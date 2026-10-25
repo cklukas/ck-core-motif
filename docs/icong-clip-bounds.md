@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconG horizontal clip bounds
 
 IconG now computes the main icon and detail clip widths in signed arithmetic,

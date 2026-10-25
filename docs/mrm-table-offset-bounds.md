@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm compression-table offset bounds
 
 Compression-table entries contain offsets into the table's trailing string

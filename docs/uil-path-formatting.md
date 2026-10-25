@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # UIL WMD path formatting
 
 The UIL database search path expands several `%s` components from environment

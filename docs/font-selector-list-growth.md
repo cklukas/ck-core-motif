@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FontSelector list growth
 
 FontSelector's XLFD and alternate-font lists grow through temporary Xt

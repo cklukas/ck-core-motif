@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ClipWindow translation-buffer growth
 
 Virtual-key translation assembly now handles an empty initial capacity, checks

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm workspace-list limit
 
 Mwm has always limited the resulting workspace set to `MAX_WORKSPACE_COUNT`

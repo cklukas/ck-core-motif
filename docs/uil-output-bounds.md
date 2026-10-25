@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # UIL generated output bounds
 
 The UIL-to-URM emitter creates fallback widget names from source coordinates

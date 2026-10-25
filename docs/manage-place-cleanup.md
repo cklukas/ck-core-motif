@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Client withdrawal placement cleanup
 
 Client withdrawal now validates workspace records, placement storage, and

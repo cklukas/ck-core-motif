@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DataField picture splice buffer bounds
 
 Picture verification now sizes its temporary splice buffer in bytes, using

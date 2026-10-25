@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm include-stack allocation warnings
 
 When an included resource file cannot be added to the WSM configuration stack,

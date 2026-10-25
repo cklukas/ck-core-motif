@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm widget utility null-safety
 
 The private widget utility helpers now return safely when given a null widget:

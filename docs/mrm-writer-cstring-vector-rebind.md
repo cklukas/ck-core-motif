@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm writer CString-vector rebind failures
 
 `UrmCWRSetArgCStringVec` appends each element to the resource record. An

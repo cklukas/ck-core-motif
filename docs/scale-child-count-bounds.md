@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Scale child-count bounds
 
 `XmScale` keeps its child count in the Xt `Cardinal` type. Label measurement

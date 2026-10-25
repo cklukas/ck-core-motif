@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List clear geometry
 
 List highlight clipping and empty-list cleanup derive rectangles by subtracting

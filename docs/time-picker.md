@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmTimePicker
 
 `XmTimePicker` edits a wall-clock value (`hour`, `minute`, `second`) in the

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM unsupported attribute sizes
 
 WSM window-data unpacking now maps unsupported attribute widths to an inert

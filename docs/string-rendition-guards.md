@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Compound-string rendition copy guards
 
 Rendition-tag arrays returned by `_XmStringGetSegment` are now built through a

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Separator gadget geometry bounds
 
 Separator gadget redisplay now clamps the inset fill and separator dimensions

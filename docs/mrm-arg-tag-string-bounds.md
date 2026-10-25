@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm unknown argument-tag string bounds
 
 Unknown argument tags now require a valid, NUL-terminated string inside the

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-file cache key allocation
 
 The optional icon-name cache now checks the copied key string before filling

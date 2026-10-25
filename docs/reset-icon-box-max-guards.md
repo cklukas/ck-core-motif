@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-box maximum-size reset guards
 
 `ResetIconBoxMaxSize` now returns when its client or bulletin-board widget is

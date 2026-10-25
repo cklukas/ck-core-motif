@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text/encoding value conversion failure
 
 Text selection conversion obtains a temporary string for text and encoding

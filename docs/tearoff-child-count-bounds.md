@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TearOff child-count bounds
 
 TearOff menu handler installation/removal and submenu redraw walk Xt composite

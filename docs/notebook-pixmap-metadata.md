@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Notebook binding pixmap metadata
 
 Notebook binding rendering now checks the result of `XmeGetPixmapData` before

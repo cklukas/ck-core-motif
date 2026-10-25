@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm reader arg-list offset bounds
 
 `UrmCreateWidgetInstance` and `UrmSetWidgetInstance` now verify that a nonzero

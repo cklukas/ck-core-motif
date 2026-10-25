@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Render-table rendition arrays
 
 `XmRenderTableGetRenditions` now follows its documented result layout: the

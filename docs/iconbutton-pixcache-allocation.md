@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconButton pixel-cache allocation handling
 
 IconButton’s pixel-cache insertion now checks the cache entry, list creation,

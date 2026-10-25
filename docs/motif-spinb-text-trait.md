@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # SpinBox textual trait validation
 
 SpinBox now validates the child widget before looking up its access-textual

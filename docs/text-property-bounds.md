@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text property conversion bounds
 
 `XmCvtXmStringTableToTextProperty` now rejects negative counts and non-empty

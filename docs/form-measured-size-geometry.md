@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Form measured-size geometry
 
 Form layout measures a child against the remaining width or height through

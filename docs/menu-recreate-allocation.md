@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Menu recreation allocation
 
 Dynamic menu updates now check the temporary `MenuSpec` pointer array before

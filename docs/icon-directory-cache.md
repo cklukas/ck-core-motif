@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-directory cache allocation
 
 Icon-directory cache growth now publishes a replacement directory array only

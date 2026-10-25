@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Tab allocation guards
 
 `XmTabCreate` and the internal `_XmTabCopy` helper now check both the tab

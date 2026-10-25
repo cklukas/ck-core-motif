@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ComboBox child-argument bounds
 
 During ComboBox initialization, Motif filters `XmNheight` out of the caller's

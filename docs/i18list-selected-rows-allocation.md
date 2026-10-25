@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # I18List selected-row allocation
 
 `XmI18ListGetSelectedRows` now checks its result-array count against host

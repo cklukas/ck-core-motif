@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Compound-text direction-stack growth
 
 Resource encoding direction control now grows its stack through a checked

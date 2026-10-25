@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString parse-mapping allocation failures
 
 `XmParseMappingCreate` now checks its `XtNew` result before initialization.

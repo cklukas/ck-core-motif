@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xmos pattern allocation
 
 `GetFixedMatchPattern` now checks its output-buffer allocation before writing

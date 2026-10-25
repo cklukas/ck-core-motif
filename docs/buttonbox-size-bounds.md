@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ButtonBox size bounds
 
 ButtonBox accumulated child sizes, borders, and margins directly in

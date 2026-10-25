@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm filter buffer lifetime
 
 `Idb__DB_MatchFilter` obtains a data record and inspects its entry header to

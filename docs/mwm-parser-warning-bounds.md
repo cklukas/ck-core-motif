@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm parser-warning bounds
 
 WSM resource parsing reports localized messages together with the current

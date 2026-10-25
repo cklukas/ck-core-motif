@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm index split bounds
 
 Index splits now reject impossible record counts and malformed pivot strings

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FileSB filter-mask update allocation failure
 
 When a File Selection Box refreshes its full-path filter field, it assembles a

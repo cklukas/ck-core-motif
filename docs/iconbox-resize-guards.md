@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-box resize guards
 
 `CheckIconBoxResize` now rejects missing clip-widget or scrollbar-policy state,

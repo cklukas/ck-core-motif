@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmScreen child-count bounds
 
 `XmGetXmScreen` now keeps the display child count and scan index in Xt's

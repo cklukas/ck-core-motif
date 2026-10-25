@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm argument-list record bounds
 
 `UrmCreateWidgetInstance` and `UrmSetWidgetInstance` now validate the complete

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Sash highlight geometry
 
 Sash focus painting fills or clears the widget interior after applying twice

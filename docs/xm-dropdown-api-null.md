@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmDropDown API null-safety
 
 `XmDropDownGetValue`, `XmDropDownGetChild`, and the label, arrow, text, and

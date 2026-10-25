@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString rendition-tag bounds
 
 Segment parsing checks the rendition-tag count before allocating copied or

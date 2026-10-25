@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ScrolledWindow constant layout geometry
 
 Constant-policy ScrolledWindow layout derives available work-area dimensions by

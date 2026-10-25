@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # UIL icon payload sizing
 
 UIL icon payload sizing previously shifted width and multiplied by height in

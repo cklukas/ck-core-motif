@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm widget record offset bounds
 
 `UrmCreateWidgetInstance` and `UrmSetWidgetInstance` now verify nonzero class

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm callback fixup validation
 
 `Urm__CW_FixupCallback` now validates callback descriptor metadata and its

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DialogShell count bounds
 
 DialogShell unmanage cleanup now uses Xt `Cardinal` counters for both the

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString context initialization allocation
 
 `XmStringInitContext` now checks its context-record allocation and returns

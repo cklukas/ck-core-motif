@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Primitive class-extension allocation
 
 `XmPrimitive` class initialization creates a private class-extension record

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xmos directory-entry list allocation
 
 Directory scans grow the caller-owned entry-pointer array in fixed blocks and

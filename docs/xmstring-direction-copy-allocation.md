@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString direction-component copy allocation
 
 `XmStringGetNextComponent` now checks both direction-component copy buffers.

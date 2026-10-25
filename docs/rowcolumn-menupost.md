@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RowColumn menu-post validation
 
 `XmRowColumn` now limits passive-grab installation, menu-post duplication and

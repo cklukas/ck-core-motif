@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Active workspace icon placement
 
 Non-WSM icon-hint processing can run while the active workspace is being

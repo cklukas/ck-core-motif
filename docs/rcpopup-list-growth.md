@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RCPopup list growth failures
 
 The row-column popup registry grows a per-widget `WidgetList` whenever a

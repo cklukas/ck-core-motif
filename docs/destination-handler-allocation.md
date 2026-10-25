@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Destination handler allocation
 
 Destination transfers now check the callback structure, pooled transfer

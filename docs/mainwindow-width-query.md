@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MainWindow width query bounds
 
 When a work window requests a resize, MainWindow queries its menu bar using

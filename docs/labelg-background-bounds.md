@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # LabelG background-box bounds
 
 LabelG now computes its background-box origin and inset width/height in signed

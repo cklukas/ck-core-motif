@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-list growth bounds
 
 Icon-box virtual-space growth now rejects null state, non-positive increments,

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-box virtual-space expansion bounds
 
 Virtual-space expansion now validates its icon-box state, dimensions, and

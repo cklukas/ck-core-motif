@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Scroll-visible callback guards
 
 `IconScrollVisibleCallback` now ignores missing callback data, active workspace

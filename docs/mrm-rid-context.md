@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm RID-resource context validation
 
 `UrmIdbGetRIDResource` fills a caller-provided resource context and reads its

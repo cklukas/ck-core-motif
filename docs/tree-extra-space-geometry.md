@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Tree extra-space geometry
 
 Tree layout derives unused space by subtracting its bounding-box dimensions

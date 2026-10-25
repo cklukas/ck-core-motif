@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MainW child-list growth failures
 
 `XmMainWindow` occasionally moves an unexpected clip-window child into its

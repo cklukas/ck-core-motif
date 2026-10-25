@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmGetIconFileName screen input guard
 
 `XmGetIconFileName` now returns no filename when its screen argument is null,

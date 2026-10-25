@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm callback-value offset bounds
 
 `Urm__CW_FixupCallback` now validates non-immediate callback datum offsets

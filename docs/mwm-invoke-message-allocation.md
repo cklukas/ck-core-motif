@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MWM invoke-message allocation
 
 The workspace-management `SendInvokeMessage` path now checks its fixed-size

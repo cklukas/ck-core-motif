@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleButton gadget highlight bounds
 
 ToggleButton gadget menu-leave highlighting now passes signed inset dimensions

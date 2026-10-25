@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmRegion query and mutation null guards
 
 The private `XmRegion` geometry helpers now handle absent inputs safely:

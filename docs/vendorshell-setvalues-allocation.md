@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # VendorShell SetValues allocation
 
 The VendorShell `SetValues` prehook now allocates both secondary-object

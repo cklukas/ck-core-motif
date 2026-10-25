@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Dynamic default-color cache allocation
 
 The Mwm dynamic color cache now checks growth reallocation before publishing a

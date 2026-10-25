@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm deferred callback-name allocation
 
 When a callback resource refers to a widget that has not been created yet,

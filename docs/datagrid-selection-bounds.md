@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DataGrid selection bounds
 
 `XmDataGridGetSelectedCell` and `XmDataGridBeginEdit` now validate both sides

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 List selection-copy allocation bounds
 =====================================
 

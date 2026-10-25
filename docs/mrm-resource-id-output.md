@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm resource-id output validation
 
 `UrmIdbGetResourceId` writes the next resource identifier through

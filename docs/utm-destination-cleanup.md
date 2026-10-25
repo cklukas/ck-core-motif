@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # UTM destination cleanup
 
 If the destination callback arrives without an

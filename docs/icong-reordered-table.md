@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconG reordered-table bounds
 
 Icon gadget detail headers can be returned in an application-supplied order.

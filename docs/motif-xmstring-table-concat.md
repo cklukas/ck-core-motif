@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString table concatenation input validation
 
 `XmStringTableToXmString` now rejects a null table and empty table before

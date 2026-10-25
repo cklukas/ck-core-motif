@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm pointer-list resize ownership
 
 `UrmPlistResize` now stores the `XtRealloc` result in a temporary pointer and

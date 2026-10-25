@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString next-segment input validation
 
 `XmStringGetNextSegment` now rejects a null context or output pointer before

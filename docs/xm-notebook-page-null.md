@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmNotebook page-info null-safety
 
 `XmNotebookGetPageInfo` now returns `XmPAGE_INVALID` for a null notebook or

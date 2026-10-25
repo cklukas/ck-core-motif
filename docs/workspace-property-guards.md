@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Workspace property guards
 
 Workspace property updates now validate screen and workspace state before

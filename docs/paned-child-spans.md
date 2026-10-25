@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Paned child spans
 
 Paned now computes child width and height through a signed, bounded span

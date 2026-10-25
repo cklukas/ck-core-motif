@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ScrollFrame navigator-list growth
 
 ScrollFrame navigator registration grows its widget list in two-slot steps.

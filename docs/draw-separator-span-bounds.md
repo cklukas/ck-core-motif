@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Shared separator shadow span bounds
 
 The shared `XmeDrawSeparator` implementation now computes its horizontal or

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XPM symbolic color detection
 
 ImageCache now returns true when `SymbolicColorUsed` finds the requested

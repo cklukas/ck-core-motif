@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm child-list bounds
 
 Mrm child-list initialization now rejects zero counts before subtracting one

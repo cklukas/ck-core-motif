@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ScrolledWindow auto-scroll rectangles
 
 Automatic scrolling builds edge rectangles from the scrolled-window size and

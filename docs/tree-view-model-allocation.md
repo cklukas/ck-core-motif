@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TreeView model allocation
 
 `XmTreeViewSetNodes` now builds the replacement item model privately and

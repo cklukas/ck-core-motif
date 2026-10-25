@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TextField selection export bounds
 
 TextField narrow selection export now treats zero or negative `mblen()` results

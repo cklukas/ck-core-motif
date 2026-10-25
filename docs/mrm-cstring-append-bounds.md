@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm compound-string append bounds
 
 Mrm compound-string appends now retain the encoded byte length in `size_t` and

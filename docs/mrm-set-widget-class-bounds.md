@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm auto-child class-string bounds
 
 The auto-child (`UrmSetWidgetInstance`) path now applies the same bounded

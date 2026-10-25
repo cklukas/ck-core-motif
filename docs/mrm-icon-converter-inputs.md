@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm icon converter input validation
 
 `UrmCreatePixmap` and `UrmCreateBitmap` consume icon records loaded from UID

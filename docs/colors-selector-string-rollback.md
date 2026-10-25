@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ColorSelector string-resource rollback
 
 `XmColorSelector` now copies replacement slider labels, mode labels, and error

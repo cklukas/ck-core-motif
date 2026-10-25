@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Vendor input-method string rollback
 
 `XmVendorShellExt` now copies changed input-method and preedit-type strings

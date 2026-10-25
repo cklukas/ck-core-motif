@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FontSelector scaled-font allocation
 
 The scaled-font fallback in `XmFontSelector` now checks each temporary string

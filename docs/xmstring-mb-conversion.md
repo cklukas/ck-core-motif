@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString multibyte conversion
 
 `_XmGetMBStringFromXmString` now sizes its output with `size_t` and copies

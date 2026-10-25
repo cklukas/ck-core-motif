@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleSwitch label rollback
 
 `XmToggleSwitch` now copies a changed label before releasing the current

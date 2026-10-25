@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container cell index bounds
 
 Container coordinate conversion can briefly see an invalid cell while a

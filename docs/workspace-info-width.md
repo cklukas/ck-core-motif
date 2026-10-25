@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm workspace-info property width
 
 Mwm serializes workspace backdrop values into `_DT_WORKSPACE_INFO_*` properties.

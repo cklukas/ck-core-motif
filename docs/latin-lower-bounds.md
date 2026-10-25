@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Bounded Latin-1 resource conversion
 
 `XmCopyISOLatin1Lowered` remains available for callers that own an adequately

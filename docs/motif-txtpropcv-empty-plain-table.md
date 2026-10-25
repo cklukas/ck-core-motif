@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Empty plain text-property table allocation
 
 For empty locale, ISO-8859-1, or UTF-8 text properties,

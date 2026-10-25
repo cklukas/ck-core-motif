@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text drop location lifetime
 
 Text drops can continue through an asynchronous transfer callback.  The drop

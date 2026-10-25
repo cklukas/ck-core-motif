@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Gadget cache allocation handling
 
 `_XmCachePart` now checks cache-record size arithmetic and both cache-record

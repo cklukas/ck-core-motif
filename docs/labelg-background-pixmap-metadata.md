@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # LabelG background pixmap metadata
 
 LabelG background GC setup now adds stipple or tile fields only when

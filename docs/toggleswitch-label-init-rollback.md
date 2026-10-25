@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleSwitch label initialization rollback
 
 ToggleSwitch now checks the private copy of its initial label.  If

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconBox cell-span bounds
 
 IconBox hit testing divides pointer coordinates by the cell size plus its

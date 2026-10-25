@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString ASN.1 truncation allocation failures
 
 `_XmStringTruncateASN1`, used by `XmStringNCopy`, now checks both replacement

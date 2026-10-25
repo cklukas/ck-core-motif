@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # VendorShell resize bounds
 
 VendorShell resize now returns safely when its shell extension data is absent

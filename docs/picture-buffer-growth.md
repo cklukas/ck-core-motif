@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Picture accepted-text buffer growth
 
 XmPicture parsing appends accepted characters to a state-owned string buffer.

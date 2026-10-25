@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FileSelectionBox search-list cleanup
 
 File and directory searches now check result-table sizes against both host

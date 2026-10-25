@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Representation-type action parameters
 
 Action parameter conversion now rejects a missing parameter or result pointer

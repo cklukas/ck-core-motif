@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Region allocation size bounds
 
 `_XmRegionCreateSize` allocates an array of `XmRegionBox` records from a

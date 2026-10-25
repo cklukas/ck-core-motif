@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ComboBox argument merging
 
 ComboBox child and convenience constructors merge caller arguments with

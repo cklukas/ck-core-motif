@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container cell-layout allocation
 
 The cell-layout trial pass allocates a temporary occupancy grid from its

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Desktop child-list growth bounds
 
 `XmDesktop` now checks `Cardinal` slot-count growth and both host `size_t` and

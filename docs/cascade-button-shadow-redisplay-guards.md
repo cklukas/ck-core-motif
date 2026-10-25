@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # CascadeButton shadow redisplay guards
 
 An armed `XmCascadeButton` draws a 3D shadow around its label.  The old path

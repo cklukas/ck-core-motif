@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-box size-check guards
 
 `CheckIconBoxSize` now returns `False` when its icon-box widget, client data,

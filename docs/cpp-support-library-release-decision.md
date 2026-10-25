@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WP-09 optional C++ support-library release decision
 
 WP-08 deliberately stopped at a consumer-side design and prototype boundary.

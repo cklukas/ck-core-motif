@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PNG allocation-failure cleanup
 
 `_XmPngGetImage` owns the decoded PNG buffer until the `XImage` is created.

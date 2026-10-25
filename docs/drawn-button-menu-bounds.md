@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DrawnButton menu bounds
 
 DrawnButton menu activation and unhighlight callbacks can run while a widget

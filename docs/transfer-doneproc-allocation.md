@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Transfer completion-callback allocation
 
 `XmeTransferAddDoneProc` grows the callback array while a transfer context is

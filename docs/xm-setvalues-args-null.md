@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm child update argument validation
 
 `_XmSetValuesOnChildren` now returns before recursion when a nonzero argument

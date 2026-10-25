@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PanedWindow child-count traversal
 
 The maintained `XmPanedWindow` implementation now uses full-width `Cardinal`

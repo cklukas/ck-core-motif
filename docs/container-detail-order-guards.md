@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container detail-order allocation guards
 
 Container now checks detail-order array allocations both while initializing a

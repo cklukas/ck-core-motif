@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MWM virtual-key atom allocation
 
 The optional HP/DIN virtual-key remapping path in `mwm` interns two Motif

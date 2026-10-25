@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Scale trailing tick bounds
 
 Scale’s trailing tick coordinates now calculate widget and slider extents in

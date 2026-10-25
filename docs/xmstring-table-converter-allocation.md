@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString-table conversion allocation
 
 The XmString-table resource converter now checks each per-item string

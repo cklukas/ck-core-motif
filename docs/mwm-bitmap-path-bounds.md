@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm bitmap path bounds
 
 `BitmapPathName` now checks every home-directory, bitmap-directory and resolved

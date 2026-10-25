@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm IDB close-error delete mode
 
 The IDB close-error path now deletes the underlying file only for write-access

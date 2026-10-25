@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Separator redisplay guards
 
 `XmSeparator` computes its drawable rectangle by subtracting twice the

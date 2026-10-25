@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm node-space validation
 
 `Idb__INX_ConfirmNodeSpace` now requires a node record and validates its count,

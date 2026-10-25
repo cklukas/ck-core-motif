@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Tab-list widget constructor guards
 
 The private tab-list widget constructors now return `NULL` for a missing

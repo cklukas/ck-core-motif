@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Default font-list cache bounds
 
 The per-display default render-table cache checks its eight-entry capacity

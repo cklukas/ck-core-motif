@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm icon-placement allocation bounds
 
 Mwm’s icon-placement grid allocates row, column, and slot arrays from display

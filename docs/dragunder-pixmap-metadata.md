@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DragUnder pixmap metadata guards
 
 DragUnder now initializes metadata depth before configuring highlight, top

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm callback-valued argument bounds
 
 Callback-valued argument descriptors now pass through the same legacy/current

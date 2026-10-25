@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # GrabShell layout guards
 
 `GrabShell` layout previously accessed `composite.children[0]` unconditionally.

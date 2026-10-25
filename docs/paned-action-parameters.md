@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Paned sash action parameters
 
 The legacy `XmPaned` sash action accepts its keyboard increment as text from

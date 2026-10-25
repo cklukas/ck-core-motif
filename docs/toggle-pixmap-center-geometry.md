@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleButton pixmap centering geometry
 
 ToggleButton centers a label pixmap vertically inside the widget.  The

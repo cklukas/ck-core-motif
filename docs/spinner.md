@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Spinner
 
 `XmSpinner` is a small indeterminate activity indicator for applications that

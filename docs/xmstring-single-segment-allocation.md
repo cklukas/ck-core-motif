@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString single-segment allocation handling
 
 `_XmStringSingleSegment` now validates copied tag, locale, and text component

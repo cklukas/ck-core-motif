@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Posted MenuShell child guard
 
 Recursive menu popdown can find a posted shell whose child has already been

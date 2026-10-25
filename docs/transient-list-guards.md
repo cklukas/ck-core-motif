@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Transient list guards
 
 Transient windows can be withdrawn while their workspace or parent tree is

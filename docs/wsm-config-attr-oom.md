@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM configuration attribute allocation failure
 
 Configuration-format reply unpacking now checks each screen attribute-list

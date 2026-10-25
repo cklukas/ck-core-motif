@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm session resource-name bounds
 
 Session-management resource names are built from client IDs and, for workspace

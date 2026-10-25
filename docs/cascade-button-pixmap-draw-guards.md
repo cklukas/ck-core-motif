@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # CascadeButton pixmap draw guards
 
 `XmCascadeButton` copies its cascade pixmap into the widget window.  The old

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm menu-warning bounds
 
 Mwm’s menu diagnostics include resource-defined menu names. The warning helper

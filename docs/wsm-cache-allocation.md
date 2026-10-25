@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM display and screen cache allocation
 
 WSM keeps display and screen metadata in lazily allocated linked lists.  The

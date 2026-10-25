@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container drag-icon cache allocation
 
 Container drag initiation keeps one cached drag-icon record per display. The

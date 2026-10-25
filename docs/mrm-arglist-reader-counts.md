@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm reader arg-list count bounds
 
 `UrmCreateWidgetInstance` and `UrmSetWidgetInstance` now reject argument-list

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Compound-text iconv output allocation
 
 `ConvertWithIconv` now checks the initial output allocation and performs buffer

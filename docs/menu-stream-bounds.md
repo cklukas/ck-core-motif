@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm menu command stream bounds
 
 `ParseClientCommand` joins a command fragment and its continuation with one

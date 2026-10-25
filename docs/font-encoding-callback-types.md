@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Font selector encoding callback indexes
 
 Font selector encoding menu callbacks carry a small integer index through

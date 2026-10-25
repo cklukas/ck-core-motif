@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconG mask-name allocation
 
 Icon gadget mask lookup used the same fixed 255-byte mask-name buffer as the

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleButtonGadget shadow geometry bounds
 
 The ToggleButtonGadget shadow path now skips drawing when the gadget is no

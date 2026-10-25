@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container cell geometry
 
 Grid and cell layouts derive their cell counts by subtracting twice the

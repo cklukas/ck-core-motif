@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButtonGadget resource-list allocation
 
 PushButtonGadget class initialization merges the LabelGadget and PushButton

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # VendorShell warning buffers
 
 `MotifWarningHandler` builds a combined header/message string and an indented

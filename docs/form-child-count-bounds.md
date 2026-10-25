@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Form child-count bounds
 
 `XmForm` stores its child count as an Xt `Cardinal`. Form layout, geometry

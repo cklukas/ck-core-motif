@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Outline count bounds
 
 Outline constraint argument scanning and recursive node-child traversal now

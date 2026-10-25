@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleButton gadget shadow bounds
 
 ToggleButton gadget menu-arming and redisplay paths now check that the gadget

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon-box focus callback guards
 
 `ChangeActiveIconboxIconText` now returns for a missing icon widget or focus

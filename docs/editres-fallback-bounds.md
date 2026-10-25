@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # EditRes fallback formatting
 
 The edit-resources protocol converts widget resources to strings. When a

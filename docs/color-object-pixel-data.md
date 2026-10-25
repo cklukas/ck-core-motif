@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ColorObj pixel-data allocation
 
 The ColorObj selection path copies a server-provided pixel-data property into

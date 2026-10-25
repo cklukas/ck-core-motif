@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Paned regular sash positions
 
 Paned now computes regular horizontal and vertical sash coordinates in signed

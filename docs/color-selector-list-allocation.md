@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ColorSelector list allocation
 
 When the color selector rebuilds its list widget, the temporary `XmString`

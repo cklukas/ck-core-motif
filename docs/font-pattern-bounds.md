@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Font Selector pattern formatting bounds
 
 The Font Selector builds a default XLFD pattern in a fixed `BUFSIZ` buffer.

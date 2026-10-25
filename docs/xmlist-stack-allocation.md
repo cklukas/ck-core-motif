@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Internal list-stack allocation failures
 
 The internal cleanup stack now checks null stack handles and failed growth

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Xm GC call-site rollback
 
 When `GetGCForPutImage` cannot create a GC, `_XmGetScaledPixmap` now removes

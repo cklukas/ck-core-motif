@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString byte-stream length validation
 
 `XmStringByteStreamLength` now returns zero for a null input and checks header

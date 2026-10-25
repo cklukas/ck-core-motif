@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm literal diagnostic bounds
 
 Mrm literal-fetch and color-literal error paths format into fixed 300-byte

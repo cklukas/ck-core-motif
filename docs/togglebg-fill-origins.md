@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleButton fill origin bounds
 
 The ToggleButton label and etched-menu fill paths derive their rectangle from

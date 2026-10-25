@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DrawUtils bevel-buffer growth
 
 `XmDrawBevel` uses a static rectangle buffer for small bevels and a dynamic

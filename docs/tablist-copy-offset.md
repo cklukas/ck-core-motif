@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Tab-list copy offset validation
 
 `XmTabListCopy` now validates the signed offset before deriving the default

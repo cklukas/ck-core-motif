@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # GeoUtils fill spacing guards
 
 The private fill-spacing helper now handles empty rows and missing output

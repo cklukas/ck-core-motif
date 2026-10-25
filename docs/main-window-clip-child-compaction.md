@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MainWindow clip-child compaction
 
 When automatic scrolling discovers a child in the clip window that belongs

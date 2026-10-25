@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString rendition-tag validation
 
 Rendition-tag copying now rejects a null tag table or null entry before calling

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleButton redisplay bounds
 
 ToggleButton and ToggleButtonGadget redisplay now convert their unsigned widget

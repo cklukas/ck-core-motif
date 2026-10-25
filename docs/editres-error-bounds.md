@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # EditRes diagnostic bounds
 
 EditRes reports conversion and protocol errors through fixed stack storage when

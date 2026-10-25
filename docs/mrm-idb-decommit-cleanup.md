@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm IDB decommit cleanup
 
 `Idb__BM_DecommitAll` now attempts every buffer belonging to a file, records

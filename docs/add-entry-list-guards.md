@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # AddEntryToList guards
 
 Window-list linking can be reached while a workspace is being detached.

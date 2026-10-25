@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm hierarchy-open input validation
 
 Hierarchy opening now rejects a missing output pointer, a missing filename

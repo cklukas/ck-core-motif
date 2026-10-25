@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Icon insertion geometry guards
 
 `InsertIconInfo` now rejects incomplete icon-box geometry and missing widgets

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WP-27 DataGrid/TableView prototype
 
 This document records the prototype contract before a public `XmDataGrid`

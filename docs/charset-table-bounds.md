@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Charset-table resource conversion bounds
 
 The string-to-charset-table resource converter builds one allocation containing

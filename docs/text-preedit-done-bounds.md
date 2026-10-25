@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Text preedit completion conversion bounds
 
 When Text completes an overstrike preedit, the saved multibyte tail is now

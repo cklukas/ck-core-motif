@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WSM extension unpack allocation failure
 
 WSM request and reply extension lists now check their pointer-array

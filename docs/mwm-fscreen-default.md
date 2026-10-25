@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm single-screen navigation index
 
 `F_Screen` keeps the previous screen for the `back` action. With one managed

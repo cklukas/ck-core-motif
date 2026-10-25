@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Accessibility text snapshot allocation
 
 The D-Bus accessibility transport builds a bounded UTF-8 snapshot before

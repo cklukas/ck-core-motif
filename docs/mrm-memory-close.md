@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm memory-backed file cleanup
 
 UID files opened from a caller-owned memory buffer do not have a low-level file

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container trait callback validation
 
 Container item and navigator traits are extension points. A class may expose

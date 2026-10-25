@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Drag-source setup allocation
 
 `XmeDragSource` copies caller arguments and obtains export targets before

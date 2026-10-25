@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # BulletinBoard dialog-title initialization rollback
 
 `XmBulletinBoard` now checks the private copy of an initial dialog title

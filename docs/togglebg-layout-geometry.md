@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleButtonGadget layout geometry
 
 ToggleButtonGadget has the same undersized-control cases as the widget: pixmap

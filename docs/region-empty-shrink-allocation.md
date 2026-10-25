@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Empty Region shrink allocation
 
 Region operations may shrink their rectangle storage after an intersection or

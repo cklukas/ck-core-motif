@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconButton label rollback
 
 `XmIconButton` now copies changed label and label-string resources before

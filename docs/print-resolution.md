@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PrintShell resolution parsing
 
 The PrintShell resource update path accepts the printer server's

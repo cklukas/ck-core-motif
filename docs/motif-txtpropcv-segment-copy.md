@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Bounded compound-text segment copies
 
 `XmCvtTextPropertyToXmStringTable` copies each bounded compound-text segment

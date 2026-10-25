@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm index-record copy inputs
 
 The leaf and node index-record copy helpers now return immediately when either

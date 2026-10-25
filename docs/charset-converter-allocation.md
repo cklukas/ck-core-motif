@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Character-set table conversion allocation
 
 The string-to-character-set-table converter uses a mutable copy of the input

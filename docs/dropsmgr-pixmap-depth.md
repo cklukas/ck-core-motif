@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DropSMgr pixmap depth storage
 
 Drop-site animation pixmap depth is stored as a `Cardinal`, while

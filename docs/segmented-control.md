@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # SegmentedControl
 
 `XmSegmentedControl` is an opt-in mutually-exclusive picker.  It is a

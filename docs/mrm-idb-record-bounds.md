@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm in-memory IDB record bounds
 
 In-memory IDB record access now rejects nonpositive record numbers and records

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Appearance-profile contract
 
 WP-01 adds a small, additive selector without replacing Xt resources or

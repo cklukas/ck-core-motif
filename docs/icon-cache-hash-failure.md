@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # IconFile cache hash and insertion failures
 
 IconFile cache hashing now preserves the full key-name length and handles null

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Gadget secondary-argument merging
 
 The generic Gadget secondary-object hook merges the caller's arguments with

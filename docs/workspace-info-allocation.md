@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Workspace information property allocation
 
 Mwm now checks both temporary buffers used to publish a workspace information

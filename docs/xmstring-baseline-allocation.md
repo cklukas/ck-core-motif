@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString baseline allocation failures
 
 `_XmStringGetBaselines` now validates its output pointers and checks the

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # LabelGadget SetValues rollback
 
 LabelGadget now retains its current label or accelerator text when copying a

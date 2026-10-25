@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm set-values reference list inputs
 
 Set-values widget and callback reference builders now reject a null output-list

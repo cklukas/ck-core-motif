@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Protocol manager allocation
 
 Protocol registration now treats manager creation and manager-list growth as

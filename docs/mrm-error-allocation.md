@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm error-message allocation
 
 Memory-mode `Urm__UT_Error` now allocates the replacement saved message before

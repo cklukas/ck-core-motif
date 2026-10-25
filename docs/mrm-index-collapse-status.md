@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm index collapse status
 
 Index collapse helpers now return `Cardinal` status values.  Allocation and

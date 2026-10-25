@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # WP-04 control-metric audit
 
 `tests/automated/check-dpi-control-metrics.c` is an installed consumer that

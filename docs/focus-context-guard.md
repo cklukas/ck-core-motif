@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Focus callback context guard
 
 `ChangeActiveIconboxIconText` now checks that the window-context lookup

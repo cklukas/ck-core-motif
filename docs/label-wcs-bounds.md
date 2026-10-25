@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Label wide-string conversion bounds
 
 The wide-character `XmLabel` value path converts a `wchar_t` value with

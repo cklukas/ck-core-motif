@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Color cache growth failures
 
 Motif keeps small process-wide caches for default colors and calculated color

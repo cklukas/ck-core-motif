@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Cascade gadget position geometry
 
 `XmCascadeButtonGadget` centers its submenu indicator inside the menu entry.

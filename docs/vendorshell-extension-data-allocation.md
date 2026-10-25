@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # VendorShell extension-data allocation
 
 The VendorShell extension-object post-hook now allocates and initializes its

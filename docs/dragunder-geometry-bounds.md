@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DragUnder region geometry bounds
 
 DragUnder now skips single-region highlight and shadow drawing when the region

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButton default-glyph bounds
 
 Optional default-glyph drawing and erasure now validate the available right

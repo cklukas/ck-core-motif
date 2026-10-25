@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mwm icon resource-key bounds
 
 WSM saves icon positions under resource keys containing the workspace name.

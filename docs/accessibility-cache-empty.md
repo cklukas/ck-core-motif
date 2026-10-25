@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Empty accessibility cache snapshots
 
 The AT-SPI cache `GetItems` method now treats an empty accessibility tree as a

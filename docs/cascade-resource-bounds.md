@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # CascadeButton resource-table bounds
 
 CascadeButton class initialization checks the combined superclass and subclass

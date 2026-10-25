@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmIm reference-list shrinking
 
 The input-method display record keeps parallel widget-reference and callback

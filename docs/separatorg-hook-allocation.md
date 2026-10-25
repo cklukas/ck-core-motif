@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # SeparatorGadget hook allocation handling
 
 SeparatorGadget's secondary-object, set-values, and get-values hooks now check

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Resource unit conversion null-safety
 
 Unit conversion APIs now reject null widgets, screens, and conversion values

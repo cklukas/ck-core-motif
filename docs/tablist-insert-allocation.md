@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Tab-list insertion allocation
 
 `XmTabListInsertTabs` now checks allocation of a new list and its first copied

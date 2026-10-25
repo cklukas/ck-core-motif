@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm widget-reference diagnostic bounds
 
 Set-values widget-reference construction reports unknown compressed argument

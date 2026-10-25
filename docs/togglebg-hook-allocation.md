@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ToggleButtonGadget hook allocation handling
 
 ToggleButtonGadget's secondary-object, set-values, and get-values hooks now

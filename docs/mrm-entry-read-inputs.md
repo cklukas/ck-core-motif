@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm data-entry reader inputs
 
 The data-entry readers now reject a null `IDBFile` before handling header

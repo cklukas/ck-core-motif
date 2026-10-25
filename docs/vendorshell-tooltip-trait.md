@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # VendorShell tooltip-trait allocation
 
 The VendorShell initialization prehook creates a tooltip configuration trait

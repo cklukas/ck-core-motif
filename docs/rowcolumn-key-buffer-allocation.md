@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RowColumn accelerator text allocation
 
 RowColumn converts virtual key bindings into human-readable accelerator text

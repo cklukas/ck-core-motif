@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PixConv pixmap metadata guard
 
 `_XmGetPixmapBasedGC` now configures a tile or stipple GC only when

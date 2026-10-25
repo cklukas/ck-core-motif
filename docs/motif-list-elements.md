@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List internal element allocation failure
 
 List item insertion now handles failure while constructing an internal element

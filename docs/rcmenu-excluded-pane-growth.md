@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # RCMenu excluded-parent-pane growth
 
 Menu popdown temporarily records the active parent panes while restoring

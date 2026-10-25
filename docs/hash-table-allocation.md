@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Hash-table allocation
 
 The shared `_XmAllocHashTable` constructor now checks its table-record

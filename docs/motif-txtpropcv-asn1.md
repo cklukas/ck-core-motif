@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ASN.1 compound-string output allocation
 
 The `XmSTYLE_COMPOUND_STRING` conversion path now checks its final ASN.1

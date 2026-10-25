@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MWM binding-string growth
 
 MWM expands virtual-key bindings by replacing matching names with longer

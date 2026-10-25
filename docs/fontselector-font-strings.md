@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FontSelector font-string construction
 
 FontSelector builds XLFD strings into caller-provided buffers. The builder now

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Container cell-position guards
 
 Cell coordinate conversion can run while a Container is between layouts.  The

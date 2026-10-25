@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DataField selection export conversion
 
 When exporting a multibyte DataField selection, the conversion loop now treats

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # PushButtonGadget highlight geometry
 
 The internal PushButtonGadget focus highlight subtracts the 3-D enhancement

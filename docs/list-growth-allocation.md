@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # List allocation failure handling
 
 List insertion now treats the internal item-array resize as a transaction. It

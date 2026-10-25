@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # DataField multibyte conversion scratch space
 
 DataField validates and converts wide characters with `wctomb`.  That

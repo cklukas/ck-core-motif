@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # FileSelectionBox no-match string rollback
 
 `XmFileSelectionBox` now copies a replacement `XmNnoMatchString` before

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # ProgressBar label rollback
 
 `XmProgressBar` now copies a changed label before releasing the current

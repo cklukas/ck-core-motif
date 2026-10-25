@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # TabBox image-rotation size bounds
 
 TabBox rotates XImages used by tab visuals.  The old helper accumulated the

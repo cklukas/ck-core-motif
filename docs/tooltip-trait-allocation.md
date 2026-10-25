@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Tooltip trait allocation
 
 `XmSetToolTipString` now checks the allocation of a missing tooltip trait

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Mrm resource-descriptor bounds
 
 Mrm widget-record resource descriptors now check index-string lengths before

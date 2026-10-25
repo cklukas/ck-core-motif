@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString tab-list construction failure
 
 `XmStringTableProposeTablist` now checks the initial tab and tab-list objects

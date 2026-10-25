@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Compound-text string-table allocation
 
 The compound-text branch of `XmCvtTextPropertyToXmStringTable` now checks its

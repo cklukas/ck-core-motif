@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MenuShell empty-child guards
 
 MenuShell popdown helpers historically assumed that every shell had a first
