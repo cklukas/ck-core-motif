@@ -864,6 +864,12 @@ List drag size bounds (2026-10-25)
 - Check selected-position string-array size arithmetic before list drag
   allocation; see `docs/list-drag-allocation.md`.
 
+List copy allocation bounds (2026-10-25)
+==========================================
+
+- Guard list item and selection-array copy count arithmetic and allocations,
+  preserving the original arrays on failure; see `docs/list-copy-bounds.md`.
+
 List drag conversion allocation (2026-10-25)
 ===============================================
 
