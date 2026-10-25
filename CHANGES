@@ -1,3 +1,10 @@
+WSM reply payload validation (2026-10-26)
+=========================================
+
+- Reject non-empty selection replies with null payloads before WSM unpacking,
+  reporting an internal protocol error to the requester; see
+  `docs/wsm-reply-payload-guards.md`.
+
 WSM reply packing failure handling (2026-10-26)
 ===============================================
 

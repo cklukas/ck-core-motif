@@ -190,6 +190,14 @@ UTMReplyReceived(Widget w, XtPointer clientData, XtPointer callData)
     return;
   }
 
+  if (scs->value == NULL && scs->length != 0) {
+    if (req_info->reply_callback != NULL)
+      (*req_info->reply_callback)(w, req_info->reply_data, NULL,
+				  WSM_ERROR_INTERNAL);
+    XtFree((XtPointer) req_info);
+    return;
+  }
+
   ReplyReceived(w,
 		req_info, /* the request info pointer to fill in. */
 		&scs->selection,
