@@ -32,6 +32,7 @@
 #include <Xm/Badge.h>
 #include <Xm/IconLabel.h>
 #include <Xm/Divider.h>
+#include <Xm/Avatar.h>
 #include <Xm/Link.h>
 #include <Xm/SearchBox.h>
 #include <Xm/Prompt.h>
@@ -1311,6 +1312,19 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
                               XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
     else
       local = XtNewString("Divider");
+  }
+  if (XmIsAvatar(w)) {
+    XmString initials = NULL;
+    i->role = XmACCESSIBLE_LABEL;
+    XtVaGetValues(w, XmNavatarInitials, &initials, NULL);
+    if (initials)
+      local = XmStringUnparse(initials, NULL, XmCHARSET_TEXT,
+                              XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+    if (!local || !*local) {
+      if (local)
+        XtFree(local);
+      local = XtNewString("Avatar");
+    }
   }
   if (XmIsLink(w)) {
     XmString label_string = NULL;

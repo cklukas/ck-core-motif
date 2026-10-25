@@ -1489,8 +1489,10 @@ releasable contracts in `docs/compact-controls-contract.md`.  The additive
 `XmChip` and `XmBadge` implementations and installed fixtures are complete and
 documented in `docs/chip.md` and `docs/badge.md`.  The additive `XmIconLabel`
 and `XmDivider` implementations and installed fixture are complete and
-documented in `docs/icon-label-divider.md`; Avatar remains a separate work
-item with explicit ownership, accessibility and teardown gates.
+documented in `docs/icon-label-divider.md`.  The additive `XmAvatar`
+implementation and installed fixture are complete and documented in
+`docs/avatar.md`; all WP-35 controls now have explicit ownership,
+accessibility and teardown gates.
 
 ### WP-36: Search, prompt text and Link controls
 

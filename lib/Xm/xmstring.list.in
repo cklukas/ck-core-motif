@@ -1074,6 +1074,9 @@ CDividerLabel
 CDividerOrientation
 CDividerThickness
 CDividerSpacing
+CAvatarInitials
+CAvatarPixmap
+CAvatarSize
 NbadgeLabel
 NbadgeCount
 NbadgeMaximum
@@ -1085,6 +1088,9 @@ NdividerLabel
 NdividerOrientation
 NdividerThickness
 NdividerSpacing
+NavatarInitials
+NavatarPixmap
+NavatarSize
 
 CLinkLabel
 CLinkTarget

@@ -582,6 +582,9 @@ public XmVaCreateManagedIconLabel
 public XmCreateDivider
 public XmVaCreateDivider
 public XmVaCreateManagedDivider
+public XmCreateAvatar
+public XmVaCreateAvatar
+public XmVaCreateManagedAvatar
 public XmCreateLink
 public XmLinkActivate
 public XmCreateSearchBox
