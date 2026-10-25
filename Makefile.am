@@ -834,3 +834,5 @@ EXTRA_DIST += tests/automated/check-icon-cache-directory-input.py docs/icon-cach
 EXTRA_DIST += tests/automated/check-icon-cache-hash-failure.py docs/icon-cache-hash-failure.md
 
 EXTRA_DIST += tests/automated/check-icon-cache-comparator.py docs/icon-cache-comparator.md
+
+EXTRA_DIST += tests/automated/check-xpm-create-image-size.py docs/xpm-create-image-size.md

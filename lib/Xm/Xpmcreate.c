@@ -50,6 +50,7 @@
 #endif
 #include "XpmI.h"
 #include <ctype.h>
+#include <stdint.h>
 
 LFUNC(xpmVisualType, int, (Visual *visual));
 
@@ -992,7 +993,8 @@ CreateXImage(
 	return (XpmNoMemory);
 
 #if !defined(FOR_MSW) && !defined(AMIGA)
-    if (height != 0 && (*image_return)->bytes_per_line >= INT_MAX / height) {
+    if (height != 0 &&
+	(size_t)(*image_return)->bytes_per_line > SIZE_MAX / (size_t)height) {
 	XDestroyImage(*image_return);
 	return XpmNoMemory;
     }
@@ -1000,7 +1002,8 @@ CreateXImage(
     if((*image_return)->bytes_per_line == 0 ||  height == 0)
     	return XpmNoMemory;
     (*image_return)->data =
-	(char *) XpmMalloc((*image_return)->bytes_per_line * height);
+	(char *) XpmMalloc((size_t)(*image_return)->bytes_per_line *
+			   (size_t)height);
 
     if (!(*image_return)->data) {
 	XDestroyImage(*image_return);

@@ -4944,3 +4944,9 @@ Guard IconFile cache comparison (2026-10-25)
 
 - Validate icon-cache entries and key strings before comparison; see
   `docs/icon-cache-comparator.md`.
+
+Harden XPM image-data sizing (2026-10-25)
+==========================================
+
+- Check row-stride multiplication in `size_t` before allocating decoded image
+  data; see `docs/xpm-create-image-size.md`.
