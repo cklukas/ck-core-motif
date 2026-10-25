@@ -6418,6 +6418,13 @@ Bound MainW child-array Xt byte sizes (2026-10-25)
 - Check Xt `Cardinal` byte limits while moving clip-window children into the
   MainW composite list; see `docs/mainw-child-growth.md`.
 
+PanedWindow managed-child allocation (2026-10-25)
+===================================================
+
+- Check managed-child list initialization and bounded growth, preserving the
+  existing list and stopping safely when capacity allocation fails; see
+  `docs/paned-managed-children-allocation.md`.
+
 Bound legacy resource-filter byte sizes (2026-10-25)
 =====================================================
 
