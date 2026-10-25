@@ -10667,6 +10667,13 @@ Legacy charset canonicalization allocation guards (2026-10-25)
   strings, returning `NULL` on failure; see
   `docs/charset-canonicalize-allocation.md`.
 
+Bound legacy resource-filter byte sizes (2026-10-26)
+=====================================================
+
+- Reject `_XmFilterResources` result sizes that cannot be represented by Xt's
+  `Cardinal` allocator before narrowing the byte count; see
+  `docs/filter-resources-bounds.md`.
+
 Legacy shadow-buffer allocation guards (2026-10-25)
 ===================================================
 

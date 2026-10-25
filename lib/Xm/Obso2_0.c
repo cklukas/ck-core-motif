@@ -1520,10 +1520,12 @@ _XmFilterResources(
 	    }
       }
 
-    if ((size_t)j > SIZE_MAX / sizeof(XtResource)) {
+    if ((size_t)j > SIZE_MAX / sizeof(XtResource) ||
+	(size_t)j > UINT_MAX / sizeof(XtResource)) {
 	return 0;
     }
-    filteredResources = (XtResource *) XtMalloc(j * sizeof(XtResource));
+    filteredResources = (XtResource *) XtMalloc((Cardinal)(j *
+						      sizeof(XtResource)));
 
     if (filteredResources == NULL && j != 0) {
 	return 0;
