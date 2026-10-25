@@ -433,7 +433,7 @@ GetUseableText(Display *display, XmString xmstring, char **buffer,
 	    _XmStringContextFree(&stack_context);
 	    return XNoMemory;
 	  }
-	txt_value = XtMalloc((txt_len + 2) * sizeof(char));
+	txt_value = XtMalloc((Cardinal)(sizeof(char) * (txt_len + 2)));
 	if (txt_value == NULL)
 	  {
 	    XtFree(compound_text);
