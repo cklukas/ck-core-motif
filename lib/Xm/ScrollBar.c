@@ -1657,6 +1657,7 @@ Resize(
     XmScrollBarWidget sbw = (XmScrollBarWidget) wid ;
     register int ht = sbw->primitive.highlight_thickness;
     register int st = sbw->primitive.shadow_thickness;
+    int arrow_pos;
 
 #define CHECK(x) if (x <= 0) x = 1 
 
@@ -1704,8 +1705,9 @@ Resize(
 	    if (ARROW1_NEAR_SIDE (sbw)) {
 		 sbw->scrollBar.arrow1_x = ht + st;
 	     } else {
-		 sbw->scrollBar.arrow1_x = sbw->core.width -ht -st 
-		     - 2 * sbw->scrollBar.arrow_width;
+		 arrow_pos = (int) sbw->core.width - ht - st -
+		     2 * (int) sbw->scrollBar.arrow_width;
+		 sbw->scrollBar.arrow1_x = (Position) arrow_pos;
 	     }
 	
 	    if (sbw->core.width < 
@@ -1772,8 +1774,9 @@ Resize(
 	    if (ARROW1_NEAR_SIDE(sbw)) {
 		sbw->scrollBar.arrow1_y = ht + st;
 	    } else {
-		sbw->scrollBar.arrow1_y = sbw->core.height -ht -st 
-		    - 2 * sbw->scrollBar.arrow_height;
+		arrow_pos = (int) sbw->core.height - ht - st -
+		    2 * (int) sbw->scrollBar.arrow_height;
+		sbw->scrollBar.arrow1_y = (Position) arrow_pos;
 	    }
 
 	    if (sbw->core.height < 

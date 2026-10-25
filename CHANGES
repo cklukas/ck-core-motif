@@ -7298,3 +7298,11 @@ Input-method area geometry bounds (2026-10-26)
 
 Frame title placement bounds (2026-10-26)
 =========================================
+ScrollBar arrow position bounds (2026-10-26)
+============================================
+
+- Compute far-side arrow coordinates in signed arithmetic, preventing wrapped
+  positions in collapsed ScrollBars; see `docs/scrollbar-arrow-positions.md`.
+
+Input-method area geometry bounds (2026-10-26)
+==============================================
