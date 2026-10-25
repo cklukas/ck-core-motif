@@ -1,3 +1,12 @@
+Gallery screenshot qualification receipts (2026-10-25)
+========================================================
+
+- Harden the display-backed gallery screenshot runner with exact mapped-window
+  selection, per-entry child lifecycle cleanup, and diagnostic stderr capture
+  when a component exits before realization. Receipts now distinguish `pass`,
+  `skip`, and `fail` outcomes and retain the active entry and failure reason;
+  see `docs/modern-gallery-screenshot-qualification.md`.
+
 ColorPicker redisplay font-resource contract (2026-10-25)
 ============================================================
 
