@@ -1,3 +1,10 @@
+Representation-type registration allocation guard (2026-10-25)
+===============================================================
+
+- Check dynamic representation-type table growth before filling the new record
+  and return `XmREP_TYPE_INVALID` on allocation failure; see
+  `docs/reptype-registration.md`.
+
 Container tab allocation rollback (2026-10-25)
 ==============================================
 
