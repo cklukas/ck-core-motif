@@ -3656,13 +3656,15 @@ _XmIconGadgetIconPos(Widget wid, int *x, int *y)
   if (ig -> icong.viewtype == XmSMALL_ICON) {
     icon_x = GetSmallIconX(wid);
     if (LayoutIsRtoLG(wid))
-	icon_x = XtWidth(wid) - icon_x - IG_SmallIconRectWidth(wid);
+	icon_x = (Position) ((int) XtWidth(wid) - (int) icon_x -
+	    (int) IG_SmallIconRectWidth(wid));
     *x = icon_x;
     *y = GetSmallIconY(wid);
   } else {
     icon_x = GetLargeIconX(wid);
     if (LayoutIsRtoLG(wid))
-	icon_x = XtWidth(wid) - icon_x - IG_LargeIconRectWidth(wid);
+	icon_x = (Position) ((int) XtWidth(wid) - (int) icon_x -
+	    (int) IG_LargeIconRectWidth(wid));
     *x = icon_x;
     *y = GetLargeIconY(wid);
   }

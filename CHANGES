@@ -7458,3 +7458,12 @@ IconG right-to-left label bounds (2026-10-26)
 
 ComboBox hit and drawing bounds (2026-10-26)
 =============================================
+IconG right-to-left icon bounds (2026-10-26)
+============================================
+
+- Compute exported RTL small and large icon origins in signed arithmetic,
+  preventing wrapped positions in narrow gadgets; see
+  `docs/icong-rtl-icon.md`.
+
+IconG right-to-left label bounds (2026-10-26)
+=============================================
