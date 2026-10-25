@@ -10235,6 +10235,12 @@ Protocol null-slot teardown guard (2026-10-25)
 - Skip null protocol slots during manager teardown instead of dereferencing
   partially initialized entries; see `docs/protocol-null-slots.md`.
 
+Protocol lookup null-slot guard (2026-10-25)
+=============================================
+
+- Skip null protocol slots during lookup and dispatch instead of
+  dereferencing them; see `docs/protocol-lookup-null-slots.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

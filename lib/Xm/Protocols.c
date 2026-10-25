@@ -558,7 +558,8 @@ GetProtocol(
     
     i = 0;
     while ((i < p_mgr->num_protocols) && 
-	   (p_mgr->protocols[i]->protocol.atom != p_atom))
+	   (p_mgr->protocols[i] == NULL ||
+	    p_mgr->protocols[i]->protocol.atom != p_atom))
       i++;
     
     if (i < p_mgr->num_protocols)
