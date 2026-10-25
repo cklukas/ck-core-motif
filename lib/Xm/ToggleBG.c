@@ -4436,8 +4436,8 @@ DrawToggleShadow(
       top_gc == NULL || bot_gc == NULL)
     return;
 
-  dx = (int)(tb->rectangle.x + hilite_thickness);
-  dy = (int)(tb->rectangle.y + hilite_thickness);
+  dx = (int) tb->rectangle.x + (int) hilite_thickness;
+  dy = (int) tb->rectangle.y + (int) hilite_thickness;
   width = (int)tb->rectangle.width - (hilite_thickness << 1);
   height = (int)tb->rectangle.height - (hilite_thickness << 1);
   
