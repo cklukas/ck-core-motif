@@ -68,13 +68,38 @@ def run(name, command, cwd):
         raise RuntimeError("see " + str(root / "logs" / (name + ".log")))
 
 
+def extract_archive(archive, destination):
+    """Extract a pinned source archive without relying on Python 3.12 APIs.
+
+    ``TarFile.extractall(filter="data")`` is not available on Python 3.10,
+    which is still common on supported Linux build hosts.  The dependency
+    archive is expected to contain regular files and directories only.  We
+    validate every member before extraction and reject links rather than
+    weakening the path-safety contract on older Python versions.
+    """
+    destination = destination.resolve()
+    with tarfile.open(archive) as source_archive:
+        members = source_archive.getmembers()
+        for member in members:
+            relative = Path(member.name)
+            if (not member.name or relative.is_absolute() or
+                    ".." in relative.parts):
+                raise RuntimeError("unsafe dependency archive path: " + member.name)
+            if member.issym() or member.islnk():
+                raise RuntimeError("dependency archive links are unsupported: " +
+                                   member.name)
+            target = (destination / relative).resolve()
+            try:
+                target.relative_to(destination)
+            except ValueError as error:
+                raise RuntimeError("dependency archive escapes destination: " +
+                                   member.name) from error
+        for member in members:
+            source_archive.extract(member, destination)
+
+
 try:
-    with tarfile.open(a.archive) as archive:
-        for member in archive.getmembers():
-            path = Path(member.name)
-            if path.is_absolute() or ".." in path.parts:
-                raise RuntimeError("unsafe dependency archive path")
-        archive.extractall(root / "source", filter="data")
+    extract_archive(a.archive, root / "source")
     source = root / "source/libXt-1.3.1"
     receipt["selection_before_sha256"] = sha(source / "src/Selection.c")
     run("patch", ["patch", "--batch", "--fuzz=0", "-p1", "-i", patch], source)

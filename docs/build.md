@@ -57,6 +57,9 @@ downloads or system installation. Pass `--archive /absolute/libXt-1.3.1.tar.xz`,
 `--output /absolute/xt-build` and optionally `--prefix /absolute/combined-prefix`.
 An explicit prefix must be fresh or empty. The source/build/install receipts
 record hashes, flags, compiler, timing and instrumentation scope.
+The helper performs its own containment check and rejects archive links, so it
+has the same extraction boundary on Python 3.10 hosts that lack
+`TarFile.extractall(filter="data")`.
 
 On 2026-10-25, the AArch64 `uconsole` qualification used the pinned archive
 SHA-256 above, patch SHA-256

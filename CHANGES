@@ -6,6 +6,14 @@ XLibre observer reentrant lifetime guard (2026-10-25)
   returns, with a source-level lifetime regression guard. See
   `docs/xlibre-dpi-contract.md`.
 
+Pinned Xt helper extraction portability (2026-10-25)
+====================================================
+
+- Make `scripts/build-xt-dependency.py` work on Python 3.10 while retaining
+  explicit archive path containment and rejecting symbolic/hard links. The
+  helper no longer depends on the Python 3.12-only `tarfile` data filter; see
+  `docs/build.md`.
+
 Unicode grapheme capture and bounded Xft requests (2026-10-25)
 ===============================================================
 
