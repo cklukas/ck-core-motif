@@ -2775,7 +2775,7 @@ _XmGeoReplyYes(
         XtWidgetGeometry *response )
 {
 /****************/
-    if(!response){ /* For fixing OSF CR 5956 */
+    if(!desired || !response){ /* For fixing OSF CR 5956 */
          return(False); 
     }
     if(    IsWidth( desired)    )

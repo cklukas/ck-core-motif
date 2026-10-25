@@ -10307,6 +10307,12 @@ GeoUtils managed-child counting guards (2026-10-25)
 - Handle missing composites, child arrays, and null child slots while counting
   managed children; see `docs/geo-count-kids-input.md`.
 
+GeoUtils reply comparison input validation (2026-10-25)
+========================================================
+
+- Require both geometry records before `_XmGeoReplyYes` evaluates request
+  masks; see `docs/geo-reply-yes-inputs.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
