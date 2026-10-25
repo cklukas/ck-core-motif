@@ -59,7 +59,12 @@ static Dimension label_width(XmDividerWidget divider) {
     char *text = XmStringUnparse(divider->divider.label, NULL,
                                  XmCHARSET_TEXT, XmCHARSET_TEXT, NULL, 0,
                                  XmOUTPUT_ALL);
-    Dimension width = text ? (Dimension)(strlen(text) * 8) : 0;
+    size_t length = text ? strlen(text) : 0;
+    unsigned long pixels = (unsigned long)length >
+                               ((unsigned long)(Dimension)-1) / 8UL
+                               ? (unsigned long)(Dimension)-1
+                               : (unsigned long)length * 8UL;
+    Dimension width = (Dimension)pixels;
     XtFree(text);
     return width;
 }

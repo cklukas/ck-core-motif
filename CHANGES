@@ -13429,6 +13429,12 @@ MWM title fallback safety (2026-10-26)
 - Fall back to the shared default title when localized client-title creation
   fails before later measurement or drawing; see `docs/mwm-title-fallback.md`.
 
+Divider label width bounds (2026-10-26)
+=======================================
+
+- Bound long-label pixel multiplication before converting to `Dimension`; see
+  `docs/divider-label-width.md`.
+
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================
 
