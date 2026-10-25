@@ -1,3 +1,10 @@
+MWM automation reply allocation guards (2026-10-26)
+====================================================
+
+- Centralize overflow and allocation checks for automation reply buffers so
+  failed requests return an empty reply instead of invoking packers with a
+  null buffer; see `docs/mwm-automation-reply-allocation.md`.
+
 MWM automation input guard (2026-10-26)
 =======================================
 
