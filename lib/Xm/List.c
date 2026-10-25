@@ -9144,6 +9144,12 @@ XmListReplacePositions(Widget    w,
   Boolean reset_height = FALSE;
   Boolean replaced_first = FALSE;
   int nsel;
+  if (w == NULL || position_list == NULL || item_list == NULL ||
+      item_count <= 0)
+    return;
+  for (i = 0; i < item_count; ++i)
+    if (item_list[i] == NULL)
+      return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9162,10 +9168,7 @@ XmListReplacePositions(Widget    w,
       return;
     }
 
-  if ((position_list  == NULL)  ||
-      (item_list      == NULL)  ||
-      (lw->list.items == NULL)  ||
-      (item_count     == 0)) {
+  if (lw->list.items == NULL) {
     _XmAppUnlock(app);
     return;
   }

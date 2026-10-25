@@ -1,3 +1,9 @@
+Position-based list replacement input validation (2026-10-25)
+===============================================================
+
+- Reject invalid position/item arrays and replacement strings before
+  replacement; see `docs/list-replace-positions-inputs.md`.
+
 List replacement input validation (2026-10-25)
 ===============================================
 
