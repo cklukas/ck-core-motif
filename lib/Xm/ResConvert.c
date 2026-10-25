@@ -2755,7 +2755,7 @@ GetNextToken(
 	char *s, *e, *p;
 	char *next_context;
 	char *buf = NULL;
-	int len;
+	size_t token_size;
 
 	if (src != NULL)
 		*context = src;
@@ -2814,9 +2814,11 @@ GetNextToken(
 	 * delimiter characters or spaces.  It would be great if we had
 	 * time to implement full C style backslash processing...
 	 */
-	len = (e - s) + 1;
+	token_size = (size_t)(e - s) + 1;
+	if (token_size > (size_t)UINT_MAX - 1)
+		return(NULL);
 
-	p = buf = XtMalloc(len + 1);
+	p = buf = XtMalloc((Cardinal)(token_size + 1));
 	if (buf == NULL)
 		return(NULL);
 	while (s != e)

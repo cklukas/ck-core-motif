@@ -12227,3 +12227,10 @@ XmString-table item length bounds (2026-10-26)
 
 - Reject per-item input strings that cannot fit Xt's `Cardinal` allocation
   range before copying; see `docs/xmstring-table-converter-allocation.md`.
+
+Resource converter token span bounds (2026-10-26)
+=================================================
+
+- Measure shared token spans in `size_t`, reject unrepresentable lengths, and
+  pass accepted storage explicitly as an Xt `Cardinal`; see
+  `docs/motif-resconvert-token.md`.
