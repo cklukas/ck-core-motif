@@ -50,6 +50,16 @@ The fixture also checks that unrealized shells are never registered and that
 ordinary-server scale lookup falls back cleanly.
 Descendant lookup is covered by the same shell-boundary fixture.
 
+Transfer-storage dependency cohort (2026-10-25)
+================================================
+
+- Extend `run-storage-regressions.py` with repeatable focused modes and
+  explicit additional runtime/link library directories. The receipt records
+  the selected dependency cohort, and the clipboard, merge, bounds and owner
+  lifetime modes pass against the pinned corrected Xt on AArch64. This does
+  not promote the separate Xt callback-lifetime, drag-and-drop or application
+  workflow gates to toolkit acceptance.
+
 Source-contract verifier maintenance (2026-10-25)
 ==================================================
 

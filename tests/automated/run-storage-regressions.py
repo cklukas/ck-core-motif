@@ -18,19 +18,34 @@ p.add_argument('--cc', choices=('gcc', 'clang'), default='gcc')
 p.add_argument('--sanitize', action='store_true')
 p.add_argument('--xt-interposition', action='store_true',
                help='Sanitizer ODR level 1 for same-size Motif/Xt VendorShell globals')
-p.add_argument('--only', choices=('clipboard', 'merge', 'bounds', 'lifetime', 'xpm', 'buttons', 'xt-callbacks'))
+p.add_argument('--runtime-library-dir', action='append', type=Path,
+               help='additional absolute dependency library directory; may be repeated')
+p.add_argument('--only', action='append',
+               choices=('clipboard', 'merge', 'bounds', 'lifetime', 'xpm',
+                        'buttons', 'xt-callbacks'),
+               help='restrict the run; may be repeated')
 a = p.parse_args()
 if platform.system() != 'Linux' or not a.prefix.is_absolute() or not a.results.is_absolute():
     p.error('use absolute paths in a Linux task workspace')
 if a.xt_interposition and not a.sanitize:
     p.error('--xt-interposition requires --sanitize')
+runtime_library_dirs = []
+for path in a.runtime_library_dir or []:
+    if not path.is_absolute():
+        p.error('--runtime-library-dir must be absolute')
+    path = path.resolve(strict=True)
+    if ':' in str(path):
+        p.error('--runtime-library-dir must not contain a colon')
+    runtime_library_dirs.append(path)
 a.results.mkdir(parents=True, exist_ok=False)
 for name in ('tmp', 'cache', 'config', 'data'):
     (a.results / name).mkdir()
 env = dict(os.environ, TMPDIR=str(a.results / 'tmp'),
            XDG_CACHE_HOME=str(a.results / 'cache'),
            XDG_CONFIG_HOME=str(a.results / 'config'), XDG_DATA_HOME=str(a.results / 'data'),
-           LD_LIBRARY_PATH=str(a.prefix / 'lib'), LC_ALL='C.UTF-8')
+           LD_LIBRARY_PATH=os.pathsep.join([str(a.prefix / 'lib'),
+                                            *(str(path) for path in runtime_library_dirs)]),
+           LC_ALL='C.UTF-8')
 if a.sanitize:
     env.update(ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',
                UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1')
@@ -39,6 +54,8 @@ if a.sanitize:
 source = Path(__file__).resolve().parent
 record = dict(started_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
               prefix=str(a.prefix), compiler=a.cc, architecture=platform.machine(),
+              runtime_library_dirs=[str(path) for path in runtime_library_dirs],
+              requested_modes=a.only or [],
               sanitize=a.sanitize, preload=env.get('LD_PRELOAD'),
               runtime_options={k: env[k] for k in ('ASAN_OPTIONS', 'UBSAN_OPTIONS') if k in env},
               runner_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -76,26 +93,32 @@ try:
     flags = ['-D_GNU_SOURCE', '-std=c11', '-Wall', '-Wextra', '-Werror', '-g', '-O2',
              '-I' + str(a.prefix / 'include'), '-L' + str(a.prefix / 'lib'),
              '-Wl,-rpath,' + str(a.prefix / 'lib')]
+    runtime_link_flags = ['-L' + str(path) for path in runtime_library_dirs]
     if a.sanitize:
         flags += ['-fsanitize=address,undefined', '-fno-omit-frame-pointer']
     for name, modes in [('transfer-storage', ('clipboard', 'merge', 'bounds', 'lifetime')),
                         ('xpm-input', ('xpm',)), ('button-timers', ('buttons',)),
                         ('xt-callback-lifetime', ('xt-callbacks',))]:
-        modes = [mode for mode in modes if not a.only or mode == a.only]
+        modes = [mode for mode in modes if not a.only or mode in a.only]
         if not modes:
             continue
         src = source / ('check-' + name + '.c')
         record['sources'][src.name] = hashlib.sha256(src.read_bytes()).hexdigest()
         executable = a.results / name
-        if not run('compile-' + name, [a.cc, *flags, src, '-lXm', '-lXt', '-lX11', '-ldl', '-o', executable]):
+        if not run('compile-' + name, [a.cc, *flags, *runtime_link_flags, src,
+                                       '-lXm', '-lXt', '-lX11', '-ldl', '-o', executable]):
             ok = False
             continue
         if not run('link-' + name, ['ldd', executable]):
             ok = False
             continue
-        if str(a.prefix / 'lib/libXm.so.') not in (a.results / ('link-' + name + '.log')).read_text():
+        link_text = (a.results / ('link-' + name + '.log')).read_text()
+        if str(a.prefix / 'lib/libXm.so.') not in link_text:
             raise RuntimeError('loaded a different libXm prefix')
-        if (a.prefix / 'lib/libXt.so').exists() and str(a.prefix / 'lib/libXt.so.') not in (a.results / ('link-' + name + '.log')).read_text():
+        if runtime_library_dirs and not any(
+                str(path / 'libXt.so.') in link_text for path in runtime_library_dirs):
+            raise RuntimeError('loaded a different pinned libXt prefix')
+        if not runtime_library_dirs and (a.prefix / 'lib/libXt.so').exists() and str(a.prefix / 'lib/libXt.so.') not in link_text:
             raise RuntimeError('loaded a different libXt prefix')
         for mode in modes:
             arguments = [a.results / 'data'] if mode == 'xpm' else [] if mode in ('buttons', 'scroll', 'xt-callbacks') else [mode]

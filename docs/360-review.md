@@ -33,10 +33,12 @@ These are real coverage gaps rather than claims of known source defects:
    selection-context boundary. It needs an ownership-level fix or a narrowly
    scoped native lifecycle test before it can be called clean.
 3. **External clipboard and DnD matrix.** The bounded Text/TextField fixture
-   now proves two-client INCR cancellation followed by a fresh transfer from
-   the surviving owner when the pinned corrected Xt dependency is used. The
-   broader matrix still needs target replacement, 8/16/32-bit formats,
-   drag-and-drop cancellation, callback destruction, and leak checks.
+   proves two-client INCR cancellation followed by a fresh transfer from the
+   surviving owner when the pinned corrected Xt dependency is used. The
+   installed transfer-storage cohort additionally passes target replacement,
+   8/16/32-bit format assembly, merge bounds and repeated owner destruction
+   against that dependency. Drag-and-drop cancellation, application-level
+   clipboard workflows and a clean sanitizer exit remain open.
 4. **Non-text Unicode matrix.** Lists, menus, labels, combo boxes, file
    selection, mnemonics, search, and compound strings need the same mixed-script,
    combining-mark, supplementary-plane, and keyboard-navigation coverage as
@@ -71,8 +73,8 @@ These are real coverage gaps rather than claims of known source defects:
 ## Recommended order
 
 1. Qualify the current installed cohort on x86_64.
-2. Finish the two-client clipboard/DnD lifecycle matrix without mixing it with
-   unrelated held storage changes.
+2. Extend the qualified clipboard cohort to drag-and-drop and application
+   workflows without mixing it with unrelated held-storage changes.
 3. Expand non-text Unicode and accessibility user-journey fixtures.
 4. Resolve the Xt selection-context sanitizer ownership issue.
 5. Complete mixed-DPI qualification and expand the documented profile corpus.

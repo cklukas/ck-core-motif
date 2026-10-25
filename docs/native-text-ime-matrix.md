@@ -12,7 +12,7 @@ separate toolkit-contract test.
 | Local Compose/dead key | Pass with private `@im=none` Xvfb | Pending | XTest fixture proves local XIM/XIC registration and exact commits; it is not a physical-keyboard test. |
 | IBus XIM composition, commit and cancellation | Focused pass | Pending | Real IBus/m17n fixture; standalone combining-mark commit and candidate panels remain gaps. |
 | Provider restart and transport loss | Focused pass | Pending | Same-process service loss/reconnect fixture; broader engines/providers remain unqualified. |
-| Clipboard UTF-8 round trip and interrupted INCR lifetime | Pass for the bounded AArch64 cohort with pinned corrected Xt | Pending | Multi-megabyte UTF-8 bytes, cancellation, and a fresh transfer from the surviving owner pass for Text and TextField; system-Xt failure, application workflows, broader DnD, and x86_64 remain separate. |
+| Clipboard UTF-8 round trip and interrupted INCR lifetime | Pass for the bounded AArch64 cohort with pinned corrected Xt | Pending | Multi-megabyte UTF-8 bytes, cancellation, a fresh transfer from the surviving owner, and the installed 8/16/32-bit transfer-storage/owner-replacement cohort pass; system-Xt failure, application workflows, broader DnD, and x86_64 remain separate. |
 | Strict ASan/UBSan | Body completes; exit leak gate open | Pending | Xt selection-context and Fontconfig ownership reports are retained, not suppressed. |
 
 Run the focused installed service fixture with:
@@ -49,3 +49,20 @@ The same pinned cohort passed the consumer `--sanitize` run for the
 interrupted-clipboard fixture on 2026-10-25. That result covers the transfer
 body and its fixture process only; it does not close the matrix-wide leak gate
 for Xt selection-context or Fontconfig ownership.
+
+The transfer-storage fixture also passes its clipboard, merge, bounds and
+lifetime modes against the pinned corrected Xt cohort. It exercises 8-, 16-
+and 32-bit format assembly across large split copies, replacement of named,
+primary and secondary selection owners, repeated replacement, and destruction
+of the active owner. Run the focused cohort with the repeatable mode selector:
+
+```sh
+python3 tests/automated/run-storage-regressions.py \
+  /absolute/installed/prefix /absolute/fresh/results \
+  --runtime-library-dir /absolute/pinned-xt/lib \
+  --only clipboard --only merge --only bounds --only lifetime
+```
+
+The optional `--runtime-library-dir` is recorded in the receipt and keeps this
+focused result distinct from the separate Xt callback-lifetime fixture and
+from application-level drag-and-drop workflows.
