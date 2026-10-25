@@ -1807,7 +1807,7 @@ ImPreeditStartCallback(XIC xic,
   Widget real = NULL;
 
   if (!client_data){
-    assert(False);
+    return 0;
   }
 
   {
@@ -1833,7 +1833,7 @@ ImPreeditDoneCallback(XIC xic,
   Widget real = NULL;
 
   if (!client_data){
-    assert(False);
+    return;
   }
  
   if ((icp = callback_xic(w)) == NULL) return;
