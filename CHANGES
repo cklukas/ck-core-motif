@@ -138,6 +138,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  docs/mrm-find-indexed-output.md.
 
 2026-10-25
+	* Reject null Mrm indexed-resource index/context inputs before lookup; see
+	  docs/mrm-idb-indexed-inputs.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,

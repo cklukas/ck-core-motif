@@ -602,3 +602,4 @@ EXTRA_DIST += tests/automated/check-mrm-table-offset-bounds.py docs/mrm-table-of
 EXTRA_DIST += tests/automated/check-mrm-openhierarchy-os-input.py docs/mrm-openhierarchy-os-input.md
 EXTRA_DIST += tests/automated/check-mrm-open-name-input.py docs/mrm-open-name-input.md
 EXTRA_DIST += tests/automated/check-mrm-find-indexed-output.py docs/mrm-find-indexed-output.md
+EXTRA_DIST += tests/automated/check-mrm-idb-indexed-inputs.py docs/mrm-idb-indexed-inputs.md
