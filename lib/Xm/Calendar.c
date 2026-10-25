@@ -3,6 +3,7 @@
 #endif
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 #include <Xm/CalendarP.h>
@@ -126,6 +127,24 @@ static void normalize_visible(XmCalendarWidget calendar) {
     calendar->calendar.visible_month = calendar->calendar.date.month;
 }
 
+static int text_baseline(XmCalendarWidget calendar, int top, int height) {
+    XGCValues values;
+    XFontStruct *font;
+    long long baseline;
+    if (!calendar->calendar.gc ||
+        !XGetGCValues(XtDisplay((Widget)calendar), calendar->calendar.gc,
+                      GCFont, &values))
+        return top + height / 2;
+    font = XQueryFont(XtDisplay((Widget)calendar), values.font);
+    if (!font)
+        return top + height / 2;
+    baseline = (long long)top +
+        ((long long)height - font->ascent - font->descent) / 2 + font->ascent;
+    XFreeFontInfo(NULL, font, 1);
+    return baseline < INT_MIN ? INT_MIN :
+           baseline > INT_MAX ? INT_MAX : (int)baseline;
+}
+
 static void notify_date(XmCalendarWidget calendar, XEvent *event,
                         String callback_name, int reason) {
     XmCalendarCallbackStruct callback;
@@ -245,14 +264,15 @@ static void draw_day(XmCalendarWidget calendar, int col, int row, int day,
     int x = col * cell_width + 4;
     if (!calendar->calendar.gc || cell_width < 1)
         return;
-    int y = 48 + row * 22;
+    int top = 42 + row * 22;
     char text[12];
     snprintf(text, sizeof(text), "%2d", day);
     if (selected)
-        XDrawRectangle(display, window, calendar->calendar.gc, x - 2, y - 15,
+        XDrawRectangle(display, window, calendar->calendar.gc, x - 2, top + 1,
                        (unsigned)(cell_width > 5 ? cell_width - 5 : 1), 20);
     if (enabled)
-        XDrawString(display, window, calendar->calendar.gc, x, y, text, 2);
+        XDrawString(display, window, calendar->calendar.gc, x,
+                    text_baseline(calendar, top, 22), text, 2);
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {
@@ -275,13 +295,15 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     XClearWindow(display, window);
     snprintf(heading, sizeof(heading), "%s %d", month_name(calendar->calendar.visible_month),
              calendar->calendar.visible_year);
-    XDrawString(display, window, calendar->calendar.gc, 6, 16, heading,
+    XDrawString(display, window, calendar->calendar.gc, 6,
+                text_baseline(calendar, 0, 28), heading,
                 (int)strlen(heading));
     for (index = 0; index < 7; ++index) {
         int col = calendar->calendar.rtl ? 6 - index : index;
         int weekday = (calendar->calendar.week_start + index) % 7;
-        XDrawString(display, window, calendar->calendar.gc, col * ((int)calendar->core.width / 7) + 5,
-                    36, weekdays[weekday], 2);
+        XDrawString(display, window, calendar->calendar.gc,
+                    col * ((int)calendar->core.width / 7) + 5,
+                    text_baseline(calendar, 28, 14), weekdays[weekday], 2);
     }
     for (day = 1; day <= days; ++day) {
         XmCalendarDate candidate = {calendar->calendar.visible_year,

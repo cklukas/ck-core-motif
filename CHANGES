@@ -119,6 +119,13 @@ DataGrid font-aware text layout (2026-10-27)
   instead of fixed sixteen-pixel baselines, so larger and smaller application
   fonts remain vertically aligned within their row geometry.
 
+Calendar font-aware text layout (2026-10-27)
+============================================
+
+- Derive the month heading, weekday labels, and day-number baselines from the
+  active X font rather than fixed y coordinates, keeping calendar text aligned
+  when applications use a different font size.
+
 InfoBar close control and FontSelector bounds (2026-10-27)
 ============================================================
 

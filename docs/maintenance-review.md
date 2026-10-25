@@ -70,3 +70,10 @@ and left larger fonts visually off-centre.  The focused check is:
 ```sh
 python3 tests/automated/check-datagrid-text-metrics.py
 ```
+
+Calendar headings, weekday labels, and day numbers now use measured font
+baselines as well.  The focused check is:
+
+```sh
+python3 tests/automated/check-calendar-text-metrics.py
+```
