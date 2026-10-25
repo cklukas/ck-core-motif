@@ -396,6 +396,9 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
 		XtRealloc((XtPointer) XmHierarchy_top_node(tw),
 			  sizeof(TreeConstraintRec)));
 
+    if (top_node == NULL)
+	return;
+
     XmHierarchy_top_node(tw) = (HierarchyConstraints) top_node;
 
     XmTree_ul_point(tw).x = XmTree_ul_point(tw).y = 0;
@@ -406,6 +409,8 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
     XmTreeC_placed(top_node) = False;
 
     XmTree_child_op_list(tw) = _XmListInit();
+    if (XmTree_child_op_list(tw) == NULL)
+	return;
 
     /* 
      * Set the initial values for XmTreeC_max_width(tw) and XmTreeC_max_height(tw).

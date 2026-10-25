@@ -8441,3 +8441,9 @@ ColorObj screen allocation (2026-10-27)
 
 - Release and clear partially allocated per-screen color, atom, and usage
   arrays when ColorObj initialization cannot allocate the complete bundle.
+
+Tree initialization allocation (2026-10-27)
+============================================
+
+- Check the resized top-node constraint and child-operation list allocations
+  before using them during Tree initialization.
