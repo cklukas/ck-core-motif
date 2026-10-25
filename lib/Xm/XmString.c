@@ -1098,6 +1098,10 @@ XmStringInitContext(
   }
 
   ct = (XmStringContext) XtMalloc(sizeof(_XmStringContextRec));
+  if (ct == NULL) {
+	_XmProcessUnlock();
+	return (FALSE);
+  }
   _XmStringContextReInit(ct, string);
    
   *context = ct;

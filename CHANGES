@@ -6139,3 +6139,10 @@ Fix XmString parser rendition sizing (2026-10-25)
   after success, preventing normal 64-bit under-allocation; see
   `docs/xmstring-parser-rendition-size.md` and its focused source check.
 
+Guard XmString context initialization (2026-10-25)
+===================================================
+
+- Check context-record allocation before initialization and return `FALSE`
+  cleanly under allocation pressure; see
+  `docs/xmstring-context-init-allocation.md` and its focused source check.
+
