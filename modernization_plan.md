@@ -561,8 +561,9 @@ x86_64 installed cohort now passes the baseline, WML token, non-text Unicode,
 accessibility-menu, XLibre DPI-contract, independent-client DnD and C++
 fixtures (including the C++ ASan/UBSan run); this is recorded admission
 evidence, not complete x86_64 text/IME or accessibility acceptance. The full
-optional `demos/lib/Exm` tree remains outside that admission because its legacy
-headers lack required Xt declarations. The matrix does not treat unavailable
+optional `demos/lib/Exm` tree now also compiles in that cohort after removing
+its case-insensitive `String.h`/`<string.h>` collision; its historical warnings
+remain outside the toolkit warning gate. The matrix does not treat unavailable
 services or interposed callbacks as provider passes.
 
 The native feature runner now accepts repeated `--runtime-library-dir`
