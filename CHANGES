@@ -1,3 +1,10 @@
+Guard text segment temporary buffers (2026-10-25)
+================================================
+
+- Check locale, charset, and separator buffer allocations in `GetTextSegment`
+  and reject incomplete segments cleanly; see
+  `docs/motif-txtpropcv-segment.md`.
+
 Guard text-property conversion result growth (2026-10-25)
 ===========================================================
 
