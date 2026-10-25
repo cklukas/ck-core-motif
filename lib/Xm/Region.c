@@ -1108,9 +1108,13 @@ miRegionOp(
 	     * No point in doing the extra work involved in an XtRealloc if
 	     * the region is empty
 	     */
-	    newReg->size = 1;
-	    XtFree((char *) newReg->rects);
-	    newReg->rects = (XmRegionBox *) XtMalloc(sizeof(XmRegionBox));
+	    XmRegionBox *new_rects = (XmRegionBox *)XtMalloc(
+						 sizeof(XmRegionBox));
+	    if (new_rects != NULL) {
+		XtFree((char *)newReg->rects);
+		newReg->rects = new_rects;
+		newReg->size = 1;
+	    }
 	}
     }
     XtFree ((char *) oldRects);

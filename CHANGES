@@ -1,3 +1,10 @@
+Region empty-shrink allocation (2026-10-25)
+============================================
+
+- Make the empty-region rectangle shrink transactional, retaining existing
+  storage when the replacement allocation fails instead of publishing a null
+  rectangle array.
+
 Picture parsing and state allocation (2026-10-25)
 =================================================
 
