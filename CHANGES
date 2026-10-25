@@ -10131,6 +10131,12 @@ Subresource transformation bounds (2026-10-25)
 - Validate compiled-subresource copy sizes before allocation, returning an
   empty resource list on overflow; see `docs/transform-subresources-bounds.md`.
 
+Legacy default-color cache allocation (2026-10-25)
+==================================================
+
+- Grow the default-color pointer cache transactionally, with overflow and
+  allocation-failure handling; see `docs/default-colors-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

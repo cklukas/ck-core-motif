@@ -1042,6 +1042,8 @@ _XmGetDefaultColors(
         XrmValue args[2];
         Cardinal num_args;
 	String default_string = XtDefaultBackground;
+	XmColorData **new_default_set;
+	int new_default_set_size;
 
 	/*  Look through  a set of screen / background pairs to see  */
 	/*  if the default is already in the table.                  */
@@ -1057,16 +1059,29 @@ _XmGetDefaultColors(
   
 	if (default_set == NULL)
 	{
-		default_set_size = 10;
-		default_set = (XmColorData **) XtRealloc((char *) default_set, 
-			(sizeof(XmColorData *) * default_set_size));
+		new_default_set_size = 10;
 		
 	}
 	else if (default_set_count == default_set_size)
 	{
-		default_set_size += 10;
-		default_set = (XmColorData **) XtRealloc((char *) default_set, 
-			sizeof(XmColorData *) * default_set_size);
+		if (default_set_size > INT_MAX - 10)
+			return NULL;
+		new_default_set_size = default_set_size + 10;
+	}
+	else
+		new_default_set_size = 0;
+
+	if (new_default_set_size != 0) {
+		if ((size_t)new_default_set_size >
+		    SIZE_MAX / sizeof(XmColorData *))
+			return NULL;
+		new_default_set = (XmColorData **) XtRealloc(
+			(char *) default_set,
+			sizeof(XmColorData *) * (size_t)new_default_set_size);
+		if (new_default_set == NULL)
+			return NULL;
+		default_set = new_default_set;
+		default_set_size = new_default_set_size;
 	}
 
 	/* Find the background based on the depth of the screen */
