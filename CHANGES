@@ -1,3 +1,9 @@
+PushButton erase-shadow bounds (2026-10-25)
+===========================================
+
+- Guard default-shadow erasure against collapsed dimensions and unsigned
+  subtraction wraparound; see `docs/pushb-erase-shadow-bounds.md`.
+
 PushButton default-glyph bounds (2026-10-25)
 ============================================
 
