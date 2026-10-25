@@ -13387,6 +13387,12 @@ DatePicker popup creation safety (2026-10-26)
 - Check lazy popup-shell and calendar creation and clean partial shells before
   using child widgets; see `docs/datepicker-popup-creation.md`.
 
+DatePicker popup positioning (2026-10-26)
+=========================================
+
+- Clamp popups larger than the screen to zero instead of producing negative
+  coordinates; see `docs/datepicker-popup-position.md`.
+
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================
 

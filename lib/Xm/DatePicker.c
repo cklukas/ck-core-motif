@@ -135,9 +135,13 @@ static void position_popup(XmDatePickerWidget picker) {
     screen = XtScreen(picker->date_picker.popup_shell);
     if (x < 0) x = 0;
     if (y < 0) y = 0;
-    if ((int)x + (int)popup_width > WidthOfScreen(screen))
+    if (popup_width >= (Dimension)WidthOfScreen(screen))
+        x = 0;
+    else if ((int)x + (int)popup_width > WidthOfScreen(screen))
         x = (Position)(WidthOfScreen(screen) - popup_width);
-    if ((int)y + (int)popup_height > HeightOfScreen(screen))
+    if (popup_height >= (Dimension)HeightOfScreen(screen))
+        y = 0;
+    else if ((int)y + (int)popup_height > HeightOfScreen(screen))
         y = (Position)(HeightOfScreen(screen) - popup_height);
     XtVaSetValues(picker->date_picker.popup_shell, XtNx, x, XtNy, y, NULL);
 }
