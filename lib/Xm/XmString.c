@@ -7033,19 +7033,40 @@ Clone(XmString string,
     {
       int i;
       _XmString n_string;
+      _XmStringEntry *entries;
 
       _XmStrCreate(n_string, XmSTRING_MULTIPLE_ENTRY, 0);
+
+      if (lines < 0 || (size_t)lines > SIZE_MAX / sizeof(*entries) ||
+	  (size_t)lines * sizeof(*entries) > (size_t)((Cardinal)~0)) {
+	_XmStrFree(n_string);
+	return NULL;
+      }
 
       _XmStrImplicitLine(n_string) = _XmStrImplicitLine(string);
       
       _XmStrEntryCount(n_string) = _XmStrEntryCount(string);
-      _XmStrEntry(n_string) = (_XmStringEntry *) 
-	XtMalloc(sizeof(_XmStringEntry) * lines);
+      entries = (_XmStringEntry *)XtMalloc((Cardinal)((size_t)lines *
+						 sizeof(*entries)));
+      if (entries == NULL) {
+	_XmStrFree(n_string);
+	return NULL;
+      }
+      _XmStrEntry(n_string) = entries;
       
-      for (i = 0; i < _XmStrEntryCount(string); i++) 
-	_XmStrEntry(n_string)[i] = _XmStringEntryCopy(_XmStrEntry(string)[i]);
+      for (i = 0; i < _XmStrEntryCount(string); i++) {
+	entries[i] = _XmStringEntryCopy(_XmStrEntry(string)[i]);
+	if (entries[i] == NULL) {
+	  int j;
+	  for (j = 0; j < i; j++)
+	    _XmStringEntryFree(entries[j]);
+	  XtFree((char *)entries);
+	  _XmStrFree(n_string);
+	  return NULL;
+	}
+      }
       for (i = _XmStrEntryCount(string); i < lines; i++) 
-	_XmStrEntry(n_string)[i] = NULL;
+	entries[i] = NULL;
 
       new_string = (XmString)n_string;
     }
