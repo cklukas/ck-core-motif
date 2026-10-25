@@ -1,3 +1,10 @@
+XmeDrawShadows graphics-context guards (2026-10-26)
+====================================================
+
+- Return early when a shadow graphics context is missing, avoiding invalid
+  Xlib draw calls during partial initialization or teardown; see
+  `docs/draw-shadow-gc-guards.md`.
+
 XmeDrawHighlight bounds (2026-10-26)
 ======================================
 

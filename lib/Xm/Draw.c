@@ -140,7 +140,7 @@ void XmeDrawShadows(Display *display, Drawable d,
     XtAppContext app;
     int inner_width, inner_height, inner_thickness;
 
-    if(!d) return ;
+    if(!d || !top_gc || !bottom_gc) return ;
 
     app = XtDisplayToApplicationContext(display);
 
