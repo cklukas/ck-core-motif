@@ -10448,6 +10448,13 @@ _get_generate_parse_table (XmParseTable *gen_table)
   _XmProcessUnlock();
   XmStringFree(tmp);
 
+  if (table[0] == NULL) {
+    XtFree((char *)table);
+    table = NULL;
+    *gen_table = NULL;
+    return 0;
+  }
+
   /* Parse newline characters. */
   tmp = XmStringSeparatorCreate();
   nargs = 0;
@@ -10458,6 +10465,15 @@ _get_generate_parse_table (XmParseTable *gen_table)
   _XmProcessLock();
   table[index++] = XmParseMappingCreate(args, nargs);
   _XmProcessUnlock();
+  XmStringFree(tmp);
+
+  if (table[1] == NULL) {
+    XmParseMappingFree(table[0]);
+    XtFree((char *)table);
+    table = NULL;
+    *gen_table = NULL;
+    return 0;
+  }
 
   assert(index == table_size);
 

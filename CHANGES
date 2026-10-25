@@ -5,6 +5,13 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+Generated XmString parse-table cleanup (2026-10-26)
+=====================================================
+
+- Release generated newline substitutes and roll back partially built cached
+  parse tables after mapping allocation failure; see
+  `docs/xmstring-generated-table-cleanup.md`.
+
 XmStringUnparse parse-table validation (2026-10-26)
 =====================================================
 
