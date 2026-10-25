@@ -1,3 +1,10 @@
+Manager class-extension allocation (2026-10-25)
+================================================
+
+- Check inherited composite and manager class-extension allocations before
+  copying or initializing them, failing closed instead of dereferencing null
+  extension records during class setup.
+
 Protocol manager allocation (2026-10-25)
 =========================================
 

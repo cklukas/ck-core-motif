@@ -681,6 +681,8 @@ ClassPartInitialize(
 	XtPointer *comp_extP
 	    = &((CompositeWidgetClass)wc)->composite_class.extension;
 	comp_ext = XtNew(CompositeClassExtensionRec);
+	if (comp_ext == NULL)
+	    return;
 	memcpy(comp_ext, FindCompClassExtension(wc->core_class.superclass),
 	       sizeof(CompositeClassExtensionRec));
 	comp_ext->next_extension = *comp_extP;
@@ -708,6 +710,8 @@ ClassPartInitialize(
 
     if (*mext == NULL) {
 	*mext = (XmManagerClassExt) XtCalloc(1, sizeof(XmManagerClassExtRec));
+	if (*mext == NULL)
+	    return;
 	(*mext)->record_type     = NULLQUARK ;
 	(*mext)->version = XmManagerClassExtVersion ;
 	(*mext)->record_size     = sizeof( XmManagerClassExtRec) ;
