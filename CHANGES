@@ -37,6 +37,12 @@ XLibre RandR query bounds (2026-10-26)
   to global DPI. The source contract remains in
   `tests/automated/check-xlibre-lifetime.py`.
 
+Legacy XmString constructor locking (2026-10-26)
+=================================================
+
+- Avoid recursive locking in `XmStringLtoRCreate`; see
+  `docs/xmstring-obsolete-locking.md`.
+
 Gallery screenshot qualification receipts (2026-10-25)
 ========================================================
 

@@ -2009,6 +2009,11 @@ contract. Its allocation-failure cleanup uses the internal rendition and
 handle release helpers while the lock is held, avoiding recursive public
 locking without changing the returned-array ownership contract. The installed
 source test is `tests/automated/check-render-table-rendition-array.py`.
+`XmStringLtoRCreate` likewise no longer holds the process lock while entering
+direction, concatenation and separator constructors; its compatibility
+ownership contract is protected by
+`tests/automated/check-xmstring-obsolete-locking.py` and
+`docs/xmstring-obsolete-locking.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the

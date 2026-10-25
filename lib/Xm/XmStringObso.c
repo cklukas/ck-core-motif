@@ -51,11 +51,8 @@ XmStringLtoRCreate(
   Boolean done;
   XmString string;
 
-  _XmProcessLock();
-  if (!text) {
-	_XmProcessUnlock();
+  if (!text)
 	return (NULL);
-  }
 
   start = text;
   done = FALSE;
@@ -86,7 +83,6 @@ XmStringLtoRCreate(
       }
     }
 
-  _XmProcessUnlock();
   return (string);
 }
 
