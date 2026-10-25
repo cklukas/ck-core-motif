@@ -5837,3 +5837,10 @@ Guard XmString tab-list construction (2026-10-25)
   `docs/motif-xmstring-tablist.md`.
 
 Fix XmString table splitting allocation and indexing (2026-10-25)
+Guard XmString tab-list growth (2026-10-25)
+============================================
+
+- Clean up and return safely when tab creation fails during tab-list growth;
+  see `docs/motif-xmstring-tab-growth.md`.
+
+Guard XmString tab-list construction (2026-10-25)

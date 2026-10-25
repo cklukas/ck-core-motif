@@ -792,6 +792,12 @@ XmStringTableProposeTablist(XmStringTable strings,
 	    {
 	      tab = XmTabCreate(0.0, units, offset_model,
 				XmALIGNMENT_BEGINNING, ".");
+	      if (tab == NULL) {
+		_XmStringContextFree(&stack_ctx);
+		XmTabListFree(tl);
+		_XmProcessUnlock();
+		return ((XmTabList)NULL);
+	      }
 	      start = _XmTabLStart(tl);
 	      prev = _XmTabPrev(start);
 	      
