@@ -1,3 +1,9 @@
+CascadeButton armed fill guard (2026-10-25)
+===========================================
+
+- Skip etched-in armed background fills when the arm GC or widget dimensions
+  are unavailable; see `docs/cascade-button-armed-fill-guard.md`.
+
 CascadeButton pixmap draw guards (2026-10-25)
 ==============================================
 

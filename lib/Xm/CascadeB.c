@@ -609,9 +609,12 @@ Redisplay(
 
 	if (etched_in) {
 #ifdef FIX_1509
-		if (CB_IsArmed(cb))
-		    XFillRectangle(XtDisplay(cb), XtWindow(cb), CB_ArmGC(cb),
-				   0, 0, cb->core.width, cb->core.height);
+		if (CB_IsArmed(cb)) {
+                    if (CB_ArmGC(cb) != NULL &&
+                        cb->core.width != 0 && cb->core.height != 0)
+		        XFillRectangle(XtDisplay(cb), XtWindow(cb), CB_ArmGC(cb),
+				       0, 0, cb->core.width, cb->core.height);
+                }
 		else
 	        XClearArea(XtDisplay(cb), XtWindow(cb),
 				0, 0, cb->core.width, cb->core.height, False);
