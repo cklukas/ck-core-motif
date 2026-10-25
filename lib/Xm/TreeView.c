@@ -281,8 +281,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Window window = XtWindow(widget);
     Cardinal row, total = visible_count(view);
     int index;
+    const char *label;
     (void)event; (void)region;
-    if (!window)
+    if (!window || !view->tree_view.gc)
         return;
     XClearWindow(display, window);
     for (row = 0; row < view->tree_view.visible_rows; ++row) {
@@ -295,7 +296,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             break;
         if (view->tree_view.items[index].id == view->tree_view.selected_id)
             XDrawRectangle(display, window, view->tree_view.gc, 1, y + 1,
-                           view->core.width - 3, view->tree_view.row_height - 3);
+                           view->core.width > 3 ? view->core.width - 3 : 1,
+                           view->tree_view.row_height > 3 ?
+                           view->tree_view.row_height - 3 : 1);
         if (!view->tree_view.rtl)
             x = 4 + depth_of(view, (Cardinal)index) * view->tree_view.indent;
         else
@@ -308,16 +311,19 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                 draw_disclosure(view, x - 10, y,
                                 view->tree_view.items[index].expanded);
         }
+        label = view->tree_view.items[index].label ?
+                view->tree_view.items[index].label : "";
         if (!view->tree_view.rtl)
             x += 14;
         else
-            x -= (int)strlen(view->tree_view.items[index].label) * 8 + 4;
+            x -= (int)strlen(label) * 8 + 4;
         XDrawString(display, window, view->tree_view.gc, x,
                     y + (int)view->tree_view.row_height - 6,
-                    view->tree_view.items[index].label,
-                    (int)strlen(view->tree_view.items[index].label));
+                    label, (int)strlen(label));
     }
-    if (view->primitive.highlighted && view->primitive.highlight_thickness)
+    if (view->primitive.highlighted && view->primitive.highlight_thickness &&
+        view->core.width > 2 * view->primitive.highlight_thickness &&
+        view->core.height > 2 * view->primitive.highlight_thickness)
         XDrawRectangle(display, window, view->tree_view.gc,
                        view->primitive.highlight_thickness - 1,
                        view->primitive.highlight_thickness - 1,
