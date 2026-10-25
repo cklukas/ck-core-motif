@@ -59,6 +59,11 @@ the out-of-tree rule supplies it. The bootstrap still emits pre-existing
 missing-lexer or generated-parser error occurred, and the warnings are not
 described as a warning-free build.
 
+The WML key-table emitter now converts its bounded keyword length once to the
+`int` field required by the generated table, eliminating the `size_t`/`%d`
+format mismatch while retaining the existing generated output. The source
+contract verifier checks this conversion.
+
 UIL modules that export only literals or icons have no top-level widget
 descriptors. `UrmIFMInitModule` now writes the valid empty descriptor table for
 that case, so the `demos/programs/animate/dog.uil` full-tree target succeeds;

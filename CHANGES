@@ -12,6 +12,9 @@ Optional ckmotif++ support package and WML build graph (2026-10-25)
   prerequisites, `libXm.la`, and `tools/wml`) now records successful
   out-of-tree `wmllex.c` generation and `wml`/`wmluiltok`/`wmldbcreate` build;
   see `docs/wml-build.md`.
+- Make the WML key-table emitter's bounded keyword length conversion explicit,
+  removing its `size_t`/`%d` format warning without changing generated table
+  contents; the source-contract check covers the conversion.
 
 Same-process drag-and-drop transfer qualification (2026-10-25)
 ===============================================================

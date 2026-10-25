@@ -603,6 +603,7 @@ void wmlOutputUilKeyTabBody (outfil, tokvec, maxlen, maxkey)
 int			ndx;		/* loop index */
 WmlKeyWTokenPtr		tok;		/* current token */
 char			*tokstg;	/* string for token (keyword) */
+int			toklen;		/* generated table stores an int length */
 char			tkclass[100];	/* token class string */
 char			tksym[100];	/* token sym_k string */
 char			tktoken[100];	/* token tkn_k_num string */
@@ -615,17 +616,19 @@ for ( ndx=0 ; ndx<tokvec->cnt ; ndx++ )
     {
     tok = (WmlKeyWTokenPtr) tokvec->hvec[ndx].objptr;
     tokstg = tokvec->hvec[ndx].objname;
+    /* wmllex.c bounds identifiers below the generated table's int range. */
+    toklen = (int) strlen (tokstg);
     wmlTokenClassString (tkclass, tok);
     wmlTokenSymKString (tksym, tok);
     wmlTokenTokenString (tktoken, tok);
     fprintf (outfil, "    {%s, %s, %d, %s, \"%s\"},\n",
 	     tkclass,
 	     tksym,
-	     strlen(tokstg),
+	     toklen,
 	     tktoken,
 	     tokstg);
-    if ( (int)strlen(tokstg) > *maxlen )
-	*maxlen = strlen (tokstg);
+    if ( toklen > *maxlen )
+	*maxlen = toklen;
     *maxkey += 1;
     }
 
