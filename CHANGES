@@ -6382,6 +6382,14 @@ Guard Font selector alternate-family counts (2026-10-25)
   the temporary XmString array; see
   `docs/motif-fonts-size-list-allocation.md`.
 
+Command and message-dialog argument allocation bounds (2026-10-25)
+====================================================================
+
+- Reject unrepresentable temporary argument-list byte sizes in
+  `XmCreateCommand` and message-dialog convenience constructors before
+  multiplication or allocation. Empty argument lists are handled safely when
+  their pointer is null; see `docs/command-message-argument-allocation.md`.
+
 Bound legacy resource-filter byte sizes (2026-10-25)
 =====================================================
 
