@@ -140,6 +140,13 @@ WSM attribute-list allocation guards (2026-10-25)
   values, resetting failed non-empty records safely; see
   `docs/wsm-single-data-oom.md`.
 
+WSM unsupported attribute-size guard (2026-10-25)
+===================================================
+
+- Convert unsupported WSM attribute widths into an inert zero-length record,
+  avoiding undefined dispatch state for malformed wire metadata; see
+  `docs/wsm-attr-size.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 

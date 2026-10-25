@@ -1336,6 +1336,10 @@ UnpackSingleWinDataRec(MessageData *data_ptr,
 	    win_data->data.value = UnpackCARD32(data_ptr);
 
 	break;
+	default:
+	win_data->type = WSM_NONE;
+	win_data->data_len = 0;
+	break;
     }
 }
 
