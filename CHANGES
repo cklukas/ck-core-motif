@@ -10283,6 +10283,12 @@ GeoUtils child-list input guard (2026-10-25)
 - Treat a null geometry list passed to `_XmSetKidGeo` as a safe no-op; see
   `docs/geo-set-kid-input.md`.
 
+GeoUtils comparison input validation (2026-10-25)
+=================================================
+
+- Require a widget and both geometry records before `_XmGeometryEqual`
+  evaluates request masks; see `docs/geo-equal-input-validation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

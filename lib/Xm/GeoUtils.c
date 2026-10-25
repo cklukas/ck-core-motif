@@ -2632,7 +2632,7 @@ _XmGeometryEqual(
         XtWidgetGeometry *geoB )
 {
 /****************/
-    if(!geoA){ /* For fixing OSF CR 5956 */
+    if(wid == NULL || !geoA || !geoB){ /* For fixing OSF CR 5956 */
          return(False);
     }
 
