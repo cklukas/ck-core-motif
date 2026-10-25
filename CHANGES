@@ -1,3 +1,10 @@
+MWM workspace-title initialization rollback (2026-10-28)
+===========================================================
+
+- Preserve a configured workspace title when its private `XmStringCopy`
+  fails, keeping MWM title handling usable under allocation pressure; see
+  `docs/mwm-workspace-title-init-rollback.md`.
+
 FileSelectionBox initialization-copy rollback (2026-10-28)
 ==============================================================
 

@@ -5253,6 +5253,9 @@ ProcessWorkspaceList (WmScreenData *pSD)
 void 
 ProcessWorkspaceResources (WmWorkspaceData *pWS)
 {
+#ifdef WSM
+    XmString replacement;
+#endif
 
     /*
      * Retrieve workspace specific resources.
@@ -5307,7 +5310,9 @@ ProcessWorkspaceResources (WmWorkspaceData *pWS)
 	* Duplicates point to the same data, freeing on 
 	* rename can cause a crash.
 	*/
-	pWS->title = XmStringCopy(pWS->title);
+	replacement = XmStringCopy(pWS->title);
+	if (replacement != NULL)
+	    pWS->title = replacement;
 
     }
 
