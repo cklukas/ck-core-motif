@@ -262,6 +262,8 @@ Render-table locking (2026-10-26)
   of copying malformed data; see `docs/render-table-tag-entry-guards.md`.
 - Make render-table property export reject malformed entries and missing font
   names transactionally; see `docs/render-table-export-entry-guards.md`.
+- Normalize both nullable rendition tags during XmString substring matching;
+  see `docs/xmstring-substring-null-tags.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================

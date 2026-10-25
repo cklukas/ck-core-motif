@@ -3624,6 +3624,7 @@ SubStringPosition(
   char *a = (char*) _XmEntryTextGet(seg); 
   char *b = (char*) _XmEntryTextGet(under_seg);
   char *seg_tag = _XmEntryTag(seg);
+  char *under_tag = _XmEntryTag(under_seg);
   int i, j, k, begin, max, width;
   unsigned int seg_len, under_seg_len;
   Boolean fail;
@@ -3634,11 +3635,13 @@ SubStringPosition(
   
   if (seg_tag == NULL)
     seg_tag = XmFONTLIST_DEFAULT_TAG;
+  if (under_tag == NULL)
+    under_tag = XmFONTLIST_DEFAULT_TAG;
   
-  if (!((seg_tag == _XmEntryTag(under_seg)) ||
+  if (!((seg_tag == under_tag) ||
 	((strcmp(seg_tag, XmFONTLIST_DEFAULT_TAG) == 0) &&
-	 _XmStringIsCurrentCharset(_XmEntryTag(under_seg))) ||
-	((strcmp(_XmEntryTag(under_seg), XmFONTLIST_DEFAULT_TAG) == 0) &&
+	 _XmStringIsCurrentCharset(under_tag)) ||
+	((strcmp(under_tag, XmFONTLIST_DEFAULT_TAG) == 0) &&
 	 _XmStringIsCurrentCharset(seg_tag))))
     return;
   
