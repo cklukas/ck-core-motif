@@ -1428,7 +1428,8 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 
 	{
 		XmString *strs;
-		if ((size_t)count > SIZE_MAX / sizeof(*strs)) {
+		if ((size_t)count > SIZE_MAX / sizeof(*strs) ||
+		    (size_t)count > UINT_MAX / sizeof(*strs)) {
 		    XtFree((char *)color_info);
 		    return;
 		}

@@ -41,6 +41,12 @@ Container child-array Xt byte bounds (2026-10-28)
   snapshots, in addition to existing `size_t` checks; see the Container
   allocation notes in `docs/`.
 
+ColorSelector list Xt byte bounds (2026-10-28)
+==============================================
+
+- Check Xt `Cardinal` byte limits before building the temporary ColorSelector
+  `XmString` list; see `docs/color-selector-list-allocation.md`.
+
 Compound-text concatenation failure handling (2026-10-28)
 ============================================================
 
