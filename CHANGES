@@ -1,3 +1,9 @@
+Guard Text TARGETS allocation (2026-10-25)
+===========================================
+
+- Refuse TARGETS conversion cleanly when the standard target array cannot be
+  allocated; see `docs/motif-textsel-targets.md`.
+
 Guard Text UTF-8 value allocation (2026-10-25)
 ===============================================
 

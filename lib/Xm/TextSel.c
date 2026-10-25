@@ -484,7 +484,10 @@ _XmTextConvert(
    */
   if (*target == atoms[XmATARGETS]) {
     Atom *targs = XmeStandardTargets(w, 10, &target_count);
-    
+    if (targs == NULL) {
+      *value = NULL;
+      return False;
+    }
     *value = (XtPointer) targs;
     if (XA_STRING != CS_OF_ENCODING) {
       targs[target_count] = CS_OF_ENCODING;  target_count++;
