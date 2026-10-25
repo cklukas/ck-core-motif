@@ -6047,3 +6047,10 @@ Guard drag-source setup allocations (2026-10-25)
   target cleanup in `XmeDragSource`; see `docs/drag-source-allocation.md`.
 
 Bound locale text aggregation allocation (2026-10-25)
+Guard drop-sink setup allocations (2026-10-25)
+===============================================
+
+- Validate copied argument capacity and allocation in `XmeDropSink`; see
+  `docs/drop-sink-allocation.md`.
+
+Guard drag-source setup allocations (2026-10-25)

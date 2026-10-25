@@ -1432,9 +1432,19 @@ XmeDropSink(Widget w, ArgList in_args, Cardinal in_arg_count)
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
+  if (in_arg_count > (Cardinal)(INT_MAX - 2) ||
+      (in_arg_count != 0 && in_args == NULL) ||
+      (size_t)(in_arg_count + 2) > (size_t)-1 / sizeof(*args)) {
+    _XmAppUnlock(app);
+    return;
+  }
   /* merge and copy arg list */
   arg_count = in_arg_count + 2;
-  args = (Arg *) XtMalloc(sizeof(Arg) * arg_count);
+  args = (Arg *)XtMalloc(sizeof(*args) * (size_t)arg_count);
+  if (args == NULL) {
+    _XmAppUnlock(app);
+    return;
+  }
   for(arg_count = 0; arg_count < in_arg_count; arg_count++)
     args[arg_count] = in_args[arg_count];
 
