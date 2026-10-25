@@ -504,7 +504,7 @@ static Boolean match_pattern(XtPointer      text,
 			     XmParseMapping pattern,
 			     int            char_len,
 			     Boolean        dir_change);
-static void parse_unmatched(XmString  *result,
+static Boolean parse_unmatched(XmString  *result,
 			    char     **ptr,
 			    XmTextType text_type,
 			    int        length);
@@ -8346,7 +8346,7 @@ match_pattern(XtPointer      text,
  * parse_unmatched: A Helper routine for XmStringParseText.  Produce
  *	a component for characters that weren't matched by any pattern.
  */
-static void
+static Boolean
 parse_unmatched(XmString  *result,
 		char     **ptr,
 		XmTextType text_type,
@@ -8358,7 +8358,7 @@ parse_unmatched(XmString  *result,
 
   /* Do nothing if there are no unmatched bytes. */
   if (length <= 0)
-    return;
+    return True;
 
   /* Choose a component type. */
   switch (text_type)
@@ -8374,17 +8374,20 @@ parse_unmatched(XmString  *result,
       break;
 
     default:
-      return;
+      return False;
     }
 
   /* Can't concat without copying both strings? */
   tmp_1 = *result;
   tmp_2 = XmStringComponentCreate(ctype, length, (XtPointer) *ptr);
   if (tmp_2 == NULL)
-    return;
+    return False;
 
   *result = XmStringConcatAndFree(tmp_1, tmp_2);
+  if (*result == NULL)
+    return False;
   *ptr += length;
+  return True;
 }
 
 /*
@@ -8579,7 +8582,11 @@ XmStringParseText(XtPointer    text,
       /* Match against an implicit XmDIRECTION_CHANGE pattern. */
       if (!has_dir_pattern && (ptr == dir_ptr))
 	{
-	  parse_unmatched(&result, &prev_ptr, type, ptr - prev_ptr);
+	  if (!parse_unmatched(&result, &prev_ptr, type, ptr - prev_ptr)) {
+	    XmStringFree(result);
+	    _XmProcessUnlock();
+	    return NULL;
+	  }
 	  advanced = 
 	    parse_pattern(&result, &ptr, end_ptr, tag, type,
 			  default_dir_pattern, len, call_data, &halt);
@@ -8591,7 +8598,11 @@ XmStringParseText(XtPointer    text,
 	  XmParseMapping pat = parse_table[index];
 	  if (match_pattern(ptr, tag, type, pat, len, (ptr == dir_ptr)))
 	    {
-	      parse_unmatched(&result, &prev_ptr, type, ptr - prev_ptr);
+	      if (!parse_unmatched(&result, &prev_ptr, type, ptr - prev_ptr)) {
+		XmStringFree(result);
+		_XmProcessUnlock();
+		return NULL;
+	      }
 	      advanced = parse_pattern(&result, &ptr, end_ptr, tag,
 				       type, pat, len, call_data, &halt);
 #ifdef FIX_1398	      
@@ -8618,7 +8629,11 @@ XmStringParseText(XtPointer    text,
     }
 
   /* Output and trailing unmatched characters. */
-  parse_unmatched(&result, &prev_ptr, type, ptr - prev_ptr);
+  if (!parse_unmatched(&result, &prev_ptr, type, ptr - prev_ptr)) {
+    XmStringFree(result);
+    _XmProcessUnlock();
+    return NULL;
+  }
 
   /* Return the true end of parsing if possible. */
   if (text_end)

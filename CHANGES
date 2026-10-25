@@ -288,6 +288,9 @@ Render-table locking (2026-10-26)
   segment allocation; see `docs/xmstring-unoptimize-cleanup.md`.
 - Propagate initial tag-component allocation failure from `XmStringParseText`;
   see `docs/xmstring-parse-initial-allocation.md`.
+- Make unmatched-component failure abort `XmStringParseText` instead of
+  retrying the same input indefinitely; see
+  `docs/xmstring-parse-unmatched-failure.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================
