@@ -1,3 +1,11 @@
+XLibre contract receipt provenance (2026-10-25)
+================================================
+
+- Extend `run-xlibre-dpi-contract.py` to write a durable `receipt.json` with
+  source hashes, display mode, exact compile/run commands, elapsed time and
+  installed `libXm` fingerprint. This keeps ordinary-Xvfb fallback evidence
+  distinct from future real-XLibre qualification.
+
 Display-scale transaction reentrancy guard (2026-10-25)
 =========================================================
 

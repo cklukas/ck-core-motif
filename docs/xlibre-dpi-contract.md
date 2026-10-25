@@ -49,8 +49,10 @@ selected scale rather than mixing output scales.
 The installed fixture checks the parser, ordinary-Xvfb fallback and this
 selection policy. Pass `--display` to the runner when a real XLibre display is
 available; in that mode every reported output must expose a valid `DPI`
-property. The live shell integration below is separately gated because it
-requires a real multi-output XLibre session.
+property. Each successful run writes `receipt.json` beside its logs with the
+source hashes, exact compile/run commands, display mode, elapsed time and
+installed-library fingerprint. The live shell integration below is separately
+gated because it requires a real multi-output XLibre session.
 
 ## Live shell integration (opt-in build)
 
