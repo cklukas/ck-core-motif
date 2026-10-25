@@ -53,6 +53,7 @@ static char rcsid[] = "$TOG: Mrmwcrw.c /main/20 1999/05/19 15:26:23 mgreess $"
  */
 #include <stdio.h>
 #include <stdint.h>
+#include <stddef.h>
 #include <string.h>
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
@@ -105,6 +106,29 @@ UrmWidgetStringValid(RGMWidgetRecordPtr widgetrec, MrmOffset offset)
     return False;
   return memchr((char *)widgetrec + offset, '\0',
                 widgetrec->size - offset) != NULL;
+}
+
+static Boolean
+UrmResourceRecordValid(RGMWidgetRecordPtr widgetrec, MrmOffset offset)
+{
+  size_t key_offset = offsetof(RGMResourceDesc, key);
+  size_t available;
+  RGMResourceDescPtr resptr;
+
+  if (offset < RGMWidgetRecordHdrSize || offset >= widgetrec->size ||
+      widgetrec->size - offset < key_offset + 1)
+    return False;
+  available = widgetrec->size - offset;
+  resptr = (RGMResourceDescPtr)((char *)widgetrec + offset);
+  if (resptr->size < key_offset + 1 || resptr->size > available)
+    return False;
+  if (resptr->type == URMrRID && resptr->size < sizeof(RGMResourceDesc))
+    return False;
+  if (resptr->type == URMrIndex &&
+      memchr((char *)resptr + key_offset, '\0',
+             resptr->size - key_offset) == NULL)
+    return False;
+  return True;
 }
 
 static Boolean
@@ -1425,6 +1449,9 @@ Urm__CW_CreateArglist (Widget			parent,
 	    break ;
 	  }
         case MrmRtypeResource:
+	  if (!UrmResourceRecordValid(widgetrec,
+				argptr->arg_val.datum.offset))
+	    continue;
 	  resptr = (RGMResourceDescPtr) val ;
 	  if ( resptr == NULL )
 	    continue ;
@@ -3657,6 +3684,9 @@ Urm__CW_FixupCallback (Widget			parent ,
       switch ( reptype )
         {
         case MrmRtypeResource:
+	  if (!UrmResourceRecordValid((RGMWidgetRecordPtr)bufptr,
+				itmptr->cb_item.datum.offset))
+	    return MrmFAILURE;
 	  resptr = (RGMResourceDescPtr) tag_val ;
 	  if ( resptr == NULL )
 	    return MrmFAILURE ;

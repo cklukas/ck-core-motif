@@ -86,6 +86,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  fixup; see docs/mrm-arg-callback-record-bounds.md.
 
 2026-10-25
+	* Validate embedded Mrm resource descriptor sizes, RID extents, and indexed
+	  keys before field access; see docs/mrm-resource-record-bounds.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,
