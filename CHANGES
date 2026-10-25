@@ -8381,3 +8381,9 @@ BaseClass extension allocation (2026-10-27)
 - Check lazy class-extension, secondary-resource, indirection-table, and
   widget-extension association allocations, releasing partial state and
   returning empty transformation results on allocation failure.
+
+Class dialog allocation (2026-10-27)
+=====================================
+
+- Validate class-dialog argument input and generated name, argument-array, and
+  dialog-shell allocations before use, returning cleanly on failure.

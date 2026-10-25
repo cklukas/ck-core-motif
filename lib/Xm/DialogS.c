@@ -838,6 +838,8 @@ XmeCreateClassDialog(
 
     if (bb_n == (Cardinal)~(Cardinal)0)
 	return NULL;
+    if (bb_n && !bb_args)
+	return NULL;
 
     if (!name) name = "";
 
@@ -847,16 +849,25 @@ XmeCreateClassDialog(
     if (ds_name_length < 0)
 	return NULL;
     ds_name = XtMalloc( (size_t)ds_name_length + 1) ;
+    if (!ds_name)
+	return NULL;
     (void) snprintf(ds_name, (size_t)ds_name_length + 1,
 		    "%s%s", name, XmDIALOG_SUFFIX);
 
     ds_args = (ArgList) XtMalloc( sizeof( Arg) * (bb_n + 1)) ;
+    if (!ds_args) {
+	XtFree(ds_name);
+	return NULL;
+    }
     memcpy( ds_args, bb_args, (sizeof( Arg) * bb_n)) ;
     XtSetArg( ds_args[bb_n], XmNallowShellResize, True) ; 
     ds = XmCreateDialogShell( ds_p, ds_name, ds_args, bb_n + 1) ;
 
     XtFree( (char *) ds_args);
     XtFree( ds_name) ;
+
+    if (!ds)
+	return NULL;
 
     /*	Create the widget.
     */
