@@ -552,7 +552,7 @@ DrawCascade(
        (CB_Cascade_height(cb) != 0) && XtIsRealized((Widget)cb))
    {
       Pixmap pixmap ;
-      int depth ;
+      int depth = 0;
 
       pixmap = CB_IsArmed(cb) && 
 	  (CB_ArmedPixmap(cb) != XmUNSPECIFIED_PIXMAP) ? 
@@ -561,13 +561,15 @@ DrawCascade(
       if (pixmap == XmUNSPECIFIED_PIXMAP || cb->label.normal_GC == NULL)
           return;
 
-      if (!XmeGetPixmapData(XtScreen(cb),
+      XmeGetPixmapData(XtScreen(cb),
 			 pixmap,
 			 NULL,
 			 &depth,
 			 NULL, NULL,
 			 NULL, NULL,
-			 NULL, NULL))
+			 NULL, NULL);
+
+      if (depth <= 0)
 	  return;
 
       if (depth == cb->core.depth)

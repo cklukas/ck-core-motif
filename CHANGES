@@ -6915,3 +6915,11 @@ Notebook pixmap binding metadata (2026-10-25)
   `docs/notebook-pixmap-binding.md`.
 
 DragUnder region geometry bounds (2026-10-25)
+CascadeButton pixmap binding metadata (2026-10-25)
+==================================================
+
+- Draw valid uncached cascade glyph pixmaps by validating resolved depth
+  instead of treating `XmeGetPixmapData`'s cache-status Boolean as failure;
+  see `docs/cascade-pixmap-binding.md`.
+
+Notebook pixmap binding metadata (2026-10-25)
