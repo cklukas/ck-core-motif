@@ -240,6 +240,7 @@ EXTRA_DIST += tests/automated/check-mwm-label-parse-allocation.py docs/mwm-label
 EXTRA_DIST += tests/automated/check-mwm-graphics-list-allocation.py docs/mwm-graphics-list-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-client-workspace-list-allocation.py docs/mwm-client-workspace-list-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-argv-allocation.py docs/mwm-argv-allocation.md
+EXTRA_DIST += tests/automated/check-mwm-virtual-key-replacement-allocation.py docs/mwm-virtual-key-replacement-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-separator-template-allocation.py docs/mwm-separator-template-allocation.md
 EXTRA_DIST += tests/automated/check-container-cell-info-allocation.py docs/container-cell-info-allocation.md
 EXTRA_DIST += tests/automated/check-container-transfer-allocation.py docs/container-transfer-allocation.md

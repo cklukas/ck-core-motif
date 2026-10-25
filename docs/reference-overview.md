@@ -45,6 +45,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM graphics-list allocation](mwm-graphics-list-allocation.md) — bounded rectangle-list growth.
 - [MWM client workspace-list allocation](mwm-client-workspace-list-allocation.md) — bounded per-client workspace state.
 - [MWM argument-vector allocation](mwm-argv-allocation.md) — bounded initialization argument copies.
+- [MWM virtual-key replacement allocation](mwm-virtual-key-replacement-allocation.md) — fail-closed optional remapping growth.
 - [MWM WSM session-file path bounds](mwm-session-path.md) — safe session path construction.
 - [MWM locale-copy allocation](mwm-locale-allocation.md) — width-checked locale copying.
 - [MWM localized system-menu allocation](mwm-system-menu-allocation.md) — safe generated-menu sizing.

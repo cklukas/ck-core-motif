@@ -35,6 +35,7 @@ clients exchanging Motif window-management messages.
 ## Initialization
 
 - [Argument-vector allocation](mwm-argv-allocation.md)
+- [Virtual-key replacement allocation](mwm-virtual-key-replacement-allocation.md)
 
 ## Workspace and persistence data
 

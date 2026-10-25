@@ -2553,6 +2553,7 @@ GetReplacementList(
   KeySym *key_map ; 
   unsigned i ;
   str_xref xref_rtn = NULL ;
+  str_xref resized ;
   unsigned num_xref = 0 ;
 
   XDisplayKeycodes( dsp, &min_kc, &max_kc) ;
@@ -2587,8 +2588,22 @@ GetReplacementList(
            *   returned list which will later cause replacement in
            *   virtkeys table.
            */
-          xref_rtn = (str_xref) XtRealloc( (char *) xref_rtn,
-                                      sizeof( str_xref_rec) * (num_xref + 2)) ;
+          if ((size_t)num_xref > UINT_MAX / sizeof(str_xref_rec) - 2)
+            {
+              XtFree((char *)xref_rtn);
+              XFree((char *)key_map);
+              return NULL;
+            }
+          resized = (str_xref) XtRealloc((char *)xref_rtn,
+                              (Cardinal)(sizeof(str_xref_rec) *
+                                          ((size_t)num_xref + 2)));
+          if (resized == NULL)
+            {
+              XtFree((char *)xref_rtn);
+              XFree((char *)key_map);
+              return NULL;
+            }
+          xref_rtn = resized;
           xref_rtn[num_xref++] = std_xref[i] ;
           xref_rtn[num_xref].default_name = NULL ;
         }

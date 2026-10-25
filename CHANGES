@@ -11592,6 +11592,12 @@ MWM default-menu allocation width (2026-10-25)
 - Bound localized default-menu assembly to Xt's allocation width; see
   `docs/mwm-default-menu-allocation.md`.
 
+MWM virtual-key replacement allocation (2026-10-25)
+====================================================
+
+- Bound and failure-check HP/DIN replacement-table growth; see
+  `docs/mwm-virtual-key-replacement-allocation.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 
