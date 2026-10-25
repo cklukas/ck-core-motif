@@ -1371,59 +1371,50 @@ _XmGetPixmapData(
     PixmapData pix_data, *pix_entry;
     ImageData * entry;
 
-    /* All outputs are required by this internal API.  Reject invalid calls
-       before touching the screen or cache tables, then clear outputs so a
-       failed lookup cannot leave stale metadata in the caller. */
-    if (screen == NULL || pixmap == XmUNSPECIFIED_PIXMAP ||
-        image_name == NULL || depth == NULL || foreground == NULL ||
-        background == NULL || hot_x == NULL || hot_y == NULL ||
-        width == NULL || height == NULL)
+    if (screen == NULL || pixmap == XmUNSPECIFIED_PIXMAP)
         return False;
-
-    *image_name = NULL;
-    *depth = 0;
-    *foreground = 0;
-    *background = 0;
-    *hot_x = 0;
-    *hot_y = 0;
-    *width = 0;
-    *height = 0;
 
     if (!pixmap_data_set) InitializePixmapSets() ;
     if (pixmap_data_set == NULL || pixmap_set == NULL)
         return False;
 
-    /*  checks for a matching screen and pixmap.            */
-    
-    pix_data.screen = screen ;
-    pix_data.pixmap = pixmap ;
-   
-    _XmProcessLock();
-    if ((pix_entry = (PixmapData*) 
-	 _XmGetHashEntry(pixmap_set, (XmHashKey)&pix_data)) != NULL) {
+    if (image_name) *image_name = NULL;
+    if (depth) *depth = 0;
+    if (foreground) *foreground = 0;
+    if (background) *background = 0;
+    if (hot_x) *hot_x = 0;
+    if (hot_y) *hot_y = 0;
+    if (width) *width = 0;
+    if (height) *height = 0;
 
-	*foreground = pix_entry->acc_color->foreground;
-	*background = pix_entry->acc_color->background;
-	*depth = pix_entry->depth;
-	*image_name = pix_entry->image_name;
-	*width = pix_entry->width;
-	*height = pix_entry->height;
-	/* Hotspots are optional image metadata; default them when absent. */
-	*hot_x = 0;
-	*hot_y = 0;
-	/* try to get the hot spot data from the image cache */
-	if (image_set)  {
-	    entry = (ImageData *) _XmGetHashEntry(image_set, *image_name);
-	    if (entry) {
-		*hot_x = entry->hot_x;
-		*hot_y = entry->hot_y;
-	    }
-	}
-	_XmProcessUnlock();
-	return True;
+    /* Check for a matching screen and pixmap. */
+    pix_data.screen = screen;
+    pix_data.pixmap = pixmap;
+
+    _XmProcessLock();
+    pix_entry = (PixmapData *)
+        _XmGetHashEntry(pixmap_set, (XmHashKey)&pix_data);
+    if (pix_entry != NULL) {
+        if (foreground) *foreground = pix_entry->acc_color->foreground;
+        if (background) *background = pix_entry->acc_color->background;
+        if (depth) *depth = pix_entry->depth;
+        if (image_name) *image_name = pix_entry->image_name;
+        if (width) *width = pix_entry->width;
+        if (height) *height = pix_entry->height;
+        /* Hotspots are optional image metadata; default them when absent. */
+        if (image_set) {
+            entry = (ImageData *)
+                _XmGetHashEntry(image_set, pix_entry->image_name);
+            if (entry) {
+                if (hot_x) *hot_x = entry->hot_x;
+                if (hot_y) *hot_y = entry->hot_y;
+            }
+        }
+        _XmProcessUnlock();
+        return True;
     }
     _XmProcessUnlock();
-    return False ;    
+    return False;
 }
 
 
