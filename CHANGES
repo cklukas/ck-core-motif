@@ -1,3 +1,9 @@
+UTM send widget guard (2026-10-26)
+==================================
+
+- Reject null widgets before UTM message packaging and `XmeNamedSink`,
+  protecting all WSM callers; see `docs/utm-send-widget-guard.md`.
+
 MWM invoke-message UTM guard (2026-10-26)
 ==========================================
 

@@ -94,6 +94,10 @@ UTMSendMessage(
 {
   UTMPackageRec *pUtmData;
 
+  if (w == NULL) {
+    fprintf(stderr, "UTM Error: cannot send a message without a widget.\n");
+    return;
+  }
 
   /* make sure timestamp is valid
   if (time == 0) time = GetTimestamp(XtDisplay(w)); */
