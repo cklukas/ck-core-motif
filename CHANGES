@@ -24,6 +24,12 @@ Chip geometry bounds (2026-10-26)
 - Bound chip label, pixmap, removal affordance, and vertical padding arithmetic
   to the `Dimension` range; see `docs/chip-geometry-bounds.md`.
 
+Progress-ring geometry bounds (2026-10-26)
+==========================================
+
+- Clamp progress-ring default and queried geometry arithmetic to the
+  `Dimension` range; see `docs/progress-ring-geometry-bounds.md`.
+
 Tree-view RTL label bounds (2026-10-26)
 =======================================
 

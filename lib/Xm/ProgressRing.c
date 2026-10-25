@@ -4,6 +4,7 @@
 #endif
 
 #include <stdio.h>
+#include <limits.h>
 #include <X11/IntrinsicP.h>
 #include <Xm/ProgressRingP.h>
 #include <Xm/VaSimpleP.h>
@@ -76,6 +77,10 @@ static void Normalize(XmProgressRingWidget ring) {
         ring->progress_ring.value = ring->progress_ring.maximum;
 }
 
+static Dimension bounded_dimension(unsigned long value) {
+    return (Dimension)(value > USHRT_MAX ? USHRT_MAX : value);
+}
+
 static void UpdateGCs(XmProgressRingWidget ring) {
     Display *display = XtDisplay((Widget)ring);
     Dimension thickness = _XmDpiDefaultDimension((Widget)ring, 4);
@@ -122,10 +127,12 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     ring->progress_ring.width_default = (request_widget->core.width == 0);
     if (ring->progress_ring.height_default)
         ring->core.height = ring->progress_ring.default_height =
-            diameter + 2 * ring->progress_ring.spacing;
+            bounded_dimension((unsigned long)diameter +
+                              2UL * ring->progress_ring.spacing);
     if (ring->progress_ring.width_default)
         ring->core.width = ring->progress_ring.default_width =
-            diameter + label_width + 3 * ring->progress_ring.spacing + 8;
+            bounded_dimension((unsigned long)diameter + label_width +
+                              3UL * ring->progress_ring.spacing + 8);
     values.foreground = ring->primitive.bottom_shadow_color;
     values.background = ring->core.background_pixel;
     ring->progress_ring.track_gc = XCreateGC(display, DefaultRootWindow(display),
@@ -317,8 +324,10 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                        &label_width, &label_height);
     if (diameter < 32) diameter = 32;
     reply->request_mode = CWWidth | CWHeight;
-    reply->width = diameter + label_width + 3 * ring->progress_ring.spacing + 8;
-    reply->height = diameter + 2 * ring->progress_ring.spacing;
+    reply->width = bounded_dimension((unsigned long)diameter + label_width +
+                                     3UL * ring->progress_ring.spacing + 8);
+    reply->height = bounded_dimension((unsigned long)diameter +
+                                      2UL * ring->progress_ring.spacing);
     return (widget->core.width == reply->width && widget->core.height == reply->height)
                ? XtGeometryYes : XtGeometryAlmost;
 }
