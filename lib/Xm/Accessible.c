@@ -74,6 +74,10 @@ static void deferred_destroy(XtPointer, XtIntervalId *);
 static Boolean sync_native_list(XmAccessibility *, XmAccessibleNode *);
 static void list_changed(Widget, XtPointer, XtPointer);
 static XmAccessibleId focused_identity(XmAccessibility *);
+static int bounded_text_length(const char *text) {
+  size_t length = text ? strlen(text) : 0;
+  return length > (size_t)INT_MAX ? INT_MAX : (int)length;
+}
 
 /* Live-object indexes never allocate in proportion to historical IDs. */
 static size_t id_hash(XmAccessibleId id, size_t capacity) {
@@ -1241,7 +1245,7 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     i->role = XmACCESSIBLE_PANEL;
     i->has_text = True;
     XtVaGetValues(w, XmNinfoMessage, &message, NULL);
-    i->text_length = message ? (int)strlen(message) : 0;
+    i->text_length = bounded_text_length(message);
     i->value_text = XtNewString(message ? message : "");
   }
   if (XmIsBreadcrumbBar(w)) {
@@ -1387,7 +1391,7 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     char *query = XmSearchBoxGetString(w);
     i->role = XmACCESSIBLE_TEXT;
     i->has_text = True;
-    i->text_length = query ? (int)strlen(query) : 0;
+    i->text_length = bounded_text_length(query);
     i->action_count = 1;
     i->name = XtNewString("Search");
     if (query) XtFree(query);
@@ -1404,7 +1408,7 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     if (text) {
       i->name = text;
       i->has_text = True;
-      i->text_length = (int)strlen(text);
+      i->text_length = bounded_text_length(text);
     }
   }
   if (XmIsFormSection(w)) {
