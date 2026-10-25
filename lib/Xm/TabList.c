@@ -778,6 +778,7 @@ XmTabbedStackListSimpleModify(tab_list, position, label_string)
 {
     XmTabAttributeRec attributes;
 
+    attributes.label_string = label_string;
     XmTabbedStackListModify(tab_list, position, XmTAB_LABEL_STRING, &attributes);
 }
 

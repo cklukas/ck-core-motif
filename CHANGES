@@ -1,3 +1,9 @@
+Fix TabList simple modify forwarding (2026-10-26)
+=================================================
+
+- Pass the requested label through `XmTabbedStackListSimpleModify` instead of
+  using an uninitialized attribute record; see `docs/tablist-simple-modify.md`.
+
 Guard TabList query outputs (2026-10-26)
 ========================================
 
