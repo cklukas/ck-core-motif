@@ -770,6 +770,9 @@ Initialize(request, set, arg_list, arg_cnt)
     ArgList           filtered_args, merged_args;
     Cardinal          n = 0, num_filtered_args;
     XmTabOrientation  orientation = XmTabStack_tab_orientation(ts);
+#ifdef TEAR_OFF_TABS
+    XmString           replacement;
+#endif
 
     XmTabStack__inited(ts) = False;
 
@@ -917,8 +920,9 @@ Initialize(request, set, arg_list, arg_cnt)
 #ifdef TEAR_OFF_TABS
     if( XmTabStack_tear_off_label(ts) != NULL )
     {
-	XmTabStack_tear_off_label(ts)
-	  = XmStringCopy(XmTabStack_tear_off_label(ts));
+	replacement = XmStringCopy(XmTabStack_tear_off_label(ts));
+	XmTabStack_tear_off_label(ts) = replacement != NULL
+	    ? replacement : XmStringCreateLocalized("");
     }
 
     canvas = XmTabBox__canvas(XmTabStack_tab_box((XmTabBoxWidget)ts));

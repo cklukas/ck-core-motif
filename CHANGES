@@ -1,3 +1,10 @@
+TabStack tear-off label initialization rollback (2026-10-28)
+==============================================================
+
+- Check the initial tear-off label copy and use an empty compound string when
+  allocation fails, avoiding NULL label propagation during construction; see
+  `docs/tabstack-label-init-rollback.md`.
+
 ProgressBar label initialization rollback (2026-10-28)
 ==========================================================
 
