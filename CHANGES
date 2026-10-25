@@ -1,3 +1,9 @@
+MWM automation input guard (2026-10-26)
+=======================================
+
+- Reject null automation request payloads before unpacking window and
+  operation identifiers; see `docs/mwm-automation-input-guard.md`.
+
 MWM automation reply initialization (2026-10-26)
 =================================================
 

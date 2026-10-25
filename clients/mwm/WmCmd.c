@@ -2196,6 +2196,9 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
   *outputLen = 0;
   *outputFmt = 0;
 
+  if (input == NULL)
+    return;
+
 
 
 
