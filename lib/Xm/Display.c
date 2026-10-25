@@ -1162,6 +1162,8 @@ DisplayDestroy(
     }
     _XmProcessUnlock();
 
+    _XmDestroyAppearanceDisplay(XtDisplay(w));
+
     XDeleteContext( XtDisplay( w), None, context) ;
 }
 

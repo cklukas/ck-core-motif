@@ -267,6 +267,7 @@ extern Boolean _XmRegisterAppearanceChange(Widget widget,
 extern Boolean _XmApplyAppearanceChange(Display *display,
                                         XmAppearanceProfile old_profile,
                                         XmAppearanceProfile new_profile);
+extern void _XmDestroyAppearanceDisplay(Display *display);
 extern Boolean _XmIsISO10646(Display *dpy,
                              XFontStruct *font);
 extern XChar2b* _XmUtf8ToUcs2(char *draw_text,

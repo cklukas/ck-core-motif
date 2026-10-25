@@ -135,12 +135,49 @@ typedef struct _XmAppearanceWidgetState {
 typedef struct _XmAppearanceDisplayState {
     Display *display;
     XrmDatabase application_database;
+    XrmDatabase active_database;
     Boolean owns_active_database;
     struct _XmAppearanceDisplayState *next;
 } XmAppearanceDisplayState;
 
 static XmAppearanceWidgetState *appearance_widgets;
 static XmAppearanceDisplayState *appearance_displays;
+
+void
+_XmDestroyAppearanceDisplay(Display *display)
+{
+    XmAppearanceDisplayState **link;
+    XmAppearanceDisplayState *state;
+    XrmDatabase application_database;
+    XrmDatabase active_database;
+
+    if (display == NULL)
+        return;
+
+    _XmProcessLock();
+    link = &appearance_displays;
+    while (*link != NULL && (*link)->display != display)
+        link = &(*link)->next;
+    state = *link;
+    if (state == NULL) {
+        _XmProcessUnlock();
+        return;
+    }
+    *link = state->next;
+    application_database = state->application_database;
+    active_database = state->active_database;
+    state->application_database = NULL;
+    state->active_database = NULL;
+    XtFree((char *)state);
+    _XmProcessUnlock();
+
+    if (active_database != NULL && XrmGetDatabase(display) == active_database) {
+        XrmSetDatabase(display, NULL);
+        XrmDestroyDatabase(active_database);
+    }
+    if (application_database != NULL)
+        XrmDestroyDatabase(application_database);
+}
 
 static const char *
 appearance_property_name(AppearanceProperty property)
@@ -827,6 +864,7 @@ XmApplyAppearanceProfile(Display *display, XmAppearanceProfile profile)
     XrmSetDatabase(display, database);
     if (state->owns_active_database && old_database != NULL)
         XrmDestroyDatabase(old_database);
+    state->active_database = database;
     state->owns_active_database = True;
     return True;
 }

@@ -16,7 +16,7 @@ additive `XmApplyAppearanceProfile` API.  A fresh AArch64 `uconsole` build
 (`--enable-xft --enable-unicode-text --enable-atspi --enable-jpeg
 --enable-png --disable-svg --disable-xlibre-dpi --disable-printing`) installs
 `libXm.so.8.0.0` with fingerprint
-`640fb4002be647efcbc13cf01fbbdfb239d09605c4186b1fee3885281ce54dbc`.
+`9d73a3f87a7619a8d7d67f4d60254efab875997d74ef840fa2d9700dd1359f72`.
 Three repeated installed Xvfb runs pass the modern-light, modern-dark,
 high-contrast and classic transition fixture, preserving ordinary and explicit
 resource precedence, toggle state and callbacks.  A consumer-only ASan/UBSan

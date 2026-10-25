@@ -5719,6 +5719,13 @@ PixConv pixmap metadata guard (2026-10-25)
   avoiding uninitialized-depth behavior for unresolved pixmaps; see
   `docs/pixconv-pixmap-metadata.md`.
 
+Appearance display-state lifetime (2026-10-25)
+==============================================
+
+- Release cloned appearance Xrm databases with the existing Motif display
+  destruction path, and correct Xrm database enumeration semantics so profile
+  selection remains reliable for every application resource set.
+
 Live appearance profile transaction (2026-10-25)
 ================================================
 
