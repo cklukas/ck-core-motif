@@ -1,3 +1,9 @@
+Guard hash-table record allocation (2026-10-26)
+===============================================
+
+- Return cleanly when `_XmAllocHashTable` cannot allocate its table record; see
+  `docs/hash-table-allocation.md`.
+
 Handle XmScreen scratch-cache insertion failures (2026-10-26)
 =============================================================
 
