@@ -5,6 +5,12 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+XmString rendition bookkeeping guards (2026-10-26)
+===================================================
+
+- Guard active-rendition list updates against null source and context arrays;
+  see `docs/xmstring-rendition-bookkeeping.md`.
+
 XmString context initialization guards (2026-10-26)
 ====================================================
 

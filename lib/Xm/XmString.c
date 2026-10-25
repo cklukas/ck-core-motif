@@ -10111,6 +10111,8 @@ begin_context_rends(_XmStringContext context,
 
   if (count <= 0)
     return;
+  if (rends == NULL)
+    goto failed;
   old_count = (size_t)_XmStrContRendCount(context);
   add_count = (size_t)count;
   if (old_count > SIZE_MAX - add_count)
@@ -10154,6 +10156,12 @@ end_context_rends(_XmStringContext context,
   /* Check some simple error conditions. */
   if (!update_context || (count <= 0))
     return;
+  if (rends == NULL ||
+      (_XmStrContRendCount(context) > 0 &&
+       _XmStrContRendTags(context) == NULL)) {
+    _XmStrContError(context) = True;
+    return;
+  }
 
   /* Remove the last matching instance of each rendition. */
   for (n_rend = 0; n_rend < count; n_rend++)
