@@ -1,3 +1,9 @@
+XmString conversion validation (2026-10-25)
+============================================
+
+- Check compound-string context initialization before segment extraction; see
+  `docs/xmstring-conversion-guards.md`.
+
 Scroll-visible callback validation (2026-10-25)
 ================================================
 
