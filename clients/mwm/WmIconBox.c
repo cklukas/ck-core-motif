@@ -2799,9 +2799,20 @@ Boolean ExpandVirtualSpace (IconBoxData *pIBD, int newWidth, int newHeight)
     Boolean rval = True;
     int newSize;
     int increment;
+    int columns;
+    int rows;
 
-    newSize = (newWidth / pIBD->pCD_iconBox->widthInc) *
-		(newHeight / pIBD->pCD_iconBox->heightInc);
+    if (pIBD == NULL || pIBD->pCD_iconBox == NULL ||
+	newWidth < 0 || newHeight < 0 ||
+	pIBD->pCD_iconBox->widthInc <= 0 ||
+	pIBD->pCD_iconBox->heightInc <= 0)
+	return (False);
+
+    columns = newWidth / pIBD->pCD_iconBox->widthInc;
+    rows = newHeight / pIBD->pCD_iconBox->heightInc;
+    if (columns > 0 && rows > INT_MAX / columns)
+	return (False);
+    newSize = columns * rows;
 
     if (newSize > pIBD->IPD.totalPlaces )
     {

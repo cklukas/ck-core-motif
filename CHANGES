@@ -4280,3 +4280,12 @@ Icon-list growth bounds (2026-10-25)
 
 Dynamic default-color cache allocation (2026-10-25)
 =====================================================
+Icon-box virtual-space expansion bounds (2026-10-25)
+=====================================================
+
+- Validate resize dimensions, placement increments, and placement-count
+  multiplication before expanding the icon list; see
+  `docs/expand-space-bounds.md`.
+
+Icon-box initialization bounds (2026-10-25)
+============================================
