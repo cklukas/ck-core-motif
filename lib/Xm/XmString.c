@@ -9574,17 +9574,36 @@ begin_context_rends(_XmStringContext context,
 		    XmStringTag     *rends,
 		    int		     count)
 {
+  size_t old_count, add_count, new_count;
+  XmStringTag *new_tags;
+
+  if (count <= 0)
+    return;
+  old_count = (size_t)_XmStrContRendCount(context);
+  add_count = (size_t)count;
+  if (old_count > SIZE_MAX - add_count)
+    goto failed;
+  new_count = old_count + add_count;
+  if (new_count > SIZE_MAX / sizeof(XmStringTag) ||
+      new_count * sizeof(XmStringTag) > (size_t)((Cardinal)~0))
+    goto failed;
   /* Append these renditions the context's list of active renditions. */
-  _XmStrContRendTags(context) = (XmStringTag*)
-    XtRealloc((char*) _XmStrContRendTags(context),
-	      sizeof(XmStringTag) * (_XmStrContRendCount(context) + count));
-  memcpy(_XmStrContRendTags(context) + _XmStrContRendCount(context),
+  new_tags = (XmStringTag *)XtRealloc((char *)_XmStrContRendTags(context),
+					 (Cardinal)(new_count * sizeof(XmStringTag)));
+  if (!new_tags)
+    goto failed;
+  _XmStrContRendTags(context) = new_tags;
+  memcpy(_XmStrContRendTags(context) + old_count,
 	 rends,
 	 sizeof(XmStringTag) * count);
 
   /* Update the total number only if we're advancing the context. */
   if (update_context)
     _XmStrContRendCount(context) += count;
+  return;
+
+failed:
+  _XmStrContError(context) = True;
 }
 
 /*

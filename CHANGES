@@ -19,6 +19,8 @@ Xft compound-string line height (2026-10-27)
   per-entry allocations, releasing partial copies on failure.
 - Guard copied XmString direction components and end iteration safely when
   their temporary buffers cannot be allocated.
+- Make active XmString rendition growth transactional, checking count/size
+  arithmetic and retaining existing tags on `XtRealloc` failure.
 
 Accessibility D-Bus memo allocation (2026-10-27)
 =================================================
