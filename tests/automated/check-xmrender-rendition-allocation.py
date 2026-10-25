@@ -33,6 +33,9 @@ assert "source_table = oldtable;" in add_region
 assert "append_copy_failed:" in add_region
 assert "append_abort:" in add_region
 assert "while (next > _XmRTCount(source_table))" in add_region
+assert "rendition_count > INT_MAX" in add_region
+assert "SIZE_MAX / sizeof(Boolean)" in add_region
+assert "SIZE_MAX - sizeof(_XmRenderTableRec)" in add_region
 remove_start = source.index("_XmRenderTableRemoveRenditions(")
 remove_end = source.index("static void", remove_start)
 remove_region = source[remove_start:remove_end]

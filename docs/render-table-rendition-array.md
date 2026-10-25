@@ -33,6 +33,9 @@ roll back the temporary table and leave the original shared table unchanged.
 Appending unmatched renditions follows the same transactional rule: failed
 body, handle, or entry copies are released without publishing a partial table.
 
+Count narrowing and allocation-size arithmetic are checked before creating the
+temporary match array or a new table body.
+
 `XmRenderTableCopy` uses the internal rendition lookup while its table lock is
 held, and rolls back copied handles if an allocation fails. Tagged copies
 therefore avoid recursive locking and never return a partially initialized
