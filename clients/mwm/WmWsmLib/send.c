@@ -71,14 +71,25 @@ Boolean
 WSMSendMessage(Widget w, WSMClientType send_to, WSMRequest *request, 
 	       WSMReplyCallbackFunc reply_callback, XtPointer reply_data)
 {
-    int screen_num = XScreenNumberOfScreen(XtScreen(w));
-    Display *dpy = XtDisplay(w);
-    Atom send_atom = _WSMGetSelectionAtom(dpy, screen_num, send_to);
+    int screen_num;
+    Display *dpy;
+    Atom send_atom;
     MessageData msg_data;
     unsigned long msg_len;
     RequestInfo *req_info;
     WSMErrorCode error;
-    Time time = GetTimestamp(dpy);
+    Time time;
+
+    if (w == NULL || request == NULL)
+    {
+        fprintf(stderr, "WSMSendMessage: widget and request are required.\n");
+        return(False);
+    }
+
+    screen_num = XScreenNumberOfScreen(XtScreen(w));
+    dpy = XtDisplay(w);
+    send_atom = _WSMGetSelectionAtom(dpy, screen_num, send_to);
+    time = GetTimestamp(dpy);
 
     if (send_atom == None) {
 	fprintf(stderr, "%s: Could not get selection atom to send message\n",

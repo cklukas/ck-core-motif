@@ -69,9 +69,18 @@ WSMDefaultOwnSelection(Widget w, WSMClientType client_type,
 		       XtPointer request_data)
 {
     Time time;
-    Display *dpy = XtDisplay(w);
-    Atom own_selection =
-	_WSMGetSelectionAtom(dpy, 
+    Display *dpy;
+    Atom own_selection;
+
+    if (w == NULL)
+    {
+        fprintf(stderr, "WSMDefaultOwnSelection: widget is required.\n");
+        return(False);
+    }
+
+    dpy = XtDisplay(w);
+    own_selection =
+	_WSMGetSelectionAtom(dpy,
 			     XScreenNumberOfScreen(XtScreen(w)), client_type);
 
     if (own_selection == None)
