@@ -1,3 +1,10 @@
+List keyboard page geometry bounds (2026-10-25)
+================================================
+
+- Use signed viewport arithmetic for horizontal keyboard paging, preventing
+  wrapped positions in narrow lists; see
+  `docs/list-keyboard-page-geometry.md`.
+
 ToggleButtonGadget layout geometry bounds (2026-10-25)
 ======================================================
 

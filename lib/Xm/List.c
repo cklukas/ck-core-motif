@@ -6890,14 +6890,14 @@ KbdLeftPage(Widget wid,
     return;
 
   if (LayoutIsRtoLP(lw)) {
-    pos = lw->list.hOrigin + (lw->core.width - CHAR_WIDTH_GUESS -
+    pos = lw->list.hOrigin + ((int)lw->core.width - CHAR_WIDTH_GUESS -
 			      2 * (int)(lw->list.margin_width +
 					lw->list.HighlightThickness +
 					lw->primitive.shadow_thickness));
     if ((lw->list.hExtent + pos) > lw->list.hmax)
       pos = lw->list.hmax - lw->list.hExtent;
   } else {
-    pos = lw->list.hOrigin - (lw->core.width - CHAR_WIDTH_GUESS -
+    pos = lw->list.hOrigin - ((int)lw->core.width - CHAR_WIDTH_GUESS -
 			      2 * (int)(lw->list.margin_width +
 					lw->list.HighlightThickness +
 					lw->primitive.shadow_thickness));
@@ -6976,12 +6976,12 @@ KbdRightPage(Widget wid,
     return;
 
   if (LayoutIsRtoLP(lw)) {
-    pos = lw->list.hOrigin - (lw->core.width - CHAR_WIDTH_GUESS -
+    pos = lw->list.hOrigin - ((int)lw->core.width - CHAR_WIDTH_GUESS -
 			      2 * (int)(lw->list.margin_width +
 					lw->list.HighlightThickness +
 					lw->primitive.shadow_thickness));
   } else {
-    pos = lw->list.hOrigin + (lw->core.width - CHAR_WIDTH_GUESS -
+    pos = lw->list.hOrigin + ((int)lw->core.width - CHAR_WIDTH_GUESS -
 			      2 * (int)(lw->list.margin_width +
 					lw->list.HighlightThickness +
 					lw->primitive.shadow_thickness));
