@@ -451,6 +451,9 @@ static MenuSpec *
 MakeMenuSpec (String menuName, CARD32 commandID)
 {
     MenuSpec *menuSpec;
+
+    if (menuName == NULL)
+	return (NULL);
     
     if ((menuSpec = (MenuSpec *) XtMalloc (sizeof (MenuSpec))) == NULL)
       /* Handle insufficent memory */
@@ -461,6 +464,10 @@ MakeMenuSpec (String menuName, CARD32 commandID)
     }
     
     menuSpec->name = XtNewString(menuName);
+    if (menuSpec->name == NULL) {
+	XtFree((char *)menuSpec);
+	return (NULL);
+    }
     menuSpec->currentContext = F_CONTEXT_ALL;
     menuSpec->menuWidget = (Widget) NULL;
     menuSpec->whichButton = SELECT_BUTTON;

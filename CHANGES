@@ -41,6 +41,13 @@ MWM quoted menu-name allocation guard (2026-10-25)
   user resource text, avoiding a null write while preserving valid menu
   labels; see `docs/mwm-menu-name-allocation.md`.
 
+MWM menu-spec name allocation guard (2026-10-25)
+================================================
+
+- Reject null or unallocatable menu-spec names before exposing a partially
+  initialized specification, preserving valid menu construction; see
+  `docs/mwm-menu-spec-allocation.md`.
+
 MWM invoke-message allocation guard (2026-10-28)
 ==================================================
 
