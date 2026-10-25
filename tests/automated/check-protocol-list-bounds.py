@@ -8,6 +8,8 @@ start = source.index("static void\nRemoveProtocols")
 remove = source[start:source.index("PUBLIC INTERFACES", start)]
 assert "active_protocols_stack[MAX_PROTOCOLS]" in update
 assert "XtMalloc" in update
+assert "protocol_bytes > (size_t)UINT_MAX" in update
+assert "XtMalloc((Cardinal)protocol_bytes)" in update
 assert "match_list[MAX_PROTOCOLS]" not in remove
 assert "!protocols" in remove
 assert "shell == NULL || protocols == NULL" in source

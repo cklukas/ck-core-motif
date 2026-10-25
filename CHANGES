@@ -12165,3 +12165,9 @@ DropDown selection-table allocation width (2026-10-26)
 
 - Pass the checked selected-item table byte count explicitly as an Xt
   `Cardinal`; see `docs/dropdown-selection-bounds.md`.
+
+Protocol property allocation width (2026-10-26)
+===============================================
+
+- Reject protocol-property buffers that exceed Xt's `Cardinal` byte range
+  and pass accepted sizes explicitly; see `docs/protocol-list-bounds.md`.

@@ -433,7 +433,12 @@ UpdateProtocolMgrProperty(
             XmeWarning(NULL, MSG3);
             return;
         }
-        active_protocols = (Atom *)XtMalloc(protocol_bytes);
+        if (protocol_bytes > (size_t)UINT_MAX)
+        {
+            XmeWarning(NULL, MSG3);
+            return;
+        }
+        active_protocols = (Atom *)XtMalloc((Cardinal)protocol_bytes);
         if (!active_protocols)
             return;
     }
