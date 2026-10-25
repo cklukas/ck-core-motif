@@ -187,7 +187,7 @@ static int DeleteInternalElementPositions(XmListWidget lw,
 static int ReplaceInternalElement(XmListWidget lw,
 				  int position,
 				  Boolean selectable);
-static void AddItems(XmListWidget lw, XmString *items, int nitems, int pos);
+static Boolean AddItems(XmListWidget lw, XmString *items, int nitems, int pos);
 static void DeleteItems(XmListWidget lw, int nitems, int pos);
 static void DeleteItemPositions(XmListWidget lw,
 				int *position_list,
@@ -3598,17 +3598,28 @@ ReplaceInternalElement(XmListWidget lw,
  *									*
  ************************************************************************/
 
-static void
+static Boolean
 AddItems(XmListWidget lw,
 	 XmString *items,
 	 int nitems,
 	 int pos)
 {
   int i;
-  int TotalItems = lw->list.itemCount + nitems;
+  int TotalItems;
+  XmString *new_items;
 
-  lw->list.items = (XmString *)
-    XtRealloc((char *) lw->list.items, (sizeof(XmString) * (TotalItems)));
+  if (nitems <= 0 || lw->list.itemCount < 0 ||
+      nitems > INT_MAX - lw->list.itemCount)
+    return False;
+  TotalItems = lw->list.itemCount + nitems;
+  if ((size_t)TotalItems > SIZE_MAX / sizeof(*new_items))
+    return False;
+
+  new_items = (XmString *)XtRealloc((char *)lw->list.items,
+				    sizeof(*new_items) * (size_t)TotalItems);
+  if (new_items == NULL)
+    return False;
+  lw->list.items = new_items;
 
   /* Make a gap in the array for the new items. */
   if (pos < lw->list.itemCount)
@@ -3621,6 +3632,7 @@ AddItems(XmListWidget lw,
     lw->list.items[pos + i] = XmStringCopy(items[i]);
 
   lw->list.itemCount = TotalItems;
+  return True;
 }
 
 /************************************************************************
@@ -8004,7 +8016,8 @@ APIAddItems(XmListWidget lw,
 		(lw->list.SelectionPolicy != XmSINGLE_SELECT) &&
 		(lw->list.SelectionPolicy != XmBROWSE_SELECT));
 
-  AddItems(lw, items, item_count, intern_pos);
+  if (!AddItems(lw, items, item_count, intern_pos))
+    return;
   nsel += AddInternalElements(lw, lw->list.items + intern_pos, item_count,
 			      pos, selectable);
 
@@ -9684,6 +9697,7 @@ XmListGetMatchPos(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   register int  i, *pos;
+  int *new_pos;
   int           j;
 
   /* CR 7648: Be friendly and initialize the out parameters. */
@@ -9723,7 +9737,9 @@ XmListGetMatchPos(Widget w,
       _XmAppUnlock(app);
       return (FALSE);
     }
-  pos = (int *)XtRealloc((char *) pos, (sizeof(int) * j));
+  new_pos = (int *)XtRealloc((char *)pos, sizeof(int) * (size_t)j);
+  if (new_pos != NULL)
+    pos = new_pos;
 
   *pos_list = pos;
   *pos_count = j;
