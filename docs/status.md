@@ -71,6 +71,9 @@ the external ownership boundary rather than suppressed. The cancelled-transfer
 observer passes ABI and lifetime checks with the same dependency and the
 fingerprinted color-font configuration. This does not qualify application
 clipboard managers, broader DnD workflows or matrix-wide sanitizer ownership.
+The strict native observer rerun also passes with leak detection enabled; its
+receipt is retained at
+`/mnt/v/tmp/ckmotif-x86-20261025/results/clipboard-native-x86-xt-asan-r1/`.
 
 The same installed x86_64 prefix now passes the bounded text cohort
 (`incremental-map`, `preedit`, `layout`, `line-context`, `unicode-widgets`,

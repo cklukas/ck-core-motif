@@ -124,10 +124,12 @@ with the same pinned Xt, using the fingerprinted color-font configuration to
 avoid unrelated text-layout warnings. The x86 toolkit fingerprint is
 `58bc39a032d63a600942e90554ab67655dd08eed4b3303e878b59e3f135ccf94`; the
 pinned Xt library fingerprint is
-`0588577bc669adc2c71a0a09b061970c7a944fe9f1f61a699cef05346bf8e538`.
+`da8eeb4148b238d21ef9c4430d37bfeb8dd45fcc628c68b3e326b36465f317d4`.
 Receipts are retained under
 `/mnt/v/tmp/ckmotif-x86-20261025/results/storage-x86-xt-asan-r1/` and
 `/mnt/v/tmp/ckmotif-x86-20261025/results/clipboard-native-x86-xt-r2/`.
+The strict native observer rerun also passes with leak detection enabled; its
+receipt is `/mnt/v/tmp/ckmotif-x86-20261025/results/clipboard-native-x86-xt-asan-r1/`.
 This closes only the bounded x86 clipboard/selection-lifetime cohort; broader
 application workflows, other providers and matrix-wide sanitizer ownership
 remain open.
