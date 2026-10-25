@@ -10241,6 +10241,12 @@ Protocol lookup null-slot guard (2026-10-25)
 - Skip null protocol slots during lookup and dispatch instead of
   dereferencing them; see `docs/protocol-lookup-null-slots.md`.
 
+Protocol publication null-slot guards (2026-10-25)
+===================================================
+
+- Skip null protocol managers and entries while publishing protocol
+  properties; see `docs/protocol-publication-null-slots.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

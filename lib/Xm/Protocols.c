@@ -416,7 +416,12 @@ UpdateProtocolMgrProperty(
     Cardinal        i, num_active = 0;
     Atom            active_protocols_stack[MAX_PROTOCOLS];
     Atom            *active_protocols = active_protocols_stack;
-    XmProtocolList  protocols = p_mgr->protocols;
+    XmProtocolList  protocols;
+
+    if (p_mgr == NULL ||
+	(p_mgr->num_protocols != 0 && p_mgr->protocols == NULL))
+	return;
+    protocols = p_mgr->protocols;
 
     if (p_mgr->num_protocols > XtNumber(active_protocols_stack))
     {
@@ -434,7 +439,7 @@ UpdateProtocolMgrProperty(
     }
 
     for (i = 0; i < p_mgr->num_protocols; i++)
-        if (protocols[i]->protocol.active)
+        if (protocols[i] != NULL && protocols[i]->protocol.active)
             active_protocols[num_active++] = protocols[i]->protocol.atom;
 
     SetProtocolProperty(shell, p_mgr->property, XA_ATOM,
@@ -462,7 +467,8 @@ InstallProtocols(
 			 RealizeHandler, ap_mgr);
     
     for (i=0; i < ap_mgr->num_protocol_mgrs; i++)
-      UpdateProtocolMgrProperty(w, ap_mgr->protocol_mgrs[i]);
+      if (ap_mgr->protocol_mgrs[i] != NULL)
+	UpdateProtocolMgrProperty(w, ap_mgr->protocol_mgrs[i]);
     
 }
 
