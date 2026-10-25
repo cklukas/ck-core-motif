@@ -1,3 +1,10 @@
+BulletinBoard shadow redisplay guards (2026-10-25)
+==================================================
+
+- Validate realization, manager shadow GCs, thickness, and dimensions before
+  drawing the BulletinBoard expose shadow; see
+  `docs/bulletin-board-shadow-redisplay-guards.md`.
+
 CascadeButtonGadget shadow redisplay guards (2026-10-25)
 =========================================================
 
