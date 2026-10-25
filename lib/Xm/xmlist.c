@@ -59,6 +59,8 @@ _XmStackInit()
 void
 _XmStackFree(XmStack stack)
 {
+    if (stack == NULL)
+	return;
     XtFree((XtPointer) stack->elems);
     XtFree((XtPointer) stack);
 }
@@ -73,14 +75,22 @@ _XmStackFree(XmStack stack)
 void
 _XmStackPush(XmStack stack, XtPointer elem)
 {
-    if ((++stack->top) >= stack->alloc) {
+	XtPointer *new_elems;
+
+	if (stack == NULL)
+	return;
+
+    if ((stack->top + 1) >= stack->alloc) {
+	new_elems = (XtPointer *) XtRealloc((XtPointer) stack->elems,
+					 sizeof(XtPointer) *
+					 (stack->alloc + STACK_INC));
+	if (new_elems == NULL)
+	    return;
+	stack->elems = new_elems;
 	stack->alloc += STACK_INC;
-	stack->elems = 
-	    (XtPointer *) XtRealloc((XtPointer) stack->elems,
-				    sizeof(XtPointer) * stack->alloc);
     }
 
-    stack->elems[stack->top] = elem;
+    stack->elems[++stack->top] = elem;
 
 #ifdef STACK_DEBUG
     printf("Pushing %d as elem %d\n", (int) elem, stack->top);    
@@ -96,7 +106,7 @@ _XmStackPush(XmStack stack, XtPointer elem)
 XtPointer
 _XmStackPop(XmStack stack)
 {
-    if (stack->top <= 0)
+    if (stack == NULL || stack->top <= 0)
 	return(NULL);		/* no elements on the stack. */
 
 #ifdef STACK_DEBUG
