@@ -3645,3 +3645,9 @@ XLibre shell-output selection contract (2026-10-25)
   the client-area center, then nearest output with lowest-ID tie-breaking,
   while retaining the global-DPI fallback for invalid geometry; see
   `docs/xlibre-dpi-contract.md`.
+Fix Text drop location lifetime (2026-10-25)
+============================================
+
+- Keep drop coordinates valid through asynchronous transfer callbacks by
+  allocating them for the transfer lifetime and freeing them on completion;
+  see `docs/motif-textdest-location-lifetime.md`.

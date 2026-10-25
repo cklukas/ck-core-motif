@@ -1528,7 +1528,7 @@ TextDestinationCallback(Widget w,
   static char *atom_names[] = { XmSTARGETS, XmS_MOTIF_DROP };
 
   Atom atoms[XtNumber(atom_names)];
-  XPoint DropPoint;
+  XPoint *drop_point;
 
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);
@@ -1538,7 +1538,8 @@ TextDestinationCallback(Widget w,
    ** has been allocated, register a done proc to be called when 
    ** the data transfer is complete to free the location_data
    */
-  if (ds->selection == XA_PRIMARY && ds->location_data)
+  if ((ds->selection == XA_PRIMARY ||
+       ds->selection == atoms[XmA_MOTIF_DROP]) && ds->location_data)
       XmeTransferAddDoneProc(ds->transfer_id, FreeLocationData);
 
   /* If we aren't sensitive,  don't allow transfer */
@@ -1558,10 +1559,15 @@ TextDestinationCallback(Widget w,
     XmDropProcCallbackStruct *cb = 
       (XmDropProcCallbackStruct *) ds->destination_data;
     
-    DropPoint.x = cb->x;
-    DropPoint.y = cb->y;
-    
-    ds->location_data = (XtPointer) &DropPoint;
+    drop_point = (XPoint *) XtMalloc(sizeof(XPoint));
+    if (drop_point == NULL) {
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+      return;
+    }
+    drop_point->x = cb->x;
+    drop_point->y = cb->y;
+
+    ds->location_data = (XtPointer) drop_point;
     
     if (cb->dropAction != XmDROP_HELP) {
       HandleDrop(w, cb, ds);
