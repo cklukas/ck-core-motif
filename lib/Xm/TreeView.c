@@ -457,10 +457,14 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
     XmTreeViewWidget view = (XmTreeViewWidget)widget;
+    unsigned long height;
     (void)request;
     reply->request_mode = CWWidth | CWHeight;
     reply->width = 280;
-    reply->height = view->tree_view.row_height * view->tree_view.visible_rows;
+    height = (unsigned long)view->tree_view.row_height *
+             (unsigned long)view->tree_view.visible_rows;
+    reply->height = height > (unsigned long)(Dimension)-1
+                        ? (Dimension)-1 : (Dimension)height;
     return XtGeometryAlmost;
 }
 
