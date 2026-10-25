@@ -1,3 +1,9 @@
+Clipboard external-selection output guards (2026-10-26)
+=========================================================
+
+- Validate all `ClipboardGetSelection` output pointers before starting an Xt
+  selection request; see `docs/clipboard-selection-output-guards.md`.
+
 Clipboard format inquiry zero-length copy (2026-10-26)
 ========================================================
 

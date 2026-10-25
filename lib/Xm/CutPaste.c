@@ -2536,6 +2536,9 @@ ClipboardGetSelection(Display *display,
     XtAppContext app;
     Atom XmA_CLIPBOARD;
 
+    if (value == NULL || type == NULL || size == NULL || format == NULL)
+	return FALSE;
+
     dest = XtWindowToWidget(display, window);
 
     if (dest == (Widget) NULL) {
