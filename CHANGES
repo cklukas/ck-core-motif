@@ -6146,3 +6146,10 @@ Guard XmString context initialization (2026-10-25)
   cleanly under allocation pressure; see
   `docs/xmstring-context-init-allocation.md` and its focused source check.
 
+Guard XmString entry creation allocation (2026-10-25)
+=======================================================
+
+- Check internal entry allocations before zeroing record storage, allowing
+  separator and other constructors to unwind cleanly; see
+  `docs/xmstring-entry-create-allocation.md` and its focused source check.
+

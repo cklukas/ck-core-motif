@@ -670,17 +670,21 @@ typedef struct __XmStringArraySegRec *_XmStringLine;
   switch (type) { 							   \
   case XmSTRING_ENTRY_OPTIMIZED : 					   \
     (entry) = (_XmStringEntry)XtMalloc(sizeof(_XmStringOptSegRec));	   \
-    bzero((char*)entry, sizeof(_XmStringOptSegRec));			   \
-    _XmEntryTagIndex(entry) = TAG_INDEX_UNSET;			 	   \
-    _XmEntryRendIndex(entry) = REND_INDEX_UNSET;		 	   \
+    if (entry) {                                                           \
+      bzero((char*)entry, sizeof(_XmStringOptSegRec));                     \
+      _XmEntryTagIndex(entry) = TAG_INDEX_UNSET;                           \
+      _XmEntryRendIndex(entry) = REND_INDEX_UNSET;                         \
+    }                                                                      \
     break; 								   \
   case XmSTRING_ENTRY_ARRAY : 						   \
     (entry) = (_XmStringEntry)XtMalloc(sizeof(_XmStringArraySegRec));	   \
-    bzero((char*)entry, sizeof(_XmStringArraySegRec));			   \
+    if (entry)                                                             \
+      bzero((char*)entry, sizeof(_XmStringArraySegRec));                   \
     break; 								   \
   case XmSTRING_ENTRY_UNOPTIMIZED :					   \
     (entry) = (_XmStringEntry)XtMalloc(sizeof(_XmStringUnoptSegRec));  \
-    bzero((char*)entry, sizeof(_XmStringUnoptSegRec));		   \
+    if (entry)                                                             \
+      bzero((char*)entry, sizeof(_XmStringUnoptSegRec));                   \
     break; 								   \
   } 									   \
   if (entry) {                                                             \
