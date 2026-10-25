@@ -1,0 +1,11 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: ckmotif++
+Description: Optional C++17 ownership helpers for CK Core Motif
+Version: @CKMOTIF_VERSION@
+Requires: x11, xt
+Libs: -L${libdir} -lXm
+Cflags: -I${includedir}

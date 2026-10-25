@@ -38,6 +38,13 @@ SUBDIRS	= bindings bitmaps \
 AUTOMAKE_OPTIONS = 1.4
 ACLOCAL_AMFLAGS = -I .
 
+# Optional C++17 ownership helpers.  This installs only a header and pkg-config
+# metadata; libXm's C ABI and build requirements remain unchanged.
+ckmotifxxdir = $(includedir)/ckmotif++
+ckmotifxx_HEADERS = cpp/ckmotif++/motif_support.hpp
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = ckmotif++-8.pc
+
 # Focused fork manual; historical reference sources remain in doc/.
 EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
               scripts/build-xt-dependency.py patches/libXt-incr-lifetime.patch \
@@ -291,9 +298,10 @@ EXTRA_DIST += tests/automated/check-image-scaling-allocations.py docs/image-scal
 EXTRA_DIST += docs/ui-thread-completion-api-decision.md
 EXTRA_DIST += tests/automated/check-image-scaling-depth1.py docs/image-scaling-depth1.md
 EXTRA_DIST += docs/cpp-support-library-release-decision.md
-EXTRA_DIST += tests/cpp/motif_support.hpp tests/cpp/support_lifecycle.cpp \
+EXTRA_DIST += cpp/ckmotif++/motif_support.hpp tests/cpp/support_lifecycle.cpp \
               tests/automated/run-cpp-support-prototype.py \
-              docs/cpp-support-library-prototype.md
+              docs/cpp-support-library-prototype.md docs/cpp-support-library.md \
+              ckmotif++-8.pc.in
 EXTRA_DIST += tests/automated/check-image-rejection-cleanup.py docs/image-rejection-cleanup.md
 EXTRA_DIST += tests/automated/check-image-screen-fallback.py docs/image-screen-fallback.md
 EXTRA_DIST += tests/automated/check-image-conversion-cleanup.py docs/image-conversion-cleanup.md

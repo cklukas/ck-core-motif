@@ -608,15 +608,14 @@ results are reviewed, and there is an explicit go/no-go decision for WP-09.
 **Does not include:** integrating the prototype into `libXm` or claiming a new
 OO object model.
 
-**Status (2026-10-25):** the public design proposal is now backed by a
-consumer-only C++17 prototype and installed-prefix fixture. The prototype
-exercises copied/moved `XmString` ownership, one-shot argument storage,
-non-owning raw-widget interoperation, callback exception capture and
+**Status (2026-10-25):** the public design proposal is backed by the installed
+`ckmotif++` header and C++17 lifecycle fixture. The fixture exercises
+copied/moved `XmString` ownership, one-shot argument storage, non-owning
+raw-widget interoperation, callback exception capture and
 destruction-before-connection-release without private Xm records or a global
-registry. The fixture passes on the qualified AArch64 install; see
-`docs/cpp-support-library-prototype.md`. An installed WP-09 release remains
-NO-GO until the prototype's callback/destruction contract is reviewed across
-the required compiler and sanitizer matrix.
+registry. Fresh GCC and Clang runs, including AddressSanitizer/UBSan with leak
+detection, pass on the qualified AArch64 install; see
+`docs/cpp-support-library-prototype.md` and `docs/cpp-support-library.md`.
 
 ### WP-09: Optional C++ support-library release
 
@@ -638,12 +637,14 @@ optional SDK component.
 passes installed-prefix tests, and the library never requires ownership of an
 arbitrary raw `Widget` to be useful.
 
-**Status (2026-10-24):** no-go.  WP-08 has a reviewed consumer-only design,
-but its callback exception-barrier, destruction-order and mixed ownership
-fixture has not yet passed against a fresh installed prefix.  No partial C++
-SDK is installed or required by `libXm`; see
-`docs/cpp-support-library-release-decision.md` for the release gate and reopen
-criteria.
+**Status (2026-10-25):** implemented and qualified on a fresh AArch64
+installed prefix. The optional header-only `ckmotif++` package installs
+`ckmotif++/motif_support.hpp` and `ckmotif++-8.pc` without adding a C++
+requirement to `libXm`. GCC, Clang, and both sanitizer variants pass the
+callback exception-barrier, destruction-order and mixed C/C++ ownership
+fixture. The package remains subject to the separate toolkit-wide x86_64
+qualification gate; see `docs/cpp-support-library.md` and
+`docs/cpp-support-library-release-decision.md`.
 
 ### WP-10: Form and hierarchy diagnostic corpus
 

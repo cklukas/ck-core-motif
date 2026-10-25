@@ -39,8 +39,9 @@ invalidates a connection before its owner releases the wrapper.
   the owning Xt application thread.
 - The support layer is an exception barrier and value-ownership aid, not a
   thread-safe widget facade or an asynchronous dispatch mechanism.
-- The prototype remains header-only and consumer-side until an installed-prefix
-  lifecycle test proves the callback/destruction contract.
+- The released support layer remains header-only at the implementation level,
+  but is installed as a versioned public header with pkg-config metadata after
+  the installed-prefix lifecycle test proves the callback/destruction contract.
 
 ## Consumer examples to validate
 
@@ -56,8 +57,8 @@ invalidates a connection before its owner releases the wrapper.
 
 ## Decision
 
-WP-08 design is complete enough to prototype. The decision is **GO for a
-consumer-only prototype** and **NO-GO for an installed WP-09 release yet**:
-the lifecycle/exception-barrier fixture and a fresh C++17 installed-prefix
-consumer must pass before any public support-library package is added. This
-keeps the modernization additive and leaves the stable C ABI untouched.
+WP-08 design is complete and WP-09 is **GO**: the lifecycle and
+exception-barrier fixture passes against a fresh installed prefix with GCC,
+Clang and sanitizer variants, so the optional header and pkg-config package
+are released without changing the stable C ABI. The native AArch64 evidence
+does not close the toolkit-wide x86_64 qualification gate.

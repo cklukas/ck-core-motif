@@ -1,10 +1,10 @@
 # C++ support-library prototype (WP-08)
 
-This document records the consumer-only prototype for the optional C++ support
-layer. It is deliberately not installed and does not change `libXm`, Xt
-resources, UIL, callbacks or widget ownership. The header is a test artifact at
-`tests/cpp/motif_support.hpp` so the proposal can be exercised against a real
-installed prefix before an SDK package is considered.
+This document records the consumer-side fixture that drove the optional C++
+support layer. The public header is now installed as
+`ckmotif++/motif_support.hpp`; this fixture remains the lifecycle proof against
+a real installed prefix and does not change `libXm`, Xt resources, UIL,
+callbacks or widget ownership.
 
 ## Supported prototype contract
 
@@ -20,10 +20,10 @@ installed prefix before an SDK package is considered.
   destroyed first. Its C callback trampoline catches the callback and error
   sink exceptions before returning through Xt.
 
-All operations remain on the owning Xt application thread. The prototype does
-not provide asynchronous dispatch, thread safety, private-record access or an
-implicit event loop. The callback connection is intentionally a small
-consumer-side experiment; it is not an installed ABI.
+All operations remain on the owning Xt application thread. The support layer
+does not provide asynchronous dispatch, thread safety, private-record access
+or an implicit event loop. See the [installed support-library reference](cpp-support-library.md)
+for the release contract and package metadata.
 
 ## Installed-prefix check
 
@@ -40,6 +40,4 @@ The runner records source/header hashes, compiler/linker commands, loaded
 covers copied/moved `XmString` values, one-shot argument storage, raw-widget
 interoperation, move-only connection ownership, callback exception capture,
 callback continuation after the exception, and destruction-before-connection-
-release. It does not establish a release-quality SDK, cross-compiler ABI,
-sanitizer-clean Xt dependency, or thread-safe widget access; those remain WP-09
-release gates.
+release. Pass `--sanitize` for AddressSanitizer/UBSan with leak detection.

@@ -1,3 +1,15 @@
+Optional ckmotif++ support package and WML build graph (2026-10-25)
+====================================================================
+
+- Install the optional C++17 ownership/exception-barrier helpers as
+  `ckmotif++/motif_support.hpp` with `ckmotif++-8.pc`; the package keeps the
+  existing C ABI and Xt/Motif resource model unchanged.  GCC, Clang and
+  AddressSanitizer/UBSan installed-prefix fixtures pass on AArch64.
+- Regenerated build metadata now includes the additive widget sources in
+  `libXm`, allowing the WML tools to link from a fresh checkout;
+  the remaining full-tree demo failure is the pre-existing Uil `dog.uil`
+  internal diagnostic, not a WML missing-generated-source failure.
+
 Source-contract verifier maintenance (2026-10-25)
 ==================================================
 

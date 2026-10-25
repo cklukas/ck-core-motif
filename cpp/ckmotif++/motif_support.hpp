@@ -1,7 +1,10 @@
 /*
- * Consumer-only WP-08 prototype.  This header is intentionally not installed
- * by libXm: it exercises the proposed ownership and callback contracts without
- * creating a second widget ABI or a hidden widget registry.
+ * Optional C++17 support for the native Xt/Motif ABI.
+ *
+ * This header is deliberately a thin ownership layer.  It does not replace
+ * libXm's C object model, retain Widgets, create a second event loop, or make
+ * Xt safe to call from worker threads.  All widget and connection operations
+ * belong to the owning Xt application thread.
  */
 #ifndef CK_MOTIF_SUPPORT_HPP
 #define CK_MOTIF_SUPPORT_HPP
@@ -13,6 +16,7 @@
 #include <cstddef>
 #include <exception>
 #include <functional>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -21,6 +25,7 @@
 
 namespace motif {
 
+/* Move/copy ownership for one XmString value. */
 class string {
 public:
     string() noexcept = default;
@@ -89,6 +94,7 @@ private:
     XmString value_ = nullptr;
 };
 
+/* Ordered, one-shot storage for an Xt Arg array. */
 class args {
 public:
     args() = default;
@@ -111,18 +117,24 @@ public:
 
     std::size_t size() const noexcept { return entries_.size(); }
 
-    /* Build a temporary native Arg array and keep it alive only for the call. */
+    /* The callback must not retain the Arg pointer after it returns. */
     template <typename Function>
     decltype(auto) apply(Function &&function)
     {
         if (sealed_)
             throw std::logic_error("Xt argument list is already in use");
-        sealed_ = true;
+        if (entries_.size() > std::numeric_limits<Cardinal>::max())
+            throw std::length_error("Xt argument list exceeds Cardinal capacity");
 
         std::vector<Arg> native;
         native.reserve(entries_.size());
         for (const entry &item : entries_)
             native.push_back(Arg{const_cast<char *>(item.name.c_str()), item.value});
+
+        /* Seal only after native construction succeeds.  An allocation
+         * exception therefore leaves the object retryable and no callback
+         * can observe a partially built array. */
+        sealed_ = true;
         return std::forward<Function>(function)(
             native.empty() ? nullptr : native.data(),
             static_cast<Cardinal>(native.size()));
@@ -147,6 +159,7 @@ private:
     bool sealed_ = false;
 };
 
+/* A deliberately non-owning view of a Widget. */
 class widget_ref {
 public:
     widget_ref() noexcept = default;
@@ -159,6 +172,7 @@ private:
     Widget widget_ = nullptr;
 };
 
+/* RAII for one Xt callback registration with an exception barrier. */
 class callback_connection {
 public:
     using callback = std::function<void(widget_ref, XtPointer)>;
@@ -190,7 +204,8 @@ public:
                                        error_sink sink = error_sink())
     {
         if (!widget || resource == nullptr || function == nullptr)
-            throw std::invalid_argument("callback connection requires a widget, resource and callback");
+            throw std::invalid_argument(
+                "callback connection requires a widget, resource and callback");
 
         state *value = new state(widget.get(), resource, std::move(function),
                                  std::move(sink));
@@ -199,6 +214,8 @@ public:
         return callback_connection(value);
     }
 
+    /* Safe to call from a callback.  Final deletion is deferred until the
+     * active trampoline has returned to Xt. */
     void reset() noexcept
     {
         state *value = state_;
@@ -257,7 +274,7 @@ private:
                 try {
                     value->sink(std::current_exception());
                 } catch (...) {
-                    /* An error sink is also behind the C ABI barrier. */
+                    /* Error sinks are also behind the C ABI barrier. */
                 }
             }
         }

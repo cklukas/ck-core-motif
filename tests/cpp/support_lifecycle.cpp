@@ -1,5 +1,5 @@
 /* Installed-prefix consumer proof for the WP-08 C++ support prototype. */
-#include "motif_support.hpp"
+#include <ckmotif++/motif_support.hpp>
 
 #include <Xm/Label.h>
 #include <Xm/PushB.h>

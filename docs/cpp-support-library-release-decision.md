@@ -1,21 +1,20 @@
 # WP-09 optional C++ support-library release decision
 
-WP-08 now has a consumer-side header-only prototype and an installed-prefix
-lifecycle fixture. Its proposed `motif::string`, `motif::args`,
-`motif::widget_ref` and `motif::callback_connection` types pass the bounded
-AArch64 fixture, including callback exception barriers, widget-destruction
-ordering and mixed C/C++ ownership. The prototype remains deliberately outside
-the installed SDK while its cross-compiler, sanitizer and ownership contract
-are reviewed.
+WP-08's consumer-side header and lifecycle fixture now qualify the installed
+`ckmotif++` package. Its `motif::string`, `motif::args`, `motif::widget_ref`
+and `motif::callback_connection` types pass a fresh AArch64 installed prefix
+with GCC and Clang, including callback exception barriers,
+widget-destruction ordering, mixed C/C++ ownership and sanitizer runs with
+leak detection enabled.
 
 ## Decision
 
-**No-go for WP-09 release.** Keep the prototype consumer-only and leave
-`libXm`'s C ABI unchanged. Do not install a partial C++ wrapper, hide a global
-widget registry, or claim that one AArch64 fixture is an SDK qualification.
+**Go for WP-09 release.** Install the header-only, separately versioned
+`ckmotif++-8` package and its pkg-config metadata. Keep `libXm`'s C ABI
+unchanged; do not hide a global widget registry or claim thread-safe widgets.
 
-Re-open the package release decision only after the existing fixture is
-repeated against a fresh installed prefix and proves, at minimum:
+The accepted release evidence is a fresh installed prefix and proves, at
+minimum:
 
 - copied and moved `XmString` ownership with no leaks or double frees;
 - ordered argument storage whose lifetime ends at the Xt call boundary;
@@ -24,5 +23,6 @@ repeated against a fresh installed prefix and proves, at minimum:
   the C callback ABI; and
 - mixed C-created/C++-wrapped widget use without private-record access.
 
-The future package must remain optional, separately versioned and independent
-of a clean C `libXm` build.
+The package remains optional, separately versioned and independent of a clean C
+`libXm` build. The native AArch64 result does not close the toolkit-wide
+x86_64 qualification gate.

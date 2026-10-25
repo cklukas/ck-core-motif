@@ -14,6 +14,8 @@ dnl AM_MAINTAINER_MODE
 AC_CANONICAL_TARGET
 
 dnl The version of the Motif libraries
+CKMOTIF_VERSION=2.4.0
+AC_SUBST(CKMOTIF_VERSION)
 CURRENT=8
 REVISION=0
 AGE=0
@@ -32,6 +34,7 @@ dnl
 dnl AC_DISABLE_STATIC
 
 AC_CONFIG_HEADERS(include/config.h lib/Xm/Xm.h)
+AC_CONFIG_FILES([ckmotif++-8.pc])
 
 dnl Checks for programs.
 AC_PROG_CC
