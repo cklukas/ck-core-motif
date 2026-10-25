@@ -6256,3 +6256,9 @@ Bound XmString entry-copy allocation widths (2026-10-25)
 - Enforce both host and Xt allocator byte limits for copied segment and
   rendition arrays; see `docs/xmstring-unoptimized-copy.md`.
 
+Bound XmString segment-growth allocation widths (2026-10-25)
+==============================================================
+
+- Enforce Xt's `Cardinal` byte limit for segment-array growth in the
+  transactional insertion path; see `docs/xmstring-segment-allocation.md`.
+
