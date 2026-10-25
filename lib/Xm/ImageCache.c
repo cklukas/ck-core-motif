@@ -2594,6 +2594,13 @@ void _XmPutScaledImage (
     fast8 = (src_image->depth == 8 && src_image->bits_per_pixel == 8 &&
 	     dest_image->bits_per_pixel == 8 && src_image->format == ZPixmap);
 
+	if ((size_t)src_image->width >
+	    SIZE_MAX / sizeof(*table.x) - 1 ||
+	    (size_t)src_image->height >
+	    SIZE_MAX / sizeof(*table.y) - 1 ||
+	    (size_t)src_image->width > SIZE_MAX / sizeof(*table.width) ||
+	    (size_t)src_image->height > SIZE_MAX / sizeof(*table.height))
+	    goto cleanup;
     table.x = (unsigned int *) XtMalloc(sizeof(*table.x) *
 					((size_t)src_image->width + 1));
     table.y = (unsigned int *) XtMalloc(sizeof(*table.y) *

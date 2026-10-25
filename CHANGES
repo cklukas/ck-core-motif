@@ -9797,6 +9797,13 @@ MWM menu-item copy transaction (2026-10-25)
   and releasing partial lists on failure while preserving valid ordering and
   ownership; see `docs/mwm-menu-item-copy-allocation.md`.
 
+Image-scaling table arithmetic guard (2026-10-25)
+=================================================
+
+- Check source-image lookup-table element counts before multiplying allocation
+  sizes, preventing narrow-`size_t` wraparound while preserving normal image
+  scaling; see `docs/image-scaling-allocations.md`.
+
 - Preserve the current string-child value list when replacement allocation or
   copying fails during `SetValues`, rolling back partial copies safely; see
   `docs/spinbox-value-setvalues-rollback.md`.
