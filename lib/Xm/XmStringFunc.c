@@ -232,6 +232,10 @@ XmStringTableUnparse(XmStringTable     table,
   }
   
   strs = (XtPointer *)XtMalloc(count * sizeof(XtPointer));
+  if (strs == NULL) {
+    _XmProcessUnlock();
+    return(NULL);
+  }
   
   for (i = 0; i < count; i++)
     strs[i] = XmStringUnparse(table[i], tag, tag_type, output_type,

@@ -1,3 +1,9 @@
+Guard XmString table unparse allocation (2026-10-25)
+=====================================================
+
+- Return `NULL` safely when XmString table unparsing cannot allocate its
+  output table; see `docs/motif-xmstring-table-unparse.md`.
+
 Guard XmString table parse allocation (2026-10-25)
 ===================================================
 
