@@ -6282,3 +6282,9 @@ Bound List internal-array allocation widths (2026-10-25)
   shrink paths while preserving the old allocation on failure; see
   `docs/list-internal-growth.md` and its focused source check.
 
+Bound List item compaction allocation width (2026-10-25)
+=========================================================
+
+- Keep List item compaction transactional and enforce Xt's `Cardinal` byte
+  limit when shrinking the external item array; see the focused List checks.
+

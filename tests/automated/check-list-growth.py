@@ -21,4 +21,10 @@ assert "if (pos == NULL)" in match_region
 assert "if (new_pos != NULL)" in match_region
 assert "pos = new_pos;" in match_region
 
+delete_start = source.index("static void\nDeleteItems")
+delete_end = source.index("static void\nReplaceItem", delete_start)
+delete_region = source[delete_start:delete_end]
+assert "UINT_MAX / sizeof(XmString)" in delete_region
+assert delete_region.count("(Cardinal)(sizeof(XmString) * (size_t)TotalItems)") >= 2
+
 print("PASS List item and match-position growth checks allocation failures")
