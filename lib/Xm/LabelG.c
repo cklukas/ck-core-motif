@@ -35,6 +35,7 @@ static char rcsid[] = "$TOG: LabelG.c /main/24 1999/01/26 15:31:18 mgreess $"
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <stdint.h>
 #include <X11/IntrinsicP.h>
 #include <X11/ShellP.h>
 #include <X11/Xatom.h>
@@ -3868,7 +3869,7 @@ int *line_count)
         _XmStringGetBaselines(LabG_Font(lw), LabG__label(lw),
             &(lw->label.baselines), &count);
         if (lw->label.baselines == NULL || count == (Cardinal)-1 ||
-            (size_t)(count + 1) > (size_t)-1 / sizeof(*new_baselines)) {
+            (size_t)count >= SIZE_MAX / sizeof(*new_baselines)) {
             lw->label.baselines = NULL;
             return False;
         }
@@ -3876,7 +3877,7 @@ int *line_count)
         /* Store the current offset in an extra location. */
         new_baselines = (Dimension *)XtRealloc(
             (char *)lw->label.baselines,
-            (size_t)(count + 1) * sizeof(*new_baselines));
+            ((size_t)count + 1) * sizeof(*new_baselines));
         if (new_baselines == NULL) {
             XtFree((char *)lw->label.baselines);
             lw->label.baselines = NULL;

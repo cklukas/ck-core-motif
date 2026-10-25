@@ -2584,7 +2584,7 @@ XmLabelGetBaselines(Widget wid,
       _XmStringGetBaselines(lw->label.font, lw->label._label,
 			    &(lw->label.baselines), &count);
       if (lw->label.baselines == NULL || count == (Cardinal)-1 ||
-	  (size_t)(count + 1) > (size_t)-1 / sizeof(*new_baselines)) {
+	  (size_t)count >= SIZE_MAX / sizeof(*new_baselines)) {
 	  lw->label.baselines = NULL;
 	  return False;
       }
@@ -2592,7 +2592,7 @@ XmLabelGetBaselines(Widget wid,
       /* Store the current offset in an extra location. */
       new_baselines = (Dimension *)XtRealloc(
 	  (char *)lw->label.baselines,
-	  (size_t)(count + 1) * sizeof(*new_baselines));
+	  ((size_t)count + 1) * sizeof(*new_baselines));
       if (new_baselines == NULL) {
 	XtFree((char *)lw->label.baselines);
 	lw->label.baselines = NULL;

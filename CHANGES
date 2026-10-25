@@ -1,3 +1,10 @@
+Label baseline count bounds (2026-10-28)
+=========================================
+
+- Check the `Cardinal` baseline count before adding the cached offset element
+  in Label and LabelGadget, preventing count wraparound from bypassing the
+  allocation guard; see `docs/label-baseline-count-bounds.md`.
+
 GeoUtils box-fitting allocation guards (2026-10-28)
 ====================================================
 

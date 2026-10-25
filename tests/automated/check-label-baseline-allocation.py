@@ -13,5 +13,7 @@ assert "new_baselines = (Dimension *)XtRealloc" in region
 assert "if (new_baselines == NULL)" in region
 assert "if (*baselines == NULL)" in region
 assert "if (count == 0)" in region
+assert "(size_t)count >= SIZE_MAX / sizeof(*new_baselines)" in region
+assert "((size_t)count + 1) * sizeof(*new_baselines)" in region
 
 print("PASS Label baseline allocation checks")
