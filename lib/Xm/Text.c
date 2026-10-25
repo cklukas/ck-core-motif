@@ -3931,7 +3931,7 @@ XmTextGetString(Widget widget)
     XmAccessTextualTrait textT;
     textT = (XmAccessTextualTrait)
       XmeTraitGet((XtPointer) XtClass(widget), XmQTaccessTextual);
-    if (textT)
+    if (textT != NULL && textT->getValue != NULL)
       text_copy = (char*) textT->getValue(widget, XmFORMAT_MBYTE);
   } else
     text_copy = _XmStringSourceGetValue(GetSrc(widget), False);
@@ -3952,7 +3952,7 @@ XmTextGetStringWcs(Widget widget)
     XmAccessTextualTrait textT;
     textT = (XmAccessTextualTrait)
       XmeTraitGet((XtPointer) XtClass(widget), XmQTaccessTextual);
-    if (textT)
+    if (textT != NULL && textT->getValue != NULL)
       text_copy = (wchar_t *) textT->getValue(widget, XmFORMAT_WCS);
   }
   else
@@ -3972,7 +3972,7 @@ XmTextSetString(Widget widget,
     XmAccessTextualTrait textT;
     textT = (XmAccessTextualTrait)
       XmeTraitGet((XtPointer) XtClass(widget), XmQTaccessTextual);
-    if (textT)
+    if (textT != NULL && textT->setValue != NULL)
       textT->setValue(widget, (XtPointer)value, XmFORMAT_MBYTE);
   } else 
     _XmTextSetString(widget, value);
@@ -3995,7 +3995,7 @@ XmTextSetStringWcs(Widget widget,
     XmAccessTextualTrait textT;
     textT = (XmAccessTextualTrait)
       XmeTraitGet((XtPointer) XtClass(widget), XmQTaccessTextual);
-    if (textT)
+    if (textT != NULL && textT->setValue != NULL)
       textT->setValue(widget, (XtPointer)wc_value, XmFORMAT_WCS);
   } else {
 
