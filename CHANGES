@@ -11057,3 +11057,10 @@ WSM configuration-string failure (2026-10-25)
 - Roll back partially decoded configuration formats when an attribute string
   cannot be allocated, avoiding invalid quark conversion; see
   `docs/wsm-config-string-oom.md`.
+
+WSM window-entry allocation (2026-10-25)
+========================================
+
+- Check window and match-property array allocations while decoding WSM
+  replies, consuming rejected values to preserve stream alignment; see
+  `docs/wsm-win-entry-oom.md`.

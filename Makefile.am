@@ -902,6 +902,8 @@ EXTRA_DIST += tests/automated/check-wsm-unpack-string-oom.py docs/wsm-unpack-str
 
 EXTRA_DIST += tests/automated/check-wsm-config-string-oom.py docs/wsm-config-string-oom.md
 
+EXTRA_DIST += tests/automated/check-wsm-win-entry-oom.py docs/wsm-win-entry-oom.md
+
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 
 EXTRA_DIST += tests/automated/check-latin-lower-bounds.py docs/latin-lower-bounds.md

@@ -1383,18 +1383,35 @@ UnpackWinEntry(MessageData *data, Display *dpy,
     int i;
 
     win_entry->num_windows = UnpackListNum(data);
-    win_entry->windows = (Window *) XtMalloc(sizeof(Window) * win_entry->num_windows);
+    win_entry->windows = NULL;
+    if (win_entry->num_windows != 0)
+      win_entry->windows = (Window *) XtMalloc(sizeof(Window) *
+						       win_entry->num_windows);
 
-    for (i=0; i<win_entry->num_windows; i++)
-      win_entry->windows[i] = UnpackWindow(data);
+    if (win_entry->windows != NULL)
+      for (i=0; i<win_entry->num_windows; i++)
+	win_entry->windows[i] = UnpackWindow(data);
+    else {
+      for (i=0; i<win_entry->num_windows; i++)
+	(void) UnpackWindow(data);
+      win_entry->num_windows = 0;
+    }
 
     win_entry->num_match_properties = UnpackListNum(data);
-    win_entry->match_properties =
-      (WindowProperty *) XtMalloc(sizeof(WindowProperty) *
-				  win_entry->num_match_properties);
+    win_entry->match_properties = NULL;
+    if (win_entry->num_match_properties != 0)
+      win_entry->match_properties =
+	  (WindowProperty *) XtMalloc(sizeof(WindowProperty) *
+				      win_entry->num_match_properties);
 
-    for (i=0; i<win_entry->num_match_properties; i++)
-      win_entry->match_properties[i] = UnpackProperty(data);
+    if (win_entry->match_properties != NULL)
+      for (i=0; i<win_entry->num_match_properties; i++)
+	win_entry->match_properties[i] = UnpackProperty(data);
+    else {
+      for (i=0; i<win_entry->num_match_properties; i++)
+	(void) UnpackProperty(data);
+      win_entry->num_match_properties = 0;
+    }
 }
 
 /*	Function Name: UnpackString
