@@ -1,3 +1,9 @@
+Mwm feedback text bounds (2026-10-25)
+=======================================
+
+- Give move/resize feedback room for full-width coordinates and dimensions and
+  use bounded, type-correct formatting; see `docs/feedback-format-bounds.md`.
+
 Mwm workspace-list parsing bound (2026-10-25)
 ===============================================
 

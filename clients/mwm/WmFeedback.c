@@ -611,7 +611,8 @@ void UpdateFeedbackText (WmScreenData *pSD, int x, int y, unsigned int width, un
 
     if (pSD->fbStyle & FB_POSITION) 
     {
-	sprintf (pSD->fbLocation, "(%4d,%-4d)", x, y);
+	(void)snprintf (pSD->fbLocation, sizeof pSD->fbLocation,
+		       "(%4d,%-4d)", x, y);
 	XTextExtents(pSD->feedbackAppearance.font, pSD->fbLocation,
 		 strlen(pSD->fbLocation), &direction, &ascent, 
 		 &descent, &xcs);
@@ -620,7 +621,8 @@ void UpdateFeedbackText (WmScreenData *pSD, int x, int y, unsigned int width, un
 
     if (pSD->fbStyle & FB_SIZE) 
     {
-	sprintf (pSD->fbSize,     "%4dx%-4d", width, height);
+	(void)snprintf (pSD->fbSize, sizeof pSD->fbSize,
+		       "%4ux%-4u", width, height);
 	XTextExtents(pSD->feedbackAppearance.font, pSD->fbSize,
 		 strlen(pSD->fbSize), &direction, &ascent, 
 		 &descent, &xcs);
