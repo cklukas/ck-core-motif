@@ -1,3 +1,9 @@
+Guard FileSB conversion target allocation (2026-10-25)
+========================================================
+
+- Refuse File Selection Box target conversion when its temporary atom array
+  cannot be allocated; see `docs/motif-filesb-convert.md`.
+
 Handle icon-file cache-table allocation failure (2026-10-25)
 ===============================================================
 

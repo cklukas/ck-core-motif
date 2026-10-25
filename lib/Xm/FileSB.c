@@ -3605,6 +3605,10 @@ FSBConvert(Widget wid, XtPointer client_data, XtPointer cb_struct)
 	 cs -> target == atoms[XmA_MOTIF_CLIPBOARD_TARGETS])) {
       Atom *targs;
       targs = (Atom *) XtMalloc(sizeof(Atom) * 2);
+      if (targs == NULL) {
+	cs -> status = XmCONVERT_REFUSE;
+	return;
+      }
       targs[0] = atoms[XmAFILE];
       targs[1] = atoms[XmAFILE_NAME];
       cs -> value = (XtPointer) targs;
