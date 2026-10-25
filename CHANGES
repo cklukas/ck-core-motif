@@ -1,3 +1,9 @@
+XmDropDown API null-safety (2026-10-25)
+=========================================
+
+- Guard DropDown value and child getters against null widgets; see
+  `docs/xm-dropdown-api-null.md`.
+
 Xm display and drag API null-safety (2026-10-25)
 =================================================
 

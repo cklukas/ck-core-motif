@@ -2539,6 +2539,8 @@ XmDropDownGetValue(Widget w)
     XmDropDownWidget cbw = (XmDropDownWidget) w;
     String ptr;
 
+    if (w == NULL)
+        return NULL;
     _XmWidgetToAppContext(w);
     _XmAppLock(app);
 
@@ -2619,7 +2621,7 @@ XmVaCreateManagedDropDown(
 
 Widget XmDropDownGetLabel(Widget w)
 {
-    if(!XtIsSubclass(w, xmDropDownWidgetClass))
+    if(w == NULL || !XtIsSubclass(w, xmDropDownWidgetClass))
 	return NULL;
     return XmDropDown_label(w);
 }
@@ -2633,7 +2635,7 @@ Widget XmDropDownGetLabel(Widget w)
 
 Widget XmDropDownGetArrow(Widget w)
 {
-    if(!XtIsSubclass(w, xmDropDownWidgetClass))
+    if(w == NULL || !XtIsSubclass(w, xmDropDownWidgetClass))
 	return NULL;
     return XmDropDown_arrow(w);
 }
@@ -2647,7 +2649,7 @@ Widget XmDropDownGetArrow(Widget w)
 
 Widget XmDropDownGetText(Widget w)
 {
-    if(!XtIsSubclass(w, xmDropDownWidgetClass))
+    if(w == NULL || !XtIsSubclass(w, xmDropDownWidgetClass))
 	return NULL;
     return XmDropDown_text(w);
 }
@@ -2661,7 +2663,7 @@ Widget XmDropDownGetText(Widget w)
 
 Widget XmDropDownGetList(Widget w)
 {
-    if(!XtIsSubclass(w, xmDropDownWidgetClass))
+    if(w == NULL || !XtIsSubclass(w, xmDropDownWidgetClass))
 	return NULL;
     return XtNameToWidget(w, "*list");
 }
@@ -2678,6 +2680,8 @@ Widget XmDropDownGetChild(Widget w, int num)
     XmDropDownWidget cbw = (XmDropDownWidget) w;
     Widget child;
 
+    if (w == NULL)
+        return NULL;
     _XmWidgetToAppContext(w);    
     _XmAppLock(app);
 
