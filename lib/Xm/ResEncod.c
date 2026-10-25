@@ -570,19 +570,39 @@ XmRegisterSegmentEncoding(
 
   if (encodingPtr)
     {
-      ret_val = XtNewString(EncodingRegistryEncoding(encodingPtr));
-      EncodingRegistryEncoding(encodingPtr) = 
-      ct_encoding ? XtNewString(ct_encoding) : (String)NULL;
+      String old_copy = XtNewString(EncodingRegistryEncoding(encodingPtr));
+      String new_encoding = ct_encoding ? XtNewString(ct_encoding) : NULL;
+
+      if (EncodingRegistryEncoding(encodingPtr) != NULL && old_copy == NULL) {
+        XtFree(new_encoding);
+      } else if (ct_encoding != NULL && new_encoding == NULL) {
+        XtFree(old_copy);
+      } else {
+        ret_val = old_copy;
+        XtFree(EncodingRegistryEncoding(encodingPtr));
+        EncodingRegistryEncoding(encodingPtr) = new_encoding;
+      }
     }
   else if (ct_encoding != NULL)
     {
-      encodingPtr = 
-      (SegmentEncoding *)XtMalloc((Cardinal)sizeof(SegmentEncoding));
-      EncodingRegistryTag(encodingPtr) = XtNewString(fontlist_tag);
-      EncodingRegistryEncoding(encodingPtr) = XtNewString(ct_encoding);
-      
-      EncodingRegistryNext(encodingPtr) = _encoding_registry_ptr;
-      _encoding_registry_ptr = encodingPtr;
+      String new_tag = XtNewString(fontlist_tag);
+      String new_encoding = XtNewString(ct_encoding);
+
+      if (new_tag == NULL || new_encoding == NULL) {
+        XtFree(new_tag);
+        XtFree(new_encoding);
+      } else {
+        encodingPtr = (SegmentEncoding *)XtMalloc(sizeof(*encodingPtr));
+        if (encodingPtr == NULL) {
+          XtFree(new_tag);
+          XtFree(new_encoding);
+        } else {
+          EncodingRegistryTag(encodingPtr) = new_tag;
+          EncodingRegistryEncoding(encodingPtr) = new_encoding;
+          EncodingRegistryNext(encodingPtr) = _encoding_registry_ptr;
+          _encoding_registry_ptr = encodingPtr;
+        }
+      }
     }
   
   _XmProcessUnlock();
@@ -632,6 +652,11 @@ _XmGetEncodingRegistryTarget(int *length)
   /* Create output buffer large enough for all the
      pairs of tags and encodings */
   rval = XtMalloc((Cardinal)total_size);
+  if (rval == NULL) {
+    *length = 0;
+    _XmProcessUnlock();
+    return NULL;
+  }
 
   i = 0;
   current = _encoding_registry_ptr;

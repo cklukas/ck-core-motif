@@ -5467,3 +5467,9 @@ Guard compound-text conversion context allocation (2026-10-25)
 
 - Check context and initial direction-stack allocations in both conversion
   entry points; see `docs/resencod-direction-stack.md`.
+
+Make segment-encoding registry updates transactional (2026-10-25)
+====================================================================
+
+- Preserve registered encodings and guard registry export buffers across
+  allocation failures; see `docs/motif-resencod-registry.md`.
