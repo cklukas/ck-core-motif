@@ -697,7 +697,11 @@ ColorCachePropertyExists(
 		    &length, &bytesafter, (unsigned char **) &value);
 
    if ((result != Success) || (format == 0) || (target == None))
+   {
+	if (value != NULL)
+	    XFree(value);
 	return False ;
+   }
 
     if (value != NULL && length > 0)  {
         if (value[length - 1] != XmPIXEL_SET_PROP_VERSION) {
