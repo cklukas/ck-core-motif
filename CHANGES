@@ -4266,3 +4266,11 @@ Mrm writer arg-value rebinds (2026-10-25)
 - Propagate all type-specific argument-descriptor rebind failures from
   `UrmCWRSetArgValue` after record growth; see
   `docs/mrm-writer-arg-value-rebind.md`.
+Icon-list growth bounds (2026-10-25)
+=====================================
+
+- Validate icon-box list increments and allocation-size arithmetic before
+  growing the placement array; see `docs/icon-list-growth.md`.
+
+Dynamic default-color cache allocation (2026-10-25)
+=====================================================

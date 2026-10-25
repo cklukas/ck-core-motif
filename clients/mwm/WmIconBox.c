@@ -70,6 +70,7 @@ static char rcsid[] = "$TOG: WmIconBox.c /main/7 1999/05/20 16:35:12 mgreess $"
 #include "WmResNames.h"
 
 #include <stdio.h>
+#include <limits.h>
 
 /*
  * include extern functions
@@ -2830,7 +2831,13 @@ Boolean ExtendIconList (IconBoxData *pIBD, int incr)
     int newSize;
     IconInfo *pTmp;
 
+    if (pIBD == NULL || incr <= 0 || pIBD->IPD.totalPlaces < 0 ||
+	incr > INT_MAX - pIBD->IPD.totalPlaces)
+	return (False);
+
     newSize = pIBD->IPD.totalPlaces + incr;
+    if ((size_t)newSize > UINT_MAX / sizeof(IconInfo))
+	return (False);
 
     if ((pTmp = (IconInfo *) XtMalloc (newSize*sizeof(IconInfo))) != NULL)
     {
