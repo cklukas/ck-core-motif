@@ -1,3 +1,9 @@
+List item geometry bounds (2026-10-25)
+=====================================
+
+- Bound the width returned by List item geometry queries, preventing wrapped
+  rectangles for narrow lists; see `docs/list-item-geometry.md`.
+
 List clear geometry bounds (2026-10-25)
 ======================================
 
