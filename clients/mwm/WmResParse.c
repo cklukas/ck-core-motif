@@ -3586,13 +3586,17 @@ static Boolean ParseClientCommand (unsigned char **linePP, MenuSpec *menuSpec,
 static Boolean ParseWmLabel (WmScreenData *pSD, MenuItem *menuItem, 
 			     unsigned char *string)
 {
+    size_t labelLength;
 
     /*
      * Allocate the label field and copy string.
      */
 
-    if ((menuItem->label = (String)
-        XtMalloc ((unsigned int)(strlen ((char *)string) + 1))) == NULL)
+    if (menuItem == NULL || string == NULL)
+	return (FALSE);
+    labelLength = strlen((char *)string);
+    if (labelLength == SIZE_MAX ||
+	(menuItem->label = (String)XtMalloc(labelLength + 1)) == NULL)
     {
         PWarning (((char *)GETMESSAGE(60, 13, "Insufficient memory for menu item")));
         return (FALSE);

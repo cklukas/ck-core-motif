@@ -9783,6 +9783,13 @@ FontSelector label initialization rollback (2026-10-28)
 SpinBox value-list SetValues rollback (2026-10-28)
 =====================================================
 
+MWM label-parse allocation guard (2026-10-25)
+==============================================
+
+- Validate label-parser inputs and use `size_t` lengths before copying menu
+  labels, avoiding null dereferences and narrow-size wrapping; see
+  `docs/mwm-label-parse-allocation.md`.
+
 MWM workspace-list serialization guard (2026-10-25)
 ====================================================
 
