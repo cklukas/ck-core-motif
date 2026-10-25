@@ -631,7 +631,11 @@ XmStringToXmStringTable(XmString string,
       if (table != NULL)
 	{
 	  *table = (XmStringTable)XtMalloc(sizeof(XmString));
-	  *table[0] = XmStringCopy(string);
+	  if (*table == NULL) {
+	    _XmProcessUnlock();
+	    return(0);
+	  }
+	  (*table)[0] = XmStringCopy(string);
 	}
       _XmProcessUnlock();
       return(1);
@@ -661,6 +665,10 @@ XmStringToXmStringTable(XmString string,
   if (table != NULL)
     {
       *table = (XmStringTable)XtMalloc(count * sizeof(XmString));
+      if (*table == NULL) {
+	_XmProcessUnlock();
+	return(0);
+      }
       
       _XmStringContextReInit(&stack_context, string);
       _XmStringContextReInit(&stack_start, string);

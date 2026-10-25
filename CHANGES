@@ -5821,3 +5821,11 @@ Guard compound-text encoding concatenation buffers (2026-10-25)
 
 - Check temporary octet allocation before combining registered encodings; see
   `docs/motif-resencod-octets.md`.
+Fix XmString table splitting allocation and indexing (2026-10-25)
+==================================================================
+
+- Guard both output-table allocations and correct the no-break-component
+  table write in `XmStringToXmStringTable`; see
+  `docs/motif-xmstring-table-split.md`.
+
+Validate XmString rendition inputs (2026-10-25)
