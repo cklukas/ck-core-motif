@@ -51,6 +51,12 @@ UTM destination cleanup (2026-10-25)
   data, preventing stale requests and queue leaks; see
   `docs/utm-destination-cleanup.md`.
 
+UTM sink failure cleanup (2026-10-25)
+=====================================
+
+- Remove and release the rejected transfer package from the UTM queue by
+  identity, preserving other pending requests; see `docs/utm-sink-failure.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 

@@ -49,6 +49,10 @@ static Boolean EnqueueUtmData(
 XtPointer
 );
 
+static Boolean RemoveUtmData(
+XtPointer
+);
+
 static XtPointer DequeueUtmData(
 void
 );
@@ -129,8 +133,11 @@ UTMSendMessage(
 		    XmCOPY,
 		    NULL, /* location_data. holds param data (client data),
 			     free in TransferDone proc. */
-		    time))
-    fprintf(stderr, "UTM Error: UTMSendMessage failed.\n");
+		    time)) {
+	    if (RemoveUtmData((XtPointer)pUtmData))
+	      XtFree((char *)pUtmData);
+	    fprintf(stderr, "UTM Error: UTMSendMessage failed.\n");
+  }
 
 } /* UTMSendMessage */
 
@@ -238,6 +245,31 @@ EnqueueUtmData(XtPointer data)
   dataQueue = dataRec;
 
   return(True);
+}
+
+
+/* Remove one package when the sink rejects a request before dispatch. */
+static Boolean
+RemoveUtmData(XtPointer data)
+{
+  DataQueueRec *ptr;
+
+  for (ptr = dataQueue; ptr != NULL; ptr = ptr->next)
+    if (ptr->data == data)
+      {
+	if (ptr->prev != NULL)
+	  ptr->prev->next = ptr->next;
+	else
+	  dataQueue = ptr->next;
+	if (ptr->next != NULL)
+	  ptr->next->prev = ptr->prev;
+	else
+	  dataQueueTail = ptr->prev;
+	XtFree((char *)ptr);
+	return(True);
+      }
+
+  return(False);
 }
 
 
