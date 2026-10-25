@@ -43,6 +43,7 @@ clients exchanging Motif window-management messages.
 - [Builtin binding buffer size](mwm-binding-buffer-size.md)
 - [Menu query array bounds](mwm-menu-array-bounds.md)
 - [Automation reply sizing](mwm-automation-reply-size.md)
+- [Command window-list allocation](mwm-window-list-overflow.md)
 
 These focused pages document compatibility-preserving guards; they do not
 change public MWM resource or message formats.

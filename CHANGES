@@ -11037,3 +11037,10 @@ MWM automation reply sizing (2026-10-25)
 - Use a `size_t` counter while sizing variable-length automation replies so
   long menu labels cannot truncate the allocation size; see
   `docs/mwm-automation-reply-size.md`.
+
+MWM command window-list allocation (2026-10-25)
+================================================
+
+- Reject window-list counts whose allocation multiplication would overflow,
+  keeping command handling safe on narrow `size_t` platforms; see
+  `docs/mwm-window-list-overflow.md`.

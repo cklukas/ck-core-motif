@@ -389,7 +389,12 @@ IncludeCommand (
       PRINT("No windows supplied for IncludeCommand.\n");
       return;
     }
-  windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if ((size_t) count > ((size_t) -1) / sizeof(Window))
+    {
+      PRINT("Window list is too large for IncludeCommand.\n");
+      return;
+    }
+  windowIDs = (Window *) XtMalloc(sizeof(Window) * (size_t) count);
   if (windowIDs == NULL)
     {
       PRINT("Unable to allocate window list for IncludeCommand.\n");
@@ -524,7 +529,12 @@ EnableCommand (
       PRINT("No windows supplied for EnableCommand.\n");
       return;
     }
-  windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if ((size_t) count > ((size_t) -1) / sizeof(Window))
+    {
+      PRINT("Window list is too large for EnableCommand.\n");
+      return;
+    }
+  windowIDs = (Window *) XtMalloc(sizeof(Window) * (size_t) count);
   if (windowIDs == NULL)
     {
       PRINT("Unable to allocate window list for EnableCommand.\n");
@@ -656,7 +666,12 @@ DisableCommand (
       PRINT("No windows supplied for DisableCommand.\n");
       return;
     }
-  windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if ((size_t) count > ((size_t) -1) / sizeof(Window))
+    {
+      PRINT("Window list is too large for DisableCommand.\n");
+      return;
+    }
+  windowIDs = (Window *) XtMalloc(sizeof(Window) * (size_t) count);
   if (windowIDs == NULL)
     {
       PRINT("Unable to allocate window list for DisableCommand.\n");
@@ -790,7 +805,12 @@ RenameCommand (
       PRINT("No windows supplied for RenameCommand.\n");
       return;
     }
-  windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if ((size_t) count > ((size_t) -1) / sizeof(Window))
+    {
+      PRINT("Window list is too large for RenameCommand.\n");
+      return;
+    }
+  windowIDs = (Window *) XtMalloc(sizeof(Window) * (size_t) count);
   if (windowIDs == NULL)
     {
       PRINT("Unable to allocate window list for RenameCommand.\n");
@@ -922,7 +942,12 @@ RemoveCommand (
       PRINT("No windows supplied for RemoveCommand.\n");
       return;
     }
-  windowIDs = (Window *) XtMalloc(sizeof(Window)*count);
+  if ((size_t) count > ((size_t) -1) / sizeof(Window))
+    {
+      PRINT("Window list is too large for RemoveCommand.\n");
+      return;
+    }
+  windowIDs = (Window *) XtMalloc(sizeof(Window) * (size_t) count);
   if (windowIDs == NULL)
     {
       PRINT("Unable to allocate window list for RemoveCommand.\n");
