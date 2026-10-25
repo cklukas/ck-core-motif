@@ -4835,3 +4835,9 @@ Make XmRegion copy growth transactional (2026-10-25)
 
 - Preserve the destination rectangle array on failed or overflowing growth
   during region copies; see `docs/region-copy-growth.md`.
+
+Validate scaled-pixmap color input (2026-10-25)
+===============================================
+
+- Reject a missing `XmAccessColorData` record before scaled-pixmap cache
+  construction can dereference it; see `docs/scaled-pixmap-color-input.md`.
