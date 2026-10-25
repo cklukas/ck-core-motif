@@ -22,9 +22,9 @@ int main(int argc, char **argv)
 {
     XtAppContext app;
     Widget shell, row, menu, pulldown, cascade, menu_item;
-    Widget label, list, combo, files;
+    Widget label, compound_label, list, combo, files;
     XmString items[3], selected = NULL, expected_label, expected_combo;
-    XmString expected_menu, expected_file;
+    XmString expected_menu, expected_file, compound;
     const char *values[] = {
         "e\314\201clair",       /* combining acute */
         "\360\237\230\200 cafe", /* non-BMP emoji */
@@ -32,6 +32,12 @@ int main(int argc, char **argv)
     };
     char *label_text = NULL;
     int *positions = NULL, position_count = 0;
+    XmStringContext context;
+    char *segment_text = NULL;
+    XmStringCharSet segment_charset = NULL;
+    XmStringDirection segment_direction;
+    Boolean segment_separator;
+    unsigned int segment_count = 0;
 
     CHECK(setlocale(LC_ALL, "C.UTF-8") != NULL);
     XtSetLanguageProc(NULL, NULL, NULL);
@@ -44,6 +50,11 @@ int main(int argc, char **argv)
     expected_combo = XmStringCreateLocalized((char *)values[2]);
     expected_menu = XmStringCreateLocalized((char *)values[0]);
     expected_file = XmStringCreateLocalized((char *)values[2]);
+    compound = XmStringConcatAndFree(
+        XmStringSegmentCreate((char *)values[0], XmFONTLIST_DEFAULT_TAG,
+                              XmSTRING_DIRECTION_L_TO_R, True),
+        XmStringSegmentCreate((char *)values[1], XmFONTLIST_DEFAULT_TAG,
+                              XmSTRING_DIRECTION_L_TO_R, False));
 
     row = XtVaCreateManagedWidget("row", xmRowColumnWidgetClass, shell,
                                   XmNorientation, XmVERTICAL, NULL);
@@ -59,6 +70,9 @@ int main(int argc, char **argv)
 
     label = XtVaCreateManagedWidget("label", xmLabelWidgetClass, shell,
                                    XmNlabelString, items[1], NULL);
+    compound_label = XtVaCreateManagedWidget("compound-label",
+                                             xmLabelWidgetClass, shell,
+                                             XmNlabelString, compound, NULL);
     list = XtVaCreateManagedWidget("list", xmListWidgetClass, shell,
                                   XmNitems, items, XmNitemCount, 3,
                                   XmNselectionPolicy, XmBROWSE_SELECT, NULL);
@@ -76,6 +90,20 @@ int main(int argc, char **argv)
     CHECK(XmStringGetLtoR(selected, XmFONTLIST_DEFAULT_TAG, &label_text));
     CHECK(XmStringByteCompare(selected, expected_label));
     XtFree(label_text);
+
+    XtVaGetValues(compound_label, XmNlabelString, &selected, NULL);
+    CHECK(selected != NULL && XmStringByteCompare(selected, compound));
+    CHECK(XmStringInitContext(&context, selected));
+    while (XmStringGetNextSegment(context, &segment_text, &segment_charset,
+                                  &segment_direction, &segment_separator)) {
+        CHECK(segment_text != NULL && segment_charset != NULL);
+        ++segment_count;
+        XtFree(segment_text);
+        segment_text = NULL;
+        segment_charset = NULL;
+    }
+    XmStringFreeContext(context);
+    CHECK(segment_count == 2);
 
     XmListSelectPos(list, 3, False);
     CHECK(XmListGetSelectedPos(list, &positions, &position_count));
@@ -100,9 +128,10 @@ int main(int argc, char **argv)
     XmStringFree(expected_combo);
     XmStringFree(expected_menu);
     XmStringFree(expected_file);
+    XmStringFree(compound);
 
     XtDestroyWidget(shell);
     XtDestroyApplicationContext(app);
-    printf("PASS non-text Unicode label/list/ComboBox/menu/file-selection matrix: %lu checks\n", checks);
+    printf("PASS non-text Unicode label/compound/list/ComboBox/menu/file-selection matrix: %lu checks\n", checks);
     return 0;
 }

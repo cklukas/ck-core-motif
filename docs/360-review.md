@@ -53,9 +53,10 @@ These are real coverage gaps rather than claims of known source defects:
    unqualified system-library sanitizer ownership remain open.
 4. **Non-text Unicode matrix.** The installed public-API fixture now covers
    Label, List, ComboBox, Menu and FileSelection values for combining, non-BMP
-   and Han text. Mnemonics, search, compound strings, keyboard layouts and
-   full application navigation still need the broader mixed-script and
-   supplementary-plane journey coverage of Text and TextField.
+   and Han text, plus a bounded two-segment compound `XmString`. Mnemonics,
+   search, keyboard layouts and full application navigation still need the
+   broader mixed-script and supplementary-plane journey coverage of Text and
+   TextField.
 5. **Accessibility user journeys.** AT-SPI protocol fixtures cover transport,
    cache identity, actions, selection, text boundaries, and multiple shells;
    the bounded native Orca journey now covers menus, lists, editable text,
