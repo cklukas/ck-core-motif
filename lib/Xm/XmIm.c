@@ -845,14 +845,16 @@ XmImCloseXIM(Widget w)
       XtSetArg(args[0], XtNbaseHeight, &base_height);
       XtGetValues(shell, args, 1);
       if (base_height > 0){
-	base_height -= height;
+	base_height = (base_height > height) ? base_height - height : 0;
 	XtSetArg(args[0], XtNbaseHeight, base_height);
 	XtSetValues(shell, args, 1);
       }
       if(!(XtIsRealized(shell)))
-	shell->core.height -= height;
+	shell->core.height = (shell->core.height > height) ?
+	    shell->core.height - height : 0;
       else {
-	my_request.height = shell->core.height - height;
+	my_request.height = (shell->core.height > height) ?
+	    shell->core.height - height : 0;
 	my_request.request_mode = CWHeight;
 	XtMakeGeometryRequest(shell, &my_request, NULL);
       }
@@ -2323,6 +2325,7 @@ ImSetGeo(Widget  vw,
   XmImShellInfo im_info;
   XVaNestedList va_slist, va_plist;
   unsigned long use_slist, use_plist;
+  int area_y;
   
   im_info = get_im_info(vw, False);
   if ((im_info == NULL) || (im_info->iclist == NULL))
@@ -2334,6 +2337,10 @@ ImSetGeo(Widget  vw,
   
   if (ve->vendor.im_height == 0)
     return;
+
+  area_y = (int) vw->core.height - (int) ve->vendor.im_height;
+  if (area_y < 0)
+    area_y = 0;
   
   va_slist = XVaCreateNestedList(0, XNArea, &rect_status, NULL);
   va_plist = XVaCreateNestedList(0, XNArea, &rect_preedit, NULL);
@@ -2345,7 +2352,8 @@ ImSetGeo(Widget  vw,
       if ((use_slist = (icp->input_style & XIMStatusArea)) != 0)
 	{
 	  rect_status.x = 0;
-	  rect_status.y = vw->core.height - icp->sp_height;
+	  rect_status.y = (area_y > (int) icp->sp_height) ?
+	      area_y : 0;
 	  rect_status.width = icp->status_width;
 	  rect_status.height = icp->sp_height;
 	}
@@ -2353,7 +2361,8 @@ ImSetGeo(Widget  vw,
       if ((use_plist = (icp->input_style & XIMPreeditArea)) != 0)
 	{
 	  rect_preedit.x = icp->status_width;
-	  rect_preedit.y = vw->core.height - icp->sp_height;
+	  rect_preedit.y = (area_y > (int) icp->sp_height) ?
+	      area_y : 0;
 	  rect_preedit.width = icp->preedit_width;
 	  rect_preedit.height = icp->sp_height;
         } else if ((use_plist = (icp->input_style & XIMPreeditPosition)) != 0)

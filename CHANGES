@@ -7289,3 +7289,12 @@ Frame title placement bounds (2026-10-26)
 
 ScrollBar resize span bounds (2026-10-26)
 =========================================
+Input-method area geometry bounds (2026-10-26)
+==============================================
+
+- Bound shell and status/preedit rectangle height subtraction in `XmIm`,
+  preventing wrapped geometry when an input-method area exceeds its shell; see
+  `docs/xmim-area-geometry.md`.
+
+Frame title placement bounds (2026-10-26)
+=========================================
