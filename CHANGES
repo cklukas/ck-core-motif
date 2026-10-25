@@ -13375,6 +13375,12 @@ Segmented-control button creation safety (2026-10-26)
 - Check toggle-button creation and clean partial controls before callbacks or
   layout can dereference a null child; see `docs/segmented-button-creation.md`.
 
+Prompt resource and GC safety (2026-10-26)
+===========================================
+
+- Skip Prompt drawing when its GC creation fails and release replaced owned
+  text copies safely; see `docs/prompt-resource-safety.md`.
+
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================
 

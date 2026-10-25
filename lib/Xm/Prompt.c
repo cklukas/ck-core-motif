@@ -61,7 +61,7 @@ static void Destroy(Widget widget) {
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmPromptWidget prompt = (XmPromptWidget)widget; char *text;
     (void)event; (void)region;
-    if (!XtWindow(widget)) return;
+    if (!XtWindow(widget) || !prompt->prompt.gc) return;
     XClearWindow(XtDisplay(widget), XtWindow(widget));
     if (!prompt->prompt.visible) return;
     text = prompt_text(prompt);
@@ -72,9 +72,17 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmPromptWidget old = (XmPromptWidget)old_widget, prompt = (XmPromptWidget)widget;
+    XmString replacement;
     (void)request; (void)args; (void)count;
-    if (old->prompt.text != prompt->prompt.text)
-        prompt->prompt.text = copy_prompt(prompt->prompt.text);
+    if (old->prompt.text != prompt->prompt.text) {
+        replacement = copy_prompt(prompt->prompt.text);
+        if (replacement) {
+            XmStringFree(old->prompt.text);
+            prompt->prompt.text = replacement;
+        } else {
+            prompt->prompt.text = old->prompt.text;
+        }
+    }
     return old->prompt.text != prompt->prompt.text ||
            old->prompt.visible != prompt->prompt.visible;
 }
