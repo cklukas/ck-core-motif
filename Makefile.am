@@ -488,3 +488,4 @@ EXTRA_DIST += tests/automated/check-mrm-create-tree-children-bounds.py docs/mrm-
 EXTRA_DIST += tests/automated/check-mrm-create-tree-child-index-bounds.py docs/mrm-create-tree-child-index-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-arglist-record-bounds.py docs/mrm-arglist-record-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-widget-name-record-bounds.py docs/mrm-widget-name-record-bounds.md
+EXTRA_DIST += tests/automated/check-mrm-callback-record-bounds.py docs/mrm-callback-record-bounds.md
