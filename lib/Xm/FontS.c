@@ -503,16 +503,23 @@ WidgetClass xmFontSelectorWidgetClass = (WidgetClass) &xmFontSelectorClassRec;
 static FontInfo *
 LoadFontInfo(XmFontSelectorWidget fsw)
 {
-    FontInfo *font_info = (FontInfo *) XtMalloc(sizeof(FontInfo));
+    FontInfo *font_info = (FontInfo *) XtCalloc(1, sizeof(FontInfo));
     FontData *xlfd_font_data;
     String *other_fonts;
     int xlfd_num_fonts, other_num_fonts;
+
+    if (font_info == NULL)
+	return NULL;
 
     font_info->resolution = FindResolution((Widget) fsw);
     LoadFontData((Widget) fsw, &xlfd_font_data, &xlfd_num_fonts,
 		 &other_fonts, &other_num_fonts);
 
     ProcessXlfdFontData(fsw, font_info, xlfd_font_data, xlfd_num_fonts);
+    if (font_info->family_info == NULL) {
+	XtFree((char *)font_info);
+	return NULL;
+    }
     SortOtherFontData(font_info, other_fonts, other_num_fonts);
 
     return(font_info);
@@ -586,6 +593,10 @@ ProcessXlfdFontData(XmFontSelectorWidget fsw,
     num = 1;		
     alloc = FAMILY_INC;
     fam = (FamilyInfo *) XtMalloc(sizeof(FamilyInfo) * alloc);
+    if (fam == NULL) {
+	XtFree((char *)top);
+	return;
+    }
     fam->nameq = NULLQUARK;	/* Don't use this family yet. */
 
     /*
@@ -598,8 +609,16 @@ ProcessXlfdFontData(XmFontSelectorWidget fsw,
 	if (cur_family == NULL) {
 	    if ( num >= alloc ) {
 		alloc += FAMILY_INC;
-		fam = (FamilyInfo *) XtRealloc((XtPointer) fam,
-					       sizeof(FamilyInfo) * alloc);
+		{
+		    FamilyInfo *new_fam = (FamilyInfo *) XtRealloc(
+			(XtPointer) fam, sizeof(FamilyInfo) * alloc);
+		    if (new_fam == NULL) {
+			XtFree((char *)fam);
+			XtFree((char *)top);
+			return;
+		    }
+		    fam = new_fam;
+		}
 	    }
 	    
 	    FillNewFamily(fam + num, data);
@@ -3521,6 +3540,8 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal * num_args)
     XmFontS_user_state(fsw) = 0;	/* Initialize user state to 0. */
     XmFontS_xlfd_mode(fsw) = True;	/* We start in Xlfd Mode. */
     XmFontS_font_info(fsw) = LoadFontInfo(fsw);
+    if (XmFontS_font_info(fsw) == NULL)
+	return;
     XmFontS_current_text(fsw) = NULL;
     XmFontS_old_fontdata(fsw) = NULL;
     XmFontS_old_fontlist(fsw) = NULL;
