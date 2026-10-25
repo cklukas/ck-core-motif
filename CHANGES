@@ -10930,3 +10930,9 @@ MultiList label initialization rollback (2026-10-28)
 
 SpinBox value-list SetValues rollback (2026-10-28)
 =====================================================
+Topical documentation overviews (2026-10-25)
+=============================================
+
+- Add maintenance and MWM overview pages that link focused issue notes,
+  expose them in site navigation, and verify that linked pages are shipped;
+  see `docs/maintenance-overview.md` and `docs/mwm-overview.md`.

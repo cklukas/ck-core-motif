@@ -6,6 +6,9 @@ available through search and the generated site index, while these topics
 provide stable paths to the material most useful when integrating or
 debugging a client.
 
+For a broader route through the issue notes, use the [maintenance overview](maintenance-overview.md)
+or the [MWM and window-management overview](mwm-overview.md).
+
 ## Build, compatibility, and qualification
 
 - [Build and test workflow](build.md) — configure, build, test, and inspect an installed library.

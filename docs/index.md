@@ -25,6 +25,8 @@ not regenerate or import that entire reference collection.
 - [Unicode text](unicode.md) distinguishes bytes, scalars, graphemes and visual positions.
 - [Accessibility](accessibility.md) describes native semantic providers and optional AT-SPI.
 - [Validation status](status.md) distinguishes implemented source from verified behavior.
+- [Maintenance overview](maintenance-overview.md) groups focused fixes and qualification notes by topic.
+- [MWM overview](mwm-overview.md) groups window-management protocol and persistence notes.
 - [Fork history](history.md) records the corrections preceding the new ABI cohort.
 
 The toolkit follows the licensing terms in the repository's `COPYING` file.

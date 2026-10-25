@@ -21,6 +21,8 @@ nav:
       - docs/history.md
       - docs/status.md
       - docs/reference-overview.md
+      - docs/maintenance-overview.md
+      - docs/mwm-overview.md
   - title: Build
     pages:
       - docs/build.md
