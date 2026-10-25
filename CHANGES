@@ -66,6 +66,12 @@ Track ownership of uncached image GCs (2026-10-27)
 - Release temporary GCs created when the GC cache is unavailable or cannot
   allocate an entry; see `docs/gc-ownership-fallback.md`.
 
+Fix hash-table resize chain linking (2026-10-27)
+================================================
+
+- Always advance the resize predecessor pointer so rehashing a later entry
+  cannot unlink an earlier bucket entry; see `docs/hash-resize-linking.md`.
+
 Make cached-pixmap insertion transactional (2026-10-26)
 ========================================================
 
