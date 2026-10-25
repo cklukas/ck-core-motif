@@ -2264,10 +2264,12 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	  size += sizeof(CARD32) * 4;
 	  for (n=0; n < menuItemCount && n < MAX_MENU_ITEMS; n++)
 	      {
-		  menu_item = pcd->systemMenuSpec->menuButtons->menuItem;
+		  menu_item = pcd->systemMenuSpec->menuButtons[n].menuItem;
 		  size += sizeof (CARD32);    /* sensitive */
 		  size += sizeof (CARD32);    /* itemY */
-		  size += sizeof (CARD16) + ((strlen(menu_item->label) + 1) * sizeof(CARD8)); /*itemName */
+		  size += sizeof (CARD16) +
+		      ((menu_item && menu_item->label ?
+			strlen(menu_item->label) : 0) + 1) * sizeof(CARD8); /*itemName */
 	      }
 	 *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
 	  GetWindowItemSelectInfo(pcd,*output);
@@ -2314,8 +2316,10 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	  size += sizeof(CARD32) * 11;
 	  for (n=0; n < menuItemCount && n < MAX_MENU_ITEMS; n++)
 	      {
-		  menu_item = pcd->systemMenuSpec->menuButtons->menuItem;
-		  size += sizeof (CARD16) + ((strlen(menu_item->label) + 1) * sizeof(CARD8)); /*itemName */
+		  menu_item = pcd->systemMenuSpec->menuButtons[n].menuItem;
+		  size += sizeof (CARD16) +
+		      ((menu_item && menu_item->label ?
+			strlen(menu_item->label) : 0) + 1) * sizeof(CARD8); /*itemName */
 	      }
 	 *output = (XtPointer)XtMalloc(sizeof(CARD8) * size);
 	  GetItemCheckInfo(pcd, *output);
@@ -2369,8 +2373,10 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	      {
 		  size += sizeof (CARD32);    /* sensitive */
 		  size += sizeof (CARD32);    /* itemY */
-		  menu_item = pcd->systemMenuSpec->menuButtons->menuItem;
-		  size += sizeof (CARD16) + ((strlen(menu_item->label) + 1) * sizeof(CARD8)); /*itemName */
+		  menu_item = pcd->systemMenuSpec->menuButtons[n].menuItem;
+		  size += sizeof (CARD16) +
+		      ((menu_item && menu_item->label ?
+			strlen(menu_item->label) : 0) + 1) * sizeof(CARD8); /*itemName */
 	      }
 	  if (pcd->pSD->useIconBox == True)
 		  size += sizeof (CARD32) * 37;

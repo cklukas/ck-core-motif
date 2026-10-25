@@ -16,5 +16,11 @@ assert "i < menuSpec->menuButtonCount && i < MAX_MENU_ITEMS" in check
 assert window.count("if (menuItemCount > MAX_MENU_ITEMS)") == 1
 assert check.count("if (menuItemCount > MAX_MENU_ITEMS)") == 1
 assert icon.count("if (menuItemCount > MAX_MENU_ITEMS)") == 1
+query = source[source.index("case WINDOW_MENU_ITEM_SELECT_INFO") : source.index("case WINDOW_DEICONIFY_INFO")]
+check_query = source[source.index("case WINDOW_MENU_ITEM_CHECK_INFO") : source.index("case ICON_MOVE_INFO")]
+icon_query = source[source.index("case ICON_MENU_ITEM_SELECT_INFO") :]
+for region in (query, check_query, icon_query):
+    assert "menuButtons[n].menuItem" in region
+    assert "menu_item && menu_item->label" in region
 
 print("MWM menu query loops respect fixed array bounds")

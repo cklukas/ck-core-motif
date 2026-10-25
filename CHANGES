@@ -11028,4 +11028,5 @@ MWM menu query array bounds (2026-10-25)
 
 - Cap icon, window-item, and item-check menu traversals and reported counts at
   `MAX_MENU_ITEMS`, avoiding fixed-array overwrites and reply count mismatches;
-  see `docs/mwm-menu-array-bounds.md`.
+  index each item during reply-size accounting and handle missing labels; see
+  `docs/mwm-menu-array-bounds.md`.

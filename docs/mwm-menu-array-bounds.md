@@ -8,7 +8,9 @@ MWM menu-query replies use fixed arrays sized by `MAX_MENU_ITEMS`. The icon,
 window-item, and item-check queries now cap their source-menu traversals at
 that same capacity, matching their bounded packing loops. The reported item
 count is capped with the packed entries, so clients do not parse beyond the
-reply. Menus larger than the protocol capacity are truncated safely.
+reply. Menus larger than the protocol capacity are truncated safely. Reply-size accounting
+also measures indexed item labels, preventing a long later label from
+overrunning the allocated reply.
 
 The focused regression check is
 `tests/automated/check-mwm-menu-array-bounds.py`.
