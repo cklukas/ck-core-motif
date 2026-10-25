@@ -2991,9 +2991,18 @@ VaSetArg(VaArgList list,
 {
   if (list->max <= list->count)
     {
-      list->max += 10;
-      list->args = (VaArg*) XtRealloc((char*) list->args, 
-				      list->max * sizeof(VaArg));
+      Cardinal new_max;
+      VaArg *new_args;
+      if (list->max > (Cardinal)-1 - 10 ||
+          (size_t)(list->max + 10) > SIZE_MAX / sizeof(VaArg))
+        return;
+      new_max = list->max + 10;
+      new_args = (VaArg *)XtRealloc(
+          (char *)list->args, (size_t)new_max * sizeof(VaArg));
+      if (new_args == NULL)
+        return;
+      list->args = new_args;
+      list->max = new_max;
     }
   
   list->args[list->count].name = name;

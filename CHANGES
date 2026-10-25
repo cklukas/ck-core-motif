@@ -8053,3 +8053,12 @@ XmRenderTable rendition-array growth (2026-10-27)
 
 XmRenderTable property-buffer growth (2026-10-27)
 ===================================================
+XmIm VaArg-list growth (2026-10-27)
+===================================
+
+- Check internal XVaNestedList capacity arithmetic and commit `XtRealloc`
+  results only after success.  Input-method argument collection now remains
+  valid under allocation pressure.
+
+XmRenderTable rendition-array growth (2026-10-27)
+==================================================
