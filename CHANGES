@@ -1,3 +1,10 @@
+Guard MainWindow auto-scroll rectangles (2026-10-25)
+=====================================================
+
+- Return an empty rectangle set when auto-scroll geometry cannot be allocated,
+  avoiding a null write in the scrolled-window callback; see
+  `docs/mainw-rect-guards.md`.
+
 Guard Container selection callback arrays (2026-10-25)
 =======================================================
 
