@@ -1,3 +1,10 @@
+UIL expanded filename capacity (2026-10-27)
+===========================================
+
+- Match symbol-table full filename fields to the 256-byte UIL source path
+  buffer, preventing maximum-length path copies from overflowing; see
+  `docs/uil-full-name-capacity.md`.
+
 MenuShell posted-child guard (2026-10-27)
 =========================================
 

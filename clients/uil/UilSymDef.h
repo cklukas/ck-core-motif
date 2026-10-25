@@ -857,7 +857,7 @@ typedef struct _sym_include_file_entry_type
     char			file_name[255];
 	/* the file name as specified in the include statement in the UIL   */
 	/* source.							    */
-    char			full_file_name[255];
+    char			full_file_name[256];
 	/* the expanded name for the include file actually opened.	    */
 } sym_include_file_entry_type;
 
@@ -876,7 +876,7 @@ typedef struct _sym_root_entry_type
 	/* pointer to a list of source records.				    */
     char			file_name[255];
 	/* the main UIL file name as specified on the command line.	    */
-    char			full_file_name[255];
+    char			full_file_name[256];
 	/* the expanded name for the main UIL file that was actually	    */
 	/* opened.							    */
     sym_section_entry_type	*sections;
