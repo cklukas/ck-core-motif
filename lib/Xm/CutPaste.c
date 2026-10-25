@@ -1329,6 +1329,8 @@ ClipboardRetrieveItem(
     Atom loctype;
     XtPointer pointer;
 
+    pointer = NULL;
+
     /* retrieve the item from the root */
     ret_value = ClipboardFindItem(display, itemid, &pointer, &loclength,
 				  &loctype, &loc_format, rec_type );
@@ -1338,6 +1340,14 @@ ClipboardRetrieveItem(
     	*outlength = def_length;
     }else{    
 	if ( discard == 1 ) loclength = 0;
+
+	if (add_length < 0 || loclength > ULONG_MAX - (unsigned long)add_length)
+	{
+	    XtFree((char *)pointer);
+	    *outpointer = NULL;
+	    *outlength = 0;
+	    return ClipboardFail;
+	}
 
 	*outlength = loclength + add_length;
     }

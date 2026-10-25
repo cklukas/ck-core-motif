@@ -1,3 +1,10 @@
+Clipboard retrieval-size overflow guard (2026-10-26)
+=====================================================
+
+- Reject overflowing serialized-length plus extension-size arithmetic before
+  allocating and copying clipboard records; see
+  `docs/clipboard-retrieve-size-overflow.md`.
+
 Clipboard header list-bound validation (2026-10-26)
 ====================================================
 
