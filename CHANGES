@@ -1,3 +1,11 @@
+FontSelector widget-list growth (2026-10-27)
+=============================================
+
+- Validate the ABI-compatible character counters used by the XLFD-only and
+  XLFD-sensitive widget lists, and publish replacement arrays only after
+  `XtRealloc` succeeds.  FontSelector mode changes now avoid null dereferences
+  and counter wraparound under allocation pressure.
+
 CascadeButton excluded-pane initialization (2026-10-27)
 =========================================================
 

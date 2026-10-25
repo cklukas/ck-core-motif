@@ -2062,13 +2062,25 @@ AddToXlfdOnlyList(XmFontSelectorWidget fsw, Widget w)
     int num = (int) XmFontS_num_xlfd_only(fsw);
     int alloc = (int) XmFontS_alloc_xlfd_only(fsw);
 
-    if (num >= alloc) {
+    if (num < 0 || alloc < 0 || num >= alloc) {
+	WidgetList new_list;
+	if (alloc > SCHAR_MAX - WIDGET_LIST_INC)
+	    return;
 	alloc += WIDGET_LIST_INC;
-	XmFontS_xlfd_only(fsw) = (WidgetList) XtRealloc((XtPointer) 
-						   XmFontS_xlfd_only(fsw),
-						   sizeof(Widget) * alloc);
-	XmFontS_alloc_xlfd_only(fsw) = alloc;
+	if ((size_t)alloc > SIZE_MAX / sizeof(Widget) ||
+	    (size_t)alloc > (size_t)UINT_MAX / sizeof(Widget))
+	    return;
+	new_list = (WidgetList)XtRealloc(
+	    (XtPointer)XmFontS_xlfd_only(fsw),
+	    (Cardinal)((size_t)alloc * sizeof(Widget)));
+	if (new_list == NULL)
+	    return;
+	XmFontS_xlfd_only(fsw) = new_list;
+	XmFontS_alloc_xlfd_only(fsw) = (char)alloc;
     }
+
+    if (num >= SCHAR_MAX)
+	return;
 
     XmFontS_xlfd_only(fsw)[num] = w;
     (XmFontS_num_xlfd_only(fsw))++;
@@ -2087,13 +2099,25 @@ AddToXlfdSensitiveList(XmFontSelectorWidget fsw, Widget w)
     int num = (int) XmFontS_num_xlfd_sensitive(fsw);
     int alloc = (int) XmFontS_alloc_xlfd_sensitive(fsw);
 
-    if (num >= alloc) {
+    if (num < 0 || alloc < 0 || num >= alloc) {
+	WidgetList new_list;
+	if (alloc > SCHAR_MAX - WIDGET_LIST_INC)
+	    return;
 	alloc += WIDGET_LIST_INC;
-	XmFontS_xlfd_sensitive(fsw) = (WidgetList) XtRealloc((XtPointer) 
-							XmFontS_xlfd_sensitive(fsw),
-							sizeof(Widget)* alloc);
-	XmFontS_alloc_xlfd_sensitive(fsw) = alloc;
+	if ((size_t)alloc > SIZE_MAX / sizeof(Widget) ||
+	    (size_t)alloc > (size_t)UINT_MAX / sizeof(Widget))
+	    return;
+	new_list = (WidgetList)XtRealloc(
+	    (XtPointer)XmFontS_xlfd_sensitive(fsw),
+	    (Cardinal)((size_t)alloc * sizeof(Widget)));
+	if (new_list == NULL)
+	    return;
+	XmFontS_xlfd_sensitive(fsw) = new_list;
+	XmFontS_alloc_xlfd_sensitive(fsw) = (char)alloc;
     }
+
+    if (num >= SCHAR_MAX)
+	return;
     
     XmFontS_xlfd_sensitive(fsw)[num] = w;
     (XmFontS_num_xlfd_sensitive(fsw))++;
