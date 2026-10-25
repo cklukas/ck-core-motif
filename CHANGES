@@ -4580,3 +4580,9 @@ DeleteEntryFromList guards (2026-10-25)
 
 - Validate list ownership before unlinking sibling entries;
   see `docs/delete-entry-list-guards.md`.
+
+Transient list guards (2026-10-25)
+==================================
+
+- Validate transient workspace and parent-tree state before linking or
+  unlinking; see `docs/transient-list-guards.md`.

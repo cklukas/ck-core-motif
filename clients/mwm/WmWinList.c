@@ -584,11 +584,24 @@ void DeleteClientFromList (WmWorkspaceData *pWS, ClientData *pCD)
 
 void AddTransient (WmWorkspaceData *pWS, ClientData *pCD)
 {
-    ClientData *pcdLeader = pCD->transientLeader;
-    ClientData *pcdTop = FindTransientTreeLeader (pCD);
+    ClientData *pcdLeader;
+    ClientData *pcdTop;
     Boolean restackTransients;
-    WmScreenData *pSD = pWS->pSD;
+    WmScreenData *pSD;
 
+    if (pWS == NULL || pWS->pSD == NULL || pCD == NULL ||
+        pCD->transientLeader == NULL)
+    {
+        return;
+    }
+
+    pcdLeader = pCD->transientLeader;
+    pcdTop = FindTransientTreeLeader (pCD);
+    if (pcdTop == NULL)
+    {
+        return;
+    }
+    pSD = pWS->pSD;
 
     pCD->transientSiblings = pcdLeader->transientChildren;
     pcdLeader->transientChildren = pCD;
@@ -782,9 +795,13 @@ void MarkModalTransient (ClientData *pcdLeader, ClientData *pCD)
 void DeleteTransient (ClientData *pCD)
 {
     ClientData *pcdLeader;
-    ClientData *pcdPrev; 
+    ClientData *pcdPrev;
     int modalCount;
 
+    if (pCD == NULL || pCD->transientLeader == NULL)
+    {
+        return;
+    }
 
     /*
      * Handle primary application modality.
