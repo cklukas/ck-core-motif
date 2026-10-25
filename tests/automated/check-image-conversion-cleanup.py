@@ -9,4 +9,6 @@ region = source[start:end]
 assert "XDestroyImage(image) ;" in region
 assert "XtFree(old_image_data);" in region
 assert "XtFree(image->data);" not in region
+assert "size_t byte;" in source
+assert "register int byte;" not in source
 print("converted image cleanup frees the original buffer safely")

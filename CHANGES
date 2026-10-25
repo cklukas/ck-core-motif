@@ -1,3 +1,10 @@
+Image-cache byte counter width (2026-10-28)
+============================================
+
+- Use a `size_t` counter when copying large converted image buffers, avoiding
+  signed loop wraparound beyond `INT_MAX`; see
+  `docs/image-cache-byte-counter.md`.
+
 GeoUtils empty-row dimensions (2026-10-28)
 ===========================================
 

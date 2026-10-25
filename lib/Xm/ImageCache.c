@@ -1695,7 +1695,7 @@ _XmGetScaledPixmap(
 	      /* Flip the bits so fg == 1 in the image. */
 	      size_t nbytes;
 	      char *new_image_data;
-	      register int byte;
+	      size_t byte;
 
 	      if (image->height <= 0 || image->bytes_per_line <= 0 ||
 		  (size_t)image->height >
