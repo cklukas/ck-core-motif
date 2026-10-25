@@ -863,6 +863,10 @@ XtEnum XmPrintToFile(Display *pdpy,
 
     /* allocate the space for a callback */
     callback = (FileCallbackRec *) XtMalloc(sizeof(FileCallbackRec));
+    if (callback == NULL) {
+      close(filedes[0]);
+      return False;
+    }
     callback->display = pdpy;
     callback->pipe = filedes[0];
     callback->finish_proc = finish_proc;
@@ -1043,6 +1047,8 @@ XmPrintPopupPDM(Widget print_shell,
     XFree(value);
 
     pdm_select_data = (PDMSelectData *) XtMalloc(sizeof(PDMSelectData));
+    if (pdm_select_data == NULL)
+	return XmPDM_NOTIFY_FAIL;
     pdm_select_data->pdm_selection = pdm_selection ;
     pdm_select_data->transient_for_video_shell = transient_for_video_shell ;
     pdm_select_data->print_shell = (XmPrintShellWidget) print_shell ; 
