@@ -4726,3 +4726,9 @@ Internal XmList allocation failure handling (2026-10-25)
 
 - Leave internal list links unchanged when node-batch allocation fails; see
   `docs/xmlist-allocation-failure.md`.
+
+Internal XmList stack allocation failure handling (2026-10-25)
+===============================================================
+
+- Keep cleanup-stack state intact when stack growth allocation fails; see
+  `docs/xmlist-stack-allocation.md`.

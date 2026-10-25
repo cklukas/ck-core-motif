@@ -762,3 +762,5 @@ EXTRA_DIST += tests/automated/check-container-tab-rebuild-failure.py docs/contai
 EXTRA_DIST += tests/automated/check-traversal-redirect-cycle.py docs/traversal-redirect-cycle.md
 
 EXTRA_DIST += tests/automated/check-xmlist-allocation-failure.py docs/xmlist-allocation-failure.md
+
+EXTRA_DIST += tests/automated/check-xmlist-stack-allocation.py docs/xmlist-stack-allocation.md
