@@ -526,6 +526,7 @@ Cardinal XmDataGridGetTopRow(Widget widget) {
 Boolean XmDataGridBeginEdit(Widget widget) {
     XmDataGridWidget grid;
     const char *value;
+    char *copy;
     if (!widget || !XmIsDataGrid(widget)) return False;
     grid = (XmDataGridWidget)widget;
     if (grid->data_grid.selected_row < 0 || grid->data_grid.selected_column < 0 ||
@@ -535,11 +536,12 @@ Boolean XmDataGridBeginEdit(Widget widget) {
         return False;
     value = grid->data_grid.rows[grid->data_grid.selected_row]
         .values[grid->data_grid.selected_column];
+    copy = XtNewString(value ? value : "");
+    if (!copy) return False;
     XtFree(grid->data_grid.edit_text);
     XtFree(grid->data_grid.edit_error);
-    grid->data_grid.edit_text = XtNewString(value ? value : "");
+    grid->data_grid.edit_text = copy;
     grid->data_grid.edit_error = NULL;
-    if (!grid->data_grid.edit_text) return False;
     grid->data_grid.edit_row = grid->data_grid.selected_row;
     grid->data_grid.edit_column = grid->data_grid.selected_column;
     grid->data_grid.editing = True;

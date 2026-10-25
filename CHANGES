@@ -9369,3 +9369,10 @@ Container outline allocation rollback (2026-10-29)
 - Allocate replacement detail outlines before releasing the current segments,
   preserving usable geometry when growth allocation fails; see
   `docs/container-outline-allocation.md`.
+
+DataGrid begin-edit rollback (2026-10-29)
+==========================================
+
+- Allocate selected-cell edit text before releasing the current edit state,
+  preserving it when begin-edit allocation fails; see
+  `docs/datagrid-begin-edit-rollback.md`.
