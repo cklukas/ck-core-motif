@@ -7974,3 +7974,12 @@ MainW child-list growth failures (2026-10-27)
 
 Draw shadow segment-buffer growth (2026-10-27)
 ==============================================
+MapEvents parallel-array growth (2026-10-27)
+=============================================
+
+- Grow parsed event types, keysyms, and modifiers as one transaction.  A
+  failed allocation no longer leaves the three output arrays at different
+  lengths or loses their already parsed prefix.
+
+MainW child-list growth failures (2026-10-27)
+==============================================

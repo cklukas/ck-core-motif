@@ -35,6 +35,7 @@ static char rcsid[] = "$XConsortium: MapEvents.c /main/12 1995/09/19 23:05:22 cd
 #include <X11/IntrinsicP.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
+#include <string.h>
 #include <stdint.h>
 #include <Xm/XmP.h>
 #include "XmI.h"
@@ -840,33 +841,40 @@ _XmMapKeyEvents(String      str,
 	  status = FALSE;
 	  break;
 	}
-      new_event_types = (int *)XtRealloc((char *)*eventTypes,
-					 item_count * sizeof(**eventTypes));
-      if (new_event_types == NULL)
+
+      new_event_types = (int *)XtMalloc(
+	  item_count * sizeof(**eventTypes));
+      new_keysyms = (KeySym *)XtMalloc(
+	  item_count * sizeof(**keysyms));
+      new_modifiers = (Modifiers *)XtMalloc(
+	  item_count * sizeof(**modifiers));
+      if (new_event_types == NULL || new_keysyms == NULL ||
+	  new_modifiers == NULL)
 	{
+	  XtFree((char *)new_event_types);
+	  XtFree((char *)new_keysyms);
+	  XtFree((char *)new_modifiers);
 	  status = FALSE;
 	  break;
 	}
+      if (count != 0)
+	{
+	  memcpy(new_event_types, *eventTypes,
+		 (size_t)count * sizeof(**eventTypes));
+	  memcpy(new_keysyms, *keysyms,
+		 (size_t)count * sizeof(**keysyms));
+	  memcpy(new_modifiers, *modifiers,
+		 (size_t)count * sizeof(**modifiers));
+	}
+      new_event_types[count] = tmp_type;
+      new_keysyms[count] = (KeySym)tmp_sym;
+      new_modifiers[count] = tmp_mods;
+      XtFree((char *)*eventTypes);
+      XtFree((char *)*keysyms);
+      XtFree((char *)*modifiers);
       *eventTypes = new_event_types;
-      (*eventTypes)[count] = tmp_type;
-      new_keysyms = (KeySym *)XtRealloc((char *)*keysyms,
-					 item_count * sizeof(**keysyms));
-      if (new_keysyms == NULL)
-	{
-	  status = FALSE;
-	  break;
-	}
       *keysyms = new_keysyms;
-      (*keysyms)[count] = (KeySym)tmp_sym;
-      new_modifiers = (Modifiers *)XtRealloc((char *)*modifiers,
-					 item_count * sizeof(**modifiers));
-      if (new_modifiers == NULL)
-	{
-	  status = FALSE;
-	  break;
-	}
       *modifiers = new_modifiers;
-      (*modifiers)[count] = tmp_mods;
       count++;
 
       /* Skip the separator. */
