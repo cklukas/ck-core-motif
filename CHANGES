@@ -12246,3 +12246,9 @@ GeoUtils child geometry allocation width (2026-10-26)
 
 - Pass the checked child geometry-list byte count explicitly as an Xt
   `Cardinal`; see `docs/geo-kid-allocation.md`.
+
+Accessibility menu snapshot allocation width (2026-10-26)
+==========================================================
+
+- Pass the checked menu ID snapshot byte count explicitly as an Xt `Cardinal`;
+  see `docs/accessibility-menu-lifecycle.md`.

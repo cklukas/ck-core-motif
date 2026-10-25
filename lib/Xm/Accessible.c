@@ -208,7 +208,8 @@ static void menu_changed(XmAccessibility *a, Widget w) {
         count > UINT_MAX / sizeof(XmAccessibleId))
       return;
     XmAccessibleId *ids = count
-        ? (XmAccessibleId *)XtMalloc(count * sizeof(*ids)) : NULL;
+        ? (XmAccessibleId *)XtMalloc(
+	      (Cardinal)(count * sizeof(*ids))) : NULL;
     if (count != 0 && !ids)
       return;
     for (k = 0; k < count; ++k)
