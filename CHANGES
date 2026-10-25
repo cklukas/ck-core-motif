@@ -63,6 +63,12 @@ WSM cache cleanup guard (2026-10-25)
 - Make configuration cleanup tolerate a missing display record after WSM cache
   allocation failure; see `docs/wsm-cache-allocation.md`.
 
+WSM extension unpack allocation guard (2026-10-25)
+===================================================
+
+- Fail closed when request or reply extension-list allocation fails, avoiding
+  null-array writes and cleanup walks; see `docs/wsm-extension-unpack-oom.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 
