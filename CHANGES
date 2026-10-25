@@ -1,3 +1,9 @@
+Icon directory cache size arithmetic (2026-10-25)
+==================================================
+
+- Accumulate directory name storage in `size_t` and validate the complete
+  offset-array plus name-heap allocation before constructing a cached entry.
+
 List internal deletion shrink (2026-10-25)
 ===========================================
 
