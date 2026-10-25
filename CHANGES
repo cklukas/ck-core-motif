@@ -9245,3 +9245,10 @@ Label visual-string rollback (2026-10-29)
 - Preserve existing label and accelerator strings until replacement copies
   succeed during `SetValues`, avoiding blank or dangling visual state after an
   allocation failure; see `docs/label-visual-string-rollback.md`.
+
+FileSelectionBox search-list cleanup (2026-10-29)
+==================================================
+
+- Bound file and directory result tables, roll back partial `XmString`
+  generation, and remove a duplicate file-list free on the normal search path;
+  see `docs/filesb-search-list-cleanup.md`.

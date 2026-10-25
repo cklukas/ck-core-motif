@@ -38,6 +38,8 @@ static char rcsid[] = "$TOG: FileSB.c /main/21 1997/09/26 13:38:52 bill $"
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
+#include <limits.h>
+#include <stdint.h>
 
 #include "RepTypeI.h"
 #include <Xm/FileSBP.h>
@@ -1864,16 +1866,13 @@ FileSearchProc(
 	    qsort( (void *)fileList, numFiles, sizeof( char *), 
 		  _XmOSFileCompare) ;
 	
-        XmStringFileList = (XmString *) XtMalloc(numFiles * sizeof( XmString)) ;
+        if ((size_t)numFiles > SIZE_MAX / sizeof(XmString) ||
+            (size_t)numFiles > UINT_MAX / sizeof(XmString))
+            goto file_search_cleanup;
+        XmStringFileList = (XmString *) XtMalloc(
+            (Cardinal)((size_t)numFiles * sizeof(XmString))) ;
         if(    XmStringFileList == NULL    )
-        {   Index = numFiles ;
-            while(    Index--    )
-            {   XtFree( fileList[Index]) ;
-                }
-            XtFree( (char *) fileList) ;
-            fileList = NULL ;
-            goto file_search_done ;
-            }
+            goto file_search_cleanup;
         
         Index = 0 ;
 	dirLen = strlen( dir) ;
@@ -1882,15 +1881,18 @@ FileSearchProc(
 	    if(    showDotFiles
 	       || ((fileList[Index])[dirLen] != '.')    ) {   
                   if(    FS_PathMode( fs) ==  XmPATH_MODE_FULL    )
-		      XmStringFileList[numItems++] = 
+		      XmStringFileList[numItems] =
 			XmStringGenerate(fileList[Index],
 					 XmFONTLIST_DEFAULT_TAG,
 					 XmCHARSET_TEXT, NULL);
 		  else 
-		      XmStringFileList[numItems++] = 
+		      XmStringFileList[numItems] =
 			XmStringGenerate(&(fileList[Index])[dirLen],
 					 XmFONTLIST_DEFAULT_TAG,
 					 XmCHARSET_TEXT, NULL) ;
+		  if (XmStringFileList[numItems] == NULL)
+		      goto file_string_cleanup;
+		  numItems++;
 	      } 
 	    ++Index ;
 	} 
@@ -1906,6 +1908,8 @@ FileSearchProc(
         while(    Index--    )
         {   XtFree( fileList[Index]) ;
             } 
+        XtFree( (char *) fileList) ;
+        fileList = NULL ;
         while(    numItems--    )
         {   XmStringFree( XmStringFileList[numItems]) ;
             }
@@ -1922,6 +1926,20 @@ file_search_done:
     XtFree( pattern) ;
     XtFree( dir) ;
     return ;
+
+file_string_cleanup:
+    while (numItems != 0)
+        XmStringFree(XmStringFileList[--numItems]);
+    XtFree((char *)XmStringFileList);
+file_search_cleanup:
+    Index = numFiles;
+    while (Index--)
+        XtFree(fileList[Index]);
+    XtFree((char *)fileList);
+    XtFree(pattern);
+    XtFree(dir);
+    FS_ListUpdated(fs) = FALSE;
+    return;
     }
 
 
@@ -2366,16 +2384,13 @@ DirSearchProc(
         if(    numDirs > 1    )
         {   qsort( (void *)dirList, numDirs, sizeof( char *), _XmOSFileCompare) ;
             } 
-        XmStringDirList = (XmString *) XtMalloc( numDirs * sizeof( XmString)) ;
+        if ((size_t)numDirs > SIZE_MAX / sizeof(XmString) ||
+            (size_t)numDirs > UINT_MAX / sizeof(XmString))
+            goto dir_string_cleanup;
+        XmStringDirList = (XmString *) XtMalloc(
+            (Cardinal)((size_t)numDirs * sizeof(XmString))) ;
         if(    XmStringDirList == NULL    )
-        {   Index = numDirs ;
-            while(    Index--    )
-            {   XtFree( dirList[Index]) ;
-                }
-            XtFree( (char *) dirList) ;
-            dirList = NULL ;
-            goto dir_search_done ;
-            }
+            goto dir_string_cleanup;
 
 	Index = 0 ;
 	dirLen = strlen( qualifiedDir) ;
@@ -2388,15 +2403,18 @@ DirSearchProc(
 	       || ((dirList[Index])[dirLen] != '.')) {   
 
 		if(    FS_PathMode( fs)  ==  XmPATH_MODE_FULL   )
-		    XmStringDirList[numItems++] = 
+		    XmStringDirList[numItems] =
 			XmStringGenerate(dirList[Index], 
 					 XmFONTLIST_DEFAULT_TAG,
 					 XmCHARSET_TEXT, NULL) ;
 		else 
-		    XmStringDirList[numItems++] = 
-			XmStringGenerate(&(dirList[Index])[dirLen],
+		    XmStringDirList[numItems] =
+				XmStringGenerate(&(dirList[Index])[dirLen],
 					 XmFONTLIST_DEFAULT_TAG,
 					 XmCHARSET_TEXT, NULL) ;
+		if (XmStringDirList[numItems] == NULL)
+		    goto dir_string_cleanup;
+		numItems++;
 	    } 
 	    ++Index ;
 	} 
@@ -2430,6 +2448,18 @@ dir_search_done:
     
     FS_DirectoryValid( fs) = TRUE ;
     return ;
+
+dir_string_cleanup:
+    while (numItems != 0)
+        XmStringFree(XmStringDirList[--numItems]);
+    XtFree((char *)XmStringDirList);
+    Index = numDirs;
+    while (Index--)
+        XtFree(dirList[Index]);
+    XtFree((char *)dirList);
+    XtFree((char *)qualifiedDir);
+    FS_DirectoryValid(fs) = FALSE;
+    return;
     }
    
 /****************************************************************
