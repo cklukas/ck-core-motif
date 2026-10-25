@@ -11190,3 +11190,9 @@ WSM string packing (2026-10-25)
 - Serialize null inputs as empty strings in `PackString`, avoiding a null
   `strlen` while preserving the length-prefixed format; see
   `docs/wsm-pack-string-null.md`.
+
+WSM attribute lookup consistency (2026-10-25)
+==============================================
+
+- Reject format records whose attribute count and array disagree, avoiding
+  traversal through a null attribute list; see `docs/wsm-packer-config-null.md`.
