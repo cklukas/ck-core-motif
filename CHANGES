@@ -14437,3 +14437,8 @@ Protocol-manager destruction index (2026-10-26)
 - Keep manager and protocol indices separate while removing vendor-shell
   protocol managers, preventing stale freed managers during destruction; see
   `docs/protocol-manager-removal-index.md`.
+Mwm parser sentinel portability (2026-10-26)
+==============================================
+
+- Use type-correct zero sentinels in the Mwm resource parser tables, removing
+  pointer-to-integer diagnostics; see `docs/wm-resparse-sentinels.md`.

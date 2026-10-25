@@ -216,7 +216,7 @@ static MaskTableEntry modifierStrings[] = {
     {"mod3",	Mod3Mask},
     {"mod4",	Mod4Mask},
     {"mod5",	Mod5Mask},
-    {NULL,      (unsigned int)NULL},
+    {NULL,      0},
 };
 
 #define ALT_INDEX 3
@@ -379,14 +379,14 @@ static EventTableEntry buttonEvents[] = {
     {"btn5up",      ButtonRelease,  ParseImmed,    Button5,  FALSE},
     {"btn5click",   ButtonRelease,  ParseImmed,    Button5,  TRUE},
     {"btn5click2",  ButtonPress,    ParseImmed,    Button5,  TRUE},
-    { NULL, (unsigned int)NULL, (Boolean(*)())NULL, (unsigned int)NULL, (Boolean)(unsigned)NULL}
+    { NULL, 0, (Boolean(*)())0, 0, (Boolean)0}
 };
 
 
 static EventTableEntry keyEvents[] = {
 
     {"key",         KeyPress,    ParseKeySym,    0,  FALSE},
-    { NULL, (unsigned int)NULL, (Boolean(*)())NULL, (unsigned int)NULL, (Boolean)(unsigned)NULL}
+    { NULL, 0, (Boolean(*)())0, 0, (Boolean)0}
 };
 
 #ifdef PANELIST
