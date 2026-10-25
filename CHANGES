@@ -4811,3 +4811,9 @@ Guard TabList query outputs (2026-10-25)
 
 - Validate query output pointers and invalid lists before copying or reading
   attributes; see `docs/tablist-query-guards.md`.
+
+Fix TabList simple modify forwarding (2026-10-25)
+=================================================
+
+- Pass the requested label through `XmTabbedStackListSimpleModify` instead of
+  using an uninitialized attribute record; see `docs/tablist-simple-modify.md`.

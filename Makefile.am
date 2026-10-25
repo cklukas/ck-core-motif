@@ -790,3 +790,5 @@ EXTRA_DIST += tests/automated/check-tablist-argument-guards.py docs/tablist-argu
 EXTRA_DIST += tests/automated/check-tablist-compare-null.py docs/tablist-compare-null.md
 
 EXTRA_DIST += tests/automated/check-tablist-query-guards.py docs/tablist-query-guards.md
+
+EXTRA_DIST += tests/automated/check-tablist-simple-modify.py docs/tablist-simple-modify.md
