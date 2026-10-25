@@ -1024,7 +1024,7 @@ ChangeManaged(
     XtWidgetGeometry desired ;
     CompositeWidget cw = (CompositeWidget) mw->swindow.ClipWindow;
     Widget   w;
-    register int i;
+    Cardinal i;
     XtWidgetProc resize;
 
     if (mw->mwindow.ManagingSep || mw->swindow.FromResize) return;
@@ -1042,9 +1042,9 @@ ChangeManaged(
 	(mw->swindow.WorkWindow != NULL)) {
 
 	/* loop over the clip window child list and treat the bogus */
-	for (i = 0; i < cw->composite.num_children; i++) {
+	for (i = 0; i < cw->composite.num_children; ) {
 	    XmScrolledWindowConstraint swc ;
-	    int j ;
+	    Cardinal j ;
 
 	    w = cw->composite.children[i];
 	    swc = GetSWConstraint(w);
@@ -1086,10 +1086,12 @@ ChangeManaged(
 		   moving all the siblings that comes after it
 		   one slot down */
 		for (j = i+1; j < cw->composite.num_children; j++) {
-		    cw->composite.children[i-1] = cw->composite.children[i] ;
+		    cw->composite.children[j-1] = cw->composite.children[j] ;
 		}
 		cw->composite.num_children -- ;
+		continue;
 	    }
+	    ++i;
 	}		
    }
 
