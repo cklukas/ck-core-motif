@@ -1,3 +1,9 @@
+Position-based list deletion input validation (2026-10-25)
+============================================================
+
+- Reject invalid position arrays, counts, and widgets before deletion;
+  see `docs/list-position-delete-inputs.md`.
+
 List item deletion input validation (2026-10-25)
 =================================================
 

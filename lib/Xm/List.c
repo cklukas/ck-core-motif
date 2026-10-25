@@ -8572,7 +8572,7 @@ APIDeletePositions(XmListWidget lw,
 
   register int i;
 
-  if ((positions == NULL) || (count == 0)) return;
+  if (positions == NULL || count <= 0) return;
 
   /* CR 5760:  Generate warnings for empty lists too. */
   if (lw->list.itemCount < 1)
@@ -8661,6 +8661,8 @@ XmListDeletePositions(Widget    w,
 		      int       position_count)
 {
   XmListWidget lw = (XmListWidget) w;
+  if (w == NULL || position_list == NULL || position_count <= 0)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -8683,6 +8685,8 @@ XmListDeletePos(Widget w,
   XmListWidget lw = (XmListWidget) w;
   int position;
 
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
   /* CR 9444: Allow 0 even though XmListDeletePositions doesn't. */
@@ -8712,6 +8716,8 @@ XmListDeleteItemsPos(Widget w,
   Boolean rebuild_selection = FALSE;
   Dimension old_max_height;
   register int i;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
