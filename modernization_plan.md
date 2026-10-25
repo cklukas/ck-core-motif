@@ -1637,6 +1637,13 @@ visual fixtures.
 **Complete when:** each shipped composite has a narrow client-area contract;
 legacy MainWindow, menu, toolbar and shell behavior remain unchanged.
 
+**Status (2026-10-25):** `XmStatusBar` is implemented as the first bounded
+application-chrome composite.  It copies item IDs and labels, renders text or
+progress indicators, keeps higher-priority items visible under constrained
+width, reports overflow count, exposes a named accessibility panel and tears
+down its owned children safely.  Its installed fixture and toolbar/sidebar
+work remain separate packages.
+
 Appearance and scalable assets are intentionally the first delivery track: they
 produce user-visible improvement while preserving the established programming
 model.  The additive-widget track may progress independently where its stated

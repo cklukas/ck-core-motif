@@ -1176,6 +1176,9 @@ NdropHighlightState
 NdropHighlightThickness
 NdropHighlightLabel
 
+CStatusBarSpacing
+NstatusBarSpacing
+
 #table _XmStrings20
 
 NtearOffTitle
