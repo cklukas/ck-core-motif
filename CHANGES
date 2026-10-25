@@ -24,6 +24,13 @@ Chip geometry bounds (2026-10-26)
 - Bound chip label, pixmap, removal affordance, and vertical padding arithmetic
   to the `Dimension` range; see `docs/chip-geometry-bounds.md`.
 
+DrawUtils size-limit header (2026-10-26)
+========================================
+
+- Include `<limits.h>` for the `XmDrawBevel` rectangle allocation guard,
+  restoring portable clean compilation; see
+  `docs/draw-utils-size-limit-header.md`.
+
 Icon cache pointer conversions (2026-10-26)
 ===========================================
 

@@ -22,6 +22,7 @@
 */
 
 #include <stdint.h>
+#include <limits.h>
 #include <X11/Intrinsic.h>
 #include <Xm/DrawUtils.h>
 
