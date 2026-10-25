@@ -219,6 +219,12 @@ _XmStringGetSegment(_XmStringContext   context,
 	case XmSTRING_COMPONENT_WIDECHAR_TEXT:
 	  if (*text)
 	    done = TRUE;
+	  else if (len > (unsigned int)SHRT_MAX)
+	    {
+	      /* The legacy API exposes the component length as a short. */
+	      result = FALSE;
+	      done = TRUE;
+	    }
 	  else if (*tabs && new_renditions)
 	    {
 	      /* Tabs had a different set of renditions than the text, */

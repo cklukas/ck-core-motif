@@ -12152,3 +12152,10 @@ Xm hash resize allocation width (2026-10-26)
 
 - Pass the bounded replacement bucket-array size explicitly as an Xt
   `Cardinal`; see `docs/xm-hash-allocation.md`.
+
+XmString segment-length narrowing (2026-10-26)
+==============================================
+
+- Reject component lengths above `SHRT_MAX` before storing them in the
+  legacy signed-short segment API output; see
+  `docs/xmstring-segment-length-bounds.md`.
