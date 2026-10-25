@@ -13399,6 +13399,12 @@ Link resource and drawing safety (2026-10-26)
 - Guard Link redisplay and preserve owned label/target values when replacement
   allocation fails; see `docs/link-resource-safety.md`.
 
+Flyout popup safety (2026-10-26)
+=================================
+
+- Guard Flyout popup and label creation, preserve labels on replacement
+  failure, and clamp oversized popups; see `docs/flyout-popup-safety.md`.
+
 Compound-text direction-stack bounds (2026-10-26)
 ==================================================
 
