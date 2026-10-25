@@ -2223,7 +2223,12 @@ SetOtherList(XmFontSelectorWidget fsw, Boolean force)
     
     if ((size_t)num > SIZE_MAX / sizeof(*strs))
 	return;
-    strs = (XmString *) XtMalloc(sizeof(*strs) * (size_t)num);
+    if (num < 0 ||
+	(size_t)num > SIZE_MAX / sizeof(*strs) ||
+	(size_t)num > UINT_MAX / sizeof(*strs))
+	return;
+    strs = (XmString *) XtMalloc((Cardinal)(sizeof(XmString) *
+					 (size_t)num));
     if (strs == NULL && num != 0)
 	return;
     for (i = count = 0; i < num; i++, others++) 

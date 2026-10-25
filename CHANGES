@@ -6375,6 +6375,13 @@ Bound Font selector size allocation width (2026-10-25)
   refreshing the FontS size list; see
   `docs/motif-fonts-size-list-allocation.md`.
 
+Guard Font selector alternate-family counts (2026-10-25)
+==========================================================
+
+- Reject negative or unrepresentable alternate-family counts before allocating
+  the temporary XmString array; see
+  `docs/motif-fonts-size-list-allocation.md`.
+
 Bound legacy resource-filter byte sizes (2026-10-25)
 =====================================================
 
