@@ -3832,6 +3832,13 @@ Guard compound-text context allocation (2026-10-25)
   releasing partial state and returning conversion failure; see
   `docs/resencod-direction-stack.md`.
 
+Harden compound-text direction-stack growth (2026-10-25)
+===========================================================
+
+- Grow direction stacks through a checked helper that preserves the current
+  stack on failure and reports CSI processing failure; see
+  `docs/resencod-direction-stack.md`.
+
 Handle single text-property copy failure (2026-10-25)
 ======================================================
 
