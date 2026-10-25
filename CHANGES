@@ -1,3 +1,10 @@
+LabelGadget label initialization rollback (2026-10-28)
+==========================================================
+
+- Preserve valid label and accelerator strings when initialization copies fail,
+  using the widget name as a label fallback where possible; see
+  `docs/labelg-init-rollback.md`.
+
 ColorSelector label initialization rollback (2026-10-28)
 ============================================================
 

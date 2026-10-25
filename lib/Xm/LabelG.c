@@ -1734,6 +1734,7 @@ ArgList args,
 Cardinal *num_args)
 {
     XmMenuSystemTrait menuSTrait;
+    XmString replacement;
 
     XmLabelGadget lw = (XmLabelGadget) new_w;
     XmLabelGadget rw = (XmLabelGadget) req;
@@ -1865,7 +1866,16 @@ Cardinal *num_args)
     }
     else if (XmeStringIsValid((XmString) LabG__label(new_w)))
     {
-        LabG__label(new_w) = XmStringCopy((XmString) LabG__label(new_w));
+        replacement = XmStringCopy((XmString) LabG__label(new_w));
+        if (replacement != NULL)
+            LabG__label(new_w) = replacement;
+        else
+        {
+            replacement = XmStringCreateLocalized(
+                XrmQuarkToString(lw->object.xrm_name));
+            if (replacement != NULL)
+                LabG__label(new_w) = replacement;
+        }
     }
     else
     {
@@ -1895,8 +1905,12 @@ Cardinal *num_args)
             if (XmIsCascadeButtonGadget(new_w))
                 LabG__acceleratorText(new_w) = NULL;
             else
-                LabG__acceleratorText(new_w)=
-                    XmStringCopy((XmString) LabG__acceleratorText(new_w));
+            {
+                replacement = XmStringCopy(
+                    (XmString) LabG__acceleratorText(new_w));
+                if (replacement != NULL)
+                    LabG__acceleratorText(new_w) = replacement;
+            }
         }
         else
         {
