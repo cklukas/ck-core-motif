@@ -864,7 +864,7 @@ GeometryManager(
     XmMainWindowWidget mw = (XmMainWindowWidget ) w->core.parent;
     XtGeometryResult res;
     Dimension	    newWidth,newHeight, OldHeight;
-    int             parent_height, height_change;
+    int             parent_height, height_change, desired_width;
     Dimension	    bw;
     XtWidgetGeometry  parent_request ;
     XtWidgetGeometry  desired, preferred;
@@ -907,8 +907,10 @@ GeometryManager(
                 desired.x = mb->core.x;	
 	        desired.y = mb->core.y;
 	        desired.border_width = mb->core.border_width;
-                desired.width = mw->core.width - 
-                                (2 * mw->mwindow.margin_width);
+                desired_width = (int) mw->core.width -
+                                (2 * (int) mw->mwindow.margin_width);
+                desired.width = (Dimension)
+                                ((desired_width > 0) ? desired_width : 0);
                 desired.height = mb->core.height;
                 desired.request_mode = (CWWidth);
                 XtQueryGeometry(mw->mwindow.MenuBar, &desired, &preferred);
