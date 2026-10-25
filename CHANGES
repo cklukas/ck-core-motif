@@ -6263,3 +6263,8 @@ XmIm reference-table growth (2026-10-25)
 
 - Grow XIM widget and callback reference arrays transactionally; see
   `docs/xmim-reference-growth.md`.
+XmIm initialization allocation guards (2026-10-25)
+====================================================
+
+- Check display-state and locale-modifier scratch allocations before use; see
+  `docs/xmim-init-allocation.md`.

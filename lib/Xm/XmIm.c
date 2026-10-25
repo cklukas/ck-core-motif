@@ -2486,6 +2486,8 @@ get_xim_info(Widget  widget)
   
   /* Keep registration ownership independent of the current XIM transport. */
   xim_info = XtNew(XmImDisplayRec);
+  if (xim_info == NULL)
+    return NULL;
   bzero((char*) xim_info, sizeof(XmImDisplayRec));
   xmDisplay->display.xmim_info = (XtPointer)xim_info;
   
@@ -2496,10 +2498,12 @@ get_xim_info(Widget  widget)
       size_t cp_length = strlen(cp);
       if (cp_length <= (size_t)UINT_MAX - 5) {
         char *tmp = (char *)XtMalloc((Cardinal)(cp_length + 5));
-        memcpy(tmp, "@im=", 4);
-        memcpy(tmp + 4, cp, cp_length + 1);
-        XSetLocaleModifiers(tmp);
-        XtFree(tmp);
+        if (tmp != NULL) {
+          memcpy(tmp, "@im=", 4);
+          memcpy(tmp + 4, cp, cp_length + 1);
+          XSetLocaleModifiers(tmp);
+          XtFree(tmp);
+        }
       }
     }
   
