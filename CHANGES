@@ -14,12 +14,23 @@ Harden typed varargs allocation (2026-10-25)
   capacities, and report Xt allocation failure as an empty result; see
   `docs/xm-va-typed-allocation.md`.
 
+Harden simple-menu varargs processing (2026-10-25)
+===================================================
+
+- Bound nested typed-list expansion, ignore null nested lists, make the
+  counting arithmetic saturating, and roll back every partially allocated
+  simple-menu argument array. The metadata arrays now use explicit Xt-sized
+  byte counts; see `docs/xm-va-nested-bounds.md`,
+  `docs/xm-va-nested-null.md`, `docs/xm-va-count-bounds.md`,
+  `docs/xm-va-count-arithmetic.md`, and `docs/xm-va-process-allocation.md`.
+
 Harden XmeVLCreateWidget argument allocation (2026-10-25)
 ==========================================================
 
 - Validate the shared variable-argument count before byte multiplication,
   handle empty lists without a zero-byte allocation, and return safely on Xt
-  allocation failure; see `docs/xme-vlcreate-allocation.md`.
+  allocation failure. The final allocation passes an explicit Xt `Cardinal`
+  byte count; see `docs/xme-vlcreate-allocation.md`.
 
 Bound RCPopup list allocation width (2026-10-26)
 ================================================

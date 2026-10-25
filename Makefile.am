@@ -137,6 +137,13 @@ EXTRA_DIST += tests/automated/check-column-label-allocation.py \
               docs/column-label-allocation.md docs/column-label-init-rollback.md \
               docs/column-label-rollback.md
 EXTRA_DIST += tests/automated/check-rcpopup-list-growth.py docs/rcpopup-list-growth.md
+EXTRA_DIST += tests/automated/check-xme-vlcreate-allocation.py docs/xme-vlcreate-allocation.md \
+              tests/automated/check-xm-va-typed-allocation.py docs/xm-va-typed-allocation.md \
+              tests/automated/check-xm-va-nested-bounds.py docs/xm-va-nested-bounds.md \
+              tests/automated/check-xm-va-nested-null.py docs/xm-va-nested-null.md \
+              tests/automated/check-xm-va-process-allocation.py docs/xm-va-process-allocation.md \
+              tests/automated/check-xm-va-count-bounds.py docs/xm-va-count-bounds.md \
+              docs/xm-va-count-arithmetic.md
 EXTRA_DIST += tests/automated/check-xmos-init-path-bounds.py docs/xmos-init-path-bounds.md
 EXTRA_DIST += tests/automated/check-tablist-debug-bounds.py docs/tablist-debug-bounds.md
 EXTRA_DIST += tests/automated/check-charset-canonicalize-bounds.py docs/charset-canonicalization-bounds.md
