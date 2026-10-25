@@ -4798,3 +4798,9 @@ Drag initiator-info property validation (2026-10-25)
 
 - Validate `_MOTIF_DRAG_INITIATOR_INFO` type, format, completeness, and
   header length before parsing; see `docs/dragicc-initiator-info-guards.md`.
+
+Drag receiver state allocation handling (2026-10-25)
+======================================================
+
+- Check drop-site receiver-state allocation and release the property buffer
+  when it fails; see `docs/dragicc-receiver-allocation.md`.
