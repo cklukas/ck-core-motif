@@ -133,6 +133,7 @@ EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bound
 EXTRA_DIST += tests/automated/check-command-message-argument-bounds.py docs/command-message-argument-allocation.md
 EXTRA_DIST += tests/automated/check-mainw-child-growth.py docs/mainw-child-growth.md
 EXTRA_DIST += tests/automated/check-paned-managed-children-allocation.py docs/paned-managed-children-allocation.md
+EXTRA_DIST += tests/automated/check-paned-window-separator-allocation.py docs/paned-window-separator-allocation.md
 EXTRA_DIST += tests/automated/check-editres-error-bounds.py docs/editres-error-bounds.md
 EXTRA_DIST += tests/automated/check-spinbox-name-bounds.py docs/spinbox-name-bounds.md
 EXTRA_DIST += tests/automated/check-column-label-name-bounds.py docs/column-label-name-bounds.md
