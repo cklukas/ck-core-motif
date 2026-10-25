@@ -1,3 +1,10 @@
+Button-type converter allocation guards (2026-10-25)
+=====================================================
+
+- Check button-table and mutable input-copy allocations, releasing the table
+  when the second allocation fails; see
+  `docs/buttontype-converter-allocation.md`.
+
 Character-set converter allocation guards (2026-10-25)
 =======================================================
 
