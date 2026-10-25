@@ -1322,7 +1322,8 @@ ListCallback(
 
 	textTrait = (XmAccessTextualTrait)
 	  XmeTraitGet((XtPointer) XtClass(SB_Text(sel)), XmQTaccessTextual);
-	if (textTrait == NULL) return; /* Abort if text child is broken */
+	if (textTrait == NULL || textTrait->setValue == NULL)
+	    return; /* Abort if text child is broken */
 
 	assert(XtNumber(atom_names) == NUM_ATOMS);
 	XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), 
@@ -1357,14 +1358,19 @@ ListCallback(
 	  if (type == atoms[XmA_MOTIF_COMPOUND_STRING]) {
 	    XmString temp;
 	    temp = XmCvtByteStreamToXmString((unsigned char *) value);
-	    
-	    textTrait -> setValue(SB_Text(sel), temp, XmFORMAT_XmSTRING);
-	    XmStringFree(temp);
+	    if (temp != NULL) {
+	      textTrait -> setValue(SB_Text(sel), temp, XmFORMAT_XmSTRING);
+	      XmStringFree(temp);
+	    } else
+	      success = False;
 	  } else if (type == atoms[XmACOMPOUND_TEXT]) {
 	    XmString temp;
 	    temp = XmCvtCTToXmString((char*) value);
-	    textTrait -> setValue(SB_Text(sel), value, XmFORMAT_XmSTRING);
-	    XmStringFree(temp);
+	    if (temp != NULL) {
+	      textTrait -> setValue(SB_Text(sel), temp, XmFORMAT_XmSTRING);
+	      XmStringFree(temp);
+	    } else
+	      success = False;
 	  } else if (type == XA_STRING) {
 	    textTrait -> setValue(SB_Text(sel), value, XmFORMAT_MBYTE);
 	  }

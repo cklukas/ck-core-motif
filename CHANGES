@@ -1,3 +1,10 @@
+Fix SelectionBox compound-text updates (2026-10-25)
+=====================================================
+
+- Pass the converted XmString to the text child, handle conversion failure,
+  and validate the textual trait callback; see
+  `docs/motif-selectionbox-compound-text.md`.
+
 Guard Text textual trait callbacks (2026-10-25)
 ================================================
 
