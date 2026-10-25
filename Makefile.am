@@ -599,3 +599,5 @@ EXTRA_DIST += tests/automated/check-xm-null-cursor-failure.py docs/xm-null-curso
 EXTRA_DIST += tests/automated/check-xm-query-cursor-size-null.py docs/xm-query-cursor-size-null.md
 
 EXTRA_DIST += tests/automated/check-xm-extutil-null.py docs/xm-extutil-null.md
+
+EXTRA_DIST += tests/automated/check-xm-extutil-widget-null.py docs/xm-extutil-widget-null.md

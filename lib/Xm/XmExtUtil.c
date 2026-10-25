@@ -222,6 +222,8 @@ _XmHWQuery(Widget w, XtWidgetGeometry * intended, XtWidgetGeometry * preferred)
 Boolean
 _XmGadgetWarning(Widget w)
 {
+    if (w == NULL)
+        return (False);
     if (!XtIsRectObj(w) || XtIsWidget(w))
 	return(False);
 
@@ -308,6 +310,8 @@ _XmSetValuesOnChildren(Widget w, ArgList args, Cardinal num_args)
 {
     Widget *childP;
 
+    if (w == NULL)
+        return;
     if (!XtIsSubclass(w, compositeWidgetClass))
 	return;
 
@@ -329,6 +333,9 @@ Boolean
 _XmUtilIsSubclassByNameQ(Widget w, XrmQuark nameq)
 {
     WidgetClass class;
+
+    if (w == NULL)
+        return (False);
 
     Boolean returnValue = False;
 
