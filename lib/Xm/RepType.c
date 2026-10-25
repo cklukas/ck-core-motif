@@ -113,7 +113,7 @@ static String * CopyStringArray(
                         String *StrArray,
                         unsigned char NumEntries,
                         Boolean UppercaseFormat) ;
-static void CopyRecord( 
+static Boolean CopyRecord(
                        XmRepTypeEntry OutputEntry,
 		       String rep_type_name,
 		       String *value_names,
@@ -122,6 +122,7 @@ static void CopyRecord(
 		       Boolean reverse_installed,
 		       XmRepTypeId rep_type_id,
 		       Boolean copy_in) ;
+static void FreeCopiedRecord(XmRepTypeEntry Entry) ;
 static Boolean ValuesConsecutiveStartingAtZero( 
                         unsigned char *values,
                         unsigned char num_values) ;
@@ -1175,18 +1176,29 @@ CopyStringArray(
 {   
     unsigned int Index ;
     String * TmpStr ;
-    int PrefixSize = 0 ;
+    size_t prefix_size = UppercaseFormat ? 2 : 0;
 
-    TmpStr = (String *) XtMalloc((NumEntries + 1) * sizeof(String));
+    if ((size_t)NumEntries + 1 > SIZE_MAX / sizeof(String))
+	return NULL;
+    TmpStr = (String *) XtMalloc(((size_t)NumEntries + 1) * sizeof(String));
+    if (TmpStr == NULL)
+	return NULL;
     TmpStr[NumEntries] = NULL ;
 
-    if (UppercaseFormat) PrefixSize = 2 ;
-   
     Index = 0 ;
     while(Index < NumEntries)
       {   
-	 TmpStr[Index] = XtMalloc(PrefixSize + strlen(StrArray[Index]) + 1);
-	 strcpy(TmpStr[Index] + PrefixSize, StrArray[Index]);
+	 size_t length;
+
+	 if (StrArray == NULL || StrArray[Index] == NULL)
+	     goto failure;
+	 length = strlen(StrArray[Index]);
+	 if (length > SIZE_MAX - prefix_size - 1)
+	     goto failure;
+	 TmpStr[Index] = XtMalloc(prefix_size + length + 1);
+	 if (TmpStr[Index] == NULL)
+	     goto failure;
+	 strcpy(TmpStr[Index] + prefix_size, StrArray[Index]);
 	 Index ++ ;
       } 
 
@@ -1210,10 +1222,35 @@ CopyStringArray(
     } 
 
     return( TmpStr) ;
+
+failure:
+    while (Index != 0) {
+	--Index;
+	XtFree(TmpStr[Index]);
+    }
+    XtFree((char *)TmpStr);
+    return NULL;
 } 
 
 
 static void
+FreeCopiedRecord(XmRepTypeEntry Entry)
+{
+    Cardinal i;
+
+    if (Entry == NULL)
+	return;
+    XtFree(Entry->rep_type_name);
+    if (Entry->value_names != NULL) {
+	for (i = 0; Entry->value_names[i] != NULL; ++i)
+	    XtFree(Entry->value_names[i]);
+	XtFree((char *)Entry->value_names);
+    }
+    XtFree((char *)Entry->values);
+    memset(Entry, 0, sizeof(*Entry));
+}
+
+static Boolean
 CopyRecord(
 	   XmRepTypeEntry OutputEntry,
 	   String rep_type_name,
@@ -1224,18 +1261,32 @@ CopyRecord(
 	   XmRepTypeId rep_type_id,
 	   Boolean copy_in)
 {   
+    OutputEntry->rep_type_name = NULL;
+    OutputEntry->value_names = NULL;
+    OutputEntry->values = NULL;
+    if (rep_type_name == NULL || value_names == NULL)
+	return FALSE;
+
     OutputEntry->rep_type_name = XtNewString(rep_type_name) ;
+    if (OutputEntry->rep_type_name == NULL)
+	return FALSE;
 
     OutputEntry->value_names = CopyStringArray(value_names, num_values,
 					       False);
+    if (OutputEntry->value_names == NULL) {
+	FreeCopiedRecord(OutputEntry);
+	return FALSE;
+    }
 
     /* only when the record is copied out to the app we want to
        create a array of consecutive values */
     if (values || !copy_in)
 	OutputEntry->values = (unsigned char *) 
 	    XtMalloc(sizeof(unsigned char)*num_values);
-    else 
-	OutputEntry->values = NULL;
+    if ((values || !copy_in) && OutputEntry->values == NULL) {
+	FreeCopiedRecord(OutputEntry);
+	return FALSE;
+    }
     if (values) {
 	memcpy(OutputEntry->values, values, (size_t)num_values);
     } else if (!copy_in) {
@@ -1246,7 +1297,7 @@ CopyRecord(
     OutputEntry->num_values = num_values ;
     OutputEntry->reverse_installed = reverse_installed ;
     OutputEntry->rep_type_id = rep_type_id ;
-
+    return TRUE;
 } 
 
 
@@ -1325,13 +1376,16 @@ XmRepTypeRegister(
     
     /* the new reptype ID values are located after the standard ones */
             
-    CopyRecord(NewRecord,
-	       rep_type_name, value_names, 
-	       (ValuesConsecutiveStartingAtZero( values, num_values)) ? 
-	       NULL:values, 
-	       num_values, False,
-	       DynamicRepTypeNumRecords + StandardNumRecs,
-	       True);
+	if (!CopyRecord(NewRecord,
+		       rep_type_name, value_names,
+		       (ValuesConsecutiveStartingAtZero( values, num_values)) ?
+		       NULL:values,
+		       num_values, False,
+		       DynamicRepTypeNumRecords + StandardNumRecs,
+		       True)) {
+	_XmProcessUnlock();
+	return( XmREP_TYPE_INVALID);
+	}
 	       
 
     /** register the converter to Xt */
@@ -1461,22 +1515,40 @@ XmRepTypeGetRegistered( void )
       { 
 	  XmRepTypeEntry Record = (XmRepTypeEntry) &(StandardRepTypes[Index]);
 
-	  CopyRecord(&(OutputList[Index]),
-		     Record->rep_type_name, Record->value_names, 
-		     Record->values, Record->num_values,
-		     Record->reverse_installed, Index,
-		     False) ;
+	  if (!CopyRecord(&(OutputList[Index]),
+			   Record->rep_type_name, Record->value_names,
+			   Record->values, Record->num_values,
+			   Record->reverse_installed, Index,
+			   False)) {
+	      while (Index != 0) {
+		  --Index;
+		  FreeCopiedRecord(&OutputList[Index]);
+	      }
+	      XtFree((char *)OutputList);
+	      _XmProcessUnlock();
+	      return NULL;
+	  }
       }
 
     for ( Index = 0; Index < DynamicRepTypeNumRecords; Index++ )
       { 
 	  XmRepTypeEntry Record = &(DynamicRepTypes[Index]) ;
 
-	  CopyRecord(&(OutputList[StandardNumRecs + Index]),
-		     Record->rep_type_name, Record->value_names, 
-		     Record->values, Record->num_values,
-		     Record->reverse_installed, Index + StandardNumRecs,
-		     False) ;
+	  if (!CopyRecord(&(OutputList[StandardNumRecs + Index]),
+			   Record->rep_type_name, Record->value_names,
+			   Record->values, Record->num_values,
+			   Record->reverse_installed, Index + StandardNumRecs,
+			   False)) {
+	      while (Index != 0) {
+		  --Index;
+		  FreeCopiedRecord(&OutputList[StandardNumRecs + Index]);
+	      }
+	      for (Index = 0; Index < StandardNumRecs; ++Index)
+		  FreeCopiedRecord(&OutputList[Index]);
+	      XtFree((char *)OutputList);
+	      _XmProcessUnlock();
+	      return NULL;
+	  }
       }
 
     OutputList[TotalEntries].rep_type_name = NULL ;
@@ -1507,11 +1579,15 @@ XmRepTypeGetRecord(
 	      return( NULL);
 	  }
 	  
-	  CopyRecord(OutputRecord,
-		     Record->rep_type_name, Record->value_names, 
-		     Record->values, Record->num_values,
-		     Record->reverse_installed, rep_type_id,
-		     False) ;
+	  if (!CopyRecord(OutputRecord,
+			   Record->rep_type_name, Record->value_names,
+			   Record->values, Record->num_values,
+			   Record->reverse_installed, rep_type_id,
+			   False)) {
+	      XtFree((char *)OutputRecord);
+	      _XmProcessUnlock();
+	      return NULL;
+	  }
 
 	  _XmProcessUnlock();
 	  return( OutputRecord) ;
