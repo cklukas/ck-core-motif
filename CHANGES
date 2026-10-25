@@ -12057,3 +12057,10 @@ Make RepType string-array allocation widths explicit (2026-10-26)
   copied strings before Xt allocation; see `docs/reptype-registration.md`.
 
 Bound Column label-name allocation width (2026-10-26)
+Bound RepType table allocation widths (2026-10-26)
+==================================================
+
+- Add Xt `Cardinal` checks and explicit byte sizes to dynamic RepType growth
+  and registered-list snapshots; see `docs/reptype-registration.md`.
+
+Make RepType string-array allocation widths explicit (2026-10-26)

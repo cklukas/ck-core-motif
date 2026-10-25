@@ -1366,8 +1366,9 @@ XmRepTypeRegister(
 	return( XmREP_TYPE_INVALID);
       }
     new_dynamic_types = (XmRepTypeList)
-       XtRealloc((char *)DynamicRepTypes, sizeof(XmRepTypeEntryRec) *
-                 (DynamicRepTypeNumRecords + 1));
+       XtRealloc((char *)DynamicRepTypes,
+		 (Cardinal)(sizeof(XmRepTypeEntryRec) *
+                 (DynamicRepTypeNumRecords + 1)));
     if (new_dynamic_types == NULL) {
 	_XmProcessUnlock();
 	return( XmREP_TYPE_INVALID);
@@ -1500,14 +1501,15 @@ XmRepTypeGetRegistered( void )
     TotalEntries = StandardNumRecs + DynamicRepTypeNumRecords ;
 
     if (TotalEntries == UINT_MAX ||
-	(size_t)TotalEntries + 1 > SIZE_MAX / sizeof(XmRepTypeEntryRec))
+	(size_t)TotalEntries + 1 > SIZE_MAX / sizeof(XmRepTypeEntryRec) ||
+	(size_t)TotalEntries + 1 > UINT_MAX / sizeof(XmRepTypeEntryRec))
       {
 	_XmProcessUnlock();
 	return NULL;
       }
 
     OutputList = (XmRepTypeList) 
-	XtMalloc((TotalEntries + 1)  * sizeof(XmRepTypeEntryRec)) ;
+	XtMalloc((Cardinal)((TotalEntries + 1) * sizeof(XmRepTypeEntryRec))) ;
     if (OutputList == NULL) {
 	_XmProcessUnlock();
 	return NULL;

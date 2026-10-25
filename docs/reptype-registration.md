@@ -4,7 +4,8 @@ nav_exclude: true
 # Representation-type registration allocation
 
 `XmRepTypeRegister` grows the process-wide dynamic representation-type table
-before filling the new record. The resize result is now checked before the
+before filling the new record. The resize byte size is checked against Xt's
+`Cardinal` range and passed explicitly; the result is checked before the
 global pointer is replaced or the new record is accessed. An allocation
 failure returns `XmREP_TYPE_INVALID` while preserving the existing registered
 types and converter state. `XmRepTypeGetRegistered` likewise returns `NULL`
