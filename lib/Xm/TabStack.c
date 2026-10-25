@@ -1353,6 +1353,7 @@ SetValues(current, request, set, arg_list, arg_cnt)
     Cardinal         num_filtered_args;
     Boolean          need_redraw = False, need_resize = False,
                      need_layout = False; 
+    XmString          replacement;
 
     if( c_tab->manager.shadow_thickness != s_tab->manager.shadow_thickness )
     {
@@ -1482,15 +1483,15 @@ SetValues(current, request, set, arg_list, arg_cnt)
 #ifdef TEAR_OFF_TABS
     if( cfield(tear_off_label) != sfield(tear_off_label) )
     {
-	if( cfield(tear_off_label) != NULL )
+	replacement = sfield(tear_off_label) != NULL
+	    ? XmStringCopy(sfield(tear_off_label)) : NULL;
+	if (sfield(tear_off_label) == NULL || replacement != NULL)
 	{
 	    XmStringFree(cfield(tear_off_label));
+	    sfield(tear_off_label) = replacement;
 	}
-	
-	if( sfield(tear_off_label) != NULL )
-	{
-	    sfield(tear_off_label) = XmStringCopy(sfield(tear_off_label));
-	}
+	else
+	    sfield(tear_off_label) = cfield(tear_off_label);
 	XtVaSetValues(sfield(_tear_off_button),
 		      XmNlabelString, sfield(tear_off_label),
 		      NULL);
@@ -2556,6 +2557,7 @@ ConstraintSetValues(current, request, set, arg_list, arg_cnt)
     XmTabAttributeRec attr;
     WidgetList        kid;
     Cardinal          i;
+    XmString          replacement;
 
     /*
      * If any of the following have changed that means we need to 
@@ -2576,12 +2578,15 @@ ConstraintSetValues(current, request, set, arg_list, arg_cnt)
 
 	if( cfield(tab_label_string) != sfield(tab_label_string) )
 	{
-	    if( cfield(tab_label_string) != NULL )
+	    replacement = sfield(tab_label_string) != NULL
+		? XmStringCopy(sfield(tab_label_string)) : NULL;
+	    if (sfield(tab_label_string) == NULL || replacement != NULL)
 	    {
 		XmStringFree(cfield(tab_label_string));
+		sfield(tab_label_string) = replacement;
 	    }
-	    
-	    sfield(tab_label_string) = XmStringCopy(sfield(tab_label_string));
+	    else
+		sfield(tab_label_string) = cfield(tab_label_string);
 	}
 
 	for( i = 0, kid = tab->composite.children;

@@ -9322,3 +9322,10 @@ IconButton label rollback (2026-10-29)
 - Copy changed label resources before releasing their current values, keeping
   existing labels usable when allocation fails; see
   `docs/iconbutton-label-rollback.md`.
+
+TabStack label rollback (2026-10-29)
+====================================
+
+- Preserve tab and tear-off labels until replacement `XmString` copies
+  succeed, while retaining NULL as explicit clearing; see
+  `docs/tabstack-label-rollback.md`.
