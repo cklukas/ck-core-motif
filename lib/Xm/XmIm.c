@@ -482,6 +482,7 @@ im_destroyed(XIM xim, XPointer closure, XPointer call_data)
         Cardinal k;
         if (XtWindow(w) != ic->focus_window) continue;
         r = remember_widget(info, w);
+        if (r == NULL) continue;
         for (k = 0; k < r->count; ++k)
           if (!strcmp(r->args[k].name, XmNpreeditDoneCallback)) {
             XIMCallback *done = (XIMCallback *)r->args[k].value;
@@ -544,6 +545,7 @@ XmImRegister(Widget w,
   Widget p;
   XmImShellInfo im_info;
   XmImDisplayInfo xim_info;
+  XmImRegistration registration;
   XmInputPolicy input_policy = XmINHERIT_POLICY;
 
   _XmWidgetToAppContext(w);
@@ -556,9 +558,10 @@ XmImRegister(Widget w,
   
   /* Lookup or create per-shell IM info and an XIM. */
   xim_info = get_xim_info(p);
-  if (xim_info && !xim_info->restoring) remember_widget(xim_info, w)->external = False;
-  else (void)remember_widget(xim_info, w);
-  if ((xim_info == NULL) || (xim_info->xim == NULL)) {
+  registration = remember_widget(xim_info, w);
+  if (xim_info && !xim_info->restoring && registration != NULL)
+    registration->external = False;
+  if ((xim_info == NULL) || (xim_info->xim == NULL) || registration == NULL) {
     _XmAppUnlock(app);
     return;
   }
@@ -917,12 +920,17 @@ XmImGetXIC(Widget 	 w,
   XmImDisplayInfo xim_info;
   XmImShellInfo im_info;
   XmImXICInfo xic_info;
+  XmImRegistration registration;
   Widget shell;
   _XmWidgetToAppContext(w);
   
   _XmAppLock(app);
   xim_info = get_xim_info(w);
-  (void)remember_widget(xim_info, w);
+  registration = remember_widget(xim_info, w);
+  if (registration == NULL) {
+    _XmAppUnlock(app);
+    return NULL;
+  }
   remember_values(xim_info, w, args, num_args);
   im_info = get_im_info(w, True);
   xic_info = get_current_xic(xim_info, w);
@@ -967,7 +975,12 @@ XmImGetXIC(Widget 	 w,
   /* Register an XIC with the desired input policy. */
   if (xic_info == NULL)
     {
-      remember_widget(xim_info, w)->external = False;
+      registration = remember_widget(xim_info, w);
+      if (registration == NULL) {
+        _XmAppUnlock(app);
+        return NULL;
+      }
+      registration->external = False;
       xic_info = create_xic_info(shell, xim_info, im_info, input_policy);
       set_current_xic(xic_info, xim_info, w);
     }
@@ -1026,7 +1039,14 @@ XmImSetXIC(Widget widget,
     return NULL;
   }
   /* Opaque application-created XICs cannot be reconstructed by the toolkit. */
-  remember_widget(xim_info, widget)->external = True;
+  {
+    XmImRegistration registration = remember_widget(xim_info, widget);
+    if (registration == NULL) {
+      _XmAppUnlock(app);
+      return NULL;
+    }
+    registration->external = True;
+  }
   
   /* Unregister the current XIC. */
   if (xic_info != NULL)
@@ -2736,7 +2756,8 @@ set_current_xic(XmImXICInfo 	xic_info,
     return;
   
   /* Record this widget as a reference to this XIC. */
-  (void) add_ref(&xic_info->widget_refs, widget);
+  if (add_ref(&xic_info->widget_refs, widget) == 0)
+    return;
   
   /* Set the current XIC for this widget. */
   if (xim_info->current_xics == (XContext)0)

@@ -772,3 +772,5 @@ EXTRA_DIST += tests/automated/check-accessibility-create-inputs.py docs/accessib
 EXTRA_DIST += tests/automated/check-accessibility-dbus-property-inputs.py docs/accessibility-dbus-property-inputs.md
 
 EXTRA_DIST += tests/automated/check-xmim-reference-growth.py docs/xmim-reference-growth.md
+
+EXTRA_DIST += tests/automated/check-xmim-registration-lifecycle.py docs/xmim-registration-lifecycle.md

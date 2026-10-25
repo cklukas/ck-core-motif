@@ -4756,3 +4756,10 @@ XmIm reference-table growth (2026-10-25)
 
 - Grow XIM widget and callback reference arrays transactionally; see
   `docs/xmim-reference-growth.md`.
+
+Guard XIM registration failure paths (2026-10-25)
+==================================================
+
+- Avoid dereferencing missing registration records and avoid saving an Xlib
+  context when widget-reference growth fails; see
+  `docs/xmim-registration-lifecycle.md`.
