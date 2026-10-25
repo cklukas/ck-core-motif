@@ -572,19 +572,37 @@ XmeTransferAddDoneProc(XtPointer id,
 		       XmSelectionFinishedProc done_proc)
 {
   TransferContext tid = (TransferContext) id;
+  XmSelectionFinishedProc *new_done_procs;
+  int new_count;
+
+  if (tid == NULL)
+    return;
 
   _XmProcessLock();
-  tid -> numDoneProcs++;
+  if (tid -> numDoneProcs == INT_MAX)
+    {
+      _XmProcessUnlock();
+      return;
+    }
+  new_count = tid -> numDoneProcs + 1;
 
-  if (tid -> numDoneProcs == 1)
-    tid -> doneProcs = (XmSelectionFinishedProc *) 
-      XtMalloc(sizeof(XmSelectionFinishedProc*));
+  if (new_count == 1)
+    new_done_procs = (XmSelectionFinishedProc *)
+      XtMalloc(sizeof(*new_done_procs));
   else
-    tid -> doneProcs = (XmSelectionFinishedProc *) 
+    new_done_procs = (XmSelectionFinishedProc *)
       XtRealloc((char*) tid -> doneProcs,
-		sizeof(XmSelectionFinishedProc*) * tid -> numDoneProcs);
+		sizeof(*new_done_procs) * (size_t)new_count);
 
-  tid -> doneProcs[tid -> numDoneProcs - 1] = done_proc;
+  if (new_done_procs == NULL)
+    {
+      _XmProcessUnlock();
+      return;
+    }
+
+  tid -> doneProcs = new_done_procs;
+  tid -> numDoneProcs = new_count;
+  tid -> doneProcs[new_count - 1] = done_proc;
   _XmProcessUnlock();
 }
 

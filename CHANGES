@@ -1,3 +1,9 @@
+Make transfer completion-callback growth transactional (2026-10-25)
+=====================================================================
+
+- Preserve registered callbacks when `XmeTransferAddDoneProc` cannot grow its
+  array; see `docs/transfer-doneproc-allocation.md`.
+
 Make key-event mapping growth transactional (2026-10-25)
 ===========================================================
 
