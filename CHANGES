@@ -1,3 +1,9 @@
+Mrm class/comment validation checks (2026-10-25)
+================================================
+
+- Propagate invalid-context failures before class and comment record access;
+  see `docs/mrm-class-comment-validation.md`.
+
 Mrm callback item binding checks (2026-10-25)
 ===============================================
 
