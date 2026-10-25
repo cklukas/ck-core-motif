@@ -30,6 +30,7 @@
 #include <config.h>
 #endif
 
+#include <stdint.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -229,6 +230,8 @@ static XmHashValue
 TraitHash(XmHashKey key)
 {
   XmTraitEntry entry = (XmTraitEntry) key;
+  uintptr_t object = (uintptr_t) entry -> obj;
+  uintptr_t name = (uintptr_t) entry -> name;
 
-  return(((long) entry -> obj) + ((long) entry -> name));
+  return (XmHashValue)(object ^ (object >> 16) ^ name ^ (name >> 16));
 }

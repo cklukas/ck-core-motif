@@ -1,3 +1,9 @@
+Trait hash portability (2026-10-25)
+===================================
+
+- Avoid signed pointer arithmetic in trait-key hashing while preserving the
+  existing registry API; see `docs/trait-hash-portability.md`.
+
 Hash index native-width preservation (2026-10-25)
 =================================================
 
