@@ -5149,3 +5149,10 @@ Drag receiver state allocation handling (2026-10-25)
 
 - Check drop-site receiver-state allocation and release the property buffer
   when it fails; see `docs/dragicc-receiver-allocation.md`.
+Atom-list converter allocation guards (2026-10-25)
+==================================================
+
+- Check atom-name list growth and atom-array allocation, releasing token and
+  name-list storage on failure; see `docs/atom-list-converter-allocation.md`.
+
+Cardinal-list converter allocation guards (2026-10-25)
