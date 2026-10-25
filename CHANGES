@@ -4114,3 +4114,8 @@ Mrm primitive conversion pointer checks (2026-10-25)
 - Reject null color, wide-character, unit, translation, class-name, and keysym
   values before conversion; see
   `docs/mrm-convert-primitive-pointer-validation.md`.
+Mrm callback fixup validation (2026-10-25)
+============================================
+
+- Validate callback descriptors and resource pointers, and propagate value
+  conversion failures; see `docs/mrm-callback-fixup-validation.md`.

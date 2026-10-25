@@ -3465,7 +3465,9 @@ Urm__CW_FixupCallback (Widget			parent ,
   RGMFontListPtr	fontlist;	/* for converting old style fontlist */
   Boolean		swap_needed = FALSE;
 
-  if (cbdesc == NULL)
+  if (cbdesc == NULL || bufptr == NULL ||
+      cbdesc->validation != URMCallbackDescriptorValid ||
+      cbdesc->count > RGMListSizeMax)
     return MrmFAILURE;
 
   /*
@@ -3499,6 +3501,8 @@ Urm__CW_FixupCallback (Widget			parent ,
         {
         case MrmRtypeResource:
 	  resptr = (RGMResourceDescPtr) tag_val ;
+	  if ( resptr == NULL )
+	    return MrmFAILURE ;
 	  switch ( resptr->res_group )
 	    {
 	    case URMgWidget:
@@ -3588,6 +3592,7 @@ Urm__CW_FixupCallback (Widget			parent ,
 	  result = Urm__CW_ConvertValue
 	    (parent, &tag_val, reptype, (MrmType)0, XtDisplay(parent),
 	     hierarchy_id, NULL) ;
+	  if ( result != MrmSUCCESS ) continue ;
 	  Urm__CW_SafeCopyValue (&tag_val, reptype, cblist, 0, 0) ;
 	  itmptr->runtime.resolved = TRUE;
 	  break ;

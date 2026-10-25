@@ -568,3 +568,4 @@ EXTRA_DIST += tests/automated/check-mrm-convert-font-validation.py docs/mrm-conv
 EXTRA_DIST += tests/automated/check-mrm-convert-char8-null.py docs/mrm-convert-char8-null.md
 EXTRA_DIST += tests/automated/check-mrm-convert-pointer-null.py docs/mrm-convert-pointer-null.md
 EXTRA_DIST += tests/automated/check-mrm-convert-primitive-pointer-validation.py docs/mrm-convert-primitive-pointer-validation.md
+EXTRA_DIST += tests/automated/check-mrm-callback-fixup-validation.py docs/mrm-callback-fixup-validation.md
