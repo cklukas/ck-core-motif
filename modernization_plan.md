@@ -2130,6 +2130,9 @@ list. The source contract is recorded in
 access, preserving safe zero-read/no-op-write behavior. The source contract is
 recorded in `tests/automated/check-tab-null-guards.py` and
 `docs/tab-null-guards.md`.
+`_XmCreateTab` now validates nonempty argument lists before iteration. The
+source contract is recorded in `tests/automated/check-tab-arglist-guard.py`
+and `docs/tab-arglist-guard.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the

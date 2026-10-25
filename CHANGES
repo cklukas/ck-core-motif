@@ -188,6 +188,12 @@ Tab value API null guards (2026-10-26)
 - Make null tab reads return `0.0` and null writes no-ops; see
   `docs/tab-null-guards.md`.
 
+Tab creation argument validation (2026-10-26)
+==============================================
+
+- Reject nonzero tab argument counts with a null `ArgList`; see
+  `docs/tab-arglist-guard.md`.
+
 XmString extraction output validation (2026-10-26)
 ====================================================
 

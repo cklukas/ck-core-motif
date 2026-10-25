@@ -659,7 +659,7 @@ _XmCreateTab(Widget parent,
   XmTab		tab, start;
   int		i;
 
-  if (tl == NULL)
+  if (tl == NULL || (argcount != 0 && arglist == NULL))
     return((Widget)NULL);
   
   /* Init quark list */
