@@ -6258,3 +6258,8 @@ XmIm callback registration guards (2026-10-25)
 - Ignore stale widget references and failed callback-array allocation instead
   of writing through an invalid XIM callback slot; see
   `docs/xmim-callback-registration.md`.
+XmIm reference-table growth (2026-10-25)
+=========================================
+
+- Grow XIM widget and callback reference arrays transactionally; see
+  `docs/xmim-reference-growth.md`.
