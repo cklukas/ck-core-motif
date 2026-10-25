@@ -6534,3 +6534,9 @@ Align public status text with ABI epoch 8 (2026-10-25)
   the public development-status text matches the installed ABI 8 headers and
   validation records.
 
+Hierarchy child-list allocation width (2026-10-25)
+==================================================
+
+- Pass the checked `XmHierarchyGetChildNodes` byte count explicitly as an Xt
+  `Cardinal`; see `docs/hierarchy-child-lists.md`.
+

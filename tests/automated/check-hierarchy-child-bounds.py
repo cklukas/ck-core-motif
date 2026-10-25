@@ -9,6 +9,7 @@ end = text.index("\n    for (i=0; i < child_count; i++)", start)
 region = text[start:end]
 assert "child_count == (Cardinal)~0" in region
 assert "(size_t)child_count + 1" in region
+assert "XtMalloc((Cardinal)(((size_t)child_count + 1) *" in region
 assert "if (retval == NULL)" in region
 assert "return NULL;" in region
 print("hierarchy child-list export bounds count and allocation")
