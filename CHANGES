@@ -1,3 +1,10 @@
+Typed varargs argument-list allocation (2026-10-28)
+=====================================================
+
+- Make the private typed-varargs conversion helper initialize outputs, reject
+  invalid byte-size capacities, and report Xt allocation failure as an empty
+  result; see `docs/xm-va-typed-allocation.md`.
+
 XmeVLCreateWidget argument-list allocation (2026-10-28)
 =========================================================
 

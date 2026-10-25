@@ -395,8 +395,19 @@ _XmVaToTypedArgList(
     String              attr;
     int			count;
 
+    if (args_return != NULL)
+        *args_return = NULL;
+    if (num_args_return != NULL)
+        *num_args_return = 0;
+    if (args_return == NULL || num_args_return == NULL || max_count <= 0 ||
+        (size_t)max_count >= SIZE_MAX / sizeof(XtTypedArg) ||
+        (unsigned int)max_count >= UINT_MAX / sizeof(XtTypedArg))
+        return;
+
     args = (XtTypedArgList)
-	XtMalloc((unsigned)(max_count * sizeof(XtTypedArg))); 
+	XtMalloc((size_t)max_count * sizeof(XtTypedArg));
+    if (args == NULL)
+        return;
 
     for(attr = va_arg(var, String), count = 0 ; attr != NULL;
 		    attr = va_arg(var, String)) {
