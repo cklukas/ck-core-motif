@@ -422,6 +422,8 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
 
     top_node = ((HierarchyConstraints) 
 		XtMalloc(sizeof(HierarchyConstraintRec)));
+	if (top_node == NULL)
+	    return;
 
     XmHierarchy_work_proc_id(hw) = (XtWorkProcId) NULL;
     XmHierarchy_node_table(hw) = NULL;

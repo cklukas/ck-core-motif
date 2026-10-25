@@ -8189,3 +8189,12 @@ Container drag-icon cache allocation (2026-10-27)
 
 Container reorder allocation failure (2026-10-27)
 =================================================
+Hierarchy top-node allocation (2026-10-27)
+==========================================
+
+- Check the top constraint-node allocation during Hierarchy initialization
+  before assigning its fields.  Widget creation now returns safely when the
+  node cannot be allocated instead of dereferencing null storage.
+
+Container drag-icon cache allocation (2026-10-27)
+=================================================
