@@ -1,3 +1,9 @@
+XmString ASN.1 conversion failure cleanup (2026-10-26)
+========================================================
+
+- Clean partial non-optimized conversion state and check separator allocations;
+  see `docs/xmstring-asn1-failure-cleanup.md`.
+
 XmString rendition resize failures (2026-10-26)
 ================================================
 

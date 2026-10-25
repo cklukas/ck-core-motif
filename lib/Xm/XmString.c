@@ -5671,20 +5671,21 @@ _XmStringNonOptCreate(
 	      push_seen = txt_seen = pop_seen = False;
 	    }
 
-	  rend_cnt = ++(_XmUnoptSegRendBeginCount(&seg));
+	  rend_cnt = _XmUnoptSegRendBeginCount(&seg) + 1;
 	  
 	  if (rend_cnt > 1) needs_unopt = True;
 	  
 	  if ((size_t)rend_cnt > SIZE_MAX / sizeof(XmStringTag) ||
 	      (size_t)rend_cnt * sizeof(XmStringTag) > (size_t)((Cardinal)~0))
-	    return NULL;
+	    goto conversion_failed;
 	  {
 	    XmStringTag *new_tags = (XmStringTag *)XtRealloc(
 		(char *)_XmUnoptSegRendBegins(&seg),
 		(Cardinal)((size_t)rend_cnt * sizeof(XmStringTag)));
 	    if (!new_tags)
-	      return NULL;
+	      goto conversion_failed;
 	    _XmUnoptSegRendBegins(&seg) = new_tags;
+	    _XmUnoptSegRendBeginCount(&seg) = rend_cnt;
 	  }
 	  
 	  _XmUnoptSegRendBegins(&seg)[rend_cnt - 1] =
@@ -5786,20 +5787,21 @@ _XmStringNonOptCreate(
 	case XmSTRING_COMPONENT_RENDITION_END:
 	  txt_seen = True;
 
-	  rend_cnt = ++(_XmUnoptSegRendEndCount(&seg));
+	  rend_cnt = _XmUnoptSegRendEndCount(&seg) + 1;
 	  
 	  if (rend_cnt > 1) needs_unopt = True;
 	  
 	  if ((size_t)rend_cnt > SIZE_MAX / sizeof(XmStringTag) ||
 	      (size_t)rend_cnt * sizeof(XmStringTag) > (size_t)((Cardinal)~0))
-	    return NULL;
+	    goto conversion_failed;
 	  {
 	    XmStringTag *new_tags = (XmStringTag *)XtRealloc(
 		(char *)_XmUnoptSegRendEnds(&seg),
 		(Cardinal)((size_t)rend_cnt * sizeof(XmStringTag)));
 	    if (!new_tags)
-	      return NULL;
+	      goto conversion_failed;
 	    _XmUnoptSegRendEnds(&seg) = new_tags;
+	    _XmUnoptSegRendEndCount(&seg) = rend_cnt;
 	  }
 	  
 	  _XmUnoptSegRendEnds(&seg)[rend_cnt - 1] =
@@ -5827,13 +5829,20 @@ _XmStringNonOptCreate(
 	  if (!_XmStrImplicitLine(string) && _XmStrEntryCount(string) > 1) {
 	    /* need to move segments down one level */
 	    _XmStringEntry line;
+	    _XmStringEntry *new_entries;
+	    new_entries = (_XmStringEntry *)XtMalloc(sizeof(_XmStringEntry));
+	    if (new_entries == NULL)
+	      goto conversion_failed;
 	    line = (_XmStringEntry)XtMalloc(sizeof(_XmStringArraySegRec));
+	    if (line == NULL) {
+	      XtFree((char *)new_entries);
+	      goto conversion_failed;
+	    }
 	    _XmEntryType(line) = XmSTRING_ENTRY_ARRAY;
 	    _XmEntrySoftNewlineSet(line, False);
 	    _XmEntrySegmentCount(line) = _XmStrEntryCount(string);
 	    _XmEntrySegment(line) = (_XmStringNREntry *)_XmStrEntry(string);
-	    _XmStrEntry(string) = 
-	      (_XmStringEntry *)XtMalloc(sizeof(_XmStringEntry));
+	    _XmStrEntry(string) = new_entries;
 	    _XmStrEntry(string)[0] = line;
 	    _XmStrEntryCount(string) = 1;
 	  }
@@ -5851,6 +5860,14 @@ _XmStringNonOptCreate(
   if (need_finish) finish_segment(string, &seg, &lc, &sc, &needs_unopt, dir);
   
   return(string);
+
+conversion_failed:
+  XtFree((char *)_XmUnoptSegRendBegins(&seg));
+  XtFree((char *)_XmUnoptSegRendEnds(&seg));
+  _XmUnoptSegRendBegins(&seg) = NULL;
+  _XmUnoptSegRendEnds(&seg) = NULL;
+  _XmStrFree(string);
+  return NULL;
 }
 
 /*
