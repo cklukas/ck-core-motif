@@ -128,7 +128,7 @@ Idb__DB_GetDataEntry (IDBFile			file_id,
   if (file_id == NULL)
     return MrmFAILURE;
 
-  if (! UrmRCValid (context_id))
+  if (context_id == NULL || ! UrmRCValid (context_id))
     return Urm__UT_Error ("Idb__DB_GetDataEntry", _MrmMMsg_0006,
 			  NULL, NULL, MrmBAD_CONTEXT) ;
 

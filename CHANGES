@@ -1,3 +1,10 @@
+Mrm data-entry context null guard (2026-10-25)
+===============================================
+
+- Reject null resource contexts before validation in the shared data-entry
+  reader, preventing public indexed and RID reads from dereferencing null;
+  see `docs/mrm-data-context-null.md`.
+
 Mrm writer lookup error propagation (2026-10-25)
 ================================================
 

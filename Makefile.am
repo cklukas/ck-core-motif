@@ -524,3 +524,4 @@ EXTRA_DIST += tests/automated/check-mrm-resource-id-output-init.py docs/mrm-reso
 EXTRA_DIST += tests/automated/check-mrm-open-write-output.py docs/mrm-open-write-output.md
 EXTRA_DIST += tests/automated/check-mrm-writer-context-validation.py docs/mrm-writer-context-validation.md
 EXTRA_DIST += tests/automated/check-mrm-writer-lookup-errors.py docs/mrm-writer-lookup-errors.md
+EXTRA_DIST += tests/automated/check-mrm-data-context-null.py docs/mrm-data-context-null.md
