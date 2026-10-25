@@ -981,15 +981,21 @@ Enter(
 		   DrawToggle(w);
 	   }
 
-	 XmeDrawShadows (XtDisplay (w), XtWindow (w),
-		w->primitive.top_shadow_GC,
-		w->primitive.bottom_shadow_GC,
-		w->primitive.highlight_thickness,
-		w->primitive.highlight_thickness,
-		w->core.width - 2 * w->primitive.highlight_thickness,
-		w->core.height - 2 * w->primitive.highlight_thickness,
-		w->primitive.shadow_thickness,
-		etched_in ? XmSHADOW_IN : XmSHADOW_OUT);
+	 if ((int)w->core.width > 2 * (int)w->primitive.highlight_thickness &&
+	     (int)w->core.height > 2 * (int)w->primitive.highlight_thickness &&
+	     w->primitive.top_shadow_GC != NULL &&
+	     w->primitive.bottom_shadow_GC != NULL)
+	   XmeDrawShadows (XtDisplay (w), XtWindow (w),
+			w->primitive.top_shadow_GC,
+			w->primitive.bottom_shadow_GC,
+			w->primitive.highlight_thickness,
+			w->primitive.highlight_thickness,
+			(int)w->core.width -
+			2 * (int)w->primitive.highlight_thickness,
+			(int)w->core.height -
+			2 * (int)w->primitive.highlight_thickness,
+			w->primitive.shadow_thickness,
+			etched_in ? XmSHADOW_IN : XmSHADOW_OUT);
 
 	 if (w->toggle.arm_CB)
 	 {
@@ -2410,14 +2416,20 @@ BorderHighlight(
 		DrawToggle(tb);
         }
 
-      XmeDrawShadows (XtDisplay (tb), XtWindow (tb),
+      if ((int)tb->core.width > 2 * (int)tb->primitive.highlight_thickness &&
+	  (int)tb->core.height > 2 * (int)tb->primitive.highlight_thickness &&
+	  tb->primitive.top_shadow_GC != NULL &&
+	  tb->primitive.bottom_shadow_GC != NULL)
+	XmeDrawShadows (XtDisplay (tb), XtWindow (tb),
 		      tb->primitive.top_shadow_GC,
 		      tb->primitive.bottom_shadow_GC,
 		      tb->primitive.highlight_thickness,
 		      tb->primitive.highlight_thickness,
-		      tb->core.width - 2 * tb->primitive.highlight_thickness,
-		      tb->core.height - 2 * tb->primitive.highlight_thickness,
-		      tb->primitive.shadow_thickness, 
+		      (int)tb->core.width -
+		      2 * (int)tb->primitive.highlight_thickness,
+		      (int)tb->core.height -
+		      2 * (int)tb->primitive.highlight_thickness,
+		      tb->primitive.shadow_thickness,
 		      etched_in ? XmSHADOW_IN : XmSHADOW_OUT);
       
       if (!already_armed &&  tb->toggle.arm_CB)
