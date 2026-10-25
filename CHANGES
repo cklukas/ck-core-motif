@@ -5037,3 +5037,8 @@ Guard BreadcrumbBar redisplay inputs (2026-10-25)
 
 - Handle missing BreadcrumbBar GCs, null separators or labels, and narrow focus
   geometry; see `docs/breadcrumb-bar-redisplay-guards.md`.
+ArrowButton redisplay guards (2026-10-25)
+===========================================
+
+- Skip shadow and arrow drawing when required GCs are unavailable or the
+  computed arrow geometry is empty; see `docs/arrow-button-redisplay-guards.md`.
