@@ -1749,7 +1749,7 @@ GetExtraVertSpace(Widget w)
     register int space, vmargin;
     TreeConstraints node = (TreeConstraints) XmHierarchy_top_node(tw);
 
-    space = w->core.height - XmTreeC_bb_height(node);
+    space = (int)w->core.height - (int)XmTreeC_bb_height(node);
     vmargin = 2 * XmHierarchy_v_margin(tw);
 
     return((space > vmargin) ? space : vmargin);
@@ -1769,7 +1769,7 @@ GetExtraHorizSpace(Widget w)
     register int space, hmargin;
     TreeConstraints node = (TreeConstraints) XmHierarchy_top_node(tw);
 
-    space = w->core.width - XmTreeC_bb_width(node);
+    space = (int)w->core.width - (int)XmTreeC_bb_width(node);
     hmargin = 2 * XmHierarchy_h_margin(tw);
 
     return((space > hmargin) ? space : hmargin);
