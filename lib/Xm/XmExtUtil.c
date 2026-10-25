@@ -461,6 +461,12 @@ _XmGetMBStringFromXmString(XmString xmstr)
 	}
 
 	text = XtMalloc( length + 1 );
+	if (text == NULL) {
+	    XtFree(newText);
+	    XtFree(charset);
+	    XmStringFreeContext(context);
+	    return NULL;
+	}
 	used = 0;
 	if (newText != NULL) {
 	  memcpy(text + used, newText, length > 0 ? length - (separator == True) : 0);
@@ -484,6 +490,8 @@ _XmGetMBStringFromXmString(XmString xmstr)
     
     XmStringFreeContext( context );
     text = XtMalloc( length + 1 );
+	if (text == NULL)
+	    return NULL;
     used = 0;
 
     /*

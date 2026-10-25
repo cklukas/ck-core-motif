@@ -9915,6 +9915,12 @@ MWM command window-list allocation guards (2026-10-25)
 - Reject empty or failed command window-list allocations before dispatch;
   see `docs/mwm-command-window-allocation.md`.
 
+XmString multibyte conversion allocation guards (2026-10-25)
+=============================================================
+
+- Check both compound-string conversion result buffers and release active
+  conversion state on failure; see `docs/xmstring-mb-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

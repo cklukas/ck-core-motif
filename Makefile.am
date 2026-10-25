@@ -156,6 +156,7 @@ EXTRA_DIST += tests/automated/check-dir-cache-state.py docs/dir-cache-state.md
 EXTRA_DIST += tests/automated/check-dir-cache-reset-bounds.py docs/dir-cache-reset-bounds.md
 EXTRA_DIST += tests/automated/check-fixed-match-allocation.py docs/fixed-match-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-command-window-allocation.py docs/mwm-command-window-allocation.md
+EXTRA_DIST += tests/automated/check-xmstring-mb-allocation.py docs/xmstring-mb-allocation.md
 EXTRA_DIST += tests/automated/check-xim-info-allocation.py docs/xim-info-allocation.md
 EXTRA_DIST += tests/automated/check-xim-recreate-allocation.py docs/xim-recreate-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md
