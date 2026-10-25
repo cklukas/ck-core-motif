@@ -3815,9 +3815,12 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 		    /* Increment the counter here because we only increment
 		       at the end of the loop if the item is not a client
 		       command item (i.e. labelIsClientCommand == FALSE) */
-		    children[n++] =
-		      XmCreateSeparatorGadget (menuW, SEPARATOR_NAME, 
+		    children[n] =
+		      XmCreateSeparatorGadget (menuW, SEPARATOR_NAME,
 					       (ArgList)NULL, 0);
+		    if (children[n] == NULL)
+			return (NULL);
+		    n++;
 		    fUseTitleSep = FALSE;
 		}
 	    }
@@ -3825,8 +3828,10 @@ Widget CreateMenuWidget (WmScreenData *pSD,
 #endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
 	    {
 		children[n] =
-		  XmCreateSeparatorGadget (menuW, SEPARATOR_NAME, 
+		  XmCreateSeparatorGadget (menuW, SEPARATOR_NAME,
 					   (ArgList)NULL, 0);
+		if (children[n] == NULL)
+		    return (NULL);
 		fUseTitleSep = FALSE;
 	    }
 	} /* F_Separator */
@@ -3888,6 +3893,8 @@ Widget CreateMenuWidget (WmScreenData *pSD,
                     children[n] =
 			XmCreateSeparatorGadget (menuW, SEPARATOR_NAME,
 					         sepArgs, 1); n++;
+		    if (children[n - 1] == NULL)
+			return (NULL);
 		}
 
                 XtSetArg (args[i], XmNalignment, XmALIGNMENT_CENTER); i++; 

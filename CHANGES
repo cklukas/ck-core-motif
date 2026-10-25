@@ -1,3 +1,9 @@
+MWM menu child creation checks (2026-10-26)
+============================================
+
+- Reject failed separator-gadget creation before a null child can be counted
+  or managed; see `docs/mwm-menu-child-creation.md`.
+
 MWM menu root creation rollback (2026-10-26)
 ==============================================
 
