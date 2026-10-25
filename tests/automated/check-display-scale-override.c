@@ -20,13 +20,16 @@ main(int argc, char **argv)
     Widget shell;
     Widget baseline_toggle;
     Widget scaled_toggle;
+    Widget explicit_toggle;
     Display *display;
     XrmDatabase database;
     double scale;
     Dimension baseline_indicator;
     Dimension scaled_indicator;
+    Dimension explicit_indicator;
     XmString empty_label;
     Arg empty_args[1];
+    Arg explicit_args[2];
 
     shell = XtVaAppInitialize(&app, "DisplayScaleOverride", NULL, 0,
                               &argc, argv, NULL, NULL);
@@ -60,12 +63,21 @@ main(int argc, char **argv)
     scaled_toggle = XmCreateToggleButton(shell, "scaled", empty_args, 1);
     XmStringFree(empty_label);
     XtManageChild(scaled_toggle);
+    empty_label = XmStringCreateLocalized("");
+    XtSetArg(explicit_args[0], XmNlabelString, empty_label);
+    XtSetArg(explicit_args[1], XmNindicatorSize, (Dimension)7);
+    explicit_toggle = XmCreateToggleButton(shell, "explicit", explicit_args, 2);
+    XmStringFree(empty_label);
+    XtManageChild(explicit_toggle);
     XtRealizeWidget(shell);
 
     XtVaGetValues(baseline_toggle, XmNindicatorSize, &baseline_indicator, NULL);
     XtVaGetValues(scaled_toggle, XmNindicatorSize, &scaled_indicator, NULL);
+    XtVaGetValues(explicit_toggle, XmNindicatorSize, &explicit_indicator, NULL);
     if (baseline_indicator == 0 || scaled_indicator <= baseline_indicator)
         return fail("scaled default metric did not increase");
+    if (explicit_indicator != 7)
+        return fail("explicit pixel metric was changed by scale override");
 
     if (!XmClearDisplayScaleOverride(display) ||
         XmGetDisplayScaleOverride(display, &scale))
