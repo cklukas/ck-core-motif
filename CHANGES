@@ -1,3 +1,9 @@
+Mrm callback fixup validation (2026-10-25)
+============================================
+
+- Validate callback descriptors and resource pointers, and propagate value
+  conversion failures; see `docs/mrm-callback-fixup-validation.md`.
+
 Mrm primitive conversion pointer checks (2026-10-25)
 =====================================================
 
