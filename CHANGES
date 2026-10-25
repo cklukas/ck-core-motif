@@ -1,3 +1,10 @@
+Mrm write-open output initialization (2026-10-25)
+================================================
+
+- Clear the output descriptor before `UrmIdbOpenFileWrite` attempts any open or
+  allocation, matching the read and memory-backed open APIs; see
+  `docs/mrm-open-write-output.md`.
+
 Mrm resource-id output initialization (2026-10-25)
 ==================================================
 

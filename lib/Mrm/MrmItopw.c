@@ -122,6 +122,7 @@ UrmIdbOpenFileWrite (String			name ,
 
   if ( file_id_return == NULL )
     return MrmFAILURE;
+  *file_id_return = NULL;
 
   /*
    *  Local variables
