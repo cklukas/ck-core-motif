@@ -34,6 +34,13 @@ Guard RatingControl small-widget geometry (2026-10-25)
 - Avoid zero-width click division and unsigned segment/focus geometry
   underflow; see `docs/rating-control-geometry-guards.md`.
 
+Guard ToggleSwitch redisplay resources (2026-10-25)
+=====================================================
+
+- Fall back or return safely when ToggleSwitch GCs are unavailable and avoid
+  focus-rectangle underflow for tiny widgets; see
+  `docs/toggle-switch-redisplay-guards.md`.
+
 Guard IconFile cache directory input (2026-10-27)
 ==================================================
 

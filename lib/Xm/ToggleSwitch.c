@@ -143,13 +143,19 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     int track_y = ((int)sw->core.height - (int)track_height) / 2;
     int knob_x = sw->toggle_switch.set ? track_x + 14 : track_x + 2;
     int knob_y = track_y + 2;
-    GC label_gc = XtIsSensitive(widget) ? sw->toggle_switch.knob_gc
-                                        : sw->toggle_switch.insensitive_gc;
+    GC knob_gc;
+    GC label_gc;
     Dimension label_width = 0, label_height = 0;
     int label_x, label_y;
     (void)event; (void)region;
     if (!window) return;
     update_gcs(sw);
+    knob_gc = sw->toggle_switch.knob_gc ? sw->toggle_switch.knob_gc
+                                        : sw->toggle_switch.track_gc;
+    label_gc = XtIsSensitive(widget) ? knob_gc
+                                     : (sw->toggle_switch.insensitive_gc ?
+                                        sw->toggle_switch.insensitive_gc : knob_gc);
+    if (!sw->toggle_switch.track_gc || !knob_gc || !label_gc) return;
     XClearWindow(display, window);
     XFillRectangle(display, window, sw->toggle_switch.track_gc,
                    track_x + 8, track_y, track_width - 16, track_height);
@@ -169,15 +175,16 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                      sw->toggle_switch.label, label_gc, label_x, label_y,
                      label_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(sw), NULL);
-    if (sw->primitive.highlighted && sw->primitive.highlight_thickness) {
-        XDrawRectangle(display, window, sw->toggle_switch.knob_gc,
+    if (sw->primitive.highlighted && sw->primitive.highlight_thickness &&
+        sw->core.width > 2 * sw->primitive.highlight_thickness &&
+        sw->core.height > 2 * sw->primitive.highlight_thickness) {
+        XDrawRectangle(display, window, knob_gc,
                        sw->primitive.highlight_thickness - 1,
                        sw->primitive.highlight_thickness - 1,
                        sw->core.width - 2 * sw->primitive.highlight_thickness,
                        sw->core.height - 2 * sw->primitive.highlight_thickness);
     }
 }
-
 static Boolean SetValues(Widget current, Widget request, Widget new_widget,
                          ArgList args, Cardinal *num_args) {
     XmToggleSwitchWidget old_sw = (XmToggleSwitchWidget)current;
