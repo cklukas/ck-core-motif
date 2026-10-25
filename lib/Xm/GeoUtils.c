@@ -34,6 +34,7 @@ static char rcsid[] = "$XConsortium: GeoUtils.c /main/13 1996/08/15 17:11:25 pas
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
+#include <limits.h>
 #include <stdint.h>
 #include "XmI.h"
 #include "GeoUtilsI.h"
@@ -806,12 +807,12 @@ _XmGeoMatrixAlloc(
         unsigned int extSize )      /* Extension record size (bytes).*/
 {
             XmGeoMatrix     geoSpecPtr ;
-            unsigned int    matrixRecSize ;
-            unsigned int    layoutRecSize ;
-            unsigned int    kidGeoRecSize ;
-            unsigned int    layoutSize ;
-            unsigned int    boxesSize ;
-            unsigned int    totalSize ;
+            size_t          matrixRecSize ;
+            size_t          layoutRecSize ;
+            size_t          kidGeoRecSize ;
+            size_t          layoutSize ;
+            size_t          boxesSize ;
+            size_t          totalSize ;
 /****************/
 
     /* Get sizes of the various components of the GeoMatrix.  Round up to
@@ -819,23 +820,42 @@ _XmGeoMatrixAlloc(
     */
     matrixRecSize = sizeof( XmGeoMatrixRec) ;
     if(    matrixRecSize & 0x03    )
-    {   matrixRecSize = (matrixRecSize + 4) & ~((unsigned int) 0x03) ;
+    {   if (matrixRecSize > SIZE_MAX - 4)
+            return NULL;
+        matrixRecSize = (matrixRecSize + 4) & ~(size_t) 0x03 ;
         } 
     layoutRecSize = sizeof( XmGeoRowLayoutRec) ;
     if(    layoutRecSize & 0x03    )
-    {   layoutRecSize = (layoutRecSize + 4) & ~((unsigned int) 0x03) ;
+    {   if (layoutRecSize > SIZE_MAX - 4)
+            return NULL;
+        layoutRecSize = (layoutRecSize + 4) & ~(size_t) 0x03 ;
         } 
     kidGeoRecSize = sizeof( XmKidGeometryRec) ;
     if(    kidGeoRecSize & 0x03    )
-    {   kidGeoRecSize = (kidGeoRecSize + 4) & ~((unsigned int) 0x03) ;
+    {   if (kidGeoRecSize > SIZE_MAX - 4)
+            return NULL;
+        kidGeoRecSize = (kidGeoRecSize + 4) & ~(size_t) 0x03 ;
         } 
-    layoutSize = (numRows + 1) * layoutRecSize ;
+    if ((size_t)numRows > SIZE_MAX / layoutRecSize - 1)
+        return NULL;
+    layoutSize = ((size_t)numRows + 1) * layoutRecSize ;
     /* Extra boxes are used to mark the end of each row.
     */
-    boxesSize = (numBoxes + numRows) * kidGeoRecSize ; 
-    totalSize = matrixRecSize + layoutSize + boxesSize + extSize ;
+    if ((size_t)numRows > SIZE_MAX - (size_t)numBoxes ||
+        (size_t)numBoxes + (size_t)numRows > SIZE_MAX / kidGeoRecSize)
+        return NULL;
+    boxesSize = ((size_t)numBoxes + (size_t)numRows) * kidGeoRecSize ;
+    if (matrixRecSize > SIZE_MAX - layoutSize ||
+        matrixRecSize + layoutSize > SIZE_MAX - boxesSize ||
+        matrixRecSize + layoutSize + boxesSize > SIZE_MAX - (size_t)extSize)
+        return NULL;
+    totalSize = matrixRecSize + layoutSize + boxesSize + (size_t)extSize ;
+    if (totalSize > (size_t)UINT_MAX)
+        return NULL;
 
-    geoSpecPtr = (XmGeoMatrix) XtCalloc( 1, totalSize) ;   /* Must be zeroed.*/
+    geoSpecPtr = (XmGeoMatrix) XtCalloc( 1, (Cardinal)totalSize) ;   /* Must be zeroed.*/
+    if (geoSpecPtr == NULL)
+        return NULL;
 
     /* Set locations of arrays of row layout, box, and extension records.
     */
