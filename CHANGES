@@ -10163,6 +10163,13 @@ XmString charset comparison guard (2026-10-25)
   `strcmp` and crashing callers with optional charset metadata; see
   `docs/xmstring-charset-comparison.md`.
 
+XmString optimized clone allocation guards (2026-10-25)
+=========================================================
+
+- Validate optimized clone payload arithmetic and allocation before copying,
+  preventing wraparound and null-pointer dereferences; see
+  `docs/xmstring-clone-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
