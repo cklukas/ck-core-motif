@@ -1492,14 +1492,15 @@ callback reentrancy and destruction from an installed prefix.
 **Complete when:** new SearchBox, prompt and Link APIs are documented and no
 existing `XmTextField` or Label value semantics have changed.
 
-**Status (2026-10-25):** the Link and SearchBox subpackages are implemented and
-qualified on the installed `uconsole` prefix.  `XmLink` owns copied
-label/target data, keeps dispatch in the application, supports keyboard/pointer
-activation and a non-colour visited state, and exposes an accessible action.
-`XmSearchBox` subclasses the existing text field, preserving its edit/IME
-path while adding query-changed, committed and clear callbacks plus a
-presentation-only placeholder.  Their fixtures pass 8 and 11 checks;
-prompt text remains a separate work package with its own value-submission gate.
+**Status (2026-10-25):** the Link, SearchBox and prompt subpackages are
+implemented and qualified on the installed `uconsole` prefix.  `XmLink` owns
+copied label/target data, keeps dispatch in the application, supports
+keyboard/pointer activation and a non-colour visited state, and exposes an
+accessible action.  `XmSearchBox` subclasses the existing text field,
+preserving its edit/IME path while adding query-changed, committed and clear
+callbacks plus a presentation-only placeholder.  `XmPrompt` is a standalone
+non-interactive presentation whose visibility never changes a sibling value.
+Their fixtures pass 8, 11 and 9 checks respectively.
 
 ### WP-37: DisclosureGroup, FormSection and EmptyState
 
