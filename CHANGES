@@ -1,3 +1,9 @@
+Focus callback context validation (2026-10-25)
+===============================================
+
+- Validate the client returned by focus-window context lookup before icon-box
+  access; see `docs/focus-context-guard.md`.
+
 XmString conversion validation (2026-10-25)
 ============================================
 

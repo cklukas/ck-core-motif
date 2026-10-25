@@ -3569,7 +3569,7 @@ void ChangeActiveIconboxIconText (Widget icon, caddr_t dummy, XFocusChangeEvent 
     theIcon = XtWindow(icon);
 
     if (!(XFindContext (DISPLAY, theIcon,
-			wmGD.windowContextType, (caddr_t *)&pCD)) &&
+			wmGD.windowContextType, (caddr_t *)&pCD)) && pCD != NULL &&
 	P_ICON_BOX(pCD) &&
 	P_ICON_BOX(pCD)->pCD_iconBox &&
 	P_ICON_BOX(pCD)->pCD_iconBox->clientState !=  MINIMIZED_STATE)
