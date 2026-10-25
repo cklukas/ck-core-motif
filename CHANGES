@@ -60,6 +60,13 @@ XmIm shell-sharing teardown guard (2026-10-26)
   asserting during shell destruction; see
   `docs/xmim-stale-shell-reference.md`.
 
+Compound-text extended-segment bound (2026-10-26)
+==================================================
+
+- Bound the compatibility parser's charset/text separator scan by the
+  declared segment length, rejecting malformed segments without a separator;
+  see `docs/compound-text-extended-segment-bounds.md`.
+
 Compound-text empty-segment guard (2026-10-26)
 ================================================
 
