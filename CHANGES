@@ -1,3 +1,9 @@
+Guard ComboBox textual trait callbacks (2026-10-25)
+====================================================
+
+- Check access-textual callbacks before ComboBox edit-box reads and writes;
+  see `docs/motif-combobox-text-trait.md`.
+
 Guard List and ScrolledW navigator slider callbacks (2026-10-25)
 ===================================================================
 
