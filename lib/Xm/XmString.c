@@ -8069,7 +8069,8 @@ _XmStringGetTextConcat(
 	      }
 	      OutStr = new_out;
 	    }
-	    memcpy( &OutStr[OldLen], (char *)val, len) ;
+    if (len != 0)
+      memcpy( &OutStr[OldLen], (char *)val, len) ;
 	    OutStr[OutLen] = '\0';
 	    break ;
 	  default:

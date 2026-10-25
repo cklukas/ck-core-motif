@@ -5,6 +5,12 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+XmString empty text concatenation (2026-10-26)
+===============================================
+
+- Skip zero-length `memcpy` calls for empty text components; see
+  `docs/xmstring-text-concat-empty.md`.
+
 XmString parser substitute-copy failure (2026-10-26)
 ======================================================
 
