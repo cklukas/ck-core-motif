@@ -2714,6 +2714,10 @@ ClipboardLock(
     if (length == 0)	/* create new lock property */
     {
 	lockptr = (ClipboardLockPtr)XtMalloc(sizeof(ClipboardLockRec));
+	if (lockptr == NULL) {
+	    _XmAppUnlock(app);
+	    return (ClipboardFail);
+	}
 	lockptr->lockLevel = 0;
     }
 

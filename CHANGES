@@ -10077,6 +10077,13 @@ Editres widget-array allocation guards (2026-10-25)
   before parsing protocol entries; see
   `docs/editres-widget-array-allocation.md`.
 
+Clipboard lock allocation guard (2026-10-25)
+============================================
+
+- Return cleanly when the clipboard lock record cannot be allocated, releasing
+  the application lock before reporting failure; see
+  `docs/clipboard-lock-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
