@@ -31,6 +31,7 @@ static char rcsid[] = "$XConsortium: Cache.c /main/12 1995/07/14 10:12:26 drk $"
 #endif
 
 
+#include <stdint.h>
 #include "CacheI.h"
 #include <Xm/GadgetP.h>
 
@@ -101,12 +102,19 @@ _XmCachePart(
         size_t size )
 {
     XmGadgetCachePtr ptr, last;
+    size_t allocation_size;
+
+    if (size > SIZE_MAX - XtOffsetOf(XmGadgetCacheRef, data))
+	return NULL;
+    allocation_size = size + XtOffsetOf(XmGadgetCacheRef, data);
     
     if (ClassCacheHead(cp).next == NULL)       /* First one */
     {
-	ClassCacheHead(cp).next = 
-	  (struct _XmGadgetCache *)XtMalloc( size + 
-					    XtOffsetOf(XmGadgetCacheRef, data));
+	XmGadgetCachePtr new_ptr =
+	  (XmGadgetCachePtr)XtMalloc(allocation_size);
+	if (new_ptr == NULL)
+	    return NULL;
+	ClassCacheHead(cp).next = (struct _XmGadgetCache *)new_ptr;
         ptr = (XmGadgetCachePtr)ClassCacheHead(cp).next;
 
         ClassCacheCopy(cp)(cpart, CacheDataPtr(ptr), size );  
@@ -132,8 +140,9 @@ _XmCachePart(
     } while (ptr);
     
     /* Malloc a new rec off of last, fill it out*/
-    ptr = (XmGadgetCachePtr)XtMalloc( size + 
-				     XtOffsetOf(XmGadgetCacheRef, data) );
+	ptr = (XmGadgetCachePtr)XtMalloc(allocation_size);
+	if (ptr == NULL)
+	    return NULL;
     last->next = (struct _XmGadgetCache *)ptr;
     ClassCacheCopy(cp)(cpart, CacheDataPtr(ptr), size);
     ptr-> ref_count = 1;
