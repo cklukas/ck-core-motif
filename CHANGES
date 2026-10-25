@@ -1,3 +1,11 @@
+XmList internal-list growth (2026-10-27)
+========================================
+
+- Preserve the existing internal item array when `XtRealloc` fails and reject
+  unrepresentable element counts before computing its byte size.  Item
+  insertion no longer loses the allocation and immediately dereferences a
+  null pointer after an allocation failure.
+
 UIL icon payload size bounds (2026-10-27)
 ==========================================
 

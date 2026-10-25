@@ -3317,9 +3317,20 @@ AddInternalElements(XmListWidget lw,
   old_max_width = lw->list.MaxWidth;
   old_max_height = lw->list.MaxItemHeight;
 
-  lw->list.InternalList = (ElementPtr *)
-    XtRealloc((char *)lw->list.InternalList,
-	      (sizeof(Element *) * lw->list.itemCount));
+  /* Keep the old allocation intact when growth fails.  XtRealloc returns
+   * NULL without freeing its input, so assigning it directly would lose the
+   * list and the following insertion move would dereference NULL. */
+  if (lw->list.itemCount < 0 ||
+      (size_t)lw->list.itemCount > SIZE_MAX / sizeof(ElementPtr))
+    return 0;
+  {
+    ElementPtr *new_internal = (ElementPtr *)XtRealloc(
+        (char *)lw->list.InternalList,
+        sizeof(ElementPtr) * (size_t)lw->list.itemCount);
+    if (new_internal == NULL)
+      return 0;
+    lw->list.InternalList = new_internal;
+  }
 
   /* Make room in the InternalList for the new items. */
   if (pos < lw->list.LastItem)
