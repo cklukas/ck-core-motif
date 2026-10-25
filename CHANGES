@@ -6174,3 +6174,10 @@ Guard XmString entry conversions (2026-10-25)
   partial entries on failure; see
   `docs/xmstring-entry-conversion-allocation.md` and its focused source check.
 
+Avoid XmString concat length wraparound (2026-10-25)
+=====================================================
+
+- Check compact-string length limits by subtraction before adding unsigned
+  byte counts; see `docs/xmstring-concat-length-bound.md` and its focused
+  source check.
+
