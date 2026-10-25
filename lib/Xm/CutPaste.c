@@ -515,6 +515,7 @@ ClipboardSetNextItemId(
     Atom type;
     itemId current_item;
     itemId last_item;
+    int status;
 
     header = ClipboardOpen( display, 0 );
     current_item = header->nextPasteItemId;
@@ -531,13 +532,20 @@ ClipboardSetNextItemId(
 	}
     } while (nextItem == current_item - 1 || nextItem == last_item - 1);
 
-    ClipboardFindItem( display,
-			XM_NEXT_ID,
-			&int_ptr,
-			&length,
-			&type,
-			0,
-			0 );
+    int_ptr = NULL;
+    status = ClipboardFindItem( display,
+				XM_NEXT_ID,
+				&int_ptr,
+				&length,
+				&type,
+				0,
+				0 );
+    if (status != ClipboardSuccess || int_ptr == NULL ||
+		length < sizeof(long))
+    {
+	XtFree( (char *)int_ptr);
+	return;
+    }
     *(long *) int_ptr = nextItem;
 
     ClipboardReplaceItem( display, XM_NEXT_ID, int_ptr, length,

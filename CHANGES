@@ -1,3 +1,9 @@
+Clipboard next-item property guard (2026-10-26)
+================================================
+
+- Validate the retrieved next-item property before updating it, avoiding null
+  and undersized-buffer writes; see `docs/clipboard-next-item-guard.md`.
+
 Clipboard format-atom allocation checks (2026-10-26)
 ======================================================
 
