@@ -29,6 +29,14 @@ Render-table locking (2026-10-26)
   `docs/render-table-single-rendition-null.md`, and
   `docs/render-table-rendition-array.md`.
 
+XLibre RandR query bounds (2026-10-26)
+=======================================
+
+- Reject non-positive or unrepresentable RandR output counts before allocating
+  the XLibre output-selection table; malformed query metadata now falls back
+  to global DPI. The source contract remains in
+  `tests/automated/check-xlibre-lifetime.py`.
+
 Gallery screenshot qualification receipts (2026-10-25)
 ========================================================
 

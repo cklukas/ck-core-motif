@@ -19,6 +19,11 @@ not become a zero or guessed scale. The optional build is disabled by default;
 requesting it without the Xrandr development header and library fails during
 configuration rather than producing a partially working library.
 
+The resolver also treats a non-positive or unrepresentable RandR output count
+as a transient query failure before allocating its output table. It releases
+the RandR resource list and uses the existing global-DPI fallback; server
+metadata cannot drive an unbounded `calloc`.
+
 If a realized shell's client-area or RandR resource query is temporarily
 unavailable, the observer returns the existing global display scale and output
 `None`. It does not retain a stale per-output scale across a transient query

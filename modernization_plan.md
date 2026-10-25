@@ -1997,6 +1997,10 @@ contract. Its allocation-failure cleanup uses the internal rendition and
 handle release helpers while the lock is held, avoiding recursive public
 locking without changing the returned-array ownership contract. The installed
 source test is `tests/automated/check-render-table-rendition-array.py`.
+The optional XLibre resolver also rejects non-positive or unrepresentable
+RandR output counts before allocating its output table, preserving the global
+DPI fallback for malformed server metadata. The guard is covered by the
+installed source contract in `tests/automated/check-xlibre-lifetime.py`.
 
 ## Acceptance criteria for every increment
 

@@ -36,6 +36,9 @@ resolve = source[resolve_start:resolve_end]
 fallback = resolve.index("*output_return = None;")
 assert fallback < resolve.index("if (!_XmXlibreDpiClientArea")
 assert "if (resources == NULL)\n        return True;" in resolve
+assert "resources->noutput <= 0" in resolve
+assert "SIZE_MAX / sizeof(*outputs)" in resolve
+assert "XRRFreeScreenResources(resources);" in resolve
 assert "if (outputs == NULL)" in resolve
 assert "return True;\n    }" in resolve[resolve.index("if (outputs == NULL)"):]
 
