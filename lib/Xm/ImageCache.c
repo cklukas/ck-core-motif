@@ -2207,6 +2207,11 @@ void _XmPutScaledImage (
 	!XmImageArrayFits((size_t)src_image->height, sizeof(*table.height)))
 	return;
 
+    /* The strip destination is formed as dest_y + min_y below.  Keep that
+     * addition within the signed X11 coordinate type before doing any work. */
+    if (dest_y > INT_MAX - (int)dest_height)
+	return;
+
     if (dest_width == src_width && dest_height == src_height) {
 	/* same for x and y, just send it out */
 	XPutImage(display, d, gc, src_image, src_x, src_y, 

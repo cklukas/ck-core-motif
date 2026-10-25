@@ -1,4 +1,15 @@
 2026-10-25
+	* Validate image-scaling destination extents and strip coordinates, and
+	  fully release cache state when pixmap creation fails; see
+	  docs/image-scaling-coordinate-bounds.md and
+	  docs/image-cache-pixmap-failure.md.
+
+2026-10-25
+	* Guard Text source-range and byte-conversion allocations before publishing
+	  derived text; see docs/text-source-range-allocation.md and
+	  docs/text-byte-conversion-allocation.md.
+
+2026-10-25
 	* Guard UIL debug formatter allocation and skip diagnostic output cleanly
 	  when its temporary buffer cannot be allocated; see
 	  docs/uil-debug-allocation.md.
