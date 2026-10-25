@@ -2064,14 +2064,17 @@ CreateGCs(Widget w)
     XtSetArg(args[num_args], XmNbackground, &(values.background)); num_args++;
     XtGetValues(w, args, num_args);
 
-    XmeRenderTableGetDefaultFont (XmI18List_font_list(ilist), &font);
-
-    values.font = font->fid;
+    if (!XmeRenderTableGetDefaultFont(XmI18List_font_list(ilist), &font))
+        font = NULL;
+    if (font)
+        values.font = font->fid;
     values.stipple = stipple;
     values.fill_style = FillStippled;
     values.graphics_exposures = False;
 
-    mask = GCForeground | GCBackground | GCFont | GCGraphicsExposures;
+    mask = GCForeground | GCBackground | GCGraphicsExposures;
+    if (font)
+        mask |= GCFont;
 
 #ifdef FIX_1381
 	smask = mask | GCFillStyle;

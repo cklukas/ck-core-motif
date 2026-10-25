@@ -225,3 +225,10 @@ preferred-width measurement. The focused checks are:
 python3 tests/automated/check-prompt-text-bounds.py
 python3 tests/automated/check-prompt-resource-safety.py
 ```
+
+I18List GC creation now tolerates Xft-only render tables without dereferencing
+an absent `XFontStruct`. The focused check is:
+
+```sh
+python3 tests/automated/check-i18list-xft-gc.py
+```
