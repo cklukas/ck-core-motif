@@ -85,3 +85,11 @@ The focused check is:
 ```sh
 python3 tests/automated/check-number-stepper-text-metrics.py
 ```
+
+Skeleton loading placeholders now use the theme's shadow colors for a muted
+base and a moving highlight stripe.  Reduced-motion and explicit stop/start
+semantics remain unchanged.  The focused source check is:
+
+```sh
+python3 tests/automated/check-skeleton-rendering.py
+```

@@ -133,6 +133,14 @@ Numeric control font-aware text layout (2026-10-27)
   of half-height baselines, preventing values from appearing too high or low
   when applications select a non-default font.
 
+Skeleton loading presentation (2026-10-27)
+===========================================
+
+- Render Skeleton with the theme's muted shadow colors and an animated
+  highlight stripe instead of filling the entire running widget with the
+  foreground color, which previously appeared as an opaque black block in
+  modern themes.
+
 InfoBar close control and FontSelector bounds (2026-10-27)
 ============================================================
 

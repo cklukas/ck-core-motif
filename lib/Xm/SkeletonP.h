@@ -4,7 +4,7 @@
 #include <Xm/PrimitiveP.h>
 typedef struct _XmSkeletonClassPart { XtPointer extension; } XmSkeletonClassPart;
 typedef struct _XmSkeletonClassRec { CoreClassPart core_class; XmPrimitiveClassPart primitive_class; XmSkeletonClassPart skeleton_class; } XmSkeletonClassRec;
-typedef struct _XmSkeletonPart { XmString label; Boolean animated, reduced_motion, running; unsigned long interval; XtIntervalId timer; GC gc; } XmSkeletonPart;
+typedef struct _XmSkeletonPart { XmString label; Boolean animated, reduced_motion, running; unsigned long interval; unsigned int phase; XtIntervalId timer; GC gc; } XmSkeletonPart;
 typedef struct _XmSkeletonRec { CorePart core; XmPrimitivePart primitive; XmSkeletonPart skeleton; } XmSkeletonRec;
 extern XmSkeletonClassRec xmSkeletonClassRec;
 #endif
