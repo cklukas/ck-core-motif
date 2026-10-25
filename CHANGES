@@ -6527,3 +6527,10 @@ Align strict C++ header fixture with ABI epoch 8 (2026-10-25)
   ABI epoch, preventing a stale fixture from rejecting the supported header
   cohort.
 
+Align public status text with ABI epoch 8 (2026-10-25)
+=======================================================
+
+- Remove stale ABI 7 claims from the README and documentation landing page so
+  the public development-status text matches the installed ABI 8 headers and
+  validation records.
+

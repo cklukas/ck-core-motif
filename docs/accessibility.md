@@ -169,7 +169,8 @@ Custom providers describe an available range and current value in
 `XmAccessibleInfo`, and implement `set_value` when editable. A provider may
 accept continuous values; the bridge does not impose the native ScrollBar's
 integral restriction on an unrelated control. Providers own domain validation
-and emit changes after a successful update. Rebuild all providers for the current ABI7 cohort:
+and emit changes after a successful update. Rebuild all providers for the
+active native ABI cohort before use:
 the public info and provider record layouts have changed.
 
 Focused native observer tests cover introspection, properties, writes,
@@ -315,7 +316,7 @@ prevent a reentrant count callback from growing a preallocated result buffer or
 reviving removed provider data. Native List selection callbacks may destroy the
 List or its shell, including through nested selection; post-callback publication
 uses a registered destruction sentinel and never dereferences a destroyed widget.
-The fresh installed ABI7 cohort passes all 21 native ARM64 feature fixtures,
+The historical installed ABI7 cohort passed all 21 native ARM64 feature fixtures,
 including 12 generic-provider reentrancy cases and eight native callback-
 destruction cases. Those lifetime and reentrancy fixtures also pass with the
 toolkit and fixture binaries instrumented by ASan/UBSan. List allocation faults
