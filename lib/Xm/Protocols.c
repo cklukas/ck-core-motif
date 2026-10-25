@@ -817,6 +817,8 @@ XmAddProtocols(
 {
     XmAllProtocolsMgr	ap_mgr; 
     XmProtocolMgr	p_mgr ;
+    if (shell == NULL)
+        return;
     _XmWidgetToAppContext(shell);
 
     _XmAppLock(app);
@@ -858,6 +860,8 @@ XmRemoveProtocols(
 {
     XmAllProtocolsMgr	ap_mgr; 
     XmProtocolMgr	p_mgr ;
+    if (shell == NULL)
+        return;
     _XmWidgetToAppContext(shell);
 
     _XmAppLock(app);
@@ -897,6 +901,8 @@ XmAddProtocolCallback(
     XmAllProtocolsMgr	ap_mgr; 
     XmProtocolMgr	p_mgr ;
     XmProtocol		protocol;
+    if (shell == NULL)
+        return;
     _XmWidgetToAppContext(shell);
 
     _XmAppLock(app);
@@ -939,6 +945,8 @@ XmRemoveProtocolCallback(
     XmAllProtocolsMgr	ap_mgr; 
     XmProtocolMgr	p_mgr ;
     XmProtocol		protocol;
+    if (shell == NULL)
+        return;
     _XmWidgetToAppContext(shell);
 
     _XmAppLock(app);
@@ -974,6 +982,8 @@ XmActivateProtocol(
     XmAllProtocolsMgr	ap_mgr; 
     XmProtocolMgr	p_mgr ;
     XmProtocol		protocol;
+    if (shell == NULL)
+        return;
     _XmWidgetToAppContext(shell);
 
     _XmAppLock(app);
@@ -1012,6 +1022,8 @@ XmDeactivateProtocol(
     XmAllProtocolsMgr	ap_mgr; 
     XmProtocolMgr	p_mgr ;
     XmProtocol		protocol;
+    if (shell == NULL)
+        return;
     _XmWidgetToAppContext(shell);
 
     _XmAppLock(app);
@@ -1054,6 +1066,8 @@ XmSetProtocolHooks(
     XmAllProtocolsMgr	ap_mgr; 
     XmProtocolMgr	p_mgr ;
     XmProtocol		protocol;
+    if (shell == NULL)
+        return;
     _XmWidgetToAppContext(shell);
 
     _XmAppLock(app);
