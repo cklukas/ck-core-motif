@@ -3196,6 +3196,14 @@ void RealignIconList (IconBoxData *pIBD, int newCols, int newRows)
     IconPlacementData  ipdNew;
     IconInfo *pII;
 
+    if (pIBD == NULL || pIBD->IPD.placeList == NULL ||
+	pIBD->IPD.totalPlaces <= 0 || newRows <= 0 || newCols <= 0 ||
+	pIBD->IPD.placementRows <= 0 || pIBD->IPD.placementCols <= 0 ||
+	pIBD->IPD.iPlaceW <= 0 || pIBD->IPD.iPlaceH <= 0 ||
+	(pIBD->IPD.onRootWindow &&
+	 (pIBD->IPD.placementColX == NULL || pIBD->IPD.placementRowY == NULL)))
+	return;
+
     /* 
      * create new icon placement data for ease of calling conversion 
      * routines.

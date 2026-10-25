@@ -1,3 +1,9 @@
+Icon-list realignment validation (2026-10-25)
+==============================================
+
+- Validate placement storage, dimensions, cell sizes, and root coordinates
+  before icon-list realignment; see `docs/realign-icon-list-guards.md`.
+
 Icon insertion geometry validation (2026-10-25)
 ================================================
 
