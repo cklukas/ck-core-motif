@@ -10119,6 +10119,12 @@ Legacy shadow-buffer allocation guards (2026-10-25)
   growth fails, avoiding null writes during legacy drawing; see
   `docs/draw-shadow-allocation.md`.
 
+Legacy resource-filter bounds (2026-10-25)
+==========================================
+
+- Remove the fixed 256-resource temporary index limit and guard result
+  allocation in `_XmFilterResources`; see `docs/filter-resources-bounds.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

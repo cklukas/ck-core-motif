@@ -1486,7 +1486,6 @@ _XmFilterResources(
         XtResource **filteredResourcesRtn )
 {
     XtResource		*filteredResources;
-    Cardinal		copyIndexes[256];
     Cardinal		filterOffset;
     Cardinal		i, j;
 
@@ -1496,15 +1495,25 @@ _XmFilterResources(
       {
 	  if (resources[i].resource_offset >= filterOffset)
 	    {
-		copyIndexes[j++] = i;
+		j++;
 	    }
       }
 
+    if ((size_t)j > SIZE_MAX / sizeof(XtResource)) {
+	*filteredResourcesRtn = NULL;
+	return 0;
+    }
     filteredResources = (XtResource *) XtMalloc(j * sizeof(XtResource));
 
-    for (i = 0; i < j; i++)
+    if (filteredResources == NULL && j != 0) {
+	*filteredResourcesRtn = NULL;
+	return 0;
+    }
+
+	for (i = 0, j = 0; i < numResources; i++)
       {
-	  filteredResources[i] = resources[copyIndexes[i]];
+	  if (resources[i].resource_offset >= filterOffset)
+	    filteredResources[j++] = resources[i];
       }
     *filteredResourcesRtn = filteredResources;
     return j;
