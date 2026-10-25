@@ -3083,6 +3083,7 @@ XmRenderTableCvtToProp(Widget widget, /* unused */
 
   if (widget == NULL || table == NULL || prop_return == NULL)
     return 0;
+  *prop_return = NULL;
 
   _XmWidgetToAppContext(widget);
 
@@ -3110,6 +3111,12 @@ XmRenderTableCvtToProp(Widget widget, /* unused */
     char temp[2048];
 
     rendition = _XmRTRenditions(table)[i];
+    if (rendition == NULL || _XmRendTag(rendition) == NULL)
+      {
+        XtFree(buffer);
+        _XmAppUnlock(app);
+        return 0;
+      }
     if (!XmRenderFormat(temp, sizeof(temp), "\"%s\", ",
                         _XmRendTag(rendition))) {
       XtFree(buffer);
@@ -3122,6 +3129,11 @@ XmRenderTableCvtToProp(Widget widget, /* unused */
     if (_XmRendFontType(rendition) == XmAS_IS)
       str = "-1, ";
     else {
+      if (_XmRendFontName(rendition) == NULL) {
+        XtFree(buffer);
+        _XmAppUnlock(app);
+        return 0;
+      }
       if (!XmRenderFormat(temp, sizeof(temp), "%d \"%s\" %d,",
                           _XmRendFontType(rendition),
                           _XmRendFontName(rendition),
