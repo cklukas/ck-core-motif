@@ -8526,6 +8526,10 @@ XmStringParseText(XtPointer    text,
 
   /* Create an empty segment with the right tag. */
   result = XmStringComponentCreate(tag_type, strlen(tag), (XtPointer) tag);
+  if (result == NULL) {
+    _XmProcessUnlock();
+    return NULL;
+  }
 
   /* Did the user provide an XmDIRECTION_CHANGE pattern? */
   has_dir_pattern = False;
