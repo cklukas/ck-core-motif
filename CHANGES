@@ -1,3 +1,10 @@
+Container dynamic tab width bounds (2026-10-25)
+===============================================
+
+- Use signed arithmetic when deriving dynamic detail-tab width, preventing
+  wrapped tab lists for narrow containers; see
+  `docs/container-tab-width-geometry.md`.
+
 PushButtonGadget default-shadow geometry bounds (2026-10-25)
 ============================================================
 

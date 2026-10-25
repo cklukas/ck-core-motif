@@ -5783,8 +5783,9 @@ SetDynamicTabList(
 	return(NULL);
 	}
 
-    tab_size = cw->core.width - (cw->container.margin_w * 2)
-                                - cw->container.real_first_col_width;
+    tab_size = (int)cw->core.width -
+               (2 * (int)cw->container.margin_w) -
+               (int)cw->container.real_first_col_width;
     detail_order_count = (cw->container.detail_order_count) ?
 	cw->container.detail_order_count : GetDefaultDetailCount(wid);
     if (tab_size <= 0) {
