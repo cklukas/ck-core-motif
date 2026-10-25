@@ -1,3 +1,9 @@
+Dynamic default-color cache allocation (2026-10-25)
+=====================================================
+
+- Guard color-cache growth and use the requested background pixel when cache
+  allocation fails; see `docs/color-cache-allocation.md`.
+
 Workspace-list allocation (2026-10-25)
 =======================================
 

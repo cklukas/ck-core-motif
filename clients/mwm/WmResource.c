@@ -5983,7 +5983,17 @@ _WmGetDynamicDefault (Widget widget, unsigned char type, String defaultColor, Pi
  *                   a static pointer is not acceptable.  Change it
  *                   to a static structure to maintain the data
  */
-	colorData = *_WmGetDefaultColors (newScreen, newColormap, defaultColor);
+	{
+	    XmColorData *defaultColors =
+		_WmGetDefaultColors (newScreen, newColormap, defaultColor);
+	    if (defaultColors == NULL)
+	    {
+		Warning ("Insufficient memory for default window-manager colors");
+		newValue = newBackground;
+		return;
+	    }
+	    colorData = *defaultColors;
+	}
     }
     else
     {
@@ -6106,10 +6116,14 @@ XmColorData * _WmGetDefaultColors (screen, colormap, defaultColor)
 
     if (count == size)
     {
-	size = (defaultSize[setId] += 10);
-	set = defaultSet[setId] =
-		(XmColorData *)WmRealloc ((char *) defaultSet[setId],
-			            sizeof (XmColorData) * size);
+	int new_size = size + 10;
+	XmColorData *new_set =
+	    (XmColorData *)WmRealloc ((char *) defaultSet[setId],
+		                       sizeof (XmColorData) * new_size);
+	if (new_set == NULL)
+	    return (NULL);
+	size = defaultSize[setId] = new_size;
+	set = defaultSet[setId] = new_set;
     }
 
     /*
