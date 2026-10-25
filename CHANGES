@@ -23,7 +23,8 @@ XmFontList constructor locking (2026-10-25)
   `XmFontListEntryLoad`,
   `XmFontListAppendEntry`,
   `XmFontListEntryGetFont`, `XmFontListEntryGetTag`,
-  `XmeRenderTableGetDefaultFont`, and `XmFontListGetNextFont` while they call
+  `XmeRenderTableGetDefaultFont`, `XmFontListGetNextFont`, and
+  `XmFontListRemoveEntry` while they call
   charset, rendition and render-table helpers; see
   `docs/xmfontlist-locking.md`.
 

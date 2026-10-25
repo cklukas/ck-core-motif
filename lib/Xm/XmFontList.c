@@ -284,6 +284,17 @@ XmFontListRemoveEntry(
   if ((old == NULL) || (entry == NULL))
       return (old);
 
+  n = 0;
+  XtSetArg(args[n], XmNtag, &tags[0]); n++;
+  XtSetArg(args[n], XmNfontType, &type1); n++;
+  XtSetArg(args[n], XmNfont, &font1); n++;
+  XmRenditionRetrieve(entry, args, n);
+
+  /* The rendition owns its tag; keep a stable copy while the table lock is held. */
+  tags[0] = XtNewString(tags[0]);
+  if (tags[0] == NULL)
+      return (old);
+
 #ifdef XTHREADS
   if ( _XmRendDisplay((XmRendition)entry) )
     app = XtDisplayToApplicationContext(_XmRendDisplay((XmRendition)entry));
@@ -294,12 +305,6 @@ XmFontListRemoveEntry(
     _XmProcessLock();
 #endif
 
-  n = 0;
-  XtSetArg(args[n], XmNtag, &tags[0]); n++;
-  XtSetArg(args[n], XmNfontType, &type1); n++;
-  XtSetArg(args[n], XmNfont, &font1); n++; 
-  XmRenditionRetrieve(entry, args, n);
-
   old = _XmRenderTableRemoveRenditions(old, tags, 1, TRUE, type1, font1);
 
 #ifdef XTHREADS
@@ -309,6 +314,7 @@ XmFontListRemoveEntry(
     _XmProcessUnlock();
 #endif
 
+  XtFree(tags[0]);
   return(old);
 }
 

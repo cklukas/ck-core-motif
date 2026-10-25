@@ -1973,8 +1973,9 @@ source contract and fresh library/gallery qualification pass on `uconsole`.
 `XmFontListEntryCreate_r`,
 `XmFontListEntryLoad`, and
 `XmFontListAppendEntry`, `XmFontListEntryGetFont`,
-`XmFontListEntryGetTag`, `XmeRenderTableGetDefaultFont`, and
-`XmFontListGetNextFont` no longer hold process/application locks while
+`XmFontListEntryGetTag`, `XmeRenderTableGetDefaultFont`,
+`XmFontListGetNextFont`, and `XmFontListRemoveEntry` no longer hold
+process/application locks while
 entering locking charset, rendition, and render-table helpers; the source
 contract and both no-Xft/Xft installed-library fixtures pass on `uconsole`.
 

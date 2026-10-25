@@ -18,3 +18,8 @@ the existing Xft font-lifetime fixture qualify the changed call path.
 `XmFontListGetNextFont` advances its context index while the process lock is
 held, then retrieves the font and tag after unlocking so rendition accessors do
 not recurse into that lock.
+
+`XmFontListRemoveEntry` retrieves rendition data before taking the table
+mutation lock and uses a copied tag while removing the entry. This avoids
+recursive locking and keeps the comparison stable if the table releases the
+rendition during removal.
