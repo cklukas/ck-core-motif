@@ -1,3 +1,9 @@
+Guard IconButton grey-stipple cache allocation (2026-10-25)
+=============================================================
+
+- Return `None` when the grey-stipple cache record cannot be allocated instead
+  of dereferencing null storage; see `docs/motif-iconbutton-stipple.md`.
+
 Guard resource converter token allocations (2026-10-25)
 =========================================================
 
