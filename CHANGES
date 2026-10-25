@@ -1,3 +1,10 @@
+Guard compound-text table conversion buffers (2026-10-25)
+=============================================================
+
+- Check pointer-table and final-buffer allocations in
+  `XmCvtXmStringTableToTextProperty`, cleaning converted items on failure; see
+  `docs/motif-txtpropcv-compound-table.md`.
+
 Handle empty text segments during separator insertion (2026-10-25)
 =====================================================================
 

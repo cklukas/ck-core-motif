@@ -485,6 +485,10 @@ XmCvtXmStringTableToTextProperty(Display *display,
 	return BadAlloc;
       }
       compound_text = (char **)XtMalloc(sizeof(char *) * count);
+      if (compound_text == NULL) {
+	_XmAppUnlock(app);
+	return BadAlloc;
+      }
       /* Convert each XmString to Compound Text */
       for (i = 0, total_size = 0; i < count; ++i) {
 	size_t item_size;
@@ -505,8 +509,16 @@ XmCvtXmStringTableToTextProperty(Display *display,
 	 null-separated compound text elements. A final terminating 
 	 null is stored at the end of the value field of text_prop_return 
 	 but is not included in the nitems member. */
-      ptr = xm_compound_text = 
-	  (char *) XtMalloc(sizeof(char) * (total_size + 1));
+      xm_compound_text = (char *) XtMalloc(sizeof(char) * (total_size + 1));
+      if (xm_compound_text == NULL) {
+	int cleanup;
+	for (cleanup = 0; cleanup < count; ++cleanup)
+	    XtFree(compound_text[cleanup]);
+	XtFree((char *)compound_text);
+	_XmAppUnlock(app);
+	return BadAlloc;
+      }
+      ptr = xm_compound_text;
       for (i = 0; i < count; i++)
       {
 	if (compound_text[i])
