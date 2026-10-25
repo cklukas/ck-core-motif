@@ -1,3 +1,9 @@
+Guard tab-list widget constructors (2026-10-25)
+================================================
+
+- Reject null parents and failed tab-list allocations before dereferencing
+  constructor state; see `docs/tab-constructor-guards.md`.
+
 Validate tab-list copy offsets (2026-10-25)
 ============================================
 
