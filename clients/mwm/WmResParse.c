@@ -8380,6 +8380,7 @@ PreprocessConfigFile (void)
 {
 #define CPP_NAME_SIZE	((L_tmpnam)+1)
     char pchCmd[MAXWMPATH+1];
+    int commandLength;
 
     if (wmGD.cppCommand && *wmGD.cppCommand)
     {
@@ -8394,11 +8395,20 @@ PreprocessConfigFile (void)
 	    /*
 	     * Build up the command line.
 	     */
-	    strcpy (pchCmd, wmGD.cppCommand);
-	    strcat (pchCmd, " ");
-	    strcat (pchCmd, pConfigStackTop->fileName);
-	    strcat (pchCmd, " ");
-	    strcat (pchCmd, pConfigStackTop->cppName);
+	    commandLength = snprintf(NULL, 0, "%s %s %s", wmGD.cppCommand,
+				      pConfigStackTop->fileName,
+				      pConfigStackTop->cppName);
+	    if (commandLength < 0 || commandLength >= (int)sizeof(pchCmd))
+	    {
+		Warning("Preprocessor command is too long");
+		(void)unlink(pConfigStackTop->cppName);
+		XtFree(pConfigStackTop->cppName);
+		pConfigStackTop->cppName = NULL;
+		return;
+	    }
+	    (void)snprintf(pchCmd, sizeof(pchCmd), "%s %s %s",
+			    wmGD.cppCommand, pConfigStackTop->fileName,
+			    pConfigStackTop->cppName);
 
 	    /*
 	     * Run the config file through the converter program

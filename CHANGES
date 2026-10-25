@@ -10989,3 +10989,10 @@ MWM icon-box geometry ownership (2026-10-25)
 
 - Remove a redundant second `iconBoxGeometry` duplication that leaked the
   first owned copy; see `docs/mwm-iconbox-geometry-ownership.md`.
+
+MWM preprocessor command bounds (2026-10-25)
+=============================================
+
+- Measure configured preprocessor commands before writing the fixed command
+  buffer and remove the temporary output on rejection; see
+  `docs/mwm-preprocess-command-bounds.md`.

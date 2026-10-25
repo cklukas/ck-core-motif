@@ -151,6 +151,8 @@ EXTRA_DIST += tests/automated/check-mwm-session-string-size.py \
               docs/mwm-session-string-size.md
 EXTRA_DIST += tests/automated/check-mwm-iconbox-duplication.py \
               docs/mwm-iconbox-geometry-ownership.md
+EXTRA_DIST += tests/automated/check-mwm-preprocess-command-bounds.py \
+              docs/mwm-preprocess-command-bounds.md
 
 # Keyboard activation lifetime regression.
 EXTRA_DIST += tests/automated/check-button-timers.c docs/button-timers.md

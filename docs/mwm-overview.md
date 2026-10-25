@@ -36,6 +36,7 @@ clients exchanging Motif window-management messages.
 - [Motif-bindings path sizing](mwm-bindings-path-size.md)
 - [Session workspace and host string sizing](mwm-session-string-size.md)
 - [Icon-box geometry ownership](mwm-iconbox-geometry-ownership.md)
+- [Preprocessor command bounds](mwm-preprocess-command-bounds.md)
 
 These focused pages document compatibility-preserving guards; they do not
 change public MWM resource or message formats.
