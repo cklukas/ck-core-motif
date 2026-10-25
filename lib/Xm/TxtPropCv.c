@@ -982,12 +982,27 @@ XmCvtTextPropertyToXmStringTable(Display *display,
     /* Create XmStrings from each string in the value field */
     string_table[0] = XmStringGenerate((XtPointer)text_prop->value, 
 				       tag, type, NULL);
+    if (string_table[0] == NULL) {
+	XtFree((char *)string_table);
+	_XmAppUnlock(app);
+	return BadAlloc;
+    }
     for (i = 0, elements = 1; i + 1 < (int)text_prop->nitems; ++i)
     {
 	if (text_prop->value[i] == '\0')
-	  string_table[elements++] =
-	    XmStringGenerate((XtPointer) &(text_prop->value[i + 1]), 
-			     tag, type, NULL);
+	  {
+	    XmString generated = XmStringGenerate(
+		(XtPointer) &(text_prop->value[i + 1]), tag, type, NULL);
+	    if (generated == NULL) {
+		int cleanup;
+		for (cleanup = 0; cleanup < elements; ++cleanup)
+		    XmStringFree(string_table[cleanup]);
+		XtFree((char *)string_table);
+		_XmAppUnlock(app);
+		return BadAlloc;
+	    }
+	    string_table[elements++] = generated;
+	  }
     }
     *string_table_return = string_table;
     *count_return = elements;

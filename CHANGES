@@ -1,3 +1,9 @@
+Handle plain text-property XmString generation failures (2026-10-25)
+=========================================================================
+
+- Detect failed `XmStringGenerate` calls, release already generated entries,
+  and return `BadAlloc`; see `docs/motif-txtpropcv-generated-strings.md`.
+
 Guard non-empty plain text-property table allocation (2026-10-25)
 ===================================================================
 
