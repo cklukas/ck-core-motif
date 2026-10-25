@@ -931,12 +931,18 @@ GetTextDestData(Widget tw)
     Widget xm_display = (Widget) XmGetXmDisplay(display);
     
     ctx_data = (XmTextContextData) XtMalloc(sizeof(XmTextContextDataRec));
+    if (ctx_data == NULL)
+      return NULL;
     
     ctx_data->screen = screen;
     ctx_data->context = loc_context;
     ctx_data->type = _XM_IS_DEST_CTX;
     
     dest_data = (TextDestData) XtCalloc(1, sizeof(TextDestDataRec));
+    if (dest_data == NULL) {
+      XtFree((char *)ctx_data);
+      return NULL;
+    }
     
     XtAddCallback(xm_display, XmNdestroyCallback,
 		  (XtCallbackProc) _XmTextFreeContextData,
@@ -3930,7 +3936,14 @@ ProcessBSelect(Widget w,
 	if (data->transfer_action == NULL) {
 	  data->transfer_action = 
 	    (_XmTextActionRec *) XtMalloc(sizeof(_XmTextActionRec));
+	  if (data->transfer_action == NULL)
+	    return;
 	  data->transfer_action->event = (XEvent *)XtMalloc(sizeof(XEvent));
+	  if (data->transfer_action->event == NULL) {
+	    XtFree((char *)data->transfer_action);
+	    data->transfer_action = NULL;
+	    return;
+	  }
 	}
 	memcpy((void *)data->transfer_action->event, (void *)event,
 	       sizeof(XEvent));
@@ -4547,6 +4560,8 @@ Stuff(Widget w,
        * the data transfer operation.
        */
       point = (XPoint *) XtMalloc(sizeof(XPoint));
+      if (point == NULL)
+	return;
       point->x = event->xbutton.x;
       point->y = event->xbutton.y;
   } 
