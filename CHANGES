@@ -1,3 +1,10 @@
+CascadeButtonGadget shadow redisplay guards (2026-10-25)
+=========================================================
+
+- Validate parent realization, shadow GCs, thickness, and gadget geometry before
+  drawing CascadeButtonGadget shadows; see
+  `docs/cascade-button-gadget-shadow-redisplay-guards.md`.
+
 CascadeButton shadow redisplay guards (2026-10-25)
 ==================================================
 
