@@ -2191,7 +2191,8 @@ CvtStringToKeySymTable(
       if (in_str[in_str_size++] == ',')
 	++comma_count;
     } 
-  if (comma_count > (SIZE_MAX / sizeof(KeySym)) - 2)
+  if (comma_count > (SIZE_MAX / sizeof(KeySym)) - 2 ||
+      comma_count > ((size_t)UINT_MAX / sizeof(KeySym)) - 2)
     return(FALSE);
 
   keySymTable = (XmKeySymTable) XtMalloc(sizeof(KeySym) * (comma_count + 2));

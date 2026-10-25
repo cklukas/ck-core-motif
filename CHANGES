@@ -104,6 +104,12 @@ Traversal-node pool Xt byte bounds (2026-10-28)
 - Check Xt `Cardinal` byte limits during traversal-node pool creation and
   growth; see `docs/traversal-node-allocation.md`.
 
+KeySym-table Xt byte bounds (2026-10-28)
+=========================================
+
+- Check Xt `Cardinal` byte limits before allocating resource-converted KeySym
+  tables; see `docs/keysym-table-conversion.md`.
+
 Compound-text concatenation failure handling (2026-10-28)
 ============================================================
 
