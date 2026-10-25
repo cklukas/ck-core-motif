@@ -129,8 +129,9 @@ XmTabListInsertTabs(XmTabList oldlist,
 		    int position)
 {
   XmTabList	tl;
-  int		i;
-  XmTab		prev_tab, tab, next_tab;
+  Cardinal	i;
+  XmTab		prev_tab = NULL, tab, next_tab = NULL;
+  XmTab		insert_start, insert_end;
 
   _XmProcessLock();
   if ((tabs == NULL) || (tab_count == 0)) {
@@ -146,28 +147,8 @@ XmTabListInsertTabs(XmTabList oldlist,
 	return(NULL);
       }
   
-      _XmTabLCount(tl) = tab_count;
-      
-      prev_tab = _XmTabCopy(tabs[0]);
-      if (prev_tab == NULL) {
-	XtFree((char *)tl);
-	_XmProcessUnlock();
-	return(NULL);
-      }
-
-      _XmTabLStart(tl) = prev_tab;
-
-      for (i = 1; i < tab_count; i++)
-	{
-	  tab = _XmTabCopy(tabs[i]);
-	  
-	  _XmTabPrev(tab) = prev_tab;
-	  _XmTabNext(prev_tab) = tab;
-	  prev_tab = tab;
-	}
-      
-      _XmTabNext(prev_tab) = _XmTabLStart(tl);
-      _XmTabPrev(_XmTabLStart(tl)) = prev_tab;
+      insert_start = NULL;
+      insert_end = NULL;
     }
   else
     {
@@ -177,40 +158,59 @@ XmTabListInsertTabs(XmTabList oldlist,
 	return(NULL);
       }
       
-      /* Hook in first tab */
-      tab = _XmTabCopy(tabs[0]);
-      if (tab == NULL) {
-	_XmProcessUnlock();
-	XmTabListFree(tl);
-	return(NULL);
-      }
+	  prev_tab = GetNthTab(tl, position, NULL, 0);
+	  next_tab = _XmTabNext(prev_tab);
+	  insert_start = NULL;
+	  insert_end = NULL;
+    }
 
-      prev_tab = GetNthTab(tl, position, NULL, 0);
-      
-      if (position == 0) _XmTabLStart(tl) = tab;
-
-      next_tab = _XmTabNext(prev_tab);
-      
-      _XmTabNext(prev_tab) = tab;
-      _XmTabPrev(tab) = prev_tab;
-      prev_tab = tab;
-
-      /* Hook in rest of tabs. */
-      for (i = 1; i < tab_count; i++)
+  /* Build the new tabs as a detached chain.  The original list remains
+     untouched until every copy succeeds. */
+  for (i = 0; i < tab_count; i++)
+    {
+      tab = _XmTabCopy(tabs[i]);
+      if (tab == NULL)
 	{
-	  tab = _XmTabCopy(tabs[i]);
-	  _XmTabNext(prev_tab) = tab;
-	  _XmTabPrev(tab) = prev_tab;
-	  prev_tab = tab;
-	}	  
-      
-      /* Complete circle */
-      _XmTabNext(prev_tab) = next_tab;
-      _XmTabPrev(next_tab) = prev_tab;
+	  while (insert_start != NULL)
+	    {
+	      XmTab next = _XmTabNext(insert_start);
+	      XmTabFree(insert_start);
+	      insert_start = next;
+	    }
+	  if (oldlist == NULL)
+	    XtFree((char *)tl);
+	  else
+	    XmTabListFree(tl);
+	  _XmProcessUnlock();
+	  return(NULL);
+	}
 
+      _XmTabPrev(tab) = insert_end;
+      _XmTabNext(tab) = NULL;
+      if (insert_end == NULL)
+	insert_start = tab;
+      else
+	_XmTabNext(insert_end) = tab;
+      insert_end = tab;
+    }
+
+  if (oldlist == NULL)
+    {
+      _XmTabNext(insert_end) = insert_start;
+      _XmTabPrev(insert_start) = insert_end;
+      _XmTabLCount(tl) = tab_count;
+      _XmTabLStart(tl) = insert_start;
+    }
+  else
+    {
+      _XmTabNext(prev_tab) = insert_start;
+      _XmTabPrev(insert_start) = prev_tab;
+      _XmTabNext(insert_end) = next_tab;
+      _XmTabPrev(next_tab) = insert_end;
+      if (position == 0)
+	_XmTabLStart(tl) = insert_start;
       _XmTabLCount(tl) += tab_count;
-
-      XmTabListFree( oldlist );
+      XmTabListFree(oldlist);
     }
 
   _XmProcessUnlock();

@@ -1,4 +1,9 @@
 2026-10-25
+	* Make tab-list insertion transactional so failed tab copies leave the
+	  original list and marked-tab ownership unchanged; see
+	  docs/tablist-insert-rollback.md.
+
+2026-10-25
 	* Guard tab-array and tab-string allocations in `XmTabCreate`, releasing
 	  partial objects on failure; see docs/tab-allocation.md.
 
