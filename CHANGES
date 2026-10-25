@@ -44,6 +44,15 @@ Native dependency-runner propagation (2026-10-25)
   exit status and stderr tail in the observer failure instead of reporting a
   racy EOF with no ownership evidence.
 
+Virtual-keycode range guard (2026-10-25)
+========================================
+
+- Guard `XmTranslateKey` against keycodes outside the server's current X11
+  keymap before indexing the Xt keysym table. The guard caches the display
+  keycode range during XmDisplay initialization, so valid key translation does
+  not add a per-event round trip. A strict installed local-Compose run and a
+  focused invalid-boundary consumer pass on a fresh AArch64 prefix.
+
 UIL literal-only module output (2026-10-25)
 ============================================
 

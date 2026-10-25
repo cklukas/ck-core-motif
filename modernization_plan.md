@@ -564,6 +564,13 @@ observer. Its normal installed-prefix fixture passes with the pinned Xt loaded
 from the recorded dependency directory; strict execution reaches the fixture
 body but remains bounded by the external Fontconfig ownership report.
 
+That strict local-Compose run also exposed and now covers a malformed-keycode
+path in `XmTranslateKey`: the virtual-key lookup validates the cached server
+keycode range before indexing Xt's keysym table. A fresh installed AArch64
+prefix passes the invalid-boundary consumer and the strict local-Compose
+fixture; this is a toolkit safety correction, distinct from the remaining
+external Fontconfig ownership gate.
+
 The installed native cohort also includes the bounded `nontext-unicode`
 public-API fixture for combining, non-BMP and Han values through Label, List
 and ComboBox resources. It adds evidence for those controls without

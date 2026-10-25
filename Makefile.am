@@ -744,6 +744,8 @@ EXTRA_DIST += tests/automated/check-virtkeys-binding-allocation.py docs/virtkeys
 
 EXTRA_DIST += tests/automated/check-virtkeys-actual-allocation.py docs/virtkeys-actual-allocation.md
 
+EXTRA_DIST += tests/automated/check-virtkeys-invalid-keycode.c tests/automated/run-virtkeys-invalid-regression.py docs/virtkeys-invalid-keycode.md
+
 EXTRA_DIST += tests/automated/check-render-table-tag-array.py docs/render-table-tag-array.md
 
 EXTRA_DIST += tests/automated/check-render-table-single-rendition-null.py docs/render-table-single-rendition-null.md

@@ -489,12 +489,20 @@ _XmVirtKeysInitialize(Widget widget)
   String bindingsString;
   String fallbackString = NULL;
   Boolean needXFree = False;
+  int keycode_min, keycode_max;
   
   if (!XmIsDisplay(widget))
     return;
   
   bindingsString = xmDisplay->display.bindingsString;
   xmDisplay->display.lastKeyEvent = NULL;
+  xmDisplay->display.keycode_range_valid =
+    XDisplayKeycodes(dpy, &keycode_min, &keycode_max) != 0 &&
+    keycode_min >= 0 && keycode_max <= 255 && keycode_min <= keycode_max;
+  if (xmDisplay->display.keycode_range_valid) {
+    xmDisplay->display.keycode_min = keycode_min;
+    xmDisplay->display.keycode_max = keycode_max;
+  }
   
   if (bindingsString == NULL) 
     {
@@ -559,10 +567,16 @@ FindVirtKey(Display *dpy,
   Cardinal      i;
   XmDisplay     xmDisplay = (XmDisplay) XmGetXmDisplay( dpy);
   XmVKeyBinding keyBindings = xmDisplay->display.bindings;
-  KeyCode       min_kcode;
+  KeyCode       table_min_kcode;
   int           ks_per_kc;
-  KeySym       *ks_table = XtGetKeysymTable( dpy, &min_kcode, &ks_per_kc);
-  KeySym       *kc_map = &ks_table[(keycode - min_kcode) * ks_per_kc];
+  KeySym       *ks_table = XtGetKeysymTable( dpy, &table_min_kcode, &ks_per_kc);
+  if (ks_table == NULL || ks_per_kc <= 0 ||
+      !xmDisplay->display.keycode_range_valid ||
+      keycode < table_min_kcode ||
+      keycode < xmDisplay->display.keycode_min ||
+      keycode > xmDisplay->display.keycode_max)
+    return;
+  KeySym       *kc_map = &ks_table[(keycode - table_min_kcode) * ks_per_kc];
   Modifiers     EffectiveSMMask = EffectiveStdModMask( dpy, kc_map, ks_per_kc);
   
   /* Get the modifiers from the actual event */

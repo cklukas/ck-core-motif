@@ -115,6 +115,9 @@ typedef struct {
     Boolean			enable_unselectable_drag;
     Boolean                     enable_thin_thickness;
     Boolean			enable_multi_key_bindings;
+    int                         keycode_min;
+    int                         keycode_max;
+    Boolean                     keycode_range_valid;
 } XmDisplayPart, *XmDisplayPartPtr;
 
 typedef struct _XmDisplayInfo {

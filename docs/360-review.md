@@ -21,6 +21,8 @@ The following high-impact defects are fixed and have focused regressions:
   chunk boundary inside a multibyte sequence.
 - The list accessibility model keeps stable child identities while native rows
   are reordered or removed.
+- Virtual-key translation rejects malformed keycodes before indexing the
+  server keymap; the regression is qualified under a strict installed prefix.
 
 ## Open qualification gaps
 

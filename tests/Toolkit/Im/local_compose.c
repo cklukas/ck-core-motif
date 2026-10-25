@@ -7,6 +7,7 @@
 #include <Xm/TextF.h>
 #include <Xm/XmIm.h>
 #include <X11/Xatom.h>
+#include <fontconfig/fontconfig.h>
 #include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -150,6 +151,11 @@ int main(int argc, char **argv) {
   require(!x_errors, "native teardown produced X errors");
   XtCloseDisplay(display);
   XtDestroyApplicationContext(app);
+  /* Xft initializes a process-global Fontconfig configuration while loading
+   * the native render table.  All display, widget and Xft owners are gone at
+   * this point, so retire that external configuration explicitly rather than
+   * attributing its terminal allocations to the toolkit. */
+  FcFini();
   puts("{\"finished\":true,\"x_errors\":0}");
   return 0;
 }
