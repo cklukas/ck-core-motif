@@ -3604,6 +3604,9 @@ void HandleIconBoxIconKeyPress (Widget icon, caddr_t dummy, XKeyEvent *keyEvent)
     ClientData          *pCD; 
     Window              theIcon;
 
+    if (icon == NULL || keyEvent == NULL)
+	return;
+
     /*
      * find context to get pCD and then post menu show active icon text.
      */

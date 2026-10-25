@@ -1,3 +1,9 @@
+Icon-box keypress callback validation (2026-10-25)
+==================================================
+
+- Validate icon widget and key event inputs before dispatching key handling;
+  see `docs/keypress-callback-guards.md`.
+
 Icon-box focus callback validation (2026-10-25)
 ================================================
 
