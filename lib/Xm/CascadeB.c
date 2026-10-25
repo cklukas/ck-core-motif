@@ -522,10 +522,13 @@ DrawShadow(
   XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay((Widget) cb));
   Boolean etched_in = dpy -> display.enable_etched_in_menu;
 
-  if (CB_IsArmed(cb))
+  if (CB_IsArmed(cb) && XtIsRealized((Widget)cb) &&
+      cb->primitive.top_shadow_GC != NULL &&
+      cb->primitive.bottom_shadow_GC != NULL &&
+      cb->primitive.shadow_thickness != 0 &&
+      cb->core.width > 2 * cb->primitive.highlight_thickness &&
+      cb->core.height > 2 * cb->primitive.highlight_thickness)
     {
-      if (XtIsRealized((Widget)cb))
-      {
 	 XmeDrawShadows (XtDisplay (cb), XtWindow (cb),
 			cb->primitive.top_shadow_GC,
 			cb->primitive.bottom_shadow_GC,
@@ -537,7 +540,6 @@ DrawShadow(
 			cb->primitive.highlight_thickness,
 			cb->primitive.shadow_thickness,
 			etched_in ? XmSHADOW_IN : XmSHADOW_OUT);
-      }
    }
 }
 

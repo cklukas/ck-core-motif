@@ -1,3 +1,10 @@
+CascadeButton shadow redisplay guards (2026-10-25)
+==================================================
+
+- Validate CascadeButton realization, shadow GCs, thickness, and drawable
+  geometry before drawing the armed shadow; see
+  `docs/cascade-button-shadow-redisplay-guards.md`.
+
 Form shadow redisplay guards (2026-10-25)
 =========================================
 
