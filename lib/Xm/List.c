@@ -2607,7 +2607,8 @@ DrawHighlight(XmListWidget lw,
 	      int position,
 	      Boolean on)
 {
-  Dimension  width, height, ht;
+  int        width, height;
+  Dimension  ht;
   Position   x, y;
   XRectangle rect;
 
@@ -2618,7 +2619,7 @@ DrawHighlight(XmListWidget lw,
 
   ht = lw->list.HighlightThickness;
   x = lw->list.BaseX - ht;
-  width = lw->core.width - 2 * ((int)lw->list.margin_width +
+  width = (int)lw->core.width - 2 * ((int)lw->list.margin_width +
 				lw->primitive.shadow_thickness);
 
   /****************
@@ -2632,7 +2633,7 @@ DrawHighlight(XmListWidget lw,
       (position >= (lw->list.top_position + lw->list.visibleItemCount)))
     {
       y = lw->list.BaseY - ht;
-      height = lw->core.height - 2 * ((int)lw->list.margin_height +
+      height = (int)lw->core.height - 2 * ((int)lw->list.margin_height +
 				      lw->primitive.shadow_thickness);
     }
   else
@@ -3031,7 +3032,7 @@ SetHorizontalScrollbar(XmListWidget lw)
 
   lw->list.FromSetSB = TRUE;
 
-  listwidth = lw->core.width - 2 * (int)(lw->list.margin_width +
+  listwidth = (int)lw->core.width - 2 * (int)(lw->list.margin_width +
 					 lw->list.HighlightThickness +
 					 lw->primitive.shadow_thickness);
 
