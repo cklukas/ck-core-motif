@@ -1,4 +1,9 @@
 2026-10-25
+	* Guard Cardinal-list converter allocations and route initial/growth
+	  failures through the existing cleanup path; see
+	  docs/cardinal-list-converter-allocation.md.
+
+2026-10-25
 	* Add the consumer-only WP-08 C++17 support prototype for owned XmString
 	  values, one-shot Xt arguments, non-owning widget views and exception-safe
 	  callback connections; it is tested against an installed prefix but is not
