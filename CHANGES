@@ -4009,3 +4009,8 @@ Guard Text source read-buffer growth (2026-10-25)
 
 - Preserve the existing conversion buffer when `ReadSource` allocation or
   resize fails; see `docs/text-source-read-allocation.md`.
+Make List item growth failure-safe (2026-10-25)
+================================================
+
+- Make item insertion and match-position resizing transactional on allocation
+  failure; see `docs/list-growth-allocation.md`.
