@@ -5,6 +5,12 @@ XmString tab-list traversal failure handling (2026-10-26)
   releasing the partial list instead of returning incomplete tab stops; see
   `docs/xmstring-tablist-context-failure.md`.
 
+XmString rendition-entry validation (2026-10-26)
+==================================================
+
+- Reject null individual rendition tags before component iteration accesses
+  them; see `docs/xmstring-rendition-entry.md`.
+
 XmString component structure guards (2026-10-26)
 =================================================
 

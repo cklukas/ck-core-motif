@@ -9673,6 +9673,11 @@ XmeStringGetComponent(_XmStringContext context,
       if (tmp_index < begin_count)
 	{
 	  /* Process another rendition start. */
+	  if (begin_rends[tmp_index] == NULL) {
+	    _XmStrContError(context) = True;
+	    _XmProcessUnlock();
+	    return XmSTRING_COMPONENT_END;
+	  }
 	  if (copy_data)
 	    {
 	      *value = (XtPointer) XtNewString(begin_rends[tmp_index]);
@@ -9906,6 +9911,11 @@ XmeStringGetComponent(_XmStringContext context,
       if (tmp_index < end_count)
 	{
 	  /* Process another rendition end. */
+	  if (end_rends[tmp_index] == NULL) {
+	    _XmStrContError(context) = True;
+	    _XmProcessUnlock();
+	    return XmSTRING_COMPONENT_END;
+	  }
 	  if (copy_data)
 	    {
 	      *value = (XtPointer) XtNewString(end_rends[tmp_index]);
