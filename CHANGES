@@ -1,3 +1,10 @@
+IconButton label initialization rollback (2026-10-28)
+========================================================
+
+- Check the private `XmNlabelString` copy during initialization and rebuild a
+  caption from `XmNlabel` or the widget name when it fails; see
+  `docs/iconbutton-label-init-rollback.md`.
+
 LabelGadget SetValues rollback (2026-10-28)
 =============================================
 

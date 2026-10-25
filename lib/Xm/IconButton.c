@@ -470,6 +470,7 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
 {
     XmIconButtonWidget iw = (XmIconButtonWidget) set;
     Boolean resetPixmapValues = True;
+    XmString label_string_copy;
 
     XmIconButton_unset_timer(iw) = NO_TIMER;
     XmIconButton_time(iw) = 0L;
@@ -497,8 +498,16 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
 	}
     }
     else {
-	XmIconButton_label_string(iw) =
-	  XmStringCopy(XmIconButton_label_string(iw));
+	label_string_copy = XmStringCopy(XmIconButton_label_string(iw));
+	if (label_string_copy != NULL)
+	    XmIconButton_label_string(iw) = label_string_copy;
+	else if (XmIconButton_label(iw) != NULL)
+	    XmIconButton_label_string(iw) =
+		CreateXmString(set, XmIconButton_label(iw));
+	else
+	    XmIconButton_label_string(iw) = CreateXmString(set, XtName(set));
+	if (XmIconButton_label_string(iw) == NULL)
+	    XmIconButton_label_from_name(iw) = True;
     }
     if (XmIconButton_label(iw))
 	    XmIconButton_label(iw) = XtNewString(XmIconButton_label(iw));
