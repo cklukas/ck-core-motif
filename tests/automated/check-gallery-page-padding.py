@@ -15,4 +15,6 @@ assert 'strtok(remaining, " ")' in source
 assert "create_gallery_tab" in source
 assert "xmFrameWidgetClass" in source
 assert '"#aeb7c2"' in source
+assert 'strcmp(initial_id, "gallery.icons")' in source
+assert 'XmNcurrentPageNumber, 4' in source
 print("PASS gallery notebook pages use consistent inner padding")

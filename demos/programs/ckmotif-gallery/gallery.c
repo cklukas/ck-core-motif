@@ -1064,8 +1064,11 @@ int main(int argc, char **argv)
     (void)create_gallery_tab(notebook, "exampleTab", 2, "Example");
     (void)create_gallery_tab(notebook, "sourceTab", 3, "Source");
     (void)create_gallery_tab(notebook, "iconsTab", 4, "Built-in Icons");
-    if (initial_id && strcmp(initial_id, "gallery.icons") != 0 &&
-        strcmp(initial_id, "gallery.welcome") != 0) {
+    if (initial_id && !strcmp(initial_id, "gallery.icons")) {
+        XtVaSetValues(state.notebook, XmNcurrentPageNumber, 4, NULL);
+    } else if (initial_id && !strcmp(initial_id, "gallery.welcome")) {
+        XtVaSetValues(state.notebook, XmNcurrentPageNumber, 1, NULL);
+    } else if (initial_id) {
         const GalleryManifestEntry *initial = find_entry(initial_id);
         expand_entry_category(state.tree, initial);
         show_entry(&state, initial);
@@ -1074,6 +1077,14 @@ int main(int argc, char **argv)
     XtManageChild(root);
     XtRealizeWidget(shell);
     center_shell_frame(shell);
+    /* Motif resolves the notebook's initial page while the shell is realized;
+     * re-assert the special pages afterwards so --component captures show the
+     * actual Welcome or Built-in Icons content, rather than an empty page. */
+    if (initial_id && !strcmp(initial_id, "gallery.icons")) {
+        XtVaSetValues(state.notebook, XmNcurrentPageNumber, 4, NULL);
+    } else if (initial_id && !strcmp(initial_id, "gallery.welcome")) {
+        XtVaSetValues(state.notebook, XmNcurrentPageNumber, 1, NULL);
+    }
     if (dialog_kind && !open_gallery_dialog(shell, dialog_kind)) {
         fprintf(stderr, "unknown gallery dialog: %s\n", dialog_kind);
         return 2;

@@ -3,12 +3,12 @@
   "manifest": "/home/klukas/tmp/motif-build-shared-20261027-0400/src/docs/modern-gallery-manifest.json",
   "manifest_sha256": "3f3f2a18ea80f887737d9750dd3eac87299eaef1741dea727e7af11a3bd9a423",
   "binary": "/home/klukas/tmp/motif-build-shared-20261027-0400/src/demos/programs/ckmotif-gallery/.libs/ckmotif-gallery",
-  "binary_sha256": "3abb737e294e31a2a99cc88f08ed4776a79b72e91b5c341d96f3092a130495cf",
-  "display": ":176",
+  "binary_sha256": "35a37abcf26f2e9ba00098aed34e81d3a6fa68c76501a8cd9d1e7e82478e8b30",
+  "display": ":177",
   "appearance": "modern-light",
   "scale": 1.0,
   "window_name": "ckmotif-gallery",
-  "output": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027",
+  "output": "/home/klukas/tmp/gallery-screenshots-20261026d",
   "tools": {
     "xwd": "/usr/bin/xwd",
     "xwininfo": "/usr/bin/xwininfo",
@@ -18,849 +18,849 @@
   "entries": [
     {
       "id": "xm.buttonboxwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-buttonboxwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-buttonboxwidgetclass.png",
-      "xwd_sha256": "d48a04af54f58d8598a87c85990cf5a654f835ca5a902b543e911d156b118537",
-      "png_sha256": "43a89bd49cd3684460415b40cf55ee506abf2cb1b938d6685b5a5ad6af017f3d",
-      "seconds": 0.509
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-buttonboxwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-buttonboxwidgetclass.png",
+      "xwd_sha256": "bd76b0e59703e3d535d3e43d92f2e40bf8d30b3050ba7760d4c17ca6ceb317cd",
+      "png_sha256": "a55edd40f7bcb99e7ba285d8cf89c3aee3c57af342004f9095ce5182908e7f7a",
+      "seconds": 0.542
     },
     {
       "id": "xm.colorselectorwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-colorselectorwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-colorselectorwidgetclass.png",
-      "xwd_sha256": "2a71542ca7a6f4d98cc9064e2f8482b2a1b8624033e9170239b21fff499875ab",
-      "png_sha256": "ac489d4a9e18b5b10c14a6b3fe588f8f8dd040e0dc6baa08b6103dd17df5d0e7",
-      "seconds": 0.477
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-colorselectorwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-colorselectorwidgetclass.png",
+      "xwd_sha256": "b43f4b3badaf776a2684188aa88e7e0e7af5d3cec8ea3194054c65e83acac577",
+      "png_sha256": "9259a83e830ff35a5b01b6d567d95b86effafc4f07c874f2a0a225e07f1d1cd2",
+      "seconds": 0.586
     },
     {
       "id": "xm.combinationbox2widgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-combinationbox2widgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-combinationbox2widgetclass.png",
-      "xwd_sha256": "cc23f7767af30b58ab47142546f1346a2073720fac7090189ff5ebfb2b4705e5",
-      "png_sha256": "821cf4ad4b2a6e07ee9d7a6541b63f81464cb8c8561f4fc65ef7db26072854af",
-      "seconds": 0.482
-    },
-    {
-      "id": "xm.disclosurewidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-disclosurewidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-disclosurewidgetclass.png",
-      "xwd_sha256": "e5cf3061a0890bfe00b098a6a93d2e3827784f4fbb1e62f5e33b75ed9b956958",
-      "png_sha256": "f3ab3eafc0619fa3914770a97fde89337f316cf378a855cd363b66a58bb463ab",
-      "seconds": 0.474
-    },
-    {
-      "id": "xm.fontselectorwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-fontselectorwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-fontselectorwidgetclass.png",
-      "xwd_sha256": "3aecb0373089f42cdb6ad34997183ab693ce307bea6859f03d17e0ee902918a9",
-      "png_sha256": "1ede2e799207035c40cd9c69bb0e5666b7770d1cfb61a5471e7c99a84f9e295a",
-      "seconds": 0.486
-    },
-    {
-      "id": "xm.hierarchywidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-hierarchywidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-hierarchywidgetclass.png",
-      "xwd_sha256": "425efd8339a6ad689ad46bbb122e5d50200003989ce087337f29e4d1bb07a4cd",
-      "png_sha256": "99b060e73c22cc0bee2ad2fccadbdb7b9eadb79cfaf77575065e98bc6ecabc97",
-      "seconds": 0.479
-    },
-    {
-      "id": "xm.ext18listwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-ext18listwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-ext18listwidgetclass.png",
-      "xwd_sha256": "076d3f255f95be802bf7cb39786bf40f40d7ddd952cd447cd61e1c5a7c1558b9",
-      "png_sha256": "b33c00977ce61294d874910616f60adc8d73ec0d9dce2cd3300d0e7c603bedc5",
-      "seconds": 0.474
-    },
-    {
-      "id": "xm.multilistwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-multilistwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-multilistwidgetclass.png",
-      "xwd_sha256": "e08d8e7538183f887918e743d7004648be536e9d85ba93fcf673442036426b9d",
-      "png_sha256": "e3fc0b1e8e760de75f2ea78c4dbf8d8dc2e95effaa09731e15a796e4fe3dce1a",
-      "seconds": 0.478
-    },
-    {
-      "id": "xm.iconboxwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-iconboxwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-iconboxwidgetclass.png",
-      "xwd_sha256": "8f9e1467c155735cf62b5c6a5968091db464be16270a3e113a716969be7c3769",
-      "png_sha256": "81f461e5591eaf4ebfa23943f3c64ed6b5bc1a49d506d86e31596ce673245d3c",
-      "seconds": 0.469
-    },
-    {
-      "id": "xm.outlinewidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-outlinewidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-outlinewidgetclass.png",
-      "xwd_sha256": "987088039072a84a1f0b22bd0add71ebabfa732f89ead5f47c7e37d31fcd7d7a",
-      "png_sha256": "21b882cdcf593276013b0103923d64bd16ec8e6cc541d46a3b6b531cb573eb0e",
-      "seconds": 0.655
-    },
-    {
-      "id": "xm.treewidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-treewidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-treewidgetclass.png",
-      "xwd_sha256": "150e32bda30baca3d773524dc3ed2beb9fc91a88ddffb98591a8273dbf0d0632",
-      "png_sha256": "7bec0e1278977709a48056ac2df3f5df049183b24f4f5bf78eb813803047dd55",
-      "seconds": 0.473
-    },
-    {
-      "id": "xm.arrowbuttonwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-arrowbuttonwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-arrowbuttonwidgetclass.png",
-      "xwd_sha256": "397b79de7155c5bcbe78525b31f67622471aba8c57a02ddc9b1b09ee785c009f",
-      "png_sha256": "4cea6b37bc5b289beea28d4bc40adbdb5c43952567239cd5c733161b3c66c0af",
-      "seconds": 0.471
-    },
-    {
-      "id": "xm.arrowbuttongadgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-arrowbuttongadgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-arrowbuttongadgetclass.png",
-      "xwd_sha256": "83c491e8932b690c77cc29bf64260c7614dee154164cd008507545b37f25f4d3",
-      "png_sha256": "f030e54865b9a6d96f6324292400b0e58cbb94495ec4e9b5ace36b06be27821a",
-      "seconds": 0.476
-    },
-    {
-      "id": "xm.bulletinboardwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-bulletinboardwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-bulletinboardwidgetclass.png",
-      "xwd_sha256": "35d52b22b34895b399e3038178ecc889b7ea011cc9df7147a0ca88b8f245b4d7",
-      "png_sha256": "3b72ae88bb264672f8bf2dfb55cb1e5c14919414b9de58b45e5c21a6ab1027b4",
-      "seconds": 0.564
-    },
-    {
-      "id": "xm.cascadebuttonwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-cascadebuttonwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-cascadebuttonwidgetclass.png",
-      "xwd_sha256": "c3d5ed15406c64b63d456cfb39e1433e2fdac4a2d9d494ba36ab8348898c5fa1",
-      "png_sha256": "e5718595f4a858a87c795a08dafb1c29d91ab60a6bd91a82a72264e4697ae126",
-      "seconds": 0.604
-    },
-    {
-      "id": "xm.cascadebuttongadgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-cascadebuttongadgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-cascadebuttongadgetclass.png",
-      "xwd_sha256": "5014ca705fe31ceb8552a7fe3eac2e9615dd04bc2566a188883aaf193e8ba273",
-      "png_sha256": "99097373b8ee9085791825efa0185786fc13717fad840128cef8ab8706ca6b11",
-      "seconds": 0.536
-    },
-    {
-      "id": "xm.columnwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-columnwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-columnwidgetclass.png",
-      "xwd_sha256": "9e7df119776766113b80c27d1f082433c4629bc0bbf9a5055383961c47c9200b",
-      "png_sha256": "8095a0219085b4f0f70109a61c0aded51983e939ed2954dd1cd9315e1baa293d",
-      "seconds": 0.537
-    },
-    {
-      "id": "xm.comboboxwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-comboboxwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-comboboxwidgetclass.png",
-      "xwd_sha256": "69970a5ceefb4b86973a3416071ba4822dd0704602bb1805d4a347050d8f99bc",
-      "png_sha256": "4f29eb92bdad283948e6756d191a5e924e6c6162d33d79f7b96b2f512ea5cfab",
-      "seconds": 0.498
-    },
-    {
-      "id": "xm.commandwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-commandwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-commandwidgetclass.png",
-      "xwd_sha256": "67e09c30307883fee08dd398886435dc5ee7b2432a6f57e0cdb8dd88eeff5380",
-      "png_sha256": "31b839737b1269c72c315adac18c00fcf6f1b66e324f1b1af043087da3ac688e",
-      "seconds": 0.477
-    },
-    {
-      "id": "xm.containerwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-containerwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-containerwidgetclass.png",
-      "xwd_sha256": "40bea4f2d83a93a12088f0016d9a7aa9f955f4eb3c5104bb954ad86515a9d377",
-      "png_sha256": "62dbd058f64bc3476a86cecffd416680d77e1c064a6d264db5b02ec8197cb438",
-      "seconds": 0.48
-    },
-    {
-      "id": "xm.datafieldwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-datafieldwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-datafieldwidgetclass.png",
-      "xwd_sha256": "24f63610aa45abe9d1b56ab4bbcda559c607ef59f1edf6405e943a8d2a92d9f2",
-      "png_sha256": "b0dfcc284bdf33bc713c7e4168d72bd1f47bebd913cae93ecc96a0616df8f1d3",
-      "seconds": 0.47
-    },
-    {
-      "id": "xm.dialogshellwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-dialogshellwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-dialogshellwidgetclass.png",
-      "xwd_sha256": "5c5d7c8a6b2e8bf8dd3755fb0483946e7d50cdaf4bc2cb1ea17a5d538f4e2924",
-      "png_sha256": "93a317789f7b4046f5c3ea7bc581c4c4d80995450f6c6a799edbdf27748f3fa0",
-      "seconds": 0.501
-    },
-    {
-      "id": "xm.displayclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-displayclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-displayclass.png",
-      "xwd_sha256": "d2d500853fc74982dca16c5506e488dda99b8ccef5737849e418ef0a3a74a81d",
-      "png_sha256": "07ad962b8fd4de11a6a0345bdbedc7020d36b2325afb75ea14543a12ff8bd9bc",
-      "seconds": 0.472
-    },
-    {
-      "id": "xm.dragcontextclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-dragcontextclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-dragcontextclass.png",
-      "xwd_sha256": "05a29112750dd7b5a9133d96b32dfdd762129e07d752de73e5cd6e18113f0f2e",
-      "png_sha256": "1dd42172f30fbc4f712e86ddd67e453753edb539882cbaee7be8500b2d0638a3",
-      "seconds": 0.471
-    },
-    {
-      "id": "xm.dragiconobjectclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-dragiconobjectclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-dragiconobjectclass.png",
-      "xwd_sha256": "8e844eb5fbdd06b2f7e7f86d3a2ab0de84b92cc78b4f295a275b8aa8414cd00d",
-      "png_sha256": "feab4160ab84b97405b589d555856c9842925894f419513b7879ae2abf7d0c6e",
-      "seconds": 0.632
-    },
-    {
-      "id": "xm.dragovershellwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-dragovershellwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-dragovershellwidgetclass.png",
-      "xwd_sha256": "3f5e40222dbad2737a654f4f7b04e2cb73aa4136ef179919d5f257658de9139c",
-      "png_sha256": "65b331838c900d90c107bd43bdaa4a5776baed5e4e772bc2b6ce44c6c8266e96",
-      "seconds": 0.554
-    },
-    {
-      "id": "xm.drawingareawidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-drawingareawidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-drawingareawidgetclass.png",
-      "xwd_sha256": "0fa4f1711e85d3f5feffb3a6efdba3be9c6da8e2a4474ce0dcff3f0840671948",
-      "png_sha256": "ddf661ac95ae7abefd14c5d6ceb912b15b28cacf131cb0512ee5ed248001c5f8",
-      "seconds": 0.475
-    },
-    {
-      "id": "xm.drawnbuttonwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-drawnbuttonwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-drawnbuttonwidgetclass.png",
-      "xwd_sha256": "d480c8273c48a65430be152f03b5225c23f8d39ddb192b3c9e327afbaf0fa046",
-      "png_sha256": "cce3838e310e84650f77dd1c814122713ccc9f3a28c923cd4b43caa315d771d1",
-      "seconds": 0.476
-    },
-    {
-      "id": "xm.dropsitemanagerobjectclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-dropsitemanagerobjectclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-dropsitemanagerobjectclass.png",
-      "xwd_sha256": "96aede6d9b747772ae960bd495106999bea097f5903fa78c950589434240610d",
-      "png_sha256": "53f8e21f9c86ddeb53067075b0cbdf1b78d92e715800fb2b57abe3835dd17095",
-      "seconds": 0.534
-    },
-    {
-      "id": "xm.droptransferobjectclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-droptransferobjectclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-droptransferobjectclass.png",
-      "xwd_sha256": "2cfebbc2a6d9ae01eb9449ae4b38c75a86199e9fd03676d5c7e24f3c9507f098",
-      "png_sha256": "8e51fded591d559d22ea445336ed89ee26adeb54e9024908a4c5ec71dbdc8f56",
-      "seconds": 0.497
-    },
-    {
-      "id": "xm.fileselectionboxwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-fileselectionboxwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-fileselectionboxwidgetclass.png",
-      "xwd_sha256": "20654d687120f0628b5e3309829dc08a47546cb331286cee53663a242e714a84",
-      "png_sha256": "5beb0008fd639b980a07177a66426e235e620852dd2401ce81ba9a9f4e799146",
-      "seconds": 0.486
-    },
-    {
-      "id": "xm.formwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-formwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-formwidgetclass.png",
-      "xwd_sha256": "9c440be4410ecc2ec15dc2de575b5b2a2b1f1ce6229dfb2b1723169e7b90f306",
-      "png_sha256": "162da3c99bbc849a920b233c750017c762629eb7729761d51b013b7647af9965",
-      "seconds": 0.476
-    },
-    {
-      "id": "xm.framewidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-framewidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-framewidgetclass.png",
-      "xwd_sha256": "ea22a8cbb935589b014e96651aab2eb7b5bc64e69f9830299739a754b4626070",
-      "png_sha256": "1b35d2885503f95cf21ef636d34ce756240399a243f97fd82a6fb6f253781fad",
-      "seconds": 0.474
-    },
-    {
-      "id": "xm.gadgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-gadgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-gadgetclass.png",
-      "xwd_sha256": "85129ce918cf6ef5b7f8f44bfecca9f5068ecdde6f847848ab991904311c500d",
-      "png_sha256": "eed6f80310351946393d6eeee2a7cdbbc582787d4acbc91282926d4284ef3844",
-      "seconds": 0.512
-    },
-    {
-      "id": "xm.grabshellwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-grabshellwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-grabshellwidgetclass.png",
-      "xwd_sha256": "7e18aefc0bc28e6d0589806684301a19c8f7e3b1eec3c24c7b79e0a7bf1a72dd",
-      "png_sha256": "12b5321b675094c4ae89be979fba0f240ffc32edc421355ebb705c796a7c4533",
-      "seconds": 0.477
-    },
-    {
-      "id": "xm.icongadgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-icongadgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-icongadgetclass.png",
-      "xwd_sha256": "cd2f05d98347acdf3b695ad2d22a90f5d387e0bd373ac74a19ac09ec825304cc",
-      "png_sha256": "89bca28ff79f328bdb809469f6cd2474bc85ef96f8cff9325e7a4a8cddb01de6",
-      "seconds": 0.464
-    },
-    {
-      "id": "xm.iconheaderclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-iconheaderclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-iconheaderclass.png",
-      "xwd_sha256": "1df9b6a3d2f9108f440d668678a20ac574fee0c93fb9ec3195635a888048eb26",
-      "png_sha256": "d01cc61aea14c3b36467d11db42df49cef2612868bde09952562f75e71df0d4c",
-      "seconds": 0.536
-    },
-    {
-      "id": "xm.iconbuttonwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-iconbuttonwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-iconbuttonwidgetclass.png",
-      "xwd_sha256": "ad8690841d88610818b38fa9d2d1325e4c675ca379ef5156ea46de3122cb2e07",
-      "png_sha256": "fe3261c2cac907f4af58a8c38a31eb96ecba9dc0ec60719604e0d9a439a73a05",
-      "seconds": 0.605
-    },
-    {
-      "id": "xm.labelwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-labelwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-labelwidgetclass.png",
-      "xwd_sha256": "61a465382dd261d2b1935a9a9317de8f51701a21d641b7719271a50351d9a3d6",
-      "png_sha256": "adf27deecf5b219fd82cc2d75920ebe747a58f9456078318ea7eb611dd1ff796",
-      "seconds": 0.478
-    },
-    {
-      "id": "xm.labelgadgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-labelgadgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-labelgadgetclass.png",
-      "xwd_sha256": "ee01ca0cc594f3a4219367bb8075e75a6919833d192aa0509afa2708ed044894",
-      "png_sha256": "117c3c9e6c5079e8f95992fc3527cc52f446a4d58a340c3d0941398ab32610a1",
-      "seconds": 0.476
-    },
-    {
-      "id": "xm.listwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-listwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-listwidgetclass.png",
-      "xwd_sha256": "c47612ff9e2d3d33ac88334d6fcee9a5a508bcf015afadc34d6dc15b5a109f4a",
-      "png_sha256": "3143a3bc33fbf8ebcc7cd6bd3009371cfbe5ae81d8dbcdc1b411ff5ac8575387",
-      "seconds": 0.54
-    },
-    {
-      "id": "xm.mainwindowwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-mainwindowwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-mainwindowwidgetclass.png",
-      "xwd_sha256": "4472182994b8797fc108a00057dc79378478866a2bda56d6cc3b2214669b7182",
-      "png_sha256": "ff0c03623eb56bc6bb42dc2deef56758d58dfc96c9659ea0c102bbfd52dd18b6",
-      "seconds": 0.59
-    },
-    {
-      "id": "xm.managerwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-managerwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-managerwidgetclass.png",
-      "xwd_sha256": "fdeb73220424f37d35c0d85c8d89c3db31487cd316ebaf28f756a8d5dfa2d794",
-      "png_sha256": "26ab7d317a7a7f688f92f01c68e07791d39b1d03a8f4403268c0952a848ab9f2",
-      "seconds": 0.47
-    },
-    {
-      "id": "xm.menushellwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-menushellwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-menushellwidgetclass.png",
-      "xwd_sha256": "75931b33cb2efd86bf9a3f51c2adafadefb9783a193c00bf94b1a6209b2000ed",
-      "png_sha256": "ac9dac31078a05c982064e53798c3237bc0aee08949daa4da9b0664d9c955e84",
-      "seconds": 0.47
-    },
-    {
-      "id": "xm.messageboxwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-messageboxwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-messageboxwidgetclass.png",
-      "xwd_sha256": "64a266f84544f85cdfeadee4fcd47c472eb340be069809e886db066f605fe65a",
-      "png_sha256": "69796ac52c57b7fc6b34f6c8f8c6f43f1c4bc3f32f70526e7460176204f10059",
-      "seconds": 0.476
-    },
-    {
-      "id": "xm.colorpickerwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-colorpickerwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-colorpickerwidgetclass.png",
-      "xwd_sha256": "da46d7d2c961e2a46f41afcb37284ea9f37ac30ff8c0a50ce816629724521d22",
-      "png_sha256": "0d143577cd4d860e5ac19e100631aced282c089a2778d34a844039373bd77fab",
-      "seconds": 0.493
-    },
-    {
-      "id": "xm.flyoutwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-flyoutwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-flyoutwidgetclass.png",
-      "xwd_sha256": "074cbb0901e89219b7acd343f2e043bc700a59494e4f627e9bb29ed51a83e663",
-      "png_sha256": "ec7a66e651048b0094176c1eec260f60ae322889bb51308481563f1f7d6a68a1",
-      "seconds": 0.473
-    },
-    {
-      "id": "xm.teachingtipwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-teachingtipwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-teachingtipwidgetclass.png",
-      "xwd_sha256": "9cdcd2a6d226a58463a655fb65ff532082b2b5bdafb69863b6d92d21880f89b4",
-      "png_sha256": "93dbda99f541faaef5fb78e288fccd09c47b8ee4a704f3e508073f25f38acedd",
-      "seconds": 0.526
-    },
-    {
-      "id": "xm.infobarwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-infobarwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-infobarwidgetclass.png",
-      "xwd_sha256": "f33c39d4c5b7e82dbe097707ead509d0cb21693bf10467f870adbad78893515f",
-      "png_sha256": "9c338e2f9f60e21476a3e432bd133886245992a65b59b1b12a903650a0afe63b",
-      "seconds": 0.539
-    },
-    {
-      "id": "xm.breadcrumbbarwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-breadcrumbbarwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-breadcrumbbarwidgetclass.png",
-      "xwd_sha256": "f446207ed395f76c6bdbde0bb11cb14418d0768973c4a19976b5d1a49226dfd2",
-      "png_sha256": "4dd14b51d3b1978f0d1481ac19e6b1d21d625c22b3064f9f8bb1855aeb411536",
-      "seconds": 0.474
-    },
-    {
-      "id": "xm.treeviewwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-treeviewwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-treeviewwidgetclass.png",
-      "xwd_sha256": "96ee4015a69c65c653256e60b0e85897c4d14b02987d87ef52640365409ccac2",
-      "png_sha256": "fcf658f1adf433aad2673c70f3ec23890e9dbfe58889ca1db4761d8e3b53c3c9",
-      "seconds": 0.481
-    },
-    {
-      "id": "xm.calendarwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-calendarwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-calendarwidgetclass.png",
-      "xwd_sha256": "9b198eff265219adb348bdbb5335312b102053dd614ac34d8da75502b563f0b7",
-      "png_sha256": "8dfbba1b6fc55738f4768e66cfaa240097eb3bfe2665a6cc179ee72f72f96eda",
-      "seconds": 0.473
-    },
-    {
-      "id": "xm.datepickerwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-datepickerwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-datepickerwidgetclass.png",
-      "xwd_sha256": "babba83a38ff920fe6c76f12b379ca500c507c02379288d6719c2344c034e0fe",
-      "png_sha256": "2d96b833f80e18cddaf0e49d66d614a81585128f64497ced74e317af8702268f",
-      "seconds": 0.533
-    },
-    {
-      "id": "xm.timepickerwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-timepickerwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-timepickerwidgetclass.png",
-      "xwd_sha256": "e12a5b7ad08b2b7bab0e41ffad07437c6a9fff2145b7295791d3f0f52db20462",
-      "png_sha256": "d32f3a3f28f69c40451d1bf25a049f80fd4ae9ff844357c5278038c4cbdcce6a",
-      "seconds": 0.477
-    },
-    {
-      "id": "xm.datagridwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-datagridwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-datagridwidgetclass.png",
-      "xwd_sha256": "5d3aea32e4a88a125c0cc454754ecfa6ce60e144f5bc7824dca2f861d8674101",
-      "png_sha256": "557d4fa842786ad0ce3966f09a93845c2b54abfdc5c9229bf683e025b60c7ceb",
-      "seconds": 0.564
-    },
-    {
-      "id": "xm.segmentedcontrolwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-segmentedcontrolwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-segmentedcontrolwidgetclass.png",
-      "xwd_sha256": "23dc9d8d1376214a642d63021deb8597f8a6cba04f796a71126eee1de9a91eb5",
-      "png_sha256": "ccb2cd28f75097e1f4915fc86c023e4e0137773ffd948572ffd2e2f902e5d4fa",
-      "seconds": 0.559
-    },
-    {
-      "id": "xm.chipwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-chipwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-chipwidgetclass.png",
-      "xwd_sha256": "0437319ed11059356143c9c7e59a0723dbeba4beb6a85e928a7b755a8e600c7f",
-      "png_sha256": "116db78d8478b78ac8c855503f9ad08ac876ba6d03515fdee5314540cfcbfa29",
-      "seconds": 0.467
-    },
-    {
-      "id": "xm.badgewidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-badgewidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-badgewidgetclass.png",
-      "xwd_sha256": "8e31c734ad90e2cb20b572b0abfc8693a2f0d203c46389344ec0c7b753adad2a",
-      "png_sha256": "7c23ce035b495314ea92f0dfb95f4c101867daf4ebb6be9490ad2c4d69b0b5ad",
-      "seconds": 0.489
-    },
-    {
-      "id": "xm.iconlabelwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-iconlabelwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-iconlabelwidgetclass.png",
-      "xwd_sha256": "589c37489bcb3f2a86eefdb6cea21d17a0f0206e67520473b017414bfe82f905",
-      "png_sha256": "39cddfb734c7ba9503351c7ace38886d3317486f12aa20c88a792b800259b7e5",
-      "seconds": 0.502
-    },
-    {
-      "id": "xm.dividerwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-dividerwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-dividerwidgetclass.png",
-      "xwd_sha256": "3d2aad910cc8b3444a1ca9141c58404c783553af9a2d15b04b4056edbb21b9b3",
-      "png_sha256": "0eda0459bd5abc7092d12f4f1571cb9e0c7e68106e54008a4d163ba93afdd316",
-      "seconds": 0.474
-    },
-    {
-      "id": "xm.avatarwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-avatarwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-avatarwidgetclass.png",
-      "xwd_sha256": "d52c69ba2fa746fa3fca213decda2e7f745fc529a1f637d2d5f7e43a006a6172",
-      "png_sha256": "c1daddf106824ad760a1ce06e349329470cd72c92cc20e54b006f142f1094027",
-      "seconds": 0.579
-    },
-    {
-      "id": "xm.linkwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-linkwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-linkwidgetclass.png",
-      "xwd_sha256": "149ceb24ccd564833e74347750e9f8769282612c6ba23a80e73bb6c612c1db96",
-      "png_sha256": "dfac1551aa1a726b5ce173e29148b3751044947166701ded4bed8ba1d22c2c67",
-      "seconds": 0.568
-    },
-    {
-      "id": "xm.searchboxwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-searchboxwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-searchboxwidgetclass.png",
-      "xwd_sha256": "0d2f2eb113175bbf52d57183a2e6be9fbfa3a76fd2373d0480e8d76a41ad645c",
-      "png_sha256": "7b4f675f908d527a068f3a0c4879ce8ab8f629c07d17f896fa157371ada8c5ac",
-      "seconds": 0.474
-    },
-    {
-      "id": "xm.promptwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-promptwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-promptwidgetclass.png",
-      "xwd_sha256": "9535545fda16bb571973d05adbe693d4f8774d8e3b830e667bc59ba2bf1e49ea",
-      "png_sha256": "0955e5cea2340a06b8cbbf44a6d520c4810b75a7252a2c3982c2a58086572315",
-      "seconds": 0.471
-    },
-    {
-      "id": "xm.formsectionwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-formsectionwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-formsectionwidgetclass.png",
-      "xwd_sha256": "6faf9dc89e90ff8318e8fc2fc4bf688b5244745fdfc6153e9238fa2363c66e32",
-      "png_sha256": "40be4380a9219f5c3faeeed590cb31583eacf1411b4d18ff6a3c79d28b1a63f5",
-      "seconds": 0.497
-    },
-    {
-      "id": "xm.emptystatewidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-emptystatewidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-emptystatewidgetclass.png",
-      "xwd_sha256": "0ab69d0a53ad6cc436337eca34d8a58c0ea25480c5f66cb1ccd3f19c050c1afd",
-      "png_sha256": "78b0bc53e8d9f5eede6f037ddd6884bc1cd3cb2b68847fc5de1e50044070549f",
-      "seconds": 0.474
-    },
-    {
-      "id": "xm.toastwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-toastwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-toastwidgetclass.png",
-      "xwd_sha256": "0cb1343c72bf3969a011de72036f547d9732f0888751f2963f4f3482c24f43ce",
-      "png_sha256": "37ac78c2adc514c76f3f075a590d9e43a7609733f85c8c2405776e53f5d71cba",
-      "seconds": 0.589
-    },
-    {
-      "id": "xm.commandpalettewidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-commandpalettewidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-commandpalettewidgetclass.png",
-      "xwd_sha256": "238c11a91d7f8054cfe96cde0e0393ce0125ab01249e966806adedf45653393f",
-      "png_sha256": "e52056142d905880e844a963096fe503e4c1e74e95f5b2735d950a6e41bb5a95",
-      "seconds": 0.477
-    },
-    {
-      "id": "xm.skeletonwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-skeletonwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-skeletonwidgetclass.png",
-      "xwd_sha256": "180385a2aaf3987ea3f97240e1a9a21e360bc6292fc0a0759b6bac8d0ec47728",
-      "png_sha256": "349534544d8f1cd97a36a4fd3839a75983c726825cea7b50cdab984ffd5e5052",
-      "seconds": 0.515
-    },
-    {
-      "id": "xm.rowactionswidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-rowactionswidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-rowactionswidgetclass.png",
-      "xwd_sha256": "cd24133c4c2dabbef4ac5363d21cb7c367f7007ca8af8e094c41e1a15a001a43",
-      "png_sha256": "ecdef6d60d5f9fbc5a57b01d9931d8df86aa24599b71c5d53cd1014c9b2f1967",
-      "seconds": 0.626
-    },
-    {
-      "id": "xm.drophighlightwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-drophighlightwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-drophighlightwidgetclass.png",
-      "xwd_sha256": "130b74bff8c1036382785d0fb7f07ba45bd94c369f4937bd88a914d6a04e48df",
-      "png_sha256": "b7dab8d7f5977f926d918a1d78e79260d74b4e432bc71a799ed7098363db1c38",
-      "seconds": 0.481
-    },
-    {
-      "id": "xm.statusbarwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-statusbarwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-statusbarwidgetclass.png",
-      "xwd_sha256": "51c38cdae338fafd3f36c4900cd981b9c58fca8ca7326a337cd2dcce4212b98c",
-      "png_sha256": "70013878f05039b27e86986446784228e0ad1d2d59cdb0cacc4c4bdafdc5847b",
-      "seconds": 0.5
-    },
-    {
-      "id": "xm.toolbarwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-toolbarwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-toolbarwidgetclass.png",
-      "xwd_sha256": "c7d2698c49617ec49599b9806e9d38ad49924b0c77aaac9cc9405f361e3c1f74",
-      "png_sha256": "f5311466f7c2a2d649815333fb3d320ca87d7e21f3df3ae4c126ae975b90860d",
-      "seconds": 0.478
-    },
-    {
-      "id": "xm.sidebarwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-sidebarwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-sidebarwidgetclass.png",
-      "xwd_sha256": "e3ec44c37b17c58c0a5d2dda342f70df4829669b8de3f72d1d02d0d8c0ddafc6",
-      "png_sha256": "0016ea669547e5b7f58eb0c2a8fe64c9a1511db9a21c3aff7ee0221149704b43",
-      "seconds": 0.484
-    },
-    {
-      "id": "xm.autosuggestboxwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-autosuggestboxwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-autosuggestboxwidgetclass.png",
-      "xwd_sha256": "dfc458347460ea6e74ecefd646f1d8ff8280e3fb14e1b7bdb8edfdab756cae60",
-      "png_sha256": "21d6a3833365bdfbede4e943edcacdaa65b177213511291afbbd6c9ee1de1ca5",
-      "seconds": 0.568
-    },
-    {
-      "id": "xm.numberboxwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-numberboxwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-numberboxwidgetclass.png",
-      "xwd_sha256": "ff51760de2cd40e41c9f859e0ee076eec3d1558ca35f18b8a63a9085a1347dc3",
-      "png_sha256": "f6d31d9b57ecad1420516abaf1b04edb7f7e9c513dd47cc486d0e673cc9002e8",
-      "seconds": 0.471
-    },
-    {
-      "id": "xm.ratingcontrolwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-ratingcontrolwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-ratingcontrolwidgetclass.png",
-      "xwd_sha256": "09767140e1c78c007524bfbe234d5e396d4002fbb141e9a23a468a8823937d9d",
-      "png_sha256": "e8e2b6acc27921d004ae03db74c2988a85c701ccaf7c56151e66a044752d6688",
-      "seconds": 0.538
-    },
-    {
-      "id": "xm.notebookwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-notebookwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-notebookwidgetclass.png",
-      "xwd_sha256": "07d8fa803558f886018f18c9d317f72906e9fa47d834157515f786e01573cf40",
-      "png_sha256": "9de345ceb897f422a06afec4542a5dc29794face84b878bd0ebfc7a9b55012fd",
-      "seconds": 0.679
-    },
-    {
-      "id": "xm.panedwindowwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-panedwindowwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-panedwindowwidgetclass.png",
-      "xwd_sha256": "c929f4c6b3005ca493446f1082febb626c93ed467541a5c87bf77a5af1e569fc",
-      "png_sha256": "602bb7e6b7ebbc5809d40a0c1990840f56956a9d01d3ce0db50a1ba20e1d04c0",
-      "seconds": 0.514
-    },
-    {
-      "id": "xm.panedwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-panedwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-panedwidgetclass.png",
-      "xwd_sha256": "09609be16379793c34e452c2aafc693357e0ec57563e5268d37b7be1bf7b62ae",
-      "png_sha256": "aa4eac7d308b1d92adca0da36905588644fb2bb1b250845e076a8e10f4501375",
-      "seconds": 0.468
-    },
-    {
-      "id": "xm.primitivewidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-primitivewidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-primitivewidgetclass.png",
-      "xwd_sha256": "3bcb1c4fc2e32934241a0ee9a678510e204e75c9266f921e29b31f03ff206b38",
-      "png_sha256": "f0cedff7f7d16bbf42457ce6816e0e6242dfafcf88bc85f236a830e9fb79bd7e",
-      "seconds": 0.495
-    },
-    {
-      "id": "xm.printshellwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-printshellwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-printshellwidgetclass.png",
-      "xwd_sha256": "a37bdbd261371c42a35d3b342c4c000db1ded28196b9017399a7f1508c542b6d",
-      "png_sha256": "53393ede388dad8479a533a1c9ad5988cc340e82c1fd72285572ed7325126b46",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-combinationbox2widgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-combinationbox2widgetclass.png",
+      "xwd_sha256": "694d2fcef65432bb1bffe22e9b25b363de69d606d0412a8dd8fa09e41a68677e",
+      "png_sha256": "a3cfedd9f9fad55cf727402d7ded2bf609b8390f43239fc499cfc61ee97f5bdc",
       "seconds": 0.516
     },
     {
-      "id": "xm.pushbuttonwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-pushbuttonwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-pushbuttonwidgetclass.png",
-      "xwd_sha256": "92ea5ad1ae01e16620f8a607cd6a2ee8a24f43378d5da2610314c6effc495ea2",
-      "png_sha256": "23d67f4e630105ed08d1e125232dc71f166a36c868030854159a829f9f623eb6",
-      "seconds": 0.471
+      "id": "xm.disclosurewidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-disclosurewidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-disclosurewidgetclass.png",
+      "xwd_sha256": "f60121ad5055bc25a2c3d32a48373c8248086e6cf30f061843b2ad48588c5c63",
+      "png_sha256": "5d22d2da8a042c9f06f3d19932d9716ad048f55710ba78e43ae9e9c09b24281c",
+      "seconds": 0.686
     },
     {
-      "id": "xm.progressbarwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-progressbarwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-progressbarwidgetclass.png",
-      "xwd_sha256": "5d2617aed5158cc6e79cb930c40224518fd0d7beffca8870599337ad5b69da9c",
-      "png_sha256": "03877d5f07c3031df107eaf7bea178afe96281842732a78ad2dce1d9af4265dc",
-      "seconds": 0.468
+      "id": "xm.fontselectorwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-fontselectorwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-fontselectorwidgetclass.png",
+      "xwd_sha256": "e50a8410ba4c51a8b71c10375ca9de9531b28454d7d6f0c3fa24f14cf4026ede",
+      "png_sha256": "f15422b73b46f066efade268e91a71dafbc713c9efaa8970ecc673ccefd474c3",
+      "seconds": 0.628
     },
     {
-      "id": "xm.progressringwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-progressringwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-progressringwidgetclass.png",
-      "xwd_sha256": "f28bbc50d244d83a136016fd3287d8a98b54555448d03980b8ee2c1758600ba5",
-      "png_sha256": "f6ef913932902cacfaadb0cebabd0ae9d56237ca59a181f6ae0107e2efe51f61",
-      "seconds": 0.463
+      "id": "xm.hierarchywidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-hierarchywidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-hierarchywidgetclass.png",
+      "xwd_sha256": "6356c6b32522376d89d2df179d4a4d72ce5bf89062c2330ca475102c1ba6bc80",
+      "png_sha256": "dd45f9ca0b2950e27f11554589a870ef6db26958fa7c93b414a54ddaacc7bee7",
+      "seconds": 0.73
     },
     {
-      "id": "xm.pushbuttongadgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-pushbuttongadgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-pushbuttongadgetclass.png",
-      "xwd_sha256": "702dbbef00938eb69d98c8734307089f108faa272bef6ae75aa14b991aaed19f",
-      "png_sha256": "4634e29db4348fedbcea599fdca7d89797ce07dcfe4f8749bfcf3e4a085e3f8c",
-      "seconds": 0.47
+      "id": "xm.ext18listwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-ext18listwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-ext18listwidgetclass.png",
+      "xwd_sha256": "e1608cd510fd2cb2d3dd136486b6a606e62141a94b510ec9aa4add6a2a420d76",
+      "png_sha256": "a2f1d0e1d14e9e93f3dae7f1095b7b888969f443d5dc7586ae342a36eaf4e65e",
+      "seconds": 0.694
     },
     {
-      "id": "xm.rowcolumnwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-rowcolumnwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-rowcolumnwidgetclass.png",
-      "xwd_sha256": "5db5b93f9b5118a12d8f29f7c077fca1ba8b8b4dd6c1de08f2fb0e1dfcd83828",
-      "png_sha256": "6ff8f0e031de93503a5f7bf4e789952f04d0c990565baa0ce6ed21a08a218c75",
-      "seconds": 0.529
+      "id": "xm.multilistwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-multilistwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-multilistwidgetclass.png",
+      "xwd_sha256": "07c60765bc1195f0c3ab4856a63423dfc8e6efd38a1a3ba3f101c1f0d39cdded",
+      "png_sha256": "fe36f8204064d884462684b5060461a18bf70b9ecc5239ae39de6f8a44667c88",
+      "seconds": 0.71
     },
     {
-      "id": "xm.simplespinboxwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-simplespinboxwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-simplespinboxwidgetclass.png",
-      "xwd_sha256": "1708a5841d9e39e34575794db63ce29ffc19034f5367d07af4c28173f7edf505",
-      "png_sha256": "e31d1d43a1a5300e8816bf96d200a08afc684dfde3f3069ed30910757990574b",
-      "seconds": 0.471
+      "id": "xm.iconboxwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-iconboxwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-iconboxwidgetclass.png",
+      "xwd_sha256": "70e94b13e8f167f857869b566c3d48f62d705bd325f29cd39daddd1dcac7bc5d",
+      "png_sha256": "96cd28f1ab44c5c8f3a1c5aa19d5033f7b5ec65dce914e625c972896d2bdf10d",
+      "seconds": 0.677
     },
     {
-      "id": "xm.scalewidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-scalewidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-scalewidgetclass.png",
-      "xwd_sha256": "07d6e2f36f97da0960bb92c54bb0664368071aa5baa6b8753637be30e23ba4a0",
-      "png_sha256": "a3dea397718ee4c331b48fe120cf48b7c45677480a558d2836c8f1d48298a3dd",
-      "seconds": 0.472
+      "id": "xm.outlinewidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-outlinewidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-outlinewidgetclass.png",
+      "xwd_sha256": "cc1c184682b68ec78a0b9a9250309d3f340f19fc866bed87839c4863868aec6a",
+      "png_sha256": "f0e78aff9700708db8fcdfbf01b75005a81fb80b270d6725859bd669cc328206",
+      "seconds": 0.638
     },
     {
-      "id": "xm.spinnerwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-spinnerwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-spinnerwidgetclass.png",
-      "xwd_sha256": "394979607a9a0dc163187f55fa31c771a56291bbd25a8db863c0efb0bfe21a76",
-      "png_sha256": "9a92f1e2948b01ac5ecf4a326cc2306880d66e7326ef6d4e15c5f8541fd0041d",
-      "seconds": 0.481
+      "id": "xm.treewidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-treewidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-treewidgetclass.png",
+      "xwd_sha256": "8b0591f2995680b679593baf0bdf63aaa6c7a64feda3e63af1432a7abf984b2d",
+      "png_sha256": "985c3aef9b334f3e02427cb7af9f21e118a90ae7cc286988bb6b186a130cc693",
+      "seconds": 0.582
     },
     {
-      "id": "xm.stepperwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-stepperwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-stepperwidgetclass.png",
-      "xwd_sha256": "6f2fd3a3fd36d33341c393f46c6ddf667fe9f21af034325cd0409c1678c16ddf",
-      "png_sha256": "1a9a132b1d4f9c5c57f74aaa067a38c4b5e1f8dbb8c75f8669edb1e611c6c1ee",
-      "seconds": 0.595
+      "id": "xm.arrowbuttonwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-arrowbuttonwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-arrowbuttonwidgetclass.png",
+      "xwd_sha256": "03e0ef41ab4348d04d9bf3eddded9f12a84b0824ce2ae1488f5b70812363b835",
+      "png_sha256": "9fe4558ca08189af3427c5eb0126cd8ae49204fe9d2f2f9f9f03ddec67c492f5",
+      "seconds": 0.509
     },
     {
-      "id": "xm.screenclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-screenclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-screenclass.png",
-      "xwd_sha256": "0398de50da8fe5eae285df5a9a8c1ea41a439d9f4f90ad528cf816b3a0330076",
-      "png_sha256": "d4989a433f588e914d697227815a69cd457089502ded56770d185a06781f3132",
+      "id": "xm.arrowbuttongadgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-arrowbuttongadgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-arrowbuttongadgetclass.png",
+      "xwd_sha256": "75afaeaa6f4e93c3454b38b688893d416478e0332ddcb255a51de4da795c280f",
+      "png_sha256": "5f0b411d4bb7bbfc808a2bcb4e064ef12f9307da98b963d15af77367ace8365c",
+      "seconds": 0.656
+    },
+    {
+      "id": "xm.bulletinboardwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-bulletinboardwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-bulletinboardwidgetclass.png",
+      "xwd_sha256": "5ea9d891d81bba0683e0a9026c570113b3a49f45343e8f50b6ba4e6fa6527837",
+      "png_sha256": "cf44cb3d0febb072bf7cd490fee3568cdbb9ae49325110a0a461e5612351f4b3",
+      "seconds": 0.679
+    },
+    {
+      "id": "xm.cascadebuttonwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-cascadebuttonwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-cascadebuttonwidgetclass.png",
+      "xwd_sha256": "2c31fd7311c2f7a7e210896264c466b473be1ab9b7b405f8c2485d02724f8fd1",
+      "png_sha256": "4b706f5ffec7a87dfc41a425979480989e952afe95b677997db5728682bd9b4b",
+      "seconds": 0.692
+    },
+    {
+      "id": "xm.cascadebuttongadgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-cascadebuttongadgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-cascadebuttongadgetclass.png",
+      "xwd_sha256": "f45c9a1fec947486d3a38035df755dfbc83bdaafe69ccf9c206cf506b99e43dd",
+      "png_sha256": "2826596187410faa33b6910196fefb02c78d03d2bfa9aa5b57b53a5bf52466d8",
+      "seconds": 0.688
+    },
+    {
+      "id": "xm.columnwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-columnwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-columnwidgetclass.png",
+      "xwd_sha256": "f55ff779cb8154ec802ea59a5cfd072dee7f5837103c845b50907c0768c0d4e8",
+      "png_sha256": "f2e27781e3fb592fbe727020c5be51c0d04d579c70d2ec54bf7e1edf960cfe1f",
+      "seconds": 0.616
+    },
+    {
+      "id": "xm.comboboxwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-comboboxwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-comboboxwidgetclass.png",
+      "xwd_sha256": "ad2dccb48b0cdd0b8f6615c79aa2e7e249c337d95172508d1453146f5473c34b",
+      "png_sha256": "3a3ddcaa35757db4fcdd5332cb07cd16f3607387de375c9f5a4b331a93e638c4",
+      "seconds": 0.684
+    },
+    {
+      "id": "xm.commandwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-commandwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-commandwidgetclass.png",
+      "xwd_sha256": "08c1579ae79bee2b20b915ca2f0eddbd6d80f5e47e6b4535e99c462a4fb6ab23",
+      "png_sha256": "28da4dae52bcd24e5db4862ec922a418666c50eb8cbf8fdd11c2d28a2054c126",
+      "seconds": 0.676
+    },
+    {
+      "id": "xm.containerwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-containerwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-containerwidgetclass.png",
+      "xwd_sha256": "7788ecba7b5aaeb23c960d1c7c7926260ec08b230cc0a443c1601643e497bb41",
+      "png_sha256": "dc05e594c47341d2ea93538ca92ffb7f2f1beb53bfea2c418d8cc3e83739fce8",
+      "seconds": 0.66
+    },
+    {
+      "id": "xm.datafieldwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-datafieldwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-datafieldwidgetclass.png",
+      "xwd_sha256": "c11a4cc519b49e5110b09bfd087b89ff256e279785fd970c6f4eb6be94654a8e",
+      "png_sha256": "4f86edafad941afde1642053f9fe100ea564ebe1b1a554716286b2c519e44ca7",
+      "seconds": 0.531
+    },
+    {
+      "id": "xm.dialogshellwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-dialogshellwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-dialogshellwidgetclass.png",
+      "xwd_sha256": "aafdf80b4c7b9424eb5450cf8de9ece640f6170e95006d8c45d3b70ae32dbf2b",
+      "png_sha256": "4ed42f5e759bd9723c73178c582e71d2d3b3e053657d408ac66bb3174a6a07ae",
+      "seconds": 0.584
+    },
+    {
+      "id": "xm.displayclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-displayclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-displayclass.png",
+      "xwd_sha256": "53d61f1dfa8abd1bfadcb8ea198f3df8643c0d9665bd6c99122136c5df0c0a99",
+      "png_sha256": "c10806a91b7a94b206c49b749945e7c1847e39daefedb29cc7a97ea276d95b43",
+      "seconds": 0.608
+    },
+    {
+      "id": "xm.dragcontextclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-dragcontextclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-dragcontextclass.png",
+      "xwd_sha256": "af8524eae254b4d56b0b8d9e08aae0433fee8e572551de9080b8debb550eb9da",
+      "png_sha256": "41d1870efdf7f611a466121e4d657beda13ca868968820d1992171b6857aae21",
+      "seconds": 0.623
+    },
+    {
+      "id": "xm.dragiconobjectclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-dragiconobjectclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-dragiconobjectclass.png",
+      "xwd_sha256": "fa53fbdf0346f2b5905465f1eb82b2f6156d8c7f356fd8817ef7d22bcbcf0714",
+      "png_sha256": "6d66954d276d456cc7be540acd97a977307269721474d6020dd3024dd5a6900d",
+      "seconds": 0.581
+    },
+    {
+      "id": "xm.dragovershellwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-dragovershellwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-dragovershellwidgetclass.png",
+      "xwd_sha256": "edf06682f3926c28a0aed78ee412105e0375be8f0fc83e4ab8ef15f7af60f280",
+      "png_sha256": "fc9165461291860a34a0b0e30d6f32cdf4ef86649a1257f513bc8e6a3dfcb235",
+      "seconds": 0.649
+    },
+    {
+      "id": "xm.drawingareawidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-drawingareawidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-drawingareawidgetclass.png",
+      "xwd_sha256": "8c6896c2e529ca381aa9d643aa2eba8e41646b666a4ffb154d2e03ec519aa32e",
+      "png_sha256": "5d0d4095dff8d3f418af2b8a64ddd65ed73f027f93d5d0acaa35848121c12d25",
+      "seconds": 0.634
+    },
+    {
+      "id": "xm.drawnbuttonwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-drawnbuttonwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-drawnbuttonwidgetclass.png",
+      "xwd_sha256": "97c634f8af353c64ab539160aee6fd62254dffd02ca51d750b9e922b101f1803",
+      "png_sha256": "83688f42c47f84daf1a5a1e3671248a86459411fc99aa0523e9a14d128d6892a",
+      "seconds": 0.696
+    },
+    {
+      "id": "xm.dropsitemanagerobjectclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-dropsitemanagerobjectclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-dropsitemanagerobjectclass.png",
+      "xwd_sha256": "10064823431e415282fb0abce2239e9ed5c9c615c65f6cae40cf50874112d89c",
+      "png_sha256": "76dff1afb3722b2b4387e9325546a793f0cadbb5d13088fe8244fa2c6bdc3eaa",
+      "seconds": 0.61
+    },
+    {
+      "id": "xm.droptransferobjectclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-droptransferobjectclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-droptransferobjectclass.png",
+      "xwd_sha256": "6fdaa5fc1379ebddebbe2658b33ad9a0c7816f108f29c4ef514befb1e6d4f024",
+      "png_sha256": "2b0f2bdff7471416e56e61dc14cf46a1d602e25219c298d68e0e07b1647ef3b2",
+      "seconds": 0.574
+    },
+    {
+      "id": "xm.fileselectionboxwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-fileselectionboxwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-fileselectionboxwidgetclass.png",
+      "xwd_sha256": "440b9d11a6061d72ec81499d21098f0a6d8291a8db846af9afe3df7cbff20ad3",
+      "png_sha256": "735c65d2fcd52a2a5b0ac749e3fc71a8949547da2490fbc3f7b3eb56b9ad4273",
       "seconds": 0.583
     },
     {
-      "id": "xm.scrollbarwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-scrollbarwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-scrollbarwidgetclass.png",
-      "xwd_sha256": "7e4457d263228957796ac4dabab1548377960801d039083059ebd683889d7b79",
-      "png_sha256": "3924f78fc7c355f195d217bd7ec2ef68fa540cba6e16a85974efa63e7b23e806",
-      "seconds": 0.484
+      "id": "xm.formwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-formwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-formwidgetclass.png",
+      "xwd_sha256": "d3f62d2a91bca049bb206979d9ca2b8eeeb8fe03a59765388c58f6dfeae67353",
+      "png_sha256": "2c77ef79ef1a9d730eb2fa645606b2d012cbd51d9ff87d342183b778a3727dcb",
+      "seconds": 0.553
     },
     {
-      "id": "xm.scrolledwindowwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-scrolledwindowwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-scrolledwindowwidgetclass.png",
-      "xwd_sha256": "c87e9bc39a7104f5b57ba8fb92115c548cd2a7d8315bd46af7fdf351662874c6",
-      "png_sha256": "e452da41a2a8310b9088fb70a75bea6bba46b7e1ec8a27ab6735795d30515af8",
-      "seconds": 0.48
+      "id": "xm.framewidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-framewidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-framewidgetclass.png",
+      "xwd_sha256": "76ae41d39e0653818f65fbfe5224945875d9b824c09386f894d8a546c58ee8e9",
+      "png_sha256": "84df56320ddd22155dc8eef306b39c12de96e55b12192d91488d4fac70f03629",
+      "seconds": 0.638
     },
     {
-      "id": "xm.selectionboxwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-selectionboxwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-selectionboxwidgetclass.png",
-      "xwd_sha256": "ebef3f349a1d1c8b4226a1f1bbe27aad71cf8a7f2903a0722739abaf43543f03",
-      "png_sha256": "6b07268eee822e7ea352864507fe3b45857bd3b423f90b23dd78baf3b4c2a0a6",
+      "id": "xm.gadgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-gadgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-gadgetclass.png",
+      "xwd_sha256": "0bd3303f6111fc19e3b70492baada1c2939694f14ade6269f7883b859ccdb180",
+      "png_sha256": "881ea7abcd091e6af20ad9280fe45a59aa7f7d3d6e0a2e0088c342dd9c586f4c",
+      "seconds": 0.655
+    },
+    {
+      "id": "xm.grabshellwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-grabshellwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-grabshellwidgetclass.png",
+      "xwd_sha256": "0687ea7eb86429ba2a179fef0e42d250fc98680fbea4d5bbc86fd47ec19d9b3f",
+      "png_sha256": "f680a280ff542704e09de0cd49769c43924180460b0dad003dfcb5e49319745c",
+      "seconds": 0.679
+    },
+    {
+      "id": "xm.icongadgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-icongadgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-icongadgetclass.png",
+      "xwd_sha256": "58e7ad4f7cfcf05ad8b362602ee896043637cb2a0a23cd53a10f236032b58f4a",
+      "png_sha256": "973508829506d1ad15f4e7b9462cab58167726eea6d54f0d0c68a3a369172507",
+      "seconds": 0.645
+    },
+    {
+      "id": "xm.iconheaderclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-iconheaderclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-iconheaderclass.png",
+      "xwd_sha256": "67ae1599b98be7eddd8cf02a990f8c682ac3be5519d38ca95bf22bfe23be4f33",
+      "png_sha256": "f2402f52afe340eba44d927e5a0d10cfa99897664c63877cf3d32a5dcf30c40c",
+      "seconds": 0.544
+    },
+    {
+      "id": "xm.iconbuttonwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-iconbuttonwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-iconbuttonwidgetclass.png",
+      "xwd_sha256": "fd6c8ba6e2aadf0c155d63355e7c5b10af73bcce621d6a5e8b017099d21a8537",
+      "png_sha256": "5b6ce142e35a95580705632c0f58fbe458026aae9c41c3eb7891dc52c306e6e6",
+      "seconds": 0.515
+    },
+    {
+      "id": "xm.labelwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-labelwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-labelwidgetclass.png",
+      "xwd_sha256": "200cdeae827ababee8b3fb5081dd6648f39a9cca63615c2e178eba70d7c380cd",
+      "png_sha256": "87c2e1d1d24f6e9bdfdfd4abc189a50324def89f1a834e9bd0e56b53e7d0ca9b",
+      "seconds": 0.597
+    },
+    {
+      "id": "xm.labelgadgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-labelgadgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-labelgadgetclass.png",
+      "xwd_sha256": "17af373ec580c053816cb932ae50a6c899fbea3572b4782240f72e9a7bfa3541",
+      "png_sha256": "6c695887a83f7ef6667b69baecbee6af75bb417d74a74c2b487756b99b104af7",
       "seconds": 0.497
     },
     {
-      "id": "xm.separatorgadgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-separatorgadgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-separatorgadgetclass.png",
-      "xwd_sha256": "e62ea43cc84d245a303749cf79b5aae7908b4fa2e3829b0fceae5d4ec3cb0367",
-      "png_sha256": "6926077abe8157ce8c26db81345b2364440ed15c21c02004c4706b157e75fdc7",
-      "seconds": 0.48
+      "id": "xm.listwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-listwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-listwidgetclass.png",
+      "xwd_sha256": "a93c7d57cd3ad19c025b566f1bebf0236112f14a56e4acd7d5a6c4f49f533872",
+      "png_sha256": "da29bdc7e5da418e5ddbc643da3489423de91743ffaa0962faf7e1c0c29f6d76",
+      "seconds": 0.546
     },
     {
-      "id": "xm.separatorwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-separatorwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-separatorwidgetclass.png",
-      "xwd_sha256": "e2bf1bfe6077cc5bd001125d5b1a50da548f5ed4d6326428ff3afafcd964fe24",
-      "png_sha256": "a7256954f793194504f951c4dfca15e7451cad01320b0ba50e215d49db6c23f8",
-      "seconds": 0.941
+      "id": "xm.mainwindowwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-mainwindowwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-mainwindowwidgetclass.png",
+      "xwd_sha256": "bc5b5617d5fd46a863aa345b1f15e46ae82c9da94d7e12342162008c2c9b4a77",
+      "png_sha256": "cee7827311c65d120acfb289f2b9661a985b0ea204bb999bfdccf715b8f6539b",
+      "seconds": 0.476
     },
     {
-      "id": "xm.spinboxwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-spinboxwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-spinboxwidgetclass.png",
-      "xwd_sha256": "669001076c1c888d9ac694403d1497d4c2bd41b715a70c39a9d7dd2fa3730255",
-      "png_sha256": "28c20aa42d2afed8e5b26712eafbb2dad579730c079aa84d971dc3dfb5a9e364",
-      "seconds": 0.518
+      "id": "xm.managerwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-managerwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-managerwidgetclass.png",
+      "xwd_sha256": "85d4fd7dfdf318249f9c96b46fe8a33f6fada197a8047157a12bf9778a00e5b1",
+      "png_sha256": "e2e194b0422d742410088caffc9c9753a3414238eaf2b75d9cf30630b8e2f542",
+      "seconds": 0.559
     },
     {
-      "id": "xm.tabboxwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-tabboxwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-tabboxwidgetclass.png",
-      "xwd_sha256": "b73789b7aa1d99cdb58740ed764db8564eec17a922711f4fd50329305460732c",
-      "png_sha256": "dded805448af4d6bd49ccbacc528ba8615d4e2b635d14f75058794419d965312",
-      "seconds": 0.467
+      "id": "xm.menushellwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-menushellwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-menushellwidgetclass.png",
+      "xwd_sha256": "adce7f939dfa2868c51b315f151130615a15a8649b276b809492fb9622e2409c",
+      "png_sha256": "436ed1934f5e8324fdf18faf8185795b78dc938a0f21ba2cf4ba027810e1fcfb",
+      "seconds": 0.497
     },
     {
-      "id": "xm.tabstackwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-tabstackwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-tabstackwidgetclass.png",
-      "xwd_sha256": "bd2f19dff7083fd39640526c40eda2a4c8ca947e83cec66cc1da396167fe0173",
-      "png_sha256": "c8840253b3bfdb792e0952d016e31b15574b61121227a4133d6c9a240b932a1f",
-      "seconds": 0.474
-    },
-    {
-      "id": "xm.textwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-textwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-textwidgetclass.png",
-      "xwd_sha256": "1ab4d0524c4b5ad0e27b69e3401eba59e94cbebd0fae42e6e811be619d9e0b54",
-      "png_sha256": "768f83ff6033d9de08ae6262b6f1aa9a8cce2a6fc9488e315bf53ad73b44012a",
-      "seconds": 0.503
-    },
-    {
-      "id": "xm.textfieldwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-textfieldwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-textfieldwidgetclass.png",
-      "xwd_sha256": "b72e4b93c9d1d1aeb31d4fe4d7b1e957fd4691e4ad5c516fb96acf8904fdcf58",
-      "png_sha256": "7d1d7f0d16befa0df79b07847e8735cecd4664ee3cabb72b4940063fd2961b73",
-      "seconds": 0.494
-    },
-    {
-      "id": "xm.togglebuttonwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-togglebuttonwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-togglebuttonwidgetclass.png",
-      "xwd_sha256": "d2fa1320874d2b6a5a6d03f628019df3ff2c91815ee3f86b2e0d7e7f318d95bd",
-      "png_sha256": "ec9cad6e22b327bfe63629964d11c6638deba8699af286af050483bf1626a40e",
+      "id": "xm.messageboxwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-messageboxwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-messageboxwidgetclass.png",
+      "xwd_sha256": "c37416044d2956229cb5598df87ecb4b93469966e2733c67f55f92a8a914deca",
+      "png_sha256": "890d1f007a456c78c459f05122dd3dd79bee33c2cd47e482716492745a8c1472",
       "seconds": 0.541
     },
     {
-      "id": "xm.toggleswitchwidgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-toggleswitchwidgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-toggleswitchwidgetclass.png",
-      "xwd_sha256": "2012e6f1e60502ee8fd26e321f995717618fd9a7e69f2fe00e7442d317a0d7a1",
-      "png_sha256": "b165cf70e9fe9c846d68a4bebc6a740ab65e12020497f3f394d851b5630374ec",
+      "id": "xm.colorpickerwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-colorpickerwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-colorpickerwidgetclass.png",
+      "xwd_sha256": "58b5778711f14a7e323f911b6fe72f5f250af9c478df2d54f1d1c71370db2146",
+      "png_sha256": "7da969acea91070c834e16f4fbf4b3fa36ffd2ac12e5795a406705175823dfa5",
+      "seconds": 0.498
+    },
+    {
+      "id": "xm.flyoutwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-flyoutwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-flyoutwidgetclass.png",
+      "xwd_sha256": "07aff2028fe51a12dfd20320b77df6c21aa5bd774591d8ae9e0e5fb6631ce161",
+      "png_sha256": "562a1ab9a6ace824dd5bda74c69ecdb1874734b9ef75a987895c8aa053e4e9c5",
+      "seconds": 0.471
+    },
+    {
+      "id": "xm.teachingtipwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-teachingtipwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-teachingtipwidgetclass.png",
+      "xwd_sha256": "30dc49217719471c2ee051658d82c4a43d58a11e239d142e3387231f2453c96a",
+      "png_sha256": "2580b36f67b07fd54c20ca960c548f8a1c74b6d9d754c9cf86323d5feb572b17",
+      "seconds": 0.469
+    },
+    {
+      "id": "xm.infobarwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-infobarwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-infobarwidgetclass.png",
+      "xwd_sha256": "ffbf69d66eec2b748881906fbc8667a0a70dfdefaf7ecf7c4ad4ca3336e64276",
+      "png_sha256": "bd4e3a5549fab30e2ced071f4325c04d206a607d5998d21e507b729f53e1cc9f",
+      "seconds": 0.487
+    },
+    {
+      "id": "xm.breadcrumbbarwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-breadcrumbbarwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-breadcrumbbarwidgetclass.png",
+      "xwd_sha256": "97d2cf72521d82163194706ec74b69e28729adf595f247e0e5d3a1a11fa7d591",
+      "png_sha256": "66cfc8162cf1c840ced83b2e923a2091b8a90ae7f945fd338e645900dea3c767",
+      "seconds": 0.479
+    },
+    {
+      "id": "xm.treeviewwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-treeviewwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-treeviewwidgetclass.png",
+      "xwd_sha256": "a382b1ac930467859d8d200a3a0d375db86f82e74b74f4499cf83448ce3dc2ec",
+      "png_sha256": "a79a35e1c603563c330f2b774c4e520491807c96b635fa8d5f7f41cc38df04e4",
+      "seconds": 0.496
+    },
+    {
+      "id": "xm.calendarwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-calendarwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-calendarwidgetclass.png",
+      "xwd_sha256": "af5d095f266818750cd89417fbf0b4f0c2ef88b869a9b7a089c38305d7996907",
+      "png_sha256": "f7ed0e6bdb44370edd58a5ed4e47fc51aeb13bd496d773ca9fc7bc4c544ebcaa",
+      "seconds": 0.477
+    },
+    {
+      "id": "xm.datepickerwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-datepickerwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-datepickerwidgetclass.png",
+      "xwd_sha256": "e550fcf62683fb5763e21936443dbe3401f82c46778c1d1b2e8950d69d1f7a86",
+      "png_sha256": "2867c931ef5e819305f74b8823e7857d281623456c4a3de343ea5ee532b723d3",
+      "seconds": 0.494
+    },
+    {
+      "id": "xm.timepickerwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-timepickerwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-timepickerwidgetclass.png",
+      "xwd_sha256": "42408de17ac3fa1309085c317bb0b9bcd4cd0bb8bbadb540eeb4e163a7c36c44",
+      "png_sha256": "760ac96d2e8cfd7e43351d498373da5e89c312ea99c4c367f4a267867e5cda31",
+      "seconds": 0.54
+    },
+    {
+      "id": "xm.datagridwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-datagridwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-datagridwidgetclass.png",
+      "xwd_sha256": "b01cd6d3caff912b44bc99c6a654a157c7fc0ae8bdf4b257b7e139f85faf84d1",
+      "png_sha256": "74d9f037cb4485cee2f312342a882a37cc29aab7e73b9e5b422ef9da40a0b675",
+      "seconds": 0.511
+    },
+    {
+      "id": "xm.segmentedcontrolwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-segmentedcontrolwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-segmentedcontrolwidgetclass.png",
+      "xwd_sha256": "d30043751ef649d0d289f360720f60e2c2c436b8153cd073ea2e4837994b21a6",
+      "png_sha256": "31a3c477ec2e31dbadcfc0e5cbe4db9520ee9702e9ab7399489bd59b88a4d6da",
+      "seconds": 0.548
+    },
+    {
+      "id": "xm.chipwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-chipwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-chipwidgetclass.png",
+      "xwd_sha256": "e53bd2a87cc2ca945b11a1ab6d741580f5565a1bff225b93606320759ccec530",
+      "png_sha256": "aa1a140fa529dd819b085dff9b1f3a41b5e3c1c625fdc893457d6ddb28d51b25",
+      "seconds": 0.578
+    },
+    {
+      "id": "xm.badgewidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-badgewidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-badgewidgetclass.png",
+      "xwd_sha256": "14c976feddc29afaad70fc020f855fe9418bcf477b98720ae0be222927824e2c",
+      "png_sha256": "cd953f1afac97aeb28f75c7cc51abde8b8b68378c448bdb2e1a57ae487013f83",
+      "seconds": 0.499
+    },
+    {
+      "id": "xm.iconlabelwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-iconlabelwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-iconlabelwidgetclass.png",
+      "xwd_sha256": "4be9afd45c2456992dee643dbdfb9af927f7654182cb8444a26230bb754eb610",
+      "png_sha256": "fc07863f0df55cc0cd3aa1c7ae5e4f8860724a19629473838ca821ded37c9368",
+      "seconds": 0.567
+    },
+    {
+      "id": "xm.dividerwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-dividerwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-dividerwidgetclass.png",
+      "xwd_sha256": "86f49c24efb52d121cd3b754844d437ee041cfb15b498d192b018ebfb0d2288d",
+      "png_sha256": "472410f4b7460fda1682c510ea345a519f3279700d55945e4554077ca0aeb2e1",
       "seconds": 0.484
     },
     {
-      "id": "xm.togglebuttongadgetclass",
-      "xwd": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-togglebuttongadgetclass.xwd",
-      "png": "/home/klukas/tmp/motif-build-shared-20261027-0400/gallery-current-final-20261027/xm-togglebuttongadgetclass.png",
-      "xwd_sha256": "851b18358ab0001913dcbe7aaa436723ea966afbae113a50d6e88dd872b6f807",
-      "png_sha256": "1cdca8fbb45d768fd8483d0af7b9e7354ecdb2ee5bf12c8a80faac20a4592783",
+      "id": "xm.avatarwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-avatarwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-avatarwidgetclass.png",
+      "xwd_sha256": "eea952be76f5818b96ec2b3cccedf3dd6cdad14afe5e4fbac1c8e43a8108b870",
+      "png_sha256": "31985959e93331ecd0e7d2417b586575e1d3ffd77305df646b28cffd5fec4cc2",
+      "seconds": 0.503
+    },
+    {
+      "id": "xm.linkwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-linkwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-linkwidgetclass.png",
+      "xwd_sha256": "9e5fce7d8b57d8333cbe7c0bf42d33552ef046bbb31557695525f21d3400c8d7",
+      "png_sha256": "aed6d78da98a4317097c531353b2493c3099a68fa4fbdcd83d2657e062a52279",
+      "seconds": 0.485
+    },
+    {
+      "id": "xm.searchboxwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-searchboxwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-searchboxwidgetclass.png",
+      "xwd_sha256": "94eea1de26b5f91fb0d44d37fafa62cc4484fcc9c61d44005b2a78be57ea0958",
+      "png_sha256": "c5e3d9cc0bd25dc6135be2c1f9bf649acc6db8b17451d01934c075d87425fbf3",
+      "seconds": 0.575
+    },
+    {
+      "id": "xm.promptwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-promptwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-promptwidgetclass.png",
+      "xwd_sha256": "b64beb126616a8ec9a1bec4be07f7967dba32bc3838fd77e820de481990b1479",
+      "png_sha256": "77a6c711e622a338266c01498efd53340928241031f3077518d10bac9851a402",
+      "seconds": 0.488
+    },
+    {
+      "id": "xm.formsectionwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-formsectionwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-formsectionwidgetclass.png",
+      "xwd_sha256": "4971e1bc03d82d74eaf6534e233c34c308a9f382b59b2a5d94780b09894a5524",
+      "png_sha256": "89b6a4e49d47f88279a62acc0439a506df658993531fd1127855fa8849a29ce7",
+      "seconds": 0.595
+    },
+    {
+      "id": "xm.emptystatewidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-emptystatewidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-emptystatewidgetclass.png",
+      "xwd_sha256": "d9914f4f217aa26caa5f05fc8a964b14ee1e4b62995369ae5d64a0c2891cf8da",
+      "png_sha256": "58039ffae6e0cd4e73d2b39fcb30c067c21434760d4ad62aa04b827b22c4b39c",
       "seconds": 0.475
+    },
+    {
+      "id": "xm.toastwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-toastwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-toastwidgetclass.png",
+      "xwd_sha256": "eec145ac03b15a467b67a57fa83db3379fb1f2cd0f67e10f92c7a8f03e60633a",
+      "png_sha256": "2739ce15b7077c75b5fa5ae008f290686b814b3483486df1140bef968e2ba82b",
+      "seconds": 0.552
+    },
+    {
+      "id": "xm.commandpalettewidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-commandpalettewidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-commandpalettewidgetclass.png",
+      "xwd_sha256": "fb070866c506ca2ea25865d55e2f78f18e363b72be48ba5e607eee7e23d3894a",
+      "png_sha256": "5eb4d69e5bde4439dcab69f76fbd961e2ea8c0426b2d030fb8369f45ce893248",
+      "seconds": 0.489
+    },
+    {
+      "id": "xm.skeletonwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-skeletonwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-skeletonwidgetclass.png",
+      "xwd_sha256": "5c4fefc47f5e1aa5e94f88e46baafd386ab125a8e46c83dc35ebfc4ada27c10a",
+      "png_sha256": "15b9850bf05b3860f1b25666498b6a037725194baf74bd8aff99c0bf57f9db2f",
+      "seconds": 0.485
+    },
+    {
+      "id": "xm.rowactionswidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-rowactionswidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-rowactionswidgetclass.png",
+      "xwd_sha256": "6d89727b9f71f4c23fb317737ecdc61cf3337e3cec4da0f47acb6473b0da4898",
+      "png_sha256": "62bd35de6fbd72c5501aeb25a790d9e4f061fd5d638b0e522990a29f56fac942",
+      "seconds": 0.555
+    },
+    {
+      "id": "xm.drophighlightwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-drophighlightwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-drophighlightwidgetclass.png",
+      "xwd_sha256": "473beb0ecb64fd048a9f1812f52585c662553a74e2ea72b96a2081689bf91812",
+      "png_sha256": "39c986dcb8c76bc90894ee64efb3ad6f29beed3f041bf38dd8b43ff4056ab23b",
+      "seconds": 0.503
+    },
+    {
+      "id": "xm.statusbarwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-statusbarwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-statusbarwidgetclass.png",
+      "xwd_sha256": "ededd2f50df9de0fca40afa7df0218a2b47b3582d844720fad791fa32d0e01e9",
+      "png_sha256": "32ef3e0566f1378dc73be8ebeaef1fe8602e51ec955b321501372e3acf30414a",
+      "seconds": 0.48
+    },
+    {
+      "id": "xm.toolbarwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-toolbarwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-toolbarwidgetclass.png",
+      "xwd_sha256": "daf7d8c52fd47aa6f1da65d14983bb5f3005130e420880f8e93ac4f6d6839345",
+      "png_sha256": "d5debc4c15f67772f9608367cde0fc96a514ad369eef55ba4c290e0331e1210f",
+      "seconds": 0.542
+    },
+    {
+      "id": "xm.sidebarwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-sidebarwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-sidebarwidgetclass.png",
+      "xwd_sha256": "f69781c73ccbc5371448208aa58fd20569b05728a3e0b87a4ae6ed198935c2ce",
+      "png_sha256": "bb320bb36229f493d3fcb9fad5fc79d8648403f6ae94412584a71073c6500c75",
+      "seconds": 0.525
+    },
+    {
+      "id": "xm.autosuggestboxwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-autosuggestboxwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-autosuggestboxwidgetclass.png",
+      "xwd_sha256": "2ebced2fb12d09b748adc88d6a783232aeb419be63fd0a4c4fb46f63e46dba87",
+      "png_sha256": "e47f8457544720eb8ec856ab234ad6b2ded11f35ebacf58a4b7bfc6720b4cd9a",
+      "seconds": 0.511
+    },
+    {
+      "id": "xm.numberboxwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-numberboxwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-numberboxwidgetclass.png",
+      "xwd_sha256": "098e34006c8efa391ef78254f7d0cddb83024fba0c186415946c92c784e76056",
+      "png_sha256": "2845e80113d01466650647964c0f621cc14878887b84a401aa77e90c026df784",
+      "seconds": 0.481
+    },
+    {
+      "id": "xm.ratingcontrolwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-ratingcontrolwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-ratingcontrolwidgetclass.png",
+      "xwd_sha256": "2461ba3ecef6e01b445b8f3c0182265aac9834698b2ae3ab120d663fca961583",
+      "png_sha256": "3e656474e08ab03dca09ad3d508ef9fbc948b87a85d2bf55e63202652aa517b8",
+      "seconds": 0.544
+    },
+    {
+      "id": "xm.notebookwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-notebookwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-notebookwidgetclass.png",
+      "xwd_sha256": "c02d66c5c27a74b3d0286b435a95696c61dbf643ebbfda35b01e28e89a12a367",
+      "png_sha256": "c55eee7998d1118036a45f096dbb02eb9753fd5b52df1de4d38f40409042e178",
+      "seconds": 0.474
+    },
+    {
+      "id": "xm.panedwindowwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-panedwindowwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-panedwindowwidgetclass.png",
+      "xwd_sha256": "8f8da4713d1750e8941c41e2df7545ee71b2ef532aa560c8b506160ccbb5ebc1",
+      "png_sha256": "b0320f307dcf031d0224bc76a128db376ac6b853ba68e1d244a7685670146cad",
+      "seconds": 0.56
+    },
+    {
+      "id": "xm.panedwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-panedwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-panedwidgetclass.png",
+      "xwd_sha256": "f3bdacbe066a47666811e050bd0a3edf00576f71e84decc3596ff793f51c59a1",
+      "png_sha256": "439cbae555fddb5cc30e75c87fd3f50a0cbc1b6e8903008c694e1d997f288c1d",
+      "seconds": 0.497
+    },
+    {
+      "id": "xm.primitivewidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-primitivewidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-primitivewidgetclass.png",
+      "xwd_sha256": "90bc5bf4ea19cf6b9ccfd3b0669e1bf7fada4850948ecdea21da503a807fa9f6",
+      "png_sha256": "17be8eedba54e5f8e8898acd073e0a27b2b1856da3327d4cc8ee4326fb151b52",
+      "seconds": 0.492
+    },
+    {
+      "id": "xm.printshellwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-printshellwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-printshellwidgetclass.png",
+      "xwd_sha256": "1059f2f2e870ff6946014f0f9dd510f1dc2cf84ab18bcfa995e2588f93031e41",
+      "png_sha256": "7d9140c5af70c4b8852c7f891a4ab9cdc928f6f15e1822688eeec6fe60d72df5",
+      "seconds": 0.567
+    },
+    {
+      "id": "xm.pushbuttonwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-pushbuttonwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-pushbuttonwidgetclass.png",
+      "xwd_sha256": "5819815c595b448f62768933474b4b08102802cfc299abaffe746c003d2558f9",
+      "png_sha256": "55da3704611d94c8984685da022a15522d70f2186cb45c54ab67bbc74bb8fa98",
+      "seconds": 0.499
+    },
+    {
+      "id": "xm.progressbarwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-progressbarwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-progressbarwidgetclass.png",
+      "xwd_sha256": "78377142b5c68f9d3dad16782e2c50ce15baf8d11056e40fa49d0dce5841e052",
+      "png_sha256": "63343def607d5d2f9dabf6e6428c8752dfc09f41e9b816923ce364a743e39dc9",
+      "seconds": 0.541
+    },
+    {
+      "id": "xm.progressringwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-progressringwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-progressringwidgetclass.png",
+      "xwd_sha256": "37490a79d9bec69badfca37b8ccc0cc704f8b57ea525860fea1fb08e541f680f",
+      "png_sha256": "95f13a119846a65c417907fc3ede19d13ed19498c78f0cd45a099ffcdb461cd5",
+      "seconds": 0.507
+    },
+    {
+      "id": "xm.pushbuttongadgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-pushbuttongadgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-pushbuttongadgetclass.png",
+      "xwd_sha256": "57b35803e64f1e64d3ce516ced027161bbc2dad39edb7aa2cc5808b4b8dfb3b6",
+      "png_sha256": "9ce086b5de816b29531070d29f4423cf7c02a9fbd9374c26458b892376670bb4",
+      "seconds": 0.5
+    },
+    {
+      "id": "xm.rowcolumnwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-rowcolumnwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-rowcolumnwidgetclass.png",
+      "xwd_sha256": "ea57f748620f09c59de6412e466beace1754c1b33cfaf83d8ab5d9b72050a7ba",
+      "png_sha256": "4bb7478c3a4648a8c72b0078bff372460018764ed20604b5943d0775ea4d6d45",
+      "seconds": 0.49
+    },
+    {
+      "id": "xm.simplespinboxwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-simplespinboxwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-simplespinboxwidgetclass.png",
+      "xwd_sha256": "d1c1677b78ceeeff4479d38ff40e5a960ab3c8688146cda8c45c3ddc81504bbd",
+      "png_sha256": "8abbd0e7dedb8089b09cd5ab5112f8ed3fed857c3bbaf574c5d572a40d3f48a5",
+      "seconds": 0.499
+    },
+    {
+      "id": "xm.scalewidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-scalewidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-scalewidgetclass.png",
+      "xwd_sha256": "af789dbe48ba7f309f227ee39924404de794374e049e35f4883dfff82b0d29b8",
+      "png_sha256": "230e36adfe46c739a49873108182ca49b5bfec73564d387b1af704f505e8be64",
+      "seconds": 0.496
+    },
+    {
+      "id": "xm.spinnerwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-spinnerwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-spinnerwidgetclass.png",
+      "xwd_sha256": "7c33bdbb3673038a8487b79a4172f963f6f47547e85fc9c7888235cc500ddf07",
+      "png_sha256": "0d0bdaa4345e4124af26fea7fa7c7e03c77da22031cf2dd65593d3af7fe547c2",
+      "seconds": 0.579
+    },
+    {
+      "id": "xm.stepperwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-stepperwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-stepperwidgetclass.png",
+      "xwd_sha256": "bbf6241d52426275aba1ee25e44e2049740972385720dab4a88732f16ca7e82f",
+      "png_sha256": "170e9c3ed1d78a3e781b6098072c27e3466cb3ffc60eb1b8460d940757cc6986",
+      "seconds": 0.571
+    },
+    {
+      "id": "xm.screenclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-screenclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-screenclass.png",
+      "xwd_sha256": "bd321ceba7bc970c2c7e4a016f5454ebb4401514393f774abf34538c9ea674cd",
+      "png_sha256": "2999745a691de7a2193df9c1c8886595631e7d85ad9210208c7a8e7ab80636f7",
+      "seconds": 0.515
+    },
+    {
+      "id": "xm.scrollbarwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-scrollbarwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-scrollbarwidgetclass.png",
+      "xwd_sha256": "7f4d2b3736a963fea97694f3e72248532233c6c2f8e42c9733c07790307d610a",
+      "png_sha256": "510e630f8dbcb93f0b07073f6934dafe6f9c1ef321b87f50c6837d7f250d422d",
+      "seconds": 0.586
+    },
+    {
+      "id": "xm.scrolledwindowwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-scrolledwindowwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-scrolledwindowwidgetclass.png",
+      "xwd_sha256": "1d6788ea486e5c79dcc492452d177ba4068d095f6cc587f21790a3500cf84764",
+      "png_sha256": "6840088421c32f584e96d904908df8a731aee4a67add1582aa32f499b6a9da55",
+      "seconds": 0.507
+    },
+    {
+      "id": "xm.selectionboxwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-selectionboxwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-selectionboxwidgetclass.png",
+      "xwd_sha256": "d499978e61c56f1fa951594c4fbb32df5097e2e6343438de20130c580402c1d5",
+      "png_sha256": "605632cf0491c2dc793bf6559750180de29a21c6d7e37bcd0dc148abdc5f2c9d",
+      "seconds": 0.567
+    },
+    {
+      "id": "xm.separatorgadgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-separatorgadgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-separatorgadgetclass.png",
+      "xwd_sha256": "4766c31a5c63aac33f2d546a5d4c018fd1b0a400d3be1bd3968992fa323e6b73",
+      "png_sha256": "f1bfe4c38800f73213ea38fc7f518f571e2886d8385295958cf3eceaa78cb3b9",
+      "seconds": 0.557
+    },
+    {
+      "id": "xm.separatorwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-separatorwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-separatorwidgetclass.png",
+      "xwd_sha256": "8ccdd40b61ee9dbac3e32ab11b294462f146e286f72fbfaaf142f470208132d9",
+      "png_sha256": "18757ffe056d68a4dfde43843e8a9ce1200811df97434cd1b7477b8337db9d4f",
+      "seconds": 0.5
+    },
+    {
+      "id": "xm.spinboxwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-spinboxwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-spinboxwidgetclass.png",
+      "xwd_sha256": "575c151c9055fdc1b10d2a9192f6bf974c889260bbc4727936f47c630e78a14a",
+      "png_sha256": "8236f5042d07510fc4770dccdb79d0d1c29aaf1ea7bdbf7c3daa3197a9646f8e",
+      "seconds": 0.516
+    },
+    {
+      "id": "xm.tabboxwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-tabboxwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-tabboxwidgetclass.png",
+      "xwd_sha256": "17f6428403829426d77bb3bce27cbcd3abbf40d51c403112a6290ed0479db024",
+      "png_sha256": "9b601e03f5bfd531a071e29ba7536f2755dd7828e6e648e59639ae0b3cc7a03d",
+      "seconds": 0.524
+    },
+    {
+      "id": "xm.tabstackwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-tabstackwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-tabstackwidgetclass.png",
+      "xwd_sha256": "128ceff73964fa2a0acf882f2d208574d5f032810209e88ff9f4162e858f8d1d",
+      "png_sha256": "e7f94e78dbedee2d1522cab4649c56137ec8c49c01f1a0ced22a0c2d170b47d9",
+      "seconds": 0.549
+    },
+    {
+      "id": "xm.textwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-textwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-textwidgetclass.png",
+      "xwd_sha256": "e818e43281c638c665bc5395307b6cbd4e5d3f0fe52f297391d725e985ef8041",
+      "png_sha256": "41d5ae7c5c72d12f1c5438fb346fc8fffc45241dacfde5c47edbb4ff336fb58d",
+      "seconds": 0.485
+    },
+    {
+      "id": "xm.textfieldwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-textfieldwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-textfieldwidgetclass.png",
+      "xwd_sha256": "3400cbd1a92e3742e307363a22fd2a89f70a380d112277fabc5a04be493daa19",
+      "png_sha256": "35ce16ccdad2ba62ae8227501b159b2004e628863d40f1431f74065921a54c7e",
+      "seconds": 0.568
+    },
+    {
+      "id": "xm.togglebuttonwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-togglebuttonwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-togglebuttonwidgetclass.png",
+      "xwd_sha256": "fda7eb0f6874640446dddfce3b59c742500fc92e33bd3b8092d90782a852add6",
+      "png_sha256": "60981d2267e9abaafd05e471c6f7f551af231c968b82f3c0f5e5a40d46657093",
+      "seconds": 0.493
+    },
+    {
+      "id": "xm.toggleswitchwidgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-toggleswitchwidgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-toggleswitchwidgetclass.png",
+      "xwd_sha256": "6c7049a8cc1cf31eb60093990de8127ad974b9a5897eb35eca79c45f98f8fd42",
+      "png_sha256": "21ac95cc8aa42928f6c01a40199a1646899ca4b5e930cba3c9ff7baa16fbc20a",
+      "seconds": 0.517
+    },
+    {
+      "id": "xm.togglebuttongadgetclass",
+      "xwd": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-togglebuttongadgetclass.xwd",
+      "png": "/home/klukas/tmp/gallery-screenshots-20261026d/xm-togglebuttongadgetclass.png",
+      "xwd_sha256": "cdc884a8821f062ab8965bdefd77dc4e5e247bdd9f7f9a2ef67d389d5cf0a960",
+      "png_sha256": "bd1317d2a32d5fb1362cd121f0ce4803335425a9edc4235a9d9fde03ea723c93",
+      "seconds": 0.55
     }
   ],
   "success": true,
   "result": "pass",
   "reason": null,
   "current_entry": null,
-  "ended_utc": "2026-10-25T22:34:04.337241+00:00",
-  "seconds": 54.28
+  "ended_utc": "2026-10-25T23:14:16.199580+00:00",
+  "seconds": 59.381
 }
