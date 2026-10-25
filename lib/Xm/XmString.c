@@ -5501,8 +5501,17 @@ _XmStringNonOptCreate(
 	  
 	  if (rend_cnt > 1) needs_unopt = True;
 	  
-	  _XmUnoptSegRendBegins(&seg) = (XmStringTag *)
-	    XtRealloc((char *)_XmUnoptSegRendBegins(&seg), rend_cnt);
+	  if ((size_t)rend_cnt > SIZE_MAX / sizeof(XmStringTag) ||
+	      (size_t)rend_cnt * sizeof(XmStringTag) > (size_t)((Cardinal)~0))
+	    return NULL;
+	  {
+	    XmStringTag *new_tags = (XmStringTag *)XtRealloc(
+		(char *)_XmUnoptSegRendBegins(&seg),
+		(Cardinal)((size_t)rend_cnt * sizeof(XmStringTag)));
+	    if (!new_tags)
+	      return NULL;
+	    _XmUnoptSegRendBegins(&seg) = new_tags;
+	  }
 	  
 	  _XmUnoptSegRendBegins(&seg)[rend_cnt - 1] =
 	    _XmStringCacheTag((char *)(c + _asn1_size(length)),
@@ -5607,8 +5616,17 @@ _XmStringNonOptCreate(
 	  
 	  if (rend_cnt > 1) needs_unopt = True;
 	  
-	  _XmUnoptSegRendEnds(&seg) = (XmStringTag *)
-	    XtRealloc((char *)_XmUnoptSegRendEnds(&seg), rend_cnt);
+	  if ((size_t)rend_cnt > SIZE_MAX / sizeof(XmStringTag) ||
+	      (size_t)rend_cnt * sizeof(XmStringTag) > (size_t)((Cardinal)~0))
+	    return NULL;
+	  {
+	    XmStringTag *new_tags = (XmStringTag *)XtRealloc(
+		(char *)_XmUnoptSegRendEnds(&seg),
+		(Cardinal)((size_t)rend_cnt * sizeof(XmStringTag)));
+	    if (!new_tags)
+	      return NULL;
+	    _XmUnoptSegRendEnds(&seg) = new_tags;
+	  }
 	  
 	  _XmUnoptSegRendEnds(&seg)[rend_cnt - 1] =
 	    _XmStringCacheTag((char *)(c + _asn1_size(length)),

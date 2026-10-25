@@ -6132,3 +6132,10 @@ Validate XmString single-segment copies (2026-10-25)
   single-segment result; see
   `docs/xmstring-single-segment-allocation.md` and its focused source check.
 
+Fix XmString parser rendition sizing (2026-10-25)
+==================================================
+
+- Allocate parser rendition arrays in checked byte sizes and publish them only
+  after success, preventing normal 64-bit under-allocation; see
+  `docs/xmstring-parser-rendition-size.md` and its focused source check.
+
