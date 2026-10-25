@@ -7859,3 +7859,10 @@ ProgressBar preferred-size bounds (2026-10-27)
 - Saturate ProgressBar preferred width and height arithmetic at `Dimension`'s
   maximum, preventing wrapped geometry for large spacing or font metrics; see
   `docs/progressbar-size-bounds.md`.
+
+ButtonBox size bounds (2026-10-27)
+==================================
+
+- Saturate child totals, preferred sizes, and layout requests at `Dimension`'s
+  maximum, preventing wrapped geometry for large child sets; see
+  `docs/buttonbox-size-bounds.md`.

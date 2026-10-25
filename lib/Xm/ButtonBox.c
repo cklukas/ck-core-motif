@@ -32,6 +32,7 @@
 #include <Xm/TraitP.h>
 #include <Xm/TakesDefT.h>
 #include <Xm/VaSimpleP.h>
+#include <stdint.h>
 #include "XmI.h"
 
 /************************************************************
@@ -39,6 +40,12 @@
  ************************************************************/
 
 #define SUPERCLASS ((ConstraintWidgetClass) &xmManagerClassRec)
+
+static Dimension bounded_dimension(size_t value)
+{
+    const size_t maximum = (size_t)(Dimension)~(Dimension)0;
+    return (Dimension)(value > maximum ? maximum : value);
+}
 
 /************************************************************
  *       MACROS
@@ -392,13 +399,17 @@ QueryGeometry(Widget w, XtWidgetGeometry *request,
 				 &max_minor, &child_major_total);
 
     if (IsHorizontal(bbox)) {
-	preferred->width = child_major_total + (2 * MarginW(bbox));
-	preferred->height = max_minor + (2 * MarginH(bbox));
+        preferred->width = bounded_dimension((size_t)child_major_total +
+                                             2 * (size_t)MarginW(bbox));
+        preferred->height = bounded_dimension((size_t)max_minor +
+                                              2 * (size_t)MarginH(bbox));
     }
     else
     {
-	preferred->width = max_minor + (2 * MarginW(bbox));
-	preferred->height = child_major_total + (2 * MarginH(bbox));
+        preferred->width = bounded_dimension((size_t)max_minor +
+                                             2 * (size_t)MarginW(bbox));
+        preferred->height = bounded_dimension((size_t)child_major_total +
+                                              2 * (size_t)MarginH(bbox));
     }
     
     return(_XmHWQuery(w, request, preferred));
@@ -754,13 +765,17 @@ TryNewLayout(Widget parent, Mask *mask,
 
     if (IsHorizontal(bbox)) 
     {
-	new_width = child_major_total + 2 * MarginW(bbox);
-	new_height = max_minor + 2 * MarginH(bbox);
+	new_width = bounded_dimension((size_t)child_major_total +
+	                              2 * (size_t)MarginW(bbox));
+	new_height = bounded_dimension((size_t)max_minor +
+	                               2 * (size_t)MarginH(bbox));
     }
     else
     {
-	new_width = max_minor + 2 * MarginW(bbox);
-	new_height = child_major_total + 2 * MarginH(bbox);
+	new_width = bounded_dimension((size_t)max_minor +
+	                              2 * (size_t)MarginW(bbox));
+	new_height = bounded_dimension((size_t)child_major_total +
+	                               2 * (size_t)MarginH(bbox));
     }
     
     /*
@@ -1005,11 +1020,12 @@ CalcChildrenPrefSizes(XmButtonBoxWidget bbox, Dimension *max_major,
 	ASSIGN_MAX(*max_minor, *minor_dim + (2 * geo.border_width));
 	
 	if (!is_equal) 
-	    *total += (*maj_dim + (2 * geo.border_width));
+            *total = bounded_dimension((size_t)*total + *maj_dim +
+					      2 * (size_t)geo.border_width);
     }
     
     if ( is_equal )
-        *total = num_managed * (*max_major);
+        *total = bounded_dimension((size_t)num_managed * *max_major);
     
     return(num_managed);
 }
