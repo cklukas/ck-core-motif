@@ -1,3 +1,10 @@
+Xm pixmap-set initialization (2026-10-25)
+===============================================
+
+- Serialize lazy pixmap-cache table initialization under the process lock and
+  reuse already-published tables during concurrent first use; see
+  `docs/xm-pixmap-set-initialization.md`.
+
 Xm pixmap-data validation (2026-10-25)
 =============================================
 
