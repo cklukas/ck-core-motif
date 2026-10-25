@@ -12,6 +12,13 @@ XmIm oversized nested-list guard (2026-10-26)
   nested arguments; the existing NULL/fallback path now handles this safely;
   see `docs/xmim-oversized-nested-list.md`.
 
+XmIm stale shell-reference guard (2026-10-26)
+===============================================
+
+- Skip shell references whose extension data was already released during
+  teardown instead of asserting while reconstructing an XIC; see
+  `docs/xmim-stale-shell-reference.md`.
+
 XmString context utility null guards (2026-10-26)
 ===================================================
 

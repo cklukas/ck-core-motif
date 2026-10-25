@@ -1334,7 +1334,11 @@ recreate_xic_info(XIC		  xic,
       {
 	XmImShellInfo tmp_info = 
 	  get_im_info(xim_info->shell_refs.refs[index], False);
-	assert(tmp_info != NULL);
+	/* Shell references can briefly outlive their extension data during
+	 * teardown.  Ignore such a stale entry rather than aborting while trying
+	 * to reconstruct an application-created XIC. */
+	if (tmp_info == NULL)
+	  continue;
 	
 	for (xic_info = tmp_info->iclist;
 	     xic_info != NULL;
