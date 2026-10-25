@@ -798,10 +798,14 @@ XmeVirtualToActualKeysyms(Display      *dpy,
 			  XmKeyBinding *actualKeyData)
 {
   int           matches;
+  int           match_count;
   Cardinal      index;
   XmDisplay     xmDisplay = (XmDisplay)XmGetXmDisplay (dpy);
   XmVKeyBinding keyBindings = xmDisplay->display.bindings;
   _XmDisplayToAppContext(dpy);
+
+  if (actualKeyData == NULL)
+    return 0;
   
   _XmAppLock(app);
   /* Initialize the return parameters. */
@@ -816,8 +820,13 @@ XmeVirtualToActualKeysyms(Display      *dpy,
   /* Allocate the return array. */
   if (matches > 0)
     {
+      match_count = matches;
       *actualKeyData = (XmKeyBinding) 
-	XtMalloc(matches * sizeof(XmKeyBindingRec));
+	XtMalloc((size_t)match_count * sizeof(XmKeyBindingRec));
+      if (*actualKeyData == NULL) {
+	_XmAppUnlock(app);
+	return 0;
+      }
 
       matches = 0;
       for (index = 0; index < xmDisplay->display.num_bindings; index++)

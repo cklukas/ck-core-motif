@@ -6117,3 +6117,10 @@ Guard virtual-key binding allocations (2026-10-25)
   `docs/virtkeys-binding-allocation.md`.
 
 Guard Xmos directory-entry list allocations (2026-10-25)
+Guard virtual-key result allocation (2026-10-25)
+================================================
+
+- Check `XmeVirtualToActualKeysyms` output arguments and result allocation;
+  see `docs/virtkeys-actual-allocation.md`.
+
+Guard virtual-key binding allocations (2026-10-25)
