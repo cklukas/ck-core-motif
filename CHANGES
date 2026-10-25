@@ -1,4 +1,8 @@
 2026-10-25
+	* Guard compound-string segment copies and preserve partial cleanup when a
+	  segment allocation fails; see docs/string-segment-copy-guards.md.
+
+2026-10-25
 	* Guard DialogShell resource-array merging and preserve the original
 	  resource set when growth fails; see docs/dialog-resource-guards.md.
 
