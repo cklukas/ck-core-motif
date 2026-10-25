@@ -1,3 +1,9 @@
+Guard Font selector size-list allocations (2026-10-25)
+========================================================
+
+- Check temporary XmString arrays used by size and alternate-family refreshes;
+  see `docs/motif-fonts-size-list-allocation.md`.
+
 Guard Font selector family-list allocation (2026-10-25)
 ==========================================================
 

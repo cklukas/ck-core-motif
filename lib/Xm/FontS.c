@@ -1724,6 +1724,8 @@ UpdateSizes(XmFontSelectorWidget fsw)
 
     size = sizeof(LongFlag) * 8; /* There are 8 bits in a BYTE */
     strs = (XmString *) XtMalloc(sizeof(XmString) * (size + 1));
+    if (strs == NULL)
+	return;
     /*
      * DMS - fix to work around apparent Motif 1.2.4 bug concerning
      *       XmStrings containing as the empty string
@@ -2180,6 +2182,8 @@ SetOtherList(XmFontSelectorWidget fsw, Boolean force)
     }
     
     strs = (XmString *) XtMalloc(sizeof(XmString) * num);
+    if (strs == NULL && num != 0)
+	return;
     for (i = count = 0; i < num; i++, others++) 
 	strs[count++] = XmStringCreateLocalized(*others);
 
