@@ -59,8 +59,8 @@ These are real coverage gaps rather than claims of known source defects:
    incremental request cancellation and requestor-shell teardown. The
    source-side probe now covers owner
    replacement during an active drag and post-drop incremental cancellation.
-   Same-process two-target transfer is now covered; cross-process
-   multiple-target/application drag-and-drop ownership and unqualified
+   Same-process and cross-process two-target transfers are now covered;
+   incremental/application drag-and-drop ownership and unqualified
    system-library sanitizer ownership remain open; see
    `docs/dropsite-lifecycle.md` and `docs/dnd-transfer-lifecycle.md`.
 4. **Non-text Unicode matrix.** The installed public-API fixture now covers

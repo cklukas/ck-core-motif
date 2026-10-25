@@ -54,14 +54,19 @@ try:
     (args.results / "link.log").write_text(link_result.stdout)
     if link_result.returncode or str(args.prefix / "lib/libXm.so.") not in link_result.stdout:
         raise SystemExit("cross-process probe loaded the wrong libXm")
-    run_result = subprocess.run(
-        ["xvfb-run", "-a", "timeout", "10s", str(binary)], env=env,
-        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
-        check=False)
-    (args.results / "run.log").write_text(run_result.stdout)
-    print(run_result.stdout, end="")
-    if run_result.returncode:
-        raise SystemExit(run_result.returncode)
+    for mode in ("single-target", "multiple-target"):
+        run_env = dict(env)
+        if mode == "multiple-target":
+            run_env["CK_DND_MULTIPLE"] = "1"
+        run_result = subprocess.run(
+            ["xvfb-run", "-a", "timeout", "10s", str(binary)], env=run_env,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+            check=False)
+        (args.results / ("run-" + mode + ".log")).write_text(
+            run_result.stdout)
+        print(run_result.stdout, end="")
+        if run_result.returncode:
+            raise SystemExit(run_result.returncode)
     receipt["success"] = True
 finally:
     receipt["ended_utc"] = datetime.datetime.now(datetime.timezone.utc).isoformat()

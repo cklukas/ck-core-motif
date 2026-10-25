@@ -20,10 +20,19 @@ static XtAppContext app;
 static Display *display;
 static Widget source;
 static Widget destination;
-static Atom target_atom;
-static XmDropTransferEntryRec transfer_entry;
+static Atom target_atoms[2];
+static XmDropTransferEntryRec transfer_entries[2];
 static const char payload[] = "cross-process drag payload";
 static const char transfer_cookie[] = "cross-process transfer cookie";
+static const char multi_payloads[2][24] = {
+    "cross-process target one", "cross-process target two"
+};
+static const char multi_cookies[2][24] = {
+    "cross-process cookie one", "cross-process cookie two"
+};
+static unsigned transfer_count;
+static Boolean transfer_seen[2];
+static Boolean multiple_mode;
 static unsigned checks;
 static Boolean finished;
 static int result = EXIT_SUCCESS;
@@ -67,14 +76,26 @@ convert(Widget widget, Atom *selection, Atom *target, Atom *type_return,
         XtPointer *value_return, unsigned long *length_return,
         int *format_return)
 {
+    unsigned index;
+
     (void)widget;
     (void)selection;
-    if (target == NULL || *target != target_atom || type_return == NULL ||
+    if (target == NULL || type_return == NULL ||
         value_return == NULL || length_return == NULL || format_return == NULL)
         return False;
-    *type_return = target_atom;
-    *value_return = XtNewString(payload);
-    *length_return = strlen(payload);
+    for (index = 0; index < (multiple_mode ? 2U : 1U); ++index)
+        if (*target == target_atoms[index])
+            break;
+    if (index == (multiple_mode ? 2U : 1U))
+        return False;
+    *type_return = target_atoms[index];
+    if (multiple_mode) {
+        *value_return = XtNewString(multi_payloads[index]);
+        *length_return = strlen(multi_payloads[index]);
+    } else {
+        *value_return = XtNewString(payload);
+        *length_return = strlen(payload);
+    }
     *format_return = 8;
     return True;
 }
@@ -83,19 +104,41 @@ static void
 transfer(Widget widget, XtPointer client_data, Atom *selection, Atom *type,
          XtPointer value, unsigned long *length, int *format)
 {
+    unsigned index;
+
     (void)widget;
     (void)selection;
-    CHECK(client_data == (XtPointer)transfer_cookie);
-    CHECK(type != NULL && *type == target_atom);
-    CHECK(value != NULL && length != NULL && *length == strlen(payload));
-    CHECK(format != NULL && *format == 8);
-    CHECK(value != NULL && length != NULL &&
-          memcmp(value, payload, *length) == 0);
+    CHECK(type != NULL && value != NULL && length != NULL && format != NULL);
+    if (type == NULL || value == NULL || length == NULL || format == NULL)
+        return;
+    if (!multiple_mode) {
+        CHECK(client_data == (XtPointer)transfer_cookie);
+        CHECK(*type == target_atoms[0]);
+        CHECK(*length == strlen(payload));
+        CHECK(*format == 8);
+        CHECK(memcmp(value, payload, *length) == 0);
+    } else {
+        for (index = 0; index < 2; ++index)
+            if (*type == target_atoms[index])
+                break;
+        CHECK(index < 2);
+        if (index >= 2)
+            return;
+        CHECK(client_data == (XtPointer)multi_cookies[index]);
+        CHECK(*length == strlen(multi_payloads[index]));
+        CHECK(*format == 8);
+        CHECK(memcmp(value, multi_payloads[index], *length) == 0);
+        CHECK(!transfer_seen[index]);
+        transfer_seen[index] = True;
+    }
+    ++transfer_count;
     /* Xt owns the returned selection value and releases it after this
      * callback.  The consumer must not free it here. */
-    finished = True;
-    send_control('D');
-    XtAppSetExitFlag(app);
+    if (transfer_count == (multiple_mode ? 2U : 1U)) {
+        finished = True;
+        send_control('D');
+        XtAppSetExitFlag(app);
+    }
 }
 
 static void
@@ -112,11 +155,18 @@ drop(Widget widget, XtPointer closure, XtPointer call_data)
           drop_data->dropSiteStatus == XmVALID_DROP_SITE);
     CHECK(drop_data != NULL && (drop_data->operation & XmDROP_COPY) != 0);
 
-    transfer_entry.client_data = (XtPointer)transfer_cookie;
-    transfer_entry.target = target_atom;
-    XtSetArg(args[count], XmNdropTransfers, &transfer_entry);
+    if (multiple_mode) {
+        transfer_entries[0].client_data = (XtPointer)multi_cookies[0];
+        transfer_entries[0].target = target_atoms[0];
+        transfer_entries[1].client_data = (XtPointer)multi_cookies[1];
+        transfer_entries[1].target = target_atoms[1];
+    } else {
+        transfer_entries[0].client_data = (XtPointer)transfer_cookie;
+        transfer_entries[0].target = target_atoms[0];
+    }
+    XtSetArg(args[count], XmNdropTransfers, transfer_entries);
     ++count;
-    XtSetArg(args[count], XmNnumDropTransfers, 1);
+    XtSetArg(args[count], XmNnumDropTransfers, multiple_mode ? 2 : 1);
     ++count;
     XtSetArg(args[count], XmNtransferProc, transfer);
     ++count;
@@ -166,9 +216,9 @@ start_drag(XtPointer closure, XtIntervalId *id)
     event.xbutton.button = Button1;
     event.xbutton.same_screen = True;
 
-    XtSetArg(args[count], XmNexportTargets, &target_atom);
+    XtSetArg(args[count], XmNexportTargets, target_atoms);
     ++count;
-    XtSetArg(args[count], XmNnumExportTargets, 1);
+    XtSetArg(args[count], XmNnumExportTargets, multiple_mode ? 2 : 1);
     ++count;
     XtSetArg(args[count], XmNconvertProc, convert);
     ++count;
@@ -235,7 +285,12 @@ run_parent(int fd, int argc, char **argv)
     label = XmStringCreateLocalized("Cross-process drop target");
     XtVaSetValues(destination, XmNlabelString, label, NULL);
     XmStringFree(label);
-    target_atom = XInternAtom(display, "UTF8_STRING", False);
+    if (multiple_mode) {
+        target_atoms[0] = XInternAtom(display, "CK_CROSS_TARGET_ONE", False);
+        target_atoms[1] = XInternAtom(display, "CK_CROSS_TARGET_TWO", False);
+    } else {
+        target_atoms[0] = XInternAtom(display, "UTF8_STRING", False);
+    }
     CHECK(XTestQueryExtension(display, &event_base, &error_base,
                               &major, &minor) != 0);
     (void)event_base;
@@ -243,9 +298,9 @@ run_parent(int fd, int argc, char **argv)
     (void)major;
     (void)minor;
     XtRealizeWidget(shell);
-    XtSetArg(args[count], XmNimportTargets, &target_atom);
+    XtSetArg(args[count], XmNimportTargets, target_atoms);
     ++count;
-    XtSetArg(args[count], XmNnumImportTargets, 1);
+    XtSetArg(args[count], XmNnumImportTargets, multiple_mode ? 2 : 1);
     ++count;
     XtSetArg(args[count], XmNdropSiteOperations, XmDROP_COPY);
     ++count;
@@ -287,7 +342,12 @@ run_child(int fd, int argc, char **argv)
     label = XmStringCreateLocalized("Cross-process drag source");
     XtVaSetValues(source, XmNlabelString, label, NULL);
     XmStringFree(label);
-    target_atom = XInternAtom(display, "UTF8_STRING", False);
+    if (multiple_mode) {
+        target_atoms[0] = XInternAtom(display, "CK_CROSS_TARGET_ONE", False);
+        target_atoms[1] = XInternAtom(display, "CK_CROSS_TARGET_TWO", False);
+    } else {
+        target_atoms[0] = XInternAtom(display, "UTF8_STRING", False);
+    }
     CHECK(XTestQueryExtension(display, &event_base, &error_base,
                               &major, &minor) != 0);
     (void)event_base;
@@ -316,6 +376,8 @@ main(int argc, char **argv)
     int status;
     int parent_result;
 
+    multiple_mode = getenv("CK_DND_MULTIPLE") != NULL;
+
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, sockets) != 0) {
         perror("socketpair");
         return EXIT_FAILURE;
@@ -338,7 +400,7 @@ main(int argc, char **argv)
     if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS)
         parent_result = EXIT_FAILURE;
     if (parent_result == EXIT_SUCCESS)
-        printf("PASS cross-process Motif drag/drop transfer: %u checks\n",
-               checks);
+        printf("PASS cross-process Motif drag/drop transfer (%s): %u checks\n",
+               multiple_mode ? "multiple-target" : "single-target", checks);
     return parent_result;
 }
