@@ -1,3 +1,9 @@
+Guard empty plain text-property table allocation (2026-10-25)
+================================================================
+
+- Check the generated empty-string table for locale, ISO-8859-1, and UTF-8
+  properties; see `docs/motif-txtpropcv-empty-plain-table.md`.
+
 Guard non-empty ASN.1 string-table allocation (2026-10-25)
 =============================================================
 
