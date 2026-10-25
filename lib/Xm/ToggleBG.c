@@ -2678,7 +2678,7 @@ DrawToggle(
 	  break;
 
 	default:
-	  assert(False);
+	  return;
 	  return;
 	}
 
@@ -4317,7 +4317,6 @@ DrawToggleLabel(
 	break;
       }
     default:
-      assert(False);
       return;
     }
 

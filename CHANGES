@@ -86,6 +86,13 @@ XIM input-policy validation (2026-10-26)
   policy dispatch defaults harmless instead of asserting; see
   `docs/xim-input-policy.md`.
 
+ToggleButton visual-state fallback (2026-10-26)
+================================================
+
+- Return without painting when ToggleButton or ToggleButtonGadget has an
+  invalid visual state, instead of asserting; documented visual states are
+  unchanged. See `docs/togglebutton-visual-state.md`.
+
 XmString malformed-state handling (2026-10-26)
 ================================================
 
