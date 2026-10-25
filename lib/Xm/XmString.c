@@ -897,6 +897,8 @@ _XmStringNCreate(char *text,
     /* Create optimized string. */
     {
       _XmStrCreate(opt_str, XmSTRING_OPTIMIZED, t_length);
+      if (opt_str == NULL)
+	return((XmString) NULL);
       _XmStrTagIndex(opt_str) = tag_index;
       _XmStrTextType(opt_str) = type;
       memcpy(_XmStrText(opt_str), text, t_length);
@@ -907,6 +909,8 @@ _XmStringNCreate(char *text,
     {
       _XmStringUnoptSegRec 	seg;
       _XmStrCreate(str, XmSTRING_MULTIPLE_ENTRY, 0);
+      if (str == NULL)
+	return((XmString) NULL);
       
       _XmEntryInit((_XmStringEntry)&seg, XmSTRING_ENTRY_UNOPTIMIZED);
       

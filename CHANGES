@@ -12416,3 +12416,10 @@ XmString table conversion transactions (2026-10-26)
   `docs/xmstring-table-transaction.md`.
 
 Tab-list position screen validation (2026-10-26)
+XmString creation allocation failure (2026-10-26)
+===================================================
+
+- Check optimized and non-optimized representation allocations in
+  `_XmStringNCreate`; see `docs/xmstring-create-failure.md`.
+
+XmString table conversion transactions (2026-10-26)
