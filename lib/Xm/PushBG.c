@@ -3312,8 +3312,10 @@ ComputePBLabelArea(
       box->x = dx + pb->rectangle.x;
       box->y = dx + pb->rectangle.y;
       adjust = (dx << 1);
-      box->width = pb->rectangle.width - adjust;
-      box->height= pb->rectangle.height - adjust;
+      box->width = pb->rectangle.width > (Dimension)adjust ?
+        (int)(pb->rectangle.width - (Dimension)adjust) : 0;
+      box->height = pb->rectangle.height > (Dimension)adjust ?
+        (int)(pb->rectangle.height - (Dimension)adjust) : 0;
     }
 
   return (result);

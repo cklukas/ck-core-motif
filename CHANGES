@@ -1,3 +1,10 @@
+PushButtonGadget label rectangle bounds (2026-10-25)
+=====================================================
+
+- Clamp label rectangles when gadget decorations consume the available size,
+  preventing negative geometry from reaching label drawing; see
+  `docs/pushbuttongadget-label-geometry.md`.
+
 PushButtonGadget highlight geometry bounds (2026-10-25)
 ========================================================
 
