@@ -8,6 +8,8 @@ Xft compound-string line height (2026-10-27)
   `size_t` and Xt's `Cardinal` allocator width before casting allocation sizes.
 - Bound hierarchy child-list sentinel allocation arithmetic to Xt's `Cardinal`
   width and use a full-width `Cardinal` copy index for large child lists.
+- Reject XmTabList insertion count wraparound and use a full-width cleanup
+  index for valid large tab lists.
 - Use `Cardinal` indices in the public XmString table parse, unparse, and
   concatenation loops so full-width caller counts cannot wrap signed counters.
 - Use the native Xft font height for compound-string geometry instead of

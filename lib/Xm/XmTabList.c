@@ -151,6 +151,12 @@ XmTabListInsertTabs(XmTabList oldlist,
 	return(oldlist);
   }
 
+  if (oldlist != NULL &&
+      tab_count > (Cardinal)~0 - _XmTabLCount(oldlist)) {
+	_XmProcessUnlock();
+	return(NULL);
+  }
+
   if (oldlist == NULL)
     {
       tl = (XmTabList)XtMalloc(sizeof(_XmTabListRec));
@@ -346,7 +352,7 @@ XmTabListCopy(XmTabList tablist,
 void
 XmTabListFree(XmTabList tablist)
 {
-  int	i;
+	Cardinal i;
   XmTab	tab, next;
 
   _XmProcessLock();
