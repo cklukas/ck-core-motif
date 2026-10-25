@@ -517,6 +517,9 @@ contract regression covers those early-return paths.
 The installed runner now emits a `receipt.json` recording source/library
 fingerprints, exact commands, display mode and elapsed time, keeping ordinary
 Xvfb fallback evidence distinct from future real-XLibre qualification.
+The opt-in `run-xlibre-live.py` fixture now exercises writable output-property
+mutation and cleanup when a real display is supplied, while its Xvfb mode
+returns an explicit skip rather than counting fallback as live evidence.
 
 ### WP-05: Optional SVG image loading
 

@@ -87,6 +87,16 @@ after reentrant destruction. `check-xlibre-lifetime.py` keeps these ordering
 invariants in the automated source-contract checks; the live multi-output
 destruction case still requires an XLibre display.
 
+The live property-mutation fixture is
+`tests/automated/run-xlibre-live.py`. With `--display`, it changes the
+selected output's writable `DPI` property, waits for one coalesced observer
+callback, verifies the callback's old/new output and scale values, confirms
+the shell's descendant scale, and restores the original property during
+cleanup. Without `--display`, it runs under Xvfb only to verify that the
+fixture refuses to claim a live XLibre session (exit status 77). Its fallback
+ASan/UBSan run passed on `uconsole`; a real-display pass remains required for
+qualification.
+
 On 2026-10-25, a fresh x86_64 adapter-enabled prefix compiled this lifetime
 change and passed the parser/fallback, deterministic output-selection and
 ordinary-server observer fixtures under Xvfb. The installed
@@ -128,6 +138,13 @@ retained under `/tmp/ckmotif-xlibre-hardening-20261025/`.
 The receipt-schema validation run is retained at
 `/tmp/ckmotif-xlibre-hardening-20261025/receipt-r1/receipt.json` and records
 the same installed fingerprint.
+
+The live-fixture fallback compile and Xvfb rejection run passed at
+`/tmp/ckmotif-xlibre-hardening-20261025/live-fallback-r2/`; its consumer
+ASan/UBSan fallback run passed at
+`/tmp/ckmotif-xlibre-hardening-20261025/live-sanitizer-fallback/` and returned
+the required status 77. The installed prefix fingerprint was unchanged at
+`dc2ff61fd9994fcb261a861fd702657c80f2add301ccdee7cb13f7e764df6144`.
 
 This is an implementation step toward the live contract, not a claim that a
 generic Xorg server provides per-output DPI. The remaining qualification must

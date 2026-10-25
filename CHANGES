@@ -1,3 +1,13 @@
+XLibre live property fixture (2026-10-25)
+==========================================
+
+- Add an opt-in installed consumer that mutates a writable XLibre output
+  `DPI` property, waits for the coalesced shell observer transaction, verifies
+  shell/descendant scale and callback output identity, and restores the
+  original property on every exit path. Without a supplied XLibre display it
+  explicitly returns the ordinary-Xvfb skip status; no fallback run is counted
+  as live qualification.
+
 XLibre contract receipt provenance (2026-10-25)
 ================================================
 
