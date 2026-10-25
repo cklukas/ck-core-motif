@@ -1,3 +1,9 @@
+Clipboard delete-formats validation (2026-10-26)
+=================================================
+
+- Validate data-item format-list bounds and format records before cleanup;
+  see `docs/clipboard-delete-formats-validation.md`.
+
 Clipboard delete-label validation (2026-10-26)
 ================================================
 

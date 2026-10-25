@@ -1976,10 +1976,12 @@ ClipboardDeleteFormats(
     ClipboardFormatItem formatdata;
     unsigned long length ;
     Atom type;
-    int i;
+    unsigned long format_offset;
+    int i, status;
 
     /* first get the data item out of the root */
-    ClipboardFindItem( display, 
+	datalist = NULL;
+    status = ClipboardFindItem( display,
     			   dataitemid,
     			   (XtPointer *) &datalist,
     			   &length,
@@ -1987,20 +1989,30 @@ ClipboardDeleteFormats(
 			   0,
     			   XM_DATA_ITEM_RECORD_TYPE );
 
-    if ( datalist == 0 )
+    if (status != ClipboardSuccess || datalist == NULL ||
+	length < sizeof(ClipboardDataItemRec) || datalist->formatCount < 0 ||
+	datalist->formatIdList > ULONG_MAX / CONVERT_32_FACTOR)
     {
-	CleanupHeader (display);
-	ClipboardError( CLIPBOARD_CORRUPT, CORRUPT_DATA_STRUCTURE );
+	XtFree( (char *)datalist);
 	return;
     }
 
-    deleteptr = (itemId*)((char*) datalist +
-			  datalist->formatIdList * CONVERT_32_FACTOR ); 
+    format_offset = datalist->formatIdList * CONVERT_32_FACTOR;
+    if (format_offset > length ||
+	(unsigned long)datalist->formatCount >
+	(length - format_offset) / sizeof(itemId))
+    {
+	XtFree( (char *)datalist);
+	return;
+    }
+
+    deleteptr = (itemId*)((char*) datalist + format_offset);
 
     for ( i = 0; i < datalist->formatCount; i++ )
     {
     	/* first delete the format data */
-	ClipboardFindItem( display, 
+	formatdata = NULL;
+	status = ClipboardFindItem( display,
 			       *deleteptr,
 			       (XtPointer *) &formatdata,
 			       &length,
@@ -2008,10 +2020,10 @@ ClipboardDeleteFormats(
 			       0,
     			       XM_FORMAT_HEADER_TYPE );
 
-    	if ( formatdata == 0 )
+	    if (status != ClipboardSuccess || formatdata == NULL ||
+		length < sizeof(ClipboardFormatItemRec))
     	{
-	    CleanupHeader (display);
-	    ClipboardError( CLIPBOARD_CORRUPT, CORRUPT_DATA_STRUCTURE );
+	    XtFree( (char *)formatdata);
     	    return;
     	}
 
