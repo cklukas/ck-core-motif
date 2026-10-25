@@ -166,7 +166,11 @@ UTMDestinationProc (
 
   if (dcs == NULL)
     {
-      /* bad data - just return. */
+      /* Drop the queued package when no destination callback is available;
+       * otherwise the next destination callback would consume stale state. */
+      pUtmData = (UTMPackageRec *)DequeueUtmData();
+      if (pUtmData != NULL)
+	XtFree((char *)pUtmData);
       return;
     }
 

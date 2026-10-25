@@ -44,6 +44,13 @@ UTM send allocation guards (2026-10-25)
 - Check transfer-package and queue-node allocations before use, dropping an
   unsent request safely on low-memory failure; see `docs/utm-send-allocations.md`.
 
+UTM destination cleanup (2026-10-25)
+====================================
+
+- Drop the queued transfer package when a destination callback has no callback
+  data, preventing stale requests and queue leaks; see
+  `docs/utm-destination-cleanup.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 
