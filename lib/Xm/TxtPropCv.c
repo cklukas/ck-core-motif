@@ -91,6 +91,11 @@ TextPropertyToSingleTextItem(Display *display, XTextProperty *text_prop,
 	/* Otherwise just return the first element of the 
 	   text list */
 	*text_item = XtNewString(textlist[0]);
+	if (*text_item == NULL)
+	  {
+	    XFreeStringList(textlist);
+	    return(XNoMemory);
+	  }
 	XFreeStringList(textlist);
     }
     else if (count > 1)

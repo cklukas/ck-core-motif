@@ -1,3 +1,9 @@
+Handle single text-property copy failure (2026-10-25)
+=======================================================
+
+- Return `XNoMemory` and release the Xlib string list when the single-item
+  result cannot be copied; see `docs/motif-txtpropcv-single.md`.
+
 Guard text-property list concatenation allocation (2026-10-25)
 =================================================================
 
