@@ -9889,6 +9889,13 @@ Legacy XmHeap allocation guard (2026-10-25)
   writes; see
   `docs/xmheap-allocation.md`.
 
+Directory-cache backing-state guard (2026-10-25)
+================================================
+
+- Reject file-selector directory-cache insertions when the backing path
+  buffer is unavailable, avoiding a null write after reset failure; see
+  `docs/dir-cache-state.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

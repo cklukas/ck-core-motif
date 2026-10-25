@@ -182,7 +182,7 @@ AddEntryToCache(char *entryName,
   unsigned char result = 0;
   XmDirCache new_cache;
 
-  if (entryName == NULL || entryNameLen > (size_t)-1 -
+  if (entryName == NULL || dirCacheName == NULL || entryNameLen > (size_t)-1 -
       sizeof(XmDirCacheRec) - 1)
     return 0;
 

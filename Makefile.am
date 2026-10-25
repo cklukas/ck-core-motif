@@ -152,6 +152,7 @@ EXTRA_DIST += tests/automated/check-render-token-allocation.py docs/render-token
 EXTRA_DIST += tests/automated/check-xim-callback-index.py docs/xim-callback-index.md
 EXTRA_DIST += tests/automated/check-display-info-allocation.py docs/display-info-allocation.md
 EXTRA_DIST += tests/automated/check-xmheap-allocation.py docs/xmheap-allocation.md
+EXTRA_DIST += tests/automated/check-dir-cache-state.py docs/dir-cache-state.md
 EXTRA_DIST += tests/automated/check-xim-info-allocation.py docs/xim-info-allocation.md
 EXTRA_DIST += tests/automated/check-xim-recreate-allocation.py docs/xim-recreate-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md
