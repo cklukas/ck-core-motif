@@ -8,6 +8,7 @@ start = text.index("sel_table = (XmStringTable) XtMalloc")
 end = text.index("\n\t}\n\telse", start)
 region = text[start:end]
 assert "if (sel_table == NULL)" in region
+assert "(Cardinal)(sizeof(XmString) * (size_t)count)" in region
 assert "error = TRUE;" in region
 assert "count = 0;" in region
 assert "UINT_MAX / sizeof(XmString)" in text

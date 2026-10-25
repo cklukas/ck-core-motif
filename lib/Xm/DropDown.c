@@ -2401,7 +2401,8 @@ SetListFromText(Widget w, Boolean no_action)
 		error = TRUE;
 		count = 0;
 	    } else {
-	    sel_table = (XmStringTable) XtMalloc(sizeof(XmString) * count);
+	    sel_table = (XmStringTable) XtMalloc(
+		(Cardinal)(sizeof(XmString) * (size_t)count));
 	    if (sel_table == NULL) {
 		error = TRUE;
 		count = 0;
