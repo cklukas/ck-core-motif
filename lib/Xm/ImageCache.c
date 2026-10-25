@@ -1500,6 +1500,8 @@ _XmGetScaledPixmap(
     if (image_name == NULL) return (XmUNSPECIFIED_PIXMAP);
 
     if (!pixmap_data_set) InitializePixmapSets() ;
+    if (pixmap_data_set == NULL || pixmap_set == NULL)
+        return (XmUNSPECIFIED_PIXMAP);
 
     /* if screen not provided, widget has to be! */
     if (!screen && widget) screen = XtScreen(widget);

@@ -1,3 +1,9 @@
+Xm scaled-pixmap table failure handling (2026-10-25)
+=======================================================
+
+- Return `XmUNSPECIFIED_PIXMAP` when lazy pixmap-table initialization fails,
+  avoiding null hash lookup; see `docs/xm-scaled-pixmap-table-null.md`.
+
 Xm pixmap-cache cleanup null guards (2026-10-25)
 =================================================
 
