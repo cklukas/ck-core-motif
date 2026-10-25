@@ -8054,6 +8054,9 @@ _XmStringSingleSegment(
   unsigned int	    len;
   XtPointer	    val;
   XmStringComponentType type;
+
+  if (pTextOut == NULL || pTagOut == NULL)
+    return FALSE;
   
   /* Initialize the return parameters. */
   retVal = FALSE;
