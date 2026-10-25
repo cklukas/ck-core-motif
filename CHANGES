@@ -1,3 +1,9 @@
+XmString converter input validation (2026-10-25)
+=================================================
+
+- Validate source and destination `XrmValue` pointers before string-to-
+  `XmString` conversion; see `docs/xmstring-converter-inputs.md`.
+
 Primitive string-converter input validation (2026-10-25)
 =========================================================
 

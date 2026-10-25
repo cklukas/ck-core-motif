@@ -823,6 +823,9 @@ CvtStringToXmString(
 {
         XmString tmpStr ;
 
+    if (from == NULL || from->addr == NULL || to == NULL)
+        return False;
+
     if(    from->addr    )
     {   
         tmpStr = XmStringGenerate((char *)from->addr,
