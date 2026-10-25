@@ -14431,3 +14431,9 @@ Mwm icon-box failure return (2026-10-26)
 
 - Fix the icon-box allocation warning call and return `False` from the
   `Boolean` failure path; see `docs/wm-iconbox-failure-return.md`.
+Protocol-manager destruction index (2026-10-26)
+=================================================
+
+- Keep manager and protocol indices separate while removing vendor-shell
+  protocol managers, preventing stale freed managers during destruction; see
+  `docs/protocol-manager-removal-index.md`.

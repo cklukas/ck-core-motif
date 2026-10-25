@@ -694,27 +694,28 @@ RemoveProtocolMgr(
         XmProtocolMgr p_mgr )
 {
     Widget	shell;
-    Cardinal 	i;
+    Cardinal 	mgr_index, protocol_index;
 
     if (ap_mgr == NULL || p_mgr == NULL ||
 	 ap_mgr->protocol_mgrs == NULL)
 	return;
 
-    for (i = 0; i < ap_mgr->num_protocol_mgrs; i++)
-      if (ap_mgr->protocol_mgrs[i] == p_mgr)
+    for (mgr_index = 0; mgr_index < ap_mgr->num_protocol_mgrs; mgr_index++)
+      if (ap_mgr->protocol_mgrs[mgr_index] == p_mgr)
 	break;
-    if (i == ap_mgr->num_protocol_mgrs)
+    if (mgr_index == ap_mgr->num_protocol_mgrs)
 	return;
 
     shell = ap_mgr->shell;
     
-    for (i = 0; i < p_mgr->num_protocols; i++)
+    for (protocol_index = 0; protocol_index < p_mgr->num_protocols;
+	 protocol_index++)
       {
-          if (p_mgr->protocols[i] == NULL)
+          if (p_mgr->protocols[protocol_index] == NULL)
             continue;
           _XmRemoveAllCallbacks(
-		(InternalCallbackList *)&(p_mgr->protocols[i]->protocol.callbacks) );
-          XtFree((char *) p_mgr->protocols[i]);
+		(InternalCallbackList *)&(p_mgr->protocols[protocol_index]->protocol.callbacks) );
+	      XtFree((char *) p_mgr->protocols[protocol_index]);
       }
     if (XtIsRealized(shell))
 	XDeleteProperty(XtDisplay(shell), 
@@ -725,8 +726,8 @@ RemoveProtocolMgr(
     XtFree((char *) p_mgr);
 
     /* ripple mgrs down */
-    for ( ; i < ap_mgr->num_protocol_mgrs-1; i++)
-      ap_mgr->protocol_mgrs[i] = ap_mgr->protocol_mgrs[i+1];
+    for ( ; mgr_index < ap_mgr->num_protocol_mgrs-1; mgr_index++)
+      ap_mgr->protocol_mgrs[mgr_index] = ap_mgr->protocol_mgrs[mgr_index+1];
     ap_mgr->num_protocol_mgrs--;
 }
 /************************************<+>*************************************
