@@ -2121,6 +2121,11 @@ XmTabList now uses explicit unlocked copy/free helpers internally, with public
 copy/free APIs retaining the process-lock boundary. The source contract is
 recorded in `tests/automated/check-tablist-lock-boundaries.py` and
 `docs/tablist-lock-boundaries.md`.
+Tab-list replacement and removal now validate every supplied position against
+the copied list and discard invalid private state without mutating the caller's
+list. The source contract is recorded in
+`tests/automated/check-tab-position-bounds.py` and
+`docs/tab-position-bounds.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the

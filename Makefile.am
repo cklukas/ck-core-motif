@@ -268,6 +268,7 @@ EXTRA_DIST += tests/automated/check-xmstring-table-transaction.py docs/xmstring-
 EXTRA_DIST += tests/automated/check-tab-position-screen-guard.py docs/tab-position-screen-guard.md
 EXTRA_DIST += tests/automated/check-vendors-lock-balance.py docs/vendors-lock-balance.md
 EXTRA_DIST += tests/automated/check-tablist-lock-boundaries.py docs/tablist-lock-boundaries.md
+EXTRA_DIST += tests/automated/check-tab-position-bounds.py docs/tab-position-bounds.md
 EXTRA_DIST += tests/automated/check-xmstring-tab-growth-allocation.py docs/motif-xmstring-tab-growth.md
 EXTRA_DIST += tests/automated/check-scrollframe-nav-growth.py docs/motif-scrollframe-nav-growth.md
 EXTRA_DIST += tests/automated/check-scrollframe-add-input.py docs/motif-scrollframe-add-input.md

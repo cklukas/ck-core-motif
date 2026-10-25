@@ -176,6 +176,12 @@ XmTabList lock boundaries (2026-10-26)
 - Keep internal tab-list copy/free helpers under the caller's lock while
   public APIs remain locking boundaries; see `docs/tablist-lock-boundaries.md`.
 
+Tab-list mutation position bounds (2026-10-26)
+===============================================
+
+- Reject out-of-range replacement/removal positions before traversing the
+  private copy; see `docs/tab-position-bounds.md`.
+
 XmString extraction output validation (2026-10-26)
 ====================================================
 
