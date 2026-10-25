@@ -8018,3 +8018,11 @@ Obso2 translation-buffer growth (2026-10-27)
 
 Picture accepted-text buffer growth (2026-10-27)
 =================================================
+DragICC write-buffer growth (2026-10-27)
+========================================
+
+- Check drag-buffer size addition and grow to the full required capacity,
+  committing the new byte buffer only after allocation succeeds.
+
+Obso2 translation-buffer growth (2026-10-27)
+=============================================

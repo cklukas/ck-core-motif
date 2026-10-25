@@ -31,6 +31,7 @@ static char rcsid[] = "$TOG: DragICC.c /main/14 1997/06/18 17:38:07 samborn $"
 #endif
 
 
+#include <stdint.h>
 #include <X11/Xatom.h>
 #include <Xm/AtomMgr.h>
 #include <Xm/DisplayP.h>
@@ -698,15 +699,35 @@ _XmWriteDragBuffer(
     else
       buf = &propBuf->heap;
 
-    if (buf->size + size > buf->max) {
-       buf->max += 1000;
+    if ((size_t)size > SIZE_MAX - buf->size)
+      return 0;
+    if (buf->size + (size_t)size > (size_t)buf->max) {
+       size_t required = buf->size + (size_t)size;
+       Cardinal new_max = buf->max;
+       BYTE *new_bytes;
+       if (required > UINT_MAX)
+         return 0;
+       if (new_max == 0)
+         new_max = 1;
+       while ((size_t)new_max < required) {
+         if (new_max > UINT_MAX / 2)
+           new_max = (Cardinal)required;
+         else
+           new_max = (Cardinal)(new_max * 2);
+       }
        if (buf->bytes == buf->stack) {
-	  buf->bytes = (BYTE*)XtMalloc(buf->max);
-	  memcpy(buf->bytes, buf->stack, buf->size);
+	  new_bytes = (BYTE *)XtMalloc(new_max);
+	  if (new_bytes == NULL)
+	    return 0;
+	  memcpy(new_bytes, buf->stack, buf->size);
        }
        else {
-	  buf->bytes = (BYTE*)XtRealloc((char *)buf->bytes, (Cardinal)buf->max);
+	  new_bytes = (BYTE *)XtRealloc((char *)buf->bytes, new_max);
+	  if (new_bytes == NULL)
+	    return 0;
        }
+       buf->bytes = new_bytes;
+       buf->max = new_max;
     }
     memcpy(buf->bytes + buf->size, ptr, (size_t)size);
     returnVal = buf->size;
