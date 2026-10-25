@@ -14426,3 +14426,8 @@ Mwm graphics size-limit header (2026-10-26)
 
 - Include `<limits.h>` for the Mwm rectangle-list `INT_MAX`/`UINT_MAX`
   allocation guard; see `docs/wm-graphics-size-limit-header.md`.
+Mwm icon-box failure return (2026-10-26)
+==========================================
+
+- Fix the icon-box allocation warning call and return `False` from the
+  `Boolean` failure path; see `docs/wm-iconbox-failure-return.md`.
