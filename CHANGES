@@ -1,3 +1,10 @@
+GeoUtils empty-row dimensions (2026-10-28)
+===========================================
+
+- Avoid `numBoxes - 1` underflow when computing fill width for empty GeoUtils
+  rows, and return safely for incomplete matrix descriptors; see
+  `docs/geoutils-dimension-bounds.md`.
+
 GeoUtils fill-spacing guards (2026-10-28)
 ==========================================
 

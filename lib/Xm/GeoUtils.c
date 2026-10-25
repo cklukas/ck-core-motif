@@ -1134,6 +1134,9 @@ _XmGeoGetDimensions(
             Dimension       marginH ;
 /****************/
 
+    if (geoSpec == NULL || geoSpec->boxes == NULL || geoSpec->layouts == NULL)
+        return;
+
     marginH = geoSpec->margin_h ;
     marginW = geoSpec->margin_w ;
     rowPtr = geoSpec->boxes ;
@@ -1191,8 +1194,10 @@ _XmGeoGetDimensions(
         /* Fill width is the minimum spacing between (borders of) boxes plus
         *   any extra space required at ends.  Margins are not included.
         */
-        layoutPtr->fill_width = (endSpaceW << 1) 
-                                + ((numBoxes - 1) * layoutPtr->space_between) ;
+        layoutPtr->fill_width = (endSpaceW << 1);
+        if (numBoxes > 1)
+            layoutPtr->fill_width +=
+                (numBoxes - 1) * layoutPtr->space_between;
         /* Maximum row width is the overall matrix width, less margins.  Add
         *   box width to fill width for total width this row.
         */
