@@ -625,11 +625,14 @@ close two-process transfer, cancellation, owner-replacement or application-DnD
 gates. The new installed `check-dnd-transfer` consumer adds a real
 same-process Motif drag gesture and passes conversion, valid-drop admission,
 transfer-entry client-data propagation and selection-value ownership checks in
-three repeated Xvfb runs. Cross-process transfer, cancellation, owner
-replacement, multiple targets and application-DnD journeys remain separate
-gates. The companion installed `check-dnd-cancel` probe also passes the
-initiator-side `XmDragCancel` and finish-notification contract in three
-repeated runs; selection-transfer cancellation remains open. See
+three repeated Xvfb runs. The installed `check-dnd-cross-process` consumer
+now also passes one independent-client copy transfer in three fresh Xvfb
+runs, qualifying the basic X11 client boundary without claiming owner
+replacement or transfer cancellation. Multiple targets and application-DnD
+journeys remain separate gates. The companion installed `check-dnd-cancel`
+probe also passes the initiator-side `XmDragCancel` and finish-notification
+contract in three repeated runs; selection-transfer cancellation remains open.
+See
 `docs/dropsite-lifecycle.md` and `docs/dnd-transfer-lifecycle.md`.
 
 ### WP-07: Screen-reader usability and semantic completion

@@ -26,6 +26,16 @@ Same-process drag-and-drop transfer qualification (2026-10-25)
   application-DnD coverage remain separate gates. See
   `docs/dnd-transfer-lifecycle.md`.
 
+Cross-process drag-and-drop transfer qualification (2026-10-25)
+================================================================
+
+- Add an installed two-client XTEST regression that exercises an independent
+  source and destination Xt process, one copy transfer and the same selection
+  ownership/conversion boundaries. Three fresh AArch64 Xvfb runs pass 12 checks
+  against the recorded prefix; selection-transfer cancellation, owner
+  replacement and broader application-DnD journeys remain open. See
+  `docs/dnd-transfer-lifecycle.md`.
+
 Drag-initiator cancellation qualification (2026-10-25)
 =======================================================
 

@@ -33,9 +33,34 @@ runner records the exact prefix, compiler output, loaded-library proof,
 source/library hashes, output path and elapsed time.
 
 This is a bounded same-process transfer contract. It does not claim
-cross-process transfer, cancellation, owner replacement, incremental payload
-assembly, multiple targets, or a complete application drag-and-drop journey;
-those remain separate qualification gates.
+cancellation, owner replacement, incremental payload assembly, multiple
+targets, or a complete application drag-and-drop journey; those remain
+separate qualification gates.
+
+`tests/automated/check-dnd-cross-process.c` is the companion two-client probe.
+It forks before opening displays, gives the source and destination independent
+Xt application contexts and X11 selection owners, and coordinates only through
+a private Unix socket. The source's XTEST drag crosses from the fixed
+source-client window at `(20,20)` to the destination-client window at
+`(320,20)`, so the fixture never dereferences a widget owned by the other
+process. It checks the same conversion, drop-admission, transfer-entry and
+Xt-owned-value boundaries across the X11 client boundary.
+
+Run it with:
+
+```sh
+python3 tests/automated/run-dnd-cross-process.py \
+  /absolute/installed/prefix /absolute/fresh/results
+```
+
+The AArch64 `uconsole` qualification on 2026-10-25 passed 12 checks in three
+fresh Xvfb runs. All three receipts used the same `libXm.so.8.0.0` SHA-256
+(`2c0e75e58ec0c0e2a0cd6585f06ee4a695f54f79633b307ad47405ba0a703fa3`) and
+the same probe source SHA-256
+(`93ca01fad2a8280d2bbd6b7dd36ca0952d92530fd874f97a74876ce20aa1946e`).
+This qualifies one cross-process copy transfer; it does not qualify
+selection-transfer cancellation, owner replacement, incremental payload
+assembly, multiple targets or a complete application DnD workflow.
 
 `tests/automated/check-dnd-cancel.c` covers the related initiator-side
 cancellation contract. It starts a Motif drag, calls the public
@@ -45,6 +70,5 @@ cancellation contract. It starts a Motif drag, calls the public
 `libXm.so.8.0.0` hash shown above; the cancellation runner records the same
 receipt and loaded-library evidence.
 
-This does not promote selection-transfer cancellation, cross-process owner
-replacement, incremental transfer cancellation or application-level journeys
-to complete.
+This does not promote selection-transfer cancellation, owner replacement,
+incremental transfer cancellation or application-level journeys to complete.
