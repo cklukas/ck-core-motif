@@ -6118,3 +6118,10 @@ Guard XmStringGenerate rendition wrapping (2026-10-25)
   `docs/xmstring-generate-rendition-allocation.md` and its focused source
   check.
 
+Guard XmString text concatenation growth (2026-10-25)
+======================================================
+
+- Check output-length arithmetic and commit `XtRealloc` results before
+  copying text components, releasing partial state on failure; see
+  `docs/xmstring-text-concat-allocation.md` and its focused source check.
+

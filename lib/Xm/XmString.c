@@ -7749,9 +7749,24 @@ _XmStringGetTextConcat(
 	  case XmSTRING_COMPONENT_TEXT:
 	  case XmSTRING_COMPONENT_LOCALE_TEXT:
 	  case XmSTRING_COMPONENT_WIDECHAR_TEXT:
+	    if (OutLen >= SIZE_MAX ||
+		(size_t)len > SIZE_MAX - OutLen - 1 ||
+		OutLen + (size_t)len + 1 > (size_t)((Cardinal)~0)) {
+	      _XmStringContextFree(&stack_context);
+	      XtFree(OutStr);
+	      return NULL;
+	    }
 	    OldLen = OutLen;
 	    OutLen += len;
-	    OutStr = XtRealloc( OutStr, OutLen + 1) ;
+	    {
+	      char *new_out = XtRealloc(OutStr, (Cardinal)(OutLen + 1));
+	      if (!new_out) {
+		_XmStringContextFree(&stack_context);
+		XtFree(OutStr);
+		return NULL;
+	      }
+	      OutStr = new_out;
+	    }
 	    memcpy( &OutStr[OldLen], (char *)val, len) ;
 	    OutStr[OutLen] = '\0';
 	    break ;
