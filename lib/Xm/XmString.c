@@ -8393,8 +8393,18 @@ unparse_text(char                **result,
   if ((c_type == XmSTRING_COMPONENT_WIDECHAR_TEXT) ==
       (output_type == XmWIDECHAR_TEXT))
     {
+      char *new_result;
+      size_t allocation_size;
+      if ((size_t)*length > SIZE_MAX - (size_t)c_length)
+	return;
+      allocation_size = (size_t)*length + c_length;
+      if (allocation_size > (size_t)((Cardinal)~0))
+	return;
       /* No conversion is necessary. */
-      *result = XtRealloc(*result, *length + c_length);
+      new_result = XtRealloc(*result, (Cardinal)allocation_size);
+      if (!new_result)
+	return;
+      *result = new_result;
       memcpy(*result + *length, c_value, c_length);
       *length += c_length;
     }
@@ -8402,12 +8412,37 @@ unparse_text(char                **result,
     {
       /* Convert c_value to a multibyte string. */
       int len;
-      int max_bytes = c_length * MB_CUR_MAX / sizeof(wchar_t);
-      wchar_t *null_text = (wchar_t*) XtMalloc(c_length + sizeof(wchar_t));
+      size_t max_bytes;
+      size_t allocation_size;
+      char *new_result;
+      if (c_length > SIZE_MAX / MB_CUR_MAX)
+	return;
+      max_bytes = (size_t)c_length * MB_CUR_MAX / sizeof(wchar_t);
+      if ((size_t)c_length > SIZE_MAX - sizeof(wchar_t) ||
+	  (size_t)c_length + sizeof(wchar_t) > (size_t)((Cardinal)~0))
+	return;
+      wchar_t *null_text = (wchar_t*) XtMalloc((Cardinal)((size_t)c_length +
+							 sizeof(wchar_t)));
+      if (!null_text)
+	return;
       memcpy(null_text, c_value, c_length);
       null_text[c_length / sizeof(wchar_t)] = (wchar_t) '\0';
 
-      *result = XtRealloc(*result, *length + max_bytes);
+      if ((size_t)*length > SIZE_MAX - max_bytes) {
+	XtFree((char *)null_text);
+	return;
+      }
+      allocation_size = (size_t)*length + max_bytes;
+      if (allocation_size > (size_t)((Cardinal)~0)) {
+	XtFree((char *)null_text);
+	return;
+      }
+      new_result = XtRealloc(*result, (Cardinal)allocation_size);
+      if (!new_result) {
+	XtFree((char *)null_text);
+	return;
+      }
+      *result = new_result;
       len = wcstombs(*result + *length, null_text, max_bytes);
       if (len > 0)
 	*length += len;
@@ -8418,11 +8453,33 @@ unparse_text(char                **result,
     {
       /* Convert c_value to a widechar string. */
       int len;
-      char *null_text = XtMalloc(c_length + 1);
+      size_t allocation_size;
+      char *new_result;
+      if ((size_t)c_length >= SIZE_MAX ||
+	  (size_t)c_length + 1 > (size_t)((Cardinal)~0))
+	return;
+      char *null_text = XtMalloc((Cardinal)((size_t)c_length + 1));
+      if (!null_text)
+	return;
       memcpy(null_text, c_value, c_length);
       null_text[c_length] = '\0';
 
-      *result = XtRealloc(*result, *length + c_length * sizeof(wchar_t));
+      if ((size_t)c_length > (SIZE_MAX - (size_t)*length) / sizeof(wchar_t)) {
+	XtFree(null_text);
+	return;
+      }
+      allocation_size = (size_t)*length +
+			    (size_t)c_length * sizeof(wchar_t);
+      if (allocation_size > (size_t)((Cardinal)~0)) {
+	XtFree(null_text);
+	return;
+      }
+      new_result = XtRealloc(*result, (Cardinal)allocation_size);
+      if (!new_result) {
+	XtFree(null_text);
+	return;
+      }
+      *result = new_result;
       len = mbstowcs((wchar_t*) (*result + *length), null_text, c_length);
       if (len > 0)
 	*length += len * sizeof(wchar_t);

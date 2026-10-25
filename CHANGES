@@ -6068,3 +6068,10 @@ Guard Xft UTF-8 drawing conversion (2026-10-25)
   successful temporary buffers with Xt ownership; see
   `docs/xft-utf8-drawing-allocation.md` and its focused source check.
 
+Harden XmString unparse allocations (2026-10-25)
+==================================================
+
+- Check conversion-buffer allocation, result growth and length arithmetic in
+  compound-string unparse paths; see `docs/xmstring-unparse-allocation.md` and
+  its focused source check.
+
