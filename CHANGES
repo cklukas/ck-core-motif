@@ -14354,3 +14354,5 @@ CommandPalette size-limit header (2026-10-26)
   `docs/command-palette-size-limit-header.md`.
 * Fix an uninitialized maximum-height snapshot in XmList item insertion.
 * Include `<limits.h>` for the Desktop child-array `UINT_MAX` guard.
+* Make `_XmOSQualifyFileSpec` report allocation failure with initialized
+  output pointers and valid `void` returns.
