@@ -1,3 +1,9 @@
+Mrm hierarchy name API input validation (2026-10-25)
+====================================================
+
+- Validate hierarchy handles and name pointers before registration or lookup;
+  see `docs/mrm-hierarchy-name-inputs.md`.
+
 Mrm hierarchy open parameter validation (2026-10-25)
 =====================================================
 

@@ -506,3 +506,4 @@ EXTRA_DIST += tests/automated/check-mrm-compression-inputs.py docs/mrm-compressi
 EXTRA_DIST += tests/automated/check-mrm-table-fixup-inputs.py docs/mrm-table-fixup-inputs.md
 EXTRA_DIST += tests/automated/check-mrm-table-offset-bounds.py docs/mrm-table-offset-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-openhierarchy-os-input.py docs/mrm-openhierarchy-os-input.md
+EXTRA_DIST += tests/automated/check-mrm-hierarchy-name-inputs.py docs/mrm-hierarchy-name-inputs.md
