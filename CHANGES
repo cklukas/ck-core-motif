@@ -11030,3 +11030,10 @@ MWM menu query array bounds (2026-10-25)
   `MAX_MENU_ITEMS`, avoiding fixed-array overwrites and reply count mismatches;
   index each item during reply-size accounting and handle missing labels; see
   `docs/mwm-menu-array-bounds.md`.
+
+MWM automation reply sizing (2026-10-25)
+========================================
+
+- Use a `size_t` counter while sizing variable-length automation replies so
+  long menu labels cannot truncate the allocation size; see
+  `docs/mwm-automation-reply-size.md`.

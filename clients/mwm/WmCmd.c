@@ -2143,7 +2143,7 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
   
   Window winId;  
   XtPointer reply;
-  int size;
+  size_t size;
 
   int i, n, menuItemCount = 0;
   MenuItem *menu_item;

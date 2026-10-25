@@ -894,6 +894,8 @@ EXTRA_DIST += tests/automated/check-xcontext-zero.py docs/xcontext-null.md
 
 EXTRA_DIST += tests/automated/check-mwm-bitmap-path-bounds.py docs/mwm-bitmap-path-bounds.md
 
+EXTRA_DIST += tests/automated/check-mwm-automation-size.py docs/mwm-automation-reply-size.md
+
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 
 EXTRA_DIST += tests/automated/check-latin-lower-bounds.py docs/latin-lower-bounds.md
