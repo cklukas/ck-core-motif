@@ -52,6 +52,8 @@ static char rcsid[] = "$TOG: WmInitWs.c /main/18 1999/09/20 15:18:22 mgreess $"
 #include "WmOL.h"
 #endif /* NO_OL_COMPAT */
 #include <X11/Xos.h>
+#include <limits.h>
+#include <stdio.h>
 #include <X11/cursorfont.h>
 #include <Xm/Xm.h>
 #include <X11/Shell.h>
@@ -1798,29 +1800,29 @@ void InitWmWorkspace (WmWorkspaceData *pWS, WmScreenData *pSD)
 static void
 InsureDefaultBackdropDir(char **ppchBackdropDirs)
 {
-  int len;
   Boolean bFound = False;
   char *pch, *pchEnd, *pch2, *tmpptr;
-  char *pchD = DEFAULT_BACKDROP_DIR;
+  const char *pchD = DEFAULT_BACKDROP_DIR;
   unsigned int chlen;
-  char * homeDir;
+  size_t pchDLength;
+  char *homeDir;
 
   /*
    * Set up initial stuff
    */
   pch = *ppchBackdropDirs;
-  len = strlen (pchD);
+  pchDLength = strlen (pchD);
   pchEnd = pch + strlen(pch);
   
   while (!bFound && (pch != NULL) && (*pch != NULL))
     {
-      if (strncmp (pch, pchD, len) == 0)
+      if (strncmp (pch, pchD, pchDLength) == 0)
 	{
 	  /* found partial match, confirm complete match ...
 	   * complete match if char off end of partial match
 	   * is a NULL or a colon 
 	   */
-	  pch2 = pch + len;	
+	  pch2 = pch + pchDLength;
 	  if ((pch2 <= pchEnd) &&
 	      ((*pch2 == NULL) ||
 	       (((mblen (pch2, MB_CUR_MAX) == 1) &&
@@ -1844,48 +1846,55 @@ InsureDefaultBackdropDir(char **ppchBackdropDirs)
   
 
   /*
-   * Always add the user's home directory to the beginning of the string
+   * Always add the user's home directory to the beginning of the string.
+   * Compute the result first so long resource values cannot wrap an int or
+   * make the later copies overrun the allocation.
    */
-  homeDir = (char *) XmeGetHomeDirName();  
-    
-  /*
-   * If found add the user's home directory ($HOME/.dt/backdrops) and the 
-   * admin directory /etc/dt/backdrops to the beginning of the string
-   */
-  
-  if (bFound)  
-    {
-      len = strlen (homeDir) + strlen("/.dt/backdrops") + 
-	    strlen (*ppchBackdropDirs) + strlen("/etc/dt/backdrops") + 3;
-      tmpptr = XtMalloc (len * sizeof (char *));
-      strcpy (tmpptr, homeDir);
-      strcat (tmpptr, "/.dt/backdrops");
-      strcat (tmpptr, ":");
-      strcat (tmpptr, "/etc/dt/backdrops");
-      strcat (tmpptr, ":");
-      strcat (tmpptr, *ppchBackdropDirs);
+  homeDir = (char *) XmeGetHomeDirName();
+  {
+      const char *existing = (*ppchBackdropDirs != NULL) ?
+          *ppchBackdropDirs : "";
+      const char *format = bFound ?
+          "%s/.dt/backdrops:/etc/dt/backdrops:%s" :
+          "%s/.dt/backdrops:%s:/etc/dt/backdrops:%s";
+      int formattedLength;
+
+      if (bFound)
+      {
+          formattedLength = snprintf(NULL, 0, format, homeDir, existing);
+      }
+      else
+      {
+          formattedLength = snprintf(NULL, 0, format, homeDir, existing,
+                                      pchD);
+      }
+      if (formattedLength < 0 || (size_t)formattedLength >= UINT_MAX)
+      {
+          Warning("Backdrop search path is too long");
+          return;
+      }
+
+      tmpptr = (char *)XtMalloc((Cardinal)formattedLength + 1);
+      if (tmpptr == NULL)
+      {
+          Warning("Insufficient memory for backdrop search path");
+          return;
+      }
+      if (bFound)
+      {
+          (void)snprintf(tmpptr, (size_t)formattedLength + 1, format,
+                         homeDir, existing);
+      }
+      else
+      {
+          (void)snprintf(tmpptr, (size_t)formattedLength + 1, format,
+                         homeDir, existing, pchD);
+      }
+      if (*ppchBackdropDirs != NULL)
+          XtFree(*ppchBackdropDirs);
       *ppchBackdropDirs = tmpptr;
-    }
-  else
-    /*
-     * If string not found, then add home directory to the beginning of 
-     * string and the admin directory and system directory to the end.
-     */
-    {
-      len = strlen (homeDir) + strlen("/.dt/backdrops") + 
-	    strlen (*ppchBackdropDirs) + strlen(pchD) + 
-	    strlen("/etc/dt/backdrops") + 4;
-      tmpptr = XtMalloc (len * sizeof (char *));
-      strcpy (tmpptr, homeDir);
-      strcat (tmpptr, "/.dt/backdrops");
-      strcat (tmpptr, ":");
-      strcat (tmpptr, *ppchBackdropDirs); 
-      strcat (tmpptr, ":");
-      strcat (tmpptr, "/etc/dt/backdrops"); 
-      strcat (tmpptr, ":");
-      strcat (tmpptr, pchD);
-      *ppchBackdropDirs = tmpptr;
-    }
+  }
+
   
 } /* END OF FUNCTION InsureDefaultBackdropDirs */
 #endif /* WSM */

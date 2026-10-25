@@ -1,3 +1,9 @@
+WSM backdrop search-path bounds (2026-10-25)
+==============================================
+
+- Check and safely format user/admin backdrop paths, including allocation
+  failure handling; see `docs/backdrop-path-bounds.md`.
+
 Mwm menu-warning bounds (2026-10-25)
 =====================================
 
