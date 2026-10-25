@@ -11,6 +11,7 @@ body = source[start:end]
 
 assert "while (len < seglen && esptr[len] != STX)" in body
 assert "if (len >= seglen)" in body
+assert "if ((ctx->lastoctet - ctx->octet) < 2)" in body
 assert "while (esptr[len] != STX)" not in body
 
 print("compound-text extended-segment bounds: ok")

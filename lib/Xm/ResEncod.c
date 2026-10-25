@@ -1043,6 +1043,8 @@ processExtendedSegmentsHack(
 	&&	(_IsInColumn3(final))
        ) 
       {
+	if ((ctx->lastoctet - ctx->octet) < 2)
+	  return False;
 	if (    (ctx->octet[0] < 0x80)
 	    ||  (ctx->octet[1] < 0x80)
 	   )	

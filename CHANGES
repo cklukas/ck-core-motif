@@ -67,6 +67,12 @@ Compound-text extended-segment bound (2026-10-26)
   declared segment length, rejecting malformed segments without a separator;
   see `docs/compound-text-extended-segment-bounds.md`.
 
+Compound-text extended-header bound (2026-10-26)
+=================================================
+
+- Validate the compatibility parser's two-octet extended-segment length
+  header before reading it; see `docs/compound-text-extended-segment-bounds.md`.
+
 Compound-text empty-segment guard (2026-10-26)
 ================================================
 
