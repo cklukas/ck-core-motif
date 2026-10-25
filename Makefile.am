@@ -954,6 +954,8 @@ EXTRA_DIST += tests/automated/check-wsm-request-array-state.py docs/wsm-request-
 
 EXTRA_DIST += tests/automated/check-wsm-nested-array-state.py docs/wsm-nested-array-state.md
 
+EXTRA_DIST += tests/automated/check-wsm-wire-width.py docs/wsm-wire-width.md
+
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 
 EXTRA_DIST += tests/automated/check-latin-lower-bounds.py docs/latin-lower-bounds.md

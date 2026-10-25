@@ -11237,3 +11237,10 @@ WSM nested array state (2026-10-25)
 - Validate per-record data, window, and property arrays before reply/request
   sizing, rejecting inconsistent nested state; see
   `docs/wsm-nested-array-state.md`.
+
+WSM property wire width (2026-10-25)
+====================================
+
+- Size serialized WM-window property fields at their 32-bit protocol width,
+  avoiding oversized messages and uninitialized host-width padding; see
+  `docs/wsm-wire-width.md`.

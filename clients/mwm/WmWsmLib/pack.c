@@ -245,14 +245,14 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 		return(NULL);
 	size = sizeof(CARD32); /* flag */
 	size += COUNT_SIZE;    /* prop count */
-	size += request->wm_windows.num_window_properties * sizeof(Window);
+	size += request->wm_windows.num_window_properties * sizeof(CARD32);
 	size += COUNT_SIZE;    /* num match attributes */
 	for (i=0; i<request->wm_windows.num_match_attributes; i++)
 	  {
 	    size += COUNT_SIZE; /* num attributes */
 	    size += 2 *
 	            request->wm_windows.match_attributes[i]->num_attributes *
-		    sizeof(WindowProperty);
+		    sizeof(CARD32);
 	  }
 	break;
     case WSM_WM_FOCUS:
@@ -960,7 +960,7 @@ WinEntrySizePacked(Display *dpy, int screen_num, WSMWinEntry *win_entry)
     size  = sizeof(CARD32);
     size += sizeof(CARD32) * win_entry->num_windows;
     size += sizeof(CARD32);
-    size += sizeof(WindowProperty) * win_entry->num_match_properties;
+    size += sizeof(CARD32) * win_entry->num_match_properties;
 
     return(size);
 }
