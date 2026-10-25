@@ -1186,18 +1186,26 @@ HashPixmapData (XmHashKey key)
 static void 
 InitializePixmapSets( void )
 {
-    /* Allocate the pixmap hash tables.
-     One for the regular XmGetPixmap lookup, one for the
-     XmeGetPixmapData lookup */
+    XmHashTable new_pixmap_data_set;
+    XmHashTable new_pixmap_set;
+
+    /* Allocate both tables before publishing either global. */
     assert (pixmap_data_set == NULL && pixmap_set == NULL);
 
     _XmProcessLock();
-    pixmap_data_set = _XmAllocHashTable (100, ComparePixmapDatas, 
-					 HashPixmapData);
-
-    pixmap_set = _XmAllocHashTable (100, ComparePixmaps, HashPixmap);
+    new_pixmap_data_set = _XmAllocHashTable (100, ComparePixmapDatas,
+                                             HashPixmapData);
+    new_pixmap_set = _XmAllocHashTable (100, ComparePixmaps, HashPixmap);
+    if (new_pixmap_data_set != NULL && new_pixmap_set != NULL) {
+        pixmap_data_set = new_pixmap_data_set;
+        pixmap_set = new_pixmap_set;
+    }
     _XmProcessUnlock();
 
+    if (new_pixmap_data_set == NULL && new_pixmap_set != NULL)
+        _XmFreeHashTable(new_pixmap_set);
+    else if (new_pixmap_data_set != NULL && new_pixmap_set == NULL)
+        _XmFreeHashTable(new_pixmap_data_set);
 }
 
 /************************************************************************
