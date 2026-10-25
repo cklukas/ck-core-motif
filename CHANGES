@@ -4901,3 +4901,9 @@ Fix hash-table resize chain linking (2026-10-25)
 
 - Always advance the resize predecessor pointer so rehashing a later entry
   cannot unlink an earlier bucket entry; see `docs/hash-resize-linking.md`.
+
+Fix XPM symbolic color detection (2026-10-25)
+=============================================
+
+- Report matching symbolic colors as used so ImageCache can apply the correct
+  color-sensitive cache policy; see `docs/symbolic-color-detection.md`.

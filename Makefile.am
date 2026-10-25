@@ -820,3 +820,5 @@ EXTRA_DIST += tests/automated/check-image-string-hash-width.py docs/image-string
 EXTRA_DIST += tests/automated/check-xm-gc-ownership.py docs/gc-ownership-fallback.md
 
 EXTRA_DIST += tests/automated/check-xm-hash-resize-linking.py docs/hash-resize-linking.md
+
+EXTRA_DIST += tests/automated/check-symbolic-color-used.py docs/symbolic-color-detection.md
