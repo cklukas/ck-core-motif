@@ -142,6 +142,7 @@ EXTRA_DIST += tests/automated/check-container-cell-info-allocation.py docs/conta
 EXTRA_DIST += tests/automated/check-container-transfer-allocation.py docs/container-transfer-allocation.md
 EXTRA_DIST += tests/automated/check-xmstring-cache-allocation.py docs/xmstring-cache-allocation.md
 EXTRA_DIST += tests/automated/check-unique-event-allocation.py docs/unique-event-allocation.md
+EXTRA_DIST += tests/automated/check-xmstring-charset-allocation.py docs/xmstring-charset-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md
 EXTRA_DIST += tests/automated/check-editres-error-bounds.py docs/editres-error-bounds.md
 EXTRA_DIST += tests/automated/check-spinbox-name-bounds.py docs/spinbox-name-bounds.md

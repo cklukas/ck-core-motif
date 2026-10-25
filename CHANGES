@@ -9818,6 +9818,13 @@ Unique-event state allocation guard (2026-10-25)
   processing safely if state allocation fails; see
   `docs/unique-event-allocation.md`.
 
+XmString charset allocation fallback (2026-10-25)
+==================================================
+
+- Return the built-in fallback charset safely when locale-tag cache
+  allocation fails, allowing later initialization retry; see
+  `docs/xmstring-charset-allocation.md`.
+
 MWM label-parse allocation guard (2026-10-25)
 ==============================================
 
