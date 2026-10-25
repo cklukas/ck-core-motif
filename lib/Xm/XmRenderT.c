@@ -2585,7 +2585,13 @@ _XmCreateRenderTable(Widget parent,
   
   /* Malloc new table */
   table = (_XmRenderTable)XtMalloc(sizeof(_XmRenderTableRec));
+  if (table == NULL)
+    return((Widget)NULL);
   newtable = GetHandle(_XmRenderTable);
+  if (newtable == NULL) {
+    XtFree((char *)table);
+    return((Widget)NULL);
+  }
   SetPtr(newtable, table);
   _XmRTCount(newtable) = 0;
   _XmRTRefcount(newtable) = 1;

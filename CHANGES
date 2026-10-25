@@ -205,6 +205,8 @@ Render-table locking (2026-10-26)
   its temporary rendition array; see `docs/render-table-property-conversion.md`.
 - Guard rendition body and handle allocation in `_XmRenditionCreate`; see
   `docs/render-table-rendition-create.md`.
+- Guard table body and handle allocation in `_XmCreateRenderTable`; see
+  `docs/render-table-mrm-create.md`.
 - Roll back shared-table cloning in `_XmRenderTableRemoveRenditions` when a
   table body, handle, or rendition copy cannot be allocated; see
   `docs/render-table-removal.md`.

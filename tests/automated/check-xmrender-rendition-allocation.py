@@ -18,6 +18,12 @@ create_region = source[create_start:create_end]
 assert "if (rend_int == NULL)" in create_region
 assert "if (rend == NULL)" in create_region
 assert "XtFree((char *)rend_int);" in create_region
+table_start = source.index("_XmCreateRenderTable(Widget parent")
+table_end = source.index("/* Mrm create function for renditions. */", table_start)
+table_region = source[table_start:table_end]
+assert "if (table == NULL)" in table_region
+assert "if (newtable == NULL)" in table_region
+assert "XtFree((char *)table);" in table_region
 add_start = source.index("XmRenderTableAddRenditions(")
 add_end = source.index("/* Remove matching renditions. */", add_start)
 add_region = source[add_start:add_end]
