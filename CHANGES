@@ -274,6 +274,8 @@ Render-table locking (2026-10-26)
   rollback; see `docs/xmstring-parse-array-inputs.md`.
 - Reject null source elements in `XmStringTableUnparse` with full rollback;
   see `docs/xmstring-unparse-array-inputs.md`.
+- Reject null elements in `XmStringTableToXmString` instead of silently
+  skipping them; see `docs/xmstring-table-inputs.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================

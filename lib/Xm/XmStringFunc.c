@@ -277,6 +277,10 @@ XmStringTableToXmString(XmStringTable  table,
 
   for (i = 0; i < count; i++)
     {
+      if (table[i] == NULL) {
+        XmStringFree(tmp1);
+        return(NULL);
+      }
       tmp2 = XmStringConcatAndFree(tmp1, XmStringCopy(table[i]));
       str = XmStringConcatAndFree(tmp2, XmStringCopy(break_comp));
 
