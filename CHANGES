@@ -8144,3 +8144,12 @@ Region rectangle-shrink metadata (2026-10-27)
 
 FontS list-size bounds (2026-10-27)
 ===================================
+UIL comment-buffer growth (2026-10-27)
+======================================
+
+- Publish expanded comment storage only after `XtRealloc` succeeds.  A failed
+  UIL comment-buffer growth now reports the error without replacing the live
+  buffer with a null pointer.
+
+FontSelector widget-list growth (2026-10-27)
+=============================================

@@ -1599,7 +1599,14 @@ found_token:
 	    }
 	  if (new_size > (size_t)UINT_MAX || new_size > (size_t)INT_MAX)
 	    XtError("UIL comment is too large");
-	  comment_text = XtRealloc(comment_text, (Cardinal)new_size);
+	  {
+	    char *new_text = XtRealloc(comment_text, (Cardinal)new_size);
+	    if (new_text == NULL) {
+	      XtError("UIL comment allocation failed");
+	      return 0;
+	    }
+	    comment_text = new_text;
+	  }
 	  comment_size = (int)new_size;
 	}
 
