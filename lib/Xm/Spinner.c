@@ -206,6 +206,11 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     Boolean redraw = False;
     (void)request; (void)args; (void)count;
     spinner->spinner.interval = bounded_interval(spinner->spinner.interval);
+    if (old->spinner.interval != spinner->spinner.interval &&
+        spinner->spinner.timer_pending) {
+        XtRemoveTimeOut(spinner->spinner.timer);
+        spinner->spinner.timer_pending = False;
+    }
     if (old->spinner.label != spinner->spinner.label) {
         if (spinner->spinner.label)
             spinner->spinner.label = XmStringCopy(spinner->spinner.label);
@@ -216,6 +221,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         redraw = True;
         SyncTimer(spinner);
     }
+    else if (old->spinner.interval != spinner->spinner.interval)
+        SyncTimer(spinner);
     if (old->spinner.interval != spinner->spinner.interval ||
         old->primitive.foreground != spinner->primitive.foreground ||
         old->core.background_pixel != spinner->core.background_pixel ||

@@ -7838,3 +7838,10 @@ NumberBox arithmetic bounds (2026-10-27)
 - Use `int64_t` for range-step intermediates so extreme `int` values do not
   overflow on 32-bit platforms before clamping; see
   `docs/numberbox-arithmetic-bounds.md`.
+
+Spinner interval rescheduling (2026-10-27)
+===========================================
+
+- Replace pending Spinner timeouts immediately when `XmNspinnerInterval`
+  changes, so active controls use the new interval without a stale tick; see
+  `docs/spinner-interval-reschedule.md`.
