@@ -1,3 +1,10 @@
+Xm pixmap-cache allocation failure handling (2026-10-25)
+==============================================================
+
+- Check cache-table and entry allocations, clean up partial records, and
+  reject failed initialization before hash insertion; see
+  `docs/xm-cache-allocation-failure.md`.
+
 Xme pixmap-data screen validation (2026-10-25)
 ==================================================
 

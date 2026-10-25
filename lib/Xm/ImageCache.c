@@ -1230,6 +1230,8 @@ _XmCachePixmap(
        return (False);
 
    if (!pixmap_data_set) InitializePixmapSets() ;
+   if (pixmap_data_set == NULL || pixmap_set == NULL)
+       return (False);
 
    /* if no information was given, get it from the server */
    if (!(width && height && depth)) {
@@ -1245,9 +1247,15 @@ _XmCachePixmap(
    /*  Allocate the cache structure and put it into the list  */
 
    pix_entry = XtNew (PixmapData);
-   
+   if (pix_entry == NULL)
+       return (False);
+
    pix_entry->screen = screen;
    pix_entry->acc_color = XtNew(XmAccessColorDataRec);
+   if (pix_entry->acc_color == NULL) {
+       XtFree((char *)pix_entry);
+       return (False);
+   }
    pix_entry->acc_color->foreground = foreground;
    pix_entry->acc_color->background = background;
    pix_entry->acc_color->top_shadow_color = XmUNSPECIFIED_PIXEL;
@@ -1258,6 +1266,11 @@ _XmCachePixmap(
    pix_entry->width = loc_width;
    pix_entry->height = loc_height;
    pix_entry->image_name = XtNewString(image_name);
+   if (pix_entry->image_name == NULL) {
+       XtFree((char *)pix_entry->acc_color);
+       XtFree((char *)pix_entry);
+       return (False);
+   }
    pix_entry->pixmap = pixmap;
    pix_entry->reference_count = 1;
    pix_entry->print_resolution = 100 ;

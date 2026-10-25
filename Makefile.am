@@ -549,3 +549,5 @@ EXTRA_DIST += tests/automated/check-xm-get-image-output.py docs/xm-get-image-out
 EXTRA_DIST += tests/automated/check-xm-get-image-screen.py docs/xm-get-image-screen-validation.md
 
 EXTRA_DIST += tests/automated/check-xme-pixmap-data-screen.py docs/xme-pixmap-data-screen-validation.md
+
+EXTRA_DIST += tests/automated/check-xm-cache-allocation-failure.py docs/xm-cache-allocation-failure.md
