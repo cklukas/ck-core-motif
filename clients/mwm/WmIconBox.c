@@ -3397,6 +3397,9 @@ Cardinal InsertPosition (Widget w)
 void ShowClientIconState (ClientData *pCD, int newState)
 {
 
+    if (pCD == NULL)
+	return;
+
     /*
      * Changing the appearance of an icon window in the box to 
      * reflect the client's state

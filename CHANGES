@@ -1,3 +1,9 @@
+Client icon-state validation (2026-10-25)
+=========================================
+
+- Reject missing client records before updating icon windows; see
+  `docs/show-client-icon-state-guard.md`.
+
 Icon-box bounds child validation (2026-10-25)
 =============================================
 
