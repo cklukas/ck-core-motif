@@ -298,7 +298,7 @@ void XmeDrawSeparator(Display *display, Drawable d,
 
    line_span = (orientation == XmHORIZONTAL ? (int) width :
                                                (int) height) -
-               (int) margin;
+               2 * (int) margin;
    if (line_span <= 0) {
        _XmAppUnlock(app);
        return;

@@ -1,3 +1,9 @@
+Separator double-margin bounds (2026-10-27)
+===========================================
+
+- Require both end margins to fit before drawing simple separators, avoiding
+  reversed spans in narrow widgets.
+
 GrabShell layout guards (2026-10-27)
 ====================================
 
