@@ -31,6 +31,7 @@ clients exchanging Motif window-management messages.
 - [Push-button array growth](mwm-save-pbinfo-growth.md)
 - [Restart-command allocation](mwm-restart-command-allocation.md)
 - [Session database-name allocation](mwm-db-name-allocation.md)
+- [Session database suffix updates](mwm-db-name-suffix.md)
 - [Action-argument reallocation](mwm-action-arg-reallocation.md)
 - [Session-command parsing rollback](mwm-session-command-rollback.md)
 - [Motif-bindings path sizing](mwm-bindings-path-size.md)

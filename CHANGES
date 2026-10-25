@@ -11276,3 +11276,9 @@ WSM cleanup null-safety (2026-10-25)
 
 - Make WSM request and reply cleanup tolerate null handles and partial nested
   arrays; see `docs/wsm-free-null.md`.
+
+MWM session database suffix updates (2026-10-25)
+=================================================
+
+- Bound numeric suffix conversion and non-numeric suffix appends for session
+  database names; see `docs/mwm-db-name-suffix.md`.

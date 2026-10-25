@@ -42,6 +42,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 ## MWM and window-management protocol
 
 - [MWM protocol overview](mwm-protocol-oom.md) — protocol conversion and allocation-failure behavior.
+- [MWM session database suffix updates](mwm-db-name-suffix.md) — bounded session-name suffix handling.
 - [Workspace-management command messages](command-message-argument-allocation.md) — bounded command-message construction.
 - [WSM string unpack allocation](wsm-unpack-string-oom.md) — safe failure handling for decoded strings.
 - [WSM null input streams](wsm-unpack-null.md) — tolerate empty decoder inputs safely.

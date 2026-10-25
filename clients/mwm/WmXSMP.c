@@ -28,6 +28,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <limits.h>
 #include <ctype.h>
 #include <stdint.h>
 #include <sys/param.h>
@@ -412,18 +414,35 @@ setClientDBName(void)
 
 	if (*p1 == '\0')
 	{
-	    int numSuffix;
+	    char *endptr;
+	    unsigned long numSuffix;
+	    size_t suffixLength = strlen(ptr);
 
-	    numSuffix = atoi(ptr) + 1;
-	    sprintf(ptr, "%d", numSuffix);
+	    errno = 0;
+	    numSuffix = strtoul(ptr, &endptr, 10);
+	    if (errno != ERANGE && endptr != ptr && *endptr == '\0' &&
+		numSuffix != ULONG_MAX &&
+		suffixLength <= SIZE_MAX - EXTRA_FN_CHARS - 1)
+	    {
+		(void)snprintf(ptr, suffixLength + EXTRA_FN_CHARS + 1,
+		               "%lu", numSuffix + 1);
+	    }
 
 	    /* Success!  We're all done here. */
 	    return;
 	}
     }
 
-    /* Otherwise, append ".0" to filename. */
-    strcat(wmGD.dbFileName, ".0");
+    /* Otherwise, append ".0" to filename within the reserved capacity. */
+    {
+	size_t length = strlen(wmGD.dbFileName);
+	if (length <= SIZE_MAX - EXTRA_FN_CHARS - 3)
+	    {
+		wmGD.dbFileName[length] = '.';
+		wmGD.dbFileName[length + 1] = '0';
+		wmGD.dbFileName[length + 2] = '\0';
+	    }
+    }
 }
 
 static char **
