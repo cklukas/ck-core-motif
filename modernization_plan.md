@@ -601,11 +601,12 @@ matrix-wide sanitizer gate can close.
 
 The installed native cohort also includes the bounded `nontext-unicode`
 public-API fixture for combining, non-BMP and Han values through Label, List,
-ComboBox, Menu and FileSelection resources. The fresh 20-check run now also
-iterates a two-segment compound `XmString` with an explicit separator through a
-Label and exercises List existence, position and match search with the
-non-BMP item, without promoting mnemonic, physical-keyboard or application-
-level Unicode coverage to complete.
+ComboBox, Menu and FileSelection resources. The fresh 25-check run now also
+iterates and validates both payloads and the explicit separator in a
+two-segment compound `XmString`, exercises List existence, position and match
+search with the non-BMP item, and round-trips a non-ASCII `XmNmnemonic`
+resource. Physical-keyboard and application-level Unicode coverage remain
+separate gates.
 
 A strict consumer ASan/UBSan run of the interrupted-clipboard fixture also
 passed against that cohort. The updated pinned Xt patch now covers both the

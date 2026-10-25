@@ -7,8 +7,10 @@
 #include <Xm/PushB.h>
 #include <Xm/RowColumn.h>
 #include <Xm/Xm.h>
+#include <X11/keysym.h>
 #include <locale.h>
 #include <stdio.h>
+#include <string.h>
 
 #define CHECK(condition) do { \
     if (!(condition)) { fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, \
@@ -39,6 +41,7 @@ int main(int argc, char **argv)
     XmStringDirection segment_direction;
     Boolean segment_separator;
     unsigned int segment_count = 0;
+    KeySym mnemonic = NoSymbol;
 
     CHECK(setlocale(LC_ALL, "C.UTF-8") != NULL);
     XtSetLanguageProc(NULL, NULL, NULL);
@@ -65,6 +68,9 @@ int main(int argc, char **argv)
     menu_item = XtVaCreateManagedWidget("menu-item", xmPushButtonWidgetClass,
                                        pulldown, XmNlabelString, expected_menu,
                                        NULL);
+    XtVaSetValues(menu_item, XmNmnemonic, XK_eacute, NULL);
+    XtVaGetValues(menu_item, XmNmnemonic, &mnemonic, NULL);
+    CHECK(mnemonic == XK_eacute);
     cascade = XtVaCreateManagedWidget("cascade", xmCascadeButtonWidgetClass,
                                       menu, XmNsubMenuId, pulldown, NULL);
     (void)cascade;
@@ -98,6 +104,13 @@ int main(int argc, char **argv)
     while (XmStringGetNextSegment(context, &segment_text, &segment_charset,
                                   &segment_direction, &segment_separator)) {
         CHECK(segment_text != NULL && segment_charset != NULL);
+        if (segment_count == 0) {
+            CHECK(strcmp(segment_text, values[0]) == 0);
+            CHECK(segment_separator == True);
+        } else if (segment_count == 1) {
+            CHECK(strcmp(segment_text, values[1]) == 0);
+            CHECK(segment_separator == False);
+        }
         ++segment_count;
         XtFree(segment_text);
         segment_text = NULL;

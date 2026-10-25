@@ -9,7 +9,7 @@ separate toolkit-contract test.
 | --- | --- | --- | --- |
 | UTF-8 scalar and UAX #29 grapheme movement/deletion | Pass | Pending | Installed native text and map fixtures; x86_64 admission remains open. |
 | Combining, emoji, RTL, CJK and fallback-font corpus | Pass for recorded corpus | Pending | Native layout/readback corpus; not exhaustive font coverage. |
-| Non-text Unicode labels, compound strings, List search, ComboBox, Menu and FileSelection values | Focused pass | Pending | `run-nontext-unicode-regressions.py` covers combining, non-BMP and Han values, a two-segment compound `XmString`, and List existence/position/match search through public Label, List, ComboBox, Menu and FileSelection APIs; physical-keyboard and application journeys remain open. |
+| Non-text Unicode labels, compound strings, List search, mnemonics, ComboBox, Menu and FileSelection values | Focused pass | Pending | `run-nontext-unicode-regressions.py` covers combining, non-BMP and Han values, a two-segment compound `XmString` with separator checks, a non-ASCII `XmNmnemonic` round trip, and List existence/position/match search through public Label, List, ComboBox, Menu and FileSelection APIs; physical-keyboard and application journeys remain open. |
 | Local Compose/dead key | Pass with private `@im=none` Xvfb | Pending | XTest fixture proves local XIM/XIC registration and exact commits; it is not a physical-keyboard test. |
 | IBus XIM composition, commit and cancellation | Focused pass | Pending | Real IBus/m17n fixture; standalone combining-mark commit and candidate panels remain gaps. |
 | Provider restart and transport loss | Focused pass | Pending | Same-process service loss/reconnect fixture; broader engines/providers remain unqualified. |

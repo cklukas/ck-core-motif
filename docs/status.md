@@ -183,9 +183,12 @@ The native ARM64 default feature suite now has 15 passing fixtures. New exact te
 change checks include Unicode scalar payloads, no-op/caret suppression, provider
 lifetime/reentrancy, password-role refusal and 20 libdbus construction/send fault
 cases with baseline recovery. Menu roles/actions/expansion and posted-shell focus
-are covered alongside compound-row traversal. These source/API and native results
-do not establish complete list/selection semantics, all editing notifications,
-actual screen-reader usability, x86_64 or sanitizer acceptance for the additions.
+are covered alongside compound-row traversal. The installed non-text Unicode
+consumer also validates compound segment payloads/separators and a non-ASCII
+mnemonic resource. These source/API and native results do not establish
+complete list/selection semantics, physical-keyboard layouts, all editing
+notifications, actual screen-reader usability, x86_64 or sanitizer acceptance
+for the additions.
 
 ## Accessibility modal admission checkpoint
 
