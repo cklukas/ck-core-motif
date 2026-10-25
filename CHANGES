@@ -1,3 +1,10 @@
+Arrow drawing size guards (2026-10-26)
+=====================================
+
+- Reject sub-three-pixel arrow dimensions before unsigned size subtraction,
+  preventing collapsed-arrow allocation blowups; see
+  `docs/drarrow-size-guards.md`.
+
 Arrow drawing GC guards (2026-10-26)
 ===================================
 
