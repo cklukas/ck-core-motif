@@ -1,3 +1,10 @@
+Mrm resource-context validation macro (2026-10-25)
+=================================================
+
+- Make `UrmRCValid` return false for null contexts instead of dereferencing
+  them, protecting all Mrm callers that use the shared validation macro; see
+  `docs/mrm-context-valid-macro.md`.
+
 Mrm data-entry context null guard (2026-10-25)
 ===============================================
 
