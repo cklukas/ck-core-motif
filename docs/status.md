@@ -133,9 +133,13 @@ from the same surviving owner. Direct Motif-to-Motif Text/TextField owner/import
 round trips also pass for mixed-script and multi-megabyte payloads, with an
 independent Xlib re-export check. Both regressions also pass in the combined
 installed-prefix suite. See the [dependency build](build.md). This verifies the
-recorded native toolkit/dependency/consumer scope; drag-and-drop workflows,
-physical display/input qualification and other architectures remain separate
-admission gates.
+recorded native toolkit/dependency/consumer scope. A separate installed
+same-process Motif drag gesture now passes conversion, valid-drop admission,
+transfer-entry client-data propagation and Xt-owned selection-value checks in
+three repeated Xvfb runs; cross-process transfer, cancellation, broader
+drag-and-drop workflows, physical display/input qualification and other
+architectures remain separate admission gates. See
+`docs/dnd-transfer-lifecycle.md`.
 
 The newer ABI 6 candidate, its consumers and documentation deployment remain
 distinct gates. Final x86_64 validation of this candidate remains pending.

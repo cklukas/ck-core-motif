@@ -9,6 +9,16 @@ Optional ckmotif++ support package and WML build graph (2026-10-25)
   `libXm`, allowing the WML tools to link from a fresh checkout; this is
   independent of the UIL literal-only module fix below.
 
+Same-process drag-and-drop transfer qualification (2026-10-25)
+===============================================================
+
+- Add an installed public-API drag gesture regression covering drop admission,
+  source conversion, asynchronous transfer-entry client data and Xt-owned
+  selection values. Three fresh AArch64 Xvfb runs pass 11 checks against the
+  recorded `libXm` prefix; cross-process, cancellation, owner-replacement and
+  application-DnD coverage remain separate gates. See
+  `docs/dnd-transfer-lifecycle.md`.
+
 FontSelector sanitizer ownership boundary (2026-10-25)
 ========================================================
 

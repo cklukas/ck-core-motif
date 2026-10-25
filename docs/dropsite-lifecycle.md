@@ -17,6 +17,8 @@ The AArch64 `uconsole` qualification on 2026-10-25 passed seven checks in
 three repeated Xvfb runs. The runner records the source hash, `libXm.so.8.0.0`
 hash, loaded-library proof, output path and elapsed time.
 
-This is a lifecycle and registration boundary only. It does not claim a full
-two-process drag gesture, transfer conversion, cancellation, owner
-replacement or application workflow; those remain separate DnD gates.
+This is a lifecycle and registration boundary only. The bounded same-process
+gesture and transfer conversion contract is covered separately by
+`docs/dnd-transfer-lifecycle.md`. Neither probe claims cross-process transfer,
+cancellation, owner replacement or a complete application workflow; those
+remain separate DnD gates.

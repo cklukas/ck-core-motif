@@ -621,7 +621,12 @@ callback identity, update bracketing, explicit unregister/re-register, and
 implicit teardown of a registered widget. Three repeated Xvfb runs pass all
 seven checks on `uconsole`; this is a bounded lifecycle result and does not
 close two-process transfer, cancellation, owner-replacement or application-DnD
-gates. See `docs/dropsite-lifecycle.md`.
+gates. The new installed `check-dnd-transfer` consumer adds a real
+same-process Motif drag gesture and passes conversion, valid-drop admission,
+transfer-entry client-data propagation and selection-value ownership checks in
+three repeated Xvfb runs. Cross-process transfer, cancellation, owner
+replacement, multiple targets and application-DnD journeys remain separate
+gates. See `docs/dropsite-lifecycle.md` and `docs/dnd-transfer-lifecycle.md`.
 
 ### WP-07: Screen-reader usability and semantic completion
 
