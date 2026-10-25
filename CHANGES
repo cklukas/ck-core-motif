@@ -7442,3 +7442,11 @@ ComboBox geometry negotiation bounds (2026-10-26)
 
 ComboBox scrolled-list geometry bounds (2026-10-26)
 ====================================================
+ComboBox hit and drawing bounds (2026-10-26)
+=============================================
+
+- Bound hit-area, arrow, and shadow dimensions for collapsed ComboBoxes; see
+  `docs/combobox-drawing-bounds.md`.
+
+ComboBox geometry negotiation bounds (2026-10-26)
+==================================================

@@ -2845,11 +2845,14 @@ SetHitArea(Widget w)
 {
   XmComboBoxWidget cb = (XmComboBoxWidget)w;
   Dimension	   thickW = 0, thickH = 0, ebH;
+  int available_height;
 
   assert(CB_Type(cb) != XmCOMBO_BOX);
 
   GetThickness(w, &thickW, &thickH);
-  ebH = XtHeight(cb) - 2 * (thickH + XtBorderWidth(CB_EditBox(cb)));
+  available_height = (int) XtHeight(cb) -
+      2 * ((int) thickH + (int) XtBorderWidth(CB_EditBox(cb)));
+  ebH = (Dimension) ((available_height > 0) ? available_height : 1);
 
   if (CB_ArrowSize(cb) == XmINVALID_DIMENSION)
     CB_ArrowSize(cb) = GetDefaultArrowSize((Widget)cb);
@@ -2933,9 +2936,12 @@ DrawArrow(Widget widget,
     CB_ArrowSize(cb) = GetDefaultArrowSize((Widget) cb);
 
   /* CR 6912: Reduce size to fit the actual space available. */
-  max_height = XtHeight(cb) - 
-    2 * (CB_MarginHeight(cb) + CB_HighlightThickness(cb) +
-	 cb->manager.shadow_thickness  + XtBorderWidth(CB_EditBox(cb)));
+  max_height = (int) XtHeight(cb) -
+    2 * ((int) CB_MarginHeight(cb) + (int) CB_HighlightThickness(cb) +
+	 (int) cb->manager.shadow_thickness +
+	 (int) XtBorderWidth(CB_EditBox(cb)));
+  if (max_height < 1)
+    max_height = 1;
   if (CB_ArrowSize(cb) > max_height)
     {
       excess = CB_ArrowSize(cb) - max_height;
@@ -2979,13 +2985,17 @@ DrawShadows(Widget widget)
 {
   XmComboBoxWidget cb = (XmComboBoxWidget)widget;
   int offset = CB_HighlightThickness(cb);
+  Dimension shadow_width = (XtWidth(widget) > 2 * offset) ?
+      XtWidth(widget) - 2 * offset : 1;
+  Dimension shadow_height = (XtHeight(widget) > 2 * offset) ?
+      XtHeight(widget) - 2 * offset : 1;
 
   XmeDrawShadows(XtDisplay(widget), XtWindow(widget),
 		 cb->manager.top_shadow_GC,
 		 cb->manager.bottom_shadow_GC,
 		 offset, offset,
-		 XtWidth(widget) - 2 * offset,
-		 XtHeight(widget) - 2 * offset,
+		 shadow_width,
+		 shadow_height,
 		 MGR_ShadowThickness(cb),
 		 XmSHADOW_OUT);
 }
