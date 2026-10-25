@@ -4690,3 +4690,9 @@ XmString ASN.1 truncation allocation failures (2026-10-25)
 - Check replacement and resize allocations in `_XmStringTruncateASN1`,
   returning a clean failure to `XmStringNCopy`; see
   `docs/xmstring-truncation-allocation.md`.
+
+XmString parse-mapping inputs (2026-10-25)
+===========================================
+
+- Reject null argument arrays for nonzero counts and skip null resource names
+  while setting parse mappings; see `docs/xmstring-parse-mapping-inputs.md`.
