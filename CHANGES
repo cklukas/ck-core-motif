@@ -24,6 +24,13 @@ Chip geometry bounds (2026-10-26)
 - Bound chip label, pixmap, removal affordance, and vertical padding arithmetic
   to the `Dimension` range; see `docs/chip-geometry-bounds.md`.
 
+Tree-view RTL label bounds (2026-10-26)
+=======================================
+
+- Bound RTL label-width and draw-length arithmetic in `XmTreeView` to avoid
+  signed overflow for unusually long labels; see
+  `docs/tree-view-rtl-label-bounds.md`.
+
 WSM reply payload validation (2026-10-26)
 =========================================
 

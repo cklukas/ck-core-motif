@@ -5,6 +5,8 @@
 #include <X11/keysym.h>
 #include <Xm/TreeViewP.h>
 #include <Xm/XmP.h>
+#include <limits.h>
+#include <stdint.h>
 #include "PrimitiveI.h"
 #include "XmI.h"
 
@@ -315,13 +317,23 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         }
         label = view->tree_view.items[index].label ?
                 view->tree_view.items[index].label : "";
+        {
+            size_t label_length = strlen(label);
+            int draw_length = label_length > (size_t)INT_MAX ? INT_MAX :
+                              (int)label_length;
+            int label_width = label_length > (size_t)(INT_MAX - 4) / 8 ?
+                              INT_MAX - 4 : (int)(label_length * 8);
         if (!view->tree_view.rtl)
             x += 14;
-        else
-            x -= (int)strlen(label) * 8 + 4;
+        else {
+            long long rtl_x = (long long)x - label_width - 4;
+            x = rtl_x < INT_MIN ? INT_MIN :
+                (rtl_x > INT_MAX ? INT_MAX : (int)rtl_x);
+        }
         XDrawString(display, window, view->tree_view.gc, x,
                     y + (int)view->tree_view.row_height - 6,
-                    label, (int)strlen(label));
+                    label, draw_length);
+        }
     }
     if (view->primitive.highlighted && view->primitive.highlight_thickness &&
         view->core.width > 2 * view->primitive.highlight_thickness &&
