@@ -211,6 +211,14 @@ ABCDEFGHIJKLMONPQRSTUVWXYZ\n\
 
 static int resolutions[] = { 75, 100 };
 
+static long long square_or_max(long long value)
+{
+    const long long limit = 3037000499LL; /* floor(sqrt(LLONG_MAX)) */
+    if (value > limit || value < -limit)
+        return LLONG_MAX;
+    return value * value;
+}
+
 static XtResource resources[] =
 {
   {
@@ -736,7 +744,8 @@ static int
 FindResolution(Widget w)
 {
     Screen *screen = XtScreen(w);
-    register int i, xres, yres, min, pref;
+    register int i, pref;
+    long long xres, yres, min;
 
     /*
      * there are 2.54 centimeters to an inch; so there are 25.4 millimeters.
@@ -753,29 +762,38 @@ FindResolution(Widget w)
     /* This will get us the true pixels / inch.  That is probably
        not what we want */
 
-    xres = (254 * WidthOfScreen(screen) / WidthMMOfScreen(screen) + 5) / 10;
-    yres = (254 * HeightOfScreen(screen) / HeightMMOfScreen(screen) + 5) / 10;
+    xres = WidthMMOfScreen(screen) > 0
+        ? (254LL * WidthOfScreen(screen) / WidthMMOfScreen(screen) + 5) / 10
+        : 0;
+    yres = HeightMMOfScreen(screen) > 0
+        ? (254LL * HeightOfScreen(screen) / HeightMMOfScreen(screen) + 5) / 10
+        : 0;
 
-    xres *= xres;
-    yres *= yres;
+    xres = square_or_max(xres);
+    yres = square_or_max(yres);
 
     /*
      * Find the closest resolution by using a difference of squares.
      */
 
-    min = 32000;
+    min = LLONG_MAX;
     pref = resolutions[0];	/* We have to have some default. */
 
     for (i = 0; i < XtNumber(resolutions); i++) {
-	int diffx = (xres - resolutions[i] * resolutions[i]);
-	int diffy = (yres - resolutions[i] * resolutions[i]);
-	int tdiff;		/* the total difference. */
+	long long target = (long long)resolutions[i] * resolutions[i];
+	long long diffx = xres - target;
+	long long diffy = yres - target;
+	long long tdiff;		/* the total difference. */
 
 	/*
 	 * Square 'em.
 	 */
 
-	tdiff = (diffx * diffx) + (diffy * diffy);
+	{
+            long long sx = square_or_max(diffx);
+            long long sy = square_or_max(diffy);
+            tdiff = sx > LLONG_MAX - sy ? LLONG_MAX : sx + sy;
+	}
 	if (min > tdiff) {
 	    pref = resolutions[i];
 	    min = tdiff;
