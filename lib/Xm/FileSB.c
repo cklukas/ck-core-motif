@@ -2493,14 +2493,17 @@ ListCallback(
                             len = strlen( dirString) ;
                             maskString = XtMalloc( len
                                                  + strlen( patternString) + 1) ;
-                            strcpy( maskString, dirString) ;
-                            strcpy( &maskString[len], patternString) ;
-                            XmTextFieldSetString( FS_FilterText( fsb),
-                                                                  maskString) ;
-                            XmTextFieldSetInsertionPosition( FS_FilterText( fsb),
-                                                    XmTextFieldGetLastPosition(
-                                                        FS_FilterText( fsb))) ;
-                            XtFree( maskString) ;
+                            if(    maskString != NULL    )
+                            {   strcpy( maskString, dirString) ;
+                                strcpy( &maskString[len], patternString) ;
+                                XmTextFieldSetString( FS_FilterText( fsb),
+                                                                      maskString) ;
+                                XmTextFieldSetInsertionPosition(
+                                    FS_FilterText( fsb),
+                                    XmTextFieldGetLastPosition(
+                                        FS_FilterText( fsb))) ;
+                                XtFree( maskString) ;
+                                }
                             XtFree( patternString) ;
                           } 
                         XtFree( dirString) ;

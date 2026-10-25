@@ -1,3 +1,10 @@
+Guard FileSB resource-change filter-mask allocation (2026-10-25)
+=================================================================
+
+- Check the temporary full-path filter buffer used during directory resource
+  changes, preserving cleanup and the current filter text on failure; see
+  `docs/motif-filesb-resource-filter-mask.md`.
+
 Guard FileSB filter-mask update allocation (2026-10-25)
 ========================================================
 
