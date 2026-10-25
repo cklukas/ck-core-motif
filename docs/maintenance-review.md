@@ -145,8 +145,8 @@ numeric text aligned with the active Motif typography. The focused check is:
 python3 tests/automated/check-stepper-font-fallback.py
 ```
 
-ColorPicker now installs the same managed fallback font for its value text.
-The focused check is:
+ColorPicker now draws its value through an owned copy of `XmNrenderTable`,
+keeping color text aligned with active Motif typography. The focused check is:
 
 ```sh
 python3 tests/automated/check-colorpicker-font-fallback.py

@@ -19,6 +19,17 @@ static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
+static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
+{
+    XmColorPickerWidget picker = (XmColorPickerWidget)widget;
+    (void)offset;
+    if (picker->color_picker.check_set_render_table)
+        value->addr = NULL;
+    else {
+        picker->color_picker.check_set_render_table = True;
+        value->addr = (char *)&picker->color_picker.render_table;
+    }
+}
 #define Offset(field) XtOffsetOf(XmColorPickerRec, field)
 static XtResource resources[] = {
     {XmNcolorPickerValue, XmCColorPickerValue, XmRCardinal,
@@ -30,6 +41,10 @@ static XtResource resources[] = {
     {XmNcolorPickerValueChangedCallback, XmCColorPickerValueChangedCallback,
      XmRCallback, sizeof(XtCallbackList), Offset(color_picker.value_changed_callback),
      XmRPointer, (XtPointer)NULL},
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmRenderTable),
+     Offset(color_picker.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmRenderTable),
+     Offset(color_picker.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean),
      Offset(primitive.traversal_on), XmRImmediate, (XtPointer)True},
     {XmNhighlightThickness, XmCHighlightThickness, XmRHorizontalDimension,
@@ -53,23 +68,6 @@ static void notify(XmColorPickerWidget picker, String resource, XEvent *event,
     XmColorPickerCallbackStruct callback = {XmCR_VALUE_CHANGED, event, value};
     XtCallCallbacks((Widget)picker, resource, &callback);
 }
-static int text_baseline(XmColorPickerWidget picker) {
-    XGCValues values;
-    XFontStruct *font;
-    long long baseline;
-    if (!picker->color_picker.gc ||
-        !XGetGCValues(XtDisplay((Widget)picker), picker->color_picker.gc,
-                      GCFont, &values))
-        return (int)picker->core.height / 2;
-    font = XQueryFont(XtDisplay((Widget)picker), values.font);
-    if (!font)
-        return (int)picker->core.height / 2;
-    baseline = ((long long)picker->core.height - font->ascent - font->descent) /
-               2 + font->ascent;
-    XFreeFontInfo(NULL, font, 1);
-    return baseline < INT_MIN ? INT_MIN :
-           baseline > INT_MAX ? INT_MAX : (int)baseline;
-}
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *count) {
     XmColorPickerWidget picker = (XmColorPickerWidget)widget;
     XGCValues values;
@@ -77,11 +75,14 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
     picker->color_picker.preview = picker->color_picker.value;
     values.foreground = picker->primitive.foreground;
     values.background = picker->core.background_pixel;
-    picker->color_picker.font = XLoadQueryFont(XtDisplay(widget), "fixed");
-    if (picker->color_picker.font) values.font = picker->color_picker.font->fid;
+    if (picker->color_picker.render_table == NULL)
+        picker->color_picker.render_table = XmFontListCopy(
+            XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+    else
+        picker->color_picker.render_table = XmFontListCopy(
+            picker->color_picker.render_table);
     picker->color_picker.gc = XCreateGC(XtDisplay(widget),
-        DefaultRootWindow(XtDisplay(widget)), GCForeground | GCBackground |
-        (picker->color_picker.font ? GCFont : 0), &values);
+        DefaultRootWindow(XtDisplay(widget)), GCForeground | GCBackground, &values);
     if (!picker->core.width) picker->core.width = 180;
     if (!picker->core.height) picker->core.height = 34;
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events, NULL);
@@ -90,12 +91,13 @@ static void Destroy(Widget widget) {
     XmColorPickerWidget picker = (XmColorPickerWidget)widget;
     XtRemoveEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events, NULL);
     if (picker->color_picker.gc) XFreeGC(XtDisplay(widget), picker->color_picker.gc);
-    if (picker->color_picker.font) XFreeFont(XtDisplay(widget), picker->color_picker.font);
+    if (picker->color_picker.render_table)
+        XmRenderTableFree(picker->color_picker.render_table);
 }
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmColorPickerWidget picker = (XmColorPickerWidget)widget;
     Display *display = XtDisplay(widget); Window window = XtWindow(widget);
-    char text[16]; int baseline;
+    char text[16];
     unsigned long value = picker->color_picker.preview;
     XGCValues values; GC swatch; XColor color;
     (void)event; (void)region;
@@ -117,9 +119,20 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         XFreeGC(display, swatch);
     }
     snprintf(text, sizeof(text), "#%08lx", value & 0xffffffffUL);
-    baseline = text_baseline(picker);
-    XDrawString(display, window, picker->color_picker.gc, 38, baseline, text,
-                (int)strlen(text));
+    if (picker->color_picker.render_table) {
+        XmString value_string = XmStringCreateLocalized(text);
+        Dimension text_width = 0, text_height = 0;
+        if (value_string) {
+            XmStringExtent(picker->color_picker.render_table, value_string,
+                           &text_width, &text_height);
+            XmStringDraw(display, window, picker->color_picker.render_table,
+                         value_string, picker->color_picker.gc, 38,
+                         ((int)picker->core.height - (int)text_height) / 2,
+                         text_width, XmALIGNMENT_BEGINNING,
+                         XmPrim_layout_direction(picker), NULL);
+            XmStringFree(value_string);
+        }
+    }
     if (picker->primitive.highlighted && picker->primitive.highlight_thickness &&
         picker->core.width > 2 * picker->primitive.highlight_thickness &&
         picker->core.height > 2 * picker->primitive.highlight_thickness)
@@ -161,6 +174,15 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmColorPickerWidget old = (XmColorPickerWidget)old_widget;
     XmColorPickerWidget picker = (XmColorPickerWidget)widget;
     (void)request; (void)args; (void)count;
+    if (old->color_picker.render_table != picker->color_picker.render_table) {
+        XmRenderTable new_table = picker->color_picker.render_table ?
+            XmFontListCopy(picker->color_picker.render_table) :
+            XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+        if (old->color_picker.render_table)
+            XmRenderTableFree(old->color_picker.render_table);
+        picker->color_picker.render_table = new_table;
+        return True;
+    }
     if (old->color_picker.value != picker->color_picker.value) {
         picker->color_picker.preview = picker->color_picker.value;
         return True;
