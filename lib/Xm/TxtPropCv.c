@@ -1023,7 +1023,8 @@ XmCvtTextPropertyToXmStringTable(Display *display,
     }
     /* Create an appropriately sized array of xmstrings */
     string_table =
-      (XmStringTable)XtMalloc(sizeof(XmString) * (elements));
+      (XmStringTable)XtMalloc((Cardinal)(sizeof(XmString) *
+					(size_t)elements));
     if (string_table == NULL) {
 	_XmAppUnlock(app);
 	return BadAlloc;

@@ -12115,3 +12115,9 @@ TxtPropCv ASN.1 import allocation width (2026-10-26)
 - Pass the checked compound-string table byte count explicitly as an Xt
   `Cardinal`, avoiding an implicit narrowing conversion at the allocator
   boundary; see `docs/motif-txtpropcv-asn1-table.md`.
+
+TxtPropCv plain import allocation width (2026-10-26)
+====================================================
+
+- Pass the checked locale/STRING/UTF-8 table byte count explicitly as an Xt
+  `Cardinal`; see `docs/motif-txtpropcv-plain-table.md`.
