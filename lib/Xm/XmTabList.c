@@ -292,6 +292,14 @@ XmTabListCopy(XmTabList tablist,
       old_tab = (offset >= 0) ? _XmTabNext(old_tab) : _XmTabPrev(old_tab);
       /* See above.  Don't copy if marked. */
       next_tab = _XmTabMark(old_tab)? old_tab : _XmTabCopy(old_tab);
+      if (next_tab == NULL) {
+	_XmTabNext(tab) = _XmTabLStart(tl);
+	_XmTabPrev(_XmTabLStart(tl)) = tab;
+	_XmTabLCount(tl) = i;
+	_XmProcessUnlock();
+	XmTabListFree(tl);
+	return(NULL);
+      }
   
       _XmTabNext(tab) = next_tab;
 	

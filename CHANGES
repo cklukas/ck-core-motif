@@ -5200,3 +5200,11 @@ Tab-list copy allocation guards (2026-10-25)
   ranges safely; see `docs/tablist-copy-allocation.md`.
 
 Tab-list insertion allocation guards (2026-10-25)
+Tab-list copy rollback (2026-10-25)
+===================================
+
+- Roll back partial tab-list copies when a later tab allocation fails, avoiding
+  null-link dereferences and retaining marked-tab ownership semantics; see
+  `docs/tablist-copy-rollback.md`.
+
+Tab-list copy allocation guards (2026-10-25)
