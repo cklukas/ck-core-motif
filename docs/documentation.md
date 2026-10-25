@@ -73,6 +73,18 @@ The strict generator checks internal links and fragments. The shared script
 also verifies expected rendered content and refuses a successful command with
 no HTML. Editing source and producing verified HTML are separate events.
 
+## Native component gallery
+
+The native component gallery is published as part of this documentation site:
+
+- [Open the component gallery](modern-gallery.md)
+- [Browse the manifest-backed component catalogue](modern-gallery-components.md)
+
+The gallery page and catalogue are generated documentation targets, not links
+to repository source files. The catalogue embeds the verified PNG scenarios
+captured from `ckmotif-gallery`; each entry retains its manifest anchor,
+interaction scenario, source-fragment identifier, and screenshot evidence.
+
 ## Hosted CI
 
 `.ckgit/ci.yml` requests a read-only sister named `ck-git-hosting` at the exact

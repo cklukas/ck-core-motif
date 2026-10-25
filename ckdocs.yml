@@ -29,6 +29,8 @@ nav:
     pages:
       - docs/modern-gallery-work-plan.md
       - docs/modern-gallery-manifest.md
+      - docs/modern-gallery.md
+      - docs/modern-gallery-components.md
   - title: APIs
     pages:
       - docs/unicode.md
