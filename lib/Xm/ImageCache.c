@@ -2541,6 +2541,8 @@ FreeCacheColor( Display *display, Colormap colormap, Pixel pixel)
 	if (color->colormap == colormap && color->display == display &&
 	    color->pixel == pixel)
         {
+	    if (color->num_cached == 0)
+		return False;
 	    color->num_cached--;
 	    if (color->num_cached == 0) {
 		int j;
