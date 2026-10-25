@@ -696,7 +696,9 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 
 	  num = request->wm_windows.num_window_properties = UnpackListNum(&data);
 	  request->wm_windows.window_properties =
-	    (WindowProperty *) XtMalloc(sizeof(WindowProperty) * num);
+	    (num >= 0 && (size_t)num <= UINT_MAX / sizeof(WindowProperty)) ?
+	    (WindowProperty *) XtMalloc((Cardinal)((size_t)num * sizeof(WindowProperty))) :
+	    NULL;
 	  if (request->wm_windows.window_properties == NULL) {
 	    request->wm_windows.num_window_properties = 0;
 	    return;
@@ -707,7 +709,9 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 
 	  num = request->wm_windows.num_match_attributes = UnpackListNum(&data);
 	  request->wm_windows.match_attributes =
-	    (AttributePair **) XtMalloc(sizeof(AttributePair*) * num);
+	    (num >= 0 && (size_t)num <= UINT_MAX / sizeof(AttributePair *)) ?
+	    (AttributePair **) XtMalloc((Cardinal)((size_t)num * sizeof(AttributePair *))) :
+	    NULL;
 	  if (request->wm_windows.match_attributes == NULL) {
 	    XtFree((XtPointer)request->wm_windows.window_properties);
 	    request->wm_windows.window_properties = NULL;

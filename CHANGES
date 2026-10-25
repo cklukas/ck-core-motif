@@ -11556,6 +11556,12 @@ WSM connection-version allocation width (2026-10-25)
 - Check decoded connection-version counts before allocation; see
   `docs/wsm-extension-unpack-oom.md`.
 
+WSM WM_WINDOWS allocation width (2026-10-25)
+=============================================
+
+- Check request window-property and match-attribute counts before allocation;
+  see `docs/wsm-wm-windows-oom.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 
