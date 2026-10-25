@@ -7420,11 +7420,15 @@ DragDropFinished(Widget w,		/* unused */
   XmListWidget lw = (XmListWidget)closure;
   XmListDragConvertStruct *ListDragConv = lw->list.drag_conv;
 
+  if (ListDragConv == NULL)
+    return;
+
   for (i = 0; i < ListDragConv->num_strings; i++)
     XmStringFree(ListDragConv->strings[i]);
 
   XtFree((char *) ListDragConv->strings);
   XtFree((char *) ListDragConv);
+  lw->list.drag_conv = NULL;
 }
 
 /***************************************************************************
@@ -7498,6 +7502,14 @@ ListProcessDrag(Widget wid,
       for (i = 0; i < lw->list.selectedPositionCount; i++) {
 	ListDragConv->strings[i] =
 	  XmStringCopy(lw->list.items[lw->list.selectedPositions[i] - 1]);
+	if (ListDragConv->strings[i] == NULL) {
+	  while (i != 0)
+	    XmStringFree(ListDragConv->strings[--i]);
+	  XtFree((char *)ListDragConv->strings);
+	  XtFree((char *)ListDragConv);
+	  lw->list.drag_conv = NULL;
+	  return;
+	}
       }
     }
   else
@@ -7510,6 +7522,12 @@ ListProcessDrag(Widget wid,
       }
       ListDragConv->num_strings = 1;
       ListDragConv->strings[0] = XmStringCopy(lw->list.items[item]);
+      if (ListDragConv->strings[0] == NULL) {
+	  XtFree((char *)ListDragConv->strings);
+	  XtFree((char *)ListDragConv);
+	  lw->list.drag_conv = NULL;
+	  return;
+      }
       location_data = item;
     }
 

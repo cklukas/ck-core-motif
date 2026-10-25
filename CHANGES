@@ -1,3 +1,10 @@
+List drag snapshot rollback (2026-10-28)
+==========================================
+
+- Roll back partial drag `XmString` snapshots and clear the drag context when
+  a copy fails, preventing NULL payload entries and stale cleanup pointers;
+  see `docs/list-drag-snapshot-rollback.md`.
+
 List selection-callback snapshot rollback (2026-10-28)
 =========================================================
 
