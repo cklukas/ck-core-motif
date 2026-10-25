@@ -6341,3 +6341,10 @@ Color-cache Xt byte bounds (2026-10-25)
   caches, preserving existing entries on an unrepresentable request; see
   `docs/color-cache-growth.md`.
 
+GeoUtils box-fitting allocation guards (2026-10-25)
+====================================================
+
+- Make `FitBoxesAveraging` handle empty input, checked pointer-table sizing,
+  and temporary allocation failure without dereferencing a null sort table;
+  see `docs/geoutils-fit-boxes-allocation.md`.
+
