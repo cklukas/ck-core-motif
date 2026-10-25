@@ -59,6 +59,13 @@ Guard Spinner redisplay resources (2026-10-25)
 - Handle partial Spinner GC allocation, signed diameter geometry and tiny
   focus rectangles; see `docs/spinner-redisplay-guards.md`.
 
+Guard DataGrid redisplay inputs (2026-10-25)
+=============================================
+
+- Handle missing DataGrid GCs and null cell text, and clamp selected-cell
+  geometry for narrow columns and short rows; see
+  `docs/data-grid-redisplay-guards.md`.
+
 Guard IconFile cache directory input (2026-10-27)
 ==================================================
 
