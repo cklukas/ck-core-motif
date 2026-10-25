@@ -92,6 +92,13 @@ Accessibility creation input guards (2026-10-26)
 - Reject a NULL root and handle failed accessibility-state allocation before
   using the new object; see `docs/accessibility-create-inputs.md`.
 
+Accessibility display-hook allocation guard (2026-10-26)
+==========================================================
+
+- Skip display-hook registration cleanly when its bookkeeping allocation
+  fails instead of dereferencing NULL; see
+  `docs/accessibility-hook-allocation.md`.
+
 Accessibility UTF-8 allocation guards (2026-10-26)
 ===================================================
 
