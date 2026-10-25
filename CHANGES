@@ -10667,6 +10667,12 @@ Legacy charset canonicalization allocation guards (2026-10-25)
   strings, returning `NULL` on failure; see
   `docs/charset-canonicalize-allocation.md`.
 
+Make XmString table-split allocation width explicit (2026-10-26)
+==================================================================
+
+- Pass the validated counted-table byte size explicitly as an Xt `Cardinal`;
+  see `docs/motif-xmstring-table-split.md`.
+
 Make color-cache allocation widths explicit (2026-10-26)
 ==========================================================
 

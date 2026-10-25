@@ -9,7 +9,7 @@ assert "*table[0] = XmStringCopy(string);" not in source[start:]
 allocation = source.index("*table = (XmStringTable)XtMalloc(sizeof(XmString));", start)
 guard = source.index("if (*table == NULL)", allocation)
 assert allocation < guard
-allocation = source.index("*table = (XmStringTable)XtMalloc(count * sizeof(XmString));", start)
+allocation = source.index("*table = (XmStringTable)XtMalloc(\n\t  (Cardinal)(count * sizeof(XmString)));", start)
 guard = source.index("if (*table == NULL)", allocation)
 assert allocation < guard
 print("PASS XmString table splitting handles allocation and indexing safely")
