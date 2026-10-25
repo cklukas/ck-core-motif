@@ -685,5 +685,7 @@ EXTRA_DIST += tests/automated/check-xm-extutil-null.py docs/xm-extutil-null.md
 EXTRA_DIST += tests/automated/check-xm-filter-args-null.py docs/xm-filter-args-null.md
 
 EXTRA_DIST += tests/automated/check-xm-extutil-widget-null.py docs/xm-extutil-widget-null.md
+
+EXTRA_DIST += tests/automated/check-xm-extutil-geometry-null.py docs/xm-extutil-geometry-null.md
 EXTRA_DIST += tests/automated/check-mrm-hget-output-pointer.py docs/mrm-hget-output-pointer.md
 EXTRA_DIST += tests/automated/check-mrm-hierarchy-name-inputs.py docs/mrm-hierarchy-name-inputs.md

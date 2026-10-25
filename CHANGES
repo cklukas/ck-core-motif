@@ -4485,3 +4485,8 @@ Xm widget utility null-safety (2026-10-25)
 
 - Guard private widget utility queries and recursive updates against null
   widgets; see `docs/xm-extutil-widget-null.md`.
+Xm geometry wrapper null-safety (2026-10-25)
+=============================================
+
+- Guard private move, resize, and configure wrappers against null widgets;
+  see `docs/xm-extutil-geometry-null.md`.
