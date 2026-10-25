@@ -9977,6 +9977,12 @@ Virtual-key vendor allocation guard (2026-10-25)
 - Check server-vendor data and the formatted vendor/version buffer before
   matching vendor-specific bindings; see `docs/virtkeys-vendor-allocation.md`.
 
+XmScale conversion allocation guards (2026-10-25)
+==================================================
+
+- Refuse target conversion cleanly when target-list, string, or compound-text
+  result allocation fails; see `docs/scale-convert-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

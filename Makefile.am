@@ -166,6 +166,7 @@ EXTRA_DIST += tests/automated/check-xmstring-tag-allocation.py docs/xmstring-tag
 EXTRA_DIST += tests/automated/check-xmos-filename-allocation.py docs/xmos-filename-allocation.md
 EXTRA_DIST += tests/automated/check-virtkeys-fallback-allocation.py docs/virtkeys-fallback-allocation.md
 EXTRA_DIST += tests/automated/check-virtkeys-vendor-allocation.py docs/virtkeys-vendor-allocation.md
+EXTRA_DIST += tests/automated/check-scale-convert-allocation.py docs/scale-convert-allocation.md
 EXTRA_DIST += tests/automated/check-xim-info-allocation.py docs/xim-info-allocation.md
 EXTRA_DIST += tests/automated/check-xim-recreate-allocation.py docs/xim-recreate-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md

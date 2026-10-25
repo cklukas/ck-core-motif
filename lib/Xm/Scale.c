@@ -3320,6 +3320,11 @@ DragConvertCallback (Widget w,
      else
        targs = (Atom *) XtMalloc(sizeof(Atom) * 3);
 
+     if (targs == NULL) {
+       cs->status = XmCONVERT_REFUSE;
+       return;
+     }
+
      value = (XtPointer) targs;
      targs[count] = XA_STRING; count++;
      targs[count] = atoms[XmACOMPOUND_TEXT]; count++;
@@ -3334,6 +3339,10 @@ DragConvertCallback (Widget w,
      /* handle plain STRING and UTF8_STRING first */
      type = cs -> target;
      value = (XtPointer) XtNewString(tmpstring);
+     if (value == NULL) {
+       cs->status = XmCONVERT_REFUSE;
+       return;
+     }
      size = strlen((char*) value);
      format = 8;
    }
@@ -3344,8 +3353,16 @@ DragConvertCallback (Widget w,
      tp.value = NULL;
      XmbTextListToTextProperty(XtDisplay(w), &strlist, 1, 
 			       XCompoundTextStyle, &tp);
+     if (tp.value == NULL) {
+       cs->status = XmCONVERT_REFUSE;
+       return;
+     }
      passtext = XtNewString((char*)tp.value);
      XtFree((char*)tp.value);
+     if (passtext == NULL) {
+       cs->status = XmCONVERT_REFUSE;
+       return;
+     }
      /* End fixing the bug OSF 4846 */
 
      /* format the value for transfer.  convert the value from
