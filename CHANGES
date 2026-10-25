@@ -6232,3 +6232,8 @@ Internal XmList lifecycle input guards (2026-10-25)
 
 - Make queue and list helpers safely handle null lifecycle inputs; see
   `docs/xmlist-lifecycle-inputs.md`.
+Accessibility creation input validation (2026-10-25)
+=====================================================
+
+- Reject null roots and failed accessibility-object allocation before Xt state
+  is accessed; see `docs/accessibility-create-inputs.md`.
