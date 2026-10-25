@@ -39,6 +39,8 @@
 #endif
 
 #include <stdlib.h>
+#include <limits.h>
+#include <stdint.h>
 #include "XmI.h"
 #include <Xm/TabBoxP.h>
 #ifdef SCROLLED_LAYOUT
@@ -972,10 +974,6 @@ Redisplay(widget, event, region)
 	  gcMask |= GCFont;
       }
       XmTabBox__tab_GC(tab) = XmTabBox__text_GC(tab) = XtGetGC((Widget)tab, gcMask, &gcValues);
-      /* The old GC was released above; all drawing below must use the newly
-       * acquired resource.  Keeping the local handle here made appearance
-       * transitions issue X requests with a freed server-side GC. */
-      gc = XmTabBox__tab_GC(tab);
     } /* CR03218 end */
     if( XmTabBox__inited(tab) == False ) return;
 
@@ -4622,7 +4620,8 @@ HorizontalBasicLayout(tab)
     XiTabRect  *actual = XmTabBox__actual(tab);
     XRectangle *wanted = XmTabBox__wanted(tab);
 
-    x = LayoutIsRtoLP(tab) ? (tab->core.width - wanted[0].width) : 0;
+    x = LayoutIsRtoLP(tab) ?
+	(int) tab->core.width - (int) wanted[0].width : 0;
     height = XtHeight(tab);
     for( i = 0; i < cnt; ++i )
     {
@@ -4679,7 +4678,7 @@ Layout(tab)
     int        count = _XmTabbedStackListCount(list);
     XRectangle geometry;
     
-    if( count == 0 )
+    if( count <= 0 )
     {
 	XmTabBox__num_columns(tab) = 0;
 	XmTabBox__num_rows(tab) = 0;
@@ -4688,10 +4687,18 @@ Layout(tab)
 
     if( count > XmTabBox__num_actual(tab) )
     {
-	XmTabBox__num_actual(tab) = count;
-	XmTabBox__actual(tab) = (XiTabRect*)
+	XiTabRect *actual;
+
+	if ((size_t)count > SIZE_MAX / sizeof(*actual) ||
+	    (size_t)count > UINT_MAX / sizeof(*actual))
+	    return;
+	actual = (XiTabRect*)
 	    XtRealloc((XtPointer) XmTabBox__actual(tab),
-		      sizeof(XiTabRect) * count);
+		      sizeof(*actual) * (size_t)count);
+	if (actual == NULL)
+	    return;
+	XmTabBox__actual(tab) = actual;
+	XmTabBox__num_actual(tab) = count;
     }
 
     switch( XmTabBox_tab_mode(tab) )
@@ -4871,7 +4878,8 @@ XiRotateImage(tab, src, degree)
 {
     XImage *dst;
     char   *data;
-    int    x, y, width, height, depth, tmp;
+    int    x, y, width, height, depth;
+    size_t allocation, packed_width;
 
     if( src == NULL ) return( NULL );
 
@@ -4879,26 +4887,39 @@ XiRotateImage(tab, src, degree)
     height = XImageHeight(src);
     depth = XImageDepth(src);
 
+    if (width <= 0 || height <= 0 || depth <= 0)
+        return NULL;
+
     if( depth < 8 )
     {
 	int cnt = 8/depth;
 
-	if( degree == 0 || degree == 180 )
+	packed_width = ((size_t)width + (size_t)cnt - 1) / (size_t)cnt;
+	if (packed_width > SIZE_MAX / (size_t)height)
+	    return NULL;
+	allocation = packed_width * (size_t)height;
+
+	if (degree != 0 && degree != 180)
 	{
-	    tmp = (width/cnt) + ((width % cnt != 0) ? 1 : 0);
-	    tmp = tmp * height;
-	}
-	else
-	{
-	    tmp = (height/cnt) + ((height % cnt != 0) ? 1 : 0);
-	    tmp = tmp * width;
+	    if ((size_t)height > SIZE_MAX / (size_t)cnt ||
+		((size_t)height + (size_t)cnt - 1) / (size_t)cnt >
+		    SIZE_MAX / (size_t)width)
+		return NULL;
+	    allocation = (((size_t)height + (size_t)cnt - 1) /
+			  (size_t)cnt) * (size_t)width;
 	}
     }
     else
     {
-	tmp = width * height * depth;
+	if ((size_t)width > SIZE_MAX / (size_t)height ||
+	    (size_t)width * (size_t)height >
+		SIZE_MAX / (size_t)depth)
+	    return NULL;
+	allocation = (size_t)width * (size_t)height * (size_t)depth;
     }
-    data = (char*) XtMalloc(tmp);
+    if (allocation > UINT_MAX)
+	return NULL;
+    data = (char*) XtMalloc((Cardinal)allocation);
 
     if( degree == 0 || degree == 180 )
     {
@@ -5167,12 +5188,23 @@ CalcTabGeometry(tab)
      * First lets see if we have enough room to cache all the geometries
      * and if not lets increase our cache so there is room.
      */
+    if( count <= 0 )
+	return;
+
     if( count > XmTabBox__num_wanted(tab) )
     {
-	XmTabBox__num_wanted(tab) = count;
-	XmTabBox__wanted(tab) = (XRectangle*)
+	XRectangle *wanted;
+
+	if ((size_t)count > SIZE_MAX / sizeof(*wanted) ||
+	    (size_t)count > UINT_MAX / sizeof(*wanted))
+	    return;
+	wanted = (XRectangle*)
 	    XtRealloc((XtPointer)XmTabBox__wanted(tab),
-		      sizeof(XRectangle) * count);
+		      sizeof(*wanted) * (size_t)count);
+	if (wanted == NULL)
+	    return;
+	XmTabBox__wanted(tab) = wanted;
+	XmTabBox__num_wanted(tab) = count;
     }
     geom = XmTabBox__wanted(tab);
 
@@ -7135,6 +7167,11 @@ CalcStackedGeometry(XmTabBoxWidget tab, XRectangle *rect)
                     tab_width, tab_height,
                     num_stacks = XmTabBox_num_stacks(tab);
     Dimension       d_width, d_height;
+
+	/* XmNnumStacks is an application-facing integer resource.  Keep an
+	 * invalid zero/negative value from reaching the divisions below. */
+	if (num_stacks < 1)
+	    num_stacks = 1;
     /*
      * Calculating the geometry we want for the stack layout turns
      * out to be straight forward.  What we do is find calculate the
@@ -9331,10 +9368,22 @@ ResetImageCache(tab)
      */
     if( cnt != XmTabBox__cache_size(tab) )
     {
+	XiCache *cache;
+
+	if (cnt < 0 || (size_t)cnt > SIZE_MAX / sizeof(*cache) ||
+	    (size_t)cnt > UINT_MAX / sizeof(*cache))
+	    return;
+	cache = (XiCache *)XtMalloc((Cardinal)(sizeof(*cache) *
+					     (size_t)cnt));
+	if (cache == NULL) {
+	    XtFree((XtPointer)XmTabBox__cache(tab));
+	    XmTabBox__cache(tab) = NULL;
+	    XmTabBox__cache_size(tab) = 0;
+	    return;
+	}
+	XtFree((XtPointer)XmTabBox__cache(tab));
+	XmTabBox__cache(tab) = cache;
 	XmTabBox__cache_size(tab) = cnt;
-	XmTabBox__cache(tab) = (XiCache*)
-	    XtRealloc((XtPointer)XmTabBox__cache(tab), 
-		      sizeof(XiCache) * cnt);
     }
 
     /*
