@@ -1845,6 +1845,8 @@ SetValues(Widget cw,
   Boolean ProcessFlag = FALSE;
   Boolean CleanupFontFlag = FALSE;
   Boolean Call_Resize = False;
+  XmString label_copy;
+  XmString accelerator_copy;
   XmMenuSystemTrait menuSTrait;
   
   /* Get pointers to the label parts  */
@@ -1869,25 +1871,30 @@ SetValues(Widget cw,
   
   if (newlp->_label != curlp->_label)
     {   
-      newstring = TRUE;
       if (newlp->_label == NULL)
 	{ 
-          newlp->_label = XmStringCreateLocalized(new_w->core.name);
+	  label_copy = XmStringCreateLocalized(new_w->core.name);
 	}
       else
 	{ 
 	  if (XmeStringIsValid((XmString) newlp->_label))
-	    newlp->_label = XmStringCopy((XmString) newlp->_label);     
+	    label_copy = XmStringCopy((XmString) newlp->_label);
 	  else
 	    {
 	      XmeWarning((Widget) new_w, CS_STRING_MESSAGE);
-	      
-	      newlp->_label = XmStringCreateLocalized(new_w->core.name);
+	      label_copy = XmStringCreateLocalized(new_w->core.name);
 	    }
 	}
-      
-      XmStringFree(curlp->_label);
-      curlp->_label= NULL;
+
+      if (label_copy != NULL) {
+	newstring = TRUE;
+	XmStringFree(curlp->_label);
+	newlp->_label = label_copy;
+	curlp->_label = NULL;
+      } else {
+	/* Keep the current label if the replacement cannot be copied. */
+	newlp->_label = curlp->_label;
+      }
       reqlp->_label= NULL;
     }
   
@@ -1908,12 +1915,18 @@ SetValues(Widget cw,
 	  if (XmeStringIsValid((XmString) newlp->_acc_text))
 	    {
 	      if ((XmIsCascadeButton (new_w)) && (newlp->_acc_text != NULL))
-		newlp->_acc_text = NULL;
+		accelerator_copy = NULL;
 	      else
-		newlp->_acc_text = XmStringCopy((XmString) newlp->_acc_text);
+		accelerator_copy = XmStringCopy((XmString) newlp->_acc_text);
 
-	      XmStringFree(curlp->_acc_text);
-	      curlp->_acc_text= NULL;
+	      if (accelerator_copy != NULL || XmIsCascadeButton (new_w)) {
+		XmStringFree(curlp->_acc_text);
+		newlp->_acc_text = accelerator_copy;
+		curlp->_acc_text = NULL;
+	      } else {
+		/* Keep the current accelerator if copying the replacement fails. */
+		newlp->_acc_text = curlp->_acc_text;
+	      }
 	      reqlp->_acc_text= NULL;
 	    }
 	  else

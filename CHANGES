@@ -9238,3 +9238,10 @@ SimpleSpinBox value-list rollback (2026-10-29)
 - Make add/delete value-list operations validate Xt byte limits, copy all
   strings before updating the child, and leave the list position unchanged on
   copy failure; see `docs/spinbox-value-list-rollback.md`.
+
+Label visual-string rollback (2026-10-29)
+==========================================
+
+- Preserve existing label and accelerator strings until replacement copies
+  succeed during `SetValues`, avoiding blank or dangling visual state after an
+  allocation failure; see `docs/label-visual-string-rollback.md`.
