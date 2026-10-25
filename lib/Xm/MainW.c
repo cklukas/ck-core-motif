@@ -1067,7 +1067,10 @@ ChangeManaged(
 			(mw->composite.num_slots / 2) ||
 			(size_t)(mw->composite.num_slots +
 			         (mw->composite.num_slots / 2) + 2) >
-			SIZE_MAX / sizeof(Widget))
+			    SIZE_MAX / sizeof(Widget) ||
+			    (size_t)(mw->composite.num_slots +
+			             (mw->composite.num_slots / 2) + 2) >
+			    UINT_MAX / sizeof(Widget))
 			return;
 		    new_slots = mw->composite.num_slots +
 			(mw->composite.num_slots / 2) + 2;

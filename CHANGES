@@ -61,6 +61,12 @@ Screen child-array Xt byte bounds (2026-10-28)
   arrays, preserving the existing lists on unrepresentable requests; see
   `docs/screen-child-growth.md` and `docs/desktop-child-growth-bounds.md`.
 
+MainW child-array Xt byte bounds (2026-10-28)
+==============================================
+
+- Check Xt `Cardinal` byte limits while moving clip-window children into the
+  MainW composite list; see `docs/mainw-child-growth.md`.
+
 Compound-text concatenation failure handling (2026-10-28)
 ============================================================
 
