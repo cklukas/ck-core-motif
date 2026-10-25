@@ -7,6 +7,7 @@
 #include <Xm/XmP.h>
 #include <X11/keysym.h>
 #include <limits.h>
+#include <stdint.h>
 #include <string.h>
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
@@ -51,8 +52,21 @@ static XmString string_copy(XmString value) {
 }
 static char *button_text(XmString label, XmString shortcut) {
     char *left = text_copy(label), *right = text_copy(shortcut), *combined;
-    size_t length = strlen(left) + (right[0] ? strlen(right) + 2 : 0) + 1;
-    combined = XtMalloc(length); strcpy(combined, left);
+    size_t left_length, right_length, length;
+    if (!left || !right) { XtFree(left); XtFree(right); return NULL; }
+    left_length = strlen(left); right_length = strlen(right);
+    if (right[0]) {
+        if (left_length > SIZE_MAX - 3 || right_length > SIZE_MAX - 3 - left_length) {
+            XtFree(left); XtFree(right); return NULL;
+        }
+        length = left_length + right_length + 3;
+    } else {
+        if (left_length == SIZE_MAX) { XtFree(left); XtFree(right); return NULL; }
+        length = left_length + 1;
+    }
+    combined = XtMalloc(length);
+    if (!combined) { XtFree(left); XtFree(right); return NULL; }
+    strcpy(combined, left);
     if (right[0]) { strcat(combined, "  "); strcat(combined, right); }
     XtFree(left); XtFree(right); return combined;
 }
@@ -183,20 +197,39 @@ void XmRowActionsSetItems(Widget widget, const XmRowActionItem *items, Cardinal 
     XmRowActionsWidget actions; Cardinal i;
     if (!widget || !XmIsRowActions(widget) || (count && !items)) return;
     actions = (XmRowActionsWidget)widget; free_items(actions, True);
-    if (count) actions->actions.items = (XmRowActionsStoredItem *)XtCalloc(count, sizeof(*actions->actions.items));
+    if (count) {
+        actions->actions.items = (XmRowActionsStoredItem *)XtCalloc(count, sizeof(*actions->actions.items));
+        if (!actions->actions.items) {
+            XtWarning("XmRowActionsSetItems: unable to allocate item array");
+            return;
+        }
+    }
     for (i = 0; i < count; ++i) {
         char *text; XmString label;
+        actions->actions.item_count = i + 1;
         actions->actions.items[i].id = XtNewString(items[i].id ? items[i].id : "");
         actions->actions.items[i].label = string_copy(items[i].label);
         actions->actions.items[i].shortcut = string_copy(items[i].shortcut);
         actions->actions.items[i].user_data = items[i].user_data;
-        text = button_text(items[i].label, items[i].shortcut); label = XmStringCreateLocalized(text);
+        if (!actions->actions.items[i].id || !actions->actions.items[i].label ||
+            !actions->actions.items[i].shortcut) {
+            XtWarning("XmRowActionsSetItems: unable to copy item");
+            free_items(actions, True); return;
+        }
+        text = button_text(items[i].label, items[i].shortcut);
+        if (!text) { XtWarning("XmRowActionsSetItems: unable to build button label"); free_items(actions, True); return; }
+        label = XmStringCreateLocalized(text);
+        if (!label) { XtFree(text); XtWarning("XmRowActionsSetItems: unable to create button label"); free_items(actions, True); return; }
         actions->actions.items[i].button = XtVaCreateManagedWidget("action",
             xmPushButtonWidgetClass, widget, XmNlabelString, label,
             XmNborderWidth, 0, NULL); XmStringFree(label); XtFree(text);
+        if (!actions->actions.items[i].button) {
+            XtWarning("XmRowActionsSetItems: unable to create action button");
+            free_items(actions, True); return;
+        }
         XtAddCallback(actions->actions.items[i].button, XmNactivateCallback, activate, actions);
     }
-    actions->actions.item_count = count; layout(actions); negotiate(actions);
+    layout(actions); negotiate(actions);
 }
 Cardinal XmRowActionsGetItemCount(Widget widget) { return widget && XmIsRowActions(widget) ? ((XmRowActionsWidget)widget)->actions.item_count : 0; }
 void XmRowActionsReveal(Widget widget, Boolean revealed) { XmRowActionsWidget actions; if (!widget || !XmIsRowActions(widget)) return; actions = (XmRowActionsWidget)widget; actions->actions.revealed = revealed; layout(actions); }
