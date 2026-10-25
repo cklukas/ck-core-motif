@@ -1866,6 +1866,9 @@ GetDragIconCursor(
 			     dos->drag.cursorBlend.mixedIcon->drag.hot_x,
 			     dos->drag.cursorBlend.mixedIcon->drag.hot_y);
 
+    if (cursor == None)
+	return None;
+
     /*
      *  Cache the cursor if using the cursorCache.  If the cached cursor
      *    was dirty, replace it.  Otherwise, create a new cursorCache entry
@@ -1879,6 +1882,10 @@ GetDragIconCursor(
 	}
 	else {
 	    cursorCache = XtNew(XmDragCursorRec);
+	    if (cursorCache == NULL) {
+		XFreeCursor(display, cursor);
+		return None;
+	    }
 	    cursorCache->sourceIcon = sourceIcon;
 	    cursorCache->stateIcon = stateIcon;
 	    cursorCache->opIcon = opIcon;
