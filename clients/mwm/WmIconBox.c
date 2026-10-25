@@ -2351,10 +2351,21 @@ void DeleteIconFromBox (IconBoxData *pIBD, ClientData *pCD)
     int          newWidth, newHeight;
     int          i, newCols, newRows;
 #ifdef WSM
-    WmWorkspaceData *pWS = GetWorkspaceData (pCD->pSD, pIBD->wsID);
+    WmWorkspaceData *pWS;
     WsClientData *pWsc;
+#endif /* WSM */
 
+    if (pIBD == NULL || pCD == NULL || pIBD->bBoardWidget == NULL ||
+	pIBD->clipWidget == NULL || pIBD->pCD_iconBox == NULL ||
+	pIBD->pCD_iconBox->widthInc <= 0 ||
+	pIBD->pCD_iconBox->heightInc <= 0 || pCD->pSD == NULL)
+	return;
+
+#ifdef WSM
+    pWS = GetWorkspaceData (pCD->pSD, pIBD->wsID);
     pWsc = GetWsClientData (pWS, pCD);
+    if (pWS == NULL || pWsc == NULL || pWsc->pIconBox == NULL)
+	return;
 #endif /* WSM */
 
     i = 0;
@@ -2401,9 +2412,11 @@ void DeleteIconFromBox (IconBoxData *pIBD, ClientData *pCD)
 
     theChild = XtWindowToWidget (DISPLAY, ICON_FRAME_WIN(pCD));
 #endif /* WSM */
-    XtUnmanageChild (theChild);
-
-    XtDestroyWidget (theChild);
+    if (theChild != NULL)
+    {
+	XtUnmanageChild (theChild);
+	XtDestroyWidget (theChild);
+    }
 
     /* update last row and col */
 

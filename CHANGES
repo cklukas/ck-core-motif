@@ -1,3 +1,9 @@
+Icon-box deletion validation (2026-10-25)
+=========================================
+
+- Validate deletion state and tolerate an absent child widget during teardown;
+  see `docs/delete-iconbox-guards.md`.
+
 Icon-box resize validation (2026-10-25)
 =======================================
 
