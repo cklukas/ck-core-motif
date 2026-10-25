@@ -4676,3 +4676,10 @@ List selection callback allocation failures (2026-10-25)
 - Check both temporary arrays used by multiple and extended List selection
   callbacks before populating them; see
   `docs/list-selection-callback-allocation.md`.
+
+XmString byte-stream allocation bounds (2026-10-25)
+====================================================
+
+- Check byte-stream component arithmetic and output allocation before writing
+  encoded data, clearing the output pointer on failure; see
+  `docs/xmstring-byte-stream-allocation.md`.

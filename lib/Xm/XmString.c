@@ -6970,6 +6970,7 @@ XmCvtXmStringToByteStream(XmString string,
   XtPointer		value;
   unsigned int		len;
   unsigned int		str_len;
+  unsigned int		component_size;
   unsigned char		*ext;
   XmStringComponentType	tag;
   
@@ -6987,10 +6988,29 @@ XmCvtXmStringToByteStream(XmString string,
   len = 0;
   while (XmeStringGetComponent(&stack_context, TRUE, FALSE, &length, &value) !=
 	 XmSTRING_COMPONENT_END)
-    len += _asn1_size(length) + length;
+	{
+	  component_size = _asn1_size(length);
+	  if (component_size > UINT_MAX - length ||
+	      component_size + length > UINT_MAX - len)
+	    {
+	      _XmStringContextFree(&stack_context);
+	      if (prop_return != NULL) *prop_return = NULL;
+	      _XmProcessUnlock();
+	      return(0);
+	    }
+	  len += component_size + length;
+	}
       
   str_len = len;
-  len += _calc_header_size(len);
+  component_size = _calc_header_size(len);
+  if (component_size > UINT_MAX - len)
+	{
+	  _XmStringContextFree(&stack_context);
+	  if (prop_return != NULL) *prop_return = NULL;
+	  _XmProcessUnlock();
+	  return(0);
+	}
+  len += component_size;
   
   _XmStringContextFree(&stack_context);
   
@@ -7002,6 +7022,12 @@ XmCvtXmStringToByteStream(XmString string,
 
   /* Allocate. */
   ext = (unsigned char *)XtMalloc(len);
+  if (ext == NULL)
+	{
+	  *prop_return = NULL;
+	  _XmProcessUnlock();
+	  return(0);
+	}
   *prop_return = ext;
       
   /* Write components. */
