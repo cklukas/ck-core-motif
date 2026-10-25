@@ -3389,6 +3389,8 @@ EntryCvtToOpt(_XmStringEntry entry)
       return NULL;
 
     new_entry = (_XmStringEntry)XtCalloc(1, sizeof(_XmStringOptSegRec));
+    if (!new_entry)
+      return NULL;
     _XmEntryType(new_entry) = XmSTRING_ENTRY_OPTIMIZED;
     _XmEntryImm(new_entry) = 0;
     _XmEntryTextTypeSet(new_entry, (XmTextType) _XmEntryTextTypeGet(entry));
@@ -3416,7 +3418,11 @@ EntryCvtToOpt(_XmStringEntry entry)
       _XmEntryTextSet(new_entry, _XmEntryTextGet(entry));
     else {
       unsigned int len = _XmEntryByteCountGet(entry);
-      text = (char *)XtMalloc(len);
+      text = len ? (char *)XtMalloc(len) : NULL;
+      if (len && !text) {
+	XtFree((char *)new_entry);
+	return NULL;
+      }
       if (len > 0)
         memcpy(text, _XmEntryTextGet(entry), len);
       _XmEntryTextSet(new_entry, text);
@@ -3457,6 +3463,8 @@ EntryCvtToUnopt(_XmStringEntry entry)
   /* Optimized: convert */
   len = _XmEntryByteCountGet(entry);
   new_entry = (_XmStringEntry)XtCalloc(1, sizeof(_XmStringUnoptSegRec));
+  if (!new_entry)
+    return NULL;
   _XmEntryType(new_entry) = XmSTRING_ENTRY_UNOPTIMIZED;
   _XmEntryTextTypeSet(new_entry, (XmTextType) _XmEntryTextTypeGet(entry));
   _XmUnoptSegTag(new_entry) = _XmEntryTag(entry);
@@ -3466,11 +3474,19 @@ EntryCvtToUnopt(_XmStringEntry entry)
   if (_XmEntryRendBeginCountGet(entry)) {
     _XmUnoptSegRendBegins(new_entry) = 
       (XmStringTag *)XtMalloc(sizeof(XmStringTag));
+    if (!_XmUnoptSegRendBegins(new_entry)) {
+      _XmStringEntryFree(new_entry);
+      return NULL;
+    }
     _XmUnoptSegRendBegins(new_entry)[0] = _XmEntryRendBeginGet(entry, 0);
   }
   if (_XmEntryRendEndCountGet(entry)) {
     _XmUnoptSegRendEnds(new_entry) = 
       (XmStringTag *)XtMalloc(sizeof(XmStringTag));
+    if (!_XmUnoptSegRendEnds(new_entry)) {
+      _XmStringEntryFree(new_entry);
+      return NULL;
+    }
     _XmUnoptSegRendEnds(new_entry)[0] = _XmEntryRendEndGet(entry, 0);
   }
   _XmEntryTabsSet(new_entry, _XmEntryTabsGet(entry));
@@ -3484,6 +3500,10 @@ EntryCvtToUnopt(_XmStringEntry entry)
     _XmEntryTextSet(new_entry, _XmEntryTextGet(entry));
   else if (len>0) {
     text = (char *)XtMalloc(len);
+    if (!text) {
+      _XmStringEntryFree(new_entry);
+      return NULL;
+    }
     memcpy(text, _XmEntryTextGet(entry), len);
     _XmEntryTextSet(new_entry, text);
   }

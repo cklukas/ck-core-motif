@@ -6167,3 +6167,10 @@ Guard XmString unoptimization copies (2026-10-25)
   segment on failure; see `docs/xmstring-unoptimize-allocation.md` and its
   focused source check.
 
+Guard XmString entry conversions (2026-10-25)
+===============================================
+
+- Check converted entry, text and rendition-array allocations and release
+  partial entries on failure; see
+  `docs/xmstring-entry-conversion-allocation.md` and its focused source check.
+
