@@ -11044,3 +11044,9 @@ MWM command window-list allocation (2026-10-25)
 - Reject window-list counts whose allocation multiplication would overflow,
   keeping command handling safe on narrow `size_t` platforms; see
   `docs/mwm-window-list-overflow.md`.
+
+WSM string unpack allocation (2026-10-25)
+=========================================
+
+- Check decoded-string allocation before writing unpacked bytes, preventing a
+  null-pointer write under memory pressure; see `docs/wsm-unpack-string-oom.md`.

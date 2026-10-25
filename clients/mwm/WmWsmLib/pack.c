@@ -1405,7 +1405,11 @@ UnpackString(MessageData *data_ptr)
 {
     register int i;
     int len = UnpackListNum(data_ptr);
-    char *str, *top = XtMalloc((len + 1) * sizeof(char));
+    char *str, *top;
+
+    top = XtMalloc((size_t) len + 1);
+    if (top == NULL)
+	return(NULL);
     
     for (str = top, i = 0; i < len; i++, str++) {
 	*str = (char) UnpackCARD8(data_ptr);
