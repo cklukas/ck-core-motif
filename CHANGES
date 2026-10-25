@@ -3785,6 +3785,13 @@ Guard ASN.1 compound-string output (2026-10-25)
 - Check the output buffer for Motif compound-string text properties before
   serializing ASN.1 data; see `docs/motif-txtpropcv-asn1.md`.
 
+Guard compound-text table buffers (2026-10-25)
+===============================================
+
+- Check both the per-item conversion table and final compound-text buffer,
+  cleaning up converted items on failure; see
+  `docs/motif-txtpropcv-compound-table.md`.
+
 Handle single text-property copy failure (2026-10-25)
 ======================================================
 
