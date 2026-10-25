@@ -6368,6 +6368,13 @@ Bound Font selector family allocation width (2026-10-25)
   refreshing the FontS family list; see
   `docs/motif-fonts-family-allocation.md`.
 
+Bound Font selector size allocation width (2026-10-25)
+========================================================
+
+- Enforce Xt `Cardinal` byte limits and pass an explicit allocation width when
+  refreshing the FontS size list; see
+  `docs/motif-fonts-size-list-allocation.md`.
+
 Bound legacy resource-filter byte sizes (2026-10-25)
 =====================================================
 
