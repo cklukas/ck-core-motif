@@ -1,3 +1,9 @@
+Mwm workspace-info property width (2026-10-25)
+===============================================
+
+- Size numeric workspace-info slots for native-width hexadecimal values and
+  use bounded formatting; see `docs/workspace-info-width.md`.
+
 Font selector family fallback bounds (2026-10-25)
 ===================================================
 
