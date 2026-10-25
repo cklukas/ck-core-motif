@@ -1,3 +1,9 @@
+WSM request callback guard (2026-10-25)
+========================================
+
+- Reject protocol requests when screen metadata or its callback is absent,
+  releasing the unpacked request safely; see `docs/wsm-request-callback.md`.
+
 WSM cache allocation failures (2026-10-25)
 ============================================
 

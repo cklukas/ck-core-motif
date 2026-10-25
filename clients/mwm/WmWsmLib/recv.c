@@ -292,6 +292,10 @@ WSMProcessProtoTarget(Widget w, Atom target, XtPointer input,
      */
 
     screen_info = _WSMGetScreenInfo(dpy, scr_num);
+    if (screen_info == NULL || screen_info->request_callback == NULL) {
+	FreeRequest(&request);
+	return(False);
+    }
     reply.any.type = request.any.type;
     reply.any.allocated = False;
     (*screen_info->request_callback)(w, screen_info->request_data,
