@@ -503,6 +503,8 @@ sanitizer configuration. This closes a toolkit safety defect but does not
 replace the required real multi-output qualification.
 The AArch64 receipt and installed-library fingerprint are recorded in
 `docs/xlibre-dpi-contract.md`.
+The supported-server predicate also requires an exact `XLibre` vendor token;
+the installed fixture covers versioned names and spoofed substrings.
 
 ### WP-05: Optional SVG image loading
 

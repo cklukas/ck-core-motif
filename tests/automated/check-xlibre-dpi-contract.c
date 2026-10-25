@@ -69,6 +69,32 @@ check_property_decode(Display *display)
 }
 
 static void
+check_vendor_predicate(void)
+{
+    static const struct {
+        const char *vendor;
+        int expected;
+    } cases[] = {
+        { "XLibre", 1 },
+        { "XLibre 25.1.0", 1 },
+        { "XLibre\t25.1", 1 },
+        { "NotXLibre", 0 },
+        { "XLibre-server", 0 },
+        { "xlibre", 0 },
+        { NULL, 0 },
+    };
+    size_t i;
+
+    for (i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i)
+        if (_XmXlibreDpiVendorSupported(cases[i].vendor) !=
+            cases[i].expected) {
+            fprintf(stderr, "vendor predicate mismatch for %s\n",
+                    cases[i].vendor != NULL ? cases[i].vendor : "<null>");
+            failed = 1;
+        }
+}
+
+static void
 check_server_contract(Display *display)
 {
     const char *vendor = ServerVendor(display);
@@ -129,6 +155,7 @@ main(void)
     }
     check_property_parser(display);
     check_property_decode(display);
+    check_vendor_predicate();
     check_server_contract(display);
     XCloseDisplay(display);
     if (failed)

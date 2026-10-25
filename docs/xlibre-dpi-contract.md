@@ -7,7 +7,8 @@ X11 coordinate system. XLibre defines 96 as the unscaled baseline; 144 and
 
 The probe accepts a value only when all of these conditions hold:
 
-- the server identifies itself as XLibre;
+- the server vendor string is exactly `XLibre` or starts with `XLibre` followed
+  by whitespace (normally the server version);
 - RandR is present at version 1.2 or newer;
 - the output property has type `INTEGER`, format 32, exactly one item and no
   trailing data; and
@@ -17,6 +18,11 @@ Missing, malformed, out-of-range and non-XLibre values are unsupported and do
 not become a zero or guessed scale. The optional build is disabled by default;
 requesting it without the Xrandr development header and library fails during
 configuration rather than producing a partially working library.
+
+The vendor check is token-based rather than a substring search: names such as
+`NotXLibre` and `XLibre-server` are rejected. This keeps the optional adapter
+bound to the server family that defines the property instead of treating an
+unrelated implementation's name as evidence of the contract.
 
 The property decoder validates that metadata before reading the Xlib buffer.
 This ordering matters on 64-bit hosts: a malformed format-8 or format-16
@@ -94,6 +100,14 @@ installed `libXm.so.8.0.0` SHA-256 was
 remain under `/tmp/ckmotif-xlibre-hardening-20261025/`. This is malformed
 property safety evidence only and does not qualify a real multi-output
 XLibre server.
+
+The vendor-token follow-up was an incremental rebuild ending at 14:05:29 UTC
+on the same host and prefix. Three fresh installed contract runs and the
+consumer ASan/UBSan decoder run passed; the resulting `libXm.so.8.0.0`
+fingerprint is
+`e8e0655256f43b187ea45c06e78f603976835bd1207959ae8ee9da122a6150f1`.
+The separate `vendor-v1` through `vendor-v3` and `sanitizer-vendor` receipts
+remain under `/tmp/ckmotif-xlibre-hardening-20261025/`.
 
 This is an implementation step toward the live contract, not a claim that a
 generic Xorg server provides per-output DPI. The remaining qualification must
