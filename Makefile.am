@@ -611,5 +611,6 @@ EXTRA_DIST += tests/automated/check-mrm-buffer-null-source.py docs/mrm-buffer-nu
 EXTRA_DIST += tests/automated/check-mrm-decommit-record.py docs/mrm-decommit-record.md
 EXTRA_DIST += tests/automated/check-mrm-decommit-all-failure.py docs/mrm-decommit-all-failure.md
 EXTRA_DIST += tests/automated/check-mrm-buffer-output-init.py docs/mrm-buffer-output-init.md
+EXTRA_DIST += tests/automated/check-mrm-resource-id-output-init.py docs/mrm-resource-id-output-init.md
 EXTRA_DIST += tests/automated/check-mrm-hget-output-pointer.py docs/mrm-hget-output-pointer.md
 EXTRA_DIST += tests/automated/check-mrm-hierarchy-name-inputs.py docs/mrm-hierarchy-name-inputs.md

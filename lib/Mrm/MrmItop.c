@@ -648,10 +648,11 @@ UrmIdbGetResourceId (IDBFile			file_id,
    *  Local variables
    */
   Cardinal	result ;		/* function results */
-  IDBResource resource_id;
+  IDBResource resource_id = 0;
 
   if ( resource_id_return == NULL )
     return MrmFAILURE ;
+  *resource_id_return = 0;
   if ( (result=Idb__FIL_Valid((IDBFile)file_id)) != MrmSUCCESS ) return result ;
   result = Idb__RID_NextRID ((IDBFile)file_id, 
                              &resource_id) ;

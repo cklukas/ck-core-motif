@@ -182,6 +182,11 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  sizes before selection; see docs/mrm-buffer-output-init.md.
 
 2026-10-25
+	* Initialize Mrm resource-id outputs before validation and RID allocation so
+	  failures cannot expose an indeterminate value; see
+	  docs/mrm-resource-id-output-init.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,
