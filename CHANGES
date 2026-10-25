@@ -1,3 +1,9 @@
+Color-object pixel-data widget validation (2026-10-25)
+=======================================================
+
+- Reject missing ColorObj widgets before pixel-data parsing; see
+  `docs/color-object-screen-index.md`.
+
 Color-object pixel-data screen validation (2026-10-25)
 =======================================================
 

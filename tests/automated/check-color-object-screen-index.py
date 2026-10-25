@@ -11,4 +11,5 @@ region = source[start:end]
 assert "screen < 0" in region
 assert "screen >= tmpColorObj->color_obj.numScreens" in region
 assert "colorUse == NULL" in region
+assert "w == NULL" in region
 print("PASS ColorObj pixel data validates screen index")
