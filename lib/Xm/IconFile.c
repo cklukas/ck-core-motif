@@ -452,12 +452,12 @@ CheckDirCache(String	path)
             }
             memcpy(dirName, path, (size_t)dirNameLen);
             dirName[dirNameLen] = '\0';
-        currDir = (DtValidCachedDir)MakeCachedDirEntry(dirName);
+            currDir = (DtValidCachedDir)MakeCachedDirEntry(dirName);
             if (currDir == NULL) {
                 _XmProcessUnlock();
                 return DtUNCACHED_DIR;
             }
-        cacheList.dirs[cacheList.numDirs++] = (DtCachedDir)currDir;
+            cacheList.dirs[cacheList.numDirs++] = (DtCachedDir)currDir;
         }
 	currDir = (DtValidCachedDir)cacheList.dirs[i];
 

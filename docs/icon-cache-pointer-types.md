@@ -1,7 +1,11 @@
-# Icon cache pointer conversions
+# Keep icon cache pointer conversions explicit
 
-The icon-directory cache stores related opaque directory handles in distinct
-union and structure pointer types.  The cache boundary intentionally converts
-between those representations, but implicit assignment is rejected by modern
-compilers.  The conversions are now explicit at both ownership boundaries;
-the cache layout and public icon APIs are unchanged.
+The icon-directory cache stores opaque pointers to a union so invalid and
+valid cache entries share one table.  `CheckDirCache` consumes valid entries
+through the more specific `DtValidCachedDir` pointer.  The code now makes the
+two representation-preserving conversions explicit when inserting and
+retrieving entries.
+
+This documents the intended layout and avoids incompatible-pointer-type
+errors from strict compilers without changing the cache ABI or allocation
+ownership.
