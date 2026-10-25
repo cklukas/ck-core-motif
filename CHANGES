@@ -48,6 +48,13 @@ MWM menu-spec name allocation guard (2026-10-25)
   initialized specification, preserving valid menu construction; see
   `docs/mwm-menu-spec-allocation.md`.
 
+MWM menu-exclusion copy transaction (2026-10-25)
+================================================
+
+- Build custom-menu exclusion copies transactionally and release partial
+  lists on allocation failure, preserving valid ordering and matching; see
+  `docs/mwm-exclusion-copy-allocation.md`.
+
 MWM invoke-message allocation guard (2026-10-28)
 ==================================================
 

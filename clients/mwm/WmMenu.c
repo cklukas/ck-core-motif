@@ -619,37 +619,45 @@ DuplicateMenuItems (MenuItem *menuItems)
 static MenuExclusion *
 DuplicateMenuExclusions (MenuExclusion *exclusions)
 {
-    MenuExclusion *newMenuExclusion = (MenuExclusion *) NULL;
     MenuExclusion *returnMenuExclusion = (MenuExclusion *) NULL;
-    MenuExclusion *curMenuExclusion = (MenuExclusion *) NULL;
+    MenuExclusion *lastMenuExclusion = (MenuExclusion *) NULL;
+    MenuExclusion *curMenuExclusion;
+    MenuExclusion *newMenuExclusion;
     
     for (curMenuExclusion = exclusions;
 	 curMenuExclusion != (MenuExclusion *) NULL;
 	 curMenuExclusion = curMenuExclusion->nextExclusion)
     {
-	/* If its the first one ... */
+	newMenuExclusion = (MenuExclusion *)XtMalloc(sizeof(MenuExclusion));
 	if (newMenuExclusion == (MenuExclusion *) NULL)
-	{
-	    newMenuExclusion =
-	      (MenuExclusion *)XtMalloc(sizeof(MenuExclusion));
+	    goto failure;
+	newMenuExclusion->nextExclusion = (MenuExclusion *) NULL;
+	if (curMenuExclusion->command_string != NULL) {
+	    newMenuExclusion->command_string =
+	      XtNewString(curMenuExclusion->command_string);
+	    if (newMenuExclusion->command_string == NULL) {
+		XtFree((char *)newMenuExclusion);
+		goto failure;
+	    }
+	} else {
+	    newMenuExclusion->command_string = NULL;
+	}
+	if (lastMenuExclusion != (MenuExclusion *) NULL)
+	    lastMenuExclusion->nextExclusion = newMenuExclusion;
+	else
 	    returnMenuExclusion = newMenuExclusion;
-	}
-	else /* ... otherwise, get the next menuExclusion. */
-	{
-	    newMenuExclusion->nextExclusion =
-	      (MenuExclusion *)XtMalloc(sizeof(MenuExclusion));
-	    newMenuExclusion = newMenuExclusion->nextExclusion;
-	}
-
-	newMenuExclusion->command_string =
-	  XtNewString(curMenuExclusion->command_string);
+	lastMenuExclusion = newMenuExclusion;
     }
-
-    /* Make sure we properly NULL terminate the list. */
-    if (newMenuExclusion != (MenuExclusion *) NULL)
-      newMenuExclusion->nextExclusion = (MenuExclusion *) NULL;
-    
     return(returnMenuExclusion);
+
+failure:
+    while (returnMenuExclusion != (MenuExclusion *) NULL) {
+	newMenuExclusion = returnMenuExclusion->nextExclusion;
+	XtFree((char *)returnMenuExclusion->command_string);
+	XtFree((char *)returnMenuExclusion);
+	returnMenuExclusion = newMenuExclusion;
+    }
+    return (NULL);
 }
 #endif
 
