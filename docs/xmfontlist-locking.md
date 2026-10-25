@@ -3,8 +3,8 @@
 `XmFontListCreate`, `XmFontListCreate_r`, `XmFontListAdd`,
 `XmFontListEntryCreate`, `XmFontListEntryCreate_r`,
 `XmFontListEntryLoad`, and
-`XmFontListAppendEntry`, `XmFontListEntryGetFont`, and
-`XmFontListEntryGetTag` now delegate synchronization to the charset, rendition,
+`XmFontListAppendEntry`, `XmFontListEntryGetFont`,
+`XmFontListEntryGetTag`, and `XmeRenderTableGetDefaultFont` now delegate synchronization to the charset, rendition,
 and render-table helpers instead of holding a process or application lock
 across those calls.  This avoids
 recursive locking when the helpers establish their own display/application

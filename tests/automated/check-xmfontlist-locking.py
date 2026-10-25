@@ -66,6 +66,15 @@ assert "_XmAppUnlock" not in create_r
 assert "_XmStringCacheTag" in create_r
 assert "XmRenditionCreate" in create_r
 
+start = source.index("XmeRenderTableGetDefaultFont(")
+end = source.index("\n}\n", start)
+default_font = source[start:end]
+assert "_XmAppLock" not in default_font
+assert "_XmAppUnlock" not in default_font
+assert "_XmProcessLock" not in default_font
+assert "_XmProcessUnlock" not in default_font
+assert "_XmFontListSearch" in default_font
+
 start = source.index("XmFontListCreate_r(")
 end = source.index("\n}\n", start)
 create_r_font = source[start:end]
