@@ -6390,6 +6390,14 @@ Command and message-dialog argument allocation bounds (2026-10-25)
   multiplication or allocation. Empty argument lists are handled safely when
   their pointer is null; see `docs/command-message-argument-allocation.md`.
 
+Convenience-constructor allocation failures (2026-10-25)
+==========================================================
+
+- Return `NULL` when the temporary argument arrays for Command and
+  message-dialog constructors cannot be allocated, before copying or
+  appending the internal dialog-type argument; see
+  `docs/command-message-argument-allocation.md`.
+
 Bound legacy resource-filter byte sizes (2026-10-25)
 =====================================================
 

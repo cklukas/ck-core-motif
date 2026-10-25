@@ -13,5 +13,9 @@ byte size in host `size_t` or Xt `Cardinal` before multiplying. Empty argument
 lists remain valid when their pointer is null; non-empty lists require a valid
 source pointer.
 
+The temporary array is checked before copying or appending the internal
+argument; allocation failure returns `NULL` without modifying caller-owned
+arguments.
+
 The focused source regression is
 `tests/automated/check-command-message-argument-bounds.py`.
