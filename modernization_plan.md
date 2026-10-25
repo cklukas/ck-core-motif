@@ -487,6 +487,14 @@ freeing state on explicit unregistration. The installed observer regression
 exercises unregistration followed by shell destruction, preventing a stale
 callback closure from becoming a use-after-free path.
 
+The queued work procedure now retains its observer state across the Xt resize
+transaction. If reentrant application code destroys the shell, retirement
+unlinks and cancels the observer while reclamation waits for the active work
+reference; the optional change hook is not called after retirement. The
+source-contract regression covers the retain/release ordering. A real
+multi-output XLibre run is still required for live property changes and
+destruction during queued reflow.
+
 ### WP-05: Optional SVG image loading
 
 **Depends on:** WP-04.

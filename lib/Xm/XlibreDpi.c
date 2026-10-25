@@ -37,6 +37,8 @@ struct _XmXlibreDpiShellState {
     double scale;
     _XmXlibreDpiChangeProc change_proc;
     XtPointer closure;
+    unsigned int references;
+    Boolean retired;
     _XmXlibreDpiShellState *next;
 };
 
@@ -45,6 +47,23 @@ static _XmXlibreDpiShellState *shell_states;
 static void
 _XmXlibreDpiUninstallState(_XmXlibreDpiShellState *state,
                            Boolean remove_destroy_callback);
+
+static void
+_XmXlibreDpiRelease(_XmXlibreDpiShellState *state)
+{
+    if (state == NULL || state->references == 0)
+        return;
+    --state->references;
+    if (state->references == 0 && state->retired)
+        free(state);
+}
+
+static void
+_XmXlibreDpiRetain(_XmXlibreDpiShellState *state)
+{
+    if (state != NULL)
+        ++state->references;
+}
 
 static Boolean
 _XmXlibreDpiIsNotifyEvent(const _XmXlibreDpiShellState *state,
@@ -204,16 +223,24 @@ _XmXlibreDpiWork(XtPointer closure)
 
     if (state == NULL)
         return True;
+    /* The destroy callback may retire the registry reference while a resize
+     * callback is still unwinding. Keep this work-procedure reference until
+     * every reentrant callback has returned. */
+    _XmXlibreDpiRetain(state);
     state->work_pending = False;
     state->work_id = (XtWorkProcId)0;
-    if (!_XmXlibreDpiResolve(state, &output, &scale))
+    if (state->retired || !_XmXlibreDpiResolve(state, &output, &scale)) {
+        _XmXlibreDpiRelease(state);
         return True;
+    }
     old_scale = state->scale;
     old_output = state->output;
     state->scale = scale;
     state->output = output;
-    if (old_output == output && fabs(old_scale - scale) < 0.000001)
+    if (old_output == output && fabs(old_scale - scale) < 0.000001) {
+        _XmXlibreDpiRelease(state);
         return True;
+    }
 
     /* A same-size resize invokes the normal Xt/Xm resize wrappers once.  It
      * does not mutate explicit pixel resources; the optional callback is the
@@ -226,9 +253,10 @@ _XmXlibreDpiWork(XtPointer closure)
                            (Dimension)attributes.height,
                            (Dimension)attributes.border_width);
     }
-    if (state->change_proc != NULL)
+    if (!state->retired && state->change_proc != NULL)
         state->change_proc(state->shell, old_scale, scale, old_output, output,
                            state->closure);
+    _XmXlibreDpiRelease(state);
     return True;
 }
 
@@ -311,6 +339,7 @@ _XmXlibreDpiInstallShell(Widget shell,
     }
     state->change_proc = change_proc;
     state->closure = closure;
+    state->references = 1; /* registry ownership */
     root = state->root;
     XRRSelectInput(display, root, RRScreenChangeNotifyMask |
                    RROutputChangeNotifyMask | RROutputPropertyNotifyMask);
@@ -347,6 +376,7 @@ _XmXlibreDpiUninstallState(_XmXlibreDpiShellState *state,
     if (*link == NULL)
         return;
     *link = state->next;
+    state->retired = True;
     if (remove_destroy_callback)
         XtRemoveCallback(state->shell, XtNdestroyCallback,
                          _XmXlibreDpiDestroy, (XtPointer)state);
@@ -354,7 +384,7 @@ _XmXlibreDpiUninstallState(_XmXlibreDpiShellState *state,
         XtRemoveInput(state->input_id);
     if (state->work_pending && state->work_id != (XtWorkProcId)0)
         XtRemoveWorkProc(state->work_id);
-    free(state);
+    _XmXlibreDpiRelease(state); /* drop registry ownership */
 }
 
 Boolean

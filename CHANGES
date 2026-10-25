@@ -1,3 +1,11 @@
+XLibre observer reentrant lifetime guard (2026-10-25)
+======================================================
+
+- Retain XLibre RandR-DPI observer state across reentrant resize callbacks;
+  shell destruction now retires and defers reclamation until queued work
+  returns, with a source-level lifetime regression guard. See
+  `docs/xlibre-dpi-contract.md`.
+
 Unicode grapheme capture and bounded Xft requests (2026-10-25)
 ===============================================================
 
