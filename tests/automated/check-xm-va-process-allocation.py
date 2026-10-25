@@ -13,5 +13,8 @@ assert "goto allocation_failure" in region
 assert "return False;" in region
 assert "return True;" in region
 assert source.count("if (!_XmVaProcessEverything(") == 6
+assert "_XmVaAddCount" in source
+assert "base > INT_MAX - extra" in source
+assert source.count("if (!_XmVaAddCount(args_count,") == 6
 
 print("VaSimple menu argument processing checks allocation bounds and failures")

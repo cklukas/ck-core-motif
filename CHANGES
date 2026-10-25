@@ -1,3 +1,10 @@
+Simple-menu varargs count arithmetic (2026-10-28)
+===================================================
+
+- Check the fixed-argument additions performed by all six simple-menu
+  constructors before storing the result in `int`; see
+  `docs/xm-va-count-arithmetic.md`.
+
 Simple-menu varargs allocation failures (2026-10-28)
 ======================================================
 
