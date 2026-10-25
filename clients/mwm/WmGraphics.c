@@ -945,7 +945,10 @@ Boolean ExtendRList (RList *prl, unsigned int amt)
     if (prl == NULL || prl->allocated < 0 || amt > INT_MAX ||
 	prl->allocated > INT_MAX - (int)amt ||
 	amt > UINT_MAX / sizeof(XRectangle))
+	{
+	Warning (((char *)GETMESSAGE(28, 1, "Insufficient memory for graphics data")));
 	return (False);
+	}
 
     total = (unsigned int)prl->allocated + amt;
     if (total > UINT_MAX / sizeof(XRectangle) ||
