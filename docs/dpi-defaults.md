@@ -26,7 +26,8 @@ explicit pixel resources are preserved.
 The current qualified scope is deliberately global-per-display. It covers
 unlabelled ToggleButton and ToggleButtonGadget indicators and SpinBox arrow
 defaults for creation-time conversion, and the live transaction now reflows
-SpinBox arrow defaults as well. Explicit SpinBox arrow sizes are tracked as
+SpinBox arrow and ProgressRing preferred-size defaults as well. Explicit
+SpinBox arrow sizes and ProgressRing width/height resources are tracked as
 application-owned even when they match the old default. It does not
 claim complete historical-widget reflow, per-monitor output selection,
 automatic pixmap scaling, compositor scaling or physical-monitor-DPI

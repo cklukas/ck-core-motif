@@ -5,7 +5,8 @@ override and shared UI-thread scale transaction through `<Xm/Display.h>`.  The
 installed AArch64 `uconsole` consumer passes three fresh live Xvfb runs and a
 consumer-only ASan/UBSan run while preserving Xrm identity, toggle state and
 explicit indicator and SpinBox arrow resources, and reflowing unlabelled
-realized `ToggleButton` and toolkit-owned `SpinBox` defaults.  Complete
+realized `ToggleButton`, toolkit-owned `SpinBox` defaults, and
+`ProgressRing` preferred dimensions.  Complete
 historical-widget coverage, live appearance
 transactions and real multi-output XLibre reflow remain open.
 

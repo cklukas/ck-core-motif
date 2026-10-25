@@ -1,5 +1,6 @@
 /* Installed-consumer proof for the deterministic display-scale override. */
 #include <Xm/Display.h>
+#include <Xm/ProgressRing.h>
 #include <Xm/SpinB.h>
 #include <Xm/ToggleB.h>
 #include <X11/Intrinsic.h>
@@ -24,6 +25,8 @@ main(int argc, char **argv)
     Widget explicit_toggle;
     Widget baseline_spin;
     Widget explicit_spin;
+    Widget baseline_ring;
+    Widget explicit_ring;
     Display *display;
     XrmDatabase database;
     double scale;
@@ -34,6 +37,9 @@ main(int argc, char **argv)
     Dimension baseline_arrow;
     Dimension live_arrow;
     Dimension explicit_arrow;
+    Dimension baseline_ring_height;
+    Dimension live_ring_height;
+    Dimension explicit_ring_height;
     XmString empty_label;
     Arg empty_args[1];
     Arg explicit_args[2];
@@ -93,11 +99,14 @@ main(int argc, char **argv)
 
     baseline_spin = XmCreateSpinBox(shell, "baselineSpin", NULL, 0);
     XtManageChild(baseline_spin);
+    baseline_ring = XmCreateProgressRing(shell, "baselineRing", NULL, 0);
+    XtManageChild(baseline_ring);
     XtRealizeWidget(shell);
 
     XtVaGetValues(scaled_toggle, XmNindicatorSize, &scaled_indicator, NULL);
     XtVaGetValues(explicit_toggle, XmNindicatorSize, &explicit_indicator, NULL);
     XtVaGetValues(baseline_spin, XmNarrowSize, &baseline_arrow, NULL);
+    XtVaGetValues(baseline_ring, XtNheight, &baseline_ring_height, NULL);
     if (baseline_indicator == 0 || live_indicator <= baseline_indicator ||
         scaled_indicator <= baseline_indicator)
         return fail("scaled default metric did not increase");
@@ -105,6 +114,8 @@ main(int argc, char **argv)
         return fail("explicit pixel metric was changed by scale override");
     if (baseline_arrow == 0)
         return fail("spin box default metric was not initialized");
+    if (baseline_ring_height == 0)
+        return fail("progress ring default metric was not initialized");
 
     if (!XmSetDisplayScaleOverride(display, 1.0))
         return fail("one-times live override was not retained for spin box");
@@ -112,6 +123,16 @@ main(int argc, char **argv)
     XtVaGetValues(baseline_spin, XmNarrowSize, &live_arrow, NULL);
     if (live_arrow >= baseline_arrow)
         return fail("spin box default metric did not reflow down");
+    XtVaGetValues(baseline_ring, XtNheight, &live_ring_height, NULL);
+    if (live_ring_height >= baseline_ring_height)
+        return fail("progress ring default metric did not reflow down");
+
+    explicit_ring = XmCreateProgressRing(shell, "explicitRing", NULL, 0);
+    XtVaSetValues(explicit_ring, XtNheight, (Dimension)100, NULL);
+    XtManageChild(explicit_ring);
+    XtVaGetValues(explicit_ring, XtNheight, &explicit_ring_height, NULL);
+    if (explicit_ring_height != 100)
+        return fail("progress ring explicit height was not retained");
 
     explicit_spin = XmCreateSpinBox(shell, "explicitSpin", NULL, 0);
     XtVaSetValues(explicit_spin, XmNarrowSize, (Dimension)16, NULL);
@@ -123,6 +144,9 @@ main(int argc, char **argv)
     if (!XmSetDisplayScaleOverride(display, 2.0))
         return fail("two-times live override was not retained for spin box");
     XSync(display, False);
+    XtVaGetValues(explicit_ring, XtNheight, &explicit_ring_height, NULL);
+    if (explicit_ring_height != 100)
+        return fail("progress ring explicit height changed by scale override");
     XtVaGetValues(explicit_spin, XmNarrowSize, &explicit_arrow, NULL);
     if (explicit_arrow != 16)
         return fail("spin box explicit pixel metric changed by scale override");
