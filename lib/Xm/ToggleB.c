@@ -1980,10 +1980,10 @@ Initialize(
       }
 	else
         {
-	  new_w->label.acc_TextRect.x = new_w->core.width -
-	    new_w->primitive.highlight_thickness -
-	      new_w->primitive.shadow_thickness - new_w->label.margin_width -
-		  new_w->label.margin_right + LABEL_ACC_PAD;
+	  new_w->label.acc_TextRect.x = (short)((int)new_w->core.width -
+	    (int)new_w->primitive.highlight_thickness -
+	      (int)new_w->primitive.shadow_thickness - (int)new_w->label.margin_width -
+		  (int)new_w->label.margin_right + LABEL_ACC_PAD);
       }
     }
     }
@@ -1999,12 +1999,12 @@ Initialize(
   new_w->label.TextRect.y =  (short) new_w->primitive.highlight_thickness
     + new_w->primitive.shadow_thickness + new_w->label.margin_height +
       new_w->label.margin_top + 
-	((new_w->core.height - new_w->label.margin_top
-	  - new_w->label.margin_bottom
-	  - (2 * (new_w->label.margin_height
-		  + new_w->primitive.highlight_thickness
-		  + new_w->primitive.shadow_thickness))
-	  - new_w->label.TextRect.height) / 2);
+	(((int)new_w->core.height - (int)new_w->label.margin_top
+	  - (int)new_w->label.margin_bottom
+	  - (2 * ((int)new_w->label.margin_height
+		  + (int)new_w->primitive.highlight_thickness
+		  + (int)new_w->primitive.shadow_thickness))
+	  - (int)new_w->label.TextRect.height) / 2);
   
   if (new_w->core.height == 0)
     new_w->core.height = 1;
@@ -2151,15 +2151,15 @@ DrawToggle
     margin = 1;
   
   if (LayoutIsRtoLP(w))
-    x = (int)w->core.width - w->primitive.highlight_thickness -
-      w->primitive.shadow_thickness - w->label.margin_width -
-	w->toggle.indicator_dim;
+    x = (int)w->core.width - (int)w->primitive.highlight_thickness -
+      (int)w->primitive.shadow_thickness - (int)w->label.margin_width -
+	(int)w->toggle.indicator_dim;
   else
     x = w->primitive.highlight_thickness + w->primitive.shadow_thickness +
       w->label.margin_width;
   
   if (Lab_IsPixmap(w)  || XmStringEmpty(w->label._label))
-    y = (int)((w->core.height - w->toggle.indicator_dim))/2;
+    y = ((int)w->core.height - (int)w->toggle.indicator_dim) / 2;
   else
     {
       /* Center indicator vertically next to the first line of text. */
