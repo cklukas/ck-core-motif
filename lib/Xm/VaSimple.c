@@ -95,6 +95,7 @@ static Boolean _XmVaAddCount(
                         int base,
                         int extra,
                         int *result) ;
+static void _XmSaturatingIncrement(int *value) ;
 /********  End Static Function Declarations  ********/
 
 
@@ -122,6 +123,13 @@ _XmVaBType_to_XmBType(
       	return (_XmINVALID_BUTTON_TYPE);
 }
 
+static void
+_XmSaturatingIncrement(int *value)
+{
+    if (value != NULL && *value < INT_MAX)
+        ++(*value);
+}
+
 /*
  *    Given a nested list, _XmCountNestedList() returns counts of the
  *    total number of attribute-value pairs and the count of those
@@ -142,9 +150,9 @@ _XmCountNestedList(
                 	       typed_count);
         } else {
             if (avlist->type != NULL) {
-                ++(*typed_count);
+                _XmSaturatingIncrement(typed_count);
             }
-            ++(*total_count);
+            _XmSaturatingIncrement(total_count);
         }
     }    
 }
@@ -190,6 +198,10 @@ _XmCountVaList(
     String          attr;
     int		    i;
 
+    if (button_count == NULL || args_count == NULL || typed_count == NULL ||
+        total_count == NULL)
+        return;
+
     *button_count = 0;
     *args_count = 0;
     *typed_count = 0;
@@ -203,8 +215,8 @@ _XmCountVaList(
             (void)va_arg(var, String);
             (void)va_arg(var, XtArgVal);
             (void)va_arg(var, int);
-            ++(*total_count);
-            ++(*typed_count);
+            _XmSaturatingIncrement(total_count);
+            _XmSaturatingIncrement(typed_count);
         } else if (strcmp(attr, XtVaNestedList) == 0) {
             _XmCountNestedList(va_arg(var, XtTypedArgList),
 			       total_count, typed_count);
@@ -213,27 +225,27 @@ _XmCountVaList(
 	    if (strcmp(attr, XmVaCASCADEBUTTON) == 0) {
 		for (i = 1; i < XMCASCADE_ARGS_PER_LIST; i++)
 		  (void)va_arg(var, XtArgVal);		
-		++(*total_count);
-		++(*button_count);
+		_XmSaturatingIncrement(total_count);
+		_XmSaturatingIncrement(button_count);
 	    } else if ((strcmp(attr, XmVaSEPARATOR) == 0) ||
 		(strcmp(attr, XmVaDOUBLE_SEPARATOR) == 0)) {
-		++(*total_count);
-		++(*button_count);
+		_XmSaturatingIncrement(total_count);
+		_XmSaturatingIncrement(button_count);
 	    } else if (strcmp(attr, XmVaTITLE) == 0){
 		  (void)va_arg(var, XtArgVal);
-		++(*total_count);
-		++(*button_count);
+		_XmSaturatingIncrement(total_count);
+		_XmSaturatingIncrement(button_count);
 /* Check matches other known VaBUTTONS */
 	    } else if (_XmVaBType_to_XmBType(attr) != _XmINVALID_BUTTON_TYPE) {
 		for (i = 1; i < XMBUTTONS_ARGS_PER_LIST; i++)
 		  (void)va_arg(var, XtArgVal);
-		++(*total_count);
-		++(*button_count);
+		_XmSaturatingIncrement(total_count);
+		_XmSaturatingIncrement(button_count);
 /* Else it's a simple Arg */
 	    } else {
 		(void)va_arg(var, XtArgVal);
-		++(*args_count);
-		++(*total_count);
+		_XmSaturatingIncrement(args_count);
+		_XmSaturatingIncrement(total_count);
 	    }
 	}
     }

@@ -1,3 +1,10 @@
+Simple-menu varargs counter bounds (2026-10-28)
+================================================
+
+- Saturate recursive and top-level simple-menu varargs counters at `INT_MAX`
+  and tolerate missing output pointers, preventing signed wraparound before
+  constructor validation; see `docs/xm-va-count-bounds.md`.
+
 Simple-menu varargs count arithmetic (2026-10-28)
 ===================================================
 
