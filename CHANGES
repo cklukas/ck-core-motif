@@ -9259,3 +9259,10 @@ FileSelectionBox no-match string rollback (2026-10-29)
 - Copy `XmNnoMatchString` before releasing its current value during
   `SetValues`, preserving the existing message if the replacement copy fails;
   see `docs/filesb-no-match-string-rollback.md`.
+
+FileSelectionBox search-resource rollback (2026-10-29)
+=======================================================
+
+- Guard directory, pattern, and filter-mask `XmString` copies during
+  `SetValues`, avoiding null-length queries and preserving the previous search
+  resources when allocation fails; see `docs/filesb-search-resource-rollback.md`.

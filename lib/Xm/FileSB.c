@@ -2650,6 +2650,7 @@ SetValues(
             int             n ;
             String          newString ;
             XmString        noMatchCopy ;
+            XmString        resourceCopy ;
             Boolean         doSearch = FALSE ;
             XmFileSelectionBoxCallbackStruct searchData ;
 /****************/
@@ -2753,46 +2754,62 @@ SetValues(
                 }
             } 
         else
-        {   doSearch = TRUE ;
-            searchData.mask = XmStringCopy( FS_DirMask( request)) ;
-            searchData.mask_length = XmStringLength( searchData.mask) ;
+        {   searchData.mask = XmStringCopy( FS_DirMask( request)) ;
+            if (searchData.mask != NULL) {
+                doSearch = TRUE ;
+                searchData.mask_length = XmStringLength( searchData.mask) ;
+            } else {
+                FS_DirMask( new_w) = FS_DirMask( current) ;
+            }
             } 
-        FS_DirMask( new_w) = (XmString) XmUNSPECIFIED ;
+        if (searchData.mask != NULL ||
+            (FS_StateFlags( new_w) & XmFS_IN_FILE_SEARCH))
+            FS_DirMask( new_w) = (XmString) XmUNSPECIFIED ;
         } 
     if(    FS_Directory( current) != FS_Directory( new_w)    )
     {   
         if(    FS_StateFlags( new_w) & XmFS_IN_FILE_SEARCH    )
-        {   
-            FS_Directory( new_w) = XmStringCopy( FS_Directory( request)) ;
-            XmStringFree( FS_Directory( current)) ;
+        {
+            resourceCopy = XmStringCopy( FS_Directory( request)) ;
+            if (resourceCopy != NULL) {
+                FS_Directory( new_w) = resourceCopy ;
+                XmStringFree( FS_Directory( current)) ;
+            } else {
+                FS_Directory( new_w) = FS_Directory( current) ;
+            }
             } 
         else
-        {   doSearch = TRUE ;
-            searchData.dir = XmStringCopy( FS_Directory( request)) ;
-            searchData.dir_length = XmStringLength( searchData.dir) ;
-
-            /* The resource will be set to the new value after the Search
-            *   routines have been called for validation.
-            */
-            FS_Directory( new_w) = FS_Directory( current) ;
+        {   searchData.dir = XmStringCopy( FS_Directory( request)) ;
+            if (searchData.dir == NULL) {
+                FS_Directory( new_w) = FS_Directory( current) ;
+            } else {
+                doSearch = TRUE ;
+                searchData.dir_length = XmStringLength( searchData.dir) ;
+                FS_Directory( new_w) = FS_Directory( current) ;
+            }
             }
         }
     if(    FS_Pattern( current) != FS_Pattern( new_w)    )
     {   
         if(    FS_StateFlags( new_w) & XmFS_IN_FILE_SEARCH    )
-        {   
-            FS_Pattern( new_w) = XmStringCopy( FS_Pattern( request)) ;
-            XmStringFree( FS_Pattern( current)) ;
+        {
+            resourceCopy = XmStringCopy( FS_Pattern( request)) ;
+            if (resourceCopy != NULL) {
+                FS_Pattern( new_w) = resourceCopy ;
+                XmStringFree( FS_Pattern( current)) ;
+            } else {
+                FS_Pattern( new_w) = FS_Pattern( current) ;
+            }
             } 
         else
-        {   doSearch = TRUE ;
-            searchData.pattern = XmStringCopy( FS_Pattern( request)) ;
-            searchData.pattern_length = XmStringLength( searchData.pattern) ;
-
-            /* The resource will be set to the new value after the Search
-            *   routines have been called for validation.
-            */
-            FS_Pattern( new_w) = FS_Pattern( current) ;
+        {   searchData.pattern = XmStringCopy( FS_Pattern( request)) ;
+            if (searchData.pattern == NULL) {
+                FS_Pattern( new_w) = FS_Pattern( current) ;
+            } else {
+                doSearch = TRUE ;
+                searchData.pattern_length = XmStringLength( searchData.pattern) ;
+                FS_Pattern( new_w) = FS_Pattern( current) ;
+            }
             }
         }
     if(    FS_FileTypeMask( new_w) != FS_FileTypeMask( current)    )
