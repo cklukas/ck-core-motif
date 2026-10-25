@@ -60,8 +60,13 @@ The SpinBox live-default extension was subsequently rebuilt and passed in
 run in `fixture-spin-asan-r3/`. That installed `libXm.so.8.0.0` is
 `3dc9b995cb71894e66c40d013ec0bac242f6e9633d0d60e343ac4c2ff8b74b45`, and the
 fixture source is `2001413c96751c6bab59f6794ed54c0b9ea66a256880ef1b0b8d36e029c8fb66`.
+The same installed prefix then qualified ProgressRing preferred-size reflow in
+`fixture-ring-r1-2/`, `-3/` and `-4/`, with a consumer-only strict ASan/UBSan
+run in `fixture-ring-asan-r1/`. The fixture source for that combined cohort is
+`5cb2a55003cab57222f4f06cf1a934a68492c3c8338a526c56db1ee9c3dfd106`.
 The C23 configure probe was separately run with GCC 14 and reported the C11
 atomic capability as available.  The expanded fixture evidence qualifies the
 same-thread transaction, default indicator reflow, explicit-size preservation,
-toggle-state preservation, SpinBox default reflow, and reversible cleanup;
+toggle-state preservation, SpinBox and ProgressRing default reflow, and
+reversible cleanup;
 full historical-widget coverage and live appearance transactions remain open.

@@ -13,6 +13,9 @@ Deterministic display-scale override (2026-10-25)
   changes, while preserving explicit `XmNarrowSize` values (including values
   supplied after construction). The installed display-scale fixture now
   covers reversible default reflow and explicit-size preservation.
+- Extend the same live transaction to `XmProgressRing`'s toolkit-owned
+  preferred dimensions and scale-derived stroke repaint, while preserving
+  explicit width and height resources.
 - Update the `--enable-unicode-text` configure probe to use `atomic_init`,
   which remains available when current GCC and Clang drivers select C23 mode.
 

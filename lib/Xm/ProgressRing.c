@@ -12,6 +12,7 @@
 #include "XmI.h"
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
+static void ScaleChanged(Widget, double, double, XtPointer);
 static void Redisplay(Widget, XEvent *, Region);
 static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
@@ -116,9 +117,11 @@ static void Initialize(Widget request, Widget widget, ArgList args,
                        &label_width, &label_height);
     diameter = _XmDpiDefaultDimension(widget, 64);
     if (diameter < 32) diameter = 32;
-    if (!ring->core.height)
+    ring->progress_ring.height_default = (ring->core.height == 0);
+    ring->progress_ring.width_default = (ring->core.width == 0);
+    if (ring->progress_ring.height_default)
         ring->core.height = diameter + 2 * ring->progress_ring.spacing;
-    if (!ring->core.width)
+    if (ring->progress_ring.width_default)
         ring->core.width = diameter + label_width +
                            3 * ring->progress_ring.spacing + 8;
     values.foreground = ring->primitive.bottom_shadow_color;
@@ -130,6 +133,7 @@ static void Initialize(Widget request, Widget widget, ArgList args,
                                             mask, &values);
     ring->progress_ring.text_gc = XCreateGC(display, DefaultRootWindow(display),
                                             mask, &values);
+    (void)_XmRegisterScaleChange(widget, ScaleChanged, NULL);
     (void)label_height;
 }
 
@@ -237,7 +241,13 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmProgressRingWidget old = (XmProgressRingWidget)old_widget;
     XmProgressRingWidget ring = (XmProgressRingWidget)widget;
     Boolean redraw = False;
-    (void)request; (void)args; (void)count;
+    (void)request;
+    for (Cardinal i = 0; i < *count; ++i) {
+        if (strcmp(args[i].name, XtNwidth) == 0)
+            ring->progress_ring.width_default = False;
+        else if (strcmp(args[i].name, XtNheight) == 0)
+            ring->progress_ring.height_default = False;
+    }
     Normalize(ring);
     if (old->progress_ring.label != ring->progress_ring.label) {
         if (ring->progress_ring.label)
@@ -255,6 +265,38 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         old->primitive.highlighted != ring->primitive.highlighted)
         redraw = True;
     return redraw;
+}
+
+static Dimension RingDiameter(double scale)
+{
+    Dimension diameter = _XmDpiScaleDimension(scale, 64);
+    return diameter < 32 ? 32 : diameter;
+}
+
+static void ScaleChanged(Widget widget, double old_scale, double new_scale,
+                         XtPointer closure)
+{
+    XmProgressRingWidget ring = (XmProgressRingWidget)widget;
+    Dimension old_diameter, new_diameter;
+    Dimension width, height;
+    (void)closure;
+
+    old_diameter = RingDiameter(old_scale);
+    new_diameter = RingDiameter(new_scale);
+    if (old_diameter == new_diameter)
+        return;
+    width = ring->core.width;
+    height = ring->core.height;
+    if (ring->progress_ring.width_default)
+        width = (Dimension)((int)width + (int)new_diameter -
+                            (int)old_diameter);
+    if (ring->progress_ring.height_default)
+        height = (Dimension)((int)height + (int)new_diameter -
+                             (int)old_diameter);
+    if (width != ring->core.width || height != ring->core.height)
+        XtResizeWidget(widget, width, height, ring->core.border_width);
+    if (XtIsRealized(widget))
+        XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
 }
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,

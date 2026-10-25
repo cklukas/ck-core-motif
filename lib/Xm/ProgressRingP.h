@@ -19,6 +19,8 @@ typedef struct _XmProgressRingPart {
     XmFontList font;
     XtCallbackList value_changed_callback;
     Dimension spacing;
+    Boolean width_default;
+    Boolean height_default;
     GC track_gc, fill_gc, text_gc;
 } XmProgressRingPart;
 
