@@ -1,3 +1,11 @@
+XmString array-entry copy bounds (2026-10-27)
+============================================
+
+- Check array-entry segment counts before cloning their pointer table and
+  release already-copied segments when a recursive copy fails.  Malformed or
+  allocation-limited strings no longer cause a wrapped allocation or partial
+  array dereference.
+
 XmStack growth bounds (2026-10-27)
 ==================================
 
