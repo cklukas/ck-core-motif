@@ -4162,6 +4162,15 @@ BuildSelectedList(XmListWidget lw,
       if (lw->list.InternalList[i]->selected)
 	{
 	  lw->list.selectedItems[j] = XmStringCopy(lw->list.items[i]);
+	  if (lw->list.selectedItems[j] == NULL)
+	    {
+	      while (j != 0)
+		XmStringFree(lw->list.selectedItems[--j]);
+	      XtFree((char *)lw->list.selectedItems);
+	      lw->list.selectedItems = NULL;
+	      lw->list.selectedItemCount = 0;
+	      return;
+	    }
 	  j++;
         }
     }

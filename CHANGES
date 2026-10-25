@@ -1,3 +1,10 @@
+List selection-copy rollback (2026-10-28)
+===========================================
+
+- Roll back partial selected-item `XmString` snapshots on copy failure,
+  preventing callbacks from receiving NULL entries with a non-zero count; see
+  `docs/list-selection-copy-rollback.md`.
+
 VendorShell MWM menu rollback (2026-10-28)
 ============================================
 
