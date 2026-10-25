@@ -14,4 +14,6 @@ assert "XmStringFree(newC->values[--valLoop]);" in region
 assert "newC->values = oldC->values;" in region
 assert "newC->num_values = oldC->num_values;" in region
 assert "reqC->values = oldC->values;" in region
+assert "SIZE_MAX / sizeof(XmString)" in region
+assert "UINT_MAX / sizeof(XmString)" in region
 print("SpinBox SetValues preserves value lists on allocation failure")

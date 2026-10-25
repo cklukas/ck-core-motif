@@ -902,7 +902,11 @@ ConstraintInitialize(Widget req,
     if (reqC->values != NULL)
       {
   /* buffer the values XmStringTable */
-      newC->values = (XmString *)XtMalloc(reqC->num_values * sizeof(XmString));
+      if ((size_t)reqC->num_values > SIZE_MAX / sizeof(XmString) ||
+          reqC->num_values > UINT_MAX / sizeof(XmString))
+	newC->values = NULL;
+      else
+	newC->values = (XmString *)XtMalloc(reqC->num_values * sizeof(XmString));
       
       if (newC->values != NULL)
 	for (valLoop = 0; valLoop < reqC->num_values; valLoop++)
@@ -1052,8 +1056,13 @@ ConstraintSetValues(Widget   old,
 	reqC->values = oldC->values;
       else if (reqC->values != oldC->values)
 	{
-	  newC->values = (reqC->num_values > 0) ?
-	   (XmString *)XtMalloc(reqC->num_values * sizeof(XmString)) : NULL;
+	  if (reqC->num_values > 0 &&
+	      ((size_t)reqC->num_values > SIZE_MAX / sizeof(XmString) ||
+	       reqC->num_values > UINT_MAX / sizeof(XmString)))
+	    newC->values = NULL;
+	  else
+	    newC->values = (reqC->num_values > 0) ?
+	     (XmString *)XtMalloc(reqC->num_values * sizeof(XmString)) : NULL;
 	  
 	  if (reqC->num_values > 0 && newC->values == NULL)
 	    {

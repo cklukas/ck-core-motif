@@ -14,4 +14,6 @@ assert "XmStringFree(newC->values[--valLoop]);" in region
 assert "XtFree((char *)newC->values);" in region
 assert "newC->values = NULL;" in region
 assert "newC->num_values = 0;" in region
+assert "SIZE_MAX / sizeof(XmString)" in region
+assert "UINT_MAX / sizeof(XmString)" in region
 print("SpinBox value-list initialization rolls back partial copies")

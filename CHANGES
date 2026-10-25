@@ -1,3 +1,10 @@
+SpinBox constraint value-table bounds (2026-10-28)
+=====================================================
+
+- Reject value-table byte sizes that cannot fit Xt's allocation type or
+  `size_t` before multiplying the caller-provided count; see
+  `docs/spinbox-constraint-value-bounds.md`.
+
 List drag snapshot rollback (2026-10-28)
 ==========================================
 
