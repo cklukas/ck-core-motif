@@ -12012,3 +12012,10 @@ Bound XmString rendition-stack widths (2026-10-26)
   and shrink paths; see `docs/xmstring-rendition-stack.md`.
 
 Bound XmString segment-growth byte sizes (2026-10-26)
+Bound XmString tag-cache allocation widths (2026-10-26)
+=======================================================
+
+- Add the missing Xt `Cardinal` check and explicit byte sizes to tag-cache
+  initialization and growth; see `docs/xmstring-tag-cache.md`.
+
+Bound XmString rendition-stack widths (2026-10-26)

@@ -1173,7 +1173,8 @@ _XmStringIndexCacheTag(XmStringTag tag,
   _XmProcessLock();
   if (_cache_count == 0)
     {
-      char **new_cache = (char **)XtMalloc(sizeof(char *) * 3);
+      char **new_cache = (char **)XtMalloc(
+	  (Cardinal)(sizeof(char *) * 3));
       if (new_cache == NULL)
         {
           _XmProcessUnlock();
@@ -1208,7 +1209,8 @@ _XmStringIndexCacheTag(XmStringTag tag,
   if (length == XmSTRING_TAG_STRLEN) length = strlen(tag);
 
   if (_cache_count == INT_MAX ||
-      (size_t)(_cache_count + 1) > SIZE_MAX / sizeof(char *))
+      (size_t)(_cache_count + 1) > SIZE_MAX / sizeof(char *) ||
+      (size_t)(_cache_count + 1) > UINT_MAX / sizeof(char *))
     {
       _XmProcessUnlock();
       return 0;
@@ -1216,7 +1218,7 @@ _XmStringIndexCacheTag(XmStringTag tag,
   {
     char **new_cache = (char **)XtRealloc(
         (char *)_tag_cache,
-        sizeof(char *) * (size_t)(_cache_count + 1));
+        (Cardinal)(sizeof(char *) * (size_t)(_cache_count + 1)));
     if (new_cache == NULL)
       {
         _XmProcessUnlock();
