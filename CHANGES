@@ -5406,3 +5406,10 @@ Harden Xm hash lookup and removal lifecycle (2026-10-25)
 
 - Guard empty-table operations, preserve keys before bucket release, and clear
   removed iterators; see `docs/xm-hash-allocation.md`.
+
+Normalize Xm hash bucket indices (2026-10-25)
+==============================================
+
+- Convert signed hash callbacks to an unsigned bucket domain before modulo,
+  preventing negative indices on 64-bit hosts; see
+  `docs/xm-hash-allocation.md`.
