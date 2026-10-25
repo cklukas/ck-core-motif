@@ -39,6 +39,8 @@ Xft compound-string line height (2026-10-27)
   allocation failures without copying through null buffers.
 - Validate DataGrid selection indices against current row and column counts
   before returning cell IDs or entering edit mode.
+- Make ColorSelector color-name replacement transactional when `XtNewString`
+  fails, avoiding null-name formatting and preserving the previous value.
 - Use full-width `Cardinal` indices throughout Hierarchy child traversal and
   rewrite reverse insertion shifts without signed negative sentinels.
 - Use a full-width `Cardinal` index while scanning Manager composite children

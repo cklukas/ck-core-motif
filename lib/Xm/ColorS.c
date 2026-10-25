@@ -969,6 +969,7 @@ UpdateColorWindow(XmColorSelectorWidget csw, Boolean use_name)
     if (!use_name) /* Update color names */
     {	
 	char	*freeMe;
+	char	*new_name;
 	
 	freeMe = XmColorS_color_name(csw);
 	(void) snprintf(buf, sizeof(buf), "#%02x%02x%02x", XmColorS_slider_red(csw),
@@ -976,13 +977,19 @@ UpdateColorWindow(XmColorSelectorWidget csw, Boolean use_name)
 
 	if (FindColor(csw, &index)) 
 	{
-	    XmColorS_color_name(csw) = XtNewString(XmColorS_colors(csw)[index].name);
+	    new_name = XtNewString(XmColorS_colors(csw)[index].name);
+	    if (new_name == NULL)
+		return(False);
+	    XmColorS_color_name(csw) = new_name;
 	    snprintf(new_label, sizeof(new_label), "%s (%s)",
 		     XmColorS_color_name(csw), buf);
 	}	
 	else 	
 	{	
-	    XmColorS_color_name(csw) = XtNewString(buf);
+	    new_name = XtNewString(buf);
+	    if (new_name == NULL)
+		return(False);
+	    XmColorS_color_name(csw) = new_name;
 	    snprintf(new_label, sizeof(new_label), "%s", buf);
 	}
 
@@ -1010,8 +1017,11 @@ UpdateColorWindow(XmColorSelectorWidget csw, Boolean use_name)
 
 	if ((XmColorS_color_name(csw)[0] == '#') && FindColor(csw, &index)) 
 	{
+	    new_name = XtNewString(XmColorS_colors(csw)[index].name);
+	    if (new_name == NULL)
+		return(False);
 	    XtFree(XmColorS_color_name(csw));
-	    XmColorS_color_name(csw) = XtNewString(XmColorS_colors(csw)[index].name);
+	    XmColorS_color_name(csw) = new_name;
 	}
 	(void) snprintf(buf, sizeof(buf), "#%02x%02x%02x",
 			color.red/256, color.green/256, color.blue/256);
