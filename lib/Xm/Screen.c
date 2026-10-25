@@ -1595,6 +1595,11 @@ XmGetXmScreen(
 
 	children = xmDisplay->composite.children;
 	num_children = xmDisplay->composite.num_children;
+    if (num_children != 0 && children == NULL)
+	{
+	    _XmAppUnlock(app);
+	    return(NULL);
+	}
 
 	for (i=0; i < num_children; i++)
 	{
@@ -1615,6 +1620,11 @@ XmGetXmScreen(
 		scr = ScreenOfDisplay(XtDisplay(xmDisplay), i);
 		if (scr == screen)
 			break;
+	}
+	if (i == ScreenCount(XtDisplay(xmDisplay)))
+	{
+	    _XmAppUnlock(app);
+	    return(NULL);
 	}
 
 	(void)snprintf(name, sizeof(name), "screen%d", i);

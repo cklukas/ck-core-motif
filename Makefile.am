@@ -262,6 +262,7 @@ EXTRA_DIST += tests/automated/check-color-object-name-array.py docs/color-object
 EXTRA_DIST += tests/automated/check-color-object-screen-index.py docs/color-object-screen-index.md
 EXTRA_DIST += tests/automated/check-color-cache-property-inputs.py docs/color-cache-property-inputs.md
 EXTRA_DIST += tests/automated/check-color-selection-inputs.py docs/color-selection-inputs.md
+EXTRA_DIST += tests/automated/check-xm-screen-inputs.py docs/xm-screen-inputs.md
 EXTRA_DIST += tests/automated/check-accessibility-name-allocation.py docs/accessibility-name-allocation.md
 EXTRA_DIST += tests/automated/check-font-selector-buffer-allocation.py docs/font-selector-buffer-allocation.md
 EXTRA_DIST += tests/automated/check-font-selector-current-font-allocation.py docs/font-selector-current-font-allocation.md

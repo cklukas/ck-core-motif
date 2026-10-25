@@ -1,3 +1,9 @@
+XmGetXmScreen state validation (2026-10-25)
+=============================================
+
+- Reject malformed child arrays and screens not belonging to the display;
+  see `docs/xm-screen-inputs.md`.
+
 ColorObj selection callback validation (2026-10-25)
 ====================================================
 
