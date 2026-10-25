@@ -642,6 +642,13 @@ XmString array-entry copy bounds (2026-10-27)
   allocation-limited strings no longer cause a wrapped allocation or partial
   array dereference.
 
+FontSelector family-table growth bounds (2026-10-29)
+=====================================================
+
+- Check signed capacity and Xt allocation-size limits while building the
+  FontSelector family table, preventing wrapped growth on extreme font
+  inventories; see `docs/font-family-growth.md`.
+
 XmRegion shrink allocation-size bounds (2026-10-29)
 ====================================================
 

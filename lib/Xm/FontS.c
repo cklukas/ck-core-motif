@@ -608,6 +608,19 @@ ProcessXlfdFontData(XmFontSelectorWidget fsw,
 	
 	if (cur_family == NULL) {
 	    if ( num >= alloc ) {
+		if (alloc > INT_MAX - FAMILY_INC) {
+		    XtFree((char *)fam);
+		    XtFree((char *)top);
+		    return;
+		}
+		if ((size_t)(alloc + FAMILY_INC) >
+		    SIZE_MAX / sizeof(*fam) ||
+		    (size_t)(alloc + FAMILY_INC) >
+		    UINT_MAX / sizeof(*fam)) {
+		    XtFree((char *)fam);
+		    XtFree((char *)top);
+		    return;
+		}
 		alloc += FAMILY_INC;
 		{
 		    FamilyInfo *new_fam = (FamilyInfo *) XtRealloc(
