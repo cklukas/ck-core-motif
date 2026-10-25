@@ -2145,6 +2145,8 @@ CvtStringToCharSetTable(
     return(False);
 
   work_str = XtNewString(in_str);
+  if (work_str == NULL)
+    return(False);
 
   for (cs_str = work_str; ; cs_str = separator + 1)
     {
@@ -2184,6 +2186,10 @@ CvtStringToCharSetTable(
       return(False);
     }
   charsetTable = (XmStringCharSetTable) XtMalloc(tableSize + strDataSize);
+  if (charsetTable == NULL) {
+    XtFree(work_str);
+    return(False);
+  }
   charsetTable[numCharsets] = (XmStringCharSet)NULL;
   dataPtr = (char *) &charsetTable[numCharsets+1];
   strcpy(work_str, in_str);

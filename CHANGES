@@ -1,3 +1,10 @@
+Character-set converter allocation guards (2026-10-25)
+=======================================================
+
+- Check the mutable input copy and combined character-set table allocation,
+  releasing the copy when the result allocation fails; see
+  `docs/charset-converter-allocation.md`.
+
 KeySym converter allocation guards (2026-10-25)
 ================================================
 
