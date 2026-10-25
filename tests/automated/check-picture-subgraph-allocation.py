@@ -7,6 +7,7 @@ start = source.index("static XmPictureNode*\n_XmPictureCopySubGraph")
 end = source.index("static void\n_XmPictureFillTraverse", start)
 region = source[start:end]
 assert "XtMalloc(tablesize * sizeof(XmPictureNode*)" in region
+assert "UINT_MAX / sizeof(XmPictureNode *)" in region
 assert "if (table == NULL)" in region
 assert "return end;" in region
 print("PASS Picture subgraph allocation is guarded")

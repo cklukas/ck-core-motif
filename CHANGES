@@ -9856,8 +9856,9 @@ FileSelectionBox filter allocation fallback (2026-10-25)
 Picture subgraph allocation guard (2026-10-25)
 ==============================================
 
-- Check temporary `XmPicture` subgraph-table allocation and leave the current
-  graph end unchanged when unavailable; see
+- Check temporary `XmPicture` subgraph-table allocation and both native and
+  Xt `Cardinal` size limits, leaving the current graph end unchanged when
+  unavailable; see
   `docs/picture-subgraph-allocation.md`.
 
 Render-table token allocation guards (2026-10-25)
