@@ -120,6 +120,12 @@ WSM per-match allocation rollback (2026-10-25)
   failure, preventing null writes and partial request state; see
   `docs/wsm-attr-pair-oom.md`.
 
+WSM WM_WINDOWS reply allocation guard (2026-10-25)
+===================================================
+
+- Check the WSM `WM_WINDOWS` reply window-entry allocation before unpacking;
+  see `docs/wsm-win-reply-oom.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 

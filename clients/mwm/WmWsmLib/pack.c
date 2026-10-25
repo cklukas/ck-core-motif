@@ -772,6 +772,10 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 	  num = reply->wm_windows.num_win_entry_list = UnpackListNum(&data);
 	  reply->wm_windows.win_entry_list = 
 	    (WSMWinEntry *) XtMalloc(sizeof(WSMWinEntry) * num);
+	  if (reply->wm_windows.win_entry_list == NULL) {
+	    reply->wm_windows.num_win_entry_list = 0;
+	    return;
+	  }
 	  reply->wm_windows.allocated = True;
 
 	  for (i = 0; i < num; i++) 
