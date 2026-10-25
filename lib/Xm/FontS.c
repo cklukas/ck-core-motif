@@ -874,7 +874,10 @@ FillData(XmFontSelectorWidget fsw, FontData *current, char *name)
 
     if (streq(temp, STAR_STRING)) { 
 	String str = _XmGetMBStringFromXmString(ANY_STRING(fsw));
-	strcpy(temp, str);
+	if (str != NULL) {
+	    strncpy(temp, str, BUFSIZ - 1);
+	    temp[BUFSIZ - 1] = '\0';
+	}
 	XtFree((XtPointer) str);
     }
 

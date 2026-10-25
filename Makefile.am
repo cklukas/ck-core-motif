@@ -673,3 +673,5 @@ EXTRA_DIST += tests/automated/check-mwm-bitmap-path-bounds.py docs/mwm-bitmap-pa
 EXTRA_DIST += tests/automated/check-protocol-list-bounds.py docs/protocol-list-bounds.md
 
 EXTRA_DIST += tests/automated/check-latin-lower-bounds.py docs/latin-lower-bounds.md
+
+EXTRA_DIST += tests/automated/check-font-family-bounds.py docs/font-family-bounds.md

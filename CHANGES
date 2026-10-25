@@ -1,3 +1,9 @@
+Font selector family fallback bounds (2026-10-25)
+===================================================
+
+- Bound wildcard family text copied into the font-selector scratch buffer; see
+  `docs/font-family-bounds.md`.
+
 Bounded Latin-1 resource conversion (2026-10-25)
 ==================================================
 
