@@ -145,14 +145,12 @@ XmStringNConcat(XmString first,
 {
   XmString	tmp, ret_val;
   
-  _XmProcessLock();
   tmp = XmStringConcat(first, second);
   
   ret_val = XmStringNCopy(tmp, XmStringLength(first) + n);
   
   XmStringFree(tmp);
   
-  _XmProcessUnlock();
   return(ret_val);
 }
 
@@ -170,7 +168,6 @@ XmStringNCopy(
   unsigned int	len;
   XmString	ret_val;
   
-  _XmProcessLock();
   len = XmCvtXmStringToByteStream(str, &tmp);
   
   if (n >= len) /* No need to truncate */
@@ -185,7 +182,6 @@ XmStringNCopy(
   
   XtFree((char *)tmp);
   
-  _XmProcessUnlock();
   return(ret_val);
 }
 
@@ -200,13 +196,10 @@ XmStringByteCompare(
     unsigned short a_length, b_length;
     Boolean	   ret_val;
 
-    _XmProcessLock();
     if ((a1 == NULL) && (b1 == NULL)) {
-	_XmProcessUnlock();
 	return (TRUE);
     }
     if ((a1 == NULL) || (b1 == NULL)) {
-	_XmProcessUnlock();
 	return (FALSE);
     }
 
@@ -220,7 +213,6 @@ XmStringByteCompare(
     XtFree((char *)a);
     XtFree((char *)b);
 
-    _XmProcessUnlock();
     return(ret_val);
 }
 

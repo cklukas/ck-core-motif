@@ -12388,3 +12388,10 @@ XmString helper lock boundaries (2026-10-26)
   parse-table cleanup; see `docs/xmstring-lock-boundaries.md`.
 
 Tab-list mutation position bounds (2026-10-26)
+Legacy XmString compatibility lock boundaries (2026-10-26)
+=============================================================
+
+- Remove redundant process locks from legacy concat/copy/compare wrappers;
+  see `docs/xmstring-obsolete-locks.md`.
+
+XmString helper lock boundaries (2026-10-26)
