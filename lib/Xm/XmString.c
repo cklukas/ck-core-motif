@@ -1463,8 +1463,10 @@ Unoptimize(_XmStringEntry entry, int free)
 	return NULL;
       _XmEntryInit(new_entry, XmSTRING_ENTRY_ARRAY);
       if (segment_count > SIZE_MAX / sizeof(*segments) ||
-	  segment_count * sizeof(*segments) > (size_t)((Cardinal)~0))
+	  segment_count * sizeof(*segments) > (size_t)((Cardinal)~0)) {
+	_XmStringEntryFree(new_entry);
 	return NULL;
+	      }
       _XmEntrySegmentCount(new_entry) = _XmEntrySegmentCount(entry);
       _XmEntrySoftNewlineSet(new_entry, _XmEntrySoftNewlineGet(entry));
       segments = (_XmStringNREntry *)XtMalloc(

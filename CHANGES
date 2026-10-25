@@ -280,6 +280,8 @@ Render-table locking (2026-10-26)
   of returning an unadorned string; see `docs/xmstring-put-rendition-failure.md`.
 - Propagate source-copy failure in `XmStringPutRendition` before adding
   rendition markers; see `docs/xmstring-put-rendition-copy.md`.
+- Free the temporary array entry when `Unoptimize` rejects an oversized
+  segment allocation; see `docs/xmstring-unoptimize-cleanup.md`.
 
 Legacy XmString constructor locking (2026-10-26)
 ==================================================
