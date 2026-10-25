@@ -1,11 +1,14 @@
 /* Installed-consumer proof for the live appearance transaction. */
 #include <Xm/Appearance.h>
 #include <Xm/PushB.h>
+#include <Xm/Text.h>
+#include <Xm/TextF.h>
 #include <Xm/ToggleB.h>
 #include <X11/Intrinsic.h>
 #include <X11/IntrinsicP.h>
 #include <X11/Xlib.h>
 #include <stdio.h>
+#include <string.h>
 
 static XtSetValuesFunc original_push_button_set_values;
 static Display *reentrant_display;
@@ -39,6 +42,19 @@ fail(const char *message)
     return 1;
 }
 
+static Boolean
+text_values_intact(Widget text, Widget text_field)
+{
+    char *text_value = XmTextGetString(text);
+    char *field_value = XmTextFieldGetString(text_field);
+    Boolean intact = text_value != NULL && field_value != NULL &&
+                     strcmp(text_value, "appearance text") == 0 &&
+                     strcmp(field_value, "appearance field") == 0;
+    XtFree(text_value);
+    XtFree(field_value);
+    return intact;
+}
+
 static void
 value_changed(Widget widget, XtPointer closure, XtPointer call_data)
 {
@@ -62,7 +78,7 @@ int
 main(int argc, char **argv)
 {
     XtAppContext app;
-    Widget shell, ordinary, explicit, toggle;
+    Widget shell, ordinary, explicit, toggle, text, text_field;
     Display *display;
     Pixel baseline_background, light_background, contrast_background;
     Pixel dark_background, classic_background;
@@ -83,14 +99,22 @@ main(int argc, char **argv)
     ordinary = XmCreatePushButton(shell, "ordinary", NULL, 0);
     explicit = XmCreatePushButton(shell, "explicit", NULL, 0);
     toggle = XmCreateToggleButton(shell, "toggle", NULL, 0);
+    text = XmCreateText(shell, "text", NULL, 0);
+    text_field = XmCreateTextField(shell, "textField", NULL, 0);
     XtVaSetValues(explicit, XmNforeground, red, NULL);
     XtAddCallback(toggle, XmNvalueChangedCallback, value_changed,
                   (XtPointer)&callback_count);
     XtManageChild(ordinary);
     XtManageChild(explicit);
     XtManageChild(toggle);
+    XtManageChild(text);
+    XtManageChild(text_field);
     XtRealizeWidget(shell);
     XSync(display, False);
+    XmTextSetString(text, "appearance text");
+    XmTextFieldSetString(text_field, "appearance field");
+    if (!text_values_intact(text, text_field))
+        return fail("text values could not be initialized");
 
     XtVaGetValues(ordinary, XmNbackground, &baseline_background, NULL);
     XtVaGetValues(ordinary, XmNforeground, &ordinary_foreground, NULL);
@@ -110,7 +134,7 @@ main(int argc, char **argv)
     XtVaGetValues(explicit, XmNforeground, &explicit_foreground, NULL);
     if (ordinary_foreground != ordinary_expected ||
         explicit_foreground != red || !XmToggleButtonGetState(toggle) ||
-        callback_count != 1)
+        callback_count != 1 || !text_values_intact(text, text_field))
         return fail("light transition changed owned state or precedence");
 
     /* A SetValues hook is allowed to call toolkit APIs.  The live profile
@@ -139,7 +163,8 @@ main(int argc, char **argv)
     XtVaGetValues(explicit, XmNforeground, &explicit_foreground, NULL);
     if (dark_background == light_background || ordinary_foreground != ordinary_expected ||
         explicit_foreground != red ||
-        !XmToggleButtonGetState(toggle) || callback_count != 1)
+        !XmToggleButtonGetState(toggle) || callback_count != 1 ||
+        !text_values_intact(text, text_field))
         return fail("dark transition changed owned state or precedence");
 
     if (!XmApplyAppearanceProfile(display, XmAPPEARANCE_HIGH_CONTRAST) ||
@@ -151,7 +176,7 @@ main(int argc, char **argv)
     if (contrast_background != named_pixel(display, "#000000") ||
         ordinary_foreground != ordinary_expected ||
         explicit_foreground != red || !XmToggleButtonGetState(toggle) ||
-        callback_count != 1)
+        callback_count != 1 || !text_values_intact(text, text_field))
         return fail("high-contrast transition changed owned state or precedence");
 
     if (!XmApplyAppearanceProfile(display, XmAPPEARANCE_CLASSIC))
@@ -160,7 +185,8 @@ main(int argc, char **argv)
     XtVaGetValues(ordinary, XmNforeground, &ordinary_foreground, NULL);
     if (classic_background != baseline_background ||
         ordinary_foreground != ordinary_expected ||
-        !XmToggleButtonGetState(toggle) || callback_count != 1)
+        !XmToggleButtonGetState(toggle) || callback_count != 1 ||
+        !text_values_intact(text, text_field))
         return fail("classic transition did not restore the original value");
 
     XtDestroyWidget(shell);
