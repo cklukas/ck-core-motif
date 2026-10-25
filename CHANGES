@@ -115,6 +115,12 @@ XmString ASN.1 conversion failure cleanup (2026-10-26)
 - Release partial rendition and string state when non-optimized ASN.1
   conversion allocations fail; see `docs/xmstring-asn1-failure-cleanup.md`.
 
+XmString rendition resize failures (2026-10-26)
+================================================
+
+- Preserve rendition arrays and counts when `XtRealloc` fails in begin/end
+  setters; see `docs/xmstring-rendition-resize.md`.
+
 XmString extraction output validation (2026-10-26)
 ====================================================
 

@@ -2074,6 +2074,11 @@ succeeds, checks separator line allocations, and cleans partial state on
 failure. The source contract is recorded in
 `tests/automated/check-xmstring-asn1-failure-cleanup.py` and
 `docs/xmstring-asn1-failure-cleanup.md`.
+Rendition begin/end setters now commit resized tag arrays and counts only after
+`XtRealloc` succeeds, preserving prior formatting state on allocation failure.
+The source contract is recorded in
+`tests/automated/check-xmstring-rendition-resize.py` and
+`docs/xmstring-rendition-resize.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the

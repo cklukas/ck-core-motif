@@ -6352,12 +6352,16 @@ _XmEntryRendEndSet(_XmStringEntry entry,
       else 
   	{
  	  if (n >= _XmUnoptSegRendEndCount(entry)) {
+	    XmStringTag *new_tags;
+	    int new_count = _XmUnoptSegRendEndCount(entry) + 1;
  	    n = _XmUnoptSegRendEndCount(entry);
- 	    _XmUnoptSegRendEndCount(entry)++;
- 	    _XmUnoptSegRendEnds(entry) = 
- 	      (XmStringTag *)XtRealloc((char *)_XmUnoptSegRendEnds(entry),
- 				       _XmUnoptSegRendEndCount(entry) *
- 				       sizeof(XmStringTag));
+	    new_tags = (XmStringTag *)XtRealloc(
+	      (char *)_XmUnoptSegRendEnds(entry),
+	      (Cardinal)new_count * sizeof(XmStringTag));
+	    if (new_tags == NULL)
+	      return;
+	    _XmUnoptSegRendEnds(entry) = new_tags;
+	    _XmUnoptSegRendEndCount(entry) = new_count;
  	  }
   	  _XmUnoptSegRendEnds(entry)[n] = tag;
   	}
@@ -6404,12 +6408,16 @@ _XmEntryRendBeginSet(_XmStringEntry entry,
       else 
   	{
  	  if (n >= _XmUnoptSegRendBeginCount(entry)) {
+	    XmStringTag *new_tags;
+	    int new_count = _XmUnoptSegRendBeginCount(entry) + 1;
  	    n = _XmUnoptSegRendBeginCount(entry);
- 	    _XmUnoptSegRendBeginCount(entry)++;
- 	    _XmUnoptSegRendBegins(entry) = 
- 	      (XmStringTag *)XtRealloc((char *)_XmUnoptSegRendBegins(entry),
- 				       _XmUnoptSegRendBeginCount(entry) *
- 				       sizeof(XmStringTag));
+	    new_tags = (XmStringTag *)XtRealloc(
+	      (char *)_XmUnoptSegRendBegins(entry),
+	      (Cardinal)new_count * sizeof(XmStringTag));
+	    if (new_tags == NULL)
+	      return;
+	    _XmUnoptSegRendBegins(entry) = new_tags;
+	    _XmUnoptSegRendBeginCount(entry) = new_count;
  	  }
  	  _XmUnoptSegRendBegins(entry)[n] = tag;
   	}
