@@ -30,6 +30,7 @@ static char rcsid[] = "$TOG: PushBG.c /main/29 1999/05/27 14:18:33 mgreess $"
 #endif
 
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <X11/IntrinsicP.h>
 #include <X11/ShellP.h>
@@ -1659,6 +1660,7 @@ ClassInitialize( void )
   int		 i, j;
   XtResourceList uncompiled;
   Cardinal	 num;
+  size_t	 merged_count;
   
   /*
    * Label's and Pushbutton's resource lists are being merged into one
@@ -1674,9 +1676,17 @@ ClassInitialize( void )
   
   wc_num_res = xmPushButtonGCacheObjClassRec.object_class.num_resources;
   sc_num_res = xmLabelGCacheObjClassRec.object_class.num_resources;
-  
-  merged_list = (XtResource *)
-    XtMalloc((sizeof(XtResource) * (wc_num_res + sc_num_res)));
+
+  if ((size_t)wc_num_res > SIZE_MAX / sizeof(XtResource) -
+	      (size_t)sc_num_res)
+    return;
+  merged_count = (size_t)wc_num_res + (size_t)sc_num_res;
+  if (merged_count > (size_t)UINT_MAX / sizeof(XtResource))
+    return;
+  merged_list = (XtResource *)XtMalloc(
+    (Cardinal)(merged_count * sizeof(XtResource)));
+  if (merged_list == NULL)
+    return;
   
   _XmTransformSubResources(xmLabelGCacheObjClassRec.object_class.resources,
                            sc_num_res, &uncompiled, &num);

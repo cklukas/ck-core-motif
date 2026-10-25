@@ -8216,3 +8216,12 @@ ColorObj atom-name allocation (2026-10-27)
 
 ColorObj pixel-data allocation (2026-10-27)
 ===========================================
+PushButtonGadget resource-list allocation (2026-10-27)
+=======================================================
+
+- Validate merged resource-list arithmetic and check `XtMalloc` before filling
+  the list during class initialization.  Resource setup now returns safely
+  when the merged table cannot be allocated.
+
+ColorObj atom-name allocation (2026-10-27)
+==========================================
