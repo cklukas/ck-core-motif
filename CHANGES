@@ -1,3 +1,10 @@
+VendorShell extension-data allocation (2026-10-27)
+====================================================
+
+- Initialize VendorShell extension data and its request-widget copy before
+  publishing the extension, releasing partial allocations when either step
+  fails under allocation pressure.
+
 TreeView model allocation (2026-10-27)
 =======================================
 
