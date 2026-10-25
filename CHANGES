@@ -219,6 +219,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  locked fetch path; see docs/mrm-fetch-literal-output.md.
 
 2026-10-25
+	* Validate and initialize Mrm pixmap, dimension and pixel outputs before
+	  convenience literal fetches; see docs/mrm-literal-convenience-outputs.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,

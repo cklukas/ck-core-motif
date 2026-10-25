@@ -434,6 +434,9 @@ MrmFetchIconLiteral (MrmHierarchy                hierarchy_id,
   URMPointerListPtr	ctxlist = NULL;	/* save added contexts */
   Cardinal		ndx;		/* loop index */
   MrmType		type;
+  if ( pixmap_return == NULL )
+    return MrmFAILURE;
+  *pixmap_return = 0;
   _MrmDisplayToAppContext(display);
 
   _MrmAppLock(app);
@@ -540,6 +543,11 @@ MrmFetchBitmapLiteral (MrmHierarchy                hierarchy_id,
   Cardinal		ndx;		/* loop index */
   MrmType		type;
   RGMIconImagePtr	icon;
+  if ( pixmap_return == NULL || width == NULL || height == NULL )
+    return MrmFAILURE;
+  *pixmap_return = 0;
+  *width = 0;
+  *height = 0;
   _MrmDisplayToAppContext(display);
 
   _MrmAppLock(app);
@@ -650,6 +658,9 @@ MrmFetchColorLiteral (MrmHierarchy                hierarchy_id,
   Cardinal		ndx;		/* loop index */
   RGMColorDescPtr	colorptr;
   char			err_msg[300] ;
+  if ( pixel_return == NULL )
+    return MrmFAILURE;
+  *pixel_return = 0;
   _MrmDisplayToAppContext(display);
 
   _MrmAppLock(app);
