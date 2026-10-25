@@ -2104,6 +2104,10 @@ allocations before initialization and returns `NULL` cleanly on failure. The
 source contract is recorded in
 `tests/automated/check-xmstring-create-failure.py` and
 `docs/xmstring-create-failure.md`.
+XmString table parse and unparse now clean already-converted elements and the
+output table on conversion failure. The source contract is recorded in
+`tests/automated/check-xmstring-table-transaction.py` and
+`docs/xmstring-table-transaction.md`.
 The optional XLibre resolver also rejects non-positive or unrepresentable
 RandR output counts before allocating its output table, preserving the global
 DPI fallback for malformed server metadata. The guard is covered by the

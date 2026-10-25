@@ -203,6 +203,13 @@ XmStringTableParseStringArray(XtPointer   *strings,
     {
       strs[i] = XmStringParseText(strings[i], NULL, tag, type, 
 				  parse, parse_count, call_data);
+      if (strs[i] == NULL) {
+	while (i > 0)
+	  XmStringFree(strs[--i]);
+	XtFree((char *)strs);
+	_XmProcessUnlock();
+	return(NULL);
+      }
     }
 
   _XmProcessUnlock();
@@ -238,8 +245,17 @@ XmStringTableUnparse(XmStringTable     table,
   }
   
   for (i = 0; i < count; i++)
-    strs[i] = XmStringUnparse(table[i], tag, tag_type, output_type,
-			      parse, parse_count, parse_model);
+    {
+      strs[i] = XmStringUnparse(table[i], tag, tag_type, output_type,
+				parse, parse_count, parse_model);
+      if (strs[i] == NULL) {
+	while (i > 0)
+	  XtFree((char *)strs[--i]);
+	XtFree((char *)strs);
+	_XmProcessUnlock();
+	return(NULL);
+      }
+    }
   _XmProcessUnlock();
   return(strs);
 }

@@ -152,6 +152,12 @@ XmString creation allocation failure (2026-10-26)
 - Check optimized and non-optimized `_XmStringNCreate` representations before
   initialization; see `docs/xmstring-create-failure.md`.
 
+XmString table conversion transactions (2026-10-26)
+====================================================
+
+- Release partial results when table parse or unparse conversion fails; see
+  `docs/xmstring-table-transaction.md`.
+
 XmString extraction output validation (2026-10-26)
 ====================================================
 
