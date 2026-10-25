@@ -3149,12 +3149,13 @@ sym_value_entry_type	*table_entry;
 			       & arg_index, & arg_id, & arg_group ) )
 	    {
 	    case URMrRID:
-		size += sizeof (RGMResourceDesc);
+		out_add_value_size(&size, sizeof(RGMResourceDesc));
 		size = _FULLWORD (size);
 		break;
 	    case URMrIndex:
-		size += sizeof(RGMResourceDesc) - sizeof(MrmResource_id) +
-			strlen(arg_index)+1;
+		out_add_value_size(&size,
+		    sizeof(RGMResourceDesc) - sizeof(MrmResource_id));
+		out_add_value_size(&size, strlen(arg_index) + 1);
 		size = _FULLWORD (size);
 		break;
 	    default:
@@ -3351,11 +3352,12 @@ sym_value_entry_type	*icon_entry;
 		       & arg_index, & arg_id, & arg_group ) )
     {
     case URMrRID:
-	size += sizeof( RGMResourceDesc );
+	out_add_value_size(&size, sizeof(RGMResourceDesc));
 	break;
     case URMrIndex:
-	size += sizeof( RGMResourceDesc ) - sizeof( MrmResource_id ) +
-		strlen( arg_index ) + 1;
+	out_add_value_size(&size,
+	    sizeof(RGMResourceDesc) - sizeof(MrmResource_id));
+	out_add_value_size(&size, strlen(arg_index) + 1);
 	break;
     default:
 	_assert( FALSE, "immediate color table values not supported" );
@@ -3395,8 +3397,13 @@ sym_value_entry_type	*icon_entry;
     **	Size is width * height - each row must be an even number of bytes
     */
 
-    size += ((int)((icon_entry->value.z_icon->w_width << pixel_type) + 7) / 8)
-	     * icon_entry->value.z_icon->w_height;
+    {
+	size_t row_bytes = (((size_t) icon_entry->value.z_icon->w_width <<
+				     pixel_type) + 7) / 8;
+	size_t pixel_bytes = row_bytes *
+	    (size_t) icon_entry->value.z_icon->w_height;
+	out_add_value_size(&size, pixel_bytes);
+    }
 
     icon_entry->w_length = size;
 

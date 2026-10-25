@@ -1,3 +1,10 @@
+UIL icon payload size bounds (2026-10-27)
+==========================================
+
+- Compute icon row and payload bytes in `size_t` and check color-table
+  descriptor additions before resource allocation; see
+  `docs/uil-image-size-bounds.md`.
+
 UIL compression-table size bounds (2026-10-27)
 ===============================================
 
