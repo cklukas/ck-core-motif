@@ -2256,6 +2256,9 @@ Urm__CW_ConvertValue (Widget			parent,
 	String	*tbl;
 	  
 	vecptr = (RGMTextVectorPtr) (*val) ;
+	if ( vecptr == NULL || vecptr->validation != URMTextVectorValid ||
+	    vecptr->count > RGMListSizeMax )
+	  return MrmFAILURE ;
 	/* Have to pack vecptr */
 	vec_count = vecptr->count;
 	tbl = (String *)vecptr->item;
@@ -2269,6 +2272,9 @@ Urm__CW_ConvertValue (Widget			parent,
 	XmStringTable	tbl;
 	
 	vecptr = (RGMTextVectorPtr) (*val) ;
+	if ( vecptr == NULL || vecptr->validation != URMTextVectorValid ||
+	    vecptr->count > RGMListSizeMax )
+	  return MrmFAILURE ;
 	/* Have to pack vecptr */
 	vec_count = vecptr->count;
 	tbl = (XmStringTable)vecptr->item;
@@ -2294,6 +2300,9 @@ Urm__CW_ConvertValue (Widget			parent,
 	RGMIntegerVectorPtr	vecptr ;	/* val as integer vector */
 
         vecptr = (RGMIntegerVectorPtr) (*val) ;
+	        if ( vecptr == NULL || vecptr->validation != URMIntegerVectorValid ||
+             vecptr->count > RGMListSizeMax )
+          return MrmFAILURE ;
         *val = (long) vecptr->item ;
         break ;
       }
