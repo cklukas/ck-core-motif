@@ -5079,3 +5079,9 @@ Form shadow redisplay guards (2026-10-25)
 - Share validated realization, GC, thickness, and geometry checks between
   Form resize and expose shadow drawing; see
   `docs/form-shadow-redisplay-guards.md`.
+CascadeButton shadow redisplay guards (2026-10-25)
+==================================================
+
+- Validate CascadeButton realization, shadow GCs, thickness, and drawable
+  geometry before drawing the armed shadow; see
+  `docs/cascade-button-shadow-redisplay-guards.md`.
