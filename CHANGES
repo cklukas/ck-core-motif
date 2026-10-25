@@ -9179,3 +9179,12 @@ Representation-type string-copy Xt bounds (2026-10-29)
 
 Text-property concatenation Xt size bounds (2026-10-29)
 ========================================================
+DropDown selection-table Xt bounds (2026-10-29)
+================================================
+
+- Check converted selected-item counts against Xt's `Cardinal` allocation
+  range before building the temporary table; see
+  `docs/dropdown-selection-bounds.md`.
+
+Representation-type string-copy Xt bounds (2026-10-29)
+========================================================

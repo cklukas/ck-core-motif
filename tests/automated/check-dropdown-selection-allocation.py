@@ -10,4 +10,5 @@ region = text[start:end]
 assert "if (sel_table == NULL)" in region
 assert "error = TRUE;" in region
 assert "count = 0;" in region
+assert "UINT_MAX / sizeof(XmString)" in text
 print("drop-down selection-table allocation is guarded")

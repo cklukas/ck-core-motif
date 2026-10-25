@@ -2395,7 +2395,8 @@ SetListFromText(Widget w, Boolean no_action)
 	 */
 	if (table != NULL)  {
 	    for(tptr = table, count = 0; *tptr != NULL ; tptr++) count++; 
-	    if ((size_t)count > SIZE_MAX / sizeof(XmString)) {
+	    if ((size_t)count > SIZE_MAX / sizeof(XmString) ||
+		(size_t)count > UINT_MAX / sizeof(XmString)) {
 		sel_table = NULL;
 		error = TRUE;
 		count = 0;
