@@ -73,6 +73,21 @@ static void HandleInsertTargets(
                         unsigned long *length,
                         int *format );
 #endif /* _NO_PROTO */
+
+static Boolean
+text_selection_span_to_int(XmTextPosition left, XmTextPosition right,
+                           int *span)
+{
+    XmTextPosition length;
+
+    if (left < 0 || right < left)
+        return False;
+    length = right - left;
+    if (length > (XmTextPosition)INT_MAX)
+        return False;
+    *span = (int)length;
+    return True;
+}
 /********    End Static Function Declarations    ********/
 
 #ifdef _NO_PROTO
@@ -643,11 +658,12 @@ _XmDataFieldConvert(
 
       /* put a char* value into tmp_value, then convert to 8859.1 */
       if (XmTextF_max_char_size(tf) != 1) {
-	  int stat ;
+	  int stat, selection_span;
 
-	/* NOTE: casting (right - left) could result in a truncated long. */
+	 if (!text_selection_span_to_int(left, right, &selection_span))
+	     return False;
          *length = _XmDataFieldCountBytes(tf, TextF_WcValue(tf) + left, 
-                                          (int)(right - left));
+                                          selection_span);
          tmp_value = XtMalloc((unsigned) *length + 1);
          stat = wcstombs(tmp_value, TextF_WcValue(tf) + left,
 		           (unsigned)*length); /* NOTE: casting *length could
@@ -682,11 +698,12 @@ _XmDataFieldConvert(
       *format = 8;
       if (is_destination || !has_selection) return False;
       if (XmTextF_max_char_size(tf) != 1) {
-	  int stat ;
+	  int stat, selection_span;
 
-	  /* NOTE: casting (right - left) could result in a truncated long. */
+	  if (!text_selection_span_to_int(left, right, &selection_span))
+	      return False;
 	  *length = _XmDataFieldCountBytes(tf, TextF_WcValue(tf) + left,
-					   (int)(right - left));
+					   selection_span);
 	  *value = XtMalloc((unsigned) *length + 1);
 	  stat = wcstombs((char *)*value, TextF_WcValue(tf) + left,
 			  (unsigned)*length); /* NOTE: casting *length could
@@ -708,13 +725,13 @@ _XmDataFieldConvert(
       *format = 8;
       if (is_destination || !has_selection) return False;
       if (XmTextF_max_char_size(tf) != 1) { 
-	int stat ;
+	int stat, selection_span;
 
-	/* convert to char* before converting to CT.  NOTE: casting
-         * (right - left) could result in a truncated long.
-         */
+	if (!text_selection_span_to_int(left, right, &selection_span))
+	    return False;
+	/* Convert to char* before converting to compound text. */
          *length = _XmDataFieldCountBytes(tf, TextF_WcValue(tf) + left,
-                                          (int)(right - left));
+                                          selection_span);
          tmp_value = XtMalloc((unsigned) *length + 1);
          stat = wcstombs(tmp_value, TextF_WcValue(tf) + left,
 		           (unsigned)*length); /* NOTE: casting *length could

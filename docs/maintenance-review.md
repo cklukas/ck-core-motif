@@ -187,3 +187,10 @@ check is:
 ```sh
 python3 tests/automated/check-text-wide-conversion.py
 ```
+
+DataField selection exports now validate `XmTextPosition` ranges before passing
+them to the legacy `int` byte-count helper.  The focused check is:
+
+```sh
+python3 tests/automated/check-datafield-selection-span.py
+```
