@@ -31,6 +31,7 @@ static char rcsid[] = "$XConsortium: MainW.c /main/20 1996/10/17 15:21:07 cde-os
 #endif
 #endif
 
+#include <stdint.h>
 #include "XmI.h"
 #include <Xm/SeparatoGP.h>  /* just access the position/dimension fields,*/
 #include <Xm/ScrollBarP.h>  /*   could live without that if needed */
@@ -1051,12 +1052,24 @@ ChangeManaged(
 		   me keep this hacky code around... */
 		if (mw->composite.num_children == 
 		    mw->composite.num_slots)  {
-		    mw->composite.num_slots +=  (mw->composite.num_slots 
-						 / 2) + 2;
-		    mw->composite.children = (WidgetList) XtRealloc(
-					(char *) mw->composite.children,
-					(unsigned) (mw->composite.num_slots) 
-						* sizeof(Widget));
+		    Cardinal new_slots;
+		    WidgetList new_children;
+		    if (mw->composite.num_slots >
+			(Cardinal)(~(Cardinal)0 - 2) -
+			(mw->composite.num_slots / 2) ||
+			(size_t)(mw->composite.num_slots +
+			         (mw->composite.num_slots / 2) + 2) >
+			SIZE_MAX / sizeof(Widget))
+			return;
+		    new_slots = mw->composite.num_slots +
+			(mw->composite.num_slots / 2) + 2;
+		    new_children = (WidgetList)XtRealloc(
+			(char *)mw->composite.children,
+			(size_t)new_slots * sizeof(Widget));
+		    if (new_children == NULL)
+			return;
+		    mw->composite.children = new_children;
+		    mw->composite.num_slots = new_slots;
 		}
 		mw->composite.children[mw->composite.num_children++] = w;
 		w->core.parent = (Widget) mw;

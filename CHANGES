@@ -6405,6 +6405,13 @@ Command and message-dialog allocation widths (2026-10-25)
   values in both convenience-constructor paths; see
   `docs/command-message-argument-allocation.md`.
 
+MainW child-list growth failures (2026-10-25)
+==============================================
+
+- Check composite child-slot arithmetic and commit the resized child array
+  only after `XtRealloc` succeeds. Main-window child migration leaves the
+  existing list intact when growth fails; see `docs/mainw-child-growth.md`.
+
 Bound legacy resource-filter byte sizes (2026-10-25)
 =====================================================
 
