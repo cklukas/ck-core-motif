@@ -1373,10 +1373,17 @@ Urm__CW_CreateArglist (Widget			parent,
       switch ( reptype )
         {
         case MrmRtypeCallback:
-	  if (strcmp(file_id->db_version, URM1_1version) <= 0)
-	    cbptr = Urm__CW_TranslateOldCallback((OldRGMCallbackDescPtr)val);
-	  else
-	    cbptr = (RGMCallbackDescPtr)val;
+	  {
+	    Boolean old_callbacks =
+	      strcmp(file_id->db_version, URM1_1version) <= 0;
+	    if (!UrmCallbackRecordValid(widgetrec,
+				argptr->arg_val.datum.offset,
+				old_callbacks))
+	      return;
+	    if (old_callbacks)
+	      cbptr = Urm__CW_TranslateOldCallback((OldRGMCallbackDescPtr)val);
+	    else
+	      cbptr = (RGMCallbackDescPtr)val;
 	  if (cbptr == NULL)
 	    return;
 
@@ -1409,9 +1416,10 @@ Urm__CW_CreateArglist (Widget			parent,
 	    default:
 	      continue;
 	    }
-	  if (strcmp(file_id->db_version, URM1_1version) <= 0)
+	  if (old_callbacks)
 	    XtFree((char *)cbptr);
 	  break ;
+	  }
         case MrmRtypeResource:
 	  resptr = (RGMResourceDescPtr) val ;
 	  if ( resptr == NULL )

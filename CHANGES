@@ -1,3 +1,9 @@
+Mrm callback-valued argument bounds (2026-10-25)
+================================================
+
+- Validate callback descriptors in argument values before legacy/current
+  translation; see `docs/mrm-arg-callback-record-bounds.md`.
+
 Mrm argument-value offset bounds (2026-10-25)
 ===============================================
 
