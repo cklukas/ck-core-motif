@@ -47,6 +47,7 @@ assert "_XmAppUnlock" not in get_font
 assert "_XmProcessLock" not in get_font
 assert "_XmProcessUnlock" not in get_font
 assert "XmRenditionRetrieve" in get_font
+assert "typeReturn == NULL" in get_font
 
 start = source.index("XmFontListEntryGetTag(")
 end = source.index("\n}\n", start)

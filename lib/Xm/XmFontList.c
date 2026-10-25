@@ -177,7 +177,7 @@ XmFontListEntryGetFont(
   Arg		args[3];
   Cardinal	n;
 
-  if (entry == NULL) 
+  if ((entry == NULL) || (typeReturn == NULL))
       return (NULL);
 
   n = 0;

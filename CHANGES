@@ -214,6 +214,8 @@ Render-table locking (2026-10-26)
 - Bound widget-ancestor resource paths in `GetResources`, reserving entries for
   the requested resource, optional tag, and terminators; see
   `docs/render-table-resource-path.md`.
+- Make `XmFontListEntryGetFont` reject a null type-output pointer before
+  retrieving rendition data.
 - Roll back shared-table cloning in `_XmRenderTableRemoveRenditions` when a
   table body, handle, or rendition copy cannot be allocated; see
   `docs/render-table-removal.md`.
