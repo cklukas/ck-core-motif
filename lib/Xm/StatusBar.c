@@ -8,6 +8,7 @@
 #include <Xm/XmP.h>
 #include <limits.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
@@ -57,7 +58,10 @@ static char *text_copy(XmString value)
 static XmString string_copy(XmString value)
 {
     char *text = text_copy(value);
-    XmString result = XmStringCreateLocalized(text);
+    XmString result;
+    if (!text)
+	return NULL;
+    result = XmStringCreateLocalized(text);
     XtFree(text);
     return result;
 }
@@ -70,6 +74,9 @@ static XmString display_string(const XmStatusBarItem *item)
     char *text;
     XmString result;
 
+    if (!label)
+	return NULL;
+
     if (item->kind != XmSTATUS_BAR_ITEM_PROGRESS) {
         result = XmStringCreateLocalized(label);
         XtFree(label);
@@ -80,8 +87,20 @@ static XmString display_string(const XmStatusBarItem *item)
                  item->maximum);
     else
         snprintf(progress, sizeof(progress), " %d", item->value);
+    if (strlen(label) > SIZE_MAX - strlen(progress) - 1) {
+	XtFree(label);
+	return NULL;
+    }
     size = strlen(label) + strlen(progress) + 1;
-    text = XtMalloc(size);
+    if (size > UINT_MAX) {
+	XtFree(label);
+	return NULL;
+    }
+    text = XtMalloc((Cardinal)size);
+    if (!text) {
+	XtFree(label);
+	return NULL;
+    }
     strcpy(text, label);
     strcat(text, progress);
     result = XmStringCreateLocalized(text);

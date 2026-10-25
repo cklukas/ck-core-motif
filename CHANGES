@@ -27,6 +27,12 @@ Toolbar action-label allocation guards (2026-10-26)
 - Handle failed label conversions and bounded combined-label sizing in
   `XmToolbar`; see `docs/toolbar-action-label-guards.md`.
 
+Status-bar label allocation guards (2026-10-26)
+================================================
+
+- Handle failed label conversion, bounded progress-label sizing, and failed
+  allocations in `XmStatusBar`; see `docs/status-bar-label-guards.md`.
+
 WSM reply packing failure handling (2026-10-26)
 ===============================================
 
