@@ -1965,15 +1965,17 @@ UpdateChildText(Widget textW)
   XmAccessTextualTrait  textT;
   XmSpinBoxConstraint   textC;
   char                 *buffer = NULL;
+
+  if (textW == NULL)
+    return;
   
   textT = (XmAccessTextualTrait)
     XmeTraitGet((XtPointer)XtClass(textW), XmQTaccessTextual);
   
-  if (textT == NULL)
+  if (textT == NULL || textT->setValue == NULL)
     return;
   
-  if (textW)
-    {
+  {
       textC = SB_GetConstraintRec(textW);
       
       if (SB_ChildIsNumeric(textC))
@@ -2970,7 +2972,7 @@ XmSpinBoxValidatePosition(Widget text_field, int *position)
 
   textT = (XmAccessTextualTrait)
     XmeTraitGet((XtPointer) XtClass(text_field), XmQTaccessTextual);
-  if (textT == NULL) {
+  if (textT == NULL || textT->getValue == NULL) {
     _XmAppUnlock(app);
     return(XmCURRENT_VALUE);
   }

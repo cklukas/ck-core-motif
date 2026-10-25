@@ -3940,3 +3940,9 @@ Guard IconGadget container trait callbacks (2026-10-25)
 - Validate the resolved container and `getValues` callback before IconGadget
   trait dispatch, retaining safe defaults for absent parents or traits; see
   `docs/motif-icong-container-trait.md`.
+
+Guard SpinBox textual trait callbacks (2026-10-25)
+===================================================
+
+- Validate SpinBox child widgets and specific access-textual callbacks before
+  updates or validation; see `docs/motif-spinb-text-trait.md`.
