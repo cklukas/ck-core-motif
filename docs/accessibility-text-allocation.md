@@ -1,13 +1,12 @@
 ---
 nav_exclude: true
 ---
-# Accessibility text allocation
 
-The accessibility text provider already rejects unrepresentable substring
-sizes before converting them to the Motif text APIs.  It now also checks the
-bounded temporary `XtMalloc` before passing the buffer to
-`XmTextGetSubstring` or `XmTextFieldGetSubstring`.
+# Accessibility text extraction allocation guard
 
-If the temporary buffer cannot be allocated, the provider returns no text
-without dereferencing a null buffer or disturbing the widget and accessibility
-model state.
+Text extraction now checks the temporary locale buffer against the Xt
+`Cardinal` limit and returns cleanly when allocation fails, before invoking
+the text or text-field substring APIs.
+
+Valid text extraction is unchanged.  The static regression check is
+`tests/automated/check-accessibility-text-allocation.py`.

@@ -106,6 +106,13 @@ Accessibility menu snapshot allocation guard (2026-10-26)
   allocation failure before filling IDs; see
   `docs/accessibility-menu-snapshot-allocation.md`.
 
+Accessibility text extraction allocation guard (2026-10-26)
+============================================================
+
+- Bound temporary text buffers by Xt `Cardinal` capacity and handle failed
+  allocation before calling text-widget substring APIs; see
+  `docs/accessibility-text-allocation.md`.
+
 Accessibility UTF-8 allocation guards (2026-10-26)
 ===================================================
 

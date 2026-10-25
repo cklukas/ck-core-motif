@@ -1636,7 +1636,11 @@ static char *text_impl(XmAccessibility *a, XmAccessibleId id, int start,
   if ((size_t)(end - start) > (INT_MAX - 1) / MB_CUR_MAX)
     return NULL;
   capacity = (size_t)(end - start) * MB_CUR_MAX + 1;
+  if (capacity > (size_t)((Cardinal)~0))
+    return NULL;
   local = XtMalloc((Cardinal)capacity);
+  if (local == NULL)
+    return NULL;
   status = XmIsText(n->widget)
                ? XmTextGetSubstring(n->widget, start, end - start,
                                     (int)capacity, local)
