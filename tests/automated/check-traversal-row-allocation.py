@@ -16,5 +16,7 @@ assert "new_data.items = (XmTraversalNode *)XtMalloc" in sort
 assert "if (new_data.items == NULL)" in sort
 assert "XmTraversalRow *new_rows" in sort
 assert "if (new_rows == NULL)" in sort
+assert "new_row_count > UINT_MAX / sizeof(*new_rows)" in sort
+assert "(Cardinal)(new_row_count * sizeof(*new_rows))" in sort
 assert "allocation_failure:" in sort
 print("PASS traversal row growth handles allocation failure")

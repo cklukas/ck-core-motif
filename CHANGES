@@ -6302,3 +6302,10 @@ Bound List insertion allocation width (2026-10-25)
   `Cardinal` range, and pass the checked byte count explicitly to `XtRealloc`;
   see `docs/list-growth-allocation.md`.
 
+Bound traversal row allocation widths (2026-10-25)
+====================================================
+
+- Pass explicit Xt `Cardinal` byte counts through traversal-node pool growth
+  and reject unrepresentable traversal-row growth before allocation; see
+  `docs/traversal-row-allocation.md` and `docs/traversal-node-allocation.md`.
+
