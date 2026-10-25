@@ -10040,6 +10040,12 @@ XmRenderT rendition allocation guards (2026-10-25)
 - Check rendition record and handle allocations before clearing, copying, or
   publishing render state; see `docs/xmrender-rendition-allocation.md`.
 
+XmRenderT shared-handle allocation guard (2026-10-25)
+======================================================
+
+- Undo shared-rendition reference increments when handle allocation fails;
+  see `docs/xmrender-shared-handle-allocation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 

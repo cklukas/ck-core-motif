@@ -1346,6 +1346,10 @@ CopyRendition(XmRendition rend)
   else 
     {
       copy = GetHandle(_XmRendition);
+      if (copy == NULL) {
+	_XmRendRefcountDec(rend);
+	return(NULL);
+      }
       SetPtr(copy, GetPtr(rend));
       return(copy);
     }

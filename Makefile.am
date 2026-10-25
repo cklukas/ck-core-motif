@@ -176,6 +176,7 @@ EXTRA_DIST += tests/automated/check-font-selector-encoding-update.py docs/font-s
 EXTRA_DIST += tests/automated/check-rowcolumn-resource-allocation.py docs/rowcolumn-resource-allocation.md
 EXTRA_DIST += tests/automated/check-rowcolumn-popup-name-allocation.py docs/rowcolumn-popup-name-allocation.md
 EXTRA_DIST += tests/automated/check-xmrender-rendition-allocation.py docs/xmrender-rendition-allocation.md
+EXTRA_DIST += tests/automated/check-xmrender-shared-handle-allocation.py docs/xmrender-shared-handle-allocation.md
 EXTRA_DIST += tests/automated/check-xim-info-allocation.py docs/xim-info-allocation.md
 EXTRA_DIST += tests/automated/check-xim-recreate-allocation.py docs/xim-recreate-allocation.md
 EXTRA_DIST += tests/automated/check-dialog-name-bounds.py docs/dialog-name-bounds.md
