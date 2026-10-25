@@ -4412,10 +4412,15 @@ DrawToggleShadow(
     }
   
   hilite_thickness = tb->gadget.highlight_thickness;
+  if ((int)tb->rectangle.width <= (hilite_thickness << 1) ||
+      (int)tb->rectangle.height <= (hilite_thickness << 1) ||
+      top_gc == NULL || bot_gc == NULL)
+    return;
+
   dx = (int)(tb->rectangle.x + hilite_thickness);
   dy = (int)(tb->rectangle.y + hilite_thickness);
-  width = (int) ( tb->rectangle.width - (hilite_thickness << 1));
-  height = (int) ( tb->rectangle.height - (hilite_thickness << 1));
+  width = (int)tb->rectangle.width - (hilite_thickness << 1);
+  height = (int)tb->rectangle.height - (hilite_thickness << 1);
   
   XmeDrawShadows (XtDisplay (tb), XtWindow (tb),
 		  top_gc, bot_gc, dx, dy, width, height,
