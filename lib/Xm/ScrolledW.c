@@ -3564,6 +3564,11 @@ Widget scrollable)
     sw->swindow.scroll_frame_data = (XmScrollFrameData)
         XtMalloc(sizeof(XmScrollFrameDataRec));
 
+    if (sw->swindow.scroll_frame_data == NULL) {
+	sw->swindow.scroll_frame_inited = False;
+	return;
+    }
+
     sw->swindow.scroll_frame_data->num_nav_list = 0 ;
     sw->swindow.scroll_frame_data->nav_list = NULL ;
     sw->swindow.scroll_frame_data->num_nav_slots = 0 ;

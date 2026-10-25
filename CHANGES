@@ -8453,3 +8453,9 @@ PanedWindow pane-stack allocation (2026-10-27)
 
 - Check private pane-stack node allocation before linking and initializing the
   node, preserving the existing stack on allocation failure.
+
+ScrolledWindow scroll-frame allocation (2026-10-27)
+=====================================================
+
+- Check private scroll-frame data allocation, clear the initialized flag on
+  failure, and return before dereferencing missing trait state.
