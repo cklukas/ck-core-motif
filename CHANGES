@@ -6188,3 +6188,10 @@ Bound XmString context-copy size arithmetic (2026-10-25)
   Xt `Cardinal` allocator, retaining a safe empty destination on failure; see
   `docs/xmstring-context-copy-allocation.md`.
 
+Guard XmString cache allocation (2026-10-25)
+=============================================
+
+- Treat optional scanning/rendering cache allocation failure as an uncached
+  path instead of dereferencing a null cache entry; see
+  `docs/xmstring-cache-allocation.md` and its focused source check.
+

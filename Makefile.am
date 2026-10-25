@@ -925,3 +925,4 @@ EXTRA_DIST += tests/automated/check-gallery-screenshot-runner.py \
               docs/tab-box-redisplay-guard.md
 EXTRA_DIST += tests/automated/check-gallery-screenshot-assets.py tests/automated/generate-gallery-screenshot-manifest.py docs/gallery-screenshots/manifest.json docs/gallery-screenshots/*.png
 EXTRA_DIST += tests/automated/check-xmstring-entry-create-allocation.py docs/xmstring-entry-create-allocation.md
+EXTRA_DIST += tests/automated/check-xmstring-cache-allocation.py docs/xmstring-cache-allocation.md
