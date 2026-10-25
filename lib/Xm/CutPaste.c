@@ -907,6 +907,9 @@ RegisterFormat(
     formatatom = ClipboardGetAtomFromFormat( display, 
     					         format_name );
 
+    if (formatatom == None)
+	return ClipboardFail;
+
     rootwindow = RootWindow( display, 0 );
 
     if ( ClipboardGetLenFromFormat( display, 

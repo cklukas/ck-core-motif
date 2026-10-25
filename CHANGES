@@ -1,3 +1,10 @@
+Clipboard format-registration atom guard (2026-10-26)
+======================================================
+
+- Stop format registration when atom-name construction fails, avoiding an
+  invalid `XChangeProperty` request; see
+  `docs/clipboard-register-format-atom-guard.md`.
+
 Clipboard format-unit validation (2026-10-26)
 ==============================================
 
