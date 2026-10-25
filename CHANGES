@@ -12043,3 +12043,10 @@ Make XmeVLCreateWidget allocation width explicit (2026-10-26)
   `Cardinal`; see `docs/xme-vlcreate-allocation.md`.
 
 Bound simple-menu metadata allocation widths (2026-10-26)
+Bound Column label-name allocation width (2026-10-26)
+=====================================================
+
+- Reject generated label names outside Xt's `Cardinal` byte range and pass an
+  explicit Xt-sized allocation; see `docs/column-label-allocation.md`.
+
+Make XmeVLCreateWidget allocation width explicit (2026-10-26)

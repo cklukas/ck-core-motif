@@ -1133,9 +1133,10 @@ ConstraintInitialize(Widget request, Widget new_w, ArgList arg_list,
 	VerifyConstraints(request, NULL, new_w);
 	
 	buf_length = snprintf(NULL, 0, "%s_label", XtName(new_w));
-	if (buf_length < 0)
+	if (buf_length < 0 ||
+	    (size_t)buf_length + 1 > UINT_MAX)
 	    return;
-	buf = XtMalloc((size_t)buf_length + 1);
+	buf = XtMalloc((Cardinal)((size_t)buf_length + 1));
 	if (!buf)
 	    return;
 	(void) snprintf(buf, (size_t)buf_length + 1, "%s_label",
