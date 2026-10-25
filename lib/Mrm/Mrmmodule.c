@@ -160,18 +160,22 @@ UrmIFMInitModule (URMResourceContextPtr		context_id,
    * validate context and bind pointer. Size check.
    */
   _validate_context (context_id, "UrmIFMInitModule", ifmodptr) ;
-  if ( num_widget == 0 || num_widget >= RGMListSizeMax )
+  if ( num_widget >= RGMListSizeMax )
     return Urm__UT_Error ("UrmIFMInitModule", _MrmMMsg_0044,
 			  NULL, context_id, MrmTOO_MANY) ;
 
   /*
    * compute descriptor size and guarantee space. Null all the widgets.
    */
-  if ((size_t)(num_widget - 1) >
-      (SIZE_MAX - sizeof(RGMModuleDesc)) / sizeof(RGMTopmostDesc))
-    return MrmTOO_MANY;
-  descsiz = sizeof(RGMModuleDesc) +
-	(size_t)(num_widget - 1) * sizeof(RGMTopmostDesc) ;
+  if (num_widget == 0)
+    descsiz = sizeof(RGMModuleDesc);
+  else {
+    if ((size_t)(num_widget - 1) >
+	(SIZE_MAX - sizeof(RGMModuleDesc)) / sizeof(RGMTopmostDesc))
+      return MrmTOO_MANY;
+    descsiz = sizeof(RGMModuleDesc) +
+	  (size_t)(num_widget - 1) * sizeof(RGMTopmostDesc) ;
+  }
   if (descsiz > MrmMaxResourceSize || descsiz > SIZE_MAX - _slm)
     return MrmTOO_MANY;
   descsiz = _FULLWORD (descsiz) ;

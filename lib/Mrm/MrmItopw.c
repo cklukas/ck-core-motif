@@ -279,7 +279,13 @@ UrmIdbPutIndexedResource (IDBFile		file_id,
   if ( context_id == NULL || !UrmRCValid(context_id) ) return MrmFAILURE ;
   if ( UrmRCGroup(context_id) == URMgNul ) return MrmNUL_GROUP ;
   if ( UrmRCType(context_id) == URMtNul) return MrmNUL_TYPE ;
-  result = Idb__INX_FindIndex (file_id, index, &bufptr, &recno) ;
+  /* A newly created UID file has no index root until its first indexed
+   * resource is entered.  Treat that state as an empty ordered index so
+   * Idb__INX_EnterItem can initialize the root leaf. */
+  if (file_id->index_root == 0)
+    result = MrmINDEX_LT;
+  else
+    result = Idb__INX_FindIndex (file_id, index, &bufptr, &recno) ;
   if ( result == MrmSUCCESS) return MrmEXISTS ;
   if ( result != MrmINDEX_GT && result != MrmINDEX_LT ) return result ;
 

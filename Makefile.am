@@ -296,6 +296,7 @@ EXTRA_DIST += tests/automated/check-png-error-cleanup.py docs/png-error-cleanup.
 EXTRA_DIST += tests/automated/check-ui-completion-prototype.c tests/automated/run-ui-completion-prototype.py docs/ui-thread-completion-prototype.md
 EXTRA_DIST += tests/automated/check-image-scaling-allocations.py docs/image-scaling-allocations.md
 EXTRA_DIST += docs/ui-thread-completion-api-decision.md
+EXTRA_DIST += tests/automated/run-uil-zero-topmost.py
 EXTRA_DIST += tests/automated/check-image-scaling-depth1.py docs/image-scaling-depth1.md
 EXTRA_DIST += docs/cpp-support-library-release-decision.md
 EXTRA_DIST += cpp/ckmotif++/motif_support.hpp tests/cpp/support_lifecycle.cpp \

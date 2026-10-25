@@ -6,9 +6,18 @@ Optional ckmotif++ support package and WML build graph (2026-10-25)
   existing C ABI and Xt/Motif resource model unchanged.  GCC, Clang and
   AddressSanitizer/UBSan installed-prefix fixtures pass on AArch64.
 - Regenerated build metadata now includes the additive widget sources in
-  `libXm`, allowing the WML tools to link from a fresh checkout;
-  the remaining full-tree demo failure is the pre-existing Uil `dog.uil`
-  internal diagnostic, not a WML missing-generated-source failure.
+  `libXm`, allowing the WML tools to link from a fresh checkout; this is
+  independent of the UIL literal-only module fix below.
+
+UIL literal-only module output (2026-10-25)
+============================================
+
+- Allow `UrmIFMInitModule` to emit a valid empty top-level-widget table for
+  UIL modules containing only exported literals and icons.  This fixes the
+  full-tree `animate/dog.uil` generation path without changing non-empty
+  widget-module layout.  Initialize the first UID index entry when the file
+  has no index root, and cover the complete regression with
+  `tests/automated/run-uil-zero-topmost.py`.
 
 Source-contract verifier maintenance (2026-10-25)
 ==================================================

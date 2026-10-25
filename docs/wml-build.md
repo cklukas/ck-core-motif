@@ -40,6 +40,11 @@ The WML specification lexer (`wmllex.c`) is generated explicitly from
 does not require a checked-in generated lexer; the selected `LEX` implementation
 must be available when building the WML tools.
 
+UIL modules that export only literals or icons have no top-level widget
+descriptors. `UrmIFMInitModule` now writes the valid empty descriptor table for
+that case, so the `demos/programs/animate/dog.uil` full-tree target succeeds;
+`tests/automated/run-uil-zero-topmost.py` is the focused regression check.
+
 Generated lexer and parser outputs are not listed in `EXTRA_DIST`, so source
 archives and fresh checkouts do not claim to contain files that are created
 only by the build.
