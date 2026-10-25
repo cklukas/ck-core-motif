@@ -1226,6 +1226,7 @@ _XmFileSelectionBoxCreateFilterText(
             Arg             arglist[10] ;
             int             argCount ;
             char *          stext_value ;
+            Boolean         free_stext_value = True;
             XtAccelerators  temp_accelerators ;
 /****************/
 
@@ -1237,7 +1238,12 @@ _XmFileSelectionBoxCreateFilterText(
     */
     if(    !(stext_value = _XmStringGetTextConcat( FS_Pattern( fs)))    )
     {   stext_value = (char *) XtMalloc( 1) ;
-        stext_value[0] = '\0' ;
+        if (stext_value == NULL) {
+            stext_value = "";
+            free_stext_value = False;
+        } else {
+            stext_value[0] = '\0' ;
+        }
         }
     argCount = 0 ;
     XtSetArg( arglist[argCount], XmNcolumns, 
@@ -1256,7 +1262,8 @@ _XmFileSelectionBoxCreateFilterText(
     XtInstallAccelerators( FS_FilterText( fs), (Widget) fs) ;
     fs->core.accelerators = temp_accelerators ;
 
-    XtFree( stext_value) ;
+    if (free_stext_value)
+        XtFree( stext_value) ;
     return ;
 }
 

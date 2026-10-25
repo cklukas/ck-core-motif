@@ -9846,6 +9846,13 @@ Print setup allocation guards (2026-10-25)
   close or fail their setup cleanly when unavailable; see
   `docs/print-allocation.md`.
 
+FileSelectionBox filter allocation fallback (2026-10-25)
+=========================================================
+
+- Preserve the empty filter behavior with a non-owned fallback string when
+  legacy filter allocation fails, avoiding invalid writes and frees; see
+  `docs/filesb-filter-allocation.md`.
+
 MWM label-parse allocation guard (2026-10-25)
 ==============================================
 
