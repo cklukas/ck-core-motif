@@ -4200,7 +4200,7 @@ HasDropSiteDescendant(
 	Widget widget )
 {
 	CompositeWidget cw;
-	int i;
+	Cardinal i;
 	Widget child;
 
 	if (!XtIsComposite(widget))
