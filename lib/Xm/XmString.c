@@ -9786,13 +9786,25 @@ _XmStringTruncateASN1(unsigned char *str, int n)
       used -= diff;
       
       tmp = (unsigned char *)XtMalloc(used * sizeof(unsigned char));
+	  if (tmp == NULL)
+	    {
+	      XtFree((char *)str);
+	      return(NULL);
+	    }
       memcpy(tmp, (str + diff), used);
       XtFree((char *)str);
       str = tmp;
     }
   else
     {
-      str = (unsigned char *)XtRealloc((char *)str, used);
+	  unsigned char *tmp =
+	    (unsigned char *)XtRealloc((char *)str, used);
+	  if (tmp == NULL)
+	    {
+	      XtFree((char *)str);
+	      return(NULL);
+	    }
+	  str = tmp;
     }
 
   _write_header(str, used);	

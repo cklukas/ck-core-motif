@@ -748,3 +748,5 @@ EXTRA_DIST += tests/automated/check-list-selection-rebuild-allocation.py docs/li
 EXTRA_DIST += tests/automated/check-list-selection-callback-allocation.py docs/list-selection-callback-allocation.md
 
 EXTRA_DIST += tests/automated/check-xmstring-byte-stream-allocation.py docs/xmstring-byte-stream-allocation.md
+
+EXTRA_DIST += tests/automated/check-xmstring-truncation-allocation.py docs/xmstring-truncation-allocation.md
