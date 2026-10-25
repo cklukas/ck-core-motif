@@ -114,6 +114,9 @@ _XmSFRemoveNavigator(
     Cardinal	     position, i;
     XmNavigatorTrait nav_trait ;
 
+    if ((scroll_frame_data == NULL) || (nav == NULL))
+	return;
+
     if ((nav_trait = (XmNavigatorTrait) 
 	 XmeTraitGet((XtPointer) XtClass(nav), XmQTnavigator)) != NULL) {
 

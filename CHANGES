@@ -5852,3 +5852,10 @@ Make ScrollFrame navigator-list growth transactional (2026-10-25)
   `docs/motif-scrollframe-nav-growth.md`.
 
 Guard XmString tab-list growth (2026-10-25)
+Validate ScrollFrame navigator removal inputs (2026-10-25)
+===========================================================
+
+- Reject null navigator and scroll-frame state pointers before trait lookup
+  during navigator removal; see `docs/motif-scrollframe-remove-input.md`.
+
+Make ScrollFrame navigator-list growth transactional (2026-10-25)
