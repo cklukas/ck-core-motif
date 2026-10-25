@@ -29,4 +29,8 @@ assert "if (copy == NULL)" in add_region
 assert "if (newtable == NULL)" in add_region
 assert "goto merge_abort;" in add_region
 assert "while (i > 0)" in add_region
+assert "source_table = oldtable;" in add_region
+assert "append_copy_failed:" in add_region
+assert "append_abort:" in add_region
+assert "while (next > _XmRTCount(source_table))" in add_region
 print("PASS XmRenderT rendition allocations are guarded")

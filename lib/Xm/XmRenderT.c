@@ -1418,6 +1418,7 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
   XmRendition		rend, match, copy;
   _XmRenderTable	table;
   XmRenderTable		newtable, tmptable = NULL;
+  XmRenderTable		source_table;
   Boolean		*matches;
   short			idx;
   XtAppContext		app=NULL;
@@ -1582,11 +1583,18 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
       
       if (count > 0)				  /* Allocate new table */
 	{
+	  source_table = oldtable;
 	  table = (_XmRenderTable)
 	    XtMalloc(sizeof(_XmRenderTableRec) +
 		     (sizeof(XmRendition) *
 		      (_XmRTCount(oldtable) + count - RENDITIONS_IN_STRUCT)));
+	  if (table == NULL)
+	    goto append_abort;
 	  newtable = GetHandle(_XmRenderTable);
+	  if (newtable == NULL) {
+	    XtFree((char *)table);
+	    goto append_abort;
+	  }
 	  SetPtr(newtable, table);
 
 	  _XmRTDisplay(newtable) = _XmRTDisplay(oldtable);
@@ -1605,6 +1613,8 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
 		{
 		  _XmRTRenditions(newtable)[next] =
 		    CopyRendition(renditions[i]);
+		  if (_XmRTRenditions(newtable)[next] == NULL)
+		    goto append_copy_failed;
 		  if (_XmRTDisplay(newtable) == NULL)
 		    _XmRTDisplay(newtable) = _XmRTDisplay(oldtable);
 		  ++next;
@@ -1632,6 +1642,26 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
     }
 
   if (tmptable != NULL) FreeHandle(tmptable);
+  goto unlock_return;
+
+append_copy_failed:
+  while (next > _XmRTCount(source_table)) {
+    --next;
+    FreeRendition(_XmRTRenditions(newtable)[next]);
+    FreeHandle(_XmRTRenditions(newtable)[next]);
+  }
+  XtFree((char *)GetPtr(newtable));
+  FreeHandle(newtable);
+
+append_abort:
+  if (tmptable != NULL) {
+    oldtable = tmptable;
+    tmptable = NULL;
+  }
+  else {
+    oldtable = source_table;
+  }
+  DEALLOCATE_LOCAL((char *)matches);
   goto unlock_return;
 
 merge_abort:

@@ -30,6 +30,8 @@ Render-table locking (2026-10-26)
   `XmMERGE_NEW` cannot allocate their replacement rendition.
 - Roll back shared-table body, handle, and rendition copies when
   `XmRenderTableAddRenditions` cannot complete a merge.
+- Make the unmatched-rendition append path transactional as well, preserving
+  its source table when a new allocation or entry copy fails.
 - Guard the temporary merge-match allocation in `XmRenderTableAddRenditions`
   so allocation failure returns without dereferencing a null buffer.
 

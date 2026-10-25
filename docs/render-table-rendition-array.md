@@ -30,6 +30,9 @@ cannot be allocated; no merge mode publishes a null rendition slot.
 When copying a shared table for a merge, body/handle/rendition failures now
 roll back the temporary table and leave the original shared table unchanged.
 
+Appending unmatched renditions follows the same transactional rule: failed
+body, handle, or entry copies are released without publishing a partial table.
+
 `XmRenderTableCopy` uses the internal rendition lookup while its table lock is
 held, and rolls back copied handles if an allocation fails. Tagged copies
 therefore avoid recursive locking and never return a partially initialized
