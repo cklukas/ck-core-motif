@@ -4548,7 +4548,9 @@ Boolean F_Screen (String args, ClientData *pCD, XEvent *event)
 
     if (PreviousScreen == -1)
     {
-	PreviousScreen = DefaultScreen(DISPLAY);
+	/* Screens[] is ordinal when only one screen is managed, even if
+	 * the X display's default screen number is nonzero. */
+	PreviousScreen = (wmGD.numScreens == 1) ? 0 : DefaultScreen(DISPLAY);
     }
 
     if (strcmp (args, "next") == 0)
