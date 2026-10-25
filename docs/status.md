@@ -136,9 +136,10 @@ installed-prefix suite. See the [dependency build](build.md). This verifies the
 recorded native toolkit/dependency/consumer scope. A separate installed
 same-process Motif drag gesture now passes conversion, valid-drop admission,
 transfer-entry client-data propagation and Xt-owned selection-value checks in
-three repeated Xvfb runs; cross-process transfer, cancellation, broader
-drag-and-drop workflows, physical display/input qualification and other
-architectures remain separate admission gates. See
+three repeated Xvfb runs. The companion initiator-side `XmDragCancel` probe
+also passes its finish notification contract; selection-transfer cancellation,
+cross-process transfer, broader drag-and-drop workflows, physical display/input
+qualification and other architectures remain separate admission gates. See
 `docs/dnd-transfer-lifecycle.md`.
 
 The newer ABI 6 candidate, its consumers and documentation deployment remain

@@ -36,3 +36,15 @@ This is a bounded same-process transfer contract. It does not claim
 cross-process transfer, cancellation, owner replacement, incremental payload
 assembly, multiple targets, or a complete application drag-and-drop journey;
 those remain separate qualification gates.
+
+`tests/automated/check-dnd-cancel.c` covers the related initiator-side
+cancellation contract. It starts a Motif drag, calls the public
+`XmDragCancel` API while the drag is active, and verifies the
+`XmNdragDropFinishCallback` completion notification. Three fresh AArch64
+`uconsole` Xvfb runs on 2026-10-25 passed three checks each, using the same
+`libXm.so.8.0.0` hash shown above; the cancellation runner records the same
+receipt and loaded-library evidence.
+
+This does not promote selection-transfer cancellation, cross-process owner
+replacement, incremental transfer cancellation or application-level journeys
+to complete.

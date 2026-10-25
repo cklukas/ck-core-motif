@@ -19,6 +19,15 @@ Same-process drag-and-drop transfer qualification (2026-10-25)
   application-DnD coverage remain separate gates. See
   `docs/dnd-transfer-lifecycle.md`.
 
+Drag-initiator cancellation qualification (2026-10-25)
+=======================================================
+
+- Add an installed public-API cancellation regression that calls
+  `XmDragCancel` during an active XTEST drag and verifies the
+  `XmNdragDropFinishCallback` notification. Three fresh AArch64 Xvfb runs pass
+  three checks; selection-transfer cancellation and cross-process ownership
+  remain separate gates. See `docs/dnd-transfer-lifecycle.md`.
+
 FontSelector sanitizer ownership boundary (2026-10-25)
 ========================================================
 

@@ -626,7 +626,10 @@ same-process Motif drag gesture and passes conversion, valid-drop admission,
 transfer-entry client-data propagation and selection-value ownership checks in
 three repeated Xvfb runs. Cross-process transfer, cancellation, owner
 replacement, multiple targets and application-DnD journeys remain separate
-gates. See `docs/dropsite-lifecycle.md` and `docs/dnd-transfer-lifecycle.md`.
+gates. The companion installed `check-dnd-cancel` probe also passes the
+initiator-side `XmDragCancel` and finish-notification contract in three
+repeated runs; selection-transfer cancellation remains open. See
+`docs/dropsite-lifecycle.md` and `docs/dnd-transfer-lifecycle.md`.
 
 ### WP-07: Screen-reader usability and semantic completion
 

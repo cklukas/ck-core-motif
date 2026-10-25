@@ -53,10 +53,11 @@ These are real coverage gaps rather than claims of known source defects:
    retrieval, update bracketing, explicit unregister/re-register and implicit
    registered-widget teardown. The installed same-process drag gesture probe
    now passes conversion, drop admission, transfer-entry client-data
-   propagation and selection-value ownership checks. Cross-process transfer,
-   cancellation, broader drag-and-drop ownership and unqualified system-library
-   sanitizer ownership remain open; see `docs/dropsite-lifecycle.md` and
-   `docs/dnd-transfer-lifecycle.md`.
+   propagation and selection-value ownership checks, and the initiator-side
+   `XmDragCancel` probe passes its finish notification contract. Cross-process
+   transfer, selection-transfer cancellation, broader drag-and-drop ownership
+   and unqualified system-library sanitizer ownership remain open; see
+   `docs/dropsite-lifecycle.md` and `docs/dnd-transfer-lifecycle.md`.
 4. **Non-text Unicode matrix.** The installed public-API fixture now covers
    Label, List, ComboBox, Menu and FileSelection values for combining, non-BMP
    and Han text, plus a bounded two-segment compound `XmString` and List item
