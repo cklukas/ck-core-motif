@@ -4647,3 +4647,11 @@ Render-table single-rendition null input (2026-10-25)
 - Return cleanly from `XmRenderTableGetRendition` when its table argument is
   `NULL`, avoiding a private display lookup through an invalid handle; see
   `docs/render-table-single-rendition-null.md`.
+
+Render-table rendition result positions (2026-10-25)
+=====================================================
+
+- Preserve one result slot per requested tag in `XmRenderTableGetRenditions`,
+  guard the result allocation and clean up partially copied renditions. This
+  matches the documented positional API and keeps unmatched tags as `NULL`;
+  see `docs/render-table-rendition-array.md`.

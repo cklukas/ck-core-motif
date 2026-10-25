@@ -1870,8 +1870,11 @@ XmRenderTableGetRenditions(XmRenderTable table,
 			   Cardinal tag_count)
 {
   XmRendition	rend, *rends;
-  int		i, count;
+  Cardinal		i, count;
+  Boolean	copy_failed = False;
   XtAppContext  app = NULL;
+
+  rends = NULL;
 
   if ((table == NULL) || (tags == NULL) || (tag_count == 0))
       return(NULL);
@@ -1883,7 +1886,13 @@ XmRenderTableGetRenditions(XmRenderTable table,
      _XmAppLock(app);
   }
 #endif
-  rends = (XmRendition *)XtMalloc(tag_count * sizeof(XmRendition));
+  if ((size_t)tag_count > SIZE_MAX / sizeof(*rends))
+    goto unlock_return;
+
+  rends = (XmRendition *)XtMalloc((size_t)tag_count * sizeof(*rends));
+  if (rends == NULL)
+    goto unlock_return;
+  memset(rends, 0, (size_t)tag_count * sizeof(*rends));
   
   count = 0;
   for (i = 0; i < tag_count; i++)
@@ -1892,13 +1901,29 @@ XmRenderTableGetRenditions(XmRenderTable table,
 					 FALSE, FALSE, FALSE, NULL);
       if (rend != NULL)
 	{
-	  rends[count] = CopyRendition(rend);
+	  rends[i] = CopyRendition(rend);
+	  if (rends[i] == NULL)
+	    {
+	      copy_failed = True;
+	      break;
+	    }
 	  count++;
 	}
     }
   
-  if (count < tag_count)
-    rends = (XmRendition *)XtRealloc((char *)rends, count * sizeof(XmRendition));
+  if (count == 0 || copy_failed)
+    {
+      if (copy_failed)
+	{
+	  for (i = 0; i < tag_count; i++)
+	    if (rends[i] != NULL)
+	      XmRenditionFree(rends[i]);
+	}
+      XtFree((char *)rends);
+      rends = NULL;
+    }
+
+unlock_return:
   
 #ifdef XTHREADS
   if (app) {
