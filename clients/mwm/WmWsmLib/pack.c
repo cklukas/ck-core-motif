@@ -571,6 +571,10 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 	  num = request->wm_windows.num_window_properties = UnpackListNum(&data);
 	  request->wm_windows.window_properties =
 	    (WindowProperty *) XtMalloc(sizeof(WindowProperty) * num);
+	  if (request->wm_windows.window_properties == NULL) {
+	    request->wm_windows.num_window_properties = 0;
+	    return;
+	  }
 	  for (i=0; i<num; i++)
 	    request->wm_windows.window_properties[i] = UnpackProperty(&data);
 

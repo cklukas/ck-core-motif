@@ -101,6 +101,12 @@ WSM configuration attribute allocation guard (2026-10-25)
 - Check each configuration-format attribute list and roll back earlier lists
   if a later allocation fails; see `docs/wsm-config-attr-oom.md`.
 
+WSM WM_WINDOWS property allocation guard (2026-10-25)
+=======================================================
+
+- Check the WSM `WM_WINDOWS` window-property array before unpacking wire
+  entries; see `docs/wsm-wm-windows-oom.md`.
+
 Icon-box deletion validation (2026-10-25)
 =========================================
 
