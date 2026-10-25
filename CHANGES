@@ -6195,3 +6195,10 @@ Guard XmString cache allocation (2026-10-25)
   path instead of dereferencing a null cache entry; see
   `docs/xmstring-cache-allocation.md` and its focused source check.
 
+Guard XmString charset allocation (2026-10-25)
+================================================
+
+- Return the documented fallback charset when locale-derived cache allocation
+  fails, leaving initialization retryable; see
+  `docs/xmstring-charset-allocation.md` and its focused source check.
+

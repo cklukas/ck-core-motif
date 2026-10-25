@@ -7046,6 +7046,12 @@ _XmStringGetCurrentCharset( void )
 	  ptr = XmFALLBACK_CHARSET;
         }
         locale.tag = (char *) XtMalloc(len + 1);
+        if (locale.tag == NULL)
+        {
+            ret_val = XmFALLBACK_CHARSET;
+            _XmProcessUnlock();
+            return (ret_val);
+        }
         strncpy(locale.tag, ptr, len);
         locale.tag[len] = '\0';
         locale.taglen = len;
