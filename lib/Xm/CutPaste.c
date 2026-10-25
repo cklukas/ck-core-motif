@@ -4270,7 +4270,9 @@ ClipboardRetrieve(Display *display, Window window,
 
 	    if ( dataok )
 	    {
-	        ClipboardFindItem(display,
+		copiedlength = matchformat->copiedLength;
+		formatdata = NULL;
+		status = ClipboardFindItem(display,
 				  matchformat->formatDataId,
 				  (XtPointer *) &formatdata,
 				  &formatdatalength,
@@ -4278,15 +4280,18 @@ ClipboardRetrieve(Display *display, Window window,
 				  0,
 				  0 );
 
-		if ( formatdata == 0 ) 
+		if (status != ClipboardSuccess ||
+		    (formatdata == NULL && formatdatalength != 0) ||
+		    copiedlength > formatdatalength)
 		{
- 		   CleanupHeader (display);
-		   ClipboardError( CLIPBOARD_CORRUPT, CORRUPT_DATA_STRUCTURE );
+		   XtFree( (char *)formatdata );
+		   XtFree( (char *)matchformat );
+		   ClipboardClose( display, header );
+		   ClipboardUnlock( display, window, 0 );
 		   return ClipboardFail;
 		}
 
-		copiedlength = matchformat->copiedLength;
-		ptr = formatdata + copiedlength;
+		ptr = (formatdata == NULL) ? NULL : formatdata + copiedlength;
 
 		remaininglength = formatdatalength - copiedlength;
 
@@ -4344,7 +4349,14 @@ ClipboardRetrieve(Display *display, Window window,
 		/* copiedlength = header->foreignCopiedLength; */
 		copiedlength = 0; /* No incr. for now.  Fix after beta */
 
-		ptr = formatdata + copiedlength;
+		if (formatdata == NULL && loc_outlength != 0)
+		{
+		    ClipboardClose( display, header );
+		    ClipboardUnlock( display, window, 0 );
+		    return ClipboardFail;
+		}
+
+		ptr = (formatdata == NULL) ? NULL : formatdata + copiedlength;
 
 		remaininglength = loc_outlength - copiedlength;
 
@@ -4375,7 +4387,8 @@ ClipboardRetrieve(Display *display, Window window,
     if ( dataok )
     {
 	/* copy the data to the user buffer */
-	memcpy( buffer, ptr, (size_t) loc_outlength );
+	if (loc_outlength != 0)
+	    memcpy( buffer, ptr, (size_t) loc_outlength );
 
 	XtFree( (char *) formatdata );
     }

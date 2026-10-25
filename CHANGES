@@ -1,3 +1,9 @@
+Clipboard retrieve data bounds (2026-10-26)
+============================================
+
+- Validate retrieved format-data pointers and copied offsets, avoid underflow
+  and skip zero-length copies; see `docs/clipboard-retrieve-data-bounds.md`.
+
 Clipboard retrieve header guards (2026-10-26)
 ==============================================
 
