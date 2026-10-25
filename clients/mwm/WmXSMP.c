@@ -710,7 +710,9 @@ findXSMPClientDBMatch(ClientData *pCD, char **workSpaceNamesP)
 						workspacesStr))
 		 != (char *)NULL))
 	    {
-		*workSpaceNamesP = XtNewString(resourcePtr);
+		char *workspaceNames = XtNewString(resourcePtr);
+		if (workspaceNames != NULL)
+		    *workSpaceNamesP = workspaceNames;
 	    }
 #endif
 	}
@@ -919,7 +921,9 @@ findProxyClientDBMatch(ClientData *pCD, char **workSpaceNamesP)
 		  getClientResource(proxyClientID, workspacesStr))
 		 != (char *)NULL))
 	    {
-		*workSpaceNamesP = XtNewString(resourcePtr);
+		char *workspaceNames = XtNewString(resourcePtr);
+		if (workspaceNames != NULL)
+		    *workSpaceNamesP = workspaceNames;
 	    }
 #endif
 

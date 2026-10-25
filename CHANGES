@@ -9783,6 +9783,13 @@ FontSelector label initialization rollback (2026-10-28)
 SpinBox value-list SetValues rollback (2026-10-28)
 =====================================================
 
+MWM workspace-restore allocation guard (2026-10-25)
+====================================================
+
+- Assign restored workspace-name strings only after copying succeeds, allowing
+  the remaining session or proxy state to restore safely; see
+  `docs/mwm-workspace-restore-allocation.md`.
+
 MWM default-menu allocation fallback (2026-10-25)
 =================================================
 
