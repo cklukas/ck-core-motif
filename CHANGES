@@ -13732,3 +13732,11 @@ Clipboard retrieve buffer validation (2026-10-26)
   `XmClipboardRetrieve`; see `docs/clipboard-retrieve-buffer-validation.md`.
 
 Clipboard format buffer validation (2026-10-26)
+Clipboard inquiry lock cleanup (2026-10-26)
+============================================
+
+- Release clipboard headers and locks on no-data returns from format count,
+  format-name, and format-length inquiries; see
+  `docs/clipboard-inquiry-lock-cleanup.md`.
+
+Clipboard copy input validation (2026-10-26)

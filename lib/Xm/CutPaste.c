@@ -4189,6 +4189,8 @@ XmClipboardInquireCount(
 				    &loc_count_len,
 				    &ignoreformat ) )
         {
+	    ClipboardClose (display, header);
+	    ClipboardUnlock (display, window, 0);
 	    _XmAppUnlock(app);
             return ClipboardNoData;
 
@@ -4323,6 +4325,8 @@ XmClipboardInquireFormat(
 				    &loc_matchlength, &ignoreformat ) )
         {
             *outlength = 0;
+	    ClipboardClose (display, header);
+	    ClipboardUnlock (display, window, 0);
 	    _XmAppUnlock(app);
             return ClipboardNoData;
 
@@ -4447,6 +4451,8 @@ XmClipboardInquireLength(
 				    (XtPointer *) &alloc_to_free,
 				    &ignoretype, &loc_length, &ignoreformat ) )
         {
+	    ClipboardClose (display, header);
+	    ClipboardUnlock (display, window, 0);
 	    _XmAppUnlock(app);
             return ClipboardNoData;
 
