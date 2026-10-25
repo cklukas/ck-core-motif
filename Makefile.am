@@ -553,3 +553,5 @@ EXTRA_DIST += tests/automated/check-xme-pixmap-data-screen.py docs/xme-pixmap-da
 EXTRA_DIST += tests/automated/check-xm-cache-allocation-failure.py docs/xm-cache-allocation-failure.md
 
 EXTRA_DIST += tests/automated/check-xm-image-cache-init-failure.py docs/xm-image-cache-init-failure.md
+
+EXTRA_DIST += tests/automated/check-xm-pixmap-table-initialization.py docs/xm-pixmap-table-initialization.md

@@ -1,3 +1,9 @@
+Xm pixmap-table initialization (2026-10-25)
+===============================================
+
+- Publish pixmap cache hash tables only after both allocations succeed, freeing
+  partial state on failure; see `docs/xm-pixmap-table-initialization.md`.
+
 Xm image-cache initialization failure handling (2026-10-25)
 ===============================================================
 
