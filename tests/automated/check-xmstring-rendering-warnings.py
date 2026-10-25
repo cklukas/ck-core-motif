@@ -9,6 +9,7 @@ text = source.read_text(encoding="utf-8")
 assert "seg.header.rend_begin = _XmStrRendBegin((_XmString)string);" in text
 assert "seg.header.rend_end = _XmStrRendEnd((_XmString)string);" in text
 assert "seg.header.byte_count = _XmStrByteCount((_XmString)string);" in text
+assert "segm.header.byte_count = _XmStrByteCount(optline);" in text
 assert "if (allocation_size > UINT_MAX) {" in text
 assert "if (entry_len > sizeof(XtPointer)) {" in text
 assert "((a_type != XmNO_TEXT) && b_tabs == 0)" in text

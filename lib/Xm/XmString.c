@@ -4900,7 +4900,9 @@ DrawLine(
       
       _XmEntryTagIndex(&segm) = _XmStrTagIndex(optline);
 
-      _XmEntryByteCountSet(&segm, _XmStrByteCount(optline));
+      /* This stack-local record is always optimized; avoid the generic
+       * setter's unoptimized-layout cast. */
+      segm.header.byte_count = _XmStrByteCount(optline);
       _XmEntryTextTypeSet(&segm, 
 			  (XmTextType) _XmStrTextType(optline));
       _XmEntryTextSet((_XmStringEntry)&segm, _XmStrText(optline));
