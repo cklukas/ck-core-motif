@@ -3040,6 +3040,10 @@ CvtStringToXmTabList(Display *dpy,
 	    }
 	  tab = XmTabCreate(value, (unsigned char)units, offsetModel,
 			    XmALIGNMENT_BEGINNING, XmS);
+	  if (tab == NULL) {
+	    XmTabListFree(tl);
+	    return FALSE;
+	  }
 	  
 	  tl = XmTabListInsertTabs(tl, &tab, 1, -1);
 	  

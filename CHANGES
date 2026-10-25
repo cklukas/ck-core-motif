@@ -1,3 +1,9 @@
+Tab-list converter allocation guard (2026-10-25)
+================================================
+
+- Check `XmTabCreate` during tab-list resource conversion and release partial
+  output on failure; see `docs/tablist-converter-allocation.md`.
+
 Render-table input-copy allocation guard (2026-10-25)
 ======================================================
 
