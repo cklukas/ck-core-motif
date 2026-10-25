@@ -3895,6 +3895,9 @@ int *line_count)
         Cardinal count;
         int delta;
 
+        if (wid == NULL || baselines == NULL || line_count == NULL)
+        return False;
+
         if (LabG_IsPixmap(wid))
         return False;
 

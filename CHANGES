@@ -10247,6 +10247,12 @@ Protocol publication null-slot guards (2026-10-25)
 - Skip null protocol managers and entries while publishing protocol
   properties; see `docs/protocol-publication-null-slots.md`.
 
+Label baseline output validation (2026-10-25)
+=============================================
+
+- Validate Label gadget baseline query pointers before accessing widget state;
+  see `docs/label-baseline-output-validation.md`.
+
 XIM info allocation guards (2026-10-25)
 =======================================
 
