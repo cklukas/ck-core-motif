@@ -1,3 +1,10 @@
+Clipboard format enumeration null-name handling (2026-10-26)
+==============================================================
+
+- Avoid atom lookup when format enumeration is intentionally name-less, as
+  used by count inquiries; valid named lookups retain their behavior. See
+  `docs/clipboard-format-enumeration-null-name.md`.
+
 Clipboard pending-items format guard (2026-10-26)
 ==================================================
 

@@ -1913,7 +1913,9 @@ ClipboardFindFormat(
     matchformat = 0;
     *matchlength = 0;
     index = 1;
-    formatatom = XInternAtom( display, format, False );
+    formatatom = None;
+    if (format != NULL)
+	formatatom = XInternAtom( display, format, False );
 
     /* run through all the formats for the query item looking */
     /* for a name match with the input format name */
