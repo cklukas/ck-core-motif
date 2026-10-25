@@ -9365,6 +9365,8 @@ XmListSelectItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int		   item_pos;
+  if (w == NULL || item == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9431,6 +9433,8 @@ XmListDeselectItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int	i;
+  if (w == NULL || item == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -9467,6 +9471,8 @@ XmListDeselectPos(Widget w,
 		  int pos)
 {
   XmListWidget  lw = (XmListWidget) w;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);

@@ -1,3 +1,9 @@
+List selection input validation (2026-10-25)
+=============================================
+
+- Reject invalid widgets and null item strings before selection lookup; see
+  `docs/list-selection-inputs.md`.
+
 List delete-all input validation (2026-10-25)
 ==============================================
 
