@@ -11616,6 +11616,12 @@ FileSB qualified-mask allocation width (2026-10-25)
 - Check combined File Selection Box mask lengths before allocation; see
   `docs/motif-filesb-qualified-mask.md`.
 
+FileSB full-path value allocation width (2026-10-25)
+=====================================================
+
+- Check combined directory/filename lengths before value-buffer allocation;
+  see `docs/motif-filesb-value-buffer.md`.
+
 MWM query-XID growth bounds (2026-10-25)
 ========================================
 

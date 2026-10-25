@@ -2137,9 +2137,15 @@ QualifySearchDataProc(
                   {   valueString = fileStr ;
                       }
                 else
-                  {   unsigned dirLen = strlen( dirStr) ;
+                  {   size_t dirLen = strlen( dirStr) ;
+                      size_t fileLen = strlen( fileStr) ;
 
-                      valueString = XtMalloc( dirLen + strlen( fileStr) + 1) ;
+                      if (fileLen == SIZE_MAX ||
+                          dirLen > SIZE_MAX - fileLen - 1 ||
+                          dirLen + fileLen + 1 > UINT_MAX)
+                        valueString = NULL;
+                      else
+                        valueString = XtMalloc((Cardinal)(dirLen + fileLen + 1)) ;
                       if(    valueString != NULL    )
                         {   strcpy( valueString, dirStr) ;
                             strcpy( &valueString[dirLen], fileStr) ;
