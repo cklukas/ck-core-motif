@@ -12,4 +12,5 @@ dimensions = source.index("static void dimensions")
 end_dimensions = source.index("static void Initialize", dimensions)
 region = source[dimensions:end_dimensions]
 assert "total_width > USHRT_MAX" in region
+assert "total_height > USHRT_MAX" in region
 print("PASS icon-label geometry is bounded")

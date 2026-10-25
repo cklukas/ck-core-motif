@@ -87,7 +87,12 @@ static void dimensions(XmIconLabelWidget label, Dimension *width,
         total_width += (unsigned long)icon_width +
                        label->icon_label.spacing;
     *width = (Dimension)(total_width > USHRT_MAX ? USHRT_MAX : total_width);
-    *height = (Dimension)(icon_height > 16 ? icon_height : 16) + 12;
+    {
+        unsigned long total_height = (unsigned long)(icon_height > 16 ?
+                                                      icon_height : 16) + 12;
+        *height = (Dimension)(total_height > USHRT_MAX ? USHRT_MAX :
+                              total_height);
+    }
 }
 
 static void Initialize(Widget request, Widget widget, ArgList args,

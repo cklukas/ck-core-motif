@@ -9,7 +9,8 @@ Icon-label geometry bounds (2026-10-26)
 ======================================
 
 - Clamp long-label text measurements and combined icon-label widths to the
-  `Dimension` range; see `docs/icon-label-geometry-bounds.md`.
+  `Dimension` range, including tall pixmaps; see
+  `docs/icon-label-geometry-bounds.md`.
 
 WSM reply payload validation (2026-10-26)
 =========================================
