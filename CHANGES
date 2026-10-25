@@ -162,6 +162,10 @@ Guard Container cell placement against incomplete grids (2026-10-25)
 	  during hierarchy cleanup; see docs/mrm-memory-close.md.
 
 2026-10-25
+	* Clear Mrm file/buffer output handles before attempting open; see
+	  docs/mrm-open-output-init.md.
+
+2026-10-25
 	* Guard scaled-pixmap cache-entry and GC allocations, restoring temporary
 	  image state and releasing cache ownership on failure; see
 	  docs/xm-scaled-pixmap-entry-allocation.md,
