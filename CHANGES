@@ -1,3 +1,9 @@
+Xm geometry comparison fixes (2026-10-25)
+===========================================
+
+- Compare widget geometry width against `XtWidth`, and reject null geometry
+  inputs in both helpers; see `docs/xm-geometry-compare.md`.
+
 Xm stippled-pixmap cache serialization (2026-10-25)
 ======================================================
 
