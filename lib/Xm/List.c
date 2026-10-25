@@ -10363,6 +10363,11 @@ XmCreateScrolledList(Widget parent,
   XtSetArg(my_args[nargs], XmNshadowThickness, 0), nargs++;
   assert(nargs <= XtNumber(my_args));
   Args = XtMergeArgLists(args, argCount, my_args, nargs);
+  if (Args == NULL)
+    {
+      DEALLOCATE_LOCAL(s);
+      return NULL;
+    }
   sw = XtCreateManagedWidget(s , xmScrolledWindowWidgetClass, parent,
 			     Args, argCount + nargs);
   DEALLOCATE_LOCAL(s);

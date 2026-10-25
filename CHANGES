@@ -1,3 +1,9 @@
+Scrolled-list argument merge failure (2026-10-25)
+===================================================
+
+- Release the temporary name and return when merged widget arguments cannot
+  be allocated; see `docs/scrolled-list-arg-merge.md`.
+
 List deletion copy allocation checks (2026-10-25)
 ==================================================
 
