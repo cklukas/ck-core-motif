@@ -1,3 +1,10 @@
+Xm pixmap-data validation (2026-10-25)
+=============================================
+
+- Reject invalid `_XmGetPixmapData` arguments and clear validated outputs
+  before lookup, preventing null dereferences and stale metadata; see
+  `docs/xm-get-pixmap-data-validation.md`.
+
 Xm scaled-pixmap cache-entry allocation (2026-10-25)
 =========================================================
 
