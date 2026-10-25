@@ -4083,3 +4083,8 @@ Mrm reader text-vector validation (2026-10-25)
 
 - Validate text-vector metadata before reader fixups walk serialized entries;
   see `docs/mrm-reader-text-vector-validation.md`.
+Mrm safe-copy null-source checks (2026-10-25)
+===============================================
+
+- Reject missing pointer-backed callback values before string, vector, float,
+  or wide-character copies; see `docs/mrm-safe-copy-null-sources.md`.
