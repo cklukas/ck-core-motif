@@ -3772,6 +3772,13 @@ Guard usable-text table allocation (2026-10-25)
   conversion styles before filling it; see
   `docs/motif-txtpropcv-useable-table.md`.
 
+Guard final text-property conversion buffer (2026-10-25)
+==========================================================
+
+- Release usable-text items and balance the application lock when the final
+  null-separated result buffer cannot be allocated; see
+  `docs/motif-txtpropcv-final.md`.
+
 Handle single text-property copy failure (2026-10-25)
 ======================================================
 
