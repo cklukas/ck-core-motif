@@ -128,6 +128,9 @@ _XmCountNestedList(
         int *total_count,
         int *typed_count )
 {
+    if (avlist == NULL || total_count == NULL || typed_count == NULL)
+        return;
+
     for (; avlist->name != NULL; avlist++) {
         if (strcmp(avlist->name, XtVaNestedList) == 0) {
             _XmCountNestedList((XtTypedArgList)avlist->value, total_count,
@@ -329,6 +332,9 @@ _XmNestedArgtoArg(
         Cardinal num_resources )
 {
     int         count = 0;
+
+    if (avlist == NULL || args == NULL)
+        return 0;
  
     for (; avlist->name != NULL; avlist++) {
         if (avlist->type != NULL) {
