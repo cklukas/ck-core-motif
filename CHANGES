@@ -1,3 +1,9 @@
+Handle XmScreen scratch-cache insertion failures (2026-10-26)
+=============================================================
+
+- Release scratch pixmaps and ownership keys when hash-table insertion cannot
+  allocate a bucket; see `docs/screen-scratch-cache-failure.md`.
+
 Guard TabList attribute cleanup (2026-10-26)
 =============================================
 
