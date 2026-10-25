@@ -1,3 +1,9 @@
+VendorShell composite-extension allocation (2026-10-25)
+==========================================================
+
+- Check inherited composite-extension lookups and allocation before copying
+  the superclass record during VendorShell class initialization.
+
 Manager class-extension allocation (2026-10-25)
 ================================================
 

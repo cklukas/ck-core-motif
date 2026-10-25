@@ -824,6 +824,8 @@ ClassPartInitialize(
 
     compExtPtr = (CompositeClassExtensionRec **)
 	_XmGetClassExtensionPtr( (XmGenericClassExt *) compExtPtr, NULLQUARK);
+	if (compExtPtr == NULL)
+	    return;
 
     if (*compExtPtr == NULL) {
 	CompositeClassExtensionRec 	**superExtPtr;
@@ -836,8 +838,12 @@ ClassPartInitialize(
                   _XmGetClassExtensionPtr(
                       (XmGenericClassExt *) superExtPtr,
                       NULLQUARK);
+	if (superExtPtr == NULL || *superExtPtr == NULL)
+	    return;
 
 	*compExtPtr = XtNew(CompositeClassExtensionRec);
+	if (*compExtPtr == NULL)
+	    return;
 	memcpy((char*)*compExtPtr, (char*)*superExtPtr, 
 	       sizeof(CompositeClassExtensionRec));
     }
