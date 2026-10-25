@@ -3,6 +3,7 @@
 #endif
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 #include <Xm/DataGridP.h>
@@ -309,10 +310,13 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
 }
 
 static void draw_text(XmDataGridWidget grid, int x, int y, const char *text) {
+    size_t length;
     if (!grid->data_grid.gc) return;
     if (!text) text = "";
+    length = strlen(text);
     XDrawString(XtDisplay((Widget)grid), XtWindow((Widget)grid),
-                grid->data_grid.gc, x, y, text, (int)strlen(text));
+                grid->data_grid.gc, x, y, text,
+                length > (size_t)INT_MAX ? INT_MAX : (int)length);
 }
 
 static int column_width(XmDataGridWidget grid) {

@@ -42,6 +42,12 @@ Progress-bar text allocation guard (2026-10-26)
 - Skip optional percentage text when `XmProgressBar` cannot allocate its
   display string; see `docs/progress-bar-text-allocation.md`.
 
+Data-grid text-length bounds (2026-10-26)
+==========================================
+
+- Bound shared DataGrid cell/header text lengths before passing them to Xlib;
+  see `docs/data-grid-text-bounds.md`.
+
 Info-bar text geometry bounds (2026-10-26)
 ==========================================
 
