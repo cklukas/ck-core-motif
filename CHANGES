@@ -16725,3 +16725,12 @@ Guard DataField drop-transfer allocation (2026-10-27)
 - Add a focused source regression and documentation.
 
 ====================================================
+
+Preserve DataField picture-source ownership (2026-10-27)
+=========================================================
+
+- Duplicate changed picture sources before releasing the old owned string,
+  retaining the old source if duplication fails.
+- Add a focused source regression and documentation.
+
+====================================================

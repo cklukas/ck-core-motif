@@ -10734,6 +10734,7 @@ df_SetValues(
     XmTextPosition new_position = 0;
     XmTextPosition newInsert;
     int n = 0;
+    String new_picture_source;
 
     if (new_w->core.being_destroyed) return False;
 
@@ -10760,8 +10761,17 @@ df_SetValues(
 	/*
 	 * Delete what's there
 	 */
-	XtFree((char*)XmDataField_picture_source(old_tf));
-	XmDataField_picture_source(new_tf) = XtNewString(XmDataField_picture_source(new_tf));
+	new_picture_source = XmDataField_picture_source(new_tf) != NULL
+	    ? XtNewString(XmDataField_picture_source(new_tf)) : NULL;
+	if (XmDataField_picture_source(new_tf) != NULL &&
+	    new_picture_source == NULL) {
+	    /* Keep the old owned string if duplication fails. */
+	    XmDataField_picture_source(new_tf) =
+		XmDataField_picture_source(old_tf);
+	} else {
+	    XtFree((char*)XmDataField_picture_source(old_tf));
+	    XmDataField_picture_source(new_tf) = new_picture_source;
+	}
 	if(XmDataField_picture(new_tf)) {
 	    XmPictureDelete(XmDataField_picture(new_tf));
 	    XmDataField_picture(new_tf) = NULL;
