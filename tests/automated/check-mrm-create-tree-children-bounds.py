@@ -8,7 +8,7 @@ start=text.index("\nUrmCreateWidgetTree ("); end=text.find("\n\n\f",start)
 region=text[start:end]
 for needle in (
     "if ( widgetrec->children_offs >= widgetrec->size )",
-    "if ( childrendesc->count > RGMListSizeMax )",
+    "if ( childrendesc->count < 0 || childrendesc->count > RGMListSizeMax ||",
 ):
     if needle not in region: raise SystemExit(f"missing child-tree guard: {needle}")
 print("Mrm widget-tree child metadata is bounded")

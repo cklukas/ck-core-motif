@@ -1,3 +1,11 @@
+Refresh MRM child-tree regression check (2026-10-27)
+====================================================
+
+- Match the focused check to the current combined signed, maximum-count, and
+  descriptor-capacity validation.
+
+===========================================================
+
 Refresh MRM callback offset regression check (2026-10-27)
 ==========================================================
 
