@@ -16172,6 +16172,15 @@ Bound XmString tag-cache length conversion (2026-10-27)
 ========================================================
 
 Bound compound-text CSI lookahead (2026-10-27)
+Release MB conversion state on oversized fallback (2026-10-27)
+===============================================================
+
+- Release the active component and XmString context when the fallback
+  conversion rejects an Xt-width overflow.
+- Extend the focused source regression and documentation.
+
+===============================================================
+
 Bound multibyte XmString allocation width (2026-10-27)
 =======================================================
 

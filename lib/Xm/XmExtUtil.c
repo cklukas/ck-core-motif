@@ -460,8 +460,12 @@ _XmGetMBStringFromXmString(XmString xmstr)
 	  length += 1;     ;
 	}
 
-	if (length >= (size_t)UINT_MAX)
+	if (length >= (size_t)UINT_MAX) {
+	    XtFree(newText);
+	    XtFree(charset);
+	    XmStringFreeContext(context);
 	    return NULL;
+	}
 	text = XtMalloc((Cardinal)(length + 1));
 	if (text == NULL) {
 	    XtFree(newText);

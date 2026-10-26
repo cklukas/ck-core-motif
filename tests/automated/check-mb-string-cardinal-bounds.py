@@ -13,6 +13,8 @@ region = text[start:end]
 required = (
     "length >= (size_t)UINT_MAX",
     "XtMalloc((Cardinal)(length + 1))",
+    "XtFree(newText);",
+    "XmStringFreeContext(context);",
 )
 missing = [item for item in required if item not in region]
 if missing or region.count("length >= (size_t)UINT_MAX") != 2:
