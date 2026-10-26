@@ -626,6 +626,9 @@ XmeToVerticalPixels(
         XtArgVal *value )
 {
   XmImportOperator ret_value;
+  if (widget == NULL || value == NULL)
+    return XmSYNTHETIC_LOAD;
+
   _XmWidgetToAppContext(widget);
 
   _XmAppLock(app);
