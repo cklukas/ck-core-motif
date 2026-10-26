@@ -8,6 +8,7 @@
 #include <Xm/XmP.h>
 #include <X11/keysym.h>
 #include <ctype.h>
+#include <limits.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -58,6 +59,11 @@ void XmCommandPaletteSetItems(Widget widget, const XmCommandPaletteItem *items, 
     free_items(palette);
     if (!count) { rebuild(palette); return; }
     if (!items) { XtWarning("XmCommandPaletteSetItems: NULL item array"); return; }
+    if ((size_t)count > SIZE_MAX / sizeof(*palette->palette.items) ||
+        (size_t)count > UINT_MAX / sizeof(*palette->palette.items)) {
+        XtWarning("XmCommandPaletteSetItems: item array is too large");
+        return;
+    }
     palette->palette.items = (XmCommandPaletteStoredItem *)XtCalloc(
         count, sizeof(*palette->palette.items));
     if (!palette->palette.items) {
