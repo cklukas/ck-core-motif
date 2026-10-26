@@ -19997,6 +19997,14 @@ Bound TextField clip-rectangle margins (2026-10-26)
   size.
 - Add focused regression coverage and documentation.
 
+Bound TextField position metrics (2026-10-26)
+==============================================
+
+- Compute insertion-point baseline metrics in widened arithmetic and reject
+  values outside the signed X11 `Position` range before conversion.
+- Apply the check to both Xft and legacy coordinate paths.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 

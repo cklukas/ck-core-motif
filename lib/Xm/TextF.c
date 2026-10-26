@@ -1652,11 +1652,18 @@ GetXYFromPos(XmTextFieldWidget tf,
 	     Position *x,
 	     Position *y)
 {
+  int64_t baseline_y = (int64_t)tf->primitive.highlight_thickness +
+    (int64_t)tf->primitive.shadow_thickness +
+    (int64_t)tf->text.margin_top +
+    (int64_t)TextF_FontAscent(tf);
+
   /* initialize the x and y positions to zero */
   *x = 0;
   *y = 0;
   
   if (position > tf->text.string_length || position < 0) return False;
+  if (baseline_y < SHRT_MIN || baseline_y > SHRT_MAX)
+    return False;
 #if USE_XFT
   {
     XmTextLayout *layout = TextFieldLayout(tf);
@@ -1674,7 +1681,7 @@ GetXYFromPos(XmTextFieldWidget tf,
       caret += tf->text.h_offset;
       if (caret < SHRT_MIN || caret > SHRT_MAX) return False;
       *x = (Position)lround(caret);
-      *y = tf->primitive.highlight_thickness + tf->primitive.shadow_thickness + tf->text.margin_top + TextF_FontAscent(tf);
+      *y = (Position)baseline_y;
       return True;
     }
   }
@@ -1685,8 +1692,7 @@ GetXYFromPos(XmTextFieldWidget tf,
     *x += FindPixelLength(tf, TextF_Value(tf), (int)position);
   }
   
-  *y += tf->primitive.highlight_thickness + tf->primitive.shadow_thickness
-    + tf->text.margin_top + TextF_FontAscent(tf);
+  *y = (Position)baseline_y;
   *x += (Position) tf->text.h_offset;
   
   return True;
