@@ -21791,6 +21791,13 @@ Reject unrepresentable DragBS target records (2026-10-26)
 - Make target-list count, offset, allocation, and atom conversions explicit
   and extend the DragBS regression documentation.
 
+Make DragBS atom ordering overflow-safe (2026-10-26)
+====================================================
+
+- Order atom IDs with relational comparisons instead of subtracting wide
+  values into an `int` comparator result.
+- Extend the DragBS regression documentation.
+
 Clean up ImageCache failure-branch conversions (2026-10-26)
 ============================================================
 

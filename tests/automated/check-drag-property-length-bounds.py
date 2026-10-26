@@ -23,3 +23,10 @@ assert "(uint64_t)targetsTable->entries[i].targets[j] > UINT32_MAX" in target_wr
 assert "XtMalloc((Cardinal)dataSize)" in target_writer
 assert "(CARD16)targetsTable->numEntries" in target_writer
 assert "(CARD32)targetsTable->entries[i].targets[j]" in target_writer
+
+compare_start = source.index("static int \nAtomCompare")
+compare_end = source.index("/*****************************************************************************", compare_start)
+compare = source[compare_start:compare_end]
+assert "Atom first = *((const Atom *)atom1);" in compare
+assert "return first < second ? -1 : (first > second ? 1 : 0);" in compare
+assert "*((Atom *) atom1) - *((Atom *) atom2)" not in compare

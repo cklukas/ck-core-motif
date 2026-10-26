@@ -1506,7 +1506,10 @@ AtomCompare(
         XmConst void *atom1,
         XmConst void *atom2 )
 {
-    return (*((Atom *) atom1) - *((Atom *) atom2));
+    Atom first = *((const Atom *)atom1);
+    Atom second = *((const Atom *)atom2);
+
+    return first < second ? -1 : (first > second ? 1 : 0);
 }
 
 /*****************************************************************************
