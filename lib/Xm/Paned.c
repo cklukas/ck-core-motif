@@ -118,6 +118,7 @@ static XmImportOperator ToPanedOppositePixels(Widget, int, XtArgVal *);
 static XmImportOperator ToPanedChildPixels(Widget, int, XtArgVal *);
 
 static Dimension PaneSize(Widget, Boolean);
+static Dimension AddMarginDimension(Dimension value, Dimension margin);
 static Dimension GetRequestInfo(XtWidgetGeometry *, Boolean);
 
 static Pane ChoosePaneToResize(XmPanedWidget, int, Direction, Boolean);
@@ -2258,10 +2259,12 @@ GeometryManager(Widget w, XtWidgetGeometry *request, XtWidgetGeometry *reply)
 
     if (result != XtGeometryNo) {
 	if (vert) {
-	    pw->core.height = on_size + 2 * XmPaned_margin_height(pw);
+	    pw->core.height = AddMarginDimension(on_size,
+		XmPaned_margin_height(pw));
 	}
 	else {
-	    pw->core.width = on_size + 2 * XmPaned_margin_width(pw);
+	    pw->core.width = AddMarginDimension(on_size,
+		XmPaned_margin_width(pw));
 	}
     }
 
@@ -2324,6 +2327,14 @@ GeometryManager(Widget w, XtWidgetGeometry *request, XtWidgetGeometry *reply)
 	CommitNewLocations(pw, w);	/* layout already refigured. */
     }
     return XtGeometryYes;
+}
+
+static Dimension
+AddMarginDimension(Dimension value, Dimension margin)
+{
+    uint64_t total = (uint64_t)value + 2 * (uint64_t)margin;
+
+    return total > USHRT_MAX ? (Dimension)USHRT_MAX : (Dimension)total;
 }
 
 /*	Function Name: Initialize

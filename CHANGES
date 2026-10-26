@@ -1,3 +1,10 @@
+Bound legacy XmPaned margin additions (2026-10-27)
+===================================================
+
+- Compute temporary horizontal and vertical margin additions in widened
+  arithmetic and clamp them to the X11 `Dimension` range.
+- Add focused regression coverage and documentation.
+
 Bound Paned margin geometry (2026-10-27)
 =========================================
 
