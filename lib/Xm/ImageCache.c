@@ -2498,11 +2498,14 @@ void _XmPutScaledImage (
     XImage *dest_image;
     unsigned int x, y, min_y, max_y, src_max_x;
     unsigned int w, h, strip_height;
+    unsigned int image_width, image_height;
     Table table = { NULL, NULL, NULL, NULL };
     Pixel pixel;
     double ratio_x, ratio_y;
     unsigned int scaled_row_bytes;
     size_t image_bytes;
+    size_t table_x_bytes, table_y_bytes;
+    size_t table_width_bytes, table_height_bytes;
     Bool fast8;
     int output_y;
 
@@ -2523,6 +2526,9 @@ void _XmPutScaledImage (
 	!XmImageArrayFits((size_t)src_image->width, sizeof(*table.width)) ||
 	!XmImageArrayFits((size_t)src_image->height, sizeof(*table.height)))
 	return;
+
+    image_width = (unsigned int)src_image->width;
+    image_height = (unsigned int)src_image->height;
 
     /* The strip destination is formed as dest_y + min_y below.  Keep that
      * addition within the signed X11 coordinate type before doing any work. */
@@ -2613,7 +2619,7 @@ void _XmPutScaledImage (
 	XDestroyImage(dest_image);
 	return;
     }
-    dest_image->data = XtMalloc(image_bytes);
+    dest_image->data = XtMalloc((Cardinal)image_bytes);
     if (dest_image->data == NULL) {
 	XDestroyImage(dest_image);
 	return;
@@ -2634,27 +2640,27 @@ void _XmPutScaledImage (
 	    (size_t)src_image->height > SIZE_MAX / sizeof(*table.height) ||
 	    (size_t)src_image->height > UINT_MAX / sizeof(*table.height))
 	    goto cleanup;
-    table.x = (unsigned int *) XtMalloc(sizeof(*table.x) *
-					((size_t)src_image->width + 1));
-    table.y = (unsigned int *) XtMalloc(sizeof(*table.y) *
-					((size_t)src_image->height + 1));
-    table.width = (unsigned int *) XtMalloc(sizeof(*table.width) *
-					(size_t)src_image->width);
-    table.height = (unsigned int *) XtMalloc(sizeof(*table.height) *
-					(size_t)src_image->height);
+	table_x_bytes = sizeof(*table.x) * ((size_t)src_image->width + 1);
+	table_y_bytes = sizeof(*table.y) * ((size_t)src_image->height + 1);
+	table_width_bytes = sizeof(*table.width) * (size_t)src_image->width;
+	table_height_bytes = sizeof(*table.height) * (size_t)src_image->height;
+	table.x = (unsigned int *) XtMalloc((Cardinal)table_x_bytes);
+	table.y = (unsigned int *) XtMalloc((Cardinal)table_y_bytes);
+	table.width = (unsigned int *) XtMalloc((Cardinal)table_width_bytes);
+	table.height = (unsigned int *) XtMalloc((Cardinal)table_height_bytes);
 	if (table.x == NULL || table.y == NULL ||
 	    table.width == NULL || table.height == NULL)
 	    goto cleanup;
     
     table.x[0] = 0;
-    for (x = 1; x <= src_image->width; x++) {
+    for (x = 1; x <= image_width; x++) {
 	if (!XmRoundScaled(ratio_x * x, &table.x[x]))
 	    goto cleanup;
 	table.width[x - 1] = table.x[x] - table.x[x - 1];
     }
 
     table.y[0] = 0;
-    for (y = 1; y <= src_image->height; y++) {
+    for (y = 1; y <= image_height; y++) {
 	if (!XmRoundScaled(ratio_y * y, &table.y[y]))
 	    goto cleanup;
 	table.height[y - 1] = table.y[y] - table.y[y - 1];
@@ -2666,11 +2672,11 @@ void _XmPutScaledImage (
 	    strip_height = dest_height - min_y;
 	    max_y = dest_height;
 	}
-	for (y = src_y; table.y[y] < max_y; y++) {
+	for (y = (unsigned int)src_y; table.y[y] < max_y; y++) {
 	    if (table.y[y] < min_y)
 		continue;
 	    if (fast8) {
-		for (x = src_x; x < src_max_x; x++) {
+		for (x = (unsigned int)src_x; x < src_max_x; x++) {
 		    pixel = ((unsigned char *)src_image->data)
 			[(size_t)y * (size_t)src_image->bytes_per_line +
 			 (size_t)x];
@@ -2678,17 +2684,17 @@ void _XmPutScaledImage (
 			memset(dest_image->data +
 		       (size_t)(table.y[y] - min_y + h) *
 		       (size_t)dest_image->bytes_per_line + (size_t)table.x[x],
-			       pixel, table.width[x]);
+			       (int)(unsigned char)pixel, table.width[x]);
 		    }
 		}
 	    } else {
-		for (x = src_x; x < src_max_x; x++) {
-		    pixel = XGetPixel(src_image, x, y);
+		for (x = (unsigned int)src_x; x < src_max_x; x++) {
+		    pixel = (Pixel)XGetPixel(src_image, (int)x, (int)y);
 		    for (h = 0; h < table.height[y]; h++) {
 			for (w = 0; w < table.width[x]; w++)
 			    XPutPixel(dest_image,
-				      table.x[x] + w,
-				      table.y[y] + h - min_y,
+				      (int)(table.x[x] + w),
+				      (int)(table.y[y] + h - min_y),
 				      pixel);
 		    }
 		}
@@ -2700,7 +2706,7 @@ void _XmPutScaledImage (
 	output_y = (int)((long long)dest_y + (long long)min_y);
 	XPutImage(display, d, gc, dest_image, dest_x, 0,
 		  dest_x, output_y, dest_width, table.y[y] - min_y);
-	if (y >= src_image->height)
+	if (y >= image_height)
 	    break;
     }
     
@@ -2814,6 +2820,7 @@ CacheColorPixel( Display *display, Colormap colormap,
     if (numEntries == colorCacheList.maxEntries)
     {
         CachedColor *new_cache;
+        size_t cache_bytes;
         if (colorCacheList.maxEntries > INT_MAX - 25)
 	    return False;
         colorCacheList.maxEntries += 25;
@@ -2822,10 +2829,11 @@ CacheColorPixel( Display *display, Colormap colormap,
 	    (size_t)colorCacheList.maxEntries >
 	    UINT_MAX / sizeof(*colorCacheList.cache))
 	    return False;
+	cache_bytes = (size_t)colorCacheList.maxEntries *
+	              sizeof(*colorCacheList.cache);
 	new_cache = (CachedColor *)
 		    XtRealloc((char *)colorCacheList.cache,
-			       (size_t)colorCacheList.maxEntries *
-			       sizeof(*colorCacheList.cache));
+			       (Cardinal)cache_bytes);
 	if (new_cache == NULL)
 	    return False;
 	colorCacheList.cache = new_cache;

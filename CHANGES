@@ -20085,6 +20085,15 @@ Bound Text source read ranges (2026-10-26)
   narrow or wide strings.
 - Add focused regression coverage and documentation.
 
+Make ImageCache scaling conversions explicit (2026-10-26)
+==========================================================
+
+- Keep image-table loop counters unsigned until the checked conversion to
+  X11's signed coordinate API.
+- Make the 8-bit fast-path pixel narrowing explicit and bound cache-byte
+  conversion before passing it to Xt allocation routines.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
