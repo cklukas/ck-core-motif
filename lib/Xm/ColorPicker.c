@@ -210,17 +210,20 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     reply->width = 180; reply->height = 34; return XtGeometryAlmost;
 }
 unsigned long XmColorPickerGetValue(Widget widget) {
-    return XmIsColorPicker(widget) ? ((XmColorPickerWidget)widget)->color_picker.value : 0;
+    return widget != NULL && XmIsColorPicker(widget)
+        ? ((XmColorPickerWidget)widget)->color_picker.value : 0;
 }
 void XmColorPickerSetValue(Widget widget, unsigned long value, Boolean notify_change) {
-    XmColorPickerWidget picker; if (!XmIsColorPicker(widget)) return;
+    XmColorPickerWidget picker;
+    if (widget == NULL || !XmIsColorPicker(widget)) return;
     picker = (XmColorPickerWidget)widget; picker->color_picker.value = value;
     picker->color_picker.preview = value;
     if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
     if (notify_change) notify(picker, XmNcolorPickerValueChangedCallback, NULL, value);
 }
 void XmColorPickerPreviewValue(Widget widget, unsigned long value) {
-    XmColorPickerWidget picker; if (!XmIsColorPicker(widget)) return;
+    XmColorPickerWidget picker;
+    if (widget == NULL || !XmIsColorPicker(widget)) return;
     picker = (XmColorPickerWidget)widget; picker->color_picker.preview = value;
     if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
     notify(picker, XmNcolorPickerPreviewCallback, NULL, value);
