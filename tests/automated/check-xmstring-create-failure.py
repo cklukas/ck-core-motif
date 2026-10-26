@@ -14,6 +14,7 @@ assert "if (opt_str == NULL)" in window
 assert "_XmStrCreate(str, XmSTRING_MULTIPLE_ENTRY, 0);" in window
 assert "if (str == NULL)" in window
 assert "size_t                  t_length;" in window
+assert "if (len < 0 && len != XmSTRING_TAG_STRLEN)" in window
 assert "if (t_length > UINT_MAX)" in window
 
 print("XmString creation handles allocation failure")

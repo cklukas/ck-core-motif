@@ -20243,3 +20243,9 @@ Bound XmString creation length conversion (2026-10-26)
   copying.
 - Preserve the existing optimized/non-optimized representation choice for
   representable strings; see `docs/xmstring-create-failure.md`.
+
+Reject malformed XmString negative lengths (2026-10-26)
+========================================================
+
+- Keep `XmSTRING_TAG_STRLEN` as the sole negative-length sentinel and reject
+  other negative lengths before measuring or allocating the source string.

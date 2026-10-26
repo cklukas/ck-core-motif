@@ -875,6 +875,8 @@ _XmStringNCreate(char *text,
 
   if (!text) return ((XmString) NULL);
   if (!tag) return ((XmString) NULL);    
+  if (len < 0 && len != XmSTRING_TAG_STRLEN)
+    return ((XmString) NULL);
 
   t_length = (len >= 0) ? (size_t)len : strlen(text);
   if (t_length > UINT_MAX)
