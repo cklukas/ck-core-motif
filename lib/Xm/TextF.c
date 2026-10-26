@@ -9337,6 +9337,8 @@ PreeditStart(XIC xic,
     tf->text.onthespot->over_str = NULL;
     tf->text.onthespot->over_maxlen = 0;
 
+    cursorPos = nextPos = TextF_CursorPosition(tf);
+
     /* If TextField is not editable, returns 0. So input server never */
     /* call Preedit Draw callback */
     if (!TextF_Editable(tf)) {

@@ -19973,6 +19973,14 @@ Validate TextField substring ranges (2026-10-26)
   reject invalid or empty requests without writing caller storage.
 - Add focused regression coverage and documentation.
 
+Initialize TextField preedit endpoints (2026-10-26)
+====================================================
+
+- Initialize pending-delete replacement endpoints to the current cursor
+  before selection lookup, avoiding undefined positions when no selection is
+  present.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
