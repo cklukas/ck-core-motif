@@ -104,6 +104,14 @@ Guard MWM initial-property helpers (2026-10-26)
   initial WSM property lists.
 - Add focused regression coverage and document the null-input contract.
 
+Guard MWM client-list serialization (2026-10-26)
+================================================
+
+- Reject a nonzero client count with no window-list storage before passing the
+  invalid pointer to `XChangeProperty`.
+- Preserve valid list updates and zero-count property clearing, with focused
+  regression coverage and documentation.
+
 Guard MWM binding token boundaries (2026-10-26)
 ===============================================
 

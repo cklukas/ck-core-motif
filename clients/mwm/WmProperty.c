@@ -2156,6 +2156,9 @@ HasProperty (
 
 void SetMwmClientList (Window propWindow, Window *wmWindowList, unsigned int wmWindowCount)
 {
+    if ((wmWindowCount != 0) && (wmWindowList == NULL))
+	return;
+
     XChangeProperty (DISPLAY, propWindow, wmGD.xa_MWM_CLIENT_LIST, XA_WINDOW,
     32, PropModeReplace, (unsigned char *)wmWindowList,
     wmWindowCount);
