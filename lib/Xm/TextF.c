@@ -5739,20 +5739,23 @@ CheckTimerScrolling(Widget w,
 		    XEvent *event)
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
-  Dimension margin_size = TextF_MarginWidth(tf) +
-    tf->primitive.shadow_thickness +
-      tf->primitive.highlight_thickness;
-  Dimension top_margin = TextF_MarginHeight(tf) +
-    tf->primitive.shadow_thickness +
-      tf->primitive.highlight_thickness;
+  int64_t margin_size = (int64_t)TextF_MarginWidth(tf) +
+    (int64_t)tf->primitive.shadow_thickness +
+    (int64_t)tf->primitive.highlight_thickness;
+  int64_t top_margin = (int64_t)TextF_MarginHeight(tf) +
+    (int64_t)tf->primitive.shadow_thickness +
+    (int64_t)tf->primitive.highlight_thickness;
+  int64_t text_bottom = top_margin +
+    (int64_t)(TextF_FontAscent(tf) < 0 ? 0 : TextF_FontAscent(tf)) +
+    (int64_t)(TextF_FontDescent(tf) < 0 ? 0 : TextF_FontDescent(tf));
+  int64_t edge_position;
   
   tf->text.select_pos_x = event->xmotion.x;
   
-  if ((event->xmotion.x > (int) margin_size) &&
-      (event->xmotion.x < (int) (tf->core.width - margin_size))  &&
-      (event->xmotion.y > (int) top_margin) &&
-      (event->xmotion.y < (int) (top_margin + TextF_FontAscent(tf) +
-                                 TextF_FontDescent(tf)))) {
+  if ((int64_t)event->xmotion.x > margin_size &&
+      (int64_t)event->xmotion.x < (int64_t)tf->core.width - margin_size &&
+      (int64_t)event->xmotion.y > top_margin &&
+      (int64_t)event->xmotion.y < text_bottom) {
     
     if (tf->text.select_id) {
       XtRemoveTimeOut(tf->text.select_id);
@@ -5760,13 +5763,22 @@ CheckTimerScrolling(Widget w,
     }
   } else {
     /* to the left of the text */
-    if (event->xmotion.x <= (int) margin_size)
-      tf->text.select_pos_x = (Position) (margin_size -
-                                          (tf->text.average_char_width + 1));
+    if ((int64_t)event->xmotion.x <= margin_size) {
+      edge_position = margin_size -
+        (int64_t)tf->text.average_char_width - 1;
+      if (edge_position < SHRT_MIN) edge_position = SHRT_MIN;
+      if (edge_position > SHRT_MAX) edge_position = SHRT_MAX;
+      tf->text.select_pos_x = (Position)edge_position;
+    }
     /* to the right of the text */
-    else if (event->xmotion.x >= (int) (tf->core.width - margin_size))
-      tf->text.select_pos_x = (Position) ((tf->core.width - margin_size) +
-					  tf->text.average_char_width + 1);
+    else if ((int64_t)event->xmotion.x >=
+             (int64_t)tf->core.width - margin_size) {
+      edge_position = (int64_t)tf->core.width - margin_size +
+        (int64_t)tf->text.average_char_width + 1;
+      if (edge_position < SHRT_MIN) edge_position = SHRT_MIN;
+      if (edge_position > SHRT_MAX) edge_position = SHRT_MAX;
+      tf->text.select_pos_x = (Position)edge_position;
+    }
     if (!tf->text.select_id)
       tf->text.select_id = XtAppAddTimeOut(XtWidgetToApplicationContext(w),
 					   (unsigned long) SEC_SCROLL_INTERVAL,

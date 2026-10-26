@@ -20021,6 +20021,13 @@ Guard TextField baseline callbacks (2026-10-26)
 - Compute the baseline metric in widened arithmetic and clamp to `Dimension`.
 - Add focused regression coverage and documentation.
 
+Bound TextField timer-scroll edges (2026-10-26)
+=================================================
+
+- Widen timer-scroll margin and text-edge arithmetic and clamp edge targets
+  before storing them in `Position`.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
