@@ -19956,6 +19956,14 @@ Guard Text source teardown (2026-10-26)
   without changing normal resource-release order.
 - Add focused regression coverage and documentation.
 
+Bound Text selection conversion lengths (2026-10-26)
+======================================================
+
+- Check converted locale-text lengths before storing them in legacy `int`
+  text blocks for selection and drop imports.
+- Release temporary and transfer buffers when a converted value is too large.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 

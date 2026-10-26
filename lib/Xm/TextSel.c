@@ -97,6 +97,9 @@ static void TextConvertCallback(Widget, XtPointer,
 static void TextDestinationCallback(Widget, XtPointer,
 				    XmDestinationCallbackStruct*);
 
+static Boolean TextSelectionBlockLength(const char *text,
+                                        int *length);
+
 /********    End Static Function Declarations    ********/
 
 /* Transfer Trait record for Text */
@@ -111,6 +114,20 @@ static XmConst XmTransferTraitRec TextTransfer = {
 static XContext _XmTextDNDContext = 0;
 static _XmTextPrimSelect *prim_select;
 static _XmInsertSelect insert_select;
+
+static Boolean
+TextSelectionBlockLength(const char *text, int *length)
+{
+  size_t text_length;
+
+  if (text == NULL || length == NULL)
+    return False;
+  text_length = strlen(text);
+  if (text_length > (size_t)INT_MAX)
+    return False;
+  *length = (int)text_length;
+  return True;
+}
 
 /*ARGSUSED*/
 static void
@@ -257,7 +274,13 @@ InsertSelection(
 	 _XmTextToLocaleText(w, value, *type, *format, 
 			     *length, NULL)) != NULL) {
       block.ptr = total_value;
-      block.length = strlen(block.ptr);
+      if (!TextSelectionBlockLength(block.ptr, &block.length)) {
+	XtFree(total_value);
+	insert_select->done_status = True;
+	insert_select->success_status = False;
+	(*tw->text.output->DrawInsertionPoint)(tw, tw->text.cursor_position, on);
+	return;
+      }
     } else {
       insert_select->done_status = True;
       insert_select->success_status = False;
@@ -1091,7 +1114,13 @@ DoStuff(Widget w,
 	   _XmTextToLocaleText(w, ds->value, ds->type, ds->format,
 			       ds->length, NULL)) != NULL) {
 	block.ptr = total_value;
-	block.length = strlen(block.ptr);
+	if (!TextSelectionBlockLength(block.ptr, &block.length)) {
+	  XtFree(total_value);
+	  XtFree((char *)ds->value);
+	  ds->value = NULL;
+	  prim_select->num_chars = 0;
+	  return;
+	}
       } else {
 	block.ptr = total_value = XtMalloc((unsigned)1);
 	if (block.ptr == NULL) {
@@ -1312,7 +1341,14 @@ DropTransferProc(Widget w,
     if ((total_value = _XmTextToLocaleText(w, ds->value, ds->type, 
 					   8, ds->length, NULL)) != NULL) {
       block.ptr = total_value;
-      block.length = strlen(block.ptr);
+      if (!TextSelectionBlockLength(block.ptr, &block.length)) {
+	XtFree(total_value);
+	total_value = NULL;
+	XtFree((char *)ds->value);
+	ds->value = NULL;
+	XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+	return;
+      }
     } else {
       if (ds->value) {
 	XtFree((char*) ds->value);
