@@ -48,6 +48,13 @@ Bound MWM automation reply sizes (2026-10-26)
 - Reject totals beyond Xt's `Cardinal` allocation width before allocating the
   reply buffer, with focused regression and documentation.
 
+Preserve MWM replacement buffers on allocation failure (2026-10-26)
+====================================================================
+
+- Allocate replacements before freeing the existing MWM buffer, preventing a
+  failed transient-list growth from leaving a dangling pointer.
+- Add a focused helper-order regression and document the failure contract.
+
 Guard MWM binding token boundaries (2026-10-26)
 ===============================================
 

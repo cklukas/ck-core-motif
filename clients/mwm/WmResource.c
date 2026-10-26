@@ -6296,19 +6296,20 @@ char * WmMalloc (ptr, size)
 	unsigned size;
 
 {
-    if (ptr)
-    {
-	XtFree (ptr);
-    }
+    char *replacement;
 
-    ptr = (char *)XtMalloc (size);
+    replacement = (char *)XtMalloc (size);
 
-    if (ptr == NULL)
+    if (replacement == NULL)
     {
 	Warning (((char *)GETMESSAGE(62, 38, "Insufficient memory for window manager data")));
+	return (NULL);
     }
 
-    return (ptr);
+    if (ptr)
+	XtFree (ptr);
+
+    return (replacement);
 
 } /* END OF FUNCTION WmMalloc */
 
