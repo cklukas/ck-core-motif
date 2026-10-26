@@ -3558,13 +3558,19 @@ _XmTextFieldReplaceText(XmTextFieldWidget tf,
     if (tf->text.string_length + insert_length - replace_length >=
 	tf->text.size_allocd) {
       if (tf->text.size_allocd > UINT_MAX / 2)
+	{
+	  _XmTextFieldDrawInsertionPoint(tf, True);
         return False;
+	}
       new_size_allocd = tf->text.size_allocd +
         MAX(insert_length + TEXT_INCREMENT, (tf->text.size_allocd * 2));
       new_value = (char *)XtRealloc((char *)TextF_Value(tf),
                                     (unsigned)(new_size_allocd * sizeof(char)));
       if (new_value == NULL)
+	{
+	  _XmTextFieldDrawInsertionPoint(tf, True);
         return False;
+	}
       tf->text.size_allocd = new_size_allocd;
       tf->text.value = new_value;
     }
@@ -3572,16 +3578,25 @@ _XmTextFieldReplaceText(XmTextFieldWidget tf,
     if ((tf->text.string_length + insert_length - replace_length) *
 	sizeof(wchar_t) >= tf->text.size_allocd) {
       if (tf->text.size_allocd > UINT_MAX / 2)
+	{
+	  _XmTextFieldDrawInsertionPoint(tf, True);
         return False;
+	}
       new_size_allocd = tf->text.size_allocd +
         MAX((insert_length + TEXT_INCREMENT) * sizeof(wchar_t),
             (tf->text.size_allocd * 2));
       if (new_size_allocd > UINT_MAX / sizeof(wchar_t))
+	{
+	  _XmTextFieldDrawInsertionPoint(tf, True);
         return False;
+	}
       new_wc_value = (wchar_t *)XtRealloc((char *)TextF_WcValue(tf),
                                           (unsigned)new_size_allocd);
       if (new_wc_value == NULL)
+	{
+	  _XmTextFieldDrawInsertionPoint(tf, True);
         return False;
+	}
       tf->text.size_allocd = new_size_allocd;
       tf->text.wc_value = new_wc_value;
     }
@@ -9170,13 +9185,19 @@ _XmTextFieldReplaceTextForPreedit(XmTextFieldWidget tf,
       tf->text.size_allocd)
     {
       if (tf->text.size_allocd > UINT_MAX / 2)
+	{
+	  _XmTextFieldDrawInsertionPoint(tf, True);
         return False;
+	}
       new_size_allocd = tf->text.size_allocd +
         MAX(insert_length + TEXT_INCREMENT, (tf->text.size_allocd * 2));
       new_value = (char *)XtRealloc((char *)TextF_Value(tf),
                                     (unsigned)(new_size_allocd * sizeof(char)));
       if (new_value == NULL)
+	{
+	  _XmTextFieldDrawInsertionPoint(tf, True);
         return False;
+	}
       tf->text.size_allocd = new_size_allocd;
       tf->text.value = new_value;
     }
@@ -9185,16 +9206,25 @@ _XmTextFieldReplaceTextForPreedit(XmTextFieldWidget tf,
                                         sizeof(wchar_t) >= tf->text.size_allocd)
     {
       if (tf->text.size_allocd > UINT_MAX / 2)
+	{
+	  _XmTextFieldDrawInsertionPoint(tf, True);
         return False;
+	}
       new_size_allocd = tf->text.size_allocd +
         MAX((insert_length + TEXT_INCREMENT) * sizeof(wchar_t),
             (tf->text.size_allocd * 2));
       if (new_size_allocd > UINT_MAX / sizeof(wchar_t))
+	{
+	  _XmTextFieldDrawInsertionPoint(tf, True);
         return False;
+	}
       new_wc_value = (wchar_t *)XtRealloc((char *)TextF_WcValue(tf),
                                           (unsigned)new_size_allocd);
       if (new_wc_value == NULL)
+	{
+	  _XmTextFieldDrawInsertionPoint(tf, True);
         return False;
+	}
       tf->text.size_allocd = new_size_allocd;
       tf->text.wc_value = new_wc_value;
     }

@@ -22853,3 +22853,10 @@ Preserve TextField highlights on realloc failure (2026-10-26)
   replacement allocation fails.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-highlight-growth.py
+
+Restore TextField preedit repaint on failure (2026-10-26)
+===========================================================
+- Repaint the insertion point on every TextField and preedit replacement
+  allocation failure after the routine disables it.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-preedit-repaint.py
