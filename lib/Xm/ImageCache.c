@@ -2068,6 +2068,7 @@ XmeGetMask(
         Screen *screen,
         char *image_name)
 {
+    XmAccessColorDataRec acc_color_rec;
     String 		mask_name;
     Pixmap		ret_val;
     XtAppContext app;
@@ -2088,9 +2089,16 @@ XmeGetMask(
     
     _XmProcessLock();
     _XmOSGenerateMaskName(image_name, mask_name);
+    acc_color_rec.foreground = 1;
+    acc_color_rec.background = 0;
+    acc_color_rec.top_shadow_color = XmUNSPECIFIED_PIXEL;
+    acc_color_rec.bottom_shadow_color = XmUNSPECIFIED_PIXEL;
+    acc_color_rec.select_color = XmUNSPECIFIED_PIXEL;
+    acc_color_rec.highlight_color = XmUNSPECIFIED_PIXEL;
+    ret_val = _XmGetScaledPixmap(screen, NULL, mask_name, &acc_color_rec,
+                                 1, False, 1);
     _XmProcessUnlock();
 
-    ret_val = XmGetPixmapByDepth(screen, mask_name, 1, 0, 1);
     XtFree(mask_name);
     _XmAppUnlock(app);
     return ret_val;

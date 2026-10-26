@@ -13,5 +13,9 @@ helper directly instead of calling `XmGetPixmapByDepth` while holding the
 application lock. This prevents a second lock acquisition on the public
 compatibility wrapper.
 
+`XmeGetMask` follows the same rule when converting the generated mask name.
+It now invokes the synchronized helper directly rather than reacquiring the
+application lock through `XmGetPixmapByDepth`.
+
 The focused regressions are `tests/automated/check-xm-install-locking.py` and
 `tests/automated/check-xm-get-pixmap-locking.py`.

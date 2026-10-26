@@ -20249,3 +20249,10 @@ Reject malformed XmString negative lengths (2026-10-26)
 
 - Keep `XmSTRING_TAG_STRLEN` as the sole negative-length sentinel and reject
   other negative lengths before measuring or allocating the source string.
+
+Avoid nested application locking in XmeGetMask (2026-10-26)
+============================================================
+
+- Generate and load mask pixmaps through the synchronized helper while the
+  existing application lock is held, instead of calling `XmGetPixmapByDepth`
+  and acquiring that lock a second time.
