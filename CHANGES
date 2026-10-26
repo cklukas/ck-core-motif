@@ -1,3 +1,12 @@
+Bound RowActions item-array allocation (2026-10-27)
+====================================================
+
+- Validate `XmRowActionsSetItems` count multiplication before allocating its
+  stored-item array through Xt.
+- Add focused regression coverage and documentation.
+
+====================================================
+
 Bound image-cache scaled buffer allocation (2026-10-27)
 =========================================================
 

@@ -215,6 +215,12 @@ void XmRowActionsSetItems(Widget widget, const XmRowActionItem *items, Cardinal 
     actions->actions.initializing = True;
     free_items(actions, True);
     if (count) {
+        if ((size_t)count > SIZE_MAX / sizeof(*actions->actions.items) ||
+            (size_t)count > UINT_MAX / sizeof(*actions->actions.items)) {
+            XtWarning("XmRowActionsSetItems: item array is too large");
+            actions->actions.initializing = False;
+            return;
+        }
         actions->actions.items = (XmRowActionsStoredItem *)XtCalloc(count, sizeof(*actions->actions.items));
         if (!actions->actions.items) {
             XtWarning("XmRowActionsSetItems: unable to allocate item array");
