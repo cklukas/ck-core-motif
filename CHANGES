@@ -22731,3 +22731,9 @@ Bound Text secondary-selection target counts (2026-10-26)
   atom data and fail the transfer cleanly.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-secondary-target-count.py
+Guard Text secondary widget atom queries (2026-10-26)
+======================================================
+- Defer widget-dependent encoding atom lookup until secondary transfer inputs
+  have passed null validation.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-secondary-widget-guard.py

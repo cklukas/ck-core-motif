@@ -375,7 +375,7 @@ HandleInsertTargets(
 
   _XmInsertSelect *insert_select = (_XmInsertSelect *) closure;
   Atom atoms[XtNumber(atom_names)];
-  Atom CS_OF_ENCODING = XmeGetEncodingAtom(w);
+  Atom CS_OF_ENCODING;
   Atom target;
   Atom *atom_ptr;
   Boolean supports_encoding_data = False;
@@ -390,6 +390,7 @@ HandleInsertTargets(
       XmTransferDone(tid, XmTRANSFER_DONE_FAIL);
     return;
   }
+  CS_OF_ENCODING = XmeGetEncodingAtom(w);
   
   if (0 == *length) {
     XtFree((char *)value);
