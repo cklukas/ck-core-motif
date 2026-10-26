@@ -1,3 +1,12 @@
+Guard drag-start inputs (2026-10-27)
+====================================
+
+- Reject null widgets or events before display and event-field access in
+  `XmDragStart`.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard textual drag-icon lookup input (2026-10-27)
 ==================================================
 

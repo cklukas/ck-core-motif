@@ -3252,6 +3252,10 @@ XmDragStart(
     Arg			lclArgs[1];
     Arg			*mergedArgs;
     XmDragStartCallbackStruct	cb;
+
+    if (w == NULL || event == NULL)
+	return NULL;
+
     _XmWidgetToAppContext(w);
 
     _XmAppLock(app);
