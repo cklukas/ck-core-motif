@@ -20013,6 +20013,14 @@ Bound TextField display rectangles (2026-10-26)
 - Clamp origins and retain zero content size for overlarge margins.
 - Add focused regression coverage and documentation.
 
+Guard TextField baseline callbacks (2026-10-26)
+=================================================
+
+- Validate callback inputs, check baseline-array allocation, and publish no
+  partial result on failure.
+- Compute the baseline metric in widened arithmetic and clamp to `Dimension`.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 

@@ -8938,16 +8938,30 @@ TextFieldGetBaselines(Widget w,
 		      Dimension ** baselines,
 		      int *line_count)
 {
-  XmTextFieldWidget tf = (XmTextFieldWidget) w;
+  XmTextFieldWidget tf;
   Dimension *base_array;
+  uint64_t baseline;
+
+  if (w == NULL || baselines == NULL || line_count == NULL)
+    return False;
+  tf = (XmTextFieldWidget)w;
+  
+  base_array = (Dimension *)XtMalloc(sizeof(*base_array));
+  if (base_array == NULL) {
+    *baselines = NULL;
+    *line_count = 0;
+    return False;
+  }
+
+  baseline = (uint64_t)tf->text.margin_top +
+    (uint64_t)tf->primitive.shadow_thickness +
+    (uint64_t)tf->primitive.highlight_thickness +
+    (uint64_t)(TextF_FontAscent(tf) < 0 ? 0 : TextF_FontAscent(tf));
+  if (baseline > (uint64_t)((Dimension)~0))
+    baseline = (uint64_t)((Dimension)~0);
+  base_array[0] = (Dimension)baseline;
   
   *line_count = 1;
-  
-  base_array = (Dimension *) XtMalloc(sizeof(Dimension));
-  
-  base_array[0] = tf->text.margin_top + tf->primitive.shadow_thickness +
-    tf->primitive.highlight_thickness + TextF_FontAscent(tf);
-  
   *baselines = base_array;
   
   return (TRUE);
