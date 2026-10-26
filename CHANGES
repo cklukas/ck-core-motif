@@ -149,6 +149,13 @@ Guard MWM client-list sorting inputs (2026-10-26)
   client counts to `size_t` for `qsort()`.
 - Add a focused sorting regression and document the input contract.
 
+Bound MWM protocol atom arrays (2026-10-26)
+===========================================
+
+- Validate the signed screen count and atom-array byte product before
+  allocating per-screen protocol atoms.
+- Add a focused protocol allocation regression and document the bounds.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 

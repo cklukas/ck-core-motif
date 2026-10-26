@@ -238,7 +238,14 @@ void SetupWmICCC (void)
     wmGD.xa_COMPOUND_TEXT = atoms[XA_COMPOUND_TEXT];
 
 #ifndef NO_WMQUERY
-    if (!(xa_WM_QUERY = (Atom *) XtMalloc (wmGD.numScreens * (sizeof (Atom)))))
+    if (wmGD.numScreens < 0 ||
+	(size_t)wmGD.numScreens > SIZE_MAX / sizeof(Atom) ||
+	(size_t)wmGD.numScreens > (size_t)UINT_MAX / sizeof(Atom))
+	xa_WM_QUERY = NULL;
+    else
+	xa_WM_QUERY = (Atom *)XtMalloc(
+	    (Cardinal)((size_t)wmGD.numScreens * sizeof(Atom)));
+    if (xa_WM_QUERY == NULL)
     {
 	Warning (((char *)GETMESSAGE(56, 2, "Insufficient memory to XInternAtom _MOTIF_WM_QUERY_nn")));
     }
@@ -1207,9 +1214,19 @@ static void
 OwnWMSelections ( Time timestamp )
 {
   int scr;
+  size_t atom_bytes;
   
   
-  wmGD.xa_WM = (Atom *) XtMalloc (wmGD.numScreens * (sizeof (Atom)));
+  if (wmGD.numScreens < 0 ||
+      (size_t)wmGD.numScreens > SIZE_MAX / sizeof(Atom) ||
+      (size_t)wmGD.numScreens > (size_t)UINT_MAX / sizeof(Atom))
+    {
+      Warning (((char *)GETMESSAGE(56, 7,
+				   "Insufficient memory to own WM_nn selections")));
+      return;
+    }
+  atom_bytes = (size_t)wmGD.numScreens * sizeof(Atom);
+  wmGD.xa_WM = (Atom *)XtMalloc((Cardinal)atom_bytes);
   if (wmGD.xa_WM == NULL)
     {
       Warning (((char *)GETMESSAGE(56, 7,
