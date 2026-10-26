@@ -1,3 +1,10 @@
+Bound drag-source target-count conversion (2026-10-26)
+=======================================================
+
+- Reject export-target counts that exceed the `Cardinal` resource range and
+  convert accepted counts explicitly before starting a drag.
+- Add focused regression coverage and documentation for 64-bit target lists.
+
 Harden deferred clipboard callback inputs (2026-10-26)
 ========================================================
 

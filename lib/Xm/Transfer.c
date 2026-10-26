@@ -1212,8 +1212,15 @@ XmeDragSource(Widget w, XtPointer location_data, XEvent *event,
   if (_XmConvertHandler(w, &atoms[XmA_MOTIF_DROP],
 			&atoms[XmA_MOTIF_EXPORT_TARGETS],
 			&type, &targets, &size, &format) == True) {
+	    if (size > (unsigned long)UINT_MAX) {
+		XtFree((char *) args);
+		XtFree((char *) targets);
+		_XmAppUnlock(app);
+		return(NULL);
+	    }
     XtSetArg(args[arg_count], XmNexportTargets, targets); arg_count++;
-    XtSetArg(args[arg_count], XmNnumExportTargets, size); arg_count++;
+    XtSetArg(args[arg_count], XmNnumExportTargets, (Cardinal)size);
+    arg_count++;
   } else {
     /* Free copied arguments */
     XtFree((char*) args);
