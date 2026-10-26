@@ -1944,6 +1944,9 @@ void GetSystemMenuPosition (ClientData *pcd, int *px, int *py,
 			    unsigned int height, Context context)
 {
 
+    if (pcd == NULL || px == NULL || py == NULL)
+	return;
+
     if ((pcd->clientState == MINIMIZED_STATE) ||
         ((pcd->clientState != MINIMIZED_STATE) &&
          (context == F_SUBCONTEXT_IB_WICON)))

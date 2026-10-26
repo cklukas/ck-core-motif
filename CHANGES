@@ -20823,3 +20823,9 @@ Guard MWM gadget hit-test arrays (2026-10-26)
 ---------------------------------------------
 GadgetID now returns FRAME_NONE for a null gadget array instead of
 dereferencing it when a nonzero count is supplied.
+
+Guard MWM system-menu placement inputs (2026-10-26)
+---------------------------------------------------
+GetSystemMenuPosition now leaves its outputs unchanged when the client record
+or either output coordinate pointer is null.  Valid placement behavior is
+unchanged.
