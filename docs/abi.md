@@ -20,7 +20,9 @@ not only applications and widget subclasses. No old-SONAME alias is provided.
 Rebuild the toolkit suite, custom widgets and subclass libraries, Mrm/Uil
 integrations, resource-compiler consumers and applications against one exact
 installed cohort. Remove stale generated objects first. Static linkage also
-requires a rebuild. Never mix headers from one prefix with another prefix's
+requires a rebuild. The `libXm` static link interface explicitly carries its
+math-library dependency (`-lm`), which is needed by the text metrics
+implementation. Never mix headers from one prefix with another prefix's
 runtime library.
 
 ```c

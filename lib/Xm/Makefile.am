@@ -87,7 +87,7 @@ else
 PRINTS_SRC =
 endif
 
-libXm_la_LIBADD = ${X_LIBS} ${X_XMU} -lXt -lXext ${LIB_XP} -lX11 ${X_EXTRA_LIBS} $(ATSPI_LIBS) $(UNICODE_TEXT_LIBS) $(XLIBRE_DPI_LIBS) $(SVG_LIBS)
+libXm_la_LIBADD = ${X_LIBS} ${X_XMU} -lXt -lXext ${LIB_XP} -lX11 ${X_EXTRA_LIBS} -lm $(ATSPI_LIBS) $(UNICODE_TEXT_LIBS) $(XLIBRE_DPI_LIBS) $(SVG_LIBS)
 
 noinst_HEADERS = AccessibleI.h BaseClassI.h \
 BitmapsI.h \
