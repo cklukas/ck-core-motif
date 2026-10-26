@@ -268,6 +268,8 @@ extern Boolean _XmApplyAppearanceChange(Display *display,
                                         XmAppearanceProfile new_profile,
                                         XmAppearanceDensity density);
 extern Boolean _XmAppearanceDefersLayout(Display *display);
+extern void _XmAppearanceInsetArrow(Widget widget, Position *x, Position *y,
+                                     Dimension *width, Dimension *height);
 extern void _XmAppearanceDefaultColors(Widget parent, Pixel *background,
     Pixel *foreground, Pixel *top_shadow, Pixel *bottom_shadow, Pixel *highlight);
 extern void _XmDestroyAppearanceDisplay(Display *display);

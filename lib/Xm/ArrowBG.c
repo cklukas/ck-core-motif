@@ -1427,8 +1427,8 @@ DrawArrowG(XmArrowButtonGadget ag,
 {
   Position x, y;
   Dimension width, height;
-  Dimension margin = 
-    ag->gadget.highlight_thickness + ag->gadget.shadow_thickness;
+  unsigned int margin =
+    (unsigned int)ag->gadget.highlight_thickness + ag->gadget.shadow_thickness;
 
   /* Don't let large margins cause confusion. */
   if (margin <= (ag->rectangle.width / 2))
@@ -1452,6 +1452,8 @@ DrawArrowG(XmArrowButtonGadget ag,
       y = ag->rectangle.y + ag->rectangle.height / 2;
       height = 0;
     }
+
+  _XmAppearanceInsetArrow((Widget)ag, &x, &y, &width, &height);
 
   /* Do not pass incomplete resources or empty geometry into the X helper. */
   if (width == 0 || height == 0 || top_gc == NULL || bottom_gc == NULL)

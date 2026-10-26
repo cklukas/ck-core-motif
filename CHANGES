@@ -1,3 +1,17 @@
+Bound modern arrow glyphs inside their controls (2026-10-26)
+================================================================
+
+- Center modern light/dark ArrowButton and ArrowButtonGadget glyphs at bounded
+  density-aware sizes, leaving scaled padding inside focus and shadow margins.
+  Small allocations shrink or omit the glyph instead of crossing the border.
+- Remove profile-imposed Form/BulletinBoard shadows; preserve explicit shadow
+  resources and classic/high-contrast defaults. Widen arrow margin arithmetic
+  so large resource values cannot wrap before the bounds checks.
+- Native X-pixel checks pass for four directions, widget/gadget, both modern
+  palettes and densities, 1/1.5/2/3 display scales, disabled states and tiny
+  allocations. Native appearance parity passes all nine configurations.
+  The scaled Periodic window was inspected using the verified development build.
+
 Own TabBox font tables and mutable drawing contexts (2026-10-26)
 ================================================================
 

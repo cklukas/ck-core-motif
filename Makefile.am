@@ -1181,3 +1181,5 @@ EXTRA_DIST += tests/automated/check-periodic-appearance.c \
               tests/automated/run-periodic-appearance.py
 
 EXTRA_DIST += docs/periodic-modern-appearance.md
+
+EXTRA_DIST += tests/automated/check-arrow-bounds.c tests/automated/run-arrow-bounds.py

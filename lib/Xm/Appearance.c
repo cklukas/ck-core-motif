@@ -63,6 +63,8 @@ static const char modern_light_resources[] =
     "*XmToggleButton.traversalOn: True\n"
     "*XmTextField.traversalOn: True\n"
     "*XmScrollBar.highlightThickness: 1\n"
+    "*XmForm.shadowThickness: 0\n"
+    "*XmBulletinBoard.shadowThickness: 0\n"
     "*XmNotebook.frameShadowThickness: 0\n"
     "*XmNotebook.borderWidth: 0\n";
 
@@ -104,6 +106,8 @@ static const char modern_dark_resources[] =
     "*XmToggleButton.traversalOn: True\n"
     "*XmTextField.traversalOn: True\n"
     "*XmScrollBar.highlightThickness: 1\n"
+    "*XmForm.shadowThickness: 0\n"
+    "*XmBulletinBoard.shadowThickness: 0\n"
     "*XmNotebook.frameShadowThickness: 0\n"
     "*XmNotebook.borderWidth: 0\n";
 
@@ -1041,6 +1045,31 @@ _XmApplyAppearanceChange(Display *display, XmAppearanceProfile old_profile,
     if (plans != NULL)
         free(plans);
     return success;
+}
+
+/* An arrow is an affordance inside a hit target, not the entire target.
+ * Keep it centered and separated from the border even when a layout manager
+ * allocates a large cell. The caller has already excluded border/focus space. */
+void
+_XmAppearanceInsetArrow(Widget widget, Position *x, Position *y,
+                         Dimension *width, Dimension *height)
+{
+    XmAppearanceProfile profile;
+    XmAppearanceDensity density;
+    unsigned int padding, side, available;
+    if (!XmGetAppearanceProfile(XtDisplayOfObject(widget), &profile) ||
+        (profile != XmAPPEARANCE_MODERN_LIGHT && profile != XmAPPEARANCE_MODERN_DARK))
+        return;
+    if (!XmGetAppearanceDensity(XtDisplayOfObject(widget), &density)) return;
+    padding = _XmDpiDefaultDimension(widget, 4);
+    side = _XmDpiDefaultDimension(widget,
+        density == XmAPPEARANCE_DENSITY_COMPACT ? 16 : 18);
+    available = *width < *height ? *width : *height;
+    available = available > 2 * padding ? available - 2 * padding : 0;
+    if (side > available) side = available;
+    *x += (*width - side) / 2;
+    *y += (*height - side) / 2;
+    *width = *height = (Dimension)side;
 }
 
 /* Gadget constructors inherit manager colors before appearance is applied.
