@@ -1,3 +1,12 @@
+Bound Mrm icon allocation width (2026-10-27)
+=============================================
+
+- Reject mapped icon rasters whose destination byte count exceeds Xt's
+  `Cardinal` allocation width, in addition to host-size overflow checks.
+- Extend the focused icon-bounds regression and documentation.
+
+============================================================
+
 Bound Mrm callback descriptor allocation width (2026-10-27)
 ============================================================
 

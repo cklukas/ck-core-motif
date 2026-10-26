@@ -954,6 +954,7 @@ Urm__MapIconAllocate (RGMIconImagePtr		icon,
   if ((size_t)iconwid > SIZE_MAX / (size_t)iconhgt ||
       (size_t)iconwid * (size_t)iconhgt >
 	  SIZE_MAX / (size_t)dstbytsize ||
+      (size_t)iconwid * (size_t)iconhgt * (size_t)dstbytsize > UINT_MAX ||
       (size_t)iconwid > (SIZE_MAX - 7) / (size_t)srcpix ||
       (size_t)iconwid * (size_t)srcpix > INT_MAX - 7)
     return Urm__UT_Error ("Urm__MapIconAllocate", _MrmMMsg_0037,

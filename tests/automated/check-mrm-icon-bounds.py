@@ -11,6 +11,7 @@ for needle in (
     "SIZE_MAX / (size_t)iconhgt",
     "SIZE_MAX / (size_t)dstbytsize",
     "(size_t)iconwid * (size_t)iconhgt",
+    "(size_t)iconwid * (size_t)iconhgt * (size_t)dstbytsize > UINT_MAX",
     "bytes_per_line > INT_MAX / icon->height",
     "sizeof(RGMIconImage) + (size_t)(raster_len - 1) > UINT_MAX",
 ):
