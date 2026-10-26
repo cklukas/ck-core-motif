@@ -1854,7 +1854,8 @@ _XmStringSourceCreate(char *value,
   wchar_t *wc_value = NULL;
   char * tmp_value = NULL;
   int char_size, max_char_size;
-  int ret_value = 0;
+  size_t value_bytes;
+  size_t converted_bytes;
   size_t allocation_bytes;
 
   source = (XmTextSource) XtMalloc((unsigned) sizeof(XmTextSourceRec));
@@ -1879,15 +1880,17 @@ _XmStringSourceCreate(char *value,
   
   data->source = source;
   data->unicode_map = NULL;
+  if (MB_CUR_MAX > (size_t)INT_MAX)
+    goto allocation_failure;
   switch (MB_CUR_MAX) {
   case 1: case 2: 
-    max_char_size = char_size = MB_CUR_MAX;
+    max_char_size = char_size = (int)MB_CUR_MAX;
     break;
   case 0: 
     max_char_size = char_size = 1;
     break;
   default: 
-    max_char_size = MB_CUR_MAX;
+    max_char_size = (int)MB_CUR_MAX;
     char_size = sizeof(wchar_t);
   }
   
@@ -1936,21 +1939,21 @@ _XmStringSourceCreate(char *value,
     tmp_value = XtMalloc((Cardinal)allocation_bytes);
     if (tmp_value == NULL)
       goto allocation_failure;
-    ret_value = value == NULL ? 0 :
+    converted_bytes = value == NULL ? 0 :
       wcstombs(tmp_value, wc_value, allocation_bytes);
     data->value = NULL;  /* Scratch area for block->ptr conversions */
     /* Doesnt include NULL */
-    if (ret_value < 0)
+    if (converted_bytes == (size_t)-1)
       data->length = 0;
     else 
       data->length = _XmTextBytesToCharacters(data->ptr, tmp_value, num_chars,
 					      False, max_char_size);
     XtFree(tmp_value);
   } else {
-    if (value)
-      num_chars = _XmTextCountCharacters(value, strlen(value));
-    else
-      num_chars = 0;
+    value_bytes = value == NULL ? 0 : strlen(value);
+    if (value_bytes > (size_t)INT_MAX)
+      goto allocation_failure;
+    num_chars = _XmTextCountCharacters(value, (int)value_bytes);
     if (num_chars < 0 || num_chars == INT_MAX)
 	goto allocation_failure;
     data->maxlength = TEXT_INITIAL_INCREM;

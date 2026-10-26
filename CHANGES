@@ -19925,6 +19925,14 @@ Validate Text conversion inputs (2026-10-26)
   before private text encoding helpers dereference or copy input.
 - Add focused regression coverage and documentation.
 
+Bound Text source length narrowing (2026-10-26)
+=================================================
+
+- Check multibyte and local-value lengths before passing them through legacy
+  `int` interfaces, and preserve `wcstombs` results in `size_t` storage.
+- Reject unrepresentable source input without changing source state.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
