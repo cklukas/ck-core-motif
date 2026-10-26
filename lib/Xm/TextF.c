@@ -2330,14 +2330,16 @@ RedisplayText(XmTextFieldWidget tf,
   _XmHighlightRec *l = tf->text.highlight.list;
   XRectangle rect;
   int x, y, i;
-  Dimension margin_width = TextF_MarginWidth(tf) +
-    tf->primitive.shadow_thickness +
-      tf->primitive.highlight_thickness;
-  Dimension margin_top = tf->text.margin_top + tf->primitive.shadow_thickness +
-    tf->primitive.highlight_thickness;
-  Dimension margin_bottom = tf->text.margin_bottom +
-    tf->primitive.shadow_thickness +
-      tf->primitive.highlight_thickness;
+  uint64_t margin_width = (uint64_t)TextF_MarginWidth(tf) +
+    (uint64_t)tf->primitive.shadow_thickness +
+    (uint64_t)tf->primitive.highlight_thickness;
+  uint64_t margin_top = (uint64_t)tf->text.margin_top +
+    (uint64_t)tf->primitive.shadow_thickness +
+    (uint64_t)tf->primitive.highlight_thickness;
+  uint64_t margin_bottom = (uint64_t)tf->text.margin_bottom +
+    (uint64_t)tf->primitive.shadow_thickness +
+    (uint64_t)tf->primitive.highlight_thickness;
+  int64_t baseline_y;
   Boolean stipple = False;
   
   if (!XtIsRealized((Widget)tf)) return;
@@ -2347,9 +2349,14 @@ RedisplayText(XmTextFieldWidget tf,
     return;
   }
   
-  if ((int)tf->core.width - (int)(2 * margin_width) <= 0)
+  if (margin_width > (uint64_t)tf->core.width / 2)
     return;
-  if ((int)tf->core.height - (int)(margin_top + margin_bottom) <= 0)
+  if (margin_top + margin_bottom >= (uint64_t)tf->core.height)
+    return;
+
+  baseline_y = (int64_t)margin_top +
+    (int64_t)(TextF_FontAscent(tf) < 0 ? 0 : TextF_FontAscent(tf));
+  if (baseline_y > INT_MAX)
     return;
   
   _XmTextFieldDrawInsertionPoint(tf, False);
@@ -2365,7 +2372,7 @@ RedisplayText(XmTextFieldWidget tf,
   GetRect(tf, &rect);
   
   x = (int) tf->text.h_offset;
-  y = margin_top + TextF_FontAscent(tf);
+  y = (int)baseline_y;
   
   if (!XtIsSensitive((Widget)tf)) stipple = True;
   

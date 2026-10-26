@@ -20028,6 +20028,14 @@ Bound TextField timer-scroll edges (2026-10-26)
   before storing them in `Position`.
 - Add focused regression coverage and documentation.
 
+Bound TextField redisplay geometry (2026-10-26)
+=================================================
+
+- Widen redisplay margin/content checks and reject an unrepresentable baseline
+  before entering the drawing path.
+- Prevent large `Dimension` arithmetic from bypassing the empty-content guard.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
