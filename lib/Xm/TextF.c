@@ -9415,6 +9415,7 @@ PreeditDraw(XIC xic,
     Boolean replace_res;
     XRectangle overall_ink;
     size_t i;
+    size_t mb_capacity, converted;
     XmTextPosition recover_len=0;
     char *ptr=NULL, *recover_mb=NULL;
     char *resized_mb;
@@ -9595,13 +9596,25 @@ PreeditDraw(XIC xic,
     if (tf->text.max_char_size == 1) {
         if (call_data->text) {
         if (call_data->text->encoding_is_wchar){
-            mb = XtMalloc((insert_length+1)*sizeof(char));
+            if ((size_t)insert_length > (SIZE_MAX - 1) / MB_CUR_MAX ||
+                (mb_capacity = (size_t)insert_length * MB_CUR_MAX + 1) >
+                    (size_t)UINT_MAX) {
+                XtFree(over_mb);
+                return;
+            }
+            mb = XtMalloc((Cardinal)mb_capacity);
             if (mb == NULL) {
                 XtFree(over_mb);
                 return;
             }
-            wcstombs(mb, call_data->text->string.wide_char, insert_length);
-            mb[insert_length] = '\0';
+            converted = wcstombs(mb, call_data->text->string.wide_char,
+                                 mb_capacity - 1);
+            if (converted == (size_t)-1) {
+                XtFree(mb);
+                XtFree(over_mb);
+                return;
+            }
+            mb[converted] = '\0';
         } else
         {
             mb = XtMalloc((insert_length+1)*sizeof(char));

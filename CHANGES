@@ -1,3 +1,12 @@
+Size TextField wide-preedit conversion for multibyte output (2026-10-27)
+=========================================================================
+
+- Reserve locale multibyte capacity when converting wide XIM preedit text,
+  check the Xt allocation width, and handle conversion failure safely.
+- Add a focused source regression and documentation.
+
+=========================================================================
+
 Guard TextField recovery buffers (2026-10-27)
 =============================================
 
