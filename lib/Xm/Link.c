@@ -204,7 +204,8 @@ static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispat
 }
 void XmLinkActivate(Widget widget, XEvent *event) {
     XmLinkWidget link; XmLinkCallbackStruct callback;
-    if (!XmIsLink(widget) || !XtIsSensitive(widget) || widget->core.being_destroyed) return;
+    if (widget == NULL || !XmIsLink(widget) || !XtIsSensitive(widget) ||
+        widget->core.being_destroyed) return;
     link = (XmLinkWidget)widget;
     callback.reason = XmLINK_REASON_ACTIVATE; callback.event = event;
     callback.target = link->link.target;
