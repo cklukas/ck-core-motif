@@ -3,8 +3,7 @@
 from pathlib import Path
 
 source = Path("lib/Xm/Chip.c").read_text(encoding="utf-8")
-assert "XQueryFont" in source
-assert "XTextWidth" in source
-assert "XFreeFontInfo(NULL, font, 1)" in source
-assert "label_text_metrics(chip, text" in source
-print("PASS Chip labels use measured font geometry")
+assert "XmStringExtent(chip->chip.font, chip->chip.label" in source
+assert "if (chip->chip.label && chip->chip.font)" in source
+assert "XmStringDraw(display, window, chip->chip.font" in source
+print("PASS Chip labels use render-table geometry")

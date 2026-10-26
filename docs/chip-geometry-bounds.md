@@ -6,7 +6,9 @@ nav_exclude: true
 
 `XmChip` now clamps text, pixmap, and accessory geometry calculations to the
 representable `Dimension` range. Long labels and unusually large pixmaps no
-longer wrap into undersized geometry requests.
+longer wrap into undersized geometry requests. Preferred-size measurement also
+skips `XmStringExtent` when render-table setup failed, matching redisplay's
+safe fallback.
 
 The focused regression check is
 `tests/automated/check-chip-geometry-bounds.py`.

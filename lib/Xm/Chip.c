@@ -120,7 +120,7 @@ static void label_metrics(XmChipWidget chip, Dimension *width,
                           Dimension *height, Dimension *icon_width) {
     Dimension label_width = 0, label_height = 16;
     Dimension iw = 0, ih = 0;
-    if (chip->chip.label) {
+    if (chip->chip.label && chip->chip.font) {
         XmStringExtent(chip->chip.font, chip->chip.label,
                        &label_width, &label_height);
     }

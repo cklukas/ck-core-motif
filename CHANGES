@@ -1,3 +1,13 @@
+Guard Chip geometry without a render table (2026-10-27)
+=========================================================
+
+- Skip label measurement when `XmNrenderTable` setup failed, preventing
+  preferred-size negotiation from passing a null table to `XmStringExtent`.
+- Add focused geometry and text-metrics regressions and refresh the bounds
+  documentation.
+
+====================================================
+
 Guard BreadcrumbBar drawing without a render table (2026-10-27)
 ================================================================
 
