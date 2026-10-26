@@ -1,3 +1,12 @@
+Guard RatingControl value API inputs (2026-10-27)
+=================================================
+
+- Reject null widgets before `XmIsRatingControl` checks in value accessors and
+  mutators.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard TabStack navigation API inputs (2026-10-27)
 =================================================
 
