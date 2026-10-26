@@ -1,3 +1,11 @@
+Refresh MRM arglist count regression check (2026-10-27)
+========================================================
+
+- Match the focused check to the current signed, descriptor-size, and maximum
+  count validation in both widget reader paths.
+
+===========================================================
+
 Refresh MRM arglist offset regression check (2026-10-27)
 ==========================================================
 
