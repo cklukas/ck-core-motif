@@ -2914,6 +2914,9 @@ void SetFrameShape (ClientData *pcd)
     int xOffset = 0;
     int yOffset = 0;
 
+    if (pcd == NULL)
+	return;
+
     if (XBorderIsShowing(pcd))
     {
 	xOffset = pcd->xBorderWidth;

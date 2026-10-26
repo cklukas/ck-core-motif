@@ -20898,6 +20898,11 @@ CreateStretcherWindows now honors GetFramePartInfo failure and skips a
 stretcher instead of passing uninitialized coordinates or dimensions to the X
 server.
 
+Guard MWM frame shape inputs (2026-10-26)
+------------------------------------------
+SetFrameShape now ignores a null client record before reading border, matte,
+or shaped-window state.
+
 Reject impossible MWM title widths (2026-10-26)
 -----------------------------------------------
 GetFramePartInfo now rejects title and title-bar geometry when borders and
