@@ -8960,11 +8960,22 @@ df_ValidateString(
       /* value contains validated string; now stuff it into the proper
        * instance pointer. */
       if (XmTextF_max_char_size(tf) == 1) {
+         char *validated_value;
          XmTextF_string_length(tf) = strlen(start_temp);
         /* malloc the space for the text value */
-         XmTextF_value(tf) = (char *) memcpy(
-			     XtMalloc((unsigned)(XmTextF_string_length(tf) + 30)),
-			       (void *)start_temp, XmTextF_string_length(tf) + 1);
+         validated_value = (char *)XtMalloc(
+			     (unsigned)(XmTextF_string_length(tf) + 30));
+         if (validated_value == NULL) {
+            XmTextF_value(tf) = NULL;
+            XmTextF_wc_value(tf) = NULL;
+            XmTextF_string_length(tf) = 0;
+            XmTextF_size_allocd(tf) = 0;
+            XmStackFree((char *)start_temp, stack_cache);
+            return;
+         }
+         memcpy(validated_value, (void *)start_temp,
+			XmTextF_string_length(tf) + 1);
+         XmTextF_value(tf) = validated_value;
          XmTextF_size_allocd(tf) = XmTextF_string_length(tf) + 30;
          XmTextF_wc_value(tf) = NULL;
       } else { /* Need wchar_t* data to set as the widget's value */
@@ -8974,6 +8985,13 @@ df_ValidateString(
 
          XmTextF_size_allocd(tf) = (XmTextF_string_length(tf) + 30)*sizeof(wchar_t);
          XmTextF_wc_value(tf) = (wchar_t*)XtMalloc((unsigned)XmTextF_size_allocd(tf));
+         if (XmTextF_wc_value(tf) == NULL) {
+            XmTextF_value(tf) = NULL;
+            XmTextF_string_length(tf) = 0;
+            XmTextF_size_allocd(tf) = 0;
+            XmStackFree((char *)start_temp, stack_cache);
+            return;
+         }
          XmTextF_string_length(tf) = mbstowcs(XmTextF_wc_value(tf), start_temp,
                                            XmTextF_string_length(tf) + 30);
          XmTextF_value(tf) = NULL;
@@ -9031,14 +9049,29 @@ df_ValidateString(
       XmTextF_size_allocd(tf) = (str_len + 30) * sizeof(wchar_t);
       if (XmTextF_max_char_size(tf) == 1) { /* Need to store data as char* */
          XmTextF_value(tf) = XtMalloc((unsigned)XmTextF_size_allocd(tf));
+         if (XmTextF_value(tf) == NULL) {
+            XmTextF_wc_value(tf) = NULL;
+            XmTextF_string_length(tf) = 0;
+            XmTextF_size_allocd(tf) = 0;
+            XmStackFree((char *)wcs_start_temp, stack_cache);
+            return;
+         }
          (void)wcstombs(XmTextF_value(tf), wcs_start_temp, XmTextF_size_allocd(tf));
          XmTextF_wc_value(tf) = NULL;
       } else { /* Need to store data as wchar_t* */
-         XmTextF_wc_value(tf) = (wchar_t*)memcpy(XtMalloc((unsigned)
-						       XmTextF_size_allocd(tf)),
-                                              	       (void*)wcs_start_temp,
-                                                       (1 + str_len) *
-						       sizeof(wchar_t));
+         wchar_t *validated_wc_value = (wchar_t *)XtMalloc(
+						       (unsigned)XmTextF_size_allocd(tf));
+         if (validated_wc_value == NULL) {
+            XmTextF_wc_value(tf) = NULL;
+            XmTextF_value(tf) = NULL;
+            XmTextF_string_length(tf) = 0;
+            XmTextF_size_allocd(tf) = 0;
+            XmStackFree((char *)wcs_start_temp, stack_cache);
+            return;
+         }
+         memcpy(validated_wc_value, (void*)wcs_start_temp,
+                (1 + str_len) * sizeof(wchar_t));
+         XmTextF_wc_value(tf) = validated_wc_value;
          XmTextF_value(tf) = NULL;
       }
       XmStackFree((char *)wcs_start_temp, stack_cache);
@@ -10810,27 +10843,33 @@ df_SetValues(
           if (!mod_ver_ret) {
              if (XmTextF_verify_bell(new_tf)) XBell(XtDisplay(new_w), 0);
 	     if (XmTextF_max_char_size(new_tf) == 1) {
-                XmTextF_value(new_tf) = (char *) memcpy(
-					   XtRealloc(XmTextF_value(new_tf),
-                                           (unsigned)XmTextF_size_allocd(old_tf)),
-                                           (void*)XmTextF_value(old_tf),
-					   XmTextF_string_length(old_tf) + 1);
-                XmTextF_string_length(new_tf) = XmTextF_string_length(old_tf);
-                XmTextF_size_allocd(new_tf) = XmTextF_size_allocd(old_tf);
-                XtFree(XmTextF_value(old_tf));
+                char *restored = (char *)XtRealloc(
+						   XmTextF_value(new_tf),
+                                           (unsigned)XmTextF_size_allocd(old_tf));
+                if (restored != NULL) {
+                  memcpy(restored, (void*)XmTextF_value(old_tf),
+					 XmTextF_string_length(old_tf) + 1);
+                  XmTextF_value(new_tf) = restored;
+                  XmTextF_string_length(new_tf) = XmTextF_string_length(old_tf);
+                  XmTextF_size_allocd(new_tf) = XmTextF_size_allocd(old_tf);
+                  XtFree(XmTextF_value(old_tf));
+                  do_it = False;
+                }
              } else {
 		/* realloc to old size, cast to wchar_t*, and copy the data */
-		XmTextF_wc_value(new_tf) = (wchar_t*)memcpy(
-		       XtRealloc((char *)XmTextF_wc_value(new_tf),
-                       (unsigned)XmTextF_size_allocd(old_tf)),
-                       (void*)XmTextF_wc_value(old_tf),
-		       (unsigned) XmTextF_size_allocd(old_tf));
-
-                XmTextF_string_length(new_tf) = XmTextF_string_length(old_tf);
-                XmTextF_size_allocd(new_tf) = XmTextF_size_allocd(old_tf);
-                XtFree((char *)XmTextF_wc_value(old_tf));
+		wchar_t *restored = (wchar_t *)XtRealloc(
+		       (char *)XmTextF_wc_value(new_tf),
+                       (unsigned)XmTextF_size_allocd(old_tf));
+		if (restored != NULL) {
+		  memcpy(restored, (void*)XmTextF_wc_value(old_tf),
+			 (unsigned) XmTextF_size_allocd(old_tf));
+		  XmTextF_wc_value(new_tf) = restored;
+                  XmTextF_string_length(new_tf) = XmTextF_string_length(old_tf);
+                  XmTextF_size_allocd(new_tf) = XmTextF_size_allocd(old_tf);
+                  XtFree((char *)XmTextF_wc_value(old_tf));
+		  do_it = False;
+		}
 	     }
-             do_it = False;
           }
        }
 

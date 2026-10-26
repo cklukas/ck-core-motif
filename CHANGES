@@ -1,3 +1,12 @@
+Make legacy DataField allocation paths safe (2026-10-27)
+=========================================================
+
+- Check narrow and wide validation allocations and transactional modify-verify
+  restoration in `DataF.c`.
+- Add a focused source regression and documentation.
+
+=========================================================
+
 Make TextField validation allocation-safe (2026-10-27)
 =======================================================
 
