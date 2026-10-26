@@ -2920,7 +2920,7 @@ RequestSpatialGrowth(
     Dimension	width_increase = 0;
     Dimension	height_increase = 0;
     int		new_width,new_height;
-    int		cell_width,cell_height;
+    int		cell_width = 0,cell_height = 0;
     int		width_in_cells, height_in_cells;
     XtWidgetGeometry	geo_desired;
 
@@ -2979,12 +2979,22 @@ RequestSpatialGrowth(
 	}
     else
 	{
+	if (CtrViewIsSMALL_ICON(cw))
+	    {
+	    cell_width = cw->container.real_small_cellw;
+	    cell_height = cw->container.real_small_cellh;
+	    }
+	else
+	    {
+	    cell_width = cw->container.real_large_cellw;
+	    cell_height = cw->container.real_large_cellh;
+	    }
+	if (CtrSpatialStyleIsCELLS(cw) &&
+	    (cell_width == 0 || cell_height == 0))
+	    return(False);
+
 	if (grow_width_allowed)
 	    {
-	    if (CtrViewIsSMALL_ICON(cw))
-		cell_width = cw->container.real_small_cellw;
-	    else
-		cell_width = cw->container.real_large_cellw;
 	    if (CtrSpatialStyleIsCELLS(cw))
 		{
 		width_in_cells = cwid->core.width / cell_width;
@@ -3008,10 +3018,6 @@ RequestSpatialGrowth(
 	    }
 	if (grow_height_allowed)
 	    {
-	    if (CtrViewIsSMALL_ICON(cw))
-		cell_height = cw->container.real_small_cellh;
-	    else
-		cell_height = cw->container.real_large_cellh;
 	    if (CtrSpatialStyleIsCELLS(cw))
 		{
 		height_in_cells = cwid->core.height / cell_height;

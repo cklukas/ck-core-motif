@@ -5,6 +5,13 @@ Guard XPM pixmap resource creation (2026-10-27)
   XPM image; release partial resources and report `None` on failure.
 - Add focused regression coverage and documentation.
 
+Guard Container CELLS zero dimensions (2026-10-27)
+===================================================
+
+- Reject spatial CELLS growth before dividing by an uninitialized or zero
+  cell width/height, preserving a safe geometry negotiation result.
+- Add focused regression coverage and documentation.
+
 Bound Container ideal geometry accumulation (2026-10-27)
 =========================================================
 
