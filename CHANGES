@@ -6846,6 +6846,13 @@ Mrm writer CString-vector rebind checks (2026-10-25)
     XmScale now draws non-Xft value labels through its Motif render table
     when available, preserving compound-string and locale text handling;
     the direct XDrawImageString path remains only as a no-table fallback.
+
+SegmentedControl relayout redraw (2026-10-27)
+===============================================
+
+- Resource changes for RTL order, spacing, or clear-selection behavior now
+  request redisplay after relayout instead of returning a false SetValues
+  result.
 	* Validate Mrm pointer-list state before freeing contents.
 
 2026-10-26

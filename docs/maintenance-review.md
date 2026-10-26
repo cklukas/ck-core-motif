@@ -36,6 +36,13 @@ locale conversion instead of sending the localized bytes directly to
 widgets without a render table. The regression check is
 `tests/automated/check-scale-render-table-draw.py`.
 
+## SegmentedControl relayout redraw
+
+`XmSegmentedControl` now reports a redraw when its RTL, spacing, or
+clear-selection resources change. The child buttons were already relaid out,
+but returning `False` from `SetValues` could leave the parent display stale.
+The regression check is `tests/automated/check-segmented-setvalues-redraw.py`.
+
 ## IconLabel typography and natural geometry
 
 `XmIconLabel` now measures its `XmString` through the render table for both

@@ -260,12 +260,15 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmSegmentedControlWidget old = (XmSegmentedControlWidget)old_widget;
     XmSegmentedControlWidget control = (XmSegmentedControlWidget)widget;
+    Boolean redraw = False;
     (void)request; (void)args; (void)count;
     if (old->segmented.allow_clear != control->segmented.allow_clear ||
         old->segmented.rtl != control->segmented.rtl ||
-        old->segmented.spacing != control->segmented.spacing)
+        old->segmented.spacing != control->segmented.spacing) {
         layout(control);
-    return False;
+        redraw = True;
+    }
+    return redraw;
 }
 
 Boolean XmSegmentedControlSetItems(Widget widget,
