@@ -24,3 +24,13 @@ assert "XmTextFieldReplace" in append
 assert "XmTextFieldSetInsertionPosition" in append
 assert "_XmAppUnlock(app);" not in append
 print("PASS XmCommandAppendValue avoids nested application locking")
+
+error_start = source.index("XmCommandError(")
+error_end = source.index("XmCreateCommandDialog(", error_start)
+error = source[error_start:error_end]
+assert "_XmAppLock(app);" not in error
+assert "XmListDeletePos" in error
+assert "XmListAddItemUnselected" in error
+assert "XmListSetBottomPos" in error
+assert "_XmAppUnlock(app);" not in error
+print("PASS XmCommandError avoids nested application locking")

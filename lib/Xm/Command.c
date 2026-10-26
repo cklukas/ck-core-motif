@@ -1064,9 +1064,6 @@ XmCommandError(
     if (widget == NULL || error == NULL)
         return;
     _XmWidgetToAppContext(widget);
-/****************/
-
-    _XmAppLock(app);
 
     /* If error is currently in list remove it, but leave (or add) blank item.
     */
@@ -1085,7 +1082,6 @@ XmCommandError(
     XmListAddItemUnselected (w->selection_box.list, error, 0);
     XmListSetBottomPos (w->selection_box.list, 0);
 
-    _XmAppUnlock(app);
     return ;
     }
 

@@ -20282,3 +20282,9 @@ Fix wide text-field setter ownership and invalid-free path (2026-10-26)
 - Unlock before `XmTextFieldSetStringWcs` delegates to the public narrow
   setter, handle null input, and clear the allocated buffer on invalid
   conversion instead of freeing a string literal.
+
+Avoid nested application locking in XmCommandError (2026-10-26)
+================================================================
+
+- Let command error history updates call the public list APIs without an
+  outer application lock.
