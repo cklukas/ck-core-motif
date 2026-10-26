@@ -5,6 +5,14 @@ Guard XPM pixmap resource creation (2026-10-27)
   XPM image; release partial resources and report `None` on failure.
 - Add focused regression coverage and documentation.
 
+Bound Container ideal geometry accumulation (2026-10-27)
+=========================================================
+
+- Saturate Container ideal width, height, and outline positions during
+  geometry negotiation so large fonts and deep trees cannot wrap legacy
+  `Dimension`/`Position` values.
+- Add focused regression coverage and documentation.
+
 Guard Container drag-icon resource creation (2026-10-27)
 ==========================================================
 

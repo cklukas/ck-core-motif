@@ -408,6 +408,12 @@ static	void			SetViewType(
 					unsigned char	viewtype);
 static	Dimension		GetIconWidth(
 					Widget		cwid);
+static	Dimension		AddDimensionSaturated(
+					Dimension	base,
+					uint64_t	addition);
+static	Position		AddPositionSaturated(
+					Position	base,
+					uint64_t	addition);
 static	Cardinal		GetDefaultDetailCount(
 					Widget		wid);
 static	XmTabList		SetDynamicTabList(
@@ -2489,6 +2495,8 @@ GetSize (
     XtWidgetGeometry 	desired;
     XmTabList		save_dynamic_tablist = NULL;
     Position		save_x;
+    Dimension       extent;
+    uint64_t        detail_offset;
 
 
     if (CtrLayoutIsSPATIAL(cw)) 
@@ -2537,9 +2545,11 @@ GetSize (
         XtQueryGeometry(cwid, NULL, &desired);
 	save_x = cwid->core.x;
 	cwid->core.x = MAX(0,cwid->core.x);
-	cw->container.ideal_width = MAX(cw->container.ideal_width,
-					cwid->core.x + desired.width);
-	cw->container.ideal_height += desired.height;
+	extent = AddDimensionSaturated((Dimension)cwid->core.x,
+			(uint64_t)desired.width);
+	cw->container.ideal_width = MAX(cw->container.ideal_width, extent);
+	cw->container.ideal_height = AddDimensionSaturated(
+		cw->container.ideal_height, (uint64_t)desired.height);
 	cwid->core.x = save_x;
 	}
 
@@ -2555,19 +2565,25 @@ GetSize (
 	 width/height would be the same.
 	 */
  	save_x = cwid->core.x;
-	cwid->core.x = cw->container.margin_w +
-	    c->depth*cw->container.outline_indent
-	    + ((CtrOB_PRESENT(cw))?cw->container.ob_width:0) ;
+	detail_offset = (uint64_t)c->depth *
+	    (uint64_t)cw->container.outline_indent +
+	    (uint64_t)((CtrOB_PRESENT(cw)) ? cw->container.ob_width : 0);
+	cwid->core.x = AddPositionSaturated((Position)cw->container.margin_w,
+	    detail_offset);
 	XtQueryGeometry(cwid, NULL, &desired);
-	cw->container.ideal_width = MAX(cw->container.ideal_width,
-					cwid->core.x + desired.width);
-	cw->container.ideal_height += desired.height;
+	extent = AddDimensionSaturated((Dimension)MAX(0, cwid->core.x),
+			(uint64_t)desired.width);
+	cw->container.ideal_width = MAX(cw->container.ideal_width, extent);
+	cw->container.ideal_height = AddDimensionSaturated(
+		cw->container.ideal_height, (uint64_t)desired.height);
 	cwid->core.x = save_x;
 	node = GetNextNode(node);
 	}
 
-    cw->container.ideal_width += cw->container.margin_w;
-    cw->container.ideal_height += cw->container.margin_h;
+    cw->container.ideal_width = AddDimensionSaturated(
+	cw->container.ideal_width, (uint64_t)cw->container.margin_w);
+    cw->container.ideal_height = AddDimensionSaturated(
+	cw->container.ideal_height, (uint64_t)cw->container.margin_h);
 
     /* Reset dynamic XmTabList, if necessary */
     if (CtrIsDynamic(cw,TABLIST))
@@ -2585,7 +2601,9 @@ GetSize (
        here.  The reason is that it needs to be applied to the ideal,
        not the current width in core. */
     if (CtrLayoutIsDETAIL(cw) && CtrIsDynamic(cw,TABLIST)) {
-      cw->container.ideal_width += cw->container.real_first_col_width;
+      cw->container.ideal_width = AddDimensionSaturated(
+	cw->container.ideal_width,
+	(uint64_t)cw->container.real_first_col_width);
     }
 
     if (!(*pwidth)) *pwidth = cw->container.ideal_width;
@@ -5841,6 +5859,20 @@ AddDimensionSaturated(
     if (addition > max_dimension - (uint64_t)base)
 	return (Dimension)-1;
     return (Dimension)((uint64_t)base + addition);
+}
+
+static Position
+AddPositionSaturated(
+    Position  base,
+    uint64_t  addition)
+{
+    const uint64_t max_position = (uint64_t)SHRT_MAX;
+    const uint64_t safe_base = base < 0 ? 0U : (uint64_t)base;
+
+    if (safe_base >= max_position ||
+	addition > max_position - safe_base)
+	return (Position)SHRT_MAX;
+    return (Position)(safe_base + addition);
 }
 
 
