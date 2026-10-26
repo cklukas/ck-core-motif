@@ -15343,3 +15343,11 @@ Bound DragBS property lengths (2026-10-27)
 - Add a focused source regression and documentation.
 
 Bound DnD receiver property sizes (2026-10-27)
+Bound DnD buffer reads (2026-10-27)
+====================================
+
+- Replace wrapped 32-bit cursor-plus-length arithmetic with checked `size_t`
+  subtraction before copying received transfer data.
+- Add a focused source regression and documentation.
+
+Bound DragBS property lengths (2026-10-27)

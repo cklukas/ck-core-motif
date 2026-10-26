@@ -659,20 +659,21 @@ _XmReadDragBuffer(
         CARD32 size )
 {
     xmByteBufRec  *buf;
-    CARD32	numCurr;
+    size_t	numCurr;
+    size_t	copy_size;
 
     if (which == BUFFER_DATA) /* data */
       buf = &propBuf->data;
     else
       buf = &propBuf->heap;
     
-    numCurr = buf->curr - buf->bytes;
-    if (numCurr + size > buf->size) {
-	size = buf->size - numCurr;
-    }
-    memcpy(ptr, buf->curr, (size_t)size);
-    buf->curr += size;
-    return size;
+    numCurr = (size_t)(buf->curr - buf->bytes);
+    copy_size = (size_t)size;
+    if (numCurr > buf->size || copy_size > buf->size - numCurr)
+	copy_size = numCurr < buf->size ? buf->size - numCurr : 0;
+    memcpy(ptr, buf->curr, copy_size);
+    buf->curr += copy_size;
+    return (CARD16)copy_size;
 }
 
 /************************************************************************
