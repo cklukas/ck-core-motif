@@ -17802,6 +17802,15 @@ Bound editres protocol-stream growth (2026-10-27)
 =================================================
 
 Bound Xft draw-cache growth (2026-10-27)
+Bound DragBS atom-entry growth (2026-10-27)
+===========================================
+
+- Validate atom-entry byte sizing before reallocating and publish the new
+  entry count only after success; release the server grab on failure.
+- Add focused regression coverage and documentation.
+
+===========================================
+
 Handle Outline top-node allocation failure (2026-10-27)
 =========================================================
 

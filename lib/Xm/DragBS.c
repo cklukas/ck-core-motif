@@ -1676,11 +1676,23 @@ _XmAllocMotifAtom(
 	    XUngrabServer(display);
 	    return None;
 	}
-	i = atomsTable->numEntries++;
-
-        atomsTable->entries = (xmAtomsTableEntry) XtRealloc(
-	    (char *)atomsTable->entries,	/* NULL ok */
-  	    (atomsTable->numEntries * sizeof(xmAtomsTableEntryRec)));
+	i = atomsTable->numEntries;
+	{
+	    xmAtomsTableEntry new_entries;
+	    if ((size_t)(i + 1) > UINT_MAX / sizeof(xmAtomsTableEntryRec)) {
+		XUngrabServer(display);
+		return None;
+	    }
+	    new_entries = (xmAtomsTableEntry)XtRealloc(
+		(char *)atomsTable->entries,
+		((size_t)i + 1) * sizeof(xmAtomsTableEntryRec));
+	    if (new_entries == NULL) {
+		XUngrabServer(display);
+		return None;
+	    }
+	    atomsTable->entries = new_entries;
+	}
+	atomsTable->numEntries++;
 
         (void)snprintf(atomname, sizeof(atomname), "%s%d", "_MOTIF_ATOM_", i);
         atomsTable->entries[i].atom = XInternAtom (display, atomname, False);
