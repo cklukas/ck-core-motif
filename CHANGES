@@ -32,6 +32,15 @@ Guard DataField GC context allocations (2026-10-27)
   registration, releasing partial state on failure.
 - Add a focused source regression and documentation.
 
+====================================================
+
+Guard DataField primary-selection state allocation (2026-10-27)
+================================================================
+
+- Release the selection target result and temporary action/event records when
+  primary-selection request state cannot be allocated.
+- Add a focused source regression and documentation.
+
 ============================================================
 
 Prevent clipboard target cleanup double-frees (2026-10-27)

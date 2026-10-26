@@ -7819,6 +7819,12 @@ df_HandleTargets(
 
    prim_select = (_XmTextPrimSelect *)
 		  XtMalloc((unsigned) sizeof(_XmTextPrimSelect));
+   if (prim_select == NULL) {
+      XtFree((char *)value);
+      XtFree((char *)tmp_action->event);
+      XtFree((char *)tmp_action);
+      return;
+   }
 
    prim_select->position = select_pos;
 
