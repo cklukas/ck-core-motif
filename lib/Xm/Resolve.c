@@ -34,6 +34,7 @@
 #include <Xm/ManagerP.h>
 #include <Xm/GadgetP.h>
 #include <Xm/BaseClassP.h> /* for _XmIsSubclassOf */
+#include <stdint.h>
 
 #define _ALIGN(size) (((size) + (sizeof(long)-1)) & ~(sizeof(long)-1))
 
@@ -121,6 +122,18 @@ XmeResolvePartOffsets(
    int i, classcount = 0;
    XmPartResource *pr;
 
+   if (w_class == NULL || offset == NULL)
+   {
+       if (offset != NULL)
+           *offset = NULL;
+       if (constraint_offset != NULL)
+           *constraint_offset = NULL;
+       return;
+   }
+   *offset = NULL;
+   if (constraint_offset != NULL)
+       *constraint_offset = NULL;
+
    _XmProcessLock();
    super = w_class->core_class.superclass;
    /*
@@ -147,13 +160,33 @@ XmeResolvePartOffsets(
     */
    for (c = w_class; c != NULL; c = c->core_class.superclass) classcount++;
 
+   if (classcount <= 0 ||
+       (size_t)classcount > SIZE_MAX / sizeof(XmOffset) ||
+       (size_t)classcount > (size_t)UINT_MAX / sizeof(XmOffset))
+   {
+       _XmProcessUnlock();
+       return;
+   }
+
    *offset = (XmOffsetPtr) XtMalloc(classcount * sizeof(XmOffset));
+   if (*offset == NULL)
+   {
+       _XmProcessUnlock();
+       return;
+   }
 
    if (cc)
    {
        if(constraint_offset != NULL) 
 	   *constraint_offset = (XmOffsetPtr) XtMalloc(classcount 
 						       * sizeof(XmOffset));
+       if (constraint_offset != NULL && *constraint_offset == NULL)
+       {
+           XtFree((char *)*offset);
+           *offset = NULL;
+           _XmProcessUnlock();
+           return;
+       }
    }
    else 
    {

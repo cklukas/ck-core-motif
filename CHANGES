@@ -1,3 +1,13 @@
+Guard public part-offset resolution allocation (2026-10-27)
+============================================================
+
+- Validate resolver inputs and superclass-table size before allocation.
+- Roll back the normal offset table if optional constraint-table allocation
+  fails, preserving the public resolver's compatibility entry point.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Bound Xmos directory-cache allocation widths (2026-10-27)
 ==========================================================
 
