@@ -7359,11 +7359,22 @@ ValidateString(XmTextFieldWidget tf,
     /* value contains validated string; now stuff it into the proper
      * instance pointer. */
     if (tf->text.max_char_size == 1) {
+      char *validated_value;
       tf->text.string_length = strlen(start_temp);
       /* malloc the space for the text value */
-      TextF_Value(tf) = 
-	(char *) memcpy(XtMalloc((unsigned)(tf->text.string_length + 30)),
-			(void *)start_temp, tf->text.string_length + 1);
+      validated_value = (char *)XtMalloc(
+		(unsigned)(tf->text.string_length + 30));
+      if (validated_value == NULL) {
+	TextF_Value(tf) = NULL;
+	TextF_WcValue(tf) = NULL;
+	tf->text.string_length = 0;
+	tf->text.size_allocd = 0;
+	XmStackFree(start_temp, stack_cache);
+	return;
+      }
+      memcpy(validated_value, (void *)start_temp,
+	     tf->text.string_length + 1);
+      TextF_Value(tf) = validated_value;
       tf->text.size_allocd = tf->text.string_length + 30;
       TextF_WcValue(tf) = NULL;
     } else { /* Need wchar_t* data to set as the widget's value */
@@ -7464,11 +7475,19 @@ ValidateString(XmTextFieldWidget tf,
       if (ret_val < 0) tf->text.value[0] = '\0';
       TextF_WcValue(tf) = NULL;
     } else { /* Need to store data as wchar_t* */
-      TextF_WcValue(tf) = (wchar_t*)memcpy(XtMalloc((unsigned)
-						    tf->text.size_allocd),
-					   (void*)wcs_start_temp,
-					   (1 + str_len) *
-					   sizeof(wchar_t));
+      wchar_t *validated_wc_value = (wchar_t *)XtMalloc(
+							(unsigned)tf->text.size_allocd);
+      if (validated_wc_value == NULL) {
+	TextF_WcValue(tf) = NULL;
+	TextF_Value(tf) = NULL;
+	tf->text.string_length = 0;
+	tf->text.size_allocd = 0;
+	XmStackFree((char *)wcs_start_temp, stack_cache);
+	return;
+      }
+      memcpy(validated_wc_value, (void*)wcs_start_temp,
+	     (1 + str_len) * sizeof(wchar_t));
+      TextF_WcValue(tf) = validated_wc_value;
       TextF_Value(tf) = NULL;
     }
     XmStackFree((char *)wcs_start_temp, stack_cache);

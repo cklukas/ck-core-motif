@@ -1,3 +1,12 @@
+Make TextField validation allocation-safe (2026-10-27)
+=======================================================
+
+- Check narrow and wide `ValidateString` allocations before copying validated
+  values, preserving a consistent empty value on allocation failure.
+- Add a focused source regression and documentation.
+
+=======================================================
+
 Make TextField SetValues restoration allocation-safe (2026-10-27)
 ==================================================================
 
