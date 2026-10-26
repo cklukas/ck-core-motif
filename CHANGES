@@ -19752,3 +19752,9 @@ Guard Text dynamic buffer growth (2026-10-26)
   capacity or writing through the new arrays, preserving valid state on
   allocation failure.
 - Add focused regression coverage and documentation.
+Guard Text highlight snapshot growth (2026-10-26)
+===================================================
+
+- Check old-highlight snapshot reallocation before publishing its capacity or
+  marking the snapshot changed, preserving valid state on allocation failure.
+- Add focused regression coverage and documentation.

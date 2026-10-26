@@ -3314,19 +3314,30 @@ _XmTextSetHighlight(Widget w,
 
   EraseInsertionPoint(tw);
   if (!tw->text.highlight_changed) {
-    tw->text.highlight_changed = TRUE;
     if (tw->text.old_highlight.maximum < tw->text.highlight.number) {
-      tw->text.old_highlight.maximum = tw->text.highlight.number;
-      tw->text.old_highlight.list = (_XmHighlightRec *)
-	XtRealloc((char *)tw->text.old_highlight.list,
-		  tw->text.old_highlight.maximum *
-		  sizeof(_XmHighlightRec));
+      Cardinal requested_maximum = tw->text.highlight.number;
+      _XmHighlightRec *new_list;
+
+      if (requested_maximum > UINT_MAX / sizeof(_XmHighlightRec)) {
+	_XmAppUnlock(app);
+	return;
+      }
+      new_list = (_XmHighlightRec *)XtRealloc(
+	(char *)tw->text.old_highlight.list,
+	requested_maximum * sizeof(_XmHighlightRec));
+      if (new_list == NULL) {
+	_XmAppUnlock(app);
+	return;
+      }
+      tw->text.old_highlight.maximum = requested_maximum;
+      tw->text.old_highlight.list = new_list;
     }
     tw->text.old_highlight.number = tw->text.highlight.number;
     memcpy((void *) tw->text.old_highlight.list,
 	   (void *) tw->text.highlight.list,
 	   (size_t) tw->text.old_highlight.number *
 	   sizeof(_XmHighlightRec));
+    tw->text.highlight_changed = TRUE;
   }
   endmode = FindHighlight(tw, right, XmsdLeft)->mode;
   InsertHighlight(tw, left, mode);
