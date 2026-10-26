@@ -573,17 +573,18 @@ CountLines(XmTextSource source,
   BITS16 *bits16_ptr, *bits16_gap_start, *bits16_gap_end;
   wchar_t *wchar_t_ptr, *wchar_t_gap_start, *wchar_t_gap_end;
 
+  if (start < 0) {
+    unsigned long skipped = (unsigned long)(-(start + 1)) + 1;
+    if (length <= skipped) return 0;
+    length -= skipped;
+    start = 0;
+  }
+  if (start >= data->length) return 0;
+  if (length > (unsigned long)(data->length - start))
+    length = (unsigned long)(data->length - start);
+
   if (source->Scan == Scan && XmTextUnicodeLocaleAvailable()) {
     XmTextPosition position, end;
-    if (start < 0) {
-      unsigned long skipped = (unsigned long)(-(start + 1)) + 1;
-      if (length <= skipped) return 0;
-      length -= skipped;
-      start = 0;
-    }
-    if (start >= data->length) return 0;
-    if (length > (unsigned long)(data->length - start))
-      length = (unsigned long)(data->length - start);
     end = start + (XmTextPosition)length;
     /* Charge a pair when its LF completes, so adjacent partial ranges add
      * to the whole-range count even if the gap/range splits CR from LF. */
@@ -598,8 +599,6 @@ CountLines(XmTextSource source,
   
   /* verify that the 'start' and 'length' parameters are reasonable */
   
-  if (start + length > data->length)
-    length = data->length - start;
   if (length == 0) return num_lines;
   
   seg_length = (data->gap_start - data->ptr) / (tw->text.char_size < 3 ?

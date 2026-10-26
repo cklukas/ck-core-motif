@@ -208,6 +208,15 @@ Guard text on-the-spot state allocation (2026-10-27)
   record.
 - Add a focused source regression and documentation.
 
+Bound Text line-count ranges (2026-10-27)
+=========================================
+
+- Normalize negative and out-of-range starts before adding an unsigned range
+  length, preventing signed/unsigned wraparound in legacy line counting.
+- Clamp the requested range with subtraction-based bounds while preserving
+  Unicode and legacy source behavior.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
