@@ -35,6 +35,13 @@ so a label is no longer silently accepted and then omitted from redisplay.
 The focused regression is
 `tests/automated/check-drophighlight-label-render.py`.
 
+## Divider typography
+
+`XmDivider` labels now use an owned render table and measured `XmStringDraw`
+placement instead of fixed-width `XDrawString` assumptions. This keeps the
+label centered for proportional, Xft and multilingual fonts. The focused
+regression is `tests/automated/check-divider-render-table.py`.
+
 ## Concrete storage and image corrections
 
 The next source review identified the following independently useful fixes.

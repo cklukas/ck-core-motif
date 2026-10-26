@@ -7,7 +7,7 @@
 #include <Xm/DividerP.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
-#include <string.h>
+#include "XmI.h"
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
@@ -16,6 +16,17 @@ static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
 
 #define Offset(field) XtOffsetOf(XmDividerRec, field)
+static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
+{
+    XmDividerWidget divider = (XmDividerWidget)widget;
+    (void)offset;
+    if (divider->divider.check_set_render_table)
+        value->addr = NULL;
+    else {
+        divider->divider.check_set_render_table = True;
+        value->addr = (char *)&divider->divider.font;
+    }
+}
 static XtResource resources[] = {
     {XmNdividerLabel, XmCDividerLabel, XmRXmString, sizeof(XmString),
      Offset(divider.label), XmRImmediate, (XtPointer)NULL},
@@ -26,6 +37,10 @@ static XtResource resources[] = {
      sizeof(Dimension), Offset(divider.thickness), XmRImmediate, (XtPointer)1},
     {XmNdividerSpacing, XmCDividerSpacing, XmRHorizontalDimension,
      sizeof(Dimension), Offset(divider.spacing), XmRImmediate, (XtPointer)8},
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmFontList),
+     Offset(divider.font), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmFontList),
+     Offset(divider.font), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean),
      Offset(primitive.traversal_on), XmRImmediate, (XtPointer)False}
 };
@@ -56,16 +71,10 @@ static XmString copy_label(XmString source) {
     return result;
 }
 static Dimension label_width(XmDividerWidget divider) {
-    char *text = XmStringUnparse(divider->divider.label, NULL,
-                                 XmCHARSET_TEXT, XmCHARSET_TEXT, NULL, 0,
-                                 XmOUTPUT_ALL);
-    size_t length = text ? strlen(text) : 0;
-    unsigned long pixels = (unsigned long)length >
-                               ((unsigned long)(Dimension)-1) / 8UL
-                               ? (unsigned long)(Dimension)-1
-                               : (unsigned long)length * 8UL;
-    Dimension width = (Dimension)pixels;
-    XtFree(text);
+    Dimension width = 0, height = 0;
+    if (divider->divider.label && divider->divider.font)
+        XmStringExtent(divider->divider.font, divider->divider.label,
+                       &width, &height);
     return width;
 }
 static void Initialize(Widget request, Widget widget, ArgList args,
@@ -74,6 +83,11 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     XGCValues values;
     (void)request; (void)args; (void)count;
     divider->divider.label = copy_label(divider->divider.label);
+    if (!divider->divider.font)
+        divider->divider.font = XmFontListCopy(
+            XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+    else
+        divider->divider.font = XmFontListCopy(divider->divider.font);
     if (divider->divider.thickness == 0) divider->divider.thickness = 1;
     values.foreground = divider->primitive.foreground;
     values.background = divider->core.background_pixel;
@@ -94,30 +108,35 @@ static void Destroy(Widget widget) {
     XmDividerWidget divider = (XmDividerWidget)widget;
     if (divider->divider.foreground_gc)
         XFreeGC(XtDisplay(widget), divider->divider.foreground_gc);
+    if (divider->divider.font)
+        XmRenderTableFree(divider->divider.font);
 }
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmDividerWidget divider = (XmDividerWidget)widget;
     Display *display = XtDisplay(widget);
     Window window = XtWindow(widget);
-    char *text;
     int y, x;
+    Dimension label_height = 0;
     Dimension label = label_width(divider);
     (void)event; (void)region;
     if (!window || !divider->divider.foreground_gc) return;
     XClearWindow(display, window);
-    text = XmStringUnparse(divider->divider.label, NULL, XmCHARSET_TEXT,
-                           XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
     if (divider->divider.orientation == XmHORIZONTAL) {
         y = (int)divider->core.height / 2;
-        if (text && *text) {
+        if (label && divider->divider.font) {
+            XmStringExtent(divider->divider.font, divider->divider.label,
+                           &label, &label_height);
             x = ((int)divider->core.width - (int)label) / 2;
             XDrawLine(display, window, divider->divider.foreground_gc, 0, y,
                       x - (int)divider->divider.spacing, y);
             XDrawLine(display, window, divider->divider.foreground_gc,
                       x + (int)label + (int)divider->divider.spacing, y,
                       (int)divider->core.width, y);
-            XDrawString(display, window, divider->divider.foreground_gc, x,
-                        y + 5, text, (int)strlen(text));
+            XmStringDraw(display, window, divider->divider.font,
+                         divider->divider.label, divider->divider.foreground_gc,
+                         x, ((int)divider->core.height - (int)label_height) / 2,
+                         label, XmALIGNMENT_BEGINNING,
+                         XmPrim_layout_direction(divider), NULL);
         } else {
             XFillRectangle(display, window, divider->divider.foreground_gc, 0,
                            y - (int)divider->divider.thickness / 2,
@@ -129,7 +148,6 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                        x - (int)divider->divider.thickness / 2, 0,
                        divider->divider.thickness, divider->core.height);
     }
-    XtFree(text);
 }
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
@@ -145,6 +163,13 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         } else {
             divider->divider.label = old->divider.label;
         }
+    }
+    if (old->divider.font != divider->divider.font) {
+        XmFontList replacement = divider->divider.font
+            ? XmFontListCopy(divider->divider.font)
+            : XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+        if (old->divider.font) XmRenderTableFree(old->divider.font);
+        divider->divider.font = replacement;
     }
     if (!divider->divider.thickness) divider->divider.thickness = 1;
     return old->divider.label != divider->divider.label ||

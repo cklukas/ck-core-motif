@@ -13,6 +13,8 @@ typedef struct _XmDividerClassRec {
 
 typedef struct _XmDividerPart {
     XmString label;
+    XmFontList font;
+    Boolean check_set_render_table;
     unsigned char orientation;
     Dimension thickness;
     Dimension spacing;

@@ -1,3 +1,10 @@
+Divider render-table labels (2026-10-27)
+========================================
+
+- Replace fixed-font `XDrawString` labels with measured `XmStringDraw` text
+  using an owned render table.  Divider label placement now follows the
+  selected font and multilingual text metrics.
+
 DropHighlight label rendering (2026-10-27)
 ==========================================
 
