@@ -5,7 +5,8 @@ DataField code builds a temporary byte string and, for wide-character fields,
 a temporary `wchar_t` buffer. Both allocations are now checked, and the wide
 buffer size is bounded by Xt's `Cardinal` limit as well as native arithmetic
 limits. Conversion failure releases the incoming selection and temporary data
-before reporting an unsuccessful insertion.
+before reporting an unsuccessful insertion. Direct TEXT input is also limited
+to the signed length accepted by the replacement API.
 
 The focused source-contract check is
 `tests/automated/check-datafield-selection-assembly.py`.

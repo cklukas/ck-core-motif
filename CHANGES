@@ -60,6 +60,8 @@ Check DataField selection assembly allocations (2026-10-27)
 
 - Check temporary byte and wide-character buffers used during selection
   insertion, including Xt `Cardinal` size limits and NULL results.
+- Reject direct TEXT lengths that cannot be represented by the DataField
+  replacement API and check the corresponding temporary buffers.
 - Add focused regression coverage and documentation.
 
 ============================================================

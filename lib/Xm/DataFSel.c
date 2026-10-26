@@ -280,22 +280,45 @@ InsertSelection(
        }
        XtFree(total_tmp_value);
     } else { /* it must be either TEXT or codeset of the locale */
+       if (*length > (unsigned long)INT_MAX ||
+           *length > (unsigned long)UINT_MAX - 1) {
+          XtFree((char *)value);
+          insert_select->done_status = True;
+          insert_select->success_status = False;
+          return;
+       }
        if (XmTextF_max_char_size(tf) == 1) {
-         /* NOTE: casting *length could result in a truncated long. */
           replace_res = _XmDataFieldReplaceText(tf, 
 					        (XEvent *)insert_select->event,
 						left, right, (char *)value,
-					        (unsigned)*length, True);
+					        (int)*length, True);
        } else {
-          temp = XtMalloc((unsigned) *length + 1);
-         /* NOTE: casting *length could result in a truncated long. */
-          (void)memcpy((void*)temp, (void*)value, (unsigned)*length);
+          temp = XtMalloc((Cardinal)(*length + 1));
+          if (temp == NULL) {
+             XtFree((char *)value);
+             insert_select->done_status = True;
+             insert_select->success_status = False;
+             return;
+          }
+          (void)memcpy((void*)temp, (void*)value, (size_t)*length);
           temp[*length] = '\0';
-          wc_value = (wchar_t*)XtMalloc((unsigned)
-                                               (*length + 1) * sizeof(wchar_t));
-      
-         /* NOTE: casting *length could result in a truncated long. */
-          num_chars = mbstowcs(wc_value, temp, (unsigned)*length + 1);
+          if ((size_t)*length + 1 > UINT_MAX / sizeof(wchar_t)) {
+             XtFree(temp);
+             XtFree((char *)value);
+             insert_select->done_status = True;
+             insert_select->success_status = False;
+             return;
+          }
+          wc_value = (wchar_t*)XtMalloc((Cardinal)(((size_t)*length + 1) *
+                                                   sizeof(wchar_t)));
+          if (wc_value == NULL) {
+             XtFree(temp);
+             XtFree((char *)value);
+             insert_select->done_status = True;
+             insert_select->success_status = False;
+             return;
+          }
+          num_chars = mbstowcs(wc_value, temp, (size_t)*length + 1);
           replace_res = _XmDataFieldReplaceText(tf, 
                                                 (XEvent *) insert_select->event,
 					        left, right, (char*) wc_value,
