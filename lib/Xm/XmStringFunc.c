@@ -506,7 +506,7 @@ new_line(
     _XmStringEntry *entries;
     size_t count;
 
-    if (lc < 0)
+    if (lc < 0 || lc == INT_MAX)
       return False;
     count = (size_t)lc + 1;
     if (count > SIZE_MAX / sizeof(*entries) ||

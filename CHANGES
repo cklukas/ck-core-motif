@@ -16192,3 +16192,13 @@ Bound multibyte XmString allocation width (2026-10-27)
 =======================================================
 
 Widen XmString tag-cache allocation arithmetic (2026-10-27)
+Bound XmString newline entry count (2026-10-27)
+===============================================
+
+- Reject `INT_MAX` entry counts before newline insertion increments the
+  internal count, avoiding signed overflow in the compound-string helper.
+- Add a focused source regression and documentation.
+
+================================================
+
+Release MB conversion state on oversized fallback (2026-10-27)
