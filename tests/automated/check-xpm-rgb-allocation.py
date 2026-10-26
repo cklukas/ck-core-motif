@@ -8,6 +8,7 @@ end = source.index("\n}\n", start) + 2
 body = source[start:end]
 
 assert "name = xpmstrdup(inname);" in body
+assert "inname == NULL || r == NULL || g == NULL || b == NULL" in body
 assert "if (name == NULL)" in body
 assert "return (0);" in body
 print("PASS XPM RGB lookup checks duplicated-name allocation")

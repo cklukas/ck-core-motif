@@ -215,6 +215,8 @@ xpmGetRGBfromName(
     char *name;
     char *grey, *p;
 
+    if (inname == NULL || r == NULL || g == NULL || b == NULL)
+	return (0);
     name = xpmstrdup(inname);
     if (name == NULL)
 	return (0);

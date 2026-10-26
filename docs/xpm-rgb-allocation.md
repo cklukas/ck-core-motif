@@ -7,5 +7,8 @@ RGB-name lookup duplicates the caller's input before normalization. If that
 allocation fails, lookup now returns failure instead of dereferencing a null
 temporary buffer.
 
+Null input and output pointers are rejected before any string or result
+access.
+
 The source contract is covered by
 `tests/automated/check-xpm-rgb-allocation.py`.
