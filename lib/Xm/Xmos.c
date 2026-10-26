@@ -233,6 +233,19 @@ AddEntryToCache(char *entryName,
 
 /****************************************************************/
 static String
+AllocatePathBuffer(size_t prefix_len, size_t suffix_len, size_t extra)
+{
+  size_t total;
+
+  if (prefix_len > SIZE_MAX - suffix_len)
+    return NULL;
+  total = prefix_len + suffix_len;
+  if (total > SIZE_MAX - extra || total + extra > (size_t)UINT_MAX)
+    return NULL;
+  return (String)XtMalloc((Cardinal)(total + extra));
+}
+
+static String
 GetQualifiedDir(String dirSpec)
 /*************GENERAL:
  * dirSpec is a directory name, that can contain relative 
@@ -248,12 +261,12 @@ GetQualifiedDir(String dirSpec)
  *   with a '/'.  The path will not contain ".", "..", or "~" components.  
  ****************/
 {
-  int             dirSpecLen;
+  size_t          dirSpecLen;
   _Xgetpwparams	  pwd_buf;
   struct passwd * pwd_value;
 
   char *          userDir;
-  int             userDirLen;
+  size_t          userDirLen;
   int             userNameLen;
   char *          outputBuf;
   char *          destPtr;
@@ -274,7 +287,7 @@ GetQualifiedDir(String dirSpec)
 	  if (*userDir)
 	    {   
 	      userDirLen = strlen(userDir);
-	      outputBuf = XtMalloc(userDirLen + dirSpecLen + 2);
+	      outputBuf = AllocatePathBuffer(userDirLen, dirSpecLen, 2);
 	      if (outputBuf == NULL)
 		return NULL;
 	      strcpy(outputBuf, userDir);
@@ -298,7 +311,7 @@ GetQualifiedDir(String dirSpec)
 	    {   
 	      userDirLen = strlen(pwd_value->pw_dir);
 	      dirSpecLen = strlen(srcPtr);
-	      outputBuf = XtMalloc(userDirLen + dirSpecLen + 2);
+	      outputBuf = AllocatePathBuffer(userDirLen, dirSpecLen, 2);
 	      if (outputBuf == NULL)
 		return NULL;
 	      strcpy(outputBuf, pwd_value->pw_dir);
@@ -308,7 +321,7 @@ GetQualifiedDir(String dirSpec)
       break;
 
     case '/':
-      outputBuf = XtMalloc(dirSpecLen + 2);
+	      outputBuf = AllocatePathBuffer(0, dirSpecLen, 2);
 	      if (outputBuf == NULL)
 		return NULL;
       strcpy(outputBuf, dirSpec);
@@ -318,7 +331,7 @@ GetQualifiedDir(String dirSpec)
       if ((destPtr = GetCurrentDir(dirbuf)) != NULL)
 	{
 	  userDirLen = strlen(destPtr);
-	  outputBuf = XtMalloc(userDirLen + dirSpecLen + 3);
+	  outputBuf = AllocatePathBuffer(userDirLen, dirSpecLen, 3);
 	  if (outputBuf == NULL)
 	    return NULL;
 	  strcpy(outputBuf, destPtr);

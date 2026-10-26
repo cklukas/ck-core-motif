@@ -1,3 +1,12 @@
+Bound qualified-directory helper allocations (2026-10-27)
+==========================================================
+
+- Keep `GetQualifiedDir` path lengths in `size_t` and centralize checked
+  allocation for absolute, home, and relative paths.
+- Add focused regression coverage and documentation.
+
+=========================================================
+
 Bound qualified directory path sizing (2026-10-27)
 ==================================================
 
