@@ -9034,12 +9034,17 @@ df_ValidateString(
 
    int str_len = 0;
    int i, j;
+   size_t input_length;
    char stack_cache[400];
 
    if (!is_wchar) {
       char *temp_str, *curr_str, *start_temp;
 
-      str_len = strlen(value);
+      input_length = strlen(value);
+      if (input_length > (size_t)INT_MAX ||
+          input_length >= (size_t)UINT_MAX)
+         return;
+      str_len = (int)input_length;
       temp_str = (char*)XmStackAlloc((Cardinal)str_len + 1, stack_cache);
       start_temp = temp_str;
       curr_str = value;
@@ -9097,7 +9102,14 @@ df_ValidateString(
          XmTextF_wc_value(tf) = NULL;
       } else { /* Need wchar_t* data to set as the widget's value */
          /* count number of wchar's */
-         str_len = strlen(start_temp);
+         input_length = strlen(start_temp);
+         if (input_length > (size_t)INT_MAX ||
+             input_length > (size_t)UINT_MAX - 30)
+         {
+            XmStackFree((char *)start_temp, stack_cache);
+            return;
+         }
+         str_len = (int)input_length;
          XmTextF_string_length(tf) = str_len;
 
          XmTextF_size_allocd(tf) = (XmTextF_string_length(tf) + 30)*sizeof(wchar_t);
@@ -9121,8 +9133,15 @@ df_ValidateString(
       int csize = 1;
 
       wc_value = (wchar_t *) value;
-      for (str_len = 0, i = 0; *wc_value != (wchar_t)0L; str_len++)
+      for (str_len = 0, i = 0; *wc_value != (wchar_t)0L; str_len++) {
+          if (str_len == INT_MAX)
+             return;
           wc_value++; /* count number of wchars */
+      }
+      if ((size_t)str_len > SIZE_MAX / sizeof(wchar_t) - 1 ||
+          (size_t)str_len + 1 > (size_t)UINT_MAX / sizeof(wchar_t) ||
+          (size_t)str_len > (size_t)UINT_MAX / sizeof(wchar_t) - 30)
+         return;
       wcs_temp_str=(wchar_t *)XmStackAlloc((Cardinal)
 					   ((str_len+1) * sizeof(wchar_t)),
 					   stack_cache);

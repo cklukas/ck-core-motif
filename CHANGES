@@ -22647,3 +22647,9 @@ Handle DataField wide-string conversion failures (2026-10-26)
   invalid multibyte input instead of exposing an unterminated buffer.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-datafield-string-wcs-conversion.py
+Reject oversized DataField validation lengths (2026-10-26)
+============================================================
+- Validate byte and wide-character lengths before `df_ValidateString` stores
+  them in legacy integer fields or computes temporary allocation sizes.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-datafield-validate-length.py
