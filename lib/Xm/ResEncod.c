@@ -1890,9 +1890,9 @@ processExtendedSegments(
 	case 0x32:				/* 2 octets per char */
 	    /* scan for STX separator between charset and text */
 	    len = 0;
-	    while (esptr[len] != STX)
+    while (len < seglen && esptr[len] != STX)
 		len++;
-	    if (len > ctx->itemlen) {		/* if we ran off the end, error */
+	    if (len >= seglen) {		/* separator is missing */
 		ok = False;
 		break;
 	    }

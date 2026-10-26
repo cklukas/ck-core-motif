@@ -275,6 +275,14 @@ Guard IconG baseline allocation (2026-10-27)
 - Return no baseline data cleanly when Xt cannot provide the optional array.
 - Add a focused source regression and documentation.
 
+Bound extended text-segment separator scans (2026-10-27)
+========================================================
+
+- Stop scanning malformed extended text segments at their declared boundary
+  when searching for the charset/text separator.
+- Reject a missing separator without reading past the segment buffer.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
