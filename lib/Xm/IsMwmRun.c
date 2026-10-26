@@ -50,8 +50,12 @@ XmIsMotifWMRunning(
     int		actual_format;
     unsigned long num_items, bytes_after;
     PropMotifWmInfo	*prop = 0;
-    Window	root = RootWindowOfScreen(XtScreen(shell));
+    Window	root;
 
+    if (shell == NULL)
+	return FALSE;
+
+    root = RootWindowOfScreen(XtScreen(shell));
     _XmWidgetToAppContext(shell);
  
     _XmAppLock(app);
