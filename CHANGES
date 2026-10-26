@@ -20974,6 +20974,11 @@ MakeNamedIconPixmap now rejects a null client record and only attempts named
 pixmap lookup when the client has a screen record; otherwise it safely uses the
 existing default-icon path.
 
+Handle MWM cached-label X resource failure (2026-10-26)
+--------------------------------------------------------
+MakeCachedLabelPixmap now returns `None` when pixmap or graphics-context
+creation fails, freeing a partially created pixmap before returning.
+
 Reject impossible MWM title widths (2026-10-26)
 -----------------------------------------------
 GetFramePartInfo now rejects title and title-bar geometry when borders and

@@ -705,6 +705,8 @@ Pixmap MakeCachedLabelPixmap (WmScreenData *pSD, Widget menuW, int bitmapIndex)
         pixmap = XCreatePixmap (DISPLAY, pSD->rootWindow, 
 				bitmapc->width, bitmapc->height,
                                 DefaultDepth (DISPLAY, pSD->screen));
+	if (pixmap == None)
+	    return ((Pixmap)NULL);
 
         /*
 	 * Create a GC and copy the bitmap to the pixmap.
@@ -715,6 +717,11 @@ Pixmap MakeCachedLabelPixmap (WmScreenData *pSD, Widget menuW, int bitmapIndex)
         gcv.background = bg;
 	gcv.graphics_exposures = False;
         gc = XCreateGC(DISPLAY, pixmap, (GCForeground|GCBackground), &gcv);
+	if (gc == NULL)
+	{
+	    XFreePixmap (DISPLAY, pixmap);
+	    return ((Pixmap)NULL);
+	}
    
         /*
 	 * Fill in the background, set the foreground, copy the bitmap to the 
