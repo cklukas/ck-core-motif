@@ -108,6 +108,9 @@ EvaluateConvenienceStructure(
         Widget wid,
         XmSimpleMenu sm )
 {
+        if (wid == (Widget) NULL || sm == NULL)
+                return;
+
         XmRowColumnWidget rc = (XmRowColumnWidget) wid ;
 	int i, n;
 	char name_buf[32];
@@ -183,7 +186,7 @@ EvaluateConvenienceStructure(
 				child = XtCreateManagedWidget(name_buf, 
                                                        xmPushButtonGadgetClass,
                                                          (Widget) rc, args, n);
-				if (sm->callback)
+				if (child != (Widget) NULL && sm->callback)
 					XtAddCallback(child,
                                              XmNactivateCallback, sm->callback,
                                                (XtPointer)(unsigned long)(button_count - 1));
@@ -196,7 +199,7 @@ EvaluateConvenienceStructure(
 				child = XtCreateManagedWidget(name_buf,
                                                      xmToggleButtonGadgetClass,
                                                          (Widget) rc, args, n);
-				if (sm->callback)
+				if (child != (Widget) NULL && sm->callback)
 					XtAddCallback(child,
                                          XmNvalueChangedCallback, sm->callback,
                                                (XtPointer)(unsigned long)(button_count - 1));
@@ -206,7 +209,7 @@ EvaluateConvenienceStructure(
 				child = XtCreateManagedWidget(name_buf,
                                                     xmCascadeButtonGadgetClass,
                                                          (Widget) rc, args, n);
-				if (sm->callback)
+				if (child != (Widget) NULL && sm->callback)
 					XtAddCallback(child,
                                              XmNactivateCallback, sm->callback,
                                                (XtPointer)(unsigned long)(button_count - 1));
