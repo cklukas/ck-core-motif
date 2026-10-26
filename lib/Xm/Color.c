@@ -336,13 +336,13 @@ GetDefaultColors(
 		    if (aproc == NULL)
 			aproc = DEFAULT_ALLOCCOLOR_PROC;
 
-			if ((*aproc)(DisplayOfScreen(screen), color_map,
+		    if ((*aproc)(DisplayOfScreen(screen), color_map,
 				color_def))
-			{
-				background = color_def->pixel;
-			}
-			else
-			{
+		    {
+			background = color_def->pixel;
+		    }
+		    else
+		    {
 				XtWarning(MESSAGE1);
 				background = WhitePixelOfScreen(screen);
 			}
@@ -1339,7 +1339,7 @@ _XmConvertToBW(Widget w, Pixmap pm)
 	   if (im.ncolors <= 2) {
 		   if (im.ncolors == 1) {
 			   col = strdup(im.colorTable[0].c_color);
-			   if (col[0] == '#') {
+               if (col != NULL && col[0] == '#') {
 				   bw = (FromColorToBlackAndWhite(col + 1) * 0.65);
 				   sprintf(im.colorTable[0].c_color, "#%04x%04x%04x", bw, bw, bw);
 			   }

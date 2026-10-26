@@ -15187,3 +15187,10 @@ Bound FontS selector formatting (2026-10-27)
 - Add a focused source regression and documentation.
 
 Bound drop-transfer widget names (2026-10-27)
+Guard Color conversion duplication failure (2026-10-27)
+========================================================
+
+- Avoid dereferencing a failed color-string duplication in `_XmConvertToBW`.
+- Add a focused source regression and documentation.
+
+Bound FontS selector formatting (2026-10-27)
