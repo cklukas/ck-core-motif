@@ -331,7 +331,17 @@ CvtStringToVirtualBinding(Display    *dpy,
 	/* Allocate storage if none was provided. */
 	toVal->size = sizeof(XmKeyBindingRec) * count;
 	if (toVal->addr == NULL)
-	  toVal->addr = XtMalloc(toVal->size);
+	  {
+	    toVal->addr = XtMalloc(toVal->size);
+	    if (toVal->addr == NULL)
+	      {
+		XtFree((char*) eventTypes);
+		XtFree((char*) keysyms);
+		XtFree((char*) modifiers);
+		toVal->size = 0;
+		return False;
+	      }
+	  }
 
 	/* Copy the data. */
 	for (tmp = 0; tmp < count; tmp++)

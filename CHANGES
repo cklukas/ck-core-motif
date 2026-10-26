@@ -1,3 +1,11 @@
+Handle virtual-binding converter allocation failure (2026-10-27)
+=================================================================
+
+- Check the `XmRVirtualBinding` converter's output allocation before copying
+  key bindings, clean up temporary conversion buffers on failure, and report a
+  failed conversion rather than dereferencing a null output pointer.
+- Add focused regression coverage and documentation.
+
 Unified construction and live appearance defaults (2026-10-26)
 ================================================================
 
