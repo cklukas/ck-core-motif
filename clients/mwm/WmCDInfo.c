@@ -462,6 +462,9 @@ int BaseWindowX (ClientData *pcd)
 {
     int rval;
 
+    if (pcd == NULL)
+	return (0);
+
     if (pcd->decor & (MWM_DECOR_RESIZEH | MWM_DECOR_BORDER))
 	rval = LowerBorderWidth(pcd);
     else
@@ -495,6 +498,9 @@ int BaseWindowX (ClientData *pcd)
 int BaseWindowY (ClientData *pcd)
 {
     int rval;
+
+    if (pcd == NULL)
+	return (0);
 
     if (pcd->decor & (MWM_DECOR_RESIZEH | MWM_DECOR_BORDER))
 	rval = UpperBorderWidth (pcd) + TitleBarHeight(pcd);
@@ -531,6 +537,9 @@ int FrameX (ClientData *pcd)
 {
     int frameX;
 
+    if (pcd == NULL)
+	return (0);
+
     frameX = ((pcd->maxConfig) ? pcd->maxX : pcd->clientX)
 	     - LowerBorderWidth (pcd)  - pcd->matteWidth;
 
@@ -562,6 +571,9 @@ int FrameX (ClientData *pcd)
 int FrameY (ClientData *pcd)
 {
     int frameY;
+
+    if (pcd == NULL)
+	return (0);
 
     frameY = ((pcd->maxConfig) ? pcd->maxY : pcd->clientY) 
 	 - UpperBorderWidth (pcd) 
