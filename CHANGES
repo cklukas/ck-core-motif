@@ -22431,3 +22431,12 @@ Validate DnD destination callback inputs (2026-10-26)
 - Add focused coverage and documentation for teardown-time callbacks.
 
 Reject missing DnD destination callback data (2026-10-26)
+Stop DnD callbacks after failure completion (2026-10-26)
+=========================================================
+
+- Return immediately after insensitive Container, Text, and TextField
+  destinations complete a transfer with failure, avoiding use-after-free
+  access during cleanup.
+- Add focused coverage and documentation.
+
+Validate DnD destination callback inputs (2026-10-26)

@@ -5613,7 +5613,10 @@ ContainerDestinationProc(
 	/* If we aren't sensitive,  don't allow transfer */
 	if (! wid -> core.sensitive ||
 	    ! wid -> core.ancestor_sensitive) 
-	  XmTransferDone(cs -> transfer_id, XmTRANSFER_DONE_FAIL);
+	  {
+	    XmTransferDone(cs -> transfer_id, XmTRANSFER_DONE_FAIL);
+	    return;
+	  }
 
 	/* Get Atom values from cache. */
 	assert(XtNumber(atom_names) == NUM_ATOMS);

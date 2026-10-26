@@ -1665,7 +1665,10 @@ TextFieldDestinationCallback(Widget w,
   /* If we aren't sensitive,  don't allow transfer */
   if (! w -> core.sensitive ||
       ! w -> core.ancestor_sensitive) 
-    XmTransferDone(ds -> transfer_id, XmTRANSFER_DONE_FAIL);
+    {
+      XmTransferDone(ds -> transfer_id, XmTRANSFER_DONE_FAIL);
+      return;
+    }
 
   /* We don't handle LINKs internally */
   if (ds->operation == XmLINK) return;
