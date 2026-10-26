@@ -999,6 +999,14 @@ DealWithColors(
     {
     
     XmManagerWidget mw = (XmManagerWidget) XtParent(sg);
+    Pixel background = mw->core.background_pixel;
+    Pixel foreground = mw->manager.foreground;
+    Pixel top_shadow = mw->manager.top_shadow_color;
+    Pixel bottom_shadow = mw->manager.bottom_shadow_color;
+    Pixel highlight = mw->manager.highlight_color;
+    _XmAppearanceDefaultColors((Widget)mw, &background, &foreground,
+                              &top_shadow, &bottom_shadow, &highlight);
+
     
     
     /*
@@ -1007,19 +1015,19 @@ DealWithColors(
       initialize like a widget.
     */
     if((SEPG_Background(sg) == INVALID_PIXEL ||
-       SEPG_Background(sg) == mw->core.background_pixel) &&
+       SEPG_Background(sg) == background) &&
        (SEPG_Foreground(sg) == INVALID_PIXEL ||
-       SEPG_Foreground(sg) == mw->manager.foreground) &&
+       SEPG_Foreground(sg) == foreground) &&
    (SEPG_TopShadowColor(sg) == INVALID_PIXEL ||
-   SEPG_TopShadowColor(sg) == mw->manager.top_shadow_color) &&
+   SEPG_TopShadowColor(sg) == top_shadow) &&
 (SEPG_BottomShadowColor(sg) == INVALID_PIXEL || 
-SEPG_BottomShadowColor(sg) == mw->manager.bottom_shadow_color)
+SEPG_BottomShadowColor(sg) == bottom_shadow)
        )
 	{
-	SEPG_Background(sg) = mw->core.background_pixel;
-	SEPG_Foreground(sg) = mw->manager.foreground;
-	SEPG_TopShadowColor(sg) = mw->manager.top_shadow_color;
-	SEPG_BottomShadowColor(sg) = mw->manager.bottom_shadow_color;
+	SEPG_Background(sg) = background;
+	SEPG_Foreground(sg) = foreground;
+	SEPG_TopShadowColor(sg) = top_shadow;
+	SEPG_BottomShadowColor(sg) = bottom_shadow;
 	}
     else
 	{

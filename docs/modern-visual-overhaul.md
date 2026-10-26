@@ -21,7 +21,7 @@ Application resource overrides remain authoritative.
 
 | Work package | Required result | Status |
 | --- | --- | --- |
-| Shared appearance | One definition for startup and live styling; explicit resource ownership | Native primary/secondary parity and explicit assignment ownership accepted; wildcard precedence remains |
+| Shared appearance | One definition for startup and live styling; explicit resource ownership | Native primary/secondary parity, wildcard precedence and classic restoration accepted for representative classes |
 | Density and roles | Public set/get/apply density; normal/title/section/secondary/code/primary/destructive roles; public spacing query; UIL registration | Density API and spacing accepted; roles and UIL pending |
 | Typography and geometry | Measured render tables throughout; DPI applied once; natural sizes and live updates | Pending |
 | Toggles and buttons | Strong check/radio/mixed states; 44x24 switch; connected segmented groups; coherent buttons | Pending |
@@ -62,7 +62,15 @@ sibling padding into newly updated controls; cross-child normalization now runs
 after all resources are committed. Secondary gadget resources are included in
 appearance resolution, with ownership snapshots taken after Xt construction.
 
+Construction now establishes normal Xt/application resources before applying
+internal profile defaults. Nine native parity cases cover thirteen classes:
+light/dark/high-contrast, each with default resources, broad application
+wildcards, and an explicit private colormap on an 8-bit X server. The cases also
+verify modern-created controls restored to classic against independent classic
+controls, and resource-database edits made after selecting a profile. Gadgets
+inherit an unstyled parent-color baseline and use the same cached Xt pixel
+conversion as ordinary resources.
+
 Next foundation gates include role transactions, font ownership and measured
-control geometry/DPI, application-wide wildcard override precedence and returning widgets constructed
-under modern profiles to actual classic defaults. These are not established by
-the first parity fixture and remain part of the full implementation.
+control geometry/DPI. The complete historical-widget, visual and interaction
+matrices remain required; representative resource parity does not replace them.

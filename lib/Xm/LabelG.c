@@ -2005,6 +2005,14 @@ static void
 DealWithColors(XmLabelGadget lw)
 {
     XmManagerWidget mw = (XmManagerWidget) XtParent(lw);
+    Pixel background = mw->core.background_pixel;
+    Pixel foreground = mw->manager.foreground;
+    Pixel top_shadow = mw->manager.top_shadow_color;
+    Pixel bottom_shadow = mw->manager.bottom_shadow_color;
+    Pixel highlight = mw->manager.highlight_color;
+    _XmAppearanceDefaultColors((Widget)mw, &background, &foreground,
+                              &top_shadow, &bottom_shadow, &highlight);
+
 
     /*
      * If the gadget color is set to the tag value or it is the
@@ -2012,21 +2020,21 @@ DealWithColors(XmLabelGadget lw)
      * initialize like a widget.
      */
     if ((LabG_Background(lw) == INVALID_PIXEL ||
-        LabG_Background(lw) == mw->core.background_pixel) &&
+        LabG_Background(lw) == background) &&
         (LabG_Foreground(lw) == INVALID_PIXEL ||
-        LabG_Foreground(lw) == mw->manager.foreground) &&
+        LabG_Foreground(lw) == foreground) &&
         (LabG_TopShadowColor(lw) == INVALID_PIXEL ||
-        LabG_TopShadowColor(lw) == mw->manager.top_shadow_color) &&
+        LabG_TopShadowColor(lw) == top_shadow) &&
         (LabG_BottomShadowColor(lw) == INVALID_PIXEL ||
-        LabG_BottomShadowColor(lw) == mw->manager.bottom_shadow_color) &&
+        LabG_BottomShadowColor(lw) == bottom_shadow) &&
         (LabG_HighlightColor(lw) == INVALID_PIXEL ||
-        LabG_HighlightColor(lw) == mw->manager.highlight_color))
+        LabG_HighlightColor(lw) == highlight))
     {
-        LabG_Background(lw) = mw->core.background_pixel;
-        LabG_Foreground(lw) = mw->manager.foreground;
-        LabG_TopShadowColor(lw) = mw->manager.top_shadow_color;
-        LabG_BottomShadowColor(lw) = mw->manager.bottom_shadow_color;
-        LabG_HighlightColor(lw) = mw->manager.highlight_color;
+        LabG_Background(lw) = background;
+        LabG_Foreground(lw) = foreground;
+        LabG_TopShadowColor(lw) = top_shadow;
+        LabG_BottomShadowColor(lw) = bottom_shadow;
+        LabG_HighlightColor(lw) = highlight;
     }
     else
     {

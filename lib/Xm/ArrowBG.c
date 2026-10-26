@@ -590,6 +590,14 @@ DealWithColors(
         XmArrowButtonGadget ag)
 {
   XmManagerWidget mw = (XmManagerWidget) XtParent(ag);
+    Pixel background = mw->core.background_pixel;
+    Pixel foreground = mw->manager.foreground;
+    Pixel top_shadow = mw->manager.top_shadow_color;
+    Pixel bottom_shadow = mw->manager.bottom_shadow_color;
+    Pixel highlight = mw->manager.highlight_color;
+    _XmAppearanceDefaultColors((Widget)mw, &background, &foreground,
+                              &top_shadow, &bottom_shadow, &highlight);
+
   
   /*
    * If the gadget color is set to the tag value or it is the
@@ -597,21 +605,21 @@ DealWithColors(
    * initialize like a widget.
    */
   if ((ag->arrowbutton.background == INVALID_PIXEL ||
-       ag->arrowbutton.background == mw->core.background_pixel) &&
+       ag->arrowbutton.background == background) &&
       (ag->arrowbutton.foreground == INVALID_PIXEL ||
-       ag->arrowbutton.foreground == mw->manager.foreground) &&
+       ag->arrowbutton.foreground == foreground) &&
       (ag->arrowbutton.top_shadow_color == INVALID_PIXEL ||
-       ag->arrowbutton.top_shadow_color == mw->manager.top_shadow_color) &&
+       ag->arrowbutton.top_shadow_color == top_shadow) &&
       (ag->arrowbutton.bottom_shadow_color == INVALID_PIXEL ||
-       ag->arrowbutton.bottom_shadow_color == mw->manager.bottom_shadow_color) &&
+       ag->arrowbutton.bottom_shadow_color == bottom_shadow) &&
       (ag->arrowbutton.highlight_color == INVALID_PIXEL ||
-       ag->arrowbutton.highlight_color == mw->manager.highlight_color))
+       ag->arrowbutton.highlight_color == highlight))
     {
-      ag->arrowbutton.background = mw->core.background_pixel;
-      ag->arrowbutton.foreground = mw->manager.foreground;
-      ag->arrowbutton.top_shadow_color = mw->manager.top_shadow_color;
-      ag->arrowbutton.bottom_shadow_color = mw->manager.bottom_shadow_color;
-      ag->arrowbutton.highlight_color = mw->manager.highlight_color;
+      ag->arrowbutton.background = background;
+      ag->arrowbutton.foreground = foreground;
+      ag->arrowbutton.top_shadow_color = top_shadow;
+      ag->arrowbutton.bottom_shadow_color = bottom_shadow;
+      ag->arrowbutton.highlight_color = highlight;
     }
   else
     {
