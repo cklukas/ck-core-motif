@@ -27,6 +27,15 @@ geometry. This removes the fixed-core-font paths while preserving date
 selection and navigation. The regression check is
 `tests/automated/check-calendar-render-table.py`.
 
+## Scale value-label rendering
+
+`XmScale` now routes its non-Xft value-label draw through the widget's Motif
+render table whenever one is available. This preserves compound-string and
+locale conversion instead of sending the localized bytes directly to
+`XDrawImageString`; the raw draw remains only as a compatibility fallback for
+widgets without a render table. The regression check is
+`tests/automated/check-scale-render-table-draw.py`.
+
 ## IconLabel typography and natural geometry
 
 `XmIconLabel` now measures its `XmString` through the render table for both
