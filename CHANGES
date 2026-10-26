@@ -1,3 +1,12 @@
+Reject overflowing compound-text stack copies (2026-10-27)
+============================================================
+
+- Reject a component length of `UINT_MAX` before forming the `len + 1`
+  temporary-buffer size in the UTF-8 and locale converters.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Bound ColorObj screen-name allocation (2026-10-27)
 ==================================================
 

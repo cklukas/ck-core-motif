@@ -2321,6 +2321,8 @@ cvtXmStringToUTF8String(
 
 	  /* We must duplicate val because the routines we want to */
 	  /*	call don't take a length parameter. */
+	  if (len == UINT_MAX)
+	    return False;
 	  tmp = (OctetPtr) XmStackAlloc(len + 1, tmp_buf);
 	  if (len != 0)
 	    memcpy((char*)tmp, val, len);
@@ -2482,6 +2484,8 @@ cvtXmStringToText(
 
 	  /* We must duplicate val because the routines we want to */
 	  /*	call don't take a length parameter. */
+	  if (len == UINT_MAX)
+	    return False;
 	  tmp = (OctetPtr) XmStackAlloc(len + 1, tmp_buf);
 	  if (len != 0)
 	    memcpy((char*)tmp, val, len);
