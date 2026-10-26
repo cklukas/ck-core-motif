@@ -212,7 +212,7 @@ AddEntryToCache(char *entryName,
     } 
 
   dirCache[numCacheEntries] = (XmDirCacheRec *) 
-    XtMalloc(sizeof(XmDirCacheRec) + entryNameLen + 1);
+    XtMalloc((Cardinal)(sizeof(XmDirCacheRec) + entryNameLen + 1));
   if (dirCache[numCacheEntries] == NULL)
     return 0;
   strcpy(dirCache[numCacheEntries]->file_name, entryName);

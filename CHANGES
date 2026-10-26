@@ -21719,3 +21719,10 @@ Clean up failed MWM menu conversions (2026-10-26)
 - Release any partial Xmb text list returned alongside a conversion failure.
 - Extend the menu-conversion regression coverage and documentation.
 
+Make directory-cache allocation narrowing explicit (2026-10-26)
+================================================================
+
+- Convert the already-bounded directory-cache entry size explicitly to Xt's
+  `Cardinal` type before allocation.
+- Extend the cache-bound regression assertion and documentation.
+

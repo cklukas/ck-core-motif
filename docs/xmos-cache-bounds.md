@@ -16,3 +16,5 @@ length and to both full-path and basename result allocations, avoiding a
 length narrowing or wrap before the returned strings are written.
 
 `tests/automated/check-xmos-cache-bounds.py` guards the allocation contract.
+The validated entry size is explicitly converted to Xt's `Cardinal` type only
+after the existing upper-bound check, keeping strict conversion builds quiet.
