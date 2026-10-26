@@ -10,6 +10,8 @@ end = source.index("\nvoid\nXmTextReplace", start)
 body = source[start:end]
 
 assert "tmp_block = XtMalloc" in body
+assert "num_chars + 1 > (size_t)UINT_MAX / (size_t)tw->text.char_size" in body
+assert "conversion_bytes =" in body
 assert "if (tmp_block == NULL)" in body
 assert "DrawInsertionPoint)(tw,\n\t\t\t\t\t      tw->text.cursor_position, on);" in body
 assert "return;" in body

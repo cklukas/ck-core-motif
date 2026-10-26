@@ -80,10 +80,11 @@ _XmTextReplace(Widget widget,
   Boolean editable, freeBlock;
   Boolean need_free = False;
   int max_length;
-  int num_chars;
+  size_t num_chars;
   wchar_t * tmp_wc;
   XmTextPosition selleft, selright, cursorPos;
   char * tmp_block = NULL;
+  size_t conversion_bytes;
   
   source = GetSrc(tw);
   
@@ -115,8 +116,18 @@ _XmTextReplace(Widget widget,
       for (tmp_wc = (wchar_t*)value, num_chars = 0; 
 	   *tmp_wc != (wchar_t)0L; 
 	   num_chars++) tmp_wc++;
-      tmp_block = XtMalloc((unsigned) 
-			   (num_chars + 1) * (int)tw->text.char_size);
+      if (num_chars == (size_t)-1 || tw->text.char_size <= 0 ||
+	  num_chars + 1 > (size_t)-1 / (size_t)tw->text.char_size ||
+	  num_chars + 1 > (size_t)UINT_MAX / (size_t)tw->text.char_size) {
+	(*tw->text.output->DrawInsertionPoint)(tw,
+					      tw->text.cursor_position, on);
+	return;
+      }
+      {
+	conversion_bytes =
+	  (num_chars + 1) * (size_t)tw->text.char_size;
+	tmp_block = XtMalloc((Cardinal)conversion_bytes);
+      }
       if (tmp_block == NULL) {
 	(*tw->text.output->DrawInsertionPoint)(tw,
 					      tw->text.cursor_position, on);
@@ -126,11 +137,14 @@ _XmTextReplace(Widget widget,
       need_free = True;
       tmp_wc = (wchar_t *) value;
       /* if successful, wcstombs returns number of bytes, else -1 */
-      block.length = wcstombs(block.ptr, tmp_wc, 
-			      (num_chars + 1) * (int)tw->text.char_size);
-      if (block.length == -1) {
-	block.length = 0; /* if error, don't insert anything */
-	block.ptr[0] = '\0'; /* use the empty string */
+      {
+	size_t converted = wcstombs(block.ptr, tmp_wc, conversion_bytes);
+	if (converted == (size_t)-1 || converted > (size_t)INT_MAX) {
+	  block.length = 0; /* if error, don't insert anything */
+	  block.ptr[0] = '\0'; /* use the empty string */
+	} else {
+	  block.length = (int)converted;
+	}
       }
     }
   }

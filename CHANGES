@@ -22820,7 +22820,8 @@ Regression: tests/automated/check-textfield-insert-locale-length.py
 
 Check wide Text replacement allocation (2026-10-26)
 ====================================================
-- Handle temporary multibyte-buffer allocation failure before wide Text
-  replacement conversion and restore insertion-point painting.
+- Bound wide Text replacement byte-size arithmetic and handle temporary
+  multibyte-buffer allocation failure before conversion, restoring
+  insertion-point painting.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-wide-replacement-allocation.py
