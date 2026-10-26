@@ -4011,7 +4011,22 @@ _XmTextResetIC(Widget widget)
     beginPos = nextPos = XmTextGetCursorPosition(widget);
 
     if (data->overstrike) {
-      tmp_mb = XtMalloc((n+1)*tw->text.char_size);
+      if (n < 0 || tw->text.char_size <= 0 ||
+          (size_t)(n + 1) >
+            (size_t)UINT_MAX / (size_t)tw->text.char_size) {
+        (*tw->text.output->DrawInsertionPoint)(tw,
+                                                 tw->text.cursor_position, on);
+        ResetUnder(tw);
+        return;
+      }
+      tmp_mb = XtMalloc((Cardinal)((size_t)(n + 1) *
+                                   (size_t)tw->text.char_size));
+      if (tmp_mb == NULL) {
+        (*tw->text.output->DrawInsertionPoint)(tw,
+                                                 tw->text.cursor_position, on);
+        ResetUnder(tw);
+        return;
+      }
       size = _XmTextBytesToCharacters(tmp_mb, mb, n, False,
                                       tw->text.char_size);
       nextPos += size;

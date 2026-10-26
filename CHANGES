@@ -133,6 +133,13 @@ Guard text preedit recovery growth (2026-10-27)
 - Check recovery-buffer `XtRealloc` and reset preedit state on failure.
 - Add a focused source regression and documentation.
 
+Guard text reset overstrike allocation (2026-10-27)
+====================================================
+
+- Bound and check the overstrike cursor buffer used during input-method reset.
+- Restore insertion-point display and reset preedit state on failure.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
