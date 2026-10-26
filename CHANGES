@@ -1,3 +1,11 @@
+Refresh XmString tag allocation check (2026-10-27)
+==================================================
+
+- Match the tag-cache allocation assertion to the current checked-size
+  conversion while retaining failure cleanup and copy coverage.
+
+============================================================
+
 Refresh XmString MB allocation check (2026-10-27)
 =================================================
 
