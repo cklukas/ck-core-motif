@@ -218,7 +218,21 @@ InsertSelection(
           }
 
           XtFree(total_tmp_value);
-          total_tmp_value = XtMalloc(malloc_size + 1);
+          if (malloc_size >= UINT_MAX) {
+             XFreeStringList(tmp_value);
+             XtFree((char *)value);
+             insert_select->done_status = True;
+             insert_select->success_status = False;
+             return;
+          }
+          total_tmp_value = XtMalloc((Cardinal)(malloc_size + 1));
+          if (total_tmp_value == NULL) {
+             XFreeStringList(tmp_value);
+             XtFree((char *)value);
+             insert_select->done_status = True;
+             insert_select->success_status = False;
+             return;
+          }
           total_tmp_value[0] = '\0';
           for (i = 0; i < num_vals ; i++)
              strcat(total_tmp_value, tmp_value[i]);
@@ -232,7 +246,9 @@ InsertSelection(
 					        left, right, total_tmp_value, 
                                                 (int) malloc_size, True);
        } else { /* must convert to wchar_t before passing to Replace */
-          if (malloc_size + 1 > SIZE_MAX / sizeof(wchar_t)) {
+          if (malloc_size > SIZE_MAX - 1 ||
+              malloc_size + 1 > SIZE_MAX / sizeof(wchar_t) ||
+              malloc_size + 1 > UINT_MAX / sizeof(wchar_t)) {
              XtFree(total_tmp_value);
              XtFree((char *)value);
              insert_select->done_status = True;
@@ -240,6 +256,13 @@ InsertSelection(
              return;
           }
           wc_value = (wchar_t *)XtMalloc((malloc_size + 1) * sizeof(wchar_t));
+          if (wc_value == NULL) {
+             XtFree(total_tmp_value);
+             XtFree((char *)value);
+             insert_select->done_status = True;
+             insert_select->success_status = False;
+             return;
+          }
           num_chars = mbstowcs(wc_value, total_tmp_value, 1 + malloc_size);
           if (num_chars < 0) {
              XtFree((char *)wc_value);

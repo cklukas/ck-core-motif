@@ -53,6 +53,15 @@ Bound XmString segment-copy allocation (2026-10-27)
   clones a non-mutating string, restoring the original state on failure.
 - Add focused regression coverage and documentation.
 
+====================================================
+
+Check DataField selection assembly allocations (2026-10-27)
+============================================================
+
+- Check temporary byte and wide-character buffers used during selection
+  insertion, including Xt `Cardinal` size limits and NULL results.
+- Add focused regression coverage and documentation.
+
 ===========================================================
 
 Propagate compound-text concatenation failures (2026-10-27)
