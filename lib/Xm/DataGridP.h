@@ -39,6 +39,8 @@ typedef struct _XmDataGridPart {
     int edit_row, edit_column;
     XtCallbackList selection_callback, sort_callback;
     XtCallbackList edit_committed_callback, edit_failed_callback;
+    XmFontList render_table;
+    Boolean check_set_render_table;
     GC gc;
 } XmDataGridPart;
 

@@ -14989,3 +14989,11 @@ TabBox standalone background fallback (2026-10-27)
   boxes no longer paint their unused area black.
 
 Stepper control glyphs (2026-10-27)
+DataGrid render-table typography (2026-10-27)
+===============================================
+
+- Render column headers and cell values through the grid render table with
+  measured `XmString` geometry, preserving RTL column placement and selection
+  outlines while removing the fixed-core-font path.
+
+IconLabel render-table typography and natural geometry (2026-10-27)

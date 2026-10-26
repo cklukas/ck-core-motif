@@ -3,7 +3,6 @@
 #endif
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
-#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 #include <Xm/DataGridP.h>
@@ -20,6 +19,17 @@ static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
 
 #define Offset(field) XtOffsetOf(XmDataGridRec, field)
+static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
+{
+    XmDataGridWidget grid = (XmDataGridWidget)widget;
+    (void)offset;
+    if (grid->data_grid.check_set_render_table)
+        value->addr = NULL;
+    else {
+        grid->data_grid.check_set_render_table = True;
+        value->addr = (char *)&grid->data_grid.render_table;
+    }
+}
 static XtResource resources[] = {
     {XmNdataGridHeaderHeight, XmCDataGridHeaderHeight, XmRVerticalDimension,
      sizeof(Dimension), Offset(data_grid.header_height), XmRImmediate,
@@ -46,6 +56,10 @@ static XtResource resources[] = {
     {XmNdataGridEditFailedCallback, XmCDataGridEditFailedCallback,
      XmRCallback, sizeof(XtCallbackList),
      Offset(data_grid.edit_failed_callback), XmRPointer, (XtPointer)NULL},
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmFontList),
+     Offset(data_grid.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmFontList),
+     Offset(data_grid.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean),
      Offset(primitive.traversal_on), XmRImmediate, (XtPointer)True},
     {XmNhighlightThickness, XmCHighlightThickness, XmRHorizontalDimension,
@@ -213,24 +227,6 @@ static void redraw(XmDataGridWidget grid) {
                    True);
 }
 
-static int text_baseline(XmDataGridWidget grid, int top, Dimension height) {
-    XGCValues values;
-    XFontStruct *font;
-    long long baseline;
-    if (!grid->data_grid.gc || !XGetGCValues(XtDisplay((Widget)grid),
-                                             grid->data_grid.gc, GCFont,
-                                             &values))
-        return top + (int)height / 2;
-    font = XQueryFont(XtDisplay((Widget)grid), values.font);
-    if (!font)
-        return top + (int)height / 2;
-    baseline = (long long)top +
-        ((long long)height - font->ascent - font->descent) / 2 + font->ascent;
-    XFreeFontInfo(NULL, font, 1);
-    return baseline < INT_MIN ? INT_MIN :
-           baseline > INT_MAX ? INT_MAX : (int)baseline;
-}
-
 static void notify_selection(XmDataGridWidget grid, XEvent *event) {
     XmDataGridSelectionCallbackStruct callback;
     if (!grid->data_grid.selection_callback ||
@@ -289,6 +285,11 @@ static void Initialize(Widget request, Widget widget, ArgList args,
         grid->data_grid.row_height : 22;
     grid->data_grid.header_height = grid->data_grid.header_height ?
         grid->data_grid.header_height : 24;
+    if (!grid->data_grid.render_table)
+        grid->data_grid.render_table = XmFontListCopy(
+            XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+    else
+        grid->data_grid.render_table = XmFontListCopy(grid->data_grid.render_table);
     values.foreground = grid->primitive.foreground;
     values.background = grid->core.background_pixel;
     grid->data_grid.gc = XCreateGC(XtDisplay(widget),
@@ -309,6 +310,8 @@ static void Destroy(Widget widget) {
     XtFree(grid->data_grid.edit_text);
     XtFree(grid->data_grid.edit_error);
     if (grid->data_grid.gc) XFreeGC(XtDisplay(widget), grid->data_grid.gc);
+    if (grid->data_grid.render_table)
+        XmRenderTableFree(grid->data_grid.render_table);
 }
 
 static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
@@ -319,6 +322,14 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
     (void)request; (void)args; (void)count;
     if (!grid->data_grid.row_height) grid->data_grid.row_height = old->data_grid.row_height;
     if (!grid->data_grid.header_height) grid->data_grid.header_height = old->data_grid.header_height;
+    if (old->data_grid.render_table != grid->data_grid.render_table) {
+        XmFontList replacement = grid->data_grid.render_table
+            ? XmFontListCopy(grid->data_grid.render_table)
+            : XmFontListCopy(XmeGetDefaultRenderTable(new_widget, XmLABEL_FONTLIST));
+        if (old->data_grid.render_table)
+            XmRenderTableFree(old->data_grid.render_table);
+        grid->data_grid.render_table = replacement;
+    }
     recompute_visible(grid);
     redraw_needed = old->data_grid.row_height != grid->data_grid.row_height ||
                     old->data_grid.header_height != grid->data_grid.header_height ||
@@ -329,13 +340,18 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
 
 static void draw_text(XmDataGridWidget grid, int x, int top, Dimension height,
                       const char *text) {
-    size_t length;
-    if (!grid->data_grid.gc) return;
+    XmString value;
+    Dimension width = 0, text_height = 0;
+    if (!grid->data_grid.gc || !grid->data_grid.render_table) return;
     if (!text) text = "";
-    length = strlen(text);
-    XDrawString(XtDisplay((Widget)grid), XtWindow((Widget)grid),
-                grid->data_grid.gc, x, text_baseline(grid, top, height), text,
-                length > (size_t)INT_MAX ? INT_MAX : (int)length);
+    value = XmStringCreateLocalized((char *)text);
+    if (!value) return;
+    XmStringExtent(grid->data_grid.render_table, value, &width, &text_height);
+    XmStringDraw(XtDisplay((Widget)grid), XtWindow((Widget)grid),
+                 grid->data_grid.render_table, value, grid->data_grid.gc,
+                 x, top + ((int)height - (int)text_height) / 2, width,
+                 XmALIGNMENT_BEGINNING, XmPrim_layout_direction(grid), NULL);
+    XmStringFree(value);
 }
 
 static int column_width(XmDataGridWidget grid) {
