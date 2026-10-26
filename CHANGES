@@ -1,3 +1,11 @@
+RowActions complete-item geometry initialization (2026-10-27)
+==============================================================
+
+- Build action buttons unmanaged while `XmRowActionsSetItems` fills its
+  internal item table, then manage them as a complete set.  Synchronous
+  geometry negotiation can no longer query a partially initialized (NULL)
+  button during multi-item updates.
+
 XmScreen unavailable-font SetValues guard (2026-10-27)
 =======================================================
 

@@ -199,11 +199,18 @@ Widget XmVaCreateManagedRowActions(Widget parent, char *name, ...) {
 void XmRowActionsSetItems(Widget widget, const XmRowActionItem *items, Cardinal count) {
     XmRowActionsWidget actions; Cardinal i;
     if (!widget || !XmIsRowActions(widget) || (count && !items)) return;
-    actions = (XmRowActionsWidget)widget; free_items(actions, True);
+    actions = (XmRowActionsWidget)widget;
+    /* Child creation can synchronously invoke ChangeManaged.  Keep the
+     * aggregate in its initialization phase until every item slot is filled;
+     * otherwise geometry negotiation observes a partially initialized array
+     * and may query a NULL button. */
+    actions->actions.initializing = True;
+    free_items(actions, True);
     if (count) {
         actions->actions.items = (XmRowActionsStoredItem *)XtCalloc(count, sizeof(*actions->actions.items));
         if (!actions->actions.items) {
             XtWarning("XmRowActionsSetItems: unable to allocate item array");
+            actions->actions.initializing = False;
             return;
         }
     }
@@ -217,21 +224,24 @@ void XmRowActionsSetItems(Widget widget, const XmRowActionItem *items, Cardinal 
         if (!actions->actions.items[i].id || !actions->actions.items[i].label ||
             !actions->actions.items[i].shortcut) {
             XtWarning("XmRowActionsSetItems: unable to copy item");
-            free_items(actions, True); return;
+            free_items(actions, True); actions->actions.initializing = False; return;
         }
         text = button_text(items[i].label, items[i].shortcut);
-        if (!text) { XtWarning("XmRowActionsSetItems: unable to build button label"); free_items(actions, True); return; }
+        if (!text) { XtWarning("XmRowActionsSetItems: unable to build button label"); free_items(actions, True); actions->actions.initializing = False; return; }
         label = XmStringCreateLocalized(text);
-        if (!label) { XtFree(text); XtWarning("XmRowActionsSetItems: unable to create button label"); free_items(actions, True); return; }
-        actions->actions.items[i].button = XtVaCreateManagedWidget("action",
+        if (!label) { XtFree(text); XtWarning("XmRowActionsSetItems: unable to create button label"); free_items(actions, True); actions->actions.initializing = False; return; }
+        actions->actions.items[i].button = XtVaCreateWidget("action",
             xmPushButtonWidgetClass, widget, XmNlabelString, label,
             XmNborderWidth, 0, NULL); XmStringFree(label); XtFree(text);
         if (!actions->actions.items[i].button) {
             XtWarning("XmRowActionsSetItems: unable to create action button");
-            free_items(actions, True); return;
+            free_items(actions, True); actions->actions.initializing = False; return;
         }
         XtAddCallback(actions->actions.items[i].button, XmNactivateCallback, activate, actions);
     }
+    for (i = 0; i < count; ++i)
+        XtManageChild(actions->actions.items[i].button);
+    actions->actions.initializing = False;
     layout(actions); negotiate(actions);
 }
 Cardinal XmRowActionsGetItemCount(Widget widget) { return widget && XmIsRowActions(widget) ? ((XmRowActionsWidget)widget)->actions.item_count : 0; }
