@@ -3,6 +3,8 @@ Validate ICC drop-site stream bounds (2026-10-27)
 
 - Reject truncated drop-site headers and region counts that exceed the
   remaining serialized data before writing region boxes.
+- Reject short animation payloads instead of decoding partially initialized
+  structures.
 - Handle region allocation failure safely and release malformed stream state.
 - Add a focused source regression and documentation.
 

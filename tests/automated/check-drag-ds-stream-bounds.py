@@ -11,5 +11,7 @@ assert "dsHeader = { 0 };" in body
 assert "data_offset = (size_t)(propBuf->data.curr - propBuf->data.bytes);" in body
 assert "dsRegionNumBoxes >" in body
 assert "if (region == NULL)" in body
+assert body.count("sizeof(xmDS") >= 4
+assert body.count("goto malformed;") >= 5
 assert "goto malformed;" in body
 print("PASS ICC drop-site stream bounds are checked before region writes")

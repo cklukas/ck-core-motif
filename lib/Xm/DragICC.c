@@ -1025,11 +1025,13 @@ _XmReadDSFromStream(
 	    {
 		XmICCDropSiteHighlight	info =
 		    (XmICCDropSiteHighlight) dropSiteInfoRtn;
-		xmDSHighlightDataStruct	dsHighlight;
+		xmDSHighlightDataStruct	dsHighlight = { 0 };
 
-		_XmReadDragBuffer (propBuf, BUFFER_DATA,
-		                   (BYTE*)&dsHighlight,
-				   sizeof(xmDSHighlightDataStruct));
+		if (_XmReadDragBuffer (propBuf, BUFFER_DATA,
+				       (BYTE*)&dsHighlight,
+				       sizeof(xmDSHighlightDataStruct)) !=
+			    sizeof(xmDSHighlightDataStruct))
+		    goto malformed;
 		if (dsmInfo->byteOrder != _XmByteOrderChar) {
 		    swap2bytes(dsHighlight.borderWidth);
 		    swap2bytes(dsHighlight.highlightThickness);
@@ -1057,11 +1059,13 @@ _XmReadDSFromStream(
 	    {
 		XmICCDropSiteShadow	info =
 		    (XmICCDropSiteShadow) dropSiteInfoRtn;
-		xmDSShadowDataStruct	dsShadow;
+		xmDSShadowDataStruct	dsShadow = { 0 };
 
-		_XmReadDragBuffer (propBuf, BUFFER_DATA,
-		                   (BYTE*)&dsShadow,
-				   sizeof(xmDSShadowDataStruct));
+		if (_XmReadDragBuffer (propBuf, BUFFER_DATA,
+				       (BYTE*)&dsShadow,
+				       sizeof(xmDSShadowDataStruct)) !=
+			    sizeof(xmDSShadowDataStruct))
+		    goto malformed;
 		if (dsmInfo->byteOrder != _XmByteOrderChar) {
 		    swap2bytes(dsShadow.borderWidth);
 		    swap2bytes(dsShadow.highlightThickness);
@@ -1097,11 +1101,13 @@ _XmReadDSFromStream(
 	    {
 		XmICCDropSitePixmap	info =
 		    (XmICCDropSitePixmap) dropSiteInfoRtn;
-		xmDSPixmapDataStruct	dsPixmap;
+		xmDSPixmapDataStruct	dsPixmap = { 0 };
 
-		_XmReadDragBuffer (propBuf, BUFFER_DATA,
-		                   (BYTE*)&dsPixmap,
-				   sizeof(xmDSPixmapDataStruct));
+		if (_XmReadDragBuffer (propBuf, BUFFER_DATA,
+				       (BYTE*)&dsPixmap,
+				       sizeof(xmDSPixmapDataStruct)) !=
+			    sizeof(xmDSPixmapDataStruct))
+		    goto malformed;
 		if (dsmInfo->byteOrder != _XmByteOrderChar) {
 		    swap2bytes(dsPixmap.borderWidth);
 		    swap2bytes(dsPixmap.highlightThickness);
@@ -1137,11 +1143,13 @@ _XmReadDSFromStream(
 	    {
 		XmICCDropSiteNone	info =
 		    (XmICCDropSiteNone) dropSiteInfoRtn;
-		xmDSNoneDataStruct	dsNone;
+		xmDSNoneDataStruct	dsNone = { 0 };
 
-		_XmReadDragBuffer (propBuf, BUFFER_DATA,
-		                   (BYTE*)&dsNone,
-				   sizeof(xmDSNoneDataStruct));
+		if (_XmReadDragBuffer (propBuf, BUFFER_DATA,
+				       (BYTE*)&dsNone,
+				       sizeof(xmDSNoneDataStruct)) !=
+			    sizeof(xmDSNoneDataStruct))
+		    goto malformed;
 		if (dsmInfo->byteOrder != _XmByteOrderChar) {
 		    swap2bytes(dsNone.borderWidth);
 		}
