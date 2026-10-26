@@ -1383,7 +1383,7 @@ HandleTargets(Widget w, XtPointer closure,
   XmTextPosition select_pos;
   unsigned long i;
 
-  if (w == NULL || ds == NULL)
+  if (w == NULL || ds == NULL || ds->transfer_id == NULL)
     return;
   tf = (XmTextFieldWidget) w;
   CS_OF_ENCODING = XmeGetEncodingAtom(w);

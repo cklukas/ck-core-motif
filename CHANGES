@@ -22756,3 +22756,9 @@ Bound TextField insertion conversion lengths (2026-10-26)
   allocations before TextField insertion conversion.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-insert-length.py
+Bound TextField target counts (2026-10-26)
+===========================================
+- Reject missing transfer IDs and oversized external target lists before
+  TextField target negotiation iterates callback data.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-target-count.py
