@@ -1,3 +1,12 @@
+Bound ColorObj screen-name allocation (2026-10-27)
+==================================================
+
+- Check the temporary screen-name pointer table against both `size_t` and the
+  unsigned allocation size used by `XmStackAlloc`.
+- Add focused regression coverage and documentation.
+
+==================================================
+
 Bound legacy color-data table allocation (2026-10-27)
 =====================================================
 

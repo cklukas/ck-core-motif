@@ -525,7 +525,8 @@ Initialize(
 	    int names_allocated = 0;
 	    Boolean names_ok = True;
 
-	    names = ((size_t)nscreens <= SIZE_MAX / sizeof(char *)) ?
+	    names = ((size_t)nscreens <= SIZE_MAX / sizeof(char *) &&
+		      (size_t)nscreens <= UINT_MAX / sizeof(char *)) ?
 		(char**) XmStackAlloc((size_t)nscreens * sizeof(char *), name_buf) :
 		NULL;
 	    if (names != NULL) {
