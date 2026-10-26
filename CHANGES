@@ -20118,6 +20118,14 @@ Reject unrepresentable negative image depth (2026-10-26)
   convention, avoiding signed overflow during depth normalization.
 - Add focused regression coverage and documentation.
 
+Reject invalid ImageCache scale ratios early (2026-10-26)
+==========================================================
+
+- Reject negative and non-finite scale ratios before cache lookup or image
+  loading.
+- Preserve zero as the documented print-resolution scaling mode.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 

@@ -1547,6 +1547,8 @@ _XmGetScaledPixmap(
 	return (XmUNSPECIFIED_PIXMAP);
     if (depth == INT_MIN)
 	return (XmUNSPECIFIED_PIXMAP);
+    if (!isfinite(scaling_ratio) || scaling_ratio < 0.0)
+	return (XmUNSPECIFIED_PIXMAP);
 
     if (!pixmap_data_set) InitializePixmapSets() ;
     if (pixmap_data_set == NULL || pixmap_set == NULL)
