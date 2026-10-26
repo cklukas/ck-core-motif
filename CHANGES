@@ -18127,6 +18127,15 @@ Refresh tree-view RTL geometry regression check (2026-10-27)
 Refresh usable-text table regression check (2026-10-27)
 =======================================================
 
+Refresh UTF-8 conversion regression check (2026-10-27)
+=======================================================
+
+- Match the focused check to the current bounded `ctextConcat` append path,
+  which passes the converted byte length instead of updating the output count
+  directly.
+
+=======================================================
+
 - Match the allocation assertion to the current checked `Cardinal` cast and
   `size_t` count multiplication used for usable text tables.
 
