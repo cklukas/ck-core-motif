@@ -73,6 +73,15 @@ Bound BaseClass resource-copy allocation (2026-10-27)
   alongside the existing native multiplication check.
 - Add focused regression coverage and documentation.
 
+======================================================
+
+Bound DragBS target-table allocation (2026-10-27)
+=================================================
+
+- Check sorted target-list and table-growth allocations, preserve the old
+  table on failure, and release the server/process lock on all failure paths.
+- Add focused regression coverage and documentation.
+
 ===========================================================
 
 Propagate compound-text concatenation failures (2026-10-27)

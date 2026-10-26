@@ -1522,8 +1522,17 @@ _XmTargetsToIndex(
      *  Create a new targets list, sorted in ascending order.
      */
 
-    size =  sizeof(Atom) * numTargets;
+    if ((size_t)numTargets > SIZE_MAX / sizeof(Atom) ||
+	(size_t)numTargets > UINT_MAX / sizeof(Atom)) {
+	_XmProcessUnlock();
+	return 0;
+    }
+    size = (Cardinal)(sizeof(Atom) * (size_t)numTargets);
     newTargets = (Atom *) XtMalloc(size);
+    if (newTargets == NULL) {
+	_XmProcessUnlock();
+	return 0;
+    }
     memcpy (newTargets, targets, size);
     qsort ((void *)newTargets, (size_t)numTargets, (size_t)sizeof(Atom),
            AtomCompare);
@@ -1577,12 +1586,29 @@ _XmTargetsToIndex(
 	}
     }
     if (i == targetsTable->numEntries) {
-        targetsTable->numEntries++;
-
-        targetsTable->entries = (xmTargetsTableEntry) XtRealloc(
-	    (char *)targetsTable->entries,	/* NULL ok */
-	    sizeof(xmTargetsTableEntryRec) * (targetsTable->numEntries));
-
+	xmTargetsTableEntry new_entries;
+	if (targetsTable->numEntries == UINT_MAX ||
+	    (size_t)(targetsTable->numEntries + 1) >
+		SIZE_MAX / sizeof(xmTargetsTableEntryRec) ||
+	    (size_t)(targetsTable->numEntries + 1) >
+		UINT_MAX / sizeof(xmTargetsTableEntryRec)) {
+	    XtFree((char *)newTargets);
+	    XUngrabServer(display);
+	    _XmProcessUnlock();
+	    return 0;
+	}
+	new_entries = (xmTargetsTableEntry) XtRealloc(
+	    (char *)targetsTable->entries,
+	    (Cardinal)((size_t)(targetsTable->numEntries + 1) *
+		       sizeof(xmTargetsTableEntryRec)));
+	if (new_entries == NULL) {
+	    XtFree((char *)newTargets);
+	    XUngrabServer(display);
+	    _XmProcessUnlock();
+	    return 0;
+	}
+	targetsTable->entries = new_entries;
+	targetsTable->numEntries++;
         targetsTable->entries[i].numTargets = numTargets;
         targetsTable->entries[i].targets = newTargets;
         WriteTargetsTable (display, targetsTable);
