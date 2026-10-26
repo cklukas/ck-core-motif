@@ -21642,3 +21642,10 @@ Validate MWM property payload pointers (2026-10-26)
   WM save hints, bindings, or DT session hints.
 - Add focused regression coverage and documentation.
 
+Require MWM hint getter payloads (2026-10-26)
+==============================================
+
+- Require non-null payloads before returning WM_STATE or _MWM_HINTS property
+  records to their callers.
+- Extend the property-pointer regression coverage and documentation.
+

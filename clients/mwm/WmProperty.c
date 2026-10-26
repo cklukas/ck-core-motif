@@ -636,7 +636,8 @@ GetWMState(
 
     if (!((ret_val == Success) && (actual_type == wmGD.xa_WM_STATE) &&
          (actual_format == 32) &&
-         (nitems == PROP_WM_STATE_ELEMENTS)))
+         (nitems == PROP_WM_STATE_ELEMENTS) &&
+         (property != NULL)))
     {
         /*
          * The property could not be retrieved or is not correctly set up.
@@ -768,7 +769,8 @@ GetMwmHints(
 
     if ((ret_val == Success) && (actual_type == wmGD.xa_MWM_HINTS) &&
         (actual_format == 32) &&
-        (nitems >= PROP_MWM_HINTS_ELEMENTS))
+        (nitems >= PROP_MWM_HINTS_ELEMENTS) &&
+        (property != NULL))
     {
 	return (property);			/* indicate success */
     }
