@@ -17,6 +17,15 @@ Bound XmPicture parser growth failures (2026-10-27)
 - Validate transition endpoints before allocating a transition record, avoiding
   a leak on an already-failed parse path.
 
+====================================================
+
+Bound RowColumn geometry-array allocation (2026-10-27)
+=======================================================
+
+- Check managed-child and tear-off geometry counts before multiplication and
+  return cleanly when the geometry array cannot be represented or allocated.
+- Add focused regression coverage and documentation.
+
 ===========================================================
 
 Propagate compound-text concatenation failures (2026-10-27)

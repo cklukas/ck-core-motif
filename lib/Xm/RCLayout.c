@@ -37,6 +37,8 @@ static char *rcsid = "$XConsortium: RCLayout.c /main/6 1995/10/25 20:14:15 cde-s
 
 #include <stdio.h>
 #include <ctype.h>
+#include <limits.h>
+#include <stdint.h>
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
@@ -2000,11 +2002,21 @@ _XmRCGetKidGeo(
     int			j = 0 ;
     Boolean		helpFound = FALSE ;
     Boolean		tocFound;
+    size_t          kid_count;
+    size_t          geo_count;
 
     tocFound = (toc && XtIsManaged(toc)) & 0x1;
 
-    geo = (XmRCKidGeometry) XtMalloc((_XmGeoCount_kids(c) + 1 + tocFound) * 
-       sizeof (XmRCKidGeometryRec));
+    kid_count = (size_t)_XmGeoCount_kids(c);
+    if (kid_count > SIZE_MAX - 1 - (size_t)tocFound ||
+        (geo_count = kid_count + 1 + (size_t)tocFound) >
+            SIZE_MAX / sizeof(XmRCKidGeometryRec) ||
+        geo_count > UINT_MAX / sizeof(XmRCKidGeometryRec))
+        return NULL;
+    geo = (XmRCKidGeometry) XtMalloc((Cardinal)(geo_count *
+       sizeof (XmRCKidGeometryRec)));
+    if (geo == NULL)
+        return NULL;
 
     i = 0;
 
