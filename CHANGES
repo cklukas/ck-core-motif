@@ -316,6 +316,15 @@ Guard DataField wide-selection allocation (2026-10-27)
   writing through a null result.
 - Add a focused source regression and documentation.
 
+Guard DataField wide insertion allocation (2026-10-27)
+======================================================
+
+- Validate multibyte insertion lengths before wide-character multiplication
+  and Xt allocation.
+- Return through the existing insertion-point restoration path when storage is
+  unavailable instead of calling `mbstowcs` with null output.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 

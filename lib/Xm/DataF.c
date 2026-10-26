@@ -5163,7 +5163,18 @@ df_InsertString(
 					  True);
 	  } else {
 	      insert_string[insert_length] = '\0'; /* NULL terminate for mbstowcs */
-	      wc_insert_string = (wchar_t*)XtMalloc((unsigned)(insert_length+1) *						     sizeof(wchar_t));
+	      if (insert_length < 0 ||
+		  (size_t)insert_length > SIZE_MAX / sizeof(wchar_t) - 1 ||
+		  (size_t)insert_length + 1 > UINT_MAX / sizeof(wchar_t)) {
+		  _XmDataFieldDrawInsertionPoint(tf, True);
+		  return;
+	      }
+	      wc_insert_string = (wchar_t*)XtMalloc(
+		  (Cardinal)(((size_t)insert_length + 1) * sizeof(wchar_t)));
+	      if (wc_insert_string == NULL) {
+		  _XmDataFieldDrawInsertionPoint(tf, True);
+		  return;
+	      }
 	      num_chars = mbstowcs( wc_insert_string, insert_string, insert_length+1);
 	      replace_res = _XmDataFieldReplaceText(tf, (XEvent *) event, cursorPos,
 						    nextPos, (char*) wc_insert_string,
