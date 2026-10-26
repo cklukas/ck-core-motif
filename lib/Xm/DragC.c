@@ -909,11 +909,22 @@ _XmAllocReceiverInfo(
 			     dc->drag.receiverInfos);
     }
     if (dc->drag.numReceiverInfos == dc->drag.maxReceiverInfos) {
-	dc->drag.maxReceiverInfos = dc->drag.maxReceiverInfos*2 + 2;
-	dc->drag.receiverInfos = (XmDragReceiverInfoStruct *)
-	  XtRealloc((char*)dc->drag.receiverInfos,
-		    dc->drag.maxReceiverInfos *
-		    sizeof(XmDragReceiverInfoStruct));
+	Cardinal old_max = dc->drag.maxReceiverInfos;
+	Cardinal new_max;
+	XmDragReceiverInfoStruct *new_infos;
+	if (old_max > (UINT_MAX - 2) / 2)
+	    return NULL;
+	new_max = old_max * 2 + 2;
+	if ((size_t)new_max > (size_t)UINT_MAX /
+	    sizeof(XmDragReceiverInfoStruct))
+	    return NULL;
+	new_infos = (XmDragReceiverInfoStruct *)XtRealloc(
+	    (char *)dc->drag.receiverInfos,
+	    (size_t)new_max * sizeof(XmDragReceiverInfoStruct));
+	if (new_infos == NULL)
+	    return NULL;
+	dc->drag.maxReceiverInfos = new_max;
+	dc->drag.receiverInfos = new_infos;
     }
     if (offset)
       dc->drag.currReceiverInfo = &(dc->drag.receiverInfos[offset]);
@@ -975,6 +986,8 @@ GetDestinationInfo(
 	}
 	currReceiverInfo = 
 	  dc->drag.currReceiverInfo = _XmAllocReceiverInfo(dc);
+	if (currReceiverInfo == NULL)
+	    return;
 	currReceiverInfo->frame = win;
 	currReceiverInfo->window = clientWin;
 	currReceiverInfo->shell = XtWindowToWidget(dpy, clientWin);
@@ -1053,6 +1066,8 @@ GetScreenInfo(
     if (dc->drag.numReceiverInfos == 0) {
 	dc->drag.rootReceiverInfo =
 	  rootInfo = _XmAllocReceiverInfo(dc);
+	if (rootInfo == NULL)
+	    return;
     } else {
 	dc->drag.rootReceiverInfo =
 	  rootInfo = dc->drag.receiverInfos;

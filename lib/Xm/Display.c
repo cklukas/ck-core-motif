@@ -1620,9 +1620,14 @@ ReceiverShellExternalSourceHandler(
 		 */
 		dc->drag.currReceiverInfo =
 		  _XmAllocReceiverInfo(dc);
+		if (dc->drag.currReceiverInfo == NULL) {
+		    XtDestroyWidget((Widget)dc);
+		    q.dc = dc = NULL;
+		} else {
 		dc->drag.currReceiverInfo->shell = shell;
                 dc->drag.currReceiverInfo->dragProtocolStyle = 
 			                  dd->display.dragReceiverProtocolStyle;
+		}
 	    }
 	    topClientData.destShell = shell;
 	    topClientData.xOrigin = XtX(shell);

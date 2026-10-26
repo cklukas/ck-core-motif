@@ -15437,3 +15437,11 @@ Bound drag target-table allocations (2026-10-27)
 - Add a focused source regression and documentation.
 
 Bound drag receiver site counts (2026-10-27)
+Bound drag receiver-info growth (2026-10-27)
+=============================================
+
+- Check receiver-info array growth arithmetic and Xt allocation limits.
+- Handle allocation failure at all receiver-info call sites.
+- Add a focused source regression and documentation.
+
+Validate ICC stream region inputs (2026-10-27)
