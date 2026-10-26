@@ -19447,3 +19447,14 @@ Handle tab-box image rotation failures (2026-10-27)
 
 Handle RTL compound-string allocation failure (2026-10-27)
 ===========================================================
+Handle edit-resources widget-list allocation failure (2026-10-27)
+=================================================================
+
+- Check the temporary hierarchy allocation in the edit-resources protocol
+  helper before populating it.
+- Add focused regression coverage and documentation.
+
+============================================================
+
+Handle tab-box image rotation failures (2026-10-27)
+===================================================

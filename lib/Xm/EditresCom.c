@@ -1801,6 +1801,8 @@ Widget w;
     num_widgets = i;
     widget_list = (unsigned long *) 
 	                XtMalloc(sizeof(unsigned long) * num_widgets);
+    if (widget_list == NULL)
+	return;
 
     /*
      * Put the widgets into the list.
