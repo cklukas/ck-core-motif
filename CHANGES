@@ -1,3 +1,13 @@
+Harden deferred clipboard callback inputs (2026-10-26)
+========================================================
+
+- Validate callback reason and target pointers before conversion, reject
+  duplicate/completed data IDs, and remove snapshot entries using the same
+  data-ID key used during registration.
+- Prevent callback-time null dereferences, outstanding-count underflow, and
+  stale deferred snapshot entries.
+- Add focused regression coverage and documentation.
+
 Count only successful clipboard copies (2026-10-26)
 ====================================================
 
