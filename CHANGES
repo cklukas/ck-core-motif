@@ -1,3 +1,12 @@
+Prevent clipboard target cleanup double-frees (2026-10-27)
+==========================================================
+
+- Reset conversion output around each clipboard target request so a failed
+  conversion cannot free a prior target's buffer twice.
+- Add a focused source regression and documentation.
+
+==========================================================
+
 Make clipboard MOVE cleanup null-safe (2026-10-27)
 ===================================================
 

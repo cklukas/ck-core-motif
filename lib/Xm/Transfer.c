@@ -890,6 +890,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
        and if it is converted we put it on the clipboard */
     for(i = 0; i < count; i++) {
       name = GetSafeAtomName(display, targets[i], &howFree);
+      value = NULL;
       _XmConvertHandlerSetLocal();
       if (_XmConvertHandler(w, &atoms[XmACLIPBOARD], &targets[i], 
 			    &type2, &value, &size2, &format2) == True &&
@@ -906,6 +907,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 	/* End Critical section for MT */
       }
       XtFree((char*) value);
+      value = NULL;
       FreeSafeAtomName(name,howFree);
     }
     XtFree((char*) targets);
