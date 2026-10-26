@@ -20876,6 +20876,11 @@ Guard MWM frame exposure inputs (2026-10-26)
 FrameWindow now returns `FALSE`, while FrameExposureProc and BaseWinExposureProc
 no-op, when passed a null client record before touching frame windows or GCs.
 
+Guard MWM frame regeneration inputs (2026-10-26)
+-------------------------------------------------
+RegenerateClientFrame now no-op for a null client record before reading
+decoration state or resizing frame subwindows.
+
 Reject impossible MWM title widths (2026-10-26)
 -----------------------------------------------
 GetFramePartInfo now rejects title and title-bar geometry when borders and

@@ -2299,7 +2299,12 @@ ShowInactiveClientFrame (ClientData *pcd)
 
 void RegenerateClientFrame (ClientData *pcd)
 {
-    unsigned long decor = pcd->decor;
+    unsigned long decor;
+
+    if (pcd == NULL)
+	return;
+
+    decor = pcd->decor;
 #ifdef PANELIST
     /* 
      * If an embedded client, there is no frame.
