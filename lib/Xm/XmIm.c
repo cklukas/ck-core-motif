@@ -2740,6 +2740,10 @@ XmImVaSetFocusValues(Widget w,
   va_list	var;
   int	    	total_count;
   ArgList     args;
+
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);
   
   _XmAppLock(app);
@@ -2769,6 +2773,10 @@ void
   va_list	var;
   int	    	total_count;
   ArgList     args;
+
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);
   
   _XmAppLock(app);
