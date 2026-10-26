@@ -10436,7 +10436,7 @@ XmTextFieldSetStringWcs(Widget w,
   char * tmp;
   wchar_t *tmp_wc;
   int num_chars = 0;
-  int result;
+  size_t result;
   _XmWidgetToAppContext(w);
 
   if (wc_value == NULL) {

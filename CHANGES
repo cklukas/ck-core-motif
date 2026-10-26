@@ -20307,6 +20307,7 @@ Preserve text-field conversion result widths (2026-10-26)
 
 - Keep `wcstombs` and `mbstowcs` result counts in `size_t` throughout public
   getter and substring conversion paths instead of narrowing them to `int`.
+- Apply the same width to the wide-string setter conversion result.
 
 Bound text-field substring position narrowing (2026-10-26)
 ============================================================
