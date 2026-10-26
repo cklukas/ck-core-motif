@@ -16131,3 +16131,14 @@ Guard empty compound-text components (2026-10-27)
 =================================================
 
 Bound iconv output-buffer growth (2026-10-27)
+Bound extended compound-text segments (2026-10-27)
+==================================================
+
+- Check the encoded segment length against the remaining input in both
+  extended-segment decoder paths, preventing truncated input from being read
+  past the buffer.
+- Add a focused source regression and documentation.
+
+==================================================
+
+Guard empty compound-text components (2026-10-27)

@@ -1069,6 +1069,8 @@ processExtendedSegmentsHack(
 	ctx->octet++; ctx->itemlen++;		/* advance pointer */
 	seglen = (seglen << 7) + (*ctx->octet - 0x80);
 	ctx->octet++; ctx->itemlen++;		/* advance pointer */
+	if ((ctx->lastoctet - ctx->octet) < seglen)
+	  return False;
 	
 	/* Check for premature end. */
 	for (esptr = ctx->octet; esptr < (ctx->octet + seglen); esptr++) 
