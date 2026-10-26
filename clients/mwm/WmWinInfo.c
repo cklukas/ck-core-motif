@@ -234,6 +234,7 @@ GetClientInfo (WmScreenData *pSD, Window clientWindow, long manageFlags)
     pCD->pWorkspaceHints = NULL;
     pCD->numInhabited = 0;
     pCD->pWsList = NULL;
+    pCD->currentWsc = 0;
     pCD->dtwmFunctions = DtWM_FUNCTION_OCCUPY_WS;
     pCD->dtwmBehaviors = 0L;
     pCD->paInitialProperties = NULL;

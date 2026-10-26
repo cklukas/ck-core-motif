@@ -21467,3 +21467,8 @@ GetClientInfo now initializes iconMask to None and wShaped to False before
 WM_HINTS or Shape events populate them, preventing early frame/icon paths from
 using indeterminate values.
 
+Initialize MWM current workspace index (2026-10-26)
+----------------------------------------------------
+WSM client records now initialize currentWsc to workspace zero before
+workspace-sensitive operations use the per-workspace list.
+
