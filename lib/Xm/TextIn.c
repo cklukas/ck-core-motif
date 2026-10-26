@@ -5869,7 +5869,8 @@ InputSetValues(Widget oldw,
           (size_t)data->sarraycount > UINT_MAX / sizeof(XmTextScanType)) {
         data->sarray = (XmTextScanType *)sarray;
         data->sarraycount = XtNumber(sarray);
-        XtFree((char *)temp_ptr);
+        if (temp_ptr != (XtPointer)sarray)
+          XtFree((char *)temp_ptr);
       } else {
         sarray_bytes = (size_t)data->sarraycount * sizeof(XmTextScanType);
         XmTextScanType *new_sarray = (XmTextScanType *)XtMalloc(
@@ -5877,12 +5878,14 @@ InputSetValues(Widget oldw,
         if (new_sarray == NULL) {
           data->sarray = (XmTextScanType *)sarray;
           data->sarraycount = XtNumber(sarray);
-          XtFree((char *)temp_ptr);
+          if (temp_ptr != (XtPointer)sarray)
+            XtFree((char *)temp_ptr);
           return;
         }
         memcpy((void *)new_sarray, (void *)temp_ptr,
                sarray_bytes);
-        XtFree((char *)temp_ptr);
+        if (temp_ptr != (XtPointer)sarray)
+          XtFree((char *)temp_ptr);
         data->sarray = new_sarray;
       }
     }

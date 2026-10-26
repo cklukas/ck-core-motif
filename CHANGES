@@ -23000,3 +23000,10 @@ Guard TextField export-target allocation (2026-10-26)
   cannot be allocated.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfsel-export-targets-allocation.py
+
+Preserve TextIn selection-array ownership (2026-10-26)
+=======================================================
+- Avoid freeing the static selection-array fallback when `InputSetValues`
+  replaces or rejects a caller-provided array.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textin-selection-array-ownership.py
