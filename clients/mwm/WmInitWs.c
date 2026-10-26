@@ -1360,6 +1360,7 @@ InitWmScreen (WmScreenData *pSD, int sNum)
     int wsnum;
     WmWorkspaceData *pwsI;
     size_t buf_size;
+    char screenName[sizeof("-2147483648")];
     int i;
     static int dupnum = 0;
     int iwsx;
@@ -1473,9 +1474,16 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 
     if (!(strcmp ((char *)wmGD.screenNames[sNum], UNSPECIFIED_SCREEN_NAME)))
     {
-	sprintf (buffer, "%d", sNum);
+	int screenNameLength = snprintf(screenName, sizeof(screenName), "%d", sNum);
+	if (screenNameLength < 0 ||
+	    (size_t)screenNameLength >= sizeof(screenName))
+	{
+	    Warning (((char *)GETMESSAGE(40, 7,
+					"Screen name is too long")));
+	    ExitWM (WM_ERROR_EXIT_VALUE);
+	}
 
-	buf_size = strlen(buffer) + 1;
+	buf_size = (size_t)screenNameLength + 1;
 	if (buf_size > UINT_MAX)
 	{
 	    Warning (((char *)GETMESSAGE(40, 7,
@@ -1491,7 +1499,7 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 	}
 	else
 	{
-	    strcpy((char *)wmGD.screenNames[sNum], buffer);
+	    memcpy((char *)wmGD.screenNames[sNum], screenName, buf_size);
 	}
     } /* if wmGD.screenNames[sNum] == UNSPECIFIED_SCREEN_NAME */
 

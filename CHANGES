@@ -1,3 +1,12 @@
+Fix uninitialized WSM screen-name formatting (2026-10-27)
+===========================================================
+
+- Replace the WSM startup write through the not-yet-allocated display buffer
+  with a bounded local screen-name buffer and checked `snprintf` result.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Bound WSM multiscreen selection formatting (2026-10-27)
 =========================================================
 
