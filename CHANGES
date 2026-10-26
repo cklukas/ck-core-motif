@@ -1,3 +1,12 @@
+Guard input-method lookup arguments (2026-10-27)
+================================================
+
+- Reject null widgets/events, negative capacities, and missing non-empty output
+  buffers before XIM lookup in `XmImMbLookupString`.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard XIC creation input (2026-10-27)
 =====================================
 

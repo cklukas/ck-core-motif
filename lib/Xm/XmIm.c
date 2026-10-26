@@ -927,6 +927,11 @@ XmImMbLookupString(Widget w,
 {
   register XmImXICInfo icp;
   int ret_val;
+
+	if (w == NULL || event == NULL || nbytes < 0 ||
+	    (nbytes != 0 && buf == NULL))
+	return 0;
+
   _XmWidgetToAppContext(w);
   
   _XmAppLock(app);
