@@ -1,3 +1,11 @@
+Refresh render-converter input regression check (2026-10-27)
+============================================================
+
+- Match the focused check to the current widget/property null guard together
+  with the bounded conversion-length validation.
+
+===========================================================
+
 Refresh protocol null-slot regression check (2026-10-27)
 ========================================================
 
