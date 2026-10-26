@@ -3338,11 +3338,11 @@ UninstallColormap(XmDragOverShellWidget dos)
 	 */
 	if (dos->drag.colormapOverride)
 	{
-	    register int i;
+	    register int saved_i;
 
-	    for (i=0; i<dos->drag.numSavedColormaps; i++)
+	    for (saved_i=0; saved_i<dos->drag.numSavedColormaps; saved_i++)
 		XInstallColormap(XtDisplay(dos),
-				 dos->drag.savedColormaps[i]);
+				 dos->drag.savedColormaps[saved_i]);
 	    XFree((char *)dos->drag.savedColormaps);
 	}
     }

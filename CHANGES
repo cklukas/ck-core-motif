@@ -21819,3 +21819,10 @@ Align drop-site child indexes with Cardinal widths (2026-10-26)
 - Align child indexes and growth allocations with their `Cardinal` widths and
   extend the warning regression documentation.
 
+Disambiguate DragOverShell colormap indexes (2026-10-26)
+=========================================================
+
+- Use a distinct saved-colormap loop index during teardown so it cannot shadow
+  the active window-list index.
+- Extend the DragOverShell colormap regression documentation.
+

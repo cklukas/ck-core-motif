@@ -14,4 +14,8 @@ assert "countReturn >= INT_MAX" in region
 assert "SIZE_MAX / sizeof(Window)" in region
 assert "UINT_MAX / sizeof(Window)" in region
 assert "if (windows == NULL)" in region
+
+uninstall = source[source.index("\nUninstallColormap(XmDragOverShellWidget"):]
+assert "register int saved_i;" in uninstall
+assert uninstall.count("register int i;") == 1
 print("PASS DragOverShell colormap-window allocation bounds")
