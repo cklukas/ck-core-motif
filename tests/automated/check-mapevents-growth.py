@@ -11,9 +11,8 @@ assert "int *new_event_types;" in region
 assert "KeySym *new_keysyms;" in region
 assert "Modifiers *new_modifiers;" in region
 assert "if (count == INT_MAX)" in region
-assert region.count("if (new_event_types == NULL)") == 1
-assert region.count("if (new_keysyms == NULL)") == 1
-assert region.count("if (new_modifiers == NULL)") == 1
+assert "if (new_event_types == NULL || new_keysyms == NULL ||" in region
+assert "new_modifiers == NULL)" in region
 assert "item_count > SIZE_MAX / sizeof(**eventTypes)" in region
 assert "item_count > SIZE_MAX / sizeof(**keysyms)" in region
 assert "item_count > SIZE_MAX / sizeof(**modifiers)" in region
