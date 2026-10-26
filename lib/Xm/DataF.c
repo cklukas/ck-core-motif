@@ -1917,12 +1917,18 @@ df_GetTextFGCData(
        Widget xm_display = (Widget) XmGetXmDisplay(display);
 
        ctx_data = (XmTextContextData) XtMalloc(sizeof(XmTextContextDataRec));
+       if (ctx_data == NULL)
+           return NULL;
 
        ctx_data->screen = screen;
        ctx_data->context = _XmDataFGCContext;
        ctx_data->type = _XM_IS_GC_DATA_CTX;
 
        gc_data = (TextFGCData) XtCalloc(1, sizeof(TextFGCDataRec));
+       if (gc_data == NULL) {
+           XtFree((char *)ctx_data);
+           return NULL;
+       }
 
        XtAddCallback(xm_display, XmNdestroyCallback, 
                      (XtCallbackProc) df_FreeContextData, (XtPointer) ctx_data);

@@ -23,6 +23,15 @@ Guard DataField destination context allocations (2026-10-27)
   X context registration, releasing partial state on failure.
 - Add a focused source regression and documentation.
 
+====================================================
+
+Guard DataField GC context allocations (2026-10-27)
+=====================================================
+
+- Check per-screen GC context allocations before initialization or X context
+  registration, releasing partial state on failure.
+- Add a focused source regression and documentation.
+
 ============================================================
 
 Prevent clipboard target cleanup double-frees (2026-10-27)
