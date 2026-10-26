@@ -22196,3 +22196,12 @@ Release secondary callback data after context teardown (2026-10-26)
 - Add focused regression coverage and documentation for this teardown path.
 
 Validate destination handler boundary inputs (2026-10-26)
+Validate secondary conversion callback inputs (2026-10-26)
+===========================================================
+
+- Refuse null callback state or missing/undersized `ATOM_PAIR` parameters
+  before secondary selection request access.
+- Add focused regression coverage and documentation for malformed conversion
+  requests.
+
+Release secondary callback data after context teardown (2026-10-26)

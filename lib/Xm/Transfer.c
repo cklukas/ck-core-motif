@@ -356,6 +356,13 @@ SecondaryConvertHandler(Widget w,
   Atom atoms[XtNumber(atom_names)];
   XtEnum operation;
 
+  if (w == NULL || cs == NULL)
+    return;
+  if (cs -> parm == NULL || cs -> parm_length < 2) {
+    cs -> status = XmCONVERT_REFUSE;
+    return;
+  }
+
   _XmProcessLock();
   if (secondary_lock != 0) {
     cs -> status = XmCONVERT_REFUSE;
