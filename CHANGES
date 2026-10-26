@@ -17846,3 +17846,12 @@ Refresh InfoBar hit-zone regression check (2026-10-27)
 =======================================================
 
 Refresh FontSelector encoding-list regression check (2026-10-27)
+Refresh icon-info guard regression check (2026-10-27)
+======================================================
+
+- Match the focused test to the current `DeleteIconInfo` null/list guards and
+  clearing behavior.
+
+======================================================
+
+Refresh InfoBar hit-zone regression check (2026-10-27)
