@@ -283,6 +283,7 @@ SaveAll(
     aSaveData->savedPixmaps = pData =
         (DragPixmapData *) XtMalloc (sizeof(DragPixmapData));
     if (!pData) {
+	aSaveData->numSavedPixmaps = 0;
 	return (False);
     }
 
@@ -344,6 +345,7 @@ SaveSegments(
     aSaveData->savedPixmaps = pData =
 	    (DragPixmapData *) XtMalloc (sizeof(DragPixmapData) * 4);
     if (!pData) {
+	aSaveData->numSavedPixmaps = 0;
 	    return (False);
     }
 

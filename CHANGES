@@ -16752,3 +16752,12 @@ Guard DragUnder animation allocation (2026-10-27)
 - Add a focused source regression and documentation.
 
 ====================================================
+
+Guard DragUnder backing-store cleanup (2026-10-27)
+===================================================
+
+- Reset the saved-pixmap count when backing-store record allocation fails,
+  keeping later cleanup null-safe.
+- Add a focused source regression and documentation.
+
+====================================================
