@@ -21393,9 +21393,9 @@ publishing it, avoiding invalid requests when XCreateWindow fails.
 
 Handle MWM slide cover-window creation failure (2026-10-26)
 -------------------------------------------------------------
-Slide-up setup now clears its pending slide record and returns when the
-temporary cover window cannot be created, avoiding invalid X requests while
-leaving the client mapped.
+Slide-up and slide-back setup now clear their pending slide records and return
+when the temporary cover window cannot be created, avoiding invalid X requests
+while leaving the client mapped.
 
 Handle MWM refresh-window creation failure (2026-10-26)
 ---------------------------------------------------------
