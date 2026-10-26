@@ -298,12 +298,13 @@ static void Notify(XmSpinnerWidget spinner, XEvent *event) {
 }
 
 Boolean XmSpinnerGetActive(Widget widget) {
-    return XmIsSpinner(widget) ? ((XmSpinnerWidget)widget)->spinner.active : False;
+    return widget != NULL && XmIsSpinner(widget)
+        ? ((XmSpinnerWidget)widget)->spinner.active : False;
 }
 void XmSpinnerSetActive(Widget widget, Boolean active, Boolean notify) {
     XmSpinnerWidget spinner;
     Boolean old;
-    if (!XmIsSpinner(widget)) return;
+    if (widget == NULL || !XmIsSpinner(widget)) return;
     spinner = (XmSpinnerWidget)widget;
     old = spinner->spinner.active;
     spinner->spinner.active = active ? True : False;
@@ -314,7 +315,8 @@ void XmSpinnerSetActive(Widget widget, Boolean active, Boolean notify) {
         Notify(spinner, NULL);
 }
 unsigned int XmSpinnerGetPhase(Widget widget) {
-    return XmIsSpinner(widget) ? ((XmSpinnerWidget)widget)->spinner.phase : 0;
+    return widget != NULL && XmIsSpinner(widget)
+        ? ((XmSpinnerWidget)widget)->spinner.phase : 0;
 }
 
 Widget XmCreateSpinner(Widget parent, char *name, ArgList args,
