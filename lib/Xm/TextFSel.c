@@ -1073,8 +1073,36 @@ DropTransferProc(Widget w, XtPointer closure,
   } else {
     wc_total_length = _XmTextFieldCountCharacters(tf, total_value,
                                                   total_length);
+    if (wc_total_length < 0 ||
+        (unsigned long)wc_total_length >
+        (unsigned long)UINT_MAX / sizeof(wchar_t) - 1) {
+      if (transfer_rec->move && local)
+        TextF_MaxLength(tf) = max_length;
+      if (total_value && (total_value != (char*)ds->value))
+        XtFree(total_value);
+      if (ds->value) {
+        XtFree((char*) ds->value);
+        ds->value = NULL;
+      }
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+      _XmTextFieldDrawInsertionPoint(tf, True);
+      return;
+    }
     wc_total_value = (wchar_t*)XtMalloc((unsigned)
 					(wc_total_length+1) * sizeof(wchar_t));
+    if (wc_total_value == NULL) {
+      if (transfer_rec->move && local)
+        TextF_MaxLength(tf) = max_length;
+      if (total_value && (total_value != (char*)ds->value))
+        XtFree(total_value);
+      if (ds->value) {
+        XtFree((char*) ds->value);
+        ds->value = NULL;
+      }
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+      _XmTextFieldDrawInsertionPoint(tf, True);
+      return;
+    }
     wc_total_length = mbstowcs(wc_total_value, total_value, wc_total_length+1);
     if (wc_total_length > 0)
       replace = _XmTextFieldReplaceText(tf, ds->event, insertPosLeft, 

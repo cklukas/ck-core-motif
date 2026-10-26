@@ -22795,3 +22795,11 @@ Check TextField TARGETS allocation (2026-10-26)
   be allocated before appending TextField-specific atoms.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-targets-allocation.py
+
+Bound TextField drop wide-character buffers (2026-10-26)
+==========================================================
+- Reject invalid wide-character counts and allocation failure before
+  converting dropped text into a wide-character buffer.
+- Restore transfer cleanup state and add focused regression coverage and
+  documentation.
+Regression: tests/automated/check-textfield-drop-wide-buffer.py
