@@ -20303,6 +20303,12 @@ Guard text-field string getter allocations (2026-10-26)
   explicitly terminate successful conversion output.
 - Handle allocation failure for the empty wide-string result as well.
 
+Guard wide text-field modify-verify allocation (2026-10-26)
+============================================================
+
+- Bound the temporary wide-character buffer, check allocation failure, and
+  avoid narrowing an unsuccessful or oversized `mbstowcs` result to `int`.
+
 Preserve text-field conversion result widths (2026-10-26)
 ==========================================================
 

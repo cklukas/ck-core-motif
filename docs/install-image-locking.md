@@ -51,6 +51,10 @@ termination rules; their focused check is
 That check also covers the empty-wide-string allocation path, which now
 returns `NULL` cleanly if the one-character allocation fails.
 
+The wide modify-verify path in `XmTextFieldSetString` now uses checked
+`size_t` arithmetic and handles temporary-buffer allocation failure; this is
+covered by `tests/automated/check-textfield-set-string-allocation.py`.
+
 Conversion result counts are retained as `size_t` through the getter and
 substring paths, so large successful conversions cannot wrap through an
 intermediate `int`.

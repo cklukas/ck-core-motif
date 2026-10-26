@@ -10314,6 +10314,9 @@ XmTextFieldSetString(Widget w,
   int length;
   int free_insert = False;
   int ret_val = 0;
+  size_t value_length;
+  size_t wbuf_bytes;
+  size_t converted_length;
   char * tmp_ptr;
   char * mod_value = NULL;
   _XmWidgetToAppContext(w);
@@ -10359,10 +10362,24 @@ XmTextFieldSetString(Widget w,
       } else {
 	  wchar_t * wbuf;
 	  wchar_t * orig_wbuf;
-	  wbuf = (wchar_t*)XtMalloc((unsigned)
-				    ((strlen(value) + 1) * sizeof(wchar_t)));
-	  length = mbstowcs(wbuf, value, (size_t)(strlen(value) + 1));
-	  if (length < 0) length = 0;
+	  value_length = strlen(value);
+	  if (value_length == SIZE_MAX ||
+	      value_length + 1 > SIZE_MAX / sizeof(wchar_t) ||
+	      value_length + 1 > UINT_MAX / sizeof(wchar_t)) {
+	    _XmAppUnlock(app);
+	    return;
+	  }
+	  wbuf_bytes = (value_length + 1) * sizeof(wchar_t);
+	  wbuf = (wchar_t*)XtMalloc((Cardinal)wbuf_bytes);
+	  if (wbuf == NULL) {
+	    _XmAppUnlock(app);
+	    return;
+	  }
+	  converted_length = mbstowcs(wbuf, value, value_length + 1);
+	  if (converted_length == (size_t)-1 || converted_length > INT_MAX)
+	    length = 0;
+	  else
+	    length = (int)converted_length;
 	  orig_wbuf = wbuf; /* save the pointer to free later */
 
 	  if (!ModifyVerify(tf, NULL, &fromPos, &toPos, (char**)&wbuf, 
