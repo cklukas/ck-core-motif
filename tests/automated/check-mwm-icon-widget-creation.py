@@ -11,5 +11,5 @@ start = text.index(needle)
 body = text[start:text.index("    if (dummyString == NULL)", start)]
 assert "if (iconWidget == NULL)" in body
 assert "MWarning" in body
-assert "return (NULL);" in body
+assert "return (False);" in body
 print("MWM icon-box widget creation is guarded")

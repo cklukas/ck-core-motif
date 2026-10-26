@@ -1,3 +1,11 @@
+Refresh MWM icon-widget regression check (2026-10-27)
+=====================================================
+
+- Match the focused check to the current Boolean failure return after a
+  managed icon widget cannot be created.
+
+===========================================================
+
 Refresh MWM font-warning regression check (2026-10-27)
 =======================================================
 
