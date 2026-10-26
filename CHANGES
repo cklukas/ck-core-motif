@@ -22611,3 +22611,9 @@ Reject missing DataField export targets (2026-10-26)
   without providing an export-target array.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-datafield-export-targets.py
+Serialize transfer done-proc reclamation (2026-10-26)
+=====================================================
+- Reclaim transfer done-procedure lists under the process lock used by
+  callback registration.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-transfer-done-proc-locking.py

@@ -2333,13 +2333,12 @@ FreeTransferID(XtPointer id)
   if (tid == NULL)
     return;
 
-  /* Free done_proc list */
+  /* Unchain from global_tc and put on the free list atomically. */
+  _XmProcessLock();
+  /* Reclaim the callback list under the same lock used by AddDoneProc. */
   if (tid -> doneProcs != NULL) XtFree((char*) tid -> doneProcs);
   tid -> doneProcs = NULL;
   tid -> numDoneProcs = 0;
-
-  /* Unchain from global_tc and put on the free list atomically. */
-  _XmProcessLock();
   pid = (TransferContext) tid -> prev;
   nid = (TransferContext) tid -> next;
   if (global_tc == tid)
