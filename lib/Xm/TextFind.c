@@ -46,9 +46,15 @@ _XmTextFindStringBackwards(Widget w,
   XmSourceData data = ((XmTextWidget)w)->text.source->data;
   Boolean return_val = False, match = False;
   int search_length = 0;
+  size_t search_bytes;
   char *ptr, *end_ptr, *tmp_ptr, *end_of_data;
   
-  search_length = _XmTextCountCharacters(search_string,strlen(search_string));
+  if (search_string == NULL)
+    return FALSE;
+  search_bytes = strlen(search_string);
+  if (search_bytes > (size_t)INT_MAX)
+    return FALSE;
+  search_length = _XmTextCountCharacters(search_string, (int)search_bytes);
   
   if (!search_length || !data->length || search_length > data->length)
     return FALSE;
@@ -522,9 +528,15 @@ _XmTextFindStringForwards(Widget w,
   XmSourceData data = tw->text.source->data;
   Boolean return_val = False, match = False;
   int search_length = 0;
+  size_t search_bytes;
   char *ptr, *end_ptr, *tmp_ptr, *end_of_data;
   
-  search_length = _XmTextCountCharacters(search_string,strlen(search_string));
+  if (search_string == NULL)
+    return FALSE;
+  search_bytes = strlen(search_string);
+  if (search_bytes > (size_t)INT_MAX)
+    return FALSE;
+  search_length = _XmTextCountCharacters(search_string, (int)search_bytes);
   
   if (!search_length || !data->length || search_length > data->length) 
     return FALSE;

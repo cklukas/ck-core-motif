@@ -22701,3 +22701,9 @@ Bound Text search conversion allocations (2026-10-26)
   in both search directions before conversion.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-find-search-allocation.py
+Guard Text search length conversion (2026-10-26)
+=================================================
+- Validate null and oversized search strings before converting `strlen` to
+  the legacy integer character-count parameter.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-find-length.py
