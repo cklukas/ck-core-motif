@@ -1,3 +1,12 @@
+Guard RowColumn creation parent inputs (2026-10-27)
+===================================================
+
+- Return before context lookup when the non-varargs RowColumn creation
+  wrappers receive a null parent.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard option-menu gadget lookup inputs (2026-10-27)
 ===================================================
 

@@ -3386,6 +3386,9 @@ XmCreateRowColumn(
         Cardinal ac )
 {
    Widget w;
+   if (p == (Widget) NULL)
+      return NULL;
+
    _XmWidgetToAppContext(p);
 
    _XmAppLock(app);
@@ -3448,6 +3451,9 @@ XmCreateWorkArea(
         Cardinal ac )
 {
    Widget w;
+   if (p == (Widget) NULL)
+      return NULL;
+
    _XmWidgetToAppContext(p);
 
    _XmAppLock(app);
@@ -3464,6 +3470,9 @@ XmCreateRadioBox(
         Cardinal ac )
 {
    Widget w;
+   if (p == (Widget) NULL)
+      return NULL;
+
    _XmWidgetToAppContext(p);
 
    _XmAppLock(app);
@@ -3480,6 +3489,9 @@ XmCreateOptionMenu(
         Cardinal ac )
 {
    Widget w;
+   if (p == (Widget) NULL)
+      return NULL;
+
    _XmWidgetToAppContext(p);
 
    _XmAppLock(app);
@@ -3571,6 +3583,9 @@ XmCreateMenuBar(
         Cardinal ac )
 {
     Widget w;
+    if (p == (Widget) NULL)
+        return NULL;
+
     _XmWidgetToAppContext(p);
 
     _XmAppLock(app);
@@ -3587,6 +3602,9 @@ XmCreatePopupMenu(
         Cardinal ac )
 {
     Widget w;
+    if (p == (Widget) NULL)
+        return NULL;
+
     _XmWidgetToAppContext(p);
 
     _XmAppLock(app);
@@ -3603,6 +3621,9 @@ XmCreatePulldownMenu(
         Cardinal ac )
 {
     Widget w;
+    if (p == (Widget) NULL)
+        return NULL;
+
     _XmWidgetToAppContext(p);
 
     _XmAppLock(app);
