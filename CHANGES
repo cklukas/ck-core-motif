@@ -17022,3 +17022,12 @@ Guard IconLabel resource replacements and drawing (2026-10-27)
 ====================================================
 
 Make Avatar resource updates transactional (2026-10-27)
+Refresh FileSB allocation regression contract (2026-10-27)
+============================================================
+
+- Align the directory-list allocation check with the current overflow guard,
+  `Cardinal`-width allocation, and shared cleanup labels.
+
+====================================================
+
+Clamp Divider preferred width arithmetic (2026-10-27)
