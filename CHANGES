@@ -21813,3 +21813,9 @@ Align DragBS atom growth with Xt allocation width (2026-10-26)
   reallocation size conversion explicit.
 - Remove the redundant host-size check and extend the growth regression docs.
 
+Align drop-site child indexes with Cardinal widths (2026-10-26)
+===============================================================
+
+- Align child indexes and growth allocations with their `Cardinal` widths and
+  extend the warning regression documentation.
+

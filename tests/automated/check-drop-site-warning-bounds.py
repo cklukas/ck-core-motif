@@ -10,4 +10,5 @@ region = source[start:end]
 assert region.count("char buf[256];") == 2
 assert region.count("snprintf(buf, sizeof(buf), MESSAGE3,") == 2
 assert "sprintf(buf, MESSAGE3" not in region
+assert region.count("XmeWarning(GetDSWidget(parentInfo), buf);") == 2
 print("drop-site diagnostics use bounded formatting")

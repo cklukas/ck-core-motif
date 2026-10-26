@@ -132,7 +132,7 @@ _XmDSIAddChild(
         XmDSInfo childInfo,
         Cardinal childPosition )
 {
-	unsigned short i;
+	Cardinal i;
 	unsigned short num_children;
 
 	if ((parentInfo == NULL) || (childInfo == NULL))
@@ -158,12 +158,11 @@ _XmDSIAddChild(
 		if (num_children > USHRT_MAX - CHILDREN_INCREMENT)
 			return;
 		new_max = (unsigned int)num_children + CHILDREN_INCREMENT;
-		if ((size_t)new_max > SIZE_MAX / sizeof(XmDSInfo) ||
-		    (size_t)new_max > UINT_MAX / sizeof(XmDSInfo))
+		if ((size_t)new_max > (size_t)UINT_MAX / sizeof(XmDSInfo))
 			return;
 		new_children = (XtPointer *)XtRealloc(
 			(char *)GetDSChildren(parentInfo),
-			(size_t)new_max * sizeof(XmDSInfo));
+			(Cardinal)((size_t)new_max * sizeof(XmDSInfo)));
 		if (new_children == NULL)
 			return;
 		SetDSChildren(parentInfo, new_children);
@@ -185,7 +184,7 @@ _XmDSIRemoveChild(
         XmDSInfo parentInfo,
         XmDSInfo childInfo )
 {
-	int i;
+	Cardinal i;
 	unsigned short num_children;
 	Cardinal position;
 
@@ -216,7 +215,7 @@ _XmDSIGetChildPosition(
         XmDSInfo parentInfo,
         XmDSInfo childInfo )
 {
-	int i;
+	Cardinal i;
 	unsigned short num_children;
 
 	if ((parentInfo == NULL) || (childInfo == NULL))
