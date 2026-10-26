@@ -1633,6 +1633,9 @@ TextDestinationCallback(Widget w,
   Atom atoms[XtNumber(atom_names)];
   XPoint *drop_point;
 
+  if (w == NULL || ds == NULL || ds->transfer_id == NULL)
+    return;
+
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);
 

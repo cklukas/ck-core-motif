@@ -5599,6 +5599,9 @@ ContainerDestinationProc(
 	XmDropProcCallbackStruct *	dropproc_cs;
 	Atom atoms[XtNumber(atom_names)];
 
+	if (wid == NULL || cs == NULL || cs->transfer_id == NULL)
+	    return;
+
 	/*
 	** In case of a primary transfer operation where a location_data
 	** has been allocated, register a done proc to be called when 

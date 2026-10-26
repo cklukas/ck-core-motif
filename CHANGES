@@ -22423,3 +22423,11 @@ Guard image uninstall callback inputs (2026-10-26)
 - Add focused regression coverage and documentation.
 
 Reject zero image-array element sizes (2026-10-26)
+Validate DnD destination callback inputs (2026-10-26)
+=====================================================
+
+- Reject incomplete Container, Text, and TextField destination callbacks
+  before display, widget, or transfer-state access.
+- Add focused coverage and documentation for teardown-time callbacks.
+
+Reject missing DnD destination callback data (2026-10-26)
