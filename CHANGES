@@ -15534,3 +15534,11 @@ Guard transfer-context lookup failures (2026-10-27)
 - Add a focused source regression and documentation.
 
 Initialize transfer conversion contexts (2026-10-27)
+Guard transfer callback context lookups (2026-10-27)
+=====================================================
+
+- Handle missing conversion contexts in secondary-selection completion and
+  clipboard callback processing.
+- Add a focused source regression and documentation.
+
+Guard transfer-context lookup failures (2026-10-27)

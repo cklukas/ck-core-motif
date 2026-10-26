@@ -760,6 +760,12 @@ SecondaryDone(Widget wid,
 
   cc = LookupContextBlock(XtDisplay(wid), XA_SECONDARY);
 
+  if (cc == NULL) {
+    XtDisownSelection(wid, XA_SECONDARY,
+			      XtLastTimestampProcessed(XtDisplay(wid)));
+    return;
+  }
+
   if (*type == None && *length == 0 && value == NULL)
     success = False;
   else
@@ -1014,7 +1020,7 @@ ClipboardCallback(Widget w, long *data_id, long *target, int *reason)
     _XmConvertHandlerSetLocal();
     if (_XmConvertHandler(w, &req -> distinguisher, (Atom *) target, 
 			  &type, &value, &size, &format) == True &&
-	! (cc -> flags & XmCONVERTING_PARTIAL)) {
+	(cc == NULL || !(cc -> flags & XmCONVERTING_PARTIAL))) {
       char *name;
       FreeType howFree;
      
