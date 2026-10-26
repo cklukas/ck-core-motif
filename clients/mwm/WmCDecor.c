@@ -2473,6 +2473,11 @@ void BevelSystemButton (RList *prTop, RList *prBot, int x, int y,
     if (height < 5)
 	return;
 
+    if ((height >= 8 && height <= 9 && width < 4) ||
+	(height >= 10 && height <= 13 && width < 6) ||
+	(height >= 14 && width < 8))
+	return;
+
     switch (height) {
 	case 5:
 	case 6:

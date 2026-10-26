@@ -20931,6 +20931,11 @@ BevelSystemButton and BevelMinimizeButton now reject undersized heights before
 their unsigned geometry calculations, avoiding wrapped dimensions in compact
 title bars.
 
+Guard narrow MWM system-button geometry (2026-10-26)
+-----------------------------------------------------
+BevelSystemButton now rejects widths below the minimum required by each glyph
+size branch before subtracting from the unsigned width.
+
 Reject impossible MWM title widths (2026-10-26)
 -----------------------------------------------
 GetFramePartInfo now rejects title and title-bar geometry when borders and
