@@ -21945,3 +21945,11 @@ Make locale-text allocation width explicit (2026-10-26)
   `Cardinal` to `XtMalloc`.
 - Add focused regression documentation for the conversion allocation.
 
+Use the target screen for scaled images (2026-10-26)
+=====================================================
+
+- Resolve multi-screen drawables before creating the temporary scaled
+  `XImage`, so its visual matches the destination screen.
+- Preserve the existing default-screen behavior for single-screen displays.
+- Add focused regression coverage and documentation.
+

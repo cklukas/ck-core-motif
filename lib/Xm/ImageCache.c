@@ -2562,6 +2562,11 @@ void _XmPutScaledImage (
     size_t table_width_bytes, table_height_bytes;
     Bool fast8;
     int output_y;
+    int screen_number;
+    Window root;
+    int geometry_x, geometry_y;
+    unsigned int geometry_width, geometry_height, geometry_border;
+    unsigned int geometry_depth;
 
     if (display == NULL || d == None || gc == NULL ||
 	src_image == NULL || src_image->data == NULL ||
@@ -2655,9 +2660,23 @@ void _XmPutScaledImage (
 	h > UINT_MAX - strip_height)
 	return;
     h += strip_height;
+    screen_number = DefaultScreen(display);
+    if (ScreenCount(display) > 1 &&
+	XGetGeometry(display, d, &root, &geometry_x, &geometry_y,
+		     &geometry_width, &geometry_height, &geometry_border,
+		     &geometry_depth)) {
+	unsigned int candidate;
+	for (candidate = 0; candidate < (unsigned int)ScreenCount(display);
+	     candidate++) {
+	    if (RootWindow(display, (int)candidate) == root) {
+		screen_number = (int)candidate;
+		break;
+	    }
+	}
+    }
     dest_image = XCreateImage(display,
 			      DefaultVisualOfScreen(
-					     DefaultScreenOfDisplay(display)),
+					     ScreenOfDisplay(display, screen_number)),
 					      (unsigned int)src_image->depth,
 					      src_image->format,
 			      0, NULL,
