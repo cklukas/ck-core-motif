@@ -16653,3 +16653,12 @@ Guard DataField raw primary fallback allocation (2026-10-27)
 - Add a focused source regression and documentation.
 
 ====================================================
+
+Bound DataField raw primary fallback lengths (2026-10-27)
+==========================================================
+
+- Reject raw wide-selection lengths that exceed the replacement API or Xt
+  allocation limits before multiplication or narrowing.
+- Add a focused source regression and documentation.
+
+====================================================

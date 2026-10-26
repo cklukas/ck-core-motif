@@ -7444,6 +7444,15 @@ df_DoStuff(
 	     } else {
 		wchar_t * wc_value;
 
+		if (*length > (unsigned long)INT_MAX ||
+		    *length > (unsigned long)(UINT_MAX / sizeof(wchar_t))) {
+		   if (XmTextF_selection_move(tf) && local)
+		      XmTextF_max_length(tf) = max_length;
+		   XtFree((char *)value);
+		   if (--prim_select->ref_count == 0)
+		      XtFree((char *)prim_select);
+		   return;
+		}
 		wc_value = (wchar_t*)XtMalloc ((unsigned)
                                                (*length * sizeof(wchar_t)));
 		if (wc_value == NULL) {
