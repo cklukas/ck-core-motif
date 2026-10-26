@@ -839,7 +839,8 @@ XmStringTableProposeTablist(XmStringTable strings,
 			    float pad_value,
 			    XmOffsetModel offset_model)
 {
-  int			i, j;
+  int			i;
+  unsigned int		j;
   _XmStringContextRec	stack_ctx;
   XmTabList		tl;
   XmTab			tab, prev, start;
@@ -928,6 +929,11 @@ XmStringTableProposeTablist(XmStringTable strings,
 	      }
 	      start = _XmTabLStart(tl);
 	      prev = _XmTabPrev(start);
+	      if (_XmTabLCount(tl) == UINT_MAX) {
+		_XmStringContextFree(&stack_ctx);
+		XmTabListFree(tl);
+		return ((XmTabList)NULL);
+	      }
 	      
 	      _XmTabNext(prev) = tab;
 	      _XmTabPrev(tab) = prev;
@@ -942,7 +948,12 @@ XmStringTableProposeTablist(XmStringTable strings,
 
 	  if (val > _XmTabValue(tab)) XmTabSetValue(tab, val);
 	  else val = _XmTabValue(tab);
-	  j++;
+	  if (j == UINT_MAX) {
+	    _XmStringContextFree(&stack_ctx);
+	    XmTabListFree(tl);
+	    return ((XmTabList)NULL);
+	  }
+	  ++j;
 	}
 
       if (_XmStrContError(&stack_ctx))

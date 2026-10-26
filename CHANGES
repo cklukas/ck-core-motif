@@ -16202,3 +16202,13 @@ Bound XmString newline entry count (2026-10-27)
 ================================================
 
 Release MB conversion state on oversized fallback (2026-10-27)
+Bound proposed tab-list counters (2026-10-27)
+=============================================
+
+- Match the per-line tab index to the tab-list count width and reject counter
+  exhaustion before adding or advancing entries.
+- Add a focused source regression and documentation.
+
+================================================
+
+Bound XmString newline entry count (2026-10-27)

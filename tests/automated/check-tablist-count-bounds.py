@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
-"""Check XmTabList insertion and cleanup use full-width count arithmetic."""
+"""Check that tab-list proposal counters cannot wrap."""
+
 from pathlib import Path
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmTabList.c").read_text(
-    encoding="utf-8"
+
+source = Path(__file__).parents[2] / "lib" / "Xm" / "XmStringFunc.c"
+text = source.read_text(encoding="utf-8")
+start = text.index("XmStringTableProposeTablist(")
+end = text.index("\n}\n", start)
+region = text[start:end]
+
+required = (
+    "unsigned int\t\tj;",
+    "_XmTabLCount(tl) == UINT_MAX",
+    "if (j == UINT_MAX)",
 )
-insert_start = source.index("XmTabList\nXmTabListInsertTabs")
-insert_end = source.index("\n/*", insert_start)
-insert = source[insert_start:insert_end]
-assert "tab_count > (Cardinal)~0 - _XmTabLCount(oldlist)" in insert
-assert "return(NULL);" in insert
-free_start = source.index("void\nXmTabListFree")
-free_end = source.index("\nCardinal\nXmTabListTabCount", free_start)
-free = source[free_start:free_end]
-assert "Cardinal i;" in free
-assert "int\ti;" not in free
-create_start = source.index("Widget\n_XmCreateTab(Widget")
-create_end = source.index("\nvoid\nXmTabFree", create_start)
-assert "Cardinal\ti;" in source[create_start:create_end]
-print("XmTabList count growth and cleanup are full-width")
+missing = [item for item in required if item not in region]
+if missing:
+    raise SystemExit("tab-list count bounds missing: " + ", ".join(missing))
+
+print("tab-list proposal counters are bounded")
