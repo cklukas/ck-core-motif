@@ -32,6 +32,7 @@ static char rcsid[] = "$TOG: DragICC.c /main/14 1997/06/18 17:38:07 samborn $"
 
 
 #include <stdint.h>
+#include <limits.h>
 #include <X11/Xatom.h>
 #include <Xm/AtomMgr.h>
 #include <Xm/DisplayP.h>
@@ -1448,9 +1449,19 @@ _XmSetDragReceiverInfo(
 
     infoRecPtr = (xmDragReceiverInfoStruct *)propBuf->data.bytes;
 
+    if (propBuf->data.size > UINT32_MAX ||
+	propBuf->data.size > (size_t)INT_MAX ||
+	propBuf->heap.size > (size_t)INT_MAX) {
+	if (propBuf->data.bytes != propBuf->data.stack)
+	    XtFree((char *)propBuf->data.bytes);
+	if (propBuf->heap.bytes != propBuf->heap.stack)
+	    XtFree((char *)propBuf->heap.bytes);
+	return;
+    }
+
     infoRecPtr->num_drop_sites = numDropSites;
 
-    infoRecPtr->heap_offset = propBuf->data.size;
+    infoRecPtr->heap_offset = (CARD32)propBuf->data.size;
     
     /* write the buffer to the property */
     XChangeProperty (XtDisplayOfObject(shell), 
@@ -1459,7 +1470,7 @@ _XmSetDragReceiverInfo(
 		     8, 
 		     PropModeReplace,
 		     (unsigned char *)propBuf->data.bytes,
-		     propBuf->data.size);
+		     (int)propBuf->data.size);
     if (propBuf->data.bytes != propBuf->data.stack)
       XtFree((char *)propBuf->data.bytes);
     
@@ -1469,7 +1480,7 @@ _XmSetDragReceiverInfo(
 			 receiverAtom, receiverAtom,
 			 8, PropModeAppend, 
 			 (unsigned char *)propBuf->heap.bytes,
-			 propBuf->heap.size);
+			 (int)propBuf->heap.size);
 	if (propBuf->heap.bytes != propBuf->heap.stack)
 	  XtFree((char *)propBuf->heap.bytes);
 	
