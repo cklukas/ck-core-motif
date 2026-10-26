@@ -4671,6 +4671,7 @@ Boolean F_Screen (String args, ClientData *pCD, XEvent *event)
 Boolean F_InvokeCommand (String args, ClientData *pCD, XEvent *event)
 {
     CARD32 commandID, clientWindow;
+    CARD32 invokingWindow = 0;
     Atom notifySelection;
     unsigned int parsedCommandID, parsedClientWindow;
     unsigned long parsedSelection;
@@ -4686,8 +4687,15 @@ Boolean F_InvokeCommand (String args, ClientData *pCD, XEvent *event)
     notifySelection = (Atom)parsedSelection;
 	(void)clientWindow;
 
+    if (pCD != (ClientData *) NULL)
+    {
+	if ((unsigned long)pCD->client > (unsigned long)UINT_MAX)
+	    return (False);
+	invokingWindow = (CARD32)pCD->client;
+    }
+
     SendInvokeMessage(commandID,
-		      (pCD == (ClientData *) NULL ? 0 : pCD->client),
+		      invokingWindow,
 		      notifySelection,
 		      LastTime());
 

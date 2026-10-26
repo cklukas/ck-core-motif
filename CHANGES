@@ -21583,3 +21583,10 @@ Keep MWM screen warning format checkable (2026-10-26)
   preserving compiler format checking without changing the message.
 - Add focused regression coverage and documentation.
 
+Bound MWM invoke-command window conversion (2026-10-26)
+=========================================================
+
+- Check that the local X11 `Window` fits the protocol's 32-bit `CARD32` field
+  before conversion, rejecting unrepresentable values instead of truncating.
+- Add focused regression coverage and documentation.
+
