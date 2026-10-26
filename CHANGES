@@ -21268,3 +21268,9 @@ PaintActiveIconText now validates the client, screen, and realized label window
 before reading decoration state or issuing shadow/text drawing requests. Late
 paint callbacks after label teardown now return safely.
 
+Guard MWM feedback colormap cleanup (2026-10-26)
+--------------------------------------------------
+HideFeedbackWindow now checks the active screen before restoring colormap
+focus. Feedback teardown during screen shutdown no longer dereferences an
+absent active-screen record after unmapping the overlay.
+
