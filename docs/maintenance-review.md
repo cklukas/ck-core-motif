@@ -58,6 +58,13 @@ The focused regression is
 initials centered for proportional, Xft and multilingual fonts. The focused
 regression is `tests/automated/check-avatar-render-table.py`.
 
+## Stepper control glyphs
+
+`XmStepper` now draws distinct centered increment (`+`) and decrement (`−`)
+glyphs in the two button regions using measured render-table text. This fixes
+the previous single oversized mark that crossed both hit regions. The focused
+regression is `tests/automated/check-stepper-control-glyphs.py`.
+
 ## Concrete storage and image corrections
 
 The next source review identified the following independently useful fixes.

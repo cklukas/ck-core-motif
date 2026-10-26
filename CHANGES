@@ -14944,3 +14944,11 @@ Avatar initials render-table typography (2026-10-27)
   proportional, Xft and multilingual font metrics.
 
 Breadcrumb selected-label contrast (2026-10-27)
+Stepper control glyphs (2026-10-27)
+===================================
+
+- Draw separate, render-table-measured `+` and Unicode minus glyphs in the
+  upper and lower stepper buttons.  The increment and decrement regions no
+  longer share one oversized horizontal mark.
+
+Avatar initials render-table typography (2026-10-27)

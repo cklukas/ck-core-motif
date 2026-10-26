@@ -115,7 +115,28 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     split = s->core.width > 28 ? s->core.width - 28 : 0;
     XDrawLine(d, w, s->stepper.gc, split, 0, split, s->core.height);
     XDrawLine(d, w, s->stepper.gc, split + 14, 5, split + 14, s->core.height - 5);
-    XDrawLine(d, w, s->stepper.gc, split + 7, s->core.height / 2, split + 21, s->core.height / 2);
+    if (s->stepper.render_table) {
+        const char *symbols[2] = {"+", "−"};
+        int centers[2] = {split + 7, split + 21};
+        int cell_height = (int)s->core.height / 2;
+        int i;
+        for (i = 0; i < 2; ++i) {
+            XmString symbol = XmStringCreateLocalized((char *)symbols[i]);
+            Dimension symbol_width = 0, symbol_height = 0;
+            if (symbol) {
+                XmStringExtent(s->stepper.render_table, symbol,
+                               &symbol_width, &symbol_height);
+                XmStringDraw(d, w, s->stepper.render_table, symbol,
+                             s->stepper.gc,
+                             centers[i] - (int)symbol_width / 2,
+                             i * cell_height +
+                               (cell_height - (int)symbol_height) / 2,
+                             symbol_width, XmALIGNMENT_BEGINNING,
+                             XmPrim_layout_direction(s), NULL);
+                XmStringFree(symbol);
+            }
+        }
+    }
     if (s->primitive.highlighted && s->primitive.highlight_thickness)
         XDrawRectangle(d, w, s->stepper.gc, s->primitive.highlight_thickness - 1,
                        s->primitive.highlight_thickness - 1,
