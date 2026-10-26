@@ -1546,6 +1546,7 @@ XmStringConcatAndFree(XmString a,
   XmString 		a_str, b_str;
   _XmStringMultiRec     b_tmp;
   _XmStringEntry 	a_line, b_line, tmp_line, *segs=NULL;
+  _XmStringEntry 	*original_segs;
   _XmStringNREntry 	a_last, b_seg = NULL, tmp_seg;
   _XmStringNREntry 	resized_last;
   XtPointer		resized_text;
@@ -1768,7 +1769,28 @@ XmStringConcatAndFree(XmString a,
       _XmStrEntry(a) = segs;
       _XmStrEntryCount(a) = a_lc;
       if (segs) {
-	segs = (_XmStringEntry *)XtMalloc(a_lc * sizeof(_XmStringEntry));
+	original_segs = segs;
+	if (a_lc <= 0 || (size_t)a_lc > SIZE_MAX / sizeof(*segs) ||
+	    (size_t)a_lc > UINT_MAX / sizeof(*segs)) {
+	    _XmStrEntry(a) = segs;
+	    _XmStrEntryCount(a) = a_lc;
+	    XmStringFree(a_str);
+	    _XmProcessUnlock();
+	    XmStringFree(a);
+	    XmStringFree(b);
+	    return NULL;
+	}
+	segs = (_XmStringEntry *)XtMalloc((Cardinal)((size_t)a_lc *
+	                                             sizeof(*segs)));
+	if (segs == NULL) {
+	    _XmStrEntry(a) = original_segs;
+	    _XmStrEntryCount(a) = a_lc;
+	    XmStringFree(a_str);
+	    _XmProcessUnlock();
+	    XmStringFree(a);
+	    XmStringFree(b);
+	    return NULL;
+	}
 	for (i = 0; i < a_lc; i++)
 	  segs[i] = _XmStringEntryCopy(_XmStrEntry(a)[i]);
       }

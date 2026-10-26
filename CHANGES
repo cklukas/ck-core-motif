@@ -44,6 +44,15 @@ Bound tear-off cancel-key allocation (2026-10-27)
   temporary keycode array used during tear-off placement.
 - Add focused regression coverage and documentation.
 
+==================================================
+
+Bound XmString segment-copy allocation (2026-10-27)
+====================================================
+
+- Validate segment-count arithmetic and allocation success when concatenation
+  clones a non-mutating string, restoring the original state on failure.
+- Add focused regression coverage and documentation.
+
 ===========================================================
 
 Propagate compound-text concatenation failures (2026-10-27)
