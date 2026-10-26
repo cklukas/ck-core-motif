@@ -133,8 +133,12 @@ XpmCreateBufferFromXpmImage(
 	ext_size = ExtensionsSize(info->extensions, info->nextensions);
     if (extensions && ext_size == 0)
 	RETURN(XpmNoMemory);
-    if (cmts)
-	cmt_size = CommentsSize(info);
+    if (cmts) {
+	int comment_size = CommentsSize(info);
+	if (comment_size < 0)
+	    RETURN(XpmNoMemory);
+	cmt_size = (unsigned int)comment_size;
+    }
 
     /* write the header line */
 #ifndef VOID_SPRINTF
@@ -468,18 +472,34 @@ WriteExtensions(
 static int
 CommentsSize(XpmInfo *info)
 {
-    int size = 0;
+    size_t size = 0;
+    size_t comment_length;
 
     /* 5 = 2 (for "/_*") + 3 (for "*_/\n") */
-    /* wrap possible but *very* unlikely */
-    if (info->hints_cmt)
-	size += 5 + strlen(info->hints_cmt);
+    if (info == NULL)
+	return -1;
+    if (info->hints_cmt) {
+	comment_length = strlen(info->hints_cmt);
+	if (size > UINT_MAX - 5 || comment_length > UINT_MAX - size - 5)
+	    return -1;
+	size += comment_length + 5;
+    }
 
-    if (info->colors_cmt)
-	size += 5 + strlen(info->colors_cmt);
+    if (info->colors_cmt) {
+	comment_length = strlen(info->colors_cmt);
+	if (size > UINT_MAX - 5 || comment_length > UINT_MAX - size - 5)
+	    return -1;
+	size += comment_length + 5;
+    }
 
-    if (info->pixels_cmt)
-	size += 5 + strlen(info->pixels_cmt);
+    if (info->pixels_cmt) {
+	comment_length = strlen(info->pixels_cmt);
+	if (size > UINT_MAX - 5 || comment_length > UINT_MAX - size - 5)
+	    return -1;
+	size += comment_length + 5;
+    }
 
-    return size;
+    if (size > INT_MAX)
+	return -1;
+    return (int)size;
 }
