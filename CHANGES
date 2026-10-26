@@ -184,6 +184,13 @@ Guard MWM virtual-key scan counts (2026-10-26)
   mapped-key count for virtual-key traversal.
 - Add a focused virtual-key count regression and document the invariant.
 
+Bound MWM virtual-key property arrays (2026-10-26)
+===================================================
+
+- Check virtual-key property counts and Atom-array bytes before allocation,
+  then pass an explicit signed count to `XInternAtoms`.
+- Add a focused property-count regression and document the boundary.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 

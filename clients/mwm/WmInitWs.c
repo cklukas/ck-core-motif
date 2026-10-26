@@ -2845,6 +2845,8 @@ VirtKeys4DIN(
   Atom *prop_atoms ;
   str_xref vkeysym_xref ;
   unsigned num_props = XtNumber( prop_names) ;
+  int prop_count;
+  size_t prop_bytes;
 
   vkeysym_xref = GetReplacementList( dsp, std_xref, XtNumber(std_xref)) ;
   if(    vkeysym_xref == NULL    )
@@ -2852,13 +2854,21 @@ VirtKeys4DIN(
       return PropChanged4DIN ;
     }
 
-  prop_atoms = (Atom *) XtMalloc( sizeof( Atom) * num_props) ;
+  if (num_props > (unsigned)INT_MAX ||
+      (size_t)num_props > (size_t)UINT_MAX / sizeof(Atom))
+    {
+      XtFree( (char *) vkeysym_xref) ;
+      return PropChanged4DIN ;
+    }
+  prop_count = (int)num_props;
+  prop_bytes = (size_t)num_props * sizeof(Atom);
+  prop_atoms = (Atom *)XtMalloc((Cardinal)prop_bytes) ;
   if (prop_atoms == NULL)
     {
       XtFree( (char *) vkeysym_xref) ;
       return PropChanged4DIN ;
     }
-  XInternAtoms(dsp, prop_names, num_props, FALSE, prop_atoms);
+  XInternAtoms(dsp, prop_names, prop_count, FALSE, prop_atoms);
 
   prop_existed = FALSE ;
   i = 0 ;
