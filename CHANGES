@@ -22457,3 +22457,11 @@ Report text DnD conversion failures (2026-10-26)
 - Add focused coverage and documentation.
 
 Clean up failed Text DnD drops (2026-10-26)
+Validate DnD transfer callback inputs (2026-10-26)
+==================================================
+
+- Guard Text and TextField drop-transfer and completion callbacks against
+  missing widgets, callback data, closures, and transfer records.
+- Fail malformed requests safely and add focused coverage and documentation.
+
+Report text DnD conversion failures (2026-10-26)

@@ -1263,8 +1263,10 @@ DropDestroyCB(Widget      w,
 {
   XmTransferDoneCallbackStruct *ts = (XmTransferDoneCallbackStruct *)callData;
   
-  DeleteDropContext(w);
-  if (ts->client_data != NULL) XtFree((char*) ts->client_data);
+  if (w != NULL)
+    DeleteDropContext(w);
+  if (ts != NULL && ts->client_data != NULL)
+    XtFree((char*) ts->client_data);
 }
 
 /* ARGSUSED */
@@ -1284,7 +1286,17 @@ DropTransferProc(Widget w,
 #endif
       };
 
-  _XmTextDropTransferRec *transfer_rec = (_XmTextDropTransferRec *) closure;
+  _XmTextDropTransferRec *transfer_rec;
+  if (w == NULL || ds == NULL || closure == NULL) {
+    if (ds != NULL && ds->transfer_id != NULL)
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+    return;
+  }
+  transfer_rec = (_XmTextDropTransferRec *) closure;
+  if (transfer_rec->widget == NULL) {
+    XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+    return;
+  }
   XmTextWidget tw = (XmTextWidget) transfer_rec->widget;
   InputData data = tw->text.input->data;
   Atom atoms[XtNumber(atom_names)];

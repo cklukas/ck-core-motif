@@ -847,8 +847,10 @@ DropDestroyCB(Widget      w,
   XmTransferDoneCallbackStruct *ts = 
     (XmTransferDoneCallbackStruct *) callData;
   
-  DeleteDropContext(w);
-  if (ts->client_data != NULL) XtFree((char*) ts->client_data);
+  if (w != NULL)
+    DeleteDropContext(w);
+  if (ts != NULL && ts->client_data != NULL)
+    XtFree((char*) ts->client_data);
 }
 
 static void 
@@ -866,7 +868,17 @@ DropTransferProc(Widget w, XtPointer closure,
 #endif
       };
 
-  _XmTextDropTransferRec *transfer_rec = (_XmTextDropTransferRec *) closure;
+  _XmTextDropTransferRec *transfer_rec;
+  if (w == NULL || ds == NULL || closure == NULL) {
+    if (ds != NULL && ds->transfer_id != NULL)
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+    return;
+  }
+  transfer_rec = (_XmTextDropTransferRec *) closure;
+  if (transfer_rec->widget == NULL) {
+    XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+    return;
+  }
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
   Atom atoms[XtNumber(atom_names)];
   Atom CS_OF_ENCODING = XmeGetEncodingAtom(w);
