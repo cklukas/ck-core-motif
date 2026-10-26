@@ -317,7 +317,7 @@ static 	DtCachedDirListStruct cacheList;
 void
 XmeFlushIconFileCache(String	path)
 {
-    Cardinal	dirNameLen;
+    size_t	dirNameLen;
     Cardinal 	i;
 
     _XmProcessLock();

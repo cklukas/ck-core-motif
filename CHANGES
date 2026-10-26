@@ -149,6 +149,14 @@ Widen icon-cache path matching lengths (2026-10-26)
 - Add `tests/automated/check-icon-cache-path-lengths.py` and document the
   bound in `docs/icon-cache-path-length-bounds.md`.
 
+Widen icon-cache flush path lengths (2026-10-26)
+=================================================
+
+- Keep `XmeFlushIconFileCache` invalidation lengths in `size_t` through cache
+  comparisons, avoiding `Cardinal` narrowing for unusually long paths.
+- Add `tests/automated/check-icon-cache-flush-length.py` and document the
+  guard in `docs/icon-cache-flush-length-bounds.md`.
+
 Bound ToggleButton default geometry (2026-10-27)
 ==================================================
 
