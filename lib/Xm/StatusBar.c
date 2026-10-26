@@ -47,14 +47,6 @@ externaldef(xmstatusbarclassrec) XmStatusBarClassRec xmStatusBarClassRec = {
 externaldef(xmstatusbarwidgetclass) WidgetClass xmStatusBarWidgetClass =
     (WidgetClass)&xmStatusBarClassRec;
 
-static char *text_copy(XmString value)
-{
-    char *text = value ? XmStringUnparse(value, NULL, XmCHARSET_TEXT,
-                                          XmCHARSET_TEXT, NULL, 0,
-                                          XmOUTPUT_ALL) : NULL;
-    return text ? text : XtNewString("");
-}
-
 static XmString string_copy(XmString value)
 {
     return value ? XmStringCopy(value) : XmStringCreateLocalized("");
@@ -62,45 +54,31 @@ static XmString string_copy(XmString value)
 
 static XmString display_string(const XmStatusBarItem *item)
 {
-    char *label = text_copy(item->label);
     char progress[64];
-    size_t size;
-    char *text;
-    XmString result;
-
-    if (!label)
-	return NULL;
 
     if (item->kind != XmSTATUS_BAR_ITEM_PROGRESS) {
-        result = XmStringCreateLocalized(label);
-        XtFree(label);
-        return result;
+        return item->label ? XmStringCopy(item->label) : XmStringCreateLocalized("");
     }
     if (item->maximum > 0)
         snprintf(progress, sizeof(progress), " %d/%d", item->value,
                  item->maximum);
     else
         snprintf(progress, sizeof(progress), " %d", item->value);
-    if (strlen(label) > SIZE_MAX - strlen(progress) - 1) {
-	XtFree(label);
-	return NULL;
+    {
+        XmString label = item->label ? XmStringCopy(item->label)
+                                      : XmStringCreateLocalized("");
+        XmString suffix = XmStringCreateLocalized(progress);
+        XmString result;
+        if (!label || !suffix) {
+            XmStringFree(label);
+            XmStringFree(suffix);
+            return NULL;
+        }
+        result = XmStringConcat(label, suffix);
+        XmStringFree(label);
+        XmStringFree(suffix);
+        return result;
     }
-    size = strlen(label) + strlen(progress) + 1;
-    if (size > UINT_MAX) {
-	XtFree(label);
-	return NULL;
-    }
-    text = XtMalloc((Cardinal)size);
-    if (!text) {
-	XtFree(label);
-	return NULL;
-    }
-    strcpy(text, label);
-    strcat(text, progress);
-    result = XmStringCreateLocalized(text);
-    XtFree(text);
-    XtFree(label);
-    return result;
 }
 
 static void free_items(XmStatusBarWidget bar, Boolean destroy_children)

@@ -53,14 +53,6 @@ externaldef(xmtoolbarclassrec) XmToolbarClassRec xmToolbarClassRec = {
 externaldef(xmtoolbarwidgetclass) WidgetClass xmToolbarWidgetClass =
     (WidgetClass)&xmToolbarClassRec;
 
-static char *text_copy(XmString value)
-{
-    char *text = value ? XmStringUnparse(value, NULL, XmCHARSET_TEXT,
-                                          XmCHARSET_TEXT, NULL, 0,
-                                          XmOUTPUT_ALL) : NULL;
-    return text ? text : XtNewString("");
-}
-
 static XmString string_copy(XmString value)
 {
     return value ? XmStringCopy(value) : XmStringCreateLocalized("");
@@ -68,56 +60,30 @@ static XmString string_copy(XmString value)
 
 static XmString action_label(const XmToolbarAction *action)
 {
-    char *label = text_copy(action->label);
-    char *shortcut = text_copy(action->shortcut);
-    size_t label_length, shortcut_length, size;
-    char *text;
-    XmString result;
-
-    if (!label || !shortcut) {
-	XtFree(label);
-	XtFree(shortcut);
-	return NULL;
+    XmString result = action->label ? XmStringCopy(action->label)
+                                    : XmStringCreateLocalized("");
+    if (!result) return NULL;
+    if (action->shortcut) {
+        XmString separator = XmStringCreateLocalized("  ");
+        XmString shortcut = XmStringCopy(action->shortcut);
+        XmString combined;
+        if (!separator || !shortcut) {
+            XmStringFree(separator);
+            XmStringFree(shortcut);
+            XmStringFree(result);
+            return NULL;
+        }
+        combined = XmStringConcat(result, separator);
+        XmStringFree(result);
+        XmStringFree(separator);
+        if (!combined) {
+            XmStringFree(shortcut);
+            return NULL;
+        }
+        result = XmStringConcat(combined, shortcut);
+        XmStringFree(combined);
+        XmStringFree(shortcut);
     }
-    label_length = strlen(label);
-    shortcut_length = strlen(shortcut);
-    if (shortcut[0]) {
-	if (label_length > SIZE_MAX - 3 ||
-	    shortcut_length > SIZE_MAX - 3 - label_length) {
-	    XtFree(label);
-	    XtFree(shortcut);
-	    return NULL;
-	}
-	size = label_length + shortcut_length + 3;
-    } else {
-	if (label_length == SIZE_MAX) {
-	    XtFree(label);
-	    XtFree(shortcut);
-	    return NULL;
-	}
-	size = label_length + 1;
-    }
-    if (size > UINT_MAX) {
-	XtFree(label);
-	XtFree(shortcut);
-	return NULL;
-    }
-    text = XtMalloc((Cardinal)size);
-    if (!text) {
-	XtFree(label);
-	XtFree(shortcut);
-	return NULL;
-    }
-
-    strcpy(text, label);
-    if (shortcut[0]) {
-        strcat(text, "  ");
-        strcat(text, shortcut);
-    }
-    result = XmStringCreateLocalized(text);
-    XtFree(text);
-    XtFree(label);
-    XtFree(shortcut);
     return result;
 }
 

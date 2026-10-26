@@ -6859,7 +6859,8 @@ Compound-string label ownership (2026-10-27)
 
 - StatusBar, Toolbar, Toast, and Skeleton now copy `XmString` labels directly
   instead of flattening them through a locale byte string, preserving charset
-  segments and multilingual text.
+  segments and multilingual text. StatusBar progress suffixes and Toolbar
+  shortcuts are concatenated as `XmString` segments for the same reason.
 	* Validate Mrm pointer-list state before freeing contents.
 
 2026-10-26

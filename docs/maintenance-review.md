@@ -46,9 +46,10 @@ The regression check is `tests/automated/check-segmented-setvalues-redraw.py`.
 ## Compound-string label ownership
 
 StatusBar, Toolbar, Toast, and Skeleton now use `XmStringCopy` when retaining
-caller-provided labels. The previous unparse/recreate round trip could discard
-compound-string charset segments before rendering. The regression check is
-`tests/automated/check-compound-label-copy.py`.
+caller-provided labels, and StatusBar progress suffixes and Toolbar shortcuts
+are concatenated as `XmString` segments. The previous unparse/recreate round
+trip could discard compound-string charset segments before rendering. The
+regression check is `tests/automated/check-compound-label-copy.py`.
 
 ## IconLabel typography and natural geometry
 
