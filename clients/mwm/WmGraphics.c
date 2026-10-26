@@ -937,15 +937,15 @@ void DrawStringInBox (Display *dpy, Window win, GC gc, XFontStruct *pfs, XRectan
  *************************************<->***********************************/
 Boolean ExtendRList (RList *prl, unsigned int amt)
 {
-    unsigned int total, count;
+    unsigned int total;
+    size_t copy_bytes;
     XRectangle *pNewRect;
-    Boolean rval;
 
-
-
-    if (prl == NULL || prl->allocated < 0 || amt > INT_MAX ||
+    if (prl == NULL || prl->allocated < 0 || prl->used < 0 ||
+	prl->used > prl->allocated || amt > INT_MAX ||
 	prl->allocated > INT_MAX - (int)amt ||
-	amt > UINT_MAX / sizeof(XRectangle))
+	amt > UINT_MAX / sizeof(XRectangle) ||
+	(size_t)prl->used > SIZE_MAX / sizeof(XRectangle))
 	{
 	Warning (((char *)GETMESSAGE(28, 1, "Insufficient memory for graphics data")));
 	return (False);
@@ -957,22 +957,26 @@ Boolean ExtendRList (RList *prl, unsigned int amt)
 	 == NULL)
     {
 	Warning (((char *)GETMESSAGE(28, 1, "Insufficient memory for graphics data")));
-	rval = False;
+	return (False);
     }
-    else 
-    {
-	prl->allocated = total;
-	rval = True;
 
-	if (prl->used != 0) {		/* copy from old structure */
-	    count = prl->used * sizeof(XRectangle);
-	    (void) memcpy ((void *)pNewRect, (void *)prl->prect, count);
-	    if (prl->prect != NULL)
-		XtFree ((char *)prl->prect);
-	    prl->prect = pNewRect;
+	if (prl->used != 0)
+    {
+	if (prl->prect == NULL)
+	    {
+	    XtFree ((char *)pNewRect);
+	    Warning (((char *)GETMESSAGE(28, 1, "Insufficient memory for graphics data")));
+	    return (False);
 	}
+	copy_bytes = (size_t)prl->used * sizeof(XRectangle);
+	(void) memcpy ((void *)pNewRect, (void *)prl->prect, copy_bytes);
     }
-    return (rval);
+
+    if (prl->prect != NULL)
+	XtFree ((char *)prl->prect);
+    prl->prect = pNewRect;
+    prl->allocated = (int)total;
+    return (True);
 } /* END OF FUNCTION ExtendRList */
 
 

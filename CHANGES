@@ -19,6 +19,13 @@ Correct MWM shared frame-list counts (2026-10-26)
   the previous expression counted resize elements twice.
 - Add a focused source-contract regression and document the sizing invariant.
 
+Preserve MWM rectangle-list growth ownership (2026-10-26)
+==========================================================
+
+- Publish replacement rectangle storage even when the old list is empty, and
+  reject inconsistent used/count state before copying.
+- Add a focused ownership regression and document the rollback contract.
+
 Guard MWM binding token boundaries (2026-10-26)
 ===============================================
 
