@@ -33,6 +33,13 @@ Guard MWM grab-mask allocation failure (2026-10-26)
   zero masks when allocation fails instead of dereferencing a null buffer.
 - Preserve the existing list on failure and bound lock-mask count arithmetic.
 
+Preserve MWM embedded-client property growth (2026-10-26)
+===========================================================
+
+- Grow embedded-client window IDs through a temporary pointer and advance the
+  count only after successful allocation.
+- Keep the existing property unchanged on failure and check allocation widths.
+
 Guard MWM binding token boundaries (2026-10-26)
 ===============================================
 

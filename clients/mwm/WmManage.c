@@ -2922,6 +2922,8 @@ UpdateEmbeddedClientsProperty(
 {
     unsigned int numClients = 0;
     Window *pClients = NULL;
+    Window *resizedClients;
+    size_t allocation_bytes;
     Boolean rval = True;
     int i;
     WmFpEmbeddedClientData *pECD;
@@ -2932,19 +2934,28 @@ UpdateEmbeddedClientsProperty(
     {
 	if (pECD->pCD)
 	{
-	    numClients += 1;
-
-	    if (!pClients) 
+	    if (numClients == UINT_MAX ||
+		(size_t)(numClients + 1) > SIZE_MAX / sizeof(Window) ||
+		(size_t)(numClients + 1) > UINT_MAX / sizeof(Window))
 	    {
-		pClients = (Window *) XtMalloc (sizeof(Window));
+		Warning (((char *)GETMESSAGE(4, 17,
+		    "Insufficient memory to write _DT_WORKSPACE_EMBEDDED_CLIENTS.")));
+		rval = False;
+		break;
+	    }
+	    allocation_bytes = (size_t)(numClients + 1) * sizeof(Window);
+
+	    if (!pClients)
+	    {
+		resizedClients = (Window *)XtMalloc((Cardinal)allocation_bytes);
 	    }
 	    else
 	    {
-		pClients = (Window *) XtRealloc ((char *)pClients,
-		    (numClients * (sizeof(Window))));
+		resizedClients = (Window *)XtRealloc((char *)pClients,
+		    (Cardinal)allocation_bytes);
 	    }
 
-	    if (!pClients)
+	    if (!resizedClients)
 	    {
 		Warning (
 ((char *)GETMESSAGE(4, 17, "Insufficient memory to write _DT_WORKSPACE_EMBEDDED_CLIENTS."))
@@ -2952,15 +2963,14 @@ UpdateEmbeddedClientsProperty(
 		rval = False;
 		break;
 	    }
-	    else
-	    {
-		pClients[numClients-1] = pECD->pCD->client;
-	    }
+	    pClients = resizedClients;
+	    pClients[numClients] = pECD->pCD->client;
+	    numClients += 1;
 	}
     }
 
-    SetEmbeddedClientsProperty (pSD->rootWindow, pClients,
-	numClients);
+    if (rval)
+	SetEmbeddedClientsProperty (pSD->rootWindow, pClients, numClients);
 
     if (pClients != NULL)
     {
