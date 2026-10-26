@@ -267,8 +267,9 @@ and left larger fonts visually off-centre.  The focused check is:
 python3 tests/automated/check-datagrid-text-metrics.py
 ```
 
-Calendar headings, weekday labels, and day numbers now use measured font
-baselines as well.  The focused check is:
+Calendar headings, weekday labels, and day numbers now use render-table text
+extents for centered placement and multilingual-safe drawing.  The focused
+check is:
 
 ```sh
 python3 tests/automated/check-calendar-text-metrics.py
