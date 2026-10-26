@@ -141,6 +141,14 @@ Bound icon-directory cache accumulation (2026-10-26)
 - Add `tests/automated/check-icon-cache-directory-bounds.py` and document the
   invariant in `docs/icon-cache-directory-bounds.md`.
 
+Widen icon-cache path matching lengths (2026-10-26)
+====================================================
+
+- Keep `CheckDirCache` path and cached-entry lengths in `size_t` through
+  matching and string comparison, without changing the legacy record layout.
+- Add `tests/automated/check-icon-cache-path-lengths.py` and document the
+  bound in `docs/icon-cache-path-length-bounds.md`.
+
 Bound ToggleButton default geometry (2026-10-27)
 ==================================================
 

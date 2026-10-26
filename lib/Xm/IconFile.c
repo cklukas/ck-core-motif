@@ -372,7 +372,8 @@ CheckDirCache(String	path)
     String	dirName;
     String	filePtr;
     String	suffixPtr;
-    int		numDirs, dirNameLen, fileNameLen;
+    int		numDirs;
+    size_t	dirNameLen, fileNameLen;
     Cardinal	i, j;
     char   	stackString[MAX_DIR_PATH_LEN];
     
@@ -409,7 +410,7 @@ CheckDirCache(String	path)
     numDirs = cacheList.numDirs;
     for (i = 0; i <= numDirs; i++) {
 	String			currName;
-	int			currNameLen;
+	size_t		currNameLen;
 	String			nameHeap;
 	DtValidCachedDir	currDir;
 	
