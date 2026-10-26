@@ -375,6 +375,10 @@ HandleInsertTargets(
   Boolean supports_utf8_string = False;
   int i;
 
+  if (w == NULL || closure == NULL || length == NULL ||
+      value == NULL || tid == NULL)
+    return;
+
   if (0 == *length) {
     XtFree((char *)value);
     insert_select->done_status = True;

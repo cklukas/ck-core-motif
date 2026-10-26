@@ -22532,3 +22532,9 @@ Release Text help-drop location data (2026-10-26)
   that does not start a transfer.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-help-drop-cleanup.py
+Guard Text insert-target inputs (2026-10-26)
+============================================
+- Validate Text/TextField insert-target callback pointers before iterating
+  target data or requesting the selected target.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-insert-target-inputs.py

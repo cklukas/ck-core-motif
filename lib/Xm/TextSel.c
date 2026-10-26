@@ -380,6 +380,10 @@ HandleInsertTargets(
   Boolean supports_text = False;
   Boolean supports_utf8_string = False;
   int i;
+
+  if (w == NULL || closure == NULL || length == NULL ||
+      value == NULL || tid == NULL)
+    return;
   
   if (0 == *length) {
     XtFree((char *)value);
