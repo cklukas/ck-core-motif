@@ -890,9 +890,15 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
   if (target_list_converted == True &&
       size != 0 &&
       type == XA_ATOM) {
+    if (size > (unsigned long)INT_MAX) {
+      XtFree((char *)value);
+      XmClipboardEndCopy(display, XtWindow(w), itemid);
+      _XmAppUnlock(app);
+      return False;
+    }
     targets = (Atom *) value;
     value = NULL;
-    count = size;
+    count = (int)size;
     /* For each item we register the format, ask to convert it
        and if it is converted we put it on the clipboard */
     for(i = 0; i < count; i++) {
@@ -932,6 +938,12 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
   if( deferred_target_list_converted == True &&
       size != 0 &&
       type == XA_ATOM) {
+    if (size > (unsigned long)INT_MAX) {
+      XtFree((char *)value);
+      XmClipboardEndCopy(display, XtWindow(w), itemid);
+      _XmAppUnlock(app);
+      return False;
+    }
     _XmProcessLock();
     if (DataIdDictionary == NULL) {
       /* Create dictionary which stores data about particular
@@ -951,7 +963,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
     
     targets = (Atom *) value;
     value = NULL;
-    count = size;
+    count = (int)size;
     /* If there are deferred targets then the snapshot target
        must be converted successfully.  The value returned
        by snapshot will be used as a unique id in the 

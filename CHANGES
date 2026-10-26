@@ -21848,3 +21848,11 @@ Disambiguate clipboard ownership status (2026-10-26)
   enclosing transfer status during ownership and cancellation handling.
 - Add focused regression documentation for the status scope.
 
+Bound clipboard target-list counts (2026-10-26)
+===============================================
+
+- Reject converter-provided target-list lengths larger than the legacy `int`
+  loop range before narrowing them.
+- End the active clipboard copy cleanly when the target list is unrepresentable.
+- Add focused regression documentation for the external clipboard boundary.
+
