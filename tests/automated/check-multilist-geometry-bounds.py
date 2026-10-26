@@ -4,6 +4,10 @@ from pathlib import Path
 
 source = Path(__file__).resolve().parents[2] / "lib" / "Xm" / "MultiList.c"
 text = source.read_text(encoding="utf-8")
+assert "static Dimension multilist_frame_dimension(Dimension child, Dimension border);" in text
+assert "multilist_frame_dimension(" in text
+assert "uint64_t total = (uint64_t)child + 2 * (uint64_t)border;" in text
+assert "total > USHRT_MAX" in text
 start = text.index("if ((w == XmMultiList_frame(elist))")
 end = text.index("answer = XtMakeGeometryRequest", start)
 body = text[start:end]

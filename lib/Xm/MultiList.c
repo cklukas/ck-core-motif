@@ -3,6 +3,8 @@
 #endif
 
 #include <stdio.h>
+#include <limits.h>
+#include <stdint.h>
 
 #include "XmI.h"
 #include "MessagesI.h"
@@ -43,6 +45,7 @@ static Widget CreateScrollbar(Widget, Boolean, ArgList, Cardinal);
 static Widget CreateFindButton(Widget, ArgList, Cardinal);
 static Widget CreateFindText(Widget, ArgList, Cardinal);
 static Widget CreateFrame(Widget, ArgList, Cardinal);
+static Dimension multilist_frame_dimension(Dimension child, Dimension border);
 
 static void   ActivateTextSearch(Widget, XtPointer, XtPointer);
 static void   LayoutChildren(Widget), ChangeManaged(Widget);
@@ -1186,14 +1189,22 @@ CreateFrame(Widget parent, ArgList args, Cardinal num_args)
      *
      * Required to force geometry of frame here (it won't inherit child's size)
      */
-    w->core.width = XmMultiList_ilist(elist)->core.width + 
-	2 * w->core.border_width;
-    w->core.height = XmMultiList_ilist(elist)->core.height +
-	2 * w->core.border_width;
+    w->core.width = multilist_frame_dimension(
+	XmMultiList_ilist(elist)->core.width, w->core.border_width);
+    w->core.height = multilist_frame_dimension(
+	XmMultiList_ilist(elist)->core.height, w->core.border_width);
 
     XtManageChild(w);
 
     return(w);
+}
+
+static Dimension
+multilist_frame_dimension(Dimension child, Dimension border)
+{
+    uint64_t total = (uint64_t)child + 2 * (uint64_t)border;
+
+    return total > USHRT_MAX ? (Dimension)USHRT_MAX : (Dimension)total;
 }
 
 /************************************************************

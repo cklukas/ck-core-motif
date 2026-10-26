@@ -1,3 +1,10 @@
+Bound MultiList frame geometry (2026-10-27)
+============================================
+
+- Saturate child-plus-border width and height when forcing the MultiList
+  frame geometry, preventing large border resources from wrapping `Dimension`.
+- Extend focused regression coverage and documentation.
+
 Bound Column default geometry (2026-10-27)
 ===========================================
 
