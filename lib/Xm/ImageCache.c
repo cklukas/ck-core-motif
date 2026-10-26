@@ -2881,6 +2881,9 @@ FreeCacheColor( Display *display, Colormap colormap, Pixel pixel)
     int i;
     CachedColor *color;
 
+    if (display == NULL)
+	return False;
+
     for (i = 0, color = colorCacheList.cache; i < colorCacheList.numEntries;
 	 i++, color++)
     {

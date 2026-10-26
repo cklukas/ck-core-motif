@@ -6,6 +6,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "ImageCache.c").read_text()
 for signature, guard in (
     ("CacheColorPixel( Display", "display == NULL || xcolor == NULL"),
     ("GetCacheColor(Display", "display == NULL || xcolor == NULL"),
+    ("FreeCacheColor( Display", "display == NULL"),
     ("FreeCacheColors(Display", "display == NULL || pixels == NULL || n <= 0"),
     ("ReleaseImagePixels(Screen", "screen == NULL || pixels == NULL || npixels <= 0"),
 ):
