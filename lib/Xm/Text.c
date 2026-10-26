@@ -3501,7 +3501,19 @@ PreeditDone(XIC xic,
     if (PreOverMaxLen(tw) == PreOverLen(tw))
       mb = PreOverStr(tw);
     else {
-        mb = XtMalloc((PreOverMaxLen(tw)+1)*tw->text.char_size);
+        if (PreOverMaxLen(tw) < 0 || PreOverMaxLen(tw) == INT_MAX ||
+            tw->text.char_size <= 0 ||
+            (size_t)(PreOverMaxLen(tw) + 1) >
+              (size_t)UINT_MAX / (size_t)tw->text.char_size) {
+          ResetUnder(tw);
+          return;
+        }
+        mb = XtMalloc((Cardinal)((size_t)(PreOverMaxLen(tw) + 1) *
+                                 (size_t)tw->text.char_size));
+        if (mb == NULL) {
+          ResetUnder(tw);
+          return;
+        }
         conversion_valid = True;
         for (size = PreOverMaxLen(tw); size >0; size--) {
            int char_len = mblen(PreOverStr(tw) + num_bytes,

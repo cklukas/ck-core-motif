@@ -102,6 +102,14 @@ Guard text selection empty fallback allocation (2026-10-27)
   failure.
 - Add a focused source regression and documentation.
 
+Guard text preedit overstrike allocation (2026-10-27)
+======================================================
+
+- Bound overstrike preedit buffer size arithmetic and check allocation before
+  conversion.
+- Reset the preedit state cleanly when storage cannot be provided.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
