@@ -833,7 +833,9 @@ getProxyClientInfo(ClientData *pCD, ProxyClientInfo *proxyClientInfo)
 			  XA_WM_COMMAND))
 	return False;
 
-    if ((textProperty.encoding != XA_STRING) ||
+
+    if (textProperty.value == NULL || textProperty.nitems == 0 ||
+	(textProperty.encoding != XA_STRING) ||
 	(textProperty.format != 8) ||
 	(textProperty.value[0] == '\0'))
     {
@@ -845,7 +847,7 @@ getProxyClientInfo(ClientData *pCD, ProxyClientInfo *proxyClientInfo)
 
     /* Convert embedded NULL characters to space characters. */
     /* (If last char is NULL, leave it alone) */
-    for (i = 0; i < textProperty.nitems - 1; i++)
+    for (i = 0; i + 1 < textProperty.nitems; i++)
     {
 	if (textProperty.value[i] == '\0')
 	    textProperty.value[i] = ' ';

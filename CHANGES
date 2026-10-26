@@ -21613,3 +21613,11 @@ Guard MWM short configuration lines (2026-10-26)
   continuation backslash, avoiding `strlen` subtraction underflow.
 - Add focused regression coverage and documentation.
 
+Guard MWM XSMP proxy text properties (2026-10-26)
+==================================================
+
+- Reject empty or missing `WM_COMMAND` property buffers before dereferencing
+  their values.
+- Avoid unsigned underflow while normalizing embedded NUL bytes.
+- Add focused regression coverage and documentation.
+
