@@ -1186,3 +1186,6 @@ EXTRA_DIST += tests/automated/check-arrow-bounds.c tests/automated/run-arrow-bou
 
 EXTRA_DIST += tests/automated/check-notebook-appearance.c \
               tests/automated/run-notebook-appearance.py docs/notebook-appearance.md
+
+EXTRA_DIST += tests/automated/check-scrolled-window-fit.c \
+              tests/automated/run-scrolled-window-fit.py docs/scrolled-window-fit.md

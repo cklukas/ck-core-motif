@@ -1,3 +1,15 @@
+Stabilize as-needed scroller fit boundaries (2026-10-26)
+================================================================
+
+- Compare content bounds with the viewport actually exposed after hiding a
+  scrollbar, including its recovered highlight inset. Content that fills that
+  viewport no longer makes the other scrollbar appear and disappear repeatedly.
+- Apply the correction symmetrically to horizontal and vertical scrolling.
+  The old library reproduces the failure in classic mode (271x232 -> 269x209).
+- Native regression passes 32 configurations each on Xft/SVG and core-font/non-SVG
+  development builds, covering both axes, four profiles and 1/1.5/2/3 scales.
+  The Periodic resize regression now settles and preserves heading/radio bounds.
+
 Join Notebook page flaps across appearance profiles (2026-10-26)
 ================================================================
 
