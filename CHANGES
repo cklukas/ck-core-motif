@@ -15202,3 +15202,11 @@ Handle XPM RGB-name allocation failure (2026-10-27)
 - Add a focused source regression and documentation.
 
 Guard Color conversion duplication failure (2026-10-27)
+Handle XPM default-color allocation failure (2026-10-27)
+=========================================================
+
+- Make default-color duplication transactional and release temporary scan
+  state on allocation failure.
+- Add a focused source regression and documentation.
+
+Handle XPM RGB-name allocation failure (2026-10-27)

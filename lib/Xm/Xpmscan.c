@@ -540,8 +540,14 @@ ScanOtherColors(
 
 		found = True;
 		for (key = 1; key <= NKEYS; key++) {
-		    if ((s = adefaults[key]))
+		    if ((s = adefaults[key])) {
 			defaults[key] = (char *) xpmstrdup(s);
+			if (!defaults[key]) {
+			    XpmFree(xcolors);
+			    xpmFreeRgbNames(rgbn, rgbn_max);
+			    return (XpmNoMemory);
+			}
+		    }
 		}
 	    }
 	}
