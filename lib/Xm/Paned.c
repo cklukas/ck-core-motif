@@ -2753,9 +2753,17 @@ SetValues(Widget old, Widget request, Widget set,
 	if (XmPaned_separator_on(set_pw)) {
 	    WidgetList sep_children;
 	    Cardinal num_separators = 0;
+	    size_t separator_bytes;
 	    
 	    /* This should be more than enough space */
-	    sep_children = (WidgetList) XtMalloc(num_panes * sizeof(Widget));
+	    if (num_panes < 0 ||
+		(size_t)num_panes > SIZE_MAX / sizeof(Widget) ||
+		(size_t)num_panes > UINT_MAX / sizeof(Widget))
+		return False;
+	    separator_bytes = (size_t)num_panes * sizeof(Widget);
+	    sep_children = (WidgetList) XtMalloc((Cardinal)separator_bytes);
+	    if (sep_children == NULL && num_panes != 0)
+		return False;
 	    
 	    for ( childP = XmPaned_managed_children(set_pw) ;
 		  childP < XmPaned_managed_children(set_pw)

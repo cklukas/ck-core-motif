@@ -26,6 +26,15 @@ Bound RowColumn geometry-array allocation (2026-10-27)
   return cleanly when the geometry array cannot be represented or allocated.
 - Add focused regression coverage and documentation.
 
+=======================================================
+
+Bound Paned separator-array allocation (2026-10-27)
+====================================================
+
+- Validate pane-count arithmetic and allocation success before populating the
+  temporary separator-child array during resource updates.
+- Add focused regression coverage and documentation.
+
 ===========================================================
 
 Propagate compound-text concatenation failures (2026-10-27)
