@@ -1605,9 +1605,13 @@ void InitClientDecoration (WmScreenData *pSD)
 Boolean AllocateGadgetRectangles (ClientData *pcd)
 {
     int num_rects;
-    unsigned long decor = pcd->decor;
+    unsigned long decor;
     GadgetRectangle *pgr;
     
+    if (pcd == NULL)
+	return (FALSE);
+
+    decor = pcd->decor;
     if (decor & MWM_DECOR_TITLE) {
 
 	/* count how many rectangles to allocate for titlebar */
@@ -1684,7 +1688,12 @@ Boolean AllocateGadgetRectangles (ClientData *pcd)
 
 void ComputeGadgetRectangles (ClientData *pcd)
 {
-    unsigned long decor = pcd->decor;
+    unsigned long decor;
+
+    if (pcd == NULL)
+	return;
+
+    decor = pcd->decor;
     GadgetRectangle *pgr;
     int fpX, fpY;
     unsigned int fpWidth, fpHeight;

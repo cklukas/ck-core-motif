@@ -140,6 +140,13 @@ Guard MWM colormap lifecycle inputs (2026-10-26)
 - Reject negative reset counts and nonzero resets without a window array.
 - Add focused regression coverage and document the defensive contracts.
 
+Guard MWM gadget-rectangle inputs (2026-10-26)
+==============================================
+
+- Return safely when frame-gadget allocation or computation receives no client
+  record.
+- Add focused regression coverage and document the failure behavior.
+
 Guard MWM binding token boundaries (2026-10-26)
 ===============================================
 
