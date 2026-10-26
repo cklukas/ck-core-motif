@@ -224,23 +224,39 @@ _WmGrabMasks ( unsigned int modifiers, int *pnum_masks )
 {
     static unsigned int	*pRetMasks = NULL;
     static int len_ret_masks = 0;
+    unsigned int *resized;
     int num_masks;
     int num_ret_masks;
     int i,j;
     unsigned int mask;
 
+    if (pnum_masks == NULL)
+	return (NULL);
+    *pnum_masks = 0;
+
     /* count the number of masks in the lock sequence */
-    for (num_masks=0; wmGD.pLockMaskSequence[num_masks] != 0; num_masks++);
+    for (num_masks=0;
+	 wmGD.pLockMaskSequence != NULL && wmGD.pLockMaskSequence[num_masks] != 0;
+	 num_masks++)
+	{
+	if (num_masks > INT_MAX - 2)
+	    return (NULL);
+	}
 
     /* insure we have enough space for our returned masks */
     if ((pRetMasks == NULL) || (len_ret_masks < num_masks+2))
     {
-	if (pRetMasks != NULL) 
-			XtFree ((char *)pRetMasks);
+	int required_len = num_masks+2;
 
-	len_ret_masks = num_masks+2;
-	pRetMasks = (unsigned int *) 
-			XtCalloc (len_ret_masks, sizeof(unsigned int));
+	resized = (unsigned int *)XtRealloc ((char *)pRetMasks,
+					 (Cardinal)((size_t)required_len *
+						    sizeof(unsigned int)));
+	if (resized == NULL)
+	    {
+	    return (NULL);
+	    }
+	pRetMasks = resized;
+	len_ret_masks = required_len;
     }
 
     /* fill up the array of masks we return */

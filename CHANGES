@@ -26,6 +26,13 @@ Preserve MWM rectangle-list growth ownership (2026-10-26)
   reject inconsistent used/count state before copying.
 - Add a focused ownership regression and document the rollback contract.
 
+Guard MWM grab-mask allocation failure (2026-10-26)
+===================================================
+
+- Grow the reusable modifier-mask list through a temporary pointer and return
+  zero masks when allocation fails instead of dereferencing a null buffer.
+- Preserve the existing list on failure and bound lock-mask count arithmetic.
+
 Guard MWM binding token boundaries (2026-10-26)
 ===============================================
 
