@@ -1,3 +1,11 @@
+Validate ICC drop-site stream bounds (2026-10-27)
+==================================================
+
+- Reject truncated drop-site headers and region counts that exceed the
+  remaining serialized data before writing region boxes.
+- Handle region allocation failure safely and release malformed stream state.
+- Add a focused source regression and documentation.
+
 Bound drag target-list parsing by heap offset (2026-10-27)
 ============================================================
 

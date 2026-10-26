@@ -988,15 +988,18 @@ _XmReadDSFromStream(
         XtPointer iccInfo,
         XmICCDropSiteInfo dropSiteInfoRtn )
 {
-    xmDSHeaderStruct	dsHeader;
+    xmDSHeaderStruct	dsHeader = { 0 };
     XmReceiverDSTree	dsmInfo = (XmReceiverDSTree)iccInfo;
     xmPropertyBufferRec	*propBuf = &dsmInfo->propBufRec;
     int			i;
     xmICCRegBoxRec	box;
     XmRegion		region;
+    size_t		data_offset;
 
-    _XmReadDragBuffer (propBuf, BUFFER_DATA,
-		       (BYTE*)&dsHeader, sizeof(xmDSHeaderStruct));
+    if (_XmReadDragBuffer (propBuf, BUFFER_DATA,
+			   (BYTE*)&dsHeader, sizeof(xmDSHeaderStruct)) !=
+		sizeof(xmDSHeaderStruct))
+	    goto malformed;
     
     if (dsmInfo->byteOrder != _XmByteOrderChar) {
 	swap2bytes(dsHeader.flags);
@@ -1155,8 +1158,16 @@ _XmReadDSFromStream(
      *  Read the region, byte swapping if necessary.
      */
 
+    data_offset = (size_t)(propBuf->data.curr - propBuf->data.bytes);
+    if (data_offset > propBuf->data.size ||
+	(size_t)dsHeader.dsRegionNumBoxes >
+	(propBuf->data.size - data_offset) / sizeof(xmICCRegBoxRec))
+	    goto malformed;
+
     region = dropSiteInfoRtn->header.region =
 	_XmRegionCreateSize ((long) dsHeader.dsRegionNumBoxes);
+    if (region == NULL)
+	    goto malformed;
 
     for (i = 0; i < (long) dsHeader.dsRegionNumBoxes; i++) {
 	_XmReadDragBuffer(propBuf, BUFFER_DATA, (BYTE*) &box,
@@ -1184,6 +1195,12 @@ _XmReadDSFromStream(
 #endif
     }
     return True;
+
+malformed:
+    dropSiteInfoRtn->header.region = NULL;
+    XtFree((char *)dsmInfo->propBufRec.data.bytes);
+    XtFree((char *)dsmInfo);
+    return False;
 }
 
 /************************************************************************
