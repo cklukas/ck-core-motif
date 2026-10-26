@@ -8,7 +8,10 @@ end = source.index("\n/*\tFunction Name:", start)
 region = source[start:end]
 
 assert "short *new_column_widths;" in region
-assert "new_column_widths = (short *) XtMalloc(sizeof(short) * num_cols);" in region
+assert "(size_t)num_cols > SIZE_MAX / sizeof(*new_column_widths)" in region
+assert "(size_t)num_cols > (size_t)UINT_MAX / sizeof(*new_column_widths)" in region
+assert "new_column_widths = (short *) XtMalloc(" in region
+assert "(Cardinal)((size_t)num_cols * sizeof(*new_column_widths))" in region
 assert "if (new_column_widths == NULL)" in region
 assert region.index("new_column_widths = (short *) XtMalloc") < region.index("XtFree((XtPointer) XmI18List_column_widths(ilist))")
 assert "XmI18List_column_widths(ilist) = new_column_widths;" in region

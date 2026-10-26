@@ -2331,7 +2331,12 @@ CalcColumnInfo(Widget w, Boolean force)
 
     if (((XmI18List_column_widths(ilist) == NULL) || force) && (num_cols != 0))
     {
-	new_column_widths = (short *) XtMalloc(sizeof(short) * num_cols);
+	if (num_cols < 0 ||
+	    (size_t)num_cols > SIZE_MAX / sizeof(*new_column_widths) ||
+	    (size_t)num_cols > (size_t)UINT_MAX / sizeof(*new_column_widths))
+	    return;
+	new_column_widths = (short *) XtMalloc(
+	    (Cardinal)((size_t)num_cols * sizeof(*new_column_widths)));
 	if (new_column_widths == NULL)
 	    return;
 	if (force)
