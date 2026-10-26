@@ -66,7 +66,11 @@ static char *button_text(XmString label, XmString shortcut) {
         if (left_length == SIZE_MAX) { XtFree(left); XtFree(right); return NULL; }
         length = left_length + 1;
     }
-    combined = XtMalloc(length);
+    /* XtMalloc takes a Cardinal-sized request, not an arbitrary size_t. */
+    if (length > UINT_MAX) {
+        XtFree(left); XtFree(right); return NULL;
+    }
+    combined = XtMalloc((Cardinal)length);
     if (!combined) { XtFree(left); XtFree(right); return NULL; }
     memcpy(combined, left, left_length);
     if (right[0]) {
