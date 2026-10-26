@@ -3730,6 +3730,12 @@ PreeditDraw(XIC xic,
   if (!PreUnder(tw))
     return;
 
+  /* XIM reports these offsets as signed integers.  Reject malformed
+   * negative positions before they participate in XmTextPosition arithmetic. */
+  if (call_data->caret < 0 || call_data->chg_first < 0 ||
+      call_data->chg_length < 0)
+    return;
+
   /* if no data in callback structs simply return - nothing to do */
   if (!call_data->caret && !call_data->chg_first && !call_data->chg_length
       && !call_data->text) 

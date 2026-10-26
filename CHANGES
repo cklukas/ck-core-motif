@@ -1,3 +1,12 @@
+Reject negative XIM preedit positions (2026-10-27)
+==================================================
+
+- Reject negative caret, change-start, and change-length fields before they
+  enter `XmTextPosition` arithmetic.
+- Add a focused source regression and documentation.
+
+==================================================
+
 Widen XIM preedit recovery arithmetic (2026-10-27)
 ===================================================
 
