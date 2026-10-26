@@ -2470,6 +2470,8 @@ AppendRealKeyText(String *buffer, size_t *capacity, size_t *used,
 	 else
 	   next *= 2;
       }
+      if (next > UINT_MAX)
+	return False;
       new_buffer = (String)XtRealloc(*buffer, next);
       if (new_buffer == NULL)
 	return False;

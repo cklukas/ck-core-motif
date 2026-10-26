@@ -8,6 +8,7 @@ end = source.index("\nstatic char * \nGetRealKey", start)
 append_region = source[start:end]
 assert "String new_buffer;" in append_region
 assert "if (next == 0)" in append_region
+assert "if (next > UINT_MAX)" in append_region
 assert "new_buffer = (String)XtRealloc(*buffer, next);" in append_region
 assert "if (new_buffer == NULL)" in append_region
 assert "return False;" in append_region

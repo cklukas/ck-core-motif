@@ -37,6 +37,15 @@ Bound clipboard conversion lengths before Xt allocation (2026-10-27)
 
 ============================================================
 
+Bound RowColumn accelerator buffer width (2026-10-27)
+======================================================
+
+- Reject growable accelerator buffers wider than Xt's `Cardinal` before
+  passing their `size_t` capacity to `XtRealloc`.
+- Extend the focused regression and documentation.
+
+============================================================
+
 Refresh XmString rendition resize check (2026-10-27)
 ===================================================
 
