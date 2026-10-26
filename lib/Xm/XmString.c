@@ -5306,7 +5306,7 @@ _render(Display *d,
   Dimension line_width, line_height, ascender = 0, descender = 0;
   _XmStringEntry line;
   int i;
-  int j;
+  size_t j;
   int restore_clip = FALSE;
   _XmRenditionRec	scratch1, scratch2;
   _XmRendition		tmp1, tmp2;
@@ -6138,6 +6138,7 @@ _XmStringEntryCopy(_XmStringEntry entry)
   int j;
   size_t size;
   size_t allocation_size;
+  size_t segment_index;
   XtPointer text;
   _XmStringEntry new_entry = NULL;
   unsigned int entry_len;
@@ -6204,11 +6205,11 @@ _XmStringEntryCopy(_XmStringEntry entry)
 	  return NULL;
 	}
 	_XmEntrySegment(new_entry) = arr;
-	for (i = 0; i < (int)segment_count; i++) {
-	  arr[i] = (_XmStringNREntry)
-	    _XmStringEntryCopy((_XmStringEntry)_XmEntrySegment(entry)[i]);
-	  if (arr[i] == NULL) {
-    for (j = 0; j < i; j++)
+	for (segment_index = 0; segment_index < segment_count; ++segment_index) {
+	  arr[segment_index] = (_XmStringNREntry)
+	    _XmStringEntryCopy((_XmStringEntry)_XmEntrySegment(entry)[segment_index]);
+	  if (arr[segment_index] == NULL) {
+	    for (j = 0; j < segment_index; ++j)
       _XmStringEntryFree((_XmStringEntry)arr[j]);
     XtFree((char *)arr);
     XtFree((char *)new_entry);
