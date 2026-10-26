@@ -614,6 +614,11 @@ CreateMotifWindow(
 			         CopyFromParent,
 			         (CWOverrideRedirect |CWEventMask),
 			         &sAttributes);
+    if (motifWindow == None) {
+	XUngrabServer(ndisplay);
+	XCloseDisplay(ndisplay);
+	return None;
+    }
     XMapWindow (ndisplay, motifWindow);
 
     WriteMotifWindow (ndisplay, &motifWindow);

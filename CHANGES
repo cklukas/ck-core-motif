@@ -19519,3 +19519,11 @@ Guard cascade-arrow resource creation (2026-10-27)
 - Add focused regression coverage and documentation.
 
 Guard tear-off snapshot resources (2026-10-27)
+Guard drag protocol window creation (2026-10-27)
+================================================
+
+- Check the persistent drag-and-drop protocol window before mapping or
+  publishing it, and release the server grab on failure.
+- Add focused regression coverage and documentation.
+
+Guard cascade-arrow resource creation (2026-10-27)
