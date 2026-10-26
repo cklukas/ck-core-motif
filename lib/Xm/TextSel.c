@@ -1729,6 +1729,9 @@ TextDestinationCallback(Widget w,
     
     if (cb->dropAction != XmDROP_HELP) {
       HandleDrop(w, cb, ds);
+    } else {
+      XtFree((char *) ds->location_data);
+      ds->location_data = NULL;
     }
   }
   else if (ds->selection == XA_SECONDARY) {

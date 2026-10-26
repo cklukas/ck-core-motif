@@ -22526,3 +22526,9 @@ Guard Text secondary-selection wrappers (2026-10-26)
   secondary-selection data to Text/TextField handlers.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-secondary-wrapper-inputs.py
+Release Text help-drop location data (2026-10-26)
+=================================================
+- Free temporary destination location data when Text receives a help drop
+  that does not start a transfer.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-help-drop-cleanup.py
