@@ -22593,3 +22593,9 @@ Initialize transfer contexts before publication (2026-10-26)
   recycling it.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-transfer-id-reuse.py
+Clean up DataField transfer teardown (2026-10-26)
+================================================
+- Fail and release incoming values when a DataField drop-transfer closure has
+  lost its widget during teardown.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-datafield-drop-transfer-cleanup.py

@@ -9901,8 +9901,15 @@ df_DropTransferCallback(
     if (w == NULL || closure == NULL || type == NULL || length == NULL)
         return;
     transfer_rec = (_XmTextDropTransferRec *) closure;
-    if (transfer_rec->widget == NULL)
+    if (transfer_rec->widget == NULL) {
+        Arg fail_args[2];
+        XtSetArg(fail_args[0], XmNtransferStatus, XmTRANSFER_FAILURE);
+        XtSetArg(fail_args[1], XmNnumDropTransfers, 0);
+        XtSetValues(w, fail_args, 2);
+        if (value != NULL)
+            XtFree((char *)value);
         return;
+    }
     tf = (XmDataFieldWidget) transfer_rec->widget;
 
    /* When type = NULL, we are assuming a DELETE request has been requested */
