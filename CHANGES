@@ -93,6 +93,15 @@ Guard text selection source-string conversion (2026-10-27)
 - Return an empty conversion cleanly when source retrieval fails.
 - Add a focused source regression and documentation.
 
+Guard text selection empty fallback allocation (2026-10-27)
+============================================================
+
+- Check the one-byte empty fallback buffer used after locale conversion
+  failure before writing its terminator.
+- Release the incoming transfer value and reject the follow-up on allocation
+  failure.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 

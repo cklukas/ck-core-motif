@@ -1094,6 +1094,12 @@ DoStuff(Widget w,
 	block.length = strlen(block.ptr);
       } else {
 	block.ptr = total_value = XtMalloc((unsigned)1);
+	if (block.ptr == NULL) {
+	  XtFree((char *)ds->value);
+	  ds->value = NULL;
+	  prim_select->num_chars = 0;
+	  return;
+	}
 	*(block.ptr) = '\0';
 	block.length = 0;
       }
