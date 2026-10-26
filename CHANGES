@@ -19,6 +19,13 @@ Bound Container spatial growth arithmetic (2026-10-27)
   large spatial cells cannot wrap the requested width or height.
 - Add focused regression coverage and documentation.
 
+Bound Container spatial-size extents (2026-10-27)
+=================================================
+
+- Saturate spatial child extents, margins, and cell-count products before
+  storing them in `Dimension`, preventing wrapped requested sizes.
+- Add focused regression coverage and documentation.
+
 Bound Container ideal geometry accumulation (2026-10-27)
 =========================================================
 

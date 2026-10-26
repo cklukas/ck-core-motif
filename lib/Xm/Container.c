@@ -3560,6 +3560,7 @@ GetSpatialSize (
     int			cwid_width_in_cells,cwid_height_in_cells;
     int			cell_count = 0;
     Dimension   width = 1, height = 1 ;
+    Dimension   extent;
 
     if (CtrSpatialStyleIsGRID(cw) || CtrSpatialStyleIsCELLS(cw))
 	{
@@ -3613,19 +3614,25 @@ GetSpatialSize (
 	     *     (trial_width X trial_height)
 	     */
 	    {
-	    trial_width = MAX(trial_width,node->widget_ptr->core.x
-					+ node->widget_ptr->core.width);
-	    trial_height = MAX(trial_height,node->widget_ptr->core.y
-					+ node->widget_ptr->core.height);
+	    extent = AddDimensionSaturated(
+		(Dimension)MAX(0, node->widget_ptr->core.x),
+		(uint64_t)node->widget_ptr->core.width);
+	    trial_width = MAX(trial_width, extent);
+	    extent = AddDimensionSaturated(
+		(Dimension)MAX(0, node->widget_ptr->core.y),
+		(uint64_t)node->widget_ptr->core.height);
+	    trial_height = MAX(trial_height, extent);
 	    }
 	else
 	    if (CtrIncludeIsCLOSEST(cw))
 	    	{
 	    	c = GetContainerConstraint(node->widget_ptr);
-	    	trial_width = MAX(trial_width,
-				c->user_x + node->widget_ptr->core.width);
-	    	trial_height = MAX(trial_height,
-				c->user_y + node->widget_ptr->core.height);
+	    extent = AddDimensionSaturated((Dimension)MAX(0, c->user_x),
+		(uint64_t)node->widget_ptr->core.width);
+	    trial_width = MAX(trial_width, extent);
+	    extent = AddDimensionSaturated((Dimension)MAX(0, c->user_y),
+		(uint64_t)node->widget_ptr->core.height);
+	    trial_height = MAX(trial_height, extent);
 	    	}
 	if (CtrSpatialStyleIsGRID(cw))
 	    /*
@@ -3666,8 +3673,10 @@ GetSpatialSize (
 	}
     if (CtrSpatialStyleIsNONE(cw) || CtrIncludeIsCLOSEST(cw))
 	{
-    	trial_width += 2 * cw->container.margin_w;
-    	trial_height += 2 * cw->container.margin_h;
+	    trial_width = AddDimensionSaturated(trial_width,
+		(uint64_t)2 * (uint64_t)cw->container.margin_w);
+	    trial_height = AddDimensionSaturated(trial_height,
+		(uint64_t)2 * (uint64_t)cw->container.margin_h);
 	}
     if (CtrSpatialStyleIsNONE(cw))
 	{
@@ -3701,10 +3710,12 @@ GetSpatialSize (
 	/*
 	 * Add in the margins and calculate the pixels needed.
 	 */
-	width = width_in_cells * cell_width 
-				+ 2 * cw->container.margin_w;
-	height = height_in_cells * cell_height
-				+ 2 * cw->container.margin_h;
+	width = AddDimensionSaturated(0,
+		(uint64_t)width_in_cells * (uint64_t)cell_width +
+		(uint64_t)2 * (uint64_t)cw->container.margin_w);
+	height = AddDimensionSaturated(0,
+		(uint64_t)height_in_cells * (uint64_t)cell_height +
+		(uint64_t)2 * (uint64_t)cw->container.margin_h);
 	if (CtrIncludeIsCLOSEST(cw))
 	    /*
 	     * Make adjustments to accomodate cwids' desired x,y placement.
