@@ -54,6 +54,8 @@ static XmAnimationSaveData CreateAnimationSaveData(
                         XmDragProcCallbackStruct *dpcb) ;
 static void FreeAnimationData( 
                         XmAnimationSaveData aSaveData) ;
+static void FreeSavedPixmaps(
+                        XmAnimationSaveData aSaveData) ;
 static Boolean SaveAll( 
                         XmAnimationSaveData aSaveData,
                         Position x,
@@ -218,12 +220,25 @@ CreateAnimationSaveData(
  *  Free an XmAnimationSaveData structure.
  ***************************************************************************/
 
-static void 
+static void
+FreeSavedPixmaps(
+        XmAnimationSaveData aSaveData )
+{
+    Cardinal i;
+
+    for (i = 0; i < aSaveData->numSavedPixmaps; i++) {
+	_XmFreeScratchPixmap (aSaveData->xmScreen,
+			      aSaveData->savedPixmaps[i].pixmap);
+    }
+    XtFree ((char *)aSaveData->savedPixmaps);
+    aSaveData->savedPixmaps = NULL;
+    aSaveData->numSavedPixmaps = 0;
+}
+
+static void
 FreeAnimationData(
         XmAnimationSaveData aSaveData )
 {
-    Cardinal	i;
-
     switch (aSaveData->animationStyle)
     {
         case XmDRAG_UNDER_SHADOW_IN:
@@ -247,11 +262,7 @@ FreeAnimationData(
     }
 
     if (aSaveData->numSavedPixmaps) {
-        for (i = 0; i < aSaveData->numSavedPixmaps; i++) {
-	    _XmFreeScratchPixmap (aSaveData->xmScreen,
-				  aSaveData->savedPixmaps[i].pixmap);
-        }
-        XtFree ((char *)aSaveData->savedPixmaps);
+	FreeSavedPixmaps (aSaveData);
     }
 
     XtFree ((char *)aSaveData);
@@ -347,7 +358,7 @@ SaveSegments(
         return (SaveAll (aSaveData, x, y, width, height));
     }
 
-    aSaveData->numSavedPixmaps = 4;
+    aSaveData->numSavedPixmaps = 0;
     aSaveData->savedPixmaps = pData =
 	    (DragPixmapData *) XtMalloc (sizeof(DragPixmapData) * 4);
     if (!pData) {
@@ -363,6 +374,11 @@ SaveSegments(
 	_XmAllocScratchPixmap (aSaveData->xmScreen,
 			       (Cardinal) aSaveData->windowDepth,
 		               pData->width, pData->height);
+    if (pData->pixmap == None || pData->pixmap == XmUNSPECIFIED_PIXMAP) {
+	FreeSavedPixmaps (aSaveData);
+	return (False);
+    }
+    aSaveData->numSavedPixmaps++;
     XCopyArea (aSaveData->display, aSaveData->window,
     	       pData->pixmap, aSaveData->drawGC,
                pData->x, pData->y,
@@ -377,6 +393,11 @@ SaveSegments(
 	_XmAllocScratchPixmap (aSaveData->xmScreen,
 			       (Cardinal) aSaveData->windowDepth,
 		               pData->width, pData->height);
+    if (pData->pixmap == None || pData->pixmap == XmUNSPECIFIED_PIXMAP) {
+	FreeSavedPixmaps (aSaveData);
+	return (False);
+    }
+    aSaveData->numSavedPixmaps++;
     XCopyArea (aSaveData->display, aSaveData->window,
     	       pData->pixmap, aSaveData->drawGC,
                pData->x, pData->y,
@@ -391,6 +412,11 @@ SaveSegments(
 	_XmAllocScratchPixmap (aSaveData->xmScreen,
 			       (Cardinal) aSaveData->windowDepth,
 		               pData->width, pData->height);
+    if (pData->pixmap == None || pData->pixmap == XmUNSPECIFIED_PIXMAP) {
+	FreeSavedPixmaps (aSaveData);
+	return (False);
+    }
+    aSaveData->numSavedPixmaps++;
     XCopyArea (aSaveData->display, aSaveData->window,
     	       pData->pixmap, aSaveData->drawGC,
                pData->x, pData->y,
@@ -405,6 +431,11 @@ SaveSegments(
 	_XmAllocScratchPixmap (aSaveData->xmScreen,
 			       (Cardinal) aSaveData->windowDepth,
 		               pData->width, pData->height);
+    if (pData->pixmap == None || pData->pixmap == XmUNSPECIFIED_PIXMAP) {
+	FreeSavedPixmaps (aSaveData);
+	return (False);
+    }
+    aSaveData->numSavedPixmaps++;
     XCopyArea (aSaveData->display, aSaveData->window,
     	       pData->pixmap, aSaveData->drawGC,
                pData->x, pData->y,
