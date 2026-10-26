@@ -21232,3 +21232,9 @@ UnManageWindow now checks that a normal or maximized client has a realized
 frame before unmapping it. Clients that fail during frame construction can be
 withdrawn without issuing an X request for `None`.
 
+Skip destroyed MWM embedded clients during shutdown (2026-10-26)
+------------------------------------------------------------------
+UnParentControls now excludes embedded clients already marked destroyed
+before removing them from save sets or reparenting/unmapping their windows.
+This avoids stale X requests during front-panel shutdown.
+

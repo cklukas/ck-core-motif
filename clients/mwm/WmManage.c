@@ -3035,7 +3035,7 @@ UnParentControls(
 	{
 	    pCD = pECD->pCD;
 
-	    if (pCD)
+	    if (pCD != NULL && !(pCD->clientFlags & CLIENT_DESTROYED))
 	    {
 		if ((pCD->clientFlags & CLIENT_IN_SAVE_SET) &&
 		    !(pCD->clientFlags & CLIENT_DESTROYED))
