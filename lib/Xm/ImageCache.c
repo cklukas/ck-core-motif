@@ -2779,6 +2779,8 @@ GetCacheColorByName( Display *display, Colormap colormap,
             color->colormap == colormap &&
             color->display == display)
         {
+	   if (color->num_cached == UINT_MAX)
+	       return False;
 	   xcolor->pixel = color->pixel;
 	   color->num_cached++;
            return True;
@@ -2801,6 +2803,8 @@ GetCacheColorByRGB( Display *display, Colormap colormap, XColor *xcolor)
 	    color->green == xcolor->green &&
 	    color->blue == xcolor->blue)
         {
+	   if (color->num_cached == UINT_MAX)
+	       return False;
 	   xcolor->pixel = color->pixel;
 	   color->num_cached++;
            return True;

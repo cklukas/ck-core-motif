@@ -84,6 +84,14 @@ Guard text-field replacement conversion buffers (2026-10-26)
 - Add `tests/automated/check-textfield-replace-allocation.py` and document the
   regression in `docs/install-image-locking.md`.
 
+Reject ImageCache color-reference overflow (2026-10-26)
+=========================================================
+
+- Refuse RGB and symbolic-name cache lookups once a cached color reference
+  count reaches `UINT_MAX`, preventing a live color from wrapping to zero.
+- Extend `tests/automated/check-image-color-refcount.py` and document the
+  invariant in `docs/image-color-refcount.md`.
+
 Bound ToggleButton default geometry (2026-10-27)
 ==================================================
 
