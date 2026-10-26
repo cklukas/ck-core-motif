@@ -21569,3 +21569,10 @@ Fix MWM lower argument length traversal (2026-10-26)
   argument underflow and long-argument truncation.
 - Add focused regression coverage and documentation.
 
+Fix MWM invoke-command argument parsing (2026-10-26)
+======================================================
+
+- Parse `CARD32` and `Atom` arguments through matching unsigned intermediates,
+  removing incompatible pointer casts and format mismatches.
+- Add focused regression coverage and documentation.
+

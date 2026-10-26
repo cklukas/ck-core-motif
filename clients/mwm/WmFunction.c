@@ -4670,12 +4670,19 @@ Boolean F_InvokeCommand (String args, ClientData *pCD, XEvent *event)
 {
     CARD32 commandID, clientWindow;
     Atom notifySelection;
+    unsigned int parsedCommandID, parsedClientWindow;
+    unsigned long parsedSelection;
 
     if (args == (String) NULL) return(FALSE);
 
-    if (sscanf(args, "%d %d %ld", (int *)&commandID, (int *)&clientWindow,
-	       &notifySelection) != 3)
+    if (sscanf(args, "%u %u %lu", &parsedCommandID, &parsedClientWindow,
+	       &parsedSelection) != 3)
       return(FALSE);
+
+    commandID = (CARD32)parsedCommandID;
+    clientWindow = (CARD32)parsedClientWindow;
+    notifySelection = (Atom)parsedSelection;
+	(void)clientWindow;
 
     SendInvokeMessage(commandID,
 		      (pCD == (ClientData *) NULL ? 0 : pCD->client),
