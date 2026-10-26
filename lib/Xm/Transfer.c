@@ -890,7 +890,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
   if (target_list_converted == True &&
       size != 0 &&
       type == XA_ATOM) {
-    if (size > (unsigned long)INT_MAX) {
+    if (value == NULL || size > (unsigned long)INT_MAX) {
       XtFree((char *)value);
       XmClipboardEndCopy(display, XtWindow(w), itemid);
       _XmAppUnlock(app);
@@ -938,7 +938,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
   if( deferred_target_list_converted == True &&
       size != 0 &&
       type == XA_ATOM) {
-    if (size > (unsigned long)INT_MAX) {
+    if (value == NULL || size > (unsigned long)INT_MAX) {
       XtFree((char *)value);
       XmClipboardEndCopy(display, XtWindow(w), itemid);
       _XmAppUnlock(app);

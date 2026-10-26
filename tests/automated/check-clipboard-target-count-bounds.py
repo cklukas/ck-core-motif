@@ -9,7 +9,7 @@ start = source.index("XmeClipboardSource(")
 end = source.index("/* XmeDragSource", start)
 body = source[start:end]
 
-assert body.count("size > (unsigned long)INT_MAX") == 2
+assert body.count("value == NULL || size > (unsigned long)INT_MAX") == 2
 assert body.count("count = (int)size;") == 2
 assert body.count("XmClipboardEndCopy(display, XtWindow(w), itemid);") >= 4
 

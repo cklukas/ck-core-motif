@@ -21856,3 +21856,12 @@ Bound clipboard target-list counts (2026-10-26)
 - End the active clipboard copy cleanly when the target list is unrepresentable.
 - Add focused regression documentation for the external clipboard boundary.
 
+Reject missing clipboard target buffers (2026-10-26)
+====================================================
+
+- Reject ordinary and deferred target conversions that report a non-empty
+  `XA_ATOM` list without a returned buffer.
+- Close the active clipboard copy before returning from that malformed-input
+  path.
+- Add focused regression coverage and documentation.
+
