@@ -10277,6 +10277,9 @@ df_DragProcCallback(
     Cardinal num_exp_targets, n;
     int status = 0;
 
+    if (w == NULL || cb == NULL)
+        return;
+
     status = XmbTextListToTextProperty(XtDisplay(w), &tmp_string, 1,
                                       (XICCEncodingStyle)XTextStyle, &tmp_prop);
     if (status == Success)
@@ -10342,6 +10345,9 @@ df_DropProcCallback(
 #endif /* _NO_PROTO */
 {
     XmDropProcCallbackStruct *cb = (XmDropProcCallbackStruct *) call;
+
+    if (w == NULL || cb == NULL)
+        return;
 
     if (cb->dropAction != XmDROP_HELP) {
        df_HandleDrop(w, cb);

@@ -22556,3 +22556,9 @@ Reject Text destination callbacks without events (2026-10-26)
   them for later selection operations.
 - Fail malformed active transfers and add focused regression coverage.
 Regression: tests/automated/check-text-destination-event.py
+Guard DataField DnD callback inputs (2026-10-26)
+================================================
+- Validate widget and callback payload pointers before DataField drag-motion
+  and drop callbacks access DnD state.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-datafield-dnd-callback-inputs.py
