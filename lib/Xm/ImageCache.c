@@ -2356,6 +2356,9 @@ CleanGCMapProc (XmHashKey key, /* unused */
   GCData *entry = (GCData *) value;
   CleanKey * ck = (CleanKey*) data ;
 
+  if (entry == NULL || ck == NULL)
+    return False;
+
   /* shell should be NULL for non printing screen */
   if (entry->print_shell == ck->shell &&
       entry->screen == ck->screen)
@@ -2378,6 +2381,9 @@ CleanPixmapMapProc (XmHashKey key, /* unused */
 {
   PixmapData *entry = (PixmapData *) value;
   CleanKey * ck = (CleanKey*) data ;
+
+  if (entry == NULL || ck == NULL)
+    return False;
 
   /* shell should be NULL for non printing screen */
   if (entry->print_shell == ck->shell &&

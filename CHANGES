@@ -22359,3 +22359,11 @@ Guard image-cache GC creation inputs (2026-10-26)
 - Add focused regression coverage and documentation.
 
 Guard image-scaling helper output pointers (2026-10-26)
+Guard image-cache cleanup callback state (2026-10-26)
+=====================================================
+
+- Reject null cache entries or cleanup keys before GC/pixmap teardown callback
+  access.
+- Add focused regression coverage and documentation.
+
+Guard image cache color release (2026-10-26)
