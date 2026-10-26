@@ -1601,6 +1601,8 @@ void
 XmTransferDone(XtPointer transfer_id, XmTransferStatus status)
 {
   TransferContext tc = (TransferContext) transfer_id;
+  if (tc == NULL)
+    return;
   Atom MOTIF_DROP = XInternAtom(XtDisplay(tc -> widget), XmS_MOTIF_DROP, False);
   _XmWidgetToAppContext(tc->widget);
 
@@ -1669,6 +1671,8 @@ XmTransferSetParameters(XtPointer transfer_id,
 			Atom parm_type)
 {
   TransferContext tc = (TransferContext) transfer_id;
+  if (tc == NULL)
+    return;
   _XmWidgetToAppContext(tc->widget);
 
   _XmAppLock(app);
@@ -1713,6 +1717,8 @@ XmTransferValue(XtPointer transfer_id,
   TransferBlock tb;
   unsigned long length;
   Atom atoms[XtNumber(atom_names)];
+  if (tc == NULL)
+    return;
   _XmWidgetToAppContext(tc->widget);
 
   _XmAppLock(app);
@@ -1794,6 +1800,8 @@ void
 XmTransferStartRequest(XtPointer transfer_id)
 {
   TransferContext tc = (TransferContext) transfer_id;
+  if (tc == NULL)
+    return;
   _XmWidgetToAppContext(tc->widget);
 
   _XmAppLock(app);
@@ -1832,6 +1840,8 @@ void
 XmTransferSendRequest(XtPointer transfer_id, Time time)
 {
   TransferContext tc = (TransferContext) transfer_id;
+  if (tc == NULL)
+    return;
   _XmWidgetToAppContext(tc->widget);
 
   _XmAppLock(app);
