@@ -18935,8 +18935,9 @@ Guard transfer encoding lookup inputs (2026-10-27)
 Guard transfer-context API inputs (2026-10-27)
 ==============================================
 
-- Reject null transfer handles before dereferencing transfer contexts in
-  completion, value, parameter, and MULTIPLE-request APIs.
+- Reject null transfer handles and contexts without widgets before
+  dereferencing transfer contexts in completion, value, parameter, and
+  MULTIPLE-request APIs.
 - Add focused regression coverage and documentation.
 
 ============================================================
