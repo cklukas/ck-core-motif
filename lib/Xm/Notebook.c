@@ -4513,11 +4513,9 @@ DrawPixmapBinding (
 	return;
 
     /* get Pixmap depth */
-	XmeGetPixmapData(XtScreen(nb), pixmap,
-			 NULL, &depth, NULL, NULL, NULL, NULL, NULL, NULL);
-
-    if (depth <= 0)
-	return;
+	if (!XmeGetPixmapData(XtScreen(nb), pixmap,
+			      NULL, &depth, NULL, NULL, NULL, NULL, NULL, NULL))
+	    return;
 
     if (depth <= 0)
 	return;

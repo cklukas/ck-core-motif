@@ -1,3 +1,12 @@
+Guard Notebook pixmap metadata lookup (2026-10-27)
+===================================================
+
+- Stop drawing a binding when `XmeGetPixmapData` cannot describe its pixmap;
+  this avoids using an invalid depth and matches the other pixmap renderers.
+- Remove the duplicate depth guard and add focused regression coverage.
+
+===========================================================
+
 Refresh MWM window-list overflow regression check (2026-10-27)
 ===============================================================
 
