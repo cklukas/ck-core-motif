@@ -200,8 +200,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                  center_x - (Position)diameter / 2,
                  center_y - (Position)diameter / 2, diameter, diameter,
                  90 * 64, -fill_angle);
-    text_gc = XtIsSensitive(widget) ? ring->progress_ring.text_gc
-                                    : ring->progress_ring.track_gc;
+    text_gc = XtIsSensitive(widget) && ring->progress_ring.text_gc
+        ? ring->progress_ring.text_gc : ring->progress_ring.track_gc;
     if (ring->progress_ring.text_visible && ring->progress_ring.font) {
         if (ring->progress_ring.indeterminate)
             snprintf(text, sizeof(text), "…");
@@ -259,10 +259,15 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     }
     Normalize(ring);
     if (old->progress_ring.label != ring->progress_ring.label) {
-        if (ring->progress_ring.label)
-            ring->progress_ring.label = XmStringCopy(ring->progress_ring.label);
-        if (old->progress_ring.label) XmStringFree(old->progress_ring.label);
-        redraw = True;
+        XmString replacement = ring->progress_ring.label
+            ? XmStringCopy(ring->progress_ring.label) : NULL;
+        if (!ring->progress_ring.label || replacement) {
+            if (old->progress_ring.label) XmStringFree(old->progress_ring.label);
+            ring->progress_ring.label = replacement;
+            redraw = True;
+        } else {
+            ring->progress_ring.label = old->progress_ring.label;
+        }
     }
     if (old->progress_ring.minimum != ring->progress_ring.minimum ||
         old->progress_ring.maximum != ring->progress_ring.maximum ||

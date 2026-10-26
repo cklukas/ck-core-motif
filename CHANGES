@@ -16887,4 +16887,11 @@ Rollback failed Prompt render-table copies (2026-10-27)
   a replacement during `SetValues`.
 - Add a focused source regression and documentation.
 
+Harden ProgressRing label and text-GC resources (2026-10-27)
+=============================================================
+
+- Preserve the prior label when XmString copying fails and fall back to the
+  track GC when the sensitive text GC is unavailable.
+- Add a focused source regression and documentation.
+
 ====================================================
