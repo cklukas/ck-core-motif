@@ -7089,6 +7089,8 @@ static void
 Validates(XmTextFieldWidget tf)
 {
   XtPointer temp_ptr;
+  XmTextScanType *selection_copy;
+  size_t selection_bytes;
   
   if (TextF_CursorPosition(tf) < 0) {
     XmeWarning ((Widget)tf, MSG1);
@@ -7110,11 +7112,18 @@ Validates(XmTextFieldWidget tf)
    * Fix for HaL DTS 9841 - copy the selectionArray into dedicated memory.
    */
   temp_ptr = (XtPointer)TextF_SelectionArray(tf);
-  TextF_SelectionArray(tf) = 
-    (XmTextScanType *)XtMalloc(TextF_SelectionArrayCount(tf) * 
-			       sizeof(XmTextScanType));
-  memcpy((void *)TextF_SelectionArray(tf), (void *)temp_ptr,
-	 (TextF_SelectionArrayCount(tf) * sizeof(XmTextScanType)));
+  if ((size_t)TextF_SelectionArrayCount(tf) >
+	  SIZE_MAX / sizeof(XmTextScanType) ||
+	  (size_t)TextF_SelectionArrayCount(tf) >
+	  UINT_MAX / sizeof(XmTextScanType))
+    return;
+  selection_bytes = (size_t)TextF_SelectionArrayCount(tf) *
+	  sizeof(XmTextScanType);
+  selection_copy = (XmTextScanType *)XtMalloc((Cardinal)selection_bytes);
+  if (selection_copy == NULL)
+    return;
+  memcpy((void *)selection_copy, (void *)temp_ptr, selection_bytes);
+  TextF_SelectionArray(tf) = selection_copy;
   /*
    * End fix for HaL DTS 9841
    */

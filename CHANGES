@@ -350,6 +350,14 @@ Guard TextField class translation allocation (2026-10-27)
   storage is unavailable.
 - Add a focused source regression and documentation.
 
+Guard TextField selection-array copy (2026-10-27)
+=================================================
+
+- Validate selection-array counts before multiplication and Xt allocation.
+- Keep the original resource pointer intact if the dedicated copy cannot be
+  allocated, avoiding a null overwrite followed by `memcpy`.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
