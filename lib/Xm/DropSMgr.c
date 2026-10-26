@@ -4303,6 +4303,10 @@ XmDropSiteRegister(
         Cardinal argCount )
 {
   XmDropSiteManagerObject dsm;
+
+  if (widget == NULL)
+    return;
+
   _XmWidgetToAppContext(widget);
 
   _XmAppLock(app);
