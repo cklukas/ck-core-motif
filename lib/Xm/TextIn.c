@@ -2834,6 +2834,9 @@ ScrollCursorVertically(Widget w,
   int64_t scroll_delta;
   int percentage;
   OutputData data = tw->text.output->data;
+
+  if (tw->text.line == NULL || tw->text.number_lines == 0)
+    return;
   
   if (*num_params == 0) {
     if (event) 

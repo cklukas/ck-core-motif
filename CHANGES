@@ -19869,6 +19869,13 @@ Bound Text line coordinates (2026-10-26)
   and saturate before Position-based hit-testing.
 - Add focused regression coverage and documentation.
 
+Guard Text cursor-scroll line tables (2026-10-26)
+===================================================
+
+- Return safely from `ScrollCursorVertically` when line layout storage is
+  unavailable or empty, avoiding null and out-of-range line-table access.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
