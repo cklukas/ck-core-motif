@@ -1,3 +1,14 @@
+Guard drop-transfer entry inputs (2026-10-27)
+==============================================
+
+- Reject a null reference widget before display lookup in
+  `XmDropTransferStart`.
+- Reject a null widget or missing non-empty transfer array in
+  `XmDropTransferAdd`.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard drag-target compatibility inputs (2026-10-27)
 ====================================================
 
