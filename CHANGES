@@ -17040,3 +17040,12 @@ Refresh IconG mask-name regression contract (2026-10-27)
 ====================================================
 
 Refresh FileSB allocation regression contract (2026-10-27)
+Refresh FileSB directory-list regression contract (2026-10-27)
+================================================================
+
+- Align the directory-list check with the current initialized temporary list,
+  overflow guard, and cleanup-label implementation.
+
+====================================================
+
+Refresh IconG mask-name regression contract (2026-10-27)
