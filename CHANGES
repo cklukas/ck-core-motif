@@ -22362,8 +22362,9 @@ Guard image-scaling helper output pointers (2026-10-26)
 Guard image-cache cleanup callback state (2026-10-26)
 =====================================================
 
-- Reject null cache entries, cleanup keys, or cached screens before GC/pixmap
-  teardown callback access, including optional debug printers.
+- Reject a null cleanup screen at the cache boundary, plus null cache entries,
+  cleanup keys, or cached screens before GC/pixmap teardown callback access,
+  including optional debug printers.
 - Add focused regression coverage and documentation.
 
 Guard image cache color release (2026-10-26)

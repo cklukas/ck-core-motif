@@ -2448,6 +2448,9 @@ _XmCleanPixmapCache(Screen * screen, Widget shell)
 {
     CleanKey ck ;
 
+    if (screen == NULL)
+	return;
+
     ck.screen = screen;
     ck.shell = shell ;
 
