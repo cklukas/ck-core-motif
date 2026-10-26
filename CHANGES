@@ -1,3 +1,12 @@
+Bound combined XPM data pointer rows (2026-10-27)
+==================================================
+
+- Reject serialized image layouts whose header, pixel, and extension row
+  counts overflow their combined pointer-table index.
+- Add focused regression coverage and documentation.
+
+==================================================
+
 Reject invalid XPM data pixel indexes (2026-10-27)
 ===================================================
 

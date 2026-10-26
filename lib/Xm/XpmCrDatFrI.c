@@ -210,6 +210,10 @@ XpmCreateDataFromXpmImage(
 	RETURN(XpmNoMemory);
     data_size += header_size + ext_size;
 
+    if (header_nlines > UINT_MAX - image->height ||
+	(header_nlines + image->height) > UINT_MAX - ext_nlines)
+	RETURN(XpmNoMemory);
+
     data = (char **) XpmMalloc(data_size);
     if (!data)
 	RETURN(XpmNoMemory);
