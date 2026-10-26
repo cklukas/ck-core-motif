@@ -1716,9 +1716,10 @@ GetTextAndLabelWidth(Widget w, Dimension combo_width, Dimension arrow_width,
 		     Dimension *text_width, Dimension *label_width)
 {
     XmDropDownWidget cbw = (XmDropDownWidget) w;
-    int text_and_label;
+    long long text_and_label;
 
-    text_and_label = combo_width - (arrow_width + 2 * (lbw + tbw));
+    text_and_label = (long long)combo_width -
+        ((long long)arrow_width + 2 * ((long long)lbw + tbw));
     text_and_label -= 3 * XmDropDown_h_space(cbw);
 
     if (XmDropDown_show_label(cbw)) 
@@ -1732,7 +1733,7 @@ GetTextAndLabelWidth(Widget w, Dimension combo_width, Dimension arrow_width,
 	text_and_label += XmDropDown_h_space(cbw);
     }
 
-    if (text_and_label >= (int) (*text_width + *label_width)) 
+    if (text_and_label >= (long long)(*text_width + *label_width))
     {
 	*text_width = text_and_label - *label_width;
     }
@@ -1743,14 +1744,23 @@ GetTextAndLabelWidth(Widget w, Dimension combo_width, Dimension arrow_width,
     {	
 	if ( text_and_label < 2 ) 
 	{
-	    *text_width = *label_width = 1;
+	*text_width = *label_width = 1;
 	    return;
 	}
 
-	*text_width = ((int)(*text_width * text_and_label)/
-		       (int)(*text_width + *label_width));
-
-	*label_width = text_and_label - *text_width;
+	/* Keep the human-readable label intact whenever the editable field can
+	 * absorb the reduction. Shrinking both proportionally clips labels even
+	 * when the text field still has useful flexibility. */
+	if (XmDropDown_show_label(cbw)) {
+	    Dimension minimum_label = *label_width;
+	    if ((long long)minimum_label > text_and_label - 1)
+		minimum_label = (Dimension)(text_and_label - 1);
+	    *label_width = minimum_label;
+	    *text_width = (Dimension)(text_and_label - minimum_label);
+	} else {
+	    *label_width = 0;
+	    *text_width = (Dimension)text_and_label;
+	}
     }
 
     if (*text_width < 1)

@@ -14989,6 +14989,13 @@ TabBox standalone background fallback (2026-10-27)
   boxes no longer paint their unused area black.
 
 Stepper control glyphs (2026-10-27)
+DropDown label-width allocation (2026-10-27)
+=============================================
+
+- Preserve the preferred human-readable label width when a DropDown is
+  narrowed, shrinking the editable text field first. Width arithmetic now uses
+  checked wide intermediates instead of an overflow-prone multiplication.
+
 Breadcrumb measured separator and selection geometry (2026-10-27)
 ==================================================================
 
