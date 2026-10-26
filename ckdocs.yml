@@ -400,3 +400,9 @@ nav:
       - docs/xpm-grayscale-color-bounds.md
       - docs/xpm-hash-growth-bounds.md
       - docs/xpm-scan-growth-bounds.md
+      - docs/dragbs-atom-entry-growth.md
+      - docs/dropsmgr-child-growth.md
+      - docs/editres-stream-growth.md
+      - docs/outline-top-node-allocation.md
+      - docs/virtkeys-binding-growth.md
+      - docs/xft-draw-cache-growth.md
