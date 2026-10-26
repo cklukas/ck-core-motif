@@ -14,5 +14,5 @@ assert "picture->allocation_failed = True" in source
 assert "if (new_node == NULL)" in source
 assert "if (nodes == NULL)" in source
 assert "if (newtrans == NULL) goto parse_failed;" in source
-assert "if (picture == NULL || src == NULL || dest == NULL)" in source
+assert "if (picture == NULL || picture->allocation_failed" in source
 print("XmPicture allocation failures are bounded and fail closed")

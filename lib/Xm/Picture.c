@@ -602,7 +602,8 @@ _XiGetNewTransition(XmPictureRec *picture, XmTransType type,
 {
     XmPictureTransition *t;
 
-	if (picture == NULL || src == NULL || dest == NULL)
+	if (picture == NULL || picture->allocation_failed ||
+	    src == NULL || dest == NULL)
 	return NULL;
     t = XtNew(XmPictureTransition);
 	if (t == NULL) {
