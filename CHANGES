@@ -22496,3 +22496,9 @@ Guard Text selection callbacks (2026-10-26)
   widget/display dereferences.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-selection-callback-inputs.py
+Reject missing Text target-list storage (2026-10-26)
+====================================================
+- Reject selection target callbacks whose non-zero target count has no target
+  buffer before iterating the list.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-selection-target-list-inputs.py

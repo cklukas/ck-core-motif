@@ -1351,7 +1351,7 @@ HandleTargets(Widget w, XtPointer closure,
   tf = (XmTextFieldWidget) w;
   CS_OF_ENCODING = XmeGetEncodingAtom(w);
   
-  if (!ds->length) {
+  if (!ds->length || ds->value == NULL) {
     XtFree((char *)ds->value);
     ds->value = NULL;
     return; /* Supports no targets, so don't bother sending anything */

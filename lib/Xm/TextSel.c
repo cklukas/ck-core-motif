@@ -946,7 +946,7 @@ HandleTargets(Widget w,
     return;
   tw = (XmTextWidget) w;
 
-  if (!ds->length) {
+  if (!ds->length || ds->value == NULL) {
     XtFree((char *)ds->value);
     ds->value = NULL;
     return;
