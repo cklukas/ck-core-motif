@@ -370,20 +370,45 @@ AddWidget(XmTextSource source,
 	  XmTextWidget tw)
 {
   XmSourceData data = source->data;
+  XmTextWidget *new_widgets;
+  _XmHighlightRec *new_highlights;
+  size_t widget_bytes;
+  size_t highlight_bytes;
+
+  if (data->numwidgets < 0 || data->numwidgets == INT_MAX ||
+      (size_t)(data->numwidgets + 1) >
+	(size_t)UINT_MAX / sizeof(XmTextWidget))
+    return;
   data->numwidgets++;
-  data->widgets = (XmTextWidget *)
-    XtRealloc((char *) data->widgets,
-	      (unsigned) (sizeof(XmTextWidget) * data->numwidgets));
+  widget_bytes = sizeof(XmTextWidget) * (size_t)data->numwidgets;
+  new_widgets = (XmTextWidget *)XtRealloc((char *)data->widgets,
+					 (Cardinal)widget_bytes);
+  if (new_widgets == NULL) {
+    data->numwidgets--;
+    return;
+  }
+  data->widgets = new_widgets;
   data->widgets[data->numwidgets - 1] = tw;
   
   if (data->numwidgets == 1)
     _XmTextSetHighlight((Widget) tw, 0, tw->text.last_position, 
 		       XmHIGHLIGHT_NORMAL);
   else {
-    tw->text.highlight.list = (_XmHighlightRec *)
-      XtRealloc((char *) tw->text.highlight.list, 
-		data->widgets[0]->text.highlight.maximum *
-		sizeof(_XmHighlightRec));
+    if (data->widgets[0]->text.highlight.maximum < 0 ||
+	(size_t)data->widgets[0]->text.highlight.maximum >
+	  SIZE_MAX / sizeof(_XmHighlightRec)) {
+      data->numwidgets--;
+      return;
+    }
+    highlight_bytes = (size_t)data->widgets[0]->text.highlight.maximum *
+	 sizeof(_XmHighlightRec);
+    new_highlights = (_XmHighlightRec *)XtRealloc(
+	(char *)tw->text.highlight.list, (Cardinal)highlight_bytes);
+    if (new_highlights == NULL) {
+      data->numwidgets--;
+      return;
+    }
+    tw->text.highlight.list = new_highlights;
     tw->text.highlight.maximum = data->widgets[0]->text.highlight.maximum;
     tw->text.highlight.number = data->widgets[0]->text.highlight.number;
     memmove((void *) tw->text.highlight.list, 

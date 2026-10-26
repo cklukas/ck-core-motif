@@ -50,6 +50,13 @@ Guard text-source replace growth (2026-10-27)
   redisplay state when growth fails.
 - Add a focused source regression and documentation.
 
+Guard text-source widget attachment (2026-10-27)
+=================================================
+
+- Check shared widget-array and highlight-list reallocations in `AddWidget`.
+- Roll back the widget count when attachment storage cannot be grown.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
