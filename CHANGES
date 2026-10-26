@@ -156,6 +156,13 @@ Bound MWM protocol atom arrays (2026-10-26)
   allocating per-screen protocol atoms.
 - Add a focused protocol allocation regression and document the bounds.
 
+Guard MWM all-client query conversion (2026-10-26)
+==================================================
+
+- Validate WM-query screen/output inputs, skip detached entries without client
+  data, and make the returned XID length conversion explicit.
+- Add a focused query-conversion regression and document the guards.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 

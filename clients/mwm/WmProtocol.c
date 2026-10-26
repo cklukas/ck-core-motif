@@ -909,6 +909,11 @@ wmq_convert_all_clients (
     ClientListEntry *pEntry;
     ClientData *pCD;
 
+    if (screen < 0 || screen >= wmGD.numScreens ||
+	pType_return == NULL || pValue_return == NULL ||
+	pLength_return == NULL || pFormat_return == NULL)
+	return False;
+
     /*
      * Start with empty client list
      */
@@ -933,7 +938,7 @@ wmq_convert_all_clients (
 	    /* 
 	     * Filter out entries for icons
 	     */
-	    if (pEntry->type != MINIMIZED_STATE)
+	    if (pEntry->type != MINIMIZED_STATE && pEntry->pCD != NULL)
 	    {
 		pCD = pEntry->pCD;
 		if (pCD->transientChildren)
@@ -948,7 +953,7 @@ wmq_convert_all_clients (
 
     *pType_return = XA_WINDOW;
     *pValue_return = (XtPointer) pXids;
-    *pLength_return = curXids;
+    *pLength_return = (unsigned long)curXids;
     *pFormat_return = 32;
     return (True);
 
