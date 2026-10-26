@@ -1,3 +1,12 @@
+Guard ProgressRing state API inputs (2026-10-27)
+================================================
+
+- Reject null widgets before `XmIsProgressRing` checks in range, value, and
+  indeterminate-state accessors and mutators.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard ProgressBar state API inputs (2026-10-27)
 ===============================================
 

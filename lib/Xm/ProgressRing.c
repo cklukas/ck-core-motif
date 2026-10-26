@@ -366,20 +366,20 @@ void XmProgressRingGetRange(Widget widget, int *minimum, int *maximum) {
     XmProgressRingWidget ring;
     if (minimum) *minimum = 0;
     if (maximum) *maximum = 0;
-    if (!XmIsProgressRing(widget)) return;
+    if (widget == NULL || !XmIsProgressRing(widget)) return;
     ring = (XmProgressRingWidget)widget;
     if (minimum) *minimum = ring->progress_ring.minimum;
     if (maximum) *maximum = ring->progress_ring.maximum;
 }
 int XmProgressRingGetValue(Widget widget) {
-    return XmIsProgressRing(widget)
+    return widget != NULL && XmIsProgressRing(widget)
         ? ((XmProgressRingWidget)widget)->progress_ring.value : 0;
 }
 void XmProgressRingSetRange(Widget widget, int minimum, int maximum,
                             Boolean notify) {
     XmProgressRingWidget ring;
     int old_min, old_max, old_value;
-    if (!XmIsProgressRing(widget)) return;
+    if (widget == NULL || !XmIsProgressRing(widget)) return;
     ring = (XmProgressRingWidget)widget;
     old_min = ring->progress_ring.minimum;
     old_max = ring->progress_ring.maximum;
@@ -397,7 +397,7 @@ void XmProgressRingSetRange(Widget widget, int minimum, int maximum,
 void XmProgressRingSetValue(Widget widget, int value, Boolean notify) {
     XmProgressRingWidget ring;
     int old_value;
-    if (!XmIsProgressRing(widget)) return;
+    if (widget == NULL || !XmIsProgressRing(widget)) return;
     ring = (XmProgressRingWidget)widget;
     old_value = ring->progress_ring.value;
     ring->progress_ring.value = value;
@@ -407,14 +407,14 @@ void XmProgressRingSetValue(Widget widget, int value, Boolean notify) {
     if (notify && old_value != ring->progress_ring.value) Notify(ring, NULL);
 }
 Boolean XmProgressRingGetIndeterminate(Widget widget) {
-    return XmIsProgressRing(widget)
+    return widget != NULL && XmIsProgressRing(widget)
         ? ((XmProgressRingWidget)widget)->progress_ring.indeterminate : False;
 }
 void XmProgressRingSetIndeterminate(Widget widget, Boolean indeterminate,
                                     Boolean notify) {
     XmProgressRingWidget ring;
     Boolean old;
-    if (!XmIsProgressRing(widget)) return;
+    if (widget == NULL || !XmIsProgressRing(widget)) return;
     ring = (XmProgressRingWidget)widget;
     old = ring->progress_ring.indeterminate;
     ring->progress_ring.indeterminate = indeterminate ? True : False;
