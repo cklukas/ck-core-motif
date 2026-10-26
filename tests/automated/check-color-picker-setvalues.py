@@ -12,6 +12,8 @@ required = (
     "Boolean redraw = False;",
     "Boolean colors_changed =",
     "XSetForeground(XtDisplay(widget), picker->color_picker.gc,",
+    "if (new_table)",
+    "picker->color_picker.render_table = old->color_picker.render_table;",
     "redraw = True;",
     "return redraw;",
 )

@@ -189,10 +189,14 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         XmRenderTable new_table = picker->color_picker.render_table ?
             XmFontListCopy(picker->color_picker.render_table) :
             XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
-        if (old->color_picker.render_table)
-            XmRenderTableFree(old->color_picker.render_table);
-        picker->color_picker.render_table = new_table;
-        redraw = True;
+        if (new_table) {
+            if (old->color_picker.render_table)
+                XmRenderTableFree(old->color_picker.render_table);
+            picker->color_picker.render_table = new_table;
+            redraw = True;
+        } else {
+            picker->color_picker.render_table = old->color_picker.render_table;
+        }
     }
     if (old->color_picker.value != picker->color_picker.value) {
         picker->color_picker.preview = picker->color_picker.value;
