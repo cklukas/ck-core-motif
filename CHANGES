@@ -6,6 +6,15 @@ Guard standard client-window conversion allocation (2026-10-27)
   conversion contract.
 - Add a focused source regression and documentation.
 
+Guard text modify-verify allocations (2026-10-27)
+==================================================
+
+- Check character and wide-character callback buffer allocations before
+  copying or converting text, rejecting an edit cleanly on failure.
+- Bound the wide-character allocation size and release owned temporary text on
+  failure.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 

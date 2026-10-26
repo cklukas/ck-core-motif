@@ -959,6 +959,10 @@ _XmTextModifyVerify(XmTextWidget initiator,
     /* Fill in the block to pass to the callback. */
     if (block->length) {
       newblock->ptr = (char *) XtMalloc(block->length + 1);
+      if (newblock->ptr == NULL) {
+	*freeBlock = False;
+	return False;
+      }
       *freeBlock = True;
       (void) memcpy((void*) newblock->ptr, (void*) block->ptr,
 		    block->length);
@@ -997,6 +1001,9 @@ _XmTextModifyVerify(XmTextWidget initiator,
 	*freeBlock = False;
 	if (newblock->length) {
 	  newblock->ptr = XtMalloc(newblock->length + 1);
+	  if (newblock->ptr == NULL) {
+	    return False;
+	  }
 	  *freeBlock = True;
 	  (void)memcpy((void*)newblock->ptr, (void*)tvcb.text->ptr, 
 		       tvcb.text->length);
@@ -1019,8 +1026,23 @@ _XmTextModifyVerify(XmTextWidget initiator,
   }  /* end if there are char* modify verify callbacks */
   
   if (initiator->text.wcs_modify_verify_callback) {
-    wcs_newblock.wcsptr = (wchar_t *)XtMalloc((unsigned)sizeof(wchar_t) *
-					      (newblock->length + 1));
+    size_t wcs_capacity;
+
+    if (newblock->length < 0 ||
+	(size_t)newblock->length > (SIZE_MAX / sizeof(wchar_t)) - 1) {
+	  if (newblock->ptr && newblock->ptr != block->ptr)
+	    XtFree(newblock->ptr);
+	  *freeBlock = False;
+	  return False;
+    }
+    wcs_capacity = ((size_t)newblock->length + 1) * sizeof(wchar_t);
+    wcs_newblock.wcsptr = (wchar_t *)XtMalloc(wcs_capacity);
+    if (wcs_newblock.wcsptr == NULL) {
+      if (newblock->ptr && newblock->ptr != block->ptr)
+	XtFree(newblock->ptr);
+      *freeBlock = False;
+      return False;
+    }
     wcs_newblock.length = mbstowcs(wcs_newblock.wcsptr, newblock->ptr,
 				   block_num_chars);
     if (wcs_newblock.length < 0) wcs_newblock.length = 0;
