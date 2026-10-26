@@ -803,7 +803,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 	 XmSCLIPBOARD_MANAGER, XmS_MOTIF_SNAPSHOT, XmSDELETE };
 
   ConvertContext cc;
-  Atom type, type2, *targets;
+  Atom type, type2, *targets = NULL;
   XtPointer value;
   unsigned long size, size2;
   int format, format2;
@@ -927,7 +927,14 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 	 functions */
       DataIdDictionary = _XmAllocHashTable(10, NULL, NULL);
     }
-    _XmProcessUnlock();
+	_XmProcessUnlock();
+	if (DataIdDictionary == NULL) {
+	    XtFree((char *)value);
+	    XtFree((char *)targets);
+	    XmClipboardEndCopy(display, XtWindow(w), itemid);
+	    _XmAppUnlock(app);
+	    return False;
+	}
     
     targets = (Atom *) value;
     count = size;
@@ -944,6 +951,13 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
       
       if (count != 0) {
 	req = (SnapshotRequest) XtMalloc(sizeof(SnapshotRequestRec));
+	if (req == NULL) {
+	    XtFree((char *)value);
+	    XtFree((char *)targets);
+	    XmClipboardEndCopy(display, XtWindow(w), itemid);
+	    _XmAppUnlock(app);
+	    return False;
+	}
 	req -> outstanding = 0;
 	req -> distinguisher = * (Atom *) value;
       } else {

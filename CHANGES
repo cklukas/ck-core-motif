@@ -15550,3 +15550,12 @@ Guard deferred clipboard snapshot callbacks (2026-10-27)
 - Add a focused source regression and documentation.
 
 Guard transfer callback context lookups (2026-10-27)
+Check deferred clipboard snapshot allocations (2026-10-27)
+=============================================================
+
+- Handle dictionary and snapshot-request allocation failure before publishing
+  deferred clipboard callback IDs.
+- End the temporary clipboard copy and release buffers on failure.
+- Add a focused source regression and documentation.
+
+Guard deferred clipboard snapshot callbacks (2026-10-27)
