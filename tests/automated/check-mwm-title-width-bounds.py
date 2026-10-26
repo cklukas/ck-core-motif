@@ -16,5 +16,12 @@ assert "if (requiredWidth > pcd->frameInfo.width)" in body
 assert "*pWidth = (unsigned int)(pcd->frameInfo.width - requiredWidth);" in body
 assert body.count("if (requiredWidth > pcd->frameInfo.width)") >= 5
 assert body.index("requiredWidth = 2UL") < body.index("*pWidth = (unsigned int)")
+assert "FrameInteriorSpan (unsigned int total, unsigned int corner)" in source
+helper_start = source.index("static int\nFrameInteriorSpan")
+helper_end = source.index("Boolean GetFramePartInfo", helper_start)
+helper = source[helper_start:helper_end]
+assert "if (required > total)" in helper
+assert "FrameInteriorSpan (pcd->frameInfo.width" in body
+assert "FrameInteriorSpan (pcd->frameInfo.height" in body
 
 print("PASS MWM title geometry rejects impossible widths")

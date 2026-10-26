@@ -20840,3 +20840,9 @@ Bound MWM system/minimize/maximize positions (2026-10-26)
 -----------------------------------------------------------
 GetFramePartInfo now rejects system-menu and button geometry that cannot fit
 inside the frame width, preventing wrapped unsigned x-coordinate calculations.
+
+Bound MWM resize-corner spans (2026-10-26)
+-------------------------------------------
+Resize geometry now clamps an impossible interior span to zero before the
+corner calculations, preventing unsigned subtraction from wrapping on tiny
+frames.

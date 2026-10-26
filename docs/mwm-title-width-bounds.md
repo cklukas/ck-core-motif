@@ -9,5 +9,9 @@ maximize geometry.  If the frame is too narrow, the function returns `FALSE`
 without writing wrapped unsigned widths or x-coordinates.  Valid frames retain
 the previous geometry calculations.
 
+Resize-corner spans use the same checked subtraction: when twice the corner
+size exceeds the frame dimension, the interior span is zero rather than a
+wrapped unsigned value.
+
 The source-contract regression is
 `tests/automated/check-mwm-title-width-bounds.py`.

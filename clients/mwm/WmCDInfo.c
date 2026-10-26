@@ -695,6 +695,17 @@ unsigned int BaseWindowHeight (ClientData *pcd)
  *  --------
  * 
  *************************************<->***********************************/
+static int
+FrameInteriorSpan (unsigned int total, unsigned int corner)
+{
+    unsigned long required = 2UL * corner;
+
+    if (required > total)
+	return (0);
+
+    return ((int)((unsigned long)total - required));
+}
+
 Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned int *pWidth, unsigned int *pHeight)
 {
     unsigned int boxdim;
@@ -811,8 +822,8 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 			*pWidth = pcd->frameInfo.cornerWidth;
 		    }
 		    else {
-			horiz = pcd->frameInfo.width - 
-				2*pcd->frameInfo.cornerWidth;
+			horiz = FrameInteriorSpan (pcd->frameInfo.width,
+				pcd->frameInfo.cornerWidth);
 			*pWidth = pcd->frameInfo.cornerWidth + 
 				horiz/2 + horiz%2;
 		    }
@@ -822,8 +833,8 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 			*pHeight = pcd->frameInfo.cornerHeight;
 		    }
 		    else {
-			vert = pcd->frameInfo.height - 
-				2*pcd->frameInfo.cornerHeight;
+			vert = FrameInteriorSpan (pcd->frameInfo.height,
+				pcd->frameInfo.cornerHeight);
 			*pHeight = pcd->frameInfo.cornerHeight + 
 				vert/2 + vert%2;
 		    }
@@ -838,8 +849,8 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 		    *pHeight = pcd->frameInfo.upperBorderWidth;
 		    if ((int)pcd->frameInfo.cornerWidth > 
 			    (int)pcd->frameInfo.lowerBorderWidth+2) {
-			*pWidth = pcd->frameInfo.width - 
-				2*pcd->frameInfo.cornerWidth;
+			*pWidth = (unsigned int)FrameInteriorSpan (
+				pcd->frameInfo.width, pcd->frameInfo.cornerWidth);
 		    }
 		    else {
 			*pWidth = 0;
@@ -855,8 +866,8 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 			*pWidth = pcd->frameInfo.cornerWidth;
 		    }
 		    else {
-			horiz = pcd->frameInfo.width - 
-			    2*pcd->frameInfo.cornerWidth;
+			horiz = FrameInteriorSpan (pcd->frameInfo.width,
+			    pcd->frameInfo.cornerWidth);
 			*pWidth = pcd->frameInfo.cornerWidth + horiz/2;
 		    }
 		    *pX = pcd->frameInfo.width - *pWidth;
@@ -866,8 +877,8 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 			*pHeight = pcd->frameInfo.cornerHeight;
 		    }
 		    else {
-			vert = pcd->frameInfo.height - 
-				2*pcd->frameInfo.cornerHeight;
+			vert = FrameInteriorSpan (pcd->frameInfo.height,
+				pcd->frameInfo.cornerHeight);
 			*pHeight = pcd->frameInfo.cornerHeight + 
 				vert/2 + vert%2;
 		    }
@@ -884,8 +895,8 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 		    *pWidth = pcd->frameInfo.lowerBorderWidth;
 		    if ((int)pcd->frameInfo.cornerHeight > 
 			    (int)pcd->frameInfo.lowerBorderWidth+2) {
-			*pHeight = pcd->frameInfo.height - 
-				2*pcd->frameInfo.cornerHeight;
+			*pHeight = (unsigned int)FrameInteriorSpan (
+				pcd->frameInfo.height, pcd->frameInfo.cornerHeight);
 		    }
 		    else {
 			*pHeight = 0;
@@ -901,8 +912,8 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 			*pWidth = pcd->frameInfo.cornerWidth;
 		    }
 		    else {
-			horiz = pcd->frameInfo.width - 
-				2*pcd->frameInfo.cornerWidth;
+			horiz = FrameInteriorSpan (pcd->frameInfo.width,
+				pcd->frameInfo.cornerWidth);
 			*pWidth = pcd->frameInfo.cornerWidth + horiz/2;
 		    }
 		    *pX = pcd->frameInfo.width - *pWidth;
@@ -912,8 +923,8 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 			*pHeight = pcd->frameInfo.cornerHeight;
 		    }
 		    else {
-			vert = pcd->frameInfo.height - 
-				2*pcd->frameInfo.cornerHeight;
+			vert = FrameInteriorSpan (pcd->frameInfo.height,
+				pcd->frameInfo.cornerHeight);
 			*pHeight = pcd->frameInfo.cornerHeight + vert/2;
 		    }
 		    *pY = pcd->frameInfo.height - *pHeight;
@@ -928,8 +939,8 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 			    pcd->frameInfo.lowerBorderWidth;
 		    if ((int)pcd->frameInfo.cornerWidth > 
 			    (int)pcd->frameInfo.lowerBorderWidth+2) {
-			*pWidth = pcd->frameInfo.width - 
-				2*pcd->frameInfo.cornerWidth;
+			*pWidth = (unsigned int)FrameInteriorSpan (
+				pcd->frameInfo.width, pcd->frameInfo.cornerWidth);
 		    }
 		    else {
 			*pWidth = 0;
@@ -946,8 +957,8 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 			*pWidth = pcd->frameInfo.cornerWidth;
 		    }
 		    else {
-			horiz = pcd->frameInfo.width - 
-			        2*pcd->frameInfo.cornerWidth;
+			horiz = FrameInteriorSpan (pcd->frameInfo.width,
+			        pcd->frameInfo.cornerWidth);
 			*pWidth = pcd->frameInfo.cornerWidth + 
 				horiz/2 + horiz%2;
 		    }
@@ -958,8 +969,8 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 			*pHeight = pcd->frameInfo.cornerHeight;
 		    }
 		    else {
-			vert = pcd->frameInfo.height - 
-				2*pcd->frameInfo.cornerHeight;
+			vert = FrameInteriorSpan (pcd->frameInfo.height,
+				pcd->frameInfo.cornerHeight);
 			*pHeight = pcd->frameInfo.cornerHeight + vert/2;
 		    }
 		    *pY = pcd->frameInfo.height - *pHeight;
@@ -974,8 +985,8 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 		    *pWidth = pcd->frameInfo.lowerBorderWidth;
 		    if ((int)pcd->frameInfo.cornerHeight > 
 			    (int)pcd->frameInfo.lowerBorderWidth+2) {
-			*pHeight = pcd->frameInfo.height - 
-				2*pcd->frameInfo.cornerHeight;
+			*pHeight = (unsigned int)FrameInteriorSpan (
+				pcd->frameInfo.height, pcd->frameInfo.cornerHeight);
 		    }
 		    else {
 			*pHeight = 0;
