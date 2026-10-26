@@ -18683,3 +18683,15 @@ Guard DropSite stacking-order query inputs (2026-10-27)
 ============================================================
 
 Bound drag/drop argument-array allocations (2026-10-27)
+Harden DropSite configure and active-visual APIs (2026-10-27)
+==============================================================
+
+- Validate null widgets before app-context lookup and handle active-visuals
+  allocation failure without dereferencing a null record.
+- Replace signed stacking-order indices and underflow-prone bounds with safe
+  Cardinal traversal.
+- Extend the focused DropSite regression and documentation.
+
+============================================================
+
+Guard DropSite stacking-order query inputs (2026-10-27)

@@ -13,4 +13,15 @@ assert "Cardinal i, j, child_count;" in region
 assert "child_count = GetDSNumChildren(info);" in region
 assert "for (j = 0, i = child_count; i != 0; )" in region
 assert "--i;" in region
+configure = source.index("XmDropSiteConfigureStackingOrder(")
+configure_end = source.index("\nXmDropSiteVisuals \nXmDropSiteGetActiveVisuals", configure)
+configure_region = source[configure:configure_end]
+assert "if (widget == NULL)" in configure_region
+assert "Cardinal i;" in configure_region
+assert "else if (index < sib_index)" in configure_region
+visuals = source.index("XmDropSiteVisuals \nXmDropSiteGetActiveVisuals(")
+visuals_end = source.index("\nvoid \n", visuals + 1)
+visuals_region = source[visuals:visuals_end]
+assert "if (widget == NULL)" in visuals_region
+assert "if (dsv == NULL)" in visuals_region
 print("PASS DropSite stacking-order inputs and child indices are safe")

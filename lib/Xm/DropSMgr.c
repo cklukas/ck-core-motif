@@ -4507,6 +4507,9 @@ XmDropSiteConfigureStackingOrder(
 	XmDropSiteManagerObject dsm;
 	XmDSInfo info;
 	XmDSInfo parent;
+	Cardinal child_count;
+	if (widget == NULL)
+		return;
 	_XmWidgetToAppContext(widget);
 
 	if (widget == NULL)
@@ -4530,7 +4533,7 @@ XmDropSiteConfigureStackingOrder(
 	{
 		XmDSInfo sib = (XmDSInfo) DSMWidgetToInfo(dsm, sibling);
 		Cardinal index, sib_index;
-		int i;
+		Cardinal i;
 
 		if ((sib == NULL) ||
 			(((XmDSInfo) GetDSParent(sib)) != parent) ||
@@ -4548,15 +4551,16 @@ XmDropSiteConfigureStackingOrder(
 				if (index > sib_index)
 					for(i=index; i > sib_index; i--)
 						SwapDSChildren(parent, i, i - 1);
-				else
+				else if (index < sib_index)
 					for (i=index; i < (sib_index - 1); i++)
 						SwapDSChildren(parent, i, i + 1);
 			break;
 			case XmBELOW:
 				if (index > sib_index)
-					for(i=index; i > (sib_index + 1); i--)
+					for(i=index; sib_index < (Cardinal)~0 &&
+					    i > sib_index + 1; i--)
 						SwapDSChildren(parent, i, i - 1);
-				else
+				else if (index < sib_index)
 					for (i=index; i < sib_index; i++)
 						SwapDSChildren(parent, i, i + 1);
 			break;
@@ -4568,7 +4572,8 @@ XmDropSiteConfigureStackingOrder(
 	else
 	{
 		Cardinal index = GetDSChildPosition(parent, info);
-		int i;
+		Cardinal i;
+		child_count = GetDSNumChildren(parent);
 
 		switch(stack_mode)
 		{
@@ -4577,7 +4582,7 @@ XmDropSiteConfigureStackingOrder(
 					SwapDSChildren(parent, i, i - 1);
 			break;
 			case XmBELOW:
-				for (i=index; i < (int)(GetDSNumChildren(parent) - 1); i++)
+				for (i=index; child_count != 0 && i < child_count - 1; i++)
 					SwapDSChildren(parent, i, i + 1);
 			break;
 			default:
@@ -4595,6 +4600,8 @@ XmDropSiteGetActiveVisuals(
 	XmDropSiteManagerObject dsm;
 	XmDSInfo info;
 	XmDropSiteVisuals dsv;
+	if (widget == NULL)
+		return NULL;
 	_XmWidgetToAppContext(widget);
 
 	_XmAppLock(app);
@@ -4604,6 +4611,11 @@ XmDropSiteGetActiveVisuals(
 	info = (XmDSInfo) dsm->dropManager.curInfo;
 	dsv = (XmDropSiteVisuals) XtCalloc(1,
 		sizeof(XmDropSiteVisualsRec));
+	if (dsv == NULL)
+	{
+		_XmAppUnlock(app);
+		return NULL;
+	}
 
 	/* Update if dsm is dirty */
 	_XmIEndUpdate((XtPointer) dsm, (XtIntervalId *) NULL);
