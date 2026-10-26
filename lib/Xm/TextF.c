@@ -2787,9 +2787,19 @@ ModifyVerify(XmTextFieldWidget tf,
   if (TextF_ModifyVerifyCallbackWcs(tf) && vcb.doit) {
     if (do_free) { /* there is a char* modify verify callback; the data we
 		    * want is in vcb struct */
+      if (vcb.text->length < 0 ||
+	  (size_t)vcb.text->length > SIZE_MAX / sizeof(wchar_t) - 1 ||
+	  (size_t)vcb.text->length + 1 > UINT_MAX / sizeof(wchar_t)) {
+	  XtFree(newblock.ptr);
+	  return(False);
+      }
       wcs_newblock.wcsptr = (wchar_t *) XtMalloc((unsigned) 
 						 (vcb.text->length + 1) * 
 						 sizeof(wchar_t));
+      if (wcs_newblock.wcsptr == NULL) {
+	  XtFree(newblock.ptr);
+	  return(False);
+      }
       wcs_newblock.length = mbstowcs(wcs_newblock.wcsptr, vcb.text->ptr,
 				     vcb.text->length);
       if (wcs_newblock.length < 0) { /* bad value; don't pass anything */
@@ -2799,9 +2809,15 @@ ModifyVerify(XmTextFieldWidget tf,
 	wcs_newblock.wcsptr[wcs_newblock.length] = 0L;
     } else { /* there was no char* modify verify callback; use data
 	      * passed in from caller instead of that in vcb struct. */
+      if (*insert_length < 0 ||
+	  (size_t)*insert_length > SIZE_MAX / sizeof(wchar_t) - 1 ||
+	  (size_t)*insert_length + 1 > UINT_MAX / sizeof(wchar_t))
+	return(False);
       wcs_newblock.wcsptr = (wchar_t *) XtMalloc((unsigned) 
 						 (*insert_length + 1) * 
 						 sizeof(wchar_t));
+      if (wcs_newblock.wcsptr == NULL)
+	return(False);
       if (tf->text.max_char_size == 1) 
 	wcs_newblock.length = mbstowcs(wcs_newblock.wcsptr, *insert,
 				       *insert_length);
