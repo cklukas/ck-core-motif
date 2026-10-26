@@ -698,9 +698,8 @@ WriteAtomsTable(
     /* If the data is bigger than the default stack allocation, then 
      * allocate heap storage, else use automatic storage.
      */
-    if (atomsTable->numEntries >
-	(SIZE_MAX - sizeof(xmMotifAtomsPropertyRec)) /
-	sizeof(xmMotifAtomsTableRec)) {
+	if ((size_t)atomsTable->numEntries >
+	    (size_t)UINT_MAX / sizeof(xmMotifAtomsTableRec)) {
 	XmeWarning((Widget) XmGetXmDisplay(display), MESSAGE4);
 	return;
     }
@@ -867,12 +866,6 @@ ReadAtomsTable(
         }
 
 	if (ret && propertyRecPtr->info.num_atoms > atomsTable->numEntries) {
-	    if (propertyRecPtr->info.num_atoms >
-		SIZE_MAX / sizeof(xmAtomsTableEntryRec)) {
-		XmeWarning((Widget) XmGetXmDisplay(display), MESSAGE2);
-		ret = False;
-	    } else {
-
             /*
 	     *  expand the atoms table
 	     */
@@ -887,7 +880,6 @@ ReadAtomsTable(
 	    else
 	    {
 		atomsTable->entries = new_entries;
-	    }
 	    }
 	}
 
@@ -1071,7 +1063,7 @@ ReadTargetsTable(
     int				format;
     unsigned long 		bytesafter, lengthRtn; 
     Atom			type;
-    int				i, j;
+    Cardinal			i, j;
     Atom		        *targets;
     xmTargetsTableEntry	new_entries;
     Cardinal		old_num_entries;
@@ -1163,14 +1155,6 @@ ReadTargetsTable(
         }
 
 	if (ret && propertyRecPtr->info.num_target_lists > targetsTable->numEntries) {
-	    if ((size_t)propertyRecPtr->info.num_target_lists >
-		(size_t)UINT_MAX / sizeof(xmTargetsTableEntryRec)) {
-		XmeWarning ((Widget) XmGetXmDisplay (display), MESSAGE2);
-		ret = False;
-	    }
-	}
-
-	if (ret && propertyRecPtr->info.num_target_lists > targetsTable->numEntries) {
 
 	    /*
 	     *  expand the target table
@@ -1207,7 +1191,7 @@ ReadTargetsTable(
 		    XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE6);
 		}
 	    }
-	    for (; i < (int)propertyRecPtr->info.num_target_lists; i++) {
+	for (; i < propertyRecPtr->info.num_target_lists; i++) {
 		memcpy( &shortItem, bufptr, 2 );
 		bufptr += 2;
 	        if (propertyRecPtr->info.byte_order != _XmByteOrderChar) {
@@ -1217,12 +1201,8 @@ ReadTargetsTable(
 
                 if(!num_targets)
 		  targets = NULL;
-		else if ((size_t)num_targets > (size_t)UINT_MAX / sizeof(Atom)) {
-		    ret = False;
-		    targets = NULL;
-		}
-		else
-	          targets = (Atom *) XtMalloc(sizeof(Atom) * num_targets);
+	else
+	      targets = (Atom *) XtMalloc(sizeof(Atom) * num_targets);
 		if (num_targets != 0 && targets == NULL)
 		{
 		    while (targetsTable->numEntries > old_num_entries)
@@ -1543,8 +1523,7 @@ _XmTargetsToIndex(
      *  Create a new targets list, sorted in ascending order.
      */
 
-    if ((size_t)numTargets > SIZE_MAX / sizeof(Atom) ||
-	(size_t)numTargets > UINT_MAX / sizeof(Atom)) {
+    if ((size_t)numTargets > UINT_MAX / sizeof(Atom)) {
 	_XmProcessUnlock();
 	return 0;
     }
@@ -1609,8 +1588,6 @@ _XmTargetsToIndex(
     if (i == targetsTable->numEntries) {
 	xmTargetsTableEntry new_entries;
 	if (targetsTable->numEntries == UINT_MAX ||
-	    (size_t)(targetsTable->numEntries + 1) >
-		SIZE_MAX / sizeof(xmTargetsTableEntryRec) ||
 	    (size_t)(targetsTable->numEntries + 1) >
 		UINT_MAX / sizeof(xmTargetsTableEntryRec)) {
 	    XtFree((char *)newTargets);
@@ -1691,9 +1668,9 @@ _XmAllocMotifAtom(
     }
 
     if (atomReturn == None) {
-	if (atomsTable->numEntries == (Cardinal)-1 ||
-	    atomsTable->numEntries >
-	    (SIZE_MAX / sizeof(xmAtomsTableEntryRec)) - 1) {
+	if (atomsTable->numEntries == UINT_MAX ||
+	    (size_t)(atomsTable->numEntries + 1) >
+	    (size_t)UINT_MAX / sizeof(xmAtomsTableEntryRec)) {
 	    XUngrabServer(display);
 	    return None;
 	}
@@ -1706,7 +1683,7 @@ _XmAllocMotifAtom(
 	    }
 	    new_entries = (xmAtomsTableEntry)XtRealloc(
 		(char *)atomsTable->entries,
-		((size_t)i + 1) * sizeof(xmAtomsTableEntryRec));
+		(Cardinal)(((size_t)i + 1) * sizeof(xmAtomsTableEntryRec)));
 	    if (new_entries == NULL) {
 		XUngrabServer(display);
 		return None;

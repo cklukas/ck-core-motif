@@ -21806,3 +21806,10 @@ Clean up ImageCache failure-branch conversions (2026-10-26)
   lock macro expands to no code.
 - Extend the image-scaling conversion regression and documentation.
 
+Align DragBS atom growth with Xt allocation width (2026-10-26)
+===============================================================
+
+- Use the `Cardinal` allocation bound for atom-entry growth and make the
+  reallocation size conversion explicit.
+- Remove the redundant host-size check and extend the growth regression docs.
+
