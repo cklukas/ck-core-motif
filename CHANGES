@@ -18148,6 +18148,14 @@ Refresh WSM single-data allocation regression check (2026-10-27)
 Refresh WSM target-cache regression check (2026-10-27)
 ======================================================
 
+Refresh WSM nested-window ownership regression check (2026-10-27)
+=================================================================
+
+- Match the focused allocation assertion to the current checked `size_t`
+  multiplication and explicit null initialization for nested window arrays.
+
+=================================================================
+
 - Match the null-output guard assertion to the current combined widget and
   length-pointer validation in `WSMGetTargetList`.
 

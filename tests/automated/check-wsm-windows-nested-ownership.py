@@ -12,7 +12,9 @@ free = (Path(__file__).parents[2] / "clients" / "mwm" / "WmWsmLib" / "free.c").r
 )
 assert "allowed_attributes = NULL;" in pack
 assert "prohibited_attributes = NULL;" in pack
-assert "XtMalloc(sizeof(WindowProperty) * num)" in pack
+assert "(size_t)num * sizeof(WindowProperty)" in pack
+assert "allowed_attributes = NULL;" in pack
+assert "prohibited_attributes = NULL;" in pack
 assert "case WSM_WM_WINDOWS:" in free
 assert free.count("request->wm_windows.match_attributes[i]->allowed_attributes") == 1
 assert free.count("reply->wm_windows.win_entry_list[i].windows") == 1
