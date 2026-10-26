@@ -1,3 +1,10 @@
+Bound TextOut cursor pixmap names (2026-10-27)
+===============================================
+
+- Replace fixed-buffer `sprintf` calls for I-beam and add-mode cursor names
+  with bounded formatting.
+- Add a focused source regression and documentation.
+
 Use integer-zero XContext checks in DragIcon (2026-10-27)
 ==========================================================
 

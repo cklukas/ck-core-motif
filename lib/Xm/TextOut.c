@@ -4459,7 +4459,8 @@ MakeIBeamStencil(XmTextWidget tw,
   unsigned long valueMask;
   OutputData data = tw->text.output->data;
   
-  sprintf(pixmap_name, "_XmText_%d_%d", data->cursorheight, line_width);
+  (void)snprintf(pixmap_name, sizeof(pixmap_name), "_XmText_%d_%d",
+                 data->cursorheight, line_width);
   data->cursor = FindPixmap(screen, pixmap_name, 1, 0, 1);
   
   if (data->cursor == XmUNSPECIFIED_PIXMAP) {
@@ -4563,8 +4564,8 @@ MakeAddModeCursor(XmTextWidget tw,
   char pixmap_name[64];
   OutputData data = tw->text.output->data;
   
-  sprintf(pixmap_name, "_XmText_AddMode_%d_%d",
-	  data->cursorheight,line_width);
+  (void)snprintf(pixmap_name, sizeof(pixmap_name), "_XmText_AddMode_%d_%d",
+                 data->cursorheight, line_width);
   
   data->add_mode_cursor = FindPixmap(screen, pixmap_name, 1, 0, 1);
   
