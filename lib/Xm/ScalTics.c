@@ -152,7 +152,8 @@ XmScaleSetTicks(
 	n = 2 ;
 	XtSetArg(args[n], dim_res, size_big); n++ ;
 	sep[sep_num] = XmCreateSeparatorGadget(scale, "BigTic", args, n); 
-	sep_num++;
+	if (sep[sep_num] != (Widget) NULL)
+	    sep_num++;
 
 	if (i == real_num_big - 1) break ;
 
@@ -162,21 +163,24 @@ XmScaleSetTicks(
 	    XtSetArg(args[n], XmNseparatorType, XmSINGLE_LINE); n++;
 	    sep[sep_num] = XmCreateSeparatorGadget(scale, "SmallTic", 
 						   args, n); 
-	    sep_num++;
+	    if (sep[sep_num] != (Widget) NULL)
+		sep_num++;
 	}
 
 	for (j=0; j < num_med; j++) {
 	    n = 2 ;
 	    XtSetArg(args[n], dim_res, size_med); n++;
 	    sep[sep_num] = XmCreateSeparatorGadget(scale, "MedTic", args, n); 
-	    sep_num++;
+	    if (sep[sep_num] != (Widget) NULL)
+		sep_num++;
 	    for (k=0; k < num_small; k++) {
 		n = 2 ;
 		XtSetArg(args[n], dim_res, size_small); n++;
 		XtSetArg(args[n], XmNseparatorType, XmSINGLE_LINE); n++;
 		sep[sep_num] = XmCreateSeparatorGadget(scale, "SmallTic", 
 						       args, n); 
-		sep_num++;
+		if (sep[sep_num] != (Widget) NULL)
+		    sep_num++;
 	    }
 	    
 	}

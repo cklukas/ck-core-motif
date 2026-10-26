@@ -19392,6 +19392,15 @@ Guard shared varargs widget-creation parent (2026-10-27)
 
 Avoid zero-length dialog argument copy (2026-10-27)
 ===================================================
+Handle scale tick child-creation failures (2026-10-27)
+=======================================================
+
+- Count only successfully created separator gadgets before managing the tick
+  children in `XmScaleSetTicks`.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Handle scale tick-array allocation failure (2026-10-27)
 ========================================================
 
