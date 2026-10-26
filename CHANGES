@@ -16894,4 +16894,11 @@ Harden ProgressRing label and text-GC resources (2026-10-27)
   track GC when the sensitive text GC is unavailable.
 - Add a focused source regression and documentation.
 
+Guard ProgressRing partial GC setup (2026-10-27)
+=================================================
+
+- Release already-created graphics contexts and reset their fields when any
+  ProgressRing GC allocation fails.
+- Add a focused source regression and documentation.
+
 ====================================================

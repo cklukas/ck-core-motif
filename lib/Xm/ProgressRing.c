@@ -142,6 +142,18 @@ static void Initialize(Widget request, Widget widget, ArgList args,
                                             mask, &values);
     ring->progress_ring.text_gc = XCreateGC(display, DefaultRootWindow(display),
                                             mask, &values);
+    if (!ring->progress_ring.track_gc || !ring->progress_ring.fill_gc ||
+        !ring->progress_ring.text_gc) {
+        if (ring->progress_ring.track_gc)
+            XFreeGC(display, ring->progress_ring.track_gc);
+        if (ring->progress_ring.fill_gc)
+            XFreeGC(display, ring->progress_ring.fill_gc);
+        if (ring->progress_ring.text_gc)
+            XFreeGC(display, ring->progress_ring.text_gc);
+        ring->progress_ring.track_gc = NULL;
+        ring->progress_ring.fill_gc = NULL;
+        ring->progress_ring.text_gc = NULL;
+    }
     (void)_XmRegisterScaleChange(widget, ScaleChanged, NULL);
     (void)label_height;
 }
