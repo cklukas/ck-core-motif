@@ -19933,6 +19933,14 @@ Bound Text source length narrowing (2026-10-26)
 - Reject unrepresentable source input without changing source state.
 - Add focused regression coverage and documentation.
 
+Guard Text selection source attachment (2026-10-26)
+====================================================
+
+- Return safely from selection updates for unattached or missing widget
+  sources before dereferencing the first widget.
+- Preserve `XmTextPosition` width for old selection endpoints.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 

@@ -1712,9 +1712,11 @@ SetSelection(XmTextSource source,
   XmSourceData data = source->data;
   XmTextWidget tw;
   int i;
-  int oldleft, oldright;
+  XmTextPosition oldleft, oldright;
   
-  if (!XtIsRealized((Widget)data->widgets[0]) ||
+  if (data == NULL || data->widgets == NULL || data->numwidgets <= 0 ||
+      data->widgets[0] == NULL ||
+      !XtIsRealized((Widget)data->widgets[0]) ||
       (left > right && !data->hasselection)) return;
   
   if (left < 0) left = right = 0;
