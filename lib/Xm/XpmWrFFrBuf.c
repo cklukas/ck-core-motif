@@ -46,7 +46,10 @@ XpmWriteFileFromBuffer(
 {
     size_t len;
     int close_status;
-    FILE *fp = fopen(filename, "w");
+    FILE *fp;
+    if (filename == NULL || buffer == NULL)
+	return XpmFileInvalid;
+    fp = fopen(filename, "w");
 
     if (!fp)
 	return XpmOpenFailed;

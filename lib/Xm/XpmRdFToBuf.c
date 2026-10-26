@@ -71,6 +71,8 @@ XpmReadFileToBuffer(
     struct stat stats;
     FILE *fp;
 
+    if (filename == NULL || buffer_return == NULL)
+	return XpmFileInvalid;
     *buffer_return = NULL;
 
 #ifndef VAX11C

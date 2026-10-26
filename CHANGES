@@ -15222,3 +15222,11 @@ Reject zero-size XPM pixel images (2026-10-27)
 - Add a focused source regression and documentation.
 
 Handle XPM default-color allocation failure (2026-10-27)
+Validate XPM file-buffer arguments (2026-10-27)
+===============================================
+
+- Reject null arguments in `XpmReadFileToBuffer` and
+  `XpmWriteFileFromBuffer` before dereferencing them.
+- Add a focused source regression and documentation.
+
+Reject zero-size XPM pixel images (2026-10-27)
