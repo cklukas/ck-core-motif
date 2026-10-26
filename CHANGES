@@ -99,6 +99,14 @@ Guard ImageCache color lookup inputs (2026-10-26)
   preventing malformed internal calls from dereferencing null state.
 - Extend the ImageCache color-reference regression to cover both lookup APIs.
 
+Bound XPM color serialization output (2026-10-26)
+==================================================
+
+- Reject a truncated `snprintf` color description before advancing the fixed
+  temporary-buffer pointer, avoiding an out-of-bounds pointer in `CreateColors`.
+- Add `tests/automated/check-xpm-create-colors-bounds.py` and document the
+  serialization contract in `docs/xpm-color-output-bounds.md`.
+
 Bound ToggleButton default geometry (2026-10-27)
 ==================================================
 

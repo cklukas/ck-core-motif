@@ -286,17 +286,20 @@ CreateColors(
 
 	for (key = 1; key <= NKEYS; key++, defaults++) {
 	    if ((s2 = *defaults)) {
-#ifndef VOID_SPRINTF
-		s +=
-#endif
-		/* assume C99 compliance */
-			snprintf(s, sizeof(buf)-(s-buf), "\t%s %s", xpmColorKeys[key - 1], s2);
-#ifdef VOID_SPRINTF
-		s += strlen(s);
-#endif
-		/* does s point out-of-bounds? */
-		if(sizeof(buf) < (s-buf))
+		size_t used = (size_t)(s - buf);
+		size_t available;
+		int written;
+
+		if (used >= sizeof(buf))
 			return XpmNoMemory;
+		available = sizeof(buf) - used;
+		/* snprintf returns the required length when the output is truncated;
+		 * do not advance s by that out-of-buffer length. */
+		written = snprintf(s, available, "\t%s %s",
+				   xpmColorKeys[key - 1], s2);
+		if (written < 0 || (size_t)written >= available)
+			return XpmNoMemory;
+		s += written;
 	    }
 	}
 	/* what about using strdup()? */
