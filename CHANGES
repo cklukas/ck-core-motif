@@ -17069,3 +17069,13 @@ Keep InfoBar close button inside small widgets (2026-10-27)
 ====================================================
 
 Refresh Clipboard format-atom regression contract (2026-10-27)
+Guard Link underline geometry and render-table updates (2026-10-27)
+====================================================================
+
+- Clamp underline rules and focus frames for small widgets.
+- Preserve the existing render table when a Link replacement copy fails; add
+  focused regression coverage and documentation.
+
+====================================================
+
+Keep InfoBar close button inside small widgets (2026-10-27)

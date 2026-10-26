@@ -111,16 +111,22 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                      text_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(link), NULL);
     }
-    XDrawLine(XtDisplay(widget), XtWindow(widget), link->link.gc, 4,
-              (int)link->core.height - 5, 4 + text_width,
-              (int)link->core.height - 5);
+    if (link->core.width > 4 && link->core.height >= 5) {
+        int underline_end = 4 + (int)text_width;
+        if (underline_end > (int)link->core.width - 1)
+            underline_end = (int)link->core.width - 1;
+        XDrawLine(XtDisplay(widget), XtWindow(widget), link->link.gc, 4,
+                  (int)link->core.height - 5, underline_end,
+                  (int)link->core.height - 5);
     /* Visited state is visible without depending on colour: a second rule
        distinguishes it in monochrome and high-contrast themes. */
     if (link->link.visited)
         XDrawLine(XtDisplay(widget), XtWindow(widget), link->link.gc, 4,
-                  (int)link->core.height - 2, 4 + text_width,
+                  (int)link->core.height - 2, underline_end,
                   (int)link->core.height - 2);
-    if (link->primitive.highlighted && link->primitive.highlight_thickness)
+    }
+    if (link->primitive.highlighted && link->primitive.highlight_thickness &&
+        link->core.width > 2 && link->core.height > 2)
         XDrawRectangle(XtDisplay(widget), XtWindow(widget), link->link.gc,
                        1, 1, link->core.width - 3, link->core.height - 3);
 }
@@ -135,10 +141,14 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         XmRenderTable new_table = link->link.render_table ?
             XmFontListCopy(link->link.render_table) :
             XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
-        if (old->link.render_table)
-            XmRenderTableFree(old->link.render_table);
-        link->link.render_table = new_table;
-        redraw = True;
+        if (new_table) {
+            if (old->link.render_table)
+                XmRenderTableFree(old->link.render_table);
+            link->link.render_table = new_table;
+            redraw = True;
+        } else {
+            link->link.render_table = old->link.render_table;
+        }
     }
     if (old->link.label != link->link.label) {
         label_replacement = copy_label(link->link.label);

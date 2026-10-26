@@ -3,8 +3,9 @@
 from pathlib import Path
 
 source = Path("lib/Xm/Link.c").read_text(encoding="utf-8")
-assert "XQueryFont" in source
-assert "XTextWidth" in source
-assert "XFreeFontInfo(NULL, font, 1)" in source
-assert "4 + text_width" in source
-print("PASS Link text uses measured font geometry")
+assert "XmStringExtent(link->link.render_table, label" in source
+assert "int underline_end = 4 + (int)text_width" in source
+assert "link->core.width > 4 && link->core.height >= 5" in source
+assert "if (new_table)" in source
+assert "link->link.render_table = old->link.render_table" in source
+print("PASS Link text and underline geometry are guarded")
