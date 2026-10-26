@@ -21340,3 +21340,9 @@ MakeIconPixmap now checks both highlight GCs before bevel filling. If either
 GC cannot be allocated, the temporary icon pixmap is released and construction
 fails cleanly instead of issuing XFillRectangles with a null GC.
 
+Handle WSM null-client icon mask colors (2026-10-26)
+------------------------------------------------------
+MakeIconPixmap now uses screen icon appearance colors when a masked icon is
+constructed without a client record. The WSM fallback no longer dereferences
+ICON_APPEARANCE(NULL).
+

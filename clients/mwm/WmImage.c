@@ -478,9 +478,10 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
 	}
 	else
 	{
-	    gcv.background = ICON_APPEARANCE(pCD).background;
+	    gcv.background = pCD ? ICON_APPEARANCE(pCD).background
+				  : pSD->iconAppearance.background;
 	    /* set fg to bg color to clear it first */
-	    gcv.foreground = ICON_APPEARANCE(pCD).background;
+	    gcv.foreground = gcv.background;
 	}
     } 
     else 
@@ -539,7 +540,8 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
 	}
 	else
 	{
-	    gcv.foreground = ICON_APPEARANCE(pCD).foreground;
+	    gcv.foreground = pCD ? ICON_APPEARANCE(pCD).foreground
+				  : pSD->iconAppearance.foreground;
 	}
     }
     else
