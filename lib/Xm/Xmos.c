@@ -1491,17 +1491,34 @@ _XmOSBuildFileName(String path,
 		   String file)
 {
   String fileName;
+  size_t fileLen;
+
+  if (file == NULL)
+    return NULL;
+  fileLen = strlen(file);
   
   if (file[0] == '/') 
     {
-      fileName = XtMalloc (strlen (file) + 1);
+      if (fileLen == SIZE_MAX || fileLen >= (size_t)UINT_MAX)
+	return NULL;
+      fileName = XtMalloc ((Cardinal)(fileLen + 1));
       if (fileName == NULL)
 	return NULL;
       strcpy (fileName, file);
     }
   else 
     {
-      fileName = XtMalloc (strlen(path) + strlen (file) + 2);
+      size_t pathLen;
+      size_t totalLen;
+      if (path == NULL)
+	return NULL;
+      pathLen = strlen(path);
+      if (fileLen > SIZE_MAX - pathLen - 2)
+	return NULL;
+      totalLen = pathLen + fileLen + 2;
+      if (totalLen > (size_t)UINT_MAX)
+	return NULL;
+      fileName = XtMalloc ((Cardinal)totalLen);
       if (fileName == NULL)
 	return NULL;
       strcpy (fileName, path);

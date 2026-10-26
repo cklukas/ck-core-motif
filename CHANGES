@@ -183,6 +183,14 @@ Widen Xmos directory-entry lengths (2026-10-26)
 - Add `tests/automated/check-xmos-directory-lengths.py` and document the
   bound in `docs/xmos-directory-length-bounds.md`.
 
+Bound Xmos file-name construction (2026-10-26)
+===============================================
+
+- Reject null path inputs and validate absolute/joined path lengths before
+  allocating `_XmOSBuildFileName` results.
+- Add `tests/automated/check-xmos-build-filename-bounds.py` and document the
+  contract in `docs/xmos-build-filename-bounds.md`.
+
 Bound ToggleButton default geometry (2026-10-27)
 ==================================================
 
