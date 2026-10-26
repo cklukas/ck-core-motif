@@ -10,7 +10,7 @@ start = text.index("if (recovery_valid) {")
 end = text.index("\n      }\n    }\n  }", start)
 block = text[start:end]
 
-assert "total_mb_len < 0" in block
+assert "total_mb_len > SIZE_MAX - mb_length - 1" in block
 assert "SIZE_MAX - mb_length - 1" in block
 assert "resized_mb = XtRealloc" in block
 assert "if (resized_mb == NULL)" in block

@@ -18112,6 +18112,14 @@ Refresh tab-list replacement regression check (2026-10-27)
 Refresh text-control geometry regression check (2026-10-27)
 ============================================================
 
+Refresh text preedit recovery regression check (2026-10-27)
+============================================================
+
+- Match the focused check to the current size-safe `size_t` overflow guard
+  used when appending recovered multibyte input.
+
+============================================================
+
 - Match each focused assertion to its current bounded-width implementation:
   direct `Dimension` guards for Prompt, unsigned-width conversion for Link,
   and length fallback handling for Badge.
