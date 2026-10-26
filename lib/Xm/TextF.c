@@ -10389,21 +10389,38 @@ XmTextFieldSetStringWcs(Widget w,
   int result;
   _XmWidgetToAppContext(w);
 
+  if (wc_value == NULL) {
+    XmTextFieldSetString(w, NULL);
+    return;
+  }
+
   _XmAppLock(app);
   TextFieldResetIC(w);
-  for (num_chars = 0, tmp_wc = wc_value; *tmp_wc != (wchar_t)0L; num_chars++)
+  for (num_chars = 0, tmp_wc = wc_value; *tmp_wc != (wchar_t)0L; num_chars++) {
+    if (num_chars == INT_MAX) {
+      _XmAppUnlock(app);
+      return;
+    }
     tmp_wc++;  /* count number of wchar_t's */
+  }
+
+  if (tf->text.max_char_size <= 0 ||
+      (size_t)(num_chars + 1) >
+        (size_t)UINT_MAX / (size_t)tf->text.max_char_size) {
+    _XmAppUnlock(app);
+    return;
+  }
   
   tmp = XtMalloc((unsigned) (num_chars + 1) * tf->text.max_char_size);
   result = wcstombs(tmp, wc_value, (num_chars + 1) * tf->text.max_char_size);
   
   if (result == (size_t) -1) /* if wcstombs fails, it returns (size_t) -1 */
-    tmp = "";               /* if invalid data, pass in the empty string */
+    tmp[0] = '\0';          /* if invalid data, pass in the empty string */
 
+  _XmAppUnlock(app);
   XmTextFieldSetString(w, tmp);
   
   XtFree(tmp);
-  _XmAppUnlock(app);
 }
 
 

@@ -30,3 +30,8 @@ Command-dialog text convenience wrappers follow the same ownership rule:
 `XmCommandAppendValue` delegates to the text-field getters/replacement APIs,
 without taking an outer application lock. Their focused check is
 `tests/automated/check-command-locking.py`.
+
+`XmTextFieldSetStringWcs` also unlocks before delegating to the public narrow
+setter. Invalid wide-character conversion now clears the allocated buffer
+instead of replacing it with, and later freeing, a string literal. The
+regression is `tests/automated/check-textfield-wide-set-locking.py`.
