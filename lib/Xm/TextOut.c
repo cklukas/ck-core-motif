@@ -2206,7 +2206,7 @@ TextFindNewWidth(XmTextWidget tw,
   
   if (data->resizeheight && tw->text.total_lines > data->number_lines) {
     int i;
-    XmTextPosition linestart, position;
+    XmTextPosition linestart, position, next_position;
     Dimension text_width;
     XmTextBlockRec block;
     
@@ -2216,8 +2216,14 @@ TextFindNewWidth(XmTextWidget tw,
       text_width = data->leftmargin;
       position = tw->text.line_table[i + 1].start_pos - 1;
       while (linestart < position) {
-	linestart = (*tw->text.source->ReadSource)
+	next_position = (*tw->text.source->ReadSource)
 	  (tw->text.source, linestart, position, &block);
+	if (next_position <= linestart || block.length < 0 ||
+	    (block.length > 0 && block.ptr == NULL)) {
+	  *widthRtn = 0;
+	  return;
+	}
+	linestart = next_position;
 	text_width += FindWidth(tw, text_width, &block, 0, block.length);
       }
       text_width += data->rightmargin;
@@ -2226,8 +2232,14 @@ TextFindNewWidth(XmTextWidget tw,
     text_width = data->leftmargin;
     position = tw->text.last_position;
     while (linestart < position) {
-      linestart = (*tw->text.source->ReadSource)
+	next_position = (*tw->text.source->ReadSource)
 	(tw->text.source, linestart, position, &block);
+	if (next_position <= linestart || block.length < 0 ||
+	    (block.length > 0 && block.ptr == NULL)) {
+	  *widthRtn = 0;
+	  return;
+	}
+	linestart = next_position;
       text_width += FindWidth(tw, text_width, &block, 0, block.length);
     }
     text_width += data->rightmargin;
@@ -2263,7 +2275,7 @@ TextFindNewHeight(XmTextWidget tw,
 		      XmTOP_TO_BOTTOM_RIGHT_TO_LEFT)) {
     if (data->resizeheight && tw->text.total_lines > data->number_lines) {
       int i;
-      XmTextPosition linestart, pos;
+      XmTextPosition linestart, pos, next_position;
       Dimension text_height;
       XmTextBlockRec block;
     
@@ -2273,8 +2285,14 @@ TextFindNewHeight(XmTextWidget tw,
 	text_height = data->topmargin;
 	pos = tw->text.line_table[i + 1].start_pos - 1;
 	while (linestart < pos) {
-	  linestart = (*tw->text.source->ReadSource)
+	  next_position = (*tw->text.source->ReadSource)
 	    (tw->text.source, linestart, pos, &block);
+	  if (next_position <= linestart || block.length < 0 ||
+	      (block.length > 0 && block.ptr == NULL)) {
+	    *heightRtn = 0;
+	    return;
+	  }
+	  linestart = next_position;
 	  text_height += FindHeight(tw, text_height, &block, 0, block.length);
 	}
 	text_height += data->bottommargin;
@@ -2283,8 +2301,14 @@ TextFindNewHeight(XmTextWidget tw,
       text_height = data->topmargin;
       pos = tw->text.last_position;
       while (linestart < pos) {
-	linestart = (*tw->text.source->ReadSource)
+	next_position = (*tw->text.source->ReadSource)
 	  (tw->text.source, linestart, pos, &block);
+	if (next_position <= linestart || block.length < 0 ||
+	    (block.length > 0 && block.ptr == NULL)) {
+	  *heightRtn = 0;
+	  return;
+	}
+	linestart = next_position;
 	text_height += FindHeight(tw, text_height, &block, 0, block.length);
       }
       text_height += data->bottommargin;

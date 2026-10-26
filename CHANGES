@@ -23061,6 +23061,14 @@ Guard TextOut coordinate hit-testing source progress (2026-10-26)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textout-xytopos-source-progress.py
 
+Guard TextOut resize measurement source progress (2026-10-26)
+===============================================================
+
+- Validate source progress and pointers while measuring resized text
+  widths and heights.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textout-resize-source-progress.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
