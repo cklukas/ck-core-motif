@@ -2150,7 +2150,11 @@ XmScrolledWindowWidget sw )
         else
         {
             HasVSB = HasHSB = TRUE;
-            if ((sw->swindow.vmax <= clipHeight) ||
+            /* Test the viewport that will actually remain after removing
+             * this bar, including the recovered highlight inset. Comparing
+             * against the two-bar viewport makes fill-to-viewport children
+             * oscillate between the two layouts. */
+            if ((sw->swindow.vmax <= clipHeight + VSBht) ||
                 (!VSBExists))
             {
                 clipWidth = MyWidth - ((HSBht + shad) * 2);
@@ -2158,7 +2162,7 @@ XmScrolledWindowWidget sw )
                 sw->swindow.sw_prev_y = MAXPOS ;
                 HasVSB = FALSE;
             }
-            if ((sw->swindow.hmax <= clipWidth) ||
+            if ((sw->swindow.hmax <= clipWidth + HSBht) ||
                 (!HSBExists))
             {
                 clipHeight = MyHeight - ((VSBht + shad) * 2);
