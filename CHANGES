@@ -17761,3 +17761,13 @@ Refresh compound-text NULL-append regression check (2026-10-27)
 =================================================================
 
 Refresh ColorPicker text-metrics regression check (2026-10-27)
+Bound virtual-key binding growth (2026-10-27)
+=============================================
+
+- Check virtual-key binding count and byte arithmetic before resizing the
+  display table, preserving the old table on allocation failure.
+- Add focused regression coverage and documentation.
+
+=============================================
+
+Refresh compound-text NULL-append regression check (2026-10-27)

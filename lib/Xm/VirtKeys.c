@@ -415,10 +415,27 @@ FillBindingsFromDB(Display       *dpy,
 	  if (new_num > 0)
 	    {
 	      int tmp;
+	      Cardinal total_keys;
+	      XmVKeyBinding resized;
 
-	      *keys = (XmVKeyBinding) 
-		XtRealloc((char*) *keys, 
-			  (*num_keys + new_num) * sizeof(XmVKeyBindingRec)); 
+	      if (new_num > UINT_MAX - *num_keys ||
+		  (size_t)(*num_keys + new_num) >
+		  SIZE_MAX / sizeof(XmVKeyBindingRec) ||
+		  (size_t)(*num_keys + new_num) >
+		  UINT_MAX / sizeof(XmVKeyBindingRec)) {
+		if (free_keys)
+		  XtFree((char *)new_keys);
+		return;
+	      }
+	      total_keys = *num_keys + new_num;
+	      resized = (XmVKeyBinding)XtRealloc(
+		(char *)*keys, (size_t)total_keys * sizeof(XmVKeyBindingRec));
+	      if (resized == NULL) {
+		if (free_keys)
+		  XtFree((char *)new_keys);
+		return;
+	      }
+	      *keys = resized;
 
 	      for (tmp = 0; tmp < new_num; tmp++)
 		{
