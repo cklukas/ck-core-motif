@@ -4149,7 +4149,7 @@ Boolean ParseWmFuncMaybeStrArg (unsigned char **linePP,
 				       WmFunction wmFunction, String *pArgs)
 {
     unsigned char *string = *linePP;
-    unsigned int  len;
+    size_t len;
 
     ScanWhitespace (&string);
 /*
@@ -4171,7 +4171,12 @@ Boolean ParseWmFuncMaybeStrArg (unsigned char **linePP,
 #endif /* PANELIST */
     if ((len = strlen ((char *)string)) != 0)
     {
-	if ((*pArgs = (String)XtMalloc (len + 1)) == NULL)
+	if (len >= UINT_MAX)
+	{
+            PWarning (((char *)GETMESSAGE(60, 17, "Insufficient memory")));
+	    return (FALSE);
+	}
+	if ((*pArgs = (String)XtMalloc ((Cardinal)(len + 1))) == NULL)
 	{
             PWarning (((char *)GETMESSAGE(60, 17, "Insufficient memory")));
 	    return (FALSE);
@@ -4269,7 +4274,7 @@ Boolean ParseWmFuncStrArg (unsigned char **linePP,
 				  WmFunction wmFunction, String *pArgs)
 {
     unsigned char *string;
-    unsigned int  len;
+    size_t  len;
 #ifndef NO_MULTIBYTE
     char *p;
     wchar_t last;
@@ -4282,7 +4287,12 @@ Boolean ParseWmFuncStrArg (unsigned char **linePP,
     /* nonNULL string argument */
     {
         len = strlen ((char *)string);
-        if ((*pArgs = (String)XtMalloc (len + 2)) == NULL)
+	if (len > SIZE_MAX - 2 || len + 2 > UINT_MAX)
+	{
+            PWarning (((char *)GETMESSAGE(60, 17, "Insufficient memory")));
+	    return (FALSE);
+	}
+        if ((*pArgs = (String)XtMalloc ((Cardinal)(len + 2))) == NULL)
         {
             PWarning (((char *)GETMESSAGE(60, 17, "Insufficient memory")));
 	    return (FALSE);
@@ -4299,11 +4309,10 @@ Boolean ParseWmFuncStrArg (unsigned char **linePP,
 	    lastlen = 0;
 	    p = *pArgs;
 	    while (*p &&
-		   ((len = mblen(p, MB_CUR_MAX)) > 0))
+		   ((lastlen = mblen(p, MB_CUR_MAX)) > 0))
 	    {
 		mbtowc(&last, p, MB_CUR_MAX);
-		lastlen = len;
-		p += len;
+		p += lastlen;
 	    }
 	    delim = '&';
 	    mbtowc(&wdelim, &delim, MB_CUR_MAX);
@@ -4314,7 +4323,8 @@ Boolean ParseWmFuncStrArg (unsigned char **linePP,
 	    }
 	}
 #else
-        if ((wmFunction == F_Exec) && ((*pArgs)[len - 1] != '&'))
+        if ((wmFunction == F_Exec) &&
+	    (len == 0 || (*pArgs)[len - 1] != '&'))
         {
 	    (*pArgs)[len] = '&';
 	    (*pArgs)[len + 1] = '\0';

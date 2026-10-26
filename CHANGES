@@ -79,6 +79,13 @@ Bound MWM command-line screen-name allocations (2026-10-26)
   width, and publish reallocated screen-name buffers only after success.
 - Add a focused parser regression and document the bounds.
 
+Guard MWM function-argument lengths (2026-10-26)
+================================================
+
+- Keep parsed function-argument lengths in `size_t` until Xt allocation
+  bounds are checked, and avoid indexing before an empty `F_Exec` argument.
+- Add a focused parser regression and document the conversion contract.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 
