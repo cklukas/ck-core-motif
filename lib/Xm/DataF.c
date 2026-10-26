@@ -9847,7 +9847,8 @@ df_DropDestroyCB(
     XtPointer   callData )
 #endif /* NO_PROTO */
 {
-    df_DeleteDropContext(w);
+    if (w != NULL)
+        df_DeleteDropContext(w);
     XtFree((char *)clientData);
 }
 

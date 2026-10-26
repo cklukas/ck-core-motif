@@ -22568,3 +22568,9 @@ Guard DataField drop-transfer inputs (2026-10-26)
   reading incoming target metadata.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-datafield-drop-transfer-inputs.py
+Guard DataField DnD destroy cleanup (2026-10-26)
+================================================
+- Check the callback widget before DataField DnD cleanup deletes its drop
+  context.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-datafield-dnd-destroy-widget.py
