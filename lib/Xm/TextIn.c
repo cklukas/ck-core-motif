@@ -5992,12 +5992,15 @@ _XmTextInputCreate(Widget wid,
   XtPointer temp_ptr;
   
   tw->text.input = input = (Input) XtMalloc((Cardinal)sizeof(InputRec));
-  if (input == NULL)
+  if (input == NULL) {
+    XtError("Unable to allocate Text input state");
     return;
+  }
   input->data = data = (InputData) XtMalloc((Cardinal)sizeof(InputDataRec));
   if (data == NULL) {
     XtFree((char *)input);
     tw->text.input = NULL;
+    XtError("Unable to allocate Text input data");
     return;
   }
   XtGetSubresources(wid, (XtPointer)data, NULL, NULL, input_resources,
