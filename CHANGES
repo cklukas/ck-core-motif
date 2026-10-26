@@ -22944,3 +22944,10 @@ Guard TextField preedit-start overstrike allocations (2026-10-26)
   narrow or wide snapshot cannot be allocated.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-preedit-start-allocations.py
+
+Restore TextField PreeditDraw caret on allocation failure (2026-10-26)
+=======================================================================
+- Restore insertion-point painting on early PreeditDraw allocation failures
+  after the preedit update hides it.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-preedit-draw-caret.py

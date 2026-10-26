@@ -9802,8 +9802,10 @@ PreeditDraw(XIC xic,
                         call_data->text->string.wide_char, insert_length,
                         &overall_ink, NULL);
            	tab_wc = (wchar_t*) XtMalloc((unsigned)(1+1) * sizeof(wchar_t));
-                if (tab_wc == NULL)
+                if (tab_wc == NULL) {
+                    _XmTextFieldDrawInsertionPoint(tf, True);
                     return;
+                }
                 mbstowcs(tab_wc, "\t", 1);
                 if ( escapement == 0 && overall_ink.width == 0 &&
                     wcschr(call_data->text->string.wide_char, *tab_wc) == 0){
@@ -9814,8 +9816,10 @@ PreeditDraw(XIC xic,
 	        XtFree((char *) tab_wc);
             } else {
                 mb = XtMalloc((insert_length+1)*(tf->text.max_char_size));
-                if (mb == NULL)
+                if (mb == NULL) {
+                    _XmTextFieldDrawInsertionPoint(tf, True);
                     return;
+                }
                 strcpy(mb, call_data->text->string.multi_byte);
                 escapement = XmbTextExtents((XFontSet)TextF_Font(tf),
                         mb, strlen(mb), &overall_ink, NULL);
@@ -9831,12 +9835,15 @@ PreeditDraw(XIC xic,
     }
     else {
         mb = XtMalloc(4);
-        if (mb == NULL)
+        if (mb == NULL) {
+            _XmTextFieldDrawInsertionPoint(tf, True);
             return;
+        }
         mb[0] = '\0';
         wc = (wchar_t *) XtMalloc((unsigned) sizeof(wchar_t));
         if (wc == NULL) {
             XtFree(mb);
+            _XmTextFieldDrawInsertionPoint(tf, True);
             return;
         }
         wc[0] = (wchar_t) '\0';
