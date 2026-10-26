@@ -20851,3 +20851,8 @@ Bound MWM resize edge positions (2026-10-26)
 ---------------------------------------------
 East and south resize geometry now rejects frames narrower or shorter than
 their lower border before subtracting that border from the frame coordinate.
+
+Bound MWM corner edge coordinates (2026-10-26)
+-----------------------------------------------
+Northeast and southeast resize geometry now clamps corner coordinates when a
+computed corner span exceeds the frame dimension, preventing unsigned wrap.

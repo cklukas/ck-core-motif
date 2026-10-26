@@ -16,5 +16,8 @@ wrapped unsigned value.
 East and south edge placement also rejects frames smaller than the lower
 border, preventing wrapped edge coordinates.
 
+Northeast and southeast corner coordinates also clamp to zero when their
+computed span exceeds the corresponding frame dimension.
+
 The source-contract regression is
 `tests/automated/check-mwm-title-width-bounds.py`.

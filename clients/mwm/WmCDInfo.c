@@ -870,7 +870,8 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 			    pcd->frameInfo.cornerWidth);
 			*pWidth = pcd->frameInfo.cornerWidth + horiz/2;
 		    }
-		    *pX = pcd->frameInfo.width - *pWidth;
+		    *pX = (*pWidth <= pcd->frameInfo.width) ?
+			    (int)(pcd->frameInfo.width - *pWidth) : 0;
 
 		    if ((int)pcd->frameInfo.cornerHeight > 
 			   (int)pcd->frameInfo.lowerBorderWidth+2) {
@@ -919,7 +920,8 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 				pcd->frameInfo.cornerWidth);
 			*pWidth = pcd->frameInfo.cornerWidth + horiz/2;
 		    }
-		    *pX = pcd->frameInfo.width - *pWidth;
+		    *pX = (*pWidth <= pcd->frameInfo.width) ?
+			    (int)(pcd->frameInfo.width - *pWidth) : 0;
 
 		    if ((int)pcd->frameInfo.cornerHeight > 
 			    (int)pcd->frameInfo.lowerBorderWidth+2) {
@@ -930,7 +932,8 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 				pcd->frameInfo.cornerHeight);
 			*pHeight = pcd->frameInfo.cornerHeight + vert/2;
 		    }
-		    *pY = pcd->frameInfo.height - *pHeight;
+		    *pY = (*pHeight <= pcd->frameInfo.height) ?
+			    (int)(pcd->frameInfo.height - *pHeight) : 0;
 		    rval = TRUE;
 		}
 		break;
