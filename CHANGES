@@ -19988,6 +19988,15 @@ Bound TextField baseline geometry (2026-10-26)
   legacy `int` result instead of allowing `Dimension` wraparound.
 - Add focused regression coverage and documentation.
 
+Bound TextField clip-rectangle margins (2026-10-26)
+====================================================
+
+- Widen margin, shadow, and highlight arithmetic before calculating text clip
+  rectangles, avoiding `Dimension` multiplication and addition wraparound.
+- Clamp signed rectangle origins and keep overlarge margins at zero content
+  size.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 

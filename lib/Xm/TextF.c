@@ -1901,34 +1901,39 @@ static void
 GetRect(XmTextFieldWidget tf,
         XRectangle *rect)
 {
-  Dimension margin_width = TextF_MarginWidth(tf) +
-    tf->primitive.shadow_thickness +
-      tf->primitive.highlight_thickness;
-  Dimension margin_top = tf->text.margin_top + tf->primitive.shadow_thickness +
-    tf->primitive.highlight_thickness;
-  Dimension margin_bottom = tf->text.margin_bottom +
-    tf->primitive.shadow_thickness +
-      tf->primitive.highlight_thickness;
+  uint64_t margin_width = (uint64_t)TextF_MarginWidth(tf) +
+    (uint64_t)tf->primitive.shadow_thickness +
+    (uint64_t)tf->primitive.highlight_thickness;
+  uint64_t margin_top = (uint64_t)tf->text.margin_top +
+    (uint64_t)tf->primitive.shadow_thickness +
+    (uint64_t)tf->primitive.highlight_thickness;
+  uint64_t margin_bottom = (uint64_t)tf->text.margin_bottom +
+    (uint64_t)tf->primitive.shadow_thickness +
+    (uint64_t)tf->primitive.highlight_thickness;
+  uint64_t content_width;
+  uint64_t content_height;
+  uint64_t origin_x;
+  uint64_t origin_y;
   
   if (margin_width < tf->core.width)
-    rect->x = margin_width;
+    origin_x = margin_width;
   else
-    rect->x = tf->core.width;
+    origin_x = tf->core.width;
   
   if (margin_top  < tf->core.height)
-    rect->y = margin_top;
+    origin_y = margin_top;
   else
-    rect->y = tf->core.height;
+    origin_y = tf->core.height;
   
-  if ((Dimension)(2 * margin_width) < tf->core.width)
-    rect->width = (int) tf->core.width - (2 * margin_width);
-  else
-    rect->width = 0;
+  content_width = margin_width <= (uint64_t)tf->core.width / 2 ?
+    (uint64_t)tf->core.width - 2 * margin_width : 0;
+  content_height = margin_top + margin_bottom < (uint64_t)tf->core.height ?
+    (uint64_t)tf->core.height - margin_top - margin_bottom : 0;
   
-  if ((Dimension)(margin_top + margin_bottom) < tf->core.height)
-    rect->height = (int) tf->core.height - (margin_top + margin_bottom);
-  else
-    rect->height = 0;
+  rect->x = (short)(origin_x > (uint64_t)SHRT_MAX ? SHRT_MAX : origin_x);
+  rect->y = (short)(origin_y > (uint64_t)SHRT_MAX ? SHRT_MAX : origin_y);
+  rect->width = (unsigned short)content_width;
+  rect->height = (unsigned short)content_height;
 }
 
 static void 
