@@ -1425,8 +1425,8 @@ static void sync_text(Transport *t, XmAccessibleId id,
     }
     while (old_end > old_start && new_end > new_start) {
       char *op = old_end - 1, *np = new_end - 1;
-      while (((unsigned char)*op & 0xc0) == 0x80) --op;
-      while (((unsigned char)*np & 0xc0) == 0x80) --np;
+      while (op > old_start && ((unsigned char)*op & 0xc0) == 0x80) --op;
+      while (np > new_start && ((unsigned char)*np & 0xc0) == 0x80) --np;
       if (old_end - op != new_end - np || memcmp(op, np, (size_t)(old_end-op))) break;
       old_end = op; new_end = np; ++suffix;
     }

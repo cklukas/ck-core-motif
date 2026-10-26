@@ -133,6 +133,9 @@ Provider callbacks must supply valid, stable UTF-8 and call
 
 Providers representing secrets must use `XmACCESSIBLE_PASSWORD_TEXT`; the bridge
 neither snapshots nor returns their text and emits no content-bearing deltas.
+The suffix comparison is boundary-checked while walking UTF-8 continuation
+bytes, so malformed provider strings cannot make the diff scan before the
+start of either text buffer.
 Native Text/TextField has no password resource: applications that mask secrets
 using custom modify-verify logic must expose a password semantic provider rather
 than exposing its underlying native storage. A multi-shell

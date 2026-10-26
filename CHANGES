@@ -1,3 +1,10 @@
+Bound malformed UTF-8 accessibility diffs (2026-10-27)
+=======================================================
+
+- Stop the D-Bus text-delta suffix scan at each buffer's start when provider
+  text contains malformed continuation bytes.
+- Add a focused source regression and document the safety boundary.
+
 Avoid nested application locking in XmGetPixmap (2026-10-27)
 =============================================================
 
