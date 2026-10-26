@@ -265,7 +265,9 @@ extern Boolean _XmRegisterAppearanceChange(Widget widget,
                                             Cardinal num_args);
 extern Boolean _XmApplyAppearanceChange(Display *display,
                                         XmAppearanceProfile old_profile,
-                                        XmAppearanceProfile new_profile);
+                                        XmAppearanceProfile new_profile,
+                                        XmAppearanceDensity density);
+extern Boolean _XmAppearanceDefersLayout(Display *display);
 extern void _XmDestroyAppearanceDisplay(Display *display);
 extern Boolean _XmIsISO10646(Display *dpy,
                              XFontStruct *font);

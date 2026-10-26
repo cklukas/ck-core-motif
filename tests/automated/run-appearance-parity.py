@@ -14,6 +14,7 @@ import time
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--build", type=Path, required=True)
 parser.add_argument("--out", type=Path, required=True)
+parser.add_argument("--suite", choices=("parity", "density"), default="parity")
 args = parser.parse_args()
 if platform.system() != "Linux":
     parser.error("native acceptance requires Linux and Xvfb")
@@ -21,7 +22,7 @@ if not args.build.is_absolute() or not args.out.is_absolute() or args.out.exists
     parser.error("build must be absolute and output must be a fresh absolute directory")
 build = args.build.resolve(strict=True)
 root = Path(__file__).resolve().parents[2]
-source = root / "tests/automated/check-appearance-parity.c"
+source = root / f"tests/automated/check-appearance-{args.suite}.c"
 library = (build / "lib/Xm/.libs/libXm.so").resolve(strict=True)
 output = args.out
 output.mkdir(parents=True)
@@ -33,9 +34,11 @@ for key in ("LD_PRELOAD", "LD_AUDIT", "XENVIRONMENT", "XAPPLRESDIR", "XUSERFILES
 def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 receipt = {"started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
            "source_sha256": digest(source), "appearance_sha256": digest(root / "lib/Xm/Appearance.c"),
+           "appearance_header_sha256": digest(root / "lib/Xm/Appearance.h"),
+           "row_column_layout_sha256": digest(root / "lib/Xm/RCLayout.c"),
            "library": str(library), "library_sha256": digest(library),
            "steps": [], "success": False}
-binary = output / "check-appearance-parity"
+binary = output / ("check-appearance-" + args.suite)
 started = time.monotonic()
 def run(name, command):
     before = time.monotonic()
@@ -66,10 +69,13 @@ try:
         raise RuntimeError("fixture did not load the selected build")
     for profile in ("light", "dark", "contrast"):
         run(profile, ["xvfb-run", "-a", "-s", "-screen 0 1024x768x24", binary, profile])
+        if args.suite == "density":
+            run(profile + "-horizontal", ["xvfb-run", "-a", "-s",
+                "-screen 0 1600x1024x24", binary, profile, "horizontal"])
     if digest(library) != receipt["library_sha256"]:
         raise RuntimeError("library changed during qualification")
     receipt["success"] = True
 finally:
     receipt["elapsed_seconds"] = time.monotonic() - started
     (output / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
-print("PASS native appearance parity: light, dark, contrast; widgets, gadgets, explicit overrides")
+print(f"PASS native appearance {args.suite}: light, dark, contrast")

@@ -88,6 +88,14 @@ text_selection_span_to_int(XmTextPosition left, XmTextPosition right,
     *span = (int)length;
     return True;
 }
+
+static char *
+datafield_selection_alloc(unsigned long length)
+{
+    if (length >= (unsigned long)UINT_MAX)
+	return NULL;
+    return (char *)XtMalloc((Cardinal)(length + 1));
+}
 /********    End Static Function Declarations    ********/
 
 #ifdef _NO_PROTO
@@ -715,20 +723,22 @@ _XmDataFieldConvert(
 	     return False;
          *length = _XmDataFieldCountBytes(tf, TextF_WcValue(tf) + left, 
                                           selection_span);
-         tmp_value = XtMalloc((unsigned) *length + 1);
+         tmp_value = datafield_selection_alloc(*length);
+         if (tmp_value == NULL)
+	     return False;
          stat = wcstombs(tmp_value, TextF_WcValue(tf) + left,
-		           (unsigned)*length); /* NOTE: casting *length could
-					 	  result in a truncated long. */
+	           (unsigned)*length); /* length was bounded to Cardinal. */
 	  if (stat < 0) /* wcstombs will return neg value on conv failure */
 	      *length = 0;
 	  else *length = (unsigned long) stat ;
       } else {
          *length = right - left;
-         tmp_value = XtMalloc((unsigned) *length + 1);
+         tmp_value = datafield_selection_alloc(*length);
+         if (tmp_value == NULL)
+	     return False;
         /* get the selection value */
          (void)memcpy((void*)tmp_value, (void*)(TextF_Value(tf) + left), 
-		      (unsigned)*length); /* NOTE: casting *length could result
-				             in a truncated long. */
+		      (unsigned)*length); /* length was bounded to Cardinal. */
       }
       tmp_value[*length] = '\0';
       /* convert tmp_value to 8859.1 */
@@ -755,20 +765,22 @@ _XmDataFieldConvert(
 	      return False;
 	  *length = _XmDataFieldCountBytes(tf, TextF_WcValue(tf) + left,
 					   selection_span);
-	  *value = XtMalloc((unsigned) *length + 1);
+	  *value = (XtPointer)datafield_selection_alloc(*length);
+	  if (*value == NULL)
+	      return False;
 	  stat = wcstombs((char *)*value, TextF_WcValue(tf) + left,
-			  (unsigned)*length); /* NOTE: casting *length could
-						 result in a truncated long */
+				  (unsigned)*length); /* length was bounded to Cardinal. */
 	  if (stat < 0) /* wcstombs return neg value on conv failure */
 	      *length = 0;
 	  else *length = (unsigned long) stat ;
       } else {
          *length = right - left;
-         *value = XtMalloc((unsigned) *length + 1);
+         *value = (XtPointer)datafield_selection_alloc(*length);
+         if (*value == NULL)
+	     return False;
         /* get the selection value */
          (void)memcpy((void*)*value, (void*)(TextF_Value(tf) + left),
-		      (unsigned)*length); /* NOTE: casting *length could result
-				             in a truncated long. */
+		      (unsigned)*length); /* length was bounded to Cardinal. */
       }
       (*(char **)value)[*length]='\0';
     } else if (*target == COMPOUND_TEXT) {
@@ -783,20 +795,22 @@ _XmDataFieldConvert(
 	/* Convert to char* before converting to compound text. */
          *length = _XmDataFieldCountBytes(tf, TextF_WcValue(tf) + left,
                                           selection_span);
-         tmp_value = XtMalloc((unsigned) *length + 1);
+         tmp_value = datafield_selection_alloc(*length);
+         if (tmp_value == NULL)
+	     return False;
          stat = wcstombs(tmp_value, TextF_WcValue(tf) + left,
-		           (unsigned)*length); /* NOTE: casting *length could
-					 	  result in a truncated long. */
+	           (unsigned)*length); /* length was bounded to Cardinal. */
 	if (stat < 0) /* wcstombs will return neg value on conv failure */
 	    *length = 0;
 	else *length = (unsigned long) stat ;
       } else { /* malloc the space and copy the data to be converted */
          *length = right - left;
-         tmp_value = XtMalloc((unsigned) *length + 1);
+         tmp_value = datafield_selection_alloc(*length);
+         if (tmp_value == NULL)
+	     return False;
         /* get the selection value */
          (void)memcpy((void*)tmp_value, (void*)(TextF_Value(tf) + left), 
-		      (unsigned)*length); /* NOTE: casting *length could result
-				             in a truncated long. */
+		      (unsigned)*length); /* length was bounded to Cardinal. */
       }
       tmp_value[*length] = '\0';
 

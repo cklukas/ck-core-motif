@@ -6,6 +6,7 @@
 #endif
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -15,13 +16,18 @@
 #include <X11/StringDefs.h>
 #include <X11/Xresource.h>
 #include <X11/Xutil.h>
+#include <X11/Xlibint.h>
 
 #include <Xm/Appearance.h>
 #include <Xm/Xm.h>
 #include "XmI.h"
+#include "RowColumnP.h"
+#include "RCLayoutI.h"
 
 #define APPEARANCE_RESOURCE "ckCoreMotif.appearanceProfile"
 #define APPEARANCE_CLASS "CkCoreMotif.AppearanceProfile"
+#define DENSITY_RESOURCE "ckCoreMotif.appearanceDensity"
+#define DENSITY_CLASS "CkCoreMotif.AppearanceDensity"
 #define CLASSIC_PROFILE "classic"
 #define MODERN_LIGHT_PROFILE "modern-light"
 #define HIGH_CONTRAST_PROFILE "high-contrast"
@@ -50,18 +56,9 @@ static const char modern_light_resources[] =
     "*XmTextField.background: #ffffff\n"
     "*XmText.background: #ffffff\n"
     "*XmList.background: #ffffff\n"
-    "*XmPushButton.marginWidth: 10\n"
-    "*XmPushButton.marginHeight: 6\n"
     "*XmPushButton.traversalOn: True\n"
-    "*XmToggleButton.marginWidth: 10\n"
-    "*XmToggleButton.marginHeight: 6\n"
     "*XmToggleButton.traversalOn: True\n"
-    "*XmTextField.marginWidth: 8\n"
-    "*XmTextField.marginHeight: 5\n"
     "*XmTextField.traversalOn: True\n"
-    "*XmList.listMarginWidth: 8\n"
-    "*XmList.listMarginHeight: 6\n"
-    "*XmList.listSpacing: 2\n"
     "*XmScrollBar.highlightThickness: 1\n"
     "*XmNotebook.frameShadowThickness: 0\n"
     "*XmNotebook.borderWidth: 0\n";
@@ -97,18 +94,41 @@ static const char modern_dark_resources[] =
     "*insensitiveForeground: #9aa0a6\n"
     "*XmToggleButton.bottomShadowColor: #9aa0a6\n"
     "*XmLabel.traversalOn: True\n"
-    "*XmPushButton.marginWidth: 10\n"
-    "*XmPushButton.marginHeight: 6\n"
     "*XmPushButton.traversalOn: True\n"
-    "*XmToggleButton.marginWidth: 10\n"
-    "*XmToggleButton.marginHeight: 6\n"
     "*XmToggleButton.traversalOn: True\n"
-    "*XmTextField.marginWidth: 8\n"
-    "*XmTextField.marginHeight: 5\n"
     "*XmTextField.traversalOn: True\n"
     "*XmScrollBar.highlightThickness: 1\n"
     "*XmNotebook.frameShadowThickness: 0\n"
     "*XmNotebook.borderWidth: 0\n";
+
+/* Layout defaults are shared by all modern palettes. Keep density independent
+ * of palette selection, and resolve these same patterns for startup and live
+ * changes. Natural control sizes remain the responsibility of each widget. */
+typedef struct {
+    const char *resource;
+    Dimension comfortable;
+    Dimension compact;
+} AppearanceDensityResource;
+
+static const AppearanceDensityResource density_resources[] = {
+    {"*XmPushButton.marginWidth", 12, 8},
+    {"*XmPushButton.marginHeight", 4, 2},
+    {"*XmPushButtonGadget.marginWidth", 12, 8},
+    {"*XmPushButtonGadget.marginHeight", 4, 2},
+    {"*XmToggleButton.marginWidth", 12, 8},
+    {"*XmToggleButton.marginHeight", 4, 2},
+    {"*XmToggleButton.indicatorSize", 18, 16},
+    {"*XmToggleButtonGadget.marginWidth", 12, 8},
+    {"*XmToggleButtonGadget.marginHeight", 4, 2},
+    {"*XmToggleButtonGadget.indicatorSize", 18, 16},
+    {"*XmTextField.marginWidth", 8, 6},
+    {"*XmTextField.marginHeight", 4, 2},
+    {"*XmText.marginWidth", 8, 6},
+    {"*XmText.marginHeight", 4, 2},
+    {"*XmList.listMarginWidth", 8, 4},
+    {"*XmList.listMarginHeight", 8, 4},
+    {"*XmList.listSpacing", 4, 2}
+};
 
 typedef enum {
     AP_BACKGROUND,
@@ -129,6 +149,7 @@ typedef enum {
     AP_LIST_SPACING,
     AP_FRAME_SHADOW_THICKNESS,
     AP_BORDER_WIDTH,
+    AP_INDICATOR_SIZE,
     AP_COUNT
 } AppearanceProperty;
 
@@ -140,7 +161,6 @@ typedef struct _XmAppearanceWidgetState {
     Boolean explicit_arg[AP_COUNT];
     Boolean owned[AP_COUNT];
     XtArgVal original[AP_COUNT];
-    XtArgVal last[AP_COUNT];
     unsigned int references;
     Boolean retired;
     Boolean initialized;
@@ -161,6 +181,8 @@ typedef struct _XmAppearanceDisplayState {
     XrmDatabase active_database;
     Boolean owns_active_database;
     Boolean transaction_active;
+    Boolean defer_layout;
+    Widget hooks;
     struct _XmAppearanceDisplayState *next;
 } XmAppearanceDisplayState;
 
@@ -168,6 +190,9 @@ static XmAppearanceWidgetState *appearance_widgets;
 static XmAppearanceDisplayState *appearance_displays;
 
 static void appearance_release_gadget_states(Display *display);
+static void appearance_created(Widget, XtPointer, XtPointer);
+static void appearance_changed(Widget, XtPointer, XtPointer);
+static void appearance_hooks_destroyed(Widget, XtPointer, XtPointer);
 
 void
 _XmDestroyAppearanceDisplay(Display *display)
@@ -196,6 +221,12 @@ _XmDestroyAppearanceDisplay(Display *display)
     active_database = state->active_database;
     state->application_database = NULL;
     state->active_database = NULL;
+    if (state->hooks != NULL) {
+        XtRemoveCallback(state->hooks, XtNcreateHook, appearance_created, state);
+        XtRemoveCallback(state->hooks, XtNchangeHook, appearance_changed, state);
+        XtRemoveCallback(state->hooks, XtNdestroyCallback,
+                         appearance_hooks_destroyed, state);
+    }
     XtFree((char *)state);
     _XmProcessUnlock();
 
@@ -216,7 +247,8 @@ appearance_property_name(AppearanceProperty property)
         XmNshadowThickness, XmNarmColor, XmNselectColor,
         "insensitiveForeground", XmNtraversalOn, XmNmarginWidth,
         XmNmarginHeight, XmNlistMarginWidth, XmNlistMarginHeight,
-        XmNlistSpacing, XmNframeShadowThickness, XmNborderWidth
+        XmNlistSpacing, XmNframeShadowThickness, XmNborderWidth,
+        XmNindicatorSize
     };
     return names[property];
 }
@@ -229,7 +261,8 @@ appearance_property_is_dimension(AppearanceProperty property)
            property == AP_MARGIN_WIDTH || property == AP_MARGIN_HEIGHT ||
            property == AP_LIST_MARGIN_WIDTH ||
            property == AP_LIST_MARGIN_HEIGHT || property == AP_LIST_SPACING ||
-           property == AP_FRAME_SHADOW_THICKNESS || property == AP_BORDER_WIDTH;
+           property == AP_FRAME_SHADOW_THICKNESS || property == AP_BORDER_WIDTH ||
+           property == AP_INDICATOR_SIZE;
 }
 
 static Boolean
@@ -250,12 +283,6 @@ widget_class_name(Widget widget)
 {
     WidgetClass class = XtClass(widget);
     return class != NULL ? class->core_class.class_name : "";
-}
-
-static Boolean
-class_contains(Widget widget, const char *text)
-{
-    return strstr(widget_class_name(widget), text) != NULL;
 }
 
 static const char *
@@ -279,11 +306,13 @@ profile_name(XmAppearanceProfile profile)
  * lifetime, like the static resource strings from which they are built. Both
  * Xt construction and live transactions resolve the same Xrm patterns. */
 static XrmDatabase
-profile_defaults(XmAppearanceProfile profile)
+profile_defaults(XmAppearanceProfile profile, XmAppearanceDensity density)
 {
-    static XrmDatabase databases[4];
+    static XrmDatabase databases[4][2];
     const char *resources;
     XrmDatabase result;
+    if (density != XmAPPEARANCE_DENSITY_COMFORTABLE &&
+        density != XmAPPEARANCE_DENSITY_COMPACT) return NULL;
     if (profile == XmAPPEARANCE_CLASSIC) return NULL;
     switch (profile) {
     case XmAPPEARANCE_MODERN_LIGHT: resources = modern_light_resources; break;
@@ -292,9 +321,21 @@ profile_defaults(XmAppearanceProfile profile)
     default: return NULL;
     }
     _XmProcessLock();
-    if (databases[profile] == NULL)
-        databases[profile] = XrmGetStringDatabase(resources);
-    result = databases[profile];
+    if (databases[profile][density] == NULL) {
+        XrmDatabase database = XrmGetStringDatabase(resources);
+        if (database != NULL) {
+            for (Cardinal i = 0; i < XtNumber(density_resources); ++i) {
+                char value[24];
+                const AppearanceDensityResource *entry = &density_resources[i];
+                snprintf(value, sizeof(value), "%u", (unsigned int)
+                    (density == XmAPPEARANCE_DENSITY_COMPACT
+                        ? entry->compact : entry->comfortable));
+                XrmPutStringResource(&database, entry->resource, value);
+            }
+            databases[profile][density] = database;
+        }
+    }
+    result = databases[profile][density];
     _XmProcessUnlock();
     return result;
 }
@@ -304,10 +345,11 @@ static Boolean appearance_database_value(Widget widget, XrmDatabase database,
 
 static const char *
 profile_property_string(Widget widget, XmAppearanceProfile profile,
+                        XmAppearanceDensity density,
                         AppearanceProperty property)
 {
     XrmValue value;
-    if (appearance_database_value(widget, profile_defaults(profile), property,
+    if (appearance_database_value(widget, profile_defaults(profile, density), property,
                                   &value))
         return value.addr;
     return NULL;
@@ -315,9 +357,10 @@ profile_property_string(Widget widget, XmAppearanceProfile profile,
 
 static Boolean
 profile_property_value(Widget widget, XmAppearanceProfile profile,
+                       XmAppearanceDensity density,
                        AppearanceProperty property, XtArgVal *value_return)
 {
-    const char *text = profile_property_string(widget, profile, property);
+    const char *text = profile_property_string(widget, profile, density, property);
     char *end = NULL;
     unsigned long number;
 
@@ -351,23 +394,41 @@ profile_property_value(Widget widget, XmAppearanceProfile profile,
     return True;
 }
 
-static Boolean
-appearance_resource_supported(Widget widget, AppearanceProperty property)
+/* Cached gadget resources and text backend resources live in secondary
+ * tables; XtGetResourceList alone does not describe the public widget API. */
+static const char *
+appearance_resource_class(Widget widget, AppearanceProperty property)
 {
     XtResourceList resources = NULL;
-    Cardinal count = 0;
+    XmSecondaryResourceData *secondary = NULL;
+    Cardinal count = 0, blocks;
     const char *name = appearance_property_name(property);
-    Boolean supported = False;
+    const char *result = NULL;
 
     XtGetResourceList(XtClass(widget), &resources, &count);
     for (Cardinal i = 0; i < count; ++i)
         if (strcmp(resources[i].resource_name, name) == 0) {
-            supported = True;
+            result = resources[i].resource_class;
             break;
         }
-    if (resources != NULL)
-        XtFree((char *)resources);
-    return supported;
+    XtFree((char *)resources);
+    if (result != NULL) return result;
+    blocks = XmGetSecondaryResourceData(XtClass(widget), &secondary);
+    for (Cardinal i = 0; i < blocks; ++i) {
+        for (Cardinal j = 0; j < secondary[i]->num_resources; ++j)
+            if (strcmp(secondary[i]->resources[j].resource_name, name) == 0)
+                result = secondary[i]->resources[j].resource_class;
+        XtFree((char *)secondary[i]->resources);
+        XtFree((char *)secondary[i]);
+    }
+    XtFree((char *)secondary);
+    return result;
+}
+
+static Boolean
+appearance_resource_supported(Widget widget, AppearanceProperty property)
+{
+    return appearance_resource_class(widget, property) != NULL;
 }
 
 static Boolean
@@ -391,19 +452,13 @@ appearance_database_value(Widget widget, XrmDatabase database,
     Widget current = widget;
     int count = 0;
     XrmRepresentation type;
-    const char *resource_class = appearance_property_name(property);
-    XtResourceList resources = NULL;
-    Cardinal resource_count = 0;
+    const char *resource_class;
 
     if (database == NULL)
         return False;
-    XtGetResourceList(XtClass(widget), &resources, &resource_count);
-    for (Cardinal i = 0; i < resource_count; ++i)
-        if (strcmp(resources[i].resource_name,
-                   appearance_property_name(property)) == 0) {
-            resource_class = resources[i].resource_class;
-            break;
-        }
+    resource_class = appearance_resource_class(widget, property);
+    if (resource_class == NULL)
+        return False;
     while (current != NULL && count < 64) {
         chain[count++] = current;
         current = XtParent(current);
@@ -419,8 +474,6 @@ appearance_database_value(Widget widget, XrmDatabase database,
     classes[count] = XrmStringToQuark(resource_class);
     names[count + 1] = NULLQUARK;
     classes[count + 1] = NULLQUARK;
-    if (resources != NULL)
-        XtFree((char *)resources);
     return XrmQGetResource(database, names, classes, &type, value_return);
 }
 
@@ -507,6 +560,16 @@ appearance_transaction_is_active(Display *display)
     return active;
 }
 
+/* Layout managers must not normalize siblings against a mixture of old and
+ * new appearance values. The transaction holds this phase only while committing
+ * resources, then performs cross-child layout with all new values present. */
+Boolean
+_XmAppearanceDefersLayout(Display *display)
+{
+    XmAppearanceDisplayState *state = find_display_state(display);
+    return state != NULL && state->defer_layout;
+}
+
 static XmAppearanceWidgetState *
 find_live_widget_state(Widget widget)
 {
@@ -580,6 +643,14 @@ appearance_release_gadget_states(Display *display)
     _XmProcessUnlock();
 }
 
+static int
+appearance_display_closed(Display *display, XExtCodes *codes)
+{
+    (void)codes;
+    _XmDestroyAppearanceDisplay(display);
+    return 0;
+}
+
 static XmAppearanceDisplayState *
 ensure_display_state(Display *display)
 {
@@ -594,6 +665,18 @@ ensure_display_state(Display *display)
     if (state->application_database == NULL) {
         XtFree((char *)state);
         return NULL;
+    }
+    /* Selection is also valid on an XOpenDisplay connection before Xt is
+     * initialized. Use Xlib lifetime tracking here; install Xt hooks only when
+     * an actual Motif object registers on the initialized Xt display. */
+    {
+        XExtCodes *extension = XAddExtension(display);
+        if (extension == NULL) {
+            XrmDestroyDatabase(state->application_database);
+            XtFree((char *)state);
+            return NULL;
+        }
+        XESetCloseDisplay(display, extension->extension, appearance_display_closed);
     }
     state->next = appearance_displays;
     appearance_displays = state;
@@ -648,30 +731,25 @@ static void initialize_appearance_state(XmAppearanceWidgetState *state,
 static Boolean
 appearance_widget_prepare(XmAppearanceWidgetState *state,
                            XmAppearanceProfile new_profile,
+                           XmAppearanceDensity density,
                            XmAppearanceChangePlan *plan)
 {
-    XtArgVal current[AP_COUNT];
-
     plan->state = state;
     memcpy(plan->owned, state->owned, sizeof(plan->owned));
-    read_appearance_values(state, current);
     for (AppearanceProperty property = 0; property < AP_COUNT; ++property) {
         const char *profile_text;
 
         if (!state->supported[property])
             continue;
-        /* A value changed outside the transaction is no longer toolkit-owned;
-         * the prepared plan preserves that application value. */
-        if (plan->owned[property] &&
-            current[property] != state->last[property])
-            plan->owned[property] = False;
+        /* Ownership follows explicit arguments and Xt changes, not equality:
+         * a parent's internal margin normalization is not an app override. */
         if (!plan->owned[property])
             continue;
         profile_text = profile_property_string(state->widget, new_profile,
-                                               property);
+                                               density, property);
         if (profile_text == NULL)
             plan->values[property] = state->original[property];
-        else if (!profile_property_value(state->widget, new_profile, property,
+        else if (!profile_property_value(state->widget, new_profile, density, property,
                                          &plan->values[property]))
             return False;
         plan->apply[property] = True;
@@ -693,12 +771,10 @@ appearance_widget_commit(XmAppearanceChangePlan *plan)
                      (String)appearance_property_name(property),
                      plan->values[property]);
             ++count;
-            state->last[property] = plan->values[property];
         }
     if (count != 0)
         XtSetValues(state->widget, set_args, count);
     if (state->widget != NULL && XtIsWidget(state->widget)) {
-        read_appearance_values(state, state->last);
         if (XtIsRealized(state->widget))
             XClearArea(XtDisplay(state->widget), XtWindow(state->widget),
                        0, 0, 0, 0, True);
@@ -714,7 +790,6 @@ initialize_appearance_state(XmAppearanceWidgetState *state,
 {
     (void)current_profile;
     read_appearance_values(state, state->original);
-    memcpy(state->last, state->original, sizeof(state->last));
     for (AppearanceProperty property = 0; property < AP_COUNT; ++property) {
         XrmValue xrm_value;
         XmAppearanceDisplayState *display_state = find_display_state(state->display);
@@ -730,15 +805,82 @@ initialize_appearance_state(XmAppearanceWidgetState *state,
     state->initialized = True;
 }
 
+static void
+appearance_hooks_destroyed(Widget hooks, XtPointer closure, XtPointer data)
+{
+    XmAppearanceDisplayState *display_state = closure;
+    (void)hooks;
+    (void)data;
+    display_state->hooks = NULL;
+}
+
+/* Xt's create hook runs after class initializers, initialize hooks and gadget
+ * cache setup. Snapshot here rather than reading a partially initialized Text
+ * backend or treating constructor normalization as an application override. */
+static void
+appearance_created(Widget hooks, XtPointer closure, XtPointer data)
+{
+    XtCreateHookData created = data;
+    XmAppearanceDisplayState *display_state = closure;
+    XmAppearanceWidgetState *state;
+    XmAppearanceProfile profile = XmAPPEARANCE_CLASSIC;
+    (void)hooks;
+    if (created == NULL) return;
+    (void)XmGetAppearanceProfile(display_state->display, &profile);
+    for (state = appearance_widgets; state != NULL; state = state->next)
+        if (!state->retired && state->widget == created->widget &&
+            !state->initialized) {
+            initialize_appearance_state(state, profile);
+            break;
+        }
+}
+
+/* Equal-valued XtSetValues calls are still explicit application choices.
+ * Record arguments, not just a later comparison with the previous value. */
+static void
+appearance_changed(Widget hooks, XtPointer closure, XtPointer data)
+{
+    XtChangeHookData changed = data;
+    XmAppearanceDisplayState *display_state = closure;
+    XmAppearanceWidgetState *state;
+    XtChangeHookSetValuesData values;
+    (void)hooks;
+    if (display_state->transaction_active || changed == NULL ||
+        changed->type == NULL || strcmp(changed->type, XtHsetValues) != 0 ||
+        changed->event_data == NULL) return;
+    values = changed->event_data;
+    for (state = appearance_widgets; state != NULL; state = state->next)
+        if (!state->retired && state->initialized &&
+            state->widget == changed->widget) {
+            for (AppearanceProperty property = 0; property < AP_COUNT; ++property)
+                if (appearance_explicit_arg(values->args, values->num_args, property)) {
+                    state->explicit_arg[property] = True;
+                    state->owned[property] = False;
+                }
+            break;
+        }
+}
+
 Boolean
 _XmRegisterAppearanceChange(Widget widget, ArgList args, Cardinal num_args)
 {
     XmAppearanceWidgetState *state;
-    XmAppearanceProfile profile = XmAPPEARANCE_CLASSIC;
     XmAppearanceWidgetState *existing;
+    XmAppearanceDisplayState *display_state;
 
     if (widget == NULL || !XtIsObject(widget))
         return False;
+    display_state = ensure_display_state(XtDisplayOfObject(widget));
+    if (display_state == NULL) return False;
+    if (display_state->hooks == NULL) {
+        display_state->hooks = XtHooksOfDisplay(display_state->display);
+        XtAddCallback(display_state->hooks, XtNcreateHook,
+                      appearance_created, display_state);
+        XtAddCallback(display_state->hooks, XtNchangeHook,
+                      appearance_changed, display_state);
+        XtAddCallback(display_state->hooks, XtNdestroyCallback,
+                      appearance_hooks_destroyed, display_state);
+    }
     state = (XmAppearanceWidgetState *)XtCalloc(1, sizeof(*state));
     if (state == NULL)
         return False;
@@ -752,16 +894,6 @@ _XmRegisterAppearanceChange(Widget widget, ArgList args, Cardinal num_args)
     for (AppearanceProperty property = 0; property < AP_COUNT; ++property)
         state->explicit_arg[property] = appearance_explicit_arg(args, num_args,
                                                                  property);
-    if (!state->gadget && !XtIsShell(widget)) {
-        (void)XmGetAppearanceProfile(state->display, &profile);
-        /* Text and TextField create their output/input backends from the
-         * initialize hook, which runs after the core initialize wrapper.  A
-         * GetValuesHook before that point dereferences a null output object.
-         * Keep the registration, but defer the first value snapshot until a
-         * live appearance transaction observes the fully initialized widget. */
-        if (!class_contains(widget, "Text"))
-            initialize_appearance_state(state, profile);
-    }
     _XmProcessLock();
     for (existing = appearance_widgets; existing != NULL;
          existing = existing->next)
@@ -781,11 +913,13 @@ _XmRegisterAppearanceChange(Widget widget, ArgList args, Cardinal num_args)
 
 Boolean
 _XmApplyAppearanceChange(Display *display, XmAppearanceProfile old_profile,
-                         XmAppearanceProfile new_profile)
+                         XmAppearanceProfile new_profile,
+                         XmAppearanceDensity density)
 {
     XmAppearanceWidgetState **snapshot = NULL;
     XmAppearanceChangePlan *plans = NULL;
     XmAppearanceWidgetState *state;
+    XmAppearanceDisplayState *display_state = find_display_state(display);
     Cardinal count = 0;
     Boolean success = True;
 
@@ -827,7 +961,7 @@ _XmApplyAppearanceChange(Display *display, XmAppearanceProfile old_profile,
         if (!state->retired && state->widget != NULL) {
             if (!state->initialized)
                 initialize_appearance_state(state, old_profile);
-            if (!appearance_widget_prepare(state, new_profile, &plans[i]))
+            if (!appearance_widget_prepare(state, new_profile, density, &plans[i]))
                 success = False;
         }
         if (!success)
@@ -849,10 +983,28 @@ _XmApplyAppearanceChange(Display *display, XmAppearanceProfile old_profile,
             free(plans);
         return False;
     }
+    if (display_state != NULL)
+        display_state->defer_layout = True;
     for (Cardinal i = 0; i < count; ++i) {
         state = snapshot[i];
         if (!state->retired && state->widget != NULL)
             appearance_widget_commit(&plans[i]);
+    }
+    if (display_state != NULL)
+        display_state->defer_layout = False;
+    /* Retain every snapshot reference through the layout pass: a SetValues or
+     * geometry callback may retire another object. Normalize only after all
+     * siblings have their new margins. */
+    for (Cardinal i = 0; i < count; ++i) {
+        state = snapshot[i];
+        if (!state->retired && state->widget != NULL &&
+            XmIsRowColumn(state->widget)) {
+            _XmRCDoMarginAdjustment((XmRowColumnWidget)state->widget);
+            _XmRCAdaptToSize((XmRowColumnWidget)state->widget, NULL, NULL);
+        }
+    }
+    for (Cardinal i = 0; i < count; ++i) {
+        state = snapshot[i];
         _XmProcessLock();
         if (state->references != 0)
             --state->references;
@@ -890,12 +1042,13 @@ profile_from_name(const char *name, XmAppearanceProfile *profile_return)
 }
 
 static Boolean
-profile_resource_database(XmAppearanceProfile profile, XrmDatabase *database)
+profile_resource_database(XmAppearanceProfile profile,
+                          XmAppearanceDensity density, XrmDatabase *database)
 {
     XrmDatabase defaults;
 
     if (profile == XmAPPEARANCE_CLASSIC) return True;
-    defaults = profile_defaults(profile);
+    defaults = profile_defaults(profile, density);
     if (defaults == NULL) return False;
     defaults = clone_database(defaults);
     if (defaults == NULL)
@@ -911,6 +1064,7 @@ XmSetAppearanceProfile(Display *display, XmAppearanceProfile profile)
     XrmValue value;
     char *type = NULL;
     XmAppearanceProfile current;
+    XmAppearanceDensity density;
     const char *name;
 
     if (display == NULL)
@@ -920,7 +1074,7 @@ XmSetAppearanceProfile(Display *display, XmAppearanceProfile profile)
         return False;
 
     name = profile_name(profile);
-    if (name == NULL)
+    if (name == NULL || !XmGetAppearanceDensity(display, &density))
         return False;
 
     database = XrmGetDatabase(display);
@@ -929,7 +1083,7 @@ XmSetAppearanceProfile(Display *display, XmAppearanceProfile profile)
                        &type, &value)) {
         if (!XmGetAppearanceProfile(display, &current) || current != profile)
             return False;
-        return profile_resource_database(profile, &database);
+        return profile_resource_database(profile, density, &database);
     }
     if (database == NULL) {
         XrmInitialize();
@@ -941,7 +1095,7 @@ XmSetAppearanceProfile(Display *display, XmAppearanceProfile profile)
     if (ensure_display_state(display) == NULL)
         return False;
 
-    if (!profile_resource_database(profile, &database))
+    if (!profile_resource_database(profile, density, &database))
         return False;
 
     XrmPutStringResource(&database, APPEARANCE_RESOURCE, name);
@@ -969,26 +1123,32 @@ XmGetAppearanceProfile(Display *display, XmAppearanceProfile *profile_return)
     return profile_from_name(value.addr, profile_return);
 }
 
-Boolean
-XmApplyAppearanceProfile(Display *display, XmAppearanceProfile profile)
+static Boolean
+apply_appearance_settings(Display *display, XmAppearanceProfile profile,
+                          XmAppearanceDensity density, Boolean select_profile)
 {
     XmAppearanceDisplayState *state;
     XmAppearanceProfile current;
+    XmAppearanceDensity current_density;
     XrmDatabase database;
     XrmDatabase old_database;
     const char *name;
 
-    if (display == NULL || profile_name(profile) == NULL)
+    if (display == NULL || profile_name(profile) == NULL ||
+        (density != XmAPPEARANCE_DENSITY_COMFORTABLE &&
+         density != XmAPPEARANCE_DENSITY_COMPACT) ||
+        appearance_transaction_is_active(display))
         return False;
-    if (!XmGetAppearanceProfile(display, &current))
+    if (!XmGetAppearanceProfile(display, &current) ||
+        !XmGetAppearanceDensity(display, &current_density))
         return False;
-    if (current == profile)
+    if (current == profile && current_density == density)
         return True;
     state = ensure_display_state(display);
     if (state == NULL)
         return False;
     database = clone_database(state->application_database);
-    if (database == NULL || !profile_resource_database(profile, &database)) {
+    if (database == NULL || !profile_resource_database(profile, density, &database)) {
         if (database != NULL)
             XrmDestroyDatabase(database);
         return False;
@@ -998,9 +1158,22 @@ XmApplyAppearanceProfile(Display *display, XmAppearanceProfile profile)
         return False;
     }
     name = profile_name(profile);
-    XrmPutStringResource(&database, APPEARANCE_RESOURCE, name);
+    /* Choosing density alone must not freeze the startup profile at classic. */
+    if (select_profile || current != XmAPPEARANCE_CLASSIC) {
+        XrmPutStringResource(&database, APPEARANCE_RESOURCE, name);
+    } else {
+        XrmValue value;
+        char *type = NULL;
+        XrmDatabase previous = XrmGetDatabase(display);
+        if (previous != NULL && XrmGetResource(previous, APPEARANCE_RESOURCE,
+                                              APPEARANCE_CLASS, &type, &value))
+            XrmPutStringResource(&database, APPEARANCE_RESOURCE, name);
+    }
+    XrmPutStringResource(&database, DENSITY_RESOURCE,
+        density == XmAPPEARANCE_DENSITY_COMPACT ? "compact" : "comfortable");
     old_database = XrmGetDatabase(display);
-    if (!_XmApplyAppearanceChange(display, current, profile)) {
+    if ((current != XmAPPEARANCE_CLASSIC || profile != XmAPPEARANCE_CLASSIC) &&
+        !_XmApplyAppearanceChange(display, current, profile, density)) {
         appearance_transaction_end(state);
         XrmDestroyDatabase(database);
         return False;
@@ -1011,5 +1184,79 @@ XmApplyAppearanceProfile(Display *display, XmAppearanceProfile profile)
     state->active_database = database;
     state->owns_active_database = True;
     appearance_transaction_end(state);
+    return True;
+}
+
+Boolean
+XmApplyAppearanceProfile(Display *display, XmAppearanceProfile profile)
+{
+    XmAppearanceDensity density;
+    return XmGetAppearanceDensity(display, &density) &&
+           apply_appearance_settings(display, profile, density, True);
+}
+
+Boolean
+XmGetAppearanceDensity(Display *display, XmAppearanceDensity *density_return)
+{
+    XrmValue value;
+    char *type = NULL;
+    XrmDatabase database;
+    XmAppearanceDensity density = XmAPPEARANCE_DENSITY_COMFORTABLE;
+    if (display == NULL || density_return == NULL) return False;
+    database = XrmGetDatabase(display);
+    if (database != NULL && XrmGetResource(database, DENSITY_RESOURCE,
+                                          DENSITY_CLASS, &type, &value)) {
+        if (value.addr == NULL) return False;
+        if (strcmp(value.addr, "compact") == 0)
+            density = XmAPPEARANCE_DENSITY_COMPACT;
+        else if (strcmp(value.addr, "comfortable") != 0)
+            return False;
+    }
+    *density_return = density;
+    return True;
+}
+
+Boolean
+XmApplyAppearanceDensity(Display *display, XmAppearanceDensity density)
+{
+    XmAppearanceProfile profile;
+    return XmGetAppearanceProfile(display, &profile) &&
+           apply_appearance_settings(display, profile, density, False);
+}
+
+Boolean
+XmSetAppearanceDensity(Display *display, XmAppearanceDensity density)
+{
+    XmAppearanceDensity current;
+    XmAppearanceWidgetState *state;
+    Boolean controls_exist = False;
+    if (display == NULL ||
+        (density != XmAPPEARANCE_DENSITY_COMFORTABLE &&
+         density != XmAPPEARANCE_DENSITY_COMPACT) ||
+        appearance_transaction_is_active(display) ||
+        !XmGetAppearanceDensity(display, &current)) return False;
+    if (current == density) return True;
+    _XmProcessLock();
+    for (state = appearance_widgets; state != NULL; state = state->next)
+        if (!state->retired && state->display == display &&
+            state->widget != NULL && !XtIsShell(state->widget)) {
+            controls_exist = True;
+            break;
+        }
+    _XmProcessUnlock();
+    if (controls_exist) return False;
+    return XmApplyAppearanceDensity(display, density);
+}
+
+Boolean
+XmGetAppearanceSpacing(Display *display, XmAppearanceSpacing spacing,
+                        Dimension *pixels_return)
+{
+    static const Dimension logical[] = {4, 8, 12, 16, 24};
+    double scale = 1.0;
+    if (display == NULL || pixels_return == NULL ||
+        (unsigned int)spacing >= XtNumber(logical)) return False;
+    (void)_XmGetDpiScale(display, &scale);
+    *pixels_return = _XmDpiScaleDimension(scale, logical[spacing]);
     return True;
 }

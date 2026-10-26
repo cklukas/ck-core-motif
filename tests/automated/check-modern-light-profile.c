@@ -152,7 +152,7 @@ main(int argc, char **argv)
     drain_events(app);
 
     {
-        int label_background = widget_pixel_matches(label, "#f6f8fb");
+        int label_background = widget_pixel_matches(label, "#f1f2f4");
         int label_foreground = widget_foreground_matches(label, "#202124");
         int explicit_color = color_matches(
             display, DefaultColormapOfScreen(XtScreen(shell)),
@@ -169,7 +169,7 @@ main(int argc, char **argv)
 
     XtVaGetValues(button, XmNhighlightThickness, &highlight,
                   XmNmarginWidth, &margin, NULL);
-    if (highlight != 1 || margin != 10 ||
+    if (highlight != 1 || margin != 12 ||
         !widget_pixel_matches(button, "#ffffff") ||
         !widget_pixel_matches(toggle, "#fff4cc")) {
         fprintf(stderr, "button metrics or explicit color precedence failed\n");
@@ -178,7 +178,7 @@ main(int argc, char **argv)
     XtVaGetValues(text, XmNmarginWidth, &margin, NULL);
     XtVaGetValues(list, XmNlistSpacing, &spacing, NULL);
     XtVaGetValues(scrollbar, XmNhighlightThickness, &highlight, NULL);
-    if (margin != 8 || spacing != 2 || highlight != 1) {
+    if (margin != 8 || spacing != 4 || highlight != 1) {
         fprintf(stderr, "modern-light control metrics failed\n");
         goto done;
     }

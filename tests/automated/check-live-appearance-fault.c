@@ -31,6 +31,8 @@ main(int argc, char **argv)
     Display *display;
     Pixel light_background, dark_background;
     XmAppearanceProfile profile;
+    XmAppearanceDensity density;
+    Dimension comfortable_margin, actual_margin;
 
     shell = XtVaAppInitialize(&app, "LiveAppearanceRollback", NULL, 0,
                               &argc, argv, NULL, NULL);
@@ -61,6 +63,27 @@ main(int argc, char **argv)
     if (dark_background != light_background ||
         light_background == named_pixel(display, "#202124"))
         return fail("failed transition changed widget resources");
+
+    XtVaGetValues(ordinary, XmNmarginWidth, &comfortable_margin, NULL);
+    if (raise(SIGUSR1) != 0)
+        return fail("could not enable density allocation fault");
+    if (XmApplyAppearanceDensity(display, XmAPPEARANCE_DENSITY_COMPACT))
+        return fail("density staging failure was reported as success");
+    if (raise(SIGUSR2) != 0)
+        return fail("could not disable density allocation fault");
+    if (!XmGetAppearanceDensity(display, &density) ||
+        density != XmAPPEARANCE_DENSITY_COMFORTABLE)
+        return fail("failed transaction changed density selection");
+    XtVaGetValues(ordinary, XmNmarginWidth, &actual_margin, NULL);
+    if (actual_margin != comfortable_margin)
+        return fail("failed density transaction changed layout resources");
+    if (!XmApplyAppearanceDensity(display, XmAPPEARANCE_DENSITY_COMPACT) ||
+        !XmGetAppearanceDensity(display, &density) ||
+        density != XmAPPEARANCE_DENSITY_COMPACT)
+        return fail("density transition after rollback failed");
+    XtVaGetValues(ordinary, XmNmarginWidth, &actual_margin, NULL);
+    if (actual_margin != 8 || actual_margin == comfortable_margin)
+        return fail("successful density transition did not update layout");
 
     if (!XmApplyAppearanceProfile(display, XmAPPEARANCE_MODERN_DARK) ||
         !XmGetAppearanceProfile(display, &profile) ||

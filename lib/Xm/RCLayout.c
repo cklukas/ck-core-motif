@@ -2212,6 +2212,12 @@ _XmRCDoMarginAdjustment(
     Dimension m_w, m_h, m_l, m_r, m_t, m_b;
     Dimension w, h;
 
+    /* Appearance updates commit each child through XtSetValues. Equalizing
+     * margins here would copy an old sibling's padding back into updated
+     * children. The appearance transaction runs this pass once all are ready. */
+    if (_XmAppearanceDefersLayout(XtDisplay((Widget)m)))
+        return;
+
     if ((!RC_DoMarginAdjust (m)) || (IsOption(m)))
     {
       ForManagedChildren (m, i, p)

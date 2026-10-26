@@ -23,6 +23,7 @@ main(int argc, char **argv)
     Display *display;
     Display *profile_display;
     XmAppearanceProfile profile;
+    XmAppearanceDensity density;
     Widget shell;
     int status = EXIT_FAILURE;
 
@@ -47,6 +48,13 @@ main(int argc, char **argv)
     }
     if (XmSetAppearanceProfile(profile_display, (XmAppearanceProfile)99)) {
         fprintf(stderr, "unknown profile was accepted\n");
+        XCloseDisplay(profile_display);
+        return EXIT_FAILURE;
+    }
+    if (!XmSetAppearanceDensity(profile_display, XmAPPEARANCE_DENSITY_COMPACT) ||
+        !XmGetAppearanceDensity(profile_display, &density) ||
+        density != XmAPPEARANCE_DENSITY_COMPACT) {
+        fprintf(stderr, "density selection before Xt initialization failed\n");
         XCloseDisplay(profile_display);
         return EXIT_FAILURE;
     }

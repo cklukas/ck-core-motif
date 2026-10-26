@@ -10,14 +10,13 @@ static const char *properties[] = {
     XmNhighlightColor, XmNhighlightThickness, XmNshadowThickness,
     XmNarmColor, XmNselectColor, XmNtraversalOn, XmNmarginWidth,
     XmNmarginHeight, XmNlistMarginWidth, XmNlistMarginHeight, XmNlistSpacing,
-    XmNframeShadowThickness, XmNborderWidth
+    XmNframeShadowThickness, XmNborderWidth, XmNindicatorSize
 };
 
-static int compare(Widget fresh, Widget live)
+static int compare_resources(Widget fresh, Widget live,
+                             XtResourceList resources, Cardinal count)
 {
-    XtResourceList resources = NULL;
-    Cardinal count = 0, i, j;
-    XtGetResourceList(XtClass(fresh), &resources, &count);
+    Cardinal i, j;
     for (i = 0; i < XtNumber(properties); ++i) {
         for (j = 0; j < count; ++j)
             if (!strcmp(resources[j].resource_name, properties[i])) {
@@ -28,14 +27,32 @@ static int compare(Widget fresh, Widget live)
                     fprintf(stderr, "FAIL %s.%s: startup=%lu live=%lu\n",
                             XtName(fresh), properties[i], (unsigned long)a,
                             (unsigned long)b);
-                    XtFree((char *)resources);
                     return 0;
                 }
                 break;
             }
     }
-    XtFree((char *)resources);
     return 1;
+}
+
+static int compare(Widget fresh, Widget live)
+{
+    XtResourceList resources = NULL;
+    XmSecondaryResourceData *secondary = NULL;
+    Cardinal count = 0, blocks, i;
+    int result;
+    XtGetResourceList(XtClass(fresh), &resources, &count);
+    result = compare_resources(fresh, live, resources, count);
+    XtFree((char *)resources);
+    blocks = XmGetSecondaryResourceData(XtClass(fresh), &secondary);
+    for (i = 0; i < blocks; ++i) {
+        if (!compare_resources(fresh, live, secondary[i]->resources,
+                               secondary[i]->num_resources)) result = 0;
+        XtFree((char *)secondary[i]->resources);
+        XtFree((char *)secondary[i]);
+    }
+    XtFree((char *)secondary);
+    return result;
 }
 
 int main(int argc, char **argv)

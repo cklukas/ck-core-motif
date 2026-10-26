@@ -1174,3 +1174,5 @@ EXTRA_DIST += scripts/generate-dialog-icons.py \
 check-local: check-dialog-artwork
 check-dialog-artwork:
 	$(PYTHON) $(srcdir)/scripts/generate-dialog-icons.py --check
+
+EXTRA_DIST += tests/automated/check-appearance-density.c

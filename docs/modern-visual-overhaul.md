@@ -21,8 +21,8 @@ Application resource overrides remain authoritative.
 
 | Work package | Required result | Status |
 | --- | --- | --- |
-| Shared appearance | One definition for startup and live styling; explicit resource ownership | Native parity accepted; extended override matrix remains |
-| Density and roles | Public set/get/apply density; normal/title/section/secondary/code/primary/destructive roles; public spacing query; UIL registration | Pending |
+| Shared appearance | One definition for startup and live styling; explicit resource ownership | Native primary/secondary parity and explicit assignment ownership accepted; wildcard precedence remains |
+| Density and roles | Public set/get/apply density; normal/title/section/secondary/code/primary/destructive roles; public spacing query; UIL registration | Density API and spacing accepted; roles and UIL pending |
 | Typography and geometry | Measured render tables throughout; DPI applied once; natural sizes and live updates | Pending |
 | Toggles and buttons | Strong check/radio/mixed states; 44x24 switch; connected segmented groups; coherent buttons | Pending |
 | Scrollbars and tracks | Refined arrow buttons, thumb, track, slider, scale and progress treatment | Pending |
@@ -53,7 +53,16 @@ passes all three profiles across ten classes. Existing classic-profile,
 live-transaction/reentrancy, gadget lifetime and allocation-failure rollback
 fixtures also pass on the same rebuilt library.
 
-Next foundation gates include density/role transactions, font ownership,
-application-wide wildcard override precedence and returning widgets constructed
+Density selection now uses the same transaction as profile selection. Native
+coverage includes both startup orders, light/dark/high-contrast, horizontal and
+vertical RowColumns, cached gadget geometry and overrides, equal-valued
+SetValues assignments, callback/value preservation, reentrancy, density rollback
+and scaled spacing queries. A failing native case exposed RowColumn copying old
+sibling padding into newly updated controls; cross-child normalization now runs
+after all resources are committed. Secondary gadget resources are included in
+appearance resolution, with ownership snapshots taken after Xt construction.
+
+Next foundation gates include role transactions, font ownership and measured
+control geometry/DPI, application-wide wildcard override precedence and returning widgets constructed
 under modern profiles to actual classic defaults. These are not established by
 the first parity fixture and remain part of the full implementation.
