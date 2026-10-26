@@ -10407,20 +10407,38 @@ XmTextFieldSetString(Widget w,
 	      return;
 	  }
 	  else {
-	      mod_value = XtMalloc((unsigned)
-				   ((length + 1) * tf->text.max_char_size));
-	      ret_val = wcstombs(mod_value, wbuf, (size_t)
-				 ((length + 1) * tf->text.max_char_size));
+	      if (tf->text.max_char_size <= 0 || length < 0 ||
+		  (size_t)(length + 1) >
+		  SIZE_MAX / (size_t)tf->text.max_char_size ||
+		  (size_t)(length + 1) >
+		  UINT_MAX / (size_t)tf->text.max_char_size) {
+		if (free_insert) XtFree((char*)wbuf);
+		XtFree((char*)orig_wbuf);
+		_XmAppUnlock(app);
+		return;
+	      }
+	      wbuf_bytes = (size_t)(length + 1) *
+		(size_t)tf->text.max_char_size;
+	      mod_value = XtMalloc((Cardinal)wbuf_bytes);
+	      if (mod_value == NULL) {
+		if (free_insert) XtFree((char*)wbuf);
+		XtFree((char*)orig_wbuf);
+		_XmAppUnlock(app);
+		return;
+	      }
+	      converted_length = wcstombs(mod_value, wbuf, wbuf_bytes);
 	      if (free_insert) {
 		  XtFree((char*)wbuf);
 		  free_insert = False;
 	      }
 	      XtFree((char*)orig_wbuf);
-	      if (ret_val < 0){
+	      if (converted_length == (size_t)-1 || converted_length > INT_MAX){
 		  XtFree(mod_value);
-		  length = strlen(value);
+		  mod_value = NULL;
+		  length = 0;
 	      } else {
 		  value = mod_value;
+		  length = (int)converted_length;
 	      }
 	  }
       }

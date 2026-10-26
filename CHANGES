@@ -20308,6 +20308,8 @@ Guard wide text-field modify-verify allocation (2026-10-26)
 
 - Bound the temporary wide-character buffer, check allocation failure, and
   avoid narrowing an unsuccessful or oversized `mbstowcs` result to `int`.
+- Apply equivalent bounds and cleanup to the callback-converted multibyte
+  buffer.
 
 Reject oversized text-field setter lengths (2026-10-26)
 ========================================================

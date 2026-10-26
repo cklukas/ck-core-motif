@@ -14,5 +14,7 @@ assert "wbuf = (wchar_t*)XtMalloc((Cardinal)wbuf_bytes);" in function
 assert "if (wbuf == NULL)" in function
 assert "converted_length == (size_t)-1" in function
 assert "converted_length > INT_MAX" in function
+assert "mod_value = XtMalloc((Cardinal)wbuf_bytes);" in function
+assert "if (mod_value == NULL)" in function
 
 print("PASS wide text-field setter checks modify-verify allocation")
