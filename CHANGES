@@ -283,6 +283,14 @@ Bound extended text-segment separator scans (2026-10-27)
 - Reject a missing separator without reading past the segment buffer.
 - Add a focused source regression and documentation.
 
+Bound legacy file-selection restore strings (2026-10-27)
+========================================================
+
+- Keep directory and mask lengths in `size_t` and validate their combined
+  allocation before narrowing to Xt's allocation type.
+- Reject unrepresentable restored filter strings without truncation or wrap.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 

@@ -1601,8 +1601,8 @@ _XmFileSelectionBoxRestore(
             String          itemString ;
             String          dir ;
             String          mask ;
-            int             dirLen ;
-            int             maskLen ;
+            size_t          dirLen ;
+            size_t          maskLen ;
             Widget          activeChild ;
 /****************/
 
@@ -1623,7 +1623,13 @@ _XmFileSelectionBoxRestore(
             if(   (mask = _XmStringGetTextConcat( FS_Pattern( fsb))) != NULL   )
             {   
                 maskLen = strlen( mask) ;
-                itemString = XtMalloc( dirLen + maskLen + 1) ;
+                if (dirLen > SIZE_MAX - maskLen ||
+                    dirLen + maskLen > (size_t)UINT_MAX - 1) {
+                    XtFree(mask);
+                    XtFree(dir);
+                    return;
+                }
+                itemString = XtMalloc((Cardinal)(dirLen + maskLen + 1)) ;
                 if (itemString != NULL) {
                     strcpy( itemString, dir) ;
                     strcpy( &itemString[dirLen], mask) ;
