@@ -301,7 +301,7 @@ static void Toggle(Widget widget, XEvent *event, String *params,
 }
 
 Boolean XmToggleSwitchGetState(Widget widget) {
-    if (!XmIsToggleSwitch(widget)) return False;
+    if (widget == NULL || !XmIsToggleSwitch(widget)) return False;
     return ((XmToggleSwitchWidget)widget)->toggle_switch.set;
 }
 
@@ -309,7 +309,7 @@ void XmToggleSwitchSetState(Widget widget, Boolean state, Boolean notify) {
     XmToggleSwitchWidget sw;
     XmToggleSwitchCallbackStruct callback;
     Boolean changed;
-    if (!XmIsToggleSwitch(widget)) return;
+    if (widget == NULL || !XmIsToggleSwitch(widget)) return;
     sw = (XmToggleSwitchWidget)widget;
     state = state ? True : False;
     changed = sw->toggle_switch.set != state;
