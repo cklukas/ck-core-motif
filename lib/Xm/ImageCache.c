@@ -2014,6 +2014,7 @@ XmGetPixmap(
         Pixel foreground,
         Pixel background )
 {
+    XmAccessColorDataRec acc_color_rec;
     Pixmap	ret_val;
 
     if (screen == NULL || image_name == NULL)
@@ -2022,8 +2023,16 @@ XmGetPixmap(
     XtAppContext app = XtDisplayToApplicationContext(
 				DisplayOfScreen(screen));
     _XmAppLock(app);
-    ret_val = XmGetPixmapByDepth(screen, image_name, foreground, background,
-				 DefaultDepthOfScreen(screen));
+    _XmProcessLock();
+    acc_color_rec.foreground = foreground;
+    acc_color_rec.background = background;
+    acc_color_rec.top_shadow_color = XmUNSPECIFIED_PIXEL;
+    acc_color_rec.bottom_shadow_color = XmUNSPECIFIED_PIXEL;
+    acc_color_rec.select_color = XmUNSPECIFIED_PIXEL;
+    acc_color_rec.highlight_color = XmUNSPECIFIED_PIXEL;
+    ret_val = _XmGetScaledPixmap(screen, NULL, image_name, &acc_color_rec,
+				 DefaultDepthOfScreen(screen), False, 1);
+    _XmProcessUnlock();
     _XmAppUnlock(app);
 
     return (ret_val);

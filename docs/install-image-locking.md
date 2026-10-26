@@ -8,4 +8,10 @@ process-locking and allocation contract. The public wrapper no longer acquires
 the same process lock around the synchronized helper, avoiding a deadlock when
 Xt is configured with a non-recursive process lock.
 
-The focused regression is `tests/automated/check-xm-install-locking.py`.
+`XmGetPixmap` follows the same rule: it calls the synchronized scaled-pixmap
+helper directly instead of calling `XmGetPixmapByDepth` while holding the
+application lock. This prevents a second lock acquisition on the public
+compatibility wrapper.
+
+The focused regressions are `tests/automated/check-xm-install-locking.py` and
+`tests/automated/check-xm-get-pixmap-locking.py`.

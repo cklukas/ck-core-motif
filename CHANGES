@@ -1,3 +1,10 @@
+Avoid nested application locking in XmGetPixmap (2026-10-27)
+=============================================================
+
+- Route the compatibility wrapper directly through the synchronized scaled
+  pixmap helper, avoiding a recursive lock acquisition in XmGetPixmapByDepth.
+- Add a focused source regression and document the locking contract.
+
 Gallery layout refresh and embedded SVG dialog artwork (2026-10-26)
 ===================================================================
 
