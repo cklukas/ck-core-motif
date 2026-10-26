@@ -53,6 +53,7 @@ static char rcsid[] = "$TOG: UilSrcSrc.c /main/13 1997/03/12 15:21:40 dbl $"
 **/
 
 #include "UilDefI.h"
+#include <stdint.h>
 
 /* %COMPLETE */
 #include <sys/stat.h>
@@ -1152,7 +1153,8 @@ src_append_diag_info( XmConst src_source_record_type *az_src_rec,
                       XmConst int                     l_msg_number )
 {
     src_message_item_type	    *az_msg_item;
-    int			    	    l_msg_length;
+    size_t                          l_msg_length;
+    size_t                          allocation_size;
     src_message_item_type	    *current;
     src_message_item_type   	    **prior;
 
@@ -1161,9 +1163,14 @@ src_append_diag_info( XmConst src_source_record_type *az_src_rec,
     */
 
     l_msg_length = strlen( c_msg_text ) + 1;	/* includes null */
+    if (l_msg_length > SIZE_MAX - sizeof(src_message_item_type))
+	return;
+    allocation_size = sizeof(src_message_item_type) + l_msg_length;
 
     az_msg_item = (src_message_item_type *)
-	_get_memory( sizeof( src_message_item_type ) + l_msg_length );
+	_get_memory( allocation_size );
+    if (az_msg_item == NULL)
+	return;
 
     az_msg_item->l_message_number = l_msg_number;
     az_msg_item->b_source_pos = l_src_pos;
@@ -1241,7 +1248,8 @@ src_append_machine_code ( src_source_record_type *az_src_rec,
                           XmConst char           *c_text_arg )
 {
     src_machine_code_type   *az_code_item;
-    int			    l_text_len;
+    size_t                      l_text_len;
+    size_t                      allocation_size;
     XmConst char	    *c_text;
 
     if (c_text_arg == NULL) {
@@ -1255,9 +1263,17 @@ src_append_machine_code ( src_source_record_type *az_src_rec,
     */
 
     l_text_len = strlen( c_text ) + 1;	/* includes null */
+    if (l_text_len > SIZE_MAX - sizeof(src_machine_code_type) ||
+	    l_code_len < 0 ||
+	    (size_t)l_code_len > SIZE_MAX - sizeof(src_machine_code_type) - l_text_len)
+	return;
+    allocation_size = sizeof(src_machine_code_type) + l_text_len +
+	(size_t)l_code_len;
 
     az_code_item = (src_machine_code_type *) _get_memory(
-		sizeof( src_machine_code_type ) + l_text_len + l_code_len );
+		 allocation_size );
+    if (az_code_item == NULL)
+	return;
 
     az_code_item -> w_offset = l_offset;
     az_code_item -> w_code_len = l_code_len;

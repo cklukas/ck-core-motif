@@ -1,3 +1,11 @@
+Bound UIL source-record allocations (2026-10-27)
+================================================
+
+- Keep diagnostic and machine-code payload lengths in `size_t`, reject
+  negative or overflowing record sizes, and handle allocator failure before
+  dereferencing the flexible-tail records.
+- Add a focused source regression and documentation.
+
 Bound MWM screen-name allocation length (2026-10-27)
 ====================================================
 
