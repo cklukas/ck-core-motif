@@ -157,6 +157,14 @@ Guard text initialization wide-string conversion (2026-10-27)
   failure.
 - Add a focused source regression and documentation.
 
+Guard text SetValues wide-string conversion (2026-10-27)
+==========================================================
+
+- Bound and check the runtime `XmNwcValue` conversion buffer.
+- Apply the new value only after successful `wcstombs` conversion and keep
+  the existing source value on failure.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 

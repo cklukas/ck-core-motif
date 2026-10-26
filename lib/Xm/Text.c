@@ -2770,27 +2770,41 @@ SetValues(Widget oldw,
     /* user set XmNvalueWcs resource - it rules ! */
     wchar_t * wc_value;
     char * tmp_value;
-    int num_chars, n_bytes;
+    int num_chars;
+    size_t n_bytes, allocation_bytes;
     
     num_chars = n_bytes = 0;
     
     for (num_chars = 0, wc_value = newtw->text.wc_value;
-	 wc_value[num_chars] != 0L;) num_chars++;
-    
-    tmp_value = XtMalloc((unsigned) 
-			 (num_chars + 1) * (int)newtw->text.char_size);
-    n_bytes = wcstombs(tmp_value, newtw->text.wc_value,
-		       (num_chars + 1) * (int)newtw->text.char_size);
-    if (n_bytes == -1) n_bytes = 0;
-    tmp_value[n_bytes] = 0;  /* NULL terminate the string */
-    o_redisplay = newtw->text.needs_redisplay;
+	 wc_value[num_chars] != 0L; num_chars++) {
+      if (num_chars == INT_MAX)
+	break;
+    }
+
+    tmp_value = NULL;
+    if (num_chars != INT_MAX && newtw->text.char_size > 0 &&
+	(size_t)(num_chars + 1) <=
+	  (size_t)UINT_MAX / (size_t)newtw->text.char_size) {
+      allocation_bytes = (size_t)(num_chars + 1) *
+	(size_t)newtw->text.char_size;
+      tmp_value = XtMalloc((Cardinal)allocation_bytes);
+    }
+    if (tmp_value != NULL) {
+      n_bytes = wcstombs(tmp_value, newtw->text.wc_value,
+			 allocation_bytes);
+      if (n_bytes != (size_t)-1 && n_bytes < allocation_bytes) {
+	tmp_value[n_bytes] = 0;  /* NULL terminate the string */
+	o_redisplay = newtw->text.needs_redisplay;
+        newtw->text.wc_value = NULL;
+        newtw->text.value = NULL;
+        _XmStringSourceSetValue(newtw, tmp_value);
+        need_text_redisplay = newtw->text.needs_redisplay;
+        newtw->text.needs_redisplay = o_redisplay;
+        need_new_cursorPos = True;
+      }
+      XtFree(tmp_value);
+    }
     newtw->text.wc_value = NULL;
-    newtw->text.value = NULL;
-    _XmStringSourceSetValue(newtw, tmp_value);
-    need_text_redisplay = newtw->text.needs_redisplay;
-    newtw->text.needs_redisplay = o_redisplay;
-    XtFree(tmp_value);
-    need_new_cursorPos = True;
   } else if (newtw->text.value != NULL) {
     char * tmp_value;
     
