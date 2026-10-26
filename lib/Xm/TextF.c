@@ -9559,11 +9559,19 @@ PreeditDraw(XIC xic,
         if (rest_len){
             if (tf->text.max_char_size == 1){
                 over_mb = XtMalloc(rest_len+1);
+                if (over_mb == NULL) {
+                    XtFree(mb);
+                    return;
+                }
                bcopy(&tf->text.value[PreStart(tf)+call_data->chg_first+
                                 call_data->chg_length], over_mb, rest_len);
                 over_mb[rest_len] = '\0';
             } else {
                 over_wc = (wchar_t *)XtMalloc((rest_len+1)*sizeof(wchar_t));
+                if (over_wc == NULL) {
+                    XtFree((char *)wc);
+                    return;
+                }
                 bcopy((char *)&tf->text.wc_value[PreStart(tf)+
                         call_data->chg_first+call_data->chg_length],
                         (char *)over_wc, rest_len*sizeof(wchar_t));
@@ -9586,11 +9594,19 @@ PreeditDraw(XIC xic,
         if (call_data->text) {
         if (call_data->text->encoding_is_wchar){
             mb = XtMalloc((insert_length+1)*sizeof(char));
+            if (mb == NULL) {
+                XtFree(over_mb);
+                return;
+            }
             wcstombs(mb, call_data->text->string.wide_char, insert_length);
             mb[insert_length] = '\0';
         } else
         {
             mb = XtMalloc((insert_length+1)*sizeof(char));
+            if (mb == NULL) {
+                XtFree(over_mb);
+                return;
+            }
             strcpy(mb, call_data->text->string.multi_byte);
         }
 	}
@@ -9629,12 +9645,20 @@ PreeditDraw(XIC xic,
         if (!call_data->text->encoding_is_wchar){
             wc = (wchar_t*)XtMalloc((unsigned)(insert_length+1) *
                                              sizeof(wchar_t));
+            if (wc == NULL) {
+                XtFree((char *)over_wc);
+                return;
+            }
             mbstowcs( wc, call_data->text->string.multi_byte,
                                                         insert_length);
         } else
         {
             wc = (wchar_t*)XtMalloc((unsigned)(insert_length+1) *
                                              sizeof(wchar_t));
+            if (wc == NULL) {
+                XtFree((char *)over_wc);
+                return;
+            }
             wcscpy(wc, call_data->text->string.wide_char);
         }
         wc[insert_length] = (wchar_t) '\0';
