@@ -1112,6 +1112,9 @@ void GetTextBox (ClientData *pcd, XRectangle *pBox)
     XmFontList  fontList;
 #endif /* WSM */
 
+    if (pcd == NULL || pBox == NULL)
+	return;
+
     /* get size of title area */
 
     if (!GetFramePartInfo (pcd, FRAME_TITLE, &x, &y, &width, &height))
