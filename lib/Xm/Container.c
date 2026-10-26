@@ -9845,6 +9845,9 @@ XmContainerCut(
 	XmContainerWidget       cw = (XmContainerWidget)wid;
 	Boolean			status;
 
+	if (wid == NULL)
+	    return False;
+
 	_XmWidgetToAppContext(wid);
 	_XmAppLock(app);
 
@@ -9871,6 +9874,9 @@ XmContainerCopy(
 {
 	XmContainerWidget	cw = (XmContainerWidget)wid;
         Boolean         	status;
+
+	if (wid == NULL)
+	    return False;
 
 	_XmWidgetToAppContext(wid);
 	_XmAppLock(app);
@@ -9908,6 +9914,9 @@ XmContainerCopyLink(
 {
         XmContainerWidget       cw = (XmContainerWidget)wid;
         Boolean         	status;
+
+	if (wid == NULL)
+	    return False;
 
 	_XmWidgetToAppContext(wid);
 	_XmAppLock(app);

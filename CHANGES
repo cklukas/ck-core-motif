@@ -1,3 +1,12 @@
+Guard Container clipboard command inputs (2026-10-27)
+======================================================
+
+- Reject null widgets before context setup in `XmContainerCut`,
+  `XmContainerCopy`, and `XmContainerCopyLink`.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard vertical pixel conversion inputs (2026-10-27)
 ====================================================
 
