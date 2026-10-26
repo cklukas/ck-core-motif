@@ -1717,11 +1717,11 @@ PaintCursor(XmTextFieldWidget tf)
   XmTextPosition position;
   
   if (!TextF_CursorPositionVisible(tf)) return;
-  
-  _XmTextFToggleCursorGC((Widget)tf);
-  
+
   position = TextF_CursorPosition(tf);
-  (void) GetXYFromPos(tf, position, &x, &y);
+  if (!GetXYFromPos(tf, position, &x, &y)) return;
+
+  _XmTextFToggleCursorGC((Widget)tf);
   
   if (!tf->text.overstrike)
     x -=(tf->text.cursor_width >> 1) + 1; /* "+1" for 1 pixel left of char */

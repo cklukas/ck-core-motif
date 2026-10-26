@@ -20060,6 +20060,13 @@ Bound TextField full-GC clipping (2026-10-26)
 - Clamp clip origins before installing them on X11.
 - Add focused regression coverage and documentation.
 
+Guard TextField cursor painting geometry (2026-10-26)
+=====================================================
+
+- Stop cursor painting when position-to-pixel conversion cannot produce a
+  representable X11 coordinate instead of drawing at the origin.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
