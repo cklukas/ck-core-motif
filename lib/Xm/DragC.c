@@ -1579,15 +1579,24 @@ DropConvertIncrCallback(
     
     /* add code to handle TARGET target automatically if not there yet */
     if ((! returnVal) && (*target == atoms[XmATARGETS])) {
-	int len = sizeof(Atom) * dc->drag.numExportTargets;
+	size_t len;
+	if ((size_t)dc->drag.numExportTargets >
+	    (size_t)INT_MAX / sizeof(Atom) ||
+	    (dc->drag.numExportTargets != 0 &&
+	     dc->drag.exportTargets == NULL))
+	    return False;
+	len = sizeof(Atom) * (size_t)dc->drag.numExportTargets;
  
 	if (dc->drag.incremental & 0x2) {
 	    dc->drag.incremental = 1;
 	    *valueRtn = NULL;
 	    *lengthRtn = 0;
 	} else {
-	    *valueRtn = XtMalloc(len);
-	    memmove(*valueRtn, dc->drag.exportTargets, len);
+	    *valueRtn = len != 0 ? XtMalloc(len) : NULL;
+	    if (len != 0 && *valueRtn == NULL)
+		return False;
+	    if (len != 0)
+		memmove(*valueRtn, dc->drag.exportTargets, len);
 	    *lengthRtn = dc->drag.numExportTargets;
 	    dc->drag.incremental = 3;
 	}
@@ -1673,9 +1682,18 @@ DropConvertCallback(
 
     /* add code to handle TARGET target automatically if not there yet */
     if ((! returnVal) && (*target == atoms[XmATARGETS])) {
-	int len = sizeof(Atom) * dc->drag.numExportTargets;
-	*valueRtn = XtMalloc(len);
-	memmove(*valueRtn, dc->drag.exportTargets, len);
+	size_t len;
+	if ((size_t)dc->drag.numExportTargets >
+	    (size_t)INT_MAX / sizeof(Atom) ||
+	    (dc->drag.numExportTargets != 0 &&
+	     dc->drag.exportTargets == NULL))
+	    return False;
+	len = sizeof(Atom) * (size_t)dc->drag.numExportTargets;
+	*valueRtn = len != 0 ? XtMalloc(len) : NULL;
+	if (len != 0 && *valueRtn == NULL)
+	    return False;
+	if (len != 0)
+	    memmove(*valueRtn, dc->drag.exportTargets, len);
 	*lengthRtn = dc->drag.numExportTargets;
 	*formatRtn = 32;
 	*typeRtn = XA_ATOM;

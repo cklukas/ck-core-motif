@@ -15445,3 +15445,12 @@ Bound drag receiver-info growth (2026-10-27)
 - Add a focused source regression and documentation.
 
 Validate ICC stream region inputs (2026-10-27)
+Bound automatic drag TARGETS conversion (2026-10-27)
+======================================================
+
+- Check atom-list size arithmetic and source pointers in normal and
+  incremental conversion paths.
+- Handle allocation failure before copying the generated target list.
+- Add a focused source regression and documentation.
+
+Bound drag receiver-info growth (2026-10-27)
