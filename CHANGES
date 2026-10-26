@@ -21199,3 +21199,10 @@ ShowActiveIconText now requires XGetWindowAttributes to succeed before using
 the icon frame's event mask. A frame that disappears during activation no
 longer leaves an uninitialized mask for XChangeWindowAttributes.
 
+Handle MWM confirmation-window geometry failure (2026-10-26)
+---------------------------------------------------------------
+GetWmClientInfo now checks XGetGeometry for confirmation windows before
+copying dimensions into client state. If the managed window disappears during
+initialization, MWM aborts that client setup instead of using uninitialized
+size and border values.
+

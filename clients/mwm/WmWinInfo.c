@@ -783,10 +783,15 @@ int i;
 	unsigned int cbWidth, cbHeight;
 	unsigned int depth;
 
-        XGetGeometry (DISPLAY, pCD->client, &root,
-		      &(pCD->clientX), &(pCD->clientY),
-		      &cbWidth, &cbHeight, 
-		      (unsigned int*)&(pCD->xBorderWidth), &depth);
+        if (!XGetGeometry (DISPLAY, pCD->client, &root,
+			   &(pCD->clientX), &(pCD->clientY),
+			   &cbWidth, &cbHeight,
+			   (unsigned int*)&(pCD->xBorderWidth), &depth))
+	{
+	    Warning ((char *)GETMESSAGE(70, 4,
+		"Could not query confirmation window geometry"));
+	    return (NULL);
+	}
 
         pCD->clientWidth = cbWidth;
         pCD->clientHeight = cbHeight;
