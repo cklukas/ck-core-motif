@@ -20,7 +20,7 @@ for name, functions, input_name in (
         assert "return XpmFileInvalid;" in before_init
         if function.startswith("XpmCreateImageFrom"):
             assert "display == NULL" in before_init
-            assert "image_return == NULL" in before_init
+            assert "image_return == NULL && shapeimage_return == NULL" in before_init
         else:
             assert "image == NULL" in before_init
             assert "info == NULL" in before_init

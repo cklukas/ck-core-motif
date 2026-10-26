@@ -52,7 +52,8 @@ XpmCreateImageFromData(
     int ErrorStatus;
     xpmData mdata;
 
-    if (display == NULL || data == NULL || image_return == NULL)
+    if (display == NULL || data == NULL ||
+	(image_return == NULL && shapeimage_return == NULL))
 	return XpmFileInvalid;
 
     xpmInitXpmImage(&image);

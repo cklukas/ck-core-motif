@@ -15242,6 +15242,8 @@ Validate in-memory XPM image arguments (2026-10-27)
 
 - Reject null input, display, and required output records in data and buffer
   image constructors before parser initialization.
+- Preserve shape-mask-only output by rejecting only when both output targets
+  are absent.
 - Add a focused source regression and documentation.
 
 Validate raw XPM-image output records (2026-10-27)
