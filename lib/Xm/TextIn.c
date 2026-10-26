@@ -2491,11 +2491,12 @@ MoveNextPage(Widget w,
    */
   if (y <= 0) {
     OutputData o_data = tw->text.output->data;
-    y += o_data->topmargin;
+    y = ClampTextPointCoordinate((int)y + o_data->topmargin);
   }
-  else {
+  else if (y > tw->text.output->data->font_ascent)
     y -= tw->text.output->data->font_ascent;
-  }
+  else
+    y = 0;
   
   newPos = (*tw->text.output->XYToPos)(tw, x, y);
   

@@ -19854,3 +19854,10 @@ Bound Text cursor-scroll parameters (2026-10-26)
   tables, and avoid overflow in large line-count calculations.
 - Saturate event coordinates before Position-based hit-testing.
 - Add focused regression coverage and documentation.
+
+Clamp Text next-page coordinates (2026-10-26)
+==============================================
+
+- Clamp both top-margin and font-ascent branches of `MoveNextPage`, preventing
+  signed `Position` wraparound at the top edge.
+- Add focused regression coverage and documentation.
