@@ -1,3 +1,10 @@
+Bound legacy Text source byte offsets (2026-10-27)
+==================================================
+
+- Centralize position-to-byte conversion for gap-buffer reads and movement,
+  rejecting unrepresentable positions before pointer arithmetic.
+- Widen internal gap distances and add a focused source regression/document.
+
 Bound legacy translation append arithmetic (2026-10-27)
 ========================================================
 

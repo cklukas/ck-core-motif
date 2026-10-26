@@ -101,6 +101,10 @@ static Boolean TextSourceRangeBytes(XmTextPosition from,
 					XmTextPosition to,
 					unsigned int char_size,
 					size_t *bytes);
+static Boolean TextSourceByteOffset(XmSourceData data,
+					XmTextPosition position,
+					size_t unit,
+					size_t *offset);
 
 /********    End Static Function Declarations    ********/
 
@@ -122,6 +126,21 @@ TextSourceRangeBytes(XmTextPosition from,
     if ((size_t)length > (SIZE_MAX / char_size) - 1)
 	return False;
     *bytes = ((size_t)length + 1) * char_size;
+    return True;
+}
+
+static Boolean
+TextSourceByteOffset(XmSourceData data,
+			     XmTextPosition position,
+			     size_t unit,
+			     size_t *offset)
+{
+    if (data == NULL || data->ptr == NULL || offset == NULL ||
+	position < 0 || unit == 0 || data->maxlength < 0 ||
+	(size_t)position > (size_t)data->maxlength ||
+	(size_t)position > SIZE_MAX / unit)
+	return False;
+    *offset = (size_t)position * unit;
     return True;
 }
 
@@ -762,25 +781,26 @@ _XmStringSourceSetGappedBuffer(XmSourceData data,
 			       XmTextPosition position) /* starting position */
 {
   XmTextWidget tw = (XmTextWidget) data->widgets[0];
-  int count, char_size = (tw->text.char_size < 3 ? 
-			  (int)tw->text.char_size :
-			  sizeof(wchar_t));
+  size_t count, byte_position;
+  size_t char_size = (tw->text.char_size < 3 ?
+			      (size_t)tw->text.char_size : sizeof(wchar_t));
+
+  if (!TextSourceByteOffset(data, position, char_size, &byte_position))
+	return;
   
   /* if no change in gap placement, return */
-  if (data->ptr + (position * char_size) == data->gap_start)
+  if (data->ptr + byte_position == data->gap_start)
     return;
   
-  if (data->ptr + (position * char_size) < data->gap_start) {
+	if (data->ptr + byte_position < data->gap_start) {
     /* move gap to the left */
-    count = data->gap_start - 
-      (data->ptr + (position * char_size));
-    memmove(data->gap_end - count, data->ptr + (position*char_size), count);
+    count = (size_t)(data->gap_start - (data->ptr + byte_position));
+    memmove(data->gap_end - count, data->ptr + byte_position, count);
     data->gap_start -= count; /* ie, data->gap_start = position; */
     data->gap_end -= count;   /* ie, data->gap_end = position + gap_size; */
   } else {
     /* move gap to the right */
-    count = (data->ptr + 
-	     (position * char_size)) - data->gap_start;
+    count = (size_t)((data->ptr + byte_position) - data->gap_start);
     memmove(data->gap_start, data->gap_end, count);
     data->gap_start += count; /* ie, data->gap_start = position; */
     data->gap_end += count;   /* ie, data->gap_end = position + gap_size; */
@@ -796,10 +816,20 @@ _XmStringSourceReadString(XmTextSource source,
 {
   XmSourceData data = source->data;
   XmTextWidget tw = (XmTextWidget) data->widgets[0];
-  int gap_size = data->gap_end - data->gap_start;
-  int byte_start = start * (tw->text.char_size < 3 ?
-			    (int)tw->text.char_size :
-			    sizeof(wchar_t));
+  size_t gap_size, byte_start, unit;
+
+  unit = tw->text.char_size < 3 ? (size_t)tw->text.char_size :
+						 sizeof(wchar_t);
+  if (block == NULL ||
+      !TextSourceByteOffset(data, (XmTextPosition)start, unit,
+					    &byte_start)) {
+    if (block != NULL) {
+      block->ptr = NULL;
+      block->length = 0;
+    }
+    return;
+  }
+  gap_size = (size_t)(data->gap_end - data->gap_start);
   
   if (data->ptr + byte_start + block->length <= data->gap_start)
     block->ptr = data->ptr + byte_start;
