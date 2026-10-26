@@ -143,14 +143,15 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                ? XtGeometryYes : XtGeometryAlmost;
 }
 void XmPromptSetVisible(Widget widget, Boolean visible) {
-    if (!XmIsPrompt(widget)) return;
+    if (widget == NULL || !XmIsPrompt(widget)) return;
     if (((XmPromptWidget)widget)->prompt.visible != visible) {
         ((XmPromptWidget)widget)->prompt.visible = visible;
         if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
     }
 }
 Boolean XmPromptGetVisible(Widget widget) {
-    return XmIsPrompt(widget) ? ((XmPromptWidget)widget)->prompt.visible : False;
+    return widget != NULL && XmIsPrompt(widget)
+        ? ((XmPromptWidget)widget)->prompt.visible : False;
 }
 Widget XmCreatePrompt(Widget parent, char *name, ArgList args, Cardinal count) { return XtCreateWidget(name, xmPromptWidgetClass, parent, args, count); }
 Widget XmVaCreatePrompt(Widget parent, char *name, ...) { Widget w; va_list v; int n; Va_start(v,name); n=XmeCountVaListSimple(v); va_end(v); Va_start(v,name); w=XmeVLCreateWidget(name,xmPromptWidgetClass,parent,False,v,n); va_end(v); return w; }
