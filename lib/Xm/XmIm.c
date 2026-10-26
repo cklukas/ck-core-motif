@@ -821,6 +821,10 @@ XmImCloseXIM(Widget w)
   int height, base_height;
   Arg args[1];
   XtWidgetGeometry my_request;
+
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);
   
   _XmAppLock(app);

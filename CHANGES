@@ -1,3 +1,12 @@
+Guard XIM close input (2026-10-27)
+==================================
+
+- Return before application-context lookup when `XmImCloseXIM` receives a
+  null widget.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard XIM query input (2026-10-27)
 ==================================
 
