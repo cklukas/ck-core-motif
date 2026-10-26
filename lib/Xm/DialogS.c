@@ -868,7 +868,8 @@ XmeCreateClassDialog(
 	XtFree(ds_name);
 	return NULL;
     }
-    memcpy( ds_args, bb_args, (sizeof( Arg) * bb_n)) ;
+    if (bb_n != 0)
+	memcpy(ds_args, bb_args, sizeof(Arg) * (size_t)bb_n);
     XtSetArg( ds_args[bb_n], XmNallowShellResize, True) ; 
     ds = XmCreateDialogShell( ds_p, ds_name, ds_args, bb_n + 1) ;
 

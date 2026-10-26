@@ -52,6 +52,15 @@ Guard scale tick-generation input (2026-10-27)
 
 ============================================================
 
+Avoid zero-length dialog argument copy (2026-10-27)
+===================================================
+
+- Skip `memcpy` when `XmeCreateClassDialog` receives a zero-length argument
+  list, avoiding undefined null-pointer use under strict tooling.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard dialog shell parent inputs (2026-10-27)
 ==============================================
 
