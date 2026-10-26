@@ -1562,8 +1562,10 @@ _XmTextFindLineEnd(XmTextWidget tw,
     if (!capture || !capture->layout) return PASTENDPOS;
     if (extra) {
       *extra = (LineTableExtra)XtMalloc((unsigned)sizeof(LineTableExtraRec));
-      (*extra)->wrappedbychar = capture->end < capture->paragraph_end;
-      (*extra)->width = (int)ceil(XmTextLayoutWidth(capture->layout)) + data->leftmargin + data->rightmargin;
+      if (*extra) {
+        (*extra)->wrappedbychar = capture->end < capture->paragraph_end;
+        (*extra)->width = (int)ceil(XmTextLayoutWidth(capture->layout)) + data->leftmargin + data->rightmargin;
+      }
     }
     if (capture->end < capture->paragraph_end) return capture->end;
     next = (*tw->text.source->Scan)(tw->text.source, capture->end, XmSELECT_LINE, XmsdRight, 1, True);
@@ -1615,8 +1617,10 @@ _XmTextFindLineEnd(XmTextWidget tw,
 	    if (extra) {
 	      *extra = (LineTableExtra)
 	        XtMalloc((unsigned) sizeof(LineTableExtraRec));
-	      (*extra)->wrappedbychar = True;
-	      (*extra)->width = 0;
+		      if (*extra) {
+		        (*extra)->wrappedbychar = True;
+		        (*extra)->width = 0;
+		      }
 	    }
 	    return oldpos; /* Allows one whitespace char to appear */
 	    /* partially off the edge. */
@@ -1624,8 +1628,10 @@ _XmTextFindLineEnd(XmTextWidget tw,
 	  if (extra) {
 	    *extra = (LineTableExtra)
 	      XtMalloc((unsigned) sizeof(LineTableExtraRec));
-	    (*extra)->wrappedbychar = True;
-	    (*extra)->width = 0;
+	    if (*extra) {
+	      (*extra)->wrappedbychar = True;
+	      (*extra)->width = 0;
+	    }
 	  }
 	  if ((int)tw->text.char_size == 1) {
 	    for (i=length - 1; i>=0 && y > goalheight; i--) {
@@ -1734,8 +1740,10 @@ _XmTextFindLineEnd(XmTextWidget tw,
 	  if (extra) {
 	    *extra = (LineTableExtra)
 	      XtMalloc((unsigned) sizeof(LineTableExtraRec));
-	    (*extra)->wrappedbychar = True;
-	    (*extra)->width = 0;
+	    if (*extra) {
+	      (*extra)->wrappedbychar = True;
+	      (*extra)->width = 0;
+	    }
 	  }
 	  return oldpos; /* Allows one whitespace char to appear */
 	  /* partially off the edge. */
@@ -1743,8 +1751,10 @@ _XmTextFindLineEnd(XmTextWidget tw,
 	if (extra) {
 	  *extra = (LineTableExtra)
 	    XtMalloc((unsigned) sizeof(LineTableExtraRec));
-	  (*extra)->wrappedbychar = True;
-	  (*extra)->width = 0;
+	  if (*extra) {
+	    (*extra)->wrappedbychar = True;
+	    (*extra)->width = 0;
+	  }
 	}
 	if ((int)tw->text.char_size == 1) {
 	  for (i=length - 1; i>=0 && x > goalwidth; i--) {
@@ -2523,7 +2533,8 @@ MeasureLine(XmTextWidget tw,
 		         XmIsScrolledWindow(XtParent(tw))))) {
 	    (*extra) = (LineTableExtra)
 	      XtMalloc((unsigned) sizeof(LineTableExtraRec));
-	    (*extra)->wrappedbychar = False;
+	    if (*extra)
+	      (*extra)->wrappedbychar = False;
 	    height = data->topmargin;
 	    temp = position;
 	    while (temp < last_position) {
@@ -2532,7 +2543,8 @@ MeasureLine(XmTextWidget tw,
 	      height += FindHeight(tw, (Position) width, &block,
 			           0, block.length);
 	    }
-	    (*extra)->width = height + data->bottommargin;
+	    if (*extra)
+	      (*extra)->width = height + data->bottommargin;
 	  }
 	} else {
 	if (extra && (data->resizewidth || 
@@ -2540,13 +2552,15 @@ MeasureLine(XmTextWidget tw,
 		       XmIsScrolledWindow(XtParent(tw))))) {
 	  (*extra) = (LineTableExtra)
 	    XtMalloc((unsigned) sizeof(LineTableExtraRec));
-	  (*extra)->wrappedbychar = False;
+	  if (*extra)
+	    (*extra)->wrappedbychar = False;
 #if USE_XFT
           if (UsesUnicodeParagraphs(tw)) {
             struct _XmTextParagraphCache *paragraph = UnicodeParagraph(tw, position);
-            (*extra)->width = paragraph && paragraph->layout ?
-              (int)ceil(XmTextLayoutWidth(paragraph->layout)) + data->leftmargin + data->rightmargin :
-              data->leftmargin + data->rightmargin;
+            if (*extra)
+              (*extra)->width = paragraph && paragraph->layout ?
+                (int)ceil(XmTextLayoutWidth(paragraph->layout)) + data->leftmargin + data->rightmargin :
+                data->leftmargin + data->rightmargin;
           } else
 #endif
           {
@@ -2558,7 +2572,8 @@ MeasureLine(XmTextWidget tw,
 	    width += FindWidth(tw, (Position) width, &block,
 			       0, block.length);
 	  }
-	  (*extra)->width = width + data->rightmargin;
+	  if (*extra)
+	    (*extra)->width = width + data->rightmargin;
           }
 	}
         }

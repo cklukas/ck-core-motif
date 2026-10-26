@@ -23021,3 +23021,10 @@ Guard TextOut allocations (2026-10-26)
   failures without null dereferences.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textout-allocation-guards.py
+
+Guard TextOut line-wrap metadata allocations (2026-10-26)
+===========================================================
+- Treat optional line-wrap metadata as absent when its allocation fails,
+  avoiding null dereferences while preserving layout results.
+- Extend the focused regression coverage and documentation.
+Regression: tests/automated/check-textout-allocation-guards.py

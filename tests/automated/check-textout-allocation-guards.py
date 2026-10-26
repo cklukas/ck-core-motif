@@ -20,5 +20,6 @@ baselines = source[source.index("*line_count = data->number_lines;"):
                    source.index("*baselines = base_array;", source.index("*line_count = data->number_lines;"))]
 assert "if (*line_count <= 0)" in baselines
 assert "if (base_array == NULL)" in baselines
+assert source.count("if (*extra)") >= 7
 
 print("TextOut allocation guards are present")
