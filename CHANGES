@@ -20894,3 +20894,8 @@ Guard MWM frame-state helpers (2026-10-26)
 SetFrameInfo and SetClientOffset now no-op for null clients, while
 XBorderIsShowing returns False.  Valid frame-state updates and border queries
 are unchanged.
+
+Guard MWM title metrics (2026-10-26)
+------------------------------------
+TitleTextHeight and InitTitleBarHeight now return zero for null client
+records instead of reading title appearance or decoration state.

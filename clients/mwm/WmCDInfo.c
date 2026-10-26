@@ -68,6 +68,9 @@ unsigned int TitleTextHeight (ClientData *pcd)
 {
     unsigned int ttextheight;
 
+    if (pcd == NULL)
+	return (0);
+
 #ifndef NO_MULTIBYTE
     if (DECOUPLE_TITLE_APPEARANCE(pcd))
     {
@@ -134,6 +137,9 @@ unsigned int TitleTextHeight (ClientData *pcd)
 unsigned int InitTitleBarHeight (ClientData *pcd)
 {
     unsigned int tbarheight;
+
+    if (pcd == NULL)
+	return (0);
 
     if (pcd->decor & MWM_DECOR_TITLE)
     {
