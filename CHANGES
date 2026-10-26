@@ -1,3 +1,13 @@
+Bound XIM preedit callback lengths (2026-10-27)
+================================================
+
+- Keep the XIM preedit length at callback width and reject negative values
+  before applying the existing size limit, preventing 16-bit wraparound from
+  admitting oversized preedit input.
+- Add a focused source regression and documentation.
+
+================================================
+
 Preserve XmString byte-compare lengths (2026-10-27)
 ====================================================
 

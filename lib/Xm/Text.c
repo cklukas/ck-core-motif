@@ -3715,7 +3715,7 @@ PreeditDraw(XIC xic,
   XmTextPosition startPos, endPos, rest_len, tmp_end;
   char *mb, *over_mb;
   XmTextBlockRec block;
-  unsigned short insert_length=0;
+  int insert_length=0;
   int i;
   int total_mb_len;
   int recover_len = 0;
@@ -3737,7 +3737,8 @@ PreeditDraw(XIC xic,
 
   /* have we exceeded max size of preedit buffer? - then punt */
   if (call_data->text &&
-      ((insert_length = call_data->text->length) > TEXT_MAX_INSERT_SIZE))
+      (call_data->text->length < 0 ||
+       (insert_length = call_data->text->length) > TEXT_MAX_INSERT_SIZE))
     return;
 
   if (call_data->chg_length>PreEndTW(tw)-PreStartTW(tw))
