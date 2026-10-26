@@ -3040,7 +3040,8 @@ again:
             {
                 size_t used = outp - dest;
 
-                if (outbuf_size > SIZE_MAX / 2) {
+                if (outbuf_size > SIZE_MAX / 2 ||
+                    outbuf_size > (size_t)UINT_MAX / 2) {
                     XtFree(dest);
                     return NULL;
                 }

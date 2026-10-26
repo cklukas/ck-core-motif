@@ -16111,3 +16111,13 @@ Make compound-text property assembly linear (2026-10-27)
 
 Bound wide-string text-search conversion (2026-10-27)
 ======================================================
+Bound iconv output-buffer growth (2026-10-27)
+==============================================
+
+- Reject compound-text iconv buffer doubling beyond Xt’s `Cardinal` range,
+  preventing size truncation during conversion expansion.
+- Add a focused source regression and documentation.
+
+================================================
+
+Guard zero-length compound-text append (2026-10-27)
