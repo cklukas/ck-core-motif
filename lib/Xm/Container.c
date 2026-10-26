@@ -3592,7 +3592,9 @@ GetSpatialSize (
     if (CtrSpatialStyleIsCELLS(cw))
 	{
 	if ((size_t)cw->composite.num_children >
-	    SIZE_MAX / sizeof(XmContainerCwidCellInfoRec))
+	    SIZE_MAX / sizeof(XmContainerCwidCellInfoRec) ||
+	    (size_t)cw->composite.num_children >
+	    UINT_MAX / sizeof(XmContainerCwidCellInfoRec))
 	    return;
 	cwid_info = (ContainerCwidCellInfo)
 		XtCalloc(cw->composite.num_children,

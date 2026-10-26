@@ -20149,6 +20149,13 @@ Saturate Container header repositioning (2026-10-26)
   subtraction or assignment.
 - Add focused regression coverage and documentation.
 
+Bound Container CELLS ideal-size allocation (2026-10-26)
+========================================================
+
+- Check both host `size_t` and Xt `Cardinal` multiplication limits before
+  allocating the per-child CELLS geometry array.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
