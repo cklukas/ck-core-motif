@@ -697,10 +697,17 @@ unsigned int BaseWindowHeight (ClientData *pcd)
  *************************************<->***********************************/
 Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned int *pWidth, unsigned int *pHeight)
 {
-    unsigned int boxdim = TitleBarHeight (pcd);
-    unsigned long decor = pcd->decor;
+    unsigned int boxdim;
+    unsigned long decor;
     int vert, horiz;
     Boolean rval = FALSE;
+
+    if (pcd == NULL || pX == NULL || pY == NULL ||
+	 pWidth == NULL || pHeight == NULL)
+	return (FALSE);
+
+    boxdim = TitleBarHeight (pcd);
+    decor = pcd->decor;
     
     switch (part) 
     {

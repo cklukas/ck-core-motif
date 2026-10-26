@@ -20797,3 +20797,8 @@ Saturate text-field multibyte byte counting (2026-10-26)
 
 - Prevent the wide-character byte-count helper from wrapping its `int`
   accumulator when calculating substring sizes.
+Guard MWM frame-part geometry inputs (2026-10-26)
+--------------------------------------------------
+GetFramePartInfo now rejects a null client record or missing output pointers
+before reading decoration state or writing geometry.  Existing valid callers
+retain the same frame-part calculations while malformed requests fail safely.
