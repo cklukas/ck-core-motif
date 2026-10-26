@@ -19758,3 +19758,9 @@ Guard Text highlight snapshot growth (2026-10-26)
 - Check old-highlight snapshot reallocation before publishing its capacity or
   marking the snapshot changed, preserving valid state on allocation failure.
 - Add focused regression coverage and documentation.
+Bound shared Text-source highlight copies (2026-10-26)
+=========================================================
+
+- Reject highlight capacities that cannot fit both the host allocation size
+  and Xt's `Cardinal` argument before copying shared-source state.
+- Add focused regression coverage and documentation.
