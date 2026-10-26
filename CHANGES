@@ -22683,3 +22683,9 @@ Check DataField replacement growth arithmetic (2026-10-26)
   capacities before growing DataField storage.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-datafield-growth-arithmetic.py
+Bound Text character conversion byte counts (2026-10-26)
+==========================================================
+- Reject unrepresentable accumulated `wctomb` lengths in
+  `_XmTextCharactersToBytes` instead of wrapping the returned count.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-character-byte-count.py

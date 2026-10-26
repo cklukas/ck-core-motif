@@ -305,6 +305,8 @@ _XmTextCharactersToBytes(char * bytes,
       nbytes = wctomb(bytes, *wchars);
       if (nbytes < 0)
 	break; /* illegal char */
+      if (nbytes > INT_MAX - count)
+	break; /* unrepresentable byte count */
       count += nbytes;
       bytes += nbytes;
     }
