@@ -308,17 +308,19 @@ WriteColors(
 
 	for (key = 1; key <= NKEYS; key++, defaults++) {
 	    if ((s2 = *defaults)) {
-#ifndef VOID_SPRINTF
-		s +=
-#endif
-		/* assume C99 compliance */
-		snprintf(s, sizeof(buf) - (s-buf), "\t%s %s", xpmColorKeys[key - 1], s2);
-#ifdef VOID_SPRINTF
-		s += strlen(s);
-#endif
-		/* now let's check if s points out-of-bounds */
-		if((s-buf) > sizeof(buf))
+		size_t used = (size_t)(s - buf);
+		size_t available;
+		int written;
+
+		if (used >= sizeof(buf))
 			return(XpmNoMemory);
+		available = sizeof(buf) - used;
+		/* Do not advance by snprintf's required length after truncation. */
+		written = snprintf(s, available, "\t%s %s",
+				   xpmColorKeys[key - 1], s2);
+		if (written < 0 || (size_t)written >= available)
+			return(XpmNoMemory);
+		s += written;
 	    }
 	}
 	if(sizeof(buf) - (s-buf) < 4)

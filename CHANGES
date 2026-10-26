@@ -107,6 +107,14 @@ Bound XPM color serialization output (2026-10-26)
 - Add `tests/automated/check-xpm-create-colors-bounds.py` and document the
   serialization contract in `docs/xpm-color-output-bounds.md`.
 
+Bound XPM buffer color serialization (2026-10-26)
+===================================================
+
+- Reject truncated `snprintf` color descriptions before advancing the fixed
+  temporary line buffer in `WriteColors`.
+- Add `tests/automated/check-xpm-buffer-colors-bounds.py` and document the
+  buffer-export contract in `docs/xpm-buffer-color-output-bounds.md`.
+
 Bound ToggleButton default geometry (2026-10-27)
 ==================================================
 
