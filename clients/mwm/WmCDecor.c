@@ -2763,6 +2763,9 @@ Boolean DepressGadget (ClientData *pcd, int gadget, Boolean depressed)
 
 void PushGadgetIn (ClientData *pcd, int gadget)
 {
+    if (pcd == NULL)
+	return;
+
     switch (gadget) {
 	case FRAME_SYSTEM:
 	    pcd->decorFlags |= SYSTEM_DEPRESSED;
@@ -2815,6 +2818,9 @@ void PushGadgetIn (ClientData *pcd, int gadget)
 
 void PopGadgetOut (ClientData *pcd, int gadget)
 {
+    if (pcd == NULL)
+	return;
+
     switch (gadget) {
 	case FRAME_SYSTEM:
 	    pcd->decorFlags &= ~SYSTEM_DEPRESSED;
