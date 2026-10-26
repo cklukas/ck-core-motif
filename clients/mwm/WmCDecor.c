@@ -1317,6 +1317,9 @@ void DrawWindowTitle (ClientData *pcd, Boolean eraseFirst)
 	fontList = CLIENT_APPEARANCE(pcd).fontList;
     }
 
+    if (win == None)
+	return;
+
     if (eraseFirst)
     {
 	XClearArea (DISPLAY, win, textBox.x, textBox.y, 

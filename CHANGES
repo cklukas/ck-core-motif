@@ -21292,3 +21292,9 @@ FrameExposureProc and BaseWinExposureProc now validate their frame/base window
 IDs before issuing bevel drawing requests. Late exposure events after frame
 teardown are ignored instead of targeting destroyed drawables.
 
+Guard MWM window-title drawing drawable (2026-10-26)
+------------------------------------------------------
+DrawWindowTitle now verifies the selected frame/title drawable after resolving
+title appearance mode. Partial frame teardown can no longer send clear or text
+requests to a missing title window.
+
