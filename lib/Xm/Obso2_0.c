@@ -211,7 +211,7 @@ XmAppendTranslationText(char **buffer, size_t *used, size_t *capacity,
   size_t length = strlen(text);
   size_t required;
 
-  if (length > SIZE_MAX - *used - 1)
+  if (*used == SIZE_MAX || length > SIZE_MAX - *used - 1)
     return False;
   required = *used + length + 1;
   if (required > (size_t)UINT_MAX)

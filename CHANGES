@@ -1,3 +1,10 @@
+Bound legacy translation append arithmetic (2026-10-27)
+========================================================
+
+- Reject a wrapped used-length boundary in `_XmGetRealXlations`, keeping the
+  compatibility path aligned with ClipWindow's checked translation builder.
+- Extend the focused source regression and document the shared contract.
+
 Bound ClipWindow translation-buffer growth (2026-10-27)
 ========================================================
 
