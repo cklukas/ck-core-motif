@@ -23022,6 +23022,13 @@ Guard TextOut allocations (2026-10-26)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textout-allocation-guards.py
 
+Copy TextStrSo wide callback values before conversion (2026-10-26)
+====================================================================
+- Copy wide modify-verify callback text into owned, bounded storage before
+  termination and multibyte conversion.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textstrso-wide-callback-copy.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
