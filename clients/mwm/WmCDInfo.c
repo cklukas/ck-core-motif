@@ -714,6 +714,10 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
     {
 	case FRAME_SYSTEM:
 		if (decor & MWM_DECOR_MENU) {
+		    requiredWidth = (unsigned long)pcd->frameInfo.upperBorderWidth +
+			    boxdim;
+		    if (requiredWidth > pcd->frameInfo.width)
+			break;
 		    *pX = pcd->frameInfo.upperBorderWidth;
 		    *pY = pcd->frameInfo.upperBorderWidth;
 		    *pWidth = boxdim;
@@ -759,6 +763,12 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 
 	case FRAME_MINIMIZE:
 		if (decor & MWM_DECOR_MINIMIZE) {
+		    requiredWidth = (unsigned long)pcd->frameInfo.upperBorderWidth +
+			    boxdim;
+		    if (decor & MWM_DECOR_MAXIMIZE)
+			requiredWidth += boxdim;
+		    if (requiredWidth > pcd->frameInfo.width)
+			break;
 		    *pX = pcd->frameInfo.width - 
 			    pcd->frameInfo.upperBorderWidth - boxdim -
 			    ((decor & MWM_DECOR_MAXIMIZE) ? boxdim : 0);
@@ -771,6 +781,10 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 
 	case FRAME_MAXIMIZE:
 		if (decor & MWM_DECOR_MAXIMIZE) {
+		    requiredWidth = (unsigned long)pcd->frameInfo.upperBorderWidth +
+			    boxdim;
+		    if (requiredWidth > pcd->frameInfo.width)
+			break;
 		    *pX = pcd->frameInfo.width - 
 			    pcd->frameInfo.upperBorderWidth - boxdim;
 		    *pY = pcd->frameInfo.upperBorderWidth;
