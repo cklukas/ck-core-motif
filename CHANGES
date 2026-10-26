@@ -1,3 +1,11 @@
+Bound scaled-image row table traversal (2026-10-26)
+====================================================
+
+- Stop scaled source-row traversal at the allocated image height instead of
+  relying solely on rounded destination coordinates to terminate it.
+- Add focused regression coverage and documentation for malformed and
+  precision-edge image dimensions.
+
 Match scaled-image depth to target drawable (2026-10-26)
 ==========================================================
 

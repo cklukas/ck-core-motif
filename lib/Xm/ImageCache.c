@@ -2751,7 +2751,8 @@ void _XmPutScaledImage (
 	    strip_height = dest_height - min_y;
 	    max_y = dest_height;
 	}
-	for (y = (unsigned int)src_y; table.y[y] < max_y; y++) {
+	for (y = (unsigned int)src_y;
+	     y < image_height && table.y[y] < max_y; y++) {
 	    if (table.y[y] < min_y)
 		continue;
 	    if (fast8) {
