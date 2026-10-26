@@ -32,6 +32,8 @@ static char rcsid[] = "$TOG: TearOff.c /main/15 1997/08/21 14:19:26 csn $"
 
 
 #include <X11/cursorfont.h>
+#include <limits.h>
+#include <stdint.h>
 
 #include <Xm/AtomMgr.h>
 #include <Xm/BaseClassP.h>
@@ -375,7 +377,16 @@ DoPlacement(
 
    /* Determine which keycodes are bound to osfXK_Cancel. */
    num_keys = XmeVirtualToActualKeysyms(XtDisplay(rc), keysym, &keys);
-   KCancel = (KeyCode*) XtMalloc(num_keys * sizeof(KeyCode));
+   if (num_keys < 0 || (size_t)num_keys > SIZE_MAX / sizeof(KeyCode) ||
+       (size_t)num_keys > UINT_MAX / sizeof(KeyCode)) {
+     XtFree((char*) keys);
+     return False;
+   }
+   KCancel = (KeyCode*) XtMalloc((Cardinal)((size_t)num_keys * sizeof(KeyCode)));
+   if (KCancel == NULL && num_keys != 0) {
+     XtFree((char*) keys);
+     return False;
+   }
    for (index = 0; index < num_keys; index++)
      KCancel[index] = XKeysymToKeycode(XtDisplay(rc), keys[index].keysym);
    XtFree((char*) keys);

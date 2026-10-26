@@ -35,6 +35,15 @@ Bound Paned separator-array allocation (2026-10-27)
   temporary separator-child array during resource updates.
 - Add focused regression coverage and documentation.
 
+====================================================
+
+Bound tear-off cancel-key allocation (2026-10-27)
+==================================================
+
+- Validate the virtual Cancel-key count and allocation before populating the
+  temporary keycode array used during tear-off placement.
+- Add focused regression coverage and documentation.
+
 ===========================================================
 
 Propagate compound-text concatenation failures (2026-10-27)
