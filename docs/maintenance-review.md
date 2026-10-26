@@ -43,6 +43,13 @@ clear-selection resources change. The child buttons were already relaid out,
 but returning `False` from `SetValues` could leave the parent display stale.
 The regression check is `tests/automated/check-segmented-setvalues-redraw.py`.
 
+## Compound-string label ownership
+
+StatusBar, Toolbar, Toast, and Skeleton now use `XmStringCopy` when retaining
+caller-provided labels. The previous unparse/recreate round trip could discard
+compound-string charset segments before rendering. The regression check is
+`tests/automated/check-compound-label-copy.py`.
+
 ## IconLabel typography and natural geometry
 
 `XmIconLabel` now measures its `XmString` through the render table for both

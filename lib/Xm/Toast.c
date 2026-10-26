@@ -35,7 +35,7 @@ externaldef(xmtoastclassrec) XmToastClassRec xmToastClassRec = {
      .delete_child = XtInheritDeleteChild}, {.constraint_size = sizeof(XmManagerConstraintRec)},
     {.translations = XtInheritTranslations, .parent_process = XmInheritParentProcess}, {NULL}};
 externaldef(xmtoastwidgetclass) WidgetClass xmToastWidgetClass = (WidgetClass)&xmToastClassRec;
-static XmString copy_string(XmString source) { char *text; XmString result; if (!source) return XmStringCreateLocalized(""); text = XmStringUnparse(source, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL); if (!text) return XmStringCreateLocalized(""); result = XmStringCreateLocalized(text); XtFree(text); return result; }
+static XmString copy_string(XmString source) { return source ? XmStringCopy(source) : XmStringCreateLocalized(""); }
 static Boolean has_action(XmToastWidget toast) { char *text; Boolean result; if (!toast->toast.action_label) return False; text = XmStringUnparse(toast->toast.action_label, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL); result = text && *text; XtFree(text); return result; }
 static Dimension clamp_dimension(unsigned long value) { return (Dimension)(value > USHRT_MAX ? USHRT_MAX : value ? value : 1); }
 static void preferred(Widget child, Dimension *width, Dimension *height) { XtWidgetGeometry wanted; wanted.request_mode = 0; XtQueryGeometry(child, NULL, &wanted); *width = wanted.request_mode & CWWidth ? wanted.width : child->core.width; *height = wanted.request_mode & CWHeight ? wanted.height : child->core.height; }
