@@ -13,7 +13,7 @@ assert "new_entries = (String *)XtRealloc" in region
 assert "if (new_entries == NULL)" in region
 assert "*pNumAlloc = new_alloc;" in region
 assert "if (entryPtr == NULL)" in region
-assert "replacement = XtMalloc(dirNameLen + 1)" in region
+assert "replacement = XtMalloc((Cardinal)((size_t)dirNameLen + 1))" in region
 assert "if (replacement == NULL)" in region
 
 print("PASS Xmos directory-entry list allocation checks")

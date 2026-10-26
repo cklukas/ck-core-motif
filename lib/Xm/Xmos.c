@@ -133,7 +133,7 @@ static String GetQualifiedDir(String dirSpec);
 static String GetFixedMatchPattern(String pattern);
 static void FreeDirCache(void);
 static Boolean ResetCache(char *qDirName);
-static unsigned char AddEntryToCache(char *entryName, unsigned entryNameLen);
+static unsigned char AddEntryToCache(char *entryName, size_t entryNameLen);
 static int Wcslen(wchar_t *wcs);
 
 /********    End Static Function Declarations    ********/
@@ -183,7 +183,7 @@ ResetCache(char *qDirName)
 
 static unsigned char
 AddEntryToCache(char *entryName,
-		unsigned entryNameLen)
+		size_t entryNameLen)
 {   
   struct stat statBuf;
   unsigned char result = 0;
@@ -850,7 +850,7 @@ void
       while (TRUE)
 	{   
 	  char *dirName;
-	  unsigned dirNameLen = 0;
+      size_t dirNameLen = 0;
 	  
 	  if (loopCount < 2)
 	    {   
