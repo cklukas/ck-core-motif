@@ -1,3 +1,12 @@
+Bound XmString segment-array concatenation (2026-10-27)
+=========================================================
+
+- Check combined segment counts and allocation results when
+  `XmStringConcatAndFree` grows or creates an implicit-line segment array.
+- Add focused regression coverage and documentation.
+
+=========================================================
+
 Handle XmString concat realloc failure (2026-10-27)
 ====================================================
 

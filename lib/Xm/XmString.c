@@ -1549,6 +1549,8 @@ XmStringConcatAndFree(XmString a,
   _XmStringNREntry 	a_last, b_seg = NULL, tmp_seg;
   _XmStringNREntry 	resized_last;
   XtPointer		resized_text;
+  _XmStringNREntry 	*new_segments;
+  size_t		new_segment_count;
   String		a_tag;
   String		b_tag;
   int 			i, j;
@@ -2086,18 +2088,52 @@ XmStringConcatAndFree(XmString a,
     Boolean free_b_line = (modify_b && _XmEntryMultiple(b_line) &&
 			   ((_XmStringEntry)b_seg != b_line));
 
+    new_segment_count = (size_t)a_sc + (size_t)b_sc;
+    if (new_segment_count < (size_t)merged) {
+	  _XmProcessUnlock();
+	  XmStringFree(a);
+	  XmStringFree(b);
+	  return NULL;
+	}
+    new_segment_count -= (size_t)merged;
+    if (new_segment_count > SIZE_MAX / sizeof(*new_segments) ||
+	new_segment_count > UINT_MAX / sizeof(*new_segments)) {
+	  _XmProcessUnlock();
+	  XmStringFree(a);
+	  XmStringFree(b);
+	  return NULL;
+    }
+
     if (_XmEntryMultiple(a_line)) {
-      _XmEntrySegment(a_line) =
-	(_XmStringNREntry *)XtRealloc((char *)_XmEntrySegment(a_line),
-				      sizeof(_XmStringNREntry) *
-				      (a_sc + b_sc - merged));
-      _XmEntrySegmentCount(a_line) = a_sc + b_sc - merged;
+	  new_segments = (_XmStringNREntry *)XtRealloc(
+	      (char *)_XmEntrySegment(a_line),
+	      (Cardinal)(sizeof(*new_segments) * new_segment_count));
+	  if (new_segments == NULL) {
+	    _XmProcessUnlock();
+	    XmStringFree(a);
+	    XmStringFree(b);
+	    return NULL;
+	  }
+	  _XmEntrySegment(a_line) = new_segments;
+	  _XmEntrySegmentCount(a_line) = (Cardinal)new_segment_count;
     } else {
       _XmEntryCreate(a_line, XmSTRING_ENTRY_ARRAY);
-      _XmEntrySegmentCount(a_line) = a_sc + b_sc - merged;
-      _XmEntrySegment(a_line) = 
-	(_XmStringNREntry *)XtMalloc(sizeof(_XmStringNREntry) *
-				     (a_sc + b_sc - merged));
+      if (a_line == NULL) {
+	_XmProcessUnlock();
+	XmStringFree(a);
+	XmStringFree(b);
+	return NULL;
+      }
+      _XmEntrySegmentCount(a_line) = (Cardinal)new_segment_count;
+      _XmEntrySegment(a_line) =
+	(_XmStringNREntry *)XtMalloc(
+	    (Cardinal)(sizeof(*new_segments) * new_segment_count));
+      if (_XmEntrySegment(a_line) == NULL) {
+	_XmProcessUnlock();
+	XmStringFree(a);
+	XmStringFree(b);
+	return NULL;
+      }
       _XmEntrySegment(a_line)[0] = 
 	(_XmStringNREntry)_XmStrEntry(a_str)[a_lc - 1];
       _XmStrEntry(a_str)[a_lc - 1] = a_line;
