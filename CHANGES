@@ -16973,3 +16973,13 @@ Guard ProgressRing geometry label metrics (2026-10-27)
 - Add a focused source regression and documentation.
 
 ====================================================
+Make CommandPalette item installation transactional (2026-10-27)
+==================================================================
+
+- Roll back the complete item batch when an ID, label, or shortcut copy fails,
+  preventing partially initialized entries from reaching filtering or callbacks.
+- Add focused regression coverage and documentation.
+
+====================================================
+
+Refresh DatePicker render-table regression contracts (2026-10-27)
