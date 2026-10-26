@@ -72,6 +72,13 @@ Guard MWM key-substitution allocations (2026-10-26)
   WSM key substitutions.
 - Preserve complete entries and their count when a later allocation fails.
 
+Bound MWM command-line screen-name allocations (2026-10-26)
+============================================================
+
+- Keep screen-name lengths in `size_t`, reject values beyond Xt's allocation
+  width, and publish reallocated screen-name buffers only after success.
+- Add a focused parser regression and document the bounds.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 

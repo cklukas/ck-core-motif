@@ -7475,7 +7475,7 @@ static void ParseScreensArgument (int argc, char *argv[], int *pArgnum,
 {
     unsigned char *string;
     int sNum = 0;
-    int lastLen;
+    size_t lastLen;
     int nameCount = 0;
 
     for (; (*pArgnum < argc) && (sNum < ScreenCount(DISPLAY)); 
@@ -7502,16 +7502,23 @@ static void ParseScreensArgument (int argc, char *argv[], int *pArgnum,
 		break;
 	    }
 	}
-	
-	if (!(wmGD.screenNames[sNum] = (unsigned char *) 
-	      XtRealloc ((char*)wmGD.screenNames[sNum], 
-		         1 + strlen((char *)string))))
+	{
+	    size_t name_length = strlen((char *)string);
+	    unsigned char *resized;
+
+	    if (name_length == SIZE_MAX || name_length + 1 > UINT_MAX)
+	    {
+		Warning (((char *)GETMESSAGE(60, 31, "Insufficient memory for screen names")));
+		ExitWM(WM_ERROR_EXIT_VALUE);
+	    }
+	    resized = (unsigned char *)XtRealloc(
+		(char *)wmGD.screenNames[sNum], (Cardinal)(name_length + 1));
+	    if (resized == NULL)
 	{
 	    Warning (((char *)GETMESSAGE(60, 31, "Insufficient memory for screen names")));
 	    ExitWM(WM_ERROR_EXIT_VALUE);
 	}
-	else 
-	{
+	    wmGD.screenNames[sNum] = resized;
 	    strcpy((char *)wmGD.screenNames[sNum], (char *)string);
 	    nameCount++;
 	}
@@ -7525,19 +7532,23 @@ static void ParseScreensArgument (int argc, char *argv[], int *pArgnum,
     if (nameCount > 0)
     {
 	lastLen = 1 + strlen((char *)wmGD.screenNames[0]);
+	if (lastLen > UINT_MAX)
+	{
+	    Warning (((char *)GETMESSAGE(60, 32, "Insufficient memory for screen names")));
+	    ExitWM(WM_ERROR_EXIT_VALUE);
+	}
 	for (; sNum < ScreenCount(DISPLAY); sNum++)
 	{
-	    if (!(wmGD.screenNames[sNum] = (unsigned char *) 
-		XtRealloc ((char*)wmGD.screenNames[sNum], lastLen)))
+	    unsigned char *resized = (unsigned char *)XtRealloc(
+		(char *)wmGD.screenNames[sNum], (Cardinal)lastLen);
+	    if (resized == NULL)
 	    {
 		Warning (((char *)GETMESSAGE(60, 32, "Insufficient memory for screen names")));
 		ExitWM(WM_ERROR_EXIT_VALUE);
 	    }
-	    else 
-	    {
-		strcpy((char *)wmGD.screenNames[sNum], 
-		       (char *)wmGD.screenNames[0]);
-	    }
+	    wmGD.screenNames[sNum] = resized;
+	    strcpy((char *)wmGD.screenNames[sNum],
+		   (char *)wmGD.screenNames[0]);
 	}
     }
 
