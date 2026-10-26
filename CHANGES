@@ -21168,3 +21168,10 @@ MakeIcon now rejects an icon whose frame-window allocation returned `None`,
 avoiding subsequent shadow, reparent, and event operations against an invalid
 window resource.
 
+Guard MWM active icon-label hide/move paths (2026-10-26)
+----------------------------------------------------------
+HideActiveIconText now resolves one validated label window before deleting its
+context or unmapping it, and MoveActiveIconText validates its client and
+screen state. Failed optional label creation therefore cannot cause a
+BadWindow request during cleanup or repositioning.
+

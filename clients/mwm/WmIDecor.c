@@ -2053,22 +2053,21 @@ void ShowActiveIconText (ClientData *pcd)
  *************************************<->***********************************/
 void HideActiveIconText (WmScreenData *pSD)
 {
+    Window label_window = None;
 
 
-    if ((pSD && pSD->activeIconTextWin) || ACTIVE_ICON_TEXT_WIN)
+    if (pSD != NULL)
+	label_window = pSD->activeIconTextWin;
+    else if (ACTIVE_PSD != NULL)
+	label_window = ACTIVE_PSD->activeIconTextWin;
+
+    if (label_window != None)
     {
 	/* disassociate the big label window with this client */
-	XDeleteContext (DISPLAY, 
-			pSD 
-			 ? pSD->activeIconTextWin
-			 : ACTIVE_PSD->activeIconTextWin, 
-			wmGD.windowContextType);
+	XDeleteContext (DISPLAY, label_window, wmGD.windowContextType);
 
 	/* hide the big label */
-	XUnmapWindow (DISPLAY,
-		      pSD 
-		       ? pSD->activeIconTextWin
-		       : ACTIVE_PSD->activeIconTextWin);
+	XUnmapWindow (DISPLAY, label_window);
 	wmGD.activeIconTextDisplayed = False;
     }
 }
@@ -2105,7 +2104,9 @@ void MoveActiveIconText (ClientData *pcd)
     /* 
      * put up a big icon text label
      */
-    if (pcd->pSD->activeIconTextWin && wmGD.activeIconTextDisplayed) {
+    if (pcd != NULL && pcd->pSD != NULL &&
+	pcd->pSD->activeIconTextWin != None &&
+	wmGD.activeIconTextDisplayed) {
 	/* set up geometry for the window */
 
 	XmStringExtent (ICON_APPEARANCE(pcd).fontList, pcd->iconTitle,
