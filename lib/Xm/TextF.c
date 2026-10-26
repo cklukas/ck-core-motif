@@ -296,6 +296,7 @@ static void RedisplayText(XmTextFieldWidget tf,
 static void ComputeSize(XmTextFieldWidget tf,
                         Dimension *width,
                         Dimension *height);
+static Dimension TextFieldBoundDimension(uint64_t value);
 
 static XtGeometryResult TryResize(XmTextFieldWidget tf,
 #if NeedWidePrototypes
@@ -2447,31 +2448,47 @@ ComputeSize(XmTextFieldWidget tf,
 	    Dimension *width,
 	    Dimension *height)
 {
-  Dimension tmp = 0;
+  uint64_t horizontal = 2 * ((uint64_t)TextF_MarginWidth(tf) +
+                             (uint64_t)tf->primitive.shadow_thickness +
+                             (uint64_t)tf->primitive.highlight_thickness);
+  uint64_t vertical = 2 * ((uint64_t)TextF_MarginHeight(tf) +
+                           (uint64_t)tf->primitive.shadow_thickness +
+                           (uint64_t)tf->primitive.highlight_thickness);
+  uint64_t text_width = 0;
+  int pixel_length;
   
   if (TextF_ResizeWidth(tf) &&
       TextF_Columns(tf) < tf->text.string_length) {
     
     if (tf->text.max_char_size != 1) 
-      tmp = FindPixelLength(tf, (char *)TextF_WcValue(tf),
-			    tf->text.string_length);
+      pixel_length = FindPixelLength(tf, (char *)TextF_WcValue(tf),
+                                     tf->text.string_length);
     else
-      tmp = FindPixelLength(tf, TextF_Value(tf), tf->text.string_length);
-    
-    
-    *width = tmp + (2 * (TextF_MarginWidth(tf) + 
-			 tf->primitive.shadow_thickness + 
-			 tf->primitive.highlight_thickness));
+      pixel_length = FindPixelLength(tf, TextF_Value(tf),
+                                     tf->text.string_length);
+    if (pixel_length > 0)
+      text_width = (uint64_t)pixel_length;
   } else {
-    *width = TextF_Columns(tf) * tf->text.average_char_width +
-      2 * (TextF_MarginWidth(tf) + tf->primitive.shadow_thickness +
-	   tf->primitive.highlight_thickness);
+    if (tf->text.average_char_width > 0)
+      text_width = (uint64_t)TextF_Columns(tf) *
+        (uint64_t)tf->text.average_char_width;
   }
+
+  if (width != NULL)
+    *width = TextFieldBoundDimension(text_width + horizontal);
   
   if (height != NULL)
-    *height = TextF_FontDescent(tf) + TextF_FontAscent(tf) +
-      2 * (TextF_MarginHeight(tf) + tf->primitive.shadow_thickness +
-	   tf->primitive.highlight_thickness);
+    *height = TextFieldBoundDimension(
+      (TextF_FontDescent(tf) > 0 ? (uint64_t)TextF_FontDescent(tf) : 0) +
+      (TextF_FontAscent(tf) > 0 ? (uint64_t)TextF_FontAscent(tf) : 0) +
+      vertical);
+}
+
+static Dimension
+TextFieldBoundDimension(uint64_t value)
+{
+  uint64_t maximum = (uint64_t)((Dimension)~0);
+  return (Dimension)(value > maximum ? maximum : value);
 }
 
 

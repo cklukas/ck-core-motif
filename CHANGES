@@ -20067,6 +20067,15 @@ Guard TextField cursor painting geometry (2026-10-26)
   representable X11 coordinate instead of drawing at the origin.
 - Add focused regression coverage and documentation.
 
+Bound TextField size arithmetic (2026-10-26)
+============================================
+
+- Widen text, column, font-metric, and margin calculations before producing
+  the requested widget dimensions.
+- Saturate oversized results at the X11 `Dimension` limit instead of wrapping
+  to a small size.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
