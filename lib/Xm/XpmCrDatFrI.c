@@ -43,10 +43,11 @@ LFUNC(CreateColors, int, (char **dataptr, unsigned int *data_size,
 			  XpmColor *colors, unsigned int ncolors,
 			  unsigned int cpp));
 
-LFUNC(CreatePixels, void, (char **dataptr, unsigned int data_size,
+LFUNC(CreatePixels, int, (char **dataptr, unsigned int data_size,
 			   unsigned int width,
 			   unsigned int height, unsigned int cpp,
-			   unsigned int *pixels, XpmColor *colors));
+			   unsigned int *pixels, XpmColor *colors,
+			   unsigned int ncolors));
 
 LFUNC(CountExtensions, int, (XpmExtension *ext, unsigned int num,
 			      unsigned int *ext_size,
@@ -227,8 +228,10 @@ XpmCreateDataFromXpmImage(
     data[header_nlines] = (char *) data + header_size
 	+ (image->height + ext_nlines) * sizeof(char *);
 
-    CreatePixels(data + header_nlines, data_size-header_nlines, image->width, image->height,
-		 image->cpp, image->data, image->colorTable);
+    if (!CreatePixels(data + header_nlines, data_size-header_nlines,
+			      image->width, image->height, image->cpp,
+			      image->data, image->colorTable, image->ncolors))
+	RETURN(XpmFileInvalid);
 
     /* print extensions */
     if (extensions)
@@ -303,7 +306,7 @@ CreateColors(
     return (XpmSuccess);
 }
 
-static void
+static int
 CreatePixels(
     char		**dataptr,
     unsigned int	  data_size,
@@ -311,46 +314,58 @@ CreatePixels(
     unsigned int	  height,
     unsigned int	  cpp,
     unsigned int	 *pixels,
-    XpmColor		 *colors)
+    XpmColor		 *colors,
+    unsigned int	  ncolors)
 {
     char *s;
     unsigned int x, y, h, offset;
 
+    if (dataptr == NULL || *dataptr == NULL || pixels == NULL ||
+	colors == NULL || ncolors == 0)
+	return 0;
+
     if(height <= 1)
-    	return;
+	return 1;
 
     h = height - 1;
 
+    if (cpp == 0 || width > (UINT_MAX - 1) / cpp)
+	return 0;
     offset = width * cpp + 1;
 
     if(offset <= width || offset <= cpp)
-    	return;
+	return 0;
 
     /* why trust h? */
     for (y = 0; y < h; y++, dataptr++) {
 	s = *dataptr;
 	/* why trust width? */
 	for (x = 0; x < width; x++, pixels++) {
-	    if(cpp > (data_size - (s - *dataptr)))
-	    	return;
-	    strncpy(s, colors[*pixels].string, cpp); /* why trust pixel? */
+	    if ((size_t)(s - *dataptr) > data_size ||
+		cpp >= data_size - (size_t)(s - *dataptr) ||
+		*pixels >= ncolors || colors[*pixels].string == NULL)
+		return 0;
+	    strncpy(s, colors[*pixels].string, cpp);
 	    s += cpp;
 	}
 	*s = '\0';
 	if(offset > data_size)
-		return;
+		return 0;
 	*(dataptr + 1) = *dataptr + offset;
     }
     /* duplicate some code to avoid a test in the loop */
     s = *dataptr;
     /* why trust width? */
     for (x = 0; x < width; x++, pixels++) {
-	if(cpp > data_size - (s - *dataptr))
-	    	return;
-	strncpy(s, colors[*pixels].string, cpp); /* why should we trust *pixel? */
+	if ((size_t)(s - *dataptr) > data_size ||
+	    cpp >= data_size - (size_t)(s - *dataptr) ||
+	    *pixels >= ncolors || colors[*pixels].string == NULL)
+	    return 0;
+	strncpy(s, colors[*pixels].string, cpp);
 	s += cpp;
     }
     *s = '\0';
+    return 1;
 }
 
 static int
