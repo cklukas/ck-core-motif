@@ -1830,6 +1830,12 @@ GetDtWmRequest (
     unsigned long leftover;
     static unsigned long nitems = 0;
 
+    if (pSD == NULL || pszReq == NULL || pmore == NULL)
+	return;
+
+    *pszReq = NULL;
+    *pmore = False;
+
     
     /*
      * We need to read the property again if we have no data left

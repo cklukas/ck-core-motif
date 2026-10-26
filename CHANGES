@@ -69,6 +69,13 @@ Validate MWM workspace-hints outputs (2026-10-26)
   fail closed when the provider reports success without a record.
 - Add focused regression coverage and document the API contract.
 
+Validate MWM DT request outputs (2026-10-26)
+============================================
+
+- Reject missing screen data or output pointers before reading the request
+  property, and initialize valid-call outputs to an empty result.
+- Add focused regression coverage and document the contract.
+
 Guard MWM binding token boundaries (2026-10-26)
 ===============================================
 
