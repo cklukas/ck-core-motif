@@ -799,12 +799,12 @@ ClipboardConvertProc(Widget wid,
 	goto done;
       }
 
-      if ( *size == 0 ) {
+      if ( *size == 0 || *size > UINT_MAX ) {
 	rval = False;
 	goto done;
       }
       
-      *value = XtMalloc( (int) *size );
+      *value = XtMalloc( (Cardinal) *size );
 
       if (*value == NULL) {
 	rval = False;

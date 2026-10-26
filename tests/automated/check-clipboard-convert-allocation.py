@@ -13,6 +13,8 @@ def main() -> None:
     function = SOURCE[start:end]
 
     allocation = function.index("*value = XtMalloc")
+    assert "*size == 0 || *size > UINT_MAX" in function[:allocation]
+    assert "XtMalloc( (Cardinal) *size )" in function[allocation:]
     guard = function.index("if (*value == NULL)", allocation)
     retrieve = function.index("ClipboardRetrieve(display", guard)
     assert "*size = 0;" in function[guard:retrieve]

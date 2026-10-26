@@ -28,6 +28,15 @@ Bound Label baseline allocation width (2026-10-27)
 
 ===================================================
 
+Bound clipboard conversion lengths before Xt allocation (2026-10-27)
+====================================================================
+
+- Reject non-built-in clipboard payload lengths wider than Xt's `Cardinal`
+  before converting the `unsigned long` length to an allocation size.
+- Extend the focused conversion regression and documentation.
+
+============================================================
+
 Refresh XmString rendition resize check (2026-10-27)
 ===================================================
 
