@@ -812,6 +812,9 @@ int GetBitmapIndex (WmScreenData *pSD, char *name)
 	(pSD->bitmapCacheCount != 0 && pSD->bitmapCache == NULL))
         return (-1);
 
+    if (pSD->bitmapCache == NULL && pSD->bitmapCacheCount == 0)
+	pSD->bitmapCacheSize = 0;
+
     /*
      * Search a nonempty bitmap cache for a pathname match.
      */

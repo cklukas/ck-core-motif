@@ -20985,6 +20985,12 @@ Guard inconsistent MWM bitmap-cache metadata (2026-10-26)
 GetBitmapIndex now rejects a nonzero bitmap-cache count with a null cache
 pointer before iterating cache entries.
 
+Recover MWM bitmap-cache allocation retries (2026-10-26)
+---------------------------------------------------------
+GetBitmapIndex now clears stale nonzero cache-size metadata when an empty cache
+has a null allocation, allowing later lookups to retry the initial allocation
+after a transient memory failure.
+
 Handle MWM cached-label X resource failure (2026-10-26)
 --------------------------------------------------------
 MakeCachedLabelPixmap now returns `None` when pixmap or graphics-context
