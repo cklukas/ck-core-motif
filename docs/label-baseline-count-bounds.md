@@ -14,7 +14,9 @@ The offset-adjustment loop also uses a `Cardinal` index, so a valid wide
 baseline table cannot wrap a signed counter while applying the cached delta.
 
 Counts that cannot be returned through the historical `int *line_count` API
-are rejected before the `Cardinal` value is narrowed.
+are rejected before the `Cardinal` value is narrowed.  The same validation is
+also applied when the cached-baseline path recounts the compound string, so a
+changed or malformed label cannot bypass the allocation and indexing bounds.
 
 Normal baseline measurement and the public `XmWidgetGetBaselines` behavior are
 unchanged.  The allocation regressions are covered by

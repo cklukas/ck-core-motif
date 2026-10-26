@@ -23,6 +23,8 @@ Bound Label baseline allocation width (2026-10-27)
 - Reject baseline tables that fit host `size_t` but exceed Xt's `Cardinal`
   allocation width in both Label and LabelGadget paths.
 - Extend the paired focused regressions and documentation.
+- Reapply the bounds after cached-baseline recounts so that path cannot bypass
+  the count and indexing checks.
 
 ===================================================
 

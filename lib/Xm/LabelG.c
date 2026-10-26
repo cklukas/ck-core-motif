@@ -3933,6 +3933,11 @@ int *line_count)
         count = XmStringLineCount(LabG__label(lw));
     }
 
+    if (count == (Cardinal)-1 || count > (Cardinal)INT_MAX ||
+        (size_t)count >= SIZE_MAX / sizeof(Dimension) ||
+        (size_t)count >= (size_t)UINT_MAX / sizeof(Dimension))
+        return False;
+
     /* Readjust offsets if necessary. */
     delta = LabG_TextRect_y(lw) - lw->label.baselines[count];
         if (delta)
