@@ -1648,7 +1648,7 @@ FreeLocationData(Widget w,     /* unused */
 {
   XmDestinationCallbackStruct *ds;
 
-  if (ts == NULL)
+  if (ts == NULL || ts->transfer_id == NULL)
 	return;
   ds = _XmTransferGetDestinationCBStruct(ts->transfer_id);
   if (ds == NULL)

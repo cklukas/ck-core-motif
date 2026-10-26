@@ -22508,3 +22508,9 @@ Reject missing Text drop transfer IDs (2026-10-26)
   completion or request another target.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-drop-transfer-id.py
+Guard Text location cleanup transfer IDs (2026-10-26)
+======================================================
+- Validate transfer completion IDs before Text/TextField location cleanup
+  queries destination callback state.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-location-cleanup-transfer-id.py
