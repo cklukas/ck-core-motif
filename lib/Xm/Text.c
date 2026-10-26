@@ -3730,7 +3730,15 @@ PreeditDraw(XIC xic,
   if (insert_length > 0) {
     if (call_data->text->encoding_is_wchar) {
       size_t capacity = (size_t)insert_length * MB_CUR_MAX + 1;
-      mb = XtMalloc(capacity);
+      if (capacity > (size_t)UINT_MAX) {
+        (*tw->text.output->DrawInsertionPoint)(tw, tw->text.cursor_position, on);
+        return;
+      }
+      mb = XtMalloc((Cardinal)capacity);
+      if (mb == NULL) {
+        (*tw->text.output->DrawInsertionPoint)(tw, tw->text.cursor_position, on);
+        return;
+      }
       mb_siz = wcstombs(mb, call_data->text->string.wide_char, capacity);
       if (mb_siz == (size_t)-1 || mb_siz >= capacity) {
         XtFree(mb);

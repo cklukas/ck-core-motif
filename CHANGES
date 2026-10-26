@@ -110,6 +110,14 @@ Guard text preedit overstrike allocation (2026-10-27)
 - Reset the preedit state cleanly when storage cannot be provided.
 - Add a focused source regression and documentation.
 
+Guard text preedit wide conversion (2026-10-27)
+================================================
+
+- Bound wide-character preedit conversion capacity to the allocator range.
+- Check the conversion buffer before calling `wcstombs` and restore the
+  insertion-point display on failure.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
