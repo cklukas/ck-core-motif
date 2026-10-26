@@ -58,6 +58,7 @@ static char rcsid[] = "$TOG: WmWinList.c /main/8 1997/06/10 15:50:50 samborn $"
 #include "WmWrkspace.h"
 #endif /* WSM */
 #include "WmEvent.h"
+#include <limits.h>
 #include <stdlib.h>
 
 extern void SetMwmClientList(Window propWindow, Window *wmWindowList, unsigned int wmWindowCount);
@@ -1213,6 +1214,9 @@ void RestackTransients (ClientData *pcd)
     int count;
     static int size = 0;
     static Window *windows = NULL;
+    Window *resized;
+    size_t allocation_count;
+    size_t allocation_bytes;
 #ifndef WSM
     Window *nextWindow;
 #endif /* WSM */
@@ -1237,14 +1241,28 @@ void RestackTransients (ClientData *pcd)
 	 * Expand the (static) windows buffer that is used in restacking.
 	 */
 
-	if (!(windows =
-		(Window *)WmMalloc ((char*)windows, (count + 5) * sizeof (Window))))
+	if (count < 0 || count > INT_MAX - 5)
+	{
+	    size = 0;
+	    return;
+	}
+	allocation_count = (size_t)count + 5U;
+	if (allocation_count > (size_t)UINT_MAX / sizeof(Window))
+	{
+	    size = 0;
+	    return;
+	}
+	allocation_bytes = allocation_count * sizeof(Window);
+	resized = (Window *)WmMalloc ((char*)windows,
+				      (unsigned)allocation_bytes);
+	if (resized == NULL)
 	{
 	    /* cannot get memory space */
 	    size = 0;
 	    return;
 	}
-	size = count + 5;
+	windows = resized;
+	size = (int)allocation_count;
     }
 
 #ifdef WSM
@@ -2681,6 +2699,9 @@ LowestWindowInTransientFamily (ClientData *pcdLeader)
     int count;
     static int size = 0;
     static Window *windows = NULL;
+    Window *resized;
+    size_t allocation_count;
+    size_t allocation_bytes;
     Window wReturn = None;
 
     /*
@@ -2694,14 +2715,28 @@ LowestWindowInTransientFamily (ClientData *pcdLeader)
 	 * Expand the (static) windows buffer
 	 */
 
-	if (!(windows =
-		(Window *)WmMalloc ((char*)windows, (count + 5) * sizeof (Window))))
+	if (count < 0 || count > INT_MAX - 5)
+	{
+	    size = 0;
+	    return;
+	}
+	allocation_count = (size_t)count + 5U;
+	if (allocation_count > (size_t)UINT_MAX / sizeof(Window))
+	{
+	    size = 0;
+	    return;
+	}
+	allocation_bytes = allocation_count * sizeof(Window);
+	resized = (Window *)WmMalloc ((char*)windows,
+				      (unsigned)allocation_bytes);
+	if (resized == NULL)
 	{
 	    /* cannot get memory space */
 	    size = 0;
 	    return;
 	}
-	size = count + 5;
+	windows = resized;
+	size = (int)allocation_count;
     }
 
     MakeTransientFamilyStackingList (windows, pcdLeader);

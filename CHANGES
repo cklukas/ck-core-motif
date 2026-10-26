@@ -114,6 +114,13 @@ Align MWM function-table indexes (2026-10-26)
   table-size expression without signed conversion warnings.
 - Add a focused index-type regression and document the invariant.
 
+Bound MWM transient-window cache growth (2026-10-26)
+=====================================================
+
+- Check transient-window cache counts before multiplication and preserve the
+  existing cache until a replacement allocation succeeds in both helpers.
+- Add a focused allocation regression and document the bounds.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 
