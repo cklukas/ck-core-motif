@@ -2,8 +2,8 @@
 from pathlib import Path
 
 source = Path("lib/Xm/VendorS.c").read_text()
-start = source.index("newSec = XtMalloc") - 2000
-region = source[start:start + 2600]
+start = source.index("newSec = XtMalloc")
+region = source[start:source.index("((XmVendorShellExtObject)newSec)->", start)]
 assert "newSec = XtMalloc(size)" in region
 assert "reqSec = _XmExtObjAlloc(size)" in region
 assert "if (newSec == NULL || reqSec == NULL)" in region
