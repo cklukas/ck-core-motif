@@ -11712,12 +11712,30 @@ XmDataFieldReplace(
        rep_result = _XmDataFieldReplaceText(tf, NULL, from_pos, 
 				            to_pos, value, length, False);
     } else { /* need to convert to wchar_t* before calling Replace */
-       wc_value = (wchar_t *) XtMalloc((unsigned) sizeof(wchar_t) *
-				       (1 + strlen(value)));
-       length = mbstowcs(wc_value, value, (unsigned) (strlen(value) + 1));
-       rep_result = _XmDataFieldReplaceText(tf, NULL, from_pos, to_pos, 
-				      (char*)wc_value, length, False);
-       XtFree((char *)wc_value);
+       size_t value_length = strlen(value);
+       if (value_length == SIZE_MAX ||
+		   value_length + 1 > SIZE_MAX / sizeof(wchar_t) ||
+		   (value_length + 1) * sizeof(wchar_t) > UINT_MAX) {
+	   wc_value = NULL;
+	   rep_result = False;
+	   length = 0;
+       } else {
+	   wc_value = (wchar_t *) XtMalloc((Cardinal)
+					 (value_length + 1) * sizeof(wchar_t));
+	   if (wc_value == NULL) {
+	       rep_result = False;
+	       length = 0;
+	   } else {
+	       length = mbstowcs(wc_value, value, value_length + 1);
+	       if (length < 0) {
+		  length = 0;
+		  wc_value[0] = (wchar_t)0;
+	       }
+	       rep_result = _XmDataFieldReplaceText(tf, NULL, from_pos, to_pos,
+					      (char*)wc_value, length, False);
+	       XtFree((char *)wc_value);
+	   }
+       }
     }
     if (from_pos <= XmTextF_cursor_position(tf)) {
       XmTextPosition cursorPos;
@@ -11804,8 +11822,14 @@ XmDataFieldReplaceWcs(
     }
 
    /* Count the number of wide chars in the array */
-    for (wc_length = 0, tmp_wc = wc_value; *tmp_wc != (wchar_t)0L; wc_length++)
+
+    for (wc_length = 0, tmp_wc = wc_value; *tmp_wc != (wchar_t)0L; wc_length++) {
+	if (wc_length == INT_MAX) {
+	    _XmAppUnlock(app);
+	    return;
+	}
 	tmp_wc++;  /* count number of wchar_t's */
+    }
 
     XmTextF_editable(tf) = True;
     XmTextF_max_length(tf) = INT_MAX;
@@ -11817,18 +11841,33 @@ XmDataFieldReplaceWcs(
     } 
     else 
     {     /* need to convert to char* before calling Replace */
-	tmp = XtMalloc((unsigned) (wc_length + 1) * XmTextF_max_char_size(tf));
-	wc_length = wcstombs(tmp, wc_value, 
-			     (wc_length + 1) * XmTextF_max_char_size(tf));
+	if (XmTextF_max_char_size(tf) <= 0 ||
+	    (size_t)(wc_length + 1) > SIZE_MAX /
+		(size_t)XmTextF_max_char_size(tf) ||
+	    (size_t)(wc_length + 1) * (size_t)XmTextF_max_char_size(tf) > UINT_MAX) {
+	    rep_result = False;
+	    wc_length = 0;
+	tmp = NULL;
+	} else {
+	tmp = XtMalloc((Cardinal)((size_t)(wc_length + 1) *
+					    (size_t)XmTextF_max_char_size(tf)));
+	if (tmp == NULL) {
+	    rep_result = False;
+	    wc_length = 0;
+	} else {
+	wc_length = wcstombs(tmp, wc_value,
+			     (size_t)(wc_length + 1) * XmTextF_max_char_size(tf));
 
        if (wc_length == (size_t) -1){ /* if wcstombs fails, it returns -1 */
-          tmp = "";                   /* if invalid data, pass in the empty 
+          tmp[0] = '\0';               /* if invalid data, pass in the empty
                                        * string */
           wc_length = 0;
        }
        rep_result = _XmDataFieldReplaceText(tf, NULL, from_pos, to_pos,
                                             (char*)tmp, wc_length, False);
        XtFree(tmp);
+	}
+	}
     }
     if (from_pos <= XmTextF_cursor_position(tf)) {
       XmTextPosition cursorPos;

@@ -16517,3 +16517,14 @@ Guard DataField string conversion buffers (2026-10-27)
 =======================================================
 
 Validate DataField wide-substring output buffers (2026-10-27)
+Harden DataField replace conversions (2026-10-27)
+==================================================
+
+- Check temporary conversion capacities and allocations in both replace APIs.
+- Keep failed `wcstombs` output in owned storage, avoiding an invalid free of a
+  string literal.
+- Add a focused source regression and documentation.
+
+==================================================
+
+Guard DataField string conversion buffers (2026-10-27)
