@@ -50,6 +50,9 @@ XmWidgetGetBaselines(
         Dimension **baselines,
         int *line_count)
 {
+  if (wid == NULL || baselines == NULL || line_count == NULL)
+    return False;
+
   _XmWidgetToAppContext(wid);
   _XmAppLock(app);
 
@@ -97,6 +100,9 @@ XmWidgetGetDisplayRect(
         Widget wid,
         XRectangle *displayrect)
 {
+    if (wid == NULL || displayrect == NULL)
+	return False;
+
     _XmWidgetToAppContext(wid);
     _XmAppLock(app);
 
