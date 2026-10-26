@@ -21889,3 +21889,10 @@ Use Cardinal transfer argument counters (2026-10-26)
   assembly paths.
 - Add focused regression coverage and documentation.
 
+Use Cardinal drop destination argument count (2026-10-26)
+==========================================================
+
+- Match the drop-destination setup counter to Xt's `Cardinal` argument-count
+  contract.
+- Add focused regression coverage and documentation.
+

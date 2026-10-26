@@ -1293,7 +1293,7 @@ _XmDestinationHandler(Widget wid, Atom selection, XtEnum op,
     /* We pass the drop callback struct in through location_data */
     XmDropProcCallbackStruct *ds = (XmDropProcCallbackStruct *) location_data;
     XtPointer malloc_ds;
-    int i;
+    Cardinal i;
     Arg args[1];
 
     if (ds == NULL) {
