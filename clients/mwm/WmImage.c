@@ -621,6 +621,12 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
 	}
 #endif /* WSM */
 
+	if (topGC == NULL || botGC == NULL)
+	{
+	    XFreePixmap (DISPLAY, iconPixmap);
+	    return ((Pixmap)NULL);
+	}
+
        /*
         *  CR5208 - Better fix than from OSF!
         *           Zero out the rectangle count in our

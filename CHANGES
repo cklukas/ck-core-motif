@@ -21334,3 +21334,9 @@ MakeNamedIconPixmap now checks XmeGetPixmapData before using named-pixmap
 dimensions and depth. Failed metadata queries fall back to the built-in icon
 instead of passing uninitialized values into image construction.
 
+Guard MWM icon shadow GC allocation (2026-10-26)
+-------------------------------------------------
+MakeIconPixmap now checks both highlight GCs before bevel filling. If either
+GC cannot be allocated, the temporary icon pixmap is released and construction
+fails cleanly instead of issuing XFillRectangles with a null GC.
+
