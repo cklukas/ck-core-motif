@@ -22659,3 +22659,9 @@ Bound DataField invalid-character warning buffers (2026-10-26)
   buffer, including negative and full-buffer results.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-datafield-invalid-wchar-warning.py
+Bound DataField modify-verify temporary sizes (2026-10-26)
+============================================================
+- Validate wide-character modify-verify buffer capacity before allocation and
+  conversion.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-datafield-modify-verify-size.py

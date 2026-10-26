@@ -11057,6 +11057,7 @@ df_SetValues(
           * continue with the action.
           */
 	  char *temp, *old;
+	  size_t temp_capacity;
 	  int free_insert = (int)False;
           XmTextPosition fromPos = 0, toPos;
           toPos = XmTextF_string_length(old_tf);
@@ -11066,18 +11067,30 @@ df_SetValues(
 					&temp, &XmTextF_string_length(new_tf),
 					&newInsert, &free_insert);
 	  } else {
-	     old = temp = XtMalloc((unsigned)((XmTextF_string_length(new_tf) + 1) *
-					      XmTextF_max_char_size(new_tf)));
-	     if (temp == NULL) {
+	     if (XmTextF_string_length(new_tf) < 0 ||
+		 XmTextF_max_char_size(new_tf) <= 0 ||
+		 (size_t)XmTextF_string_length(new_tf) >
+		     SIZE_MAX / (size_t)XmTextF_max_char_size(new_tf) - 1) {
 		mod_ver_ret = False;
 	     } else {
+		temp_capacity = ((size_t)XmTextF_string_length(new_tf) + 1) *
+		    (size_t)XmTextF_max_char_size(new_tf);
+		if (temp_capacity > UINT_MAX) {
+		    mod_ver_ret = False;
+		} else {
+		    old = temp = XtMalloc((Cardinal)temp_capacity);
+		    if (temp == NULL)
+			mod_ver_ret = False;
+		}
+	     }
+	     if (mod_ver_ret && temp != NULL) {
 		(void)wcstombs(temp, XmTextF_wc_value(new_tf),
-		    (XmTextF_string_length(new_tf) + 1) * XmTextF_max_char_size(new_tf));
+		    temp_capacity);
 		mod_ver_ret = df_ModifyVerify(new_tf, NULL, &fromPos, &toPos, &temp,
 					       &XmTextF_string_length(new_tf), &newInsert,
 					       &free_insert);
 	     }
-	     if (old != temp) XtFree (old);
+     if (mod_ver_ret && old != temp) XtFree (old);
           }
 	  if (free_insert) XtFree(temp);
           if (!mod_ver_ret) {
