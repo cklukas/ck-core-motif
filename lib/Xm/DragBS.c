@@ -110,6 +110,7 @@ static char rcsid[] = "$TOG: DragBS.c /main/29 1998/03/18 15:10:28 csn $"
 
 #include <stdio.h>
 #include <stdint.h>
+#include <limits.h>
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
@@ -693,7 +694,7 @@ WriteAtomsTable(
     }
     dataSize = sizeof(xmMotifAtomsPropertyRec) +
       atomsTable->numEntries * sizeof(xmMotifAtomsTableRec);
-	if (dataSize > UINT32_MAX) {
+	if (dataSize > UINT32_MAX || dataSize > (size_t)INT_MAX) {
 	XmeWarning((Widget) XmGetXmDisplay(display), MESSAGE4);
 	return;
 	}
@@ -735,7 +736,7 @@ WriteAtomsTable(
 		     8,
 		     PropModeReplace, 
 		     (unsigned char *)propertyRecPtr,
-		     dataSize );
+		     (int)dataSize );
 
     /* If we had to use a heap buffer, free it. */
     if (propertyRecPtr != (struct _propertyRec *)stackData) {
@@ -950,7 +951,7 @@ WriteTargetsTable(
 	}
 	dataSize += targetsTable->entries[i].numTargets * 4 + 2;
     }
-	if (dataSize > UINT32_MAX) {
+	if (dataSize > UINT32_MAX || dataSize > (size_t)INT_MAX) {
 	XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE5);
 	return;
 	}
@@ -1007,7 +1008,7 @@ WriteTargetsTable(
 		     8,
 		     PropModeReplace, 
 		     (unsigned char *)propertyRecPtr,
-		     dataSize);
+		     (int)dataSize);
 
     /* If a buffer was allocated, free it. */
     if (propertyRecPtr != (struct _propertyRec *)stackData) {

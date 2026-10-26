@@ -15335,3 +15335,11 @@ Bound DnD receiver property sizes (2026-10-27)
 - Release temporary storage on the rejection path and add a focused regression.
 
 Validate XPM buffer-export arguments (2026-10-27)
+Bound DragBS property lengths (2026-10-27)
+===========================================
+
+- Reject atom and target-list property buffers that exceed Xlib's signed
+  property-length range, in addition to the protocol's 32-bit bound.
+- Add a focused source regression and documentation.
+
+Bound DnD receiver property sizes (2026-10-27)
