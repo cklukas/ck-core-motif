@@ -22986,3 +22986,10 @@ Bound XmText valueWcs initialization conversion (2026-10-26)
   initialization conversion result.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-value-wcs-init-termination.py
+
+Guard TextField primary-selection wide conversion (2026-10-26)
+================================================================
+- Bound primary-selection conversion lengths and check the wide buffer before
+  converting callback data with `mbstowcs`.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfsel-primary-wide-allocation.py

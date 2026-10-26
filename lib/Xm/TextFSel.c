@@ -1307,22 +1307,31 @@ DoStuff(Widget w,
 	  XtFree(total_value);
 	} else {
 	  wchar_t * wc_value;
-	  int tmp_len = strlen(total_value) + 1;
+	  size_t total_len = strlen(total_value);
+	  int tmp_len;
 
 	  _XmProcessLock();
 	  prim_select->num_chars = 0;
-	  wc_value = (wchar_t*)XtMalloc ((unsigned) tmp_len * sizeof(wchar_t));
-	  prim_select->num_chars = mbstowcs(wc_value, total_value, tmp_len);
-	  if (prim_select->num_chars < 0) 
-	    prim_select->num_chars = 0;
-	  else 
-	    replace_res = 
-	      _XmTextFieldReplaceText(tf, ds->event, 
-				      replace_from,
-				      replace_to, 
-				      (char*)wc_value, 
-				      prim_select->num_chars,
-				      ds->selection == atoms[XmACLIPBOARD]);
+	  if (total_len > (size_t)INT_MAX - 1 ||
+	      total_len > (size_t)UINT_MAX / sizeof(wchar_t) - 1) {
+	    wc_value = NULL;
+	  } else {
+	    tmp_len = (int)total_len + 1;
+	    wc_value = (wchar_t*)XtMalloc((unsigned)tmp_len * sizeof(wchar_t));
+	  }
+	  if (wc_value != NULL) {
+	    prim_select->num_chars = mbstowcs(wc_value, total_value, tmp_len);
+	    if (prim_select->num_chars < 0)
+	      prim_select->num_chars = 0;
+	    else
+	      replace_res =
+	        _XmTextFieldReplaceText(tf, ds->event,
+	                                replace_from,
+	                                replace_to,
+	                                (char*)wc_value,
+	                                prim_select->num_chars,
+	                                ds->selection == atoms[XmACLIPBOARD]);
+	  }
 	  _XmProcessUnlock();
 	  XtFree((char*)wc_value);
 	  XtFree(total_value);
