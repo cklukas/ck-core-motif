@@ -13,3 +13,9 @@ assert "folded_len" in function
 assert "unsigned int len;" not in function
 assert "data[len]" in function
 print("PASS wide image-cache string hash length")
+
+hash_source = source[source.index("/* Hash a Pixmap entry. */"):]
+assert "FoldNativeHash(uintptr_t value)" in hash_source
+assert "UINTPTR_MAX > UINT32_MAX" in hash_source
+assert "(long)data->screen" not in hash_source
+assert "(uintptr_t)33" in hash_source

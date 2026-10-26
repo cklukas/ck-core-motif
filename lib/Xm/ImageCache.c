@@ -1236,12 +1236,24 @@ ComparePixmapDatas (XmHashKey key_1,
 }
 
 /* Hash a Pixmap entry. */
+static XmHashValue
+FoldNativeHash(uintptr_t value)
+{
+#if UINTPTR_MAX > UINT32_MAX
+  value ^= value >> 32;
+#endif
+  value ^= value >> 16;
+  return (XmHashValue)(uint32_t)value;
+}
+
 static XmHashValue 
 HashPixmap (XmHashKey key)
 {
   PixmapData *data = (PixmapData *) key;
+  uintptr_t value = (uintptr_t)data->screen;
 
-  return ((long)data->screen + data->pixmap);
+  value = value * (uintptr_t)33 + (uintptr_t)data->pixmap;
+  return FoldNativeHash(value);
 }
 
 /* Hash a PixmapData entry. Reuse the string hash function */
@@ -1249,8 +1261,11 @@ static XmHashValue
 HashPixmapData (XmHashKey key)
 {
   PixmapData *data = (PixmapData *) key;
+  uintptr_t value = (uintptr_t)data->screen;
 
-  return ((long)data->screen + HashString ((XmHashKey)data->image_name));
+  value = value * (uintptr_t)33 +
+    (uintptr_t)(uint32_t)HashString((XmHashKey)data->image_name);
+  return FoldNativeHash(value);
 }
 
 /************************************************************************
@@ -2191,13 +2206,18 @@ static XmHashValue
 HashGCData (XmHashKey key)
 {
   GCData *data = (GCData *) key;
-  XmHashValue hv = 0 ;
+  uintptr_t value = (uintptr_t)data->screen;
  
   if (data->image_depth == 1)
-    hv = data->foreground + data->background ;
+    {
+      value = value * (uintptr_t)33 + (uintptr_t)data->foreground;
+      value = value * (uintptr_t)33 + (uintptr_t)data->background;
+    }
 
-  return (hv + (long)data->screen + (long)data->print_shell +
-	  data->depth + data->image_depth);
+  value = value * (uintptr_t)33 + (uintptr_t)data->print_shell;
+  value = value * (uintptr_t)33 + (uintptr_t)(uint32_t)data->depth;
+  value = value * (uintptr_t)33 + (uintptr_t)(uint32_t)data->image_depth;
+  return FoldNativeHash(value);
 }
 
 /***
