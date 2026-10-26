@@ -1074,7 +1074,9 @@ _XmGetDefaultColors(
 
 	if (new_default_set_size != 0) {
 		if ((size_t)new_default_set_size >
-		    SIZE_MAX / sizeof(XmColorData *))
+		    SIZE_MAX / sizeof(XmColorData *) ||
+		    (size_t)new_default_set_size >
+		    UINT_MAX / sizeof(XmColorData *))
 			return NULL;
 		new_default_set = (XmColorData **) XtRealloc(
 			(char *) default_set,
