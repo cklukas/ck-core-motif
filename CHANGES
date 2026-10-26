@@ -1,3 +1,9 @@
+Bound Motif drag atom formatting (2026-10-27)
+===============================================
+
+- Format generated drag atoms with `snprintf` rather than unbounded `sprintf`.
+- Add a focused source regression for the fixed atom-name buffer.
+
 Handle UIL comment allocation failure (2026-10-27)
 ===================================================
 

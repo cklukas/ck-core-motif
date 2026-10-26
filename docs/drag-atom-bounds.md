@@ -8,3 +8,7 @@ window. Property counts are untrusted X server data, so table-size arithmetic
 is checked before allocation and before serializing a property. This prevents a
 malformed or corrupted count from wrapping an allocation size. The source
 contract is covered by `tests/automated/check-drag-atom-bounds.py`.
+
+Generated `_MOTIF_ATOM_` names are formatted with a bounded operation into
+the fixed atom-name buffer, keeping the property-table path safe even when
+the entry index is supplied by a large or corrupted table.

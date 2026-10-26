@@ -1624,7 +1624,7 @@ _XmAllocMotifAtom(
 	    (char *)atomsTable->entries,	/* NULL ok */
   	    (atomsTable->numEntries * sizeof(xmAtomsTableEntryRec)));
 
-        sprintf(atomname, "%s%d", "_MOTIF_ATOM_", i);
+        (void)snprintf(atomname, sizeof(atomname), "%s%d", "_MOTIF_ATOM_", i);
         atomsTable->entries[i].atom = XInternAtom (display, atomname, False);
         atomsTable->entries[i].time = time;
         atomReturn = atomsTable->entries[i].atom;
