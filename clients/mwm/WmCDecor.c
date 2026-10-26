@@ -356,6 +356,9 @@ void BaseWinExposureProc (ClientData *pcd)
 
 Boolean ConstructFrame (ClientData *pcd)
 {
+    if (pcd == NULL)
+	return(FALSE);
+
     unsigned long 	 decoration = pcd->decor;
     unsigned int 	 wclass;		/* window class */
     unsigned long 	 attr_mask;
@@ -569,6 +572,9 @@ Boolean ConstructFrame (ClientData *pcd)
 
 void GenerateFrameDisplayLists (ClientData *pcd)
 {
+    if (pcd == NULL)
+	return;
+
     unsigned long decoration   = pcd->decor;
     int           matte_width  = pcd->matteWidth;
 
