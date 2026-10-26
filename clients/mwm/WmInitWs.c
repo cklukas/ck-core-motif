@@ -2725,6 +2725,7 @@ GetBindingsProperty(
   if(    (status != Success)
       || (actual_type != XA_STRING)
       || (actual_format != 8)
+      || (prop == NULL)
       || (num_items == 0)    )
     {
       if(    prop != NULL    )

@@ -21635,3 +21635,10 @@ Require byte-format ColorObj properties (2026-10-26)
   treating the returned length as a byte count.
 - Add focused regression coverage and documentation.
 
+Validate MWM property payload pointers (2026-10-26)
+===================================================
+
+- Require non-null X11 payloads before copying or parsing SM client IDs,
+  WM save hints, bindings, or DT session hints.
+- Add focused regression coverage and documentation.
+

@@ -1035,6 +1035,7 @@ ProcessSmClientID (ClientData *pCD)
 			    &leftover, (unsigned char **)&clientID)
 	 == Success) &&
 	(actualType != None) && (actualFormat == 8) && (nitems > 0) &&
+	(clientID != NULL) &&
 	(nitems < (unsigned long)UINT_MAX))
     {
 	/* Copy the property into a terminated Xt-owned string. */
@@ -1090,7 +1091,8 @@ ProcessWmSaveHint (ClientData *pCD)
 			    &actualType, &actualFormat, &nitems,
 			    &leftover, (unsigned char **)&saveHintFlags)
 	 == Success) &&
-	(actualType != None) && (actualFormat == 32) && (nitems > 0))
+	(actualType != None) && (actualFormat == 32) && (nitems > 0) &&
+	(saveHintFlags != NULL))
     {
 	/* the WMSAVE_HINT property exists for the client window */
 	pCD->wmSaveHintFlags = (int)*saveHintFlags;
