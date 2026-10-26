@@ -163,7 +163,8 @@ Idb__BM_InitBufferVector (void)
   IDBRecordBufferPtr	bufptr ;	/* entry into buffer pool vector */
 
   if (idb__buffer_pool_size <= 0 ||
-      (size_t)idb__buffer_pool_size > SIZE_MAX / sizeof(IDBRecordBuffer))
+      (size_t)idb__buffer_pool_size > SIZE_MAX / sizeof(IDBRecordBuffer) ||
+      (size_t)idb__buffer_pool_size > UINT_MAX / sizeof(IDBRecordBuffer))
     return MrmFAILURE;
 
   idb__buffer_pool_vec = (IDBRecordBufferPtr) XtMalloc

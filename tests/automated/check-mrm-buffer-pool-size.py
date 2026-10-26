@@ -16,4 +16,6 @@ print("Mrm buffer-pool initialization rejects non-positive sizes before allocati
 
 if "(size_t)idb__buffer_pool_size > SIZE_MAX / sizeof(IDBRecordBuffer)" not in region:
     raise SystemExit("buffer-pool allocation has no multiplication bound")
+if "(size_t)idb__buffer_pool_size > UINT_MAX / sizeof(IDBRecordBuffer)" not in region:
+    raise SystemExit("buffer-pool allocation has no Xt width bound")
 print("Mrm buffer-pool multiplication is bounded")
