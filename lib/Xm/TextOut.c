@@ -1558,6 +1558,7 @@ _XmTextFindLineEnd(XmTextWidget tw,
   OutputData data = tw->text.output->data;
   XmTextPosition lastChar, lineEnd, nextLeft, nextBreak, lastBreak, oldpos;
   XmTextPosition startpos = 0;
+  XmTextPosition next_position;
   XmTextBlockRec block;
   int x, lastX, goalwidth, length, i;
   int y, lastY, goalheight;
@@ -1597,9 +1598,13 @@ _XmTextFindLineEnd(XmTextWidget tw,
 					     XmSELECT_WHITESPACE, XmsdRight,
 					     1, True);
       while (position < nextLeft) {
-	position = (*tw->text.source->ReadSource)(tw->text.source,
-						    position, nextLeft, 
+	next_position = (*tw->text.source->ReadSource)(tw->text.source,
+						    position, nextLeft,
 						    &block);
+	if (next_position <= position || block.length < 0 ||
+	    (block.length > 0 && block.ptr == NULL))
+	  return PASTENDPOS;
+	position = next_position;
 	length = block.length;
 	y += FindHeight(tw, y, &block, 0, block.length);
 	if (y > goalheight) {
@@ -1690,9 +1695,13 @@ _XmTextFindLineEnd(XmTextWidget tw,
         }
       }
       while (position < nextBreak) {
-	position = (*tw->text.source->ReadSource)(tw->text.source,
+	next_position = (*tw->text.source->ReadSource)(tw->text.source,
 						      position, nextBreak,
 						      &block);
+	if (next_position <= position || block.length < 0 ||
+	    (block.length > 0 && block.ptr == NULL))
+	  return PASTENDPOS;
+	position = next_position;
 	length = block.length;
 	y += FindHeight(tw, y, &block, 0, block.length);
       }
@@ -1713,13 +1722,17 @@ _XmTextFindLineEnd(XmTextWidget tw,
     while ((position < nextLeft) ||
 	   (nextBreak == lastChar && position < nextBreak)) {
       if (position < nextLeft)
-        position = (*tw->text.source->ReadSource)(tw->text.source,
-						    position, nextLeft, 
+	next_position = (*tw->text.source->ReadSource)(tw->text.source,
+						    position, nextLeft,
 						    &block);
       else
-        position = (*tw->text.source->ReadSource)(tw->text.source,
-						    position, nextBreak, 
+	next_position = (*tw->text.source->ReadSource)(tw->text.source,
+						    position, nextBreak,
 						    &block);
+      if (next_position <= position || block.length < 0 ||
+		  (block.length > 0 && block.ptr == NULL))
+		return PASTENDPOS;
+      position = next_position;
       length = block.length;
       x += FindWidth(tw, x, &block, 0, block.length);
       if (x > goalwidth) {

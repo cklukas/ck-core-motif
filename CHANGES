@@ -23045,6 +23045,14 @@ Guard TextOut position-to-coordinate source progress (2026-10-26)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textout-postoxy-source-progress.py
 
+Guard TextOut line-wrap source progress (2026-10-26)
+=====================================================
+
+- Reject non-advancing or malformed source blocks in line-end wrapping
+  loops before they can spin indefinitely or reach text measurement.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textout-line-wrap-source-progress.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
