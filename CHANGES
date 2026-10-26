@@ -21250,3 +21250,9 @@ ShowActiveIcon and ShowInactiveIcon now validate client, screen, active-screen,
 and icon-frame state before painting. Teardown callbacks cannot dereference a
 missing client record or issue drawing requests for an absent icon frame.
 
+Guard MWM icon-title drawing during teardown (2026-10-26)
+----------------------------------------------------------
+DrawIconTitle and RedisplayIconTitle now validate client, screen, active-screen,
+and frame state before calculating text geometry or issuing repaint requests.
+Late exposure events after icon destruction are ignored safely.
+

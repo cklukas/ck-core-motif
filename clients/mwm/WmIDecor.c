@@ -879,6 +879,10 @@ void DrawIconTitle (ClientData *pcd)
 {
     XRectangle textBox;
     GC iconGC;
+
+    if (pcd == NULL || pcd->pSD == NULL || ACTIVE_PSD == NULL ||
+	ICON_FRAME_WIN(pcd) == None)
+	return;
     
     
     GetIconTitleBox (pcd, &textBox);
@@ -961,6 +965,10 @@ void RedisplayIconTitle (ClientData *pcd)
 {
     XRectangle textBox;
     GC iconGC;
+
+    if (pcd == NULL || pcd->pSD == NULL || ACTIVE_PSD == NULL ||
+	ICON_FRAME_WIN(pcd) == None)
+	return;
 
     /*
      * only proceed if we've got the right icon parts to work on
