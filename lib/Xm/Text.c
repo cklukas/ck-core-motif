@@ -3716,9 +3716,9 @@ PreeditDraw(XIC xic,
   char *mb, *over_mb;
   XmTextBlockRec block;
   int insert_length=0;
-  int i;
-  int total_mb_len;
-  int recover_len = 0;
+  XmTextPosition i;
+  size_t total_mb_len;
+  XmTextPosition recover_len = 0;
   char *ptr;
   char *resized_mb;
   size_t mb_length, over_length, combined_length;
@@ -3910,13 +3910,12 @@ PreeditDraw(XIC xic,
           recovery_valid = False;
           break;
         }
-	total_mb_len += char_len;
+	total_mb_len += (size_t)char_len;
       }
       if (recovery_valid) {
 	mb_length = strlen(mb);
-	if (total_mb_len < 0 ||
-	    (size_t)total_mb_len > SIZE_MAX - mb_length - 1 ||
-	    (combined_length = mb_length + (size_t)total_mb_len + 1) >
+	if (total_mb_len > SIZE_MAX - mb_length - 1 ||
+	    (combined_length = mb_length + total_mb_len + 1) >
 	      (size_t)UINT_MAX) {
 	  XtFree(mb);
 	  ResetUnder(tw);
@@ -3929,8 +3928,8 @@ PreeditDraw(XIC xic,
 	  return;
 	}
 	mb = resized_mb;
-	memcpy(mb + mb_length, ptr, (size_t)total_mb_len);
-	mb[mb_length + (size_t)total_mb_len] = '\0';
+	memcpy(mb + mb_length, ptr, total_mb_len);
+	mb[mb_length + total_mb_len] = '\0';
       }
     }
   } 

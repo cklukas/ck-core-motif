@@ -1,3 +1,12 @@
+Widen XIM preedit recovery arithmetic (2026-10-27)
+===================================================
+
+- Keep overstrike recovery positions in `XmTextPosition` and multibyte byte
+  totals in `size_t`, preventing truncation in large text fields.
+- Add a focused source regression and documentation.
+
+===================================================
+
 Bound XIM preedit callback lengths (2026-10-27)
 ================================================
 
