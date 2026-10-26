@@ -22860,3 +22860,10 @@ Restore TextField preedit repaint on failure (2026-10-26)
   allocation failure after the routine disables it.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-preedit-repaint.py
+
+Check TextField drag/drop point allocation (2026-10-26)
+=========================================================
+- Guard drag/drop event-coordinate writes when the optional XPoint cannot
+  be allocated; preserve the existing null-location transfer behavior.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-drop-point-allocation.py

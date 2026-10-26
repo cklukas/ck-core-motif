@@ -6263,8 +6263,10 @@ Stuff(Widget w,
        * the data transfer operation.
        */
       point = (XPoint *) XtMalloc(sizeof(XPoint));
-      point->x = event->xbutton.x;
-      point->y = event->xbutton.y;
+      if (point != NULL) {
+        point->x = event->xbutton.x;
+        point->y = event->xbutton.y;
+      }
   }
   
   if (tf->text.selection_link)
