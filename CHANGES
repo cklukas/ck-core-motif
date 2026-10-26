@@ -20126,6 +20126,13 @@ Reject invalid ImageCache scale ratios early (2026-10-26)
 - Preserve zero as the documented print-resolution scaling mode.
 - Add focused regression coverage and documentation.
 
+Make Container tab-pool allocation explicit (2026-10-26)
+========================================================
+
+- Keep the per-call dynamic tab pool's checked byte count in `size_t` before
+  the explicit Xt `Cardinal` conversion.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
