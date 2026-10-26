@@ -6620,11 +6620,17 @@ _XmEntryRendEndSet(_XmStringEntry entry,
   	{
  	  if (n >= _XmUnoptSegRendEndCount(entry)) {
 	    XmStringTag *new_tags;
-	    int new_count = _XmUnoptSegRendEndCount(entry) + 1;
+	    int old_count = _XmUnoptSegRendEndCount(entry);
+	    int new_count;
  	    n = _XmUnoptSegRendEndCount(entry);
+	    if (old_count < 0 || old_count == INT_MAX ||
+		(size_t)(old_count + 1) > SIZE_MAX / sizeof(XmStringTag) ||
+		(size_t)(old_count + 1) > UINT_MAX / sizeof(XmStringTag))
+	      return;
+	    new_count = old_count + 1;
 	    new_tags = (XmStringTag *)XtRealloc(
 	      (char *)_XmUnoptSegRendEnds(entry),
-	      (Cardinal)new_count * sizeof(XmStringTag));
+	      (Cardinal)((size_t)new_count * sizeof(XmStringTag)));
 	    if (new_tags == NULL)
 	      return;
 	    _XmUnoptSegRendEnds(entry) = new_tags;
@@ -6676,11 +6682,17 @@ _XmEntryRendBeginSet(_XmStringEntry entry,
   	{
  	  if (n >= _XmUnoptSegRendBeginCount(entry)) {
 	    XmStringTag *new_tags;
-	    int new_count = _XmUnoptSegRendBeginCount(entry) + 1;
+	    int old_count = _XmUnoptSegRendBeginCount(entry);
+	    int new_count;
  	    n = _XmUnoptSegRendBeginCount(entry);
+	    if (old_count < 0 || old_count == INT_MAX ||
+		(size_t)(old_count + 1) > SIZE_MAX / sizeof(XmStringTag) ||
+		(size_t)(old_count + 1) > UINT_MAX / sizeof(XmStringTag))
+	      return;
+	    new_count = old_count + 1;
 	    new_tags = (XmStringTag *)XtRealloc(
 	      (char *)_XmUnoptSegRendBegins(entry),
-	      (Cardinal)new_count * sizeof(XmStringTag));
+	      (Cardinal)((size_t)new_count * sizeof(XmStringTag)));
 	    if (new_tags == NULL)
 	      return;
 	    _XmUnoptSegRendBegins(entry) = new_tags;

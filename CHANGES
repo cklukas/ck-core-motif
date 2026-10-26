@@ -1,3 +1,13 @@
+XmString rendition-tag growth bounds (2026-10-27)
+=================================================
+
+- Reject unrepresentable rendition begin/end tag counts before incrementing
+  or multiplying their allocation sizes, preserving existing behavior for
+  representable strings.
+- Add focused source coverage and document the checked growth contract.
+
+============================================================
+
 XmTabbedStackList sensitivity mask (2026-10-27)
 ================================================
 
