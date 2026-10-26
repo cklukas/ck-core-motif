@@ -21206,3 +21206,10 @@ copying dimensions into client state. If the managed window disappears during
 initialization, MWM aborts that client setup instead of using uninitialized
 size and border values.
 
+Make MWM frame teardown safe for partial construction (2026-10-26)
+-------------------------------------------------------------------
+FreeClientFrame now accepts a null client pointer and only destroys a realized
+frame window. Failed ConstructFrame paths can therefore be cleaned up
+idempotently without dereferencing absent state or sending XDestroyWindow for
+`None`.
+

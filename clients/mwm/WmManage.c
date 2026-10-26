@@ -1538,6 +1538,9 @@ void ResetWithdrawnFocii (ClientData *pCD)
 
 void FreeClientFrame (ClientData *pCD)
 {
+    if (pCD == NULL)
+	return;
+
     if (pCD->pclientTopShadows) {
 	FreeRList (pCD->pclientTopShadows);
 	pCD->pclientTopShadows = NULL;
@@ -1573,7 +1576,11 @@ void FreeClientFrame (ClientData *pCD)
     }
 
     /* destroy frame window & all children */
-    XDestroyWindow (DISPLAY, pCD->clientFrameWin);
+    if (pCD->clientFrameWin != None)
+    {
+	XDestroyWindow (DISPLAY, pCD->clientFrameWin);
+	pCD->clientFrameWin = None;
+    }
 
 } /* END OF FUNCTION FreeClientFrame */
 
