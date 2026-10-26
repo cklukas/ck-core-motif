@@ -2539,7 +2539,7 @@ XmeStandardConvert(Widget w,
     cs -> format = 8;
     cs -> type = XA_STRING;
     cs -> value = _XmGetEncodingRegistryTarget(&len);
-    cs -> length = len;
+    cs -> length = (unsigned long)len;
   }
   _XmAppUnlock(app);
 }

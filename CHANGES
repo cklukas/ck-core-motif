@@ -21910,3 +21910,10 @@ Preserve standard render-table length width (2026-10-26)
   conversion instead of narrowing it to `int`.
 - Add focused regression documentation for the render-table target.
 
+Widen encoding-registry target length explicitly (2026-10-26)
+==============================================================
+
+- Preserve the validated encoding-registry length when assigning the
+  unsigned selection callback field.
+- Add focused regression documentation for the target conversion.
+
