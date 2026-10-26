@@ -22993,3 +22993,10 @@ Guard TextField primary-selection wide conversion (2026-10-26)
   converting callback data with `mbstowcs`.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfsel-primary-wide-allocation.py
+
+Guard TextField export-target allocation (2026-10-26)
+=======================================================
+- Fail Motif export-target conversion cleanly when its Atom response array
+  cannot be allocated.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfsel-export-targets-allocation.py

@@ -1822,6 +1822,10 @@ TextFieldConvertCallback(Widget w,
     Atom *targs = (Atom *) XtMalloc(sizeof(Atom) * 5);
     int n = 0;
 
+    if (targs == NULL) {
+      _XmConvertComplete(w, NULL, 0, 8, XA_ATOM, cs);
+      return;
+    }
     value = (XtPointer) targs;
 #ifdef UTF8_SUPPORTED
     targs[n] = atoms[XmAUTF8_STRING]; n++;
