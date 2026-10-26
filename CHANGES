@@ -20211,3 +20211,11 @@ Fix static libXm consumers missing the math-library dependency (2026-10-26)
   `lround`, and static consumers such as the Periodic demo previously failed
   to link with an unresolved `lround@@GLIBC` symbol.
 - Document the static-linking requirement in the native ABI guide.
+
+Clarify LabelGadget input guards (2026-10-26)
+==============================================
+
+- Align the display-rectangle and baseline-margin guarded paths with their
+  actual control flow, removing misleading-indentation warnings without
+  changing the public geometry or margin behavior.
+- Keep the existing null-input regressions as the behavioral coverage.

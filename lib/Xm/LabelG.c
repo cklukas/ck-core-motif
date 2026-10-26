@@ -3993,12 +3993,12 @@ XRectangle *displayrect)
     if (w == NULL || displayrect == NULL)
         return False;
 
-        displayrect->x = wid->label.TextRect.x;
-        displayrect->y = wid->label.TextRect.y;
-        displayrect->width = wid->label.TextRect.width;
-        displayrect->height = wid->label.TextRect.height;
+    displayrect->x = wid->label.TextRect.x;
+    displayrect->y = wid->label.TextRect.y;
+    displayrect->width = wid->label.TextRect.width;
+    displayrect->height = wid->label.TextRect.height;
 
-        return TRUE;
+    return TRUE;
 }
 
 
@@ -4018,21 +4018,21 @@ XmBaselineMargins *margins_rec)
     if (w == NULL || margins_rec == NULL)
         return;
 
-        if (margins_rec->get_or_set == XmBASELINE_SET)
+    if (margins_rec->get_or_set == XmBASELINE_SET)
     {
         _XmQualifyLabelLocalCache(&localCache, (XmLabelGadget)w);
-            _XmAssignLabG_MarginTop_r((&localCache), margins_rec->margin_top);
-            _XmAssignLabG_MarginBottom_r((&localCache), margins_rec->margin_bottom);
-            _XmReCacheLabG_r(&localCache, (XmLabelGadget)w);
+        _XmAssignLabG_MarginTop_r((&localCache), margins_rec->margin_top);
+        _XmAssignLabG_MarginBottom_r((&localCache), margins_rec->margin_bottom);
+        _XmReCacheLabG_r(&localCache, (XmLabelGadget)w);
     }
     else
     {
         margins_rec->margin_top = LabG_MarginTop(w);
-            margins_rec->margin_bottom = LabG_MarginBottom(w);
-            margins_rec->shadow = LabG_Shadow(w);
-            margins_rec->highlight = LabG_Highlight(w);
-            margins_rec->text_height = LabG_TextRect_height(w);
-            margins_rec->margin_height = LabG_MarginHeight(w);
+        margins_rec->margin_bottom = LabG_MarginBottom(w);
+        margins_rec->shadow = LabG_Shadow(w);
+        margins_rec->highlight = LabG_Highlight(w);
+        margins_rec->text_height = LabG_TextRect_height(w);
+        margins_rec->margin_height = LabG_MarginHeight(w);
     }
 }
 
