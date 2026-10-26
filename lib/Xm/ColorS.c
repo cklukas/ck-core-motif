@@ -1302,6 +1302,8 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
     FILE *file;
     char buf[BUFSIZ];
     char string_buffer[BUFSIZ];
+    char warning_source[256];
+    char warning_name[256];
     char *color_name;
     ColorInfo * color_info = NULL;
     register int i;
@@ -1405,8 +1407,10 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 	    if (len >= XmColorSelector_COLOR_NAME_SIZE) {
 		color_name[XmColorSelector_COLOR_NAME_SIZE - 1] = '\0';
 		len = XmColorSelector_COLOR_NAME_SIZE - 1;
+	(void) snprintf(warning_source, sizeof(warning_source), "%.255s", buf);
+	(void) snprintf(warning_name, sizeof(warning_name), "%.255s", color_name);
 		snprintf(string_buffer, BUFSIZ,
-			 XmNcolorNameTooLongMsg, buf, color_name);
+		 XmNcolorNameTooLongMsg, warning_source, warning_name);
 		XmeWarning((Widget)csw, string_buffer);
 	    }
 

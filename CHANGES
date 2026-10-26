@@ -1,3 +1,12 @@
+Bound ColorSelector long-name diagnostics (2026-10-27)
+=======================================================
+
+- Bound both interpolated color-name strings in the overlong-name warning so
+  `-Wall -Wformat=2` builds do not risk truncation in the diagnostic buffer.
+- Extend the focused color-name regression.
+
+====================================================
+
 Guard ColorSelector list-name conversion (2026-10-27)
 ======================================================
 
