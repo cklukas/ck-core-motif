@@ -10829,7 +10829,7 @@ df_SetValues(
           * continue with the action.
           */
 	  char *temp, *old;
-	  int free_insert;
+	  int free_insert = (int)False;
           XmTextPosition fromPos = 0, toPos;
           toPos = XmTextF_string_length(old_tf);
 	  if (XmTextF_max_char_size(new_tf) == 1) {
@@ -10840,11 +10840,15 @@ df_SetValues(
 	  } else {
 	     old = temp = XtMalloc((unsigned)((XmTextF_string_length(new_tf) + 1) *
 					      XmTextF_max_char_size(new_tf)));
-	     (void)wcstombs(temp, XmTextF_wc_value(new_tf), 
-	         (XmTextF_string_length(new_tf) + 1) * XmTextF_max_char_size(new_tf));
-	     mod_ver_ret = df_ModifyVerify(new_tf, NULL, &fromPos, &toPos, &temp,
-					&XmTextF_string_length(new_tf), &newInsert,
-					&free_insert);
+	     if (temp == NULL) {
+		mod_ver_ret = False;
+	     } else {
+		(void)wcstombs(temp, XmTextF_wc_value(new_tf),
+		    (XmTextF_string_length(new_tf) + 1) * XmTextF_max_char_size(new_tf));
+		mod_ver_ret = df_ModifyVerify(new_tf, NULL, &fromPos, &toPos, &temp,
+					       &XmTextF_string_length(new_tf), &newInsert,
+					       &free_insert);
+	     }
 	     if (old != temp) XtFree (old);
           }
 	  if (free_insert) XtFree(temp);

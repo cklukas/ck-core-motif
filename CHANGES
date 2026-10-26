@@ -1,3 +1,12 @@
+Check legacy DataField verify conversion buffer (2026-10-27)
+=============================================================
+
+- Reject a wide modify-verify operation when its temporary multibyte buffer
+  cannot be allocated, avoiding conversion through NULL.
+- Add a focused source regression and documentation.
+
+=============================================================
+
 Guard legacy DataField diagnostic and getter allocations (2026-10-27)
 =====================================================================
 
