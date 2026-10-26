@@ -4362,7 +4362,12 @@ XmTextSetStringWcs(Widget widget,
     }
     result = wcstombs(tmp, wc_value, allocation_bytes);
     
-    if (result == (size_t) -1) {/* if wcstombs fails, it returns (size_t) -1 */
+    if (result == (size_t) -1 || result >= allocation_bytes) {
+      tmp[0] = '\0';           /* invalid or unterminated conversion */
+    } else {
+      tmp[result] = '\0';
+    }
+    if (result == (size_t) -1) {
       XtFree(tmp);              /* if invalid data, pass in the empty string */
       _XmTextSetString(widget, "");
     } else {

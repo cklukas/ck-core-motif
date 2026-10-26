@@ -22972,3 +22972,10 @@ Clean up XmText PreeditDraw aborts (2026-10-26)
   text source rejects an update, restoring insertion-point painting on failure.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-preedit-draw-cleanup.py
+
+Terminate XmTextSetStringWcs conversions (2026-10-26)
+=======================================================
+- Guard against a multibyte conversion filling the entire destination and
+  reaching string consumers without a NUL terminator.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-set-string-wcs-termination.py
