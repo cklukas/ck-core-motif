@@ -4145,7 +4145,8 @@ XmTextSetStringWcs(Widget widget,
 {
   char * tmp;
   int num_chars = 0;
-  int result;
+  size_t result;
+  size_t allocation_bytes;
   XmTextWidget tw = (XmTextWidget) widget;
   _XmWidgetToAppContext(widget);
 
@@ -4158,12 +4159,34 @@ XmTextSetStringWcs(Widget widget,
       textT->setValue(widget, (XtPointer)wc_value, XmFORMAT_WCS);
   } else {
 
-    for (num_chars = 0; wc_value[num_chars] != (wchar_t)0L; num_chars++)
+    if (wc_value == NULL) {
+      _XmTextSetString(widget, "");
+      _XmAppUnlock(app);
+      return;
+    }
+
+    for (num_chars = 0; wc_value[num_chars] != (wchar_t)0L; num_chars++) {
+      if (num_chars == INT_MAX) {
+        _XmAppUnlock(app);
+        return;
+      }
       /*EMPTY*/; 
+    }
   
-    tmp = XtMalloc((unsigned) (num_chars + 1) * (int)tw->text.char_size);
-    result = wcstombs(tmp, wc_value, 
-		      (num_chars + 1) * (int)tw->text.char_size);
+    if (tw->text.char_size <= 0 ||
+	(size_t)(num_chars + 1) >
+	  (size_t)UINT_MAX / (size_t)tw->text.char_size) {
+      _XmAppUnlock(app);
+      return;
+    }
+    allocation_bytes = (size_t)(num_chars + 1) *
+	(size_t)tw->text.char_size;
+    tmp = XtMalloc((Cardinal)allocation_bytes);
+    if (tmp == NULL) {
+      _XmAppUnlock(app);
+      return;
+    }
+    result = wcstombs(tmp, wc_value, allocation_bytes);
     
     if (result == (size_t) -1) {/* if wcstombs fails, it returns (size_t) -1 */
       XtFree(tmp);              /* if invalid data, pass in the empty string */

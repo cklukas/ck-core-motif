@@ -140,6 +140,14 @@ Guard text reset overstrike allocation (2026-10-27)
 - Restore insertion-point display and reset preedit state on failure.
 - Add a focused source regression and documentation.
 
+Guard XmTextSetStringWcs storage (2026-10-27)
+==============================================
+
+- Handle null wide-string input as an empty value.
+- Bound wide-string character counting and conversion-buffer allocation before
+  calling `wcstombs`.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
