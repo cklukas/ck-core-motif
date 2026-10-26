@@ -16671,3 +16671,12 @@ Guard DataField class binding allocation (2026-10-27)
 - Add a focused source regression and documentation.
 
 ====================================================
+
+Guard DataField selection-array allocation (2026-10-27)
+========================================================
+
+- Restore the configured selection-scan array if dedicated-copy allocation
+  fails, avoiding a null `memcpy`.
+- Add a focused source regression and documentation.
+
+====================================================

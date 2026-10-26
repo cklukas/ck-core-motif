@@ -8797,6 +8797,10 @@ df_Validates(
     
     XmTextF_selection_array(tf) = (XmTextScanType *)XtMalloc (
 		 XmTextF_selection_array_count(tf) * sizeof(XmTextScanType));
+    if (XmTextF_selection_array(tf) == NULL) {
+       XmTextF_selection_array(tf) = (XmTextScanType *)temp_ptr;
+       return;
+    }
     memcpy((void *)XmTextF_selection_array(tf), (void *)temp_ptr,
 	   (XmTextF_selection_array_count(tf) * sizeof(XmTextScanType)));
 /*
