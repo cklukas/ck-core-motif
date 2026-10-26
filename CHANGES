@@ -18281,6 +18281,14 @@ Guard null widget in _XmConfigureWidget (2026-10-27)
 Refresh Xm image-cache output regression check (2026-10-27)
 ===========================================================
 
+Refresh Xm pixmap-data validation regression check (2026-10-27)
+================================================================
+
+- Match optional output-pointer assertions to the current `if (pointer)`
+  initialization contract while retaining screen/pixmap and cache guards.
+
+================================================================
+
 - Match the output-pointer assertion to the current combined screen and
   image null guard in `GetImage`.
 
