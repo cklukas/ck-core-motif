@@ -16041,6 +16041,13 @@ Check deferred clipboard snapshot allocations (2026-10-27)
 - Add a focused source regression and documentation.
 
 Guard deferred clipboard snapshot callbacks (2026-10-27)
+Make CommandPalette label assembly linear (2026-10-27)
+=======================================================
+
+- Fill pre-sized command labels with offset-based copies instead of repeated
+  `strcat` scans while filtering.
+- Add a focused source regression and documentation.
+
 Make compound-text property assembly linear (2026-10-27)
 =========================================================
 
