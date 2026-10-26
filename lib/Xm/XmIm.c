@@ -567,6 +567,9 @@ XmImRegister(Widget w,
   XmImRegistration registration;
   XmInputPolicy input_policy = XmINHERIT_POLICY;
 
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);
   
   _XmAppLock(app);

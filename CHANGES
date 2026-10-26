@@ -1,3 +1,12 @@
+Guard input-method registration input (2026-10-27)
+===================================================
+
+- Return before context lookup or parent traversal when `XmImRegister`
+  receives a null widget.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard input-method varargs setter inputs (2026-10-27)
 ======================================================
 
