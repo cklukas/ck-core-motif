@@ -19890,6 +19890,13 @@ Bound Text selection hints (2026-10-26)
   them in the 16-bit hint fields used by drag and multi-click selection.
 - Add focused regression coverage and documentation.
 
+Fix Text RTL autoscroll axis (2026-10-26)
+==========================================
+
+- Update the horizontal position in the RTL left-edge autoscroll branch,
+  instead of overwriting the vertical selection coordinate.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 

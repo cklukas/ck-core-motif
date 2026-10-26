@@ -4327,7 +4327,7 @@ CheckTimerScrolling(Widget w,
       } else if (event->xmotion.x <= 
 		 (int) ((tw->core.width - o_data->rightmargin) - 
 			(o_data->linewidth * (o_data->number_lines + 1))))
-	data->select_pos_y = ClampTextPointCoordinate((int)
+	data->select_pos_x = ClampTextPointCoordinate((int)
 		((tw->core.width - o_data->rightmargin) -
 			      (o_data->linewidth * (o_data->number_lines + 1))));
       
