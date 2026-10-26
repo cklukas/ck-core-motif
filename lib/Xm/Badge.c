@@ -180,7 +180,9 @@ Widget XmVaCreateManagedBadge(Widget parent, char *name, ...) {
     Va_start(var, name); widget = XmeVLCreateWidget(name, xmBadgeWidgetClass, parent, True, var, count); va_end(var); return widget;
 }
 int XmBadgeGetDisplayedCount(Widget widget) {
-    XmBadgeWidget badge = (XmBadgeWidget)widget;
-    if (!XmIsBadge(widget) || badge->badge.count < 0) return -1;
+    XmBadgeWidget badge;
+    if (widget == NULL || !XmIsBadge(widget)) return -1;
+    badge = (XmBadgeWidget)widget;
+    if (badge->badge.count < 0) return -1;
     return badge->badge.count > badge->badge.maximum ? badge->badge.maximum : badge->badge.count;
 }
