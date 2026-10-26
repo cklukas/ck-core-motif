@@ -514,6 +514,23 @@ SourceLineCharacter(XmSourceData data, XmTextPosition position)
   return (unsigned long)wide_character;
 }
 
+static unsigned long
+SourceNewlineCharacter(XmSourceData data)
+{
+  int character_size = data->widgets[0]->text.char_size;
+  BITS16 short_character;
+  wchar_t wide_character;
+
+  if (character_size == 1)
+    return (unsigned long)(unsigned char)data->PSWC_NWLN[0];
+  if (character_size == 2) {
+    memcpy(&short_character, data->PSWC_NWLN, sizeof(short_character));
+    return (unsigned long)short_character;
+  }
+  memcpy(&wide_character, data->PSWC_NWLN, sizeof(wide_character));
+  return (unsigned long)wide_character;
+}
+
 /* UAX #14 mandatory separators (BK/CR/LF/NL). CRLF is paired by the
  * scanner; the other separators each consume one native scalar. */
 static Boolean
@@ -577,12 +594,9 @@ CountLines(XmTextSource source,
 	   unsigned long length)
 {
   XmSourceData data = source->data;
-  XmTextWidget tw = (XmTextWidget) data->widgets[0];
   int num_lines = 0;
-  unsigned long seg_length;
-  char *ptr;
-  BITS16 *bits16_ptr, *bits16_gap_start, *bits16_gap_end;
-  wchar_t *wchar_t_ptr, *wchar_t_gap_start, *wchar_t_gap_end;
+  unsigned long newline;
+  XmTextPosition position, end;
 
   if (start < 0) {
     unsigned long skipped = (unsigned long)(-(start + 1)) + 1;
@@ -595,7 +609,6 @@ CountLines(XmTextSource source,
     length = (unsigned long)(data->length - start);
 
   if (source->Scan == Scan && XmTextUnicodeLocaleAvailable()) {
-    XmTextPosition position, end;
     end = start + (XmTextPosition)length;
     /* Charge a pair when its LF completes, so adjacent partial ranges add
      * to the whole-range count even if the gap/range splits CR from LF. */
@@ -607,96 +620,15 @@ CountLines(XmTextSource source,
     }
     return num_lines;
   }
-  
-  /* verify that the 'start' and 'length' parameters are reasonable */
-  
-  if (length == 0) return num_lines;
-  
-  seg_length = (data->gap_start - data->ptr) / (tw->text.char_size < 3 ?
-						(int)tw->text.char_size :
-						sizeof(wchar_t));
-  
-  /* make sure the segment length is not greater than the length desired */
-  if (length < seg_length) seg_length = length;
-  
-  switch ((int)tw->text.char_size) {
-  case 1: {
-    /* setup the variables for the search of new lines before the gap */
-    ptr = data->ptr + start;
-    
-    /* search up to gap */
-    while (seg_length--) {
-      if (*ptr++ == *(data->PSWC_NWLN)) ++num_lines;
-    }
-    
-    /* check to see if we need more data after the gap */
-    if ((int)length > data->gap_start - (data->ptr + start)) {
-      if (data->gap_start - (data->ptr + start) > 0) /* if we searched
-						      * before gap,
-						      * adjust length */
-	length -= data->gap_start - (data->ptr + start);
-      ptr = data->gap_end;
 
-      /* continue search till length is completed */
-      while (length--) {
-	if (*ptr++ == *(data->PSWC_NWLN)) ++num_lines;
-      }
-    }
-    break;
-  } /* end case 1 */
-  case 2: {
-    /* setup the variables for the search of new lines before the gap */
-    bits16_ptr = (BITS16 *) data->ptr;
-    bits16_gap_start = (BITS16 *) data->gap_start;
-    bits16_gap_end = (BITS16 *) data->gap_end;
-    bits16_ptr += start;
-    
-    /* search up to gap */
-    while (seg_length--) {
-      if (*bits16_ptr++ == *(BITS16 *)(data->PSWC_NWLN)) ++num_lines;
-    }
-    
-    /* check to see if we need more data after the gap */
-    if ((int)length > bits16_gap_start - ((BITS16 *)data->ptr + start)) {
-      /* if we searched before gap, adjust length */
-      if (bits16_gap_start - ((BITS16 *)data->ptr + start) > 0)
-	length -= bits16_gap_start - ((BITS16 *)data->ptr + start);
-      bits16_ptr = bits16_gap_end;
-      
-      /* continue search till length is completed */
-      while (length--) {
-	if (*bits16_ptr++ == *(BITS16 *)(data->PSWC_NWLN)) ++num_lines;
-      }
-    }
-    break;
-  } /* end case 2 */
-  default: {
-    /* setup the variables for the search of new lines before the gap */
-    wchar_t_ptr = (wchar_t *) data->ptr;
-    wchar_t_gap_start = (wchar_t *) data->gap_start;
-    wchar_t_gap_end = (wchar_t *) data->gap_end;
-    wchar_t_ptr += start;
-    
-    /* search up to gap */
-    while (seg_length--) {
-      if (*wchar_t_ptr++ == *(wchar_t *)(data->PSWC_NWLN)) ++num_lines;
-    }
-    
-    /* check to see if we need more data after the gap */
-    if ((int)length > wchar_t_gap_start - ((wchar_t *)data->ptr + start)) {
-      /* if we searched before gap, adjust length */
-      if (wchar_t_gap_start - ((wchar_t *)data->ptr + start) > 0)
-	length -= wchar_t_gap_start - ((wchar_t *)data->ptr + start);
-      wchar_t_ptr = wchar_t_gap_end;
-      
-      /* continue search till length is completed */
-      while (length--) {
-	if (*wchar_t_ptr++ == *(wchar_t *)(data->PSWC_NWLN)) ++num_lines;
-      }
-    }
-    break;
-  } /* end default */
-  } /* end switch */
+  if (length == 0)
+    return num_lines;
+
+  newline = SourceNewlineCharacter(data);
+  end = start + (XmTextPosition)length;
+  for (position = start; position < end; ++position)
+    if (SourceLineCharacter(data, position) == newline)
+      ++num_lines;
   return num_lines;
 }
 

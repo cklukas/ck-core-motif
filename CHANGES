@@ -18,6 +18,10 @@ Add modern density selection and transactional layout defaults (2026-10-26)
   gates; this change does not claim completion of the rendered control matrix.
 
 2026-10-27
+	* Replace legacy Text line-count split-gap pointer arithmetic with bounded
+	  source-character traversal; see docs/text-line-count-bounds.md.
+
+2026-10-27
 	* Bound DataField text, locale, and compound-text selection buffers before
 	  copy/conversion; see docs/datafield-selection-value-allocation.md.
 
