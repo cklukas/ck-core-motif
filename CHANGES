@@ -1,3 +1,11 @@
+Bound wide-string text-search conversion (2026-10-27)
+======================================================
+
+- Keep `XmTextFindStringWcs` search lengths wide, validate the multibyte
+  allocation before narrowing to Xt's `Cardinal`, and handle null/failed
+  conversion buffers safely.
+- Add a focused source regression and documentation.
+
 Make virtual-key binding assembly linear (2026-10-27)
 ======================================================
 

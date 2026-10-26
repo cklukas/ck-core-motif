@@ -28,6 +28,7 @@
 #endif
 
 #include <ctype.h>
+#include <stdint.h>
 #include <X11/Xmd.h>
 #include <Xm/XmosP.h>		/* for <stdlib.h>, and wcstombs() */
 #include "XmI.h"
@@ -963,19 +964,31 @@ XmTextFindStringWcs(Widget w,
 {
   wchar_t *tmp_wc;
   char *string;
-  int num_chars = 0;
+  size_t num_chars = 0;
+  size_t allocation_size;
   Boolean return_val = False;
   XmTextWidget tw = (XmTextWidget) w;
   int wcs_ret_val = 0;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
-  if (!XmIsTextField(w)) {
-    for (num_chars = 0, tmp_wc = wc_string; *tmp_wc != (wchar_t)0L;
-	 num_chars++) tmp_wc++;
-    string = XtMalloc ((unsigned) (num_chars + 1) * (int)tw->text.char_size);
+  if (!XmIsTextField(w) && wc_string != NULL) {
+    for (tmp_wc = wc_string; *tmp_wc != (wchar_t)0L; num_chars++)
+      tmp_wc++;
+    if (tw->text.char_size == 0 || num_chars == SIZE_MAX ||
+        num_chars + 1 > SIZE_MAX / (size_t)tw->text.char_size ||
+        (num_chars + 1) * (size_t)tw->text.char_size > (size_t)UINT_MAX) {
+      _XmAppUnlock(app);
+      return False;
+    }
+    allocation_size = (num_chars + 1) * (size_t)tw->text.char_size;
+    string = XtMalloc ((Cardinal)allocation_size);
+    if (string == NULL) {
+      _XmAppUnlock(app);
+      return False;
+    }
     wcs_ret_val = wcstombs(string, wc_string,
-			   (num_chars + 1) * (int)tw->text.char_size);
+                           allocation_size);
     if (wcs_ret_val >= 0)
       return_val = XmTextFindString(w, start, string, direction, position);
     XtFree(string);
