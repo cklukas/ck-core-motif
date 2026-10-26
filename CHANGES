@@ -16698,3 +16698,12 @@ Guard DataField pixmap context allocation (2026-10-27)
 - Add a focused source regression and documentation.
 
 ====================================================
+
+Guard DataField clip-mask X resources (2026-10-27)
+===================================================
+
+- Check pixmap and fill-GC creation before drawing, releasing the pixmap if GC
+  creation fails.
+- Add a focused source regression and documentation.
+
+====================================================

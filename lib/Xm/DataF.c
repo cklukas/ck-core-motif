@@ -9361,10 +9361,16 @@ df_GetClipMask(
 
    clip_mask = XCreatePixmap(dpy, RootWindowOfScreen(screen), 
 			     XmTextF_cursor_width(tf), XmTextF_cursor_height(tf), 1);
+   if (clip_mask == None)
+       return None;
 
    values.foreground = 1;
    values.background = 0;
    fillGC = XCreateGC(dpy, clip_mask, GCForeground | GCBackground, &values);
+   if (fillGC == NULL) {
+       XFreePixmap(dpy, clip_mask);
+       return None;
+   }
 
    XFillRectangle(dpy, clip_mask, fillGC, 0, 0, XmTextF_cursor_width(tf),
 		  XmTextF_cursor_height(tf));
