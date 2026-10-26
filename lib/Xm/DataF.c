@@ -11278,6 +11278,19 @@ XmDataFieldGetSubstring(
     _XmWidgetToAppContext(widget);    
     _XmAppLock(app);
 
+    if (buffer == NULL || start < 0 || num_chars < 0 ||
+	start > XmTextF_string_length(tf))
+    {
+	_XmAppUnlock(app);
+	return XmCOPY_FAILED;
+    }
+
+    if (num_chars > XmTextF_string_length(tf) - start)
+    {
+	num_chars = (int)(XmTextF_string_length(tf) - start);
+	ret_value = XmCOPY_TRUNCATED;
+    }
+
     if (XmTextF_max_char_size(tf) != 1)
     {
 	n_bytes = _XmDataFieldCountBytes(tf, XmTextF_wc_value(tf)+start, num_chars);
@@ -11287,27 +11300,12 @@ XmDataFieldGetSubstring(
 	n_bytes = num_chars; 
     }
 
-    if (buf_size < n_bytes + 1 )
+    if (n_bytes < 0 || n_bytes >= INT_MAX || buf_size <= n_bytes)
     {
       _XmAppUnlock(app);
       return XmCOPY_FAILED;
     }
 
-    if (start + num_chars > XmTextF_string_length(tf)) 
-    {
-	num_chars = (int) (XmTextF_string_length(tf) - start);
-	if (XmTextF_max_char_size(tf) != 1)
-	{
-	    n_bytes = _XmDataFieldCountBytes(tf, XmTextF_wc_value(tf)+start,
-					     num_chars);
-	}
-	else
-	{
-	    n_bytes = num_chars; 
-	}
-	ret_value = XmCOPY_TRUNCATED;
-    }
-      
     if (num_chars > 0) {
 	if (XmTextF_max_char_size(tf) == 1) 
 	{
