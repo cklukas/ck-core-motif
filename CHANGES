@@ -20,6 +20,14 @@ Guard MWM binding token boundaries (2026-10-26)
   pointer.
 - Document the boundary contract and extend the binding-growth regression.
 
+Preserve XPM comment marker lengths (2026-10-26)
+================================================
+
+- Keep in-memory XPM comment marker lengths and the ending-marker copy index in
+  `size_t` so `strlen` results are not narrowed before comparisons or pointer
+  advances.
+- Document the behavior and add a source-contract regression.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 

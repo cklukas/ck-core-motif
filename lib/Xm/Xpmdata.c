@@ -61,8 +61,8 @@ ParseComment(xpmData *data)
 	char *start = data->cptr - 1;
 	const char *begin = data->Bcmt;
 	const char *end = data->Ecmt;
-	unsigned int begin_len = (unsigned int)strlen(begin);
-	unsigned int end_len = end ? (unsigned int)strlen(end) : 0;
+	size_t begin_len = strlen(begin);
+	size_t end_len = end ? strlen(end) : 0;
 	unsigned int n = 0;
 	char *p;
 
@@ -78,7 +78,7 @@ ParseComment(xpmData *data)
 	while (*data->cptr != '\0') {
 	    if (end_len != 0 &&
 		strncmp(data->cptr, end, end_len) == 0) {
-		unsigned int i;
+		size_t i;
 		for (i = 0; i < end_len && n < XPMMAXCMTLEN - 1; ++i)
 		    *p++ = end[i], ++n;
 		data->cptr += end_len;
