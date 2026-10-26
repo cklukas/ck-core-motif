@@ -599,6 +599,8 @@ void
 _XmConfigureWidget(Widget w, Position x, Position y,
 		   Dimension width, Dimension height, Dimension bw)
 {
+    if (w == NULL)
+        return;
     /* 0x0 will sometimes result in a BadValue Error for X_ConfigureWindow */
     if (height < 1) height = 1;
     if (width < 1) width = 1;
