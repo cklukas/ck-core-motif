@@ -22874,3 +22874,10 @@ Make TextField transfer-action allocation transactional (2026-10-26)
   transfer-action or event allocation fails.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-transfer-action.py
+
+Check TextField clear-selection allocation (2026-10-26)
+==========================================================
+- Handle temporary wide-space buffer allocation failure during multibyte
+  selection clearing and restore insertion-point painting.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-clear-selection.py

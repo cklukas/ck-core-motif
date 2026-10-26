@@ -6598,6 +6598,10 @@ ClearSelection(Widget w,
       
       wc_spaces = (wchar_t *)XtMalloc((unsigned)
 				      (num_spaces + 1) * sizeof(wchar_t));
+      if (wc_spaces == NULL) {
+	_XmTextFieldDrawInsertionPoint(tf, True);
+	return;
+      }
       
       for (i = 0; i < num_spaces; i++) {
 	(void)mbtowc(&wc_spaces[i], " ", 1);
