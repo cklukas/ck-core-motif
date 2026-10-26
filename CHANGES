@@ -22062,3 +22062,12 @@ Harden DnD callback teardown (2026-10-26)
 
 Bound transfer request counters (2026-10-26)
 =============================================
+Validate central conversion-handler inputs (2026-10-26)
+========================================================
+
+- Reject incomplete widget, atom, and output-pointer arguments at the common
+  clipboard/selection/drag conversion boundary.
+- Add focused regression coverage and documentation.
+
+Harden DnD callback teardown (2026-10-26)
+==========================================

@@ -144,6 +144,10 @@ _XmConvertHandler(Widget wid, Atom *selection, Atom *target,
   Atom real_selection_atom = None; /* DND hides the selection atom from us */
   int my_local_convert_flag;
 
+  if (wid == NULL || selection == NULL || target == NULL || type == NULL ||
+      value == NULL || size == NULL || fmt == NULL)
+    return False;
+
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(wid), atom_names, XtNumber(atom_names), False, atoms);
 
