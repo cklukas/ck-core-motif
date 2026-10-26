@@ -4924,6 +4924,8 @@ XiRotateImage(tab, src, degree)
     if (allocation > UINT_MAX)
 	return NULL;
     data = (char*) XtMalloc((Cardinal)allocation);
+    if (data == NULL)
+	return NULL;
 
     if( degree == 0 || degree == 180 )
     {
@@ -4932,6 +4934,10 @@ XiRotateImage(tab, src, degree)
 			   depth, (depth == 1 ? XYBitmap : XYPixmap),
 			   0, data, width, height,
 			   8, 0);
+	if (dst == NULL) {
+	    XtFree(data);
+	    return NULL;
+	}
 
 	if( degree == 180 )
 	{
@@ -4961,6 +4967,10 @@ XiRotateImage(tab, src, degree)
 			   GetShellVisual((Widget)tab),
 			   depth, (depth == 1 ? XYBitmap : XYPixmap),
 			   0, data, height, width, 8, 0);
+	if (dst == NULL) {
+	    XtFree(data);
+	    return NULL;
+	}
 
 	if( degree == 90 )
 	{

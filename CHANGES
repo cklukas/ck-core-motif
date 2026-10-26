@@ -19436,3 +19436,14 @@ Handle RTL compound-string allocation failure (2026-10-27)
 
 Handle scale tick child-creation failures (2026-10-27)
 =======================================================
+Handle tab-box image rotation failures (2026-10-27)
+===================================================
+
+- Check pixel-buffer allocation and `XCreateImage` results before writing
+  rotated tab-box pixels, releasing the buffer on failure.
+- Add focused regression coverage and documentation.
+
+============================================================
+
+Handle RTL compound-string allocation failure (2026-10-27)
+===========================================================
