@@ -1,3 +1,11 @@
+Refresh Xm protocol null-shell check (2026-10-27)
+=================================================
+
+- Accept the shared shell/protocol validation used by the add/remove
+  functions while retaining null-shell coverage for every protocol API.
+
+============================================================
+
 Refresh Xm pixmap table initialization check (2026-10-27)
 ==========================================================
 
