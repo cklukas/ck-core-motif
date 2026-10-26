@@ -1,3 +1,13 @@
+XmTabbedStackList sensitivity mask (2026-10-27)
+================================================
+
+- Test `XmTAB_SENSITIVE` with a bitwise mask during tab insertion, preventing
+  unrelated attribute bits from changing a tab's sensitivity.
+- Add `tests/automated/check-tablist-sensitive-mask.py` and document the
+  compatibility-preserving correction.
+
+============================================================
+
 Refresh Xpm pixel-dimension check (2026-10-27)
 ===============================================
 
