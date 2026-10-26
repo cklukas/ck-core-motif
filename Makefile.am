@@ -1184,3 +1184,5 @@ EXTRA_DIST += tests/automated/check-static-link-math.py
 EXTRA_DIST += tests/automated/check-xmstring-entry-text-input.py
 
 EXTRA_DIST += docs/periodic-modern-appearance.md
+
+EXTRA_DIST += tests/automated/check-arrow-bounds.c tests/automated/run-arrow-bounds.py

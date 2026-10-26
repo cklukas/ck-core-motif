@@ -883,7 +883,7 @@ DrawArrow(XmArrowButtonWidget aw,
 {
   Position x, y;
   Dimension width, height;
-  Dimension margin = (aw->primitive.highlight_thickness + 
+  unsigned int margin = ((unsigned int)aw->primitive.highlight_thickness +
 			  aw->primitive.shadow_thickness);
   
   /* Don't let large margins cause confusion. */
@@ -909,12 +909,8 @@ DrawArrow(XmArrowButtonWidget aw,
       height = 0;
     }
 
-  /* A partially initialized widget can reach redisplay after a failed
-     resource allocation.  Do not pass missing GCs or empty geometry into
-     the X drawing helpers. */
-  if (width == 0 || height == 0 || top_gc == NULL || bottom_gc == NULL)
-    return;
-  
+  _XmAppearanceInsetArrow((Widget)aw, &x, &y, &width, &height);
+
   /* A partially initialized widget can reach redisplay after a failed
      resource allocation.  Do not pass missing GCs or empty geometry into
      the X drawing helpers. */
