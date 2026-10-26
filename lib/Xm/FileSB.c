@@ -2080,6 +2080,15 @@ QualifySearchDataProc(
         _XmOSQualifyFileSpec( dirPartPtr, patternPartPtr,
                                             &qualifiedDir, &qualifiedPattern) ;
         }
+    if (qualifiedDir == NULL || qualifiedPattern == NULL)
+    {
+        XtFree( qualifiedPattern) ;
+        XtFree( qualifiedDir) ;
+        XtFree( patternString) ;
+        XtFree( dirString) ;
+        XtFree( maskString) ;
+        return ;
+    }
     qDirLen = strlen( qualifiedDir) ;
     {
         size_t qPatternLen = strlen( qualifiedPattern);
