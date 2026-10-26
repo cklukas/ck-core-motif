@@ -7,7 +7,6 @@
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
 #include <stdio.h>
-#include <string.h>
 #include <limits.h>
 #include "PrimitiveI.h"
 
@@ -97,12 +96,6 @@ static void Destroy(Widget widget) {
     if (link->link.target) XtFree(link->link.target);
     /* Xt releases XmNlinkLabel resource storage after Destroy. */
 }
-static void text_value(XmLinkWidget link, char *buffer, size_t size) {
-    char *text = XmStringUnparse(link->link.label, NULL, XmCHARSET_TEXT,
-                                 XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
-    if (text) { snprintf(buffer, size, "%s", text); XtFree(text); }
-    else buffer[0] = '\0';
-}
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmLinkWidget link = (XmLinkWidget)widget; Dimension text_width = 0, text_height = 0;
     XmString label;
@@ -173,18 +166,15 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
 }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
-    XmLinkWidget link = (XmLinkWidget)widget; char text[256];
-    size_t length;
-    (void)request; text_value(link, text, sizeof(text));
+    XmLinkWidget link = (XmLinkWidget)widget;
+    (void)request;
     reply->request_mode = CWWidth | CWHeight;
-    length = strlen(text);
     {
         Dimension measured_width = 0, measured_height = 0;
         if (link->link.render_table && link->link.label)
             XmStringExtent(link->link.render_table, link->link.label,
                            &measured_width, &measured_height);
-        unsigned long width = measured_width > 0 ? (unsigned long)measured_width :
-                               length > ULONG_MAX / 8UL ? ULONG_MAX : length * 8UL;
+        unsigned long width = measured_width > 0 ? (unsigned long)measured_width : 0;
         reply->width = width > (unsigned long)(Dimension)-1 - 8UL
                            ? (Dimension)-1 : (Dimension)(width + 8UL);
     }

@@ -14989,6 +14989,13 @@ TabBox standalone background fallback (2026-10-27)
   boxes no longer paint their unused area black.
 
 Stepper control glyphs (2026-10-27)
+Link full XmString geometry (2026-10-27)
+=========================================
+
+- Remove the fixed 256-byte unparse buffer from Link preferred-size
+  calculation. Geometry now relies directly on the complete render-table
+  `XmString`, preserving long and multilingual labels.
+
 Small-widget render-table SetValues redraws (2026-10-27)
 =========================================================
 

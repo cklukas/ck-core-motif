@@ -76,6 +76,10 @@ by `tests/automated/check-prompt-render-redraw.py`.
 Avatar, Badge, and Divider now do the same; coverage is in
 `tests/automated/check-small-render-redraw.py`.
 
+Link preferred-size calculation now measures the complete `XmString` directly
+instead of truncating through a fixed unparse buffer. This is covered by
+`tests/automated/check-link-geometry-unparse.py`.
+
 The first widget review was a bounded starting point. The age of the inherited
 code is a reason to continue targeted maintenance; neither a short patch list
 nor a large test count establishes that the toolkit is finished.
