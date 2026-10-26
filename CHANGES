@@ -20052,6 +20052,14 @@ Bound TextField paging geometry (2026-10-26)
 - Leave horizontal offset unchanged when margins consume the viewport.
 - Add focused regression coverage and documentation.
 
+Bound TextField full-GC clipping (2026-10-26)
+===============================================
+
+- Widen shadow/highlight inset arithmetic before calculating full-GC clip
+  dimensions, producing zero clips instead of wrapped rectangles.
+- Clamp clip origins before installing them on X11.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
