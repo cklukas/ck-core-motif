@@ -16538,3 +16538,13 @@ Guard DataField action event snapshots (2026-10-27)
 ===================================================
 
 Harden DataField replace conversions (2026-10-27)
+Guard DataField clipboard paste buffers (2026-10-27)
+====================================================
+
+- Bound clipboard lengths before converting them to Xt allocation sizes and
+  check the paste buffer before retrieval.
+- Add a focused source regression and documentation.
+
+====================================================
+
+Guard DataField action event snapshots (2026-10-27)

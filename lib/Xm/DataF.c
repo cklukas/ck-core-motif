@@ -12636,7 +12636,15 @@ XmDataFieldPaste(
    }
 
    /* malloc length of clipboard data */
-   buffer = XtMalloc((unsigned) length);
+   if (length > UINT_MAX) {
+	_XmAppUnlock(app);
+	return False;
+   }
+   buffer = XtMalloc((Cardinal)length);
+   if (buffer == NULL) {
+	_XmAppUnlock(app);
+	return False;
+   }
 
    if (!get_ct && !get_us) 
    {
