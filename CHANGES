@@ -22013,3 +22013,13 @@ Use the target screen for scaled images (2026-10-26)
 - Preserve the existing default-screen behavior for single-screen displays.
 - Add focused regression coverage and documentation.
 
+Reject incomplete drop contexts (2026-10-26)
+=============================================
+
+- Require a non-null drag context when initializing a destination drop
+  transfer, preventing null widget access during ICC-handle lookup and
+  cancellation paths.
+- Add focused regression coverage and documentation.
+
+Validate drag conversion callback state (2026-10-26)
+=====================================================

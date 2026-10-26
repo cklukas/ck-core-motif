@@ -1314,7 +1314,7 @@ _XmDestinationHandler(Widget wid, Atom selection, XtEnum op,
     Cardinal i;
     Arg args[1];
 
-    if (ds == NULL) {
+    if (ds == NULL || ds -> dragContext == NULL) {
       XtFree((char *)cbstruct);
       FreeTransferID((XtPointer)tc);
       return(False);
