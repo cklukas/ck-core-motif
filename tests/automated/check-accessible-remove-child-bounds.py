@@ -10,7 +10,7 @@ start = source.index("void XmAccessibilityRemove(")
 end = source.index("\n}", start) + 2
 region = source[start:end]
 
-guard = "if (parent->children == NULL || index >= parent->child_count ||\n        parent->child_count > parent->child_capacity)"
+guard = "if (parent->children == NULL || index >= parent->child_count ||\n        parent->child_count > parent->child_capacity ||\n        parent->children[index] != root)"
 assert guard in region
 assert region.index(guard) < region.index("--parent->child_count;")
 assert "if (index < parent->child_count)" in region

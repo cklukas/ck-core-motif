@@ -1,3 +1,12 @@
+Validate accessibility child identity during removal (2026-10-27)
+===================================================================
+
+- Require the recorded parent index to point to the node being removed before
+  compacting the accessibility child array.
+- Extend the focused child-removal regression and documentation.
+
+============================================================
+
 Bound Mrm icon allocation width (2026-10-27)
 =============================================
 

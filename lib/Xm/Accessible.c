@@ -906,7 +906,8 @@ void XmAccessibilityRemove(XmAccessibility *a, XmAccessibleId id) {
   if (parent) {
     index = root->child_index;
     if (parent->children == NULL || index >= parent->child_count ||
-        parent->child_count > parent->child_capacity)
+        parent->child_count > parent->child_capacity ||
+        parent->children[index] != root)
       return;
     --parent->child_count;
     children_changed(parent);
