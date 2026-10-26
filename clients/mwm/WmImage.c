@@ -356,6 +356,9 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
     static RList *bot_rects = NULL;
     WmScreenData	*pSD;
 
+    if (bitmap == None || width == 0 || height == 0)
+	return ((Pixmap)NULL);
+
     if ((top_rects == NULL) && 
 	(top_rects = AllocateRList 
 	((unsigned)2 * ICON_INTERNAL_SHADOW_WIDTH)) == NULL)
