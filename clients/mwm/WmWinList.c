@@ -2376,17 +2376,23 @@ void SetupSystemModalState (ClientData *pCD)
 	    
 	    maskPixmap = XCreateBitmapFromData (DISPLAY, pSD->rootWindow, 
 						(char *)mask_bits, width, height);
-	    
-	    xcolors[0].pixel = BlackPixel (DISPLAY, pSD->screen);
-	    xcolors[1].pixel = WhitePixel (DISPLAY, pSD->screen);
-	    XQueryColors (DISPLAY, DefaultColormap (DISPLAY, pSD->screen), 
-			  xcolors, 2);
-	    windowAttributes.cursor =
-		XCreatePixmapCursor (DISPLAY, pixmap, maskPixmap,
-				     &(xcolors[0]), &(xcolors[1]), 
-				     x_hot, y_hot);
-	    XFreePixmap (DISPLAY, pixmap);
-	    XFreePixmap (DISPLAY, maskPixmap);
+
+	    windowAttributes.cursor = None;
+	    if (pixmap != None && maskPixmap != None)
+	    {
+		xcolors[0].pixel = BlackPixel (DISPLAY, pSD->screen);
+		xcolors[1].pixel = WhitePixel (DISPLAY, pSD->screen);
+		XQueryColors (DISPLAY, DefaultColormap (DISPLAY, pSD->screen),
+			      xcolors, 2);
+		windowAttributes.cursor =
+		    XCreatePixmapCursor (DISPLAY, pixmap, maskPixmap,
+					 &(xcolors[0]), &(xcolors[1]),
+					 x_hot, y_hot);
+	    }
+	    if (pixmap != None)
+		XFreePixmap (DISPLAY, pixmap);
+	    if (maskPixmap != None)
+		XFreePixmap (DISPLAY, maskPixmap);
 	    
 	    pSD->inputScreenWindow =
 		XCreateWindow (DISPLAY, pSD->rootWindow, 0, 0,

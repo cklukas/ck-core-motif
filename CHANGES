@@ -21043,6 +21043,11 @@ Make MWM message initialization idempotent (2026-10-26)
 initMesg now initializes localized confirmation strings only once, preventing
 repeated calls from leaking previously allocated message strings.
 
+Guard MWM system-modal cursor resources (2026-10-26)
+-----------------------------------------------------
+SetupSystemModalState now creates the no-enter cursor only when both bitmap
+resources succeed; otherwise the modal input window uses the default cursor.
+
 Handle MWM cached-label X resource failure (2026-10-26)
 --------------------------------------------------------
 MakeCachedLabelPixmap now returns `None` when pixmap or graphics-context
