@@ -16172,3 +16172,14 @@ Bound XmString tag-cache length conversion (2026-10-27)
 ========================================================
 
 Bound compound-text CSI lookahead (2026-10-27)
+Bound multibyte XmString allocation width (2026-10-27)
+=======================================================
+
+- Check accumulated multibyte XmString lengths against Xt’s `Cardinal` range
+  before both helper allocations, preventing size truncation for oversized
+  compound strings.
+- Add a focused source regression and documentation.
+
+=======================================================
+
+Widen XmString tag-cache allocation arithmetic (2026-10-27)
