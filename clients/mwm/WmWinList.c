@@ -146,11 +146,14 @@ void AddClientToList (WmWorkspaceData *pWS, ClientData *pCD, Boolean onTop)
 	 * descendant of the system modal window.
 	 */
 
-	windowChanges.sibling = pSD->inputScreenWindow;
-	windowChanges.stack_mode = Below;
-	XConfigureWindow (DISPLAY, pCD->clientFrameWin,
-	    CWSibling | CWStackMode, &windowChanges);
-	belowSystemModal = True;
+	if (pSD->inputScreenWindow != None)
+	{
+	    windowChanges.sibling = pSD->inputScreenWindow;
+	    windowChanges.stack_mode = Below;
+	    XConfigureWindow (DISPLAY, pCD->clientFrameWin,
+		CWSibling | CWStackMode, &windowChanges);
+	    belowSystemModal = True;
+	}
     }
 
     if (pCD->transientLeader)
