@@ -1,3 +1,12 @@
+Guard drop-site unregistration input (2026-10-27)
+==================================================
+
+- Return before display lookup when `XmDropSiteUnregister` receives a null
+  widget.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard drop-site registration input (2026-10-27)
 ================================================
 

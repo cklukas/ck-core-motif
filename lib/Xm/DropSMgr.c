@@ -4325,6 +4325,10 @@ XmDropSiteUnregister(
         Widget widget )
 {
 	XmDropSiteManagerObject dsm;
+
+	if (widget == NULL)
+	    return;
+
 	_XmWidgetToAppContext(widget);
 
 	_XmAppLock(app);
