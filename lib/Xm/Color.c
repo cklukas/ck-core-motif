@@ -1318,6 +1318,19 @@ FromColorToBlackAndWhite(char *col)
 }
 
 static Boolean
+HasExpandedHexColor(const char *color)
+{
+   size_t i;
+
+   if (color == NULL || color[0] != '#' || strlen(color) != 13)
+      return False;
+   for (i = 1; i < 13; i++)
+      if (!isxdigit((unsigned char)color[i]))
+         return False;
+   return True;
+}
+
+static Boolean
 ReplaceColorWithGray(XpmColor *color, unsigned int gray)
 {
    char *replacement;
@@ -1361,7 +1374,7 @@ _XmConvertToBW(Widget w, Pixmap pm)
 	   if (im.ncolors <= 2) {
 		   if (im.ncolors == 1) {
 			   col = strdup(im.colorTable[0].c_color);
-               if (col != NULL && col[0] == '#') {
+               if (col != NULL && HasExpandedHexColor(col)) {
 				   bw = (FromColorToBlackAndWhite(col + 1) * 0.65);
                    ReplaceColorWithGray(&im.colorTable[0], bw);
 			   }
@@ -1370,7 +1383,7 @@ _XmConvertToBW(Widget w, Pixmap pm)
 		   } else {
 			   col = im.colorTable[0].c_color;
 			   col2 = im.colorTable[1].c_color;
-			   if ((col[0] == '#') && (col2[0] == '#')) {
+               if (HasExpandedHexColor(col) && HasExpandedHexColor(col2)) {
 				   bw = FromColorToBlackAndWhite(col + 1);
 				   bw2 = FromColorToBlackAndWhite(col2 + 1);
 				   if (bw >= bw2) {
@@ -1385,7 +1398,7 @@ _XmConvertToBW(Widget w, Pixmap pm)
 	   } else {
 		   for (i = 0; i < im.ncolors; i++) {
 			   col = im.colorTable[i].c_color;
-			   if (col[0] == '#') {
+               if (HasExpandedHexColor(col)) {
 				   bw = FromColorToBlackAndWhite(col + 1);
 				   ReplaceColorWithGray(&im.colorTable[i], bw);
 			   }

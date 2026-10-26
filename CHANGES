@@ -1,8 +1,9 @@
 Bound XPM grayscale color replacement (2026-10-27)
 ====================================================
 
-- Replace in-place writes of expanded grayscale colors with an allocated,
-  checked replacement string, avoiding overflow for short XPM hex colors.
+- Require an exact expanded hex color before reading grayscale channels, then
+  replace it with an allocated, checked string, avoiding over-read and overflow
+  for short or malformed XPM colors.
 - Add focused regression coverage and documentation.
 
 ============================================================

@@ -5,9 +5,12 @@ from pathlib import Path
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "Color.c").read_text(
     encoding="utf-8"
 )
-start = source.index("ReplaceColorWithGray")
+start = source.index("HasExpandedHexColor")
 helper = source[start:source.index("Pixmap\n_XmConvertToBW", start)]
 body = source[source.index("Pixmap\n_XmConvertToBW"):]
+assert "HasExpandedHexColor" in helper
+assert "strlen(color) != 13" in helper
+assert "isxdigit((unsigned char)color[i])" in helper
 assert "malloc(14)" in helper
 assert 'snprintf(replacement, 14, "#%04x%04x%04x"' in helper
 assert "XpmFree(color->c_color);" in helper
