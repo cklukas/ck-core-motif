@@ -19897,6 +19897,13 @@ Fix Text RTL autoscroll axis (2026-10-26)
   instead of overwriting the vertical selection coordinate.
 - Add focused regression coverage and documentation.
 
+Bound Text drag-distance arithmetic (2026-10-26)
+==================================================
+
+- Widen selection drag-coordinate differences before taking their magnitude,
+  preventing signed overflow in extreme event-coordinate cases.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 

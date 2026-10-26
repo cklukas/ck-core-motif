@@ -4096,9 +4096,15 @@ dragged(SelectionHint selectionHint,
         XEvent *event,
         int threshold)
 {
-  int xdiff, ydiff;
-  xdiff = event ? abs(selectionHint.x - event->xbutton.x) : 0;
-  ydiff = event ? abs(selectionHint.y - event->xbutton.y) : 0;
+  int64_t xdiff, ydiff;
+  if (event) {
+    xdiff = (int64_t)selectionHint.x - (int64_t)event->xbutton.x;
+    ydiff = (int64_t)selectionHint.y - (int64_t)event->xbutton.y;
+    if (xdiff < 0) xdiff = -xdiff;
+    if (ydiff < 0) ydiff = -ydiff;
+  } else {
+    xdiff = ydiff = 0;
+  }
   if((xdiff > threshold) || (ydiff > threshold))
     return TRUE;
   else
