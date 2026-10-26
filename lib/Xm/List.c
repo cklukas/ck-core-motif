@@ -7511,7 +7511,9 @@ ListProcessDrag(Widget wid,
     {
       /* CR 8878: selectedItems may contain extraneous items. */
       if ((size_t)lw->list.selectedPositionCount >
-          SIZE_MAX / sizeof(XmString)) {
+          SIZE_MAX / sizeof(XmString) ||
+          (size_t)lw->list.selectedPositionCount >
+          UINT_MAX / sizeof(XmString)) {
 	  XtFree((char *)ListDragConv);
 	  lw->list.drag_conv = NULL;
 	  return;
