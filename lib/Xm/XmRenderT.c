@@ -3759,7 +3759,7 @@ XmRenderTableCvtFromProp(Widget w,
   int scanpointer, j, count, freecount, i;
   Token token;
 
-  if (w == NULL || prop == NULL)
+  if (w == NULL || prop == NULL || len > (unsigned int)INT_MAX)
     return NULL;
   _XmWidgetToAppContext(w);
 

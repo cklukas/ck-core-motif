@@ -1,3 +1,10 @@
+Bound render-table property parser length (2026-10-27)
+======================================================
+
+- Reject render-table properties wider than the parser's `int` offset type
+  before tokenization, preventing pointer-difference truncation.
+- Add a focused source regression and documentation.
+
 Bound Text source gap pointer offsets (2026-10-27)
 =================================================
 
