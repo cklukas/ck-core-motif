@@ -4274,6 +4274,10 @@ XmDropSiteRegistered(
 {
     XmDropSiteManagerObject dsm;
     XtPointer info;
+
+    if (widget == NULL)
+	return False;
+
     _XmWidgetToAppContext(widget);
 
     _XmAppLock(app);

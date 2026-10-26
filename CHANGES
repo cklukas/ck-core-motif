@@ -1,3 +1,12 @@
+Guard drop-site registration query input (2026-10-27)
+======================================================
+
+- Return `False` before display lookup when `XmDropSiteRegistered` receives a
+  null widget.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard XmUpdateDisplay widget input (2026-10-27)
 ===============================================
 
