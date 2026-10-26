@@ -1547,6 +1547,8 @@ XmStringConcatAndFree(XmString a,
   _XmStringMultiRec     b_tmp;
   _XmStringEntry 	a_line, b_line, tmp_line, *segs=NULL;
   _XmStringNREntry 	a_last, b_seg = NULL, tmp_seg;
+  _XmStringNREntry 	resized_last;
+  XtPointer		resized_text;
   String		a_tag;
   String		b_tag;
   int 			i, j;
@@ -1924,16 +1926,37 @@ XmStringConcatAndFree(XmString a,
 	      if (a_len + b_len > sizeof(XtPointer))
 		size += a_len + b_len - sizeof(XtPointer);
 	      if (a_line == (_XmStringEntry)a_last) {
-		a_last = (_XmStringNREntry)XtRealloc((char *)a_last, size);
+		resized_last = (_XmStringNREntry)XtRealloc((char *)a_last, size);
+		if (resized_last == NULL) {
+		  _XmProcessUnlock();
+		  XmStringFree(a);
+		  XmStringFree(b);
+		  return NULL;
+		}
+		a_last = resized_last;
 		_XmStrEntry(a_str)[a_lc - 1] = a_line = (_XmStringEntry)a_last;
 	      } else
-		_XmEntrySegmentGet(a_line)[a_sc-1] = a_last = 
-		  (_XmStringNREntry)XtRealloc((char *)a_last, size);
+		{
+		  resized_last = (_XmStringNREntry)XtRealloc((char *)a_last, size);
+		  if (resized_last == NULL) {
+		    _XmProcessUnlock();
+		    XmStringFree(a);
+		    XmStringFree(b);
+		    return NULL;
+		  }
+		  _XmEntrySegmentGet(a_line)[a_sc-1] = a_last = resized_last;
+		}
 	    } else {
-	      _XmEntryTextSet((_XmStringEntry)a_last, 
-			      XtRealloc((char *)
+	      resized_text = XtRealloc((char *)
 				       _XmEntryTextGet((_XmStringEntry)a_last),
-				       a_len + b_len));
+				       a_len + b_len);
+	      if (resized_text == NULL) {
+		_XmProcessUnlock();
+		XmStringFree(a);
+		XmStringFree(b);
+		return NULL;
+	      }
+	      _XmEntryTextSet((_XmStringEntry)a_last, resized_text);
 	    }
 	  }
 	  if (_XmEntryOptimized(a_last))

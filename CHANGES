@@ -1,3 +1,13 @@
+Handle XmString concat realloc failure (2026-10-27)
+====================================================
+
+- Check optimized-segment and ordinary-text reallocations in
+  `XmStringConcatAndFree`, preserving failure cleanup and preventing null or
+  stale-pointer writes.
+- Add focused regression coverage and documentation.
+
+====================================================
+
 Bound CommandPalette item-array allocation (2026-10-27)
 ========================================================
 
