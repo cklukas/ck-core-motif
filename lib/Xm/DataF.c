@@ -7479,12 +7479,21 @@ df_Stuff(
 {
   _XmTextActionRec *tmp = (_XmTextActionRec*)XtMalloc(sizeof(_XmTextActionRec));
 
+  if (tmp == NULL || event == NULL) {
+    XtFree((char *)tmp);
+    return;
+  }
+
 /* Request targets from the selection owner so you can decide what to
  * request.  The decision process and request for the selection is
  * taken care of in df_HandleTargets().
  */
 
   tmp->event = (XEvent *) XtMalloc(sizeof(XEvent));
+  if (tmp->event == NULL) {
+    XtFree((char *)tmp);
+    return;
+  }
   memcpy((void *)tmp->event, (void *)event, sizeof(XEvent));
 
   tmp->params = params;

@@ -16528,3 +16528,13 @@ Harden DataField replace conversions (2026-10-27)
 ==================================================
 
 Guard DataField string conversion buffers (2026-10-27)
+Guard DataField action event snapshots (2026-10-27)
+===================================================
+
+- Check action-record and event-copy allocations before `df_Stuff` uses them,
+  including a null-event guard.
+- Add a focused source regression and documentation.
+
+===================================================
+
+Harden DataField replace conversions (2026-10-27)
