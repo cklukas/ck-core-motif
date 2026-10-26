@@ -1131,19 +1131,20 @@ list_selected(Widget w, XtPointer csw_ptr, XtPointer list_ptr)
 {
   XmColorSelectorWidget csw = (XmColorSelectorWidget) csw_ptr;
   XmListCallbackStruct *list = (XmListCallbackStruct *) list_ptr;
+  String replacement;
 
-  XtFree(XmColorS_color_name(csw));
-
-  XmColorS_color_name(csw) =
-    XmStringUnparse(list->item,
-        NULL, XmCHARSET_TEXT, XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+  replacement = XmStringUnparse(list->item,
+      NULL, XmCHARSET_TEXT, XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+  if (replacement == NULL)
+    return;
+  (void) color_name_changed(csw, replacement);
+  XtFree(replacement);
   
 /* deprecated
   XmStringGetLtoR(list->item, XmFONTLIST_DEFAULT_TAG, 
 		  &(XmColorS_color_name(csw))); 
 */
 
-  UpdateColorWindow(csw, True);
 }
 
 /*      Function Name: 	change_mode

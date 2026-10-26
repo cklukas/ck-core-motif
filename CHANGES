@@ -1,3 +1,13 @@
+Guard ColorSelector list-name conversion (2026-10-27)
+======================================================
+
+- Preserve the current color name when `XmStringUnparse` cannot allocate a
+  replacement for a selected list item.
+- Route successful selections through the transactional color-name update and
+  add a focused regression/documentation page.
+
+====================================================
+
 Guard Chip geometry without a render table (2026-10-27)
 =========================================================
 
