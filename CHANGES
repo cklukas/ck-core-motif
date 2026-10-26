@@ -1,3 +1,11 @@
+Refresh MWM bitmap-path regression check (2026-10-27)
+======================================================
+
+- Match the focused check to the current signed-length guard and Cardinal
+  allocation used for bitmap-directory paths.
+
+===========================================================
+
 Refresh MWM icon-widget regression check (2026-10-27)
 =====================================================
 
