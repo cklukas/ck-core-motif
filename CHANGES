@@ -1,3 +1,12 @@
+Handle XmString rendition-tag allocation failure (2026-10-27)
+==============================================================
+
+- Bound rendition-end tag sizing in `XmStringConcatAndFree` and release owned
+  inputs when the temporary tag allocation fails.
+- Add focused regression coverage and documentation.
+
+==============================================================
+
 Bound ScrollBar callback snapshots (2026-10-27)
 ================================================
 

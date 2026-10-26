@@ -1973,8 +1973,23 @@ XmStringConcatAndFree(XmString a,
               {
 		int end_count = _XmEntryRendEndCountGet((_XmStringEntry)b_seg);
 		int k;
+		if (end_count < 0 ||
+		    (size_t)end_count > SIZE_MAX / sizeof(XmStringTag) ||
+		    (size_t)end_count > UINT_MAX / sizeof(XmStringTag)) {
+		  _XmProcessUnlock();
+		  XmStringFree(a);
+		  XmStringFree(b);
+		  return NULL;
+		}
 		_XmUnoptSegRendEnds(a_last) = 
-		  (XmStringTag *)XtMalloc(end_count * sizeof(XmStringTag));
+		  (XmStringTag *)XtMalloc((Cardinal)((size_t)end_count *
+						     sizeof(XmStringTag)));
+		if (_XmUnoptSegRendEnds(a_last) == NULL) {
+		  _XmProcessUnlock();
+		  XmStringFree(a);
+		  XmStringFree(b);
+		  return NULL;
+		}
 		for (k = 0; k < end_count; k++)
 		  _XmUnoptSegRendEnds(a_last)[k] = 
 		    _XmUnoptSegRendEnds(b_seg)[k];
