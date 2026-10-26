@@ -21407,3 +21407,9 @@ Guard MWM modal input-window transitions (2026-10-26)
 System-modal setup and teardown now configure, map, and unmap per-screen input
 windows only when their X window IDs are valid after optional creation.
 
+Make MWM WSM outline-window creation transactional (2026-10-26)
+-----------------------------------------------------------------
+The four WSM outline edge windows now roll back as a group when any creation
+fails. WindowOutline refuses partial resources, preventing invalid requests
+and half-drawn outlines.
+

@@ -1622,7 +1622,7 @@ void FlashOutline (int x, int y, unsigned int width, unsigned int height)
  *      woW
  * 
  *************************************<->***********************************/
-static void 
+static Boolean
 CreateOutlineWindows (WmScreenData *pSD)
 {
     XSetWindowAttributes xswa;
@@ -1685,6 +1685,19 @@ CreateOutlineWindows (WmScreenData *pSD)
 		       xswamask, 
 		       &xswa);
 
+    if (pSD->woN == None || pSD->woS == None ||
+	pSD->woE == None || pSD->woW == None)
+    {
+	if (pSD->woN != None) XDestroyWindow (DISPLAY, pSD->woN);
+	if (pSD->woS != None) XDestroyWindow (DISPLAY, pSD->woS);
+	if (pSD->woE != None) XDestroyWindow (DISPLAY, pSD->woE);
+	if (pSD->woW != None) XDestroyWindow (DISPLAY, pSD->woW);
+	pSD->woN = pSD->woS = pSD->woE = pSD->woW = None;
+	return (False);
+    }
+
+    return (True);
+
 } /* END OF FUNCTION  CreateOutlineWindows */
 
 
@@ -1726,10 +1739,14 @@ void WindowOutline (int x, int y, unsigned int width, unsigned int height)
     int iX, iY;
     int iW, iH;
 
-    if (pSD->woN == (Window)0L)
+    if (pSD->woN == None)
     {
-	CreateOutlineWindows(pSD);
+	if (!CreateOutlineWindows(pSD))
+	    return;
     }
+
+    if (pSD->woS == None || pSD->woE == None || pSD->woW == None)
+	return;
 
     if (x == lastOutlineX && y == lastOutlineY && 
 	width == lastOutlineWidth && height == lastOutlineHeight)
