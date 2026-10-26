@@ -26,6 +26,15 @@ fixed eight-pixel close glyph centered on the control, independent of its
 height. The focused regression is
 `tests/automated/check-chip-label-render-metrics.py`.
 
+## DropHighlight label rendering
+
+`XmDropHighlight` now honors its existing `XmNdropHighlightLabel` resource:
+the label is measured and drawn centered inside the highlight border using the
+widget's owned render table. Query geometry includes that measured label size,
+so a label is no longer silently accepted and then omitted from redisplay.
+The focused regression is
+`tests/automated/check-drophighlight-label-render.py`.
+
 ## Concrete storage and image corrections
 
 The next source review identified the following independently useful fixes.

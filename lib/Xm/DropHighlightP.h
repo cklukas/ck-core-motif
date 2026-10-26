@@ -18,6 +18,8 @@ typedef struct _XmDropHighlightPart {
     unsigned char state;
     Dimension thickness;
     XmString label;
+    XmFontList font;
+    Boolean check_set_render_table;
 } XmDropHighlightPart;
 
 typedef struct _XmDropHighlightRec {

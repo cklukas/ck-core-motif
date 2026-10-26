@@ -1,3 +1,10 @@
+DropHighlight label rendering (2026-10-27)
+==========================================
+
+- Render `XmNdropHighlightLabel` through an owned render table, centered
+  inside the highlight border.  Query geometry now includes the label's
+  measured size instead of always reporting a one-pixel widget.
+
 Chip label metrics and close-glyph centering (2026-10-27)
 ==========================================================
 

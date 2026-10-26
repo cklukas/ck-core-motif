@@ -7,6 +7,7 @@
 #include <Xm/DropHighlightP.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
+#include "XmI.h"
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
@@ -16,6 +17,17 @@ static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
 
 #define Offset(field) XtOffsetOf(XmDropHighlightRec, drop_highlight.field)
+static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
+{
+    XmDropHighlightWidget highlight = (XmDropHighlightWidget)widget;
+    (void)offset;
+    if (highlight->drop_highlight.check_set_render_table)
+        value->addr = NULL;
+    else {
+        highlight->drop_highlight.check_set_render_table = True;
+        value->addr = (char *)&highlight->drop_highlight.font;
+    }
+}
 static XtResource resources[] = {
     {XmNdropHighlightState, XmCDropHighlightState, XmRUnsignedChar,
      sizeof(unsigned char), Offset(state), XmRImmediate,
@@ -24,7 +36,11 @@ static XtResource resources[] = {
      XmRHorizontalDimension, sizeof(Dimension), Offset(thickness),
      XmRImmediate, (XtPointer)2},
     {XmNdropHighlightLabel, XmCDropHighlightLabel, XmRXmString,
-     sizeof(XmString), Offset(label), XmRImmediate, NULL}
+     sizeof(XmString), Offset(label), XmRImmediate, NULL},
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmFontList),
+     Offset(font), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmFontList),
+     Offset(font), XmRCallProc, (XtPointer)CheckSetRenderTable}
 };
 
 externaldef(xmdrophighlightclassrec) XmDropHighlightClassRec
@@ -79,6 +95,12 @@ static void Initialize(Widget request, Widget widget, ArgList args,
         highlight->core.height = 1;
     highlight->drop_highlight.label = copy_string(
         highlight->drop_highlight.label);
+    if (!highlight->drop_highlight.font)
+        highlight->drop_highlight.font = XmFontListCopy(
+            XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+    else
+        highlight->drop_highlight.font = XmFontListCopy(
+            highlight->drop_highlight.font);
 }
 
 static void Destroy(Widget widget)
@@ -86,6 +108,9 @@ static void Destroy(Widget widget)
     XmDropHighlightWidget highlight = (XmDropHighlightWidget)widget;
     XmStringFree(highlight->drop_highlight.label);
     highlight->drop_highlight.label = NULL;
+    if (highlight->drop_highlight.font)
+        XmRenderTableFree(highlight->drop_highlight.font);
+    highlight->drop_highlight.font = NULL;
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region)
@@ -96,7 +121,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
     Display *display;
     Window window;
     Dimension thickness;
-    int inset;
+    Dimension label_width = 0, label_height = 0;
+    int inset, label_x, label_y;
 
     (void)event;
     (void)region;
@@ -117,12 +143,23 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
     gc = XCreateGC(display, window,
                    GCForeground | GCBackground | GCLineWidth | GCLineStyle,
                    &values);
+    if (highlight->drop_highlight.label && highlight->drop_highlight.font)
+        XmStringExtent(highlight->drop_highlight.font,
+                       highlight->drop_highlight.label,
+                       &label_width, &label_height);
+    label_x = ((int)highlight->core.width - (int)label_width) / 2;
+    label_y = ((int)highlight->core.height - (int)label_height) / 2;
     inset = (int)thickness / 2;
     XDrawRectangle(display, window, gc, inset, inset,
                    highlight->core.width > thickness
                        ? highlight->core.width - thickness : 0,
                    highlight->core.height > thickness
                        ? highlight->core.height - thickness : 0);
+    if (label_width && label_height)
+        XmStringDraw(display, window, highlight->drop_highlight.font,
+                     highlight->drop_highlight.label, gc, label_x, label_y,
+                     label_width, XmALIGNMENT_BEGINNING,
+                     XmPrim_layout_direction(highlight), NULL);
     XFreeGC(display, gc);
 }
 
@@ -145,6 +182,16 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         XmStringFree(old->drop_highlight.label);
         highlight->drop_highlight.label = copy_string(
             highlight->drop_highlight.label);
+        redraw = True;
+    }
+    if (old->drop_highlight.font != highlight->drop_highlight.font) {
+        XmFontList replacement = highlight->drop_highlight.font
+            ? XmFontListCopy(highlight->drop_highlight.font)
+            : XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+        if (old->drop_highlight.font)
+            XmRenderTableFree(old->drop_highlight.font);
+        highlight->drop_highlight.font = replacement;
+        redraw = True;
     }
     return redraw;
 }
@@ -154,8 +201,16 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
 {
     (void)widget;
     reply->request_mode = CWWidth | CWHeight;
-    reply->width = 1;
-    reply->height = 1;
+    XmDropHighlightWidget highlight = (XmDropHighlightWidget)widget;
+    Dimension label_width = 0, label_height = 0;
+    if (highlight->drop_highlight.label && highlight->drop_highlight.font)
+        XmStringExtent(highlight->drop_highlight.font,
+                       highlight->drop_highlight.label,
+                       &label_width, &label_height);
+    reply->width = label_width + 2 * (highlight->drop_highlight.thickness + 4);
+    reply->height = label_height + 2 * (highlight->drop_highlight.thickness + 4);
+    if (!reply->width) reply->width = 1;
+    if (!reply->height) reply->height = 1;
     if (request && (request->request_mode & (CWWidth | CWHeight)) ==
         (CWWidth | CWHeight) && request->width == reply->width &&
         request->height == reply->height)
