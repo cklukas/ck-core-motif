@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+"""Check XPM RGB lookup handles string duplication failure."""
+from pathlib import Path
+
+source = (Path(__file__).parents[2] / "lib" / "Xm" / "Xpmrgb.c").read_text()
+start = source.index("xpmGetRGBfromName(")
+end = source.index("\n}\n", start) + 2
+body = source[start:end]
+
+assert "name = xpmstrdup(inname);" in body
+assert "if (name == NULL)" in body
+assert "return (0);" in body
+print("PASS XPM RGB lookup checks duplicated-name allocation")

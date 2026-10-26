@@ -216,6 +216,8 @@ xpmGetRGBfromName(
     char *grey, *p;
 
     name = xpmstrdup(inname);
+    if (name == NULL)
+	return (0);
 
     /*
      * the table in rgbtab.c has no names with spaces, and no grey, but a
