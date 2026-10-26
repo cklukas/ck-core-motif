@@ -20807,3 +20807,9 @@ Guard MWM frame-part hit-test inputs (2026-10-26)
 --------------------------------------------------
 IdentifyFramePart now returns FRAME_NONE for a null client record before
 reading frame state.  Normal event hit testing is unchanged.
+
+Guard MWM frame/client conversion inputs (2026-10-26)
+------------------------------------------------------
+FrameToClient and ClientToFrame now leave their arguments unchanged when the
+client record or any conversion pointer is null.  Valid coordinate conversion
+behavior is unchanged.

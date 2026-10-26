@@ -1158,6 +1158,10 @@ int GadgetID (int x, int y, GadgetRectangle *pgadget, unsigned int count)
  *************************************<->***********************************/
 void FrameToClient (ClientData *pcd, int *pX, int *pY, unsigned int *pWidth, unsigned int *pHeight)
 {
+    if (pcd == NULL || pX == NULL || pY == NULL ||
+	pWidth == NULL || pHeight == NULL)
+	return;
+
     /* compute client window coordinates from frame coordinates */
 
     *pWidth = *pWidth - 2*pcd->clientOffset.x; 
@@ -1199,6 +1203,10 @@ void FrameToClient (ClientData *pcd, int *pX, int *pY, unsigned int *pWidth, uns
  *************************************<->***********************************/
 void ClientToFrame (ClientData *pcd, int *pX, int *pY, unsigned int *pWidth, unsigned int *pHeight)
 {
+    if (pcd == NULL || pX == NULL || pY == NULL ||
+	pWidth == NULL || pHeight == NULL)
+	return;
+
     /* compute client window coordinates from frame coordinates */
     *pWidth = *pWidth + 2*pcd->clientOffset.x;
     *pHeight = *pHeight + pcd->clientOffset.x + pcd->clientOffset.y;
