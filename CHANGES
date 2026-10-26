@@ -21490,3 +21490,10 @@ Check MWM confirmation-window border width conversion (2026-10-26)
   the unregistered client record on that failure.
 - Add focused regression coverage and documentation.
 
+Check MWM confirmation-window geometry bounds (2026-10-26)
+============================================================
+
+- Reject unsigned confirmation-window dimensions that cannot be represented by
+  the signed client geometry fields before size limits are derived.
+- Add focused regression coverage and documentation.
+

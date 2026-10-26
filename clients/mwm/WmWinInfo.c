@@ -817,6 +817,13 @@ int i;
 	    XtFree ((char *)pCD);
 	    return (NULL);
 	}
+	if (cbWidth > (unsigned int)INT_MAX || cbHeight > (unsigned int)INT_MAX)
+	{
+	    Warning ((char *)GETMESSAGE(70, 6,
+		"Confirmation window geometry is too large"));
+	    XtFree ((char *)pCD);
+	    return (NULL);
+	}
 
         pCD->clientWidth = cbWidth;
         pCD->clientHeight = cbHeight;
