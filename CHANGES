@@ -16761,3 +16761,12 @@ Guard DragUnder backing-store cleanup (2026-10-27)
 - Add a focused source regression and documentation.
 
 ====================================================
+
+Guard DragUnder scratch pixmap allocation (2026-10-27)
+======================================================
+
+- Validate scratch pixmap creation before `XCopyArea`, releasing the saved
+  record and resetting cleanup state on failure.
+- Add a focused source regression and documentation.
+
+====================================================

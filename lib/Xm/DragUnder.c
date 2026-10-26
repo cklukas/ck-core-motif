@@ -295,6 +295,12 @@ SaveAll(
 	_XmAllocScratchPixmap (aSaveData->xmScreen,
 			       (Cardinal) aSaveData->windowDepth,
 		               pData->width, pData->height);
+    if (pData->pixmap == None || pData->pixmap == XmUNSPECIFIED_PIXMAP) {
+	XtFree((char *)pData);
+	aSaveData->savedPixmaps = NULL;
+	aSaveData->numSavedPixmaps = 0;
+	return (False);
+    }
     XCopyArea (aSaveData->display, aSaveData->window,
     	       pData->pixmap, aSaveData->drawGC,
                pData->x, pData->y,
