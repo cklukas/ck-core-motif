@@ -22788,3 +22788,10 @@ Check TextField timestamp allocation (2026-10-26)
   allocate its `Time` result buffer.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-timestamp-allocation.py
+
+Check TextField TARGETS allocation (2026-10-26)
+================================================
+- Return a failed selection conversion when the standard target list cannot
+  be allocated before appending TextField-specific atoms.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-targets-allocation.py
