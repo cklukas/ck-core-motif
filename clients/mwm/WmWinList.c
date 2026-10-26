@@ -2405,7 +2405,8 @@ void SetupSystemModalState (ClientData *pCD)
 			       CWEventMask | CWOverrideRedirect | CWCursor,
 			       &windowAttributes);
 	}
-	if (pSD->managed && pSD != ACTIVE_PSD)
+	if (pSD->managed && pSD != ACTIVE_PSD &&
+	    pSD->inputScreenWindow != None)
 	{
 	    XMapRaised (DISPLAY, pSD->inputScreenWindow);
 	}
