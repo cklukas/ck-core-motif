@@ -20991,6 +20991,11 @@ GetBitmapIndex now clears stale nonzero cache-size metadata when an empty cache
 has a null allocation, allowing later lookups to retry the initial allocation
 after a transient memory failure.
 
+Handle MWM icon X resource failure (2026-10-26)
+-----------------------------------------------
+MakeIconPixmap now returns `None` when pixmap or graphics-context creation
+fails, freeing a partially created icon pixmap before returning.
+
 Handle MWM cached-label X resource failure (2026-10-26)
 --------------------------------------------------------
 MakeCachedLabelPixmap now returns `None` when pixmap or graphics-context

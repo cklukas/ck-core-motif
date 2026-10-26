@@ -427,6 +427,9 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
 		     imageWidth, imageHeight,
 		     DefaultDepth(DISPLAY, pSD->screen));
 
+    if (iconPixmap == None)
+	return ((Pixmap)NULL);
+
     /*
      * If a client is not specified use icon component colors, otherwise
      * use the client-specific icon colors.
@@ -478,6 +481,12 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
     imageGC = XCreateGC (DISPLAY, iconPixmap, (GCForeground|GCBackground),
 		  &gcv);
 #endif /* WSM */
+
+    if (imageGC == NULL)
+    {
+	XFreePixmap (DISPLAY, iconPixmap);
+	return ((Pixmap)NULL);
+    }
 
     /*
      * Format the image. 
