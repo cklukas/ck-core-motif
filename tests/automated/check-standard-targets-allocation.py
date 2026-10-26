@@ -9,7 +9,7 @@ region = source[start:end]
 
 assert "size_t target_count;" in region
 assert "target_count = (size_t)count + builtin_count;" in region
-assert "targets = (Atom *)XtMalloc(sizeof(*targets) * target_count);" in region
+assert "targets = (Atom *)XtMalloc((Cardinal)(sizeof(*targets) * target_count));" in region
 assert "if (targets == NULL)" in region
 assert "*tcount = 0;" in region
 assert "XtRealloc((char*) targets" not in region

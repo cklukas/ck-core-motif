@@ -21896,3 +21896,10 @@ Use Cardinal drop destination argument count (2026-10-26)
   contract.
 - Add focused regression coverage and documentation.
 
+Make standard target allocation width explicit (2026-10-26)
+============================================================
+
+- Pass the already-bounded standard-target allocation size explicitly as an
+  Xt `Cardinal`.
+- Add focused allocation-width regression coverage and documentation.
+

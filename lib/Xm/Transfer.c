@@ -2294,7 +2294,7 @@ XmeStandardTargets(Widget w, int count, int *tcount)
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
-  targets = (Atom *)XtMalloc(sizeof(*targets) * target_count);
+  targets = (Atom *)XtMalloc((Cardinal)(sizeof(*targets) * target_count));
   if (targets == NULL)
     {
       *tcount = 0;
