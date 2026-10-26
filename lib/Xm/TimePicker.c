@@ -19,6 +19,17 @@ static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
 
 #define Offset(field) XtOffsetOf(XmTimePickerRec, field)
+static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
+{
+    XmTimePickerWidget picker = (XmTimePickerWidget)widget;
+    (void)offset;
+    if (picker->time_picker.check_set_render_table)
+        value->addr = NULL;
+    else {
+        picker->time_picker.check_set_render_table = True;
+        value->addr = (char *)&picker->time_picker.render_table;
+    }
+}
 static XtResource resources[] = {
     {XmNtimePickerHour, XmCTimePickerHour, XmRInt, sizeof(int),
      Offset(time_picker.value.hour), XmRImmediate, (XtPointer)0},
@@ -35,6 +46,10 @@ static XtResource resources[] = {
     {XmNtimePickerActivateCallback, XmCTimePickerActivateCallback,
      XmRCallback, sizeof(XtCallbackList),
      Offset(time_picker.activate_callback), XmRPointer, (XtPointer)NULL},
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmFontList),
+     Offset(time_picker.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmFontList),
+     Offset(time_picker.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean),
      Offset(primitive.traversal_on), XmRImmediate, (XtPointer)True},
     {XmNhighlightThickness, XmCHighlightThickness, XmRHorizontalDimension,
@@ -122,6 +137,12 @@ static void Initialize(Widget request, Widget widget, ArgList args,
         picker->time_picker.value = (XmTimePickerValue){0, 0, 0};
     picker->time_picker.minimum = (XmTimePickerValue){0, 0, 0};
     picker->time_picker.maximum = (XmTimePickerValue){23, 59, 59};
+    if (!picker->time_picker.render_table)
+        picker->time_picker.render_table = XmFontListCopy(
+            XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+    else
+        picker->time_picker.render_table = XmFontListCopy(
+            picker->time_picker.render_table);
     picker->time_picker.field = 0;
     values.foreground = picker->primitive.foreground;
     values.background = picker->core.background_pixel;
@@ -140,6 +161,8 @@ static void Destroy(Widget widget) {
                          Events, NULL);
     if (picker->time_picker.gc)
         XFreeGC(XtDisplay(widget), picker->time_picker.gc);
+    if (picker->time_picker.render_table)
+        XmRenderTableFree(picker->time_picker.render_table);
 }
 
 static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
@@ -151,6 +174,14 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
         compare_values(&picker->time_picker.value, &old->time_picker.minimum) < 0 ||
         compare_values(&picker->time_picker.value, &old->time_picker.maximum) > 0)
         picker->time_picker.value = old->time_picker.value;
+    if (old->time_picker.render_table != picker->time_picker.render_table) {
+        XmFontList replacement = picker->time_picker.render_table
+            ? XmFontListCopy(picker->time_picker.render_table)
+            : XmFontListCopy(XmeGetDefaultRenderTable(new_widget, XmLABEL_FONTLIST));
+        if (old->time_picker.render_table)
+            XmRenderTableFree(old->time_picker.render_table);
+        picker->time_picker.render_table = replacement;
+    }
     return compare_values(&old->time_picker.value, &picker->time_picker.value) != 0 ||
            old->time_picker.format_24_hour != picker->time_picker.format_24_hour;
 }
@@ -158,6 +189,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmTimePickerWidget picker = (XmTimePickerWidget)widget;
     char text[32];
+    XmString value;
+    Dimension width = 0, height = 0;
     int hour = picker->time_picker.value.hour;
     (void)event; (void)region;
     if (!XtIsRealized(widget) || !picker->time_picker.gc) return;
@@ -173,8 +206,17 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                  picker->time_picker.value.minute,
                  picker->time_picker.value.second, hour < 12 ? "AM" : "PM");
     }
-    XDrawString(XtDisplay(widget), XtWindow(widget), picker->time_picker.gc,
-                6, 18, text, (int)strlen(text));
+    value = XmStringCreateLocalized(text);
+    if (value && picker->time_picker.render_table) {
+        XmStringExtent(picker->time_picker.render_table, value, &width, &height);
+        XmStringDraw(XtDisplay(widget), XtWindow(widget),
+                     picker->time_picker.render_table, value,
+                     picker->time_picker.gc, 6,
+                     ((int)picker->core.height - (int)height) / 2, width,
+                     XmALIGNMENT_BEGINNING,
+                     XmPrim_layout_direction(picker), NULL);
+    }
+    XmStringFree(value);
 }
 
 static void Events(Widget widget, XtPointer closure, XEvent *event,

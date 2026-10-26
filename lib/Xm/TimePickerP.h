@@ -17,6 +17,8 @@ typedef struct _XmTimePickerPart {
     unsigned char field;
     Boolean format_24_hour;
     XtCallbackList value_changed_callback, activate_callback;
+    XmFontList render_table;
+    Boolean check_set_render_table;
     GC gc;
 } XmTimePickerPart;
 
