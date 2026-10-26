@@ -605,15 +605,17 @@ HashIconName (XmHashKey key)
 {
   DtIconNameEntry data = (DtIconNameEntry) key;
   size_t len;
+  size_t tail_index;
   unsigned int folded_len;
 
   if (data == NULL || data->key_name == NULL)
     return 0;
   len = strlen(data->key_name);
+  tail_index = len == 0 ? 0 : len - 1;
   folded_len = (unsigned int)((uintmax_t)len ^ ((uintmax_t)len >> 32));
   return (XmHashValue)((((folded_len << 8) |
 			      (unsigned int)(unsigned char)data->key_name[0]) << 8) |
-			    (unsigned int)(unsigned char)data->key_name[len]);
+			    (unsigned int)(unsigned char)data->key_name[tail_index]);
 }
 
 

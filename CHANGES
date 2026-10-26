@@ -157,6 +157,15 @@ Widen icon-cache flush path lengths (2026-10-26)
 - Add `tests/automated/check-icon-cache-flush-length.py` and document the
   guard in `docs/icon-cache-flush-length-bounds.md`.
 
+Fix icon-name cache hash tail selection (2026-10-26)
+=====================================================
+
+- Hash the final character of non-empty icon names instead of the terminating
+  NUL byte, reducing avoidable cache collisions while preserving empty-name
+  safety.
+- Add `tests/automated/check-icon-name-hash-tail.py` and document the behavior
+  in `docs/icon-name-hash.md`.
+
 Bound ToggleButton default geometry (2026-10-27)
 ==================================================
 
