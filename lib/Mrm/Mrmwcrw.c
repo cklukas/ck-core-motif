@@ -2984,7 +2984,8 @@ Urm__CW_SafeCopyValue (long				*val,
   int			cnt ;
 
   if (vec_count < 0 || vec_size < 0 ||
-      (size_t)vec_count > SIZE_MAX / sizeof(XmString))
+      (size_t)vec_count > SIZE_MAX / sizeof(XmString) ||
+      (size_t)vec_count > UINT_MAX / sizeof(XmString))
     return;
 
   /*
