@@ -370,6 +370,9 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
 	pSD = wmGD.pActiveSD;
     }
 
+    if (pSD == NULL)
+	return ((Pixmap)NULL);
+
     /* don't make icon pixmap if bitmap is too small */
 
     if ((width < pSD->iconImageMinimum.width) ||

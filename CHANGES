@@ -20957,6 +20957,12 @@ Guard MWM compound-string drawing inputs (2026-10-26)
 WmDrawXmString now returns for missing display, font list, compound string,
 graphics, clip box, or active-screen inputs before measuring or drawing text.
 
+Guard MWM icon screen fallback (2026-10-26)
+-------------------------------------------
+MakeIconPixmap now returns `None` when neither the client nor the active MWM
+screen supplies a screen record, avoiding a null-screen dereference during
+startup or teardown.
+
 Reject impossible MWM title widths (2026-10-26)
 -----------------------------------------------
 GetFramePartInfo now rejects title and title-bar geometry when borders and
