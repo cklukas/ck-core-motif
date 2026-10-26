@@ -19543,3 +19543,11 @@ Guard TabStack graphics-context failure (2026-10-27)
 - Add focused regression coverage and documentation.
 
 Guard Notebook spiral pixmap creation (2026-10-27)
+Guard ScrollBar slider pixmap rendering (2026-10-27)
+=====================================================
+
+- Skip off-screen slider drawing when `XCreatePixmap` fails, avoiding invalid
+  X requests while preserving the existing optional-pixmap fallback.
+- Add focused regression coverage and documentation.
+
+Guard TabStack graphics-context failure (2026-10-27)

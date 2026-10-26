@@ -1180,6 +1180,9 @@ DrawSliderPixmap(
    register int slider_height = sbw->scrollBar.slider_height;
    register Drawable slider = sbw->scrollBar.pixmap;
 
+   if (slider == None)
+       return;
+
    if ((sbw->scrollBar.slider_visual ==  XmFOREGROUND_COLOR) ||
        (sbw->scrollBar.slider_visual ==  XmTROUGH_COLOR)) {   
 	   /* we use the same GC, previously filled with either the 
