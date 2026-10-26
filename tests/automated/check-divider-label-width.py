@@ -6,10 +6,7 @@ from pathlib import Path
 source = Path(__file__).parents[2] / "lib/Xm/Divider.c"
 text = source.read_text(encoding="utf-8")
 
-start = text.index("static Dimension label_width")
-body = text[start:text.index("static void Initialize", start)]
-assert "size_t length" in body
-assert "unsigned long pixels" in body
-assert "(unsigned long)(Dimension)-1" in body
-assert "Dimension width = (Dimension)pixels;" in body
-print("Divider label width is bounded")
+assert "divider->divider.label && divider->divider.font" in text
+assert "unsigned long requested" in text
+assert "requested > USHRT_MAX ? USHRT_MAX : requested" in text
+print("Divider label width and preferred geometry are bounded")

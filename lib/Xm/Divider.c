@@ -177,7 +177,9 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     (void)request;
     reply->request_mode = CWWidth | CWHeight;
     if (divider->divider.orientation == XmHORIZONTAL) {
-        reply->width = label ? label + 2 * divider->divider.spacing + 16 : 120;
+        unsigned long requested = label ? (unsigned long)label +
+            2UL * (unsigned long)divider->divider.spacing + 16UL : 120UL;
+        reply->width = (Dimension)(requested > USHRT_MAX ? USHRT_MAX : requested);
         reply->height = divider->divider.thickness + 12;
     } else {
         reply->width = divider->divider.thickness + 12;
