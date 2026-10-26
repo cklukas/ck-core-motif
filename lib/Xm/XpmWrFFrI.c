@@ -59,7 +59,7 @@ LFUNC(WriteColors, void, (FILE *file, XpmColor *colors, unsigned int ncolors));
 
 LFUNC(WritePixels, int, (FILE *file, unsigned int width, unsigned int height,
 			 unsigned int cpp, unsigned int *pixels,
-			 XpmColor *colors));
+			 XpmColor *colors, unsigned int ncolors));
 
 LFUNC(WriteExtensions, void, (FILE *file, XpmExtension *ext,
 			      unsigned int num));
@@ -213,7 +213,7 @@ xpmWriteFile(
 	fprintf(file, "/*%s*/\n", info->pixels_cmt);
 
     ErrorStatus = WritePixels(file, image->width, image->height, image->cpp,
-			      image->data, image->colorTable);
+				      image->data, image->colorTable, image->ncolors);
     if (ErrorStatus != XpmSuccess)
 	return (ErrorStatus);
 
@@ -258,12 +258,15 @@ WritePixels(
     unsigned int	 height,
     unsigned int	 cpp,
     unsigned int	*pixels,
-    XpmColor		*colors)
+	    XpmColor		*colors,
+	    unsigned int	ncolors)
 {
     char *s, *p, *buf;
     unsigned int x, y, h;
 
-    if (width == 0 || height == 0)
+
+    if (width == 0 || height == 0 || pixels == NULL || colors == NULL ||
+	 ncolors == 0)
 	return XpmFileInvalid;
     h = height - 1;
     if (cpp != 0 && width >= (UINT_MAX - 3)/cpp)
@@ -276,6 +279,10 @@ WritePixels(
     for (y = 0; y < h; y++) {
 	s = p;
 	for (x = 0; x < width; x++, pixels++) {
+	    if (*pixels >= ncolors || colors[*pixels].string == NULL) {
+		XpmFree(buf);
+		return XpmFileInvalid;
+	    }
 	    strncpy(s, colors[*pixels].string, cpp);
 	    s += cpp;
 	}
@@ -286,6 +293,10 @@ WritePixels(
     /* duplicate some code to avoid a test in the loop */
     s = p;
     for (x = 0; x < width; x++, pixels++) {
+	if (*pixels >= ncolors || colors[*pixels].string == NULL) {
+	    XpmFree(buf);
+	    return XpmFileInvalid;
+	}
 	strncpy(s, colors[*pixels].string, cpp);
 	s += cpp;
     }

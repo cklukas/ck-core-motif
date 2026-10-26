@@ -1,3 +1,12 @@
+Reject invalid XPM file pixel indexes (2026-10-27)
+===================================================
+
+- Validate XpmWriteFileFromXpmImage pixel indexes and color strings before
+  serializing image rows.
+- Add focused regression coverage and documentation.
+
+===================================================
+
 Bound combined XPM data pointer rows (2026-10-27)
 ==================================================
 
