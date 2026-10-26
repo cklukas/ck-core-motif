@@ -8,5 +8,6 @@ end = source.index("/***********************************************************
 region = source[start:end]
 assert "parm_fmt != 0 && parm_fmt != 8 && parm_fmt != 16 && parm_fmt != 32" in region
 assert region.index("parm_fmt != 0") < region.index("_XmWidgetToAppContext")
+assert "parm != NULL && parm_type == None" in region
 assert "if (parm_fmt == 0) parm_fmt = 8;" in region
 print("transfer parameter formats are restricted to 8, 16, or 32 bits")
