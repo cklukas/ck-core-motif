@@ -1,3 +1,10 @@
+Make text selection conversion linear (2026-10-27)
+===================================================
+
+- Copy pre-sized locale text segments with a tracked offset instead of
+  repeatedly scanning the accumulated result with `strcat`.
+- Add a focused source regression and documentation.
+
 Bound UIL source-record allocations (2026-10-27)
 ================================================
 

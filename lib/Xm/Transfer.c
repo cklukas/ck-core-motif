@@ -2500,6 +2500,7 @@ _XmTextToLocaleText(Widget w,
   int num_values = 0;
   char *total_value = NULL;
   size_t malloc_size = 0;
+  size_t value_offset = 0;
   int i;
 
   if (type == XA_STRING || type == COMPOUND_TEXT
@@ -2554,7 +2555,12 @@ _XmTextToLocaleText(Widget w,
       }
       total_value[0] = '\0';
       for (i = 0; i < num_values ; i++)
-	strcat(total_value, values[i]);
+	{
+	    size_t value_size = strlen(values[i]);
+	    memcpy(total_value + value_offset, values[i], value_size);
+	    value_offset += value_size;
+	}
+      total_value[value_offset] = '\0';
       XFreeStringList(values);
     }
   }
