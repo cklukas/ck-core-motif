@@ -276,7 +276,7 @@ _XmConvertHandler(Widget wid, Atom *selection, Atom *target,
 	cbstruct.status == XmCONVERT_MERGE) {
       ttrait = (XmTransferTrait) 
 	XmeTraitGet((XtPointer) XtClass(wid), XmQTtransfer);
-      if (ttrait != NULL)
+      if (ttrait != NULL && ttrait -> convertProc != NULL)
 	ttrait -> convertProc(wid, NULL, &cbstruct);
     }
   }

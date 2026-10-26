@@ -22327,3 +22327,11 @@ Release invalid clipboard snapshot buffers (2026-10-26)
 - Add focused regression coverage and documentation for this failure path.
 
 Validate clipboard snapshot atom formats (2026-10-26)
+Guard optional conversion trait procedure (2026-10-26)
+=======================================================
+
+- Dispatch a transfer trait only when both the trait object and its
+  `convertProc` function pointer are present.
+- Add focused regression coverage and documentation for partial traits.
+
+Release invalid clipboard snapshot buffers (2026-10-26)
