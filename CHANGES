@@ -36,6 +36,13 @@ Preserve escaped resource-token whitespace (2026-10-26)
   value.
 - Document the parser behavior and add a focused regression check.
 
+Preserve MWM bitmap-cache state on growth failure (2026-10-26)
+===============================================================
+
+- Check bitmap-cache counter and byte arithmetic before growth.
+- Keep the existing cache pointer and counters intact when `XtRealloc` fails,
+  avoiding a leak and loss of already loaded bitmap entries.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 
