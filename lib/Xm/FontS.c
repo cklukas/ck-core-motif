@@ -1526,17 +1526,17 @@ BuildFontString(XmFontSelectorWidget fsw, FontData *cf, String buf, int size)
     if (cf->point_size == 0)
 	strcpy(point_size, STAR_STRING);
     else
-	sprintf(point_size, "%d", cf->point_size);
+	(void)snprintf(point_size, sizeof(point_size), "%d", cf->point_size);
 
     if (cf->resolution_x == 0)
 	strcpy(res_x, STAR_STRING);
     else 
-	sprintf(res_x, "%d", (int) cf->resolution_x);
+	(void)snprintf(res_x, sizeof(res_x), "%d", (int) cf->resolution_x);
 
     if (cf->resolution_y == 0)
 	strcpy(res_y, STAR_STRING);
     else 
-	sprintf(res_y, "%d", (int) cf->resolution_y);
+	(void)snprintf(res_y, sizeof(res_y), "%d", (int) cf->resolution_y);
 
     encoding = ENCODING_STRING(fsw);
 
@@ -2969,7 +2969,7 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
 	XmString label = XmStringCreateLocalized(*encodings);
 
 	margs[button_label].value = (XtArgVal) label;
-	sprintf(name, "button_%d", i);
+	(void)snprintf(name, sizeof(name), "button_%d", i);
 	button = XtCreateManagedWidget(name, xmPushButtonWidgetClass,
 				       pulldownMenu, margs,
 				       num_args + num_largs);

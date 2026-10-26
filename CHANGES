@@ -15179,3 +15179,11 @@ DataGrid render-table typography (2026-10-27)
   outlines while removing the fixed-core-font path.
 
 IconLabel render-table typography and natural geometry (2026-10-27)
+Bound FontS selector formatting (2026-10-27)
+=============================================
+
+- Replace fixed-buffer sprintf calls for font metrics and encoding-button
+  names with bounded formatting.
+- Add a focused source regression and documentation.
+
+Bound drop-transfer widget names (2026-10-27)
