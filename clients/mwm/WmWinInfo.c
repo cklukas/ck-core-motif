@@ -797,21 +797,30 @@ int i;
     {
 	Window       root;
 	unsigned int cbWidth, cbHeight;
+	unsigned int borderWidth;
 	unsigned int depth;
 
         if (!XGetGeometry (DISPLAY, pCD->client, &root,
 			   &(pCD->clientX), &(pCD->clientY),
 			   &cbWidth, &cbHeight,
-			   (unsigned int*)&(pCD->xBorderWidth), &depth))
+				   &borderWidth, &depth))
 	{
 	    Warning ((char *)GETMESSAGE(70, 4,
 		"Could not query confirmation window geometry"));
 	    XtFree ((char *)pCD);
 	    return (NULL);
 	}
+	if (borderWidth > (unsigned int)INT_MAX)
+	{
+	    Warning ((char *)GETMESSAGE(70, 5,
+		"Confirmation window border width is too large"));
+	    XtFree ((char *)pCD);
+	    return (NULL);
+	}
 
         pCD->clientWidth = cbWidth;
         pCD->clientHeight = cbHeight;
+	pCD->xBorderWidth = (int)borderWidth;
 	pCD->minWidth = pCD->baseWidth = pCD->maxWidth = pCD->clientWidth;
 	pCD->minHeight = pCD->baseHeight = pCD->maxHeight = pCD->clientHeight;
 	pCD->oldMaxWidth = pCD->maxWidth;

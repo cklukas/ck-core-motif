@@ -21482,3 +21482,11 @@ Free MWM client data on icon/confirmation failure (2026-10-26)
 GetWmClientInfo now releases its unregistered ClientData when icon-box
 creation or confirmation-window geometry discovery fails.
 
+Check MWM confirmation-window border width conversion (2026-10-26)
+====================================================================
+
+- Read `XGetGeometry`'s unsigned border width through a correctly typed
+  temporary, reject values that do not fit the signed client record, and free
+  the unregistered client record on that failure.
+- Add focused regression coverage and documentation.
+
