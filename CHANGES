@@ -1,3 +1,11 @@
+Refresh Notebook pixmap binding regression check (2026-10-27)
+==============================================================
+
+- Match the focused check to the new failed-metadata lookup guard while
+  retaining coverage for valid uncached metadata.
+
+===========================================================
+
 Guard Notebook pixmap metadata lookup (2026-10-27)
 ===================================================
 

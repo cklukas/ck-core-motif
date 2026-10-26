@@ -11,8 +11,8 @@ if "int depth = 0;" not in body:
     raise SystemExit("Notebook pixmap depth is not initialized")
 if "if (depth <= 0)" not in body:
     raise SystemExit("Notebook does not reject unresolved pixmap depth")
-if "if (!XmeGetPixmapData" in body:
-    raise SystemExit("Notebook still treats a false cache result as lookup failure")
+if "if (!XmeGetPixmapData" not in body:
+    raise SystemExit("Notebook does not reject failed pixmap metadata lookup")
 if "XmeGetPixmapData(XtScreen(nb), pixmap" not in body:
     raise SystemExit("Notebook pixmap metadata query is missing")
 print("Notebook pixmap binding accepts fetched metadata")
