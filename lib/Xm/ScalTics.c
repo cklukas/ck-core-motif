@@ -132,6 +132,10 @@ XmScaleSetTicks(
     }
 
     sep = (Widget*) ALLOCATE_LOCAL(sep_num * sizeof(Widget));
+    if (sep == NULL) {
+	_XmAppUnlock(app);
+	return;
+    }
 
     if (orient == XmHORIZONTAL) {
 	dim_res = XmNheight;

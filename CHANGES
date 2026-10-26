@@ -19392,3 +19392,14 @@ Guard shared varargs widget-creation parent (2026-10-27)
 
 Avoid zero-length dialog argument copy (2026-10-27)
 ===================================================
+Handle scale tick-array allocation failure (2026-10-27)
+========================================================
+
+- Check the local separator array allocation in `XmScaleSetTicks` and return
+  safely on failure.
+- Add focused regression coverage and documentation.
+
+============================================================
+
+Guard shared varargs widget-creation parent (2026-10-27)
+=========================================================
