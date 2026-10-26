@@ -1724,10 +1724,17 @@ _XmGetScaledPixmap(
 	      }
 	      nbytes = (size_t)image->height *
 		       (size_t)image->bytes_per_line;
+	      if (nbytes > (size_t)UINT_MAX) {
+		if (ret != NOT_CACHED)
+		    _XmProcessUnlock();
+		if (ret == NOT_CACHED)
+		    XDestroyImage(image);
+		return (XmUNSPECIFIED_PIXMAP);
+	      }
 
 	      /* Image data may be constant, so we must copy it. */
 	      old_image_data = image->data;
-	      new_image_data = XtMalloc(nbytes);
+	      new_image_data = XtMalloc((Cardinal)nbytes);
 	      if (new_image_data == NULL) {
 		if (ret != NOT_CACHED)
 		    _XmProcessUnlock();

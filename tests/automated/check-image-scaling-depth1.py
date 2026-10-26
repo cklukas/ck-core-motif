@@ -8,6 +8,7 @@ end = source.index("/* Image data may be constant", start)
 region = source[start:end]
 assert "size_t nbytes;" in region
 assert "SIZE_MAX / (size_t)image->bytes_per_line" in region
-assert "new_image_data = XtMalloc(nbytes);" in source
+assert "if (nbytes > (size_t)UINT_MAX)" in region
+assert "new_image_data = XtMalloc((Cardinal)nbytes);" in source
 assert "image->data = new_image_data;" in source
 print("depth-1 image copies check size arithmetic before allocation")

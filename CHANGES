@@ -20103,6 +20103,14 @@ Reject oversized cached pixmap geometry (2026-10-26)
   it.
 - Extend the focused geometry regression check and documentation.
 
+Bound depth-1 ImageCache copies (2026-10-26)
+============================================
+
+- Reject depth-1 image buffers whose checked byte count exceeds Xt's
+  `Cardinal` allocator range.
+- Convert the bounded count explicitly when allocating the temporary copy.
+- Extend the focused depth-1 image regression and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
