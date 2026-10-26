@@ -7446,22 +7446,27 @@ ValidateString(XmTextFieldWidget tf,
 	} else {
 	  char *params[1], *err_str;
 
+	  err_str = NULL;
 	  if (num_conv >= 0) {
 	    int i;
 
 	    err_str = XtMalloc((4 * num_conv) + 1);
-	    for (i = 0; i < num_conv; i++) {
-	      sprintf(err_str + (i * 4), "\\%o", (unsigned char) curr_str[i]);
-	    }
+	    if (err_str != NULL)
+	      for (i = 0; i < num_conv; i++) {
+		sprintf(err_str + (i * 4), "\\%o", (unsigned char) curr_str[i]);
+	      }
 	  }
 	  else {
 	    err_str = XtMalloc(5);
-	    sprintf(err_str, "\\%o", (unsigned char) *curr_str);
+	    if (err_str != NULL)
+	      sprintf(err_str, "\\%o", (unsigned char) *curr_str);
 	    num_conv = 1;
 	  }
-	  params[0] = err_str;
-	  _XmWarningMsg ((Widget)tf, "Unsupported char", MSG5, params, 1);
-	  XtFree(err_str);
+	  if (err_str != NULL) {
+	    params[0] = err_str;
+	    _XmWarningMsg ((Widget)tf, "Unsupported char", MSG5, params, 1);
+	    XtFree(err_str);
+	  }
 	  if (num_conv > 0) {	
 	      curr_str += num_conv;
 	      i += num_conv;
