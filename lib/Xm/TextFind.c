@@ -1026,8 +1026,11 @@ XmTextFindStringWcs(Widget w,
       return False;
     }
     converted = wcstombs(string, wc_string, allocation_size);
-    if (converted != (size_t)-1 && converted <= (size_t)INT_MAX)
+    if (converted != (size_t)-1 && converted < allocation_size &&
+        converted <= (size_t)INT_MAX) {
+      string[converted] = '\0';
       return_val = XmTextFindString(w, start, string, direction, position);
+    }
     XtFree(string);
     _XmAppUnlock(app);
     return(return_val);
