@@ -21017,6 +21017,11 @@ ShowFeedbackWindow, PaintFeedbackWindow, and HideFeedbackWindow now reject
 missing screen/font/list state, and feedback bevel lists are allocated
 independently before painting.
 
+Guard MWM feedback update inputs (2026-10-26)
+----------------------------------------------
+UpdateFeedbackInfo and UpdateFeedbackText now return for missing screen or
+font state before updating fields or measuring text.
+
 Handle MWM cached-label X resource failure (2026-10-26)
 --------------------------------------------------------
 MakeCachedLabelPixmap now returns `None` when pixmap or graphics-context

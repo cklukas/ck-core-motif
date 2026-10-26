@@ -581,6 +581,9 @@ void HideFeedbackWindow (WmScreenData *pSD)
  *************************************<->***********************************/
 void UpdateFeedbackInfo (WmScreenData *pSD, int x, int y, unsigned int width, unsigned int height)
 {
+    if (pSD == NULL)
+	return;
+
     /*
      * Currently the feedback window must always be redrawn to (potentially)
      * repair damage done by moving the configuration outline.  The feedback
@@ -642,6 +645,9 @@ void UpdateFeedbackText (WmScreenData *pSD, int x, int y, unsigned int width, un
 {
     int         direction, ascent, descent;
     XCharStruct xcs;
+
+    if (pSD == NULL || pSD->feedbackAppearance.font == NULL)
+	return;
 
     if (pSD->fbStyle & FB_POSITION) 
     {
