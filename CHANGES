@@ -16615,3 +16615,14 @@ Guard DataField picture verification allocation (2026-10-27)
 ====================================================
 
 Guard DataField action event snapshots (2026-10-27)
+
+====================================================
+
+Guard DataField wide clear-selection buffer (2026-10-27)
+=========================================================
+
+- Check the temporary wide space buffer before filling it and restore the
+  insertion-point drawing state if allocation fails.
+- Add a focused source regression and documentation.
+
+====================================================
