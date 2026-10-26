@@ -1077,11 +1077,26 @@ AddGrab(
     }
     
     if (xmDisplay->display.numModals == xmDisplay->display.maxModals) {
-	/* Allocate more space */
-	xmDisplay->display.maxModals +=  (xmDisplay->display.maxModals / 2) + 2;
-	xmDisplay->display.modals = modals = (XmModalData) 
-	  XtRealloc((char *) modals, (unsigned) 
-		    ((xmDisplay->display.maxModals) * sizeof(XmModalDataRec)));
+	/* Allocate more space, but do not publish a failed resize. */
+	Cardinal old_max = xmDisplay->display.maxModals;
+	Cardinal increment;
+	Cardinal new_max;
+	XmModalData resized;
+
+	increment = old_max / 2 + 2;
+	if (old_max > (Cardinal)~0 - increment)
+	    return;
+	new_max = old_max + increment;
+	if ((size_t)new_max > SIZE_MAX / sizeof(XmModalDataRec) ||
+	    (size_t)new_max > UINT_MAX / sizeof(XmModalDataRec))
+	    return;
+	resized = (XmModalData)XtRealloc(
+	    (char *)modals, (size_t)new_max * sizeof(XmModalDataRec));
+	if (resized == NULL)
+	    return;
+	modals = resized;
+	xmDisplay->display.modals = modals;
+	xmDisplay->display.maxModals = new_max;
     }
     if (position < xmDisplay->display.numModals)
         memmove(&modals[position + 1], &modals[position],

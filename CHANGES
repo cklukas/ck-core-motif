@@ -1,3 +1,13 @@
+Bound vendor-shell modal table growth (2026-10-27)
+==================================================
+
+- Validate modal-table capacity arithmetic and byte size before resizing.
+- Keep the previous table published when `XtRealloc` fails, and return
+  without recording a partially allocated modal grab.
+- Add focused regression coverage and documentation.
+
+==================================================
+
 Keep inactive gallery view tabs outlined (2026-10-27)
 ====================================================
 
