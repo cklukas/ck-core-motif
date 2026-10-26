@@ -92,10 +92,10 @@ WP-02 adds the opt-in `modern-light` profile:
 XmSetAppearanceProfile(display, XmAPPEARANCE_MODERN_LIGHT);
 ```
 
-It supplies a restrained light palette, a crisp one-pixel focus ring, one-
-pixel shadows, a single-outline notebook frame, button/toggle padding, text-field/list spacing and traversal
+It supplies a restrained light palette, a crisp one-pixel focus ring, two-
+pixel Motif bevels, an unframed notebook surface, button/toggle padding, text-field/list spacing and traversal
 defaults through ordinary wildcard X resources. The palette is deliberately
-documented in the implementation (`#f6f8fb` background, `#202124` text,
+documented in the implementation (`#f1f2f4` background, `#202124` text,
 `#1a73e8` focus and `#dbeafe` arm/selection). These are defaults, not a color
 filter: application resources and explicit widget arguments retain precedence.
 The default remains `classic`, and `modern-light` must be selected before
@@ -154,3 +154,23 @@ The WP-05.1 installed live-transition regression is
 library under Xvfb, transitions through modern-light, modern-dark,
 high-contrast and classic, and verifies ordinary-versus-explicit foreground
 precedence, realized backgrounds, toggle state and callback counts.
+
+## Construction and live-update parity
+
+Construction and live transactions resolve the same immutable Xrm profile
+resource database. Class-specific surfaces, label traversal, notebook frame
+shadows and border widths therefore have the same defaults whether a widget
+is created under a profile or switched into it later. There is no separate
+hand-maintained live palette.
+
+Ownership is determined against the original application resource database,
+including application-class-qualified resources. An explicit application
+value is preserved even if it equals a theme default; equality does not turn
+an application resource into a toolkit-owned one.
+
+The native fixture `tests/automated/run-appearance-parity.py` compares startup
+and live values on ten widget/gadget classes under light, dark and high-contrast
+profiles, and checks preservation of equal-valued application overrides.
+Run it against a selected out-of-tree build with `--build /absolute/build`
+and a fresh `--out /absolute/task/appearance-parity` directory. Its receipt
+records source and loaded-library fingerprints and each profile result.

@@ -11,6 +11,7 @@
 
 #include <X11/IntrinsicP.h>
 #include <X11/CompositeP.h>
+#include <X11/ShellP.h>
 #include <X11/StringDefs.h>
 #include <X11/Xresource.h>
 #include <X11/Xutil.h>
@@ -126,6 +127,8 @@ typedef enum {
     AP_LIST_MARGIN_WIDTH,
     AP_LIST_MARGIN_HEIGHT,
     AP_LIST_SPACING,
+    AP_FRAME_SHADOW_THICKNESS,
+    AP_BORDER_WIDTH,
     AP_COUNT
 } AppearanceProperty;
 
@@ -213,7 +216,7 @@ appearance_property_name(AppearanceProperty property)
         XmNshadowThickness, XmNarmColor, XmNselectColor,
         "insensitiveForeground", XmNtraversalOn, XmNmarginWidth,
         XmNmarginHeight, XmNlistMarginWidth, XmNlistMarginHeight,
-        XmNlistSpacing
+        XmNlistSpacing, XmNframeShadowThickness, XmNborderWidth
     };
     return names[property];
 }
@@ -225,7 +228,8 @@ appearance_property_is_dimension(AppearanceProperty property)
            property == AP_SHADOW_THICKNESS ||
            property == AP_MARGIN_WIDTH || property == AP_MARGIN_HEIGHT ||
            property == AP_LIST_MARGIN_WIDTH ||
-           property == AP_LIST_MARGIN_HEIGHT || property == AP_LIST_SPACING;
+           property == AP_LIST_MARGIN_HEIGHT || property == AP_LIST_SPACING ||
+           property == AP_FRAME_SHADOW_THICKNESS || property == AP_BORDER_WIDTH;
 }
 
 static Boolean
@@ -271,74 +275,41 @@ profile_name(XmAppearanceProfile profile)
     }
 }
 
+/* Canonical profile databases are immutable and shared for the process
+ * lifetime, like the static resource strings from which they are built. Both
+ * Xt construction and live transactions resolve the same Xrm patterns. */
+static XrmDatabase
+profile_defaults(XmAppearanceProfile profile)
+{
+    static XrmDatabase databases[4];
+    const char *resources;
+    XrmDatabase result;
+    if (profile == XmAPPEARANCE_CLASSIC) return NULL;
+    switch (profile) {
+    case XmAPPEARANCE_MODERN_LIGHT: resources = modern_light_resources; break;
+    case XmAPPEARANCE_HIGH_CONTRAST: resources = high_contrast_resources; break;
+    case XmAPPEARANCE_MODERN_DARK: resources = modern_dark_resources; break;
+    default: return NULL;
+    }
+    _XmProcessLock();
+    if (databases[profile] == NULL)
+        databases[profile] = XrmGetStringDatabase(resources);
+    result = databases[profile];
+    _XmProcessUnlock();
+    return result;
+}
+
+static Boolean appearance_database_value(Widget widget, XrmDatabase database,
+    AppearanceProperty property, XrmValue *value_return);
+
 static const char *
 profile_property_string(Widget widget, XmAppearanceProfile profile,
                         AppearanceProperty property)
 {
-    Boolean button = class_contains(widget, "PushButton") ||
-                     class_contains(widget, "ToggleButton");
-    Boolean text_field = class_contains(widget, "TextField");
-    Boolean list = class_contains(widget, "List");
-    Boolean traversal = class_contains(widget, "Label") || button ||
-                        text_field || class_contains(widget, "ScrollBar");
-
-    if (profile == XmAPPEARANCE_CLASSIC)
-        return NULL;
-    if (property == AP_BACKGROUND) {
-        if (profile == XmAPPEARANCE_MODERN_LIGHT) return "#f6f8fb";
-        if (profile == XmAPPEARANCE_HIGH_CONTRAST) return "#000000";
-        return "#202124";
-    }
-    if (property == AP_FOREGROUND) {
-        if (profile == XmAPPEARANCE_MODERN_LIGHT) return "#202124";
-        if (profile == XmAPPEARANCE_HIGH_CONTRAST) return "#ffffff";
-        return "#f1f3f4";
-    }
-    if (property == AP_TOP_SHADOW)
-        return profile == XmAPPEARANCE_MODERN_LIGHT ? "#ffffff" : "#ffffff";
-    if (property == AP_BOTTOM_SHADOW) {
-        if (profile == XmAPPEARANCE_MODERN_LIGHT) return "#c4ccd6";
-        if (profile == XmAPPEARANCE_HIGH_CONTRAST) return "#ffffff";
-        if (class_contains(widget, "ToggleButton")) return "#9aa0a6";
-        return "#000000";
-    }
-    if (property == AP_HIGHLIGHT) {
-        if (profile == XmAPPEARANCE_MODERN_LIGHT) return "#1a73e8";
-        if (profile == XmAPPEARANCE_HIGH_CONTRAST) return "#ffff00";
-        return "#8ab4f8";
-    }
-    if (property == AP_ARM || property == AP_SELECT) {
-        if (profile == XmAPPEARANCE_MODERN_LIGHT) return "#dbeafe";
-        if (profile == XmAPPEARANCE_HIGH_CONTRAST) return "#0000ff";
-        return "#3c4043";
-    }
-    if (property == AP_INSENSITIVE_FOREGROUND) {
-        if (profile == XmAPPEARANCE_MODERN_LIGHT) return NULL;
-        if (profile == XmAPPEARANCE_HIGH_CONTRAST) return "#b3b3b3";
-        return "#9aa0a6";
-    }
-    if (property == AP_HIGHLIGHT_THICKNESS) {
-        if (profile == XmAPPEARANCE_MODERN_LIGHT) return "2";
-        if (profile == XmAPPEARANCE_HIGH_CONTRAST) return "3";
-        return "2";
-    }
-    if (property == AP_SHADOW_THICKNESS) {
-        if (profile == XmAPPEARANCE_MODERN_LIGHT) return "1";
-        if (profile == XmAPPEARANCE_HIGH_CONTRAST) return "2";
-        return "1";
-    }
-    if (property == AP_TRAVERSAL)
-        return traversal ? "True" : NULL;
-    if (profile == XmAPPEARANCE_MODERN_LIGHT ||
-        profile == XmAPPEARANCE_MODERN_DARK) {
-        if (property == AP_MARGIN_WIDTH && button) return "10";
-        if (property == AP_MARGIN_HEIGHT && button) return "6";
-        if (property == AP_MARGIN_WIDTH && text_field) return "8";
-        if (property == AP_MARGIN_HEIGHT && text_field) return "5";
-        if (property == AP_LIST_MARGIN_WIDTH && list) return "8";
-        if (property == AP_LIST_MARGIN_HEIGHT && list) return "6";
-        if (property == AP_LIST_SPACING && list) return "2";
-    }
+    XrmValue value;
+    if (appearance_database_value(widget, profile_defaults(profile), property,
+                                  &value))
+        return value.addr;
     return NULL;
 }
 
@@ -411,8 +382,8 @@ appearance_explicit_arg(ArgList args, Cardinal num_args,
 }
 
 static Boolean
-appearance_xrm_value(Widget widget, AppearanceProperty property,
-                     XrmValue *value_return)
+appearance_database_value(Widget widget, XrmDatabase database,
+                          AppearanceProperty property, XrmValue *value_return)
 {
     Widget chain[64];
     XrmName names[66];
@@ -420,7 +391,6 @@ appearance_xrm_value(Widget widget, AppearanceProperty property,
     Widget current = widget;
     int count = 0;
     XrmRepresentation type;
-    XrmDatabase database = XrmGetDatabase(XtDisplay(widget));
     const char *resource_class = appearance_property_name(property);
     XtResourceList resources = NULL;
     Cardinal resource_count = 0;
@@ -441,7 +411,9 @@ appearance_xrm_value(Widget widget, AppearanceProperty property,
     for (int i = 0; i < count; ++i) {
         Widget item = chain[count - i - 1];
         names[i] = XrmStringToQuark(XtName(item));
-        classes[i] = XrmStringToQuark(widget_class_name(item));
+        classes[i] = XtIsApplicationShell(item)
+            ? ((ApplicationShellWidget)item)->application.xrm_class
+            : XrmStringToQuark(widget_class_name(item));
     }
     names[count] = XrmStringToQuark(appearance_property_name(property));
     classes[count] = XrmStringToQuark(resource_class);
@@ -655,6 +627,9 @@ read_appearance_values(XmAppearanceWidgetState *state, XtArgVal *values)
 {
     Arg get_args[AP_COUNT];
     Cardinal count = 0;
+    /* GetValues writes the resource's actual size, which can be smaller than
+     * XtArgVal (Dimension/Boolean). Clear the remaining bytes before comparing. */
+    memset(values, 0, AP_COUNT * sizeof(*values));
     for (AppearanceProperty property = 0; property < AP_COUNT; ++property)
         if (state->supported[property])
         {
@@ -737,22 +712,20 @@ static void
 initialize_appearance_state(XmAppearanceWidgetState *state,
                             XmAppearanceProfile current_profile)
 {
+    (void)current_profile;
     read_appearance_values(state, state->original);
     memcpy(state->last, state->original, sizeof(state->last));
     for (AppearanceProperty property = 0; property < AP_COUNT; ++property) {
         XrmValue xrm_value;
-        const char *profile_text;
+        XmAppearanceDisplayState *display_state = find_display_state(state->display);
+        XrmDatabase application = display_state != NULL
+            ? display_state->application_database : XrmGetDatabase(state->display);
         if (!state->supported[property] || state->explicit_arg[property])
             continue;
-        profile_text = profile_property_string(state->widget, current_profile,
-                                               property);
-        if (appearance_xrm_value(state->widget, property, &xrm_value)) {
-            if (profile_text != NULL &&
-                strcmp((const char *)xrm_value.addr, profile_text) == 0)
-                state->owned[property] = True;
-        } else {
-            state->owned[property] = True;
-        }
+        /* An application override remains authoritative even when its value
+         * happens to equal the current theme default. */
+        state->owned[property] = !appearance_database_value(state->widget,
+            application, property, &xrm_value);
     }
     state->initialized = True;
 }
@@ -921,14 +894,10 @@ profile_resource_database(XmAppearanceProfile profile, XrmDatabase *database)
 {
     XrmDatabase defaults;
 
-    if (profile == XmAPPEARANCE_MODERN_LIGHT)
-        defaults = XrmGetStringDatabase(modern_light_resources);
-    else if (profile == XmAPPEARANCE_HIGH_CONTRAST)
-        defaults = XrmGetStringDatabase(high_contrast_resources);
-    else if (profile == XmAPPEARANCE_MODERN_DARK)
-        defaults = XrmGetStringDatabase(modern_dark_resources);
-    else
-        return True;
+    if (profile == XmAPPEARANCE_CLASSIC) return True;
+    defaults = profile_defaults(profile);
+    if (defaults == NULL) return False;
+    defaults = clone_database(defaults);
     if (defaults == NULL)
         return False;
     XrmCombineDatabase(defaults, database, False);

@@ -1,3 +1,16 @@
+Unified construction and live appearance defaults (2026-10-26)
+================================================================
+
+- Resolve startup and live profile values from the same immutable Xrm
+  definitions, including class-specific surfaces and notebook frame resources.
+- Preserve application-class-qualified overrides even when they equal a theme
+  default. Clear full XtArgVal storage before reading narrower resources so
+  ownership comparisons do not depend on uninitialized bytes.
+- Native parity passes for light, dark and high-contrast across ten widget and
+  gadget classes. Existing classic, live-update/reentrancy, gadget lifetime
+  and allocation-failure rollback fixtures pass. See docs/appearance-profiles.md
+  and the in-progress docs/modern-visual-overhaul.md implementation ledger.
+
 Guard SimpleMenu creation failures (2026-10-27)
 ===============================================
 
