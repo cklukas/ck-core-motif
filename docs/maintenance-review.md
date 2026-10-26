@@ -73,6 +73,13 @@ Avatar initials, Badge labels, and DropHighlight labels now follow the same
 direct-copy rule, preserving compound-string charset segments through widget
 ownership. The same regression check covers these paths.
 
+## Accessibility UTF-8 scalar lengths
+
+Accessibility text metadata now counts decoded UTF-8 scalar values instead of
+raw bytes, while malformed sequences remain safely countable. This keeps
+caret, range, and text-boundary indices consistent for multilingual labels.
+The regression check is `tests/automated/check-accessible-unicode-length.py`.
+
 ## IconLabel typography and natural geometry
 
 `XmIconLabel` now measures its `XmString` through the render table for both

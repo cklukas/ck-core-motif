@@ -6906,6 +6906,12 @@ Avatar, Badge, and DropHighlight compound-string ownership (2026-10-27)
 
 - Avatar initials, Badge labels, and DropHighlight labels now retain
   compound-string charset segments with direct `XmString` copies.
+
+Accessibility UTF-8 scalar lengths (2026-10-27)
+================================================
+
+- Accessibility text lengths now count decoded UTF-8 scalar values rather than
+  raw bytes, with malformed sequences counted safely as replacement scalars.
 	* Validate Mrm pointer-list state before freeing contents.
 
 2026-10-26
