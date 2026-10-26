@@ -2955,7 +2955,7 @@ static MenuItem *ParseMenuItems (WmScreenData *pSD
     MenuItem      *firstMenuItem;
     MenuItem      *lastMenuItem;
     MenuItem      *menuItem;
-    register int   ix = 0;
+    size_t          ix = 0;
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
     Boolean        use_separators = False;
 #endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
@@ -8780,7 +8780,7 @@ fallback:
 Boolean SetGreyedContextAndMgtMask (MenuItem *menuItem,
  				    WmFunction wmFunction)
 {
-    int ix;
+    size_t ix;
 
     for (ix = 0; ix < WMFUNCTIONTABLESIZE - 1; ++ix)
     {

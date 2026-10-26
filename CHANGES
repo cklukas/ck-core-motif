@@ -107,6 +107,13 @@ Bound MWM bindings property lengths (2026-10-26)
   Xlib's signed property-count parameter, and reject null binding data.
 - Add a focused property-length regression and document the boundary.
 
+Align MWM function-table indexes (2026-10-26)
+=============================================
+
+- Use `size_t` for function-table scan indexes so comparisons match the
+  table-size expression without signed conversion warnings.
+- Add a focused index-type regression and document the invariant.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 
