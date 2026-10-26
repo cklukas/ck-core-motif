@@ -1,3 +1,10 @@
+Make virtual-key binding assembly linear (2026-10-27)
+======================================================
+
+- Append loaded binding lines at the existing byte offset instead of rescanning
+  the accumulated string with `strcat`.
+- Add a focused source regression and documentation.
+
 Bound virtual-key vendor formatting (2026-10-27)
 ================================================
 

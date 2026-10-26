@@ -933,8 +933,9 @@ _XmVirtKeysLoadFileBindings(char   *fileName,
 	    }
 	  }
 
+	  memcpy(*binding + count, line, line_length);
 	  count += line_length;
-	  strcat(*binding, line);
+	  (*binding)[count] = '\0';
 	}
       }
 
