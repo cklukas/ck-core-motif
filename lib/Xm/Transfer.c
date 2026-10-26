@@ -1469,10 +1469,15 @@ DeleteDropCBStruct(Widget w,	/* unused */
 		   XtEnum ignored_status, /* unused */
 		   XmTransferDoneCallbackStruct *cs)
 {
-  TransferContext tc = (TransferContext) cs -> transfer_id;
+  TransferContext tc;
+
+  if (cs == NULL || cs -> transfer_id == NULL)
+    return;
+  tc = (TransferContext) cs -> transfer_id;
 
   /* The malloc'd structure is in the destination_data member */
-  XtFree((char*) tc -> callback_struct -> destination_data);
+  if (tc -> callback_struct != NULL)
+    XtFree((char*) tc -> callback_struct -> destination_data);
 }
 
 /*ARGSUSED*/
@@ -1481,8 +1486,12 @@ DropDestinationHandler(Widget w,
 		       XtPointer client_data, /* unused */
 		       XmDropProcCallbackStruct *ds)
 {
-  Atom MOTIF_DROP = XInternAtom(XtDisplay(w), XmS_MOTIF_DROP, False);
+  Atom MOTIF_DROP;
   XtEnum op;
+
+  if (w == NULL || ds == NULL)
+    return;
+  MOTIF_DROP = XInternAtom(XtDisplay(w), XmS_MOTIF_DROP, False);
 
   if (ds -> dropAction == XmDROP_HELP ||
       ds -> operation == XmDROP_NOOP)

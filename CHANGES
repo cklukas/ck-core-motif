@@ -22052,3 +22052,13 @@ Bound transfer request counters (2026-10-26)
 
 Reject invalid transfer targets (2026-10-26)
 ============================================
+Harden DnD callback teardown (2026-10-26)
+==========================================
+
+- Validate drop widgets, callback structures, transfer IDs, and callback
+  storage before display access or teardown frees.
+- Add focused regression coverage and documentation for cancellation and
+  destruction paths.
+
+Bound transfer request counters (2026-10-26)
+=============================================
