@@ -120,7 +120,7 @@ static void Initialize(Widget request, Widget widget, ArgList args,
         ? label_copy : XmStringCreateLocalized("");
     defaults = XmeGetDefaultRenderTable(widget, XmTEXT_FONTLIST);
     ring->progress_ring.font = defaults ? XmFontListCopy(defaults) : NULL;
-    if (ring->progress_ring.font)
+    if (ring->progress_ring.font && ring->progress_ring.label)
         XmStringExtent(ring->progress_ring.font, ring->progress_ring.label,
                        &label_width, &label_height);
     diameter = _XmDpiDefaultDimension(widget, 64);
@@ -338,7 +338,7 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     Dimension label_width = 0, label_height = 0;
     Dimension diameter = _XmDpiDefaultDimension(widget, 64);
     (void)request;
-    if (ring->progress_ring.font)
+    if (ring->progress_ring.font && ring->progress_ring.label)
         XmStringExtent(ring->progress_ring.font, ring->progress_ring.label,
                        &label_width, &label_height);
     if (diameter < 32) diameter = 32;
