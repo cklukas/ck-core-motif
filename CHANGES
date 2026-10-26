@@ -19810,3 +19810,11 @@ Reuse checked Text selection-array byte counts (2026-10-26)
 - Reuse one overflow-checked byte count for selection-array allocation and
   copying during both Text initialization and resource updates.
 - Add focused regression coverage and documentation.
+
+Guard Text line-selection movement (2026-10-26)
+================================================
+
+- Handle empty line tables and saturate line-index movement at both bounds,
+  avoiding unsigned wraparound during keyboard and drag selection.
+- Preserve the existing left-selection adjustment and add focused regression
+  coverage and documentation.

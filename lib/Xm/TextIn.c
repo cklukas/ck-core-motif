@@ -1610,15 +1610,25 @@ SelectOutLine(XmTextWidget tw,
 	      int count)
 {
   unsigned int line;
+  unsigned int steps;
+
+  if (tw->text.total_lines == 0)
+    return position;
   
   line = _XmTextGetTableIndex(tw, position);
   if (dir == XmsdLeft) {
-    count--;
-    line -= count;
+    if (count > 0)
+      count--;
+    if (count > 0) {
+      steps = (unsigned int)count;
+      line = steps > line ? 0 : line - steps;
+    }
   } else {
-    line += count;
+    if (count > 0) {
+      steps = (unsigned int)count;
+      line = steps > UINT_MAX - line ? UINT_MAX : line + steps;
+    }
   }
-  if ((int)line < 0) line = 0;
   if (line < tw->text.total_lines)
     return tw->text.line_table[line].start_pos;
   else {
