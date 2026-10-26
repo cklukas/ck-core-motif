@@ -18136,6 +18136,14 @@ Refresh VendorShell extension allocation regression check (2026-10-27)
 Refresh virtual-key vendor allocation regression check (2026-10-27)
 ===================================================================
 
+Refresh MWM screen-name bounds regression check (2026-10-27)
+============================================================
+
+- Match the focused check to the current `snprintf`-based screen-name length
+  and checked `size_t` allocation arithmetic.
+
+============================================================
+
 - Match the focused check to the current bounded vendor-length calculation,
   `Cardinal` allocation, and `snprintf` result validation.
 
