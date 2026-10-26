@@ -6,8 +6,8 @@ from pathlib import Path
 text = (Path(__file__).parents[2] / "lib" / "Xm" / "DataGrid.c").read_text(
     encoding="utf-8"
 )
-for function in ("XmDataGridGetSelectedCell", "XmDataGridBeginEdit"):
-    start = text.index(function, 20000)
+for function in ("Boolean XmDataGridGetSelectedCell", "Boolean XmDataGridBeginEdit"):
+    start = text.index(function)
     end = text.index("\n}\n", start) + 2
     body = text[start:end]
     for needle in (

@@ -16847,4 +16847,16 @@ Update DataGrid colors through SetValues (2026-10-27)
   resources change on a live widget.
 - Add a focused source regression and documentation.
 
+Anchor DataGrid bounds regression to definitions (2026-10-27)
+==============================================================
+
+- Make the selection-bounds check inspect the actual API definitions rather
+  than a later call site, eliminating a false failure in the automated suite.
+
+Refresh DataGrid text-metrics regression (2026-10-27)
+=====================================================
+
+- Align the automated check and documentation with the active XmFontList and
+  XmStringExtent rendering path instead of the retired XQueryFont implementation.
+
 ====================================================
