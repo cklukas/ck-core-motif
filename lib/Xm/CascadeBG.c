@@ -525,7 +525,9 @@ ClassInitialize( void )
 
   if ((size_t)wc_num_res > SIZE_MAX - (size_t)sc_num_res ||
       (size_t)wc_num_res + (size_t)sc_num_res >
-	  SIZE_MAX / sizeof(XtResource))
+	  SIZE_MAX / sizeof(XtResource) ||
+      (size_t)wc_num_res + (size_t)sc_num_res >
+	  UINT_MAX / sizeof(XtResource))
     return;
 
   merged_list = (XtResource *)XtMalloc((sizeof(XtResource) * (wc_num_res +
