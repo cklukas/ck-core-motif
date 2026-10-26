@@ -21375,3 +21375,9 @@ GetPCD now frees the child-list allocation returned by every successful
 XQueryTree call while walking parent windows, preventing a per-lookup X11
 allocation leak.
 
+Harden MWM refresh-tree cleanup (2026-10-26)
+---------------------------------------------
+RefreshByClearing now releases an XQueryTree child list based on its returned
+pointer rather than the reported child count, covering successful empty-list
+responses without leaking the allocation.
+

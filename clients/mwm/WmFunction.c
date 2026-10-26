@@ -3321,7 +3321,7 @@ RefreshByClearing (Window win)
 	}
 
 	/* clean up */
-	if (nchildren > 0) 
+	if (winChildren != NULL)
 	    XFree((char *)winChildren);
     }
 }
