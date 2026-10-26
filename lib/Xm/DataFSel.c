@@ -662,6 +662,9 @@ _XmDataFieldConvert(
     if (*target == TARGETS) {
       Atom *targs = (Atom *)XtMalloc((unsigned) (MAX_TARGS * sizeof(Atom)));
 
+      if (targs == NULL)
+	return False;
+
       *value = (XtPointer) targs;
       *targs++ = CS_OF_LOCALE; target_count++;
       *targs++ = TARGETS; target_count++;
@@ -685,6 +688,8 @@ _XmDataFieldConvert(
    } else if (*target == TIMESTAMP) {
       Time *timestamp;
       timestamp = (Time *) XtMalloc(sizeof(Time));
+      if (timestamp == NULL)
+	return False;
       if (is_primary)
          *timestamp = XmTextF_prim_time(tf);
       else if (is_destination)
