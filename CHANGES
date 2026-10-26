@@ -19381,3 +19381,14 @@ Guard IconBox cell-query inputs (2026-10-27)
 ============================================================
 
 Guard MultiList selection API inputs (2026-10-27)
+Guard shared varargs widget-creation parent (2026-10-27)
+=========================================================
+
+- Return before context lookup or varargs conversion when
+  `XmeVLCreateWidget` receives a null parent.
+- Add focused regression coverage and documentation.
+
+============================================================
+
+Avoid zero-length dialog argument copy (2026-10-27)
+===================================================

@@ -1158,6 +1158,9 @@ XmeVLCreateWidget(
         (unsigned int)count >= UINT_MAX / sizeof(Arg))
         return NULL;
 
+    if (parent == (Widget) NULL)
+        return NULL;
+
     _XmWidgetToAppContext(parent);
     _XmAppLock(app);
     
