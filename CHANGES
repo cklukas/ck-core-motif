@@ -21193,3 +21193,9 @@ ShowActiveIconText and MoveActiveIconText now stop when querying the icon
 frame geometry fails, avoiding placement calculations from uninitialized
 coordinates after an icon owner destroys or reparents the frame.
 
+Handle MWM active icon attribute-query failures (2026-10-26)
+--------------------------------------------------------------
+ShowActiveIconText now requires XGetWindowAttributes to succeed before using
+the icon frame's event mask. A frame that disappears during activation no
+longer leaves an uninitialized mask for XChangeWindowAttributes.
+

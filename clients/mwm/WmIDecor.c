@@ -1926,7 +1926,9 @@ void ShowActiveIconText (ClientData *pcd)
      */
     if (pcd->pSD->activeIconTextWin) {
 	/* copy event mask from icon frame window */
-	XGetWindowAttributes (DISPLAY, ICON_FRAME_WIN(pcd), &iconFrameAttribs);
+	if (!XGetWindowAttributes (DISPLAY, ICON_FRAME_WIN(pcd),
+				   &iconFrameAttribs))
+	return;
 
 	/* set attributes of window */
 	window_attribs.event_mask =  iconFrameAttribs.your_event_mask;
