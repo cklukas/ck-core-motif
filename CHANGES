@@ -22562,3 +22562,9 @@ Guard DataField DnD callback inputs (2026-10-26)
   and drop callbacks access DnD state.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-datafield-dnd-callback-inputs.py
+Guard DataField drop-transfer inputs (2026-10-26)
+=================================================
+- Validate DataField transfer callback pointers and the transfer widget before
+  reading incoming target metadata.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-datafield-drop-transfer-inputs.py

@@ -9874,8 +9874,8 @@ df_DropTransferCallback(
         int *format )
 #endif /* _NO_PROTO */
 {
-    _XmTextDropTransferRec *transfer_rec = (_XmTextDropTransferRec *) closure;
-    XmDataFieldWidget tf = (XmDataFieldWidget) transfer_rec->widget;
+    _XmTextDropTransferRec *transfer_rec;
+    XmDataFieldWidget tf;
     Atom COMPOUND_TEXT = XmInternAtom(XtDisplay(w), "COMPOUND_TEXT", False);
 #ifdef UTF8_SUPPORTED
     Atom UTF8_STRING = XmInternAtom(XtDisplay(w), XmSUTF8_STRING, False);
@@ -9896,6 +9896,13 @@ df_DropTransferCallback(
     XTextProperty tmp_prop;
     Boolean replace = False;
     XmAnyCallbackStruct cb;
+
+    if (w == NULL || closure == NULL || type == NULL || length == NULL)
+        return;
+    transfer_rec = (_XmTextDropTransferRec *) closure;
+    if (transfer_rec->widget == NULL)
+        return;
+    tf = (XmDataFieldWidget) transfer_rec->widget;
 
    /* When type = NULL, we are assuming a DELETE request has been requested */
     if (*type == XmInternAtom(XtDisplay(transfer_rec->widget), "NULL", False)) {
