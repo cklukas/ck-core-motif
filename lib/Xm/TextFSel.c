@@ -1046,8 +1046,7 @@ DropTransferProc(Widget w, XtPointer closure,
     return;
   }
 
-  if (tf->text.max_char_size == 1 &&
-      total_length > (unsigned long)INT_MAX) {
+  if (total_length > (unsigned long)INT_MAX) {
     if (total_value != (char *)ds->value)
       XtFree(total_value);
     if (ds->value) {

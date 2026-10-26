@@ -9,7 +9,7 @@ start = source.index("static void \nDropTransferProc")
 end = source.index("\n#define CR1228", start)
 body = source[start:end]
 
-guard = "tf->text.max_char_size == 1 &&\n      total_length > (unsigned long)INT_MAX"
+guard = "if (total_length > (unsigned long)INT_MAX)"
 assert guard in body
 assert "(int)total_length" in body
 assert "XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);" in body
