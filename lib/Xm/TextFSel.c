@@ -1045,6 +1045,18 @@ DropTransferProc(Widget w, XtPointer closure,
     XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
     return;
   }
+
+  if (tf->text.max_char_size == 1 &&
+      total_length > (unsigned long)INT_MAX) {
+    if (total_value != (char *)ds->value)
+      XtFree(total_value);
+    if (ds->value) {
+      XtFree((char *)ds->value);
+      ds->value = NULL;
+    }
+    XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+    return;
+  }
   
   if (TextF_PendingDelete(tf) && tf->text.has_primary &&
       tf->text.prim_pos_left != tf->text.prim_pos_right) {

@@ -22803,3 +22803,10 @@ Bound TextField drop wide-character buffers (2026-10-26)
 - Restore transfer cleanup state and add focused regression coverage and
   documentation.
 Regression: tests/automated/check-textfield-drop-wide-buffer.py
+
+Bound TextField drop byte lengths (2026-10-26)
+===============================================
+- Reject oversized single-byte drop lengths before the legacy replacement
+  API's `int` conversion, with complete transfer-value cleanup.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-drop-byte-length.py
