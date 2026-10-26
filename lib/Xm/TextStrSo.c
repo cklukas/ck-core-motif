@@ -745,13 +745,13 @@ _XmStringSourceSetPending(XmTextWidget tw,
   XmSourceData data = tw->text.source->data;
   int i;
   
-  if ((long)pending > 1)
+  if ((uintptr_t)pending > (uintptr_t)1)
     for (i=0; i<data->numwidgets; i++) 
       ((XmTextWidget)data->widgets[i])->text.pendingoff = pending[i];
   else
     for (i=0; i<data->numwidgets; i++) 
       ((XmTextWidget)data->widgets[i])->text.pendingoff = 
-	(Boolean)(long)pending;
+	(Boolean)(uintptr_t)pending;
 }
 
 /*
