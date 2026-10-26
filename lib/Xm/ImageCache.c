@@ -2356,7 +2356,7 @@ CleanGCMapProc (XmHashKey key, /* unused */
   GCData *entry = (GCData *) value;
   CleanKey * ck = (CleanKey*) data ;
 
-  if (entry == NULL || ck == NULL)
+  if (entry == NULL || ck == NULL || entry->screen == NULL)
     return False;
 
   /* shell should be NULL for non printing screen */
@@ -2382,7 +2382,7 @@ CleanPixmapMapProc (XmHashKey key, /* unused */
   PixmapData *entry = (PixmapData *) value;
   CleanKey * ck = (CleanKey*) data ;
 
-  if (entry == NULL || ck == NULL)
+  if (entry == NULL || ck == NULL || entry->screen == NULL)
     return False;
 
   /* shell should be NULL for non printing screen */
@@ -2406,6 +2406,9 @@ PrintPixmapMapProc (XmHashKey key, /* unused */
   PixmapData *entry = (PixmapData *) value;
   CleanKey * ck = (CleanKey*) data ;
 
+  if (entry == NULL || ck == NULL || entry->screen == NULL)
+    return False;
+
   printf("entry->screen %d\n", entry->screen);
   printf("entry->print_shell %d\n", entry->print_shell);
   printf("entry->image_name %s\n", entry->image_name);
@@ -2421,6 +2424,9 @@ PrintGCMapProc (XmHashKey key, /* unused */
 {
   GCData *entry = (GCData *) value;
   CleanKey * ck = (CleanKey*) data ;
+
+  if (entry == NULL || ck == NULL || entry->screen == NULL)
+    return False;
 
   printf("entry->screen %d\n", entry->screen);
   printf("entry->print_shell %d\n", entry->print_shell);

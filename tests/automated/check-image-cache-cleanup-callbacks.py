@@ -7,5 +7,5 @@ for name in ("CleanGCMapProc", "CleanPixmapMapProc"):
     start = source.index(name + " (XmHashKey")
     end = source.index("\n}", start) + 2
     region = source[start:end]
-    assert "entry == NULL || ck == NULL" in region
+    assert "entry == NULL || ck == NULL || entry->screen == NULL" in region
 print("image-cache cleanup callbacks validate entry and cleanup key")
