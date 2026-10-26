@@ -15237,3 +15237,10 @@ Validate XPM file-to-data output (2026-10-27)
 - Add a focused source regression and documentation.
 
 Validate XPM file-buffer arguments (2026-10-27)
+Validate XPM file-to-image display (2026-10-27)
+================================================
+
+- Reject a null X display before file-to-image conversion reaches Xlib.
+- Add a focused source regression and documentation.
+
+Validate XPM file-to-data output (2026-10-27)

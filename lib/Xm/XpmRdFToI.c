@@ -71,6 +71,9 @@ XpmReadFileToImage(
     int ErrorStatus;
     xpmData mdata;
 
+    if (display == NULL)
+	return XpmFileInvalid;
+
     xpmInitXpmImage(&image);
     xpmInitXpmInfo(&info);
 
