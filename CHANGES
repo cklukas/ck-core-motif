@@ -21262,3 +21262,9 @@ GetIconTitleBox now validates its client, screen, and output rectangle before
 reading icon state. Late title callbacks cannot dereference a torn-down client
 or write through a missing rectangle.
 
+Guard MWM active icon-label painting (2026-10-26)
+--------------------------------------------------
+PaintActiveIconText now validates the client, screen, and realized label window
+before reading decoration state or issuing shadow/text drawing requests. Late
+paint callbacks after label teardown now return safely.
+

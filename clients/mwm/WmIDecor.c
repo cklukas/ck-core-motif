@@ -1847,6 +1847,10 @@ void PaintActiveIconText (ClientData *pcd, Boolean erase)
     XRectangle textBox;
     GC iconGC, topGC, botGC;
 
+    if (pcd == NULL || pcd->pSD == NULL ||
+	pcd->pSD->activeIconTextWin == None)
+	return;
+
     if (!(ICON_DECORATION(pcd) & ICON_ACTIVE_LABEL_PART))
 	return;
 
