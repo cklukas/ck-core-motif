@@ -3507,7 +3507,11 @@ XmTabStackSelectTab(widget, notify)
     Boolean notify;
 #endif
 {
-    XmTabStackWidget tab = (XmTabStackWidget) XtParent(widget);
+    XmTabStackWidget tab;
+
+    if (widget == NULL)
+	return;
+    tab = (XmTabStackWidget) XtParent(widget);
 
     _XmWidgetToAppContext(widget);
     _XmAppLock(app);
@@ -4224,9 +4228,13 @@ XmTabStackIndexToWidget(widget, idx)
     int    idx;
 #endif
 {
-    XmTabStackWidget tab = (XmTabStackWidget) widget;
+    XmTabStackWidget tab;
     Cardinal         i, cnt;
     WidgetList       kid;
+
+    if (widget == NULL)
+	return( NULL );
+    tab = (XmTabStackWidget) widget;
 
     _XmWidgetToAppContext(widget);
     _XmAppLock(app);
@@ -4259,7 +4267,11 @@ XmTabStackGetSelectedTab(widget)
     Widget widget;
 #endif
 {
-    XmTabStackWidget tab = (XmTabStackWidget) widget;
+    XmTabStackWidget tab;
+
+    if (widget == NULL)
+	return(NULL);
+    tab = (XmTabStackWidget) widget;
 
     _XmWidgetToAppContext(widget);
     _XmAppLock(app);
