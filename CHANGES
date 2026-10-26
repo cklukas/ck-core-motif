@@ -21685,6 +21685,13 @@ Reject empty MWM menu properties (2026-10-26)
 - Reject an empty `_MWM_MENU` XTextProperty before invoking text conversion.
 - Extend the menu-conversion regression coverage and documentation.
 
+Bound environment resource-path allocation sizes (2026-10-26)
+==============================================================
+
+- Reject environment-provided resource paths whose `size_t` length cannot be
+  represented by Xt's `Cardinal` allocation size.
+- Extend the Xmos allocation regression coverage and documentation.
+
 Clean up empty MWM menu conversions (2026-10-26)
 =================================================
 

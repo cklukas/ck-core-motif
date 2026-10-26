@@ -1374,6 +1374,7 @@ _XmOSInitPath(String   file_name,
   String homedir = stackString ;
   String local_path;
   int path_length;
+  size_t local_path_length;
   
   *user_path = False;
   
@@ -1428,7 +1429,10 @@ _XmOSInitPath(String   file_name,
 	} 
       else
 	{
-	  path = XtMalloc(strlen(local_path) + 1);
+	  local_path_length = strlen(local_path);
+	  if (local_path_length >= (size_t)UINT_MAX)
+	    return NULL;
+	  path = XtMalloc((Cardinal)(local_path_length + 1));
 	  if (path == NULL)
 	    return NULL;
 	  strcpy (path, local_path);
