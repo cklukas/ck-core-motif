@@ -1709,8 +1709,9 @@ void WithdrawDialog (Widget dialogboxW)
      * Get the dialog shell window client data.
      */
 
+
     if (XFindContext (DISPLAY, XtWindow (XtParent (dialogboxW)),
-		      wmGD.windowContextType, (caddr_t *)&pCD))
+		      wmGD.windowContextType, (caddr_t *)&pCD) || pCD == NULL)
       return;
 
     XtUnmanageChild (dialogboxW);
@@ -1775,8 +1776,9 @@ void ReManageDialog (WmScreenData *pSD, Widget dialogboxW)
      * Get the dialog shell window client data.
      */
 
+
     if (XFindContext (DISPLAY, XtWindow (XtParent (dialogboxW)),
-		      wmGD.windowContextType, (caddr_t *)&pCD))
+		      wmGD.windowContextType, (caddr_t *)&pCD) || pCD == NULL)
       return;
 
     /*

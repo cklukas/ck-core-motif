@@ -21274,3 +21274,9 @@ HideFeedbackWindow now checks the active screen before restoring colormap
 focus. Feedback teardown during screen shutdown no longer dereferences an
 absent active-screen record after unmapping the overlay.
 
+Guard MWM dialog context lookups (2026-10-26)
+-----------------------------------------------
+WithdrawDialog and ReManageDialog now reject a successful XFindContext lookup
+whose payload is null. Dialog callbacks cannot dereference an absent client
+record during late teardown or context cleanup.
+
