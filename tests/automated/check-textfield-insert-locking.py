@@ -16,11 +16,9 @@ def function(name: str, next_name: str) -> str:
 insert = function("XmTextFieldInsert", "XmTextFieldInsertWcs")
 insert_wcs = function("XmTextFieldInsertWcs", "XmTextFieldSetAddMode")
 
-assert "_XmAppLock(app);" in insert
-assert "TextFieldReplace(w, position, position, value, False);" in insert
-assert "XmTextFieldReplace(" not in insert
-assert "_XmAppLock(app);" in insert_wcs
-assert "TextFieldReplace(w, position, position, (char *)wcstring, True);" in insert_wcs
-assert "XmTextFieldReplaceWcs(" not in insert_wcs
+assert "_XmAppLock(app);" not in insert
+assert "XmTextFieldReplace(w, position, position, value);" in insert
+assert "_XmAppLock(app);" not in insert_wcs
+assert "XmTextFieldReplaceWcs(w, position, position, wcstring);" in insert_wcs
 
 print("PASS text-field insertion avoids nested application locking")

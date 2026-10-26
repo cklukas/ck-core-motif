@@ -10553,10 +10553,8 @@ XmTextFieldInsert(Widget w,
 {
   _XmWidgetToAppContext(w);
 
-  _XmAppLock(app);
   /* XmTextFieldReplace takes care of converting to wchar_t* if needed */
-  TextFieldReplace(w, position, position, value, False);
-  _XmAppUnlock(app);
+  XmTextFieldReplace(w, position, position, value);
 }
 
 void 
@@ -10566,10 +10564,8 @@ XmTextFieldInsertWcs(Widget w,
 {
   _XmWidgetToAppContext(w);
 
-  _XmAppLock(app);
   /* XmTextFieldReplaceWcs takes care of converting to wchar_t* if needed */
-  TextFieldReplace(w, position, position, (char *)wcstring, True);
-  _XmAppUnlock(app);
+  XmTextFieldReplaceWcs(w, position, position, wcstring);
 }
 
 void 

@@ -20260,6 +20260,6 @@ Avoid nested application locking in XmeGetMask (2026-10-26)
 Avoid nested application locking in text-field insertion (2026-10-26)
 ======================================================================
 
-- Route `XmTextFieldInsert` and `XmTextFieldInsertWcs` to the internal
-  replacement operation while their application lock is held, avoiding a
-  second acquisition through the public replacement wrappers.
+- Let `XmTextFieldInsert` and `XmTextFieldInsertWcs` delegate to the public
+  replacement wrappers without taking an outer application lock, avoiding a
+  second acquisition.

@@ -20,7 +20,7 @@ application lock through `XmGetPixmapByDepth`.
 The focused regressions are `tests/automated/check-xm-install-locking.py` and
 `tests/automated/check-xm-get-pixmap-locking.py`.
 
-The same ownership rule applies to text-field insertion: the locked
-`XmTextFieldInsert` wrappers call the internal replacement operation directly
-instead of recursively entering the public replacement wrappers. This is
-covered by `tests/automated/check-textfield-insert-locking.py`.
+The same ownership rule applies to text-field insertion: the
+`XmTextFieldInsert` wrappers do not acquire the application lock before
+delegating to the public replacement wrappers, which already own that lock.
+This is covered by `tests/automated/check-textfield-insert-locking.py`.
