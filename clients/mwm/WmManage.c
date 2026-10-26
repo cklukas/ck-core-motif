@@ -1734,7 +1734,8 @@ void WithdrawDialog (Widget dialogboxW)
     }
 #endif /* WSM */
     ResetWithdrawnFocii (pCD);
-    XUnmapWindow (DISPLAY, pCD->clientFrameWin);
+    if (pCD->clientFrameWin != None)
+	XUnmapWindow (DISPLAY, pCD->clientFrameWin);
 
 } /* END OF FUNCTION WithdrawDialog */
 
@@ -1802,7 +1803,8 @@ void ReManageDialog (WmScreenData *pSD, Widget dialogboxW)
                     TRUE, (ClientListEntry *) NULL);
     }
     AddClientToList (pSD->pActiveWS, pCD, True /*on top*/);
-    XMapWindow (DISPLAY, pCD->clientFrameWin);
+    if (pCD->clientFrameWin != None)
+	XMapWindow (DISPLAY, pCD->clientFrameWin);
     XtManageChild (dialogboxW);
 
     if ((wmGD.keyboardFocusPolicy == KEYBOARD_FOCUS_EXPLICIT))

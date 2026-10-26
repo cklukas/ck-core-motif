@@ -21220,3 +21220,9 @@ frame, and both WSM and non-WSM paths destroy only realized icon windows.
 Partial icon setup and repeated teardown no longer dereference missing state
 or issue XDestroyWindow for `None`.
 
+Guard MWM dialog frame map/unmap operations (2026-10-26)
+----------------------------------------------------------
+WithdrawDialog and ReManageDialog now map or unmap a client frame only when
+the frame window exists. Dialog lifecycle callbacks after partial construction
+therefore avoid invalid X requests while preserving normal behavior.
+
