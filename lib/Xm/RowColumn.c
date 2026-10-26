@@ -3494,6 +3494,9 @@ XmOptionLabelGadget(
 {
    int i;
    Widget child;
+   if (m == (Widget) NULL)
+      return NULL;
+
    _XmWidgetToAppContext(m);
 
    _XmAppLock(app);
@@ -3529,6 +3532,9 @@ XmOptionButtonGadget(
 {
    int i;
    Widget child;
+   if (m == (Widget) NULL)
+      return NULL;
+
    _XmWidgetToAppContext(m);
 
    _XmAppLock(app);
