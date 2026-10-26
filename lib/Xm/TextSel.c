@@ -189,6 +189,9 @@ static void
 TextSecondaryWrapper(Widget w, XtPointer closure,
 			XmSelectionCallbackStruct *ds)
 {
+  if (w == NULL || closure == NULL || ds == NULL ||
+      ds->transfer_id == NULL)
+    return;
   Atom XA_TARGETS = XInternAtom(XtDisplay(w), XmSTARGETS, False);
 
   if (ds -> target == XA_TARGETS)

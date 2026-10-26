@@ -22520,3 +22520,9 @@ Guard Text primary-selection completion widgets (2026-10-26)
   derive selection state.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-primary-selection-done-widget.py
+Guard Text secondary-selection wrappers (2026-10-26)
+====================================================
+- Validate wrapper callback state before display access or forwarding
+  secondary-selection data to Text/TextField handlers.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-secondary-wrapper-inputs.py
