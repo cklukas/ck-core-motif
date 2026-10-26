@@ -21477,3 +21477,8 @@ Free MWM client data on workspace-list failure (2026-10-26)
 GetClientInfo now releases its unregistered ClientData when WSM workspace
 metadata is invalid or the initial per-client workspace-list allocation fails.
 
+Free MWM client data on icon/confirmation failure (2026-10-26)
+---------------------------------------------------------------
+GetWmClientInfo now releases its unregistered ClientData when icon-box
+creation or confirmation-window geometry discovery fails.
+

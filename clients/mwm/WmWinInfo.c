@@ -786,6 +786,7 @@ int i;
              */
 
             Warning (((char *)GETMESSAGE(70, 3, "Couldn't make icon box")));
+	    XtFree ((char *)pCD);
 	    return (NULL);
         }
 #ifdef WSM
@@ -805,6 +806,7 @@ int i;
 	{
 	    Warning ((char *)GETMESSAGE(70, 4,
 		"Could not query confirmation window geometry"));
+	    XtFree ((char *)pCD);
 	    return (NULL);
 	}
 
