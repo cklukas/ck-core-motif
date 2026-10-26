@@ -15526,3 +15526,11 @@ Initialize transfer conversion contexts (2026-10-27)
 - Add a focused source regression and documentation.
 
 Guard drag selection request lookups (2026-10-27)
+Guard transfer-context lookup failures (2026-10-27)
+====================================================
+
+- Handle missing conversion contexts across selection, clipboard, secondary,
+  drag-source, and destination paths.
+- Add a focused source regression and documentation.
+
+Initialize transfer conversion contexts (2026-10-27)

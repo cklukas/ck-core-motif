@@ -155,6 +155,14 @@ _XmConvertHandler(Widget wid, Atom *selection, Atom *target,
 
   cc = LookupContextBlock(XtDisplay(wid), *selection);
 
+  if (cc == NULL) {
+    *value = NULL;
+    *size = 0;
+    *fmt = 8;
+    *type = None;
+    return False;
+  }
+
   /* Setup the callback structure */
 
   cbstruct.reason = XmCR_OK;
@@ -305,6 +313,9 @@ DragConvertHandler(Widget drag_context, Atom *selection, Atom *target,
   /* Find the context block */
 
   cc = LookupContextBlock(XtDisplay(drag_context), MOTIF_DROP);
+
+  if (cc == NULL)
+    return False;
 
   /* Originating widget was stored in client_data */
 
@@ -707,6 +718,10 @@ XmeSecondaryTransfer(Widget w, Atom target, XtEnum op, Time time)
   XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);
 
   cc = LookupContextBlock(XtDisplay(w), XA_SECONDARY);
+  if (cc == NULL) {
+    _XmAppUnlock(app);
+    return;
+  }
   cc -> op = op;
 
   if (op == XmLINK)
@@ -806,6 +821,10 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
   ClearContextBlock(display, atoms[XmACLIPBOARD]);
 
   cc = LookupContextBlock(display, atoms[XmACLIPBOARD]);
+  if (cc == NULL) {
+    _XmAppUnlock(app);
+    return False;
+  }
   cc -> op = op;
 
   /* If there is a clipboard manager,  then just take 
@@ -1083,6 +1102,12 @@ XmeDragSource(Widget w, XtPointer location_data, XEvent *event,
 
   cc = LookupContextBlock(XtDisplay(w), atoms[XmA_MOTIF_DROP]);
 
+  if (cc == NULL) {
+    XtFree((char *)args);
+    _XmAppUnlock(app);
+    return NULL;
+  }
+
   cc -> location_data = location_data;
   cc -> client_data = (XtPointer) w;
 
@@ -1215,7 +1240,7 @@ _XmDestinationHandler(Widget wid, Atom selection, XtEnum op,
       /* We go get the origination information if this is in the same
 	 client as the originator.  We know its the same client if
 	 XtWindowToWidget is successful */
-      if (cc -> client_data == (XtPointer) wid)
+	  if (cc != NULL && cc -> client_data == (XtPointer) wid)
 	cbstruct -> flags |= XmCONVERTING_SAME;
     }
 
@@ -1978,6 +2003,9 @@ ClearContextBlock(Display *d, Atom a)
   ConvertContext cc;
   
   cc = LookupContextBlock(d, a);
+
+  if (cc == NULL)
+    return;
 
   cc -> flags = 0;
   cc -> op = 0;
