@@ -1,16 +1,13 @@
----
-nav_exclude: true
----
-# DataField selection conversion bounds
+# DataField selection bounds
 
-DataField selection imports can contain several text fragments.  The
-conversion path now accumulates their byte lengths in `size_t`, rejects a
-sum that cannot be represented by the widget's `int` length contract, and
-checks the wide-character allocation before multiplying by `sizeof(wchar_t)`.
-An empty or unconvertible text-property list is represented by an allocated
-empty string, so the replacement path never receives a null buffer for a
-zero-length conversion.  Failed conversions release the selection payload
-and report failure to the selection owner.
+`XmDataFieldGetSelection` now checks selection length and character-width
+arithmetic before converting the result to Xt's `Cardinal` allocation size.
+Oversized or malformed ranges return `NULL` without wrapping the allocation
+size, while normal narrow and multibyte selections retain their existing
+behavior.
 
-The `check-selection-timestamp` regression exercises the DataField
-`XA_STRING` conversion path after rebuilding the library.
+The regression check is:
+
+```sh
+python3 tests/automated/check-datafield-selection-bounds.py
+```

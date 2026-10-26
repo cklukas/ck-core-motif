@@ -12168,6 +12168,7 @@ XmDataFieldGetSelection(
 {
    XmDataFieldWidget tf = (XmDataFieldWidget) w;
    size_t length, num_chars;
+   size_t capacity;
    char *value;
 
    _XmWidgetToAppContext(w);    
@@ -12185,7 +12186,13 @@ XmDataFieldGetSelection(
 
     if (XmTextF_max_char_size(tf) == 1) 
     {
-	value = XtMalloc((unsigned) num_chars + 1);
+	if (num_chars > (size_t)UINT_MAX - 1)
+	{
+	    _XmAppUnlock(app);
+	    return NULL;
+	}
+	capacity = num_chars + 1;
+	value = XtMalloc((Cardinal)capacity);
 	if (value == NULL) {
 	    _XmAppUnlock(app);
 	    return NULL;
@@ -12196,13 +12203,25 @@ XmDataFieldGetSelection(
     } 
     else 
     {
-	value = XtMalloc((unsigned) ((num_chars + 1) * XmTextF_max_char_size(tf)));
+	if (XmTextF_max_char_size(tf) <= 0 ||
+	    num_chars > SIZE_MAX / (size_t)XmTextF_max_char_size(tf) - 1)
+	{
+	    _XmAppUnlock(app);
+	    return NULL;
+	}
+	capacity = (num_chars + 1) * (size_t)XmTextF_max_char_size(tf);
+	if (capacity > UINT_MAX)
+	{
+	    _XmAppUnlock(app);
+	    return NULL;
+	}
+	value = XtMalloc((Cardinal)capacity);
 	if (value == NULL) {
 	    _XmAppUnlock(app);
 	    return NULL;
 	}
-	length = wcstombs(value, XmTextF_wc_value(tf) + XmTextF_prim_pos_left(tf), 
-			  (num_chars + 1) * XmTextF_max_char_size(tf));
+	length = wcstombs(value, XmTextF_wc_value(tf) + XmTextF_prim_pos_left(tf),
+			  capacity);
 	if (length == (size_t) -1) 
 	{
 	    length = 0;
