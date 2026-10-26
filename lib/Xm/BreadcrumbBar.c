@@ -156,11 +156,6 @@ static void advance_cursor(int *cursor, int width) {
         *cursor += width;
 }
 
-static int bounded_text_length(const char *text) {
-    size_t length = text ? strlen(text) : 0;
-    return length > (size_t)INT_MAX ? INT_MAX : (int)length;
-}
-
 static Cardinal visible_start(XmBreadcrumbBarWidget bar) {
     if (bar->breadcrumb.max_visible <= 0 ||
         bar->breadcrumb.count <= (Cardinal)bar->breadcrumb.max_visible)
@@ -257,7 +252,7 @@ static void draw_item(XmBreadcrumbBarWidget bar, Cardinal index, int *cursor,
         (*cursor > INT_MAX - (int)separator_width - 4
              ? INT_MAX : *cursor + (int)separator_width + 4);
     text_y = ((int)bar->core.height - (int)label_height) / 2;
-    if (!first && separator_string)
+    if (bar->breadcrumb.font && !first && separator_string)
         XmStringDraw(display, window, bar->breadcrumb.font, separator_string,
                      bar->breadcrumb.gc, *cursor, text_y, separator_width,
                      XmALIGNMENT_BEGINNING, XmPrim_layout_direction(bar), NULL);
@@ -267,7 +262,7 @@ static void draw_item(XmBreadcrumbBarWidget bar, Cardinal index, int *cursor,
                        (unsigned)(bar->core.height > 10 ? bar->core.height - 10 : 1));
     if ((int)index == bar->breadcrumb.current)
         XSetForeground(display, bar->breadcrumb.gc, bar->core.background_pixel);
-    if (label_string)
+    if (bar->breadcrumb.font && label_string)
         XmStringDraw(display, window, bar->breadcrumb.font, label_string,
                      bar->breadcrumb.gc, text_x, text_y, label_width,
                      XmALIGNMENT_BEGINNING, XmPrim_layout_direction(bar), NULL);

@@ -12,6 +12,8 @@ redisplay = source[start:end]
 assert "bar->breadcrumb.separator ?" in item
 assert 'bar->breadcrumb.items[index].label ?' in item
 assert "!window || !bar->breadcrumb.gc" in redisplay
-assert "width > 4 ? width - 4 : 1" in draw
+assert "label_width > 4 ? label_width + 4 : 1" in draw
+assert "bar->breadcrumb.font && !first && separator_string" in draw
+assert "bar->breadcrumb.font && label_string" in draw
 assert "bar->core.width > 2 * bar->primitive.highlight_thickness" in redisplay
 print("PASS BreadcrumbBar redisplay guards")

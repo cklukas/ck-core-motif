@@ -1,3 +1,13 @@
+Guard BreadcrumbBar drawing without a render table (2026-10-27)
+================================================================
+
+- Skip item and separator `XmStringDraw` calls when render-table setup failed,
+  matching the existing safe measurement fallback and preventing invalid Xlib
+  drawing calls.
+- Add a focused source regression and documentation.
+
+====================================================
+
 Release invalid clipboard target-list results (2026-10-27)
 ============================================================
 
