@@ -1,3 +1,12 @@
+Make clipboard MOVE cleanup null-safe (2026-10-27)
+===================================================
+
+- Initialize and reset the delete-conversion value before freeing it, so a
+  declined conversion cannot expose an uninitialized pointer to `XtFree`.
+- Add a focused source regression and documentation.
+
+===================================================
+
 Validate legacy DataField byte substrings (2026-10-27)
 ======================================================
 

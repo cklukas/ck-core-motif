@@ -465,7 +465,7 @@ static void
 ClipboardLoseProc(Widget w, Atom *selection)
 {
   Atom DELETE = XInternAtom(XtDisplay(w), XmSDELETE, False);
-  XtPointer value;
+  XtPointer value = NULL;
   Atom type;
   unsigned long size;
   int fmt;
@@ -804,7 +804,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 
   ConvertContext cc;
   Atom type, type2, *targets = NULL;
-  XtPointer value;
+  XtPointer value = NULL;
   unsigned long size, size2;
   int format, format2;
   int i, count, status, transferred = 0;
@@ -990,6 +990,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
   XmClipboardEndCopy(display, XtWindow(w), itemid);
   
   if (op == XmMOVE && transferred != 0) {
+    value = NULL;
     _XmConvertHandlerSetLocal();
     _XmConvertHandler(w, &atoms[XmACLIPBOARD], &atoms[XmADELETE], 
 		      &type, &value, &size, &format);
