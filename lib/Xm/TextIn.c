@@ -39,6 +39,7 @@ static char rcsid[] = "$TOG: TextIn.c /main/36 1999/01/27 16:10:29 mgreess $"
 #include <wchar.h>
 #include <wctype.h>
 #include <string.h>
+#include <limits.h>
 #include <stdint.h>
 #include <Xm/XmosP.h>
 #include <X11/Xatom.h>
@@ -1103,6 +1104,7 @@ DeleteOrKill(XmTextWidget tw,
   XmTextBlockRec block, newblock;
   Boolean freeBlock;
   char *ptr;
+  size_t ptr_length;
   Time event_time = event ? event->xkey.time :
                             XtLastTimestampProcessed(XtDisplay((Widget)tw));
   
@@ -1110,8 +1112,20 @@ DeleteOrKill(XmTextWidget tw,
   _XmTextDisableRedisplay(tw,False);
   if (kill && from < to) {
     ptr = _XmStringSourceGetString(tw, from, to, False);
+    if (ptr == NULL) {
+      _XmTextEnableRedisplay(tw);
+      RingBell((Widget)tw, (XEvent *) NULL, (String *) NULL, (Cardinal) 0);
+      return FALSE;
+    }
+    ptr_length = strlen(ptr);
+    if (ptr_length > (size_t)INT_MAX) {
+      XtFree(ptr);
+      _XmTextEnableRedisplay(tw);
+      RingBell((Widget)tw, (XEvent *) NULL, (String *) NULL, (Cardinal) 0);
+      return FALSE;
+    }
     XRotateBuffers(XtDisplay(tw), 1);
-    XStoreBuffer(XtDisplay(tw), ptr, strlen(ptr), 0);
+    XStoreBuffer(XtDisplay(tw), ptr, (int)ptr_length, 0);
     XtFree(ptr);
   }
   block.ptr = "";

@@ -19788,3 +19788,10 @@ Bound Text clear-selection ranges (2026-10-26)
 - Reject invalid or too-wide selection ranges before narrowing them to an
   `XmTextBlock` length, and handle temporary-string allocation failure.
 - Add focused regression coverage and documentation.
+
+Guard Text kill-buffer snapshots (2026-10-26)
+==============================================
+
+- Check temporary kill-buffer snapshots before calling `strlen`, and reject
+  lengths that cannot be represented by Xlib's `int`-sized cut-buffer API.
+- Add focused regression coverage and documentation.
