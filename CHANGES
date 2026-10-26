@@ -251,6 +251,14 @@ Bound Text wide callback buffer narrowing (2026-10-27)
 - Keep the existing callback cleanup and failure contract unchanged.
 - Extend the focused source regression and documentation.
 
+Bound XmString segment copy sizes (2026-10-27)
+==============================================
+
+- Reject negative, overflowing, or Xt-unrepresentable segment character
+  counts before copying text and adding the terminator area.
+- Preserve the existing failure cleanup for copied tags and text.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 

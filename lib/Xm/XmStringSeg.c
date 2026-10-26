@@ -337,9 +337,30 @@ _XmStringGetSegment(_XmStringContext   context,
       /* Copy the text. */
 	if (*text && result)
 	{
+	  if (*char_count < 0)
+	    {
+	    *text = NULL;
+	    XtFree((char *)*tag);
+	    *tag = NULL;
+	    result = FALSE;
+	    }
+	  else
+	  {
 	  size_t text_bytes = (*type == XmWIDECHAR_TEXT) ?
 	      (size_t)*char_count * sizeof(wchar_t) : (size_t)*char_count;
-	  char *tmp = XtMalloc(text_bytes + sizeof(wchar_t));
+	  if ((*type == XmWIDECHAR_TEXT &&
+	       (size_t)*char_count > SIZE_MAX / sizeof(wchar_t)) ||
+	      text_bytes > SIZE_MAX - sizeof(wchar_t) ||
+	      text_bytes + sizeof(wchar_t) > UINT_MAX)
+	    {
+	    *text = NULL;
+	    XtFree((char *)*tag);
+	    *tag = NULL;
+	    result = FALSE;
+	    }
+	  else
+	  {
+	  char *tmp = XtMalloc((Cardinal)(text_bytes + sizeof(wchar_t)));
 	  if (tmp == NULL) {
 	    *text = NULL;
 	    XtFree((char *)*tag);
@@ -349,6 +370,8 @@ _XmStringGetSegment(_XmStringContext   context,
 	    memcpy(tmp, *text, text_bytes);
 	    bzero(tmp + text_bytes, sizeof(wchar_t));
 	    *text = (XtPointer) tmp;
+	  }
+	  }
 	  }
 	}
     }
