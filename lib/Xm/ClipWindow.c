@@ -281,7 +281,7 @@ AppendTranslationText(String *buffer, size_t *capacity, size_t *used,
     if (next == 0)
       next = 1;
     while (next < required) {
-      if (next > SIZE_MAX / 2) {
+      if (next > SIZE_MAX / 2 || next > (size_t)UINT_MAX / 2) {
         next = required;
         break;
       }
