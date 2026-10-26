@@ -11407,7 +11407,14 @@ XmDataFieldGetSubstringWcs(
     _XmWidgetToAppContext(widget);    
     _XmAppLock(app);
     
-    if (start + num_chars > XmTextF_string_length(tf)) 
+    if (start < 0 || num_chars < 0 ||
+	start > XmTextF_string_length(tf))
+    {
+	_XmAppUnlock(app);
+	return XmCOPY_FAILED;
+    }
+
+    if (num_chars > XmTextF_string_length(tf) - start)
     {
 	num_chars = (int) (XmTextF_string_length(tf) - start);
 	ret_value = XmCOPY_TRUNCATED;
