@@ -12,6 +12,7 @@ Bound MWM session DB path formatting (2026-10-27)
 
 - Build the derived session database path with checked `snprintf` output and
   release the allocation if formatting fails or truncates.
+- Bound proxy-client session IDs with the same checked formatting contract.
 - Extend the focused MWM resource-path regression and document the contract.
 
 ============================================================

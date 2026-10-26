@@ -1165,6 +1165,7 @@ static Boolean
 saveProxyClient(FILE *fp, ClientData *pCD, int clientIDNum)
 {
     char clientID[50];
+    int clientIDLength;
     int clientState;
     ProxyClientInfo proxyClientInfo;
     int clientX, clientY;
@@ -1176,7 +1177,9 @@ saveProxyClient(FILE *fp, ClientData *pCD, int clientIDNum)
     if (!getProxyClientInfo(pCD, &proxyClientInfo))
 	return False;
 
-    sprintf(clientID, "%d", clientIDNum);
+    clientIDLength = snprintf(clientID, sizeof(clientID), "%d", clientIDNum);
+    if (clientIDLength < 0 || (size_t)clientIDLength >= sizeof(clientID))
+	return False;
     fprintf(fp, dbClientFormat, proxyClientStr, clientID, clientID);
 
     fprintf(fp, screenStr, clientID);

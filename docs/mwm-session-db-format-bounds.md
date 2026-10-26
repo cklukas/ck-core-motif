@@ -6,6 +6,10 @@ allocates room for the path and restart suffixes. The path is now written with
 truncation releases the allocation and leaves the database name unset rather
 than retaining a malformed path.
 
+Proxy-client IDs written into the same session file use the same checked
+formatter, so a future change to the ID representation cannot silently
+truncate the serialized record.
+
 The focused source contract is checked with:
 
 ```sh

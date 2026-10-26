@@ -23,6 +23,12 @@ assert "(unsigned int)resourceLength >= UINT_MAX - 1" in region
 assert "XtMalloc((Cardinal)resourceLength + 2)" in region
 assert "XtMalloc((unsigned int)resourceLength + 2)" not in region
 assert "XtFree(resourceBuf);" in region
+start = source.index("static Boolean\nsaveProxyClient")
+end = source.index("\n/*", start)
+region = source[start:end]
+assert 'snprintf(clientID, sizeof(clientID), "%d", clientIDNum)' in region
+assert "clientIDLength < 0" in region
+assert 'sprintf(clientID, "%d", clientIDNum)' not in region
 start = source.index("static void\ngetClientDBName")
 end = source.index("\n/*\n *  See comments above", start)
 region = source[start:end]
