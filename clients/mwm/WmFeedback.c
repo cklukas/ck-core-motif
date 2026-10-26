@@ -1040,6 +1040,14 @@ void ShowWaitState (Boolean flag)
         maskPixmap = XCreateBitmapFromData (DISPLAY, 
 		         DefaultRootWindow(DISPLAY), maskBits, 
 			 width, height);
+	if (pixmap == None || maskPixmap == None)
+	{
+	    if (pixmap != None)
+		XFreePixmap (DISPLAY, pixmap);
+	    if (maskPixmap != None)
+		XFreePixmap (DISPLAY, maskPixmap);
+	    return;
+	}
 #ifdef INTEGRATION_TESTING_
         xcolors[1].pixel = BlackPixelOfScreen(DefaultScreenOfDisplay(DISPLAY));
         xcolors[0].pixel = WhitePixelOfScreen(DefaultScreenOfDisplay(DISPLAY));

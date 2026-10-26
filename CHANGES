@@ -21028,6 +21028,11 @@ ConfirmAction now rejects missing screen/top-level widget records and action
 indices outside the four built-in confirmation messages before indexing its
 dialog arrays.
 
+Guard MWM wait-cursor bitmap resources (2026-10-26)
+----------------------------------------------------
+ShowWaitState now stops cleanly when either cursor bitmap cannot be created,
+freeing any partial bitmap resource before returning.
+
 Handle MWM cached-label X resource failure (2026-10-26)
 --------------------------------------------------------
 MakeCachedLabelPixmap now returns `None` when pixmap or graphics-context
