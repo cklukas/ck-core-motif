@@ -3586,9 +3586,23 @@ PreeditStart(XIC xic,
     lastPos = (*(tw->text.source->Scan))(tw->text.source,
                                          PreCursorTW(tw),
                                          XmSELECT_LINE, XmsdRight, 1, TRUE);
+    if (lastPos < PreCursorTW(tw)) {
+      PreStartTW(tw) = PreEndTW(tw) = PreCursorTW(tw) = 0;
+      PreOverLen(tw) = PreOverMaxLen(tw) = 0;
+      PreUnder(tw) = False;
+      return 0;
+    }
     PreOverLen(tw) = lastPos - PreCursorTW(tw);
-    PreOverStr(tw) = _XmStringSourceGetString(tw, PreCursorTW(tw),
-                                              lastPos, False);
+    if (PreOverLen(tw) > 0) {
+      PreOverStr(tw) = _XmStringSourceGetString(tw, PreCursorTW(tw),
+                                                lastPos, False);
+      if (PreOverStr(tw) == NULL) {
+        PreStartTW(tw) = PreEndTW(tw) = PreCursorTW(tw) = 0;
+        PreOverLen(tw) = PreOverMaxLen(tw) = 0;
+        PreUnder(tw) = False;
+        return 0;
+      }
+    }
   }
 
   return (-1);

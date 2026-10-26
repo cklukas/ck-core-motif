@@ -22958,3 +22958,10 @@ Clean up XmText overstrike preedit verification (2026-10-26)
   callback ends a composition early.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-preedit-verify-cleanup.py
+
+Guard XmText preedit-start snapshots (2026-10-26)
+==================================================
+- Validate overstrike scan ranges and reject preedit startup when the saved
+  source snapshot is unavailable.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-preedit-start-snapshot.py
