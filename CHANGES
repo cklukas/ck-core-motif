@@ -19551,3 +19551,11 @@ Guard ScrollBar slider pixmap rendering (2026-10-27)
 - Add focused regression coverage and documentation.
 
 Guard TabStack graphics-context failure (2026-10-27)
+====================================================
+
+Clarify Container control flow (2026-10-27)
+===========================================
+
+- Add explicit blocks around outline visibility and traversal early-return
+  branches, removing misleading-indentation warnings without changing logic.
+- Add focused regression coverage and documentation.

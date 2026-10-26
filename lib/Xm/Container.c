@@ -3111,10 +3111,14 @@ ConstraintInitialize(
 		nc->depth = pc->depth +1;
 		cw->container.max_depth = MAX(cw->container.max_depth,
 						nc->depth);
-		if (pc->outline_state == XmEXPANDED)
-			nc->visible_in_outline = pc->visible_in_outline;
-		else
-			nc->visible_in_outline = False;
+	    if (pc->outline_state == XmEXPANDED)
+	    {
+		nc->visible_in_outline = pc->visible_in_outline;
+	    }
+	    else
+	    {
+		nc->visible_in_outline = False;
+	    }
 		if ((!nc->visible_in_outline) || 
 		    (!CtrLayoutIsOUTLINE_DETAIL(cw)))
 			HideCwid(ncwid);
@@ -3285,9 +3289,13 @@ ConstraintSetValues(
 	    cw->container.max_depth = MAX(cw->container.max_depth,nc->depth);
 #endif
             if (pc->outline_state == XmEXPANDED)
-            	nc->visible_in_outline = pc->visible_in_outline;
+		    {
+			nc->visible_in_outline = pc->visible_in_outline;
+		    }
 	    else
-	    	nc->visible_in_outline = False;
+		    {
+			nc->visible_in_outline = False;
+		    }
    		if ((!nc->visible_in_outline) || 
 	   	 (!CtrLayoutIsOUTLINE_DETAIL(cw)))
 	    	    HideCwid(ncwid);
@@ -8459,22 +8467,26 @@ RedirectTraversal(
     Widget to_widget = new_focus;
     Boolean wrap;
 
-  if ( (old_focus == NULL)
-    || (focus_policy != XmEXPLICIT) 
-    || (   direction != XmTRAVERSE_PREV 
-	&& direction != XmTRAVERSE_NEXT 
-	&& direction != XmTRAVERSE_LEFT 
-	&& direction != XmTRAVERSE_RIGHT 
-	&& direction != XmTRAVERSE_UP 
-	&& direction != XmTRAVERSE_DOWN 
-	&& direction != XmTRAVERSE_HOME))
-    return new_focus;
+	if ((old_focus == NULL)
+	    || (focus_policy != XmEXPLICIT)
+	    || (direction != XmTRAVERSE_PREV
+		&& direction != XmTRAVERSE_NEXT
+		&& direction != XmTRAVERSE_LEFT
+		&& direction != XmTRAVERSE_RIGHT
+		&& direction != XmTRAVERSE_UP
+		&& direction != XmTRAVERSE_DOWN
+		&& direction != XmTRAVERSE_HOME))
+	{
+	    return new_focus;
+	}
 
-    if ( ((cw=(XmContainerWidget)XtParent(old_focus)) == NULL)
-      || (!XmIsContainer(cw))
-      || (CtrLayoutIsSPATIAL(cw))
-      || (CtrOUTLINE_BUTTON(old_focus)))
-	return new_focus;
+	if (((cw = (XmContainerWidget)XtParent(old_focus)) == NULL)
+	    || (!XmIsContainer(cw))
+	    || (CtrLayoutIsSPATIAL(cw))
+	    || (CtrOUTLINE_BUTTON(old_focus)))
+	{
+	    return new_focus;
+	}
 
     wrap = !XmIsClipWindow((XmClipWindowWidget)XtParent(cw));
 
