@@ -22574,3 +22574,9 @@ Guard DataField DnD destroy cleanup (2026-10-26)
   context.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-datafield-dnd-destroy-widget.py
+Reject missing DataField DnD contexts (2026-10-26)
+=================================================
+- Validate DataField drag contexts before drag-motion and drop callbacks
+  query or start DnD operations.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-datafield-dnd-context.py
