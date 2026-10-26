@@ -16791,4 +16791,11 @@ Guard DragUnder highlight GC creation (2026-10-27)
   context, avoiding invalid clip and draw requests.
 - Add a focused source regression and documentation.
 
+Guard DragUnder shadow GC creation (2026-10-27)
+===============================================
+
+- Handle partial top/bottom shadow graphics-context allocation and guard
+  optional contexts during cleanup.
+- Add a focused source regression and documentation.
+
 ====================================================

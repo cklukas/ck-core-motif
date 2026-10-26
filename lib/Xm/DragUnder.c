@@ -243,18 +243,24 @@ FreeAnimationData(
     {
         case XmDRAG_UNDER_SHADOW_IN:
         case XmDRAG_UNDER_SHADOW_OUT:
-            XFreeGC (aSaveData->display, aSaveData->topShadowGC);
-            XFreeGC (aSaveData->display, aSaveData->bottomShadowGC);
-            XFreeGC (aSaveData->display, aSaveData->drawGC);
+            if (aSaveData->topShadowGC != NULL)
+                XFreeGC (aSaveData->display, aSaveData->topShadowGC);
+            if (aSaveData->bottomShadowGC != NULL)
+                XFreeGC (aSaveData->display, aSaveData->bottomShadowGC);
+            if (aSaveData->drawGC != NULL)
+                XFreeGC (aSaveData->display, aSaveData->drawGC);
         break;
 
         case XmDRAG_UNDER_HIGHLIGHT:
-            XFreeGC (aSaveData->display, aSaveData->highlightGC);
-            XFreeGC (aSaveData->display, aSaveData->drawGC);
+            if (aSaveData->highlightGC != NULL)
+                XFreeGC (aSaveData->display, aSaveData->highlightGC);
+            if (aSaveData->drawGC != NULL)
+                XFreeGC (aSaveData->display, aSaveData->drawGC);
         break;
 
         case XmDRAG_UNDER_PIXMAP:
-            XFreeGC (aSaveData->display, aSaveData->drawGC);
+            if (aSaveData->drawGC != NULL)
+                XFreeGC (aSaveData->display, aSaveData->drawGC);
 
         case XmDRAG_UNDER_NONE:
         default:
@@ -594,6 +600,9 @@ DrawShadow(
 
     aSaveData->topShadowGC =
 	XCreateGC(aSaveData->display, aSaveData->window, vmask, &v);
+    if (aSaveData->topShadowGC == NULL) {
+	return;
+    }
 
     _XmRegionSetGCRegion (aSaveData->display, aSaveData->topShadowGC,
 			  0, 0, aSaveData->clipRegion);
@@ -633,6 +642,11 @@ DrawShadow(
 
     aSaveData->bottomShadowGC =
 	XCreateGC(aSaveData->display, aSaveData->window, vmask, &v);
+    if (aSaveData->bottomShadowGC == NULL) {
+	XFreeGC (aSaveData->display, aSaveData->topShadowGC);
+	aSaveData->topShadowGC = NULL;
+	return;
+    }
 
     _XmRegionSetGCRegion (aSaveData->display, aSaveData->bottomShadowGC,
 			  0, 0, aSaveData->clipRegion);
