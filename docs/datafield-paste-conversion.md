@@ -1,13 +1,15 @@
 ---
 nav_exclude: true
 ---
-# DataField paste conversion cleanup
 
-DataField paste conversion now releases the temporary text list in both
-single-byte and wide-character paths.  Wide-character conversion failures are
-detected before the result is used as a destination offset, so malformed
-locale input rejects the paste safely instead of corrupting the replacement
-buffer.
+# DataField paste conversion safety
 
-The existing DataField Xvfb regression and warning-enabled DataField build
-remain the native smoke checks for this path.
+`XmDataFieldPaste` now bounds the accumulated clipboard strings before narrowing
+them to Xt's `Cardinal` allocation size. Both narrow and wide conversion
+buffers handle allocation failure without dereferencing a null pointer. Wide
+conversion also checks `mbstowcs` using its `size_t` error sentinel and rejects
+character counts that cannot be passed through the existing `int` replacement
+API.
+
+The focused source contract is checked by
+`tests/automated/check-datafield-paste-conversion.py`.

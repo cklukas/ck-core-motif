@@ -16549,4 +16549,15 @@ Guard DataField clipboard paste buffers (2026-10-27)
 
 ====================================================
 
+Guard DataField paste conversion allocations (2026-10-27)
+==========================================================
+
+- Bound narrow and wide clipboard conversion sizes and handle allocation
+  failure before either converted buffer is used.
+- Preserve the wide conversion error sentinel and reject counts that cannot
+  pass through the existing integer replacement API.
+- Add a focused source regression and documentation.
+
+====================================================
+
 Guard DataField action event snapshots (2026-10-27)

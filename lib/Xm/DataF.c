@@ -12594,7 +12594,7 @@ XmDataFieldPaste(
     Boolean get_ct = False;
     Boolean get_us = False;
     XTextProperty tmp_prop;
-    int malloc_size = 0;
+    size_t malloc_size = 0;
     int num_vals;
     char **tmp_value;
     int i;
@@ -12707,11 +12707,25 @@ XmDataFieldPaste(
        {
 	   char * total_tmp_value;
 
-	   for (i = 0, malloc_size = 1; i < num_vals ; i++) 
+	   for (i = 0, malloc_size = 1; i < num_vals ; i++)
 	   {
-	       malloc_size += strlen(tmp_value[i]);
+	       size_t item_length = strlen(tmp_value[i]);
+        if (item_length > SIZE_MAX - malloc_size ||
+            malloc_size + item_length > (size_t)UINT_MAX) {
+            XFreeStringList(tmp_value);
+            XtFree(buffer);
+            _XmAppUnlock(app);
+            return False;
+        }
+	       malloc_size += item_length;
 	   }
-	   total_tmp_value = XtMalloc ((unsigned) malloc_size);
+	   total_tmp_value = XtMalloc ((Cardinal) malloc_size);
+	   if (total_tmp_value == NULL) {
+            XFreeStringList(tmp_value);
+            XtFree(buffer);
+            _XmAppUnlock(app);
+            return False;
+        }
 	   total_tmp_value[0] = '\0';
 	   for (i = 0; i < num_vals ; i++)
 	   {
@@ -12726,22 +12740,44 @@ XmDataFieldPaste(
        } else {
 	 wchar_t * wc_value;
          int num_chars = 0;
-         int converted = 0;
+         size_t converted = 0;
 
-	 for (i = 0, malloc_size = sizeof(wchar_t); i < num_vals ; i++)
+	 for (i = 0, malloc_size = 1; i < num_vals ; i++)
 	 {
-	     malloc_size += strlen(tmp_value[i]);
+	     size_t item_length = strlen(tmp_value[i]);
+            if (item_length > SIZE_MAX - malloc_size) {
+                XFreeStringList(tmp_value);
+                XtFree(buffer);
+                _XmAppUnlock(app);
+                return False;
+            }
+	     malloc_size += item_length;
 	 }
-	 wc_value = (wchar_t*)XtMalloc((unsigned)malloc_size * sizeof(wchar_t));
+	 if (malloc_size > SIZE_MAX / sizeof(wchar_t) ||
+            malloc_size * sizeof(wchar_t) > (size_t)UINT_MAX) {
+            XFreeStringList(tmp_value);
+            XtFree(buffer);
+            _XmAppUnlock(app);
+            return False;
+        }
+	 wc_value = (wchar_t*)XtMalloc((Cardinal)(malloc_size * sizeof(wchar_t)));
+	 if (wc_value == NULL) {
+            XFreeStringList(tmp_value);
+            XtFree(buffer);
+            _XmAppUnlock(app);
+            return False;
+        }
 	 /* change malloc_size to the number of wchars available in wc_value */
 	 for (i = 0; i < num_vals ; i++) {
 	     converted = mbstowcs(wc_value + num_chars, tmp_value[i],
-				  (size_t)malloc_size - num_chars);
-	     if (converted < 0)
+				  malloc_size - (size_t)num_chars);
+	     if (converted == (size_t)-1 ||
+                converted > (size_t)INT_MAX - (size_t)num_chars)
 		 break;
-	     num_chars += converted;
+	     num_chars += (int)converted;
 	 }
-	 if (converted < 0)
+	 if (converted == (size_t)-1 ||
+            (i < num_vals && converted > (size_t)INT_MAX - (size_t)num_chars))
 	     rep_status = False;
 	 else
 	     rep_status = _XmDataFieldReplaceText(tf, NULL, paste_pos_left,
