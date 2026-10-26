@@ -3496,6 +3496,10 @@ df_ModifyVerify(
 		       * want is in vcb struct */
 	   wcs_newblock.wcsptr = (wchar_t *) XtMalloc((unsigned) 
 				      (vcb.text->length + 1) * sizeof(wchar_t));
+	   if (wcs_newblock.wcsptr == NULL) {
+		XtFree(newblock.ptr);
+		return False;
+	   }
 	   wcs_newblock.length = mbstowcs(wcs_newblock.wcsptr, vcb.text->ptr,
 				          vcb.text->length);
 	   if (wcs_newblock.length < 0) { /* bad value; don't pass anything */
@@ -3507,6 +3511,8 @@ df_ModifyVerify(
 		  * passed in from caller instead of that in vcb struct. */
 	  wcs_newblock.wcsptr = (wchar_t *) XtMalloc((unsigned) 
 				       (*insert_length + 1) * sizeof(wchar_t));
+	  if (wcs_newblock.wcsptr == NULL)
+		return False;
 	  if (XmTextF_max_char_size(tf) == 1) 
 	    wcs_newblock.length = mbstowcs(wcs_newblock.wcsptr, *insert,
 				          *insert_length);

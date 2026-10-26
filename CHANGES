@@ -5,6 +5,15 @@ Release invalid clipboard target-list results (2026-10-27)
   ownership explicit for valid target lists.
 - Add a focused source regression and documentation.
 
+====================================================
+
+Guard DataField wide modify-verify buffers (2026-10-27)
+========================================================
+
+- Check both temporary wide callback-buffer allocations before conversion or
+  copying, releasing the narrow temporary when the second allocation fails.
+- Add a focused source regression and documentation.
+
 ============================================================
 
 Prevent clipboard target cleanup double-frees (2026-10-27)
