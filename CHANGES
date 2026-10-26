@@ -16872,4 +16872,11 @@ Refresh ColorPicker redisplay regression contract (2026-10-27)
 - Align the redisplay check and documentation with the active XmStringExtent
   text-height baseline instead of the retired raw widget-height assertion.
 
+Rollback failed DataGrid render-table copies (2026-10-27)
+==========================================================
+
+- Retain the previous valid render table when `XmFontListCopy` cannot allocate
+  a replacement during `SetValues`.
+- Add a focused source regression and documentation.
+
 ====================================================

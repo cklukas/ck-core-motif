@@ -336,9 +336,14 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
         XmFontList replacement = grid->data_grid.render_table
             ? XmFontListCopy(grid->data_grid.render_table)
             : XmFontListCopy(XmeGetDefaultRenderTable(new_widget, XmLABEL_FONTLIST));
-        if (old->data_grid.render_table)
-            XmRenderTableFree(old->data_grid.render_table);
-        grid->data_grid.render_table = replacement;
+        if (replacement) {
+            if (old->data_grid.render_table)
+                XmRenderTableFree(old->data_grid.render_table);
+            grid->data_grid.render_table = replacement;
+        } else {
+            grid->data_grid.render_table = old->data_grid.render_table;
+            render_changed = False;
+        }
     }
     recompute_visible(grid);
     redraw_needed = old->data_grid.row_height != grid->data_grid.row_height ||
