@@ -2829,13 +2829,15 @@ ScrollCursorVertically(Widget w,
   XmTextWidget tw = (XmTextWidget) w;
   XmTextPosition pos;
   LineNum desired_line, cur_line;
+  LineNum max_line;
   int percentage;
   OutputData data = tw->text.output->data;
   
   if (*num_params == 0) {
     if (event) 
-      pos = (*tw->text.output->XYToPos)(tw, event->xbutton.x, 
-					event->xbutton.y);
+      pos = (*tw->text.output->XYToPos)(tw,
+						ClampTextPointCoordinate(event->xbutton.x),
+						ClampTextPointCoordinate(event->xbutton.y));
     else
       pos = tw->text.cursor_position;
     if (pos == tw->text.line[tw->text.number_lines].start)
@@ -2846,8 +2848,20 @@ ScrollCursorVertically(Widget w,
   } else {
     tw->text.top_character = 0;
     tw->text.bottom_position = tw->text.last_position;
-    sscanf(*params, "%d", &percentage);
-    desired_line = ((data->number_lines - 1) * percentage) /100;
+    percentage = 0;
+    if (*params != NULL && sscanf(*params, "%d", &percentage) == 1) {
+      if (percentage < 0)
+	percentage = 0;
+      else if (percentage > 100)
+	percentage = 100;
+    }
+    if (data->number_lines == 0)
+      desired_line = 0;
+    else {
+      max_line = data->number_lines - 1;
+      desired_line = (max_line / 100U) * (LineNum)percentage +
+		             ((max_line % 100U) * (LineNum)percentage) / 100U;
+    }
   }
   if (tw->text.cursor_position == tw->text.line[tw->text.number_lines].start)
     cur_line = tw->text.number_lines;

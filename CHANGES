@@ -19846,3 +19846,11 @@ Bound Text timer-scrolling points (2026-10-26)
 - Saturate raw motion-event and computed edge coordinates before storing them
   in the 16-bit Text input positions used by selection autoscroll.
 - Add focused regression coverage and documentation.
+
+Bound Text cursor-scroll parameters (2026-10-26)
+=================================================
+
+- Clamp `ScrollCursorVertically` percentages to 0–100, handle empty line
+  tables, and avoid overflow in large line-count calculations.
+- Saturate event coordinates before Position-based hit-testing.
+- Add focused regression coverage and documentation.
