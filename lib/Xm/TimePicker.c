@@ -169,12 +169,13 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
                          ArgList args, Cardinal *count) {
     XmTimePickerWidget old = (XmTimePickerWidget)old_widget;
     XmTimePickerWidget picker = (XmTimePickerWidget)new_widget;
+    Boolean render_changed = old->time_picker.render_table != picker->time_picker.render_table;
     (void)request; (void)args; (void)count;
     if (!XmTimePickerIsValid(&picker->time_picker.value) ||
         compare_values(&picker->time_picker.value, &old->time_picker.minimum) < 0 ||
         compare_values(&picker->time_picker.value, &old->time_picker.maximum) > 0)
         picker->time_picker.value = old->time_picker.value;
-    if (old->time_picker.render_table != picker->time_picker.render_table) {
+    if (render_changed) {
         XmFontList replacement = picker->time_picker.render_table
             ? XmFontListCopy(picker->time_picker.render_table)
             : XmFontListCopy(XmeGetDefaultRenderTable(new_widget, XmLABEL_FONTLIST));
@@ -183,7 +184,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
         picker->time_picker.render_table = replacement;
     }
     return compare_values(&old->time_picker.value, &picker->time_picker.value) != 0 ||
-           old->time_picker.format_24_hour != picker->time_picker.format_24_hour;
+           old->time_picker.format_24_hour != picker->time_picker.format_24_hour || render_changed;
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {

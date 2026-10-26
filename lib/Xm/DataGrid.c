@@ -318,11 +318,12 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
                          ArgList args, Cardinal *count) {
     XmDataGridWidget old = (XmDataGridWidget)old_widget;
     XmDataGridWidget grid = (XmDataGridWidget)new_widget;
+    Boolean render_changed = old->data_grid.render_table != grid->data_grid.render_table;
     Boolean redraw_needed;
     (void)request; (void)args; (void)count;
     if (!grid->data_grid.row_height) grid->data_grid.row_height = old->data_grid.row_height;
     if (!grid->data_grid.header_height) grid->data_grid.header_height = old->data_grid.header_height;
-    if (old->data_grid.render_table != grid->data_grid.render_table) {
+    if (render_changed) {
         XmFontList replacement = grid->data_grid.render_table
             ? XmFontListCopy(grid->data_grid.render_table)
             : XmFontListCopy(XmeGetDefaultRenderTable(new_widget, XmLABEL_FONTLIST));
@@ -334,7 +335,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
     redraw_needed = old->data_grid.row_height != grid->data_grid.row_height ||
                     old->data_grid.header_height != grid->data_grid.header_height ||
                     old->data_grid.top_row != grid->data_grid.top_row ||
-                    old->data_grid.rtl != grid->data_grid.rtl;
+                    old->data_grid.rtl != grid->data_grid.rtl || render_changed;
     return redraw_needed;
 }
 

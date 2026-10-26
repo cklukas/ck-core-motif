@@ -193,10 +193,11 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmIconLabelWidget old = (XmIconLabelWidget)old_widget;
     XmIconLabelWidget label = (XmIconLabelWidget)widget;
+    Boolean render_changed = old->icon_label.render_table != label->icon_label.render_table;
     (void)request; (void)args; (void)count;
     if (old->icon_label.label != label->icon_label.label)
         label->icon_label.label = copy_label(label->icon_label.label);
-    if (old->icon_label.render_table != label->icon_label.render_table) {
+    if (render_changed) {
         XmFontList replacement = label->icon_label.render_table
             ? XmFontListCopy(label->icon_label.render_table)
             : XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
@@ -206,7 +207,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     }
     return old->icon_label.label != label->icon_label.label ||
            old->icon_label.pixmap != label->icon_label.pixmap ||
-           old->icon_label.spacing != label->icon_label.spacing;
+           old->icon_label.spacing != label->icon_label.spacing || render_changed;
 }
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
