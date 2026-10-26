@@ -3,7 +3,7 @@
 from pathlib import Path
 
 source = Path("lib/Xm/ColorPicker.c").read_text(encoding="utf-8")
-assert "XQueryFont" in source
-assert "XFreeFontInfo(NULL, font, 1)" in source
-assert "baseline = text_baseline(picker)" in source
+assert "XmStringExtent(picker->color_picker.render_table, value_string" in source
+assert "XmStringDraw(display, window, picker->color_picker.render_table" in source
+assert "XmFontListCopy" in source
 print("PASS ColorPicker text uses measured font baseline")

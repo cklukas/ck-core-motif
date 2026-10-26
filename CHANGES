@@ -17733,3 +17733,31 @@ Bound XmString segment line growth (2026-10-27)
 ===============================================
 
 Bound XmString rendition-tag extraction (2026-10-27)
+Refresh color-conversion allocation regression check (2026-10-27)
+==================================================================
+
+- Match the focused test to the current `HasExpandedHexColor` validation
+  while continuing to require the duplicated-color null guard.
+
+==================================================================
+
+Bound XmString segment line growth (2026-10-27)
+Refresh ColorPicker text-metrics regression check (2026-10-27)
+===============================================================
+
+- Match the focused check to the current render-table and `XmStringExtent`
+  implementation instead of the removed Xlib font-query path.
+
+===============================================================
+
+Refresh color-conversion allocation regression check (2026-10-27)
+Refresh compound-text NULL-append regression check (2026-10-27)
+=================================================================
+
+- Match the focused check to the current Boolean `ctextConcat` declaration
+  and pointer-dereference spelling while retaining its zero-length NULL
+  append assertions.
+
+=================================================================
+
+Refresh ColorPicker text-metrics regression check (2026-10-27)
