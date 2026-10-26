@@ -1360,6 +1360,8 @@ XmRepTypeRegister(
     if (DynamicRepTypeNumRecords == UINT_MAX ||
 	(size_t)DynamicRepTypeNumRecords + 1 >
 	    SIZE_MAX / sizeof(XmRepTypeEntryRec) ||
+	DynamicRepTypeNumRecords + 1 >
+	    UINT_MAX / sizeof(XmRepTypeEntryRec) ||
 	DynamicRepTypeNumRecords > UINT_MAX - StandardNumRecs)
       {
 	_XmProcessUnlock();
