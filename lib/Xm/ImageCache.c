@@ -2609,6 +2609,10 @@ void _XmPutScaledImage (
 	return;
     }
     image_bytes = (size_t)dest_image->bytes_per_line * h;
+    if (image_bytes > UINT_MAX) {
+	XDestroyImage(dest_image);
+	return;
+    }
     dest_image->data = XtMalloc(image_bytes);
     if (dest_image->data == NULL) {
 	XDestroyImage(dest_image);
