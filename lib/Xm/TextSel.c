@@ -592,7 +592,8 @@ _XmTextConvert(
 				       &tmp_prop);
     XtFree(tmp_value);
     if (status == Success || status > 0){
-      if ((unsigned long)(size_t)tmp_prop.nitems != tmp_prop.nitems) {
+      if ((unsigned long)(size_t)tmp_prop.nitems != tmp_prop.nitems ||
+          tmp_prop.nitems > (unsigned long)UINT_MAX) {
         if (tmp_prop.value != NULL) XFree((char*)tmp_prop.value);
         *value = NULL;
         *length = 0;
@@ -642,7 +643,8 @@ _XmTextConvert(
 				       &tmp_prop);
     XtFree(tmp_value);
     if (status == Success || status > 0) {
-      if ((unsigned long)(size_t)tmp_prop.nitems != tmp_prop.nitems) {
+      if ((unsigned long)(size_t)tmp_prop.nitems != tmp_prop.nitems ||
+          tmp_prop.nitems > (unsigned long)UINT_MAX) {
         if (tmp_prop.value != NULL) XFree((char*)tmp_prop.value);
         *value = NULL;
         *length = 0;
@@ -682,7 +684,8 @@ _XmTextConvert(
 				       &tmp_prop);
     XtFree(tmp_value);
     if (status == Success || status > 0) {
-      if ((unsigned long)(size_t)tmp_prop.nitems != tmp_prop.nitems) {
+      if ((unsigned long)(size_t)tmp_prop.nitems != tmp_prop.nitems ||
+          tmp_prop.nitems > (unsigned long)UINT_MAX) {
         if (tmp_prop.value != NULL) XFree((char*)tmp_prop.value);
         *value = NULL;
         *length = 0;

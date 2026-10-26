@@ -22737,3 +22737,9 @@ Guard Text secondary widget atom queries (2026-10-26)
   have passed null validation.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-secondary-widget-guard.py
+Bound Text selection property allocations (2026-10-26)
+=======================================================
+- Reject oversized X text-property payloads before allocating exported
+  STRING, COMPOUND_TEXT, or UTF-8 selection values.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-selection-property-size.py
