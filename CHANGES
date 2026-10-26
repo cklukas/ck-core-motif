@@ -177,6 +177,13 @@ Bound MWM screen-name table allocation (2026-10-26)
   allocating the screen-name table through Xt.
 - Add a focused initialization regression and document the bounds.
 
+Guard MWM virtual-key scan counts (2026-10-26)
+==============================================
+
+- Reject negative replacement-table counts and use a validated unsigned
+  mapped-key count for virtual-key traversal.
+- Add a focused virtual-key count regression and document the invariant.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 

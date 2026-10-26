@@ -2625,18 +2625,23 @@ GetReplacementList(
   int max_kc ;
   int ks_per_kc ;
   int kc_count ;
+  unsigned int key_count;
   KeySym *key_map ; 
   unsigned i ;
   str_xref xref_rtn = NULL ;
   str_xref resized ;
   unsigned num_xref = 0 ;
 
+  if (count < 0)
+    return NULL;
   if (!XDisplayKeycodes(dsp, &min_kc, &max_kc) ||
+      min_kc < 0 || max_kc > UCHAR_MAX ||
       max_kc < min_kc ||
       (long)max_kc - (long)min_kc + 1 > INT_MAX)
     return NULL;
   kc_count = (int)((long)max_kc - (long)min_kc + 1);
-  key_map = XGetKeyboardMapping( dsp, min_kc, kc_count, &ks_per_kc) ;
+  key_map = XGetKeyboardMapping( dsp, (KeyCode)min_kc, kc_count,
+				&ks_per_kc) ;
   if(    key_map == NULL    )
     {
       return NULL ;
@@ -2647,14 +2652,15 @@ GetReplacementList(
       return NULL;
     }
   kc_count *= ks_per_kc ;
+  key_count = (unsigned int)kc_count;
 
   i = 0 ;
-  while(    i < count    )
+  while(    i < (unsigned int)count    )
     {
       KeySym ks = XStringToKeysym( std_xref[i].default_name) ;
       unsigned j = 0 ;
 
-      while(    j < kc_count    )
+      while(    j < key_count    )
         {
           if(    key_map[j] == ks    )
             {
@@ -2665,7 +2671,7 @@ GetReplacementList(
             }
           ++j ;
         }
-      if(    j == kc_count    )
+      if(    j == key_count    )
         {
           /* Didn't find keysym of virtkey table, so add record to
            *   returned list which will later cause replacement in
