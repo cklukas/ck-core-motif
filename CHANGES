@@ -14989,6 +14989,12 @@ TabBox standalone background fallback (2026-10-27)
   boxes no longer paint their unused area black.
 
 Stepper control glyphs (2026-10-27)
+Small-widget render-table SetValues redraws (2026-10-27)
+=========================================================
+
+- Avatar, Badge, and Divider now request redisplay when their configured
+  render table changes at runtime.
+
 Prompt render-table SetValues redraw (2026-10-27)
 ===================================================
 

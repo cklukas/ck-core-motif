@@ -118,8 +118,9 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmBadgeWidget old = (XmBadgeWidget)old_widget, badge = (XmBadgeWidget)widget;
     XmString replacement;
+    Boolean font_changed = old->badge.font != badge->badge.font;
     (void)request; (void)args; (void)count;
-    if (old->badge.font != badge->badge.font) {
+    if (font_changed) {
         XmRenderTable new_font = badge->badge.font ? XmFontListCopy(badge->badge.font) :
             XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
         if (old->badge.font) XmRenderTableFree(old->badge.font);
@@ -137,7 +138,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     if (badge->badge.maximum < 0) badge->badge.maximum = 0;
     if (badge->badge.count < -1) badge->badge.count = -1;
     return old->badge.label != badge->badge.label || old->badge.count != badge->badge.count ||
-           old->badge.maximum != badge->badge.maximum || old->badge.severity != badge->badge.severity;
+           old->badge.maximum != badge->badge.maximum || old->badge.severity != badge->badge.severity ||
+           font_changed;
 }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                        XtWidgetGeometry *reply) {

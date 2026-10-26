@@ -153,6 +153,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmDividerWidget old = (XmDividerWidget)old_widget;
     XmDividerWidget divider = (XmDividerWidget)widget;
+    Boolean font_changed = old->divider.font != divider->divider.font;
     XmString replacement;
     (void)request; (void)args; (void)count;
     if (old->divider.label != divider->divider.label) {
@@ -164,7 +165,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
             divider->divider.label = old->divider.label;
         }
     }
-    if (old->divider.font != divider->divider.font) {
+    if (font_changed) {
         XmFontList replacement = divider->divider.font
             ? XmFontListCopy(divider->divider.font)
             : XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
@@ -175,7 +176,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     return old->divider.label != divider->divider.label ||
            old->divider.orientation != divider->divider.orientation ||
            old->divider.thickness != divider->divider.thickness ||
-           old->divider.spacing != divider->divider.spacing;
+           old->divider.spacing != divider->divider.spacing || font_changed;
 }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                        XtWidgetGeometry *reply) {

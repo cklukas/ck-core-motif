@@ -162,11 +162,12 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmAvatarWidget old = (XmAvatarWidget)old_widget;
     XmAvatarWidget avatar = (XmAvatarWidget)widget;
+    Boolean font_changed = old->avatar.font != avatar->avatar.font;
     (void)request; (void)args; (void)count;
     if (old->avatar.initials != avatar->avatar.initials)
         avatar->avatar.initials = copy_initials(avatar->avatar.initials);
     if (!avatar->avatar.size) avatar->avatar.size = 1;
-    if (old->avatar.font != avatar->avatar.font) {
+    if (font_changed) {
         XmFontList replacement = avatar->avatar.font
             ? XmFontListCopy(avatar->avatar.font)
             : XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
@@ -175,7 +176,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     }
     return old->avatar.initials != avatar->avatar.initials ||
            old->avatar.pixmap != avatar->avatar.pixmap ||
-           old->avatar.size != avatar->avatar.size;
+           old->avatar.size != avatar->avatar.size || font_changed;
 }
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
