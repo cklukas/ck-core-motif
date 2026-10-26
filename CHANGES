@@ -16153,6 +16153,15 @@ Bound compound-text CSI lookahead (2026-10-27)
 ================================================
 
 Bound extended compound-text segments (2026-10-27)
+Widen XmString tag-cache allocation arithmetic (2026-10-27)
+============================================================
+
+- Compute the tag-cache copy size as `size_t` before adding its terminator,
+  avoiding signed overflow for the largest explicit legacy length.
+- Extend the focused source regression and documentation.
+
+============================================================
+
 Bound XmString tag-cache length conversion (2026-10-27)
 ========================================================
 

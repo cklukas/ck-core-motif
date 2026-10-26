@@ -14,6 +14,7 @@ required = (
     "size_t tag_length;",
     "tag_length > (size_t)INT_MAX",
     "length = (int)tag_length",
+    "(Cardinal)((size_t)length + 1)",
 )
 missing = [item for item in required if item not in region]
 if missing:

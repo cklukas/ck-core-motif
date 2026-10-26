@@ -1269,7 +1269,7 @@ _XmStringIndexCacheTag(XmStringTag tag,
     _tag_cache = new_cache;
   }
   
-  a = XtMalloc (length + 1);
+  a = XtMalloc ((Cardinal)((size_t)length + 1));
   if (a == NULL)
     {
       _XmProcessUnlock();
