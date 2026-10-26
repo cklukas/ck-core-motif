@@ -1,3 +1,11 @@
+Refresh NumberBox/Stepper text-metrics regression check (2026-10-27)
+=====================================================================
+
+- Match the focused check to the current render-table `XmStringExtent` and
+  `XmStringDraw` metric path instead of the retired raw-font query.
+
+===========================================================
+
 Refresh NumberBox text-bounds regression check (2026-10-27)
 ============================================================
 

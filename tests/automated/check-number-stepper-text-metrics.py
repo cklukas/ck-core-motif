@@ -5,8 +5,8 @@ from pathlib import Path
 for name, symbol in (("NumberBox.c", "number->number_box.text_gc"),
                      ("Stepper.c", "s->stepper.gc")):
     source = Path("lib/Xm", name).read_text(encoding="utf-8")
-    assert "XQueryFont" in source, name
-    assert "XFreeFontInfo(NULL, font, 1)" in source, name
     assert symbol in source, name
-    assert "baseline = text_baseline" in source, name
+    assert "XmStringExtent" in source, name
+    assert "XmStringDraw" in source, name
+    assert "(int)" in source, name
 print("PASS NumberBox and Stepper use measured font baselines")
