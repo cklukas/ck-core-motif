@@ -1037,6 +1037,9 @@ void GenerateFrameDisplayLists (ClientData *pcd)
 
 void AdoptClient (ClientData *pcd)
 {
+    if (pcd == NULL)
+	return;
+
     XWindowChanges windowChanges;
     unsigned int mask;
 

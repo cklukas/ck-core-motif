@@ -20887,6 +20887,11 @@ ConstructFrame and GenerateFrameDisplayLists now reject null client records
 before reading decoration or geometry state, preventing malformed lifecycle
 callbacks from dereferencing invalid frame data.
 
+Guard MWM client adoption inputs (2026-10-26)
+----------------------------------------------
+AdoptClient now ignores a null client record before touching save-set,
+geometry, or reparenting state.
+
 Reject impossible MWM title widths (2026-10-26)
 -----------------------------------------------
 GetFramePartInfo now rejects title and title-bar geometry when borders and
