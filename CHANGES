@@ -1,3 +1,13 @@
+Guard warning formatter parameter arrays (2026-10-27)
+======================================================
+
+- Require a non-NULL Xt warning parameter array before copying arguments in
+  Motif’s warning formatter, preventing malformed calls from dereferencing
+  NULL while preserving ordinary warning output.
+- Add a focused source regression and documentation.
+
+======================================================
+
 Bound render-table token scanning (2026-10-27)
 ==============================================
 

@@ -1982,7 +1982,7 @@ MotifWarningHandler (String name,
    header_chars = snprintf(NULL, 0, header, name, s_class);
    if (header_chars < 0) return;
    header_len = (size_t)header_chars;
-   if (num_params && *num_params > 1) {
+   if (params && num_params && *num_params > 1) {
      int i = *num_params-1;
      char *par[10];
      if (i > 10) i = 10;
@@ -2004,7 +2004,7 @@ MotifWarningHandler (String name,
    if (combined == NULL)
      return;
    (void)snprintf(combined, combined_len + 1, header, name, s_class);
-   if (num_params && *num_params > 1) {
+   if (params && num_params && *num_params > 1) {
      int i = *num_params-1;
      char *par[10];
      if (i > 10) i = 10;
