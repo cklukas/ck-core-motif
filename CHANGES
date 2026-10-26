@@ -1,3 +1,11 @@
+Refresh MRM arglist offset regression check (2026-10-27)
+==========================================================
+
+- Match the focused check to the current descriptor-size validation in both
+  widget reader paths.
+
+===========================================================
+
 Refresh MapEvents allocation regression check (2026-10-27)
 ===========================================================
 
