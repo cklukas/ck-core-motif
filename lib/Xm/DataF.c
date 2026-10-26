@@ -2801,12 +2801,19 @@ df_FindPixelLength(
       wchar_t wc_tmp = wc_string[length];
       char stack_cache[400], *tmp;
       int num_bytes;
+
+      if (length < 0 || (size_t)length >
+          (SIZE_MAX / sizeof(wchar_t)) - 1)
+        return 0;
+      size_t byte_capacity = ((size_t)length + 1) * sizeof(wchar_t);
+      if (byte_capacity > UINT_MAX)
+        return 0;
       
       wc_string[length] = 0L;
-      tmp = (char*)XmStackAlloc((Cardinal)((length + 1) * sizeof(wchar_t)),
+
+      tmp = (char*)XmStackAlloc((Cardinal)byte_capacity,
 				stack_cache);
-      num_bytes = wcstombs(tmp, wc_string, 
-			   (int)((length + 1)*sizeof(wchar_t)));
+      num_bytes = (int)wcstombs(tmp, wc_string, byte_capacity);
       wc_string[length] = wc_tmp;
       XftTextExtentsUtf8(XtDisplay(tf), XmTextF_xft_font(tf),
           (FcChar8*)tmp, num_bytes, &ext);
@@ -2824,11 +2831,18 @@ df_FindPixelLength(
 	 char stack_cache[400], *tmp;
 	 int num_bytes, ret_len = 0;
 
+	 if (length < 0 || (size_t)length >
+	     (SIZE_MAX / sizeof(wchar_t)) - 1)
+	   return 0;
+	 size_t byte_capacity = ((size_t)length + 1) * sizeof(wchar_t);
+	 if (byte_capacity > UINT_MAX)
+	   return 0;
+
 	 wc_string[length] = 0L;
-         tmp = (char*)XmStackAlloc((Cardinal)((length + 1) * sizeof(wchar_t)),
+
+         tmp = (char*)XmStackAlloc((Cardinal)byte_capacity,
 				   stack_cache);
-         num_bytes = wcstombs(tmp, wc_string, 
-			      (int)((length + 1)*sizeof(wchar_t)));
+         num_bytes = (int)wcstombs(tmp, wc_string, byte_capacity);
 	 wc_string[length] = wc_tmp;
 	 if (num_bytes >= 0) {
 	   if (_XmIsISO10646(XtDisplay(tf), XmTextF_font(tf))) {

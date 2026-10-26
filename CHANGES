@@ -22629,3 +22629,9 @@ Check DataField Unicode drawing sizes (2026-10-26)
   conversion, avoiding overflow in temporary `wcstombs` buffers.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-datafield-draw-length.py
+Check DataField pixel measurement sizes (2026-10-26)
+====================================================
+- Validate DataField Unicode measurement lengths and capacities before
+  conversion in Xft and core-font paths.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-datafield-pixel-length.py
