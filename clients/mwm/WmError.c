@@ -172,13 +172,17 @@ WmXErrorHandler (Display *display, XErrorEvent *errorEvent)
 #ifdef DEBUG
     char buffer[BUFSIZ];
     char message[BUFSIZ];
+    int renderedLength;
 
     XGetErrorText (display, errorEvent->error_code, buffer, BUFSIZ);
     Warning ("X error occurred during window management operation");
     fprintf (stderr, "Description = '%s'\n  ", buffer);
 
     fprintf (stderr, pchErrorFormat[E_MAJOR_CODE], errorEvent->request_code);
-    sprintf(message, "%d", errorEvent->request_code);
+	 renderedLength = snprintf(message, sizeof(message), "%d",
+				      errorEvent->request_code);
+    if (renderedLength < 0 || (size_t)renderedLength >= sizeof(message))
+	message[0] = '\0';
     XGetErrorDatabaseText (display, "XRequest", message, 
 	" ", buffer, BUFSIZ);
     fprintf (stderr, " (%s)\n  ", buffer);
