@@ -18091,6 +18091,14 @@ Refresh render-table redraw regression check (2026-10-27)
 Refresh status-bar label regression check (2026-10-27)
 ======================================================
 
+Refresh tab-list copy regression check (2026-10-27)
+===================================================
+
+- Inspect the internal copying routine directly so allocation-failure guards
+  are checked where the list and first tab are actually allocated.
+
+===================================================
+
 - Match the focused check to the current XmString composition path, including
   allocation-failure handling and cleanup for both fragments.
 

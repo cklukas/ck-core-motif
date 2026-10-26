@@ -5,7 +5,7 @@ from pathlib import Path
 
 source = Path(__file__).parents[2] / "lib" / "Xm" / "XmTabList.c"
 text = source.read_text()
-start = text.index("XmTabListCopy(XmTabList")
+start = text.index("TabListCopyUnlocked(XmTabList")
 end = text.index("/* \n * Marked tabs", start)
 block = text[start:end]
 
