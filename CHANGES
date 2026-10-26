@@ -1,3 +1,11 @@
+Refresh TreeView geometry regression contracts (2026-10-27)
+============================================================
+
+- Align the row-coordinate and disclosure-glyph checks with the current
+  widened/clamped drawing implementation and row-height-aware centering.
+
+============================================================
+
 Bound MWM debug error-code formatting (2026-10-27)
 ==================================================
 
