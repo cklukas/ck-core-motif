@@ -2409,13 +2409,16 @@ InitializeHook(Widget wid,
   if (XmDirectionMatch(XmPrim_layout_direction(tw),
 		       XmTOP_TO_BOTTOM_RIGHT_TO_LEFT)) {
     char *vevent_bindings;
+    size_t vevent_bindings_len = strlen(_XmTextIn_XmTextVEventBindings);
     
-    vevent_bindings =
-		(String)XtMalloc(strlen(_XmTextIn_XmTextVEventBindings) + 1);
-    strcpy(vevent_bindings, _XmTextIn_XmTextVEventBindings);
-    tw->text.tm_table = (XtTranslations)XtParseTranslationTable(vevent_bindings);
-    XtFree(vevent_bindings);
-    XtOverrideTranslations(wid, tw->text.tm_table);
+    if (vevent_bindings_len <= SIZE_MAX - 1 &&
+	vevent_bindings_len + 1 <= UINT_MAX &&
+	(vevent_bindings = (String)XtMalloc((Cardinal)(vevent_bindings_len + 1))) != NULL) {
+	strcpy(vevent_bindings, _XmTextIn_XmTextVEventBindings);
+	tw->text.tm_table = (XtTranslations)XtParseTranslationTable(vevent_bindings);
+	XtFree(vevent_bindings);
+	XtOverrideTranslations(wid, tw->text.tm_table);
+    }
   }
   
   /* Initialize table */

@@ -191,6 +191,15 @@ Guard text class translation allocation (2026-10-27)
   storage is unavailable.
 - Add a focused source regression and documentation.
 
+Guard text RTL translation allocation (2026-10-27)
+==================================================
+
+- Bound the right-to-left event translation copy before narrowing its size to
+  Xt's allocation type.
+- Skip the optional translation override cleanly when storage is unavailable,
+  preserving the widget's normal initialization and lifetime.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
