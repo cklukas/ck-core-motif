@@ -6484,15 +6484,34 @@ void
 _XmEntryTextSet(_XmStringEntry entry,
 		XtPointer val)
 {
-  (_XmEntryOptimized(entry) ?
-   (!_XmEntryImm(entry) ? 
-    (((_XmStringOptSeg)(entry))->data.text = val) :
-    /* This below is potentially dangerous. This function needs a length
-       parameter, or requires that the byte count is set in the segment.
-       However, to my knowledge, nobody needs this now. But it needs to
-       be looked at.. */
-    strcpy((char *)((_XmStringOptSeg)(entry))->data.chars, (char *)val)) :
-   (((_XmStringUnoptSeg)(entry))->data.text = val));
+  if (entry == NULL)
+    return;
+
+  if (!_XmEntryOptimized(entry))
+    {
+      ((_XmStringUnoptSeg)(entry))->data.text = val;
+      return;
+    }
+
+  if (!_XmEntryImm(entry))
+    {
+      ((_XmStringOptSeg)(entry))->data.text = val;
+      return;
+    }
+
+  /* Immediate segments own their inline character storage.  A NULL value
+     means an empty segment; never pass it to the C string routines. */
+  if (val == NULL)
+    {
+      if (_XmEntryTextTypeGet(entry) == XmWIDECHAR_TEXT)
+	((_XmStringOptSeg)(entry))->data.wchars[0] = L'\0';
+      else
+	((_XmStringOptSeg)(entry))->data.chars[0] = '\0';
+      return;
+    }
+
+  /* This copy still relies on the segment's existing byte count/capacity. */
+  strcpy((char *)((_XmStringOptSeg)(entry))->data.chars, (char *)val);
 }
 
 XtPointer

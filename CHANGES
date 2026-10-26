@@ -20219,3 +20219,11 @@ Clarify LabelGadget input guards (2026-10-26)
   actual control flow, removing misleading-indentation warnings without
   changing the public geometry or margin behavior.
 - Keep the existing null-input regressions as the behavioral coverage.
+
+Guard XmString entry text replacement (2026-10-26)
+===================================================
+
+- Treat a null entry as a no-op and a null value for an immediate segment as
+  an empty string, avoiding undefined behavior in the internal text setter.
+- Preserve pointer-backed and unoptimized entry ownership semantics.
+  See `docs/xmstring-entry-text-input.md`.
