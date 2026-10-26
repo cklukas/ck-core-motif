@@ -10,7 +10,9 @@ assert "#define LENCBUFFER 256" not in region
 assert "char buffer[LENCBUFFER]" not in region
 assert "char displayName[LENCBUFFER]" not in region
 assert "displayNameLength = strlen(pDisplayName) + 1" in region
-assert "XtMalloc((unsigned int)(displayNameLength + 64))" in region
+assert "displayNameLength > SIZE_MAX - 64" in region
+assert "bufferLength = displayNameLength + 64" in region
+assert "buffer = (char *)XtMalloc((Cardinal)bufferLength)" in region
 assert "XtFree(buffer);" in region
 assert "XtFree(displayName);" in region
 print("mwm screen display formatting is dynamically bounded")
