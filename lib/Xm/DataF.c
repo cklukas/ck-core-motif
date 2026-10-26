@@ -8863,6 +8863,8 @@ df_WarnInvalidChar(Widget widget, int value)
       return;
    }
    message = (char *)XtMalloc((Cardinal)length + 1);
+   if (message == NULL)
+      return;
    (void)snprintf(message, (size_t)length + 1, MSG5, value);
    XmeWarning(widget, message);
    XtFree(message);
@@ -8880,6 +8882,8 @@ df_WarnInvalidString(Widget widget, const char *value)
       return;
    }
    message = (char *)XtMalloc((Cardinal)length + 1);
+   if (message == NULL)
+      return;
    (void)snprintf(message, (size_t)length + 1, WC_MSG1, value);
    XmeWarning(widget, message);
    XtFree(message);
@@ -9212,8 +9216,12 @@ df_InitializeTextStruct(
     XmTextF_highlight(tf).number = XmTextF_highlight(tf).maximum = 1;
     XmTextF_highlight(tf).list = (_XmHighlightRec *)XtMalloc((unsigned)
 						 sizeof(_XmHighlightRec));
-    XmTextF_highlight(tf).list[0].position = 0;
-    XmTextF_highlight(tf).list[0].mode = XmHIGHLIGHT_NORMAL;
+    if (XmTextF_highlight(tf).list != NULL) {
+        XmTextF_highlight(tf).list[0].position = 0;
+        XmTextF_highlight(tf).list[0].mode = XmHIGHLIGHT_NORMAL;
+    } else {
+        XmTextF_highlight(tf).number = XmTextF_highlight(tf).maximum = 0;
+    }
 
     XmTextF_timer_id(tf) = (XtIntervalId)0;
 
@@ -11334,6 +11342,10 @@ XmDataFieldGetStringWcs(
     {
 	temp_wcs = (wchar_t*) XtMalloc((unsigned) sizeof(wchar_t) *
 				       (XmTextF_string_length(tf) + 1));
+	if (temp_wcs == NULL) {
+	    _XmAppUnlock(app);
+	    return NULL;
+	}
 	if (XmTextF_max_char_size(tf) != 1) 
 	{
 	    (void)memcpy((void*)temp_wcs, (void*)XmTextF_wc_value(tf), 
@@ -11351,6 +11363,10 @@ XmDataFieldGetStringWcs(
     else 
       {
 	temp_wcs = (wchar_t*) XtMalloc((unsigned) sizeof(wchar_t));
+	if (temp_wcs == NULL) {
+	    _XmAppUnlock(app);
+	    return NULL;
+	}
 	temp_wcs[0] = (wchar_t)0L; /* put a wchar_t NULL in position 0 */
 	
 	_XmAppUnlock(app);
@@ -12161,6 +12177,10 @@ XmDataFieldGetSelection(
     if (XmTextF_max_char_size(tf) == 1) 
     {
 	value = XtMalloc((unsigned) num_chars + 1);
+	if (value == NULL) {
+	    _XmAppUnlock(app);
+	    return NULL;
+	}
 	(void) memcpy((void*)value, 
 		      (void*)(XmTextF_value(tf) + 
 			      XmTextF_prim_pos_left(tf)), num_chars);
@@ -12168,6 +12188,10 @@ XmDataFieldGetSelection(
     else 
     {
 	value = XtMalloc((unsigned) ((num_chars + 1) * XmTextF_max_char_size(tf)));
+	if (value == NULL) {
+	    _XmAppUnlock(app);
+	    return NULL;
+	}
 	length = wcstombs(value, XmTextF_wc_value(tf) + XmTextF_prim_pos_left(tf), 
 			  (num_chars + 1) * XmTextF_max_char_size(tf));
 	if (length == (size_t) -1) 
@@ -12817,6 +12841,12 @@ DataFieldGetBaselines(
  
     *line_count = 1;
     base_array = (Dimension *) XtMalloc(sizeof(Dimension));
+    if (base_array == NULL) {
+        *line_count = 0;
+        *baselines = NULL;
+        _XmAppUnlock(app);
+        return (FALSE);
+    }
     base_array[0] = XmTextF_margin_top(tf) + tf->primitive.shadow_thickness +
 	tf->primitive.highlight_thickness + XmTextF_font_ascent(tf);
 
