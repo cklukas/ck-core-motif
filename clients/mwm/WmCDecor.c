@@ -437,7 +437,12 @@ Boolean ConstructFrame (ClientData *pcd)
 
     /* create resizing windows with cursors*/
     if (SHOW_RESIZE_CURSORS(pcd) && (decoration & MWM_DECOR_RESIZEH)) {
-	CreateStretcherWindows (pcd);
+	if (!CreateStretcherWindows (pcd))
+	{
+	    XDestroyWindow (DISPLAY, pcd->clientFrameWin);
+	    pcd->clientFrameWin = None;
+	    return(FALSE);
+	}
     }
 
     /* 
@@ -1380,7 +1385,7 @@ void DrawWindowTitle (ClientData *pcd, Boolean eraseFirst)
  * 
  *************************************<->***********************************/
 
-void CreateStretcherWindows (ClientData *pcd)
+Boolean CreateStretcherWindows (ClientData *pcd)
 {
     int iWin;
     int x, y;
@@ -1388,6 +1393,9 @@ void CreateStretcherWindows (ClientData *pcd)
     Boolean framePartValid;
     XSetWindowAttributes win_attribs;
     unsigned long attr_mask;
+
+    if (pcd == NULL || pcd->clientFrameWin == None)
+	return (FALSE);
 
     for (iWin = 0; iWin < STRETCH_COUNT; iWin++) {
 	framePartValid = FALSE;
@@ -1443,7 +1451,22 @@ void CreateStretcherWindows (ClientData *pcd)
 		    XCreateWindow(DISPLAY, pcd->clientFrameWin,
 		    x, y, width, height, 0, CopyFromParent,
 		    InputOnly, CopyFromParent, attr_mask, &win_attribs);
+	if (pcd->clientStretchWin[iWin] == None)
+	{
+	    int cleanup;
+
+	    for (cleanup = 0; cleanup < STRETCH_COUNT; cleanup++)
+	    {
+		if (pcd->clientStretchWin[cleanup] != None)
+		{
+		    XDestroyWindow (DISPLAY, pcd->clientStretchWin[cleanup]);
+		    pcd->clientStretchWin[cleanup] = None;
+		}
+	    }
+	    return (FALSE);
+	}
     }
+    return (TRUE);
 } /* END OF FUNCTION  CreateStretcherWindows  */
 
 

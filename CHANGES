@@ -21505,3 +21505,10 @@ Keep MWM bitmap-cache initialization retryable (2026-10-26)
   cache with a nonzero capacity and null storage.
 - Add focused regression coverage and documentation.
 
+Roll back partial MWM stretcher-window creation (2026-10-26)
+==============================================================
+
+- Make resize-handle creation transactional: a failed handle creation destroys
+  all handles already created and causes frame construction to unwind.
+- Add focused regression coverage and documentation.
+

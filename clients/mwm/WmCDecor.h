@@ -33,7 +33,7 @@ extern void GenerateFrameDisplayLists (ClientData *pcd);
 extern void AdoptClient (ClientData *pcd);
 extern void GetTextBox (ClientData *pcd, XRectangle *pBox);
 extern void DrawWindowTitle (ClientData *pcd, Boolean eraseFirst);
-extern void CreateStretcherWindows (ClientData *pcd);
+extern Boolean CreateStretcherWindows (ClientData *pcd);
 extern void CountFrameRectangles (WmScreenData *pSD);
 extern Boolean AllocateFrameDisplayLists (ClientData *pcd);
 extern void InitClientDecoration (WmScreenData *pSD);
