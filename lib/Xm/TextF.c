@@ -8668,8 +8668,13 @@ SetValues(Widget old,
     if (TextF_WcValue(new_tf) != TextF_WcValue(old_tf)) {
       diff_values = True;
       if (TextF_WcValue(new_tf) == NULL) {
-	TextF_WcValue(new_tf) = (wchar_t*) XtMalloc(sizeof(wchar_t));
-	*TextF_WcValue(new_tf) = (wchar_t)0;
+	wchar_t *empty_value = (wchar_t*)XtMalloc(sizeof(wchar_t));
+	if (empty_value == NULL) {
+	  _XmTextFieldDrawInsertionPoint(new_tf, True);
+	  return False;
+	}
+	empty_value[0] = (wchar_t)0;
+	TextF_WcValue(new_tf) = empty_value;
       }
       ValidateString(new_tf, (char*)TextF_WcValue(new_tf), True);
     } else if (TextF_Value(new_tf) != TextF_Value(old_tf)) {

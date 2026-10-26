@@ -22916,3 +22916,10 @@ Guard TextField narrow-value validation allocation (2026-10-26)
   value state on allocation failure.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-narrow-validation.py
+
+Check TextField SetValues empty wide allocation (2026-10-26)
+===============================================================
+- Reject a SetValues update safely when its empty wide-value terminator cannot
+  be allocated, avoiding a null write and restoring caret painting.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-setvalues-empty.py
