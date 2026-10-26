@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 source=Path(os.environ.get("MOTIF_SOURCE",Path(__file__).parents[2]/"lib"/"Mrm"/"Mrmwcrw.c"))
 text=source.read_text(encoding="utf-8")
-needle='''  if ((widgetrec->class_offs != 0 &&\n       widgetrec->class_offs >= widgetrec->size) ||\n      (widgetrec->creation_offs != 0 &&\n       widgetrec->creation_offs >= widgetrec->size))\n    return MrmFAILURE ;'''
-if text.count(needle) != 2: raise SystemExit("both widget-instance paths lack offset bounds")
+assert text.count("!UrmWidgetStringValid(widgetrec, widgetrec->class_offs)") >= 3
+assert text.count("!UrmCallbackRecordValid(widgetrec, widgetrec->creation_offs,") == 2
+assert "if (offset < RGMWidgetRecordHdrSize || offset >= widgetrec->size)" in text
 print("Mrm widget class and callback offsets are bounded")

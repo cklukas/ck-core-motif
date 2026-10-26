@@ -1,3 +1,11 @@
+Refresh MRM widget-offset regression check (2026-10-27)
+=======================================================
+
+- Match the focused check to the shared string and callback-record validators
+  used by both widget-instance paths.
+
+===========================================================
+
 Refresh MRM icon color-table regression check (2026-10-27)
 ===========================================================
 
