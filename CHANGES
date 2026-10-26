@@ -22689,3 +22689,9 @@ Bound Text character conversion byte counts (2026-10-26)
   `_XmTextCharactersToBytes` instead of wrapping the returned count.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-character-byte-count.py
+Bound Text 16-bit conversion byte counts (2026-10-26)
+======================================================
+- Stop the 16-bit character conversion before its emitted-byte count can
+  overflow the legacy integer return value.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-16bit-byte-count.py

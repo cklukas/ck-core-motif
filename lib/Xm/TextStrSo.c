@@ -288,6 +288,10 @@ _XmTextCharactersToBytes(char * bytes,
       /* start with high order byte.  If any byte is 0, skip it. */
       for (j = 0; j < max_char_size; j++) { 
 	if (temp_char[j] > 0) {
+	  if (count == INT_MAX) {
+	    XtFree ((char*)temp_char);
+	    return count;
+	  }
 	  *byte_ptr = temp_char[j];
 	  byte_ptr++; count++;
 	}
