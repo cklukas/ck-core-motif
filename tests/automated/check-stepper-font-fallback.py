@@ -8,4 +8,7 @@ assert "XmStringExtent" in source
 assert "XmStringDraw" in source
 assert "XmFontListCopy" in source
 assert "XmRenderTableFree" in source
+assert "if (new_table)" in source
+assert "Keep the last valid table" in source
+assert "s->stepper.render_table = old->stepper.render_table" in source
 print("PASS Stepper draws value text through its render table")

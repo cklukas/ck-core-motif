@@ -170,10 +170,15 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget, ArgLi
         XmRenderTable new_table = s->stepper.render_table ?
             XmFontListCopy(s->stepper.render_table) :
             XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
-        if (old->stepper.render_table)
-            XmRenderTableFree(old->stepper.render_table);
-        s->stepper.render_table = new_table;
-        redraw_needed = True;
+        if (new_table) {
+            if (old->stepper.render_table)
+                XmRenderTableFree(old->stepper.render_table);
+            s->stepper.render_table = new_table;
+            redraw_needed = True;
+        } else {
+            /* Keep the last valid table if a replacement cannot be copied. */
+            s->stepper.render_table = old->stepper.render_table;
+        }
     }
     if (old->stepper.minimum != s->stepper.minimum || old->stepper.maximum != s->stepper.maximum || old->stepper.value != s->stepper.value || old->stepper.step != s->stepper.step || old->stepper.wrap != s->stepper.wrap) redraw_needed = True;
     return redraw_needed;
