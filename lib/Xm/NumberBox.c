@@ -356,18 +356,19 @@ void XmNumberBoxGetRange(Widget widget, int *minimum, int *maximum) {
     XmNumberBoxWidget number;
     if (minimum) *minimum = 0;
     if (maximum) *maximum = 0;
-    if (!XmIsNumberBox(widget)) return;
+    if (widget == NULL || !XmIsNumberBox(widget)) return;
     number = (XmNumberBoxWidget)widget;
     if (minimum) *minimum = number->number_box.minimum;
     if (maximum) *maximum = number->number_box.maximum;
 }
 int XmNumberBoxGetValue(Widget widget) {
-    return XmIsNumberBox(widget) ? ((XmNumberBoxWidget)widget)->number_box.value : 0;
+    return widget != NULL && XmIsNumberBox(widget)
+        ? ((XmNumberBoxWidget)widget)->number_box.value : 0;
 }
 void XmNumberBoxSetRange(Widget widget, int minimum, int maximum, Boolean notify) {
     XmNumberBoxWidget number;
     int old;
-    if (!XmIsNumberBox(widget)) return;
+    if (widget == NULL || !XmIsNumberBox(widget)) return;
     number = (XmNumberBoxWidget)widget; old = number->number_box.value;
     number->number_box.minimum = minimum; number->number_box.maximum = maximum;
     normalize(number); format_value(number); redraw(number);
@@ -376,18 +377,19 @@ void XmNumberBoxSetRange(Widget widget, int minimum, int maximum, Boolean notify
 void XmNumberBoxSetValue(Widget widget, int value, Boolean notify) {
     XmNumberBoxWidget number;
     int old;
-    if (!XmIsNumberBox(widget)) return;
+    if (widget == NULL || !XmIsNumberBox(widget)) return;
     number = (XmNumberBoxWidget)widget; old = number->number_box.value;
     number->number_box.value = value; normalize(number); format_value(number);
     number->number_box.invalid = False; redraw(number);
     if (notify && old != number->number_box.value) notify_value(number, NULL);
 }
 void XmNumberBoxStep(Widget widget, int direction, Boolean page, Boolean notify) {
-    if (XmIsNumberBox(widget))
+    if (widget != NULL && XmIsNumberBox(widget))
         step_value((XmNumberBoxWidget)widget, direction, page, notify, NULL);
 }
 Boolean XmNumberBoxIsInvalid(Widget widget) {
-    return XmIsNumberBox(widget) ? ((XmNumberBoxWidget)widget)->number_box.invalid : False;
+    return widget != NULL && XmIsNumberBox(widget)
+        ? ((XmNumberBoxWidget)widget)->number_box.invalid : False;
 }
 Widget XmCreateNumberBox(Widget parent, char *name, ArgList args, Cardinal count) {
     return XtCreateWidget(name, xmNumberBoxWidgetClass, parent, args, count);
