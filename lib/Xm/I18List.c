@@ -3226,6 +3226,9 @@ XmI18ListDoSearch(Widget w, String str, Boolean reset)
 XmMultiListRowInfo *XmI18ListFindRow(Widget w, String str, int *found_column,
 			      Boolean reset, Boolean do_visual)
 {
+    if (w == (Widget) NULL)
+	return NULL;
+
     XmI18ListWidget ilist = (XmI18ListWidget) w;
     XmMultiListRowInfo *ptr = XmI18List_row_data(ilist);
     Boolean foundit;
@@ -3373,6 +3376,9 @@ void
 Xm18IListUnselectAllItems( Widget w )
 {
   register int row;
+  if (w == (Widget) NULL)
+    return;
+
   XmI18ListWidget ilist = (XmI18ListWidget) w;
   XmMultiListRowInfo *ptr = XmI18List_row_data(ilist);
 
@@ -3397,6 +3403,9 @@ void
 Xm18IListUnselectItem( Widget w, XmMultiListRowInfo *row_info )
 {
   register int row=0;
+  if (w == (Widget) NULL)
+    return;
+
   XmI18ListWidget ilist = (XmI18ListWidget) w;
   XmMultiListRowInfo *ptr = XmI18List_row_data(ilist);
   Boolean done=False;
@@ -3423,6 +3432,9 @@ Xm18IListUnselectItem( Widget w, XmMultiListRowInfo *row_info )
 void
 XmI18ListToggleRow(Widget w, short row)
 {
+      if (w == (Widget) NULL)
+	return;
+
       ToggleRow(w, row);
 }
 
