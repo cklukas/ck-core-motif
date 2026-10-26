@@ -288,10 +288,13 @@ static void
 Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
 {
     XmOutlineWidget ow = (XmOutlineWidget) set;
+    HierarchyConstraints top_node;
 
-    XmHierarchy_top_node(ow) = ((HierarchyConstraints) 
-			      XtRealloc((XtPointer) XmHierarchy_top_node(ow),
-					sizeof(OutlineConstraintRec)));
+    top_node = (HierarchyConstraints)XtRealloc(
+	(XtPointer)XmHierarchy_top_node(ow), sizeof(OutlineConstraintRec));
+    if (top_node == NULL)
+	return;
+    XmHierarchy_top_node(ow) = top_node;
 
     XmOutline_top_node_of_display(ow) = NULL;
 

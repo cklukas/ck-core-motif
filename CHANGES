@@ -17802,3 +17802,13 @@ Bound editres protocol-stream growth (2026-10-27)
 =================================================
 
 Bound Xft draw-cache growth (2026-10-27)
+Handle Outline top-node allocation failure (2026-10-27)
+=========================================================
+
+- Publish the enlarged outline top-node record only after `XtRealloc` succeeds;
+  return cleanly when the resize fails.
+- Add focused regression coverage and documentation.
+
+=========================================================
+
+Bound editres protocol-stream growth (2026-10-27)
