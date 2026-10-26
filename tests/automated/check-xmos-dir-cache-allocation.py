@@ -4,7 +4,7 @@ from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "Xmos.c").read_text()
 start = source.index("AddEntryToCache(")
-end = source.index("\n/****************************************************************/\nstatic String\nGetQualifiedDir", start)
+end = source.index("\n/****************************************************************/\nstatic String\nAllocatePathBuffer", start)
 region = source[start:end]
 
 assert "XmDirCache new_cache;" in region

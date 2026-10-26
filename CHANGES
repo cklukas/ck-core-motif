@@ -1,3 +1,11 @@
+Refresh Xmos directory-cache allocation check (2026-10-27)
+============================================================
+
+- Follow the current helper ordering after the cache allocator while
+  retaining coverage for growth and allocation-failure handling.
+
+============================================================
+
 Refresh Xm protocol null-shell check (2026-10-27)
 =================================================
 
