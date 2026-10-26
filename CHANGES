@@ -1,3 +1,11 @@
+Refresh XmString MB allocation check (2026-10-27)
+=================================================
+
+- Match the result-allocation assertion to the current checked `Cardinal`
+  conversion while retaining both conversion-path failure guards.
+
+============================================================
+
 Refresh Xmos qualified-path allocation check (2026-10-27)
 ==========================================================
 
