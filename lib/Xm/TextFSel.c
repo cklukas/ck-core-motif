@@ -876,7 +876,8 @@ DropTransferProc(Widget w, XtPointer closure,
       };
 
   _XmTextDropTransferRec *transfer_rec;
-  if (w == NULL || ds == NULL || closure == NULL) {
+  if (w == NULL || ds == NULL || closure == NULL ||
+      ds->transfer_id == NULL) {
     if (ds != NULL && ds->transfer_id != NULL)
       XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
     return;

@@ -22502,3 +22502,9 @@ Reject missing Text target-list storage (2026-10-26)
   buffer before iterating the list.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-selection-target-list-inputs.py
+Reject missing Text drop transfer IDs (2026-10-26)
+==================================================
+- Validate the transfer ID before Text/TextField drop callbacks call transfer
+  completion or request another target.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-drop-transfer-id.py
