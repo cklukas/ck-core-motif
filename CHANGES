@@ -18139,6 +18139,14 @@ Refresh virtual-key vendor allocation regression check (2026-10-27)
 Refresh MWM screen-name bounds regression check (2026-10-27)
 ============================================================
 
+Refresh WSM workspace-property allocation regression check (2026-10-27)
+=======================================================================
+
+- Match the focused check to the current formatted, checked `Cardinal`
+  allocation expression for workspace atoms.
+
+=======================================================================
+
 - Match the focused check to the current `snprintf`-based screen-name length
   and checked `size_t` allocation arithmetic.
 

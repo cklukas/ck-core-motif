@@ -16,5 +16,5 @@ end = source.index("void\nSetWorkspacePresence", start) if "void\nSetWorkspacePr
 listing = source[start:end]
 assert "if (pWsList == NULL)" in listing
 assert "Workspace list is too large" in listing
-assert "XtMalloc\n\t((Cardinal)" in listing
+assert "XtMalloc\n            ((Cardinal)((size_t)pSD->numWorkspaces * sizeof(Atom)))" in listing
 print("WSM workspace-property allocations fail safely")
