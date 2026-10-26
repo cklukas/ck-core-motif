@@ -35,6 +35,8 @@
 #include <Xm/XmosP.h>  /* for allocate local */
 #include <Xm/Scale.h>
 #include <Xm/SeparatoG.h>
+#include <limits.h>
+#include <stdint.h>
 #include "XmI.h"
 
 /************************************************************************
@@ -64,8 +66,12 @@ XmScaleSetTicks(
 
     _XmAppLock(app);
 
-    /* Some checking first */
-    if (size_big == 0) { _XmAppUnlock(app); return ; }
+    /* Some checking first.  A non-positive interval would either divide by
+       zero or make the generated tick counts nonsensical. */
+    if (size_big == 0 || big_every <= 0) {
+        _XmAppUnlock(app);
+        return ;
+    }
     if (size_med == 0) num_med = 0 ;
     if (size_small == 0) num_small = 0 ;
 
@@ -80,12 +86,47 @@ XmScaleSetTicks(
     XtSetArg(args[n], XmNorientation, &orient); n++;
     XtGetValues(scale, args, n);
     
-    real_num_big = ((max - min) / big_every) + 1 ;
+    /* Promote before subtracting: applications may legitimately configure
+       the scale with the full signed-int range. */
+    if (max < min) { _XmAppUnlock(app); return ; }
+    {
+        intmax_t range = (intmax_t)max - (intmax_t)min;
+        intmax_t big_count = (range / (intmax_t)big_every) + 1;
+        if (big_count < 2 || big_count > INT_MAX) {
+            _XmAppUnlock(app);
+            return ;
+        }
+        real_num_big = (int)big_count;
+    }
     if (real_num_big < 2) { _XmAppUnlock(app); return ; }
 
-    real_num_med = (real_num_big - 1) * num_med;
-    real_num_small = (real_num_big + real_num_med - 1) * num_small;
-    sep_num = real_num_big + real_num_med + real_num_small;
+    if ((size_t)num_med > (size_t)INT_MAX / (size_t)(real_num_big - 1)) {
+        _XmAppUnlock(app);
+        return ;
+    }
+    real_num_med = (real_num_big - 1) * (int)num_med;
+    if (real_num_med > INT_MAX - real_num_big + 1) {
+        _XmAppUnlock(app);
+        return ;
+    }
+    {
+        size_t small_base = (size_t)real_num_big + (size_t)real_num_med - 1;
+        if (small_base > (size_t)INT_MAX ||
+            (size_t)num_small > (size_t)INT_MAX / small_base) {
+            _XmAppUnlock(app);
+            return ;
+        }
+        real_num_small = (int)(small_base * (size_t)num_small);
+    }
+    {
+        size_t total = (size_t)real_num_big + (size_t)real_num_med +
+                       (size_t)real_num_small;
+        if (total > UINT_MAX || total > SIZE_MAX / sizeof(Widget)) {
+            _XmAppUnlock(app);
+            return ;
+        }
+        sep_num = (Cardinal)total;
+    }
 
     sep = (Widget*) ALLOCATE_LOCAL(sep_num * sizeof(Widget));
 
