@@ -2056,6 +2056,8 @@ void SetupWmWorkspaceWindows (void)
 				      InputOnly, CopyFromParent,
 				      (CWOverrideRedirect |CWEventMask),
 				      &sAttributes);
+	    if (pSD->wmWorkspaceWin == None)
+		continue;
 
 	    XMapWindow (DISPLAY, pSD->wmWorkspaceWin);
 

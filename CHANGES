@@ -21386,3 +21386,8 @@ Handle MWM feedback-window creation failure (2026-10-26)
 UpdateFeedbackWindow now stops when XCreateWindow cannot allocate the optional
 feedback overlay, avoiding configure/map requests against the None window ID.
 
+Handle MWM workspace helper-window creation failure (2026-10-26)
+-----------------------------------------------------------------
+SetupWmWorkspaceWindows now checks each hidden helper window before mapping or
+publishing it, avoiding invalid requests when XCreateWindow fails.
+
