@@ -2490,18 +2490,40 @@ UpdateMotionBuffer(
 	if (mb->count && ((mb->count % (STACKMOTIONBUFFERSIZE)) == 0)) {
 	    if (mb->count == (STACKMOTIONBUFFERSIZE)){
 		MotionBuffer	oldMb = mb;
-		Cardinal size;
+		size_t size;
+		MotionBuffer newMb;
 		
+		if ((size_t)STACKMOTIONBUFFERSIZE >
+		    ((size_t)-1 - sizeof(MotionBufferRec)) /
+		    sizeof(MotionEntryRec))
+		    return;
 		size = sizeof(MotionBufferRec) +
-		  (STACKMOTIONBUFFERSIZE * sizeof(MotionEntryRec));
-		mb = (MotionBuffer) XtMalloc(size);
+		  (size_t)STACKMOTIONBUFFERSIZE * sizeof(MotionEntryRec);
+		if (size > (size_t)UINT_MAX)
+		    return;
+		newMb = (MotionBuffer)XtMalloc((Cardinal)size);
+		if (newMb == NULL)
+		    return;
+		mb = newMb;
 		memcpy((char *)mb, (char *)oldMb, sizeof(MotionBufferRec));
 	    }
 	    else  {
-		mb = (MotionBuffer)
-		  XtRealloc((char *)mb, 
-			    (sizeof(MotionBufferRec) +
-			     (mb->count + STACKMOTIONBUFFERSIZE) *sizeof(MotionEntryRec)));
+		size_t size;
+		MotionBuffer newMb;
+		if (mb->count > UINT_MAX - STACKMOTIONBUFFERSIZE ||
+		    (size_t)(mb->count + STACKMOTIONBUFFERSIZE) >
+		    ((size_t)-1 - sizeof(MotionBufferRec)) /
+		    sizeof(MotionEntryRec))
+		    return;
+		size = sizeof(MotionBufferRec) +
+		  (size_t)(mb->count + STACKMOTIONBUFFERSIZE) *
+		  sizeof(MotionEntryRec);
+		if (size > (size_t)UINT_MAX)
+		    return;
+		newMb = (MotionBuffer)XtRealloc((char *)mb, (Cardinal)size);
+		if (newMb == NULL)
+		    return;
+		mb = newMb;
 	    }
 	}
 	/*	

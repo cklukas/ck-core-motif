@@ -15486,3 +15486,11 @@ Preserve motion-buffer growth ownership (2026-10-27)
 - Add a focused source regression and documentation.
 
 Bound drop-transfer entry work arrays (2026-10-27)
+Bound motion-buffer growth (2026-10-27)
+========================================
+
+- Check motion-buffer size arithmetic and allocation results during stack
+  promotion and subsequent expansion.
+- Add a focused source regression and documentation.
+
+Preserve motion-buffer growth ownership (2026-10-27)
