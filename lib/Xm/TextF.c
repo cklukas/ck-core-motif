@@ -9166,7 +9166,7 @@ PreeditSetRendition(Widget w,
     XmHighlightMode mode;
     XmTextFieldWidget tf = (XmTextFieldWidget)w;
 
-    if (!text->length) {
+    if (text == NULL || text->length <= 0) {
         return;
     }
 
@@ -9423,8 +9423,15 @@ PreeditDraw(XIC xic,
     if (!TextF_Editable(tf))
         return;
 
+    /* XIM offsets are signed protocol fields; reject malformed negatives
+     * before they are added to the field's XmTextPosition state. */
+    if (call_data->caret < 0 || call_data->chg_first < 0 ||
+        call_data->chg_length < 0)
+        return;
+
     if (call_data->text &&
-        (insert_length = call_data->text->length) > TEXT_MAX_INSERT_SIZE)
+        (call_data->text->length < 0 ||
+         (insert_length = call_data->text->length) > TEXT_MAX_INSERT_SIZE))
         return;
 
     if (call_data->chg_length>PreEnd(tf)-PreStart(tf))
