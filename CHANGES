@@ -19964,6 +19964,15 @@ Bound Text selection conversion lengths (2026-10-26)
 - Release temporary and transfer buffers when a converted value is too large.
 - Add focused regression coverage and documentation.
 
+Validate TextField substring ranges (2026-10-26)
+==================================================
+
+- Validate buffers, positions, lengths, and capacities before byte or wide
+  substring pointer arithmetic.
+- Preserve normal truncation for an in-range request extending past the value;
+  reject invalid or empty requests without writing caller storage.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 

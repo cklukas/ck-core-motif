@@ -10036,36 +10036,32 @@ XmTextFieldGetSubstring(Widget widget,
   _XmWidgetToAppContext(widget);
 
   _XmAppLock(app);
+  if (buffer == NULL || start < 0 || start > tf->text.string_length ||
+      num_chars <= 0 || buf_size <= 0) {
+    _XmAppUnlock(app);
+    return XmCOPY_FAILED;
+  }
+  if (num_chars > tf->text.string_length - start) {
+    num_chars = (int)(tf->text.string_length - start);
+    ret_value = XmCOPY_TRUNCATED;
+  }
   if (tf->text.max_char_size != 1)
     n_bytes = _XmTextFieldCountBytes(tf, TextF_WcValue(tf)+start, num_chars);
   else
     n_bytes = num_chars; 
   
-  if (buf_size < n_bytes + 1) {
+  if (n_bytes < 0 || buf_size <= n_bytes) {
     _XmAppUnlock(app);
     return XmCOPY_FAILED;
   }
-  
-  if (start + num_chars > tf->text.string_length) {
-    num_chars = (int) (tf->text.string_length - start);
-    if (tf->text.max_char_size != 1)
-      n_bytes = _XmTextFieldCountBytes(tf, TextF_WcValue(tf)+start,
-				       num_chars);
-    else
-      n_bytes = num_chars; 
-    ret_value = XmCOPY_TRUNCATED;
+
+  if (tf->text.max_char_size == 1) {
+    (void)memcpy((void*)buffer, (void*)&TextF_Value(tf)[start], num_chars);
+  } else {
+    wcs_ret = wcstombs(buffer, &TextF_WcValue(tf)[start], n_bytes);
+    if (wcs_ret < 0) n_bytes = 0;
   }
-  
-  if (num_chars > 0) {
-    if (tf->text.max_char_size == 1) {
-      (void)memcpy((void*)buffer, (void*)&TextF_Value(tf)[start], num_chars);
-    } else {
-      wcs_ret = wcstombs(buffer, &TextF_WcValue(tf)[start], n_bytes);
-      if (wcs_ret < 0) n_bytes = 0;
-    }
-    buffer[n_bytes] = '\0';
-  } else
-    ret_value = XmCOPY_FAILED;
+  buffer[n_bytes] = '\0';
   
   _XmAppUnlock(app);
   return (ret_value);
@@ -10115,29 +10111,33 @@ XmTextFieldGetSubstringWcs(Widget widget,
   _XmWidgetToAppContext(widget);
 
   _XmAppLock(app);
-  if (start + num_chars > tf->text.string_length) {
-    num_chars = (int) (tf->text.string_length - start);
-    ret_value = XmCOPY_TRUNCATED;
-  }
-  
-  if (buf_size < num_chars + 1) {
+  if (buffer == NULL || start < 0 || start > tf->text.string_length ||
+      num_chars < 0 || buf_size <= 0) {
     _XmAppUnlock(app);
     return XmCOPY_FAILED;
   }
-  
-  if (num_chars > 0) {
-    if (tf->text.max_char_size == 1) {
-      num_wcs = mbstowcs(buffer, &TextF_Value(tf)[start], num_chars);
-      if (num_wcs < 0) num_chars = 0;
-    } else {
-      (void)memcpy((void*)buffer, (void*)&TextF_WcValue(tf)[start], 
-		   (size_t) num_chars * sizeof(wchar_t));
-    }
-    buffer[num_chars] = '\0';
-  } else if (num_chars == 0) {
-    buffer[num_chars] = '\0';
-  } else
-    ret_value = XmCOPY_FAILED;
+  if (num_chars == 0) {
+    buffer[0] = L'\0';
+    _XmAppUnlock(app);
+    return XmCOPY_SUCCEEDED;
+  }
+  if (num_chars > tf->text.string_length - start) {
+    num_chars = (int)(tf->text.string_length - start);
+    ret_value = XmCOPY_TRUNCATED;
+  }
+  if (buf_size <= num_chars) {
+    _XmAppUnlock(app);
+    return XmCOPY_FAILED;
+  }
+
+  if (tf->text.max_char_size == 1) {
+    num_wcs = mbstowcs(buffer, &TextF_Value(tf)[start], num_chars);
+    if (num_wcs < 0) num_chars = 0;
+  } else {
+    (void)memcpy((void*)buffer, (void*)&TextF_WcValue(tf)[start],
+		 (size_t) num_chars * sizeof(wchar_t));
+  }
+  buffer[num_chars] = '\0';
 
   _XmAppUnlock(app);
   return (ret_value);
