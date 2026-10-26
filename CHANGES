@@ -28,6 +28,14 @@ Preserve XPM comment marker lengths (2026-10-26)
   advances.
 - Document the behavior and add a source-contract regression.
 
+Preserve escaped resource-token whitespace (2026-10-26)
+========================================================
+
+- Correct `GetNextToken` to inspect the preceding byte when deciding whether
+  trailing whitespace was escaped, instead of subtracting from the character
+  value.
+- Document the parser behavior and add a focused regression check.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 

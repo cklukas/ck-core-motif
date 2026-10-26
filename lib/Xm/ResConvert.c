@@ -2788,7 +2788,8 @@ GetNextToken(
 	s = *context;
 	while ((s != e) && isspace((unsigned char)*s))
 		s++;
-	while ((e != s) && isspace((unsigned char)*e) && ((*e-1) != '\\'))
+	while ((e != s) && isspace((unsigned char)*e) &&
+	       (*(e - 1) != '\\'))
 		e--;
 
 	if (e == s)

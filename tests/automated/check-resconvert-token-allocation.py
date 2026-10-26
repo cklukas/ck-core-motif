@@ -11,4 +11,6 @@ assert "token_size > (size_t)UINT_MAX - 1" in body
 assert "p = buf = XtMalloc((Cardinal)(token_size + 1));" in body
 assert body.count("if (buf == NULL)") == 2
 assert "*buf = '\\0';" in body
+assert "(*(e - 1) != '\\\\')" in body
+assert "((*e-1) != '\\\\')" not in body
 print("PASS resource token allocations are guarded")
