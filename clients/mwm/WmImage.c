@@ -384,6 +384,16 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
     if (bitmap == None || width == 0 || height == 0)
 	return ((Pixmap)NULL);
 
+    if (pSD->iconImageMaximum.width == 0 ||
+	pSD->iconImageMaximum.height == 0 ||
+	pSD->iconImageMaximum.width > UINT_MAX -
+	    (2 * ICON_INTERNAL_SHADOW_WIDTH +
+	     ((wmGD.frameStyle == WmSLAB) ? 2U : 0U)) ||
+	pSD->iconImageMaximum.height > UINT_MAX -
+	    (2 * ICON_INTERNAL_SHADOW_WIDTH +
+	     ((wmGD.frameStyle == WmSLAB) ? 2U : 0U)))
+	return ((Pixmap)NULL);
+
     /* don't make icon pixmap if bitmap is too small */
 
     if ((width < pSD->iconImageMinimum.width) ||

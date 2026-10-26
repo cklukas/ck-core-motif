@@ -21006,6 +21006,11 @@ Validate MWM icon source geometry (2026-10-26)
 MakeIconPixmap now returns `None` for a missing source pixmap or zero-sized
 source image before creating destination resources or issuing copy requests.
 
+Bound MWM icon destination dimensions (2026-10-26)
+---------------------------------------------------
+MakeIconPixmap now rejects zero or overflow-prone configured maximum icon
+dimensions before adding shadow and slab margins in unsigned arithmetic.
+
 Handle MWM cached-label X resource failure (2026-10-26)
 --------------------------------------------------------
 MakeCachedLabelPixmap now returns `None` when pixmap or graphics-context
