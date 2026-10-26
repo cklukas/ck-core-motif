@@ -1,3 +1,11 @@
+Refresh parse-mapping ArgList regression check (2026-10-27)
+============================================================
+
+- Match the focused check to the current NULL-equivalent value guard for
+  application-supplied ArgList entries.
+
+===========================================================
+
 Refresh Paned sash-indent regression check (2026-10-27)
 =======================================================
 
