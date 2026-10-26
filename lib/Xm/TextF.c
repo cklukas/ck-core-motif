@@ -7503,6 +7503,13 @@ ValidateString(XmTextFieldWidget tf,
       
       tf->text.size_allocd = (tf->text.string_length + 30)*sizeof(wchar_t);
       TextF_WcValue(tf) = (wchar_t*)XtMalloc((unsigned)tf->text.size_allocd);
+      if (TextF_WcValue(tf) == NULL) {
+        tf->text.string_length = 0;
+        tf->text.size_allocd = 0;
+        TextF_Value(tf) = NULL;
+        XmStackFree(start_temp, stack_cache);
+        return;
+      }
       tf->text.string_length = mbstowcs(TextF_WcValue(tf), start_temp,
 					tf->text.string_length + 30);
       if (tf->text.string_length < 0) tf->text.string_length = 0;

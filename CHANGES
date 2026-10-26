@@ -22888,3 +22888,10 @@ Guard TextField initialization storage (2026-10-26)
   widget initialization records.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-initial-storage.py
+
+Guard TextField wide-value validation allocation (2026-10-26)
+===============================================================
+- Check the wide-value buffer before conversion and reset value state on
+  allocation failure.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-wide-validation.py
