@@ -613,8 +613,16 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 		  unsigned long len, WSMRequestType type, WSMRequest *request)
 {
     register int i;
+
+    if (request == NULL)
+	return;
+
+    memset(request, 0, sizeof(*request));
     request->any.type = type;	/* Save the type. */
     request->any.allocated = False;
+
+    if (data == NULL && type != WSM_CONFIG_FMT)
+	return;
 
     switch (request->any.type) {
     case WSM_CONNECT:
@@ -825,8 +833,16 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 		unsigned long len, WSMRequestType type, WSMReply *reply)
 {
     register int i;
+
+    if (reply == NULL)
+	return;
+
+    memset(reply, 0, sizeof(*reply));
     reply->any.type = type;		/* Save the type. */
     reply->any.allocated = False;
+
+    if (data == NULL && type != WSM_SET_STATE)
+	return;
 
     switch (reply->any.type) {
     case WSM_CONNECT:

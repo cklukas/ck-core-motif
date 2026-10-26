@@ -21526,3 +21526,10 @@ Preserve MWM secondary-display argc on argv fallback (2026-10-26)
   vector allocation falls back after an allocation failure.
 - Add focused regression coverage and documentation.
 
+Guard WSM unpacker entry points (2026-10-26)
+=============================================
+
+- Clear request/reply records before decoding, reject null destinations, and
+  accept missing payloads only for protocol message types defined as empty.
+- Add focused regression coverage and documentation.
+
