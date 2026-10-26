@@ -41,3 +41,7 @@ Selection extraction now checks position ordering, `Cardinal`-sized allocation
 limits, conversion-output bounds, and allocator results for both narrow and
 wide output. The focused source check is
 `tests/automated/check-textfield-selection-allocation.py`.
+
+The full string getters apply the same checked allocation and conversion
+termination rules; their focused check is
+`tests/automated/check-textfield-string-allocation.py`.

@@ -20295,3 +20295,9 @@ Guard text-field selection extraction allocations (2026-10-26)
 - Reject reversed or unrepresentable selection ranges and handle allocation
   failure before copying narrow or wide selection data; clamp conversion
   output before adding the terminator.
+
+Guard text-field string getter allocations (2026-10-26)
+========================================================
+
+- Check multibyte and wide-string allocation sizes and allocator results, and
+  explicitly terminate successful conversion output.

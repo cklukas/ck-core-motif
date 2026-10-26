@@ -10090,6 +10090,8 @@ XmTextFieldGetString(Widget w)
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
   char *temp_str;
+  size_t allocation_bytes;
+  size_t string_length;
   int ret_val = 0;
   _XmWidgetToAppContext(w);
 
@@ -10100,11 +10102,29 @@ XmTextFieldGetString(Widget w)
       _XmAppUnlock(app);
       return temp_str;
     } else {
-      temp_str = (char *) XtMalloc((unsigned) tf->text.max_char_size *
-				   (tf->text.string_length + 1));
+      if (tf->text.max_char_size <= 0 ||
+	  (size_t)tf->text.string_length == SIZE_MAX ||
+	  (size_t)tf->text.string_length + 1 >
+	    SIZE_MAX / (size_t)tf->text.max_char_size ||
+	  (size_t)tf->text.string_length + 1 >
+	    UINT_MAX / (size_t)tf->text.max_char_size) {
+	_XmAppUnlock(app);
+	return NULL;
+      }
+      string_length = (size_t)tf->text.string_length;
+      allocation_bytes = (string_length + 1) *
+	(size_t)tf->text.max_char_size;
+      temp_str = (char *) XtMalloc((Cardinal)allocation_bytes);
+      if (temp_str == NULL) {
+	_XmAppUnlock(app);
+	return NULL;
+      }
       ret_val = wcstombs(temp_str, TextF_WcValue(tf), 
-			 (tf->text.string_length + 1)*tf->text.max_char_size);
-      if (ret_val < 0) temp_str[0] = '\0';
+			 allocation_bytes);
+      if (ret_val < 0 || (size_t)ret_val >= allocation_bytes)
+	temp_str[0] = '\0';
+      else
+	temp_str[ret_val] = '\0';
       _XmAppUnlock(app);
       return temp_str;
     }
@@ -10166,20 +10186,37 @@ XmTextFieldGetStringWcs(Widget w)
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
   wchar_t *temp_wcs;
+  size_t string_length;
+  size_t allocation_bytes;
   int num_wcs = 0;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
   if (tf->text.string_length > 0) {
-    temp_wcs = (wchar_t*) XtMalloc((unsigned) sizeof(wchar_t) *
-				   (tf->text.string_length + 1));
+    string_length = (size_t)tf->text.string_length;
+    if (string_length == SIZE_MAX ||
+	string_length + 1 > SIZE_MAX / sizeof(wchar_t) ||
+	string_length + 1 > UINT_MAX / sizeof(wchar_t)) {
+	_XmAppUnlock(app);
+	return NULL;
+    }
+    allocation_bytes = (string_length + 1) * sizeof(wchar_t);
+    temp_wcs = (wchar_t*) XtMalloc((Cardinal)allocation_bytes);
+    if (temp_wcs == NULL) {
+	_XmAppUnlock(app);
+	return NULL;
+    }
     if (tf->text.max_char_size != 1) {
       (void)memcpy((void*)temp_wcs, (void*)TextF_WcValue(tf), 
-		   sizeof(wchar_t) * (tf->text.string_length + 1));
+		   allocation_bytes);
+      temp_wcs[string_length] = (wchar_t)0L;
     } else {
       num_wcs = mbstowcs(temp_wcs, TextF_Value(tf),
-			 tf->text.string_length + 1);
-      if (num_wcs < 0) temp_wcs[0] = (wchar_t)0L;
+			 string_length + 1);
+      if (num_wcs < 0 || (size_t)num_wcs >= string_length + 1)
+	temp_wcs[0] = (wchar_t)0L;
+      else
+	temp_wcs[num_wcs] = (wchar_t)0L;
     }
     _XmAppUnlock(app);
     return temp_wcs;
