@@ -22250,3 +22250,11 @@ Restrict transfer parameter formats to X protocol values (2026-10-26)
   coverage and documentation.
 
 Validate drag export-target conversion results (2026-10-26)
+Validate selection-loss callback inputs (2026-10-26)
+====================================================
+
+- Reject null widgets, selection pointers, and `None` atoms before X11 access
+  in `ClipboardLoseProc` and `LoseProc`.
+- Add focused regression coverage and documentation for ownership teardown.
+
+Restrict transfer parameter formats to X protocol values (2026-10-26)

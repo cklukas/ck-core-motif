@@ -480,11 +480,15 @@ ReleaseSecondaryLock(Widget w,	/* unused */
 static void
 ClipboardLoseProc(Widget w, Atom *selection)
 {
-  Atom DELETE = XInternAtom(XtDisplay(w), XmSDELETE, False);
+  Atom DELETE;
   XtPointer value = NULL;
   Atom type;
   unsigned long size;
   int fmt;
+
+  if (w == NULL || selection == NULL || *selection == None)
+    return;
+  DELETE = XInternAtom(XtDisplay(w), XmSDELETE, False);
 
   _XmConvertHandlerSetLocal();
   _XmConvertHandler(w, selection, &DELETE, 
@@ -506,7 +510,11 @@ LoseProc(Widget w, Atom *selection)
   Atom type;
   unsigned long size;
   int fmt;
-  Atom MOTIF_LOSE = XInternAtom(XtDisplay(w), XmS_MOTIF_LOSE_SELECTION, False);
+  Atom MOTIF_LOSE;
+
+  if (w == NULL || selection == NULL || *selection == None)
+    return;
+  MOTIF_LOSE = XInternAtom(XtDisplay(w), XmS_MOTIF_LOSE_SELECTION, False);
 
   _XmConvertHandlerSetLocal();
   _XmConvertHandler(w, selection, &MOTIF_LOSE, 
