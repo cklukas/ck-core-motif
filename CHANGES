@@ -22580,3 +22580,9 @@ Reject missing DataField DnD contexts (2026-10-26)
   query or start DnD operations.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-datafield-dnd-context.py
+Guard transfer done-proc dispatch inputs (2026-10-26)
+=====================================================
+- Validate transfer completion context and callback-list state before
+  dispatching done procedures.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-transfer-done-proc-inputs.py

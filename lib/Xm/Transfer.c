@@ -2346,6 +2346,10 @@ CallDoneProcs(Widget wid, XtPointer id, XmTransferDoneCallbackStruct *ts)
   int i;
   TransferContext tid = (TransferContext) id;
 
+  if (tid == NULL || ts == NULL || tid->numDoneProcs <= 0 ||
+      tid->doneProcs == NULL)
+    return;
+
   for(i = 0; i < tid -> numDoneProcs; i++) {
     (tid -> doneProcs[i])(wid, tid -> op, ts);
   }
