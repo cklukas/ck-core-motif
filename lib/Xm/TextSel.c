@@ -1516,6 +1516,11 @@ TextConvertCallback(Widget w,
       cs->target == atoms[XmA_MOTIF_CLIPBOARD_TARGETS]) {
     Atom *targs = (Atom *) XtMalloc(sizeof(Atom) * 5);
     int n = 0;
+
+    if (targs == NULL) {
+      _XmConvertComplete(w, NULL, 0, 8, XA_INTEGER, cs);
+      return;
+    }
     
     value = (XtPointer) targs;
 #ifdef UTF8_SUPPORTED
