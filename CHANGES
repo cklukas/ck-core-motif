@@ -22283,3 +22283,12 @@ Reject Motif-drop conversion without a drag context (2026-10-26)
 - Add focused regression coverage and documentation for cancelled drags.
 
 Reject malformed render-table conversion results (2026-10-26)
+Clear drag context on export-conversion failure (2026-10-26)
+=============================================================
+
+- Clear source, location, and drag-context fields when export-target
+  conversion fails or returns an invalid list before `XmDragStart`.
+- Prevent failed drag attempts from leaving stale callback state; add focused
+  regression coverage and documentation.
+
+Reject Motif-drop conversion without a drag context (2026-10-26)

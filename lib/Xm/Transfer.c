@@ -1266,6 +1266,9 @@ XmeDragSource(Widget w, XtPointer location_data, XEvent *event,
 	    if (type != XA_ATOM || format != 32 ||
 		(size != 0 && targets == NULL) ||
 		size > (unsigned long)UINT_MAX) {
+		cc -> location_data = NULL;
+		cc -> client_data = NULL;
+		cc -> drag_context = NULL;
 		XtFree((char *) args);
 		XtFree((char *) targets);
 		_XmAppUnlock(app);
@@ -1276,6 +1279,9 @@ XmeDragSource(Widget w, XtPointer location_data, XEvent *event,
     arg_count++;
   } else {
     /* Free copied arguments */
+    cc -> location_data = NULL;
+    cc -> client_data = NULL;
+    cc -> drag_context = NULL;
     XtFree((char*) args);
     XtFree((char*) targets);
     _XmAppUnlock(app);
