@@ -2569,7 +2569,7 @@ _XmTextToLocaleText(Widget w,
 	malloc_size += value_size;
 	}
 
-	if (malloc_size == (size_t)-1) {
+	if (malloc_size == (size_t)-1 || malloc_size >= (size_t)UINT_MAX) {
 	  XFreeStringList(values);
 	  if (success != NULL) *success = False;
 	  return NULL;

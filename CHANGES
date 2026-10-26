@@ -1,3 +1,12 @@
+Bound selection text concatenation allocation width (2026-10-27)
+=================================================================
+
+- Reject converted selection text totals that cannot fit Xt's `Cardinal`
+  allocation width before allocating the terminator-inclusive buffer.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard virtual-key display initialization inputs (2026-10-27)
 ==============================================================
 
