@@ -22241,3 +22241,12 @@ Validate drag export-target conversion results (2026-10-26)
   coverage and documentation.
 
 Clear drag conversion context after start failure (2026-10-26)
+Restrict transfer parameter formats to X protocol values (2026-10-26)
+======================================================================
+
+- Accept only 8-, 16-, or 32-bit parameter formats in
+  `XmTransferSetParameters`, retaining zero as the 8-bit default.
+- Ignore invalid formats before context access and add focused regression
+  coverage and documentation.
+
+Validate drag export-target conversion results (2026-10-26)

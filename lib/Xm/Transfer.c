@@ -1767,6 +1767,8 @@ XmTransferSetParameters(XtPointer transfer_id,
   TransferContext tc = (TransferContext) transfer_id;
   if (tc == NULL || tc->widget == NULL)
     return;
+  if (parm_fmt != 0 && parm_fmt != 8 && parm_fmt != 16 && parm_fmt != 32)
+    return;
   _XmWidgetToAppContext(tc->widget);
 
   _XmAppLock(app);
