@@ -11218,6 +11218,7 @@ XmDataFieldGetString(
 {
     XmDataFieldWidget tf = (XmDataFieldWidget) w;
     char *temp_str;
+    size_t capacity;
     int ret_val = 0;
 
     _XmWidgetToAppContext(w);    
@@ -11233,11 +11234,27 @@ XmDataFieldGetString(
 	} 
 	else 
 	{
-	    temp_str = (char *) XtMalloc((unsigned) XmTextF_max_char_size(tf) * 
-					 (XmTextF_string_length(tf) + 1));
+	    if (XmTextF_max_char_size(tf) <= 0 ||
+	XmTextF_string_length(tf) < 0 ||
+	XmTextF_string_length(tf) == INT_MAX ||
+		(size_t)(XmTextF_string_length(tf) + 1) >
+		    SIZE_MAX / (size_t)XmTextF_max_char_size(tf)) {
+		_XmAppUnlock(app);
+		return NULL;
+	    }
+	    capacity = (size_t)(XmTextF_string_length(tf) + 1) *
+		(size_t)XmTextF_max_char_size(tf);
+	    if (capacity > UINT_MAX) {
+		_XmAppUnlock(app);
+		return NULL;
+	    }
+	    temp_str = (char *) XtMalloc((Cardinal)capacity);
+	    if (temp_str == NULL) {
+		_XmAppUnlock(app);
+		return NULL;
+	    }
 	    ret_val = wcstombs(temp_str, XmTextF_wc_value(tf), 
-			       (XmTextF_string_length(tf) + 1) * 
-			       XmTextF_max_char_size(tf));
+			       capacity);
 	    if (ret_val < 0) 
 	    {
 		temp_str[0] = '\0';
@@ -11607,11 +11624,31 @@ XmDataFieldSetStringWcs(
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);
 
-    for (num_chars = 0, tmp_wc = wc_value; *tmp_wc != (wchar_t)0L; num_chars++)
+    if (wc_value == NULL)
+	 wc_value = L"";
+    for (num_chars = 0, tmp_wc = wc_value; *tmp_wc != (wchar_t)0L; num_chars++) {
+        if (num_chars == INT_MAX) {
+	    _XmAppUnlock(app);
+	    return;
+	}
         tmp_wc++;  /* count number of wchar_t's */
+    }
 
-   tmp = XtMalloc((unsigned) (num_chars + 1) * XmTextF_max_char_size(tf));
-   result = wcstombs(tmp, wc_value, (num_chars + 1) * XmTextF_max_char_size(tf));
+   if (XmTextF_max_char_size(tf) <= 0 ||
+	(size_t)(num_chars + 1) > SIZE_MAX /
+	    (size_t)XmTextF_max_char_size(tf) ||
+	(size_t)(num_chars + 1) * (size_t)XmTextF_max_char_size(tf) > UINT_MAX) {
+	_XmAppUnlock(app);
+	return;
+   }
+   tmp = XtMalloc((Cardinal)((size_t)(num_chars + 1) *
+				 (size_t)XmTextF_max_char_size(tf)));
+   if (tmp == NULL) {
+	_XmAppUnlock(app);
+	return;
+   }
+   result = wcstombs(tmp, wc_value,
+			(size_t)(num_chars + 1) * XmTextF_max_char_size(tf));
 
    if (result == (size_t) -1) /* if wcstombs fails, it returns (size_t) -1 */
        tmp[0] = '\0';          /* keep the owned empty string for XtFree */

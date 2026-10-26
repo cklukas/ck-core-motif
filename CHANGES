@@ -16507,3 +16507,13 @@ Validate DataField wide-substring output buffers (2026-10-27)
 ==============================================================
 
 Initialize clipboard callback conversion values (2026-10-27)
+Guard DataField string conversion buffers (2026-10-27)
+=======================================================
+
+- Check wide/narrow conversion capacity arithmetic and allocations in public
+  string getters/setters, including null wide input handling.
+- Add a focused source regression and documentation.
+
+=======================================================
+
+Validate DataField wide-substring output buffers (2026-10-27)
