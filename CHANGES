@@ -22108,3 +22108,12 @@ Reject non-byte locale-text properties (2026-10-26)
 
 Make locale-text conversion failure deterministic (2026-10-26)
 ===============================================================
+Guard clipboard-source setup (2026-10-26)
+==========================================
+
+- Reject a null source widget before application-context and display access,
+  aligning clipboard setup with the other guarded transfer entry points.
+- Add focused regression coverage and documentation.
+
+Harden conversion completion helpers (2026-10-26)
+==================================================

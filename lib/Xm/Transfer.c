@@ -826,6 +826,8 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
   Window clipboard_owner;
   Boolean target_list_converted;
   Boolean deferred_target_list_converted;
+  if (w == NULL)
+    return False;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
