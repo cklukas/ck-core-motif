@@ -6,4 +6,5 @@ end = source.index("END OF FUNCTION GetMwmMenuItems", start)
 region = source[start:end]
 
 assert "textList && nItems > 0 && textList[0] != NULL" in region
+assert "textProperty.nitems == 0" in region
 print("PASS MWM menu conversion validates returned text entries")

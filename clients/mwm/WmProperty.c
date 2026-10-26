@@ -1171,7 +1171,8 @@ GetMwmMenuItems(
     textProperty.value = (unsigned char *)NULL;
     rValue = XGetTextProperty(DISPLAY, pCD->client, &textProperty,
 			      wmGD.xa_MWM_MENU);
-    if ((rValue == 0) || (textProperty.value == (unsigned char *)NULL))
+    if ((rValue == 0) || (textProperty.value == (unsigned char *)NULL) ||
+	(textProperty.nitems == 0))
     /* _MWM_MENU does not exist or it is an invalid type.  */
     {
 	menuItems = NULL;

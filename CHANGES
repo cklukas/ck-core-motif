@@ -21679,3 +21679,9 @@ Validate MWM menu conversion results (2026-10-26)
   entry.
 - Add focused regression coverage and documentation.
 
+Reject empty MWM menu properties (2026-10-26)
+==============================================
+
+- Reject an empty `_MWM_MENU` XTextProperty before invoking text conversion.
+- Extend the menu-conversion regression coverage and documentation.
+
