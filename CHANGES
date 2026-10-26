@@ -43,6 +43,13 @@ Preserve MWM bitmap-cache state on growth failure (2026-10-26)
 - Keep the existing cache pointer and counters intact when `XtRealloc` fails,
   avoiding a leak and loss of already loaded bitmap entries.
 
+Bound MWM bitmap-cache indices (2026-10-26)
+===========================================
+
+- Reject null screen records and cache counts that cannot be represented by
+  `GetBitmapIndex`'s signed return type.
+- Document the API boundary and extend the bitmap-cache regression.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 

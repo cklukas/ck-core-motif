@@ -22,3 +22,6 @@ assert "UINT_MAX / sizeof (BitmapCache)" in cache_region
 assert "if (resized == NULL)" in cache_region
 assert "pSD->bitmapCache = resized;" in cache_region
 assert "pSD->bitmapCacheSize = 0;" not in cache_region
+assert "pSD == NULL || pSD->bitmapCacheCount > (unsigned int)INT_MAX" in cache_region
+assert "return ((int)n);" in cache_region
+assert "return ((int)pSD->bitmapCacheCount++);" in cache_region

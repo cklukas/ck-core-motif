@@ -788,6 +788,9 @@ int GetBitmapIndex (WmScreenData *pSD, char *name)
     unsigned int  n;
     int           x, y;
 
+    if (pSD == NULL || pSD->bitmapCacheCount > (unsigned int)INT_MAX)
+        return (-1);
+
     /*
      * Search a nonempty bitmap cache for a pathname match.
      */
@@ -800,7 +803,7 @@ int GetBitmapIndex (WmScreenData *pSD, char *name)
             (path && bitmapc->path && 
 	     !strcmp (path, bitmapc->path)))
         {
-	    return (n);
+	    return ((int)n);
 	}
     }
 
@@ -902,7 +905,7 @@ int GetBitmapIndex (WmScreenData *pSD, char *name)
 
     bitmapc->pixmapCache = NULL;
 
-    return (pSD->bitmapCacheCount++);
+    return ((int)pSD->bitmapCacheCount++);
 
 } /* END OF FUNCTION GetBitmapIndex */
 
