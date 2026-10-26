@@ -530,9 +530,14 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         XmRenderTable new_table = view->tree_view.render_table ?
             XmFontListCopy(view->tree_view.render_table) :
             XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
-        if (old->tree_view.render_table)
-            XmRenderTableFree(old->tree_view.render_table);
-        view->tree_view.render_table = new_table;
+        if (new_table) {
+            if (old->tree_view.render_table)
+                XmRenderTableFree(old->tree_view.render_table);
+            view->tree_view.render_table = new_table;
+        } else {
+            /* Keep the last valid table if a replacement cannot be copied. */
+            view->tree_view.render_table = old->tree_view.render_table;
+        }
     }
     return old->tree_view.indent != view->tree_view.indent ||
            old->tree_view.row_height != view->tree_view.row_height ||

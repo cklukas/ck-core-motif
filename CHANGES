@@ -1,3 +1,13 @@
+Preserve TreeView render table on copy failure (2026-10-27)
+=============================================================
+
+- Keep the previous valid TreeView render table when a runtime replacement
+  cannot be copied, instead of freeing it and installing a null table.
+- Add focused regression coverage and documentation for the transactional
+  replacement path.
+
+============================================================
+
 Preserve NumberBox render table on copy failure (2026-10-27)
 ==============================================================
 
