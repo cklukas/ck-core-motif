@@ -1919,7 +1919,9 @@ XmStringConcatAndFree(XmString a,
 	  !_XmEntryPopGet((_XmStringEntry)a_last) &&
 	  !_XmEntryPushGet((_XmStringEntry)b_seg) &&
 	  (((a_len != 0) && b_tabs==0) || 
-	   ((a_len == 0) && a_tabs+b_tabs <= 7)))
+	   ((a_len == 0) && a_tabs+b_tabs <= 7)) &&
+	  b_len <= UINT_MAX - a_len &&
+	  (!_XmEntryOptimized(a_last) || a_len + b_len <= UCHAR_MAX))
 	{
 	  if (b_len) {
 	    if ((_XmEntryType(a_last) == XmSTRING_ENTRY_OPTIMIZED) &&
