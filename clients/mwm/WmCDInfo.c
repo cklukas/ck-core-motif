@@ -181,7 +181,12 @@ unsigned int InitTitleBarHeight (ClientData *pcd)
 unsigned int UpperBorderWidth (ClientData *pcd)
 {
     unsigned int uswidth;
-    unsigned int decoration = pcd->decor;
+    unsigned int decoration;
+
+    if (pcd == NULL)
+	return (0);
+
+    decoration = pcd->decor;
 
     if (decoration & MWM_DECOR_RESIZEH)
     {
@@ -239,7 +244,12 @@ unsigned int UpperBorderWidth (ClientData *pcd)
 unsigned int LowerBorderWidth (ClientData *pcd)
 {
     unsigned int lswidth;
-    unsigned int decoration = pcd->decor;
+    unsigned int decoration;
+
+    if (pcd == NULL)
+	return (0);
+
+    decoration = pcd->decor;
 
     if (decoration & (MWM_DECOR_RESIZEH | MWM_DECOR_BORDER))
     {

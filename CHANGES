@@ -20899,3 +20899,8 @@ Guard MWM title metrics (2026-10-26)
 ------------------------------------
 TitleTextHeight and InitTitleBarHeight now return zero for null client
 records instead of reading title appearance or decoration state.
+
+Guard MWM border metrics (2026-10-26)
+-------------------------------------
+UpperBorderWidth and LowerBorderWidth now return zero for null client
+records instead of reading decoration or bevel state.
