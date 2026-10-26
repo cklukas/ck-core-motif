@@ -2470,6 +2470,9 @@ void BevelSystemButton (RList *prTop, RList *prBot, int x, int y,
     int offset1, offset2;
     unsigned int dim1, dim2;
 
+    if (height < 5)
+	return;
+
     switch (height) {
 	case 5:
 	case 6:
@@ -2516,13 +2519,11 @@ void BevelSystemButton (RList *prTop, RList *prBot, int x, int y,
 
     }
 
-    if (height >= 5) {
 	/* system icon */
 	BevelRectangle (prTop, prBot, 		/* system icon */
 		    (x+offset1), (y+offset2),
 		    dim1, dim2,
 		    1, 1, 1, 1);
-	}
 } /* END OF FUNCTION  BevelSystemButton   */
 
 
@@ -2561,6 +2562,9 @@ void BevelMinimizeButton (RList *prTop, RList *prBot, int x, int y,
     int offset1, offset2;
     unsigned int dim1, dim2;
 
+    if (height < 7)
+	return;
+
     switch (height) {
 	case 7:
 	case 8:
@@ -2582,13 +2586,11 @@ void BevelMinimizeButton (RList *prTop, RList *prBot, int x, int y,
 	    break;
     }
 
-    if (height >= 7) {
 	/* minimize icon */
 	BevelRectangle (prTop, prBot,
 		    (x+offset1), (y+offset2),
 		    dim1, dim2,
 		    1, 1, 1, 1);
-    }
 } /* END OF FUNCTION  BevelMinimizeButton   */
 
 

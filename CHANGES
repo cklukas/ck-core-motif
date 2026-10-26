@@ -20925,6 +20925,12 @@ Guard compact MWM maximize geometry (2026-10-26)
 BevelMaximizeButton now skips heights below five pixels before unsigned
 subtraction can wrap its icon dimensions.
 
+Guard compact MWM system/minimize geometry (2026-10-26)
+--------------------------------------------------------
+BevelSystemButton and BevelMinimizeButton now reject undersized heights before
+their unsigned geometry calculations, avoiding wrapped dimensions in compact
+title bars.
+
 Reject impossible MWM title widths (2026-10-26)
 -----------------------------------------------
 GetFramePartInfo now rejects title and title-bar geometry when borders and
