@@ -21162,3 +21162,9 @@ CreateActiveIconTextWindow now handles an XCreateWindow failure explicitly,
 leaving the optional active label disabled instead of recording an invalid
 parent and allowing later label operations to target a missing window.
 
+Guard MWM icon-frame window allocation (2026-10-26)
+----------------------------------------------------
+MakeIcon now rejects an icon whose frame-window allocation returned `None`,
+avoiding subsequent shadow, reparent, and event operations against an invalid
+window resource.
+

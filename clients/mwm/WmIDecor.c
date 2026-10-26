@@ -181,6 +181,17 @@ Boolean MakeIcon (WmWorkspaceData *pWS, ClientData *pcd)
 			       attr_mask,
 			       &window_attribs);
 
+#ifdef WSM
+	if (pWsc->iconFrameWin == None)
+#else
+	if (pcd->iconFrameWin == None)
+#endif /* WSM */
+	{
+	    Warning ((char *)GETMESSAGE(30, 4,
+		"Could not create icon frame window"));
+	    return(FALSE);
+	}
+
     }
     else
     {
