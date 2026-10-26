@@ -9732,7 +9732,7 @@ df_DropTransferCallback(
     char * total_tmp_value;
     wchar_t * wc_total_tmp_value;
     char ** tmp_value;
-    int malloc_size = 0;
+    size_t malloc_size = 0;
     int num_vals, status;
     Arg args[8];
     Cardinal n, i;
@@ -9810,10 +9810,27 @@ df_DropTransferCallback(
 
       /* if no conversion, num_vals is not changed */
        if (num_vals && (status == Success || status > 0)) {
-          for (i = 0; i < num_vals ; i++)
-              malloc_size += strlen(tmp_value[i]);
+          for (i = 0; i < num_vals ; i++) {
+              size_t item_length = strlen(tmp_value[i]);
+              if (item_length > SIZE_MAX - malloc_size) {
+                  XFreeStringList(tmp_value);
+                  XtFree((char *)value);
+                  return;
+              }
+              malloc_size += item_length;
+          }
 
-          total_tmp_value = XtMalloc ((unsigned) malloc_size + 1);
+          if (malloc_size >= (size_t)UINT_MAX) {
+              XFreeStringList(tmp_value);
+              XtFree((char *)value);
+              return;
+          }
+          total_tmp_value = XtMalloc ((Cardinal)(malloc_size + 1));
+          if (total_tmp_value == NULL) {
+              XFreeStringList(tmp_value);
+              XtFree((char *)value);
+              return;
+          }
           total_tmp_value[0] = '\0';
           for (i = 0; i < num_vals ; i++)
              strcat(total_tmp_value, tmp_value[i]);
@@ -9831,6 +9848,11 @@ df_DropTransferCallback(
        total_length = *length;
     }
 
+    if (total_length > (size_t)INT_MAX) {
+       XtFree(total_tmp_value);
+       return;
+    }
+
     if (XmTextF_pending_delete(tf) && XmTextF_has_primary(tf) &&
        XmTextF_prim_pos_left(tf) != XmTextF_prim_pos_right(tf) &&
        insertPosLeft > XmTextF_prim_pos_left(tf) &&
@@ -9839,8 +9861,8 @@ df_DropTransferCallback(
       insertPosRight = XmTextF_prim_pos_right(tf);
     }
 
-    transfer_rec->num_chars = _XmDataFieldCountCharacters(tf, total_tmp_value, 
-							  (int)total_length);
+    transfer_rec->num_chars = _XmDataFieldCountCharacters(tf, total_tmp_value,
+							      (int)total_length);
 
     _XmDataFieldDrawInsertionPoint(tf, False);
 
@@ -9855,11 +9877,33 @@ df_DropTransferCallback(
 				   (int)total_length, False))
 	  replace = True;
     } else {
-       wc_total_tmp_value = (wchar_t*)XtMalloc((unsigned)
-					       total_length * sizeof(wchar_t));
-      /* Note: casting total_length to an int may result in a truncation. */
-       total_length = mbstowcs(wc_total_tmp_value, total_tmp_value,
-			       (int)total_length);
+       if (total_length > (SIZE_MAX / sizeof(wchar_t)) - 1 ||
+		   total_length + 1 > (size_t)UINT_MAX / sizeof(wchar_t)) {
+          XtFree(total_tmp_value);
+          if (transfer_rec->move && local)
+            XmTextF_max_length(tf) = max_length;
+          return;
+       }
+       wc_total_tmp_value = (wchar_t*)XtMalloc((Cardinal)
+					       ((total_length + 1) * sizeof(wchar_t)));
+       if (wc_total_tmp_value == NULL) {
+          XtFree(total_tmp_value);
+          if (transfer_rec->move && local)
+            XmTextF_max_length(tf) = max_length;
+          return;
+       }
+       {
+       size_t converted = mbstowcs(wc_total_tmp_value, total_tmp_value,
+				       total_length);
+       if (converted == (size_t)-1 || converted > (size_t)INT_MAX) {
+          XtFree((char *)wc_total_tmp_value);
+          XtFree(total_tmp_value);
+          if (transfer_rec->move && local)
+            XmTextF_max_length(tf) = max_length;
+          return;
+       }
+       total_length = converted;
+       }
        if (_XmDataFieldReplaceText(tf, NULL, insertPosLeft, insertPosRight,
 				   (char *) wc_total_tmp_value,
 				   (int)total_length, False))

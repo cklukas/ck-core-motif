@@ -1,3 +1,10 @@
+Bound DataField drop-transfer lengths (2026-10-27)
+==================================================
+
+- Reject oversized selection payloads before narrowing them to the DataField
+  `int` text API, and bound wide-character allocation/conversion results.
+- Add a focused source regression and documentation.
+
 Bound XmString unparse conversion lengths (2026-10-27)
 =======================================================
 
