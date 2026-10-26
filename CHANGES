@@ -1,3 +1,11 @@
+IconLabel render-table typography and natural geometry (2026-10-27)
+====================================================================
+
+- Draw icon labels through measured render-table strings and honor configured
+  fonts, including right-to-left layout. Natural width and height now use the
+  requested geometry rather than the primitive superclass's post-default
+  six-pixel dimensions.
+
 Calendar render-table typography (2026-10-27)
 ==============================================
 

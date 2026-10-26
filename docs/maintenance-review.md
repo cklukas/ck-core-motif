@@ -27,6 +27,14 @@ geometry. This removes the fixed-core-font paths while preserving date
 selection and navigation. The regression check is
 `tests/automated/check-calendar-render-table.py`.
 
+## IconLabel typography and natural geometry
+
+`XmIconLabel` now measures its `XmString` through the render table for both
+layout and drawing, preserving right-to-left placement. When dimensions are
+omitted, initialization derives natural geometry from the original requested
+size before the primitive superclass's minimum defaults can mask it. The
+regression check is `tests/automated/check-iconlabel-render-table.py`.
+
 The first widget review was a bounded starting point. The age of the inherited
 code is a reason to continue targeted maintenance; neither a short patch list
 nor a large test count establishes that the toolkit is finished.

@@ -17,6 +17,17 @@ static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
 
 #define Offset(field) XtOffsetOf(XmIconLabelRec, field)
+static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
+{
+    XmIconLabelWidget label = (XmIconLabelWidget)widget;
+    (void)offset;
+    if (label->icon_label.check_set_render_table)
+        value->addr = NULL;
+    else {
+        label->icon_label.check_set_render_table = True;
+        value->addr = (char *)&label->icon_label.render_table;
+    }
+}
 static XtResource resources[] = {
     {XmNiconLabelLabel, XmCIconLabelLabel, XmRXmString, sizeof(XmString),
      Offset(icon_label.label), XmRImmediate, (XtPointer)NULL},
@@ -24,6 +35,10 @@ static XtResource resources[] = {
      Offset(icon_label.pixmap), XmRImmediate, (XtPointer)XmUNSPECIFIED_PIXMAP},
     {XmNiconLabelSpacing, XmCIconLabelSpacing, XmRHorizontalDimension,
      sizeof(Dimension), Offset(icon_label.spacing), XmRImmediate, (XtPointer)6},
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmFontList),
+     Offset(icon_label.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmFontList),
+     Offset(icon_label.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean),
      Offset(primitive.traversal_on), XmRImmediate, (XtPointer)False}
 };
@@ -55,13 +70,10 @@ static XmString copy_label(XmString source) {
 }
 
 static Dimension text_width(XmIconLabelWidget label) {
-    char *text = XmStringUnparse(label->icon_label.label, NULL,
-                                 XmCHARSET_TEXT, XmCHARSET_TEXT, NULL, 0,
-                                 XmOUTPUT_ALL);
-    size_t length = text ? strlen(text) : 0;
-    Dimension width = length > (USHRT_MAX / 8) ? USHRT_MAX :
-                      (Dimension)(length * 8);
-    XtFree(text);
+    Dimension width = 0, height = 0;
+    if (label->icon_label.render_table && label->icon_label.label)
+        XmStringExtent(label->icon_label.render_table, label->icon_label.label,
+                       &width, &height);
     return width;
 }
 
@@ -99,21 +111,32 @@ static void Initialize(Widget request, Widget widget, ArgList args,
                        Cardinal *count) {
     XmIconLabelWidget label = (XmIconLabelWidget)widget;
     XGCValues values;
-    (void)request; (void)args; (void)count;
+    (void)args; (void)count;
     label->icon_label.label = copy_label(label->icon_label.label);
+    if (!label->icon_label.render_table)
+        label->icon_label.render_table = XmFontListCopy(
+            XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+    else
+        label->icon_label.render_table = XmFontListCopy(label->icon_label.render_table);
     values.foreground = label->primitive.foreground;
     values.background = label->core.background_pixel;
     label->icon_label.foreground_gc = XCreateGC(
         XtDisplay(widget), DefaultRootWindow(XtDisplay(widget)),
         GCForeground | GCBackground, &values);
-    if (!label->core.width || !label->core.height)
-        dimensions(label, &label->core.width, &label->core.height);
+    if (!request->core.width || !request->core.height) {
+        Dimension width, height;
+        dimensions(label, &width, &height);
+        if (!request->core.width) label->core.width = width;
+        if (!request->core.height) label->core.height = height;
+    }
 }
 
 static void Destroy(Widget widget) {
     XmIconLabelWidget label = (XmIconLabelWidget)widget;
     if (label->icon_label.foreground_gc)
         XFreeGC(XtDisplay(widget), label->icon_label.foreground_gc);
+    if (label->icon_label.render_table)
+        XmRenderTableFree(label->icon_label.render_table);
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {
@@ -121,25 +144,28 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Display *display = XtDisplay(widget);
     Window window = XtWindow(widget);
     unsigned int icon_width = 0, icon_height = 0;
-    Dimension text = text_width(label);
     Boolean have_icon = pixmap_size(label, &icon_width, &icon_height);
     XmDirection direction = XmLEFT_TO_RIGHT;
-    char *value;
+    XmString value;
+    Dimension value_width = 0, value_height = 0;
     int x, y;
     (void)event; (void)region;
     if (!window) return;
     XtVaGetValues(widget, XmNlayoutDirection, &direction, NULL);
     XClearWindow(display, window);
-    value = XmStringUnparse(label->icon_label.label, NULL, XmCHARSET_TEXT,
-                            XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
-    y = ((int)label->core.height - 16) / 2 + 12;
+    value = label->icon_label.label;
+    if (value && label->icon_label.render_table)
+        XmStringExtent(label->icon_label.render_table, value,
+                       &value_width, &value_height);
+    y = ((int)label->core.height - (int)value_height) / 2;
     if (XmDirectionMatchPartial(direction, XmRIGHT_TO_LEFT,
                                 XmHORIZONTAL_MASK)) {
         x = (int)label->core.width - 6;
         if (value) {
-            x -= (int)text;
-            XDrawString(display, window, label->icon_label.foreground_gc,
-                        x, y, value, (int)strlen(value));
+            x -= (int)value_width;
+            XmStringDraw(display, window, label->icon_label.render_table, value,
+                         label->icon_label.foreground_gc, x, y, value_width,
+                         XmALIGNMENT_BEGINNING, XmPrim_layout_direction(label), NULL);
         }
         if (have_icon)
             XCopyArea(display, label->icon_label.pixmap, window,
@@ -157,10 +183,10 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             x += (int)icon_width + (int)label->icon_label.spacing;
         }
         if (value)
-            XDrawString(display, window, label->icon_label.foreground_gc,
-                        x, y, value, (int)strlen(value));
+            XmStringDraw(display, window, label->icon_label.render_table, value,
+                         label->icon_label.foreground_gc, x, y, value_width,
+                         XmALIGNMENT_BEGINNING, XmPrim_layout_direction(label), NULL);
     }
-    XtFree(value);
 }
 
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
@@ -170,6 +196,14 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     (void)request; (void)args; (void)count;
     if (old->icon_label.label != label->icon_label.label)
         label->icon_label.label = copy_label(label->icon_label.label);
+    if (old->icon_label.render_table != label->icon_label.render_table) {
+        XmFontList replacement = label->icon_label.render_table
+            ? XmFontListCopy(label->icon_label.render_table)
+            : XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+        if (old->icon_label.render_table)
+            XmRenderTableFree(old->icon_label.render_table);
+        label->icon_label.render_table = replacement;
+    }
     return old->icon_label.label != label->icon_label.label ||
            old->icon_label.pixmap != label->icon_label.pixmap ||
            old->icon_label.spacing != label->icon_label.spacing;

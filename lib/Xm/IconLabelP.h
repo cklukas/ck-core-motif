@@ -15,6 +15,8 @@ typedef struct _XmIconLabelPart {
     XmString label;
     Pixmap pixmap;
     Dimension spacing;
+    XmFontList render_table;
+    Boolean check_set_render_table;
     GC foreground_gc;
 } XmIconLabelPart;
 
