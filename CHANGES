@@ -21352,3 +21352,9 @@ GetHighlightGC now validates the screen record and top-level widget before
 requesting an Xt GC. Resource setup failures return NULL cleanly for callers
 that already handle unavailable graphics contexts.
 
+Guard MWM outline drawing after XOR-GC failure (2026-10-26)
+------------------------------------------------------------
+FlashOutline and DrawOutline now skip temporary outline painting when screen
+initialization could not provide an XOR graphics context. This avoids issuing
+BadGC requests after an XCreateGC failure while preserving normal outlines.
+

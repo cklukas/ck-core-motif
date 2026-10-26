@@ -1562,6 +1562,10 @@ void FlashOutline (int x, int y, unsigned int width, unsigned int height)
 {
     static XSegment  outline[SEGS_PER_FLASH];
 
+    /* The XOR GC is optional when screen resource initialization fails. */
+    if (ACTIVE_PSD == NULL || ACTIVE_PSD->xorGC == (GC)NULL)
+	return;
+
     /*
      * Do nothing if no box to draw 
      */
@@ -1829,6 +1833,10 @@ void DrawOutline (int x, int y, unsigned int width, unsigned int height)
     static int  lastOutlineWidth = 0;
     static int  lastOutlineHeight = 0;
     XSegment  outline[SEGS_PER_DRAW];
+
+    /* Do not issue X drawing requests with an unavailable XOR GC. */
+    if (ACTIVE_PSD == NULL || ACTIVE_PSD->xorGC == (GC)NULL)
+	return;
 
 
     if (x == lastOutlineX && y == lastOutlineY && 
