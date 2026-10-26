@@ -1,3 +1,10 @@
+Bound MWM screen-name allocation length (2026-10-27)
+====================================================
+
+- Keep the screen-name length wide until it is checked against the Xt
+  `Cardinal` allocation limit, avoiding an intermediate `int` truncation.
+- Add a focused MWM source regression and documentation.
+
 Outline every gallery view tab (2026-10-27)
 ===========================================
 

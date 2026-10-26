@@ -1359,7 +1359,7 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 #ifdef WSM
     int wsnum;
     WmWorkspaceData *pwsI;
-    int buf_size;
+    size_t buf_size;
     int i;
     static int dupnum = 0;
     int iwsx;
@@ -1476,9 +1476,15 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 	sprintf (buffer, "%d", sNum);
 
 	buf_size = strlen(buffer) + 1;
+	if (buf_size > UINT_MAX)
+	{
+	    Warning (((char *)GETMESSAGE(40, 7,
+					"Screen name is too long")));
+	    ExitWM (WM_ERROR_EXIT_VALUE);
+	}
 
 	if ((wmGD.screenNames[sNum] = 
-	     (unsigned char *)XtRealloc (wmGD.screenNames[sNum], buf_size)) == NULL)
+	     (unsigned char *)XtRealloc (wmGD.screenNames[sNum], (Cardinal)buf_size)) == NULL)
 	{
 	    Warning (((char *)GETMESSAGE(40, 7, "Cannot create enough memory for the screen names")));
 	    ExitWM (WM_ERROR_EXIT_VALUE);
