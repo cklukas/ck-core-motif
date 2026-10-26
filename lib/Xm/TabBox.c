@@ -868,7 +868,8 @@ Realize(Widget widget, XtValueMask *value_mask,
 	gcMask |= GCFont;
     }
     /* CR03128 */
-    XmTabBox__tab_GC(tb) = XmTabBox__text_GC(tb) = XtGetGC(widget, gcMask, &gcValues);
+    XmTabBox__tab_GC(tb) = XmTabBox__text_GC(tb) =
+        XCreateGC(XtDisplay(widget), XtWindow(widget), gcMask, &gcValues);
 }
 
 static void
@@ -904,7 +905,7 @@ Destroy(widget)
 	FreeImageCache(tab);
     }
     /* CR03218 */
-    if(XmTabBox__tab_GC(tab)) XtReleaseGC((Widget)tab, XmTabBox__tab_GC(tab));
+    if(XmTabBox__tab_GC(tab)) XFreeGC(XtDisplay(tab), XmTabBox__tab_GC(tab));
 
     XtFree((XtPointer) XmTabBox__actual(tab));
     XtFree((XtPointer) XmTabBox__wanted(tab));
@@ -950,31 +951,24 @@ Redisplay(widget, event, region)
     GC               gc = XmTabBox__tab_GC(tab);
     Pixel            pixel = tab->core.background_pixel;
     Pixmap           pixmap = tab->core.background_pixmap;
-    XGCValues gcValues; /* CR03218 begin */
-    Boolean getNewGC = False;
-    if(gc)
-    {
-      XGetGCValues(XtDisplay(widget), gc, GCBackground, &gcValues);
-      if (tab->core.background_pixel != gcValues.background)
-      {
-        XtReleaseGC(widget, gc);
-        getNewGC = True;
-      }
+    XGCValues gcValues;
+    XFontStruct *font = NULL;
+    XtGCMask gcMask = GCBackground;
+
+    /* Tab drawing mutates colors, clipping and fill styles. This GC belongs
+     * to the TabBox; sharing an Xt cached GC would alter other consumers.
+     * Update it in place so this redisplay never uses a released local GC. */
+    XmeRenderTableGetDefaultFont(XmTabBox_font_list(tab), &font);
+    gcValues.background = tab->core.background_pixel;
+    if (font) {
+        gcValues.font = font->fid;
+        gcMask |= GCFont;
     }
-    else getNewGC = True;
-    if (getNewGC)
-    {
-      XFontStruct *font = NULL;
-      XtGCMask    gcMask;
-      XmeRenderTableGetDefaultFont(XmTabBox_font_list(tab), &font);
-      gcValues.background = tab->core.background_pixel;
-      gcMask = GCBackground;
-      if (font) {
-          gcValues.font = font->fid;
-	  gcMask |= GCFont;
-      }
-      XmTabBox__tab_GC(tab) = XmTabBox__text_GC(tab) = XtGetGC((Widget)tab, gcMask, &gcValues);
-    } /* CR03218 end */
+    if (gc)
+        XChangeGC(XtDisplay(tab), gc, gcMask, &gcValues);
+    else
+        gc = XCreateGC(XtDisplay(tab), XtWindow(tab), gcMask, &gcValues);
+    XmTabBox__tab_GC(tab) = XmTabBox__text_GC(tab) = gc;
     if( XmTabBox__inited(tab) == False ) return;
 
     /*
@@ -1342,7 +1336,7 @@ SetValues(current, request, set, arg_list, arg_cnt)
 	{
 	    sfield(font_list) = XmeGetDefaultRenderTable(set, XmLABEL_FONTLIST);
 	}
-	sfield(font_list) == XmFontListCopy(sfield(font_list));
+	sfield(font_list) = XmFontListCopy(sfield(font_list));
 	need_layout = True;
 	need_resize = True;
     }
