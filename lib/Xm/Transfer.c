@@ -1007,8 +1007,16 @@ ClipboardCallback(Widget w, long *data_id, long *target, int *reason)
   cc = LookupContextBlock(XtDisplay(w), CLIPBOARD);
 
   _XmProcessLock();
+  if (data_id == NULL || DataIdDictionary == NULL) {
+    _XmProcessUnlock();
+    return;
+  }
   req = (SnapshotRequest) _XmGetHashEntry(DataIdDictionary,
 					  (XmHashKey) *data_id);
+  if (req == NULL) {
+    _XmProcessUnlock();
+    return;
+  }
   /* Decrement count and remove this association */
   req -> outstanding--;
   _XmRemoveHashEntry(DataIdDictionary, (XtPointer)data_id);

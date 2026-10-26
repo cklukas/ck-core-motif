@@ -15542,3 +15542,11 @@ Guard transfer callback context lookups (2026-10-27)
 - Add a focused source regression and documentation.
 
 Guard transfer-context lookup failures (2026-10-27)
+Guard deferred clipboard snapshot callbacks (2026-10-27)
+==========================================================
+
+- Check callback identifiers, the snapshot dictionary, and lookup results
+  before updating deferred clipboard state.
+- Add a focused source regression and documentation.
+
+Guard transfer callback context lookups (2026-10-27)
