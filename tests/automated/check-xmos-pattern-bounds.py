@@ -11,5 +11,7 @@ assert "pattern_len > (SIZE_MAX / 2) - 4" in region
 assert "XtCalloc(2, (Cardinal)(pattern_len + 4))" in region
 assert "if (outputBuf == NULL)" in region
 assert "if (outputBuf == NULL)\n    return NULL;" in region
+assert "memcpy(bufPtr, pattern, (size_t)len);" in region
+assert "strncpy(bufPtr, pattern, len);" not in region
 assert "XtCalloc(2, strlen(pattern) + 4)" not in region
 print("Xmos pattern conversion guards input and allocation arithmetic")

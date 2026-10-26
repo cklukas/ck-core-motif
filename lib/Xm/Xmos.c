@@ -683,7 +683,7 @@ GetFixedMatchPattern(String pattern)
 	} 
       else
 	{
-	  strncpy(bufPtr, pattern, len);
+	  memcpy(bufPtr, pattern, (size_t)len);
 	  bufPtr += len;
 	  pattern += len;
 	  lastchar = '\0';

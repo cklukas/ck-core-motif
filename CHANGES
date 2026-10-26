@@ -21726,3 +21726,10 @@ Make directory-cache allocation narrowing explicit (2026-10-26)
   `Cardinal` type before allocation.
 - Extend the cache-bound regression assertion and documentation.
 
+Use validated multibyte lengths for Xmos pattern copies (2026-10-26)
+====================================================================
+
+- Copy multibyte pattern segments with the positive length returned by
+  `mblen`, avoiding an implicit signed-to-`size_t` conversion.
+- Extend the pattern-bound regression assertion and documentation.
+
