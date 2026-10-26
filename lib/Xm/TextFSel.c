@@ -752,6 +752,8 @@ _XmTextFieldLoseSelection(
         Widget w,
         Atom *selection )
 {
+    if (w == NULL || selection == NULL || *selection == None)
+        return;
     XmTextFieldWidget tf = (XmTextFieldWidget) w;
     Atom MOTIF_DESTINATION = XInternAtom(XtDisplay(w),
                                         XmS_MOTIF_DESTINATION, False);

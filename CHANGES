@@ -22465,3 +22465,11 @@ Validate DnD transfer callback inputs (2026-10-26)
 - Fail malformed requests safely and add focused coverage and documentation.
 
 Report text DnD conversion failures (2026-10-26)
+Guard Text selection-loss callbacks (2026-10-26)
+================================================
+
+- Validate widget and selection-atom inputs in Text and TextField owner-loss
+  callbacks before display or selection state access.
+- Add focused coverage and documentation for teardown-time callbacks.
+
+Validate DnD transfer callback inputs (2026-10-26)

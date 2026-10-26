@@ -750,6 +750,8 @@ _XmTextLoseSelection(
         Widget w,
         Atom *selection )
 {
+  if (w == NULL || selection == NULL || *selection == None)
+    return;
   XmTextWidget tw = (XmTextWidget) w;
   XmTextSource source = tw->text.source;
   Atom MOTIF_DESTINATION = XInternAtom(XtDisplay(w),
