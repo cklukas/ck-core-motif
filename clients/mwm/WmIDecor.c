@@ -1534,6 +1534,10 @@ void ReparentIconWindow (ClientData *pcd, int xOffset, int yOffset)
     XWindowChanges windowChanges;
     unsigned int mask;
 
+    if (pcd == NULL || pcd->iconWindow == None ||
+	ICON_FRAME_WIN(pcd) == None)
+	return;
+
 #ifdef PANELIST
     if (!pcd->pECD)
     {
@@ -1541,8 +1545,9 @@ void ReparentIconWindow (ClientData *pcd, int xOffset, int yOffset)
     /*
      * Check if window size is too big
      */
-    XGetGeometry (DISPLAY, pcd->iconWindow, &root, &x, &y, &width, &height, 
-		  &bw, &depth);
+    if (!XGetGeometry (DISPLAY, pcd->iconWindow, &root, &x, &y, &width,
+		       &height, &bw, &depth))
+	return;
 
     /*
      * strip off previous window border and set window geometry to 
