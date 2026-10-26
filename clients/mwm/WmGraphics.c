@@ -1248,7 +1248,14 @@ void WmInstallBitmapIntoXmCache (unsigned char *pchName,
 {
     XImage *pImage;
 
+    if (DISPLAY == NULL || pchName == NULL || bitmap == None ||
+	width == 0 || height == 0)
+	return;
+
     pImage = XGetImage (DISPLAY, bitmap, 0, 0, width, height, 1L, XYBitmap);
+
+    if (pImage == NULL)
+	return;
 
     XmInstallImage (pImage, (char *)pchName);
 } /* END OF FUNCTION WmInstallBitmapIntoXmCache */

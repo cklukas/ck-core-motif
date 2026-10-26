@@ -21316,3 +21316,9 @@ WmGraphics.c now includes the standard integer-limit header required by its
 checked ExtendRList arithmetic, making strict standalone compilation portable
 across toolchains that do not expose SIZE_MAX transitively.
 
+Guard WSM bitmap-cache image installation (2026-10-26)
+--------------------------------------------------------
+WmInstallBitmapIntoXmCache now validates the display, name, bitmap dimensions,
+and XGetImage result before installing an image. Missing or failed bitmap
+resources no longer reach XmInstallImage as invalid pointers.
+
