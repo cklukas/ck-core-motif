@@ -17487,3 +17487,13 @@ Handle FileSB qualified-path failure (2026-10-27)
 =========================================================
 
 Propagate compound-text concatenation failures (2026-10-27)
+Handle SpinBox numeric formatter allocation failure (2026-10-27)
+===============================================================
+
+- Check SpinBox numeric display buffer sizing and allocation before writing
+  formatted digits.
+- Add focused regression coverage and documentation.
+
+=========================================================
+
+Handle FileSB qualified-path failure (2026-10-27)

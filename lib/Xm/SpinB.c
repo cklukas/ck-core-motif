@@ -1901,16 +1901,30 @@ NumToString(char **buffer, int decimal, int value)
   unsigned int magnitude = (value < 0) ? 0U - (unsigned int)value :
                                         (unsigned int)value;
   size_t length, whole, padding, radix_length;
+  size_t allocation_size;
   char *out;
 
+  if (buffer == NULL)
+    return;
+  *buffer = NULL;
   if (decimal < 0) decimal = 0;
   snprintf(digits, sizeof(digits), "%u", magnitude);
   length = strlen(digits);
   whole = (length > (size_t)decimal) ? length - decimal : 0;
   padding = (length < (size_t)decimal) ? decimal - length : 0;
   radix_length = decimal ? strlen(radix) : 0;
-  *buffer = XtMalloc((value < 0) + (whole ? whole : 1) + radix_length +
-                     decimal + 1);
+  if ((size_t)(value < 0) > SIZE_MAX - (whole ? whole : 1) ||
+      (size_t)(value < 0) + (whole ? whole : 1) > SIZE_MAX - radix_length ||
+      (size_t)(value < 0) + (whole ? whole : 1) + radix_length >
+          SIZE_MAX - (size_t)decimal - 1)
+    return;
+  allocation_size = (size_t)(value < 0) + (whole ? whole : 1) +
+                    radix_length + (size_t)decimal + 1;
+  if (allocation_size > (size_t)UINT_MAX)
+    return;
+  *buffer = XtMalloc((Cardinal)allocation_size);
+  if (*buffer == NULL)
+    return;
   out = *buffer;
   if (value < 0) *out++ = '-';
   if (whole) {
