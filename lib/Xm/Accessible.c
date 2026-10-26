@@ -76,23 +76,27 @@ static void list_changed(Widget, XtPointer, XtPointer);
 static XmAccessibleId focused_identity(XmAccessibility *);
 static int bounded_text_length(const char *text) {
   const unsigned char *p = (const unsigned char *)text;
+  size_t remaining = text ? strlen(text) : 0;
   size_t count = 0;
-  while (p && *p) {
+  while (p && remaining) {
     uint32_t scalar;
     size_t width;
     if (*p < 0x80) {
       scalar = *p; width = 1;
-    } else if (*p >= 0xc2 && *p <= 0xdf && p[1] >= 0x80 && p[1] <= 0xbf) {
+    } else if (remaining >= 2 && *p >= 0xc2 && *p <= 0xdf &&
+               p[1] >= 0x80 && p[1] <= 0xbf) {
       scalar = ((uint32_t)(*p & 0x1f) << 6) | (uint32_t)(p[1] & 0x3f);
       width = 2;
-    } else if (*p >= 0xe0 && *p <= 0xef && p[1] >= 0x80 && p[1] <= 0xbf &&
+    } else if (remaining >= 3 && *p >= 0xe0 && *p <= 0xef &&
+               p[1] >= 0x80 && p[1] <= 0xbf &&
                p[2] >= 0x80 && p[2] <= 0xbf &&
                !(*p == 0xe0 && p[1] < 0xa0) &&
                !(*p == 0xed && p[1] >= 0xa0)) {
       scalar = ((uint32_t)(*p & 0x0f) << 12) |
                ((uint32_t)(p[1] & 0x3f) << 6) | (uint32_t)(p[2] & 0x3f);
       width = 3;
-    } else if (*p >= 0xf0 && *p <= 0xf4 && p[1] >= 0x80 && p[1] <= 0xbf &&
+    } else if (remaining >= 4 && *p >= 0xf0 && *p <= 0xf4 &&
+               p[1] >= 0x80 && p[1] <= 0xbf &&
                p[2] >= 0x80 && p[2] <= 0xbf && p[3] >= 0x80 && p[3] <= 0xbf &&
                !(*p == 0xf0 && p[1] < 0x90) &&
                !(*p == 0xf4 && p[1] >= 0x90)) {
@@ -107,6 +111,7 @@ static int bounded_text_length(const char *text) {
     if (count == (size_t)INT_MAX) return INT_MAX;
     ++count;
     p += width;
+    remaining -= width;
   }
   return (int)count;
 }

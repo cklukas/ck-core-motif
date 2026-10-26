@@ -9,6 +9,10 @@ end = source.index("/* Live-object indexes", start)
 body = source[start:end]
 required = (
     "const unsigned char *p",
+    "size_t remaining = text ? strlen(text) : 0;",
+    "remaining >= 2",
+    "remaining >= 3",
+    "remaining >= 4",
     "p[1] >= 0x80",
     "p[2] >= 0x80",
     "p[3] >= 0x80",
@@ -17,7 +21,7 @@ required = (
 missing = [item for item in required if item not in body]
 if missing:
     raise SystemExit("accessible UTF-8 scalar counter incomplete: " + ", ".join(missing))
-if "strlen(text)" in body:
-    raise SystemExit("accessible text length still counts UTF-8 bytes")
+if "size_t length = text ? strlen(text) : 0" in body:
+    raise SystemExit("accessible text length still returns UTF-8 byte length")
 
 print("PASS accessibility text length counts UTF-8 scalars")
