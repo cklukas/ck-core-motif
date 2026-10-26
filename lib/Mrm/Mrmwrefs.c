@@ -482,7 +482,9 @@ Urm__CW_AppendCBSVWidgetRef (IDBFile			file_id,
 
   if (cbptr == NULL || cbptr->count < 0 ||
       (size_t)cbptr->count >
-	  (SIZE_MAX - sizeof(RGMCallbackDesc)) / sizeof(RGMCallbackItem))
+	  (SIZE_MAX - sizeof(RGMCallbackDesc)) / sizeof(RGMCallbackItem) ||
+      (size_t)cbptr->count >
+	  ((size_t)UINT_MAX - sizeof(RGMCallbackDesc)) / sizeof(RGMCallbackItem))
     {
       Urm__UT_Error ("Urm__CW_AppendCBSVWidgetRef", _MrmMMsg_0048,
 			     NULL, NULL, MrmFAILURE);

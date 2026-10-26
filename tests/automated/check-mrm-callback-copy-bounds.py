@@ -14,6 +14,7 @@ for needle in (
     "cbptr->count < 0",
     "(size_t)cbptr->count",
     "SIZE_MAX - sizeof(RGMCallbackDesc)",
+    "(size_t)UINT_MAX - sizeof(RGMCallbackDesc)",
     "sizeof(RGMCallbackItem)",
     "size_t\t\tdescsize",
 ):

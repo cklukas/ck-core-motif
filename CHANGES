@@ -1,3 +1,12 @@
+Bound Mrm callback-copy allocation width (2026-10-27)
+======================================================
+
+- Reject callback descriptor totals that exceed Xt's `Cardinal` width in
+  addition to existing host-size checks.
+- Extend the focused callback-copy regression and documentation.
+
+============================================================
+
 Guard public part-offset resolution allocation (2026-10-27)
 ============================================================
 
