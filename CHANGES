@@ -15510,3 +15510,11 @@ Handle drop-site manager allocation failure (2026-10-27)
 - Add a focused source regression and documentation.
 
 Guard drag motion after receiver allocation failure (2026-10-27)
+Guard drag selection request lookups (2026-10-27)
+==================================================
+
+- Check selection-request event lookups in both drag conversion callbacks
+  before reading their timestamps.
+- Add a focused source regression and documentation.
+
+Handle drop-site manager allocation failure (2026-10-27)

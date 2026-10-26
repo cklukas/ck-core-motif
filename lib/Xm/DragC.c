@@ -1525,11 +1525,15 @@ DropConvertIncrCallback(
 
     XmDragContext	dc;
     Time		dropTime;
+    XSelectionRequestEvent *request;
     Boolean 		returnVal = True;
     Boolean 		success;
     Atom		atoms[XtNumber(atom_names)];
 
-    dropTime = XtGetSelectionRequest(w, *selection, requestID)->time;
+    request = XtGetSelectionRequest(w, *selection, requestID);
+    if (request == NULL)
+	return False;
+    dropTime = request->time;
 
     if (!(dc = (XmDragContext)
 	  _XmGetDragContextFromHandle(w, *selection))) {
@@ -1631,11 +1635,15 @@ DropConvertCallback(
 
     XmDragContext	dc;
     Time		dropTime;
+    XSelectionRequestEvent *request;
     Boolean 		returnVal = True;
     Boolean		success;
     Atom		atoms[XtNumber(atom_names)];
 
-    dropTime = XtGetSelectionRequest(w, *selection, NULL)->time;
+    request = XtGetSelectionRequest(w, *selection, NULL);
+    if (request == NULL)
+	return False;
+    dropTime = request->time;
 
     if (!(dc = (XmDragContext)
 	  _XmGetDragContextFromHandle(w, *selection))) {
