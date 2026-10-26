@@ -5494,18 +5494,20 @@ GetNextLine (void)
 	    }
 	    string = line;
 #else
-	    len = strlen((char *)string) - 2;
-	    if ((len > 0) && string[len] == '\\')
 	    {
+		size_t line_length = strlen((char *)string);
+		if (line_length >= 2 && string[line_length - 2] == '\\')
+		{
 		do {
-		    string = &string[len];
+		    string = &string[line_length - 2];
 		    if (fgets((char *)string, 
 		 	      MAXLINE - (string-line), cfileP) == NULL)
 		       break;
-		    len = strlen((char *)string) - 2;
+		    line_length = strlen((char *)string);
 		    linec++;
-		} while ((len >= 0) && string[len] == '\\');
+		} while (line_length >= 2 && string[line_length - 2] == '\\');
 		string = line;
+		}
 	    }
 #endif
 	}

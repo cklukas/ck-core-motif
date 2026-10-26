@@ -21606,3 +21606,10 @@ Bound MWM action metadata construction (2026-10-26)
   without writing through a null or undersized buffer.
 - Add focused regression coverage and documentation.
 
+Guard MWM short configuration lines (2026-10-26)
+================================================
+
+- Require a two-character line suffix before checking for a non-multibyte
+  continuation backslash, avoiding `strlen` subtraction underflow.
+- Add focused regression coverage and documentation.
+
