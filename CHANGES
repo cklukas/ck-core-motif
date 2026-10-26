@@ -23029,6 +23029,14 @@ Copy TextStrSo wide callback values before conversion (2026-10-26)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textstrso-wide-callback-copy.py
 
+Guard Unicode paragraph source pointers (2026-10-26)
+=====================================================
+
+- Reject a progressing text-source read that returns a null block pointer
+  before the Unicode paragraph cache copies it.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textout-unicode-paragraph-pointer.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

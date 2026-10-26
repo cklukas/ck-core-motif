@@ -829,7 +829,12 @@ UnicodeParagraph(XmTextWidget tw, XmTextPosition start)
     at = paragraph_start;
     while (at < end) {
       XmTextPosition next = (*tw->text.source->ReadSource)(tw->text.source, at, end, &block);
-      if (next <= at || block.length < 0 || (size_t)block.length >= capacity - length) { XtFree(utf8); return NULL; }
+      if (next <= at || block.length < 0 ||
+          (block.length > 0 && block.ptr == NULL) ||
+          (size_t)block.length >= capacity - length) {
+        XtFree(utf8);
+        return NULL;
+      }
       memcpy(utf8 + length, block.ptr, (size_t)block.length); length += (size_t)block.length; at = next;
     }
     utf8[length] = '\0';
