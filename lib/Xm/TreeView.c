@@ -572,7 +572,7 @@ void XmTreeViewSetNodes(Widget widget, const XmTreeViewNode *nodes,
     XmTreeViewItem *items;
     Cardinal i;
     XtPointer selected;
-    if (!XmIsTreeView(widget) || count > TREE_VIEW_MAX_NODES ||
+    if (widget == NULL || !XmIsTreeView(widget) || count > TREE_VIEW_MAX_NODES ||
         !valid_input(nodes, count))
         return;
     view = (XmTreeViewWidget)widget;
@@ -605,17 +605,18 @@ void XmTreeViewSetNodes(Widget widget, const XmTreeViewNode *nodes,
 }
 
 Cardinal XmTreeViewGetNodeCount(Widget widget) {
-    return XmIsTreeView(widget) ? ((XmTreeViewWidget)widget)->tree_view.count : 0;
+    return widget != NULL && XmIsTreeView(widget)
+        ? ((XmTreeViewWidget)widget)->tree_view.count : 0;
 }
 
 XtPointer XmTreeViewGetSelectedId(Widget widget) {
-    return XmIsTreeView(widget) ?
+    return widget != NULL && XmIsTreeView(widget) ?
         ((XmTreeViewWidget)widget)->tree_view.selected_id : NULL;
 }
 
 void XmTreeViewSetSelectedId(Widget widget, XtPointer id,
                              Boolean notify_change) {
-    if (XmIsTreeView(widget))
+    if (widget != NULL && XmIsTreeView(widget))
         select_id((XmTreeViewWidget)widget, id, notify_change, NULL);
 }
 
@@ -623,7 +624,7 @@ Boolean XmTreeViewSetExpanded(Widget widget, XtPointer id, Boolean expanded,
                               Boolean notify_change) {
     XmTreeViewWidget view;
     int index;
-    if (!XmIsTreeView(widget))
+    if (widget == NULL || !XmIsTreeView(widget))
         return False;
     view = (XmTreeViewWidget)widget;
     index = find_id(view, id);
@@ -636,7 +637,7 @@ Boolean XmTreeViewSetExpanded(Widget widget, XtPointer id, Boolean expanded,
 Boolean XmTreeViewGetExpanded(Widget widget, XtPointer id) {
     XmTreeViewWidget view;
     int index;
-    if (!XmIsTreeView(widget))
+    if (widget == NULL || !XmIsTreeView(widget))
         return False;
     view = (XmTreeViewWidget)widget;
     index = find_id(view, id);
@@ -646,7 +647,7 @@ Boolean XmTreeViewGetExpanded(Widget widget, XtPointer id) {
 void XmTreeViewSetTopRow(Widget widget, Cardinal top_row) {
     XmTreeViewWidget view;
     Cardinal total;
-    if (!XmIsTreeView(widget))
+    if (widget == NULL || !XmIsTreeView(widget))
         return;
     view = (XmTreeViewWidget)widget;
     total = visible_count(view);
@@ -657,5 +658,6 @@ void XmTreeViewSetTopRow(Widget widget, Cardinal top_row) {
 }
 
 Cardinal XmTreeViewGetTopRow(Widget widget) {
-    return XmIsTreeView(widget) ? ((XmTreeViewWidget)widget)->tree_view.top_row : 0;
+    return widget != NULL && XmIsTreeView(widget)
+        ? ((XmTreeViewWidget)widget)->tree_view.top_row : 0;
 }
