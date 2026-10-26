@@ -1181,8 +1181,8 @@ GetMwmMenuItems(
     else
     /* parse the property string */
     {
-	char **textList;
-	int nItems;
+	char **textList = NULL;
+	int nItems = 0;
 
 	if (XmbTextPropertyToTextList(DISPLAY, &textProperty,
 				      &textList, &nItems) != Success)

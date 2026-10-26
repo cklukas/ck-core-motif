@@ -21692,3 +21692,10 @@ Clean up empty MWM menu conversions (2026-10-26)
   results rejected by the menu parser.
 - Extend the menu-conversion regression coverage and documentation.
 
+Initialize MWM menu conversion outputs (2026-10-26)
+===================================================
+
+- Initialize Xmb conversion result variables before conversion so empty or
+  unusual failure results follow deterministic cleanup paths.
+- Extend the menu-conversion regression coverage and documentation.
+
