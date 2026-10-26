@@ -22343,3 +22343,11 @@ Guard image-cache color callback inputs (2026-10-26)
 - Add focused regression coverage and documentation for malformed image paths.
 
 Guard optional conversion trait procedure (2026-10-26)
+Guard image-scaling helper output pointers (2026-10-26)
+=======================================================
+
+- Reject null output pointers in `XmRoundScaled` and `XmScaledDimension`
+  before writing scaled dimensions.
+- Add focused regression coverage and documentation.
+
+Guard image-cache color callback inputs (2026-10-26)

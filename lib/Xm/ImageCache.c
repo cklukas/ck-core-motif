@@ -2487,7 +2487,7 @@ XmRoundScaled(double value, unsigned int *rounded)
 {
     double result;
 
-    if (!isfinite(value) || value <= 0.0)
+    if (rounded == NULL || !isfinite(value) || value <= 0.0)
 	return False;
     result = value + 0.5;
     if (!isfinite(result) || result > (double)UINT_MAX)
@@ -2501,7 +2501,7 @@ XmScaledDimension(unsigned int source, double ratio, Dimension *dimension)
 {
     unsigned int scaled;
 
-    if (!XmRoundScaled((double)source * ratio, &scaled) ||
+    if (dimension == NULL || !XmRoundScaled((double)source * ratio, &scaled) ||
 	scaled > (unsigned int)((Dimension)~0))
 	return False;
     *dimension = (Dimension)scaled;
