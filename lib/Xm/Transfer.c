@@ -2469,6 +2469,15 @@ XmeStandardConvert(Widget w,
     for(current = w; current != (Widget) NULL; current = XtParent(current))
       if (XtIsShell(current)) break;
 
+    if (current == NULL) {
+      XtFree((char *)cw);
+      cs -> value = NULL;
+      cs -> format = 32;
+      cs -> length = 0;
+      cs -> type = XA_WINDOW;
+      _XmAppUnlock(app);
+      return;
+    }
     *cw = XtWindow(current);
     cs -> value = (XtPointer) cw;
     cs -> format = 32;

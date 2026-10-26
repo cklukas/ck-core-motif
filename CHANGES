@@ -18943,3 +18943,13 @@ Guard transfer-context API inputs (2026-10-27)
 ============================================================
 
 Guard transfer source/sink entry inputs (2026-10-27)
+Guard transfer client-window conversion ancestry (2026-10-27)
+==============================================================
+
+- Reject missing shell ancestry before dereferencing the client-window
+  conversion target's temporary result.
+- Add focused regression coverage and documentation.
+
+============================================================
+
+Guard transfer-context API inputs (2026-10-27)
