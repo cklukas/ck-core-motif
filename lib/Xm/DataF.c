@@ -1813,12 +1813,18 @@ df_GetTextFDestData(
        Widget xm_display = (Widget) XmGetXmDisplay(display);
 
        ctx_data = (XmTextContextData) XtMalloc(sizeof(XmTextContextDataRec));
+       if (ctx_data == NULL)
+           return NULL;
 
        ctx_data->screen = screen;
        ctx_data->context = _XmDataFDestContext;
        ctx_data->type = _XM_IS_DEST_CTX;
 
        dest_data = (TextFDestData) XtCalloc(1, sizeof(TextFDestDataRec));
+       if (dest_data == NULL) {
+           XtFree((char *)ctx_data);
+           return NULL;
+       }
 
        XtAddCallback(xm_display, XmNdestroyCallback, 
                      (XtCallbackProc) df_FreeContextData, (XtPointer) ctx_data);
