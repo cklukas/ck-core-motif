@@ -149,6 +149,16 @@ void AdoptInitialClients (WmScreenData *pSD)
     /* 
      * Generate list of ancillary windows (not to be managed)
      */
+    if (pSD == NULL || pSD->numWorkspaces < 0 ||
+	pSD->numWorkspaces > INT_MAX - 2 ||
+	(size_t)(pSD->numWorkspaces + 2) > SIZE_MAX / sizeof(Window) ||
+	(size_t)(pSD->numWorkspaces + 2) > UINT_MAX / sizeof(Window))
+    {
+	Warning (((char *)GETMESSAGE(46, 1,
+	    "Too many workspaces to adopt initial clients")));
+	ExitWM (WM_ERROR_EXIT_VALUE);
+	return;
+    }
     nAncillaries = 2 + pSD->numWorkspaces;
     pAncillaryWindows = (Window *) XtMalloc (sizeof(Window)*(nAncillaries));
     if (!pAncillaryWindows)

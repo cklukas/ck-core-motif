@@ -21512,3 +21512,10 @@ Roll back partial MWM stretcher-window creation (2026-10-26)
   all handles already created and causes frame construction to unwind.
 - Add focused regression coverage and documentation.
 
+Bound MWM initial-client workspace-array arithmetic (2026-10-26)
+==================================================================
+
+- Validate workspace counts before adding fixed ancillary entries or sizing the
+  adoption array, preventing signed and allocation-size overflow.
+- Add focused regression coverage and documentation.
+
