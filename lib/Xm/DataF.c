@@ -9311,10 +9311,16 @@ df_InitializeTextStruct(
     XmTextF_timer_id(tf) = (XtIntervalId)0;
 
     if(XmDataField_picture_source(tf)) {
-	XmDataField_picture_source(tf) = XtNewString(XmDataField_picture_source(tf));
-	XmDataField_picture(tf) = XmParsePicture(XmDataField_picture_source(tf));
-        XtAddCallback((Widget)tf, XmNmodifyVerifyCallback,
-			  PictureVerifyCallback, NULL);
+	String picture_source = XtNewString(XmDataField_picture_source(tf));
+	if (picture_source != NULL) {
+	    XmDataField_picture_source(tf) = picture_source;
+	    XmDataField_picture(tf) = XmParsePicture(picture_source);
+            XtAddCallback((Widget)tf, XmNmodifyVerifyCallback,
+			      PictureVerifyCallback, NULL);
+	} else {
+	    XmDataField_picture_source(tf) = NULL;
+	    XmDataField_picture(tf) = NULL;
+	}
     } else {
 	/* No picture specified */
 	XmDataField_picture(tf) = NULL;

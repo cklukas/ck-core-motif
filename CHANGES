@@ -16734,3 +16734,12 @@ Preserve DataField picture-source ownership (2026-10-27)
 - Add a focused source regression and documentation.
 
 ====================================================
+
+Guard DataField picture initialization (2026-10-27)
+====================================================
+
+- Transfer picture-source ownership only after duplication succeeds, disabling
+  the picture cleanly when allocation fails.
+- Add a focused source regression and documentation.
+
+====================================================
