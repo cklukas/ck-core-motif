@@ -2653,7 +2653,7 @@ _XmTextToLocaleText(Widget w,
 
   if (success != NULL)
     *success = False;
-  if (w == NULL || value == NULL)
+  if (w == NULL || value == NULL || length > (unsigned long)INT_MAX)
     return NULL;
   COMPOUND_TEXT = XInternAtom(XtDisplay(w), XmSCOMPOUND_TEXT, False);
 #ifdef UTF8_SUPPORTED

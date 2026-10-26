@@ -22154,3 +22154,13 @@ Guard conversion merging (2026-10-26)
 
 Report clipboard ownership failure (2026-10-26)
 ================================================
+Bound locale-text input length before decoding (2026-10-26)
+============================================================
+
+- Reject text-property lengths above `INT_MAX` before invoking the Xlib
+  decoder, keeping remote selection input within the legacy allocation
+  contract.
+- Add focused regression coverage and documentation.
+
+Guard conversion merging (2026-10-26)
+======================================
