@@ -1,3 +1,12 @@
+Bound Xmos directory-cache allocation widths (2026-10-27)
+==========================================================
+
+- Reject cache-entry and cache-table sizes that exceed Xt's `Cardinal`
+  allocation width, in addition to host-size overflow checks.
+- Extend the focused Xmos directory-cache regression and documentation.
+
+============================================================
+
 Bound DropDown conversion-size assignment (2026-10-27)
 =======================================================
 

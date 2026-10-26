@@ -189,8 +189,9 @@ AddEntryToCache(char *entryName,
   unsigned char result = 0;
   XmDirCache new_cache;
 
-  if (entryName == NULL || dirCacheName == NULL || entryNameLen > (size_t)-1 -
-      sizeof(XmDirCacheRec) - 1)
+  if (entryName == NULL || dirCacheName == NULL ||
+      (size_t)entryNameLen > SIZE_MAX - sizeof(XmDirCacheRec) - 1 ||
+      (size_t)entryNameLen > (size_t)UINT_MAX - sizeof(XmDirCacheRec) - 1)
     return 0;
 
   if (numCacheEntries == numCacheAlloc)
@@ -199,6 +200,9 @@ AddEntryToCache(char *entryName,
       if (numCacheAlloc > (unsigned)-1 - FILE_LIST_BLOCK)
 	return 0;
       new_alloc = numCacheAlloc + FILE_LIST_BLOCK;
+      if ((size_t)new_alloc > SIZE_MAX / sizeof(*new_cache) ||
+          (size_t)new_alloc > (size_t)UINT_MAX / sizeof(*new_cache))
+	return 0;
       new_cache = (XmDirCache)XtRealloc(
 	(char *)dirCache, (size_t)new_alloc * sizeof(*new_cache));
       if (new_cache == NULL)
