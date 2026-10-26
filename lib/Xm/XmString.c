@@ -8397,6 +8397,9 @@ XmeSetWMShellTitle(
 	XmString xmstr,
 	Widget shell) 
 {
+  if (shell == (Widget) NULL)
+    return;
+
   char *          text = (char*) NULL;
   XmStringTag	  tag = (XmStringTag) NULL;
   Arg             al[10] ;

@@ -914,6 +914,9 @@ XmeAddFocusChangeCallback(Widget w,
 			  XtCallbackProc proc, 
 			  XtPointer data)
 {
+  if (w == (Widget) NULL)
+    return;
+
   XmWidgetExtData extData ;
   XmVendorShellExtObject vendorExt;
   _XmWidgetToAppContext(w);
@@ -949,6 +952,9 @@ XmeRemoveFocusChangeCallback(Widget w,
 			     XtCallbackProc proc, 
 			     XtPointer data)
 {
+  if (w == (Widget) NULL)
+    return;
+
   XmWidgetExtData extData ;
   XmVendorShellExtObject vendorExt;
   _XmWidgetToAppContext(w);

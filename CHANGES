@@ -1,3 +1,12 @@
+Guard shell title and callback inputs (2026-10-27)
+===================================================
+
+- Return before context lookup when the shell title or vendor focus callback
+  helpers receive a null widget.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard SimpleMenu creation parent inputs (2026-10-27)
 =====================================================
 
