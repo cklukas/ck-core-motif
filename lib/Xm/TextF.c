@@ -10095,7 +10095,7 @@ XmTextFieldGetString(Widget w)
   char *temp_str;
   size_t allocation_bytes;
   size_t string_length;
-  int ret_val = 0;
+  size_t ret_val = 0;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -10124,7 +10124,7 @@ XmTextFieldGetString(Widget w)
       }
       ret_val = wcstombs(temp_str, TextF_WcValue(tf), 
 			 allocation_bytes);
-      if (ret_val < 0 || (size_t)ret_val >= allocation_bytes)
+      if (ret_val == (size_t)-1 || ret_val >= allocation_bytes)
 	temp_str[0] = '\0';
       else
 	temp_str[ret_val] = '\0';
@@ -10148,7 +10148,7 @@ XmTextFieldGetSubstring(Widget widget,
   XmTextFieldWidget tf = (XmTextFieldWidget) widget;
   int ret_value = XmCOPY_SUCCEEDED;
   int n_bytes = 0;
-  int wcs_ret = 0;
+  size_t wcs_ret = 0;
   XmTextPosition available;
   _XmWidgetToAppContext(widget);
 
@@ -10180,7 +10180,7 @@ XmTextFieldGetSubstring(Widget widget,
     (void)memcpy((void*)buffer, (void*)&TextF_Value(tf)[start], num_chars);
   } else {
     wcs_ret = wcstombs(buffer, &TextF_WcValue(tf)[start], n_bytes);
-    if (wcs_ret < 0) n_bytes = 0;
+    if (wcs_ret == (size_t)-1) n_bytes = 0;
   }
   buffer[n_bytes] = '\0';
   
@@ -10196,7 +10196,7 @@ XmTextFieldGetStringWcs(Widget w)
   wchar_t *temp_wcs;
   size_t string_length;
   size_t allocation_bytes;
-  int num_wcs = 0;
+  size_t num_wcs = 0;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -10221,7 +10221,7 @@ XmTextFieldGetStringWcs(Widget w)
     } else {
       num_wcs = mbstowcs(temp_wcs, TextF_Value(tf),
 			 string_length + 1);
-      if (num_wcs < 0 || (size_t)num_wcs >= string_length + 1)
+      if (num_wcs == (size_t)-1 || num_wcs >= string_length + 1)
 	temp_wcs[0] = (wchar_t)0L;
       else
 	temp_wcs[num_wcs] = (wchar_t)0L;
@@ -10245,7 +10245,7 @@ XmTextFieldGetSubstringWcs(Widget widget,
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) widget;
   int ret_value = XmCOPY_SUCCEEDED;
-  int num_wcs = 0;
+  size_t num_wcs = 0;
   XmTextPosition available;
   _XmWidgetToAppContext(widget);
 
@@ -10275,7 +10275,7 @@ XmTextFieldGetSubstringWcs(Widget widget,
 
   if (tf->text.max_char_size == 1) {
     num_wcs = mbstowcs(buffer, &TextF_Value(tf)[start], num_chars);
-    if (num_wcs < 0) num_chars = 0;
+    if (num_wcs == (size_t)-1) num_chars = 0;
   } else {
     (void)memcpy((void*)buffer, (void*)&TextF_WcValue(tf)[start],
 		 (size_t) num_chars * sizeof(wchar_t));

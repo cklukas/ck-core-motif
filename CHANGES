@@ -20302,6 +20302,12 @@ Guard text-field string getter allocations (2026-10-26)
 - Check multibyte and wide-string allocation sizes and allocator results, and
   explicitly terminate successful conversion output.
 
+Preserve text-field conversion result widths (2026-10-26)
+==========================================================
+
+- Keep `wcstombs` and `mbstowcs` result counts in `size_t` throughout public
+  getter and substring conversion paths instead of narrowing them to `int`.
+
 Bound text-field substring position narrowing (2026-10-26)
 ============================================================
 

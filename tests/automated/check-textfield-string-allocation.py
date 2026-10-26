@@ -13,6 +13,7 @@ assert "temp_str = (char *) XtMalloc((Cardinal)allocation_bytes);" in string_get
 assert "if (temp_str == NULL)" in string_getter
 assert "UINT_MAX / (size_t)tf->text.max_char_size" in string_getter
 assert "temp_str[ret_val] = '\\0';" in string_getter
+assert "size_t ret_val = 0;" in string_getter
 
 start = source.index("XmTextFieldGetStringWcs(Widget w)")
 end = source.index("int \nXmTextFieldGetSubstringWcs", start)
@@ -21,5 +22,6 @@ assert "temp_wcs = (wchar_t*) XtMalloc((Cardinal)allocation_bytes);" in wide_get
 assert "if (temp_wcs == NULL)" in wide_getter
 assert "UINT_MAX / sizeof(wchar_t)" in wide_getter
 assert "temp_wcs[num_wcs] = (wchar_t)0L;" in wide_getter
+assert "size_t num_wcs = 0;" in wide_getter
 
 print("PASS text-field string getters validate allocation and termination")

@@ -46,6 +46,10 @@ The full string getters apply the same checked allocation and conversion
 termination rules; their focused check is
 `tests/automated/check-textfield-string-allocation.py`.
 
+Conversion result counts are retained as `size_t` through the getter and
+substring paths, so large successful conversions cannot wrap through an
+intermediate `int`.
+
 Substring extraction now saturates a source range larger than the public
 `int` count at `INT_MAX` and reports truncation instead of narrowing a large
 `XmTextPosition`. The focused check is
