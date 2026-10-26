@@ -15454,3 +15454,11 @@ Bound automatic drag TARGETS conversion (2026-10-27)
 - Add a focused source regression and documentation.
 
 Bound drag receiver-info growth (2026-10-27)
+Harden the shared drag copy helper (2026-10-27)
+================================================
+
+- Bound `_XmAllocAndCopy` sizes and reject invalid or failed allocations before
+  calling `memcpy`.
+- Add a focused source regression and documentation.
+
+Bound automatic drag TARGETS conversion (2026-10-27)

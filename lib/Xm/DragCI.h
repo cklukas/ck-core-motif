@@ -72,8 +72,23 @@ typedef String	XmCanonicalString;
 #define XmMakeCanonicalString( s) \
 	(XmCanonicalString) XrmQuarkToString(XrmStringToQuark(s))
 
-#define _XmAllocAndCopy( data, len) \
-	memcpy((XtPointer) XtMalloc(len), (XtPointer)(data), (len))
+static XtPointer
+_XmAllocAndCopyChecked(const void *data, size_t len)
+{
+    XtPointer copy;
+
+    if (len > (size_t)(Cardinal)-1 || (len != 0 && data == NULL))
+	return NULL;
+    copy = XtMalloc((Cardinal)len);
+    if (copy == NULL)
+	return NULL;
+    if (len != 0)
+	memcpy(copy, data, len);
+    return copy;
+}
+
+#define _XmAllocAndCopy(data, len) \
+	_XmAllocAndCopyChecked((const void *)(data), (size_t)(len))
 
 
 typedef struct _XmDragTopLevelClientDataStruct{
