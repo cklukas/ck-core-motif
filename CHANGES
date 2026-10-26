@@ -15494,3 +15494,11 @@ Bound motion-buffer growth (2026-10-27)
 - Add a focused source regression and documentation.
 
 Preserve motion-buffer growth ownership (2026-10-27)
+Guard drag motion after receiver allocation failure (2026-10-27)
+==================================================================
+
+- Stop the current motion update when receiver discovery cannot allocate its
+  info record, before dereferencing the missing record.
+- Add a focused source regression and documentation.
+
+Bound motion-buffer growth (2026-10-27)

@@ -2644,6 +2644,8 @@ DragMotionProto(
 	NewScreen(dc, root);
       
       GetDestinationInfo(dc, root, subWindow);
+	  if (dc->drag.currReceiverInfo == NULL)
+	    return;
       
       /* we should special-case the root window */
       if (dc->drag.currReceiverInfo->window)
