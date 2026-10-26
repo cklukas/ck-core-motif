@@ -8,7 +8,10 @@ end = source.index("} /* END OF FUNCTION ProcessMotifBindings */", start)
 region = source[start:end]
 assert "char           fileName[MAXWMPATH+1]" not in region.split("#else", 1)[0]
 assert "strcpy (fileName, homeDir)" not in region
-assert "fileNameLength = strlen(homeDir) + strlen(MOTIF_BINDINGS_FILE) + 2" in region
+assert "homeLength = strlen(homeDir)" in region
+assert "bindingLength = strlen(MOTIF_BINDINGS_FILE)" in region
+assert "fileNameLength = homeLength + bindingLength + 2" in region
+assert "homeLength > SIZE_MAX - bindingLength - 2" in region
 assert "snprintf(fileName, fileNameLength" in region
 assert "XtFree (fileName);" in region
 print("mwm Linux binding paths are dynamically bounded")

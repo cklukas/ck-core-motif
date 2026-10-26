@@ -1,3 +1,11 @@
+Refresh MWM binding-path regression check (2026-10-27)
+======================================================
+
+- Match the focused check to the current overflow-checked size_t length
+  calculation used before allocating the Linux bindings path.
+
+===========================================================
+
 Refresh MRM zero-count regression check (2026-10-27)
 ====================================================
 
