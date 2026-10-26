@@ -1,3 +1,11 @@
+Validate destination handler boundary inputs (2026-10-26)
+==========================================================
+
+- Reject a null destination widget or `None` selection atom before display and
+  class lookup in `_XmDestinationHandler`.
+- Add focused regression coverage and documentation for malformed or
+  teardown-time destination callbacks.
+
 Guard drop callback widget rebinding (2026-10-26)
 =================================================
 

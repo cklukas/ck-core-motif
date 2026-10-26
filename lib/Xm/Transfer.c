@@ -1281,7 +1281,11 @@ _XmDestinationHandler(Widget wid, Atom selection, XtEnum op,
   TransferContext tc;
   XmDestinationCallbackStruct *cbstruct;
   XmTransferTrait ttrait;
-  Atom MOTIF_DROP = XInternAtom(XtDisplay(wid), XmS_MOTIF_DROP, False);
+  Atom MOTIF_DROP;
+  if (wid == NULL || selection == None)
+    return(False);
+
+  MOTIF_DROP = XInternAtom(XtDisplay(wid), XmS_MOTIF_DROP, False);
 
   cbstruct = (XmDestinationCallbackStruct *)
     XtMalloc(sizeof(XmDestinationCallbackStruct));
