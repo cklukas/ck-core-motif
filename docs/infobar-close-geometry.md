@@ -1,9 +1,13 @@
 ---
 nav_exclude: true
 ---
-# InfoBar close-icon geometry
+# InfoBar close-button geometry
 
-InfoBar draws its close icon with fixed offsets from the right and bottom
-edges.  The icon is now drawn only when the widget is large enough for those
-offsets, and the coordinate arithmetic is explicitly signed.  Very small
-InfoBars avoid wrapped X coordinates while normal close icons remain unchanged.
+The InfoBar close button now uses an 18-pixel square only when the widget is
+at least 24 by 18 pixels, keeping the frame and X glyph inside the widget.
+Pointer activation uses the same geometry threshold and horizontal origin.
+Font-list replacement is transactional when `SetValues` cannot copy the new
+render table.
+
+The focused source check is
+`tests/automated/check-infobar-close-geometry.py`.
