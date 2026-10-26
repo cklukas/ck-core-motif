@@ -3350,6 +3350,12 @@ XmTargetsAreCompatible(
         Cardinal numImportTargets )
 {
     Cardinal		j, k;
+
+    if (dpy == NULL ||
+	(numExportTargets != 0 && exportTargets == NULL) ||
+	(numImportTargets != 0 && importTargets == NULL))
+	return False;
+
     _XmDisplayToAppContext(dpy);
 
     _XmAppLock(app);
