@@ -21472,3 +21472,8 @@ Initialize MWM current workspace index (2026-10-26)
 WSM client records now initialize currentWsc to workspace zero before
 workspace-sensitive operations use the per-workspace list.
 
+Free MWM client data on workspace-list failure (2026-10-26)
+------------------------------------------------------------
+GetClientInfo now releases its unregistered ClientData when WSM workspace
+metadata is invalid or the initial per-client workspace-list allocation fails.
+

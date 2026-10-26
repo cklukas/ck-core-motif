@@ -628,12 +628,14 @@ int i;
 	(size_t)pCD->pSD->numWorkspaces > UINT_MAX / sizeof(WsClientData))
     {
 	Warning (((char *)GETMESSAGE(70, 2, "Insufficient memory for client data")));
+	XtFree ((char *)pCD);
 	return (NULL);
     }
     if ((pCD->pWsList = (WsClientData *) 
 	    XtMalloc((Cardinal)((size_t)pCD->pSD->numWorkspaces * sizeof(WsClientData)))) == NULL)
     {
 	Warning (((char *)GETMESSAGE(70, 2, "Insufficient memory for client data")));
+	XtFree ((char *)pCD);
 	return (NULL);
     }
     pCD->sizeWsList = pCD->pSD->numWorkspaces;
