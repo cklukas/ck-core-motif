@@ -185,7 +185,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     UpdateGCs(ring);
     if (!ring->progress_ring.track_gc || !ring->progress_ring.fill_gc) return;
     XClearWindow(display, window);
-    if (ring->progress_ring.font)
+    if (ring->progress_ring.font && ring->progress_ring.label)
         XmStringExtent(ring->progress_ring.font, ring->progress_ring.label,
                        &label_width, &label_height);
     diameter = ring->core.height > 2 * ring->progress_ring.spacing

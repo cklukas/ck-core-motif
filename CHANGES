@@ -16911,7 +16911,8 @@ Guard ProgressRing initial label copy (2026-10-27)
 Guard ProgressRing geometry label metrics (2026-10-27)
 ======================================================
 
-- Skip XmString metric queries when a ProgressRing label is unavailable.
+- Skip XmString metric queries in geometry and redisplay when a ProgressRing
+  label is unavailable.
 - Add a focused source regression and documentation.
 
 ====================================================
