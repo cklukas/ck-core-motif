@@ -21238,3 +21238,9 @@ UnParentControls now excludes embedded clients already marked destroyed
 before removing them from save sets or reparenting/unmapping their windows.
 This avoids stale X requests during front-panel shutdown.
 
+Clear MWM child frame IDs after teardown (2026-10-26)
+------------------------------------------------------
+FreeClientFrame now clears the cached title and base child IDs together with
+the destroyed frame ID. Later repaint, cleanup, or remanage paths cannot reuse
+child XIDs that were removed when the parent frame was destroyed.
+

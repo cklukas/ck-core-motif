@@ -1581,6 +1581,8 @@ void FreeClientFrame (ClientData *pCD)
     {
 	XDestroyWindow (DISPLAY, pCD->clientFrameWin);
 	pCD->clientFrameWin = None;
+	pCD->clientTitleWin = None;
+	pCD->clientBaseWin = None;
     }
 
 } /* END OF FUNCTION FreeClientFrame */
