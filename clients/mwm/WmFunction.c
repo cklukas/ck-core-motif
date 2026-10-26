@@ -4604,8 +4604,9 @@ Boolean F_Screen (String args, ClientData *pCD, XEvent *event)
 		continue;
 	    }
             {
-                const char *format = "Unable to warp to unmanaged screen %d\n";
-                int messageLength = snprintf(NULL, 0, format, scr);
+                int messageLength = snprintf(NULL, 0,
+                                             "Unable to warp to unmanaged screen %d\n",
+                                             scr);
                 char *message = (messageLength >= 0 &&
                                  (unsigned int)messageLength < UINT_MAX) ?
                     (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
@@ -4613,7 +4614,8 @@ Boolean F_Screen (String args, ClientData *pCD, XEvent *event)
                 if (message != NULL)
                 {
                     (void)snprintf(message, (size_t)messageLength + 1,
-                                   format, scr);
+                                   "Unable to warp to unmanaged screen %d\n",
+                                   scr);
                     Warning(message);
                     XtFree(message);
                 }

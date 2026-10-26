@@ -21576,3 +21576,10 @@ Fix MWM invoke-command argument parsing (2026-10-26)
   removing incompatible pointer casts and format mismatches.
 - Add focused regression coverage and documentation.
 
+Keep MWM screen warning format checkable (2026-10-26)
+======================================================
+
+- Pass the fixed unmanaged-screen warning format directly to `snprintf`,
+  preserving compiler format checking without changing the message.
+- Add focused regression coverage and documentation.
+
