@@ -20044,6 +20044,14 @@ Bound TextField AdjustText geometry (2026-10-26)
 - Check fill geometry before narrowing it to X11 dimensions.
 - Add focused regression coverage and documentation.
 
+Bound TextField paging geometry (2026-10-26)
+==============================================
+
+- Validate the visible page width in `PageLeft` and `PageRight` after widened
+  margin arithmetic.
+- Leave horizontal offset unchanged when margins consume the viewport.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 

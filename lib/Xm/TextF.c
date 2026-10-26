@@ -6555,9 +6555,14 @@ PageRight(Widget w,
   Position x, y;
   int length = 0, value;
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
-  Dimension margin_width = TextF_MarginWidth(tf) +
-    tf->primitive.shadow_thickness +
-      tf->primitive.highlight_thickness;
+  uint64_t margin_width = (uint64_t)TextF_MarginWidth(tf) +
+    (uint64_t)tf->primitive.shadow_thickness +
+    (uint64_t)tf->primitive.highlight_thickness;
+  int viewport_width;
+
+  if (margin_width >= (uint64_t)tf->core.width / 2)
+    return;
+  viewport_width = (int)((uint64_t)tf->core.width - 2 * margin_width);
   
   TextFieldResetIC(w);
   if (tf->text.max_char_size != 1) {
@@ -6568,7 +6573,7 @@ PageRight(Widget w,
   }
 
   /* if widget is wider than text, ignore page-right action*/
-  if (length <= (int)(tf->core.width - (2 * margin_width)))
+  if (length <= viewport_width)
     return;
   
   _XmTextFieldDrawInsertionPoint(tf, False);
@@ -6587,11 +6592,10 @@ PageRight(Widget w,
   
   GetXYFromPos(tf, TextF_CursorPosition(tf), &x, &y);
   
-  if ((int)(length - ((int)(tf->core.width - (2 * margin_width)) -
-		tf->text.h_offset) ) > (int)(tf->core.width - (2 * margin_width)))
-    tf->text.h_offset -= tf->core.width - (2 * margin_width);
+  if ((int)(length - (viewport_width - tf->text.h_offset)) > viewport_width)
+	 tf->text.h_offset -= viewport_width;
   else
-    tf->text.h_offset = -(length - (tf->core.width - (2 * margin_width)));
+    tf->text.h_offset = -(length - viewport_width);
   
   RedisplayText(tf, 0, tf->text.string_length);
   _XmTextFieldSetCursorPosition(tf, event, GetPosFromX(tf, x), 
@@ -6622,9 +6626,14 @@ PageLeft(Widget w,
   Position x, y;
   int value;
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
-  int margin_width = (int)TextF_MarginWidth(tf) +
-    tf->primitive.shadow_thickness +
-      tf->primitive.highlight_thickness;
+  uint64_t margin_width = (uint64_t)TextF_MarginWidth(tf) +
+    (uint64_t)tf->primitive.shadow_thickness +
+    (uint64_t)tf->primitive.highlight_thickness;
+  int viewport_width;
+
+  if (margin_width >= (uint64_t)tf->core.width / 2)
+    return;
+  viewport_width = (int)((uint64_t)tf->core.width - 2 * margin_width);
   
   TextFieldResetIC(w);
 
@@ -6643,11 +6652,10 @@ PageLeft(Widget w,
   }
   
   GetXYFromPos(tf, TextF_CursorPosition(tf), &x, &y);
-  if (margin_width  <= tf->text.h_offset +
-      ((int)tf->core.width - (2 * margin_width)))
-    tf->text.h_offset = margin_width;
+  if ((int)margin_width <= tf->text.h_offset + viewport_width)
+	    tf->text.h_offset = (int)margin_width;
   else
-    tf->text.h_offset += tf->core.width - (2 * margin_width);
+	    tf->text.h_offset += viewport_width;
   
   RedisplayText(tf, 0, tf->text.string_length);
   _XmTextFieldSetCursorPosition(tf, event, GetPosFromX(tf, x),
