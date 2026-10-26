@@ -9,11 +9,11 @@ start = text.index("XmTabList\nXmTabListRemoveTabs")
 end = text.index("XmTab\nXmTabCreate", start)
 block = text[start:end]
 
-if "tl = XmTabListCopy(oldlist, 0, 0);" not in block:
+if "tl = TabListCopyUnlocked(oldlist, 0, 0);" not in block:
     raise SystemExit("removal does not prepare a private copy")
 if "return(oldlist);" not in block:
     raise SystemExit("removal does not preserve the source on copy failure")
-if "XmTabListFree(tl);" not in block:
+if "TabListFreeUnlocked(tl);" not in block:
     raise SystemExit("removal does not release the copied list")
 if "Cardinal\ti;" not in block:
     raise SystemExit("removal position loop does not use a full-width index")
