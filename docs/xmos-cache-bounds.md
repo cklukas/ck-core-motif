@@ -11,4 +11,8 @@ cached entry. Both the flexible-entry allocation and cache-table growth are
 also bounded to Xt's `Cardinal` width, so a wide `size_t` cannot be silently
 truncated by `XtMalloc` or `XtRealloc`.
 
+The directory-entry enumerator applies the same rule to its qualified path
+length and to both full-path and basename result allocations, avoiding a
+length narrowing or wrap before the returned strings are written.
+
 `tests/automated/check-xmos-cache-bounds.py` guards the allocation contract.

@@ -740,7 +740,8 @@ void
   DIR *           dirStream = NULL;
   struct stat     statBuf;
   Boolean         entryTypeOK;
-  unsigned int    dirLen = strlen(qualifiedDir);
+  unsigned int    dirLen;
+  size_t          qualified_dir_len;
   Boolean         useCache = FALSE;
   Boolean         loadCache = FALSE;
   unsigned        readCacheIndex = 0;
@@ -754,6 +755,19 @@ void
 /****************/
 
   _XmProcessLock();
+
+  if (qualifiedDir == NULL)
+    {
+      _XmProcessUnlock();
+      return;
+    }
+  qualified_dir_len = strlen(qualifiedDir);
+  if (qualified_dir_len >= (size_t)UINT_MAX)
+    {
+      _XmProcessUnlock();
+      return;
+    }
+  dirLen = (unsigned int)qualified_dir_len;
 
   if (!*pEntries)
     {
@@ -931,7 +945,11 @@ void
 	      *pEntries = new_entries;
 	      *pNumAlloc = new_alloc;
 	    } 
-	  entryPtr = XtMalloc(dirNameLen + dirLen + 1);
+	  if (dirLen >= UINT_MAX ||
+	      (size_t)dirNameLen > SIZE_MAX - (size_t)dirLen - 1 ||
+	      (size_t)dirNameLen > (size_t)UINT_MAX - (size_t)dirLen - 1)
+	    break;
+	  entryPtr = XtMalloc((Cardinal)((size_t)dirNameLen + dirLen + 1));
 	  if (entryPtr == NULL)
 	    break;
 	  strcpy(entryPtr, qualifiedDir);
@@ -978,7 +996,12 @@ void
 		  /* This is ONLY for BC in a (apparently unused) API, (w/o
 		   *  full path) so don't worry too much about efficiency.
 		   */
-		  replacement = XtMalloc(dirNameLen + 1);
+		  if (dirNameLen == UINT_MAX)
+		    {
+		      XtFree(entryPtr);
+		      break;
+		    }
+		  replacement = XtMalloc((Cardinal)((size_t)dirNameLen + 1));
 		  if (replacement == NULL)
 		    {
 		      XtFree(entryPtr);
