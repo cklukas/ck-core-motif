@@ -16776,4 +16776,12 @@ Guard DragUnder segment pixmap allocation (2026-10-27)
   earlier strips when a later allocation fails.
 - Add a focused source regression and documentation.
 
+Guard DragUnder composite mask resources (2026-10-27)
+======================================================
+
+- Validate the temporary mask and graphics context before composing an
+  animation mask, falling back to the ordinary clip region if allocation
+  fails.
+- Add a focused source regression and documentation.
+
 ====================================================

@@ -739,31 +739,39 @@ DrawPixmap(
 
             mask = _XmAllocScratchPixmap (aSaveData->xmScreen, 1,
 					  width, height);
+	    if (mask != None && mask != XmUNSPECIFIED_PIXMAP) {
+		v.background = 0;
+		v.foreground = 1;
+		v.function = GXclear;
+		v.graphics_exposures = False;
+		v.subwindow_mode = IncludeInferiors;
+		vmask = GCGraphicsExposures|GCSubwindowMode|
+		        GCBackground|GCForeground|GCFunction;
+		maskGC = XCreateGC (aSaveData->display, mask, vmask, &v);
+		if (maskGC != NULL) {
+		    XFillRectangle (aSaveData->display, mask, maskGC,
+			            0, 0, width, height);
 
-	    v.background = 0;
-	    v.foreground = 1;
-	    v.function = GXclear;
-	    v.graphics_exposures = False;
-	    v.subwindow_mode = IncludeInferiors;
-	    vmask = GCGraphicsExposures|GCSubwindowMode|
-	            GCBackground|GCForeground|GCFunction;
-	    maskGC = XCreateGC (aSaveData->display, mask, vmask, &v);
+		    XSetFunction (aSaveData->display, maskGC, GXor);
+		    _XmRegionSetGCRegion (aSaveData->display, maskGC,
+				          -x, -y, aSaveData->clipRegion);
+		    XCopyArea (aSaveData->display,
+			       aSaveData->animationMask,
+	                       mask, maskGC,
+	                       0, 0, width, height, 0, 0);
 
-	    XFillRectangle (aSaveData->display, mask, maskGC,
-		            0, 0, width, height);
-
-	    XSetFunction (aSaveData->display, maskGC, GXor);
-	    _XmRegionSetGCRegion (aSaveData->display, maskGC,
-				  -x, -y, aSaveData->clipRegion);
-	    XCopyArea (aSaveData->display,
-		       aSaveData->animationMask,
-    	               mask, maskGC,
-                       0, 0, width, height, 0, 0);
-
-	    XSetClipOrigin (aSaveData->display, aSaveData->drawGC, x, y);
-	    XSetClipMask (aSaveData->display, aSaveData->drawGC, mask);
-
-	    XFreeGC (aSaveData->display, maskGC);
+		    XSetClipOrigin (aSaveData->display, aSaveData->drawGC, x, y);
+		    XSetClipMask (aSaveData->display, aSaveData->drawGC, mask);
+		    XFreeGC (aSaveData->display, maskGC);
+		} else {
+		    _XmFreeScratchPixmap (aSaveData->xmScreen, mask);
+		    mask = XmUNSPECIFIED_PIXMAP;
+		}
+	    }
+	    if (mask == None || mask == XmUNSPECIFIED_PIXMAP) {
+		_XmRegionSetGCRegion (aSaveData->display, aSaveData->drawGC,
+				      0, 0, aSaveData->clipRegion);
+	    }
 	}
 	else {
 	    _XmRegionSetGCRegion (aSaveData->display, aSaveData->drawGC,
@@ -790,7 +798,7 @@ DrawPixmap(
     	               aSaveData->window, aSaveData->drawGC,
                        0, 0, width, height, x, y);
 	}
-	if (mask != XmUNSPECIFIED_PIXMAP) {
+	if (mask != None && mask != XmUNSPECIFIED_PIXMAP) {
 	    _XmFreeScratchPixmap (aSaveData->xmScreen, mask);
 	}
     }
