@@ -46,6 +46,9 @@ XpmReadFileToData(
     XpmInfo info;
     int ErrorStatus;
 
+    if (data_return == NULL)
+	return XpmFileInvalid;
+
     info.valuemask = XpmReturnComments | XpmReturnExtensions;
 
     /*
