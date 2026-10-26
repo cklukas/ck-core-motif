@@ -8848,6 +8848,8 @@ unparse_text(char                **result,
   /* If we have an invalid character, treat it as a single byte. */
   if ((int)c_length < 0) 
     c_length = 1;
+  if (*length < 0)
+    return;
 
   /* Convert c_value to the appropriate type and insert it. */
   if ((c_type == XmSTRING_COMPONENT_WIDECHAR_TEXT) ==
@@ -8855,7 +8857,9 @@ unparse_text(char                **result,
     {
       char *new_result;
       size_t allocation_size;
-      if ((size_t)*length > SIZE_MAX - (size_t)c_length)
+	  if (*length < 0 || (size_t)c_length > (size_t)INT_MAX -
+					(size_t)*length ||
+	      (size_t)*length > SIZE_MAX - (size_t)c_length)
 	return;
       allocation_size = (size_t)*length + c_length;
       if (allocation_size > (size_t)((Cardinal)~0))
@@ -8871,7 +8875,7 @@ unparse_text(char                **result,
   else if (output_type != XmWIDECHAR_TEXT)
     {
       /* Convert c_value to a multibyte string. */
-      int len;
+      size_t converted;
       size_t max_bytes;
       size_t allocation_size;
       char *new_result;
@@ -8903,16 +8907,21 @@ unparse_text(char                **result,
 	return;
       }
       *result = new_result;
-      len = wcstombs(*result + *length, null_text, max_bytes);
-      if (len > 0)
-	*length += len;
+      converted = wcstombs(*result + *length, null_text, max_bytes);
+      if (converted == (size_t)-1 || converted >
+			(size_t)INT_MAX - (size_t)*length) {
+	XtFree((char*)null_text);
+	return;
+      }
+	  if (converted > 0)
+	*length += (int)converted;
 
       XtFree((char*) null_text);
     }
   else
     {
       /* Convert c_value to a widechar string. */
-      int len;
+      size_t converted;
       size_t allocation_size;
       char *new_result;
       if ((size_t)c_length >= SIZE_MAX ||
@@ -8940,9 +8949,15 @@ unparse_text(char                **result,
 	return;
       }
       *result = new_result;
-      len = mbstowcs((wchar_t*) (*result + *length), null_text, c_length);
-      if (len > 0)
-	*length += len * sizeof(wchar_t);
+      converted = mbstowcs((wchar_t*) (*result + *length), null_text,
+					(size_t)c_length);
+      if (converted == (size_t)-1 || converted >
+			((size_t)INT_MAX - (size_t)*length) / sizeof(wchar_t)) {
+	XtFree(null_text);
+	return;
+      }
+	  if (converted > 0)
+	*length += (int)(converted * sizeof(wchar_t));
 
       XtFree(null_text);
     }

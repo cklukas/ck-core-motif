@@ -1,3 +1,10 @@
+Bound XmString unparse conversion lengths (2026-10-27)
+=======================================================
+
+- Keep `wcstombs`/`mbstowcs` size results in `size_t` and validate them before
+  updating the public `int` output length.
+- Add a focused source regression and documentation.
+
 Bound render-table property parser length (2026-10-27)
 ======================================================
 
