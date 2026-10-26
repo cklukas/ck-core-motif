@@ -10,6 +10,9 @@ Validated positive dimensions, depths, and color-symbol counts are converted
 explicitly at X11/Xt API boundaries so strict conversion builds cannot hide a
 sign or width change.
 
+Failure exits also use braced lock-release blocks, so builds where the process
+lock macro is empty remain unambiguous and warning-free.
+
 The scaler also rejects a destination origin whose vertical extent cannot be
 represented by the signed X11 coordinate type. This keeps the strip upload's
 `dest_y + min_y` calculation defined while preserving valid off-screen origins.

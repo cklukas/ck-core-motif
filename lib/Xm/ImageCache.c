@@ -1737,7 +1737,9 @@ _XmGetScaledPixmap(
 		  (size_t)image->height >
 		  SIZE_MAX / (size_t)image->bytes_per_line) {
 		if (ret != NOT_CACHED)
+		  {
 		    _XmProcessUnlock();
+		  }
 		if (ret == NOT_CACHED)
 		    XDestroyImage(image);
 		return (XmUNSPECIFIED_PIXMAP);
@@ -1746,7 +1748,9 @@ _XmGetScaledPixmap(
 		       (size_t)image->bytes_per_line;
 	      if (nbytes > (size_t)UINT_MAX) {
 		if (ret != NOT_CACHED)
+		  {
 		    _XmProcessUnlock();
+		  }
 		if (ret == NOT_CACHED)
 		    XDestroyImage(image);
 		return (XmUNSPECIFIED_PIXMAP);
@@ -1757,7 +1761,9 @@ _XmGetScaledPixmap(
 	      new_image_data = XtMalloc((Cardinal)nbytes);
 	      if (new_image_data == NULL) {
 		if (ret != NOT_CACHED)
+		  {
 		    _XmProcessUnlock();
+		  }
 		if (ret == NOT_CACHED)
 		    XDestroyImage(image);
 		return (XmUNSPECIFIED_PIXMAP);
@@ -1840,7 +1846,7 @@ _XmGetScaledPixmap(
     pixmap = XCreatePixmap (display, RootWindowOfScreen(screen), 
 			    pix_entry->width,
 			    pix_entry->height,
-			    depth);
+						    (unsigned int)depth);
 
     if (pixmap == XmUNSPECIFIED_PIXMAP) {
         DiscardScaledPixmapBuild(ret, image, old_image_data,
@@ -2652,7 +2658,8 @@ void _XmPutScaledImage (
     dest_image = XCreateImage(display,
 			      DefaultVisualOfScreen(
 					     DefaultScreenOfDisplay(display)),
-			      src_image->depth, src_image->format, 
+					      (unsigned int)src_image->depth,
+					      src_image->format,
 			      0, NULL,
 			      dest_width, h,
 			      src_image->bitmap_pad, 0);

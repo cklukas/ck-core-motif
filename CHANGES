@@ -21761,3 +21761,11 @@ Fold ImageCache native-width hash keys (2026-10-26)
   `XmHashValue`, avoiding architecture-dependent `long` arithmetic.
 - Extend the image-cache hash regression and documentation.
 
+Clean up ImageCache failure-branch conversions (2026-10-26)
+============================================================
+
+- Make validated depth arguments explicit at X11 image APIs.
+- Brace conditional process-lock release blocks for configurations where the
+  lock macro expands to no code.
+- Extend the image-scaling conversion regression and documentation.
+

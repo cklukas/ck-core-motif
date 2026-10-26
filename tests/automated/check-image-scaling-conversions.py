@@ -32,6 +32,9 @@ assert "return n ;" in override_region
 
 assert "attrib.numsymbols = (unsigned int)num_override_colors;" in source
 assert "loc_depth = (unsigned int)depth ;" in source
+assert "(unsigned int)depth);" in source
+assert "(unsigned int)src_image->depth" in source
+assert "if (ret != NOT_CACHED)\n\t\t  {\n\t\t    _XmProcessUnlock();\n\t\t  }" in source
 
 cache_start = source.index("CacheColorPixel(")
 cache_end = source.index("\n\nstatic int", cache_start)
