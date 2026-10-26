@@ -2364,7 +2364,7 @@ void RegenerateClientFrame (ClientData *pcd)
 {
     unsigned long decor;
 
-    if (pcd == NULL)
+    if (pcd == NULL || pcd->clientFrameWin == None)
 	return;
 
     decor = pcd->decor;
@@ -2390,7 +2390,7 @@ void RegenerateClientFrame (ClientData *pcd)
 
 
     /* resize title bar window */
-    if (decor & MWM_DECOR_TITLE)
+    if ((decor & MWM_DECOR_TITLE) && pcd->clientTitleWin != None)
     {
 	XResizeWindow (DISPLAY, pcd->clientTitleWin, 
 	   pcd->frameInfo.width - 2*pcd->frameInfo.upperBorderWidth, 
@@ -2398,11 +2398,20 @@ void RegenerateClientFrame (ClientData *pcd)
     }
 
     /* resize base window */
-    XResizeWindow (DISPLAY, pcd->clientBaseWin, BaseWindowWidth (pcd),
-	   BaseWindowHeight (pcd));
+    if (pcd->clientBaseWin != None)
+	XResizeWindow (DISPLAY, pcd->clientBaseWin, BaseWindowWidth (pcd),
+	       BaseWindowHeight (pcd));
     
     /* resize the stretcher windows */
-    if (SHOW_RESIZE_CURSORS(pcd) && (decor & MWM_DECOR_RESIZEH)) {
+    if (SHOW_RESIZE_CURSORS(pcd) && (decor & MWM_DECOR_RESIZEH) &&
+	pcd->clientStretchWin[STRETCH_NORTH_WEST] != None &&
+	pcd->clientStretchWin[STRETCH_NORTH] != None &&
+	pcd->clientStretchWin[STRETCH_NORTH_EAST] != None &&
+	pcd->clientStretchWin[STRETCH_EAST] != None &&
+	pcd->clientStretchWin[STRETCH_SOUTH_EAST] != None &&
+	pcd->clientStretchWin[STRETCH_SOUTH] != None &&
+	pcd->clientStretchWin[STRETCH_SOUTH_WEST] != None &&
+	pcd->clientStretchWin[STRETCH_WEST] != None) {
 	XMoveResizeWindow (DISPLAY, 
 	    pcd->clientStretchWin[STRETCH_NORTH_WEST], 
 	    0, 0, pcd->frameInfo.cornerWidth, 

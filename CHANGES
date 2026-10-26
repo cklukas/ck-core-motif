@@ -21280,3 +21280,9 @@ WithdrawDialog and ReManageDialog now reject a successful XFindContext lookup
 whose payload is null. Dialog callbacks cannot dereference an absent client
 record during late teardown or context cleanup.
 
+Guard MWM frame regeneration resources (2026-10-26)
+----------------------------------------------------
+RegenerateClientFrame now requires a realized frame, checks optional title and
+base children, and only resizes the complete stretcher-window set. Reconfigure
+events after partial teardown no longer issue X requests for stale IDs.
+
