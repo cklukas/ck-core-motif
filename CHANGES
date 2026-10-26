@@ -1,3 +1,11 @@
+Chip label metrics and close-glyph centering (2026-10-27)
+==========================================================
+
+- Measure the chip label through its render table before drawing so the
+  baseline and available width are real rather than zero.  Removable chips
+  now draw a fixed-size close glyph centered on the control instead of
+  stretching it with the widget height.
+
 RowActions complete-item geometry initialization (2026-10-27)
 ==============================================================
 

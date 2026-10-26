@@ -192,6 +192,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                       ((int)chip->core.height - (int)ph) / 2);
         x += (int)icon_width + 6;
     }
+    if (chip->chip.label && chip->chip.font)
+        XmStringExtent(chip->chip.font, chip->chip.label,
+                       &label_width, &label_height);
     y = ((int)chip->core.height - (int)label_height) / 2;
     if (chip->chip.label) {
         if (chip->chip.font)
@@ -202,10 +205,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     }
     if (chip->chip.removable) {
         int cx = (int)chip->core.width - 12;
-        XDrawLine(display, window, chip->chip.foreground_gc, cx - 4, 9,
-                  cx + 4, (int)chip->core.height - 9);
-        XDrawLine(display, window, chip->chip.foreground_gc, cx + 4, 9,
-                  cx - 4, (int)chip->core.height - 9);
+        int cy = (int)chip->core.height / 2;
+        XDrawLine(display, window, chip->chip.foreground_gc, cx - 4, cy - 4,
+                  cx + 4, cy + 4);
+        XDrawLine(display, window, chip->chip.foreground_gc, cx + 4, cy - 4,
+                  cx - 4, cy + 4);
     }
     if (chip->primitive.highlighted && chip->primitive.highlight_thickness)
         XDrawRectangle(display, window, chip->chip.foreground_gc,

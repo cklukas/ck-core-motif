@@ -17,6 +17,15 @@ font changes compatible while preventing a null dereference during resource
 updates. The focused structural regression is
 `tests/automated/check-screen-font-null-guard.py`.
 
+## Chip drawing metrics
+
+`XmChip` now obtains label extents from its render table before calling
+`XmStringDraw`; previously the redisplay-local extents remained zero and
+labels could be clipped at the pill's lower edge. Removable chips use a
+fixed eight-pixel close glyph centered on the control, independent of its
+height. The focused regression is
+`tests/automated/check-chip-label-render-metrics.py`.
+
 ## Concrete storage and image corrections
 
 The next source review identified the following independently useful fixes.
