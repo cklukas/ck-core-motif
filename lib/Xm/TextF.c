@@ -8958,18 +8958,35 @@ TextFieldGetDisplayRect(Widget w,
 			XRectangle * display_rect)
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
-  Position margin_width = TextF_MarginWidth(tf) +
-    tf->primitive.shadow_thickness +
-      tf->primitive.highlight_thickness;
-  Position margin_top = tf->text.margin_top + tf->primitive.shadow_thickness +
-    tf->primitive.highlight_thickness;
-  Position margin_bottom = tf->text.margin_bottom +
-    tf->primitive.shadow_thickness +
-      tf->primitive.highlight_thickness;
-  (*display_rect).x = margin_width;
-  (*display_rect).y = margin_top;
-  (*display_rect).width = tf->core.width - (2 * margin_width);
-  (*display_rect).height = tf->core.height - (margin_top + margin_bottom);
+  uint64_t margin_width;
+  uint64_t margin_top;
+  uint64_t margin_bottom;
+  uint64_t origin_x;
+  uint64_t origin_y;
+
+  if (display_rect == NULL)
+    return False;
+  margin_width = (uint64_t)TextF_MarginWidth(tf) +
+    (uint64_t)tf->primitive.shadow_thickness +
+    (uint64_t)tf->primitive.highlight_thickness;
+  margin_top = (uint64_t)tf->text.margin_top +
+    (uint64_t)tf->primitive.shadow_thickness +
+    (uint64_t)tf->primitive.highlight_thickness;
+  margin_bottom = (uint64_t)tf->text.margin_bottom +
+    (uint64_t)tf->primitive.shadow_thickness +
+    (uint64_t)tf->primitive.highlight_thickness;
+  origin_x = margin_width < tf->core.width ? margin_width : tf->core.width;
+  origin_y = margin_top < tf->core.height ? margin_top : tf->core.height;
+  (*display_rect).x = (short)(origin_x > (uint64_t)SHRT_MAX ?
+                              SHRT_MAX : origin_x);
+  (*display_rect).y = (short)(origin_y > (uint64_t)SHRT_MAX ?
+                              SHRT_MAX : origin_y);
+  (*display_rect).width = (unsigned short)(
+    margin_width <= (uint64_t)tf->core.width / 2 ?
+      (uint64_t)tf->core.width - 2 * margin_width : 0);
+  (*display_rect).height = (unsigned short)(
+    margin_top + margin_bottom < (uint64_t)tf->core.height ?
+      (uint64_t)tf->core.height - margin_top - margin_bottom : 0);
   
   return(TRUE);
 }

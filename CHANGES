@@ -20005,6 +20005,14 @@ Bound TextField position metrics (2026-10-26)
 - Apply the check to both Xft and legacy coordinate paths.
 - Add focused regression coverage and documentation.
 
+Bound TextField display rectangles (2026-10-26)
+=================================================
+
+- Validate the display-rectangle output pointer and widen margin arithmetic
+  before calculating origins and content extents.
+- Clamp origins and retain zero content size for overlarge margins.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
