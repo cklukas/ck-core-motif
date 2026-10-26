@@ -1,3 +1,10 @@
+Bound ArrowButton default geometry (2026-10-27)
+================================================
+
+- Saturate the default 15-pixel width and height additions at the X11
+  `Dimension` limit, preventing large resource values from wrapping.
+- Add focused regression coverage and documentation.
+
 Bound I18List column geometry (2026-10-27)
 ===========================================
 

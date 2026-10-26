@@ -32,6 +32,7 @@ static char rcsid[] = "$XConsortium: ArrowB.c /main/16 1995/10/25 19:50:57 cde-s
 
 
 #include <stdio.h>
+#include <limits.h>
 #include <Xm/ArrowBP.h>
 #include <Xm/TransltnsP.h>
 #include <Xm/DrawP.h>
@@ -58,6 +59,8 @@ static void Initialize(
                         Cardinal *num_args);
 static void GetArrowGC( 
                         XmArrowButtonWidget aw);
+
+static Dimension AddDefaultDimension(Dimension value);
 static void Redisplay( 
                         Widget wid,
                         XEvent *event,
@@ -312,9 +315,9 @@ Initialize(
   
   /*  Set up a geometry for the widget if it is currently 0.  */
   if (request->core.width == 0) 
-    new_w->core.width += 15;
+    new_w->core.width = AddDefaultDimension(new_w->core.width);
   if (request->core.height == 0) 
-    new_w->core.height += 15;
+    new_w->core.height = AddDefaultDimension(new_w->core.height);
   
   
   /*  Set the internal arrow variables  */
@@ -323,6 +326,13 @@ Initialize(
   
   /*  Get the drawing graphics contexts.  */
   GetArrowGC (new_w);
+}
+
+static Dimension
+AddDefaultDimension(Dimension value)
+{
+  return value > (Dimension)(USHRT_MAX - 15) ?
+      (Dimension)USHRT_MAX : (Dimension)(value + 15);
 }
 
 /************************************************************************
