@@ -205,10 +205,10 @@ _WSMGetScreenInfo(Display *dpy, int screen_number)
 
     screen_info->screen_num = screen_number;
 
-    sprintf(temp, WM_SELECTION_FORMAT, screen_number);
+    (void)snprintf(temp, sizeof(temp), WM_SELECTION_FORMAT, screen_number);
     screen_info->wm_selection = XInternAtom(dpy, temp, False);
 
-    sprintf(temp, WSM_SELECTION_FORMAT, screen_number);
+    (void)snprintf(temp, sizeof(temp), WSM_SELECTION_FORMAT, screen_number);
     screen_info->wsm_selection = XInternAtom(dpy, temp, False);
 
     screen_info->next = NULL;
