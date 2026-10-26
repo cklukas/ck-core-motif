@@ -6200,9 +6200,16 @@ XtoPosInLine(XmTextWidget tw,
   OutputData data = tw->text.output->data;
   Position        x1 = 0, y1 = 0;
   XmTextPosition  pos;
-  
-  pos = (*tw->text.output->XYToPos)(tw, x, 
-				    line * data->lineheight + data->topmargin);
+  int64_t         coordinate;
+
+  coordinate = (int64_t)line * (int64_t)data->lineheight +
+	              (int64_t)data->topmargin;
+  if (coordinate > INT_MAX)
+    coordinate = INT_MAX;
+  else if (coordinate < INT_MIN)
+    coordinate = INT_MIN;
+  pos = (*tw->text.output->XYToPos)(tw, x,
+					    ClampTextPointCoordinate((int)coordinate));
   
   (*tw->text.output->PosToXY)(tw, pos, &x1, &y1);
   if (pos > 0 && x1 > x) 
@@ -6224,10 +6231,17 @@ YtoPosInLine(XmTextWidget tw,
   OutputData data = tw->text.output->data;
   Position        x1 = 0, y1 = 0;
   XmTextPosition  pos;
-  
-  pos = (*tw->text.output->XYToPos)(tw, tw->text.inner_widget->core.width -
-					(line * data->linewidth) -
-					data->rightmargin, y);
+  int64_t         coordinate;
+
+  coordinate = (int64_t)tw->text.inner_widget->core.width -
+		       ((int64_t)line * (int64_t)data->linewidth) -
+		       (int64_t)data->rightmargin;
+  if (coordinate > INT_MAX)
+    coordinate = INT_MAX;
+  else if (coordinate < INT_MIN)
+    coordinate = INT_MIN;
+  pos = (*tw->text.output->XYToPos)(tw,
+					    ClampTextPointCoordinate((int)coordinate), y);
   
   (*tw->text.output->PosToXY)(tw, pos, &x1, &y1);
   if (pos > 0 && y1 > y) 
