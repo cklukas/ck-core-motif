@@ -20818,3 +20818,8 @@ Guard MWM depressed-gadget geometry inputs (2026-10-26)
 --------------------------------------------------------
 GetDepressInfo now rejects a null client record or missing geometry output
 pointer before reading decoration state or computing bevel dimensions.
+
+Guard MWM gadget hit-test arrays (2026-10-26)
+---------------------------------------------
+GadgetID now returns FRAME_NONE for a null gadget array instead of
+dereferencing it when a nonzero count is supplied.

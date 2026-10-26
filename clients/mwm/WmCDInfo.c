@@ -1112,6 +1112,9 @@ int GadgetID (int x, int y, GadgetRectangle *pgadget, unsigned int count)
 {
     int ix;
 
+    if (pgadget == NULL)
+	return (FRAME_NONE);
+
     for (ix = 0; ix < count; ix++, pgadget++) {
 	if ( (x >= pgadget->rect.x) &&
 	     (x <  (int)pgadget->rect.x + (int)pgadget->rect.width) &&
