@@ -23069,6 +23069,14 @@ Guard TextOut resize measurement source progress (2026-10-26)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textout-resize-source-progress.py
 
+Guard TextOut measurement block pointers (2026-10-26)
+=======================================================
+
+- Make `FindWidth` and `FindHeight` reject null or empty text blocks before
+  dispatching to font and Xft measurement implementations.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textout-measurement-blocks.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

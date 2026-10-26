@@ -1009,6 +1009,9 @@ FindWidth(XmTextWidget tw,
 	  int from,               /* How many bytes in to start measuring */
 	  int to)                 /* How many bytes in to stop measuring */
 {
+  if (block == NULL || block->ptr == NULL || block->length <= 0 ||
+      from < 0 || to < 0)
+    return 0;
   OutputData data = tw->text.output->data;
   char *ptr;
   unsigned char c;
@@ -1173,6 +1176,9 @@ FindHeight(XmTextWidget tw,
 	  int from,               /* How many bytes in to start measuring */
 	  int to)                 /* How many bytes in to stop measuring */
 {
+  if (block == NULL || block->ptr == NULL || block->length <= 0 ||
+      from < 0 || to < 0)
+    return 0;
   OutputData data = tw->text.output->data;
   char *ptr = NULL;
   unsigned char c;
