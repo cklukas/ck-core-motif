@@ -70,8 +70,12 @@ static Pixel gallery_tab_outline(Widget widget)
 
 static void style_gallery_tab(Widget tab, Pixel outline)
 {
-    XtVaSetValues(tab, XmNborderWidth, 1, XmNborderColor, outline,
-                  XmNshadowThickness, 0, NULL);
+    /* Use Motif's own one-pixel shadow geometry for the inactive outline.
+     * A window border is not painted consistently by every X server/theme
+     * for child widgets, while the shadow is part of the widget contract. */
+    XtVaSetValues(tab, XmNborderWidth, 0, XmNshadowThickness, 1,
+                  XmNtopShadowColor, outline, XmNbottomShadowColor, outline,
+                  NULL);
 }
 
 /* Composite controls can negotiate larger sizes after realization or when

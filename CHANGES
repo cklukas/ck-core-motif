@@ -221,6 +221,8 @@ Gallery view-tab outlines (2026-10-27)
 
 - Give Example, Source, and Built-in Icons a quiet one-pixel gray outline so
   inactive views remain visibly framed in the light theme.
+- Draw that outline with Motif's shadow resources rather than a child-window
+  border, which is not consistently painted by all X servers and themes.
 - Add a focused source regression and documentation.
 
 ================================================
