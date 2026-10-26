@@ -22810,3 +22810,10 @@ Bound TextField drop byte lengths (2026-10-26)
   replacement API's `int` conversion, with complete transfer-value cleanup.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-drop-byte-length.py
+
+Bound TextField locale-converted insertion lengths (2026-10-26)
+================================================================
+- Check locale-converted byte lengths before the legacy int character-count
+  conversion and wide-buffer terminator arithmetic.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-insert-locale-length.py

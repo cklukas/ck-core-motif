@@ -280,20 +280,28 @@ InsertSelection(
 				       *length, NULL);
     if (total_value) {
       if (tf->text.max_char_size == 1) {
-	num_chars = strlen(total_value);
-	replace_res = _XmTextFieldReplaceText(tf, 
-					      (XEvent *)insert_select->event,
-					      left, right, total_value, 
-					      num_chars, True);
-      } else { /* must convert to wchar_t before passing to Replace */
-	size_t len = strlen(total_value) + 1;
-	if (len > (size_t)INT_MAX ||
-	    len > (size_t)UINT_MAX / sizeof(wchar_t)) {
+	size_t len = strlen(total_value);
+	if (len > (size_t)INT_MAX) {
 	  XtFree(total_value);
 	  insert_select->done_status = True;
 	  insert_select->success_status = False;
 	  return;
 	}
+	num_chars = (int)len;
+	replace_res = _XmTextFieldReplaceText(tf, 
+					      (XEvent *)insert_select->event,
+					      left, right, total_value, 
+					      num_chars, True);
+      } else { /* must convert to wchar_t before passing to Replace */
+	size_t len = strlen(total_value);
+	if (len > (size_t)INT_MAX - 1 ||
+	    len > (size_t)UINT_MAX / sizeof(wchar_t) - 1) {
+	  XtFree(total_value);
+	  insert_select->done_status = True;
+	  insert_select->success_status = False;
+	  return;
+	}
+	len++;
 	wc_value = (wchar_t *)XtMalloc((Cardinal)((size_t)len * sizeof(wchar_t)));
 	if (wc_value == NULL) {
 	  XtFree(total_value);
