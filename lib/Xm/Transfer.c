@@ -2192,14 +2192,15 @@ LookupContextBlock(Display *d, Atom a)
   x.selection = a;
 
   _XmProcessLock();
-  if (ConvertHashTable == (XmHashTable) NULL) 
+  if (ConvertHashTable == (XmHashTable) NULL)
     ConvertHashTable = _XmAllocHashTable(10, CCMatch, CCHash);
-
-  cc = (ConvertContext) _XmGetHashEntry(ConvertHashTable, (XmHashKey) &x);
+  cc = ConvertHashTable == (XmHashTable) NULL ? NULL :
+    (ConvertContext) _XmGetHashEntry(ConvertHashTable, (XmHashKey) &x);
   _XmProcessUnlock();
 
   if (cc == NULL) {
     _XmCCKey new_k;
+    ConvertContext new_cc;
 
     new_k = (_XmCCKey) XtMalloc(sizeof(_XmCCKeyRec));
 	if (new_k == NULL)
@@ -2208,20 +2209,40 @@ LookupContextBlock(Display *d, Atom a)
     new_k -> selection = a;
 
     /* Allocate a context block for this selection */
-    cc = (ConvertContext) XtMalloc(sizeof(ConvertContextRec));
-	if (cc == NULL) {
+    new_cc = (ConvertContext) XtMalloc(sizeof(ConvertContextRec));
+	if (new_cc == NULL) {
 	    XtFree((char *)new_k);
 	    return NULL;
 	}
-	cc->flags = 0;
-	cc->op = 0;
-	cc->itemid = 0;
-	cc->location_data = NULL;
-	cc->client_data = NULL;
-	cc->drag_context = (Widget)NULL;
+	new_cc->flags = 0;
+	new_cc->op = 0;
+	new_cc->itemid = 0;
+	new_cc->location_data = NULL;
+	new_cc->client_data = NULL;
+	new_cc->drag_context = (Widget)NULL;
     _XmProcessLock();
-    _XmAddHashEntry(ConvertHashTable, (XmHashKey)new_k, (XtPointer)cc);
+    if (ConvertHashTable == (XmHashTable) NULL) {
+      _XmProcessUnlock();
+      XtFree((char *)new_k);
+      XtFree((char *)new_cc);
+      return NULL;
+    }
+    cc = (ConvertContext) _XmGetHashEntry(ConvertHashTable,
+						 (XmHashKey)new_k);
+    if (cc == NULL) {
+      if (!_XmAddHashEntry(ConvertHashTable, (XmHashKey)new_k,
+						   (XtPointer)new_cc)) {
+		_XmProcessUnlock();
+		XtFree((char *)new_k);
+		XtFree((char *)new_cc);
+		return NULL;
+      }
+      _XmProcessUnlock();
+      return new_cc;
+    }
     _XmProcessUnlock();
+    XtFree((char *)new_k);
+    XtFree((char *)new_cc);
   }
 
   return(cc);
