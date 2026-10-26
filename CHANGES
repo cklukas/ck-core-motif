@@ -20871,3 +20871,9 @@ Guard MWM frame metrics (2026-10-26)
 ------------------------------------
 FrameWidth and FrameHeight now return zero for a null client record instead of
 dereferencing it.  Valid frame metric calculations are unchanged.
+
+Guard MWM corner metrics (2026-10-26)
+-------------------------------------
+CornerWidth and CornerHeight now return zero for null client records and use
+wide intermediate multiplication when comparing three corner units to the
+frame dimension.

@@ -316,7 +316,12 @@ unsigned int FrameWidth (ClientData *pcd)
 unsigned int CornerWidth (ClientData *pcd)
 {
     unsigned int cwidth;
-    unsigned int frameWidth = FrameWidth (pcd);
+    unsigned int frameWidth;
+
+    if (pcd == NULL)
+	return (0);
+
+    frameWidth = FrameWidth (pcd);
 
     /* adjust for resize border (default border if no resize wanted) */
     if (pcd->decor & MWM_DECOR_RESIZEH)
@@ -325,7 +330,7 @@ unsigned int CornerWidth (ClientData *pcd)
 	cwidth = TitleTextHeight(pcd) + UpperBorderWidth (pcd);
 
 	/* scale down corners to make resize pieces proportional */
-	if (3*cwidth > frameWidth) cwidth = frameWidth / 3;
+	if (3UL*cwidth > frameWidth) cwidth = frameWidth / 3;
     }
     else {
 	/* no resizing functions */
@@ -407,7 +412,12 @@ unsigned int FrameHeight (ClientData *pcd)
 unsigned int CornerHeight (ClientData *pcd)
 {
     unsigned int cheight;
-    unsigned int frameHeight = FrameHeight (pcd);
+    unsigned int frameHeight;
+
+    if (pcd == NULL)
+	return (0);
+
+    frameHeight = FrameHeight (pcd);
 
     /* adjust for resize border (default border if no resize wanted) */
     if (pcd->decor & MWM_DECOR_RESIZEH)
@@ -416,7 +426,7 @@ unsigned int CornerHeight (ClientData *pcd)
 	cheight = TitleTextHeight(pcd) + UpperBorderWidth (pcd);
 
 	/* scale down corners to make resize pieces proportional */
-	if (3*cheight > frameHeight) cheight = frameHeight / 3;
+	if (3UL*cheight > frameHeight) cheight = frameHeight / 3;
     }
     else {
 	/* produce default border with no resizing functions */
