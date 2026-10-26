@@ -10146,6 +10146,7 @@ XmTextFieldGetSubstring(Widget widget,
   int ret_value = XmCOPY_SUCCEEDED;
   int n_bytes = 0;
   int wcs_ret = 0;
+  XmTextPosition available;
   _XmWidgetToAppContext(widget);
 
   _XmAppLock(app);
@@ -10154,8 +10155,12 @@ XmTextFieldGetSubstring(Widget widget,
     _XmAppUnlock(app);
     return XmCOPY_FAILED;
   }
-  if (num_chars > tf->text.string_length - start) {
-    num_chars = (int)(tf->text.string_length - start);
+  available = tf->text.string_length - start;
+  if (available > INT_MAX) {
+    num_chars = INT_MAX;
+    ret_value = XmCOPY_TRUNCATED;
+  } else if (num_chars > available) {
+    num_chars = (int)available;
     ret_value = XmCOPY_TRUNCATED;
   }
   if (tf->text.max_char_size != 1)
@@ -10238,6 +10243,7 @@ XmTextFieldGetSubstringWcs(Widget widget,
   XmTextFieldWidget tf = (XmTextFieldWidget) widget;
   int ret_value = XmCOPY_SUCCEEDED;
   int num_wcs = 0;
+  XmTextPosition available;
   _XmWidgetToAppContext(widget);
 
   _XmAppLock(app);
@@ -10251,8 +10257,12 @@ XmTextFieldGetSubstringWcs(Widget widget,
     _XmAppUnlock(app);
     return XmCOPY_SUCCEEDED;
   }
-  if (num_chars > tf->text.string_length - start) {
-    num_chars = (int)(tf->text.string_length - start);
+  available = tf->text.string_length - start;
+  if (available > INT_MAX) {
+    num_chars = INT_MAX;
+    ret_value = XmCOPY_TRUNCATED;
+  } else if (num_chars > available) {
+    num_chars = (int)available;
     ret_value = XmCOPY_TRUNCATED;
   }
   if (buf_size <= num_chars) {

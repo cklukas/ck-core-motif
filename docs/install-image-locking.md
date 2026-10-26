@@ -45,3 +45,8 @@ wide output. The focused source check is
 The full string getters apply the same checked allocation and conversion
 termination rules; their focused check is
 `tests/automated/check-textfield-string-allocation.py`.
+
+Substring extraction now saturates a source range larger than the public
+`int` count at `INT_MAX` and reports truncation instead of narrowing a large
+`XmTextPosition`. The focused check is
+`tests/automated/check-textfield-substring-range.py`.

@@ -20301,3 +20301,9 @@ Guard text-field string getter allocations (2026-10-26)
 
 - Check multibyte and wide-string allocation sizes and allocator results, and
   explicitly terminate successful conversion output.
+
+Bound text-field substring position narrowing (2026-10-26)
+============================================================
+
+- Saturate source ranges beyond the public `int` count at `INT_MAX` and
+  return `XmCOPY_TRUNCATED` instead of wrapping a large `XmTextPosition`.
