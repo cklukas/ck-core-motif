@@ -414,6 +414,9 @@ static	Dimension		AddDimensionSaturated(
 static	Position		AddPositionSaturated(
 					Position	base,
 					uint64_t	addition);
+static	Position		AdjustPositionSaturated(
+					Position	base,
+					int64_t	delta);
 static	Cardinal		GetDefaultDetailCount(
 					Widget		wid);
 static	XmTabList		SetDynamicTabList(
@@ -4102,6 +4105,8 @@ SnapCwid(
     XPoint 		target_cell_coord;
     int			cell_width = 0,cell_height = 0;
     int			width_in_cells = 0,height_in_cells = 0;
+    int64_t		cell_extent;
+    Position		limit;
 
     if (point == NULL)
 	return NULL;
@@ -4150,16 +4155,22 @@ SnapCwid(
     if (CtrSnapModelIsSNAP(cw))	
 	/* LayoutIsRtoLM(cw)  */
 	{
-	point->x += (width_in_cells * cell_width) - cwid->core.width;
+	cell_extent = (int64_t)width_in_cells * (int64_t)cell_width;
+	point->x = AdjustPositionSaturated(point->x,
+	    cell_extent - (int64_t)cwid->core.width);
 	return(point);
 	}
 
     if (CtrSnapModelIsNONE(cw))
 	{
-	point->x = MIN(x,
-		target_cell_coord.x + (width_in_cells * cell_width) - 1);
-	point->y = MIN(y,
-		target_cell_coord.y + (height_in_cells * cell_height) - 1);
+	cell_extent = (int64_t)width_in_cells * (int64_t)cell_width;
+	limit = AdjustPositionSaturated(target_cell_coord.x,
+	    cell_extent - 1);
+	point->x = MIN(x, limit);
+	cell_extent = (int64_t)height_in_cells * (int64_t)cell_height;
+	limit = AdjustPositionSaturated(target_cell_coord.y,
+	    cell_extent - 1);
+	point->y = MIN(y, limit);
 	return(point);
 	}
 
@@ -4177,20 +4188,32 @@ SnapCwid(
     if (CtrViewIsSMALL_ICON(cw)) 
 	{
       	if (height_in_cells != 0)
-	    point->y += ((height_in_cells * cell_height) 
-					- cwid->core.height) / 2;
+	    {
+	    cell_extent = (int64_t)height_in_cells * (int64_t)cell_height;
+	    point->y = AdjustPositionSaturated(point->y,
+		(cell_extent - (int64_t)cwid->core.height) / 2);
+	    }
       	if (LayoutIsRtoLM(cw)) 
-	    point->x += ((width_in_cells * cell_width) 
-					- cwid->core.width);
+	    {
+	    cell_extent = (int64_t)width_in_cells * (int64_t)cell_width;
+	    point->x = AdjustPositionSaturated(point->x,
+		cell_extent - (int64_t)cwid->core.width);
+	    }
 	}
     else
 	{
 	if (width_in_cells != 0)
-	    point->x += ((width_in_cells * cell_width)
-					- cwid->core.width) / 2;
+	    {
+	    cell_extent = (int64_t)width_in_cells * (int64_t)cell_width;
+	    point->x = AdjustPositionSaturated(point->x,
+		(cell_extent - (int64_t)cwid->core.width) / 2);
+	    }
 	if (height_in_cells != 0)
-	    point->y += (height_in_cells * cell_height) 
-					- cwid->core.height;
+	    {
+	    cell_extent = (int64_t)height_in_cells * (int64_t)cell_height;
+	    point->y = AdjustPositionSaturated(point->y,
+		cell_extent - (int64_t)cwid->core.height);
+	    }
         }
     return(point);
 }
@@ -5901,6 +5924,20 @@ AddPositionSaturated(
 	addition > max_position - safe_base)
 	return (Position)SHRT_MAX;
     return (Position)(safe_base + addition);
+}
+
+static Position
+AdjustPositionSaturated(
+    Position  base,
+    int64_t   delta)
+{
+    int64_t value = (int64_t)base + delta;
+
+    if (value > SHRT_MAX)
+	return (Position)SHRT_MAX;
+    if (value < SHRT_MIN)
+	return (Position)SHRT_MIN;
+    return (Position)value;
 }
 
 

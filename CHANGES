@@ -33,6 +33,13 @@ Bound Container cell-position conversion (2026-10-27)
   coordinates in X11 `Position`/`XPoint` fields.
 - Extend focused regression coverage and documentation.
 
+Bound Container snap-position arithmetic (2026-10-27)
+======================================================
+
+- Saturate signed SNAP, NONE, and CENTER coordinate adjustments so oversized
+  cell extents cannot wrap `XPoint` positions.
+- Add focused regression coverage and documentation.
+
 Bound Container ideal geometry accumulation (2026-10-27)
 =========================================================
 
