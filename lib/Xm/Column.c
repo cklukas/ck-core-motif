@@ -27,6 +27,8 @@
 #endif
 
 #include <Xm/ColumnP.h>
+#include <limits.h>
+#include <stdint.h>
 #include <Xm/RowColumn.h>
 #include <Xm/Label.h>
 #include <Xm/VaSimpleP.h>
@@ -95,6 +97,7 @@ static void CheckSetDefaultEntryLabelRenderTable(Widget wid, int offs, XrmValue 
 static void XmColumnLabelDestroyedCallback(
 	Widget, XtPointer, XtPointer
 );
+static Dimension column_default_dimension(Dimension shadow, Dimension margin);
 
 #if 0	/* POSITION HANDLING */
 	Note: this code was never finished and has been pulled out. The
@@ -444,6 +447,14 @@ ClassPartInitialize(WidgetClass w_class)
 
 
 
+static Dimension
+column_default_dimension(Dimension shadow, Dimension margin)
+{
+    uint64_t total = 2 * ((uint64_t)shadow + (uint64_t)margin);
+
+    return total > USHRT_MAX ? (Dimension)USHRT_MAX : (Dimension)total;
+}
+
 /*
  * Function:
  *	Initialize(request, set, arg_list, arg_cnt)
@@ -470,13 +481,13 @@ Initialize(Widget request, Widget set, ArgList arg_list, Cardinal *arg_cnt)
 
     if( rc->core.width == 0 )
     {
-	sc->core.width = 2 * (rc->manager.shadow_thickness +
-			      BBPart(rc)->margin_width);
+	sc->core.width = column_default_dimension(rc->manager.shadow_thickness,
+		BBPart(rc)->margin_width);
     }
     if( rc->core.height == 0 )
     {
-	sc->core.height = 2 * (rc->manager.shadow_thickness +
-			       BBPart(rc)->margin_height);
+	sc->core.height = column_default_dimension(rc->manager.shadow_thickness,
+		BBPart(rc)->margin_height);
     }
 }
 

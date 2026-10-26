@@ -1,3 +1,10 @@
+Bound Column default geometry (2026-10-27)
+===========================================
+
+- Compute default width and height from manager margins and shadow thickness
+  in widened arithmetic, clamping before narrowing to `Dimension`.
+- Add focused regression coverage and documentation.
+
 Bound Separator geometry (2026-10-27)
 ======================================
 
