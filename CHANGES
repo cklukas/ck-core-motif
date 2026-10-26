@@ -15422,3 +15422,11 @@ Keep DnD write offsets representable (2026-10-27)
 - Add a focused source regression and documentation.
 
 Validate clipboard chunk consistency (2026-10-27)
+Bound drag target-table allocations (2026-10-27)
+================================================
+
+- Reject target-table and target-entry allocation products that exceed Xt's
+  Cardinal limit before calling `XtMalloc` or `XtRealloc`.
+- Add a focused source regression and documentation.
+
+Bound drag receiver site counts (2026-10-27)
