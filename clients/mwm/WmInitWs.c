@@ -2346,6 +2346,7 @@ void CopyArgv (int argc, char *argv [])
 	wmGD.argv = argv;
 #ifdef WSM
 	dpy2Argv = argv;
+	dpy2Argc = argc;
 #endif /* WSM */
     }
     else
@@ -2361,6 +2362,7 @@ void CopyArgv (int argc, char *argv [])
 	{
 	    Warning (((char *)GETMESSAGE(40, 11, "Insufficient memory for window manager data")));
 	    dpy2Argv = argv;
+	    dpy2Argc = argc;
 	}
 	else
 	{

@@ -21519,3 +21519,10 @@ Bound MWM initial-client workspace-array arithmetic (2026-10-26)
   adoption array, preventing signed and allocation-size overflow.
 - Add focused regression coverage and documentation.
 
+Preserve MWM secondary-display argc on argv fallback (2026-10-26)
+===================================================================
+
+- Keep `dpy2Argc` synchronized with the original `argv` when WSM argument
+  vector allocation falls back after an allocation failure.
+- Add focused regression coverage and documentation.
+
