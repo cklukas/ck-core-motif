@@ -20309,6 +20309,12 @@ Guard wide text-field modify-verify allocation (2026-10-26)
 - Bound the temporary wide-character buffer, check allocation failure, and
   avoid narrowing an unsuccessful or oversized `mbstowcs` result to `int`.
 
+Reject oversized text-field setter lengths (2026-10-26)
+========================================================
+
+- Reject narrow and multibyte input lengths that cannot fit the callback
+  `int` length before changing widget state.
+
 Preserve text-field conversion result widths (2026-10-26)
 ==========================================================
 

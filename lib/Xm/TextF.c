@@ -10315,6 +10315,7 @@ XmTextFieldSetString(Widget w,
   int free_insert = False;
   int ret_val = 0;
   size_t value_length;
+  size_t byte_length;
   size_t wbuf_bytes;
   size_t converted_length;
   char * tmp_ptr;
@@ -10327,20 +10328,35 @@ XmTextFieldSetString(Widget w,
   
   if (value == NULL) value = "";
   toPos = tf->text.string_length;
-  if (tf->text.max_char_size == 1)
-      length = strlen(value);
-  else {
-      for (length = 0, tmp_ptr = value, ret_val = mblen(tmp_ptr, MB_CUR_MAX);
+
+  if (tf->text.max_char_size == 1) {
+      value_length = strlen(value);
+      if (value_length > INT_MAX) {
+	_XmAppUnlock(app);
+	return;
+      }
+      length = (int)value_length;
+  } else {
+      byte_length = 0;
+      length = 0;
+      for (tmp_ptr = value, ret_val = mblen(tmp_ptr, MB_CUR_MAX);
 	   ret_val > 0; 
 	   ret_val = mblen(tmp_ptr, MB_CUR_MAX)){
 	 if (ret_val < 0){
 	    length = 0; /* If error, treat the whole string as bad */
 	    break;
 	 } else {
-	    length += ret_val;
+	    if (byte_length > SIZE_MAX - (size_t)ret_val ||
+		byte_length + (size_t)ret_val > INT_MAX) {
+	      _XmAppUnlock(app);
+	      return;
+	    }
+	    byte_length += (size_t)ret_val;
 	    tmp_ptr += ret_val;
 	 }
       }
+      if (ret_val > 0)
+	length = (int)byte_length;
     }
 
   if (XtIsSensitive(w) && tf->text.has_focus)

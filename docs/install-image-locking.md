@@ -55,6 +55,10 @@ The wide modify-verify path in `XmTextFieldSetString` now uses checked
 `size_t` arithmetic and handles temporary-buffer allocation failure; this is
 covered by `tests/automated/check-textfield-set-string-allocation.py`.
 
+The setter also rejects a narrow or multibyte input whose byte count cannot be
+represented by its callback `int` length before modifying the widget. This is
+covered by `tests/automated/check-textfield-set-string-range.py`.
+
 Conversion result counts are retained as `size_t` through the getter and
 substring paths, so large successful conversions cannot wrap through an
 intermediate `int`.
