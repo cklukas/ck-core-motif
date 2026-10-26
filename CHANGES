@@ -21841,3 +21841,10 @@ Reject null transfer completion callbacks (2026-10-26)
   and destruction cannot call through a null function pointer.
 - Add focused transfer-lifecycle regression documentation.
 
+Disambiguate clipboard ownership status (2026-10-26)
+=====================================================
+
+- Rename the clipboard-manager selection result so it cannot shadow the
+  enclosing transfer status during ownership and cancellation handling.
+- Add focused regression documentation for the status scope.
+
