@@ -21597,3 +21597,12 @@ Validate MWM `WM_NORMAL_HINTS` ranges (2026-10-26)
   before narrowing conversions, preventing wrapped geometry and constraints.
 - Add focused regression coverage and documentation.
 
+Bound MWM action metadata construction (2026-10-26)
+====================================================
+
+- Keep client-name and title length arithmetic in `size_t` and reject values
+  that cannot fit the Xt allocation API.
+- Build the metadata with exact-sized copies and handle allocation failure
+  without writing through a null or undersized buffer.
+- Add focused regression coverage and documentation.
+

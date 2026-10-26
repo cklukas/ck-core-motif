@@ -7792,44 +7792,71 @@ ParseWmFunctionArg (
     if ((wmFunc == F_Action) && ppArg && *ppArg)
     {
 	WmActionArg *pAP = (WmActionArg *) *ppArg;
-	int totLen = 0;
+	size_t total = 1;
+	size_t nameLength = 0;
+	size_t titleLength = 0;
+	size_t used = 0;
+	char *execParms;
 
 	/*
-	 * allocate more than enough string space to copy 
-	 * strings and intervening spaces.
+	 * Build the optional metadata without narrowing arbitrary client/title
+	 * lengths into an int.  XtMalloc takes a Cardinal, so reject values that
+	 * cannot be represented by that API before allocating.
 	 */
 	if (sClientName && *sClientName)
 	{
-	    /* length of: "name=" + sClientName + NULL */
-	    totLen += 5 + strlen(sClientName) + 1;
+	    nameLength = strlen(sClientName);
+	    if (nameLength > SIZE_MAX - total - 5)
+	    {
+		bValidArg = False;
+		goto exec_parms_done;
+	    }
+	    total += 5 + nameLength;
 	}
 	if (sTitle && *sTitle)
 	{
-	    /* length of: "," + "title=" + sTitle + NULL */
-	    totLen += 1 + 6 + strlen(sTitle) + 1;
+	    titleLength = strlen(sTitle);
+	    if (titleLength > SIZE_MAX - total - 6 -
+		((nameLength != 0) ? 1 : 0))
+	    {
+		bValidArg = False;
+		goto exec_parms_done;
+	    }
+	    total += 6 + titleLength + ((nameLength != 0) ? 1 : 0);
 	}
 
-	if (totLen > 0)
+	if (total > 1)
 	{
-	    pAP->szExecParms = (String) XtMalloc (totLen);
-	    /* start with empty string */
-	    pAP->szExecParms[0] = '\0'; 
+	    if (total > UINT_MAX ||
+		(execParms = (char *)XtMalloc((Cardinal)total)) == NULL)
+	    {
+		bValidArg = False;
+		goto exec_parms_done;
+	    }
+	    pAP->szExecParms = execParms;
 
-	    if (sClientName && *sClientName)
+	    if (nameLength != 0)
 	    {
-		strcat (pAP->szExecParms, "name=");
-		strcat (pAP->szExecParms, sClientName);
+		memcpy(&execParms[used], "name=", 5);
+		used += 5;
+		memcpy(&execParms[used], sClientName, nameLength);
+		used += nameLength;
 	    }
-	    if (sTitle && *sTitle)
+	    if (titleLength != 0)
 	    {
-		if (pAP->szExecParms[0] != '\0')
+		if (nameLength != 0)
 		{
-		    strcat (pAP->szExecParms, ",");
+		    execParms[used++] = ',';
 		}
-		strcat (pAP->szExecParms, "title=");
-		strcat (pAP->szExecParms, sTitle);
+		memcpy(&execParms[used], "title=", 6);
+		used += 6;
+		memcpy(&execParms[used], sTitle, titleLength);
+		used += titleLength;
 	    }
+	    execParms[used] = '\0';
 	}
+
+exec_parms_done:
     }
 
     if (str)
