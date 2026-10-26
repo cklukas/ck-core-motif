@@ -815,6 +815,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
   Atom atoms[XtNumber(atom_names)];
   Window clipboard_owner;
   Boolean target_list_converted;
+  Boolean deferred_target_list_converted;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -922,9 +923,10 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
   /* Call the converter to get the deferred targets for the
      clipboard */
   _XmConvertHandlerSetLocal();
-  if( _XmConvertHandler(w, &atoms[XmACLIPBOARD],
+  deferred_target_list_converted = _XmConvertHandler(w, &atoms[XmACLIPBOARD],
 			&atoms[XmA_MOTIF_DEFERRED_CLIPBOARD_TARGETS],
-			&type, &value, &size, &format) == True &&
+			&type, &value, &size, &format);
+  if( deferred_target_list_converted == True &&
       size != 0 &&
       type == XA_ATOM) {
     _XmProcessLock();
@@ -945,6 +947,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 	}
     
     targets = (Atom *) value;
+    value = NULL;
     count = size;
     /* If there are deferred targets then the snapshot target
        must be converted successfully.  The value returned
@@ -952,10 +955,18 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
        clipboard callback to identify this deferred data
        item */
     _XmConvertHandlerSetLocal();
+    value = NULL;
     if (_XmConvertHandler(w, &atoms[XmACLIPBOARD], &atoms[XmA_MOTIF_SNAPSHOT], 
 			  &type2, &value, &size2, &format2) == True) {
       long data_id;
       SnapshotRequest req;
+
+      if (value == NULL || size2 == 0) {
+	XtFree((char *)targets);
+	XmClipboardEndCopy(display, XtWindow(w), itemid);
+	_XmAppUnlock(app);
+	return False;
+      }
       
       if (count != 0) {
 	req = (SnapshotRequest) XtMalloc(sizeof(SnapshotRequestRec));
@@ -994,6 +1005,9 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
       }
     }
     XtFree((char*) targets);
+  } else if (deferred_target_list_converted == True) {
+    XtFree((char *)value);
+    value = NULL;
   }
   XmClipboardEndCopy(display, XtWindow(w), itemid);
   

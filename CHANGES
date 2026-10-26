@@ -16468,3 +16468,13 @@ Make TextField replacement growth transactional (2026-10-27)
 ===============================================================
 
 Size TextField wide-preedit conversion for multibyte output (2026-10-27)
+Harden deferred clipboard target cleanup (2026-10-27)
+======================================================
+
+- Release invalid deferred target lists and reject empty snapshot conversions
+  before dereferencing them.
+- Add a focused source regression and documentation.
+
+======================================================
+
+Release invalid clipboard target-list results (2026-10-27)
