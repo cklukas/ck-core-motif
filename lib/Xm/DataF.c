@@ -10822,13 +10822,17 @@ df_SetValues(
     if (XmTextF_selection_array(new_tf) != XmTextF_selection_array(old_tf))
     {
       XtPointer temp_ptr;
+      XmTextScanType *new_array;
 
-      XtFree((char *)XmTextF_selection_array(old_tf));
       temp_ptr = (XtPointer)XmTextF_selection_array(new_tf);
-      XmTextF_selection_array(new_tf) = (XmTextScanType *)XtMalloc (
+      new_array = (XmTextScanType *)XtMalloc (
                  XmTextF_selection_array_count(new_tf) * sizeof(XmTextScanType));
-      memcpy((void *)XmTextF_selection_array(new_tf), (void *)temp_ptr,
-             (XmTextF_selection_array_count(new_tf) * sizeof(XmTextScanType)));
+      if (new_array != NULL) {
+         XtFree((char *)XmTextF_selection_array(old_tf));
+         XmTextF_selection_array(new_tf) = new_array;
+         memcpy((void *)new_array, (void *)temp_ptr,
+                (XmTextF_selection_array_count(new_tf) * sizeof(XmTextScanType)));
+      }
     }
 /*
  * End fix for HaL DTS 9841

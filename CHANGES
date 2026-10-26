@@ -16680,3 +16680,12 @@ Guard DataField selection-array allocation (2026-10-27)
 - Add a focused source regression and documentation.
 
 ====================================================
+
+Guard DataField SetValues selection-array replacement (2026-10-27)
+===================================================================
+
+- Allocate a replacement selection array before releasing the old one, and
+  skip the copy when allocation fails.
+- Add a focused source regression and documentation.
+
+====================================================
