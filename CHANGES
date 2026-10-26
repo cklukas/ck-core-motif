@@ -15462,3 +15462,11 @@ Harden the shared drag copy helper (2026-10-27)
 - Add a focused source regression and documentation.
 
 Bound automatic drag TARGETS conversion (2026-10-27)
+Bound drop-transfer list additions (2026-10-27)
+================================================
+
+- Check transfer/list allocation products and preserve existing state when a
+  copy or reallocation fails.
+- Add a focused source regression and documentation.
+
+Harden the shared drag copy helper (2026-10-27)

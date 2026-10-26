@@ -752,16 +752,33 @@ AddDropTransfer(
         XmDropTransferObject dto = (XmDropTransferObject) widget;
 	XmDropTransferPart *dtp =
 		(XmDropTransferPart *) &(dto->dropTransfer);
-	Cardinal index = dtp->num_drop_transfer_lists++;
+	Cardinal index = dtp->num_drop_transfer_lists;
+	Cardinal new_count;
+	XmDropTransferList new_lists;
+	XmDropTransferEntry new_transfers;
 
-	dtp->drop_transfer_lists = (XmDropTransferList)
-		XtRealloc((char *)dtp->drop_transfer_lists,
-			sizeof(XmDropTransferListRec) *
-			dtp->num_drop_transfer_lists);
-	dtp->drop_transfer_lists[index].transfer_list =
-	        (XmDropTransferEntry)_XmAllocAndCopy(
-		transfers, sizeof(XmDropTransferEntryRec) * num_transfers);
+	if (index == UINT_MAX ||
+	    (size_t)(index + 1) > (size_t)UINT_MAX /
+	    sizeof(XmDropTransferListRec) ||
+	    (size_t)num_transfers > (size_t)UINT_MAX /
+	    sizeof(XmDropTransferEntryRec))
+	    return;
+	new_count = index + 1;
+	new_transfers = (XmDropTransferEntry)_XmAllocAndCopy(
+	    transfers, sizeof(XmDropTransferEntryRec) * (size_t)num_transfers);
+	if (num_transfers != 0 && new_transfers == NULL)
+	    return;
+	new_lists = (XmDropTransferList)XtRealloc(
+	    (char *)dtp->drop_transfer_lists,
+	    sizeof(XmDropTransferListRec) * (size_t)new_count);
+	if (new_lists == NULL) {
+	    XtFree((char *)new_transfers);
+	    return;
+	}
+	dtp->drop_transfer_lists = new_lists;
+	dtp->drop_transfer_lists[index].transfer_list = new_transfers;
 	dtp->drop_transfer_lists[index].num_transfers = num_transfers;
+	dtp->num_drop_transfer_lists = new_count;
 }
 
 
