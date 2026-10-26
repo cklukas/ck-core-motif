@@ -22117,3 +22117,12 @@ Guard clipboard-source setup (2026-10-26)
 
 Harden conversion completion helpers (2026-10-26)
 ==================================================
+Harden secondary-selection transfer inputs (2026-10-26)
+========================================================
+
+- Reject `None` secondary targets and validate completion callback pointers
+  before display access, releasing returned data on incomplete callbacks.
+- Add focused regression coverage and documentation.
+
+Guard clipboard-source setup (2026-10-26)
+==========================================

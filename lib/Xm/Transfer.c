@@ -719,7 +719,7 @@ XmeSecondaryTransfer(Widget w, Atom target, XtEnum op, Time time)
   _XmTextInsertPair pair;
   Atom transfer_target;
   Atom atoms[XtNumber(atom_names)];
-  if (w == NULL)
+  if (w == NULL || target == None)
     return;
   _XmWidgetToAppContext(w);
 
@@ -766,7 +766,13 @@ SecondaryDone(Widget wid,
   ConvertContext cc;
   Boolean success;
   Atom convert_selection;
-  Atom DELETE = XInternAtom(XtDisplay(wid), XmSDELETE, False);
+  Atom DELETE;
+
+  if (wid == NULL || type == NULL || length == NULL || format == NULL) {
+    XtFree((char *)value);
+    return;
+  }
+  DELETE = XInternAtom(XtDisplay(wid), XmSDELETE, False);
 
   cc = LookupContextBlock(XtDisplay(wid), XA_SECONDARY);
 
