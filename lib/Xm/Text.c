@@ -2421,7 +2421,7 @@ InitializeHook(Widget wid,
 	if (tmp_value != NULL) {
 	  n_bytes = wcstombs(tmp_value, tw->text.wc_value,
 			     allocation_bytes);
-	  if (n_bytes >= 0) {
+	  if (n_bytes >= 0 && (size_t)n_bytes < allocation_bytes) {
 	    tmp_value[n_bytes] = 0;  /* NULL terminate the string */
 	    _XmStringSourceSetValue(tw, tmp_value);
 	  }

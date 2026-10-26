@@ -22979,3 +22979,10 @@ Terminate XmTextSetStringWcs conversions (2026-10-26)
   reaching string consumers without a NUL terminator.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-set-string-wcs-termination.py
+
+Bound XmText valueWcs initialization conversion (2026-10-26)
+==============================================================
+- Require room for a NUL terminator before accepting the `XmNvalueWcs`
+  initialization conversion result.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-value-wcs-init-termination.py
