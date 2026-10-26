@@ -1191,10 +1191,13 @@ GetMwmMenuItems(
 	}
 	else
 	{
-	    if(textList && nItems > 0 && textList[0] != NULL)
+	    if (textList != NULL)
 	    {
-		menuItems = ParseMwmMenuStr (PSD_FOR_CLIENT(pCD),
+		if (nItems > 0 && textList[0] != NULL)
+		    menuItems = ParseMwmMenuStr (PSD_FOR_CLIENT(pCD),
 					 (unsigned char *)textList[0]);
+		else
+		    menuItems = NULL;
 		XFreeStringList(textList);
 	    }
 	    else

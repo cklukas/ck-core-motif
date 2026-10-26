@@ -21685,3 +21685,10 @@ Reject empty MWM menu properties (2026-10-26)
 - Reject an empty `_MWM_MENU` XTextProperty before invoking text conversion.
 - Extend the menu-conversion regression coverage and documentation.
 
+Clean up empty MWM menu conversions (2026-10-26)
+=================================================
+
+- Always release a non-null Xmb text list, including empty or null-first-entry
+  results rejected by the menu parser.
+- Extend the menu-conversion regression coverage and documentation.
+
