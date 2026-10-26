@@ -9,6 +9,8 @@ for name in ("MrmRegisterNames", "MrmRegisterNamesInHierarchy"):
     end = source.index("\n\n\f", start)
     region = source[start:end]
     assert "num_reg > 0 && reglist == NULL" in region
+    assert "(size_t)num_reg > UINT_MAX / sizeof(String)" in region
+    assert "(size_t)num_reg > UINT_MAX / sizeof(XtPointer)" in region
     names = region.index("names = (String *) XtMalloc")
     assert "if (names == NULL)" in region[names:names + 180]
     values = region.index("values = (XtPointer *) XtMalloc")

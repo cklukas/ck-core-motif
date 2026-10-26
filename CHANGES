@@ -1,3 +1,12 @@
+Bound Mrm name-registration allocation width (2026-10-27)
+===========================================================
+
+- Reject global and hierarchy-scoped registration counts whose temporary name
+  or value vectors exceed Xt's `Cardinal` allocation width.
+- Extend the focused registration-allocation regression and documentation.
+
+============================================================
+
 Bound Mrm pointer-list allocation width (2026-10-27)
 ======================================================
 

@@ -358,7 +358,9 @@ MrmRegisterNames (MrmRegisterArglist		reglist,
   if (num_reg < 0 ||
       (num_reg > 0 && reglist == NULL) ||
       (size_t)num_reg > SIZE_MAX / sizeof(String) ||
-      (size_t)num_reg > SIZE_MAX / sizeof(XtPointer))
+      (size_t)num_reg > SIZE_MAX / sizeof(XtPointer) ||
+      (size_t)num_reg > UINT_MAX / sizeof(String) ||
+      (size_t)num_reg > UINT_MAX / sizeof(XtPointer))
     return MrmFAILURE;
   if (num_reg == 0)
     return MrmSUCCESS;
@@ -452,7 +454,9 @@ MrmRegisterNamesInHierarchy (MrmHierarchy		hierarchy_id,
   if (num_reg < 0 ||
       (num_reg > 0 && reglist == NULL) ||
       (size_t)num_reg > SIZE_MAX / sizeof(String) ||
-      (size_t)num_reg > SIZE_MAX / sizeof(XtPointer))
+      (size_t)num_reg > SIZE_MAX / sizeof(XtPointer) ||
+      (size_t)num_reg > UINT_MAX / sizeof(String) ||
+      (size_t)num_reg > UINT_MAX / sizeof(XtPointer))
     return MrmFAILURE;
   if (num_reg == 0)
     return MrmSUCCESS;
