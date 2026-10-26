@@ -899,6 +899,10 @@ void DrawStringInBox (Display *dpy, Window win, GC gc, XFontStruct *pfs, XRectan
     int xCenter;
     XRectangle clipBox;
 
+    if (dpy == NULL || gc == NULL || pfs == NULL || pbox == NULL ||
+	str == NULL)
+	return;
+
     /* compute text position */
     textWidth = XTextWidth(pfs, str, strlen(str));
 
@@ -1112,6 +1116,9 @@ void FreeRList (RList *prl)
  *************************************<->***********************************/
 void WmDrawString (Display *dpy, Drawable d, GC gc, int x, int y, char *string, unsigned int length)
 {
+    if (dpy == NULL || gc == NULL || string == NULL || ACTIVE_PSD == NULL)
+	return;
+
     if (ACTIVE_PSD->cleanText)
     {
 	XDrawImageString(dpy, d, gc, x, y, string, length);
