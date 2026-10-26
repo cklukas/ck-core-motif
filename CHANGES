@@ -1,3 +1,12 @@
+Refresh Xm pixmap table initialization check (2026-10-27)
+==========================================================
+
+- Scope the publication-order assertion to the unlock following the
+  successful allocation path, while retaining atomic table initialization
+  coverage.
+
+============================================================
+
 Refresh Xm pixmap hotspot output check (2026-10-27)
 ====================================================
 

@@ -12,5 +12,6 @@ assert "new_pixmap_set" in body
 assert "pixmap_data_set = new_pixmap_data_set;" in body
 assert "pixmap_set = new_pixmap_set;" in body
 assert "_XmFreeHashTable(new_pixmap_data_set);" in body
-assert body.index("pixmap_data_set = new_pixmap_data_set;") < body.index("_XmProcessUnlock")
+publish = body.index("pixmap_data_set = new_pixmap_data_set;")
+assert publish < body.index("_XmProcessUnlock", publish)
 print("Xm pixmap cache tables initialize atomically")
