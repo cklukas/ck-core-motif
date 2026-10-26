@@ -1385,12 +1385,21 @@ _XmRestoreTearOffToMenuShell(
       gc = XtGetGC((Widget) shell, GCGraphicsExposures | GCSubwindowMode,
 		   &values);
 
+      if (gc == NULL)
+	 return;
+
       /* Fix for CR #4855, use of default depth, DRand 6/4/92 */
       shell->core.background_pixmap = XCreatePixmap(XtDisplay(shell),
 	 RootWindowOfScreen(XtScreen(shell)),
 	 shell->core.width, shell->core.height,
          shell->core.depth);
       /* End of Fix #4855 */
+
+      if (shell->core.background_pixmap == None)
+	{
+	  XtReleaseGC((Widget) shell, gc);
+	  return;
+	}
 
       XCopyArea(XtDisplay(shell), XtWindow(submenu),
 	 shell->core.background_pixmap, gc, 0, 0,
