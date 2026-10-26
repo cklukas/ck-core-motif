@@ -1,3 +1,12 @@
+Bound MWM debug resource-dump paths (2026-10-27)
+=================================================
+
+- Format per-screen debug resource filenames with checked `snprintf` output,
+  skipping an unrepresentable path instead of writing past the fixed buffer.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Bound MWM session DB path formatting (2026-10-27)
 ==================================================
 

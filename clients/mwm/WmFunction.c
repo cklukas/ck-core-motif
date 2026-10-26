@@ -4812,10 +4812,14 @@ F_ZZ_Debug (String subFcn, ClientData *pCD, XEvent *event)
 	{
 	    int scr;
 	    char szRes[80];
+	    int renderedLength;
 
 	    for (scr=0; scr<wmGD.numScreens; scr++)
 	    {
-		sprintf (szRes, "/tmp/dtwm.resources.%d", scr);
+		renderedLength = snprintf(szRes, sizeof(szRes),
+				   "/tmp/dtwm.resources.%d", scr);
+		if (renderedLength < 0 || (size_t)renderedLength >= sizeof(szRes))
+		    continue;
 
 		XrmPutFileDatabase(XtScreenDatabase(
 				       XScreenOfDisplay(DISPLAY, scr)), 
