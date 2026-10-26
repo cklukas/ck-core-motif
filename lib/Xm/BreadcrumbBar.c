@@ -397,7 +397,7 @@ void XmBreadcrumbBarSetSegments(Widget widget,
                                 Cardinal count) {
     XmBreadcrumbBarWidget bar;
     Cardinal i;
-    if (!XmIsBreadcrumbBar(widget))
+    if (widget == NULL || !XmIsBreadcrumbBar(widget))
         return;
     bar = (XmBreadcrumbBarWidget)widget;
     free_items(bar);
@@ -441,17 +441,17 @@ void XmBreadcrumbBarSetSegments(Widget widget,
 }
 
 Cardinal XmBreadcrumbBarGetSegmentCount(Widget widget) {
-    return XmIsBreadcrumbBar(widget) ?
+    return widget != NULL && XmIsBreadcrumbBar(widget) ?
         ((XmBreadcrumbBarWidget)widget)->breadcrumb.count : 0;
 }
 
 int XmBreadcrumbBarGetCurrentIndex(Widget widget) {
-    return XmIsBreadcrumbBar(widget) ?
+    return widget != NULL && XmIsBreadcrumbBar(widget) ?
         ((XmBreadcrumbBarWidget)widget)->breadcrumb.current : -1;
 }
 
 void XmBreadcrumbBarSetCurrentIndex(Widget widget, int index,
                                     Boolean notify_change) {
-    if (XmIsBreadcrumbBar(widget))
+    if (widget != NULL && XmIsBreadcrumbBar(widget))
         set_current((XmBreadcrumbBarWidget)widget, index, notify_change, NULL);
 }

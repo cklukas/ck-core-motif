@@ -18683,6 +18683,15 @@ Guard DropSite stacking-order query inputs (2026-10-27)
 ============================================================
 
 Bound drag/drop argument-array allocations (2026-10-27)
+Guard BreadcrumbBar null-widget API inputs (2026-10-27)
+=======================================================
+
+- Validate widget handles before subclass checks in segment setters, getters,
+  and current-index updates.
+- Extend the focused BreadcrumbBar regression and documentation.
+
+============================================================
+
 Bound AutoSuggest batch allocation width (2026-10-27)
 =====================================================
 
