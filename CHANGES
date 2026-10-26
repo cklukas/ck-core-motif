@@ -21213,3 +21213,10 @@ frame window. Failed ConstructFrame paths can therefore be cleaned up
 idempotently without dereferencing absent state or sending XDestroyWindow for
 `None`.
 
+Make MWM icon teardown safe with absent workspace storage (2026-10-26)
+-----------------------------------------------------------------------
+FreeIcon now checks the WSM workspace list before reading its first icon
+frame, and both WSM and non-WSM paths destroy only realized icon windows.
+Partial icon setup and repeated teardown no longer dereference missing state
+or issue XDestroyWindow for `None`.
+

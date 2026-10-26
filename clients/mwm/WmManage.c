@@ -1648,9 +1648,10 @@ void FreeIcon (ClientData *pCD)
 	/* only one window, so destroying its first reference will
 	 * clean it up adequately
 	 */
-	if (pCD->pWsList[0].iconFrameWin)
+	if (pCD->pWsList != NULL && pCD->pWsList[0].iconFrameWin != None)
 	{
 	    XDestroyWindow (DISPLAY, pCD->pWsList[0].iconFrameWin);
+	    pCD->pWsList[0].iconFrameWin = None;
 	}
     }
 #else /* WSM */
@@ -1660,7 +1661,11 @@ void FreeIcon (ClientData *pCD)
     }
     else
     {
-	XDestroyWindow (DISPLAY, pCD->iconFrameWin);
+	if (pCD->iconFrameWin != None)
+	{
+	    XDestroyWindow (DISPLAY, pCD->iconFrameWin);
+	    pCD->iconFrameWin = None;
+	}
     }
 #endif /* WSM */
 
