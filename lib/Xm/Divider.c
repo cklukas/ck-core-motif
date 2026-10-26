@@ -4,6 +4,7 @@
 #endif
 
 #include <X11/IntrinsicP.h>
+#include <limits.h>
 #include <Xm/DividerP.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
@@ -14,6 +15,7 @@ static void Destroy(Widget);
 static void Redisplay(Widget, XEvent *, Region);
 static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
+static Dimension divider_thickness_span(Dimension thickness);
 
 #define Offset(field) XtOffsetOf(XmDividerRec, field)
 static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
@@ -89,9 +91,9 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     if (!divider->core.width || !divider->core.height) {
         if (divider->divider.orientation == XmHORIZONTAL) {
             divider->core.width = 120;
-            divider->core.height = divider->divider.thickness + 12;
+            divider->core.height = divider_thickness_span(divider->divider.thickness);
         } else {
-            divider->core.width = divider->divider.thickness + 12;
+            divider->core.width = divider_thickness_span(divider->divider.thickness);
             divider->core.height = 40;
         }
     }
@@ -180,14 +182,22 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
         unsigned long requested = label ? (unsigned long)label +
             2UL * (unsigned long)divider->divider.spacing + 16UL : 120UL;
         reply->width = (Dimension)(requested > USHRT_MAX ? USHRT_MAX : requested);
-        reply->height = divider->divider.thickness + 12;
+        reply->height = divider_thickness_span(divider->divider.thickness);
     } else {
-        reply->width = divider->divider.thickness + 12;
+        reply->width = divider_thickness_span(divider->divider.thickness);
         reply->height = 40;
     }
     return (widget->core.width == reply->width && widget->core.height == reply->height)
                ? XtGeometryYes : XtGeometryAlmost;
 }
+
+static Dimension
+divider_thickness_span(Dimension thickness)
+{
+    return thickness > (Dimension)(USHRT_MAX - 12) ?
+        (Dimension)USHRT_MAX : (Dimension)(thickness + 12);
+}
+
 Widget XmCreateDivider(Widget parent, char *name, ArgList args, Cardinal count) {
     return XtCreateWidget(name, xmDividerWidgetClass, parent, args, count);
 }

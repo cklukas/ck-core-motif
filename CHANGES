@@ -1,3 +1,10 @@
+Bound Divider thickness geometry (2026-10-27)
+==============================================
+
+- Clamp thickness-based default and preferred spans before assigning them to
+  an X11 `Dimension`, preventing large thickness resources from wrapping.
+- Extend focused regression coverage and documentation.
+
 Bound TabStack default geometry (2026-10-27)
 =============================================
 
