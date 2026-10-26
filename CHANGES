@@ -22538,3 +22538,9 @@ Guard Text insert-target inputs (2026-10-26)
   target data or requesting the selected target.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-insert-target-inputs.py
+Prevent Text primary-selection refcount underflow (2026-10-26)
+===============================================================
+- Treat non-positive primary-selection reference counts as terminal before
+  decrementing completion state in Text and TextField.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-primary-selection-refcount.py

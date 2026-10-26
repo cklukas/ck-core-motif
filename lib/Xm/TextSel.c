@@ -157,7 +157,7 @@ SetPrimarySelection(Widget w,
 				     tw->text.cursor_position,
 				     prim_select->time);
   }
-  if (--prim_select->ref_count == 0) {
+  if (prim_select->ref_count <= 0 || --prim_select->ref_count == 0) {
     XtFree((char *)prim_select);
     prim_select = NULL;
   }
@@ -177,7 +177,7 @@ CleanPrimarySelection(Widget w,
     return;
   }
 
-  if (--prim_select->ref_count == 0) {
+  if (prim_select->ref_count <= 0 || --prim_select->ref_count == 0) {
     XtFree((char *)prim_select);
     prim_select = NULL;
   }

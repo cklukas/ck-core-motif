@@ -154,7 +154,7 @@ SetPrimarySelection(Widget w,
     tf->text.pending_off = False;
     _XmTextFieldSetCursorPosition(tf, NULL, cursorPos, True, True);
   }
-  if (--prim_select->ref_count == 0) {
+  if (prim_select->ref_count <= 0 || --prim_select->ref_count == 0) {
     XtFree((char *)prim_select);
     prim_select = NULL;
   }
@@ -175,7 +175,7 @@ CleanPrimarySelection(Widget w,
     return;
   }
 
-  if (--prim_select->ref_count == 0) {
+  if (prim_select->ref_count <= 0 || --prim_select->ref_count == 0) {
     XtFree((char *)prim_select);
     prim_select = NULL;
   }
