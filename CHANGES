@@ -1,3 +1,12 @@
+Guard SegmentedControl state API inputs (2026-10-27)
+====================================================
+
+- Reject null widgets before `XmIsSegmentedControl` checks in item and
+  selection APIs.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard ToggleSwitch state API inputs (2026-10-27)
 ================================================
 

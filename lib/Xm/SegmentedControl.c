@@ -277,7 +277,8 @@ Boolean XmSegmentedControlSetItems(Widget widget,
     XmSegmentedControlWidget control;
     XmSegmentedControlItemRec *copy;
     Cardinal i;
-    if (!XmIsSegmentedControl(widget) || (count && !items)) return False;
+    if (widget == NULL || !XmIsSegmentedControl(widget) ||
+        (count && !items)) return False;
     control = (XmSegmentedControlWidget)widget;
     if (count) {
         if ((size_t)count > SIZE_MAX / sizeof(*copy) ||
@@ -361,22 +362,24 @@ Boolean XmSegmentedControlSetItems(Widget widget,
 }
 
 Cardinal XmSegmentedControlGetItemCount(Widget widget) {
-    return XmIsSegmentedControl(widget)
+    return widget != NULL && XmIsSegmentedControl(widget)
                ? ((XmSegmentedControlWidget)widget)->segmented.item_count : 0;
 }
 int XmSegmentedControlGetSelectedIndex(Widget widget) {
-    return XmIsSegmentedControl(widget)
+    return widget != NULL && XmIsSegmentedControl(widget)
                ? ((XmSegmentedControlWidget)widget)->segmented.selected : -1;
 }
 const char *XmSegmentedControlGetItemId(Widget widget, Cardinal index) {
-    XmSegmentedControlWidget control = (XmSegmentedControlWidget)widget;
-    if (!XmIsSegmentedControl(widget) || index >= control->segmented.item_count)
+    XmSegmentedControlWidget control;
+    if (widget == NULL || !XmIsSegmentedControl(widget)) return NULL;
+    control = (XmSegmentedControlWidget)widget;
+    if (index >= control->segmented.item_count)
         return NULL;
     return control->segmented.items[index].id;
 }
 Boolean XmSegmentedControlSetSelectedIndex(Widget widget, int index,
                                            Boolean notify) {
-    if (!XmIsSegmentedControl(widget)) return False;
+    if (widget == NULL || !XmIsSegmentedControl(widget)) return False;
     select_index((XmSegmentedControlWidget)widget, index, notify, NULL);
     return index == -1 || index == ((XmSegmentedControlWidget)widget)->segmented.selected;
 }
