@@ -213,6 +213,8 @@ _XmMessageTypeToReason(
         unsigned char messageType )
 #endif /* NeedWidePrototypes */
 {
+    if (messageType >= XtNumber(messageTable))
+	return _XmNUMBER_DND_CB_REASONS;
     return(messageTable[messageType]);
 }
 
@@ -423,6 +425,9 @@ GetMessageData(
 	message_type = xmessage->any.message_type;
     type = GET_ICC_EVENT_TYPE(message_type);
 	message_type &= CLEAR_ICC_EVENT_TYPE;
+
+    if (message_type >= XtNumber(messageTable))
+	return (XmICCEventType)-1;
 
     /* Load up the callback */
     callback->any.reason = (int)

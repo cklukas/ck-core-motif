@@ -21826,3 +21826,11 @@ Disambiguate DragOverShell colormap indexes (2026-10-26)
   the active window-list index.
 - Extend the DragOverShell colormap regression documentation.
 
+Reject invalid DnD message subtypes (2026-10-26)
+================================================
+
+- Bound the Motif client-message subtype mapper before indexing its callback
+  table.
+- Reject malformed incoming subtype values before callback decoding.
+- Add focused regression documentation for the external-owner boundary.
+
