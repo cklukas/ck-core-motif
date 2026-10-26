@@ -3055,8 +3055,22 @@ ShowValue(
 		    NULL);
     XmStringFree(tmp_str);
 #else
-    XDrawImageString (XtDisplay(sw), XtWindow(sw),
-		 sw->scale.foreground_GC, x, y, buffer, strlen(buffer));
+    /* Keep the legacy XFontStruct metrics above, but use the Motif render
+     * table for the actual draw whenever one is available.  The old direct
+     * XDrawImageString path bypassed compound-string conversion and rendered
+     * locale text as raw bytes. */
+    if (sw->scale.font_list) {
+	XmString value = XmStringCreateLocalized(buffer);
+	if (value) {
+	    XmStringDraw(XtDisplay(sw), XtWindow(sw), sw->scale.font_list,
+			  value, sw->scale.foreground_GC, x, y, width,
+			  XmALIGNMENT_CENTER, sw->manager.string_direction, NULL);
+	    XmStringFree(value);
+	}
+    } else {
+	XDrawImageString(XtDisplay(sw), XtWindow(sw),
+			 sw->scale.foreground_GC, x, y, buffer, strlen(buffer));
+    }
 #endif
 }
 

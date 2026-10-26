@@ -6843,6 +6843,9 @@ Mrm writer CString-vector rebind checks (2026-10-25)
 	  see docs/avatar.md.
 
 2026-10-26
+    XmScale now draws non-Xft value labels through its Motif render table
+    when available, preserving compound-string and locale text handling;
+    the direct XDrawImageString path remains only as a no-table fallback.
 	* Validate Mrm pointer-list state before freeing contents.
 
 2026-10-26
