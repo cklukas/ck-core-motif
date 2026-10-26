@@ -319,8 +319,17 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
     XmDataGridWidget old = (XmDataGridWidget)old_widget;
     XmDataGridWidget grid = (XmDataGridWidget)new_widget;
     Boolean render_changed = old->data_grid.render_table != grid->data_grid.render_table;
+    Boolean colors_changed =
+        old->primitive.foreground != grid->primitive.foreground ||
+        old->core.background_pixel != grid->core.background_pixel;
     Boolean redraw_needed;
     (void)request; (void)args; (void)count;
+    if (colors_changed && grid->data_grid.gc) {
+        XSetForeground(XtDisplay(new_widget), grid->data_grid.gc,
+                       grid->primitive.foreground);
+        XSetBackground(XtDisplay(new_widget), grid->data_grid.gc,
+                       grid->core.background_pixel);
+    }
     if (!grid->data_grid.row_height) grid->data_grid.row_height = old->data_grid.row_height;
     if (!grid->data_grid.header_height) grid->data_grid.header_height = old->data_grid.header_height;
     if (render_changed) {
@@ -335,7 +344,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
     redraw_needed = old->data_grid.row_height != grid->data_grid.row_height ||
                     old->data_grid.header_height != grid->data_grid.header_height ||
                     old->data_grid.top_row != grid->data_grid.top_row ||
-                    old->data_grid.rtl != grid->data_grid.rtl || render_changed;
+                    old->data_grid.rtl != grid->data_grid.rtl ||
+                    render_changed || colors_changed;
     return redraw_needed;
 }
 

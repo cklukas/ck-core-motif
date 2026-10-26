@@ -16840,4 +16840,11 @@ Update Prompt colors through SetValues (2026-10-27)
   resources change on a live widget.
 - Add a focused source regression and documentation.
 
+Update DataGrid colors through SetValues (2026-10-27)
+=====================================================
+
+- Refresh the DataGrid drawing GC and repaint when foreground or background
+  resources change on a live widget.
+- Add a focused source regression and documentation.
+
 ====================================================
