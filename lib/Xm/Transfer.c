@@ -2723,6 +2723,11 @@ _XmConvertComplete(Widget wid, XtPointer value,
 		   XmConvertCallbackStruct *cs)
 {
 
+  if (cs == NULL) {
+    XtFree((char *) value);
+    return;
+  }
+
   if (value == NULL && cs -> value == NULL) {
     XmeStandardConvert(wid, NULL, cs);
   } else {
@@ -2750,6 +2755,8 @@ _XmTransferGetDestinationCBStruct(XtPointer tid)
 {
   TransferContext tc = (TransferContext) tid;
 
+  if (tc == NULL)
+    return NULL;
   return(tc -> callback_struct);
 }
 

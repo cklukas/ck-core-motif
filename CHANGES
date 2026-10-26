@@ -22091,6 +22091,13 @@ Make locale-text conversion failure deterministic (2026-10-26)
 
 Initialize standard-conversion results (2026-10-26)
 ====================================================
+Harden conversion completion helpers (2026-10-26)
+==================================================
+
+- Release returned conversion data when completion receives no callback
+  structure, and return `NULL` for destination lookup with no transfer ID.
+- Add focused regression coverage and documentation for cleanup paths.
+
 Reject non-byte locale-text properties (2026-10-26)
 ====================================================
 
