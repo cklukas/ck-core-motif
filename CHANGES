@@ -21443,3 +21443,9 @@ Initialize MWM client title handles (2026-10-26)
 GetClientInfo now initializes clientTitle and iconTitle to NULL before
 property processing, making missing-title replacement and cleanup paths safe.
 
+Initialize MWM matte shadow GCs (2026-10-26)
+---------------------------------------------
+GetClientInfo now initializes the optional matte shadow GC handles to NULL
+before resource processing, preventing early frame paths from consuming
+indeterminate graphics contexts.
+

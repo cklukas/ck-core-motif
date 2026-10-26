@@ -250,6 +250,8 @@ GetClientInfo (WmScreenData *pSD, Window clientWindow, long manageFlags)
     pCD->pclientMatteBottomShadows = NULL;
     pCD->piconTopShadows = NULL;
     pCD->piconBottomShadows = NULL;
+    pCD->clientMatteTopShadowGC = NULL;
+    pCD->clientMatteBottomShadowGC = NULL;
     pCD->internalBevel = (wmGD.frameStyle == WmSLAB) ? 0 : 
 						FRAME_INTERNAL_SHADOW_WIDTH;
 #ifndef NO_OL_COMPAT
