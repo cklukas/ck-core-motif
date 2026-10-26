@@ -15383,3 +15383,11 @@ Validate clipboard chunk consistency (2026-10-27)
 - Add a focused source regression and documentation.
 
 Clamp clipboard INCR chunk sizes (2026-10-27)
+Keep DnD write offsets representable (2026-10-27)
+===================================================
+
+- Saturate `_XmWriteDragBuffer` offsets at the ABI's `CARD16` maximum instead
+  of returning a wrapped value for larger buffers.
+- Add a focused source regression and documentation.
+
+Validate clipboard chunk consistency (2026-10-27)

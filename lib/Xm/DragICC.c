@@ -734,7 +734,7 @@ _XmWriteDragBuffer(
        buf->max = new_max;
     }
     memcpy(buf->bytes + buf->size, ptr, (size_t)size);
-    returnVal = buf->size;
+    returnVal = buf->size > UINT16_MAX ? UINT16_MAX : (CARD16)buf->size;
     buf->size += (size_t) size;
     return returnVal;
 }
