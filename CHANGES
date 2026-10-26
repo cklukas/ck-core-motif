@@ -16707,3 +16707,12 @@ Guard DataField clip-mask X resources (2026-10-27)
 - Add a focused source regression and documentation.
 
 ====================================================
+
+Guard DataField graphics-context resources (2026-10-27)
+========================================================
+
+- Check context lookup and save/text/image GC allocations, releasing earlier
+  GCs when a later allocation fails.
+- Add a focused source regression and documentation.
+
+====================================================

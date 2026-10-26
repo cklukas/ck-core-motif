@@ -9455,6 +9455,8 @@ df_LoadGCs(
 
    if (XmTextF_has_rect(tf)) {
       TextFGCData gc_data = df_GetTextFGCData((Widget)tf);
+      if (gc_data == NULL)
+         return;
       XmTextF_has_rect(gc_data->tf) = False;
       gc_data->tf = NULL;
    }
@@ -9471,6 +9473,8 @@ df_LoadGCs(
    XmTextF_save_gc(tf) = XtAllocateGC((Widget) tf,
 	tf->core.depth, value_mask,
 	&values, dynamic_mask, 0); 
+   if (XmTextF_save_gc(tf) == NULL)
+      return;
 
    df_XmResetSaveGC(tf, XmTextF_save_gc(tf));
   /*
@@ -9496,6 +9500,11 @@ df_LoadGCs(
    XmTextF_gc(tf) = XtAllocateGC((Widget) tf,
 	tf->core.depth, value_mask,
 	&values, dynamic_mask, 0); 
+   if (XmTextF_gc(tf) == NULL) {
+      XtReleaseGC((Widget)tf, XmTextF_save_gc(tf));
+      XmTextF_save_gc(tf) = NULL;
+      return;
+   }
 
    /* Create a temporary GC - change it later in make IBEAM */
    value_mask |= GCTile;
@@ -9508,6 +9517,12 @@ df_LoadGCs(
    XmTextF_image_gc(tf) = XtAllocateGC((Widget) tf,
 	                   tf->core.depth, value_mask,
                            &values, dynamic_mask, 0); 
+   if (XmTextF_image_gc(tf) == NULL) {
+      XtReleaseGC((Widget)tf, XmTextF_gc(tf));
+      XmTextF_gc(tf) = NULL;
+      XtReleaseGC((Widget)tf, XmTextF_save_gc(tf));
+      XmTextF_save_gc(tf) = NULL;
+   }
 
 }
 
