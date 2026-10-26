@@ -2759,7 +2759,7 @@ GetCacheColorByName( Display *display, Colormap colormap,
     int i;
     CachedColor *color;
 
-    if (!colorname)
+    if (display == NULL || colorname == NULL || xcolor == NULL)
 	return False;
 
     if ( firstTime )
@@ -2794,6 +2794,9 @@ GetCacheColorByRGB( Display *display, Colormap colormap, XColor *xcolor)
 {
     int i;
     CachedColor *color;
+
+    if (display == NULL || xcolor == NULL)
+	return False;
 
     for (i = 0, color = colorCacheList.cache; i < colorCacheList.numEntries;
 	 i++, color++)

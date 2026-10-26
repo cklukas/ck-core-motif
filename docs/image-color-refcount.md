@@ -13,4 +13,8 @@ This avoids wrapping a live reference count to zero, which could otherwise
 allow a still-referenced color to be released. The same focused regression
 checks both RGB and symbolic-name lookup paths.
 
+Both lookup helpers also reject a missing display or output color record before
+walking the cache, keeping malformed internal calls from dereferencing null
+state.
+
 `tests/automated/check-image-color-refcount.py` protects this invariant.

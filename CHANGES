@@ -92,6 +92,13 @@ Reject ImageCache color-reference overflow (2026-10-26)
 - Extend `tests/automated/check-image-color-refcount.py` and document the
   invariant in `docs/image-color-refcount.md`.
 
+Guard ImageCache color lookup inputs (2026-10-26)
+=================================================
+
+- Reject null display, color-name, and output-color inputs before cache lookup,
+  preventing malformed internal calls from dereferencing null state.
+- Extend the ImageCache color-reference regression to cover both lookup APIs.
+
 Bound ToggleButton default geometry (2026-10-27)
 ==================================================
 

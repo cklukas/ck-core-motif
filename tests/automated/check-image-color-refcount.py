@@ -20,4 +20,11 @@ for function_name, next_name in (
     assert "if (color->num_cached == UINT_MAX)" in region
     assert "return False;" in region
     assert "color->num_cached++;" in region
+
+name_start = source.index("static Boolean\nGetCacheColorByName")
+name_end = source.index("static Boolean\nGetCacheColorByRGB", name_start)
+assert "display == NULL || colorname == NULL || xcolor == NULL" in source[name_start:name_end]
+rgb_start = name_end
+rgb_end = source.index("static Boolean\nFreeCacheColor", rgb_start)
+assert "display == NULL || xcolor == NULL" in source[rgb_start:rgb_end]
 print("PASS ImageCache color release preserves non-negative references")
