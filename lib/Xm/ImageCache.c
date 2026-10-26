@@ -2906,6 +2906,9 @@ CacheColorPixel( Display *display, Colormap colormap,
 {
     int numEntries = colorCacheList.numEntries;
 
+    if (display == NULL || xcolor == NULL)
+	return False;
+
     if (numEntries == colorCacheList.maxEntries)
     {
         CachedColor *new_cache;
@@ -2949,6 +2952,8 @@ GetCacheColor(Display *display, Colormap colormap,
 	      char *colorname, XColor *xcolor, void *closure)
 {
     int status;
+    if (display == NULL || xcolor == NULL)
+	return 0;
     if (colorname) {
 	/* look for the colorname in the cache */
 	if (!GetCacheColorByName(display, colormap, colorname, xcolor)) {
@@ -2986,6 +2991,8 @@ FreeCacheColors(Display *display, Colormap colormap,
 		Pixel *pixels, int n, void *closure)
 {
     int i, status;
+    if (display == NULL || pixels == NULL || n <= 0)
+	return 0;
     for (i = 0; i < n; i++, pixels++)
 	status = FreeCacheColor(display, colormap, *pixels);
     return 0;
@@ -2994,7 +3001,8 @@ FreeCacheColors(Display *display, Colormap colormap,
 static void
 ReleaseImagePixels(Screen *screen, Pixel *pixels, int npixels)
 {
-    if (pixels == NULL)
+
+    if (screen == NULL || pixels == NULL || npixels <= 0)
 	return;
     FreeCacheColors(DisplayOfScreen(screen),
 			DefaultColormapOfScreen(screen), pixels, npixels, NULL);

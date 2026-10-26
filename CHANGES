@@ -22335,3 +22335,11 @@ Guard optional conversion trait procedure (2026-10-26)
 - Add focused regression coverage and documentation for partial traits.
 
 Release invalid clipboard snapshot buffers (2026-10-26)
+Guard image-cache color callback inputs (2026-10-26)
+====================================================
+
+- Validate display, color, screen, and pixel-array pointers before XPM cache
+  allocation/free operations, including non-positive pixel counts.
+- Add focused regression coverage and documentation for malformed image paths.
+
+Guard optional conversion trait procedure (2026-10-26)
