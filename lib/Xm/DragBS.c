@@ -830,6 +830,15 @@ ReadAtomsTable(
 	    XmeWarning ((Widget) XmGetXmDisplay (display), MESSAGE2);
 	    ret = False;
 	}
+	if (ret &&
+	    (propertyRecPtr->info.heap_offset <
+	     sizeof(xmMotifAtomsPropertyRec) +
+	     (size_t)propertyRecPtr->info.num_atoms *
+	     sizeof(xmMotifAtomsTableRec) ||
+	     (unsigned long)propertyRecPtr->info.heap_offset > lengthRtn)) {
+	    XmeWarning ((Widget) XmGetXmDisplay (display), MESSAGE2);
+	    ret = False;
+	}
 
 	if (ret && atomsTable == NULL)
         {
@@ -1090,6 +1099,11 @@ ReadTargetsTable(
 	}
 
 	remaining = (size_t)lengthRtn - sizeof(xmMotifTargetsPropertyRec);
+	if (propertyRecPtr->info.heap_offset < sizeof(xmMotifTargetsPropertyRec) ||
+	    (unsigned long)propertyRecPtr->info.heap_offset > lengthRtn) {
+	    XmeWarning ((Widget) XmGetXmDisplay (display), MESSAGE2);
+	    ret = False;
+	}
 	scanptr = (unsigned char *)propertyRecPtr +
 	    sizeof(xmMotifTargetsPropertyRec);
 	for (i = 0; ret && i < (int)propertyRecPtr->info.num_target_lists; i++) {
