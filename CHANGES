@@ -20945,3 +20945,16 @@ Guard MWM border metrics (2026-10-26)
 -------------------------------------
 UpperBorderWidth and LowerBorderWidth now return zero for null client
 records instead of reading decoration or bevel state.
+Own TabBox font tables and mutable drawing contexts (2026-10-26)
+================================================================
+
+- Retain the copied render-table handle on fontList/renderTable updates instead
+  of discarding it through an accidental comparison. Caller-owned tables can
+  be freed after SetValues; default restoration and widget teardown remain
+  valid.
+- Use a private drawing GC, update it in place during redisplay and free it once
+  at destruction. Mutable tab drawing no longer changes a shared Xt GC or uses
+  a stale local handle after a theme change.
+- Extend the native realized-widget regression with repeated font-alias updates,
+  caller release, measured text extents and default restoration.
+
