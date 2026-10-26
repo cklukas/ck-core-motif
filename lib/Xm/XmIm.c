@@ -3154,6 +3154,10 @@ XmImGetXICResetState(Widget w)
 {
     XmImXICInfo icp;
     XIMResetState state = XIMInitialState;
+
+    if (w == NULL)
+	return state;
+
     icp = get_current_xic(get_xim_info(w), w);
     if (icp != NULL && icp->xic != NULL)
         XGetICValues(icp->xic, XNResetState, &state, NULL);

@@ -1,3 +1,12 @@
+Guard XIC reset-state query input (2026-10-27)
+===============================================
+
+- Return the default reset state before registration lookup when
+  `XmImGetXICResetState` receives a null widget.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard widget geometry query inputs (2026-10-27)
 ===============================================
 
