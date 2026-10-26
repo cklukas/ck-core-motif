@@ -18142,6 +18142,14 @@ Refresh MWM screen-name bounds regression check (2026-10-27)
 Refresh WSM workspace-property allocation regression check (2026-10-27)
 =======================================================================
 
+Refresh WSM single-data allocation regression check (2026-10-27)
+================================================================
+
+- Bound the focused source extraction to the complete unpack routine so all
+  three list-width allocation failure paths are checked together.
+
+================================================================
+
 - Match the focused check to the current formatted, checked `Cardinal`
   allocation expression for workspace atoms.
 
