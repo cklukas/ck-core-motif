@@ -1,3 +1,12 @@
+Widen XIM preedit feedback iteration (2026-10-27)
+==================================================
+
+- Match the rendition-feedback loop counter to `XIMText.length` and reject
+  empty or negative lengths before indexing the feedback array.
+- Add a focused source regression and documentation.
+
+==================================================
+
 Reject negative XIM preedit positions (2026-10-27)
 ==================================================
 

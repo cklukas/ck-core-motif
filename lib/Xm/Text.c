@@ -3666,12 +3666,12 @@ PreeditSetRendition(Widget w,
                     XIMPreeditDrawCallbackStruct* data)
 {
   XIMText *text = data->text;
-  unsigned short cnt;
+  int cnt;
   XIMFeedback fb;
   XmTextPosition prestart = PreStartTW((XmTextWidget)w)+data->chg_first, left, right;
   XmHighlightMode mode;
 
-  if (!text->length)
+  if (text == NULL || text->length <= 0)
     return;
 
   if (!text->feedback)
