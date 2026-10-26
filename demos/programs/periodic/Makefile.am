@@ -13,8 +13,8 @@ INCLUDES = -I$(srcdir)/../../../lib -I$(top_builddir)/lib ${X_CFLAGS}
 
 all: periodic.uid
 
-periodic.uid: periodic.uil
-	../../../clients/uil/uil -o $@ $? -I$(srcdir)/../../../clients/uil -I../../../clients/uil
+periodic.uid: periodic.uil periodic_l.uil
+	../../../clients/uil/uil -o $@ $(srcdir)/periodic.uil -I$(srcdir) -I$(srcdir)/../../../clients/uil -I../../../clients/uil
 
 clean-local:
 	$(RM) periodic.uid

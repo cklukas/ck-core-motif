@@ -29,7 +29,7 @@ Application resource overrides remain authoritative.
 | Editing and navigation | Consistent fields, dropdowns, spin controls, tabs, menus, toolbars, lists, trees and grids | Pending |
 | Dialogs and glyphs | Toolkit-owned alignment/wrapping/actions; complete glyph family and non-SVG fallback | Pending |
 | Gallery simplification | No custom modern fonts/colors/borders/renderers or natural-size repairs; use standard semantic roles | Pending |
-| Periodic application | Modern and historical-resource modes; independent main-window, menu, dialog and control validation | Pending |
+| Periodic application | Modern and historical-resource modes; independent main-window, menu, dialog and control validation | Startup/resource modes and native hierarchy checks implemented; full visual matrix pending |
 | Acceptance and publication | Full native/visual matrix, ABI cohort rebuild, documentation, both remotes, cleanup | Pending |
 
 ## Completion gates
@@ -74,3 +74,33 @@ conversion as ordinary resources.
 Next foundation gates include role transactions, font ownership and measured
 control geometry/DPI. The complete historical-widget, visual and interaction
 matrices remain required; representative resource parity does not replace them.
+
+Periodic now exposes toolkit defaults independently of its historical resource
+file. Native startup coverage includes its real UIL controls, menus and dialogs,
+seven modes/override cases, invalid options and missing UID data. This reference
+also exposed and fixed non-menu RowColumn shadow rejection and an unbounded List
+geometry loop. Actual-window inspection additionally exposed and fixed the
+string-tag sentinel regression responsible for missing default-font labels.
+See `periodic-modern-appearance.md`; modern typography and control
+redesign remain required before accepting its appearance.
+
+## Periodic visual review after restoring text
+
+The verified native light/dark main windows expose these remaining design gates:
+
+- Small fixed-font labels and a weak title hierarchy amid oversized empty cells:
+  supply the agreed shared render tables and font-driven natural geometry.
+- Tiny checkbox/diamond indicators and inconsistent arrow sizes: redesign the
+  shared selection controls, including their selected/disabled/focus states.
+- Heavy gray scroll tracks with small arrow targets and weak thumb distinction:
+  use coherent track, thumb and arrow metrics and state colors.
+- Strong nested frames around notebook pages, inconsistent tab treatment and
+  dark borders disappearing into dark surfaces: unify surface/border roles.
+- Dense legacy bitmap dialog pickers and inconsistent icon backgrounds: use the
+  shared modern SVG/fallback family while retaining historical mode.
+- Spin, combo and option controls expose different text/arrow alignment and
+  vertical padding: measure common content and align affordances consistently.
+
+These are findings from the running application, not completion claims. Main
+windows have been inspected; full menu/dialog interaction and DPI/state captures
+remain required after the control redesign.

@@ -9,8 +9,8 @@ start = source.index("_XmStringIndexCacheTag(XmStringTag tag,")
 end = source.index("\n}\n", start)
 function = source[start:end]
 
-assert "if (tag == NULL || length < 0)" in function
+assert "if (tag == NULL || (length < 0 && length != XmSTRING_TAG_STRLEN))" in function
 assert "return 0;" in function
-assert function.index("if (tag == NULL || length < 0)") < function.index("_XmProcessLock();")
+assert function.index("if (tag == NULL || (length < 0 && length != XmSTRING_TAG_STRLEN))") < function.index("_XmProcessLock();")
 
-print("XmString tag-cache indexing rejects invalid inputs")
+print("XmString tag-cache indexing rejects invalid inputs while preserving the strlen sentinel")

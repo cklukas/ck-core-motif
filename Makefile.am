@@ -1176,3 +1176,8 @@ check-dialog-artwork:
 	$(PYTHON) $(srcdir)/scripts/generate-dialog-icons.py --check
 
 EXTRA_DIST += tests/automated/check-appearance-density.c
+
+EXTRA_DIST += tests/automated/check-periodic-appearance.c \
+              tests/automated/run-periodic-appearance.py
+
+EXTRA_DIST += docs/periodic-modern-appearance.md

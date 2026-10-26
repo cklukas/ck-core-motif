@@ -32,15 +32,18 @@ static char rcsid[] = "$XConsortium: periodic.c /main/8 1996/04/22 23:28:50 pasc
 /******************************************************************************
  * periodic.c
  *
- * Copy and rename the file periodic.ad to Periodic in your home directory
- * or app-defaults directory, or merge it with your .Xdefaults file.
- *
- * It provides useful default values for Periodic fonts and colors
+ * Modern mode shows toolkit defaults. --historical-resources selects the
+ * original presentation; install XmdPeriodic.ad only for that resource class.
  *
  *****************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <X11/Xatom.h>
+#include <X11/Shell.h>
+#include <Xm/Appearance.h>
 #include <Xm/Xm.h>
 #include <Xm/ComboBox.h>
 #include <Xm/RowColumn.h>
@@ -171,7 +174,7 @@ static MRMRegisterArg mrmNames[] = {
         {"ToggleControlCb", (XtPointer)ToggleControlCb }
 };
 
-static String fallbackResources[] = {
+static String historicalResources[] = {
 "*XmText.columns:                         10",
 "*XmTextField.columns:                    10",
 "*XmComboBox*columns:                      8",
@@ -202,41 +205,131 @@ static String fallbackResources[] = {
 NULL
 };
 
-#define APP_NAME	"periodic"
-#define APP_CLASS	"XmdPeriodic"
+/* Keep historical app-defaults separate: loading XmdPeriodic while testing
+ * modern defaults would silently make its fonts and geometry authoritative. */
+#define APP_CLASS "XmdPeriodicModern"
+#define HISTORICAL_APP_CLASS "XmdPeriodic"
 
-static XtAppContext  appContext;
+static XtAppContext appContext;
 static Widget shell;
 static unsigned setting_toggle = 0;
 
+typedef struct {
+    XmAppearanceProfile profile;
+    XmAppearanceDensity density;
+    Boolean historical;
+} PeriodicOptions;
+
+static void
+Usage(FILE *stream, const char *program)
+{
+    fprintf(stream, "Usage: %s [--appearance modern-light|modern-dark|classic|high-contrast]\n"
+        "       [--density comfortable|compact] [--historical-resources] [Xt options]\n"
+        "Modern mode uses toolkit defaults; historical mode uses XmdPeriodic resources.\n",
+        program);
+}
+
+/* Consume only our options; leave -display, -geometry, -xrm, etc. to Xt. */
+static int
+ParseOptions(int *argc, char **argv, PeriodicOptions *options)
+{
+    int read, write = 1;
+    Boolean appearance_given = False;
+    options->profile = XmAPPEARANCE_MODERN_LIGHT;
+    options->density = XmAPPEARANCE_DENSITY_COMFORTABLE;
+    options->historical = False;
+    for (read = 1; read < *argc; ++read) {
+        const char *option = argv[read];
+        if (!strcmp(option, "--help")) return 0;
+        if (!strcmp(option, "--historical-resources")) {
+            options->historical = True;
+        } else if (!strcmp(option, "--appearance") || !strcmp(option, "--density")) {
+            const char *value;
+            if (++read == *argc) return -1;
+            value = argv[read];
+            if (!strcmp(option, "--appearance")) {
+                appearance_given = True;
+                if (!strcmp(value, "modern-light")) options->profile = XmAPPEARANCE_MODERN_LIGHT;
+                else if (!strcmp(value, "modern-dark")) options->profile = XmAPPEARANCE_MODERN_DARK;
+                else if (!strcmp(value, "classic")) options->profile = XmAPPEARANCE_CLASSIC;
+                else if (!strcmp(value, "high-contrast")) options->profile = XmAPPEARANCE_HIGH_CONTRAST;
+                else return -1;
+            } else {
+                if (!strcmp(value, "comfortable")) options->density = XmAPPEARANCE_DENSITY_COMFORTABLE;
+                else if (!strcmp(value, "compact")) options->density = XmAPPEARANCE_DENSITY_COMPACT;
+                else return -1;
+            }
+        } else {
+            argv[write++] = argv[read];
+        }
+    }
+    if (options->historical) {
+        if (appearance_given && options->profile != XmAPPEARANCE_CLASSIC) return -1;
+        options->profile = XmAPPEARANCE_CLASSIC;
+    }
+    argv[write] = NULL;
+    *argc = write;
+    return 1;
+}
+
 int
-main(int argc, char *argv[] )
+main(int argc, char *argv[])
 {
     Widget appMain;
-
-    XtSetLanguageProc(NULL, (XtLanguageProc) NULL, NULL); 
-
-    MrmInitialize ();
-    
-    shell = XtVaOpenApplication( &appContext, 
-                                 APP_CLASS, 
-                                 NULL, 
-                                 0, 
-                                 &argc, 
-                                 argv, 
-                                 fallbackResources, 
-                                 sessionShellWidgetClass, 
-                                 NULL );
-
-  
-    if (MrmOpenHierarchy (1, mrmFile, NULL, &mrmId) != MrmSUCCESS) exit(0);
-    MrmRegisterNames(mrmNames, XtNumber(mrmNames));
-    MrmFetchWidget (mrmId, "appMain", shell, &appMain, &mrmClass);
+    Display *display;
+    const char *application_class;
+    PeriodicOptions options;
+    int parsed = ParseOptions(&argc, argv, &options);
+    if (parsed <= 0) {
+        Usage(parsed == 0 ? stdout : stderr, argv[0]);
+        return parsed == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
+    }
+    XtSetLanguageProc(NULL, (XtLanguageProc)NULL, NULL);
+    MrmInitialize();
+    application_class = options.historical ? HISTORICAL_APP_CLASS : APP_CLASS;
+    XtToolkitInitialize();
+    appContext = XtCreateApplicationContext();
+    if (options.historical) XtAppSetFallbackResources(appContext, historicalResources);
+    display = XtOpenDisplay(appContext, NULL, NULL, application_class,
+                            NULL, 0, &argc, argv);
+    if (display == NULL) {
+        fputs("periodic: cannot open display\n", stderr);
+        return EXIT_FAILURE;
+    }
+    if (argc != 1) {
+        Usage(stderr, argv[0]);
+        return EXIT_FAILURE;
+    }
+    /* Session-shell initialization can create Motif tooltip/display objects.
+     * Select before creating even the shell, not merely before MrmFetchWidget. */
+    if (!XmSetAppearanceDensity(display, options.density) ||
+        !XmSetAppearanceProfile(display, options.profile)) {
+        fputs("periodic: cannot select appearance\n", stderr);
+        return EXIT_FAILURE;
+    }
+    shell = XtVaAppCreateShell(NULL, application_class, sessionShellWidgetClass,
+                              display, XtNargc, argc, XtNargv, argv, NULL);
+    if (MrmOpenHierarchy(1, mrmFile, NULL, &mrmId) != MrmSUCCESS) {
+        fputs("periodic: cannot open periodic.uid; run beside it or set UIDPATH\n", stderr);
+        return EXIT_FAILURE;
+    }
+    if (MrmRegisterNames(mrmNames, XtNumber(mrmNames)) != MrmSUCCESS ||
+        MrmFetchWidget(mrmId, "appMain", shell, &appMain, &mrmClass) != MrmSUCCESS) {
+        fputs("periodic: cannot construct the widget table\n", stderr);
+        MrmCloseHierarchy(mrmId);
+        return EXIT_FAILURE;
+    }
+    MrmCloseHierarchy(mrmId);
     XtManageChild(appMain);
     XtRealizeWidget(shell);
+    {
+        unsigned long pid = (unsigned long)getpid();
+        XChangeProperty(XtDisplay(shell), XtWindow(shell),
+            XInternAtom(XtDisplay(shell), "_NET_WM_PID", False), XA_CARDINAL,
+            32, PropModeReplace, (unsigned char *)&pid, 1);
+    }
     XtAppMainLoop(appContext);
-
-    return 0;    /* make compiler happy */
+    return EXIT_SUCCESS;
 }
 
 static void
@@ -518,7 +611,7 @@ static void
 DrawArea(
     Widget w )
 {
-    int i, x, y, m;
+    int i, m;
     XPoint p[NPOINTS];
 
     if (drawData->drawWidth == 0) return;
@@ -630,7 +723,7 @@ static void
 DrawButton(
     Widget w )
 {
-    int i, x, y, incX, incY;
+    int i, incX, incY;
     XArc a[NARCS];
 
     if (buttonData->drawWidth == 0 || !lightsOn) return;
@@ -762,7 +855,7 @@ static Boolean toggle_boolean[] = {
 
 #define RESET_VALUE(w, list, value)				\
   {								\
-    int pos;							\
+    Cardinal pos;							\
     for (pos = 0; pos < XtNumber(list); pos++)			\
       if (list[pos] == value)					\
 	{							\
