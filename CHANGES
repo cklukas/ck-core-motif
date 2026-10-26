@@ -22909,3 +22909,10 @@ Guard TextField wide-value warning formatting (2026-10-26)
   temporary formatting allocation fails.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-wide-warning.py
+
+Guard TextField narrow-value validation allocation (2026-10-26)
+=================================================================
+- Check single-byte destination storage before converting wide input and reset
+  value state on allocation failure.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-narrow-validation.py

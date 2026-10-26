@@ -7611,6 +7611,13 @@ ValidateString(XmTextFieldWidget tf,
     if (tf->text.max_char_size == 1) { /* Need to store data as char* */
       int ret_val = 0;
       TextF_Value(tf) = XtMalloc((unsigned)tf->text.size_allocd);
+      if (TextF_Value(tf) == NULL) {
+        TextF_WcValue(tf) = NULL;
+        tf->text.string_length = 0;
+        tf->text.size_allocd = 0;
+        XmStackFree((char *)wcs_start_temp, stack_cache);
+        return;
+      }
       ret_val = wcstombs(TextF_Value(tf), wcs_start_temp, 
 			 tf->text.size_allocd);
       if (ret_val < 0) tf->text.value[0] = '\0';
