@@ -1,3 +1,11 @@
+Refresh MWM root-menu fallback regression check (2026-10-27)
+============================================================
+
+- Match the focused check to the current bounded `snprintf` construction for
+  both builtin key and button bindings.
+
+===========================================================
+
 Refresh MWM menu-widget regression check (2026-10-27)
 =====================================================
 

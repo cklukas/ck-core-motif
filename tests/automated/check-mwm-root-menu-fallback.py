@@ -9,6 +9,9 @@ start = source.index("if (pSD->keyBindings == builtinKeyBindingsName)")
 end = source.index("#ifdef NO_MESSAGE_CATALOG", start)
 region = source[start:end]
 assert region.count('root_menu = pSD->rootMenu ? pSD->rootMenu : "DefaultRootMenu";') == 2
-assert "strlen(root_menu)" in region
-assert "sprintf(buffer, builtinButtonBindings, root_menu);" in region
+assert "snprintf(NULL, 0, builtinKeyBindings, root_menu)" in region
+assert "snprintf(NULL, 0, builtinButtonBindings, root_menu)" in region
+assert "(void)snprintf(buffer, bufferLength, builtinKeyBindings, root_menu);" in region
+assert "(void)snprintf(buffer, bufferLength, builtinButtonBindings, root_menu);" in region
+assert "sprintf(buffer" not in region
 print("PASS MWM builtin bindings use a root-menu fallback")
