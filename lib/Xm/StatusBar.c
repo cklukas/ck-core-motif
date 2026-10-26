@@ -329,9 +329,21 @@ void XmStatusBarSetItems(Widget widget, const XmStatusBarItem *items,
     bar = (XmStatusBarWidget)widget;
     bar->status_bar.laying_out = True;
     free_items(bar, True);
-    if (count)
+    if (count && ((size_t)count > SIZE_MAX / sizeof(*bar->status_bar.items) ||
+                  (size_t)count > UINT_MAX / sizeof(*bar->status_bar.items))) {
+        XtWarning("XmStatusBarSetItems: item array is too large");
+        bar->status_bar.laying_out = False;
+        return;
+    }
+    if (count) {
         bar->status_bar.items = (XmStatusBarStoredItem *)XtCalloc(
             count, sizeof(*bar->status_bar.items));
+        if (bar->status_bar.items == NULL) {
+            XtWarning("XmStatusBarSetItems: unable to allocate item array");
+            bar->status_bar.laying_out = False;
+            return;
+        }
+    }
     for (i = 0; i < count; ++i) {
         XmString display;
         XmStatusBarStoredItem *stored = &bar->status_bar.items[i];

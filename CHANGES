@@ -1,3 +1,12 @@
+Handle StatusBar item-array allocation failure (2026-10-27)
+============================================================
+
+- Bound `XmStatusBarSetItems` item-array sizing and stop before child creation
+  when `XtCalloc` fails, avoiding a null-array dereference.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Handle optimized XmString rendition allocation failure (2026-10-27)
 =====================================================================
 
