@@ -123,18 +123,28 @@ static int item_width(XmBreadcrumbBarWidget bar, Cardinal index) {
                         bar->breadcrumb.items[index].label : "";
     const char *separator = bar->breadcrumb.separator ?
                             bar->breadcrumb.separator : "";
-    size_t label_len = strlen(label), separator_len = strlen(separator);
+    XmString label_string = XmStringCreateLocalized((char *)label);
+    XmString separator_string = XmStringCreateLocalized((char *)separator);
+    Dimension label_width = 0, label_height = 0, separator_width = 0;
     int width;
-    if (label_len > (size_t)(INT_MAX - 10) / 8)
-        width = INT_MAX;
-    else
-        width = (int)(label_len * 8) + 10;
+    if (bar->breadcrumb.font && label_string)
+        XmStringExtent(bar->breadcrumb.font, label_string,
+                       &label_width, &label_height);
+    if (index && bar->breadcrumb.font && separator_string) {
+        Dimension separator_height = 0;
+        XmStringExtent(bar->breadcrumb.font, separator_string,
+                       &separator_width, &separator_height);
+    }
+    XmStringFree(label_string);
+    XmStringFree(separator_string);
+    if ((unsigned long)label_width + 10UL > (unsigned long)INT_MAX)
+        return INT_MAX;
+    width = (int)label_width + 10;
     if (index) {
-        if (separator_len > (size_t)(INT_MAX - 8) / 8 ||
-            width > INT_MAX - (int)(separator_len * 8) - 8)
-            width = INT_MAX;
-        else
-            width += (int)(separator_len * 8) + 8;
+        if ((unsigned long)width + (unsigned long)separator_width + 8UL >
+            (unsigned long)INT_MAX)
+            return INT_MAX;
+        width += (int)separator_width + 8;
     }
     return width;
 }
@@ -244,7 +254,7 @@ static void draw_item(XmBreadcrumbBarWidget bar, Cardinal index, int *cursor,
                        &separator_height);
     }
     text_x = first ? *cursor :
-        (separator_width > (Dimension)(INT_MAX - *cursor - 4)
+        (*cursor > INT_MAX - (int)separator_width - 4
              ? INT_MAX : *cursor + (int)separator_width + 4);
     text_y = ((int)bar->core.height - (int)label_height) / 2;
     if (!first && separator_string)
