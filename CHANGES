@@ -1,3 +1,12 @@
+Guard SimpleMenu creation parent inputs (2026-10-27)
+=====================================================
+
+- Return before subresource or context lookup when a SimpleMenu convenience
+  constructor receives a null parent.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard popup post-list inputs (2026-10-27)
 =========================================
 

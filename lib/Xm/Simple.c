@@ -228,6 +228,9 @@ XmCreateSimpleMenuBar(
 {
 	Widget rc;
 	XmSimpleMenuRec mr;
+	if (parent == (Widget) NULL)
+	    return NULL;
+
 	_XmWidgetToAppContext(parent);
 
 	_XmAppLock(app);
@@ -253,6 +256,9 @@ XmCreateSimplePopupMenu(
 {
 	Widget rc;
 	XmSimpleMenuRec mr;
+	if (parent == (Widget) NULL)
+	    return NULL;
+
 	_XmWidgetToAppContext(parent);
 
 	_XmAppLock(app);
@@ -282,6 +288,9 @@ XmCreateSimplePulldownMenu(
 	Arg local_args[3];
 	WidgetList buttons;
 	Cardinal num_buttons;
+
+	if (parent == (Widget) NULL)
+	    return NULL;
 
 	_XmWidgetToAppContext(parent);
 	_XmAppLock(app);
@@ -343,6 +352,9 @@ XmCreateSimpleOptionMenu(
 	Arg local_args[5];
 	WidgetList buttons;
 	Cardinal num_buttons;
+	if (parent == (Widget) NULL)
+	    return NULL;
+
 	_XmWidgetToAppContext(parent);
 
 	_XmAppLock(app);
