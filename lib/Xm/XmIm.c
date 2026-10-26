@@ -672,6 +672,10 @@ XmImSetFocusValues(Widget w,
   XVaNestedList list;
   Window wind;
   XmInputPolicy input_policy;
+
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -758,6 +762,9 @@ XmImSetValues(Widget w,
 	      ArgList args,
 	      Cardinal num_args )
 {
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
   set_values(w, args, num_args, XmINHERIT_POLICY);
@@ -768,6 +775,10 @@ void
 XmImUnsetFocus(Widget w)
 {
   register XmImXICInfo xic_info;
+
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
