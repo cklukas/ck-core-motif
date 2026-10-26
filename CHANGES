@@ -1,3 +1,11 @@
+Refresh protocol-manager removal regression check (2026-10-27)
+===============================================================
+
+- Match the focused check to the current `mgr_index` teardown search and
+  ownership-count decrement.
+
+===========================================================
+
 Refresh parse-table null regression check (2026-10-27)
 =======================================================
 

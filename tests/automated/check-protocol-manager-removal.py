@@ -8,7 +8,7 @@ source = Path(__file__).parents[2] / "lib" / "Xm" / "Protocols.c"
 text = source.read_text(encoding="utf-8")
 for needle in (
     "while (ap_mgr->num_protocol_mgrs != 0 &&",
-    "if (i == ap_mgr->num_protocol_mgrs)",
+    "if (mgr_index == ap_mgr->num_protocol_mgrs)",
     "ap_mgr->num_protocol_mgrs--;",
 ):
     if needle not in text:
