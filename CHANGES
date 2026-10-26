@@ -18121,6 +18121,14 @@ Refresh text-property concatenation regression check (2026-10-27)
 Refresh toolbar action-label regression check (2026-10-27)
 ===========================================================
 
+Refresh tree-view RTL geometry regression check (2026-10-27)
+============================================================
+
+- Match the focused check to the current XmString extent measurement and
+  long-long coordinate clamping used for right-to-left labels.
+
+============================================================
+
 - Match the focused check to the current XmString separator/shortcut
   composition path and its allocation-failure cleanup.
 
