@@ -21001,6 +21001,11 @@ Validate MWM cached-label bitmap entries (2026-10-26)
 MakeCachedLabelPixmap now rejects cache entries with a missing source bitmap or
 zero dimensions before issuing X resource and copy requests.
 
+Validate MWM icon source geometry (2026-10-26)
+----------------------------------------------
+MakeIconPixmap now returns `None` for a missing source pixmap or zero-sized
+source image before creating destination resources or issuing copy requests.
+
 Handle MWM cached-label X resource failure (2026-10-26)
 --------------------------------------------------------
 MakeCachedLabelPixmap now returns `None` when pixmap or graphics-context
