@@ -422,9 +422,7 @@ UninstallImageMapProc (XmHashKey key, /* unused */
       /* Can't free built-in data. */
       if (entry->builtin_data == NULL)
 	{
-	  _XmProcessLock();
 	  _XmRemoveHashEntry (image_set, entry->image_name);
-	  _XmProcessUnlock();
 	  XtFree(entry->image_name);
 	  /* uninstall do not free the XImage itself */
 	  XtFree((char*) entry);
