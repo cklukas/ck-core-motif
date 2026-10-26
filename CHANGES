@@ -1,3 +1,10 @@
+Bound ClipWindow translation-buffer growth (2026-10-27)
+========================================================
+
+- Reject wrapped append arithmetic and translation buffers wider than Xt's
+  `Cardinal` before reallocating generated key translations.
+- Extend the focused source regression and document the boundary contract.
+
 Bound charset-table converter allocation width (2026-10-27)
 ============================================================
 

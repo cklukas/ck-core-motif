@@ -6,6 +6,8 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "ClipWindow.c").read_text()
 append = source[source.index("AppendTranslationText"):source.index("static String\nGetRealTranslations")]
 get = source[source.index("GetRealTranslations"):source.index("static XtTranslations")]
 assert "if (next == 0)" in append
+assert "*used == SIZE_MAX" in append
+assert "required > (size_t)UINT_MAX" in append
 assert "String new_buffer" in append
 assert "new_buffer = (String)XtRealloc" in append
 assert "if (new_buffer == NULL)" in append
