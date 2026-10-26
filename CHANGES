@@ -1,3 +1,12 @@
+Guard zero-length compound-text append (2026-10-27)
+====================================================
+
+- Skip the `memcpy` call when a compound-text append has zero length, avoiding
+  a NULL source pointer operation while preserving normal encoding output.
+- Add a focused source regression and documentation.
+
+====================================================
+
 Preserve XmString entry-count width (2026-10-27)
 ================================================
 

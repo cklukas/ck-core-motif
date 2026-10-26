@@ -2958,7 +2958,8 @@ ctextConcat(
 	new_str = (OctetPtr)XtRealloc((char *)str1, (Cardinal)total_size);
 	if (new_str == NULL)
 	    return str1;
-	memcpy(&new_str[str1len], str2, str2len);
+	if (str2len != 0)
+	    memcpy(&new_str[str1len], str2, str2len);
 	new_str[str1len + str2len] = EOS;
 	return new_str;
 }
