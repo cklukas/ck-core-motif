@@ -2640,7 +2640,7 @@ _XmTextToLocaleText(Widget w,
 	  return NULL;
 	}
 
-      total_value = XtMalloc (malloc_size + 1);
+      total_value = XtMalloc ((Cardinal)(malloc_size + 1));
       if (total_value == NULL) {
 	XFreeStringList(values);
 	if (success != NULL) *success = False;

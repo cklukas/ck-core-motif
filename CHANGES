@@ -21938,3 +21938,10 @@ Make transfer completion-list width explicit (2026-10-26)
   `Cardinal` to `XtRealloc`.
 - Add focused regression documentation for the allocation boundary.
 
+Make locale-text allocation width explicit (2026-10-26)
+========================================================
+
+- Pass the already-bounded locale-text accumulation size explicitly as an Xt
+  `Cardinal` to `XtMalloc`.
+- Add focused regression documentation for the conversion allocation.
+
