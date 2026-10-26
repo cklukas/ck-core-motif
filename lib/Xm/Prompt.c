@@ -119,8 +119,11 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
         Dimension width = 0, height = 0;
         XmStringExtent(prompt->prompt.font, prompt->prompt.text, &width, &height);
         reply->width = width > (Dimension)-1 - 8 ? (Dimension)-1 : width + 8;
-    } else reply->width = 8;
-    reply->height = 24;
+        reply->height = height > (Dimension)-1 - 8 ? (Dimension)-1 : height + 8;
+    } else {
+        reply->width = 8;
+        reply->height = 24;
+    }
     return (widget->core.width == reply->width && widget->core.height == reply->height)
                ? XtGeometryYes : XtGeometryAlmost;
 }
