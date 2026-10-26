@@ -4,6 +4,8 @@ Bound MWM debug error-code formatting (2026-10-27)
 - Format the X request opcode used by the debug error database lookup with
   checked `snprintf` output.
 - Add focused regression coverage and documentation.
+- Initialize the four-byte default screen-name slots with the same checked
+  formatter in both WSM and non-WSM builds.
 
 ============================================================
 

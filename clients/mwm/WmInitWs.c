@@ -2411,6 +2411,8 @@ void InitScreenNames (void)
     
     for (num=0; num<numScreens; num++)
     {
+	int nameLength;
+
 	if (!(wmGD.screenNames[num] = 
 	      (unsigned char *) XtMalloc (4*sizeof(char))))
 	{
@@ -2420,10 +2422,14 @@ void InitScreenNames (void)
 	}
 	/* default name is left justified, 3-chars max, zero terminated */
 #ifdef WSM
-	sprintf((char *)wmGD.screenNames[num], UNSPECIFIED_SCREEN_NAME);
+	nameLength = snprintf((char *)wmGD.screenNames[num], 4,
+			      "%s", UNSPECIFIED_SCREEN_NAME);
 #else  /* WSM */
-	sprintf((char *)wmGD.screenNames[num],"%d",num%1000);
+	nameLength = snprintf((char *)wmGD.screenNames[num], 4,
+			      "%d", num % 1000);
 #endif /* WSM */
+	if (nameLength < 0 || nameLength >= 4)
+	    wmGD.screenNames[num][0] = '\0';
     }
 }
 #ifndef NO_MESSAGE_CATALOG

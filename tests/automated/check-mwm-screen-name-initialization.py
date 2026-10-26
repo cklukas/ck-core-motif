@@ -13,4 +13,8 @@ assert 'char screenName[sizeof("-2147483648")]' in region
 assert 'snprintf(screenName, sizeof(screenName), "%d", sNum)' in region
 assert 'memcpy((char *)wmGD.screenNames[sNum], screenName, buf_size)' in region
 assert 'sprintf (buffer, "%d", sNum)' not in region
+init = source[source.index("void InitScreenNames (void)"):]
+assert 'snprintf((char *)wmGD.screenNames[num], 4' in init
+assert "nameLength < 0 || nameLength >= 4" in init
+assert 'sprintf((char *)wmGD.screenNames[num]' not in init
 print("PASS WSM screen names use an initialized bounded buffer")

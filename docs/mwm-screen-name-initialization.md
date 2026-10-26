@@ -7,6 +7,9 @@ crash MWM during multiscreen startup. The replacement checks the formatting
 result, sizes the Xt allocation from the measured length, and copies only the
 initialized bytes.
 
+The initial four-byte slots used for default screen names are also populated
+with checked `snprintf` output in both WSM and non-WSM builds.
+
 The focused source contract is checked with:
 
 ```sh
