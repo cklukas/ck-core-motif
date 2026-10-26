@@ -95,8 +95,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     (void)event; (void)region; text_value(badge, text, sizeof(text));
     if (!XtWindow(widget) || !badge->badge.foreground_gc) return;
     XClearWindow(XtDisplay(widget), XtWindow(widget));
-    XDrawRectangle(XtDisplay(widget), XtWindow(widget), badge->badge.foreground_gc,
-                   0, 0, badge->core.width - 1, badge->core.height - 1);
+    if (badge->core.width > 1 && badge->core.height > 1)
+        XDrawRectangle(XtDisplay(widget), XtWindow(widget), badge->badge.foreground_gc,
+                       0, 0, badge->core.width - 1, badge->core.height - 1);
     label = (badge->badge.count >= 0) ? XmStringCreateLocalized(text) :
         badge->badge.label;
     if (badge->badge.font && label) {
@@ -118,8 +119,13 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     if (font_changed) {
         XmRenderTable new_font = badge->badge.font ? XmFontListCopy(badge->badge.font) :
             XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
-        if (old->badge.font) XmRenderTableFree(old->badge.font);
-        badge->badge.font = new_font;
+        if (new_font) {
+            if (old->badge.font) XmRenderTableFree(old->badge.font);
+            badge->badge.font = new_font;
+        } else {
+            badge->badge.font = old->badge.font;
+            font_changed = False;
+        }
     }
     if (old->badge.label != badge->badge.label) {
         replacement = copy_label(badge->badge.label);
