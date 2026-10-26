@@ -1,3 +1,11 @@
+Refresh MRM callback offset regression check (2026-10-27)
+==========================================================
+
+- Match the focused check to the current range and NUL-termination validation
+  for callback routine names.
+
+===========================================================
+
 Refresh MRM arglist count regression check (2026-10-27)
 ========================================================
 
