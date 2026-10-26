@@ -16041,3 +16041,12 @@ Check deferred clipboard snapshot allocations (2026-10-27)
 - Add a focused source regression and documentation.
 
 Guard deferred clipboard snapshot callbacks (2026-10-27)
+Make compound-text property assembly linear (2026-10-27)
+=========================================================
+
+- Copy text-property segments at tracked offsets instead of repeatedly
+  rescanning the accumulated result with `strcat`.
+- Add a focused source regression and documentation.
+
+Bound wide-string text-search conversion (2026-10-27)
+======================================================

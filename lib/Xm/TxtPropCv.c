@@ -129,9 +129,15 @@ TextPropertyToSingleTextItem(Display *display, XTextProperty *text_prop,
 	    XFreeStringList(textlist);
 	    return(XNoMemory);
 	  }
-	newstring[0] = '\0';
-	for (i = 0; i < count; ++i)
-	  strcat(newstring, textlist[i]);
+	{
+	    size_t offset = 0;
+	    for (i = 0; i < count; ++i) {
+		size_t item_length = strlen(textlist[i]);
+		memcpy(newstring + offset, textlist[i], item_length);
+		offset += item_length;
+	    }
+	    newstring[offset] = '\0';
+	}
 	*text_item = newstring;
 	XFreeStringList(textlist);
     }
@@ -383,18 +389,21 @@ GetUseableText(Display *display, XmString xmstring, char **buffer,
 	    _XmStringContextFree(&stack_context);
 	    return(XNoMemory);
 	  }
-	size_so_far += text_length;
-	new_final_string = (char *)XtRealloc(final_string, size_so_far + 1);
-	if (new_final_string == NULL)
-	  {
-	    XtFree(text);
-	    XtFree(final_string);
-	    _XmStringContextFree(&stack_context);
-	    return(XNoMemory);
-	  }
-	final_string = new_final_string;
-	final_string[0] = '\0';
-	strcat(final_string, text);
+	{
+	    size_t old_size = size_so_far;
+	    size_so_far += text_length;
+	    new_final_string = (char *)XtRealloc(final_string, size_so_far + 1);
+	    if (new_final_string == NULL)
+	    {
+		XtFree(text);
+		XtFree(final_string);
+		_XmStringContextFree(&stack_context);
+		return(XNoMemory);
+	    }
+	    final_string = new_final_string;
+	    memcpy(final_string + old_size, text, text_length);
+	    final_string[size_so_far] = '\0';
+	}
 	XtFree(text);
 	text = NULL;
     }
