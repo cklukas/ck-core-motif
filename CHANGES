@@ -21033,6 +21033,11 @@ Guard MWM wait-cursor bitmap resources (2026-10-26)
 ShowWaitState now stops cleanly when either cursor bitmap cannot be created,
 freeing any partial bitmap resource before returning.
 
+Guard MWM confirmation callback state (2026-10-26)
+---------------------------------------------------
+OkCB now rejects missing callback data and action numbers outside the four
+built-in confirmation handlers before invoking a confirmation function.
+
 Handle MWM cached-label X resource failure (2026-10-26)
 --------------------------------------------------------
 MakeCachedLabelPixmap now returns `None` when pixmap or graphics-context

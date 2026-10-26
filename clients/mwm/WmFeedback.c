@@ -707,6 +707,19 @@ static void OkCB (w, client_data, call_data)
 {
     WithdrawDialog (w);
 
+    if (client_data == NULL)
+    {
+	wmGD.confirmDialogMapped = False;
+	return;
+    }
+
+    if (((WmScreenData *)client_data)->actionNbr < 0 ||
+	((WmScreenData *)client_data)->actionNbr >= 4)
+    {
+	wmGD.confirmDialogMapped = False;
+	return;
+    }
+
     confirm_func[((WmScreenData *)client_data)->actionNbr] (False);
 
     wmGD.confirmDialogMapped = False;
