@@ -2436,12 +2436,14 @@ void SetupSystemModalState (ClientData *pCD)
      * window.
      */
     
-    windowChanges.sibling = wmGD.systemModalWindow;
-    windowChanges.stack_mode = Below;
-    XConfigureWindow (DISPLAY, ACTIVE_PSD->inputScreenWindow, 
+    if (ACTIVE_PSD->inputScreenWindow != None)
+    {
+	windowChanges.sibling = wmGD.systemModalWindow;
+	windowChanges.stack_mode = Below;
+	XConfigureWindow (DISPLAY, ACTIVE_PSD->inputScreenWindow,
 		      CWSibling | CWStackMode, &windowChanges);
-    
-    XMapWindow (DISPLAY, ACTIVE_PSD->inputScreenWindow);
+	XMapWindow (DISPLAY, ACTIVE_PSD->inputScreenWindow);
+    }
     
     
     /*
@@ -2489,7 +2491,8 @@ void UndoSystemModalState (void)
     {
 	if(wmGD.Screens[scr].managed)
 	{
-	    XUnmapWindow (DISPLAY, wmGD.Screens[scr].inputScreenWindow);
+	    if (wmGD.Screens[scr].inputScreenWindow != None)
+		XUnmapWindow (DISPLAY, wmGD.Screens[scr].inputScreenWindow);
 	}
     }
 

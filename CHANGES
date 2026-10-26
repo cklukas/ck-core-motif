@@ -21402,3 +21402,8 @@ Handle MWM refresh-window creation failure (2026-10-26)
 F_Refresh and F_Refresh_Win now skip their temporary repaint-window requests
 when XCreateWindow fails, preserving a successful no-op refresh result.
 
+Guard MWM modal input-window transitions (2026-10-26)
+------------------------------------------------------
+System-modal setup and teardown now configure, map, and unmap per-screen input
+windows only when their X window IDs are valid after optional creation.
+
