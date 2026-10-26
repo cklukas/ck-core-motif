@@ -1,3 +1,11 @@
+Refresh MRM zero-count regression check (2026-10-27)
+====================================================
+
+- Match the focused check to the current split module zero-count validation
+  and combined argument-list size guard.
+
+===========================================================
+
 Refresh MRM widget-offset regression check (2026-10-27)
 =======================================================
 
