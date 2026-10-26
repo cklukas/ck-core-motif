@@ -17,6 +17,7 @@ for region, needles, label in (
         (
             "size <= 0",
             "(size_t)size > SIZE_MAX / sizeof(XtPointer)",
+            "(size_t)size > UINT_MAX / sizeof(XtPointer)",
             "*list_id_return = NULL",
         ),
         "initialization",
@@ -26,6 +27,7 @@ for region, needles, label in (
         (
             "size <= 0",
             "(size_t)size > SIZE_MAX / sizeof(XtPointer)",
+            "(size_t)size > UINT_MAX / sizeof(XtPointer)",
         ),
         "resize",
     ),

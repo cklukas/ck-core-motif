@@ -101,7 +101,8 @@ UrmPlistInit (int		size,
   if (list_id_return == NULL)
     return Urm__UT_Error ("UrmPlistInit", _MrmMMsg_0047,
 				  NULL, NULL, MrmFAILURE) ;
-  if (size <= 0 || (size_t)size > SIZE_MAX / sizeof(XtPointer))
+  if (size <= 0 || (size_t)size > SIZE_MAX / sizeof(XtPointer) ||
+      (size_t)size > UINT_MAX / sizeof(XtPointer))
     {
       *list_id_return = NULL ;
       return Urm__UT_Error ("UrmPlistInit", _MrmMMsg_0047,
@@ -170,7 +171,8 @@ UrmPlistResize (URMPointerListPtr	list_id,
   if (list_id == NULL)
     return Urm__UT_Error ("UrmPlistResize", _MrmMMsg_0048,
 				  NULL, NULL, MrmFAILURE) ;
-  if (size <= 0 || (size_t)size > SIZE_MAX / sizeof(XtPointer))
+  if (size <= 0 || (size_t)size > SIZE_MAX / sizeof(XtPointer) ||
+      (size_t)size > UINT_MAX / sizeof(XtPointer))
     return Urm__UT_Error ("UrmPlistResize", _MrmMMsg_0048,
 				  NULL, NULL, MrmFAILURE) ;
   if (size < list_id->num_ptrs)

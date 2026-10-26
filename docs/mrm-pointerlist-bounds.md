@@ -4,7 +4,8 @@ nav_exclude: true
 # Mrm pointer-list bounds
 
 Mrm pointer lists now reject non-positive capacities and capacity products that
-cannot be represented by `size_t` before allocating their pointer vectors.
+cannot be represented by either `size_t` or Xt's `Cardinal` allocation width
+before allocating their pointer vectors.
 Appending to a malformed or already-full list also refuses to double a slot
 count past `INT_MAX`, avoiding signed overflow and wrapped allocator sizes.
 Valid positive capacities and the existing append/resize behavior are unchanged.
