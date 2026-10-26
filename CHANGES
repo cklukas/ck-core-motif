@@ -19918,6 +19918,13 @@ Bound Text RTL autoscroll edge metrics (2026-10-26)
   and Position conversion, preventing large-layout wraparound.
 - Add focused regression coverage and documentation.
 
+Validate Text conversion inputs (2026-10-26)
+=============================================
+
+- Reject missing buffers, non-positive lengths, and invalid character widths
+  before private text encoding helpers dereference or copy input.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 

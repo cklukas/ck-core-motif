@@ -178,7 +178,9 @@ _XmTextBytesToCharacters(char * characters,
    * anything... just return 0 characters converted.
    */
   
-  if (num_chars == 0 || bytes == NULL) return 0;
+  if (num_chars <= 0 || characters == NULL || bytes == NULL ||
+      max_char_size <= 0)
+    return 0;
   
   switch (max_char_size) {
   case 1: {
@@ -251,10 +253,13 @@ _XmTextCharactersToBytes(char * bytes,
   BITS16 *bits16_ptr, temp_bits16;
   wchar_t *wchars;
 
-  if (num_chars == 0 || characters == 0) {
-    *bytes = '\0';
+  if (num_chars <= 0) {
+    if (bytes != NULL)
+      *bytes = '\0';
     return 0;
   }
+  if (bytes == NULL || characters == NULL || max_char_size <= 0)
+    return 0;
   
   switch (max_char_size) {
   case 1: {
