@@ -18079,3 +18079,12 @@ Refresh icon-info guard regression check (2026-10-27)
 ======================================================
 
 Refresh InfoBar hit-zone regression check (2026-10-27)
+
+Refresh render-table redraw regression check (2026-10-27)
+=========================================================
+- Match the DataGrid assertion to its combined render-table and colour
+  invalidation expression while retaining the focused checks for the other
+  migrated widgets.
+
+=========================================================
+
