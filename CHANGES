@@ -33,6 +33,15 @@ Bound text-source creation capacities (2026-10-27)
   allocator's representable range.
 - Add a focused source regression and documentation.
 
+Make text-source compaction transactional (2026-10-27)
+=======================================================
+
+- Commit gap-buffer capacity and pointers only after compaction reallocation
+  succeeds.
+- Preserve the existing valid buffer when compaction size arithmetic or
+  allocation fails.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 

@@ -1325,22 +1325,40 @@ Replace(XmTextWidget initiator,
       ((data->maxlength > TEXT_INCREMENT &&
 	data->length <= data->maxlength - TEXT_INCREMENT) ||
        data->length <= data->maxlength >> 1)) {
+    int compact_maxlength;
+    size_t compact_bytes;
+    char *compact_ptr;
+
     /* Move the gap to the last position. */
     _XmStringSourceSetGappedBuffer(data, data->length);
+
+    compact_maxlength = TEXT_INITIAL_INCREM;
     
-    data->maxlength = TEXT_INITIAL_INCREM;
-    
-    while (data->length >= data->maxlength) {
-      if (data->maxlength < TEXT_INCREMENT)
-	data->maxlength *= 2;
+
+    while (data->length >= compact_maxlength) {
+	if ((compact_maxlength < TEXT_INCREMENT &&
+	     compact_maxlength > INT_MAX / 2) ||
+	    (compact_maxlength >= TEXT_INCREMENT &&
+	     compact_maxlength > INT_MAX - TEXT_INCREMENT))
+	  break;
+	if (compact_maxlength < TEXT_INCREMENT)
+	  compact_maxlength *= 2;
       else
-	data->maxlength += TEXT_INCREMENT;
+	  compact_maxlength += TEXT_INCREMENT;
     }
-    
-    data->ptr = XtRealloc(data->ptr, (unsigned) 
-			  ((data->maxlength) * char_size));
-    data->gap_start = data->ptr + (data->length * char_size);
-    data->gap_end = data->ptr + ((data->maxlength - 1) * char_size);
+
+    if (compact_maxlength > 0 && char_size > 0 &&
+	(size_t)compact_maxlength <=
+	  (size_t)UINT_MAX / (size_t)char_size) {
+	compact_bytes = (size_t)compact_maxlength * (size_t)char_size;
+	compact_ptr = XtRealloc(data->ptr, (Cardinal)compact_bytes);
+	if (compact_ptr != NULL) {
+	  data->ptr = compact_ptr;
+	  data->maxlength = compact_maxlength;
+	  data->gap_start = data->ptr + (data->length * char_size);
+	  data->gap_end = data->ptr + ((data->maxlength - 1) * char_size);
+	}
+    }
   }
   
   return EditDone;
