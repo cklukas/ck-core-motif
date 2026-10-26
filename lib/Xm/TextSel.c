@@ -807,8 +807,16 @@ HandleDrop(Widget w,
   Arg args[10];
   XmTextPosition insert_pos, left, right;
   Boolean doTransfer = False;
-  XtPointer tid = ds->transfer_id;
+  XtPointer tid;
   _XmTextDropTransferRec *transfer_rec = NULL;
+
+  if (w == NULL || cb == NULL || ds == NULL || cb->dragContext == NULL ||
+      ds->transfer_id == NULL) {
+    if (ds != NULL && ds->transfer_id != NULL)
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+    return;
+  }
+  tid = ds->transfer_id;
   
   drag_cont = cb->dragContext;
   
@@ -817,6 +825,11 @@ HandleDrop(Widget w,
   XtSetArg(args[n], XmNexportTargets, &exportTargets); n++;
   XtSetArg(args[n], XmNnumExportTargets, &numExportTargets); n++;
   XtGetValues((Widget) drag_cont, args, n);
+
+  if (numExportTargets != 0 && exportTargets == NULL) {
+    XmTransferDone(tid, XmTRANSFER_DONE_FAIL);
+    return;
+  }
   
   insert_pos = (*tw->text.output->XYToPos)(tw, cb->x, cb->y);
   

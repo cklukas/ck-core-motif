@@ -22719,3 +22719,9 @@ Bound Text external selection target counts (2026-10-26)
   the callback array with its legacy integer limit.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-selection-target-count.py
+Guard Text drop callback inputs (2026-10-26)
+============================================
+- Reject malformed drop callback structures, transfer IDs, drag contexts, and
+  missing export-target arrays before target negotiation.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-drop-inputs.py
