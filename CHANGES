@@ -24,6 +24,15 @@ Bound text-source value extraction (2026-10-27)
   partially initialized value.
 - Add a focused source regression and documentation.
 
+Bound text-source creation capacities (2026-10-27)
+===================================================
+
+- Reject overflowing character counts and capacity growth before allocating
+  text-source buffers.
+- Bound wide-character conversion storage and gapped-buffer byte sizes to the
+  allocator's representable range.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 

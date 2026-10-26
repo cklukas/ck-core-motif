@@ -1783,6 +1783,7 @@ _XmStringSourceCreate(char *value,
   char * tmp_value = NULL;
   int char_size, max_char_size;
   int ret_value = 0;
+  size_t allocation_bytes;
 
   source = (XmTextSource) XtMalloc((unsigned) sizeof(XmTextSourceRec));
   if (source == NULL)
@@ -1824,12 +1825,23 @@ _XmStringSourceCreate(char *value,
     else
       for (num_chars = 0, wc_value = (wchar_t*)value;
 	   wc_value[num_chars] != 0L;
-	   num_chars++)
+	   num_chars++) {
+	if (num_chars == INT_MAX)
+	  goto allocation_failure;
+	   }
 	/*EMPTY*/;
     
+    if (num_chars == INT_MAX)
+	goto allocation_failure;
     data->maxlength = TEXT_INITIAL_INCREM;
     
     while ((num_chars + 1) >= data->maxlength) {
+	if (data->maxlength <= 0 ||
+	    (data->maxlength < TEXT_INCREMENT &&
+	     data->maxlength > INT_MAX / 2) ||
+	    (data->maxlength >= TEXT_INCREMENT &&
+	     data->maxlength > INT_MAX - TEXT_INCREMENT))
+	  goto allocation_failure;
       if (data->maxlength < TEXT_INCREMENT)
 	data->maxlength *= 2;
       else
@@ -1837,14 +1849,23 @@ _XmStringSourceCreate(char *value,
     }
     
     data->old_length = 0;
-    data->ptr = XtMalloc((unsigned)((data->maxlength) * char_size));
+    if (char_size <= 0 ||
+	(size_t)data->maxlength > (size_t)UINT_MAX / (size_t)char_size)
+	  goto allocation_failure;
+    allocation_bytes = (size_t)data->maxlength * (size_t)char_size;
+    data->ptr = XtMalloc((Cardinal)allocation_bytes);
     if (data->ptr == NULL)
       goto allocation_failure;
-    tmp_value = XtMalloc((unsigned)((num_chars + 1) * max_char_size));
+    if (max_char_size <= 0 ||
+	(size_t)num_chars + 1 >
+	  (size_t)UINT_MAX / (size_t)max_char_size)
+	  goto allocation_failure;
+    allocation_bytes = ((size_t)num_chars + 1) * (size_t)max_char_size;
+    tmp_value = XtMalloc((Cardinal)allocation_bytes);
     if (tmp_value == NULL)
       goto allocation_failure;
     ret_value = value == NULL ? 0 :
-      wcstombs(tmp_value, wc_value, (num_chars + 1) * max_char_size);
+      wcstombs(tmp_value, wc_value, allocation_bytes);
     data->value = NULL;  /* Scratch area for block->ptr conversions */
     /* Doesnt include NULL */
     if (ret_value < 0)
@@ -1858,9 +1879,17 @@ _XmStringSourceCreate(char *value,
       num_chars = _XmTextCountCharacters(value, strlen(value));
     else
       num_chars = 0;
+    if (num_chars < 0 || num_chars == INT_MAX)
+	goto allocation_failure;
     data->maxlength = TEXT_INITIAL_INCREM;
     
     while ((num_chars + 1) >= data->maxlength) {
+	if (data->maxlength <= 0 ||
+	    (data->maxlength < TEXT_INCREMENT &&
+	     data->maxlength > INT_MAX / 2) ||
+	    (data->maxlength >= TEXT_INCREMENT &&
+	     data->maxlength > INT_MAX - TEXT_INCREMENT))
+	  goto allocation_failure;
       if (data->maxlength < TEXT_INCREMENT)
 	data->maxlength *= 2;
       else
@@ -1868,7 +1897,11 @@ _XmStringSourceCreate(char *value,
     }
     
     data->old_length = 0;
-    data->ptr = XtMalloc((unsigned)((data->maxlength) * char_size));
+    if (char_size <= 0 ||
+	(size_t)data->maxlength > (size_t)UINT_MAX / (size_t)char_size)
+	  goto allocation_failure;
+    allocation_bytes = (size_t)data->maxlength * (size_t)char_size;
+    data->ptr = XtMalloc((Cardinal)allocation_bytes);
     if (data->ptr == NULL)
       goto allocation_failure;
     
