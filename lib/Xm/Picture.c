@@ -29,7 +29,7 @@
 static XmPictureNode* _XiGetNewNode(XmPictureRec*);
 static void _XmPictureParseNode(XmPictureRec*, char**, XmPictureNode**,
 				XmPictureNode**, Boolean);
-static XmPictureTransition* _XiGetNewTransition(XmTransType,
+static XmPictureTransition* _XiGetNewTransition(XmPictureRec*, XmTransType,
 						XmPictureNode*,
 						XmPictureNode*);
 static void _XmPictureSetState(unsigned char*, int);
@@ -387,7 +387,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	case NUMDIGIT:
 	    newnode = _XiGetNewNode(picture);
 	    if (newnode == NULL) goto parse_failed;
-	    newtrans = _XiGetNewTransition(NumericDigit,
+	    newtrans = _XiGetNewTransition(picture, NumericDigit,
 					   current_node, newnode);
 	    current_node = newnode;
 	    break;
@@ -395,7 +395,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	case HEXDIGIT:
 	    newnode = _XiGetNewNode(picture);
 	    if (newnode == NULL) goto parse_failed;
-	    newtrans = _XiGetNewTransition(HexDigit,
+	    newtrans = _XiGetNewTransition(picture, HexDigit,
 					   current_node, newnode);
 	    current_node = newnode;
 	    break;
@@ -403,7 +403,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	case OCTALDIGIT:
 	    newnode = _XiGetNewNode(picture);
 	    if (newnode == NULL) goto parse_failed;
-	    newtrans = _XiGetNewTransition(OctalDigit,
+	    newtrans = _XiGetNewTransition(picture, OctalDigit,
 					   current_node, newnode);
 	    current_node = newnode;
 	    break;
@@ -411,7 +411,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	case NONCASELETTER:
 	    newnode = _XiGetNewNode(picture);
 	    if (newnode == NULL) goto parse_failed;
-	    newtrans = _XiGetNewTransition(AnyLetter,
+	    newtrans = _XiGetNewTransition(picture, AnyLetter,
 					   current_node, newnode);
 	    current_node = newnode;
 	    break;
@@ -419,7 +419,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	case UPCASELETTER:
 	    newnode = _XiGetNewNode(picture);
 	    if (newnode == NULL) goto parse_failed;
-	    newtrans = _XiGetNewTransition(UpCaseLetter,
+	    newtrans = _XiGetNewTransition(picture, UpCaseLetter,
 					   current_node, newnode);
 	    current_node = newnode;
 	    break;
@@ -427,7 +427,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	case NONCASECHAR:
 	    newnode = _XiGetNewNode(picture);
 	    if (newnode == NULL) goto parse_failed;
-	    newtrans = _XiGetNewTransition(AnyCharacter,
+	    newtrans = _XiGetNewTransition(picture, AnyCharacter,
 					   current_node, newnode);
 	    current_node = newnode;
 	    break;
@@ -435,7 +435,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	case UPCASECHAR:
 	    newnode = _XiGetNewNode(picture);
 	    if (newnode == NULL) goto parse_failed;
-	    newtrans = _XiGetNewTransition(UpCaseCharacter,
+	    newtrans = _XiGetNewTransition(picture, UpCaseCharacter,
 					   current_node, newnode);
 	    current_node = newnode;
 	    break;
@@ -471,15 +471,15 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 				True);
 	    if (picture->allocation_failed) goto parse_failed;
 	    if(count) {
-		newtrans = _XiGetNewTransition(NullTransition,
+		newtrans = _XiGetNewTransition(picture, NullTransition,
 					       current_node, start_node_2);
 		current_node = _XmPictureCopySubGraph(picture, count-1,
 						      start_node_2,
 						      current_node_2);
 	    } else {
-		newtrans = _XiGetNewTransition(NullTransition,
+		newtrans = _XiGetNewTransition(picture, NullTransition,
 					       current_node_2, start_node_2);
-		newtrans = _XiGetNewTransition(NullTransition,
+		newtrans = _XiGetNewTransition(picture, NullTransition,
 					       current_node, current_node_2);
 		
 		current_node = current_node_2;
@@ -497,7 +497,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 				&start_node_2, &current_node_2,
 				True);
 	    if (picture->allocation_failed) goto parse_failed;
-            newtrans = _XiGetNewTransition(NullTransition, current_node,
+            newtrans = _XiGetNewTransition(picture, NullTransition, current_node,
 					   current_node_2);
             if (current_node->index)
               picture->nodes[current_node->index - 1]->transitions->next =
@@ -517,9 +517,9 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 				False);
 	    if (picture->allocation_failed) goto parse_failed;
 	    
-	    newtrans = _XiGetNewTransition(NullTransition,
+	    newtrans = _XiGetNewTransition(picture, NullTransition,
 					   current_node, current_node_2);
-	    newtrans = _XiGetNewTransition(NullTransition,
+	    newtrans = _XiGetNewTransition(picture, NullTransition,
 					   current_node, start_node_2);
 
 	    current_node = current_node_2;
@@ -537,7 +537,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 				False);
 	    if (picture->allocation_failed) goto parse_failed;
 
-	    newtrans = _XiGetNewTransition(NullTransition,
+	    newtrans = _XiGetNewTransition(picture, NullTransition,
 					   current_node, start_node_2);
 	    
 	    current_node = current_node_2;
@@ -573,7 +573,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	default:
 	    newnode = _XiGetNewNode(picture);
 	    if (newnode == NULL) goto parse_failed;
-	    newtrans = _XiGetNewTransition(LiteralCharacter,
+	    newtrans = _XiGetNewTransition(picture, LiteralCharacter,
 					   current_node, newnode);
 	    if (newtrans == NULL) goto parse_failed;
 	    newtrans->c = inc;
@@ -584,6 +584,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	/*
 	 * Break out if we have to
 	 */
+	if (picture->allocation_failed) goto parse_failed;
 	if(returnNOW == True) break;
     }
     *start_return = start_node;
@@ -596,16 +597,18 @@ parse_failed:
 }
 
 static XmPictureTransition*
-_XiGetNewTransition(XmTransType type,
+_XiGetNewTransition(XmPictureRec *picture, XmTransType type,
 		    XmPictureNode *src, XmPictureNode *dest)
 {
     XmPictureTransition *t;
 
-    if (src == NULL || dest == NULL)
+	if (picture == NULL || src == NULL || dest == NULL)
 	return NULL;
     t = XtNew(XmPictureTransition);
-    if (t == NULL)
+	if (t == NULL) {
+	    picture->allocation_failed = True;
 	return NULL;
+	}
     t->destination = dest->index;
     t->type = type;
     t->next = src->transitions;
@@ -873,21 +876,27 @@ _XmPictureCopySubGraph(XmPictureRec *picture, int n,
 			continue;
 		    }
 
-		    newtrans = _XiGetNewTransition(trans->type,
+		    newtrans = _XiGetNewTransition(picture, trans->type,
 						   table[j],
 						   table[trans->destination]);
+		    if (newtrans == NULL) goto copy_failed;
 		    newtrans->c = trans->c;
 		    trans = trans->next;
 		}
 	    }
 	}
 
-	_XiGetNewTransition(NullTransition, end, table[start->index]);
+	_XiGetNewTransition(picture, NullTransition, end, table[start->index]);
+	if (picture->allocation_failed) goto copy_failed;
 	end = table[end_index];
     }
     
     XtFree((void*)table);
 
+    return end;
+
+copy_failed:
+    XtFree((void*)table);
     return end;
 }
 
