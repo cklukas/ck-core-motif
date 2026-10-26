@@ -45,6 +45,41 @@ Application resource overrides remain authoritative.
   documentation to both publication remotes. Render documentation after the
   overall feature is finished, not after each foundation change.
 
+## Planned cross-application visual review
+
+Use the Periodic Table of Motif as a mandatory second reference application
+throughout implementation, alongside the gallery. Its dense mixture of native
+widgets, gadgets and UIL-created controls should expose differences that an
+individually arranged gallery sample can hide. This is a validation requirement
+for the plan, not a claim that the remaining review has been completed.
+
+1. Capture a baseline from current verified builds of both applications using
+   the same profile, density, font and scale. Record source revision, executable
+   and library identity with each capture. Keep historical-resource Periodic
+   captures separate from the modern-default acceptance set.
+2. Compare typography, text baselines, padding, minimum sizes, borders, focus
+   rings, corner treatment, arrows and disabled contrast across adjacent control
+   families. Inspect the main window, menus, notebook pages and every reachable
+   dialog, including scrolled content and expanded containers.
+3. After each toolkit work package, repeat the affected comparisons in both
+   applications. Exercise keyboard navigation, selection, default actions,
+   resizing and live theme/density changes in the actual running windows.
+4. Assign each discrepancy to the layer that owns it: toolkit rendering,
+   measurement and default resources belong in the library; demonstration
+   content, grouping and semantic role selection belong in the application.
+   Do not use application-specific colors, fonts, dimensions or drawing to hide
+   an inconsistent modern control.
+5. Finish with the full completion matrix above. Keep a concise issue ledger
+   identifying control, state, reproduction, owning layer, regression coverage
+   and before/after evidence. Both applications must pass before accepting the
+   visual overhaul.
+
+Sequence this review with delivery: shared typography/metrics and roles first;
+buttons, toggles and segmented groups next; scrollbars and editing/navigation
+controls next; dialogs and glyphs next; then remove gallery styling and run the
+full cross-application acceptance pass. Recheck Periodic at each stage rather
+than postponing it until the final gallery cleanup.
+
 ## Accepted foundation evidence
 
 The construction/live parity fixture reproduces the previous build failure
