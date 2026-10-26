@@ -65,6 +65,13 @@ Preserve MWM default-color cache on growth failure (2026-10-26)
   pointer, preserving cached entries when allocation fails.
 - Add a focused MWM regression and document the allocation contract.
 
+Guard MWM key-substitution allocations (2026-10-26)
+====================================================
+
+- Check table, source-string, and replacement-string allocations while parsing
+  WSM key substitutions.
+- Preserve complete entries and their count when a later allocation fails.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 

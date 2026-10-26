@@ -7103,6 +7103,7 @@ static void InitKeySubs (
     int numKS;
     KeySub *pKS;
     KeySub *pKSret;
+    KeySub *resized;
     unsigned char *pch0;
     unsigned char *pch1;
     size_t len;
@@ -7136,8 +7137,22 @@ static void InitKeySubs (
 	}
 	else
 	{
-	    pKSret = (KeySub *) XtRealloc ((char *)pKSret, 
-					   (numKS+1)*sizeof(KeySub));
+	    resized = (KeySub *) XtRealloc ((char *)pKSret,
+					     (Cardinal)((size_t)(numKS + 1) *
+					                sizeof(KeySub)));
+	    if (resized == NULL)
+	    {
+		*ppKeySubs = pKSret;
+		*pNumKeySubs = numKS;
+		return;
+	    }
+	    pKSret = resized;
+	}
+	if (pKSret == NULL)
+	{
+	    *ppKeySubs = NULL;
+	    *pNumKeySubs = numKS;
+	    return;
 	}
 	pKS = &pKSret[numKS];
 
@@ -7164,6 +7179,12 @@ static void InitKeySubs (
 	    break;
 	}
 	pKS->pchFrom = (unsigned char *) XtMalloc (1+pKS->lenFrom);
+	if (pKS->pchFrom == NULL)
+	{
+	    *ppKeySubs = pKSret;
+	    *pNumKeySubs = numKS;
+	    return;
+	}
 	memcpy (pKS->pchFrom, pch0, pKS->lenFrom);
 	pKS->pchFrom[pKS->lenFrom] = '\0';
 
@@ -7193,6 +7214,14 @@ static void InitKeySubs (
 	    break;
 	}
 	pKS->pchTo = (unsigned char *) XtMalloc (1+len);
+	if (pKS->pchTo == NULL)
+	{
+	    XtFree((char *)pKS->pchFrom);
+	    pKS->pchFrom = NULL;
+	    *ppKeySubs = pKSret;
+	    *pNumKeySubs = numKS;
+	    return;
+	}
 	memcpy (pKS->pchTo, pch0, len);
 	pKS->pchTo[len] = '\0';
 
