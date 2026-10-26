@@ -21048,6 +21048,11 @@ Guard MWM system-modal cursor resources (2026-10-26)
 SetupSystemModalState now creates the no-enter cursor only when both bitmap
 resources succeed; otherwise the modal input window uses the default cursor.
 
+Guard MWM icon-box drawing resources (2026-10-26)
+--------------------------------------------------
+MakeShrinkWrapIconsGC and MakeFadeIconGC now reject missing screen records and
+clean up partial GC/stipple allocations before returning on resource failure.
+
 Handle MWM cached-label X resource failure (2026-10-26)
 --------------------------------------------------------
 MakeCachedLabelPixmap now returns `None` when pixmap or graphics-context

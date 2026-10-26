@@ -1139,12 +1139,17 @@ void MakeShrinkWrapIconsGC (WmScreenData *pSD, Pixmap bgPixmap)
 {
 
     XtGCMask  copyMask;
+
+    if (pSD == NULL)
+	return;
    
 
     if (!pSD->shrinkWrapGC)
     {
 	pSD->shrinkWrapGC = XCreateGC (DISPLAY, pSD->rootWindow, 0, 
 		(XGCValues *) NULL);
+	if (pSD->shrinkWrapGC == NULL)
+	    return;
 
 	copyMask = ~0L;
 
@@ -1197,12 +1202,26 @@ void MakeFadeIconGC (WmScreenData *pSD)
 
     XtGCMask  copyMask;
     static    Pixmap tmpFontClipMask;
+
+    if (pSD == NULL)
+	return;
    
 
     pSD->fadeIconGC = XCreateGC (DISPLAY, pSD->rootWindow, 0, 
 				(XGCValues *) NULL);
     pSD->fadeIconTextGC = XCreateGC (DISPLAY, pSD->rootWindow, 0, 
 				(XGCValues *) NULL);
+
+    if (pSD->fadeIconGC == NULL || pSD->fadeIconTextGC == NULL)
+    {
+	if (pSD->fadeIconGC != NULL)
+	    XFreeGC (DISPLAY, pSD->fadeIconGC);
+	if (pSD->fadeIconTextGC != NULL)
+	    XFreeGC (DISPLAY, pSD->fadeIconTextGC);
+	pSD->fadeIconGC = NULL;
+	pSD->fadeIconTextGC = NULL;
+	return;
+    }
 
     copyMask = ~0L;
 
@@ -1217,6 +1236,20 @@ void MakeFadeIconGC (WmScreenData *pSD)
 
     greyedPixmap = XCreateBitmapFromData (DISPLAY, pSD->rootWindow,
                         (char*)slant2_bits, slant2_width, slant2_height);
+
+    if (tmpFontClipMask == None || greyedPixmap == None)
+    {
+	if (tmpFontClipMask != None)
+	    XFreePixmap (DISPLAY, tmpFontClipMask);
+	if (greyedPixmap != None)
+	    XFreePixmap (DISPLAY, greyedPixmap);
+	XFreeGC (DISPLAY, pSD->fadeIconGC);
+	XFreeGC (DISPLAY, pSD->fadeIconTextGC);
+	pSD->fadeIconGC = NULL;
+	pSD->fadeIconTextGC = NULL;
+	greyedPixmap = None;
+	return;
+    }
 
     XSetStipple (DISPLAY, pSD->fadeIconTextGC,  tmpFontClipMask); 
     XSetFillStyle (DISPLAY, pSD->fadeIconTextGC, FillStippled);
