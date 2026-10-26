@@ -21304,3 +21304,15 @@ ShowActiveClientFrame and ShowInactiveClientFrame now validate the frame and
 optional title child before changing attributes or clearing them. State-change
 callbacks after partial decoration teardown no longer issue invalid X requests.
 
+Validate MWM text-wrapper drawables (2026-10-26)
+-------------------------------------------------
+WmDrawString and WmDrawXmString now reject `None` drawables/windows before
+calling Xlib. Stale frame IDs from teardown are contained at the common text
+drawing boundary instead of producing BadDrawable requests.
+
+Include SIZE_MAX definition for MWM graphics arithmetic (2026-10-26)
+---------------------------------------------------------------------
+WmGraphics.c now includes the standard integer-limit header required by its
+checked ExtendRList arithmetic, making strict standalone compilation portable
+across toolchains that do not expose SIZE_MAX transitively.
+

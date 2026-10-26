@@ -41,6 +41,7 @@ static char rcsid[] = "$XConsortium: WmGraphics.c /main/4 1995/11/01 11:38:53 rs
 #include "WmGlobal.h"
 
 #include <limits.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <X11/Xlib.h>
 #include <X11/StringDefs.h>
@@ -1116,7 +1117,8 @@ void FreeRList (RList *prl)
  *************************************<->***********************************/
 void WmDrawString (Display *dpy, Drawable d, GC gc, int x, int y, char *string, unsigned int length)
 {
-    if (dpy == NULL || gc == NULL || string == NULL || ACTIVE_PSD == NULL)
+    if (dpy == NULL || d == None || gc == NULL || string == NULL ||
+	ACTIVE_PSD == NULL)
 	return;
 
     if (ACTIVE_PSD->cleanText)
@@ -1174,8 +1176,8 @@ void WmDrawXmString (Display *dpy, Window w, XmFontList xmfontlist,
     int alignment = XmALIGNMENT_BEGINNING;
 #endif /* WSM */
 
-    if (dpy == NULL || xmfontlist == NULL || xmstring == NULL ||
-	gc == NULL || pbox == NULL || ACTIVE_PSD == NULL)
+    if (dpy == NULL || w == None || xmfontlist == NULL ||
+	xmstring == NULL || gc == NULL || pbox == NULL || ACTIVE_PSD == NULL)
 	return;
     
 
