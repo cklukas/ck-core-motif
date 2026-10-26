@@ -20996,6 +20996,11 @@ Handle MWM icon X resource failure (2026-10-26)
 MakeIconPixmap now returns `None` when pixmap or graphics-context creation
 fails, freeing a partially created icon pixmap before returning.
 
+Validate MWM cached-label bitmap entries (2026-10-26)
+------------------------------------------------------
+MakeCachedLabelPixmap now rejects cache entries with a missing source bitmap or
+zero dimensions before issuing X resource and copy requests.
+
 Handle MWM cached-label X resource failure (2026-10-26)
 --------------------------------------------------------
 MakeCachedLabelPixmap now returns `None` when pixmap or graphics-context

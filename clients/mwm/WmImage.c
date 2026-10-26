@@ -682,6 +682,10 @@ Pixmap MakeCachedLabelPixmap (WmScreenData *pSD, Widget menuW, int bitmapIndex)
     }
     bitmapc = &(pSD->bitmapCache[bitmapIndex]);
 
+    if (bitmapc->bitmap == None || bitmapc->width == 0 ||
+	bitmapc->height == 0)
+	return ((Pixmap)NULL);
+
     /*
      * Get the foreground and background colors from the menu widget.
      * Search for a label pixmap matching those colors.
