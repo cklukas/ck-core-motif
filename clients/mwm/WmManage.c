@@ -1905,13 +1905,18 @@ ListTransientSubtree (
      */
     if (*pCount == *pSize) 
     {
+	Window *resized;
+	int new_size;
+
 	if (*pSize > (int)(UINT_MAX / sizeof(Window)) - LTT_INCREMENT)
 	    return (False);
-	*pSize += LTT_INCREMENT;
-	*ppWins = (Window *)XtRealloc(
-		(char *)*ppWins, (Cardinal)(*pSize * sizeof(Window)));
-	if (*ppWins == NULL)
+	new_size = *pSize + LTT_INCREMENT;
+	resized = (Window *)XtRealloc(
+		(char *)*ppWins, (Cardinal)(new_size * sizeof(Window)));
+	if (resized == NULL)
 	    return (False);
+	*ppWins = resized;
+	*pSize = new_size;
     }
     /*
      * Add this window to the list
@@ -1994,16 +1999,24 @@ ListTransientTree (
      */
     if (count == iSize) 
     {
+	Window *resized;
+	int new_size;
+
 	if (iSize > (int)(UINT_MAX / sizeof(Window)) - LTT_INCREMENT)
 	{
 	    XtFree((char *)pWins);
 	    return (NULL);
 	}
-	iSize += LTT_INCREMENT;
-	pWins = (Window *)XtRealloc(
-		(char *)pWins, (Cardinal)(iSize * sizeof(Window)));
-	if (pWins == NULL)
+	new_size = iSize + LTT_INCREMENT;
+	resized = (Window *)XtRealloc(
+		(char *)pWins, (Cardinal)(new_size * sizeof(Window)));
+	if (resized == NULL)
+	{
+	    XtFree((char *)pWins);
 	    return (NULL);
+	}
+	pWins = resized;
+	iSize = new_size;
     }
     pWins[count++] = None;
 

@@ -50,6 +50,14 @@ Bound MWM bitmap-cache indices (2026-10-26)
   `GetBitmapIndex`'s signed return type.
 - Document the API boundary and extend the bitmap-cache regression.
 
+Preserve MWM transient-list state on growth failure (2026-10-26)
+=================================================================
+
+- Grow transient-window lists through temporary pointers and commit size
+  updates only after successful `XtRealloc` calls.
+- Free the top-level list on terminator-growth failure and document the
+  failure contract.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 

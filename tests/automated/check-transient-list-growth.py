@@ -14,10 +14,17 @@ def main() -> None:
     region = text[start:end]
     assert "static Boolean" in region
     assert "XtRealloc" in region
-    assert "if (*ppWins == NULL)" in region
+    assert "if (resized == NULL)" in region
+    assert "Window *resized;" in region
+    assert "*ppWins = resized;" in region
+    assert "*pSize = new_size;" in region
+    assert "*pSize += LTT_INCREMENT" not in region
     assert "if (!ListTransientSubtree" in region
     assert "if (!ListTransientSubtree (pCD, &pWins" in region
     assert "XtMalloc((Cardinal)(iSize * sizeof(Window)))" in region
+    tree = region[region.index("static Window *") :]
+    assert "resized = (Window *)XtRealloc" in tree
+    assert "XtFree((char *)pWins);" in tree
     print("MWM transient list growth propagates allocation failure")
 
 
