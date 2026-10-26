@@ -16531,6 +16531,15 @@ Harden DataField replace conversions (2026-10-27)
 
 Guard DataField string conversion buffers (2026-10-27)
 Guard DataField action event snapshots (2026-10-27)
+
+====================================================
+
+Guard DataField modify-verify text-block allocation (2026-10-27)
+================================================================
+
+- Reject a modify-verify edit when its temporary text block cannot be
+  allocated, before copying into the missing buffer.
+- Add a focused source regression and documentation.
 ===================================================
 
 - Check action-record and event-copy allocations before `df_Stuff` uses them,

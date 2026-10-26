@@ -3451,6 +3451,8 @@ df_ModifyVerify(
 	 if (XmTextF_modify_verify_callback(tf)){
             newblock.ptr = (char *) XtMalloc((unsigned) newblock.length + 
 					     XmTextF_max_char_size(tf));
+	    if (newblock.ptr == NULL)
+		return False;
 	    if (XmTextF_max_char_size(tf) == 1) {
               (void)memcpy((void*)newblock.ptr, (void*)*insert,
 			   newblock.length);
