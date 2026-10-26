@@ -2619,10 +2619,16 @@ void _XmPutScaledImage (
 
 	if ((size_t)src_image->width >
 	    SIZE_MAX / sizeof(*table.x) - 1 ||
+	    (size_t)src_image->width >
+	    UINT_MAX / sizeof(*table.x) - 1 ||
 	    (size_t)src_image->height >
 	    SIZE_MAX / sizeof(*table.y) - 1 ||
+	    (size_t)src_image->height >
+	    UINT_MAX / sizeof(*table.y) - 1 ||
 	    (size_t)src_image->width > SIZE_MAX / sizeof(*table.width) ||
-	    (size_t)src_image->height > SIZE_MAX / sizeof(*table.height))
+	    (size_t)src_image->width > UINT_MAX / sizeof(*table.width) ||
+	    (size_t)src_image->height > SIZE_MAX / sizeof(*table.height) ||
+	    (size_t)src_image->height > UINT_MAX / sizeof(*table.height))
 	    goto cleanup;
     table.x = (unsigned int *) XtMalloc(sizeof(*table.x) *
 					((size_t)src_image->width + 1));
