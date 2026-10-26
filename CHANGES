@@ -19904,6 +19904,13 @@ Bound Text drag-distance arithmetic (2026-10-26)
   preventing signed overflow in extreme event-coordinate cases.
 - Add focused regression coverage and documentation.
 
+Bound Text autoscroll bottom metrics (2026-10-26)
+==================================================
+
+- Compute the autoscroll text-area bottom in `int64_t` for both interior and
+  below-edge comparisons, preventing line-height/count wraparound.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 

@@ -4290,18 +4290,20 @@ CheckTimerScrolling(Widget w,
   InputData data = tw->text.input->data;
   OutputData o_data = tw->text.output->data;
   int interval = 200;
+  int64_t text_bottom;
 
   if (!event)
     return False;
 
   data->select_pos_x = ClampTextPointCoordinate(event->xmotion.x);
   data->select_pos_y = ClampTextPointCoordinate(event->xmotion.y);
+  text_bottom = (int64_t)o_data->topmargin +
+	(int64_t)o_data->lineheight * (int64_t)o_data->number_lines;
   
   if ((event->xmotion.x > (int)o_data->leftmargin) &&
       (event->xmotion.x < (int)(tw->core.width - o_data->rightmargin))  &&
       (event->xmotion.y > (int)o_data->topmargin) &&
-      (event->xmotion.y < (int)(o_data->topmargin + (o_data->lineheight *
-						     o_data->number_lines)))) {
+      ((int64_t)event->xmotion.y < text_bottom)) {
     
     if (data->select_id) {
       XtRemoveTimeOut(data->select_id);
@@ -4361,8 +4363,7 @@ CheckTimerScrolling(Widget w,
 	
       /* below the text */
       } else if (event->xmotion.y >= 
-		 (int) (o_data->topmargin +
-			(o_data->lineheight * o_data->number_lines)))
+			 (int64_t)text_bottom)
 	data->select_pos_y = ClampTextPointCoordinate((int)
 		(o_data->topmargin + (o_data->lineheight *
 						   (o_data->number_lines + 1))));
