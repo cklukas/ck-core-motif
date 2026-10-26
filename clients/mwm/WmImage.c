@@ -884,9 +884,18 @@ int GetBitmapIndex (WmScreenData *pSD, char *name)
     if (pSD->bitmapCacheSize == 0)
     /* create */
     {
+        BitmapCache *initial_cache;
+
+        initial_cache = (BitmapCache *) XtMalloc
+	    (BITMAP_CACHE_INC * sizeof (BitmapCache));
+        if (initial_cache == NULL)
+        {
+            MWarning (((char *)GETMESSAGE(38, 5,
+                "Insufficient memory for bitmap %s\n")), name);
+            return (-1);
+        }
+        pSD->bitmapCache = initial_cache;
         pSD->bitmapCacheSize = BITMAP_CACHE_INC;
-        pSD->bitmapCache =
-	    (BitmapCache *) XtMalloc (BITMAP_CACHE_INC * sizeof (BitmapCache));
     }
     else if (pSD->bitmapCacheCount == pSD->bitmapCacheSize)
     /* enlarge */

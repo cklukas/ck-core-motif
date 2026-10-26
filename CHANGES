@@ -21497,3 +21497,11 @@ Check MWM confirmation-window geometry bounds (2026-10-26)
   the signed client geometry fields before size limits are derived.
 - Add focused regression coverage and documentation.
 
+Keep MWM bitmap-cache initialization retryable (2026-10-26)
+============================================================
+
+- Publish the initial bitmap-cache pointer and capacity only after its
+  allocation succeeds, so a transient allocation failure does not poison the
+  cache with a nonzero capacity and null storage.
+- Add focused regression coverage and documentation.
+
