@@ -115,6 +115,15 @@ Bound XPM buffer color serialization (2026-10-26)
 - Add `tests/automated/check-xpm-buffer-colors-bounds.py` and document the
   buffer-export contract in `docs/xpm-buffer-color-output-bounds.md`.
 
+Bound XPM buffer extension serialization (2026-10-26)
+=======================================================
+
+- Validate extension names and lines, check every formatted write against the
+  remaining buffer, and propagate serialization failure instead of allowing
+  an unsigned size underflow or truncated pointer advance.
+- Add `tests/automated/check-xpm-buffer-extensions-bounds.py` and document the
+  contract in `docs/xpm-buffer-extension-output-bounds.md`.
+
 Bound ToggleButton default geometry (2026-10-27)
 ==================================================
 

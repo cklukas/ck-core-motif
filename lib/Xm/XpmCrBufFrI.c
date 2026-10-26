@@ -49,9 +49,9 @@ LFUNC(WritePixels, int, (char *dataptr, unsigned int data_size,
 			  unsigned int cpp, unsigned int *pixels,
 			  XpmColor *colors, unsigned int ncolors));
 
-LFUNC(WriteExtensions, void, (char *dataptr, unsigned int data_size,
-			      unsigned int *used_size,
-			      XpmExtension *ext, unsigned int num));
+LFUNC(WriteExtensions, int, (char *dataptr, unsigned int data_size,
+			     unsigned int *used_size,
+			     XpmExtension *ext, unsigned int num));
 
 LFUNC(ExtensionsSize, unsigned int, (XpmExtension *ext, unsigned int num));
 LFUNC(CommentsSize, int, (XpmInfo *info));
@@ -263,9 +263,10 @@ XpmCreateBufferFromXpmImage(
 	RETURN(XpmFileInvalid);
 
     /* print extensions */
-    if (extensions)
-	WriteExtensions(ptr + used_size, ptr_size-used_size, &used_size,
-			info->extensions, info->nextensions);
+    if (extensions &&
+	!WriteExtensions(ptr + used_size, ptr_size-used_size, &used_size,
+			 info->extensions, info->nextensions))
+	RETURN(XpmNoMemory);
 
     /* close the array */
     strcpy(ptr + used_size, "};\n");
@@ -436,7 +437,7 @@ ExtensionsSize(
     return size + 13;
 }
 
-static void
+static int
 WriteExtensions(
     char		*dataptr,
     unsigned int	 data_size,
@@ -447,28 +448,48 @@ WriteExtensions(
     unsigned int x, y, a;
     char **line;
     char *s = dataptr;
+    size_t used;
+    size_t available;
+    int written;
+
+    if (dataptr == NULL || used_size == NULL || ext == NULL ||
+	*used_size > data_size)
+	return 0;
 
     for (x = 0; x < num; x++, ext++) {
-#ifndef VOID_SPRINTF
-	s +=
-#endif
-	snprintf(s, data_size - (s-dataptr), ",\n\"XPMEXT %s\"", ext->name);
-#ifdef VOID_SPRINTF
-	s += strlen(ext->name) + 11;
-#endif
+	if (ext->name == NULL)
+	    return 0;
+	used = (size_t)(s - dataptr);
+	if (used >= data_size)
+	    return 0;
+	available = (size_t)data_size - used;
+	written = snprintf(s, available, ",\n\"XPMEXT %s\"", ext->name);
+	if (written < 0 || (size_t)written >= available)
+	    return 0;
+	s += written;
 	a = ext->nlines;
+	if (a != 0 && ext->lines == NULL)
+	    return 0;
 	for (y = 0, line = ext->lines; y < a; y++, line++) {
-#ifndef VOID_SPRINTF
-	    s +=
-#endif
-	    snprintf(s, data_size - (s-dataptr), ",\n\"%s\"", *line);
-#ifdef VOID_SPRINTF
-	    s += strlen(*line) + 4;
-#endif
+	    if (*line == NULL)
+		return 0;
+	    used = (size_t)(s - dataptr);
+	    if (used >= data_size)
+		return 0;
+	    available = (size_t)data_size - used;
+	    written = snprintf(s, available, ",\n\"%s\"", *line);
+	    if (written < 0 || (size_t)written >= available)
+		return 0;
+	    s += written;
 	}
     }
-    strncpy(s, ",\n\"XPMENDEXT\"", data_size - (s-dataptr)-1);
-    *used_size += s - dataptr + 13;
+    used = (size_t)(s - dataptr);
+    if (used > (size_t)data_size ||
+	(size_t)data_size - used < sizeof(",\n\"XPMENDEXT\""))
+	return 0;
+    memcpy(s, ",\n\"XPMENDEXT\"", sizeof(",\n\"XPMENDEXT\""));
+    *used_size = (unsigned int)(used + sizeof(",\n\"XPMENDEXT\"") - 1);
+    return 1;
 }
 
 static int
