@@ -23077,6 +23077,15 @@ Guard TextOut measurement block pointers (2026-10-26)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textout-measurement-blocks.py
 
+Snapshot transfer completion callbacks (2026-10-26)
+=====================================================
+
+- Snapshot transfer done callbacks and the operation under the process lock
+  before invoking them, avoiding callback-list use-after-free during
+  concurrent cleanup or reentrant completion.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-transfer-done-callback-snapshot.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

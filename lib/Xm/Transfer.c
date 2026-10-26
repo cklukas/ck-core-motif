@@ -2356,16 +2356,37 @@ FreeTransferID(XtPointer id)
 static void
 CallDoneProcs(Widget wid, XtPointer id, XmTransferDoneCallbackStruct *ts)
 {
-  int i;
+  int i, count;
+  XmSelectionFinishedProc *callbacks;
+  XtEnum op;
   TransferContext tid = (TransferContext) id;
 
-  if (tid == NULL || ts == NULL || tid->numDoneProcs <= 0 ||
-      tid->doneProcs == NULL)
+  if (tid == NULL || ts == NULL)
     return;
 
-  for(i = 0; i < tid -> numDoneProcs; i++) {
-    (tid -> doneProcs[i])(wid, tid -> op, ts);
+  _XmProcessLock();
+  count = tid->numDoneProcs;
+  if (count <= 0 || tid->doneProcs == NULL ||
+      (size_t)count > SIZE_MAX / sizeof(*callbacks) ||
+      (size_t)count > UINT_MAX / sizeof(*callbacks)) {
+    _XmProcessUnlock();
+    return;
   }
+  callbacks = (XmSelectionFinishedProc *)XtMalloc(
+      (Cardinal)((size_t)count * sizeof(*callbacks)));
+  if (callbacks == NULL) {
+    _XmProcessUnlock();
+    return;
+  }
+  memcpy(callbacks, tid->doneProcs,
+         (size_t)count * sizeof(*callbacks));
+  op = tid->op;
+  _XmProcessUnlock();
+
+  for (i = 0; i < count; i++) {
+    callbacks[i](wid, op, ts);
+  }
+  XtFree((char *)callbacks);
 }
 
 static TransferBlock
