@@ -7405,6 +7405,15 @@ df_DoStuff(
 		for (i = 0, malloc_size = sizeof(wchar_t); i < num_vals ; i++)
 		   malloc_size += strlen(tmp_value[i]) * sizeof(wchar_t);
 		wc_value = (wchar_t*)XtMalloc ((unsigned) malloc_size);
+		if (wc_value == NULL) {
+		   XFreeStringList(tmp_value);
+		   if (XmTextF_selection_move(tf) && local)
+		      XmTextF_max_length(tf) = max_length;
+		   XtFree((char *)value);
+		   if (--prim_select->ref_count == 0)
+		      XtFree((char *)prim_select);
+		   return;
+		}
 		for (i = 0; i < num_vals ; i++)
 		   prim_select->num_chars +=
 		                    mbstowcs(wc_value + prim_select->num_chars,

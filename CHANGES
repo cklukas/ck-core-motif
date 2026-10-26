@@ -16635,3 +16635,12 @@ Guard DataField primary conversion allocation (2026-10-27)
 - Add a focused source regression and documentation.
 
 ====================================================
+
+Guard DataField primary wide conversion allocation (2026-10-27)
+================================================================
+
+- Check the wide primary-selection conversion buffer before use, restoring
+  temporary state and releasing callback data on failure.
+- Add a focused source regression and documentation.
+
+====================================================
