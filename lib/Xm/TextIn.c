@@ -105,6 +105,8 @@ typedef struct {
 
 static TextDestData GetTextDestData(Widget tw);
 
+static Position ClampTextPointCoordinate(int coordinate);
+
 
 /* static void CheckSync(Widget, XtPointer, XEvent *, Boolean *); */
 
@@ -875,6 +877,16 @@ static XmTextPosition YtoPosInLine(XmTextWidget tw,
 				   LineNum line);
 
 /********    End Static Function Declarations    ********/
+
+static Position
+ClampTextPointCoordinate(int coordinate)
+{
+  if (coordinate < SHRT_MIN)
+    return (Position)SHRT_MIN;
+  if (coordinate > SHRT_MAX)
+    return (Position)SHRT_MAX;
+  return (Position)coordinate;
+}
 
 
 
@@ -4608,8 +4620,8 @@ Stuff(Widget w,
       point = (XPoint *) XtMalloc(sizeof(XPoint));
       if (point == NULL)
 	return;
-      point->x = event->xbutton.x;
-      point->y = event->xbutton.y;
+      point->x = ClampTextPointCoordinate(event->xbutton.x);
+      point->y = ClampTextPointCoordinate(event->xbutton.y);
   } 
 
   if (!event_time) event_time = _XmValidTimestamp(w);

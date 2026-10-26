@@ -19832,3 +19832,10 @@ Clamp Text horizontal-page coordinates (2026-10-26)
 - Apply the same top-edge y-coordinate clamp to horizontal page actions,
   preventing signed `Position` wraparound during left/right paging.
 - Add focused regression coverage and documentation.
+
+Bound Text selection-transfer points (2026-10-26)
+==================================================
+
+- Saturate X event coordinates before storing them in the 16-bit `XPoint`
+  metadata used by selection transfers, preventing coordinate wraparound.
+- Add focused regression coverage and documentation.
