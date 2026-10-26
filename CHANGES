@@ -1,3 +1,11 @@
+Bound I18List visible-size arithmetic (2026-10-27)
+===================================================
+
+- Compute row and title extents in widened arithmetic, handle non-positive
+  visible-row counts, and clamp the final height before narrowing to
+  `Dimension`.
+- Add focused regression coverage and documentation.
+
 Bound I18List column-width allocation (2026-10-27)
 ====================================================
 

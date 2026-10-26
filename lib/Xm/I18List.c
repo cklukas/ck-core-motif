@@ -2261,10 +2261,14 @@ static void
 SetVisibleSize(Widget w, Boolean set_width)
 {
     XmI18ListWidget	ilist = (XmI18ListWidget) w;
-    Dimension		title_height;
+    uint64_t		title_height;
     int			height;
+    int			visible_rows;
+    uint64_t		content_height;
+    uint64_t		total_height;
 
     CalcColumnInfo(w, True);
+    visible_rows = XmI18List_visible_rows(ilist);
 
     title_height = 2 * VERTICAL_SPACE +
 	XmI18List_title_row_height(ilist);
@@ -2281,28 +2285,32 @@ SetVisibleSize(Widget w, Boolean set_width)
         XmRenderTableGetDefaultFontExtents(XmI18List_font_list(ilist),
 	                                   &height, NULL, NULL);
 	
-	if (height == 0)
-	    height = VERTICAL_SPACE * XmI18List_visible_rows(ilist);
+	content_height = (uint64_t)(height > 0 ? height : VERTICAL_SPACE) *
+	    (uint64_t)(visible_rows > 0 ? visible_rows : 0);
 #else
 	XFontStruct	*font = (XFontStruct *) NULL;
 
 	XmeRenderTableGetDefaultFont(XmI18List_font_list(ilist), &font);
 
 	if (font)
-	    height = (font->ascent + font->descent + VERTICAL_SPACE) * 
-		XmI18List_visible_rows(ilist);
+	    content_height = ((uint64_t)(font->ascent > 0 ? font->ascent : 0) +
+		(uint64_t)(font->descent > 0 ? font->descent : 0) +
+		VERTICAL_SPACE) * (uint64_t)(visible_rows > 0 ? visible_rows : 0);
 	else
-	    height = VERTICAL_SPACE * XmI18List_visible_rows(ilist);
+	    content_height = (uint64_t)VERTICAL_SPACE *
+		(uint64_t)(visible_rows > 0 ? visible_rows : 0);
 #endif
     }
     else
     {
-	height = (XmI18List_row_height(ilist) + VERTICAL_SPACE) * 
-	    XmI18List_visible_rows(ilist);
+	content_height = (uint64_t)(XmI18List_row_height(ilist) +
+	    VERTICAL_SPACE) * (uint64_t)(visible_rows > 0 ? visible_rows : 0);
     }
 
     /* Go ahead and set the widget's height resource... */
-    ilist->core.height = title_height + height + VERTICAL_SPACE;
+	total_height = title_height + content_height + VERTICAL_SPACE;
+	ilist->core.height = (total_height > USHRT_MAX) ?
+	    USHRT_MAX : (Dimension)total_height;
 
     if (set_width)
 	ilist->core.width = GetListWidth(w);
