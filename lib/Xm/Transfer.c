@@ -887,7 +887,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
   status = XmClipboardStartCopy(display, XtWindow(w), NULL, 
 				time, w, ClipboardCallback, &itemid);
   
-  if (status == XmClipboardLocked) {
+  if (status != XmClipboardSuccess) {
 	_XmAppUnlock(app);
 	return(False);
   }

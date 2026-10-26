@@ -22126,3 +22126,13 @@ Harden secondary-selection transfer inputs (2026-10-26)
 
 Guard clipboard-source setup (2026-10-26)
 ==========================================
+Require successful clipboard start (2026-10-26)
+================================================
+
+- Stop clipboard-source setup for every non-success `XmClipboardStartCopy`
+  status, preventing use of an uninitialized item ID after bad-format or
+  internal failures.
+- Add focused regression coverage and documentation.
+
+Harden secondary-selection transfer inputs (2026-10-26)
+========================================================
