@@ -323,10 +323,15 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         XmRenderTable new_table = number->number_box.render_table ?
             XmFontListCopy(number->number_box.render_table) :
             XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
-        if (old->number_box.render_table)
-            XmRenderTableFree(old->number_box.render_table);
-        number->number_box.render_table = new_table;
-        redraw_needed = True;
+        if (new_table) {
+            if (old->number_box.render_table)
+                XmRenderTableFree(old->number_box.render_table);
+            number->number_box.render_table = new_table;
+            redraw_needed = True;
+        } else {
+            /* Keep the last valid table if a replacement cannot be copied. */
+            number->number_box.render_table = old->number_box.render_table;
+        }
     }
     if (old->number_box.minimum != number->number_box.minimum ||
         old->number_box.maximum != number->number_box.maximum ||
