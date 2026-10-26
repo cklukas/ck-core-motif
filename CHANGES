@@ -1,3 +1,10 @@
+Reject missing DnD destination callback data (2026-10-26)
+==========================================================
+
+- Guard Container, Text, and TextField drop handlers before reading external
+  `XmDropProcCallbackStruct` coordinates or actions.
+- Fail malformed transfers cleanly and add focused coverage and documentation.
+
 Guard drag-location completion cleanup (2026-10-26)
 ====================================================
 

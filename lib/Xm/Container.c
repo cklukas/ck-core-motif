@@ -5627,6 +5627,11 @@ ContainerDestinationProc(
 		return;
 		}
 	dropproc_cs = (XmDropProcCallbackStruct *)cs->destination_data;
+	if (dropproc_cs == NULL) {
+	    cw->container.drag_context = (Widget) NULL;
+	    XmTransferDone(cs->transfer_id, XmTRANSFER_DONE_FAIL);
+	    return;
+	}
 	cw->container.dropspot.x = dropproc_cs->x;
 	cw->container.dropspot.y = dropproc_cs->y;
 	XmTransferValue(cs->transfer_id,
@@ -5663,6 +5668,11 @@ ContainerDestPrehookProc(
       if (loc_data == NULL)
 		return;
       dropproc_cs = (XmDropProcCallbackStruct *) cs->destination_data;
+      if (dropproc_cs == NULL) {
+		XtFree((char *) loc_data);
+		XmTransferDone(cs->transfer_id, XmTRANSFER_DONE_FAIL);
+		return;
+      }
       loc_data -> x = dropproc_cs->x;
       loc_data -> y = dropproc_cs->y;
       cs->location_data = (XtPointer) loc_data;

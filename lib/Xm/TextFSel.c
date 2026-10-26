@@ -1675,6 +1675,11 @@ TextFieldDestinationCallback(Widget w,
   if (ds->selection == atoms[XmA_MOTIF_DROP]) {
     XmDropProcCallbackStruct *cb = 
       (XmDropProcCallbackStruct *) ds->destination_data;
+
+    if (cb == NULL) {
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+      return;
+    }
     
     drop_point = (XPoint *) XtMalloc(sizeof(*drop_point));
     if (drop_point == NULL) {
