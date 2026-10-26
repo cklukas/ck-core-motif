@@ -7433,14 +7433,18 @@ df_DoStuff(
 	  }
        } else {
 	     if (XmTextF_max_char_size(tf) == 1){
-               /* Note: *length may be truncated during cast to int */
-		prim_select->num_chars = (int) *length;
-		replace_res = _XmDataFieldReplaceText(tf, NULL, 
-						      prim_select->position,
-						      prim_select->position, 
-						      (char *) value, 
-						      prim_select->num_chars,
-						      False);
+	       if (*length <= (unsigned long)INT_MAX) {
+		 prim_select->num_chars = (int) *length;
+		 replace_res = _XmDataFieldReplaceText(tf, NULL,
+						       prim_select->position,
+						       prim_select->position,
+						       (char *) value,
+						       prim_select->num_chars,
+						       False);
+	       } else {
+		 prim_select->num_chars = 0;
+		 replace_res = False;
+	       }
 	     } else {
 		wchar_t * wc_value;
 

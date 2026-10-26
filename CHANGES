@@ -22617,3 +22617,9 @@ Serialize transfer done-proc reclamation (2026-10-26)
   callback registration.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-transfer-done-proc-locking.py
+Bound DataField external selection lengths (2026-10-26)
+========================================================
+- Reject external single-byte selection values larger than `INT_MAX` instead
+  of truncating their length during replacement.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-datafield-selection-length.py
