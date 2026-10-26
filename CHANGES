@@ -22781,3 +22781,10 @@ Bound TextField selection export buffers (2026-10-26)
   and check each byte-buffer allocation before conversion or copying.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-selection-buffers.py
+
+Check TextField timestamp allocation (2026-10-26)
+===================================================
+- Return a failed selection conversion when the timestamp target cannot
+  allocate its `Time` result buffer.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-timestamp-allocation.py
