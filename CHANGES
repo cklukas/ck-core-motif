@@ -1,3 +1,19 @@
+Separate appearance defaults from application resources (2026-10-26)
+==================================================================
+
+- Keep profile patterns outside the application Xrm database. Establish normal
+  class/application resources before applying toolkit-owned modern defaults,
+  so broad application wildcards retain precedence over class-specific styling.
+- Preserve resource entries added after profile selection during live changes.
+- Capture unstyled baselines for modern-created controls, including inherited
+  parent colors in cached gadgets, so classic restoration uses classic values.
+- Use Xt's cached pixel conversion in the widget's actual colormap rather than
+  allocating appearance colors in the default screen colormap.
+- Expand native parity to thirteen widget/gadget classes and nine cases covering
+  all three profiles, broad overrides, modern-to-classic restoration, later
+  resource edits and private 8-bit colormaps. Retain density, state, ownership,
+  reentrancy, rollback and palette regressions.
+
 Add modern density selection and transactional layout defaults (2026-10-26)
 ==========================================================================
 

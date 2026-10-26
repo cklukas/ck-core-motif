@@ -34,10 +34,11 @@
 #define MODERN_DARK_PROFILE "modern-dark"
 
 /*
- * These are deliberately ordinary Xt resources.  XrmCombineDatabase() with
- * override=False keeps an application's exact resource entries, while Xt's
- * normal specificity rules keep more-specific application entries ahead of
- * these wildcard defaults.
+ * Profile patterns are resolved independently of the application's Xrm
+ * database. Construction establishes classic/application resources first;
+ * appearance applies only resources not explicitly owned by the application.
+ * In particular a class-specific profile pattern cannot outrank a broad
+ * application wildcard.
  */
 static const char modern_light_resources[] =
     "*background: #f1f2f4\n"
@@ -177,7 +178,6 @@ typedef struct {
 
 typedef struct _XmAppearanceDisplayState {
     Display *display;
-    XrmDatabase application_database;
     XrmDatabase active_database;
     Boolean owns_active_database;
     Boolean transaction_active;
@@ -199,7 +199,6 @@ _XmDestroyAppearanceDisplay(Display *display)
 {
     XmAppearanceDisplayState **link;
     XmAppearanceDisplayState *state;
-    XrmDatabase application_database;
     XrmDatabase active_database;
 
     if (display == NULL)
@@ -217,9 +216,7 @@ _XmDestroyAppearanceDisplay(Display *display)
         return;
     }
     *link = state->next;
-    application_database = state->application_database;
     active_database = state->active_database;
-    state->application_database = NULL;
     state->active_database = NULL;
     if (state->hooks != NULL) {
         XtRemoveCallback(state->hooks, XtNcreateHook, appearance_created, state);
@@ -234,8 +231,6 @@ _XmDestroyAppearanceDisplay(Display *display)
         XrmSetDatabase(display, NULL);
         XrmDestroyDatabase(active_database);
     }
-    if (application_database != NULL)
-        XrmDestroyDatabase(application_database);
 }
 
 static const char *
@@ -367,12 +362,18 @@ profile_property_value(Widget widget, XmAppearanceProfile profile,
     if (text == NULL)
         return False;
     if (appearance_property_is_color(property)) {
-        XColor color;
-        Colormap colormap = DefaultColormapOfScreen(XtScreen(widget));
-        if (!XParseColor(XtDisplay(widget), colormap, text, &color) ||
-            !XAllocColor(XtDisplay(widget), colormap, &color))
+        Pixel pixel;
+        XrmValue from, to;
+        Widget context = XtIsWidget(widget) ? widget : XtParent(widget);
+        from.addr = (XPointer)text;
+        from.size = (unsigned int)strlen(text) + 1;
+        to.addr = (XPointer)&pixel;
+        to.size = sizeof(pixel);
+        /* Use Xt's cached pixel converter and the actual widget colormap,
+         * just as ordinary application resource conversion does. */
+        if (!XtConvertAndStore(context, XmRString, &from, XmRPixel, &to))
             return False;
-        *value_return = (XtArgVal)color.pixel;
+        *value_return = (XtArgVal)pixel;
         return True;
     }
     number = strtoul(text, &end, 10);
@@ -661,18 +662,12 @@ ensure_display_state(Display *display)
     if (state == NULL)
         return NULL;
     state->display = display;
-    state->application_database = clone_database(XrmGetDatabase(display));
-    if (state->application_database == NULL) {
-        XtFree((char *)state);
-        return NULL;
-    }
     /* Selection is also valid on an XOpenDisplay connection before Xt is
      * initialized. Use Xlib lifetime tracking here; install Xt hooks only when
      * an actual Motif object registers on the initialized Xt display. */
     {
         XExtCodes *extension = XAddExtension(display);
         if (extension == NULL) {
-            XrmDestroyDatabase(state->application_database);
             XtFree((char *)state);
             return NULL;
         }
@@ -792,9 +787,7 @@ initialize_appearance_state(XmAppearanceWidgetState *state,
     read_appearance_values(state, state->original);
     for (AppearanceProperty property = 0; property < AP_COUNT; ++property) {
         XrmValue xrm_value;
-        XmAppearanceDisplayState *display_state = find_display_state(state->display);
-        XrmDatabase application = display_state != NULL
-            ? display_state->application_database : XrmGetDatabase(state->display);
+        XrmDatabase application = XrmGetDatabase(state->display);
         if (!state->supported[property] || state->explicit_arg[property])
             continue;
         /* An application override remains authoritative even when its value
@@ -831,6 +824,25 @@ appearance_created(Widget hooks, XtPointer closure, XtPointer data)
         if (!state->retired && state->widget == created->widget &&
             !state->initialized) {
             initialize_appearance_state(state, profile);
+            if (profile != XmAPPEARANCE_CLASSIC && XtIsRectObj(state->widget)) {
+                XmAppearanceDensity density;
+                XmAppearanceChangePlan plan;
+                Boolean was_active = display_state->transaction_active;
+                memset(&plan, 0, sizeof(plan));
+                if (!XmGetAppearanceDensity(display_state->display, &density) ||
+                    !appearance_widget_prepare(state, profile, density, &plan)) {
+                    XtAppWarning(XtWidgetToApplicationContext(state->widget),
+                                 "Cannot prepare initial Motif appearance");
+                    break;
+                }
+                ++state->references;
+                display_state->transaction_active = True;
+                appearance_widget_commit(&plan);
+                display_state->transaction_active = was_active;
+                --state->references;
+                if (state->retired && state->references == 0)
+                    XtFree((char *)state);
+            }
             break;
         }
 }
@@ -1019,6 +1031,29 @@ _XmApplyAppearanceChange(Display *display, XmAppearanceProfile old_profile,
     return success;
 }
 
+/* Gadget constructors inherit manager colors before appearance is applied.
+ * Use the manager's unstyled defaults for that baseline, so later classic
+ * restoration does not preserve a modern parent's colors. Explicit parent
+ * choices remain current values; callers supply those as their fallback. */
+void
+_XmAppearanceDefaultColors(Widget parent, Pixel *background, Pixel *foreground,
+                          Pixel *top_shadow, Pixel *bottom_shadow, Pixel *highlight)
+{
+    static const AppearanceProperty properties[] = {AP_BACKGROUND, AP_FOREGROUND,
+        AP_TOP_SHADOW, AP_BOTTOM_SHADOW, AP_HIGHLIGHT};
+    Pixel *outputs[] = {background, foreground, top_shadow, bottom_shadow, highlight};
+    XmAppearanceProfile profile;
+    XmAppearanceWidgetState *state;
+    if (parent == NULL || !XmGetAppearanceProfile(XtDisplayOfObject(parent), &profile) ||
+        profile == XmAPPEARANCE_CLASSIC) return;
+    state = find_live_widget_state(parent);
+    if (state == NULL || !state->initialized) return;
+    for (Cardinal i = 0; i < XtNumber(properties); ++i)
+        if (outputs[i] != NULL && state->supported[properties[i]] &&
+            state->owned[properties[i]])
+            *outputs[i] = (Pixel)state->original[properties[i]];
+}
+
 static Boolean
 profile_from_name(const char *name, XmAppearanceProfile *profile_return)
 {
@@ -1041,22 +1076,6 @@ profile_from_name(const char *name, XmAppearanceProfile *profile_return)
     return False;
 }
 
-static Boolean
-profile_resource_database(XmAppearanceProfile profile,
-                          XmAppearanceDensity density, XrmDatabase *database)
-{
-    XrmDatabase defaults;
-
-    if (profile == XmAPPEARANCE_CLASSIC) return True;
-    defaults = profile_defaults(profile, density);
-    if (defaults == NULL) return False;
-    defaults = clone_database(defaults);
-    if (defaults == NULL)
-        return False;
-    XrmCombineDatabase(defaults, database, False);
-    return True;
-}
-
 Boolean
 XmSetAppearanceProfile(Display *display, XmAppearanceProfile profile)
 {
@@ -1065,6 +1084,8 @@ XmSetAppearanceProfile(Display *display, XmAppearanceProfile profile)
     char *type = NULL;
     XmAppearanceProfile current;
     XmAppearanceDensity density;
+    XmAppearanceDisplayState *state;
+    Boolean new_database = False;
     const char *name;
 
     if (display == NULL)
@@ -1083,20 +1104,26 @@ XmSetAppearanceProfile(Display *display, XmAppearanceProfile profile)
                        &type, &value)) {
         if (!XmGetAppearanceProfile(display, &current) || current != profile)
             return False;
-        return profile_resource_database(profile, density, &database);
+        return True;
     }
     if (database == NULL) {
         XrmInitialize();
         database = XrmGetStringDatabase("");
         if (database == NULL)
             return False;
+        new_database = True;
     }
 
-    if (ensure_display_state(display) == NULL)
+    state = ensure_display_state(display);
+    if (state == NULL ||
+        (profile != XmAPPEARANCE_CLASSIC && profile_defaults(profile, density) == NULL)) {
+        if (new_database) XrmDestroyDatabase(database);
         return False;
-
-    if (!profile_resource_database(profile, density, &database))
-        return False;
+    }
+    if (new_database) {
+        state->active_database = database;
+        state->owns_active_database = True;
+    }
 
     XrmPutStringResource(&database, APPEARANCE_RESOURCE, name);
     XrmSetDatabase(display, database);
@@ -1147,8 +1174,9 @@ apply_appearance_settings(Display *display, XmAppearanceProfile profile,
     state = ensure_display_state(display);
     if (state == NULL)
         return False;
-    database = clone_database(state->application_database);
-    if (database == NULL || !profile_resource_database(profile, density, &database)) {
+    database = clone_database(XrmGetDatabase(display));
+    if (database == NULL ||
+        (profile != XmAPPEARANCE_CLASSIC && profile_defaults(profile, density) == NULL)) {
         if (database != NULL)
             XrmDestroyDatabase(database);
         return False;

@@ -69,6 +69,11 @@ try:
         raise RuntimeError("fixture did not load the selected build")
     for profile in ("light", "dark", "contrast"):
         run(profile, ["xvfb-run", "-a", "-s", "-screen 0 1024x768x24", binary, profile])
+        if args.suite == "parity":
+            run(profile + "-overrides", ["xvfb-run", "-a", "-s",
+                "-screen 0 1024x768x24", binary, profile, "overrides"])
+            run(profile + "-colormap", ["xvfb-run", "-a", "-s",
+                "-screen 0 1024x768x8", binary, profile, "overrides", "colormap"])
         if args.suite == "density":
             run(profile + "-horizontal", ["xvfb-run", "-a", "-s",
                 "-screen 0 1600x1024x24", binary, profile, "horizontal"])

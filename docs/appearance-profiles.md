@@ -30,9 +30,10 @@ existing hierarchy use `XmApplyAppearanceProfile` explicitly instead:
 XmApplyAppearanceProfile(display, XmAPPEARANCE_MODERN_DARK);
 ```
 
-The live operation updates registered core widgets, then replaces the
-display's profile fallback database only after the widget transaction passes
-its conversion preflight. It can move between all four profiles, including
+The live operation updates registered core widgets, then publishes the selected
+profile metadata only after the widget transaction passes its conversion
+preflight. It preserves the current application resource database, including
+entries added since profile selection. It can move between all four profiles, including
 back to `classic`. Explicit widget arguments and ordinary application X
 resources remain authoritative. Toolkit-owned values are tracked per resource,
 so a later application `XtSetValues` assignment stops that resource from being
@@ -96,7 +97,7 @@ XmSetAppearanceProfile(display, XmAPPEARANCE_MODERN_LIGHT);
 
 It supplies a restrained light palette, a crisp one-pixel focus ring, two-
 pixel Motif bevels, an unframed notebook surface, button/toggle padding, text-field/list spacing and traversal
-defaults through ordinary wildcard X resources. The palette is deliberately
+defaults through internal Xrm profile patterns. The palette is deliberately
 documented in the implementation (`#f1f2f4` background, `#202124` text,
 `#1a73e8` focus and `#dbeafe` arm/selection). These are defaults, not a color
 filter: application resources and explicit widget arguments retain precedence.
@@ -123,7 +124,7 @@ supplied pixmaps retain their normal resource precedence.
 
 WP-03 also adds the opt-in `modern-dark` profile. It supplies dark surfaces,
 light text, visible blue focus, dark selection/arm surfaces and a distinct
-disabled foreground through the same immutable Xrm fallback path. Its
+disabled foreground through the same immutable internal profile definitions. Its
 installed fixture checks realized colors, disabled state, keyboard traversal,
 explicit application precedence and application pixmap identity; see
 `docs/modern-dark-profile.md` for the qualified scope and limits.
@@ -159,13 +160,17 @@ precedence, realized backgrounds, toggle state and callback counts.
 
 ## Construction and live-update parity
 
-Construction and live transactions resolve the same immutable Xrm profile
-resource database. Class-specific surfaces, label traversal, notebook frame
+Construction and live transactions resolve the same immutable internal Xrm
+profile resource database. These patterns are never merged into the application
+resource database, where a class-specific theme pattern could otherwise outrank
+an application-wide wildcard. Xt first constructs a widget from its ordinary
+class defaults and application resources. The create hook then snapshots that
+baseline and applies the selected profile only to toolkit-owned values. Class-specific surfaces, label traversal, notebook frame
 shadows and border widths therefore have the same defaults whether a widget
 is created under a profile or switched into it later. There is no separate
 hand-maintained live palette.
 
-Ownership is determined against the original application resource database,
+Ownership is determined against the current application resource database,
 including application-class-qualified resources. An explicit application
 value is preserved even if it equals a theme default; equality does not turn
 an application resource into a toolkit-owned one. Xt create hooks capture
@@ -175,9 +180,12 @@ live appearance change. Hook lifetime follows the display. Cached secondary
 resources participate in both support detection and Xrm resource-class lookup.
 
 The native fixture `tests/automated/run-appearance-parity.py` compares startup
-and live values on ten widget/gadget classes under light, dark and high-contrast
-profiles, including cached secondary resources, and checks preservation of
-equal-valued application overrides.
+and live values on thirteen widget/gadget classes under light, dark and
+high-contrast profiles, including cached secondary resources. It also compares
+modern-created widgets restored to classic with independently constructed
+classic controls, exercises broad application wildcards and later resource
+edits, and checks private colormaps under an 8-bit X server. Color comparisons
+use actual RGB values, not pixel indices from unrelated colormaps.
 Run it against a selected out-of-tree build with `--build /absolute/build`
 and a fresh `--out /absolute/task/appearance-parity` directory. Its receipt
 records source and loaded-library fingerprints and each profile result.
@@ -243,10 +251,14 @@ successful retry.
 
 ## Remaining overhaul qualification
 
-The full visual overhaul is still in progress. Application-wide wildcard
-resources can still lose to more-specific profile patterns during construction;
-that precedence case remains a foundation gate. Returning a widget originally
-constructed under a modern profile to actual classic defaults also remains
-pending. The accepted classic round-trip fixtures start in classic. Neither
-these API tests nor spacing-query scale tests establish the full rendered
-control, font, DPI or accessibility matrix; see `modern-visual-overhaul.md`.
+The full visual overhaul is still in progress. Native resource parity and
+classic restoration are qualified for the representative classes described
+above. Neither these API tests nor spacing-query scale tests establish the full
+rendered control, font, DPI or accessibility matrix; see
+`modern-visual-overhaul.md`.
+
+Cached gadgets inherit their parent's unstyled color baseline during
+construction, while explicit parent colors remain authoritative. This avoids
+saving a modern parent's palette as a gadget's classic defaults. Pixel
+conversion uses Xt's cache and the widget's actual colormap, including custom
+colormaps; it does not allocate against the default screen colormap.
