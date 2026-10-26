@@ -16041,6 +16041,13 @@ Check deferred clipboard snapshot allocations (2026-10-27)
 - Add a focused source regression and documentation.
 
 Guard deferred clipboard snapshot callbacks (2026-10-27)
+Make RowActions label assembly linear (2026-10-27)
+==================================================
+
+- Fill pre-sized action labels with offset-based copies instead of repeated
+  `strcat` scans.
+- Add a focused source regression and documentation.
+
 Make CommandPalette label assembly linear (2026-10-27)
 =======================================================
 

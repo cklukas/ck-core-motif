@@ -68,8 +68,12 @@ static char *button_text(XmString label, XmString shortcut) {
     }
     combined = XtMalloc(length);
     if (!combined) { XtFree(left); XtFree(right); return NULL; }
-    strcpy(combined, left);
-    if (right[0]) { strcat(combined, "  "); strcat(combined, right); }
+    memcpy(combined, left, left_length);
+    if (right[0]) {
+        memcpy(combined + left_length, "  ", 2);
+        memcpy(combined + left_length + 2, right, right_length);
+    }
+    combined[length - 1] = '\0';
     XtFree(left); XtFree(right); return combined;
 }
 static void free_items(XmRowActionsWidget actions, Boolean destroy_buttons) {
