@@ -599,9 +599,12 @@ static XmPictureTransition*
 _XiGetNewTransition(XmTransType type,
 		    XmPictureNode *src, XmPictureNode *dest)
 {
-    XmPictureTransition *t = XtNew(XmPictureTransition);
+    XmPictureTransition *t;
 
-    if (src == NULL || dest == NULL || t == NULL)
+    if (src == NULL || dest == NULL)
+	return NULL;
+    t = XtNew(XmPictureTransition);
+    if (t == NULL)
 	return NULL;
     t->destination = dest->index;
     t->type = type;
