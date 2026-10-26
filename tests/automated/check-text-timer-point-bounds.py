@@ -13,7 +13,10 @@ region = source[start:end]
 
 assert "data->select_pos_x = ClampTextPointCoordinate(event->xmotion.x);" in region
 assert "data->select_pos_y = ClampTextPointCoordinate(event->xmotion.y);" in region
+assert region.count("ClampTextPointCoordinate") >= 11
 assert "data->select_pos_x = event->xmotion.x;" not in region
 assert "data->select_pos_y = event->xmotion.y;" not in region
+assert "data->select_pos_x = (Position)" not in region
+assert "data->select_pos_y = (Position)" not in region
 
 print("Text timer scrolling: motion coordinates are saturated")

@@ -19843,6 +19843,6 @@ Bound Text selection-transfer points (2026-10-26)
 Bound Text timer-scrolling points (2026-10-26)
 ================================================
 
-- Saturate motion-event coordinates before storing them in the 16-bit Text
-  input positions used by selection autoscroll.
+- Saturate raw motion-event and computed edge coordinates before storing them
+  in the 16-bit Text input positions used by selection autoscroll.
 - Add focused regression coverage and documentation.

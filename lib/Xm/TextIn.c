@@ -4280,29 +4280,30 @@ CheckTimerScrolling(Widget w,
 			XmTOP_TO_BOTTOM_RIGHT_TO_LEFT)) {
       /* to the above of the text */
       if (event->xmotion.y <= (int) o_data->topmargin)
-	data->select_pos_y = (Position) (o_data->topmargin -
-					 (o_data->font_ascent +
-					  o_data->font_descent + 1));
+	data->select_pos_y = ClampTextPointCoordinate((int)
+		(o_data->topmargin - (o_data->font_ascent +
+					  o_data->font_descent + 1)));
       /* to the below of the text */
       else if (event->xmotion.y >= (int) (tw->core.height - 
 					  o_data->bottommargin))
-	data->select_pos_y = (Position) ((tw->core.height -
-					  o_data->bottommargin) +
-					 (o_data->font_ascent +
-					  o_data->font_descent + 1));
+	data->select_pos_y = ClampTextPointCoordinate((int)
+		((tw->core.height - o_data->bottommargin) +
+					  (o_data->font_ascent +
+					   o_data->font_descent + 1)));
       /* right the text */
       if (event->xmotion.x >= (int) (tw->core.width - o_data->rightmargin)) {
-	data->select_pos_x = (int) ((tw->core.width - o_data->rightmargin) +
-				     o_data->linewidth);
+	data->select_pos_x = ClampTextPointCoordinate((int)
+		((tw->core.width - o_data->rightmargin) + o_data->linewidth));
 	if (tw->text.top_line == 0)
-	  data->select_pos_x = tw->core.width;
+	  data->select_pos_x = ClampTextPointCoordinate((int)tw->core.width);
 	
       /* left the text */
       } else if (event->xmotion.x <= 
 		 (int) ((tw->core.width - o_data->rightmargin) - 
 			(o_data->linewidth * (o_data->number_lines + 1))))
-	data->select_pos_y = (tw->core.width - o_data->rightmargin) -
-			      (o_data->linewidth * (o_data->number_lines + 1));
+	data->select_pos_y = ClampTextPointCoordinate((int)
+		((tw->core.width - o_data->rightmargin) -
+			      (o_data->linewidth * (o_data->number_lines + 1))));
       
       /* ask the vertical scroller its delay */
       if (o_data->hbar)
@@ -4311,17 +4312,18 @@ CheckTimerScrolling(Widget w,
     } else {
       /* to the left of the text */
       if (event->xmotion.x <= (int) o_data->leftmargin)
-	data->select_pos_x = (Position) (o_data->leftmargin -
-					 (o_data->averagecharwidth + 1));
+	data->select_pos_x = ClampTextPointCoordinate((int)
+		(o_data->leftmargin - (o_data->averagecharwidth + 1)));
       /* to the right of the text */
       else if (event->xmotion.x >= (int) (tw->core.width - 
 					  o_data->rightmargin))
-	data->select_pos_x = (Position) ((tw->core.width -
-					  o_data->rightmargin) +
-					 o_data->averagecharwidth + 1);
+	data->select_pos_x = ClampTextPointCoordinate((int)
+		((tw->core.width - o_data->rightmargin) +
+					  o_data->averagecharwidth + 1));
       /* above the text */
       if (event->xmotion.y <= (int) o_data->topmargin) {
-	data->select_pos_y = (int) (o_data->topmargin - o_data->lineheight);
+	data->select_pos_y = ClampTextPointCoordinate((int)
+		(o_data->topmargin - o_data->lineheight));
 	if (tw->text.top_line == 0)
 	  data->select_pos_x = 0;
 	
@@ -4329,8 +4331,9 @@ CheckTimerScrolling(Widget w,
       } else if (event->xmotion.y >= 
 		 (int) (o_data->topmargin +
 			(o_data->lineheight * o_data->number_lines)))
-	data->select_pos_y = o_data->topmargin + (o_data->lineheight *
-						  (o_data->number_lines + 1));
+	data->select_pos_y = ClampTextPointCoordinate((int)
+		(o_data->topmargin + (o_data->lineheight *
+						   (o_data->number_lines + 1))));
     
       /* ask the vertical scroller its delay */
       if (o_data->vbar)
