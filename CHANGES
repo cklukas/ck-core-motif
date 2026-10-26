@@ -83,6 +83,13 @@ Guard MWM property-reader inputs (2026-10-26)
   supplied, without changing valid property parsing.
 - Add focused regression coverage and document the behavior.
 
+Guard MWM property processors (2026-10-26)
+==========================================
+
+- Return safely from WM protocol, Motif-message, and colormap-window property
+  processors when no client record is supplied.
+- Add focused regression coverage and document the input contract.
+
 Guard MWM binding token boundaries (2026-10-26)
 ===============================================
 

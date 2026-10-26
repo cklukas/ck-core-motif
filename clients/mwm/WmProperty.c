@@ -254,6 +254,8 @@ void ProcessWmProtocols (ClientData *pCD)
 #endif /* ICCC_COMPLIANT */
     int i;
 
+    if (pCD == NULL)
+	return;
 
     if (pCD->clientProtocols)
     {
@@ -384,6 +386,8 @@ void ProcessMwmMessages (ClientData *pCD)
     unsigned long nitems;
     int i;
 
+    if (pCD == NULL)
+	return;
 
     if (pCD->mwmMessages)
     {
@@ -843,6 +847,8 @@ void ProcessWmColormapWindows (ClientData *pCD)
     int *pCmapFlags;
 #endif
 
+    if (pCD == NULL)
+	return;
 
     /*
      * pCD->clientCmapCount and pCD->clientCmapIndex are initialized in
