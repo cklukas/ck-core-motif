@@ -19839,3 +19839,10 @@ Bound Text selection-transfer points (2026-10-26)
 - Saturate X event coordinates before storing them in the 16-bit `XPoint`
   metadata used by selection transfers, preventing coordinate wraparound.
 - Add focused regression coverage and documentation.
+
+Bound Text timer-scrolling points (2026-10-26)
+================================================
+
+- Saturate motion-event coordinates before storing them in the 16-bit Text
+  input positions used by selection autoscroll.
+- Add focused regression coverage and documentation.

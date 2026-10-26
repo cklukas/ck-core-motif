@@ -4262,8 +4262,8 @@ CheckTimerScrolling(Widget w,
   if (!event)
     return False;
 
-  data->select_pos_x = event->xmotion.x;
-  data->select_pos_y = event->xmotion.y;
+  data->select_pos_x = ClampTextPointCoordinate(event->xmotion.x);
+  data->select_pos_y = ClampTextPointCoordinate(event->xmotion.y);
   
   if ((event->xmotion.x > (int)o_data->leftmargin) &&
       (event->xmotion.x < (int)(tw->core.width - o_data->rightmargin))  &&
