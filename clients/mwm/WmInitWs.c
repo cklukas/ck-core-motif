@@ -2713,11 +2713,13 @@ GetBindingsProperty(
   unsigned long num_items ;
   unsigned long bytes_after ;
   unsigned char *prop = NULL ;
+  int status ;
 
-  XGetWindowProperty( dsp, RootWindow( dsp, 0), property, 0, 1000000L,
+  status = XGetWindowProperty( dsp, RootWindow( dsp, 0), property, 0, 1000000L,
       FALSE, XA_STRING, &actual_type, &actual_format, &num_items, &bytes_after,
                                                                        &prop) ;
-  if(    (actual_type != XA_STRING)
+  if(    (status != Success)
+      || (actual_type != XA_STRING)
       || (actual_format != 8)
       || (num_items == 0)    )
     {

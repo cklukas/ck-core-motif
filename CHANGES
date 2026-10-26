@@ -21364,3 +21364,8 @@ MakeShrinkWrapIconsGC and MakeFadeIconGC now validate the inactive icon
 appearance GC before cloning it. Appearance-resource failures no longer reach
 XCopyGC with a null source context.
 
+Validate MWM bindings-property request status (2026-10-26)
+------------------------------------------------------------
+GetBindingsProperty now requires XGetWindowProperty to return Success before
+accepting the root-window binding string, and releases any failed result.
+
