@@ -9421,6 +9421,8 @@ df_LoadGCs(
      Widget xm_display = (Widget) XmGetXmDisplay(display);
 
      ctx_data = (XmTextContextData) XtMalloc(sizeof(XmTextContextDataRec));
+     if (ctx_data == NULL)
+	 return;
 
      ctx_data->screen = screen;
      ctx_data->context = context;

@@ -16689,3 +16689,12 @@ Guard DataField SetValues selection-array replacement (2026-10-27)
 - Add a focused source regression and documentation.
 
 ====================================================
+
+Guard DataField pixmap context allocation (2026-10-27)
+=======================================================
+
+- Check the per-screen pixmap context record before initialization or callback
+  registration.
+- Add a focused source regression and documentation.
+
+====================================================
