@@ -11557,14 +11557,21 @@ XmDataFieldGetStringWcs(
     XmDataFieldWidget tf = (XmDataFieldWidget) w;
     wchar_t *temp_wcs;
     int num_wcs = 0;
+    size_t string_length;
 
     _XmWidgetToAppContext(w);    
     _XmAppLock(app);
 
     if (XmTextF_string_length(tf) > 0) 
     {
-	temp_wcs = (wchar_t*) XtMalloc((unsigned) sizeof(wchar_t) *
-				       (XmTextF_string_length(tf) + 1));
+	string_length = (size_t)XmTextF_string_length(tf);
+	if (string_length > SIZE_MAX / sizeof(wchar_t) - 1 ||
+	    string_length + 1 > UINT_MAX / sizeof(wchar_t)) {
+	    _XmAppUnlock(app);
+	    return NULL;
+	}
+	temp_wcs = (wchar_t*) XtMalloc((Cardinal)(sizeof(wchar_t) *
+				       (string_length + 1)));
 	if (temp_wcs == NULL) {
 	    _XmAppUnlock(app);
 	    return NULL;
@@ -11572,12 +11579,12 @@ XmDataFieldGetStringWcs(
 	if (XmTextF_max_char_size(tf) != 1) 
 	{
 	    (void)memcpy((void*)temp_wcs, (void*)XmTextF_wc_value(tf), 
-			 sizeof(wchar_t) * (XmTextF_string_length(tf) + 1));
+			 sizeof(wchar_t) * (string_length + 1));
 	} 
 	else 
 	{
 	    num_wcs = mbstowcs(temp_wcs, XmTextF_value(tf),
-			       XmTextF_string_length(tf) + 1);
+			       string_length + 1);
 	}
 
 	_XmAppUnlock(app);

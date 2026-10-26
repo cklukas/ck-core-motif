@@ -22635,3 +22635,9 @@ Check DataField pixel measurement sizes (2026-10-26)
   conversion in Xft and core-font paths.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-datafield-pixel-length.py
+Check DataField wide-string allocation sizes (2026-10-26)
+===========================================================
+- Validate `XmDataFieldGetStringWcs` length multiplication and Xt allocation
+  width before allocating wide-character storage.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-datafield-string-wcs-size.py
