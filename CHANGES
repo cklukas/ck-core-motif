@@ -21432,3 +21432,9 @@ GetClientInfo now initializes every resize-stretcher window ID to None before
 decoration-specific creation, preventing uncreated entries from being used as
 arbitrary X window IDs during later frame regeneration.
 
+Initialize MWM client base-window ID (2026-10-26)
+--------------------------------------------------
+GetClientInfo now initializes clientBaseWin to None before frame construction,
+so cleanup and regeneration cannot mistake uninitialized storage for an X
+window.
+

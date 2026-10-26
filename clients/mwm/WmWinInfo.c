@@ -239,6 +239,7 @@ GetClientInfo (WmScreenData *pSD, Window clientWindow, long manageFlags)
     pCD->cTitleGadgets = 0;
     pCD->pResizeGadgets = NULL;
     pCD->clientTitleWin = (Window)0L;
+    pCD->clientBaseWin = None;
     pCD->pclientTopShadows = NULL;
     pCD->pclientBottomShadows = NULL;
     pCD->pclientTitleTopShadows = NULL;
