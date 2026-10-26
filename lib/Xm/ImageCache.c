@@ -1334,6 +1334,13 @@ _XmCachePixmap(
 	   loc_height = height ;
 	   loc_depth = depth ;
        }
+
+   /* PixmapData exposes X11 Dimension values; do not truncate a queried
+    * 32-bit geometry into those 16-bit fields. */
+   if (loc_width > (unsigned int)((Dimension)~0) ||
+       loc_height > (unsigned int)((Dimension)~0) ||
+       loc_depth > (unsigned int)INT_MAX)
+       return (False);
    
    /*  Allocate the cache structure and put it into the list  */
 
@@ -1353,9 +1360,9 @@ _XmCachePixmap(
    pix_entry->acc_color->bottom_shadow_color = XmUNSPECIFIED_PIXEL;
    pix_entry->acc_color->select_color = XmUNSPECIFIED_PIXEL;
    pix_entry->acc_color->highlight_color = XmUNSPECIFIED_PIXEL;
-   pix_entry->depth = loc_depth;
-   pix_entry->width = loc_width;
-   pix_entry->height = loc_height;
+   pix_entry->depth = (int)loc_depth;
+   pix_entry->width = (Dimension)loc_width;
+   pix_entry->height = (Dimension)loc_height;
    pix_entry->image_name = XtNewString(image_name);
    if (pix_entry->image_name == NULL) {
        XtFree((char *)pix_entry->acc_color);

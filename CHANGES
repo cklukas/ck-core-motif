@@ -20094,6 +20094,15 @@ Make ImageCache scaling conversions explicit (2026-10-26)
   conversion before passing it to Xt allocation routines.
 - Add focused regression coverage and documentation.
 
+Reject oversized cached pixmap geometry (2026-10-26)
+====================================================
+
+- Reject queried pixmap widths, heights, or depths that cannot be represented
+  by the cache's public `Dimension` and `int` fields.
+- Avoid silently narrowing large X11 geometry before metadata consumers read
+  it.
+- Extend the focused geometry regression check and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
