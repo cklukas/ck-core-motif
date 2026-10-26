@@ -15518,3 +15518,11 @@ Guard drag selection request lookups (2026-10-27)
 - Add a focused source regression and documentation.
 
 Handle drop-site manager allocation failure (2026-10-27)
+Initialize transfer conversion contexts (2026-10-27)
+======================================================
+
+- Initialize new per-selection conversion records before hash-table
+  publication and handle key/context allocation failure.
+- Add a focused source regression and documentation.
+
+Guard drag selection request lookups (2026-10-27)

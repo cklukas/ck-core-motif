@@ -1947,11 +1947,23 @@ LookupContextBlock(Display *d, Atom a)
     _XmCCKey new_k;
 
     new_k = (_XmCCKey) XtMalloc(sizeof(_XmCCKeyRec));
+	if (new_k == NULL)
+	    return NULL;
     new_k -> display = d;
     new_k -> selection = a;
 
     /* Allocate a context block for this selection */
     cc = (ConvertContext) XtMalloc(sizeof(ConvertContextRec));
+	if (cc == NULL) {
+	    XtFree((char *)new_k);
+	    return NULL;
+	}
+	cc->flags = 0;
+	cc->op = 0;
+	cc->itemid = 0;
+	cc->location_data = NULL;
+	cc->client_data = NULL;
+	cc->drag_context = (Widget)NULL;
     _XmProcessLock();
     _XmAddHashEntry(ConvertHashTable, (XmHashKey)new_k, (XtPointer)cc);
     _XmProcessUnlock();
