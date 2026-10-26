@@ -382,7 +382,7 @@ HandleInsertTargets(
   Boolean supports_CT = False;
   Boolean supports_text = False;
   Boolean supports_utf8_string = False;
-  int i;
+  unsigned long i;
 
   if (w == NULL || closure == NULL || length == NULL ||
       value == NULL || tid == NULL) {
@@ -955,13 +955,13 @@ HandleTargets(Widget w,
   Atom targets[2];
   XmTextPosition select_pos;
   XmTextPosition left, right;
-  int i;
+  unsigned long i;
 
   if (w == NULL || ds == NULL)
     return;
   tw = (XmTextWidget) w;
 
-  if (!ds->length || ds->value == NULL) {
+  if (!ds->length || ds->value == NULL || ds->length > (unsigned long)INT_MAX) {
     XtFree((char *)ds->value);
     ds->value = NULL;
     return;

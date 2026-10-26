@@ -22713,3 +22713,9 @@ Check Text wide search conversion sizes (2026-10-26)
   limits are validated.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-find-wcs-conversion.py
+Bound Text external selection target counts (2026-10-26)
+==========================================================
+- Reject oversized external target-list counts before `HandleTargets` scans
+  the callback array with its legacy integer limit.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-selection-target-count.py
