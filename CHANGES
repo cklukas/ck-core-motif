@@ -18921,3 +18921,14 @@ Guard ToggleSwitch state API inputs (2026-10-27)
 ============================================================
 
 Guard InfoBar callback null inputs (2026-10-27)
+Guard transfer source/sink entry inputs (2026-10-27)
+====================================================
+
+- Validate widget handles before context/display lookup in selection and drag
+  source/sink entry points.
+- Reject absent named-selection atoms and standard-conversion callback data.
+- Add focused regression coverage and documentation.
+
+============================================================
+
+Guard transfer encoding lookup inputs (2026-10-27)

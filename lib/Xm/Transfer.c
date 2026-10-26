@@ -712,6 +712,8 @@ XmeSecondaryTransfer(Widget w, Atom target, XtEnum op, Time time)
   _XmTextInsertPair pair;
   Atom transfer_target;
   Atom atoms[XtNumber(atom_names)];
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -1125,6 +1127,8 @@ XmeDragSource(Widget w, XtPointer location_data, XEvent *event,
   Widget dragContext;
   ConvertContext cc;
   Atom atoms[XtNumber(atom_names)];
+  if (w == NULL)
+    return NULL;
   _XmWidgetToAppContext(w);
   targets = NULL;
 
@@ -1454,6 +1458,8 @@ Boolean
 XmePrimarySink(Widget w, XtEnum op, XtPointer location_data, Time time)
 {
   Boolean ret_val;
+  if (w == NULL)
+    return False;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -1471,6 +1477,8 @@ Boolean
 XmeNamedSink(Widget w, Atom sel, XtEnum op, XtPointer location_data, Time time)
 {
   Boolean ret_val;
+  if (w == NULL || sel == None)
+    return False;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -1488,6 +1496,8 @@ Boolean
 XmeSecondarySink(Widget w, Time time)
 {
   Boolean status;
+  if (w == NULL)
+    return False;
   Atom MOTIF_DESTINATION = XInternAtom(XtDisplay(w), XmS_MOTIF_DESTINATION, False);
   _XmWidgetToAppContext(w);
 
@@ -1519,8 +1529,11 @@ XmeSecondarySink(Widget w, Time time)
 Boolean
 XmeClipboardSink(Widget w, XtEnum op, XtPointer location_data)
 {
-  Atom CLIPBOARD = XInternAtom(XtDisplay(w), XmSCLIPBOARD, False);
+  Atom CLIPBOARD;
   Boolean ret_val;
+  if (w == NULL)
+    return False;
+  CLIPBOARD = XInternAtom(XtDisplay(w), XmSCLIPBOARD, False);
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -1539,6 +1552,8 @@ XmeDropSink(Widget w, ArgList in_args, Cardinal in_arg_count)
 {
   Arg *args;
   int arg_count;
+  if (w == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -2291,6 +2306,8 @@ XmeStandardConvert(Widget w,
 
   Arg arg[1];
   Atom atoms[XtNumber(atom_names)];
+  if (w == NULL || cs == NULL)
+    return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
