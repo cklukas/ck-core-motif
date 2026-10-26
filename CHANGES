@@ -1,3 +1,12 @@
+Guard TabStack coordinate lookup inputs (2026-10-27)
+====================================================
+
+- Reject null widgets before application-context setup in
+  `XmTabStackXYToWidget`.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard transfer encoding lookup inputs (2026-10-27)
 ===================================================
 

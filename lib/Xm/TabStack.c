@@ -4595,6 +4595,9 @@ XmTabStackXYToWidget(widget, x, y)
 {
     Widget tab_stack, tab_box;
 
+    if (widget == NULL)
+	return( NULL );
+
     _XmWidgetToAppContext(widget);
     _XmAppLock(app);
 
