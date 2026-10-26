@@ -593,7 +593,7 @@ XmeTransferAddDoneProc(XtPointer id,
   int new_count;
   size_t allocation_size;
 
-  if (tid == NULL)
+  if (tid == NULL || done_proc == NULL)
     return;
 
   _XmProcessLock();

@@ -21834,3 +21834,10 @@ Reject invalid DnD message subtypes (2026-10-26)
 - Reject malformed incoming subtype values before callback decoding.
 - Add focused regression documentation for the external-owner boundary.
 
+Reject null transfer completion callbacks (2026-10-26)
+=======================================================
+
+- Ignore null callbacks passed to `XmeTransferAddDoneProc` so cancellation
+  and destruction cannot call through a null function pointer.
+- Add focused transfer-lifecycle regression documentation.
+
