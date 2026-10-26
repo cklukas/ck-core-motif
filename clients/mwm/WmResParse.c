@@ -4444,7 +4444,7 @@ static Boolean ParseWmFuncGrpArg (unsigned char **linePP,
     unsigned char  *lineP = *linePP;
     unsigned char  *startP;
     unsigned char   grpStr[MAX_GROUP_STRLEN+1];
-    int    len;
+    size_t len;
 
 
     /*
@@ -4480,7 +4480,9 @@ static Boolean ParseWmFuncGrpArg (unsigned char **linePP,
 	 * Found a group string; compare it with valid groups.
 	 */
 
-        len = min (lineP - startP, MAX_GROUP_STRLEN);
+        len = (size_t)(lineP - startP);
+        if (len > MAX_GROUP_STRLEN)
+            len = MAX_GROUP_STRLEN;
         (void) strncpy ((char *)grpStr, (char *)startP, len);
         grpStr[len] = '\0';
         ToLower (grpStr);

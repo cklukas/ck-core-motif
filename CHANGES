@@ -86,6 +86,13 @@ Guard MWM function-argument lengths (2026-10-26)
   bounds are checked, and avoid indexing before an empty `F_Exec` argument.
 - Add a focused parser regression and document the conversion contract.
 
+Bound MWM group argument lengths (2026-10-26)
+==============================================
+
+- Clamp scanned group-name lengths in `size_t` before copying into the fixed
+  parser buffer, avoiding signed pointer-distance conversions.
+- Add a focused parser regression and document the bound.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 
