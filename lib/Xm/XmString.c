@@ -5592,7 +5592,8 @@ _XmStringSegmentNew(
     
     if (lc == 0 || lc-1 < line_index) {
       if (lc < 0 || lc == INT_MAX ||
-	  (size_t)(lc + 1) > SIZE_MAX / sizeof(_XmStringEntry))
+	  (size_t)(lc + 1) > SIZE_MAX / sizeof(_XmStringEntry) ||
+	  (size_t)(lc + 1) > UINT_MAX / sizeof(_XmStringEntry))
 	return;
       if (line_index > lc) line_index = lc;
       if (copy)

@@ -17723,3 +17723,13 @@ Bound XmString rendition-tag extraction (2026-10-27)
 ====================================================
 
 Bound traversal node-list stack buffers (2026-10-27)
+Bound XmString segment line growth (2026-10-27)
+===============================================
+
+- Check the line-entry array size against both `size_t` and Xt's `Cardinal`
+  allocation limit before adding a new segment line.
+- Add focused regression coverage and documentation.
+
+===============================================
+
+Bound XmString rendition-tag extraction (2026-10-27)
