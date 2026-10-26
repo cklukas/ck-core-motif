@@ -2431,6 +2431,7 @@ CvtStringToCharSetTable(
     }
   tableSize = sizeof(XmStringCharSet) * ((size_t)numCharsets + 1);
   if (strDataSize > SIZE_MAX - tableSize ||
+      tableSize > (size_t)UINT_MAX ||
       strDataSize > (size_t)UINT_MAX - tableSize)
     {
       XtFree(work_str);

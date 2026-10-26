@@ -1,3 +1,10 @@
+Bound charset-table converter allocation width (2026-10-27)
+============================================================
+
+- Reject pointer-table sizes wider than Xt's `Cardinal` before the remaining
+  string-data size is compared, preventing unsigned subtraction wraparound.
+- Add a focused source regression and documentation.
+
 Bound accessibility list count arithmetic (2026-10-27)
 =======================================================
 
