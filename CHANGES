@@ -166,6 +166,14 @@ Fix icon-name cache hash tail selection (2026-10-26)
 - Add `tests/automated/check-icon-name-hash-tail.py` and document the behavior
   in `docs/icon-name-hash.md`.
 
+Widen FileSelectionBox directory prefix lengths (2026-10-26)
+==============================================================
+
+- Keep file and directory search prefix lengths in `size_t` through filtering
+  and path indexing, avoiding narrowing long directory names to `unsigned`.
+- Add `tests/automated/check-filesb-directory-lengths.py` and document the
+  bound in `docs/filesb-directory-length-bounds.md`.
+
 Bound ToggleButton default geometry (2026-10-27)
 ==================================================
 

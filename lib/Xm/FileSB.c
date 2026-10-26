@@ -1858,7 +1858,7 @@ FileSearchProc(
             unsigned int    numItems = 0 ;
             unsigned int    numAlloc ;
             XmString *      XmStringFileList ;
-            unsigned        dirLen ;
+            size_t          dirLen ;
 /****************/
 
     if(   !(dir = _XmStringGetTextConcat( searchData->dir))    )
@@ -2381,7 +2381,7 @@ DirSearchProc(
             struct stat     curDirStats ;
             time_t          curDirModTime = 0 ;
 	    unsigned        numItems = 0 ;
-	    unsigned        dirLen ;
+            size_t          dirLen ;
 	    Boolean showDotFiles = (FS_FileFilterStyle( fs) == XmFILTER_NONE) ;
 /****************/
 
