@@ -908,6 +908,14 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
       if (_XmConvertHandler(w, &atoms[XmACLIPBOARD], &targets[i], 
 			    &type2, &value, &size2, &format2) == True &&
 	  ! (cc -> flags & XmCONVERTING_PARTIAL)) {
+	unsigned long unit = format2 == 8 ? 1UL :
+	  (format2 == 16 ? (unsigned long)sizeof(short) :
+	   (unsigned long)sizeof(long));
+	if (unit == 0 || size2 > ULONG_MAX / unit) {
+	  XtFree((char *)value);
+	  value = NULL;
+	  continue;
+	}
 	XmClipboardRegisterFormat(display, name, format2);
 	/* format must be 8, 16 or 32. */
 	size2 = BYTELENGTH(size2, format2);

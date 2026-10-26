@@ -21865,3 +21865,11 @@ Reject missing clipboard target buffers (2026-10-26)
   path.
 - Add focused regression coverage and documentation.
 
+Check clipboard payload multiplication (2026-10-26)
+====================================================
+
+- Bound 8/16/32-bit converter element counts before converting them to byte
+  lengths for clipboard storage.
+- Skip an unrepresentable payload without wrapping its copy size.
+- Add focused regression documentation for the conversion boundary.
+
