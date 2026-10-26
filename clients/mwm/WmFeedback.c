@@ -273,7 +273,13 @@ void ShowFeedbackWindow (WmScreenData *pSD, int x, int y, unsigned int width, un
     int                  winX, winY;
     int                  tmpX, tmpY;
 
+    if (pSD == NULL)
+	return;
+
     if ( (pSD->fbStyle = style) == FB_OFF)
+	return;
+
+    if (pSD->feedbackAppearance.font == NULL)
 	return;
 
     pSD->fbLastX = x;
@@ -340,19 +346,21 @@ void ShowFeedbackWindow (WmScreenData *pSD, int x, int y, unsigned int width, un
     /*
      * bevel the window border for a 3-D look
      */
-    if ( (pSD->fbTop && pSD->fbBottom) ||
-	 ((pSD->fbTop = AllocateRList((unsigned)2*FEEDBACK_BEVEL)) &&
-	  (pSD->fbBottom = AllocateRList((unsigned)2*FEEDBACK_BEVEL))) )
-    {
-	pSD->fbTop->used = 0;
-	pSD->fbBottom->used = 0;
-	BevelRectangle (pSD->fbTop,
-			pSD->fbBottom,
-			0, 0, 
-			pSD->fbWinWidth, pSD->fbWinHeight,
-			FEEDBACK_BEVEL, FEEDBACK_BEVEL,
-			FEEDBACK_BEVEL, FEEDBACK_BEVEL);
-    }
+    if (pSD->fbTop == NULL)
+	pSD->fbTop = AllocateRList((unsigned)2*FEEDBACK_BEVEL);
+    if (pSD->fbBottom == NULL)
+	pSD->fbBottom = AllocateRList((unsigned)2*FEEDBACK_BEVEL);
+    if (pSD->fbTop == NULL || pSD->fbBottom == NULL)
+	return;
+
+    pSD->fbTop->used = 0;
+    pSD->fbBottom->used = 0;
+    BevelRectangle (pSD->fbTop,
+		    pSD->fbBottom,
+		    0, 0,
+		    pSD->fbWinWidth, pSD->fbWinHeight,
+		    FEEDBACK_BEVEL, FEEDBACK_BEVEL,
+		    FEEDBACK_BEVEL, FEEDBACK_BEVEL);
 
     /*
      * Create window if not yet created, otherwise fix size and position
@@ -450,6 +458,10 @@ void ShowFeedbackWindow (WmScreenData *pSD, int x, int y, unsigned int width, un
  *************************************<->***********************************/
 void PaintFeedbackWindow (WmScreenData *pSD)
 {
+    if (pSD == NULL || pSD->feedbackWin == None ||
+	pSD->fbTop == NULL || pSD->fbBottom == NULL)
+	return;
+
     if (pSD->feedbackWin)
     {
 	/* 
@@ -524,6 +536,9 @@ void PaintFeedbackWindow (WmScreenData *pSD)
  *************************************<->***********************************/
 void HideFeedbackWindow (WmScreenData *pSD)
 {
+    if (pSD == NULL)
+	return;
+
     if (pSD->feedbackWin)
     {
 	XUnmapWindow (DISPLAY, pSD->feedbackWin);

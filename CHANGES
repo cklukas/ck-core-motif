@@ -21011,6 +21011,12 @@ Bound MWM icon destination dimensions (2026-10-26)
 MakeIconPixmap now rejects zero or overflow-prone configured maximum icon
 dimensions before adding shadow and slab margins in unsigned arithmetic.
 
+Guard MWM feedback-window lifecycle inputs (2026-10-26)
+--------------------------------------------------------
+ShowFeedbackWindow, PaintFeedbackWindow, and HideFeedbackWindow now reject
+missing screen/font/list state, and feedback bevel lists are allocated
+independently before painting.
+
 Handle MWM cached-label X resource failure (2026-10-26)
 --------------------------------------------------------
 MakeCachedLabelPixmap now returns `None` when pixmap or graphics-context
