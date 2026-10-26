@@ -947,7 +947,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 			&type, &value, &size, &format);
   if (target_list_converted == True &&
       size != 0 &&
-      type == XA_ATOM) {
+      type == XA_ATOM && format == 32) {
     if (value == NULL || size > (unsigned long)INT_MAX) {
       XtFree((char *)value);
       XmClipboardEndCopy(display, XtWindow(w), itemid);
@@ -1005,7 +1005,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 			&type, &value, &size, &format);
   if( deferred_target_list_converted == True &&
       size != 0 &&
-      type == XA_ATOM) {
+      type == XA_ATOM && format == 32) {
     if (value == NULL || size > (unsigned long)INT_MAX) {
       XtFree((char *)value);
       XmClipboardEndCopy(display, XtWindow(w), itemid);
@@ -1044,7 +1044,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
       long data_id;
       SnapshotRequest req;
 
-      if (value == NULL || size2 == 0) {
+      if (value == NULL || size2 != 1 || format2 != 32) {
 	XtFree((char *)targets);
 	XmClipboardEndCopy(display, XtWindow(w), itemid);
 	_XmAppUnlock(app);
