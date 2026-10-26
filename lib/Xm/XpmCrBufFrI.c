@@ -131,6 +131,8 @@ XpmCreateBufferFromXpmImage(
     /* compute the extensions and comments size */
     if (extensions)
 	ext_size = ExtensionsSize(info->extensions, info->nextensions);
+    if (extensions && ext_size == 0)
+	RETURN(XpmNoMemory);
     if (cmts)
 	cmt_size = CommentsSize(info);
 
@@ -391,18 +393,36 @@ ExtensionsSize(
     unsigned int	 num)
 {
     unsigned int x, y, a, size;
+    size_t line_length;
     char **line;
 
     size = 0;
-    if(num == 0)
-    	return(0); /* ok? */
+	if (num == 0) {
+	    return(0); /* ok? */
+	}
+	if (ext == NULL)
+	    return 0;
     for (x = 0; x < num; x++, ext++) {
 	/* 11 = 10 (for ',\n"XPMEXT ') + 1 (for '"') */
-	size += strlen(ext->name) + 11;
+	if (ext->name == NULL)
+	    return 0;
+	line_length = strlen(ext->name);
+	if (size > UINT_MAX - 11 || line_length > UINT_MAX - size - 11)
+	    return 0;
+	size += (unsigned int)line_length + 11;
 	a = ext->nlines; /* how can we trust ext->nlines to be not out-of-bounds? */
+	if (a != 0 && ext->lines == NULL)
+	    return 0;
 	for (y = 0, line = ext->lines; y < a; y++, line++)
 	    /* 4 = 3 (for ',\n"') + 1 (for '"') */
-	    size += strlen(*line) + 4;
+	    {
+		if (*line == NULL)
+		    return 0;
+		line_length = strlen(*line);
+		if (size > UINT_MAX - 4 || line_length > UINT_MAX - size - 4)
+		    return 0;
+		size += (unsigned int)line_length + 4;
+	    }
     }
     /* 13 is for ',\n"XPMENDEXT"' */
     if(size > UINT_MAX - 13) /* unlikely */

@@ -17231,6 +17231,15 @@ Guard AutoSuggestBox suggestion batch allocation (2026-10-27)
 ====================================================
 
 Make Toast string updates transactional (2026-10-27)
+Bound XPM extension-size arithmetic (2026-10-27)
+=================================================
+
+- Reject null extension entries and checkedly accumulate extension lengths,
+  propagating overflow before output-buffer allocation.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Reject invalid XPM buffer pixel indexes (2026-10-27)
 =====================================================
 
