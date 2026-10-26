@@ -71,6 +71,43 @@ static char rcsid[] = "$TOG: WmProperty.c /main/7 1997/12/02 10:00:00 bill $"
 
 static SizeHints sizeHints;
 
+static Boolean
+WmSizeHintsValuesFit(const PropSizeHints *property)
+{
+    if (property == NULL)
+	return False;
+
+#define WM_HINT_INT_FITS(value) ((value) >= (long)INT_MIN && \
+	(value) <= (long)INT_MAX)
+    return (WM_HINT_INT_FITS(property->x) &&
+	    WM_HINT_INT_FITS(property->y) &&
+	    WM_HINT_INT_FITS(property->width) &&
+	    WM_HINT_INT_FITS(property->height) &&
+	    WM_HINT_INT_FITS(property->minWidth) &&
+	    WM_HINT_INT_FITS(property->minHeight) &&
+	    WM_HINT_INT_FITS(property->maxWidth) &&
+	    WM_HINT_INT_FITS(property->maxHeight) &&
+	    WM_HINT_INT_FITS(property->widthInc) &&
+	    WM_HINT_INT_FITS(property->heightInc) &&
+	    WM_HINT_INT_FITS(property->minAspectX) &&
+	    WM_HINT_INT_FITS(property->minAspectY) &&
+	    WM_HINT_INT_FITS(property->maxAspectX) &&
+	    WM_HINT_INT_FITS(property->maxAspectY));
+#undef WM_HINT_INT_FITS
+}
+
+static Boolean
+WmCurrentSizeHintsValuesFit(const PropSizeHints *property)
+{
+    return (WmSizeHintsValuesFit(property) &&
+	    property->baseWidth >= (long)INT_MIN &&
+	    property->baseWidth <= (long)INT_MAX &&
+	    property->baseHeight >= (long)INT_MIN &&
+	    property->baseHeight <= (long)INT_MAX &&
+	    property->winGravity >= (long)INT_MIN &&
+	    property->winGravity <= (long)INT_MAX);
+}
+
 
 
 /*************************************<->*************************************
@@ -152,21 +189,32 @@ GetNormalHints(
     }
     else
     {
+	if ((nitems == PROP_SIZE_HINTS_ELEMENTS &&
+	     !WmCurrentSizeHintsValuesFit(property)) ||
+	    (nitems == (PROP_SIZE_HINTS_ELEMENTS - 3) &&
+	     !WmSizeHintsValuesFit(property)))
+	{
+	    XFree ((char *)property);
+	    sizeHints.icccVersion = ICCC_UNKNOWN;
+	    sizeHints.flags = 0;
+	    return (&sizeHints);
+	}
+
 	/*
 	 * Parse the hint values out of the property data:
 	 */
 
-	sizeHints.flags = property->flags;
-	sizeHints.x = property->x;
-	sizeHints.y = property->y;
-	sizeHints.width = property->width;
-	sizeHints.height = property->height;
-	sizeHints.min_width = property->minWidth;
-	sizeHints.min_height = property->minHeight;
-	sizeHints.max_width = property->maxWidth;
-	sizeHints.max_height = property->maxHeight;
-	sizeHints.width_inc = property->widthInc;
-	sizeHints.height_inc = property->heightInc;
+	sizeHints.flags = (long)property->flags;
+	sizeHints.x = (int)property->x;
+	sizeHints.y = (int)property->y;
+	sizeHints.width = (int)property->width;
+	sizeHints.height = (int)property->height;
+	sizeHints.min_width = (int)property->minWidth;
+	sizeHints.min_height = (int)property->minHeight;
+	sizeHints.max_width = (int)property->maxWidth;
+	sizeHints.max_height = (int)property->maxHeight;
+	sizeHints.width_inc = (int)property->widthInc;
+	sizeHints.height_inc = (int)property->heightInc;
 	sizeHints.min_aspect.x = (int)property->minAspectX;
 	sizeHints.min_aspect.y = (int)property->minAspectY;
 	sizeHints.max_aspect.x = (int)property->maxAspectX;
@@ -188,9 +236,9 @@ GetNormalHints(
 	     */
 
 	    sizeHints.icccVersion = ICCC_CURRENT;
-	    sizeHints.base_width = property->baseWidth;
-	    sizeHints.base_height = property->baseHeight;
-	    sizeHints.win_gravity = property->winGravity;
+	    sizeHints.base_width = (int)property->baseWidth;
+	    sizeHints.base_height = (int)property->baseHeight;
+	    sizeHints.win_gravity = (int)property->winGravity;
 	}
     }
 

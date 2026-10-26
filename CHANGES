@@ -21590,3 +21590,10 @@ Bound MWM invoke-command window conversion (2026-10-26)
   before conversion, rejecting unrepresentable values instead of truncating.
 - Add focused regression coverage and documentation.
 
+Validate MWM `WM_NORMAL_HINTS` ranges (2026-10-26)
+====================================================
+
+- Reject property fields that cannot fit the signed `SizeHints` structure
+  before narrowing conversions, preventing wrapped geometry and constraints.
+- Add focused regression coverage and documentation.
+
