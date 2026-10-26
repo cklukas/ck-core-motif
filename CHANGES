@@ -16716,3 +16716,12 @@ Guard DataField graphics-context resources (2026-10-27)
 - Add a focused source regression and documentation.
 
 ====================================================
+
+Guard DataField drop-transfer allocation (2026-10-27)
+======================================================
+
+- Report an explicit zero-transfer failure when drop-transfer request state
+  cannot be allocated.
+- Add a focused source regression and documentation.
+
+====================================================

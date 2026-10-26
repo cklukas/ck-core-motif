@@ -10172,6 +10172,13 @@ df_HandleDrop(
       /* intialize data to send to drop transfer callback */
        transfer_rec = (_XmTextDropTransferRec *)
 		       XtMalloc(sizeof(_XmTextDropTransferRec));
+       if (transfer_rec == NULL) {
+	 XtSetArg(args[n], XmNtransferStatus, XmTRANSFER_FAILURE); n++;
+	 XtSetArg(args[n], XmNnumDropTransfers, 0); n++;
+	 df_SetDropContext(w);
+	 XmDropTransferStart(drag_cont, args, n);
+	 return;
+       }
        transfer_rec->widget = w;
        transfer_rec->insert_pos = insert_pos;
        transfer_rec->num_chars = 0;
