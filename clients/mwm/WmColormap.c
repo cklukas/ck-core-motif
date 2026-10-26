@@ -79,6 +79,9 @@ static Bool ProcessEvents(Display *dpy, XEvent *Event, char *c_pCD);
 
 void InitWorkspaceColormap (WmScreenData *pSD)
 {
+    if (pSD == NULL)
+	return;
+
     /*
      * Setup the default (workspace) colormap:
      * !!! this should be made more general to get the colormap for the !!!
@@ -117,6 +120,9 @@ void InitColormapFocus (WmScreenData *pSD)
 {
     ClientData *pCD;
     Boolean sameScreen;
+
+    if (pSD == NULL)
+	return;
 
 
     /*
@@ -183,6 +189,9 @@ void InitColormapFocus (WmScreenData *pSD)
 
 void ForceColormapFocus (WmScreenData *pSD, ClientData *pCD)
 {
+    if (pSD == NULL)
+	return;
+
     if (pCD && ((pCD->clientState == NORMAL_STATE) ||
 		(pCD->clientState == MAXIMIZED_STATE)))
     {
@@ -231,6 +240,9 @@ void ForceColormapFocus (WmScreenData *pSD, ClientData *pCD)
 
 void SetColormapFocus (WmScreenData *pSD, ClientData *pCD)
 {
+    if (pSD == NULL)
+	return;
+
     if (pCD == pSD->colormapFocus)
     {
 	/*
@@ -297,6 +309,9 @@ void WmInstallColormap (WmScreenData *pSD, Colormap colormap)
      * !!! support multiple installed colormaps                      !!!
      */
 
+    if (pSD == NULL)
+	return;
+
     if (colormap != pSD->lastInstalledColormap)
     {
 	XInstallColormap (DISPLAY, colormap);
@@ -331,6 +346,9 @@ void WmInstallColormap (WmScreenData *pSD, Colormap colormap)
 void ResetColormapData (ClientData *pCD, Window *pWindows, int count)
 {
     int i;
+
+    if (pCD == NULL || count < 0 || (count > 0 && pWindows == NULL))
+	return;
 
 
     if (pCD->clientCmapCount)
@@ -593,7 +611,7 @@ ProcessColormapList (WmScreenData *pSD, ClientData *pCD)
     /*
      * If there is no client, return.  This can happen when the root gets focus.
      */
-	if (!pCD) return;
+	if (pSD == NULL || pCD == NULL) return;
 
     /*
      * If the window does not have colormap focus, return.  We only install

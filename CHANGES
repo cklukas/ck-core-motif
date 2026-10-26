@@ -133,6 +133,13 @@ Guard MWM colormap reference inputs (2026-10-26)
   references, avoiding null entries and accidental terminator removal.
 - Add focused regression coverage and document the input contract.
 
+Guard MWM colormap lifecycle inputs (2026-10-26)
+================================================
+
+- Ignore missing screen data in colormap focus and installation helpers.
+- Reject negative reset counts and nonzero resets without a window array.
+- Add focused regression coverage and document the defensive contracts.
+
 Guard MWM binding token boundaries (2026-10-26)
 ===============================================
 
