@@ -1299,6 +1299,11 @@ void WmInstallBitmapDataIntoXmCache (WmScreenData *pSD,
 {
     XImage *pImage;
 
+    (void)pSD;
+
+    if (pchName == NULL || pData == NULL || width == 0 || height == 0)
+	return;
+
     if (pImage = (XImage *) XtMalloc (sizeof (XImage)))
     {
 	pImage->width = width; 

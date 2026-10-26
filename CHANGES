@@ -21322,3 +21322,9 @@ WmInstallBitmapIntoXmCache now validates the display, name, bitmap dimensions,
 and XGetImage result before installing an image. Missing or failed bitmap
 resources no longer reach XmInstallImage as invalid pointers.
 
+Guard WSM raw-bitmap cache installation (2026-10-26)
+------------------------------------------------------
+WmInstallBitmapDataIntoXmCache now rejects missing names/data and zero-sized
+bitmaps before allocating and publishing an XImage. Invalid built-in bitmap
+descriptors no longer enter the Motif image cache.
+
