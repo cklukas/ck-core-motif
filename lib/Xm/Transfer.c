@@ -908,24 +908,26 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
       if (_XmConvertHandler(w, &atoms[XmACLIPBOARD], &targets[i], 
 			    &type2, &value, &size2, &format2) == True &&
 	  ! (cc -> flags & XmCONVERTING_PARTIAL)) {
+	int clipboard_status;
 	unsigned long unit = format2 == 8 ? 1UL :
 	  (format2 == 16 ? (unsigned long)sizeof(short) :
-	   (unsigned long)sizeof(long));
+	   (format2 == 32 ? (unsigned long)sizeof(long) : 0UL));
 	if (unit == 0 || size2 > ULONG_MAX / unit) {
 	  XtFree((char *)value);
 	  value = NULL;
 	  continue;
 	}
 	XmClipboardRegisterFormat(display, name, format2);
-	/* format must be 8, 16 or 32. */
 	size2 = BYTELENGTH(size2, format2);
-	transferred++;
 	/* Critical section for MT */
 	_XmProcessLock();
 	_XmClipboardPassType(type2);
-	XmClipboardCopy(display, XtWindow(w), itemid, name, value, size2, 0, 0);
+	clipboard_status = XmClipboardCopy(display, XtWindow(w), itemid,
+					   name, value, size2, 0, 0);
 	_XmProcessUnlock();
 	/* End Critical section for MT */
+	if (clipboard_status == ClipboardSuccess)
+	  transferred++;
       }
       XtFree((char*) value);
       value = NULL;
@@ -1009,23 +1011,28 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
       XtFree((char*) value);
       
       for(i = 0; i < count; i++) {
+	int clipboard_status;
 	name = GetSafeAtomName(display, targets[i], &howFree);
-	transferred++;
 	/* Critical section for MT */
 	_XmProcessLock();
 	_XmClipboardPassType(type2);
-	XmClipboardCopy(display, XtWindow(w), itemid, name,
-			NULL, 0, (long)targets[i], &data_id);
+	clipboard_status = XmClipboardCopy(display, XtWindow(w), itemid, name,
+						 NULL, 0, (long)targets[i], &data_id);
 	_XmProcessUnlock();
 	/* End Critical section for MT */
-	/* Associate the data_id with this snapshot and increment
-	   the number of requests outstanding */
-	_XmProcessLock();
-	_XmAddHashEntry(DataIdDictionary, (XmHashKey)data_id, (XtPointer)req);
-	_XmProcessUnlock();
-	req -> outstanding++;
+	if (clipboard_status == ClipboardSuccess) {
+	  transferred++;
+	  /* Associate the data_id with this snapshot and increment
+	     the number of requests outstanding. */
+	  _XmProcessLock();
+	  _XmAddHashEntry(DataIdDictionary, (XmHashKey)data_id, (XtPointer)req);
+	  _XmProcessUnlock();
+	  req -> outstanding++;
+	}
         FreeSafeAtomName(name,howFree);
       }
+	if (req != NULL && req -> outstanding == 0)
+	  XtFree((char *)req);
     }
     XtFree((char*) targets);
   } else if (deferred_target_list_converted == True) {

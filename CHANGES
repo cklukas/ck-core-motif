@@ -1,3 +1,13 @@
+Count only successful clipboard copies (2026-10-26)
+====================================================
+
+- Base ordinary and deferred transfer bookkeeping on the return value from
+  `XmClipboardCopy`, avoiding false-success MOVE operations and stale deferred
+  callback entries when the clipboard rejects a request.
+- Reject invalid selection formats before byte-length conversion and release
+  an unused deferred snapshot request when every copy is rejected.
+- Add focused regression coverage and documentation.
+
 Reject zero-progress scaled-image strips (2026-10-26)
 ======================================================
 
