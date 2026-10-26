@@ -190,8 +190,11 @@ TextSecondaryWrapper(Widget w, XtPointer closure,
 			XmSelectionCallbackStruct *ds)
 {
   if (w == NULL || closure == NULL || ds == NULL ||
-      ds->transfer_id == NULL)
+      ds->transfer_id == NULL) {
+    if (ds != NULL && ds->transfer_id != NULL)
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
     return;
+  }
   Atom XA_TARGETS = XInternAtom(XtDisplay(w), XmSTARGETS, False);
 
   if (ds -> target == XA_TARGETS)
@@ -382,8 +385,11 @@ HandleInsertTargets(
   int i;
 
   if (w == NULL || closure == NULL || length == NULL ||
-      value == NULL || tid == NULL)
+      value == NULL || tid == NULL) {
+    if (tid != NULL)
+      XmTransferDone(tid, XmTRANSFER_DONE_FAIL);
     return;
+  }
   
   if (0 == *length) {
     XtFree((char *)value);

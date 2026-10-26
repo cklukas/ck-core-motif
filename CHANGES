@@ -22544,3 +22544,9 @@ Prevent Text primary-selection refcount underflow (2026-10-26)
   decrementing completion state in Text and TextField.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-primary-selection-refcount.py
+Fail malformed Text secondary transfers (2026-10-26)
+=====================================================
+- Complete active transfers with failure when malformed Text/TextField
+  secondary-selection callbacks provide a usable transfer ID.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-secondary-transfer-failure.py
