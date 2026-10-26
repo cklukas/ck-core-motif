@@ -20133,6 +20133,13 @@ Make Container tab-pool allocation explicit (2026-10-26)
   the explicit Xt `Cardinal` conversion.
 - Add focused regression coverage and documentation.
 
+Bound Container child-list counting (2026-10-26)
+================================================
+
+- Reject a linked child list before its public `int` count can wrap while
+  enumerating descendants.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 

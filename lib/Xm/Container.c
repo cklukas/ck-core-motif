@@ -10147,6 +10147,10 @@ XmContainerGetItemChildren(
 	node = first_child_node;
 	while (node->next_ptr)
 		{
+		if (clist_count == INT_MAX) {
+			_XmAppUnlock(app);
+			return (0);
+		}
 		clist_count++;
 		node = node->next_ptr;
 		}
