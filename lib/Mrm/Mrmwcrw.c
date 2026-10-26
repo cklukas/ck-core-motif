@@ -4095,7 +4095,9 @@ Urm__CW_TranslateOldCallback (OldRGMCallbackDescPtr	oldptr)
 
   if (oldptr == NULL || oldptr->count < 0 ||
       (size_t)oldptr->count >
-	  (SIZE_MAX - sizeof(RGMCallbackDesc)) / sizeof(RGMCallbackItem))
+	  (SIZE_MAX - sizeof(RGMCallbackDesc)) / sizeof(RGMCallbackItem) ||
+      sizeof(RGMCallbackDesc) +
+	  (size_t)oldptr->count * sizeof(RGMCallbackItem) > UINT_MAX)
     return NULL;
 
   cbptr = (RGMCallbackDescPtr) XtMalloc(sizeof(RGMCallbackDesc) +

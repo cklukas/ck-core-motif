@@ -15,6 +15,8 @@ for needle in (
     "(size_t)oldptr->count",
     "SIZE_MAX - sizeof(RGMCallbackDesc)",
     "sizeof(RGMCallbackItem)",
+    "sizeof(RGMCallbackDesc) +",
+    "> UINT_MAX",
     "return NULL",
 ):
     if needle not in region:

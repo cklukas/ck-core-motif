@@ -1,3 +1,12 @@
+Bound Mrm callback descriptor allocation width (2026-10-27)
+============================================================
+
+- Reject legacy callback descriptors whose translated record exceeds Xt's
+  `Cardinal` allocation width, in addition to host `size_t` overflow.
+- Extend the focused callback-bounds regression and documentation.
+
+============================================================
+
 Bound Mrm buffer-pool allocation width (2026-10-27)
 ====================================================
 
