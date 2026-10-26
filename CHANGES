@@ -18088,3 +18088,11 @@ Refresh render-table redraw regression check (2026-10-27)
 
 =========================================================
 
+Refresh status-bar label regression check (2026-10-27)
+======================================================
+
+- Match the focused check to the current XmString composition path, including
+  allocation-failure handling and cleanup for both fragments.
+
+======================================================
+

@@ -7,8 +7,8 @@ start = source.index("static XmString display_string")
 end = source.index("static void free_items", start)
 region = source[start:end]
 
-assert "if (!label)" in region
-assert "SIZE_MAX - strlen(progress) - 1" in region
-assert "if (size > UINT_MAX)" in region
-assert "if (!text)" in region
-print("PASS status-bar labels validate conversion and allocation")
+assert "if (!label || !suffix)" in region
+assert "XmStringConcat(label, suffix)" in region
+assert "XmStringFree(label)" in region
+assert "XmStringFree(suffix)" in region
+print("PASS status-bar labels validate XmString allocation and cleanup")
