@@ -19941,6 +19941,14 @@ Guard Text selection source attachment (2026-10-26)
 - Preserve `XmTextPosition` width for old selection endpoints.
 - Add focused regression coverage and documentation.
 
+Bound Text source value extraction (2026-10-26)
+=================================================
+
+- Reject source-value allocations larger than Xt's `Cardinal` capacity and
+  preserve assembled byte and wide-character counts in `size_t` storage.
+- Return safely for unattached or incomplete sources.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 

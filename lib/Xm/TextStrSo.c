@@ -126,6 +126,8 @@ TextSourceRangeBytes(XmTextPosition from,
     if ((size_t)length > (SIZE_MAX / char_size) - 1)
 	return False;
     *bytes = ((size_t)length + 1) * char_size;
+    if (*bytes > (size_t)UINT_MAX)
+	return False;
     return True;
 }
 
@@ -1987,7 +1989,7 @@ _XmStringSourceCreate(char *value,
 					    False, max_char_size);
   }
   
-  data->PSWC_NWLN = (char *) XtMalloc(char_size);
+  data->PSWC_NWLN = (char *) XtMalloc((Cardinal)char_size);
   if (data->PSWC_NWLN == NULL)
     goto allocation_failure;
   _XmTextBytesToCharacters(data->PSWC_NWLN, &newline, 1, False, 
@@ -2041,24 +2043,32 @@ _XmStringSourceGetValue(XmTextSource source,
                         Boolean want_wchar)
 #endif /* NeedWidePrototypes */
 {
-  XmSourceData data = source->data;
-  XmTextWidget tw = (XmTextWidget) data->widgets[0];
+  XmSourceData data;
+  XmTextWidget tw;
   XmTextBlockRec block;
-  int length = 0;
+  size_t length = 0;
   XmTextPosition pos = 0;
   XmTextPosition ret_pos = 0;
   XmTextPosition last_pos = 0;
   char * temp;
   wchar_t * wc_temp;
-  int return_val;
+  size_t return_val;
   size_t allocation;
+
+  if (source == NULL || source->data == NULL)
+    return NULL;
+  data = source->data;
+  if (data->widgets == NULL || data->numwidgets <= 0 ||
+      data->widgets[0] == NULL)
+    return NULL;
+  tw = (XmTextWidget)data->widgets[0];
 
   if (!want_wchar) {
     if (data->length > 0) {
       if (!TextSourceRangeBytes(0, data->length, tw->text.char_size,
 				 &allocation))
 	return NULL;
-      temp = (char *) XtMalloc(allocation);
+      temp = (char *) XtMalloc((Cardinal)allocation);
       if (temp == NULL)
 	return NULL;
     } else
@@ -2074,8 +2084,9 @@ _XmStringSourceGetValue(XmTextSource source,
 	break;
 	}
       
-      (void)memcpy((void*)&temp[length], (void*)block.ptr, block.length);
-      length += block.length;
+      (void)memcpy((void*)&temp[length], (void*)block.ptr,
+                   (size_t)block.length);
+      length += (size_t)block.length;
       pos = ret_pos;
     }
 	if (pos != last_pos)
@@ -2088,7 +2099,7 @@ _XmStringSourceGetValue(XmTextSource source,
       if (!TextSourceRangeBytes(0, data->length, sizeof(wchar_t),
 				 &allocation))
 	return NULL;
-      wc_temp = (wchar_t*)XtMalloc(allocation);
+      wc_temp = (wchar_t*)XtMalloc((Cardinal)allocation);
       if (wc_temp == NULL)
 	return NULL;
     } else {
@@ -2110,7 +2121,7 @@ _XmStringSourceGetValue(XmTextSource source,
 	return NULL;
 	  }
 
-      return_val = mbstowcs(&wc_temp[length], block.ptr,
+	      return_val = mbstowcs(&wc_temp[length], block.ptr,
 			     (size_t)(ret_pos - pos));
 	  if (return_val == (size_t)-1 ||
 	      return_val > (allocation / sizeof(wchar_t)) - 1 - (size_t)length) {

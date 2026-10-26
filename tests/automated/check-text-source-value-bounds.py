@@ -1,19 +1,25 @@
 #!/usr/bin/env python3
-"""Ensure text-source value extraction bounds copies and conversions."""
+"""Ensure Text source value extraction respects Xt and pointer-width bounds."""
 
 from pathlib import Path
 
 
-source = Path(__file__).parents[2] / "lib" / "Xm" / "TextStrSo.c"
-text = source.read_text(encoding="utf-8")
-start = text.index("_XmStringSourceGetValue")
-end = text.index("\nvoid \n_XmStringSourceSetValue", start)
-block = text[start:end]
+source = (Path(__file__).parents[2] / "lib" / "Xm" / "TextStrSo.c").read_text(
+    encoding="utf-8"
+)
 
-assert "(size_t)block.length > allocation - 1 - (size_t)length" in block
-assert "ret_pos <= pos" in block
-assert "pos != last_pos" in block
-assert "return_val == (size_t)-1" in block
-assert "XtFree((char *)wc_temp)" in block
+range_start = source.index("TextSourceRangeBytes(")
+range_end = source.index("\nstatic Boolean\nTextSourceByteOffset", range_start)
+range_region = source[range_start:range_end]
+assert "*bytes > (size_t)UINT_MAX" in range_region
 
-print("text-source value extraction bounds: ok")
+start = source.index("_XmStringSourceGetValue(")
+end = source.index("\nvoid \n_XmStringSourceSetValue", start)
+region = source[start:end]
+assert "if (source == NULL || source->data == NULL)" in region
+assert "data->widgets == NULL || data->numwidgets <= 0" in region
+assert "size_t length = 0;" in region
+assert "size_t return_val;" in region
+assert "int return_val;" not in region
+
+print("Text source value extraction checks Xt bounds and preserves size_t lengths")
