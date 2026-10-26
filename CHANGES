@@ -22768,3 +22768,9 @@ Bound TextField wide insertion conversion (2026-10-26)
   conversion in TextField selection handling.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-wcs-insertion.py
+Bound TextField selection conversion lengths (2026-10-26)
+===========================================================
+- Check external lengths and temporary allocation results in TextField
+  `DoStuff` conversion handling before copying or converting data.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-dostuff-length.py

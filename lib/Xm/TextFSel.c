@@ -1256,6 +1256,14 @@ DoStuff(Widget w,
 	_XmProcessUnlock();
       }
     } else {
+      if (ds->length > (unsigned long)INT_MAX ||
+          (tf->text.max_char_size != 1 &&
+           ds->length > (unsigned long)UINT_MAX / sizeof(wchar_t) - 1)) {
+        XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+        XtFree((char *)ds->value);
+        ds->value = NULL;
+        return;
+      }
       if (tf->text.max_char_size == 1) {
 	/* Note: length may be truncated during cast to int */
 	_XmProcessLock();
@@ -1272,12 +1280,25 @@ DoStuff(Widget w,
 	wchar_t * wc_value;
 	char *temp;
 
-	temp = XtMalloc((unsigned) ds->length + 1);
+	temp = XtMalloc((Cardinal)(ds->length + 1));
+	if (temp == NULL) {
+	  XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+	  XtFree((char *)ds->value);
+	  ds->value = NULL;
+	  return;
+	}
 	(void)memcpy((void*)temp, (void*)ds->value, (size_t)ds->length);
 	temp[(size_t)ds->length] = '\0';
 	
-	wc_value = (wchar_t*)XtMalloc ((unsigned)
+	wc_value = (wchar_t*)XtMalloc ((Cardinal)
 				       ((ds->length + 1) * sizeof(wchar_t)));
+	if (wc_value == NULL) {
+	  XtFree(temp);
+	  XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+	  XtFree((char *)ds->value);
+	  ds->value = NULL;
+	  return;
+	}
 	_XmProcessLock();
 
 	prim_select->num_chars = mbstowcs(wc_value, (char *) temp,
