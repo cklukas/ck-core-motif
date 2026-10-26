@@ -617,7 +617,7 @@ XmeTransferAddDoneProc(XtPointer id,
   else
     new_done_procs = (XmSelectionFinishedProc *)
       XtRealloc((char*) tid -> doneProcs,
-		allocation_size);
+		(Cardinal)allocation_size);
 
   if (new_done_procs == NULL)
     {

@@ -21931,3 +21931,10 @@ Widen clipboard Atom private IDs explicitly (2026-10-26)
   private-ID type.
 - Add focused regression documentation for the identifier boundary.
 
+Make transfer completion-list width explicit (2026-10-26)
+==========================================================
+
+- Pass the already-bounded done-callback list size explicitly as an Xt
+  `Cardinal` to `XtRealloc`.
+- Add focused regression documentation for the allocation boundary.
+
