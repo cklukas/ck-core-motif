@@ -2403,6 +2403,14 @@ XmeStandardConvert(Widget w,
     Window *cw;
 
     cw = (Window *) XtMalloc(sizeof(Window));
+    if (cw == NULL) {
+      cs -> value = NULL;
+      cs -> format = 32;
+      cs -> length = 0;
+      cs -> type = XA_WINDOW;
+      _XmAppUnlock(app);
+      return;
+    }
     for(current = w; current != (Widget) NULL; current = XtParent(current))
       if (XtIsShell(current)) break;
 
