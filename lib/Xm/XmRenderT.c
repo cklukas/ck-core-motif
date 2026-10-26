@@ -3274,7 +3274,15 @@ ReadToken(char *string, int *position, Token reusetoken)
 
   /* Skip whitespace but not newlines */
   while (isspace((unsigned char)string[pos]) && ! (string[pos] == '\n'))
-    pos++;
+    {
+      if (pos == INT_MAX)
+	{
+	  new_token -> type = T_EOF;
+	  *position = pos;
+	  return new_token;
+	}
+      pos++;
+    }
 
   /* Select token type */
   switch(string[pos]) {
@@ -3283,10 +3291,22 @@ ReadToken(char *string, int *position, Token reusetoken)
     break;
   case '\n': 
     new_token -> type = T_NL;
+    if (pos == INT_MAX)
+      {
+	new_token -> type = T_EOF;
+	*position = pos;
+	return new_token;
+      }
     pos++;
     break;
   case ',':
     new_token -> type = T_SEP;
+    if (pos == INT_MAX)
+      {
+	new_token -> type = T_EOF;
+	*position = pos;
+	return new_token;
+      }
     pos++;
     break;
   case '[':
@@ -3302,9 +3322,24 @@ ReadToken(char *string, int *position, Token reusetoken)
     Boolean closed;
     int end_offset;
     count = 1;
-    while (string[pos + count] != '"' &&
-	   string[pos + count] != '\0')
-      count++; /* Scan for end of string */
+    while (1)
+      {
+	if (count > INT_MAX - pos)
+	  {
+	    new_token -> type = T_EOF;
+	    *position = pos;
+	    return new_token;
+	  }
+	if (string[pos + count] == '"' || string[pos + count] == '\0')
+	  break;
+	if (count == INT_MAX)
+	  {
+	    new_token -> type = T_EOF;
+	    *position = pos;
+	    return new_token;
+	  }
+	count++; /* Scan for end of string */
+      }
     closed = (string[pos + count] == '"');
     end_offset = count;
     new_token -> type = T_STR;
@@ -3333,6 +3368,13 @@ ReadToken(char *string, int *position, Token reusetoken)
         return new_token;
       }
       }
+    if (end_offset > INT_MAX - pos ||
+	(closed && end_offset == INT_MAX - pos))
+      {
+	new_token -> type = T_EOF;
+	*position = pos;
+	return new_token;
+      }
     pos += closed ? end_offset + 1 : end_offset;
     break;
     }
@@ -3340,9 +3382,19 @@ ReadToken(char *string, int *position, Token reusetoken)
     if (isalpha((unsigned char)string[pos])) /* String result */
       {
 	int count;
-	for(count = 0;
-	    isalpha((unsigned char)string[pos + count]);
-	    count++)
+	for(count = 0; ; )
+	  {
+	    if (count > INT_MAX - pos ||
+		!isalpha((unsigned char)string[pos + count]))
+	      break;
+	    if (count == INT_MAX)
+	      {
+		new_token -> type = T_EOF;
+		*position = pos;
+		return new_token;
+	      }
+	    count++;
+	  }
 	  ;
 	pos += count;
 	new_token -> type = T_STR;

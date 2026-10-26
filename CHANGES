@@ -1,3 +1,12 @@
+Bound render-table token scanning (2026-10-27)
+==============================================
+
+- Reject overflowing `int` positions and token lengths while scanning render
+  table strings, avoiding signed-overflow undefined behavior on extreme input.
+- Add a focused source regression and documentation.
+
+================================================
+
 Preserve charset-table entry-count width (2026-10-27)
 ======================================================
 
