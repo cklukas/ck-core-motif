@@ -62,6 +62,9 @@ XmScaleSetTicks(
     unsigned char orient ;
     char * dim_res ;
 
+    if (scale == (Widget) NULL)
+        return;
+
     _XmWidgetToAppContext(scale);
 
     _XmAppLock(app);
