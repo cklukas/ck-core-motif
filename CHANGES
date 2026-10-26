@@ -40,6 +40,14 @@ Preserve MWM embedded-client property growth (2026-10-26)
   count only after successful allocation.
 - Keep the existing property unchanged on failure and check allocation widths.
 
+Bound MWM automation reply sizes (2026-10-26)
+==============================================
+
+- Check every fixed and menu-label size contribution before accumulating the
+  automation reply length.
+- Reject totals beyond Xt's `Cardinal` allocation width before allocating the
+  reply buffer, with focused regression and documentation.
+
 Guard MWM binding token boundaries (2026-10-26)
 ===============================================
 

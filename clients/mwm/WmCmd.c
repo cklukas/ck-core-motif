@@ -2199,10 +2199,17 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
   if (input == NULL)
     return;
 
-#define ALLOC_AUTOMATION_REPLY() do { \
-    if (size > (size_t)-1 / sizeof(CARD8)) \
+#define ADD_AUTOMATION_SIZE(extra) do { \
+    size_t addition = (extra); \
+    if (addition > SIZE_MAX - size || addition > (size_t)UINT_MAX - size) \
       goto automation_alloc_failed; \
-    *output = (XtPointer)XtMalloc(sizeof(CARD8) * size); \
+    size += addition; \
+  } while (0)
+
+#define ALLOC_AUTOMATION_REPLY() do { \
+    if (size > UINT_MAX) \
+      goto automation_alloc_failed; \
+    *output = (XtPointer)XtMalloc((Cardinal)size); \
     if (*output == NULL) \
       goto automation_alloc_failed; \
   } while (0)
@@ -2233,61 +2240,61 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
   switch (infoWanted)
       {
 	case WINDOW_MINIMIZE_INFO:
-	  size += sizeof(CARD32) * 7;
+	  ADD_AUTOMATION_SIZE(sizeof(CARD32) * 7);
 	  ALLOC_AUTOMATION_REPLY();
 	  GetMinimizeInfo (pcd,*output);
           break;
 
 	case WINDOW_MAXIMIZE_INFO:
-	  size += sizeof (CARD32) * 7;
+	  ADD_AUTOMATION_SIZE(sizeof (CARD32) * 7);
 	  ALLOC_AUTOMATION_REPLY();
 	  GetMaximizeInfo(pcd,*output);
           break;
 
         case WINDOW_RAISE_INFO:
-	  size += sizeof (CARD32);
+	  ADD_AUTOMATION_SIZE(sizeof (CARD32));
 	  ALLOC_AUTOMATION_REPLY();
 	  GetRaiseInfo(pcd, *output);
 	  break;
 
         case WINDOW_MOVE_INFO:
 	   SetGrabServer();    /* tell mwm not to grab server */
-	   size += sizeof (CARD32) * 16;
+	   ADD_AUTOMATION_SIZE(sizeof (CARD32) * 16);
 	    ALLOC_AUTOMATION_REPLY();
 	   GetMoveInfo(pcd,*output);
 	   break;
 
 	case WINDOW_RESIZE_NORTH_INFO:
 	  SetGrabServer();    /* tell mwm not to grab server */
-	  size += sizeof (CARD32) * 17;
+	  ADD_AUTOMATION_SIZE(sizeof (CARD32) * 17);
 	  ALLOC_AUTOMATION_REPLY();
 	  GetResizeInfo(pcd,*output,WM_NORTH);
 	  break;
 
 	case WINDOW_RESIZE_SOUTH_INFO:
 	  SetGrabServer();    /* tell mwm not to grab server */
-	  size += sizeof (CARD32) * 17;
+	  ADD_AUTOMATION_SIZE(sizeof (CARD32) * 17);
 	  ALLOC_AUTOMATION_REPLY();
 	  GetResizeInfo(pcd,*output,WM_SOUTH);
 	  break;
 
 	case WINDOW_RESIZE_EAST_INFO:
 	  SetGrabServer();    /* tell mwm not to grab server */
-	  size += sizeof (CARD32) * 17;
+	  ADD_AUTOMATION_SIZE(sizeof (CARD32) * 17);
 	  ALLOC_AUTOMATION_REPLY();
 	  GetResizeInfo(pcd,*output,WM_EAST);
 	  break;
 
 	case WINDOW_RESIZE_WEST_INFO:
 	  SetGrabServer();    /* tell mwm not to grab server */
-	  size += sizeof (CARD32) * 17;
+	  ADD_AUTOMATION_SIZE(sizeof (CARD32) * 17);
 	  ALLOC_AUTOMATION_REPLY();
 	  GetResizeInfo(pcd,*output,WM_WEST);
 	  break;
 
 	case WINDOW_RESIZE_NORTHEAST_INFO:
 	  SetGrabServer();    /* tell mwm not to grab server */
-	  size += sizeof (CARD32) * 17;
+	  ADD_AUTOMATION_SIZE(sizeof (CARD32) * 17);
 	  ALLOC_AUTOMATION_REPLY();
 	  GetResizeInfo(pcd,*output,WM_NORTHEAST);
 	  break;
@@ -2295,7 +2302,7 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 
 	case WINDOW_RESIZE_NORTHWEST_INFO:
 	  SetGrabServer();    /* tell mwm not to grab server */
-	  size += sizeof (CARD32) * 17;
+	  ADD_AUTOMATION_SIZE(sizeof (CARD32) * 17);
 	  ALLOC_AUTOMATION_REPLY();
 	  GetResizeInfo(pcd,*output,WM_NORTHWEST);
 	  break;
@@ -2303,7 +2310,7 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 
 	case WINDOW_RESIZE_SOUTHEAST_INFO:
 	  SetGrabServer();    /* tell mwm not to grab server */
-	  size += sizeof (CARD32) * 17;
+	  ADD_AUTOMATION_SIZE(sizeof (CARD32) * 17);
 	  ALLOC_AUTOMATION_REPLY();
 	  GetResizeInfo(pcd,*output,WM_SOUTHEAST);
 	  break;
@@ -2311,7 +2318,7 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 
 	case WINDOW_RESIZE_SOUTHWEST_INFO:
 	  SetGrabServer();    /* tell mwm not to grab server */
-	  size += sizeof (CARD32) * 17;
+	  ADD_AUTOMATION_SIZE(sizeof (CARD32) * 17);
 	  ALLOC_AUTOMATION_REPLY();
 	  GetResizeInfo(pcd,*output,WM_SOUTHWEST);
 	  break;
@@ -2320,15 +2327,15 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	case WINDOW_MENU_ITEM_SELECT_INFO:
 	  if (pcd->systemMenuSpec)
 	      menuItemCount = pcd->systemMenuSpec->menuButtonCount;
-	  size += sizeof(CARD32) * 4;
+	  ADD_AUTOMATION_SIZE(sizeof(CARD32) * 4);
 	  for (n=0; n < menuItemCount && n < MAX_MENU_ITEMS; n++)
 	      {
 		  menu_item = pcd->systemMenuSpec->menuButtons[n].menuItem;
-		  size += sizeof (CARD32);    /* sensitive */
-		  size += sizeof (CARD32);    /* itemY */
-		  size += sizeof (CARD16) +
+		  ADD_AUTOMATION_SIZE(sizeof (CARD32));    /* sensitive */
+		  ADD_AUTOMATION_SIZE(sizeof (CARD32));    /* itemY */
+		  ADD_AUTOMATION_SIZE(sizeof (CARD16) +
 		      ((menu_item && menu_item->label ?
-			strlen(menu_item->label) : 0) + 1) * sizeof(CARD8); /*itemName */
+			strlen(menu_item->label) : 0) + 1) * sizeof(CARD8)); /*itemName */
 	      }
 	 ALLOC_AUTOMATION_REPLY();
 	  GetWindowItemSelectInfo(pcd,*output);
@@ -2337,13 +2344,13 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	case WINDOW_DEICONIFY_INFO:
 	  if (pcd->pSD->useIconBox == True)
 	      {
-		  size += sizeof (CARD32) * 37;
+		  ADD_AUTOMATION_SIZE(sizeof (CARD32) * 37);
 		  ALLOC_AUTOMATION_REPLY();
 		  GetIconInfo(pcd,*output,True);
 	      }
 	  else
 	      {
-		  size += sizeof (CARD32) * 6;
+		  ADD_AUTOMATION_SIZE(sizeof (CARD32) * 6);
 		  ALLOC_AUTOMATION_REPLY();
 		  GetIconInfo(pcd,*output,False);
 	      }
@@ -2351,20 +2358,20 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 
 
 	case WINDOW_MENU_POST_INFO:
-	   size += sizeof (CARD32) * 12;
+	   ADD_AUTOMATION_SIZE(sizeof (CARD32) * 12);
 	   ALLOC_AUTOMATION_REPLY();
 	   GetWindowMenuPostInfo(pcd,*output);
 	   break;
 
 	case WINDOW_FOCUS_INFO:
-	   size += sizeof (CARD32) * 7;
+	   ADD_AUTOMATION_SIZE(sizeof (CARD32) * 7);
 	   ALLOC_AUTOMATION_REPLY();
 	   GetFocusInfo(pcd,*output);
 	   break;
 
 
 	case WINDOW_MENU_UNPOST_INFO:
-	   size += sizeof (CARD32) * 3;
+	   ADD_AUTOMATION_SIZE(sizeof (CARD32) * 3);
 	   ALLOC_AUTOMATION_REPLY();
 	   GetWindowMenuUnpostInfo(pcd,*output);
 	   break;
@@ -2372,13 +2379,13 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	case WINDOW_MENU_ITEM_CHECK_INFO:
 	  if (pcd->systemMenuSpec)
 	      menuItemCount = pcd->systemMenuSpec->menuButtonCount;
-	  size += sizeof(CARD32) * 11;
+	  ADD_AUTOMATION_SIZE(sizeof(CARD32) * 11);
 	  for (n=0; n < menuItemCount && n < MAX_MENU_ITEMS; n++)
 	      {
 		  menu_item = pcd->systemMenuSpec->menuButtons[n].menuItem;
-		  size += sizeof (CARD16) +
+		  ADD_AUTOMATION_SIZE(sizeof (CARD16) +
 		      ((menu_item && menu_item->label ?
-			strlen(menu_item->label) : 0) + 1) * sizeof(CARD8); /*itemName */
+			strlen(menu_item->label) : 0) + 1) * sizeof(CARD8)); /*itemName */
 	      }
 	 ALLOC_AUTOMATION_REPLY();
 	  GetItemCheckInfo(pcd, *output);
@@ -2387,7 +2394,7 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	case ICON_MOVE_INFO:
 	  {
 	      SetGrabServer();    /* tell mwm not to grab server */
-	      size += sizeof (CARD32) * 6;
+	      ADD_AUTOMATION_SIZE(sizeof (CARD32) * 6);
 	      ALLOC_AUTOMATION_REPLY();
 	      GetIconInfo(pcd,*output,False);
 	      break;
@@ -2396,13 +2403,13 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	case ICON_MENU_POST_INFO:
 	  if (pcd->pSD->useIconBox == True)
 	      {
-		  size += sizeof (CARD32) * 37;
+		  ADD_AUTOMATION_SIZE(sizeof (CARD32) * 37);
 		  ALLOC_AUTOMATION_REPLY();
 		  GetIconInfo(pcd,*output,True);
 	      }
 	  else
 	      {
-		  size += sizeof (CARD32) * 6;
+		  ADD_AUTOMATION_SIZE(sizeof (CARD32) * 6);
 		  ALLOC_AUTOMATION_REPLY();
 		  GetIconInfo(pcd,*output,False);
 	      }
@@ -2411,14 +2418,14 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	case ICON_MENU_UNPOST_INFO:
 	  if (pcd->pSD->useIconBox == True)
 	      {
-		  size += sizeof (CARD32) * 37;
+		  ADD_AUTOMATION_SIZE(sizeof (CARD32) * 37);
 		  ALLOC_AUTOMATION_REPLY();
 		  GetIconInfo(pcd,*output,True);
 
 	      }
 	  else
 	      {
-		  size += sizeof (CARD32) * 6;
+		  ADD_AUTOMATION_SIZE(sizeof (CARD32) * 6);
 		  ALLOC_AUTOMATION_REPLY();
 		  GetIconInfo(pcd,*output,False);
 	      }
@@ -2427,20 +2434,20 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
 	case ICON_MENU_ITEM_SELECT_INFO:
 	  if (pcd->systemMenuSpec)
 	      menuItemCount = pcd->systemMenuSpec->menuButtonCount;
-	  size += sizeof(CARD32) * 11;
+	  ADD_AUTOMATION_SIZE(sizeof(CARD32) * 11);
 	  for (n=0; n < menuItemCount && n < MAX_MENU_ITEMS; n++)
 	      {
-		  size += sizeof (CARD32);    /* sensitive */
-		  size += sizeof (CARD32);    /* itemY */
+		  ADD_AUTOMATION_SIZE(sizeof (CARD32));    /* sensitive */
+		  ADD_AUTOMATION_SIZE(sizeof (CARD32));    /* itemY */
 		  menu_item = pcd->systemMenuSpec->menuButtons[n].menuItem;
-		  size += sizeof (CARD16) +
+		  ADD_AUTOMATION_SIZE(sizeof (CARD16) +
 		      ((menu_item && menu_item->label ?
-			strlen(menu_item->label) : 0) + 1) * sizeof(CARD8); /*itemName */
+			strlen(menu_item->label) : 0) + 1) * sizeof(CARD8)); /*itemName */
 	      }
 	  if (pcd->pSD->useIconBox == True)
-		  size += sizeof (CARD32) * 37;
+		  ADD_AUTOMATION_SIZE(sizeof (CARD32) * 37);
 	  else
-	  	  size += sizeof (CARD32) * 6;
+	  ADD_AUTOMATION_SIZE(sizeof (CARD32) * 6);
 	  ALLOC_AUTOMATION_REPLY();
 	  GetIconMenuItemSelectInfo (pcd,*output,pcd->pSD->useIconBox);
 	  break;
@@ -2454,6 +2461,7 @@ GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigne
   *outputLen = (unsigned long)size;
 	*outputType = wmGD._MOTIF_WM_AUTOMATION;
 	*outputFmt = WSM_PROTO_FMT;
+	#undef ADD_AUTOMATION_SIZE
 	#undef ALLOC_AUTOMATION_REPLY
 	return;
 
@@ -2462,6 +2470,7 @@ automation_alloc_failed:
   *output = NULL;
   *outputLen = 0;
   *outputFmt = 0;
+	#undef ADD_AUTOMATION_SIZE
   #undef ALLOC_AUTOMATION_REPLY
 	return;
 }
