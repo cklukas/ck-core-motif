@@ -1403,7 +1403,8 @@ InsertString(Widget w,
   XmTextWidget tw = (XmTextWidget) w;
   XmTextPosition cursorPos, newCursorPos, beginPos, nextPos, left, right;
   char *str;
-  int i;
+  Cardinal i;
+  size_t str_length;
   XmTextBlockRec block, newblock;
   Boolean value_changed = False;
   Boolean pending_delete = False;
@@ -1423,8 +1424,17 @@ InsertString(Widget w,
   
   for (i=0; i<*num_params; i++) {
     str = params[i];
+    if (str == NULL) {
+      RingBell(w, event, params, num_params);
+      break;
+    }
+    str_length = strlen(str);
+    if (str_length > (size_t)INT_MAX) {
+      RingBell(w, event, params, num_params);
+      break;
+    }
     block.ptr = str;
-    block.length = strlen(str);
+    block.length = (int)str_length;
     block.format = XmFMT_8_BIT;
     if (_XmTextModifyVerify(tw, event, &beginPos, &nextPos,
 			    &newCursorPos, &block, &newblock, &freeBlock)) {
