@@ -17792,3 +17792,13 @@ Bound Xft draw-cache growth (2026-10-27)
 ========================================
 
 Bound drop-site child-list growth (2026-10-27)
+Bound editres protocol-stream growth (2026-10-27)
+=================================================
+
+- Check header-inclusive stream capacity arithmetic and realloc success in
+  editres append/reset paths.
+- Add focused regression coverage and documentation.
+
+=================================================
+
+Bound Xft draw-cache growth (2026-10-27)

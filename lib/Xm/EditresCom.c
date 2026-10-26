@@ -59,6 +59,8 @@ in this Software without prior written authorization from the X Consortium.
 #include <X11/Xmd.h>
 
 #include <stdio.h>
+#include <stdint.h>
+#include <limits.h>
 
 #define _XEditResPutBool _XEditResPut8	
 #define _XEditResPutResourceType _XEditResPut8
@@ -1856,10 +1858,17 @@ unsigned int value;
     unsigned char temp;
 
     if (stream->size >= stream->alloc) {
-	stream->alloc += 100;
-	stream->real_top = (unsigned char *) XtRealloc(
-						  (char *)stream->real_top,
-						  stream->alloc + HEADER_SIZE);
+	unsigned long new_alloc;
+	unsigned char *new_top;
+	if (stream->alloc > ULONG_MAX - 100 - HEADER_SIZE)
+	    return;
+	new_alloc = stream->alloc + 100;
+	new_top = (unsigned char *)XtRealloc(
+	    (char *)stream->real_top, new_alloc + HEADER_SIZE);
+	if (new_top == NULL)
+	    return;
+	stream->alloc = new_alloc;
+	stream->real_top = new_top;
 	stream->top = stream->real_top + HEADER_SIZE;
 	stream->current = stream->top + stream->size;
     }
@@ -1941,9 +1950,14 @@ ProtocolStream * stream;
     stream->current = stream->top;
     stream->size = 0;
     if (stream->real_top == NULL) {
-	stream->real_top = (unsigned char *) XtRealloc(
-						  (char *)stream->real_top,
-						  stream->alloc + HEADER_SIZE);
+	unsigned char *new_top;
+	if (stream->alloc > ULONG_MAX - HEADER_SIZE)
+	    return;
+	new_top = (unsigned char *)XtRealloc(
+	    (char *)stream->real_top, stream->alloc + HEADER_SIZE);
+	if (new_top == NULL)
+	    return;
+	stream->real_top = new_top;
 	stream->top = stream->real_top + HEADER_SIZE;
 	stream->current = stream->top + stream->size;
     }
