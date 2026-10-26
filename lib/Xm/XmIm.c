@@ -3118,6 +3118,10 @@ XmImMbResetIC(
     char **mb)
 {
     register XmImXICInfo icp;
+
+    if (w == NULL || mb == NULL)
+	return;
+
     _XmWidgetToAppContext(w);
 
     _XmAppLock(app);

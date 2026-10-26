@@ -1,3 +1,12 @@
+Guard input-method reset inputs (2026-10-27)
+============================================
+
+- Reject null widgets or output pointers before context lookup in
+  `XmImMbResetIC`.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard input-method lookup arguments (2026-10-27)
 ================================================
 
