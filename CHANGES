@@ -19559,3 +19559,11 @@ Clarify Container control flow (2026-10-27)
 - Add explicit blocks around outline visibility and traversal early-return
   branches, removing misleading-indentation warnings without changing logic.
 - Add focused regression coverage and documentation.
+
+Bound Container first-column geometry (2026-10-27)
+==================================================
+
+- Saturate depth and indentation arithmetic at the largest representable
+  `Dimension`, preventing deeply nested or large-metric layouts from wrapping
+  to an incorrectly narrow first column.
+- Add focused regression coverage and documentation.

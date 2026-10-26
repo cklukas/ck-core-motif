@@ -5830,6 +5830,19 @@ GetDefaultDetailCount(
     return(detail_count);
 }
 
+/* Keep dynamically calculated geometry from wrapping Dimension. */
+static Dimension
+AddDimensionSaturated(
+    Dimension  base,
+    uint64_t   addition)
+{
+    const uint64_t max_dimension = (uint64_t)((Dimension)-1);
+
+    if (addition > max_dimension - (uint64_t)base)
+	return (Dimension)-1;
+    return (Dimension)((uint64_t)base + addition);
+}
+
 
 /************************************************************************
 * SetDynamicTabList (Private Function)
@@ -5969,6 +5982,7 @@ GetDynFirstColWidth(
     CwidNode    node;
     Dimension	cwid_fcw = 0;
     Dimension	fcw = 0;
+    uint64_t    detail_indent;
 
     /*
      * Get the IconHeader's icon_width
@@ -6006,8 +6020,10 @@ GetDynFirstColWidth(
 	    cwid_fcw = cwid->core.width;
 	
 	c = GetContainerConstraint(cwid);
-	cwid_fcw += cw->container.ob_width +
-	    c->depth * cw->container.outline_indent;
+	detail_indent = (uint64_t)c->depth *
+	    (uint64_t)cw->container.outline_indent;
+	cwid_fcw = AddDimensionSaturated(cwid_fcw,
+	    (uint64_t)cw->container.ob_width + detail_indent);
     
 	fcw = MAX(fcw,cwid_fcw);
         node = GetNextNode(node);
