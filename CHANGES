@@ -15,6 +15,15 @@ Guard text modify-verify allocations (2026-10-27)
   failure.
 - Add a focused source regression and documentation.
 
+Bound text-source value extraction (2026-10-27)
+================================================
+
+- Validate source block progress and destination capacity while assembling
+  text values.
+- Reject failed multibyte-to-wide-character conversion instead of returning a
+  partially initialized value.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 

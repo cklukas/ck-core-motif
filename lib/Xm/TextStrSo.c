@@ -400,7 +400,7 @@ AddWidget(XmTextSource source,
       (*source->SetSelection)(source, 1, 0, select_time);
     } else {
       XmAnyCallbackStruct cb;
-      
+
       data->prim_time = select_time;
       cb.reason = XmCR_GAIN_PRIMARY;
       cb.event = NULL;
@@ -601,7 +601,7 @@ CountLines(XmTextSource source,
 						      * adjust length */
 	length -= data->gap_start - (data->ptr + start);
       ptr = data->gap_end;
-      
+
       /* continue search till length is completed */
       while (length--) {
 	if (*ptr++ == *(data->PSWC_NWLN)) ++num_lines;
@@ -1956,13 +1956,18 @@ _XmStringSourceGetValue(XmTextSource source,
     
     while (pos < last_pos) {
       ret_pos = ReadSource(source, pos, last_pos, &block);
-      if (block.length == 0)
+	if (ret_pos <= pos || block.length <= 0 ||
+	    (size_t)block.length > allocation - 1 - (size_t)length) {
+	XtFree(temp);
 	break;
+	}
       
       (void)memcpy((void*)&temp[length], (void*)block.ptr, block.length);
       length += block.length;
       pos = ret_pos;
     }
+	if (pos != last_pos)
+	  return NULL;
     temp[length] = '\0';
     return (temp);
   } else {
@@ -1986,15 +1991,20 @@ _XmStringSourceGetValue(XmTextSource source,
     
     while (pos < last_pos) {
       ret_pos = ReadSource(source, pos, last_pos, &block);
-      if (block.length == 0)
-	break;
-      
-      if (ret_pos < pos) {
+      if (ret_pos <= pos || block.length <= 0 ||
+	  (size_t)(ret_pos - pos) >
+	    (allocation / sizeof(wchar_t)) - 1 - (size_t)length) {
 	XtFree((char *)wc_temp);
 	return NULL;
-      }
+	  }
+
       return_val = mbstowcs(&wc_temp[length], block.ptr,
 			     (size_t)(ret_pos - pos));
+	  if (return_val == (size_t)-1 ||
+	      return_val > (allocation / sizeof(wchar_t)) - 1 - (size_t)length) {
+	XtFree((char *)wc_temp);
+	return NULL;
+	  }
       if (return_val > 0) length += return_val;
       pos = ret_pos;
     }
