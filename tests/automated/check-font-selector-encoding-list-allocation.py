@@ -3,7 +3,7 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "FontS.c").read_text(encoding="utf-8")
-start = source.index("newList = (String*)XtMalloc(sizeof(String) * i);")
+start = source.index("newList = (String*)XtMalloc((Cardinal)((size_t)i * sizeof(*newList)));")
 end = source.index("_XmFilterArgs", start)
 region = source[start:end]
 assert "if (newList == NULL)" in region

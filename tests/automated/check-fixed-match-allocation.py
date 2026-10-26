@@ -6,9 +6,9 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "Xmos.c").read_text(encodin
 start = source.index("_XmOSQualifyFileSpec(")
 end = source.index("GetFixedMatchPattern(String pattern)", start)
 region = source[start:end]
-assert "fSpec = XtMalloc(filterLen + 2);" in region
+assert "fSpec = XtMalloc((Cardinal)(filterLenSize + 2));" in region
 assert "if (fSpec == NULL)" in region
-assert "dSpec = XtMalloc(filterLen + dirLen + 4);" in region
+assert "dSpec = XtMalloc((Cardinal)(filterLenSize + dirLenSize + 4));" in region
 assert "if (dSpec == NULL)" in region
 assert "XtFree(fSpec);" in region
 print("PASS fixed-match filter allocations are guarded")

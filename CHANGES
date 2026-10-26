@@ -17821,3 +17821,19 @@ Handle Outline top-node allocation failure (2026-10-27)
 =========================================================
 
 Bound editres protocol-stream growth (2026-10-27)
+Refresh fixed-match allocation regression check (2026-10-27)
+==============================================================
+
+- Match the focused check to the current checked-size `Cardinal` casts while
+  retaining the allocation-failure assertions.
+
+==============================================================
+
+Refresh FontSelector encoding-list regression check (2026-10-27)
+=================================================================
+
+- Match the focused check to the current checked-size allocation spelling.
+
+=================================================================
+
+Bound DragBS atom-entry growth (2026-10-27)
