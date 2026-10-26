@@ -1,3 +1,10 @@
+Initialize standard WM_NAME conversion state (2026-10-27)
+===========================================================
+
+- Initialize X property metadata and skip text decoding when WM_NAME is
+  unavailable, avoiding undefined behavior during shell teardown.
+- Add a focused source regression and documentation.
+
 Bound drop-transfer widget names (2026-10-27)
 ==============================================
 

@@ -2297,8 +2297,8 @@ XmeStandardConvert(Widget w,
   } else if (atoms[XmANAME] == cs -> target) {
     Widget current;
     unsigned long bytesAfter;
-    Atom type;
-    int format;
+    Atom type = None;
+    int format = 0;
     unsigned char *value = NULL;
     char *total_value;
     unsigned long length;
@@ -2319,8 +2319,12 @@ XmeStandardConvert(Widget w,
       }
     }
     
-    total_value = _XmTextToLocaleText(w, (XtPointer)value, type, 
-				      format, length, NULL);
+    /* A missing or unreadable WM_NAME leaves no property data.  Keep the
+     * conversion inputs deterministic and avoid passing an uninitialised
+     * type/format pair into the text-property decoder. */
+    total_value = value != NULL
+      ? _XmTextToLocaleText(w, (XtPointer)value, type, format, length, NULL)
+      : NULL;
     
     cs -> value = (XtPointer) total_value;
     cs -> format = 8;
