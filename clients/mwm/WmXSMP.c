@@ -663,11 +663,11 @@ clientWorkspaceCompare(const void *ppCD1, const void *ppCD2)
 {
     ClientData *pCD1 = *(ClientData **)ppCD1;
     ClientData *pCD2 = *(ClientData **)ppCD2;
-    int screenDiff;
-
     /* Sort first by screen. */
-    if ((screenDiff = pCD1->pSD->screen - pCD2->pSD->screen) != 0)
-	return screenDiff;
+    if (pCD1->pSD->screen < pCD2->pSD->screen)
+	return -1;
+    if (pCD1->pSD->screen > pCD2->pSD->screen)
+	return 1;
 
 #ifdef WSM
 
@@ -675,8 +675,13 @@ clientWorkspaceCompare(const void *ppCD1, const void *ppCD2)
     /* How do we handle clients that live in more than one workspace? */
     /* For now, pick the "current" one - if not in active workspace, */
     /* this will simply be the first one in the client's list. */
-    return (int)(pCD1->pWsList[pCD1->currentWsc].wsID -
-		 pCD2->pWsList[pCD2->currentWsc].wsID);
+    if (pCD1->pWsList[pCD1->currentWsc].wsID <
+	    pCD2->pWsList[pCD2->currentWsc].wsID)
+	return -1;
+    if (pCD1->pWsList[pCD1->currentWsc].wsID >
+	    pCD2->pWsList[pCD2->currentWsc].wsID)
+	return 1;
+    return 0;
 
 #else
 

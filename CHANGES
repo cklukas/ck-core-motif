@@ -21621,3 +21621,10 @@ Guard MWM XSMP proxy text properties (2026-10-26)
 - Avoid unsigned underflow while normalizing embedded NUL bytes.
 - Add focused regression coverage and documentation.
 
+Make MWM XSMP client ordering overflow-safe (2026-10-26)
+==========================================================
+
+- Compare screen and workspace identifiers relationally instead of subtracting
+  them into a signed comparator result.
+- Add focused regression coverage and documentation.
+
