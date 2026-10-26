@@ -1940,8 +1940,13 @@ SelectionCallbackWrapper(Widget wid, XtPointer client_data,
 
   XmSelectionCallbackStruct cbstruct;
   TransferContext tc = (TransferContext) client_data;
-  TransferBlock tb = tc -> requests;
+  TransferBlock tb;
   Atom atoms[XtNumber(atom_names)];
+
+  if (wid == NULL || tc == NULL || selection == NULL || type == NULL ||
+      length == NULL || format == NULL)
+    return;
+  tb = tc -> requests;
 
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(wid), atom_names, XtNumber(atom_names), False, atoms);

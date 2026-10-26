@@ -22023,3 +22023,13 @@ Reject incomplete drop contexts (2026-10-26)
 
 Validate drag conversion callback state (2026-10-26)
 =====================================================
+Validate transfer selection-callback state (2026-10-26)
+========================================================
+
+- Reject incomplete selection callbacks before reading transfer bookkeeping or
+  dereferencing callback outputs, protecting cancellation and destruction
+  paths from stale context crashes.
+- Add focused regression coverage and documentation.
+
+Reject incomplete drop contexts (2026-10-26)
+=============================================
