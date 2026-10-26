@@ -21555,3 +21555,10 @@ Guard MWM refresh geometry conversions (2026-10-26)
   X11 dimensions.
 - Add focused regression coverage and documentation.
 
+Fix MWM raise argument length traversal (2026-10-26)
+======================================================
+
+- Use `size_t` for optional stacking-argument traversal and stop on empty
+  tokens, preventing short-argument underflow and long-argument truncation.
+- Add focused regression coverage and documentation.
+
