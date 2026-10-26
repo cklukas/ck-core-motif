@@ -12,3 +12,6 @@ contract is covered by `tests/automated/check-drag-atom-bounds.py`.
 Generated `_MOTIF_ATOM_` names are formatted with a bounded operation into
 the fixed atom-name buffer, keeping the property-table path safe even when
 the entry index is supplied by a large or corrupted table.
+
+The per-display `XContext` IDs are initialized and tested as integer IDs,
+avoiding pointer-to-integer diagnostics on 64-bit builds.

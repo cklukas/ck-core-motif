@@ -1,3 +1,10 @@
+Use integer-zero XContext checks in DragBS (2026-10-27)
+=======================================================
+
+- Remove pointer-to-integer casts from per-display XContext initialization and
+  comparisons, keeping strict 64-bit builds warning-free.
+- Add a focused source regression.
+
 Bound Motif drag atom formatting (2026-10-27)
 ===============================================
 
