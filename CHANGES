@@ -1,3 +1,12 @@
+Guard Container reorder inputs (2026-10-27)
+============================================
+
+- Reject null widgets, missing child lists, short lists, and null child
+  entries before context or constraint lookup in `XmContainerReorder`.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard Container relayout input (2026-10-27)
 ============================================
 

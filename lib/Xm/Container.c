@@ -10079,10 +10079,14 @@ XmContainerReorder(
 	int *			pi_list;
 	int			i, pi_count;
 
+	if (wid == NULL || cwid_count <= 1 || cwid_list == NULL)
+		return;
+	for (i = 0; i < cwid_count; i++)
+		if (cwid_list[i] == NULL)
+			return;
+
 	_XmWidgetToAppContext(wid);
 
-	if (cwid_count <= 1 || cwid_list == NULL)
-		return;
 	if ((size_t)cwid_count > SIZE_MAX / sizeof(int) ||
 	    (size_t)cwid_count > UINT_MAX / sizeof(int))
 		return;
