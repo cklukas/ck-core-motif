@@ -21733,3 +21733,17 @@ Use validated multibyte lengths for Xmos pattern copies (2026-10-26)
   `mblen`, avoiding an implicit signed-to-`size_t` conversion.
 - Extend the pattern-bound regression assertion and documentation.
 
+Make generated Xmos path allocation conversion explicit (2026-10-26)
+=====================================================================
+
+- Convert measured default-resource path sizes explicitly to Xt's `Cardinal`
+  type after `snprintf` error checks.
+- Extend the path-bound regression assertion and documentation.
+
+Remove redundant Xmos cache overflow check (2026-10-26)
+========================================================
+
+- Keep the effective `UINT_MAX / sizeof` cache-table bound and remove the
+  provably redundant `SIZE_MAX` comparison that triggered a strict warning.
+- Extend the cache-bound regression assertion and documentation.
+

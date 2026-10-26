@@ -200,8 +200,7 @@ AddEntryToCache(char *entryName,
       if (numCacheAlloc > (unsigned)-1 - FILE_LIST_BLOCK)
 	return 0;
       new_alloc = numCacheAlloc + FILE_LIST_BLOCK;
-      if ((size_t)new_alloc > SIZE_MAX / sizeof(*new_cache) ||
-          (size_t)new_alloc > (size_t)UINT_MAX / sizeof(*new_cache))
+	  if ((size_t)new_alloc > (size_t)UINT_MAX / sizeof(*new_cache))
 	return 0;
       new_cache = (XmDirCache)XtRealloc(
 	(char *)dirCache, (size_t)new_alloc * sizeof(*new_cache));
@@ -1406,7 +1405,7 @@ _XmOSInitPath(String   file_name,
 		      libdir, incdir);
 	      if (path_length < 0)
 		  return NULL;
-	      path = XtMalloc((size_t)path_length + 1);
+	      path = XtMalloc((Cardinal)((size_t)path_length + 1));
 	      if (path == NULL)
 		return NULL;
 	      (void) snprintf(path, (size_t)path_length + 1, PATH_DEFAULT,
@@ -1424,7 +1423,7 @@ _XmOSInitPath(String   file_name,
 		      libdir, incdir);
 	      if (path_length < 0)
 		  return NULL;
-	      path = XtMalloc((size_t)path_length + 1);
+	      path = XtMalloc((Cardinal)((size_t)path_length + 1));
 	      if (path == NULL)
 		return NULL;
 	      (void) snprintf(path, (size_t)path_length + 1, XAPPLRES_DEFAULT,
