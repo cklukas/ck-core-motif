@@ -1483,6 +1483,9 @@ BaseClassPartInitialize(
 
   wcData = GetWrapperData(wc);
   scData = GetWrapperData(wc->core_class.superclass);
+
+  if (wcData == NULL || scData == NULL)
+	return wcePtr;
   
   if ((wc == vendorShellWidgetClass) ||
       _XmIsSubclassOf(wc, vendorShellWidgetClass))
@@ -1587,6 +1590,8 @@ ClassPartInitRootWrapper(
 	  XmWrapperData wrapperData;
 	  
 	  wrapperData = GetWrapperData(wc);
+	  if (wrapperData == NULL)
+	    return;
 	  leafFuncPtr = (XtWidgetClassProc *)
 	    &(wc->core_class.class_part_initialize);
 	  wrapperData->classPartInitLeaf = *leafFuncPtr;
@@ -1612,6 +1617,8 @@ ClassPartInitLeafWrapper(
       XmWrapperData wrapperData;
 
       wrapperData = GetWrapperData(wc);
+	  if (wrapperData == NULL)
+	    return;
       leafFuncPtr = (XtWidgetClassProc *)
 	&(wc->core_class.class_part_initialize);
       

@@ -1,3 +1,10 @@
+Guard BaseClass wrapper allocation failures (2026-10-27)
+=========================================================
+
+- Stop class-wrapper installation safely when a lazily allocated wrapper
+  record is unavailable, avoiding null dereferences during Xt class setup.
+- Add focused regression coverage and documentation.
+
 Guard scrolled-window auto-drag allocation (2026-10-27)
 ========================================================
 
