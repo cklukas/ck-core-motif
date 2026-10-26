@@ -308,13 +308,16 @@ DragConvertHandler(Widget drag_context, Atom *selection, Atom *target,
 		      unsigned long *size, int *fmt)
 {
   ConvertContext cc;
+  if (drag_context == NULL || selection == NULL || target == NULL ||
+      type == NULL || value == NULL || size == NULL || fmt == NULL)
+    return False;
   Atom MOTIF_DROP = XInternAtom(XtDisplay(drag_context), XmS_MOTIF_DROP, False);
 
   /* Find the context block */
 
   cc = LookupContextBlock(XtDisplay(drag_context), MOTIF_DROP);
 
-  if (cc == NULL)
+  if (cc == NULL || cc -> client_data == NULL)
     return False;
 
   /* Originating widget was stored in client_data */

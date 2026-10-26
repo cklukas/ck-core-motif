@@ -1,3 +1,11 @@
+Validate drag conversion callback state (2026-10-26)
+=====================================================
+
+- Reject incomplete drag conversion callback arguments and missing origin
+  widget state before accessing the display or forwarding the conversion.
+- Add focused regression coverage and documentation for reentrant and
+  cancellation paths.
+
 Bound drag-source target-count conversion (2026-10-26)
 =======================================================
 
