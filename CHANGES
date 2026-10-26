@@ -112,6 +112,13 @@ Guard MWM client-list serialization (2026-10-26)
 - Preserve valid list updates and zero-count property clearing, with focused
   regression coverage and documentation.
 
+Guard MWM workspace metadata inputs (2026-10-26)
+================================================
+
+- Reject missing workspace records, screen-data links, and workspace names
+  before workspace-property construction or X operations.
+- Add focused regression coverage and document the null-input contract.
+
 Guard MWM binding token boundaries (2026-10-26)
 ===============================================
 

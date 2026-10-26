@@ -1465,6 +1465,9 @@ SetWorkspaceInfoProperty (WmWorkspaceData *pWS)
     XTextProperty tp;
 #define WIP_NUMBER_SIZE		(2 + (2 * sizeof(unsigned long)) + 1)
 
+    if (pWS == NULL || pWS->pSD == NULL)
+	return;
+
     /*
      * Construct our property name
      */
@@ -1607,6 +1610,9 @@ DeleteWorkspaceInfoProperty (WmWorkspaceData *pWS)
     char *pch;
     Atom aProperty;
 
+    if (pWS == NULL || pWS->pSD == NULL)
+	return;
+
     /*
      * Get the atom for the workspace property.
      */
@@ -1666,6 +1672,9 @@ WorkspacePropertyName (WmWorkspaceData *pWS)
      * Construct our property name.  XtMalloc takes a Cardinal, so reject
      * lengths that cannot be represented before converting the size.
      */
+    if (pWS == NULL || pWS->name == NULL)
+	return (NULL);
+
     pchName = pWS->name;
     prefixLength = strlen(_XA_DT_WORKSPACE_INFO);
     nameLength = strlen(pchName);
