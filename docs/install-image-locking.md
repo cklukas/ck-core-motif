@@ -48,6 +48,9 @@ The full string getters apply the same checked allocation and conversion
 termination rules; their focused check is
 `tests/automated/check-textfield-string-allocation.py`.
 
+That check also covers the empty-wide-string allocation path, which now
+returns `NULL` cleanly if the one-character allocation fails.
+
 Conversion result counts are retained as `size_t` through the getter and
 substring paths, so large successful conversions cannot wrap through an
 intermediate `int`.

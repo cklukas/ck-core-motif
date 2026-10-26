@@ -20,6 +20,7 @@ end = source.index("int \nXmTextFieldGetSubstringWcs", start)
 wide_getter = source[start:end]
 assert "temp_wcs = (wchar_t*) XtMalloc((Cardinal)allocation_bytes);" in wide_getter
 assert "if (temp_wcs == NULL)" in wide_getter
+assert "temp_wcs = (wchar_t*) XtMalloc((unsigned) sizeof(wchar_t));" in wide_getter
 assert "UINT_MAX / sizeof(wchar_t)" in wide_getter
 assert "temp_wcs[num_wcs] = (wchar_t)0L;" in wide_getter
 assert "size_t num_wcs = 0;" in wide_getter

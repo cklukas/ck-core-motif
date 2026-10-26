@@ -10230,6 +10230,10 @@ XmTextFieldGetStringWcs(Widget w)
     return temp_wcs;
   } else {
     temp_wcs = (wchar_t*) XtMalloc((unsigned) sizeof(wchar_t));
+    if (temp_wcs == NULL) {
+      _XmAppUnlock(app);
+      return NULL;
+    }
     temp_wcs[0] = (wchar_t)0L; /* put a wchar_t NULL in position 0 */
     _XmAppUnlock(app);
     return temp_wcs;
