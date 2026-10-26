@@ -7446,6 +7446,14 @@ df_DoStuff(
 
 		wc_value = (wchar_t*)XtMalloc ((unsigned)
                                                (*length * sizeof(wchar_t)));
+		if (wc_value == NULL) {
+		   if (XmTextF_selection_move(tf) && local)
+		      XmTextF_max_length(tf) = max_length;
+		   XtFree((char *)value);
+		   if (--prim_select->ref_count == 0)
+		      XtFree((char *)prim_select);
+		   return;
+		}
 		prim_select->num_chars = mbstowcs(wc_value, (char *) value,
 					 (size_t) *length);
 		replace_res = _XmDataFieldReplaceText(tf, NULL, 
