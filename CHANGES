@@ -126,6 +126,13 @@ Guard MWM DT session-hint input (2026-10-26)
 - Return safely when session-hint processing is invoked without screen data.
 - Add focused regression coverage and document the no-op contract.
 
+Guard MWM colormap reference inputs (2026-10-26)
+================================================
+
+- Ignore null client records when adding or removing colormap-window
+  references, avoiding null entries and accidental terminator removal.
+- Add focused regression coverage and document the input contract.
+
 Guard MWM binding token boundaries (2026-10-26)
 ===============================================
 

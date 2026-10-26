@@ -421,6 +421,9 @@ void AddColormapWindowReference (ClientData *pCD, Window window)
     int                 i;
     ClientData          **new_cmap_window_data;
 
+    if (pCD == NULL)
+	return;
+
     context_exists = (!XFindContext (DISPLAY, window,
                         wmGD.cmapWindowContextType,
                         (XPointer *) &cmap_window_data));
@@ -487,6 +490,9 @@ void RemoveColormapWindowReference (ClientData *pCD, Window window)
     int         i;
     int         reference_idx = -1;
     ClientData  **new_cmap_window_data;
+
+    if (pCD == NULL)
+	return;
 
     context_exists = (!XFindContext (DISPLAY, window,
                         wmGD.cmapWindowContextType,
