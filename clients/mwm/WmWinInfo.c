@@ -214,6 +214,10 @@ GetClientInfo (WmScreenData *pSD, Window clientWindow, long manageFlags)
 #endif /* WSM */
     pCD->iconWindow = (Window)0L;
     pCD->iconPixmap = (Pixmap)0L;
+    pCD->iconMask = None;
+#ifndef NO_SHAPE
+    pCD->wShaped = False;
+#endif /* NO_SHAPE */
 #ifndef WSM
     pCD->iconPlace = NO_ICON_PLACE;
 #endif /* WSM */

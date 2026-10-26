@@ -21449,3 +21449,9 @@ GetClientInfo now initializes the optional matte shadow GC handles to NULL
 before resource processing, preventing early frame paths from consuming
 indeterminate graphics contexts.
 
+Initialize MWM client icon and shape state (2026-10-26)
+---------------------------------------------------------
+GetClientInfo now initializes iconMask to None and wShaped to False before
+WM_HINTS or Shape events populate them, preventing early frame/icon paths from
+using indeterminate values.
+
