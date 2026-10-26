@@ -2717,6 +2717,7 @@ GetBindingsProperty(
   unsigned long num_items ;
   unsigned long bytes_after ;
   unsigned char *prop = NULL ;
+  String bounded_prop = NULL;
   int status ;
 
   status = XGetWindowProperty( dsp, RootWindow( dsp, 0), property, 0, 1000000L,
@@ -2726,7 +2727,8 @@ GetBindingsProperty(
       || (actual_type != XA_STRING)
       || (actual_format != 8)
       || (prop == NULL)
-      || (num_items == 0)    )
+      || (num_items == 0)
+      || (num_items >= UINT_MAX))
     {
       if(    prop != NULL    )
         {
@@ -2734,7 +2736,16 @@ GetBindingsProperty(
         }
       return FALSE ;
     }
-  *binding = (String) prop ;
+  bounded_prop = (String)XtMalloc((Cardinal)num_items + 1);
+  if (bounded_prop == NULL)
+    {
+      XFree(prop);
+      return FALSE;
+    }
+  memcpy(bounded_prop, prop, (size_t)num_items);
+  bounded_prop[num_items] = '\0';
+  XFree(prop);
+  *binding = bounded_prop;
   return TRUE ;
 }
 

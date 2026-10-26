@@ -21656,3 +21656,12 @@ Complete MWM property-array validation (2026-10-26)
   WM_COLORMAP_WINDOWS property items.
 - Extend the property-pointer regression coverage and documentation.
 
+Terminate MWM XA_STRING property copies (2026-10-26)
+====================================================
+
+- Copy XA_STRING bindings and DT session hints into explicitly terminated
+  buffers before passing them to C-string parsers.
+- Reject empty or unrepresentable property lengths and handle allocation
+  failure without parsing an unbounded buffer.
+- Add focused regression coverage and documentation.
+

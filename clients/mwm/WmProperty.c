@@ -1822,6 +1822,7 @@ void GetDtSessionHints (WmScreenData *pSD, int sNum)
     int           actualFormat;
     unsigned long leftover;
     unsigned long nitems;
+    char          *bounded_property = NULL;
 
     (void)sNum;
 
@@ -1842,7 +1843,7 @@ void GetDtSessionHints (WmScreenData *pSD, int sNum)
 
 
     if ((rValue != Success) || (actualType == None) || (actualFormat != 8) ||
-	(property == NULL))
+	(property == NULL) || (nitems == 0) || (nitems >= UINT_MAX))
         /* _DT_SESSION_HINTS does not exist or it is an invalid type.  */
     {
         pSD->pDtSessionItems = NULL;
@@ -1852,7 +1853,14 @@ void GetDtSessionHints (WmScreenData *pSD, int sNum)
     else
         /* parse the property string */
     {
-	ParseDtSessionHints (pSD, (unsigned char *)property);
+	bounded_property = (char *)XtMalloc((Cardinal)nitems + 1);
+	if (bounded_property != NULL)
+	{
+	    memcpy(bounded_property, property, (size_t)nitems);
+	    bounded_property[nitems] = '\0';
+	    ParseDtSessionHints (pSD, (unsigned char *)bounded_property);
+	    XtFree(bounded_property);
+	}
     }
 
 
