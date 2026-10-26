@@ -20829,3 +20829,9 @@ Guard MWM system-menu placement inputs (2026-10-26)
 GetSystemMenuPosition now leaves its outputs unchanged when the client record
 or either output coordinate pointer is null.  Valid placement behavior is
 unchanged.
+
+Reject impossible MWM title widths (2026-10-26)
+-----------------------------------------------
+GetFramePartInfo now rejects title and title-bar geometry when borders and
+decorations consume the entire frame width, preventing unsigned width
+underflow from producing a giant bogus title rectangle.

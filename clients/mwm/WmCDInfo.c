@@ -699,6 +699,7 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 {
     unsigned int boxdim;
     unsigned long decor;
+    unsigned long requiredWidth;
     int vert, horiz;
     Boolean rval = FALSE;
 
@@ -723,14 +724,19 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 
 	case FRAME_TITLE:
 		if (decor & MWM_DECOR_TITLE) {
+		    requiredWidth = 2UL * pcd->frameInfo.upperBorderWidth;
+		    if (decor & MWM_DECOR_MENU)
+			requiredWidth += boxdim;
+		    if (decor & MWM_DECOR_MINIMIZE)
+			requiredWidth += boxdim;
+		    if (decor & MWM_DECOR_MAXIMIZE)
+			requiredWidth += boxdim;
+		    if (requiredWidth > pcd->frameInfo.width)
+			break;
 		    *pX = pcd->frameInfo.upperBorderWidth + 
 			    ((decor & MWM_DECOR_MENU) ? boxdim : 0);
 		    *pY = pcd->frameInfo.upperBorderWidth;
-		    *pWidth = pcd->frameInfo.width - 
-			    2*pcd->frameInfo.upperBorderWidth - 
-			    ((decor & MWM_DECOR_MENU) ? boxdim : 0) -
-			    ((decor & MWM_DECOR_MINIMIZE) ? boxdim : 0) -
-			    ((decor & MWM_DECOR_MAXIMIZE) ? boxdim : 0);
+		    *pWidth = (unsigned int)(pcd->frameInfo.width - requiredWidth);
 		    *pHeight = boxdim;
 		    rval = TRUE;
 		}
@@ -739,10 +745,12 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 
 	case FRAME_TITLEBAR:
 		if (decor & MWM_DECOR_TITLE) {
+		    requiredWidth = 2UL * pcd->frameInfo.upperBorderWidth;
+		    if (requiredWidth > pcd->frameInfo.width)
+			break;
 		    *pX = pcd->frameInfo.upperBorderWidth;
 		    *pY = pcd->frameInfo.upperBorderWidth;
-		    *pWidth = pcd->frameInfo.width - 
-			    2*pcd->frameInfo.upperBorderWidth;
+		    *pWidth = (unsigned int)(pcd->frameInfo.width - requiredWidth);
 		    *pHeight = boxdim;
 		    rval = TRUE;
 		}
