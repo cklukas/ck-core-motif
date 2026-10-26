@@ -1098,11 +1098,16 @@ ReadTargetsTable(
 	    swap4bytes(propertyRecPtr->info.heap_offset);
 	}
 
-	remaining = (size_t)lengthRtn - sizeof(xmMotifTargetsPropertyRec);
 	if (propertyRecPtr->info.heap_offset < sizeof(xmMotifTargetsPropertyRec) ||
 	    (unsigned long)propertyRecPtr->info.heap_offset > lengthRtn) {
 	    XmeWarning ((Widget) XmGetXmDisplay (display), MESSAGE2);
 	    ret = False;
+	} else {
+	    /* The serialized target lists end at heap_offset.  Do not let a
+	     * malformed property make the validation walk into the heap or any
+	     * trailing bytes returned by XGetWindowProperty. */
+	    remaining = (size_t)propertyRecPtr->info.heap_offset -
+	      sizeof(xmMotifTargetsPropertyRec);
 	}
 	scanptr = (unsigned char *)propertyRecPtr +
 	    sizeof(xmMotifTargetsPropertyRec);

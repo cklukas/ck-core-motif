@@ -1,3 +1,10 @@
+Bound drag target-list parsing by heap offset (2026-10-27)
+============================================================
+
+- Validate serialized target-list records against the protocol's declared
+  heap boundary instead of the entire received property.
+- Add a focused source regression and documentation.
+
 Initialize standard WM_NAME conversion state (2026-10-27)
 ===========================================================
 
