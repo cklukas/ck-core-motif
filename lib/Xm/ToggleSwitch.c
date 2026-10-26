@@ -196,7 +196,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     int knob_x = sw->toggle_switch.set
         ? track_x + (int)track_width - (int)track_height + knob_inset
         : track_x + knob_inset;
-    int knob_y = track_y + 4;
+    int knob_y = track_y +
+        ((int)track_height - (int)TOGGLE_SWITCH_KNOB_DIAMETER) / 2;
     GC knob_gc;
     GC label_gc;
     Dimension label_width = 0, label_height = 0;

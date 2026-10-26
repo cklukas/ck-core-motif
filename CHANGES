@@ -16805,4 +16805,11 @@ Guard DragUnder shared draw GC creation (2026-10-27)
   drawing graphics context cannot be created.
 - Add a focused source regression and documentation.
 
+Center ToggleSwitch knob geometry (2026-10-27)
+==============================================
+
+- Derive the knob's vertical inset from the track and knob dimensions so the
+  control remains pixel-symmetric.
+- Add a focused source regression and documentation.
+
 ====================================================
