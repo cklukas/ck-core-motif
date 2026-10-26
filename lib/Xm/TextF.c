@@ -10462,6 +10462,10 @@ XmTextFieldSetStringWcs(Widget w,
   }
   
   tmp = XtMalloc((unsigned) (num_chars + 1) * tf->text.max_char_size);
+  if (tmp == NULL) {
+    _XmAppUnlock(app);
+    return;
+  }
   result = wcstombs(tmp, wc_value, (num_chars + 1) * tf->text.max_char_size);
   
   if (result == (size_t) -1) /* if wcstombs fails, it returns (size_t) -1 */

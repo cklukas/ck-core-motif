@@ -14,5 +14,6 @@ assert "tmp[0] = '\\0';" in function
 assert "_XmAppUnlock(app);\n  XmTextFieldSetString(w, tmp);" in function
 assert "tmp = \"\"" not in function
 assert "size_t result;" in function
+assert "if (tmp == NULL)" in function
 
 print("PASS wide text-field setting avoids nested locking and invalid free")
