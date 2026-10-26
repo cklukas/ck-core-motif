@@ -385,6 +385,8 @@ getClientDBName(void)
 	char *homeDir = XmeGetHomeDirName();
 	size_t homeLength;
 	size_t fileLength;
+	size_t dbFileLength;
+	int renderedLength;
 
 	if (homeDir == NULL)
 	    return;
@@ -393,9 +395,17 @@ getClientDBName(void)
 	if (homeLength > SIZE_MAX - fileLength - 2 - EXTRA_FN_CHARS ||
 	    homeLength + fileLength + 2 + EXTRA_FN_CHARS > UINT_MAX)
 	    return;
-	if ((wmGD.dbFileName = (char *)XtMalloc(
-		(Cardinal)(homeLength + fileLength + 2 + EXTRA_FN_CHARS))) != NULL)
-	    sprintf(wmGD.dbFileName, "%s/%s", homeDir, dtwmFileName);
+	dbFileLength = homeLength + fileLength + 2 + EXTRA_FN_CHARS;
+	if ((wmGD.dbFileName = (char *)XtMalloc((Cardinal)dbFileLength)) != NULL)
+	{
+	    renderedLength = snprintf(wmGD.dbFileName, dbFileLength,
+			       "%s/%s", homeDir, dtwmFileName);
+	    if (renderedLength < 0 || (size_t)renderedLength >= dbFileLength)
+	    {
+		XtFree(wmGD.dbFileName);
+		wmGD.dbFileName = (char *)NULL;
+	    }
+	}
     }
 }
 
