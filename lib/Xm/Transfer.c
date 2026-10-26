@@ -1761,7 +1761,7 @@ XmTransferValue(XtPointer transfer_id,
   TransferBlock tb;
   unsigned long length;
   Atom atoms[XtNumber(atom_names)];
-  if (tc == NULL || tc->widget == NULL)
+  if (tc == NULL || tc->widget == NULL || target == None)
     return;
   _XmWidgetToAppContext(tc->widget);
 
