@@ -8,6 +8,9 @@ home_end = source.index("#ifndef LIBDIR", home)
 home_region = source[home:home_end]
 assert "homeDir = XtMalloc" in home_region
 assert "if (homeDir != NULL)" in home_region
+assert "size_t home_length;" in home_region
+assert "home_length >= (size_t)UINT_MAX" in home_region
+assert "XtMalloc ((Cardinal)(home_length + 1))" in home_region
 name = source.index("_XmOSBuildFileName(String path")
 name_end = source.index("/************************************************************", name)
 name_region = source[name:name_end]

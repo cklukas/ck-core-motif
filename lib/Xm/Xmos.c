@@ -1128,6 +1128,7 @@ XmeGetHomeDirName(void)
   struct passwd * pwd_value;
 
   char *ptr = NULL;
+  size_t home_length;
   static char empty = '\0';
   static char *homeDir = NULL;
   
@@ -1152,11 +1153,17 @@ XmeGetHomeDirName(void)
 
       if (ptr != NULL) 
 	{
-	  homeDir = XtMalloc (strlen(ptr) + 1);
-	  if (homeDir != NULL)
-	    strcpy (homeDir, ptr);
-	  else
+	  home_length = strlen(ptr);
+	  if (home_length >= (size_t)UINT_MAX)
 	    homeDir = &empty;
+	  else
+	    {
+	      homeDir = XtMalloc ((Cardinal)(home_length + 1));
+	      if (homeDir != NULL)
+		strcpy (homeDir, ptr);
+	      else
+		homeDir = &empty;
+	    }
 	}
       else 
 	{
