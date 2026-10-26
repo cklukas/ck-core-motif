@@ -18109,6 +18109,15 @@ Refresh tab-list removal regression check (2026-10-27)
 Refresh tab-list replacement regression check (2026-10-27)
 ==========================================================
 
+Refresh text-control geometry regression check (2026-10-27)
+============================================================
+
+- Match each focused assertion to its current bounded-width implementation:
+  direct `Dimension` guards for Prompt, unsigned-width conversion for Link,
+  and length fallback handling for Badge.
+
+============================================================
+
 - Match the rollback check to the unlocked private-copy and cleanup helpers
   used by replacement while the process lock is held.
 
