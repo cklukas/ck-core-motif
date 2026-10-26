@@ -58,6 +58,13 @@ Preserve MWM transient-list state on growth failure (2026-10-26)
 - Free the top-level list on terminator-growth failure and document the
   failure contract.
 
+Preserve MWM default-color cache on growth failure (2026-10-26)
+===============================================================
+
+- Bound default-color cache size arithmetic and grow it through a temporary
+  pointer, preserving cached entries when allocation fails.
+- Add a focused MWM regression and document the allocation contract.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 

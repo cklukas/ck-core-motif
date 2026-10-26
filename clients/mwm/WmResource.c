@@ -6153,10 +6153,16 @@ XmColorData * _WmGetDefaultColors (screen, colormap, defaultColor)
 
     if (count == size)
     {
-	int new_size = size + 10;
-	XmColorData *new_set =
-	    (XmColorData *)WmRealloc ((char *) defaultSet[setId],
-		                       sizeof (XmColorData) * new_size);
+	int new_size;
+	XmColorData *new_set;
+
+	if (size > INT_MAX - 10 ||
+	    (size_t)(size + 10) > UINT_MAX / sizeof(XmColorData))
+	    return (NULL);
+	new_size = size + 10;
+	new_set = (XmColorData *)XtRealloc(
+	    (char *)defaultSet[setId],
+	    (Cardinal)((size_t)new_size * sizeof(XmColorData)));
 	if (new_set == NULL)
 	    return (NULL);
 	size = defaultSize[setId] = new_size;
