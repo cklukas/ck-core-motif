@@ -90,8 +90,9 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmPromptWidget old = (XmPromptWidget)old_widget, prompt = (XmPromptWidget)widget;
     XmString replacement;
+    Boolean font_changed = old->prompt.font != prompt->prompt.font;
     (void)request; (void)args; (void)count;
-    if (old->prompt.font != prompt->prompt.font) {
+    if (font_changed) {
         XmRenderTable new_font = prompt->prompt.font ? XmFontListCopy(prompt->prompt.font) :
             XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
         if (old->prompt.font) XmRenderTableFree(old->prompt.font);
@@ -106,7 +107,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
             prompt->prompt.text = old->prompt.text;
         }
     }
-    return old->prompt.text != prompt->prompt.text ||
+    return font_changed || old->prompt.text != prompt->prompt.text ||
            old->prompt.visible != prompt->prompt.visible;
 }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,

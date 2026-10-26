@@ -70,6 +70,9 @@ themselves for redisplay when `XmNfontList` or `XmNrenderTable` changes at
 runtime. The regression check is
 `tests/automated/check-render-table-redraw.py`.
 
+Prompt also marks its own render-table changes for redisplay; this is covered
+by `tests/automated/check-prompt-render-redraw.py`.
+
 The first widget review was a bounded starting point. The age of the inherited
 code is a reason to continue targeted maintenance; neither a short patch list
 nor a large test count establishes that the toolkit is finished.
