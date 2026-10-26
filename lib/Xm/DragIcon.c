@@ -1203,13 +1203,18 @@ XmeGetTextualDragIcon(
     Arg args[10];
     int n = 0;
     Pixmap icon, icon_mask;
-    Screen *screen = XtScreen(w);
+    Screen *screen;
     XImage *image = NULL;
     Window      root;
     Widget screen_object;
     XmDisplay dpy;
     Boolean use_alt;
     XContext loc_context;
+
+    if (w == NULL)
+	return NULL;
+
+    screen = XtScreen(w);
     _XmWidgetToAppContext(w);
 
    _XmAppLock(app);
