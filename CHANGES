@@ -22665,3 +22665,9 @@ Bound DataField modify-verify temporary sizes (2026-10-26)
   conversion.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-datafield-modify-verify-size.py
+Bound DataField validation capacity arithmetic (2026-10-26)
+=============================================================
+- Check reserved validation capacity against signed, size, and Xt limits
+  before assigning `size_allocd` or multiplying by `sizeof(wchar_t)`.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-datafield-validate-capacity.py

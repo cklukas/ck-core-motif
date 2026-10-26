@@ -9083,7 +9083,14 @@ df_ValidateString(
        * instance pointer. */
       if (XmTextF_max_char_size(tf) == 1) {
          char *validated_value;
-         XmTextF_string_length(tf) = strlen(start_temp);
+         input_length = strlen(start_temp);
+         if (input_length > (size_t)INT_MAX - 30 ||
+             input_length > (size_t)UINT_MAX - 30)
+         {
+            XmStackFree((char *)start_temp, stack_cache);
+            return;
+         }
+         XmTextF_string_length(tf) = (int)input_length;
         /* malloc the space for the text value */
          validated_value = (char *)XtMalloc(
 			     (unsigned)(XmTextF_string_length(tf) + 30));
@@ -9103,8 +9110,9 @@ df_ValidateString(
       } else { /* Need wchar_t* data to set as the widget's value */
          /* count number of wchar's */
          input_length = strlen(start_temp);
-         if (input_length > (size_t)INT_MAX ||
-             input_length > (size_t)UINT_MAX - 30)
+         if (input_length > (size_t)INT_MAX - 30 ||
+             input_length > SIZE_MAX / sizeof(wchar_t) - 30 ||
+             input_length > (size_t)UINT_MAX / sizeof(wchar_t) - 30)
          {
             XmStackFree((char *)start_temp, stack_cache);
             return;
@@ -9185,6 +9193,11 @@ df_ValidateString(
 					 * with no font set... but what can
 					 * ya do? Spec says let it dump core. */
 
+      if ((size_t)str_len > (size_t)INT_MAX / sizeof(wchar_t) - 30 ||
+          (size_t)str_len > (size_t)UINT_MAX / sizeof(wchar_t) - 30) {
+         XmStackFree((char *)wcs_start_temp, stack_cache);
+         return;
+      }
       XmTextF_size_allocd(tf) = (str_len + 30) * sizeof(wchar_t);
       if (XmTextF_max_char_size(tf) == 1) { /* Need to store data as char* */
          XmTextF_value(tf) = XtMalloc((unsigned)XmTextF_size_allocd(tf));
