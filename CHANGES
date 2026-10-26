@@ -19732,3 +19732,10 @@ Bound Container first-column geometry (2026-10-27)
   `Dimension`, preventing deeply nested or large-metric layouts from wrapping
   to an incorrectly narrow first column.
 - Add focused regression coverage and documentation.
+Guard Text initialization storage (2026-10-26)
+================================================
+
+- Allocate the line, repaint, and highlight buffers transactionally before
+  publishing them to a Text widget, releasing partial allocations and
+  reporting an Xt error when storage cannot be obtained.
+- Add focused regression coverage and documentation.

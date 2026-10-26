@@ -179,6 +179,12 @@ static void InsertHighlight(XmTextWidget tw,
 			    XmTextPosition position,
 			    XmHighlightMode mode);
 
+/* Allocate the small, always-present buffers used by a text widget as one
+ * transaction.  InitializeHook publishes none of them until every
+ * allocation has succeeded, so an allocation failure cannot leave a widget
+ * with a partially initialized storage set. */
+static Boolean InitializeTextStorage(XmTextWidget tw);
+
 static void Initialize(Widget rw,
 		       Widget nw,
 		       ArgList args,
@@ -2303,6 +2309,49 @@ Initialize(Widget rw,
    newtw->text.tm_table = (XtTranslations)NULL;
 }
 
+static Boolean
+InitializeTextStorage(XmTextWidget tw)
+{
+  Line line;
+  RangeRec *range;
+  _XmHighlightRec *highlight;
+  _XmHighlightRec *old_highlight;
+
+  line = (Line) XtMalloc(sizeof(LineRec));
+  range = (RangeRec *) XtMalloc(sizeof(RangeRec));
+  highlight = (_XmHighlightRec *) XtMalloc(sizeof(_XmHighlightRec));
+  old_highlight = (_XmHighlightRec *) XtMalloc(sizeof(_XmHighlightRec));
+
+  if (line == NULL || range == NULL || highlight == NULL ||
+      old_highlight == NULL) {
+    XtFree((char *) line);
+    XtFree((char *) range);
+    XtFree((char *) highlight);
+    XtFree((char *) old_highlight);
+    return False;
+  }
+
+  line->start = PASTENDPOS;
+  line->changed = False;
+  line->changed_position = PASTENDPOS;
+  line->past_end = False;
+  line->extra = NULL;
+  tw->text.line = line;
+
+  tw->text.repaint.number = tw->text.repaint.maximum = 0;
+  tw->text.repaint.range = range;
+
+  tw->text.highlight.number = tw->text.highlight.maximum = 1;
+  highlight[0].position = 0;
+  highlight[0].mode = XmHIGHLIGHT_NORMAL;
+  tw->text.highlight.list = highlight;
+
+  tw->text.old_highlight.number = 0;
+  tw->text.old_highlight.maximum = 1;
+  tw->text.old_highlight.list = old_highlight;
+  return True;
+}
+
 /*
  * Create a text widget.  Note that most of the standard stuff is actually
  * to be done by the output create routine called here, since output is in
@@ -2383,23 +2432,10 @@ InitializeHook(Widget wid,
   tw->text.needs_refigure_lines = tw->text.needs_redisplay = TRUE;
   tw->text.number_lines = 0;
   tw->text.maximum_lines = 1;
-  tw->text.line = (Line) XtMalloc(sizeof(LineRec));
-  tw->text.line->start = PASTENDPOS;
-  tw->text.line->changed = False;
-  tw->text.line->changed_position = PASTENDPOS;
-  tw->text.line->past_end = False;
-  tw->text.line->extra = NULL;
-  tw->text.repaint.number = tw->text.repaint.maximum = 0;
-  tw->text.repaint.range = (RangeRec *) XtMalloc(sizeof(RangeRec));
-  tw->text.highlight.number = tw->text.highlight.maximum = 1;
-  tw->text.highlight.list = (_XmHighlightRec *)
-    XtMalloc(sizeof(_XmHighlightRec));
-  tw->text.highlight.list[0].position = 0;
-  tw->text.highlight.list[0].mode = XmHIGHLIGHT_NORMAL;
-  tw->text.old_highlight.number = 0;
-  tw->text.old_highlight.maximum = 1;
-  tw->text.old_highlight.list = (_XmHighlightRec *)
-    XtMalloc(sizeof(_XmHighlightRec));
+  if (!InitializeTextStorage(tw)) {
+    XtError("Unable to allocate Text widget storage");
+    return;
+  }
   tw->text.highlight_changed = FALSE;
   tw->text.on_or_off = on;
   tw->text.force_display = -1;
