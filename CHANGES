@@ -21547,3 +21547,11 @@ Guard MWM refresh after base-window teardown (2026-10-26)
   already been cleared during teardown.
 - Add focused regression coverage and documentation.
 
+Guard MWM refresh geometry conversions (2026-10-26)
+====================================================
+
+- Skip refresh-window creation when normal or maximized client dimensions are
+  non-positive, preventing negative signed geometry from becoming huge unsigned
+  X11 dimensions.
+- Add focused regression coverage and documentation.
+

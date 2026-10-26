@@ -4364,11 +4364,15 @@ Boolean F_Refresh_Win (String args, ClientData *pCD, XEvent *event)
     {
         if (pCD->clientState == NORMAL_STATE)
 	{
+	    if (pCD->clientWidth <= 0 || pCD->clientHeight <= 0)
+		return (True);
 	    w = (unsigned int) pCD->clientWidth;
 	    h = (unsigned int) pCD->clientHeight;
 	}
 	else
 	{
+	    if (pCD->maxWidth <= 0 || pCD->maxHeight <= 0)
+		return (True);
 	    w = (unsigned int) pCD->maxWidth;
 	    h = (unsigned int) pCD->maxHeight;
 	}
