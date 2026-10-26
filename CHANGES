@@ -62,6 +62,15 @@ Check DataField selection assembly allocations (2026-10-27)
   insertion, including Xt `Cardinal` size limits and NULL results.
 - Add focused regression coverage and documentation.
 
+============================================================
+
+Bound BaseClass resource-copy allocation (2026-10-27)
+======================================================
+
+- Apply the Xt `Cardinal` size bound when copying composite resource lists,
+  alongside the existing native multiplication check.
+- Add focused regression coverage and documentation.
+
 ===========================================================
 
 Propagate compound-text concatenation failures (2026-10-27)

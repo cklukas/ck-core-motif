@@ -1831,7 +1831,8 @@ _XmTransformSubResources(
      {
        XtResourceList tmp_resources;
 
-       if ((size_t)num_comp_resources > SIZE_MAX / sizeof(XtResource)) {
+       if ((size_t)num_comp_resources > SIZE_MAX / sizeof(XtResource) ||
+	   num_comp_resources > UINT_MAX / sizeof(XtResource)) {
 	 *resources = NULL;
 	 *num_resources = 0;
 	 return;
