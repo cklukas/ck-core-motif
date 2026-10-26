@@ -1709,8 +1709,12 @@ TextFieldDestinationCallback(Widget w,
   Atom atoms[XtNumber(atom_names)];
   XPoint *drop_point;
 
-  if (w == NULL || ds == NULL || ds->transfer_id == NULL)
+  if (w == NULL || ds == NULL || ds->transfer_id == NULL ||
+      ds->event == NULL) {
+    if (ds != NULL && ds->transfer_id != NULL)
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
     return;
+  }
 
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);

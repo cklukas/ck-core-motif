@@ -22550,3 +22550,9 @@ Fail malformed Text secondary transfers (2026-10-26)
   secondary-selection callbacks provide a usable transfer ID.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-secondary-transfer-failure.py
+Reject Text destination callbacks without events (2026-10-26)
+===============================================================
+- Validate destination callback event pointers before Text/TextField store
+  them for later selection operations.
+- Fail malformed active transfers and add focused regression coverage.
+Regression: tests/automated/check-text-destination-event.py
