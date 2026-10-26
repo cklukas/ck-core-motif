@@ -3674,7 +3674,16 @@ PreeditDone(XIC xic,
     if (need_verify) {
 	PreeditVerifyReplace(w, PreStartTW(tw), PreStartTW(tw), mb, 
                                 PreStartTW(tw), &end_preedit);
-        if (end_preedit) return;	
+        if (end_preedit) {
+          if (PreOverMaxLen(tw) != PreOverLen(tw))
+            XtFree(mb);
+          PreOverMaxLen(tw) = PreOverLen(tw) = 0;
+          XtFree((char *)PreOverStr(tw));
+          PreOverStr(tw) = NULL;
+          PreStartTW(tw) = PreEndTW(tw) = PreCursorTW(tw) = 0;
+          PreUnder(tw) = False;
+          return;
+        }
     }
     else {
 	(*tw->text.output->DrawInsertionPoint)(tw, tw->text.cursor_position,

@@ -22951,3 +22951,10 @@ Restore TextField PreeditDraw caret on allocation failure (2026-10-26)
   after the preedit update hides it.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-preedit-draw-caret.py
+
+Clean up XmText overstrike preedit verification (2026-10-26)
+==============================================================
+- Release temporary overstrike buffers and clear preedit state when a verify
+  callback ends a composition early.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-preedit-verify-cleanup.py
