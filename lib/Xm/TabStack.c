@@ -1166,6 +1166,9 @@ Resize(widget)
      */
     if( XtIsRealized(widget) )
     {
+	if (XmTabStack__gc(tab) == NULL)
+	    return;
+
 	if( stacked || size->x != -1 )
 	{
 	    if( active != NULL && XiBackgroundSpecified(active) )
@@ -1230,6 +1233,9 @@ Redisplay(widget, event, region)
     Widget                 active = XmTabStack__active_child(tab);
     int                    cnt = _XmTabbedStackListCount(XmTabStack__tab_list(tab));
     Boolean		   stacked = False;
+
+    if (XmTabStack__gc(tab) == NULL)
+	return;
 
     if( XmTabStack_stacked_effect(tab) && active != NULL &&
         (XmTabStack_tab_mode(tab) == XmTABS_STACKED ||
