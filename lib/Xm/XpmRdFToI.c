@@ -114,6 +114,9 @@ XpmReadFileToXpmImage(
     xpmData mdata;
     int ErrorStatus;
 
+    if (filename == NULL || image == NULL || info == NULL)
+	return XpmFileInvalid;
+
     /* init returned values */
     xpmInitXpmImage(image);
     xpmInitXpmInfo(info);

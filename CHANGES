@@ -15237,6 +15237,12 @@ Validate XPM file-to-data output (2026-10-27)
 - Add a focused source regression and documentation.
 
 Validate XPM file-buffer arguments (2026-10-27)
+Validate raw XPM-image output records (2026-10-27)
+====================================================
+
+- Reject null filename, image, and info arguments before output initialization.
+- Add a focused source regression and documentation.
+
 Validate XPM file-to-image arguments (2026-10-27)
 ===================================================
 
