@@ -226,6 +226,14 @@ Guard Text reflow scratch-table allocation (2026-10-27)
   a null table into the realignment path.
 - Add a focused source regression and documentation.
 
+Guard Text line-table export allocation (2026-10-27)
+====================================================
+
+- Validate exported line counts before sizing the public line-table copy.
+- Return an empty result on invalid counts or allocation failure instead of
+  multiplying a signed count into an unchecked Xt allocation.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 

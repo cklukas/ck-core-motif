@@ -3339,8 +3339,17 @@ _XmTextGetLineTable(Widget widget,
   XmTextLineTable line_table;
   
   *total_lines = tw->text.total_lines;
-  line_table = (XmTextLineTable) XtMalloc((unsigned) *total_lines *
-					  sizeof(XmTextLineTableRec));
+  if (*total_lines <= 0 ||
+      (size_t)*total_lines > SIZE_MAX / sizeof(XmTextLineTableRec) ||
+      (size_t)*total_lines > UINT_MAX / sizeof(XmTextLineTableRec))
+    return NULL;
+  line_table = (XmTextLineTable) XtMalloc(
+      (Cardinal)((size_t)*total_lines * sizeof(XmTextLineTableRec)));
+  if (line_table == NULL)
+    {
+      *total_lines = 0;
+      return NULL;
+    }
   
   memcpy((void *) line_table, (void *) tw->text.line_table,
 	 *total_lines * sizeof(XmTextLineTableRec));
