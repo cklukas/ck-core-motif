@@ -52,6 +52,9 @@ XpmCreateImageFromData(
     int ErrorStatus;
     xpmData mdata;
 
+    if (display == NULL || data == NULL || image_return == NULL)
+	return XpmFileInvalid;
+
     xpmInitXpmImage(&image);
     xpmInitXpmInfo(&info);
 
@@ -89,6 +92,9 @@ XpmCreateXpmImageFromData(
 {
     xpmData mdata;
     int ErrorStatus;
+
+    if (data == NULL || image == NULL || info == NULL)
+	return XpmFileInvalid;
 
     /* init returned values */
     xpmInitXpmImage(image);
