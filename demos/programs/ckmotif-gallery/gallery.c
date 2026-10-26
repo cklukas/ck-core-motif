@@ -52,6 +52,28 @@ static XmString text(const char *value) { return XmStringCreateLocalized((char *
 static const char welcome_id[] = "gallery.welcome";
 static const char icons_id[] = "gallery.icons";
 
+/* Keep the tab strip legible in the light profile without relying on the
+ * selected-state shadow.  ToggleButton's shadow is intentionally reserved
+ * for the active tab; inactive tabs still need a quiet, one-pixel outline. */
+static Pixel gallery_tab_outline(Widget widget)
+{
+    XColor exact, screen;
+    Colormap colormap = DefaultColormapOfScreen(XtScreen(widget));
+    Pixel background;
+
+    if (XAllocNamedColor(XtDisplay(widget), colormap, "#aeb7c2",
+                         &screen, &exact))
+        return screen.pixel;
+    XtVaGetValues(widget, XmNbackground, &background, NULL);
+    return background;
+}
+
+static void style_gallery_tab(Widget tab, Pixel outline)
+{
+    XtVaSetValues(tab, XmNborderWidth, 1, XmNborderColor, outline,
+                  XmNshadowThickness, 0, NULL);
+}
+
 /* Composite controls can negotiate larger sizes after realization or when
  * expanded. Keep their scrollable canvas in step with the actual allocation. */
 static void resize_preview(GalleryState *state)
@@ -1220,6 +1242,12 @@ int main(int argc, char **argv)
             state.tabs, XmNlabelString, text("Built-in Icons"), XmNindicatorOn, False,
             XmNfillOnSelect, True, XmNshadowThickness, 1, XmNhighlightThickness, 0,
             XmNmarginWidth, 14, XmNmarginHeight, 6, NULL);
+        {
+            Pixel outline = gallery_tab_outline(state.example_tab);
+            style_gallery_tab(state.example_tab, outline);
+            style_gallery_tab(state.source_tab, outline);
+            style_gallery_tab(state.icons_tab, outline);
+        }
         XtAddCallback(state.example_tab, XmNvalueChangedCallback, select_tab, &state);
         XtAddCallback(state.source_tab, XmNvalueChangedCallback, select_tab, &state);
         XtAddCallback(state.icons_tab, XmNvalueChangedCallback, select_tab, &state);

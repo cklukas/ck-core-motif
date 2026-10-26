@@ -771,7 +771,8 @@ XmStringToXmStringTable(XmString string,
 	 XmSTRING_COMPONENT_END)
     {
       if ((type == b_type) && (len == b_len) &&
-	  ((len == 0) || (memcmp(val, b_val, len) == 0)))
+	  ((len == 0) ||
+	   (val != NULL && b_val != NULL && memcmp(val, b_val, len) == 0)))
 	count++;
     }
 
@@ -806,7 +807,8 @@ XmStringToXmStringTable(XmString string,
 	     XmSTRING_COMPONENT_END)
 	{
 	  if ((type == b_type) && (len == b_len) &&
-	      ((len == 0) || (memcmp(val, b_val, len) == 0)))
+	      ((len == 0) ||
+	       (val != NULL && b_val != NULL && memcmp(val, b_val, len) == 0)))
 	    {
 	      /* make XmString from start to end */
 	      (*table)[i] = MakeStr(&stack_start, &stack_context);

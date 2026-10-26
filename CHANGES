@@ -1,3 +1,12 @@
+Gallery view-tab outlines (2026-10-27)
+=====================================
+
+- Give Example, Source, and Built-in Icons a quiet one-pixel gray outline so
+  inactive views remain visibly framed in the light theme.
+- Add a focused source regression and documentation.
+
+================================================
+
 Guard zero-length compound-text append (2026-10-27)
 ====================================================
 
@@ -16212,3 +16221,13 @@ Bound proposed tab-list counters (2026-10-27)
 ================================================
 
 Bound XmString newline entry count (2026-10-27)
+Guard XmString table component pointers (2026-10-27)
+====================================================
+
+- Validate both component pointers before non-empty `memcmp` operations in
+  the XmString table splitter.
+- Add a focused source regression and documentation.
+
+====================================================
+
+Bound proposed tab-list counters (2026-10-27)
