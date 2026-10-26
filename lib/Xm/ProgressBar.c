@@ -296,20 +296,20 @@ void XmProgressBarGetRange(Widget widget, int *minimum, int *maximum) {
     XmProgressBarWidget progress;
     if (minimum) *minimum = 0;
     if (maximum) *maximum = 0;
-    if (!XmIsProgressBar(widget)) return;
+    if (widget == NULL || !XmIsProgressBar(widget)) return;
     progress = (XmProgressBarWidget)widget;
     if (minimum) *minimum = progress->progress.minimum;
     if (maximum) *maximum = progress->progress.maximum;
 }
 int XmProgressBarGetValue(Widget widget) {
-    return XmIsProgressBar(widget)
+    return widget != NULL && XmIsProgressBar(widget)
         ? ((XmProgressBarWidget)widget)->progress.value : 0;
 }
 void XmProgressBarSetRange(Widget widget, int minimum, int maximum,
                            Boolean notify) {
     XmProgressBarWidget progress;
     int old_min, old_max, old_value;
-    if (!XmIsProgressBar(widget)) return;
+    if (widget == NULL || !XmIsProgressBar(widget)) return;
     progress = (XmProgressBarWidget)widget;
     old_min = progress->progress.minimum; old_max = progress->progress.maximum;
     old_value = progress->progress.value;
@@ -325,7 +325,7 @@ void XmProgressBarSetRange(Widget widget, int minimum, int maximum,
 void XmProgressBarSetValue(Widget widget, int value, Boolean notify) {
     XmProgressBarWidget progress;
     int old_value;
-    if (!XmIsProgressBar(widget)) return;
+    if (widget == NULL || !XmIsProgressBar(widget)) return;
     progress = (XmProgressBarWidget)widget; old_value = progress->progress.value;
     progress->progress.value = value; Normalize(progress);
     if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget),
@@ -333,14 +333,14 @@ void XmProgressBarSetValue(Widget widget, int value, Boolean notify) {
     if (notify && old_value != progress->progress.value) Notify(progress, NULL);
 }
 Boolean XmProgressBarGetIndeterminate(Widget widget) {
-    return XmIsProgressBar(widget)
+    return widget != NULL && XmIsProgressBar(widget)
         ? ((XmProgressBarWidget)widget)->progress.indeterminate : False;
 }
 void XmProgressBarSetIndeterminate(Widget widget, Boolean indeterminate,
                                    Boolean notify) {
     XmProgressBarWidget progress;
     Boolean old;
-    if (!XmIsProgressBar(widget)) return;
+    if (widget == NULL || !XmIsProgressBar(widget)) return;
     progress = (XmProgressBarWidget)widget; old = progress->progress.indeterminate;
     progress->progress.indeterminate = indeterminate ? True : False;
     if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget),
