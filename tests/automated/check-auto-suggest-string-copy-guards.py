@@ -9,6 +9,7 @@ region = source[start:end]
 
 assert "if (!text)" in region
 assert "XmStringCreateLocalized(text)" in region
+assert "(size_t)count > (size_t)UINT_MAX / sizeof(*box->auto_suggest.items)" in source
 assert "if (!box->auto_suggest.items)" in source
 assert "if (!box->auto_suggest.items[i].id || !label)" in source
 assert "box->auto_suggest.item_count = i + 1" in source

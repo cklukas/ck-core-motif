@@ -10,6 +10,8 @@
 #include <Xm/SearchBox.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
+#include <limits.h>
+#include <stdint.h>
 #include <string.h>
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
@@ -406,6 +408,11 @@ Boolean XmAutoSuggestBoxSetSuggestions(Widget widget,
     free_items(box);
     XmListDeleteAllItems(box->auto_suggest.list);
     if (count) {
+        if ((size_t)count > SIZE_MAX / sizeof(*box->auto_suggest.items) ||
+            (size_t)count > (size_t)UINT_MAX / sizeof(*box->auto_suggest.items)) {
+            box->auto_suggest.no_results = True;
+            return False;
+        }
         box->auto_suggest.items = (XmAutoSuggestStoredItem *)XtCalloc(
             count, sizeof(*box->auto_suggest.items));
         if (!box->auto_suggest.items) {
