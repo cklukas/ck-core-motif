@@ -735,6 +735,7 @@ FetchPixmap(
    /* fetch only if a mask has not been specified in the resource slot */
    if (*(Pixmap *)mask_addr == XmUNSPECIFIED_PIXMAP) {
        String mask_name;
+       size_t image_name_length;
 
        /* Fetch the mask out of image_name and ask for it.
 	  ImageCache:
@@ -744,7 +745,13 @@ FetchPixmap(
 	  specified for image_name. When an XPM file with a mask 
 	  in it is read, the mask is cached with mask_name. */
 
-       mask_name = XtMalloc(strlen(image_name) + 3);
+       if (image_name == NULL)
+           return;
+       image_name_length = strlen(image_name);
+       if (image_name_length > SIZE_MAX - 3 ||
+           image_name_length > (size_t)UINT_MAX - 3)
+           return;
+       mask_name = XtMalloc((Cardinal)(image_name_length + 3));
        if (mask_name == NULL)
            return;
        _XmOSGenerateMaskName(image_name, mask_name) ;

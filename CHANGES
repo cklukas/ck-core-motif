@@ -259,6 +259,15 @@ Bound XmString segment copy sizes (2026-10-27)
 - Preserve the existing failure cleanup for copied tags and text.
 - Add a focused source regression and documentation.
 
+Bound IconG mask-name allocation (2026-10-27)
+=============================================
+
+- Validate icon image-name length before adding mask suffix space and
+  narrowing the allocation to Xt's type.
+- Treat a missing or unrepresentable image name as an unavailable mask rather
+  than issuing an overflowing allocation request.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
