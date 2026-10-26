@@ -2247,6 +2247,9 @@ GetGCForPutImage(Screen *screen,
     if (caller_owns_gc != NULL)
 	*caller_owns_gc = False;
 
+    if (screen == NULL || image == NULL || pixmap == None)
+	return (GC) NULL;
+
     /* There is a problem here: we cannot simply use the xmScreen object
      * to store the GCs, for the pixmap conversion can be called
      * at a time the xmScreen is not yet available: a conversion
