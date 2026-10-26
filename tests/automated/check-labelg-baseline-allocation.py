@@ -15,6 +15,7 @@ assert "if (*baselines == NULL)" in region
 assert "if (count == 0)" in region
 assert "count > (Cardinal)INT_MAX" in region
 assert "(size_t)count >= SIZE_MAX / sizeof(*new_baselines)" in region
+assert "(size_t)count >= (size_t)UINT_MAX / sizeof(*new_baselines)" in region
 assert "((size_t)count + 1) * sizeof(*new_baselines)" in region
 assert "Cardinal tmp;" in region
 

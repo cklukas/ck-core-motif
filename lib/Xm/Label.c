@@ -2635,7 +2635,8 @@ XmLabelGetBaselines(Widget wid,
 			    &(lw->label.baselines), &count);
       if (lw->label.baselines == NULL || count == (Cardinal)-1 ||
           count > (Cardinal)INT_MAX ||
-	  (size_t)count >= SIZE_MAX / sizeof(*new_baselines)) {
+	  (size_t)count >= SIZE_MAX / sizeof(*new_baselines) ||
+	  (size_t)count >= (size_t)UINT_MAX / sizeof(*new_baselines)) {
 	  lw->label.baselines = NULL;
 	  return False;
       }

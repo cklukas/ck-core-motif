@@ -5,9 +5,10 @@ nav_exclude: true
 
 Label and LabelGadget cache one extra baseline offset after the baselines
 returned by the compound-string code.  Their overflow check now tests the
-original `Cardinal` count before adding that extra element.  This avoids the
-old `count + 1` wraparound being evaluated in the narrow `Cardinal` type and
-then incorrectly accepted for reallocation.
+original `Cardinal` count before adding that extra element, and checks both
+host `size_t` and Xt's `Cardinal` allocation width.  This avoids the old
+`count + 1` wraparound being evaluated in the narrow `Cardinal` type and then
+incorrectly accepted for reallocation.
 
 The offset-adjustment loop also uses a `Cardinal` index, so a valid wide
 baseline table cannot wrap a signed counter while applying the cached delta.
