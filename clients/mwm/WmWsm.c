@@ -45,6 +45,9 @@ GetPCD (
 
   if (XQueryTree(DISPLAY, win & WIN_MASK, &root, &parent,
 		 &children, &nchildren))
+    {
+      if (children != NULL)
+	XFree ((char *)children);
 
     if (XFindContext (DISPLAY, parent, wmGD.windowContextType,
 		      (XPointer *)&pCD))
@@ -57,6 +60,8 @@ GetPCD (
 	    if (!XQueryTree(DISPLAY, win, &root, &parent,
 			    &children, &nchildren))
 	      break;
+	    if (children != NULL)
+	      XFree ((char *)children);
 	    foundIt =
 	      (XFindContext (DISPLAY, parent, wmGD.windowContextType,
 			     (XPointer *)&pCD) == 0);
@@ -64,6 +69,7 @@ GetPCD (
 
 	if (!foundIt) pCD = NULL;
       }
+    }
 
   return (pCD);
 }

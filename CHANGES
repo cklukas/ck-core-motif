@@ -21369,3 +21369,9 @@ Validate MWM bindings-property request status (2026-10-26)
 GetBindingsProperty now requires XGetWindowProperty to return Success before
 accepting the root-window binding string, and releases any failed result.
 
+Release MWM workspace-tree query results (2026-10-26)
+------------------------------------------------------
+GetPCD now frees the child-list allocation returned by every successful
+XQueryTree call while walking parent windows, preventing a per-lookup X11
+allocation leak.
+
