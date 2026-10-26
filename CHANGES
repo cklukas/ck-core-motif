@@ -20288,3 +20288,10 @@ Avoid nested application locking in XmCommandError (2026-10-26)
 
 - Let command error history updates call the public list APIs without an
   outer application lock.
+
+Guard text-field selection extraction allocations (2026-10-26)
+===============================================================
+
+- Reject reversed or unrepresentable selection ranges and handle allocation
+  failure before copying narrow or wide selection data; clamp conversion
+  output before adding the terminator.

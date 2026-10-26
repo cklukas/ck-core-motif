@@ -10782,6 +10782,7 @@ char *
 XmTextFieldGetSelection(Widget w)
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
+  size_t allocation_bytes;
   size_t length, num_chars;
   char *value;
   _XmWidgetToAppContext(w);
@@ -10792,17 +10793,40 @@ XmTextFieldGetSelection(Widget w)
     _XmAppUnlock(app);
     return NULL;
   }
+  if (tf->text.prim_pos_right < tf->text.prim_pos_left) {
+    _XmAppUnlock(app);
+    return NULL;
+  }
   num_chars = (size_t) (tf->text.prim_pos_right - tf->text.prim_pos_left);
   length = num_chars;
   if (tf->text.max_char_size == 1) {
-    value = XtMalloc((unsigned) num_chars + 1);
-    (void) memcpy((void*)value, 
-		  (void*)(TextF_Value(tf) + tf->text.prim_pos_left), 
+    if (num_chars == SIZE_MAX || num_chars + 1 > UINT_MAX) {
+      _XmAppUnlock(app);
+      return NULL;
+    }
+    allocation_bytes = num_chars + 1;
+  } else {
+    if (tf->text.max_char_size <= 0 ||
+	 num_chars == SIZE_MAX ||
+	 num_chars + 1 > SIZE_MAX / (size_t)tf->text.max_char_size ||
+	 num_chars + 1 > UINT_MAX / (size_t)tf->text.max_char_size) {
+      _XmAppUnlock(app);
+      return NULL;
+    }
+    allocation_bytes = (num_chars + 1) * (size_t)tf->text.max_char_size;
+  }
+  value = XtMalloc((Cardinal)allocation_bytes);
+  if (value == NULL) {
+    _XmAppUnlock(app);
+    return NULL;
+  }
+  if (tf->text.max_char_size == 1) {
+    (void) memcpy((void*)value,
+		  (void*)(TextF_Value(tf) + tf->text.prim_pos_left),
 		  num_chars);
   } else {
-    value = XtMalloc((unsigned) ((num_chars + 1) * tf->text.max_char_size));
     length = wcstombs(value, TextF_WcValue(tf) + tf->text.prim_pos_left, 
-		      (num_chars + 1) * tf->text.max_char_size);
+		      allocation_bytes);
     if (length == (size_t) -1) {
       length = 0;
     } else {
@@ -10824,6 +10848,8 @@ XmTextFieldGetSelection(Widget w)
       if (num_chars == 0)
         length = converted;
     }
+    if (length >= allocation_bytes)
+      length = allocation_bytes - 1;
   }
   value[length] = (char)'\0';
   _XmAppUnlock(app);
@@ -10845,12 +10871,22 @@ XmTextFieldGetSelectionWcs(Widget w)
     _XmAppUnlock(app);
     return NULL;
   }
+  if (tf->text.prim_pos_right < tf->text.prim_pos_left) {
+    _XmAppUnlock(app);
+    return NULL;
+  }
   length = (size_t) (tf->text.prim_pos_right - tf->text.prim_pos_left);
-  if (length > SIZE_MAX / sizeof(wchar_t) - 1) {
+  if (length == SIZE_MAX ||
+      length + 1 > SIZE_MAX / sizeof(wchar_t) ||
+      length + 1 > UINT_MAX / sizeof(wchar_t)) {
     _XmAppUnlock(app);
     return NULL;
   }
   wc_value = (wchar_t*)XtMalloc((length + 1) * sizeof(wchar_t));
+  if (wc_value == NULL) {
+    _XmAppUnlock(app);
+    return NULL;
+  }
   
   if (tf->text.max_char_size == 1) {
     return_val = mbstowcs(wc_value, TextF_Value(tf) + tf->text.prim_pos_left, 

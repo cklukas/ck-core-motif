@@ -36,3 +36,8 @@ outer application lock. Their focused check is
 setter. Invalid wide-character conversion now clears the allocated buffer
 instead of replacing it with, and later freeing, a string literal. The
 regression is `tests/automated/check-textfield-wide-set-locking.py`.
+
+Selection extraction now checks position ordering, `Cardinal`-sized allocation
+limits, conversion-output bounds, and allocator results for both narrow and
+wide output. The focused source check is
+`tests/automated/check-textfield-selection-allocation.py`.
