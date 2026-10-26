@@ -971,15 +971,27 @@ LoadVendorBindings(Display *display,
   char *vendor;
   char *vendorV;
   char *ptr;
+  size_t vendor_length;
+  size_t vendor_capacity;
+  int vendor_written;
   char *start;
   
   vendor = ServerVendor(display);
   if (vendor == NULL)
     return;
-  vendorV = XtMalloc (strlen(vendor) + 20); /* assume rel.# is < 19 digits */
+  vendor_length = strlen(vendor);
+  if (vendor_length > (size_t)UINT_MAX - 32)
+    return;
+  vendor_capacity = vendor_length + 32;
+  vendorV = XtMalloc ((Cardinal)vendor_capacity);
   if (vendorV == NULL)
     return;
-  sprintf (vendorV, "%s %d", vendor, VendorRelease(display));
+  vendor_written = snprintf(vendorV, vendor_capacity, "%s %d", vendor,
+                             VendorRelease(display));
+  if (vendor_written < 0 || (size_t)vendor_written >= vendor_capacity) {
+    XtFree(vendorV);
+    return;
+  }
   
   while (fgets (buffer, MAXLINE, fp) != NULL) 
     {

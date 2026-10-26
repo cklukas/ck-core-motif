@@ -1,3 +1,11 @@
+Bound virtual-key vendor formatting (2026-10-27)
+================================================
+
+- Validate the X server vendor-string length before allocating the alias
+  buffer, and replace the fixed-size `sprintf` assumption with checked
+  `snprintf` formatting.
+- Add a focused source regression and documentation.
+
 Make text selection conversion linear (2026-10-27)
 ===================================================
 
