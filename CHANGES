@@ -18151,6 +18151,14 @@ Refresh WSM target-cache regression check (2026-10-27)
 Refresh WSM nested-window ownership regression check (2026-10-27)
 =================================================================
 
+Refresh WSM window rollback regression check (2026-10-27)
+==========================================================
+
+- Allow the focused check to cover the additional match-attribute failure
+  cleanup path while retaining the required property-array rollback guards.
+
+==========================================================
+
 - Match the focused allocation assertion to the current checked `size_t`
   multiplication and explicit null initialization for nested window arrays.
 
