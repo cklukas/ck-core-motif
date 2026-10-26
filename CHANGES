@@ -1,3 +1,9 @@
+Use integer-zero XContext checks in DragIcon (2026-10-27)
+==========================================================
+
+- Remove pointer-to-integer casts from the per-display drag-icon context.
+- Add a focused source regression.
+
 Use integer-zero XContext checks in DragBS (2026-10-27)
 =======================================================
 

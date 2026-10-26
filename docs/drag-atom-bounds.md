@@ -15,3 +15,6 @@ the entry index is supplied by a large or corrupted table.
 
 The per-display `XContext` IDs are initialized and tested as integer IDs,
 avoiding pointer-to-integer diagnostics on 64-bit builds.
+
+The drag-icon context uses the same integer-zero convention, so related
+per-display state also compiles without pointer-to-integer diagnostics.
