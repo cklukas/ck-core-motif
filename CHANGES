@@ -21397,3 +21397,8 @@ Slide-up setup now clears its pending slide record and returns when the
 temporary cover window cannot be created, avoiding invalid X requests while
 leaving the client mapped.
 
+Handle MWM refresh-window creation failure (2026-10-26)
+---------------------------------------------------------
+F_Refresh and F_Refresh_Win now skip their temporary repaint-window requests
+when XCreateWindow fails, preserving a successful no-op refresh result.
+

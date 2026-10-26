@@ -3366,6 +3366,9 @@ Boolean F_Refresh (String args, ClientData *pCD, XEvent *event)
 	                 0, 
 			 (XSetWindowAttributes *)NULL);   
 
+    if (win == None)
+	return (True);
+
     XMapWindow (DISPLAY, win);
     XDestroyWindow (DISPLAY, win);
 #ifdef WSM 
@@ -4389,6 +4392,9 @@ Boolean F_Refresh_Win (String args, ClientData *pCD, XEvent *event)
                          CopyFromParent,
 	                 0, 
 			 (XSetWindowAttributes *)NULL);  
+
+	if (win == None)
+	    return (True);
 
         XMapWindow (DISPLAY, win);
         XDestroyWindow (DISPLAY, win);
