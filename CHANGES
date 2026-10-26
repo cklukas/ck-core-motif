@@ -1,3 +1,12 @@
+Guard scroll-visible widget inputs (2026-10-27)
+===============================================
+
+- Validate both widget arguments to `XmScrollVisible` before casting or
+  entering application-context code.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard focus-shell query input (2026-10-27)
 ==========================================
 

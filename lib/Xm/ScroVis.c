@@ -60,7 +60,7 @@ XmScrollVisible(
  *   position and the scrolledwindow clipwindow.
 **********************/
 {
-    XmScrolledWindowWidget sw = (XmScrolledWindowWidget) scrw ;
+    XmScrolledWindowWidget sw ;
     register 
     Position newx, newy,      /* new workwindow position */
              wx, wy  ;        /* current workwindow position */
@@ -72,6 +72,10 @@ XmScrollVisible(
     Widget w ;
     XmScrolledWindowConstraint swc;
     XmNavigatorDataRec nav_data ;
+    if (scrw == (Widget) NULL || wid == (Widget) NULL)
+        return;
+
+    sw = (XmScrolledWindowWidget) scrw ;
     _XmWidgetToAppContext(scrw);
 
     _XmAppLock(app);
