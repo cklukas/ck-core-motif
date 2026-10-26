@@ -10159,6 +10159,14 @@ df_HandleDrop(
     XtSetArg(args[n], XmNexportTargets, &exportTargets); n++;
     XtSetArg(args[n], XmNnumExportTargets, &numExportTargets); n++;
     XtGetValues((Widget) drag_cont, args, n);
+
+    if (numExportTargets != 0 && exportTargets == NULL) {
+       n = 0;
+       XtSetArg(args[n], XmNtransferStatus, XmTRANSFER_FAILURE); n++;
+       XtSetArg(args[n], XmNnumDropTransfers, 0); n++;
+       XmDropTransferStart(drag_cont, args, n);
+       return;
+    }
     
     insert_pos = df_GetPosFromX((XmDataFieldWidget) w, cb->x);
 

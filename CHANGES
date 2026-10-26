@@ -22605,3 +22605,9 @@ Clean up malformed DataField transfer metadata (2026-10-26)
   missing, and fail the transfer when its widget is available.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-datafield-drop-metadata-cleanup.py
+Reject missing DataField export targets (2026-10-26)
+====================================================
+- Fail DataField drops when the drag context reports a non-zero target count
+  without providing an export-target array.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-datafield-export-targets.py
