@@ -20802,3 +20802,8 @@ Guard MWM frame-part geometry inputs (2026-10-26)
 GetFramePartInfo now rejects a null client record or missing output pointers
 before reading decoration state or writing geometry.  Existing valid callers
 retain the same frame-part calculations while malformed requests fail safely.
+
+Guard MWM frame-part hit-test inputs (2026-10-26)
+--------------------------------------------------
+IdentifyFramePart now returns FRAME_NONE for a null client record before
+reading frame state.  Normal event hit testing is unchanged.

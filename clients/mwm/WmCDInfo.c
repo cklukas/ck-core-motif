@@ -998,10 +998,17 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 
 int IdentifyFramePart (ClientData *pCD, int x, int y)
 {
-    unsigned long decor = pCD->decor;
-    int clientWidth = (pCD->maxConfig) ? pCD->maxWidth : pCD->clientWidth;
-    int clientHeight= (pCD->maxConfig) ? pCD->maxHeight : pCD->clientHeight;
+    unsigned long decor;
+    int clientWidth;
+    int clientHeight;
     int rval;
+
+    if (pCD == NULL)
+	return (FRAME_NONE);
+
+    decor = pCD->decor;
+    clientWidth = (pCD->maxConfig) ? pCD->maxWidth : pCD->clientWidth;
+    clientHeight = (pCD->maxConfig) ? pCD->maxHeight : pCD->clientHeight;
 
 
     /* check for client window */
