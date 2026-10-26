@@ -163,6 +163,13 @@ Guard MWM all-client query conversion (2026-10-26)
   data, and make the returned XID length conversion explicit.
 - Add a focused query-conversion regression and document the guards.
 
+Correct MWM TARGETS selection length (2026-10-26)
+=================================================
+
+- Report the Atom item count for format-32 TARGETS replies instead of using
+  host `sizeof(Atom)` byte arithmetic, which over-reported 64-bit lengths.
+- Add a focused selection-length regression and document the wire contract.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 

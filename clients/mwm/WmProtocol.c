@@ -1391,7 +1391,7 @@ WMiConvert (
       *targs++ = wmGD._MOTIF_WM_AUTOMATION;			 targetCount++;
       
       *outputType   = XA_ATOM;
-      *outputLen = (targetCount * sizeof(Atom)) >> 2;
+      *outputLen = (unsigned long)targetCount;
       *outputFmt = 32;
       
       found = True;
