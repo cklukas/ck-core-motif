@@ -22042,3 +22042,13 @@ Reject invalid transfer targets (2026-10-26)
 
 Validate transfer selection-callback state (2026-10-26)
 ========================================================
+Bound transfer request counters (2026-10-26)
+=============================================
+
+- Refuse new transfer requests when the signed `count` or `outstanding`
+  counter reaches `INT_MAX`, preventing wraparound from corrupting completion
+  and cleanup state.
+- Add focused regression coverage and documentation.
+
+Reject invalid transfer targets (2026-10-26)
+============================================

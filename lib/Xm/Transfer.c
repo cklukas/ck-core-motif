@@ -1777,6 +1777,11 @@ XmTransferValue(XtPointer transfer_id,
 	return;  
   }
 
+  if (tc -> count == INT_MAX || tc -> outstanding == INT_MAX) {
+	_XmAppUnlock(app);
+	return;
+  }
+
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(tc -> widget), atom_names, XtNumber(atom_names), 
 	       False, atoms); 
