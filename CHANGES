@@ -22750,3 +22750,9 @@ Guard TextField transfer callback inputs (2026-10-26)
   drop handling.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-transfer-inputs.py
+Bound TextField insertion conversion lengths (2026-10-26)
+===========================================================
+- Check external selection lengths and temporary byte/wide-character
+  allocations before TextField insertion conversion.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-insert-length.py

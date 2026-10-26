@@ -292,6 +292,14 @@ InsertSelection(
       XtFree(total_value);
     }
   } else { /* it must be either TEXT or codeset of the locale */
+    if (*length > (unsigned long)INT_MAX ||
+        (tf->text.max_char_size != 1 &&
+         *length > (unsigned long)UINT_MAX / sizeof(wchar_t) - 1)) {
+      XtFree((char *)value);
+      insert_select->done_status = True;
+      insert_select->success_status = False;
+      return;
+    }
     if (tf->text.max_char_size == 1) {
       /* NOTE: casting *length could result in a truncated long. */
       num_chars = *length;
@@ -301,11 +309,24 @@ InsertSelection(
 					    (unsigned)*length, True);
     } else {
       temp = XtMalloc((unsigned) *length + 1);
+      if (temp == NULL) {
+        XtFree((char *)value);
+        insert_select->done_status = True;
+        insert_select->success_status = False;
+        return;
+      }
       /* NOTE: casting *length could result in a truncated long. */
       (void)memcpy((void*)temp, (void*)value, (size_t)*length);
       temp[*length] = '\0';
       wc_value = (wchar_t*)XtMalloc((unsigned)
 				    (*length + 1) * sizeof(wchar_t));
+      if (wc_value == NULL) {
+        XtFree(temp);
+        XtFree((char *)value);
+        insert_select->done_status = True;
+        insert_select->success_status = False;
+        return;
+      }
       
       /* NOTE: casting *length could result in a truncated long. */
       num_chars = mbstowcs(wc_value, temp, (unsigned)*length + 1);
