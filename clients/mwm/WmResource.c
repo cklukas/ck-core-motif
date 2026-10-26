@@ -5859,6 +5859,9 @@ GC GetHighlightGC (WmScreenData *pSD, Pixel fg, Pixel bg, Pixmap pixmap)
     XGCValues gcv;
     XtGCMask  mask;
 
+    if (pSD == NULL || pSD->screenTopLevelW == NULL)
+	return (GC)NULL;
+
 
     mask = GCForeground | GCBackground | GCLineWidth | GCFillStyle;
     gcv.background = bg;

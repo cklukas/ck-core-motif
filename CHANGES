@@ -21346,3 +21346,9 @@ MakeIconPixmap now uses screen icon appearance colors when a masked icon is
 constructed without a client record. The WSM fallback no longer dereferences
 ICON_APPEARANCE(NULL).
 
+Guard MWM highlight-GC screen state (2026-10-26)
+--------------------------------------------------
+GetHighlightGC now validates the screen record and top-level widget before
+requesting an Xt GC. Resource setup failures return NULL cleanly for callers
+that already handle unavailable graphics contexts.
+
