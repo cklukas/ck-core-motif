@@ -16153,3 +16153,13 @@ Bound compound-text CSI lookahead (2026-10-27)
 ================================================
 
 Bound extended compound-text segments (2026-10-27)
+Bound XmString tag-cache length conversion (2026-10-27)
+========================================================
+
+- Validate sentinel-length tag strings before narrowing `strlen` results to
+  the cache API’s legacy `int` length parameter.
+- Add a focused source regression and documentation.
+
+========================================================
+
+Bound compound-text CSI lookahead (2026-10-27)

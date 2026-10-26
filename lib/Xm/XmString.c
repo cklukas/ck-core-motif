@@ -1196,6 +1196,7 @@ _XmStringIndexCacheTag(XmStringTag tag,
 {   
   char *a;
   register int i;
+  size_t tag_length;
 
   if (tag == NULL || length < 0)
     return 0;
@@ -1239,7 +1240,15 @@ _XmStringIndexCacheTag(XmStringTag tag,
     }
 
   /* Add this entry to the cache. */
-  if (length == XmSTRING_TAG_STRLEN) length = strlen(tag);
+  if (length == XmSTRING_TAG_STRLEN) {
+    tag_length = strlen(tag);
+    if (tag_length > (size_t)INT_MAX ||
+        tag_length >= (size_t)UINT_MAX) {
+      _XmProcessUnlock();
+      return 0;
+    }
+    length = (int)tag_length;
+  }
 
   if (_cache_count == INT_MAX ||
       (size_t)(_cache_count + 1) > SIZE_MAX / sizeof(char *) ||
