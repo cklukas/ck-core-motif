@@ -1230,7 +1230,8 @@ Replace(XmTextWidget initiator,
   register int i;
   register long delta;
   register int block_num_chars;  /* number of characters in the block */
-  int gap_size;
+  size_t gap_size, gap_start_offset, gap_end_offset, end_byte_offset;
+  size_t removed_bytes;
   int old_maxlength;
   char *resized_ptr;
   XmTextUnicodeMap *replacement_map = NULL;
@@ -1241,6 +1242,10 @@ Replace(XmTextWidget initiator,
   if (*start == *end && block->length == 0) return EditReject;
   
   _XmTextValidate(start, end, data->length);
+	if (!TextSourceByteOffset(data, *end, (size_t)char_size,
+				   &end_byte_offset))
+	return EditError;
+	removed_bytes = (size_t)(*end - *start) * (size_t)char_size;
   
   block_num_chars = _XmTextCountCharacters(block->ptr, block->length);
   delta = block_num_chars - (*end - *start);
@@ -1272,8 +1277,6 @@ Replace(XmTextWidget initiator,
   
   old_maxlength = data->maxlength;
   if (data->length + delta >= data->maxlength) {
-    int gap_start_offset, gap_end_offset;
-    
     while (data->length + delta >= data->maxlength) {
 	if (data->maxlength <= 0 ||
 	    (data->maxlength < TEXT_INCREMENT &&
@@ -1297,8 +1300,8 @@ Replace(XmTextWidget initiator,
 	data->maxlength += TEXT_INCREMENT;
     }
     
-    gap_start_offset = data->gap_start - data->ptr;
-    gap_end_offset = data->gap_end - data->ptr;
+    gap_start_offset = (size_t)(data->gap_start - data->ptr);
+    gap_end_offset = (size_t)(data->gap_end - data->ptr);
 	if (char_size <= 0 ||
 	    (size_t)data->maxlength >
 	      (size_t)UINT_MAX / (size_t)char_size) {
@@ -1331,10 +1334,10 @@ Replace(XmTextWidget initiator,
 	data->ptr = resized_ptr;
 	data->gap_start = data->ptr + gap_start_offset;
 	data->gap_end = data->ptr + gap_end_offset +
-      (char_size * (data->maxlength - old_maxlength));
-    if (gap_end_offset != (old_maxlength * char_size))
+      ((size_t)char_size * (size_t)(data->maxlength - old_maxlength));
+    if (gap_end_offset != ((size_t)old_maxlength * (size_t)char_size))
       memmove(data->gap_end, data->ptr + gap_end_offset, 
-	      (char_size * old_maxlength) - gap_end_offset);
+	      ((size_t)old_maxlength * (size_t)char_size) - gap_end_offset);
     /* Do something to move the allocated space into the buffer */
   } 
   
@@ -1378,8 +1381,8 @@ Replace(XmTextWidget initiator,
   /* delete data */
   gap_size = data->gap_end - data->gap_start;
   /* expand the end of the gap to the right */
-  if ((data->ptr + gap_size + (*end * char_size)) > data->gap_end)
-    data->gap_end += ((*end - *start) * char_size);
+  if ((data->ptr + gap_size + end_byte_offset) > data->gap_end)
+    data->gap_end += removed_bytes;
   
   /* add data */
   /* copy the data into the gap_start and increment the gap start pointer */
@@ -1391,8 +1394,8 @@ Replace(XmTextWidget initiator,
     }
     
   } else {
-    data->gap_start += char_size * 
-      _XmTextBytesToCharacters(data->gap_start,
+	data->gap_start += (size_t)char_size *
+	  (size_t)_XmTextBytesToCharacters(data->gap_start,
 			       &block->ptr[0], 
 			       block_num_chars, False,
 			       (int)initiator->text.char_size);

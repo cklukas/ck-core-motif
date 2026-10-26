@@ -1,3 +1,10 @@
+Bound Text source replacement byte arithmetic (2026-10-27)
+==========================================================
+
+- Widen gap-resize and replacement byte offsets and validate the final source
+  position before pointer arithmetic.
+- Extend the focused Text source regression and documentation.
+
 Bound legacy Text source byte offsets (2026-10-27)
 ==================================================
 

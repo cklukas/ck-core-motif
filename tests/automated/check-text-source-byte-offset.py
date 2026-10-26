@@ -16,4 +16,9 @@ assert "TextSourceByteOffset(data, (XmTextPosition)start, unit" in read_region
 assert "int byte_start" not in read_region
 assert "TextSourceByteOffset(data, position, unit" in get_region
 assert "register XmTextPosition char_pos" not in get_region
+replace_start = source.index("static XmTextStatus \nReplace")
+replace_region = source[replace_start:source.index("  /* add data */", replace_start)]
+assert "size_t gap_size, gap_start_offset, gap_end_offset, end_byte_offset" in replace_region
+assert "TextSourceByteOffset(data, *end" in replace_region
+assert "(size_t)old_maxlength * (size_t)char_size" in replace_region
 print("PASS Text source byte offsets are checked and widened")
