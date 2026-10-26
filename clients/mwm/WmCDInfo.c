@@ -982,7 +982,8 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 				pcd->frameInfo.cornerHeight);
 			*pHeight = pcd->frameInfo.cornerHeight + vert/2;
 		    }
-		    *pY = pcd->frameInfo.height - *pHeight;
+		    *pY = (*pHeight <= pcd->frameInfo.height) ?
+			    (int)(pcd->frameInfo.height - *pHeight) : 0;
 		    rval = TRUE;
 		}
 		break;

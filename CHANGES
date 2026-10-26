@@ -20856,3 +20856,8 @@ Bound MWM corner edge coordinates (2026-10-26)
 -----------------------------------------------
 Northeast and southeast resize geometry now clamps corner coordinates when a
 computed corner span exceeds the frame dimension, preventing unsigned wrap.
+
+Bound MWM southwest edge coordinate (2026-10-26)
+--------------------------------------------------
+Southwest resize geometry now clamps its vertical corner coordinate when the
+computed corner span exceeds the frame height.

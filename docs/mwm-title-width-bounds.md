@@ -19,5 +19,7 @@ border, preventing wrapped edge coordinates.
 Northeast and southeast corner coordinates also clamp to zero when their
 computed span exceeds the corresponding frame dimension.
 
+Southwest vertical placement uses the same clamp for an undersized frame.
+
 The source-contract regression is
 `tests/automated/check-mwm-title-width-bounds.py`.

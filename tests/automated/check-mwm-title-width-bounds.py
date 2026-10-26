@@ -26,5 +26,6 @@ assert "FrameInteriorSpan (pcd->frameInfo.height" in body
 assert body.count("pcd->frameInfo.lowerBorderWidth >") >= 2
 assert body.count("*pWidth <= pcd->frameInfo.width") >= 2
 assert "*pHeight <= pcd->frameInfo.height" in body
+assert body.count("*pHeight <= pcd->frameInfo.height") >= 2
 
 print("PASS MWM title geometry rejects impossible widths")
