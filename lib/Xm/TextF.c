@@ -11033,16 +11033,20 @@ int
 XmTextFieldGetBaseline(Widget w)
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
-  Dimension margin_top;
+  int64_t baseline;
   int ret_val;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
-  margin_top = tf->text.margin_top +
-    tf->primitive.shadow_thickness +
-      tf->primitive.highlight_thickness;
-  
-  ret_val = (int) margin_top + (int) TextF_FontAscent(tf);
+  baseline = (int64_t)tf->text.margin_top +
+    (int64_t)tf->primitive.shadow_thickness +
+    (int64_t)tf->primitive.highlight_thickness +
+    (int64_t)TextF_FontAscent(tf);
+  if (baseline > INT_MAX)
+    baseline = INT_MAX;
+  else if (baseline < INT_MIN)
+    baseline = INT_MIN;
+  ret_val = (int)baseline;
   _XmAppUnlock(app);
 
   return(ret_val);

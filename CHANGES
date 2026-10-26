@@ -19981,6 +19981,13 @@ Initialize TextField preedit endpoints (2026-10-26)
   present.
 - Add focused regression coverage and documentation.
 
+Bound TextField baseline geometry (2026-10-26)
+================================================
+
+- Compute baseline margin and font metrics in widened arithmetic and clamp the
+  legacy `int` result instead of allowing `Dimension` wraparound.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
