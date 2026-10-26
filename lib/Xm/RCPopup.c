@@ -1146,6 +1146,9 @@ XmAddToPostFromList(
         Widget m,
         Widget widget )
 {
+  if (m == (Widget) NULL)
+    return;
+
   XmRowColumnWidget menu = (XmRowColumnWidget) m ;
   Arg args[1];
   _XmWidgetToAppContext(m);
@@ -1242,6 +1245,9 @@ XmRemoveFromPostFromList(
         Widget m,
         Widget widget )
 {
+  if (m == (Widget) NULL)
+    return;
+
   XmRowColumnWidget menu = (XmRowColumnWidget) m ;
   Arg args[1];
   _XmWidgetToAppContext(m);
