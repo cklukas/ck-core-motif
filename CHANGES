@@ -22145,3 +22145,12 @@ Report clipboard ownership failure (2026-10-26)
 
 Require successful clipboard start (2026-10-26)
 ================================================
+Guard conversion merging (2026-10-26)
+======================================
+
+- Reject a null conversion callback structure before reading merge state or
+  entering the process lock.
+- Add focused regression coverage and documentation.
+
+Report clipboard ownership failure (2026-10-26)
+================================================

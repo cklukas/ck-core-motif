@@ -531,6 +531,8 @@ void
 XmeConvertMerge(XtPointer data, Atom type, int format, 
 		unsigned long size, XmConvertCallbackStruct *cs)
 {
+  if (cs == NULL)
+    return;
   _XmProcessLock();
   if (cs -> status != XmCONVERT_MERGE) {
     TransferWarning(NULL, MERGE, ARG, BAD_STATUS);
