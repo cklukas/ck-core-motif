@@ -798,6 +798,10 @@ void ConfirmAction (WmScreenData *pSD, int nbr)
     XmString	  messageString;
     static XmString	  defaultMessageString = NULL;
 
+    if (pSD == NULL || nbr < 0 || nbr >= 4 ||
+	pSD->screenTopLevelW == NULL)
+	return;
+
 
     /*
      * If there is a system modal window, don't post another

@@ -21022,6 +21022,12 @@ Guard MWM feedback update inputs (2026-10-26)
 UpdateFeedbackInfo and UpdateFeedbackText now return for missing screen or
 font state before updating fields or measuring text.
 
+Bound MWM confirmation actions (2026-10-26)
+--------------------------------------------
+ConfirmAction now rejects missing screen/top-level widget records and action
+indices outside the four built-in confirmation messages before indexing its
+dialog arrays.
+
 Handle MWM cached-label X resource failure (2026-10-26)
 --------------------------------------------------------
 MakeCachedLabelPixmap now returns `None` when pixmap or graphics-context
