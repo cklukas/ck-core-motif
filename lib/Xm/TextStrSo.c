@@ -1170,6 +1170,7 @@ Replace(XmTextWidget initiator,
   register int block_num_chars;  /* number of characters in the block */
   int gap_size;
   int old_maxlength;
+  char *resized_ptr;
   XmTextUnicodeMap *replacement_map = NULL;
   int char_size = (initiator->text.char_size < 3 ?
 		   (int)initiator->text.char_size :
@@ -1181,6 +1182,10 @@ Replace(XmTextWidget initiator,
   
   block_num_chars = _XmTextCountCharacters(block->ptr, block->length);
   delta = block_num_chars - (*end - *start);
+
+  if (delta > (long)INT_MAX - data->length ||
+      delta < -(long)data->length)
+    return EditError;
   
   if (!data->editable ||
       (delta > 0 && data->length + delta > data->maxallowed &&
@@ -1208,7 +1213,23 @@ Replace(XmTextWidget initiator,
     int gap_start_offset, gap_end_offset;
     
     while (data->length + delta >= data->maxlength) {
-      if (data->maxlength < TEXT_INCREMENT)
+	if (data->maxlength <= 0 ||
+	    (data->maxlength < TEXT_INCREMENT &&
+	     data->maxlength > INT_MAX / 2) ||
+	    (data->maxlength >= TEXT_INCREMENT &&
+	     data->maxlength > INT_MAX - TEXT_INCREMENT)) {
+	  for (i = 0; i < data->numwidgets; i++) {
+	    if (data->hasselection)
+	      _XmTextSetHighlight((Widget)data->widgets[i], data->left,
+				  data->right, XmHIGHLIGHT_SELECTED);
+	    _XmTextEnableRedisplay(data->widgets[i]);
+	  }
+	  initiator->text.output->DrawInsertionPoint(initiator,
+						     initiator->text.cursor_position,
+						     on);
+	  return EditError;
+	}
+	if (data->maxlength < TEXT_INCREMENT)
 	data->maxlength *= 2;
       else
 	data->maxlength += TEXT_INCREMENT;
@@ -1216,10 +1237,38 @@ Replace(XmTextWidget initiator,
     
     gap_start_offset = data->gap_start - data->ptr;
     gap_end_offset = data->gap_end - data->ptr;
-    data->ptr = XtRealloc(data->ptr, (unsigned) 
-			  ((data->maxlength) * char_size));
-    data->gap_start = data->ptr + gap_start_offset;
-    data->gap_end = data->ptr + gap_end_offset +
+	if (char_size <= 0 ||
+	    (size_t)data->maxlength >
+	      (size_t)UINT_MAX / (size_t)char_size) {
+	  for (i = 0; i < data->numwidgets; i++) {
+	    if (data->hasselection)
+	      _XmTextSetHighlight((Widget)data->widgets[i], data->left,
+				  data->right, XmHIGHLIGHT_SELECTED);
+	    _XmTextEnableRedisplay(data->widgets[i]);
+	  }
+	  initiator->text.output->DrawInsertionPoint(initiator,
+						     initiator->text.cursor_position,
+						     on);
+	  return EditError;
+	}
+	resized_ptr = XtRealloc(data->ptr,
+				(Cardinal)((size_t)data->maxlength *
+					   (size_t)char_size));
+	if (resized_ptr == NULL) {
+	  for (i = 0; i < data->numwidgets; i++) {
+	    if (data->hasselection)
+	      _XmTextSetHighlight((Widget)data->widgets[i], data->left,
+				  data->right, XmHIGHLIGHT_SELECTED);
+	    _XmTextEnableRedisplay(data->widgets[i]);
+	  }
+	  initiator->text.output->DrawInsertionPoint(initiator,
+						     initiator->text.cursor_position,
+						     on);
+	  return EditError;
+	}
+	data->ptr = resized_ptr;
+	data->gap_start = data->ptr + gap_start_offset;
+	data->gap_end = data->ptr + gap_end_offset +
       (char_size * (data->maxlength - old_maxlength));
     if (gap_end_offset != (old_maxlength * char_size))
       memmove(data->gap_end, data->ptr + gap_end_offset, 
@@ -1242,7 +1291,6 @@ Replace(XmTextWidget initiator,
       replacement_map = NULL;
     }
   }
-  /* NOTE: the value of delta could be truncated by cast to int. */
   data->length += (int) delta;
   
   if (data->hasselection && *start < data->right && *end > data->left) {

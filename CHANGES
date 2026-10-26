@@ -42,6 +42,14 @@ Make text-source compaction transactional (2026-10-27)
   allocation fails.
 - Add a focused source regression and documentation.
 
+Guard text-source replace growth (2026-10-27)
+==============================================
+
+- Reject unrepresentable edit deltas before mutating text-source UI state.
+- Check gap-growth capacity arithmetic and `XtRealloc` results, restoring
+  redisplay state when growth fails.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
