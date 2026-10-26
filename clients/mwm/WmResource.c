@@ -3354,6 +3354,7 @@ ProcessScreenListResource (void)
 {
     unsigned char *lineP;
     unsigned char *string;
+    size_t name_length;
     int sNum = 0;
     int nameCount = 0;
 
@@ -3365,8 +3366,15 @@ ProcessScreenListResource (void)
     while (((string = GetString(&lineP)) != NULL) && 
 	   (sNum < ScreenCount(DISPLAY)))
     {
+	name_length = strlen((char *)string);
+	if (name_length >= UINT_MAX)
+	{
+	    Warning (((char *)GETMESSAGE(62, 39, "Screen name is too long")));
+	    ExitWM(WM_ERROR_EXIT_VALUE);
+	}
 	if (!(wmGD.screenNames[sNum] = (unsigned char *) 
-	    WmRealloc ((char*)wmGD.screenNames[sNum], strlen((char*)string)+1)))
+	    WmRealloc ((char*)wmGD.screenNames[sNum],
+		       (unsigned)(name_length + 1))))
 	{
 	    ExitWM(WM_ERROR_EXIT_VALUE);
 	}
@@ -3386,11 +3394,17 @@ ProcessScreenListResource (void)
     if (nameCount > 0)
     {
 	string = wmGD.screenNames[0];    /* name of the first screen */
+	name_length = strlen((char *)string);
+	if (name_length >= UINT_MAX)
+	{
+	    Warning (((char *)GETMESSAGE(62, 39, "Screen name is too long")));
+	    ExitWM(WM_ERROR_EXIT_VALUE);
+	}
 	while (sNum < ScreenCount(DISPLAY))
 	{
 	    if (!(wmGD.screenNames[sNum] = (unsigned char *) 
 		WmRealloc ((char*)wmGD.screenNames[sNum], 
-				strlen((char *)string)+1)))
+				(unsigned)(name_length + 1))))
 	    {
 		ExitWM(WM_ERROR_EXIT_VALUE);
 	    }

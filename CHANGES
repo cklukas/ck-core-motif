@@ -55,6 +55,13 @@ Preserve MWM replacement buffers on allocation failure (2026-10-26)
   failed transient-list growth from leaving a dangling pointer.
 - Add a focused helper-order regression and document the failure contract.
 
+Bound MWM screen-list resource names (2026-10-26)
+==================================================
+
+- Check `size_t` screen-name lengths before converting them to the unsigned
+  `WmRealloc` size in both listed-name and fallback-name paths.
+- Add focused regression coverage and document the boundary.
+
 Guard MWM binding token boundaries (2026-10-26)
 ===============================================
 
