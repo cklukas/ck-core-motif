@@ -18673,3 +18673,13 @@ Bound drag/drop argument-array allocations (2026-10-27)
 ============================================================
 
 Bound UTF-8 UCS-2 allocation width (2026-10-27)
+Guard DropSite stacking-order query inputs (2026-10-27)
+=======================================================
+
+- Validate the widget and all output pointers before querying stacking order.
+- Use full-width Cardinal child indices for forward and reverse traversal.
+- Add focused regression coverage and documentation.
+
+============================================================
+
+Bound drag/drop argument-array allocations (2026-10-27)

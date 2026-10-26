@@ -4410,7 +4410,14 @@ XmDropSiteQueryStackingOrder(
 	XmDSInfo info;
 	XmDSInfo parentInfo;
 	Cardinal num_visible_children = 0; /* visible to application code */
-	int i,j;
+	Cardinal i, j, child_count;
+
+	if (widget == NULL || parent_rtn == NULL || children_rtn == NULL ||
+	    num_children_rtn == NULL)
+		return 0;
+	*parent_rtn = NULL;
+	*children_rtn = NULL;
+	*num_children_rtn = 0;
 	_XmWidgetToAppContext(widget);
 
 	_XmAppLock(app);
@@ -4429,7 +4436,8 @@ XmDropSiteQueryStackingOrder(
 
 	if (!GetDSLeaf(info))
 	{
-		for (i=0; i < (int)GetDSNumChildren(info); i++)
+		child_count = GetDSNumChildren(info);
+		for (i=0; i < child_count; i++)
 		{
 			XmDSInfo child = (XmDSInfo) GetDSChild(info, i);
 			if (!GetDSInternal(child))
@@ -4454,8 +4462,9 @@ XmDropSiteQueryStackingOrder(
 			}
 
 			/* Remember to reverse the order */
-			for (j=0, i=(GetDSNumChildren(info) - 1); i >= 0; i--)
+			for (j = 0, i = child_count; i != 0; )
 			{
+				--i;
 				XmDSInfo child = (XmDSInfo) GetDSChild(info, i);
 				if (!GetDSInternal(child))
 					(*children_rtn)[j++] = GetDSWidget(child);
