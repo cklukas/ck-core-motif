@@ -22267,3 +22267,11 @@ Complete clipboard requests after malformed conversion data (2026-10-26)
 - Add focused regression coverage and documentation for clipboard teardown.
 
 Validate selection-loss callback inputs (2026-10-26)
+Reject malformed render-table conversion results (2026-10-26)
+==============================================================
+
+- Normalize a nonzero render-table serialization size with a null buffer to
+  an empty `None`-typed conversion instead of exposing an invalid string.
+- Add focused regression coverage and documentation.
+
+Complete clipboard requests after malformed conversion data (2026-10-26)

@@ -2628,10 +2628,17 @@ XmeStandardConvert(Widget w,
 
     if (table != NULL) {
       size = XmRenderTableCvtToProp(w, table, &value);
-      cs -> value = (XtPointer) value;
-      cs -> format = 8;
-      cs -> length = size;
-      cs -> type = XA_STRING;
+      if (size != 0 && value == NULL) {
+	cs -> value = NULL;
+	cs -> format = 8;
+	cs -> length = 0;
+	cs -> type = None;
+      } else {
+	cs -> value = (XtPointer) value;
+	cs -> format = 8;
+	cs -> length = size;
+	cs -> type = XA_STRING;
+      }
     }
   } else if (atoms[XmA_MOTIF_ENCODING_REGISTRY] == cs -> target) {
     int len;
