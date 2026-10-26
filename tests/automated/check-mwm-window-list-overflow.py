@@ -12,6 +12,7 @@ for handler in handlers:
     start = text.index(handler + " (")
     end = text.index("\n}\n", start)
     function = text[start:end]
-    assert "(size_t) count > ((size_t) -1) / sizeof(Window)" in function, handler
+    assert "(size_t) count > SIZE_MAX / sizeof(Window)" in function, handler
+    assert "(size_t) count > UINT_MAX / sizeof(Window)" in function, handler
     assert "sizeof(Window) * (size_t) count" in function, handler
 print("MWM window-list allocations guard multiplication")

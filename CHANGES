@@ -1,3 +1,11 @@
+Refresh MWM window-list overflow regression check (2026-10-27)
+===============================================================
+
+- Match the focused check to the current `SIZE_MAX` and `UINT_MAX` allocation
+  limits applied by every command handler.
+
+===========================================================
+
 Refresh MWM screen-display regression check (2026-10-27)
 ========================================================
 
