@@ -19764,3 +19764,9 @@ Bound shared Text-source highlight copies (2026-10-26)
 - Reject highlight capacities that cannot fit both the host allocation size
   and Xt's `Cardinal` argument before copying shared-source state.
 - Add focused regression coverage and documentation.
+Make Tree child-list initialization terminal (2026-10-26)
+=============================================================
+
+- Report an Xt initialization error when the Tree child-operation list cannot
+  be allocated, preventing later callbacks from using a null list.
+- Add focused regression coverage and documentation.

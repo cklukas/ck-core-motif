@@ -409,8 +409,10 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
     XmTreeC_placed(top_node) = False;
 
     XmTree_child_op_list(tw) = _XmListInit();
-    if (XmTree_child_op_list(tw) == NULL)
+    if (XmTree_child_op_list(tw) == NULL) {
+	XtError("Unable to allocate Tree child-operation list");
 	return;
+    }
 
     /* 
      * Set the initial values for XmTreeC_max_width(tw) and XmTreeC_max_height(tw).
