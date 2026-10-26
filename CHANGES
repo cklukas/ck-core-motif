@@ -1,3 +1,11 @@
+Guard drop callback widget rebinding (2026-10-26)
+=================================================
+
+- Reject a drop-selection callback whose transfer context no longer has a
+  destination widget before rebinding the callback widget.
+- Prevent teardown races from reaching class, display, or destination-callback
+  access through a null widget; add focused regression coverage and docs.
+
 Guard selection-disown callback inputs (2026-10-26)
 ===================================================
 

@@ -1984,7 +1984,11 @@ SelectionCallbackWrapper(Widget wid, XtPointer client_data,
 
   /* Get the real widget if this is a drop transfer */
   if (tc -> selection == atoms[XmA_MOTIF_DROP])
-    wid = tc -> widget;
+    {
+      if (tc -> widget == NULL)
+	return;
+      wid = tc -> widget;
+    }
 
   if (tc -> outstanding == 0) {
     XmeWarning(wid, BAD_SCB_MESSAGE);
