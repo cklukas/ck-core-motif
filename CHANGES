@@ -18154,6 +18154,14 @@ Refresh WSM nested-window ownership regression check (2026-10-27)
 Refresh WSM window rollback regression check (2026-10-27)
 ==========================================================
 
+Refresh Xm pixmap-cache allocation regression check (2026-10-27)
+================================================================
+
+- Match the focused source extraction to the current cache-section delimiter
+  while retaining checks for every allocation-failure cleanup path.
+
+================================================================
+
 - Allow the focused check to cover the additional match-attribute failure
   cleanup path while retaining the required property-array rollback guards.
 

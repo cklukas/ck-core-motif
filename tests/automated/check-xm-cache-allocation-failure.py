@@ -5,7 +5,7 @@ from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "ImageCache.c").read_text(encoding="utf-8")
 start = source.index("_XmCachePixmap(")
-end = source.index("\n\n\n/*******************************************************************/", start)
+end = source.index("\n\n\n/********************************************************************/", start)
 body = source[start:end]
 assert "if (pixmap_data_set == NULL || pixmap_set == NULL)" in body
 assert "if (pix_entry == NULL)" in body
