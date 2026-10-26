@@ -2720,8 +2720,16 @@ SetBindingsProperty(
         Atom property,
         String binding)
 {
+  size_t binding_length;
+
+  if (dsp == NULL || binding == NULL)
+    return;
+  binding_length = strlen(binding);
+  if (binding_length > INT_MAX)
+    return;
   XChangeProperty( dsp, RootWindow( dsp, 0), property, XA_STRING, 8,
-                PropModeReplace, (unsigned char *) binding, strlen( binding)) ;
+                PropModeReplace, (unsigned char *) binding,
+                (int)binding_length) ;
 }
 
 static String
@@ -2729,13 +2737,20 @@ FixupBindingsString(
         String bindingsString,
         str_xref repl_xref)
 {
-  String fixed_str = XtNewString( bindingsString) ;
-  String ptr_next = fixed_str ;
+  String fixed_str;
+  String ptr_next;
+
+  if (bindingsString == NULL)
+    return NULL;
+  fixed_str = XtNewString( bindingsString) ;
+  if (fixed_str == NULL)
+    return NULL;
+  ptr_next = fixed_str;
 
   while(    repl_xref->default_name != NULL    )
     {
       String ks_ptr = strstr( ptr_next, repl_xref->default_name) ;
-      unsigned orig_len = strlen( repl_xref->default_name) ;
+      size_t orig_len = strlen( repl_xref->default_name) ;
 
       if(    ks_ptr == NULL    )
         {
@@ -2747,7 +2762,8 @@ FixupBindingsString(
           continue ;
         }
 
-      if(    (strpbrk( (ks_ptr - 1), " \t>") == (ks_ptr - 1))
+      if(    ((ks_ptr == fixed_str) ||
+              (strpbrk( (ks_ptr - 1), " \t>") == (ks_ptr - 1)))
           && (strpbrk( ks_ptr, " \t\n") == (ks_ptr + orig_len))    )
         {
           size_t new_len = strlen( repl_xref->new_name) ;

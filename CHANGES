@@ -12,6 +12,14 @@ Own TabBox font tables and mutable drawing contexts (2026-10-26)
   check fails on the previous ABI 8 library and passes after the fix; the same
   native test also passes against the ABI 9 development library.
 
+Guard MWM binding token boundaries (2026-10-26)
+===============================================
+
+- Keep replacement-name lengths in `size_t` and treat a token at the start of
+  the bindings property as a valid boundary without forming a before-buffer
+  pointer.
+- Document the boundary contract and extend the binding-growth regression.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 
