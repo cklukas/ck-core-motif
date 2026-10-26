@@ -16,6 +16,8 @@ for name in ("Urm__CW_AppendSVWidgetRef", "Urm__CW_AppendCBSVWidgetRef"):
         "if (argname == NULL)",
         "argname_len = strlen(argname);",
         "argname_len == SIZE_MAX",
+        "argname_len >= (size_t)UINT_MAX",
+        "XtMalloc ((Cardinal)(argname_len + 1))",
         "svdesc->tagname == NULL",
         "memcpy (svdesc->tagname, argname, argname_len + 1);",
     ):

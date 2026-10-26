@@ -377,14 +377,14 @@ Urm__CW_AppendSVWidgetRef (IDBFile		file_id,
 	  return;
 	}
       argname_len = strlen(argname);
-      if (argname_len == SIZE_MAX)
+      if (argname_len == SIZE_MAX || argname_len >= (size_t)UINT_MAX)
 	{
 	  XtFree ((char *)svdesc);
 	  Urm__UT_Error ("Urm__CW_AppendSVWidgetRef", _MrmMMsg_0049,
 			 NULL, NULL, MrmFAILURE);
 	  return;
 	}
-      svdesc->tagname = (String) XtMalloc (argname_len + 1);
+      svdesc->tagname = (String) XtMalloc ((Cardinal)(argname_len + 1));
       if (svdesc->tagname == NULL)
 	{
 	  XtFree ((char *)svdesc);
@@ -521,14 +521,14 @@ Urm__CW_AppendCBSVWidgetRef (IDBFile			file_id,
 	  return;
 	}
       argname_len = strlen(argname);
-      if (argname_len == SIZE_MAX)
+      if (argname_len == SIZE_MAX || argname_len >= (size_t)UINT_MAX)
 	{
 	  XtFree ((char *)svdesc);
 	  Urm__UT_Error ("Urm__CW_AppendCBSVWidgetRef", _MrmMMsg_0049,
 			 NULL, NULL, MrmFAILURE);
 	  return;
 	}
-      svdesc->tagname = (String) XtMalloc (argname_len + 1);
+      svdesc->tagname = (String) XtMalloc ((Cardinal)(argname_len + 1));
       if (svdesc->tagname == NULL)
 	{
 	  XtFree ((char *)svdesc);
