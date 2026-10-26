@@ -1951,10 +1951,11 @@ void ShowActiveIconText (ClientData *pcd)
 
 	activeIconTextWidth += 2*ICON_EXTERNAL_SHADOW_WIDTH;
 
-	XGetGeometry (DISPLAY, 
-			(Drawable) ICON_FRAME_WIN(pcd), 
-			&root, &x, &y, 
-		        &junk, &junk, &junk, &junk);
+	if (!XGetGeometry (DISPLAY,
+			   (Drawable) ICON_FRAME_WIN(pcd),
+			   &root, &x, &y,
+			   &junk, &junk, &junk, &junk))
+	return;
 
 
 	y += ICON_IMAGE_HEIGHT(pcd);
@@ -2135,10 +2136,11 @@ void MoveActiveIconText (ClientData *pcd)
 	
 	activeIconTextWidth += 2 * ICON_EXTERNAL_SHADOW_WIDTH;
 
-	XGetGeometry (DISPLAY, 
-			(Drawable) ICON_FRAME_WIN(pcd), 
-			&root, &x, &y, 
-		        &junk, &junk, &junk, &junk);
+	if (!XGetGeometry (DISPLAY,
+			   (Drawable) ICON_FRAME_WIN(pcd),
+			   &root, &x, &y,
+			   &junk, &junk, &junk, &junk))
+	return;
 
 	
 	y += ICON_IMAGE_HEIGHT(pcd);

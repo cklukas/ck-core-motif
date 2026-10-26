@@ -21187,3 +21187,9 @@ ReparentIconWindow now validates both window IDs and the XGetGeometry status
 before changing geometry or reparenting a client-provided icon. An icon that
 was destroyed by its owner no longer leaves uninitialized geometry in MWM.
 
+Handle MWM active icon geometry-query failures (2026-10-26)
+-------------------------------------------------------------
+ShowActiveIconText and MoveActiveIconText now stop when querying the icon
+frame geometry fails, avoiding placement calculations from uninitialized
+coordinates after an icon owner destroys or reparents the frame.
+
