@@ -1388,8 +1388,11 @@ _XmTextFieldCountBytes(XmTextFieldWidget tf,
   wc_ptr = wc_value;
   while ((num_chars > 0) && (*wc_ptr != (wchar_t)0L)) {
     n_bytes_per_char = wctomb(tmp, *wc_ptr);
-    if (n_bytes_per_char > 0 )
+    if (n_bytes_per_char > 0 ) {
+      if (n_bytes > INT_MAX - n_bytes_per_char)
+	return INT_MAX;
       n_bytes += n_bytes_per_char;
+    }
     num_chars--;
     wc_ptr++;
   }

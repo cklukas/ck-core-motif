@@ -50,3 +50,7 @@ Substring extraction now saturates a source range larger than the public
 `int` count at `INT_MAX` and reports truncation instead of narrowing a large
 `XmTextPosition`. The focused check is
 `tests/automated/check-textfield-substring-range.py`.
+
+The multibyte byte-count helper also saturates instead of wrapping its `int`
+result; this is covered by
+`tests/automated/check-textfield-byte-count-bounds.py`.

@@ -20307,3 +20307,9 @@ Bound text-field substring position narrowing (2026-10-26)
 
 - Saturate source ranges beyond the public `int` count at `INT_MAX` and
   return `XmCOPY_TRUNCATED` instead of wrapping a large `XmTextPosition`.
+
+Saturate text-field multibyte byte counting (2026-10-26)
+=========================================================
+
+- Prevent the wide-character byte-count helper from wrapping its `int`
+  accumulator when calculating substring sizes.
