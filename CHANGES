@@ -20883,3 +20883,8 @@ Guard MWM frame coordinate metrics (2026-10-26)
 BaseWindowX, BaseWindowY, FrameX, and FrameY now return zero for null client
 records instead of dereferencing them.  Valid coordinate calculations are
 unchanged.
+
+Guard MWM base-window metrics (2026-10-26)
+------------------------------------------
+BaseWindowWidth and BaseWindowHeight now return zero for null client records
+instead of dereferencing them.  Valid size calculations are unchanged.

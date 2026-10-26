@@ -617,6 +617,9 @@ unsigned int BaseWindowWidth (ClientData *pcd)
 {
     unsigned int rval;
 
+    if (pcd == NULL)
+	return (0);
+
     if (pcd->decor & (MWM_DECOR_RESIZEH | MWM_DECOR_BORDER))
     {
 	/*
@@ -666,6 +669,9 @@ unsigned int BaseWindowWidth (ClientData *pcd)
 unsigned int BaseWindowHeight (ClientData *pcd)
 {
     unsigned int rval;
+
+    if (pcd == NULL)
+	return (0);
 
     if (pcd->decor & (MWM_DECOR_RESIZEH | MWM_DECOR_BORDER))
     {
