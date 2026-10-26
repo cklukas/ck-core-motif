@@ -671,7 +671,7 @@ WriteAtomsTable(
     } *propertyRecPtr;
 
     Atom                	atomsTableAtom;
-    int	       			i;
+    Cardinal			i;
     Window			motifWindow;
     size_t			dataSize;
 
@@ -682,6 +682,13 @@ WriteAtomsTable(
 	if (atomsTable->numEntries != 0 && atomsTable->entries == NULL) {
 	XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE4);
 	return;
+	}
+	for (i = 0; i < atomsTable->numEntries; i++) {
+	if ((uint64_t)atomsTable->entries[i].atom > UINT32_MAX ||
+	    (uint64_t)atomsTable->entries[i].time > UINT32_MAX) {
+	    XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE4);
+	    return;
+	}
 	}
 	if (atomsTable->numEntries > UINT16_MAX) {
 	XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE4);
@@ -705,7 +712,7 @@ WriteAtomsTable(
 	}
 
     if ( dataSize > MAXSTACK ) {
-	propertyRecPtr = (struct _propertyRec *)XtMalloc( dataSize );
+	propertyRecPtr = (struct _propertyRec *)XtMalloc((Cardinal)dataSize);
 	if (propertyRecPtr == NULL) {
 	    XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE4);
 	    return;
@@ -716,14 +723,14 @@ WriteAtomsTable(
 
     propertyRecPtr->info.byte_order = (BYTE) _XmByteOrderChar;
     propertyRecPtr->info.protocol_version = (BYTE) _MOTIF_DRAG_PROTOCOL_VERSION;
-    propertyRecPtr->info.num_atoms = atomsTable->numEntries;
-    propertyRecPtr->info.heap_offset = dataSize;
+    propertyRecPtr->info.num_atoms = (CARD16)atomsTable->numEntries;
+    propertyRecPtr->info.heap_offset = (CARD32)dataSize;
 
     /* write each entry's atom and time */
 
     for (i = 0; i < atomsTable->numEntries; i++) {
-        propertyRecPtr->entry[i].atom = atomsTable->entries[i].atom;
-        propertyRecPtr->entry[i].time = atomsTable->entries[i].time;
+        propertyRecPtr->entry[i].atom = (CARD32)atomsTable->entries[i].atom;
+        propertyRecPtr->entry[i].time = (CARD32)atomsTable->entries[i].time;
     }
 
     /*

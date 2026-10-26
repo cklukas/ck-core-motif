@@ -21775,6 +21775,14 @@ Bound hash-table growth for Xt allocations (2026-10-26)
   rather than a redundant host-size bound.
 - Extend the hash-index regression and documentation.
 
+Reject unrepresentable DragBS atom records (2026-10-26)
+========================================================
+
+- Reject 64-bit `Atom` and `Time` values that cannot be serialized into the
+  Motif drag protocol's 32-bit atom-table fields.
+- Make the bounded allocation and header conversions explicit and extend the
+  DragBS regression documentation.
+
 Clean up ImageCache failure-branch conversions (2026-10-26)
 ============================================================
 
