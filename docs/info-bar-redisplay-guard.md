@@ -15,3 +15,6 @@ resource namespaces.
 
 The focused source contract is checked by
 `tests/automated/check-info-bar-redisplay-guard.py`.
+
+The public dismiss and action callbacks also reject a null widget before the
+Xt subclass check, so optional callback handles fail safely.

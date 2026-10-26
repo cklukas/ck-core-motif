@@ -18713,3 +18713,12 @@ Harden DropSite configure and active-visual APIs (2026-10-27)
 ============================================================
 
 Guard DropSite stacking-order query inputs (2026-10-27)
+Guard InfoBar callback null inputs (2026-10-27)
+===============================================
+
+- Reject null widgets before `XmIsInfoBar` checks in dismiss and action APIs.
+- Extend the focused InfoBar regression and documentation.
+
+============================================================
+
+Guard BreadcrumbBar null-widget API inputs (2026-10-27)
