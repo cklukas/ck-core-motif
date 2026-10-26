@@ -20974,6 +20974,12 @@ MakeNamedIconPixmap now rejects a null client record and only attempts named
 pixmap lookup when the client has a screen record; otherwise it safely uses the
 existing default-icon path.
 
+Complete MWM named-icon screen fallback (2026-10-26)
+-----------------------------------------------------
+MakeNamedIconPixmap now selects the client screen or active screen once and
+uses that record for the built-in fallback, avoiding a second null-screen
+dereference when named lookup is skipped.
+
 Handle MWM cached-label X resource failure (2026-10-26)
 --------------------------------------------------------
 MakeCachedLabelPixmap now returns `None` when pixmap or graphics-context

@@ -248,9 +248,14 @@ Pixmap MakeNamedIconPixmap (ClientData *pCD, String iconName)
   Pixmap pixmap;
   unsigned int width, height;
   int depth;
+  WmScreenData *pSD;
 
 
   if (pCD == NULL)
+	return ((Pixmap)NULL);
+
+  pSD = (pCD->pSD != NULL) ? pCD->pSD : wmGD.pActiveSD;
+  if (pSD == NULL)
 	return ((Pixmap)NULL);
 
   if (iconName && pCD->pSD != NULL)
@@ -283,7 +288,7 @@ Pixmap MakeNamedIconPixmap (ClientData *pCD, String iconName)
 
   if (!iconName || (!PIXMAP_IS_VALID( pixmap )))
     {
-      pixmap = MakeIconPixmap (pCD, pCD->pSD->builtinIconPixmap, XmUNSPECIFIED_PIXMAP,
+      pixmap = MakeIconPixmap (pCD, pSD->builtinIconPixmap, XmUNSPECIFIED_PIXMAP,
 			       iImage_width, iImage_height, 1);
     }
   
