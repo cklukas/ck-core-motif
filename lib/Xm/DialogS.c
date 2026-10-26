@@ -805,6 +805,9 @@ XmCreateDialogShell(
         ArgList al,
         Cardinal ac )
 {
+    if (p == (Widget) NULL)
+        return NULL;
+
     return (XtCreatePopupShell(name, xmDialogShellWidgetClass, p, al, ac));
 }
 
@@ -835,6 +838,9 @@ XmeCreateClassDialog(
     ArgList		ds_args ;	/*  arglist for shell	*/
     char *              ds_name ;
     int                 ds_name_length;
+
+    if (ds_p == (Widget) NULL)
+	return NULL;
 
     if (bb_n == (Cardinal)~(Cardinal)0)
 	return NULL;

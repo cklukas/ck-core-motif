@@ -1,3 +1,12 @@
+Guard dialog shell parent inputs (2026-10-27)
+==============================================
+
+- Return before shell creation or argument allocation when
+  `XmCreateDialogShell` or `XmeCreateClassDialog` receives a null parent.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard RowColumn creation parent inputs (2026-10-27)
 ===================================================
 
