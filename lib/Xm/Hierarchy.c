@@ -1021,7 +1021,9 @@ BuildNodeTable(Widget w, HierarchyConstraints node, Cardinal * current_index)
         size_t node_count = (size_t)hw->composite.num_children;
         size_t node_bytes;
 
-        if (node_count != 0 && SIZE_MAX / node_count < sizeof(*new_table))
+        if (node_count != 0 &&
+            (SIZE_MAX / node_count < sizeof(*new_table) ||
+             UINT_MAX / node_count < sizeof(*new_table)))
             return;
         node_bytes = node_count * sizeof(*new_table);
         new_table = (HierarchyConstraints *)XtRealloc(
