@@ -21358,3 +21358,9 @@ FlashOutline and DrawOutline now skip temporary outline painting when screen
 initialization could not provide an XOR graphics context. This avoids issuing
 BadGC requests after an XCreateGC failure while preserving normal outlines.
 
+Guard MWM icon-box GC source state (2026-10-26)
+------------------------------------------------
+MakeShrinkWrapIconsGC and MakeFadeIconGC now validate the inactive icon
+appearance GC before cloning it. Appearance-resource failures no longer reach
+XCopyGC with a null source context.
+
