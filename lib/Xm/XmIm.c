@@ -1058,6 +1058,10 @@ XmImSetXIC(Widget widget,
   XmImShellInfo im_info;
   XmImXICInfo xic_info;
   Widget shell;
+
+  if (widget == NULL)
+    return NULL;
+
   _XmWidgetToAppContext(widget);
 
   _XmAppLock(app);
