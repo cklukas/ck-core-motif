@@ -1,3 +1,28 @@
+Expose toolkit appearance in the Periodic Table demo (2026-10-26)
+================================================================
+
+- Default Periodic to modern-light with a separate XmdPeriodicModern resource
+  class and no application font/color/control-size fallback styling. Add
+  --appearance, --density and explicit --historical-resources modes. Select
+  settings before session-shell initialization can create internal widgets.
+- Preserve standard Xt resource overrides, reject conflicting modes, report UID
+  loading/construction failures and identify the realized process via _NET_WM_PID.
+  Remove invalid/debug entries from the historical app-defaults file.
+- Keep static labels and label gadgets out of modern keyboard traversal in
+  both light and dark profiles, eliminating focus frames around page titles.
+- Respect RowColumn's shadow contract: work-area and option rows retain their
+  unframed class baseline; menu rows continue to receive profile styling.
+- Replace List geometry's Dimension accumulation loop with the same measured,
+  bounded row-count calculation used for resize. Empty/zero-height rows and
+  maximum requested heights cannot stall startup or wrap the row accumulator.
+- Restore XmSTRING_TAG_STRLEN (-1) in tag-cache input validation. Rejecting this
+  documented sentinel prevented fresh-cache font-tag initialization and left
+  most default-font labels blank. Add a native fresh-cache tag/label regression.
+- Track both UIL source files when regenerating periodic.uid.
+- Add native integration coverage of the real Periodic/UIL startup, seven
+  appearance/resource cases, invalid options, missing UID data, RowColumn
+  warnings and List geometry boundaries. Full visual redesign remains ongoing.
+
 Separate appearance defaults from application resources (2026-10-26)
 ==================================================================
 

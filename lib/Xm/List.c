@@ -1427,58 +1427,37 @@ Resize(Widget wid)
  *									*
  ************************************************************************/
 
+/* Count rows using the same measured height during resize and geometry
+ * queries. Zero-height items still occupy a pixel; geometry must make progress
+ * even when an empty list has no available default font. */
+static int
+ComputeVizCountForHeight(XmListWidget lw, int listheight)
+{
+  int lineheight = 0;
+  int64_t rows;
+  if (lw->list.InternalList && lw->list.itemCount)
+    lineheight = lw->list.MaxItemHeight;
+  else
+    XmRenderTableGetDefaultFontExtents(lw->list.font, &lineheight, NULL, NULL);
+  if (lineheight < 1)
+    lineheight = 1;
+  if (listheight < 1)
+    listheight = 1;
+  /* Dimension-sized accumulators wrap at large requested heights. Widen both
+   * operands and divide directly rather than iterating once per visible row. */
+  rows = ((int64_t)listheight + lw->list.spacing) /
+         ((int64_t)lineheight + lw->list.spacing);
+  return rows > 0 ? (int)rows : 1;
+}
+
 static int
 ComputeVizCount(XmListWidget lw)
 {
-  int viz, lineheight;
-  int listheight;
-  /*  BEGIN OSF Fix pir 2730 */
-  XFontStruct *font_struct = (XFontStruct *) NULL;
-  /* END OSF Fix pir 2730 */
-
-  /*  Don't let listheight underflow to a large positive number! */
   int borders = 2 * (lw->primitive.shadow_thickness +
-		     lw->list.HighlightThickness +
-		     lw->list.margin_height);
-  if ((int)lw->core.height <= borders)
-    listheight = 1;
-  else
-    listheight = lw->core.height - borders;
-
-  /* CR 2730 */
-  if (lw->list.InternalList && lw->list.itemCount)
-    {
-      /* Just use the calculated heights of the items. */
-      lineheight = lw->list.MaxItemHeight;
-    }
-  else /* Have to guess by getting height of default font. */
-    {
-#if USE_XFT
-      XmRenderTableGetDefaultFontExtents(lw->list.font,
-                                         &lineheight, NULL, NULL);
-      if (lineheight == 0)
-        lineheight = 1;
-#else
-      if (XmeRenderTableGetDefaultFont(lw->list.font, &font_struct))
-	lineheight = font_struct->ascent + font_struct->descent;
-      else
-	lineheight = 1;
-#endif
-    }
-
-  if (lineheight + lw->list.spacing != 0)
-    viz = ((int)(listheight + lw->list.spacing) /
-	   (int)(lineheight + lw->list.spacing));
-  else
-    viz = (int)(listheight + lw->list.spacing);
-
-  if (!viz)
-    viz++;			/* Always have at least one item visible */
-
-  /* END OSF Fix pir 2730 */
-
-  return viz;
+                    lw->list.HighlightThickness + lw->list.margin_height);
+  return ComputeVizCountForHeight(lw, (int)lw->core.height - borders);
 }
+
 
 /************************************************************************
  *									*
@@ -2032,7 +2011,7 @@ QueryProc(Widget wid,
 {
   XmListWidget lw = (XmListWidget) wid;
   Dimension    MyWidth, MyHeight, NewWidth, NewHeight, sbWidth, sbHeight;
-  Dimension    vizheight, lineheight, HSBheight = 0, VSBwidth = 0;
+  Dimension    HSBheight = 0, VSBwidth = 0;
   Dimension    HSBht = 0 , VSBht = 0;
   Dimension    pad = 0, HSBbw = 0, VSBbw = 0;
   int          viz;
@@ -2166,8 +2145,6 @@ QueryProc(Widget wid,
        *
        ****************/
 
-      lineheight = lw->list.MaxItemHeight;
-
       {
 	/* Don't let NewHeight underflow to become a large positive # */
 	int borders = (2 * (lw->primitive.shadow_thickness +
@@ -2194,15 +2171,7 @@ QueryProc(Widget wid,
       else
 	sbHeight = NewHeight;
 
-      viz = 0;
-      vizheight = lineheight;
-      while (vizheight <= sbHeight)
-	{
-	  vizheight += lineheight + lw->list.spacing;
-	  viz++;
-	}
-      if (!viz)
-	viz++;
+      viz = ComputeVizCountForHeight(lw, (int)sbHeight);
 
       HasVSB = (lw->list.itemCount > viz);
       if (HasVSB)

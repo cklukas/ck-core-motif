@@ -1198,7 +1198,7 @@ _XmStringIndexCacheTag(XmStringTag tag,
   register int i;
   size_t tag_length;
 
-  if (tag == NULL || length < 0)
+  if (tag == NULL || (length < 0 && length != XmSTRING_TAG_STRLEN))
     return 0;
   
   /* Initialize cache with XmFONTLIST_DEFAULT_TAG, _MOTIF_DEFAULT_LOCALE, and

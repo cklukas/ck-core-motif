@@ -52,6 +52,8 @@ static const char modern_light_resources[] =
     "*selectColor: #dbeafe\n"
     "*XmLabel.traversalOn: False\n"
     "*XmLabel.highlightThickness: 0\n"
+    "*XmLabelGadget.traversalOn: False\n"
+    "*XmLabelGadget.highlightThickness: 0\n"
     "*XmPushButton.background: #e2e6eb\n"
     "*XmPushButtonGadget.background: #e2e6eb\n"
     "*XmTextField.background: #ffffff\n"
@@ -94,7 +96,10 @@ static const char modern_dark_resources[] =
     "*selectColor: #3c4043\n"
     "*insensitiveForeground: #9aa0a6\n"
     "*XmToggleButton.bottomShadowColor: #9aa0a6\n"
-    "*XmLabel.traversalOn: True\n"
+    "*XmLabel.traversalOn: False\n"
+    "*XmLabel.highlightThickness: 0\n"
+    "*XmLabelGadget.traversalOn: False\n"
+    "*XmLabelGadget.highlightThickness: 0\n"
     "*XmPushButton.traversalOn: True\n"
     "*XmToggleButton.traversalOn: True\n"
     "*XmTextField.traversalOn: True\n"
@@ -344,6 +349,13 @@ profile_property_string(Widget widget, XmAppearanceProfile profile,
                         AppearanceProperty property)
 {
     XrmValue value;
+    /* RowColumn permits shadows only for menus. Preserve the class baseline
+     * on work areas/options rather than asking SetValues to reject styling. */
+    if (property == AP_SHADOW_THICKNESS && XmIsRowColumn(widget)) {
+        unsigned char type = ((XmRowColumnWidget)widget)->row_column.type;
+        if (type != XmMENU_BAR && type != XmMENU_POPUP && type != XmMENU_PULLDOWN)
+            return NULL;
+    }
     if (appearance_database_value(widget, profile_defaults(profile, density), property,
                                   &value))
         return value.addr;
