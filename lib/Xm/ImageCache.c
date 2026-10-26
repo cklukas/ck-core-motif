@@ -414,6 +414,9 @@ UninstallImageMapProc (XmHashKey key, /* unused */
 {
   ImageData *entry = (ImageData *) value;
 
+  if (entry == NULL || image == NULL)
+    return False;
+
   if (entry->image == (XImage*) image)
     {
       /* Can't free built-in data. */
