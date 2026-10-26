@@ -21328,3 +21328,9 @@ WmInstallBitmapDataIntoXmCache now rejects missing names/data and zero-sized
 bitmaps before allocating and publishing an XImage. Invalid built-in bitmap
 descriptors no longer enter the Motif image cache.
 
+Handle MWM named-icon metadata failure (2026-10-26)
+-----------------------------------------------------
+MakeNamedIconPixmap now checks XmeGetPixmapData before using named-pixmap
+dimensions and depth. Failed metadata queries fall back to the built-in icon
+instead of passing uninitialized values into image construction.
+

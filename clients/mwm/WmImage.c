@@ -272,12 +272,17 @@ Pixmap MakeNamedIconPixmap (ClientData *pCD, String iconName)
 	}
       else
 	{
-	  XmeGetPixmapData(ScreenOfDisplay(DISPLAY, pCD->pSD->screen), pixmap,
-			   NULL, &depth, NULL, NULL, NULL, NULL,
-			   &width, &height);
-      
-	  pixmap = MakeIconPixmap (pCD, pixmap, XmUNSPECIFIED_PIXMAP,
-				   width, height, depth);
+	  if (XmeGetPixmapData(ScreenOfDisplay(DISPLAY, pCD->pSD->screen),
+			       pixmap, NULL, &depth, NULL, NULL, NULL, NULL,
+			       &width, &height))
+	      {
+		pixmap = MakeIconPixmap (pCD, pixmap, XmUNSPECIFIED_PIXMAP,
+					 width, height, depth);
+	      }
+	  else
+	      {
+		pixmap = XmUNSPECIFIED_PIXMAP;
+	      }
 	}
     }
 
