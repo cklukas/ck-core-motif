@@ -16798,4 +16798,11 @@ Guard DragUnder shadow GC creation (2026-10-27)
   optional contexts during cleanup.
 - Add a focused source regression and documentation.
 
+Guard DragUnder shared draw GC creation (2026-10-27)
+====================================================
+
+- Abort animation-save initialization and release its record when the shared
+  drawing graphics context cannot be created.
+- Add a focused source regression and documentation.
+
 ====================================================

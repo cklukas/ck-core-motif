@@ -194,6 +194,10 @@ CreateAnimationSaveData(
     vmask = GCGraphicsExposures|GCSubwindowMode|GCForeground|GCBackground;
     aSaveData->drawGC =
 	XCreateGC (aSaveData->display, aSaveData->window, vmask, &v);
+    if (aSaveData->drawGC == NULL) {
+	XtFree ((char *)aSaveData);
+	return NULL;
+    }
 
     if (aSaveData -> dragOver != (Widget) NULL) {
       /* Save info on active drag over mode */
