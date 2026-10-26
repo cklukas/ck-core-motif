@@ -203,7 +203,7 @@ XmStringByteCompare(
 {
     unsigned char  *a = NULL;
     unsigned char  *b = NULL;
-    unsigned short a_length, b_length;
+    unsigned int a_length, b_length;
     Boolean	   ret_val;
 
     if ((a1 == NULL) && (b1 == NULL)) {

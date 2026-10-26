@@ -1,3 +1,13 @@
+Preserve XmString byte-compare lengths (2026-10-27)
+====================================================
+
+- Keep the full `unsigned int` byte-stream lengths returned by
+  `XmCvtXmStringToByteStream` in `XmStringByteCompare`, preventing long
+  compound strings from comparing equal after 16-bit truncation.
+- Add a focused source regression and documentation.
+
+====================================================
+
 Gallery view-tab outlines (2026-10-27)
 =====================================
 
