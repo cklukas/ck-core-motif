@@ -1,3 +1,11 @@
+Refresh XmString rendition resize check (2026-10-27)
+===================================================
+
+- Extend the existing resize regression to cover the new count and allocation
+  width guards while retaining successful-reallocation state coverage.
+
+============================================================
+
 XmString rendition-tag growth bounds (2026-10-27)
 =================================================
 
