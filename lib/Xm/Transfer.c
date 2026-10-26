@@ -2318,31 +2318,23 @@ FreeTransferID(XtPointer id)
   TransferContext tid = (TransferContext) id;
   TransferContext pid, nid;
 
+  if (tid == NULL)
+    return;
+
   /* Free done_proc list */
   if (tid -> doneProcs != NULL) XtFree((char*) tid -> doneProcs);
 
-  /* first unchain from global_tc */
-
-  if (global_tc == tid) 
-    {
-      _XmProcessLock();
-      global_tc = (TransferContext) tid -> next;
-      if (global_tc != NULL)
-	global_tc -> prev = NULL;
-      _XmProcessUnlock();
-    }
-  else
-    {
-      /* Get previous and next */
-      pid = (TransferContext) tid -> prev;
-      nid = (TransferContext) tid -> next;
-      /* Connect prev and next */
-      if (pid != NULL) pid -> next = (XtPointer) nid;
-      if (nid != NULL) nid -> prev = (XtPointer) pid;
-    }
-
+  /* Unchain from global_tc and put on the free list atomically. */
   _XmProcessLock();
-  /* Put on free list */
+  pid = (TransferContext) tid -> prev;
+  nid = (TransferContext) tid -> next;
+  if (global_tc == tid)
+    global_tc = nid;
+  if (pid != NULL)
+    pid -> next = (XtPointer) nid;
+  if (nid != NULL)
+    nid -> prev = (XtPointer) pid;
+  tid -> prev = NULL;
   tid -> next = (XtPointer) free_tc;
   free_tc = tid;
   _XmProcessUnlock();

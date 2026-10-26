@@ -1,3 +1,11 @@
+Serialize transfer-id list reclamation (2026-10-26)
+====================================================
+
+- Keep active-list unlinking and free-list insertion in `FreeTransferID`
+  under one `_XmProcessLock`, preventing concurrent transfer completion from
+  corrupting global transfer state.
+- Ignore a null transfer ID and add focused coverage and documentation.
+
 Serialize transfer context lookup and insertion (2026-10-26)
 ==============================================================
 
