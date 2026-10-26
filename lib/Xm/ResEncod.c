@@ -837,6 +837,10 @@ XmCvtCTToXmString(
 	    break;
 
 	case CSI:
+	    if ((ctx->lastoctet - ctx->octet) < 3) {
+		ok = False;
+		break;
+	    }
 	    /*
 	    ** CSI format is:	CSI P I F   where
 	    **	    03/00 <= P <= 03/15
@@ -1311,6 +1315,10 @@ cvtTextToXmString(
 	    break;
 
 	case CSI:
+	    if ((ctx->lastoctet - ctx->octet) < 3) {
+		ok = False;
+		break;
+	    }
 	    /*
 	    ** CSI format is:	CSI P I F   where
 	    **	    03/00 <= P <= 03/15

@@ -16142,3 +16142,14 @@ Bound extended compound-text segments (2026-10-27)
 ==================================================
 
 Guard empty compound-text components (2026-10-27)
+Bound compound-text CSI lookahead (2026-10-27)
+===============================================
+
+- Require three remaining input bytes before CSI lookahead in both compound-
+  text decoders, preventing malformed short sequences from reading past the
+  buffer.
+- Add a focused source regression and documentation.
+
+================================================
+
+Bound extended compound-text segments (2026-10-27)
