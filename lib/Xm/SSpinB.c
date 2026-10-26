@@ -862,6 +862,9 @@ XmSimpleSpinBoxAddItem(	Widget		ssb_w,
 			XmString	item, 
 			int	 	pos)
 {
+    if (ssb_w == (Widget) NULL)
+	return;
+
     XmSimpleSpinBoxPart	*ssb_p = SSB_SIMPLE_SPIN_BOX_PART(ssb_w);
     XmSpinBoxConstraint	textf_c;
     XmStringTable	values;
@@ -998,6 +1001,9 @@ XmSimpleSpinBoxDeletePos(
 			Widget		ssb_w,
 			int	 	pos)
 {
+    if (ssb_w == (Widget) NULL)
+	return;
+
     XmSimpleSpinBoxPart	*ssb_p = SSB_SIMPLE_SPIN_BOX_PART(ssb_w);
     XmSpinBoxConstraint	textf_c;
     int			i, copied;
@@ -1123,6 +1129,9 @@ void
 XmSimpleSpinBoxSetItem(	Widget		ssb_w,
 			XmString 	item)
 {
+    if (ssb_w == (Widget) NULL)
+	return;
+
     XmSimpleSpinBoxPart	*ssb_p = SSB_SIMPLE_SPIN_BOX_PART(ssb_w);
     XmSpinBoxConstraint	textf_c;
     int			pos;

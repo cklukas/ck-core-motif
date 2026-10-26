@@ -1,3 +1,13 @@
+Guard SimpleSpinBox list API widget inputs (2026-10-27)
+========================================================
+
+- Return before widget-part or application-context lookup when
+  `XmSimpleSpinBoxAddItem`, `XmSimpleSpinBoxDeletePos`, or
+  `XmSimpleSpinBoxSetItem` receives a null widget.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard Container reorder inputs (2026-10-27)
 ============================================
 
