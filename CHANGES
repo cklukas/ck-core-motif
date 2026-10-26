@@ -22839,3 +22839,10 @@ Validate generic Text substring bounds (2026-10-26)
   output capacity checks, including element-sized checks for wide output.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-substring-bounds.py
+
+Check TextField destination-context allocations (2026-10-26)
+===============================================================
+- Handle context-record and destination-record allocation failure before
+  TextField destination callback registration or X context storage.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-destination-context.py

@@ -1461,6 +1461,8 @@ GetTextFDestData(Widget w)
     Widget xm_display = (Widget) XmGetXmDisplay(display);
 
     ctx_data = (XmTextContextData) XtMalloc(sizeof(XmTextContextDataRec));
+    if (ctx_data == NULL)
+      return NULL;
 
     ctx_data->screen = screen;
     ctx_data->context = loc_context;
@@ -1468,6 +1470,10 @@ GetTextFDestData(Widget w)
 
     dest_data = (TextFDestData) XtCalloc((unsigned)sizeof(TextFDestDataRec),
 					 (unsigned) 1);
+    if (dest_data == NULL) {
+      XtFree((char *)ctx_data);
+      return NULL;
+    }
     
     XtAddCallback(xm_display, XmNdestroyCallback, 
 		  (XtCallbackProc) FreeContextData, (XtPointer) ctx_data);
