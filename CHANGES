@@ -19745,3 +19745,10 @@ Guard rounded-zero image row strides (2026-10-26)
 - Reject a scaled image row stride that rounds to zero before deriving the
   temporary strip height, avoiding division by zero for very small scales.
 - Add focused regression coverage and documentation.
+Guard Text dynamic buffer growth (2026-10-26)
+==============================================
+
+- Check repaint-range and highlight-list `XtRealloc` results before updating
+  capacity or writing through the new arrays, preserving valid state on
+  allocation failure.
+- Add focused regression coverage and documentation.

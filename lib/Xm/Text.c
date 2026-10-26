@@ -851,9 +851,20 @@ AddRedraw(XmTextWidget tw,
       }
     }
     if (tw->text.repaint.number >= tw->text.repaint.maximum) {
-      tw->text.repaint.maximum = tw->text.repaint.number + 1;
-      tw->text.repaint.range = r = (RangeRec *)
-	XtRealloc((char *)r, tw->text.repaint.maximum * sizeof(RangeRec));
+      Cardinal requested_maximum;
+      RangeRec *new_range;
+
+      if (tw->text.repaint.number == UINT_MAX)
+	return;
+      requested_maximum = tw->text.repaint.number + 1;
+      if (requested_maximum > UINT_MAX / sizeof(RangeRec))
+	return;
+      new_range = (RangeRec *)XtRealloc(
+	(char *)r, requested_maximum * sizeof(RangeRec));
+      if (new_range == NULL)
+	return;
+      tw->text.repaint.maximum = requested_maximum;
+      tw->text.repaint.range = r = new_range;
     }
     r[tw->text.repaint.number].from = left;
     r[tw->text.repaint.number].to = right;
@@ -2215,13 +2226,22 @@ InsertHighlight(XmTextWidget tw,
     l1->mode = mode;
   else {
     i = (l1 - l) + 1;
-    tw->text.highlight.number++;
-    if (tw->text.highlight.number > tw->text.highlight.maximum) {
-      tw->text.highlight.maximum = tw->text.highlight.number;
-      l = tw->text.highlight.list = (_XmHighlightRec *)
-	XtRealloc((char *) l, tw->text.highlight.maximum *
-		  sizeof(_XmHighlightRec));
+    if (tw->text.highlight.number == UINT_MAX)
+	return;
+    if (tw->text.highlight.number + 1 > tw->text.highlight.maximum) {
+      Cardinal requested_maximum = tw->text.highlight.number + 1;
+      _XmHighlightRec *new_list;
+
+      if (requested_maximum > UINT_MAX / sizeof(_XmHighlightRec))
+	return;
+      new_list = (_XmHighlightRec *)XtRealloc(
+	(char *)l, requested_maximum * sizeof(_XmHighlightRec));
+      if (new_list == NULL)
+	return;
+      tw->text.highlight.maximum = requested_maximum;
+      l = tw->text.highlight.list = new_list;
     }
+    tw->text.highlight.number++;
     for (j=tw->text.highlight.number-1; j>i; j--)
       l[j] = l[j-1];
     l[i].position = position;
