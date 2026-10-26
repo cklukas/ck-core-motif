@@ -142,6 +142,9 @@ HashTableGrows(xpmHashTable *table)
     int i;
     unsigned int oldSize = size;
 
+    if (size == 0 || size > UINT_MAX / 2)
+	return (XpmNoMemory);
+
     t = atomTable;
     HASH_TABLE_GROWS
 	table->size = size;
