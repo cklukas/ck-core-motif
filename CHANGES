@@ -1,3 +1,12 @@
+Bound ScrollBar callback snapshots (2026-10-27)
+================================================
+
+- Validate callback-list count arithmetic and handle snapshot allocation
+  failure before copying or dispatching callbacks.
+- Add focused regression coverage and documentation.
+
+================================================
+
 Handle Toolbar action-array allocation failure (2026-10-27)
 =============================================================
 

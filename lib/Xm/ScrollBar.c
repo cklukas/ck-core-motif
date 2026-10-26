@@ -34,6 +34,8 @@ static char rcsid[] = "$TOG: ScrollBar.c /main/20 1997/03/10 14:52:28 dbl $"
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
+#include <limits.h>
+#include <stdint.h>
 
 #include <Xm/DisplayP.h>        /* for enableThinThickness */
 #include <Xm/DrawP.h>
@@ -4140,12 +4142,21 @@ CallScrollCallbackList(
     XtCallbackList snapshot;
     Cardinal count = 0;
     Cardinal i;
+    size_t entries;
 
     if (callbacks == NULL)
         return;
     while (callbacks[count].callback != NULL)
         count++;
-    snapshot = (XtCallbackList)XtMalloc((count + 1) * sizeof(*snapshot));
+    if (count == UINT_MAX)
+        return;
+    entries = (size_t)count + 1;
+    if (entries > SIZE_MAX / sizeof(*snapshot) ||
+        entries > UINT_MAX / sizeof(*snapshot))
+        return;
+    snapshot = (XtCallbackList)XtMalloc((Cardinal)(entries * sizeof(*snapshot)));
+    if (snapshot == NULL)
+        return;
     for (i = 0; i <= count; i++)
         snapshot[i] = callbacks[i];
     XtCallCallbackList(widget, snapshot, call_data);
