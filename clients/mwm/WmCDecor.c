@@ -206,7 +206,7 @@ void FrameExposureProc (ClientData *pcd)
 {
     GC topGC, botGC;
 
-    if (pcd == NULL)
+    if (pcd == NULL || pcd->clientFrameWin == None)
 	return;
 
     Window win = pcd->clientFrameWin;
@@ -303,7 +303,7 @@ void FrameExposureProc (ClientData *pcd)
 
 void BaseWinExposureProc (ClientData *pcd)
 {
-    if (pcd == NULL)
+    if (pcd == NULL || pcd->clientBaseWin == None)
 	return;
 
     /* bevel the matte (if there is one) */

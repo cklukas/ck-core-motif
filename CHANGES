@@ -21286,3 +21286,9 @@ RegenerateClientFrame now requires a realized frame, checks optional title and
 base children, and only resizes the complete stretcher-window set. Reconfigure
 events after partial teardown no longer issue X requests for stale IDs.
 
+Guard MWM frame exposure drawables (2026-10-26)
+------------------------------------------------
+FrameExposureProc and BaseWinExposureProc now validate their frame/base window
+IDs before issuing bevel drawing requests. Late exposure events after frame
+teardown are ignored instead of targeting destroyed drawables.
+
