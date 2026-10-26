@@ -868,7 +868,7 @@ _XmStringNCreate(char *text,
 {
   XmString		str;
   char     		*curtag = NULL; 
-  int      		t_length;
+  size_t                  t_length;
   unsigned int 		tag_index = 0;   
   _XmString		opt_str;
   XmTextType            type = XmCHARSET_TEXT;
@@ -876,7 +876,9 @@ _XmStringNCreate(char *text,
   if (!text) return ((XmString) NULL);
   if (!tag) return ((XmString) NULL);    
 
-  t_length = ((len >= 0) ? len : strlen (text));
+  t_length = (len >= 0) ? (size_t)len : strlen(text);
+  if (t_length > UINT_MAX)
+    return ((XmString) NULL);
 
   if ((tag == XmFONTLIST_DEFAULT_TAG) || 
       (strcmp(tag, XmFONTLIST_DEFAULT_TAG) == 0))

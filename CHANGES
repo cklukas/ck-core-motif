@@ -20234,3 +20234,12 @@ Refresh non-text Unicode qualification receipt (2026-10-26)
 - Record the current rpi4 static-cohort result: 32 public-API Unicode checks,
   including ToggleSwitch and SegmentedControl labels, with source and archive
   fingerprints in `docs/nontext-unicode.md`.
+
+Bound XmString creation length conversion (2026-10-26)
+=======================================================
+
+- Measure `_XmStringNCreate` input in `size_t` and reject byte counts that
+  cannot fit the legacy `unsigned int` segment field before allocation or
+  copying.
+- Preserve the existing optimized/non-optimized representation choice for
+  representable strings; see `docs/xmstring-create-failure.md`.
