@@ -21156,3 +21156,9 @@ ConstructFrame now checks each X window allocation before creating children or
 mapping the hierarchy, and tears down partial frame windows on failure. This
 prevents invalid-parent and invalid-window requests after X resource exhaustion.
 
+Guard MWM active icon-label window allocation (2026-10-26)
+------------------------------------------------------------
+CreateActiveIconTextWindow now handles an XCreateWindow failure explicitly,
+leaving the optional active label disabled instead of recording an invalid
+parent and allowing later label operations to target a missing window.
+

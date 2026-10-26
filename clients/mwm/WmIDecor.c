@@ -1772,6 +1772,12 @@ void CreateActiveIconTextWindow (WmScreenData *pSD)
 				       attr_mask,
 				       &window_attribs);
 
+    if (pSD->activeIconTextWin == None)
+	{
+	    pSD->activeLabelParent = None;
+	    return;
+	}
+
     
     pSD->activeLabelParent = pSD->rootWindow;
 
