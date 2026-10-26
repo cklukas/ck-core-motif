@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+<title>Warning dialog</title>
+<path d="M20 5 38 36H2z" fill="#67522c" opacity=".2"/>
+<path d="M20 3 38 34H2z" fill="#e5b64c" stroke="#66502e" stroke-width="1.5" stroke-linejoin="round"/>
+<path d="m6 31 14-24 4 7" fill="none" stroke="#fff1b1" stroke-width="1.5"/>
+<path d="M18 13h4l-.5 11h-3zM18 27h4v4h-4z" fill="#443e33"/>
+</svg>

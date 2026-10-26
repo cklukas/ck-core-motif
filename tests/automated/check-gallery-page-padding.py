@@ -1,20 +1,12 @@
 #!/usr/bin/env python3
-"""Ensure gallery notebook pages keep content away from their borders."""
+"""Check the shared page layout contract; runtime geometry is tested natively."""
 from pathlib import Path
-
-source = (Path(__file__).parents[2] / "demos/programs/ckmotif-gallery/gallery.c").read_text(
-    encoding="utf-8"
-)
-assert source.count("XmNmarginWidth, 16") >= 3
-assert source.count("XmNmarginHeight, 12") >= 3
-assert "XmNshadowThickness, 0" in source
-assert "XmNframeShadowThickness, 0" in source
-assert "const char *prompt =" in source
-assert "candidate_extents.width" in source
-assert 'strtok(remaining, " ")' in source
-assert "create_gallery_tab" in source
-assert "xmFrameWidgetClass" in source
-assert '"#aeb7c2"' in source
-assert 'strcmp(initial_id, "gallery.icons")' in source
-assert 'XmNcurrentPageNumber, 4' in source
-print("PASS gallery notebook pages use consistent inner padding")
+source = (Path(__file__).parents[2] / "demos/programs/ckmotif-gallery/gallery.c").read_text()
+assert "static Widget create_page" in source
+assert "XmNmarginWidth, 24, XmNmarginHeight, 24" in source
+for page in ("welcomePage", "examplePage", "sourcePage", "iconsPage"):
+    assert f'create_page(' in source and f'"{page}"' in source
+assert "XmNpacking, XmPACK_NONE" in source
+assert "XmVaCreateManagedNotebook" not in source
+assert "static void select_page" in source
+print("PASS gallery pages share consistent padding and purpose-sized previews")

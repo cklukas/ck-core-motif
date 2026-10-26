@@ -37,6 +37,8 @@ NON_COMPONENT_HEADERS = {
     "Xmfuncs.h",
 }
 BASE_CLASSES = {
+    # Hierarchy supplies node management; Outline and Tree provide layout.
+    "xmHierarchyWidgetClass",
     "xmDisplayClass",
     "xmGadgetClass",
     "xmManagerWidgetClass",

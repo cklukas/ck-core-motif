@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+<title>Question dialog</title>
+<path d="M7 5h26l3 3v22l-3 3H19l-8 6v-6H7l-3-3V8z" fill="#334f59" opacity=".2"/>
+<path d="M7 3h26l3 3v22l-3 3H19l-8 6v-6H7l-3-3V6z" fill="#4b858c" stroke="#2c454b" stroke-width="1.5"/>
+<path d="M7 26V6h25" fill="none" stroke="#afd9d4" stroke-width="1.5"/>
+<path d="M14 12c0-6 12-6 12 0 0 4-6 4-6 8" fill="none" stroke="#fff8e8" stroke-width="3.5"/>
+<rect x="18.25" y="24" width="3.5" height="3.5" fill="#fff8e8"/>
+</svg>

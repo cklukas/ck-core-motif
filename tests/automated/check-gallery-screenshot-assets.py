@@ -19,6 +19,8 @@ assert publication["manifest_sha256"] == expected_hash
 assert publication["capture"]["result"] == "pass"
 assert publication["capture"]["appearance_profile"] == "modern-light"
 assert publication["capture"]["dpi_input"]
+assert len(publication["library_sha256"]) == 64
+assert publication["capture"]["scale"] > 0
 expected_ids = [entry["id"] for entry in manifest["entries"]]
 actual_ids = [entry["id"] for entry in publication["entries"]]
 assert actual_ids == expected_ids

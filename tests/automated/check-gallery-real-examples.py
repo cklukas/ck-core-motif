@@ -22,7 +22,7 @@ for fragment in (
     "XmBreadcrumbBarSetSegments(example, segments, 3)",
     "XmAutoSuggestBoxSetSuggestions(example, suggestions, 3, 1)",
     "XmToastShow(example)",
-    'XmNindicatorOn, False',
+    'XmNindicatorOn, True',
     '"Kitchen lights"',
     'XmNset, False',
 ):
@@ -35,10 +35,10 @@ assert 'XmNsidebarExpandedWidth, 280' in gallery
 assert 'center_shell_frame(shell)' in gallery
 assert 'XQueryTree(display, XtWindow(shell)' in gallery
 assert 'XMoveWindow(display, parent' in gallery
-assert 'provenance_expose' in gallery
-assert 'XftDrawStringUtf8' in gallery
-assert 'XmNcurrentPageNumber, 2' in gallery
-assert "Interactive %s example — use the control below" in gallery
-for welcome in ("Hello world!", "Hallo Welt!", "こんにちは世界！", "你好，世界！"):
-    assert welcome in gallery, welcome
-print("PASS gallery segmented control uses a real data-backed example")
+assert 'select_page(state, 2)' in gallery
+assert 'component_name(entry' in gallery
+assert 'create_welcome(&state)' in gallery
+assert 'search_changed' in gallery
+assert 'XmPACK_NONE' in gallery
+assert 'Activate example' not in gallery
+print("PASS gallery uses interactive data-backed examples and native content layout")

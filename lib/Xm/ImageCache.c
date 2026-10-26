@@ -1016,6 +1016,15 @@ GetImage(
 	return TRUE;
     }
 
+#ifdef SVG_SUPPORTED
+    /* Embedded artwork uses the ordinary color/depth/scale-aware pixmap
+     * cache. An explicitly installed image above keeps precedence. */
+    if (_XmSvgGetBuiltinImage(screen, image_name,
+            acc_color && acc_color->background != XmUNSPECIFIED_PIXEL
+                ? acc_color->background : WhitePixelOfScreen(screen), image) == 0)
+        return NOT_CACHED;
+#endif
+
     /*** if no entry, try to read a new file and cache it
          only if it is a bitmap */
 

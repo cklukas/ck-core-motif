@@ -1,7 +1,7 @@
 # CK Core Motif component catalogue
 
 <!-- Generated from docs/modern-gallery-manifest.json; do not edit. -->
-<!-- manifest-sha256: 3f3f2a18ea80f887737d9750dd3eac87299eaef1741dea727e7af11a3bd9a423 -->
+<!-- manifest-sha256: b12695e62dc786f345fa4eba11bc0e2b83f651c7abec7fddb390d961a8286da7 -->
 
 This catalogue is generated from the gallery manifest. Each anchor is
 the documentation target recorded by the corresponding manifest entry.
@@ -804,7 +804,7 @@ the documentation target recorded by the corresponding manifest entry.
 - Example: `gallery.source.hierarchywidgetclass`
 - Interaction: `gallery.interaction.hierarchywidgetclass`
 - Screenshot: `gallery.screenshot.hierarchywidgetclass`
-- Capability: constructible
+- Capability: inventory-only
 
 ![Gallery screenshot](gallery-screenshots/xm-hierarchywidgetclass.png)
 

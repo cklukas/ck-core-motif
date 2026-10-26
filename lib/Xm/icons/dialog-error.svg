@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+<title>Error dialog</title>
+<path d="M13 5h14l9 9v14l-9 9H13l-9-9V14z" fill="#803e40" opacity=".22" transform="translate(0 1)"/>
+<path d="M13 3h14l9 9v14l-9 9H13l-9-9V12z" fill="#b94948" stroke="#4d3032" stroke-width="1.5"/>
+<path d="M14 5h12l7 7" fill="none" stroke="#f2a29a" stroke-width="2"/>
+<path d="m14 13 12 12m0-12L14 25" fill="none" stroke="#fff5e8" stroke-width="4" stroke-linecap="square"/>
+</svg>

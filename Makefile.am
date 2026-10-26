@@ -1164,3 +1164,11 @@ ckmotifxxinclude_HEADERS = cpp/ckmotif++/motif_support.hpp
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = ckmotif++-8.pc
 endif
+
+EXTRA_DIST += scripts/generate-dialog-icons.py \
+              tests/automated/check-dialog-icons.c \
+              tests/automated/run-dialog-icons.py
+.PHONY: check-dialog-artwork
+check-local: check-dialog-artwork
+check-dialog-artwork:
+	$(PYTHON) $(srcdir)/scripts/generate-dialog-icons.py --check

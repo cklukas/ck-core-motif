@@ -34,3 +34,32 @@ unavailable result:
 python3 tests/automated/run-svg-image.py --prefix PREFIX --out ABSOLUTE-OUT \
   --expect-unavailable
 ```
+
+## Built-in dialog artwork
+
+SVG-enabled libraries embed five 40×40 vector symbols: `dialog_error`,
+`dialog_information`, `dialog_question`, `dialog_warning`, and `dialog_working`.
+Their outlined shapes, restrained red/blue/teal/amber/violet colors and bevel
+highlights retain a workstation-era appearance at a readable size. Meaning is
+also expressed by shape and symbol, not only by color. The SVGs contain paths
+and shapes, so the result does not depend on installed fonts.
+
+`XmMessageBox` first honors an explicit `XmNsymbolPixmap` or application image
+override. Its default then uses the vector symbol, falling back to the original
+bitmap if SVG rendering is unavailable. Non-SVG builds retain the original
+bitmap path and acquire no new runtime dependency. A different requested
+background or scaling ratio retains its own ordinary pixmap-cache entry.
+
+The editable sources live in `lib/Xm/icons/dialog-*.svg` and are embedded in
+`DialogIconsI.h`, avoiding runtime installation-path dependencies. Run
+`scripts/generate-dialog-icons.py` after editing the artwork and use its
+`--check` option to verify that the embedded representation is current.
+The native `check-dialog-icons.c` fixture verifies all five default symbols,
+cache reuse, doubled dimensions, background flattening and explicit custom
+pixmap precedence. Run it in both SVG-enabled and non-SVG configurations.
+
+```sh
+python3 tests/automated/run-dialog-icons.py --build BUILD --out ABSOLUTE-OUT
+python3 tests/automated/run-dialog-icons.py --build NON-SVG-BUILD \
+  --out ANOTHER-ABSOLUTE-OUT --expect-unavailable
+```

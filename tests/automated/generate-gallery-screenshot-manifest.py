@@ -41,6 +41,8 @@ def main() -> int:
         raise SystemExit("screenshot receipt is not a passing qualification")
     if receipt.get("manifest_sha256") != expected_hash:
         raise SystemExit("screenshot receipt manifest hash is stale")
+    if receipt.get("appearance") != args.profile:
+        raise SystemExit("published profile differs from the captured profile")
     by_id = {entry["id"]: entry for entry in receipt.get("entries", [])}
     expected_ids = [entry["id"] for entry in manifest["entries"]]
     if list(by_id) != expected_ids:
@@ -51,6 +53,8 @@ def main() -> int:
         path = asset_root / Path(source["png"]).name
         if not path.is_file():
             raise SystemExit(f"missing published screenshot: {path}")
+        if sha256(path) != source["png_sha256"]:
+            raise SystemExit(f"published screenshot differs from captured bytes: {path}")
         width, height = png_size(path)
         entries.append({
             "id": entry_id,
@@ -63,12 +67,14 @@ def main() -> int:
         "schema": 1,
         "manifest_sha256": expected_hash,
         "binary_sha256": receipt["binary_sha256"],
+        "library_sha256": receipt.get("library_sha256"),
         "capture": {
             "result": receipt["result"],
             "display": receipt["display"],
             "window_name": receipt["window_name"],
             "viewport": args.viewport,
             "appearance_profile": args.profile,
+            "scale": receipt["scale"],
             "dpi_input": args.dpi_input,
             "runner": "tests/automated/run-gallery-screenshots.py",
         },

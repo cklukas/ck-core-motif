@@ -31,6 +31,19 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def loaded_library(process: subprocess.Popen[bytes]) -> tuple[str, str] | None:
+    """Fingerprint the library actually mapped by the Linux gallery process."""
+    if platform.system() != "Linux":
+        return None
+    paths = {line.split()[-1] for line in
+             Path(f"/proc/{process.pid}/maps").read_text().splitlines()
+             if "/libXm.so" in line}
+    if len(paths) != 1:
+        raise RuntimeError(f"Cannot identify the gallery's loaded libXm: {paths}")
+    path = Path(paths.pop()).resolve(strict=True)
+    return str(path), sha256(path)
+
+
 def process_failure(process: subprocess.Popen[bytes], entry_id: str) -> RuntimeError | None:
     """Return a diagnostic if the gallery exited before its shell appeared."""
     returncode = process.poll()
@@ -83,6 +96,24 @@ def find_window_id(xwininfo: str, env: dict[str, str], timeout: float = 10,
             last_error = f"mapped {WINDOW_NAME} window not found"
         time.sleep(0.05)
     raise RuntimeError(last_error)
+
+
+def wait_ready(window_id: str, process: subprocess.Popen[bytes],
+               env: dict[str, str], entry_id: str, timeout: float = 30) -> None:
+    """Wait for the actual gallery process to finish its initial event queue."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        failure = process_failure(process, entry_id)
+        if failure:
+            raise failure
+        result = subprocess.run(["xprop", "-id", window_id,
+                                 "_NET_WM_PID", "_CKMOTIF_GALLERY_READY"],
+                                env=env, capture_output=True, text=True, timeout=2)
+        if (f"_NET_WM_PID(CARDINAL) = {process.pid}" in result.stdout and
+                "_CKMOTIF_GALLERY_READY(CARDINAL) = 1" in result.stdout):
+            return
+        time.sleep(0.05)
+    raise RuntimeError(f"{entry_id}: gallery did not signal capture readiness")
 
 
 def main() -> int:
@@ -146,7 +177,7 @@ def main() -> int:
             return skip(f"gallery binary not found: {args.binary}")
         if not args.display:
             return skip("DISPLAY is not set")
-        if not xwd or not xwininfo or not xwdtopnm or not pnmtopng:
+        if not xwd or not xwininfo or not xwdtopnm or not pnmtopng or not shutil.which("xprop"):
             return skip("xwd, xwininfo, xwdtopnm and pnmtopng are required")
         for entry in manifest["entries"]:
             entry_started = time.monotonic()
@@ -158,12 +189,19 @@ def main() -> int:
                 stderr=subprocess.PIPE,
             )
             try:
-                time.sleep(0.25)
                 stem = entry["id"].replace(".", "-")
                 xwd_output = args.out / (stem + ".xwd")
                 png_output = args.out / (stem + ".png")
                 window_id = find_window_id(xwininfo, env, process=process,
                                            entry_id=entry["id"])
+                wait_ready(window_id, process, env, entry["id"])
+                library = loaded_library(process)
+                if library:
+                    path, fingerprint = library
+                    if receipt.get("library_sha256", fingerprint) != fingerprint:
+                        raise RuntimeError("Loaded libXm changed during the capture run")
+                    receipt["library"] = path
+                    receipt["library_sha256"] = fingerprint
                 with xwd_output.open("wb") as stream:
                     capture = subprocess.run(
                         [xwd, "-id", window_id, "-silent"], env=env,

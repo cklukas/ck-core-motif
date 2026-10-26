@@ -13,6 +13,9 @@ extern "C" {
 int _XmSvgGetImage(Screen *screen, const char *filename, Pixel background,
                    XImage **image_return);
 
+int _XmSvgGetBuiltinImage(Screen *screen, const char *name, Pixel background,
+                          XImage **image_return);
+
 #ifdef __cplusplus
 }
 #endif

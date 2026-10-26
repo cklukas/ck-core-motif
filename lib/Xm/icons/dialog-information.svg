@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+<title>Information dialog</title>
+<rect x="4" y="5" width="32" height="32" rx="3" fill="#2b465b" opacity=".2"/>
+<rect x="4" y="3" width="32" height="32" rx="3" fill="#447ca4" stroke="#283e53" stroke-width="1.5"/>
+<path d="M7 31V6h26" fill="none" stroke="#a9d2e3" stroke-width="1.5"/>
+<path d="M18 17h4v11h-4zm0-8h4v4h-4z" fill="#fff8e9"/>
+</svg>

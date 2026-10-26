@@ -18,9 +18,9 @@ for label in ("Open", "Save", "Print", "Undo"):
     assert f'"{label}"' in toolbar
 assert "XmToolbarSetActions(example, actions, 4)" in toolbar
 assert "XmToolbarSetActionIcons(example, icons, 4)" in toolbar
-for panel in ("Header panel", "Content panel", "Footer panel"):
+for panel in ("Document settings", "Document name", "Apply settings"):
     assert f'"{panel}"' in source
-assert 'gallery_named_color(parent, "#dbeafe"' in source
+assert "XmNindicatorOn, True" in source
 assert "XmTreeViewSetNodes(example, nodes, XtNumber(nodes))" in source
 assert "XmDataGridSetModel(example, columns, XtNumber(columns), rows" in source
 assert "XmCalendarSetDate(example, &date, False)" in source

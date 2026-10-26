@@ -14,10 +14,9 @@ placeholder that some window managers expose during shell startup.
 
 `PROFILE` is one of `classic`, `modern-light`, `high-contrast` or
 `modern-dark`. `SCALE` is a finite positive display-scale override no greater
-than 64. The gallery applies these through the public
-`XmApplyAppearanceProfile` and `XmSetDisplayScaleOverride` APIs after
-realization; a failed transaction terminates the scenario instead of
-producing an unlabeled image. The runner records both values in
+than 64. The gallery selects the appearance and scale before creating its child
+widgets. The readiness property is published only after the initial event
+queue settles; the runner checks that it belongs to the launched process. The runner records both values in
 `receipt.json`, so captures at different settings cannot be confused with
 the default profile.
 
@@ -27,7 +26,7 @@ receipt includes its exit status and stderr; this keeps a toolkit failure
 visible instead of misreporting it as a missing display.
 
 Each output directory contains a `receipt.json` with the manifest and binary
-hashes, capture-tool paths, per-entry XWD/PNG hashes, elapsed time, and an
+and actual loaded-library hashes, capture-tool paths, per-entry XWD/PNG hashes, elapsed time, and an
 explicit result:
 
 - `pass`: every manifest scenario produced both captures;
@@ -75,8 +74,8 @@ DISPLAY=:121 python3 tests/automated/run-gallery-screenshot-matrix.py \
 ```
 
 The checked-in publication set uses the current `modern-light` profile at
-1.5x scale. This is an explicit startup profile, not a legacy `classic`
-capture; the binary hash in the publication manifest must match the gallery
+1.0x scale with SVG dialog artwork enabled. The profile and scale are
+selected explicitly at startup; the binary hash in the publication manifest must match the gallery
 binary used to generate it.
 
 Published PNGs are projected into `docs/gallery-screenshots/manifest.json` by

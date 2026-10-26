@@ -77,15 +77,15 @@
       "id": "xm.hierarchywidgetclass",
       "header": "lib/Xm/Hierarchy.h",
       "class_symbol": "xmHierarchyWidgetClass",
-      "kind": "widget",
-      "constructible": true,
+      "kind": "base",
+      "constructible": false,
       "category": "data-views",
       "construction_owner": "gallery.component.hierarchywidgetclass",
       "source_fragment": "gallery.source.hierarchywidgetclass",
       "interaction_scenario": "gallery.interaction.hierarchywidgetclass",
       "docs_anchor": "gallery.component.hierarchywidgetclass",
       "screenshot_scenario": "gallery.screenshot.hierarchywidgetclass",
-      "disposition": "planned-example"
+      "disposition": "excluded-base"
     },
     {
       "id": "xm.ext18listwidgetclass",

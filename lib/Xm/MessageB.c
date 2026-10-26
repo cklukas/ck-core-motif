@@ -32,6 +32,7 @@ static char rcsid[] = "$TOG: MessageB.c /main/18 1999/10/13 16:17:09 mgreess $"
 #endif
 
 #include <string.h>
+#include <stdio.h>
 #include <limits.h>
 #include <stdint.h>
 #include <Xm/AccColorT.h>	/* for XmAccessColorDataRec */
@@ -1652,6 +1653,16 @@ GetMsgBoxPixmap(
 	tmpPix = _XmGetScaledPixmap(mBox->core.screen, (Widget)mBox,
 				    fileName, 
 				    &acc_color_rec, depth, FALSE, 0) ;
+#ifdef SVG_SUPPORTED
+        if (tmpPix == XmUNSPECIFIED_PIXMAP) {
+            char svg_name[64];
+            /* Keep application image overrides first; use the embedded
+             * vector artwork before the legacy built-in bitmap. */
+            snprintf(svg_name, sizeof(svg_name), "dialog_%s", fileName + 3);
+            tmpPix = _XmGetScaledPixmap(mBox->core.screen, (Widget)mBox,
+                svg_name, &acc_color_rec, mBox->core.depth, FALSE, 0);
+        }
+#endif
  	if(    tmpPix == XmUNSPECIFIED_PIXMAP    ) {   
 	    tmpPix = _XmGetScaledPixmap(mBox->core.screen,  (Widget)mBox,
 					 defaultName,

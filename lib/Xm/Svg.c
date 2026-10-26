@@ -4,6 +4,7 @@
 #endif
 
 #include "SvgI.h"
+#include "DialogIconsI.h"
 
 #include <cairo.h>
 #include <librsvg/rsvg.h>
@@ -111,12 +112,10 @@ create_ximage(Screen *screen, unsigned int width, unsigned int height)
     return image;
 }
 
-int
-_XmSvgGetImage(Screen *screen, const char *filename, Pixel background,
-               XImage **image_return)
+static int
+render_svg_source(Screen *screen, const unsigned char *source, size_t source_length,
+                  Pixel background, XImage **image_return)
 {
-    unsigned char *source = NULL;
-    size_t source_length = 0;
     RsvgHandle *handle = NULL;
     RsvgRectangle viewport;
     GError *error = NULL;
@@ -132,14 +131,11 @@ _XmSvgGetImage(Screen *screen, const char *filename, Pixel background,
     unsigned int y;
     int status = 1;
 
-    if (screen == NULL || filename == NULL || image_return == NULL)
+    if (screen == NULL || source == NULL || source_length == 0 ||
+        source_length > XM_SVG_MAX_SOURCE_BYTES || image_return == NULL)
         return 1;
     *image_return = NULL;
-    if (read_svg_source(filename, &source, &source_length) != 0)
-        return 1;
     handle = rsvg_handle_new_from_data(source, source_length, &error);
-    free(source);
-    source = NULL;
     if (handle == NULL)
         goto cleanup;
     if (!rsvg_handle_get_intrinsic_size_in_pixels(handle, &intrinsic_width,
@@ -212,6 +208,35 @@ cleanup:
         cairo_surface_destroy(surface);
     if (handle != NULL)
         g_object_unref(handle);
+    return status;
+}
+
+int
+_XmSvgGetImage(Screen *screen, const char *filename, Pixel background,
+               XImage **image_return)
+{
+    unsigned char *source = NULL;
+    size_t length = 0;
+    int status;
+    if (image_return == NULL || filename == NULL) return 1;
+    *image_return = NULL;
+    if (read_svg_source(filename, &source, &length) != 0) return 1;
+    status = render_svg_source(screen, source, length, background, image_return);
     free(source);
     return status;
+}
+
+int
+_XmSvgGetBuiltinImage(Screen *screen, const char *name, Pixel background,
+                      XImage **image_return)
+{
+    size_t i;
+    if (name == NULL || image_return == NULL) return 1;
+    *image_return = NULL;
+    for (i = 0; i < sizeof(dialog_svg_icons) / sizeof(dialog_svg_icons[0]); ++i)
+        if (!strcmp(name, dialog_svg_icons[i].name))
+            return render_svg_source(screen,
+                (const unsigned char *)dialog_svg_icons[i].source,
+                strlen(dialog_svg_icons[i].source), background, image_return);
+    return 1;
 }

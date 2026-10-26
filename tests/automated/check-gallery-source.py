@@ -33,7 +33,7 @@ def main() -> int:
     source_contract = gallery + "\n" + text
     for api in ("XmSidebar", "XmTreeView", "Notebook.h", "XmStatusBar",
                 "Example", "Source", "XmTreeViewSetSelectedId",
-                "XmSidebarSetExpanded", "XmNcurrentPageNumber",
+                "XmSidebarSetExpanded", "select_page",
                 "XmAccessibilityCreate", "XmAccessibilityQuery",
                 "exercise_component_matrix", "XtCallCallbacks",
                 "XmTextGetString", "XmApplyAppearanceProfile",

@@ -75,7 +75,7 @@ endif
 
 if OM_LIBRSVG
 SVG_SRCS = Svg.c
-SVG_HDRS = SvgI.h
+SVG_HDRS = SvgI.h DialogIconsI.h
 else
 SVG_SRCS =
 SVG_HDRS =
@@ -345,3 +345,8 @@ splint: $(STRING_FILES)
 	$(SPLINT) $(INCLUDES) $(SPLINT_EXTRAFLAGS) $(top_srcdir)/lib/Xm/*.c
 
 #include $(srcdir)/check_headers.am
+
+# Original vector sources accompany their deterministic embedded representation.
+EXTRA_DIST += icons/dialog-error.svg icons/dialog-information.svg \
+ icons/dialog-question.svg icons/dialog-warning.svg icons/dialog-working.svg \
+ DialogIconsI.h
