@@ -19876,6 +19876,13 @@ Guard Text cursor-scroll line tables (2026-10-26)
   unavailable or empty, avoiding null and out-of-range line-table access.
 - Add focused regression coverage and documentation.
 
+Bound Text event hit-tests (2026-10-26)
+========================================
+
+- Saturate button-event coordinates before Position-based hit-testing across
+  cursor placement, selection, in-selection, and destination actions.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 

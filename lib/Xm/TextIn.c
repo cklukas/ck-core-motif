@@ -3130,8 +3130,8 @@ SetCursorPosition(Widget w,
   _XmTextResetIC(w);
   if (event)
     _XmTextSetCursorPosition(w, (*tw->text.output->XYToPos)(tw, 
-							    event->xbutton.x,
-							    event->xbutton.y));
+							    ClampTextPointCoordinate(event->xbutton.x),
+							    ClampTextPointCoordinate(event->xbutton.y)));
 }
 
 static void 
@@ -3807,8 +3807,9 @@ StartPrimary(Widget w,
   _XmTextResetIC(w);
   EraseInsertionPoint(tw);
   if (event)
-    data->anchor = (*tw->text.output->XYToPos)(tw, event->xbutton.x,
-					       event->xbutton.y);
+    data->anchor = (*tw->text.output->XYToPos)(tw,
+						       ClampTextPointCoordinate(event->xbutton.x),
+						       ClampTextPointCoordinate(event->xbutton.y));
   else
     data->anchor = tw->text.cursor_position;
   SetSelectionHint(w, event, params, num_params);
@@ -3956,9 +3957,10 @@ InSelection(Widget w,
   Position x, y;
   
   if (event) {
-    position = (*tw->text.output->XYToPos)(tw, event->xbutton.x,
-					   event->xbutton.y);
-    x = event->xbutton.x;
+    position = (*tw->text.output->XYToPos)(tw,
+						   ClampTextPointCoordinate(event->xbutton.x),
+						   ClampTextPointCoordinate(event->xbutton.y));
+    x = ClampTextPointCoordinate(event->xbutton.x);
   } else {
     position = tw->text.cursor_position;
     (*tw->text.output->PosToXY)(tw, position, &x, &y);
@@ -4444,8 +4446,9 @@ ExtendSecondary(Widget w,
   
   EraseInsertionPoint(tw);
   if (event)
-    position = (*tw->text.output->XYToPos)(tw, event->xbutton.x,
-					   event->xbutton.y);
+    position = (*tw->text.output->XYToPos)(tw,
+						   ClampTextPointCoordinate(event->xbutton.x),
+						   ClampTextPointCoordinate(event->xbutton.y));
   else
     position = tw->text.cursor_position;
 
@@ -4599,8 +4602,9 @@ MoveDestination(Widget w,
   _XmTextResetIC(w);
   EraseInsertionPoint(tw);
   if (event)
-    new_pos = (*tw->text.output->XYToPos)(tw, event->xbutton.x,
-					  event->xbutton.y);
+    new_pos = (*tw->text.output->XYToPos)(tw,
+						  ClampTextPointCoordinate(event->xbutton.x),
+						  ClampTextPointCoordinate(event->xbutton.y));
   else
     new_pos = tw->text.cursor_position;
   
