@@ -1,3 +1,12 @@
+Make TextField preedit growth transactional (2026-10-27)
+==========================================================
+
+- Check every overstrike byte and wide-character `XtRealloc` through a
+  temporary pointer before replacing the live buffer.
+- Add a focused source regression and documentation.
+
+==========================================================
+
 Guard TextField overstrike preedit allocations (2026-10-27)
 ============================================================
 

@@ -9417,6 +9417,8 @@ PreeditDraw(XIC xic,
     size_t i;
     XmTextPosition recover_len=0;
     char *ptr=NULL, *recover_mb=NULL;
+    char *resized_mb;
+    wchar_t *resized_wc;
     Widget p =w;
     Boolean need_verify, end_preedit = False;
 
@@ -9612,13 +9614,24 @@ PreeditDraw(XIC xic,
 	}
 
         if (tf->text.overstrike && rest_len){
-            mb = XtRealloc(mb, strlen(mb)+strlen(over_mb)+1);
+            resized_mb = XtRealloc(mb, strlen(mb)+strlen(over_mb)+1);
+            if (resized_mb == NULL) {
+                XtFree(mb);
+                XtFree(over_mb);
+                return;
+            }
+            mb = resized_mb;
             strcat(mb, over_mb);
             XtFree(over_mb);
         }
 
         if (tf->text.overstrike && recover_len > 0) {
-           mb = XtRealloc(mb, strlen(mb)+(recover_len+1));
+           resized_mb = XtRealloc(mb, strlen(mb)+(recover_len+1));
+           if (resized_mb == NULL) {
+               XtFree(mb);
+               return;
+           }
+           mb = resized_mb;
            ptr = tf->text.onthespot->over_str + tf->text.onthespot->over_maxlen;
            i = strlen(mb);
            strncat(mb, ptr, recover_len);
@@ -9665,15 +9678,26 @@ PreeditDraw(XIC xic,
         }
 
         if (tf->text.overstrike && rest_len){
-            wc = (wchar_t *)XtRealloc((char *)wc,
+            resized_wc = (wchar_t *)XtRealloc((char *)wc,
                         (insert_length+rest_len+1)*sizeof(wchar_t));
+            if (resized_wc == NULL) {
+                XtFree((char *)wc);
+                XtFree((char *)over_wc);
+                return;
+            }
+            wc = resized_wc;
             wcscat(wc, over_wc);
             XtFree((char *)over_wc);
         }
 
         if (tf->text.overstrike && recover_len > 0) {
-           wc = (wchar_t *)XtRealloc((char *)wc,
+           resized_wc = (wchar_t *)XtRealloc((char *)wc,
                        wcslen(wc)+(recover_len+1)*sizeof(wchar_t));
+           if (resized_wc == NULL) {
+               XtFree((char *)wc);
+               return;
+           }
+           wc = resized_wc;
            recover_mb = XtMalloc((tf->text.onthespot->over_len+1)*sizeof(char));
            if (wcstombs(recover_mb,
                         (wchar_t *)tf->text.onthespot->over_str,
