@@ -7052,11 +7052,20 @@ static void
 ClassPartInitialize(WidgetClass w_class)
 {
   char *event_bindings;
+  size_t event_bindings_len;
   
   _XmFastSubclassInit (w_class, XmTEXT_FIELD_BIT);
-  event_bindings = (char *)XtMalloc((unsigned) (strlen(EventBindings1) +
-						strlen(EventBindings2) +
-						strlen(EventBindings3) + 1));
+  event_bindings_len = strlen(EventBindings1);
+  if (event_bindings_len > SIZE_MAX - strlen(EventBindings2))
+    return;
+  event_bindings_len += strlen(EventBindings2);
+  if (event_bindings_len > SIZE_MAX - strlen(EventBindings3) - 1 ||
+      event_bindings_len + strlen(EventBindings3) + 1 > UINT_MAX)
+    return;
+  event_bindings_len += strlen(EventBindings3) + 1;
+  event_bindings = (char *)XtMalloc((Cardinal)event_bindings_len);
+  if (event_bindings == NULL)
+    return;
   
   strcpy(event_bindings, EventBindings1);
   strcat(event_bindings, EventBindings2);

@@ -342,6 +342,14 @@ Guard TextField WCS callback buffers (2026-10-27)
   cannot be represented or allocated.
 - Add a focused source regression and documentation.
 
+Guard TextField class translation allocation (2026-10-27)
+==========================================================
+
+- Bound merged class translation lengths before Xt allocation and narrowing.
+- Preserve fast-subclass registration and return cleanly if translation
+  storage is unavailable.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
