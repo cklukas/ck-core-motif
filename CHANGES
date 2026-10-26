@@ -1,3 +1,12 @@
+Bound XPM grayscale color replacement (2026-10-27)
+====================================================
+
+- Replace in-place writes of expanded grayscale colors with an allocated,
+  checked replacement string, avoiding overflow for short XPM hex colors.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Refresh MWM database-path regression contract (2026-10-27)
 ============================================================
 

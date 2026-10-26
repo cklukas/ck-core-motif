@@ -33,6 +33,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <X11/IntrinsicP.h>
 #include <X11/ShellP.h>
@@ -1316,6 +1317,27 @@ FromColorToBlackAndWhite(char *col)
    return (bw);
 }
 
+static Boolean
+ReplaceColorWithGray(XpmColor *color, unsigned int gray)
+{
+   char *replacement;
+   int length;
+
+   if (color == NULL || color->c_color == NULL)
+      return False;
+   replacement = (char *)malloc(14);
+   if (replacement == NULL)
+      return False;
+   length = snprintf(replacement, 14, "#%04x%04x%04x", gray, gray, gray);
+   if (length < 0 || length >= 14) {
+      free(replacement);
+      return False;
+   }
+   XpmFree(color->c_color);
+   color->c_color = replacement;
+   return True;
+}
+
 Pixmap
 _XmConvertToBW(Widget w, Pixmap pm)
 {
@@ -1341,7 +1363,7 @@ _XmConvertToBW(Widget w, Pixmap pm)
 			   col = strdup(im.colorTable[0].c_color);
                if (col != NULL && col[0] == '#') {
 				   bw = (FromColorToBlackAndWhite(col + 1) * 0.65);
-				   sprintf(im.colorTable[0].c_color, "#%04x%04x%04x", bw, bw, bw);
+                   ReplaceColorWithGray(&im.colorTable[0], bw);
 			   }
 			   if (col) 
 				   free(col);
@@ -1353,26 +1375,19 @@ _XmConvertToBW(Widget w, Pixmap pm)
 				   bw2 = FromColorToBlackAndWhite(col2 + 1);
 				   if (bw >= bw2) {
 					   bw2 = bw2 + ((bw - bw2) * 0.65);
-					   sprintf(im.colorTable[1].c_color, "#%04x%04x%04x", bw2, bw2, bw2);
+                       ReplaceColorWithGray(&im.colorTable[1], bw2);
 				   } else {
 					   bw = bw + ((bw2 - bw) * 0.65);
-					   sprintf (im.colorTable[0].c_color, "#%04x%04x%04x", bw, bw, bw);
+                       ReplaceColorWithGray(&im.colorTable[0], bw);
 				   }
 			   }
 		   }
 	   } else {
-		   char e[5];
 		   for (i = 0; i < im.ncolors; i++) {
 			   col = im.colorTable[i].c_color;
 			   if (col[0] == '#') {
 				   bw = FromColorToBlackAndWhite(col + 1);
-				   /* could be					
-					sprintf(im.colorTable[i].c_color, "#%04x%04x%04x", bw, bw, bw);
-					Four lower lines is sprintf optimized version */
-				   sprintf(e, "%04x", bw);
-				   memcpy(col + 1, e, 4);
-				   memcpy(col + 5, e, 4);
-				   memcpy(col + 9, e, 4);
+				   ReplaceColorWithGray(&im.colorTable[i], bw);
 			   }
 		   }
 	   }
