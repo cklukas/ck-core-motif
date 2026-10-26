@@ -10,6 +10,8 @@ assert "if (homeDir == NULL)" in region
 assert "homeLength = strlen(homeDir);" in region
 assert "SIZE_MAX - fileLength - 2 - EXTRA_FN_CHARS" in region
 assert "homeLength + fileLength + 2 + EXTRA_FN_CHARS > UINT_MAX" in region
-assert "(Cardinal)(homeLength + fileLength + 2 + EXTRA_FN_CHARS)" in region
-assert "sprintf(wmGD.dbFileName, \"%s/%s\", homeDir, dtwmFileName);" in region
+assert "dbFileLength = homeLength + fileLength + 2 + EXTRA_FN_CHARS;" in region
+assert "XtMalloc((Cardinal)dbFileLength)" in region
+assert "snprintf(wmGD.dbFileName, dbFileLength" in region
+assert "renderedLength < 0" in region
 print("PASS MWM database naming guards home-directory lookup")

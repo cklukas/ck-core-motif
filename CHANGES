@@ -1,3 +1,11 @@
+Refresh MWM database-path regression contract (2026-10-27)
+============================================================
+
+- Align the home-directory allocation check with the transactional
+  `dbFileLength`/`snprintf` implementation and its failure cleanup.
+
+============================================================
+
 Refresh TreeView geometry regression contracts (2026-10-27)
 ============================================================
 
