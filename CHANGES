@@ -22599,3 +22599,9 @@ Clean up DataField transfer teardown (2026-10-26)
   lost its widget during teardown.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-datafield-drop-transfer-cleanup.py
+Clean up malformed DataField transfer metadata (2026-10-26)
+=============================================================
+- Release incoming DataField transfer values when type or length metadata is
+  missing, and fail the transfer when its widget is available.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-datafield-drop-metadata-cleanup.py

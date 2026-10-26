@@ -9898,8 +9898,17 @@ df_DropTransferCallback(
     Boolean replace = False;
     XmAnyCallbackStruct cb;
 
-    if (w == NULL || closure == NULL || type == NULL || length == NULL)
+    if (w == NULL || closure == NULL || type == NULL || length == NULL) {
+        if (w != NULL) {
+            Arg fail_args[2];
+            XtSetArg(fail_args[0], XmNtransferStatus, XmTRANSFER_FAILURE);
+            XtSetArg(fail_args[1], XmNnumDropTransfers, 0);
+            XtSetValues(w, fail_args, 2);
+        }
+        if (value != NULL)
+            XtFree((char *)value);
         return;
+    }
     transfer_rec = (_XmTextDropTransferRec *) closure;
     if (transfer_rec->widget == NULL) {
         Arg fail_args[2];
