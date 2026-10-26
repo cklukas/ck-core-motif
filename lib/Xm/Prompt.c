@@ -91,7 +91,16 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmPromptWidget old = (XmPromptWidget)old_widget, prompt = (XmPromptWidget)widget;
     XmString replacement;
     Boolean font_changed = old->prompt.font != prompt->prompt.font;
+    Boolean colors_changed =
+        old->primitive.foreground != prompt->primitive.foreground ||
+        old->core.background_pixel != prompt->core.background_pixel;
     (void)request; (void)args; (void)count;
+    if (colors_changed && prompt->prompt.gc) {
+        XSetForeground(XtDisplay(widget), prompt->prompt.gc,
+                       prompt->primitive.foreground);
+        XSetBackground(XtDisplay(widget), prompt->prompt.gc,
+                       prompt->core.background_pixel);
+    }
     if (font_changed) {
         XmRenderTable new_font = prompt->prompt.font ? XmFontListCopy(prompt->prompt.font) :
             XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
@@ -107,7 +116,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
             prompt->prompt.text = old->prompt.text;
         }
     }
-    return font_changed || old->prompt.text != prompt->prompt.text ||
+    return font_changed || colors_changed ||
+           old->prompt.text != prompt->prompt.text ||
            old->prompt.visible != prompt->prompt.visible;
 }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,

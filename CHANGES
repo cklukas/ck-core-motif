@@ -16833,4 +16833,11 @@ Size Prompt geometry from rendered text (2026-10-27)
   retaining the 24-pixel default only when no text is available.
 - Add a focused source regression and documentation.
 
+Update Prompt colors through SetValues (2026-10-27)
+===================================================
+
+- Refresh the prompt drawing GC and repaint when foreground or background
+  resources change on a live widget.
+- Add a focused source regression and documentation.
+
 ====================================================
