@@ -255,7 +255,8 @@ void _XmDrawShadow (Display *display, Drawable d,
    if (size > height / 2) size = height / 2;
    if (size <= 0) return;
    if (size > INT_MAX / 4 ||
-       (size_t)size > SIZE_MAX / (sizeof(XRectangle) * 4)) return;
+       (size_t)size > SIZE_MAX / (sizeof(XRectangle) * 4) ||
+       (size_t)size > UINT_MAX / (sizeof(XRectangle) * 4)) return;
 
    if (rect_count == 0)
    {
@@ -1055,7 +1056,8 @@ register int height)
 
    size = (size % 2) ? (size-1) : (size);
    if (size > INT_MAX / 4 ||
-       (size_t)size > SIZE_MAX / (sizeof(XRectangle) * 4)) return;
+       (size_t)size > SIZE_MAX / (sizeof(XRectangle) * 4) ||
+       (size_t)size > UINT_MAX / (sizeof(XRectangle) * 4)) return;
 
    half_size = size / 2;
    size2 = size + size;
