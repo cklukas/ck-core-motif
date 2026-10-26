@@ -128,6 +128,13 @@ Bound MWM screen client-list growth (2026-10-26)
   final Xlib count conversion explicit.
 - Add a focused client-list regression and document the bounds.
 
+Validate MWM system-modal screen dimensions (2026-10-26)
+=========================================================
+
+- Reject non-positive signed Xlib screen dimensions before converting them
+  to unsigned X window sizes for the system-modal input window.
+- Add a focused geometry regression and document the conversion boundary.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 

@@ -2357,6 +2357,8 @@ void SetupSystemModalState (ClientData *pCD)
 	    Pixmap               pixmap;
 	    Pixmap               maskPixmap;
 	    XColor               xcolors[2];
+	    int                  screen_width;
+	    int                  screen_height;
 	    
 	    windowAttributes.event_mask = ButtonPressMask;
 	    if (wmGD.keyboardFocusPolicy == KEYBOARD_FOCUS_POINTER)
@@ -2364,6 +2366,10 @@ void SetupSystemModalState (ClientData *pCD)
 		windowAttributes.event_mask |= EnterWindowMask;
 	    }
 	    windowAttributes.override_redirect = True;
+	    screen_width = DisplayWidth (DISPLAY, pSD->screen);
+	    screen_height = DisplayHeight (DISPLAY, pSD->screen);
+	    if (screen_width <= 0 || screen_height <= 0)
+		continue;
 	    
 	    pixmap = XCreateBitmapFromData (DISPLAY, pSD->rootWindow, 
 					    (char *)bits, width, height);
@@ -2384,8 +2390,8 @@ void SetupSystemModalState (ClientData *pCD)
 	    
 	    pSD->inputScreenWindow =
 		XCreateWindow (DISPLAY, pSD->rootWindow, 0, 0,
-			       DisplayWidth (DISPLAY, pSD->screen),
-			       DisplayHeight (DISPLAY, pSD->screen),
+			       (unsigned int)screen_width,
+			       (unsigned int)screen_height,
 			       0,
 			       0,
 			       InputOnly,
