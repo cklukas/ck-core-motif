@@ -17713,3 +17713,13 @@ Bound Hierarchy child-list growth (2026-10-27)
 =========================================================
 
 Bound render-table Cardinal allocations (2026-10-27)
+Bound XmString rendition-tag extraction (2026-10-27)
+====================================================
+
+- Check both `size_t` and Xt `Cardinal` byte limits in the two rendition-tag
+  extraction paths before copying tags.
+- Add focused regression coverage and documentation.
+
+====================================================
+
+Bound traversal node-list stack buffers (2026-10-27)
