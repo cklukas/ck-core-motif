@@ -5,6 +5,13 @@ Avoid nested application locking in XmGetPixmap (2026-10-27)
   pixmap helper, avoiding a recursive lock acquisition in XmGetPixmapByDepth.
 - Add a focused source regression and document the locking contract.
 
+Saturate RowActions natural width (2026-10-27)
+===============================================
+
+- Prevent the action-strip width accumulator from wrapping before its
+  `Dimension` clamp on 32-bit builds.
+- Add a focused source regression and document the layout contract.
+
 Gallery layout refresh and embedded SVG dialog artwork (2026-10-26)
 ===================================================================
 

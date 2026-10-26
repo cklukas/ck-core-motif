@@ -17,6 +17,10 @@ only after the internal item table is complete.  This is intentional: Xt may
 synchronously request geometry while a child is managed, and a partially
 populated action table must never expose a missing button to that path.
 
+Natural width calculation saturates at the X11 `Dimension` limit, so a large
+number of actions cannot wrap the accumulator on 32-bit builds and collapse
+the action strip to an incorrect width.
+
 Accessibility exposes a revealed strip as a panel with one action per visible
 action button.  The installed fixture covers copied model ownership,
 reveal/hide, explicit dispatch, accessibility and preservation of a sibling

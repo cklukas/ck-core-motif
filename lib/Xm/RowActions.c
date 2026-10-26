@@ -110,7 +110,11 @@ static void natural(XmRowActionsWidget actions, Dimension *width, Dimension *hei
     *height = 1;
     for (i = 0; i < actions->actions.item_count; ++i) {
         preferred(actions->actions.items[i].button, &child_width, &child_height);
-        total += child_width; if (child_height > *height) *height = child_height;
+        if (total > (unsigned long)USHRT_MAX - child_width)
+            total = USHRT_MAX;
+        else
+            total += child_width;
+        if (child_height > *height) *height = child_height;
     }
     *width = (Dimension)(total > USHRT_MAX ? USHRT_MAX : total ? total : 1);
 }
