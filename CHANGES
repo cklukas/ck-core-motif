@@ -16866,4 +16866,10 @@ Apply ColorPicker SetValues changes transactionally (2026-10-27)
   returns that can drop a simultaneous update.
 - Add a focused source regression and documentation.
 
+Refresh ColorPicker redisplay regression contract (2026-10-27)
+===============================================================
+
+- Align the redisplay check and documentation with the active XmStringExtent
+  text-height baseline instead of the retired raw widget-height assertion.
+
 ====================================================
