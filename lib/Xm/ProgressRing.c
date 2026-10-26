@@ -111,11 +111,13 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     XmFontList defaults;
     Dimension label_width = 0, label_height = 0, diameter;
     unsigned long mask = GCForeground | GCBackground;
+    XmString label_copy;
     (void)args; (void)count;
     Normalize(ring);
-    ring->progress_ring.label = ring->progress_ring.label
-        ? XmStringCopy(ring->progress_ring.label)
-        : XmStringCreateLocalized("");
+    label_copy = ring->progress_ring.label
+        ? XmStringCopy(ring->progress_ring.label) : NULL;
+    ring->progress_ring.label = label_copy
+        ? label_copy : XmStringCreateLocalized("");
     defaults = XmeGetDefaultRenderTable(widget, XmTEXT_FONTLIST);
     ring->progress_ring.font = defaults ? XmFontListCopy(defaults) : NULL;
     if (ring->progress_ring.font)

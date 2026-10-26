@@ -16901,4 +16901,11 @@ Guard ProgressRing partial GC setup (2026-10-27)
   ProgressRing GC allocation fails.
 - Add a focused source regression and documentation.
 
+Guard ProgressRing initial label copy (2026-10-27)
+==================================================
+
+- Fall back to an empty XmString when the initial label copy cannot be
+  allocated.
+- Add a focused source regression and documentation.
+
 ====================================================
