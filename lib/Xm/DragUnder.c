@@ -498,6 +498,9 @@ DrawHighlight(
 
     aSaveData->highlightGC =
 	XCreateGC(aSaveData->display, aSaveData->window, vmask, &v);
+    if (aSaveData->highlightGC == NULL) {
+	return;
+    }
 
     _XmRegionSetGCRegion (aSaveData->display, aSaveData->highlightGC,
 			  0, 0, aSaveData->clipRegion);
