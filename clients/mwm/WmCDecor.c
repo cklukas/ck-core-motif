@@ -2758,17 +2758,19 @@ Boolean DepressGadget (ClientData *pcd, int gadget, Boolean depressed)
      * Bevel a rectangle for the desired button effect 
      * Allocate the rectangles if necessary.
      */
-    if ( (pTopRect && pBotRect) ||
-	 ((pTopRect = AllocateRList(2)) &&
-	  (pBotRect = AllocateRList(2))))
-    {
-	pTopRect->used = 0;
-	pBotRect->used = 0;
-	BevelRectangle (pTopRect, pBotRect, 
-		    x, y, width, height, 
-		    invertWidth, invertWidth, 
+    if (pTopRect == NULL)
+	pTopRect = AllocateRList(2);
+    if (pBotRect == NULL)
+	pBotRect = AllocateRList(2);
+    if (pTopRect == NULL || pBotRect == NULL)
+	return(FALSE);
+
+    pTopRect->used = 0;
+    pBotRect->used = 0;
+    BevelRectangle (pTopRect, pBotRect,
+		    x, y, width, height,
+		    invertWidth, invertWidth,
 		    invertWidth, invertWidth);
-    }
 
     /* draw the gadget border to make it look depressed or normal */
 
