@@ -2398,11 +2398,22 @@ void CopyArgv (int argc, char *argv [])
 void InitScreenNames (void)
 {
     int num, numScreens;
+    size_t screen_name_bytes;
     
     numScreens = ScreenCount (wmGD.display);
-    
-    if (!(wmGD.screenNames = 
-	  (unsigned char **) XtMalloc (numScreens * sizeof(char *))))
+
+    if (numScreens < 0 ||
+	(size_t)numScreens > SIZE_MAX / sizeof(char *) ||
+	(size_t)numScreens > (size_t)UINT_MAX / sizeof(char *))
+    {
+	ShowWaitState (FALSE);
+	Warning (((char *)GETMESSAGE(40, 12, "Insufficient memory for screen names")));
+	ExitWM (WM_ERROR_EXIT_VALUE);
+	return;
+    }
+    screen_name_bytes = (size_t)numScreens * sizeof(char *);
+    if (!(wmGD.screenNames =
+	  (unsigned char **)XtMalloc((Cardinal)screen_name_bytes)))
     {
 	ShowWaitState (FALSE);
 	Warning (((char *)GETMESSAGE(40, 12, "Insufficient memory for screen names")));

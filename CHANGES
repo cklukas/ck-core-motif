@@ -170,6 +170,13 @@ Correct MWM TARGETS selection length (2026-10-26)
   host `sizeof(Atom)` byte arithmetic, which over-reported 64-bit lengths.
 - Add a focused selection-length regression and document the wire contract.
 
+Bound MWM screen-name table allocation (2026-10-26)
+====================================================
+
+- Validate the signed screen count and pointer-table byte product before
+  allocating the screen-name table through Xt.
+- Add a focused initialization regression and document the bounds.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 
