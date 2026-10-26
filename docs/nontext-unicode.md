@@ -19,6 +19,13 @@ probe source hash (`60c94b2bd788605485046e7f95902d97b35e4f898c007f6138d82e5f31a7
 and `libXm.so.8.0.0` hash
 (`2c0e75e58ec0c0e2a0cd6585f06ee4a695f54f79633b307ad47405ba0a703fa3`).
 
+The current source probe was also run against the refreshed rpi4 static cohort;
+it passes 32 checks, including ToggleSwitch and SegmentedControl label paths.
+The probe source hash is
+`c4efa2fa3b4f34e28e2220992a155acdec4f5a05398ea11ce84d15038d4888d4`, and the
+static archive hash is
+`c7a0f0b6932d1f5d07e329666f85281f328d3fc4310110de4f81ef91a94272e9`.
+
 Run it with:
 
 ```sh

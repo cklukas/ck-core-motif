@@ -20227,3 +20227,10 @@ Guard XmString entry text replacement (2026-10-26)
   an empty string, avoiding undefined behavior in the internal text setter.
 - Preserve pointer-backed and unoptimized entry ownership semantics.
   See `docs/xmstring-entry-text-input.md`.
+
+Refresh non-text Unicode qualification receipt (2026-10-26)
+============================================================
+
+- Record the current rpi4 static-cohort result: 32 public-API Unicode checks,
+  including ToggleSwitch and SegmentedControl labels, with source and archive
+  fingerprints in `docs/nontext-unicode.md`.
