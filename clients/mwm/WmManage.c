@@ -1068,7 +1068,8 @@ void WithdrawWindow (ClientData *pCD)
 	else if ((pCD->clientState == NORMAL_STATE) ||
 		 (pCD->clientState == MAXIMIZED_STATE))
 	{
-	    XUnmapWindow (DISPLAY, pCD->clientFrameWin);
+	    if (pCD->clientFrameWin != None)
+		XUnmapWindow (DISPLAY, pCD->clientFrameWin);
 	    XFlush (DISPLAY);
 	}
     }

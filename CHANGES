@@ -21226,3 +21226,9 @@ WithdrawDialog and ReManageDialog now map or unmap a client frame only when
 the frame window exists. Dialog lifecycle callbacks after partial construction
 therefore avoid invalid X requests while preserving normal behavior.
 
+Guard MWM unmanage frame withdrawal (2026-10-26)
+-------------------------------------------------
+UnManageWindow now checks that a normal or maximized client has a realized
+frame before unmapping it. Clients that fail during frame construction can be
+withdrawn without issuing an X request for `None`.
+
