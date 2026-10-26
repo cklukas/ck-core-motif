@@ -9414,8 +9414,8 @@ PreeditDraw(XIC xic,
     XmTextPosition startPos, endPos, rest_len =0 , tmp_end;
     Boolean replace_res;
     XRectangle overall_ink;
-    int i;
-    int recover_len=0;
+    size_t i;
+    XmTextPosition recover_len=0;
     char *ptr=NULL, *recover_mb=NULL;
     Widget p =w;
     Boolean need_verify, end_preedit = False;
