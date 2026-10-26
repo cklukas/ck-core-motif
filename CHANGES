@@ -15317,3 +15317,11 @@ Validate XPM pixmap-to-data inputs (2026-10-27)
 - Preserve shape-mask-only conversion and add a focused source regression.
 
 Validate XPM pixmap-to-file inputs (2026-10-27)
+Validate XPM buffer-export arguments (2026-10-27)
+===================================================
+
+- Reject null output records and empty source inputs in pixmap, image, and raw
+  XPM buffer constructors before extraction or allocation.
+- Preserve shape-only conversion and add a focused source regression.
+
+Validate XPM pixmap-to-data inputs (2026-10-27)

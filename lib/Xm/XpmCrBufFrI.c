@@ -68,9 +68,12 @@ XpmCreateBufferFromImage(
     XpmInfo info;
     int ErrorStatus;
 
+    if (display == NULL || buffer_return == NULL ||
+	(image == NULL && shapeimage == NULL))
+	return XpmFileInvalid;
+
     /* initialize return value */
-    if (buffer_return)
-	*buffer_return = NULL;
+    *buffer_return = NULL;
 
     /* create an XpmImage from the image */
     ErrorStatus = XpmCreateXpmImageFromImage(display, image, shapeimage,
@@ -115,6 +118,9 @@ XpmCreateBufferFromXpmImage(
     unsigned int l, cmt_size = 0;
     char *ptr = NULL, *p;
     unsigned int ptr_size, used_size, tmp;
+
+    if (buffer_return == NULL || image == NULL)
+	return XpmFileInvalid;
 
     *buffer_return = NULL;
 

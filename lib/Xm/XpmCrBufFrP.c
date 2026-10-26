@@ -51,6 +51,10 @@ XpmCreateBufferFromPixmap(
     unsigned int height = 0;
     int ErrorStatus;
 
+    if (display == NULL || buffer_return == NULL ||
+	(pixmap == 0 && shapemask == 0))
+	return XpmFileInvalid;
+
     /* get geometry */
     if (attributes && attributes->valuemask & XpmSize) {
 	width = attributes->width;
