@@ -22671,3 +22671,9 @@ Bound DataField validation capacity arithmetic (2026-10-26)
   before assigning `size_allocd` or multiplying by `sizeof(wchar_t)`.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-datafield-validate-capacity.py
+Preserve DataField buffers on realloc failure (2026-10-26)
+============================================================
+- Check replacement reallocations before updating the live byte or wide
+  character pointer, preserving existing text when allocation fails.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-datafield-realloc-failure.py

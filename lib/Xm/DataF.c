@@ -4002,7 +4002,9 @@ _XmDataFieldReplaceText(
 {
   int replace_length, i;
   char *src, *dst;
+  char *new_value;
   wchar_t *wc_src, *wc_dst;
+  wchar_t *new_wc_value;
   int delta = 0;
   XmTextPosition cursorPos, newInsert;
   XmTextPosition old_pos = replace_prev;
@@ -4082,8 +4084,11 @@ _XmDataFieldReplaceText(
     {
       XmTextF_size_allocd(tf) += MAX(insert_length + TEXT_INCREMENT,
                                         (XmTextF_size_allocd(tf) * 2));
-      XmTextF_value(tf) = (char *) XtRealloc((char*)XmTextF_value(tf), 
+      new_value = (char *) XtRealloc((char*)XmTextF_value(tf),
 		              (unsigned) (XmTextF_size_allocd(tf) * sizeof(char)));
+      if (new_value == NULL)
+	  return False;
+      XmTextF_value(tf) = new_value;
     }
   } else {
   if ((XmTextF_string_length(tf) + insert_length - replace_length) *
@@ -4092,8 +4097,11 @@ _XmDataFieldReplaceText(
       XmTextF_size_allocd(tf) +=
 			  MAX((insert_length + TEXT_INCREMENT)*sizeof(wchar_t),
                               (XmTextF_size_allocd(tf) * 2));
-      XmTextF_wc_value(tf) = (wchar_t *) XtRealloc((char*)XmTextF_wc_value(tf), 
+      new_wc_value = (wchar_t *) XtRealloc((char*)XmTextF_wc_value(tf),
 		           (unsigned) XmTextF_size_allocd(tf));
+      if (new_wc_value == NULL)
+	  return False;
+      XmTextF_wc_value(tf) = new_wc_value;
     }
   }
 
