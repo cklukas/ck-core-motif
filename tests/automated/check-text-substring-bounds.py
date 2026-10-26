@@ -10,6 +10,7 @@ end = source.index("\nint\nXmTextGetSubstring", start)
 body = source[start:end]
 
 assert "buffer == NULL || start < 0 || num_chars < 0 || buf_size <= 0" in body
+assert "start > (XmTextPosition)LONG_MAX - (XmTextPosition)num_chars" in body
 assert "(size_t)destpos + (size_t)block.length + 1 > (size_t)buf_size" in body
 assert "(size_t)destpos + (size_t)num_chars + 1 > (size_t)buf_size" in body
 assert "block.length < 0" in body

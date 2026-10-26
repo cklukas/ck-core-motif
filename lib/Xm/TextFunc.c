@@ -884,6 +884,8 @@ _XmTextGetSubstring(Widget widget,
 
   if (buffer == NULL || start < 0 || num_chars < 0 || buf_size <= 0)
     return XmCOPY_FAILED;
+  if (start > (XmTextPosition)LONG_MAX - (XmTextPosition)num_chars)
+    return XmCOPY_FAILED;
   
   end = start + num_chars;
   

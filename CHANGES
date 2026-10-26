@@ -22835,7 +22835,7 @@ Regression: tests/automated/check-text-replacement-length.py
 
 Validate generic Text substring bounds (2026-10-26)
 ====================================================
-- Reject invalid substring arguments and reserve the terminator in output
-  capacity checks, including element-sized checks for wide output.
+- Reject invalid or overflowing substring ranges and reserve the terminator in
+  output capacity checks, including element-sized checks for wide output.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-substring-bounds.py
