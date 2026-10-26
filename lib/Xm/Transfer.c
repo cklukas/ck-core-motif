@@ -2388,6 +2388,10 @@ XmeStandardConvert(Widget w,
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
+  cs -> value = NULL;
+  cs -> type = None;
+  cs -> format = 8;
+  cs -> length = 0;
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);
 

@@ -22071,3 +22071,13 @@ Validate central conversion-handler inputs (2026-10-26)
 
 Harden DnD callback teardown (2026-10-26)
 ==========================================
+Initialize standard-conversion results (2026-10-26)
+====================================================
+
+- Clear standard conversion output fields before target dispatch so
+  unsupported targets and missing render tables cannot leak stale conversion
+  data.
+- Add focused regression coverage and documentation.
+
+Validate central conversion-handler inputs (2026-10-26)
+========================================================
