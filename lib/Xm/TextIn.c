@@ -2533,7 +2533,10 @@ MovePreviousPage(Widget w,
   }
   
   (*tw->text.output->PosToXY)(tw, tw->text.cursor_position, &x, &y);
-  y -= tw->text.output->data->font_ascent;
+  if (y > tw->text.output->data->font_ascent)
+    y -= tw->text.output->data->font_ascent;
+  else
+    y = 0;
   
   n = _XmTextNumLines(tw);
   if (n > 1) n--;

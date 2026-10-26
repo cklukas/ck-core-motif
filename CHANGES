@@ -19818,3 +19818,10 @@ Guard Text line-selection movement (2026-10-26)
   avoiding unsigned wraparound during keyboard and drag selection.
 - Preserve the existing left-selection adjustment and add focused regression
   coverage and documentation.
+
+Clamp Text previous-page coordinates (2026-10-26)
+==================================================
+
+- Clamp the previous-page hit-test coordinate at the top edge before applying
+  the font-ascent offset, preventing signed `Position` wraparound.
+- Add focused regression coverage and documentation.
