@@ -1,3 +1,10 @@
+Bound Text source gap pointer offsets (2026-10-27)
+=================================================
+
+- Compute initial and compacted gap pointers with widened byte offsets after
+  allocation-size validation.
+- Extend the focused Text source regression and documentation.
+
 Bound Text source replacement byte arithmetic (2026-10-27)
 ==========================================================
 

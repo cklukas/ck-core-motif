@@ -21,4 +21,6 @@ replace_region = source[replace_start:source.index("  /* add data */", replace_s
 assert "size_t gap_size, gap_start_offset, gap_end_offset, end_byte_offset" in replace_region
 assert "TextSourceByteOffset(data, *end" in replace_region
 assert "(size_t)old_maxlength * (size_t)char_size" in replace_region
+assert "(size_t)data->length * (size_t)char_size" in source
+assert "(size_t)(data->maxlength - 1) * (size_t)char_size" in source
 print("PASS Text source byte offsets are checked and widened")

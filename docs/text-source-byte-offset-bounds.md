@@ -9,7 +9,8 @@ checks the position, character width, source capacity, and `size_t` product
 before pointer arithmetic.  Reads, gap movement, and character lookup all use
 the checked helper. Replacement resizing and gap expansion also use `size_t`
 byte offsets, while the public source callbacks and Motif ABI remain
-unchanged.
+unchanged. Initial and compacted gap pointers use the same widened offset
+calculation.
 
 `tests/automated/check-text-source-byte-offset.py` is the focused regression
 for the checked conversion and widened gap distances.

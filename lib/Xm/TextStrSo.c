@@ -1468,8 +1468,10 @@ Replace(XmTextWidget initiator,
 	if (compact_ptr != NULL) {
 	  data->ptr = compact_ptr;
 	  data->maxlength = compact_maxlength;
-	  data->gap_start = data->ptr + (data->length * char_size);
-	  data->gap_end = data->ptr + ((data->maxlength - 1) * char_size);
+	  data->gap_start = data->ptr +
+	      ((size_t)data->length * (size_t)char_size);
+	  data->gap_end = data->ptr +
+	      ((size_t)(data->maxlength - 1) * (size_t)char_size);
 	}
     }
   }
@@ -2056,8 +2058,10 @@ _XmStringSourceCreate(char *value,
   data->left = data->right = 0;
   data->editable = True;
   data->maxallowed = INT_MAX;
-  data->gap_start = data->ptr + (data->length * char_size);
-  data->gap_end = data->ptr + ((data->maxlength - 1) * char_size);
+  data->gap_start = data->ptr +
+    ((size_t)data->length * (size_t)char_size);
+  data->gap_end = data->ptr +
+    ((size_t)(data->maxlength - 1) * (size_t)char_size);
   data->prim_time = 0;
   return source;
 
