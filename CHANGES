@@ -22825,3 +22825,10 @@ Check wide Text replacement allocation (2026-10-26)
   insertion-point painting.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-wide-replacement-allocation.py
+
+Bound ordinary Text replacement lengths (2026-10-26)
+======================================================
+- Reject ordinary replacement strings larger than the legacy `int` block
+  length before mutating the Text source.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-replacement-length.py

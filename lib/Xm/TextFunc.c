@@ -85,6 +85,7 @@ _XmTextReplace(Widget widget,
   XmTextPosition selleft, selright, cursorPos;
   char * tmp_block = NULL;
   size_t conversion_bytes;
+  size_t value_length;
   
   source = GetSrc(tw);
   
@@ -106,8 +107,15 @@ _XmTextReplace(Widget widget,
   if (!is_wchar) {
     if (value == NULL)
       block.length = 0;
-    else
-      block.length = strlen(value);
+    else {
+      value_length = strlen(value);
+      if (value_length > (size_t)INT_MAX) {
+	(*tw->text.output->DrawInsertionPoint)(tw,
+					      tw->text.cursor_position, on);
+	return;
+      }
+      block.length = (int)value_length;
+    }
     block.ptr = value;
   } else { /* value is really a wchar_t ptr cast to char* */
     if (value == NULL) {
