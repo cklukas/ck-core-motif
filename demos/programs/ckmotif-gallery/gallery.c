@@ -70,10 +70,11 @@ static Pixel gallery_tab_outline(Widget widget)
 
 static void style_gallery_tab(Widget tab, Pixel outline)
 {
-    /* Use Motif's own one-pixel shadow geometry for the inactive outline.
-     * A window border is not painted consistently by every X server/theme
-     * for child widgets, while the shadow is part of the widget contract. */
-    XtVaSetValues(tab, XmNborderWidth, 0, XmNshadowThickness, 1,
+    /* Keep a real one-pixel border in addition to the selected-state shadow.
+     * ToggleButton only paints its shadow while armed/selected, so relying on
+     * shadow colors alone leaves inactive tabs visually frameless. */
+    XtVaSetValues(tab, XmNborderWidth, 1, XmNborderColor, outline,
+                  XmNshadowThickness, 1,
                   XmNtopShadowColor, outline, XmNbottomShadowColor, outline,
                   NULL);
 }

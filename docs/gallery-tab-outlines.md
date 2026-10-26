@@ -6,9 +6,9 @@ nav_exclude: true
 
 The component gallery's **Example**, **Source**, and **Built-in Icons** views
 are all view tabs, not an unlabeled stack. Each tab receives a one-pixel
-`#aeb7c2` Motif shadow outline (with matching top and bottom colors). The
-outline remains visible when a tab is inactive, while the selected tab keeps
-Motif's selected fill. This makes the available views clear in the light
+`#aeb7c2` border plus matching Motif shadow colors. The border remains visible
+when a tab is inactive (ToggleButton shadows are state-dependent), while the
+selected tab keeps Motif's selected fill. This makes the available views clear in the light
 appearance without relying on an X window border that can disappear under a
 theme or X server.
 

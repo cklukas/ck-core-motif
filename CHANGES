@@ -1,3 +1,12 @@
+Keep inactive gallery view tabs outlined (2026-10-27)
+====================================================
+
+- Give the Example, Source, and Built-in Icons tabs a persistent one-pixel
+  gray border; ToggleButton shadows are selected-state dependent and do not
+  frame inactive tabs by themselves.
+
+===========================================================
+
 Propagate compound-text concatenation failures (2026-10-27)
 ===========================================================
 
