@@ -638,6 +638,9 @@ XmVaCreateSimpleMenuBar(Widget parent, String name, ...)
     String *		menuBarAccelerators;
     XmStringTable	menuBarAcceleratorText;
 
+    if (parent == (Widget) NULL)
+	return NULL;
+
     _XmWidgetToAppContext(parent);
     _XmAppLock(app);
 
@@ -714,6 +717,9 @@ XmVaCreateSimplePulldownMenu(Widget parent, String name, int post_from_button, X
     XmKeySymTable	pulldownMenuMnemonics;
     String *		pulldownMenuAccelerators;
     XmStringTable	pulldownMenuAcceleratorText;
+
+    if (parent == (Widget) NULL)
+	return NULL;
 
     _XmWidgetToAppContext(parent);
     _XmAppLock(app);
@@ -798,6 +804,9 @@ XmVaCreateSimplePopupMenu(Widget parent, String name, XtCallbackProc callback, .
     String *		popupMenuAccelerators;
     XmStringTable	popupMenuAcceleratorText;
 
+    if (parent == (Widget) NULL)
+	return NULL;
+
     _XmWidgetToAppContext(parent);
     _XmAppLock(app);
 
@@ -879,6 +888,9 @@ XmVaCreateSimpleOptionMenu(Widget parent, String name, XmString option_label, Ke
     XmKeySymTable	optionMenuMnemonics;
     String *		optionMenuAccelerators;
     XmStringTable	optionMenuAcceleratorText;
+
+    if (parent == (Widget) NULL)
+	return NULL;
 
     _XmWidgetToAppContext(parent);
     _XmAppLock(app);
