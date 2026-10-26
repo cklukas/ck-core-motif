@@ -16497,3 +16497,13 @@ Initialize clipboard callback conversion values (2026-10-27)
 ==============================================================
 
 Fix selection-loss conversion cleanup (2026-10-27)
+Validate DataField wide-substring output buffers (2026-10-27)
+==============================================================
+
+- Reject null or non-positive output buffers and avoid signed overflow in the
+  wide substring capacity check.
+- Add a focused source regression and documentation.
+
+==============================================================
+
+Initialize clipboard callback conversion values (2026-10-27)

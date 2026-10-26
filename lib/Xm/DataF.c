@@ -11405,7 +11405,7 @@ XmDataFieldGetSubstringWcs(
     _XmWidgetToAppContext(widget);    
     _XmAppLock(app);
     
-    if (start < 0 || num_chars < 0 ||
+    if (buffer == NULL || buf_size <= 0 || start < 0 || num_chars < 0 ||
 	start > XmTextF_string_length(tf))
     {
 	_XmAppUnlock(app);
@@ -11418,7 +11418,7 @@ XmDataFieldGetSubstringWcs(
 	ret_value = XmCOPY_TRUNCATED;
     }
       
-    if (buf_size < num_chars + 1 ) 
+    if (buf_size <= num_chars)
     {
       _XmAppUnlock(app);
       return XmCOPY_FAILED;
