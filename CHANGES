@@ -19412,3 +19412,14 @@ Handle scale tick-array allocation failure (2026-10-27)
 
 Guard shared varargs widget-creation parent (2026-10-27)
 =========================================================
+Handle RTL compound-string allocation failure (2026-10-27)
+===========================================================
+
+- Return safely when the RTL renderer cannot allocate its temporary reversal
+  buffer instead of writing through NULL.
+- Add focused regression coverage and documentation.
+
+============================================================
+
+Handle scale tick child-creation failures (2026-10-27)
+=======================================================

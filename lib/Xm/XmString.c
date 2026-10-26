@@ -4357,7 +4357,11 @@ _XmStringDrawSegment(Display *d,
 	  char *ltor_text;
 	  int i, j;
 	  if (seg_len > 100) 
-	    p = flip_char_extra = (char *) ALLOCATE_LOCAL(seg_len);
+	    {
+	      p = flip_char_extra = (char *) ALLOCATE_LOCAL(seg_len);
+	      if (p == NULL)
+		return;
+	    }
       
 	  draw_text = p;
 	  ltor_text = (char *)_XmEntryTextGet((_XmStringEntry)seg);
