@@ -22367,3 +22367,11 @@ Guard image-cache cleanup callback state (2026-10-26)
 - Add focused regression coverage and documentation.
 
 Guard image cache color release (2026-10-26)
+Reject zero image-array element sizes (2026-10-26)
+==================================================
+
+- Reject zero element sizes before the allocation-bound division in
+  `XmImageArrayFits`.
+- Add focused regression coverage and documentation.
+
+Guard image-cache cleanup callback state (2026-10-26)

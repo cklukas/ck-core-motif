@@ -2526,7 +2526,7 @@ XmScaledDimension(unsigned int source, double ratio, Dimension *dimension)
 static Boolean
 XmImageArrayFits(size_t count, size_t element_size)
 {
-    return count <= SIZE_MAX / element_size;
+    return element_size != 0 && count <= SIZE_MAX / element_size;
 }
 
 static Boolean
