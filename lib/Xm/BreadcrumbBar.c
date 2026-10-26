@@ -230,7 +230,7 @@ static void draw_item(XmBreadcrumbBarWidget bar, Cardinal index, int *cursor,
     const char *separator = bar->breadcrumb.separator ?
                             bar->breadcrumb.separator : "";
     int width = item_width(bar, index);
-    int text_x = (first || *cursor > INT_MAX - 4) ? *cursor : *cursor + 4;
+    int text_x;
     XmString label_string = XmStringCreateLocalized((char *)label);
     XmString separator_string = XmStringCreateLocalized((char *)separator);
     Dimension label_width = 0, label_height = 0, separator_width = 0;
@@ -243,6 +243,9 @@ static void draw_item(XmBreadcrumbBarWidget bar, Cardinal index, int *cursor,
         XmStringExtent(bar->breadcrumb.font, separator_string, &separator_width,
                        &separator_height);
     }
+    text_x = first ? *cursor :
+        (separator_width > (Dimension)(INT_MAX - *cursor - 4)
+             ? INT_MAX : *cursor + (int)separator_width + 4);
     text_y = ((int)bar->core.height - (int)label_height) / 2;
     if (!first && separator_string)
         XmStringDraw(display, window, bar->breadcrumb.font, separator_string,
@@ -250,7 +253,8 @@ static void draw_item(XmBreadcrumbBarWidget bar, Cardinal index, int *cursor,
                      XmALIGNMENT_BEGINNING, XmPrim_layout_direction(bar), NULL);
     if ((int)index == bar->breadcrumb.current)
         XFillRectangle(display, window, bar->breadcrumb.gc, text_x - 2, 5,
-                       (unsigned)(width > 4 ? width - 4 : 1), 19);
+                       (unsigned)(label_width > 4 ? label_width + 4 : 1),
+                       (unsigned)(bar->core.height > 10 ? bar->core.height - 10 : 1));
     if ((int)index == bar->breadcrumb.current)
         XSetForeground(display, bar->breadcrumb.gc, bar->core.background_pixel);
     if (label_string)
@@ -275,7 +279,18 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         return;
     XClearWindow(display, window);
     if (start) {
-        XDrawString(display, window, bar->breadcrumb.gc, cursor, 18, "...", 3);
+        XmString ellipsis = XmStringCreateLocalized("...");
+        Dimension ellipsis_width = 0, ellipsis_height = 0;
+        if (ellipsis && bar->breadcrumb.font) {
+            XmStringExtent(bar->breadcrumb.font, ellipsis,
+                           &ellipsis_width, &ellipsis_height);
+            XmStringDraw(display, window, bar->breadcrumb.font, ellipsis,
+                         bar->breadcrumb.gc, cursor,
+                         ((int)bar->core.height - (int)ellipsis_height) / 2,
+                         ellipsis_width, XmALIGNMENT_BEGINNING,
+                         XmPrim_layout_direction(bar), NULL);
+        }
+        XmStringFree(ellipsis);
         cursor += 28;
     }
     if (!bar->breadcrumb.rtl) {

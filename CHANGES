@@ -14989,6 +14989,13 @@ TabBox standalone background fallback (2026-10-27)
   boxes no longer paint their unused area black.
 
 Stepper control glyphs (2026-10-27)
+Breadcrumb measured separator and selection geometry (2026-10-27)
+==================================================================
+
+- Place labels after the measured separator width, size selected backgrounds
+  to the label rather than the whole item, and render overflow ellipses through
+  the render table.
+
 DataGrid render-table typography (2026-10-27)
 ===============================================
 

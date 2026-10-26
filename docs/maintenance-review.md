@@ -42,6 +42,13 @@ headers and cells with measured `XmString` geometry. RTL layout and selection
 painting remain unchanged. The regression check is
 `tests/automated/check-datagrid-render-table.py`.
 
+## Breadcrumb geometry
+
+Breadcrumb labels now begin after the measured separator width, selected
+backgrounds match the actual label, and the overflow ellipsis uses the
+configured render table. The regression check is
+`tests/automated/check-breadcrumb-render-metrics.py`.
+
 The first widget review was a bounded starting point. The age of the inherited
 code is a reason to continue targeted maintenance; neither a short patch list
 nor a large test count establishes that the toolkit is finished.
