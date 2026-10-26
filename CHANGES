@@ -6888,6 +6888,12 @@ Toast SetValues redraw (2026-10-27)
 
 - Toast now reports changed message, action, and timeout resources from
   `SetValues`; action visibility uses `XmStringEmpty` without flattening text.
+
+CommandPalette compound-string ownership (2026-10-27)
+=======================================================
+
+- CommandPalette now copies item labels and shortcuts as `XmString` values,
+  preserving compound-string charset segments in its stored item model.
 	* Validate Mrm pointer-list state before freeing contents.
 
 2026-10-26

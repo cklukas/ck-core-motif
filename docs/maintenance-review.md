@@ -58,6 +58,13 @@ labels and negotiating geometry. It also uses `XmStringEmpty` to determine
 whether an action label is present, preserving compound-string content. The
 regression check is `tests/automated/check-toast-setvalues-redraw.py`.
 
+## CommandPalette compound-string ownership
+
+`XmCommandPalette` now copies item labels and shortcuts directly as
+`XmString` values, preserving compound-string charset segments in its stored
+item model. The regression check is
+`tests/automated/check-command-palette-string-copy.py`.
+
 ## IconLabel typography and natural geometry
 
 `XmIconLabel` now measures its `XmString` through the render table for both
