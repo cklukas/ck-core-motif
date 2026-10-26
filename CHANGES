@@ -16341,6 +16341,15 @@ Guard XmString table component pointers (2026-10-27)
 ====================================================
 
 Bound proposed tab-list counters (2026-10-27)
+Bound TextField replacement growth (2026-10-27)
+================================================
+
+- Reject capacity doubling and wide-character byte-size overflow before
+  TextField replacement allocations.
+- Add a focused source regression and documentation.
+
+================================================
+
 Make TextField replacement growth transactional (2026-10-27)
 ===============================================================
 
