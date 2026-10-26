@@ -1267,6 +1267,10 @@ XmeDragSource(Widget w, XtPointer location_data, XEvent *event,
 
   dragContext = XmDragStart(w, event, args, arg_count);
   cc -> drag_context = dragContext;
+  if (dragContext == NULL) {
+    cc -> location_data = NULL;
+    cc -> client_data = NULL;
+  }
 
   /* Free copied arguments */
   XtFree((char*) args);
