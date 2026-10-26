@@ -1,3 +1,22 @@
+Add modern density selection and transactional layout defaults (2026-10-26)
+==========================================================================
+
+- Add comfortable/compact set/get/apply APIs and a display-scaled public
+  4/8/12/16/24 spacing query. Palette changes retain the selected density;
+  classic layout is unchanged by density selection alone.
+- Share startup/live padding and indicator defaults, including cached gadget
+  resources. Defer RowColumn sibling normalization until all child resources
+  have been applied so old padding cannot undo a compact transition.
+- Snapshot fully initialized widgets through Xt create hooks and record explicit
+  SetValues arguments, including equal-valued assignments. Track display cleanup
+  without requiring Xt initialization for creation-time selectors.
+- Native acceptance: light/dark/high-contrast startup/live parity; both densities
+  in horizontal/vertical RowColumns; widget/gadget overrides, state/callbacks,
+  reentry and allocation rollback; spacing queries at 1x/1.5x/2x/3x. Existing
+  classic, live, gadget, light, dark and high-contrast fixtures also pass.
+- Document the accepted API foundation and the remaining full visual-overhaul
+  gates; this change does not claim completion of the rendered control matrix.
+
 2026-10-27
 	* Bound DataField text, locale, and compound-text selection buffers before
 	  copy/conversion; see docs/datafield-selection-value-allocation.md.
