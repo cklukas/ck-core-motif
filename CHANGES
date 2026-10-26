@@ -1,3 +1,11 @@
+Guard selection-disown callback inputs (2026-10-26)
+===================================================
+
+- Reject a null widget or `None` selection payload before timestamp/display
+  access in the destruction-time `DisownCallback`.
+- Add focused regression coverage and documentation for incomplete teardown
+  callback data.
+
 Validate drag conversion callback state (2026-10-26)
 =====================================================
 

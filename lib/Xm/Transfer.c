@@ -517,6 +517,9 @@ DisownCallback(Widget w,
 	       XtPointer client_data,
 	       XtPointer ignore) /* unused call data */
 {
+  if (w == NULL || (Atom) client_data == None)
+    return;
+
   Time time = XtLastTimestampProcessed(XtDisplay(w));
 
   XtDisownSelection(w, (Atom) client_data, time);
