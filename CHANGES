@@ -82,6 +82,15 @@ Bound DragBS target-table allocation (2026-10-27)
   table on failure, and release the server/process lock on all failure paths.
 - Add focused regression coverage and documentation.
 
+=================================================
+
+Fix Font Selector encoding-list counting (2026-10-27)
+======================================================
+
+- Count each configured encoding once and bound the duplicated pointer-array
+  allocation before initialization.
+- Add focused regression coverage and documentation.
+
 ===========================================================
 
 Propagate compound-text concatenation failures (2026-10-27)

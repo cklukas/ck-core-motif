@@ -3747,9 +3747,11 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal * num_args)
 	String *encodings = ENCODING_LIST(fsw);
 	String *newList;
 	for (i=0, encodings = ENCODING_LIST(fsw); *encodings != NULL; i++, encodings++) 
-		i++;
 	i++;
-	newList = (String*)XtMalloc(sizeof(String) * i);
+	if ((size_t)i > (SIZE_MAX / sizeof(*newList)) - 1 ||
+	    (size_t)i > (UINT_MAX / sizeof(*newList)) - 1)
+	    return;
+	newList = (String*)XtMalloc((Cardinal)((size_t)i * sizeof(*newList)));
 	if (newList == NULL)
 	    return;
 	for (i=0, encodings = ENCODING_LIST(fsw); *encodings != NULL; i++, encodings++) 
