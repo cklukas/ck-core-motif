@@ -2389,8 +2389,15 @@ SetListFromText(Widget w, Boolean no_action)
 	 * Strlen can be used here because we are attempting to find the
 	 * number of bytes in the string not the number of i18n characters.
 	 */
-
-	from.size = sizeof(char) * (strlen(ptr) + 1);
+	{
+	    size_t text_length = strlen(ptr);
+	    /* XrmValue.size is a Cardinal-sized field; do not truncate it. */
+	    if (text_length >= UINT_MAX) {
+		XtFree(ptr);
+		return False;
+	    }
+	    from.size = (unsigned int)(text_length + 1);
+	}
 	from.addr = ptr;
 	
 	to.size = sizeof(XmStringTable);

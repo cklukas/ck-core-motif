@@ -1,3 +1,12 @@
+Bound DropDown conversion-size assignment (2026-10-27)
+=======================================================
+
+- Reject text-field lengths that cannot fit the Xrm conversion-size field
+  before converting text to a list selection.
+- Add focused regression coverage and documentation for the bound.
+
+============================================================
+
 Bound RowActions button-text allocation width (2026-10-27)
 ===========================================================
 
