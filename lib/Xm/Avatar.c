@@ -155,18 +155,30 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmAvatarWidget old = (XmAvatarWidget)old_widget;
     XmAvatarWidget avatar = (XmAvatarWidget)widget;
     Boolean font_changed = old->avatar.font != avatar->avatar.font;
+    Boolean initials_changed = old->avatar.initials != avatar->avatar.initials;
     (void)request; (void)args; (void)count;
-    if (old->avatar.initials != avatar->avatar.initials)
-        avatar->avatar.initials = copy_initials(avatar->avatar.initials);
+    if (initials_changed) {
+        XmString replacement = copy_initials(avatar->avatar.initials);
+        if (replacement)
+            avatar->avatar.initials = replacement;
+        else
+            avatar->avatar.initials = old->avatar.initials;
+    }
     if (!avatar->avatar.size) avatar->avatar.size = 1;
     if (font_changed) {
         XmFontList replacement = avatar->avatar.font
             ? XmFontListCopy(avatar->avatar.font)
             : XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
-        if (old->avatar.font) XmRenderTableFree(old->avatar.font);
-        avatar->avatar.font = replacement;
+        if (replacement) {
+            if (old->avatar.font) XmRenderTableFree(old->avatar.font);
+            avatar->avatar.font = replacement;
+        } else {
+            avatar->avatar.font = old->avatar.font;
+            font_changed = False;
+        }
     }
-    return old->avatar.initials != avatar->avatar.initials ||
+    return (initials_changed &&
+            avatar->avatar.initials != old->avatar.initials) ||
            old->avatar.pixmap != avatar->avatar.pixmap ||
            old->avatar.size != avatar->avatar.size || font_changed;
 }

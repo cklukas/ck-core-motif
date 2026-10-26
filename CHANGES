@@ -16992,3 +16992,14 @@ Refresh DataGrid render-table regression contracts (2026-10-27)
 ====================================================
 
 Make CommandPalette item installation transactional (2026-10-27)
+Make Avatar resource updates transactional (2026-10-27)
+=========================================================
+
+- Preserve initials and render-table resources when `SetValues` copy
+  allocation fails, avoiding null-resource redisplay and premature old-font
+  release.
+- Add focused regression coverage and documentation.
+
+====================================================
+
+Refresh DataGrid render-table regression contracts (2026-10-27)

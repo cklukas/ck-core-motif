@@ -3,10 +3,10 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "Avatar.c").read_text(encoding="utf-8")
-start = source.index("if (text && *text)")
-end = source.index("XDrawString", start)
-region = source[start:end]
-
-assert "text_length > (size_t)INT_MAX / 8" in region
-assert "(int)(text_length * 8)" in region
-print("PASS avatar initials geometry is bounded")
+set_start = source.rindex("static Boolean SetValues")
+set_values = source[set_start:source.index("static XtGeometryResult QueryGeometry", set_start)]
+assert "XmString replacement = copy_initials" in set_values
+assert "if (replacement)" in set_values
+assert "avatar->avatar.initials = old->avatar.initials" in set_values
+assert "avatar->avatar.font = old->avatar.font" in set_values
+print("PASS avatar resource replacements are transactional")
