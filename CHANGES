@@ -18278,6 +18278,14 @@ Refresh Xm pixmap-cache allocation regression check (2026-10-27)
 Guard null widget in _XmConfigureWidget (2026-10-27)
 =====================================================
 
+Refresh Xm image-cache output regression check (2026-10-27)
+===========================================================
+
+- Match the output-pointer assertion to the current combined screen and
+  image null guard in `GetImage`.
+
+===========================================================
+
 - Match the existing null-safe behavior of `_XmMoveWidget` and
   `_XmResizeWidget`; a null configure request now returns before any X
   operation or drop-site update.
