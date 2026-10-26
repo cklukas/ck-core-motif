@@ -2293,6 +2293,15 @@ GetTransferID(void)
     return(NULL);
   }
 
+  /* Initialize before publishing the context on the global chain. */
+  rval -> outstanding = 0;
+  rval -> count = 0;
+  rval -> flags = TC_NONE;
+  rval -> requests = NULL;
+  rval -> last = NULL;
+  rval -> doneProcs = NULL;
+  rval -> numDoneProcs = 0;
+
   /* Put it on the chain */
 
   rval -> next = (XtPointer) global_tc;
@@ -2301,13 +2310,6 @@ GetTransferID(void)
   if (global_tc != NULL) global_tc -> prev = (XtPointer) rval;
   global_tc = rval;
   _XmProcessUnlock();
-
-  /* Initialize */
-  rval -> outstanding = 0;
-  rval -> count = 0;
-  rval -> flags = TC_NONE;
-  rval -> requests = NULL;
-  rval -> last = NULL;
 
   return((XtPointer) rval);
 }
@@ -2323,6 +2325,8 @@ FreeTransferID(XtPointer id)
 
   /* Free done_proc list */
   if (tid -> doneProcs != NULL) XtFree((char*) tid -> doneProcs);
+  tid -> doneProcs = NULL;
+  tid -> numDoneProcs = 0;
 
   /* Unchain from global_tc and put on the free list atomically. */
   _XmProcessLock();
