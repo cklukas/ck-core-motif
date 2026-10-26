@@ -1184,10 +1184,15 @@ Status GetWorkspaceHints (Display *display, Window window,
     DtWorkspaceHints *pWsHints;
     Atom *paWs;
 
+    if (ppWsAtoms == NULL || pCount == NULL || pbAll == NULL)
+	return (BadValue);
+
     *ppWsAtoms = NULL;
     *pCount = 0;
     *pbAll = False;
     rcode = _DtWsmGetWorkspaceHints(display, window, &pWsHints);
+    if (rcode == Success && pWsHints == NULL)
+	return (BadAlloc);
     if (rcode == Success)
     {
 	if (pWsHints->flags & DT_WORKSPACE_HINTS_WORKSPACES)

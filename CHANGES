@@ -62,6 +62,13 @@ Bound MWM screen-list resource names (2026-10-26)
   `WmRealloc` size in both listed-name and fallback-name paths.
 - Add focused regression coverage and document the boundary.
 
+Validate MWM workspace-hints outputs (2026-10-26)
+=================================================
+
+- Reject null workspace-hints output pointers before dereferencing them and
+  fail closed when the provider reports success without a record.
+- Add focused regression coverage and document the API contract.
+
 Guard MWM binding token boundaries (2026-10-26)
 ===============================================
 
