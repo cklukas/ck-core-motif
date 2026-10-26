@@ -10029,6 +10029,10 @@ XmContainerRelayout(
     Widget	wid)
 {
     XmContainerWidget	cw = (XmContainerWidget)wid;
+
+    if (wid == NULL)
+	return;
+
     _XmWidgetToAppContext(wid);
 
     if (!XtIsRealized(wid)) 
