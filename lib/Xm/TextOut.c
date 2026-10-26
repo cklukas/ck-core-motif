@@ -1525,9 +1525,13 @@ PosToXY(XmTextWidget tw,
   local_x = data->leftmargin;
   _XmTextLineInfo(tw, line, &linestart, &extra);
   while (linestart < position) {
-    linestart = (*tw->text.source->ReadSource)(tw->text.source,
-						   linestart, position, 
-						   &block);
+    XmTextPosition next = (*tw->text.source->ReadSource)(tw->text.source,
+                                                         linestart, position,
+                                                         &block);
+    if (next <= linestart || block.length < 0 ||
+        (block.length > 0 && block.ptr == NULL))
+      return False;
+    linestart = next;
     local_x += FindWidth(tw, local_x, &block, 0, block.length);
   }
   local_x -= data->hoffset;
