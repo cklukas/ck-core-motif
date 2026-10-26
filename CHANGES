@@ -22588,7 +22588,8 @@ Guard transfer done-proc dispatch inputs (2026-10-26)
 Regression: tests/automated/check-transfer-done-proc-inputs.py
 Initialize transfer contexts before publication (2026-10-26)
 =============================================================
-- Initialize transfer state, including done-procedure fields, before adding a
-  context to the global chain; clear callback state when recycling it.
+- Initialize full transfer state, including done-procedure fields, before
+  adding a context to the global chain; clear callback and widget state when
+  recycling it.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-transfer-id-reuse.py

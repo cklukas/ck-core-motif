@@ -2297,10 +2297,20 @@ GetTransferID(void)
   rval -> outstanding = 0;
   rval -> count = 0;
   rval -> flags = TC_NONE;
+  rval -> status = XmTRANSFER_DONE_DEFAULT;
+  rval -> widget = NULL;
+  rval -> selection = None;
+  rval -> real_selection = None;
+  rval -> op = XmOTHER;
+  rval -> drag_context = NULL;
+  rval -> drop_context = NULL;
   rval -> requests = NULL;
   rval -> last = NULL;
   rval -> doneProcs = NULL;
   rval -> numDoneProcs = 0;
+  rval -> auto_proc = NULL;
+  rval -> client_data = NULL;
+  rval -> callback_struct = NULL;
 
   /* Put it on the chain */
 

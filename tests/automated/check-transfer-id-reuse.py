@@ -13,6 +13,10 @@ publish = body.index("global_tc = rval")
 assert init < publish
 assert "rval -> doneProcs = NULL" in body
 assert "rval -> numDoneProcs = 0" in body
+for token in ("rval -> widget = NULL", "rval -> selection = None",
+              "rval -> callback_struct = NULL", "rval -> drag_context = NULL",
+              "rval -> drop_context = NULL"):
+    assert token in body, token
 
 start = source.index("FreeTransferID(XtPointer id)")
 end = source.index("static void\nCallDoneProcs", start)
