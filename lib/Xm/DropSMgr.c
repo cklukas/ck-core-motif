@@ -776,6 +776,8 @@ DetectAncestorClippers(
 			return;
 
 		clipper = CreateClipperDSInfo(dsm, w);
+		if (clipper == NULL)
+			return;
 		DSMRegisterInfo(dsm, w, (XtPointer) clipper);
 		SetDSParent(clipper, dsm->dropManager.clipperList);
 		dsm->dropManager.clipperList = (XtPointer) clipper;
@@ -827,6 +829,8 @@ DetectImpliedClipper(
 			 */
 
 			clipper = CreateClipperDSInfo(dsm, w);
+			if (clipper == NULL)
+				return;
 			SetDSParent(clipper, dsm->dropManager.clipperList);
 			dsm->dropManager.clipperList = (XtPointer) clipper;
 		}
@@ -1054,7 +1058,15 @@ CreateShellDSInfo(
 	XmRegion region = _XmRegionCreate();
 	XRectangle rect;
 
+	if (region == NULL)
+		return (NULL);
+
 	info = (XmDSInfo) XtCalloc(1, sizeof(XmDSLocalNoneNodeRec));
+	if (info == NULL)
+	{
+		_XmRegionDestroy(region);
+		return (NULL);
+	}
 
 	SetDSLeaf(info, True);
 	SetDSShell(info, True);
@@ -1086,7 +1098,15 @@ CreateClipperDSInfo(
 	XmRegion region = _XmRegionCreate();
 	XRectangle rect;
 
+	if (region == NULL)
+		return (NULL);
+
 	info = (XmDSInfo) XtCalloc(1, sizeof(XmDSLocalNoneNodeRec));
+	if (info == NULL)
+	{
+		_XmRegionDestroy(region);
+		return (NULL);
+	}
 
 	SetDSLeaf(info, True);
 	SetDSInternal(info, True);
@@ -1138,6 +1158,8 @@ InsertInfo(
 		 * parent place holder at for shell
 		 */
 		parentInfo = CreateShellDSInfo(dsm, parent);
+		if (parentInfo == NULL)
+			return;
 		DSMRegisterInfo(dsm, parent, (XtPointer) parentInfo);
 		AddDSChild(parentInfo, childInfo, GetDSNumChildren(parentInfo));
 		if ((dsm->dropManager.treeUpdateProc) &&
@@ -3263,7 +3285,7 @@ CreateInfo(
 {
 	XmDSFullInfoRec fullInfoRec;
 	XmDSInfo new_info, prev_info;
-	XmRegion region = _XmRegionCreate();
+	XmRegion region;
 	Widget shell = widget;
 	size_t size;
 
@@ -3280,6 +3302,10 @@ CreateInfo(
 	if (fullInfoRec.activity == XmDROP_SITE_IGNORE) {
 	  return;
 	}
+
+	region = _XmRegionCreate();
+	if (region == NULL)
+	  return;
 
 	DSMStartUpdate(dsm, widget);
 
@@ -3375,6 +3401,12 @@ CreateInfo(
 	}
 
 	new_info = (XmDSInfo) XtCalloc(1, size);
+	if (new_info == NULL)
+	{
+		_XmRegionDestroy(region);
+		DSMEndUpdate(dsm, widget);
+		return;
+	}
 
 	CopyFullIntoVariant(&fullInfoRec, new_info);
 
@@ -3806,6 +3838,8 @@ UpdateInfo(
 
 		/* Allocate the new info rec */
 		new_info = (XmDSInfo) XtCalloc(1, size);
+		if (new_info == NULL)
+			return;
 
 		CopyFullIntoVariant(full_info, new_info);
 

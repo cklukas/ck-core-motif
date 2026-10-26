@@ -1,3 +1,11 @@
+Guard drop-site record allocation failures (2026-10-27)
+========================================================
+
+- Check region and private-record allocations while constructing shell,
+  clipper, and registered drop-site records.
+- Stop registration cleanly when allocation fails instead of initializing or
+  linking a null record; add focused regression coverage and documentation.
+
 Handle virtual-binding converter allocation failure (2026-10-27)
 =================================================================
 
