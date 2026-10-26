@@ -104,8 +104,13 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     if (font_changed) {
         XmRenderTable new_font = prompt->prompt.font ? XmFontListCopy(prompt->prompt.font) :
             XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
-        if (old->prompt.font) XmRenderTableFree(old->prompt.font);
-        prompt->prompt.font = new_font;
+        if (new_font) {
+            if (old->prompt.font) XmRenderTableFree(old->prompt.font);
+            prompt->prompt.font = new_font;
+        } else {
+            prompt->prompt.font = old->prompt.font;
+            font_changed = False;
+        }
     }
     if (old->prompt.text != prompt->prompt.text) {
         replacement = copy_prompt(prompt->prompt.text);
