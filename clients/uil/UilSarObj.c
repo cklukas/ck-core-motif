@@ -151,9 +151,16 @@ void		sar_assoc_comment( object )
 
 sym_obj_entry_type    *object;
 {
+  char *comment;
 
-  object->obj_header.az_comment = (char *)_get_memory(strlen(comment_text)+1);
-  strcpy(object->obj_header.az_comment, comment_text);
+  comment = (char *)_get_memory(strlen(comment_text)+1);
+  if (comment == NULL) {
+    object->obj_header.az_comment = NULL;
+    comment_text[0] = '\0';
+    return;
+  }
+  object->obj_header.az_comment = comment;
+  strcpy(comment, comment_text);
   comment_text[0] = '\0';
 
 }
