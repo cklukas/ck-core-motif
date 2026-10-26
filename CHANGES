@@ -1,3 +1,12 @@
+Make TextField SetValues restoration allocation-safe (2026-10-27)
+==================================================================
+
+- Keep `XtRealloc` results in temporary pointers before restoring vetoed
+  values, avoiding NULL writes when an allocation fails.
+- Add a focused source regression and documentation.
+
+==================================================================
+
 Size TextField wide-preedit conversion for multibyte output (2026-10-27)
 =========================================================================
 

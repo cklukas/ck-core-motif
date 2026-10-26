@@ -8560,27 +8560,38 @@ SetValues(Widget old,
       if (!mod_ver_ret) {
 	if (new_tf->text.verify_bell) XBell(XtDisplay(new_w), 0);
 	if (new_tf->text.max_char_size == 1) {
-	  TextF_Value(new_tf) = 
-	    (char *) memcpy(XtRealloc(TextF_Value(new_tf),
-				      (unsigned)old_tf->text.size_allocd),
-			    (void*)TextF_Value(old_tf),
-			    old_tf->text.string_length + 1);
-	  new_tf->text.string_length = old_tf->text.string_length;
-	  new_tf->text.size_allocd = old_tf->text.size_allocd;
-	  XtFree(TextF_Value(old_tf));
+	  char *restored = (char *)XtRealloc(TextF_Value(new_tf),
+					       (unsigned)old_tf->text.size_allocd);
+	  if (restored != NULL) {
+	    memcpy(restored, (void*)TextF_Value(old_tf),
+		   old_tf->text.string_length + 1);
+	    TextF_Value(new_tf) = restored;
+	    new_tf->text.string_length = old_tf->text.string_length;
+	    new_tf->text.size_allocd = old_tf->text.size_allocd;
+	    XtFree(TextF_Value(old_tf));
+	  } else {
+	    /* Keep the proposed value if restoration cannot be allocated. */
+	    do_it = True;
+	  }
 	} else {
 	  /* realloc to old size, cast to wchar_t*, and copy the data */
-	  TextF_WcValue(new_tf) = 
-	    (wchar_t*)memcpy( XtRealloc((char *)TextF_WcValue(new_tf),
-					(unsigned)old_tf->text.size_allocd),
-			     (void*)TextF_WcValue(old_tf),
-			     (size_t) old_tf->text.size_allocd);
-	  
-	  new_tf->text.string_length = old_tf->text.string_length;
-	  new_tf->text.size_allocd = old_tf->text.size_allocd;
-	  XtFree((char *)TextF_WcValue(old_tf));
+	  wchar_t *restored = (wchar_t *)XtRealloc(
+					 (char *)TextF_WcValue(new_tf),
+					 (unsigned)old_tf->text.size_allocd);
+	  if (restored != NULL) {
+	    memcpy(restored, (void*)TextF_WcValue(old_tf),
+		   (size_t)old_tf->text.size_allocd);
+	    TextF_WcValue(new_tf) = restored;
+	    new_tf->text.string_length = old_tf->text.string_length;
+	    new_tf->text.size_allocd = old_tf->text.size_allocd;
+	    XtFree((char *)TextF_WcValue(old_tf));
+	  } else {
+	    /* Keep the proposed value if restoration cannot be allocated. */
+	    do_it = True;
+	  }
 	}
-	do_it = False;
+	if (do_it == True)
+	  mod_ver_ret = True;
       }
     }
 
