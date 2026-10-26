@@ -2074,9 +2074,15 @@ _XmRC_GetMenuAccelerator(
             XtArgVal *      value)
 {
   String        data ;
+  size_t        accelerator_length;
 
   if (rc->row_column.menu_accelerator != NULL) {
-     data = (String)XtMalloc(strlen(RC_MenuAccelerator(rc)) + 1);
+     accelerator_length = strlen(RC_MenuAccelerator(rc));
+     if (accelerator_length > (size_t)UINT_MAX - 1) {
+       *value = (XtArgVal) NULL;
+       return;
+     }
+     data = (String)XtMalloc((Cardinal)(accelerator_length + 1));
      if (data != NULL)
        strcpy(data, RC_MenuAccelerator(rc));
      *value = (XtArgVal) data ;
