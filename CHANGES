@@ -1,3 +1,12 @@
+Guard drop-site update completion input (2026-10-27)
+=====================================================
+
+- Return before display lookup when `XmDropSiteEndUpdate` receives a null
+  reference widget.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard drop-site update input (2026-10-27)
 =========================================
 

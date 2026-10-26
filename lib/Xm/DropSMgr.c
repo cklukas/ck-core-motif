@@ -4387,6 +4387,10 @@ XmDropSiteEndUpdate(
         Widget refWidget )
 {
 	XmDropSiteManagerObject dsm;
+
+	if (refWidget == NULL)
+	    return;
+
 	_XmWidgetToAppContext(refWidget);
 
 	_XmAppLock(app);
