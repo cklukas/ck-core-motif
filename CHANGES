@@ -1,3 +1,10 @@
+Guard XPM pixmap resource creation (2026-10-27)
+================================================
+
+- Validate image inputs, pixmap creation, and GC creation before uploading an
+  XPM image; release partial resources and report `None` on failure.
+- Add focused regression coverage and documentation.
+
 Guard Container drag-icon resource creation (2026-10-27)
 ==========================================================
 

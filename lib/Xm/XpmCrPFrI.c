@@ -47,13 +47,24 @@ xpmCreatePixmapFromImage(
     GC gc;
     XGCValues values;
 
+    if (pixmap_return == NULL || ximage == NULL)
+	return;
+
     *pixmap_return = XCreatePixmap(display, d, ximage->width,
 				   ximage->height, ximage->depth);
+    if (*pixmap_return == None)
+	return;
+
     /* set fg and bg in case we have an XYBitmap */
     values.foreground = 1;
     values.background = 0;
     gc = XCreateGC(display, *pixmap_return,
 		   GCForeground | GCBackground, &values);
+    if (gc == NULL) {
+	XFreePixmap(display, *pixmap_return);
+	*pixmap_return = None;
+	return;
+    }
 
     XPutImage(display, *pixmap_return, gc, ximage, 0, 0, 0, 0,
 	      ximage->width, ximage->height);
