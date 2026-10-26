@@ -17837,3 +17837,12 @@ Refresh FontSelector encoding-list regression check (2026-10-27)
 =================================================================
 
 Bound DragBS atom-entry growth (2026-10-27)
+Refresh InfoBar hit-zone regression check (2026-10-27)
+=======================================================
+
+- Match the focused test to the current minimum-width close-zone calculation
+  while retaining action-zone and right-edge assertions.
+
+=======================================================
+
+Refresh FontSelector encoding-list regression check (2026-10-27)
