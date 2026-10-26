@@ -19776,3 +19776,9 @@ Make Text input initialization terminal (2026-10-26)
 - Report Xt errors when the Text input record or private input data cannot be
   allocated, preventing later input paths from using missing state.
 - Add focused regression coverage and documentation.
+Guard absent secondary-selection extension (2026-10-26)
+=========================================================
+
+- Stop secondary extension when no selection exists, avoiding use of
+  uninitialized range positions and preserving redisplay state.
+- Add focused regression coverage and documentation.

@@ -4127,7 +4127,10 @@ DoSecondaryExtend(Widget w,
 					 data->select_pos_y);
   
   _XmTextDisableRedisplay(tw, FALSE);
-  _XmTextGetSel2(tw, &left, &right);
+  if (!_XmTextGetSel2(tw, &left, &right)) {
+    _XmTextEnableRedisplay(tw);
+    return;
+  }
   /* check for change in extend direction */
   if ((data->Sel2ExtendDir == XmsdRight && position < data->Sel2OrigLeft) ||
       (data->Sel2ExtendDir == XmsdLeft &&
