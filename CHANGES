@@ -7,6 +7,16 @@ Bound Mrm wide-character fixup allocation width (2026-10-27)
 
 ============================================================
 
+Bound Mrm legacy font-list allocation width (2026-10-27)
+==========================================================
+
+- Reject compatibility font-list records that fit `size_t` but exceed Xt's
+  `Cardinal` allocation width in every legacy reader/fixup path.
+- Extend the focused regression and documentation for the allocation-width
+  contract.
+
+==========================================================
+
 Refresh XmString rendition resize check (2026-10-27)
 ===================================================
 

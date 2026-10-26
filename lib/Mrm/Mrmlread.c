@@ -150,7 +150,9 @@ Urm__FetchLiteral (MrmHierarchy			hierarchy_id,
 	  int count = ((OldRGMFontListPtr)val)->count;
 	  if (count <= 0 ||
 	      (size_t)(count - 1) >
-		  (SIZE_MAX - sizeof(RGMFontList)) / sizeof(RGMFontItem))
+		  (SIZE_MAX - sizeof(RGMFontList)) / sizeof(RGMFontItem) ||
+	      sizeof(RGMFontList) +
+		  (size_t)(count - 1) * sizeof(RGMFontItem) > UINT_MAX)
 	    return MrmFAILURE;
 	  RGMFontListPtr fontlist = (RGMFontListPtr)
 	    XtMalloc(sizeof(RGMFontList) + (sizeof(RGMFontItem) * (count - 1)));

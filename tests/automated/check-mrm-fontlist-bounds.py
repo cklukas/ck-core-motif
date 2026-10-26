@@ -12,5 +12,7 @@ if module.count(needle) < 1 or writer.count(needle) < 2:
     raise SystemExit("legacy Mrm font-list capacity guards are incomplete")
 if module.count("count <= 0") < 1 or writer.count("count <= 0") < 2:
     raise SystemExit("legacy Mrm font-list zero-count guards are incomplete")
+if module.count("> UINT_MAX") < 1 or writer.count("> UINT_MAX") < 2:
+    raise SystemExit("legacy Mrm font-list Xt allocation-width guards are incomplete")
 
 print("Mrm legacy font-list sizing is bounded")
