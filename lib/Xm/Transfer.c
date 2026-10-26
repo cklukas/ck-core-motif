@@ -349,7 +349,7 @@ SecondaryConvertHandler(Widget w,
   enum { XmANULL, XmAINSERT_SELECTION, XmALINK_SELECTION, NUM_ATOMS };
   static char *atom_names[] = {XmSNULL, XmSINSERT_SELECTION, XmSLINK_SELECTION};
 
-  XtAppContext app = XtWidgetToApplicationContext(w);
+  XtAppContext app;
   _XmTextInsertPair *pair;
   XSelectionRequestEvent *req_event;
   static unsigned long old_serial = 0;
@@ -362,6 +362,7 @@ SecondaryConvertHandler(Widget w,
     cs -> status = XmCONVERT_REFUSE;
     return;
   }
+  app = XtWidgetToApplicationContext(w);
 
   _XmProcessLock();
   if (secondary_lock != 0) {
