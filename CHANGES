@@ -18964,3 +18964,13 @@ Guard MultiList selection API inputs (2026-10-27)
 ============================================================
 
 Guard transfer client-window conversion ancestry (2026-10-27)
+Guard IconBox cell-query inputs (2026-10-27)
+============================================
+
+- Reject null widgets before application-context lookup in
+  `XmIconBoxIsCellEmpty`.
+- Add focused regression coverage and documentation.
+
+============================================================
+
+Guard MultiList selection API inputs (2026-10-27)

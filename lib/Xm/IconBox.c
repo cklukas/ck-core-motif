@@ -1014,6 +1014,8 @@ XmIconBoxIsCellEmpty(Widget w, Position x, Position y, Widget ignore)
     XmIconBoxWidget ibw = (XmIconBoxWidget) w;
     Widget * childp;
 
+    if (w == NULL)
+        return False;
     _XmWidgetToAppContext(w);
     _XmAppLock(app);
 
