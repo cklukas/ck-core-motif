@@ -221,7 +221,7 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
 
 void XmFlyoutShow(Widget widget) {
     XmFlyoutWidget flyout;
-    if (!XmIsFlyout(widget)) return;
+    if (widget == NULL || !XmIsFlyout(widget)) return;
     flyout = (XmFlyoutWidget)widget;
     if (!flyout->flyout.owner || !XtIsRealized(flyout->flyout.owner)) return;
     create_popup(flyout);
@@ -234,7 +234,7 @@ void XmFlyoutShow(Widget widget) {
 void XmFlyoutHide(Widget widget) {
     XmFlyoutWidget flyout;
     XmAnyCallbackStruct callback;
-    if (!XmIsFlyout(widget)) return;
+    if (widget == NULL || !XmIsFlyout(widget)) return;
     flyout = (XmFlyoutWidget)widget;
     if (!flyout->flyout.visible) return;
     flyout->flyout.visible = False;
@@ -244,7 +244,8 @@ void XmFlyoutHide(Widget widget) {
 }
 
 Boolean XmFlyoutIsVisible(Widget widget) {
-    return XmIsFlyout(widget) ? ((XmFlyoutWidget)widget)->flyout.visible : False;
+    return widget != NULL && XmIsFlyout(widget)
+        ? ((XmFlyoutWidget)widget)->flyout.visible : False;
 }
 
 Widget XmCreateFlyout(Widget parent, char *name, ArgList args, Cardinal count) {

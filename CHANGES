@@ -1,3 +1,12 @@
+Guard Flyout visibility API inputs (2026-10-27)
+===============================================
+
+- Reject null widgets before `XmIsFlyout` checks in show, hide, and visibility
+  APIs.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard NumberBox state API inputs (2026-10-27)
 ==============================================
 
