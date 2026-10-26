@@ -50,7 +50,14 @@ char *
 xpmstrdup(char *s1)
 {
     char *s2;
-    size_t l = strlen(s1) + 1;
+    size_t l;
+
+    if (s1 == NULL)
+	return NULL;
+    l = strlen(s1);
+    if (l == SIZE_MAX)
+	return NULL;
+    l++;
 
     if (s2 = (char *) XpmMalloc(l))
 	strcpy(s2, s1);

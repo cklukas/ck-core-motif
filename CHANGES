@@ -124,6 +124,14 @@ Bound XPM buffer extension serialization (2026-10-26)
 - Add `tests/automated/check-xpm-buffer-extensions-bounds.py` and document the
   contract in `docs/xpm-buffer-extension-output-bounds.md`.
 
+Guard XPM fallback string duplication (2026-10-26)
+===================================================
+
+- Reject null input and a terminating-byte size overflow in the local
+  `xpmstrdup` implementation used when the platform lacks `strdup`.
+- Add `tests/automated/check-xpm-string-duplicate-input.py` and document the
+  guard in `docs/xpm-string-duplicate-input.md`.
+
 Bound ToggleButton default geometry (2026-10-27)
 ==================================================
 
