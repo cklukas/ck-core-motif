@@ -322,7 +322,7 @@ _XmStringSourceGetString(XmTextWidget tw,
 	start_pos = pos;
 	block.length = 0;
       pos = ReadSource(tw->text.source, pos, to, &block);
-	if (pos <= start_pos || block.length == 0)
+	if (pos <= start_pos || block.length == 0 || block.ptr == NULL)
 	break;
 	  if ((size_t)block.length > allocation - 1 - destpos) {
 	    XtFree(buf);
@@ -342,7 +342,7 @@ _XmStringSourceGetString(XmTextWidget tw,
 	start_pos = pos;
 	block.length = 0;
       ret_pos = ReadSource(tw->text.source, pos, to, &block);
-	if (ret_pos <= start_pos || block.length == 0)
+	if (ret_pos <= start_pos || block.length == 0 || block.ptr == NULL)
 	break;
 	  if (ret_pos < pos ||
 	      (size_t)(ret_pos - pos) >
@@ -2086,7 +2086,7 @@ _XmStringSourceGetValue(XmTextSource source,
     
     while (pos < last_pos) {
       ret_pos = ReadSource(source, pos, last_pos, &block);
-	if (ret_pos <= pos || block.length <= 0 ||
+	if (ret_pos <= pos || block.length <= 0 || block.ptr == NULL ||
 	    (size_t)block.length > allocation - 1 - (size_t)length) {
 	XtFree(temp);
 	break;
@@ -2121,7 +2121,7 @@ _XmStringSourceGetValue(XmTextSource source,
     
     while (pos < last_pos) {
       ret_pos = ReadSource(source, pos, last_pos, &block);
-      if (ret_pos <= pos || block.length <= 0 ||
+	  if (ret_pos <= pos || block.length <= 0 || block.ptr == NULL ||
 	  (size_t)(ret_pos - pos) >
 	    (allocation / sizeof(wchar_t)) - 1 - (size_t)length) {
 	XtFree((char *)wc_temp);

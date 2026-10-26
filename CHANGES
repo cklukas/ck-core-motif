@@ -64,6 +64,13 @@ Guard text-source pending snapshots (2026-10-27)
   before filling the snapshot.
 - Add a focused source regression and documentation.
 
+Reject null text-source block payloads (2026-10-27)
+===================================================
+
+- Reject positive-length source blocks whose payload pointer is null before
+  byte copying or multibyte conversion.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
