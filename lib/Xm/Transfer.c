@@ -1147,7 +1147,7 @@ XmeDragSource(Widget w, XtPointer location_data, XEvent *event,
   static char *atom_names[] = { XmS_MOTIF_DROP, XmS_MOTIF_EXPORT_TARGETS };
 
   Arg *args;
-  int arg_count;
+  Cardinal arg_count;
   XtPointer targets;
   unsigned long size;
   Atom type;
@@ -1162,9 +1162,8 @@ XmeDragSource(Widget w, XtPointer location_data, XEvent *event,
 
   _XmAppLock(app);
 
-  if (in_arg_count > (Cardinal)(INT_MAX - 10) ||
+  if (in_arg_count > UINT_MAX - 10 ||
       (in_arg_count != 0 && in_args == NULL) ||
-      (size_t)(in_arg_count + 10) > (size_t)-1 / sizeof(*args) ||
       (size_t)(in_arg_count + 10) > (size_t)UINT_MAX / sizeof(*args)) {
     _XmAppUnlock(app);
     return(NULL);
@@ -1175,7 +1174,7 @@ XmeDragSource(Widget w, XtPointer location_data, XEvent *event,
 
   /* merge and copy arg list */
   arg_count = in_arg_count + 10;
-  args = (Arg *)XtMalloc(sizeof(*args) * (size_t)arg_count);
+  args = (Arg *)XtMalloc((Cardinal)(sizeof(*args) * (size_t)arg_count));
   if (args == NULL) {
     _XmAppUnlock(app);
     return(NULL);
@@ -1579,22 +1578,21 @@ void
 XmeDropSink(Widget w, ArgList in_args, Cardinal in_arg_count)
 {
   Arg *args;
-  int arg_count;
+  Cardinal arg_count;
   if (w == NULL)
     return;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
-  if (in_arg_count > (Cardinal)(INT_MAX - 2) ||
+  if (in_arg_count > UINT_MAX - 2 ||
       (in_arg_count != 0 && in_args == NULL) ||
-      (size_t)(in_arg_count + 2) > (size_t)-1 / sizeof(*args) ||
       (size_t)(in_arg_count + 2) > (size_t)UINT_MAX / sizeof(*args)) {
     _XmAppUnlock(app);
     return;
   }
   /* merge and copy arg list */
   arg_count = in_arg_count + 2;
-  args = (Arg *)XtMalloc(sizeof(*args) * (size_t)arg_count);
+  args = (Arg *)XtMalloc((Cardinal)(sizeof(*args) * (size_t)arg_count));
   if (args == NULL) {
     _XmAppUnlock(app);
     return;
