@@ -462,11 +462,17 @@ static Boolean process96GR(
 static Boolean cvtXmStringToText( 
                         XrmValue *from,
                         XrmValue *to) ;
-static OctetPtr ctextConcat( 
-                        OctetPtr str1,
-                        unsigned int str1len,
+static Boolean ctextConcat(
+                        OctetPtr *str1,
+                        unsigned int *str1len,
                         const_OctetPtr str2,
                         unsigned int str2len) ;
+
+#define CTEXT_APPEND_OR_RETURN(str, len, data, data_len) \
+  do { \
+    if (!ctextConcat(&(str), &(len), (data), (data_len))) \
+      return False; \
+  } while (0)
 
 #ifdef UTF8_SUPPORTED
 static Boolean  cvtXmStringToUTF8String(
@@ -2340,18 +2346,16 @@ cvtXmStringToUTF8String(
 	  /* Output the direction, if changed */
 	  if (*(XmStringDirection *)val == XmSTRING_DIRECTION_L_TO_R) {
 	    if (prev_direction != ct_Dir_LeftToRight) {
-	      outc = ctextConcat(outc, outlen, 
-				 (unsigned char *) UTF8_L_TO_R,
-				 (unsigned int)UTF8_L_TO_R_LEN);
-	      outlen += UTF8_L_TO_R_LEN;
+	      CTEXT_APPEND_OR_RETURN(outc, outlen,
+				     (unsigned char *) UTF8_L_TO_R,
+				     (unsigned int)UTF8_L_TO_R_LEN);
 	      prev_direction = ct_Dir_LeftToRight;
 	    }
 	  } else {
 	    if (prev_direction != ct_Dir_RightToLeft) {
-	      outc = ctextConcat(outc, outlen, 
-				 (unsigned char *) UTF8_R_TO_L,
-				 (unsigned int)UTF8_R_TO_L_LEN);
-	      outlen += UTF8_R_TO_L_LEN;
+	      CTEXT_APPEND_OR_RETURN(outc, outlen,
+				     (unsigned char *) UTF8_R_TO_L,
+				     (unsigned int)UTF8_R_TO_L_LEN);
 	      prev_direction = ct_Dir_RightToLeft;
 	    }
 	  };
@@ -2377,10 +2381,9 @@ cvtXmStringToUTF8String(
 	  break;
 	
 	case XmSTRING_COMPONENT_TAB:
-	  outc = ctextConcat(outc, outlen, 
-			     (unsigned char *)UTF8_TABSTRING, 
-			     (unsigned int)UTF8_TABSTRING_LEN);
-	  outlen++;
+	  CTEXT_APPEND_OR_RETURN(outc, outlen,
+				 (unsigned char *)UTF8_TABSTRING,
+				 (unsigned int)UTF8_TABSTRING_LEN);
 	  break;
 
 	default:
@@ -2504,18 +2507,16 @@ cvtXmStringToText(
 	  /* Output the direction, if changed */
 	  if (*(XmStringDirection *)val == XmSTRING_DIRECTION_L_TO_R) {
 	    if (prev_direction != ct_Dir_LeftToRight) {
-	      outc = ctextConcat(outc, outlen, 
-				 (unsigned char *) CTEXT_L_TO_R,
-				 (unsigned int)CTEXT_L_TO_R_LEN);
-	      outlen += CTEXT_L_TO_R_LEN;
+	      CTEXT_APPEND_OR_RETURN(outc, outlen,
+				     (unsigned char *) CTEXT_L_TO_R,
+				     (unsigned int)CTEXT_L_TO_R_LEN);
 	      prev_direction = ct_Dir_LeftToRight;
 	    }
 	  } else {
 	    if (prev_direction != ct_Dir_RightToLeft) {
-	      outc = ctextConcat(outc, outlen, 
-				 (unsigned char *) CTEXT_R_TO_L,
-				 (unsigned int)CTEXT_R_TO_L_LEN);
-	      outlen += CTEXT_R_TO_L_LEN;
+	      CTEXT_APPEND_OR_RETURN(outc, outlen,
+				     (unsigned char *) CTEXT_R_TO_L,
+				     (unsigned int)CTEXT_R_TO_L_LEN);
 	      prev_direction = ct_Dir_RightToLeft;
 	    }
 	  };
@@ -2541,10 +2542,9 @@ cvtXmStringToText(
 	  break;
 	
 	case XmSTRING_COMPONENT_TAB:
-	  outc = ctextConcat(outc, outlen, 
-			     (unsigned char *)TABSTRING, 
-			     (unsigned int)TABSTRING_LEN);
-	  outlen++;
+	  CTEXT_APPEND_OR_RETURN(outc, outlen,
+				 (unsigned char *)TABSTRING,
+				 (unsigned int)TABSTRING_LEN);
 	  break;
 
 	default:
@@ -2588,8 +2588,7 @@ processCharsetAndTextUtf8(XmStringCharSet tag,
     		  ctlen = strlen((char *)ctext);
 
           if (ctlen > 0) {
-              *outc = ctextConcat(*outc, *outlen, ctext, ctlen);
-              *outlen += ctlen;
+              CTEXT_APPEND_OR_RETURN(*outc, *outlen, ctext, ctlen);
           };
       } else {
           XTextProperty	prop_rtn;
@@ -2625,8 +2624,7 @@ processCharsetAndTextUtf8(XmStringCharSet tag,
 
           /* Now copy in the text */
           if (ctlen > 0) {
-              *outc = ctextConcat(*outc, *outlen, prop_rtn.value, ctlen);
-              *outlen += ctlen;
+              CTEXT_APPEND_OR_RETURN(*outc, *outlen, prop_rtn.value, ctlen);
           };
 
           XFree(prop_rtn.value);
@@ -2634,10 +2632,9 @@ processCharsetAndTextUtf8(XmStringCharSet tag,
 
       /* Finally, add the separator if any */
       if (separator) {
-	*outc = ctextConcat(*outc, *outlen, 
-			    (unsigned char *)UTF8_NEWLINESTRING, 
-			    (unsigned int)UTF8_NEWLINESTRING_LEN);
-	(*outlen)++;
+	CTEXT_APPEND_OR_RETURN(*outc, *outlen,
+			       (unsigned char *)UTF8_NEWLINESTRING,
+			       (unsigned int)UTF8_NEWLINESTRING_LEN);
       };
 
       *prev = cs_none;
@@ -2659,24 +2656,21 @@ processCharsetAndTextUtf8(XmStringCharSet tag,
           XtFree(text);
           return(False);
         }
-      *outc = ctextConcat(*outc, *outlen, (const_OctetPtr)text,
-                          (unsigned int)converted_len);
-      if (*outc == NULL)
+      if (!ctextConcat(outc, outlen, (const_OctetPtr)text,
+                       (unsigned int)converted_len))
         {
           XtFree(text);
           return(False);
         }
-      *outlen += (unsigned int)converted_len;
     }
     XtFree(text);
   };
 
   /* Finally, add the separator if any */
   if (separator) {
-    *outc = ctextConcat(*outc, *outlen, 
-			(unsigned char *)UTF8_NEWLINESTRING, 
-			(unsigned int)UTF8_NEWLINESTRING_LEN);
-    (*outlen)++;
+	CTEXT_APPEND_OR_RETURN(*outc, *outlen,
+			       (unsigned char *)UTF8_NEWLINESTRING,
+			       (unsigned int)UTF8_NEWLINESTRING_LEN);
   }
   return(True);
 }
@@ -2735,18 +2729,16 @@ processCharsetAndText(XmStringCharSet tag,
       /* Now copy in the text */
       if (prop_rtn.value) {
         ctlen = strlen((char *)prop_rtn.value);
-	*outc = ctextConcat(*outc, *outlen, prop_rtn.value, ctlen);
-	*outlen += ctlen;
+	CTEXT_APPEND_OR_RETURN(*outc, *outlen, prop_rtn.value, ctlen);
       };
 
       XFree(prop_rtn.value);
 
       /* Finally, add the separator if any */
       if (separator) {
-	*outc = ctextConcat(*outc, *outlen, 
-			    (unsigned char *)NEWLINESTRING, 
-			    (unsigned int)NEWLINESTRING_LEN);
-	(*outlen)++;
+	CTEXT_APPEND_OR_RETURN(*outc, *outlen,
+			       (unsigned char *)NEWLINESTRING,
+			       (unsigned int)NEWLINESTRING_LEN);
       };
 
       *prev = cs_none;
@@ -2760,131 +2752,117 @@ processCharsetAndText(XmStringCharSet tag,
   /* Next output the charset */
   if (strcmp(tag, CS_ISO8859_1) == 0) {
     if (*prev != cs_Latin1) {
-      *outc = ctextConcat(*outc, *outlen, 
-			  (unsigned char *)CTEXT_SET_ISO8859_1, 
-			  (unsigned int)CTEXT_SET_ISO8859_1_LEN);
-      *outlen += CTEXT_SET_ISO8859_1_LEN;
+	      CTEXT_APPEND_OR_RETURN(*outc, *outlen,
+				     (unsigned char *)CTEXT_SET_ISO8859_1,
+				     (unsigned int)CTEXT_SET_ISO8859_1_LEN);
       *prev = cs_Latin1;
     };
   }
   else if (strcmp(tag, CS_ISO8859_2) == 0) {
     if (*prev != cs_Latin2) {
-      *outc = ctextConcat(*outc, *outlen, 
-			  (unsigned char *)CTEXT_SET_ISO8859_2, 
-			  (unsigned int)CTEXT_SET_ISO8859_2_LEN);
-      *outlen += CTEXT_SET_ISO8859_2_LEN;
+	      CTEXT_APPEND_OR_RETURN(*outc, *outlen,
+				     (unsigned char *)CTEXT_SET_ISO8859_2,
+				     (unsigned int)CTEXT_SET_ISO8859_2_LEN);
       *prev = cs_Latin2;
     };
   }
   else if (strcmp(tag, CS_ISO8859_3) == 0) {
     if (*prev != cs_Latin3) {
-      *outc = ctextConcat(*outc, *outlen, 
-			  (unsigned char *)CTEXT_SET_ISO8859_3, 
-			  (unsigned int)CTEXT_SET_ISO8859_3_LEN);
-      *outlen += CTEXT_SET_ISO8859_3_LEN;
+	      CTEXT_APPEND_OR_RETURN(*outc, *outlen,
+				     (unsigned char *)CTEXT_SET_ISO8859_3,
+				     (unsigned int)CTEXT_SET_ISO8859_3_LEN);
       *prev = cs_Latin3;
     };
   }
   else if (strcmp(tag, CS_ISO8859_4) == 0) {
     if (*prev != cs_Latin4) {
-      *outc = ctextConcat(*outc, *outlen, 
-			  (unsigned char *)CTEXT_SET_ISO8859_4, 
-			  (unsigned int)CTEXT_SET_ISO8859_4_LEN);
-      *outlen += CTEXT_SET_ISO8859_4_LEN;
+	      CTEXT_APPEND_OR_RETURN(*outc, *outlen,
+				     (unsigned char *)CTEXT_SET_ISO8859_4,
+				     (unsigned int)CTEXT_SET_ISO8859_4_LEN);
       *prev = cs_Latin4;
     };
   }
   else if (strcmp(tag, CS_ISO8859_5) == 0) {
     if (*prev != cs_LatinCyrillic) {
-      *outc = ctextConcat(*outc, *outlen, 
-			  (unsigned char *)CTEXT_SET_ISO8859_5, 
-			  (unsigned int)CTEXT_SET_ISO8859_5_LEN);
-      *outlen += CTEXT_SET_ISO8859_5_LEN;
+	      CTEXT_APPEND_OR_RETURN(*outc, *outlen,
+				     (unsigned char *)CTEXT_SET_ISO8859_5,
+				     (unsigned int)CTEXT_SET_ISO8859_5_LEN);
       *prev = cs_LatinCyrillic;
     };
   }
   else if (strcmp(tag, CS_ISO8859_6) == 0) {
     if (*prev != cs_LatinArabic) {
-      *outc = ctextConcat(*outc, *outlen, 
-			  (unsigned char *)CTEXT_SET_ISO8859_6, 
-			  (unsigned int)CTEXT_SET_ISO8859_6_LEN);
-      *outlen += CTEXT_SET_ISO8859_6_LEN;
+	      CTEXT_APPEND_OR_RETURN(*outc, *outlen,
+				     (unsigned char *)CTEXT_SET_ISO8859_6,
+				     (unsigned int)CTEXT_SET_ISO8859_6_LEN);
       *prev = cs_LatinArabic;
     };
   }
   else if (strcmp(tag, CS_ISO8859_7) == 0) {
     if (*prev != cs_LatinGreek) {
-      *outc = ctextConcat(*outc, *outlen, 
-			  (unsigned char *)CTEXT_SET_ISO8859_7, 
-			  (unsigned int)CTEXT_SET_ISO8859_7_LEN);
-      *outlen += CTEXT_SET_ISO8859_7_LEN;
+	      CTEXT_APPEND_OR_RETURN(*outc, *outlen,
+				     (unsigned char *)CTEXT_SET_ISO8859_7,
+				     (unsigned int)CTEXT_SET_ISO8859_7_LEN);
       *prev = cs_LatinGreek;
     };
   }
   else if (strcmp(tag, CS_ISO8859_8) == 0) {
     if (*prev != cs_LatinHebrew) {
-      *outc = ctextConcat(*outc, *outlen, 
-			  (unsigned char *)CTEXT_SET_ISO8859_8, 
-			  (unsigned int)CTEXT_SET_ISO8859_8_LEN);
-      *outlen += CTEXT_SET_ISO8859_8_LEN;
+	      CTEXT_APPEND_OR_RETURN(*outc, *outlen,
+				     (unsigned char *)CTEXT_SET_ISO8859_8,
+				     (unsigned int)CTEXT_SET_ISO8859_8_LEN);
       *prev = cs_LatinHebrew;
     };
   }
   else
     if (strcmp(tag, CS_ISO8859_9) == 0) {
       if (*prev != cs_Latin5) {
-	*outc = ctextConcat(*outc, *outlen, 
-			    (unsigned char *)CTEXT_SET_ISO8859_9, 
-			    (unsigned int)CTEXT_SET_ISO8859_9_LEN);
-	*outlen += CTEXT_SET_ISO8859_9_LEN;
+	CTEXT_APPEND_OR_RETURN(*outc, *outlen,
+			       (unsigned char *)CTEXT_SET_ISO8859_9,
+			       (unsigned int)CTEXT_SET_ISO8859_9_LEN);
 	*prev = cs_Latin5;
       };
     }
     else if (strcmp(tag, CS_JISX0201) == 0) {
       if (*prev != cs_Katakana) {
-	*outc = ctextConcat(*outc, *outlen, 
-			    (unsigned char *)CTEXT_SET_JISX0201, 
-			    (unsigned int)CTEXT_SET_JISX0201_LEN);
-	*outlen += CTEXT_SET_JISX0201_LEN;
+	CTEXT_APPEND_OR_RETURN(*outc, *outlen,
+			       (unsigned char *)CTEXT_SET_JISX0201,
+			       (unsigned int)CTEXT_SET_JISX0201_LEN);
 	*prev = cs_Katakana;
       };
     }
     else if ((strcmp(tag, CS_GB2312_0) == 0) ||
 	     (strcmp(tag, CS_GB2312_1) == 0)) {
       if (*prev != cs_Hanzi) {
-	*outc = ctextConcat(*outc, *outlen, 
-			    (unsigned char *)CTEXT_SET_GB2312_0, 
-			    (unsigned int)CTEXT_SET_GB2312_0_LEN);
-	*outlen += CTEXT_SET_GB2312_0_LEN;
+	CTEXT_APPEND_OR_RETURN(*outc, *outlen,
+			       (unsigned char *)CTEXT_SET_GB2312_0,
+			       (unsigned int)CTEXT_SET_GB2312_0_LEN);
 	*prev = cs_Hanzi;
       };
     }
     else if ((strcmp(tag, CS_JISX0208_0) == 0) ||
 	     (strcmp(tag, CS_JISX0208_1) == 0)) {
       if (*prev != cs_JapaneseGCS) {
-	*outc = ctextConcat(*outc, *outlen, 
-			    (unsigned char *)CTEXT_SET_JISX0208_0, 
-			    (unsigned int)CTEXT_SET_JISX0208_0_LEN);
-	*outlen += CTEXT_SET_JISX0208_0_LEN;
+	CTEXT_APPEND_OR_RETURN(*outc, *outlen,
+			       (unsigned char *)CTEXT_SET_JISX0208_0,
+			       (unsigned int)CTEXT_SET_JISX0208_0_LEN);
 	*prev = cs_JapaneseGCS;
       };
     }
     else if ((strcmp(tag, CS_KSC5601_0) == 0) ||  
 	     (strcmp(tag, CS_KSC5601_1) == 0)) {
       if (*prev != cs_KoreanGCS) {
-	*outc = ctextConcat(*outc, *outlen, 
-			    (unsigned char *)CTEXT_SET_KSC5601_0, 
-			    (unsigned int)CTEXT_SET_KSC5601_0_LEN);
-	*outlen += CTEXT_SET_KSC5601_0_LEN;
+	CTEXT_APPEND_OR_RETURN(*outc, *outlen,
+			       (unsigned char *)CTEXT_SET_KSC5601_0,
+			       (unsigned int)CTEXT_SET_KSC5601_0_LEN);
 	*prev = cs_KoreanGCS;
       };
     }
     else if (strcmp(tag, CS_ISO_IR_111) == 0) {
       if (*prev != cs_ir111) {
-	*outc = ctextConcat(*outc, *outlen, 
-			    (unsigned char *)CTEXT_SET_IR_111, 
-			    (unsigned int)CTEXT_SET_IR_111_LEN);
-	*outlen += CTEXT_SET_IR_111_LEN;
+	CTEXT_APPEND_OR_RETURN(*outc, *outlen,
+			       (unsigned char *)CTEXT_SET_IR_111,
+			       (unsigned int)CTEXT_SET_IR_111_LEN);
 	*prev = cs_ir111;
       };
     }
@@ -2936,25 +2914,23 @@ processCharsetAndText(XmStringCharSet tag,
       
   /* Now copy in the text */
   if (ctlen > 0) {
-    *outc = ctextConcat(*outc, *outlen, ctext, ctlen);
-    *outlen += ctlen;
+    CTEXT_APPEND_OR_RETURN(*outc, *outlen, ctext, ctlen);
   };
 
   /* Finally, add the separator if any */
   if (separator) {
-    *outc = ctextConcat(*outc, *outlen, 
-			(unsigned char *)NEWLINESTRING, 
-			(unsigned int)NEWLINESTRING_LEN);
-    (*outlen)++;
+    CTEXT_APPEND_OR_RETURN(*outc, *outlen,
+			   (unsigned char *)NEWLINESTRING,
+			   (unsigned int)NEWLINESTRING_LEN);
   }
   return(True);
 }
   
 
-static OctetPtr 
+static Boolean
 ctextConcat(
-        OctetPtr str1,
-        unsigned int str1len,
+        OctetPtr *str1,
+        unsigned int *str1len,
         const_OctetPtr str2,
         unsigned int str2len )
 {
@@ -2962,18 +2938,21 @@ ctextConcat(
 	OctetPtr new_str;
 
 	if ((str2 == NULL && str2len != 0) ||
-	    (size_t)str1len > SIZE_MAX - (size_t)str2len - 1 ||
-	    (size_t)str1len + (size_t)str2len + 1 > UINT_MAX)
-	    return str1;
+	    str1 == NULL || str1len == NULL ||
+	    (size_t)*str1len > SIZE_MAX - (size_t)str2len - 1 ||
+	    (size_t)*str1len + (size_t)str2len + 1 > UINT_MAX)
+	    return False;
 
-	total_size = (size_t)str1len + (size_t)str2len + 1;
-	new_str = (OctetPtr)XtRealloc((char *)str1, (Cardinal)total_size);
+	total_size = (size_t)*str1len + (size_t)str2len + 1;
+	new_str = (OctetPtr)XtRealloc((char *)*str1, (Cardinal)total_size);
 	if (new_str == NULL)
-	    return str1;
+	    return False;
 	if (str2len != 0)
-	    memcpy(&new_str[str1len], str2, str2len);
-	new_str[str1len + str2len] = EOS;
-	return new_str;
+	    memcpy(&new_str[*str1len], str2, str2len);
+	new_str[*str1len + str2len] = EOS;
+	*str1 = new_str;
+	*str1len += str2len;
+	return True;
 }
 
 #ifdef UTF8_SUPPORTED

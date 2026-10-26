@@ -1,3 +1,13 @@
+Propagate compound-text concatenation failures (2026-10-27)
+===========================================================
+
+- Change ctextConcat to update output state only after successful
+  reallocation and make every compound-text caller fail cleanly on allocation
+  failure.
+- Add focused regression coverage and documentation.
+
+=========================================================
+
 Bound qualified-directory helper allocations (2026-10-27)
 ==========================================================
 
