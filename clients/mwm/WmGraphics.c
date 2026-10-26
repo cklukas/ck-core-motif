@@ -1173,6 +1173,10 @@ void WmDrawXmString (Display *dpy, Window w, XmFontList xmfontlist,
 #else /* WSM */
     int alignment = XmALIGNMENT_BEGINNING;
 #endif /* WSM */
+
+    if (dpy == NULL || xmfontlist == NULL || xmstring == NULL ||
+	gc == NULL || pbox == NULL || ACTIVE_PSD == NULL)
+	return;
     
 
     textWidth = XmStringWidth(xmfontlist, xmstring);

@@ -20952,6 +20952,11 @@ Guard MWM text drawing inputs (2026-10-26)
 DrawStringInBox and WmDrawString now return for missing display, graphics,
 font, box, string, or active-screen inputs before calling Xlib text routines.
 
+Guard MWM compound-string drawing inputs (2026-10-26)
+------------------------------------------------------
+WmDrawXmString now returns for missing display, font list, compound string,
+graphics, clip box, or active-screen inputs before measuring or drawing text.
+
 Reject impossible MWM title widths (2026-10-26)
 -----------------------------------------------
 GetFramePartInfo now rejects title and title-bar geometry when borders and
