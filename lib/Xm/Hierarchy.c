@@ -1389,6 +1389,8 @@ AddChildToList(HierarchyConstraints ** list, Cardinal * num, Cardinal * alloc,
         if (list_count != 0 && SIZE_MAX / list_count < sizeof(*new_list))
             return;
         list_bytes = list_count * sizeof(*new_list);
+        if (list_bytes > (size_t)UINT_MAX)
+            return;
         new_list = (HierarchyConstraints *)XtRealloc(
             (XtPointer)*list, list_bytes);
         if (new_list == NULL)

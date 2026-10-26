@@ -17507,3 +17507,13 @@ Bound render-table Cardinal allocations (2026-10-27)
 =========================================================
 
 Handle SpinBox numeric formatter allocation failure (2026-10-27)
+Bound Hierarchy child-list growth (2026-10-27)
+==============================================
+
+- Reject child-list reallocations whose byte count cannot be represented by
+  Xt's `Cardinal` size type.
+- Add focused regression coverage and documentation.
+
+=========================================================
+
+Bound render-table Cardinal allocations (2026-10-27)
