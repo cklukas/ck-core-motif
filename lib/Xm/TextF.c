@@ -7546,21 +7546,26 @@ ValidateString(XmTextFieldWidget tf,
 	} else {
 	  char *params[1];
           char *err_str;
+	  err_str = NULL;
 	  if (csize >= 0) {
 	      int i;
 
 	      err_str = XtMalloc((4 * csize) + 1);
-	      for (i = 0; i < csize; i++) {
-                sprintf(err_str + (i * 4), "\\%o", (unsigned char) scratch[i]);
-	      }
+	      if (err_str != NULL)
+	        for (i = 0; i < csize; i++) {
+	          sprintf(err_str + (i * 4), "\\%o", (unsigned char) scratch[i]);
+	        }
 	  }
 	  else {
 	      err_str = XtMalloc(1);
-	      err_str[0] = '\0';
+	      if (err_str != NULL)
+	        err_str[0] = '\0';
 	  }
-          params[0] = err_str;
-	  _XmWarningMsg ((Widget)tf, "Unsupported wchar", WC_MSG1, params, 1);
-          XtFree(err_str);
+	  if (err_str != NULL) {
+	    params[0] = err_str;
+	    _XmWarningMsg ((Widget)tf, "Unsupported wchar", WC_MSG1, params, 1);
+	    XtFree(err_str);
+	  }
 	}
       } else {
 	if (PrintableString(tf, (char*)wcs_curr_str, 1, True)) {
@@ -7570,22 +7575,27 @@ ValidateString(XmTextFieldWidget tf,
 	} else {
 	  char *params[1];
           char *err_str;
+	  err_str = NULL;
 	  csize = wctomb(scratch, *wcs_curr_str);
 	  if (csize >= 0) {
 	      int i;
 
 	      err_str = XtMalloc((4 * csize) + 1);
-	      for (i = 0; i < csize; i++) {
-                sprintf(err_str + (i * 4), "\\%o", (unsigned char) scratch[i]);
-	      }
+	      if (err_str != NULL)
+	        for (i = 0; i < csize; i++) {
+          sprintf(err_str + (i * 4), "\\%o", (unsigned char) scratch[i]);
+        }
 	  }
 	  else {
 	      err_str = XtMalloc(1);
-	      err_str[0] = '\0';
+	      if (err_str != NULL)
+	        err_str[0] = '\0';
 	  }
-	  params[0] = err_str;
-	  _XmWarningMsg ((Widget)tf, "Unsupported wchar", WC_MSG1, params, 1);
-	  XtFree(err_str);
+	  if (err_str != NULL) {
+	    params[0] = err_str;
+	    _XmWarningMsg ((Widget)tf, "Unsupported wchar", WC_MSG1, params, 1);
+	    XtFree(err_str);
+	  }
 	}
       }
     } 

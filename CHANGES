@@ -22902,3 +22902,10 @@ Guard TextField validation warning formatting (2026-10-26)
   string cannot be allocated, while continuing validation safely.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-validation-warning.py
+
+Guard TextField wide-value warning formatting (2026-10-26)
+============================================================
+- Make both unsupported-wide-character diagnostic paths nullable when their
+  temporary formatting allocation fails.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-wide-warning.py
