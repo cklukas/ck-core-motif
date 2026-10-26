@@ -1046,6 +1046,8 @@ Colormap FindColormap (ClientData *pCD, Window window)
     Colormap colormap = (Colormap)0;
     int i;
 
+    if (pCD == NULL)
+	return (colormap);
 
     if (pCD->clientCmapCount == 0)
     {
@@ -1107,6 +1109,9 @@ GetMwmMenuItems(
     int rValue;
     XTextProperty textProperty;
     MenuItem *menuItems;
+
+    if (pCD == NULL)
+	return (NULL);
 
     /*
      * Read the _MWM_MENU property.

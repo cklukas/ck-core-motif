@@ -90,6 +90,13 @@ Guard MWM property processors (2026-10-26)
   processors when no client record is supplied.
 - Add focused regression coverage and document the input contract.
 
+Guard MWM colormap and menu getters (2026-10-26)
+================================================
+
+- Return safely from colormap lookup and `_MWM_MENU` parsing when no client
+  record is supplied.
+- Add focused regression coverage and document the behavior.
+
 Guard MWM binding token boundaries (2026-10-26)
 ===============================================
 
