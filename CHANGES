@@ -57,6 +57,13 @@ Guard text-source widget attachment (2026-10-27)
 - Roll back the widget count when attachment storage cannot be grown.
 - Add a focused source regression and documentation.
 
+Guard text-source pending snapshots (2026-10-27)
+=================================================
+
+- Bound the pending-state Boolean-array size and handle allocation failure
+  before filling the snapshot.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
