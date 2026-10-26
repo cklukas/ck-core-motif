@@ -19825,3 +19825,10 @@ Clamp Text previous-page coordinates (2026-10-26)
 - Clamp the previous-page hit-test coordinate at the top edge before applying
   the font-ascent offset, preventing signed `Position` wraparound.
 - Add focused regression coverage and documentation.
+
+Clamp Text horizontal-page coordinates (2026-10-26)
+=====================================================
+
+- Apply the same top-edge y-coordinate clamp to horizontal page actions,
+  preventing signed `Position` wraparound during left/right paging.
+- Add focused regression coverage and documentation.

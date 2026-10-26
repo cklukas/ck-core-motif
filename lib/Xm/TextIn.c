@@ -2588,7 +2588,10 @@ MovePageLeft(Widget w,
   }
   
   (*tw->text.output->PosToXY)(tw, tw->text.cursor_position, &x, &y);
-  y -= tw->text.output->data->font_ascent;
+  if (y > tw->text.output->data->font_ascent)
+    y -= tw->text.output->data->font_ascent;
+  else
+    y = 0;
   _XmTextChangeHOffset(tw, -tw->text.inner_widget->core.width);
   newPos = (*tw->text.output->XYToPos)(tw, x, y);
   
@@ -2635,7 +2638,10 @@ MovePageRight(Widget w,
   }
   
   (*tw->text.output->PosToXY)(tw, tw->text.cursor_position, &x, &y);
-  y -= tw->text.output->data->font_ascent;
+  if (y > tw->text.output->data->font_ascent)
+    y -= tw->text.output->data->font_ascent;
+  else
+    y = 0;
   _XmTextChangeHOffset(tw, tw->text.inner_widget->core.width);
   newPos = (*tw->text.output->XYToPos)(tw, x, y);
   
