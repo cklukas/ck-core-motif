@@ -12129,11 +12129,16 @@ XmDataFieldGetSelectionWcs(
    length = (size_t)(XmTextF_prim_pos_right(tf) - 
 		     XmTextF_prim_pos_left(tf));
 
-   if (length > SIZE_MAX / sizeof(wchar_t) - 1) {
+   if (length > SIZE_MAX / sizeof(wchar_t) - 1 ||
+       length + 1 > UINT_MAX / sizeof(wchar_t)) {
      _XmAppUnlock(app);
      return NULL;
    }
    wc_value = (wchar_t*)XtMalloc((length + 1) * sizeof(wchar_t));
+   if (wc_value == NULL) {
+     _XmAppUnlock(app);
+     return NULL;
+   }
 
    if (XmTextF_max_char_size(tf) == 1) 
    {

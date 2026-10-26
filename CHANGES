@@ -308,6 +308,14 @@ Bound legacy menu-accelerator copy (2026-10-27)
   unrepresentable.
 - Add a focused source regression and documentation.
 
+Guard DataField wide-selection allocation (2026-10-27)
+======================================================
+
+- Check the Xt allocation-width limit for wide selection buffers.
+- Return cleanly when the selection buffer cannot be allocated instead of
+  writing through a null result.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
