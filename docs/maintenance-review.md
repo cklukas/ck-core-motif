@@ -65,6 +65,14 @@ glyphs in the two button regions using measured render-table text. This fixes
 the previous single oversized mark that crossed both hit regions. The focused
 regression is `tests/automated/check-stepper-control-glyphs.py`.
 
+## TabBox background fallback
+
+Standalone `XmTabBox` instances now start redisplay with their own
+`XmNbackground`/`XmNbackgroundPixmap` resources. Previously the fallback pixel
+was zero unless a TabStack parent supplied an override, producing a black
+unused region in basic tab layouts. The focused regression is
+`tests/automated/check-tabbox-background-fallback.py`.
+
 ## Concrete storage and image corrections
 
 The next source review identified the following independently useful fixes.

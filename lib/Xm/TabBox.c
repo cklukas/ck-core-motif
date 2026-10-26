@@ -948,8 +948,8 @@ Redisplay(widget, event, region)
     int              count = _XmTabbedStackListCount(list),
                      shadow = tab->manager.shadow_thickness;
     GC               gc = XmTabBox__tab_GC(tab);
-    Pixel            pixel= 0 ;
-    Pixmap           pixmap= 0 ;
+    Pixel            pixel = tab->core.background_pixel;
+    Pixmap           pixmap = tab->core.background_pixmap;
     XGCValues gcValues; /* CR03218 begin */
     Boolean getNewGC = False;
     if(gc)
