@@ -651,6 +651,8 @@ _XmCreateCutBuffers(Widget w)
     Widget xm_display = (Widget) XmGetXmDisplay(dpy);
     
     ctx_data = (XmTextContextData) XtMalloc(sizeof(XmTextContextDataRec));
+    if (ctx_data == NULL)
+      return;
     
     ctx_data->screen = screen;
     ctx_data->context = local_context;

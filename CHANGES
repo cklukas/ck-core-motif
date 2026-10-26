@@ -165,6 +165,14 @@ Guard text SetValues wide-string conversion (2026-10-27)
   the existing source value on failure.
 - Add a focused source regression and documentation.
 
+Guard text cut-buffer context allocation (2026-10-27)
+======================================================
+
+- Check per-screen cut-buffer context allocation before field initialization
+  and callback registration.
+- Leave setup retryable when storage is unavailable.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
