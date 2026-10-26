@@ -22677,3 +22677,9 @@ Preserve DataField buffers on realloc failure (2026-10-26)
   character pointer, preserving existing text when allocation fails.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-datafield-realloc-failure.py
+Check DataField replacement growth arithmetic (2026-10-26)
+============================================================
+- Bound replacement counts, wide-character multiplications, and doubled
+  capacities before growing DataField storage.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-datafield-growth-arithmetic.py

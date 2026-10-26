@@ -4005,6 +4005,7 @@ _XmDataFieldReplaceText(
   char *new_value;
   wchar_t *wc_src, *wc_dst;
   wchar_t *new_wc_value;
+  size_t required_chars, required_bytes, growth_bytes;
   int delta = 0;
   XmTextPosition cursorPos, newInsert;
   XmTextPosition old_pos = replace_prev;
@@ -4078,30 +4079,51 @@ _XmDataFieldReplaceText(
 
   /* Allocate more space if we need it.
    */
+  if (XmTextF_string_length(tf) < 0 || insert_length < 0 ||
+      replace_length < 0 ||
+      (size_t)XmTextF_string_length(tf) >
+          SIZE_MAX - (size_t)insert_length ||
+      (size_t)XmTextF_string_length(tf) + (size_t)insert_length <
+          (size_t)replace_length)
+    return False;
+  required_chars = (size_t)XmTextF_string_length(tf) +
+      (size_t)insert_length - (size_t)replace_length;
   if (XmTextF_max_char_size(tf) == 1){
-  if (XmTextF_string_length(tf) + insert_length - replace_length >=
-      XmTextF_size_allocd(tf))
+  if (XmTextF_size_allocd(tf) < 0 ||
+      required_chars >= (size_t)XmTextF_size_allocd(tf))
     {
-      XmTextF_size_allocd(tf) += MAX(insert_length + TEXT_INCREMENT,
-                                        (XmTextF_size_allocd(tf) * 2));
+      growth_bytes = MAX((size_t)insert_length + TEXT_INCREMENT,
+                         (size_t)XmTextF_size_allocd(tf) * 2);
+      if (growth_bytes > (size_t)INT_MAX || growth_bytes > (size_t)UINT_MAX)
+	  return False;
       new_value = (char *) XtRealloc((char*)XmTextF_value(tf),
-		              (unsigned) (XmTextF_size_allocd(tf) * sizeof(char)));
+		              (Cardinal)growth_bytes);
       if (new_value == NULL)
 	  return False;
       XmTextF_value(tf) = new_value;
+      XmTextF_size_allocd(tf) = (int)growth_bytes;
     }
   } else {
-  if ((XmTextF_string_length(tf) + insert_length - replace_length) *
-                                        sizeof(wchar_t) >= XmTextF_size_allocd(tf))
+  if (required_chars > SIZE_MAX / sizeof(wchar_t))
+	return False;
+  required_bytes = required_chars * sizeof(wchar_t);
+  if (XmTextF_size_allocd(tf) < 0 || required_bytes >=
+      (size_t)XmTextF_size_allocd(tf))
     {
-      XmTextF_size_allocd(tf) +=
-			  MAX((insert_length + TEXT_INCREMENT)*sizeof(wchar_t),
-                              (XmTextF_size_allocd(tf) * 2));
+      if ((size_t)insert_length >
+	          SIZE_MAX / sizeof(wchar_t) - TEXT_INCREMENT)
+	return False;
+      growth_bytes = MAX(((size_t)insert_length + TEXT_INCREMENT) *
+                         sizeof(wchar_t),
+                         (size_t)XmTextF_size_allocd(tf) * 2);
+      if (growth_bytes > (size_t)INT_MAX || growth_bytes > (size_t)UINT_MAX)
+	return False;
       new_wc_value = (wchar_t *) XtRealloc((char*)XmTextF_wc_value(tf),
-		           (unsigned) XmTextF_size_allocd(tf));
+		           (Cardinal)growth_bytes);
       if (new_wc_value == NULL)
 	  return False;
       XmTextF_wc_value(tf) = new_wc_value;
+      XmTextF_size_allocd(tf) = (int)growth_bytes;
     }
   }
 
