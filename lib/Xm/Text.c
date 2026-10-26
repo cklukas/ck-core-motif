@@ -2285,13 +2285,15 @@ Initialize(Widget rw,
     */
    newtw->text.onthespot = (OnTheSpotDataTW) XtMalloc(sizeof(OnTheSpotDataRecTW)
 );
-   newtw->text.onthespot->start = newtw->text.onthespot->end =
-   newtw->text.onthespot->cursor = newtw->text.onthespot->over_len =
-   newtw->text.onthespot->over_maxlen = 0;
-   newtw->text.onthespot->over_str = NULL;
-   newtw->text.onthespot->under_preedit = False;
-   newtw->text.onthespot->under_verify_preedit = False;
-   newtw->text.onthespot->verify_commit = False;
+   if (newtw->text.onthespot != NULL) {
+     newtw->text.onthespot->start = newtw->text.onthespot->end =
+     newtw->text.onthespot->cursor = newtw->text.onthespot->over_len =
+     newtw->text.onthespot->over_maxlen = 0;
+     newtw->text.onthespot->over_str = NULL;
+     newtw->text.onthespot->under_preedit = False;
+     newtw->text.onthespot->under_verify_preedit = False;
+     newtw->text.onthespot->verify_commit = False;
+   }
    newtw->text.tm_table = (XtTranslations)NULL;
 }
 

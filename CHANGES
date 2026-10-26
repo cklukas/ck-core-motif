@@ -200,6 +200,14 @@ Guard text RTL translation allocation (2026-10-27)
   preserving the widget's normal initialization and lifetime.
 - Add a focused source regression and documentation.
 
+Guard text on-the-spot state allocation (2026-10-27)
+=====================================================
+
+- Check the optional on-the-spot state record before initializing its fields.
+- Preserve the existing null-safe teardown path when Xt cannot provide the
+  record.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
