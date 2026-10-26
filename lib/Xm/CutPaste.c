@@ -97,8 +97,10 @@ static char rcsid[] = "$TOG: CutPaste.c /main/27 1999/05/26 17:42:48 samborn $"
 #define XM_COLORMAP	32
 #define XM_TEXT	 8
 
-#define MAX_SELECTION_INCR(dpy) (((65536 < XMaxRequestSize(dpy)) ? \
-      (65536 << 2)  : (XMaxRequestSize(dpy) << 2))-100)
+#define MAX_SELECTION_INCR(dpy) \
+  ((XMaxRequestSize(dpy) > 25) ? \
+   (((65536 < XMaxRequestSize(dpy)) ? \
+     (65536 << 2) : (XMaxRequestSize(dpy) << 2)) - 100) : 1)
 
 #define BYTELENGTH( length, format ) \
   ((format == 8) ? length : \

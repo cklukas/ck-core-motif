@@ -15367,3 +15367,11 @@ Keep DnD read counts representable (2026-10-27)
 - Add a focused source regression and documentation.
 
 Validate DragBS property offsets (2026-10-27)
+Clamp clipboard INCR chunk sizes (2026-10-27)
+===============================================
+
+- Keep the selection transfer increment positive when the X11 request limit is
+  unusually small, avoiding invalid property lengths and stalled loops.
+- Add a focused source regression and documentation.
+
+Keep DnD read counts representable (2026-10-27)
