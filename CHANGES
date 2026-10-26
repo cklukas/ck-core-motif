@@ -268,6 +268,13 @@ Bound IconG mask-name allocation (2026-10-27)
   than issuing an overflowing allocation request.
 - Add a focused source regression and documentation.
 
+Guard IconG baseline allocation (2026-10-27)
+============================================
+
+- Check the one-entry baseline array before populating it.
+- Return no baseline data cleanly when Xt cannot provide the optional array.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 

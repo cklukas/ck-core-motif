@@ -3058,8 +3058,13 @@ GetBaselines(
     Dimension *	base_array;
     Position label_y ;
 
-    *line_count = 1;
+    *line_count = 0;
+    *baselines = NULL;
     base_array = (Dimension *)XtMalloc(sizeof(Dimension));
+    if (base_array == NULL)
+        return False;
+
+    *line_count = 1;
 
     GetLabelXY(wid, NULL, &label_y);
 
