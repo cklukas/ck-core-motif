@@ -1033,7 +1033,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 static void 
 ClipboardCallback(Widget w, long *data_id, long *target, int *reason)
 {
-  XtPointer value;
+  XtPointer value = NULL;
   Atom type;
   unsigned long size;
   int format;
@@ -1063,6 +1063,7 @@ ClipboardCallback(Widget w, long *data_id, long *target, int *reason)
   display = XtDisplay(w);
 
   if (*reason != XmCR_CLIPBOARD_DATA_DELETE) {
+    value = NULL;
     _XmConvertHandlerSetLocal();
     if (_XmConvertHandler(w, &req -> distinguisher, (Atom *) target, 
 			  &type, &value, &size, &format) == True &&
@@ -1094,6 +1095,7 @@ ClipboardCallback(Widget w, long *data_id, long *target, int *reason)
 
     /* If this was the last item,  call _XmConvertHandler with
        DELETE on the distinguisher and then free the req */
+    value = NULL;
     _XmConvertHandlerSetLocal();
     _XmConvertHandler(w, &req -> distinguisher, 
 		      (Atom *) &done, &type, &value, &size, &format);

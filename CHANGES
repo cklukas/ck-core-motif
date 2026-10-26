@@ -16487,3 +16487,13 @@ Harden deferred clipboard target cleanup (2026-10-27)
 ======================================================
 
 Release invalid clipboard target-list results (2026-10-27)
+Initialize clipboard callback conversion values (2026-10-27)
+==============================================================
+
+- Reset conversion output before normal and final DELETE requests in
+  `ClipboardCallback`, preventing frees of uninitialized pointers.
+- Add a focused source regression and documentation.
+
+==============================================================
+
+Fix selection-loss conversion cleanup (2026-10-27)
