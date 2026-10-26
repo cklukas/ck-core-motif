@@ -123,11 +123,16 @@ static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispat
         XmSearchBoxClear(widget); if (dispatch) *dispatch = False;
     }
 }
-char *XmSearchBoxGetString(Widget widget) { return XmIsSearchBox(widget) ? XmTextFieldGetString(widget) : NULL; }
-void XmSearchBoxSetString(Widget widget, const char *value) { if (XmIsSearchBox(widget)) XmTextFieldSetString(widget, (char *)(value ? value : "")); }
+char *XmSearchBoxGetString(Widget widget) {
+    return widget != NULL && XmIsSearchBox(widget) ? XmTextFieldGetString(widget) : NULL;
+}
+void XmSearchBoxSetString(Widget widget, const char *value) {
+    if (widget != NULL && XmIsSearchBox(widget))
+        XmTextFieldSetString(widget, (char *)(value ? value : ""));
+}
 void XmSearchBoxClear(Widget widget) {
     XmSearchBoxWidget box;
-    if (!XmIsSearchBox(widget) || !XtIsSensitive(widget)) return;
+    if (widget == NULL || !XmIsSearchBox(widget) || !XtIsSensitive(widget)) return;
     box = (XmSearchBoxWidget)widget; box->search.clearing = True;
     XmTextFieldSetString(widget, (char *)""); box->search.clearing = False;
     emit(widget, box->search.cleared_callback, XmSEARCH_REASON_CLEARED, NULL);
@@ -135,7 +140,7 @@ void XmSearchBoxClear(Widget widget) {
 }
 void XmSearchBoxCommit(Widget widget, XEvent *event) {
     XmSearchBoxWidget box;
-    if (!XmIsSearchBox(widget) || !XtIsSensitive(widget)) return;
+    if (widget == NULL || !XmIsSearchBox(widget) || !XtIsSensitive(widget)) return;
     box = (XmSearchBoxWidget)widget;
     emit(widget, box->search.committed_callback, XmSEARCH_REASON_COMMITTED, event);
 }
