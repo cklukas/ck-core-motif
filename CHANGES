@@ -15237,6 +15237,12 @@ Validate XPM file-to-data output (2026-10-27)
 - Add a focused source regression and documentation.
 
 Validate XPM file-buffer arguments (2026-10-27)
+Complete inactive TabBox outlines (2026-10-27)
+================================================
+
+- Draw the full gray shadow outline for inactive tabs on every stacked row.
+- Add a focused source regression and documentation.
+
 Validate XPM file-to-image display (2026-10-27)
 ================================================
 

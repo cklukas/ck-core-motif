@@ -2781,7 +2781,11 @@ DrawSegments(tab, info, geometry, edge, corner_size, shadow, selected)
 	    rect[1].width = (int)geometry->width - (2 * size);
 	    rect[1].height = shadow;
 
-	    if( !selected && geometry->row == 0 )
+    /* Keep a complete, subdued outline on every inactive tab.  Restricting
+     * this to row zero makes stacked tabs below the first row render as bare
+     * labels, which is especially confusing for keyboard and pointer users.
+     */
+    if( !selected )
 	    {
 		if( (geometry->column == 0 && !LayoutIsRtoLP(tab)) ||
 			((geometry->column == XmTabBox__num_columns(tab)-1) &&
@@ -2852,7 +2856,7 @@ DrawSegments(tab, info, geometry, edge, corner_size, shadow, selected)
 	    rect[1].width = shadow;
 	    rect[1].height = (int)geometry->height - (2 * size);
 
-	    if( !selected && geometry->row == 0 )
+    if( !selected )
 	    {
 		if( geometry->column == 0 )
 		{
@@ -2917,7 +2921,7 @@ DrawSegments(tab, info, geometry, edge, corner_size, shadow, selected)
 	    rect[1].width = (int)geometry->width - (2 * size);
 	    rect[1].height = shadow;
 
-	    if( !selected && geometry->row == 0 )
+    if( !selected )
 	    {
 		rect[2].x = geometry->x;
 		rect[2].y = geometry->y + (int)geometry->height - shadow;
@@ -2992,7 +2996,7 @@ DrawSegments(tab, info, geometry, edge, corner_size, shadow, selected)
 	    rect[1].width = shadow;
 	    rect[1].height = (int)geometry->height - (2 * size);
 
-	    if( !selected && geometry->row == 0 )
+	    if( !selected )
 	    {
 		rect[2].x = geometry->x + (int)geometry->width - shadow;
 		rect[2].y = geometry->y;
@@ -3112,7 +3116,7 @@ DrawSquareShadows(tab, info, geometry, selected, edge, shadow)
 	    rt[1].width = (int)geometry->width - shadow;
 	    rt[1].height = shadow;
 
-	    if( !selected && geometry->row == 0 )
+	    if( !selected )
 	    {
 		if( (geometry->column == 0 && !LayoutIsRtoL(tab)) ||
 			((geometry->column == XmTabBox__num_columns(tab)-1) &&
@@ -3198,7 +3202,7 @@ DrawSquareShadows(tab, info, geometry, selected, edge, shadow)
 	    rt[1].width = (int)geometry->width - shadow;
 	    rt[1].height = shadow;
 
-	    if( !selected && geometry->row == 0 )
+	    if( !selected )
 	    {
 		if( geometry->column == 0 )
 		{
@@ -3270,7 +3274,7 @@ DrawSquareShadows(tab, info, geometry, selected, edge, shadow)
 	    rt[1].width = (int)geometry->width - shadow;
 	    rt[1].height = shadow;
 
-	    if( !selected && geometry->row == 0 )
+	    if( !selected )
 	    {
 		rt[2].x = geometry->x;
 		rt[2].y = geometry->y + (int)geometry->height - shadow;
@@ -3365,7 +3369,7 @@ DrawSquareShadows(tab, info, geometry, selected, edge, shadow)
 	    rt[1].width = geometry->width;
 	    rt[1].height = shadow;
 
-	    if( !selected && geometry->row == 0 )
+	    if( !selected )
 	    {
 		rt[2].x = geometry->x + (int)geometry->width - shadow;
 		rt[2].y = geometry->y;
