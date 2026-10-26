@@ -2831,6 +2831,7 @@ ScrollCursorVertically(Widget w,
   XmTextPosition pos;
   LineNum desired_line, cur_line;
   LineNum max_line;
+  int64_t scroll_delta;
   int percentage;
   OutputData data = tw->text.output->data;
   
@@ -2870,7 +2871,12 @@ ScrollCursorVertically(Widget w,
     for (cur_line=0; cur_line<tw->text.number_lines; cur_line++)
       if (tw->text.line[cur_line+1].start > tw->text.cursor_position) break;
   
-  XmTextScroll(w, (int)(cur_line - desired_line));
+  scroll_delta = (int64_t)cur_line - (int64_t)desired_line;
+  if (scroll_delta > INT_MAX)
+    scroll_delta = INT_MAX;
+  else if (scroll_delta < INT_MIN)
+    scroll_delta = INT_MIN;
+  XmTextScroll(w, (int)scroll_delta);
 }
 
 static void 

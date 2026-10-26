@@ -19855,6 +19855,13 @@ Bound Text cursor-scroll parameters (2026-10-26)
 - Saturate event coordinates before Position-based hit-testing.
 - Add focused regression coverage and documentation.
 
+Bound Text cursor-scroll deltas (2026-10-26)
+==============================================
+
+- Compute the line-index scroll delta in `int64_t` and saturate it before
+  passing it to the legacy `int`-sized `XmTextScroll` API.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
