@@ -1540,12 +1540,16 @@ TextConvertCallback(Widget w,
 #endif
 	 };
 
-  Atom XA_CS_OF_ENCODING = XmeGetEncodingAtom(w);
+  Atom XA_CS_OF_ENCODING;
   XtPointer value;
   Atom type;
   unsigned long size;
   int format;
   Atom atoms[XtNumber(atom_names)];
+
+  if (w == NULL || cs == NULL)
+    return;
+  XA_CS_OF_ENCODING = XmeGetEncodingAtom(w);
   
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);

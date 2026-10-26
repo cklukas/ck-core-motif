@@ -22482,3 +22482,11 @@ Validate Text selection converter inputs (2026-10-26)
   coverage and documentation.
 
 Guard Text selection-loss callbacks (2026-10-26)
+Guard Text conversion callback wrappers (2026-10-26)
+=====================================================
+
+- Validate Text and TextField conversion callback widget/state inputs before
+  encoding and display access.
+- Add focused coverage and documentation for malformed selection callbacks.
+
+Validate Text selection converter inputs (2026-10-26)
