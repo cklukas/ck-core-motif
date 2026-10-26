@@ -34,7 +34,7 @@ extern Widget gallery_create_drag_source_example(Widget, XtCallbackProc, XtPoint
 
 typedef struct {
     Widget shell, sidebar, tree, notebook, welcome, example, source, icons, status;
-    Widget tabs, example_tab, source_tab, search, feedback, navigation_form;
+    Widget tabs, example_tab, source_tab, icons_tab, search, feedback, navigation_form;
     int current_page;
     Widget title, provenance, action, component, component_host, source_text, preview_viewport;
     unsigned int example_serial;
@@ -172,10 +172,11 @@ static void select_page(GalleryState *state, int page)
         else XtUnmanageChild(pages[i]);
     }
     if (state->tabs) {
-        if (page == 2 || page == 3) XtManageChild(state->tabs);
+        if (page == 2 || page == 3 || page == 4) XtManageChild(state->tabs);
         else XtUnmanageChild(state->tabs);
         XmToggleButtonSetState(state->example_tab, page == 2, False);
         XmToggleButtonSetState(state->source_tab, page == 3, False);
+        XmToggleButtonSetState(state->icons_tab, page == 4, False);
     }
 }
 
@@ -183,7 +184,8 @@ static void select_tab(Widget widget, XtPointer client, XtPointer call)
 {
     GalleryState *state = client;
     (void)call;
-    select_page(state, widget == state->source_tab ? 3 : 2);
+    select_page(state, widget == state->source_tab ? 3 :
+                widget == state->icons_tab ? 4 : 2);
 }
 
 static Widget create_page(Widget parent, const char *name)
@@ -991,6 +993,8 @@ static String gallery_resources[] = {
     "*exampleTab.bottomShadowColor: #a8afb8",
     "*sourceTab.topShadowColor: #a8afb8",
     "*sourceTab.bottomShadowColor: #a8afb8",
+    "*iconsTab.topShadowColor: #a8afb8",
+    "*iconsTab.bottomShadowColor: #a8afb8",
     "*welcomePage.topShadowColor: #a8afb8",
     "*welcomePage.bottomShadowColor: #a8afb8",
     "*iconsPage.topShadowColor: #a8afb8",
@@ -1212,8 +1216,13 @@ int main(int argc, char **argv)
             state.tabs, XmNlabelString, text("Source"), XmNindicatorOn, False,
             XmNfillOnSelect, True, XmNshadowThickness, 1, XmNhighlightThickness, 0,
             XmNmarginWidth, 14, XmNmarginHeight, 6, NULL);
+        state.icons_tab = XtVaCreateManagedWidget("iconsTab", xmToggleButtonWidgetClass,
+            state.tabs, XmNlabelString, text("Built-in Icons"), XmNindicatorOn, False,
+            XmNfillOnSelect, True, XmNshadowThickness, 1, XmNhighlightThickness, 0,
+            XmNmarginWidth, 14, XmNmarginHeight, 6, NULL);
         XtAddCallback(state.example_tab, XmNvalueChangedCallback, select_tab, &state);
         XtAddCallback(state.source_tab, XmNvalueChangedCallback, select_tab, &state);
+        XtAddCallback(state.icons_tab, XmNvalueChangedCallback, select_tab, &state);
         notebook = XmVaCreateManagedForm(pane, "content", XmNshadowThickness, 0,
             XmNtopAttachment, XmATTACH_WIDGET, XmNtopWidget, state.tabs,
             XmNbottomAttachment, XmATTACH_FORM, XmNleftAttachment, XmATTACH_FORM,

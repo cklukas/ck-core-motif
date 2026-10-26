@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Keep the gallery's inactive Example/Source tabs visibly outlined."""
+"""Keep every gallery view tab visibly outlined when inactive."""
 
 from pathlib import Path
 
@@ -10,6 +10,10 @@ required = (
     '"*exampleTab.bottomShadowColor: #a8afb8"',
     '"*sourceTab.topShadowColor: #a8afb8"',
     '"*sourceTab.bottomShadowColor: #a8afb8"',
+    '"*iconsTab.topShadowColor: #a8afb8"',
+    '"*iconsTab.bottomShadowColor: #a8afb8"',
+    'state.icons_tab = XtVaCreateManagedWidget("iconsTab"',
+    'XmNlabelString, text("Built-in Icons")',
     'XmNshadowThickness, 1',
 )
 
@@ -17,4 +21,4 @@ missing = [item for item in required if item not in source]
 if missing:
     raise SystemExit("gallery tab outline contract missing: " + ", ".join(missing))
 
-print("PASS gallery inactive tabs retain a one-pixel gray outline")
+print("PASS gallery view tabs retain one-pixel gray outlines")

@@ -1,3 +1,11 @@
+Outline every gallery view tab (2026-10-27)
+===========================================
+
+- Add the Built-in Icons view to the same Example/Source tab strip and keep it
+  selectable from the live gallery.
+- Give all inactive view tabs an explicit one-pixel gray outline and extend the
+  focused source regression and gallery documentation.
+
 Bound DataField drop-transfer lengths (2026-10-27)
 ==================================================
 

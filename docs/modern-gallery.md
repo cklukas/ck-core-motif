@@ -14,7 +14,10 @@ The gallery separates application navigation from the selected component's
 **Example** and **Source** views. A searchable, resizable sidebar preserves
 category disclosure and selection. Component pages use native labels and an
 Xft render table, with 24-pixel inner margins, descriptive titles, API names,
-and feedback beneath the live example. Source uses a monospace rendition.
+and feedback beneath the live example. The view strip exposes **Example**,
+**Source**, and **Built-in Icons**; every tab has a one-pixel gray outline when
+inactive so the available views remain legible against the page. Source uses a
+monospace rendition.
 
 The preview preserves the control's natural proportions. Wide or tall controls
 scroll within the preview instead of stretching small badges or clipping a
