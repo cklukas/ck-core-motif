@@ -516,6 +516,10 @@ void StretcherCorner (RList *prTop, RList *prBot, int x, int y, int cnum, unsign
     XRectangle *prect;		/* pointer to "current" rectangle */
     int *piTop, *piBot;
 
+    if (prTop == NULL || prBot == NULL || swidth < 2 ||
+	cwidth < 3 || cheight < 3 || swidth > cwidth || swidth > cheight)
+	return;
+
     switch (cnum) {
 
 	case STRETCH_NORTH_WEST:
