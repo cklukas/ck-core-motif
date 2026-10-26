@@ -18953,3 +18953,14 @@ Guard transfer client-window conversion ancestry (2026-10-27)
 ============================================================
 
 Guard transfer-context API inputs (2026-10-27)
+Guard MultiList selection API inputs (2026-10-27)
+=================================================
+
+- Reject null widgets before application-context lookup in MultiList
+  selection, deselection, visibility, and selected-row query helpers.
+- Preserve neutral array-query results and add focused regression coverage and
+  documentation.
+
+============================================================
+
+Guard transfer client-window conversion ancestry (2026-10-27)

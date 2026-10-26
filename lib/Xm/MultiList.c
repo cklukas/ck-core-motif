@@ -1216,6 +1216,8 @@ XmMultiListGetSelectedRows(Widget w)
     XmMultiListWidget elist = (XmMultiListWidget) w;
     XmMultiListRowInfo **ret_rows = NULL;
 
+    if (w == NULL)
+        return NULL;
     _XmWidgetToAppContext(w);
     _XmAppLock(app);
 
@@ -1298,6 +1300,8 @@ XmMultiListUnselectAllItems(Widget w)
 {
   XmMultiListWidget elist = (XmMultiListWidget)w;
 
+    if (w == NULL)
+        return;
     _XmWidgetToAppContext(w);
     _XmAppLock(app);
 
@@ -1318,6 +1322,8 @@ XmMultiListUnselectItem(Widget w, XmMultiListRowInfo *row_info)
 {
   XmMultiListWidget elist = (XmMultiListWidget) w;
 
+    if (w == NULL)
+        return;
     _XmWidgetToAppContext(w);
     _XmAppLock(app);
   
@@ -1336,6 +1342,8 @@ XmMultiListToggleRow(Widget w, short row)
 {
     XmMultiListWidget elist = (XmMultiListWidget) w;
 
+    if (w == NULL)
+        return;
     _XmWidgetToAppContext(w);
     _XmAppLock(app);
 
@@ -1357,6 +1365,8 @@ void XmMultiListSelectItems(Widget w, XmString item,
 {
     XmMultiListWidget elist = (XmMultiListWidget) w;
 
+    if (w == NULL)
+        return;
     _XmWidgetToAppContext(w);
     _XmAppLock(app);
     
@@ -1378,6 +1388,8 @@ XmMultiListDeselectItems(Widget w, XmString item, int column)
 {
     XmMultiListWidget elist = (XmMultiListWidget) w;
 
+    if (w == NULL)
+        return;
     _XmWidgetToAppContext(w);
     _XmAppLock(app);
 
@@ -1397,6 +1409,8 @@ void XmMultiListSelectAllItems(Widget w, Boolean notify)
 {
     XmMultiListWidget elist = (XmMultiListWidget) w;
 
+    if (w == NULL)
+        return;
     _XmWidgetToAppContext(w);
     _XmAppLock(app);
 
@@ -1416,6 +1430,8 @@ XmMultiListSelectRow(Widget w, int row, Boolean notify)
 {
     XmMultiListWidget elist = (XmMultiListWidget) w;
 
+    if (w == NULL)
+        return;
     _XmWidgetToAppContext(w);
     _XmAppLock(app);
 
@@ -1434,6 +1450,8 @@ XmMultiListDeselectRow(Widget w, int row)
 {
     XmMultiListWidget elist = (XmMultiListWidget) w;
 
+    if (w == NULL)
+        return;
     _XmWidgetToAppContext(w);
     _XmAppLock(app);
 
@@ -1455,6 +1473,11 @@ XmMultiListGetSelectedRowArray(Widget w, int *num_rows)
     XmMultiListWidget elist = (XmMultiListWidget) w;
     int *ret_val;
 
+    if (w == NULL) {
+        if (num_rows != NULL)
+            *num_rows = 0;
+        return NULL;
+    }
     _XmWidgetToAppContext(w);
     _XmAppLock(app);
 
@@ -1476,6 +1499,8 @@ XmMultiListMakeRowVisible(Widget w, int row)
 {
     XmMultiListWidget elist = (XmMultiListWidget) w;
 
+    if (w == NULL)
+        return;
     _XmWidgetToAppContext(w);
     _XmAppLock(app);
 
