@@ -21533,3 +21533,10 @@ Guard WSM unpacker entry points (2026-10-26)
   accept missing payloads only for protocol message types defined as empty.
 - Add focused regression coverage and documentation.
 
+Guard MWM title-bar width underflow (2026-10-26)
+=================================================
+
+- Reject frames too narrow to contain both title-bar borders and skip the same
+  invalid subtraction during later reconfiguration.
+- Add focused regression coverage and documentation.
+

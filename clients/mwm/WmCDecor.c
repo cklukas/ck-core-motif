@@ -452,6 +452,15 @@ Boolean ConstructFrame (ClientData *pcd)
      * we can use an input-only window (to clip the corner resize windows).
      */
     if (decoration & MWM_DECOR_TITLE) {
+	if (pcd->frameInfo.width <
+	    2 * pcd->frameInfo.upperBorderWidth)
+	{
+	    Warning ((char *)GETMESSAGE(8, 8,
+		"Client frame is too narrow for its title bar"));
+	    XDestroyWindow (DISPLAY, pcd->clientFrameWin);
+	    pcd->clientFrameWin = None;
+	    return(FALSE);
+	}
 
 	attr_mask = CWCursor;
 	window_attribs.cursor = wmGD.workspaceCursor;
@@ -2424,9 +2433,11 @@ void RegenerateClientFrame (ClientData *pcd)
     /* resize title bar window */
     if ((decor & MWM_DECOR_TITLE) && pcd->clientTitleWin != None)
     {
-	XResizeWindow (DISPLAY, pcd->clientTitleWin, 
-	   pcd->frameInfo.width - 2*pcd->frameInfo.upperBorderWidth, 
-	   pcd->frameInfo.titleBarHeight);
+	if (pcd->frameInfo.width >=
+	    2 * pcd->frameInfo.upperBorderWidth)
+	    XResizeWindow (DISPLAY, pcd->clientTitleWin,
+		pcd->frameInfo.width - 2 * pcd->frameInfo.upperBorderWidth,
+		pcd->frameInfo.titleBarHeight);
     }
 
     /* resize base window */
