@@ -3647,6 +3647,8 @@ PreeditDraw(XIC xic,
   int total_mb_len;
   int recover_len = 0;
   char *ptr;
+  char *resized_mb;
+  size_t mb_length, over_length, combined_length;
   size_t mb_siz;
   Widget p =w;
   Boolean need_verify, end_preedit = False;
@@ -3753,6 +3755,11 @@ PreeditDraw(XIC xic,
     mb = XtNewString("");
   }
 
+  if (mb == NULL) {
+    ResetUnder(tw);
+    return;
+  }
+
   /* setup overstrike buffers and data */
   if (data->overstrike) {
     startPos = PreStartTW(tw) + call_data->chg_first;
@@ -3784,8 +3791,30 @@ PreeditDraw(XIC xic,
       over_mb = _XmStringSourceGetString(tw, (XmTextPosition)
 		  (PreStartTW(tw)+call_data->chg_first+call_data->chg_length),
 		  PreEndTW(tw), False);
-      mb = XtRealloc(mb, strlen(mb)+strlen(over_mb)+1);
-      strcat(mb, over_mb);
+      if (over_mb == NULL) {
+	XtFree(mb);
+	ResetUnder(tw);
+	return;
+      }
+      mb_length = strlen(mb);
+      over_length = strlen(over_mb);
+      if (over_length > SIZE_MAX - mb_length - 1 ||
+	    (combined_length = mb_length + over_length + 1) >
+	      (size_t)UINT_MAX) {
+	XtFree(over_mb);
+	XtFree(mb);
+	ResetUnder(tw);
+	return;
+      }
+      resized_mb = XtRealloc(mb, (Cardinal)combined_length);
+      if (resized_mb == NULL) {
+	XtFree(over_mb);
+	XtFree(mb);
+	ResetUnder(tw);
+	return;
+      }
+      mb = resized_mb;
+      memcpy(mb + mb_length, over_mb, over_length + 1);
       XtFree(over_mb);
     }
     

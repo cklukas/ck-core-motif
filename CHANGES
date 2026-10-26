@@ -118,6 +118,14 @@ Guard text preedit wide conversion (2026-10-27)
   insertion-point display on failure.
 - Add a focused source regression and documentation.
 
+Guard text preedit overstrike concatenation (2026-10-27)
+=========================================================
+
+- Check preedit and recovery strings before concatenation.
+- Bound combined byte sizing and commit `XtRealloc` only on success.
+- Reset preedit state cleanly on source, size, or allocation failure.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
