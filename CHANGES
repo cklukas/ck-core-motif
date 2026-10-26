@@ -1,3 +1,11 @@
+Refresh protocol null-slot regression check (2026-10-27)
+========================================================
+
+- Match the focused check to the current `protocol_index` teardown loop while
+  retaining coverage for sparse protocol lists.
+
+===========================================================
+
 Refresh protocol-manager removal regression check (2026-10-27)
 ===============================================================
 

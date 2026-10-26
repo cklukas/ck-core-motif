@@ -6,7 +6,7 @@ from pathlib import Path
 
 source = Path(__file__).parents[2] / "lib" / "Xm" / "Protocols.c"
 text = source.read_text(encoding="utf-8")
-needle = """          if (p_mgr->protocols[i] == NULL)
+needle = """          if (p_mgr->protocols[protocol_index] == NULL)
             continue;
           _XmRemoveAllCallbacks(
 """
