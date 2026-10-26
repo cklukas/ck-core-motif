@@ -2174,8 +2174,11 @@ ShowActiveClientFrame (ClientData *pcd)
     unsigned long attr_mask = 0;
     XSetWindowAttributes window_attribs;
 
+    if (pcd == NULL || pcd->clientFrameWin == None)
+	return;
+
     if (DECOUPLE_TITLE_APPEARANCE(pcd) && 
-	 (pcd->decor & MWM_DECOR_TITLE))
+	 (pcd->decor & MWM_DECOR_TITLE) && pcd->clientTitleWin != None)
     {
 	/* 
 	 * Use background pixmap if one is specified, otherwise set the
@@ -2271,8 +2274,11 @@ ShowInactiveClientFrame (ClientData *pcd)
     unsigned long attr_mask = 0;
     XSetWindowAttributes window_attribs;
 
+    if (pcd == NULL || pcd->clientFrameWin == None)
+	return;
+
     if (DECOUPLE_TITLE_APPEARANCE(pcd) && 
-	(pcd->decor & MWM_DECOR_TITLE))
+	(pcd->decor & MWM_DECOR_TITLE) && pcd->clientTitleWin != None)
     {
 	/* 
 	 * Use background pixmap if one is specified, otherwise set the
