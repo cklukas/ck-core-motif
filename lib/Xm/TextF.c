@@ -3355,6 +3355,9 @@ _XmTextFieldReplaceText(XmTextFieldWidget tf,
   char *insert_orig;
   int insert_length_orig;
   int size = 0;
+  char *new_value;
+  wchar_t *new_wc_value;
+  unsigned int new_size_allocd;
 
   VerifyBounds(tf, &replace_prev, &replace_next);
   if (event && !FUnderVerifyPreedit(tf) && replace_prev != replace_next) {
@@ -3490,21 +3493,27 @@ _XmTextFieldReplaceText(XmTextFieldWidget tf,
   if (tf->text.max_char_size == 1) {
     if (tf->text.string_length + insert_length - replace_length >=
 	tf->text.size_allocd) {
-      tf->text.size_allocd += MAX(insert_length + TEXT_INCREMENT,
-				  (tf->text.size_allocd * 2));
-      tf->text.value = 
-	(char *) XtRealloc((char*)TextF_Value(tf), 
-			   (unsigned) (tf->text.size_allocd * sizeof(char)));
+      new_size_allocd = tf->text.size_allocd +
+        MAX(insert_length + TEXT_INCREMENT, (tf->text.size_allocd * 2));
+      new_value = (char *)XtRealloc((char *)TextF_Value(tf),
+                                    (unsigned)(new_size_allocd * sizeof(char)));
+      if (new_value == NULL)
+        return False;
+      tf->text.size_allocd = new_size_allocd;
+      tf->text.value = new_value;
     }
   } else {
     if ((tf->text.string_length + insert_length - replace_length) *
 	sizeof(wchar_t) >= tf->text.size_allocd) {
-      tf->text.size_allocd +=
-	MAX((insert_length + TEXT_INCREMENT)*sizeof(wchar_t),
-	    (tf->text.size_allocd * 2));
-      tf->text.wc_value = 
-	(wchar_t *) XtRealloc((char*)TextF_WcValue(tf), 
-			      (unsigned) tf->text.size_allocd);
+      new_size_allocd = tf->text.size_allocd +
+        MAX((insert_length + TEXT_INCREMENT) * sizeof(wchar_t),
+            (tf->text.size_allocd * 2));
+      new_wc_value = (wchar_t *)XtRealloc((char *)TextF_WcValue(tf),
+                                          (unsigned)new_size_allocd);
+      if (new_wc_value == NULL)
+        return False;
+      tf->text.size_allocd = new_size_allocd;
+      tf->text.wc_value = new_wc_value;
     }
   }
   
@@ -8961,6 +8970,9 @@ _XmTextFieldReplaceTextForPreedit(XmTextFieldWidget tf,
   XmTextPosition redisplay_start;
   int free_insert = (int)False;
   XmTextUnicodeMap *next_unicode_map;
+  char *new_value;
+  wchar_t *new_wc_value;
+  unsigned int new_size_allocd;
 
   VerifyBounds(tf, &replace_prev, &replace_next);
 
@@ -9006,19 +9018,28 @@ _XmTextFieldReplaceTextForPreedit(XmTextFieldWidget tf,
   if (tf->text.string_length + insert_length - replace_length >=
       tf->text.size_allocd)
     {
-      tf->text.size_allocd += MAX(insert_length + TEXT_INCREMENT,
-                                        (tf->text.size_allocd * 2));
-      tf->text.value = (char *) XtRealloc((char*)TextF_Value(tf),
-                              (unsigned) (tf->text.size_allocd * sizeof(char)));
+      new_size_allocd = tf->text.size_allocd +
+        MAX(insert_length + TEXT_INCREMENT, (tf->text.size_allocd * 2));
+      new_value = (char *)XtRealloc((char *)TextF_Value(tf),
+                                    (unsigned)(new_size_allocd * sizeof(char)));
+      if (new_value == NULL)
+        return False;
+      tf->text.size_allocd = new_size_allocd;
+      tf->text.value = new_value;
     }
   } else {
  if ((tf->text.string_length + insert_length - replace_length) *
                                         sizeof(wchar_t) >= tf->text.size_allocd)
     {
-      tf->text.size_allocd += MAX(insert_length + TEXT_INCREMENT,
-                                        (tf->text.size_allocd * 2));
-      tf->text.wc_value = (wchar_t *) XtRealloc((char*)TextF_WcValue(tf),
-                           (unsigned) (sizeof(wchar_t) * tf->text.size_allocd));
+      new_size_allocd = tf->text.size_allocd +
+        MAX((insert_length + TEXT_INCREMENT) * sizeof(wchar_t),
+            (tf->text.size_allocd * 2));
+      new_wc_value = (wchar_t *)XtRealloc((char *)TextF_WcValue(tf),
+                                          (unsigned)new_size_allocd);
+      if (new_wc_value == NULL)
+        return False;
+      tf->text.size_allocd = new_size_allocd;
+      tf->text.wc_value = new_wc_value;
     }
   }
 

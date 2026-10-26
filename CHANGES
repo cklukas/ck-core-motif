@@ -16341,3 +16341,13 @@ Guard XmString table component pointers (2026-10-27)
 ====================================================
 
 Bound proposed tab-list counters (2026-10-27)
+Make TextField replacement growth transactional (2026-10-27)
+===============================================================
+
+- Check byte and wide-character reallocations in both normal and preedit
+  replacement paths before publishing the new field buffers.
+- Add a focused source regression and documentation.
+
+===============================================================
+
+Size TextField wide-preedit conversion for multibyte output (2026-10-27)
