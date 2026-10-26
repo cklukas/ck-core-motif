@@ -5783,6 +5783,7 @@ InputSetValues(Widget oldw,
   XmTextWidget tw = (XmTextWidget) new_w;
   InputData data = tw->text.input->data;
   XtPointer temp_ptr;
+  size_t sarray_bytes;
   
   temp_ptr = (XtPointer)data->sarray;
   
@@ -5801,9 +5802,9 @@ InputSetValues(Widget oldw,
         data->sarraycount = XtNumber(sarray);
         XtFree((char *)temp_ptr);
       } else {
+        sarray_bytes = (size_t)data->sarraycount * sizeof(XmTextScanType);
         XmTextScanType *new_sarray = (XmTextScanType *)XtMalloc(
-            (Cardinal)((size_t)data->sarraycount *
-                       sizeof(XmTextScanType)));
+            (Cardinal)sarray_bytes);
         if (new_sarray == NULL) {
           data->sarray = (XmTextScanType *)sarray;
           data->sarraycount = XtNumber(sarray);
@@ -5811,7 +5812,7 @@ InputSetValues(Widget oldw,
           return;
         }
         memcpy((void *)new_sarray, (void *)temp_ptr,
-               data->sarraycount * sizeof(XmTextScanType));
+               sarray_bytes);
         XtFree((char *)temp_ptr);
         data->sarray = new_sarray;
       }
@@ -6029,6 +6030,7 @@ _XmTextInputCreate(Widget wid,
   Input input;
   InputData data;
   XtPointer temp_ptr;
+  size_t sarray_bytes;
   
   tw->text.input = input = (Input) XtMalloc((Cardinal)sizeof(InputRec));
   if (input == NULL) {
@@ -6059,14 +6061,15 @@ _XmTextInputCreate(Widget wid,
     data->sarray = (XmTextScanType *)sarray;
     data->sarraycount = XtNumber(sarray);
   } else {
+    sarray_bytes = (size_t)data->sarraycount * sizeof(XmTextScanType);
     data->sarray = (XmTextScanType *)XtMalloc(
-        (Cardinal)((size_t)data->sarraycount * sizeof(XmTextScanType)));
+        (Cardinal)sarray_bytes);
     if (data->sarray == NULL) {
       data->sarray = (XmTextScanType *)sarray;
       data->sarraycount = XtNumber(sarray);
     } else {
       memcpy((void *)data->sarray, (void *)temp_ptr,
-           data->sarraycount * sizeof(XmTextScanType));
+           sarray_bytes);
     }
   }
   /*

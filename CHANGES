@@ -19803,3 +19803,10 @@ Guard Text insert-string parameters (2026-10-26)
   into `XmTextBlock`, while retaining sequential insertion behavior.
 - Use the unsigned Xt parameter count for action traversal.
 - Add focused regression coverage and documentation.
+
+Reuse checked Text selection-array byte counts (2026-10-26)
+============================================================
+
+- Reuse one overflow-checked byte count for selection-array allocation and
+  copying during both Text initialization and resource updates.
+- Add focused regression coverage and documentation.
