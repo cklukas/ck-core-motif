@@ -1,3 +1,9 @@
+Bound clipboard format atom names (2026-10-27)
+===============================================
+
+- Replace the exact-size clipboard format atom `sprintf` with `snprintf`.
+- Add a focused source regression and documentation.
+
 Bound TextOut cursor pixmap names (2026-10-27)
 ===============================================
 

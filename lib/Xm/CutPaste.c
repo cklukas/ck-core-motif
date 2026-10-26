@@ -1543,7 +1543,8 @@ ClipboardGetAtomFromFormat(
     if (item == NULL)
 	return None;
 
-    sprintf( item, atomname_format, format_name );
+    (void)snprintf(item, format_name_length + prefix_length + 1,
+                   atomname_format, format_name);
 
     ret_value = XInternAtom( display, item, False );
 
