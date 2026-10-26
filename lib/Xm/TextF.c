@@ -2727,12 +2727,25 @@ ModifyVerify(XmTextFieldWidget tf,
     return(True);
 
   newblock.format = XmFMT_8_BIT;
-  newblock.length = *insert_length * tf->text.max_char_size;
+  if (*insert_length < 0 || tf->text.max_char_size <= 0 ||
+      (size_t)*insert_length > SIZE_MAX /
+		(size_t)tf->text.max_char_size)
+    return(False);
+  {
+    size_t initial_bytes = (size_t)*insert_length *
+		(size_t)tf->text.max_char_size;
+    if (initial_bytes > (size_t)INT_MAX ||
+	initial_bytes > (size_t)UINT_MAX - (size_t)tf->text.max_char_size)
+      return(False);
+    newblock.length = (int)initial_bytes;
+  }
   
   if (*insert_length) {
     if (TextF_ModifyVerifyCallback(tf)) {
-      newblock.ptr = (char *) XtMalloc((unsigned)newblock.length + 
-				       tf->text.max_char_size);
+      newblock.ptr = (char *) XtMalloc((Cardinal)((size_t)newblock.length +
+				       (size_t)tf->text.max_char_size));
+      if (newblock.ptr == NULL)
+	return(False);
       if (tf->text.max_char_size == 1) {
 	(void)memcpy((void*)newblock.ptr, (void*)*insert,
 		     newblock.length);

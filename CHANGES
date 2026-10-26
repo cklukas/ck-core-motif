@@ -325,6 +325,14 @@ Guard DataField wide insertion allocation (2026-10-27)
   unavailable instead of calling `mbstowcs` with null output.
 - Add a focused source regression and documentation.
 
+Bound TextField modify-verify input buffers (2026-10-27)
+========================================================
+
+- Validate signed insertion lengths and character-width multiplication before
+  constructing the byte callback block.
+- Check the Xt allocation result before conversion or callback delivery.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
