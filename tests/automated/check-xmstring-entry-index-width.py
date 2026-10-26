@@ -13,8 +13,11 @@ region = text[start:end]
 required = (
     "size_t segment_count",
     "size_t segment_index",
+    "size_t tag_index",
     "segment_index < segment_count",
     "for (j = 0; j < segment_index; ++j)",
+    "tag_index < _XmUnoptSegRendBeginCount(entry)",
+    "tag_index < _XmUnoptSegRendEndCount(entry)",
 )
 missing = [item for item in required if item not in region]
 if missing:

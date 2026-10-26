@@ -6139,6 +6139,7 @@ _XmStringEntryCopy(_XmStringEntry entry)
   size_t size;
   size_t allocation_size;
   size_t segment_index;
+  size_t tag_index;
   XtPointer text;
   _XmStringEntry new_entry = NULL;
   unsigned int entry_len;
@@ -6257,9 +6258,10 @@ _XmStringEntryCopy(_XmStringEntry entry)
 	  _XmStringEntryFree(new_entry);
 	  return NULL;
 	}
-	for (i = 0; i < _XmUnoptSegRendBeginCount(entry); i++)
-	  _XmUnoptSegRendBegins(new_entry)[i] = 
-	    _XmUnoptSegRendBegins(entry)[i];
+	for (tag_index = 0; tag_index < _XmUnoptSegRendBeginCount(entry);
+	     ++tag_index)
+	  _XmUnoptSegRendBegins(new_entry)[tag_index] =
+	    _XmUnoptSegRendBegins(entry)[tag_index];
       } else 
 	_XmUnoptSegRendBegins(new_entry) = NULL;
       if (_XmUnoptSegRendEnds(entry)) {
@@ -6275,8 +6277,10 @@ _XmStringEntryCopy(_XmStringEntry entry)
 	  _XmStringEntryFree(new_entry);
 	  return NULL;
 	}
-	for (i = 0; i < _XmUnoptSegRendEndCount(entry); i++)
-	  _XmUnoptSegRendEnds(new_entry)[i] = _XmUnoptSegRendEnds(entry)[i];
+	for (tag_index = 0; tag_index < _XmUnoptSegRendEndCount(entry);
+	     ++tag_index)
+	  _XmUnoptSegRendEnds(new_entry)[tag_index] =
+	    _XmUnoptSegRendEnds(entry)[tag_index];
       } else
 	_XmUnoptSegRendEnds(new_entry) = NULL;
     }
