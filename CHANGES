@@ -234,6 +234,15 @@ Guard Text line-table export allocation (2026-10-27)
   multiplying a signed count into an unchecked Xt allocation.
 - Add a focused source regression and documentation.
 
+Bound Text modify-verify callback buffers (2026-10-27)
+======================================================
+
+- Validate callback block lengths before adding terminator space or narrowing
+  the result to Xt's allocation type.
+- Reject negative and unrepresentable callback lengths without overflowing the
+  allocation expression.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 

@@ -988,7 +988,13 @@ _XmTextModifyVerify(XmTextWidget initiator,
   if (initiator->text.modify_verify_callback) {
     /* Fill in the block to pass to the callback. */
     if (block->length) {
-      newblock->ptr = (char *) XtMalloc(block->length + 1);
+      if (block->length < 0 ||
+          (size_t)block->length >= (size_t)UINT_MAX)
+	{
+	  *freeBlock = False;
+	  return False;
+	}
+      newblock->ptr = (char *) XtMalloc((Cardinal)((size_t)block->length + 1));
       if (newblock->ptr == NULL) {
 	*freeBlock = False;
 	return False;
@@ -1030,7 +1036,10 @@ _XmTextModifyVerify(XmTextWidget initiator,
 	  XtFree(newblock->ptr);
 	*freeBlock = False;
 	if (newblock->length) {
-	  newblock->ptr = XtMalloc(newblock->length + 1);
+	  if (newblock->length < 0 ||
+	      (size_t)newblock->length >= (size_t)UINT_MAX)
+	    return False;
+	  newblock->ptr = XtMalloc((Cardinal)((size_t)newblock->length + 1));
 	  if (newblock->ptr == NULL) {
 	    return False;
 	  }
