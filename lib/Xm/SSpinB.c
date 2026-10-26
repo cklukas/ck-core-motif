@@ -379,9 +379,12 @@ Initialize(Widget	request,	/* unused */
      */
     widget_name_length = snprintf(NULL, 0, SSB_TEXTFIELD_NAME_FORMAT,
 					 XtName(new));
-    if (widget_name_length < 0)
+    if (widget_name_length < 0 ||
+        (size_t)widget_name_length >= (size_t)UINT_MAX)
 	return;
     widget_name = XtMalloc((size_t)widget_name_length + 1);
+    if (widget_name == NULL)
+	return;
     (void) snprintf(widget_name, (size_t)widget_name_length + 1,
 			SSB_TEXTFIELD_NAME_FORMAT, XtName(new));
     
