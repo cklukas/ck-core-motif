@@ -166,6 +166,13 @@ _XmConvertHandler(Widget wid, Atom *selection, Atom *target,
     *type = None;
     return False;
   }
+  if (*selection == atoms[XmA_MOTIF_DROP] && cc -> drag_context == NULL) {
+    *value = NULL;
+    *size = 0;
+    *fmt = 8;
+    *type = None;
+    return False;
+  }
 
   /* Setup the callback structure */
 

@@ -22275,3 +22275,11 @@ Reject malformed render-table conversion results (2026-10-26)
 - Add focused regression coverage and documentation.
 
 Complete clipboard requests after malformed conversion data (2026-10-26)
+Reject Motif-drop conversion without a drag context (2026-10-26)
+===============================================================
+
+- Return a deterministic empty failure result before X11 request access when
+  a Motif-drop conversion context has no live drag context.
+- Add focused regression coverage and documentation for cancelled drags.
+
+Reject malformed render-table conversion results (2026-10-26)
