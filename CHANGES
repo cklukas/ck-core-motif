@@ -22867,3 +22867,10 @@ Check TextField drag/drop point allocation (2026-10-26)
   be allocated; preserve the existing null-location transfer behavior.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-drop-point-allocation.py
+
+Make TextField transfer-action allocation transactional (2026-10-26)
+======================================================================
+- Release partial drag-action state and fall back to the original action when
+  transfer-action or event allocation fails.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-transfer-action.py

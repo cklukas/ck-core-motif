@@ -6148,9 +6148,23 @@ ProcessBSelect(Widget w,
 	if (tf->text.drag_id) 
 	  XtRemoveTimeOut(tf->text.drag_id);
 	if (tf->text.transfer_action == NULL) {
-	  tf->text.transfer_action = 
-	    (_XmTextActionRec *) XtMalloc(sizeof(_XmTextActionRec));
-	  tf->text.transfer_action->event = (XEvent *)XtMalloc(sizeof(XEvent));
+	  _XmTextActionRec *new_action =
+	    (_XmTextActionRec *)XtMalloc(sizeof(_XmTextActionRec));
+	  XEvent *new_event = (XEvent *)XtMalloc(sizeof(XEvent));
+	  if (new_action == NULL || new_event == NULL) {
+	    XtFree((char *)new_action);
+	    XtFree((char *)new_event);
+	    if (*num_params > 0)
+	      XtCallActionProc(w, params[0], event, NULL, 0);
+	    break;
+	  }
+	  new_action->event = new_event;
+	  tf->text.transfer_action = new_action;
+	}
+	if (tf->text.transfer_action->event == NULL) {
+	  if (*num_params > 0)
+	    XtCallActionProc(w, params[0], event, NULL, 0);
+	  break;
 	}
 	memcpy((void *)tf->text.transfer_action->event, (void *)event,
 	       sizeof(XEvent));
