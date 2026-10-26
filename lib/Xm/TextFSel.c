@@ -277,10 +277,23 @@ InsertSelection(
 					      left, right, total_value, 
 					      num_chars, True);
       } else { /* must convert to wchar_t before passing to Replace */
-	int len = strlen(total_value) + 1;
-	wc_value = (wchar_t *)XtMalloc((unsigned) len * sizeof(wchar_t));
-	num_chars = mbstowcs(wc_value, total_value, len);
-	if (num_chars < 0) 
+	size_t len = strlen(total_value) + 1;
+	if (len > (size_t)INT_MAX ||
+	    len > (size_t)UINT_MAX / sizeof(wchar_t)) {
+	  XtFree(total_value);
+	  insert_select->done_status = True;
+	  insert_select->success_status = False;
+	  return;
+	}
+	wc_value = (wchar_t *)XtMalloc((Cardinal)((size_t)len * sizeof(wchar_t)));
+	if (wc_value == NULL) {
+	  XtFree(total_value);
+	  insert_select->done_status = True;
+	  insert_select->success_status = False;
+	  return;
+	}
+	num_chars = (int)mbstowcs(wc_value, total_value, len);
+	if (num_chars < 0)
 	  num_chars = 0;
 	else
 	  replace_res = _XmTextFieldReplaceText(tf,

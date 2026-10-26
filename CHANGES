@@ -22762,3 +22762,9 @@ Bound TextField target counts (2026-10-26)
   TextField target negotiation iterates callback data.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-target-count.py
+Bound TextField wide insertion conversion (2026-10-26)
+========================================================
+- Check compound/UTF-8 insertion lengths and wide-buffer allocation before
+  conversion in TextField selection handling.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-wcs-insertion.py
