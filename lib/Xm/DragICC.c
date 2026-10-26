@@ -1477,7 +1477,10 @@ _XmSetDragReceiverInfo(
 
     infoRecPtr = (xmDragReceiverInfoStruct *)propBuf->data.bytes;
 
-    if (propBuf->data.size > UINT32_MAX ||
+	/* num_drop_sites is a CARD16 on the wire; do not silently wrap a
+	 * larger local drop-site count into a different protocol value. */
+    if (numDropSites > UINT16_MAX ||
+	propBuf->data.size > UINT32_MAX ||
 	propBuf->data.size > (size_t)INT_MAX ||
 	propBuf->heap.size > (size_t)INT_MAX) {
 	if (propBuf->data.bytes != propBuf->data.stack)

@@ -1,3 +1,10 @@
+Bound drag receiver site counts (2026-10-27)
+=============================================
+
+- Reject receiver properties whose local drop-site count cannot be represented
+  by the protocol's CARD16 field instead of silently wrapping it.
+- Add a focused source regression and documentation.
+
 Validate ICC drop-site stream bounds (2026-10-27)
 ==================================================
 
