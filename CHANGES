@@ -21244,3 +21244,9 @@ FreeClientFrame now clears the cached title and base child IDs together with
 the destroyed frame ID. Later repaint, cleanup, or remanage paths cannot reuse
 child XIDs that were removed when the parent frame was destroyed.
 
+Guard MWM icon painting entry points (2026-10-26)
+--------------------------------------------------
+ShowActiveIcon and ShowInactiveIcon now validate client, screen, active-screen,
+and icon-frame state before painting. Teardown callbacks cannot dereference a
+missing client record or issue drawing requests for an absent icon frame.
+

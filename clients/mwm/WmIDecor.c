@@ -1283,6 +1283,10 @@ void ShowActiveIcon (ClientData *pcd)
     unsigned long attr_mask;
     XSetWindowAttributes window_attribs;
 
+    if (pcd == NULL || pcd->pSD == NULL || ACTIVE_PSD == NULL ||
+	ICON_FRAME_WIN(pcd) == None)
+	return;
+
     if (ICON_FRAME_WIN(pcd))
     {
 	/* 
@@ -1418,6 +1422,10 @@ void ShowInactiveIcon (ClientData *pcd, Boolean refresh)
 {
     unsigned long attr_mask = 0;
     XSetWindowAttributes window_attribs;
+
+    if (pcd == NULL || pcd->pSD == NULL || ACTIVE_PSD == NULL ||
+	ICON_FRAME_WIN(pcd) == None)
+	return;
 
     /* turn off the active icon text */
     if (ICON_DECORATION(pcd) & ICON_ACTIVE_LABEL_PART)
