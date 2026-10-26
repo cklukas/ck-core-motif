@@ -22136,3 +22136,12 @@ Require successful clipboard start (2026-10-26)
 
 Harden secondary-selection transfer inputs (2026-10-26)
 ========================================================
+Report clipboard ownership failure (2026-10-26)
+================================================
+
+- Return `False` when `XtOwnSelection` fails in clipboard-manager mode instead
+  of claiming that the source was established.
+- Add focused regression coverage and documentation.
+
+Require successful clipboard start (2026-10-26)
+================================================

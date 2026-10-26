@@ -879,7 +879,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 			      (XtPointer) atoms[XmACLIPBOARD]);
     } else {
       _XmAppUnlock(app);
-      return True;
+      return False;
     }
   }
 
