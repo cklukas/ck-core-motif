@@ -17049,3 +17049,12 @@ Refresh FileSB directory-list regression contract (2026-10-27)
 ====================================================
 
 Refresh IconG mask-name regression contract (2026-10-27)
+Refresh Clipboard format-atom regression contract (2026-10-27)
+===============================================================
+
+- Align the source check with the current `snprintf` construction and
+  formatting of the static function declaration.
+
+====================================================
+
+Refresh FileSB directory-list regression contract (2026-10-27)
