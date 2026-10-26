@@ -22081,3 +22081,13 @@ Initialize standard-conversion results (2026-10-26)
 
 Validate central conversion-handler inputs (2026-10-26)
 ========================================================
+Make locale-text conversion failure deterministic (2026-10-26)
+===============================================================
+
+- Initialize the optional conversion-success result to `False` and validate
+  widget/source pointers before display access.
+- Add focused regression coverage and documentation for unsupported and null
+  conversion inputs.
+
+Initialize standard-conversion results (2026-10-26)
+====================================================
