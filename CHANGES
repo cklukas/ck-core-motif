@@ -18094,6 +18094,15 @@ Refresh status-bar label regression check (2026-10-27)
 Refresh tab-list copy regression check (2026-10-27)
 ===================================================
 
+Refresh tab-list offset regression check (2026-10-27)
+=====================================================
+
+- Inspect the internal copy routine directly so checked signed-offset
+  arithmetic is validated against the implementation rather than its public
+  locking wrapper.
+
+=====================================================
+
 - Inspect the internal copying routine directly so allocation-failure guards
   are checked where the list and first tab are actually allocated.
 
