@@ -2489,6 +2489,9 @@ XmeGetEncodingAtom(Widget w)
   XTextProperty tmp_prop;
   char * tmp_string = "ABC";  /* these are characters in XPCS, so... safe */
   Atom encoding;
+
+  if (w == NULL)
+    return None;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
