@@ -156,6 +156,7 @@ GetClientInfo (WmScreenData *pSD, Window clientWindow, long manageFlags)
 {
     ClientData *pCD;
     XSetWindowAttributes sAttributes;
+    int i;
 
 
     /*
@@ -204,6 +205,8 @@ GetClientInfo (WmScreenData *pSD, Window clientWindow, long manageFlags)
     pCD->clientClass = NULL;
     pCD->clientName = NULL;
     pCD->clientFrameWin = (Window)0L;
+    for (i = 0; i < STRETCH_COUNT; i++)
+	pCD->clientStretchWin[i] = None;
 #ifndef WSM
     pCD->iconFrameWin = (Window)0L;
 #endif /* WSM */

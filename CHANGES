@@ -21426,3 +21426,9 @@ MakeClientIconPixmap now rejects a missing screen record or source pixmap
 before calling XGetGeometry, avoiding BadDrawable requests on invalid client
 icon resources.
 
+Initialize MWM client stretcher-window IDs (2026-10-26)
+--------------------------------------------------------
+GetClientInfo now initializes every resize-stretcher window ID to None before
+decoration-specific creation, preventing uncreated entries from being used as
+arbitrary X window IDs during later frame regeneration.
+
