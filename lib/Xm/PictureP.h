@@ -71,6 +71,7 @@ typedef struct _XmPictureRec {
     int             nodes_alloced;
     int             start_node;
     int             final_node;
+    Boolean         allocation_failed;
     XmPictureNode **nodes;	/* array of nodes */
 } XmPictureRec;
 

@@ -5,6 +5,15 @@ Keep inactive gallery view tabs outlined (2026-10-27)
   gray border; ToggleButton shadows are selected-state dependent and do not
   frame inactive tabs by themselves.
 
+====================================================
+
+Bound XmPicture parser growth failures (2026-10-27)
+====================================================
+
+- Check node and transition allocations and reject overflowing node-table
+  growth, returning `NULL` instead of dereferencing failed parser state.
+- Add focused allocation-guard regression coverage and documentation.
+
 ===========================================================
 
 Propagate compound-text concatenation failures (2026-10-27)

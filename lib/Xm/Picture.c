@@ -66,6 +66,7 @@ XmParsePicture(char *input)
 
     picture->num_nodes = 0;
     picture->nodes_alloced = NODE_START_COUNT;
+    picture->allocation_failed = False;
     picture->nodes = (XmPictureNode**)
 	             XtMalloc(NODE_START_COUNT * sizeof(XmPictureNode*));
     if (picture->nodes == NULL) {
@@ -75,6 +76,11 @@ XmParsePicture(char *input)
     }
 
     _XmPictureParseNode(picture, &input, &root_node, &end_node, False);
+
+    if (picture->allocation_failed || root_node == NULL || end_node == NULL) {
+	XmPictureDelete(picture);
+	return NULL;
+    }
 
     picture->start_node = root_node->index;
     picture->final_node = end_node->index;
@@ -366,6 +372,8 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
     char *endcount;
 
     start_node = _XiGetNewNode(picture);
+	if (start_node == NULL)
+	    goto parse_failed;
     node_idx = start_node->index;
     current_node = start_node;
 
@@ -378,6 +386,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	     */
 	case NUMDIGIT:
 	    newnode = _XiGetNewNode(picture);
+	    if (newnode == NULL) goto parse_failed;
 	    newtrans = _XiGetNewTransition(NumericDigit,
 					   current_node, newnode);
 	    current_node = newnode;
@@ -385,6 +394,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	    
 	case HEXDIGIT:
 	    newnode = _XiGetNewNode(picture);
+	    if (newnode == NULL) goto parse_failed;
 	    newtrans = _XiGetNewTransition(HexDigit,
 					   current_node, newnode);
 	    current_node = newnode;
@@ -392,6 +402,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	    
 	case OCTALDIGIT:
 	    newnode = _XiGetNewNode(picture);
+	    if (newnode == NULL) goto parse_failed;
 	    newtrans = _XiGetNewTransition(OctalDigit,
 					   current_node, newnode);
 	    current_node = newnode;
@@ -399,6 +410,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	    
 	case NONCASELETTER:
 	    newnode = _XiGetNewNode(picture);
+	    if (newnode == NULL) goto parse_failed;
 	    newtrans = _XiGetNewTransition(AnyLetter,
 					   current_node, newnode);
 	    current_node = newnode;
@@ -406,6 +418,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	    
 	case UPCASELETTER:
 	    newnode = _XiGetNewNode(picture);
+	    if (newnode == NULL) goto parse_failed;
 	    newtrans = _XiGetNewTransition(UpCaseLetter,
 					   current_node, newnode);
 	    current_node = newnode;
@@ -413,6 +426,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	    
 	case NONCASECHAR:
 	    newnode = _XiGetNewNode(picture);
+	    if (newnode == NULL) goto parse_failed;
 	    newtrans = _XiGetNewTransition(AnyCharacter,
 					   current_node, newnode);
 	    current_node = newnode;
@@ -420,6 +434,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	    
 	case UPCASECHAR:
 	    newnode = _XiGetNewNode(picture);
+	    if (newnode == NULL) goto parse_failed;
 	    newtrans = _XiGetNewTransition(UpCaseCharacter,
 					   current_node, newnode);
 	    current_node = newnode;
@@ -454,6 +469,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	    _XmPictureParseNode(picture, in_string,
 				&start_node_2, &current_node_2,
 				True);
+	    if (picture->allocation_failed) goto parse_failed;
 	    if(count) {
 		newtrans = _XiGetNewTransition(NullTransition,
 					       current_node, start_node_2);
@@ -480,6 +496,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	    _XmPictureParseNode(picture, in_string,
 				&start_node_2, &current_node_2,
 				True);
+	    if (picture->allocation_failed) goto parse_failed;
             newtrans = _XiGetNewTransition(NullTransition, current_node,
 					   current_node_2);
             if (current_node->index)
@@ -498,6 +515,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	    _XmPictureParseNode(picture, in_string,
 				&start_node_2, &current_node_2,
 				False);
+	    if (picture->allocation_failed) goto parse_failed;
 	    
 	    newtrans = _XiGetNewTransition(NullTransition,
 					   current_node, current_node_2);
@@ -517,6 +535,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	    _XmPictureParseNode(picture, in_string,
 				&start_node_2, &current_node_2,
 				False);
+	    if (picture->allocation_failed) goto parse_failed;
 
 	    newtrans = _XiGetNewTransition(NullTransition,
 					   current_node, start_node_2);
@@ -553,8 +572,10 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	     */
 	default:
 	    newnode = _XiGetNewNode(picture);
+	    if (newnode == NULL) goto parse_failed;
 	    newtrans = _XiGetNewTransition(LiteralCharacter,
 					   current_node, newnode);
+	    if (newtrans == NULL) goto parse_failed;
 	    newtrans->c = inc;
 	    current_node = newnode;
 	    break;
@@ -567,6 +588,11 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
     }
     *start_return = start_node;
     *end_return = current_node;
+	return;
+
+parse_failed:
+    *start_return = NULL;
+    *end_return = NULL;
 }
 
 static XmPictureTransition*
@@ -574,6 +600,9 @@ _XiGetNewTransition(XmTransType type,
 		    XmPictureNode *src, XmPictureNode *dest)
 {
     XmPictureTransition *t = XtNew(XmPictureTransition);
+
+    if (src == NULL || dest == NULL || t == NULL)
+	return NULL;
     t->destination = dest->index;
     t->type = type;
     t->next = src->transitions;
@@ -589,7 +618,14 @@ _XiGetNewNode(XmPictureRec *picture)
 {
     XmPictureNode *new_node;
 
+    if (picture == NULL || picture->allocation_failed)
+	return NULL;
+
     new_node = XtNew(XmPictureNode);
+	if (new_node == NULL) {
+	picture->allocation_failed = True;
+	return NULL;
+	}
     new_node->transitions = NULL;
     new_node->index = picture->num_nodes++;
 
@@ -597,11 +633,29 @@ _XiGetNewNode(XmPictureRec *picture)
      * Handle growing the picture past it's boundary
      */
     if(picture->num_nodes > picture->nodes_alloced) {
-	int newsize = picture->nodes_alloced * 2;
+	int newsize;
+	if (picture->nodes_alloced > INT_MAX / 2 ||
+	    (size_t)picture->nodes_alloced * 2 > SIZE_MAX / sizeof(*picture->nodes) ||
+	    (size_t)picture->nodes_alloced * 2 > UINT_MAX / sizeof(*picture->nodes)) {
+	    XtFree((char *)new_node);
+	    picture->num_nodes--;
+	    picture->allocation_failed = True;
+	    return NULL;
+	}
+	newsize = picture->nodes_alloced * 2;
 
-	picture->nodes = (XmPictureNode**)
-	                 XtRealloc((char*)picture->nodes,
-				   newsize * sizeof(XmPictureNode*));
+	{
+	    XmPictureNode **nodes = (XmPictureNode **)
+		XtRealloc((char*)picture->nodes,
+			  (Cardinal)((size_t)newsize * sizeof(*nodes)));
+	    if (nodes == NULL) {
+		XtFree((char *)new_node);
+		picture->num_nodes--;
+		picture->allocation_failed = True;
+		return NULL;
+	    }
+	    picture->nodes = nodes;
+	}
 	picture->nodes_alloced = newsize;
     }
 
