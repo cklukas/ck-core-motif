@@ -3700,6 +3700,8 @@ XmComboBoxSetItem(Widget   widget,
   XmComboBoxWidget cb = (XmComboBoxWidget)widget;
   int pos;
 
+  if (widget == NULL)
+    return;
   _XmWidgetToAppContext(widget);
   _XmAppLock(app);
 

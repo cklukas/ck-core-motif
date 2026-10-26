@@ -1,3 +1,12 @@
+Guard ComboBox item-setting API inputs (2026-10-27)
+===================================================
+
+- Reject null widgets before application-context lookup in
+  `XmComboBoxSetItem`.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard RatingControl value API inputs (2026-10-27)
 =================================================
 
