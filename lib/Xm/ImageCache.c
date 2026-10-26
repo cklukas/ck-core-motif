@@ -2581,7 +2581,7 @@ void _XmPutScaledImage (
 #endif /* PRINTING_SUPPORTED */
 
     if (!XmRoundScaled(ratio_x * src_image->bytes_per_line,
-		       &scaled_row_bytes))
+		       &scaled_row_bytes) || scaled_row_bytes == 0)
 	return;
     src_max_x = (unsigned int)src_x + src_width;
 

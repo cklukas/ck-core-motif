@@ -19739,3 +19739,9 @@ Guard Text initialization storage (2026-10-26)
   publishing them to a Text widget, releasing partial allocations and
   reporting an Xt error when storage cannot be obtained.
 - Add focused regression coverage and documentation.
+Guard rounded-zero image row strides (2026-10-26)
+===================================================
+
+- Reject a scaled image row stride that rounds to zero before deriving the
+  temporary strip height, avoiding division by zero for very small scales.
+- Add focused regression coverage and documentation.
