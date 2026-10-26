@@ -19,6 +19,17 @@ static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
 
 #define Offset(field) XtOffsetOf(XmBreadcrumbBarRec, field)
+static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
+{
+    XmBreadcrumbBarWidget bar = (XmBreadcrumbBarWidget)widget;
+    (void)offset;
+    if (bar->breadcrumb.check_set_render_table)
+        value->addr = NULL;
+    else {
+        bar->breadcrumb.check_set_render_table = True;
+        value->addr = (char *)&bar->breadcrumb.font;
+    }
+}
 static XtResource resources[] = {
     {XmNbreadcrumbMaxVisible, XmCBreadcrumbMaxVisible, XmRInt, sizeof(int),
      Offset(breadcrumb.max_visible), XmRImmediate, (XtPointer)0},
@@ -32,6 +43,10 @@ static XtResource resources[] = {
     {XmNbreadcrumbCurrentChangedCallback, XmCBreadcrumbCurrentChangedCallback,
      XmRCallback, sizeof(XtCallbackList),
      Offset(breadcrumb.current_changed_callback), XmRPointer, (XtPointer)NULL},
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmFontList),
+     Offset(breadcrumb.font), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmFontList),
+     Offset(breadcrumb.font), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean),
      Offset(primitive.traversal_on), XmRImmediate, (XtPointer)True},
     {XmNhighlightThickness, XmCHighlightThickness, XmRHorizontalDimension,
@@ -177,6 +192,11 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     bar->breadcrumb.items = NULL;
     bar->breadcrumb.count = 0;
     bar->breadcrumb.current = -1;
+    if (!bar->breadcrumb.font)
+        bar->breadcrumb.font = XmFontListCopy(
+            XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+    else
+        bar->breadcrumb.font = XmFontListCopy(bar->breadcrumb.font);
     values.foreground = bar->primitive.foreground;
     values.background = bar->core.background_pixel;
     bar->breadcrumb.gc = XCreateGC(XtDisplay(widget),
@@ -197,6 +217,8 @@ static void Destroy(Widget widget) {
     free_items(bar);
     if (bar->breadcrumb.gc)
         XFreeGC(XtDisplay(widget), bar->breadcrumb.gc);
+    if (bar->breadcrumb.font)
+        XmRenderTableFree(bar->breadcrumb.font);
 }
 
 static void draw_item(XmBreadcrumbBarWidget bar, Cardinal index, int *cursor,
@@ -209,14 +231,36 @@ static void draw_item(XmBreadcrumbBarWidget bar, Cardinal index, int *cursor,
                             bar->breadcrumb.separator : "";
     int width = item_width(bar, index);
     int text_x = (first || *cursor > INT_MAX - 4) ? *cursor : *cursor + 4;
-    if (!first)
-        XDrawString(display, window, bar->breadcrumb.gc, *cursor, 18,
-                    separator, bounded_text_length(separator));
+    XmString label_string = XmStringCreateLocalized((char *)label);
+    XmString separator_string = XmStringCreateLocalized((char *)separator);
+    Dimension label_width = 0, label_height = 0, separator_width = 0;
+    int text_y = 0;
+    if (bar->breadcrumb.font && label_string)
+        XmStringExtent(bar->breadcrumb.font, label_string, &label_width,
+                       &label_height);
+    if (bar->breadcrumb.font && separator_string) {
+        Dimension separator_height = 0;
+        XmStringExtent(bar->breadcrumb.font, separator_string, &separator_width,
+                       &separator_height);
+    }
+    text_y = ((int)bar->core.height - (int)label_height) / 2;
+    if (!first && separator_string)
+        XmStringDraw(display, window, bar->breadcrumb.font, separator_string,
+                     bar->breadcrumb.gc, *cursor, text_y, separator_width,
+                     XmALIGNMENT_BEGINNING, XmPrim_layout_direction(bar), NULL);
     if ((int)index == bar->breadcrumb.current)
         XFillRectangle(display, window, bar->breadcrumb.gc, text_x - 2, 5,
                        (unsigned)(width > 4 ? width - 4 : 1), 19);
-    XDrawString(display, window, bar->breadcrumb.gc, text_x, 18,
-                label, bounded_text_length(label));
+    if ((int)index == bar->breadcrumb.current)
+        XSetForeground(display, bar->breadcrumb.gc, bar->core.background_pixel);
+    if (label_string)
+        XmStringDraw(display, window, bar->breadcrumb.font, label_string,
+                     bar->breadcrumb.gc, text_x, text_y, label_width,
+                     XmALIGNMENT_BEGINNING, XmPrim_layout_direction(bar), NULL);
+    if ((int)index == bar->breadcrumb.current)
+        XSetForeground(display, bar->breadcrumb.gc, bar->primitive.foreground);
+    XmStringFree(label_string);
+    XmStringFree(separator_string);
     advance_cursor(cursor, width);
 }
 
@@ -288,8 +332,17 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmBreadcrumbBarWidget old = (XmBreadcrumbBarWidget)old_widget;
     XmBreadcrumbBarWidget bar = (XmBreadcrumbBarWidget)widget;
+    Boolean redraw = False;
     (void)request; (void)args; (void)count;
-    return old->breadcrumb.max_visible != bar->breadcrumb.max_visible ||
+    if (old->breadcrumb.font != bar->breadcrumb.font) {
+        XmFontList replacement = bar->breadcrumb.font
+            ? XmFontListCopy(bar->breadcrumb.font)
+            : XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+        if (old->breadcrumb.font) XmRenderTableFree(old->breadcrumb.font);
+        bar->breadcrumb.font = replacement;
+        redraw = True;
+    }
+    return redraw || old->breadcrumb.max_visible != bar->breadcrumb.max_visible ||
            old->breadcrumb.rtl != bar->breadcrumb.rtl ||
            old->breadcrumb.separator != bar->breadcrumb.separator;
 }

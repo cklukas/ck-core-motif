@@ -42,6 +42,15 @@ placement instead of fixed-width `XDrawString` assumptions. This keeps the
 label centered for proportional, Xft and multilingual fonts. The focused
 regression is `tests/automated/check-divider-render-table.py`.
 
+## Breadcrumb selected-label contrast
+
+`XmBreadcrumbBar` now draws labels through an owned render table. For the
+selected segment it paints the selection rectangle first, then uses the
+background color for the label and restores the normal foreground for the
+following segments. This prevents the selected path from becoming unreadable.
+The focused regression is
+`tests/automated/check-breadcrumb-selected-contrast.py`.
+
 ## Concrete storage and image corrections
 
 The next source review identified the following independently useful fixes.

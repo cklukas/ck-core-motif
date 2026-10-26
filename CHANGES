@@ -1,3 +1,11 @@
+Breadcrumb selected-label contrast (2026-10-27)
+===============================================
+
+- Draw BreadcrumbBar segments through an owned render table and switch the
+  selected label to the background color after painting its foreground
+  selection rectangle.  Selected paths remain readable instead of becoming a
+  solid foreground block.
+
 Divider render-table labels (2026-10-27)
 ========================================
 

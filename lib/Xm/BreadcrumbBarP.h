@@ -26,6 +26,8 @@ typedef struct _XmBreadcrumbBarPart {
     Boolean rtl;
     XtCallbackList activate_callback;
     XtCallbackList current_changed_callback;
+    XmFontList font;
+    Boolean check_set_render_table;
     GC gc;
 } XmBreadcrumbBarPart;
 
