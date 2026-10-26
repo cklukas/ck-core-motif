@@ -1,3 +1,11 @@
+Refresh NumberBox text-bounds regression check (2026-10-27)
+============================================================
+
+- Match the focused check to the current fixed-size text storage, bounded
+  formatting, and guarded keystroke append path.
+
+===========================================================
+
 Refresh Notebook pixmap binding regression check (2026-10-27)
 ==============================================================
 
