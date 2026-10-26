@@ -22743,3 +22743,10 @@ Bound Text selection property allocations (2026-10-26)
   STRING, COMPOUND_TEXT, or UTF-8 selection values.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-selection-property-size.py
+Guard TextField transfer callback inputs (2026-10-26)
+======================================================
+- Fail closed on missing transfer IDs, oversized target lists, null export
+  arrays, and temporary-record allocation failures in TextField selection and
+  drop handling.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-transfer-inputs.py

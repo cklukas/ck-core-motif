@@ -1360,14 +1360,15 @@ HandleTargets(Widget w, XtPointer closure,
   Atom *atom_ptr;
   Atom targets[2];
   XmTextPosition select_pos;
-  int i;
+  unsigned long i;
 
   if (w == NULL || ds == NULL)
     return;
   tf = (XmTextFieldWidget) w;
   CS_OF_ENCODING = XmeGetEncodingAtom(w);
   
-  if (!ds->length || ds->value == NULL) {
+  if (!ds->length || ds->value == NULL || ds->transfer_id == NULL ||
+      ds->length > (unsigned long)INT_MAX) {
     XtFree((char *)ds->value);
     ds->value = NULL;
     return; /* Supports no targets, so don't bother sending anything */
@@ -1422,6 +1423,12 @@ HandleTargets(Widget w, XtPointer closure,
   } else {
     prim_select = (_XmTextPrimSelect *)
       XtMalloc((unsigned) sizeof(_XmTextPrimSelect));
+    if (prim_select == NULL) {
+      _XmProcessUnlock();
+      XtFree((char *)ds->value);
+      ds->value = NULL;
+      return;
+    }
   }
   prim_select->position = select_pos;
   prim_select->time = XtLastTimestampProcessed(XtDisplay(w));
@@ -1460,10 +1467,19 @@ HandleDrop(Widget w,
   Atom desiredTarget = None;
   Arg args[10];
   XmTextPosition insert_pos, left, right;
-  Display *display = XtDisplay(w);
+  Display *display;
   Boolean doTransfer = False;
   _XmTextDropTransferRec *transfer_rec;
-  XtPointer tid = ds->transfer_id;
+  XtPointer tid;
+
+  if (w == NULL || cb == NULL || ds == NULL || cb->dragContext == NULL ||
+      ds->transfer_id == NULL) {
+    if (ds != NULL && ds->transfer_id != NULL)
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+    return;
+  }
+  tid = ds->transfer_id;
+  display = XtDisplay(w);
   
   drag_cont = cb->dragContext;
   transfer_rec = (_XmTextDropTransferRec *) NULL;
@@ -1473,6 +1489,11 @@ HandleDrop(Widget w,
   XtSetArg(args[n], XmNexportTargets, &exportTargets); n++;
   XtSetArg(args[n], XmNnumExportTargets, &numExportTargets); n++;
   XtGetValues((Widget) drag_cont, args, n);
+
+  if (numExportTargets != 0 && exportTargets == NULL) {
+    XmTransferDone(tid, XmTRANSFER_DONE_FAIL);
+    return;
+  }
   
   insert_pos = XmTextFieldXYToPos(w, cb->x, 0);
   
@@ -1508,6 +1529,10 @@ HandleDrop(Widget w,
     /* intialize data to send to drop transfer callback */
     transfer_rec = (_XmTextDropTransferRec *)
       XtMalloc(sizeof(_XmTextDropTransferRec));
+    if (transfer_rec == NULL) {
+      XmTransferDone(tid, XmTRANSFER_DONE_FAIL);
+      return;
+    }
     transfer_rec->widget = w;
     transfer_rec->insert_pos = insert_pos;
     transfer_rec->num_chars = 0;
