@@ -132,6 +132,15 @@ Guard XPM fallback string duplication (2026-10-26)
 - Add `tests/automated/check-xpm-string-duplicate-input.py` and document the
   guard in `docs/xpm-string-duplicate-input.md`.
 
+Bound icon-directory cache accumulation (2026-10-26)
+=====================================================
+
+- Keep directory-name lengths and the fixed staging-buffer accumulation in
+  `size_t`, rejecting an entry before the remaining-capacity subtraction can
+  underflow or a `strlen` result can narrow to `int`.
+- Add `tests/automated/check-icon-cache-directory-bounds.py` and document the
+  invariant in `docs/icon-cache-directory-bounds.md`.
+
 Bound ToggleButton default geometry (2026-10-27)
 ==================================================
 

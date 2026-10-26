@@ -188,7 +188,7 @@ MakeCachedDirEntry(String dirName)
 	cachedDirType = DtINVALID_CACHED_DIR;
     }
     else {
-	int	bufLen, oldBufLen = 0;
+	size_t	bufLen, oldBufLen = 0;
 	char	stackBuf[MAX_CACHE_DIR_SIZE];
 	char    *p;
 	int	numFiles = 0;
@@ -202,7 +202,8 @@ MakeCachedDirEntry(String dirName)
         cachedDirType = DtVALID_CACHED_DIR;
 	while ((currDirect = _XReaddir(fileDesc, dirEntryBuf)) != NULL) {
 	  bufLen = strlen(currDirect->d_name);
-	  if (bufLen + oldBufLen + 1 >= MAX_CACHE_DIR_SIZE) {
+	  if (bufLen >= (size_t)MAX_CACHE_DIR_SIZE ||
+	      oldBufLen > (size_t)MAX_CACHE_DIR_SIZE - bufLen - 1) {
 	    /*
 	     * don't cache this one
 	     */
