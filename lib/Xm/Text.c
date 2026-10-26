@@ -4046,6 +4046,8 @@ PreeditDraw(XIC xic,
 			 PreCursorTW(tw), &end_preedit);
     if (end_preedit) {
       (*tw->text.output->DrawInsertionPoint)(tw, tw->text.cursor_position, on);
+      XtFree(mb);
+      ResetUnder(tw);
       return;
     }
   }
@@ -4057,6 +4059,9 @@ PreeditDraw(XIC xic,
     if ((*tw->text.source->Replace)(tw, NULL, &startPos, &endPos, 
 				    &block, False) != EditDone) {
       XBell(XtDisplay(tw), 0);
+      (*tw->text.output->DrawInsertionPoint)(tw, tw->text.cursor_position, on);
+      XtFree(mb);
+      ResetUnder(tw);
       return;
     }
     else 

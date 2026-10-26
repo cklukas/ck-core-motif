@@ -22965,3 +22965,10 @@ Guard XmText preedit-start snapshots (2026-10-26)
   source snapshot is unavailable.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-preedit-start-snapshot.py
+
+Clean up XmText PreeditDraw aborts (2026-10-26)
+================================================
+- Release temporary preedit strings and reset state when verification or the
+  text source rejects an update, restoring insertion-point painting on failure.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-preedit-draw-cleanup.py
