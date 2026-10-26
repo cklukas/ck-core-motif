@@ -21038,6 +21038,11 @@ Guard MWM confirmation callback state (2026-10-26)
 OkCB now rejects missing callback data and action numbers outside the four
 built-in confirmation handlers before invoking a confirmation function.
 
+Make MWM message initialization idempotent (2026-10-26)
+---------------------------------------------------------
+initMesg now initializes localized confirmation strings only once, preventing
+repeated calls from leaking previously allocated message strings.
+
 Handle MWM cached-label X resource failure (2026-10-26)
 --------------------------------------------------------
 MakeCachedLabelPixmap now returns `None` when pixmap or graphics-context

@@ -107,8 +107,12 @@ static char *confirm_mesg[4] = {"Switch to Default Behavior?",
 void
 initMesg()
 {
+    static Boolean messagesInitialized = False;
 
     char * tmpString;
+
+    if (messagesInitialized)
+	return;
 
     /*
      * catgets returns a pointer to an area that is over written
@@ -213,6 +217,8 @@ initMesg()
     {
 	strcpy(confirm_mesg[3], tmpString);
     }
+
+    messagesInitialized = True;
 
 
 }
