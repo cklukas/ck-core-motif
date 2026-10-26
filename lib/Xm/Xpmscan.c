@@ -129,6 +129,7 @@ storePixel(
     unsigned int i;
     Pixel *p;
     unsigned int ncolors;
+    unsigned int new_size;
 
     if (*index_return) {		/* this is a transparent pixel! */
 	*index_return = 0;
@@ -141,11 +142,16 @@ storePixel(
 	    break;
     if (i == ncolors) {
 	if (ncolors >= pmap->size) {
-	    pmap->size *= 2;
-	    p = (Pixel *) XpmRealloc(pmap->pixels, sizeof(Pixel) * pmap->size);
+	    if (pmap->size == 0 || pmap->size > UINT_MAX / 2)
+		return (1);
+	    new_size = pmap->size * 2;
+	    if (new_size > UINT_MAX / sizeof(Pixel))
+		return (1);
+	    p = (Pixel *) XpmRealloc(pmap->pixels, sizeof(Pixel) * new_size);
 	    if (!p)
 		return (1);
 	    pmap->pixels = p;
+	    pmap->size = new_size;
 
 	}
 	(pmap->pixels)[ncolors] = pixel;
