@@ -1451,7 +1451,10 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
     {
       if ((rendition_count > RENDITIONS_IN_STRUCT) &&
           ((size_t)(rendition_count - RENDITIONS_IN_STRUCT) >
-           (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition)))
+           (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition) ||
+           sizeof(_XmRenderTableRec) +
+           (size_t)(rendition_count - RENDITIONS_IN_STRUCT) * sizeof(XmRendition) >
+           UINT_MAX))
 	goto unlock_return;
       /* Malloc new table */
       table = 
@@ -1495,6 +1498,13 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
       /* May have to copy table if shared. */
       if (_XmRTRefcount(oldtable) > 1)
 	{
+	  if (_XmRTCount(oldtable) > RENDITIONS_IN_STRUCT &&
+	      ((size_t)(_XmRTCount(oldtable) - RENDITIONS_IN_STRUCT) >
+	       (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition) ||
+	       sizeof(_XmRenderTableRec) +
+	       (size_t)(_XmRTCount(oldtable) - RENDITIONS_IN_STRUCT) * sizeof(XmRendition) >
+	       UINT_MAX))
+	    goto merge_abort;
 	  /* Allocate new table */
 	  table = (_XmRenderTable)
 	    XtMalloc(sizeof(_XmRenderTableRec) +
@@ -1601,6 +1611,15 @@ XmRenderTableAddRenditions(XmRenderTable oldtable,
       if (count > 0)				  /* Allocate new table */
 	{
 	  source_table = oldtable;
+	  if (_XmRTCount(oldtable) > UINT_MAX - (unsigned int)count ||
+	      (size_t)_XmRTCount(oldtable) > SIZE_MAX - (size_t)count ||
+	      (_XmRTCount(oldtable) + (unsigned int)count > RENDITIONS_IN_STRUCT &&
+	       ((size_t)(_XmRTCount(oldtable) + (unsigned int)count - RENDITIONS_IN_STRUCT) >
+	        (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition) ||
+	        sizeof(_XmRenderTableRec) +
+	        (size_t)(_XmRTCount(oldtable) + (unsigned int)count - RENDITIONS_IN_STRUCT) * sizeof(XmRendition) >
+	        UINT_MAX)))
+	    goto append_abort;
 	  table = (_XmRenderTable)
 	    XtMalloc(sizeof(_XmRenderTableRec) +
 		     (sizeof(XmRendition) *
@@ -1963,7 +1982,8 @@ XmRenderTableCopy(XmRenderTable table, XmStringTag *tags, int tag_count)
 {
   XmRenderTable result = NULL;
   _XmRenderTable body;
-  int index, count, capacity;
+  int index, count;
+  Cardinal capacity;
   XtAppContext app = NULL;
   if (!table) return NULL;
 #ifdef XTHREADS
@@ -1985,7 +2005,10 @@ XmRenderTableCopy(XmRenderTable table, XmStringTag *tags, int tag_count)
     capacity = tags ? (tag_count > 0 ? tag_count : 0) : _XmRTCount(table);
     if ((capacity > RENDITIONS_IN_STRUCT) &&
         ((size_t)(capacity - RENDITIONS_IN_STRUCT) >
-         (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition)))
+         (SIZE_MAX - sizeof(_XmRenderTableRec)) / sizeof(XmRendition) ||
+         sizeof(_XmRenderTableRec) +
+         (size_t)(capacity - RENDITIONS_IN_STRUCT) * sizeof(XmRendition) >
+         UINT_MAX))
       goto unlock_return;
     body = (_XmRenderTable)XtMalloc(sizeof(_XmRenderTableRec) +
         sizeof(XmRendition) * (capacity > RENDITIONS_IN_STRUCT

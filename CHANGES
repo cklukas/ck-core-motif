@@ -17497,3 +17497,13 @@ Handle SpinBox numeric formatter allocation failure (2026-10-27)
 =========================================================
 
 Handle FileSB qualified-path failure (2026-10-27)
+Bound render-table Cardinal allocations (2026-10-27)
+====================================================
+
+- Check render-table body sizes and merge-count arithmetic against Xt's
+  `Cardinal` limit in create, merge, append, and copy paths.
+- Add focused regression coverage and documentation.
+
+=========================================================
+
+Handle SpinBox numeric formatter allocation failure (2026-10-27)
