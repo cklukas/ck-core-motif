@@ -1,3 +1,10 @@
+Bound TabStack default geometry (2026-10-27)
+=============================================
+
+- Compute default width and height from margins and shadow thickness in
+  widened arithmetic, clamping before narrowing to `Dimension`.
+- Add focused regression coverage and documentation.
+
 Bound legacy XmPaned margin additions (2026-10-27)
 ===================================================
 

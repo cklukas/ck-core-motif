@@ -31,6 +31,8 @@
  *
  */
 #include <stdio.h>
+#include <limits.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include "XmI.h"
@@ -120,6 +122,7 @@ static void DrawStackedShadows _ARGS((XmTabStackWidget, GC, GC, int, int,
 
 static void TabSelectedCallback _ARGS((Widget, XtPointer, XtPointer));
 static void CheckSetRenderTable(Widget wid, int offs, XrmValue *value); 
+static Dimension TabStackDefaultDimension(Dimension shadow, Dimension margin);
 #ifdef TEAR_OFF_TABS
 static void TearOffCallback _ARGS((Widget, XtPointer, XtPointer));
 static void XmTabStackMenu _ARGS((Widget, XEvent*, String*, Cardinal*));
@@ -989,13 +992,13 @@ Initialize(request, set, arg_list, arg_cnt)
      */
     if( request->core.width == 0 )
     {
-	ts->core.width = 2 * (ts->manager.shadow_thickness +
-			      BBPart(ts).margin_width) + 50;
+	ts->core.width = TabStackDefaultDimension(
+	    ts->manager.shadow_thickness, BBPart(ts).margin_width);
     }
     if( request->core.height == 0 )
     {
-	ts->core.height = 2 * (ts->manager.shadow_thickness +
-			       BBPart(ts).margin_height) + 50;
+	ts->core.height = TabStackDefaultDimension(
+	    ts->manager.shadow_thickness, BBPart(ts).margin_height);
     }
 
     /* Used to select tabs before they are realized */
@@ -1006,6 +1009,14 @@ Initialize(request, set, arg_list, arg_cnt)
      * Now that the widget is initialized lets flag that fact.
      */
     XmTabStack__inited(ts) = True;
+}
+
+static Dimension
+TabStackDefaultDimension(Dimension shadow, Dimension margin)
+{
+    uint64_t total = 2 * ((uint64_t)shadow + (uint64_t)margin) + 50;
+
+    return total > USHRT_MAX ? (Dimension)USHRT_MAX : (Dimension)total;
 }
 
 
