@@ -10052,11 +10052,16 @@ ListScrollUp(Widget wid, XEvent *event, String *params, Cardinal *num_params)
   int page_increment;
   if (lw->list.vScrollBar) {
     int new_value;
+    int64_t candidate;
     XmScrollBarGetValues(((Widget)(lw->list.vScrollBar)), &value, &slider_size,
         &increment, &page_increment);
-    new_value = value-increment;
-    if (new_value < lw->list.vScrollBar->scrollBar.minimum)
+    candidate = (int64_t)value - (int64_t)increment;
+    if (candidate < lw->list.vScrollBar->scrollBar.minimum)
       new_value = lw->list.vScrollBar->scrollBar.minimum;
+    else if (candidate > INT_MAX)
+      new_value = INT_MAX;
+    else
+      new_value = (int)candidate;
     XmScrollBarSetValues(((Widget)(lw->list.vScrollBar)), new_value, slider_size,
         increment, page_increment, True);
   }
@@ -10072,11 +10077,21 @@ ListScrollDown(Widget wid, XEvent *event, String *params, Cardinal *num_params)
   int page_increment;
   if (lw->list.vScrollBar) {
     int new_value;
+    int64_t candidate;
+    int64_t maximum;
     XmScrollBarGetValues(((Widget)(lw->list.vScrollBar)), &value, &slider_size,
         &increment, &page_increment);
-    new_value = value+increment;
-    if (new_value > lw->list.vScrollBar->scrollBar.maximum - slider_size)
-      new_value = lw->list.vScrollBar->scrollBar.maximum - slider_size;
+    candidate = (int64_t)value + (int64_t)increment;
+    maximum = (int64_t)lw->list.vScrollBar->scrollBar.maximum -
+      (int64_t)slider_size;
+    if (maximum < INT_MIN)
+      new_value = INT_MIN;
+    else if (candidate > maximum)
+      new_value = maximum > INT_MAX ? INT_MAX : (int)maximum;
+    else if (candidate < INT_MIN)
+      new_value = INT_MIN;
+    else
+      new_value = (int)candidate;
     XmScrollBarSetValues(((Widget)(lw->list.vScrollBar)), new_value, slider_size,
         increment, page_increment, True);
   }
