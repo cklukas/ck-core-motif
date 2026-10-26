@@ -22188,3 +22188,11 @@ Bound locale-text input length before decoding (2026-10-26)
 
 Guard conversion merging (2026-10-26)
 ======================================
+Release secondary callback data after context teardown (2026-10-26)
+====================================================================
+
+- Free a returned secondary-selection value when its conversion context has
+  already been cleared before disowning the selection.
+- Add focused regression coverage and documentation for this teardown path.
+
+Validate destination handler boundary inputs (2026-10-26)

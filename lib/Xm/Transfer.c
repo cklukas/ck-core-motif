@@ -782,6 +782,7 @@ SecondaryDone(Widget wid,
   cc = LookupContextBlock(XtDisplay(wid), XA_SECONDARY);
 
   if (cc == NULL) {
+    XtFree((char *)value);
     XtDisownSelection(wid, XA_SECONDARY,
 			      XtLastTimestampProcessed(XtDisplay(wid)));
     return;
