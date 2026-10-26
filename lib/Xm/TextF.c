@@ -10545,13 +10545,18 @@ TextFieldReplace(Widget w,
   Boolean save_editable = TextF_Editable(tf);
   Boolean deselected = False;
   Boolean rep_result = False;
-  wchar_t *wc_value = (wchar_t *)value;
+  wchar_t *wc_value;
+  size_t wide_length;
+  size_t input_length;
+  size_t conversion_bytes;
+  size_t converted_length;
   int length = 0;
   XmAnyCallbackStruct cb;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
   if (value == NULL) value = "";
+  wc_value = (wchar_t *)value;
   
   VerifyBounds(tf, &from_pos, &to_pos);
   
@@ -10572,18 +10577,38 @@ TextFieldReplace(Widget w,
   TextF_MaxLength(tf) = INT_MAX;
   if (is_wc) {
     /* Count the number of wide chars in the array */
-    for (length = 0; wc_value[length] != (wchar_t)0L; length++)
-      /*EMPTY*/;
+    wide_length = 0;
+    while (wc_value[wide_length] != (wchar_t)0L) {
+      if (wide_length == INT_MAX) {
+        _XmAppUnlock(app);
+        return;
+      }
+      wide_length++;
+    }
     if (tf->text.max_char_size != 1) {
+      length = (int)wide_length;
       rep_result = _XmTextFieldReplaceText(tf, NULL, from_pos, to_pos,
 					 (char*)wc_value, length, False);
     } else {  /* need to convert to char* before calling Replace */
-      value = XtMalloc((unsigned) (length + 1) * tf->text.max_char_size);
-      length = wcstombs(value, wc_value, 
-			   (length + 1) * tf->text.max_char_size);
-      if (length < 0) {        /* if wcstombs fails, it returns -1 */
-	value = "";            /* if invalid data, pass in the empty string */
+      if (tf->text.max_char_size <= 0 ||
+	  wide_length + 1 > SIZE_MAX / (size_t)tf->text.max_char_size ||
+	  wide_length + 1 > UINT_MAX / (size_t)tf->text.max_char_size) {
+	_XmAppUnlock(app);
+	return;
+      }
+      conversion_bytes = (wide_length + 1) *
+	(size_t)tf->text.max_char_size;
+      value = XtMalloc((Cardinal)conversion_bytes);
+      if (value == NULL) {
+	_XmAppUnlock(app);
+	return;
+      }
+      converted_length = wcstombs(value, wc_value, conversion_bytes);
+      if (converted_length == (size_t)-1 || converted_length > INT_MAX) {
+	((char *)value)[0] = '\0';
 	length = 0;
+      } else {
+	length = (int)converted_length;
       }
       rep_result = _XmTextFieldReplaceText(tf, NULL, from_pos, to_pos,
 					   (char*)value, length, False);
@@ -10591,16 +10616,34 @@ TextFieldReplace(Widget w,
     }
   } else {
     if (tf->text.max_char_size == 1) {
-      length = strlen(value);
+      input_length = strlen(value);
+      if (input_length > INT_MAX) {
+	_XmAppUnlock(app);
+	return;
+      }
+      length = (int)input_length;
       rep_result = _XmTextFieldReplaceText(tf, NULL, from_pos, 
 					   to_pos, value, length, False);
     } else { /* need to convert to wchar_t* before calling Replace */
-      wc_value = (wchar_t *) XtMalloc((unsigned) sizeof(wchar_t) *
-				      (1 + strlen(value)));
-      length = mbstowcs(wc_value, value, (unsigned) (strlen(value) + 1));
-      if (length < 0) {
-	wc_value[0] = (wchar_t) 0L;/* if invalid data, pass in empty string */ 
+      input_length = strlen(value);
+      if (input_length == SIZE_MAX ||
+	  input_length + 1 > SIZE_MAX / sizeof(wchar_t) ||
+	  input_length + 1 > UINT_MAX / sizeof(wchar_t)) {
+	_XmAppUnlock(app);
+	return;
+      }
+      conversion_bytes = (input_length + 1) * sizeof(wchar_t);
+      wc_value = (wchar_t *) XtMalloc((Cardinal)conversion_bytes);
+      if (wc_value == NULL) {
+	_XmAppUnlock(app);
+	return;
+      }
+      converted_length = mbstowcs(wc_value, value, input_length + 1);
+      if (converted_length == (size_t)-1 || converted_length > INT_MAX) {
+	wc_value[0] = (wchar_t) 0L;
 	length = 0;
+      } else {
+	length = (int)converted_length;
       }
       rep_result = _XmTextFieldReplaceText(tf, NULL, from_pos, to_pos, 
 					   (char*)wc_value, length, False);

@@ -75,6 +75,15 @@ Add modern density selection and transactional layout defaults (2026-10-26)
 	  the bounded fragment buffer for each listing; see
 	  docs/uil-debug-fragment-flush.md.
 
+Guard text-field replacement conversion buffers (2026-10-26)
+===============================================================
+
+- Check temporary wide/narrow replacement buffers and their size arithmetic
+  before allocation, reject lengths that cannot fit Motif's public `int`
+  count, and handle invalid conversions without freeing a string literal.
+- Add `tests/automated/check-textfield-replace-allocation.py` and document the
+  regression in `docs/install-image-locking.md`.
+
 Bound ToggleButton default geometry (2026-10-27)
 ==================================================
 

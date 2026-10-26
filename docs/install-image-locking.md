@@ -62,6 +62,13 @@ The setter also rejects a narrow or multibyte input whose byte count cannot be
 represented by its callback `int` length before modifying the widget. This is
 covered by `tests/automated/check-textfield-set-string-range.py`.
 
+`XmTextFieldReplace` now applies the same checked conversion-buffer policy to
+wide-to-multibyte and multibyte-to-wide replacement. It checks allocation and
+size arithmetic, preserves conversion counts as `size_t` until they are known
+to fit the public `int` length, and clears an allocated buffer on invalid input
+instead of freeing a string literal. The focused source check is
+`tests/automated/check-textfield-replace-allocation.py`.
+
 Conversion result counts are retained as `size_t` through the getter and
 substring paths, so large successful conversions cannot wrap through an
 intermediate `int`.
