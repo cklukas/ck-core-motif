@@ -19511,3 +19511,11 @@ Guard tear-off snapshot resources (2026-10-27)
 - Add focused regression coverage and documentation.
 
 Guard XPM pixmap resource creation (2026-10-27)
+Guard cascade-arrow resource creation (2026-10-27)
+===================================================
+
+- Validate arrow-cache records, temporary GCs, and armed/unarmed pixmap
+  creation before drawing; release owned GCs on all paths.
+- Add focused regression coverage and documentation.
+
+Guard tear-off snapshot resources (2026-10-27)

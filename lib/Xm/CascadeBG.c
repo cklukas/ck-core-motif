@@ -2043,6 +2043,7 @@ _XmCreateArrowPixmaps(
    unsigned char arrow_direction;
    unsigned short text_height;
    GC armGC = NULL;
+   Boolean arm_gc_owned = False;
    XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(cb));   
    Boolean etched_in = dpy->display.enable_etched_in_menu;
 
@@ -2086,6 +2087,7 @@ _XmCreateArrowPixmaps(
           values.graphics_exposures = False;
           armGC = XtGetGC ((Widget) wid,
               GCForeground | GCBackground | GCGraphicsExposures, &values);
+          arm_gc_owned = True;
       }
 
       ht = cb->primitive.highlight_thickness;
@@ -2132,6 +2134,13 @@ _XmCreateArrowPixmaps(
 		   sizeof(XmArrowPixmap));
    _XmProcessUnlock();
 
+   if (unarmed_arrow == NULL || armed_arrow == NULL)
+   {
+      if (arm_gc_owned)
+	 XtReleaseGC((Widget) wid, armGC);
+      return;
+   }
+
    if ((unarmed_arrow->pixmap == XmUNSPECIFIED_PIXMAP) ||
        (armed_arrow->pixmap == XmUNSPECIFIED_PIXMAP))
    {
@@ -2139,6 +2148,12 @@ _XmCreateArrowPixmaps(
       values.graphics_exposures = False;
       gc = XtGetGC ((Widget) cb,
                    GCForeground | GCBackground | GCGraphicsExposures, &values);
+      if (gc == NULL)
+      {
+	 if (arm_gc_owned)
+	    XtReleaseGC((Widget) wid, armGC);
+	 return;
+      }
 
       /* armed arrow */
       if (armed_arrow->pixmap == XmUNSPECIFIED_PIXMAP)
@@ -2146,9 +2161,11 @@ _XmCreateArrowPixmaps(
          pixmap = XCreatePixmap(XtDisplay(cb), RootWindowOfScreen(screen),
             side, side, depth);
 
-         armed_arrow->pixmap = pixmap;
+	 if (pixmap != None)
+	 {
+	         armed_arrow->pixmap = pixmap;
 
-         XFillRectangle(XtDisplay(cb), pixmap, etched_in? armGC : gc, 
+	         XFillRectangle(XtDisplay(cb), pixmap, etched_in && armGC != NULL ? armGC : gc,
 			0, 0, side, side);
 	 XmeDrawArrow(XtDisplay((Widget)cb), pixmap,
 		bsGC, tsGC, gc,
@@ -2157,6 +2174,7 @@ _XmCreateArrowPixmaps(
 		side - 2*(ht + st - 1),
 		side - 2*(ht + st - 1),
 		st, arrow_direction);
+	 }
       }
 
       /* standard (unarmed) pixmap */
@@ -2165,9 +2183,11 @@ _XmCreateArrowPixmaps(
          pixmap = XCreatePixmap(XtDisplay(cb),  RootWindowOfScreen(screen),
             side, side, depth);
 
-         unarmed_arrow->pixmap = pixmap;
+	 if (pixmap != None)
+	 {
+	         unarmed_arrow->pixmap = pixmap;
 
-         XFillRectangle(XtDisplay(cb), pixmap, gc, 0, 0, side, side);
+	         XFillRectangle(XtDisplay(cb), pixmap, gc, 0, 0, side, side);
 	 XmeDrawArrow(XtDisplay((Widget)cb), pixmap,
 	 tsGC, bsGC, gc, 
 	 	ht + st - 1, 
@@ -2175,8 +2195,11 @@ _XmCreateArrowPixmaps(
 	 	side - 2*(ht + st - 1),
 	 	side - 2*(ht + st - 1), 
 	 	st, arrow_direction);
+	 }
       }
       XtReleaseGC( (Widget) cb, gc);
+      if (arm_gc_owned)
+	 XtReleaseGC((Widget) wid, armGC);
    }
    if (XmIsGadget(cb))
    {
