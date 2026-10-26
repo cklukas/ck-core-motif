@@ -12,6 +12,6 @@ assert "return MrmNOT_VALID;" in body
 assert body.index("if ( icon->color_table.ctptr == NULL )") < body.index("Urm__RealizeColorTable")
 start = source.index("Urm__RealizeColorTable (Screen")
 body = source[start:]
-assert "if ( ctable == NULL )" in body
-assert body.index("if ( ctable == NULL )") < body.index("ctable->item")
+assert "if ( ctable == NULL || ctable->count < URMColorTableUserMin )" in body
+assert body.index("if ( ctable == NULL || ctable->count < URMColorTableUserMin )") < body.index("ctable->item")
 print("Mrm icon conversion rejects null color tables")
