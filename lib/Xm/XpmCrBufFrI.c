@@ -43,11 +43,11 @@ LFUNC(WriteColors, int, (char **dataptr, unsigned int *data_size,
 			 unsigned int *used_size, XpmColor *colors,
 			 unsigned int ncolors, unsigned int cpp));
 
-LFUNC(WritePixels, void, (char *dataptr, unsigned int data_size,
+LFUNC(WritePixels, int, (char *dataptr, unsigned int data_size,
 			  unsigned int *used_size,
 			  unsigned int width, unsigned int height,
 			  unsigned int cpp, unsigned int *pixels,
-			  XpmColor *colors));
+			  XpmColor *colors, unsigned int ncolors));
 
 LFUNC(WriteExtensions, void, (char *dataptr, unsigned int data_size,
 			      unsigned int *used_size,
@@ -251,8 +251,10 @@ XpmCreateBufferFromXpmImage(
 	used_size += strlen(info->pixels_cmt) + 5;
 #endif
     }
-    WritePixels(ptr + used_size, ptr_size - used_size, &used_size, image->width, image->height,
-		image->cpp, image->data, image->colorTable);
+    if (!WritePixels(ptr + used_size, ptr_size - used_size, &used_size,
+		     image->width, image->height, image->cpp, image->data,
+		     image->colorTable, image->ncolors))
+	RETURN(XpmFileInvalid);
 
     /* print extensions */
     if (extensions)
@@ -332,7 +334,7 @@ WriteColors(
     return (XpmSuccess);
 }
 
-static void
+static int
 WritePixels(
     char		*dataptr,
     unsigned int	 data_size,
@@ -341,38 +343,46 @@ WritePixels(
     unsigned int	 height,
     unsigned int	 cpp,
     unsigned int	*pixels,
-    XpmColor		*colors)
+    XpmColor		*colors,
+    unsigned int	 ncolors)
 {
     char *s = dataptr;
     unsigned int x, y, h;
 
-    if(height <= 1)
-    	return;
+    if (height <= 1)
+	return 1;
+    if (dataptr == NULL || used_size == NULL || pixels == NULL ||
+	    colors == NULL || ncolors == 0)
+	return 0;
 
     h = height - 1;
     for (y = 0; y < h; y++) {
 	*s++ = '"';
 	for (x = 0; x < width; x++, pixels++) {
-	    if(cpp >= (data_size - (s-dataptr)))
-		return;
-	    strncpy(s, colors[*pixels].string, cpp); /* how can we trust *pixels? :-\ */
+	    if ((size_t)(s - dataptr) > data_size ||
+		cpp >= data_size - (size_t)(s - dataptr) || *pixels >= ncolors)
+		return 0;
+	    strncpy(s, colors[*pixels].string, cpp);
 	    s += cpp;
 	}
-	if((data_size - (s-dataptr)) < 4)
-		return;
+	if ((size_t)(s - dataptr) > data_size ||
+	    data_size - (size_t)(s - dataptr) < 4)
+		return 0;
 	strcpy(s, "\",\n");
 	s += 3;
     }
     /* duplicate some code to avoid a test in the loop */
     *s++ = '"';
     for (x = 0; x < width; x++, pixels++) {
-	if(cpp >= (data_size - (s-dataptr)))
-	    return;
-	strncpy(s, colors[*pixels].string, cpp); /* how can we trust *pixels? */
+	if ((size_t)(s - dataptr) > data_size ||
+	    cpp >= data_size - (size_t)(s - dataptr) || *pixels >= ncolors)
+	    return 0;
+	strncpy(s, colors[*pixels].string, cpp);
 	s += cpp;
     }
     *s++ = '"';
-    *used_size += s - dataptr;
+    *used_size += (unsigned int)(s - dataptr);
+    return 1;
 }
 
 static unsigned int
