@@ -22695,3 +22695,9 @@ Bound Text 16-bit conversion byte counts (2026-10-26)
   overflow the legacy integer return value.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-16bit-byte-count.py
+Bound Text search conversion allocations (2026-10-26)
+=======================================================
+- Check 16-bit and wide-character search buffer sizes and allocation results
+  in both search directions before conversion.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-find-search-allocation.py

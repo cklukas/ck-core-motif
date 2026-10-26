@@ -199,9 +199,16 @@ _XmTextFindStringBackwards(Widget w,
     bits16_gap_start = bits16_gap_end = NULL;
     
     /* search_length is number of characters (!bytes) in search_string */
+    if (search_length < 0 || tw->text.char_size <= 0 ||
+        (size_t)(search_length + 1) >
+          (size_t)UINT_MAX / (size_t)tw->text.char_size)
+      break;
     bits16_search_string =
-      (BITS16 *) XtMalloc((unsigned)
-			  (search_length + 1) * (int)tw->text.char_size);
+      (BITS16 *) XtMalloc((Cardinal)
+			  (size_t)(search_length + 1) *
+			  (size_t)tw->text.char_size);
+    if (bits16_search_string == NULL)
+      break;
     (void) _XmTextBytesToCharacters((char *) bits16_search_string,
 				    search_string, search_length, True,
 				    (int)tw->text.char_size);
@@ -349,9 +356,15 @@ _XmTextFindStringBackwards(Widget w,
     wchar_t_ptr = wchar_t_search_string = NULL;
     wchar_t_gap_start = wchar_t_gap_end = NULL;
     
+    if (search_length < 0 ||
+        (size_t)(search_length + 1) >
+          (size_t)UINT_MAX / sizeof(wchar_t))
+      break;
     wchar_t_search_string =
-      (wchar_t *) XtMalloc((unsigned)
-			   (search_length + 1) * sizeof(wchar_t));
+      (wchar_t *) XtMalloc((Cardinal)
+			   (size_t)(search_length + 1) * sizeof(wchar_t));
+    if (wchar_t_search_string == NULL)
+      break;
     (void)_XmTextBytesToCharacters((char *) wchar_t_search_string,
 				   search_string, search_length, True,
 				   (int)tw->text.char_size);
@@ -650,9 +663,16 @@ _XmTextFindStringForwards(Widget w,
     bits16_gap_start = bits16_gap_end = NULL;
     
     /* search_length is number of characters (!bytes) in search_string */
+    if (search_length < 0 || tw->text.char_size <= 0 ||
+        (size_t)(search_length + 1) >
+          (size_t)UINT_MAX / (size_t)tw->text.char_size)
+      break;
     bits16_search_string =
-      (BITS16 *) XtMalloc((unsigned)
-			  (search_length + 1) * (int)tw->text.char_size);
+      (BITS16 *) XtMalloc((Cardinal)
+			  (size_t)(search_length + 1) *
+			  (size_t)tw->text.char_size);
+    if (bits16_search_string == NULL)
+      break;
     (void) _XmTextBytesToCharacters((char *) bits16_search_string, 
 				    search_string, search_length, True,
 				    (int)tw->text.char_size);
@@ -789,9 +809,15 @@ _XmTextFindStringForwards(Widget w,
     wchar_t_ptr = wchar_t_search_string = NULL;
     wchar_t_gap_start = wchar_t_gap_end = NULL;
     
+    if (search_length < 0 ||
+        (size_t)(search_length + 1) >
+          (size_t)UINT_MAX / sizeof(wchar_t))
+      break;
     wchar_t_search_string =
-      (wchar_t *) XtMalloc((unsigned)
-			   (search_length + 1) * sizeof(wchar_t));
+      (wchar_t *) XtMalloc((Cardinal)
+			   (size_t)(search_length + 1) * sizeof(wchar_t));
+    if (wchar_t_search_string == NULL)
+      break;
     (void)_XmTextBytesToCharacters((char *) wchar_t_search_string, 
 				   search_string, search_length, True,
 				   (int)tw->text.char_size);
