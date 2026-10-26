@@ -22725,3 +22725,9 @@ Guard Text drop callback inputs (2026-10-26)
   missing export-target arrays before target negotiation.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-drop-inputs.py
+Bound Text secondary-selection target counts (2026-10-26)
+===========================================================
+- Reject oversized secondary-selection target lists before scanning external
+  atom data and fail the transfer cleanly.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-secondary-target-count.py

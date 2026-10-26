@@ -396,6 +396,12 @@ HandleInsertTargets(
     insert_select->done_status = True;
     return; /* Supports no targets, so don't bother sending anything */
   }
+
+  if (*length > (unsigned long)INT_MAX) {
+    XtFree((char *)value);
+    XmTransferDone(tid, XmTRANSFER_DONE_FAIL);
+    return;
+  }
   
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);
