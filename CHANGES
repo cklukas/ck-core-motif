@@ -1,3 +1,10 @@
+Guard scrolled-window auto-drag allocation (2026-10-27)
+========================================================
+
+- Disable auto-drag cleanly when its rectangle state cannot be allocated.
+- Guard drag callbacks and custom rectangle providers against missing or empty
+  results, with focused regression coverage and documentation.
+
 Guard drop-site record allocation failures (2026-10-27)
 ========================================================
 

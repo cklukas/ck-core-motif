@@ -1188,7 +1188,11 @@ Cardinal *num_args )
       Initialize the auto_drag rectangles */
 
     if (new_w->swindow.auto_drag_model == XmAUTO_DRAG_ENABLED)
+    {
         new_w->swindow.auto_drag_rects = XtCalloc(1, sizeof(AutoDragRectsRec));
+        if (new_w->swindow.auto_drag_rects == NULL)
+            new_w->swindow.auto_drag_model = XmAUTO_DRAG_DISABLED;
+    }
     else
         new_w->swindow.auto_drag_rects = NULL;
 
@@ -2493,6 +2497,9 @@ XtPointer    call_data)
     XmScrolledWindowWidget sw = (XmScrolledWindowWidget) XtParent(w) ;
     AutoDragRects rects = (AutoDragRects) sw -> swindow.auto_drag_rects;
 
+    if (dragProc == NULL || rects == NULL)
+        return;
+
     /* w is one of the scrollbar */
 
     if (dragProc->reason ==  XmCR_DROP_SITE_ENTER_MESSAGE)
@@ -2777,6 +2784,9 @@ XmScrolledWindowWidget sw)
     Cardinal num_hrect, num_vrect ;
     AutoDragRects rects = (AutoDragRects) sw -> swindow.auto_drag_rects;
 
+    if (rects == NULL)
+        return;
+
     /* Entering here we know we have valid dropsites,
        we now update their size */
 
@@ -2805,6 +2815,13 @@ XmScrolledWindowWidget sw)
             /* no extension found or an extension with NULL proc,
                so use the standard one */
             GetHorRects ((Widget) sw, &hrect, &num_hrect) ;
+        }
+
+        if (hrect == NULL || num_hrect == 0)
+        {
+            if (hrect != NULL)
+                XtFree((char *)hrect);
+            return;
         }
 
         n = 0 ;
@@ -2844,6 +2861,13 @@ XmScrolledWindowWidget sw)
             /* no extension found or an extension with NULL proc,
                so use the standard one */
             GetVertRects ((Widget) sw, &vrect, &num_vrect) ;
+        }
+
+        if (vrect == NULL || num_vrect == 0)
+        {
+            if (vrect != NULL)
+                XtFree((char *)vrect);
+            return;
         }
 
         n = 0 ;
@@ -3682,6 +3706,12 @@ Cardinal *num_args )                              /* unused */
             if (new_w->swindow.auto_drag_rects == NULL)
                 new_w->swindow.auto_drag_rects =
                     XtCalloc(1, sizeof(AutoDragRectsRec));
+
+            if (new_w->swindow.auto_drag_rects == NULL)
+            {
+                new_w->swindow.auto_drag_model = XmAUTO_DRAG_DISABLED;
+                return False;
+            }
 
             /* reinstall the D&D callback on the potential scrollbars */
             n = 0 ;
