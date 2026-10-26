@@ -9,6 +9,7 @@
 #include <Xm/XmP.h>
 #include <limits.h>
 #include <string.h>
+#include "XmI.h"
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
@@ -17,6 +18,17 @@ static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
 
 #define Offset(field) XtOffsetOf(XmAvatarRec, field)
+static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
+{
+    XmAvatarWidget avatar = (XmAvatarWidget)widget;
+    (void)offset;
+    if (avatar->avatar.check_set_render_table)
+        value->addr = NULL;
+    else {
+        avatar->avatar.check_set_render_table = True;
+        value->addr = (char *)&avatar->avatar.font;
+    }
+}
 static XtResource resources[] = {
     {XmNavatarInitials, XmCAvatarInitials, XmRXmString, sizeof(XmString),
      Offset(avatar.initials), XmRImmediate, (XtPointer)NULL},
@@ -24,6 +36,10 @@ static XtResource resources[] = {
      Offset(avatar.pixmap), XmRImmediate, (XtPointer)XmUNSPECIFIED_PIXMAP},
     {XmNavatarSize, XmCAvatarSize, XmRHorizontalDimension, sizeof(Dimension),
      Offset(avatar.size), XmRImmediate, (XtPointer)32},
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmFontList),
+     Offset(avatar.font), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmFontList),
+     Offset(avatar.font), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean),
      Offset(primitive.traversal_on), XmRImmediate, (XtPointer)False}
 };
@@ -72,6 +88,11 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     XGCValues values;
     (void)request; (void)args; (void)count;
     avatar->avatar.initials = copy_initials(avatar->avatar.initials);
+    if (!avatar->avatar.font)
+        avatar->avatar.font = XmFontListCopy(
+            XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+    else
+        avatar->avatar.font = XmFontListCopy(avatar->avatar.font);
     if (avatar->avatar.size == 0) avatar->avatar.size = 1;
     values.foreground = avatar->primitive.foreground;
     values.background = avatar->core.background_pixel;
@@ -92,6 +113,8 @@ static void Destroy(Widget widget) {
         XFreeGC(XtDisplay(widget), avatar->avatar.foreground_gc);
     if (avatar->avatar.fallback_font)
         XFreeFont(XtDisplay(widget), avatar->avatar.fallback_font);
+    if (avatar->avatar.font)
+        XmRenderTableFree(avatar->avatar.font);
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {
@@ -99,8 +122,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Display *display = XtDisplay(widget);
     Window window = XtWindow(widget);
     unsigned int pixmap_width = 0, pixmap_height = 0;
-    char *text;
     int diameter, x, y;
+    Dimension text_width = 0, text_height = 0;
     (void)event; (void)region;
     if (!window) return;
     XClearWindow(display, window);
@@ -121,18 +144,17 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                  ((int)avatar->core.width - diameter) / 2,
                  ((int)avatar->core.height - diameter) / 2, diameter - 1,
                  diameter - 1, 0, 360 * 64);
-        text = XmStringUnparse(avatar->avatar.initials, NULL, XmCHARSET_TEXT,
-                               XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
-        if (text && *text) {
-            size_t text_length = strlen(text);
-            int width = text_length > (size_t)INT_MAX / 8 ? INT_MAX :
-                        (int)(text_length * 8);
-            x = ((int)avatar->core.width - width) / 2;
-            y = ((int)avatar->core.height + 16) / 2;
-            XDrawString(display, window, avatar->avatar.foreground_gc, x, y,
-                        text, (int)strlen(text));
+        if (avatar->avatar.initials && avatar->avatar.font)
+            XmStringExtent(avatar->avatar.font, avatar->avatar.initials,
+                           &text_width, &text_height);
+        if (text_width && text_height) {
+            x = ((int)avatar->core.width - (int)text_width) / 2;
+            y = ((int)avatar->core.height - (int)text_height) / 2;
+            XmStringDraw(display, window, avatar->avatar.font,
+                         avatar->avatar.initials, avatar->avatar.foreground_gc,
+                         x, y, text_width, XmALIGNMENT_BEGINNING,
+                         XmPrim_layout_direction(avatar), NULL);
         }
-        XtFree(text);
     }
 }
 
@@ -144,6 +166,13 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     if (old->avatar.initials != avatar->avatar.initials)
         avatar->avatar.initials = copy_initials(avatar->avatar.initials);
     if (!avatar->avatar.size) avatar->avatar.size = 1;
+    if (old->avatar.font != avatar->avatar.font) {
+        XmFontList replacement = avatar->avatar.font
+            ? XmFontListCopy(avatar->avatar.font)
+            : XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+        if (old->avatar.font) XmRenderTableFree(old->avatar.font);
+        avatar->avatar.font = replacement;
+    }
     return old->avatar.initials != avatar->avatar.initials ||
            old->avatar.pixmap != avatar->avatar.pixmap ||
            old->avatar.size != avatar->avatar.size;

@@ -51,6 +51,13 @@ following segments. This prevents the selected path from becoming unreadable.
 The focused regression is
 `tests/automated/check-breadcrumb-selected-contrast.py`.
 
+## Avatar typography
+
+`XmAvatar` initials now use an owned render table and measured
+`XmStringDraw` placement instead of fixed-width X11 text. This keeps fallback
+initials centered for proportional, Xft and multilingual fonts. The focused
+regression is `tests/automated/check-avatar-render-table.py`.
+
 ## Concrete storage and image corrections
 
 The next source review identified the following independently useful fixes.

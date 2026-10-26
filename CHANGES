@@ -14936,3 +14936,11 @@ TreeView disclosure raster geometry (2026-10-26)
 - Use a nine-pixel raster box with an integer centre for the category `+` and
   `−` strokes. This avoids the half-pixel bias of the previous even-sized
   geometry.
+Avatar initials render-table typography (2026-10-27)
+====================================================
+
+- Replace fixed-width `XDrawString` initials with measured `XmStringDraw`
+  rendering through an owned render table. Avatar fallback text now follows
+  proportional, Xft and multilingual font metrics.
+
+Breadcrumb selected-label contrast (2026-10-27)

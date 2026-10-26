@@ -15,6 +15,8 @@ typedef struct _XmAvatarPart {
     XmString initials;
     Pixmap pixmap;
     Dimension size;
+    XmFontList font;
+    Boolean check_set_render_table;
     GC foreground_gc;
     XFontStruct *fallback_font;
 } XmAvatarPart;
