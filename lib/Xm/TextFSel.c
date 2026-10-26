@@ -1074,14 +1074,21 @@ DoStuff(Widget w,
 #endif
     };
 
-  XmTextFieldWidget tf = (XmTextFieldWidget) w;
+  XmTextFieldWidget tf;
   XmTextPosition right=0, left=0, replace_from, replace_to;
   int prim_char_length = 0;
   Boolean replace_res = False;
   XmAnyCallbackStruct cb;
   Atom atoms[XtNumber(atom_names)];
 #ifdef CR1228
-  _XmTextPrimSelect *prim_select = (_XmTextPrimSelect *) closure;
+  _XmTextPrimSelect *prim_select;
+#endif
+
+  if (w == NULL || ds == NULL || closure == NULL)
+    return;
+  tf = (XmTextFieldWidget) w;
+#ifdef CR1228
+  prim_select = (_XmTextPrimSelect *) closure;
 #endif
 
   assert(XtNumber(atom_names) == NUM_ATOMS);
@@ -1325,9 +1332,9 @@ HandleTargets(Widget w, XtPointer closure,
 #endif
       };
 
-  XmTextFieldWidget tf = (XmTextFieldWidget) w;
+  XmTextFieldWidget tf;
   Atom atoms[XtNumber(atom_names)];
-  Atom CS_OF_ENCODING = XmeGetEncodingAtom(w);
+  Atom CS_OF_ENCODING;
   XmTextPosition left, right;
   Boolean supports_encoding_data = False;
   Boolean supports_CT = False;
@@ -1338,6 +1345,11 @@ HandleTargets(Widget w, XtPointer closure,
   Atom targets[2];
   XmTextPosition select_pos;
   int i;
+
+  if (w == NULL || ds == NULL)
+    return;
+  tf = (XmTextFieldWidget) w;
+  CS_OF_ENCODING = XmeGetEncodingAtom(w);
   
   if (!ds->length) {
     XtFree((char *)ds->value);

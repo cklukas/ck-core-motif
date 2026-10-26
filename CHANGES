@@ -22490,3 +22490,9 @@ Guard Text conversion callback wrappers (2026-10-26)
 - Add focused coverage and documentation for malformed selection callbacks.
 
 Validate Text selection converter inputs (2026-10-26)
+Guard Text selection callbacks (2026-10-26)
+==========================================
+- Validate Text/TextField HandleTargets and DoStuff callback inputs before
+  widget/display dereferences.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-selection-callback-inputs.py

@@ -928,7 +928,7 @@ HandleTargets(Widget w,
 #endif
       };
 
-  XmTextWidget tw = (XmTextWidget) w;
+  XmTextWidget tw;
   Atom CS_OF_ENCODING;
   Atom atoms[XtNumber(atom_names)];
   Boolean supports_encoding_data = False;
@@ -941,7 +941,11 @@ HandleTargets(Widget w,
   XmTextPosition select_pos;
   XmTextPosition left, right;
   int i;
-  
+
+  if (w == NULL || ds == NULL)
+    return;
+  tw = (XmTextWidget) w;
+
   if (!ds->length) {
     XtFree((char *)ds->value);
     ds->value = NULL;
@@ -1057,16 +1061,24 @@ DoStuff(Widget w,
 #endif
     };
 
-  XmTextWidget tw = (XmTextWidget) w;
-  InputData data = tw->text.input->data;
-  OutputData o_data = tw->text.output->data;
+  XmTextWidget tw;
+  InputData data;
+  OutputData o_data;
   Atom atoms[XtNumber(atom_names)];
   XmTextBlockRec block, newblock;
-  XmTextPosition cursorPos = tw->text.cursor_position;
+  XmTextPosition cursorPos;
   XmTextPosition right, left, replace_from, replace_to;
-  _XmTextPrimSelect *prim_select = (_XmTextPrimSelect *) closure;
+  _XmTextPrimSelect *prim_select;
   char * total_value = NULL;
   Boolean freeBlock;
+
+  if (w == NULL || ds == NULL || closure == NULL)
+    return;
+  tw = (XmTextWidget) w;
+  data = tw->text.input->data;
+  o_data = tw->text.output->data;
+  cursorPos = tw->text.cursor_position;
+  prim_select = (_XmTextPrimSelect *) closure;
 
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);
