@@ -2091,7 +2091,7 @@ SetDisplayedFont(XmFontSelectorWidget fsw, String new_font)
     XtSetValues(XmFontS_bold_toggle(fsw), largs, num_largs);
 
     SetComboValue(XmFontS_family_box(fsw), XrmQuarkToString(cf->familyq));
-    sprintf(buf, "%d", cf->point_size / POINT_DIVIDE);
+    (void)snprintf(buf, sizeof(buf), "%d", cf->point_size / POINT_DIVIDE);
     SetComboValue(XmFontS_size_box(fsw), buf);
 
     SetResolution(fsw, cf);
@@ -3958,7 +3958,7 @@ SetValues(Widget old, Widget request, Widget set,
 		current = i;
 	}
 
-	sprintf(buf, "*button_%d", current);
+    (void)snprintf(buf, sizeof(buf), "*button_%d", current);
 	if ((button = 
 	     XtNameToWidget(XtParent(XmFontS_option_menu(set_fsw)), buf)) != NULL)
 	{
