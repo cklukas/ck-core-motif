@@ -2253,7 +2253,8 @@ SetValues(
 	if (XtParent(ncw->container.icon_header) != nw) {
 	    Widget real_icon_header = GetRealIconHeader(nw);
 	    /* reposition the container itself too */
-	    nw->core.y -= real_icon_header->core.height ;
+	    nw->core.y = AdjustPositionSaturated(nw->core.y,
+		-(int64_t)real_icon_header->core.height);
 	}
     }
 	    
@@ -2281,7 +2282,8 @@ SetValues(
 	       and reposition the container. */
 	    
 	   /* if (0 == nw->core.y) */
-	    nw->core.y = real_icon_header->core.height ;
+	    nw->core.y = AdjustPositionSaturated(0,
+		(int64_t)real_icon_header->core.height);
 
 	    XtVaSetValues(ncw->container.icon_header,
 			  XmNmarginWidth, ncw->container.margin_w,

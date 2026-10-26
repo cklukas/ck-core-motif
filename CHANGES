@@ -20140,6 +20140,15 @@ Bound Container child-list counting (2026-10-26)
   enumerating descendants.
 - Add focused regression coverage and documentation.
 
+Saturate Container header repositioning (2026-10-26)
+====================================================
+
+- Use the existing signed-position saturation helper when entering or leaving
+  detail-header mode.
+- Prevent large header heights from wrapping the container's `Position` during
+  subtraction or assignment.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
