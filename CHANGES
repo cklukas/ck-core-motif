@@ -20920,6 +20920,11 @@ DepressGadget now retries missing static bevel lists and returns `FALSE` until
 both allocations succeed, avoiding unconditional dereferences after a partial
 allocation failure.
 
+Guard compact MWM maximize geometry (2026-10-26)
+------------------------------------------------
+BevelMaximizeButton now skips heights below five pixels before unsigned
+subtraction can wrap its icon dimensions.
+
 Reject impossible MWM title widths (2026-10-26)
 -----------------------------------------------
 GetFramePartInfo now rejects title and title-bar geometry when borders and

@@ -2627,6 +2627,9 @@ void BevelMaximizeButton (RList *prTop, RList *prBot, int x, int y,
     int offset1, offset2;
     unsigned int dim1, dim2;
 
+    if (height < 5)
+	return;
+
     switch (height) {
 	case 5:
 	case 6:
