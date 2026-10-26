@@ -814,6 +814,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
   FreeType howFree;
   Atom atoms[XtNumber(atom_names)];
   Window clipboard_owner;
+  Boolean target_list_converted;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -879,12 +880,14 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
      if _MOTIF_CLIPBOARD_TARGETS doesn't work then try 
      TARGETS target */
   _XmConvertHandlerSetLocal();
-  if (_XmConvertHandler(w, &atoms[XmACLIPBOARD],
+  target_list_converted = _XmConvertHandler(w, &atoms[XmACLIPBOARD],
 			&atoms[XmA_MOTIF_CLIPBOARD_TARGETS],
-			&type, &value, &size, &format) == True &&
+			&type, &value, &size, &format);
+  if (target_list_converted == True &&
       size != 0 &&
       type == XA_ATOM) {
     targets = (Atom *) value;
+    value = NULL;
     count = size;
     /* For each item we register the format, ask to convert it
        and if it is converted we put it on the clipboard */
@@ -911,6 +914,9 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
       FreeSafeAtomName(name,howFree);
     }
     XtFree((char*) targets);
+  } else if (target_list_converted == True) {
+    XtFree((char *)value);
+    value = NULL;
   }
   
   /* Call the converter to get the deferred targets for the

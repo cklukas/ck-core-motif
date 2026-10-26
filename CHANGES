@@ -1,3 +1,12 @@
+Release invalid clipboard target-list results (2026-10-27)
+============================================================
+
+- Free successful but unusable target-list conversion results, while making
+  ownership explicit for valid target lists.
+- Add a focused source regression and documentation.
+
+============================================================
+
 Prevent clipboard target cleanup double-frees (2026-10-27)
 ==========================================================
 
