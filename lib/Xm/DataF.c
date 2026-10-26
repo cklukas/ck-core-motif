@@ -8736,6 +8736,8 @@ df_ClassPartInitialize(
                                       strlen(EventBindings2) +
                                       strlen(EventBindings3) + strlen("\n") +
 				      strlen(EventBindings4) + 1));
+    if (event_bindings == NULL)
+	return;
 
     strcpy(event_bindings, EventBindings4);
     strcat(event_bindings, "\n");

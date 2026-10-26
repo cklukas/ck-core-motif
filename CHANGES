@@ -16662,3 +16662,12 @@ Bound DataField raw primary fallback lengths (2026-10-27)
 - Add a focused source regression and documentation.
 
 ====================================================
+
+Guard DataField class binding allocation (2026-10-27)
+=====================================================
+
+- Leave the inherited translation table intact when the temporary binding
+  assembly buffer cannot be allocated.
+- Add a focused source regression and documentation.
+
+====================================================
