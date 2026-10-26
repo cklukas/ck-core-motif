@@ -150,6 +150,9 @@ static Bevel_Count Bevels[] =
 
 Boolean FrameWindow (ClientData *pcd)
 {
+    if (pcd == NULL)
+	return (FALSE);
+
     if (!ConstructFrame (pcd))		/* window hierarchy for frame */
     {
 	return(FALSE);
@@ -202,6 +205,10 @@ Boolean FrameWindow (ClientData *pcd)
 void FrameExposureProc (ClientData *pcd)
 {
     GC topGC, botGC;
+
+    if (pcd == NULL)
+	return;
+
     Window win = pcd->clientFrameWin;
 
     /* use "active" GCs if we have keyboard focus */
@@ -296,6 +303,9 @@ void FrameExposureProc (ClientData *pcd)
 
 void BaseWinExposureProc (ClientData *pcd)
 {
+    if (pcd == NULL)
+	return;
+
     /* bevel the matte (if there is one) */
 
     if (pcd->matteWidth > 0) {

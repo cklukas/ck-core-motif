@@ -20871,6 +20871,11 @@ Guard MWM title-text rectangle inputs (2026-10-26)
 GetTextBox now returns without writing when its client record or output
 rectangle is null.
 
+Guard MWM frame exposure inputs (2026-10-26)
+--------------------------------------------
+FrameWindow now returns `FALSE`, while FrameExposureProc and BaseWinExposureProc
+no-op, when passed a null client record before touching frame windows or GCs.
+
 Reject impossible MWM title widths (2026-10-26)
 -----------------------------------------------
 GetFramePartInfo now rejects title and title-bar geometry when borders and
