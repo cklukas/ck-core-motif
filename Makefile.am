@@ -1189,3 +1189,6 @@ EXTRA_DIST += tests/automated/check-notebook-appearance.c \
 
 EXTRA_DIST += tests/automated/check-scrolled-window-fit.c \
               tests/automated/run-scrolled-window-fit.py docs/scrolled-window-fit.md
+
+EXTRA_DIST += tests/automated/check-tree-view-colors.c \
+              tests/automated/run-tree-view-colors.py docs/tree-view-colors.md

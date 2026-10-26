@@ -521,7 +521,16 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmTreeViewWidget old = (XmTreeViewWidget)old_widget;
     XmTreeViewWidget view = (XmTreeViewWidget)widget;
+    Boolean colors_changed = old->primitive.foreground != view->primitive.foreground ||
+                             old->core.background_pixel != view->core.background_pixel;
     (void)request; (void)args; (void)count;
+    if (colors_changed && view->tree_view.gc) {
+        XGCValues values;
+        values.foreground = view->primitive.foreground;
+        values.background = view->core.background_pixel;
+        XChangeGC(XtDisplay(widget), view->tree_view.gc,
+                  GCForeground | GCBackground, &values);
+    }
     if (!view->tree_view.row_height)
         view->tree_view.row_height = 1;
     if (view->tree_view.visible_rows == 0)
@@ -539,7 +548,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
             view->tree_view.render_table = old->tree_view.render_table;
         }
     }
-    return old->tree_view.indent != view->tree_view.indent ||
+    return colors_changed ||
+           old->tree_view.indent != view->tree_view.indent ||
            old->tree_view.row_height != view->tree_view.row_height ||
            old->tree_view.visible_rows != view->tree_view.visible_rows ||
            old->tree_view.top_row != view->tree_view.top_row ||

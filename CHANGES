@@ -1,3 +1,13 @@
+Refresh TreeView drawing colors after resource changes (2026-10-26)
+================================================================
+
+- Update the private drawing context and repaint when foreground or background
+  changes. This fixes stale text/disclosure/selection colors after appearance
+  initialization and live theme changes, including black text on dark surfaces.
+- Native GC/pixel regression passes four initial profiles, live transitions and
+  explicit palettes with Xft/SVG and core-font/non-SVG development builds.
+  Verified the actual gallery's dark navigation. See docs/tree-view-colors.md.
+
 Stabilize as-needed scroller fit boundaries (2026-10-26)
 ================================================================
 
