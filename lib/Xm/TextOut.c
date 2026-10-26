@@ -1253,6 +1253,7 @@ XYToPos(XmTextWidget tw,
   int num_bytes = 0;
   LineNum line = 0;
   XmTextPosition start, end, laststart;
+  XmTextPosition next_start;
   XmTextBlockRec block;
   int delta = 0;
   
@@ -1307,8 +1308,12 @@ XYToPos(XmTextWidget tw,
   
     do {
       laststart = start;
-      start = (*tw->text.source->ReadSource)(tw->text.source, start,
-					       end, &block);
+      next_start = (*tw->text.source->ReadSource)(tw->text.source, start,
+						       end, &block);
+      if (next_start <= start || block.length < 0 ||
+		  (block.length > 0 && block.ptr == NULL))
+	return start;
+      start = next_start;
       length = block.length;
       if ((int)tw->text.char_size > 1) {
 	for (i = num_chars = 0, num_bytes = mblen(block.ptr, 
@@ -1361,8 +1366,12 @@ XYToPos(XmTextWidget tw,
   
   do {
     laststart = start;
-    start = (*tw->text.source->ReadSource)(tw->text.source, start,
-					       end, &block);
+    next_start = (*tw->text.source->ReadSource)(tw->text.source, start,
+						       end, &block);
+    if (next_start <= start || block.length < 0 ||
+		(block.length > 0 && block.ptr == NULL))
+	return start;
+    start = next_start;
     length = block.length;
     if ((int)tw->text.char_size > 1) {
       for (i = num_chars = 0,
