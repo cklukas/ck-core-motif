@@ -15359,3 +15359,11 @@ Validate DragBS property offsets (2026-10-27)
 - Add a focused source regression and documentation.
 
 Bound DnD buffer reads (2026-10-27)
+Keep DnD read counts representable (2026-10-27)
+=================================================
+
+- Cap `_XmReadDragBuffer` copies at the ABI's `CARD16` return range so the
+  returned count cannot wrap after a larger copy.
+- Add a focused source regression and documentation.
+
+Validate DragBS property offsets (2026-10-27)

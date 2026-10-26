@@ -671,6 +671,8 @@ _XmReadDragBuffer(
     copy_size = (size_t)size;
     if (numCurr > buf->size || copy_size > buf->size - numCurr)
 	copy_size = numCurr < buf->size ? buf->size - numCurr : 0;
+    if (copy_size > UINT16_MAX)
+	copy_size = UINT16_MAX;
     memcpy(ptr, buf->curr, copy_size);
     buf->curr += copy_size;
     return (CARD16)copy_size;
