@@ -1,3 +1,11 @@
+Bound I18List column geometry (2026-10-27)
+===========================================
+
+- Reset each column's measured width, clamp it to the legacy `short` storage
+  range, and saturate horizontal scrollbar accumulation before narrowing to
+  `int`.
+- Add focused regression coverage and documentation.
+
 Bound I18List visible-size arithmetic (2026-10-27)
 ===================================================
 

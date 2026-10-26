@@ -2352,7 +2352,8 @@ CalcColumnInfo(Widget w, Boolean force)
 	XmI18List_column_widths(ilist) = new_column_widths;
     }
 
-    for (i = 0 ; i < num_cols; i++) {
+	for (i = 0 ; i < num_cols; i++) {
+	    max_width = 0;
 	if (XmI18List_column_titles(ilist) != NULL)
 	{
 	    ptr = XmI18List_column_titles(ilist)[i];
@@ -2387,7 +2388,9 @@ CalcColumnInfo(Widget w, Boolean force)
 	    }
 	}
 
-	XmI18List_column_widths(ilist)[i] = max_width;
+	if (max_width > SHRT_MAX)
+	    max_width = SHRT_MAX;
+	XmI18List_column_widths(ilist)[i] = (short)max_width;
     }
     XmI18List_row_height(ilist) = max_height;
     if (XmI18List_num_columns(ilist) && XmI18List_column_titles(ilist)) /* CR03506 */
@@ -2410,17 +2413,24 @@ ResizeSliders(Widget w)
     Arg args[5];
     Cardinal num_args=0;
     register int i, height, max_width, rows_per_screen;
+    int64_t total_width;
     register int slide_pos, slide_size, col_width=0, min=0;
 
     /*
      * Get maximum width of data to display
      */
-    max_width = HORIZONTAL_SPACE;
+    total_width = HORIZONTAL_SPACE;
     for (i=0; i < XmI18List_num_columns(ilist); i++) {
         if (XmI18List_column_widths(ilist)[i] > col_width)
             col_width = XmI18List_column_widths(ilist)[i];
-        max_width += XmI18List_column_widths(ilist)[i] + HORIZONTAL_SPACE;
+        if (total_width > INT_MAX -
+            (int64_t)XmI18List_column_widths(ilist)[i] - HORIZONTAL_SPACE)
+            total_width = INT_MAX;
+        else
+            total_width += XmI18List_column_widths(ilist)[i] +
+                HORIZONTAL_SPACE;
     }
+    max_width = (int)total_width;
 
     if (((col_width + HORIZONTAL_SPACE) != 0) &&
 	(XmI18List_h_bar(ilist) != NULL)) 
