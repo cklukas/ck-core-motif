@@ -5,8 +5,8 @@ from pathlib import Path
 
 source = Path(__file__).parents[2] / "lib" / "Xm" / "XmTabList.c"
 text = source.read_text()
-start = text.index("void\nXmTabListFree")
-end = text.index("Cardinal\nXmTabListTabCount", start)
+start = text.index("TabListFreeUnlocked(XmTabList")
+end = text.index("void\nXmTabListFree", start)
 block = text[start:end]
 
 if "_XmTabLCount(tablist) == 0" not in block:

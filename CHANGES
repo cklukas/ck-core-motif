@@ -18100,6 +18100,14 @@ Refresh tab-list offset regression check (2026-10-27)
 Refresh tab-list rollback regression check (2026-10-27)
 =======================================================
 
+Refresh empty tab-list regression check (2026-10-27)
+====================================================
+
+- Inspect the unlocked free helper directly so the empty-list guard and
+  record cleanup are checked where they execute.
+
+====================================================
+
 - Check the internal copy routine's partial-list cleanup directly, including
   the helper used to release a later-tab allocation failure.
 
