@@ -20036,6 +20036,14 @@ Bound TextField redisplay geometry (2026-10-26)
 - Prevent large `Dimension` arithmetic from bypassing the empty-content guard.
 - Add focused regression coverage and documentation.
 
+Bound TextField AdjustText geometry (2026-10-26)
+==================================================
+
+- Widen margin and shadow/highlight thickness arithmetic during cursor
+  visibility adjustment and handle widgets with no usable content width.
+- Check fill geometry before narrowing it to X11 dimensions.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 

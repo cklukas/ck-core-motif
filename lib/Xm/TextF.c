@@ -2534,12 +2534,15 @@ AdjustText(XmTextFieldWidget tf,
 {
   int left_edge = 0;
   int diff;
-  Dimension margin_width = TextF_MarginWidth(tf) +
-    tf->primitive.shadow_thickness +
-      tf->primitive.highlight_thickness;
-  Dimension thickness    = 2 * (tf->primitive.shadow_thickness +
-				tf->primitive.highlight_thickness);
+  uint64_t margin_width = (uint64_t)TextF_MarginWidth(tf) +
+    (uint64_t)tf->primitive.shadow_thickness +
+    (uint64_t)tf->primitive.highlight_thickness;
+  uint64_t thickness = 2 * ((uint64_t)tf->primitive.shadow_thickness +
+                            (uint64_t)tf->primitive.highlight_thickness);
   Dimension temp;
+
+  if (margin_width >= (uint64_t)tf->core.width)
+    return False;
   
   
 #if USE_XFT
@@ -2578,7 +2581,7 @@ AdjustText(XmTextFieldWidget tf,
     }
   }
       
-  if ((diff = left_edge - margin_width) < 0) {
+  if ((diff = left_edge - (int)margin_width) < 0) {
     /* We need to scroll the string to the right. */
     if (!XtIsRealized((Widget)tf)) {
       tf->text.h_offset -= diff;
@@ -2588,10 +2591,10 @@ AdjustText(XmTextFieldWidget tf,
     tf->text.h_offset -= diff;
     SetInvGC(tf, tf->text.gc);
     SetFullGC(tf, tf->text.gc);
-    if (tf->core.height <= thickness)
+    if ((uint64_t)tf->core.height <= thickness)
       temp = 0;
     else
-      temp = tf->core.height - thickness;
+      temp = (Dimension)((uint64_t)tf->core.height - thickness);
     XFillRectangle(XtDisplay(tf), XtWindow(tf), tf->text.gc,
 		   tf->primitive.shadow_thickness +
 		   tf->primitive.highlight_thickness,
@@ -2619,7 +2622,7 @@ AdjustText(XmTextFieldWidget tf,
     else
       temp = tf->core.width - thickness;
     XFillRectangle(XtDisplay(tf), XtWindow(tf), tf->text.gc,
-		   tf->core.width - margin_width,
+		      (int)((uint64_t)tf->core.width - margin_width),
 		   tf->primitive.shadow_thickness +
 		   tf->primitive.highlight_thickness,
 		   TextF_MarginWidth(tf),
