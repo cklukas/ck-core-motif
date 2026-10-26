@@ -15478,3 +15478,11 @@ Bound drop-transfer entry work arrays (2026-10-27)
 - Add a focused source regression and documentation.
 
 Bound drop-transfer list additions (2026-10-27)
+Preserve motion-buffer growth ownership (2026-10-27)
+=====================================================
+
+- Propagate heap-buffer promotion and reallocation back to the drag motion
+  loop instead of retaining the exhausted stack buffer.
+- Add a focused source regression and documentation.
+
+Bound drop-transfer entry work arrays (2026-10-27)

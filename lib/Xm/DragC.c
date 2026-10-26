@@ -236,7 +236,7 @@ static void DragStartWithTracking(
                         XmDragContext dc) ;
 static void UpdateMotionBuffer( 
 			XmDragContext dc,
-                        MotionBuffer mb,
+			MotionBuffer *mbp,
                         XEvent *event) ;
 static void DragMotionProto( 
                         XmDragContext dc,
@@ -2464,9 +2464,10 @@ DragStartWithTracking(
 static void 
 UpdateMotionBuffer(
 	XmDragContext dc,
-        MotionBuffer mb,
+        MotionBuffer *mbp,
 	XEvent	     *event)
 {
+    MotionBuffer mb = *mbp;
     Time time ;
     unsigned int state;
     Window window, subwindow;
@@ -2550,6 +2551,7 @@ UpdateMotionBuffer(
       default:
 	break;
     }
+    *mbp = mb;
 }
    
 
@@ -2729,7 +2731,7 @@ DragMotion(
 
     stackBuffer.count = 0;
     stackBuffer.currReceiverInfo = dc->drag.currReceiverInfo;
-    UpdateMotionBuffer(dc, motionBuffer,event);
+    UpdateMotionBuffer(dc, &motionBuffer,event);
 
     /* 
      * We need to process all outstanding events of interest
@@ -2748,7 +2750,7 @@ DragMotion(
 	if (!grabEvent) {
 	    if (dc->drag.trackingMode != XmDRAG_TRACK_MOTION)
 	      event->xmotion.subwindow = event->xmotion.window;
-	    UpdateMotionBuffer(dc, motionBuffer, event);
+	    UpdateMotionBuffer(dc, &motionBuffer, event);
 	}
 	else
 	  XPutBackEvent(XtDisplay(dc), event);
