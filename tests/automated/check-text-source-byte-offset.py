@@ -9,8 +9,11 @@ assert "position < 0" in helper
 assert "(size_t)position > SIZE_MAX / unit" in helper
 set_region = source[source.index("_XmStringSourceSetGappedBuffer"):source.index("/* The only caller", source.index("_XmStringSourceSetGappedBuffer"))]
 read_region = source[source.index("_XmStringSourceReadString"):source.index("/* Caller wants block", source.index("_XmStringSourceReadString"))]
+get_region = source[source.index("_XmStringSourceGetChar"):source.index("/* Inspect one native source character", source.index("_XmStringSourceGetChar"))]
 assert "TextSourceByteOffset(data, position, char_size" in set_region
 assert "size_t count, byte_position" in set_region
 assert "TextSourceByteOffset(data, (XmTextPosition)start, unit" in read_region
 assert "int byte_start" not in read_region
+assert "TextSourceByteOffset(data, position, unit" in get_region
+assert "register XmTextPosition char_pos" not in get_region
 print("PASS Text source byte offsets are checked and widened")

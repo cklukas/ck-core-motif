@@ -461,37 +461,29 @@ _XmStringSourceGetChar(XmSourceData data,
 		       XmTextPosition position)       /* starting position */
 {
   /* gap_size is the number of character in the gap, not number of bytes */
-  register int gap_size;
-  register XmTextPosition char_pos;
-  XmTextWidget tw = (XmTextWidget) data->widgets[0];
-  int char_size;
-  
-  if (tw->text.char_size > 1) {
-    if (tw->text.char_size == 2)
-      char_size = 2;
-    else
-      char_size = sizeof(wchar_t);
-    char_pos = position * char_size;
-    
-    /* regardless of what it contains, data->ptr is treated as a char * ptr */
-    if (data->ptr + char_pos < data->gap_start)
-      return (&data->ptr[char_pos]);
-    
-    gap_size = (data->gap_end - data->gap_start) / char_size;
-    if (position + gap_size >= data->maxlength)
-      return ("");
-    return (&data->ptr[(position + gap_size) * char_size]);
-  } else {
-    char_pos = position;
-    /* regardless of what it contains, data->ptr is treated as a char * ptr */
-    if (data->ptr + char_pos < data->gap_start)
-      return (&data->ptr[char_pos]);
-    
-    gap_size = (data->gap_end - data->gap_start);
-    if (char_pos + gap_size >= data->maxlength)
-      return ("");
-    return (&data->ptr[(char_pos + gap_size)]);
-  }
+  size_t gap_size, byte_position, unit, logical_position;
+  XmTextWidget tw;
+
+  if (data == NULL || data->widgets == NULL || data->numwidgets < 1)
+    return ("");
+  tw = (XmTextWidget) data->widgets[0];
+  unit = tw->text.char_size < 3 ? (size_t)tw->text.char_size :
+						 sizeof(wchar_t);
+  if (!TextSourceByteOffset(data, position, unit, &byte_position))
+    return ("");
+
+  /* Regardless of its representation, source storage is byte-addressed. */
+  if (data->ptr + byte_position < data->gap_start)
+    return (&data->ptr[byte_position]);
+
+  gap_size = (size_t)(data->gap_end - data->gap_start) / unit;
+  if ((size_t)position > SIZE_MAX - gap_size)
+    return ("");
+  logical_position = (size_t)position + gap_size;
+  if (logical_position >= (size_t)data->maxlength ||
+      logical_position > SIZE_MAX / unit)
+    return ("");
+  return (&data->ptr[logical_position * unit]);
 }
 
 /* Inspect one native source character without flattening or moving its gap.
