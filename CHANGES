@@ -20968,6 +20968,12 @@ Bound MWM cached-label bitmap lookup (2026-10-26)
 MakeCachedLabelPixmap now rejects missing screen/widget inputs and indices
 outside the populated bitmap cache before indexing the cache array.
 
+Guard MWM named-icon fallback inputs (2026-10-26)
+-------------------------------------------------
+MakeNamedIconPixmap now rejects a null client record and only attempts named
+pixmap lookup when the client has a screen record; otherwise it safely uses the
+existing default-icon path.
+
 Reject impossible MWM title widths (2026-10-26)
 -----------------------------------------------
 GetFramePartInfo now rejects title and title-bar geometry when borders and

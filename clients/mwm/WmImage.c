@@ -250,7 +250,10 @@ Pixmap MakeNamedIconPixmap (ClientData *pCD, String iconName)
   int depth;
 
 
-  if (iconName)
+  if (pCD == NULL)
+	return ((Pixmap)NULL);
+
+  if (iconName && pCD->pSD != NULL)
     {
       pixmap = GetNamedPixmap (ScreenOfDisplay(DISPLAY, pCD->pSD->screen),
 			       iconName,
