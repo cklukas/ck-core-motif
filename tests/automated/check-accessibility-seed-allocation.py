@@ -8,5 +8,6 @@ start = text.index("static void seed_connected_tree(")
 end = text.index("\nstatic ", start + 1)
 region = text[start:end]
 assert "ids = (XmAccessibleId *)XtMalloc" in region
+assert "count > SIZE_MAX / sizeof(*ids)" in region
 assert "if (!ids) goto done;" in region
 print("accessibility tree seeding guards snapshot allocation")

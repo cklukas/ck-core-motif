@@ -9,6 +9,7 @@ end = text.index("\n  if (!strcmp(path, ROOT))", start)
 region = text[start:end]
 assert "(XmAccessibleId *)XtMalloc" in region
 assert "ids = count ?" in region
+assert "count > SIZE_MAX / sizeof(*ids)" in region
 assert "if (count != 0 && !ids)" in region
 assert "if (count != 0 && !ids)" in region
 assert "org.freedesktop.DBus.Error.NoMemory" in region

@@ -18417,3 +18417,13 @@ Refresh Xm hash-index regression check (2026-10-27)
 
 =====================================================
 
+Accessibility D-Bus snapshot size bounds (2026-10-27)
+=====================================================
+
+- Check accessibility cache and initial tree-seeding ID counts against both
+  `size_t` and Xt's `Cardinal` width before multiplication.
+- Extend the existing accessibility snapshot documentation and regression
+  coverage without changing valid-tree behavior.
+
+============================================================
+

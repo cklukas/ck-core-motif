@@ -694,7 +694,8 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
     }
     /* Snapshot identities before provider callbacks, which may remove nodes. */
     for (node = a->nodes; node; node = node->next) ++count;
-    if (count > UINT_MAX / sizeof(*ids)) {
+    if (count > SIZE_MAX / sizeof(*ids) ||
+        count > UINT_MAX / sizeof(*ids)) {
       error_reply(t, call, DBUS_ERROR_LIMITS_EXCEEDED, "Accessible tree is too large");
       return DBUS_HANDLER_RESULT_HANDLED;
     }
@@ -1467,7 +1468,8 @@ static void seed_connected_tree(Transport *t) {
   size_t count = 0, k;
   ++a->dispatch_depth;
   for (node = a->nodes; node; node = node->next) ++count;
-  if (count > UINT_MAX / sizeof(*ids)) goto done;
+  if (count > SIZE_MAX / sizeof(*ids) ||
+      count > UINT_MAX / sizeof(*ids)) goto done;
   ids = (XmAccessibleId *)XtMalloc((Cardinal)(count * sizeof(*ids)));
   if (!ids) goto done;
   for (node = a->nodes, k = 0; node; node = node->next) ids[k++] = node->id;

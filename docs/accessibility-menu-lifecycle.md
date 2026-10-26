@@ -4,10 +4,10 @@ nav_exclude: true
 # Accessibility menu snapshots
 
 Accessibility menu notifications snapshot child IDs before invoking providers
-or transport callbacks. The snapshot allocation now checks the `Cardinal`
-child count against `size_t` before multiplying by the ID size, preventing a
-wrapped allocation on platforms where those widths differ. The accepted byte
-count is passed explicitly as an Xt `Cardinal`.
+or transport callbacks. The snapshot allocation checks the child count against
+both `size_t` and Xt's `Cardinal` width before multiplying by the ID size,
+preventing a wrapped allocation on platforms where those widths differ. The
+accepted byte count is passed explicitly as an Xt `Cardinal`.
 
 
 The snapshot allocation is also checked for failure before callback dispatch,
@@ -16,7 +16,8 @@ null dereference. The source regression is
 `tests/automated/check-accessibility-menu-snapshot-allocation.py`.
 
 
-The AT-SPI cache `GetItems` snapshot also reports a D-Bus `NoMemory` error
+The AT-SPI cache `GetItems` and initial tree-seeding snapshots also reject
+unrepresentable count arithmetic. `GetItems` reports a D-Bus `NoMemory` error
 when its ID array cannot be allocated, rather than dereferencing a null
 buffer. The source regression is
 `tests/automated/check-accessibility-cache-snapshot-allocation.py`.
