@@ -161,7 +161,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (XmDirectionMatchPartial(direction, XmRIGHT_TO_LEFT,
                                 XmHORIZONTAL_MASK)) {
         x = (int)label->core.width - 6;
-        if (value) {
+        if (value && label->icon_label.render_table) {
             x -= (int)value_width;
             XmStringDraw(display, window, label->icon_label.render_table, value,
                          label->icon_label.foreground_gc, x, y, value_width,
@@ -182,7 +182,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                       (int)icon_height) / 2);
             x += (int)icon_width + (int)label->icon_label.spacing;
         }
-        if (value)
+        if (value && label->icon_label.render_table)
             XmStringDraw(display, window, label->icon_label.render_table, value,
                          label->icon_label.foreground_gc, x, y, value_width,
                          XmALIGNMENT_BEGINNING, XmPrim_layout_direction(label), NULL);
@@ -194,18 +194,29 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmIconLabelWidget old = (XmIconLabelWidget)old_widget;
     XmIconLabelWidget label = (XmIconLabelWidget)widget;
     Boolean render_changed = old->icon_label.render_table != label->icon_label.render_table;
+    Boolean label_changed = old->icon_label.label != label->icon_label.label;
     (void)request; (void)args; (void)count;
-    if (old->icon_label.label != label->icon_label.label)
-        label->icon_label.label = copy_label(label->icon_label.label);
+    if (label_changed) {
+        XmString replacement = copy_label(label->icon_label.label);
+        if (replacement)
+            label->icon_label.label = replacement;
+        else
+            label->icon_label.label = old->icon_label.label;
+    }
     if (render_changed) {
         XmFontList replacement = label->icon_label.render_table
             ? XmFontListCopy(label->icon_label.render_table)
             : XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
-        if (old->icon_label.render_table)
-            XmRenderTableFree(old->icon_label.render_table);
-        label->icon_label.render_table = replacement;
+        if (replacement) {
+            if (old->icon_label.render_table)
+                XmRenderTableFree(old->icon_label.render_table);
+            label->icon_label.render_table = replacement;
+        } else {
+            label->icon_label.render_table = old->icon_label.render_table;
+            render_changed = False;
+        }
     }
-    return old->icon_label.label != label->icon_label.label ||
+    return (label_changed && label->icon_label.label != old->icon_label.label) ||
            old->icon_label.pixmap != label->icon_label.pixmap ||
            old->icon_label.spacing != label->icon_label.spacing || render_changed;
 }

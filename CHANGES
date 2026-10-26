@@ -17003,3 +17003,13 @@ Make Avatar resource updates transactional (2026-10-27)
 ====================================================
 
 Refresh DataGrid render-table regression contracts (2026-10-27)
+Guard IconLabel resource replacements and drawing (2026-10-27)
+===============================================================
+
+- Avoid `XmStringDraw` with a missing render table and preserve existing label
+  and render-table resources when `SetValues` copies fail.
+- Add focused regression coverage and documentation.
+
+====================================================
+
+Make Avatar resource updates transactional (2026-10-27)
