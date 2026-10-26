@@ -1232,10 +1232,15 @@ void GetTextBox (ClientData *pcd, XRectangle *pBox)
 void DrawWindowTitle (ClientData *pcd, Boolean eraseFirst)
 {
     GC clientGC;
-    unsigned long decoration = pcd->decor;
+    unsigned long decoration;
     XRectangle textBox;
     Window win;
     XmFontList  fontList;
+
+    if (pcd == NULL)
+	return;
+
+    decoration = pcd->decor;
 
     /* make sure there is a title bar first */
     if (!(decoration & MWM_DECOR_TITLE))

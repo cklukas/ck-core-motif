@@ -20909,6 +20909,11 @@ CountFrameRectangles and InitClientDecoration now ignore null screen records,
 and AllocateFrameDisplayLists returns `FALSE` for a null client record before
 reading appearance or decoration state.
 
+Guard MWM title drawing inputs (2026-10-26)
+--------------------------------------------
+DrawWindowTitle now returns before reading decoration state when called with a
+null client record.
+
 Reject impossible MWM title widths (2026-10-26)
 -----------------------------------------------
 GetFramePartInfo now rejects title and title-bar geometry when borders and
