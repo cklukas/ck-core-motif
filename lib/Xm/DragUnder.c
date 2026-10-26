@@ -116,6 +116,8 @@ CreateAnimationSaveData(
 
     aSaveData = (XmAnimationSaveData)
 	XtMalloc (sizeof (XmAnimationSaveDataRec));
+    if (aSaveData == NULL)
+	return NULL;
 
     aSaveData->dragOver = aData->dragOver;
     aSaveData->display = XtDisplay (dc);
@@ -835,6 +837,8 @@ AnimateEnter(
 
     aSaveData = CreateAnimationSaveData ((XmDragContext) dc, aData, dpcb);
     *((XtPointer *) aData->saveAddr) = (XtPointer) aSaveData;
+    if (aSaveData == NULL)
+	return;
 
     /* Show the visual */
     AnimateExpose(dswidget, aSaveData, NULL, &dummy);

@@ -16743,3 +16743,12 @@ Guard DataField picture initialization (2026-10-27)
 - Add a focused source regression and documentation.
 
 ====================================================
+
+Guard DragUnder animation allocation (2026-10-27)
+=================================================
+
+- Check drag-under save-state allocation and stop `AnimateEnter` before any
+  null animation state is used.
+- Add a focused source regression and documentation.
+
+====================================================
