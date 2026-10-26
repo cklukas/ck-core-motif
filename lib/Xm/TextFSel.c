@@ -222,7 +222,7 @@ InsertSelection(
   Atom UTF8_STRING = XInternAtom(XtDisplay(w), XmSUTF8_STRING, False);
   char * total_value = NULL;
   XmAnyCallbackStruct cb;
-  
+
   if (!value) {
     insert_select->done_status = True;
     return;
@@ -361,7 +361,7 @@ HandleInsertTargets(
 
   _XmInsertSelect *insert_select = (_XmInsertSelect *) closure;
   Atom atoms[XtNumber(atom_names)];
-  Atom CS_OF_ENCODING = XmeGetEncodingAtom(w);
+  Atom CS_OF_ENCODING;
   Atom target;
   Atom *atom_ptr;
   Boolean supports_encoding_data = False;
@@ -440,7 +440,7 @@ _XmTextFieldConvert(
 
   XmTextFieldWidget tf;
   Atom atoms[XtNumber(atom_names)];
-  Atom CS_OF_ENCODING = XmeGetEncodingAtom(w);
+  Atom CS_OF_ENCODING;
   XSelectionRequestEvent * req_event = (XSelectionRequestEvent *) event;
   Boolean has_selection = False;
   XmTextPosition left = 0;
@@ -455,6 +455,11 @@ _XmTextFieldConvert(
   int ret_status = 0;
   Time _time;
   XmAnyCallbackStruct cb;
+
+  if (w == NULL || selection == NULL || *selection == None ||
+      type == NULL || value == NULL || length == NULL || format == NULL)
+    return False;
+  CS_OF_ENCODING = XmeGetEncodingAtom(w);
   
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);

@@ -468,7 +468,9 @@ _XmTextConvert(
   char * tmp_value;
   Time _time;
   
-  if (w == NULL) return False;
+  if (w == NULL || selection == NULL || *selection == None ||
+      type == NULL || value == NULL || length == NULL || format == NULL)
+    return False;
   
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);

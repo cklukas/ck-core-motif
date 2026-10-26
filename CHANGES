@@ -22473,3 +22473,12 @@ Guard Text selection-loss callbacks (2026-10-26)
 - Add focused coverage and documentation for teardown-time callbacks.
 
 Validate DnD transfer callback inputs (2026-10-26)
+Validate Text selection converter inputs (2026-10-26)
+======================================================
+
+- Reject incomplete Text and TextField conversion callback arguments before
+  selection or display access.
+- Delay TextField encoding lookup until after widget validation; add focused
+  coverage and documentation.
+
+Guard Text selection-loss callbacks (2026-10-26)
