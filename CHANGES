@@ -1,3 +1,11 @@
+Refresh Xm pixmap hotspot output check (2026-10-27)
+====================================================
+
+- Keep the focused regression check aligned with the current ImageCache
+  helper boundary while retaining coverage for deterministic hotspot output.
+
+============================================================
+
 Refresh render-converter input regression check (2026-10-27)
 ============================================================
 
