@@ -21665,3 +21665,10 @@ Terminate MWM XA_STRING property copies (2026-10-26)
   failure without parsing an unbounded buffer.
 - Add focused regression coverage and documentation.
 
+Bound MWM title-property emptiness checks (2026-10-26)
+=======================================================
+
+- Use `XTextProperty.nitems` instead of `strlen` when deciding whether WM_NAME
+  and WM_ICON_NAME contain data.
+- Add focused regression coverage and documentation.
+

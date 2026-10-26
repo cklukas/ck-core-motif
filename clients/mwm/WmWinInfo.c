@@ -2313,7 +2313,8 @@ WmICCCMToXmString (XTextProperty *wmNameProp)
   XmStringTable xmsTable;
   int i, nStrings = -1;
 
-  if (wmNameProp->value == 0 || strlen((char *)wmNameProp->value) == 0)
+  if (wmNameProp == NULL || wmNameProp->value == 0 ||
+      wmNameProp->nitems == 0)
     {
       return (XmString)NULL;
     }
