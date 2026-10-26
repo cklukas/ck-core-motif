@@ -97,6 +97,13 @@ Guard MWM colormap and menu getters (2026-10-26)
   record is supplied.
 - Add focused regression coverage and document the behavior.
 
+Guard MWM initial-property helpers (2026-10-26)
+================================================
+
+- Safely handle missing client records while capturing, discarding, or testing
+  initial WSM property lists.
+- Add focused regression coverage and document the null-input contract.
+
 Guard MWM binding token boundaries (2026-10-26)
 ===============================================
 

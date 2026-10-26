@@ -1998,6 +1998,9 @@ GetInitialPropertyList (ClientData *pCD)
     Atom *paList;
     int iProps;
 
+    if (pCD == NULL)
+	return;
+
     paList = XListProperties (DISPLAY, pCD->client, &iProps);
 
     if (paList)
@@ -2043,6 +2046,9 @@ GetInitialPropertyList (ClientData *pCD)
 void
 DiscardInitialPropertyList (ClientData *pCD)
 {
+    if (pCD == NULL)
+	return;
+
     if (pCD->paInitialProperties)
     {
 	/*
@@ -2091,6 +2097,9 @@ HasProperty (
     Boolean 	bFound = False;
     Atom  *	paList;
     int		count;
+
+    if (pCD == NULL)
+	return (False);
 
     paList = pCD->paInitialProperties;
 
