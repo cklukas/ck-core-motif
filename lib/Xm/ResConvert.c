@@ -2385,7 +2385,7 @@ CvtStringToCharSetTable(
   size_t strDataSize = 0;
   size_t tableSize;
   char * dataPtr;
-  int i;
+  unsigned int i;
   String work_str, cs_str, separator;
 
   if (from == NULL || from->addr == NULL || to == NULL)
@@ -2447,7 +2447,7 @@ CvtStringToCharSetTable(
   dataPtr = (char *) &charsetTable[numCharsets+1];
   strcpy(work_str, in_str);
 
-  for (i = 0, cs_str = work_str; i < (int)numCharsets; ++i)
+  for (i = 0, cs_str = work_str; i < numCharsets; ++i)
 	{
 	separator = strchr(cs_str, ',');
 	if (separator)

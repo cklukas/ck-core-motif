@@ -1,3 +1,13 @@
+Preserve charset-table entry-count width (2026-10-27)
+======================================================
+
+- Populate `XmRCharSetTable` entries with the existing unsigned count width,
+  avoiding a narrowing cast that could make a large representable table loop
+  incorrectly.
+- Add a focused source regression and documentation.
+
+======================================================
+
 Bound wide-string text-search conversion (2026-10-27)
 ======================================================
 
