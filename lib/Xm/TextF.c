@@ -7729,6 +7729,10 @@ InitializeTextStruct(XmTextFieldWidget tf)
   tf->text.highlight.number = tf->text.highlight.maximum = 1;
   tf->text.highlight.list = 
     (_XmHighlightRec *)XtMalloc((unsigned)sizeof(_XmHighlightRec));
+  if (tf->text.highlight.list == NULL) {
+    XtError("Unable to allocate TextField highlight storage");
+    return;
+  }
   tf->text.highlight.list[0].position = 0;
   tf->text.highlight.list[0].mode = XmHIGHLIGHT_NORMAL;
   
@@ -7775,6 +7779,10 @@ InitializeTextStruct(XmTextFieldWidget tf)
    * Initialize on the spot data in tf structure
    */
   tf->text.onthespot = (OnTheSpotData)XtMalloc(sizeof(OnTheSpotDataRec));
+  if (tf->text.onthespot == NULL) {
+    XtError("Unable to allocate TextField input-method storage");
+    return;
+  }
   tf->text.onthespot->start = tf->text.onthespot->end =
     tf->text.onthespot->cursor = 0;
   tf->text.onthespot->under_preedit = False;

@@ -22881,3 +22881,10 @@ Check TextField clear-selection allocation (2026-10-26)
   selection clearing and restore insertion-point painting.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-clear-selection.py
+
+Guard TextField initialization storage (2026-10-26)
+=====================================================
+- Check initial highlight and input-method state allocations before writing
+  widget initialization records.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-initial-storage.py
