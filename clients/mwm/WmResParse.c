@@ -333,9 +333,9 @@ static Boolean ParseImmed (unsigned char **linePP, unsigned int closure,
 			   unsigned int  *detail);
 static Boolean ParseKeySym (unsigned char **linePP, unsigned int closure,
 			    unsigned int *detail);
-static unsigned int StrToNum(unsigned char *str);
-static unsigned int StrToHex(unsigned char *str);
-static unsigned int StrToOct(unsigned char *str);
+static Boolean StrToNum(unsigned char *str, unsigned int *value);
+static Boolean StrToHex(unsigned char *str, unsigned int *value);
+static Boolean StrToOct(unsigned char *str, unsigned int *value);
 void ScanAlphanumeric (unsigned char **linePP);
 void ScanWhitespace(unsigned char  **linePP);
 void ToLower (unsigned char  *string);
@@ -4564,17 +4564,18 @@ static Boolean ParseWmFuncNbrArg (unsigned char **linePP,
 				  WmFunction wmFunction, 
 				  unsigned long *pNumber)
 {
-    int  val;
+    unsigned int val;
+    unsigned char *string;
 
-    val = StrToNum (GetString (linePP));
-    if (val == -1)
+    string = GetString (linePP);
+    if (string == NULL || !StrToNum (string, &val))
     {
         PWarning (((char *)GETMESSAGE(60, 20, "Invalid number specification")));
         *pNumber = 0;
         return (FALSE);
     }
 
-    *pNumber = val;
+    *pNumber = (unsigned long)val;
     return (TRUE);
 
 } /* END OF FUNCTION ParseWmFuncNbrArg */
@@ -6704,35 +6705,42 @@ static Boolean ParseKeySym (unsigned char **linePP, unsigned int closure,
  * 
  *************************************<->***********************************/
 
-static unsigned int StrToNum(unsigned char *str)
+static Boolean StrToNum(unsigned char *str, unsigned int *value)
 {
     unsigned char c;
     unsigned int  val = 0;
+
+    if (str == NULL || value == NULL)
+	return False;
 
     if (*str == '0')
     {
 	str++;
 	if (*str == 'x' || *str == 'X')
 	{
-	    return (StrToHex(++str));
+	    return (StrToHex(++str, value));
 	}
-	return (StrToOct(str));
+	return (StrToOct(str, value));
     }
 
     while ((c = *str) != '\0')
     {
 	if ('0' <= c && c <= '9')
 	{
-	    val = val*10+c-'0';
+	    unsigned int digit = (unsigned int)(c - '0');
+	    if (val > (UINT_MAX - digit) / 10U)
+		return False;
+	    val = val * 10U + digit;
 	}
 	else
 	{
-	    return (-1);
+	    return False;
 	}
 	str++;
     }
 
-    return (val);
+    *value = val;
+    return True;
 
 } /* END OF FUNCTION StrToNum */
 
@@ -6759,33 +6767,41 @@ static unsigned int StrToNum(unsigned char *str)
  * 
  *************************************<->***********************************/
 
-static unsigned int StrToHex(unsigned char *str)
+static Boolean StrToHex(unsigned char *str, unsigned int *value)
 {
     unsigned char c;
     unsigned int  val = 0;
 
+    if (str == NULL || value == NULL)
+	return False;
+
     while ((c = *str) != '\0')
     {
+	unsigned int digit;
 	if ('0' <= c && c <= '9')
 	{
-	    val = val*16+c-'0';
+	    digit = (unsigned int)(c - '0');
 	}
 	else if ('a' <= c && c <= 'f')
 	{
-	    val = val*16+c-'a'+10;
+	    digit = (unsigned int)(c - 'a' + 10);
 	}
 	else if ('A' <= c && c <= 'F')
 	{
-	    val = val*16+c-'A'+10;
+	    digit = (unsigned int)(c - 'A' + 10);
 	}
 	else
 	{
-	    return (-1);
+	    return False;
 	}
+	if (val > (UINT_MAX - digit) / 16U)
+	    return False;
+	val = val * 16U + digit;
 	str++;
     }
 
-    return (val);
+    *value = val;
+    return True;
 
 } /* END OF FUNCTION StrToHex */
 
@@ -6812,25 +6828,32 @@ static unsigned int StrToHex(unsigned char *str)
  * 
  *************************************<->***********************************/
 
-static unsigned int StrToOct(unsigned char *str)
+static Boolean StrToOct(unsigned char *str, unsigned int *value)
 {
     unsigned char c;
     unsigned int  val = 0;
+
+    if (str == NULL || value == NULL)
+	return False;
 
     while ((c = *str) != '\0')
     {
 	if ('0' <= c && c <= '7')
 	{
-	    val = val*8+c-'0';
+	    unsigned int digit = (unsigned int)(c - '0');
+	    if (val > (UINT_MAX - digit) / 8U)
+		return False;
+	    val = val * 8U + digit;
 	}
 	else
 	{
-	    return (-1);
+	    return False;
 	}
 	str++;
     }
 
-    return (val);
+    *value = val;
+    return True;
 
 } /* END OF FUNCTION StrToOct */
 

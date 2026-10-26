@@ -93,6 +93,13 @@ Bound MWM group argument lengths (2026-10-26)
   parser buffer, avoiding signed pointer-distance conversions.
 - Add a focused parser regression and document the bound.
 
+Check MWM numeric argument overflow (2026-10-26)
+================================================
+
+- Use explicit success outputs for decimal, hexadecimal, and octal parsing,
+  reject null arguments, and check accumulation before each base multiply.
+- Add a focused numeric-parser regression and document the contract.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 
