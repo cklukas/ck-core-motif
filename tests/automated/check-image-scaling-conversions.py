@@ -20,6 +20,18 @@ assert "(int)(unsigned char)pixel" in region
 assert "XtMalloc((Cardinal)image_bytes)" in region
 assert "table_x_bytes" in region
 assert "XtMalloc((Cardinal)table_x_bytes)" in region
+assert "(unsigned int)image->width" in source
+assert "(unsigned int)image->height" in source
+
+override_start = source.index("static int\nGetOverrideColors")
+override_end = source.index("\n\n\n#ifdef _ORIG_GET_ICON_FILE", override_start)
+override_region = source[override_start:override_end]
+assert "Cardinal i;" in override_region
+assert "int n;" in override_region
+assert "return n ;" in override_region
+
+assert "attrib.numsymbols = (unsigned int)num_override_colors;" in source
+assert "loc_depth = (unsigned int)depth ;" in source
 
 cache_start = source.index("CacheColorPixel(")
 cache_end = source.index("\n\nstatic int", cache_start)

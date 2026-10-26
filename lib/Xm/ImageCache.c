@@ -634,7 +634,8 @@ GetOverrideColors(
 		XmAccessColorData acc_color,
 		XpmColorSymbol *override_colors)
 {
-    Cardinal i, n ;
+	Cardinal i;
+	int n;
 
     if (screen == NULL || acc_color == NULL || override_colors == NULL)
 	return 0;
@@ -778,7 +779,7 @@ GetXpmImage(
 						 acc_color,
 						 override_colors)) != 0) {
 	attrib.colorsymbols = override_colors;
-	attrib.numsymbols = num_override_colors;
+	 attrib.numsymbols = (unsigned int)num_override_colors;
 	attrib.valuemask |= XpmColorSymbols;
     }
 
@@ -1332,7 +1333,7 @@ _XmCachePixmap(
    } else {
 	   loc_width = width ;
 	   loc_height = height ;
-	   loc_depth = depth ;
+	   loc_depth = (unsigned int)depth ;
        }
 
    /* PixmapData exposes X11 Dimension values; do not truncate a queried
@@ -1881,7 +1882,8 @@ _XmGetScaledPixmap(
 
     /* transfer and scale the image */
     _XmPutScaledImage (display, pixmap, gc, image, 
-		       0, 0, 0, 0, image->width, image->height,
+		       0, 0, 0, 0, (unsigned int)image->width,
+		       (unsigned int)image->height,
 		       pix_entry->width, pix_entry->height);
     if (caller_owns_gc)
 	XFreeGC(display, gc);

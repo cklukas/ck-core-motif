@@ -21747,3 +21747,10 @@ Remove redundant Xmos cache overflow check (2026-10-26)
   provably redundant `SIZE_MAX` comparison that triggered a strict warning.
 - Extend the cache-bound regression assertion and documentation.
 
+Make ImageCache API conversions explicit (2026-10-26)
+=====================================================
+
+- Keep validated image dimensions, depths, and color-symbol counts explicit
+  when crossing X11/Xt unsigned API boundaries.
+- Extend the image-scaling conversion regression and documentation.
+
