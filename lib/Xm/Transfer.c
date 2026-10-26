@@ -2513,7 +2513,7 @@ XmeStandardConvert(Widget w,
     XmRenderTable table;
     Arg args[1];
     char *value;
-    int size;
+    unsigned int size;
 
     table = (XmRenderTable) NULL;
     XtSetArg(args[0], XmNrenderTable, &table);

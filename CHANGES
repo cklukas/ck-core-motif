@@ -21903,3 +21903,10 @@ Make standard target allocation width explicit (2026-10-26)
   Xt `Cardinal`.
 - Add focused allocation-width regression coverage and documentation.
 
+Preserve standard render-table length width (2026-10-26)
+=========================================================
+
+- Keep `XmRenderTableCvtToProp`'s unsigned length type through standard
+  conversion instead of narrowing it to `int`.
+- Add focused regression documentation for the render-table target.
+
