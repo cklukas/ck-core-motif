@@ -13,5 +13,8 @@ Resize-corner spans use the same checked subtraction: when twice the corner
 size exceeds the frame dimension, the interior span is zero rather than a
 wrapped unsigned value.
 
+East and south edge placement also rejects frames smaller than the lower
+border, preventing wrapped edge coordinates.
+
 The source-contract regression is
 `tests/automated/check-mwm-title-width-bounds.py`.

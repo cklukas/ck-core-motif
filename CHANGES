@@ -20846,3 +20846,8 @@ Bound MWM resize-corner spans (2026-10-26)
 Resize geometry now clamps an impossible interior span to zero before the
 corner calculations, preventing unsigned subtraction from wrapping on tiny
 frames.
+
+Bound MWM resize edge positions (2026-10-26)
+---------------------------------------------
+East and south resize geometry now rejects frames narrower or shorter than
+their lower border before subtracting that border from the frame coordinate.

@@ -889,6 +889,9 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 	    
 	case FRAME_RESIZE_E:
 		if (decor & MWM_DECOR_RESIZEH) {
+		    if (pcd->frameInfo.lowerBorderWidth >
+			pcd->frameInfo.width)
+			break;
 		    *pX = pcd->frameInfo.width - 
 		            pcd->frameInfo.lowerBorderWidth;
 		    *pY = pcd->frameInfo.cornerHeight;
@@ -934,6 +937,9 @@ Boolean GetFramePartInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned 
 	    
 	case FRAME_RESIZE_S:
 		if (decor & MWM_DECOR_RESIZEH) {
+		    if (pcd->frameInfo.lowerBorderWidth >
+			pcd->frameInfo.height)
+			break;
 		    *pX = pcd->frameInfo.cornerWidth;
 		    *pY = pcd->frameInfo.height - 
 			    pcd->frameInfo.lowerBorderWidth;
