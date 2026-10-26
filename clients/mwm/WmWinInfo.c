@@ -204,6 +204,8 @@ GetClientInfo (WmScreenData *pSD, Window clientWindow, long manageFlags)
 
     pCD->clientClass = NULL;
     pCD->clientName = NULL;
+    pCD->clientTitle = NULL;
+    pCD->iconTitle = NULL;
     pCD->clientFrameWin = (Window)0L;
     for (i = 0; i < STRETCH_COUNT; i++)
 	pCD->clientStretchWin[i] = None;

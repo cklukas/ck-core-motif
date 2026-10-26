@@ -21438,3 +21438,8 @@ GetClientInfo now initializes clientBaseWin to None before frame construction,
 so cleanup and regeneration cannot mistake uninitialized storage for an X
 window.
 
+Initialize MWM client title handles (2026-10-26)
+-------------------------------------------------
+GetClientInfo now initializes clientTitle and iconTitle to NULL before
+property processing, making missing-title replacement and cleanup paths safe.
+
