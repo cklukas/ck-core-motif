@@ -173,6 +173,15 @@ Guard text cut-buffer context allocation (2026-10-27)
 - Leave setup retryable when storage is unavailable.
 - Add a focused source regression and documentation.
 
+Guard text secondary-resource allocation (2026-10-27)
+======================================================
+
+- Return an empty secondary-resource set when its two-entry table cannot be
+  allocated, instead of dereferencing a null pointer.
+- Clear the output pointer before attempting setup so callers never observe
+  stale data after an allocation failure.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 

@@ -699,9 +699,13 @@ GetSecResData(WidgetClass w_class,
 	      XmSecondaryResourceData **secResDataRtn)
 {
   XmSecondaryResourceData               *secResDataPtr;
+
+  *secResDataRtn = NULL;
   
   secResDataPtr = 
     (XmSecondaryResourceData *) XtMalloc(sizeof(XmSecondaryResourceData) * 2);
+  if (secResDataPtr == NULL)
+    return 0;
 
   _XmTextInputGetSecResData(&secResDataPtr[0]);
   _XmTextOutputGetSecResData(&secResDataPtr[1]);
