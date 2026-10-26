@@ -81,6 +81,10 @@ static	    int			lst_l_page_no;
 static	    char		lst_c_title1[132];
 static	    uil_fcb_type	*lst_az_fcb;
 static	     boolean		lst_v_listing_open = FALSE;
+static	    int		lst_debug_cur_pos;
+static	    char		lst_debug_buffer[132];
+
+static void lst_debug_flush(void);
 
 
 /*
@@ -144,6 +148,7 @@ void	lst_open_listing()
 
     lst_l_lines_left = 0;
     lst_l_page_no = 0;
+    lst_debug_cur_pos = 0;
     lst_v_listing_open = TRUE;
 
 	(void)snprintf(lst_c_title1, sizeof(lst_c_title1),
@@ -200,6 +205,9 @@ void	Uil_lst_cleanup_listing()
 
     if (!(lst_v_listing_open && Uil_cmd_z_command.v_listing_file))
 	return;
+
+    /* Complete a final debug fragment that did not end in a newline. */
+    lst_debug_flush();
 
     /*
     ** free fcb 
@@ -991,9 +999,6 @@ finished_scan:
 **--
 **/
 
-static	int	cur_pos=0;
-static	char	buffer[132];
-
 static void
 lst_debug_append(const char *text)
 {
@@ -1001,34 +1006,46 @@ lst_debug_append(const char *text)
 	{
 	    const char *newline = strchr(text, '\n');
 	    size_t line_length = newline ? (size_t)(newline - text) : strlen(text);
-	    size_t available = sizeof(buffer) - 1 - (size_t)cur_pos;
+	    size_t available = sizeof(lst_debug_buffer) - 1 -
+		(size_t)lst_debug_cur_pos;
 	    size_t copy_length = line_length < available ? line_length : available;
 
 	    if (copy_length != 0)
 		{
-		memcpy(&buffer[cur_pos], text, copy_length);
-		cur_pos += (int)copy_length;
+		memcpy(&lst_debug_buffer[lst_debug_cur_pos], text, copy_length);
+		lst_debug_cur_pos += (int)copy_length;
 		text += copy_length;
 		}
 
 	    if (copy_length < line_length)
 		{
-		buffer[cur_pos] = '\0';
-		lst_output_line(buffer, FALSE);
-		cur_pos = 0;
+		lst_debug_buffer[lst_debug_cur_pos] = '\0';
+		lst_output_line(lst_debug_buffer, FALSE);
+		lst_debug_cur_pos = 0;
 		continue;
 		}
 
 	    if (newline != NULL)
 		{
-		buffer[cur_pos] = '\0';
-		lst_output_line(buffer, FALSE);
-		cur_pos = 0;
+		lst_debug_buffer[lst_debug_cur_pos] = '\0';
+		lst_output_line(lst_debug_buffer, FALSE);
+		lst_debug_cur_pos = 0;
 		++text;
 		}
 	    else
 		break;
 	}
+}
+
+static void
+lst_debug_flush(void)
+{
+    if (lst_debug_cur_pos == 0)
+	return;
+
+    lst_debug_buffer[lst_debug_cur_pos] = '\0';
+    lst_output_line(lst_debug_buffer, FALSE);
+    lst_debug_cur_pos = 0;
 }
 
 void	lst_debug_output

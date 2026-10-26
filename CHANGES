@@ -1,3 +1,8 @@
+2026-10-27
+	* Flush the final partial UIL debug-listing line during cleanup and reset
+	  the bounded fragment buffer for each listing; see
+	  docs/uil-debug-fragment-flush.md.
+
 Bound ToggleButton default geometry (2026-10-27)
 ==================================================
 
